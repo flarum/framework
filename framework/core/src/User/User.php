@@ -178,8 +178,6 @@ class User extends AbstractModel
 
     /**
      * Set the avatar driver.
-     *
-     * @internal
      */
     public static function setAvatarDriver(AvatarDriver $driver): void
     {
