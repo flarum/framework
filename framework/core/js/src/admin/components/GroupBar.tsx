@@ -69,7 +69,7 @@ export default class GroupBar<CustomAttrs extends IGroupBarAttrs = IGroupBarAttr
       filter: '.Group--add',
       onMove: (evt) => !evt.related.classList.contains('Group--add'),
 
-      onSort: (e) => this.onSortUpdate(),
+      onSort: () => this.onSortUpdate(),
     });
   }
 
