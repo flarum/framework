@@ -14,7 +14,7 @@ export interface IGroupBarAttrs extends ComponentAttrs {
   groups: Group[];
 }
 
-export default abstract class GroupBar<CustomAttrs extends IGroupBarAttrs = IGroupBarAttrs> extends Component<CustomAttrs> {
+export default class GroupBar<CustomAttrs extends IGroupBarAttrs = IGroupBarAttrs> extends Component<CustomAttrs> {
   groups: Group[] = [];
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
