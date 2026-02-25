@@ -1101,7 +1101,7 @@ core:
     extensions: Extensions
     generic_confirmation_message: "Are you sure you want to proceed? This action cannot be undone."
     icon: Icon
-    icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
+    icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the prefix (e.g. <code>fas fa-flag</code> or <code>fa-solid fa-flag</code>)."
     invalid_login_message: Your login details were incorrect.
     light_hc_mode_label: Light High Contrast Mode
     light_mode_label: Light Mode
