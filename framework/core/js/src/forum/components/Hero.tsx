@@ -52,6 +52,11 @@ export default abstract class Hero<CustomAttrs extends IHeroAttrs = IHeroAttrs> 
     return undefined;
   }
 
+  /**
+   * Renders the hero component. This method constructs the root element with the
+   * appropriate class names and styles. It then calls `viewItems()` to render the
+   * content of the hero.
+   */
   view(): JSX.Element | null {
     return (
       <header className={classList('Hero', this.className())} style={this.style()}>
@@ -60,6 +65,21 @@ export default abstract class Hero<CustomAttrs extends IHeroAttrs = IHeroAttrs> 
     );
   }
 
+  /**
+   * Builds the list of items to be rendered within the hero's main container.
+   * By default, this method wraps the output of `bodyItems()` in a div with the class "container".
+   * Subclasses can override this method to customize the structure of the hero's content.
+   *
+   * @example
+   * ```tsx
+   * viewItems(): ItemList<Mithril.Children> {
+   *    const items = super.viewItems();
+   *
+   *    items.add('custom', <div className="containerNarrow">custom element</div>);
+   *
+   *    return items;
+   * }
+   */
   viewItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
