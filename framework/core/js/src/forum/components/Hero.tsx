@@ -54,7 +54,7 @@ export default abstract class Hero<CustomAttrs extends IHeroAttrs = IHeroAttrs> 
 
   view(): Mithril.Vnode | null {
     return (
-      <header className={classList('Hero', this.className())} style={this.style() ?? undefined}>
+      <header className={classList('Hero', this.className())} style={this.style()}>
         {this.viewItems().toArray()}
       </header>
     );
