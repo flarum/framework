@@ -60,6 +60,7 @@ core:
           label: Config Override
           help: FontAwesome settings are currently set in your config.php file and cannot be changed here.
         preview:
+          button: Preview Icons
           label: Icon Preview
           help: "Verify your FontAwesome setup. A rendered icon means that tier is available; a broken box means it is not loaded."
           fa5_fa6_label: "FA5/FA6 aliases"

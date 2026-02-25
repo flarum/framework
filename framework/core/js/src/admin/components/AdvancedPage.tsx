@@ -330,36 +330,6 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     const configCdnUrl = app.data.fontawesomeConfig?.cdn_url || this.setting('fontawesome_cdn_url')();
     const configKitUrl = app.data.fontawesomeConfig?.kit_url || this.setting('fontawesome_kit_url')();
 
-    // Icon preview groups. Each group tests a different compatibility tier.
-    // A working icon renders correctly; a broken box means that tier is not available.
-    const previewGroups: Array<{ label: string; icons: Array<{ cls: string; label: string }> }> = [
-      {
-        label: app.translator.trans('core.admin.advanced.fontawesome.preview.fa5_fa6_label') as string,
-        icons: [
-          { cls: 'fas fa-house', label: 'fas' },
-          { cls: 'far fa-envelope', label: 'far' },
-          { cls: 'fab fa-github', label: 'fab' },
-        ],
-      },
-      {
-        label: app.translator.trans('core.admin.advanced.fontawesome.preview.fa7_label') as string,
-        icons: [
-          { cls: 'fa-solid fa-house', label: 'fa-solid' },
-          { cls: 'fa-regular fa-envelope', label: 'fa-regular' },
-          { cls: 'fa-brands fa-github', label: 'fa-brands' },
-          { cls: 'fas fa-bus-side', label: 'fa-bus-side' },
-        ],
-      },
-      {
-        label: app.translator.trans('core.admin.advanced.fontawesome.preview.pro_label') as string,
-        icons: [
-          { cls: 'fal fa-house', label: 'Light' },
-          { cls: 'fat fa-house', label: 'Thin' },
-          { cls: 'fad fa-house', label: 'Duotone' },
-        ],
-      },
-    ];
-
     return (
       <FormSection label={app.translator.trans('core.admin.advanced.fontawesome.section_label')}>
         {app.data.fontawesomeByConfig ? (
@@ -407,30 +377,9 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
           </Form>
         )}
 
-        <div className="Form-group">
-          <label>{app.translator.trans('core.admin.advanced.fontawesome.preview.label')}</label>
-          <p className="helpText">{app.translator.trans('core.admin.advanced.fontawesome.preview.help')}</p>
-          <div className="FontAwesomePreview">
-            {previewGroups.map((group) => (
-              <div className="FontAwesomePreview-group">
-                <div className="FontAwesomePreview-groupHeader">
-                  <span className="FontAwesomePreview-groupLabel">{group.label}</span>
-                  <span className="FontAwesomePreview-groupDivider" />
-                </div>
-                <div className="FontAwesomePreview-icons">
-                  {group.icons.map((icon) => (
-                    <div className="FontAwesomePreview-tile" title={icon.cls}>
-                      <span className="FontAwesomePreview-icon">
-                        <i className={icon.cls} aria-hidden="true" />
-                      </span>
-                      <span className="FontAwesomePreview-iconLabel">{icon.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Button className="Button" icon="fas fa-icons" onclick={() => app.modal.show(() => import('./FontAwesomePreviewModal'))}>
+          {app.translator.trans('core.admin.advanced.fontawesome.preview.button')}
+        </Button>
       </FormSection>
     );
   }
