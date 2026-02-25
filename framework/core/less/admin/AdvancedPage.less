@@ -1,39 +1,78 @@
 .FontAwesomePreview {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .FontAwesomePreview-group {
+  background: var(--control-bg);
+  border-radius: var(--border-radius);
+  padding: 12px 14px;
+}
+
+.FontAwesomePreview-groupHeader {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .FontAwesomePreview-groupLabel {
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--muted-color);
-  width: 120px;
-  flex-shrink: 0;
+}
+
+.FontAwesomePreview-groupDivider {
+  flex: 1;
+  height: 1px;
+  background: var(--control-bg-shaded);
 }
 
 .FontAwesomePreview-icons {
   display: flex;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.FontAwesomePreview-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: default;
 }
 
 .FontAwesomePreview-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 44px;
+  height: 44px;
   border-radius: var(--border-radius);
   background: var(--body-bg);
-  border: 1px solid var(--control-bg);
-  font-size: 1rem;
-  cursor: default;
+  border: 1px solid var(--control-bg-shaded);
+  font-size: 1.25rem;
+  color: var(--text-color);
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px fade(var(--primary-color), 15%);
+  }
+}
+
+.FontAwesomePreview-iconLabel {
+  font-size: 10px;
+  color: var(--muted-color);
+  max-width: 60px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ExtensionBisectModal-extension {

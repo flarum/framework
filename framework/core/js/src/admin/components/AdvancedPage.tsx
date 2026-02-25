@@ -332,30 +332,30 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
 
     // Icon preview groups. Each group tests a different compatibility tier.
     // A working icon renders correctly; a broken box means that tier is not available.
-    const previewGroups: Array<{ label: string; icons: Array<{ cls: string; title: string }> }> = [
+    const previewGroups: Array<{ label: string; icons: Array<{ cls: string; label: string }> }> = [
       {
         label: app.translator.trans('core.admin.advanced.fontawesome.preview.fa5_fa6_label') as string,
         icons: [
-          { cls: 'fas fa-house', title: 'fas fa-house' },
-          { cls: 'far fa-envelope', title: 'far fa-envelope' },
-          { cls: 'fab fa-github', title: 'fab fa-github' },
+          { cls: 'fas fa-house', label: 'fas' },
+          { cls: 'far fa-envelope', label: 'far' },
+          { cls: 'fab fa-github', label: 'fab' },
         ],
       },
       {
         label: app.translator.trans('core.admin.advanced.fontawesome.preview.fa7_label') as string,
         icons: [
-          { cls: 'fa-solid fa-house', title: 'fa-solid fa-house' },
-          { cls: 'fa-regular fa-envelope', title: 'fa-regular fa-envelope' },
-          { cls: 'fa-brands fa-github', title: 'fa-brands fa-github' },
-          { cls: 'fas fa-bus-side', title: 'fas fa-bus-side (FA7 only)' },
+          { cls: 'fa-solid fa-house', label: 'fa-solid' },
+          { cls: 'fa-regular fa-envelope', label: 'fa-regular' },
+          { cls: 'fa-brands fa-github', label: 'fa-brands' },
+          { cls: 'fas fa-bus-side', label: 'fa-bus-side' },
         ],
       },
       {
         label: app.translator.trans('core.admin.advanced.fontawesome.preview.pro_label') as string,
         icons: [
-          { cls: 'fal fa-house', title: 'fal fa-house (Pro Light)' },
-          { cls: 'fat fa-house', title: 'fat fa-house (Pro Thin)' },
-          { cls: 'fad fa-house', title: 'fad fa-house (Pro Duotone)' },
+          { cls: 'fal fa-house', label: 'Light' },
+          { cls: 'fat fa-house', label: 'Thin' },
+          { cls: 'fad fa-house', label: 'Duotone' },
         ],
       },
     ];
@@ -413,14 +413,20 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
           <div className="FontAwesomePreview">
             {previewGroups.map((group) => (
               <div className="FontAwesomePreview-group">
-                <span className="FontAwesomePreview-groupLabel">{group.label}</span>
-                <span className="FontAwesomePreview-icons">
+                <div className="FontAwesomePreview-groupHeader">
+                  <span className="FontAwesomePreview-groupLabel">{group.label}</span>
+                  <span className="FontAwesomePreview-groupDivider" />
+                </div>
+                <div className="FontAwesomePreview-icons">
                   {group.icons.map((icon) => (
-                    <span className="FontAwesomePreview-icon" title={icon.title}>
-                      <i className={icon.cls} aria-hidden="true" />
-                    </span>
+                    <div className="FontAwesomePreview-tile" title={icon.cls}>
+                      <span className="FontAwesomePreview-icon">
+                        <i className={icon.cls} aria-hidden="true" />
+                      </span>
+                      <span className="FontAwesomePreview-iconLabel">{icon.label}</span>
+                    </div>
                   ))}
-                </span>
+                </div>
               </div>
             ))}
           </div>
