@@ -114,4 +114,23 @@ class OrderTest extends TestCase
         $this->assertSame(6, Group::findOrFail(6)->position);
         $this->assertSame(7, Group::findOrFail(7)->position);
     }
+
+    #[Test]
+    public function rejects_malformed_order()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/groups/order', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'order' => 'not-an-array',
+                ],
+            ])
+        );
+
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
+
+        $this->assertSame(5, Group::findOrFail(5)->position);
+        $this->assertSame(6, Group::findOrFail(6)->position);
+        $this->assertSame(7, Group::findOrFail(7)->position);
+    }
 }
