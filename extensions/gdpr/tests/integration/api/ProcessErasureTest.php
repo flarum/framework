@@ -10,6 +10,7 @@
 namespace Flarum\Gdpr\tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Gdpr\Console\ProcessEraseRequests;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -315,5 +316,41 @@ class ProcessErasureTest extends TestCase
         );
 
         $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function scheduled_processing_skips_requests_with_cancelled_at()
+    {
+        $app = $this->app();
+
+        // Control row: confirmed long enough ago to be auto-processed by the scheduler.
+        $processableRequest = ErasureRequest::query()->find(2);
+        // 31 days ensures it matches the command's "older than 30 days" filter.
+        $processableRequest->user_confirmed_at = Carbon::now()->subDays(31);
+        $processableRequest->status = ErasureRequest::STATUS_USER_CONFIRMED;
+        $processableRequest->cancelled_at = null;
+        $processableRequest->save();
+
+        // intentionally inconsistent data.
+        // In a normal cancel flow, user_confirmed_at is reset to null.
+        // We keep a stale confirmation date here to prove cancelled_at still prevents processing.
+        $cancelledConfirmedRequest = ErasureRequest::query()->find(3);
+        $cancelledConfirmedRequest->status = ErasureRequest::STATUS_USER_CONFIRMED;
+        // Also older than 30 days, so cancelled_at must be the reason this one is skipped.
+        $cancelledConfirmedRequest->user_confirmed_at = Carbon::now()->subDays(31);
+        $cancelledConfirmedRequest->cancelled_at = Carbon::now()->subDay();
+        $cancelledConfirmedRequest->save();
+
+        // Invoke the command method through the container so dependencies are injected automatically.
+        $app->getContainer()->call([new ProcessEraseRequests(), 'handle']);
+
+        $processableRequest = ErasureRequest::query()->find(2);
+        $cancelledConfirmedRequest = ErasureRequest::query()->find(3);
+
+        // Eligible request is processed; cancelled request is not.
+        $this->assertEquals(ErasureRequest::STATUS_PROCESSED, $processableRequest->status);
+        $this->assertNotNull($processableRequest->processed_at);
+        $this->assertEquals(ErasureRequest::STATUS_USER_CONFIRMED, $cancelledConfirmedRequest->status);
+        $this->assertNull($cancelledConfirmedRequest->processed_at);
     }
 }
