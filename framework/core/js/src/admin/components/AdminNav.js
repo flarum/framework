@@ -17,9 +17,11 @@ export default class AdminNav extends Component {
     this.query = Stream('');
     this.collapsed = {};
 
-    // Pre-expand the category of the currently active extension
-    const currentRoute = m.route.get() || '';
-    const extensionMatch = currentRoute.match(/\/extensions\/([^/?]+)/);
+    // Pre-expand the category of the currently active extension.
+    // m.route.get() may be null on a hard reload before Mithril has processed
+    // the hash, so fall back to parsing window.location.hash directly.
+    const currentRoute = m.route.get() || window.location.hash.replace(/^#/, '');
+    const extensionMatch = currentRoute.match(/\/extensions?\/([^/?]+)/);
     if (extensionMatch) {
       const activeId = extensionMatch[1];
       const categorized = getCategorizedExtensions();
