@@ -49,6 +49,11 @@ class DeleteAllNotificationsHandler
 
         $this->notifications->deleteAll($actor);
 
+        // Invalidate notification count caches
+        $cache = resolve('cache.store');
+        $cache->forget("user.{$actor->id}.unread_notification_count");
+        $cache->forget("user.{$actor->id}.new_notification_count");
+
         $this->events->dispatch(new DeletedAll($actor, Carbon::now()));
     }
 }
