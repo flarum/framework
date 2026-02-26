@@ -32,7 +32,7 @@
         },
         "flarum-extension": {
             "title": "Subscriptions",
-            "category": "feature",
+            "category": "discussion",
             "optional-dependencies": [
                 "flarum/approval"
             ],

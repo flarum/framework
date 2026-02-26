@@ -53,7 +53,21 @@ class AdminPayload
 
         $document->payload['settings'] = $settings;
         $document->payload['permissions'] = Permission::map();
-        $document->payload['extensions'] = $this->extensions->getExtensions()->toArray();
+        $extensions = $this->extensions->getExtensions()->toArray();
+
+        // Allow a stored override (e.g. written by a future scheduled Packagist check) to supplement
+        // or correct the abandoned status derived from installed.json at Composer install time.
+        // Format: JSON object mapping extension ID → false|true|"replacement/package"
+        // A future scheduler task can write to this settings key without touching core parsing logic.
+        $abandonedOverrides = json_decode($this->settings->get('flarum.abandoned_overrides', '{}'), true) ?? [];
+        foreach ($abandonedOverrides as $id => $status) {
+            if (isset($extensions[$id])) {
+                $extensions[$id]['abandoned'] = $status;
+            }
+        }
+
+        $document->payload['extensions'] = $extensions;
+        $document->payload['installedPackages'] = $this->extensions->getInstalledPackageNames();
 
         $document->payload['displayNameDrivers'] = array_keys($this->container->make('flarum.user.display_name.supported_drivers'));
         $document->payload['slugDrivers'] = array_map(array_keys(...), $this->container->make('flarum.http.slugDrivers'));

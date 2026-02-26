@@ -32,7 +32,7 @@
         },
         "flarum-extension": {
             "title": "Likes",
-            "category": "feature",
+            "category": "discussion",
             "icon": {
                 "name": "far fa-thumbs-up",
                 "backgroundColor": "#3A649D",

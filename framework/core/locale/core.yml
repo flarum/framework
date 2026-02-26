@@ -188,6 +188,23 @@ core:
       toggle_advanced_page_button: Toggle Advanced Page
       tools_button: Tools
 
+    # These translations are used in the extensions health widget on the dashboard.
+    extensions-health-widget:
+      abandoned_no_replacement: No replacement available
+      abandoned_with_replacement: "Replaced by {replacement}"
+      all_healthy: All extensions are healthy.
+      section_abandoned_empty: No issues found.
+      section_suggested_empty: No suggestions.
+      section_disabled_empty: All extensions are enabled.
+      title: Extension Health
+      section_abandoned_heading: Needs Attention
+      section_abandoned_help: These extensions are no longer maintained or may have compatibility issues. Consider updating, replacing, or removing them.
+      section_suggested_heading: Suggested
+      section_suggested_help: Flarum extensions can add optional extra features by specifying other extensions or packages. These might add more features or integrations.
+      section_disabled_heading: Disabled
+      section_disabled_help: These extensions are installed but not currently enabled. Enable them from their settings page, or remove them if no longer needed.
+      suggested_by: "Suggested by {extension}"
+
     # These translations are used in the debug warning widget.
     debug-warning:
       detail: |
@@ -318,11 +335,13 @@ core:
       basics_button: => core.admin.basics.title
       basics_title: => core.admin.basics.description
       categories:
+        analytics: Analytics
         authentication: Authentication
         core: Core Configuration
         discussion: Discussion
         feature: Features
         formatting: Formatting
+        infrastructure: Infrastructure
         language: Languages
         moderation: Moderation
         other: Other Extensions

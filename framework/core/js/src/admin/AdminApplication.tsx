@@ -45,6 +45,7 @@ export interface Extension {
     };
   };
   require?: Record<string, string>;
+  suggest?: Record<string, string>;
   abandoned?: boolean | string;
 }
 
@@ -56,6 +57,7 @@ export enum DatabaseDriver {
 
 export interface AdminApplicationData extends ApplicationData {
   extensions: Record<string, Extension>;
+  installedPackages: string[];
   settings: Record<string, string>;
   modelStatistics: Record<string, { total: number }>;
   displayNameDrivers: string[];
@@ -91,9 +93,16 @@ export default class AdminApplication extends Application {
   registry = new AdminRegistry();
 
   extensionCategories: Record<string, number> = {
-    feature: 30,
-    theme: 20,
-    language: 10,
+    feature: 100,
+    moderation: 90,
+    discussion: 80,
+    authentication: 70,
+    formatting: 60,
+    infrastructure: 55,
+    analytics: 52,
+    other: 50,
+    theme: 40,
+    language: 30,
   };
 
   history: IHistory = {

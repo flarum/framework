@@ -1,85 +1,264 @@
 .ExtensionsWidget {
-  background-color: var(--body-bg);
+  // Let .Widget provide the slate background and padding.
+  // Override padding to 0 so sections sit flush to the card edges.
   padding: 0;
+  overflow: hidden;
 }
 
+.ExtensionsWidget-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 16px 20px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted-color);
+
+  .icon {
+    font-size: 12px;
+    opacity: 0.7;
+  }
+}
+
+// Healthy empty state
+.ExtensionsWidget-healthy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 20px 20px;
+  color: var(--muted-color);
+
+  .icon {
+    color: var(--enabled-color);
+    font-size: 18px;
+  }
+}
+
+// Section container
 .ExtensionsWidget-list {
   padding: 0;
-  background-color: var(--body-bg);
+}
 
-  .ExtensionGroup {
-    margin-bottom: 20px;
-
-    h3 {
-      color: var(--muted-color);
-      text-transform: uppercase;
-      font-size: 12px;
-      margin: 0 0 10px;
-    }
-  }
-
-  .ExtensionList {
-    padding: 0;
-    list-style: none;
-    display: grid;
-    grid-gap: 10px;
-    grid-template-columns: repeat(auto-fit, 90px);
-    margin-bottom: 0;
-
-    > li {
-      text-align: left;
-      position: relative;
-      display: block;
-    }
+.ExtensionsWidget-section {
+  & + & {
+    border-top: 1px solid var(--body-bg);
   }
 }
 
-.ExtensionList-Category {
-  background: var(--control-bg);
-  padding: 20px 0 20px 20px;
-  margin-bottom: 20px;
-  border-radius: var(--border-radius);
+.ExtensionsWidget-sectionHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 20px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-color);
+  opacity: 0.75;
 }
 
-.ExtensionList-Label {
-  margin-top: 0;
+.ExtensionsWidget-sectionHelp {
+  margin: 0;
+  padding: 0 20px 6px;
+  font-size: 11px;
+  color: var(--muted-color);
+  opacity: 0.6;
+  line-height: 1.4;
+}
+
+.ExtensionsWidget-sectionCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--body-bg);
+  font-size: 10px;
+  font-weight: 700;
   color: var(--muted-color);
 }
 
-.ExtensionListItem.disabled {
-  .ExtensionListItem-title {
-    opacity: 0.5;
-    color: var(--muted-color);
+.ExtensionsWidget-section--abandoned.ExtensionsWidget-section--has-items {
+  .ExtensionsWidget-sectionHeading {
+    color: @error-color;
+    opacity: 1;
   }
 
-  .ExtensionListItem-icon {
-    opacity: 0.5;
+  .ExtensionsWidget-sectionCount {
+    background: fadeout(@error-color, 85%);
+    color: @error-color;
   }
 }
 
-.ExtensionListItem {
-  transition: .15s ease-in-out;
+// Item list
+.ExtensionsWidget-itemList {
+  list-style: none;
+  padding: 0 0 8px;
+  margin: 0;
+}
+
+// Individual item
+.ExtensionsWidget-item {
+  &:hover {
+    background: var(--body-bg);
+  }
+}
+
+.ExtensionsWidget-itemLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 20px;
+  text-decoration: none;
+  color: inherit;
 
   &:hover {
-    transform: scale(1.05);
-  }
-
-  a:hover {
     text-decoration: none;
+    color: inherit;
   }
 }
 
-.ExtensionListItem-title {
-  display: block;
-  text-align: center;
-  margin-top: 5px;
-  color: var(--text-color);
+.ExtensionsWidget-itemIcon {
+  flex-shrink: 0;
+  border-radius: 4px;
 }
 
+.ExtensionsWidget-itemBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.ExtensionsWidget-itemName {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ExtensionsWidget-externalIcon {
+  font-size: 9px;
+  margin-left: 5px;
+  color: var(--primary-color);
+  opacity: 0.7;
+  vertical-align: middle;
+}
+
+.ExtensionsWidget-itemDetail {
+  display: block;
+  font-size: 11px;
+  color: var(--muted-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.ExtensionsWidget-itemIndicator {
+  display: inline;
+  margin-left: 5px;
+  font-size: 11px;
+  vertical-align: middle;
+
+  .ExtensionsWidget-item--danger & {
+    color: @error-color;
+  }
+
+  .ExtensionsWidget-item--warning & {
+    color: @alert-color;
+  }
+}
+
+// Section empty state
+.ExtensionsWidget-sectionEmpty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 4px 20px 12px;
+  font-size: 12px;
+  color: var(--muted-color);
+  opacity: 0.7;
+
+  &--ok {
+    opacity: 1;
+    color: var(--enabled-color);
+  }
+}
+
+.ExtensionsWidget-okIcon {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+// Disabled extensions grid
+.ExtensionsWidget-disabledGrid {
+  list-style: none;
+  margin: 0;
+  padding: 2px 12px 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 80px);
+  gap: 2px;
+}
+
+.ExtensionsWidget-disabledItem {
+  text-align: center;
+
+  a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 6px;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    opacity: 0.5;
+    transition: opacity 0.15s, background 0.15s;
+
+    &:hover {
+      opacity: 1;
+      background: var(--body-bg);
+      text-decoration: none;
+    }
+  }
+}
+
+.ExtensionsWidget-disabledIcon {
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.ExtensionsWidget-disabledName {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--text-color);
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Keep ExtensionIcon base styles (used in sidebar and elsewhere)
 .ExtensionIcon {
   --size: 90px;
   width: var(--size);
   height: var(--size);
+
+  &.ExtensionsWidget-disabledIcon {
+    --size: 54px;
+  }
+
+  &.ExtensionsWidget-itemIcon {
+    --size: 28px;
+  }
   background: var(--control-bg);
   color: var(--control-color);
   border-radius: 6px;
@@ -91,11 +270,7 @@
   vertical-align: middle;
 }
 
-.ExtensionListItem-icon-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
+// Badge used on extension pages (kept for ExtensionPage use)
 .ExtensionListItem-badge {
   position: absolute;
   bottom: -5px;

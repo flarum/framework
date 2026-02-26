@@ -33,7 +33,7 @@
         },
         "flarum-extension": {
             "title": "Akismet",
-            "category": "feature",
+            "category": "moderation",
             "icon": {
                 "image": "icon.jpg",
                 "backgroundSize": "cover",

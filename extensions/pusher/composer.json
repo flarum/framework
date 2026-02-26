@@ -36,7 +36,7 @@
         },
         "flarum-extension": {
             "title": "Pusher",
-            "category": "feature",
+            "category": "infrastructure",
             "icon": {
                 "image": "icon.png",
                 "backgroundSize": "46% 63%",
