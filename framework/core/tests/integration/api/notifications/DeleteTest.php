@@ -14,6 +14,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -69,5 +70,25 @@ class DeleteTest extends TestCase
             [1],
             [2]
         ];
+    }
+
+    #[Test]
+    public function deleting_all_notifications_invalidates_unread_count_cache()
+    {
+        $cache = $this->app()->getContainer()->make(CacheRepository::class);
+
+        // Prime the cache with stale counts so we can verify they are cleared.
+        $cache->put('user.1.unread_notification_count', 99, 300);
+        $cache->put('user.1.new_notification_count', 99, 300);
+
+        $this->assertEquals(99, $cache->get('user.1.unread_notification_count'));
+
+        $response = $this->send(
+            $this->request('DELETE', '/api/notifications', ['authenticatedAs' => 1]),
+        );
+
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertNull($cache->get('user.1.unread_notification_count'), 'unread_notification_count cache should be cleared after delete');
+        $this->assertNull($cache->get('user.1.new_notification_count'), 'new_notification_count cache should be cleared after delete');
     }
 }
