@@ -31,7 +31,7 @@ class ExternalExtensionResource extends AbstractResource implements Listable, Pa
 {
     /**
      * Packagist search API.
-     * Docs: https://packagist.org/apidoc#search-packages-by-type
+     * Docs: https://packagist.org/apidoc#search-packages-by-type.
      */
     protected const PACKAGIST_SEARCH_URL = 'https://packagist.org/search.json';
 
@@ -43,7 +43,7 @@ class ExternalExtensionResource extends AbstractResource implements Listable, Pa
     protected const TYPE_FILTER_MAP = [
         // 'extension' tab: keep default type, no extra param needed
         'locale' => ['param' => 'q',    'value' => 'flarum-lang'],
-        'theme'  => ['param' => 'q',    'value' => 'flarum theme'],
+        'theme' => ['param' => 'q',    'value' => 'flarum theme'],
     ];
 
     protected ?int $totalResults = null;
@@ -159,17 +159,17 @@ class ExternalExtensionResource extends AbstractResource implements Listable, Pa
                 $nameParts = explode('/', $data['name'], 2);
 
                 return new Extension([
-                    'id'          => $data['name'],
-                    'name'        => $data['name'],
-                    'title'       => $data['name'],
+                    'id' => $data['name'],
+                    'name' => $data['name'],
+                    'title' => $data['name'],
                     'description' => $data['description'] ?? null,
-                    'vendor'      => $nameParts[0] ?? null,
-                    'http_uri'    => $data['url'] ?? null,
-                    'icon_url'    => null,
-                    'icon'        => null,
-                    'downloads'   => (int) ($data['downloads'] ?? 0),
-                    'abandoned'   => ! empty($data['abandoned']),
-                    'is_locale'   => false,
+                    'vendor' => $nameParts[0] ?? null,
+                    'http_uri' => $data['url'] ?? null,
+                    'icon_url' => null,
+                    'icon' => null,
+                    'downloads' => (int) ($data['downloads'] ?? 0),
+                    'abandoned' => ! empty($data['abandoned']),
+                    'is_locale' => false,
                     'highest_version' => null,
                 ]);
             });
