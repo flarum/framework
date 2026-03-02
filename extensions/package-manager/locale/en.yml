@@ -4,7 +4,7 @@ flarum-extension-manager:
       add_label: New authentication method
       add_modal:
         host_label: Host
-        host_placeholder: "example: extiverse.com"
+        host_placeholder: "example: packages.example.com"
         submit_button: Submit
         token_label: Token
         type_label: Type
@@ -70,7 +70,7 @@ flarum-extension-manager:
       install: Install a new extension
       install_help: >
         Fill in the extension package name to proceed. You can specify a <semantic_link>semantic version</semantic_link> using the format <code>vendor/package-name:version</code>.
-        Visit {extiverse} to browse extensions.
+        Visit {link} to browse extensions.
       proceed: Proceed
       remove: Uninstall
       successful_install: "{extension} was installed successfully, redirecting.."
