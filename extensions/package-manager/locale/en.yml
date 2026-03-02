@@ -70,7 +70,7 @@ flarum-extension-manager:
       install: Install a new extension
       install_help: >
         Fill in the extension package name to proceed. You can specify a <semantic_link>semantic version</semantic_link> using the format <code>vendor/package-name:version</code>.
-        Visit {link} to browse extensions.
+        Visit {link} to browse available packages.
       proceed: Proceed
       remove: Uninstall
       successful_install: "{extension} was installed successfully, redirecting.."
@@ -109,30 +109,20 @@ flarum-extension-manager:
         empty_results: Looks like there are no extensions available.
         extension:
           badges:
-            compatible: Compatible
+            abandoned: Abandoned
             fof: Friends Of Flarum
             flarum: Flarum
-            incompatible: Incompatible
-            premium: Premium
-            unstable: Unstable
           downloads: "{count, plural, one {{formattedCount} download} other {{formattedCount} downloads}}"
-        premium_extension_terms: Premium extension terms
         search: Search...
         server_error: Service currently unavailable, please try again later.
         sort:
-          toggle_dropdown_accessible_label: Toggle sort options
           top: Most Downloads
-          latest: Latest
         tabs:
           discover: Discover
           extensions: Extensions
           languages: Languages
           themes: Themes
         title: Extensions
-        party_filter:
-          all: All
-          premium: Premium
-          toggle_dropdown_accessible_label: Toggle party filter
       queue:
         columns:
           details: Details

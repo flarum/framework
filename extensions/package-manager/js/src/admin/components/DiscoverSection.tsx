@@ -9,15 +9,13 @@ import Input from 'flarum/common/components/Input';
 import Stream from 'flarum/common/utils/Stream';
 import Alert from 'flarum/common/components/Alert';
 import listItems from 'flarum/common/helpers/listItems';
-import LinkButton from 'flarum/common/components/LinkButton';
-import Dropdown from 'flarum/common/components/Dropdown';
-
-import type ExternalExtension from '../models/ExternalExtension';
-import ExtensionCard from './ExtensionCard';
 import Pagination from 'flarum/common/components/Pagination';
 import InfoTile from 'flarum/common/components/InfoTile';
 import classList from 'flarum/common/utils/classList';
 import { throttle } from 'flarum/common/utils/throttleDebounce';
+
+import type ExternalExtension from '../models/ExternalExtension';
+import ExtensionCard from './ExtensionCard';
 
 export interface IDiscoverSectionAttrs extends ComponentAttrs {}
 
@@ -68,7 +66,6 @@ export default class DiscoverSection<CustomAttrs extends IDiscoverSectionAttrs =
                 <hr className="Tabs-divider" />
                 <div className="ExtensionManager-DiscoverSection-toolbar">
                   <div className="ExtensionManager-DiscoverSection-toolbar-primary">{this.toolbarPrimaryItems().toArray()}</div>
-                  <div className="ExtensionManager-DiscoverSection-toolbar-secondary">{this.toolbarSecondaryItems().toArray()}</div>
                 </div>
                 {this.extensionList()}
                 <div className="ExtensionManager-DiscoverSection-footer">{this.footerItems().toArray()}</div>
@@ -80,23 +77,27 @@ export default class DiscoverSection<CustomAttrs extends IDiscoverSectionAttrs =
     );
   }
 
-  tabFilters(): Record<string, { label: Mithril.Children; active: () => boolean }> {
+  /**
+   * Maps tab keys to the type filter value forwarded to the Packagist search API.
+   * The empty-string key ("") means no type filter (show all flarum-extension packages).
+   */
+  tabFilters(): Record<string, { label: Mithril.Children; packagistType: string | null }> {
     return {
       '': {
         label: app.translator.trans('flarum-extension-manager.admin.sections.discover.tabs.discover'),
-        active: () => !app.extensionManager.extensions.getParams().filter?.type,
+        packagistType: null,
       },
       extension: {
         label: app.translator.trans('flarum-extension-manager.admin.sections.discover.tabs.extensions'),
-        active: () => app.extensionManager.extensions.getParams().filter?.type === 'extension',
+        packagistType: 'extension',
       },
       locale: {
         label: app.translator.trans('flarum-extension-manager.admin.sections.discover.tabs.languages'),
-        active: () => app.extensionManager.extensions.getParams().filter?.type === 'locale',
+        packagistType: 'locale',
       },
       theme: {
         label: app.translator.trans('flarum-extension-manager.admin.sections.discover.tabs.themes'),
-        active: () => app.extensionManager.extensions.getParams().filter?.type === 'theme',
+        packagistType: 'theme',
       },
     };
   }
@@ -108,14 +109,16 @@ export default class DiscoverSection<CustomAttrs extends IDiscoverSectionAttrs =
 
     Object.keys(tabs).forEach((key) => {
       const tab = tabs[key];
+      const currentType = app.extensionManager.extensions.getParams().filter?.type ?? null;
+      const isActive = tab.packagistType === null ? !currentType : currentType === tab.packagistType;
 
       items.add(
         key,
         <Button
           className="Button Button--link"
-          active={tab.active()}
+          active={isActive}
           onclick={() => {
-            app.extensionManager.extensions.changeFilter('type', key);
+            app.extensionManager.extensions.changeFilter('type', tab.packagistType ?? undefined);
           }}
         >
           {tab.label}
@@ -160,64 +163,6 @@ export default class DiscoverSection<CustomAttrs extends IDiscoverSectionAttrs =
         placeholder={app.translator.trans('flarum-extension-manager.admin.sections.discover.search')}
         prefixIcon="fas fa-search"
       />
-    );
-
-    return items;
-  }
-
-  toolbarSecondaryItems() {
-    const items = new ItemList();
-
-    const sortMap = app.extensionManager.extensions.sortMap();
-
-    const sortOptions = Object.keys(sortMap).reduce((acc: any, sortId) => {
-      const sort = sortMap[sortId];
-      acc[sortId] = typeof sort !== 'string' ? sort.label : sort;
-      return acc;
-    }, {});
-
-    items.add(
-      'sort',
-      <Dropdown
-        buttonClassName="Button"
-        label={sortOptions[app.extensionManager.extensions.getParams().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0]}
-        accessibleToggleLabel={app.translator.trans('flarum-extension-manager.admin.sections.discover.sort.toggle_dropdown_accessible_label')}
-      >
-        {Object.keys(sortOptions).map((value) => {
-          const label = sortOptions[value];
-          const active = app.extensionManager.extensions.getParams().sort === value;
-
-          return (
-            <Button icon={active ? 'fas fa-check' : true} onclick={() => app.extensionManager.extensions.changeSort(value)} active={active}>
-              {label}
-            </Button>
-          );
-        })}
-      </Dropdown>
-    );
-
-    const is = app.extensionManager.extensions.getParams().filter?.is?.[0] ?? null;
-    const activeType = is || 'all';
-
-    items.add(
-      'party',
-      <Dropdown
-        buttonClassName="Button"
-        label={app.translator.trans('flarum-extension-manager.admin.sections.discover.party_filter.' + activeType)}
-        accessibleToggleLabel={app.translator.trans('flarum-extension-manager.admin.sections.discover.party_filter.toggle_dropdown_accessible_label')}
-      >
-        {['all', 'premium'].map((party) => (
-          <Button
-            icon={activeType === party ? 'fas fa-check' : true}
-            onclick={() => {
-              app.extensionManager.extensions.changeFilter('is', party === 'all' ? undefined : [party]);
-            }}
-            active={activeType === party}
-          >
-            {app.translator.trans('flarum-extension-manager.admin.sections.discover.party_filter.' + party)}
-          </Button>
-        ))}
-      </Dropdown>
     );
 
     return items;
@@ -273,19 +218,6 @@ export default class DiscoverSection<CustomAttrs extends IDiscoverSectionAttrs =
           this.load(page);
         }}
       />
-    );
-
-    items.add(
-      'premiumTermsLink',
-      <LinkButton
-        className="Button Button--link"
-        href="https://flarum.org/terms/premium-extensions"
-        external={true}
-        target="_blank"
-        icon="fas fa-circle-info"
-      >
-        {app.translator.trans('flarum-extension-manager.admin.sections.discover.premium_extension_terms')}
-      </LinkButton>
     );
 
     return items;

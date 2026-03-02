@@ -23,7 +23,7 @@ export default class Installer extends Component<InstallerAttrs> {
         <label htmlFor="install-extension">{app.translator.trans('flarum-extension-manager.admin.extensions.install')}</label>
         <div className="helpText">
           {app.translator.trans('flarum-extension-manager.admin.extensions.install_help', {
-            link: <a href="https://flarum.org/extensions">flarum.org</a>,
+            link: <a href="https://packagist.org/?type=flarum-extension">packagist.org</a>,
             semantic_link: <a href="https://devhints.io/semver" />,
             code: <code />,
           })}

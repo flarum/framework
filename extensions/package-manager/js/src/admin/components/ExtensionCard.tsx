@@ -97,46 +97,14 @@ export default class ExtensionCard<CustomAttrs extends IExtensionAttrs = IExtens
 
     const extension = this.attrs.extension as ExternalExtension;
 
-    if (extension.isSupported()) {
+    if (extension.abandoned()) {
       items.add(
-        'compatible',
+        'abandoned',
         <Badge
-          icon="fas fa-check"
-          type="success"
-          label={app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.badges.compatible')}
-          className="Badge--flat Badge--square"
-        />
-      );
-    } else {
-      items.add(
-        'incompatible',
-        <Badge
-          icon="fas fa-times"
+          icon="fas fa-triangle-exclamation"
           type="danger"
-          label={app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.badges.incompatible')}
+          label={app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.badges.abandoned')}
           className="Badge--flat Badge--square"
-        />
-      );
-    }
-
-    if (extension.isPremium()) {
-      items.add(
-        'premium',
-        <Badge
-          icon="fas fa-dollar-sign"
-          label={app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.badges.premium')}
-          className="ExtensionCard-badge--premium Badge--flat Badge--square"
-        />
-      );
-    }
-
-    if (!extension.isProductionReady()) {
-      items.add(
-        'unstable',
-        <Badge
-          icon="fas fa-flask"
-          label={app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.badges.unstable')}
-          className="Badge--flat Badge--square Badge--danger"
         />
       );
     }
@@ -201,8 +169,6 @@ export default class ExtensionCard<CustomAttrs extends IExtensionAttrs = IExtens
     }
 
     if (this.attrs.extension instanceof ExternalExtension) {
-      items.add('version', <div className="ExtensionCard-version">v{this.version(this.attrs.extension.highestVersion())}</div>);
-
       items.add(
         'link',
         <LinkButton

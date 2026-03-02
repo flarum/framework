@@ -43,6 +43,19 @@ class RequestWrapper
         return $this;
     }
 
+    /**
+     * Set (overwrite) a single top-level query parameter by key.
+     */
+    public function setQueryParam(string $key, mixed $value): static
+    {
+        $this->queryParams[$key] = $value;
+
+        $newUri = $this->request->getUri()->withQuery(http_build_query($this->queryParams));
+        $this->request = $this->request->withUri($newUri);
+
+        return $this;
+    }
+
     public function __call(string $name, array $arguments): static
     {
         $new = $this->request->$name(...$arguments);
@@ -63,8 +76,8 @@ class RequestWrapper
 
     public function cache(Closure $callback): array
     {
-        // We will not cache if there is a search query (filter[q]) in the request.
-        if (isset($this->queryParams['filter']['q'])) {
+        // We will not cache if there is a search query in the request.
+        if (isset($this->queryParams['filter']['q']) || isset($this->queryParams['q'])) {
             return $callback($this);
         }
 
