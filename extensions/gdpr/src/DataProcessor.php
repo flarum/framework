@@ -237,10 +237,14 @@ final class DataProcessor
      */
     public function getPiiKeysForSerialization(): array
     {
+        /** @var string[] $fromTypes */
         $fromTypes = array_merge(
             ...array_map(fn (string $type) => $type::piiFields(), array_keys(self::$types))
         );
 
-        return array_values(array_unique(array_merge($fromTypes, array_keys(self::$extraPiiKeysForSerialization))));
+        /** @var string[] $merged */
+        $merged = array_unique(array_merge($fromTypes, array_keys(self::$extraPiiKeysForSerialization)));
+
+        return array_values($merged);
     }
 }
