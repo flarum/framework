@@ -27,6 +27,11 @@ class Tokens extends Type
         PasswordToken::class,
     ];
 
+    public static function piiFields(): array
+    {
+        return ['last_ip_address'];
+    }
+
     public function export(): ?array
     {
         $exportData = [];

@@ -14,6 +14,11 @@ use Illuminate\Support\Arr;
 
 class Posts extends Type
 {
+    public static function piiFields(): array
+    {
+        return ['ip_address'];
+    }
+
     public function export(): ?array
     {
         $exportData = [];

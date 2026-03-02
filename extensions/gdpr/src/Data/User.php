@@ -15,6 +15,11 @@ use Illuminate\Support\Str;
 
 class User extends Type
 {
+    public static function piiFields(): array
+    {
+        return ['email', 'username', 'last_seen_at', 'joined_at', 'preferences', 'nickname', 'suspend_reason', 'suspend_message'];
+    }
+
     public function export(): ?array
     {
         $remove = ['id', 'password', 'groups', 'anonymized'];

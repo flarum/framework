@@ -10,7 +10,10 @@
 namespace Flarum\Gdpr\tests\unit;
 
 use Flarum\Database\AbstractModel;
+use Flarum\Gdpr\Data\Posts;
+use Flarum\Gdpr\Data\Tokens;
 use Flarum\Gdpr\Data\Type;
+use Flarum\Gdpr\Data\User as UserData;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -141,6 +144,39 @@ class TypeTest extends TestCase
 
         // Then
         $this->assertEquals($columns, $returnedColumns);
+    }
+
+    #[Test]
+    public function base_type_returns_empty_pii_fields()
+    {
+        $this->assertEquals([], TestableType::piiFields());
+    }
+
+    #[Test]
+    public function user_data_type_declares_expected_pii_fields()
+    {
+        $fields = UserData::piiFields();
+
+        $this->assertContains('email', $fields);
+        $this->assertContains('username', $fields);
+        $this->assertContains('last_seen_at', $fields);
+        $this->assertContains('joined_at', $fields);
+        $this->assertContains('preferences', $fields);
+        $this->assertContains('nickname', $fields);
+        $this->assertContains('suspend_reason', $fields);
+        $this->assertContains('suspend_message', $fields);
+    }
+
+    #[Test]
+    public function posts_data_type_declares_expected_pii_fields()
+    {
+        $this->assertEquals(['ip_address'], Posts::piiFields());
+    }
+
+    #[Test]
+    public function tokens_data_type_declares_expected_pii_fields()
+    {
+        $this->assertEquals(['last_ip_address'], Tokens::piiFields());
     }
 }
 
