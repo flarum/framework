@@ -22,12 +22,12 @@ class DataProcessorTest extends TestCase
 
         // Resetting all static state before each test
         DataProcessor::setTypes([
-            Data\Forum::class       => null,
-            Data\Assets::class      => null,
-            Data\Posts::class       => null,
-            Data\Tokens::class      => null,
+            Data\Forum::class => null,
+            Data\Assets::class => null,
+            Data\Posts::class => null,
+            Data\Tokens::class => null,
             Data\Discussions::class => null,
-            Data\User::class        => null,
+            Data\User::class => null,
         ]);
         DataProcessor::resetRemovableUserColumns();
         DataProcessor::resetExtraPiiKeysForSerialization();
@@ -165,7 +165,7 @@ class DataProcessorTest extends TestCase
     {
         // Forum and Discussions declare no PII fields
         DataProcessor::setTypes([
-            Data\Forum::class       => null,
+            Data\Forum::class => null,
             Data\Discussions::class => null,
         ]);
         $processor = new DataProcessor();

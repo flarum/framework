@@ -194,7 +194,7 @@ final class DataProcessor
     public static function addPiiKeysForSerialization(array $keys, ?string $extensionId = null): void
     {
         foreach ($keys as $key) {
-            if (!array_key_exists($key, self::$extraPiiKeysForSerialization)) {
+            if (! array_key_exists($key, self::$extraPiiKeysForSerialization)) {
                 self::$extraPiiKeysForSerialization[$key] = $extensionId;
             }
         }
@@ -213,14 +213,14 @@ final class DataProcessor
 
         foreach (self::$types as $typeClass => $extensionId) {
             foreach ($typeClass::piiFields() as $field) {
-                if (!array_key_exists($field, $result)) {
+                if (! array_key_exists($field, $result)) {
                     $result[$field] = $extensionId;
                 }
             }
         }
 
         foreach (self::$extraPiiKeysForSerialization as $field => $extensionId) {
-            if (!array_key_exists($field, $result)) {
+            if (! array_key_exists($field, $result)) {
                 $result[$field] = $extensionId;
             }
         }

@@ -50,8 +50,8 @@ class DataTypeResource extends Resource\AbstractResource implements Resource\Con
 
                     return [
                         'removableColumns' => $this->processor->removableUserColumnsWithExtensions(),
-                        'allColumns'       => $allColumns,
-                        'piiKeys'          => $this->processor->getPiiKeysForSerialization(),
+                        'allColumns' => $allColumns,
+                        'piiKeys' => $this->processor->getPiiKeysForSerialization(),
                         'piiKeyExtensions' => $this->processor->getPiiKeysWithExtensions(),
                     ];
                 })
