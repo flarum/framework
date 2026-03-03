@@ -52,3 +52,13 @@ test('Export from with other named exports works', async () => {
     "flarum.reg.add('flarum-framework', 'common/foos/exportFromWithNamedExports', { potato: potato,franz: franz,baz: baz,foo: foo,Bar: Bar,sasha: sasha,forum: forum,david: david, }"
   );
 });
+
+test('Anonymous async arrow functions do not cause invalid exports', async () => {
+  const output = await compile('src/common/foos/asyncAnonymous.js');
+  expect(output).not.toContain("flarum.reg.add('flarum-framework', 'common/foos/asyncAnonymous', async)");
+});
+
+test('Named async functions are exported correctly', async () => {
+  const output = await compile('src/common/foos/asyncNamed.js');
+  expect(output).toContain("flarum.reg.add('flarum-framework', 'common/foos/asyncNamed', myAsyncFunc)");
+});
