@@ -1,3 +1,5 @@
+const isTest = process.env.NODE_ENV === 'test';
+
 module.exports = {
   assumptions: {
     // Defines assumptions Babel can make about our
@@ -28,7 +30,7 @@ module.exports = {
     ],
   ],
   plugins: [
-    [require.resolve('@babel/plugin-transform-runtime'), { useESModules: true }],
+    [require.resolve('@babel/plugin-transform-runtime'), { useESModules: !isTest }],
     [require.resolve('@babel/plugin-proposal-class-properties')],
     [require.resolve('@babel/plugin-proposal-private-methods')],
     [
