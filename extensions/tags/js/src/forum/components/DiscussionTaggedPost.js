@@ -28,7 +28,10 @@ export default class DiscussionTaggedPost extends EventPost {
     };
 
     if (this.fetchRequired) {
-      app.store.find('tags').then(afterFetch);
+      app.store.find('tags').then(afterFetch).catch(() => {
+        this.loading = false;
+        m.redraw();
+      });
     } else {
       afterFetch();
     }
