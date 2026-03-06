@@ -33,7 +33,27 @@ class ComposerState {
   /**
    * A reference to the text editor that allows text manipulation.
    */
-  editor: EditorDriverInterface | null = null;
+  protected _editor: EditorDriverInterface | null = null;
+  protected _editorReadyPromise!: Promise<void>;
+  protected _resolveEditorReady!: () => void;
+
+  get editor(): EditorDriverInterface | null {
+    return this._editor;
+  }
+
+  set editor(editor: EditorDriverInterface | null) {
+    this._editor = editor;
+    if (editor) {
+      this._resolveEditorReady();
+    }
+  }
+
+  /**
+   * Request a promise that resolves when the text editor is ready and assigned to the composer.
+   */
+  editorReady(): Promise<void> {
+    return this._editorReadyPromise;
+  }
 
   /**
    * If the composer was loaded and mounted.
@@ -91,10 +111,14 @@ class ComposerState {
       content: Stream(''),
     };
 
-    if (this.editor) {
-      this.editor.destroy();
+    if (this._editor) {
+      this._editor.destroy();
     }
-    this.editor = null;
+    this._editor = null;
+
+    this._editorReadyPromise = new Promise((resolve) => {
+      this._resolveEditorReady = resolve;
+    });
   }
 
   /**

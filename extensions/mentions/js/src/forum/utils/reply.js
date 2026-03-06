@@ -3,25 +3,42 @@ import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 
 export function insertMention(post, composer, quote) {
   return new Promise((resolve) => {
-    const mention = app.mentionFormats.mentionable('post').replacement(post) + ' ';
+    const doInsert = () => {
+      const mention = app.mentionFormats.mentionable('post').replacement(post) + ' ';
 
-    // If the composer is empty, then assume we're starting a new reply.
-    // In which case we don't want the user to have to confirm if they
-    // close the composer straight away.
-    if (!composer.fields.content()) {
-      composer.body.attrs.originalContent = mention;
+      // If the composer is empty, then assume we're starting a new reply.
+      // In which case we don't want the user to have to confirm if they
+      // close the composer straight away.
+      if (!composer.fields.content()) {
+        composer.body.attrs.originalContent = mention;
+      }
+
+      const cursorPosition = composer.editor.getSelectionRange()[0];
+      const preceding = composer.fields.content().slice(0, cursorPosition);
+      const precedingNewlines = preceding.length == 0 ? 0 : 3 - preceding.match(/(\n{0,2})$/)[0].length;
+
+      composer.editor.insertAtCursor(
+        Array(precedingNewlines).join('\n') + // Insert up to two newlines, depending on preceding whitespace
+          (quote ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n' : mention),
+        false
+      );
+      return resolve(composer);
+    };
+
+    if (composer.editorReady) {
+      let timeout;
+      Promise.race([
+        composer.editorReady(),
+        new Promise((resolve) => {
+          timeout = setTimeout(resolve, 3000);
+        }),
+      ]).then(() => {
+        clearTimeout(timeout);
+        doInsert();
+      });
+    } else {
+      doInsert();
     }
-
-    const cursorPosition = composer.editor.getSelectionRange()[0];
-    const preceding = composer.fields.content().slice(0, cursorPosition);
-    const precedingNewlines = preceding.length == 0 ? 0 : 3 - preceding.match(/(\n{0,2})$/)[0].length;
-
-    composer.editor.insertAtCursor(
-      Array(precedingNewlines).join('\n') + // Insert up to two newlines, depending on preceding whitespace
-        (quote ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n' : mention),
-      false
-    );
-    return resolve(composer);
   });
 }
 
