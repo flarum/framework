@@ -5,3 +5,10 @@
   --x: is-flarum("not flarum") * 10;
   --y: is-gt(1, 2);
 }
+.mixin(@val) {}
+.mixin(false) {
+  color: red;
+}
+.dummy_func_test3 {
+  .mixin(is-gt(1, 2));
+}
