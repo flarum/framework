@@ -75,6 +75,8 @@ class DeleteTest extends TestCase
      */
     public function deleting_all_notifications_invalidates_unread_count_cache()
     {
+        $this->app();
+
         $cache = resolve('cache.store');
 
         // Prime the cache with stale counts so we can verify they are cleared.
