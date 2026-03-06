@@ -185,8 +185,8 @@ class InfoCommand extends AbstractCommand
     {
         // Try common PHP binary paths for web servers
         $possiblePhpBinaries = [
-            '/usr/bin/php-fpm' . PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
-            '/usr/sbin/php-fpm' . PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
+            '/usr/bin/php-fpm'.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
+            '/usr/sbin/php-fpm'.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
             '/usr/local/bin/php',
             '/usr/bin/php',
         ];
@@ -197,7 +197,7 @@ class InfoCommand extends AbstractCommand
                 $status = null;
                 exec("$phpBinary -v 2>&1 | head -n 1", $output, $status);
 
-                if ($status === 0 && !empty($output[0])) {
+                if ($status === 0 && ! empty($output[0])) {
                     // Extract version from output like "PHP 8.3.1 (fpm-fcgi) ..."
                     if (preg_match('/PHP\s+([\d.]+)/', $output[0], $matches)) {
                         return $matches[1];
@@ -216,21 +216,21 @@ class InfoCommand extends AbstractCommand
     private function detectWebServerMemoryLimit(): ?string
     {
         // Try to detect PHP-FPM pool configuration
-        $phpVersion = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+        $phpVersion = PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;
 
         $possiblePaths = [
             // Docker PHP paths (most common for containerized setups)
-            "/usr/local/etc/php/php.ini",
-            "/usr/local/etc/php/conf.d/memory.ini",
+            '/usr/local/etc/php/php.ini',
+            '/usr/local/etc/php/conf.d/memory.ini',
             // Common PHP-FPM pool paths
             "/etc/php/{$phpVersion}/fpm/pool.d/www.conf",
             "/etc/php{$phpVersion}/fpm/pool.d/www.conf",
-            "/etc/php-fpm.d/www.conf",
-            "/usr/local/etc/php-fpm.d/www.conf",
+            '/etc/php-fpm.d/www.conf',
+            '/usr/local/etc/php-fpm.d/www.conf',
             // Common php.ini paths for web
             "/etc/php/{$phpVersion}/fpm/php.ini",
             "/etc/php{$phpVersion}/fpm/php.ini",
-            "/etc/php.ini",
+            '/etc/php.ini',
         ];
 
         foreach ($possiblePaths as $path) {
@@ -252,7 +252,7 @@ class InfoCommand extends AbstractCommand
         // Also scan /usr/local/etc/php/conf.d/ directory for any INI files with memory_limit
         $confDir = '/usr/local/etc/php/conf.d';
         if (@is_dir($confDir) && @is_readable($confDir)) {
-            $iniFiles = @glob($confDir . '/*.ini');
+            $iniFiles = @glob($confDir.'/*.ini');
             if ($iniFiles) {
                 foreach ($iniFiles as $iniFile) {
                     if (@is_readable($iniFile)) {

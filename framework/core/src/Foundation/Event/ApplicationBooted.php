@@ -14,5 +14,4 @@ namespace Flarum\Foundation\Event;
  */
 class ApplicationBooted
 {
-
 }

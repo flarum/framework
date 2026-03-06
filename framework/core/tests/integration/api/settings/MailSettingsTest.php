@@ -49,7 +49,7 @@ class MailSettingsTest extends TestCase
         );
 
         $this->assertEquals(200, $mailSettingsResponse->getStatusCode());
-        
+
         $data = json_decode((string) $mailSettingsResponse->getBody(), true);
 
         $this->assertFalse($data['data']['attributes']['sending']);
@@ -88,7 +88,7 @@ class MailSettingsTest extends TestCase
         );
 
         $this->assertEquals(200, $mailSettingsResponse->getStatusCode());
-        
+
         $data = json_decode((string) $mailSettingsResponse->getBody(), true);
 
         $this->assertEmpty($data['data']['attributes']['errors']);

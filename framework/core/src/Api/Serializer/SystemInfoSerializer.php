@@ -9,8 +9,6 @@
 
 namespace Flarum\Api\Serializer;
 
-use stdClass;
-
 class SystemInfoSerializer extends AbstractSerializer
 {
     protected function getDefaultAttributes($data)

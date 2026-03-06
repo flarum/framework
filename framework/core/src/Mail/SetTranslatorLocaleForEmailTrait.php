@@ -27,8 +27,8 @@ trait SetTranslatorLocaleForEmailTrait
     ): void {
         $users = resolve(UserRepository::class);
         $user = $users->findByEmail($email);
-        
-        $locale = $user 
+
+        $locale = $user
             ? ($user->getPreference('locale') ?? $settings->get('default_locale'))
             : $settings->get('default_locale');
 

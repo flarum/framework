@@ -146,8 +146,8 @@ class UpdateTest extends TestCase
         return [
             'markdown link syntax' => ['[CLICK](https://evil.com)'],
             'square brackets only' => ['[username]'],
-            'angle brackets'       => ['<evil.com>'],
-            'parentheses'          => ['evil(com)'],
+            'angle brackets' => ['<evil.com>'],
+            'parentheses' => ['evil(com)'],
         ];
     }
 }

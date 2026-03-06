@@ -98,7 +98,7 @@ abstract class AbstractValidator
     {
         $cache = resolve(Cache::class);
 
-        $cacheKey = 'core.validation.attributes.' . $this->translator->getLocale() . '.' . static::class;
+        $cacheKey = 'core.validation.attributes.'.$this->translator->getLocale().'.'.static::class;
 
         if ($cached = $cache->get($cacheKey)) {
             return $cached;

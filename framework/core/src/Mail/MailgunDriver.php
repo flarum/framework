@@ -19,7 +19,7 @@ use Swift_Transport;
 class MailgunDriver implements DriverInterface
 {
     use ValidatesMailSettings;
-    
+
     public function availableSettings(): array
     {
         return [
