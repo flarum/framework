@@ -67,3 +67,15 @@ test('plural rules 2', () => {
   expect(extractText(translator.trans('test5', { count: 5 }))).toBe('5 postów');
   expect(extractText(translator.trans('test5', { count: 1.5 }))).toBe('1,5 posta');
 });
+
+test('translations added before setLocale are retained', () => {
+  // Simulates the real page load order: locale JS files execute and call
+  // addTranslations() before app.load() calls setLocale().
+  const translator = new Translator();
+  translator.addTranslations({
+    test6: 'Witaj świecie',
+  });
+  translator.setLocale('pl');
+
+  expect(extractText(translator.trans('test6', {}))).toBe('Witaj świecie');
+});
