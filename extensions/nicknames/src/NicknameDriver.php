@@ -26,6 +26,6 @@ class NicknameDriver implements DriverInterface
         // Insert a zero-width space after every dot to prevent email clients
         // from auto-linking dotted strings as domain names (e.g. nasty.com).
         // The zero-width space is invisible in all rendering contexts.
-        return str_replace('.', ".\u{200B}", $name);
+        return str_replace('.', ".\u{200B}", $name); // @styleci-trigger
     }
 }
