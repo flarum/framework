@@ -5,7 +5,11 @@ export default function (e: any) {
 
   const error = e.response.errors[0];
 
-  if (!['composer_command_failure', 'extension_already_installed', 'extension_not_installed'].includes(error.code)) {
+  if (
+    !['composer_command_failure', 'extension_already_installed', 'extension_not_installed', 'extension_incompatible_with_instance'].includes(
+      error.code
+    )
+  ) {
     throw e;
   }
 
@@ -28,6 +32,14 @@ export default function (e: any) {
 
     case 'extension_not_installed':
       app.alerts.show({ type: 'error' }, app.translator.trans('flarum-extension-manager.admin.exceptions.extension_not_installed'));
+      app.modal.close();
+      break;
+
+    case 'extension_incompatible_with_instance':
+      app.alerts.show(
+        { type: 'error' },
+        app.translator.trans('flarum-extension-manager.admin.exceptions.guessed_cause.extension_incompatible_with_instance')
+      );
       app.modal.close();
   }
 }
