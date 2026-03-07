@@ -72,6 +72,7 @@ export default class Composer extends Component {
   }
 
   onTextEditorBuilt() {
+    this.state.resolveEditorReady();
     this.updateContainer();
     this.textEditorBuilt = true;
   }
