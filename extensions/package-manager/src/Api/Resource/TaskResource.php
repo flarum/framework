@@ -31,6 +31,8 @@ class TaskResource extends AbstractDatabaseResource
     {
         return [
             Endpoint\Index::make()
+                ->authenticated()
+                ->admin()
                 ->defaultSort('-createdAt')
                 ->paginate(),
         ];
