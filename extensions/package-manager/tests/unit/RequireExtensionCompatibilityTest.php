@@ -95,10 +95,10 @@ class RequireExtensionCompatibilityTest extends TestCase
     public static function incompatibleConstraints(): array
     {
         return [
-            'wildcard *'          => ['*'],
-            '1.x constraint'      => ['^1.0'],
+            'wildcard *' => ['*'],
+            '1.x constraint' => ['^1.0'],
             'broad >= constraint' => ['>=1.0'],
-            '1.x range'          => ['>=1.0,<2.0'],
+            '1.x range' => ['>=1.0,<2.0'],
         ];
     }
 
