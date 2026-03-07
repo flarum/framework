@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import Search from '../../../../src/common/extenders/Search';
 import { KeyValueGambit } from '../../../../src/common/query/IGambit';
 import { app } from '../../../../src/forum';

@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import SelectDropdown from '../../../../src/common/components/SelectDropdown';
 import mq from 'mithril-query';
 import m from 'mithril';

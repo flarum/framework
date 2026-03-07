@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import abbreviateNumber from '../../../../src/common/utils/abbreviateNumber';
 
 beforeAll(() => bootstrapForum());

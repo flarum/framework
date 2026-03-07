@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import GambitManager from '../../../src/common/GambitManager';
 import { app } from '../../../src/forum';
 

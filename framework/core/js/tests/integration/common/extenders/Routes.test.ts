@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import Routes from '../../../../src/common/extenders/Routes';
 import app from '@flarum/core/src/forum/app';
 

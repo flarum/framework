@@ -1,4 +1,4 @@
-import bootstrapAdmin from '@flarum/jest-config/src/boostrap/admin';
+import bootstrapAdmin from '@flarum/jest-config/src/bootstrap/admin';
 import { jest } from '@jest/globals';
 import SearchModal from '../../../../src/common/components/SearchModal';
 import GeneralSearchSource from '../../../../src/admin/components/GeneralSearchSource';
