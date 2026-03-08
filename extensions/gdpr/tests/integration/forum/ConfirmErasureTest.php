@@ -38,11 +38,13 @@ class ConfirmErasureTest extends TestCase
             User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'moderator', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'moderator@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 4, 'username' => 'processed_user', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'processed@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 5, 'username' => 'manual_user', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'manual@machine.local', 'is_email_confirmed' => 1],
             ],
             'gdpr_erasure' => [
                 ['id' => 1, 'user_id' => 2, 'verification_token' => 'abc123', 'status' => 'awaiting_user_confirmation', 'reason' => 'I want to be forgotten', 'created_at' => Carbon::now()],
-                ['id' => 2, 'user_id' => 2, 'verification_token' => 'processed-token', 'status' => 'processed', 'reason' => null, 'created_at' => Carbon::now()->subDays(35), 'user_confirmed_at' => Carbon::now()->subDays(35)],
-                ['id' => 3, 'user_id' => 2, 'verification_token' => 'manual-token', 'status' => 'manual', 'reason' => null, 'created_at' => Carbon::now()->subDays(35), 'user_confirmed_at' => Carbon::now()->subDays(35)],
+                ['id' => 2, 'user_id' => 4, 'verification_token' => 'processed-token', 'status' => 'processed', 'reason' => null, 'created_at' => Carbon::now()->subDays(35), 'user_confirmed_at' => Carbon::now()->subDays(35)],
+                ['id' => 3, 'user_id' => 5, 'verification_token' => 'manual-token', 'status' => 'manual', 'reason' => null, 'created_at' => Carbon::now()->subDays(35), 'user_confirmed_at' => Carbon::now()->subDays(35)],
             ],
         ]);
 
