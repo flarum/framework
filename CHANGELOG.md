@@ -1,5 +1,22 @@
 # Changelog
 
+## [v1.8.14](https://github.com/flarum/framework/compare/v1.8.13...v1.8.14)
+### Fixed
+* Show correct error message for HTTP 405 Method Not Allowed responses (https://github.com/flarum/framework/pull/4417)
+* Invalidate unread notification count cache when all notifications are deleted (https://github.com/flarum/framework/pull/4391)
+* [Theme] Return `Less_Tree_Keyword` for boolean custom Less functions (https://github.com/flarum/framework/pull/4405)
+### Performance
+* Eliminate redundant DB writes in auth middleware and cache notification counts (https://github.com/flarum/framework/pull/4365)
+* Store scheduler last-run timestamp in cache instead of database (https://github.com/flarum/framework/pull/4363)
+### Changed
+* [Package Manager] Remove Extiverse references (https://github.com/flarum/framework/pull/4395)
+### GDPR extension
+* Invalidate erasure confirmation token after use, preventing link reuse (https://github.com/flarum/gdpr/pull/70)
+* Guard against re-confirming already-processed erasure requests (https://github.com/flarum/gdpr/pull/70)
+* Log confirming IP address on erasure requests for audit purposes (https://github.com/flarum/gdpr/pull/70)
+* Automatically purge confirmation IPs after 90 days via scheduled command (https://github.com/flarum/gdpr/pull/70)
+* Show requested-at, confirmed-at, and eligible-for-auto-processing dates in erasure modal (https://github.com/flarum/gdpr/pull/70)
+
 ## [v1.8.13](https://github.com/flarum/framework/compare/v1.8.12...v1.8.13)
 ### Changed
 * Add PHP 8.5 to reusable workflows, build JS on PHP 8.3 (https://github.com/flarum/framework/pull/4339)
