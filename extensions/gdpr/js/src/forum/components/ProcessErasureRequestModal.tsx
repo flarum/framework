@@ -2,6 +2,7 @@ import Form from 'flarum/common/components/Form';
 import app from 'flarum/forum/app';
 import type { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
+import humanTime from 'flarum/common/helpers/humanTime';
 import username from 'flarum/common/helpers/username';
 import extractText from 'flarum/common/utils/extractText';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -58,6 +59,24 @@ export default class ProcessErasureRequestModal<
         <UserCard className="UserCard--popover UserCard--gdpr" controlsButtonClassName="Button" user={this.request.user()} />
         <p className="helpText">{app.translator.trans('flarum-gdpr.forum.process_erasure.text', { name: username(this.request.user()) })}</p>
       </div>
+    );
+
+    items.add(
+      'timestamps',
+      <div className="helpText">
+        <p>{app.translator.trans('flarum-gdpr.forum.process_erasure.requested_at', { date: humanTime(erasureRequest.createdAt()) })}</p>
+        {erasureRequest.userConfirmedAt() && (
+          <>
+            <p>{app.translator.trans('flarum-gdpr.forum.process_erasure.confirmed_at', { date: humanTime(erasureRequest.userConfirmedAt()!) })}</p>
+            <p>
+              {app.translator.trans('flarum-gdpr.forum.process_erasure.eligible_at', {
+                date: humanTime(new Date(erasureRequest.userConfirmedAt()!.getTime() + 30 * 24 * 60 * 60 * 1000)),
+              })}
+            </p>
+          </>
+        )}
+      </div>,
+      90
     );
 
     erasureRequest?.reason() &&

@@ -70,8 +70,10 @@ return [
     (new Extend\Console())
         ->command(Console\DestroyExportsCommand::class)
         ->command(Console\ProcessEraseRequests::class)
+        ->command(Console\ClearConfirmationIps::class)
         ->schedule(Console\ProcessEraseRequests::class, Console\DailySchedule::class)
-        ->schedule(Console\DestroyExportsCommand::class, Console\DailySchedule::class),
+        ->schedule(Console\DestroyExportsCommand::class, Console\DailySchedule::class)
+        ->schedule(Console\ClearConfirmationIps::class, Console\DailySchedule::class),
 
     (new Extend\ServiceProvider())
         ->register(Providers\GdprProvider::class),

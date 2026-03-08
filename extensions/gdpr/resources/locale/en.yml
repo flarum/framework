@@ -160,6 +160,9 @@ flarum-gdpr:
             comments_label: Comments (optional)
             anonymization_button: Anonymize user
             deletion_button: Delete user
+            requested_at: "Requested: {date}"
+            confirmed_at: "Confirmed: {date}"
+            eligible_at: "Eligible for auto-processing: {date}"
 
         request_erasure:
             title: Request account erasure
