@@ -61,16 +61,19 @@ export default class ProcessErasureRequestModal<
       </div>
     );
 
+    const createdAt = erasureRequest.createdAt();
+    const userConfirmedAt = erasureRequest.userConfirmedAt();
+
     items.add(
       'timestamps',
       <div className="helpText">
-        <p>{app.translator.trans('flarum-gdpr.forum.process_erasure.requested_at', { date: humanTime(erasureRequest.createdAt()) })}</p>
-        {erasureRequest.userConfirmedAt() && (
+        {createdAt && <p>{app.translator.trans('flarum-gdpr.forum.process_erasure.requested_at', { date: humanTime(createdAt) })}</p>}
+        {userConfirmedAt && (
           <>
-            <p>{app.translator.trans('flarum-gdpr.forum.process_erasure.confirmed_at', { date: humanTime(erasureRequest.userConfirmedAt()!) })}</p>
+            <p>{app.translator.trans('flarum-gdpr.forum.process_erasure.confirmed_at', { date: humanTime(userConfirmedAt) })}</p>
             <p>
               {app.translator.trans('flarum-gdpr.forum.process_erasure.eligible_at', {
-                date: humanTime(new Date(erasureRequest.userConfirmedAt()!.getTime() + 30 * 24 * 60 * 60 * 1000)),
+                date: humanTime(new Date(userConfirmedAt.getTime() + 30 * 24 * 60 * 60 * 1000)),
               })}
             </p>
           </>
