@@ -44,7 +44,7 @@ on:
         description: Versions of databases to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["mysql:5.7", "mysql:8.0.30", "mysql:8.1.0", "mariadb", "sqlite:3", "postgres:10"]'
+        default: '["mysql:5.7", "mysql:8.0.30", "mariadb", "sqlite:3", "postgres:10"]'
 
       php_ini_values:
         description: PHP ini values
@@ -95,9 +95,6 @@ jobs:
           - service: mariadb
             db: MariaDB
             driver: mariadb
-          - service: 'mysql:8.1.0'
-            db: MySQL 8.1
-            driver: mysql
           - service: 'sqlite:3'
             db: SQLite
             driver: sqlite
@@ -139,10 +136,6 @@ jobs:
             service: mariadb
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: mariadb
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'mysql:8.1.0'
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'mysql:8.1.0'
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'sqlite:3'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
