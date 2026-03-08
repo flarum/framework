@@ -1,6 +1,8 @@
 # Changelog
 
 ## [v1.8.14](https://github.com/flarum/framework/compare/v1.8.13...v1.8.14)
+### Security
+* [Nicknames] Display name injection in notification emails via autolink/markdown (CVE-2026-30913) (https://github.com/flarum/framework/security/advisories/GHSA-3c4m-j3g4-hh25)
 ### Fixed
 * Show correct error message for HTTP 405 Method Not Allowed responses (https://github.com/flarum/framework/pull/4417)
 * Invalidate unread notification count cache when all notifications are deleted (https://github.com/flarum/framework/pull/4391)
