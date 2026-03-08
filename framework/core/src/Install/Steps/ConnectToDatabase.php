@@ -104,8 +104,8 @@ readonly class ConnectToDatabase implements Step
         $version = $pdo->query('SHOW server_version')->fetchColumn();
         $version = Str::before($version, ' ');
 
-        if (version_compare($version, '9.5.0', '<')) {
-            throw new RangeException("PostgreSQL version ($version) too low. You need at least PostgreSQL 9.5");
+        if (version_compare($version, '10.0.0', '<')) {
+            throw new RangeException("PostgreSQL version ($version) too low. You need at least PostgreSQL 10");
         }
 
         ($this->store)(
