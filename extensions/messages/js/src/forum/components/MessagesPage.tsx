@@ -2,13 +2,13 @@ import app from 'flarum/forum/app';
 import Page, { IPageAttrs } from 'flarum/common/components/Page';
 import PageStructure from 'flarum/forum/components/PageStructure';
 import Mithril from 'mithril';
-import Icon from 'flarum/common/components/Icon';
 import DialogList from './DialogList';
 import Dialog from '../../common/models/Dialog';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Stream from 'flarum/common/utils/Stream';
 import InfoTile from 'flarum/common/components/InfoTile';
 import MessagesSidebar from './MessagesSidebar';
+import MessagesPageHero from './MessagesPageHero';
 import DialogSection from './DialogSection';
 import listItems from 'flarum/common/helpers/listItems';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -110,18 +110,7 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
   }
 
   hero(): Mithril.Children {
-    return (
-      <header className="Hero MessagesPageHero">
-        <div className="container">
-          <div className="containerNarrow">
-            <h1 className="Hero-title">
-              <Icon name="fas fa-envelope" /> {app.translator.trans('flarum-messages.forum.messages_page.hero.title')}
-            </h1>
-            <div className="Hero-subtitle">{app.translator.trans('flarum-messages.forum.messages_page.hero.subtitle')}</div>
-          </div>
-        </div>
-      </header>
-    );
+    return <MessagesPageHero />;
   }
 
   contentItems() {

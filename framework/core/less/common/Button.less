@@ -232,13 +232,23 @@
     margin-top: 5px;
   }
 }
+// FontAwesome Kit dynamically injects a stylesheet that sets `display: block` (via --fa-display)
+// on SVG elements it injects, breaking the button's inline-flex layout.
+// Scoped to inside .Button so hiding rules that follow (.Button--icon, .Dropdown--split)
+// can override this by coming later in the cascade at equal specificity.
+.Button .Button-icon,
+.Button .Button-caret {
+  display: inline-block;
+}
+
 // Little round icon buttons
 .Button--icon() {
   width: 36px;
   text-align: center;
   padding: 8px 0;
 
-  .Button-label, .Button-caret {
+  .Button-label,
+  .Button-caret {
     display: none;
   }
   .Button-icon {
@@ -246,6 +256,11 @@
     vertical-align: -1px;
     margin: 0;
   }
+}
+// Apply the mixin to the class selector so DOM elements with class="Button--icon"
+// get the same styles (hides label/caret, sizes the icon correctly).
+.Button--icon {
+  .Button--icon();
 }
 .SessionDropdown .Dropdown-toggle {
   border-radius: 18px;
@@ -266,15 +281,9 @@
   font-size: 0.73rem;
   color: var(--muted-more-color);
 }
-.Button-icon {
-  line-height: inherit;
-
-  // FontAwesome Kit overrides display to block, breaking button flex layout
-  // Force inline-block to work with button's inline-flex container
-  display: inline-block !important;
-}
 .Button-icon,
 .Button-caret {
+  line-height: inherit;
   font-size: 14px;
 }
 .Button-caret {

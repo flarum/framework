@@ -36,6 +36,30 @@ class ComposerState {
   editor: EditorDriverInterface | null = null;
 
   /**
+   * Promise that resolves once the text editor has been built and assigned.
+   * Reset each time a new composer body is loaded via `load()`.
+   */
+  protected _editorReadyPromise!: Promise<void>;
+  protected _resolveEditorReady!: () => void;
+
+  /**
+   * Returns a promise that resolves when the text editor is ready.
+   * Resolves immediately if the editor is already available.
+   */
+  editorReady(): Promise<void> {
+    if (this.editor) return Promise.resolve();
+    return this._editorReadyPromise;
+  }
+
+  /**
+   * Resolve the editorReady promise. Called by the Composer component once
+   * the TextEditor has been built and `composer.editor` is set.
+   */
+  resolveEditorReady(): void {
+    this._resolveEditorReady?.();
+  }
+
+  /**
    * If the composer was loaded and mounted.
    */
   mounted: boolean = false;
@@ -72,6 +96,16 @@ class ComposerState {
     if (this.isVisible()) {
       this.clear();
       m.redraw.sync();
+    }
+
+    // Reset the editor-ready promise for the new body being loaded.
+    // If the editor is already assigned (e.g. reusing an open composer
+    // without a full rebuild), resolve immediately.
+    this._editorReadyPromise = new Promise<void>((resolve) => {
+      this._resolveEditorReady = resolve;
+    });
+    if (this.editor) {
+      this._resolveEditorReady();
     }
 
     this.body = body;

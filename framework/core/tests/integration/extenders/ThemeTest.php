@@ -124,6 +124,8 @@ class ThemeTest extends TestCase
 
         $this->assertStringContainsString('.dummy_func_test{color:green}', $contents);
         $this->assertStringContainsString('.dummy_func_test2{width:1000px;--y:false}', $contents);
+        // Boolean return values must be Less keywords (not quoted strings) so that mixin guards match correctly.
+        $this->assertStringContainsString('.dummy_func_test3{color:red}', $contents);
     }
 
     #[Test]

@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import HeaderSecondary from '../../../../src/forum/components/HeaderSecondary';
 import { app } from '../../../../src/forum';
 import mq from 'mithril-query';

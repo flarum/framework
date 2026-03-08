@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import PostStream from '../../../../src/forum/components/PostStream';
 import PostStreamState from '../../../../src/forum/states/PostStreamState';
 import Discussion from '../../../../src/common/models/Discussion';

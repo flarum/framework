@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import Extend from '../../../../src/common/extenders';
 import NotificationType from '../../../../src/forum/components/NotificationType';
 import NotificationComponent from '../../../../src/forum/components/Notification';

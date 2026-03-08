@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import MultiSelect from '../../../../src/common/components/MultiSelect';
 import mq from 'mithril-query';
 import { jest } from '@jest/globals';

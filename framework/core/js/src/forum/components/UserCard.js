@@ -129,7 +129,7 @@ export default class UserCard extends Component {
           buttonClassName={this.attrs.controlsButtonClassName}
           label={app.translator.trans('core.forum.user_controls.button')}
           accessibleToggleLabel={app.translator.trans('core.forum.user_controls.toggle_dropdown_accessible_label')}
-          icon="fas fa-ellipsis-v"
+          icon={this.attrs.controlsButtonClassName?.includes('Button--icon') ? 'fas fa-ellipsis-v' : undefined}
         >
           {controls}
         </Dropdown>,

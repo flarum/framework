@@ -81,7 +81,7 @@ class Theme implements ExtenderInterface
             $return = $callable(...$argVals);
 
             if (is_bool($return)) {
-                return new \Less_Tree_Quoted('', $return ? 'true' : 'false');
+                return new \Less_Tree_Keyword($return ? 'true' : 'false');
             }
 
             if (is_string($return)) {
