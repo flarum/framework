@@ -39,7 +39,7 @@ class AssetsPublishCommand extends AbstractCommand
         $target = $this->container->make('filesystem')->disk('flarum-assets');
         $local = new Filesystem();
 
-        $pathPrefix = $this->paths->vendor.'/components/font-awesome/webfonts';
+        $pathPrefix = $this->paths->vendor.'/fortawesome/font-awesome/webfonts';
         $assetFiles = $local->allFiles($pathPrefix);
 
         foreach ($assetFiles as $fullPath) {

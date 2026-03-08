@@ -116,7 +116,7 @@
     "require": {
         "php": "^8.2",
         "ext-json": "*",
-        "components/font-awesome": "^6.5.2",
+        "fortawesome/font-awesome": "^7.0",
         "composer/composer": "^2.7",
         "dflydev/fig-cookies": "^3.0",
         "doctrine/dbal": "^3.6.2",

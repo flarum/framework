@@ -32,7 +32,7 @@
         },
         "flarum-extension": {
             "title": "Lock",
-            "category": "feature",
+            "category": "moderation",
             "icon": {
                 "name": "fas fa-lock",
                 "backgroundColor": "#ddd",

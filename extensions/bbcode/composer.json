@@ -32,7 +32,7 @@
         },
         "flarum-extension": {
             "title": "BBCode",
-            "category": "feature",
+            "category": "formatting",
             "icon": {
                 "name": "fas fa-bold",
                 "backgroundColor": "#238C59",

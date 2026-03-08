@@ -38,14 +38,28 @@
         background-color: var(--control-bg);
         color: var(--control-color);
         border-bottom: 1px solid var(--muted-color);
-  
+
         > div {
           background-color: var(--control-bg);
         }
       }
     }
+
+    .GdprGrid--userColumns {
+      .GdprGrid-row {
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+      }
+    }
+
+    .GdprPiiBadge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: @primary-color;
+      font-weight: 600;
+    }
   }
-  
+
 
 [data-theme^=light] {
   --body-bg-darken-3: darken(@body-bg-light, 3%);

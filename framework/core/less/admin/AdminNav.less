@@ -178,9 +178,84 @@
 }
 
 .ExtensionListTitle {
+  // Reset button styles
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+
+  // Layout
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 4px 0;
+  padding: 0 10px 0 15px;
+
+  // Typography
   color: var(--muted-color);
-  text-transform: uppercase;
-  margin: 25px 0 8px 15px;
+  font-size: inherit;
+  font-weight: inherit;
+
+  &:hover {
+    color: var(--text-color);
+
+    .ExtensionListTitle-chevron {
+      opacity: 0.8;
+    }
+  }
+}
+
+.ExtensionListTitle-icon {
+  font-size: 11px;
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+}
+
+.ExtensionListTitle-label {
+  flex: 1;
+}
+
+.ExtensionListTitle-badge {
+  .Badge--size(16px);
+  font-size: 10px;
+  font-weight: bold;
+  flex-shrink: 0;
+
+  &.Badge--danger {
+    --badge-bg: @error-color;
+    --badge-color: var(--text-on-dark);
+  }
+
+  &.Badge--warning {
+    --badge-bg: @alert-color;
+    --badge-color: var(--text-on-dark);
+  }
+}
+
+.ExtensionListTitle-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--primary-color);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary-color-invert, #fff);
+  text-transform: none;
+  opacity: 0.75;
+}
+
+.ExtensionListTitle-chevron {
+  font-size: 9px;
+  opacity: 0.5;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
 }
 
 .ExtensionListItem-Dot {
@@ -197,7 +272,12 @@
   .Button-label {
     max-width: ~"calc(100% - 72px)";
     overflow: hidden;
+  }
+
+  .Button-labelText {
+    overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 

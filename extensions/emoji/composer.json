@@ -27,7 +27,7 @@
         },
         "flarum-extension": {
             "title": "Emoji",
-            "category": "feature",
+            "category": "formatting",
             "icon": {
                 "image": "icon.svg",
                 "backgroundColor": "#FECC4D"

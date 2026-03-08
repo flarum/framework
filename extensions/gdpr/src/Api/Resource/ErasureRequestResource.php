@@ -107,6 +107,7 @@ class ErasureRequestResource extends Resource\AbstractDatabaseResource
 
                     $request->cancelled_at = Carbon::now();
                     $request->status = ErasureRequest::STATUS_CANCELLED;
+                    $request->user_confirmed_at = null;
                     $request->verification_token = null;
                     $request->save();
 

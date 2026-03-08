@@ -32,7 +32,7 @@
         },
         "flarum-extension": {
             "title": "Mentions",
-            "category": "feature",
+            "category": "discussion",
             "optional-dependencies": [
                 "flarum/tags"
             ],

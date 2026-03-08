@@ -36,7 +36,7 @@ class NotificationMailer
         $this->translator->setLocale($user->getPreference('locale') ?? $this->settings->get('default_locale'));
 
         // Generate and save the unsubscribe token:
-        $unsubscribeRecord = UnsubscribeToken::generate($user->id, $blueprint::getType());
+        $unsubscribeRecord = $this->generateUnsubscribeToken($user->id, $blueprint::getType());
         $unsubscribeRecord->save();
 
         $unsubscribeLink = $this->url->to('forum')->route('notifications.unsubscribe', ['userId' => $user->id, 'token' => $unsubscribeRecord->token]);
@@ -58,6 +58,11 @@ class NotificationMailer
                         ->subject($blueprint->getEmailSubject($this->translator));
             }
         );
+    }
+
+    protected function generateUnsubscribeToken(int $userId, string $emailType): UnsubscribeToken
+    {
+        return UnsubscribeToken::generate($userId, $emailType);
     }
 
     /**

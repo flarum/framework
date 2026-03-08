@@ -15,19 +15,15 @@ export default [
     .add('gdpr-datatypes', DataType),
 
   new Extend.Admin()
-    .setting(() => ({
-      setting: 'flarum-gdpr.gdpr_page_link',
-      type: 'custom',
-      component: () => (
-        <div className="Form-group">
-          <label>{app.translator.trans('flarum-gdpr.admin.settings.gdpr_page.title')}</label>
-          <p className="helpText">{app.translator.trans('flarum-gdpr.admin.settings.gdpr_page.help_text')}</p>
-          <LinkButton href={app.route('gdpr')} icon="fas fa-user-shield" className="Button">
-            {app.translator.trans('flarum-gdpr.admin.nav.gdpr_button')}
-          </LinkButton>
-        </div>
-      ),
-    }))
+    .customSetting(() => (
+      <div className="Form-group">
+        <label>{app.translator.trans('flarum-gdpr.admin.settings.gdpr_page.title')}</label>
+        <p className="helpText">{app.translator.trans('flarum-gdpr.admin.settings.gdpr_page.help_text')}</p>
+        <LinkButton href={app.route('gdpr')} icon="fas fa-user-shield" className="Button">
+          {app.translator.trans('flarum-gdpr.admin.nav.gdpr_button')}
+        </LinkButton>
+      </div>
+    ))
     .setting(() => ({
       setting: 'flarum-gdpr.allow-anonymization',
       label: app.translator.trans('flarum-gdpr.admin.settings.allow_anonymization'),
@@ -52,7 +48,7 @@ export default [
     }))
     .setting(() => ({
       setting: 'flarum-gdpr.default-anonymous-username',
-      type: 'string',
+      type: 'text',
       label: app.translator.trans('flarum-gdpr.admin.settings.default_anonymous_username'),
       help: app.translator.trans('flarum-gdpr.admin.settings.default_anonymous_username_help'),
     }))

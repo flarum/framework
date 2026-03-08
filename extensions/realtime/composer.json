@@ -33,7 +33,7 @@
         },
         "flarum-extension": {
             "title": "Realtime",
-            "category": "feature",
+            "category": "infrastructure",
             "icon": {
                 "image": "resources/assets/logo.svg",
                 "backgroundColor": "#E3E7F1",

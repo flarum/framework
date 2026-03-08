@@ -24,7 +24,7 @@
     "extra": {
         "flarum-extension": {
             "title": "Messages",
-            "category": "feature",
+            "category": "discussion",
             "optional-dependencies": [
                 "flarum/tags"
             ],

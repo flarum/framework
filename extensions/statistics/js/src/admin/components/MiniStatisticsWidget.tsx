@@ -3,6 +3,7 @@ import app from 'flarum/admin/app';
 import DashboardWidget, { IDashboardWidgetAttrs } from 'flarum/admin/components/DashboardWidget';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Link from 'flarum/common/components/Link';
+import Icon from 'flarum/common/components/Icon';
 
 import abbreviateNumber from 'flarum/common/utils/abbreviateNumber';
 
@@ -46,7 +47,10 @@ export default class MiniStatisticsWidget extends DashboardWidget {
   content() {
     return (
       <div className="StatisticsWidget-table">
-        <h4 className="StatisticsWidget-title">{app.translator.trans('flarum-statistics.admin.statistics.mini_heading')}</h4>
+        <h4 className="StatisticsWidget-title">
+          <Icon name="fas fa-chart-bar" />
+          {app.translator.trans('flarum-statistics.admin.statistics.mini_heading')}
+        </h4>
 
         <div className="StatisticsWidget-entities">
           <div className="StatisticsWidget-labels">

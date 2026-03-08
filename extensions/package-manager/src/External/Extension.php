@@ -14,19 +14,13 @@ namespace Flarum\ExtensionManager\External;
  * @property string $title
  * @property string $description
  * @property string $icon_url
- * @property array $icon
- * @property string $license
+ * @property array  $icon
  * @property string $highest_version
  * @property string $http_uri
- * @property string $discuss_uri
  * @property string $vendor
- * @property bool $is_premium
- * @property bool $is_locale
- * @property string $locale
- * @property string $latest_flarum_version_supported
- * @property bool $compatible_with_latest_flarum
- * @property bool $listed_privately
- * @property int $downloads
+ * @property bool   $is_locale
+ * @property bool   $abandoned
+ * @property int    $downloads
  */
 class Extension
 {
@@ -40,10 +34,8 @@ class Extension
     protected function casts(): array
     {
         return [
-            'is_premium' => 'bool',
             'is_locale' => 'bool',
-            'compatible_with_latest_flarum' => 'bool',
-            'listed_privately' => 'bool',
+            'abandoned' => 'bool',
             'downloads' => 'int',
         ];
     }

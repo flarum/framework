@@ -32,7 +32,7 @@
         },
         "flarum-extension": {
             "title": "Suspend",
-            "category": "feature",
+            "category": "moderation",
             "icon": {
                 "name": "fas fa-ban",
                 "backgroundColor": "#ddd",

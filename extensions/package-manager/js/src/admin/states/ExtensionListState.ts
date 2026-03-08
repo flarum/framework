@@ -19,10 +19,6 @@ export default class ExtensionListState extends PaginatedListState<ExternalExten
 
   sortMap(): SortMap {
     return {
-      '-createdAt': {
-        sort: '-createdAt',
-        label: app.translator.trans('flarum-extension-manager.admin.sections.discover.sort.latest', {}, true),
-      },
       '-downloads': {
         sort: '-downloads',
         label: app.translator.trans('flarum-extension-manager.admin.sections.discover.sort.top', {}, true),

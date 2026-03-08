@@ -57,6 +57,10 @@ class Exporter
 
             $data = $segment->export();
 
+            if ($data === null) {
+                continue;
+            }
+
             // Check if the array is an indexed array of associative arrays
             if (is_array($data) && array_values($data) === $data) {
                 // Handling list of associative arrays

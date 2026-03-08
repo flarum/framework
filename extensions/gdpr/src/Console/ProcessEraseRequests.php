@@ -29,6 +29,7 @@ class ProcessEraseRequests extends Command
             ->whereNotNull('user_confirmed_at')
             ->whereNull('processed_at')
             ->where('user_confirmed_at', '<=', Carbon::now()->subDays(static::days))
+            ->whereNull('cancelled_at')
             ->each(function (ErasureRequest $request) use ($queue, $settings) {
                 $request->status = ErasureRequest::STATUS_PROCESSED;
                 $request->processed_at = Carbon::now();

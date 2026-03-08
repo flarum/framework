@@ -9,7 +9,6 @@
 
 namespace Flarum\ExtensionManager\Api\Resource;
 
-use Composer\Semver\Semver;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\AbstractResource;
 use Flarum\Api\Resource\Contracts\Countable;
@@ -20,18 +19,33 @@ use Flarum\ExtensionManager\Api\Schema\SortColumn;
 use Flarum\ExtensionManager\Exception\CannotFetchExternalExtension;
 use Flarum\ExtensionManager\External\Extension;
 use Flarum\ExtensionManager\External\RequestWrapper;
-use Flarum\Foundation\Application;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Tobyz\JsonApiServer\Context;
 use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 use Tobyz\JsonApiServer\Schema\CustomFilter;
 
 class ExternalExtensionResource extends AbstractResource implements Listable, Paginatable, Countable
 {
+    /**
+     * Packagist search API.
+     * Docs: https://packagist.org/apidoc#search-packages-by-type.
+     */
+    protected const PACKAGIST_SEARCH_URL = 'https://packagist.org/search.json';
+
+    /**
+     * All Flarum packages use the 'flarum-extension' Packagist type.
+     * Language packs and themes cannot be filtered by type; instead we narrow via a search query.
+     * Maps frontend filter[type] value → ['param' => 'type'|'q', 'value' => string].
+     */
+    protected const TYPE_FILTER_MAP = [
+        // 'extension' tab: keep default type, no extra param needed
+        'locale' => ['param' => 'q',    'value' => 'flarum-lang'],
+        'theme' => ['param' => 'q',    'value' => 'flarum theme'],
+    ];
+
     protected ?int $totalResults = null;
 
     public function __construct(
@@ -69,31 +83,17 @@ class ExternalExtensionResource extends AbstractResource implements Listable, Pa
                 ->property('highest_version'),
             Schema\Str::make('httpUri')
                 ->property('http_uri'),
-            Schema\Str::make('discussUri')
-                ->property('discuss_uri'),
             Schema\Str::make('vendor'),
-            Schema\Boolean::make('isPremium')
-                ->property('is_premium'),
             Schema\Boolean::make('isLocale')
                 ->property('is_locale'),
-            Schema\Str::make('locale'),
-            Schema\Str::make('latestFlarumVersionSupported')
-                ->property('latest_flarum_version_supported'),
-            Schema\Boolean::make('compatibleWithLatestFlarum')
-                ->property('compatible_with_latest_flarum'),
             Schema\Integer::make('downloads'),
-
-            Schema\Boolean::make('isSupported')
-                ->get(function (Extension $extension) {
-                    return Semver::satisfies(Application::VERSION, $extension->latest_flarum_version_supported);
-                }),
+            Schema\Boolean::make('abandoned'),
         ];
     }
 
     public function sorts(): array
     {
         return [
-            SortColumn::make('createdAt'),
             SortColumn::make('downloads'),
         ];
     }
@@ -102,35 +102,20 @@ class ExternalExtensionResource extends AbstractResource implements Listable, Pa
     {
         return [
             CustomFilter::make('type', function (object $query, ?string $value) {
-                if ($value) {
-                    /** @var RequestWrapper $query */
-                    $query->withQueryParams([
-                        'filter' => [
-                            'type' => $value,
-                        ],
-                    ]);
+                /** @var RequestWrapper $query */
+                if (! $value || ! isset(static::TYPE_FILTER_MAP[$value])) {
+                    // 'extension' tab or unknown: keep default type=flarum-extension from query().
+                    return;
                 }
-            }),
 
-            CustomFilter::make('is', function (object $query, null|string|array $value) {
-                if ($value) {
-                    /** @var RequestWrapper $query */
-                    $query->withQueryParams([
-                        'filter' => [
-                            'is' => (array) $value,
-                        ],
-                    ]);
-                }
+                $filter = static::TYPE_FILTER_MAP[$value];
+                $query->setQueryParam($filter['param'], $filter['value']);
             }),
 
             CustomFilter::make('q', function (object $query, ?string $value) {
                 if ($value) {
                     /** @var RequestWrapper $query */
-                    $query->withQueryParams([
-                        'filter' => [
-                            'q' => $value,
-                        ],
-                    ]);
+                    $query->setQueryParam('q', $value);
                 }
             }),
         ];
@@ -138,24 +123,16 @@ class ExternalExtensionResource extends AbstractResource implements Listable, Pa
 
     public function query(Context $context): object
     {
-        return (new RequestWrapper($this->cache, 'https://flarum.org/api/extensions', 'GET', [
+        return (new RequestWrapper($this->cache, static::PACKAGIST_SEARCH_URL, 'GET', [
             'Accept' => 'application/json',
-        ]))->withQueryParams([
-            'filter' => [
-                'compatible-with' => Application::VERSION,
-            ],
-        ]);
+        ]))->setQueryParam('type', 'flarum-extension');
     }
 
     public function paginate(object $query, OffsetPagination $pagination): void
     {
         /** @var RequestWrapper $query */
-        $query->withQueryParams([
-            'page' => [
-                'offset' => $pagination->offset,
-                'limit' => $pagination->limit,
-            ],
-        ]);
+        $query->setQueryParam('page', (int) floor($pagination->offset / $pagination->limit) + 1);
+        $query->setQueryParam('per_page', $pagination->limit);
     }
 
     public function results(object $query, Context $context): iterable
@@ -175,20 +152,26 @@ class ExternalExtensionResource extends AbstractResource implements Listable, Pa
             return json_decode($response->getBody()->getContents(), true);
         });
 
-        $this->totalResults = $json['meta']['page']['total'] ?? null;
+        $this->totalResults = $json['total'] ?? null;
 
-        return (new Collection($json['data']))
+        return (new Collection($json['results'] ?? []))
             ->map(function (array $data) {
-                $attributes = $data['attributes'];
+                $nameParts = explode('/', $data['name'], 2);
 
-                $attributes = array_combine(
-                    array_map(fn ($key) => Str::snake(Str::camel($key)), array_keys($attributes)),
-                    array_values($attributes)
-                );
-
-                return new Extension(array_merge([
-                    'id' => $data['id'],
-                ], $attributes));
+                return new Extension([
+                    'id' => $data['name'],
+                    'name' => $data['name'],
+                    'title' => $data['name'],
+                    'description' => $data['description'] ?? null,
+                    'vendor' => $nameParts[0] ?? null,
+                    'http_uri' => $data['url'] ?? null,
+                    'icon_url' => null,
+                    'icon' => null,
+                    'downloads' => (int) ($data['downloads'] ?? 0),
+                    'abandoned' => ! empty($data['abandoned']),
+                    'is_locale' => false,
+                    'highest_version' => null,
+                ]);
             });
     }
 

@@ -12,15 +12,10 @@ export default class ExternalExtension extends Model {
     };
     highestVersion: () => string;
     httpUri: () => string;
-    discussUri: () => string;
     vendor: () => string;
-    isPremium: () => boolean;
     isLocale: () => boolean;
-    locale: () => string;
-    latestFlarumVersionSupported: () => string;
     downloads: () => number;
-    isSupported: () => boolean;
+    abandoned: () => boolean;
     readonly installed = false;
-    isProductionReady(): boolean;
     toLocalExtension(): Extension;
 }

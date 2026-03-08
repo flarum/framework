@@ -11,12 +11,14 @@ namespace Flarum\Mail;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\UserRepository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Arr;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class MailServiceProvider extends AbstractServiceProvider
@@ -72,6 +74,8 @@ class MailServiceProvider extends AbstractServiceProvider
                 $container['symfony.mailer.transport'],
                 $container['events'],
                 $settings,
+                $container->make(LoggerInterface::class),
+                $container->make(UserRepository::class),
             );
 
             if ($container->bound('queue')) {

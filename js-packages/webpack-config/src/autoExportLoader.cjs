@@ -24,7 +24,7 @@ let namespace;
 function addAutoExports(source, pathToModule, moduleName) {
   let addition = '';
 
-  const defaultExportMatches = [...source.matchAll(/export\s+?default\s(?:abstract\s)?(?:(?:function|abstract|class)\s)?([A-Za-z_]*)/gm)];
+  const defaultExportMatches = [...source.matchAll(/export\s+?default\s(?:abstract\s)?(?:async\s)?(?:(?:function|abstract|class)\s)?([A-Za-z_]*)/gm)];
   const defaultExport = defaultExportMatches.length ? defaultExportMatches[0][1] : null;
 
   // In case of an index.js file that exports multiple modules

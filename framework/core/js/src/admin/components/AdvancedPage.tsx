@@ -363,7 +363,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
                 setting: 'fontawesome_cdn_url',
                 label: app.translator.trans('core.admin.advanced.fontawesome.cdn_url_label'),
                 help: app.translator.trans('core.admin.advanced.fontawesome.cdn_url_help'),
-                placeholder: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css',
+                placeholder: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.2.0/css/all.min.css',
               })}
 
             {source === 'kit' &&
@@ -376,6 +376,10 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
               })}
           </Form>
         )}
+
+        <Button className="Button" icon="fas fa-icons" onclick={() => app.modal.show(() => import('./FontAwesomePreviewModal'))}>
+          {app.translator.trans('core.admin.advanced.fontawesome.preview.button')}
+        </Button>
       </FormSection>
     );
   }

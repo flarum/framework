@@ -113,6 +113,24 @@ class ExtensionManager
         return $this->extensions;
     }
 
+    /**
+     * Returns a flat list of all installed composer package names (including non-extension packages).
+     * Useful for checking whether a suggested package is already installed.
+     *
+     * @return string[]
+     */
+    public function getInstalledPackageNames(): array
+    {
+        if (! $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
+            return [];
+        }
+
+        $installed = json_decode($this->filesystem->get($this->paths->vendor.'/composer/installed.json'), true);
+        $installed = $installed['packages'] ?? $installed;
+
+        return array_values(array_filter(array_column($installed, 'name')));
+    }
+
     public function getExtensionsById(array $ids): Collection
     {
         return $this->getExtensions()->filter(function (Extension $extension) use ($ids) {

@@ -6,12 +6,23 @@
   padding: 0;
 
   &--mini {
-    padding-top: 20px;
+    padding-top: 0;
   }
 
   &-title {
-    margin: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 16px 20px 12px;
+    font-size: 13px;
+    font-weight: 600;
     color: var(--muted-color);
+
+    .icon {
+      font-size: 12px;
+      opacity: 0.7;
+    }
   }
 
   &-entities {

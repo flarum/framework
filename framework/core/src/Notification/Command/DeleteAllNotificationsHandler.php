@@ -11,6 +11,7 @@ namespace Flarum\Notification\Command;
 
 use Flarum\Notification\Event\DeletedAll;
 use Flarum\Notification\NotificationRepository;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Carbon;
 
@@ -18,7 +19,8 @@ class DeleteAllNotificationsHandler
 {
     public function __construct(
         protected NotificationRepository $notifications,
-        protected Dispatcher $events
+        protected Dispatcher $events,
+        protected CacheRepository $cache
     ) {
     }
 
@@ -29,6 +31,10 @@ class DeleteAllNotificationsHandler
         $actor->assertRegistered();
 
         $this->notifications->deleteAll($actor);
+
+        // Invalidate notification count caches
+        $this->cache->forget("user.{$actor->id}.unread_notification_count");
+        $this->cache->forget("user.{$actor->id}.new_notification_count");
 
         $this->events->dispatch(new DeletedAll($actor, Carbon::now()));
     }

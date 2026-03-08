@@ -32,7 +32,7 @@
         },
         "flarum-extension": {
             "title": "Embed",
-            "category": "feature",
+            "category": "formatting",
             "icon": {
                 "name": "fas fa-code",
                 "backgroundColor": "#B9D233",

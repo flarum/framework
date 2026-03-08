@@ -34,6 +34,7 @@ export interface Extension {
         };
     };
     require?: Record<string, string>;
+    suggest?: Record<string, string>;
     abandoned?: boolean | string;
 }
 export declare enum DatabaseDriver {
@@ -43,6 +44,7 @@ export declare enum DatabaseDriver {
 }
 export interface AdminApplicationData extends ApplicationData {
     extensions: Record<string, Extension>;
+    installedPackages: string[];
     settings: Record<string, string>;
     modelStatistics: Record<string, {
         total: number;

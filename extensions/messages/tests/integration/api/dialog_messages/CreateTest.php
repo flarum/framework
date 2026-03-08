@@ -45,6 +45,38 @@ class CreateTest extends TestCase
         ]);
     }
 
+    public function test_created_message_response_contains_integer_number_not_expression(): void
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/dialog-messages', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'type' => 'dialog-messages',
+                        'attributes' => [
+                            'content' => 'Hello, Bob!',
+                            'users' => [
+                                ['id' => 4],
+                            ],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $data = json_decode($response->getBody()->getContents(), true);
+        $number = $data['data']['attributes']['number'];
+
+        // Regression test: DialogMessage::creating() sets $message->number to a raw
+        // DB Expression for atomic post numbering. If the model is not refreshed after
+        // save, the Expression leaks into serialization where the integer cast throws
+        // "Object of class Expression could not be converted to int".
+        $this->assertIsInt($number, 'number attribute should be a concrete integer, not a DB Expression object');
+        $this->assertGreaterThanOrEqual(1, $number);
+    }
+
     public function test_can_create_a_direct_private_conversation_with_someone(): void
     {
         $response = $this->send(
