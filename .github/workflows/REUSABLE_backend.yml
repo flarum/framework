@@ -102,26 +102,26 @@ jobs:
             db: PostgreSQL 10
             driver: pgsql
 
-          # Include Database prefix tests with only one PHP version.
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+          # Include Database prefix tests with only one PHP version (latest).
+          - php: ${{ fromJSON(inputs.php_versions)[3] }}
             service: 'mysql:5.7'
             db: MySQL 5.7
             driver: mysql
             prefix: flarum_
             prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+          - php: ${{ fromJSON(inputs.php_versions)[3] }}
             service: mariadb
             db: MariaDB
             driver: mariadb
             prefix: flarum_
             prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+          - php: ${{ fromJSON(inputs.php_versions)[3] }}
             service: 'sqlite:3'
             db: SQLite
             driver: sqlite
             prefix: flarum_
             prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+          - php: ${{ fromJSON(inputs.php_versions)[3] }}
             service: 'postgres:10'
             db: PostgreSQL 10
             driver: pgsql
