@@ -28,20 +28,21 @@ export default class DiscussionTaggedPost extends EventPost {
     };
 
     if (this.fetchRequired) {
-      app.store.find('tags').then(afterFetch).catch(() => {
-        this.loading = false;
-        m.redraw();
-      });
+      app.store
+        .find('tags')
+        .then(afterFetch)
+        .catch(() => {
+          this.loading = false;
+          m.redraw();
+        });
     } else {
       afterFetch();
     }
   }
 
   diffTags(tags1, tags2) {
-    return tags1
-      .filter((tag) => tags2.indexOf(tag) === -1)
-      .map((id) => app.store.getById('tags', id))
-      // .filter(Boolean);
+    return tags1.filter((tag) => tags2.indexOf(tag) === -1).map((id) => app.store.getById('tags', id));
+    // .filter(Boolean);
   }
 
   icon() {
