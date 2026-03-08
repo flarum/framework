@@ -128,21 +128,34 @@ jobs:
             prefix: flarum_
             prefixStr: (prefix)
 
-        # To reduce number of actions, we exclude some PHP versions from running with some DB versions.
+        # To reduce number of actions:
+        # - MySQL 8.0 runs on all PHP versions (primary DB for PHP version coverage)
+        # - All other DBs run on latest PHP only (DB-specific bugs don't depend on PHP version)
+        # - MySQL 5.7 also runs on latest PHP only (floor version coverage)
         exclude:
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'mysql:5.7'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'mysql:8.0.30'
+            service: 'mysql:5.7'
+          - php: ${{ fromJSON(inputs.php_versions)[2] }}
+            service: 'mysql:5.7'
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: mariadb
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: mariadb
+          - php: ${{ fromJSON(inputs.php_versions)[2] }}
             service: mariadb
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'sqlite:3'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: 'sqlite:3'
+          - php: ${{ fromJSON(inputs.php_versions)[2] }}
             service: 'sqlite:3'
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'postgres:10'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: 'postgres:10'
+          - php: ${{ fromJSON(inputs.php_versions)[2] }}
             service: 'postgres:10'
 
     services:
