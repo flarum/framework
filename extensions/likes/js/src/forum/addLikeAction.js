@@ -2,6 +2,7 @@ import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import Button from 'flarum/common/components/Button';
 import CommentPost from 'flarum/forum/components/CommentPost';
+import haptic from 'flarum/common/utils/haptic';
 
 export default function () {
   extend(CommentPost.prototype, 'actionItems', function (items) {
@@ -19,6 +20,8 @@ export default function () {
         className="Button Button--link"
         onclick={() => {
           isLiked = !isLiked;
+
+          if (isLiked) haptic('success');
 
           post.save({ isLiked });
 

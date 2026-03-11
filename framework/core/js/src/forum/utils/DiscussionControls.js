@@ -5,6 +5,7 @@ import Separator from '../../common/components/Separator';
 import RenameDiscussionModal from '../components/RenameDiscussionModal';
 import ItemList from '../../common/utils/ItemList';
 import extractText from '../../common/utils/extractText';
+import haptic from '../../common/utils/haptic';
 
 /**
  * The `DiscussionControls` utility constructs a list of buttons for a
@@ -194,6 +195,7 @@ const DiscussionControls = {
    * @return {Promise<void>}
    */
   hideAction() {
+    haptic('heavy');
     this.pushData({ attributes: { hiddenAt: new Date() }, relationships: { hiddenUser: app.session.user } });
 
     return this.save({ isHidden: true });
@@ -205,6 +207,7 @@ const DiscussionControls = {
    * @return {Promise<void>}
    */
   restoreAction() {
+    haptic('success');
     this.pushData({ attributes: { hiddenAt: null }, relationships: { hiddenUser: null } });
 
     return this.save({ isHidden: false });
@@ -217,6 +220,7 @@ const DiscussionControls = {
    */
   deleteAction() {
     if (confirm(extractText(app.translator.trans('core.forum.discussion_controls.delete_confirmation')))) {
+      haptic('heavy');
       // If we're currently viewing the discussion that was deleted, go back
       // to the previous page.
       if (app.viewingDiscussion(this)) {

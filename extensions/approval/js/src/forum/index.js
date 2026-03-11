@@ -8,6 +8,7 @@ import PostComponent from 'flarum/forum/components/Post';
 import CommentPost from 'flarum/forum/components/CommentPost';
 import Button from 'flarum/common/components/Button';
 import PostControls from 'flarum/forum/utils/PostControls';
+import haptic from 'flarum/common/utils/haptic';
 
 app.initializers.add(
   'flarum-approval',
@@ -70,6 +71,7 @@ app.initializers.add(
     });
 
     PostControls.approveAction = function () {
+      haptic('success');
       this.save({ isApproved: true });
 
       if (this.number() === 1) {

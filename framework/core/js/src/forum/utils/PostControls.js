@@ -3,6 +3,7 @@ import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import ItemList from '../../common/utils/ItemList';
 import extractText from '../../common/utils/extractText';
+import haptic from '../../common/utils/haptic';
 
 /**
  * The `PostControls` utility constructs a list of buttons for a post which
@@ -142,6 +143,7 @@ const PostControls = {
    */
   hideAction() {
     if (!confirm(extractText(app.translator.trans('core.forum.post_controls.hide_confirmation')))) return;
+    haptic('heavy');
     this.pushData({ attributes: { hiddenAt: new Date() }, relationships: { hiddenUser: app.session.user } });
 
     return this.save({ isHidden: true }).then(() => m.redraw());
@@ -165,6 +167,7 @@ const PostControls = {
    */
   deleteAction(context) {
     if (!confirm(extractText(app.translator.trans('core.forum.post_controls.delete_confirmation')))) return;
+    haptic('heavy');
     if (context) context.loading = true;
 
     return this.delete()

@@ -18,7 +18,8 @@
         "nanoid": "^3.1.30",
         "punycode": "^2.1.1",
         "textarea-caret": "^3.1.0",
-        "throttle-debounce": "^3.0.1"
+        "throttle-debounce": "^3.0.1",
+        "web-haptics": "^0.0.6"
     },
     "devDependencies": {
         "@flarum/jest-config": "^2.0.0",

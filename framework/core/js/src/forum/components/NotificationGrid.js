@@ -3,6 +3,7 @@ import Component from '../../common/Component';
 import Checkbox from '../../common/components/Checkbox';
 import ItemList from '../../common/utils/ItemList';
 import Icon from '../../common/components/Icon';
+import haptic from '../../common/utils/haptic';
 
 /**
  * The `NotificationGrid` component displays a table of notification types and
@@ -114,6 +115,8 @@ export default class NotificationGrid extends Component {
    * @param {string[]} keys
    */
   toggle(keys) {
+    haptic('light');
+
     const user = this.attrs.user;
     const preferences = user.preferences();
     const enabled = !preferences[keys[0]];

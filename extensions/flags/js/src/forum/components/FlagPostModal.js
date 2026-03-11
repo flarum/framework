@@ -6,6 +6,7 @@ import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
 import withAttr from 'flarum/common/utils/withAttr';
 import ItemList from 'flarum/common/utils/ItemList';
+import haptic from 'flarum/common/utils/haptic';
 
 export default class FlagPostModal extends FormModal {
   oninit(vnode) {
@@ -142,6 +143,7 @@ export default class FlagPostModal extends FormModal {
   onsubmit(e) {
     e.preventDefault();
 
+    haptic('warning');
     this.loading = true;
 
     app.store
@@ -156,7 +158,9 @@ export default class FlagPostModal extends FormModal {
         },
         { errorHandler: this.onerror.bind(this) }
       )
-      .then(() => (this.success = true))
+      .then(() => {
+        this.success = true;
+      })
       .catch(() => {})
       .then(this.loaded.bind(this));
   }

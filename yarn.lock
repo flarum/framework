@@ -5227,6 +5227,11 @@ watchpack@^2.4.4:
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.1.2"
 
+web-haptics@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/web-haptics/-/web-haptics-0.0.6.tgz#e27060aff15d6e4ef4b4cbe084711f0b06e6a58d"
+  integrity sha512-eCzcf1LDi20+Fr0x9V3OkX92k0gxEQXaHajmhXHitsnk6SxPeshv8TBtBRqxyst8HI1uf2FyFVE7QS3jo1gkrw==
+
 webidl-conversions@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-7.0.0.tgz#256b4e1882be7debbf01d05f0aa2039778ea080a"

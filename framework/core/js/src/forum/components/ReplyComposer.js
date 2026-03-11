@@ -4,6 +4,7 @@ import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import extractText from '../../common/utils/extractText';
 import Icon from '../../common/components/Icon';
+import haptic from '../../common/utils/haptic';
 
 function minimizeComposerIfFullScreen(e) {
   if (app.composer.isFullScreen()) {
@@ -71,6 +72,7 @@ export default class ReplyComposer extends ComposerBody {
   onsubmit() {
     const discussion = this.attrs.discussion;
 
+    haptic('success');
     this.loading = true;
     m.redraw();
 
@@ -80,6 +82,7 @@ export default class ReplyComposer extends ComposerBody {
       .createRecord('posts')
       .save(data)
       .then((post) => {
+
         // If we're currently viewing the discussion which this reply was made
         // in, then we can update the post stream and scroll to the post.
         if (app.viewingDiscussion(discussion)) {
