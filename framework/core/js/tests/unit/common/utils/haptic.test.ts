@@ -1,15 +1,18 @@
-jest.mock('web-haptics');
-
+import { jest } from '@jest/globals';
 import { WebHaptics } from 'web-haptics';
 import haptic, { isHapticSupported } from '../../../../src/common/utils/haptic';
 
 // haptic.ts creates `_haptics = new WebHaptics()` at module load.
-// Auto-mock replaces prototype methods with jest.fn().
-const mockTrigger = WebHaptics.prototype.trigger as jest.Mock;
-
+// Spying on the prototype intercepts calls on the already-created instance.
 describe('haptic', () => {
+  let mockTrigger: ReturnType<typeof jest.spyOn>;
+
   beforeEach(() => {
-    mockTrigger.mockClear();
+    mockTrigger = jest.spyOn(WebHaptics.prototype, 'trigger').mockImplementation(() => Promise.resolve());
+  });
+
+  afterEach(() => {
+    mockTrigger.mockRestore();
   });
 
   describe('presets', () => {
@@ -50,29 +53,23 @@ describe('haptic', () => {
       expect(isHapticSupported).toBe(false);
     });
 
-    it('is true when navigator.vibrate is a function', () => {
+    it('is true when navigator.vibrate is a function', async () => {
       Object.defineProperty(navigator, 'vibrate', { value: jest.fn(), writable: true, configurable: true });
 
-      let supported: boolean | undefined;
-      jest.isolateModules(() => {
-        jest.mock('web-haptics');
-        ({ isHapticSupported: supported } = require('../../../../src/common/utils/haptic'));
-      });
+      jest.resetModules();
+      const { isHapticSupported: supported } = await import('../../../../src/common/utils/haptic');
 
       expect(supported).toBe(true);
 
       Object.defineProperty(navigator, 'vibrate', { value: undefined, writable: true, configurable: true });
     });
 
-    it('is true on iOS userAgent', () => {
+    it('is true on iOS userAgent', async () => {
       const originalUserAgent = navigator.userAgent;
       Object.defineProperty(navigator, 'userAgent', { value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)', writable: true, configurable: true });
 
-      let supported: boolean | undefined;
-      jest.isolateModules(() => {
-        jest.mock('web-haptics');
-        ({ isHapticSupported: supported } = require('../../../../src/common/utils/haptic'));
-      });
+      jest.resetModules();
+      const { isHapticSupported: supported } = await import('../../../../src/common/utils/haptic');
 
       expect(supported).toBe(true);
 
