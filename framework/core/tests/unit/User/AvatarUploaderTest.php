@@ -113,6 +113,12 @@ class AvatarUploaderTest extends TestCase
 
         $this->uploader->upload($user, ImageManager::gd()->create(50, 50));
 
+        // Simulate saving
+        foreach ($user->releaseAfterSaveCallbacks() as $callback) {
+            $callback($user);
+        }
+        $user->syncOriginal();
+
         $this->assertStringEndsWith('.webp', $user->getRawOriginal('avatar_url'));
     }
 }
