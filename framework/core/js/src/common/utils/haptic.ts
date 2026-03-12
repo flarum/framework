@@ -18,20 +18,7 @@
 import { WebHaptics } from 'web-haptics';
 import type { HapticInput } from 'web-haptics';
 
-/**
- * Named haptic presets, delegated to `web-haptics` built-in patterns.
- *
- * Feel-based: `'light'`, `'medium'`, `'heavy'`
- * Semantic:   `'success'`, `'warning'`, `'error'`
- * Character:  `'nudge'`
- */
-export type HapticPreset = 'light' | 'medium' | 'heavy' | 'success' | 'warning' | 'error' | 'nudge';
-
-/**
- * A custom haptic pattern: a duration in ms, or an alternating
- * vibrate/pause sequence in ms (e.g. `[100, 50, 100]`).
- */
-export type HapticPattern = number | number[];
+export type { HapticInput };
 
 /**
  * Whether the current device supports haptic feedback.
@@ -66,6 +53,6 @@ const _haptics = new WebHaptics();
  * haptic(50);             // single vibration, 50ms
  * haptic([100, 50, 100]); // vibrate 100ms, pause 50ms, vibrate 100ms
  */
-export default function haptic(pattern: HapticPreset | HapticPattern = 'light'): void {
+export default function haptic(pattern: HapticInput = 'light'): void {
   _haptics.trigger(pattern as HapticInput);
 }
