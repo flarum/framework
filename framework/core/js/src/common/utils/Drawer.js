@@ -12,6 +12,11 @@ export default class Drawer {
   focusTrap;
 
   /**
+   * @type {?CloseWatcher}
+   */
+  closeWatcher = null;
+
+  /**
    * @type {HTMLDivElement}
    */
   appElement;
@@ -84,6 +89,7 @@ export default class Drawer {
 
     this.focusTrap.deactivate();
     this.drawerAvailableMediaQuery.removeListener(this.resizeHandler);
+    this.closeWatcher?.destroy();
 
     if (!this.isOpen()) return;
 
@@ -106,6 +112,14 @@ export default class Drawer {
     this.drawerAvailableMediaQuery.addListener(this.resizeHandler);
 
     this.$backdrop = $('<div/>').addClass('drawer-backdrop fade').appendTo('body').on('click', this.hide.bind(this));
+
+    if ('CloseWatcher' in window) {
+      this.closeWatcher = new CloseWatcher();
+      this.closeWatcher.onclose = () => {
+        this.closeWatcher = null;
+        this.hide();
+      };
+    }
 
     requestAnimationFrame(() => {
       this.$backdrop.addClass('in');
