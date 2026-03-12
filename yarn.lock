@@ -1443,6 +1443,11 @@
   resolved "https://registry.yarnpkg.com/@types/body-scroll-lock/-/body-scroll-lock-3.1.2.tgz#1ae7857d98180dbe6c3b05abbe7ec1fa67b614e3"
   integrity sha512-ELhtuphE/YbhEcpBf/rIV9Tl3/O0A0gpCVD+oYFSS8bWstHFJUgA4nNw1ZakVlRC38XaQEIsBogUZKWIPBvpfQ==
 
+"@types/dom-close-watcher@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/dom-close-watcher/-/dom-close-watcher-1.0.0.tgz#aa23a076e226070397a10ead5b712881b29e632f"
+  integrity sha512-7pL0By56sVVGMSJ3HdSY+u08Id0ljStCaf1VnGFxwfpuNdA0HMz0sl2J24eSi9M6ptl9ySkVK35jF75Fn8trUg==
+
 "@types/eslint-scope@^3.7.7":
   version "3.7.7"
   resolved "https://registry.yarnpkg.com/@types/eslint-scope/-/eslint-scope-3.7.7.tgz#3108bd5f18b0cdb277c867b3dd449c9ed7079ac5"
