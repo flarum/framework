@@ -17,6 +17,7 @@ use Flarum\Extension\Console\BisectCommand;
 use Flarum\Extension\Console\ToggleExtensionCommand;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\AssetsPublishCommand;
+use Flarum\User\Console\ConvertAvatarsToWebpCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
 use Illuminate\Console\Events\CommandFinished;
@@ -69,6 +70,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
                 ScheduleRunCommand::class,
                 ToggleExtensionCommand::class,
                 BisectCommand::class,
+                ConvertAvatarsToWebpCommand::class,
                 // Used internally to create DB dumps before major releases.
                 // \Flarum\Database\Console\GenerateDumpCommand::class
             ];

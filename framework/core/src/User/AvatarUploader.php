@@ -32,8 +32,8 @@ class AvatarUploader
             $encodedImage = $image->toGif();
             $avatarPath .= '.gif';
         } else {
-            $encodedImage = $image->toPng();
-            $avatarPath .= '.png';
+            $encodedImage = $image->toWebp();
+            $avatarPath .= '.webp';
         }
 
         $this->removeFileAfterSave($user);
