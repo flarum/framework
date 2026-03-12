@@ -150,6 +150,7 @@ class UserServiceProvider extends AbstractServiceProvider
         User::registerPreference('indexProfile', 'boolval', true);
         User::registerPreference('locale');
         User::registerPreference('colorScheme', 'strval', 'auto');
+        User::registerPreference('hapticFeedback', 'boolval', true);
 
         User::registerVisibilityScoper(new ScopeUserVisibility(), 'view');
     }

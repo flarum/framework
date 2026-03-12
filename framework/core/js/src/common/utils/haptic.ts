@@ -15,6 +15,7 @@
  * @see https://github.com/lochie/web-haptics
  */
 
+import app from '../app';
 import { WebHaptics } from 'web-haptics';
 import type { HapticInput } from 'web-haptics';
 
@@ -54,5 +55,7 @@ const _haptics = new WebHaptics();
  * haptic([100, 50, 100]); // vibrate 100ms, pause 50ms, vibrate 100ms
  */
 export default function haptic(pattern: HapticInput = 'light'): void {
+  if (app.session?.user && app.session.user.preferences()?.hapticFeedback === false) return;
+
   _haptics.trigger(pattern as HapticInput);
 }

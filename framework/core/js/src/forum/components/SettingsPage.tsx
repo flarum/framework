@@ -22,6 +22,7 @@ import { ComponentAttrs } from '../../common/Component';
 export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPageAttrs> extends UserPage<CustomAttrs> {
   discloseOnlineLoading?: boolean;
   colorSchemeLoading?: boolean;
+  hapticFeedbackLoading?: boolean;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -55,8 +56,8 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
   settingsItems() {
     const items = new ItemList<Mithril.Children>();
 
-    ['account', 'notifications', 'privacy', 'colorScheme'].forEach((section, index) => {
-      const sectionItems = `${section}Items` as 'accountItems' | 'notificationsItems' | 'privacyItems';
+    ['account', 'notifications', 'privacy', 'device', 'colorScheme'].forEach((section, index) => {
+      const sectionItems = `${section}Items` as 'accountItems' | 'notificationsItems' | 'privacyItems' | 'deviceItems';
 
       const { className, visible, ...props } = this.sectionProps()[section] || {};
 
@@ -135,6 +136,35 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
         loading={this.discloseOnlineLoading}
       >
         {app.translator.trans('core.forum.settings.privacy_disclose_online_label')}
+      </Switch>,
+      100
+    );
+
+    return items;
+  }
+
+  /**
+   * Build an item list for the user's device settings.
+   */
+  deviceItems() {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'hapticFeedback',
+      <Switch
+        state={this.user!.preferences()?.hapticFeedback}
+        onchange={(value: boolean) => {
+          this.hapticFeedbackLoading = true;
+
+          this.user!.savePreferences({ hapticFeedback: value }).then(() => {
+            this.hapticFeedbackLoading = false;
+            m.redraw();
+          });
+        }}
+        loading={this.hapticFeedbackLoading}
+      >
+        {app.translator.trans('core.forum.settings.haptic_feedback_label')}
+        <span className="helpText">{app.translator.trans('core.forum.settings.haptic_feedback_help')}</span>
       </Switch>,
       100
     );

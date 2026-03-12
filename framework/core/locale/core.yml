@@ -710,6 +710,9 @@ core:
       notify_by_email_heading: => core.ref.email
       notify_by_web_heading: Web
       notify_discussion_renamed_label: Someone renames a discussion I started
+      device_heading: Device
+      haptic_feedback_help: Only available on supported mobile devices
+      haptic_feedback_label: Enable haptic feedback
       privacy_disclose_online_label: Allow others to see when I am online
       privacy_heading: Privacy
       title: => core.ref.settings
