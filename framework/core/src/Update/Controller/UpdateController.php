@@ -33,7 +33,8 @@ class UpdateController implements RequestHandlerInterface
     {
         $input = $request->getParsedBody();
 
-        if (Arr::get($input, 'databasePassword') !== $this->config['database.password']) {
+        if ($this->databaseHasPassword()
+            && Arr::get($input, 'databasePassword') !== $this->config['database.password']) {
             return new HtmlResponse('Incorrect database password.', 500);
         }
 
@@ -48,5 +49,10 @@ class UpdateController implements RequestHandlerInterface
         }
 
         return new Response($body, 200);
+    }
+
+    private function databaseHasPassword(): bool
+    {
+        return $this->config['database.password'] !== null;
     }
 }

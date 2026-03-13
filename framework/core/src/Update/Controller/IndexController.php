@@ -9,6 +9,7 @@
 
 namespace Flarum\Update\Controller;
 
+use Flarum\Foundation\Config;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;
@@ -17,7 +18,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class IndexController extends AbstractHtmlController
 {
     public function __construct(
-        protected Factory $view
+        protected Factory $view,
+        protected Config $config
     ) {
     }
 
@@ -25,7 +27,9 @@ class IndexController extends AbstractHtmlController
     {
         $view = $this->view->make('flarum.update::app')->with('title', 'Update Flarum');
 
-        $view->with('content', $this->view->make('flarum.update::update'));
+        $view->with('content', $this->view->make('flarum.update::update')->with(
+            'needsPassword', $this->config['database.password'] !== null
+        ));
 
         return $view;
     }

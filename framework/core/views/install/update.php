@@ -1,16 +1,22 @@
 <h2>Update Flarum</h2>
 
+<?php if ($needsPassword): ?>
 <p>Enter your database password to update Flarum. Before you proceed, you should <strong>back up your database</strong>. If you have any trouble, get help on the <a href="https://docs.flarum.org/update" target="_blank">Flarum website</a>.</p>
+<?php else: ?>
+<p>Click the button below to update Flarum. Before you proceed, you should <strong>back up your database</strong>. If you have any trouble, get help on the <a href="https://docs.flarum.org/update" target="_blank">Flarum website</a>.</p>
+<?php endif; ?>
 
 <form method="post">
   <div id="error" style="display:none"></div>
 
+  <?php if ($needsPassword): ?>
   <div class="FormGroup">
     <div class="FormField">
       <label>Database Password</label>
       <input class="FormControl" type="password" name="databasePassword">
     </div>
   </div>
+  <?php endif; ?>
 
   <div class="FormButtons">
     <button type="submit">Update Flarum</button>
@@ -19,7 +25,8 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    document.querySelector('form input').select();
+    var input = document.querySelector('form input');
+    if (input) input.select();
 
     document.querySelector('form').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -53,4 +60,3 @@
     });
   });
 </script>
-
