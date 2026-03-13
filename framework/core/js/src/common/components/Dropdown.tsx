@@ -118,6 +118,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
         this.closeWatcher?.destroy();
         this.closeWatcher = new CloseWatcher();
         this.closeWatcher.onclose = () => {
+          // @ts-ignore - missing dropdown types
           this.$('.Dropdown-toggle').dropdown('toggle');
         };
       }
