@@ -145,6 +145,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
         if ('CloseWatcher' in window && this.lastCloseWatcherKey !== dialogKey) {
           // Destroy previous watcher when stacking modals
           this.closeWatcher?.destroy();
+          this.closeWatcher = undefined;
 
           if (this.attrs.state.modal!.componentClass.dismissibleOptions.viaEscKey) {
             this.closeWatcher = new CloseWatcher();
