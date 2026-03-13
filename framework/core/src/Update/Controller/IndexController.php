@@ -28,7 +28,8 @@ class IndexController extends AbstractHtmlController
         $view = $this->view->make('flarum.update::app')->with('title', 'Update Flarum');
 
         $view->with('content', $this->view->make('flarum.update::update')->with(
-            'needsPassword', $this->config['database.password'] !== null
+            'needsPassword',
+            $this->config['database.password'] !== null
         ));
 
         return $view;
