@@ -117,6 +117,28 @@ export default class PostStreamScrubber extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
+    if ('CloseWatcher' in window) {
+      this.$().on('shown.bs.dropdown', () => {
+        this.closeWatcher?.destroy();
+        this.closeWatcher = new CloseWatcher();
+        this.closeWatcher.onclose = () => {
+          this.$('.Dropdown-toggle').dropdown('toggle');
+        };
+      });
+
+      this.$().on('hidden.bs.dropdown', () => {
+        this.showing = false;
+        this.closeWatcher?.destroy();
+        this.closeWatcher = undefined;
+
+        if (this.attrs.onhide) {
+          this.attrs.onhide();
+        }
+
+        m.redraw();
+      });
+    }
+
     // Whenever the window is resized, adjust the height of the scrollbar
     // so that it fills the height of the sidebar.
     $(window)
