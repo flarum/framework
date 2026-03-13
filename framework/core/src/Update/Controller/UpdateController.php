@@ -26,15 +26,16 @@ class UpdateController implements RequestHandlerInterface
     public function __construct(
         protected MigrateCommand $command,
         protected Config $config
-    ) {
-    }
+    ) {}
 
     public function handle(Request $request): ResponseInterface
     {
         $input = $request->getParsedBody();
 
-        if ($this->databaseHasPassword()
-            && Arr::get($input, 'databasePassword') !== $this->config['database.password']) {
+        if (
+            $this->databaseHasPassword()
+            && Arr::get($input, 'databasePassword') !== $this->config['database.password']
+        ) {
             return new HtmlResponse('Incorrect database password.', 500);
         }
 
