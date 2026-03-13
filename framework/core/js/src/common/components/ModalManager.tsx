@@ -24,6 +24,12 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   // Keep track of the last set focus trap
   protected lastSetFocusTrap: number | undefined;
 
+  // Current close watcher instance
+  protected closeWatcher: CloseWatcher | undefined;
+
+  // Keep track of the last set close watcher
+  protected lastCloseWatcherKey: number | undefined;
+
   // Keep track if there's an modal closing
   protected modalClosing: boolean = false;
 
@@ -100,6 +106,11 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
         if (!this.attrs.state.isModalOpen()) {
           document.getElementById('app')?.removeAttribute('aria-hidden');
           this.focusTrap!.deactivate?.();
+
+          // Destroy a close watcher instance
+          this.closeWatcher?.destroy();
+          this.closeWatcher = undefined;
+
           clearAllBodyScrollLocks();
 
           return;
@@ -129,6 +140,22 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
         // Update key of current opened modal
         this.lastSetFocusTrap = dialogKey;
+
+        // Initialize CloseWatcher for the new dialog
+        if ('CloseWatcher' in window && this.lastCloseWatcherKey !== dialogKey) {
+          // Destroy previous watcher when stacking modals
+          this.closeWatcher?.destroy();
+
+          if (this.attrs.state.modal!.componentClass.dismissibleOptions.viaEscKey) {
+            this.closeWatcher = new CloseWatcher();
+            this.closeWatcher.onclose = () => {
+              this.animateHide();
+            };
+          }
+
+          // Update key of the current close watcher
+          this.lastCloseWatcherKey = dialogKey;
+        }
       } catch {
         // We can expect errors to occur here due to the nature of mithril rendering
       }
@@ -185,7 +212,8 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   }
 
   protected handleEscPress(e: KeyboardEvent): void {
-    if (!this.attrs.state.modal) return;
+    // Skip manual Escape handling if CloseWatcher is active
+    if (!this.attrs.state.modal || this.closeWatcher?.onclose) return;
 
     const dismissibleState = this.attrs.state.modal.componentClass.dismissibleOptions;
 
