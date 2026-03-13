@@ -41,6 +41,7 @@ export interface IDropdownAttrs extends ComponentAttrs {
  */
 export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttrs> extends Component<CustomAttrs> {
   protected showing = false;
+  protected closeWatcher?: CloseWatcher;
 
   static initAttrs(attrs: IDropdownAttrs) {
     attrs.className ||= '';
@@ -112,10 +113,20 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
       const windowWidth = $(window).width() ?? 0;
 
       $menu.toggleClass('Dropdown-menu--right', isRight || left + width > windowScrollLeft + windowWidth);
+
+      if ('CloseWatcher' in window) {
+        this.closeWatcher?.destroy();
+        this.closeWatcher = new CloseWatcher();
+        this.closeWatcher.onclose = () => {
+          this.$('.Dropdown-toggle').dropdown('toggle');
+        };
+      }
     });
 
     this.$().on('hidden.bs.dropdown', () => {
       this.showing = false;
+      this.closeWatcher?.destroy();
+      this.closeWatcher = undefined;
 
       if (this.attrs.onhide) {
         this.attrs.onhide();
