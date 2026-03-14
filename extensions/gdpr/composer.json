@@ -40,7 +40,7 @@
         },
         "flarum-extension": {
             "title": "GDPR Data Management",
-            "category": "moderation",
+            "category": "feature",
             "icon": {
                 "image": "resources/logo.svg",
                 "backgroundColor": "#EBF1FD",

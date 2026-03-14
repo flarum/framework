@@ -32,7 +32,7 @@
         },
         "flarum-extension": {
             "title": "Statistics",
-            "category": "analytics",
+            "category": "feature",
             "icon": {
                 "name": "fas fa-chart-bar",
                 "backgroundColor": "#6932d1",

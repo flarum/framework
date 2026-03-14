@@ -37,7 +37,7 @@
         },
         "flarum-extension": {
             "title": "Tags",
-            "category": "discussion",
+            "category": "feature",
             "icon": {
                 "name": "fas fa-tags",
                 "backgroundColor": "#F28326",

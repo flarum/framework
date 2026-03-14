@@ -33,7 +33,7 @@
         },
         "flarum-extension": {
             "title": "Approval",
-            "category": "moderation",
+            "category": "feature",
             "icon": {
                 "name": "fas fa-check",
                 "backgroundColor": "#ABDC88",
