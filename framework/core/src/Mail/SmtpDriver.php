@@ -13,7 +13,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
 use Symfony\Component\Mailer\Transport\Dsn;
-use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
+use Symfony\Component\Mailer\Transport\TransportFactoryInterface;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class SmtpDriver implements DriverInterface
@@ -21,7 +21,7 @@ class SmtpDriver implements DriverInterface
     use ValidatesMailSettings;
 
     public function __construct(
-        protected EsmtpTransportFactory $factory
+        protected TransportFactoryInterface $factory
     ) {
     }
 
@@ -37,6 +37,7 @@ class SmtpDriver implements DriverInterface
             ],
             'mail_username' => '',
             'mail_password' => '',
+            'mail_smtp_verify_peer' => true, // boolean toggle
         ];
     }
 
@@ -48,6 +49,7 @@ class SmtpDriver implements DriverInterface
             'mail_encryption' => 'nullable|in:tls,ssl,TLS,SSL',
             'mail_username' => ['nullable', 'string', $this->noWhiteSpace()],
             'mail_password' => ['nullable', 'string', $this->noWhiteSpace()],
+            'mail_smtp_verify_peer' => 'nullable|boolean',
         ])->errors();
     }
 
@@ -64,12 +66,27 @@ class SmtpDriver implements DriverInterface
         // 'tls' or empty means STARTTLS (smtp://), typically used with port 587 or 25
         $scheme = ($encryption === 'ssl') ? 'smtps' : 'smtp';
 
+        $options = [];
+
+        // When no encryption is selected, disable opportunistic STARTTLS so that
+        // the connection stays plaintext rather than silently upgrading.
+        if ($encryption === '') {
+            $options['auto_tls'] = 'false';
+        }
+
+        // Allow administrators to disable SSL certificate verification, e.g.
+        // when using a self-signed certificate on an internal mail server.
+        if ((string) $settings->get('mail_smtp_verify_peer') === '0') {
+            $options['verify_peer'] = 'false';
+        }
+
         return $this->factory->create(new Dsn(
             $scheme,
             $settings->get('mail_host'),
             $settings->get('mail_username'),
             $settings->get('mail_password'),
-            $settings->get('mail_port')
+            $settings->get('mail_port'),
+            $options
         ));
     }
 }

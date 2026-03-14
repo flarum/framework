@@ -53,6 +53,7 @@ class MailTest extends TestCase
             ],
             'mail_username' => '',
             'mail_password' => '',
+            'mail_smtp_verify_peer' => true,
         ], $fields['smtp']);
     }
 

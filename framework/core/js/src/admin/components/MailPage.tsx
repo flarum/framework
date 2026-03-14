@@ -181,7 +181,7 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
             return (
               <>
                 {this.buildSettingComponent({
-                  type: typeof fieldInfo === 'string' ? 'text' : 'select',
+                  type: typeof fieldInfo === 'string' ? 'text' : typeof fieldInfo === 'boolean' ? 'bool' : 'select',
                   label: app.translator.trans(`core.admin.email.${field}_label`),
                   setting: field,
                   options: fieldInfo,

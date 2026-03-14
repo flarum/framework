@@ -272,6 +272,8 @@ core:
       mail_mailgun_secret_label: Secret key
       mail_password_label: => core.ref.password
       mail_port_label: Port
+      mail_smtp_verify_peer_label: Verify SSL Certificate
+      mail_smtp_verify_peer_help: "Verify the server's SSL certificate when using TLS or SSL encryption. Disable only if your mail server uses a self-signed certificate."
       mail_username_label: => core.ref.username
       mailgun_heading: Mailgun Settings
       not_sending_message: Flarum currently does not send emails. This can be due to the selected driver, or errors in its configuration.

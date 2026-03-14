@@ -19,12 +19,16 @@ use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Arr;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
+use Symfony\Component\Mailer\Transport\TransportFactoryInterface;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class MailServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
+        $this->container->bind(TransportFactoryInterface::class, EsmtpTransportFactory::class);
+
         $this->container->singleton('mail.supported_drivers', function () {
             return [
                 'mail' => SendmailDriver::class,
