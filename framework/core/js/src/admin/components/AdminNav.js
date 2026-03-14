@@ -7,7 +7,6 @@ import getCategorizedExtensions from '../utils/getCategorizedExtensions';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import Input from '../../common/components/Input';
-import Icon from '../../common/components/Icon';
 import extractText from '../../common/utils/extractText';
 
 export default class AdminNav extends Component {
@@ -15,23 +14,6 @@ export default class AdminNav extends Component {
     super.oninit(vnode);
 
     this.query = Stream('');
-    this.collapsed = {};
-
-    // Pre-expand the category of the currently active extension.
-    // m.route.get() may be null on a hard reload before Mithril has processed
-    // the hash, so fall back to parsing window.location.hash directly.
-    const currentRoute = m.route.get() || window.location.hash.replace(/^#/, '');
-    const extensionMatch = currentRoute.match(/\/extensions?\/([^/?]+)/);
-    if (extensionMatch) {
-      const activeId = extensionMatch[1];
-      const categorized = getCategorizedExtensions();
-      for (const [category, extensions] of Object.entries(categorized)) {
-        if (extensions.some((ext) => ext.id === activeId)) {
-          this.collapsed[category] = false;
-          break;
-        }
-      }
-    }
   }
 
   view() {
@@ -70,16 +52,6 @@ export default class AdminNav extends Component {
         time
       );
     }
-  }
-
-  isCollapsed(category) {
-    if (this.query()) return false;
-    return this.collapsed[category] !== false;
-  }
-
-  toggleCollapsed(category) {
-    this.collapsed[category] = !this.isCollapsed(category);
-    m.redraw();
   }
 
   /**
@@ -165,88 +137,43 @@ export default class AdminNav extends Component {
     return items;
   }
 
-  categoryIcon(category) {
-    const icons = {
-      analytics: 'fas fa-chart-bar',
-      authentication: 'fas fa-lock',
-      discussion: 'fas fa-comments',
-      feature: 'fas fa-star',
-      formatting: 'fas fa-paragraph',
-      infrastructure: 'fas fa-server',
-      language: 'fas fa-language',
-      moderation: 'fas fa-shield-alt',
-      other: 'fas fa-cube',
-      theme: 'fas fa-paint-brush',
-    };
-    return icons[category] || 'fas fa-puzzle-piece';
-  }
-
   extensionItems() {
     const items = new ItemList();
 
     const categorizedExtensions = getCategorizedExtensions();
     const categories = app.extensionCategories;
-    const query = this.query().toUpperCase();
 
     Object.keys(categorizedExtensions).map((category) => {
-      const extensions = categorizedExtensions[category];
-      const count = extensions.length;
+      if (!this.query()) {
+        items.add(
+          `category-${category}`,
+          <h4 className="ExtensionListTitle">{app.translator.trans(`core.admin.nav.categories.${category}`)}</h4>,
+          categories[category]
+        );
+      }
 
-      // When searching, only show categories that have matching results
-      const matchingExtensions = extensions.filter((extension) => {
-        if (!query) return true;
-        const title = extension.extra['flarum-extension'].title || '';
-        const description = extension.description || '';
-        return title.toUpperCase().includes(query) || description.toUpperCase().includes(query);
-      });
-
-      if (query && matchingExtensions.length === 0) return;
-
-      const isOpen = !this.isCollapsed(category);
-
-      const abandonedInCategory = extensions.filter((ext) => ext.abandoned);
-      const hasDanger = abandonedInCategory.some((ext) => typeof ext.abandoned === 'string');
-      const categoryBadgeType = abandonedInCategory.length > 0 ? (hasDanger ? 'danger' : 'warning') : null;
-
-      items.add(
-        `category-${category}`,
-        <button
-          className="ExtensionListTitle"
-          onclick={(e) => {
-            e.stopPropagation();
-            this.toggleCollapsed(category);
-          }}
-        >
-          <Icon name={this.categoryIcon(category)} className="ExtensionListTitle-icon" />
-          <span className="ExtensionListTitle-label">{app.translator.trans(`core.admin.nav.categories.${category}`)}</span>
-          {categoryBadgeType && <span className={`Badge Badge--${categoryBadgeType} ExtensionListTitle-badge`}>!</span>}
-          <span className="ExtensionListTitle-count">{count}</span>
-          <Icon name={`fas fa-chevron-${isOpen ? 'down' : 'right'}`} className="ExtensionListTitle-chevron" />
-        </button>,
-        categories[category]
-      );
-
-      if (!isOpen) return;
-
-      matchingExtensions.map((extension) => {
+      categorizedExtensions[category].map((extension) => {
+        const query = this.query().toUpperCase();
         const title = extension.extra['flarum-extension'].title || '';
         const description = extension.description || '';
         const isAbandoned = extension.abandoned;
         const hasReplacement = typeof isAbandoned === 'string';
 
-        items.add(
-          `extension-${extension.id}`,
-          <ExtensionLinkButton
-            href={app.route('extension', { id: extension.id })}
-            extensionId={extension.id}
-            className="ExtensionNavButton"
-            title={description}
-          >
-            {title}
-            {isAbandoned && <span className={`Badge Badge--${hasReplacement ? 'danger' : 'warning'}`}>!</span>}
-          </ExtensionLinkButton>,
-          categories[category]
-        );
+        if (!query || title.toUpperCase().includes(query) || description.toUpperCase().includes(query)) {
+          items.add(
+            `extension-${extension.id}`,
+            <ExtensionLinkButton
+              href={app.route('extension', { id: extension.id })}
+              extensionId={extension.id}
+              className="ExtensionNavButton"
+              title={description}
+            >
+              {title}
+              {isAbandoned && <span className={`Badge Badge--${hasReplacement ? 'danger' : 'warning'}`}>!</span>}
+            </ExtensionLinkButton>,
+            categories[category]
+          );
+        }
       });
     });
 
