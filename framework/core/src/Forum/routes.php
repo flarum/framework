@@ -63,6 +63,12 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
 
     $map->get(
         '/logout',
+        'logoutPage',
+        $route->toController(Controller\LogOutViewController::class)
+    );
+
+    $map->post(
+        '/logout',
         'logout',
         $route->toController(Controller\LogOutController::class)
     );

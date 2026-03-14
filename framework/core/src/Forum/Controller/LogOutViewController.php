@@ -10,25 +10,21 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Foundation\Config;
-use Flarum\Http\Rememberer;
 use Flarum\Http\RequestUtil;
-use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
-use Flarum\User\Event\LoggedOut;
-use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
+use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Diactoros\Response\RedirectResponse;
 use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class LogOutController implements RequestHandlerInterface
+class LogOutViewController implements RequestHandlerInterface
 {
     public function __construct(
-        protected Dispatcher $events,
-        protected SessionAuthenticator $authenticator,
-        protected Rememberer $rememberer,
+        protected Factory $view,
         protected UrlGenerator $url,
         protected Config $config
     ) {
@@ -36,7 +32,6 @@ class LogOutController implements RequestHandlerInterface
 
     public function handle(Request $request): ResponseInterface
     {
-        $session = $request->getAttribute('session');
         $actor = RequestUtil::getActor($request);
         $base = $this->url->to('forum')->base();
 
@@ -47,23 +42,15 @@ class LogOutController implements RequestHandlerInterface
             return new RedirectResponse($return);
         }
 
-        $csrfToken = $session->token();
-        $providedToken = Arr::get($request->getParsedBody(), 'token');
+        $session = $request->getAttribute('session');
 
-        if ($providedToken !== $csrfToken) {
-            return new RedirectResponse($this->url->to('forum')->route('logoutPage'));
-        }
+        $postUrl = $this->url->to('forum')->route('logout').($returnUrl ? '?return='.urlencode($return) : '');
 
-        $accessToken = $session->get('access_token');
-        $response = new RedirectResponse($return);
+        $view = $this->view->make('flarum.forum::log-out')
+            ->with('url', $postUrl)
+            ->with('csrfToken', $session->token());
 
-        $this->authenticator->logOut($session);
-
-        $actor->accessTokens()->where('token', $accessToken)->delete();
-
-        $this->events->dispatch(new LoggedOut($actor, false));
-
-        return $this->rememberer->forget($response);
+        return new HtmlResponse($view->render());
     }
 
     protected function sanitizeReturnUrl(string $url, string $base): Uri
