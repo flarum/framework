@@ -17,6 +17,7 @@ use Flarum\Notification\Command\ReadNotification;
 use Flarum\Notification\Notification;
 use Flarum\Notification\NotificationRepository;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Illuminate\Database\Eloquent\Builder;
 use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 
 /**
@@ -42,6 +43,11 @@ class NotificationResource extends AbstractDatabaseResource
     public function model(): string
     {
         return Notification::class;
+    }
+
+    public function scope(Builder $query, \Tobyz\JsonApiServer\Context $context): void
+    {
+        $query->where('user_id', $context->getActor()->id);
     }
 
     public function query(\Tobyz\JsonApiServer\Context $context): object
