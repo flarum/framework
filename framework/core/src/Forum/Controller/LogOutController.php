@@ -47,13 +47,6 @@ class LogOutController implements RequestHandlerInterface
             return new RedirectResponse($return);
         }
 
-        $csrfToken = $session->token();
-        $providedToken = Arr::get($request->getParsedBody(), 'token');
-
-        if ($providedToken !== $csrfToken) {
-            return new RedirectResponse($this->url->to('forum')->route('logoutPage'));
-        }
-
         $accessToken = $session->get('access_token');
         $response = new RedirectResponse($return);
 

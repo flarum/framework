@@ -53,7 +53,7 @@ export default class Session {
 
     const tokenField = document.createElement('input');
     tokenField.type = 'hidden';
-    tokenField.name = 'token';
+    tokenField.name = 'csrfToken';
     tokenField.value = this.csrfToken;
 
     form.appendChild(tokenField);

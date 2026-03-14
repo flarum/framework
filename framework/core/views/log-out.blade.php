@@ -7,7 +7,7 @@
 
   <p>
     <form method="POST" action="{{ $url }}">
-      <input type="hidden" name="token" value="{{ $csrfToken }}">
+      <input type="hidden" name="csrfToken" value="{{ $csrfToken }}">
       <button type="submit" class="button">
         {{ $translator->trans('core.views.log_out.log_out_button') }}
       </button>
