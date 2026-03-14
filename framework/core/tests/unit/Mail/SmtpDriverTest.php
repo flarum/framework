@@ -31,11 +31,14 @@ class SmtpDriverTest extends TestCase
         // Anonymous spy that captures the Dsn without needing to mock a final class.
         $spy = &$this->lastDsn;
         $factory = new class($spy) implements TransportFactoryInterface {
-            public function __construct(private mixed &$captured) {}
+            public function __construct(private mixed &$captured)
+            {
+            }
 
             public function create(Dsn $dsn): TransportInterface
             {
                 $this->captured = $dsn;
+
                 return new NullTransport();
             }
 
