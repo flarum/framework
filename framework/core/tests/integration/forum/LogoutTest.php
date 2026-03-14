@@ -9,7 +9,6 @@
 
 namespace Flarum\Tests\integration\forum;
 
-use Carbon\Carbon;
 use Flarum\Extend;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
