@@ -51,6 +51,8 @@ class TagMentionsTest extends TestCase
                 ['id' => 4, 'name' => 'Dev', 'slug' => 'dev', 'is_restricted' => 1],
                 ['id' => 5, 'name' => 'Laravel "#t6 Tag', 'slug' => 'laravel', 'is_restricted' => 0],
                 ['id' => 6, 'name' => 'Tatakai', 'slug' => '戦い', 'is_restricted' => 0],
+                ['id' => 7, 'name' => 'WithIcon', 'slug' => 'withicon', 'is_restricted' => 0, 'icon' => 'fas fa-star', 'color' => '#ff0000'],
+                ['id' => 8, 'name' => 'NoIcon', 'slug' => 'noicon', 'is_restricted' => 0, 'icon' => null, 'color' => null],
             ],
             'post_mentions_tag' => [
                 ['post_id' => 4, 'mentions_tag_id' => 1],
@@ -367,6 +369,71 @@ class TagMentionsTest extends TestCase
         $this->assertStringContainsString('TagMention', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('TagMention--deleted', $response['data']['attributes']['contentHtml']);
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsTags);
+    }
+
+    #[Test]
+    public function mentioning_a_tag_without_icon_renders_correctly()
+    {
+        // Regression test for https://github.com/flarum/framework/issues/4436
+        // Tags without icons have icon=null; the renderer must not emit an icon
+        // element and must not crash when color is also null.
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'posts',
+                        'attributes' => [
+                            'content' => '#noicon',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $body = json_decode($response->getBody(), true);
+        $html = $body['data']['attributes']['contentHtml'];
+
+        $this->assertStringContainsString('TagMention', $html);
+        $this->assertStringNotContainsString('TagMention--deleted', $html);
+        $this->assertStringContainsString('NoIcon', $html);
+        // No icon element should be rendered
+        $this->assertStringNotContainsString('<i class="icon', $html);
+    }
+
+    #[Test]
+    public function mentioning_a_tag_with_icon_renders_the_icon()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'posts',
+                        'attributes' => [
+                            'content' => '#withicon',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $body = json_decode($response->getBody(), true);
+        $html = $body['data']['attributes']['contentHtml'];
+
+        $this->assertStringContainsString('TagMention', $html);
+        $this->assertStringContainsString('WithIcon', $html);
+        $this->assertStringContainsString('fas fa-star', $html);
     }
 
     #[Test]
