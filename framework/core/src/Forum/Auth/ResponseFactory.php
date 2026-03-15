@@ -53,7 +53,11 @@ class ResponseFactory
         if (! empty($provided['email']) && $user = User::where(Arr::only($provided, 'email'))->first()) {
             $user->loginProviders()->create(compact('provider', 'identifier'));
 
-            return $this->makeLoggedInResponse($user, $returnTo, $provider);
+            // Append _flarum_linked so the frontend can show a confirmation modal.
+            $separator = str_contains($returnTo, '?') ? '&' : '?';
+            $returnTo .= $separator.'_flarum_linked='.urlencode($provider);
+
+            return $this->makeLoggedInResponse($user, $returnTo);
         }
 
         $payload = array_merge(
@@ -71,22 +75,13 @@ class ResponseFactory
      * Build a redirect response for a successfully authenticated existing user.
      * Sets the remember-me cookie so the session is established on the next request.
      *
-     * @param string|null $newlyLinkedProvider  When non-null, appends `_flarum_linked={provider}`
-     *                                          to the redirect URL so the frontend can show a
-     *                                          confirmation modal.
+     * Override this method to customise the login redirect or cookie behaviour.
      */
-    private function makeLoggedInResponse(User $user, string $returnTo, ?string $newlyLinkedProvider = null): ResponseInterface
+    protected function makeLoggedInResponse(User $user, string $returnTo): ResponseInterface
     {
         $token = RememberAccessToken::generate($user->id);
 
-        $base = $returnTo ?: '/';
-
-        if ($newlyLinkedProvider !== null) {
-            $separator = str_contains($base, '?') ? '&' : '?';
-            $base .= $separator.'_flarum_linked='.urlencode($newlyLinkedProvider);
-        }
-
-        $response = new RedirectResponse($base);
+        $response = new RedirectResponse($returnTo ?: '/');
 
         return $this->rememberer->remember($response, $token);
     }
@@ -97,8 +92,11 @@ class ResponseFactory
      * The `_flarum_auth` query parameter carries the registration token. The frontend
      * detects this parameter on boot, strips it from the URL, and opens the SignUpModal
      * pre-populated with data from the provider.
+     *
+     * Override this method to customise how the registration handoff is communicated
+     * to the frontend.
      */
-    private function makeRegistrationResponse(string $token, string $returnTo): ResponseInterface
+    protected function makeRegistrationResponse(string $token, string $returnTo): ResponseInterface
     {
         $base = $returnTo ?: '/';
 

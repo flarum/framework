@@ -79,6 +79,21 @@ class ResponseFactoryTest extends TestCase
         $this->assertEquals('/', $response->getHeaderLine('Location'));
     }
 
+    #[Test]
+    public function existing_provider_link_does_not_append_flarum_linked(): void
+    {
+        // A returning user who already had the provider linked should get a clean
+        // redirect with no _flarum_linked param — the modal is only for first-time links.
+        $response = $this->factory()->make(
+            'github',
+            'gh-user-existing',
+            fn ($reg) => null,
+            '/settings'
+        );
+
+        $this->assertStringNotContainsString('_flarum_linked', $response->getHeaderLine('Location'));
+    }
+
     // -------------------------------------------------------------------------
     // Email match → auto-link + logged-in redirect
     // -------------------------------------------------------------------------
