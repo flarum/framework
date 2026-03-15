@@ -15,19 +15,19 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * A trait to add formatted content to a model.
  *
- * @property string $content
- * @property string $parsed_content
+ * @property string|null $content
+ * @property string|null $parsed_content
  */
 trait HasFormattedContent
 {
     protected static Formatter $formatter;
 
-    public function getContentAttribute(string $value): string
+    public function getContentAttribute(?string $value): ?string
     {
-        return static::$formatter->unparse($value, $this);
+        return $value ? static::$formatter->unparse($value, $this) : $value;
     }
 
-    public function getParsedContentAttribute(): string
+    public function getParsedContentAttribute(): ?string
     {
         return $this->attributes['content'];
     }
@@ -47,6 +47,10 @@ trait HasFormattedContent
      */
     public function formatContent(?ServerRequestInterface $request = null): string
     {
+        if (empty($this->attributes['content'])) {
+            return '';
+        }
+
         return static::$formatter->render($this->attributes['content'], $this, $request);
     }
 

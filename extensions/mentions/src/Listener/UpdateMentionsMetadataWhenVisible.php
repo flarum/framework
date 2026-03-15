@@ -36,6 +36,10 @@ class UpdateMentionsMetadataWhenVisible
 
         $content = $event->post->parsed_content;
 
+        if ($content === null) {
+            return;
+        }
+
         $this->syncUserMentions(
             $event->post,
             $userMentions = Utils::getAttributeValues($content, 'USERMENTION', 'id')

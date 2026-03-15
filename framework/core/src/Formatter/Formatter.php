@@ -94,8 +94,12 @@ class Formatter
         return $renderer->render($xml);
     }
 
-    public function unparse(string $xml, mixed $context = null): string
+    public function unparse(?string $xml, mixed $context = null): ?string
     {
+        if ($xml === null) {
+            return null;
+        }
+
         foreach ($this->unparsingCallbacks as $callback) {
             $xml = $callback($context, $xml);
         }

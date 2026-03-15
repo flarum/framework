@@ -15,8 +15,12 @@ use s9e\TextFormatter\Utils;
 
 class UnparseTagMentions
 {
-    public function __invoke(mixed $context, string $xml): string
+    public function __invoke(mixed $context, ?string $xml): ?string
     {
+        if ($xml === null) {
+            return null;
+        }
+
         return $this->unparseTagMentionTags(
             $this->updateTagMentionTags($context, $xml)
         );
