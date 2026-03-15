@@ -33,6 +33,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\TerminateAllOtherSessionsController::class)
     );
 
+    // Resolve a registration token (returns username/email/provided for pre-populating sign-up modal)
+    $map->post(
+        '/registration-token',
+        'registration-token',
+        $route->toController(Controller\ResolveRegistrationTokenController::class)
+    );
+
     // Send forgot password email
     $map->post(
         '/forgot',

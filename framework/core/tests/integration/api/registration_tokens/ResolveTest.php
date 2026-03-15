@@ -15,19 +15,26 @@ use Flarum\User\RegistrationToken;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
  * Tests for GET /api/registration-tokens/{token}.
+=======
+ * Tests for POST /api/registration-token
+ *
+ * The token is submitted in the request body (not the URL) to keep it out of
+ * server access logs, browser history, and Referer headers.
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
  *
  * Security considerations verified here:
  *  - Valid token → only username, email, provided[] are returned; provider
  *    name, identifier, and payload internals are NOT exposed.
  *  - Invalid / expired token → 404 (does not leak whether the token ever
  *    existed or why it is invalid).
+ *  - Missing token → 404 (empty string treated as invalid).
  *  - Guest access is allowed — the token acts as the credential.
- *  - Authenticated users can also read a valid token (e.g. logging in to an
- *    account mid-flow via a different tab).
+ *  - GET, DELETE, PATCH to this endpoint are rejected (405/404).
  *  - All combinations of provided/suggested fields are exercised.
  */
-class ShowTest extends TestCase
+class ResolveTest extends TestCase
 {
     // -------------------------------------------------------------------------
     // Helpers
@@ -35,14 +42,20 @@ class ShowTest extends TestCase
 
     private function makeToken(array $attributes = []): RegistrationToken
     {
-        // Boot the app first so the DB connection is available.
         $this->app();
 
         $defaults = [
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
             'provider' => 'github',
             'identifier' => 'gh-test-123',
             'user_attributes' => [],
             'payload' => [],
+=======
+            'provider'        => 'github',
+            'identifier'      => 'gh-test-123',
+            'user_attributes' => [],
+            'payload'         => [],
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
         ];
         $merged = array_merge($defaults, $attributes);
 
@@ -57,23 +70,36 @@ class ShowTest extends TestCase
         return $token;
     }
 
+    private function resolve(string $tokenValue): \Psr\Http\Message\ResponseInterface
+    {
+        return $this->send(
+            $this->request('POST', '/api/registration-token', [
+                'json' => ['token' => $tokenValue],
+            ])
+        );
+    }
+
     // -------------------------------------------------------------------------
     // Happy path
     // -------------------------------------------------------------------------
 
     #[Test]
-    public function guest_can_read_valid_token(): void
+    public function guest_can_resolve_valid_token(): void
     {
         $token = $this->makeToken([
             'user_attributes' => ['email' => 'alice@example.com'],
             'payload' => ['suggested' => ['username' => 'alice']],
         ]);
 
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
         $response = $this->send(
             $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $this->assertEquals(200, $response->getStatusCode());
+=======
+        $this->assertEquals(200, $this->resolve($token->token)->getStatusCode());
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
     }
 
     #[Test]
@@ -83,12 +109,17 @@ class ShowTest extends TestCase
             'user_attributes' => ['email' => 'bob@example.com'],
         ]);
 
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
         $response = $this->send(
             $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
         $this->assertEquals('bob@example.com', $body['data']['attributes']['email']);
+=======
+        $body = json_decode($this->resolve($token->token)->getBody()->getContents(), true);
+        $this->assertEquals('bob@example.com', $body['email']);
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
     }
 
     #[Test]
@@ -98,12 +129,17 @@ class ShowTest extends TestCase
             'payload' => ['suggested' => ['username' => 'charlie']],
         ]);
 
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
         $response = $this->send(
             $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
         $this->assertEquals('charlie', $body['data']['attributes']['username']);
+=======
+        $body = json_decode($this->resolve($token->token)->getBody()->getContents(), true);
+        $this->assertEquals('charlie', $body['username']);
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
     }
 
     #[Test]
@@ -113,6 +149,7 @@ class ShowTest extends TestCase
             'user_attributes' => ['email' => 'dave@example.com', 'username' => 'dave'],
         ]);
 
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
         $response = $this->send(
             $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
@@ -121,6 +158,11 @@ class ShowTest extends TestCase
         $provided = $body['data']['attributes']['provided'];
         $this->assertContains('email', $provided);
         $this->assertContains('username', $provided);
+=======
+        $body = json_decode($this->resolve($token->token)->getBody()->getContents(), true);
+        $this->assertContains('email', $body['provided']);
+        $this->assertContains('username', $body['provided']);
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
     }
 
     #[Test]
@@ -130,12 +172,17 @@ class ShowTest extends TestCase
             'payload' => ['suggested' => ['username' => 'eve']],
         ]);
 
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
         $response = $this->send(
             $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
         $this->assertEquals([], $body['data']['attributes']['provided']);
+=======
+        $body = json_decode($this->resolve($token->token)->getBody()->getContents(), true);
+        $this->assertEquals([], $body['provided']);
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
     }
 
     #[Test]
@@ -143,6 +190,7 @@ class ShowTest extends TestCase
     {
         $token = $this->makeToken();
 
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
         $response = $this->send(
             $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
@@ -150,23 +198,32 @@ class ShowTest extends TestCase
         $body = json_decode($response->getBody()->getContents(), true);
         $this->assertNull($body['data']['attributes']['username']);
         $this->assertNull($body['data']['attributes']['email']);
+=======
+        $body = json_decode($this->resolve($token->token)->getBody()->getContents(), true);
+        $this->assertNull($body['username']);
+        $this->assertNull($body['email']);
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
     }
 
     #[Test]
     public function provided_email_takes_precedence_over_suggested_email(): void
     {
-        // If email is in both provided and suggested, provided wins.
         $token = $this->makeToken([
             'user_attributes' => ['email' => 'provided@example.com'],
             'payload' => ['suggested' => ['email' => 'suggested@example.com']],
         ]);
 
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
         $response = $this->send(
             $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
         $this->assertEquals('provided@example.com', $body['data']['attributes']['email']);
+=======
+        $body = json_decode($this->resolve($token->token)->getBody()->getContents(), true);
+        $this->assertEquals('provided@example.com', $body['email']);
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
     }
 
     // -------------------------------------------------------------------------
@@ -178,6 +235,7 @@ class ShowTest extends TestCase
     {
         $token = $this->makeToken(['provider' => 'google']);
 
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
         $response = $this->send(
             $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
@@ -186,6 +244,10 @@ class ShowTest extends TestCase
         $attrs = $body['data']['attributes'];
 
         $this->assertArrayNotHasKey('provider', $attrs);
+=======
+        $body = json_decode($this->resolve($token->token)->getBody()->getContents(), true);
+        $this->assertArrayNotHasKey('provider', $body);
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
     }
 
     #[Test]
@@ -193,6 +255,7 @@ class ShowTest extends TestCase
     {
         $token = $this->makeToken(['identifier' => 'secret-oauth-id-xyz']);
 
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
         $response = $this->send(
             $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
@@ -201,6 +264,10 @@ class ShowTest extends TestCase
         $attrs = $body['data']['attributes'];
 
         $this->assertArrayNotHasKey('identifier', $attrs);
+=======
+        $body = json_decode($this->resolve($token->token)->getBody()->getContents(), true);
+        $this->assertArrayNotHasKey('identifier', $body);
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
     }
 
     #[Test]
@@ -210,6 +277,7 @@ class ShowTest extends TestCase
             'payload' => ['suggested' => ['username' => 'frank'], 'internal_data' => 'secret'],
         ]);
 
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
         $response = $this->send(
             $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
@@ -219,6 +287,11 @@ class ShowTest extends TestCase
 
         $this->assertArrayNotHasKey('payload', $attrs);
         $this->assertArrayNotHasKey('internal_data', $attrs);
+=======
+        $body = json_decode($this->resolve($token->token)->getBody()->getContents(), true);
+        $this->assertArrayNotHasKey('payload', $body);
+        $this->assertArrayNotHasKey('internal_data', $body);
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
     }
 
     // -------------------------------------------------------------------------
@@ -228,36 +301,40 @@ class ShowTest extends TestCase
     #[Test]
     public function invalid_token_returns_404(): void
     {
-        $response = $this->send(
-            $this->request('GET', '/api/registration-tokens/this-token-does-not-exist')
-        );
-
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(404, $this->resolve('this-token-does-not-exist')->getStatusCode());
     }
 
     #[Test]
     public function expired_token_returns_404(): void
     {
         $token = $this->makeToken();
-        // Back-date the token by 25 hours so it exceeds the 24-hour validity window.
         $token->created_at = Carbon::now()->subHours(25);
         $token->save();
 
+        $this->assertEquals(404, $this->resolve($token->token)->getStatusCode());
+    }
+
+    #[Test]
+    public function missing_token_returns_404(): void
+    {
         $response = $this->send(
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
             $this->request('GET', '/api/registration-tokens/'.$token->token)
+=======
+            $this->request('POST', '/api/registration-token', ['json' => []])
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
         );
 
         $this->assertEquals(404, $response->getStatusCode());
     }
 
     #[Test]
-    public function post_to_registration_tokens_is_not_allowed(): void
+    public function get_to_registration_token_is_not_allowed(): void
     {
         $response = $this->send(
-            $this->request('POST', '/api/registration-tokens', ['json' => []])
+            $this->request('GET', '/api/registration-token')
         );
 
-        // No create endpoint — 404 or 405.
         $this->assertContains($response->getStatusCode(), [404, 405]);
     }
 
@@ -267,14 +344,17 @@ class ShowTest extends TestCase
         $token = $this->makeToken();
 
         $response = $this->send(
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
             $this->request('DELETE', '/api/registration-tokens/'.$token->token)
+=======
+            $this->request('DELETE', '/api/registration-token')
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
         );
 
-        // No delete endpoint — 404 or 405.
         $this->assertContains($response->getStatusCode(), [404, 405]);
-        // Token must still exist.
         $this->assertNotNull(RegistrationToken::find($token->token));
     }
+<<<<<<< HEAD:framework/core/tests/integration/api/registration_tokens/ShowTest.php
 
     #[Test]
     public function patch_to_registration_token_is_not_allowed(): void
@@ -289,4 +369,6 @@ class ShowTest extends TestCase
 
         $this->assertContains($response->getStatusCode(), [404, 405]);
     }
+=======
+>>>>>>> 4176d3df1 (feat(core): add POST /api/registration-token endpoint for OAuth sign-up pre-population):framework/core/tests/integration/api/registration_tokens/ResolveTest.php
 }
