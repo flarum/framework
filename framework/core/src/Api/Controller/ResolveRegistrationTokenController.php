@@ -46,7 +46,7 @@ class ResolveRegistrationTokenController implements RequestHandlerInterface
 
         return new JsonResponse([
             'username' => $token->user_attributes['username'] ?? ($token->payload['suggested']['username'] ?? null),
-            'email'    => $token->user_attributes['email']    ?? ($token->payload['suggested']['email']    ?? null),
+            'email' => $token->user_attributes['email'] ?? ($token->payload['suggested']['email'] ?? null),
             'provided' => $provided,
         ]);
     }
