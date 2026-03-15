@@ -183,6 +183,19 @@
 .Header-logo {
   display: block;
   max-height: 30px;
+
+  &--dark-mode {
+    display: none;
+  }
+
+  // Replace with dark mode logo if it exists
+  [data-theme^='dark']:has(&--dark-mode) & {
+    display: none;
+
+    &--dark-mode {
+      display: block;
+    }
+  }
 }
 
 // On phones, the header is displayed inside of the drawer. We lay its
