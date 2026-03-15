@@ -96,7 +96,7 @@ class ResponseFactoryTest extends TestCase
         );
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertEquals('/settings', $response->getHeaderLine('Location'));
+        $this->assertEquals('/settings?_flarum_linked=google', $response->getHeaderLine('Location'));
         $this->assertStringContainsString('remember=', $response->getHeaderLine('Set-Cookie'));
 
         // LoginProvider record should have been created
