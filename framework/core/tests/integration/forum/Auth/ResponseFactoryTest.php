@@ -32,9 +32,9 @@ class ResponseFactoryTest extends TestCase
             ],
             'login_providers' => [
                 [
-                    'id'         => 1,
-                    'user_id'    => 2,
-                    'provider'   => 'github',
+                    'id' => 1,
+                    'user_id' => 2,
+                    'provider' => 'github',
                     'identifier' => 'gh-user-existing',
                     'created_at' => '2024-01-01 00:00:00',
                 ],
