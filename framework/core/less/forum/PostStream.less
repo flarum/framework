@@ -2,7 +2,7 @@
 // Stream
 
 .PostStream-item {
-  &:not(:last-child) {
+  &:has( + .PostStream-item) {
     &::after {
       content: "";
       display: block;
