@@ -149,5 +149,4 @@ export default class ForumApplication extends Application {
   public viewingDiscussion(discussion: Discussion): boolean {
     return this.current.matches(DiscussionPage, { discussion });
   }
-
 }
