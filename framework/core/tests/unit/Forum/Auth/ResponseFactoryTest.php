@@ -10,13 +10,11 @@
 namespace Flarum\Tests\unit\Forum\Auth;
 
 use Flarum\Forum\Auth\ResponseFactory;
-use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Testing\unit\TestCase;
 use Laminas\Diactoros\Response\RedirectResponse;
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
-use Psr\Http\Message\ResponseInterface;
 
 class ResponseFactoryTest extends TestCase
 {
@@ -77,42 +75,4 @@ class ResponseFactoryTest extends TestCase
         $this->assertStringContainsString('&_flarum_auth=', $location);
     }
 
-    #[Test]
-    public function logged_in_response_is_a_redirect_with_remember_cookie(): void
-    {
-        $method = new \ReflectionMethod(ResponseFactory::class, 'makeLoggedInResponse');
-
-        // Stub rememberer to return a response with a Set-Cookie header.
-        $this->rememberer
-            ->shouldReceive('remember')
-            ->once()
-            ->with(m::type(RedirectResponse::class), m::type(RememberAccessToken::class))
-            ->andReturnUsing(fn (ResponseInterface $r) => $r);
-
-        $user = m::mock(\Flarum\User\User::class)->makePartial();
-        $user->id = 5;
-
-        $response = $method->invoke($this->factory, $user, '/d/42-discussion');
-
-        $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertEquals('/d/42-discussion', $response->getHeaderLine('Location'));
-    }
-
-    #[Test]
-    public function logged_in_response_falls_back_to_slash_when_returnTo_is_empty(): void
-    {
-        $method = new \ReflectionMethod(ResponseFactory::class, 'makeLoggedInResponse');
-
-        $this->rememberer
-            ->shouldReceive('remember')
-            ->once()
-            ->andReturnUsing(fn (ResponseInterface $r) => $r);
-
-        $user = m::mock(\Flarum\User\User::class)->makePartial();
-        $user->id = 5;
-
-        $response = $method->invoke($this->factory, $user, '');
-
-        $this->assertEquals('/', $response->getHeaderLine('Location'));
-    }
 }

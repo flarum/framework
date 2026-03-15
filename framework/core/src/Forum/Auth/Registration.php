@@ -13,7 +13,7 @@ class Registration
 {
     protected array $provided = [];
     protected array $suggested = [];
-    protected mixed $payload;
+    protected mixed $payload = null;
 
     public function getProvided(): array
     {
