@@ -26,10 +26,12 @@ class UploadLogoController extends UploadImageController
 
         if ($image->isAnimated()) {
             $this->resolvedExtension = 'gif';
+
             return $image->toGif();
         }
 
         $this->resolvedExtension = 'webp';
+
         return $image->toWebp();
     }
 
