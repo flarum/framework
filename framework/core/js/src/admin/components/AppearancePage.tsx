@@ -61,6 +61,21 @@ export default class AppearancePage extends AdminPage {
     );
 
     items.add(
+      'logo-dark-mode',
+      <div className="Form-group">
+        <label>{app.translator.trans('core.admin.appearance.logo_dark_mode_heading')}</label>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.logo_dark_mode_text')}</div>
+        <UploadImageButton
+          name="logo-dark-mode"
+          routePath="logo-dark-mode"
+          value={app.data.settings.logo_dark_mode_path}
+          url={app.forum.attribute('logoDarkModeUrl')}
+        />
+      </div>,
+      99
+    );
+
+    items.add(
       'favicon',
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.appearance.favicon_heading')}</label>

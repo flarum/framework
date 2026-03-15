@@ -116,6 +116,8 @@ core:
       favicon_text: Upload an image to be displayed as the forum's shortcut icon.
       logo_heading: Logo
       logo_text: Upload an image to be displayed in place of the forum title.
+      logo_dark_mode_heading: Dark mode logo
+      logo_dark_mode_text: Upload an alternate logo to be displayed when dark mode is enabled.
       title: Appearance
       color_scheme_label: Color Scheme (default)
       color_schemes:

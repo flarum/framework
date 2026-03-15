@@ -128,6 +128,20 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\DeleteLogoController::class)
     );
 
+    // Upload a dark mode logo
+    $map->post(
+        '/logo-dark-mode',
+        'logo-dark-mode',
+        $route->toController(Controller\UploadLogoDarkModeController::class)
+    );
+
+    // Remove the dark mode logo
+    $map->delete(
+        '/logo-dark-mode',
+        'logo-dark-mode.delete',
+        $route->toController(Controller\DeleteLogoDarkModeController::class)
+    );
+
     // Upload a favicon
     $map->post(
         '/favicon',

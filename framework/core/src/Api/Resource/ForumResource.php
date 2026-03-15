@@ -105,6 +105,8 @@ class ForumResource extends AbstractResource implements Findable
                 ->get(fn () => $this->settings->get('color_scheme')),
             Schema\Str::make('logoUrl')
                 ->get(fn () => $this->getLogoUrl()),
+            Schema\Str::make('logoDarkModeUrl')
+                ->get(fn () => $this->getLogoDarkModeUrl()),
             Schema\Str::make('faviconUrl')
                 ->get(fn () => $this->getFaviconUrl()),
             Schema\Str::make('headerHtml')
@@ -152,6 +154,13 @@ class ForumResource extends AbstractResource implements Findable
     protected function getLogoUrl(): ?string
     {
         $logoPath = $this->settings->get('logo_path');
+
+        return $logoPath ? $this->getAssetUrl($logoPath) : null;
+    }
+
+    protected function getLogoDarkModeUrl(): ?string
+    {
+        $logoPath = $this->settings->get('logo_dark_mode_path');
 
         return $logoPath ? $this->getAssetUrl($logoPath) : null;
     }

@@ -17,6 +17,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class DeleteLogoController extends AbstractDeleteController
 {
+    protected string $filePathSettingKey = 'logo_path';
     protected Filesystem $uploadDir;
 
     public function __construct(
@@ -30,9 +31,9 @@ class DeleteLogoController extends AbstractDeleteController
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $path = $this->settings->get('logo_path');
+        $path = $this->settings->get($this->filePathSettingKey);
 
-        $this->settings->set('logo_path', null);
+        $this->settings->set($this->filePathSettingKey, null);
 
         if ($this->uploadDir->exists($path)) {
             $this->uploadDir->delete($path);
