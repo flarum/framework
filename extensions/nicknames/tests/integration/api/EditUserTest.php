@@ -170,11 +170,11 @@ class EditUserTest extends TestCase
     public static function nicknamesWithInjectionChars(): array
     {
         return [
-            'markdown link syntax'  => ['[CLICK](https://evil.com)'],
-            'square brackets only'  => ['[username]'],
-            'angle brackets'        => ['<evil.com>'],
-            'parentheses'           => ['evil(com)'],
-            'html open tag'         => ['<script>'],
+            'markdown link syntax' => ['[CLICK](https://evil.com)'],
+            'square brackets only' => ['[username]'],
+            'angle brackets' => ['<evil.com>'],
+            'parentheses' => ['evil(com)'],
+            'html open tag' => ['<script>'],
             'html attribute inject' => ['"><img src=x>'],
         ];
     }

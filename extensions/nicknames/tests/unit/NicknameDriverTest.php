@@ -92,11 +92,11 @@ class NicknameDriverTest extends TestCase
     public static function safeNicknames(): array
     {
         return [
-            'plain name'        => ['Alice',          'Alice'],
-            'name with space'   => ['Jane Smith',      'Jane Smith'],
-            'name with hyphen'  => ['Anne-Marie',      'Anne-Marie'],
+            'plain name' => ['Alice',          'Alice'],
+            'name with space' => ['Jane Smith',      'Jane Smith'],
+            'name with hyphen' => ['Anne-Marie',      'Anne-Marie'],
             'name with numbers' => ['user42',          'user42'],
-            'unicode name'      => ['Ánna',            'Ánna'],
+            'unicode name' => ['Ánna',            'Ánna'],
         ];
     }
 }
