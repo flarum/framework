@@ -58,6 +58,27 @@ class MailTest extends TestCase
     }
 
     #[Test]
+    public function postmark_driver_is_registered_with_correct_fields()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/mail/settings', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $fields = json_decode($body, true)['data']['attributes']['fields'];
+
+        $this->assertArrayHasKey('postmark', $fields);
+        $this->assertEquals([
+            'mail_postmark_token' => '',
+            'mail_postmark_message_stream' => '',
+        ], $fields['postmark']);
+    }
+
+    #[Test]
     public function added_driver_appears_in_mail_settings()
     {
         $this->extend(

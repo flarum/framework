@@ -33,6 +33,7 @@ class MailServiceProvider extends AbstractServiceProvider
             return [
                 'mail' => SendmailDriver::class,
                 'mailgun' => MailgunDriver::class,
+                'postmark' => PostmarkDriver::class,
                 'log' => LogDriver::class,
                 'smtp' => SmtpDriver::class,
                 'null' => NullDriver::class,
