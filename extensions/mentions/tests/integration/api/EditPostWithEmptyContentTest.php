@@ -19,7 +19,7 @@ use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * Regression tests for https://github.com/flarum/framework/issues/4416 (edit path)
+ * Regression tests for https://github.com/flarum/framework/issues/4416 (edit path).
  */
 class EditPostWithEmptyContentTest extends TestCase
 {

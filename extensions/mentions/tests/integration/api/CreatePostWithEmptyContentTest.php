@@ -16,7 +16,7 @@ use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * Regression tests for https://github.com/flarum/framework/issues/4416
+ * Regression tests for https://github.com/flarum/framework/issues/4416.
  *
  * Reading $post->content in a Saving listener must not throw when content
  * is empty/null — HasFormattedContent::getContentAttribute() was passing an
