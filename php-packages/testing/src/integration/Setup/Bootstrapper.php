@@ -16,6 +16,7 @@ use Flarum\Testing\integration\Extend\BeginTransactionAndSetDatabase;
 use Flarum\Testing\integration\Extend\OverrideExtensionManagerForTests;
 use Flarum\Testing\integration\Extend\SetSettingsBeforeBoot;
 use Flarum\Testing\integration\UsesTmpDir;
+use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
 
@@ -23,6 +24,7 @@ class Bootstrapper
 {
     use UsesTmpDir;
 
+    /** @var Connection|null */
     public ?ConnectionInterface $database = null;
 
     public function __construct(

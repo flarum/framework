@@ -13,6 +13,7 @@ use Flarum\Database\AbstractModel;
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Testing\integration\Setup\Bootstrapper;
 use Illuminate\Contracts\Cache\Store;
+use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -168,8 +169,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         return $this->server;
     }
 
+    /** @var Connection|null */
     protected $database;
 
+    /** @return Connection */
     protected function database(): ConnectionInterface
     {
         $this->app();
