@@ -70,7 +70,7 @@
   --discussion-title-color:        mix(@@heading-color, @@body-bg, 55%);
 
   .Button--color-vars(@@control-color, @@control-bg, 'button');
-  .Button--color-vars(@@body-bg, @primary-color, 'button-primary');
+  .Button--color-vars(if(luma(@primary-color) > 50%, @text-on-light, @text-on-dark), @primary-color, 'button-primary');
   .Button--color-vars(@@control-danger-color, @@control-danger-bg, 'control-danger');
   .Button--color-vars(@@muted-more-color, fade(@@muted-more-color, 30%), 'muted-more');
   .Button--color-vars(@@control-color, @@body-bg, 'button-inverted');
@@ -153,8 +153,6 @@
 // COMMON LIGHT/DARK HIGH CONTRAST COLORS
 
 [data-theme=dark-hc], [data-theme=light-hc] {
-  .Button--color-vars(darken(@body-bg-dark, 10), @primary-color, 'button-primary');
-
   [data-colored-header=true]& {
     --header-bg: @header-bg-colored-dark;
     --header-color: @header-color-colored-dark;
