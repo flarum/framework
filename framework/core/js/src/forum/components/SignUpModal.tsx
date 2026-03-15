@@ -74,6 +74,7 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
     items.add(
       'username',
       <div className="Form-group">
+        <label className="label">{usernameLabel}</label>
         <input
           className="FormControl"
           name="username"
@@ -90,6 +91,7 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
     items.add(
       'email',
       <div className="Form-group">
+        <label className="label">{emailLabel}</label>
         <input
           className="FormControl"
           name="email"
@@ -107,6 +109,7 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
       items.add(
         'password',
         <div className="Form-group">
+          <label className="label">{passwordLabel}</label>
           <input
             className="FormControl"
             name="password"
