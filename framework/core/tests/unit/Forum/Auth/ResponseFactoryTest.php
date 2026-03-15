@@ -74,5 +74,4 @@ class ResponseFactoryTest extends TestCase
         $this->assertStringContainsString('existing=1', $location);
         $this->assertStringContainsString('&_flarum_auth=', $location);
     }
-
 }
