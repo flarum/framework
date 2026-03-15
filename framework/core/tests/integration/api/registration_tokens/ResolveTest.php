@@ -15,7 +15,7 @@ use Flarum\User\RegistrationToken;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * Tests for POST /api/registration-token
+ * Tests for POST /api/registration-token.
  *
  * The token is submitted in the request body (not the URL) to keep it out of
  * server access logs, browser history, and Referer headers.
@@ -41,10 +41,10 @@ class ResolveTest extends TestCase
         $this->app();
 
         $defaults = [
-            'provider'        => 'github',
-            'identifier'      => 'gh-test-123',
+            'provider' => 'github',
+            'identifier' => 'gh-test-123',
             'user_attributes' => [],
-            'payload'         => [],
+            'payload' => [],
         ];
         $merged = array_merge($defaults, $attributes);
 
