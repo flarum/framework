@@ -13,6 +13,9 @@
                     <a href="{{ $forum['baseUrl'] }}">
                         @if ($forum['logoUrl'])
                             <img src="{{ $forum['logoUrl'] }}" alt="{{ $forum['title'] }}" class="Header-logo">
+                            @if($forum['logoDarkModeUrl'])
+                                <img src="{{ $forum['logoDarkModeUrl'] }}" alt="{{ $forum['title'] }}" class="Header-logo Header-logo--dark-mode">
+                            @endif
                         @else
                             {{ $forum['title'] }}
                         @endif
