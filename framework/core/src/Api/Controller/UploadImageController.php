@@ -27,7 +27,7 @@ use Psr\Http\Message\UploadedFileInterface;
 abstract class UploadImageController extends ShowForumController
 {
     protected Filesystem $uploadDir;
-    protected string $fileExtension = 'png';
+    protected string $fileExtension = 'webp';
     protected string $filePathSettingKey = '';
     protected string $filenamePrefix = '';
 
