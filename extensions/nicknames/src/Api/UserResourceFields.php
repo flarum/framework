@@ -39,6 +39,9 @@ class UserResourceFields
                     return $context->getActor()->can('editNickname', $user);
                 })
                 ->nullable()
+                // Reject characters used in markdown/HTML link syntax that email clients
+                // may render as hyperlinks in notification emails.
+                ->rule('not_regex:/[\[\]()<>]/')
                 ->regex($regex ?? '', ! empty($regex))
                 ->minLength($this->settings->get('flarum-nicknames.min'))
                 ->maxLength($this->settings->get('flarum-nicknames.max'))
@@ -46,6 +49,7 @@ class UserResourceFields
                 ->unique('users', 'username', true, (bool) $this->settings->get('flarum-nicknames.unique'))
                 ->validationMessages([
                     'nickname.regex' => $this->translator->trans('flarum-nicknames.api.invalid_nickname_message'),
+                    'nickname.not_regex' => $this->translator->trans('flarum-nicknames.api.invalid_nickname_message'),
                 ])
                 ->set(function (User $user, ?string $nickname) {
                     $user->nickname = $user->username === $nickname ? null : $nickname;

@@ -14,6 +14,7 @@ use Flarum\Locale\TranslatorInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 class EditUserTest extends TestCase
@@ -109,5 +110,72 @@ class EditUserTest extends TestCase
 
         $this->assertEquals(422, $response->getStatusCode(), $body);
         $this->assertStringContainsString($this->app()->getContainer()->make(TranslatorInterface::class)->trans('flarum-nicknames.api.invalid_nickname_message'), $body);
+    }
+
+    #[Test]
+    public function nickname_with_dots_is_allowed(): void
+    {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'user.editOwnNickname', 'group_id' => Group::MEMBER_ID],
+            ]
+        ]);
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'type' => 'users',
+                        'attributes' => [
+                            'nickname' => 'jane.smith',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
+        $this->assertEquals('jane.smith', User::find(2)->nickname);
+    }
+
+    #[Test]
+    #[DataProvider('nicknamesWithInjectionChars')]
+    public function nickname_with_injection_chars_is_rejected(string $nickname): void
+    {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'user.editOwnNickname', 'group_id' => Group::MEMBER_ID],
+            ]
+        ]);
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'type' => 'users',
+                        'attributes' => [
+                            'nickname' => $nickname,
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(422, $response->getStatusCode(), $response->getBody()->getContents());
+        $this->assertNull(User::find(2)->nickname);
+    }
+
+    public static function nicknamesWithInjectionChars(): array
+    {
+        return [
+            'markdown link syntax'  => ['[CLICK](https://evil.com)'],
+            'square brackets only'  => ['[username]'],
+            'angle brackets'        => ['<evil.com>'],
+            'parentheses'           => ['evil(com)'],
+            'html open tag'         => ['<script>'],
+            'html attribute inject' => ['"><img src=x>'],
+        ];
     }
 }
