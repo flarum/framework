@@ -9,7 +9,6 @@
 
 namespace Flarum\Api\Resource;
 
-use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Schema;
 use Flarum\User\Exception\InvalidConfirmationTokenException;

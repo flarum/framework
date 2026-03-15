@@ -15,7 +15,7 @@ use Flarum\User\RegistrationToken;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * Tests for GET /api/registration-tokens/{token}
+ * Tests for GET /api/registration-tokens/{token}.
  *
  * Security considerations verified here:
  *  - Valid token → only username, email, provided[] are returned; provider
@@ -39,10 +39,10 @@ class ShowTest extends TestCase
         $this->app();
 
         $defaults = [
-            'provider'         => 'github',
-            'identifier'       => 'gh-test-123',
-            'user_attributes'  => [],
-            'payload'          => [],
+            'provider' => 'github',
+            'identifier' => 'gh-test-123',
+            'user_attributes' => [],
+            'payload' => [],
         ];
         $merged = array_merge($defaults, $attributes);
 
@@ -66,11 +66,11 @@ class ShowTest extends TestCase
     {
         $token = $this->makeToken([
             'user_attributes' => ['email' => 'alice@example.com'],
-            'payload'         => ['suggested' => ['username' => 'alice']],
+            'payload' => ['suggested' => ['username' => 'alice']],
         ]);
 
         $response = $this->send(
-            $this->request('GET', '/api/registration-tokens/' . $token->token)
+            $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -84,7 +84,7 @@ class ShowTest extends TestCase
         ]);
 
         $response = $this->send(
-            $this->request('GET', '/api/registration-tokens/' . $token->token)
+            $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
@@ -99,7 +99,7 @@ class ShowTest extends TestCase
         ]);
 
         $response = $this->send(
-            $this->request('GET', '/api/registration-tokens/' . $token->token)
+            $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
@@ -114,7 +114,7 @@ class ShowTest extends TestCase
         ]);
 
         $response = $this->send(
-            $this->request('GET', '/api/registration-tokens/' . $token->token)
+            $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
@@ -131,7 +131,7 @@ class ShowTest extends TestCase
         ]);
 
         $response = $this->send(
-            $this->request('GET', '/api/registration-tokens/' . $token->token)
+            $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
@@ -144,7 +144,7 @@ class ShowTest extends TestCase
         $token = $this->makeToken();
 
         $response = $this->send(
-            $this->request('GET', '/api/registration-tokens/' . $token->token)
+            $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
@@ -158,11 +158,11 @@ class ShowTest extends TestCase
         // If email is in both provided and suggested, provided wins.
         $token = $this->makeToken([
             'user_attributes' => ['email' => 'provided@example.com'],
-            'payload'         => ['suggested' => ['email' => 'suggested@example.com']],
+            'payload' => ['suggested' => ['email' => 'suggested@example.com']],
         ]);
 
         $response = $this->send(
-            $this->request('GET', '/api/registration-tokens/' . $token->token)
+            $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
@@ -179,7 +179,7 @@ class ShowTest extends TestCase
         $token = $this->makeToken(['provider' => 'google']);
 
         $response = $this->send(
-            $this->request('GET', '/api/registration-tokens/' . $token->token)
+            $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
@@ -194,7 +194,7 @@ class ShowTest extends TestCase
         $token = $this->makeToken(['identifier' => 'secret-oauth-id-xyz']);
 
         $response = $this->send(
-            $this->request('GET', '/api/registration-tokens/' . $token->token)
+            $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
@@ -211,7 +211,7 @@ class ShowTest extends TestCase
         ]);
 
         $response = $this->send(
-            $this->request('GET', '/api/registration-tokens/' . $token->token)
+            $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $body = json_decode($response->getBody()->getContents(), true);
@@ -244,7 +244,7 @@ class ShowTest extends TestCase
         $token->save();
 
         $response = $this->send(
-            $this->request('GET', '/api/registration-tokens/' . $token->token)
+            $this->request('GET', '/api/registration-tokens/'.$token->token)
         );
 
         $this->assertEquals(404, $response->getStatusCode());
@@ -267,7 +267,7 @@ class ShowTest extends TestCase
         $token = $this->makeToken();
 
         $response = $this->send(
-            $this->request('DELETE', '/api/registration-tokens/' . $token->token)
+            $this->request('DELETE', '/api/registration-tokens/'.$token->token)
         );
 
         // No delete endpoint — 404 or 405.
@@ -282,7 +282,7 @@ class ShowTest extends TestCase
         $token = $this->makeToken();
 
         $response = $this->send(
-            $this->request('PATCH', '/api/registration-tokens/' . $token->token, ['json' => [
+            $this->request('PATCH', '/api/registration-tokens/'.$token->token, ['json' => [
                 'data' => ['type' => 'registration-tokens', 'id' => $token->token, 'attributes' => []],
             ]])
         );
