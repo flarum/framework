@@ -53,7 +53,7 @@ class ResponseFactory
         if (! empty($provided['email']) && $user = User::where(Arr::only($provided, 'email'))->first()) {
             $user->loginProviders()->create(compact('provider', 'identifier'));
 
-            return $this->makeLoggedInResponse($user, $returnTo);
+            return $this->makeLoggedInResponse($user, $returnTo, $provider);
         }
 
         $payload = array_merge(
@@ -70,12 +70,23 @@ class ResponseFactory
     /**
      * Build a redirect response for a successfully authenticated existing user.
      * Sets the remember-me cookie so the session is established on the next request.
+     *
+     * @param string|null $newlyLinkedProvider  When non-null, appends `_flarum_linked={provider}`
+     *                                          to the redirect URL so the frontend can show a
+     *                                          confirmation modal.
      */
-    private function makeLoggedInResponse(User $user, string $returnTo): ResponseInterface
+    private function makeLoggedInResponse(User $user, string $returnTo, ?string $newlyLinkedProvider = null): ResponseInterface
     {
         $token = RememberAccessToken::generate($user->id);
 
-        $response = new RedirectResponse($returnTo ?: '/');
+        $base = $returnTo ?: '/';
+
+        if ($newlyLinkedProvider !== null) {
+            $separator = str_contains($base, '?') ? '&' : '?';
+            $base .= $separator.'_flarum_linked='.urlencode($newlyLinkedProvider);
+        }
+
+        $response = new RedirectResponse($base);
 
         return $this->rememberer->remember($response, $token);
     }
