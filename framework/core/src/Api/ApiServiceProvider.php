@@ -40,6 +40,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 Resource\DiscussionResource::class,
                 Resource\NotificationResource::class,
                 Resource\AccessTokenResource::class,
+                Resource\RegistrationTokenResource::class,
                 Resource\MailSettingResource::class,
                 Resource\ExtensionReadmeResource::class,
                 Resource\SystemInfoResource::class,

@@ -178,4 +178,27 @@ class ResponseFactoryTest extends TestCase
         $this->assertStringContainsString('foo=bar', $location);
         $this->assertStringContainsString('&_flarum_auth=', $location);
     }
+
+    #[Test]
+    public function suggested_fields_are_stored_in_token_payload(): void
+    {
+        $response = $this->factory()->make(
+            'discord',
+            'discord-suggestions',
+            function ($registration) {
+                $registration->provideTrustedEmail('frank@example.com');
+                $registration->suggestUsername('frank99');
+            },
+            '/'
+        );
+
+        preg_match('/_flarum_auth=([^&]+)/', $response->getHeaderLine('Location'), $m);
+        $token = RegistrationToken::find(urldecode($m[1]));
+
+        $this->assertNotNull($token);
+        // Provided values land in user_attributes
+        $this->assertEquals('frank@example.com', $token->user_attributes['email']);
+        // Suggested username stored in payload under 'suggested' key
+        $this->assertEquals('frank99', $token->payload['suggested']['username']);
+    }
 }

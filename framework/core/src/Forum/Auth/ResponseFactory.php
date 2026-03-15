@@ -56,7 +56,12 @@ class ResponseFactory
             return $this->makeLoggedInResponse($user, $returnTo);
         }
 
-        $token = RegistrationToken::generate($provider, $identifier, $provided, $registration->getPayload());
+        $payload = array_merge(
+            ['suggested' => $registration->getSuggested()],
+            (array) $registration->getPayload()
+        );
+
+        $token = RegistrationToken::generate($provider, $identifier, $provided, $payload);
         $token->save();
 
         return $this->makeRegistrationResponse($token->token, $returnTo);
