@@ -26,23 +26,38 @@ class FulltextFilter extends AbstractFulltextFilter
     ) {
     }
 
-    /**
-     * @return Builder<User>
-     */
-    private function getUserSearchSubQuery(string $searchValue): Builder
-    {
-        return $this->users
-            ->query()
-            ->select('id')
-            ->where('username', 'like', "$searchValue%");
-    }
-
     public function search(SearchState $state, string $value): void
     {
         $state->getQuery()
             ->whereIn(
                 'id',
-                $this->getUserSearchSubQuery($value)
+                match ($state->getQuery()->getConnection()->getDriverName()) {
+                    'pgsql' => $this->getUserSearchSubQuery($value, 'ilike'),
+                    'sqlite' => $this->getUserSearchSubQueryLower($value),
+                    default => $this->getUserSearchSubQuery($value, 'like'),
+                }
             );
+    }
+
+    /**
+     * @return Builder<User>
+     */
+    private function getUserSearchSubQuery(string $searchValue, string $operator): Builder
+    {
+        return $this->users
+            ->query()
+            ->select('id')
+            ->where('username', $operator, "$searchValue%");
+    }
+
+    /**
+     * @return Builder<User>
+     */
+    private function getUserSearchSubQueryLower(string $searchValue): Builder
+    {
+        return $this->users
+            ->query()
+            ->select('id')
+            ->whereRaw('LOWER(username) LIKE ?', [strtolower($searchValue).'%']);
     }
 }
