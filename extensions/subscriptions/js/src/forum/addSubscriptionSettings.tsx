@@ -24,6 +24,24 @@ export default function () {
     );
 
     items.add(
+      'followAfterCreate',
+      <Switch
+        state={this.user.preferences().followAfterCreate}
+        onchange={(value) => {
+          this.followAfterCreateLoading = true;
+
+          this.user.savePreferences({ followAfterCreate: value }).then(() => {
+            this.followAfterCreateLoading = false;
+            m.redraw();
+          });
+        }}
+        loading={this.followAfterCreateLoading}
+      >
+        {app.translator.trans('flarum-subscriptions.forum.settings.follow_after_create_label')}
+      </Switch>
+    );
+
+    items.add(
       'notifyForAllPosts',
       <Switch
         id="flarum_subscriptions__notify_for_all_posts"

@@ -17,6 +17,7 @@ use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
+use Flarum\Discussion\Event\Started;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Subscriptions\Api\UserResourceFields;
 use Flarum\Subscriptions\Filter\SubscriptionFilter;
@@ -60,7 +61,8 @@ return [
         ->listen(Hidden::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class)
         ->listen(Restored::class, Listener\RestoreNotificationWhenPostIsRestored::class)
         ->listen(Deleted::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class)
-        ->listen(Posted::class, Listener\FollowAfterReply::class),
+        ->listen(Posted::class, Listener\FollowAfterReply::class)
+        ->listen(Started::class, Listener\FollowAfterCreate::class),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, SubscriptionFilter::class)
@@ -68,5 +70,6 @@ return [
 
     (new Extend\User())
         ->registerPreference('followAfterReply', 'boolval', false)
+        ->registerPreference('followAfterCreate', 'boolval', true)
         ->registerPreference('flarum-subscriptions.notify_for_all_posts', 'boolval', false),
 ];
