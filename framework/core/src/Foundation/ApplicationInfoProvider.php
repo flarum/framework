@@ -73,7 +73,10 @@ class ApplicationInfoProvider
         // Cache for 24 hours since the database version rarely changes
         return $this->cache->remember('flarum:db_version', 86400, function () {
             return match ($this->config['database.driver']) {
-                'mysql', 'mariadb', 'pgsql' => $this->db->selectOne('select version() as version')->version,
+                // Strip distribution suffix (e.g. "10.11.14-MariaDB-0+deb12u2" → "10.11.14")
+                'mysql', 'mariadb' => Str::before($this->db->selectOne('select version() as version')->version, '-'),
+                // SHOW server_version returns a clean version (e.g. "15.3"), unlike SELECT version() which includes platform info
+                'pgsql' => Str::before($this->db->selectOne('show server_version')->server_version, ' '),
                 'sqlite' => $this->db->selectOne('select sqlite_version() as version')->version,
                 default => 'Unknown',
             };
