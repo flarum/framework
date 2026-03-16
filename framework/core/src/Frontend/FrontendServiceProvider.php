@@ -103,26 +103,20 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     if ($fontAwesome->useCdn()) {
                         $cdnUrl = $fontAwesome->cdnUrl();
                         if (! empty($cdnUrl)) {
-                            // Preload CDN CSS for better performance
-                            $document->preloads[] = [
-                                'href' => $cdnUrl,
-                                'as' => 'style',
-                                'crossorigin' => 'anonymous'
-                            ];
-                            // Add CDN CSS with crossorigin for better caching
-                            $document->head[] = '<link rel="stylesheet" href="'.e($cdnUrl).'" crossorigin="anonymous">';
+                            // Load asynchronously — FA icons are only rendered after JS boots the
+                            // SPA, so there is no FOUC risk from deferring this stylesheet.
+                            // The <noscript> fallback covers JS-disabled browsers.
+                            $escaped = e($cdnUrl);
+                            $document->head[] = '<link rel="preload" href="'.$escaped.'" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel=\'stylesheet\'">'
+                                .'<noscript><link rel="stylesheet" href="'.$escaped.'" crossorigin="anonymous"></noscript>';
                         }
                     } elseif ($fontAwesome->useKit()) {
                         $kitUrl = $fontAwesome->kitUrl();
                         if (! empty($kitUrl)) {
-                            // Preload Kit JS for better performance
-                            $document->preloads[] = [
-                                'href' => $kitUrl,
-                                'as' => 'script',
-                                'crossorigin' => 'anonymous'
-                            ];
-                            // Add Kit JS with crossorigin for better caching
-                            $document->head[] = '<script src="'.e($kitUrl).'" crossorigin="anonymous"></script>';
+                            // Defer Kit JS — it has no dependencies and nothing depends on it
+                            // executing synchronously; defer keeps it out of the critical path
+                            // while preserving execution order relative to other deferred scripts.
+                            $document->head[] = '<script src="'.e($kitUrl).'" crossorigin="anonymous" defer></script>';
                         }
                     }
 
