@@ -281,7 +281,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
     /**
      * Compute the dark-mode body background colour from the forum's secondary colour hex.
-     * Mirrors the LESS formula: hsl(@secondary-hue, min(20%, @secondary-sat), 10%)
+     * Mirrors the LESS formula: hsl(@secondary-hue, min(20%, @secondary-sat), 10%).
      */
     private static function computeDarkBodyBg(string $hex): string
     {
@@ -291,7 +291,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
             $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
         }
 
-        if (strlen($hex) !== 6 || !ctype_xdigit($hex)) {
+        if (strlen($hex) !== 6 || ! ctype_xdigit($hex)) {
             return '#1a2333'; // safe fallback
         }
 
