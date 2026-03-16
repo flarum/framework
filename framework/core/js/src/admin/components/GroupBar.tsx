@@ -38,6 +38,11 @@ export default class GroupBar<CustomAttrs extends IGroupBarAttrs = IGroupBarAttr
     this.groups = sortGroups(this.attrs.groups);
   }
 
+  onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
+    super.onupdate(vnode);
+    this.groups = sortGroups(this.attrs.groups);
+  }
+
   view(): JSX.Element {
     return (
       <div className="GroupBar" oncreate={this.onGroupBarCreate.bind(this)}>
