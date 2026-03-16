@@ -99,6 +99,12 @@ class Document implements Renderable
     public array $head = [];
 
     /**
+     * Inline critical CSS emitted before the async stylesheet links.
+     * Populated by FrontendServiceProvider to prevent a flash of unstyled content.
+     */
+    public string $criticalCss = '';
+
+    /**
      * An array of strings to prepend before the page's </body>.
      */
     public array $foot = [];
@@ -180,6 +186,7 @@ class Document implements Renderable
             'js' => $this->makeJs(),
             'head' => $this->makeHead(),
             'foot' => $this->makeFoot(),
+            'criticalCss' => $this->criticalCss,
             'extraAttributes' => $this->makeExtraAttributes(),
             'extraClasses' => $this->makeExtraClasses(),
             'revisions' => $this->versioner->allRevisions(),
@@ -265,8 +272,14 @@ class Document implements Renderable
 
     protected function makeHead(): string
     {
+        // Load stylesheets asynchronously to avoid render-blocking.
+        // The onload trick swaps rel from "preload" to "stylesheet" once the file
+        // is fetched. The <noscript> fallback serves JS-disabled browsers.
         $head = array_map(function ($url) {
-            return '<link rel="stylesheet" href="'.e($url).'">';
+            $escaped = e($url);
+
+            return '<link rel="preload" href="'.$escaped.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">'
+                .'<noscript><link rel="stylesheet" href="'.$escaped.'"></noscript>';
         }, $this->css);
 
         if ($this->page) {

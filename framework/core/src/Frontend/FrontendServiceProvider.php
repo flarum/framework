@@ -78,25 +78,19 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $frontend->content(function (Document $document) use ($container) {
                     $default_preloads = $container->make('flarum.frontend.default_preloads');
 
-                    // Add preloads for base CSS and JS assets. Extensions should add their own via the extender.
+                    // CSS files are preloaded via the async <link rel="preload" as="style"> tags
+                    // that makeHead() now emits directly — no need to duplicate them here.
+                    // JS files still get explicit preload hints so the browser fetches them early.
                     $js_preloads = [];
-                    $css_preloads = [];
 
-                    foreach ($document->css as $url) {
-                        $css_preloads[] = [
-                            'href' => $url,
-                            'as' => 'style'
-                        ];
-                    }
                     foreach ($document->js as $url) {
-                        $css_preloads[] = [
+                        $js_preloads[] = [
                             'href' => $url,
                             'as' => 'script'
                         ];
                     }
 
                     $document->preloads = array_merge(
-                        $css_preloads,
                         $js_preloads,
                         $default_preloads,
                         $document->preloads,
@@ -141,6 +135,23 @@ class FrontendServiceProvider extends AbstractServiceProvider
                             ? RequestUtil::getActor($request)->getPreference('colorScheme')
                             : $settings->get('color_scheme');
                     };
+
+                    // Inline script that sets data-theme on <html> before first paint so that
+                    // the critical CSS block can apply the correct background colour without a
+                    // flash in dark mode. Uses the forum-level default; per-user preference is
+                    // applied by JS after boot (acceptable tradeoff).
+                    $forumColorScheme = $settings->get('color_scheme') ?? 'auto';
+                    $document->head[] = '<script>(function(){var s='.json_encode($forumColorScheme).';'
+                        .'if(s==="auto")s=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";'
+                        .'document.documentElement.setAttribute("data-theme",s)})()</script>';
+
+                    // Build critical CSS with the theme-accurate dark body background.
+                    // Formula mirrors the LESS: hsl(@secondary-hue, min(20%, @secondary-sat), 10%).
+                    $secondaryHex = $settings->get('theme_secondary_color') ?? '#536F90';
+                    $darkBg = self::computeDarkBodyBg($secondaryHex);
+                    $document->criticalCss = 'body{margin:0;background:#fff}'
+                        .'[data-theme^=dark] body{background:'.$darkBg.'}'
+                        .'#flarum-loading{text-align:center;padding:50px 0;font-size:18px;color:#aaa}';
                     $document->extraAttributes['data-colored-header'] = $settings->get('theme_colored_header') ? 'true' : 'false';
                     $document->extraAttributes['class'][] = function (ServerRequestInterface $request) {
                         return RequestUtil::getActor($request)->isGuest() ? 'guest-user' : 'logged-in';
@@ -266,6 +277,56 @@ class FrontendServiceProvider extends AbstractServiceProvider
         $sources->addFile(__DIR__.'/../../less/common/mixins.less');
 
         $this->addLessVariables($sources);
+    }
+
+    /**
+     * Compute the dark-mode body background colour from the forum's secondary colour hex.
+     * Mirrors the LESS formula: hsl(@secondary-hue, min(20%, @secondary-sat), 10%)
+     */
+    private static function computeDarkBodyBg(string $hex): string
+    {
+        $hex = ltrim($hex, '#');
+
+        if (strlen($hex) === 3) {
+            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+        }
+
+        if (strlen($hex) !== 6 || !ctype_xdigit($hex)) {
+            return '#1a2333'; // safe fallback
+        }
+
+        $r = hexdec(substr($hex, 0, 2)) / 255;
+        $g = hexdec(substr($hex, 2, 2)) / 255;
+        $b = hexdec(substr($hex, 4, 2)) / 255;
+
+        $max = max($r, $g, $b);
+        $min = min($r, $g, $b);
+        $delta = $max - $min;
+
+        // Hue
+        if ($delta == 0) {
+            $h = 0;
+        } elseif ($max === $r) {
+            $h = 60 * fmod(($g - $b) / $delta, 6);
+        } elseif ($max === $g) {
+            $h = 60 * (($b - $r) / $delta + 2);
+        } else {
+            $h = 60 * (($r - $g) / $delta + 4);
+        }
+
+        if ($h < 0) {
+            $h += 360;
+        }
+
+        // Saturation (HSL)
+        $l = ($max + $min) / 2;
+        $s = $delta == 0 ? 0 : $delta / (1 - abs(2 * $l - 1));
+
+        // Apply formula: hsl(hue, min(20%, sat), 10%)
+        $sFinal = min(0.20, $s) * 100;
+        $lFinal = 10;
+
+        return 'hsl('.round($h).','.round($sFinal).'%,'.$lFinal.'%)';
     }
 
     private function addLessVariables(SourceCollector $sources): void

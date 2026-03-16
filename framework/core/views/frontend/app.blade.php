@@ -4,6 +4,11 @@
         <meta charset="utf-8">
         <title>{{ $title }}</title>
 
+        {{-- Minimal critical CSS: prevents a flash of unstyled content while the main         --}}
+        {{-- stylesheet loads asynchronously. Content is computed server-side so the dark     --}}
+        {{-- background matches the forum's actual secondary colour. See FrontendServiceProvider. --}}
+        @if($criticalCss)<style>{!! $criticalCss !!}</style>@endif
+
         {!! $head !!}
     </head>
 
