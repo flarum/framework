@@ -92,7 +92,7 @@ class Installation
     public function prerequisites(): Prerequisite\PrerequisiteInterface
     {
         return new Prerequisite\Composite(
-            new Prerequisite\PhpVersion('8.1.0'),
+            new Prerequisite\PhpVersion('8.3.0'),
             new Prerequisite\PhpExtensions([
                 'dom',
                 'fileinfo',
