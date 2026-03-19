@@ -86,6 +86,7 @@ class SlugDriverTest extends TestCase
 
             ['default', User::class, 2, 'normal'],
             ['id', User::class, 2, '2'],
+            ['id_with_display_name', User::class, 2, '2-normal'],
         ];
     }
 }
