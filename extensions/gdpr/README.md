@@ -5,7 +5,7 @@ This extension allows users increasing control over their data.
 ### Requirements
 
 - `flarum/core` - `v2.0` or higher
-- `PHP` - `8.2` or higher
+- `PHP` - `8.3` or higher
 
 ### Installation or update
 
