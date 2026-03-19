@@ -2,6 +2,7 @@ import app from '../../admin/app';
 import DashboardWidget from './DashboardWidget';
 import AnnouncementList from './AnnouncementList';
 import type { AnnouncementData } from './AnnouncementItem';
+import type { IDashboardWidgetAttrs } from './DashboardWidget';
 import type Mithril from 'mithril';
 import Icon from '../../common/components/Icon';
 import Button from '../../common/components/Button';
@@ -15,7 +16,7 @@ export default class AnnouncementsWidget extends DashboardWidget {
   loading = false;
   hidden = false;
 
-  oninit(vnode: Mithril.Vnode) {
+  oninit(vnode: Mithril.Vnode<IDashboardWidgetAttrs, this>) {
     super.oninit(vnode);
     this.hidden = localStorage.getItem(HIDDEN_KEY) === '1';
 
