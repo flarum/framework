@@ -28,7 +28,7 @@ export default class UserPageResolver<
       const user = app.store.getById<User>('users', id);
 
       if (user && user.slug() && currentSlug !== user.slug()) {
-        window.history.replaceState(null, '', app.route('user', { username: user.slug() }));
+        window.history.replaceState(null, '', app.route(this.routeName, { username: user.slug() }));
       }
     }
 
