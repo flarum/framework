@@ -31,8 +31,8 @@ class AnnouncementsServiceProvider extends AbstractServiceProvider
 
         $container->extend('flarum.console.scheduled', function (array $scheduled) {
             $scheduled[] = [
-                'command'  => RefreshAnnouncementsCommand::class,
-                'args'     => [],
+                'command' => RefreshAnnouncementsCommand::class,
+                'args' => [],
                 'callback' => new WeeklySchedule(),
             ];
 

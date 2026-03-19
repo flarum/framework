@@ -122,16 +122,16 @@ class StubAnnouncementsFetcher extends AnnouncementsFetcher
     public function fetch(): array
     {
         return [[
-            'id'           => '1',
-            'title'        => 'Test Announcement',
-            'slug'         => 'test-announcement',
+            'id' => '1',
+            'title' => 'Test Announcement',
+            'slug' => 'test-announcement',
             'commentCount' => 3,
-            'createdAt'    => '2026-01-01T00:00:00+00:00',
-            'isSticky'     => false,
-            'url'          => 'https://discuss.flarum.org/d/test-announcement',
-            'excerpt'      => 'This is a test.',
-            'authorName'   => 'IanM',
-            'avatarUrl'    => null,
+            'createdAt' => '2026-01-01T00:00:00+00:00',
+            'isSticky' => false,
+            'url' => 'https://discuss.flarum.org/d/test-announcement',
+            'excerpt' => 'This is a test.',
+            'authorName' => 'IanM',
+            'avatarUrl' => null,
         ]];
     }
 }

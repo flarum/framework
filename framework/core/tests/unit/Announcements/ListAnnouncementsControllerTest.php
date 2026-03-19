@@ -26,16 +26,16 @@ class ListAnnouncementsControllerTest extends TestCase
     private ListAnnouncementsController $controller;
 
     private array $stubAnnouncements = [[
-        'id'           => '1',
-        'title'        => 'Test',
-        'slug'         => 'test',
+        'id' => '1',
+        'title' => 'Test',
+        'slug' => 'test',
         'commentCount' => 0,
-        'createdAt'    => '2026-01-01T00:00:00+00:00',
-        'isSticky'     => false,
-        'url'          => 'https://discuss.flarum.org/d/test',
-        'excerpt'      => '',
-        'authorName'   => null,
-        'avatarUrl'    => null,
+        'createdAt' => '2026-01-01T00:00:00+00:00',
+        'isSticky' => false,
+        'url' => 'https://discuss.flarum.org/d/test',
+        'excerpt' => '',
+        'authorName' => null,
+        'avatarUrl' => null,
     ]];
 
     protected function setUp(): void

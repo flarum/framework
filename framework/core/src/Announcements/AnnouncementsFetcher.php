@@ -34,16 +34,16 @@ class AnnouncementsFetcher
     public function fetch(): array
     {
         $url = self::API_BASE_URL.'?'.http_build_query([
-            'filter'  => ['tag' => self::TAG],
-            'sort'    => '-createdAt',
-            'page'    => ['limit' => self::FETCH_LIMIT],
+            'filter' => ['tag' => self::TAG],
+            'sort' => '-createdAt',
+            'page' => ['limit' => self::FETCH_LIMIT],
             'include' => 'firstPost,user',
         ]);
 
         try {
             $response = $this->client->get($url, [
                 'headers' => [
-                    'Accept'     => 'application/json',
+                    'Accept' => 'application/json',
                     'User-Agent' => 'Flarum/'.Application::VERSION
                         .' PHP/'.$this->appInfo->identifyPHPVersion()
                         .' Database/'.$this->appInfo->identifyDatabaseDriver().'/'.$this->appInfo->identifyDatabaseVersion(),
@@ -71,9 +71,9 @@ class AnnouncementsFetcher
 
         $items = [];
         foreach ($body['data'] as $discussion) {
-            $id    = Arr::get($discussion, 'id');
+            $id = Arr::get($discussion, 'id');
             $title = Arr::get($discussion, 'attributes.title');
-            $slug  = Arr::get($discussion, 'attributes.slug');
+            $slug = Arr::get($discussion, 'attributes.slug');
             $createdAt = Arr::get($discussion, 'attributes.createdAt');
 
             // Skip any discussion missing the fields we require to render a card.
@@ -88,16 +88,16 @@ class AnnouncementsFetcher
             $user = $userId ? ($users[$userId] ?? null) : null;
 
             $items[] = [
-                'id'           => $id,
-                'title'        => $title,
-                'slug'         => $slug,
+                'id' => $id,
+                'title' => $title,
+                'slug' => $slug,
                 'commentCount' => Arr::get($discussion, 'attributes.commentCount', 0),
-                'createdAt'    => $createdAt,
-                'isSticky'     => (bool) Arr::get($discussion, 'attributes.isSticky', false),
-                'url'          => 'https://discuss.flarum.org/d/'.$slug,
-                'excerpt'      => $this->makeExcerpt(Arr::get($firstPost, 'attributes.contentHtml', '')),
-                'authorName'   => Arr::get($user, 'attributes.displayName'),
-                'avatarUrl'    => Arr::get($user, 'attributes.avatarUrl'),
+                'createdAt' => $createdAt,
+                'isSticky' => (bool) Arr::get($discussion, 'attributes.isSticky', false),
+                'url' => 'https://discuss.flarum.org/d/'.$slug,
+                'excerpt' => $this->makeExcerpt(Arr::get($firstPost, 'attributes.contentHtml', '')),
+                'authorName' => Arr::get($user, 'attributes.displayName'),
+                'avatarUrl' => Arr::get($user, 'attributes.avatarUrl'),
             ];
         }
 

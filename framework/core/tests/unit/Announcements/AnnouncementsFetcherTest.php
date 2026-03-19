@@ -50,7 +50,7 @@ class AnnouncementsFetcherTest extends TestCase
     private function makeApiResponse(array $discussions, array $included = []): Response
     {
         return new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'data'     => $discussions,
+            'data' => $discussions,
             'included' => $included,
         ]));
     }
@@ -58,14 +58,14 @@ class AnnouncementsFetcherTest extends TestCase
     private function makeDiscussion(array $attrs = [], array $relationships = []): array
     {
         return [
-            'id'            => $attrs['id'] ?? '1',
-            'type'          => 'discussions',
-            'attributes'    => array_merge([
-                'title'        => 'Test Discussion',
-                'slug'         => 'test-discussion',
+            'id' => $attrs['id'] ?? '1',
+            'type' => 'discussions',
+            'attributes' => array_merge([
+                'title' => 'Test Discussion',
+                'slug' => 'test-discussion',
                 'commentCount' => 5,
-                'createdAt'    => '2026-01-01T00:00:00+00:00',
-                'isSticky'     => false,
+                'createdAt' => '2026-01-01T00:00:00+00:00',
+                'isSticky' => false,
             ], $attrs),
             'relationships' => $relationships,
         ];
@@ -115,8 +115,8 @@ class AnnouncementsFetcherTest extends TestCase
                     'user' => ['data' => ['type' => 'users', 'id' => '42']],
                 ])],
                 [[
-                    'type'       => 'users',
-                    'id'         => '42',
+                    'type' => 'users',
+                    'id' => '42',
                     'attributes' => ['displayName' => 'IanM', 'avatarUrl' => 'https://example.com/avatar.jpg'],
                 ]]
             ),
@@ -136,8 +136,8 @@ class AnnouncementsFetcherTest extends TestCase
                     'firstPost' => ['data' => ['type' => 'posts', 'id' => '99']],
                 ])],
                 [[
-                    'type'       => 'posts',
-                    'id'         => '99',
+                    'type' => 'posts',
+                    'id' => '99',
                     'attributes' => ['contentHtml' => '<p>Hello <strong>world</strong> this is content.</p>'],
                 ]]
             ),
@@ -158,8 +158,8 @@ class AnnouncementsFetcherTest extends TestCase
                     'firstPost' => ['data' => ['type' => 'posts', 'id' => '1']],
                 ])],
                 [[
-                    'type'       => 'posts',
-                    'id'         => '1',
+                    'type' => 'posts',
+                    'id' => '1',
                     'attributes' => ['contentHtml' => $longText],
                 ]]
             ),
@@ -227,9 +227,9 @@ class AnnouncementsFetcherTest extends TestCase
     public function test_results_sliced_to_limit(): void
     {
         $discussions = array_map(fn ($i) => $this->makeDiscussion([
-            'id'    => (string) $i,
+            'id' => (string) $i,
             'title' => "Discussion $i",
-            'slug'  => "discussion-$i",
+            'slug' => "discussion-$i",
         ]), range(1, 20));
 
         $fetcher = $this->makeFetcher([
