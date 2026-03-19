@@ -101,6 +101,8 @@ class AdminPayload
         $document->payload['safeModeExtensions'] = $this->maintenance->safeModeExtensions();
         $document->payload['safeModeExtensionsConfig'] = $this->config->safeModeExtensions();
 
+        $document->payload['announcementsDisabled'] = (bool) $this->config['flarum_announcements.disabled'];
+
         $document->payload['fontawesomeByConfig'] = $this->fontAwesome->configOverride();
 
         // If FontAwesome is configured via config.php, pass the actual config values to frontend

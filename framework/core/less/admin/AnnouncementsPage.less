@@ -1,0 +1,287 @@
+// ── Widget wrapper ────────────────────────────────────────────────────────────
+
+.AnnouncementsWidget {
+  padding: 0;
+}
+
+.AnnouncementsWidget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 20px;
+}
+
+.AnnouncementsWidget-controls {
+  > .Button {
+    margin-left: 8px;
+  }
+}
+
+.AnnouncementsWidget-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 16px 20px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted-color);
+
+  .icon {
+    font-size: 12px;
+    opacity: 0.7;
+  }
+}
+
+.AnnouncementsWidget-info {
+  display: inline-flex;
+  align-items: center;
+  cursor: default;
+  opacity: 0.4;
+  font-size: 11px;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+// ── List (responsive wrapping grid) ──────────────────────────────────────────
+
+.AnnouncementList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  padding: 0 20px 20px;
+
+  &-viewAll {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--body-bg);
+    border-radius: var(--border-radius);
+    border: 1px dashed var(--control-bg);
+    text-decoration: none;
+    color: var(--muted-color);
+    font-size: 12px;
+    font-weight: 600;
+    min-height: 80px;
+    transition: border-color 0.15s, color 0.15s;
+
+    .icon {
+      font-size: 16px;
+      opacity: 0.5;
+    }
+
+    &:hover,
+    &:focus-visible {
+      text-decoration: none;
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+
+      .icon {
+        opacity: 1;
+      }
+    }
+  }
+
+  &-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 24px 20px;
+    color: var(--muted-color);
+    text-align: center;
+    width: 100%;
+
+    .icon {
+      font-size: 22px;
+      opacity: 0.4;
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+    }
+
+    &--error .icon {
+      color: @error-color;
+      opacity: 0.8;
+    }
+  }
+}
+
+// ── Item card ─────────────────────────────────────────────────────────────────
+
+.AnnouncementItem {
+  display: flex;
+  flex-direction: column;
+  background: var(--body-bg);
+  border-radius: var(--border-radius);
+  border: 1px solid transparent;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: none;
+    color: inherit;
+    border-color: var(--primary-color);
+    box-shadow: 0 3px 10px fade(#000, 12%);
+    transform: translateY(-2px);
+
+    .AnnouncementItem-readMore {
+      opacity: 1;
+      gap: 5px;
+    }
+  }
+
+  // ── Body (title + excerpt) ──
+
+  &-body {
+    flex: 1;
+    padding: 14px 14px 10px;
+  }
+
+  &-title {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--heading-color);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &-stickyIcon {
+    font-size: 10px;
+    color: var(--primary-color);
+    opacity: 0.8;
+    margin-right: 4px;
+    vertical-align: middle;
+    transform: rotate(45deg);
+    display: inline-block;
+  }
+
+  &-excerpt {
+    margin: 0;
+    font-size: 12px;
+    color: var(--muted-color);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  // ── Footer ──
+
+  &-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 14px 12px;
+    border-top: 1px solid var(--control-bg);
+  }
+
+  // Avatar + author name + date/comments stacked
+  &-byline {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    object-fit: cover;
+  }
+
+  &-avatarFallback {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--control-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: var(--muted-color);
+    flex-shrink: 0;
+  }
+
+  &-bylineText {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  &-authorName {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+
+  // Date · N comments row
+  &-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--muted-color);
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+
+  &-sep {
+    opacity: 0.4;
+  }
+
+  &-comments {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+
+    .icon {
+      font-size: 9px;
+      opacity: 0.6;
+    }
+  }
+
+  &-date {
+    opacity: 0.8;
+  }
+
+  // "Read more →" — appears on hover, sits below byline
+  &-readMore {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--primary-color);
+    opacity: 0;
+    transition: opacity 0.15s, gap 0.15s;
+
+    .icon {
+      font-size: 9px;
+    }
+  }
+}

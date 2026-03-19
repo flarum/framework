@@ -183,4 +183,11 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'mailTest',
         $route->toController(Controller\SendTestMailController::class)
     );
+
+    // List Flarum community announcements from discuss.flarum.org
+    $map->get(
+        '/flarum/announcements',
+        'announcements.list',
+        $route->toController(Controller\ListAnnouncementsController::class)
+    );
 };

@@ -1,6 +1,7 @@
 import app from '../../admin/app';
 import StatusWidget from './StatusWidget';
 import ExtensionsWidget from './ExtensionsWidget';
+import AnnouncementsWidget from './AnnouncementsWidget';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { Children } from 'mithril';
@@ -79,7 +80,11 @@ export default class DashboardPage extends AdminPage {
       );
     }
 
-    items.add('status', <StatusWidget />, 30);
+    items.add('status', <StatusWidget />, 80);
+
+    if (!app.data.announcementsDisabled) {
+      items.add('announcements', <AnnouncementsWidget />, 70);
+    }
 
     items.add('extensions', <ExtensionsWidget />, 10);
 
