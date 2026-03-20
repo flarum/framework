@@ -3,7 +3,7 @@ import { extend } from 'flarum/common/extend';
 import Button from 'flarum/common/components/Button';
 import extractText from 'flarum/common/utils/extractText';
 import Stream from 'flarum/common/utils/Stream';
-import NickNameModal from './components/NicknameModal';
+import ChangeNicknameModal from './components/ChangeNicknameModal';
 
 export { default as extend } from './extend';
 
@@ -14,7 +14,7 @@ app.initializers.add('flarum-nicknames', () => {
     if (this.user.canEditNickname()) {
       items.add(
         'changeNickname',
-        <Button className="Button" onclick={() => app.modal.show(NickNameModal)}>
+        <Button className="Button" onclick={() => app.modal.show(ChangeNicknameModal, { user: this.user })}>
           {app.translator.trans('flarum-nicknames.forum.settings.change_nickname_button')}
         </Button>
       );
