@@ -500,8 +500,8 @@ core:
       submit_button: => core.ref.save_changes
       title: => core.ref.change_email
 
-    # These translations are used in the Change Password modal dialog.
-    change_password:
+    # These translations are used in the Request Password Reset modal dialog.
+    request_password_reset:
       send_button: Send Password Reset Email
       text: Click the button below and check your email for a link to change your password.
       title: => core.ref.change_password
@@ -720,7 +720,7 @@ core:
     settings:
       account_heading: Account
       change_email_button: => core.ref.change_email
-      change_password_button: => core.ref.change_password
+      request_password_reset_button: => core.ref.change_password
       color_scheme_heading: Color Scheme
       color_schemes:
         auto_mode_label: System preference

@@ -92,9 +92,9 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
     const items = new ItemList<Mithril.Children>();
 
     items.add(
-      'changePassword',
+      'requestPasswordReset',
       <Button className="Button" onclick={() => app.modal.show(RequestPasswordResetModal, { user: this.user })}>
-        {app.translator.trans('core.forum.settings.change_password_button')}
+        {app.translator.trans('core.forum.settings.request_password_reset_button')}
       </Button>,
       100
     );

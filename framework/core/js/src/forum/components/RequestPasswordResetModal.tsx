@@ -23,7 +23,7 @@ export default class RequestPasswordResetModal<
   }
 
   title() {
-    return app.translator.trans('core.forum.change_password.title');
+    return app.translator.trans('core.forum.request_password_reset.title');
   }
 
   content() {
@@ -37,13 +37,13 @@ export default class RequestPasswordResetModal<
   fields() {
     const fields = new ItemList<Mithril.Children>();
 
-    fields.add('help', <p className="helpText">{app.translator.trans('core.forum.change_password.text')}</p>);
+    fields.add('help', <p className="helpText">{app.translator.trans('core.forum.request_password_reset.text')}</p>);
 
     fields.add(
       'submit',
       <div className="Form-group Form-controls">
         <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
-          {app.translator.trans('core.forum.change_password.send_button')}
+          {app.translator.trans('core.forum.request_password_reset.send_button')}
         </Button>
       </div>
     );
