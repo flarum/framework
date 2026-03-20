@@ -29,16 +29,16 @@ class Generator
      * Realtime extender's registerModelEndpoint() method.
      */
     protected array $endpoints = [
-        Discussion::class   => 'discussions',
-        Post::class         => 'posts',
-        User::class         => 'users',
+        Discussion::class => 'discussions',
+        Post::class => 'posts',
+        User::class => 'users',
         Notification::class => 'notifications',
     ];
 
     protected array $resources = [
-        Post::class         => PostResource::class,
-        Discussion::class   => DiscussionResource::class,
-        User::class         => UserResource::class,
+        Post::class => PostResource::class,
+        Discussion::class => DiscussionResource::class,
+        User::class => UserResource::class,
         Notification::class => NotificationResource::class,
     ];
 
@@ -57,7 +57,7 @@ class Generator
         $post = null;
 
         if ($subject instanceof Post) {
-            $post    = $subject;
+            $post = $subject;
             $subject = $subject->discussion;
         }
 
@@ -78,7 +78,7 @@ class Generator
 
         $response = $request->get("/$endpoint/$subjectId");
 
-        $contents        = (string) $response->getBody();
+        $contents = (string) $response->getBody();
         $decodedContents = json_decode($contents, true);
 
         if ($post) {
@@ -89,7 +89,7 @@ class Generator
                 ])
                 ->get('/posts/'.$post->id);
 
-            $postContents        = (string) $postResponse->getBody();
+            $postContents = (string) $postResponse->getBody();
             $decodedPostContents = json_decode($postContents, true);
 
             if (isset($decodedPostContents['data'])) {

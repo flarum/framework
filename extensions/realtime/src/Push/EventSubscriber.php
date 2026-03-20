@@ -42,9 +42,9 @@ class EventSubscriber extends Subscriber
         // Extension-registered model events.
         foreach ($this->registry->getModelEvents() as $entry) {
             $this->listen($entry['events'], function (object $event) use ($entry) {
-                $model    = ($entry['getModel'])($event);
-                $actor    = $entry['getActor'] ? ($entry['getActor'])($event) : null;
-                $name     = $entry['eventName'] ?? get_class($event);
+                $model = ($entry['getModel'])($event);
+                $actor = $entry['getActor'] ? ($entry['getActor'])($event) : null;
+                $name = $entry['eventName'] ?? get_class($event);
 
                 $this->queue()->push(new SendTriggerJob($name, $model, $actor));
             });

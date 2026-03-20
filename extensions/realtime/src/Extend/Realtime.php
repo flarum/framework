@@ -176,9 +176,9 @@ class Realtime implements ExtenderInterface
         ?string $eventName = null
     ): self {
         $this->modelEvents[] = [
-            'events'    => (array) $events,
-            'getModel'  => $getModel,
-            'getActor'  => $getActor,
+            'events' => (array) $events,
+            'getModel' => $getModel,
+            'getActor' => $getActor,
             'eventName' => $eventName,
         ];
 
@@ -208,7 +208,7 @@ class Realtime implements ExtenderInterface
     public function broadcastDialogEvent(string|array $events, callable $getMessage): self
     {
         $this->dialogEvents[] = [
-            'events'     => (array) $events,
+            'events' => (array) $events,
             'getMessage' => $getMessage,
         ];
 
@@ -242,9 +242,9 @@ class Realtime implements ExtenderInterface
         string $eventName
     ): self {
         $this->flagEvents[] = [
-            'events'        => (array) $events,
+            'events' => (array) $events,
             'getDiscussion' => $getDiscussion,
-            'eventName'     => $eventName,
+            'eventName' => $eventName,
         ];
 
         return $this;
