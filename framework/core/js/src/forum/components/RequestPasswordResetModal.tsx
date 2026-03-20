@@ -1,17 +1,25 @@
-import app from '../../forum/app';
+import app from '../app';
 import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from '../../common/components/Button';
 import Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
 import Form from '../../common/components/Form';
 
+import type User from '../../common/models/User';
+
+export interface IRequestPasswordResetModalAttrs extends IFormModalAttrs {
+  user: User;
+}
+
 /**
- * The `ChangePasswordModal` component shows a modal dialog which allows the
+ * The `RequestPasswordResetModal` component shows a modal dialog which allows the
  * user to send themself a password reset email.
  */
-export default class ChangePasswordModal<CustomAttrs extends IFormModalAttrs = IFormModalAttrs> extends FormModal<CustomAttrs> {
+export default class RequestPasswordResetModal<
+  CustomAttrs extends IRequestPasswordResetModalAttrs = IRequestPasswordResetModalAttrs
+> extends FormModal<CustomAttrs> {
   className() {
-    return 'ChangePasswordModal Modal--small';
+    return 'RequestPasswordResetModal Modal--small';
   }
 
   title() {
@@ -58,6 +66,6 @@ export default class ChangePasswordModal<CustomAttrs extends IFormModalAttrs = I
   }
 
   requestBody() {
-    return { email: app.session.user!.email() };
+    return { email: this.attrs.user.email() };
   }
 }

@@ -5,7 +5,7 @@ import Switch from '../../common/components/Switch';
 import Button from '../../common/components/Button';
 import FieldSet from '../../common/components/FieldSet';
 import NotificationGrid from './NotificationGrid';
-import ChangePasswordModal from './ChangePasswordModal';
+import RequestPasswordResetModal from './RequestPasswordResetModal';
 import ChangeEmailModal from './ChangeEmailModal';
 import listItems from '../../common/helpers/listItems';
 import extractText from '../../common/utils/extractText';
@@ -93,7 +93,7 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
     items.add(
       'changePassword',
-      <Button className="Button" onclick={() => app.modal.show(ChangePasswordModal)}>
+      <Button className="Button" onclick={() => app.modal.show(RequestPasswordResetModal, { user: this.user })}>
         {app.translator.trans('core.forum.settings.change_password_button')}
       </Button>,
       100
