@@ -10,9 +10,9 @@
 namespace Flarum\Realtime\Tests\integration\api\notifications;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
-use Flarum\Discussion\Discussion;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
