@@ -21,7 +21,7 @@ describe('Modals', () => {
   test('ChangeEmailModal renders', () => {
     const manager = mq(ModalManager, { state: app.modal });
 
-    app.modal.show(ChangeEmailModal);
+    app.modal.show(ChangeEmailModal, { user: app.session.user! });
 
     manager.redraw();
 
@@ -32,7 +32,7 @@ describe('Modals', () => {
   test('RequestPasswordResetModal renders', () => {
     const manager = mq(ModalManager, { state: app.modal });
 
-    app.modal.show(RequestPasswordResetModal);
+    app.modal.show(RequestPasswordResetModal, { user: app.session.user! });
 
     manager.redraw();
 
