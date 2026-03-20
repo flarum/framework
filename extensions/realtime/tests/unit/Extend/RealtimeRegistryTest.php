@@ -9,10 +9,7 @@
 
 namespace Flarum\Realtime\Tests\unit\Extend;
 
-use Flarum\Discussion\Discussion;
-use Flarum\Post\Post;
 use Flarum\Realtime\Push\RealtimeRegistry;
-use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
