@@ -29,7 +29,6 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
     const routeUsername = m.route.param('username');
 
-    // @ todo: check if admin is appropriate or a permission should be used
     if (routeUsername !== app.session.user?.slug() && !app.session.user?.isAdmin()) {
       m.route.set('/');
     }

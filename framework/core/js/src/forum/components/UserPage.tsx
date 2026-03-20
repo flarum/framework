@@ -153,7 +153,6 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
       90
     );
 
-    // @todo: Check if admin is appropriate or a permission should be used
     if (isActor || app.session.user?.isAdmin()) {
       items.add('separator', <Separator />, -90);
       items.add(
