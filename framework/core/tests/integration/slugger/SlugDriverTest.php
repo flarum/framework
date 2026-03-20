@@ -87,8 +87,8 @@ class SlugDriverTest extends TestCase
     public static function fromUserSlugVariantsDataProvider(): array
     {
         return [
-            'canonical slug'     => ['2-normal', 2],
-            'bare ID'            => ['2', 2],
+            'canonical slug' => ['2-normal', 2],
++            'bare ID' => ['2', 2],
             'wrong display name' => ['2-wrong-slug', 2],
         ];
     }
