@@ -40,9 +40,7 @@ export default class AnnouncementItem extends Component<IAnnouncementItemAttrs> 
             {a.avatarUrl ? (
               <img className="AnnouncementItem-avatar" src={a.avatarUrl} alt={a.authorName ?? ''} loading="lazy" />
             ) : (
-              <span className="AnnouncementItem-avatarFallback">
-                {icon('fas fa-user')}
-              </span>
+              <span className="AnnouncementItem-avatarFallback">{icon('fas fa-user')}</span>
             )}
             <div className="AnnouncementItem-bylineText">
               {a.authorName && <span className="AnnouncementItem-authorName">{a.authorName}</span>}

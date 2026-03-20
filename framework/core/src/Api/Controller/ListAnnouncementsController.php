@@ -22,10 +22,20 @@ class ListAnnouncementsController implements RequestHandlerInterface
     public const CACHE_KEY = 'flarum.announcements';
     public const CACHE_TTL = 14 * 24 * 3600; // 14 days
 
-    public function __construct(
-        protected CacheRepository $cache,
-        protected AnnouncementsFetcher $fetcher
-    ) {
+    /**
+     * @var CacheRepository
+     */
+    protected $cache;
+
+    /**
+     * @var AnnouncementsFetcher
+     */
+    protected $fetcher;
+
+    public function __construct(CacheRepository $cache, AnnouncementsFetcher $fetcher)
+    {
+        $this->cache = $cache;
+        $this->fetcher = $fetcher;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -36,7 +46,7 @@ class ListAnnouncementsController implements RequestHandlerInterface
             try {
                 $announcements = $this->fetcher->fetch();
                 $this->cache->put(self::CACHE_KEY, $announcements, self::CACHE_TTL);
-            } catch (\RuntimeException) {
+            } catch (\RuntimeException $_e) {
                 $announcements = $this->cache->get(self::CACHE_KEY, []);
             }
 
@@ -49,7 +59,7 @@ class ListAnnouncementsController implements RequestHandlerInterface
             function () {
                 try {
                     return $this->fetcher->fetch();
-                } catch (\RuntimeException) {
+                } catch (\RuntimeException $_e) {
                     return null; // keep existing cached value
                 }
             }

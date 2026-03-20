@@ -69,9 +69,7 @@ export default class AnnouncementsWidget extends DashboardWidget {
             {icon('fas fa-bullhorn')}
             {app.translator.trans('core.admin.announcements.title')}
             <Tooltip text={app.translator.trans('core.admin.announcements.about')}>
-              <span className="AnnouncementsWidget-info">
-                {icon('fas fa-info-circle')}
-              </span>
+              <span className="AnnouncementsWidget-info">{icon('fas fa-info-circle')}</span>
             </Tooltip>
           </h2>
           <div className="AnnouncementsWidget-controls">
