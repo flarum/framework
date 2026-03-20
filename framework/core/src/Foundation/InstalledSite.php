@@ -10,6 +10,7 @@
 namespace Flarum\Foundation;
 
 use Flarum\Admin\AdminServiceProvider;
+use Flarum\Announcements\AnnouncementsServiceProvider;
 use Flarum\Api\ApiServiceProvider;
 use Flarum\Bus\BusServiceProvider;
 use Flarum\Console\ConsoleServiceProvider;
@@ -111,6 +112,7 @@ class InstalledSite implements SiteInterface
         $this->registerCache($container);
 
         $laravel->register(AdminServiceProvider::class);
+        $laravel->register(AnnouncementsServiceProvider::class);
         $laravel->register(ApiServiceProvider::class);
         $laravel->register(BusServiceProvider::class);
         $laravel->register(ConsoleServiceProvider::class);

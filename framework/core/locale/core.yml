@@ -63,6 +63,22 @@ core:
       use_random_password: Generate random password
       username_placeholder: => core.ref.username
 
+    # These translations are used in the Announcements widget.
+    announcements:
+      comments_label: "{count, plural, one {# comment} other {# comments}}"
+      description: Latest news and announcements from the Flarum Team.
+      empty: No announcements found.
+      load_error: Could not load announcements. Please try again later.
+      about: Latest news and announcements pulled from the official Flarum community at discuss.flarum.org.
+      hide: Hide announcements
+      read_more: Read more
+      refresh: Refresh announcements
+      retry: Try again
+      show: Show announcements
+      title: Announcements
+      view_all: View all on discuss.flarum.org
+
+
     # These translations are used in the Dashboard page.
     dashboard:
       clear_cache_button: Clear Cache

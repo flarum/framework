@@ -5,6 +5,7 @@ import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { Children } from 'mithril';
 import DebugWarningWidget from './DebugWarningWidget';
+import AnnouncementsWidget from './AnnouncementWidget';
 
 export default class DashboardPage extends AdminPage {
   headerInfo() {
@@ -30,6 +31,10 @@ export default class DashboardPage extends AdminPage {
     items.add('status', <StatusWidget />, 30);
 
     items.add('extensions', <ExtensionsWidget />, 10);
+
+    if (!app.data.announcementsDisabled) {
+      items.add('announcements', <AnnouncementsWidget />, 29);
+    }
 
     return items;
   }

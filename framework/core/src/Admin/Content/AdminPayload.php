@@ -127,5 +127,7 @@ class AdminPayload
                 'total' => User::count()
             ]
         ];
+
+        $document->payload['announcementsDisabled'] = (bool) $this->config['flarum_announcements.disabled'];
     }
 }
