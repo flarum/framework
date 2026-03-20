@@ -107,7 +107,7 @@ class Generator
     protected function retrieve(AbstractModel $model, array $map): ?string
     {
         foreach ($map as $class => $result) {
-            if ($model instanceof $class) {
+            if (is_string($class) && $model instanceof $class) {
                 return $result;
             }
         }

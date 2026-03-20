@@ -7,21 +7,21 @@ const CORE_POSTED_EVENT = 'Flarum\\Post\\Event\\Posted';
 const CORE_RENAMED_EVENT = 'discussionRenamed';
 const CORE_REVISED_EVENT = 'revisedEvent';
 
-export default function () {
+export default function (): void {
   extend(DiscussionPage.prototype, 'oninit', function (this: any) {
-    this.websocketEventPosted = function (this: any, data: any) {
-      const discussion = app.store.pushPayload(data) as any;
+    this.websocketEventPosted = (data: unknown): void => {
+      const discussion = app.store.pushPayload(data as Parameters<typeof app.store.pushPayload>[0]) as any;
 
       if (discussion.id() === this.discussion?.id() && this.stream) {
-        const oldCount = this.discussion.commentCount() as number;
+        const oldCount: number = this.discussion.commentCount();
 
         app.store.find('discussions', this.discussion.id()).then(() => {
-          this.stream.update().then(() => m.redraw());
+          this.stream.update().then((): void => m.redraw());
 
           if (!document.hasFocus()) {
             app.setTitleCount(Math.max(0, this.discussion.commentCount() - oldCount));
 
-            $(window).one('focus', () => {
+            $(window).one('focus', (): void => {
               app.setTitleCount(0);
             });
           }
@@ -29,12 +29,12 @@ export default function () {
       }
     };
 
-    this.websocketEventStreamUpdate = function (this: any, data: any) {
-      const discussion = app.store.pushPayload(data) as any;
+    this.websocketEventStreamUpdate = (data: unknown): void => {
+      const discussion = app.store.pushPayload(data as Parameters<typeof app.store.pushPayload>[0]) as any;
 
       if (discussion.id() === this.discussion?.id() && this.stream) {
         app.store.find('discussions', this.discussion.id()).then(() => {
-          this.stream.update().then(() => m.redraw());
+          this.stream.update().then((): void => m.redraw());
         });
       }
     };
@@ -56,7 +56,7 @@ export default function () {
     }
   });
 
-  extend(DiscussionPage.prototype, 'onremove', function (this: any) {
+  extend(DiscussionPage.prototype, 'onremove', function () {
     app.websocket_channels.public?.unbind(CORE_POSTED_EVENT);
     app.websocket_channels.user?.unbind(CORE_POSTED_EVENT);
 

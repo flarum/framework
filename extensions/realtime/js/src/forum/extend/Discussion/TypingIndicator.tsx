@@ -16,7 +16,7 @@ interface TypingData {
   time: number;
 }
 
-export default function () {
+export default function (): void {
   extend('flarum/forum/components/PostStream', 'endItems', function (this: any, items) {
     if (this.discussion.attribute('canViewWhoTypes')) {
       const typingUsers = Object.keys(this.getTypingUsers());
@@ -55,12 +55,12 @@ export default function () {
   });
 
   extend('flarum/forum/components/PostStream', 'oninit', function (this: any) {
-    this.previousContent = (Stream as any)('');
-    this.usersTyping = (Stream as any)({} as TypingUserMap);
+    this.previousContent = (Stream as any)('') as ReturnType<typeof Stream>;
+    this.usersTyping = (Stream as any)({} as TypingUserMap) as ReturnType<typeof Stream>;
     this.typingTruncationListener = null as ReturnType<typeof setTimeout> | null;
     this.typingListener = null as ReturnType<typeof setInterval> | null;
 
-    this.getTypingUsers = function (this: any): TypingUserMap {
+    this.getTypingUsers = (): TypingUserMap => {
       const invalidateWhen = Date.now() - 6000;
       const users: TypingUserMap = { ...this.usersTyping() };
       let latestTime: number | null = null;
@@ -86,7 +86,7 @@ export default function () {
       return users;
     };
 
-    this.userTyping = function (this: any, data: TypingData) {
+    this.userTyping = (data: TypingData): void => {
       const users: TypingUserMap = { ...this.usersTyping() };
 
       if (!data.discloseOnline) {
@@ -98,7 +98,7 @@ export default function () {
       m.redraw();
     };
 
-    this.actorIsTyping = function (this: any) {
+    this.actorIsTyping = (): void => {
       const discloseOnline = app.session.user?.preferences()?.discloseOnline;
 
       app.websocket_channels.discussion?.trigger('client-typing', {
@@ -108,7 +108,7 @@ export default function () {
       });
     };
 
-    this.checkTyping = function (this: any) {
+    this.checkTyping = (): void => {
       if (!app.composer.composingReplyTo(this.discussion)) return;
 
       const currentContent = (app.composer as any).fields?.content?.();

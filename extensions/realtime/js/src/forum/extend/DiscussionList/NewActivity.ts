@@ -7,14 +7,15 @@ import IndexPage from 'flarum/forum/components/IndexPage';
 import Button from 'flarum/common/components/Button';
 import WebsocketUpdates from './WebsocketUpdates';
 import extractText from 'flarum/common/utils/extractText';
+import type Mithril from 'mithril';
 
-export default function () {
+export default function (): void {
   extend(DiscussionList.prototype, 'oninit', function (this: any) {
-    this.releaseUpdates = function (this: any) {
+    this.releaseUpdates = (): void => {
       this.websocketUpdates.release(this.attrs.state);
     };
 
-    this.addDiscussion = function (this: any, _returned: unknown, discussion: Discussion) {
+    this.addDiscussion = (_returned: unknown, discussion: Discussion): void => {
       this.websocketUpdates.remove(discussion);
 
       if (app.current.matches(IndexPage)) {
@@ -24,31 +25,31 @@ export default function () {
       m.redraw();
     };
 
-    this.websocketEventPosted = function (this: any, data: any) {
+    this.websocketEventPosted = (data: unknown): void => {
       const params = (app as any).discussions.getParams();
-      const activeTag = params.tags ? (app.store as any).getBy('tags', 'slug', params.tags) : null;
-      const noFilters = Object.keys(params.filter ?? {}).length === 0;
+      const activeTag: any = params.tags ? (app.store as any).getBy('tags', 'slug', params.tags) : null;
+      const noFilters: boolean = Object.keys(params.filter ?? {}).length === 0;
 
       if (!params.q && !params.sort && (activeTag || noFilters)) {
-        const entity = app.store.pushPayload(data) as any;
+        const entity = app.store.pushPayload(data as Parameters<typeof app.store.pushPayload>[0]) as any;
 
-        let discussion: any = entity instanceof Discussion ? entity : null;
+        let discussion: Discussion | null = entity instanceof Discussion ? entity : null;
 
         if (!discussion && entity instanceof Post) {
-          discussion = entity.discussion();
+          discussion = (entity as any).discussion();
         }
 
         if (!discussion) return;
 
         // Byobu private discussions guards.
-        if (app.current.data.routeName === 'byobuPrivate' && !(discussion.recipientUsers?.() && discussion.recipientGroups?.())) {
+        if (app.current.data.routeName === 'byobuPrivate' && !((discussion as any).recipientUsers?.() && (discussion as any).recipientGroups?.())) {
           return;
         }
 
         if (
           app.current.data.routeName === 'byobuPrivate' &&
-          discussion.recipientUsers?.()?.length === 0 &&
-          discussion.recipientGroups?.()?.length === 0
+          (discussion as any).recipientUsers?.()?.length === 0 &&
+          (discussion as any).recipientGroups?.()?.length === 0
         ) {
           return;
         }
@@ -57,14 +58,14 @@ export default function () {
         if (app.current.data.routeName === 'user.discussions') return;
 
         // Tag-based filtering (flarum/tags).
-        if (activeTag && discussion.tags?.()) {
-          const tagIds = discussion.tags().map((tag: any) => tag.id());
+        if (activeTag && (discussion as any).tags?.()) {
+          const tagIds: string[] = (discussion as any).tags().map((tag: any): string => tag.id());
           if (!tagIds.includes(activeTag.id())) return;
         }
 
         if (
-          discussion.tags?.() &&
-          discussion.tags().find((tag: any) => {
+          (discussion as any).tags?.() &&
+          (discussion as any).tags().find((tag: any) => {
             if (activeTag && activeTag.id() === tag.id()) return false;
             if (!activeTag && tag.isHidden?.()) return true;
             return tag.subscription?.() === 'hide';
@@ -74,29 +75,30 @@ export default function () {
         }
 
         // Subscription filtering (flarum/subscriptions).
-        if (discussion.subscription?.() === 'ignore') return;
+        if ((discussion as any).subscription?.() === 'ignore') return;
 
-        const subscribedTag = discussion.tags?.()?.find((tag: any) => {
+        const subscribedTag = (discussion as any).tags?.()?.find((tag: any): boolean => {
           return tag.subscription?.() === 'lurk' || tag.subscription?.() === 'follow';
         });
 
         if (app.current.get('routeName') === 'following') {
-          if ((params.filter?.['following-tag'] && !subscribedTag) || discussion.subscription?.() !== 'follow') {
+          if ((params.filter?.['following-tag'] && !subscribedTag) || (discussion as any).subscription?.() !== 'follow') {
             return;
           }
         }
 
-        if (this.websocketUpdates.has(discussion)) return;
+        if ((this.websocketUpdates as WebsocketUpdates).has(discussion)) return;
         if ((app as any).discussions.getPages()[0]?.items[0]?.id() === discussion.id()) return;
 
-        const pushOnIndex = !app.current.get('discussion');
-        const pushOnView = discussion.id() === app.current.get('discussion')?.id() || subscribedTag || discussion.subscription?.() === 'follow';
+        const pushOnIndex: boolean = !app.current.get('discussion');
+        const pushOnView: boolean =
+          discussion.id() === app.current.get('discussion')?.id() || subscribedTag || (discussion as any).subscription?.() === 'follow';
 
         if (pushOnIndex || pushOnView) {
-          this.websocketUpdates.push(discussion);
+          (this.websocketUpdates as WebsocketUpdates).push(discussion);
 
           if (app.current.matches(IndexPage)) {
-            app.setTitleCount(this.websocketUpdates.length());
+            app.setTitleCount((this.websocketUpdates as WebsocketUpdates).length());
             m.redraw();
           }
         }
@@ -104,7 +106,7 @@ export default function () {
     };
 
     this.websocketUpdates = new WebsocketUpdates();
-    this.releaseTimeout = this.websocketUpdates.getReleaseInterval();
+    this.releaseTimeout = (this.websocketUpdates as WebsocketUpdates).getReleaseInterval();
   });
 
   extend(DiscussionList.prototype, 'oncreate', function (this: any) {
@@ -121,17 +123,25 @@ export default function () {
     app.websocket_channels.user?.unbind('Flarum\\Post\\Event\\Posted');
   });
 
-  extend(DiscussionList.prototype, 'view', function (this: any, vdom: any) {
-    if (!this.websocketUpdates.isEmpty()) {
-      const buttonLabel = (releaseTimeout: number) =>
-        this.websocketUpdates.autoRelease()
+  extend(DiscussionList.prototype, 'view', function (this: any, vdom: Mithril.Vnode | null) {
+    if (!(this.websocketUpdates as WebsocketUpdates).isEmpty()) {
+      const buttonLabel = (releaseTimeout: number): Mithril.Children =>
+        (this.websocketUpdates as WebsocketUpdates).autoRelease()
           ? app.translator.trans('flarum-realtime.forum.push.discussion-list-new-activity-with-auto-release', {
-              count: this.websocketUpdates.length(),
+              count: (this.websocketUpdates as WebsocketUpdates).length(),
               releaseTimeout,
             })
-          : app.translator.trans('flarum-realtime.forum.push.discussion-list-new-activity', { count: this.websocketUpdates.length() });
+          : app.translator.trans('flarum-realtime.forum.push.discussion-list-new-activity', {
+              count: (this.websocketUpdates as WebsocketUpdates).length(),
+            });
 
-      if (this.websocketUpdates.length() && typeof vdom === 'object' && vdom && 'children' in vdom && vdom.children instanceof Array) {
+      if (
+        (this.websocketUpdates as WebsocketUpdates).length() &&
+        typeof vdom === 'object' &&
+        vdom &&
+        'children' in vdom &&
+        vdom.children instanceof Array
+      ) {
         vdom.children.unshift(
           Button.component(
             {
@@ -140,13 +150,13 @@ export default function () {
               'aria-atomic': 'true',
               onclick: this.releaseUpdates.bind(this),
             },
-            buttonLabel(this.releaseTimeout)
+            buttonLabel(this.releaseTimeout as number)
           )
         );
 
-        this.websocketUpdates.startTimer();
+        (this.websocketUpdates as WebsocketUpdates).startTimer();
 
-        this.websocketUpdates.onTimer((second: number) => {
+        (this.websocketUpdates as WebsocketUpdates).onTimer((second: number) => {
           if (second === 0) return this.releaseUpdates();
           this.$('.DiscussionList-update > .Button-label').text(extractText(buttonLabel(second)));
         });
