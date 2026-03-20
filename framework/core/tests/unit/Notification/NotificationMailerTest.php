@@ -10,6 +10,7 @@
 namespace Flarum\Tests\unit\Notification;
 
 use Flarum\Http\RouteCollectionUrlGenerator;
+use Flarum\Http\SlugDriverInterface;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
@@ -55,6 +56,10 @@ class NotificationMailerTest extends TestCase
         $routeGenerator = m::mock(RouteCollectionUrlGenerator::class);
         $routeGenerator->shouldReceive('route')->andReturn('https://example.com/some-url');
         $this->url->shouldReceive('to')->andReturn($routeGenerator);
+
+        $slugDriver = m::mock(SlugDriverInterface::class);
+        $slugDriver->shouldReceive('toSlug')->andReturn('test-user');
+        $this->slugManager->shouldReceive('forResource')->with(User::class)->andReturn($slugDriver);
 
         $this->view->shouldReceive('share')->once();
 
