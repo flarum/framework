@@ -41,7 +41,6 @@ class NotificationMailer
         $unsubscribeRecord = $this->generateUnsubscribeToken($user->id, $blueprint::getType());
         $unsubscribeRecord->save();
 
-        $user = User::find($user->id);
         $userSlug = $this->slugManager->forResource(User::class)->toSlug($user);
 
         $unsubscribeLink = $this->url->to('forum')->route('notifications.unsubscribe', ['userId' => $user->id, 'token' => $unsubscribeRecord->token]);
