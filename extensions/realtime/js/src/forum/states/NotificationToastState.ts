@@ -1,6 +1,6 @@
 import type NotificationModel from 'flarum/common/models/Notification';
 
-const DISMISS_AFTER_MS = 15000;
+const DISMISS_AFTER_MS = 5000;
 
 interface ToastEntry {
   id: number;
