@@ -101,7 +101,7 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
     items.add(
       'changeEmail',
-      <Button className="Button" onclick={() => app.modal.show(ChangeEmailModal)}>
+      <Button className="Button" onclick={() => app.modal.show(ChangeEmailModal, { user: this.user })}>
         {app.translator.trans('core.forum.settings.change_email_button')}
       </Button>,
       90

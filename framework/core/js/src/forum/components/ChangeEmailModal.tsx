@@ -7,11 +7,16 @@ import RequestError from '../../common/utils/RequestError';
 import ItemList from '../../common/utils/ItemList';
 import Form from '../../common/components/Form';
 
+import type User from '../../common/models/User';
+
+export interface IChangeEmailModalAttrs extends IFormModalAttrs {
+  user: User;
+}
 /**
  * The `ChangeEmailModal` component shows a modal dialog which allows the user
  * to change their email address.
  */
-export default class ChangeEmailModal<CustomAttrs extends IFormModalAttrs = IFormModalAttrs> extends FormModal<CustomAttrs> {
+export default class ChangeEmailModal<CustomAttrs extends IChangeEmailModalAttrs = IChangeEmailModalAttrs> extends FormModal<CustomAttrs> {
   /**
    * The value of the email input.
    */
@@ -30,7 +35,7 @@ export default class ChangeEmailModal<CustomAttrs extends IFormModalAttrs = IFor
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    this.email = Stream(app.session.user!.email() || '');
+    this.email = Stream(this.attrs.user.email() || '');
     this.password = Stream('');
   }
 
@@ -75,31 +80,26 @@ export default class ChangeEmailModal<CustomAttrs extends IFormModalAttrs = IFor
       items.add(
         'email',
         <div className="Form-group">
-          <input
-            type="email"
-            name="email"
-            className="FormControl"
-            placeholder={app.session.user!.email()}
-            bidi={this.email}
-            disabled={this.loading}
-          />
+          <input type="email" name="email" className="FormControl" placeholder={this.attrs.user.email()} bidi={this.email} disabled={this.loading} />
         </div>
       );
 
-      items.add(
-        'password',
-        <div className="Form-group">
-          <input
-            type="password"
-            name="password"
-            className="FormControl"
-            autocomplete="current-password"
-            placeholder={app.translator.trans('core.forum.change_email.confirm_password_placeholder')}
-            bidi={this.password}
-            disabled={this.loading}
-          />
-        </div>
-      );
+      if (!app.session.user?.isAdmin()) {
+        items.add(
+          'password',
+          <div className="Form-group">
+            <input
+              type="password"
+              name="password"
+              className="FormControl"
+              autocomplete="current-password"
+              placeholder={app.translator.trans('core.forum.change_email.confirm_password_placeholder')}
+              bidi={this.password}
+              disabled={this.loading}
+            />
+          </div>
+        );
+      }
 
       items.add(
         'submit',
@@ -119,7 +119,7 @@ export default class ChangeEmailModal<CustomAttrs extends IFormModalAttrs = IFor
 
     // If the user hasn't actually entered a different email address, we don't
     // need to do anything. Woot!
-    if (this.email() === app.session.user!.email()) {
+    if (this.email() === this.attrs.user.email()) {
       this.hide();
       return;
     }
@@ -127,13 +127,17 @@ export default class ChangeEmailModal<CustomAttrs extends IFormModalAttrs = IFor
     this.loading = true;
     this.alertAttrs = null;
 
-    app.session
-      .user!.save(this.requestAttributes(), {
+    this.attrs.user
+      .save(this.requestAttributes(), {
         errorHandler: this.onerror.bind(this),
-        meta: { password: this.password() },
+        ...(!app.session.user?.isAdmin() ? { meta: { password: this.password() } } : {}),
       })
       .then(() => {
-        this.success = true;
+        if (!app.session.user?.isAdmin()) {
+          this.success = true;
+        } else {
+          this.hide();
+        }
       })
       .catch(() => {})
       .then(this.loaded.bind(this));
