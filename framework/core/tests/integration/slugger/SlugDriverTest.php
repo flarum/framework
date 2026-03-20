@@ -11,6 +11,7 @@ namespace integration\slugger;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Http\SlugDriverInterface;
 use Flarum\Http\SlugManager;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -69,6 +70,27 @@ class SlugDriverTest extends TestCase
         $slugger = $this->app()->getContainer()->make(SlugManager::class)->forResource($modelClassName);
 
         $this->assertEquals($modelClassName::query()->find($id), $slugger->fromSlug($slug, User::query()->find(1)));
+    }
+
+    #[Test]
+    #[DataProvider('fromUserSlugVariantsDataProvider')]
+    public function id_with_display_name_driver_resolves_user_from_slug_variants(string $slug, int $expectedId)
+    {
+        $this->setting('slug_driver_'.User::class, 'id_with_display_name');
+
+        /** @var SlugDriverInterface $slugger */
+        $slugger = $this->app()->getContainer()->make(SlugManager::class)->forResource(User::class);
+
+        $this->assertEquals(User::query()->find($expectedId), $slugger->fromSlug($slug, User::query()->find(1)));
+    }
+
+    public static function fromUserSlugVariantsDataProvider(): array
+    {
+        return [
+            'canonical slug'     => ['2-normal', 2],
+            'bare ID'            => ['2', 2],
+            'wrong display name' => ['2-wrong-slug', 2],
+        ];
     }
 
     public static function slugInstancePairDataProvider(): array
