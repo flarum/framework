@@ -277,8 +277,8 @@ class UserResource extends AbstractDatabaseResource
                     return $user->getNewNotificationCount();
                 }),
             Schema\Arr::make('preferences')
-                ->visible(fn (User $user, Context $context) => ($context->collection instanceof self || $context->collection instanceof ForumResource) && $context->getActor()->id === $user->id)
-                ->writable(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->visible(fn (User $user, Context $context) => ($context->collection instanceof self || $context->collection instanceof ForumResource) && ($context->getActor()->id === $user->id || $context->getActor()->isAdmin()))
+                ->writable(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $context->getActor()->isAdmin())
                 ->set(function (User $user, array $value) {
                     foreach ($value as $k => $v) {
                         $user->setPreference($k, $v);
