@@ -30,9 +30,9 @@ export default function (app: ForumApplication) {
     user: { path: '/u/:username', component: PostsUserPage },
     'user.posts': { path: '/u/:username', component: PostsUserPage },
     'user.discussions': { path: '/u/:username/discussions', component: () => import('./components/DiscussionsUserPage') },
-
-    settings: { path: '/settings', component: () => import('./components/SettingsPage') },
+    'user.settings': { path: '/u/:username/settings', component: () => import('./components/SettingsPage') },
     'user.security': { path: '/u/:username/security', component: () => import('./components/UserSecurityPage') },
+
     notifications: { path: '/notifications', component: () => import('./components/NotificationsPage') },
   };
 }
