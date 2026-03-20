@@ -197,7 +197,11 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
             this.user!.savePreferences({ colorScheme: mode.id }).then(() => {
               this.colorSchemeLoading = false;
-              app.setColorScheme(mode.id);
+
+              if (this.user === app.session.user) {
+                app.setColorScheme(mode.id);
+              }
+
               m.redraw();
             });
           }}
