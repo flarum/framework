@@ -10,6 +10,7 @@
 namespace Flarum\Tests\unit\Notification;
 
 use Flarum\Http\RouteCollectionUrlGenerator;
+use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
@@ -32,6 +33,7 @@ class NotificationMailerTest extends TestCase
     private SettingsRepositoryInterface $settings;
     private UrlGenerator $url;
     private Factory $view;
+    private SlugManager $slugManager;
     private NotificationMailer $notificationMailer;
 
     protected function setUp(): void
@@ -43,6 +45,7 @@ class NotificationMailerTest extends TestCase
         $this->settings = m::mock(SettingsRepositoryInterface::class);
         $this->url = m::mock(UrlGenerator::class);
         $this->view = m::mock(Factory::class);
+        $this->slugManager = m::mock(SlugManager::class);
 
         // Common stub setup
         $this->translator->shouldReceive('setLocale')->once();
@@ -56,7 +59,7 @@ class NotificationMailerTest extends TestCase
         $this->view->shouldReceive('share')->once();
 
         // Use a testable subclass that stubs out the DB-touching unsubscribe token
-        $this->notificationMailer = new class($this->mailer, $this->translator, $this->settings, $this->url, $this->view) extends NotificationMailer {
+        $this->notificationMailer = new class($this->mailer, $this->translator, $this->settings, $this->url, $this->view, $this->slugManager) extends NotificationMailer {
             protected function generateUnsubscribeToken(int $userId, string $emailType): UnsubscribeToken
             {
                 $token = m::mock(UnsubscribeToken::class)->shouldIgnoreMissing();
