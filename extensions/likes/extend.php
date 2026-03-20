@@ -15,6 +15,7 @@ use Flarum\Extend;
 use Flarum\Likes\Api\PostResourceFields;
 use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Likes\Notification\PostLikedBlueprint;
 use Flarum\Likes\Query\LikedByFilter;
 use Flarum\Likes\Query\LikedFilter;
@@ -74,4 +75,15 @@ return [
 
     (new Extend\Policy())
         ->modelPolicy(Post::class, Access\LikePostPolicy::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-realtime', fn () => [
+            (new RealtimeExtend())
+                ->broadcastModelEvent(
+                    [PostWasLiked::class, PostWasUnliked::class],
+                    fn ($event) => $event->post,
+                    fn ($event) => $event->user,
+                    'likesMutation'
+                ),
+        ]),
 ];

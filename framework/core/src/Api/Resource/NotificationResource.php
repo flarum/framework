@@ -67,6 +67,15 @@ class NotificationResource extends AbstractDatabaseResource
     public function endpoints(): array
     {
         return [
+            Endpoint\Show::make()
+                ->authenticated()
+                ->defaultInclude(array_filter([
+                    'fromUser',
+                    'subject',
+                    $this->initialized && count($this->subjectTypes()) > 1
+                        ? 'subject.discussion'
+                        : null,
+                ])),
             Endpoint\Update::make()
                 ->authenticated(),
             Endpoint\Index::make()

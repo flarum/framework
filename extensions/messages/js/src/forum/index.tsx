@@ -9,6 +9,7 @@ import type Dialog from '../common/models/Dialog';
 import DialogsDropdown from './components/DialogsDropdown';
 import DialogListState from './states/DialogListState';
 import type User from 'flarum/common/models/User';
+import extendRealtime from './extendRealtime';
 
 export { default as extend } from './extend';
 
@@ -82,4 +83,11 @@ app.initializers.add('flarum-messages', () => {
       label: app.translator.trans('flarum-messages.forum.settings.notify_message_received_label'),
     });
   });
+
+  // Register realtime events with flarum/realtime when enabled.
+  // New dialog messages update the header counter and message stream in real-time.
+  // The typing indicator attaches to per-dialog private Pusher channels.
+  if ('flarum-realtime' in flarum.extensions) {
+    extendRealtime();
+  }
 });

@@ -33,6 +33,9 @@
         "flarum-extension": {
             "title": "Flags",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/realtime"
+            ],
             "icon": {
                 "name": "fas fa-flag",
                 "backgroundColor": "#D659B5",

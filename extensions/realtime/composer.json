@@ -41,16 +41,7 @@
                 "backgroundRepeat": "no-repeat",
                 "backgroundPosition": "center"
             },
-            "optional-dependencies": [
-                "clarkwinkelmann/flarum-ext-first-post-approval",
-                "flarum/approval",
-                "flarum/flags",
-                "flarum/lock",
-                "flarum/subscriptions",
-                "fof/follow-tags",
-                "fof/gamification",
-                "fof/reactions"
-            ]
+            "optional-dependencies": []
         },
         "flarum-cli": {
             "modules": {

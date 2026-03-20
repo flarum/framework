@@ -4,6 +4,7 @@ import app from 'flarum/forum/app';
 import addLikeAction from './addLikeAction';
 import addLikesList from './addLikesList';
 import addLikesTabToUserProfile from './addLikesTabToUserProfile';
+import extendRealtime from './extendRealtime';
 
 export { default as extend } from './extend';
 
@@ -30,9 +31,15 @@ app.initializers.add('flarum-likes', () => {
 
     return orig;
   });
-  extend('flarum/forum/components/SearchModal', 'defaultFilters', function (filters) {
+  extend('flarum/forum/components/SearchModal', 'defaultFilters', function (filters: any) {
     if (app.current.data.routeName && app.current.data.routeName.includes('user.likes') && app.current.data.user) {
-      filters.posts.likedBy = app.current.data.user.username();
+      filters.posts.likedBy = (app.current.data.user as any).username();
     }
   });
+
+  // Register a discussion stream update event with flarum/realtime when enabled.
+  // Likes and unlikes will trigger a DiscussionPage stream reload for other users.
+  if ('flarum-realtime' in flarum.extensions) {
+    extendRealtime();
+  }
 });
