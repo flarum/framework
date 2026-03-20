@@ -9,8 +9,8 @@
 
 namespace Flarum\Notification;
 
-use Flarum\Http\UrlGenerator;
 use Flarum\Http\SlugManager;
+use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Settings\SettingsRepositoryInterface;

@@ -10,8 +10,8 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Http\Controller\AbstractHtmlController;
-use Flarum\Http\UrlGenerator;
 use Flarum\Http\SlugManager;
+use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\UnsubscribeToken;
 use Flarum\Settings\SettingsRepositoryInterface;
