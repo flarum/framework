@@ -36,7 +36,7 @@ class IdWithDisplayNameSlugDriver implements SlugDriverInterface
      */
     public function fromSlug(string $slug, User $actor): AbstractModel
     {
-        if (strpos($slug, '-')) {
+        if (strpos($slug, '-') !== false) {
             $slug_array = explode('-', $slug);
             $slug = $slug_array[0];
         }
