@@ -5,12 +5,12 @@ import type User from 'flarum/common/models/User';
  * The `MentionsUserPage` component shows post which user Mentioned at
  */
 export default class MentionsUserPage extends PostsUserPage {
-  params(user: User) {
+  params(user: User): ReturnType<PostsUserPage['params']> {
     return {
       filter: {
         type: 'comment',
         mentioned: user.id(),
       },
-    };
+    } as unknown as ReturnType<PostsUserPage['params']>;
   }
 }
