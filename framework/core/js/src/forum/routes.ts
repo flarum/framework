@@ -30,7 +30,11 @@ export default function (app: ForumApplication) {
 
     user: { path: '/u/:username', component: PostsUserPage, resolverClass: UserPageResolver },
     'user.posts': { path: '/u/:username', component: PostsUserPage, resolverClass: UserPageResolver },
-    'user.discussions': { path: '/u/:username/discussions', component: () => import('./components/DiscussionsUserPage'), resolverClass: UserPageResolver },
+    'user.discussions': {
+      path: '/u/:username/discussions',
+      component: () => import('./components/DiscussionsUserPage'),
+      resolverClass: UserPageResolver,
+    },
     'user.settings': { path: '/u/:username/settings', component: () => import('./components/SettingsPage'), resolverClass: UserPageResolver },
     'user.security': { path: '/u/:username/security', component: () => import('./components/UserSecurityPage'), resolverClass: UserPageResolver },
 
