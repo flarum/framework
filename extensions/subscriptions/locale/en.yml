@@ -31,7 +31,7 @@ flarum-subscriptions:
     # These translations are used in the Settings page.
     settings:
       follow_after_reply_label: Automatically follow discussions that I reply to
-      follow_after_create_label: Automatically follow discussions that I created
+      follow_after_create_label: Automatically follow discussions that I create
       notify_for_all_posts_label: Notify about every new post instead of only the last in a discussion
       notify_new_post_label: Someone posts in a discussion I'm following
 
