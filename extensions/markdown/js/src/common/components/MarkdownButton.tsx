@@ -1,9 +1,17 @@
-import Component from 'flarum/common/Component';
+import Component, { ComponentAttrs } from 'flarum/common/Component';
 import Icon from 'flarum/common/components/Icon';
 import Tooltip from 'flarum/common/components/Tooltip';
+import type Mithril from 'mithril';
 
-export default class MarkdownButton extends Component {
-  oncreate(vnode) {
+export interface IMarkdownButtonAttrs extends ComponentAttrs {
+  icon: string;
+  onclick: () => void;
+  title?: string;
+  hotkey?: string;
+}
+
+export default class MarkdownButton extends Component<IMarkdownButtonAttrs> {
+  oncreate(vnode: Mithril.VnodeDOM<IMarkdownButtonAttrs, this>) {
     super.oncreate(vnode);
   }
 
@@ -27,10 +35,10 @@ export default class MarkdownButton extends Component {
     return button;
   }
 
-  keydown(event) {
+  keydown(event: KeyboardEvent) {
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
-      this.element.click();
+      (this.element as HTMLElement).click();
     }
   }
 }
