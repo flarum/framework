@@ -30,6 +30,8 @@
 
 ### Fixed
 
+- (core) various styling fixes: mobile post padding, unread notification contrast, primary button text colour by @imorland [#4480]
+- (realtime) restore full-width new-activity banner; move state to IndexPage by @imorland [#4481]
 - (core) make user search case-insensitive across all supported databases by @imorland [#4467]
 - (core) normalize database version strings in admin dashboard by @imorland [#4466]
 - (core) skip password check on update page for passwordless drivers by @imorland [#4435]
