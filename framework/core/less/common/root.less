@@ -70,7 +70,12 @@
   --discussion-title-color:        mix(@@heading-color, @@body-bg, 55%);
 
   .Button--color-vars(@@control-color, @@control-bg, 'button');
-  .Button--color-vars(if(luma(@primary-color) > 50%, @text-on-light, @text-on-dark), @primary-color, 'button-primary');
+  // Use the YIQ formula (matching the JS isDark utility) rather than luma() to determine
+  // button text colour. luma() uses W3C relative luminance which disagrees with YIQ for
+  // warm/mid-range colours (e.g. orange reads as dark by luma but bright by YIQ).
+  // Pre-compute into a variable to avoid nested parentheses in if(); threshold is 128*1000.
+  @primary-button-yiq: red(@primary-color) * 299 + green(@primary-color) * 587 + blue(@primary-color) * 114;
+  .Button--color-vars(if(@primary-button-yiq >= 128000, @text-on-light, @text-on-dark), @primary-color, 'button-primary');
   .Button--color-vars(@@control-danger-color, @@control-danger-bg, 'control-danger');
   .Button--color-vars(@@muted-more-color, fade(@@muted-more-color, 30%), 'muted-more');
   .Button--color-vars(@@control-color, @@body-bg, 'button-inverted');
