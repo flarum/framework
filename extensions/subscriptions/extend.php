@@ -10,6 +10,7 @@
 use Flarum\Api\Resource;
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Discussion\Event\Saving;
+use Flarum\Discussion\Event\Started;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\UserState;
 use Flarum\Extend;
@@ -17,7 +18,6 @@ use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
-use Flarum\Discussion\Event\Started;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Subscriptions\Api\UserResourceFields;
 use Flarum\Subscriptions\Filter\SubscriptionFilter;
