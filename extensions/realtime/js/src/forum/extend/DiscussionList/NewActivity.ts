@@ -2,30 +2,19 @@ import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import Discussion from 'flarum/common/models/Discussion';
 import Post from 'flarum/common/models/Post';
-import DiscussionList from 'flarum/forum/components/DiscussionList';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import Button from 'flarum/common/components/Button';
+import ItemList from 'flarum/common/utils/ItemList';
 import WebsocketUpdates from './WebsocketUpdates';
 import extractText from 'flarum/common/utils/extractText';
 import type Mithril from 'mithril';
 
 export default function (): void {
-  extend(DiscussionList.prototype, 'oninit', function (this: any) {
-    this.releaseUpdates = (): void => {
-      this.websocketUpdates.release(this.attrs.state);
-    };
+  extend(IndexPage.prototype, 'oninit', function (this: any) {
+    this._realtimeWebsocketUpdates = new WebsocketUpdates();
+    this._realtimeReleaseTimeout = (this._realtimeWebsocketUpdates as WebsocketUpdates).getReleaseInterval();
 
-    this.addDiscussion = (_returned: unknown, discussion: Discussion): void => {
-      this.websocketUpdates.remove(discussion);
-
-      if (app.current.matches(IndexPage)) {
-        app.setTitleCount(this.websocketUpdates.length());
-      }
-
-      m.redraw();
-    };
-
-    this.websocketEventPosted = (data: unknown): void => {
+    this._realtimeWebsocketEventPosted = (data: unknown): void => {
       const params = (app as any).discussions.getParams();
       const activeTag: any = params.tags ? (app.store as any).getBy('tags', 'slug', params.tags) : null;
       const noFilters: boolean = Object.keys(params.filter ?? {}).length === 0;
@@ -87,7 +76,9 @@ export default function (): void {
           }
         }
 
-        if ((this.websocketUpdates as WebsocketUpdates).has(discussion)) return;
+        const websocketUpdates = this._realtimeWebsocketUpdates as WebsocketUpdates;
+
+        if (websocketUpdates.has(discussion)) return;
         if ((app as any).discussions.getPages()[0]?.items[0]?.id() === discussion.id()) return;
 
         const pushOnIndex: boolean = !app.current.get('discussion');
@@ -95,73 +86,69 @@ export default function (): void {
           discussion.id() === app.current.get('discussion')?.id() || subscribedTag || (discussion as any).subscription?.() === 'follow';
 
         if (pushOnIndex || pushOnView) {
-          (this.websocketUpdates as WebsocketUpdates).push(discussion);
-
-          if (app.current.matches(IndexPage)) {
-            app.setTitleCount((this.websocketUpdates as WebsocketUpdates).length());
-            m.redraw();
-          }
+          websocketUpdates.push(discussion);
+          app.setTitleCount(websocketUpdates.length());
+          m.redraw();
         }
       }
     };
-
-    this.websocketUpdates = new WebsocketUpdates();
-    this.releaseTimeout = (this.websocketUpdates as WebsocketUpdates).getReleaseInterval();
   });
 
-  extend(DiscussionList.prototype, 'oncreate', function (this: any) {
-    app.websocket_channels.public?.bind('Flarum\\Discussion\\Event\\Started', this.websocketEventPosted.bind(this));
-    app.websocket_channels.public?.bind('Flarum\\Post\\Event\\Posted', this.websocketEventPosted.bind(this));
-    app.websocket_channels.user?.bind('Flarum\\Discussion\\Event\\Started', this.websocketEventPosted.bind(this));
-    app.websocket_channels.user?.bind('Flarum\\Post\\Event\\Posted', this.websocketEventPosted.bind(this));
+  extend(IndexPage.prototype, 'oncreate', function (this: any) {
+    app.websocket_channels.public?.bind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted.bind(this));
+    app.websocket_channels.public?.bind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted.bind(this));
+    app.websocket_channels.user?.bind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted.bind(this));
+    app.websocket_channels.user?.bind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted.bind(this));
   });
 
-  extend(DiscussionList.prototype, 'onremove', function () {
+  extend(IndexPage.prototype, 'onremove', function (this: any) {
     app.websocket_channels.public?.unbind('Flarum\\Discussion\\Event\\Started');
     app.websocket_channels.public?.unbind('Flarum\\Post\\Event\\Posted');
     app.websocket_channels.user?.unbind('Flarum\\Discussion\\Event\\Started');
     app.websocket_channels.user?.unbind('Flarum\\Post\\Event\\Posted');
   });
 
-  extend(DiscussionList.prototype, 'view', function (this: any, vdom: Mithril.Vnode | null) {
-    if (!(this.websocketUpdates as WebsocketUpdates).isEmpty()) {
-      const buttonLabel = (releaseTimeout: number): Mithril.Children =>
-        (this.websocketUpdates as WebsocketUpdates).autoRelease()
-          ? app.translator.trans('flarum-realtime.forum.push.discussion-list-new-activity-with-auto-release', {
-              count: (this.websocketUpdates as WebsocketUpdates).length(),
-              releaseTimeout,
-            })
-          : app.translator.trans('flarum-realtime.forum.push.discussion-list-new-activity', {
-              count: (this.websocketUpdates as WebsocketUpdates).length(),
-            });
+  extend(IndexPage.prototype, 'contentItems', function (this: any, items: ItemList<Mithril.Children>) {
+    const websocketUpdates = this._realtimeWebsocketUpdates as WebsocketUpdates;
 
-      if (
-        (this.websocketUpdates as WebsocketUpdates).length() &&
-        typeof vdom === 'object' &&
-        vdom &&
-        'children' in vdom &&
-        vdom.children instanceof Array
-      ) {
-        vdom.children.unshift(
-          Button.component(
-            {
-              className: 'Button Button--block DiscussionList-update',
-              'aria-live': 'polite',
-              'aria-atomic': 'true',
-              onclick: this.releaseUpdates.bind(this),
-            },
-            buttonLabel(this.releaseTimeout as number)
-          )
-        );
+    if (!websocketUpdates || websocketUpdates.isEmpty()) return;
 
-        (this.websocketUpdates as WebsocketUpdates).startTimer();
+    const releaseUpdates = (): void => {
+      websocketUpdates.release(app.discussions);
+      app.setTitleCount(0);
+      m.redraw();
+    };
 
-        (this.websocketUpdates as WebsocketUpdates).onTimer((second: number) => {
-          if (second === 0) return this.releaseUpdates();
-          this.$('.DiscussionList-update > .Button-label').text(extractText(buttonLabel(second)));
-        });
-      }
-    }
+    const buttonLabel = (releaseTimeout: number): Mithril.Children =>
+      websocketUpdates.autoRelease()
+        ? app.translator.trans('flarum-realtime.forum.push.discussion-list-new-activity-with-auto-release', {
+            count: websocketUpdates.length(),
+            releaseTimeout,
+          })
+        : app.translator.trans('flarum-realtime.forum.push.discussion-list-new-activity', {
+            count: websocketUpdates.length(),
+          });
+
+    websocketUpdates.startTimer();
+
+    websocketUpdates.onTimer((second: number) => {
+      if (second === 0) return releaseUpdates();
+      this.$('.DiscussionList-update > .Button-label').text(extractText(buttonLabel(second)));
+    });
+
+    items.add(
+      'realtimeNewActivity',
+      Button.component(
+        {
+          className: 'Button DiscussionList-update',
+          'aria-live': 'polite',
+          'aria-atomic': 'true',
+          onclick: releaseUpdates,
+        },
+        buttonLabel(this._realtimeReleaseTimeout as number)
+      ),
+      95
+    );
   });
 
   extend(IndexPage.prototype, 'actionItems', (items) => {
