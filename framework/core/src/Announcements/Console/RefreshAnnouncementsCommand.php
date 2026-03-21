@@ -16,7 +16,7 @@ use Illuminate\Contracts\Cache\Repository as CacheRepository;
 
 class RefreshAnnouncementsCommand extends Command
 {
-    protected $signature = 'flarum:refresh-announcements';
+    protected $signature = 'announcements:refresh';
     protected $description = 'Fetch and cache the latest announcements from discuss.flarum.org.';
 
     public function handle(CacheRepository $cache, AnnouncementsFetcher $fetcher): int
