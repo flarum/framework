@@ -70,6 +70,6 @@ return [
 
     (new Extend\User())
         ->registerPreference('followAfterReply', 'boolval', false)
-        ->registerPreference('followAfterCreate', 'boolval', true)
+        ->registerPreference('followAfterCreate', 'boolval', false)
         ->registerPreference('flarum-subscriptions.notify_for_all_posts', 'boolval', false),
 ];
