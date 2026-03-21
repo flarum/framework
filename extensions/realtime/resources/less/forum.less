@@ -24,6 +24,80 @@
     }
 }
 
+.NotificationToasts {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+
+    @media @phone {
+        top: 12px;
+        right: 12px;
+        left: 12px;
+    }
+}
+
+.NotificationToast {
+    pointer-events: all;
+    background: var(--header-bg);
+    border: 1px solid var(--control-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    max-width: 340px;
+    width: 100%;
+    cursor: pointer;
+    animation: toastSlideIn 0.2s ease;
+    overflow: hidden;
+
+    @media @phone {
+        max-width: 100%;
+    }
+
+    &-context {
+        padding: 6px 12px 4px;
+        font-size: 0.75em;
+        font-weight: bold;
+        color: var(--muted-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border-bottom: 1px solid var(--control-bg);
+
+        a {
+            color: inherit;
+            text-decoration: none;
+
+            &:hover {
+                color: var(--link-color);
+            }
+        }
+    }
+
+    // Remove the link underline and color change — it renders inside a toast
+    .Notification {
+        border-radius: 0;
+
+        &:hover {
+            background: var(--control-bg);
+        }
+    }
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .TypingUsersContainer {
     padding: 12px;
     background: var(--control-bg);

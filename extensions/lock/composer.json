@@ -33,6 +33,9 @@
         "flarum-extension": {
             "title": "Lock",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/realtime"
+            ],
             "icon": {
                 "name": "fas fa-lock",
                 "backgroundColor": "#ddd",

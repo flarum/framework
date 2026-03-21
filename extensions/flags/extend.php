@@ -16,11 +16,14 @@ use Flarum\Flags\Api\ForumResourceFields;
 use Flarum\Flags\Api\PostResourceFields;
 use Flarum\Flags\Api\Resource\FlagResource;
 use Flarum\Flags\Api\UserResourceFields;
+use Flarum\Flags\Event\Created as FlagCreated;
+use Flarum\Flags\Event\Deleting as FlagDeleting;
 use Flarum\Flags\Flag;
 use Flarum\Flags\Listener;
 use Flarum\Forum\Content\AssertRegistered;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Post;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\User\User;
 
 return [
@@ -67,4 +70,14 @@ return [
         ->scope(ScopeFlagVisibility::class),
 
     new Extend\Locales(__DIR__.'/locale'),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-realtime', fn () => [
+            (new RealtimeExtend())
+                ->broadcastFlagEvent(
+                    [FlagCreated::class, FlagDeleting::class],
+                    fn ($event) => $event->flag->post->discussion,
+                    'flagged'
+                ),
+        ]),
 ];

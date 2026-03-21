@@ -16,6 +16,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\Access\ScopeAccessTokenVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\IdSlugDriver;
+use Flarum\User\IdWithDisplayNameSlugDriver;
 use Flarum\User\User;
 use Flarum\User\UsernameSlugDriver;
 use Illuminate\Contracts\Container\Container;
@@ -41,7 +42,8 @@ class HttpServiceProvider extends AbstractServiceProvider
                 ],
                 User::class => [
                     'default' => UsernameSlugDriver::class,
-                    'id' => IdSlugDriver::class
+                    'id' => IdSlugDriver::class,
+                    'id_with_display_name' => IdWithDisplayNameSlugDriver::class,
                 ],
             ];
         });

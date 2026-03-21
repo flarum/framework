@@ -14,6 +14,7 @@ use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Extend;
 use Flarum\Messages\Http\Middleware\PopulateDialogWithActor;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -88,4 +89,15 @@ return [
         ->listen(DialogMessage\Event\Created::class, Listener\SendNotificationWhenMessageSent::class)
         ->listen(DialogMessage\Event\Created::class, Listener\UpdateMentionsMetadataWhenVisible::class)
         ->listen(DialogMessage\Event\Updated::class, Listener\UpdateMentionsMetadataWhenVisible::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-realtime', fn () => [
+            (new RealtimeExtend())
+                ->broadcastDialogEvent(
+                    DialogMessage\Event\Created::class,
+                    fn ($event) => $event->message,
+                )
+                ->registerModelEndpoint(DialogMessage::class, 'dialog-messages')
+                ->registerModelEndpoint(Dialog::class, 'dialogs'),
+        ]),
 ];

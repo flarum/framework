@@ -11,6 +11,7 @@ namespace Flarum\Realtime;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Config;
+use Flarum\Realtime\Push\RealtimeRegistry;
 use Flarum\Realtime\Websocket\Channel\Manager;
 use Flarum\Realtime\Websocket\Settings;
 use Illuminate\Contracts\Container\Container;
@@ -21,6 +22,7 @@ class WebsocketProvider extends AbstractServiceProvider
 {
     public function register()
     {
+        $this->container->singleton(RealtimeRegistry::class);
         $this->container->singleton(Manager::class);
 
         $this->container->singleton(Pusher::class, function (Container $container) {

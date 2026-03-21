@@ -26,6 +26,7 @@
             "title": "Messages",
             "category": "feature",
             "optional-dependencies": [
+                "flarum/realtime",
                 "flarum/tags"
             ],
             "icon": {

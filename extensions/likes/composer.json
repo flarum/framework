@@ -33,6 +33,9 @@
         "flarum-extension": {
             "title": "Likes",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/realtime"
+            ],
             "icon": {
                 "name": "far fa-thumbs-up",
                 "backgroundColor": "#3A649D",

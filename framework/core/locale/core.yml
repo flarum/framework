@@ -153,6 +153,7 @@ core:
         users:
           default: Username
           id: ID
+          id_with_display_name: ID with Display Name
       slug_driver_heading: "Slug Driver: {model}"
       slug_driver_text: Select a driver to be used for slugging this model.
       title: Basics

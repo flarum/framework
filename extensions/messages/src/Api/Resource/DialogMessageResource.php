@@ -83,6 +83,16 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ->visible(function (DialogMessage $message, Context $context): bool {
                     return $context->getActor()->can('delete', $message);
                 }),
+            Endpoint\Show::make()
+                ->authenticated()
+                ->defaultInclude([
+                    'user',
+                    'dialog',
+                    'mentionsUsers',
+                    'mentionsPosts',
+                    'mentionsGroups',
+                    'mentionsTags',
+                ]),
             Endpoint\Index::make()
                 ->authenticated()
                 ->defaultInclude([

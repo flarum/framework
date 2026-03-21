@@ -21,6 +21,7 @@ use Flarum\Likes\Query\LikedFilter;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
@@ -74,4 +75,15 @@ return [
 
     (new Extend\Policy())
         ->modelPolicy(Post::class, Access\LikePostPolicy::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-realtime', fn () => [
+            (new RealtimeExtend())
+                ->broadcastModelEvent(
+                    [PostWasLiked::class, PostWasUnliked::class],
+                    fn ($event) => $event->post,
+                    fn ($event) => $event->user,
+                    'likesMutation'
+                ),
+        ]),
 ];

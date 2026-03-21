@@ -49,5 +49,6 @@ import './components/Search';
 import './components/DiscussionListItem';
 import './components/PostsUserPage';
 import './resolvers/DiscussionPageResolver';
+import './resolvers/UserPageResolver';
 import './routes';
 import './ForumApplication';

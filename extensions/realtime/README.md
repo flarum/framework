@@ -1,4 +1,3 @@
-![](https://extiverse.com/extension/flarum-com/realtime/open-graph-image)
 
 Realtime provides a self-hosted alternative to Pusher with far more features and an active development roadmap. It offers realtime updates of activity on your forum, not just for members but also for guests.
 
@@ -14,47 +13,6 @@ Realtime provides a self-hosted alternative to Pusher with far more features and
 Realtime contains a **service you will need to install** on your hosting environment, similar to the database service (MySQL) or web service (Apache, Nginx). As such you need your own virtual machine, droplet or an environment that allows you to configure scripts to run continuously. In addition, you will need to **run a queue**, we highly recommend the redis queue in combination with realtime.
 
 For this reason this extension isn't likely applicable to anyone hosted on shared hosting environments.
-
-## Premium
-
-This extension requires an active subscription from [flarum.org](https://flarum.org/extension/flarum-com/realtime). 
-
-Due to the complexity of this extension we are forced to publish this extension as a paid one. Development and maintenance of these kind of extensions take a massive amount of time. In order to still make Realtime available to as many people as possible, we offer a plan suitable to those who are able to set everything up themselves and a plan for those in need of assistance.
-
-**Important!** There are two tiers of plans for Realtime:
-
-1. Entry edition, [view plan](https://flarum.org/extension/flarum-com/realtime?key=realtime-entry-edition):
-   - Low cost
-   - Only for non-profit communities
-   - No installation assistance
-   - No expert support
-   - Single payment, perpetual usage
-2. Advanced edition, [view plan](https://flarum.org/extension/flarum-com/realtime?key=realtime-advanced-edition):
-   - For non-profit and for-profit communities
-   - Installation assistance up to two hours
-   - Expert support through email and/or discord
-   - Yearly subscription
-
-In case you need installation assistance from us directly while on the Entry edition, we will require you to upgrade. Installation assistance and expert support cannot and will not be given on the Entry edition.
-
-Once your subscription is active you can follow the instructions on the [subscriptions page](https://flarum.org/dashboard/subscriptions) to configure composer. Once completed you can run the following command for installation:
-
-```bash
-composer remove flarum/pusher
-composer require blomstra/realtime:"*"
-```
-
-For updates:
-
-```bash
-composer require blomstra/realtime:"*"
-php flarum migrate
-php flarum cache:clear
-```
-
-> Managed Flarum communities that we host on our hosting platform ([Blomstra](https://flarum.org/hosting)) have access to all premium extensions by Flarum BV without additional cost.
-
-Enable the extension inside the admin area and follow Set up instructions.
 
 ### Set up
 
@@ -255,20 +213,8 @@ return [
 
 ### FAQ
 
-*Is Realtime proven?*
-The official Flarum community (discuss.flarum.org) has benefited from the features Realtime brings since August 2021. It has also been running on the Blomstra hosting platform since February 2021, most of our managed communities have it enabled. 
-
 *How many concurrent users does Realtime support?*
 Resource usage of the websocket is really low. You should be able to serve thousands simultaneous users with only 1 cpu and 1 GB of memory dedicated to the process. Once we are able to provide a better indication from usage at scale, we will update this FAQ item. As a general rule of thumb it's always better to oversize your realtime daemon resource limitations and then - based on experience - reduce them to meet actual resource cost.
 
 *SendTriggerJob fails/is killed.*
 In case the queue job `SendTriggerJob` fails every single time, make sure to increase the timeout of the queue worker. The default timeout is `60`, also when you leave out the flag, so try running it with `360` like so: `php flarum queue:work --timeout=360`. Read the documentation of your queue driver to understand how to daemonize this command, for testing you can run it in your window with the additional `-vvv` flag for verbose logging.
-
-*I have another question.*
-Reach out to us via https://flarum.org/contact/premium-support. We will get back to you as soon as we can. If you have a running subscription please mention when you started your plan and/or which plan you are on. Always add sufficient information when reporting errors. We prefer errors being reported here, but understand that sometimes you can't.
-
----
-
-- Flarum BV is the commercial companion to the Flarum Foundation.
-- https://flarum.org
-- https://support.on-flarum.com/t/ext-realtime

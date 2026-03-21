@@ -20,6 +20,7 @@ use Flarum\Lock\Filter\LockedFilter;
 use Flarum\Lock\Listener;
 use Flarum\Lock\Notification\DiscussionLockedBlueprint;
 use Flarum\Lock\Post\DiscussionLockedPost;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 
 return [
@@ -73,4 +74,15 @@ return [
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, LockedFilter::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-realtime', fn () => [
+            (new RealtimeExtend())
+                ->broadcastModelEvent(
+                    [DiscussionWasLocked::class, DiscussionWasUnlocked::class],
+                    fn ($event) => $event->discussion,
+                    fn ($event) => $event->user,
+                    'lockedEvent'
+                ),
+        ]),
 ];
