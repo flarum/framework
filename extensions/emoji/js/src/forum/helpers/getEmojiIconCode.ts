@@ -18,6 +18,6 @@ const UFE0Fg = /\uFE0F/g;
  * @param   string    the raw text of the emoji match
  * @return  string    the code point
  */
-export default function getEmojiIconCode(emoji) {
-  return twemoji.convert.toCodePoint(emoji.indexOf(U200D) < 0 ? emoji.replace(UFE0Fg, '') : emoji);
+export default function getEmojiIconCode(emoji: string): string {
+  return (twemoji as any).convert.toCodePoint(emoji.indexOf(U200D) < 0 ? emoji.replace(UFE0Fg, '') : emoji);
 }

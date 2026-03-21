@@ -1,49 +1,51 @@
 import Fragment from 'flarum/common/Fragment';
+import type Mithril from 'mithril';
 
 export default class AutocompleteDropdown extends Fragment {
-  items = [];
-  active = false;
-  index = 0;
-  keyWasJustPressed = false;
+  items: Mithril.Vnode[] = [];
+  active: boolean = false;
+  index: number = 0;
+  keyWasJustPressed: boolean = false;
+  keyWasJustPressedTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  view() {
+  view(): Mithril.Vnode<Mithril.Attributes, this> {
     return (
       <ul className="Dropdown-menu EmojiDropdown">
         <li className="Dropdown-header">{app.translator.trans('flarum-emoji.forum.composer.type_to_search_text')}</li>
         {this.items.map((item) => (
-          <li key={item.attrs.key}>{item}</li>
+          <li key={(item as any).attrs?.key}>{item}</li>
         ))}
       </ul>
-    );
+    ) as Mithril.Vnode<Mithril.Attributes, this>;
   }
 
-  show(left, top) {
+  show(left?: number, top?: number): void {
     this.$()
       .show()
       .css({
-        left: left + 'px',
-        top: top + 'px',
+        left: (left ?? 0) + 'px',
+        top: (top ?? 0) + 'px',
       });
     this.active = true;
   }
 
-  hide() {
+  hide(): void {
     this.$().hide();
     this.active = false;
   }
 
-  navigate(delta) {
+  navigate(delta: number): void {
     this.keyWasJustPressed = true;
     this.setIndex(this.index + delta, true);
-    clearTimeout(this.keyWasJustPressedTimeout);
+    if (this.keyWasJustPressedTimeout) clearTimeout(this.keyWasJustPressedTimeout);
     this.keyWasJustPressedTimeout = setTimeout(() => (this.keyWasJustPressed = false), 500);
   }
 
-  complete() {
+  complete(): void {
     this.$('li:not(.Dropdown-header)').eq(this.index).find('button').click();
   }
 
-  setIndex(index, scrollToItem) {
+  setIndex(index: number, scrollToItem?: boolean): void {
     if (this.keyWasJustPressed && !scrollToItem) return;
 
     const $dropdown = this.$();
@@ -61,13 +63,13 @@ export default class AutocompleteDropdown extends Fragment {
     const $item = $items.removeClass('active').eq(rangedIndex).addClass('active');
 
     if (scrollToItem) {
-      const dropdownScroll = $dropdown.scrollTop();
-      const dropdownTop = $dropdown.offset().top;
-      const dropdownBottom = dropdownTop + $dropdown.outerHeight();
-      const itemTop = $item.offset().top;
-      const itemBottom = itemTop + $item.outerHeight();
+      const dropdownScroll = $dropdown.scrollTop()!;
+      const dropdownTop = $dropdown.offset()!.top;
+      const dropdownBottom = dropdownTop + $dropdown.outerHeight()!;
+      const itemTop = $item.offset()!.top;
+      const itemBottom = itemTop + $item.outerHeight()!;
 
-      let scrollTop;
+      let scrollTop: number | undefined;
       if (itemTop < dropdownTop) {
         scrollTop = dropdownScroll - dropdownTop + itemTop - parseInt($dropdown.css('padding-top'), 10);
       } else if (itemBottom > dropdownBottom) {

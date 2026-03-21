@@ -20,15 +20,17 @@ function options() {
  * Vanilla JS implementation of jQuery's `$.parseHTML()`,
  * sourced from http://youmightnotneedjquery.com/
  */
-function parseHTML(str) {
+function parseHTML(str: string): HTMLBodyElement {
   const tmp = document.implementation.createHTMLDocument();
   tmp.body.innerHTML = str;
 
-  return tmp.body;
+  return tmp.body as HTMLBodyElement;
 }
 
-export default function renderEmoji() {
-  override(Post.prototype, 'contentHtml', function (original) {
+declare const s9e: { TextFormatter: any };
+
+export default function renderEmoji(): void {
+  (override as any)(Post.prototype, 'contentHtml', function (this: any, original: () => string) {
     const contentHtml = original();
 
     if (this.oldContentHtml !== contentHtml) {
@@ -42,7 +44,7 @@ export default function renderEmoji() {
       // element. This gets stripped below.
       //
       // See https://github.com/flarum/core/issues/2958
-      const emojifiedDom = twemoji.parse(parseHTML(contentHtml), options());
+      const emojifiedDom = (twemoji as any).parse(parseHTML(contentHtml), options());
 
       // Steal the HTML string inside the emojified DOM `<body>` tag.
       this.emojifiedContentHtml = emojifiedDom.innerHTML;
@@ -53,9 +55,9 @@ export default function renderEmoji() {
     return this.emojifiedContentHtml;
   });
 
-  override(s9e.TextFormatter, 'preview', (original, text, element) => {
+  (override as any)(s9e.TextFormatter, 'preview', (original: (text: string, element: HTMLElement) => void, text: string, element: HTMLElement) => {
     original(text, element);
 
-    twemoji.parse(element, options());
+    (twemoji as any).parse(element, options());
   });
 }

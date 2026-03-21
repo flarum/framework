@@ -8,11 +8,33 @@ import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import getEmojiIconCode from './helpers/getEmojiIconCode';
 import cdn from '../common/cdn';
 
-export default function addComposerAutocomplete() {
-  let emojiMap = null;
+interface EmojiTextEditor extends Record<string, any> {
+  _loaders: Array<() => Promise<void>>;
+  commonEmoji: string[];
+  emojiDropdown: AutocompleteDropdown;
+  navigator: KeyboardNavigatable;
+  textareaId: string;
+  attrs: {
+    composer: {
+      editor: {
+        getSelectionRange(): [number, number];
+        getLastNChars(n: number): string;
+        replaceBeforeCursor(start: number, text: string): void;
+        getCaretCoordinates(pos: number): { left: number; top: number };
+        insertAtCursor(text: string): void;
+      };
+    };
+  };
+  $(selector?: string): JQuery;
+}
 
-  extend('flarum/common/components/TextEditor', 'oninit', function () {
-    this._loaders.push(async () => await import('./emojiMap').then((m) => (emojiMap = m.default)));
+export default function addComposerAutocomplete(): void {
+  let emojiMap: Record<string, string[]> | null = null;
+
+  extend('flarum/common/components/TextEditor', 'oninit', function (this: EmojiTextEditor) {
+    this._loaders.push(async () => {
+      await import('./emojiMap').then((m) => (emojiMap = m.default));
+    });
     // prettier-ignore
     this.commonEmoji = [
       '😀', '😁', '😂', '😃', '😄', '😅', '😆', '😇', '😈', '😉', '😊', '😋', '😌', '😍', '😎', '😏', '😐️', '😑', '😒',
@@ -22,7 +44,7 @@ export default function addComposerAutocomplete() {
     ];
   });
 
-  extend('flarum/common/components/TextEditor', 'onbuild', function () {
+  extend('flarum/common/components/TextEditor', 'onbuild', function (this: EmojiTextEditor) {
     this.emojiDropdown = new AutocompleteDropdown();
     const $editor = this.$('.TextEditor-editor').wrap('<div class="ComposerBody-emojiWrapper"></div>');
 
@@ -38,15 +60,14 @@ export default function addComposerAutocomplete() {
     $editor.after($('<div class="ComposerBody-emojiDropdownContainer"></div>'));
   });
 
-  extend('flarum/common/components/TextEditor', 'buildEditorParams', function (params) {
-    const emojiKeys = Object.keys(emojiMap);
+  extend('flarum/common/components/TextEditor', 'buildEditorParams', function (this: EmojiTextEditor, params: { inputListeners: Array<() => void> }) {
+    const emojiKeys = Object.keys(emojiMap!);
     const resolvedCdn = cdn();
 
     const autocompleteReader = new AutocompleteReader(':');
 
     params.inputListeners.push(() => {
       const selection = this.attrs.composer.editor.getSelectionRange();
-
       const cursor = selection[0];
 
       if (selection[1] - cursor > 0) return;
@@ -59,35 +80,35 @@ export default function addComposerAutocomplete() {
 
       if (autocompleting) {
         const typed = autocompleting.typed;
-        const emojiDropdown = this.emojiDropdown;
+        const emojiDropdown: AutocompleteDropdown = this.emojiDropdown;
 
-        const applySuggestion = (replacement) => {
+        const applySuggestion = (replacement: string): void => {
           this.attrs.composer.editor.replaceBeforeCursor(autocompleting.absoluteStart - 1, replacement + ' ');
           this.emojiDropdown.hide();
         };
 
-        const makeSuggestion = function ({ emoji, name, code }) {
+        const makeSuggestion = ({ emoji, name, code }: { emoji: string; name: string; code: string }) => {
           return (
             <Tooltip text={name}>
               <button
                 type="button"
                 key={emoji}
                 onclick={() => applySuggestion(emoji)}
-                onmouseenter={function () {
+                onmouseenter={function (this: HTMLElement) {
                   emojiDropdown.setIndex($(this).parent().index() - 1);
                 }}
               >
-                <img alt={emoji} className="emoji" draggable="false" loading="lazy" src={`${resolvedCdn}72x72/${code}.png`} title={name} />
+                <img alt={emoji} className="emoji" draggable={false} loading="lazy" src={`${resolvedCdn}72x72/${code}.png`} title={name} />
               </button>
             </Tooltip>
           );
         };
 
-        const buildSuggestions = () => {
-          const similarEmoji = [];
+        const buildSuggestions = (): void => {
+          const similarEmoji: string[] = [];
 
           // Build a regular expression to do a fuzzy match of the given input string
-          const fuzzyRegexp = function (str) {
+          const fuzzyRegexp = (str: string): RegExp => {
             const reEscape = new RegExp('\\(([' + '+.*?[]{}()^$|\\'.replace(/(.)/g, '\\$1') + '])\\)', 'g');
             return new RegExp('(.*)' + str.toLowerCase().replace(/(.)/g, '($1)(.*?)').replace(reEscape, '(\\$1)') + '$', 'i');
           };
@@ -95,13 +116,13 @@ export default function addComposerAutocomplete() {
 
           let maxSuggestions = 40;
 
-          const findMatchingEmojis = (matcher) => {
+          const findMatchingEmojis = (matcher: (name: string, emoji: string) => boolean | undefined): void => {
             for (let i = 0; i < emojiKeys.length && maxSuggestions > 0; i++) {
               const curEmoji = emojiKeys[i];
 
               if (similarEmoji.indexOf(curEmoji) === -1) {
-                const names = emojiMap[curEmoji];
-                for (let name of names) {
+                const names = emojiMap![curEmoji];
+                for (const name of names) {
                   if (matcher(name, curEmoji)) {
                     --maxSuggestions;
                     similarEmoji.push(curEmoji);
@@ -128,7 +149,7 @@ export default function addComposerAutocomplete() {
           const suggestions = similarEmoji
             .map((emoji) => ({
               emoji,
-              name: emojiMap[emoji][0],
+              name: emojiMap![emoji][0],
               code: getEmojiIconCode(emoji),
             }))
             .map(makeSuggestion);
@@ -139,23 +160,23 @@ export default function addComposerAutocomplete() {
 
             this.emojiDropdown.show();
             const coordinates = this.attrs.composer.editor.getCaretCoordinates(autocompleting.absoluteStart);
-            const width = this.emojiDropdown.$().outerWidth();
-            const height = this.emojiDropdown.$().outerHeight();
+            const width = this.emojiDropdown.$().outerWidth()!;
+            const height = this.emojiDropdown.$().outerHeight()!;
             const parent = this.emojiDropdown.$().offsetParent();
             let left = coordinates.left;
             let top = coordinates.top + 15;
 
             // Keep the dropdown inside the editor.
-            if (top + height > parent.height()) {
+            if (top + height > parent.height()!) {
               top = coordinates.top - height - 15;
             }
-            if (left + width > parent.width()) {
-              left = parent.width() - width;
+            if (left + width > parent.width()!) {
+              left = parent.width()! - width;
             }
 
             // Prevent the dropdown from going off screen on mobile
-            top = Math.max(-(parent.offset().top - $(document).scrollTop()), top);
-            left = Math.max(-parent.offset().left, left);
+            top = Math.max(-(parent.offset()!.top - $(document).scrollTop()!), top);
+            left = Math.max(-parent.offset()!.left, left);
 
             this.emojiDropdown.show(left, top);
           }
@@ -170,10 +191,11 @@ export default function addComposerAutocomplete() {
     });
   });
 
-  extend('flarum/common/components/TextEditor', 'toolbarItems', function (items) {
+  extend('flarum/common/components/TextEditor', 'toolbarItems', function (this: any, items) {
+    const self = this as EmojiTextEditor;
     items.add(
       'emoji',
-      <TextEditorButton onclick={() => this.attrs.composer.editor.insertAtCursor(' :')} icon="far fa-smile">
+      <TextEditorButton onclick={() => self.attrs.composer.editor.insertAtCursor(' :')} icon="far fa-smile">
         {app.translator.trans('flarum-emoji.forum.composer.emoji_tooltip')}
       </TextEditorButton>
     );
