@@ -31,8 +31,6 @@ module.exports = {
   ],
   plugins: [
     [require.resolve('@babel/plugin-transform-runtime'), { useESModules: !isTest }],
-    [require.resolve('@babel/plugin-proposal-class-properties')],
-    [require.resolve('@babel/plugin-proposal-private-methods')],
     [
       require.resolve('@babel/plugin-transform-react-jsx'),
       {
