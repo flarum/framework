@@ -1,4 +1,4 @@
-import twemoji from 'twemoji';
+import twemoji from '@twemoji/api';
 
 import { override } from 'flarum/common/extend';
 import Post from 'flarum/common/models/Post';
@@ -44,7 +44,7 @@ export default function renderEmoji(): void {
       // element. This gets stripped below.
       //
       // See https://github.com/flarum/core/issues/2958
-      const emojifiedDom = (twemoji as any).parse(parseHTML(contentHtml), options());
+      const emojifiedDom = twemoji.parse(parseHTML(contentHtml), options());
 
       // Steal the HTML string inside the emojified DOM `<body>` tag.
       this.emojifiedContentHtml = emojifiedDom.innerHTML;

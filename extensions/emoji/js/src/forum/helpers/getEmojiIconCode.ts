@@ -2,7 +2,7 @@
   https://github.com/twitter/twemoji/blob/gh-pages/LICENSE
 */
 
-import twemoji from 'twemoji';
+import twemoji from '@twemoji/api';
 
 // avoid using a string literal like '\u200D' here because minifiers expand it inline
 const U200D = String.fromCharCode(0x200d);
@@ -19,5 +19,5 @@ const UFE0Fg = /\uFE0F/g;
  * @return  string    the code point
  */
 export default function getEmojiIconCode(emoji: string): string {
-  return (twemoji as any).convert.toCodePoint(emoji.indexOf(U200D) < 0 ? emoji.replace(UFE0Fg, '') : emoji);
+  return twemoji.convert.toCodePoint(emoji.indexOf(U200D) < 0 ? emoji.replace(UFE0Fg, '') : emoji);
 }

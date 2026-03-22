@@ -4,8 +4,9 @@
     "version": "0.0.0",
     "prettier": "@flarum/prettier-config",
     "dependencies": {
-        "simple-emoji-map": "^0.5.1",
-        "twemoji": "^14.0.2"
+        "@twemoji/api": "17",
+        "emojibase-data": "17",
+        "simple-emoji-map": "^1.0.0"
     },
     "devDependencies": {
         "@flarum/prettier-config": "^1.0.0",
@@ -27,6 +28,7 @@
         "build-typings": "yarn run clean-typings && ([ -e src/@types ] && cp -r src/@types dist-typings/@types || true) && tsc && yarn run post-build-typings",
         "post-build-typings": "find dist-typings -type f -name '*.d.ts' -print0 | xargs -0 sed -i 's,../src/@types,@types,g'",
         "check-typings": "tsc --noEmit --emitDeclarationOnly false",
-        "check-typings-coverage": "typescript-coverage-report"
+        "check-typings-coverage": "typescript-coverage-report",
+        "postinstall": "yarn run simple-emoji-map"
     }
 }
