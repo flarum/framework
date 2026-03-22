@@ -151,6 +151,16 @@ class User extends AbstractModel
             if ($user->id == 1) {
                 throw new DomainException('Cannot delete the root admin');
             }
+
+            $avatarPath = $user->getRawOriginal('avatar_url');
+
+            if ($avatarPath) {
+                $disk = resolve(Factory::class)->disk('flarum-avatars');
+
+                if ($disk->exists($avatarPath)) {
+                    $disk->delete($avatarPath);
+                }
+            }
         });
 
         static::deleted(function (self $user) {
