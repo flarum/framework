@@ -8,7 +8,7 @@ export default function () {
     items.add(
       'followAfterReply',
       <Switch
-        state={this.user!.preferences()?.followAfterReply}
+        state={!!this.user?.preferences()?.followAfterReply}
         onchange={(value: boolean) => {
           this.followAfterReplyLoading = true;
 
@@ -26,11 +26,11 @@ export default function () {
     items.add(
       'followAfterCreate',
       <Switch
-        state={this.user.preferences().followAfterCreate}
-        onchange={(value) => {
+        state={!!this.user?.preferences()?.followAfterCreate}
+        onchange={(value: boolean) => {
           this.followAfterCreateLoading = true;
 
-          this.user.savePreferences({ followAfterCreate: value }).then(() => {
+          this.user!.savePreferences({ followAfterCreate: value }).then(() => {
             this.followAfterCreateLoading = false;
             m.redraw();
           });
