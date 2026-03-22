@@ -27,6 +27,10 @@
 - (mail) log send failures and fire `EmailSendFailed` event by @imorland [#4385]
 - (package-manager) replace flarum.org API with Packagist search by @imorland [#4394]
 - (tags) fix tags mutation shows [deleted] and related improvements by @imorland [#4393]
+- (realtime) make notification toast duration configurable; 0 disables toasts by @imorland [#4497]
+- (subscriptions) add support for auto follow discussions on create by @huoxin233 [#4464]
+- (install) support queue configuration in installer file by @imorland [#4484]
+- (core) add support for pgsql's search_path by @johannsa [#4241]
 
 ### Fixed
 
@@ -59,11 +63,20 @@
 - (notifications) invalidate unread count cache on delete all by @imorland [#4390]
 - (package-manager) reject extensions incompatible with current Flarum major version by @imorland [#4412]
 - (package-manager) restrict task list endpoint to admins only by @imorland [#4410]
+- (search) use SlugManager in AuthorFilter to support custom slug drivers by @imorland [#4486]
+- (settings) register missing defaults for admin dropdown settings by @imorland [#4491]
+- (sticky) sticky discussions in hidden tags appear on all-discussions page by @imorland [#4492]
+- (user) delete avatar file from disk when user account is deleted by @imorland [#4485]
+- (core) capture extension name by value in initializer error closure by @imorland [#4482]
+- (core) add missing `content` attr type to `Alert` component by @rafaucau [#4495]
+- (emoji) update to Emoji/Unicode 17 by @imorland [#4489]
 
 ### Changed
 
 - upgrade Illuminate components to Laravel 13 by @imorland [#4468]
 - (core) flarum-webpack-config 3.0.3 by @imorland [#4398]
+- (core) remove Array.prototype.flat polyfill by @imorland [#4483]
+- (extensions) re-sort extension order during migrate to pick up new optional-dependencies by @imorland [#4493]
 
 ## [v2.0.0-beta.7](https://github.com/flarum/framework/compare/v2.0.0-beta.6...v2.0.0-beta.7)
 
