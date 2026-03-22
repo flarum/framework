@@ -22,5 +22,7 @@ flarum-realtime:
             release-discussion-updates-help: When enabled, new discussions will be pushed into the <code>DiscussionList</code> at the defined interval below.
             release-discussion-updates-interval: Interval to automatically push new discussion activity
             release-discussion-updates-interval-help: In seconds. 0 means no automatic push.
+            notification-toast-dismiss-after: Notification toast duration
+            notification-toast-dismiss-after-help: How long (in seconds) a realtime notification toast stays on screen before being automatically dismissed. Set to 0 to disable toast notifications.
             typing-indicator: Typing indicator
             typing-indicator-help: When enabled, subject to permission, users can view the number of other users currently typing in a discussion. When disabled, typing activitiy is removed both from the UI and from the websocket payload.

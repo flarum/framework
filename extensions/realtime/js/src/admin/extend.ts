@@ -29,5 +29,12 @@ export default [
       label: app.translator.trans('flarum-realtime.admin.settings.release-discussion-updates-interval'),
       help: app.translator.trans('flarum-realtime.admin.settings.release-discussion-updates-interval-help'),
       type: 'number',
+    }))
+    .setting(() => ({
+      setting: 'flarum-realtime.notification-toast-dismiss-after',
+      label: app.translator.trans('flarum-realtime.admin.settings.notification-toast-dismiss-after'),
+      help: app.translator.trans('flarum-realtime.admin.settings.notification-toast-dismiss-after-help'),
+      type: 'number',
+      min: 0,
     })),
 ];

@@ -81,7 +81,9 @@ return [
         ->default('flarum-realtime.release-discussion-updates-interval', 10)
         ->default('flarum-realtime.typing-indicator', true)
         ->default('flarum-realtime.release-discussion-updates', true)
-        ->serializeToForum('flarum-realtime.release-discussion-updates-interval', 'flarum-realtime.release-discussion-updates-interval', 'intval'),
+        ->default('flarum-realtime.notification-toast-dismiss-after', 10)
+        ->serializeToForum('flarum-realtime.release-discussion-updates-interval', 'flarum-realtime.release-discussion-updates-interval', 'intval')
+        ->serializeToForum('flarum-realtime.notification-toast-dismiss-after', 'flarum-realtime.notification-toast-dismiss-after', 'intval'),
 
     // Disables csrf checks on auth, would time out after being inactive for 60 minutes.
     (new Extend\Csrf())
