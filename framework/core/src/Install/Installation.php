@@ -22,6 +22,7 @@ class Installation
     private DatabaseConfig $dbConfig;
     private AdminUser $adminUser;
     private ?string $accessToken = null;
+    private array $queueConfig = ['driver' => 'sync'];
 
     // A few instance variables to persist objects between steps.
     // Could also be local variables in build(), but this way
@@ -64,6 +65,13 @@ class Installation
     public function settings(array $settings): self
     {
         $this->customSettings = $settings;
+
+        return $this;
+    }
+
+    public function queueConfig(array $queue): self
+    {
+        $this->queueConfig = $queue;
 
         return $this;
     }
@@ -133,7 +141,8 @@ class Installation
                 $this->debug,
                 $this->dbConfig,
                 $this->baseUrl,
-                $this->getConfigPath()
+                $this->getConfigPath(),
+                $this->queueConfig
             );
         });
 

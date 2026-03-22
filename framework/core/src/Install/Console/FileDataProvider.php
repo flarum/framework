@@ -25,6 +25,7 @@ class FileDataProvider implements DataProviderInterface
     protected array $adminUser = [];
     protected array $settings = [];
     protected ?array $extensions = null;
+    protected array $queue = ['driver' => 'sync'];
 
     public function __construct(InputInterface $input)
     {
@@ -50,6 +51,7 @@ class FileDataProvider implements DataProviderInterface
             $this->adminUser = (array) ($configuration['adminUser'] ?? []);
             $this->settings = (array) ($configuration['settings'] ?? []);
             $this->extensions = isset($configuration['extensions']) ? explode(',', (string) $configuration['extensions']) : null;
+            $this->queue = (array) ($configuration['queue'] ?? ['driver' => 'sync']);
         } else {
             throw new Exception('Configuration file does not exist.');
         }
@@ -63,7 +65,8 @@ class FileDataProvider implements DataProviderInterface
             ->databaseConfig($this->getDatabaseConfiguration())
             ->adminUser($this->getAdminUser())
             ->settings($this->settings)
-            ->extensions($this->extensions);
+            ->extensions($this->extensions)
+            ->queueConfig($this->queue);
     }
 
     private function getDatabaseConfiguration(): DatabaseConfig
