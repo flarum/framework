@@ -14,6 +14,8 @@ export interface AlertAttrs extends ComponentAttrs {
   title?: Mithril.Children;
   /** Icon used next to the title. Optional. */
   icon?: string;
+  /** Content of the alert. */
+  content?: Mithril.Children;
   /** An array of controls to show in the alert. */
   controls?: Mithril.Children;
   /** Whether or not the alert can be dismissed. */
