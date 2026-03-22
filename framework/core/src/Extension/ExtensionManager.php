@@ -349,6 +349,18 @@ class ExtensionManager
     }
 
     /**
+     * Re-sort and persist the enabled extension order based on current composer.json dependency
+     * declarations. Call this after a composer update so that any new or changed
+     * optional-dependencies are reflected without requiring a manual enable/disable cycle.
+     *
+     * @throws CircularDependenciesException
+     */
+    public function syncExtensionOrder(): void
+    {
+        $this->setEnabledExtensions($this->getEnabledExtensions());
+    }
+
+    /**
      * Persist the currently enabled extensions.
      *
      * @param Extension[] $enabledExtensions
