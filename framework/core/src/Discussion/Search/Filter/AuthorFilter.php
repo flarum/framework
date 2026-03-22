@@ -9,12 +9,14 @@
 
 namespace Flarum\Discussion\Search\Filter;
 
+use Flarum\Http\SlugManager;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
-use Flarum\User\UserRepository;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
@@ -24,7 +26,7 @@ class AuthorFilter implements FilterInterface
     use ValidateFilterTrait;
 
     public function __construct(
-        protected UserRepository $users
+        protected SlugManager $slugManager
     ) {
     }
 
@@ -35,20 +37,20 @@ class AuthorFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $this->constrain($state->getQuery(), $value, $negate);
+        $this->constrain($state->getQuery(), $value, $state->getActor(), $negate);
     }
 
-    protected function constrain(Builder $query, string|array $rawUsernames, bool $negate): void
+    protected function constrain(Builder $query, string|array $rawSlugs, User $actor, bool $negate): void
     {
-        $usernames = $this->asStringArray($rawUsernames);
+        $slugDriver = $this->slugManager->forResource(User::class);
+        $ids = [];
 
-        $ids = $this->users->getIdsForUsernames($usernames);
-
-        // To be able to also use IDs.
-        $actualIds = array_diff(array_map('strval', $usernames), array_map('strval', array_keys($ids)));
-
-        if (! empty($actualIds)) {
-            $ids = array_merge($ids, $actualIds);
+        foreach ($this->asStringArray($rawSlugs) as $slug) {
+            try {
+                $ids[] = $slugDriver->fromSlug($slug, $actor)->id;
+            } catch (ModelNotFoundException) {
+                // Slug does not match any user; skip it.
+            }
         }
 
         $query->whereIn('discussions.user_id', $ids, 'and', $negate);

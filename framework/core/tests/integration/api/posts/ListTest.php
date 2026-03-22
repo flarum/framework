@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
@@ -109,6 +110,54 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '5'], Arr::pluck($data['data'], 'id'));
+    }
+
+    public static function slugDriverProvider(): array
+    {
+        return [
+            'username driver (default)' => ['username', 'normal', ['3', '4', '5']],
+            'id driver' => ['id', '2', ['3', '4', '5']],
+            'id_with_display_name driver' => ['id_with_display_name', '2-normal', ['3', '4', '5']],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('slugDriverProvider')]
+    public function author_filter_works_with_slug_driver(string $driver, string $slug, array $expectedIds): void
+    {
+        $this->setting('slug_driver_Flarum\\User\\User', $driver);
+
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
+                ->withQueryParams([
+                    'filter' => ['author' => $slug],
+                ])
+        );
+
+        $body = $response->getBody()->getContents();
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $data = json_decode($body, true)['data'];
+        $this->assertEqualsCanonicalizing($expectedIds, Arr::pluck($data, 'id'), 'IDs do not match');
+    }
+
+    #[Test]
+    public function author_filter_negation_works_with_id_slug_driver(): void
+    {
+        $this->setting('slug_driver_Flarum\\User\\User', 'id');
+
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
+                ->withQueryParams([
+                    'filter' => ['-author' => '2'],
+                ])
+        );
+
+        $body = $response->getBody()->getContents();
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $data = json_decode($body, true)['data'];
+        $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
     #[Test]
