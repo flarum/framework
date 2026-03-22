@@ -9,9 +9,13 @@
 
 namespace Flarum\Realtime\Extend;
 
+use Flarum\Database\AbstractModel;
+use Flarum\Discussion\Discussion;
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
+use Flarum\Realtime\Push\RealtimeRegistry;
 use Flarum\Realtime\Websocket\Settings;
+use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 
@@ -19,12 +23,54 @@ class Realtime implements ExtenderInterface
 {
     protected array $configuration = [];
 
+    /**
+     * @var array<int, array{events: string[], getModel: callable, getActor: callable|null, eventName: string|null}>
+     */
+    protected array $modelEvents = [];
+
+    /**
+     * @var array<int, array{events: string[], getMessage: callable}>
+     */
+    protected array $dialogEvents = [];
+
+    /**
+     * @var array<int, array{events: string[], getDiscussion: callable, eventName: string}>
+     */
+    protected array $flagEvents = [];
+
+    /**
+     * @var array<class-string<AbstractModel>, string>
+     */
+    protected array $modelEndpoints = [];
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->afterResolving(Settings::class, function (Settings $settings) {
             $settings->use($this->configuration);
         });
+
+        $container->afterResolving(RealtimeRegistry::class, function (RealtimeRegistry $registry) {
+            foreach ($this->modelEvents as $entry) {
+                $registry->addModelEvent($entry['events'], $entry['getModel'], $entry['getActor'], $entry['eventName']);
+            }
+
+            foreach ($this->dialogEvents as $entry) {
+                $registry->addDialogEvent($entry['events'], $entry['getMessage']);
+            }
+
+            foreach ($this->flagEvents as $entry) {
+                $registry->addFlagEvent($entry['events'], $entry['getDiscussion'], $entry['eventName']);
+            }
+
+            foreach ($this->modelEndpoints as $modelClass => $endpoint) {
+                $registry->addModelEndpoint($modelClass, $endpoint);
+            }
+        });
     }
+
+    // -------------------------------------------------------------------------
+    // Server configuration
+    // -------------------------------------------------------------------------
 
     /**
      * Provide the full url to the running `php flarum realtime:serve` daemon.
@@ -34,35 +80,28 @@ class Realtime implements ExtenderInterface
      * @example https://flarum.site:9001
      *
      * @see `php flarum realtime:serve --help`
-     *
-     * @param string $url
-     * @return $this
      */
     public function daemonUrl(string $url): self
     {
-        $url = parse_url($url);
+        $parsed = parse_url($url);
 
-        if (! empty($url['path'])) {
+        if (! empty($parsed['path'])) {
             throw new InvalidArgumentException('Paths are not possible in websocket connections.');
         }
 
-        $this->configuration['php-client-secure'] = $url['scheme'] === 'https';
-        $this->configuration['php-client-host'] = $url['host'];
-        $this->configuration['php-client-port'] = $url['port'];
+        $this->configuration['php-client-secure'] = ($parsed['scheme'] ?? 'http') === 'https';
+        $this->configuration['php-client-host'] = $parsed['host'] ?? '';
+        $this->configuration['php-client-port'] = $parsed['port'] ?? null;
 
-        $this->configuration['js-client-secure'] = $url['scheme'] === 'https';
-        $this->configuration['js-client-host'] = $url['host'];
-        $this->configuration['js-client-port'] = $url['port'];
+        $this->configuration['js-client-secure'] = ($parsed['scheme'] ?? 'http') === 'https';
+        $this->configuration['js-client-host'] = $parsed['host'] ?? '';
+        $this->configuration['js-client-port'] = $parsed['port'] ?? null;
 
         return $this;
     }
 
     /**
-     * Set maximum number of allowed websocket connections. In case your server resources
-     * are limited, make sure to set a sensible limit.
-     *
-     * @param int $connections
-     * @return $this
+     * Set maximum number of allowed websocket connections.
      */
     public function maxConnections(int $connections): self
     {
@@ -72,12 +111,8 @@ class Realtime implements ExtenderInterface
     }
 
     /**
-     * These define the app key and secret. The key is used by any client (guest, member, etc)
-     * to connect to the websocket. The secret is used in the background for authorization requests.
-     *
-     * @param string $key
-     * @param string $secret
-     * @return $this
+     * Set the Pusher app key and secret used for channel authentication.
+     * The key is sent to clients; the secret is used server-side only.
      */
     public function app(string $key, string $secret): self
     {
@@ -88,14 +123,147 @@ class Realtime implements ExtenderInterface
     }
 
     /**
-     * Override the complete settings (or a part of it) using this one setter.
-     *
-     * @param array $settings
-     * @return $this
+     * Override arbitrary settings values.
      */
     public function use(array $settings): self
     {
         $this->configuration = array_merge($this->configuration, $settings);
+
+        return $this;
+    }
+
+    // -------------------------------------------------------------------------
+    // Event broadcast registration
+    // -------------------------------------------------------------------------
+
+    /**
+     * Broadcast a model-based event to connected users.
+     *
+     * The `$getModel` callback receives the event object and must return the
+     * Eloquent model to broadcast (Post, Discussion, User, etc.). Realtime uses
+     * the model to resolve which users should receive the payload and to make
+     * the internal API request that generates the personalised JSON:API payload.
+     *
+     * The optional `$getActor` callback returns the User who caused the event.
+     * That user is excluded from receiving the broadcast (they already know what
+     * happened — they caused it).
+     *
+     * The optional `$eventName` overrides the Pusher channel event name. When
+     * omitted the fully-qualified PHP class name of the event is used.
+     *
+     * Example (in an extension's extend.php):
+     *
+     *   (new Extend\Conditional())
+     *       ->whenExtensionEnabled('flarum-realtime', fn () => [
+     *           (new \Flarum\Realtime\Extend\Realtime())
+     *               ->broadcastModelEvent(
+     *                   [\Flarum\Likes\Event\PostWasLiked::class, \Flarum\Likes\Event\PostWasUnliked::class],
+     *                   fn ($event) => $event->post,
+     *                   fn ($event) => $event->user,
+     *                   'likesMutation'
+     *               ),
+     *       ]),
+     *
+     * @param string|string[] $events  One or more fully-qualified event class names.
+     * @param callable(object): AbstractModel $getModel
+     * @param callable(object): ?User|null $getActor
+     * @param string|null $eventName  Pusher event name sent to JS clients.
+     */
+    public function broadcastModelEvent(
+        string|array $events,
+        callable $getModel,
+        ?callable $getActor = null,
+        ?string $eventName = null
+    ): self {
+        $this->modelEvents[] = [
+            'events' => (array) $events,
+            'getModel' => $getModel,
+            'getActor' => $getActor,
+            'eventName' => $eventName,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Broadcast a private dialog message event to connected dialog participants.
+     *
+     * The `$getMessage` callback receives the event object and must return the
+     * DialogMessage model. Realtime sends the payload only to users who are
+     * members of the dialog and are currently connected.
+     *
+     * Example:
+     *
+     *   (new \Flarum\Realtime\Extend\Realtime())
+     *       ->broadcastDialogEvent(
+     *           \Flarum\Messages\DialogMessage\Event\Created::class,
+     *           fn ($event) => $event->message,
+     *       )
+     *       ->registerModelEndpoint(\Flarum\Messages\DialogMessage::class, 'dialog-messages')
+     *       ->registerModelEndpoint(\Flarum\Messages\Dialog::class, 'dialogs'),
+     *
+     * @param string|string[] $events
+     * @param callable(object): \Flarum\Messages\DialogMessage $getMessage
+     */
+    public function broadcastDialogEvent(string|array $events, callable $getMessage): self
+    {
+        $this->dialogEvents[] = [
+            'events' => (array) $events,
+            'getMessage' => $getMessage,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Broadcast a flag/moderation event only to users who have permission to
+     * view flags on the relevant discussion.
+     *
+     * The `$getDiscussion` callback receives the event object and must return
+     * the Discussion the flag belongs to. Only connected users with the
+     * `discussion.viewFlags` permission receive the broadcast.
+     *
+     * Example:
+     *
+     *   (new \Flarum\Realtime\Extend\Realtime())
+     *       ->broadcastFlagEvent(
+     *           [\Flarum\Flags\Event\Created::class, \Flarum\Flags\Event\Deleting::class],
+     *           fn ($event) => $event->flag->post->discussion,
+     *           'flagged'
+     *       ),
+     *
+     * @param string|string[] $events
+     * @param callable(object): Discussion $getDiscussion
+     * @param string $eventName  Pusher event name sent to JS clients.
+     */
+    public function broadcastFlagEvent(
+        string|array $events,
+        callable $getDiscussion,
+        string $eventName
+    ): self {
+        $this->flagEvents[] = [
+            'events' => (array) $events,
+            'getDiscussion' => $getDiscussion,
+            'eventName' => $eventName,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Register an Eloquent model class → JSON:API endpoint mapping.
+     *
+     * The payload Generator uses this to make internal API requests when
+     * building the personalised payload to broadcast. Core models (Discussion,
+     * Post, User) are registered by default. Extensions that broadcast
+     * additional model types (e.g. DialogMessage) must register them here.
+     *
+     * @param class-string<AbstractModel> $modelClass
+     * @param string $endpoint  The API endpoint path segment, e.g. 'dialog-messages'.
+     */
+    public function registerModelEndpoint(string $modelClass, string $endpoint): self
+    {
+        $this->modelEndpoints[$modelClass] = $endpoint;
 
         return $this;
     }

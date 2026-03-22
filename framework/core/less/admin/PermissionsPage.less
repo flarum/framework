@@ -1,10 +1,15 @@
-.PermissionsPage-groups {
+.GroupBar {
   background: var(--control-bg);
-  border-radius: var(--border-radius);
-  display: block;
-  overflow-x: auto;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
   padding: 10px;
+  border-radius: var(--border-radius);
 }
+.Group-Sortable-Placeholder {
+  outline: 2px dashed var(--body-bg);
+  border-radius: var(--border-radius);
+  }
 .Group {
   width: 90px;
   display: inline-block;

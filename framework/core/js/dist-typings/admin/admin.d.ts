@@ -31,5 +31,8 @@ import './components/AdminHeader';
 import './components/EditCustomCssModal';
 import './components/EditGroupModal';
 import './components/CreateUserModal';
+import './components/AnnouncementsWidget';
+import './components/AnnouncementList';
+import './components/AnnouncementItem';
 import './routes';
 import './AdminApplication';

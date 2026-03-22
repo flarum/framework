@@ -43,7 +43,11 @@ export default abstract class HeaderDropdown<CustomAttrs extends IHeaderDropdown
 
     return [
       this.attrs.icon ? <Icon name={this.attrs.icon} className="Button-icon" /> : null,
-      unread !== 0 && <span className="Bubble HeaderDropdownBubble">{unread}</span>,
+      unread > 0 && (
+        <span className="Bubble HeaderDropdownBubble" data-digits={String(unread).length}>
+          {unread}
+        </span>
+      ),
       <span className="Button-label">
         <span className="Button-labelText">{this.attrs.label}</span>
       </span>,

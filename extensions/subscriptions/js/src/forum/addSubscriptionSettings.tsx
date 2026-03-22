@@ -4,15 +4,15 @@ import type SettingsPage from 'flarum/forum/components/SettingsPage';
 import Switch from 'flarum/common/components/Switch';
 
 export default function () {
-  extend('flarum/forum/components/SettingsPage', 'notificationsItems', function (this: SettingsPage, items) {
+  extend('flarum/forum/components/SettingsPage', 'notificationsItems', function (this: SettingsPage & Record<string, any>, items: any) {
     items.add(
       'followAfterReply',
       <Switch
-        state={this.user.preferences().followAfterReply}
-        onchange={(value) => {
+        state={this.user!.preferences()?.followAfterReply}
+        onchange={(value: boolean) => {
           this.followAfterReplyLoading = true;
 
-          this.user.savePreferences({ followAfterReply: value }).then(() => {
+          this.user!.savePreferences({ followAfterReply: value }).then(() => {
             this.followAfterReplyLoading = false;
             m.redraw();
           });

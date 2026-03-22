@@ -315,12 +315,11 @@ export default class Application {
       try {
         initializer(this);
       } catch (e) {
+        const extension = this.currentInitializerExtension;
         caughtInitializationErrors.push(() =>
           fireApplicationError(
-            extractText(
-              app.translator.trans('core.lib.error.extension_initialiation_failed_message', { extension: this.currentInitializerExtension })
-            ),
-            `${this.currentInitializerExtension} failed to initialize`,
+            extractText(app.translator.trans('core.lib.error.extension_initialiation_failed_message', { extension })),
+            `${extension} failed to initialize`,
             e
           )
         );

@@ -5,6 +5,7 @@ import type Mithril from 'mithril';
 import Badge from 'flarum/common/components/Badge';
 import highlight from 'flarum/common/helpers/highlight';
 import type AtMentionFormat from './formats/AtMentionFormat';
+import sortGroups from 'flarum/common/utils/sortGroups';
 
 export default class GroupMention extends MentionableModel<Group, AtMentionFormat> {
   type(): string {
@@ -13,9 +14,11 @@ export default class GroupMention extends MentionableModel<Group, AtMentionForma
 
   initialResults(): Group[] {
     return Array.from(
-      app.store.all<Group>('groups').filter((g: Group) => {
-        return g.id() !== Group.GUEST_ID && g.id() !== Group.MEMBER_ID;
-      })
+      sortGroups(
+        app.store.all<Group>('groups').filter((g: Group) => {
+          return g.id() !== Group.GUEST_ID && g.id() !== Group.MEMBER_ID;
+        })
+      )
     );
   }
 

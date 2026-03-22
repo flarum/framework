@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-beta.7"
+        "flarum/core": "^2.0.0-beta.8"
     },
     "autoload": {
         "psr-4": {
@@ -33,6 +33,9 @@
         "flarum-extension": {
             "title": "Likes",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/realtime"
+            ],
             "icon": {
                 "name": "far fa-thumbs-up",
                 "backgroundColor": "#3A649D",

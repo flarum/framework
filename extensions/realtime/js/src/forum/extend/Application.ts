@@ -1,7 +1,10 @@
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
-import Pusher, { Channel } from 'pusher-js';
+import Pusher from 'pusher-js';
 import Application from 'flarum/common/Application';
+import RealtimeState from '../RealtimeState';
+import NotificationToast from '../components/NotificationToast';
+import NotificationToastState from '../states/NotificationToastState';
 
 export default function () {
   extend(Application.prototype, 'mount' as any, function () {
@@ -28,10 +31,35 @@ export default function () {
       user: null,
     };
 
+    // Mount the notification toast container outside the main Mithril tree.
+    const toastState = new NotificationToastState();
+    const toastEl = document.createElement('div');
+    document.body.appendChild(toastEl);
+    m.mount(toastEl, { view: () => m(NotificationToast, { state: toastState }) });
+
     if (app.session.user) {
-      app.websocket_channels.user = app.websocket.subscribe('private-user=' + app.session.user.id());
+      const userChannel = app.websocket.subscribe('private-user=' + app.session.user.id());
+      app.websocket_channels.user = userChannel;
+      RealtimeState.notifyUserChannelReady(userChannel);
+
+      // Show a toast for each incoming realtime notification and update the badge count.
+      userChannel.bind('notification', (data: unknown) => {
+        const notification = app.store.pushPayload(data as any) as any;
+
+        if (notification) {
+          const user = app.session.user as any;
+          user?.pushAttributes({
+            unreadNotificationCount: (user.unreadNotificationCount() ?? 0) + 1,
+            newNotificationCount: (user.newNotificationCount() ?? 0) + 1,
+          });
+
+          toastState.push(notification);
+        }
+      });
     } else if (!this.forum.attribute<boolean>('websocket.disallow_connection')) {
-      app.websocket_channels.public = app.websocket.subscribe('public');
+      const publicChannel = app.websocket.subscribe('public');
+      app.websocket_channels.public = publicChannel;
+      RealtimeState.notifyPublicChannelReady(publicChannel);
     }
   });
 }

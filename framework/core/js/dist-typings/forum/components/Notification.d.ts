@@ -10,7 +10,7 @@ export interface INotificationAttrs extends ComponentAttrs {
  * Subclasses should implement the `icon`, `href`, and `content` methods.
  */
 export default abstract class Notification<CustomAttrs extends INotificationAttrs = INotificationAttrs> extends Component<CustomAttrs> {
-    view(vnode: Mithril.Vnode<CustomAttrs, this>): JSX.Element;
+    view(_vnode: Mithril.Vnode<CustomAttrs, this>): JSX.Element;
     actionItems(): ItemList<Mithril.Children>;
     /**
      * Get the name of the icon that should be displayed in the notification.

@@ -62,6 +62,19 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
 
     /*
     |--------------------------------------------------------------------------
+    | Groups
+    |--------------------------------------------------------------------------
+    */
+
+    // Change order of groups
+    $map->post(
+        '/groups/order',
+        'groups.order',
+        $route->toController(Controller\OrderGroupsController::class)
+    );
+
+    /*
+    |--------------------------------------------------------------------------
     | Notifications
     |--------------------------------------------------------------------------
     */
@@ -182,5 +195,12 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         '/mail/test',
         'mailTest',
         $route->toController(Controller\SendTestMailController::class)
+    );
+
+    // List Flarum community announcements from discuss.flarum.org
+    $map->get(
+        '/flarum/announcements',
+        'announcements.list',
+        $route->toController(Controller\ListAnnouncementsController::class)
     );
 };

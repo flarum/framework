@@ -5,4 +5,9 @@ module.exports = merge(config(), {
   output: {
     library: 'flarum.core',
   },
+  resolve: {
+    alias: {
+      sortablejs: require.resolve('sortablejs/Sortable.js'),
+    },
+  },
 });

@@ -1,10 +1,8 @@
 import app from '../../admin/app';
-import GroupBadge from '../../common/components/GroupBadge';
-import EditGroupModal from './EditGroupModal';
+import GroupBar from './GroupBar';
 import Group from '../../common/models/Group';
 import PermissionGrid from './PermissionGrid';
 import AdminPage from './AdminPage';
-import Icon from '../../common/components/Icon';
 import SettingDropdown from './SettingDropdown';
 
 export default class PermissionsPage extends AdminPage {
@@ -18,22 +16,12 @@ export default class PermissionsPage extends AdminPage {
   }
 
   content() {
+    const availableGroups = app.store.all<Group>('groups').filter((group) => [Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()!) === -1);
+
     return (
       <>
         <div className="PermissionsPage-groups">
-          {app.store
-            .all<Group>('groups')
-            .filter((group) => [Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()!) === -1)
-            .map((group) => (
-              <button className="Button Group" type="button" onclick={() => app.modal.show(EditGroupModal, { group })}>
-                <GroupBadge group={group} className="Group-icon" label={null} />
-                <span className="Group-name">{group.namePlural()}</span>
-              </button>
-            ))}
-          <button className="Button Group Group--add" type="button" onclick={() => app.modal.show(EditGroupModal)}>
-            <Icon name="fas fa-plus" className="Group-icon" />
-            <span className="Group-name">{app.translator.trans('core.admin.permissions.new_group_button')}</span>
-          </button>
+          <GroupBar groups={availableGroups} />
         </div>
 
         <div className="PermissionsPage-permissions">

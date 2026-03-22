@@ -1,4 +1,5 @@
 import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
+import Group from '../models/Group';
 import ItemList from '../utils/ItemList';
 import Stream from '../utils/Stream';
 import type Mithril from 'mithril';
@@ -14,6 +15,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
     protected setPassword: Stream<boolean>;
     protected password: Stream<string>;
     protected groups: Record<string, Stream<boolean>>;
+    protected availableGroups: Group[];
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
     title(): string | any[];

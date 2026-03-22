@@ -67,6 +67,15 @@ class NotificationResource extends AbstractDatabaseResource
     public function endpoints(): array
     {
         return [
+            Endpoint\Show::make()
+                ->authenticated()
+                ->defaultInclude(array_filter([
+                    'fromUser',
+                    'subject',
+                    $this->initialized && count($this->subjectTypes()) > 1
+                        ? 'subject.discussion'
+                        : null,
+                ])),
             Endpoint\Update::make()
                 ->authenticated(),
             Endpoint\Index::make()
@@ -99,10 +108,12 @@ class NotificationResource extends AbstractDatabaseResource
             Schema\Boolean::make('isRead')
                 ->writable()
                 ->get(fn (Notification $notification) => (bool) $notification->read_at)
-                ->set(function (Notification $notification, bool $value, Context $context) {
+                ->set(function (Notification $notification, bool $_value, Context $context) {
                     $this->bus->dispatch(
                         new ReadNotification($notification->id, $context->getActor())
                     );
+
+                    $notification->refresh();
                 }),
 
             Schema\Relationship\ToOne::make('user')

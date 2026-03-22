@@ -68,6 +68,8 @@ export interface AdminApplicationData extends ApplicationData {
   maintenanceByConfig: boolean;
   safeModeExtensions?: string[] | null;
   safeModeExtensionsConfig?: string[] | null;
+  announcementsDisabled: boolean;
+
   fontawesomeByConfig: boolean;
   fontawesomeConfig?: {
     source: string;

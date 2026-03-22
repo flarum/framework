@@ -5,6 +5,7 @@ import Separator from '../../common/components/Separator';
 import Group from '../../common/models/Group';
 import Badge from '../../common/components/Badge';
 import GroupBadge from '../../common/components/GroupBadge';
+import sortGroups from '../../common/utils/sortGroups';
 import Mithril from 'mithril';
 
 function badgeForId(id: string) {
@@ -95,21 +96,20 @@ export default class PermissionDropdown<CustomAttrs extends IPermissionDropdownA
       // These groups are defined above, appearing first in the list.
       const excludedGroups = [Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID];
 
-      const groupButtons = app.store
-        .all<Group>('groups')
-        .filter((group) => !excludedGroups.includes(group.id()!))
-        .map((group) => (
-          <Button
-            icon={groupIds.includes(group.id()!) ? 'fas fa-check' : true}
-            onclick={(e: MouseEvent) => {
-              if (e.shiftKey) e.stopPropagation();
-              this.toggle(group.id()!);
-            }}
-            disabled={this.isGroupDisabled(group.id()!) && this.isGroupDisabled(Group.MEMBER_ID) && this.isGroupDisabled(Group.GUEST_ID)}
-          >
-            {badgeForId(group.id()!)} {group.namePlural()}
-          </Button>
-        ));
+      const availableGroups = sortGroups(app.store.all<Group>('groups').filter((group) => !excludedGroups.includes(group.id()!)));
+
+      const groupButtons = availableGroups.map((group) => (
+        <Button
+          icon={groupIds.includes(group.id()!) ? 'fas fa-check' : true}
+          onclick={(e: MouseEvent) => {
+            if (e.shiftKey) e.stopPropagation();
+            this.toggle(group.id()!);
+          }}
+          disabled={this.isGroupDisabled(group.id()!) && this.isGroupDisabled(Group.MEMBER_ID) && this.isGroupDisabled(Group.GUEST_ID)}
+        >
+          {badgeForId(group.id()!)} {group.namePlural()}
+        </Button>
+      ));
 
       children.push(...groupButtons);
     }

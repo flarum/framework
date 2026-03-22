@@ -26,6 +26,14 @@
   color: var(--header-color);
 }
 
+@media @tablet-up {
+  .HeaderDropdownBubble[data-digits="3"],
+  .HeaderDropdownBubble[data-digits="4"] {
+    left: auto;
+    right: 2px;
+  }
+}
+
 .HeaderDropdownBubble {
   --bubble-bg: var(--header-control-color);
   --bubble-color: var(--header-bg);

@@ -17,6 +17,7 @@
         "mithril": "^2.2",
         "nanoid": "^3.1.30",
         "punycode": "^2.1.1",
+        "sortablejs": "^1.14.0",
         "textarea-caret": "^3.1.0",
         "throttle-debounce": "^3.0.1",
         "web-haptics": "^0.0.6"
@@ -29,6 +30,7 @@
         "@types/jquery": "^3.5.10",
         "@types/mithril": "^2.0.8",
         "@types/punycode": "^2.1.0",
+        "@types/sortablejs": "^1.15.9",
         "@types/textarea-caret": "^3.0.1",
         "@types/ua-parser-js": "^0.7.36",
         "bundlewatch": "^0.3.2",

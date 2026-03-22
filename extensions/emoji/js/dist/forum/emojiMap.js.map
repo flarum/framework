@@ -1,1 +1,1 @@
-{"version":3,"file":"forum/emojiMap.js","mappings":"wIACA,E","sources":["webpack://@flarum/emoji/./src/forum/emojiMap.ts"],"sourcesContent":["import emojiMap from 'simple-emoji-map';\nexport default emojiMap;"],"names":[],"ignoreList":[],"sourceRoot":""}
+{"version":3,"file":"forum/emojiMap.js","mappings":"wIAEA,E","sources":["webpack://@flarum/emoji/./src/forum/emojiMap.ts"],"sourcesContent":["import emojiMap from 'simple-emoji-map';\nconst typedEmojiMap = emojiMap;\nexport default typedEmojiMap;"],"names":[],"ignoreList":[],"sourceRoot":""}

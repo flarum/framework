@@ -21,6 +21,7 @@ class GroupFactory extends Factory
             'color' => $this->faker->hexColor,
             'icon' => null,
             'is_hidden' => false,
+            'position' => null,
         ];
     }
 }

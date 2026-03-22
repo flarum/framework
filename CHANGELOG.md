@@ -1,5 +1,70 @@
 # Changelog
 
+## [v2.0.0-beta.8](https://github.com/flarum/framework/compare/v2.0.0-beta.7...v2.0.0-beta.8)
+
+### Added
+
+- (realtime) extender API, per-extension integrations, and notification toasts by @imorland [#4473]
+- (admin) announcements widget on admin dashboard by @imorland [#4471]
+- (admin) collapsible extension categories, health widget & abandoned package support by @imorland [#4392]
+- (core, mentions, likes) implement `IdWithDisplayNameSlugDriver` by @imorland [#4470]
+- (core) redirect-only OAuth flow — rewrite `ResponseFactory` by @imorland [#4461]
+- (core) `CloseWatcher` API for modals and dropdowns by @imorland [#4433]
+- (core) haptic feedback user preference and utility by @imorland [#4430] [#4434]
+- (core) reusable `Hero` component by @imorland [#4215]
+- (core) customizable user avatar drivers by @imorland [#4130]
+- (core) add haptic feedback to core and bundled extensions by @imorland [#4430]
+- (core) convert uploaded avatars to WebP, add batch migration command by @imorland [#4431]
+- (core) convert uploaded logos to WebP, support animated GIF by @imorland [#4458]
+- (core) add dark mode logo support by @imorland [#4457]
+- (core) change logout from GET to POST by @imorland [#4448]
+- (core) upgrade FontAwesome from 6.x to 7.x by @imorland [#4388]
+- (core) load FontAwesome CDN/Kit non-blocking by @imorland [#4463]
+- (core) load CSS asynchronously to eliminate render-blocking stylesheets by @imorland [#4462]
+- (gdpr) PII field declarations and anonymized context support by @imorland [#4396]
+- (gdpr) port confirmation token invalidation, IP logging and IP purge by @imorland [#4423]
+- (mail) add Postmark driver by @imorland [#4455]
+- (mail) log send failures and fire `EmailSendFailed` event by @imorland [#4385]
+- (package-manager) replace flarum.org API with Packagist search by @imorland [#4394]
+- (tags) fix tags mutation shows [deleted] and related improvements by @imorland [#4393]
+
+### Fixed
+
+- (core) various styling fixes: mobile post padding, unread notification contrast, primary button text colour by @imorland [#4480]
+- (realtime) restore full-width new-activity banner; move state to IndexPage by @imorland [#4481]
+- (core) make user search case-insensitive across all supported databases by @imorland [#4467]
+- (core) normalize database version strings in admin dashboard by @imorland [#4466]
+- (core) skip password check on update page for passwordless drivers by @imorland [#4435]
+- (core) add missing `method_not_allowed` translation for error view by @imorland [#4418]
+- (core) preserve translations when switching locale by @imorland [#4400]
+- (core) return `Less_Tree_Keyword` for boolean custom Less functions by @imorland [#4406]
+- (core) prevent `Uncaught ReferenceError` for async default exports by @imorland [#4397]
+- (core) use correct `--page-bottom-padding` CSS variable in App by @imorland [#4438]
+- (core) use luma-based text colour for primary buttons to ensure contrast by @imorland [#4451]
+- (core) add left padding to posts on mobile by @imorland [#4422]
+- (core) reduce post horizontal padding on mobile to 15px by @imorland [#4456]
+- (core) prevent hr at end of poststream if more children are present by @imorland [#4460]
+- (core) LESS mixin definitions and skip-to-content link visibility by @imorland [#4389]
+- (core) disable auto_tls for None encryption, add SSL cert verification bypass by @imorland [#4445]
+- (approval) apply opacity to whole unapproved post, not child elements by @imorland [#4453]
+- (formatter) handle null content in `HasFormattedContent` and mentions unparsers by @imorland [#4452]
+- (gdpr) add GDPR safeguard for cancelled erasure requests by @imorland [#4387]
+- (jest-config) rename `src/boostrap/` to `src/bootstrap/` and update all imports by @imorland [#4413]
+- (less) fix FA Kit icon alignment and spurious icon regressions by @imorland [#4409]
+- (mentions) prevent crash when tag or group has no icon/color by @imorland [#4447]
+- (mentions) resolve editor-ready race condition without arbitrary timeout by @imorland [#4411]
+- (messages) refresh `DialogMessage` after create to resolve number expression by @imorland [#4384]
+- (nicknames) sanitize display names to prevent injection in HTML notification emails by @imorland [#4454]
+- (notifications) scope notification queries to the authenticated user by @imorland [#4441]
+- (notifications) invalidate unread count cache on delete all by @imorland [#4390]
+- (package-manager) reject extensions incompatible with current Flarum major version by @imorland [#4412]
+- (package-manager) restrict task list endpoint to admins only by @imorland [#4410]
+
+### Changed
+
+- upgrade Illuminate components to Laravel 13 by @imorland [#4468]
+- (core) flarum-webpack-config 3.0.3 by @imorland [#4398]
+
 ## [v2.0.0-beta.7](https://github.com/flarum/framework/compare/v2.0.0-beta.6...v2.0.0-beta.7)
 
 ### Added

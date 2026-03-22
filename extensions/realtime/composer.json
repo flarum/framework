@@ -23,7 +23,7 @@
     ],
     "type": "flarum-extension",
     "require": {
-        "flarum/core": "^2.0.0-beta.7",
+        "flarum/core": "^2.0.0-beta.8",
         "plesk/ratchetphp": "v1.0.4",
         "pusher/pusher-php-server": "^7.2.0"
     },
@@ -41,16 +41,7 @@
                 "backgroundRepeat": "no-repeat",
                 "backgroundPosition": "center"
             },
-            "optional-dependencies": [
-                "clarkwinkelmann/flarum-ext-first-post-approval",
-                "flarum/approval",
-                "flarum/flags",
-                "flarum/lock",
-                "flarum/subscriptions",
-                "fof/follow-tags",
-                "fof/gamification",
-                "fof/reactions"
-            ]
+            "optional-dependencies": []
         },
         "flarum-cli": {
             "modules": {

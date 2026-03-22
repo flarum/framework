@@ -70,6 +70,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
         'Flarum\\User\\User': {
           default: extractText(app.translator.trans('core.admin.basics.slug_driver_options.users.default')),
           id: extractText(app.translator.trans('core.admin.basics.slug_driver_options.users.id')),
+          id_with_display_name: extractText(app.translator.trans('core.admin.basics.slug_driver_options.users.id_with_display_name')),
         },
       },
     };

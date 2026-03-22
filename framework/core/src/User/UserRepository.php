@@ -97,9 +97,22 @@ class UserRepository
     {
         $string = $this->escapeLikeString($string);
 
-        $query = $this->query()->where('username', 'like', '%'.$string.'%')
-            ->orderByRaw('username = ? desc', [$string])
-            ->orderByRaw('username like ? desc', [$string.'%']);
+        $query = $this->query();
+
+        match ($query->getConnection()->getDriverName()) {
+            'pgsql' => $query
+                ->where('username', 'ilike', '%'.$string.'%')
+                ->orderByRaw('username = ? desc', [$string])
+                ->orderByRaw('username ilike ? desc', [$string.'%']),
+            'sqlite' => $query
+                ->whereRaw('LOWER(username) LIKE ?', ['%'.strtolower($string).'%'])
+                ->orderByRaw('LOWER(username) = ? desc', [strtolower($string)])
+                ->orderByRaw('LOWER(username) LIKE ? desc', [strtolower($string).'%']),
+            default => $query
+                ->where('username', 'like', '%'.$string.'%')
+                ->orderByRaw('username = ? desc', [$string])
+                ->orderByRaw('username like ? desc', [$string.'%']),
+        };
 
         return $this->scopeVisibleTo($query, $actor)->pluck('id')->all();
     }

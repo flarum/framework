@@ -15,7 +15,6 @@ use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
-use Flarum\Messages\Api\Resource\DialogMessageResource;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 
@@ -69,9 +68,7 @@ return [
         ]),
 
     (new Extend\Event)
-        ->subscribe(Push\Dialog\NewActivity::class)
-        ->subscribe(Push\Discussion\NewActivity::class)
-        ->subscribe(Push\Post\NewActivity::class),
+        ->subscribe(Push\EventSubscriber::class),
 
     (new Extend\Notification)
         ->driver('realtime', Push\NotificationDriver::class),
@@ -80,8 +77,8 @@ return [
         ->endpoint('show', fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['discussion.tags'])),
 
     (new Extend\Settings())
-        // In seconds. Defaults to 2 minutes.
-        ->default('flarum-realtime.release-discussion-updates-interval', 120)
+        // In seconds. Defaults to 10 seconds.
+        ->default('flarum-realtime.release-discussion-updates-interval', 10)
         ->default('flarum-realtime.typing-indicator', true)
         ->default('flarum-realtime.release-discussion-updates', true)
         ->serializeToForum('flarum-realtime.release-discussion-updates-interval', 'flarum-realtime.release-discussion-updates-interval', 'intval'),
@@ -93,14 +90,4 @@ return [
     (new Extend\User())
         ->registerPreference('flarum-realtime.typing-indicator-full', 'boolVal', true),
 
-    (new Extend\Conditional())
-        ->whenExtensionEnabled('flarum-messages', fn () => [
-            // DialogMessage currently doesn't have a read
-            (new Extend\ApiResource(DialogMessageResource::class))
-                ->endpoints(fn () => [
-                    Endpoint\Show::make()
-                        ->authenticated()
-                        ->addDefaultInclude(['dialog']),
-                ]),
-        ]),
 ];

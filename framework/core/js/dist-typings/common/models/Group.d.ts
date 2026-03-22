@@ -8,4 +8,5 @@ export default class Group extends Model {
     color(): string | null;
     icon(): string | null;
     isHidden(): boolean;
+    position(): number;
 }

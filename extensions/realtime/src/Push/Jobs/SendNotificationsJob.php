@@ -10,6 +10,7 @@
 namespace Flarum\Realtime\Push\Jobs;
 
 use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Notification\Notification;
 use Illuminate\Contracts\Queue\Queue;
 
 class SendNotificationsJob extends Job
@@ -27,9 +28,19 @@ class SendNotificationsJob extends Job
         $intersect = $this->connectedUsers()->intersect($this->recipients);
 
         foreach ($intersect as $user) {
-            if ($user->shouldAlert($this->blueprint::getType())) {
+            if (! $user->shouldAlert($this->blueprint::getType())) {
+                continue;
+            }
+
+            $notification = Notification::query()
+                ->where('user_id', $user->id)
+                ->where('type', $this->blueprint::getType())
+                ->latest()
+                ->first();
+
+            if ($notification) {
                 $queue->push(
-                    new SendGeneratedPayloadJob('notification', $user, $user, [])
+                    new SendGeneratedPayloadJob('notification', $notification, $user)
                 );
             }
         }

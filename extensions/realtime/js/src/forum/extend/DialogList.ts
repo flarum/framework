@@ -1,9 +1,4 @@
-import NewActivity from './DialogList/NewActivity';
-import TypingIndicator from './DialogList/TypingIndicator';
-
-export default function DialogList() {
-  if ('flarum-messages' in flarum.extensions) {
-    NewActivity();
-    TypingIndicator();
-  }
-}
+// Dialog list realtime integration (new messages, typing indicator) has moved
+// to flarum/messages. That extension registers its realtime bindings via the
+// Realtime JS extender when both flarum/messages and flarum/realtime are enabled.
+export default function DialogList() {}
