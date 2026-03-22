@@ -54,8 +54,6 @@ export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttr
       100
     );
 
-    items.add('postUser-badges', <ul className="PostUser-badges badges badges--packed">{listItems(user.badges().toArray())}</ul>, 90);
-
     return items;
   }
 
@@ -70,6 +68,8 @@ export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttr
     }
 
     items.add('username', username(user), 80);
+
+    items.add('badges', <ul className="PostUser-badges badges">{listItems(user.badges().toArray())}</ul>, 70);
 
     return items;
   }

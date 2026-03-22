@@ -81,9 +81,22 @@
   }
 }
 .PostUser-badges {
-  text-align: right;
+  display: inline-flex;
+  align-items: center;
   white-space: nowrap;
   pointer-events: none;
+  margin-left: 6px;
+  vertical-align: middle;
+  gap: 2px;
+
+  > li {
+    display: flex;
+    align-items: center;
+  }
+
+  .Badge {
+    .Badge--size(16px);
+  }
 }
 
 .Post-body {
@@ -375,17 +388,6 @@
       display: none;
     }
   }
-  .PostUser-badges {
-    position: absolute;
-    top: -12px;
-    left: 6px;
-    width: 32px;
-
-    .Badge {
-      .Badge--size(20px);
-      margin-left: -13px;
-    }
-  }
   .EventPost {
     padding-left: 50px;
   }
@@ -412,13 +414,6 @@
   }
   .Post-header .Post-avatar {
     display: none;
-  }
-  .PostUser-badges {
-    float: left;
-    position: relative;
-    margin-left: calc(~"5px - var(--avatar-column-width)");
-    margin-top: -3px;
-    width: 64px;
   }
   .EventPost-icon {
     text-align: right;
