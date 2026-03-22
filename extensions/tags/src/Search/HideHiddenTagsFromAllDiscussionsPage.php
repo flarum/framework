@@ -21,10 +21,23 @@ class HideHiddenTagsFromAllDiscussionsPage
             return;
         }
 
-        $state->getQuery()->whereNotIn('discussions.id', function ($query) {
-            return $query->select('discussion_id')
-            ->from('discussion_tag')
-            ->whereIn('tag_id', Tag::where('is_hidden', 1)->pluck('id'));
-        });
+        $hiddenTagIds = Tag::where('is_hidden', 1)->pluck('id');
+
+        $applyFilter = function ($query) use ($hiddenTagIds) {
+            $query->whereNotIn('discussions.id', function ($q) use ($hiddenTagIds) {
+                return $q->select('discussion_id')
+                    ->from('discussion_tag')
+                    ->whereIn('tag_id', $hiddenTagIds);
+            });
+        };
+
+        $eloquentQuery = $state->getQuery();
+        $applyFilter($eloquentQuery);
+
+        // Also apply to any existing union queries (e.g. from PinStickiedDiscussionsToTop)
+        // in case that mutator ran before this one.
+        foreach ($eloquentQuery->getQuery()->unions ?? [] as $union) {
+            $applyFilter($union['query']);
+        }
     }
 }

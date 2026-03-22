@@ -39,20 +39,24 @@ class ListDiscussionsTest extends TestCase
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now()->addMinutes(2), 'last_posted_at' => Carbon::now()->addMinutes(5), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'is_sticky' => false, 'last_post_number' => 1],
                 ['id' => 3, 'title' => __CLASS__, 'created_at' => Carbon::now()->addMinutes(3), 'last_posted_at' => Carbon::now()->addMinute(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'is_sticky' => true, 'last_post_number' => 1],
                 ['id' => 4, 'title' => __CLASS__, 'created_at' => Carbon::now()->addMinutes(4), 'last_posted_at' => Carbon::now()->addMinutes(2), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'is_sticky' => false, 'last_post_number' => 1],
+                // Sticky discussion in a hidden tag — must not appear on the all-discussions page.
+                ['id' => 5, 'title' => __CLASS__, 'created_at' => Carbon::now()->addMinutes(10), 'last_posted_at' => Carbon::now()->addMinutes(10), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'is_sticky' => true, 'last_post_number' => 1],
             ],
             'discussion_user' => [
                 ['discussion_id' => 1, 'user_id' => 3, 'last_read_post_number' => 1],
                 ['discussion_id' => 3, 'user_id' => 3, 'last_read_post_number' => 1],
             ],
             Tag::class => [
-                ['id' => 1, 'slug' => 'general', 'position' => 0, 'parent_id' => null]
+                ['id' => 1, 'slug' => 'general', 'position' => 0, 'parent_id' => null],
+                ['id' => 2, 'slug' => 'hidden', 'position' => 1, 'parent_id' => null, 'is_hidden' => true],
             ],
             'discussion_tag' => [
                 ['discussion_id' => 1, 'tag_id' => 1],
                 ['discussion_id' => 2, 'tag_id' => 1],
                 ['discussion_id' => 3, 'tag_id' => 1],
                 ['discussion_id' => 4, 'tag_id' => 1],
-            ]
+                ['discussion_id' => 5, 'tag_id' => 2],
+            ],
         ]);
     }
 
@@ -136,6 +140,36 @@ class ListDiscussionsTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
+    public function sticky_discussion_in_hidden_tag_excluded_from_all_discussions_as_guest()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
+
+        $this->assertNotContains('5', $ids);
+    }
+
+    #[Test]
+    public function sticky_discussion_in_hidden_tag_excluded_from_all_discussions_with_only_unread_on()
+    {
+        $this->setting('flarum-sticky.only_sticky_unread_discussions', true);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
+
+        $this->assertNotContains('5', $ids);
     }
 
     #[Test]

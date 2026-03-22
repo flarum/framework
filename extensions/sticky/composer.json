@@ -33,6 +33,9 @@
         "flarum-extension": {
             "title": "Sticky",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum-tags"
+            ],
             "icon": {
                 "name": "fas fa-thumbtack",
                 "backgroundColor": "#D13E32",
