@@ -20,8 +20,8 @@ export default class NotificationToastState {
   }
 
   push(notification: NotificationModel): void {
-    const settings = app.data.settings as unknown as Record<string, number>;
-    const dismissAfterS = settings['flarum-realtime.notification-toast-dismiss-after'];
+    const settings = (app.data?.settings ?? {}) as unknown as Record<string, number>;
+    const dismissAfterS = settings['flarum-realtime.notification-toast-dismiss-after'] ?? 10;
 
     if (dismissAfterS === 0) return;
 
