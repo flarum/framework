@@ -94,7 +94,9 @@ class Extension implements Arrayable
 
     public static function nameToId(string $name): string
     {
-        [$vendor, $package] = explode('/', $name);
+        $parts = explode('/', $name, 2);
+        $vendor = $parts[0];
+        $package = $parts[1] ?? $name;
         $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
 
         return "$vendor-$package";

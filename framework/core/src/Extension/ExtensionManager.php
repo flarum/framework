@@ -71,7 +71,7 @@ class ExtensionManager
                     ? $this->paths->vendor.'/composer/'.$package['install-path']
                     : $this->paths->vendor.'/'.$name;
 
-                if (Arr::get($package, 'type') === 'flarum-extension') {
+                if (Arr::get($package, 'type') === 'flarum-extension' && str_contains($name, '/')) {
                     $composerJsonConfs[$packagePath] = $package;
                 }
 
@@ -553,7 +553,7 @@ class ExtensionManager
             $subPackagePath = "$packagePath/$subExtPath";
             $conf = json_decode($this->filesystem->get("$subPackagePath/composer.json"), true);
 
-            if (Arr::get($conf, 'type') === 'flarum-extension') {
+            if (Arr::get($conf, 'type') === 'flarum-extension' && str_contains((string) Arr::get($conf, 'name', ''), '/')) {
                 $subExtConfs[$subPackagePath] = $conf;
             }
         }
