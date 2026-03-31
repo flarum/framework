@@ -44,10 +44,10 @@ class NotificationCountPerformanceTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /** Unread notifications for the user under test (split across two types). */
-    private const TARGET_USER_NOTIFICATIONS = 200_000;
+    private const TARGET_USER_NOTIFICATIONS = 200000;
 
     /** Number of noise users (each receives NOISE_NOTIFICATIONS_PER_USER rows). */
-    private const NOISE_USER_COUNT = 4_999;
+    private const NOISE_USER_COUNT = 4999;
 
     /** Notifications per noise user: (1M - TARGET_USER_NOTIFICATIONS) / NOISE_USER_COUNT ≈ 160. */
     private const NOISE_NOTIFICATIONS_PER_USER = 160;
