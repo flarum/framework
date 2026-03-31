@@ -68,6 +68,8 @@ return [
             }
         ),
 
+    // When tags is enabled, also pre-load the back-reference to discussion and its tags,
+    // needed to avoid N+1s in DiscussionPolicy::can() which accesses $discussion->tags.
     (new Extend\Conditional())
         ->whenExtensionEnabled('flarum-tags', fn () => [
             (new Extend\ApiResource(Resource\DiscussionResource::class))
