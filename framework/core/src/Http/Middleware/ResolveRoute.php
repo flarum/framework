@@ -38,6 +38,11 @@ class ResolveRoute implements Middleware
         $method = $request->getMethod();
         $uri = $request->getUri()->getPath() ?: '/';
 
+        // Strip trailing slash so that e.g. /d/123-slug/ resolves the same as /d/123-slug.
+        if ($uri !== '/' && str_ends_with($uri, '/')) {
+            $uri = rtrim($uri, '/');
+        }
+
         $routeInfo = $this->getDispatcher()->dispatch($method, $uri);
 
         switch ($routeInfo[0]) {
