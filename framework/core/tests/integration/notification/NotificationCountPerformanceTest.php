@@ -82,13 +82,13 @@ class NotificationCountPerformanceTest extends TestCase
             $discussions[] = [
                 // comment_count > 0 so ScopeDiscussionVisibility doesn't hide it
                 // from members who lack discussion.editPosts permission.
-                'id'               => $i,
-                'title'            => "Discussion $i",
-                'created_at'       => Carbon::now()->toDateTimeString(),
-                'user_id'          => 1,
-                'first_post_id'    => null,
-                'comment_count'    => 1,
-                'is_private'       => 0,
+                'id' => $i,
+                'title' => "Discussion $i",
+                'created_at' => Carbon::now()->toDateTimeString(),
+                'user_id' => 1,
+                'first_post_id' => null,
+                'comment_count' => 1,
+                'is_private' => 0,
                 'last_post_number' => 1,
             ];
         }
@@ -96,14 +96,14 @@ class NotificationCountPerformanceTest extends TestCase
         $posts = [];
         for ($i = 1; $i <= self::SUBJECT_COUNT; $i++) {
             $posts[] = [
-                'id'            => $i,
+                'id' => $i,
                 'discussion_id' => (($i - 1) % self::SUBJECT_COUNT) + 1,
-                'number'        => $i,
-                'created_at'    => Carbon::now()->toDateTimeString(),
-                'user_id'       => 1,
-                'type'          => 'comment',
-                'content'       => '<t><p>post</p></t>',
-                'is_private'    => 0,
+                'number' => $i,
+                'created_at' => Carbon::now()->toDateTimeString(),
+                'user_id' => 1,
+                'type' => 'comment',
+                'content' => '<t><p>post</p></t>',
+                'is_private' => 0,
             ];
         }
 
@@ -115,7 +115,7 @@ class NotificationCountPerformanceTest extends TestCase
                 $this->normalUser(),
             ],
             'discussions' => $discussions,
-            'posts'       => $posts,
+            'posts' => $posts,
         ]);
     }
 
@@ -131,12 +131,12 @@ class NotificationCountPerformanceTest extends TestCase
     private function seed(): void
     {
         $now = Carbon::now()->toDateTimeString();
-        $db  = $this->database();
+        $db = $this->database();
 
         // --- Target user ---
         $half = self::TARGET_USER_NOTIFICATIONS / 2;
         $this->bulkInsert($db, self::USER_ID, 'discussionRenamed', $half, self::SUBJECT_COUNT, $now);
-        $this->bulkInsert($db, self::USER_ID, 'postMentioned',     $half, self::SUBJECT_COUNT, $now);
+        $this->bulkInsert($db, self::USER_ID, 'postMentioned', $half, self::SUBJECT_COUNT, $now);
 
         // A read and a deleted row that must NOT appear in the count.
         $db->table('notifications')->insert([
@@ -146,7 +146,7 @@ class NotificationCountPerformanceTest extends TestCase
 
         // --- Noise users ---
         $firstNoiseId = self::USER_ID + 1;
-        $lastNoiseId  = $firstNoiseId + self::NOISE_USER_COUNT - 1;
+        $lastNoiseId = $firstNoiseId + self::NOISE_USER_COUNT - 1;
 
         $chunk = [];
         for ($uid = $firstNoiseId; $uid <= $lastNoiseId; $uid++) {
@@ -189,14 +189,14 @@ class NotificationCountPerformanceTest extends TestCase
         $chunk = [];
         for ($i = 1; $i <= $count; $i++) {
             $chunk[] = [
-                'user_id'      => $userId,
+                'user_id' => $userId,
                 'from_user_id' => 1,
-                'type'         => $type,
-                'subject_id'   => (($i - 1) % $subjectCount) + 1,
-                'data'         => null,
-                'created_at'   => $now,
-                'read_at'      => $readAt,
-                'is_deleted'   => 0,
+                'type' => $type,
+                'subject_id' => (($i - 1) % $subjectCount) + 1,
+                'data' => null,
+                'created_at' => $now,
+                'read_at' => $readAt,
+                'is_deleted' => 0,
             ];
             if (count($chunk) === 500) {
                 $db->table('notifications')->insert($chunk);
@@ -218,23 +218,23 @@ class NotificationCountPerformanceTest extends TestCase
     private function seedRealistic(): void
     {
         $now = Carbon::now()->toDateTimeString();
-        $db  = $this->database();
+        $db = $this->database();
 
-        $readRows   = self::TARGET_USER_NOTIFICATIONS - self::REALISTIC_UNREAD_COUNT;
+        $readRows = self::TARGET_USER_NOTIFICATIONS - self::REALISTIC_UNREAD_COUNT;
         $unreadRows = self::REALISTIC_UNREAD_COUNT;
-        $half       = (int) ($unreadRows / 2);
+        $half = (int) ($unreadRows / 2);
 
         // 199,500 read notifications
         $this->bulkInsertRead($db, self::USER_ID, 'discussionRenamed', (int) ($readRows / 2), self::SUBJECT_COUNT, $now);
-        $this->bulkInsertRead($db, self::USER_ID, 'postMentioned',     (int) ($readRows / 2), self::SUBJECT_COUNT, $now);
+        $this->bulkInsertRead($db, self::USER_ID, 'postMentioned', (int) ($readRows / 2), self::SUBJECT_COUNT, $now);
 
         // 500 unread notifications
-        $this->bulkInsert($db, self::USER_ID, 'discussionRenamed', $half,          self::SUBJECT_COUNT, $now);
-        $this->bulkInsert($db, self::USER_ID, 'postMentioned',     $unreadRows - $half, self::SUBJECT_COUNT, $now);
+        $this->bulkInsert($db, self::USER_ID, 'discussionRenamed', $half, self::SUBJECT_COUNT, $now);
+        $this->bulkInsert($db, self::USER_ID, 'postMentioned', $unreadRows - $half, self::SUBJECT_COUNT, $now);
 
         // Noise users (same as main seed)
         $firstNoiseId = self::USER_ID + 1;
-        $lastNoiseId  = $firstNoiseId + self::NOISE_USER_COUNT - 1;
+        $lastNoiseId = $firstNoiseId + self::NOISE_USER_COUNT - 1;
 
         $chunk = [];
         for ($uid = $firstNoiseId; $uid <= $lastNoiseId; $uid++) {
@@ -297,15 +297,15 @@ class NotificationCountPerformanceTest extends TestCase
     {
         $this->app();
         $this->seed();
-        $user  = User::find(self::USER_ID);
+        $user = User::find(self::USER_ID);
         $cache = $this->app()->getContainer()->make('cache.store');
 
         // Warm run to stabilise caches, then flush so the timed run hits the DB.
         $user->getUnreadNotificationCount();
         $cache->flush();
 
-        $start   = microtime(true);
-        $count   = $user->getUnreadNotificationCount();
+        $start = microtime(true);
+        $count = $user->getUnreadNotificationCount();
         $elapsed = (microtime(true) - $start) * 1000;
 
         $this->assertEquals(self::EXPECTED_COUNT, $count);
@@ -317,12 +317,12 @@ class NotificationCountPerformanceTest extends TestCase
         $queries = $this->database()->getQueryLog();
         $this->database()->disableQueryLog();
 
-        $sql       = $queries[0]['query'] ?? '';
-        $bindings  = $queries[0]['bindings'] ?? [];
+        $sql = $queries[0]['query'] ?? '';
+        $bindings = $queries[0]['bindings'] ?? [];
         $totalRows = $this->database()->table('notifications')->count();
 
         // Run EXPLAIN on the actual query with bindings substituted.
-        $explain = $this->database()->select('EXPLAIN ' . $sql, $bindings);
+        $explain = $this->database()->select('EXPLAIN '.$sql, $bindings);
 
         fwrite(STDOUT, sprintf(
             "\n[NotificationCountPerformanceTest] unread count — user rows: %d, table total: %d: %.2f ms\n",
@@ -355,14 +355,14 @@ class NotificationCountPerformanceTest extends TestCase
     {
         $this->app();
         $this->seed();
-        $user  = User::find(self::USER_ID);
+        $user = User::find(self::USER_ID);
         $cache = $this->app()->getContainer()->make('cache.store');
 
         $user->getNewNotificationCount();
         $cache->flush();
 
-        $start   = microtime(true);
-        $count   = $user->getNewNotificationCount();
+        $start = microtime(true);
+        $count = $user->getNewNotificationCount();
         $elapsed = (microtime(true) - $start) * 1000;
 
         $this->assertEquals(self::EXPECTED_COUNT, $count);
@@ -371,12 +371,12 @@ class NotificationCountPerformanceTest extends TestCase
         $this->database()->enableQueryLog();
         $cache->flush();
         $user->getNewNotificationCount();
-        $queries  = $this->database()->getQueryLog();
+        $queries = $this->database()->getQueryLog();
         $this->database()->disableQueryLog();
 
-        $sql      = $queries[0]['query'] ?? '';
+        $sql = $queries[0]['query'] ?? '';
         $bindings = $queries[0]['bindings'] ?? [];
-        $explain  = $this->database()->select('EXPLAIN ' . $sql, $bindings);
+        $explain = $this->database()->select('EXPLAIN '.$sql, $bindings);
 
         fwrite(STDOUT, sprintf(
             "\n[NotificationCountPerformanceTest] new count — user rows: %d: %.2f ms\n",
@@ -412,14 +412,14 @@ class NotificationCountPerformanceTest extends TestCase
     {
         $this->app();
         $this->seedRealistic();
-        $user  = User::find(self::USER_ID);
+        $user = User::find(self::USER_ID);
         $cache = $this->app()->getContainer()->make('cache.store');
 
         $user->getUnreadNotificationCount();
         $cache->flush();
 
-        $start   = microtime(true);
-        $count   = $user->getUnreadNotificationCount();
+        $start = microtime(true);
+        $count = $user->getUnreadNotificationCount();
         $elapsed = (microtime(true) - $start) * 1000;
 
         $this->assertEquals(self::REALISTIC_UNREAD_COUNT, $count);
@@ -430,10 +430,10 @@ class NotificationCountPerformanceTest extends TestCase
         $queries = $this->database()->getQueryLog();
         $this->database()->disableQueryLog();
 
-        $sql      = $queries[0]['query'] ?? '';
+        $sql = $queries[0]['query'] ?? '';
         $bindings = $queries[0]['bindings'] ?? [];
         $totalRows = $this->database()->table('notifications')->count();
-        $explain  = $this->database()->select('EXPLAIN ' . $sql, $bindings);
+        $explain = $this->database()->select('EXPLAIN '.$sql, $bindings);
 
         fwrite(STDOUT, sprintf(
             "\n[NotificationCountPerformanceTest] realistic unread count — unread: %d, user total: %d, table total: %d: %.2f ms\n",
