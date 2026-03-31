@@ -56,6 +56,7 @@ return [
             Schema\Boolean::make('canDeleteOwnMessages')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->is($user)),
             Schema\Integer::make('messageCount')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->is($user))
                 ->get(function (object $model, Context $context) {
                     return Dialog::whereVisibleTo($context->getActor())
                         ->whereHas('users', function (Builder $query) use ($context) {

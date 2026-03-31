@@ -103,7 +103,7 @@ class DiscussionResource extends AbstractDatabaseResource
                     'mostRelevantPost.user'
                 ])
                 ->defaultSort('-lastPostedAt')
-                ->eagerLoad('state')
+                ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups'])
                 ->paginate(),
         ];
     }

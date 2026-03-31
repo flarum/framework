@@ -57,6 +57,15 @@ return [
             function (Endpoint\Show|Endpoint\Index|Endpoint\Create $endpoint): Endpoint\Endpoint {
                 return $endpoint->addDefaultInclude(['firstPost.likes', 'lastPost.likes']);
             }
+        )
+        ->endpoint(
+            Endpoint\Index::class,
+            function (Endpoint\Index $endpoint): Endpoint\Index {
+                return $endpoint->eagerLoadWhenIncluded([
+                    'firstPost' => ['firstPost.likes', 'firstPost.likes.groups', 'firstPost.discussion', 'firstPost.discussion.tags'],
+                    'lastPost' => ['lastPost.likes', 'lastPost.likes.groups', 'lastPost.discussion', 'lastPost.discussion.tags'],
+                ]);
+            }
         ),
 
     (new Extend\Event())
