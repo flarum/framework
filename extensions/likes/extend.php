@@ -62,11 +62,25 @@ return [
             Endpoint\Index::class,
             function (Endpoint\Index $endpoint): Endpoint\Index {
                 return $endpoint->eagerLoadWhenIncluded([
-                    'firstPost' => ['firstPost.likes', 'firstPost.likes.groups', 'firstPost.discussion', 'firstPost.discussion.tags'],
-                    'lastPost' => ['lastPost.likes', 'lastPost.likes.groups', 'lastPost.discussion', 'lastPost.discussion.tags'],
+                    'firstPost' => ['firstPost.likes', 'firstPost.likes.groups'],
+                    'lastPost' => ['lastPost.likes', 'lastPost.likes.groups'],
                 ]);
             }
         ),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-tags', fn () => [
+            (new Extend\ApiResource(Resource\DiscussionResource::class))
+                ->endpoint(
+                    Endpoint\Index::class,
+                    function (Endpoint\Index $endpoint): Endpoint\Index {
+                        return $endpoint->eagerLoadWhenIncluded([
+                            'firstPost' => ['firstPost.discussion', 'firstPost.discussion.tags'],
+                            'lastPost' => ['lastPost.discussion', 'lastPost.discussion.tags'],
+                        ]);
+                    }
+                ),
+        ]),
 
     (new Extend\Event())
         ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)
