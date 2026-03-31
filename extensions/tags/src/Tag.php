@@ -219,7 +219,7 @@ class Tag extends AbstractModel
      * and does not persist across fresh User instances (e.g. in tests).
      * Inner array is keyed by permission string; null value means all tags permitted (admin).
      *
-     * @var \WeakMap<User, array<string, int[]|null>>|null
+     * @var \WeakMap<User, array<string, mixed>>|null
      */
     protected static ?\WeakMap $permittedTagIdCache = null;
 
@@ -232,7 +232,11 @@ class Tag extends AbstractModel
      */
     protected static function resolvePermittedTagIds(User $user, string $currPermission): ?array
     {
-        static::$permittedTagIdCache ??= new \WeakMap();
+        if (static::$permittedTagIdCache === null) {
+            /** @var \WeakMap<User, array<string, mixed>> $map */
+            $map = new \WeakMap();
+            static::$permittedTagIdCache = $map;
+        }
 
         $userCache = static::$permittedTagIdCache[$user] ?? [];
 
@@ -241,7 +245,8 @@ class Tag extends AbstractModel
         }
 
         if ($user->isAdmin()) {
-            static::$permittedTagIdCache[$user] = array_merge($userCache, [$currPermission => null]);
+            $userCache[$currPermission] = null;
+            static::$permittedTagIdCache[$user] = $userCache;
 
             return null;
         }
@@ -268,7 +273,8 @@ class Tag extends AbstractModel
             ->pluck('id')
             ->all();
 
-        static::$permittedTagIdCache[$user] = array_merge($userCache, [$currPermission => $permitted]);
+        $userCache[$currPermission] = $permitted;
+        static::$permittedTagIdCache[$user] = $userCache;
 
         return $permitted;
     }
