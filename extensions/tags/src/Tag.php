@@ -295,7 +295,8 @@ class Tag extends AbstractModel
         return $query->where(function ($query) use ($permittedIds) {
             $query
                 ->whereIn('tags.id', $permittedIds)
-                ->where(fn ($query) => $query
+                ->where(
+                    fn ($query) => $query
                     ->whereIn('tags.parent_id', $permittedIds)
                     ->orWhereNull('tags.parent_id')
                 );

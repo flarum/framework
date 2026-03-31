@@ -27,8 +27,8 @@ class UserResourceFields
             Schema\Relationship\ToOne::make('erasureRequest')
                 ->includable()
                 ->type('user-erasure-requests')
-                ->visible(fn (User $user, Context $context) =>
-                    $context->collection instanceof UserResource
+                ->visible(
+                    fn (User $user, Context $context) => $context->collection instanceof UserResource
                     && ($context->getActor()->id === $user->id || $context->getActor()->hasPermission('processErasure'))
                 ),
         ];
