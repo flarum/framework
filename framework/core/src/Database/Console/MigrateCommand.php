@@ -79,6 +79,8 @@ class MigrateCommand extends AbstractCommand
         $extensions = $this->container->make(ExtensionManager::class);
         $extensions->getMigrator()->setOutput($this->output);
 
+        $extensions->syncExtensionOrder();
+
         foreach ($extensions->getEnabledExtensions() as $name => $extension) {
             if ($extension->hasMigrations()) {
                 $this->info('Migrating extension: '.$name);
