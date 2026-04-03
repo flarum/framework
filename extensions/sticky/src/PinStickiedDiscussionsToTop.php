@@ -65,7 +65,7 @@ class PinStickiedDiscussionsToTop
                 $read = $q->newQuery()
                     ->selectRaw('1')
                     ->from('discussion_user as sticky')
-                    ->whereColumn('sticky.discussion_id', 'id')
+                    ->whereColumn('sticky.discussion_id', 'discussions.id')
                     ->where('sticky.user_id', '=', $state->getActor()->id)
                     ->whereColumn('sticky.last_read_post_number', '>=', 'last_post_number');
 
