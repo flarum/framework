@@ -45,11 +45,7 @@ export default class TagMention extends MentionableModel<Tag, HashMentionFormat>
   }
 
   suggestion(model: Tag, typed: string): Mithril.Children {
-    let tagName: Mithril.Children = model.name();
-
-    if (typed) {
-      tagName = highlight(tagName, typed);
-    }
+    let tagName: Mithril.Children = typed ? highlight(model.name(), typed) : model.name();
 
     return (
       <>
