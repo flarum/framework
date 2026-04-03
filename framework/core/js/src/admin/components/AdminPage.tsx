@@ -41,6 +41,7 @@ export type SaveSubmitEvent = SubmitEvent & { redraw: boolean };
 
 export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
   settings: MutableSettings = {};
+  settingLabels: Record<string, Mithril.Children> = {};
   refreshAfterSaving: string[] = [];
   loading: boolean = false;
 
@@ -75,6 +76,24 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
         disabled={!this.isChanged()}
       >
         {app.translator.trans('core.admin.settings.submit_button')}
+      </Button>
+    );
+  }
+
+  /**
+   * Returns a button that opens a confirmation modal to delete all settings
+   * tracked by this page from the database, reverting them to their PHP-side defaults.
+   *
+   * Calls can pass an explicit list of setting keys to reset; otherwise all keys
+   * currently tracked in `this.settings` are used.
+   */
+  resetButton(settings: import('./ResetExtensionSettingsModal').ResetSettingItem[] = Object.keys(this.settings).map((key) => ({ key, label: this.settingLabels[key] })), title?: string, extensionId?: string): Mithril.Children {
+    return (
+      <Button
+        className="Button Button--danger"
+        onclick={() => app.modal.show(() => import('./ResetExtensionSettingsModal'), { settings, title, extensionId })}
+      >
+        {app.translator.trans('core.admin.extension.reset_settings.button')}
       </Button>
     );
   }
@@ -195,9 +214,16 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
 
   /**
    * Returns a function that fetches the setting from the `app` global.
+   *
+   * An optional `label` can be provided to associate a human-readable label
+   * with the setting key, which is used by `resetButton()` in the reset modal.
    */
-  setting(key: string, fallback: string = ''): Stream<string> {
+  setting(key: string, fallback: string = '', label?: Mithril.Children): Stream<string> {
     this.settings[key] = this.settings[key] || Stream<string>(app.data.settings[key] || fallback);
+
+    if (label !== undefined) {
+      this.settingLabels[key] = label;
+    }
 
     return this.settings[key];
   }

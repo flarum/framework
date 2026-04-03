@@ -184,7 +184,18 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
           {settings ? (
             <Form>
               {settings.map(this.buildSettingComponent.bind(this))}
-              <div className="Form-group Form-controls">{this.submitButton()}</div>
+              <div className="Form-group Form-controls">
+                {this.submitButton()}
+                {this.resetButton(
+                  settings
+                    .filter((e): e is Exclude<typeof e, () => Mithril.Children> => typeof e !== 'function')
+                    .map((e) => ({ key: e.setting, label: e.label })),
+                  app.translator.trans('core.admin.extension.reset_settings.title_extension', {
+                    extensionTitle: this.extension.extra['flarum-extension'].title,
+                  }, true),
+                  this.extension.id
+                )}
+              </div>
             </Form>
           ) : (
             <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h3>

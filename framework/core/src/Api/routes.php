@@ -127,6 +127,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\SetSettingsController::class)
     );
 
+    // Delete settings (reset to defaults)
+    $map->delete(
+        '/settings',
+        'settings.delete',
+        $route->toController(Controller\DeleteSettingsController::class)
+    );
+
     // Update a permission
     $map->post(
         '/permission',

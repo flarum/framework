@@ -335,6 +335,13 @@ core:
         no_readme: This extension does not appear to have a README file
         title: "{extName} documentation"
       replaced: Replaced
+      reset_settings:
+        button: Reset Settings
+        cancel_button: Cancel
+        confirm_button: Reset
+        warning: "This action is irreversible. The settings below will be permanently deleted from the database and revert to their defaults. This extension's data will not be affected."
+        title: Reset Settings
+        title_extension: "Reset {extensionTitle} Settings"
       safe_mode_warning: Safe mode is currently enabled. Extensions are not booted and their settings are therefore inaccessible.
 
     # These translations are used in the secondary header.

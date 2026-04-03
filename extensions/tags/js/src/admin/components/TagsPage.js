@@ -61,11 +61,14 @@ export default class TagsPage extends ExtensionPage {
       return <LoadingIndicator />;
     }
 
-    const minPrimaryTags = this.setting('flarum-tags.min_primary_tags', 0);
-    const maxPrimaryTags = this.setting('flarum-tags.max_primary_tags', 0);
+    const primaryLabel = app.translator.trans('flarum-tags.admin.tag_settings.required_primary_heading');
+    const secondaryLabel = app.translator.trans('flarum-tags.admin.tag_settings.required_secondary_heading');
 
-    const minSecondaryTags = this.setting('flarum-tags.min_secondary_tags', 0);
-    const maxSecondaryTags = this.setting('flarum-tags.max_secondary_tags', 0);
+    const minPrimaryTags = this.setting('flarum-tags.min_primary_tags', 0, primaryLabel);
+    const maxPrimaryTags = this.setting('flarum-tags.max_primary_tags', 0, primaryLabel);
+
+    const minSecondaryTags = this.setting('flarum-tags.min_secondary_tags', 0, secondaryLabel);
+    const maxSecondaryTags = this.setting('flarum-tags.max_secondary_tags', 0, secondaryLabel);
 
     const tags = sortTags(app.store.all('tags').filter((tag) => !tag.parent()));
 
@@ -125,7 +128,10 @@ export default class TagsPage extends ExtensionPage {
                       <input className="FormControl" type="number" min={minSecondaryTags()} bidi={maxSecondaryTags} />
                     </div>
                   </div>
-                  <div className="Form-group Form-controls">{this.submitButton()}</div>
+                  <div className="Form-group Form-controls">
+                    {this.submitButton()}
+                    {this.resetButton()}
+                  </div>
                 </Form>
               </FormSection>
             </FormSectionGroup>
