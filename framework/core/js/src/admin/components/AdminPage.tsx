@@ -87,7 +87,14 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
    * Calls can pass an explicit list of setting keys to reset; otherwise all keys
    * currently tracked in `this.settings` are used.
    */
-  resetButton(settings: import('./ResetExtensionSettingsModal').ResetSettingItem[] = Object.keys(this.settings).map((key) => ({ key, label: this.settingLabels[key] })), title?: string, extensionId?: string): Mithril.Children {
+  resetButton(
+    settings: import('./ResetExtensionSettingsModal').ResetSettingItem[] = Object.keys(this.settings).map((key) => ({
+      key,
+      label: this.settingLabels[key],
+    })),
+    title?: string,
+    extensionId?: string
+  ): Mithril.Children {
     return (
       <Button
         className="Button Button--danger"

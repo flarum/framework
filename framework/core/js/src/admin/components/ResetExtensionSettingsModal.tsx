@@ -18,7 +18,9 @@ export interface IResetExtensionSettingsModalAttrs extends IInternalModalAttrs {
   title?: string;
 }
 
-export default class ResetExtensionSettingsModal<CustomAttrs extends IResetExtensionSettingsModalAttrs = IResetExtensionSettingsModalAttrs> extends Modal<CustomAttrs> {
+export default class ResetExtensionSettingsModal<
+  CustomAttrs extends IResetExtensionSettingsModalAttrs = IResetExtensionSettingsModalAttrs
+> extends Modal<CustomAttrs> {
   protected loading = false;
 
   className() {

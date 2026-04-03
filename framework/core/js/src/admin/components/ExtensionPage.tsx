@@ -190,9 +190,13 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
                   settings
                     .filter((e): e is Exclude<typeof e, () => Mithril.Children> => typeof e !== 'function')
                     .map((e) => ({ key: e.setting, label: e.label })),
-                  app.translator.trans('core.admin.extension.reset_settings.title_extension', {
-                    extensionTitle: this.extension.extra['flarum-extension'].title,
-                  }, true),
+                  app.translator.trans(
+                    'core.admin.extension.reset_settings.title_extension',
+                    {
+                      extensionTitle: this.extension.extra['flarum-extension'].title,
+                    },
+                    true
+                  ),
                   this.extension.id
                 )}
               </div>
