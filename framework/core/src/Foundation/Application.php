@@ -27,7 +27,7 @@ class Application extends IlluminateContainer implements LaravelApplication
      *
      * @var string
      */
-    public const VERSION = '2.0.0-beta.8';
+    public const VERSION = '2.0.0-dev';
 
     protected bool $booted = false;
 
