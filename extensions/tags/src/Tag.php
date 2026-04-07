@@ -28,8 +28,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string $slug
  * @property string $description
  * @property string $color
- * @property string $background_path
- * @property string $background_mode
  * @property bool $is_primary
  * @property int $position
  * @property int $parent_id
