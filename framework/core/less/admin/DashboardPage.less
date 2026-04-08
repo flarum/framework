@@ -43,6 +43,35 @@
       }
     }
   }
+
+  @media @phone {
+    > ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 0;
+
+      > li {
+        flex: 0 0 50%;
+        margin-right: 0;
+        vertical-align: unset;
+
+        &[class^="item-version-"] {
+          max-width: none;
+        }
+
+        &.item-tools {
+          float: none;
+          flex: 0 0 100%;
+          display: flex;
+          justify-content: flex-end;
+
+          .Dropdown-toggle .Button-label {
+            display: none;
+          }
+        }
+      }
+    }
+  }
 }
 
 .StatusWidgetItem {
