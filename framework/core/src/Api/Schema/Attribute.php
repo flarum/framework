@@ -10,9 +10,19 @@
 namespace Flarum\Api\Schema;
 
 use Flarum\Api\Schema\Concerns\FlarumField;
+use Tobyz\JsonApiServer\Context;
 use Tobyz\JsonApiServer\Schema\Field\Attribute as BaseAttribute;
 
 class Attribute extends BaseAttribute
 {
     use FlarumField;
+
+    public function serializeValue(mixed $value, Context $context): mixed
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return parent::serializeValue($value, $context);
+    }
 }

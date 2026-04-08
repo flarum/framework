@@ -20,6 +20,10 @@ class Arr implements Type
 
     public function serialize(mixed $value): array
     {
+        if ($value instanceof \JsonSerializable) {
+            return (array) $value->jsonSerialize();
+        }
+
         return (array) $value;
     }
 

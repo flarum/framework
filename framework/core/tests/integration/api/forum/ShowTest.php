@@ -88,4 +88,21 @@ class ShowTest extends TestCase
         $this->assertEquals('http://localhost/api', Arr::get($json, 'data.attributes.apiUrl'));
         $this->assertEquals('http://localhost/admin', Arr::get($json, 'data.attributes.adminUrl'));
     }
+
+    #[Test]
+    public function allow_sign_up_is_serialized_as_boolean()
+    {
+        /** @var \Flarum\Settings\SettingsRepositoryInterface $settings */
+        $settings = $this->app()->getContainer()->make(\Flarum\Settings\SettingsRepositoryInterface::class);
+
+        $settings->set('allow_sign_up', '1');
+
+        $json = json_decode($this->send($this->request('GET', '/api'))->getBody()->getContents(), true);
+        $this->assertSame(true, Arr::get($json, 'data.attributes.allowSignUp'));
+
+        $settings->set('allow_sign_up', '0');
+
+        $json = json_decode($this->send($this->request('GET', '/api'))->getBody()->getContents(), true);
+        $this->assertSame(false, Arr::get($json, 'data.attributes.allowSignUp'));
+    }
 }

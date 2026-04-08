@@ -93,8 +93,8 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
 
             $this->whenResolved($value, function (mixed $value) use ($key, $field, $context) {
                 if (
-                    ! $field instanceof Relationship ||
-                    ($value = $field->serializeValue($value, $context))
+                    ($value = $field->serializeValue($value, $context)) ||
+                    ! $field instanceof Relationship
                 ) {
                     set_value($this->map[$key], $field, $value);
                 }
