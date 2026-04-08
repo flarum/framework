@@ -386,6 +386,26 @@
       margin-left: -13px;
     }
   }
+  .CommentPost.editing {
+    .Post-side {
+      position: relative;
+      width: 32px;
+      .Post-avatar {
+        display: block;
+        .Avatar--size(32px);
+      }
+    }
+    .Post-container {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+    }
+    .Post-side .PostUser-badges {
+      top: -4px;
+      left: 6px;
+      width: 32px;
+    }
+  }
   .EventPost {
     padding-left: 50px;
   }
