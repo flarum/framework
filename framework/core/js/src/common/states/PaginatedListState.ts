@@ -320,7 +320,18 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
   }
 
   protected paramsChanged(newParams: P): boolean {
-    return Object.keys(newParams).some((key) => this.getParams()[key] !== newParams[key]);
+    return Object.keys(newParams).some((key) => {
+      const oldVal = this.getParams()[key];
+      const newVal = newParams[key];
+
+      if (oldVal === newVal) return false;
+
+      if (typeof oldVal === 'object' && oldVal !== null && typeof newVal === 'object' && newVal !== null) {
+        return JSON.stringify(oldVal) !== JSON.stringify(newVal);
+      }
+
+      return true;
+    });
   }
 
   protected getAllItems(): T[] {
