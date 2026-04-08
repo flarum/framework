@@ -19,8 +19,8 @@ class Attribute extends BaseAttribute
 
     public function serializeValue(mixed $value, Context $context): mixed
     {
-        if ($value === null) {
-            return null;
+        if ($value === null || is_array($value)) {
+            return $value;
         }
 
         return parent::serializeValue($value, $context);
