@@ -38,6 +38,13 @@ class DiscussionPolicy extends AbstractPolicy
      */
     public function can(User $actor, $ability, Discussion $discussion)
     {
+        // Meta-permissions that govern tag validation logic (not tag-scoped
+        // access) must not be intercepted by this catch-all. They have no
+        // per-tag variant and will always deny for non-admins if left in.
+        if ($ability === 'bypassTagCounts') {
+            return;
+        }
+
         // Wrap all discussion permission checks with some logic pertaining to
         // the discussion's tags. If the discussion has a tag that has been
         // restricted, the user must have the permission for that tag.
