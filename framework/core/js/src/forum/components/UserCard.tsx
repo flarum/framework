@@ -1,5 +1,5 @@
-import app from '../../forum/app';
-import Component from '../../common/Component';
+import app from '../app';
+import Component, { ComponentAttrs } from '../../common/Component';
 import humanTime from '../../common/utils/humanTime';
 import ItemList from '../../common/utils/ItemList';
 import UserControls from '../utils/UserControls';
@@ -12,19 +12,22 @@ import classList from '../../common/utils/classList';
 import Icon from '../../common/components/Icon';
 import Avatar from '../../common/components/Avatar';
 
+import type Mithril from 'mithril';
+import type User from '../../common/models/User';
+
+export interface IUserCardAttrs extends ComponentAttrs {
+  userd: User;
+  className?: string;
+  editable?: boolean;
+  controlsButtonClassName?: string;
+}
+
 /**
  * The `UserCard` component displays a user's profile card. This is used both on
  * the `UserPage` (in the hero) and in discussions, shown when hovering over a
  * post author.
- *
- * ### Attrs
- *
- * - `user`
- * - `className`
- * - `editable`
- * - `controlsButtonClassName`
  */
-export default class UserCard extends Component {
+export default class UserCard<CustomAttrs extends IUserCardAttrs = IUserCardAttrs> extends Component<CustomAttrs> {
   view() {
     const user = this.attrs.user;
     const color = user.color();
@@ -42,7 +45,7 @@ export default class UserCard extends Component {
   }
 
   profileItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     items.add('avatar', this.avatar(), 100);
     items.add('content', this.content(), 10);
@@ -69,7 +72,7 @@ export default class UserCard extends Component {
   }
 
   contentItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     const user = this.attrs.user;
     const badges = user.badges().toArray();
@@ -87,11 +90,10 @@ export default class UserCard extends Component {
 
   /**
    * Build an item list of tidbits of info to show on this user's profile.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   infoItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
+
     const user = this.attrs.user;
     const lastSeenAt = user.lastSeenAt();
 
@@ -115,7 +117,7 @@ export default class UserCard extends Component {
   }
 
   controlsItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     const user = this.attrs.user;
     const controls = UserControls.controls(user, this).toArray();
