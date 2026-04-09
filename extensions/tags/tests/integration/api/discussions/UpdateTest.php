@@ -287,4 +287,46 @@ class UpdateTest extends TestCase
 
         $this->assertEquals(422, $response->getStatusCode());
     }
+
+    #[Test]
+    public function user_with_bypass_permission_can_exceed_primary_tag_limit_in_restricted_tag()
+    {
+        $this->setting('allow_tag_change', '-1');
+
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'bypassTagCounts'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag6.viewForum'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag6.startDiscussion'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag6.discussion.tag'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag12.viewForum'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag12.startDiscussion'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag12.discussion.tag'],
+            ],
+            'discussion_tag' => [
+                ['discussion_id' => 1, 'tag_id' => 6],
+            ],
+        ]);
+
+        // max_primary_tags defaults to 1; the user sets 2 restricted primary tags
+        $response = $this->send(
+            $this->request('PATCH', '/api/discussions/1', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'relationships' => [
+                            'tags' => [
+                                'data' => [
+                                    ['type' => 'tags', 'id' => 6],
+                                    ['type' => 'tags', 'id' => 12],
+                                ]
+                            ]
+                        ]
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
 }
