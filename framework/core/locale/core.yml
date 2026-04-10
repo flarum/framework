@@ -376,6 +376,7 @@ core:
         discussion: Discussion
         feature: Features
         formatting: Formatting
+        forum-widget: Forum Widgets
         infrastructure: Infrastructure
         language: Languages
         moderation: Moderation
