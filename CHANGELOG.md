@@ -1,5 +1,15 @@
 # Changelog
 
+## [v1.8.15](https://github.com/flarum/framework/compare/v1.8.14...v1.8.15)
+### Added
+* Announcements widget on admin dashboard (https://github.com/flarum/framework/pull/4472)
+### Fixed
+* [Tags] Exclude `bypassTagCounts` permission from DiscussionPolicy catch-all (https://github.com/flarum/framework/pull/4538)
+* Re-sort extension boot order after composer update adds optional-dependencies (https://github.com/flarum/framework/pull/4512)
+* Add missing `content` attr type to `Alert` component (https://github.com/flarum/framework/pull/4496)
+### Performance
+* Add composite index on notifications to fix slow unread count queries (https://github.com/flarum/framework/pull/4507)
+
 ## [v1.8.14](https://github.com/flarum/framework/compare/v1.8.13...v1.8.14)
 ### Security
 * [Nicknames] Display name injection in notification emails via autolink/markdown (CVE-2026-30913) (https://github.com/flarum/framework/security/advisories/GHSA-3c4m-j3g4-hh25)
