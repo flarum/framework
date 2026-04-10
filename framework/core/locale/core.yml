@@ -215,6 +215,7 @@ core:
         discussion: Discussion
         feature: Features
         formatting: Formatting
+        forum-widget: Forum Widgets
         language: Languages
         moderation: Moderation
         other: Other Extensions

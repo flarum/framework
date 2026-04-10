@@ -51,6 +51,7 @@ export default class AdminApplication extends Application {
   extensionCategories = {
     feature: 30,
     theme: 20,
+    'forum-widget': 15,
     language: 10,
   };
 
