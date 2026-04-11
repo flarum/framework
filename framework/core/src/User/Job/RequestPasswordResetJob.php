@@ -39,6 +39,8 @@ class RequestPasswordResetJob extends AbstractJob
             return;
         }
 
+        PasswordToken::where('user_id', $user->id)->delete();
+
         $token = PasswordToken::generate($user->id);
         $token->save();
 
