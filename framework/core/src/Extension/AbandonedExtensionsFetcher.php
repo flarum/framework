@@ -11,7 +11,7 @@ namespace Flarum\Extension;
 
 use Flarum\Foundation\Application;
 use Flarum\Group\Group;
-use Flarum\Mail\Job\SendInformationalEmailJob;
+use Flarum\Mail\Job\SendAbandonedExtensionsEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use GuzzleHttp\Client;
@@ -125,16 +125,11 @@ class AbandonedExtensionsFetcher
         $forumTitle = $this->settings->get('forum_title', '');
 
         foreach ($admins as $admin) {
-            $body = $this->translator->trans('core.email.abandoned_extensions.body', [
-                'username' => $admin->display_name,
-                'extensions' => implode("\n", $lines),
-            ]);
-
-            $this->queue->push(new SendInformationalEmailJob(
+            $this->queue->push(new SendAbandonedExtensionsEmailJob(
                 email: $admin->email,
-                displayName: $admin->display_name,
+                username: $admin->display_name,
                 subject: $subject,
-                body: $body,
+                extensionLines: $lines,
                 forumTitle: $forumTitle,
             ));
         }
