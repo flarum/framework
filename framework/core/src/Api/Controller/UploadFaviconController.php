@@ -9,7 +9,6 @@
 
 namespace Flarum\Api\Controller;
 
-use Intervention\Image\Format;
 use Intervention\Image\Interfaces\EncodedImageInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -27,11 +26,11 @@ class UploadFaviconController extends UploadImageController
             return $file->getStream();
         }
 
+        $this->fileExtension = 'png';
+
         $encodedImage = $this->imageManager->decode($file->getStream()->getMetadata('uri'))
             ->scale(64, 64)
-            ->encodeUsingFormat(Format::PNG);
-
-        $this->fileExtension = 'png';
+            ->encodeUsingFileExtension($this->fileExtension);
 
         return $encodedImage;
     }

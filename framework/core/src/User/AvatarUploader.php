@@ -12,7 +12,6 @@ namespace Flarum\User;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Str;
-use Intervention\Image\Format;
 use Intervention\Image\Interfaces\ImageInterface;
 
 class AvatarUploader
@@ -30,12 +29,12 @@ class AvatarUploader
         $avatarPath = Str::random();
 
         if ($image->isAnimated()) {
-            $encodedImage = $image->encodeUsingFormat(Format::GIF);
             $avatarPath .= '.gif';
         } else {
-            $encodedImage = $image->encodeUsingFormat(Format::WEBP);
             $avatarPath .= '.webp';
         }
+
+        $encodedImage = $image->encodeUsingPath($avatarPath);
 
         $this->removeFileAfterSave($user);
         $user->changeAvatarPath($avatarPath);

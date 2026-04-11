@@ -9,7 +9,6 @@
 
 namespace Flarum\Api\Controller;
 
-use Intervention\Image\Format;
 use Intervention\Image\Interfaces\EncodedImageInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -25,15 +24,9 @@ class UploadLogoController extends UploadImageController
         $image = $this->imageManager->decode($file->getStream()->getMetadata('uri'))
             ->scale(height: 60);
 
-        if ($image->isAnimated()) {
-            $this->resolvedExtension = 'gif';
+        $this->resolvedExtension = $image->isAnimated() ? 'gif' : 'webp';
 
-            return $image->encodeUsingFormat(Format::GIF);
-        }
-
-        $this->resolvedExtension = 'webp';
-
-        return $image->encodeUsingFormat(Format::WEBP);
+        return $image->encodeUsingFileExtension($this->resolvedExtension);
     }
 
     protected function fileExtension(ServerRequestInterface $request, UploadedFileInterface $file): string
