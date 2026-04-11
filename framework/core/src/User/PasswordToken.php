@@ -12,7 +12,6 @@ namespace Flarum\User;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
@@ -20,8 +19,6 @@ use Illuminate\Support\Str;
  * @property string $token
  * @property \Carbon\Carbon $created_at
  * @property int $user_id
- *
- * @method static self validOrFail(string $token)
  */
 class PasswordToken extends AbstractModel
 {
@@ -53,10 +50,10 @@ class PasswordToken extends AbstractModel
      *
      * @throws InvalidConfirmationTokenException
      */
-    public function scopeValidOrFail(Builder $query, string $id): static
+    public static function validOrFail(string $id): static
     {
         /** @var static|null $token */
-        $token = $query->find($id);
+        $token = static::find($id);
 
         if (! $token || $token->created_at->diffInDays(null, true) >= 1) {
             throw new InvalidConfirmationTokenException;
