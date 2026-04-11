@@ -438,7 +438,7 @@ class UserResource extends AbstractDatabaseResource
 
         $client = new Client([
             'allow_redirects' => false,
-            'timeout'         => 5,
+            'timeout' => 5,
         ]);
 
         try {
