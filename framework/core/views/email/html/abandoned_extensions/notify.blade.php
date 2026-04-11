@@ -1,6 +1,6 @@
 <x-mail::html.information>
     <x-slot:content>
-        <p>{{ $translator->trans('core.email.abandoned_extensions.body_intro', ['username' => $username]) }}</p>
+        <p>{{ $translator->trans('core.email.abandoned_extensions.body_intro') }}</p>
         <ul>
             @foreach ($extensionLines as $line)
                 <li>{{ $line }}</li>

@@ -1141,7 +1141,7 @@ core:
     # These translations are used in emails sent to admins when abandoned extensions are detected
     abandoned_extensions:
       subject: "Action required: abandoned extension(s) detected"
-      body_intro: "Hi {username}, the following installed extension(s) have been flagged as abandoned:"
+      body_intro: "The following installed extension(s) have been flagged as abandoned:"
       body_outro: "Please review these extensions and consider migrating to alternatives where available."
       line_with_replacement: "{package} (suggested replacement: {replacement})"
       line_no_replacement: "{package} (no replacement available)"

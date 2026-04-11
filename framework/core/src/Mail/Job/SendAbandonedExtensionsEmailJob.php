@@ -39,7 +39,7 @@ class SendAbandonedExtensionsEmailJob extends AbstractJob
                 'html' => 'mail::html.abandoned_extensions.notify',
                 'text' => 'mail::plain.abandoned_extensions.notify',
             ],
-            compact('extensionLines', 'username'),
+            compact('extensionLines'),
             function (Message $message) {
                 $message->to($this->email);
                 $message->subject($this->subject);
