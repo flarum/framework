@@ -13,8 +13,7 @@ use Flarum\Foundation\AbstractValidator;
 use Flarum\Foundation\ValidationException;
 use Flarum\Locale\TranslatorInterface;
 use Illuminate\Validation\Factory;
-use Intervention\Gif\Exceptions\DecoderException as GifDecoderException;
-use Intervention\Image\Exceptions\DecoderException;
+use Intervention\Image\Exceptions\ImageException;
 use Intervention\Image\ImageManager;
 use Psr\Http\Message\UploadedFileInterface;
 use Symfony\Component\Mime\MimeTypes;
@@ -74,8 +73,8 @@ class AvatarValidator extends AbstractValidator
         }
 
         try {
-            $this->imageManager->read($file->getStream()->getMetadata('uri'));
-        } catch (DecoderException|GifDecoderException) {
+            $this->imageManager->decode($file->getStream()->getMetadata('uri'));
+        } catch (ImageException) {
             $this->raise('image');
         }
     }

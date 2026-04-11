@@ -13,6 +13,7 @@ use Flarum\Console\AbstractCommand;
 use Flarum\User\User;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Intervention\Image\Format;
 use Intervention\Image\ImageManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -73,7 +74,7 @@ class ConvertAvatarsToWebpCommand extends AbstractCommand
 
                 try {
                     $contents = $this->uploadDir->get($oldPath);
-                    $webpContents = $this->imageManager->read($contents)->toWebp();
+                    $webpContents = $this->imageManager->decodeBinary($contents)->encodeUsingFormat(Format::WEBP);
 
                     $newPath = pathinfo($oldPath, PATHINFO_FILENAME).'.webp';
 
