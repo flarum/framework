@@ -19,6 +19,7 @@ use Flarum\Http\SlugManager;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AvatarUploader;
+use Flarum\User\AvatarValidator;
 use Flarum\User\Command\DeleteAvatar;
 use Flarum\User\Command\UploadAvatar;
 use Flarum\User\Event\Deleting;
@@ -46,6 +47,7 @@ class UserResource extends AbstractDatabaseResource
         protected SettingsRepositoryInterface $settings,
         protected ImageManager $imageManager,
         protected AvatarUploader $avatarUploader,
+        protected AvatarValidator $avatarValidator,
         protected Dispatcher $bus,
     ) {
     }
@@ -432,7 +434,12 @@ class UserResource extends AbstractDatabaseResource
 
     private function retrieveAvatarFromUrl(string $url): ?string
     {
-        $client = new Client();
+        $maxSizeBytes = $this->avatarValidator->getMaxSize() * 1024;
+
+        $client = new Client([
+            'allow_redirects' => false,
+            'timeout'         => 5,
+        ]);
 
         try {
             $response = $client->get($url);
@@ -441,6 +448,12 @@ class UserResource extends AbstractDatabaseResource
         }
 
         if ($response->getStatusCode() !== 200) {
+            return null;
+        }
+
+        $contentLength = $response->getHeaderLine('Content-Length');
+
+        if ($contentLength !== '' && (int) $contentLength > $maxSizeBytes) {
             return null;
         }
 

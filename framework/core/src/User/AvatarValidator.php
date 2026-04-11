@@ -105,7 +105,7 @@ class AvatarValidator extends AbstractValidator
         throw new ValidationException(['avatar' => $message]);
     }
 
-    protected function getMaxSize(): int
+    public function getMaxSize(): int
     {
         return 2048;
     }
