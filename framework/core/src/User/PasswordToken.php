@@ -20,6 +20,8 @@ use Illuminate\Support\Str;
  * @property string $token
  * @property \Carbon\Carbon $created_at
  * @property int $user_id
+ *
+ * @method static self validOrFail(string $token)
  */
 class PasswordToken extends AbstractModel
 {
