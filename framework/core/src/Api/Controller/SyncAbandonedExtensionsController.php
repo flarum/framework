@@ -18,9 +18,14 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class SyncAbandonedExtensionsController implements RequestHandlerInterface
 {
-    public function __construct(
-        protected AbandonedExtensionsFetcher $fetcher
-    ) {
+    /**
+     * @var AbandonedExtensionsFetcher
+     */
+    protected $fetcher;
+
+    public function __construct(AbandonedExtensionsFetcher $fetcher)
+    {
+        $this->fetcher = $fetcher;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -28,7 +33,7 @@ class SyncAbandonedExtensionsController implements RequestHandlerInterface
         RequestUtil::getActor($request)->assertAdmin();
 
         try {
-            $result = $this->fetcher->sync(notify: true, manual: true);
+            $result = $this->fetcher->sync(true, true);
         } catch (\RuntimeException $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }

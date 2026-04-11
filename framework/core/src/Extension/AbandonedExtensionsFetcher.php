@@ -27,13 +27,43 @@ class AbandonedExtensionsFetcher
 
     protected const SOURCE_URL = 'https://raw.githubusercontent.com/flarum/abandoned-extensions/main/abandoned.json';
 
+    /**
+     * @var ExtensionManager
+     */
+    protected $extensions;
+
+    /**
+     * @var SettingsRepositoryInterface
+     */
+    protected $settings;
+
+    /**
+     * @var Client
+     */
+    protected $client;
+
+    /**
+     * @var Queue
+     */
+    protected $queue;
+
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
     public function __construct(
-        protected ExtensionManager $extensions,
-        protected SettingsRepositoryInterface $settings,
-        protected Client $client,
-        protected Queue $queue,
-        protected TranslatorInterface $translator
+        ExtensionManager $extensions,
+        SettingsRepositoryInterface $settings,
+        Client $client,
+        Queue $queue,
+        TranslatorInterface $translator
     ) {
+        $this->extensions = $extensions;
+        $this->settings = $settings;
+        $this->client = $client;
+        $this->queue = $queue;
+        $this->translator = $translator;
     }
 
     /**
@@ -56,7 +86,9 @@ class AbandonedExtensionsFetcher
 
         $filtered = array_filter(
             $map,
-            fn (string $name) => isset($installed[$name]),
+            function (string $name) use ($installed) {
+                return isset($installed[$name]);
+            },
             ARRAY_FILTER_USE_KEY
         );
 
@@ -107,7 +139,9 @@ class AbandonedExtensionsFetcher
 
     protected function notifyAdmins(array $newPackages, array $map): void
     {
-        $admins = User::whereHas('groups', fn ($q) => $q->where('id', Group::ADMINISTRATOR_ID))->get();
+        $admins = User::whereHas('groups', function ($q) {
+            $q->where('id', Group::ADMINISTRATOR_ID);
+        })->get();
 
         $lines = array_map(function (string $package) use ($map) {
             $replacement = $map[$package]['replacement'] ?? null;
