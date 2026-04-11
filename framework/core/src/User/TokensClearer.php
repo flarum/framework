@@ -9,6 +9,7 @@
 
 namespace Flarum\User;
 
+use Flarum\Http\AccessToken;
 use Flarum\User\Event\EmailChanged;
 use Flarum\User\Event\PasswordChanged;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -19,6 +20,7 @@ class TokensClearer
     {
         $events->listen([PasswordChanged::class, EmailChanged::class], $this->clearPasswordTokens(...));
         $events->listen(PasswordChanged::class, $this->clearEmailTokens(...));
+        $events->listen(PasswordChanged::class, $this->clearAccessTokens(...));
     }
 
     public function clearPasswordTokens(EmailChanged|PasswordChanged $event): void
@@ -29,5 +31,10 @@ class TokensClearer
     public function clearEmailTokens(PasswordChanged $event): void
     {
         $event->user->emailTokens()->delete();
+    }
+
+    public function clearAccessTokens(PasswordChanged $event): void
+    {
+        AccessToken::query()->where('user_id', $event->user->id)->delete();
     }
 }
