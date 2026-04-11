@@ -20,7 +20,7 @@ class AvatarUploader
 
     /** Sizes to generate: base (1×), @2x, @3x. */
     protected const SIZES = [
-        ''    => 100,
+        '' => 100,
         '@2x' => 200,
         '@3x' => 300,
     ];
@@ -44,7 +44,7 @@ class AvatarUploader
     {
         $avatarBase = Str::random();
         $extension = $image1x->isAnimated() ? 'gif' : 'webp';
-        $basePath = $avatarBase . '.' . $extension;
+        $basePath = $avatarBase.'.'.$extension;
 
         $this->removeFileAfterSave($user);
         $user->changeAvatarPath($basePath);
@@ -68,7 +68,7 @@ class AvatarUploader
         $avatarBase = Str::random();
         $isAnimated = $image->isAnimated();
         $extension = $isAnimated ? 'gif' : 'webp';
-        $basePath = $avatarBase . '.' . $extension;
+        $basePath = $avatarBase.'.'.$extension;
 
         // Read source dimensions before any cover() call, since cover() mutates the image in place.
         $sourceWidth = $image->width();
@@ -86,7 +86,7 @@ class AvatarUploader
             $resized = clone $image;
             $resized->cover($size, $size);
             $encoded = $isAnimated ? $resized->toGif() : $resized->toWebp();
-            $path = $avatarBase . $suffix . '.' . $extension;
+            $path = $avatarBase.$suffix.'.'.$extension;
 
             $this->uploadDir->put($path, $encoded);
         }
@@ -193,7 +193,7 @@ class AvatarUploader
         $dot = strrpos($basePath, '.');
 
         return $dot !== false
-            ? substr($basePath, 0, $dot) . $suffix . substr($basePath, $dot)
-            : $basePath . $suffix;
+            ? substr($basePath, 0, $dot).$suffix.substr($basePath, $dot)
+            : $basePath.$suffix;
     }
 }
