@@ -6,6 +6,8 @@ import type { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
 import Form from '../../common/components/Form';
 import extractText from '../../common/utils/extractText';
+import Button from '../../common/components/Button';
+import Link from '../../common/components/Link';
 
 export type HomePageItem = { path: string; label: Mithril.Children };
 export type DriverLocale = {
@@ -112,6 +114,32 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
       });
     });
 
+    let abandonedSyncing = false;
+    let abandonedSyncMessage: Mithril.Children = null;
+
+    function syncAbandoned() {
+      if (abandonedSyncing) return;
+
+      abandonedSyncing = true;
+      abandonedSyncMessage = null;
+
+      app
+        .request<{ count: number }>({
+          method: 'POST',
+          url: app.forum.attribute('apiUrl') + '/extensions/abandoned/sync',
+        })
+        .then((response) => {
+          abandonedSyncing = false;
+          abandonedSyncMessage = app.translator.trans('core.admin.basics.abandoned_extensions_sync_success', { count: response.count });
+          m.redraw();
+        })
+        .catch(() => {
+          abandonedSyncing = false;
+          abandonedSyncMessage = app.translator.trans('core.admin.basics.abandoned_extensions_sync_error');
+          m.redraw();
+        });
+    }
+
     app.registry.for('core-basics');
 
     app.registry
@@ -203,5 +231,34 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
         });
       }
     });
+
+    app.registry.registerSetting(
+      function (this: AdminPage) {
+        return (
+          <div className="Form-group">
+            <label>{app.translator.trans('core.admin.basics.abandoned_extensions_heading')}</label>
+            <div className="helpText">
+              {app.translator.trans('core.admin.basics.abandoned_extensions_text', {
+                a: <Link href="https://github.com/flarum/abandoned-extensions" target="_blank" external={true} />,
+              })}
+            </div>
+            <div className="Form-row">
+              <Button className="Button" onclick={syncAbandoned} loading={abandonedSyncing} disabled={abandonedSyncing}>
+                {app.translator.trans('core.admin.basics.abandoned_extensions_sync_button')}
+              </Button>
+              {abandonedSyncMessage && <span className="helpText">{abandonedSyncMessage}</span>}
+            </div>
+            <br />
+            {this.buildSettingComponent({
+              type: 'switch',
+              setting: 'flarum-core.notify_admins_on_abandoned',
+              label: app.translator.trans('core.admin.basics.abandoned_extensions_notify_admins_label'),
+            })}
+          </div>
+        );
+      },
+      -10,
+      'abandoned-extensions'
+    );
   }
 }
