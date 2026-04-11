@@ -424,7 +424,7 @@ class UserResource extends AbstractDatabaseResource
         $urlContents = $this->retrieveAvatarFromUrl($url);
 
         if ($urlContents !== null) {
-            $image = $this->imageManager->read($urlContents);
+            $image = $this->imageManager->decodeBinary($urlContents);
 
             $this->avatarUploader->upload($user, $image);
         }

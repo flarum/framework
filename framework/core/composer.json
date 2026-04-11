@@ -60,7 +60,7 @@
         "illuminate/support": "^13.0",
         "illuminate/validation": "^13.0",
         "illuminate/view": "^13.0",
-        "intervention/image": "^3.2",
+        "intervention/image": "^4.0",
         "jenssegers/agent": "^2.6.4",
         "laminas/laminas-diactoros": "^3.0",
         "laminas/laminas-httphandlerrunner": "^2.6.1",

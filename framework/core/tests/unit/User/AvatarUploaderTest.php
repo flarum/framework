@@ -16,6 +16,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Model;
+use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 use Mockery as m;
 
@@ -93,7 +94,7 @@ class AvatarUploaderTest extends TestCase
         $user->changeAvatarPath('ABCDEFGHabcdefgh.png');
         $user->syncOriginal();
 
-        $this->uploader->upload($user, ImageManager::gd()->create(50, 50));
+        $this->uploader->upload($user, ImageManager::usingDriver(Driver::class)->createImage(50, 50));
 
         // Simulate saving
         foreach ($user->releaseAfterSaveCallbacks() as $callback) {
@@ -111,7 +112,7 @@ class AvatarUploaderTest extends TestCase
 
         $user = new User();
 
-        $this->uploader->upload($user, ImageManager::gd()->create(50, 50));
+        $this->uploader->upload($user, ImageManager::usingDriver(Driver::class)->createImage(50, 50));
 
         // Simulate saving
         foreach ($user->releaseAfterSaveCallbacks() as $callback) {

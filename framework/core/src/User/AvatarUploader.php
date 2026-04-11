@@ -29,12 +29,12 @@ class AvatarUploader
         $avatarPath = Str::random();
 
         if ($image->isAnimated()) {
-            $encodedImage = $image->toGif();
             $avatarPath .= '.gif';
         } else {
-            $encodedImage = $image->toWebp();
             $avatarPath .= '.webp';
         }
+
+        $encodedImage = $image->encodeUsingPath($avatarPath);
 
         $this->removeFileAfterSave($user);
         $user->changeAvatarPath($avatarPath);

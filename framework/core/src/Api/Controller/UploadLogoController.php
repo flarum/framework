@@ -21,18 +21,12 @@ class UploadLogoController extends UploadImageController
 
     protected function makeImage(UploadedFileInterface $file): EncodedImageInterface
     {
-        $image = $this->imageManager->read($file->getStream()->getMetadata('uri'))
+        $image = $this->imageManager->decode($file->getStream()->getMetadata('uri'))
             ->scale(height: 60);
 
-        if ($image->isAnimated()) {
-            $this->resolvedExtension = 'gif';
+        $this->resolvedExtension = $image->isAnimated() ? 'gif' : 'webp';
 
-            return $image->toGif();
-        }
-
-        $this->resolvedExtension = 'webp';
-
-        return $image->toWebp();
+        return $image->encodeUsingFileExtension($this->resolvedExtension);
     }
 
     protected function fileExtension(ServerRequestInterface $request, UploadedFileInterface $file): string

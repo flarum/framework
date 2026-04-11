@@ -73,9 +73,9 @@ class ConvertAvatarsToWebpCommand extends AbstractCommand
 
                 try {
                     $contents = $this->uploadDir->get($oldPath);
-                    $webpContents = $this->imageManager->read($contents)->toWebp();
-
                     $newPath = pathinfo($oldPath, PATHINFO_FILENAME).'.webp';
+
+                    $webpContents = $this->imageManager->decodeBinary($contents)->encodeUsingPath($newPath);
 
                     $this->uploadDir->put($newPath, $webpContents);
 
