@@ -228,4 +228,9 @@ class CustomAvatarDriver implements AvatarDriverInterface
     {
         return 'https://example.com/avatar/'.$user->id;
     }
+
+    public function avatarSrcset(User $user): ?string
+    {
+        return null;
+    }
 }

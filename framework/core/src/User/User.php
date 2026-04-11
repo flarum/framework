@@ -155,11 +155,7 @@ class User extends AbstractModel
             $avatarPath = $user->getRawOriginal('avatar_url');
 
             if ($avatarPath) {
-                $disk = resolve(Factory::class)->disk('flarum-avatars');
-
-                if ($disk->exists($avatarPath)) {
-                    $disk->delete($avatarPath);
-                }
+                resolve(AvatarUploader::class)->deleteAllVariants($avatarPath);
             }
         });
 
@@ -292,6 +288,17 @@ class User extends AbstractModel
         }
 
         return $value ?? static::$avatarDriver->avatarUrl($this);
+    }
+
+    public function getAvatarSrcsetAttribute(): ?string
+    {
+        $value = $this->getRawOriginal('avatar_url');
+
+        if ($value && ! str_contains($value, '://')) {
+            return resolve(AvatarUploader::class)->srcsetFor($value);
+        }
+
+        return static::$avatarDriver->avatarSrcset($this);
     }
 
     public function getDisplayNameAttribute(): string

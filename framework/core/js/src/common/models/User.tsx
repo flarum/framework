@@ -38,6 +38,10 @@ export default class User extends Model {
     return Model.attribute<string | null>('avatarUrl').call(this);
   }
 
+  avatarSrcset() {
+    return Model.attribute<string | null>('avatarSrcset').call(this);
+  }
+
   preferences() {
     return Model.attribute<Record<string, any> | null | undefined>('preferences').call(this);
   }

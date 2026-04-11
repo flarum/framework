@@ -47,6 +47,30 @@ class Registration
         return $this->provide('avatar_url', $url);
     }
 
+    /**
+     * Provide a 2× (200px) HiDPI avatar URL from the OAuth provider.
+     *
+     * Call this alongside provideAvatar() when the provider's CDN supports
+     * sized images (e.g. GitHub's ?s=200). Flarum will fetch and store this
+     * URL directly rather than upscaling the base avatar.
+     */
+    public function provideAvatar2x(string $url): self
+    {
+        return $this->provide('avatar_url_2x', $url);
+    }
+
+    /**
+     * Provide a 3× (300px) HiDPI avatar URL from the OAuth provider.
+     *
+     * Call this alongside provideAvatar() when the provider's CDN supports
+     * sized images (e.g. GitHub's ?s=300). Flarum will fetch and store this
+     * URL directly rather than upscaling the base avatar.
+     */
+    public function provideAvatar3x(string $url): self
+    {
+        return $this->provide('avatar_url_3x', $url);
+    }
+
     public function suggest(string $key, mixed $value): self
     {
         $this->suggested[$key] = $value;

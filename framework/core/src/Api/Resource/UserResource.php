@@ -245,6 +245,7 @@ class UserResource extends AbstractDatabaseResource
                 ->save(fn () => null),
             Schema\Str::make('displayName'),
             Schema\Str::make('avatarUrl'),
+            Schema\Str::make('avatarSrcset'),
             Schema\Boolean::make('hasUploadedAvatar'),
             Schema\Str::make('slug')
                 ->get(function (User $user) {
@@ -382,9 +383,18 @@ class UserResource extends AbstractDatabaseResource
 
     private function applyToken(User $user, #[\SensitiveParameter] RegistrationToken $token): void
     {
-        foreach ($token->user_attributes as $k => $v) {
+        $attributes = $token->user_attributes;
+
+        foreach ($attributes as $k => $v) {
             if ($k === 'avatar_url') {
-                $this->uploadAvatarFromUrl($user, $v);
+                $url2x = $attributes['avatar_url_2x'] ?? null;
+                $url3x = $attributes['avatar_url_3x'] ?? null;
+                $this->uploadAvatarFromUrl($user, $v, $url2x, $url3x);
+                continue;
+            }
+
+            // These are handled above alongside avatar_url.
+            if ($k === 'avatar_url_2x' || $k === 'avatar_url_3x') {
                 continue;
             }
 
@@ -403,7 +413,34 @@ class UserResource extends AbstractDatabaseResource
     /**
      * @throws InvalidArgumentException
      */
-    private function uploadAvatarFromUrl(User $user, string $url): void
+    private function uploadAvatarFromUrl(User $user, string $url, ?string $url2x = null, ?string $url3x = null): void
+    {
+        $this->assertValidAvatarUrl($url);
+
+        $urlContents = $this->retrieveAvatarFromUrl($url);
+
+        if ($urlContents === null) {
+            return;
+        }
+
+        // If the OAuth driver provided explicit HiDPI URLs, fetch and store them directly.
+        if ($url2x !== null || $url3x !== null) {
+            $image1x = $this->imageManager->read($urlContents);
+            $image2x = $url2x !== null ? $this->readAvatarFromUrl($url2x) : null;
+            $image3x = $url3x !== null ? $this->readAvatarFromUrl($url3x) : null;
+
+            $this->avatarUploader->uploadPresized($user, $image1x, $image2x, $image3x);
+        } else {
+            $image = $this->imageManager->read($urlContents);
+
+            $this->avatarUploader->upload($user, $image);
+        }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    private function assertValidAvatarUrl(string $url): void
     {
         $urlValidator = $this->validation->make(compact('url'), [
             'url' => 'required|active_url',
@@ -422,14 +459,13 @@ class UserResource extends AbstractDatabaseResource
                 'avatar_url' => "Provided avatar URL must have scheme http or https. Scheme provided was $scheme.",
             ]);
         }
+    }
 
-        $urlContents = $this->retrieveAvatarFromUrl($url);
+    private function readAvatarFromUrl(string $url): ?\Intervention\Image\Interfaces\ImageInterface
+    {
+        $contents = $this->retrieveAvatarFromUrl($url);
 
-        if ($urlContents !== null) {
-            $image = $this->imageManager->read($urlContents);
-
-            $this->avatarUploader->upload($user, $image);
-        }
+        return $contents !== null ? $this->imageManager->read($contents) : null;
     }
 
     private function retrieveAvatarFromUrl(string $url): ?string

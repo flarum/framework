@@ -44,7 +44,9 @@ export default class Avatar<CustomAttrs extends IAvatarAttrs = IAvatarAttrs> ext
           (attrs as any).alt = username;
         }
 
-        return <img {...attrs} src={avatarUrl} />;
+        const srcset = user.avatarSrcset?.() ?? null;
+
+        return <img {...attrs} src={avatarUrl} srcSet={srcset ?? undefined} />;
       }
 
       content = username.charAt(0).toUpperCase();
