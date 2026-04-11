@@ -42,7 +42,7 @@ class SavePasswordController implements RequestHandlerInterface
     {
         $input = $request->getParsedBody();
 
-        $token = PasswordToken::findOrFail(Arr::get($input, 'passwordToken'));
+        $token = PasswordToken::validOrFail(Arr::get($input, 'passwordToken'));
 
         $password = Arr::get($input, 'password');
 
