@@ -31,7 +31,9 @@ class SyncAbandonedExtensionsTest extends TestCase
         $this->app()->getContainer()->instance(
             AbandonedExtensionsFetcher::class,
             new class extends AbandonedExtensionsFetcher {
-                public function __construct() {}
+                public function __construct()
+                {
+                }
 
                 public function sync(bool $notify = false): array
                 {

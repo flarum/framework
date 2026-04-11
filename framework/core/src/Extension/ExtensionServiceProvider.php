@@ -65,8 +65,8 @@ class ExtensionServiceProvider extends AbstractServiceProvider
 
         $this->container->extend('flarum.console.scheduled', function (array $scheduled) {
             $scheduled[] = [
-                'command'  => SyncAbandonedExtensionsCommand::class,
-                'args'     => ['--notify'],
+                'command' => SyncAbandonedExtensionsCommand::class,
+                'args' => ['--notify'],
                 'callback' => new WeeklySchedule(),
             ];
 

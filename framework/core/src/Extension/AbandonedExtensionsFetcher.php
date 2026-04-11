@@ -86,9 +86,9 @@ class AbandonedExtensionsFetcher
         try {
             $response = $this->client->get(self::SOURCE_URL, [
                 'allow_redirects' => false,
-                'timeout'         => 10,
-                'headers'         => [
-                    'Accept'     => 'application/json',
+                'timeout' => 10,
+                'headers' => [
+                    'Accept' => 'application/json',
                     'User-Agent' => 'Flarum/'.Application::VERSION,
                 ],
             ]);
@@ -121,7 +121,7 @@ class AbandonedExtensionsFetcher
 
         foreach ($admins as $admin) {
             $body = $this->translator->trans('core.email.abandoned_extensions.body', [
-                'username'   => $admin->display_name,
+                'username' => $admin->display_name,
                 'extensions' => implode("\n", $lines),
             ]);
 
