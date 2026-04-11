@@ -35,7 +35,7 @@ class SyncAbandonedExtensionsTest extends TestCase
                 {
                 }
 
-                public function sync(bool $notify = false): array
+                public function sync(bool $notify = false, bool $manual = false): array
                 {
                     return ['count' => 2, 'new' => ['vendor/pkg-a']];
                 }
