@@ -51,6 +51,12 @@ core:
       title: Basics
       welcome_banner_heading: Welcome Banner
       welcome_banner_text: Configure the text that displays in the banner on the All Discussions page. Use this to welcome guests to your forum.
+      abandoned_extensions_heading: Abandoned Extensions
+      abandoned_extensions_text: "Flarum maintains a <a>community list of abandoned extensions</a>. When an installed extension appears on the list, it will be flagged in the admin panel."
+      abandoned_extensions_sync_button: Check Now
+      abandoned_extensions_sync_success: "Abandoned extensions list updated. {count} matching installed extension(s) found."
+      abandoned_extensions_sync_error: Failed to fetch the abandoned extensions list. Please try again later.
+      abandoned_extensions_notify_admins_label: Email admins when a newly abandoned extension is detected during the weekly check
 
     # These translations are used in the Create User modal.
     create_user:
@@ -824,6 +830,20 @@ core:
         If this was you, this email means that your configuration works!
 
         If this was not you, please ignore this email.
+
+    # These translations are used in emails sent to admins when abandoned extensions are detected
+    abandoned_extensions:
+      subject: "Action required: abandoned extension(s) detected"
+      body: |
+        Hi {username},
+
+        The following installed extension(s) have been flagged as abandoned:
+
+        {extensions}
+
+        Please review these extensions and consider migrating to alternatives where available.
+      line_with_replacement: "- {package} (suggested replacement: {replacement})"
+      line_no_replacement: "- {package} (no replacement available)"
 
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!
