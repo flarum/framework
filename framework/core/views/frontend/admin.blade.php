@@ -12,9 +12,9 @@
                 <div class="Header-title">
                     <a href="{{ $forum['baseUrl'] }}">
                         @if ($forum['logoUrl'])
-                            <img src="{{ $forum['logoUrl'] }}" alt="{{ $forum['title'] }}" class="Header-logo">
+                            <img src="{{ $forum['logoUrl'] }}" alt="{{ $forum['title'] }}" class="Header-logo" loading="eager" fetchpriority="high" decoding="async">
                             @if($forum['logoDarkModeUrl'])
-                                <img src="{{ $forum['logoDarkModeUrl'] }}" alt="{{ $forum['title'] }}" class="Header-logo Header-logo--dark-mode">
+                                <img src="{{ $forum['logoDarkModeUrl'] }}" alt="{{ $forum['title'] }}" class="Header-logo Header-logo--dark-mode" loading="eager" fetchpriority="high" decoding="async">
                             @endif
                         @else
                             {{ $forum['title'] }}

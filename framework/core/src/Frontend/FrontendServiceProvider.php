@@ -86,7 +86,8 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     foreach ($document->js as $url) {
                         $js_preloads[] = [
                             'href' => $url,
-                            'as' => 'script'
+                            'as' => 'script',
+                            'fetchpriority' => 'low',
                         ];
                     }
 
@@ -103,6 +104,12 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     if ($fontAwesome->useCdn()) {
                         $cdnUrl = $fontAwesome->cdnUrl();
                         if (! empty($cdnUrl)) {
+                            $cdnParts = parse_url($cdnUrl);
+                            if (! empty($cdnParts['host'])) {
+                                $cdnOrigin = e($cdnParts['scheme'].'://'.$cdnParts['host']);
+                                $document->head[] = '<link rel="preconnect" href="'.$cdnOrigin.'" crossorigin>';
+                                $document->head[] = '<link rel="dns-prefetch" href="'.$cdnOrigin.'">';
+                            }
                             // Load asynchronously — FA icons are only rendered after JS boots the
                             // SPA, so there is no FOUC risk from deferring this stylesheet.
                             // The <noscript> fallback covers JS-disabled browsers.
@@ -113,6 +120,12 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     } elseif ($fontAwesome->useKit()) {
                         $kitUrl = $fontAwesome->kitUrl();
                         if (! empty($kitUrl)) {
+                            $kitParts = parse_url($kitUrl);
+                            if (! empty($kitParts['host'])) {
+                                $kitOrigin = e($kitParts['scheme'].'://'.$kitParts['host']);
+                                $document->head[] = '<link rel="preconnect" href="'.$kitOrigin.'" crossorigin>';
+                                $document->head[] = '<link rel="dns-prefetch" href="'.$kitOrigin.'">';
+                            }
                             // Defer Kit JS — it has no dependencies and nothing depends on it
                             // executing synchronously; defer keeps it out of the critical path
                             // while preserving execution order relative to other deferred scripts.

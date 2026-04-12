@@ -35,7 +35,7 @@ readonly class Meta
         $forumApiDocument = $document->getForumApiDocument();
 
         return [
-            'viewport' => 'width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1',
+            'viewport' => 'width=device-width, initial-scale=1',
             'description' => Arr::get($forumApiDocument, 'data.attributes.description'),
             'theme-color' => Arr::get($forumApiDocument, 'data.attributes.themePrimaryColor')
         ];

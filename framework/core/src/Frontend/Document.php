@@ -270,17 +270,63 @@ class Document implements Renderable
         }, '');
     }
 
+    protected function makePreconnects(): array
+    {
+        $forumOrigin = $this->config->url()->getScheme().'://'.$this->config->url()->getHost();
+
+        $urls = array_merge($this->css, $this->js, array_column($this->preloads, 'href'));
+
+        $seen = [];
+        $tags = [];
+
+        foreach ($urls as $url) {
+            if (empty($url)) {
+                continue;
+            }
+
+            $parts = parse_url($url);
+
+            if (empty($parts['host'])) {
+                continue;
+            }
+
+            $origin = $parts['scheme'].'://'.$parts['host'];
+
+            if ($origin === $forumOrigin || isset($seen[$origin])) {
+                continue;
+            }
+
+            $seen[$origin] = true;
+            $escaped = e($origin);
+            $tags[] = '<link rel="preconnect" href="'.$escaped.'" crossorigin>';
+            $tags[] = '<link rel="dns-prefetch" href="'.$escaped.'">';
+        }
+
+        return $tags;
+    }
+
     protected function makeHead(): string
     {
-        // Load stylesheets asynchronously to avoid render-blocking.
-        // The onload trick swaps rel from "preload" to "stylesheet" once the file
-        // is fetched. The <noscript> fallback serves JS-disabled browsers.
-        $head = array_map(function ($url) {
-            $escaped = e($url);
+        // On warm visits (CSS already cached), a tiny inline script injects blocking
+        // <link rel="stylesheet"> tags synchronously before first paint — no FOUC, no
+        // network round-trip. On cold visits the sessionStorage keys are absent so the
+        // script exits immediately and the async preload path below takes over.
+        // Versioned URLs act as natural cache-busters: a new deploy changes the URL,
+        // the old sessionStorage key doesn't match, and the async path runs once more.
+        $head = $this->makePreconnects();
 
-            return '<link rel="preload" href="'.$escaped.'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">'
+        if (! empty($this->css)) {
+            $cssJson = json_encode(array_values($this->css), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG);
+            $head[] = '<script>(function(){var s='.$cssJson.';if(s.every(function(h){return sessionStorage.getItem("css:"+h);})){s.forEach(function(h){var l=document.createElement("link");l.rel="stylesheet";l.href=h;document.head.appendChild(l);});}Object.keys(sessionStorage).forEach(function(k){if(k.indexOf("css:")===0&&s.indexOf(k.slice(4))===-1){sessionStorage.removeItem(k);}});})();</script>';
+        }
+
+        // Async preload path for cold visits. The onload updates sessionStorage so the
+        // next page load can take the fast synchronous path above.
+        foreach ($this->css as $url) {
+            $escaped = e($url);
+            $head[] = '<link rel="preload" href="'.$escaped.'" as="style" fetchpriority="high" onload="sessionStorage.setItem(\'css:\'+this.href,\'1\');this.onload=null;this.rel=\'stylesheet\'">'
                 .'<noscript><link rel="stylesheet" href="'.$escaped.'"></noscript>';
-        }, $this->css);
+        }
 
         if ($this->page) {
             if ($this->page > 1) {
