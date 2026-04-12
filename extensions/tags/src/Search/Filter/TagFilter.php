@@ -9,7 +9,6 @@
 
 namespace Flarum\Tags\Search\Filter;
 
-use Flarum\Http\SlugManager;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
@@ -17,8 +16,8 @@ use Flarum\Search\ValidateFilterTrait;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Collection;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
@@ -26,11 +25,6 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 class TagFilter implements FilterInterface
 {
     use ValidateFilterTrait;
-
-    public function __construct(
-        protected SlugManager $slugger
-    ) {
-    }
 
     public function getFilterKey(): string
     {
@@ -44,14 +38,34 @@ class TagFilter implements FilterInterface
 
     protected function constrain(Builder $query, string|array $rawSlugs, bool $negate, User $actor): void
     {
-        $rawSlugs = (array) $rawSlugs;
+        $inputSlugs = $this->asStringArray((array) $rawSlugs);
 
-        $inputSlugs = $this->asStringArray($rawSlugs);
+        // Collect every non-"untagged" slug across all OR groups so we can
+        // resolve them all in one query instead of one per slug.
+        // urldecode() matches the behaviour of Utf8SlugDriver::fromSlug().
+        $allSlugs = [];
+        foreach ($inputSlugs as $orSlugs) {
+            foreach (explode(',', $orSlugs) as $slug) {
+                if ($slug !== 'untagged') {
+                    $allSlugs[] = urldecode($slug);
+                }
+            }
+        }
+
+        // Single batch query: resolve slugs → IDs, respecting actor visibility.
+        // Slugs the actor cannot see are simply absent from the map (treated as
+        // unknown), which produces the same null-ID / no-match behaviour as before.
+        $slugToId = $allSlugs
+            ? Tag::query()
+                ->whereIn('slug', array_unique($allSlugs))
+                ->whereVisibleTo($actor)
+                ->pluck('id', 'slug')
+            : new Collection();
 
         foreach ($inputSlugs as $orSlugs) {
             $slugs = explode(',', $orSlugs);
 
-            $query->where(function (Builder $query) use ($slugs, $negate, $actor) {
+            $query->where(function (Builder $query) use ($slugs, $negate, $slugToId) {
                 foreach ($slugs as $slug) {
                     if ($slug === 'untagged') {
                         $query->whereIn('discussions.id', function (QueryBuilder $query) {
@@ -59,12 +73,7 @@ class TagFilter implements FilterInterface
                                 ->from('discussion_tag');
                         }, 'or', ! $negate);
                     } else {
-                        // @TODO: grab all IDs first instead of multiple queries.
-                        try {
-                            $id = $this->slugger->forResource(Tag::class)->fromSlug($slug, $actor)->id;
-                        } catch (ModelNotFoundException) {
-                            $id = null;
-                        }
+                        $id = $slugToId->get(urldecode($slug));
 
                         $query->whereIn('discussions.id', function (QueryBuilder $query) use ($id) {
                             $query->select('discussion_id')
