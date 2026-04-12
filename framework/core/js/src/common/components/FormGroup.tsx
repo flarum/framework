@@ -193,14 +193,23 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
     // Typescript being Typescript
     // https://github.com/microsoft/TypeScript/issues/14520
     if ((BooleanSettingTypes as readonly string[]).includes(type)) {
+      const switchHelpTextId = help ? generateElementId() : undefined;
+
       return (
-        // TODO: Add aria-describedby for switch help text.
-        //? Requires changes to Checkbox component to allow providing attrs directly for the element(s).
         <div className={classList('Form-group', containerClassName)}>
-          <Switch state={!!value && value !== '0'} onchange={stream} {...attrs}>
+          <Switch
+            state={!!value && value !== '0'}
+            onchange={stream}
+            inputAttrs={switchHelpTextId ? { 'aria-describedby': switchHelpTextId } : undefined}
+            {...attrs}
+          >
             {label}
           </Switch>
-          {help ? <div className="helpText">{help}</div> : null}
+          {help ? (
+            <div id={switchHelpTextId} className="helpText">
+              {help}
+            </div>
+          ) : null}
         </div>
       );
     } else if ((SelectSettingTypes as readonly string[]).includes(type)) {

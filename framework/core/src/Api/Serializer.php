@@ -101,8 +101,11 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
             }, $field instanceof Relationship);
         }
 
-        // TODO: cache
         foreach ($resource->meta() as $field) {
+            if (isset($this->map[$key]['meta'][$field->name])) {
+                continue;
+            }
+
             if (! $field->isVisible($context)) {
                 continue;
             }
