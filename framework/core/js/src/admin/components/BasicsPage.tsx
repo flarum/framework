@@ -211,6 +211,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
       app.registry.registerSetting({
         type: 'select',
         setting: 'avatar_driver',
+        default: 'default',
         options: avatarDriverOptions,
         label: app.translator.trans('core.admin.basics.avatar_driver_heading'),
         help: app.translator.trans('core.admin.basics.avatar_driver_text'),
@@ -246,7 +247,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
               <Button className="Button" onclick={syncAbandoned} loading={abandonedSyncing} disabled={abandonedSyncing}>
                 {app.translator.trans('core.admin.basics.abandoned_extensions_sync_button')}
               </Button>
-              {abandonedSyncMessage && <span className="helpText">{abandonedSyncMessage}</span>}
+              {abandonedSyncMessage && <span className="helpText BasicsPage-abandonedSyncMessage">{abandonedSyncMessage}</span>}
             </div>
             <br />
             {this.buildSettingComponent({

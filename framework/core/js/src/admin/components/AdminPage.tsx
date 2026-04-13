@@ -175,7 +175,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
 
     const { setting, json, refreshAfterSaving, ...attrs } = entry;
 
-    const originalBidi: (value?: string) => any = this.setting(setting);
+    const originalBidi: (value?: string) => any = this.setting(setting, (entry as any).default ?? '');
     let bidi: (value?: string) => any;
 
     if (json) {
