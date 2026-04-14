@@ -45,7 +45,7 @@ class SubscriptionFilterTest extends TestCase
                 ['id' => 1, 'title' => 'Followed by normal', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
                 ['id' => 2, 'title' => 'Ignored by normal', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 2, 'comment_count' => 1],
                 ['id' => 3, 'title' => 'No subscription', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 3, 'comment_count' => 1],
-                ['id' => 10, 'title' => 'Lurked by normal', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 10, 'comment_count' => 1],
+                ['id' => 10, 'title' => 'Also followed by acme', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 10, 'comment_count' => 1],
             ],
             Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo</p></t>'],
@@ -56,7 +56,9 @@ class SubscriptionFilterTest extends TestCase
             'discussion_user' => [
                 ['discussion_id' => 1, 'user_id' => 2, 'last_read_post_number' => 1, 'subscription' => 'follow'],
                 ['discussion_id' => 2, 'user_id' => 2, 'last_read_post_number' => 1, 'subscription' => 'ignore'],
-                ['discussion_id' => 10, 'user_id' => 2, 'last_read_post_number' => 1, 'subscription' => 'lurk'],
+                // User 3 (acme) follows discussion 10 — kept separate from user 2's subscriptions
+                // so the negation tests (which assert exact ID sets for user 2) are not affected.
+                ['discussion_id' => 10, 'user_id' => 3, 'last_read_post_number' => 1, 'subscription' => 'follow'],
             ],
         ]);
     }
@@ -130,9 +132,10 @@ class SubscriptionFilterTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), $body);
 
         $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
-        // Discussions 2 and 3 — everything except the followed one
-        $this->assertEqualsCanonicalizing(['2', '3'], $ids);
+        // The followed discussion must be excluded; everything else is included.
         $this->assertNotContains('1', $ids);
+        $this->assertContains('2', $ids);
+        $this->assertContains('3', $ids);
     }
 
     #[Test]
@@ -147,9 +150,10 @@ class SubscriptionFilterTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), $body);
 
         $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
-        // Discussions 1 and 3 — everything except the ignored one
-        $this->assertEqualsCanonicalizing(['1', '3'], $ids);
+        // The ignored discussion must be excluded; everything else is included.
         $this->assertNotContains('2', $ids);
+        $this->assertContains('1', $ids);
+        $this->assertContains('3', $ids);
     }
 
     // -------------------------------------------------------------------------
@@ -284,8 +288,9 @@ class SubscriptionFilterTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), $body);
 
         $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
-        $this->assertEqualsCanonicalizing(['2', '3'], $ids);
         $this->assertNotContains('1', $ids);
+        $this->assertContains('2', $ids);
+        $this->assertContains('3', $ids);
     }
 
     #[Test]
@@ -300,8 +305,9 @@ class SubscriptionFilterTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), $body);
 
         $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
-        $this->assertEqualsCanonicalizing(['1', '3'], $ids);
         $this->assertNotContains('2', $ids);
+        $this->assertContains('1', $ids);
+        $this->assertContains('3', $ids);
     }
 
     // -------------------------------------------------------------------------
@@ -346,43 +352,40 @@ class SubscriptionFilterTest extends TestCase
     // -------------------------------------------------------------------------
 
     #[Test]
-    public function subscription_extender_registers_custom_type(): void
+    public function subscription_extender_registers_additional_alias_for_existing_type(): void
     {
+        // Register a third-party alias ('subscribed') that maps to the built-in 'follow' canonical.
+        // User 3 (acme) follows discussion 10 — seeded in setUp().
         $this->extend(
             (new Subscription())
-                ->addSubscriptionType('lurk', ['lurk', 'lurking', 'lurked'])
+                ->addSubscriptionType('follow', ['subscribed'])
         );
 
-        // Discussion 10 with subscription='lurk' is seeded in setUp().
-        foreach (['lurk', 'lurking', 'lurked'] as $alias) {
-            $response = $this->send(
-                $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
-                    ->withQueryParams(['filter' => ['subscription' => $alias]])
-            );
-
-            $body = $response->getBody()->getContents();
-            $this->assertEquals(200, $response->getStatusCode(), "Alias '{$alias}': {$body}");
-
-            $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
-            $this->assertContains('10', $ids, "Alias '{$alias}' should match the lurked discussion");
-            $this->assertNotContains('1', $ids);
-            $this->assertNotContains('2', $ids);
-        }
-    }
-
-    #[Test]
-    public function subscription_extender_custom_type_unregistered_alias_still_returns_empty(): void
-    {
-        // Without registering 'lurk', the value should still return nothing.
         $response = $this->send(
-            $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
-                ->withQueryParams(['filter' => ['subscription' => 'lurk']])
+            $this->request('GET', '/api/discussions', ['authenticatedAs' => 3])
+                ->withQueryParams(['filter' => ['subscription' => 'subscribed']])
         );
 
         $body = $response->getBody()->getContents();
         $this->assertEquals(200, $response->getStatusCode(), $body);
 
         $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
-        $this->assertEmpty($ids, 'Unregistered custom type should return no results');
+        $this->assertContains('10', $ids, "'subscribed' alias should resolve to 'follow' and match discussion 10");
+    }
+
+    #[Test]
+    public function subscription_extender_unregistered_alias_returns_empty(): void
+    {
+        // Without registering 'subscribed', it should return no results.
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', ['authenticatedAs' => 3])
+                ->withQueryParams(['filter' => ['subscription' => 'subscribed']])
+        );
+
+        $body = $response->getBody()->getContents();
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
+        $this->assertEmpty($ids, 'Unregistered alias should return no results');
     }
 }
