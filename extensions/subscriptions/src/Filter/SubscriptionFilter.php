@@ -32,9 +32,19 @@ class SubscriptionFilter implements FilterInterface
     {
         $value = $this->asString($value);
 
-        preg_match('/^(follow|ignor)(?:ing|ed)$/i', $value, $matches);
+        $subscriptionType = match (true) {
+            in_array($value, ['follow', 'following', 'followed'], true)  => 'follow',
+            in_array($value, ['ignore', 'ignoring', 'ignored'], true)    => 'ignore',
+            default                                                       => null,
+        };
 
-        $this->constrain($state->getQuery(), $state->getActor(), $matches[1], $negate);
+        if ($subscriptionType === null) {
+            // Unrecognised value — match nothing rather than everything.
+            $state->getQuery()->whereRaw('0 = 1');
+            return;
+        }
+
+        $this->constrain($state->getQuery(), $state->getActor(), $subscriptionType, $negate);
     }
 
     protected function constrain(Builder $query, User $actor, string $subscriptionType, bool $negate): void
@@ -42,9 +52,9 @@ class SubscriptionFilter implements FilterInterface
         $method = $negate ? 'whereNotIn' : 'whereIn';
         $query->$method('discussions.id', function ($query) use ($actor, $subscriptionType) {
             $query->select('discussion_id')
-            ->from('discussion_user')
-            ->where('user_id', $actor->id)
-                ->where('subscription', $subscriptionType === 'follow' ? 'follow' : 'ignore');
+                ->from('discussion_user')
+                ->where('user_id', $actor->id)
+                ->where('subscription', $subscriptionType);
         });
     }
 }

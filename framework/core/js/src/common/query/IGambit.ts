@@ -82,6 +82,16 @@ export abstract class BooleanGambit implements IGambit<GambitType.Grouped> {
   abstract key(): string | string[];
   abstract filterKey(): string;
 
+  /**
+   * The hardcoded English keyword(s) for this gambit, used as a canonical
+   * alias so that English always works regardless of the active locale.
+   * Defaults to key(), which is correct when the gambit is not translated.
+   * Override this in subclasses that translate key() via the translator.
+   */
+  canonicalKey(): string | string[] {
+    return this.key();
+  }
+
   booleanKey(): 'is' | 'has' | 'allows' {
     return 'is';
   }
@@ -99,6 +109,18 @@ export abstract class BooleanGambit implements IGambit<GambitType.Grouped> {
     }
 
     return `${is}:(${key})`;
+  }
+
+  canonicalPattern(): string {
+    // Always use the untranslated English group key and canonical keyword(s)
+    // so that English input works regardless of the active locale.
+    let key = this.canonicalKey();
+
+    if (Array.isArray(key)) {
+      key = key.join('|');
+    }
+
+    return `is:(${key})`;
   }
 
   toFilter(_matches: string[], negate: boolean): Record<string, any> {
@@ -136,6 +158,16 @@ export abstract class KeyValueGambit implements IGambit<GambitType.KeyValue> {
   abstract hint(): string;
   abstract filterKey(): string;
 
+  /**
+   * The hardcoded English keyword for this gambit, used as a canonical
+   * alias so that English always works regardless of the active locale.
+   * Defaults to key(), which is correct when the gambit is not translated.
+   * Override this in subclasses that translate key() via the translator.
+   */
+  canonicalKey(): string {
+    return this.key();
+  }
+
   valuePattern(): string {
     return '(.+)';
   }
@@ -152,6 +184,10 @@ export abstract class KeyValueGambit implements IGambit<GambitType.KeyValue> {
     const key = this.key();
 
     return `${key}:` + this.valuePattern();
+  }
+
+  canonicalPattern(): string {
+    return `${this.canonicalKey()}:` + this.valuePattern();
   }
 
   toFilter(matches: string[], negate: boolean): Record<string, any> {

@@ -9,11 +9,26 @@ export default class SubscriptionGambit extends BooleanGambit {
     ];
   }
 
+  canonicalKey(): string[] {
+    return ['following', 'ignoring'];
+  }
+
   toFilter(matches: string[], negate: boolean): Record<string, any> {
-    const key = (negate ? '-' : '') + this.filterKey();
+    const filterKey = (negate ? '-' : '') + this.filterKey();
+
+    // Map the matched surface keyword to the canonical internal DB value.
+    // This ensures SubscriptionFilter always receives 'follow' or 'ignore'
+    // regardless of which locale keyword was used.
+    const allFollowKeys = [
+      'following',
+      'followed',
+      app.translator.trans('flarum-subscriptions.lib.gambits.discussions.subscription.following_key', {}, true),
+    ];
+
+    const value = allFollowKeys.includes(matches[1]) ? 'follow' : 'ignore';
 
     return {
-      [key]: matches[1],
+      [filterKey]: value,
     };
   }
 
@@ -22,7 +37,12 @@ export default class SubscriptionGambit extends BooleanGambit {
   }
 
   fromFilter(value: string, negate: boolean): string {
-    return `${negate ? '-' : ''}is:${value}`;
+    const key = this.key();
+    // value is the canonical DB value ('follow' or 'ignore'); map back to
+    // the locale-appropriate surface keyword for display in the search bar.
+    const keyword = value === 'follow' ? key[0] : key[1];
+
+    return `${negate ? '-' : ''}is:${keyword}`;
   }
 
   enabled(): boolean {

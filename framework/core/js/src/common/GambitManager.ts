@@ -48,6 +48,13 @@ export default class GambitManager {
         const pattern = new RegExp(`^(-?)${gambit.pattern()}$`, 'i');
         let matches = bit.match(pattern);
 
+        // If the translated pattern didn't match, try the canonical English
+        // pattern as an alias — so English always works regardless of locale.
+        if (!matches && gambit.canonicalPattern() !== gambit.pattern()) {
+          const canonicalPattern = new RegExp(`^(-?)${gambit.canonicalPattern()}$`, 'i');
+          matches = bit.match(canonicalPattern);
+        }
+
         if (matches) {
           const negate = matches[1] === '-';
 
