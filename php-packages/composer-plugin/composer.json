@@ -1,0 +1,23 @@
+{
+    "name": "flarum/composer-plugin",
+    "description": "Assists Flarum with Composer",
+    "type": "composer-plugin",
+    "license": "MIT",
+    "require": {
+        "composer-plugin-api": "^2.0"
+    },
+    "require-dev": {
+        "composer/composer": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Composer\\Plugin\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "2.x-dev"
+        },
+        "class": "Flarum\\Composer\\Plugin\\ComposerPlugin"
+    }
+}

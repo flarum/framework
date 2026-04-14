@@ -110,6 +110,7 @@
         "flarum/suspend": "self.version",
         "flarum/tags": "self.version",
         "flarum/messages": "self.version",
+        "flarum/composer-plugin": "self.version",
         "flarum/phpstan": "self.version",
         "flarum/testing": "self.version"
     },
@@ -122,6 +123,7 @@
         "doctrine/dbal": "^3.6.2",
         "dragonmantank/cron-expression": "^3.3",
         "fakerphp/faker": "^1.9.1",
+        "flarum/composer-plugin": "2.x-dev",
         "flarum/json-api-server": "^0.1.0",
         "franzl/whoops-middleware": "2.0",
         "guzzlehttp/guzzle": "*",
