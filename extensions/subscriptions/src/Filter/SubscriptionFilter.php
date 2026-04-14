@@ -33,14 +33,15 @@ class SubscriptionFilter implements FilterInterface
         $value = $this->asString($value);
 
         $subscriptionType = match (true) {
-            in_array($value, ['follow', 'following', 'followed'], true)  => 'follow',
-            in_array($value, ['ignore', 'ignoring', 'ignored'], true)    => 'ignore',
-            default                                                       => null,
+            in_array($value, ['follow', 'following', 'followed'], true) => 'follow',
+            in_array($value, ['ignore', 'ignoring', 'ignored'], true) => 'ignore',
+            default => null,
         };
 
         if ($subscriptionType === null) {
             // Unrecognised value — match nothing rather than everything.
             $state->getQuery()->whereRaw('0 = 1');
+
             return;
         }
 
