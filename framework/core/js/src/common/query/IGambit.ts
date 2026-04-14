@@ -12,6 +12,13 @@ export default interface IGambit<Type extends GambitType = GambitType> {
   pattern(): string;
 
   /**
+   * The canonical English pattern for this gambit, used as an alias so that
+   * English always works regardless of the active locale.
+   * Implementations should derive this from canonicalKey() rather than key().
+   */
+  canonicalPattern(): string;
+
+  /**
    * This is the method to transform a gambit into a filter format.
    */
   toFilter(matches: string[], negate: boolean): Record<string, any>;
