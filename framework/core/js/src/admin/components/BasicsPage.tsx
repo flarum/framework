@@ -174,6 +174,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
       .registerSetting({
         type: 'radio',
         setting: 'default_route',
+        name: 'homePage',
         options: BasicsPage.homePageItems()
           .toArray()
           .map((item: HomePageItem) => ({

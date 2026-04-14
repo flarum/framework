@@ -221,13 +221,13 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
         <Tag id={inputId} aria-describedby={helpTextId} value={value ?? defaultValue} options={options} onchange={stream} {...otherAttrs} />
       );
     } else if ((RadioSettingTypes as readonly string[]).includes(type)) {
-      const { default: defaultValue, options, multiple, ...otherAttrs } = attrs;
+      const { default: defaultValue, options, multiple, name, ...otherAttrs } = attrs;
 
       settingElement = (
         <FieldSet {...otherAttrs}>
           {options.map(({ value, label }: { value: string; label: string }) => (
             <label className="checkbox">
-              <input type="radio" name="homePage" value={value} bidi={stream} />
+              <input type="radio" name={name || inputId} value={value} bidi={stream} />
               {label}
             </label>
           ))}
