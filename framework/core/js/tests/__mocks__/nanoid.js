@@ -1,1 +1,2 @@
-let n = 0; module.exports = { nanoid: () => String(++n) };
+let n = 0;
+module.exports = { __esModule: true, nanoid: () => String(++n) };
