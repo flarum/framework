@@ -45,15 +45,18 @@ class SubscriptionFilterTest extends TestCase
                 ['id' => 1, 'title' => 'Followed by normal', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
                 ['id' => 2, 'title' => 'Ignored by normal', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 2, 'comment_count' => 1],
                 ['id' => 3, 'title' => 'No subscription', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 3, 'comment_count' => 1],
+                ['id' => 10, 'title' => 'Lurked by normal', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 10, 'comment_count' => 1],
             ],
             Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo</p></t>'],
                 ['id' => 2, 'number' => 1, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo</p></t>'],
                 ['id' => 3, 'number' => 1, 'discussion_id' => 3, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo</p></t>'],
+                ['id' => 10, 'number' => 1, 'discussion_id' => 10, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo</p></t>'],
             ],
             'discussion_user' => [
                 ['discussion_id' => 1, 'user_id' => 2, 'last_read_post_number' => 1, 'subscription' => 'follow'],
                 ['discussion_id' => 2, 'user_id' => 2, 'last_read_post_number' => 1, 'subscription' => 'ignore'],
+                ['discussion_id' => 10, 'user_id' => 2, 'last_read_post_number' => 1, 'subscription' => 'lurk'],
             ],
         ]);
     }
@@ -350,19 +353,7 @@ class SubscriptionFilterTest extends TestCase
                 ->addSubscriptionType('lurk', ['lurk', 'lurking', 'lurked'])
         );
 
-        // Seed a discussion with the custom 'lurk' subscription value.
-        $this->prepareDatabase([
-            Discussion::class => [
-                ['id' => 10, 'title' => 'Lurked by normal', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 10, 'comment_count' => 1],
-            ],
-            Post::class => [
-                ['id' => 10, 'number' => 1, 'discussion_id' => 10, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo</p></t>'],
-            ],
-            'discussion_user' => [
-                ['discussion_id' => 10, 'user_id' => 2, 'last_read_post_number' => 1, 'subscription' => 'lurk'],
-            ],
-        ]);
-
+        // Discussion 10 with subscription='lurk' is seeded in setUp().
         foreach (['lurk', 'lurking', 'lurked'] as $alias) {
             $response = $this->send(
                 $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
