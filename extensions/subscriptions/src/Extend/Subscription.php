@@ -9,9 +9,9 @@
 
 namespace Flarum\Subscriptions\Extend;
 
+use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
-use Flarum\Extend\ExtenderInterface;
 
 class Subscription implements ExtenderInterface
 {
