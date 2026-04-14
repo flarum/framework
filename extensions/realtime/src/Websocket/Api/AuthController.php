@@ -27,7 +27,8 @@ class AuthController implements RequestHandlerInterface
 
     public function __construct(
         protected Pusher $pusher,
-        protected Generator $generator
+        protected Generator $generator,
+        protected PresenceChannelAuthorizer $presenceAuthorizer
     ) {
     }
 
@@ -50,7 +51,9 @@ class AuthController implements RequestHandlerInterface
         }
 
         if (preg_match('~^presence-(?<subject>[a-z-]+)$~', $channel, $m)) {
-            if (! $this->actor->isGuest() && method_exists($this, $m['subject'])) {
+            if (! $this->actor->isGuest() && method_exists($this, $m['subject'])
+                && $this->presenceAuthorizer->authorize($m['subject'], $this->actor)
+            ) {
                 $payload = call_user_func([$this, $m['subject']], $this->actor);
 
                 // Only if the method returns anything, will we allow authentication.
