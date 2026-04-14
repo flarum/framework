@@ -20,6 +20,7 @@ use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Subscriptions\Api\UserResourceFields;
+use Flarum\Subscriptions\Extend\Subscription;
 use Flarum\Subscriptions\Filter\SubscriptionFilter;
 use Flarum\Subscriptions\HideIgnoredFromAllDiscussionsPage;
 use Flarum\Subscriptions\Listener;
@@ -63,6 +64,12 @@ return [
         ->listen(Deleted::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class)
         ->listen(Posted::class, Listener\FollowAfterReply::class)
         ->listen(Started::class, Listener\FollowAfterCreate::class),
+
+    // Register the built-in subscription types. Third-party extensions can add
+    // their own types via (new Flarum\Subscriptions\Extend\Subscription())->addSubscriptionType().
+    (new Subscription())
+        ->addSubscriptionType('follow', ['follow', 'following', 'followed'])
+        ->addSubscriptionType('ignore', ['ignore', 'ignoring', 'ignored']),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, SubscriptionFilter::class)
