@@ -12,6 +12,7 @@ namespace Flarum\Subscriptions\Tests\integration\api\discussions;
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
+use Flarum\Subscriptions\Extend\Subscription;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -335,5 +336,62 @@ class SubscriptionFilterTest extends TestCase
 
         $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
         $this->assertEmpty($ids, 'An empty subscription value should return no results, not crash');
+    }
+
+    // -------------------------------------------------------------------------
+    // Subscription extender — third-party type registration
+    // -------------------------------------------------------------------------
+
+    #[Test]
+    public function subscription_extender_registers_custom_type(): void
+    {
+        $this->extend(
+            (new Subscription())
+                ->addSubscriptionType('lurk', ['lurk', 'lurking', 'lurked'])
+        );
+
+        // Seed a discussion with the custom 'lurk' subscription value.
+        $this->prepareDatabase([
+            Discussion::class => [
+                ['id' => 10, 'title' => 'Lurked by normal', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 10, 'comment_count' => 1],
+            ],
+            Post::class => [
+                ['id' => 10, 'number' => 1, 'discussion_id' => 10, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo</p></t>'],
+            ],
+            'discussion_user' => [
+                ['discussion_id' => 10, 'user_id' => 2, 'last_read_post_number' => 1, 'subscription' => 'lurk'],
+            ],
+        ]);
+
+        foreach (['lurk', 'lurking', 'lurked'] as $alias) {
+            $response = $this->send(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
+                    ->withQueryParams(['filter' => ['subscription' => $alias]])
+            );
+
+            $body = $response->getBody()->getContents();
+            $this->assertEquals(200, $response->getStatusCode(), "Alias '{$alias}': {$body}");
+
+            $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
+            $this->assertContains('10', $ids, "Alias '{$alias}' should match the lurked discussion");
+            $this->assertNotContains('1', $ids);
+            $this->assertNotContains('2', $ids);
+        }
+    }
+
+    #[Test]
+    public function subscription_extender_custom_type_unregistered_alias_still_returns_empty(): void
+    {
+        // Without registering 'lurk', the value should still return nothing.
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
+                ->withQueryParams(['filter' => ['subscription' => 'lurk']])
+        );
+
+        $body = $response->getBody()->getContents();
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
+        $this->assertEmpty($ids, 'Unregistered custom type should return no results');
     }
 }

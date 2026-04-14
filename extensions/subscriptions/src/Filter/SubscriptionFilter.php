@@ -14,6 +14,7 @@ use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 use Flarum\User\User;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -22,6 +23,11 @@ use Illuminate\Database\Eloquent\Builder;
 class SubscriptionFilter implements FilterInterface
 {
     use ValidateFilterTrait;
+
+    public function __construct(
+        private readonly Container $container,
+    ) {
+    }
 
     public function getFilterKey(): string
     {
@@ -32,20 +38,34 @@ class SubscriptionFilter implements FilterInterface
     {
         $value = $this->asString($value);
 
-        $subscriptionType = match (true) {
-            in_array($value, ['follow', 'following', 'followed'], true) => 'follow',
-            in_array($value, ['ignore', 'ignoring', 'ignored'], true) => 'ignore',
-            default => null,
-        };
+        $canonicalValue = $this->resolveCanonicalValue($value);
 
-        if ($subscriptionType === null) {
+        if ($canonicalValue === null) {
             // Unrecognised value — match nothing rather than everything.
             $state->getQuery()->whereRaw('0 = 1');
 
             return;
         }
 
-        $this->constrain($state->getQuery(), $state->getActor(), $subscriptionType, $negate);
+        $this->constrain($state->getQuery(), $state->getActor(), $canonicalValue, $negate);
+    }
+
+    /**
+     * Resolve a filter value to its canonical database value using the
+     * registered subscription type registry. Returns null if unrecognised.
+     */
+    protected function resolveCanonicalValue(string $value): ?string
+    {
+        /** @var array<string, string[]> $types */
+        $types = $this->container->make('flarum-subscriptions.subscription_types');
+
+        foreach ($types as $canonical => $aliases) {
+            if (in_array($value, $aliases, true)) {
+                return $canonical;
+            }
+        }
+
+        return null;
     }
 
     protected function constrain(Builder $query, User $actor, string $subscriptionType, bool $negate): void
