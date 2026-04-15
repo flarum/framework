@@ -2,3 +2,23 @@
 @import (inline) "brands.css";
 @import (inline) "regular.css";
 @import (inline) "solid.css";
+
+// FontAwesome 7 (and its Kit JS) sets `display: var(--fa-display, inline-block)` on
+// .fas/.far/.fab etc. When a Kit is loaded its dynamically-injected stylesheet lands
+// *after* our compiled CSS, so a Kit `.fas { display:… }` declaration at specificity
+// (0,1,0) beats any application rule that also targets (0,1,0) — purely by source order.
+//
+// Fix: pin `--fa-display` on every icon element so the Kit's :root-level variable
+// cannot flip all icons to `display:block`. Application rules that need to hide an
+// FA-classed element must use specificity > (0,1,0) — e.g. nest under a parent class —
+// to beat the Kit's late-arriving `.fas { display:… }` declaration.
+.fa-solid,
+.fa-regular,
+.fa-brands,
+.fa-classic,
+.fas,
+.far,
+.fab,
+.fa {
+  --fa-display: inline-block;
+}

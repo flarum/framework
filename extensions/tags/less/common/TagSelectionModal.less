@@ -53,15 +53,6 @@
   }
 }
 
-.SelectTagListItem-checkIcon {
-  position: absolute;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-}
-
 .SelectTagList {
   padding: 0;
   margin: 0;
@@ -80,6 +71,17 @@
     cursor: pointer;
     display: flex;
     align-items: center;
+
+    // Nesting under `> li` bumps specificity to (0,2,1) so this beats a
+    // FontAwesome Kit's late-arriving `.fas { display:… }` at (0,1,0).
+    .SelectTagListItem-checkIcon {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background-color: transparent;
+    }
 
     &.pinned:not(.child) {
       padding-top: 10px;
