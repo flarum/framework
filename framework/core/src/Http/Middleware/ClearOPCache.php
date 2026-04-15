@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Flarum\Http\Middleware;
 
+use Exception;
 use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface;
@@ -20,7 +21,7 @@ class ClearOPCache implements Middleware
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (! file_exists($this->path()) || ! function_exists('opcache_reset')) {
+        if (! function_exists('opcache_reset') || ! file_exists($this->path())) {
             return $handler->handle($request);
         }
 
@@ -39,9 +40,11 @@ class ClearOPCache implements Middleware
 
         // Fallback when Paths is not available during installation.
         $path = dirname(__DIR__, 3);
+        $upTo = dirname(__DIR__, 6);
 
         while(true) {
-            if ($path === '.') throw new \Exception('Could not find storage directory');
+            if ($path === $upTo) throw new Exception('Could not find storage directory');
+            if ($path === '.') throw new Exception('Could not find storage directory');
 
             if (is_dir("$path/storage")) break;
             $path = dirname($path);
