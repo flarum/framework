@@ -10,7 +10,6 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\JsonApi;
-use Flarum\Foundation\AbstractImageValidator;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
