@@ -1,5 +1,53 @@
 # Changelog
 
+## [v2.0.0-rc.1](https://github.com/flarum/framework/compare/v2.0.0-beta.8...v2.0.0-rc.1)
+
+### Added
+
+- (core) reset-settings button and confirmation modal on extension admin pages, backed by `DELETE /api/settings` and `Settings\Event\Reset` by @imorland [#4522]
+- (core) `forum-widget` extension category by @imorland [#4543]
+- (core) HiDPI avatar srcset — generate @2x/@3x variants on upload and expose `avatarSrcset` on the user resource by @imorland [#4555]
+- (core) weekly sync of the abandoned-extensions list with admin notifications and manual "Check Now" trigger by @imorland [#4560]
+- (realtime) `Realtime::authorizePresenceChannel` extender for gating presence-channel access by @imorland [#4573]
+
+### Fixed
+
+- (core) suppress PHP warning when extension name lacks `vendor/package` format by @imorland [#4510]
+- (core) strip trailing slash from URI before route dispatch by @imorland [#4511]
+- (core) incorrect bottom page padding by @imorland [#4518]
+- (core) `Api\Serializer` attribute fields now run through `serializeValue` so booleans no longer serialize as strings by @imorland [#4530]
+- (core) `PaginatedListState::paramsChanged()` uses value comparison so back-navigation preserves loaded pages and scroll by @imorland [#4532]
+- (core) show avatar and badges in `ReplyPlaceholder` composing state on mobile by @imorland [#4533]
+- (core) preserve array values in `Attribute::serializeValue` to avoid "Array to string conversion" for extensions returning arrays from `Str`-typed attributes by @imorland [#4534]
+- (core) small correctness and accessibility fixes — serializer meta caching, queue exception handler, `@hasSection` directive, `Checkbox` `inputAttrs`, FormGroup `Switch` `aria-describedby` by @imorland [#4562]
+- (core) restore controls icon on `UserCard` so the mobile controls button is visible by @imorland [#4568]
+- (core) remove hardcoded radio input `name` in `FormGroup` so multiple radio groups can coexist by @rafaucau [#4571]
+- (core) prevent FontAwesome Kit from overriding `display` on hidden icon elements by @imorland [#4575]
+- (core) validate logo, favicon and dark-mode logo uploads via a shared `AbstractImageValidator` by @luceos [#4579]
+- (admin) improve `StatusWidget` mobile layout on the dashboard by @imorland [#4531]
+- (admin) avatar driver default value and abandoned-sync message padding by @imorland [#4567]
+- (admin) nav dropdown flickers on mobile by @luceos [#4578]
+- (sticky) qualify ambiguous `id` column in `is_unread_sticky` subquery so extensions that join `discussions` no longer break by @imorland [#4520]
+- (tags) use `hasPermission` for `bypassTagCounts` so the permission works for non-admins on restricted tags by @imorland [#4539]
+- (tags) use forum description for meta description on tags homepage by @imorland [#4558]
+- (core) enforce expiry check on password reset token submission by @imorland [#4550]
+- (core) invalidate active sessions when password is changed by @imorland [#4551]
+- (core) delete stale password tokens when requesting a new reset by @imorland [#4552]
+- (core) harden avatar-from-URL Guzzle client — disable redirects, add timeout and size limit by @imorland [#4553]
+- (deps) bump lodash and lodash-es to 4.18.1 to pick up prototype-pollution and `_.template` code-injection fixes by @dependabot [#4515] [#4516] [#4517] [#4523]
+
+### Changed
+
+- (core) replace "community" wording with "forum" for consistency by @luceos [#4580]
+- (webpack-config) remove deprecated Babel plugins from config by @rafaucau [#4498]
+
+### Performance
+
+- (core) eliminate N+1 queries on the discussion list by @imorland [#4508]
+- (core) add composite index on `notifications` to fix slow unread-count queries by @imorland [#4509]
+- (core) frontend performance improvements — preconnect hints, `fetchpriority`, FOUC fix, viewport by @imorland [#4561]
+- (tags) resolve tag slugs in a single batch query in `TagFilter` by @imorland [#4563]
+
 ## [v2.0.0-beta.8](https://github.com/flarum/framework/compare/v2.0.0-beta.7...v2.0.0-beta.8)
 
 ### Added
