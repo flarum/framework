@@ -141,7 +141,7 @@ core:
       avatar_driver_heading: User Avatar
       avatar_driver_text: Select a driver that should be used for users' avatars when no user-uploaded avatar is available. By default, no avatar will be displayed when a user has not uploaded one.
       forum_description_heading: Forum Description
-      forum_description_text: Enter a short sentence or two that describes your community. This will appear in the meta tag and show up in search engines.
+      forum_description_text: Enter a short sentence or two that describes your forum. This will appear in the meta tag and show up in search engines.
       forum_title_heading: Forum Title
       home_page_heading: Home Page
       home_page_text: Choose the page which users will first see when they visit your forum.
