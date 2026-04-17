@@ -10,9 +10,11 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\JsonApi;
+use Flarum\Foundation\AbstractImageValidator;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
@@ -30,13 +32,15 @@ abstract class UploadImageController extends ShowForumController
     protected string $fileExtension = 'webp';
     protected string $filePathSettingKey = '';
     protected string $filenamePrefix = '';
+    protected ?string $validator = null;
 
     public function __construct(
         JsonApi $api,
         protected SettingsRepositoryInterface $settings,
         protected ImageManager $imageManager,
         protected TranslatorInterface $translator,
-        Factory $filesystemFactory
+        Factory $filesystemFactory,
+        protected Container $container
     ) {
         parent::__construct($api);
 
@@ -50,6 +54,13 @@ abstract class UploadImageController extends ShowForumController
         $filenamePrefix = $this->filenamePrefix($request);
 
         $file = Arr::get($request->getUploadedFiles(), $filenamePrefix);
+
+        if ($this->validator) {
+            $this->container->make($this->validator)->assertImageValid(
+                $filenamePrefix,
+                $file
+            );
+        }
 
         $encodedImage = $this->makeImage($file);
 

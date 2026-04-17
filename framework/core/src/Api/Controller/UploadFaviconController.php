@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Admin\FaviconValidator;
 use Intervention\Image\Interfaces\EncodedImageInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -17,6 +18,7 @@ class UploadFaviconController extends UploadImageController
 {
     protected string $filePathSettingKey = 'favicon_path';
     protected string $filenamePrefix = 'favicon';
+    protected ?string $validator = FaviconValidator::class;
 
     protected function makeImage(UploadedFileInterface $file): EncodedImageInterface|StreamInterface
     {

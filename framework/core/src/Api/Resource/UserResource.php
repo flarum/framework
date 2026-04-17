@@ -47,7 +47,7 @@ class UserResource extends AbstractDatabaseResource
         protected SettingsRepositoryInterface $settings,
         protected ImageManager $imageManager,
         protected AvatarUploader $avatarUploader,
-        protected AvatarValidator $avatarValidator,
+        protected AvatarValidator $imageValidator,
         protected Dispatcher $bus,
     ) {
     }
@@ -470,7 +470,7 @@ class UserResource extends AbstractDatabaseResource
 
     private function retrieveAvatarFromUrl(string $url): ?string
     {
-        $maxSizeBytes = $this->avatarValidator->getMaxSize() * 1024;
+        $maxSizeBytes = $this->imageValidator->getMaxSize() * 1024;
 
         $client = new Client([
             'allow_redirects' => false,

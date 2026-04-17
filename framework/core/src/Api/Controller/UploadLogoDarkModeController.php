@@ -9,8 +9,11 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Admin\LogoValidator;
+
 class UploadLogoDarkModeController extends UploadLogoController
 {
     protected string $filePathSettingKey = 'logo_dark_mode_path';
     protected string $filenamePrefix = 'logo-dark-mode';
+    protected ?string $validator = LogoValidator::class;
 }

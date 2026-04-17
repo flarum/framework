@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Admin\LogoValidator;
 use Intervention\Image\Interfaces\EncodedImageInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -18,6 +19,7 @@ class UploadLogoController extends UploadImageController
     protected string $filePathSettingKey = 'logo_path';
     protected string $filenamePrefix = 'logo';
     private string $resolvedExtension = 'webp';
+    protected ?string $validator = LogoValidator::class;
 
     protected function makeImage(UploadedFileInterface $file): EncodedImageInterface
     {

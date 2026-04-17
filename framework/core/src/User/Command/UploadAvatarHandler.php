@@ -41,7 +41,7 @@ class UploadAvatarHandler
             $actor->assertCan('edit', $user);
         }
 
-        $this->validator->assertValid(['avatar' => $command->file]);
+        $this->validator->assertImageValid('avatar', $command->file);
 
         $image = $this->imageManager->read($command->file->getStream()->getMetadata('uri'));
 
