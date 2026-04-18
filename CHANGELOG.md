@@ -1,5 +1,17 @@
 # Changelog
 
+## [v1.8.16](https://github.com/flarum/framework/compare/v1.8.15...v1.8.16)
+### Security
+* Path traversal in LESS parser via theme color settings, incomplete fix for CVE-2023-27577 (https://github.com/flarum/framework/security/advisories/GHSA-xjvc-pw2r-6878)
+* Account takeover via expired password reset token (https://github.com/flarum/framework/security/advisories/GHSA-649p-3mfg-mx5r)
+* Invalidate active sessions when password is changed (https://github.com/flarum/framework/pull/4546)
+* Delete stale password tokens when requesting a new reset (https://github.com/flarum/framework/pull/4547)
+### Added
+* Sync abandoned extensions list from `flarum/abandoned-extensions` (https://github.com/flarum/framework/pull/4559)
+* Add `forum-widget` extension category (https://github.com/flarum/framework/pull/4542)
+### Fixed
+* [Tags] Use forum description for meta description on tags homepage (https://github.com/flarum/framework/pull/4557)
+
 ## [v1.8.15](https://github.com/flarum/framework/compare/v1.8.14...v1.8.15)
 ### Added
 * Announcements widget on admin dashboard (https://github.com/flarum/framework/pull/4472)
