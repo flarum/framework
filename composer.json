@@ -180,7 +180,7 @@
         "larastan/larastan": "^3.8",
         "mockery/mockery": "^1.5",
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^11.0",
+        "phpunit/phpunit": "^12.5.22",
         "symfony/var-dumper": "^7.0"
     },
     "config": {
