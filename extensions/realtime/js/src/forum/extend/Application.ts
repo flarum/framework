@@ -61,5 +61,60 @@ export default function () {
       app.websocket_channels.public = publicChannel;
       RealtimeState.notifyPublicChannelReady(publicChannel);
     }
+
+    // iOS Safari silently drops WebSocket connections when the tab is
+    // backgrounded or the device sleeps, without firing `close` — pusher-js's
+    // built-in recovery never triggers, so realtime updates go missing until
+    // the page is reloaded. iOS also bfcaches pages on app-switch, which
+    // restores via `pageshow` (persisted=true) and does NOT fire
+    // `visibilitychange` on return. We therefore hook both events.
+    //
+    // After reconnecting, Pusher has no server-side buffering for events that
+    // fired while the socket was dead — we refresh the visible discussions
+    // list once the new connection reports `'connected'` so the UI catches up
+    // on missed activity. Refresh is gated on the `'connected'` event (not
+    // fired immediately after `connect()`) because an immediate Mithril redraw
+    // races with pusher-js's channel resubscription and can leave the client
+    // receiving no further push events.
+    //
+    // See flarum/framework#4588.
+    const RECONNECT_HIDDEN_THRESHOLD_MS = 5_000;
+    let hiddenSince: number | null = null;
+
+    const forceReconnect = (): void => {
+      if (!app.websocket) return;
+
+      const connection = (app.websocket as any).connection;
+
+      const onReconnected = (): void => {
+        connection?.unbind('connected', onReconnected);
+        (app as any).discussions?.refresh?.();
+      };
+      connection?.bind('connected', onReconnected);
+
+      app.websocket.disconnect();
+      // Small gap: pusher-js's internal state machine can no-op `connect()`
+      // when called synchronously during a teardown that is still in flight.
+      setTimeout(() => app.websocket?.connect(), 100);
+    };
+
+    // Application.mount() runs once per page load, so these listeners are
+    // installed once and live for the lifetime of the page — no teardown needed.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        hiddenSince = Date.now();
+        return;
+      }
+      if (hiddenSince === null) return;
+      const wasHiddenFor = Date.now() - hiddenSince;
+      hiddenSince = null;
+      if (wasHiddenFor > RECONNECT_HIDDEN_THRESHOLD_MS) {
+        forceReconnect();
+      }
+    });
+
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) forceReconnect();
+    });
   });
 }
