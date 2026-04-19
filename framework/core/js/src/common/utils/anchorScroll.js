@@ -17,5 +17,13 @@ export default function anchorScroll(element, callback) {
 
   callback();
 
-  $window.scrollTop($(element).offset().top - relativeScroll);
+  // Use `window.scrollTo()` instead of jQuery's `.scrollTop()`. On iOS Safari,
+  // programmatic writes to `scrollTop` during an in-flight momentum/inertial
+  // scroll are silently ignored, leaving the viewport to continue animating
+  // from the old absolute offset — which produces a visible jump when the
+  // callback changes content above the viewport (e.g. PostStream prepending
+  // older posts during `loadPrevious()`). `window.scrollTo(x, y)` goes through
+  // a different WebKit code path that halts the in-flight momentum and applies
+  // the new position. See flarum/framework#4587.
+  window.scrollTo(window.scrollX, $(element).offset().top - relativeScroll);
 }
