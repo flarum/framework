@@ -31,6 +31,16 @@ class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
      */
     public int $tries = 1;
 
+    /**
+     * How long (seconds) the ShouldBeUnique lock is held.
+     *
+     * Without an explicit value the default is 0, meaning the lock never
+     * expires. If the worker crashes mid-install, the lock can otherwise
+     * block future dispatches until the cache TTL runs down. 600s is
+     * longer than $timeout above so it won't expire mid-run.
+     */
+    public int $uniqueFor = 600;
+
     public function __construct(
         protected AbstractActionCommand $command,
         protected string $phpVersion
@@ -73,7 +83,10 @@ class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
     public function middleware(): array
     {
         return [
-            new WithoutOverlapping(),
+            // expireAfter matches $uniqueFor above so a crashed worker
+            // can't leave the overlap lock permanently held (default 0
+            // would mean the lock never expires).
+            (new WithoutOverlapping())->expireAfter(600),
         ];
     }
 }
