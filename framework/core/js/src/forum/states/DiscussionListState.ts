@@ -25,9 +25,12 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
   }
 
   requestParams(): PaginatedListRequestParams {
+    // `filter` is cloned so extenders mutating it don't write back into
+    // `this.params.filter` — that leak trips `paramsChanged()` on the next
+    // mount and wipes the paginated cache (see #4583).
     const params = {
       include: ['user', 'lastPostedUser'],
-      filter: this.params.filter || {},
+      filter: { ...this.params.filter },
       sort: this.currentSort(),
     };
 
