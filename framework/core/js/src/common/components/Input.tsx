@@ -52,7 +52,10 @@ export default class Input<CustomAttrs extends IInputAttrs = IInputAttrs> extend
         {this.attrs.clearable && value && !this.attrs.loading ? (
           <Button
             className="Input-clear Button Button--icon Button--link"
-            onclick={this.clear.bind(this)}
+            onclick={(e: MouseEvent) => {
+              e.stopPropagation();
+              this.clear();
+            }}
             aria-label={this.attrs.clearLabel || app.translator.trans('core.lib.input.clear_button')}
             type="button"
             icon="fas fa-times-circle"
