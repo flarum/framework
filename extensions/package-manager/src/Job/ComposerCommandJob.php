@@ -25,6 +25,12 @@ class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
      */
     public int $timeout = 60 * 3;
 
+    /**
+     * Composer commands are not idempotent; a retry after OOM (which bypasses
+     * the handle() try/catch) could run against a partially-modified vendor/.
+     */
+    public int $tries = 1;
+
     public function __construct(
         protected AbstractActionCommand $command,
         protected string $phpVersion
