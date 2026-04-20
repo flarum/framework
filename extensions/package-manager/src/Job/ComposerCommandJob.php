@@ -85,8 +85,12 @@ class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
         return [
             // expireAfter matches $uniqueFor above so a crashed worker
             // can't leave the overlap lock permanently held (default 0
-            // would mean the lock never expires).
-            (new WithoutOverlapping())->expireAfter(600),
+            // would mean the lock never expires). dontRelease fails a
+            // duplicate dispatch cleanly instead of tight-looping it
+            // against the held lock (default releaseAfter=0).
+            (new WithoutOverlapping())
+                ->expireAfter(600)
+                ->dontRelease(),
         ];
     }
 }
