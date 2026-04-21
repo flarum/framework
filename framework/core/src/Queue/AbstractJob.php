@@ -19,4 +19,10 @@ class AbstractJob implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+
+    /** The maximum number of times the job may be attempted. */
+    public int $tries = 3;
+
+    /** Delay in seconds between retries. */
+    public array $backoff = [30, 60, 120];
 }

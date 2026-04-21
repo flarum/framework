@@ -17,6 +17,12 @@ use Flarum\User\User;
 
 class SendNotificationsJob extends AbstractJob
 {
+    /**
+     * Notification::notify() uses a raw bulk insert (not upsert), so retrying
+     * would create duplicate notification rows in recipients' feeds.
+     */
+    public int $tries = 1;
+
     public function __construct(
         private readonly BlueprintInterface&AlertableInterface $blueprint,
         /** @var User[] */

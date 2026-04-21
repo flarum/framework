@@ -20,6 +20,12 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class ExportJob extends GdprJob
 {
+    /**
+     * Each run writes an export file and dispatches Exporting/Exported events;
+     * retries would duplicate the file and fire listeners more than once.
+     */
+    public int $tries = 1;
+
     public function __construct(private User $user, private User $actor)
     {
     }
