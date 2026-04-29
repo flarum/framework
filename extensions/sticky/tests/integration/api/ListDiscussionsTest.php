@@ -117,4 +117,60 @@ class ListDiscussionsTest extends TestCase
 
         $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
+
+    /** @test */
+    public function list_discussions_does_not_pin_sticky_on_all_when_setting_disabled_as_guest()
+    {
+        $this->setting('flarum-sticky.pin_sticky_on_all_discussions', '0');
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+    }
+
+    /** @test */
+    public function list_discussions_does_not_pin_unread_sticky_on_all_when_setting_disabled_as_user()
+    {
+        $this->setting('flarum-sticky.pin_sticky_on_all_discussions', '0');
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', [
+                'authenticatedAs' => 2
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+    }
+
+    /** @test */
+    public function list_discussions_pins_sticky_on_a_tag_when_setting_disabled()
+    {
+        $this->setting('flarum-sticky.pin_sticky_on_all_discussions', '0');
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', [
+                'authenticatedAs' => 3
+            ])->withQueryParams([
+                'filter' => [
+                    'tag' => 'general'
+                ]
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
+    }
 }
