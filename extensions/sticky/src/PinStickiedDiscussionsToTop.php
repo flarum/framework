@@ -11,10 +11,21 @@ namespace Flarum\Sticky;
 
 use Flarum\Filter\FilterState;
 use Flarum\Query\QueryCriteria;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Query\TagFilterGambit;
 
 class PinStickiedDiscussionsToTop
 {
+    /**
+     * @var SettingsRepositoryInterface
+     */
+    protected $settings;
+
+    public function __construct(SettingsRepositoryInterface $settings)
+    {
+        $this->settings = $settings;
+    }
+
     public function __invoke(FilterState $filterState, QueryCriteria $criteria)
     {
         if ($criteria->sortIsDefault) {
@@ -33,6 +44,13 @@ class PinStickiedDiscussionsToTop
                     array_unshift($query->orders, ['column' => 'is_sticky', 'direction' => 'desc']);
                 }
 
+                return;
+            }
+
+            // On "all discussions", admins can disable sticky pinning entirely.
+            // When disabled, stickied discussions appear at their natural
+            // last_posted_at position rather than being floated to the top.
+            if (! $this->settings->get('flarum-sticky.pin_sticky_on_all_discussions', true)) {
                 return;
             }
 
