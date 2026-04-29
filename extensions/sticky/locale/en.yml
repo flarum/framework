@@ -10,6 +10,8 @@ flarum-sticky:
       enable_display_excerpt: Show an excerpt of the first post when a sticky discussion is unread
       only_sticky_unread_discussions_label: Only sticky unread discussions
       only_sticky_unread_discussions_help: On the All Discussions page, unread sticky discussions pin to the top, while read sticky discussions follow the regular order.
+      pin_sticky_on_all_discussions_label: Pin stickied discussions on the All Discussions page
+      pin_sticky_on_all_discussions_help: When enabled (default), stickied discussions are pinned at the top of the All Discussions page. When disabled, they appear at their natural position by latest activity. Tag pages always pin stickied discussions to the top regardless of this setting.
 
     # These translations are used in the Permissions page of the admin interface.
     permissions:

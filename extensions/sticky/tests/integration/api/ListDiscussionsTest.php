@@ -193,4 +193,63 @@ class ListDiscussionsTest extends TestCase
 
         $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
+
+    #[Test]
+    public function list_discussions_does_not_pin_sticky_on_all_when_pin_setting_disabled_as_guest()
+    {
+        $this->setting('flarum-sticky.pin_sticky_on_all_discussions', false);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $data = json_decode($body, true);
+
+        $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
+    public function list_discussions_pin_setting_disabled_overrides_only_unread_setting_on_all()
+    {
+        // pin_sticky_on_all_discussions is the master gate for /all and must
+        // override only_sticky_unread_discussions when both are flipped.
+        $this->setting('flarum-sticky.pin_sticky_on_all_discussions', false);
+        $this->setting('flarum-sticky.only_sticky_unread_discussions', false);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', [
+                'authenticatedAs' => 2
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $data = json_decode($body, true);
+
+        $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
+    public function list_discussions_pin_setting_disabled_does_not_affect_tag_pages()
+    {
+        $this->setting('flarum-sticky.pin_sticky_on_all_discussions', false);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', [
+                'authenticatedAs' => 3
+            ])->withQueryParams([
+                'filter' => [
+                    'tag' => 'general'
+                ]
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $data = json_decode($body, true);
+
+        $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
+    }
 }
