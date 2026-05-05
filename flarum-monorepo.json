@@ -67,6 +67,11 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "oauth-provider",
+        "gitRemote": "git@github.com:flarum/oauth-provider.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "package-manager",
         "gitRemote": "git@github.com:flarum/package-manager.git",
         "mainBranch": "2.x"

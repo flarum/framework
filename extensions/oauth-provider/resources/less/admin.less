@@ -1,0 +1,99 @@
+.OAuthClientsList {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.OAuthClientsList-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  background: var(--control-bg);
+  border-radius: var(--border-radius, 4px);
+  transition: background 120ms ease;
+
+  &:hover {
+    background: var(--control-danger-bg, var(--control-bg));
+  }
+
+  &--revoked {
+    opacity: 0.6;
+  }
+}
+
+.OAuthClientsList-main {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.OAuthClientsList-name {
+  font-weight: 600;
+  font-size: 1.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.OAuthClientsList-badge {
+  font-size: 0.7em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 3px;
+
+  &--revoked {
+    background: var(--alert-error-bg, #fde2e2);
+    color: var(--alert-error-color, #8a2929);
+  }
+}
+
+.OAuthClientsList-meta {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px;
+  font-size: 0.9em;
+  color: var(--muted-color);
+  min-width: 0;
+}
+
+.OAuthClientsList-metaLabel {
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.8em;
+  padding-top: 2px;
+}
+
+.OAuthClientsList-id {
+  font-family: monospace;
+  font-size: 0.9em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.OAuthClientsList-actions {
+  display: flex;
+  gap: 4px;
+  align-self: start;
+}
+
+.ClientFormModal {
+  textarea.FormControl {
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+}
+
+.NewClientSecretModal {
+  input.FormControl[readonly] {
+    font-family: monospace;
+  }
+}
