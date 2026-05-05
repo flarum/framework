@@ -9,8 +9,8 @@
 
 namespace Flarum\OAuthProvider\Server\Entity;
 
-use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Entities\Traits\EntityTrait;
+use League\OAuth2\Server\Entities\UserEntityInterface;
 
 class UserEntity implements UserEntityInterface
 {

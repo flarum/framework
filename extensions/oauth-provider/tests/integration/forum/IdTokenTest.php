@@ -72,6 +72,7 @@ class IdTokenTest extends TestCase
     protected function authorizeRequest(array $query, array $options = []): \Psr\Http\Message\ServerRequestInterface
     {
         $path = '/oauth/authorize?'.http_build_query($query);
+
         return $this->request('POST', $path, $options)
             ->withQueryParams($query)
             ->withAttribute('bypassCsrfToken', true);
