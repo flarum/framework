@@ -64,7 +64,7 @@ flarum-messages:
       title: Messages
 
     recipient_selection_modal:
-      title: Select the recipients of this message
+      title: Select the recipient of this message
 
     settings:
       notify_message_received_label: Someone sends me a message
