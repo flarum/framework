@@ -11,6 +11,7 @@ namespace Flarum\Testing\integration;
 
 use Carbon\Carbon;
 use Dflydev\FigCookies\SetCookie;
+use Flarum\Http\CookieFactory;
 use Illuminate\Support\Str;
 use Laminas\Diactoros\CallbackStream;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -46,11 +47,14 @@ trait BuildsHttpRequests
             'user_id' => $userId,
             'created_at' => Carbon::now()->toDateTimeString(),
             'last_activity_at' => Carbon::now()->toDateTimeString(),
-            'type' => 'session'
+            'type' => 'session_remember'
         ]);
 
+        $cookies = $this->app()->getContainer()->make(CookieFactory::class);
+
         return $req
-            ->withAddedHeader('Authorization', "Token {$token}")
+            ->withAttribute('bypassCsrfToken', true)
+            ->withCookieParams([$cookies->getName('remember') => $token])
             // We save the token as an attribute so that we can retrieve it for test purposes.
             ->withAttribute('tests_token', $token);
     }
