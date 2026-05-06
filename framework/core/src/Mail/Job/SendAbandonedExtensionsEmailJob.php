@@ -9,6 +9,7 @@
 
 namespace Flarum\Mail\Job;
 
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Queue\AbstractJob;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Contracts\View\Factory;
@@ -22,11 +23,16 @@ class SendAbandonedExtensionsEmailJob extends AbstractJob
         private readonly string $subject,
         private readonly array $extensionLines,
         private readonly string $forumTitle,
+        private readonly ?string $locale = null,
     ) {
     }
 
-    public function handle(Mailer $mailer, Factory $view): void
+    public function handle(Mailer $mailer, Factory $view, TranslatorInterface $translator): void
     {
+        if ($this->locale !== null) {
+            $translator->setLocale($this->locale);
+        }
+
         $username = $this->username;
         $forumTitle = $this->forumTitle;
         $userEmail = $this->email;

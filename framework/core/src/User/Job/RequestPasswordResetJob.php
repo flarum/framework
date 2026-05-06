@@ -50,8 +50,16 @@ class RequestPasswordResetJob extends AbstractJob
             'forum' => $settings->get('forum_title'),
         ];
 
-        $body = $translator->trans('core.email.reset_password.body', $data);
-        $subject = $translator->trans('core.email.reset_password.subject');
+        $locale = $user->getPreference('locale') ?? $settings->get('default_locale');
+        $previousLocale = $translator->getLocale();
+        $translator->setLocale($locale);
+
+        try {
+            $body = $translator->trans('core.email.reset_password.body', $data);
+            $subject = $translator->trans('core.email.reset_password.subject');
+        } finally {
+            $translator->setLocale($previousLocale);
+        }
 
         $queue->push(new SendInformationalEmailJob(
             email: $user->email,
@@ -59,7 +67,8 @@ class RequestPasswordResetJob extends AbstractJob
             subject: $subject,
             body: $body,
             forumTitle: Arr::get($data, 'forum'),
-            bodyTitle: $subject
+            bodyTitle: $subject,
+            locale: $locale,
         ));
     }
 }

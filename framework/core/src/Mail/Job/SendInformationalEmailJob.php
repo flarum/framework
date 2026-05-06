@@ -9,6 +9,7 @@
 
 namespace Flarum\Mail\Job;
 
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Queue\AbstractJob;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Contracts\View\Factory;
@@ -26,12 +27,17 @@ class SendInformationalEmailJob extends AbstractJob
         protected array $views = [
             'text' => 'mail::plain.information.generic',
             'html' => 'mail::html.information.generic'
-        ]
+        ],
+        private readonly ?string $locale = null,
     ) {
     }
 
-    public function handle(Mailer $mailer, Factory $view): void
+    public function handle(Mailer $mailer, Factory $view, TranslatorInterface $translator): void
     {
+        if ($this->locale !== null) {
+            $translator->setLocale($this->locale);
+        }
+
         $forumTitle = $this->forumTitle;
         $infoContent = $this->body;
         $userEmail = $this->email;
