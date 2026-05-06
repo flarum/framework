@@ -109,9 +109,11 @@ class JsDirectoryCompiler implements CompilerInterface
         foreach ($filesystem->allFiles() as $relativeFilePath) {
             // Check both file extension and MIME type to identify JS files.
             // We require at least one of these checks to pass, as MIME type detection
-            // can be unreliable for minified/bundled JS files.
+            // can be unreliable for minified/bundled JS files. Only run mime
+            // detection (which calls finfo_file and is expensive) when the cheap
+            // extension check has already failed.
             $hasJsExtension = str_ends_with($relativeFilePath, '.js');
-            $mimeType = $filesystem->mimeType($relativeFilePath);
+            $mimeType = $hasJsExtension ? null : $filesystem->mimeType($relativeFilePath);
             $hasJsMimeType = $mimeType === 'application/javascript' || $mimeType === 'text/javascript';
 
             if (! $hasJsExtension && ! $hasJsMimeType) {
