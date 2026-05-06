@@ -15,7 +15,9 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Foundation\FontAwesome;
 use Flarum\Foundation\Paths;
+use Flarum\Frontend\Compiler\FileVersioner;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\Driver\BasicTitleDriver;
 use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Http\RequestUtil;
@@ -32,6 +34,12 @@ class FrontendServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
+        $this->container->singleton(VersionerInterface::class, function (Container $container) {
+            return new FileVersioner(
+                $container->make('filesystem')->disk('flarum-assets')
+            );
+        });
+
         $this->container->singleton('flarum.assets', function (Container $container) {
             return new AssetManager($container, $container->make(LocaleManager::class));
         });

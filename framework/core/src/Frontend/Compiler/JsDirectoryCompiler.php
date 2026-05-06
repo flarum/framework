@@ -25,13 +25,11 @@ class JsDirectoryCompiler implements CompilerInterface
 {
     use HasSources;
 
-    protected VersionerInterface $versioner;
-
     public function __construct(
         protected Cloud $assetsDir,
-        protected string $destinationPath
+        protected string $destinationPath,
+        protected VersionerInterface $versioner,
     ) {
-        $this->versioner = new FileVersioner($assetsDir);
     }
 
     public function getFilename(): ?string
