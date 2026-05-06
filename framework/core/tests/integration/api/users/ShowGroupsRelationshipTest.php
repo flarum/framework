@@ -109,5 +109,4 @@ class ShowGroupsRelationshipTest extends TestCase
         $this->assertEqualsCanonicalizing(['10', '11'], $this->groupRelationshipIds($body));
         $this->assertEqualsCanonicalizing(['10', '11'], $this->includedGroupIds($body));
     }
-
 }
