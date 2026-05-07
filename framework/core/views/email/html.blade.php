@@ -50,8 +50,8 @@
 <div class="header">
     <div class="Header-title">
         <a href="{{ $url->to('forum')->base() }}" id="home-link">
-            @if ($settings->get('logo_path'))
-                <img src="{{ $url->to('forum')->base() . '/assets/' . $settings->get('logo_path') }}" alt="{{ $settings->get('forum_title') }}" class="Header-logo">
+            @if ($logoUrl)
+                <img src="{{ $logoUrl }}" alt="{{ $settings->get('forum_title') }}" class="Header-logo">
             @else
                 {{ $settings->get('forum_title') }}
             @endif
