@@ -61,6 +61,9 @@ class AvatarUploader
 
             $this->uploadDir->put($path, $encoded);
         }
+
+        $user->has_avatar_2x = $image2x !== null;
+        $user->has_avatar_3x = $image3x !== null;
     }
 
     public function upload(User $user, ImageInterface $image): void
@@ -77,6 +80,8 @@ class AvatarUploader
         $this->removeFileAfterSave($user);
         $user->changeAvatarPath($basePath);
 
+        $generated = ['' => false, '@2x' => false, '@3x' => false];
+
         foreach (self::SIZES as $suffix => $size) {
             // Never upscale — skip this variant if the source is too small.
             if ($sourceWidth < $size || $sourceHeight < $size) {
@@ -89,7 +94,11 @@ class AvatarUploader
             $path = $avatarBase.$suffix.'.'.$extension;
 
             $this->uploadDir->put($path, $encoded);
+            $generated[$suffix] = true;
         }
+
+        $user->has_avatar_2x = $generated['@2x'];
+        $user->has_avatar_3x = $generated['@3x'];
     }
 
     /**
@@ -115,6 +124,8 @@ class AvatarUploader
         $this->removeFileAfterSave($user);
 
         $user->changeAvatarPath(null);
+        $user->has_avatar_2x = false;
+        $user->has_avatar_3x = false;
     }
 
     /**
@@ -134,37 +145,31 @@ class AvatarUploader
     }
 
     /**
-     * Return the srcset string for a given base path, including only variants that exist on disk.
-     * Returns null if only the base file exists (no HiDPI variants).
+     * Return the srcset string for the user's locally-stored avatar, including only
+     * variants that the user record reports as present (`has_avatar_2x` /
+     * `has_avatar_3x`). Returns null if the avatar is external, missing, or has no
+     * HiDPI variants — this avoids any filesystem `exists()` calls in the read path.
      */
-    public function srcsetFor(string $basePath): ?string
+    public function srcsetFor(User $user): ?string
     {
-        // External URLs (e.g. from OAuth provider) — no local variants.
-        if (str_contains($basePath, '://')) {
+        $basePath = $user->getRawOriginal('avatar_url');
+
+        if (! $basePath || str_contains($basePath, '://')) {
             return null;
         }
 
-        // Collect which variant paths exist on disk first, without calling url().
-        $existing = [];
-
-        foreach (self::SIZES as $suffix => $size) {
-            $path = $this->variantPath($basePath, $suffix);
-
-            if ($this->uploadDir->exists($path)) {
-                $existing[$path] = $size / 100;
-            }
-        }
-
-        // Only meaningful if we have more than just the 1× base.
-        if (count($existing) <= 1) {
+        if (! $user->has_avatar_2x && ! $user->has_avatar_3x) {
             return null;
         }
 
-        $entries = [];
+        $entries = [$this->uploadDir->url($basePath).' 1x'];
 
-        foreach ($existing as $path => $multiplier) {
-            $url = $this->uploadDir->url($path);
-            $entries[] = "$url {$multiplier}x";
+        if ($user->has_avatar_2x) {
+            $entries[] = $this->uploadDir->url($this->variantPath($basePath, '@2x')).' 2x';
+        }
+
+        if ($user->has_avatar_3x) {
+            $entries[] = $this->uploadDir->url($this->variantPath($basePath, '@3x')).' 3x';
         }
 
         return implode(', ', $entries);
