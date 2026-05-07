@@ -13,6 +13,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
 use Symfony\Component\Mailer\Transport\Dsn;
+use Symfony\Component\Mailer\Transport\Smtp\SmtpTransport;
 use Symfony\Component\Mailer\Transport\TransportFactoryInterface;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
@@ -80,7 +81,7 @@ class SmtpDriver implements DriverInterface
             $options['verify_peer'] = 'false';
         }
 
-        return $this->factory->create(new Dsn(
+        $transport = $this->factory->create(new Dsn(
             $scheme,
             $settings->get('mail_host'),
             $settings->get('mail_username'),
@@ -88,5 +89,18 @@ class SmtpDriver implements DriverInterface
             $settings->get('mail_port'),
             $options
         ));
+
+        // Symfony's default ping threshold of 100s is longer than the idle
+        // timeout used by some SMTP relays (notably AWS SES, which has been
+        // observed closing connections in the 30–90s range). Without a NOOP
+        // probe, the transport writes the next message into a dead socket and
+        // the relay returns "451 4.4.2 Timeout waiting for data from client".
+        // 20s is well under any reasonable relay idle timeout while keeping
+        // NOOP overhead negligible.
+        if ($transport instanceof SmtpTransport) {
+            $transport->setPingThreshold(20);
+        }
+
+        return $transport;
     }
 }
