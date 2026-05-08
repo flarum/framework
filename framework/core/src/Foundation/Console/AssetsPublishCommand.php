@@ -78,6 +78,7 @@ class AssetsPublishCommand extends AbstractCommand
 
         if ($sourceDir === null) {
             $this->info('xslt-polyfill not found in node_modules; skipping.');
+
             return;
         }
 
