@@ -9,8 +9,33 @@
 
 namespace Flarum\Formatter;
 
+use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
+
 class XsltPolyfill
 {
+    /**
+     * Resolve the public URL of the published xslt-polyfill bundle, if it
+     * can be served by the configured assets disk.
+     *
+     * Returns null when the disk has no public URL (e.g. an in-memory test
+     * disk), in which case callers should skip the polyfill entirely.
+     */
+    public static function publicUrl(FilesystemFactory $filesystemFactory): ?string
+    {
+        try {
+            $url = $filesystemFactory->disk('flarum-assets')->url('xslt-polyfill/xslt-polyfill.min.js');
+        } catch (\RuntimeException) {
+            return null;
+        }
+
+        if (($version = self::version()) !== null) {
+            $url .= '?v='.$version;
+        }
+
+        return $url;
+    }
+
+
     /**
      * Locate the vendored xslt-polyfill bundle inside core's js/dist.
      *

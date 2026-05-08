@@ -9,7 +9,6 @@
 
 namespace Flarum\Formatter;
 
-use Closure;
 use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository;
 use Psr\Http\Message\ServerRequestInterface;
@@ -26,50 +25,10 @@ class Formatter
     protected array $unparsingCallbacks = [];
     protected array $renderingCallbacks = [];
 
-    /**
-     * @var Closure(): ?string|null
-     */
-    private ?Closure $xsltPolyfillUrlResolver = null;
-    private ?string $resolvedXsltPolyfillUrl = null;
-    private bool $xsltPolyfillUrlResolved = false;
-
     public function __construct(
         protected Repository $cache,
         protected string $cacheDir
     ) {
-    }
-
-    /**
-     * Set a resolver for the xslt-polyfill loader URL. Called lazily on the
-     * first `getJs()` invocation so that resolving the URL (which goes
-     * through the flarum-assets disk and may itself be sensitive to other
-     * service-provider boot ordering) does not happen during app boot.
-     *
-     * The resolver may return null to disable the polyfill loader entirely
-     * — used when the configured assets disk has no public URL (e.g. an
-     * in-memory disk in tests).
-     *
-     * @param Closure(): ?string $resolver
-     *
-     * @internal
-     */
-    public function setXsltPolyfillUrlResolver(Closure $resolver): void
-    {
-        $this->xsltPolyfillUrlResolver = $resolver;
-        $this->xsltPolyfillUrlResolved = false;
-        $this->resolvedXsltPolyfillUrl = null;
-    }
-
-    private function getXsltPolyfillUrl(): ?string
-    {
-        if (! $this->xsltPolyfillUrlResolved) {
-            $this->resolvedXsltPolyfillUrl = $this->xsltPolyfillUrlResolver !== null
-                ? ($this->xsltPolyfillUrlResolver)()
-                : null;
-            $this->xsltPolyfillUrlResolved = true;
-        }
-
-        return $this->resolvedXsltPolyfillUrl;
     }
 
     /**
@@ -235,37 +194,10 @@ class Formatter
 
     /**
      * Get the formatter JavaScript.
-     *
-     * If a polyfill URL is configured, prepends a small detector that
-     * loads the xslt-polyfill (~510 KB gzipped) only on browsers where
-     * native XSLT is unavailable. Chrome disabled XSLT by default in
-     * Beta channel from version 145 (Dec 2025) and on Stable from
-     * version 158 (Nov 2026). The polyfill is a temporary measure
-     * pending an upstream s9e fix that removes the XSLT dependency.
-     *
-     * @see https://github.com/s9e/TextFormatter/issues/250
      */
     public function getJs(): string
     {
-        $s9eJs = $this->getComponent('js');
-
-        $polyfillUrl = $this->getXsltPolyfillUrl();
-        if ($polyfillUrl === null) {
-            return $s9eJs;
-        }
-
-        $url = json_encode($polyfillUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-
-        return <<<JS
-(function() {
-    try { if (typeof XSLTProcessor !== 'undefined' && new XSLTProcessor()) return; } catch (e) {}
-    var s = document.createElement('script');
-    s.src = $url;
-    s.async = false;
-    document.head.appendChild(s);
-})();
-$s9eJs
-JS;
+        return $this->getComponent('js');
     }
 
     protected function configureDefaultsOnLinks(string $xml): string
