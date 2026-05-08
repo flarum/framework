@@ -11,8 +11,10 @@ namespace Flarum\Foundation\Console;
 
 use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Formatter\XsltPolyfill;
 use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Filesystem\Filesystem;
 
 class AssetsPublishCommand extends AbstractCommand
@@ -67,6 +69,8 @@ class AssetsPublishCommand extends AbstractCommand
             $target->put("fonts/$relPath", $local->get($fullPath));
         }
 
+        $this->publishXsltPolyfill($target, $local);
+
         $this->info('Publishing extension assets...');
 
         $extensions = $this->container->make(ExtensionManager::class);
@@ -76,6 +80,39 @@ class AssetsPublishCommand extends AbstractCommand
             if ($extension->hasAssets()) {
                 $this->info('Publishing for extension: '.$name);
                 $extension->copyAssetsTo($target);
+            }
+        }
+    }
+
+    /**
+     * Copies the xslt-polyfill bundle into the public assets disk so the
+     * Formatter can hand the browser a public URL when native XSLT is
+     * disabled. Both files are kept in their original relative layout
+     * (root + ./dist) so the polyfill's currentScript-based wasm loader
+     * keeps working.
+     *
+     * @param Cloud $target
+     * @param Filesystem $local
+     */
+    private function publishXsltPolyfill(Cloud $target, Filesystem $local)
+    {
+        $sourceDir = XsltPolyfill::findSource();
+
+        if ($sourceDir === null) {
+            $this->info('xslt-polyfill not found in node_modules; skipping.');
+
+            return;
+        }
+
+        $files = [
+            'xslt-polyfill.min.js' => 'xslt-polyfill/xslt-polyfill.min.js',
+            'dist/xslt-wasm.js' => 'xslt-polyfill/dist/xslt-wasm.js',
+        ];
+
+        foreach ($files as $relSource => $relTarget) {
+            $sourcePath = "$sourceDir/$relSource";
+            if ($local->exists($sourcePath)) {
+                $target->put($relTarget, $local->get($sourcePath));
             }
         }
     }

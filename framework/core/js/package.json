@@ -19,7 +19,8 @@
         "nanoid": "^3.1.30",
         "punycode": "^2.1.1",
         "textarea-caret": "^3.1.0",
-        "throttle-debounce": "^3.0.1"
+        "throttle-debounce": "^3.0.1",
+        "xslt-polyfill": "^1.0.21"
     },
     "devDependencies": {
         "@flarum/jest-config": "^1.0.0",
@@ -44,7 +45,8 @@
     },
     "scripts": {
         "dev": "webpack --mode development --watch",
-        "build": "webpack --mode production",
+        "build": "webpack --mode production && yarn run copy-xslt-polyfill",
+        "copy-xslt-polyfill": "rm -rf dist/xslt-polyfill && mkdir -p dist/xslt-polyfill/dist && SRC=$(node -e \"console.log(require('path').dirname(require.resolve('xslt-polyfill/package.json')))\") && cp $SRC/xslt-polyfill.min.js dist/xslt-polyfill/ && cp $SRC/dist/xslt-wasm.js dist/xslt-polyfill/dist/ && cp $SRC/package.json dist/xslt-polyfill/",
         "analyze": "cross-env ANALYZER=true yarn run build",
         "format": "prettier --write src",
         "format-check": "prettier --check src",

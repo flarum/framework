@@ -9,7 +9,9 @@
 
 namespace Flarum\Frontend;
 
+use Flarum\Formatter\XsltPolyfill;
 use Flarum\Frontend\Driver\TitleDriverInterface;
+use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -279,7 +281,48 @@ class Document implements Renderable
             return '<meta name="'.e($name).'" content="'.e($content).'">';
         }, $this->meta, array_keys($this->meta)));
 
+        if ($polyfill = $this->makeXsltPolyfillLoader()) {
+            $head[] = $polyfill;
+        }
+
         return implode("\n", array_merge($head, $this->head));
+    }
+
+    /**
+     * Emit a tiny inline detector that synchronously document.write()s a
+     * <script src="…xslt-polyfill.min.js"> tag if the browser has no
+     * working XSLTProcessor. Because document.write of a script tag during
+     * HTML parsing inserts it inline, the parser blocks until the polyfill
+     * loads and executes — this guarantees window.XSLTProcessor is in
+     * place before forum.js runs (s9e calls `new XSLTProcessor` at
+     * top-level module load).
+     *
+     * Browsers with native XSLT pay the cost of the detector only (~200
+     * bytes); only affected browsers fetch the polyfill itself.
+     *
+     * @return string|null
+     */
+    private function makeXsltPolyfillLoader()
+    {
+        // @todo v2.0 inject FilesystemFactory as dependency instead
+        $url = XsltPolyfill::publicUrl(resolve(FilesystemFactory::class));
+        if ($url === null) {
+            return null;
+        }
+
+        // JSON-encode the URL with HTML-safe flags so it can't break out of
+        // the JS string context, even if a hostile asset URL contained
+        // quotes / angle brackets / ampersands. The JSON-encoded value is
+        // already a JS string literal (with surrounding quotes), so it can
+        // be concatenated into the document.write() argument directly.
+        $jsUrl = json_encode($url, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+
+        // The closing </script> for the written-out tag is split across the
+        // string literal so the *outer* <script> doesn't close early when
+        // the HTML parser scans for </script>.
+        return <<<HTML
+<script>(function(){try{if(typeof XSLTProcessor!=="undefined"&&new XSLTProcessor())return;}catch(e){}document.write('<script src='+$jsUrl+'><\/script>');})();</script>
+HTML;
     }
 
     /**
