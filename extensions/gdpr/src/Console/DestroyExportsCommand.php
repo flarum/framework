@@ -22,7 +22,7 @@ class DestroyExportsCommand extends Command
     {
         Export::destroyable()
             ->each(function (Export $export) use ($exporter) {
-                $exporter->destroy($export);
+                $exporter->expire($export);
             });
     }
 }

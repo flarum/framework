@@ -88,7 +88,7 @@ class Exporter
         return $export;
     }
 
-    public function destroy(Export $export): void
+    public function expire(Export $export): void
     {
         $this->storageManager->deleteStoredExport($export);
 
@@ -97,7 +97,8 @@ class Exporter
             ->where('subject_id', $export->id)
             ->update(['is_deleted' => true]);
 
-        $export->delete();
+        $export->file = null;
+        $export->save();
     }
 
     private function getTempDir(): string
