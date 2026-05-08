@@ -35,7 +35,10 @@ class FormatterJsTest extends TestCase
 
     private function makeFormatter(?string $polyfillUrl): Formatter
     {
-        return new Formatter(new Repository(new ArrayStore()), $this->cacheDir, $polyfillUrl);
+        $formatter = new Formatter(new Repository(new ArrayStore()), $this->cacheDir);
+        $formatter->setXsltPolyfillUrlResolver(fn () => $polyfillUrl);
+
+        return $formatter;
     }
 
     #[Test]

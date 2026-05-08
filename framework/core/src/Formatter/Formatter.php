@@ -9,6 +9,7 @@
 
 namespace Flarum\Formatter;
 
+use Closure;
 use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository;
 use Psr\Http\Message\ServerRequestInterface;
@@ -25,25 +26,50 @@ class Formatter
     protected array $unparsingCallbacks = [];
     protected array $renderingCallbacks = [];
 
+    /**
+     * @var Closure(): ?string|null
+     */
+    private ?Closure $xsltPolyfillUrlResolver = null;
+    private ?string $resolvedXsltPolyfillUrl = null;
+    private bool $xsltPolyfillUrlResolved = false;
+
     public function __construct(
         protected Repository $cache,
-        protected string $cacheDir,
-        protected ?string $xsltPolyfillUrl = null
+        protected string $cacheDir
     ) {
     }
 
     /**
-     * Set the URL of the xslt-polyfill loader to inject into getJs().
+     * Set a resolver for the xslt-polyfill loader URL. Called lazily on the
+     * first `getJs()` invocation so that resolving the URL (which goes
+     * through the flarum-assets disk and may itself be sensitive to other
+     * service-provider boot ordering) does not happen during app boot.
      *
-     * Wired from FormatterServiceProvider::boot() rather than at construction
-     * so the URL can be resolved against the flarum-assets disk after all
-     * extender route registrations are complete.
+     * The resolver may return null to disable the polyfill loader entirely
+     * — used when the configured assets disk has no public URL (e.g. an
+     * in-memory disk in tests).
+     *
+     * @param Closure(): ?string $resolver
      *
      * @internal
      */
-    public function setXsltPolyfillUrl(?string $url): void
+    public function setXsltPolyfillUrlResolver(Closure $resolver): void
     {
-        $this->xsltPolyfillUrl = $url;
+        $this->xsltPolyfillUrlResolver = $resolver;
+        $this->xsltPolyfillUrlResolved = false;
+        $this->resolvedXsltPolyfillUrl = null;
+    }
+
+    private function getXsltPolyfillUrl(): ?string
+    {
+        if (! $this->xsltPolyfillUrlResolved) {
+            $this->resolvedXsltPolyfillUrl = $this->xsltPolyfillUrlResolver !== null
+                ? ($this->xsltPolyfillUrlResolver)()
+                : null;
+            $this->xsltPolyfillUrlResolved = true;
+        }
+
+        return $this->resolvedXsltPolyfillUrl;
     }
 
     /**
@@ -223,11 +249,12 @@ class Formatter
     {
         $s9eJs = $this->getComponent('js');
 
-        if ($this->xsltPolyfillUrl === null) {
+        $polyfillUrl = $this->getXsltPolyfillUrl();
+        if ($polyfillUrl === null) {
             return $s9eJs;
         }
 
-        $url = json_encode($this->xsltPolyfillUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+        $url = json_encode($polyfillUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
         return <<<JS
 (function() {

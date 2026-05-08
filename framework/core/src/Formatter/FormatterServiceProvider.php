@@ -31,18 +31,26 @@ class FormatterServiceProvider extends AbstractServiceProvider
 
     public function boot(Container $container): void
     {
-        // Resolve the polyfill URL via the flarum-assets disk so it stays
-        // correct on installs whose assets are served from a remote bucket
-        // or CDN — same approach MailServiceProvider uses for the email logo.
-        // Done in boot() rather than the formatter's register() closure to
-        // avoid pulling UrlGenerator into formatter resolution, which caused
-        // early route compilation that broke unrelated tests.
-        $url = $container->make(FilesystemFactory::class)->disk('flarum-assets')->url('xslt-polyfill/xslt-polyfill.min.js');
+        // Register a *resolver* rather than resolving the URL now. The
+        // resolver fires lazily on the first getJs() call, so:
+        //   1. We don't pre-resolve the flarum-assets disk during boot,
+        //      which would memoise it before tests can swap the adapter.
+        //   2. We don't pull UrlGenerator into early route resolution.
+        //   3. Disks without a public URL (in-memory test disks, etc.)
+        //      cause the resolver to return null and the polyfill loader
+        //      to be skipped — the formatter falls back to plain s9e.
+        $container->make(Formatter::class)->setXsltPolyfillUrlResolver(function () use ($container): ?string {
+            try {
+                $url = $container->make(FilesystemFactory::class)->disk('flarum-assets')->url('xslt-polyfill/xslt-polyfill.min.js');
+            } catch (\RuntimeException) {
+                return null;
+            }
 
-        if (($version = XsltPolyfill::version()) !== null) {
-            $url .= '?v='.$version;
-        }
+            if (($version = XsltPolyfill::version()) !== null) {
+                $url .= '?v='.$version;
+            }
 
-        $container->make(Formatter::class)->setXsltPolyfillUrl($url);
+            return $url;
+        });
     }
 }
