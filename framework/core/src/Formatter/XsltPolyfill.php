@@ -35,7 +35,6 @@ class XsltPolyfill
         return $url;
     }
 
-
     /**
      * Locate the vendored xslt-polyfill bundle inside core's js/dist.
      *

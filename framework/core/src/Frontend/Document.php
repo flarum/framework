@@ -9,8 +9,8 @@
 
 namespace Flarum\Frontend;
 
-use Flarum\Foundation\Config;
 use Flarum\Formatter\XsltPolyfill;
+use Flarum\Foundation\Config;
 use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\Driver\TitleDriverInterface;
 use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
