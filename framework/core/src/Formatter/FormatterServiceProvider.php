@@ -11,9 +11,9 @@ namespace Flarum\Formatter;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
-use Flarum\Http\UrlGenerator;
 use Illuminate\Cache\Repository;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 
 class FormatterServiceProvider extends AbstractServiceProvider
 {
@@ -31,11 +31,13 @@ class FormatterServiceProvider extends AbstractServiceProvider
 
     public function boot(Container $container): void
     {
-        // Wire the polyfill URL after all providers have registered, so the
-        // forum route collection on UrlGenerator is fully populated. Pulling
-        // UrlGenerator into the formatter's register() closure caused early
-        // route resolution that broke unrelated tests.
-        $url = $container->make(UrlGenerator::class)->to('forum')->path('assets/xslt-polyfill/xslt-polyfill.min.js');
+        // Resolve the polyfill URL via the flarum-assets disk so it stays
+        // correct on installs whose assets are served from a remote bucket
+        // or CDN — same approach MailServiceProvider uses for the email logo.
+        // Done in boot() rather than the formatter's register() closure to
+        // avoid pulling UrlGenerator into formatter resolution, which caused
+        // early route compilation that broke unrelated tests.
+        $url = $container->make(FilesystemFactory::class)->disk('flarum-assets')->url('xslt-polyfill/xslt-polyfill.min.js');
 
         if (($version = XsltPolyfill::version()) !== null) {
             $url .= '?v='.$version;
