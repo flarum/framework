@@ -27,7 +27,8 @@ class Formatter
 
     public function __construct(
         protected Repository $cache,
-        protected string $cacheDir
+        protected string $cacheDir,
+        protected ?string $xsltPolyfillUrl = null
     ) {
     }
 
@@ -195,58 +196,33 @@ class Formatter
     /**
      * Get the formatter JavaScript.
      *
-     * Injects XSLT polyfill inline before s9e code to support browsers
-     * that have removed native XSLT support (Chrome 155+, Nov 2026).
+     * If a polyfill URL is configured, prepends a small detector that
+     * loads the xslt-polyfill (~510 KB gzipped) only on browsers where
+     * native XSLT is unavailable. Chrome disabled XSLT by default in
+     * Beta channel from version 145 (Dec 2025) and on Stable from
+     * version 158 (Nov 2026). The polyfill is a temporary measure
+     * pending an upstream s9e fix that removes the XSLT dependency.
      *
-     * @TODO: Remove polyfill injection when s9e/textformatter has a solution for XSLT removal.
      * @see https://github.com/s9e/TextFormatter/issues/250
      */
     public function getJs(): string
     {
         $s9eJs = $this->getComponent('js');
 
-        // Try to load XSLT polyfill
-        // Path 1: Published package (core/js/node_modules)
-        $polyfillPath = __DIR__.'/../../js/node_modules/xslt-polyfill/xslt-polyfill.min.js';
-
-        if (! file_exists($polyfillPath)) {
-            // Path 2: Monorepo hoisted (framework/node_modules)
-            $polyfillPath = __DIR__.'/../../../../node_modules/xslt-polyfill/xslt-polyfill.min.js';
-        }
-
-        if (! file_exists($polyfillPath)) {
-            // Polyfill not available, return s9e JS without it
+        if ($this->xsltPolyfillUrl === null) {
             return $s9eJs;
         }
 
-        $polyfillJs = file_get_contents($polyfillPath);
+        $url = json_encode($this->xsltPolyfillUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
-        // Inject polyfill inline before s9e code
         return <<<JS
-// XSLT Polyfill for Chrome 155+ (Nov 2026)
-// Chrome is removing native XSLT support. This polyfill ensures s9e TextFormatter
-// continues to work for live preview functionality.
 (function() {
-    var xsltWorks = false;
-
-    if (typeof window !== 'undefined' && window.XSLTProcessor) {
-        try {
-            // Test if XSLTProcessor can actually be instantiated
-            // (constructor exists but throws when XSLT is disabled)
-            new XSLTProcessor();
-            xsltWorks = true;
-        } catch (e) {
-            // XSLTProcessor exists but is disabled
-        }
-    }
-
-    if (!xsltWorks) {
-        // Load polyfill
-        $polyfillJs
-    }
+    try { if (typeof XSLTProcessor !== 'undefined' && new XSLTProcessor()) return; } catch (e) {}
+    var s = document.createElement('script');
+    s.src = $url;
+    s.async = false;
+    document.head.appendChild(s);
 })();
-
-// s9e TextFormatter code
 $s9eJs
 JS;
     }

@@ -13,6 +13,7 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
 
@@ -47,6 +48,8 @@ class AssetsPublishCommand extends AbstractCommand
             $target->put("fonts/$relPath", $local->get($fullPath));
         }
 
+        $this->publishXsltPolyfill($target, $local);
+
         $this->info('Publishing extension assets...');
 
         $extensions = $this->container->make(ExtensionManager::class);
@@ -60,5 +63,56 @@ class AssetsPublishCommand extends AbstractCommand
         }
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Copies the xslt-polyfill bundle into the public assets disk so the
+     * Formatter can hand the browser a public URL when native XSLT is
+     * disabled. Both files are kept in their original relative layout
+     * (root + ./dist) so the polyfill's currentScript-based wasm loader
+     * keeps working.
+     */
+    private function publishXsltPolyfill(Cloud $target, Filesystem $local): void
+    {
+        $sourceDir = $this->findXsltPolyfillSource();
+
+        if ($sourceDir === null) {
+            $this->info('xslt-polyfill not found in node_modules; skipping.');
+            return;
+        }
+
+        $files = [
+            'xslt-polyfill.min.js' => 'xslt-polyfill/xslt-polyfill.min.js',
+            'dist/xslt-wasm.js' => 'xslt-polyfill/dist/xslt-wasm.js',
+        ];
+
+        foreach ($files as $relSource => $relTarget) {
+            $sourcePath = "$sourceDir/$relSource";
+            if ($local->exists($sourcePath)) {
+                $target->put($relTarget, $local->get($sourcePath));
+            }
+        }
+    }
+
+    private function findXsltPolyfillSource(): ?string
+    {
+        // From AssetsPublishCommand:
+        //   Per-package install:  ../../../js/node_modules/xslt-polyfill
+        //   Monorepo hoist:       ../../../../../node_modules/xslt-polyfill
+        // From a published `vendor/flarum/core` install the per-package path
+        // resolves correctly; the monorepo path only matters during framework
+        // development.
+        $candidates = [
+            __DIR__.'/../../../js/node_modules/xslt-polyfill',
+            __DIR__.'/../../../../../node_modules/xslt-polyfill',
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (file_exists($candidate.'/xslt-polyfill.min.js')) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 }

@@ -11,6 +11,7 @@ namespace Flarum\Formatter;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
+use Flarum\Http\UrlGenerator;
 use Illuminate\Cache\Repository;
 use Illuminate\Contracts\Container\Container;
 
@@ -21,7 +22,8 @@ class FormatterServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.formatter', function (Container $container) {
             return new Formatter(
                 new Repository($container->make('cache.filestore')),
-                $container[Paths::class]->storage.'/formatter'
+                $container[Paths::class]->storage.'/formatter',
+                $container->make(UrlGenerator::class)->to('forum')->path('assets/xslt-polyfill/xslt-polyfill.min.js')
             );
         });
 
