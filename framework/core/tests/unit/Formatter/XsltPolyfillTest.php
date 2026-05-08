@@ -16,11 +16,11 @@ use PHPUnit\Framework\TestCase;
 class XsltPolyfillTest extends TestCase
 {
     #[Test]
-    public function find_source_locates_the_polyfill_in_node_modules(): void
+    public function find_source_locates_the_vendored_polyfill(): void
     {
         $sourceDir = XsltPolyfill::findSource();
 
-        $this->assertNotNull($sourceDir, 'xslt-polyfill not installed in node_modules; cannot run polyfill tests.');
+        $this->assertNotNull($sourceDir);
         $this->assertFileExists($sourceDir.'/xslt-polyfill.min.js');
         $this->assertFileExists($sourceDir.'/dist/xslt-wasm.js');
     }
@@ -30,7 +30,7 @@ class XsltPolyfillTest extends TestCase
     {
         $version = XsltPolyfill::version();
 
-        $this->assertNotNull($version, 'xslt-polyfill not installed in node_modules; cannot run polyfill tests.');
+        $this->assertNotNull($version);
         $this->assertMatchesRegularExpression('/^\d+\.\d+\.\d+/', $version);
     }
 }

@@ -12,22 +12,19 @@ namespace Flarum\Formatter;
 class XsltPolyfill
 {
     /**
-     * Locate the xslt-polyfill package directory in node_modules.
+     * Locate the vendored xslt-polyfill bundle inside core's js/dist.
      *
-     * Per-package install:  framework/core/js/node_modules/xslt-polyfill
-     * Monorepo hoist:       node_modules/xslt-polyfill (at the repo root)
+     * The polyfill is copied here from node_modules at `yarn build` time
+     * (see the copy-xslt-polyfill script in framework/core/js/package.json),
+     * so it ships as part of the published flarum/core package — operators
+     * never need to run yarn themselves.
      */
     public static function findSource(): ?string
     {
-        $candidates = [
-            __DIR__.'/../../js/node_modules/xslt-polyfill',
-            __DIR__.'/../../../../node_modules/xslt-polyfill',
-        ];
+        $sourceDir = __DIR__.'/../../js/dist/xslt-polyfill';
 
-        foreach ($candidates as $candidate) {
-            if (file_exists($candidate.'/xslt-polyfill.min.js')) {
-                return $candidate;
-            }
+        if (file_exists($sourceDir.'/xslt-polyfill.min.js')) {
+            return $sourceDir;
         }
 
         return null;

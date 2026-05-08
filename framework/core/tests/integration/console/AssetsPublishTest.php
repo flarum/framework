@@ -22,7 +22,7 @@ class AssetsPublishTest extends ConsoleTestCase
     }
 
     #[Test]
-    public function publish_command_copies_xslt_polyfill_when_present_in_node_modules(): void
+    public function publish_command_copies_xslt_polyfill(): void
     {
         $disk = $this->getAssetsDisk();
         $disk->delete('xslt-polyfill/xslt-polyfill.min.js');
@@ -30,9 +30,9 @@ class AssetsPublishTest extends ConsoleTestCase
 
         $this->runCommand(['command' => 'assets:publish']);
 
-        // The monorepo's hoisted node_modules has the polyfill installed via
-        // the framework/core/js/package.json dependency, so publish should
-        // emit both files into the assets disk preserving the dist/ layout.
+        // The polyfill is vendored in framework/core/js/dist/xslt-polyfill/
+        // and ships with flarum/core, so publish should always emit both
+        // files into the assets disk preserving the dist/ layout.
         $this->assertTrue(
             $disk->exists('xslt-polyfill/xslt-polyfill.min.js'),
             'xslt-polyfill.min.js was not published into the flarum-assets disk.'
@@ -52,9 +52,8 @@ class AssetsPublishTest extends ConsoleTestCase
 
         $publishedSize = $disk->size('xslt-polyfill/xslt-polyfill.min.js');
 
-        // The source file lives in the monorepo's hoisted node_modules.
-        $sourcePath = __DIR__.'/../../../../../node_modules/xslt-polyfill/xslt-polyfill.min.js';
-        $this->assertFileExists($sourcePath, 'xslt-polyfill not installed in node_modules; cannot verify the publish.');
+        $sourcePath = __DIR__.'/../../../js/dist/xslt-polyfill/xslt-polyfill.min.js';
+        $this->assertFileExists($sourcePath);
 
         $this->assertEquals(filesize($sourcePath), $publishedSize, 'Published polyfill size differs from source.');
     }

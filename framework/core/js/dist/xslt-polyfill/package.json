@@ -1,0 +1,42 @@
+{
+  "name": "xslt-polyfill",
+  "version": "1.0.21",
+  "description": "A polyfill for browser-based XSLTProcessor and friends",
+  "keywords": [
+    "XSLT",
+    "XML",
+    "XSLTProcessor"
+  ],
+  "homepage": "https://github.com/mfreed7/xslt_polyfill",
+  "bugs": {
+    "url": "https://github.com/mfreed7/xslt_polyfill/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mfreed7/xslt_polyfill.git"
+  },
+  "author": "Mason Freed <mfreed@mfreed.com>",
+  "license": "BSD-3-Clause",
+  "main": "xslt-polyfill.min.js",
+  "files": [
+    "xslt-polyfill.min.js",
+    "dist/xslt-wasm.js"
+  ],
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node run-tests.js",
+    "build:wasm": "make",
+    "build:js": "node scripts/combine.js",
+    "build": "npm run build:wasm && npm run build:js",
+    "clean": "make clean",
+    "clean:all": "make clean-libs"
+  },
+  "type": "commonjs",
+  "devDependencies": {
+    "puppeteer": "^24.37.5",
+    "terser": "^5.31.0"
+  }
+}
+
