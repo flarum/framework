@@ -35,10 +35,9 @@ class Formatter
     /**
      * Set the URL of the xslt-polyfill loader to inject into getJs().
      *
-     * Called from the FormatterServiceProvider's boot() phase rather than at
-     * construction so it doesn't drag UrlGenerator into the formatter's
-     * lazy-resolved singleton, which would resolve the route collection
-     * earlier than other providers expect.
+     * Wired from FormatterServiceProvider::boot() rather than at construction
+     * so the URL can be resolved against the flarum-assets disk after all
+     * extender route registrations are complete.
      *
      * @internal
      */
