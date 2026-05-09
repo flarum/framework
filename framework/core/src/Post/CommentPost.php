@@ -41,7 +41,10 @@ class CommentPost extends Post implements Formattable
     public function revise(string $content, User $actor): static
     {
         if ($this->content !== $content) {
-            $oldContent = $this->content;
+            // Coalesce to '' so legacy/imported posts with NULL content can
+            // still be edited — the Revised event's $oldContent is typed
+            // string and null would TypeError. See #4606.
+            $oldContent = $this->content ?? '';
 
             $this->setContentAttribute($content, $actor);
 
