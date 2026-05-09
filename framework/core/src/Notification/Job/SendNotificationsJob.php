@@ -26,6 +26,26 @@ class SendNotificationsJob extends AbstractJob
 
     public function handle(): void
     {
-        Notification::notify($this->recipients, $this->blueprint);
+        // Race guard for #4622: NotificationSyncer::sync() reads matchingBlueprint
+        // and decides who's a "new" recipient *before* the actual INSERT happens
+        // (here). If sync() is called twice in rapid succession (e.g. Posted
+        // followed quickly by Revised) before either job runs, both reads see no
+        // row and both jobs queue the same recipients. Re-run the dedup check at
+        // INSERT time so only the first job actually inserts; later jobs no-op.
+        $alreadyInserted = Notification::matchingBlueprint($this->blueprint)
+            ->whereIn('user_id', array_map(fn (User $user) => $user->id, $this->recipients))
+            ->pluck('user_id')
+            ->all();
+
+        $newRecipients = array_filter(
+            $this->recipients,
+            fn (User $user) => ! in_array($user->id, $alreadyInserted, true)
+        );
+
+        if (empty($newRecipients)) {
+            return;
+        }
+
+        Notification::notify($newRecipients, $this->blueprint);
     }
 }
