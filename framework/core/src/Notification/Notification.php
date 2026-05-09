@@ -161,11 +161,29 @@ class Notification extends AbstractModel
         $data = $attributes['data'];
         unset($attributes['data']);
 
-        return $query->where($attributes)
+        $query->where($attributes);
+
+        if ($data === null) {
+            return $query->whereNull('data');
+        }
+
+        // The `data` column is JSON. A plain string comparison only works on
+        // engines that store JSON as opaque text (SQLite). On engines that
+        // canonicalise it (MySQL stores `{"a": 1}` even when the input was
+        // `{"a":1}`), the column has to be cast or the parameter has to be
+        // wrapped in CAST(? AS JSON) for the comparison to round-trip. On
+        // PostgreSQL the column is true `json` and `=` on it is undefined,
+        // so we cast the column to text before comparing.
+        return $query
             ->whenPgSql(function ($query) use ($data) {
                 return $query->whereRaw('data::text = ?', [$data]);
             }, function ($query) use ($data) {
-                return $query->where('data', $data);
+                return $query
+                    ->whenSqlite(function ($query) use ($data) {
+                        return $query->where('data', $data);
+                    }, function ($query) use ($data) {
+                        return $query->whereRaw('data = CAST(? AS JSON)', [$data]);
+                    });
             });
     }
 
