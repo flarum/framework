@@ -42,6 +42,7 @@ class SendEmailNotificationJob extends AbstractJob
             // to non-atomic send — the worst case is a duplicate email,
             // same as before this fix.
             $mailer->send($this->blueprint, $this->recipient);
+
             return;
         }
 
