@@ -33,8 +33,6 @@ class DiscussionVisibilityTest extends TestCase
     {
         parent::setUp();
 
-        Tag::flushPermittedTagCache();
-
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([

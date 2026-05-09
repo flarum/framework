@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
  * @property int $id
@@ -212,98 +213,56 @@ class Tag extends AbstractModel
     }
 
     /**
-     * Per-request cache of resolved permitted tag IDs, keyed by User instance.
-     * Stored per user object so it is naturally scoped to the request lifecycle
-     * and does not persist across fresh User instances (e.g. in tests).
-     * Inner array is keyed by permission string; null value means all tags permitted (admin).
-     *
-     * @var \WeakMap<User, array<string, mixed>>|null
+     * Build a subquery that selects the IDs of tags the user has the given
+     * permission on. Used inline by scopeWhereHasPermission so the DB does
+     * the filtering — avoids fetching every tag into PHP per call.
      */
-    protected static ?\WeakMap $permittedTagIdCache = null;
-
-    /**
-     * Resolve the IDs of tags the user has the given permission on.
-     * Returns null if the user is an admin (all tags permitted).
-     * Results are cached on the User instance for the duration of the request.
-     *
-     * @return int[]|null
-     */
-    protected static function resolvePermittedTagIds(User $user, string $currPermission): ?array
+    protected static function buildPermissionSubquery(QueryBuilder $base, bool $isAdmin, bool $hasGlobalPermission, iterable $tagIdsWithPermission): void
     {
-        if (static::$permittedTagIdCache === null) {
-            /** @var \WeakMap<User, array<string, mixed>> $map */
-            $map = new \WeakMap();
-            static::$permittedTagIdCache = $map;
+        $base
+            ->from('tags as perm_tags')
+            ->select('perm_tags.id');
+
+        // Admins have all permissions in all tags by default; no need to
+        // narrow the subquery.
+        if ($isAdmin) {
+            return;
         }
 
-        $userCache = static::$permittedTagIdCache[$user] ?? [];
+        $base->where(function ($query) use ($tagIdsWithPermission) {
+            $query
+                ->where('perm_tags.is_restricted', true)
+                ->whereIn('perm_tags.id', $tagIdsWithPermission);
+        });
 
-        if (array_key_exists($currPermission, $userCache)) {
-            return $userCache[$currPermission];
+        if ($hasGlobalPermission) {
+            $base->orWhere('perm_tags.is_restricted', false);
         }
-
-        if ($user->isAdmin()) {
-            $userCache[$currPermission] = null;
-            static::$permittedTagIdCache[$user] = $userCache;
-
-            return null;
-        }
-
-        $hasGlobalPermission = $user->hasPermission($currPermission);
-
-        $tagIdsWithPermission = collect($user->getPermissions())
-            ->filter(fn ($p) => str_starts_with($p, 'tag') && str_contains($p, $currPermission))
-            ->map(fn ($p) => (int) substr(explode('.', $p, 2)[0], 3))
-            ->values()
-            ->all();
-
-        // Fetch tag id/is_restricted in one query and resolve permitted IDs in PHP.
-        $allTags = static::query()->select(['id', 'is_restricted'])->get();
-
-        $permitted = $allTags
-            ->filter(function (self $tag) use ($hasGlobalPermission, $tagIdsWithPermission) {
-                if (! $tag->is_restricted) {
-                    return $hasGlobalPermission;
-                }
-
-                return in_array($tag->id, $tagIdsWithPermission);
-            })
-            ->pluck('id')
-            ->all();
-
-        $userCache[$currPermission] = $permitted;
-        static::$permittedTagIdCache[$user] = $userCache;
-
-        return $permitted;
-    }
-
-    /**
-     * Flush the permitted tag ID cache.
-     * Only needed in long-running processes or tests that reuse User instances
-     * across logical requests. Normal PHP-FPM and test flows do not require this.
-     */
-    public static function flushPermittedTagCache(): void
-    {
-        static::$permittedTagIdCache = null;
     }
 
     public function scopeWhereHasPermission(Builder $query, User $user, string $currPermission): Builder
     {
-        $permittedIds = static::resolvePermittedTagIds($user, $currPermission);
+        $hasGlobalPermission = $user->hasPermission($currPermission);
+        $isAdmin = $user->isAdmin();
 
-        // Admin: no restriction needed.
-        if ($permittedIds === null) {
-            return $query;
-        }
+        $tagIdsWithPermission = collect($user->getPermissions())
+            ->filter(fn (string $p) => str_starts_with($p, 'tag') && str_contains($p, $currPermission))
+            ->map(fn (string $p) => (int) substr(explode('.', $p, 2)[0], 3))
+            ->values();
 
-        return $query->where(function ($query) use ($permittedIds) {
-            $query
-                ->whereIn('tags.id', $permittedIds)
-                ->where(
-                    fn ($query) => $query
-                    ->whereIn('tags.parent_id', $permittedIds)
-                    ->orWhereNull('tags.parent_id')
-                );
-        });
+        return $query
+            ->where(function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
+                $query
+                    ->whereIn('tags.id', function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
+                        static::buildPermissionSubquery($query, $isAdmin, $hasGlobalPermission, $tagIdsWithPermission);
+                    })
+                    ->where(
+                        fn ($query) => $query
+                            ->whereIn('tags.parent_id', function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
+                                static::buildPermissionSubquery($query, $isAdmin, $hasGlobalPermission, $tagIdsWithPermission);
+                            })
+                            ->orWhereNull('tags.parent_id')
+                    );
+            });
     }
 }
