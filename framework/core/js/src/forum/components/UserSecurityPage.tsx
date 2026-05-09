@@ -29,11 +29,9 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
       m.route.set('/');
     }
 
-    this.loadUser(routeUsername);
-
     app.setTitle(extractText(app.translator.trans('core.forum.security.title')));
 
-    this.loadTokens();
+    this.loadUser(routeUsername).then(() => this.loadTokens());
   }
 
   content() {
