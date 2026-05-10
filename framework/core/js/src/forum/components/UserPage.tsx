@@ -98,7 +98,7 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
     const lowercaseUsername = username.toLowerCase();
 
     // On initial render the server preloads the target user as the primary
-    // resource of the API document, so prefer that — it stays correct under
+    // resource of the API document, so prefer that. It stays correct under
     // any slug driver (including IdWithDisplayName, where the route slug
     // does not equal the username).
     const preloaded = app.preloadedApiDocument<User>();
@@ -109,10 +109,7 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
     }
 
     app.store.all<User>('users').some((user) => {
-      if (
-        (user.username().toLowerCase() === lowercaseUsername || user.id() === username || user.slug() === username) &&
-        user.joinTime()
-      ) {
+      if ((user.username().toLowerCase() === lowercaseUsername || user.id() === username || user.slug() === username) && user.joinTime()) {
         this.show(user);
         return true;
       }
