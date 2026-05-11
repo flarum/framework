@@ -41,22 +41,34 @@ export default function (): void {
   });
 
   extend(DiscussionPage.prototype, 'oncreate', function (this: any) {
-    app.websocket_channels.public?.bind(CORE_POSTED_EVENT, this.websocketEventPosted.bind(this));
-    app.websocket_channels.user?.bind(CORE_POSTED_EVENT, this.websocketEventPosted.bind(this));
+    // Bind handlers against the current channel objects. Extracted so it can
+    // re-fire on reconnect — see flarum/framework#4597. On reconnect the
+    // previous channel objects are discarded with the previous Pusher
+    // instance, so re-binding against the new channels is non-duplicating.
+    const bindHandlers = (): void => {
+      app.websocket_channels.public?.bind(CORE_POSTED_EVENT, this.websocketEventPosted.bind(this));
+      app.websocket_channels.user?.bind(CORE_POSTED_EVENT, this.websocketEventPosted.bind(this));
 
-    app.websocket_channels.public?.bind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate.bind(this));
-    app.websocket_channels.user?.bind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate.bind(this));
+      app.websocket_channels.public?.bind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate.bind(this));
+      app.websocket_channels.user?.bind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate.bind(this));
 
-    app.websocket_channels.public?.bind(CORE_REVISED_EVENT, this.websocketEventPosted.bind(this));
-    app.websocket_channels.user?.bind(CORE_REVISED_EVENT, this.websocketEventPosted.bind(this));
+      app.websocket_channels.public?.bind(CORE_REVISED_EVENT, this.websocketEventPosted.bind(this));
+      app.websocket_channels.user?.bind(CORE_REVISED_EVENT, this.websocketEventPosted.bind(this));
 
-    for (const eventName of RealtimeState.getDiscussionStreamEventNames()) {
-      app.websocket_channels.public?.bind(eventName, this.websocketEventStreamUpdate.bind(this));
-      app.websocket_channels.user?.bind(eventName, this.websocketEventStreamUpdate.bind(this));
-    }
+      for (const eventName of RealtimeState.getDiscussionStreamEventNames()) {
+        app.websocket_channels.public?.bind(eventName, this.websocketEventStreamUpdate.bind(this));
+        app.websocket_channels.user?.bind(eventName, this.websocketEventStreamUpdate.bind(this));
+      }
+    };
+
+    bindHandlers();
+    this._realtimeReconnectDisposer = RealtimeState.onChannelsReconnected(bindHandlers);
   });
 
-  extend(DiscussionPage.prototype, 'onremove', function () {
+  extend(DiscussionPage.prototype, 'onremove', function (this: any) {
+    this._realtimeReconnectDisposer?.();
+    this._realtimeReconnectDisposer = null;
+
     app.websocket_channels.public?.unbind(CORE_POSTED_EVENT);
     app.websocket_channels.user?.unbind(CORE_POSTED_EVENT);
 

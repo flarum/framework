@@ -11,20 +11,22 @@ export default function () {
     // Enable logging to console when debug is enabled.
     Pusher.logToConsole = this.forum.attribute<boolean>('debug');
 
+    const wsKey = this.forum.attribute<string>('websocket.key');
     const wsHost = this.forum.attribute<string>('websocket.host');
     const secure = this.forum.attribute<boolean>('websocket.secure');
+    const disallowPublicConnection = this.forum.attribute<boolean>('websocket.disallow_connection');
 
-    app.websocket = new Pusher(this.forum.attribute<string>('websocket.key'), {
+    const pusherOptions = {
       channelAuthorization: {
         endpoint: this.forum.attribute<string>('apiUrl') + '/websocket/auth',
-        transport: 'ajax',
+        transport: 'ajax' as const,
       },
       wsHost,
       wsPort: this.forum.attribute<number>('websocket.port'),
       wssPort: this.forum.attribute<number>('websocket.port'),
-      enabledTransports: ['wss', 'ws'],
+      enabledTransports: ['wss', 'ws'] as ('wss' | 'ws')[],
       forceTLS: secure,
-    });
+    };
 
     app.websocket_channels = {
       public: null,
@@ -32,35 +34,49 @@ export default function () {
     };
 
     // Mount the notification toast container outside the main Mithril tree.
+    // This persists across reconnect cycles — only the Pusher instance and
+    // its channels are rebuilt.
     const toastState = new NotificationToastState();
     const toastEl = document.createElement('div');
     document.body.appendChild(toastEl);
     m.mount(toastEl, { view: () => m(NotificationToast, { state: toastState }) });
 
-    if (app.session.user) {
-      const userChannel = app.websocket.subscribe('private-user=' + app.session.user.id());
-      app.websocket_channels.user = userChannel;
-      RealtimeState.notifyUserChannelReady(userChannel);
+    // Subscribe to user/public channels and bind the inline notification
+    // handler. Factored so `forceReconnect` can call it again against a fresh
+    // Pusher instance after iOS Safari backgrounding.
+    const setupChannels = (websocket: Pusher): void => {
+      app.websocket_channels.public = null;
+      app.websocket_channels.user = null;
 
-      // Show a toast for each incoming realtime notification and update the badge count.
-      userChannel.bind('notification', (data: unknown) => {
-        const notification = app.store.pushPayload(data as any) as any;
+      if (app.session.user) {
+        const userChannel = websocket.subscribe('private-user=' + app.session.user.id());
+        app.websocket_channels.user = userChannel;
 
-        if (notification) {
-          const user = app.session.user as any;
-          user?.pushAttributes({
-            unreadNotificationCount: (user.unreadNotificationCount() ?? 0) + 1,
-            newNotificationCount: (user.newNotificationCount() ?? 0) + 1,
-          });
+        // Show a toast for each incoming realtime notification and update the badge count.
+        userChannel.bind('notification', (data: unknown) => {
+          const notification = app.store.pushPayload(data as any) as any;
 
-          toastState.push(notification);
-        }
-      });
-    } else if (!this.forum.attribute<boolean>('websocket.disallow_connection')) {
-      const publicChannel = app.websocket.subscribe('public');
-      app.websocket_channels.public = publicChannel;
-      RealtimeState.notifyPublicChannelReady(publicChannel);
-    }
+          if (notification) {
+            const user = app.session.user as any;
+            user?.pushAttributes({
+              unreadNotificationCount: (user.unreadNotificationCount() ?? 0) + 1,
+              newNotificationCount: (user.newNotificationCount() ?? 0) + 1,
+            });
+
+            toastState.push(notification);
+          }
+        });
+
+        RealtimeState.notifyUserChannelReady(userChannel);
+      } else if (!disallowPublicConnection) {
+        const publicChannel = websocket.subscribe('public');
+        app.websocket_channels.public = publicChannel;
+        RealtimeState.notifyPublicChannelReady(publicChannel);
+      }
+    };
+
+    app.websocket = new Pusher(wsKey, pusherOptions);
+    setupChannels(app.websocket);
 
     // iOS Safari silently drops WebSocket connections when the tab is
     // backgrounded or the device sleeps, without firing `close` — pusher-js's
@@ -69,33 +85,43 @@ export default function () {
     // restores via `pageshow` (persisted=true) and does NOT fire
     // `visibilitychange` on return. We therefore hook both events.
     //
-    // After reconnecting, Pusher has no server-side buffering for events that
-    // fired while the socket was dead — we refresh the visible discussions
-    // list once the new connection reports `'connected'` so the UI catches up
-    // on missed activity. Refresh is gated on the `'connected'` event (not
-    // fired immediately after `connect()`) because an immediate Mithril redraw
-    // races with pusher-js's channel resubscription and can leave the client
-    // receiving no further push events.
+    // `forceReconnect` constructs a fresh Pusher instance rather than
+    // calling `connect()` on the existing one. pusher-js 7.6's default
+    // strategy enforces a `lives: 2` budget on its WebSocket transport;
+    // every iOS-initiated 1006 close decrements the budget and after the
+    // second backgrounding the strategy reports unsupported, so every
+    // subsequent `connect()` transitions straight to `'failed'`. A fresh
+    // Pusher comes with a fresh strategy tree and a full `livesLeft`,
+    // making the recovery survive arbitrarily many backgrounding cycles.
     //
-    // See flarum/framework#4588.
+    // After reconnecting, Pusher has no server-side buffering for events
+    // that fired while the socket was dead — we refresh the visible
+    // discussions list once the new connection reports `'connected'` so the
+    // UI catches up on missed activity. Refresh is gated on the
+    // `'connected'` event (not fired immediately after `connect()`) because
+    // an immediate Mithril redraw races with pusher-js's channel
+    // resubscription and can leave the client receiving no further push
+    // events.
+    //
+    // See flarum/framework#4588 and #4597.
     const RECONNECT_HIDDEN_THRESHOLD_MS = 5_000;
     let hiddenSince: number | null = null;
 
     const forceReconnect = (): void => {
-      if (!app.websocket) return;
+      const previous = app.websocket;
+      previous?.disconnect();
 
-      const connection = (app.websocket as any).connection;
+      const fresh = new Pusher(wsKey, pusherOptions);
+      app.websocket = fresh;
 
       const onReconnected = (): void => {
-        connection?.unbind('connected', onReconnected);
+        fresh.connection.unbind('connected', onReconnected);
         (app as any).discussions?.refresh?.();
       };
-      connection?.bind('connected', onReconnected);
+      fresh.connection.bind('connected', onReconnected);
 
-      app.websocket.disconnect();
-      // Small gap: pusher-js's internal state machine can no-op `connect()`
-      // when called synchronously during a teardown that is still in flight.
-      setTimeout(() => app.websocket?.connect(), 100);
+      setupChannels(fresh);
+      RealtimeState.notifyChannelsReconnected();
     };
 
     // Application.mount() runs once per page load, so these listeners are
