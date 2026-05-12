@@ -37,6 +37,7 @@ class ErasureJob extends GdprJob
 
     public function __construct(private ErasureRequest $erasureRequest)
     {
+        parent::__construct();
     }
 
     public function handle(

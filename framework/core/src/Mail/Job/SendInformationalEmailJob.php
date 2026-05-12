@@ -30,6 +30,7 @@ class SendInformationalEmailJob extends AbstractJob
         ],
         private readonly ?string $locale = null,
     ) {
+        parent::__construct();
     }
 
     public function handle(Mailer $mailer, Factory $view, TranslatorInterface $translator): void

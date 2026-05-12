@@ -25,6 +25,7 @@ class SendAbandonedExtensionsEmailJob extends AbstractJob
         private readonly string $forumTitle,
         private readonly ?string $locale = null,
     ) {
+        parent::__construct();
     }
 
     public function handle(Mailer $mailer, Factory $view, TranslatorInterface $translator): void

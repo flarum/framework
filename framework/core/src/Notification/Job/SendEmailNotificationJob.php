@@ -23,6 +23,7 @@ class SendEmailNotificationJob extends AbstractJob
         private readonly MailableInterface&BlueprintInterface $blueprint,
         private readonly User $recipient
     ) {
+        parent::__construct();
     }
 
     public function handle(NotificationMailer $mailer, CacheRepository $cache): void

@@ -24,6 +24,7 @@ class RequestPasswordResetJob extends AbstractJob
     public function __construct(
         protected string $email
     ) {
+        parent::__construct();
     }
 
     public function handle(
