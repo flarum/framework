@@ -47,7 +47,7 @@ export default class PostsUserPage extends UserPage {
 
   params(user: User) {
     return {
-      filter: { author: user.username() },
+      filter: { author: user.slug() },
     };
   }
 }
