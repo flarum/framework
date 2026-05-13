@@ -117,6 +117,17 @@ class DiscussionResource extends AbstractDatabaseResource
                     return $context->creating()
                         || $context->getActor()->can('rename', $discussion);
                 })
+                ->set(function (Discussion $discussion, string $value, Context $context) {
+                    // On update, route through `rename()` so that `Renamed`
+                    // fires — the listener creates the `discussionRenamed`
+                    // event post and dispatches notifications. The default
+                    // attribute setter would silently skip both.
+                    if ($context->updating()) {
+                        $discussion->rename($value);
+                    } else {
+                        $discussion->title = $value;
+                    }
+                })
                 ->minLength(3)
                 ->maxLength(80),
             Schema\Str::make('content')
@@ -207,6 +218,7 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->withLinkage(function (Context $context) {
                     return $context->showing(self::class)
                         || $context->creating(self::class)
+                        || $context->updating(self::class)
                         || $context->creating(PostResource::class);
                 })
                 ->get(function (Discussion $discussion, Context $context) {

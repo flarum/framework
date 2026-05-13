@@ -17,6 +17,7 @@ use Flarum\Extend;
 use Flarum\Flags\Api\Resource\FlagResource;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Tags\Access;
 use Flarum\Tags\Api;
@@ -178,4 +179,15 @@ return [
             return $endpoint
                 ->addDefaultInclude(['eventPostMentionsTags']);
         }),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-realtime', fn () => [
+            (new RealtimeExtend())
+                ->broadcastModelEvent(
+                    [DiscussionWasTagged::class],
+                    fn ($event) => $event->discussion,
+                    fn ($event) => $event->actor,
+                    'taggedEvent'
+                ),
+        ]),
 ];
