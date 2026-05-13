@@ -5,6 +5,7 @@ import Application from 'flarum/common/Application';
 import RealtimeState from '../RealtimeState';
 import NotificationToast from '../components/NotificationToast';
 import NotificationToastState from '../states/NotificationToastState';
+import isIOS from '../utils/isIOS';
 
 export default function () {
   extend(Application.prototype, 'mount' as any, function () {
@@ -78,12 +79,17 @@ export default function () {
     app.websocket = new Pusher(wsKey, pusherOptions);
     setupChannels(app.websocket);
 
-    // iOS Safari silently drops WebSocket connections when the tab is
-    // backgrounded or the device sleeps, without firing `close` — pusher-js's
-    // built-in recovery never triggers, so realtime updates go missing until
-    // the page is reloaded. iOS also bfcaches pages on app-switch, which
-    // restores via `pageshow` (persisted=true) and does NOT fire
-    // `visibilitychange` on return. We therefore hook both events.
+    // iOS browsers (all WebKit) silently drop WebSocket connections when
+    // the tab is backgrounded or the device sleeps, without firing `close`
+    // — pusher-js's built-in recovery never triggers, so realtime updates
+    // go missing until the page is reloaded. iOS also bfcaches pages on
+    // app-switch, which restores via `pageshow` (persisted=true) and does
+    // NOT fire `visibilitychange` on return. We therefore hook both events.
+    //
+    // The visibilitychange path is gated on `isIOS()`: desktop browsers
+    // (and Android) maintain the WebSocket fine across tab backgrounding
+    // and don't need a forced reconnect, which would otherwise cause an
+    // unnecessary discussion-list refetch on every tab-switch return.
     //
     // `forceReconnect` constructs a fresh Pusher instance rather than
     // calling `connect()` on the existing one. pusher-js 7.6's default
@@ -134,7 +140,7 @@ export default function () {
       if (hiddenSince === null) return;
       const wasHiddenFor = Date.now() - hiddenSince;
       hiddenSince = null;
-      if (wasHiddenFor > RECONNECT_HIDDEN_THRESHOLD_MS) {
+      if (wasHiddenFor > RECONNECT_HIDDEN_THRESHOLD_MS && isIOS()) {
         forceReconnect();
       }
     });
