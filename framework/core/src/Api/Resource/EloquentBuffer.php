@@ -114,7 +114,18 @@ abstract class EloquentBuffer
             return $query;
         };
 
-        $collection = $model->newCollection($models);
+        // Filter out models that do not exist in the database (e.g. mock models
+        // created by the JSON:API BelongsTo linkage shortcut for orphaned foreign
+        // keys). Passing them to Laravel's load()/loadAggregate() would crash
+        // when mapping query results back to the collection.
+        $collection = $model->newCollection($models)
+            ->filter(fn (Model $m) => $m->exists && $m->getKey() !== null);
+
+        self::setBuffer($model, $relationName, $aggregate, []);
+
+        if ($collection->isEmpty()) {
+            return;
+        }
 
         if (! $aggregate && $relationship) {
             $collection->load([$relationName => $loader]);
@@ -140,7 +151,5 @@ abstract class EloquentBuffer
             $alias = Str::snake($aggregate['name']);
             $collection->loadAggregate(["$relationName as $alias" => $loader], $aggregate['column'], $aggregate['function']);
         }
-
-        self::setBuffer($model, $relationName, $aggregate, []);
     }
 }
