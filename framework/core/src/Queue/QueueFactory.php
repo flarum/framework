@@ -52,4 +52,18 @@ class QueueFactory implements Factory
 
         return $this->queue;
     }
+
+    /**
+     * Get the list of paused queues.
+     *
+     * This is a no-op implementation since Flarum's simplified queue factory
+     * doesn't support queue pausing. illuminate/queue v13.11+ expects this
+     * method to exist on the queue manager.
+     *
+     * @return array
+     */
+    public function getPausedQueues(): array
+    {
+        return [];
+    }
 }
