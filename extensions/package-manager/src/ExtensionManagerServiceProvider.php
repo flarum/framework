@@ -15,8 +15,11 @@ use Composer\Util\Platform;
 use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Composer\ComposerAdapter;
 use Flarum\ExtensionManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Extension\Event\Installed;
+use Flarum\ExtensionManager\Extension\Event\Removed;
 use Flarum\ExtensionManager\Extension\Event\Updated;
 use Flarum\ExtensionManager\Listener\ClearCacheAfterUpdate;
+use Flarum\ExtensionManager\Listener\ClearOPCacheAfterUpdate;
 use Flarum\ExtensionManager\Listener\ReCheckForUpdates;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
@@ -100,5 +103,6 @@ class ExtensionManagerServiceProvider extends AbstractServiceProvider
 
         $events->listen(FlarumUpdated::class, ClearCacheAfterUpdate::class);
         $events->listen([FlarumUpdated::class, Updated::class], ReCheckForUpdates::class);
+        $events->listen([Installed::class, Updated::class, Removed::class, FlarumUpdated::class], ClearOPCacheAfterUpdate::class);
     }
 }

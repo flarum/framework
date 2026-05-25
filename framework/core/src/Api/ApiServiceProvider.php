@@ -86,6 +86,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.api.middleware', function () {
             return [
+                HttpMiddleware\ClearOPCache::class,
                 HttpMiddleware\InjectActorReference::class,
                 'flarum.api.error_handler',
                 HttpMiddleware\ParseJsonBody::class,
