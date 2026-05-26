@@ -55,7 +55,7 @@
         "illuminate/filesystem": "^13.0",
         "illuminate/hashing": "^13.0",
         "illuminate/mail": "^13.0",
-        "illuminate/queue": "^13.0",
+        "illuminate/queue": "^13.11",
         "illuminate/session": "^13.0",
         "illuminate/support": "^13.0",
         "illuminate/validation": "^13.0",
