@@ -84,7 +84,14 @@ export default class AnnouncementsWidget extends DashboardWidget {
               </Tooltip>
             )}
             <Tooltip text={app.translator.trans(this.hidden ? 'core.admin.announcements.show' : 'core.admin.announcements.hide')}>
-              <Button className="Button Button--icon" icon={this.hidden ? 'fas fa-eye' : 'fas fa-eye-slash'} onclick={() => this.toggleHidden()} />
+              <Button
+                className="Button Button--icon"
+                icon={this.hidden ? 'fas fa-eye' : 'fas fa-eye-slash'}
+                onclick={(e: any) => {
+                  this.toggleHidden();
+                  e.currentTarget.blur();
+                }}
+              />
             </Tooltip>
           </div>
         </div>
