@@ -82,11 +82,13 @@ class ForumServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->bind('flarum.forum.error_handler', function (Container $container) {
+            $inDebugMode = $container['flarum.config']->inDebugMode();
+
             return new HttpMiddleware\HandleErrors(
                 $container->make(Registry::class),
                 new ContentNegotiationFormatter(
-                    $container->make(JsonApiFormatter::class),
-                    $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
+                    new JsonApiFormatter($inDebugMode),
+                    $inDebugMode ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
                 ),
                 $container->tagged(Reporter::class)
             );
