@@ -37,11 +37,13 @@
     },
     "require": {
         "php": "^8.3",
-        "fortawesome/font-awesome": "^7.0",
+        "bitworking/mimeparse": "^2.3",
         "dflydev/fig-cookies": "^3.0",
         "doctrine/dbal": "^3.6",
         "dragonmantank/cron-expression": "*",
         "fakerphp/faker": "^1.9.1",
+        "flarum/json-api-server": "^0.1.0",
+        "fortawesome/font-awesome": "^7.0",
         "franzl/whoops-middleware": "2.0",
         "guzzlehttp/guzzle": "^7.7",
         "illuminate/bus": "^13.0",
@@ -90,7 +92,6 @@
         "symfony/translation": "^7.0",
         "symfony/translation-contracts": "^2.5",
         "symfony/yaml": "^7.0",
-        "flarum/json-api-server": "^0.1.0",
         "wikimedia/less.php": "^5.3"
     },
     "require-dev": {

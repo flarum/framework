@@ -13,6 +13,8 @@ use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\ErrorHandling\ContentNegotiationFormatter;
+use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
@@ -82,7 +84,10 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->container->bind('flarum.forum.error_handler', function (Container $container) {
             return new HttpMiddleware\HandleErrors(
                 $container->make(Registry::class),
-                $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
+                new ContentNegotiationFormatter(
+                    $container->make(JsonApiFormatter::class),
+                    $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
+                ),
                 $container->tagged(Reporter::class)
             );
         });

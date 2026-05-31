@@ -9,6 +9,7 @@
 
 namespace Flarum\Http;
 
+use Bitworking\Mimeparse;
 use Flarum\User\User;
 use Illuminate\Support\Str;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -16,12 +17,19 @@ use Tobyz\JsonApiServer\Exception\BadRequestException;
 
 class RequestUtil
 {
+    /**
+     * Determine if the request is an API request. We do not manually set the `Accepts` header
+     * for API requests, so we need to check the priority list to determine whether it is or not.
+     * Normal browsing requests will have `text/html` as their preferred content type, while API will have `* / *`.
+     */
     public static function isApiRequest(Request $request): bool
     {
-        return Str::contains(
-            $request->getHeaderLine('Accept'),
-            'application/vnd.api+json'
+        $preferred = self::getPreferredContentType(
+            $request,
+            ['application/vnd.api+json', 'application/json', 'text/html']
         );
+
+        return in_array($preferred, ['application/vnd.api+json', 'application/json'], true);
     }
 
     public static function isHtmlRequest(Request $request): bool
@@ -30,6 +38,13 @@ class RequestUtil
             $request->getHeaderLine('Accept'),
             'text/html'
         );
+    }
+
+    public static function getPreferredContentType(Request $request, array $types): string
+    {
+        $accept = $request->getHeaderLine('Accept');
+
+        return Mimeparse::bestMatch($types, $accept);
     }
 
     public static function getActor(Request $request): User
