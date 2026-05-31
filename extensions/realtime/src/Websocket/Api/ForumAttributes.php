@@ -9,6 +9,7 @@
 
 namespace Flarum\Realtime\Websocket\Api;
 
+use Flarum\Api\Schema\Boolean;
 use Flarum\Api\Schema\Str;
 use Flarum\Realtime\Websocket\Settings;
 
@@ -28,7 +29,7 @@ class ForumAttributes
                 ->get(fn () => $this->settings->jsClientHost),
             Str::make('websocket.port')
                 ->get(fn () => $this->settings->jsClientPort),
-            Str::make('websocket.secure')
+            Boolean::make('websocket.secure')
                 ->get(fn () => $this->settings->jsClientSecure),
         ];
     }

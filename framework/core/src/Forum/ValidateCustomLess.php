@@ -43,13 +43,26 @@ class ValidateCustomLess
             return;
         }
 
-        // Restrict what features can be used in custom LESS
-        if (isset($event->settings['custom_less']) && preg_match('/@import|data-uri\s*\(/i', $event->settings['custom_less'])) {
-            $translator = $this->container->make(TranslatorInterface::class);
+        // Restrict what features can be used in custom LESS. This applies to
+        // the `custom_less` setting as well as any setting registered as a
+        // LESS config variable (e.g. `theme_primary_color`), since those
+        // values are interpolated directly into the LESS source.
+        $lessFeatureKeys = array_merge(
+            isset($event->settings['custom_less']) ? ['custom_less'] : [],
+            array_intersect(
+                array_keys($event->settings),
+                array_column($this->customLessSettings, 'key')
+            )
+        );
 
-            throw new ValidationException([
-                'custom_less' => $translator->trans('core.admin.appearance.custom_styles_cannot_use_less_features')
-            ]);
+        foreach ($lessFeatureKeys as $key) {
+            if (is_string($event->settings[$key]) && preg_match('/@import|data-uri\s*\(/i', $event->settings[$key])) {
+                $translator = $this->container->make(TranslatorInterface::class);
+
+                throw new ValidationException([
+                    $key => $translator->trans('core.admin.appearance.custom_styles_cannot_use_less_features')
+                ]);
+            }
         }
 
         // We haven't saved the settings yet, but we want to trial a full

@@ -310,6 +310,11 @@ class UserResource extends AbstractDatabaseResource
                 }),
 
             Schema\Relationship\ToMany::make('groups')
+                ->get(function (User $user, Context $context) {
+                    return $context->getActor()->can('viewHiddenGroups')
+                        ? $user->groups()->get()->all()
+                        : $user->visibleGroups()->get()->all();
+                })
                 ->writable(fn (User $user, Context $context) => $context->updating() && $context->getActor()->can('editGroups', $user))
                 ->includable()
                 ->set(function (User $user, $value, Context $context) {

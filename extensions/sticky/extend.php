@@ -12,6 +12,7 @@ use Flarum\Api\Resource;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Sticky\Api\DiscussionResourceFields;
 use Flarum\Sticky\Event\DiscussionWasStickied;
@@ -58,4 +59,15 @@ return [
     (new Extend\Settings())
         ->default('flarum-sticky.only_sticky_unread_discussions', true)
         ->serializeToForum('onlyStickyUnreadDiscussions', 'flarum-sticky.only_sticky_unread_discussions', 'boolval'),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-realtime', fn () => [
+            (new RealtimeExtend())
+                ->broadcastModelEvent(
+                    [DiscussionWasStickied::class, DiscussionWasUnstickied::class],
+                    fn ($event) => $event->discussion,
+                    fn ($event) => $event->user,
+                    'stickiedEvent'
+                ),
+        ]),
 ];

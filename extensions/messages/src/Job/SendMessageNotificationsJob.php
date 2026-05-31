@@ -21,6 +21,7 @@ class SendMessageNotificationsJob extends AbstractJob
     public function __construct(
         protected DialogMessage $message
     ) {
+        parent::__construct();
     }
 
     public function handle(NotificationSyncer $notifications): void

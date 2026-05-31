@@ -50,6 +50,8 @@ class AvatarUploaderTest extends TestCase
 
         $user = new User();
         $user->changeAvatarPath('ABCDEFGHabcdefgh.png');
+        $user->has_avatar_2x = true;
+        $user->has_avatar_3x = true;
         $user->syncOriginal();
 
         $this->uploader->remove($user);
@@ -60,6 +62,8 @@ class AvatarUploaderTest extends TestCase
         $user->syncOriginal();
 
         $this->assertEquals(null, $user->getRawOriginal('avatar_url'));
+        $this->assertFalse($user->has_avatar_2x);
+        $this->assertFalse($user->has_avatar_3x);
     }
 
     #[Test]
@@ -146,6 +150,8 @@ class AvatarUploaderTest extends TestCase
         $this->assertStringNotContainsString('@', $putPaths[0]);
         $this->assertStringContainsString('@2x', $putPaths[1]);
         $this->assertStringContainsString('@3x', $putPaths[2]);
+        $this->assertTrue($user->has_avatar_2x);
+        $this->assertTrue($user->has_avatar_3x);
     }
 
     #[Test]
@@ -164,6 +170,8 @@ class AvatarUploaderTest extends TestCase
 
         $this->assertCount(1, $putPaths);
         $this->assertStringNotContainsString('@', $putPaths[0]);
+        $this->assertFalse($user->has_avatar_2x);
+        $this->assertFalse($user->has_avatar_3x);
     }
 
     #[Test]
@@ -183,31 +191,63 @@ class AvatarUploaderTest extends TestCase
         $this->assertCount(2, $putPaths);
         $this->assertStringNotContainsString('@', $putPaths[0]);
         $this->assertStringContainsString('@2x', $putPaths[1]);
+        $this->assertTrue($user->has_avatar_2x);
+        $this->assertFalse($user->has_avatar_3x);
     }
 
     #[Test]
-    public function test_srcset_for_returns_null_when_only_base_exists()
+    public function test_upload_presized_records_only_supplied_variants()
     {
-        $this->filesystem->shouldReceive('exists')->with('abc.webp')->andReturn(true);
-        $this->filesystem->shouldReceive('exists')->with('abc@2x.webp')->andReturn(false);
-        $this->filesystem->shouldReceive('exists')->with('abc@3x.webp')->andReturn(false);
+        $this->filesystem->shouldReceive('put')->atLeast()->once();
+        $this->filesystem->shouldIgnoreMissing();
 
-        $result = $this->uploader->srcsetFor('abc.webp');
+        $user = new User();
 
-        $this->assertNull($result);
+        // OAuth path with 1× and 2× only — no 3×.
+        $this->uploader->uploadPresized(
+            $user,
+            ImageManager::gd()->create(100, 100),
+            ImageManager::gd()->create(200, 200),
+            null,
+        );
+
+        $this->assertTrue($user->has_avatar_2x);
+        $this->assertFalse($user->has_avatar_3x);
     }
 
     #[Test]
-    public function test_srcset_for_returns_string_when_hidpi_variants_exist()
+    public function test_srcset_for_returns_null_when_no_variants_recorded()
     {
-        $this->filesystem->shouldReceive('exists')->with('abc.webp')->andReturn(true);
-        $this->filesystem->shouldReceive('exists')->with('abc@2x.webp')->andReturn(true);
-        $this->filesystem->shouldReceive('exists')->with('abc@3x.webp')->andReturn(true);
+        // No filesystem calls should happen on the read path.
+        $this->filesystem->shouldNotReceive('exists');
+        $this->filesystem->shouldNotReceive('url');
+
+        $user = new User();
+        $user->setRawAttributes([
+            'avatar_url' => 'abc.webp',
+            'has_avatar_2x' => false,
+            'has_avatar_3x' => false,
+        ], true);
+
+        $this->assertNull($this->uploader->srcsetFor($user));
+    }
+
+    #[Test]
+    public function test_srcset_for_returns_string_when_hidpi_variants_recorded()
+    {
+        $this->filesystem->shouldNotReceive('exists');
         $this->filesystem->shouldReceive('url')->with('abc.webp')->andReturn('https://cdn.example.com/abc.webp');
         $this->filesystem->shouldReceive('url')->with('abc@2x.webp')->andReturn('https://cdn.example.com/abc@2x.webp');
         $this->filesystem->shouldReceive('url')->with('abc@3x.webp')->andReturn('https://cdn.example.com/abc@3x.webp');
 
-        $result = $this->uploader->srcsetFor('abc.webp');
+        $user = new User();
+        $user->setRawAttributes([
+            'avatar_url' => 'abc.webp',
+            'has_avatar_2x' => true,
+            'has_avatar_3x' => true,
+        ], true);
+
+        $result = $this->uploader->srcsetFor($user);
 
         $this->assertNotNull($result);
         $this->assertStringContainsString('1x', $result);
@@ -216,13 +256,50 @@ class AvatarUploaderTest extends TestCase
     }
 
     #[Test]
+    public function test_srcset_for_includes_only_recorded_variants()
+    {
+        $this->filesystem->shouldNotReceive('exists');
+        $this->filesystem->shouldReceive('url')->with('abc.webp')->andReturn('https://cdn.example.com/abc.webp');
+        $this->filesystem->shouldReceive('url')->with('abc@2x.webp')->andReturn('https://cdn.example.com/abc@2x.webp');
+        $this->filesystem->shouldNotReceive('url')->with('abc@3x.webp');
+
+        $user = new User();
+        $user->setRawAttributes([
+            'avatar_url' => 'abc.webp',
+            'has_avatar_2x' => true,
+            'has_avatar_3x' => false,
+        ], true);
+
+        $result = $this->uploader->srcsetFor($user);
+
+        $this->assertNotNull($result);
+        $this->assertStringContainsString('1x', $result);
+        $this->assertStringContainsString('2x', $result);
+        $this->assertStringNotContainsString('3x', $result);
+    }
+
+    #[Test]
     public function test_srcset_for_returns_null_for_external_url()
     {
         $this->filesystem->shouldNotReceive('exists');
+        $this->filesystem->shouldNotReceive('url');
 
-        $result = $this->uploader->srcsetFor('https://example.com/avatar.png');
+        $user = new User();
+        $user->setRawAttributes(['avatar_url' => 'https://example.com/avatar.png'], true);
 
-        $this->assertNull($result);
+        $this->assertNull($this->uploader->srcsetFor($user));
+    }
+
+    #[Test]
+    public function test_srcset_for_returns_null_when_no_avatar()
+    {
+        $this->filesystem->shouldNotReceive('exists');
+        $this->filesystem->shouldNotReceive('url');
+
+        $user = new User();
+        $user->setRawAttributes(['avatar_url' => null], true);
+
+        $this->assertNull($this->uploader->srcsetFor($user));
     }
 
     #[Test]

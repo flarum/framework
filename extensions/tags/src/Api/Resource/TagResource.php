@@ -112,9 +112,6 @@ class TagResource extends AbstractDatabaseResource
             Schema\Boolean::make('isRestricted')
                 ->writableOnUpdate()
                 ->visible(fn (Tag $tag, FlarumContext $context) => $context->getActor()->isAdmin()),
-            Schema\Str::make('backgroundUrl')
-                ->get(fn (Tag $tag) => $tag->background_path),
-            Schema\Str::make('backgroundMode'),
             Schema\Integer::make('discussionCount'),
             Schema\Integer::make('position')
                 ->nullable(),

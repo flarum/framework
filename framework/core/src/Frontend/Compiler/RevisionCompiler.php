@@ -25,14 +25,12 @@ class RevisionCompiler implements CompilerInterface
 
     public const EMPTY_REVISION = 'empty';
 
-    protected VersionerInterface $versioner;
-
     public function __construct(
         protected Cloud $assetsDir,
         protected string $filename,
-        protected SettingsRepositoryInterface $settings
+        protected SettingsRepositoryInterface $settings,
+        protected VersionerInterface $versioner,
     ) {
-        $this->versioner = new FileVersioner($assetsDir);
     }
 
     public function getFilename(): string

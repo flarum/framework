@@ -28,6 +28,7 @@ flarum-flags:
       reason_details_placeholder: Additional details (optional)
       reason_inappropriate_label: Inappropriate
       reason_inappropriate_text: "This post is offensive, abusive, or violates our <a>community guidelines</a>."
+      reason_inappropriate_text_no_guidelines: This post is offensive or abusive.
       reason_missing_message: Please provide some details for our moderators.
       reason_off_topic_label: "Off-topic"
       reason_off_topic_text: This post is not relevant to the current discussion and should be moved elsewhere.

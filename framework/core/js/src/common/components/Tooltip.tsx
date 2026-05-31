@@ -113,6 +113,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
   private oldVisibility: boolean | undefined;
 
   private shouldRecreateTooltip: boolean = false;
+  private shouldUpdateText: boolean = false;
   private shouldChangeTooltipVisibility: boolean = false;
 
   view(vnode: Mithril.Vnode<TooltipAttrs, this>) {
@@ -143,10 +144,10 @@ export default class Tooltip extends Component<TooltipAttrs> {
 
     const realText = this.getRealText();
 
-    // We need to recreate the tooltip if the text has changed
+    // We need to update the tooltip text if it has changed
     if (realText !== this.oldText) {
       this.oldText = realText;
-      this.shouldRecreateTooltip = true;
+      this.shouldUpdateText = true;
     }
 
     if (tooltipVisible !== this.oldVisibility) {
@@ -201,6 +202,11 @@ export default class Tooltip extends Component<TooltipAttrs> {
 
     this.checkDomNodeChanged();
     this.recreateTooltip();
+
+    if (this.shouldUpdateText) {
+      this.updateText();
+      this.shouldUpdateText = false;
+    }
   }
 
   onremove(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
@@ -217,6 +223,11 @@ export default class Tooltip extends Component<TooltipAttrs> {
 
   private recreateTooltip() {
     if (this.shouldRecreateTooltip && this.childDomNode !== null) {
+      const tooltip = $(this.childDomNode).data('bs.tooltip');
+      if (tooltip && tooltip.$tip) {
+        tooltip.$tip.removeClass('fade');
+      }
+
       $(this.childDomNode).tooltip(
         'destroy',
         // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
@@ -229,6 +240,20 @@ export default class Tooltip extends Component<TooltipAttrs> {
     if (this.shouldChangeTooltipVisibility) {
       this.shouldChangeTooltipVisibility = false;
       this.updateVisibility();
+    }
+  }
+
+  private updateText() {
+    if (this.childDomNode === null) return;
+
+    const realText = this.getRealText();
+    this.childDomNode.setAttribute('data-original-title', realText);
+    this.childDomNode.setAttribute('aria-label', realText);
+
+    const tooltip = $(this.childDomNode).data('bs.tooltip');
+    if (tooltip && tooltip.$tip && tooltip.$tip.hasClass('in')) {
+      tooltip.$tip.find('.tooltip-inner')[this.attrs.html ? 'html' : 'text'](realText);
+      tooltip.show();
     }
   }
 
@@ -268,12 +293,13 @@ export default class Tooltip extends Component<TooltipAttrs> {
     const trigger = typeof tooltipVisible === 'boolean' ? 'manual' : classList('hover', [showOnFocus && 'focus']);
 
     const realText = this.getRealText();
-    this.childDomNode.setAttribute('title', realText);
     this.childDomNode.setAttribute('aria-label', realText);
+    this.childDomNode.removeAttribute('title');
 
     // https://getbootstrap.com/docs/3.3/javascript/#tooltips-options
     $(this.childDomNode).tooltip(
       {
+        title: realText,
         html,
         delay,
         placement: position,
@@ -301,6 +327,17 @@ export default class Tooltip extends Component<TooltipAttrs> {
     const domNode = (this.firstChild as Mithril.VnodeDOM<any, any>).dom as HTMLElement;
 
     if (domNode && !domNode.isSameNode(this.childDomNode)) {
+      if (this.childDomNode) {
+        const tooltip = $(this.childDomNode).data('bs.tooltip');
+        if (tooltip && tooltip.$tip) {
+          tooltip.$tip.removeClass('fade');
+        }
+        $(this.childDomNode).tooltip(
+          'destroy',
+          // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
+          'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
+        );
+      }
       this.childDomNode = domNode;
       this.shouldRecreateTooltip = true;
     }

@@ -16,12 +16,6 @@ export default class Tag extends Model {
   color() {
     return Model.attribute<string | null>('color').call(this);
   }
-  backgroundUrl() {
-    return Model.attribute<string | null>('backgroundUrl').call(this);
-  }
-  backgroundMode() {
-    return Model.attribute<string | null>('backgroundMode').call(this);
-  }
   icon() {
     return Model.attribute<string | null>('icon').call(this);
   }

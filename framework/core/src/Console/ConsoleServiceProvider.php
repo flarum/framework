@@ -19,6 +19,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
+use Flarum\User\Console\BackfillAvatarVariantsCommand;
 use Flarum\User\Console\ConvertAvatarsToWebpCommand;
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Console\Scheduling\CacheEventMutex;
@@ -71,6 +72,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
                 ToggleExtensionCommand::class,
                 BisectCommand::class,
                 ConvertAvatarsToWebpCommand::class,
+                BackfillAvatarVariantsCommand::class,
                 // Used internally to create DB dumps before major releases.
                 // \Flarum\Database\Console\GenerateDumpCommand::class
             ];

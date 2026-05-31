@@ -11,6 +11,7 @@ namespace Flarum\Extension;
 
 use Flarum\Foundation\Application;
 use Flarum\Group\Group;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Mail\Job\SendAbandonedExtensionsEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
@@ -18,7 +19,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Queue\Queue;
 use RuntimeException;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AbandonedExtensionsFetcher
 {
@@ -113,25 +113,36 @@ class AbandonedExtensionsFetcher
             $q->where('id', Group::ADMINISTRATOR_ID);
         })->get();
 
-        $lines = array_map(function (string $package) use ($map) {
-            $replacement = $map[$package]['replacement'] ?? null;
-
-            return $replacement
-                ? $this->translator->trans('core.email.abandoned_extensions.line_with_replacement', compact('package', 'replacement'))
-                : $this->translator->trans('core.email.abandoned_extensions.line_no_replacement', compact('package'));
-        }, $newPackages);
-
-        $subject = $this->translator->trans('core.email.abandoned_extensions.subject');
         $forumTitle = $this->settings->get('forum_title', '');
+        $defaultLocale = $this->settings->get('default_locale');
+        $previousLocale = $this->translator->getLocale();
 
-        foreach ($admins as $admin) {
-            $this->queue->push(new SendAbandonedExtensionsEmailJob(
-                email: $admin->email,
-                username: $admin->display_name,
-                subject: $subject,
-                extensionLines: $lines,
-                forumTitle: $forumTitle,
-            ));
+        try {
+            foreach ($admins as $admin) {
+                $locale = $admin->getPreference('locale') ?? $defaultLocale;
+                $this->translator->setLocale($locale);
+
+                $lines = array_map(function (string $package) use ($map) {
+                    $replacement = $map[$package]['replacement'] ?? null;
+
+                    return $replacement
+                        ? $this->translator->trans('core.email.abandoned_extensions.line_with_replacement', compact('package', 'replacement'))
+                        : $this->translator->trans('core.email.abandoned_extensions.line_no_replacement', compact('package'));
+                }, $newPackages);
+
+                $subject = $this->translator->trans('core.email.abandoned_extensions.subject');
+
+                $this->queue->push(new SendAbandonedExtensionsEmailJob(
+                    email: $admin->email,
+                    username: $admin->display_name,
+                    subject: $subject,
+                    extensionLines: $lines,
+                    forumTitle: $forumTitle,
+                    locale: $locale,
+                ));
+            }
+        } finally {
+            $this->translator->setLocale($previousLocale);
         }
     }
 

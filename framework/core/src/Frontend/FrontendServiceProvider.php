@@ -15,7 +15,9 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Foundation\FontAwesome;
 use Flarum\Foundation\Paths;
+use Flarum\Frontend\Compiler\FileVersioner;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\Driver\BasicTitleDriver;
 use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Http\RequestUtil;
@@ -32,6 +34,12 @@ class FrontendServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
+        $this->container->singleton(VersionerInterface::class, function (Container $container) {
+            return new FileVersioner(
+                $container->make('filesystem')->disk('flarum-assets')
+            );
+        });
+
         $this->container->singleton('flarum.assets', function (Container $container) {
             return new AssetManager($container, $container->make(LocaleManager::class));
         });
@@ -78,16 +86,18 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $frontend->content(function (Document $document) use ($container) {
                     $default_preloads = $container->make('flarum.frontend.default_preloads');
 
-                    // CSS files are preloaded via the async <link rel="preload" as="style"> tags
-                    // that makeHead() now emits directly — no need to duplicate them here.
-                    // JS files still get explicit preload hints so the browser fetches them early.
+                    // The forum/admin stylesheet blocks paint (parser-discovered <link
+                    // rel="stylesheet">), so the next thing on the critical path is forum.js
+                    // booting the SPA. Preload JS at high priority so it lands while CSS is
+                    // still being fetched, rather than waiting for the body parser to discover
+                    // the <script> tag.
                     $js_preloads = [];
 
                     foreach ($document->js as $url) {
                         $js_preloads[] = [
                             'href' => $url,
                             'as' => 'script',
-                            'fetchpriority' => 'low',
+                            'fetchpriority' => 'high',
                         ];
                     }
 
@@ -145,10 +155,11 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
                     // Inline script that sets data-theme on <html> before first paint so that
                     // the critical CSS block can apply the correct background colour without a
-                    // flash in dark mode. Uses the forum-level default; per-user preference is
-                    // applied by JS after boot (acceptable tradeoff).
+                    // flash in dark mode. Goes into $preHead so it executes before the main
+                    // stylesheet link is processed. Uses the forum-level default; per-user
+                    // preference is applied by JS after boot (acceptable tradeoff).
                     $forumColorScheme = $settings->get('color_scheme') ?? 'auto';
-                    $document->head[] = '<script>(function(){var s='.json_encode($forumColorScheme).';'
+                    $document->preHead[] = '<script>(function(){var s='.json_encode($forumColorScheme).';'
                         .'if(s==="auto")s=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";'
                         .'document.documentElement.setAttribute("data-theme",s)})()</script>';
 

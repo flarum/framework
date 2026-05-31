@@ -32,15 +32,24 @@ class EmailConfirmationMailer
         $email = $event->email;
         $data = $this->getEmailData($event->user, $email);
 
-        $body = $this->translator->trans('core.email.confirm_email.body', $data);
-        $subject = $this->translator->trans('core.email.confirm_email.subject');
+        $locale = $event->user->getPreference('locale') ?? $this->settings->get('default_locale');
+        $previousLocale = $this->translator->getLocale();
+        $this->translator->setLocale($locale);
+
+        try {
+            $body = $this->translator->trans('core.email.confirm_email.body', $data);
+            $subject = $this->translator->trans('core.email.confirm_email.subject');
+        } finally {
+            $this->translator->setLocale($previousLocale);
+        }
 
         $this->queue->push(new SendInformationalEmailJob(
             email: $email,
             displayName: Arr::get($data, 'username'),
             subject: $subject,
             body: $body,
-            forumTitle: Arr::get($data, 'forum')
+            forumTitle: Arr::get($data, 'forum'),
+            locale: $locale,
         ));
     }
 

@@ -90,17 +90,26 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
   /**
    * Given a username, load the user's profile from the store, or make a request
    * if we don't have it yet. Then initialize the profile page with that user.
+   *
+   * Resolves once `this.user` is set so that subclasses can safely chain
+   * dependent work (e.g. fetching related resources keyed off the user id).
    */
-  loadUser(username: string) {
+  loadUser(username: string): Promise<void> {
     const lowercaseUsername = username.toLowerCase();
 
-    // Load the preloaded user object, if any, into the global app store
-    // We don't use the output of the method because it returns raw JSON
-    // instead of the parsed models
-    app.preloadedApiDocument();
+    // On initial render the server preloads the target user as the primary
+    // resource of the API document, so prefer that. It stays correct under
+    // any slug driver (including IdWithDisplayName, where the route slug
+    // does not equal the username).
+    const preloaded = app.preloadedApiDocument<User>();
+
+    if (preloaded && !Array.isArray(preloaded) && preloaded.joinTime()) {
+      this.show(preloaded);
+      return Promise.resolve();
+    }
 
     app.store.all<User>('users').some((user) => {
-      if ((user.username().toLowerCase() === lowercaseUsername || user.id() === username) && user.joinTime()) {
+      if ((user.username().toLowerCase() === lowercaseUsername || user.id() === username || user.slug() === username) && user.joinTime()) {
         this.show(user);
         return true;
       }
@@ -108,9 +117,11 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
       return false;
     });
 
-    if (!this.user) {
-      app.store.find<User>('users', username, { bySlug: true }).then(this.show.bind(this));
+    if (this.user) {
+      return Promise.resolve();
     }
+
+    return app.store.find<User>('users', username, { bySlug: true }).then(this.show.bind(this));
   }
 
   /**

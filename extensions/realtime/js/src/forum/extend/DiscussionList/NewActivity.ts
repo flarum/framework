@@ -8,6 +8,7 @@ import ItemList from 'flarum/common/utils/ItemList';
 import WebsocketUpdates from './WebsocketUpdates';
 import extractText from 'flarum/common/utils/extractText';
 import type Mithril from 'mithril';
+import RealtimeState from '../../RealtimeState';
 
 export default function (): void {
   extend(IndexPage.prototype, 'oninit', function (this: any) {
@@ -95,13 +96,23 @@ export default function (): void {
   });
 
   extend(IndexPage.prototype, 'oncreate', function (this: any) {
-    app.websocket_channels.public?.bind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted.bind(this));
-    app.websocket_channels.public?.bind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted.bind(this));
-    app.websocket_channels.user?.bind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted.bind(this));
-    app.websocket_channels.user?.bind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted.bind(this));
+    // Bind handlers against the current channel objects. Extracted so it can
+    // re-fire on reconnect — see flarum/framework#4597.
+    const bindHandlers = (): void => {
+      app.websocket_channels.public?.bind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted.bind(this));
+      app.websocket_channels.public?.bind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted.bind(this));
+      app.websocket_channels.user?.bind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted.bind(this));
+      app.websocket_channels.user?.bind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted.bind(this));
+    };
+
+    bindHandlers();
+    this._realtimeReconnectDisposer = RealtimeState.onChannelsReconnected(bindHandlers);
   });
 
   extend(IndexPage.prototype, 'onremove', function (this: any) {
+    this._realtimeReconnectDisposer?.();
+    this._realtimeReconnectDisposer = null;
+
     app.websocket_channels.public?.unbind('Flarum\\Discussion\\Event\\Started');
     app.websocket_channels.public?.unbind('Flarum\\Post\\Event\\Posted');
     app.websocket_channels.user?.unbind('Flarum\\Discussion\\Event\\Started');

@@ -10,11 +10,12 @@
 namespace Flarum\Frontend\Compiler;
 
 use Illuminate\Contracts\Filesystem\Filesystem;
-use Illuminate\Support\Arr;
 
 class FileVersioner implements VersionerInterface
 {
     public const REV_MANIFEST = 'rev-manifest.json';
+
+    private ?array $cachedManifest = null;
 
     public function __construct(
         protected Filesystem $filesystem
@@ -23,11 +24,7 @@ class FileVersioner implements VersionerInterface
 
     public function putRevision(string $file, ?string $revision): void
     {
-        if ($this->filesystem->exists(static::REV_MANIFEST)) {
-            $manifest = json_decode($this->filesystem->get(static::REV_MANIFEST), true);
-        } else {
-            $manifest = [];
-        }
+        $manifest = $this->readManifest();
 
         if ($revision) {
             $manifest[$file] = $revision;
@@ -36,25 +33,38 @@ class FileVersioner implements VersionerInterface
         }
 
         $this->filesystem->put(static::REV_MANIFEST, json_encode($manifest));
+        $this->cachedManifest = $manifest;
     }
 
     public function getRevision(string $file): ?string
     {
-        if ($this->filesystem->exists(static::REV_MANIFEST)) {
-            $manifest = json_decode($this->filesystem->get(static::REV_MANIFEST), true);
-
-            return Arr::get($manifest, $file);
-        }
-
-        return null;
+        return $this->readManifest()[$file] ?? null;
     }
 
     public function allRevisions(): array
     {
-        if ($contents = $this->filesystem->get(static::REV_MANIFEST)) {
-            return json_decode($contents, true);
+        return $this->readManifest();
+    }
+
+    /**
+     * Read the manifest, caching the parsed array for the lifetime of this
+     * instance. Frontend rendering constructs ~6 compilers per request, all
+     * sharing the same VersionerInterface singleton — without this cache the
+     * manifest is read and JSON-decoded once per compiler.
+     */
+    private function readManifest(): array
+    {
+        if ($this->cachedManifest !== null) {
+            return $this->cachedManifest;
         }
 
-        return [];
+        if (! $this->filesystem->exists(static::REV_MANIFEST)) {
+            return $this->cachedManifest = [];
+        }
+
+        $contents = $this->filesystem->get(static::REV_MANIFEST);
+        $manifest = json_decode($contents, true);
+
+        return $this->cachedManifest = is_array($manifest) ? $manifest : [];
     }
 }

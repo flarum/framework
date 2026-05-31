@@ -178,4 +178,45 @@ class EditUserTest extends TestCase
             'html attribute inject' => ['"><img src=x>'],
         ];
     }
+
+    // Regression test for the TypeError raised by UserResourceFields when an
+    // admin saves the nicknames config form with an empty min or max field —
+    // the empty string is persisted to the settings table and then passed
+    // straight to Schema\Str::minLength(int)/maxLength(int), which rejects
+    // non-numeric strings under PHP's default type coercion rules.
+    //
+    //   TypeError: Str::maxLength(): Argument #1 ($length) must be of type int, string given
+    //
+    // Numeric strings like '3' coerce silently, so the bug only surfaces when
+    // a field is cleared. The int defaults from the Settings extender mask it
+    // until the admin saves once.
+    #[Test]
+    public function request_succeeds_when_min_or_max_setting_is_empty_string(): void
+    {
+        $this->setting('flarum-nicknames.min', '');
+        $this->setting('flarum-nicknames.max', '');
+
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'user.editOwnNickname', 'group_id' => Group::MEMBER_ID],
+            ],
+        ]);
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'type' => 'users',
+                        'attributes' => [
+                            'nickname' => 'jane.smith',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
+        $this->assertEquals('jane.smith', User::find(2)->nickname);
+    }
 }

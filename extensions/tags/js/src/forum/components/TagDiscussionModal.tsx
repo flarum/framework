@@ -49,10 +49,13 @@ export default class TagDiscussionModal extends TagSelectionModal<TagDiscussionM
       if (discussion) {
         discussion.save({ relationships: { tags } }).then(() => {
           if (app.current.matches(DiscussionPage)) {
-            app.current.get('stream').update();
+            app.current
+              .get('stream')
+              .update()
+              .then(() => m.redraw());
+          } else {
+            m.redraw();
           }
-
-          m.redraw();
         });
       }
 

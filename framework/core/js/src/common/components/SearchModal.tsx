@@ -462,7 +462,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     }
 
     if (app.current.data.routeName && app.current.data.routeName.includes('user.posts') && app.current.data.user) {
-      filters.posts.author = app.current.data.user.username();
+      filters.posts.author = app.current.data.user.slug();
     }
 
     return filters;

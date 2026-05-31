@@ -49,6 +49,8 @@ use Illuminate\Support\Arr;
  * @property bool $is_email_confirmed
  * @property string $password
  * @property string|null $avatar_url
+ * @property bool $has_avatar_2x
+ * @property bool $has_avatar_3x
  * @property array $preferences
  * @property \Carbon\Carbon|null $joined_at
  * @property \Carbon\Carbon|null $last_seen_at
@@ -77,6 +79,8 @@ class User extends AbstractModel
     protected $casts = [
         'id' => 'integer',
         'is_email_confirmed' => 'boolean',
+        'has_avatar_2x' => 'boolean',
+        'has_avatar_3x' => 'boolean',
         'joined_at' => 'datetime',
         'last_seen_at' => 'datetime',
         'marked_all_as_read_at' => 'datetime',
@@ -295,7 +299,7 @@ class User extends AbstractModel
         $value = $this->getRawOriginal('avatar_url');
 
         if ($value && ! str_contains($value, '://')) {
-            return resolve(AvatarUploader::class)->srcsetFor($value);
+            return resolve(AvatarUploader::class)->srcsetFor($this);
         }
 
         return static::$avatarDriver->avatarSrcset($this);

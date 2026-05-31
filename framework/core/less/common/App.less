@@ -306,6 +306,9 @@
     &:not(.active) input {
       padding-right: 0;
     }
+    input:not(:focus) ~ .Input-clear {
+      display: none;
+    }
   }
 }
 

@@ -36,15 +36,24 @@ trait AccountActivationMailerTrait
 
     protected function sendConfirmationEmail(User $user, array $data): void
     {
-        $body = $this->translator->trans('core.email.activate_account.body', $data);
-        $subject = $this->translator->trans('core.email.activate_account.subject');
+        $locale = $user->getPreference('locale') ?? $this->settings->get('default_locale');
+        $previousLocale = $this->translator->getLocale();
+        $this->translator->setLocale($locale);
+
+        try {
+            $body = $this->translator->trans('core.email.activate_account.body', $data);
+            $subject = $this->translator->trans('core.email.activate_account.subject');
+        } finally {
+            $this->translator->setLocale($previousLocale);
+        }
 
         $this->queue->push(new SendInformationalEmailJob(
             email: $user->email,
             displayName: Arr::get($data, 'username'),
             subject: $subject,
             body: $body,
-            forumTitle: Arr::get($data, 'forum')
+            forumTitle: Arr::get($data, 'forum'),
+            locale: $locale,
         ));
     }
 }

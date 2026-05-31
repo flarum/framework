@@ -5,7 +5,7 @@
             "maxSize": "150KB"
         },
         {
-            "path": "./framework/core/js/dist/*/**/*.js",
+            "path": "./framework/core/js/dist/{admin,common,forum}/**/*.js",
             "maxSize": "30KB"
         },
         {

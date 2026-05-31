@@ -9,8 +9,8 @@
 
 namespace Flarum\Frontend;
 
+use Flarum\Formatter\XsltPolyfill;
 use Flarum\Foundation\Config;
-use Flarum\Frontend\Compiler\FileVersioner;
 use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\Driver\TitleDriverInterface;
 use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
@@ -94,13 +94,28 @@ class Document implements Renderable
     public ?bool $hasNextPage = null;
 
     /**
-     * An array of strings to append to the page's <head>.
+     * An array of strings to append to the page's <head>, rendered *after*
+     * the forum/admin stylesheet so that user-supplied <style>/<link> blocks
+     * correctly override core CSS.
      */
     public array $head = [];
 
     /**
-     * Inline critical CSS emitted before the async stylesheet links.
-     * Populated by FrontendServiceProvider to prevent a flash of unstyled content.
+     * An array of strings to render in <head> *before* the forum/admin
+     * stylesheet. Use this for hints and scripts that must take effect
+     * before first paint — preconnect hints to additional origins, an
+     * inline script that sets data-theme on <html>, etc.
+     *
+     * Anything that depends on CSS variables, computed styles, or that
+     * should be able to override the forum stylesheet belongs in $head.
+     */
+    public array $preHead = [];
+
+    /**
+     * Inline critical CSS emitted before the main stylesheet link.
+     * Populated by FrontendServiceProvider to give the browser a
+     * theme-accurate body background to paint while the main stylesheet
+     * is being fetched.
      */
     public string $criticalCss = '';
 
@@ -150,22 +165,18 @@ class Document implements Renderable
         'class' => [],
     ];
 
-    /**
-     * We need the versioner to get the revisions of split chunks.
-     */
-    protected VersionerInterface $versioner;
-
     public function __construct(
         protected Factory $view,
         protected array $forumApiDocument,
         protected Request $request,
         protected TitleDriverInterface $titleDriver,
         protected Config $config,
-        FilesystemFactory $filesystem
+        /**
+         * We need the versioner to get the revisions of split chunks.
+         */
+        protected VersionerInterface $versioner,
+        protected FilesystemFactory $filesystem,
     ) {
-        $this->versioner = new FileVersioner(
-            $filesystem->disk('flarum-assets')
-        );
     }
 
     public function render(): string
@@ -307,25 +318,18 @@ class Document implements Renderable
 
     protected function makeHead(): string
     {
-        // On warm visits (CSS already cached), a tiny inline script injects blocking
-        // <link rel="stylesheet"> tags synchronously before first paint — no FOUC, no
-        // network round-trip. On cold visits the sessionStorage keys are absent so the
-        // script exits immediately and the async preload path below takes over.
-        // Versioned URLs act as natural cache-busters: a new deploy changes the URL,
-        // the old sessionStorage key doesn't match, and the async path runs once more.
+        // The forum/admin stylesheet is render-blocking (parser-discovered
+        // <link rel="stylesheet">), so anything that must be in effect *before*
+        // first paint — preconnect hints, and anything pushed to $preHead by
+        // content callbacks (e.g. the inline data-theme script) — precedes it.
+        // Everything else — extension head content, JS preloads, meta tags,
+        // polyfills — comes after so it doesn't delay paint and so user
+        // overrides like custom <style> blocks correctly win the cascade.
         $head = $this->makePreconnects();
+        $head = array_merge($head, $this->preHead);
 
-        if (! empty($this->css)) {
-            $cssJson = json_encode(array_values($this->css), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG);
-            $head[] = '<script>(function(){var s='.$cssJson.';if(s.every(function(h){return sessionStorage.getItem("css:"+h);})){s.forEach(function(h){var l=document.createElement("link");l.rel="stylesheet";l.href=h;document.head.appendChild(l);});}Object.keys(sessionStorage).forEach(function(k){if(k.indexOf("css:")===0&&s.indexOf(k.slice(4))===-1){sessionStorage.removeItem(k);}});})();</script>';
-        }
-
-        // Async preload path for cold visits. The onload updates sessionStorage so the
-        // next page load can take the fast synchronous path above.
         foreach ($this->css as $url) {
-            $escaped = e($url);
-            $head[] = '<link rel="preload" href="'.$escaped.'" as="style" fetchpriority="high" onload="sessionStorage.setItem(\'css:\'+this.href,\'1\');this.onload=null;this.rel=\'stylesheet\'">'
-                .'<noscript><link rel="stylesheet" href="'.$escaped.'"></noscript>';
+            $head[] = '<link rel="stylesheet" href="'.e($url).'" fetchpriority="high">';
         }
 
         if ($this->page) {
@@ -347,7 +351,45 @@ class Document implements Renderable
             return '<meta name="'.e($name).'" content="'.e($content).'">';
         }, $this->meta, array_keys($this->meta)));
 
+        if ($polyfill = $this->makeXsltPolyfillLoader()) {
+            $head[] = $polyfill;
+        }
+
         return implode("\n", array_merge($head, $this->head));
+    }
+
+    /**
+     * Emit a tiny inline detector that synchronously document.write()s a
+     * <script src="…xslt-polyfill.min.js"> tag if the browser has no
+     * working XSLTProcessor. Because document.write of a script tag during
+     * HTML parsing inserts it inline, the parser blocks until the polyfill
+     * loads and executes — this guarantees window.XSLTProcessor is in
+     * place before forum.js runs (s9e calls `new XSLTProcessor` at
+     * top-level module load).
+     *
+     * Browsers with native XSLT pay the cost of the detector only (~200
+     * bytes); only affected browsers fetch the polyfill itself.
+     */
+    private function makeXsltPolyfillLoader(): ?string
+    {
+        $url = XsltPolyfill::publicUrl($this->filesystem);
+        if ($url === null) {
+            return null;
+        }
+
+        // JSON-encode the URL with HTML-safe flags so it can't break out of
+        // the JS string context, even if a hostile asset URL contained
+        // quotes / angle brackets / ampersands. The JSON-encoded value is
+        // already a JS string literal (with surrounding quotes), so it can
+        // be concatenated into the document.write() argument directly.
+        $jsUrl = json_encode($url, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+
+        // The closing </script> for the written-out tag is split across the
+        // string literal so the *outer* <script> doesn't close early when
+        // the HTML parser scans for </script>.
+        return <<<HTML
+<script>(function(){try{if(typeof XSLTProcessor!=="undefined"&&new XSLTProcessor())return;}catch(e){}document.write('<script src='+$jsUrl+'><\/script>');})();</script>
+HTML;
     }
 
     protected function makeJs(): string

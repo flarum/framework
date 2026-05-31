@@ -13,9 +13,9 @@ use Flarum\Database\AbstractModel;
 use Flarum\Extension\Extension;
 use Flarum\Search\AbstractDriver;
 use Flarum\Search\AbstractFulltextFilter;
-use Flarum\Search\Database\AbstractSearcher;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearcherInterface;
 use Flarum\Search\SearchState;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
@@ -41,7 +41,7 @@ class SearchDriver implements ExtenderInterface
      *
      * @param class-string<AbstractModel> $modelClass : The class of the model subject to searching/filtering.
      *                              This model must extend \Flarum\Database\AbstractModel.
-     * @param class-string<AbstractSearcher> $searcherClass : The class of the Searcher for this model
+     * @param class-string<SearcherInterface> $searcherClass : The class of the Searcher for this model
      *                                This searcher must implement \Flarum\Search\SearcherInterface.
      *                                Or extend \Flarum\Search\Database\AbstractSearcher if using the default driver.
      */
@@ -55,7 +55,7 @@ class SearchDriver implements ExtenderInterface
     /**
      * Add a filter to this searcher. Filters are used to filter search queries.
      *
-     * @param class-string<AbstractSearcher> $searcherClass : The class of the Searcher for this model
+     * @param class-string<SearcherInterface> $searcherClass : The class of the Searcher for this model
      *                                This searcher must implement \Flarum\Search\SearcherInterface.
      *                                Or extend \Flarum\Search\Database\AbstractSearcher if using the default driver.
      * @param class-string<FilterInterface> $filterClass: The ::class attribute of the filter you are adding.
@@ -71,7 +71,7 @@ class SearchDriver implements ExtenderInterface
     /**
      * Replace a filter from this searcher. Filters are used to filter search queries.
      *
-     * @param class-string<AbstractSearcher> $searcherClass : The class of the Searcher for this model
+     * @param class-string<SearcherInterface> $searcherClass : The class of the Searcher for this model
      *                                 This searcher must implement \Flarum\Search\SearcherInterface.
      *                                 Or extend \Flarum\Search\Database\AbstractSearcher if using the default driver.
      * @param class-string<FilterInterface> $replaceFilterClass : The ::class attribute of the filter you are replacing.
@@ -91,7 +91,7 @@ class SearchDriver implements ExtenderInterface
     /**
      * Set the full text filter for this searcher. The full text filter actually executes the search.
      *
-     * @param class-string<AbstractSearcher> $searcherClass : The class of the Searcher for this model
+     * @param class-string<SearcherInterface> $searcherClass : The class of the Searcher for this model
      *                                This searcher must implement \Flarum\Search\SearcherInterface.
      *                                Or extend \Flarum\Search\Database\AbstractSearcher if using the default driver.
      * @param class-string<AbstractFulltextFilter> $fulltextClass: The ::class attribute of the full test filter you are adding.
@@ -107,7 +107,7 @@ class SearchDriver implements ExtenderInterface
     /**
      * Add a callback through which to run all search queries after filters have been applied.
      *
-     * @param class-string<AbstractSearcher> $searcherClass : The class of the Searcher for this model
+     * @param class-string<SearcherInterface> $searcherClass : The class of the Searcher for this model
      *                                This searcher must implement \Flarum\Search\SearcherInterface.
      *                                Or extend \Flarum\Search\Database\AbstractSearcher if using the default driver.
      * @param (callable(SearchState $search, SearchCriteria $criteria): void)|class-string $callback

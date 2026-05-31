@@ -48,7 +48,7 @@ class InfoCommand extends Command
         $promise->wait();
         $this->info('Triggered an async test event.');
 
-        $queue->push(new SendTriggerJob('test', User::query()->oldest()->first()));
+        $queue->push(new SendTriggerJob('test', User::query()->oldest('joined_at')->first()));
         $this->info('Triggered a test event dispatched to the queue.');
     }
 }

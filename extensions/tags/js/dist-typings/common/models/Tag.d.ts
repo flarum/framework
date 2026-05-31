@@ -5,8 +5,6 @@ export default class Tag extends Model {
     slug(): string;
     description(): string | null;
     color(): string | null;
-    backgroundUrl(): string | null;
-    backgroundMode(): string | null;
     icon(): string | null;
     position(): number | null;
     parent(): false | Tag | null;
