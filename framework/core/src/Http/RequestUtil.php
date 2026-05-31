@@ -11,7 +11,6 @@ namespace Flarum\Http;
 
 use Bitworking\Mimeparse;
 use Flarum\User\User;
-use Illuminate\Support\Str;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
 
