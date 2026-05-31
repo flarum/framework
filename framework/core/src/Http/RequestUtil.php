@@ -34,15 +34,22 @@ class RequestUtil
 
     public static function isHtmlRequest(Request $request): bool
     {
-        return Str::contains(
-            $request->getHeaderLine('Accept'),
-            'text/html'
-        );
+        return ! self::isApiRequest($request);
     }
 
+    /**
+     * @param Request $request
+     * @param array $types The content types to check against, in order of priority. The best match will be returned.
+     * @return string
+     */
     public static function getPreferredContentType(Request $request, array $types): string
     {
         $accept = $request->getHeaderLine('Accept');
+
+        // We get some errors if $accept is empty, so we need to check for that and set it to */* if it is.
+        if (! filled($accept)) {
+            $accept = '*/*';
+        }
 
         return Mimeparse::bestMatch($types, $accept);
     }
