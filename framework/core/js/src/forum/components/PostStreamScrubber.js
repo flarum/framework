@@ -28,7 +28,7 @@ export default class PostStreamScrubber extends Component {
     const count = this.stream.count();
 
     // Index is left blank for performance reasons, it is filled in in updateScubberValues
-    const viewing = app.translator.trans('core.forum.post_scrubber.viewing_text', {
+    const getViewing = () => app.translator.trans('core.forum.post_scrubber.viewing_text', {
       count,
       index: <span className="Scrubber-index"></span>,
       formattedCount: <span className="Scrubber-count">{formatNumber(count)}</span>,
@@ -59,7 +59,7 @@ export default class PostStreamScrubber extends Component {
     return (
       <div className={classNames.join(' ')}>
         <button type="button" className="Button Dropdown-toggle" data-toggle="dropdown">
-          {viewing} <Icon name={'fas fa-sort'} />
+          {getViewing()} <Icon name={'fas fa-sort'} />
         </button>
 
         <div className="Dropdown-menu dropdown-menu">
@@ -73,7 +73,7 @@ export default class PostStreamScrubber extends Component {
               <div className="Scrubber-handle">
                 <div className="Scrubber-bar" />
                 <div className="Scrubber-info">
-                  <strong>{viewing}</strong>
+                  <strong>{getViewing()}</strong>
                   <span className="Scrubber-description"></span>
                 </div>
               </div>
