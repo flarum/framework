@@ -28,11 +28,12 @@ export default class PostStreamScrubber extends Component {
     const count = this.stream.count();
 
     // Index is left blank for performance reasons, it is filled in in updateScubberValues
-    const getViewing = () => app.translator.trans('core.forum.post_scrubber.viewing_text', {
-      count,
-      index: <span className="Scrubber-index"></span>,
-      formattedCount: <span className="Scrubber-count">{formatNumber(count)}</span>,
-    });
+    const getViewing = () =>
+      app.translator.trans('core.forum.post_scrubber.viewing_text', {
+        count,
+        index: <span className="Scrubber-index"></span>,
+        formattedCount: <span className="Scrubber-count">{formatNumber(count)}</span>,
+      });
 
     const unreadCount = this.stream.discussion.unreadCount();
     const unreadPercent = count ? Math.min(count - this.stream.index, unreadCount) / count : 0;
