@@ -378,6 +378,21 @@ export default class Application {
 
     this.drawer = new Drawer();
 
+    // Mithril matches routes on the exact pathname and does not tolerate a trailing
+    // slash (e.g. `/d/123-foo/`), so a shared or linked URL with one matches no route
+    // and falls through to the default route, landing the user on the homepage. Strip
+    // it before routing so the URL resolves the same as its slash-less form, mirroring
+    // the server-side strip in `ResolveRoute`. Only applies to path-routed apps (the
+    // forum); hash-routed apps (admin) keep their route in the fragment, so the
+    // pathname is irrelevant and the homepage (`basePath + '/'`) must be left alone.
+    if (m.route.prefix === '') {
+      const { pathname, search, hash } = window.location;
+
+      if (pathname !== basePath + '/' && pathname.length > 1 && pathname.endsWith('/')) {
+        window.history.replaceState(window.history.state, '', pathname.replace(/\/+$/, '') + search + hash);
+      }
+    }
+
     m.route(document.getElementById('content')!, basePath + '/', mapRoutes(this.routes, basePath));
 
     const appEl = document.getElementById('app')!;
