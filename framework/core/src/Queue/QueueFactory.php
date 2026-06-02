@@ -44,33 +44,88 @@ class QueueFactory implements Factory
         return $this->queue;
     }
 
+    /*
+     * Flarum's simplified queue factory stands in for Illuminate's full
+     * QueueManager. The methods below are the manager-level surface of the
+     * Queue Pause/Resume feature, which the queue Worker and console commands
+     * may call. Flarum does not support queue pausing *yet* — it is planned for
+     * a future Flarum version — so for now they are no-ops. Stubbing the whole
+     * family also means a new Illuminate release wiring up another pause method
+     * can't crash the worker with a "Call to undefined method" (as happened
+     * with isPaused() and, later, getPausedQueues()). Signatures mirror
+     * Illuminate\Queue\QueueManager.
+     *
+     * TODO: implement real queue pausing in a future Flarum version.
+     */
+
     /**
      * Determine if a queue is paused.
-     *
-     * This is a no-op implementation since Flarum's simplified queue factory
-     * doesn't support queue pausing. Laravel 12's Worker expects this method
-     * to exist on the queue manager.
      *
      * @param string $connection
      * @param string $queue
      * @return bool
      */
-    public function isPaused($connection, $queue)
+    public function isPaused($connection, $queue): bool
     {
         return false;
     }
 
     /**
-     * Get the list of paused queues.
+     * Determine which of the given queues are currently paused.
      *
-     * This is a no-op implementation since Flarum's simplified queue factory
-     * does not support queue pausing. illuminate/queue v13.11+ expects this
-     * method to exist on the queue manager.
-     *
+     * @param string $connection
+     * @param array $queues
      * @return array
      */
-    public function getPausedQueues(): array
+    public function getPausedQueues($connection, $queues): array
     {
         return [];
+    }
+
+    /**
+     * Pause a queue by its connection and name.
+     *
+     * @param string $connection
+     * @param string $queue
+     * @return void
+     */
+    public function pause($connection, $queue): void
+    {
+        // No-op for now: queue pausing is planned for a future Flarum version.
+    }
+
+    /**
+     * Pause a queue by its connection and name for a given amount of time.
+     *
+     * @param string $connection
+     * @param string $queue
+     * @param \DateTimeInterface|\DateInterval|int $ttl
+     * @return void
+     */
+    public function pauseFor($connection, $queue, $ttl): void
+    {
+        // No-op for now: queue pausing is planned for a future Flarum version.
+    }
+
+    /**
+     * Resume a paused queue by its connection and name.
+     *
+     * @param string $connection
+     * @param string $queue
+     * @return void
+     */
+    public function resume($connection, $queue): void
+    {
+        // No-op for now: queue pausing is planned for a future Flarum version.
+    }
+
+    /**
+     * Indicate that queue workers should not poll for restart or pause signals.
+     *
+     * @return void
+     */
+    public function withoutInterruptionPolling(): void
+    {
+        // No-op for now: queue pausing is planned for a future Flarum version.
     }
 }
