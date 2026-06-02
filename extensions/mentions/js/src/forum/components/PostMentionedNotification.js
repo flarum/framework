@@ -12,7 +12,7 @@ export default class PostMentionedNotification extends Notification {
     const post = notification.subject();
     const content = notification.content();
 
-    return app.route.discussion(post.discussion(), content && content.replyNumber);
+    return app.route.discussion(content.discussionId, content && content.replyNumber);
   }
 
   content() {
