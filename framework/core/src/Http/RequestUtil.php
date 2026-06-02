@@ -37,9 +37,11 @@ class RequestUtil
     }
 
     /**
+     * Determine the client's preferred content type out of the given list.
+     *
      * @param Request $request
      * @param array $types The content types to check against, in order of priority. The best match will be returned.
-     * @return string
+     * @return string The best matching type, or an empty string if none could be determined.
      */
     public static function getPreferredContentType(Request $request, array $types): string
     {
@@ -50,7 +52,17 @@ class RequestUtil
             $accept = '*/*';
         }
 
-        return Mimeparse::bestMatch($types, $accept);
+        // This is called from the error handler, so it must never throw or emit noise.
+        // `bestMatch()` returns null when nothing matches, and on a malformed Accept
+        // header (e.g. a media range without a subtype) it emits a warning and then
+        // throws. The `@` swallows that warning and the catch swallows the exception;
+        // in either case we fall back to an empty string, which callers treat as
+        // "no preference" (i.e. not an API request).
+        try {
+            return @Mimeparse::bestMatch($types, $accept) ?? '';
+        } catch (\UnexpectedValueException) {
+            return '';
+        }
     }
 
     public static function getActor(Request $request): User
