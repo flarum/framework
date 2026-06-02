@@ -233,6 +233,14 @@ core:
       section_disabled_help: These extensions are installed but not currently enabled. Enable them from their settings page, or remove them if no longer needed.
       suggested_by: "Suggested by {extension}"
 
+    # These translations are used in the database driver mismatch warning widget.
+    database-driver-mismatch-warning:
+      detail: |
+        Your <code>config.php</code> is configured to use the <code>{configured}</code> database driver, but Flarum has detected that the database server is actually <code>{actual}</code>.
+
+        Using the wrong driver can cause subtle, hard-to-diagnose bugs. Set <code>'driver' => ''{actual}''</code> in the <code>database</code> section of your <code>config.php</code> file. See <link>Flarum docs</link> for more information.
+      label: Database driver mismatch
+
     # These translations are used in the debug warning widget.
     debug-warning:
       detail: |

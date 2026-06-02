@@ -94,6 +94,38 @@ class ApplicationInfoProvider
         };
     }
 
+    /**
+     * Detect when the configured database driver does not match the server
+     * actually being used.
+     *
+     * The common case is configuring the 'mysql' driver while connecting to a
+     * MariaDB server (or vice versa). Because Illuminate uses a distinct
+     * connection class and query grammar per driver, this mismatch can cause
+     * subtle, hard-to-diagnose query bugs.
+     *
+     * Returns the driver that *should* be configured, or null when the
+     * configured driver matches the server (or detection does not apply, e.g.
+     * for pgsql/sqlite which cannot be confused for one another).
+     */
+    public function identifyDatabaseDriverMismatch(): ?string
+    {
+        $configured = $this->config['database.driver'];
+
+        // Only MySQL and MariaDB can be mistaken for one another.
+        if (! in_array($configured, ['mysql', 'mariadb'], true)) {
+            return null;
+        }
+
+        $isMariaDb = $this->cache->remember('flarum:db_is_mariadb', 86400, function () {
+            // MariaDB always reports "MariaDB" in its version string; MySQL never does.
+            return Str::contains($this->db->selectOne('select version() as version')->version, 'MariaDB');
+        });
+
+        $actual = $isMariaDb ? 'mariadb' : 'mysql';
+
+        return $actual === $configured ? null : $actual;
+    }
+
     public function identifyDatabaseOptions(): array
     {
         if ($this->config['database.driver'] === 'pgsql') {

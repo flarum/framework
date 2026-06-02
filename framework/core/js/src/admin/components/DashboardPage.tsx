@@ -7,6 +7,7 @@ import AdminPage from './AdminPage';
 import type { Children } from 'mithril';
 import AlertWidget from './AlertWidget';
 import Link from '../../common/components/Link';
+import Icon from '../../common/components/Icon';
 
 export default class DashboardPage extends AdminPage {
   headerInfo() {
@@ -77,6 +78,33 @@ export default class DashboardPage extends AdminPage {
           })}
         </AlertWidget>,
         100
+      );
+    }
+
+    if (app.data.dbDriverMismatch) {
+      items.add(
+        'db-driver-mismatch-warning',
+        <AlertWidget
+          className="DbDriverMismatchWarningWidget"
+          alert={{
+            type: 'error',
+            dismissible: false,
+            title: app.translator.trans('core.admin.database-driver-mismatch-warning.label'),
+            icon: 'fas fa-database',
+          }}
+        >
+          {app.translator.trans('core.admin.database-driver-mismatch-warning.detail', {
+            configured: app.data.dbDriver as string,
+            actual: app.data.dbDriverMismatch as string,
+            link: ({ children }: { children: Children }) => (
+              <Link href="https://docs.flarum.org/install/#database" external={true} target="_blank">
+                <Icon name="fas fa-external-link-alt" />
+                {children}
+              </Link>
+            ),
+          })}
+        </AlertWidget>,
+        90
       );
     }
 
