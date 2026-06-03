@@ -210,7 +210,7 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
     this.loading = true;
 
     app.store
-      .createRecord('users', {})
+      .createRecord<User>('users', {})
       .save(this.submitData(), {
         errorHandler: this.onerror.bind(this),
       })
