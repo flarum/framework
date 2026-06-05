@@ -4,68 +4,74 @@ on:
   workflow_call:
     inputs:
       enable_backend_testing:
-        description: "Enable Backend Testing?"
+        description: Enable backend integration tests
         type: boolean
         default: true
         required: false
 
       enable_phpstan:
-        description: "Enable PHPStan Static Analysis?"
+        description: Enable PHPStan static analysis
         type: boolean
         default: false
         required: false
 
       backend_directory:
-        description: The directory of the project where backend code is located. This should contain a `composer.json` file, and is generally the root directory of the repo.
+        description: Directory containing composer.json
         type: string
         required: false
-        default: '.'
+        default: "."
 
-      # Only relevant in mono-repos.
       monorepo_tests:
-        description: "The list of directories to test in a monorepo. This should be a space-separated list of directories relative to the backend directory."
+        description: Space-separated list of directories to test in a monorepo
         type: string
         required: false
+
+      runner_type:
+        description: GitHub Actions runner type
+        type: string
+        required: false
+        default: "ubuntu-latest"
 
       php_versions:
-        description: Versions of PHP to test with. Should be array of strings encoded as JSON array
+        description: PHP versions to test (JSON array of strings)
         type: string
         required: false
-        # Keep PHP versions synced with build-install-packages.yml
         default: '["8.3", "8.4", "8.5"]'
 
       php_extensions:
-        description: PHP extensions to install.
+        description: PHP extensions to install
         type: string
         required: false
-        default: 'curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip'
-
-      db_versions:
-        description: Versions of databases to test with. Should be array of strings encoded as JSON array
-        type: string
-        required: false
-        default: '["mysql:5.7", "mysql:8.0.30", "mariadb", "sqlite:3", "postgres:10"]'
+        default: "curl, dom, gd, json, mbstring, openssl, pdo_mysql, pdo_pgsql, tokenizer, zip"
 
       php_ini_values:
         description: PHP ini values
         type: string
         required: false
-        default: error_reporting=E_ALL
+        default: "error_reporting=E_ALL"
 
-      runner_type:
-        description: The type of runner to use for the jobs. This should be one of the types supported by the `runs-on` keyword.
+      db_versions:
+        description: DB images to test (JSON array of Docker image strings)
         type: string
         required: false
-        default: 'ubuntu-latest'
+        default: '["mysql:9.7", "mariadb:12.3", "postgres:18", "sqlite:3"]'
+
+      db_prefixes:
+        description: >-
+          Table prefixes to test. JSON array of strings.
+          Default tests both no-prefix and flarum_ prefix.
+          Pass '[""]' to run without a prefix only.
+        type: string
+        required: false
+        default: '["", "flarum_"]'
 
     secrets:
       composer_auth:
-        description: The Composer auth tokens to use for private packages.
+        description: Composer auth tokens for private packages
         required: false
 
 env:
   COMPOSER_ROOT_VERSION: dev-main
-  # `inputs.composer_directory` defaults to `inputs.backend_directory`
   FLARUM_TEST_TMP_DIR_LOCAL: tests/integration/tmp
   COMPOSER_AUTH: ${{ secrets.composer_auth }}
   DB_DATABASE: flarum_test
@@ -73,94 +79,23 @@ env:
   DB_PASSWORD: password
 
 jobs:
-  test:
+  phpunit:
+    name: "PHPUnit / PHP ${{ matrix.php }} / ${{ matrix.db }}${{ matrix.prefix != '' && ' (prefix)' || '' }}"
     runs-on: ${{ inputs.runner_type }}
+    if: >-
+      inputs.enable_backend_testing &&
+      ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
     strategy:
+      fail-fast: false
       matrix:
         php: ${{ fromJSON(inputs.php_versions) }}
-        service: ${{ fromJSON(inputs.db_versions) }}
-        prefix: ['']
-        php_ini_values: [inputs.php_ini_values]
-
-        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrixinclude
-        include:
-          # Expands the matrix by naming DBs.
-          - service: 'mysql:5.7'
-            db: MySQL 5.7
-            driver: mysql
-          - service: 'mysql:8.0.30'
-            db: MySQL 8.0
-            driver: mysql
-          - service: mariadb
-            db: MariaDB
-            driver: mariadb
-          - service: 'sqlite:3'
-            db: SQLite
-            driver: sqlite
-          - service: 'postgres:10'
-            db: PostgreSQL 10
-            driver: pgsql
-
-          # Include Database prefix tests with only one PHP version (latest).
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
-            service: 'mysql:5.7'
-            db: MySQL 5.7
-            driver: mysql
-            prefix: flarum_
-            prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
-            service: mariadb
-            db: MariaDB
-            driver: mariadb
-            prefix: flarum_
-            prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
-            service: 'sqlite:3'
-            db: SQLite
-            driver: sqlite
-            prefix: flarum_
-            prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
-            service: 'postgres:10'
-            db: PostgreSQL 10
-            driver: pgsql
-            prefix: flarum_
-            prefixStr: (prefix)
-
-        # To reduce number of actions:
-        # - MySQL 8.0 runs on all PHP versions (primary DB for PHP version coverage)
-        # - All other DBs run on latest PHP only (DB-specific bugs don't depend on PHP version)
-        # - MySQL 5.7 also runs on latest PHP only (floor version coverage)
-        exclude:
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'mysql:5.7'
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'mysql:5.7'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: 'mysql:5.7'
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: mariadb
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: mariadb
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: mariadb
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'sqlite:3'
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'sqlite:3'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: 'sqlite:3'
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'postgres:10'
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'postgres:10'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: 'postgres:10'
+        db: ${{ fromJSON(inputs.db_versions) }}
+        prefix: ${{ fromJSON(inputs.db_prefixes) }}
 
     services:
       mysql:
-        image: ${{ matrix.driver == 'mysql' && matrix.service || '' }}
+        image: ${{ startsWith(matrix.db, 'mysql') && matrix.db || '' }}
         env:
           MYSQL_DATABASE: ${{ env.DB_DATABASE }}
           MYSQL_USER: ${{ env.DB_USERNAME }}
@@ -170,7 +105,7 @@ jobs:
           - 3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
       mariadb:
-        image: ${{ matrix.driver == 'mariadb' && matrix.service || '' }}
+        image: ${{ startsWith(matrix.db, 'mariadb') && matrix.db || '' }}
         env:
           MARIADB_DATABASE: ${{ env.DB_DATABASE }}
           MARIADB_USER: ${{ env.DB_USERNAME }}
@@ -180,7 +115,7 @@ jobs:
           - 3306
         options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
       postgres:
-        image: ${{ matrix.driver == 'pgsql' && matrix.service || '' }}
+        image: ${{ startsWith(matrix.db, 'postgres') && matrix.db || '' }}
         env:
           POSTGRES_DB: ${{ env.DB_DATABASE }}
           POSTGRES_USER: ${{ env.DB_USERNAME }}
@@ -193,34 +128,23 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
-
-    if: >-
-      inputs.enable_backend_testing &&
-      ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
-
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # 2.37.1
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug
+          coverage: none
           extensions: ${{ inputs.php_extensions }}
-          tools: phpunit, composer:v2
-          ini-values: ${{ matrix.php_ini_values }}
+          tools: composer:v2
+          ini-values: ${{ inputs.php_ini_values }}
 
       - name: Install Composer dependencies
-        run: composer install
+        run: composer install --no-interaction --prefer-dist
         working-directory: ${{ inputs.backend_directory }}
 
-      # If we have a `inputs.monorepo_tests`, we will run tests for each item of the provided array in a ::group::item
-      # If we don't have a `inputs.monorepo_tests`, we will run tests for the current repository
-      # We also have to run the `composer test:setup` script first before running each test
       - name: Run tests
         run: |
           if [ -z "${{ inputs.monorepo_tests }}" ]; then
@@ -237,50 +161,59 @@ jobs:
         working-directory: ${{ inputs.backend_directory }}
         env:
           DB_HOST: 127.0.0.1
-          DB_PORT: ${{ (matrix.driver == 'mysql' && job.services.mysql.ports['3306']) || (matrix.driver == 'mariadb' && job.services.mariadb.ports['3306']) || (matrix.driver == 'pgsql' && job.services.postgres.ports['5432']) }}
+          DB_PORT: ${{ (startsWith(matrix.db, 'mysql') && job.services.mysql.ports['3306']) || (startsWith(matrix.db, 'mariadb') && job.services.mariadb.ports['3306']) || (startsWith(matrix.db, 'postgres') && job.services.postgres.ports['5432']) || '' }}
           DB_PREFIX: ${{ matrix.prefix }}
-          DB_DRIVER: ${{ matrix.driver }}
+          DB_DRIVER: ${{ startsWith(matrix.db, 'mariadb') && 'mariadb' || startsWith(matrix.db, 'mysql') && 'mysql' || startsWith(matrix.db, 'postgres') && 'pgsql' || 'sqlite' }}
           COMPOSER_PROCESS_TIMEOUT: 600
 
   phpstan:
+    name: "PHPStan / PHP ${{ matrix.php }}"
     runs-on: ${{ inputs.runner_type }}
-
-    strategy:
-      matrix:
-        php: ${{ fromJson(inputs.php_versions) }}
-
-    name: 'PHPStan PHP ${{ matrix.php }}'
-
     if: >-
       inputs.enable_phpstan &&
       ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ${{ fromJSON(inputs.php_versions) }}
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: ${{ env.DB_DATABASE }}
+          MYSQL_USER: ${{ env.DB_USERNAME }}
+          MYSQL_PASSWORD: ${{ env.DB_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
+
     steps:
-      - uses: actions/checkout@master
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # 2.37.1
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug
+          coverage: none
           extensions: ${{ inputs.php_extensions }}
-          tools: phpunit, composer:v2
-          ini-values: ${{ matrix.php_ini_values }}
+          tools: composer:v2
+          ini-values: ${{ inputs.php_ini_values }}
 
       - name: Install Composer dependencies
-        run: composer install
+        run: composer install --no-interaction --prefer-dist
         working-directory: ${{ inputs.backend_directory }}
-
-      - name: Create MySQL Database
-        run: |
-          sudo systemctl start mysql
-          mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 3306
 
       - name: Run PHPStan
         run: composer analyse:phpstan
+        working-directory: ${{ inputs.backend_directory }}
         env:
-          DB_USERNAME: root
-          DB_PORT: 3306
-          DB_PASSWORD: root
+          DB_HOST: 127.0.0.1
+          DB_PORT: ${{ job.services.mysql.ports['3306'] }}
+          DB_USERNAME: ${{ env.DB_USERNAME }}
+          DB_PASSWORD: ${{ env.DB_PASSWORD }}
           COMPOSER_PROCESS_TIMEOUT: 600
           FLARUM_TEST_TMP_DIR_LOCAL: ./tmp
