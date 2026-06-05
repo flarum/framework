@@ -15,6 +15,12 @@
     @media @phone {
       margin: 0 -15px;
       padding: 0 15px;
+
+      // .Post loses its right padding on phones, so the post content spans
+      // the full width -- the divider must too, or it ends up lopsided.
+      &::after {
+        width: 100%;
+      }
     }
   }
 }
