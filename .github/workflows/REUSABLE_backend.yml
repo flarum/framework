@@ -36,6 +36,7 @@ on:
         description: PHP versions to test (JSON array of strings)
         type: string
         required: false
+        # Keep PHP versions synced with build-install-packages.yml
         default: '["8.3", "8.4", "8.5"]'
 
       php_extensions:
