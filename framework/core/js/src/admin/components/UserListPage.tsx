@@ -43,7 +43,7 @@ export default class UserListPage extends AdminPage {
   /**
    * Number of users to load per page.
    */
-  private numPerPage: number = 3;
+  private numPerPage: number = 50;
 
   /**
    * Current page number. Zero-indexed.
