@@ -94,7 +94,8 @@ class DiscussionResource extends AbstractDatabaseResource
                     'firstPost.editedUser',
                     'firstPost.hiddenUser',
                     'lastPost'
-                ]),
+                ])
+                ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups', 'firstPost.user.groups']),
             Endpoint\Index::make()
                 ->defaultInclude([
                     'user',

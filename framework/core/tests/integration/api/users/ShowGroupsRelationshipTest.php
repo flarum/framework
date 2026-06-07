@@ -32,6 +32,15 @@ class ShowGroupsRelationshipTest extends TestCase
                 $this->normalUser(),
             ],
             Group::class => [
+                // A hidden group with a *lower* id than the visible one, so the
+                // loaded relation returns it first. This guards against filtered
+                // results being serialized as a JSON object instead of an array.
+                [
+                    'id' => 9,
+                    'name_singular' => 'Hidden Low',
+                    'name_plural' => 'Hidden Low',
+                    'is_hidden' => 1,
+                ],
                 [
                     'id' => 10,
                     'name_singular' => 'Public',
@@ -46,6 +55,7 @@ class ShowGroupsRelationshipTest extends TestCase
                 ],
             ],
             'group_user' => [
+                ['user_id' => 2, 'group_id' => 9],
                 ['user_id' => 2, 'group_id' => 10],
                 ['user_id' => 2, 'group_id' => 11],
             ],
@@ -75,7 +85,11 @@ class ShowGroupsRelationshipTest extends TestCase
         $body = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEqualsCanonicalizing(['10'], $this->groupRelationshipIds($body));
+        $this->assertNotContains('9', $this->includedGroupIds($body));
         $this->assertNotContains('11', $this->includedGroupIds($body));
+        // The filtered list must remain a JSON array, even though the hidden
+        // group with the lowest id was dropped from the front of the relation.
+        $this->assertTrue(array_is_list($body['data']['relationships']['groups']['data']));
     }
 
     #[Test]
@@ -91,7 +105,9 @@ class ShowGroupsRelationshipTest extends TestCase
         $body = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEqualsCanonicalizing(['10'], $this->groupRelationshipIds($body));
+        $this->assertNotContains('9', $this->includedGroupIds($body));
         $this->assertNotContains('11', $this->includedGroupIds($body));
+        $this->assertTrue(array_is_list($body['data']['relationships']['groups']['data']));
     }
 
     #[Test]
@@ -106,7 +122,7 @@ class ShowGroupsRelationshipTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $body = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEqualsCanonicalizing(['10', '11'], $this->groupRelationshipIds($body));
-        $this->assertEqualsCanonicalizing(['10', '11'], $this->includedGroupIds($body));
+        $this->assertEqualsCanonicalizing(['9', '10', '11'], $this->groupRelationshipIds($body));
+        $this->assertEqualsCanonicalizing(['9', '10', '11'], $this->includedGroupIds($body));
     }
 }
