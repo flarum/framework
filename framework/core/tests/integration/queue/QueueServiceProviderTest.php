@@ -91,6 +91,39 @@ class QueueServiceProviderTest extends TestCase
         $this->assertContains(\Illuminate\Queue\Console\RetryCommand::class, $commandNames);
     }
 
+    /**
+     * Regression test: the queue connection must have a non-null string name.
+     *
+     * illuminate/queue 13.15.0 type-hinted WorkerIdle::$connectionName as
+     * `string`, so the worker loop throws a TypeError when the connection name
+     * is null. The name flows from the queue connection / config('queue.default').
+     */
+    #[Test]
+    public function queue_connection_has_a_non_null_string_name()
+    {
+        $this->config('queue', ['driver' => 'database']);
+
+        $this->app();
+
+        $queue = $this->app()->getContainer()->make(Queue::class);
+
+        $this->assertIsString($queue->getConnectionName());
+        $this->assertNotEmpty($queue->getConnectionName());
+    }
+
+    #[Test]
+    public function default_queue_connection_name_is_configured()
+    {
+        $this->app();
+
+        $default = $this->app()->getContainer()->make('config')->get('queue.default');
+
+        // The worker command falls back to this when no connection argument is
+        // given; it must be a non-null string to satisfy WorkerIdle.
+        $this->assertIsString($default);
+        $this->assertNotEmpty($default);
+    }
+
     #[Test]
     public function it_uses_null_failed_job_provider_for_sync_queue()
     {
