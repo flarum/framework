@@ -14,6 +14,7 @@
 - (core) stub the full Queue Pause/Resume surface on `QueueFactory` by @imorland [#4683]
 - (mentions) align mentions in post with the rest of the text by @dsevillamartin [#4692]
 - (emoji) reserve a square box for `img.emoji` to avoid layout shift (CLS) by @imorland [#4685]
+- (core) queue worker `TypeError` on a null connection name with `illuminate/queue` 13.15+ by @imorland [#4700]
 
 ### Performance
 
