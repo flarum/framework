@@ -15,6 +15,7 @@
 - (mentions) align mentions in post with the rest of the text by @dsevillamartin [#4692]
 - (emoji) reserve a square box for `img.emoji` to avoid layout shift (CLS) by @imorland [#4685]
 - (core) queue worker `TypeError` on a null connection name with `illuminate/queue` 13.15+ by @imorland [#4700]
+- (tags, sticky) declare `flarum/realtime` as an optional dependency so the realtime extender loads before its consumers, fixing `TypeError: mt(...) is not a constructor` by @imorland [#4699]
 
 ### Performance
 
