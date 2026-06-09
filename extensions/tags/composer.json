@@ -38,6 +38,9 @@
         "flarum-extension": {
             "title": "Tags",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/realtime"
+            ],
             "icon": {
                 "name": "fas fa-tags",
                 "backgroundColor": "#F28326",

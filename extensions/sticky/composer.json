@@ -34,7 +34,8 @@
             "title": "Sticky",
             "category": "feature",
             "optional-dependencies": [
-                "flarum-tags"
+                "flarum/realtime",
+                "flarum/tags"
             ],
             "icon": {
                 "name": "fas fa-thumbtack",
