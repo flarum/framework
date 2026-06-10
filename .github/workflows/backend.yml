@@ -8,4 +8,5 @@ jobs:
     with:
       enable_backend_testing: true
       backend_directory: .
+      db_versions: '["mysql:5.7", "mysql:9.7", "mariadb:10.11", "mariadb:12.3","postgres:10", "postgres:18", "sqlite:3"]'
       monorepo_tests: "framework/core extensions/akismet extensions/approval extensions/flags extensions/likes extensions/mentions extensions/nicknames extensions/statistics extensions/sticky extensions/subscriptions extensions/suspend extensions/tags extensions/messages extensions/gdpr extensions/realtime php-packages/testing/tests"
