@@ -23,7 +23,7 @@
     ],
     "type": "flarum-extension",
     "require": {
-        "flarum/core": "^2.0.0-rc.2",
+        "flarum/core": "^2.0.0-rc.3",
         "plesk/ratchetphp": "v1.0.4",
         "pusher/pusher-php-server": "^7.2.0"
     },

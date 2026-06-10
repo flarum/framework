@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-rc.2"
+        "flarum/core": "^2.0.0-rc.3"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +34,8 @@
             "title": "Sticky",
             "category": "feature",
             "optional-dependencies": [
-                "flarum-tags"
+                "flarum/realtime",
+                "flarum/tags"
             ],
             "icon": {
                 "name": "fas fa-thumbtack",

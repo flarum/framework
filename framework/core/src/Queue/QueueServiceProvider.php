@@ -73,6 +73,12 @@ class QueueServiceProvider extends AbstractServiceProvider
 
             $queue->setContainer($container);
 
+            // Give the connection a name so events that carry it (e.g. WorkerIdle)
+            // receive a string rather than null. illuminate/queue 13.15.0 type-hinted
+            // WorkerIdle::$connectionName as `string`, so a null name now throws a
+            // TypeError in the worker loop.
+            $queue->setConnectionName('flarum');
+
             return $queue;
         });
 

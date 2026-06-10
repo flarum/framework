@@ -1,5 +1,26 @@
 # Changelog
 
+## [v2.0.0-rc.3](https://github.com/flarum/framework/compare/v2.0.0-rc.2...v2.0.0-rc.3)
+
+### Added
+
+- (core) detect and surface a database driver/server mismatch (e.g. MariaDB vs MySQL) by @imorland [#4682]
+- (core) content negotiation for forum error handling by @dsevillamartin [#4677]
+
+### Fixed
+
+- (core) refresh the user count and list after user creation by @DavideIadeluca [#4687]
+- (core) lopsided post divider on mobile by @linkrobins [#4691]
+- (core) stub the full Queue Pause/Resume surface on `QueueFactory` by @imorland [#4683]
+- (mentions) align mentions in post with the rest of the text by @dsevillamartin [#4692]
+- (emoji) reserve a square box for `img.emoji` to avoid layout shift (CLS) by @imorland [#4685]
+- (core) queue worker `TypeError` on a null connection name with `illuminate/queue` 13.15+ by @imorland [#4700]
+- (tags, sticky) declare `flarum/realtime` as an optional dependency so the realtime extender loads before its consumers, fixing `TypeError: mt(...) is not a constructor` by @imorland [#4699]
+
+### Performance
+
+- (core) fix N+1 `group_user` queries when serializing users by @imorland [#4696]
+
 ## [v2.0.0-rc.2](https://github.com/flarum/framework/compare/v2.0.0-rc.1...v2.0.0-rc.2)
 
 ### Added

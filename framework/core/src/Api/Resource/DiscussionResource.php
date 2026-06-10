@@ -94,7 +94,8 @@ class DiscussionResource extends AbstractDatabaseResource
                     'firstPost.editedUser',
                     'firstPost.hiddenUser',
                     'lastPost'
-                ]),
+                ])
+                ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups', 'firstPost.user.groups']),
             Endpoint\Index::make()
                 ->defaultInclude([
                     'user',
@@ -103,7 +104,7 @@ class DiscussionResource extends AbstractDatabaseResource
                     'mostRelevantPost.user'
                 ])
                 ->defaultSort('-lastPostedAt')
-                ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups'])
+                ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups', 'mostRelevantPost.user.groups'])
                 ->paginate(),
         ];
     }

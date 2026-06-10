@@ -119,7 +119,8 @@ class PostResource extends AbstractDatabaseResource
                     'editedUser',
                     'hiddenUser',
                     'discussion'
-                ]),
+                ])
+                ->eagerLoad(['user.groups']),
             Endpoint\Index::make()
                 ->extractOffset(function (Context $context, array $defaultExtracts): int {
                     $queryParams = $context->request->getQueryParams();
@@ -150,6 +151,7 @@ class PostResource extends AbstractDatabaseResource
                     'hiddenUser',
                     'discussion'
                 ])
+                ->eagerLoad(['user.groups'])
                 ->defaultSort('number')
                 ->paginate(static::$defaultLimit),
         ];

@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-rc.2"
+        "flarum/core": "^2.0.0-rc.3"
     },
     "autoload": {
         "psr-4": {
@@ -38,6 +38,9 @@
         "flarum-extension": {
             "title": "Tags",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/realtime"
+            ],
             "icon": {
                 "name": "fas fa-tags",
                 "backgroundColor": "#F28326",

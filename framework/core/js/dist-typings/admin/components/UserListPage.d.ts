@@ -38,7 +38,7 @@ export default class UserListPage extends AdminPage {
      * data provided by `AdminPayload.php`, or `flarum/statistics`
      * if installed.
      */
-    readonly userCount: number;
+    private userCount;
     /**
      * Get total number of user pages.
      */

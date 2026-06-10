@@ -15,6 +15,7 @@ use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Bus\Dispatcher;
 use Flarum\Foundation\ValidationException;
+use Flarum\Group\Group;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -111,15 +112,18 @@ class UserResource extends AbstractDatabaseResource
 
                     return true;
                 })
-                ->defaultInclude(['groups']),
+                ->defaultInclude(['groups'])
+                ->eagerLoad(['groups']),
             Endpoint\Delete::make()
                 ->authenticated()
                 ->can('delete'),
             Endpoint\Show::make()
-                ->defaultInclude(['groups']),
+                ->defaultInclude(['groups'])
+                ->eagerLoad(['groups']),
             Endpoint\Index::make()
                 ->can('searchUsers')
                 ->defaultInclude(['groups'])
+                ->eagerLoad(['groups'])
                 ->paginate(),
             Endpoint\Endpoint::make('avatar.upload')
                 ->route('POST', '/{id}/avatar')
@@ -174,13 +178,16 @@ class UserResource extends AbstractDatabaseResource
                 ->email(['filter'])
                 ->unique('users', 'email', true)
                 ->visible(function (User $user, Context $context) {
-                    return $context->getActor()->can('editCredentials', $user)
-                        || $context->getActor()->id === $user->id;
+                    // Check the cheap self comparison before the editCredentials
+                    // policy, which would otherwise read $user->groups (isAdmin) for
+                    // every serialized user.
+                    return $context->getActor()->id === $user->id
+                        || $context->getActor()->can('editCredentials', $user);
                 })
                 ->writable(function (User $user, Context $context) {
                     return $context->creating()
-                        || $context->getActor()->can('editCredentials', $user)
-                        || $context->getActor()->id === $user->id;
+                        || $context->getActor()->id === $user->id
+                        || $context->getActor()->can('editCredentials', $user);
                 })
                 ->set(function (User $user, string $value, Context $context) {
                     if ($user->exists) {
@@ -198,8 +205,8 @@ class UserResource extends AbstractDatabaseResource
                 }),
             Schema\Boolean::make('isEmailConfirmed')
                 ->visible(function (User $user, Context $context) {
-                    return $context->getActor()->can('editCredentials', $user)
-                        || $context->getActor()->id === $user->id;
+                    return $context->getActor()->id === $user->id
+                        || $context->getActor()->can('editCredentials', $user);
                 })
                 ->writable(fn (User $user, Context $context) => $context->getActor()->isAdmin())
                 ->set(function (User $user, $value, Context $context) {
@@ -311,9 +318,21 @@ class UserResource extends AbstractDatabaseResource
 
             Schema\Relationship\ToMany::make('groups')
                 ->get(function (User $user, Context $context) {
-                    return $context->getActor()->can('viewHiddenGroups')
-                        ? $user->groups()->get()->all()
-                        : $user->visibleGroups()->get()->all();
+                    // Read the (eager-)loaded relation instead of issuing a fresh
+                    // query per serialized user. Hidden groups are filtered in PHP
+                    // for actors that cannot view them, so the relation can be
+                    // eager-loaded once for the whole payload (see the endpoints'
+                    // eagerLoad of `groups`). Note: isAdmin() also reads $user->groups,
+                    // so the relation must contain all groups (filtering happens here).
+                    $groups = $user->groups;
+
+                    if (! $context->getActor()->can('viewHiddenGroups')) {
+                        // values() re-indexes after filtering so the result stays a
+                        // sequential list (JSON array) rather than a keyed object.
+                        $groups = $groups->filter(fn (Group $group) => ! $group->is_hidden)->values();
+                    }
+
+                    return $groups->all();
                 })
                 ->writable(fn (User $user, Context $context) => $context->updating() && $context->getActor()->can('editGroups', $user))
                 ->includable()
