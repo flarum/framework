@@ -66,6 +66,12 @@ on:
         required: false
         default: '["", "flarum_"]'
 
+      fail_fast:
+        description: Cancel remaining matrix jobs if any job fails
+        type: boolean
+        required: false
+        default: true
+
     secrets:
       composer_auth:
         description: Composer auth tokens for private packages
@@ -88,7 +94,7 @@ jobs:
       ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
     strategy:
-      fail-fast: false
+      fail-fast: ${{ inputs.fail_fast }}
       matrix:
         php: ${{ fromJSON(inputs.php_versions) }}
         db: ${{ fromJSON(inputs.db_versions) }}
