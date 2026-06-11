@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\extension;
 
 use Flarum\Testing\integration\ConsoleTestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ScheduledAbandonedSyncTest extends ConsoleTestCase
 {
@@ -20,9 +21,8 @@ class ScheduledAbandonedSyncTest extends ConsoleTestCase
      * This is a regression test: the registration was previously done in the provider's boot()
      * method, which ran after ConsoleServiceProvider::boot() had already consumed the
      * `flarum.console.scheduled` array, so the task was silently dropped and never scheduled.
-     *
-     * @test
      */
+    #[Test]
     public function abandoned_sync_command_is_scheduled()
     {
         $output = $this->runCommand([
