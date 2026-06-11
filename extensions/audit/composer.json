@@ -41,7 +41,7 @@
             "category": "feature",
             "icon": {
                 "name": "fas fa-book",
-                "backgroundColor": "#475569",
+                "backgroundColor": "#2563EB",
                 "color": "#fff"
             },
             "optional-dependencies": [
