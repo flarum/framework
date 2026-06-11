@@ -70,7 +70,7 @@ class AuditLog extends AbstractModel
     public function getTagAttribute(): ?Tag
     {
         // The tags extension is an optional dependency.
-        if (!class_exists(Tag::class)) {
+        if (! class_exists(Tag::class)) {
             return null;
         }
 

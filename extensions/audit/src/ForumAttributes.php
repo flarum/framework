@@ -38,7 +38,7 @@ class ForumAttributes
             $limitedActions = $settings->get('flarum-audit.limitedActions');
 
             // If the setting has no value, it means everything is allowed
-            if (!$limitedActions) {
+            if (! $limitedActions) {
                 return [
                     'canAudit' => true,
                     'canAuditUser' => true,
@@ -84,7 +84,7 @@ class ForumAttributes
     {
         $canSearchIp = $actor->hasPermission('flarum-audit.view');
 
-        if (!$canSearchIp) {
+        if (! $canSearchIp) {
             /** @var SettingsRepositoryInterface $settings */
             $settings = resolve(SettingsRepositoryInterface::class);
             $canSearchIp = (bool) $settings->get('flarum-audit.limitedIpAddress');

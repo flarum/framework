@@ -115,7 +115,7 @@ class Audit implements ExtenderInterface
     {
         $this->listeners[] = [$event, $action, $payload];
 
-        if (!in_array($action, $this->actions, true)) {
+        if (! in_array($action, $this->actions, true)) {
             $this->actions[] = $action;
         }
 

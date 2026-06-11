@@ -17,11 +17,11 @@ class IpGambit extends AbstractRegexGambit
 {
     public function apply(SearchState $search, $bit)
     {
-        if (!$search->getActor()->hasPermission('flarum-audit.view')) {
+        if (! $search->getActor()->hasPermission('flarum-audit.view')) {
             /** @var SettingsRepositoryInterface $settings */
             $settings = resolve(SettingsRepositoryInterface::class);
 
-            if (!$settings->get('flarum-audit.limitedIpAddress')) {
+            if (! $settings->get('flarum-audit.limitedIpAddress')) {
                 return false;
             }
         }

@@ -42,7 +42,7 @@ class FoFUsernameRequestIntegration
 
     public function __invoke(Container $container): void
     {
-        if (!class_exists(UsernameRequest::class)) {
+        if (! class_exists(UsernameRequest::class)) {
             return;
         }
 

@@ -39,11 +39,11 @@ class AuditSerializer extends AbstractSerializer
 
     protected function ipAddress(AuditLog $log)
     {
-        if (!$this->actor->hasPermission('flarum-audit.view')) {
+        if (! $this->actor->hasPermission('flarum-audit.view')) {
             /** @var SettingsRepositoryInterface $settings */
             $settings = resolve(SettingsRepositoryInterface::class);
 
-            if (!$settings->get('flarum-audit.limitedIpAddress')) {
+            if (! $settings->get('flarum-audit.limitedIpAddress')) {
                 return null;
             }
         }

@@ -29,7 +29,7 @@ class TagsAdminIntegration
 
     public function __invoke(Container $container): void
     {
-        if (!class_exists(Tag::class)) {
+        if (! class_exists(Tag::class)) {
             return;
         }
 

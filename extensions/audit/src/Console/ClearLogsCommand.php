@@ -35,7 +35,7 @@ class ClearLogsCommand extends Command
                 return;
             }
 
-            if (!$this->option('force') && !$this->confirm($count.' records will be deleted from the log table. Continue?')) {
+            if (! $this->option('force') && ! $this->confirm($count.' records will be deleted from the log table. Continue?')) {
                 $this->warn('Aborting.');
 
                 return;
@@ -54,7 +54,7 @@ class ClearLogsCommand extends Command
         }
 
         if ($this->option('reset')) {
-            if (!$this->option('force') && !$this->confirm('This will delete the audit log database table and disable the extension. Continue?')) {
+            if (! $this->option('force') && ! $this->confirm('This will delete the audit log database table and disable the extension. Continue?')) {
                 $this->warn('Aborting.');
 
                 return;

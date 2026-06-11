@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Group\Group;
@@ -82,7 +89,7 @@ class CoreUserTest extends TestCase
         $token = EmailToken::generate('user4@example.com', 4);
         $token->save();
 
-        $this->sendForumCsrfRequest('POST', '/confirm/' . $token->token, [], 302);
+        $this->sendForumCsrfRequest('POST', '/confirm/'.$token->token, [], 302);
 
         $this->assertLogExists('user.activated_with_email', [
             'user_id' => 4,
@@ -101,7 +108,7 @@ class CoreUserTest extends TestCase
         // because for some reason withUploadedFiles expects an array of arrays
         // while ServerRequestFactory::fromGlobals and Flarum code expects a flat array
         $response = $this->send($this->requestAsUser(new ServerRequest([], [
-            'avatar' => new UploadedFile(new Stream(__DIR__ . '/../fixtures/16x16.png'), 83, 0, '16x16.png', 'image/png'),
+            'avatar' => new UploadedFile(new Stream(__DIR__.'/../fixtures/16x16.png'), 83, 0, '16x16.png', 'image/png'),
         ], '/api/users/3/avatar', 'POST'), 1));
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -191,7 +198,7 @@ class CoreUserTest extends TestCase
         $token = EmailToken::generate('user33@example.com', 3);
         $token->save();
 
-        $this->sendForumCsrfRequest('POST', '/confirm/' . $token->token, [], 302);
+        $this->sendForumCsrfRequest('POST', '/confirm/'.$token->token, [], 302);
 
         $this->assertLogExists('user.email_changed', [
             'user_id' => 3,

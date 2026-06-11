@@ -106,12 +106,12 @@ class AuditLogger
             $extension = 'core';
         }
 
-        if (!array_key_exists($extension, self::$registeredActions)) {
+        if (! array_key_exists($extension, self::$registeredActions)) {
             self::$registeredActions[$extension] = [];
         }
 
         foreach ($actions as $action) {
-            if (!in_array($action, self::$registeredActions[$extension], true)) {
+            if (! in_array($action, self::$registeredActions[$extension], true)) {
                 self::$registeredActions[$extension][] = $action;
             }
         }

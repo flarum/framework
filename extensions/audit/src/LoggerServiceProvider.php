@@ -9,8 +9,8 @@
 
 namespace Flarum\Audit;
 
-use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Audit\Middleware\SetLoggerActor;
+use Flarum\Foundation\AbstractServiceProvider;
 
 class LoggerServiceProvider extends AbstractServiceProvider
 {

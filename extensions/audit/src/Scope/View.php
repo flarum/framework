@@ -29,7 +29,7 @@ class View
             $limitedActions = $settings->get('flarum-audit.limitedActions');
 
             // If the setting has no value, it means everything is allowed
-            if (!$limitedActions) {
+            if (! $limitedActions) {
                 return;
             }
 

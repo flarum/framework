@@ -52,7 +52,7 @@ return [
             }
         }
 
-        if (!$incompatible) {
+        if (! $incompatible) {
             return;
         }
 
