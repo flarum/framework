@@ -37,19 +37,26 @@ class NicknamesIntegration
         // We need to register the event listener in booted() because that's where Extend\Event
         // registers them. Ours should run after Nicknames because of the extension's optional
         // dependency tree. The audit extender already defers this callback until booted().
-        $container->make(Dispatcher::class)->listen(Saving::class, [$this, 'saving']);
+        $events = $container->make(Dispatcher::class);
 
-        // There's no event for the nickname change at this time so we need to use a bit of Eloquent magic.
-        User::saved(function (User $user) {
-            // The $originalNickname variable holds the old value but it also signifies that the nickname was updated.
-            if ($this->originalNickname !== false) {
-                AuditLogger::log('user.nickname_changed', [
-                    'user_id' => $user->id,
-                    'old_nickname' => $this->originalNickname ?: null,
-                    'new_nickname' => $user->nickname ?: null,
-                ]);
-            }
-        });
+        $events->listen(Saving::class, [$this, 'saving']);
+
+        // There's no event for the nickname change at this time so we hook the user saved
+        // lifecycle. We listen on the dispatcher rather than User::saved(Closure) so the
+        // listener isn't bound to the model's static dispatcher (not serializable on PHP 7.x).
+        $events->listen('eloquent.saved: '.User::class, [$this, 'userSaved']);
+    }
+
+    public function userSaved(User $user)
+    {
+        // The $originalNickname variable holds the old value but it also signifies that the nickname was updated.
+        if ($this->originalNickname !== false) {
+            AuditLogger::log('user.nickname_changed', [
+                'user_id' => $user->id,
+                'old_nickname' => $this->originalNickname ?: null,
+                'new_nickname' => $user->nickname ?: null,
+            ]);
+        }
     }
 
     public function saving(Saving $event)

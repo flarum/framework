@@ -68,31 +68,14 @@ class CoreUserIntegration
         $events->listen(Event\Registered::class, [$this, 'registered']);
         $events->listen(Event\Renamed::class, [$this, 'renamed']);
 
-        PasswordToken::created(function (PasswordToken $token) {
-            $this->log($token->user, 'password_change_requested');
-        });
-
-        LoginProvider::created(function (LoginProvider $provider) {
-            $this->log($provider->user, 'provider_connected', [
-                'provider' => $provider->provider,
-                'identifier' => $provider->identifier,
-            ]);
-        });
-
-        LoginProvider::updated(function (LoginProvider $provider) {
-            if (Arr::exists($provider->getChanges(), 'last_login_at')) {
-                $this->log($provider->user, 'logged_in_with_provider', [
-                    'provider' => $provider->provider,
-                    'identifier' => $provider->identifier,
-                ]);
-            }
-        });
-
-        User::saving(function (User $user) {
-            // There's no way of accessing the original email from EmailChanged, so we save it beforehand.
-            // We can't use the core user saving event because it's not dispatched in ConfirmEmailHandler.
-            $this->originalEmail = $user->getOriginal('email');
-        });
+        // These hook Eloquent model lifecycle events. We listen on the events dispatcher
+        // (rather than the static Model::event(Closure) API) so the listeners aren't bound to
+        // the model classes' static dispatcher — which can't be serialized under PHPUnit
+        // process isolation on PHP 7.x.
+        $events->listen('eloquent.created: '.PasswordToken::class, [$this, 'passwordTokenCreated']);
+        $events->listen('eloquent.created: '.LoginProvider::class, [$this, 'loginProviderCreated']);
+        $events->listen('eloquent.updated: '.LoginProvider::class, [$this, 'loginProviderUpdated']);
+        $events->listen('eloquent.saving: '.User::class, [$this, 'userSaving']);
     }
 
     protected function log(User $user, string $action, array $payload = []): void
@@ -100,6 +83,36 @@ class CoreUserIntegration
         AuditLogger::log("user.$action", array_merge([
             'user_id' => $user->id,
         ], $payload));
+    }
+
+    public function passwordTokenCreated(PasswordToken $token)
+    {
+        $this->log($token->user, 'password_change_requested');
+    }
+
+    public function loginProviderCreated(LoginProvider $provider)
+    {
+        $this->log($provider->user, 'provider_connected', [
+            'provider' => $provider->provider,
+            'identifier' => $provider->identifier,
+        ]);
+    }
+
+    public function loginProviderUpdated(LoginProvider $provider)
+    {
+        if (Arr::exists($provider->getChanges(), 'last_login_at')) {
+            $this->log($provider->user, 'logged_in_with_provider', [
+                'provider' => $provider->provider,
+                'identifier' => $provider->identifier,
+            ]);
+        }
+    }
+
+    public function userSaving(User $user)
+    {
+        // There's no way of accessing the original email from EmailChanged, so we save it beforehand.
+        // We can't use the core user saving event because it's not dispatched in ConfirmEmailHandler.
+        $this->originalEmail = $user->getOriginal('email');
     }
 
     public function activated(Event\Activated $event)

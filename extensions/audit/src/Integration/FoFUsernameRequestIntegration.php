@@ -13,6 +13,7 @@ use Flarum\Audit\AuditLogger;
 use Flarum\User\User;
 use FoF\UserRequest\UsernameRequest;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 
 /**
  * fof/username-request integration.
@@ -46,57 +47,66 @@ class FoFUsernameRequestIntegration
             return;
         }
 
-        User::updated(function (User $user) {
-            $this->oldNickname = $user->getOriginal('nickname');
-            $this->oldUsername = $user->getOriginal('username');
-        });
+        // Listen on the events dispatcher rather than the static Model::event(Closure) API, so the
+        // listeners aren't bound to the model classes' static dispatcher (not serializable on PHP 7.x).
+        $events = $container->make(Dispatcher::class);
 
-        UsernameRequest::saved(function (UsernameRequest $request) {
-            switch ($request->status) {
-                case 'Sent':
-                    if ($request->for_nickname) {
-                        AuditLogger::log('user.nickname_requested', [
-                            'user_id' => $request->user_id,
-                            'new_nickname' => $request->requested_username ?: null,
-                        ]);
-                    } else {
-                        AuditLogger::log('user.username_requested', [
-                            'user_id' => $request->user_id,
-                            'new_username' => $request->requested_username,
-                        ]);
-                    }
-                    break;
-                case 'Approved':
-                    if ($request->for_nickname) {
-                        AuditLogger::log('user.nickname_request_approved', [
-                            'user_id' => $request->user_id,
-                            'old_nickname' => $this->oldNickname ?: null,
-                            'new_nickname' => $request->requested_username ?: null,
-                        ]);
-                    } else {
-                        AuditLogger::log('user.username_request_approved', [
-                            'user_id' => $request->user_id,
-                            'old_username' => $this->oldUsername,
-                            'new_username' => $request->requested_username,
-                        ]);
-                    }
-                    break;
-                case 'Rejected':
-                    if ($request->for_nickname) {
-                        AuditLogger::log('user.nickname_request_rejected', [
-                            'user_id' => $request->user_id,
-                            'new_nickname' => $request->requested_username ?: null,
-                            'reason' => $request->reason,
-                        ]);
-                    } else {
-                        AuditLogger::log('user.username_request_rejected', [
-                            'user_id' => $request->user_id,
-                            'new_username' => $request->requested_username,
-                            'reason' => $request->reason,
-                        ]);
-                    }
-                    break;
-            }
-        });
+        $events->listen('eloquent.updated: '.User::class, [$this, 'userUpdated']);
+        $events->listen('eloquent.saved: '.UsernameRequest::class, [$this, 'requestSaved']);
+    }
+
+    public function userUpdated(User $user)
+    {
+        $this->oldNickname = $user->getOriginal('nickname');
+        $this->oldUsername = $user->getOriginal('username');
+    }
+
+    public function requestSaved(UsernameRequest $request)
+    {
+        switch ($request->status) {
+            case 'Sent':
+                if ($request->for_nickname) {
+                    AuditLogger::log('user.nickname_requested', [
+                        'user_id' => $request->user_id,
+                        'new_nickname' => $request->requested_username ?: null,
+                    ]);
+                } else {
+                    AuditLogger::log('user.username_requested', [
+                        'user_id' => $request->user_id,
+                        'new_username' => $request->requested_username,
+                    ]);
+                }
+                break;
+            case 'Approved':
+                if ($request->for_nickname) {
+                    AuditLogger::log('user.nickname_request_approved', [
+                        'user_id' => $request->user_id,
+                        'old_nickname' => $this->oldNickname ?: null,
+                        'new_nickname' => $request->requested_username ?: null,
+                    ]);
+                } else {
+                    AuditLogger::log('user.username_request_approved', [
+                        'user_id' => $request->user_id,
+                        'old_username' => $this->oldUsername,
+                        'new_username' => $request->requested_username,
+                    ]);
+                }
+                break;
+            case 'Rejected':
+                if ($request->for_nickname) {
+                    AuditLogger::log('user.nickname_request_rejected', [
+                        'user_id' => $request->user_id,
+                        'new_nickname' => $request->requested_username ?: null,
+                        'reason' => $request->reason,
+                    ]);
+                } else {
+                    AuditLogger::log('user.username_request_rejected', [
+                        'user_id' => $request->user_id,
+                        'new_username' => $request->requested_username,
+                        'reason' => $request->reason,
+                    ]);
+                }
+                break;
+        }
     }
 }
