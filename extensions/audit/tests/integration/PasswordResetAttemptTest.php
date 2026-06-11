@@ -9,23 +9,19 @@
 
 namespace Flarum\Audit\Tests\integration;
 
-use Flarum\Extend\Csrf;
-
 /**
  * Covers the LogPasswordResetAttempt middleware, which logs every /api/forgot request — with
  * the originating IP — including attempts for emails that don't match any account. This is the
  * "attempt" event, captured at the HTTP layer so it carries the request IP (unlike the queued
  * worker hook that records the "fulfillment" user.password_change_requested with no IP).
+ *
+ * The `forgot` route is exempted from CSRF by the base TestCase.
  */
 class PasswordResetAttemptTest extends TestCase
 {
     public function setUp(): void
     {
         parent::setUp();
-
-        // Forgot-password is a guest (logged-out) flow. Exempt the route from CSRF so the test
-        // can exercise it as a real unauthenticated request rather than authenticating around it.
-        $this->extend((new Csrf())->exemptRoute('forgot'));
 
         $this->prepareDatabase([
             'users' => [

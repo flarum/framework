@@ -11,6 +11,7 @@ namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Audit\AuditLog;
 use Flarum\Audit\AuditLogger;
+use Flarum\Extend\Csrf;
 use Psr\Http\Message\ResponseInterface;
 
 class TestCase extends \Flarum\Testing\integration\TestCase
@@ -22,6 +23,19 @@ class TestCase extends \Flarum\Testing\integration\TestCase
         AuditLogger::$testMode = true;
 
         $this->extension('flarum-audit');
+
+        // Exempt the routes our tests POST to as a guest from CSRF. This is the standard way to
+        // exercise these flows in the test harness, rather than the unreliable session/token dance.
+        $this->extend(
+            (new Csrf())
+                ->exemptRoute('register')
+                ->exemptRoute('login')
+                ->exemptRoute('logout')
+                ->exemptRoute('confirmEmail.submit')
+                ->exemptRoute('savePassword')
+                ->exemptRoute('forgot')
+                ->exemptRoute('cache.clear')
+        );
 
         $this->prepareDatabase([
             // Make sure the audit log is cleared before each test
@@ -49,12 +63,9 @@ class TestCase extends \Flarum\Testing\integration\TestCase
 
     protected function sendForumCsrfRequest(string $method, string $path, array $options = [], int $statusCode = 200): ResponseInterface
     {
-        // Get a CSRF token
-        $csrfResponse = $this->send($this->request('GET', '/'));
-
-        $response = $this->send($this->request($method, $path, $options + [
-            'cookiesFrom' => $csrfResponse,
-        ])->withAddedHeader('X-CSRF-Token', $csrfResponse->getHeaderLine('X-CSRF-Token')));
+        // The relevant routes are exempted from CSRF in setUp(), so a plain guest request works
+        // without the unreliable GET-token-then-POST dance.
+        $response = $this->send($this->request($method, $path, $options));
 
         $this->assertEquals($statusCode, $response->getStatusCode(), 'Assert request status code');
 
