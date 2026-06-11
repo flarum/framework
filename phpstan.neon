@@ -9,6 +9,8 @@ parameters:
 	  - extensions/akismet/extend.php
 	  - extensions/approval/src
 	  - extensions/approval/extend.php
+	  - extensions/audit/src
+	  - extensions/audit/extend.php
 	  - extensions/flags/src
 	  - extensions/flags/extend.php
 	  - extensions/likes/src
@@ -41,4 +43,7 @@ parameters:
 	  - extensions/gdpr/src
 	excludePaths:
 		- *.blade.php
+		# Audit integrations for third-party extensions reference classes outside the monorepo.
+		- extensions/audit/extend.thirdparty.php
+		- extensions/audit/src/Integration/FoFUsernameRequestIntegration.php
 	databaseMigrationsPath: ['framework/core/migrations']
