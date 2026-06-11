@@ -81,7 +81,9 @@ class IntegrationActionRegistrationTest extends TestCase
     {
         $extender = (new Audit())
             ->register('manual_action')
-            ->listen('SomeEvent', 'listened_action', fn () => []);
+            ->listen('SomeEvent', 'listened_action', function () {
+                return [];
+            });
 
         $harvested = $this->harvested($extender);
 

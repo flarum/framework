@@ -25,7 +25,7 @@ class AccessTest extends TestCase
         $this->setting('flarum-audit.limitedActions', '');
 
         $this->prepareDatabase([
-            'flarum_audit_log' => [
+            'audit_log' => [
                 [
                     'id' => 1,
                     'actor_id' => 1,

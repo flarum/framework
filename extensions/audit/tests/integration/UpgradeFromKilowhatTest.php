@@ -15,7 +15,7 @@ use Illuminate\Database\Schema\Builder;
 /**
  * Verifies the upgrade path from the legacy kilowhat/flarum-ext-audit (pro) and
  * kilowhat/flarum-ext-audit-free extensions, which both shipped an identical
- * `kilowhat_audit_log` table that must be renamed to `flarum_audit_log`.
+ * `kilowhat_audit_log` table that must be renamed to `audit_log`.
  *
  * This test runs the create-table migration's `up` closure directly rather than enabling
  * the extension, so it can control whether the legacy table exists beforehand.
@@ -35,7 +35,7 @@ class UpgradeFromKilowhatTest extends BaseTestCase
     private function dropTables(): void
     {
         $schema = $this->schema();
-        $schema->dropIfExists('flarum_audit_log');
+        $schema->dropIfExists('audit_log');
         $schema->dropIfExists('kilowhat_audit_log');
     }
 
@@ -52,7 +52,7 @@ class UpgradeFromKilowhatTest extends BaseTestCase
     {
         $this->dropTables();
 
-        // Leave a clean flarum_audit_log behind by re-running the migration, so other tests
+        // Leave a clean audit_log behind by re-running the migration, so other tests
         // (which share this database) find the table in its normal post-migration state
         // even if their ordering interleaves with this one.
         $this->migration()['up']($this->schema());
@@ -102,10 +102,10 @@ class UpgradeFromKilowhatTest extends BaseTestCase
         $this->migration()['up']($schema);
 
         // The new table exists, the legacy one is gone, and the row survived with its id.
-        $this->assertTrue($schema->hasTable('flarum_audit_log'), 'New table should exist');
+        $this->assertTrue($schema->hasTable('audit_log'), 'New table should exist');
         $this->assertFalse($schema->hasTable('kilowhat_audit_log'), 'Legacy table should be renamed away');
 
-        $rows = $db->table('flarum_audit_log')->get();
+        $rows = $db->table('audit_log')->get();
         $this->assertCount(1, $rows, 'Existing log entries should be preserved');
         $this->assertEquals(42, $rows[0]->id, 'Primary keys should be preserved by the rename');
         $this->assertEquals('post.created', $rows[0]->action);
@@ -122,7 +122,7 @@ class UpgradeFromKilowhatTest extends BaseTestCase
 
         $this->migration()['up']($schema);
 
-        $this->assertTrue($schema->hasTable('flarum_audit_log'), 'New table should be created from scratch');
-        $this->assertTrue($schema->hasColumn('flarum_audit_log', 'payload'));
+        $this->assertTrue($schema->hasTable('audit_log'), 'New table should be created from scratch');
+        $this->assertTrue($schema->hasColumn('audit_log', 'payload'));
     }
 }

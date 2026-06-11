@@ -23,12 +23,14 @@ use Illuminate\Contracts\Events\Dispatcher;
  * the audit extension is not enabled:
  *
  *     (new Flarum\Extend\Conditional())
- *         ->whenExtensionEnabled('flarum-audit', fn () => [
- *             (new Flarum\Audit\Extend\Audit())
- *                 ->listen(IPWasBanned::class, 'fof_ban_ips.banned', fn ($event) => [
- *                     'ip' => $event->bannedIP->address,
- *                 ]),
- *         ]),
+ *         ->whenExtensionEnabled('flarum-audit', function () {
+ *             return [
+ *                 (new Flarum\Audit\Extend\Audit())
+ *                     ->listen(IPWasBanned::class, 'fof_ban_ips.banned', function ($event) {
+ *                         return ['ip' => $event->bannedIP->address];
+ *                     }),
+ *             ];
+ *         }),
  *
  * Actions are grouped in the admin settings by the extension that registered them.
  * The group is auto-detected from the consuming extension's id; use {@see group()}

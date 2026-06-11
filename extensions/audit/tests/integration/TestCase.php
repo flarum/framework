@@ -25,7 +25,7 @@ class TestCase extends \Flarum\Testing\integration\TestCase
 
         $this->prepareDatabase([
             // Make sure the audit log is cleared before each test
-            'flarum_audit_log' => [],
+            'audit_log' => [],
         ]);
     }
 

@@ -62,7 +62,7 @@ class ClearLogsCommand extends Command
 
             AuditLogger::$disabled = true;
 
-            $db->getSchemaBuilder()->dropIfExists('flarum_audit_log');
+            $db->getSchemaBuilder()->dropIfExists('audit_log');
             $this->info('Table deleted.');
 
             // Delete the migration entries to ensure they will run again next time the extension is re-enabled

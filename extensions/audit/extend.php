@@ -64,37 +64,65 @@ return array_merge(
         (new Audit())
             ->group(null)
             ->register('cache_cleared')
-            ->listen(ClearingCache::class, 'cache_cleared', fn () => []),
+            ->listen(ClearingCache::class, 'cache_cleared', function () {
+                return [];
+            }),
 
         (new Audit())
             ->group(null)
             ->register('extension.disabled', 'extension.enabled', 'extension.uninstalled')
-            ->listen(ExtensionEvent\Disabled::class, 'extension.disabled', fn ($e) => ['package' => $e->extension->name])
-            ->listen(ExtensionEvent\Enabled::class, 'extension.enabled', fn ($e) => ['package' => $e->extension->name])
-            ->listen(ExtensionEvent\Uninstalled::class, 'extension.uninstalled', fn ($e) => ['package' => $e->extension->name]),
+            ->listen(ExtensionEvent\Disabled::class, 'extension.disabled', function ($e) {
+                return ['package' => $e->extension->name];
+            })
+            ->listen(ExtensionEvent\Enabled::class, 'extension.enabled', function ($e) {
+                return ['package' => $e->extension->name];
+            })
+            ->listen(ExtensionEvent\Uninstalled::class, 'extension.uninstalled', function ($e) {
+                return ['package' => $e->extension->name];
+            }),
 
         (new Audit())
             ->group(null)
             ->register('discussion.created', 'discussion.deleted', 'discussion.hidden', 'discussion.renamed', 'discussion.restored')
-            ->listen(DiscussionEvent\Started::class, 'discussion.created', fn ($e) => ['discussion_id' => $e->discussion->id])
-            ->listen(DiscussionEvent\Deleted::class, 'discussion.deleted', fn ($e) => ['discussion_id' => $e->discussion->id])
-            ->listen(DiscussionEvent\Hidden::class, 'discussion.hidden', fn ($e) => ['discussion_id' => $e->discussion->id])
-            ->listen(DiscussionEvent\Restored::class, 'discussion.restored', fn ($e) => ['discussion_id' => $e->discussion->id])
-            ->listen(DiscussionEvent\Renamed::class, 'discussion.renamed', fn ($e) => [
-                'discussion_id' => $e->discussion->id,
-                'old_title' => $e->oldTitle,
-                'new_title' => $e->discussion->title,
-            ]),
+            ->listen(DiscussionEvent\Started::class, 'discussion.created', function ($e) {
+                return ['discussion_id' => $e->discussion->id];
+            })
+            ->listen(DiscussionEvent\Deleted::class, 'discussion.deleted', function ($e) {
+                return ['discussion_id' => $e->discussion->id];
+            })
+            ->listen(DiscussionEvent\Hidden::class, 'discussion.hidden', function ($e) {
+                return ['discussion_id' => $e->discussion->id];
+            })
+            ->listen(DiscussionEvent\Restored::class, 'discussion.restored', function ($e) {
+                return ['discussion_id' => $e->discussion->id];
+            })
+            ->listen(DiscussionEvent\Renamed::class, 'discussion.renamed', function ($e) {
+                return [
+                    'discussion_id' => $e->discussion->id,
+                    'old_title' => $e->oldTitle,
+                    'new_title' => $e->discussion->title,
+                ];
+            }),
 
         (new Audit())
             ->group(null)
             ->register('post.created', 'post.deleted', 'post.hidden', 'post.restored', 'post.revised')
-            ->listen(PostEvent\Deleted::class, 'post.deleted', fn ($e) => ['discussion_id' => $e->post->discussion->id, 'post_id' => $e->post->id])
-            ->listen(PostEvent\Hidden::class, 'post.hidden', fn ($e) => ['discussion_id' => $e->post->discussion->id, 'post_id' => $e->post->id])
-            ->listen(PostEvent\Restored::class, 'post.restored', fn ($e) => ['discussion_id' => $e->post->discussion->id, 'post_id' => $e->post->id])
-            ->listen(PostEvent\Revised::class, 'post.revised', fn ($e) => ['discussion_id' => $e->post->discussion->id, 'post_id' => $e->post->id])
+            ->listen(PostEvent\Deleted::class, 'post.deleted', function ($e) {
+                return ['discussion_id' => $e->post->discussion->id, 'post_id' => $e->post->id];
+            })
+            ->listen(PostEvent\Hidden::class, 'post.hidden', function ($e) {
+                return ['discussion_id' => $e->post->discussion->id, 'post_id' => $e->post->id];
+            })
+            ->listen(PostEvent\Restored::class, 'post.restored', function ($e) {
+                return ['discussion_id' => $e->post->discussion->id, 'post_id' => $e->post->id];
+            })
+            ->listen(PostEvent\Revised::class, 'post.revised', function ($e) {
+                return ['discussion_id' => $e->post->discussion->id, 'post_id' => $e->post->id];
+            })
             // Not logging the first post. There's always going to be one created alongside the discussion.
-            ->listen(PostEvent\Posted::class, 'post.created', fn ($e) => $e->post->number === 1 ? null : ['discussion_id' => $e->post->discussion->id, 'post_id' => $e->post->id]),
+            ->listen(PostEvent\Posted::class, 'post.created', function ($e) {
+                return $e->post->number === 1 ? null : ['discussion_id' => $e->post->discussion->id, 'post_id' => $e->post->id];
+            }),
 
         (new Audit())
             ->group(null)
@@ -109,56 +137,86 @@ return array_merge(
         // settings — when the relevant extension is actually active.
 
         (new Extend\Conditional())
-            ->whenExtensionEnabled('flarum-approval', fn () => [
-                (new Audit())
-                    ->group('flarum-approval')
-                    ->listen(ApprovalEvent\PostWasApproved::class, 'post.approved', fn ($e) => [
-                        'discussion_id' => $e->post->discussion->id,
-                        'post_id' => $e->post->id,
-                    ]),
-            ])
-            ->whenExtensionEnabled('flarum-flags', fn () => [
-                (new Audit())
-                    ->group('flarum-flags')
-                    ->using(new Integration\FlagsIntegration()),
-            ])
-            ->whenExtensionEnabled('flarum-lock', fn () => [
-                (new Audit())
-                    ->group('flarum-lock')
-                    ->listen(LockEvent\DiscussionWasLocked::class, 'discussion.locked', fn ($e) => ['discussion_id' => $e->discussion->id])
-                    ->listen(LockEvent\DiscussionWasUnlocked::class, 'discussion.unlocked', fn ($e) => ['discussion_id' => $e->discussion->id]),
-            ])
-            ->whenExtensionEnabled('flarum-nicknames', fn () => [
-                (new Audit())
-                    ->group('flarum-nicknames')
-                    ->using(new Integration\NicknamesIntegration()),
-            ])
-            ->whenExtensionEnabled('flarum-sticky', fn () => [
-                (new Audit())
-                    ->group('flarum-sticky')
-                    ->listen(StickyEvent\DiscussionWasStickied::class, 'discussion.stickied', fn ($e) => ['discussion_id' => $e->discussion->id])
-                    ->listen(StickyEvent\DiscussionWasUnstickied::class, 'discussion.unstickied', fn ($e) => ['discussion_id' => $e->discussion->id]),
-            ])
-            ->whenExtensionEnabled('flarum-suspend', fn () => [
-                (new Audit())
-                    ->group('flarum-suspend')
-                    ->listen(SuspendEvent\Suspended::class, 'user.suspended', fn ($e) => array_merge(
-                        ['user_id' => $e->user->id],
-                        $e->user->suspended_until ? ['until' => $e->user->suspended_until->toIso8601String()] : []
-                    ))
-                    ->listen(SuspendEvent\Unsuspended::class, 'user.unsuspended', fn ($e) => ['user_id' => $e->user->id]),
-            ])
-            ->whenExtensionEnabled('flarum-tags', fn () => [
-                (new Audit())
-                    ->group('flarum-tags')
-                    ->listen(TagsEvent\DiscussionWasTagged::class, 'discussion.tagged', fn ($e) => [
-                        'discussion_id' => $e->discussion->id,
-                        'old_tags' => \Illuminate\Support\Arr::pluck($e->oldTags, 'slug'),
-                        // Can't use pre-loaded ->tags because of https://github.com/flarum/core/issues/2514
-                        'new_tags' => $e->discussion->tags()->pluck('tags.slug')->all(),
-                    ])
-                    ->using(new Integration\TagsAdminIntegration()),
-            ]),
+            ->whenExtensionEnabled('flarum-approval', function () {
+                return [
+                    (new Audit())
+                        ->group('flarum-approval')
+                        ->listen(ApprovalEvent\PostWasApproved::class, 'post.approved', function ($e) {
+                            return [
+                                'discussion_id' => $e->post->discussion->id,
+                                'post_id' => $e->post->id,
+                            ];
+                        }),
+                ];
+            })
+            ->whenExtensionEnabled('flarum-flags', function () {
+                return [
+                    (new Audit())
+                        ->group('flarum-flags')
+                        ->using(new Integration\FlagsIntegration()),
+                ];
+            })
+            ->whenExtensionEnabled('flarum-lock', function () {
+                return [
+                    (new Audit())
+                        ->group('flarum-lock')
+                        ->listen(LockEvent\DiscussionWasLocked::class, 'discussion.locked', function ($e) {
+                            return ['discussion_id' => $e->discussion->id];
+                        })
+                        ->listen(LockEvent\DiscussionWasUnlocked::class, 'discussion.unlocked', function ($e) {
+                            return ['discussion_id' => $e->discussion->id];
+                        }),
+                ];
+            })
+            ->whenExtensionEnabled('flarum-nicknames', function () {
+                return [
+                    (new Audit())
+                        ->group('flarum-nicknames')
+                        ->using(new Integration\NicknamesIntegration()),
+                ];
+            })
+            ->whenExtensionEnabled('flarum-sticky', function () {
+                return [
+                    (new Audit())
+                        ->group('flarum-sticky')
+                        ->listen(StickyEvent\DiscussionWasStickied::class, 'discussion.stickied', function ($e) {
+                            return ['discussion_id' => $e->discussion->id];
+                        })
+                        ->listen(StickyEvent\DiscussionWasUnstickied::class, 'discussion.unstickied', function ($e) {
+                            return ['discussion_id' => $e->discussion->id];
+                        }),
+                ];
+            })
+            ->whenExtensionEnabled('flarum-suspend', function () {
+                return [
+                    (new Audit())
+                        ->group('flarum-suspend')
+                        ->listen(SuspendEvent\Suspended::class, 'user.suspended', function ($e) {
+                            return array_merge(
+                                ['user_id' => $e->user->id],
+                                $e->user->suspended_until ? ['until' => $e->user->suspended_until->toIso8601String()] : []
+                            );
+                        })
+                        ->listen(SuspendEvent\Unsuspended::class, 'user.unsuspended', function ($e) {
+                            return ['user_id' => $e->user->id];
+                        }),
+                ];
+            })
+            ->whenExtensionEnabled('flarum-tags', function () {
+                return [
+                    (new Audit())
+                        ->group('flarum-tags')
+                        ->listen(TagsEvent\DiscussionWasTagged::class, 'discussion.tagged', function ($e) {
+                            return [
+                                'discussion_id' => $e->discussion->id,
+                                'old_tags' => \Illuminate\Support\Arr::pluck($e->oldTags, 'slug'),
+                                // Can't use pre-loaded ->tags because of https://github.com/flarum/core/issues/2514
+                                'new_tags' => $e->discussion->tags()->pluck('tags.slug')->all(),
+                            ];
+                        })
+                        ->using(new Integration\TagsAdminIntegration()),
+                ];
+            }),
 
         // Search.
 
