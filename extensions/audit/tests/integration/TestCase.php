@@ -34,7 +34,6 @@ class TestCase extends \Flarum\Testing\integration\TestCase
                 ->exemptRoute('confirmEmail.submit')
                 ->exemptRoute('savePassword')
                 ->exemptRoute('forgot')
-                ->exemptRoute('cache.clear')
         );
 
         $this->prepareDatabase([
