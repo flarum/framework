@@ -45,18 +45,12 @@ class ExtensionServiceProvider extends AbstractServiceProvider
         $this->container['flarum']->booting(function () {
             $this->container->make('flarum.extensions')->extend($this->container);
         });
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Dispatcher $events)
-    {
-        $events->listen(
-            Disabling::class,
-            DefaultLanguagePackGuard::class
-        );
-
+        // Register the abandoned-extensions sync command and its weekly schedule here in
+        // register() rather than boot(). The ConsoleServiceProvider consumes the
+        // `flarum.console.scheduled` array in its own boot() method, and it is registered
+        // before this provider, so appending in boot() would happen too late and the task
+        // would never be scheduled.
         $this->container->extend('flarum.console.commands', function (array $commands) {
             $commands[] = SyncAbandonedExtensionsCommand::class;
 
@@ -72,5 +66,16 @@ class ExtensionServiceProvider extends AbstractServiceProvider
 
             return $scheduled;
         });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function boot(Dispatcher $events)
+    {
+        $events->listen(
+            Disabling::class,
+            DefaultLanguagePackGuard::class
+        );
     }
 }
