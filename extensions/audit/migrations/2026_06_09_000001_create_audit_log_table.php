@@ -12,7 +12,7 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        if ($schema->hasTable('flarum_audit_log')) {
+        if ($schema->hasTable('audit_log')) {
             return;
         }
 
@@ -23,12 +23,12 @@ return [
         // along with the primary key sequence / auto-increment value, rather than creating a new
         // table and copying rows.
         if ($schema->hasTable('kilowhat_audit_log')) {
-            $schema->rename('kilowhat_audit_log', 'flarum_audit_log');
+            $schema->rename('kilowhat_audit_log', 'audit_log');
 
             return;
         }
 
-        $schema->create('flarum_audit_log', function (Blueprint $table) {
+        $schema->create('audit_log', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('actor_id')->nullable()->index();
             $table->string('client')->index();

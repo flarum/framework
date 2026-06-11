@@ -32,7 +32,7 @@ class AuditLog extends AbstractModel
 {
     use ScopeVisibilityTrait;
 
-    protected $table = 'flarum_audit_log';
+    protected $table = 'audit_log';
 
     public $timestamps = false;
 
