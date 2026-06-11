@@ -1,0 +1,152 @@
+flarum-audit:
+    admin:
+        permissions:
+            view: View audit log
+            viewLimited: View limited audit log
+        header:
+            title: Audit
+        limitedSettings:
+            configure: Configure
+            title: Limited access settings
+            introduction: Configure what users with the limited access permissions can see
+            requiresExtension: Requires extension {extension}
+        settings:
+            limitedIpAddress: View IP Address
+
+    forum:
+        link:
+            all-audit: Audit log
+            discussion-audit: Audit log
+            user-audit: Audit log (account edits)
+            actor-audit: Audit log (user as actor)
+        modal:
+            all-title: Audit Log
+            discussion-title: Discussion Audit Log
+            user-title: User Audit Log
+            actor-title: Actor Audit Log
+
+    lib:
+        browser:
+            filterPlaceholder: Filter logs
+            filterApply: Apply
+            filterClear: Clear filter
+            refresh: Refresh
+            filtersHint: 'Filters:'
+            filters:
+                actor: Who performed the action. Use actor:guest for system or unauthenticated actions.
+                user: The user the action affected, by username.
+                action: The type of action, e.g. action:post.created.
+                client: How the request was made.
+                ip: The IP address the action came from.
+                discussion: Actions affecting a specific discussion, by ID.
+            help:
+                toggle: Search help
+                multiple: 'Combine values with commas to match any of them, e.g. action:post.created,post.deleted'
+                negate: 'Prefix a filter with a minus to exclude matches, e.g. -client:cli'
+            empty: No results
+            loadMore: Load more
+            withoutActor: => core.group.guest
+            deletedResource:
+                discussion: 'Discussion #{id}'
+                group: 'Group #{id}'
+                post: 'Post #{id}'
+                tag: 'Tag #{id}'
+                user: 'User #{id}'
+            genericResource:
+                comment: Comment
+                post: Post
+            permissionGroup:
+                everyone: => core.admin.permissions_controls.everyone_button
+                members: => core.admin.permissions_controls.members_button
+            noValue: (no value)
+            noReason: (no reason)
+            client:
+                session: Web session
+                api_key: API key
+                access_token: Access token
+                cli: Command line
+                unknown: Unknown client
+            controls:
+                hideRaw: Hide raw log
+                showRaw: Show raw log
+                filterActor: Show logs by this actor
+                filterIp: Show logs by this IP
+                filterClient: Show logs by this client type
+                filterAction: Show logs of the same action
+                filterUser: Show logs affecting the same user
+                filterDiscussion: Show logs affecting the same discussion
+            audit_log_cleared: Cleared {deleted_count} entries from the audit logs
+            cache_cleared: Manually cleared the cache
+            discussion:
+                created: Started discussion {discussion}
+                create_date_changed: Changed {discussion} start date from {old_date} to {new_date}
+                deleted: Deleted discussion {discussion}
+                hidden: Hid discussion {discussion}
+                locked: Locked discussion {discussion}
+                merged_away: Merged {discussion} into {new_discussion}
+                merged_into: Merged {post_count} posts from {original_discussion_ids_count} discussions into {discussion}
+                renamed: Renamed discussion from {old_title} to {new_title}
+                restored: Restored discussion {discussion}
+                split_away: Split {post_count} posts from {discussion} into {new_discussion}
+                split_into: Split {post_count} posts into new discussion {discussion}
+                stickied: Stickied discussion {discussion}
+                tagged: Updated {discussion} tags from {old_tags} to {new_tags}
+                unlocked: Unlocked discussion {discussion}
+                unstickied: Unstickied discussion {discussion}
+                user_changed: Changed {discussion} author from {old_user} to {new_user}
+            extension:
+                disabled: Disabled extension {package}
+                enabled: Enabled extension {package}
+                uninstalled: Uninstalled extension {package}
+            fof_ban_ips:
+                banned: Banned ip {ip}
+                unbanned: Unbanned ip {ip}
+            permission_changed: Edited permission {permission} from {old_groups} to {new_groups}
+            post:
+                approved: Approved {postuser}'s {post} in {discussion}
+                created: Created a {post} in {discussion}
+                create_date_changed: Changed {postuser}'s {post} start date from {old_date} to {new_date}
+                deleted: Deleted {postuser}'s {post} in {discussion}
+                dismissed_flags: Dismissed flags on {postuser}'s {post} in {discussion}
+                edit_date_changed: Changed {postuser}'s {post} edit date from {old_date} to {new_date}
+                flagged: Flagged {postuser}'s {post} as {reason} in {discussion}
+                hidden: Hid {postuser}'s {post} in {discussion}
+                restored: Restored {postuser}'s {post} in {discussion}
+                revised: Revised {postuser}'s {post} in {discussion}
+                user_changed: Changed {post} author from {old_user} to {new_user}
+            setting_changed: Edited setting {key}
+            setting_changed_with_values: Edited setting {key} from {old_value} to {new_value}
+            tag:
+                created: Created tag {tag}
+                deleted: Deleted tag {tag}
+                updated: Updated tag {tag}
+            user:
+                activated: Activated {username}'s account manually
+                activated_with_email: Activated {username}'s account via confirmation link
+                avatar_changed: Changed {username}'s avatar
+                avatar_removed: Removed {username}'s avatar
+                bio_changed: Edited {username}'s bio
+                created: Created {username}'s account
+                deleted: Deleted {username}
+                email_changed: Changed {username}'s email from {old_email} to {new_email}
+                email_change_requested: Requested to change {username}'s email to {new_email}
+                groups_changed: Changed {username}'s groups from {old_groups} to {new_groups}
+                impersonated: Impersonated {username}
+                logged_in: Logged in {username} account
+                logged_in_with_provider: Logged in {username} account using {provider}
+                logged_out: Logged out {username} account
+                nickname_changed: Changed {username}'s nickname from {old_nickname} to {new_nickname}
+                nickname_requested: Requested new nickname {new_nickname} for user {username}
+                nickname_request_approved: Approved {username}'s nickname change from {old_nickname} to {new_nickname}
+                nickname_request_rejected: Rejected {username}'s nickname change
+                password_changed: Changed {username}'s password
+                password_change_requested: Requested to change {username}'s password
+                password_reset_attempted: Requested a password reset for {username}
+                password_reset_attempted_unmatched: Requested a password reset for {email} (no matching account)
+                provider_connected: Connected provider {provider} to {username} account
+                suspended: Suspended {username} until {until}
+                unsuspended: Unsuspended {username}
+                username_changed: Changed {username}'s username from {old_username} to {new_username}
+                username_requested: Requested new username {new_username} for user {username}
+                username_request_approved: Approved {username}'s username change from {old_username} to {new_username}
+                username_request_rejected: Rejected {username}'s username change

@@ -12,6 +12,11 @@
         "mainBranch": "main"
       },
       {
+        "name": "audit",
+        "gitRemote": "git@github.com:flarum/audit.git",
+        "mainBranch": "main"
+      },
+      {
         "name": "bbcode",
         "gitRemote": "git@github.com:flarum/bbcode.git",
         "mainBranch": "main"

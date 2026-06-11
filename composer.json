@@ -40,6 +40,7 @@
             "Flarum\\": "framework/core/src",
             "Flarum\\Akismet\\": "extensions/akismet/src",
             "Flarum\\Approval\\": "extensions/approval/src",
+            "Flarum\\Audit\\": "extensions/audit/src",
             "Flarum\\BBCode\\": "extensions/bbcode/src",
             "Flarum\\Flags\\": "extensions/flags/src",
             "Flarum\\Likes\\": "extensions/likes/src",
@@ -64,6 +65,7 @@
         "flarum/core": "self.version",
         "flarum/akismet": "self.version",
         "flarum/approval": "self.version",
+        "flarum/audit": "self.version",
         "flarum/bbcode": "self.version",
         "flarum/embed": "self.version",
         "flarum/emoji": "self.version",
@@ -155,6 +157,7 @@
         "flarum-subextensions": [
             "extensions/akismet",
             "extensions/approval",
+            "extensions/audit",
             "extensions/bbcode",
             "extensions/embed",
             "extensions/emoji",
