@@ -13,6 +13,8 @@ use Flarum\Foundation\Config;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;
+use Laminas\Diactoros\Response\HtmlResponse;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class IndexController extends AbstractHtmlController
@@ -21,6 +23,17 @@ class IndexController extends AbstractHtmlController
         protected Factory $view,
         protected Config $config
     ) {
+    }
+
+    public function handle(Request $request): ResponseInterface
+    {
+        $view = $this->render($request);
+
+        if ($view instanceof Renderable) {
+            $view = $view->render();
+        }
+
+        return new HtmlResponse($view, 503);
     }
 
     public function render(Request $request): Renderable|string
