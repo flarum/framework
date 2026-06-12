@@ -41,13 +41,6 @@
                 "color": "#fff"
             },
             "optional-dependencies": [
-                "flarum/approval",
-                "flarum/flags",
-                "flarum/lock",
-                "flarum/nicknames",
-                "flarum/sticky",
-                "flarum/suspend",
-                "flarum/tags",
                 "fof/geoip"
             ]
         },
