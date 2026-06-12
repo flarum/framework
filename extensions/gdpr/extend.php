@@ -12,7 +12,6 @@ namespace Flarum\Gdpr;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Extend;
-use Flarum\Gdpr\AuditIntegration;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\User\User;
 

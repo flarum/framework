@@ -10,7 +10,6 @@
 namespace Flarum\Audit;
 
 use Flarum\Api\Resource\ForumResource;
-use Flarum\Audit\AuditLog;
 use Flarum\Audit\Extend\Audit;
 use Flarum\Audit\Search\AuditSearcher;
 use Flarum\Discussion\Event as DiscussionEvent;

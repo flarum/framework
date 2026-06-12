@@ -11,7 +11,6 @@ namespace Flarum\Nicknames;
 
 use Flarum\Api\Resource;
 use Flarum\Extend;
-use Flarum\Nicknames\AuditIntegration;
 use Flarum\Nicknames\Access\UserPolicy;
 use Flarum\Nicknames\Api\UserResourceFields;
 use Flarum\Search\Database\DatabaseSearchDriver;
