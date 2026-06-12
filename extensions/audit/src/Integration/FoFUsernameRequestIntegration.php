@@ -38,8 +38,8 @@ class FoFUsernameRequestIntegration
         'user.username_request_rejected',
     ];
 
-    protected $oldNickname;
-    protected $oldUsername;
+    protected ?string $oldNickname = null;
+    protected ?string $oldUsername = null;
 
     public function __invoke(Container $container): void
     {
@@ -48,20 +48,20 @@ class FoFUsernameRequestIntegration
         }
 
         // Listen on the events dispatcher rather than the static Model::event(Closure) API, so the
-        // listeners aren't bound to the model classes' static dispatcher (not serializable on PHP 7.x).
+        // listeners aren't bound to the model classes' static dispatcher.
         $events = $container->make(Dispatcher::class);
 
         $events->listen('eloquent.updated: '.User::class, [$this, 'userUpdated']);
         $events->listen('eloquent.saved: '.UsernameRequest::class, [$this, 'requestSaved']);
     }
 
-    public function userUpdated(User $user)
+    public function userUpdated(User $user): void
     {
         $this->oldNickname = $user->getOriginal('nickname');
         $this->oldUsername = $user->getOriginal('username');
     }
 
-    public function requestSaved(UsernameRequest $request)
+    public function requestSaved(UsernameRequest $request): void
     {
         switch ($request->status) {
             case 'Sent':

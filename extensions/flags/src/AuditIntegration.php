@@ -7,36 +7,32 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Audit\Integration;
+namespace Flarum\Flags;
 
 use Flarum\Audit\AuditLogger;
-use Flarum\Flags\Flag;
 use Flarum\Post\Post;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * flarum/flags integration.
+ * Audit log integration for flarum/flags.
  *
- * Stateful: hooks the Flag model and a HasMany macro to detect flag dismissals, so it is
- * wired through the audit extender's `using()` escape hatch.
+ * Stateful: hooks the Flag model and a HasMany macro to detect flag dismissals. Wired into
+ * flarum/audit through the Flarum\Audit\Extend\Audit extender's `using()` escape hatch, behind
+ * an Extend\Conditional so it's only active when flarum-audit is installed.
  */
-class FlagsIntegration
+class AuditIntegration
 {
     /**
      * @var string[]
      */
-    public static $actions = ['post.flagged', 'post.dismissed_flags'];
+    public static array $actions = ['post.flagged', 'post.dismissed_flags'];
 
     public function __invoke(Container $container): void
     {
-        if (! class_exists(Flag::class)) {
-            return;
-        }
-
         // Listen on the events dispatcher rather than the static Flag::created(Closure) API, so the
-        // listener isn't bound to the model's static dispatcher (not serializable on PHP 7.x).
+        // listener isn't bound to the model's static dispatcher.
         $container->make(Dispatcher::class)->listen('eloquent.created: '.Flag::class, [$this, 'flagCreated']);
 
         // We don't use the FlagsWillBeDeleted event as extensions might still prevent deletion at that
@@ -71,7 +67,7 @@ class FlagsIntegration
         });
     }
 
-    public function flagCreated(Flag $flag)
+    public function flagCreated(Flag $flag): void
     {
         // We only log flags created manually via the extension.
         // We don't log the creation of Approval/Akismet flags.

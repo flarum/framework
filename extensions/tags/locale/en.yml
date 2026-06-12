@@ -134,3 +134,16 @@ flarum-tags:
     choose_tags_placeholder: "{count, plural, one {Choose 1 more tag} other {Choose # more tags}}"
     name: Name
     tags: Tags
+
+# Labels for the audit log entries this extension produces, rendered by the (optional)
+# flarum/audit browser. Defined under the flarum-audit namespace so the audit frontend
+# resolves them, but shipped here so they travel with the extension that owns the actions.
+flarum-audit:
+  lib:
+    browser:
+      discussion:
+        tagged: Updated {discussion} tags from {old_tags} to {new_tags}
+      tag:
+        created: Created tag {tag}
+        updated: Updated tag {tag}
+        deleted: Deleted tag {tag}

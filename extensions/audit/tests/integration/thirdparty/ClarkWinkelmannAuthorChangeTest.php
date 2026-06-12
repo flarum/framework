@@ -11,7 +11,11 @@ namespace Flarum\Audit\Tests\integration\thirdparty;
 
 use Carbon\Carbon;
 use Flarum\Audit\Tests\integration\TestCase;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class ClarkWinkelmannAuthorChangeTest extends TestCase
 {
@@ -26,21 +30,19 @@ class ClarkWinkelmannAuthorChangeTest extends TestCase
         $date = Carbon::parse('2021-01-01T12:00:00+00:00');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'A', 'created_at' => $date, 'last_posted_at' => $date, 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 1, 'created_at' => $date, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>A</p></t>'],
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_create_date()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/discussions/1', [
@@ -60,9 +62,7 @@ class ClarkWinkelmannAuthorChangeTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_user_change()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/discussions/1', [
@@ -87,9 +87,7 @@ class ClarkWinkelmannAuthorChangeTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_user_remove()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/discussions/1', [
@@ -111,9 +109,7 @@ class ClarkWinkelmannAuthorChangeTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_create_date()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/posts/1', [
@@ -134,9 +130,7 @@ class ClarkWinkelmannAuthorChangeTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_edit_date()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/posts/1', [
@@ -157,9 +151,7 @@ class ClarkWinkelmannAuthorChangeTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_user_change()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/posts/1', [
@@ -185,9 +177,7 @@ class ClarkWinkelmannAuthorChangeTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_user_remove()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/posts/1', [

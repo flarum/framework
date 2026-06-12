@@ -11,6 +11,7 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Extend;
 use Flarum\Flags\Access\ScopeFlagVisibility;
+use Flarum\Flags\AuditIntegration;
 use Flarum\Flags\Api\Controller\DeleteFlagsController;
 use Flarum\Flags\Api\ForumResourceFields;
 use Flarum\Flags\Api\PostResourceFields;
@@ -80,5 +81,10 @@ return [
                     fn ($event) => $event->flag->post->discussion,
                     'flagged'
                 ),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-flags')
+                ->using(new AuditIntegration()),
         ]),
 ];

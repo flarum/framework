@@ -35,7 +35,8 @@
             "category": "feature",
             "optional-dependencies": [
                 "flarum/realtime",
-                "flarum/tags"
+                "flarum/tags",
+                "flarum/audit"
             ],
             "icon": {
                 "name": "fas fa-thumbtack",
@@ -90,6 +91,7 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
+        "flarum/audit": "*",
         "flarum/tags": "*@dev",
         "flarum/testing": "^2.0"
     }

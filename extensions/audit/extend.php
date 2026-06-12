@@ -9,19 +9,19 @@
 
 namespace Flarum\Audit;
 
-use Flarum\Api\Serializer\ForumSerializer;
-use Flarum\Approval\Event as ApprovalEvent;
+use Flarum\Api\Resource\ForumResource;
+use Flarum\Audit\AuditLog;
 use Flarum\Audit\Extend\Audit;
 use Flarum\Audit\Search\AuditSearcher;
 use Flarum\Discussion\Event as DiscussionEvent;
 use Flarum\Extend;
 use Flarum\Extension\Event as ExtensionEvent;
 use Flarum\Foundation\Event\ClearingCache;
-use Flarum\Lock\Event as LockEvent;
+use Flarum\Group\Event as GroupEvent;
+use Flarum\Http\Event\DeveloperTokenCreated;
 use Flarum\Post\Event as PostEvent;
-use Flarum\Sticky\Event as StickyEvent;
-use Flarum\Suspend\Event as SuspendEvent;
-use Flarum\Tags\Event as TagsEvent;
+use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\Settings\Event as SettingsEvent;
 
 // Register usage examples and help for each search gambit so the audit browser can show
 // clickable hints and a syntax help panel. Kept next to the gambit registration below;
@@ -38,15 +38,17 @@ return array_merge(
     [
         (new Extend\Frontend('forum'))
             ->js(__DIR__.'/js/dist/forum.js')
+            ->jsDirectory(__DIR__.'/js/dist/forum')
             ->css(__DIR__.'/less/forum.less'),
+
+        (new Extend\Frontend('common'))
+            ->jsDirectory(__DIR__.'/js/dist/common'),
 
         (new Extend\Frontend('admin'))
             ->js(__DIR__.'/js/dist/admin.js')
+            ->jsDirectory(__DIR__.'/js/dist/admin')
             ->css(__DIR__.'/less/admin.less')
             ->content(Content\AdminPayload::class),
-
-        (new Extend\Routes('api'))
-            ->get('/audit/logs', 'flarum-audit.index', Controller\AuditIndexController::class),
 
         new Extend\Locales(__DIR__.'/locale'),
 
@@ -132,108 +134,60 @@ return array_merge(
             ->using(new Integration\CoreSettingIntegration())
             ->using(new Integration\CoreUserIntegration()),
 
-        // First-party extension integrations. Each is gated on its extension being enabled so
-        // that its events are only listened for — and its actions only advertised in the admin
-        // settings — when the relevant extension is actually active.
+        (new Audit())
+            ->group(null)
+            ->register('group.created', 'group.renamed', 'group.deleted')
+            // Group CRUD is request-scoped, so the acting admin is the ambient logger actor
+            // (the events themselves carry no actor — same as the discussion/post listeners above).
+            ->listen(GroupEvent\Created::class, 'group.created', function ($e) {
+                return ['group_id' => $e->group->id, 'name' => $e->group->name_singular];
+            })
+            ->listen(GroupEvent\Renamed::class, 'group.renamed', function ($e) {
+                return [
+                    'group_id' => $e->group->id,
+                    'old_name' => $e->oldNameSingular,
+                    'new_name' => $e->group->name_singular,
+                ];
+            })
+            ->listen(GroupEvent\Deleted::class, 'group.deleted', function ($e) {
+                return ['group_id' => $e->group->id, 'name' => $e->group->name_singular];
+            }),
 
-        (new Extend\Conditional())
-            ->whenExtensionEnabled('flarum-approval', function () {
-                return [
-                    (new Audit())
-                        ->group('flarum-approval')
-                        ->listen(ApprovalEvent\PostWasApproved::class, 'post.approved', function ($e) {
-                            return [
-                                'discussion_id' => $e->post->discussion->id,
-                                'post_id' => $e->post->id,
-                            ];
-                        }),
-                ];
-            })
-            ->whenExtensionEnabled('flarum-flags', function () {
-                return [
-                    (new Audit())
-                        ->group('flarum-flags')
-                        ->using(new Integration\FlagsIntegration()),
-                ];
-            })
-            ->whenExtensionEnabled('flarum-lock', function () {
-                return [
-                    (new Audit())
-                        ->group('flarum-lock')
-                        ->listen(LockEvent\DiscussionWasLocked::class, 'discussion.locked', function ($e) {
-                            return ['discussion_id' => $e->discussion->id];
-                        })
-                        ->listen(LockEvent\DiscussionWasUnlocked::class, 'discussion.unlocked', function ($e) {
-                            return ['discussion_id' => $e->discussion->id];
-                        }),
-                ];
-            })
-            ->whenExtensionEnabled('flarum-nicknames', function () {
-                return [
-                    (new Audit())
-                        ->group('flarum-nicknames')
-                        ->using(new Integration\NicknamesIntegration()),
-                ];
-            })
-            ->whenExtensionEnabled('flarum-sticky', function () {
-                return [
-                    (new Audit())
-                        ->group('flarum-sticky')
-                        ->listen(StickyEvent\DiscussionWasStickied::class, 'discussion.stickied', function ($e) {
-                            return ['discussion_id' => $e->discussion->id];
-                        })
-                        ->listen(StickyEvent\DiscussionWasUnstickied::class, 'discussion.unstickied', function ($e) {
-                            return ['discussion_id' => $e->discussion->id];
-                        }),
-                ];
-            })
-            ->whenExtensionEnabled('flarum-suspend', function () {
-                return [
-                    (new Audit())
-                        ->group('flarum-suspend')
-                        ->listen(SuspendEvent\Suspended::class, 'user.suspended', function ($e) {
-                            return array_merge(
-                                ['user_id' => $e->user->id],
-                                $e->user->suspended_until ? ['until' => $e->user->suspended_until->toIso8601String()] : []
-                            );
-                        })
-                        ->listen(SuspendEvent\Unsuspended::class, 'user.unsuspended', function ($e) {
-                            return ['user_id' => $e->user->id];
-                        }),
-                ];
-            })
-            ->whenExtensionEnabled('flarum-tags', function () {
-                return [
-                    (new Audit())
-                        ->group('flarum-tags')
-                        ->listen(TagsEvent\DiscussionWasTagged::class, 'discussion.tagged', function ($e) {
-                            return [
-                                'discussion_id' => $e->discussion->id,
-                                'old_tags' => \Illuminate\Support\Arr::pluck($e->oldTags, 'slug'),
-                                // Can't use pre-loaded ->tags because of https://github.com/flarum/core/issues/2514
-                                'new_tags' => $e->discussion->tags()->pluck('tags.slug')->all(),
-                            ];
-                        })
-                        ->using(new Integration\TagsAdminIntegration()),
-                ];
+        (new Audit())
+            ->group(null)
+            ->register('developer_token_created')
+            // Logs the issuance of a long-lived developer API token. The raw token value is
+            // deliberately never logged — only the owner and the human-readable title.
+            ->listen(DeveloperTokenCreated::class, 'developer_token_created', function ($e) {
+                return ['user_id' => $e->token->user_id, 'title' => $e->token->title];
+            }),
+
+        (new Audit())
+            ->group(null)
+            ->register('settings_reset')
+            ->listen(SettingsEvent\Reset::class, 'settings_reset', function ($e) {
+                return ['extension' => $e->extensionId, 'keys' => $e->keys];
             }),
 
         // Search.
 
-        (new Extend\SimpleFlarumSearch(AuditSearcher::class))
-            ->setFullTextGambit(Search\Gambits\NoOpFullTextGambit::class)
-            ->addGambit(Search\Gambits\ActionGambit::class)
-            ->addGambit(Search\Gambits\ActorGambit::class)
-            ->addGambit(Search\Gambits\ClientGambit::class)
-            ->addGambit(Search\Gambits\DiscussionGambit::class)
-            ->addGambit(Search\Gambits\IpGambit::class)
-            ->addGambit(Search\Gambits\UserGambit::class),
+        (new Extend\SearchDriver(DatabaseSearchDriver::class))
+            ->addSearcher(AuditLog::class, AuditSearcher::class)
+            ->setFulltext(AuditSearcher::class, Search\FulltextFilter::class)
+            ->addFilter(AuditSearcher::class, Search\Filter\ActionFilter::class)
+            ->addFilter(AuditSearcher::class, Search\Filter\ActorFilter::class)
+            ->addFilter(AuditSearcher::class, Search\Filter\ClientFilter::class)
+            ->addFilter(AuditSearcher::class, Search\Filter\DiscussionFilter::class)
+            ->addFilter(AuditSearcher::class, Search\Filter\IpFilter::class)
+            ->addFilter(AuditSearcher::class, Search\Filter\UserFilter::class),
 
         (new Extend\Console())
             ->command(Console\ClearLogsCommand::class),
 
-        (new Extend\ApiSerializer(ForumSerializer::class))
-            ->attributes(ForumAttributes::class),
+        new Extend\ApiResource(Api\Resource\AuditLogResource::class),
+
+        (new Extend\ApiResource(ForumResource::class))
+            ->fields(ForumAttributes::class),
 
         (new Extend\ServiceProvider())
             ->register(LoggerServiceProvider::class),

@@ -34,6 +34,9 @@
         "flarum-extension": {
             "title": "Approval",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/audit"
+            ],
             "icon": {
                 "name": "fas fa-check",
                 "backgroundColor": "#ABDC88",
@@ -87,6 +90,7 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
+        "flarum/audit": "*",
         "flarum/testing": "^2.0"
     }
 }

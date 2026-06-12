@@ -14,41 +14,28 @@ use Flarum\User\User;
 
 class AuditLogger
 {
-    /**
-     * @var User|null
-     */
-    public static $actor = null;
+    public static ?User $actor = null;
 
-    /**
-     * @var string|null
-     */
-    public static $client = null;
+    public static ?string $client = null;
 
-    /**
-     * @var string|null
-     */
-    public static $ipAddress = null;
+    public static ?string $ipAddress = null;
 
     /**
      * Not stored, but used to know which request was used to trigger an event.
-     *
-     * @var string|null
      */
-    public static $path = null;
+    public static ?string $path = null;
 
     /**
      * Used internally to disable the logger after the database table has been intentionally destroyed.
-     *
-     * @var bool
      */
-    public static $disabled = false;
+    public static bool $disabled = false;
 
     /**
      * List of known actions to expose for admin panel settings, grouped by the extension that declared them.
      *
-     * @var string[][]
+     * @var array<string, string[]>
      */
-    public static $registeredActions = [
+    public static array $registeredActions = [
         // This log action will always exist since it's part of the extension itself.
         // We manually register it here since it doesn't have its own extender.
         'flarum-audit' => [
@@ -58,10 +45,8 @@ class AuditLogger
 
     /**
      * Changes the behaviour during integration testing.
-     *
-     * @var bool
      */
-    public static $testMode = false;
+    public static bool $testMode = false;
 
     protected static function getClient(): string
     {
@@ -69,7 +54,7 @@ class AuditLogger
             return self::$client;
         }
 
-        if (php_sapi_name() == 'cli') {
+        if (PHP_SAPI === 'cli') {
             return 'cli';
         }
 

@@ -180,3 +180,14 @@ flarum-gdpr:
         notification:
             export-ready: "Your data export for {username} is now ready to download."
         export_file: Export of user data for {username} ({email}) prepared at {date} from {forumTitle} ({url})
+
+# Labels for the audit log entries this extension produces, rendered by the (optional)
+# flarum/audit browser. Defined under the flarum-audit namespace so the audit frontend
+# resolves them, but shipped here so they travel with the extension that owns the actions.
+flarum-audit:
+    lib:
+        browser:
+            user:
+                gdpr_anonymized: Anonymized {username}'s data
+                gdpr_deleted: Deleted {username}'s data
+                gdpr_exported: Exported {username}'s data

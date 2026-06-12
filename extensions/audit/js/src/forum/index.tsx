@@ -4,10 +4,6 @@ import Button from 'flarum/common/components/Button';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 import UserControls from 'flarum/forum/utils/UserControls';
 import SessionDropdown from 'flarum/forum/components/SessionDropdown';
-import ActorAuditModal from './components/ActorAuditModal';
-import DiscussionAuditModal from './components/DiscussionAuditModal';
-import UserAuditModal from './components/UserAuditModal';
-import AuditModal from './components/AuditModal';
 
 export { default as extend } from './extend';
 
@@ -19,7 +15,7 @@ app.initializers.add('flarum-audit', () => {
 
     items.add(
       'flarum-audit-user',
-      <Button icon="fas fa-book" onclick={() => app.modal.show(DiscussionAuditModal, { discussion })}>
+      <Button icon="fas fa-book" onclick={() => app.modal.show(() => import('./components/DiscussionAuditModal'), { discussion })}>
         {app.translator.trans('flarum-audit.forum.link.discussion-audit')}
       </Button>
     );
@@ -32,7 +28,7 @@ app.initializers.add('flarum-audit', () => {
 
     items.add(
       'flarum-audit-user',
-      <Button icon="fas fa-book" onclick={() => app.modal.show(UserAuditModal, { user })}>
+      <Button icon="fas fa-book" onclick={() => app.modal.show(() => import('./components/UserAuditModal'), { user })}>
         {app.translator.trans('flarum-audit.forum.link.user-audit')}
       </Button>
     );
@@ -45,7 +41,7 @@ app.initializers.add('flarum-audit', () => {
 
     items.add(
       'flarum-audit-actor',
-      <Button icon="fas fa-book" onclick={() => app.modal.show(ActorAuditModal, { user })}>
+      <Button icon="fas fa-book" onclick={() => app.modal.show(() => import('./components/ActorAuditModal'), { user })}>
         {app.translator.trans('flarum-audit.forum.link.actor-audit')}
       </Button>
     );
@@ -58,7 +54,7 @@ app.initializers.add('flarum-audit', () => {
 
     items.add(
       'flarum-audit',
-      <Button icon="fas fa-book" onclick={() => app.modal.show(AuditModal)}>
+      <Button icon="fas fa-book" onclick={() => app.modal.show(() => import('./components/AuditModal'))}>
         {app.translator.trans('flarum-audit.forum.link.all-audit')}
       </Button>,
       20

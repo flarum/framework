@@ -63,3 +63,13 @@ flarum-flags:
   ref:
     flag_post: Flag Post
     flagged_posts: Flagged Posts
+
+# Labels for the audit log entries this extension produces, rendered by the (optional)
+# flarum/audit browser. Defined under the flarum-audit namespace so the audit frontend
+# resolves them, but shipped here so they travel with the extension that owns the actions.
+flarum-audit:
+  lib:
+    browser:
+      post:
+        dismissed_flags: Dismissed flags on {postuser}'s {post} in {discussion}
+        flagged: Flagged {postuser}'s {post} as {reason} in {discussion}

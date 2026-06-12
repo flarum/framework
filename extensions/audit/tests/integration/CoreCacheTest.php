@@ -12,12 +12,11 @@ namespace Flarum\Audit\Tests\integration;
 use Flarum\Audit\AuditLog;
 use Flarum\Foundation\Event\ClearingCache;
 use Illuminate\Contracts\Events\Dispatcher;
+use PHPUnit\Framework\Attributes\Test;
 
 class CoreCacheTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function cache_clear_is_logged()
     {
         // Dispatch the event our listener hooks directly, rather than driving the /api/cache

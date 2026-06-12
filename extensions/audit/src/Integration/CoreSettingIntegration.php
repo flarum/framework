@@ -27,13 +27,15 @@ class CoreSettingIntegration
     /**
      * @var string[]
      */
-    public static $actions = ['setting_changed'];
+    public static array $actions = ['setting_changed'];
 
     /**
      * Only these settings have their old/new values stored. Anything else is logged as
      * a bare "setting_changed" to avoid persisting sensitive values (e.g. secrets).
+     *
+     * @var string[]
      */
-    const LOGGABLE_VALUES_WHITELIST = [
+    const array LOGGABLE_VALUES_WHITELIST = [
         'allow_post_editing',
         'allow_renaming',
         'allow_sign_up',
@@ -63,7 +65,10 @@ class CoreSettingIntegration
         'welcome_title',
     ];
 
-    protected $previousValues;
+    /**
+     * @var array<string, string|null>
+     */
+    protected array $previousValues = [];
 
     public function __invoke(Container $container): void
     {
@@ -73,7 +78,7 @@ class CoreSettingIntegration
         $events->listen(Event\Saved::class, [$this, 'saved']);
     }
 
-    public function saving(Event\Saving $event)
+    public function saving(Event\Saving $event): void
     {
         /** @var SettingsRepositoryInterface $settings */
         $settings = resolve(SettingsRepositoryInterface::class);
@@ -81,7 +86,7 @@ class CoreSettingIntegration
         $this->previousValues = $settings->all();
     }
 
-    public function saved(Event\Saved $event)
+    public function saved(Event\Saved $event): void
     {
         foreach ($event->settings as $key => $value) {
             $previous = Arr::get($this->previousValues, $key);

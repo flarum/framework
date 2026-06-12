@@ -11,6 +11,9 @@ namespace Flarum\Audit\Tests\integration\thirdparty;
 
 use Carbon\Carbon;
 use Flarum\Audit\Tests\integration\TestCase;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
+use PHPUnit\Framework\Attributes\Test;
 
 class FoFMergeTest extends TestCase
 {
@@ -23,12 +26,12 @@ class FoFMergeTest extends TestCase
         $date = Carbon::parse('2021-01-01T12:00:00+00:00');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 10, 'title' => 'A', 'created_at' => $date, 'last_posted_at' => $date, 'first_post_id' => 1, 'comment_count' => 1],
                 ['id' => 11, 'title' => 'B', 'created_at' => $date, 'last_posted_at' => $date, 'first_post_id' => 2, 'comment_count' => 1],
                 ['id' => 12, 'title' => 'C', 'created_at' => $date, 'last_posted_at' => $date, 'first_post_id' => 3, 'comment_count' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 10, 'created_at' => $date, 'type' => 'comment', 'content' => '<t><p>A</p></t>'],
                 ['id' => 2, 'number' => 1, 'discussion_id' => 11, 'created_at' => $date, 'type' => 'comment', 'content' => '<t><p>B</p></t>'],
                 ['id' => 3, 'number' => 1, 'discussion_id' => 12, 'created_at' => $date, 'type' => 'comment', 'content' => '<t><p>C1</p></t>'],
@@ -37,9 +40,7 @@ class FoFMergeTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mergeSingle()
     {
         $this->sendSuccessfulRequest('POST', '/api/discussions/10/merge', [
@@ -60,9 +61,7 @@ class FoFMergeTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mergeMultiple()
     {
         $this->sendSuccessfulRequest('POST', '/api/discussions/10/merge', [

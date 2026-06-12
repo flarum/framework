@@ -33,6 +33,9 @@
         "flarum-extension": {
             "title": "Suspend",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/audit"
+            ],
             "icon": {
                 "name": "fas fa-ban",
                 "backgroundColor": "#ddd",
@@ -86,6 +89,7 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
+        "flarum/audit": "*",
         "flarum/testing": "^2.0"
     }
 }

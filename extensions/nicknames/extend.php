@@ -11,6 +11,7 @@ namespace Flarum\Nicknames;
 
 use Flarum\Api\Resource;
 use Flarum\Extend;
+use Flarum\Nicknames\AuditIntegration;
 use Flarum\Nicknames\Access\UserPolicy;
 use Flarum\Nicknames\Api\UserResourceFields;
 use Flarum\Search\Database\DatabaseSearchDriver;
@@ -51,4 +52,11 @@ return [
 
     (new Extend\Policy())
         ->modelPolicy(User::class, UserPolicy::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-nicknames')
+                ->using(new AuditIntegration()),
+        ]),
 ];

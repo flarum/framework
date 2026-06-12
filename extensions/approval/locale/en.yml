@@ -35,3 +35,12 @@ flarum-approval:
   # Translations in this namespace are referenced by two or more unique keys.
   ref:
     awaiting_approval: Awaiting approval
+
+# Labels for the audit log entries this extension produces, rendered by the (optional)
+# flarum/audit browser. Defined under the flarum-audit namespace so the audit frontend
+# resolves them, but shipped here so they travel with the extension that owns the actions.
+flarum-audit:
+  lib:
+    browser:
+      post:
+        approved: Approved {postuser}'s {post} in {discussion}

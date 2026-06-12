@@ -14,11 +14,15 @@ use Flarum\Foundation\AbstractServiceProvider;
 
 class LoggerServiceProvider extends AbstractServiceProvider
 {
-    public function register()
+    public function register(): void
     {
-        // We cannot run the logger middleware in API client subrequests because the IP isn't available there
-        // https://github.com/flarum/core/issues/2985
-        // This isn't an issue since the same middleware already runs on forum middlewares and everything is global
+        // Don't run the logger middleware in API client subrequests. The actor/client/IP are
+        // tracked as global state set once by the outer (forum/admin/api) request, so re-running
+        // SetLoggerActor on a subrequest would only risk clobbering that state with subrequest
+        // values (and parentless subrequests — console, queue — have no IP/session/actor to set
+        // at all). Note: flarum/framework#2985 (IP missing on API-client subrequests) is now
+        // fixed and parented subrequests do forward the IP, but the exclusion is still the
+        // correct design for the global-state reason above.
         $this->container->extend('flarum.api_client.exclude_middleware', function (array $middlewares): array {
             $middlewares[] = SetLoggerActor::class;
 

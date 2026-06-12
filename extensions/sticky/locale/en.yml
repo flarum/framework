@@ -48,3 +48,13 @@ flarum-sticky:
   # Translations in this namespace are referenced by two or more unique keys.
   ref:
     sticky: Sticky
+
+# Labels for the audit log entries this extension produces, rendered by the (optional)
+# flarum/audit browser. Defined under the flarum-audit namespace so the audit frontend
+# resolves them, but shipped here so they travel with the extension that owns the actions.
+flarum-audit:
+  lib:
+    browser:
+      discussion:
+        stickied: Stickied discussion {discussion}
+        unstickied: Unstickied discussion {discussion}

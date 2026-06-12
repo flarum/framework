@@ -31,7 +31,7 @@ class CoreUserIntegration
     /**
      * @var string[]
      */
-    public static $actions = [
+    public static array $actions = [
         'user.activated',
         'user.activated_with_email',
         'user.avatar_changed',
@@ -50,7 +50,7 @@ class CoreUserIntegration
         'user.username_changed',
     ];
 
-    protected $originalEmail;
+    protected ?string $originalEmail = null;
 
     public function __invoke(Container $container): void
     {
@@ -71,7 +71,7 @@ class CoreUserIntegration
         // These hook Eloquent model lifecycle events. We listen on the events dispatcher
         // (rather than the static Model::event(Closure) API) so the listeners aren't bound to
         // the model classes' static dispatcher — which can't be serialized under PHPUnit
-        // process isolation on PHP 7.x.
+        // process isolation.
         $events->listen('eloquent.created: '.PasswordToken::class, [$this, 'passwordTokenCreated']);
         $events->listen('eloquent.created: '.LoginProvider::class, [$this, 'loginProviderCreated']);
         $events->listen('eloquent.updated: '.LoginProvider::class, [$this, 'loginProviderUpdated']);
@@ -85,12 +85,12 @@ class CoreUserIntegration
         ], $payload));
     }
 
-    public function passwordTokenCreated(PasswordToken $token)
+    public function passwordTokenCreated(PasswordToken $token): void
     {
         $this->log($token->user, 'password_change_requested');
     }
 
-    public function loginProviderCreated(LoginProvider $provider)
+    public function loginProviderCreated(LoginProvider $provider): void
     {
         $this->log($provider->user, 'provider_connected', [
             'provider' => $provider->provider,
@@ -98,7 +98,7 @@ class CoreUserIntegration
         ]);
     }
 
-    public function loginProviderUpdated(LoginProvider $provider)
+    public function loginProviderUpdated(LoginProvider $provider): void
     {
         if (Arr::exists($provider->getChanges(), 'last_login_at')) {
             $this->log($provider->user, 'logged_in_with_provider', [
@@ -108,14 +108,14 @@ class CoreUserIntegration
         }
     }
 
-    public function userSaving(User $user)
+    public function userSaving(User $user): void
     {
         // There's no way of accessing the original email from EmailChanged, so we save it beforehand.
         // We can't use the core user saving event because it's not dispatched in ConfirmEmailHandler.
         $this->originalEmail = $user->getOriginal('email');
     }
 
-    public function activated(Event\Activated $event)
+    public function activated(Event\Activated $event): void
     {
         // Do not log anything when enabled via API on creation or via social login
         if ($event->user->wasRecentlyCreated) {
@@ -129,7 +129,7 @@ class CoreUserIntegration
         }
     }
 
-    public function avatarChanged(Event\AvatarChanged $event)
+    public function avatarChanged(Event\AvatarChanged $event): void
     {
         // Do not log anything when avatar is added via API on creation or via social login
         if ($event->user->wasRecentlyCreated) {
@@ -139,19 +139,19 @@ class CoreUserIntegration
         $this->log($event->user, $event->user->avatar_url ? 'avatar_changed' : 'avatar_removed');
     }
 
-    public function deleted(Event\Deleted $event)
+    public function deleted(Event\Deleted $event): void
     {
         $this->log($event->user, 'deleted');
     }
 
-    public function emailChangeRequested(Event\EmailChangeRequested $event)
+    public function emailChangeRequested(Event\EmailChangeRequested $event): void
     {
         $this->log($event->user, 'email_change_requested', [
             'new_email' => $event->email,
         ]);
     }
 
-    public function emailChanged(Event\EmailChanged $event)
+    public function emailChanged(Event\EmailChanged $event): void
     {
         $this->log($event->user, 'email_changed', [
             'old_email' => $this->originalEmail,
@@ -159,10 +159,11 @@ class CoreUserIntegration
         ]);
     }
 
-    public function groupsChanged(Event\GroupsChanged $event)
+    public function groupsChanged(Event\GroupsChanged $event): void
     {
         $oldGroupIds = Arr::pluck($event->oldGroups, 'id');
-        // Cannot directly read $user->groups because it's preloaded with old values, same issue as https://github.com/flarum/core/issues/2514
+        // The event only carries the old groups; query the relation fresh for the new set
+        // rather than reading the (stale, pre-change) preloaded $user->groups.
         $newGroupIds = $event->user->groups()->pluck('groups.id');
 
         if (json_encode($oldGroupIds) !== json_encode($newGroupIds)) {
@@ -173,28 +174,28 @@ class CoreUserIntegration
         }
     }
 
-    public function loggedIn(Event\LoggedIn $event)
+    public function loggedIn(Event\LoggedIn $event): void
     {
         AuditLogger::$actor = $event->user;
         $this->log($event->user, 'logged_in');
     }
 
-    public function loggedOut(Event\LoggedOut $event)
+    public function loggedOut(Event\LoggedOut $event): void
     {
         $this->log($event->user, 'logged_out');
     }
 
-    public function passwordChanged(Event\PasswordChanged $event)
+    public function passwordChanged(Event\PasswordChanged $event): void
     {
         $this->log($event->user, 'password_changed');
     }
 
-    public function registered(Event\Registered $event)
+    public function registered(Event\Registered $event): void
     {
         $this->log($event->user, 'created');
     }
 
-    public function renamed(Event\Renamed $event)
+    public function renamed(Event\Renamed $event): void
     {
         $this->log($event->user, 'username_changed', [
             'old_username' => $event->oldUsername,

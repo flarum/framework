@@ -21,7 +21,7 @@ class ClearLogsCommand extends Command
     protected $signature = 'audit:clear {--before= : Delete entries older than the specified date. Any Carbon syntax is supported} {--reset : Delete all data, database tables and disable extension} {--force : Don\'t ask for confirmation}';
     protected $description = 'Permanently destroy audit log entries';
 
-    public function handle(Connection $db, ExtensionManager $manager)
+    public function handle(Connection $db, ExtensionManager $manager): void
     {
         if ($before = $this->option('before')) {
             $beforeDate = Carbon::parse($before);

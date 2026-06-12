@@ -7,33 +7,40 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Audit\Tests\integration;
+namespace Flarum\Approval\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
+use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
-class FlarumApprovalTest extends TestCase
+class AuditTest extends TestCase
 {
+    use InteractsWithAuditLog;
+
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->extension('flarum-approval', 'flarum-flags');
+        $this->setUpAuditLog();
+
+        $this->extension('flarum-audit', 'flarum-flags', 'flarum-approval');
 
         $date = Carbon::parse('2021-01-01T12:00:00+00:00');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'A', 'created_at' => $date, 'is_approved' => false, 'last_posted_at' => $date, 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 2, 'number' => 1, 'discussion_id' => 1, 'created_at' => $date, 'is_approved' => false, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>A</p></t>'],
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function approve()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/posts/2', [

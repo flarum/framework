@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 
 class View
 {
-    public function __invoke(User $actor, Builder $query)
+    public function __invoke(User $actor, Builder $query): void
     {
         if ($actor->hasPermission('flarum-audit.view')) {
             return;

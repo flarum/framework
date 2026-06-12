@@ -7,31 +7,37 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Audit\Tests\integration;
+namespace Flarum\Lock\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
+use Flarum\Discussion\Discussion;
+use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
-class FlarumLockTest extends TestCase
+class AuditTest extends TestCase
 {
+    use InteractsWithAuditLog;
+
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->extension('flarum-lock');
+        $this->setUpAuditLog();
+
+        $this->extension('flarum-audit', 'flarum-lock');
 
         $date = Carbon::parse('2021-01-01T12:00:00+00:00');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'A', 'created_at' => $date],
                 ['id' => 2, 'title' => 'B', 'created_at' => $date, 'is_locked' => true],
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function lock()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/discussions/1', [
@@ -49,9 +55,7 @@ class FlarumLockTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unlock()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/discussions/2', [

@@ -3,5 +3,5 @@ import AuditLog from './models/AuditLog';
 
 export default [
   new Extend.Store() //
-    .add('flarum-audit', AuditLog),
+    .add('audit', AuditLog),
 ];

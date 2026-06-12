@@ -10,6 +10,8 @@
 namespace Flarum\Audit\Tests\integration\thirdparty;
 
 use Flarum\Audit\Tests\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class FoFBanIpsTest extends TestCase
 {
@@ -20,7 +22,7 @@ class FoFBanIpsTest extends TestCase
         $this->extension('fof-ban-ips');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 [
                     'id' => 3,
                     'username' => 'user3',
@@ -30,9 +32,7 @@ class FoFBanIpsTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function banned()
     {
         $this->sendSuccessfulRequest('POST', '/api/fof/ban-ips', [
@@ -52,9 +52,7 @@ class FoFBanIpsTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function banned_user()
     {
         $this->sendSuccessfulRequest('POST', '/api/fof/ban-ips', [
@@ -79,9 +77,7 @@ class FoFBanIpsTest extends TestCase
     // We can't test unbanned without user because the event is not dispatched
     // https://github.com/FriendsOfFlarum/ban-ips/issues/4
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unbanned_user()
     {
         $this->sendSuccessfulRequest('POST', '/api/fof/ban-ips', [

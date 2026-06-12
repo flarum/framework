@@ -69,6 +69,7 @@
             "Flarum\\Tests\\": "tests",
             "Flarum\\Akismet\\Tests\\": "extensions/akismet/tests",
             "Flarum\\Approval\\Tests\\": "extensions/approval/tests",
+            "Flarum\\Audit\\Tests\\": "extensions/audit/tests",
             "Flarum\\Flags\\Tests\\": "extensions/flags/tests",
             "Flarum\\Gdpr\\Tests\\": "extensions/gdpr/tests",
             "Flarum\\Likes\\Tests\\": "extensions/likes/tests",

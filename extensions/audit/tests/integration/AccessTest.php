@@ -11,7 +11,9 @@ namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class AccessTest extends TestCase
 {
@@ -50,7 +52,7 @@ class AccessTest extends TestCase
                     'created_at' => '2022-01-01 13:00:00',
                 ],
             ],
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
             'group_user' => [
@@ -70,7 +72,7 @@ class AccessTest extends TestCase
 
     protected function jsonApiData(array $options = [])
     {
-        $response = $this->send($this->request('GET', '/api/audit/logs', $options));
+        $response = $this->send($this->request('GET', '/api/audit', $options));
 
         $this->assertEquals(200, $response->getStatusCode(), 'Assert request status code');
 
@@ -79,17 +81,13 @@ class AccessTest extends TestCase
         return Arr::get($data, 'data');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function noAccess()
     {
         $this->assertEmpty($this->jsonApiData());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function limitedAccess()
     {
         $data = $this->jsonApiData([
@@ -101,9 +99,7 @@ class AccessTest extends TestCase
         $this->assertNull(Arr::get($data[0], 'attributes.ipAddress'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function limitedAccessWithIp()
     {
         $this->setting('flarum-audit.limitedIpAddress', '1');
@@ -117,9 +113,7 @@ class AccessTest extends TestCase
         $this->assertEquals('192.168.1.20', Arr::get($data[0], 'attributes.ipAddress'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function limitedAccessFiltered()
     {
         $this->setting('flarum-audit.limitedActions', 'post.*,cache_cleared');
@@ -131,9 +125,7 @@ class AccessTest extends TestCase
         $this->assertCount(1, $data);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function fullAccess()
     {
         $data = $this->jsonApiData([

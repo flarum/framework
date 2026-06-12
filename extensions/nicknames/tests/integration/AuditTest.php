@@ -7,20 +7,29 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Audit\Tests\integration;
+namespace Flarum\Nicknames\Tests\integration;
 
-class FlarumNicknameTest extends TestCase
+use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
+use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
+
+class AuditTest extends TestCase
 {
+    use InteractsWithAuditLog;
+
     public function setUp(): void
     {
-        // The optionalDependency tree doesn't seem to have any effect on tests
-        // Therefore we need to load this extension before Audit Log
-        $this->extension('flarum-nicknames');
-
         parent::setUp();
 
+        $this->setUpAuditLog();
+
+        // Nicknames must be enabled (and its saving listener registered) alongside audit so the
+        // nickname change is captured. Order is not significant here — both boot before the request.
+        $this->extension('flarum-audit', 'flarum-nicknames');
+
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 [
                     'id' => 3,
                     'username' => 'user3',
@@ -31,9 +40,7 @@ class FlarumNicknameTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function update()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/users/3', [

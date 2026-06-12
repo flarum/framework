@@ -93,7 +93,8 @@ class ErasureJob extends GdprJob
             $username,
             $email,
             $mode,
-            $user
+            $user,
+            $this->erasureRequest
         ));
     }
 

@@ -11,6 +11,7 @@ namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Testing\integration\TestCase as BaseTestCase;
 use Illuminate\Database\Schema\Builder;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Verifies the upgrade path from the legacy kilowhat/flarum-ext-audit (pro) and
@@ -69,9 +70,7 @@ class UpgradeFromKilowhatTest extends BaseTestCase
         parent::tearDown();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function migration_renames_legacy_table_and_preserves_data()
     {
         $schema = $this->schema();
@@ -111,9 +110,7 @@ class UpgradeFromKilowhatTest extends BaseTestCase
         $this->assertEquals('post.created', $rows[0]->action);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function migration_creates_fresh_table_when_no_legacy_table()
     {
         $schema = $this->schema();

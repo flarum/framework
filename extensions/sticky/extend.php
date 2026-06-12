@@ -69,5 +69,11 @@ return [
                     fn ($event) => $event->user,
                     'stickiedEvent'
                 ),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-sticky')
+                ->listen(DiscussionWasStickied::class, 'discussion.stickied', fn ($e) => ['discussion_id' => $e->discussion->id])
+                ->listen(DiscussionWasUnstickied::class, 'discussion.unstickied', fn ($e) => ['discussion_id' => $e->discussion->id]),
         ]),
 ];

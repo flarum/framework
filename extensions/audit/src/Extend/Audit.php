@@ -43,35 +43,31 @@ class Audit implements ExtenderInterface
      *
      * @var string[]
      */
-    protected $actions = [];
+    protected array $actions = [];
 
     /**
      * Event listeners that produce a payload.
      *
      * @var array<array{0: string, 1: string, 2: callable}>
      */
-    protected $listeners = [];
+    protected array $listeners = [];
 
     /**
      * Raw callbacks for advanced integrations, deferred until the application has booted.
      *
      * @var callable[]
      */
-    protected $callbacks = [];
+    protected array $callbacks = [];
 
     /**
      * Explicit admin grouping key. Null means auto-detect from the consuming extension.
-     *
-     * @var string|null
      */
-    protected $group = null;
+    protected ?string $group = null;
 
     /**
      * Whether the group was explicitly set (so we can allow `null`/`core` overrides).
-     *
-     * @var bool
      */
-    protected $groupSet = false;
+    protected bool $groupSet = false;
 
     /**
      * Force the admin grouping key. Omit to auto-detect from the consuming extension's id
@@ -164,7 +160,7 @@ class Audit implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         // Attribution: explicit group() wins; else the consuming extension's id; else core.
         $group = $this->groupSet ? $this->group : ($extension ? $extension->getId() : null);

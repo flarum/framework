@@ -66,4 +66,14 @@ return [
 
     (new Extend\ModelPrivate(CommentPost::class))
         ->checker(Listener\UnapproveNewContent::markUnapprovedContentAsPrivate(...)),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-approval')
+                ->listen(PostWasApproved::class, 'post.approved', fn ($e) => [
+                    'discussion_id' => $e->post->discussion->id,
+                    'post_id' => $e->post->id,
+                ]),
+        ]),
 ];

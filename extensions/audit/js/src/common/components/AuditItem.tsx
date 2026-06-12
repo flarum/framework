@@ -7,9 +7,9 @@ import Dropdown from 'flarum/common/components/Dropdown';
 import GroupBadge from 'flarum/common/components/GroupBadge';
 import IPAddress from 'flarum/common/components/IPAddress';
 import Link from 'flarum/common/components/Link';
-import avatar from 'flarum/common/helpers/avatar';
+import Avatar from 'flarum/common/components/Avatar';
+import Icon from 'flarum/common/components/Icon';
 import humanTime from 'flarum/common/helpers/humanTime';
-import icon from 'flarum/common/helpers/icon';
 import username from 'flarum/common/helpers/username';
 import Group from 'flarum/common/models/Group';
 import extractText from 'flarum/common/utils/extractText';
@@ -107,18 +107,18 @@ export default class AuditItem implements ClassComponent<AuditItemAttrs> {
     let avatarElement;
 
     if (log.client() === 'cli') {
-      avatarElement = icon('fas fa-terminal');
+      avatarElement = <Icon name="fas fa-terminal" />;
     } else if (log.actorId() === null) {
-      avatarElement = icon('fas fa-user-secret');
+      avatarElement = <Icon name="fas fa-user-secret" />;
     } else if (actor) {
       avatarElement = (
         <Link external href={routes().user(actor)}>
-          {avatar(actor)}
+          <Avatar user={actor} />
         </Link>
       );
     } else {
       // In this case actorId isn't null but actor is, which means the user was deleted
-      avatarElement = avatar(null);
+      avatarElement = <Avatar user={null} />;
     }
 
     let usernameElement;
@@ -159,7 +159,11 @@ export default class AuditItem implements ClassComponent<AuditItemAttrs> {
       translationKeyForPayload = translationPrefix + 'user.password_reset_attempted_unmatched';
     }
 
-    if (typeof app.translator.translations[translationKeyForPayload] === 'string') {
+    // In Flarum 2.x a stored translation may be a plain string OR a `Translation` object
+    // ({ message }) — `trans()` rewrites the entry to the object form on first use. So we
+    // can't probe with `typeof === 'string'` (it flips to false after the first render and
+    // we'd fall back to raw JSON). Treat any present entry as "a message exists".
+    if (app.translator.translations[translationKeyForPayload]) {
       const parameters = {
         // We can't call this translation parameter {user} because it's reserved by Flarum
         username: (
@@ -234,6 +238,13 @@ export default class AuditItem implements ClassComponent<AuditItemAttrs> {
         package: <code>{payload.package}</code>,
         provider: <code>{payload.provider}</code>,
         ip: <code>{payload.ip}</code>,
+
+        name: <code>{payload.name}</code>,
+        old_name: <code>{payload.old_name}</code>,
+        new_name: <code>{payload.new_name}</code>,
+        title: <code>{payload.title}</code>,
+        extension: payload.extension ? <code>{payload.extension}</code> : <em>{app.translator.trans(translationPrefix + 'core')}</em>,
+        keys: <code>{Array.isArray(payload.keys) ? payload.keys.join(', ') : payload.keys}</code>,
 
         key: <code>{payload.key}</code>,
         permission: <code>{payload.permission}</code>,
@@ -351,7 +362,7 @@ export default class AuditItem implements ClassComponent<AuditItemAttrs> {
           <Dropdown
             menuClassName="Dropdown-menu--right"
             buttonClassName="Button Button--icon Button--flat"
-            label={app.translator.trans(translationPrefix + 'controls')}
+            label={app.translator.trans(translationPrefix + 'controls.title')}
             icon="fas fa-ellipsis-v"
           >
             {controls.toArray()}

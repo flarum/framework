@@ -10,7 +10,10 @@
 namespace Flarum\Audit\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class CorePostTest extends TestCase
 {
@@ -21,19 +24,17 @@ class CorePostTest extends TestCase
         $date = Carbon::parse('2021-01-01T12:00:00+00:00');
 
         $this->prepareDatabase([
-            'discussions' => [
-                ['id' => 10, 'title' => 'A', 'created_at' => $date, 'last_posted_at' => $date, 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 2, 'post_number_index' => 2, 'last_post_number' => 2],
+            Discussion::class => [
+                ['id' => 10, 'title' => 'A', 'created_at' => $date, 'last_posted_at' => $date, 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 2, 'last_post_number' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 10, 'created_at' => $date, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>A</p></t>'],
                 ['id' => 2, 'number' => 2, 'discussion_id' => 10, 'created_at' => $date, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>B</p></t>', 'hidden_at' => $date],
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function deleted()
     {
         $this->sendSuccessfulRequest('DELETE', '/api/posts/1', [], 204);
@@ -44,9 +45,7 @@ class CorePostTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hidden()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/posts/1', [
@@ -65,9 +64,7 @@ class CorePostTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function posted()
     {
         $response = $this->sendSuccessfulRequest('POST', '/api/posts', [
@@ -96,9 +93,7 @@ class CorePostTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function restored()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/posts/2', [
@@ -117,9 +112,7 @@ class CorePostTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function revised()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/posts/1', [

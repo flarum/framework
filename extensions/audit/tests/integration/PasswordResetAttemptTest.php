@@ -9,6 +9,9 @@
 
 namespace Flarum\Audit\Tests\integration;
 
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
+
 /**
  * Covers the LogPasswordResetAttempt middleware, which logs every /api/forgot request — with
  * the originating IP — including attempts for emails that don't match any account. This is the
@@ -24,7 +27,7 @@ class PasswordResetAttemptTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 [
                     'id' => 3,
                     'username' => 'user3',
@@ -36,9 +39,7 @@ class PasswordResetAttemptTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function attempt_for_existing_email_is_logged_with_match_and_user()
     {
         // Unauthenticated guest request — the real forgot-password flow.
@@ -60,9 +61,7 @@ class PasswordResetAttemptTest extends TestCase
         $this->assertArrayNotHasKey('email', $log->payload, 'Email should not be stored for a matched account');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function attempt_for_unknown_email_is_still_logged_as_unmatched()
     {
         $this->sendSuccessfulRequest('POST', '/api/forgot', [

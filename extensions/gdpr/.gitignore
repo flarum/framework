@@ -2,3 +2,6 @@ js/node_modules
 vendor/
 composer.lock
 .phpunit.result.cache
+tests/.phpunit.cache
+tests/.phpunit.result.cache
+/tests/integration/tmp

@@ -14,7 +14,7 @@
       {
         "name": "audit",
         "gitRemote": "git@github.com:flarum/audit.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "bbcode",

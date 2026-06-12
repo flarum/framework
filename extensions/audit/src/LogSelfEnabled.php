@@ -20,7 +20,7 @@ use Illuminate\Contracts\Container\Container;
  */
 class LogSelfEnabled implements ExtenderInterface, LifecycleInterface
 {
-    public function onEnable(Container $container, Extension $extension)
+    public function onEnable(Container $container, Extension $extension): void
     {
         // In integration tests, the lifecycle events are triggered outside the transaction
         // which results in unwanted entries in the database.
@@ -34,12 +34,12 @@ class LogSelfEnabled implements ExtenderInterface, LifecycleInterface
         ]);
     }
 
-    public function onDisable(Container $container, Extension $extension)
+    public function onDisable(Container $container, Extension $extension): void
     {
         // Nothing to do. Already logged by the event listener.
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         // Nothing to do. But we can't have LifecycleInterface extenders without ExtenderInterface...
     }

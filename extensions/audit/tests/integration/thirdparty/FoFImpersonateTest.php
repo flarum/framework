@@ -10,6 +10,8 @@
 namespace Flarum\Audit\Tests\integration\thirdparty;
 
 use Flarum\Audit\Tests\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class FoFImpersonateTest extends TestCase
 {
@@ -20,7 +22,7 @@ class FoFImpersonateTest extends TestCase
         $this->extension('fof-impersonate');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 [
                     'id' => 3,
                     'username' => 'user3',
@@ -30,9 +32,7 @@ class FoFImpersonateTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function impersonate()
     {
         $adminSession = $this->sendForumCsrfRequest('POST', '/login', [

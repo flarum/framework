@@ -15,7 +15,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AdminPayload
 {
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): void
     {
         $document->payload['auditLogActions'] = AuditLogger::$registeredActions;
     }

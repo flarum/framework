@@ -7,32 +7,38 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Audit\Tests\integration;
+namespace Flarum\Sticky\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
+use Flarum\Discussion\Discussion;
+use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
-class FlarumStickyTest extends TestCase
+class AuditTest extends TestCase
 {
+    use InteractsWithAuditLog;
+
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->extension('flarum-sticky');
+        $this->setUpAuditLog();
+
+        $this->extension('flarum-audit', 'flarum-sticky');
 
         $date = Carbon::parse('2021-01-01T12:00:00+00:00');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'A', 'created_at' => $date],
                 ['id' => 2, 'title' => 'B', 'created_at' => $date, 'is_sticky' => true],
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
-    public function lock()
+    #[Test]
+    public function stickied()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/discussions/1', [
             'json' => [
@@ -49,10 +55,8 @@ class FlarumStickyTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
-    public function unlock()
+    #[Test]
+    public function unstickied()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/discussions/2', [
             'json' => [

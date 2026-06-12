@@ -10,6 +10,7 @@
 namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Audit\AuditLog;
+use PHPUnit\Framework\Attributes\Test;
 
 class CoreExtensionTest extends TestCase
 {
@@ -37,9 +38,7 @@ class CoreExtensionTest extends TestCase
         AuditLog::query()->truncate();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function disabled()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/extensions/flarum-lock', [
@@ -53,9 +52,7 @@ class CoreExtensionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function enabled()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/extensions/flarum-sticky', [
@@ -69,9 +66,7 @@ class CoreExtensionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function uninstalled()
     {
         $this->sendSuccessfulRequest('DELETE', '/api/extensions/flarum-sticky', [], 204);

@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Audit\Integration;
+namespace Flarum\Nicknames;
 
 use Flarum\Audit\AuditLogger;
 use Flarum\User\Event\Saving;
@@ -17,20 +17,21 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 /**
- * flarum/nicknames integration.
+ * Audit log integration for flarum/nicknames.
  *
  * Stateful: there's no dedicated event for nickname changes, so we capture the old value
- * during the user saving event and emit the log afterwards. Wired through the audit
- * extender's `using()` escape hatch.
+ * during the user saving event and emit the log afterwards. Wired into flarum/audit through
+ * the Flarum\Audit\Extend\Audit extender's `using()` escape hatch, behind an Extend\Conditional
+ * so it's only active when flarum-audit is installed.
  */
-class NicknamesIntegration
+class AuditIntegration
 {
     /**
      * @var string[]
      */
-    public static $actions = ['user.nickname_changed'];
+    public static array $actions = ['user.nickname_changed'];
 
-    protected $originalNickname = false;
+    protected string|false $originalNickname = false;
 
     public function __invoke(Container $container): void
     {
@@ -43,11 +44,11 @@ class NicknamesIntegration
 
         // There's no event for the nickname change at this time so we hook the user saved
         // lifecycle. We listen on the dispatcher rather than User::saved(Closure) so the
-        // listener isn't bound to the model's static dispatcher (not serializable on PHP 7.x).
+        // listener isn't bound to the model's static dispatcher.
         $events->listen('eloquent.saved: '.User::class, [$this, 'userSaved']);
     }
 
-    public function userSaved(User $user)
+    public function userSaved(User $user): void
     {
         // The $originalNickname variable holds the old value but it also signifies that the nickname was updated.
         if ($this->originalNickname !== false) {
@@ -59,7 +60,7 @@ class NicknamesIntegration
         }
     }
 
-    public function saving(Saving $event)
+    public function saving(Saving $event): void
     {
         $attributes = (array) Arr::get($event->data, 'attributes');
 

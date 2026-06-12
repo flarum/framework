@@ -30,3 +30,12 @@ flarum-nicknames:
   ref:
     change_nickname: Change Nickname
     nickname: Nickname
+
+# Labels for the audit log entries this extension produces, rendered by the (optional)
+# flarum/audit browser. Defined under the flarum-audit namespace so the audit frontend
+# resolves them, but shipped here so they travel with the extension that owns the actions.
+flarum-audit:
+  lib:
+    browser:
+      user:
+        nickname_changed: Changed {username}'s nickname from {old_nickname} to {new_nickname}

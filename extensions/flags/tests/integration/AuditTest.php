@@ -7,39 +7,47 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Audit\Tests\integration;
+namespace Flarum\Flags\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
+use Flarum\Discussion\Discussion;
+use Flarum\Flags\Flag;
+use Flarum\Post\Post;
+use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
-class FlarumFlagsTest extends TestCase
+class AuditTest extends TestCase
 {
+    use InteractsWithAuditLog;
+
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->extension('flarum-flags');
+        $this->setUpAuditLog();
+
+        $this->extension('flarum-audit', 'flarum-flags');
 
         $this->setting('flarum-flags.can_flag_own', '1');
 
         $date = Carbon::parse('2021-01-01T12:00:00+00:00');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 10, 'title' => 'A', 'created_at' => $date, 'last_posted_at' => $date, 'first_post_id' => 1, 'comment_count' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 10, 'created_at' => $date, 'type' => 'comment', 'content' => '<t><p>A</p></t>'],
                 ['id' => 2, 'number' => 2, 'discussion_id' => 10, 'created_at' => $date, 'type' => 'comment', 'content' => '<t><p>B</p></t>'],
             ],
-            'flags' => [
+            Flag::class => [
                 ['id' => 20, 'post_id' => 2],
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function flagReason()
     {
         $this->sendSuccessfulRequest('POST', '/api/flags', [
@@ -67,9 +75,7 @@ class FlarumFlagsTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function flagDetail()
     {
         $this->sendSuccessfulRequest('POST', '/api/flags', [
@@ -97,13 +103,14 @@ class FlarumFlagsTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function delete()
     {
+        // flarum-flags' delete endpoint still requires a (possibly empty) JSON body; without
+        // it the request 500s. Unlike the core discussion DELETE, this is not covered by the
+        // flarum/framework#2896 fix, so the empty-body workaround stays here.
         $this->sendSuccessfulRequest('DELETE', '/api/posts/2/flags', [
-            'json' => [], // workaround for https://github.com/flarum/core/issues/2896
+            'json' => [],
         ], 204);
 
         $this->assertLogExists('post.dismissed_flags', [

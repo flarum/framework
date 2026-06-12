@@ -9,7 +9,8 @@
 
 namespace Flarum\Audit;
 
-use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Api\Context;
+use Flarum\Api\Schema;
 use Flarum\Audit\Search\AuditGambits;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
@@ -17,9 +18,44 @@ use Illuminate\Support\Str;
 
 class ForumAttributes
 {
-    public function __invoke(ForumSerializer $serializer): array
+    /**
+     * @return array<Schema\Attribute>
+     */
+    public function __invoke(): array
     {
-        $actor = $serializer->getActor();
+        return [
+            Schema\Boolean::make('canAudit')
+                ->get(fn ($forum, Context $context) => $this->access($context->getActor())['canAudit']),
+            Schema\Boolean::make('canAuditUser')
+                ->get(fn ($forum, Context $context) => $this->access($context->getActor())['canAuditUser']),
+            Schema\Boolean::make('canAuditDiscussion')
+                ->get(fn ($forum, Context $context) => $this->access($context->getActor())['canAuditDiscussion']),
+            Schema\Arr::make('auditFilters')
+                ->get(fn ($forum, Context $context) => $this->access($context->getActor())['auditFilters']),
+            Schema\Arr::make('auditActions')
+                ->get(fn ($forum, Context $context) => $this->access($context->getActor())['auditActions']),
+        ];
+    }
+
+    /**
+     * The audit access summary for an actor, mirroring the permission/limited-access
+     * logic that previously lived in the ForumSerializer attributes callback.
+     *
+     * Unauthorized actors get a fully-disabled, empty set (the 1.x serializer returned
+     * no keys at all; the field-based resource always serialises every field, so the
+     * disabled defaults below are the equivalent the frontend's truthiness checks see).
+     *
+     * @return array{canAudit: bool, canAuditUser: bool, canAuditDiscussion: bool, auditFilters: array, auditActions: array}
+     */
+    protected function access(User $actor): array
+    {
+        $blank = [
+            'canAudit' => false,
+            'canAuditUser' => false,
+            'canAuditDiscussion' => false,
+            'auditFilters' => [],
+            'auditActions' => [],
+        ];
 
         if ($actor->hasPermission('flarum-audit.view')) {
             return [
@@ -70,13 +106,13 @@ class ForumAttributes
             ];
         }
 
-        return [];
+        return $blank;
     }
 
     /**
      * The search filters to advertise to this actor in the audit browser.
      * The `ip` filter is hidden from actors who can't actually search by IP,
-     * mirroring the IpGambit's own permission check, so we never show an unusable hint.
+     * mirroring the IpFilter's own permission check, so we never show an unusable hint.
      *
      * @return array<array{key: string, example: string, extension: string|null}>
      */

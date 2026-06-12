@@ -34,7 +34,8 @@
             "title": "Flags",
             "category": "feature",
             "optional-dependencies": [
-                "flarum/realtime"
+                "flarum/realtime",
+                "flarum/audit"
             ],
             "icon": {
                 "name": "fas fa-flag",
@@ -76,6 +77,7 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
+        "flarum/audit": "*",
         "flarum/core": "*@dev",
         "flarum/tags": "*@dev",
         "flarum/testing": "^2.0"

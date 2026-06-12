@@ -7,20 +7,28 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Audit\Tests\integration;
+namespace Flarum\Suspend\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
+use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
-class FlarumSuspendTest extends TestCase
+class AuditTest extends TestCase
 {
+    use InteractsWithAuditLog;
+
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->extension('flarum-suspend');
+        $this->setUpAuditLog();
+
+        $this->extension('flarum-audit', 'flarum-suspend');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 [
                     'id' => 3,
                     'username' => 'user3',
@@ -36,9 +44,7 @@ class FlarumSuspendTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function suspend()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/users/3', [
@@ -57,9 +63,7 @@ class FlarumSuspendTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unsuspend()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/users/4', [

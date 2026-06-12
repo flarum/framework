@@ -10,7 +10,10 @@
 namespace Flarum\Audit\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class CoreDiscussionTest extends TestCase
 {
@@ -21,33 +24,27 @@ class CoreDiscussionTest extends TestCase
         $date = Carbon::parse('2021-01-01T12:00:00+00:00');
 
         $this->prepareDatabase([
-            'discussions' => [
-                ['id' => 1, 'title' => 'A', 'created_at' => $date, 'last_posted_at' => $date, 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'post_number_index' => 1],
-                ['id' => 2, 'title' => 'B', 'created_at' => $date, 'last_posted_at' => $date, 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'post_number_index' => 1, 'hidden_at' => $date],
+            Discussion::class => [
+                ['id' => 1, 'title' => 'A', 'created_at' => $date, 'last_posted_at' => $date, 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
+                ['id' => 2, 'title' => 'B', 'created_at' => $date, 'last_posted_at' => $date, 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'hidden_at' => $date],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 1, 'created_at' => $date, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>A</p></t>'],
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function deleted()
     {
-        $this->sendSuccessfulRequest('DELETE', '/api/discussions/1', [
-            'json' => [], // workaround for https://github.com/flarum/core/issues/2896
-        ], 204);
+        $this->sendSuccessfulRequest('DELETE', '/api/discussions/1', [], 204);
 
         $this->assertLogExists('discussion.deleted', [
             'discussion_id' => 1,
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hidden()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/discussions/1', [
@@ -65,9 +62,7 @@ class CoreDiscussionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function renamed()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/discussions/1', [
@@ -87,9 +82,7 @@ class CoreDiscussionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function restored()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/discussions/2', [
@@ -107,9 +100,7 @@ class CoreDiscussionTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function started()
     {
         $response = $this->sendSuccessfulRequest('POST', '/api/discussions', [

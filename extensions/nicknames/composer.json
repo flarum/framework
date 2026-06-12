@@ -33,6 +33,9 @@
         "flarum-extension": {
             "title": "Nicknames",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/audit"
+            ],
             "icon": {
                 "name": "fas fa-user-tag",
                 "backgroundColor": "#8E4529",
@@ -68,7 +71,8 @@
     },
     "require-dev": {
         "flarum/testing": "^2.0",
-        "flarum/core": "2.x-dev"
+        "flarum/core": "2.x-dev",
+        "flarum/audit": "*"
     },
     "scripts-descriptions": {
         "test": "Runs all tests.",

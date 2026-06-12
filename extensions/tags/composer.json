@@ -39,7 +39,8 @@
             "title": "Tags",
             "category": "feature",
             "optional-dependencies": [
-                "flarum/realtime"
+                "flarum/realtime",
+                "flarum/audit"
             ],
             "icon": {
                 "name": "fas fa-tags",
@@ -83,7 +84,8 @@
     "require-dev": {
         "flarum/core": "*@dev",
         "flarum/testing": "^2.0",
-        "flarum/suspend": "^2.0"
+        "flarum/suspend": "^2.0",
+        "flarum/audit": "*"
     },
     "repositories": [
         {

@@ -10,6 +10,8 @@
 namespace Flarum\Audit\Tests\integration\thirdparty;
 
 use Flarum\Audit\Tests\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class FoFUsernameRequestTest extends TestCase
 {
@@ -20,7 +22,7 @@ class FoFUsernameRequestTest extends TestCase
         $this->extension('fof-username-request', 'flarum-nicknames');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 [
                     'id' => 3,
                     'username' => 'user3',
@@ -34,9 +36,7 @@ class FoFUsernameRequestTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function createUsername()
     {
         $this->sendSuccessfulRequest('POST', '/api/username-requests', [
@@ -58,9 +58,7 @@ class FoFUsernameRequestTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function createNickname()
     {
         $this->sendSuccessfulRequest('POST', '/api/username-requests', [
@@ -83,9 +81,7 @@ class FoFUsernameRequestTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function approveUsername()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/username-requests/1', [
@@ -107,9 +103,7 @@ class FoFUsernameRequestTest extends TestCase
         $this->assertLogDoesntExist('user.username_changed');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function approveNickname()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/username-requests/2', [
@@ -131,9 +125,7 @@ class FoFUsernameRequestTest extends TestCase
         $this->assertLogDoesntExist('user.nickname_changed');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function rejectUsername()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/username-requests/1', [
@@ -154,9 +146,7 @@ class FoFUsernameRequestTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function rejectNickname()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/username-requests/2', [

@@ -32,11 +32,9 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class LogPasswordResetAttempt implements MiddlewareInterface
 {
-    protected $users;
-
-    public function __construct(UserRepository $users)
-    {
-        $this->users = $users;
+    public function __construct(
+        protected UserRepository $users
+    ) {
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

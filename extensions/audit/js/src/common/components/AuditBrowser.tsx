@@ -333,8 +333,43 @@ export default class AuditBrowser extends Component<AuditBrowserAttrs> {
       q += ' ' + this.q;
     }
 
-    if (q) {
-      params.filter.q = q.trim();
+    q = q.trim();
+
+    if (!q) {
+      return params;
+    }
+
+    // The audit browser uses a single free-text box with a 1.x-style `key:value` gambit
+    // syntax (e.g. `action:extension.enabled actor:admin`). In 2.x the backend dispatches
+    // discrete `filter[<key>]` params to the registered FilterInterface implementations —
+    // it does NOT parse gambits out of `filter[q]` (which only feeds the no-op fulltext
+    // filter). So we parse the recognised `key:value` tokens here into discrete filters,
+    // mirroring the keys the backend advertises via `auditFilters`. Negation is `-key:value`.
+    const knownKeys = ((app.forum.attribute('auditFilters') as AuditFilter[] | undefined) || []).map((f) => f.key);
+
+    // Split on whitespace, but keep quoted segments (e.g. action:"a b") intact.
+    const tokens = q.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+
+    const leftover: string[] = [];
+
+    for (const token of tokens) {
+      const match = token.match(/^(-?)([a-zA-Z_]+):(.*)$/);
+
+      if (match && knownKeys.includes(match[2])) {
+        const negate = match[1] === '-';
+        const key = (negate ? '-' : '') + match[2];
+        // Strip surrounding quotes from the value.
+        const value = match[3].replace(/^"(.*)"$/, '$1');
+
+        // Repeated filters of the same key combine (the backend filters split on commas).
+        params.filter[key] = params.filter[key] ? params.filter[key] + ',' + value : value;
+      } else {
+        leftover.push(token);
+      }
+    }
+
+    if (leftover.length) {
+      params.filter.q = leftover.join(' ');
     }
 
     return params;
@@ -362,7 +397,7 @@ export default class AuditBrowser extends Component<AuditBrowserAttrs> {
     const params = this.requestParams();
     params.page = { offset };
 
-    return app.store.find<AuditLog[]>('audit/logs', params);
+    return app.store.find<AuditLog[]>('audit', params);
   }
 
   loadMore() {

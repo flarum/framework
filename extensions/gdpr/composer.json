@@ -41,6 +41,9 @@
         "flarum-extension": {
             "title": "GDPR Data Management",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/audit"
+            ],
             "icon": {
                 "image": "resources/logo.svg",
                 "backgroundColor": "#EBF1FD",
@@ -89,6 +92,7 @@
     },
     "require-dev": {
         "flarum/testing": "^2.0.0-rc.3",
-        "flarum/phpstan": "^2.0.0-rc.3"
+        "flarum/phpstan": "^2.0.0-rc.3",
+        "flarum/audit": "*"
     }
 }

@@ -60,6 +60,7 @@ flarum-audit:
                 members: => core.admin.permissions_controls.members_button
             noValue: (no value)
             noReason: (no reason)
+            core: core
             client:
                 session: Web session
                 api_key: API key
@@ -67,6 +68,7 @@ flarum-audit:
                 cli: Command line
                 unknown: Unknown client
             controls:
+                title: Controls
                 hideRaw: Hide raw log
                 showRaw: Show raw log
                 filterActor: Show logs by this actor
@@ -77,22 +79,18 @@ flarum-audit:
                 filterDiscussion: Show logs affecting the same discussion
             audit_log_cleared: Cleared {deleted_count} entries from the audit logs
             cache_cleared: Manually cleared the cache
+            developer_token_created: Created developer access token "{title}" for {username}
             discussion:
                 created: Started discussion {discussion}
                 create_date_changed: Changed {discussion} start date from {old_date} to {new_date}
                 deleted: Deleted discussion {discussion}
                 hidden: Hid discussion {discussion}
-                locked: Locked discussion {discussion}
                 merged_away: Merged {discussion} into {new_discussion}
                 merged_into: Merged {post_count} posts from {original_discussion_ids_count} discussions into {discussion}
                 renamed: Renamed discussion from {old_title} to {new_title}
                 restored: Restored discussion {discussion}
                 split_away: Split {post_count} posts from {discussion} into {new_discussion}
                 split_into: Split {post_count} posts into new discussion {discussion}
-                stickied: Stickied discussion {discussion}
-                tagged: Updated {discussion} tags from {old_tags} to {new_tags}
-                unlocked: Unlocked discussion {discussion}
-                unstickied: Unstickied discussion {discussion}
                 user_changed: Changed {discussion} author from {old_user} to {new_user}
             extension:
                 disabled: Disabled extension {package}
@@ -101,25 +99,23 @@ flarum-audit:
             fof_ban_ips:
                 banned: Banned ip {ip}
                 unbanned: Unbanned ip {ip}
+            group:
+                created: Created group {name}
+                deleted: Deleted group {name}
+                renamed: Renamed group from {old_name} to {new_name}
             permission_changed: Edited permission {permission} from {old_groups} to {new_groups}
             post:
-                approved: Approved {postuser}'s {post} in {discussion}
                 created: Created a {post} in {discussion}
                 create_date_changed: Changed {postuser}'s {post} start date from {old_date} to {new_date}
                 deleted: Deleted {postuser}'s {post} in {discussion}
-                dismissed_flags: Dismissed flags on {postuser}'s {post} in {discussion}
                 edit_date_changed: Changed {postuser}'s {post} edit date from {old_date} to {new_date}
-                flagged: Flagged {postuser}'s {post} as {reason} in {discussion}
                 hidden: Hid {postuser}'s {post} in {discussion}
                 restored: Restored {postuser}'s {post} in {discussion}
                 revised: Revised {postuser}'s {post} in {discussion}
                 user_changed: Changed {post} author from {old_user} to {new_user}
             setting_changed: Edited setting {key}
             setting_changed_with_values: Edited setting {key} from {old_value} to {new_value}
-            tag:
-                created: Created tag {tag}
-                deleted: Deleted tag {tag}
-                updated: Updated tag {tag}
+            settings_reset: Reset settings {keys} for {extension}
             user:
                 activated: Activated {username}'s account manually
                 activated_with_email: Activated {username}'s account via confirmation link
@@ -135,7 +131,6 @@ flarum-audit:
                 logged_in: Logged in {username} account
                 logged_in_with_provider: Logged in {username} account using {provider}
                 logged_out: Logged out {username} account
-                nickname_changed: Changed {username}'s nickname from {old_nickname} to {new_nickname}
                 nickname_requested: Requested new nickname {new_nickname} for user {username}
                 nickname_request_approved: Approved {username}'s nickname change from {old_nickname} to {new_nickname}
                 nickname_request_rejected: Rejected {username}'s nickname change
@@ -144,8 +139,6 @@ flarum-audit:
                 password_reset_attempted: Requested a password reset for {username}
                 password_reset_attempted_unmatched: Requested a password reset for {email} (no matching account)
                 provider_connected: Connected provider {provider} to {username} account
-                suspended: Suspended {username} until {until}
-                unsuspended: Unsuspended {username}
                 username_changed: Changed {username}'s username from {old_username} to {new_username}
                 username_requested: Requested new username {new_username} for user {username}
                 username_request_approved: Approved {username}'s username change from {old_username} to {new_username}

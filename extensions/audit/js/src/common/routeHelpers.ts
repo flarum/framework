@@ -2,7 +2,7 @@ import app from 'flarum/common/app';
 import type Discussion from 'flarum/common/models/Discussion';
 import type Post from 'flarum/common/models/Post';
 import type User from 'flarum/common/models/User';
-import type Tag from 'flarum/tags/common/models/Tag';
+import type Tag from 'ext:flarum/tags/common/models/Tag';
 
 /**
  * The resource URL builders attached to `app.route`. Core attaches `discussion`, `post` and

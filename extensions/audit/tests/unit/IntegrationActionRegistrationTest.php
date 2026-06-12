@@ -12,10 +12,9 @@ namespace Flarum\Audit\Tests\unit;
 use Flarum\Audit\Extend\Audit;
 use Flarum\Audit\Integration\CoreSettingIntegration;
 use Flarum\Audit\Integration\CoreUserIntegration;
-use Flarum\Audit\Integration\FlagsIntegration;
 use Flarum\Audit\Integration\FoFUsernameRequestIntegration;
-use Flarum\Audit\Integration\NicknamesIntegration;
-use Flarum\Audit\Integration\TagsAdminIntegration;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
@@ -44,10 +43,8 @@ class IntegrationActionRegistrationTest extends TestCase
         return $property->getValue($extender);
     }
 
-    /**
-     * @dataProvider integrations
-     * @test
-     */
+    #[Test]
+    #[DataProvider('integrations')]
     public function using_an_integration_registers_its_declared_actions(string $integrationClass)
     {
         $declared = $integrationClass::$actions;
@@ -63,9 +60,7 @@ class IntegrationActionRegistrationTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_password_change_requested_is_registered()
     {
         // The specific action whose registration regressed.
@@ -74,9 +69,7 @@ class IntegrationActionRegistrationTest extends TestCase
         $this->assertContains('user.password_change_requested', $this->harvested($extender));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function register_and_listen_also_contribute_actions()
     {
         $extender = (new Audit())
@@ -91,14 +84,14 @@ class IntegrationActionRegistrationTest extends TestCase
         $this->assertContains('listened_action', $harvested);
     }
 
-    public function integrations(): array
+    public static function integrations(): array
     {
+        // First-party extension integrations (flags, nicknames, tags) now live in their own
+        // extensions and are covered by those extensions' AuditTest suites. Only the core and
+        // bundled-thirdparty integrations that still ship with flarum/audit are exercised here.
         return [
             'core user' => [CoreUserIntegration::class],
             'core setting' => [CoreSettingIntegration::class],
-            'flags' => [FlagsIntegration::class],
-            'nicknames' => [NicknamesIntegration::class],
-            'tags admin' => [TagsAdminIntegration::class],
             'fof username request' => [FoFUsernameRequestIntegration::class],
         ];
     }

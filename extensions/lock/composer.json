@@ -34,7 +34,8 @@
             "title": "Lock",
             "category": "feature",
             "optional-dependencies": [
-                "flarum/realtime"
+                "flarum/realtime",
+                "flarum/audit"
             ],
             "icon": {
                 "name": "fas fa-lock",
@@ -54,7 +55,7 @@
                 "prettier": true,
                 "typescript": false,
                 "bundlewatch": false,
-                "backendTesting": false,
+                "backendTesting": true,
                 "editorConfig": true,
                 "styleci": true
             }
@@ -67,5 +68,29 @@
         }
     ],
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "autoload-dev": {
+        "psr-4": {
+            "Flarum\\Lock\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:setup": "@php tests/integration/setup.php"
+    },
+    "scripts-descriptions": {
+        "test": "Runs all tests.",
+        "test:unit": "Runs all unit tests.",
+        "test:integration": "Runs all integration tests.",
+        "test:setup": "Sets up a database for use with integration tests. Execute this only once."
+    },
+    "require-dev": {
+        "flarum/testing": "^2.0",
+        "flarum/audit": "*"
+    }
 }

@@ -24,13 +24,11 @@ class SetLoggerActor implements MiddlewareInterface
         AuditLogger::$actor = RequestUtil::getActor($request);
         AuditLogger::$path = $request->getUri()->getPath();
 
-        if ($request->getAttribute('session')) {
-            AuditLogger::$client = 'session';
-        } elseif ($request->getAttribute('apiKey')) {
-            AuditLogger::$client = 'api_key';
-        } else {
-            AuditLogger::$client = 'access_token';
-        }
+        AuditLogger::$client = match (true) {
+            (bool) $request->getAttribute('session') => 'session',
+            (bool) $request->getAttribute('apiKey') => 'api_key',
+            default => 'access_token',
+        };
 
         return $handler->handle($request);
     }

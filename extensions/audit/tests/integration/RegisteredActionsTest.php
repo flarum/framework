@@ -10,6 +10,7 @@
 namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Audit\AuditLogger;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Guards that action strings are registered in AuditLogger::$registeredActions when the app
@@ -42,9 +43,7 @@ class RegisteredActionsTest extends TestCase
         return array_unique($all);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function core_user_actions_are_registered()
     {
         $registered = $this->registeredActions();
@@ -63,9 +62,7 @@ class RegisteredActionsTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function core_and_first_party_actions_are_registered()
     {
         $registered = $this->registeredActions();
@@ -75,9 +72,14 @@ class RegisteredActionsTest extends TestCase
             'audit_log_cleared',
             'cache_cleared',
             'setting_changed',
+            'settings_reset',
             'permission_changed',
             'discussion.created',
             'post.created',
+            'group.created',
+            'group.renamed',
+            'group.deleted',
+            'developer_token_created',
             // First-party integrations (gated behind whenExtensionEnabled)
             'post.approved',          // flarum-approval
             'post.flagged',           // flarum-flags
@@ -94,9 +96,7 @@ class RegisteredActionsTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function actions_are_grouped_by_extension()
     {
         $this->app();

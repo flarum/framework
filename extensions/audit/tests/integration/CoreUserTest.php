@@ -12,10 +12,12 @@ namespace Flarum\Audit\Tests\integration;
 use Flarum\Group\Group;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\Stream;
 use Laminas\Diactoros\UploadedFile;
+use PHPUnit\Framework\Attributes\Test;
 
 class CoreUserTest extends TestCase
 {
@@ -24,7 +26,7 @@ class CoreUserTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 [
                     'id' => 3,
                     'username' => 'user3',
@@ -43,9 +45,7 @@ class CoreUserTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function passwordChangeRequested()
     {
         $this->sendSuccessfulRequest('POST', '/api/forgot', [
@@ -59,9 +59,7 @@ class CoreUserTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function activatedAdmin()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/users/4', [
@@ -79,9 +77,7 @@ class CoreUserTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function activatedUser()
     {
         $this->app(); // Initialize app for query below
@@ -99,9 +95,7 @@ class CoreUserTest extends TestCase
         $this->assertLogDoesntExist('user.email_changed');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function avatarChanged()
     {
         // We build our own request instead of using ->withUploadedFiles on the ->request() helper
@@ -118,9 +112,7 @@ class CoreUserTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function avatarRemoved()
     {
         $this->sendSuccessfulRequest('DELETE', '/api/users/3/avatar', []);
@@ -130,9 +122,7 @@ class CoreUserTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function deleted()
     {
         $this->sendSuccessfulRequest('DELETE', '/api/users/3', [], 204);
@@ -142,9 +132,7 @@ class CoreUserTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function emailChangeRequested()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/users/3', [
@@ -166,9 +154,7 @@ class CoreUserTest extends TestCase
         ], 3);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function emailChangedAdmin()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/users/3', [
@@ -188,9 +174,7 @@ class CoreUserTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function emailChangedUser()
     {
         $this->app(); // Initialize app for query below
@@ -208,15 +192,14 @@ class CoreUserTest extends TestCase
 
         $this->assertLogDoesntExist('user.activated');
 
-        // Flarum triggers the Activated event again every time the email is confirmed
-        // which is undesirable for our logs https://github.com/flarum/core/issues/2713
-        // TODO: when fixed in core, uncomment this
-        // $this->assertLogDoesntExist('user.activated_with_email');
+        // Previously, Flarum re-fired the Activated event on every email confirmation
+        // (https://github.com/flarum/framework/issues/2713), which produced a spurious
+        // activation entry here. That has been fixed, so confirming an email change must
+        // not log an activation.
+        $this->assertLogDoesntExist('user.activated_with_email');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function groupsChanged()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/users/3', [
@@ -243,9 +226,7 @@ class CoreUserTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function loginAndLogout()
     {
         $response = $this->sendForumCsrfRequest('POST', '/login', [
@@ -261,10 +242,10 @@ class CoreUserTest extends TestCase
 
         $this->assertLogDoesntExist('user.logged_out');
 
-        $response = $this->send($this->request('GET', '/logout', [
+        // In Flarum 2.x the logout action moved from GET to POST (`GET /logout` now serves a
+        // confirmation page). The `logout` route is exempted from CSRF in the parent setUp().
+        $response = $this->send($this->request('POST', '/logout', [
             'cookiesFrom' => $response,
-        ])->withQueryParams([
-            'token' => $response->getHeaderLine('X-CSRF-Token'),
         ]));
 
         $this->assertEquals(302, $response->getStatusCode(), 'Asserting logout status code');
@@ -274,9 +255,7 @@ class CoreUserTest extends TestCase
         ], 3);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function passwordChangedAdmin()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/users/3', [
@@ -294,9 +273,7 @@ class CoreUserTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function passwordChangedUser()
     {
         $this->app(); // Initialize app for query below
@@ -317,9 +294,7 @@ class CoreUserTest extends TestCase
         ], null);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function registeredAdmin()
     {
         $response = $this->sendSuccessfulRequest('POST', '/api/users', [
@@ -343,9 +318,7 @@ class CoreUserTest extends TestCase
         $this->assertLogDoesntExist('user.logged_in');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function registeredUser()
     {
         $response = $this->sendForumCsrfRequest('POST', '/register', [
@@ -368,9 +341,7 @@ class CoreUserTest extends TestCase
         $this->assertLogDoesntExist('user.logged_in');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function renamed()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/users/3', [
