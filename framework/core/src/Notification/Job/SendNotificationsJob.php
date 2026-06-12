@@ -11,9 +11,11 @@ namespace Flarum\Notification\Job;
 
 use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Notification\Event\Sent;
 use Flarum\Notification\Notification;
 use Flarum\Queue\AbstractJob;
 use Flarum\User\User;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class SendNotificationsJob extends AbstractJob
 {
@@ -48,5 +50,10 @@ class SendNotificationsJob extends AbstractJob
         }
 
         Notification::notify($newRecipients, $this->blueprint);
+
+        // Announce the insert so listeners can act on the now-existing records (e.g. realtime
+        // broadcasting). Resolved from the container rather than injected to keep handle()'s
+        // signature stable; mirrors the resolve() use in Notification::notify() itself.
+        resolve(Dispatcher::class)->dispatch(new Sent($this->blueprint, array_values($newRecipients)));
     }
 }

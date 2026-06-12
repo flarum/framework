@@ -12,12 +12,18 @@ namespace Flarum\Realtime\Tests\integration;
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Mentions\Notification\UserMentionedBlueprint;
+use Flarum\Notification\Event\Sent;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
+use Flarum\Realtime\Push\Jobs\SendGeneratedPayloadJob;
 use Flarum\Realtime\Push\Jobs\SendNotificationsJob;
+use Flarum\Realtime\Push\Listener\BroadcastNotifications;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Queue\NullQueue;
+use Illuminate\Support\Collection;
 use PHPUnit\Framework\Attributes\Test;
 
 class SendNotificationsJobTest extends TestCase
@@ -60,8 +66,56 @@ class SendNotificationsJobTest extends TestCase
         ]);
     }
 
+    /**
+     * A SendNotificationsJob whose connected-user set is supplied directly, so the test does not
+     * depend on a live Pusher `getChannels` call.
+     *
+     * @param User[] $recipients
+     * @param User[] $connected
+     */
+    private function jobWithConnected(UserMentionedBlueprint $blueprint, array $recipients, array $connected): SendNotificationsJob
+    {
+        return new class ($blueprint, $recipients, $connected) extends SendNotificationsJob {
+            /**
+             * @param User[] $recipients
+             * @param User[] $connected
+             */
+            public function __construct(UserMentionedBlueprint $blueprint, array $recipients, private array $connected)
+            {
+                parent::__construct($blueprint, $recipients);
+            }
+
+            protected function connectedUsers(?Discussion $visible = null): Collection
+            {
+                return Collection::make($this->connected);
+            }
+        };
+    }
+
+    /**
+     * A Queue stub that records every job pushed to it without running it.
+     *
+     * @param array<int, object> $pushed
+     */
+    private function recordingQueue(array &$pushed): Queue
+    {
+        return new class ($pushed) extends NullQueue {
+            /** @param array<int, object> $pushed */
+            public function __construct(private array &$pushed)
+            {
+            }
+
+            public function push($job, $data = '', $queue = null)
+            {
+                $this->pushed[] = $job;
+
+                return null;
+            }
+        };
+    }
+
     #[Test]
-    public function it_selects_the_notification_matching_the_fired_blueprint(): void
+    public function it_broadcasts_the_notification_matching_the_fired_blueprint(): void
     {
         $this->app();
 
@@ -73,22 +127,112 @@ class SendNotificationsJobTest extends TestCase
         // The blueprint that actually fired: glowingblue's mention on post 11.
         $blueprint = new UserMentionedBlueprint($firedPost);
 
-        $job = new SendNotificationsJob($blueprint, [$recipient]);
+        $pushed = [];
+        $job = $this->jobWithConnected($blueprint, [$recipient], [$recipient]);
 
-        $selected = $job->notificationFor($recipient);
+        $job->handle($this->recordingQueue($pushed));
 
-        $this->assertNotNull($selected, 'A notification should be selected for the recipient');
-        $this->assertEquals(1, $selected->id, 'The broadcast must use the notification from the mention that fired (glowingblue), not the most recent unrelated one (wlork)');
-        $this->assertEquals(4, $selected->from_user_id, 'from_user must be glowingblue (user 4)');
-        $this->assertEquals(11, $selected->subject_id, 'subject must be the post that fired (11)');
+        $this->assertCount(1, $pushed, 'Exactly one payload job should be pushed for the connected recipient');
 
-        // The blueprint + recipient must match exactly one notification. NotificationSyncer keeps
-        // a single record per user per blueprint, so the selection is unambiguous — `first()` has
-        // only one candidate and never depends on ordering.
-        $this->assertEquals(
-            1,
-            Notification::matchingBlueprint($blueprint)->where('user_id', $recipient->id)->count(),
-            'A blueprint should match exactly one notification per recipient'
-        );
+        /** @var SendGeneratedPayloadJob $payloadJob */
+        $payloadJob = $pushed[0];
+        $this->assertInstanceOf(SendGeneratedPayloadJob::class, $payloadJob);
+
+        $notification = $this->readPrivate($payloadJob, 'model');
+        $this->assertInstanceOf(Notification::class, $notification);
+        $this->assertEquals(1, $notification->id, 'The broadcast must use the notification from the mention that fired (glowingblue), not the most recent unrelated one (wlork)');
+        $this->assertEquals(4, $notification->from_user_id, 'from_user must be glowingblue (user 4)');
+        $this->assertEquals(11, $notification->subject_id, 'subject must be the post that fired (11)');
+    }
+
+    #[Test]
+    public function it_skips_recipients_who_do_not_want_an_alert(): void
+    {
+        $this->app();
+
+        /** @var Post $firedPost */
+        $firedPost = Post::query()->findOrFail(11);
+        /** @var User $recipient */
+        $recipient = User::query()->findOrFail(2);
+
+        // Opt the recipient out of the realtime alert for this type.
+        $recipient->setPreference('notify_userMentioned_alert', false);
+        $recipient->save();
+
+        $blueprint = new UserMentionedBlueprint($firedPost);
+
+        $pushed = [];
+        $job = $this->jobWithConnected($blueprint, [$recipient], [$recipient]);
+
+        $job->handle($this->recordingQueue($pushed));
+
+        $this->assertCount(0, $pushed, 'No payload job should be pushed for a recipient who opted out of the alert');
+    }
+
+    #[Test]
+    public function it_skips_recipients_who_are_not_connected(): void
+    {
+        $this->app();
+
+        /** @var Post $firedPost */
+        $firedPost = Post::query()->findOrFail(11);
+        /** @var User $recipient */
+        $recipient = User::query()->findOrFail(2);
+
+        $blueprint = new UserMentionedBlueprint($firedPost);
+
+        $pushed = [];
+        // Recipient is targeted but not on the socket — nothing to broadcast.
+        $job = $this->jobWithConnected($blueprint, [$recipient], []);
+
+        $job->handle($this->recordingQueue($pushed));
+
+        $this->assertCount(0, $pushed, 'No payload job should be pushed for a recipient who is not connected');
+    }
+
+    #[Test]
+    public function listener_queues_the_broadcast_job_for_a_sent_event(): void
+    {
+        $this->app();
+
+        /** @var Post $firedPost */
+        $firedPost = Post::query()->findOrFail(11);
+        /** @var User $recipient */
+        $recipient = User::query()->findOrFail(2);
+
+        $blueprint = new UserMentionedBlueprint($firedPost);
+
+        $pushed = [];
+        $listener = new BroadcastNotifications($this->recordingQueue($pushed));
+
+        $listener->handle(new Sent($blueprint, [$recipient]));
+
+        $this->assertCount(1, $pushed, 'The listener should queue exactly one broadcast job');
+        $this->assertInstanceOf(SendNotificationsJob::class, $pushed[0]);
+    }
+
+    #[Test]
+    public function listener_does_nothing_without_recipients(): void
+    {
+        $this->app();
+
+        /** @var Post $firedPost */
+        $firedPost = Post::query()->findOrFail(11);
+
+        $blueprint = new UserMentionedBlueprint($firedPost);
+
+        $pushed = [];
+        $listener = new BroadcastNotifications($this->recordingQueue($pushed));
+
+        $listener->handle(new Sent($blueprint, []));
+
+        $this->assertCount(0, $pushed, 'The listener should not queue a broadcast job when there are no recipients');
+    }
+
+    private function readPrivate(object $object, string $property): mixed
+    {
+        $reflection = new \ReflectionProperty($object, $property);
+
+        return $reflection->getValue($object);
     }
 }
