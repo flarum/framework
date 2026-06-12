@@ -81,5 +81,14 @@ class SendNotificationsJobTest extends TestCase
         $this->assertEquals(1, $selected->id, 'The broadcast must use the notification from the mention that fired (glowingblue), not the most recent unrelated one (wlork)');
         $this->assertEquals(4, $selected->from_user_id, 'from_user must be glowingblue (user 4)');
         $this->assertEquals(11, $selected->subject_id, 'subject must be the post that fired (11)');
+
+        // The blueprint + recipient must match exactly one notification. NotificationSyncer keeps
+        // a single record per user per blueprint, so the selection is unambiguous — `first()` has
+        // only one candidate and never depends on ordering.
+        $this->assertEquals(
+            1,
+            Notification::matchingBlueprint($blueprint)->where('user_id', $recipient->id)->count(),
+            'A blueprint should match exactly one notification per recipient'
+        );
     }
 }
