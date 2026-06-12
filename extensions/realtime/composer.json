@@ -12,7 +12,8 @@
     "support": {
         "issues": "https://github.com/flarum/framework/issues",
         "source": "https://github.com/flarum/pusher",
-        "forum": "https://discuss.flarum.org"
+        "forum": "https://discuss.flarum.org",
+        "docs": "https://docs.flarum.org/2.x/extend/realtime"
     },
     "homepage": "https://flarum.org",
     "funding": [
