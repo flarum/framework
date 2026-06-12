@@ -348,6 +348,7 @@ export default class Composer extends Component {
         <ComposerButton
           icon="fas fa-compress"
           title={app.translator.trans('core.forum.composer.exit_full_screen_tooltip')}
+          aria-label={app.translator.trans('core.forum.composer.exit_full_screen_tooltip')}
           onclick={this.state.exitFullScreen.bind(this.state)}
         />
       );
@@ -361,6 +362,7 @@ export default class Composer extends Component {
               'fa-times': app.screen() === 'phone',
             })}
             title={app.translator.trans('core.forum.composer.minimize_tooltip')}
+            aria-label={app.translator.trans('core.forum.composer.minimize_tooltip')}
             onclick={this.state.minimize.bind(this.state)}
             itemClassName="App-backControl"
           />
@@ -371,6 +373,7 @@ export default class Composer extends Component {
           <ComposerButton
             icon="fas fa-expand"
             title={app.translator.trans('core.forum.composer.full_screen_tooltip')}
+            aria-label={app.translator.trans('core.forum.composer.full_screen_tooltip')}
             onclick={this.state.fullScreen.bind(this.state)}
           />
         );
@@ -381,6 +384,7 @@ export default class Composer extends Component {
         <ComposerButton
           icon="fas fa-times"
           title={app.translator.trans('core.forum.composer.close_tooltip')}
+          aria-label={app.translator.trans('core.forum.composer.close_tooltip')}
           onclick={this.state.close.bind(this.state)}
         />
       );
