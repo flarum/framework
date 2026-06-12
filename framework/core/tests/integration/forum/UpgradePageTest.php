@@ -18,7 +18,7 @@ class UpgradePageTest extends TestCase
     #[Test]
     public function upgrade_page_returns_503_when_version_is_outdated(): void
     {
-        $this->setting('version', '9999999.9999999.9999999');
+        $this->setting('version', '0.1.0');
 
         $response = $this->send(
             $this->request('GET', '/')
