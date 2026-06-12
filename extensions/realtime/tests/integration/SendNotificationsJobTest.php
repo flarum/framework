@@ -75,7 +75,7 @@ class SendNotificationsJobTest extends TestCase
      */
     private function jobWithConnected(UserMentionedBlueprint $blueprint, array $recipients, array $connected): SendNotificationsJob
     {
-        return new class ($blueprint, $recipients, $connected) extends SendNotificationsJob {
+        return new class($blueprint, $recipients, $connected) extends SendNotificationsJob {
             /**
              * @param User[] $recipients
              * @param User[] $connected
@@ -99,7 +99,7 @@ class SendNotificationsJobTest extends TestCase
      */
     private function recordingQueue(array &$pushed): Queue
     {
-        return new class ($pushed) extends NullQueue {
+        return new class($pushed) extends NullQueue {
             /** @param array<int, object> $pushed */
             public function __construct(private array &$pushed)
             {
