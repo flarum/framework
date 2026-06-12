@@ -34,11 +34,11 @@ class OverrideExtensionManagerForTests implements ExtenderInterface
             $container->singleton(ExtensionManager::class, ExtensionManagerIncludeCurrent::class);
             $extensionManager = $container->make(ExtensionManager::class);
 
+            $extensionManager->booted = true;
+
             foreach ($this->extensions as $extension) {
                 $extensionManager->enable($extension);
             }
-
-            $extensionManager->booted = true;
 
             $extensionManager->extend($container);
         }
