@@ -37,6 +37,29 @@ class RequestUtil
     }
 
     /**
+     * Attribute key marking a request as an internal API call (dispatched via
+     * {@see \Flarum\Api\Client}, e.g. when a frontend page preloads its API
+     * document) rather than a request from an external client.
+     */
+    public const INTERNAL_ATTRIBUTE = 'flarum.api.internal';
+
+    public static function withInternal(Request $request): Request
+    {
+        return $request->withAttribute(self::INTERNAL_ATTRIBUTE, true);
+    }
+
+    /**
+     * Whether this request was dispatched internally. Internal requests are not
+     * held to the JSON:API spec's strict query-parameter validation: a frontend
+     * page forwards the browser's query string (which may carry tracking params
+     * like `fbclid`) into the API client, and those must not 400 the page.
+     */
+    public static function isInternal(Request $request): bool
+    {
+        return (bool) $request->getAttribute(self::INTERNAL_ATTRIBUTE, false);
+    }
+
+    /**
      * Determine the client's preferred content type out of the given list.
      *
      * @param Request $request
