@@ -122,3 +122,16 @@
         }
     }
 }
+
+.DiscussionListItem-typing {
+    color: var(--primary-color);
+    // Sits between the tag label and the "X replied" line — space it from both so
+    // it doesn't crowd the tag pill on its left or the reply icon on its right.
+    margin-left: 4px;
+    margin-right: 6px;
+
+    .DiscussionListItem-typing-icon {
+        font-size: 0.85em;
+        --fa-beat-scale: 1.4;
+    }
+}

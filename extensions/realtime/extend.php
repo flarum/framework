@@ -81,6 +81,8 @@ return [
         // In seconds. Defaults to 10 seconds.
         ->default('flarum-realtime.release-discussion-updates-interval', 10)
         ->default('flarum-realtime.typing-indicator', true)
+        ->default('flarum-realtime.index-typing-indicator', true)
+        ->default('flarum-realtime.index-typing-indicator-restricted', false)
         ->default('flarum-realtime.release-discussion-updates', true)
         ->default('flarum-realtime.notification-toast-dismiss-after', 10)
         ->serializeToForum('flarum-realtime.release-discussion-updates-interval', 'flarum-realtime.release-discussion-updates-interval', 'intval')

@@ -39,6 +39,17 @@ class AuthController implements RequestHandlerInterface
         $this->actor = RequestUtil::getActor($request);
         $channel = Arr::get($attributes, 'channel_name');
 
+        if (preg_match('~^private-index-typing-tag=(?<id>[0-9]+)$~', $channel, $m)) {
+            if ($this->indexTypingTag((int) $m['id'])) {
+                $socketId = Arr::get($attributes, 'socket_id');
+                $body = $this->pusher->authorizeChannel($channel, $socketId);
+
+                return new JsonResponse(json_decode($body, true));
+            }
+
+            return new EmptyResponse(403);
+        }
+
         if (preg_match('~^private-(?<subject>[a-zA-Z]+)=(?<id>[0-9]+)$~', $channel, $m)) {
             if (method_exists($this, $m['subject']) && call_user_func([$this, $m['subject']], $m['id'])) {
                 $socketId = Arr::get($attributes, 'socket_id');
@@ -87,6 +98,19 @@ class AuthController implements RequestHandlerInterface
     protected function privateMessageTyping(int $id): bool
     {
         return \Flarum\Messages\Dialog::whereVisibleTo($this->actor)->where('id', $id)->exists();
+    }
+
+    /**
+     * Authorize a restricted-tag index-typing channel: the actor may listen iff
+     * they can see the tag. Reaching this without flarum-tags active is rejected.
+     */
+    protected function indexTypingTag(int $id): bool
+    {
+        if (! class_exists(\Flarum\Tags\Tag::class)) {
+            return false;
+        }
+
+        return \Flarum\Tags\Tag::whereVisibleTo($this->actor)->where('id', $id)->exists();
     }
 
     protected function online(User $actor): array

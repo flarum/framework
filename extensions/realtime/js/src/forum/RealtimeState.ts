@@ -1,4 +1,5 @@
 import type { Channel } from 'pusher-js';
+import IndexTypingState from './states/IndexTypingState';
 
 type ChannelReadyCallback = (channel: Channel) => void;
 type ReconnectCallback = () => void;
@@ -27,6 +28,13 @@ class RealtimeState {
 
   private userChannel: Channel | null = null;
   private publicChannel: Channel | null = null;
+
+  /**
+   * Shared presence state for the discussion-list typing dots, fed by the
+   * `index-typing` channel and read by DiscussionListItem. One instance backs
+   * every list item.
+   */
+  readonly indexTyping = new IndexTypingState();
 
   // ---------------------------------------------------------------------------
   // Registration (called by extensions via the Realtime extender)

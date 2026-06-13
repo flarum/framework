@@ -12,6 +12,7 @@ namespace Flarum\Realtime\Websocket\Console;
 use Flarum\Realtime\Websocket\Logger\ConnectionLogger;
 use Flarum\Realtime\Websocket\Logger\HttpLogger;
 use Flarum\Realtime\Websocket\Logger\WebsocketLogger;
+use Flarum\Realtime\Websocket\IndexTypingPresence;
 use Flarum\Realtime\Websocket\Server\HttpServer;
 use Flarum\Realtime\Websocket\Settings;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -43,6 +44,7 @@ class ServeCommand extends Command
 
         $this->restartOnCachedSignal($loop, $cache);
         $this->restartOnExtensionChanges($loop);
+        $this->sweepIndexTyping($loop);
 
         $this->getLaravel()->instance(LoopInterface::class, $loop);
 
@@ -123,6 +125,20 @@ class ServeCommand extends Command
 
         // Throw exceptions for actual errors
         throw new \Exception("$errno, $errstr, $errfile:$errline");
+    }
+
+    /**
+     * Expire stale index-typing presence and emit falling-edge "stopped typing"
+     * signals, so list dots clear without each client running its own per-discussion
+     * timer. Swept faster than the TTL (6s) to keep the clear-lag small.
+     */
+    protected function sweepIndexTyping(LoopInterface $loop): void
+    {
+        $presence = $this->getLaravel()->make(IndexTypingPresence::class);
+
+        $loop->addPeriodicTimer(2, function () use ($presence) {
+            $presence->sweep();
+        });
     }
 
     protected function restartOnCachedSignal(LoopInterface $loop, Repository $cache): void

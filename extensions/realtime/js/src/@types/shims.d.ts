@@ -11,6 +11,10 @@ declare module 'flarum/common/Application' {
       user: Channel | null;
       /** Presence channel for the currently open discussion (typing indicator). */
       discussion?: Channel;
+      /** Shared public channel feeding ambient typing dots on the discussion list. */
+      indexTyping?: Channel;
+      /** Per-restricted-tag channels feeding typing dots for restricted discussions. */
+      indexTypingTags?: Channel[];
     };
   }
 }

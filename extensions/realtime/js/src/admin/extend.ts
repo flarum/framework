@@ -19,6 +19,18 @@ export default [
       type: 'boolean',
     }))
     .setting(() => ({
+      setting: 'flarum-realtime.index-typing-indicator',
+      label: app.translator.trans('flarum-realtime.admin.settings.index-typing-indicator'),
+      help: app.translator.trans('flarum-realtime.admin.settings.index-typing-indicator-help'),
+      type: 'boolean',
+    }))
+    .setting(() => ({
+      setting: 'flarum-realtime.index-typing-indicator-restricted',
+      label: app.translator.trans('flarum-realtime.admin.settings.index-typing-indicator-restricted'),
+      help: app.translator.trans('flarum-realtime.admin.settings.index-typing-indicator-restricted-help'),
+      type: 'boolean',
+    }))
+    .setting(() => ({
       setting: 'flarum-realtime.release-discussion-updates',
       label: app.translator.trans('flarum-realtime.admin.settings.release-discussion-updates'),
       help: app.translator.trans('flarum-realtime.admin.settings.release-discussion-updates-help'),

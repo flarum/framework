@@ -8,6 +8,8 @@ flarum-realtime:
             people-are-typing: "{number, plural, one {# person is typing} other {# people are typing}}"
             users-are-typing: "{count, plural, one {{users} is typing} other {{users}{others, plural, =1 { & # other} =0 {} other { & # others}} are typing}}"
             no-activity: No one is typing
+        index-typing:
+            someone-typing: Someone is typing in this discussion
         user:
             settings:
                 heading: Realtime
@@ -26,3 +28,7 @@ flarum-realtime:
             notification-toast-dismiss-after-help: How long (in seconds) a realtime notification toast stays on screen before being automatically dismissed. Set to 0 to disable toast notifications.
             typing-indicator: Typing indicator
             typing-indicator-help: When enabled, subject to permission, users can view the number of other users currently typing in a discussion. When disabled, typing activitiy is removed both from the UI and from the websocket payload.
+            index-typing-indicator: Discussion list typing dots
+            index-typing-indicator-help: When enabled, an ambient icon appears on the discussion list for any publicly-visible discussion that someone is currently typing in. No names are shown.
+            index-typing-indicator-restricted: Discussion list typing dots in restricted tags
+            index-typing-indicator-restricted-help: Also show typing dots for discussions in restricted tags, to users who can see those tags. Requires the Tags extension. Off by default.
