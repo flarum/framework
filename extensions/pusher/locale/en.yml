@@ -10,9 +10,15 @@ flarum-pusher:
     # These translations are used in the Pusher Settings modal dialog.
     pusher_settings:
       app_cluster_label: Cluster
+      app_cluster_help: The cluster your Pusher app is hosted in (for example <code>eu</code> or <code>us2</code>), shown on the app's "App Keys" page. Leave blank if you set a custom server hostname below.
       app_id_label: App ID
+      app_id_help: The numeric App ID from your Pusher app's "App Keys" page.
       app_key_label: App Key
+      app_key_help: The public key from your Pusher app's "App Keys" page. It is sent to browsers, so it is not secret.
       app_secret_label: App Secret
+      app_secret_help: The private secret from your Pusher app's "App Keys" page. Keep this confidential — it is only used server-side.
+      server_hostname_label: Server Hostname
+      server_hostname_help: Optional. Override the host the client connects to, for a self-hosted Pusher-compatible server (for example soketi). Leave blank to use Pusher's hosted service with the cluster above.
       title: Pusher Settings
 
   # Translations in this namespace are used by the admin interface.
