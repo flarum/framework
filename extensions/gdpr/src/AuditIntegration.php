@@ -11,6 +11,9 @@ namespace Flarum\Gdpr;
 
 use Flarum\Audit\AuditLogger;
 use Flarum\Gdpr\Events\Erased;
+use Flarum\Gdpr\Events\ErasureCancelled;
+use Flarum\Gdpr\Events\ErasureConfirmed;
+use Flarum\Gdpr\Events\ErasureRequested;
 use Flarum\Gdpr\Events\Exported;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\User\User;
@@ -37,6 +40,9 @@ class AuditIntegration
      * @var string[]
      */
     public static array $actions = [
+        'user.gdpr_erasure_requested',
+        'user.gdpr_erasure_confirmed',
+        'user.gdpr_erasure_cancelled',
         'user.gdpr_anonymized',
         'user.gdpr_deleted',
         'user.gdpr_exported',
@@ -46,8 +52,38 @@ class AuditIntegration
     {
         $events = $container->make(Dispatcher::class);
 
+        $events->listen(ErasureRequested::class, [$this, 'erasureRequested']);
+        $events->listen(ErasureConfirmed::class, [$this, 'erasureConfirmed']);
+        $events->listen(ErasureCancelled::class, [$this, 'erasureCancelled']);
         $events->listen(Erased::class, [$this, 'erased']);
         $events->listen(Exported::class, [$this, 'exported']);
+    }
+
+    public function erasureRequested(ErasureRequested $event): void
+    {
+        AuditLogger::$actor = $event->actor;
+
+        AuditLogger::log('user.gdpr_erasure_requested', [
+            'user_id' => $event->request->user_id,
+        ]);
+    }
+
+    public function erasureConfirmed(ErasureConfirmed $event): void
+    {
+        AuditLogger::$actor = $event->actor;
+
+        AuditLogger::log('user.gdpr_erasure_confirmed', [
+            'user_id' => $event->request->user_id,
+        ]);
+    }
+
+    public function erasureCancelled(ErasureCancelled $event): void
+    {
+        AuditLogger::$actor = $event->actor;
+
+        AuditLogger::log('user.gdpr_erasure_cancelled', [
+            'user_id' => $event->request->user_id,
+        ]);
     }
 
     public function erased(Erased $event): void

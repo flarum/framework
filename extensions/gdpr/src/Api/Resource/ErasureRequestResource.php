@@ -15,6 +15,8 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Foundation\ValidationException;
+use Flarum\Gdpr\Events\ErasureCancelled;
+use Flarum\Gdpr\Events\ErasureRequested;
 use Flarum\Gdpr\Jobs\ErasureJob;
 use Flarum\Gdpr\Jobs\GdprJob;
 use Flarum\Gdpr\Models\ErasureRequest;
@@ -22,6 +24,7 @@ use Flarum\Gdpr\Notifications\ConfirmErasureBlueprint;
 use Flarum\Gdpr\Notifications\ErasureRequestCancelledBlueprint;
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -38,6 +41,7 @@ class ErasureRequestResource extends Resource\AbstractDatabaseResource
         protected NotificationSyncer $notifications,
         protected SettingsRepositoryInterface $settings,
         protected Queue $queue,
+        protected Dispatcher $events,
     ) {
     }
 
@@ -112,6 +116,8 @@ class ErasureRequestResource extends Resource\AbstractDatabaseResource
                     $request->save();
 
                     $this->notifications->sync(new ErasureRequestCancelledBlueprint($request), [$request->user]);
+
+                    $this->events->dispatch(new ErasureCancelled($context->getActor(), $request));
                 })
                 ->response(fn () => new EmptyResponse(204)),
             Endpoint\Index::make()
@@ -174,6 +180,8 @@ class ErasureRequestResource extends Resource\AbstractDatabaseResource
     public function created(object $model, OriginalContext $context): ?object
     {
         $this->notifications->sync(new ConfirmErasureBlueprint($model), [$context->getActor()]);
+
+        $this->events->dispatch(new ErasureRequested($context->getActor(), $model));
 
         return $model;
     }

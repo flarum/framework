@@ -146,6 +146,66 @@ class AuditTest extends TestCase
     }
 
     #[Test]
+    public function self_service_erasure_request_is_logged()
+    {
+        // User 2 requests erasure of their own data.
+        $response = $this->send(
+            $this->request('POST', '/api/user-erasure-requests', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => ['attributes' => ['reason' => 'I want to be forgotten']],
+                    'meta' => ['password' => 'too-obscure'],
+                ],
+            ])->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        // Logged at request time, attributed to the requesting user.
+        $this->assertLogExists('user.gdpr_erasure_requested', [
+            'user_id' => 2,
+        ], 2);
+    }
+
+    #[Test]
+    public function erasure_confirmation_is_logged()
+    {
+        // Put user 4's request (id 1) back into the awaiting-confirmation state.
+        $this->database()->table('gdpr_erasure')->where('id', 1)->update([
+            'status' => 'awaiting_user_confirmation',
+            'verification_token' => 'confirm-tok',
+            'user_confirmed_at' => null,
+        ]);
+
+        $response = $this->send(
+            $this->request('GET', '/gdpr/erasure/confirm/confirm-tok', ['authenticatedAs' => 4])
+        );
+
+        $this->assertEquals(302, $response->getStatusCode());
+
+        $this->assertLogExists('user.gdpr_erasure_confirmed', [
+            'user_id' => 4,
+        ], 4);
+    }
+
+    #[Test]
+    public function erasure_cancellation_is_logged()
+    {
+        // Request 1 belongs to user 4; they cancel it.
+        $response = $this->send(
+            $this->request('POST', '/api/user-erasure-requests/1/cancel', [
+                'authenticatedAs' => 4,
+            ])->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(204, $response->getStatusCode());
+
+        $this->assertLogExists('user.gdpr_erasure_cancelled', [
+            'user_id' => 4,
+        ], 4);
+    }
+
+    #[Test]
     public function export_is_logged_with_requesting_actor()
     {
         $response = $this->send(
