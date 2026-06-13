@@ -103,9 +103,15 @@ export default function () {
       // discussion count, so it keeps the same scale guarantee. All feed the same
       // IndexTypingState, so list rendering is unchanged.
       if (indexTypingRestrictedEnabled && app.session.user) {
-        const restrictedTags = app.store.all('tags').filter((tag: any) => tag.isRestricted?.());
-
-        app.websocket_channels.indexTypingTags = restrictedTags.map((tag: any) => {
+        // Subscribe to the index-typing channel of every tag the user can see.
+        // We can't filter to restricted tags client-side: `isRestricted` is only
+        // serialized to admins, so a normal user can't tell which of their
+        // visible tags are restricted. We don't need to — the backend only ever
+        // broadcasts restricted discussions to these channels (public ones go to
+        // the public channel), and channel auth already gates each subscription
+        // to tags the actor can see (AuthController::indexTypingTag). Channels
+        // for non-restricted tags simply stay silent. Bounded by visible-tag count.
+        app.websocket_channels.indexTypingTags = app.store.all('tags').map((tag: any) => {
           const channel = websocket.subscribe('private-index-typing-tag=' + tag.id());
           bindIndexTyping(channel);
           return channel;

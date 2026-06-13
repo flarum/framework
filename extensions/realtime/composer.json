@@ -85,6 +85,7 @@
         "flarum/lock": "^2.0.0",
         "flarum/likes": "^2.0.0",
         "flarum/flags": "^2.0.0",
+        "flarum/tags": "^2.0.0",
         "fof/reactions": "^2.0.0",
         "flarum/phpstan": "^2.0.0",
         "flarum/testing": "^2.0.0",

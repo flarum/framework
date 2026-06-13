@@ -69,7 +69,8 @@ return [
 
     (new Extend\Event)
         ->subscribe(Push\EventSubscriber::class)
-        ->listen(\Flarum\Notification\Event\Sent::class, Push\Listener\BroadcastNotifications::class),
+        ->listen(\Flarum\Notification\Event\Sent::class, Push\Listener\BroadcastNotifications::class)
+        ->listen(\Flarum\Settings\Event\Saved::class, Listener\RestartServerOnSettingChange::class),
 
     (new Extend\Notification)
         ->driver('realtime', Push\NotificationDriver::class),
