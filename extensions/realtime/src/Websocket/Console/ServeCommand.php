@@ -9,10 +9,10 @@
 
 namespace Flarum\Realtime\Websocket\Console;
 
+use Flarum\Realtime\Websocket\IndexTypingPresence;
 use Flarum\Realtime\Websocket\Logger\ConnectionLogger;
 use Flarum\Realtime\Websocket\Logger\HttpLogger;
 use Flarum\Realtime\Websocket\Logger\WebsocketLogger;
-use Flarum\Realtime\Websocket\IndexTypingPresence;
 use Flarum\Realtime\Websocket\Server\HttpServer;
 use Flarum\Realtime\Websocket\Settings;
 use Flarum\Settings\SettingsRepositoryInterface;
