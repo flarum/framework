@@ -31,6 +31,7 @@ use Flarum\Tags\Search\Filter\TagFilter;
 use Flarum\Tags\Search\FulltextFilter;
 use Flarum\Tags\Search\HideHiddenTagsFromAllDiscussionsPage;
 use Flarum\Tags\Search\TagSearcher;
+use Flarum\Tags\IdWithSlugDriver;
 use Flarum\Tags\Tag;
 use Flarum\Tags\Utf8SlugDriver;
 use Illuminate\Database\Eloquent\Builder;
@@ -119,6 +120,7 @@ return [
         ),
 
     (new Extend\Settings())
+        ->default('slug_driver_'.Tag::class, 'default')
         ->serializeToForum('minPrimaryTags', 'flarum-tags.min_primary_tags')
         ->serializeToForum('maxPrimaryTags', 'flarum-tags.max_primary_tags')
         ->serializeToForum('minSecondaryTags', 'flarum-tags.min_secondary_tags')
@@ -155,7 +157,8 @@ return [
         ->setFulltext(TagSearcher::class, FulltextFilter::class),
 
     (new Extend\ModelUrl(Tag::class))
-        ->addSlugDriver('default', Utf8SlugDriver::class),
+        ->addSlugDriver('default', Utf8SlugDriver::class)
+        ->addSlugDriver('id_with_slug', IdWithSlugDriver::class),
 
     /*
      * Fixes DiscussionTaggedPost showing tags as deleted because they are not loaded in the store.

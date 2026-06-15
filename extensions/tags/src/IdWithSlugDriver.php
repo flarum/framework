@@ -16,10 +16,14 @@ use Flarum\User\User;
 use Illuminate\Support\Collection;
 
 /**
+ * Produces tag slugs in the form `<id>-<slug>` (e.g. `1-general`), resolving by
+ * the leading id so the trailing text is cosmetic. Mirrors the discussion
+ * IdWithTransliteratedSlugDriver.
+ *
  * @implements SlugDriverInterface<Tag>
  * @implements BatchSlugDriverInterface<Tag>
  */
-class Utf8SlugDriver implements SlugDriverInterface, BatchSlugDriverInterface
+class IdWithSlugDriver implements SlugDriverInterface, BatchSlugDriverInterface
 {
     public function __construct(
         protected TagRepository $repository
@@ -31,7 +35,7 @@ class Utf8SlugDriver implements SlugDriverInterface, BatchSlugDriverInterface
      */
     public function toSlug(AbstractModel $instance): string
     {
-        return $instance->slug;
+        return $instance->id.(trim((string) $instance->slug) ? '-'.$instance->slug : '');
     }
 
     /**
@@ -39,40 +43,39 @@ class Utf8SlugDriver implements SlugDriverInterface, BatchSlugDriverInterface
      */
     public function fromSlug(string $slug, User $actor): AbstractModel
     {
-        /** @var Tag $tag */
-        $tag = $this->repository
-            ->query()
-            ->where('slug', urldecode($slug))
-            ->whereVisibleTo($actor)
-            ->firstOrFail();
-
-        return $tag;
+        return $this->repository->findOrFail($this->id($slug), $actor);
     }
 
     public function fromSlugs(array $slugs, User $actor): Collection
     {
-        // Map decoded slug (the stored column value) back to the caller's input
-        // slug, so the returned collection is keyed exactly as it was queried —
-        // matching fromSlug()'s urldecode() while staying transparent to callers.
-        $decodedToInput = [];
-        foreach ($slugs as $slug) {
-            $decodedToInput[urldecode($slug)] = $slug;
-        }
-
         /** @var Collection<string, Tag> $map */
         $map = new Collection();
 
+        // Map each leading id back to the original input slug it came from.
+        $idToInput = [];
+        foreach ($slugs as $slug) {
+            $idToInput[$this->id($slug)] = $slug;
+        }
+
         $tags = $this->repository
-            ->query()
-            ->whereIn('slug', array_keys($decodedToInput))
-            ->whereVisibleTo($actor)
+            ->queryVisibleTo($actor)
+            ->whereIn('id', array_keys($idToInput))
             ->get();
 
         /** @var Tag $tag */
         foreach ($tags as $tag) {
-            $map[$decodedToInput[$tag->slug]] = $tag;
+            $map[$idToInput[(int) $tag->id]] = $tag;
         }
 
         return $map;
+    }
+
+    /**
+     * Extract the leading id from an `<id>-<slug>` value. The text after the
+     * first hyphen is cosmetic and ignored.
+     */
+    private function id(string $slug): int
+    {
+        return (int) (strpos($slug, '-') !== false ? explode('-', $slug, 2)[0] : $slug);
     }
 }

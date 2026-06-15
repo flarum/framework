@@ -90,6 +90,54 @@ class ShowTest extends TestCase
     }
 
     #[Test]
+    #[DataProvider('idWithSlugForms')]
+    public function id_with_slug_driver_resolves_both_id_and_id_dash_slug(string $slug): void
+    {
+        // Like the discussion slugger, /t/123-the-slug and /t/123 are both valid:
+        // the leading id resolves the tag and the trailing text is cosmetic.
+        $this->setting('slug_driver_'.Tag::class, 'id_with_slug');
+
+        $response = $this->send(
+            $this->request('GET', "/api/tags/$slug")
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), "/api/tags/$slug");
+
+        $body = json_decode($response->getBody()->getContents(), true);
+        $this->assertSame('1', $body['data']['id']);
+        // The canonical slug the driver advertises is always `<id>-<slug>`.
+        $this->assertSame('1-primary-1', $body['data']['attributes']['slug']);
+
+        // The frontend content route accepts the same forms.
+        $contentResponse = $this->send(
+            $this->request('GET', "/t/$slug")
+        );
+
+        $this->assertEquals(200, $contentResponse->getStatusCode(), "/t/$slug");
+    }
+
+    public static function idWithSlugForms(): array
+    {
+        return [
+            'bare id' => ['1'],
+            'id with matching slug' => ['1-primary-1'],
+            'id with arbitrary cosmetic text' => ['1-anything-here'],
+        ];
+    }
+
+    #[Test]
+    public function id_with_slug_driver_returns_not_found_for_unknown_id(): void
+    {
+        $this->setting('slug_driver_'.Tag::class, 'id_with_slug');
+
+        $response = $this->send(
+            $this->request('GET', '/api/tags/9999-nope')
+        );
+
+        $this->assertEquals(404, $response->getStatusCode());
+    }
+
+    #[Test]
     #[DataProvider('showTagIncludes')]
     public function user_sees_tag_relations_where_allowed(string $include, array $expectedIncludes)
     {

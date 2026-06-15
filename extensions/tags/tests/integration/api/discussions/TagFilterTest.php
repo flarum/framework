@@ -196,4 +196,127 @@ class TagFilterTest extends TestCase
             implode(' | ', array_column(array_values($slugResolutionQueries), 'query'))
         );
     }
+
+    // -------------------------------------------------------------------------
+    // Custom slug drivers — resolution must delegate to the active driver,
+    // not assume the literal `slug` column.
+    // -------------------------------------------------------------------------
+
+    private function useIdWithSlugDriver(): void
+    {
+        // The 'id_with_slug' driver is shipped by flarum-tags (extend.php).
+        $this->setting('slug_driver_'.Tag::class, 'id_with_slug');
+    }
+
+    #[Test]
+    public function id_with_slug_driver_produces_id_dash_slug_urls(): void
+    {
+        $this->useIdWithSlugDriver();
+
+        // The serialized `slug` attribute (used for URL building) is `<id>-<slug>`.
+        $response = $this->send(
+            $this->request('GET', '/api/tags', ['authenticatedAs' => 1])
+        );
+
+        $tags = json_decode($response->getBody()->getContents(), true)['data'];
+        $slugs = [];
+        foreach ($tags as $tag) {
+            $slugs[(int) $tag['id']] = $tag['attributes']['slug'];
+        }
+
+        // Tag 1 is primary-1 → "1-primary-1".
+        $this->assertSame('1-primary-1', $slugs[1] ?? null);
+    }
+
+    #[Test]
+    public function tag_filter_resolves_slugs_via_a_custom_driver(): void
+    {
+        $this->useIdWithSlugDriver();
+
+        // The id_with_slug driver resolves by the leading id; the trailing text
+        // is cosmetic. Both the bare id and the full `id-slug` form must work.
+        // Tag 1 is primary-1, on discussions 2 and 4.
+        foreach (['1', '1-primary-1'] as $tagFilter) {
+            $response = $this->send(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 1])
+                    ->withQueryParams(['filter' => ['tag' => $tagFilter]])
+            );
+
+            $this->assertSame(200, $response->getStatusCode());
+
+            $ids = array_map('intval', Arr::pluck(
+                json_decode($response->getBody()->getContents(), true)['data'],
+                'id'
+            ));
+
+            $this->assertEqualsCanonicalizing([2, 4], $ids, "filter[tag]=$tagFilter");
+        }
+    }
+
+    #[Test]
+    public function tag_filter_with_custom_driver_respects_or_groups_and_visibility(): void
+    {
+        $this->useIdWithSlugDriver();
+
+        // OR of tag 1 (primary-1: discussions 2,4) and tag 2 (primary-2: discussion 3).
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', ['authenticatedAs' => 1])
+                ->withQueryParams(['filter' => ['tag' => '1,2']])
+        );
+
+        $ids = array_map('intval', Arr::pluck(
+            json_decode($response->getBody()->getContents(), true)['data'],
+            'id'
+        ));
+
+        $this->assertEqualsCanonicalizing([2, 3, 4], $ids);
+
+        // A normal user cannot see restricted tag 11 (secondary-restricted), so
+        // filtering by its id returns nothing for them.
+        $restricted = $this->send(
+            $this->request('GET', '/api/discussions', ['authenticatedAs' => 3])
+                ->withQueryParams(['filter' => ['tag' => '11']])
+        );
+
+        $restrictedIds = array_map('intval', Arr::pluck(
+            json_decode($restricted->getBody()->getContents(), true)['data'],
+            'id'
+        ));
+
+        $this->assertSame([], $restrictedIds);
+    }
+
+    #[Test]
+    public function batch_slug_driver_does_not_issue_a_query_per_slug(): void
+    {
+        $this->useIdWithSlugDriver();
+
+        // Resolving more slugs must not cost more queries: a batch driver resolves
+        // them together, so a 3-slug filter issues the same number of queries as a
+        // 1-slug filter. An N+1 (per-slug fromSlug) would make the counts diverge.
+        $countQueriesFor = function (string $filter): int {
+            $db = $this->database();
+            $db->flushQueryLog();
+            $db->enableQueryLog();
+
+            $this->send(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 1])
+                    ->withQueryParams(['filter' => ['tag' => $filter]])
+            );
+
+            $count = count($db->getQueryLog());
+            $db->flushQueryLog();
+
+            return $count;
+        };
+
+        $oneSlug = $countQueriesFor('1');
+        $threeSlugs = $countQueriesFor('1,2,6');
+
+        $this->assertSame(
+            $oneSlug,
+            $threeSlugs,
+            "Batch slug resolution should be query-count flat: 1 slug took $oneSlug queries, 3 slugs took $threeSlugs."
+        );
+    }
 }

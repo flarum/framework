@@ -10,6 +10,9 @@ flarum-tags:
     # These translations are used in the Basics page.
     basics:
       tags_label: => flarum-tags.ref.tags
+      slug_driver_options:
+        default: Default
+        id_with_slug: ID with slug
 
     # These translations are used in the Edit Tag modal dialog.
     edit_tag:

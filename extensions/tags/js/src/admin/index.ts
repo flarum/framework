@@ -3,6 +3,7 @@ import addTagsPermissionScope from './addTagsPermissionScope';
 import addTagsHomePageOption from './addTagsHomePageOption';
 import addTagChangePermission from './addTagChangePermission';
 import addTagSelectionSettingComponent from './addTagSelectionSettingComponent';
+import addTagSlugDriverLabels from './addTagSlugDriverLabels';
 import TagListState from '../common/states/TagListState';
 
 export { default as extend } from './extend';
@@ -14,6 +15,7 @@ app.initializers.add('flarum-tags', (app) => {
   addTagsHomePageOption();
   addTagChangePermission();
   addTagSelectionSettingComponent();
+  addTagSlugDriverLabels();
 });
 
 import './admin';
