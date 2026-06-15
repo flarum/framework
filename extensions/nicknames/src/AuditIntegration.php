@@ -31,7 +31,14 @@ class AuditIntegration
      */
     public static array $actions = ['user.nickname_changed'];
 
-    protected string|false $originalNickname = false;
+    /**
+     * The nickname's value before a change, captured during the user `saving`
+     * event. `false` is the sentinel for "no nickname change this lifecycle"
+     * (so nothing is logged); a string or `null` is an actual prior value —
+     * `null` when the nickname is being set for the first time, e.g. on
+     * registration, where the user has no original nickname.
+     */
+    protected string|false|null $originalNickname = false;
 
     public function __invoke(Container $container): void
     {

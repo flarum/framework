@@ -59,4 +59,35 @@ class AuditTest extends TestCase
             'new_nickname' => 'User 33',
         ]);
     }
+
+    #[Test]
+    public function registering_with_a_nickname_does_not_error_and_is_logged()
+    {
+        $this->setting('flarum-nicknames.set_on_registration', true);
+
+        // Registration creates a user with a nickname; there is no original
+        // value, so the saving listener must handle a null original (regression
+        // for the TypeError in flarum/framework#4733).
+        $response = $this->send(
+            $this->request('POST', '/register', [
+                'json' => [
+                    'nickname' => 'New Nick',
+                    'username' => 'newuser',
+                    'password' => 'too-obscure',
+                    'email' => 'newuser@machine.local',
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), $response->getBody()->getContents());
+
+        $user = User::where('username', 'newuser')->firstOrFail();
+
+        // Registration is performed by a guest, so the audit entry has no actor.
+        $this->assertLogExists('user.nickname_changed', [
+            'user_id' => $user->id,
+            'old_nickname' => null,
+            'new_nickname' => 'New Nick',
+        ], null);
+    }
 }
