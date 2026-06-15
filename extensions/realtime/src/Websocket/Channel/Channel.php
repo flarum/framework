@@ -103,6 +103,10 @@ class Channel
             $signature .= ":{$payload->channel_data}";
         }
 
+        if (! isset($payload->auth) || ! is_string($payload->auth)) {
+            throw new InvalidSignature;
+        }
+
         $hash = hash_hmac('sha256', $signature, $this->settings->appSecret);
 
         if (! hash_equals(
