@@ -1,5 +1,17 @@
 # Changelog
 
+## [v1.8.17](https://github.com/flarum/framework/compare/v1.8.16...v1.8.17)
+### Added
+* First-party Audit extension (https://github.com/flarum/framework/pull/4704)
+### Fixed
+* Schedule the abandoned-extensions sync command so it actually runs (https://github.com/flarum/framework/pull/4706)
+* Mobile discussion total post count not updating on reply (https://github.com/flarum/framework/pull/4684)
+* Native tooltip flash, async teardown leaks, and dynamic text (https://github.com/flarum/framework/pull/4675)
+* Add XSLT polyfill so the forum continues to boot on browsers without XSLT (https://github.com/flarum/framework/pull/4644)
+* [Testing] Use cookie for testing authentication (https://github.com/flarum/framework/pull/4631)
+### Changed
+* Peg Composer to an LTS version (https://github.com/flarum/framework/pull/4661)
+
 ## [v1.8.16](https://github.com/flarum/framework/compare/v1.8.15...v1.8.16)
 ### Security
 * Path traversal in LESS parser via theme color settings, incomplete fix for CVE-2023-27577 (https://github.com/flarum/framework/security/advisories/GHSA-xjvc-pw2r-6878)
