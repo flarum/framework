@@ -23,7 +23,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-rc.3",
+        "flarum/core": "^2.0.0-rc.4",
         "nelexa/zip": "^4.0.2"
     },
     "autoload": {
@@ -91,8 +91,8 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
-        "flarum/testing": "^2.0.0-rc.3",
-        "flarum/phpstan": "^2.0.0-rc.3",
+        "flarum/testing": "^2.0.0-rc.4",
+        "flarum/phpstan": "^2.0.0-rc.4",
         "flarum/audit": "*"
     }
 }

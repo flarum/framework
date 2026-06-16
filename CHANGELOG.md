@@ -1,5 +1,39 @@
 # Changelog
 
+## [v2.0.0-rc.4](https://github.com/flarum/framework/compare/v2.0.0-rc.3...v2.0.0-rc.4)
+
+### Added
+
+- (audit) migrate the Audit extension to 2.x, split first-party integrations, and add GDPR/core coverage by @imorland [#4711]
+- (realtime) ambient typing indicators on the discussion list by @imorland [#4731]
+- (realtime) make the typing indicator reusable and movable by @imorland [#4721]
+- (gdpr) audit-log the erasure request lifecycle by @imorland [#4732]
+- (core) add `MariaDB` to the frontend `DatabaseDriver` enum by @DavideIadeluca [#4701]
+
+### Fixed
+
+- (avatar) ensure the base image exists for small avatar uploads by @dsevillamartin [#4740]
+- (tags) delegate tag slug resolution to the active slug driver by @imorland [#4739]
+- (realtime) only relay client events to channels the sender is subscribed to by @imorland [#4738]
+- (nicknames) `TypeError` when creating a user with a nickname by @imorland [#4734]
+- (pusher) boot crash and restore discussion-list updates by @imorland [#4730]
+- (core) don't apply JSON:API query validation to internal API requests by @imorland [#4728]
+- (core) return HTTP 503 when the upgrade page is shown by @DavideIadeluca [#4720]
+- (core) add accessible labels to composer control buttons by @imorland [#4723]
+- (realtime) show the correct notification toast, and stop dropping it by @imorland [#4713]
+- (audit) remove circular optional-dependencies on first-party extensions by @imorland [#4712]
+- (core) fix abandoned-extensions sync never being scheduled by @imorland [#4707]
+- (core) avoid re-fetching the page of posts embedded in the initial page load by @ekumanov [#4703]
+- (mentions) fix post mention notification jumping by @zxbmmmmmmmmm [#4686]
+
+### Performance
+
+- (core) avoid loading the target user's groups in the `editCredentials` check by @imorland [#4729]
+
+### Documentation
+
+- (realtime) provide a realtime docs link by @imorland [#4722]
+
 ## [v2.0.0-rc.3](https://github.com/flarum/framework/compare/v2.0.0-rc.2...v2.0.0-rc.3)
 
 ### Added
