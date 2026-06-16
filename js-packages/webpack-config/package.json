@@ -11,7 +11,7 @@
     "webpack": "^5.104.1"
   },
   "dependencies": {
-    "@babel/core": "^7.29.0",
+    "@babel/core": "^7.29.6",
     "@babel/plugin-transform-object-assign": "^7.27.1",
     "@babel/plugin-transform-react-jsx": "^7.28.6",
     "@babel/plugin-transform-runtime": "^7.29.0",
