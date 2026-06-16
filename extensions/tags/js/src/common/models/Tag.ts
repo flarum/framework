@@ -9,6 +9,9 @@ export default class Tag extends Model {
   slug() {
     return Model.attribute<string>('slug').call(this);
   }
+  storedSlug() {
+    return Model.attribute<string>('storedSlug').call(this);
+  }
   description() {
     return Model.attribute<string | null>('description').call(this);
   }

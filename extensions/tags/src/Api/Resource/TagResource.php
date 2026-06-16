@@ -98,6 +98,9 @@ class TagResource extends AbstractDatabaseResource
                 ->get(function (Tag $tag) {
                     return $this->slugManager->forResource($tag::class)->toSlug($tag);
                 }),
+            Schema\Str::make('storedSlug')
+                ->get(fn (Tag $tag) => $tag->slug)
+                ->visible(fn (Tag $tag, FlarumContext $context) => $context->getActor()->can('edit', $tag)),
             Schema\Str::make('color')
                 ->writable()
                 ->nullable()

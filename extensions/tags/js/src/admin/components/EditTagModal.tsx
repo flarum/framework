@@ -38,7 +38,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     this.tag = this.attrs.model || app.store.createRecord('tags');
 
     this.name = Stream(this.tag.name() || '');
-    this.slug = Stream(this.tag.slug() || '');
+    this.slug = Stream(this.tag.storedSlug() || '');
     this.description = Stream(this.tag.description() || '');
     this.color = Stream(this.tag.color() || '');
     this.icon = Stream(this.tag.icon() || '');

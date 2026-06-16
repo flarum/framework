@@ -138,6 +138,52 @@ class ShowTest extends TestCase
     }
 
     #[Test]
+    public function admin_sees_stored_slug_attribute(): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/tags/primary-1', ['authenticatedAs' => 1])
+        );
+
+        $this->assertSame(200, $response->getStatusCode());
+
+        $attributes = json_decode($response->getBody()->getContents(), true)['data']['attributes'];
+
+        $this->assertSame('primary-1', $attributes['storedSlug']);
+        $this->assertSame($attributes['slug'], $attributes['storedSlug']);
+    }
+
+    #[Test]
+    public function stored_slug_always_reflects_raw_column_regardless_of_active_driver(): void
+    {
+        $this->setting('slug_driver_'.Tag::class, 'id_with_slug');
+
+        $response = $this->send(
+            $this->request('GET', '/api/tags/1', ['authenticatedAs' => 1])
+        );
+
+        $this->assertSame(200, $response->getStatusCode());
+
+        $attributes = json_decode($response->getBody()->getContents(), true)['data']['attributes'];
+
+        $this->assertSame('1-primary-1', $attributes['slug']);
+
+        $this->assertSame('primary-1', $attributes['storedSlug']);
+    }
+
+    #[Test]
+    public function stored_slug_is_not_exposed_to_users_without_edit_permission(): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/tags/primary-1', ['authenticatedAs' => 2])
+        );
+
+        $this->assertSame(200, $response->getStatusCode());
+
+        $attributes = json_decode($response->getBody()->getContents(), true)['data']['attributes'];
+        $this->assertArrayNotHasKey('storedSlug', $attributes);
+    }
+
+    #[Test]
     #[DataProvider('showTagIncludes')]
     public function user_sees_tag_relations_where_allowed(string $include, array $expectedIncludes)
     {
