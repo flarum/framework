@@ -84,7 +84,8 @@ class AvatarUploader
 
         foreach (self::SIZES as $suffix => $size) {
             // Never upscale — skip this variant if the source is too small.
-            if ($sourceWidth < $size || $sourceHeight < $size) {
+            // HOWEVER: we need the base image to exist even if it's smaller than 100x100.
+            if ($suffix !== '' && ($sourceWidth < $size || $sourceHeight < $size)) {
                 continue;
             }
 
