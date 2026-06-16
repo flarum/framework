@@ -196,6 +196,26 @@ class AvatarUploaderTest extends TestCase
     }
 
     #[Test]
+    public function test_upload_generates_base_variant_for_small_source()
+    {
+        $putPaths = [];
+        $this->filesystem->shouldReceive('put')->andReturnUsing(function (string $path) use (&$putPaths) {
+            $putPaths[] = $path;
+        });
+        $this->filesystem->shouldIgnoreMissing();
+
+        $user = new User();
+
+        // 50px source — should generate only the base variant, even though it would upscale, since we always want a 1x.
+        $this->uploader->upload($user, ImageManager::gd()->create(50, 50));
+
+        $this->assertCount(1, $putPaths);
+        $this->assertStringNotContainsString('@', $putPaths[0]);
+        $this->assertFalse($user->has_avatar_2x);
+        $this->assertFalse($user->has_avatar_3x);
+    }
+
+    #[Test]
     public function test_upload_presized_records_only_supplied_variants()
     {
         $this->filesystem->shouldReceive('put')->atLeast()->once();
