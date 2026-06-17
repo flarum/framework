@@ -72,8 +72,13 @@ return [
             (new \Flarum\Audit\Extend\Audit())
                 ->group('flarum-approval')
                 ->listen(PostWasApproved::class, 'post.approved', fn ($e) => [
-                    'discussion_id' => $e->post->discussion->id,
+                    'discussion_id' => $e->post->discussion_id,
                     'post_id' => $e->post->id,
-                ]),
+                ])
+                // Approving the first post approves its discussion (see
+                // UpdateDiscussionAfterPostApproval); record that as its own action.
+                ->listen(PostWasApproved::class, 'discussion.approved', fn ($e) => $e->post->number == 1 ? [
+                    'discussion_id' => $e->post->discussion_id,
+                ] : null),
         ]),
 ];

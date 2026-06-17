@@ -26,8 +26,7 @@ class RegisteredActionsTest extends TestCase
     {
         parent::setUp();
 
-        // Enable first-party extensions so their conditional integrations register too.
-        $this->extension('flarum-audit', 'flarum-tags', 'flarum-flags', 'flarum-suspend', 'flarum-lock', 'flarum-sticky', 'flarum-nicknames', 'flarum-approval');
+        $this->extension('flarum-audit');
     }
 
     private function registeredActions(): array
@@ -63,12 +62,14 @@ class RegisteredActionsTest extends TestCase
     }
 
     #[Test]
-    public function core_and_first_party_actions_are_registered()
+    public function core_actions_are_registered()
     {
         $registered = $this->registeredActions();
 
+        // Actions owned by the audit extension itself (its own inline listeners). Actions
+        // contributed by other extensions are each extension's responsibility to register
+        // and to test — audit does not assert their presence here.
         $expected = [
-            // Core (audit itself / inline listeners)
             'audit_log_cleared',
             'cache_cleared',
             'setting_changed',
@@ -80,15 +81,6 @@ class RegisteredActionsTest extends TestCase
             'group.renamed',
             'group.deleted',
             'developer_token_created',
-            // First-party integrations (gated behind whenExtensionEnabled)
-            'post.approved',          // flarum-approval
-            'post.flagged',           // flarum-flags
-            'discussion.locked',      // flarum-lock
-            'discussion.stickied',    // flarum-sticky
-            'user.suspended',         // flarum-suspend
-            'user.nickname_changed',  // flarum-nicknames
-            'discussion.tagged',      // flarum-tags
-            'tag.created',            // flarum-tags admin
         ];
 
         foreach ($expected as $action) {
@@ -97,15 +89,11 @@ class RegisteredActionsTest extends TestCase
     }
 
     #[Test]
-    public function actions_are_grouped_by_extension()
+    public function actions_are_grouped_under_core()
     {
         $this->app();
 
-        // Core actions group under 'core'; first-party ones under their extension id.
         $this->assertArrayHasKey('core', AuditLogger::$registeredActions);
         $this->assertContains('user.password_change_requested', AuditLogger::$registeredActions['core']);
-
-        $this->assertArrayHasKey('flarum-flags', AuditLogger::$registeredActions);
-        $this->assertContains('post.flagged', AuditLogger::$registeredActions['flarum-flags']);
     }
 }
