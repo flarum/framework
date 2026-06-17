@@ -35,6 +35,7 @@ export default class IndexSidebar<CustomAttrs extends IndexSidebarAttrs = IndexS
         icon="fas fa-edit"
         className="Button Button--primary IndexPage-newDiscussion"
         itemClassName="App-primaryControl"
+        aria-label="{app.translator.trans(`core.forum.index.${canStartDiscussion ? 'start_discussion_button' : 'cannot_start_discussion_button'}`)}"
         onclick={() => {
           // If the user is not logged in, the promise rejects, and a login modal shows up.
           // Since that's already handled, we dont need to show an error message in the console.
