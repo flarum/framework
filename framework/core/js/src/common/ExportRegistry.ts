@@ -140,6 +140,49 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     return exists ? this.get(namespace, id) : false;
   }
 
+  /**
+   * Reverse-lookup the registry key (`namespace:id`) for a registered export.
+   *
+   * The id is the build-time module path (e.g. `core:forum/components/FooModal`),
+   * which — unlike a class's `name` — is a literal string in the bundle and so
+   * survives production minification. Returns null if the object is not registered.
+   */
+  public keyFor(object: any): string | null {
+    for (const [namespace, modules] of this.moduleExports) {
+      for (const [id, registered] of modules) {
+        if (registered === object) {
+          return `${namespace}:${id}`;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Registry keys (`namespace:id`) emitted into an initial (main) bundle chunk at
+   * build time, populated by MarkMainBundleModulesPlugin. Used to tell a main-bundle
+   * module apart from one that lives only in an async/code-split chunk — a distinction
+   * the chunk-module map cannot make reliably.
+   */
+  mainBundleModules = new Set<string>();
+
+  /**
+   * Mark a module (by `namespace:id`) as shipping in the main bundle. Called from
+   * build-injected code on boot.
+   */
+  public markInMainBundle(key: string): void {
+    this.mainBundleModules.add(key);
+  }
+
+  /**
+   * Whether the given registry key ships in the main bundle (rather than only in a
+   * code-split chunk loaded on demand).
+   */
+  public isInMainBundle(key: string): boolean {
+    return this.mainBundleModules.has(key);
+  }
+
   addChunkModule(chunkId: number | string, moduleId: number | string, namespace: string, urlPath: string): void {
     if (!this.chunks.has(chunkId.toString())) {
       this.chunks.set(chunkId.toString(), {

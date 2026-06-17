@@ -3,6 +3,7 @@ const path = require('path');
 const { NormalModuleReplacementPlugin } = require('webpack');
 const RegisterAsyncChunksPlugin = require('./RegisterAsyncChunksPlugin.cjs');
 const OverrideChunkLoaderFunction = require('./OverrideChunkLoaderFunction.cjs');
+const MarkMainBundleModulesPlugin = require('./MarkMainBundleModulesPlugin.cjs');
 
 const entryPointNames = ['forum', 'admin'];
 const entryPointExts = ['js', 'ts'];
@@ -64,6 +65,7 @@ if (useBundleAnalyzer) {
  */
 plugins.push(new RegisterAsyncChunksPlugin());
 plugins.push(new OverrideChunkLoaderFunction());
+plugins.push(new MarkMainBundleModulesPlugin());
 
 module.exports = function () {
   return {

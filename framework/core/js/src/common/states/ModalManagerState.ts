@@ -1,5 +1,6 @@
 import type Component from '../Component';
 import Modal, { IDismissibleOptions } from '../components/Modal';
+import fireDebugWarning from '../helpers/fireDebugWarning';
 
 /**
  * Ideally, `show` would take a higher-kinded generic, ala:
@@ -28,6 +29,13 @@ type ModalItem = {
  * Accessible on the `app` object via `app.modal` property.
  */
 export default class ModalManagerState {
+  /**
+   * Modal classes we've already warned about being shown eagerly, so the debug
+   * warning fires at most once per class rather than on every open. Keyed on the
+   * class itself (not its name, which minification mangles and can collide).
+   */
+  protected static eagerModalsWarnedAbout = new WeakSet<object>();
+
   /**
    * @internal
    */
@@ -88,6 +96,30 @@ export default class ModalManagerState {
       componentClass = (await componentClass()).default;
 
       this.loadingModal = false;
+    } else {
+      // The modal class was passed directly rather than as a lazy import. Nudge developers
+      // (in debug mode only) to lazy-load it — but only when it isn't already code-split.
+      const modalClass = componentClass as UnsafeModalClass;
+
+      // Identify the modal by its registry key (e.g. `core:forum/components/FooModal`): the
+      // build-time module path, a literal string that survives production minification.
+      const key = flarum.reg.keyFor(modalClass);
+
+      // Only warn about modals that ship in the main bundle — that's the case a developer can
+      // actually improve by lazy-loading. A modal whose code lives only in a code-split chunk
+      // is already lazy, even when shown here by a direct reference (e.g. a sub-modal opened
+      // from a modal in the same chunk). Unregistered modals are left alone too.
+      const inMainBundle = key !== null && flarum.reg.isInMainBundle(key);
+
+      if (inMainBundle && !ModalManagerState.eagerModalsWarnedAbout.has(modalClass)) {
+        ModalManagerState.eagerModalsWarnedAbout.add(modalClass);
+
+        const identifier = key ?? modalClass.name ?? '(unknown)';
+
+        fireDebugWarning(
+          `Modal "${identifier}" was shown eagerly via app.modal.show(), so its code is bundled in the main js, rather than split into a chunk loaded on demand. Consider passing a function that returns a dynamic import to app.modal.show() to lazy-load it instead.\n\nSee: https://docs.flarum.org/2.x/extend/code-splitting`
+        );
+      }
     }
 
     this.backdropShown = true;
