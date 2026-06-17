@@ -88,6 +88,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             return [
                 HttpMiddleware\InjectActorReference::class,
                 'flarum.api.error_handler',
+                Middleware\AddAssetsRevisionHeader::class,
                 HttpMiddleware\ParseJsonBody::class,
                 Middleware\FakeHttpMethods::class,
                 HttpMiddleware\StartSession::class,

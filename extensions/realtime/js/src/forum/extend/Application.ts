@@ -73,10 +73,15 @@ export default function () {
           }
         });
 
+        userChannel.bind('assetsRevision', (data: { revision?: string }) => app.checkAssetsRevision(data?.revision ?? null));
+
         RealtimeState.notifyUserChannelReady(userChannel);
       } else if (!disallowPublicConnection) {
         const publicChannel = websocket.subscribe('public');
         app.websocket_channels.public = publicChannel;
+
+        publicChannel.bind('assetsRevision', (data: { revision?: string }) => app.checkAssetsRevision(data?.revision ?? null));
+
         RealtimeState.notifyPublicChannelReady(publicChannel);
       }
 

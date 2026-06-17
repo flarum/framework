@@ -9,6 +9,8 @@
 
 namespace Flarum\Realtime\Websocket\Console;
 
+use Flarum\Frontend\Compiler\AssetsRevision;
+use Flarum\Realtime\Websocket\Channel\Manager;
 use Flarum\Realtime\Websocket\IndexTypingPresence;
 use Flarum\Realtime\Websocket\Logger\ConnectionLogger;
 use Flarum\Realtime\Websocket\Logger\HttpLogger;
@@ -45,6 +47,7 @@ class ServeCommand extends Command
         $this->restartOnCachedSignal($loop, $cache);
         $this->restartOnExtensionChanges($loop);
         $this->sweepIndexTyping($loop);
+        $this->broadcastAssetsRevisionOnStartup($loop);
 
         $this->getLaravel()->instance(LoopInterface::class, $loop);
 
@@ -138,6 +141,35 @@ class ServeCommand extends Command
 
         $loop->addPeriodicTimer(2, function () use ($presence) {
             $presence->sweep();
+        });
+    }
+
+    /**
+     * The daemon restarts on every deployment, so a fresh start signals that the
+     * served assets may have changed. After a short delay (to let clients dropped
+     * by the restart reconnect), broadcast the current asset revision to every
+     * connected channel so browsing users are prompted to reload. Clients that
+     * reconnect later still pick the change up via the API response header.
+     */
+    protected function broadcastAssetsRevisionOnStartup(LoopInterface $loop): void
+    {
+        $loop->addTimer(20, function () {
+            $manager = $this->getLaravel()->make(Manager::class);
+            $token = $this->getLaravel()->make(AssetsRevision::class)->token();
+
+            $payload = (object) [
+                'event' => 'assetsRevision',
+                'data' => ['revision' => $token],
+            ];
+
+            $manager->getChannels()->then(function (array $channels) use ($payload) {
+                foreach ($channels as $name => $channel) {
+                    if ($name === 'public' || str_starts_with($name, 'private-user=')) {
+                        $payload->channel = $name;
+                        $channel->broadcast($payload);
+                    }
+                }
+            });
         });
     }
 

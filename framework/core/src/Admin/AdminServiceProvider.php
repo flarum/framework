@@ -135,7 +135,8 @@ class AdminServiceProvider extends AbstractServiceProvider
             function () use ($container) {
                 $recompile = new RecompileFrontendAssets(
                     $container->make('flarum.assets.admin'),
-                    $container->make(LocaleManager::class)
+                    $container->make(LocaleManager::class),
+                    $container->make('events')
                 );
                 $recompile->flush();
             }

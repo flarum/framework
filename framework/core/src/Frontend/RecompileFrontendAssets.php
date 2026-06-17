@@ -9,7 +9,9 @@
 
 namespace Flarum\Frontend;
 
+use Flarum\Frontend\Event\AssetsRecompiled;
 use Flarum\Locale\LocaleManager;
+use Illuminate\Contracts\Events\Dispatcher;
 
 /**
  * @internal
@@ -18,7 +20,8 @@ class RecompileFrontendAssets
 {
     public function __construct(
         protected Assets $assets,
-        protected LocaleManager $locales
+        protected LocaleManager $locales,
+        protected ?Dispatcher $events = null
     ) {
     }
 
@@ -26,6 +29,8 @@ class RecompileFrontendAssets
     {
         $this->flushCss();
         $this->flushJs();
+
+        $this->events?->dispatch(new AssetsRecompiled());
     }
 
     protected function flushCss(): void
