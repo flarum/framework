@@ -5,21 +5,27 @@
 ### Added
 
 - (audit) migrate the Audit extension to 2.x, split first-party integrations, and add GDPR/core coverage by @imorland [#4711]
+- (core, realtime) notify browsing users when the forum's assets are updated by @imorland [#4752]
 - (realtime) ambient typing indicators on the discussion list by @imorland [#4731]
 - (realtime) make the typing indicator reusable and movable by @imorland [#4721]
 - (gdpr) audit-log the erasure request lifecycle by @imorland [#4732]
+- (approval) log discussion approval in the audit log by @imorland [#4748]
 - (core) add `MariaDB` to the frontend `DatabaseDriver` enum by @DavideIadeluca [#4701]
 
 ### Fixed
 
+- (core) debounce the loading indicator to avoid flicker by @imorland [#4750]
 - (avatar) ensure the base image exists for small avatar uploads by @dsevillamartin [#4740]
 - (tags) delegate tag slug resolution to the active slug driver by @imorland [#4739]
+- (tags) serialize an unslugged tag's slug to the API by @DavideIadeluca [#4746]
 - (realtime) only relay client events to channels the sender is subscribed to by @imorland [#4738]
 - (nicknames) `TypeError` when creating a user with a nickname by @imorland [#4734]
 - (pusher) boot crash and restore discussion-list updates by @imorland [#4730]
 - (core) don't apply JSON:API query validation to internal API requests by @imorland [#4728]
 - (core) return HTTP 503 when the upgrade page is shown by @DavideIadeluca [#4720]
+- (core) add the missing database display name on the `ExtensionPage` by @DavideIadeluca [#4747]
 - (core) add accessible labels to composer control buttons by @imorland [#4723]
+- (a11y) add an accessible label to the new discussion button by @claudiushenrichs [#4749]
 - (realtime) show the correct notification toast, and stop dropping it by @imorland [#4713]
 - (audit) remove circular optional-dependencies on first-party extensions by @imorland [#4712]
 - (core) fix abandoned-extensions sync never being scheduled by @imorland [#4707]
