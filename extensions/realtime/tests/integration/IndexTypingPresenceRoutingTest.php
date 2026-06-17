@@ -121,11 +121,11 @@ class IndexTypingPresenceRoutingTest extends TestCase
     {
         [$presence, $broadcasts] = $this->presenceCapturingBroadcasts();
 
-        $clock = new class () {
+        $clock = new class() {
             public float $now = 1_000_000.0;
         };
 
-        $controllable = new class ($presence, $clock) extends IndexTypingPresence {
+        $controllable = new class($presence, $clock) extends IndexTypingPresence {
             public function __construct(private IndexTypingPresence $inner, private object $clock)
             {
                 // Reuse the already-built presence's Manager.
