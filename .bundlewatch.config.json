@@ -2,7 +2,7 @@
     "files": [
         {
             "path": "./framework/core/js/dist/*.js",
-            "maxSize": "150KB"
+            "maxSize": "160KB"
         },
         {
             "path": "./framework/core/js/dist/{admin,common,forum}/**/*.js",

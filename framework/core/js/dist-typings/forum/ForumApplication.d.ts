@@ -68,4 +68,20 @@ export default class ForumApplication extends Application {
      * Check whether or not the user is currently viewing a discussion.
      */
     viewingDiscussion(discussion: Discussion): boolean;
+    /**
+     * Whether we have already alerted the user that the forum's assets have been
+     * updated since they loaded the page. Ensures the prompt is shown only once.
+     */
+    private assetsRevisionAlertShown;
+    /**
+     * When the server reports an asset revision (on an API response) that differs
+     * from the one this page booted with, the forum's JS/CSS has been rebuilt since
+     * load. Prompt the user to reload to pick up the new assets, at most once.
+     *
+     * Both values are produced server-side (see `AssetsRevision`), so they are
+     * directly comparable regardless of which versioner the forum uses.
+     *
+     * Public so the realtime extension can call it with a pushed revision token.
+     */
+    checkAssetsRevision(serverRevision: string | null): void;
 }
