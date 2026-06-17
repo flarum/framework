@@ -36,6 +36,7 @@ class Message
         );
 
         $this->relayIndexTyping();
+        $this->relayComposeTyping();
     }
 
     /**
@@ -87,5 +88,29 @@ class Message
         }
 
         resolve(IndexTypingPresence::class)->touch((int) $m[1]);
+    }
+
+    /**
+     * Feed compose-typing for a *new* discussion into the index-typing presence so
+     * the tag list lights up before the discussion exists. There's no discussion id
+     * yet, so the client sends the tag IDs it has selected, on its own
+     * `private-user={id}` channel — the user id comes from the (already authorised)
+     * channel name, never from the payload, and IndexTypingPresence re-authorises
+     * each claimed tag against that user before surfacing it.
+     */
+    protected function relayComposeTyping(): void
+    {
+        if ($this->payload->event !== 'client-index-typing-tags'
+            || ! preg_match('/^private-user=(\d+)$/', $this->payload->channel, $m)) {
+            return;
+        }
+
+        $tags = $this->payload->data->tags ?? null;
+
+        if (! is_array($tags)) {
+            return;
+        }
+
+        resolve(IndexTypingPresence::class)->touchTags((int) $m[1], $tags);
     }
 }

@@ -86,8 +86,21 @@ export default function () {
       }
 
       const bindIndexTyping = (channel: ReturnType<Pusher['subscribe']>): void => {
-        channel.bind('index-typing', (data: { id: number; typing: boolean }) => {
-          RealtimeState.indexTyping.set(data.id, data.typing);
+        channel.bind('index-typing', (data: { id?: number; source?: string; typing: boolean; tags?: number[] }) => {
+          // Replies carry a discussion `id`; new-discussion compose typing has no id
+          // yet and carries only `tags` (+ a per-user `source` key). Only feed the
+          // discussion-list dot when there's an id.
+          if (data.id !== undefined) {
+            RealtimeState.indexTyping.set(data.id, data.typing);
+          }
+
+          // Light up the tag-list dots for the tags involved. The backend scopes
+          // `tags` per channel, so we only ever receive tag IDs the subscriber is
+          // allowed to see. `source` (discussion id or per-user key) lets concurrent
+          // typers in one tag coexist without clearing each other's dot.
+          if (data.tags?.length) {
+            RealtimeState.indexTagTyping.set(data.source ?? data.id ?? '', data.tags, data.typing);
+          }
         });
       };
 
@@ -102,22 +115,18 @@ export default function () {
       }
 
       // Restricted discussions can't go on the public channel without leaking, so
-      // they're routed per restricted tag. Subscribe to the channel of each
-      // restricted tag THIS user can see — channel auth (AuthController) enforces
-      // it server-side too. Bounded by visible-restricted-tag count, not user or
-      // discussion count, so it keeps the same scale guarantee. All feed the same
-      // IndexTypingState, so list rendering is unchanged.
-      if (indexTypingRestrictedEnabled && app.session.user) {
-        // Subscribe to the index-typing channel of every tag the user can see.
-        // We can't filter to restricted tags client-side: `isRestricted` is only
-        // serialized to admins, so a normal user can't tell which of their
-        // visible tags are restricted. We don't need to — the backend only ever
-        // broadcasts restricted discussions to these channels (public ones go to
-        // the public channel), and channel auth already gates each subscription
-        // to tags the actor can see (AuthController::indexTypingTag). Channels
-        // for non-restricted tags simply stay silent. Bounded by visible-tag count.
-        app.websocket_channels.indexTypingTags = app.store.all('tags').map((tag: any) => {
-          const channel = websocket.subscribe('private-index-typing-tag=' + tag.id());
+      // they're routed per restricted tag. Subscribe only to the channels of the
+      // restricted tags THIS user can see — the backend computes that list
+      // (`index-typing-tags`, gated on the setting + tag visibility) so we issue
+      // exactly one private-channel auth per restricted tag, rather than one per
+      // visible tag (most of which are unrestricted and never broadcast). Channel
+      // auth (AuthController::indexTypingTag) still enforces visibility server-side.
+      // All feed the same IndexTypingState, so list rendering is unchanged.
+      const indexTypingTagIds = this.forum.attribute<number[]>('flarum-realtime.index-typing-tags') ?? [];
+
+      if (indexTypingRestrictedEnabled && app.session.user && indexTypingTagIds.length) {
+        app.websocket_channels.indexTypingTags = indexTypingTagIds.map((tagId) => {
+          const channel = websocket.subscribe('private-index-typing-tag=' + tagId);
           bindIndexTyping(channel);
           return channel;
         });

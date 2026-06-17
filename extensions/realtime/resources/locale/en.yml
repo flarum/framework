@@ -10,6 +10,7 @@ flarum-realtime:
             no-activity: No one is typing
         index-typing:
             someone-typing: Someone is typing in this discussion
+            someone-typing-tag: Someone is typing in this tag
         user:
             settings:
                 heading: Realtime
