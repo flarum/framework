@@ -7,10 +7,15 @@
 - (audit) migrate the Audit extension to 2.x, split first-party integrations, and add GDPR/core coverage by @imorland [#4711]
 - (core, realtime) notify browsing users when the forum's assets are updated by @imorland [#4752]
 - (realtime) ambient typing indicators on the discussion list by @imorland [#4731]
+- (realtime) ambient typing dots on the index sidebar tag list by @imorland [#4756]
 - (realtime) make the typing indicator reusable and movable by @imorland [#4721]
 - (gdpr) audit-log the erasure request lifecycle by @imorland [#4732]
 - (approval) log discussion approval in the audit log by @imorland [#4748]
 - (core) add `MariaDB` to the frontend `DatabaseDriver` enum by @DavideIadeluca [#4701]
+
+### Changed
+
+- (tags) convert `TagLinkButton` to TSX with an extensible `linkItems` list by @imorland [#4755]
 
 ### Fixed
 
@@ -35,6 +40,7 @@
 ### Performance
 
 - (core) avoid loading the target user's groups in the `editCredentials` check by @imorland [#4729]
+- (admin) lazy-load sortablejs to shrink the admin bundle by @imorland [#4754]
 
 ### Documentation
 
