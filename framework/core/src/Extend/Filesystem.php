@@ -51,7 +51,7 @@ class Filesystem implements ExtenderInterface
      *   });
      * ```
      *
-     * @see https://laravel.com/docs/11.x/filesystem#configuration
+     * @see https://laravel.com/docs/13.x/filesystem#configuration
      */
     public function disk(string $name, callable|string $callback): self
     {
