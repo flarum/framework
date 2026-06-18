@@ -10,13 +10,24 @@ const CORE_REVISED_EVENT = 'revisedEvent';
 export default function (): void {
   extend(DiscussionPage.prototype, 'oninit', function (this: any) {
     this.websocketEventPosted = (data: unknown): void => {
+      // Capture BEFORE the payload (and the refetch below) updates postIds:
+      // once new posts are in the store, viewingEnd()'s 1-post drift
+      // tolerance can no longer tell "was at the end, several posts arrived
+      // at once" apart from "viewing an interior window" — so a single
+      // missed event would permanently disable live-append (#4717).
+      const wasViewingEnd: boolean = !!this.stream?.viewingEnd();
+
       const discussion = app.store.pushPayload(data as Parameters<typeof app.store.pushPayload>[0]) as any;
 
       if (discussion.id() === this.discussion?.id() && this.stream) {
         const oldCount: number = this.discussion.commentCount();
 
         app.store.find('discussions', this.discussion.id()).then(() => {
-          this.stream.update().then((): void => m.redraw());
+          if (wasViewingEnd) {
+            this.stream.syncEnd().then((): void => m.redraw());
+          } else {
+            m.redraw();
+          }
 
           if (!document.hasFocus()) {
             app.setTitleCount(Math.max(0, this.discussion.commentCount() - oldCount));
@@ -30,11 +41,19 @@ export default function (): void {
     };
 
     this.websocketEventStreamUpdate = (data: unknown): void => {
+      // Same pre-payload capture as websocketEventPosted (#4717) — event
+      // posts (sticky/lock/rename) move postIds too.
+      const wasViewingEnd: boolean = !!this.stream?.viewingEnd();
+
       const discussion = app.store.pushPayload(data as Parameters<typeof app.store.pushPayload>[0]) as any;
 
       if (discussion.id() === this.discussion?.id() && this.stream) {
         app.store.find('discussions', this.discussion.id()).then(() => {
-          this.stream.update().then((): void => m.redraw());
+          if (wasViewingEnd) {
+            this.stream.syncEnd().then((): void => m.redraw());
+          } else {
+            m.redraw();
+          }
         });
       }
     };

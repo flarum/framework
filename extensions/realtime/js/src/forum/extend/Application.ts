@@ -133,42 +133,93 @@ export default function () {
       }
     };
 
-    app.websocket = new Pusher(wsKey, pusherOptions);
-    setupChannels(app.websocket);
-
-    // iOS browsers (all WebKit) silently drop WebSocket connections when
-    // the tab is backgrounded or the device sleeps, without firing `close`
-    // — pusher-js's built-in recovery never triggers, so realtime updates
-    // go missing until the page is reloaded. iOS also bfcaches pages on
-    // app-switch, which restores via `pageshow` (persisted=true) and does
+    // WebKit silently drops WebSocket connections when the tab is
+    // backgrounded or the device sleeps, often without firing `close` —
+    // pusher-js's built-in recovery never triggers (or triggers only after
+    // its foreground-only activity/pong timers finally elapse), so realtime
+    // updates go missing until the page is reloaded. iOS also bfcaches pages
+    // on app-switch, which restores via `pageshow` (persisted=true) and does
     // NOT fire `visibilitychange` on return. We therefore hook both events.
     //
-    // The visibilitychange path is gated on `isIOS()`: desktop browsers
-    // (and Android) maintain the WebSocket fine across tab backgrounding
-    // and don't need a forced reconnect, which would otherwise cause an
-    // unnecessary discussion-list refetch on every tab-switch return.
+    // The visibilitychange path reconnects when on iOS (where backgrounding
+    // kills the socket every time — see #4590/#4654) OR when the connection
+    // is demonstrably unhealthy: pusher-js already reports a non-connected
+    // state, or no protocol frame (events, pusher:pong, ...) has arrived
+    // within the activity window — the zombie case where `state` still
+    // claims 'connected'. Desktop Safari suspends hidden pages just like
+    // iOS, so it routinely lands in that zombie case (#4717). Healthy
+    // desktop tabs keep receiving pongs every ≤30s even while hidden, so a
+    // plain tab switch still triggers no spurious refetch (#4662).
     //
     // `forceReconnect` constructs a fresh Pusher instance rather than
     // calling `connect()` on the existing one. pusher-js 7.6's default
     // strategy enforces a `lives: 2` budget on its WebSocket transport;
-    // every iOS-initiated 1006 close decrements the budget and after the
-    // second backgrounding the strategy reports unsupported, so every
-    // subsequent `connect()` transitions straight to `'failed'`. A fresh
-    // Pusher comes with a fresh strategy tree and a full `livesLeft`,
-    // making the recovery survive arbitrarily many backgrounding cycles.
+    // every silent 1006 close decrements the budget and after the second
+    // one the strategy reports unsupported, so every subsequent `connect()`
+    // transitions straight to `'failed'`. A fresh Pusher comes with a fresh
+    // strategy tree and a full `livesLeft`, making the recovery survive
+    // arbitrarily many backgrounding cycles.
     //
-    // After reconnecting, Pusher has no server-side buffering for events
-    // that fired while the socket was dead — we refresh the visible
-    // discussions list once the new connection reports `'connected'` so the
-    // UI catches up on missed activity. Refresh is gated on the
-    // `'connected'` event (not fired immediately after `connect()`) because
-    // an immediate Mithril redraw races with pusher-js's channel
-    // resubscription and can leave the client receiving no further push
-    // events.
-    //
-    // See flarum/framework#4588 and #4597.
+    // See flarum/framework#4588, #4597 and #4717.
     const RECONNECT_HIDDEN_THRESHOLD_MS = 5_000;
+    // A healthy connection sees protocol traffic at least every
+    // `activity_timeout` (30s, advertised by the server) plus the pong wait.
+    const STALE_CONNECTION_THRESHOLD_MS = 65_000;
+
     let hiddenSince: number | null = null;
+    let lastFrameAt = Date.now();
+    let everConnected = false;
+
+    // Refresh the data that realtime events would have kept current. Pusher
+    // has no server-side buffering: anything that fired while the socket was
+    // down is lost, so on reconnect the UI has to catch up by refetching.
+    const catchUp = (): void => {
+      (app as any).discussions?.refresh?.();
+
+      const discussion = app.current.get('discussion');
+      const stream = app.current.get('stream');
+
+      if (discussion && stream) {
+        // Capture BEFORE the refetch grows postIds: missed events never
+        // reached the store, so right now viewingEnd() still reflects the
+        // last synced state. Afterwards its 1-post drift tolerance could no
+        // longer tell "was at the end, several posts arrived while
+        // disconnected" apart from "viewing an interior window" (#4717).
+        const wasViewingEnd: boolean = !!stream.viewingEnd();
+
+        app.store.find('discussions', discussion.id() as string).then(() => {
+          if (wasViewingEnd) {
+            stream.syncEnd().then((): void => m.redraw());
+          } else {
+            m.redraw();
+          }
+        });
+      }
+    };
+
+    // Track liveness and reconnects. Applied to the initial Pusher instance
+    // and to every fresh instance `forceReconnect` builds.
+    const watchConnection = (websocket: Pusher): void => {
+      websocket.bind_global((): void => {
+        lastFrameAt = Date.now();
+      });
+
+      websocket.connection.bind('state_change', (states: { previous: string; current: string }) => {
+        if (states.current !== 'connected') return;
+
+        const isReconnect = everConnected;
+        everConnected = true;
+        lastFrameAt = Date.now();
+
+        // Catch up on every effective reconnect — pusher-js's own recovery
+        // as well as our forced ones. Gated on the transition into
+        // `'connected'` (not run right after `connect()`) because an
+        // immediate Mithril redraw races with pusher-js's channel
+        // resubscription and can leave the client receiving no further push
+        // events (see #4590).
+        if (isReconnect) catchUp();
+      });
+    };
 
     const forceReconnect = (): void => {
       const previous = app.websocket;
@@ -177,15 +228,14 @@ export default function () {
       const fresh = new Pusher(wsKey, pusherOptions);
       app.websocket = fresh;
 
-      const onReconnected = (): void => {
-        fresh.connection.unbind('connected', onReconnected);
-        (app as any).discussions?.refresh?.();
-      };
-      fresh.connection.bind('connected', onReconnected);
-
+      watchConnection(fresh);
       setupChannels(fresh);
       RealtimeState.notifyChannelsReconnected();
     };
+
+    app.websocket = new Pusher(wsKey, pusherOptions);
+    watchConnection(app.websocket);
+    setupChannels(app.websocket);
 
     // Application.mount() runs once per page load, so these listeners are
     // installed once and live for the lifetime of the page — no teardown needed.
@@ -197,7 +247,11 @@ export default function () {
       if (hiddenSince === null) return;
       const wasHiddenFor = Date.now() - hiddenSince;
       hiddenSince = null;
-      if (wasHiddenFor > RECONNECT_HIDDEN_THRESHOLD_MS && isIOS()) {
+      if (wasHiddenFor <= RECONNECT_HIDDEN_THRESHOLD_MS) return;
+
+      const unhealthy = app.websocket?.connection.state !== 'connected' || Date.now() - lastFrameAt > STALE_CONNECTION_THRESHOLD_MS;
+
+      if (isIOS() || unhealthy) {
         forceReconnect();
       }
     });
