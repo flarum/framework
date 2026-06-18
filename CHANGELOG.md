@@ -19,6 +19,8 @@
 
 ### Fixed
 
+- (flags) type `Flag::$reason` and `$reason_detail` as nullable by @imorland [#4760]
+- (a11y) fix the aria-label text key for the new discussion button by @claudiushenrichs [#4758]
 - (core) debounce the loading indicator to avoid flicker by @imorland [#4750]
 - (avatar) ensure the base image exists for small avatar uploads by @dsevillamartin [#4740]
 - (tags) delegate tag slug resolution to the active slug driver by @imorland [#4739]
