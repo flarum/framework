@@ -45,8 +45,12 @@ class NotificationMailer
         $forumTitle = $this->settings->get('forum_title');
         $username = $user->display_name;
         $userEmail = $user->email;
+        // Pass an explicit title so the body heading can't inherit a stale `title`
+        // left on the shared (singleton) view factory by an earlier email — e.g. a
+        // password reset's "Reset Your Password". See flarum/framework#4767.
+        $title = $this->translator->trans('core.email.notification.default_title');
 
-        $data = compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink', 'type', 'forumTitle', 'username', 'userEmail');
+        $data = compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink', 'type', 'forumTitle', 'username', 'userEmail', 'title');
 
         $this->view->share($data);
 
