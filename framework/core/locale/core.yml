@@ -816,6 +816,11 @@ core:
     alert:
       dismiss_a11y_label: Dismiss alert
 
+    # These translations are shown when the forum's assets are updated while a page is open.
+    assets_updated:
+      message: A newer version of this page is available.
+      reload_button: Reload
+
     # These translations are displayed as tooltips for discussion badges.
     badge:
       hidden_tooltip: Hidden

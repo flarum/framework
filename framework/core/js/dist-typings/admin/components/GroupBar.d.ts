@@ -21,9 +21,17 @@ export interface IGroupBarAttrs extends ComponentAttrs {
  */
 export default class GroupBar<CustomAttrs extends IGroupBarAttrs = IGroupBarAttrs> extends Component<CustomAttrs> {
     groups: Group[];
+    /** sortablejs, lazy-loaded; attached once available. */
+    sortable: typeof import('sortablejs') | null;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     view(): JSX.Element;
     onGroupBarCreate(vnode: Mithril.VnodeDOM): void;
+    /**
+     * Attach sortable once both the element exists and sortablejs has loaded. Called
+     * from both `oncreate` and the lazy import's resolution, so it runs whichever
+     * completes last.
+     */
+    makeSortable(): void;
     onSortUpdate(): void;
 }

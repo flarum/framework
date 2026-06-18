@@ -149,6 +149,8 @@ export interface ApplicationData {
   locales: Record<string, string>;
   resources: SavedModelData[];
   session: { userId: number; csrfToken: string };
+  /** Token representing the compiled asset revisions the page booted with. */
+  assetsRevision?: string;
   maintenanceMode?: MaintenanceMode;
   bisecting?: boolean;
   [key: string]: unknown;
@@ -609,6 +611,8 @@ export default class Application {
       if (xhr.getResponseHeader) {
         const csrfToken = xhr.getResponseHeader('X-CSRF-Token');
         if (csrfToken) app.session.csrfToken = csrfToken;
+
+        this.checkAssetsRevision(xhr.getResponseHeader('X-Flarum-Assets-Revision'));
       }
 
       try {
@@ -623,6 +627,20 @@ export default class Application {
     };
 
     return options;
+  }
+
+  /**
+   * Compare the asset revision reported by the server (on every API response) with
+   * the one the page booted with. If they differ, the forum's JS/CSS has been
+   * rebuilt since this page loaded.
+   *
+   * No-op in the base application; the forum app overrides this to prompt the user
+   * to reload. The admin app intentionally does not.
+   *
+   * @param _serverRevision The asset revision reported by the server, or null.
+   */
+  public checkAssetsRevision(_serverRevision: string | null): void {
+    // Overridden by ForumApplication.
   }
 
   /**

@@ -42,10 +42,3 @@
 * focus-trap 6.9.4
 * @license MIT, https://github.com/focus-trap/focus-trap/blob/master/LICENSE
 */
-
-/**!
- * Sortable 1.15.3
- * @author	RubaXa   <trash@rubaxa.org>
- * @author	owenm    <owen23355@gmail.com>
- * @license MIT
- */

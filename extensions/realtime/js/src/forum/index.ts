@@ -2,6 +2,7 @@ import app from 'flarum/forum/app';
 import Application from './extend/Application';
 import Discussion from './extend/Discussion';
 import DiscussionList from './extend/DiscussionList';
+import Tags from './extend/Tags';
 import User from './extend/User';
 
 import RealtimeExtend from './extenders/Realtime';
@@ -18,5 +19,6 @@ app.initializers.add('flarum-realtime', () => {
   Application();
   Discussion();
   DiscussionList();
+  Tags();
   User();
 });

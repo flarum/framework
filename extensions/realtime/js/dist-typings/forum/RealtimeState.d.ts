@@ -1,5 +1,6 @@
 import type { Channel } from 'pusher-js';
 import IndexTypingState from './states/IndexTypingState';
+import IndexTagTypingState from './states/IndexTagTypingState';
 type ChannelReadyCallback = (channel: Channel) => void;
 type ReconnectCallback = () => void;
 /**
@@ -31,6 +32,12 @@ declare class RealtimeState {
      * every list item.
      */
     readonly indexTyping: IndexTypingState;
+    /**
+     * Shared presence state for the index sidebar tag-list typing dots, fed by the
+     * same `index-typing` channels as {@link indexTyping} (which now also carry the
+     * tags a typing discussion belongs to) and read by the TagLinkButton extension.
+     */
+    readonly indexTagTyping: IndexTagTypingState;
     /**
      * Register event names that should trigger a DiscussionPage stream reload.
      * Called by the Realtime extender on behalf of other extensions.

@@ -118,6 +118,8 @@ export interface ApplicationData {
         userId: number;
         csrfToken: string;
     };
+    /** Token representing the compiled asset revisions the page booted with. */
+    assetsRevision?: string;
     maintenanceMode?: MaintenanceMode;
     bisecting?: boolean;
     [key: string]: unknown;
@@ -258,6 +260,17 @@ export default class Application {
     setTitleCount(count: number): void;
     updateTitle(): void;
     protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType>;
+    /**
+     * Compare the asset revision reported by the server (on every API response) with
+     * the one the page booted with. If they differ, the forum's JS/CSS has been
+     * rebuilt since this page loaded.
+     *
+     * No-op in the base application; the forum app overrides this to prompt the user
+     * to reload. The admin app intentionally does not.
+     *
+     * @param _serverRevision The asset revision reported by the server, or null.
+     */
+    checkAssetsRevision(_serverRevision: string | null): void;
     /**
      * Make an AJAX request, handling any low-level errors that may occur.
      *
