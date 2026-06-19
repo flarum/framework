@@ -80,11 +80,11 @@ module.exports = function () {
     module: {
       rules: [
         {
-          include: /src/,
+          include: path.resolve(process.cwd(), 'src') + path.sep,
           loader: path.resolve(__dirname, './autoExportLoader.cjs'),
         },
         {
-          include: /src/,
+          include: path.resolve(process.cwd(), 'src') + path.sep,
           loader: path.resolve(__dirname, './autoChunkNameLoader.cjs'),
         },
         {

@@ -41,19 +41,25 @@ class RegisterAsyncChunksPlugin {
           const chunkModuleMemory = {};
           const modulesToCheck = {};
 
+          // The extension's own source directory. Used to identify which modules
+          // belong to the extension (as opposed to third-party `node_modules`).
+          // Anchoring to this absolute path avoids false positives when the
+          // project is checked out under a path that contains a "src" segment.
+          const srcDir = path.resolve(process.cwd(), 'src') + path.sep;
+
           for (const chunk of chunks) {
             for (const module of compilation.chunkGraph.getChunkModulesIterable(chunk)) {
               modulesToCheck[chunk.id] = modulesToCheck[chunk.id] || [];
 
               // A normal module.
-              if (module?.resource && module.resource.split(path.sep).includes('src') && module._source?._value.includes('webpackChunkName: ')) {
+              if (module?.resource && module.resource.startsWith(srcDir) && module._source?._value?.includes('webpackChunkName: ')) {
                 modulesToCheck[chunk.id].push(module);
               }
 
               // A ConcatenatedModule.
               if (module?.modules) {
                 module.modules.forEach((module) => {
-                  if (module.resource && module.resource.split(path.sep).includes('src') && module._source?._value.includes('webpackChunkName: ')) {
+                  if (module.resource && module.resource.startsWith(srcDir) && module._source?._value?.includes('webpackChunkName: ')) {
                     modulesToCheck[chunk.id].push(module);
                   }
                 });
@@ -129,13 +135,12 @@ class RegisterAsyncChunksPlugin {
 
                   // This is a chunk with many modules, we need to register all of them.
                   modules?.forEach((module) => {
-                    if (!module.resource?.includes(`${path.sep}src${path.sep}`)) {
+                    if (!module.resource?.startsWith(srcDir)) {
                       return;
                     }
 
                     // The path right after the src/ directory, without the extension.
-                    const regPathSep = `\\${path.sep}`;
-                    const urlPath = this.processUrlPath(module.resource.replace(new RegExp(`.*${regPathSep}src${regPathSep}([^.]+)\..+`), '$1'));
+                    const urlPath = this.processUrlPath(module.resource.slice(srcDir.length).replace(/\..+$/, ''));
 
                     if (!registrableModulesUrlPaths.has(urlPath)) {
                       registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath]);
