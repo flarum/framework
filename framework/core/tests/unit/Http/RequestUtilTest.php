@@ -15,6 +15,7 @@ use Laminas\Diactoros\ServerRequest;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
+use Tobyz\JsonApiServer\Exception\BadRequestException;
 
 class RequestUtilTest extends TestCase
 {
@@ -23,6 +24,55 @@ class RequestUtilTest extends TestCase
         $request = new ServerRequest([], [], '/', 'GET');
 
         return $accept === null ? $request : $request->withHeader('Accept', $accept);
+    }
+
+    private function requestWithLimit(?string $limit): ServerRequestInterface
+    {
+        $request = new ServerRequest([], [], '/', 'GET');
+
+        return $request->withQueryParams($limit === null ? [] : ['page' => ['limit' => $limit]]);
+    }
+
+    #[Test]
+    public function extract_limit_uses_an_explicitly_requested_limit(): void
+    {
+        $this->assertSame(20, RequestUtil::extractLimit($this->requestWithLimit('20'), 50, 100));
+    }
+
+    #[Test]
+    public function extract_limit_caps_at_the_maximum(): void
+    {
+        $this->assertSame(50, RequestUtil::extractLimit($this->requestWithLimit('100'), 20, 50));
+    }
+
+    #[Test]
+    public function extract_limit_falls_back_to_the_default_when_absent(): void
+    {
+        $this->assertSame(20, RequestUtil::extractLimit($this->requestWithLimit(null), 20, 50));
+    }
+
+    #[Test]
+    public function extract_limit_returns_null_when_there_is_no_limit_and_no_default(): void
+    {
+        $this->assertNull(RequestUtil::extractLimit($this->requestWithLimit(null), null, 50));
+    }
+
+    #[Test]
+    public function extract_limit_rejects_an_explicit_zero(): void
+    {
+        // Regression test: page[limit]=0 used to return null and then break
+        // OffsetPagination's non-nullable int $limit with a 500. It must 400 instead.
+        $this->expectException(BadRequestException::class);
+
+        RequestUtil::extractLimit($this->requestWithLimit('0'), 20, 50);
+    }
+
+    #[Test]
+    public function extract_limit_rejects_a_negative_limit(): void
+    {
+        $this->expectException(BadRequestException::class);
+
+        RequestUtil::extractLimit($this->requestWithLimit('-5'), 20, 50);
     }
 
     public static function apiAcceptHeaders(): array
