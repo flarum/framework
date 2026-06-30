@@ -85,6 +85,11 @@ class ErasureJob extends GdprJob
             $this->erasureRequest
         ));
 
+        // Capture the user's locale on the shared translator before
+        // anonymization wipes their preferences. The completion email below
+        // re-uses the same translator instance, so this carries through.
+        $translator->setLocale($user->getPreference('locale') ?? $this->settings->get('default_locale'));
+
         $this->{$mode}($user, $processor);
 
         $this->sendUserConfirmation($mode, $username, $email, $mailer, $translator);
