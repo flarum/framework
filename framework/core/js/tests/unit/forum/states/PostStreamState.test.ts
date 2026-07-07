@@ -147,4 +147,51 @@ describe('PostStreamState', () => {
       expect(nearPage(discussion)).toEqual([]);
     });
   });
+
+  // Regression tests for #4717 — catching up after a missed-event gap.
+  //
+  // update() guards on viewingEnd(), which tolerates a drift of at most one
+  // post. That covers the live-event case (exactly one new post since the
+  // last sync), but once ≥2 posts have entered the store — e.g. one was
+  // missed while a realtime connection was down and the next live event
+  // refetched the discussion — every update() call returns early and
+  // live-append is permanently dead. syncEnd() is the unbounded variant that
+  // realtime catch-up paths call after capturing end-ness up front.
+  describe('update() / syncEnd() after a missed-event gap (#4717)', () => {
+    test('update() appends a single new post when viewing the end (live-event path)', async () => {
+      const { discussion, postIds } = seedStore(5, [0, 1, 2, 3, 4]);
+      // Window synced through post 4 of 5: one post arrived since.
+      const state = new PostStreamState(discussion, postsFor(postIds.slice(0, 4)));
+
+      await state.update();
+
+      expect((state as any).visibleEnd).toBe(5);
+      expect(state.posts()).toHaveLength(5);
+      expect(state.posts().every((p) => p !== null)).toBe(true);
+    });
+
+    test('update() refuses once the window is two or more posts behind (locks the guard semantics)', async () => {
+      const { discussion, postIds } = seedStore(6, [0, 1, 2, 3, 4, 5]);
+      // Window synced through post 4, but TWO posts entered the store since
+      // (one missed while disconnected + one live): bookkeeping alone cannot
+      // tell this apart from viewing an interior window, so update() must
+      // not append — callers with better knowledge use syncEnd().
+      const state = new PostStreamState(discussion, postsFor(postIds.slice(0, 4)));
+
+      await state.update();
+
+      expect((state as any).visibleEnd).toBe(4);
+    });
+
+    test('syncEnd() loads through to the latest post no matter how far behind the window is', async () => {
+      const { discussion, postIds } = seedStore(8, [0, 1, 2, 3, 4, 5, 6, 7]);
+      const state = new PostStreamState(discussion, postsFor(postIds.slice(0, 4)));
+
+      await state.syncEnd();
+
+      expect((state as any).visibleEnd).toBe(8);
+      expect(state.posts()).toHaveLength(8);
+      expect(state.posts().every((p) => p !== null)).toBe(true);
+    });
+  });
 });
