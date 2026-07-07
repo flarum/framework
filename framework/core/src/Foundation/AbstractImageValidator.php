@@ -42,8 +42,10 @@ abstract class AbstractImageValidator extends AbstractValidator
         $this->laravelValidator = $this->makeValidator($attributes);
 
         $this->assertFileRequired($attributes[$this->filename]);
-        $this->assertFileMimes($attributes[$this->filename]);
+        // Check the (compressed) byte size before decoding the image, so an
+        // oversized upload is rejected without ever being read into memory.
         $this->assertFileSize($attributes[$this->filename]);
+        $this->assertFileMimes($attributes[$this->filename]);
     }
 
     protected function assertFileRequired(UploadedFileInterface $file): void
@@ -81,6 +83,23 @@ abstract class AbstractImageValidator extends AbstractValidator
             $this->raise('mimes', [':values' => implode(', ', $allowedTypes)]);
         }
 
+        // Reject images whose pixel dimensions exceed the maximum resolution
+        // *before* decoding them. Image libraries (e.g. GD) allocate a buffer
+        // sized to width * height from the header, regardless of the compressed
+        // byte size, so a tiny "decompression bomb" declaring huge dimensions
+        // could otherwise exhaust the available memory during the decode below.
+        $dimensions = @getimagesizefromstring((string) $file->getStream());
+
+        if ($dimensions === false) {
+            $this->raise('image');
+
+            return;
+        }
+
+        if ($dimensions[0] * $dimensions[1] > $this->getMaxResolution()) {
+            $this->raise('dimensions');
+        }
+
         try {
             $this->imageManager->read($file->getStream()->getMetadata('uri'));
         } catch (DecoderException|GifDecoderException) {
@@ -91,8 +110,11 @@ abstract class AbstractImageValidator extends AbstractValidator
     protected function assertFileSize(UploadedFileInterface $file): void
     {
         $maxSize = $this->getMaxSize();
+        $size = $file->getSize();
 
-        if ($file->getSize() / 1024 > $maxSize) {
+        // A null size means the size could not be determined; reject it rather
+        // than letting it bypass the cap (null / 1024 > $maxSize is false).
+        if ($size === null || $size / 1024 > $maxSize) {
             $this->raise('max.file', [':max' => $maxSize], 'max');
         }
     }
@@ -116,6 +138,18 @@ abstract class AbstractImageValidator extends AbstractValidator
     public function getMaxSize(): int
     {
         return 2048;
+    }
+
+    /**
+     * The maximum number of pixels (width * height) allowed in an uploaded
+     * image. This bounds the memory a single decode can allocate, guarding
+     * against decompression-bomb uploads that declare huge dimensions in a
+     * tiny file. ~24 megapixels comfortably covers legitimate photos while
+     * rejecting pathological dimensions.
+     */
+    public function getMaxResolution(): int
+    {
+        return 24_000_000;
     }
 
     protected function getAllowedTypes(): array
