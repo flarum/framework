@@ -30,7 +30,7 @@ export default class DialogsDropdown<CustomAttrs extends IDialogsDropdownAttrs =
   }
 
   goToRoute() {
-    m.route.set(app.route('dialogs'));
+    m.route.set(app.route('messages'));
   }
 
   getUnreadCount() {
