@@ -52,9 +52,17 @@ return [
         ),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
+        // Only default-include post likes where the post is actually displayed
+        // (Show/Create render the post stream). The discussion list (Index) never
+        // renders firstPost/lastPost likes, and default-including them there forces
+        // a full serialization of two posts per discussion — content rendering,
+        // per-post permission attributes and the likers — for data the list UI
+        // does not read. The relationships remain includable (see
+        // eagerLoadWhenIncluded below) for clients that explicitly request them.
+        // See flarum/framework#4788.
         ->endpoint(
-            [Endpoint\Show::class, Endpoint\Index::class, Endpoint\Create::class],
-            function (Endpoint\Show|Endpoint\Index|Endpoint\Create $endpoint): Endpoint\Endpoint {
+            [Endpoint\Show::class, Endpoint\Create::class],
+            function (Endpoint\Show|Endpoint\Create $endpoint): Endpoint\Endpoint {
                 return $endpoint->addDefaultInclude(['firstPost.likes', 'lastPost.likes']);
             }
         )
