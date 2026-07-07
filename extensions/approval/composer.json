@@ -91,7 +91,7 @@
     },
     "require-dev": {
         "flarum/audit": "*",
-        "flarum/tags": "*@dev",
+        "flarum/tags": "*",
         "flarum/testing": "^2.0"
     }
 }
