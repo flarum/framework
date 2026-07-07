@@ -155,7 +155,11 @@ class RequestUtil
             $limit = $defaultLimit;
         }
 
-        if (! $limit) {
+        // Only short-circuit when there is genuinely no limit (no page[limit] and no
+        // default). A loose `! $limit` check here also caught the string "0", returning
+        // null which then broke OffsetPagination's non-nullable int $limit. An explicit
+        // page[limit]=0 must instead fall through to the `< 1` guard below and 400.
+        if ($limit === null) {
             return null;
         }
 
