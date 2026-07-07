@@ -18,6 +18,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
+use Illuminate\Database\DatabaseTransactionsManager;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -48,6 +49,14 @@ class DatabaseServiceProvider extends AbstractServiceProvider
             $manager->addConnection($config, 'flarum');
 
             return $manager;
+        });
+
+        // Bind the transactions manager so connections receive it during
+        // configuration (Illuminate's DatabaseManager::configure() attaches it
+        // whenever `db.transactions` is bound). Without it, Connection::afterCommit()
+        // throws. See flarum/framework#4787.
+        $this->container->singleton('db.transactions', function () {
+            return new DatabaseTransactionsManager;
         });
 
         $this->container->singleton(ConnectionResolverInterface::class, function (Container $container) {
