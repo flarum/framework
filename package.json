@@ -8,5 +8,8 @@
     ],
     "scripts": {
         "audit-fix": "npx yarn-audit-fix"
+    },
+    "resolutions": {
+        "axios": "^0.33.0"
     }
 }
