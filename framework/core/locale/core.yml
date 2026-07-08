@@ -620,6 +620,7 @@ core:
 
   # Translations in this namespace are used by the forum and admin interfaces.
   lib:
+    connection_restored_message: Your connection has been restored.
     debug_button: Debug
 
     # These translations are used in the Alert component.
@@ -661,7 +662,9 @@ core:
       generic_message: "Oops! Something went wrong. Please reload the page and try again."
       generic_cross_origin_message: "Oops! Something went wrong during a cross-origin request. Please reload the page and try again."
       missing_dependencies_message: "Cannot enable {extension} until the following dependencies are enabled: {extensions}"
+      network_message: Something seems to be wrong with your connection. Please check your network and try again.
       not_found_message: The requested resource was not found.
+      offline_message: You appear to be offline. Please check your connection and try again.
       payload_too_large_message: The request payload was too large.
       permission_denied_message: You do not have permission to do that.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.

@@ -266,6 +266,19 @@ export default class Application {
    */
   private requestErrorAlert: number | null = null;
 
+  /**
+   * The key for the Alert that was shown as a result of an AJAX request
+   * failing at the network level (status 0). Unlike other request error
+   * alerts, only one of these is shown at a time.
+   */
+  protected networkErrorAlert: number | null = null;
+
+  /**
+   * The key for the Alert that is shown while the browser reports being
+   * offline.
+   */
+  protected offlineAlert: number | null = null;
+
   initialRoute!: string;
 
   public load(payload: Application['data']) {
@@ -301,6 +314,8 @@ export default class Application {
     this.session = new Session(this.store.getById<User>('users', String(this.data.session.userId)) ?? null, this.data.session.csrfToken);
 
     this.mount();
+
+    this.registerConnectivityListeners();
 
     this.initialRoute = window.location.href;
 
@@ -519,6 +534,11 @@ export default class Application {
 
     if (this.requestErrorAlert) this.alerts.dismiss(this.requestErrorAlert);
 
+    if (this.networkErrorAlert) {
+      this.alerts.dismiss(this.networkErrorAlert);
+      this.networkErrorAlert = null;
+    }
+
     return m.request(options).catch((e) => this.requestErrorCatch(e, originalOptions.errorHandler));
   }
 
@@ -531,6 +551,20 @@ export default class Application {
 
     let content;
     switch (error.status) {
+      // Status 0 means the request failed at the network level: the client is
+      // offline, DNS resolution failed, the origin was unreachable, or the
+      // response was blocked by CORS. Aborted requests never get here, as
+      // Mithril leaves their promises unsettled.
+      case 0:
+        if (navigator.onLine === false) {
+          content = app.translator.trans('core.lib.error.offline_message');
+        } else if (this.requestWasCrossOrigin(error)) {
+          content = app.translator.trans('core.lib.error.generic_cross_origin_message');
+        } else {
+          content = app.translator.trans('core.lib.error.network_message');
+        }
+        break;
+
       case 422:
         content = formattedErrors
           .map((detail) => [detail, <br />])
@@ -615,11 +649,76 @@ export default class Application {
       }
 
       if (e.alert) {
-        this.requestErrorAlert = this.alerts.show(e.alert, e.alert.content);
+        if (e.status === 0) {
+          // A connection problem produces a single alert, even if several
+          // parallel requests fail at once.
+          if (!this.connectionAlertActive()) {
+            this.networkErrorAlert = this.alerts.show(e.alert, e.alert.content);
+          }
+        } else {
+          this.requestErrorAlert = this.alerts.show(e.alert, e.alert.content);
+        }
       }
     } else {
       throw e;
     }
+  }
+
+  /**
+   * Whether an alert about a connection problem (a network-level request
+   * failure or the browser being offline) is currently being shown.
+   */
+  protected connectionAlertActive(): boolean {
+    const activeAlerts = this.alerts.getActiveAlerts();
+
+    return (
+      (this.networkErrorAlert !== null && this.networkErrorAlert in activeAlerts) || (this.offlineAlert !== null && this.offlineAlert in activeAlerts)
+    );
+  }
+
+  /**
+   * Register listeners to proactively notify the user when the browser goes
+   * offline and when connectivity is restored.
+   */
+  protected registerConnectivityListeners(): void {
+    window.addEventListener('offline', () => this.connectionLost());
+    window.addEventListener('online', () => this.connectionRestored());
+  }
+
+  /**
+   * Show a persistent (but dismissible) alert while the browser reports being
+   * offline.
+   */
+  protected connectionLost(): void {
+    if (this.offlineAlert !== null && this.offlineAlert in this.alerts.getActiveAlerts()) return;
+
+    // The offline alert supersedes any alert shown for a failed request.
+    if (this.networkErrorAlert !== null) {
+      this.alerts.dismiss(this.networkErrorAlert);
+      this.networkErrorAlert = null;
+    }
+
+    this.offlineAlert = this.alerts.show({ type: 'error', dismissible: true }, app.translator.trans('core.lib.error.offline_message'));
+  }
+
+  /**
+   * Dismiss any connection problem alerts and briefly confirm to the user
+   * that connectivity has been restored.
+   */
+  protected connectionRestored(): void {
+    if (this.networkErrorAlert !== null) {
+      this.alerts.dismiss(this.networkErrorAlert);
+      this.networkErrorAlert = null;
+    }
+
+    if (this.offlineAlert === null) return;
+
+    this.alerts.dismiss(this.offlineAlert);
+    this.offlineAlert = null;
+
+    const confirmationAlert = this.alerts.show({ type: 'success' }, app.translator.trans('core.lib.connection_restored_message'));
+
+    setTimeout(() => this.alerts.dismiss(confirmationAlert), 10000);
   }
 
   private showDebug(error: RequestError, formattedError: string[]) {
