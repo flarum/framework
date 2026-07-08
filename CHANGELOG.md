@@ -1,5 +1,47 @@
 # Changelog
 
+## [v2.0.0-rc.5](https://github.com/flarum/framework/compare/v2.0.0-rc.4...v2.0.0-rc.5)
+
+### Added
+
+- (markdown) continue lists when pressing Enter in the Markdown editor by @linkrobins [#4778]
+
+### Changed
+
+- (deps) remove redundant nested lockfiles for gdpr/realtime by @imorland [#4801]
+
+### Fixed
+
+- (core) set an explicit title on notification emails so it can't leak by @imorland [#4768]
+- (core) register a default for the `show_language_selector` setting by @imorland [#4792]
+- (core) reject oversized-dimension images before decoding by @imorland [#4794]
+- (core) return an empty page instead of a 500 when `page[limit]=0` is requested by @linkrobins [#4775]
+- (core) bind the database transactions manager by @imorland [#4800]
+- (core) render the abandoned-extensions email body by @imorland [#4804]
+- (core) fix iPad/touch devices requiring a double-tap in the discussion list by @imorland [#4556]
+- (a11y) add a `role` attribute to `PostStream` items by @claudiushenrichs [#4780]
+- (messages) use the correct route name in the dialogs dropdown by @imorland [#4791]
+- (tags) show a friendly model name for the tag slug driver setting by @imorland [#4793]
+- (tags) update tag metadata when a pending discussion is approved by @linkrobins [#4777]
+- (gdpr) send the erasure completion email in the user's locale by @grimur82 [#4786]
+- (gdpr) share view data for the erasure completion email by @imorland [#4798]
+- (realtime) recover desktop tabs after silent socket loss and catch up on missed events by @ekumanov [#4718]
+
+### Security
+
+- (core) harden avatar-from-URL fetch with a streaming cap, resolution guard, and link-local block by @imorland [#4795]
+- (deps) pin axios to patched 0.33.x to clear advisories by @imorland [#4802]
+- (deps) bump vulnerable transitive dev deps (minimatch, serialize-javascript) by @imorland [#4803]
+
+### Performance
+
+- (likes) don't default-include post likes on the discussion index by @imorland [#4796]
+- (core) eager-load discussion state on the posts endpoint by @imorland [#4797]
+
+### Documentation
+
+- (core) update the Laravel version in PHP docblocks by @DavideIadeluca [#4762]
+
 ## [v2.0.0-rc.4](https://github.com/flarum/framework/compare/v2.0.0-rc.3...v2.0.0-rc.4)
 
 ### Added
