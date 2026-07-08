@@ -8,6 +8,7 @@
 
 ### Changed
 
+- (audit) remove the clarkwinkelmann-author-change integration (replaced by fof/author-change) by @imorland [#4806]
 - (deps) remove redundant nested lockfiles for gdpr/realtime by @imorland [#4801]
 
 ### Fixed
