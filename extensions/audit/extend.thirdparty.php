@@ -9,7 +9,6 @@
 
 namespace Flarum\Audit;
 
-use ClarkWinkelmann\AuthorChange\Event as AuthorChangeEvent;
 use Flarum\Audit\Extend\Audit;
 use Flarum\Extend\Conditional;
 use FoF\BanIPs\Events as BanIPsEvents;
@@ -32,50 +31,6 @@ use FoF\UserBio\Event\BioChanged;
  */
 return [
     (new Conditional())
-        ->whenExtensionEnabled('clarkwinkelmann-author-change', function () {
-            return [
-                (new Audit())
-                    ->group('clarkwinkelmann-author-change')
-                    ->listen(AuthorChangeEvent\DiscussionCreateDateChanged::class, 'discussion.create_date_changed', function ($e) {
-                        return [
-                            'discussion_id' => $e->discussion->id,
-                            'old_date' => $e->oldDate->toIso8601String(),
-                            'new_date' => $e->discussion->created_at->toIso8601String(),
-                        ];
-                    })
-                    ->listen(AuthorChangeEvent\DiscussionUserChanged::class, 'discussion.user_changed', function ($e) {
-                        return [
-                            'discussion_id' => $e->discussion->id,
-                            'old_user_id' => optional($e->oldUser)->id,
-                            'new_user_id' => optional($e->discussion->user)->id,
-                        ];
-                    })
-                    ->listen(AuthorChangeEvent\PostCreateDateChanged::class, 'post.create_date_changed', function ($e) {
-                        return [
-                            'post_id' => $e->post->id,
-                            'discussion_id' => $e->post->discussion->id,
-                            'old_date' => $e->oldDate->toIso8601String(),
-                            'new_date' => $e->post->created_at->toIso8601String(),
-                        ];
-                    })
-                    ->listen(AuthorChangeEvent\PostEditDateChanged::class, 'post.edit_date_changed', function ($e) {
-                        return [
-                            'post_id' => $e->post->id,
-                            'discussion_id' => $e->post->discussion->id,
-                            'old_date' => optional($e->oldDate)->toIso8601String(),
-                            'new_date' => optional($e->post->edited_at)->toIso8601String(),
-                        ];
-                    })
-                    ->listen(AuthorChangeEvent\PostUserChanged::class, 'post.user_changed', function ($e) {
-                        return [
-                            'post_id' => $e->post->id,
-                            'discussion_id' => $e->post->discussion->id,
-                            'old_user_id' => optional($e->oldUser)->id,
-                            'new_user_id' => optional($e->post->user)->id,
-                        ];
-                    }),
-            ];
-        })
         ->whenExtensionEnabled('fof-ban-ips', function () {
             return [
                 (new Audit())
