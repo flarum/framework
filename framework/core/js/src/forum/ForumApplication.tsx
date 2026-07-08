@@ -10,7 +10,6 @@ import CommentPost from './components/CommentPost';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
 import routes, { ForumRoutes, makeRouteHelpers } from './routes';
 import Application, { ApplicationData } from '../common/Application';
-import Button from '../common/components/Button';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
@@ -152,15 +151,23 @@ export default class ForumApplication extends Application {
   }
 
   /**
-   * Whether we have already alerted the user that the forum's assets have been
-   * updated since they loaded the page. Ensures the prompt is shown only once.
+   * Whether newer assets have been detected since this page booted. Once set, the
+   * user's next navigation becomes a full page load so the fresh assets are picked
+   * up — see {@link checkAssetsRevision} and {@link refreshOnNextNavigation}.
    */
-  private assetsRevisionAlertShown = false;
+  private assetsRefreshPending = false;
 
   /**
-   * When the server reports an asset revision (on an API response) that differs
-   * from the one this page booted with, the forum's JS/CSS has been rebuilt since
-   * load. Prompt the user to reload to pick up the new assets, at most once.
+   * When the server reports an asset revision (on an API response, or one pushed
+   * by the realtime extension) that differs from the one this page booted with,
+   * the forum's JS/CSS has been rebuilt since load.
+   *
+   * Rather than interrupt with a reload prompt — which pops up mid-read or
+   * mid-compose, and fires for every visitor the moment an admin toggles an
+   * extension — we just remember it. The user's next real navigation then loads
+   * the fresh assets naturally, without ever interrupting a reading or typing
+   * session, and with no risk of discarding an open draft. (Approach proposed by
+   * @luceos.)
    *
    * Both values are produced server-side (see `AssetsRevision`), so they are
    * directly comparable regardless of which versioner the forum uses.
@@ -170,23 +177,68 @@ export default class ForumApplication extends Application {
   public checkAssetsRevision(serverRevision: string | null): void {
     const bootedRevision = this.data?.assetsRevision;
 
-    if (!serverRevision || !bootedRevision || serverRevision === bootedRevision || this.assetsRevisionAlertShown) {
+    if (!serverRevision || !bootedRevision || serverRevision === bootedRevision || this.assetsRefreshPending) {
       return;
     }
 
-    this.assetsRevisionAlertShown = true;
+    this.assetsRefreshPending = true;
+    this.refreshOnNextNavigation();
+  }
 
-    this.alerts.show(
-      {
-        type: 'warning',
-        dismissible: true,
-        controls: [
-          <Button className="Button Button--link" onclick={() => window.location.reload()}>
-            {app.translator.trans('core.lib.assets_updated.reload_button')}
-          </Button>,
-        ],
+  /**
+   * Turn the user's next navigation into a full page load, so it boots with the
+   * freshly-built assets. Runs in the capture phase (and stops propagation) so it
+   * takes over before the router's own `<Link>` click handling, but only for a
+   * plain left-click on an internal, same-origin link: modified clicks (open in
+   * new tab/window), `target="_blank"` / `download` links, in-page anchors and
+   * non-navigation schemes are all left untouched. Back/forward reloads too.
+   *
+   * Set up only once, lazily, the first time newer assets are detected.
+   */
+  private refreshOnNextNavigation(): void {
+    document.addEventListener(
+      'click',
+      (e) => {
+        if (!this.assetsRefreshPending || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+          return;
+        }
+
+        const anchor = (e.target as HTMLElement | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
+        if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) {
+          return;
+        }
+
+        const href = anchor.getAttribute('href') || '';
+        if (!href || href.startsWith('#') || /^(javascript|mailto|tel):/i.test(href)) {
+          return;
+        }
+
+        let url: URL;
+        try {
+          url = new URL(anchor.href, window.location.href);
+        } catch {
+          return;
+        }
+
+        // Same-origin only, and not a bare hash change on the current page.
+        if (url.origin !== window.location.origin) {
+          return;
+        }
+        if (url.pathname === window.location.pathname && url.search === window.location.search && url.hash) {
+          return;
+        }
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        window.location.assign(url.href);
       },
-      app.translator.trans('core.lib.assets_updated.message')
+      true
     );
+
+    window.addEventListener('popstate', () => {
+      if (this.assetsRefreshPending) {
+        window.location.reload();
+      }
+    });
   }
 }
