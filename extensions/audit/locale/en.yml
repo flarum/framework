@@ -82,7 +82,6 @@ flarum-audit:
             developer_token_created: Created developer access token "{title}" for {username}
             discussion:
                 created: Started discussion {discussion}
-                create_date_changed: Changed {discussion} start date from {old_date} to {new_date}
                 deleted: Deleted discussion {discussion}
                 hidden: Hid discussion {discussion}
                 merged_away: Merged {discussion} into {new_discussion}
@@ -91,7 +90,6 @@ flarum-audit:
                 restored: Restored discussion {discussion}
                 split_away: Split {post_count} posts from {discussion} into {new_discussion}
                 split_into: Split {post_count} posts into new discussion {discussion}
-                user_changed: Changed {discussion} author from {old_user} to {new_user}
             extension:
                 disabled: Disabled extension {package}
                 enabled: Enabled extension {package}
@@ -106,13 +104,10 @@ flarum-audit:
             permission_changed: Edited permission {permission} from {old_groups} to {new_groups}
             post:
                 created: Created a {post} in {discussion}
-                create_date_changed: Changed {postuser}'s {post} start date from {old_date} to {new_date}
                 deleted: Deleted {postuser}'s {post} in {discussion}
-                edit_date_changed: Changed {postuser}'s {post} edit date from {old_date} to {new_date}
                 hidden: Hid {postuser}'s {post} in {discussion}
                 restored: Restored {postuser}'s {post} in {discussion}
                 revised: Revised {postuser}'s {post} in {discussion}
-                user_changed: Changed {post} author from {old_user} to {new_user}
             setting_changed: Edited setting {key}
             setting_changed_with_values: Edited setting {key} from {old_value} to {new_value}
             settings_reset: Reset settings {keys} for {extension}
