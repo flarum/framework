@@ -8,6 +8,7 @@
 
 ### Changed
 
+- (audit) move the bundled third-party integrations out to their own extensions by @imorland [#4807]
 - (audit) remove the clarkwinkelmann-author-change integration (replaced by fof/author-change) by @imorland [#4806]
 - (deps) remove redundant nested lockfiles for gdpr/realtime by @imorland [#4801]
 
