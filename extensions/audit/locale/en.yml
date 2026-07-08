@@ -84,19 +84,12 @@ flarum-audit:
                 created: Started discussion {discussion}
                 deleted: Deleted discussion {discussion}
                 hidden: Hid discussion {discussion}
-                merged_away: Merged {discussion} into {new_discussion}
-                merged_into: Merged {post_count} posts from {original_discussion_ids_count} discussions into {discussion}
                 renamed: Renamed discussion from {old_title} to {new_title}
                 restored: Restored discussion {discussion}
-                split_away: Split {post_count} posts from {discussion} into {new_discussion}
-                split_into: Split {post_count} posts into new discussion {discussion}
             extension:
                 disabled: Disabled extension {package}
                 enabled: Enabled extension {package}
                 uninstalled: Uninstalled extension {package}
-            fof_ban_ips:
-                banned: Banned ip {ip}
-                unbanned: Unbanned ip {ip}
             group:
                 created: Created group {name}
                 deleted: Deleted group {name}
@@ -116,25 +109,17 @@ flarum-audit:
                 activated_with_email: Activated {username}'s account via confirmation link
                 avatar_changed: Changed {username}'s avatar
                 avatar_removed: Removed {username}'s avatar
-                bio_changed: Edited {username}'s bio
                 created: Created {username}'s account
                 deleted: Deleted {username}
                 email_changed: Changed {username}'s email from {old_email} to {new_email}
                 email_change_requested: Requested to change {username}'s email to {new_email}
                 groups_changed: Changed {username}'s groups from {old_groups} to {new_groups}
-                impersonated: Impersonated {username}
                 logged_in: Logged in {username} account
                 logged_in_with_provider: Logged in {username} account using {provider}
                 logged_out: Logged out {username} account
-                nickname_requested: Requested new nickname {new_nickname} for user {username}
-                nickname_request_approved: Approved {username}'s nickname change from {old_nickname} to {new_nickname}
-                nickname_request_rejected: Rejected {username}'s nickname change
                 password_changed: Changed {username}'s password
                 password_change_requested: Requested to change {username}'s password
                 password_reset_attempted: Requested a password reset for {username}
                 password_reset_attempted_unmatched: Requested a password reset for {email} (no matching account)
                 provider_connected: Connected provider {provider} to {username} account
                 username_changed: Changed {username}'s username from {old_username} to {new_username}
-                username_requested: Requested new username {new_username} for user {username}
-                username_request_approved: Approved {username}'s username change from {old_username} to {new_username}
-                username_request_rejected: Rejected {username}'s username change

@@ -12,7 +12,6 @@ namespace Flarum\Audit\Tests\unit;
 use Flarum\Audit\Extend\Audit;
 use Flarum\Audit\Integration\CoreSettingIntegration;
 use Flarum\Audit\Integration\CoreUserIntegration;
-use Flarum\Audit\Integration\FoFUsernameRequestIntegration;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -86,13 +85,12 @@ class IntegrationActionRegistrationTest extends TestCase
 
     public static function integrations(): array
     {
-        // First-party extension integrations (flags, nicknames, tags) now live in their own
-        // extensions and are covered by those extensions' AuditTest suites. Only the core and
-        // bundled-thirdparty integrations that still ship with flarum/audit are exercised here.
+        // Third-party extension integrations now live in their own extensions and are covered
+        // by those extensions' AuditTest suites. Only the core integrations that ship with
+        // flarum/audit are exercised here.
         return [
             'core user' => [CoreUserIntegration::class],
             'core setting' => [CoreSettingIntegration::class],
-            'fof username request' => [FoFUsernameRequestIntegration::class],
         ];
     }
 }
