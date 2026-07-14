@@ -19,6 +19,7 @@ use Flarum\Notification\NotificationRepository;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Tobyz\JsonApiServer\Pagination\OffsetPagination;
+use Tobyz\JsonApiServer\Schema\Field\Relationship;
 
 /**
  * @extends AbstractDatabaseResource<Notification>
@@ -66,16 +67,25 @@ class NotificationResource extends AbstractDatabaseResource
 
     public function endpoints(): array
     {
+        // Eager-load the subject's discussion only when at least one subject
+        // type actually exposes a `discussion` relationship. Gating on the
+        // number of subject types instead would add an invalid `subject.discussion`
+        // default include when the extra types have no such relationship (e.g. a
+        // User-subject notification like flarum/mentions' `userMentioned` on a
+        // forum with no Post-subject notification type), which the include
+        // validator then rejects with a 400 on the endpoint's own default.
+        $defaultInclude = array_filter([
+            'fromUser',
+            'subject',
+            $this->initialized && $this->subjectsHaveDiscussionRelationship()
+                ? 'subject.discussion'
+                : null,
+        ]);
+
         return [
             Endpoint\Show::make()
                 ->authenticated()
-                ->defaultInclude(array_filter([
-                    'fromUser',
-                    'subject',
-                    $this->initialized && count($this->subjectTypes()) > 1
-                        ? 'subject.discussion'
-                        : null,
-                ])),
+                ->defaultInclude($defaultInclude),
             Endpoint\Update::make()
                 ->authenticated(),
             Endpoint\Index::make()
@@ -86,13 +96,7 @@ class NotificationResource extends AbstractDatabaseResource
                     // Invalidate new notification count cache since read_notifications_at changed
                     $this->cache->forget("user.{$actor->id}.new_notification_count");
                 })
-                ->defaultInclude(array_filter([
-                    'fromUser',
-                    'subject',
-                    $this->initialized && count($this->subjectTypes()) > 1
-                        ? 'subject.discussion'
-                        : null,
-                ]))
+                ->defaultInclude($defaultInclude)
                 ->paginate(),
         ];
     }
@@ -132,5 +136,28 @@ class NotificationResource extends AbstractDatabaseResource
         return $this->api->typesForModels(
             (new Notification())->getSubjectModels()
         );
+    }
+
+    /**
+     * Whether any registered notification subject type exposes an includable
+     * `discussion` relationship, making `subject.discussion` a valid include.
+     */
+    protected function subjectsHaveDiscussionRelationship(): bool
+    {
+        foreach ($this->subjectTypes() as $type) {
+            $resource = $this->api->getResource($type);
+
+            if (! $resource instanceof AbstractResource) {
+                continue;
+            }
+
+            foreach ($resource->resolveFields() as $field) {
+                if ($field instanceof Relationship && $field->includable && $field->name === 'discussion') {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
