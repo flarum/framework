@@ -13,11 +13,14 @@ use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Schema;
 use Flarum\Bus\Dispatcher;
+use Flarum\Discussion\Discussion;
 use Flarum\Notification\Command\ReadNotification;
 use Flarum\Notification\Notification;
 use Flarum\Notification\NotificationRepository;
+use Flarum\Post\Post;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 
 /**
@@ -93,8 +96,32 @@ class NotificationResource extends AbstractDatabaseResource
                         ? 'subject.discussion'
                         : null,
                 ]))
+                ->eagerLoad(['fromUser'])
+                ->eagerLoadWhere('subject', function ($query) {
+                    if ($query instanceof MorphTo) {
+                        $query->morphWith($this->subjectMorphWith());
+                    }
+                })
                 ->paginate(),
         ];
+    }
+
+    /**
+     * @return array<class-string, string[]>
+     */
+    protected function subjectMorphWith(): array
+    {
+        $map = [];
+
+        foreach (array_unique(Notification::getSubjectModels()) as $class) {
+            if (is_a($class, Discussion::class, true)) {
+                $map[$class] = ['state'];
+            } elseif (is_a($class, Post::class, true)) {
+                $map[$class] = ['discussion.state'];
+            }
+        }
+
+        return $map;
     }
 
     public function fields(): array
