@@ -14,10 +14,6 @@ use Flarum\Post\Post;
 use Flarum\User\User;
 use Illuminate\Support\Collection;
 
-/**
- * Dispatched once after all of a post's flags have been dismissed,
- * covering the whole batch — unlike Deleting, which fires per flag.
- */
 class Dismissed
 {
     /**
