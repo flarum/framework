@@ -34,7 +34,7 @@ class DeleteFlagsHandler
             $this->events->dispatch(new Deleting($flag, $actor, $command->data));
         }
 
-        $post->flags()->delete();
+        $post->flags->each->delete();
 
         return $post;
     }
