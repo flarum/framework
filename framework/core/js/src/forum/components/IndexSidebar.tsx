@@ -47,12 +47,18 @@ export default class IndexSidebar<CustomAttrs extends IndexSidebarAttrs = IndexS
       </Button>
     );
 
+    // `SelectDropdown` labels its button with the active child, and falls back to
+    // `defaultLabel` when none of them is active. That happens whenever a page
+    // filters the discussion list without contributing a nav item of its own, so
+    // such a page can name itself here by setting `titleControlLabel` on
+    // `app.current`. Otherwise we are on the unfiltered index.
     items.add(
       'nav',
       <SelectDropdown
         buttonClassName="Button"
         className="App-titleControl"
         accessibleToggleLabel={app.translator.trans('core.forum.index.toggle_sidenav_dropdown_accessible_label')}
+        defaultLabel={app.current.get('titleControlLabel') ?? app.translator.trans('core.forum.index.all_discussions_link')}
       >
         {this.navItems().toArray()}
       </SelectDropdown>
