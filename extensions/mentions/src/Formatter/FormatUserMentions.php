@@ -45,7 +45,7 @@ class FormatUserMentions
     public function __invoke(Renderer $renderer, $context, string $xml)
     {
         return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($context) {
-            $user = (($context && isset($context->getRelations()['mentionsUsers'])) || $context instanceof Post)
+            $user = ($context && isset($context->getRelations()['mentionsUsers']))
                 ? $context->mentionsUsers->find($attributes['id'])
                 : User::find($attributes['id']);
 

@@ -38,7 +38,7 @@ class FormatGroupMentions
     public function __invoke(Renderer $renderer, $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'GROUPMENTION', function ($attributes) use ($context) {
-            $group = (($context && isset($context->getRelations()['mentionsGroups'])) || $context instanceof Post)
+            $group = ($context && isset($context->getRelations()['mentionsGroups']))
                 ? $context->mentionsGroups->find($attributes['id'])
                 : Group::find($attributes['id']);
 
