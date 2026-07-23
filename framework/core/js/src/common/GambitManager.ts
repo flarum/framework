@@ -5,6 +5,7 @@ import HiddenGambit from './query/discussions/HiddenGambit';
 import UnreadGambit from './query/discussions/UnreadGambit';
 import EmailGambit from './query/users/EmailGambit';
 import GroupGambit from './query/users/GroupGambit';
+import BouncedGambit from './query/users/BouncedGambit';
 import DiscussionGambit from './query/discussions/DiscussionGambit';
 
 /**
@@ -17,7 +18,7 @@ export default class GambitManager {
   gambits: Record<string, Array<new () => IGambit>> = {
     discussions: [AuthorGambit, CreatedGambit, HiddenGambit, UnreadGambit],
     posts: [AuthorGambit, DiscussionGambit],
-    users: [EmailGambit, GroupGambit],
+    users: [EmailGambit, GroupGambit, BouncedGambit],
   };
 
   public apply(type: string, filter: Record<string, any>): Record<string, any> {

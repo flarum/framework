@@ -138,4 +138,10 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'opensearch',
         $route->toController(Controller\OpenSearchController::class)
     );
+
+    $map->post(
+        '/mail/webhook[/{driver}]',
+        'mailWebhook',
+        $route->toController(\Flarum\Mail\WebhookController::class)
+    );
 };

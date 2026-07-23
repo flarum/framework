@@ -26,6 +26,13 @@ export default class User extends Model {
     return Model.attribute<boolean | undefined>('isEmailConfirmed').call(this);
   }
 
+  emailBouncedAt() {
+    return Model.attribute('emailBouncedAt', Model.transformDate).call(this) as Date | null | undefined;
+  }
+  emailBounceReason() {
+    return Model.attribute<string | null | undefined>('emailBounceReason').call(this);
+  }
+
   password() {
     return Model.attribute<string | undefined>('password').call(this);
   }

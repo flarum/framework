@@ -180,7 +180,9 @@
         "symfony/mime": "^7.4",
         "symfony/polyfill-intl-messageformatter": "^1.27",
         "symfony/postmark-mailer": "^7.4",
+        "symfony/remote-event": "^7.4",
         "symfony/translation": "^7.4",
+        "symfony/webhook": "^7.4",
         "symfony/yaml": "^7.4",
         "wikimedia/less.php": "^5.3"
     },
