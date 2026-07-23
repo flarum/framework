@@ -13,6 +13,8 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
 use Flarum\Mail\DriverInterface;
+use Flarum\Mail\HandlesWebhooks;
+use Flarum\Mail\ProvisionsWebhooks;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Validation\Factory;
@@ -83,6 +85,10 @@ class MailSettingResource extends AbstractResource implements Findable
 
                     return $configured->validate($this->settings, $this->validator);
                 }),
+            Schema\Boolean::make('canReceiveWebhooks')
+                ->get(fn () => $this->container->make('flarum.mail.configured_driver') instanceof HandlesWebhooks),
+            Schema\Boolean::make('canProvisionWebhooks')
+                ->get(fn () => $this->container->make('flarum.mail.configured_driver') instanceof ProvisionsWebhooks),
         ];
     }
 }
