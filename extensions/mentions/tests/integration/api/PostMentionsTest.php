@@ -496,7 +496,7 @@ class PostMentionsTest extends TestCase
                 'json' => [
                     'data' => [
                         'attributes' => [
-                            'content' => '@"Bad _ User"#p9',
+                            'content' => '@"Bad _ User"#p9 edited',
                         ],
                     ],
                 ],
@@ -508,7 +508,7 @@ class PostMentionsTest extends TestCase
         $response = json_decode($response->getBody(), true);
 
         $this->assertStringContainsString('Bad "#p6 User', $response['data']['attributes']['contentHtml']);
-        $this->assertEquals('@"Bad _ User"#p9', $response['data']['attributes']['content']);
+        $this->assertEquals('@"Bad _ User"#p9 edited', $response['data']['attributes']['content']);
         $this->assertStringContainsString('PostMention', $response['data']['attributes']['contentHtml']);
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(9));
     }
