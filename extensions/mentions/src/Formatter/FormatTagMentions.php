@@ -9,7 +9,6 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use s9e\TextFormatter\Renderer;
@@ -21,7 +20,7 @@ class FormatTagMentions
     {
         return Utils::replaceAttributes($xml, 'TAGMENTION', function ($attributes) use ($context) {
             /** @var Tag|null $tag */
-            $tag = (($context && isset($context->getRelations()['mentionsTags'])) || $context instanceof Post)
+            $tag = ($context && isset($context->getRelations()['mentionsTags']))
                 ? $context->mentionsTags->find($attributes['id'])
                 : Tag::query()->find($attributes['id']);
 

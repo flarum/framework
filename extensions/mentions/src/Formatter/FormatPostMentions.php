@@ -47,7 +47,7 @@ class FormatPostMentions
     public function __invoke(Renderer $renderer, $context, $xml, Request $request = null)
     {
         return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($context) {
-            $post = (($context && isset($context->getRelations()['mentionsPosts'])) || $context instanceof Post)
+            $post = ($context && isset($context->getRelations()['mentionsPosts']))
                 ? $context->mentionsPosts->find($attributes['id'])
                 : Post::find($attributes['id']);
 

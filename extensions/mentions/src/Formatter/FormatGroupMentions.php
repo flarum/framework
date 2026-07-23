@@ -10,7 +10,6 @@
 namespace Flarum\Mentions\Formatter;
 
 use Flarum\Group\Group;
-use Flarum\Post\Post;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Utils;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -38,7 +37,7 @@ class FormatGroupMentions
     public function __invoke(Renderer $renderer, $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'GROUPMENTION', function ($attributes) use ($context) {
-            $group = (($context && isset($context->getRelations()['mentionsGroups'])) || $context instanceof Post)
+            $group = ($context && isset($context->getRelations()['mentionsGroups']))
                 ? $context->mentionsGroups->find($attributes['id'])
                 : Group::find($attributes['id']);
 

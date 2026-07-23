@@ -479,7 +479,7 @@ class UserMentionsTest extends TestCase
                 'json' => [
                     'data' => [
                         'attributes' => [
-                            'content' => '@"Bad _ User"#5',
+                            'content' => '@"Bad _ User"#5 edited',
                         ],
                     ],
                 ],
@@ -491,7 +491,7 @@ class UserMentionsTest extends TestCase
         $response = json_decode($response->getBody(), true);
 
         $this->assertStringContainsString('Bad "#p6 User', $response['data']['attributes']['contentHtml']);
-        $this->assertEquals('@"Bad _ User"#5', $response['data']['attributes']['content']);
+        $this->assertEquals('@"Bad _ User"#5 edited', $response['data']['attributes']['content']);
         $this->assertStringContainsString('UserMention', $response['data']['attributes']['contentHtml']);
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsUsers->find(5));
     }
