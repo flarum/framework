@@ -10,7 +10,6 @@
 namespace Flarum\Mentions\Formatter;
 
 use Flarum\Http\SlugManager;
-use Flarum\Post\Post;
 use Flarum\User\User;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Utils;

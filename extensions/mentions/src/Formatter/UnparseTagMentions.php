@@ -9,7 +9,6 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 use s9e\TextFormatter\Utils;
 

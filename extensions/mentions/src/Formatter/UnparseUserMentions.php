@@ -9,7 +9,6 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Post\Post;
 use Flarum\User\User;
 use s9e\TextFormatter\Utils;
 use Symfony\Contracts\Translation\TranslatorInterface;
