@@ -40,9 +40,7 @@ class UnparsePostMentions
         return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($context) {
             /** @var Post|null $post */
             $post = match (true) {
-                $context instanceof AbstractModel && $context->isRelation('mentionsPosts') => $context->relationLoaded('mentionsPosts')
-                    ? $context->mentionsPosts->find($attributes['id']) // @phpstan-ignore-line
-                    : $context->mentionsPosts()->find($attributes['id']), // @phpstan-ignore-line
+                $context instanceof AbstractModel && $context->relationLoaded('mentionsPosts') => $context->mentionsPosts->find($attributes['id']), // @phpstan-ignore-line
                 default => Post::query()->find($attributes['id']),
             };
 

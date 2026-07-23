@@ -40,9 +40,7 @@ class UnparseUserMentions
         return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($context) {
             /** @var User|null $user */
             $user = match (true) {
-                $context instanceof AbstractModel && $context->isRelation('mentionsUsers') => $context->relationLoaded('mentionsUsers')
-                    ? $context->mentionsUsers->find($attributes['id']) // @phpstan-ignore-line
-                    : $context->mentionsUsers()->find($attributes['id']), // @phpstan-ignore-line
+                $context instanceof AbstractModel && $context->relationLoaded('mentionsUsers') => $context->mentionsUsers->find($attributes['id']), // @phpstan-ignore-line
                 default => User::query()->find($attributes['id']),
             };
 
