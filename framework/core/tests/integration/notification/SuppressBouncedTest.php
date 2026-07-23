@@ -10,9 +10,9 @@
 namespace Flarum\Tests\integration\notification;
 
 use Carbon\Carbon;
+use Flarum\Extend;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
-use Flarum\Extend;
 use Flarum\Notification\Driver\EmailNotificationDriver;
 use Flarum\Notification\MailableInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
