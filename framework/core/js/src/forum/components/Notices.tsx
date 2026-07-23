@@ -40,6 +40,26 @@ export default class Notices extends Component {
       );
     }
 
+    if (user && user.emailBouncedAt()) {
+      items.add(
+        'emailBounced',
+        <Alert
+          type="error"
+          dismissible={false}
+          controls={[
+            <Button className="Button Button--link" onclick={() => app.modal.show(() => import('./ChangeEmailModal'))}>
+              {app.translator.trans('core.forum.user_email_bounced.update_button')}
+            </Button>,
+          ]}
+          className="Alert--emailBounced"
+          containerClassName="container"
+        >
+          {app.translator.trans('core.forum.user_email_bounced.alert_message', { email: <strong>{user.email()}</strong> })}
+        </Alert>,
+        95
+      );
+    }
+
     if (app.data.bisecting) {
       items.add(
         'bisecting',

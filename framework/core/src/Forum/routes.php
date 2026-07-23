@@ -120,4 +120,10 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'savePassword',
         $route->toController(Controller\SavePasswordController::class)
     );
+
+    $map->post(
+        '/mail/webhook[/{driver}]',
+        'mailWebhook',
+        $route->toController(\Flarum\Mail\WebhookController::class)
+    );
 };

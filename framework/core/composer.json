@@ -89,8 +89,10 @@
         "symfony/mime": "^7.0",
         "symfony/polyfill-intl-messageformatter": "^1.27",
         "symfony/postmark-mailer": "^7.0",
+        "symfony/remote-event": "^7.0",
         "symfony/translation": "^7.0",
         "symfony/translation-contracts": "^2.5",
+        "symfony/webhook": "^7.0",
         "symfony/yaml": "^7.0",
         "wikimedia/less.php": "^5.3"
     },

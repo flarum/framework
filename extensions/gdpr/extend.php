@@ -33,7 +33,8 @@ return [
     (new Extend\Notification())
         ->type(Notifications\ExportAvailableBlueprint::class, ['alert', 'email'])
         ->type(Notifications\ConfirmErasureBlueprint::class, ['email'])
-        ->type(Notifications\ErasureRequestCancelledBlueprint::class, ['alert', 'email']),
+        ->type(Notifications\ErasureRequestCancelledBlueprint::class, ['alert', 'email'])
+        ->beforeSending(FilterAnonymizedRecipients::class),
 
     (new Extend\Model(User::class))
         ->cast('anonymized', 'boolean')

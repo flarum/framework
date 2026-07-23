@@ -214,6 +214,27 @@ class UserResource extends AbstractDatabaseResource
                         $user->activate();
                     }
                 }),
+
+            Schema\DateTime::make('emailBouncedAt')
+                // Visible to the user themselves (so the forum can prompt them
+                // to fix their address) and to admins who can edit credentials.
+                ->visible(function (User $user, Context $context) {
+                    return $context->getActor()->id === $user->id
+                        || $context->getActor()->can('editCredentials', $user);
+                })
+                // Admins can clear a bounce flag (e.g. a provider glitch) by
+                // writing null; they cannot set an arbitrary bounce timestamp.
+                ->writable(fn (User $user, Context $context) => $context->getActor()->isAdmin())
+                ->set(function (User $user, $value, Context $context) {
+                    if (empty($value)) {
+                        $user->clearEmailBounce();
+                    }
+                }),
+
+            Schema\Str::make('emailBounceReason')
+                // Reason is only exposed to admins; the user just needs to know
+                // that delivery failed, not the raw provider message.
+                ->visible(fn (User $user, Context $context) => $context->getActor()->can('editCredentials', $user)),
             Schema\Str::make('password')
                 ->requiredOnCreateWithout(['token'])
                 ->validationMessages([

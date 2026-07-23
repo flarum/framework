@@ -2,6 +2,7 @@ import app from '../../admin/app';
 import StatusWidget from './StatusWidget';
 import ExtensionsWidget from './ExtensionsWidget';
 import AnnouncementsWidget from './AnnouncementsWidget';
+import EmailBounceWidget from './EmailBounceWidget';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { Children } from 'mithril';
@@ -112,6 +113,11 @@ export default class DashboardPage extends AdminPage {
 
     if (!app.data.announcementsDisabled) {
       items.add('announcements', <AnnouncementsWidget />, 70);
+    }
+
+    // Only when the active mail driver can actually report bounces.
+    if (app.forum.attribute('mailDriverSupportsBounceReporting')) {
+      items.add('emailBounces', <EmailBounceWidget />, 60);
     }
 
     items.add('extensions', <ExtensionsWidget />, 10);

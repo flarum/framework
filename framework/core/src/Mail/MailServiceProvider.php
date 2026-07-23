@@ -109,6 +109,8 @@ class MailServiceProvider extends AbstractServiceProvider
     ): void {
         $events->listen(MessageSending::class, MutateEmail::class);
 
+        $events->subscribe(Listener\StampBouncedUser::class);
+
         // Resolve the logo URL via the flarum-assets disk so it stays correct on
         // installs whose assets are served from a remote bucket / CDN — same path
         // ForumResource::getLogoUrl() uses for the frontend.

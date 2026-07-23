@@ -284,6 +284,8 @@ core:
     # These translations are used in the email page of the admin interface.
     email:
       addresses_heading: Addresses
+      bounce_handling_heading: Bounce Handling
+      bounce_handling_text: "When your mail provider reports that an address permanently bounced or was marked as spam, Flarum can flag the affected user and optionally stop emailing them, protecting your sender reputation."
       description: "Configure the driver, settings and addresses your forum will use to send email."
       driver_heading: Choose a Driver
       driver_label: Driver
@@ -302,6 +304,8 @@ core:
       mail_mailgun_domain_label: Domain
       mail_mailgun_region_label: Region
       mail_mailgun_secret_label: Secret key
+      mail_mailgun_webhook_signing_key_label: Webhook signing key
+      mail_mailgun_webhook_signing_key_help: "Mailgun's HTTP webhook signing key, used to verify incoming bounce/complaint webhooks. Found in your Mailgun dashboard under Settings → Webhooks. Required for bounce handling."
       mail_password_label: => core.ref.password
       mail_port_label: Port
       mail_postmark_message_stream_label: Message stream
@@ -310,16 +314,36 @@ core:
       mail_smtp_verify_peer_help: "Verify the server's SSL certificate when using TLS or SSL encryption. Disable only if your mail server uses a self-signed certificate."
       mail_username_label: => core.ref.username
       mailgun_heading: Mailgun Settings
+      mailgun_description: "Send email via Mailgun's HTTP API. Enter the domain and secret key from your Mailgun account, and choose the region matching your domain."
       postmark_heading: Postmark Settings
       postmark_description: "Send email via Postmark's HTTP API. Optionally specify a message stream to use a non-default stream."
       not_sending_message: Flarum currently does not send emails. This can be due to the selected driver, or errors in its configuration.
+      register_webhook_button: Register webhook with provider
+      register_webhook_success: "Webhook registered with your mail provider."
       send_test_mail_button: Send
       send_test_mail_heading: Send Test Mail
       send_test_mail_success: "Test mail sent successfully!"
       send_test_mail_text: "This will send an email using the above configuration to your email, {email}."
       smtp_heading: SMTP Settings
       smtp_description: "Configure SMTP connection settings. Common configurations: Port 587 with TLS, or Port 465 with SSL."
+      suppress_bounced_label: Stop emailing bounced addresses
+      suppress_bounced_help: "When enabled, users whose address has bounced or filed a spam complaint will be skipped when sending notification emails, until they update and confirm their address."
       title: => core.ref.email
+
+    # These translations are used in the email bounces dashboard widget.
+    email_bounces:
+      title: Email Bounces
+      about: "Bounce and spam-complaint events reported by your mail provider, counted over each period. Includes events for users who have since fixed their address."
+      refresh: Refresh
+      load_error: Could not load bounce statistics. Please try again later.
+      period_hour: Past hour
+      period_week: Past week
+      period_month: Past month
+      period_total: All time
+      affected: "{count, plural, =0 {No addresses currently affected} one {# address currently affected} other {# addresses currently affected}}"
+      recovered: "{count, plural, =0 {none recovered} one {# recovered} other {# recovered}}"
+      not_configured: "Bounce handling isn't fully set up, so no bounces will be received. <a>Check your email settings.</a>"
+      view_affected: View affected users
 
     # These translations are used on default extension pages.
     extension:
@@ -484,6 +508,10 @@ core:
             title: => core.ref.email
             visibility_hide: Hide email address
             visibility_show: Show email address
+
+          email_bounced:
+            title: Email delivery
+            bounced: Delivery failed
 
           group_badges:
             no_badges: None
@@ -800,6 +828,10 @@ core:
       toggle_dropdown_accessible_label: Toggle user controls dropdown menu
 
     # These translations are used in the alert that is shown when a new user has not confirmed their email address.
+    user_email_bounced:
+      alert_message: We couldn't deliver email to {email}. Please update your email address so you don't miss important notifications.
+      update_button: Update Email
+
     user_email_confirmation:
       alert_message: => core.ref.confirmation_email_sent
       resend_button: Resend Confirmation Email
@@ -886,6 +918,8 @@ core:
           key: discussion
           hint: the ID of the discussion
       users:
+        bounced:
+          key: bounced
         email:
           key: email
           hint: example@machine.local
