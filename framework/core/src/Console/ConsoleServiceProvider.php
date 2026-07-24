@@ -71,6 +71,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
                 ScheduleRunCommand::class,
                 ToggleExtensionCommand::class,
                 BisectCommand::class,
+                TinkerCommand::class,
                 ConvertAvatarsToWebpCommand::class,
                 BackfillAvatarVariantsCommand::class,
                 // Used internally to create DB dumps before major releases.
