@@ -165,6 +165,7 @@
         "psr/http-server-handler": "^1.0.2",
         "psr/http-server-middleware": "^1.0.2",
         "pusher/pusher-php-server": "^7.2",
+        "psy/psysh": "^0.12",
         "s9e/text-formatter": "^2.13",
         "sycho/sourcemap": "^2.0.0",
         "symfony/config": "^7.0",
