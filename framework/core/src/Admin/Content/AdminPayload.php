@@ -78,6 +78,7 @@ class AdminPayload
         $document->payload['dbDriver'] = $this->appInfo->identifyDatabaseDriver();
         $document->payload['dbVersion'] = $this->appInfo->identifyDatabaseVersion();
         $document->payload['dbDriverMismatch'] = $this->appInfo->identifyDatabaseDriverMismatch();
+        $document->payload['dbVersionStatus'] = $this->appInfo->identifyDatabaseVersionStatus();
         $document->payload['dbOptions'] = $this->appInfo->identifyDatabaseOptions();
         $document->payload['debugEnabled'] = Arr::get($this->config, 'debug');
 

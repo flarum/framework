@@ -56,6 +56,15 @@ export enum DatabaseDriver {
   SQLite = 'SQLite',
 }
 
+export interface DatabaseVersionStatus {
+  // A running install is always at or above the hard minimum, so the backend
+  // only ever reports these two states to the admin frontend.
+  status: 'ok' | 'below_recommended';
+  server: string;
+  version: string;
+  recommended: string;
+}
+
 export interface AdminApplicationData extends ApplicationData {
   extensions: Record<string, Extension>;
   installedPackages: string[];
@@ -80,6 +89,8 @@ export interface AdminApplicationData extends ApplicationData {
 
   dbDriver: DatabaseDriver;
   dbVersion: string;
+  dbDriverMismatch: string | null;
+  dbVersionStatus: DatabaseVersionStatus | null;
   dbOptions: Record<string, string>;
   phpVersion: string;
   queueDriver: string;

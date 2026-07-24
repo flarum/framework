@@ -10,6 +10,7 @@
 namespace Flarum\Foundation\Console;
 
 use Flarum\Console\AbstractCommand;
+use Flarum\Database\DatabaseRequirements;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\ApplicationInfoProvider;
@@ -67,10 +68,17 @@ class InfoCommand extends AbstractCommand
         }
 
         $dbMismatch = $this->appInfo->identifyDatabaseDriverMismatch();
+        $dbVersionStatus = $this->appInfo->identifyDatabaseVersionStatus();
         $dbLine = '<info>'.$this->appInfo->identifyDatabaseDriver().' version:</info> '.$this->appInfo->identifyDatabaseVersion();
 
         if ($dbMismatch) {
             $dbLine .= " <error>(driver mismatch — config.php is set to '{$this->config['database.driver']}', but the server is {$dbMismatch})</error>";
+        }
+
+        // A booted Flarum is always at or above the hard minimum, so only the
+        // recommended-version nudge is meaningful here.
+        if ($dbVersionStatus && $dbVersionStatus['status'] === DatabaseRequirements::BELOW_RECOMMENDED) {
+            $dbLine .= " <comment>(below the recommended {$dbVersionStatus['server']} {$dbVersionStatus['recommended']})</comment>";
         }
 
         $this->output->writeln($dbLine);
