@@ -15,6 +15,34 @@
     display: none;
   }
 }
+// The embed view shows only the discussion, so hide the forum header. It's
+// hidden rather than removed because it holds live Mithril mount points, and
+// detaching them from the DOM breaks subsequent redraws.
+.App-header {
+  display: none;
+}
+// There's nowhere to navigate "back" to in a single-discussion embed, so hide
+// the back-control that the app mounts outside the header.
+.Navigation-back {
+  display: none;
+}
+// With no header, collapse the header-height offset so elements anchored to it
+// (e.g. the sticky DiscussionPage-nav) don't leave a gap where the header was.
+:root {
+  --header-height: 0px;
+  --header-height-phone: 0px;
+}
+// 2.x wraps the page in PageStructure, which lays the discussion out as a
+// two-column flex row (sidebar nav + content). For the embed we want a single
+// full-width column: the nav across the top, the posts below.
+.Page-container {
+  display: block;
+}
+.Page-sidebar,
+.Page-content {
+  width: 100%;
+  margin-top: 0;
+}
 .App-content {
   border-top: 0;
   min-height: 0;
@@ -29,13 +57,18 @@
 .DiscussionPage-nav {
   width: auto;
   float: none;
+  // Core gives the nav a negative horizontal margin for the sidebar column's
+  // gutter; in the embed's full-width single column that just overflows.
+  margin: 0;
 
   @media @tablet-up {
     height: 70px;
   }
 
   > ul {
-    .header-background();
+    // 1.x used the `.header-background()` mixin here (removed in 2.x). We only
+    // want the bar's background — not the fixed positioning it also applied.
+    background: var(--header-bg);
     border-bottom: 0;
     height: auto !important;
     list-style: none;
@@ -97,7 +130,7 @@
     top: auto;
     right: auto !important;
     padding-bottom: 0 !important;
-    .transition(none);
+    transition: none;
 
     &.Dropdown-menu--right {
       left: auto !important;
