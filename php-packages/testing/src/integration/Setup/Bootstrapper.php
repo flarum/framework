@@ -13,6 +13,7 @@ use Flarum\Foundation\Config;
 use Flarum\Foundation\InstalledSite;
 use Flarum\Foundation\Paths;
 use Flarum\Testing\integration\Extend\BeginTransactionAndSetDatabase;
+use Flarum\Testing\integration\Extend\BindInlineTransactionsManager;
 use Flarum\Testing\integration\Extend\OverrideExtensionManagerForTests;
 use Flarum\Testing\integration\Extend\SetSettingsBeforeBoot;
 use Flarum\Testing\integration\UsesTmpDir;
@@ -69,6 +70,9 @@ class Bootstrapper
 
         $extenders = array_merge([
             new OverrideExtensionManagerForTests($this->extensions),
+            // Must precede BeginTransactionAndSetDatabase: it resolves the
+            // connection, which is when the transactions manager is attached.
+            new BindInlineTransactionsManager(),
             new BeginTransactionAndSetDatabase(function (ConnectionInterface $db) {
                 $this->database = $db;
             }),

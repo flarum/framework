@@ -26,12 +26,15 @@ use RuntimeException;
  * set." Binding it lets Illuminate's DatabaseManager::configure() attach the
  * manager to every connection.
  *
- * Note: the integration harness wraps each test in an open transaction that is
- * rolled back on tearDown, so a registered afterCommit callback is (correctly)
- * deferred to that never-committed transaction and cannot be observed firing
- * here. These tests therefore assert the wiring the fix establishes and that
- * afterCommit no longer throws; the callback-execution semantics themselves are
- * Illuminate's own, guaranteed once a manager is attached.
+ * These tests assert the wiring the fix establishes: that `db.transactions` is
+ * bound and attached to the connection, and that `Connection::afterCommit()`
+ * no longer throws.
+ *
+ * The integration harness wraps each test in an open transaction that is rolled
+ * back on tearDown. So that after-commit listeners remain observable in tests
+ * rather than being discarded with that rollback, the harness runs their
+ * callbacks inline; see InlineTransactionsManager and AfterCommitListenerTest
+ * (flarum/framework#4814).
  */
 class AfterCommitTest extends TestCase
 {
@@ -70,8 +73,6 @@ class AfterCommitTest extends TestCase
         $connection = $this->connection();
 
         try {
-            // Registered against the harness's open transaction, so it is
-            // deferred (not run) rather than throwing.
             $connection->afterCommit(function () {
                 // no-op
             });
@@ -80,5 +81,20 @@ class AfterCommitTest extends TestCase
         }
 
         $this->addToAssertionCount(1);
+    }
+
+    #[Test]
+    public function after_commit_callback_runs_in_tests(): void
+    {
+        $ran = false;
+
+        // The test harness runs after-commit callbacks inline (see
+        // InlineTransactionsManager) so they don't get discarded with the
+        // harness's rolled-back transaction. See flarum/framework#4814.
+        $this->connection()->afterCommit(function () use (&$ran) {
+            $ran = true;
+        });
+
+        $this->assertTrue($ran, 'Connection::afterCommit() callback should run during a test.');
     }
 }
