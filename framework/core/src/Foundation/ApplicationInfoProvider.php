@@ -10,6 +10,7 @@
 namespace Flarum\Foundation;
 
 use Carbon\Carbon;
+use Flarum\Database\DatabaseRequirements;
 use Flarum\Locale\Translator;
 use Flarum\User\SessionManager;
 use Illuminate\Console\Scheduling\Schedule;
@@ -124,6 +125,80 @@ class ApplicationInfoProvider
         $actual = $isMariaDb ? 'mariadb' : 'mysql';
 
         return $actual === $configured ? null : $actual;
+    }
+
+    /**
+     * Assess the running database version against Flarum's minimum and
+     * recommended tiers.
+     *
+     * MySQL, MariaDB and PostgreSQL each carry a two-tier requirement; SQLite
+     * (which only has a hard floor enforced at install time) returns null. The
+     * returned array mirrors what the admin frontend needs to render a warning
+     * consistent with the driver-mismatch alert.
+     *
+     * @return array{status: string, server: string, version: string, recommended: string}|null
+     */
+    public function identifyDatabaseVersionStatus(): ?array
+    {
+        $tuple = match ($this->config['database.driver']) {
+            'mysql', 'mariadb' => $this->mysqlFamilyVersionTuple(),
+            'pgsql' => $this->pgsqlVersionTuple(),
+            default => null,
+        };
+
+        if ($tuple === null || $tuple['version'] === null) {
+            return null;
+        }
+
+        return [
+            'status' => DatabaseRequirements::compare($tuple['version'], $tuple['minimum'], $tuple['recommended']),
+            'server' => $tuple['server'],
+            'version' => $tuple['version'],
+            'recommended' => $tuple['recommended'],
+        ];
+    }
+
+    /**
+     * @return array{server: string, version: ?string, minimum: string, recommended: string}
+     */
+    private function mysqlFamilyVersionTuple(): array
+    {
+        // Cache for 24 hours since the database version rarely changes. This is
+        // the unmodified VERSION() string (unlike flarum:db_version, which is
+        // trimmed for display) so we can correctly parse MariaDB's legacy
+        // "5.5.5-" compatibility prefix before comparing.
+        $raw = $this->cache->remember('flarum:db_version_raw', 86400, function () {
+            return $this->db->selectOne('select version() as version')->version;
+        });
+
+        $isMariaDb = DatabaseRequirements::isMariaDb($raw);
+        $tiers = DatabaseRequirements::mysqlFamilyTiers($isMariaDb);
+
+        return [
+            'server' => $isMariaDb ? 'MariaDB' : 'MySQL',
+            'version' => DatabaseRequirements::normaliseVersion($raw, $isMariaDb),
+            'minimum' => $tiers['minimum'],
+            'recommended' => $tiers['recommended'],
+        ];
+    }
+
+    /**
+     * @return array{server: string, version: ?string, minimum: string, recommended: string}
+     */
+    private function pgsqlVersionTuple(): array
+    {
+        // SHOW server_version returns a clean version (e.g. "15.3"), unlike
+        // SELECT version() which includes platform info.
+        $version = $this->cache->remember('flarum:db_version_pgsql', 86400, function () {
+            return Str::before($this->db->selectOne('show server_version')->server_version, ' ');
+        });
+
+        return [
+            'server' => 'PostgreSQL',
+            'version' => DatabaseRequirements::normaliseVersion($version, false),
+            'minimum' => DatabaseRequirements::PGSQL_MINIMUM,
+            'recommended' => DatabaseRequirements::PGSQL_RECOMMENDED,
+        ];
     }
 
     public function identifyDatabaseOptions(): array

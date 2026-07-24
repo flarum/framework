@@ -108,6 +108,38 @@ export default class DashboardPage extends AdminPage {
       );
     }
 
+    // A running install can never be below the hard minimum — Flarum won't
+    // boot below it, and the installer refuses to proceed — so we only nudge
+    // when the version is below the recommended release.
+    const dbVersionStatus = app.data.dbVersionStatus;
+    if (dbVersionStatus && dbVersionStatus.status === 'below_recommended') {
+      items.add(
+        'db-version-warning',
+        <AlertWidget
+          className="DbVersionWarningWidget"
+          alert={{
+            type: 'warning',
+            dismissible: false,
+            title: app.translator.trans('core.admin.database-version-warning.below-recommended-label'),
+            icon: 'fas fa-database',
+          }}
+        >
+          {app.translator.trans('core.admin.database-version-warning.below-recommended-detail', {
+            server: dbVersionStatus.server,
+            version: dbVersionStatus.version,
+            recommended: dbVersionStatus.recommended,
+            link: ({ children }: { children: Children }) => (
+              <Link href="https://docs.flarum.org/2.x/install/#server-requirements" external={true} target="_blank">
+                <Icon name="fas fa-external-link-alt" />
+                {children}
+              </Link>
+            ),
+          })}
+        </AlertWidget>,
+        85
+      );
+    }
+
     items.add('status', <StatusWidget />, 80);
 
     if (!app.data.announcementsDisabled) {
