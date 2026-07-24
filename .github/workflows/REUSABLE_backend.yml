@@ -34,6 +34,12 @@ on:
         # Keep PHP versions synced with build-install-packages.yml
         default: '["8.3", "8.4", "8.5"]'
 
+      latest_php:
+        description: The latest PHP version to test with. DB-specific jobs run only on this version. Keep in sync with the last entry of php_versions.
+        type: string
+        required: false
+        default: '8.5'
+
       php_extensions:
         description: PHP extensions to install.
         type: string
@@ -103,25 +109,25 @@ jobs:
             driver: pgsql
 
           # Include Database prefix tests with only one PHP version (latest).
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
+          - php: ${{ inputs.latest_php }}
             service: 'mysql:5.7'
             db: MySQL 5.7
             driver: mysql
             prefix: flarum_
             prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
+          - php: ${{ inputs.latest_php }}
             service: mariadb
             db: MariaDB
             driver: mariadb
             prefix: flarum_
             prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
+          - php: ${{ inputs.latest_php }}
             service: 'sqlite:3'
             db: SQLite
             driver: sqlite
             prefix: flarum_
             prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
+          - php: ${{ inputs.latest_php }}
             service: 'postgres:10'
             db: PostgreSQL 10
             driver: pgsql
@@ -132,30 +138,26 @@ jobs:
         # - MySQL 8.0 runs on all PHP versions (primary DB for PHP version coverage)
         # - All other DBs run on latest PHP only (DB-specific bugs don't depend on PHP version)
         # - MySQL 5.7 also runs on latest PHP only (floor version coverage)
+        #
+        # This excludes every non-latest PHP version for those DBs, leaving only
+        # `latest_php`. The list must cover all `php_versions` entries EXCEPT the
+        # last one, so keep it in sync when `php_versions` changes size.
         exclude:
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'mysql:5.7'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: 'mysql:5.7'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: 'mysql:5.7'
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: mariadb
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: mariadb
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: mariadb
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'sqlite:3'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'sqlite:3'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
             service: 'sqlite:3'
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'postgres:10'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'postgres:10'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
             service: 'postgres:10'
 
     services:
@@ -201,7 +203,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
@@ -209,7 +211,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug
+          # Coverage is not collected or uploaded anywhere, and Xdebug slows the
+          # test suite considerably, so leave it disabled.
+          coverage: none
           extensions: ${{ inputs.php_extensions }}
           tools: phpunit, composer:v2
           ini-values: ${{ matrix.php_ini_values }}
@@ -256,13 +260,13 @@ jobs:
       ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug
+          coverage: none
           extensions: ${{ inputs.php_extensions }}
           tools: phpunit, composer:v2
           ini-values: ${{ matrix.php_ini_values }}
