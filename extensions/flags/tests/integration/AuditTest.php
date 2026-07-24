@@ -35,7 +35,7 @@ class AuditTest extends TestCase
 
         $this->prepareDatabase([
             Discussion::class => [
-                ['id' => 10, 'title' => 'A', 'created_at' => $date, 'last_posted_at' => $date, 'first_post_id' => 1, 'comment_count' => 2],
+                ['id' => 10, 'title' => 'A', 'created_at' => $date, 'last_posted_at' => $date, 'first_post_id' => 1, 'last_post_id' => 2, 'last_post_number' => 2, 'comment_count' => 2],
             ],
             Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 10, 'created_at' => $date, 'type' => 'comment', 'content' => '<t><p>A</p></t>'],
@@ -117,5 +117,18 @@ class AuditTest extends TestCase
             'discussion_id' => 10,
             'post_id' => 2,
         ]);
+    }
+
+    #[Test]
+    public function deletingFlaggedPostDoesntLogFlagDismissal()
+    {
+        /*
+         * Deleting a flagged post is not a dismissal: the flags were acted upon,
+         * not dismissed. Actual dismissals all go through the flags.delete
+         * endpoint (the frontend dismisses alongside every destructive control).
+         */
+        $this->sendSuccessfulRequest('DELETE', '/api/posts/2', [], 204);
+
+        $this->assertLogDoesntExist('post.dismissed_flags');
     }
 }

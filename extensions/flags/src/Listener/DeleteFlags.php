@@ -9,12 +9,12 @@
 
 namespace Flarum\Flags\Listener;
 
-use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\Deleting;
 
 class DeleteFlags
 {
-    public function handle(Deleted $event): void
+    public function handle(Deleting $event): void
     {
-        $event->post->flags()->delete();
+        $event->post->flags->each->delete();
     }
 }
