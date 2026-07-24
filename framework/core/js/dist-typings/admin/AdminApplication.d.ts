@@ -43,6 +43,12 @@ export declare enum DatabaseDriver {
     PostgreSQL = "PostgreSQL",
     SQLite = "SQLite"
 }
+export interface DatabaseVersionStatus {
+    status: 'ok' | 'below_recommended';
+    server: string;
+    version: string;
+    recommended: string;
+}
 export interface AdminApplicationData extends ApplicationData {
     extensions: Record<string, Extension>;
     installedPackages: string[];
@@ -67,6 +73,8 @@ export interface AdminApplicationData extends ApplicationData {
     };
     dbDriver: DatabaseDriver;
     dbVersion: string;
+    dbDriverMismatch: string | null;
+    dbVersionStatus: DatabaseVersionStatus | null;
     dbOptions: Record<string, string>;
     phpVersion: string;
     queueDriver: string;
