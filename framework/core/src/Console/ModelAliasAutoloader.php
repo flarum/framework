@@ -186,7 +186,7 @@ class ModelAliasAutoloader
     protected static function findComposerLoader(): ?ClassLoader
     {
         foreach (spl_autoload_functions() as $function) {
-            if (is_array($function) && ($function[0] ?? null) instanceof ClassLoader) {
+            if (is_array($function) && $function[0] instanceof ClassLoader) {
                 return $function[0];
             }
         }
