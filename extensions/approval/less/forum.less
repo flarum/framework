@@ -1,5 +1,16 @@
 .Post--unapproved {
-  opacity: 0.5;
+  .Post-header, .Post-header a,
+  .PostUser .PostUser-name, .PostUser .PostUser-name a {
+    color: var(--muted-more-color);
+  }
+  .Post-body,
+  .Post-footer,
+  .Post-side > *,
+  .PostUser-badges,
+  .EventPost-icon,
+  .EventPost-info {
+    opacity: 0.5;
+  }
 }
 .DiscussionListItem--unapproved {
   .DiscussionListItem--hidden();
