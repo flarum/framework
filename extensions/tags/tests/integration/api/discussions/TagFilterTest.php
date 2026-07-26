@@ -307,6 +307,7 @@ class TagFilterTest extends TestCase
             );
 
             $count = 0;
+            $tags = $db->getTablePrefix().'tags';
 
             foreach ($db->getQueryLog() as $query) {
                 // Normalize identifier quoting across database drivers.
@@ -316,7 +317,7 @@ class TagFilterTest extends TestCase
                 // (visibility scope first, then the requested IDs); lazy
                 // single-tag loads and scoped parent loads qualify it
                 // as tags.id, and eager loads join through discussion_tag.
-                if (str_starts_with($sql, 'select * from tags where id in')) {
+                if (str_starts_with($sql, "select * from $tags where id in")) {
                     $count++;
                 }
             }
