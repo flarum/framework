@@ -190,6 +190,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ClearCacheController::class)
     );
 
+    // Pause or resume queue processing
+    $map->post(
+        '/queue/pause',
+        'queue.pause',
+        $route->toController(Controller\PauseQueueController::class)
+    );
+
     // List available mail drivers, available fields and validation status
     $map->get(
         '/mail/settings',

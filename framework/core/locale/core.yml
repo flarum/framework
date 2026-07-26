@@ -69,6 +69,13 @@ core:
       pgsql:
         search_configuration: Search configuration to use
       queue:
+        pause_label: Pause queue processing
+        pause_all_label: Pause all queues
+        pause_queue_label: "Pause the {queue} queue"
+        pause_help: >-
+          While paused, workers stop picking up new jobs from the affected
+          queues — jobs accumulate until processing is resumed. Jobs that are
+          already running are not affected.
         section_label: Queue
         sync_info: Your forum is using the synchronous queue driver. Jobs are processed immediately in the main process thread.
         sync_help: For better performance and user experience, consider using the database queue driver. Learn more in the documentation.
@@ -194,6 +201,9 @@ core:
 
     # These translations are used in the Dashboard page.
     dashboard:
+      queue_paused_warning: "Queue processing is paused (queue: {queues}). Jobs will accumulate until it is resumed."
+      queue_paused_all_warning: All queue processing is paused. Jobs will accumulate until it is resumed.
+      queue_paused_manage: Manage
       clear_cache_button: Clear Cache
       description: Your forum at a glance.
       info_button: System Info

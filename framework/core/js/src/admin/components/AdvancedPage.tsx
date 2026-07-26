@@ -10,6 +10,7 @@ import ItemList from '../../common/utils/ItemList';
 import InfoTile from '../../common/components/InfoTile';
 import { MaintenanceMode } from '../../common/Application';
 import Button from '../../common/components/Button';
+import Switch from '../../common/components/Switch';
 import classList from '../../common/utils/classList';
 import ExtensionBisect from './ExtensionBisect';
 import { DatabaseDriver } from '../AdminApplication';
@@ -215,7 +216,56 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
       items.add('content', this.queueCustomContent(), 100);
     }
 
+    if (driver !== 'sync') {
+      items.add('pause', this.queuePauseControl(), 110);
+    }
+
     return items;
+  }
+
+  queuePauseControl() {
+    const paused = app.data.pausedQueues || [];
+    const knownQueues = app.data.knownQueues || ['default'];
+    const allPaused = paused.includes('*');
+
+    const toggle = (queue: string, value: boolean) =>
+      app
+        .request({
+          method: 'POST',
+          url: app.forum.attribute('apiUrl') + '/queue/pause',
+          body: { paused: value, queue },
+        })
+        .then(() => {
+          app.data.pausedQueues = value ? [...paused, queue] : paused.filter((name) => name !== queue);
+          m.redraw();
+        });
+
+    // With a single known queue, separate "all" and per-queue switches are
+    // redundant — offer one switch that pauses everything.
+    if (knownQueues.length <= 1) {
+      return (
+        <div className="Form-group AdvancedPage-queuePause">
+          <Switch state={allPaused || paused.includes(knownQueues[0])} onchange={(value: boolean) => toggle('*', value)}>
+            {app.translator.trans('core.admin.advanced.queue.pause_label')}
+          </Switch>
+          <p className="helpText">{app.translator.trans('core.admin.advanced.queue.pause_help')}</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="Form-group AdvancedPage-queuePause">
+        <Switch state={allPaused} onchange={(value: boolean) => toggle('*', value)}>
+          {app.translator.trans('core.admin.advanced.queue.pause_all_label')}
+        </Switch>
+        {knownQueues.map((queue) => (
+          <Switch state={allPaused || paused.includes(queue)} disabled={allPaused} onchange={(value: boolean) => toggle(queue, value)}>
+            {app.translator.trans('core.admin.advanced.queue.pause_queue_label', { queue })}
+          </Switch>
+        ))}
+        <p className="helpText">{app.translator.trans('core.admin.advanced.queue.pause_help')}</p>
+      </div>
+    );
   }
 
   queueSyncContent() {

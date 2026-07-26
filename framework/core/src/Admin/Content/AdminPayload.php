@@ -30,6 +30,24 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AdminPayload
 {
+    /**
+     * The names of the queues currently paused on the active connection —
+     * powers the dashboard warning and the Advanced page toggle, regardless
+     * of the queue backend in use.
+     *
+     * @return string[]
+     */
+    protected function pausedQueues(): array
+    {
+        /** @var \Flarum\Queue\QueueFactory $factory */
+        $factory = $this->container->make(\Illuminate\Contracts\Queue\Factory::class);
+
+        /** @var \Illuminate\Contracts\Queue\Queue $queue */
+        $queue = $this->container->make(\Illuminate\Contracts\Queue\Queue::class);
+
+        return $factory->pausedQueues((string) $queue->getConnectionName());
+    }
+
     public function __construct(
         protected Container $container,
         protected SettingsRepositoryInterface $settings,
@@ -84,6 +102,8 @@ class AdminPayload
 
         $document->payload['schedulerStatus'] = $this->appInfo->getSchedulerStatus();
         $document->payload['queueDriver'] = $this->appInfo->identifyQueueDriver();
+        $document->payload['pausedQueues'] = $this->pausedQueues();
+        $document->payload['knownQueues'] = $this->container->make('flarum.queue.queues');
         $document->payload['sessionDriver'] = $this->appInfo->identifySessionDriver(true);
 
         /**
