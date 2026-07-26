@@ -78,6 +78,8 @@ export interface AdminApplicationData extends ApplicationData {
     dbOptions: Record<string, string>;
     phpVersion: string;
     queueDriver: string;
+    pausedQueues: string[];
+    knownQueues: string[];
     schedulerStatus: string;
     sessionDriver: string;
 }
