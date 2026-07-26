@@ -46,6 +46,28 @@ export default class DashboardPage extends AdminPage {
       );
     }
 
+    if (app.data.pausedQueues?.length) {
+      items.add(
+        'queuePaused',
+        <AlertWidget
+          alert={{
+            type: 'warning',
+            dismissible: false,
+            controls: [
+              <Link className="Button Button--link" href={app.route('advanced')}>
+                {app.translator.trans('core.admin.dashboard.queue_paused_manage')}
+              </Link>,
+            ],
+          }}
+        >
+          {app.data.pausedQueues.includes('*')
+            ? app.translator.trans('core.admin.dashboard.queue_paused_all_warning')
+            : app.translator.trans('core.admin.dashboard.queue_paused_warning', { queues: app.data.pausedQueues.join(', ') })}
+        </AlertWidget>,
+        105
+      );
+    }
+
     if (app.data.maintenanceMode) {
       items.add(
         'maintenanceMode',

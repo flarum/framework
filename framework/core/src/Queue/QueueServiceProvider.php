@@ -38,6 +38,8 @@ class QueueServiceProvider extends AbstractServiceProvider
         Commands\ForgetFailedCommand::class,
         Console\ListenCommand::class,
         Commands\ListFailedCommand::class,
+        Console\PauseCommand::class,
+        Console\ResumeCommand::class,
         Commands\RestartCommand::class,
         Commands\RetryCommand::class,
         Console\WorkCommand::class,
@@ -47,10 +49,21 @@ class QueueServiceProvider extends AbstractServiceProvider
     {
         // Register a simple connection factory that always returns the same
         // connection, as that is enough for our purposes.
+        // The queue names known to this installation. Extensions that route
+        // jobs onto named queues (e.g. via AbstractJob::$onQueue) should
+        // append theirs so admin tooling can offer per-queue controls.
+        $this->container->singleton('flarum.queue.queues', function () {
+            return ['default'];
+        });
+
         $this->container->singleton(Factory::class, function (Container $container) {
-            return new QueueFactory(function () use ($container) {
-                return $container->make('flarum.queue.connection');
-            });
+            return new QueueFactory(
+                function () use ($container) {
+                    return $container->make('flarum.queue.connection');
+                },
+                $container->make('cache.store'),
+                $container->make('events')
+            );
         });
 
         // Extensions can override this binding if they want to make Flarum use
@@ -159,6 +172,7 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         $this->container->alias(ConnectorInterface::class, 'queue.connection');
         $this->container->alias(Factory::class, 'queue');
+        $this->container->alias(Factory::class, QueueFactory::class);
         $this->container->alias(Worker::class, 'queue.worker');
         $this->container->alias(Listener::class, 'queue.listener');
 
