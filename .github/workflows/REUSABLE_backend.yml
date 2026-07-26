@@ -15,6 +15,24 @@ on:
         default: false
         required: false
 
+      enable_redis:
+        description: "Start a Redis-compatible service (127.0.0.1:6379) for backend tests?"
+        type: boolean
+        default: false
+        required: false
+
+      redis_variant:
+        description: "Which Redis-compatible server to start: 'redis' or 'valkey'."
+        type: string
+        default: 'redis'
+        required: false
+
+      redis_version:
+        description: "Image tag for the Redis/Valkey service, e.g. 'latest', '7.2', '8.0-alpine'."
+        type: string
+        default: 'latest'
+        required: false
+
       backend_directory:
         description: The directory of the project where backend code is located. This should contain a `composer.json` file, and is generally the root directory of the repo.
         type: string
@@ -191,6 +209,15 @@ jobs:
           - 5432
         options: >-
           --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: ${{ inputs.enable_redis && format('{0}:{1}', inputs.redis_variant == 'valkey' && 'valkey/valkey' || 'redis', inputs.redis_version) || '' }}
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping || valkey-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
