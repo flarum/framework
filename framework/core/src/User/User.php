@@ -17,6 +17,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
+use Flarum\Group\PermissionCache;
 use Flarum\Http\AccessToken;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
@@ -134,6 +135,11 @@ class User extends AbstractModel
     protected static Access\Gate $gate;
 
     /**
+     * The shared per-group-set permission cache.
+     */
+    protected static ?PermissionCache $permissionCache = null;
+
+    /**
      * Callbacks to check passwords.
      *
      * @var callable[]
@@ -179,6 +185,11 @@ class User extends AbstractModel
     public static function setGate(Access\Gate $gate): void
     {
         static::$gate = $gate;
+    }
+
+    public static function setPermissionCache(PermissionCache $cache): void
+    {
+        static::$permissionCache = $cache;
     }
 
     public static function setDisplayNameDriver(DisplayNameDriver $driver): void
@@ -621,10 +632,11 @@ class User extends AbstractModel
     }
 
     /**
-     * Define the relationship with the permissions of all the groups that
-     * the user is in.
+     * The IDs of the groups the user's permissions are drawn from.
+     *
+     * @return int[]
      */
-    public function permissions(): Builder
+    public function permissionGroupIds(): array
     {
         $groupIds = [Group::GUEST_ID];
 
@@ -640,18 +652,42 @@ class User extends AbstractModel
             $groupIds = $processor($this, $groupIds);
         }
 
-        return Permission::query()->whereIn('group_id', $groupIds);
+        return $groupIds;
+    }
+
+    /**
+     * Define the relationship with the permissions of all the groups that
+     * the user is in.
+     */
+    public function permissions(): Builder
+    {
+        return Permission::query()->whereIn('group_id', $this->permissionGroupIds());
     }
 
     /**
      * Get a list of permissions that the user has.
+     *
+     * Permissions depend only on the set of groups the user belongs to, so
+     * they are shared through a per-group-set cache: users with the same
+     * groups reuse one `group_permission` load instead of querying once per
+     * User instance.
      *
      * @return string[]
      */
     public function getPermissions(): array
     {
         if (is_null($this->permissions)) {
-            $this->permissions = $this->permissions()->pluck('permission')->all();
+            $groupIds = $this->permissionGroupIds();
+
+            $permissions = static::$permissionCache?->get($groupIds);
+
+            if (is_null($permissions)) {
+                $permissions = Permission::query()->whereIn('group_id', $groupIds)->pluck('permission')->all();
+
+                static::$permissionCache?->put($groupIds, $permissions);
+            }
+
+            $this->permissions = $permissions;
         }
 
         return $this->permissions;

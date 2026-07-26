@@ -15,6 +15,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Group\Access\GroupPolicy;
 use Flarum\Group\Group;
+use Flarum\Group\PermissionCache;
 use Flarum\Http\Access\AccessTokenPolicy;
 use Flarum\Http\AccessToken;
 use Flarum\Post\Access\PostPolicy;
@@ -136,6 +137,7 @@ class UserServiceProvider extends AbstractServiceProvider
         User::setHasher($container->make('hash'));
         User::setPasswordCheckers($container->make('flarum.user.password_checkers'));
         User::setGate($container->makeWith(Access\Gate::class, ['policyClasses' => $container->make('flarum.policies')]));
+        User::setPermissionCache($container->make(PermissionCache::class));
         User::setDisplayNameDriver($container->make('flarum.user.display_name.driver'));
         User::setAvatarDriver($container->make('flarum.user.avatar.driver'));
 
