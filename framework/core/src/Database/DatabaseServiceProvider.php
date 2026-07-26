@@ -106,7 +106,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
                     // For Eloquent builders, we need to access the connection through the query property
                     $connection = method_exists($this, 'getConnection')
                         ? $this->getConnection()
-                        : (property_exists($this, 'query') ? $this->query->getConnection() : null);
+                        : (method_exists($this, 'getQuery') ? $this->getQuery()->getConnection() : null);
 
                     if ($connection && $connection->getDriverName() === $driver) {
                         $callback($this);
@@ -122,7 +122,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
                     // For Eloquent builders, we need to access the connection through the query property
                     $connection = method_exists($this, 'getConnection')
                         ? $this->getConnection()
-                        : (property_exists($this, 'query') ? $this->query->getConnection() : null);
+                        : (method_exists($this, 'getQuery') ? $this->getQuery()->getConnection() : null);
 
                     if ($connection && $connection->getDriverName() !== $driver) {
                         $callback($this);
