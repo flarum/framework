@@ -291,10 +291,12 @@ class TagFilterTest extends TestCase
     {
         $this->useIdWithSlugDriver();
 
-        // Resolving more slugs must not cost more queries: a batch driver resolves
-        // them together, so a 3-slug filter issues the same number of queries as a
-        // 1-slug filter. An N+1 (per-slug fromSlug) would make the counts diverge.
-        $countQueriesFor = function (string $filter): int {
+        // A batch driver resolves all slugs in the filter together, so a request
+        // must issue exactly one slug-resolution query no matter how many slugs
+        // the filter contains. An N+1 (per-slug fromSlug) would issue one per
+        // slug. Total query counts are not comparable across the two requests:
+        // they return different result sets, whose serialization costs differ.
+        $countResolutionQueriesFor = function (string $filter): int {
             $db = $this->database();
             $db->flushQueryLog();
             $db->enableQueryLog();
@@ -304,19 +306,37 @@ class TagFilterTest extends TestCase
                     ->withQueryParams(['filter' => ['tag' => $filter]])
             );
 
-            $count = count($db->getQueryLog());
+            $count = 0;
+            $tags = $db->getTablePrefix().'tags';
+
+            foreach ($db->getQueryLog() as $query) {
+                // Normalize identifier quoting across database drivers.
+                $sql = str_replace(['"', '`'], '', $query['query']);
+
+                // The batch lookup constrains the *unqualified* id column
+                // (visibility scope first, then the requested IDs); lazy
+                // single-tag loads and scoped parent loads qualify it
+                // as tags.id, and eager loads join through discussion_tag.
+                if (str_starts_with($sql, "select * from $tags where id in")) {
+                    $count++;
+                }
+            }
+
             $db->flushQueryLog();
 
             return $count;
         };
 
-        $oneSlug = $countQueriesFor('1');
-        $threeSlugs = $countQueriesFor('1,2,6');
+        $this->assertSame(
+            1,
+            $countResolutionQueriesFor('1'),
+            'Resolving 1 slug must take exactly one tag-lookup query.'
+        );
 
         $this->assertSame(
-            $oneSlug,
-            $threeSlugs,
-            "Batch slug resolution should be query-count flat: 1 slug took $oneSlug queries, 3 slugs took $threeSlugs."
+            1,
+            $countResolutionQueriesFor('1,2,6'),
+            'Resolving 3 slugs must still take exactly one tag-lookup query, not one per slug.'
         );
     }
 }
