@@ -24,6 +24,7 @@ import type Discussion from '../common/models/Discussion';
 import type NotificationModel from '../common/models/Notification';
 import type PostModel from '../common/models/Post';
 import extractText from '../common/utils/extractText';
+import drainPrefetchQueue from '../common/utils/drainPrefetchQueue';
 import Notices from './components/Notices';
 import Footer from './components/Footer';
 import SearchManager from '../common/SearchManager';
@@ -142,6 +143,10 @@ export default class ForumApplication extends Application {
         $('.App').addClass('mobile-safari');
       });
     }
+
+    // Once the app is mounted, warm any registered code-split chunks in the
+    // background so later navigations don't pay for them on the critical path.
+    drainPrefetchQueue(this.prefetch);
   }
 
   /**

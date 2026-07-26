@@ -184,6 +184,20 @@ export default class Application {
   initializers: ItemList<(app: this) => void> = new ItemList();
 
   /**
+   * An ordered list of chunk loaders to prefetch once the app is idle after
+   * booting.
+   *
+   * Lazily-loaded (code-split) components add a network round-trip the first
+   * time their route is visited. Registering their loader here warms the chunk
+   * in the background so that, by the time the user navigates to it, the
+   * dynamic import resolves from cache instead of blocking on a request.
+   *
+   * Each item is a thunk that triggers the load — a function returning the
+   * dynamic import of the chunk (the same loader passed to a lazy route).
+   */
+  prefetch: ItemList<() => Promise<unknown>> = new ItemList();
+
+  /**
    * The app's session.
    *
    * Stores info about the current user.
