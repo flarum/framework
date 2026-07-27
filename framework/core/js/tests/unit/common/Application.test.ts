@@ -36,7 +36,7 @@ beforeEach(() => {
   (app as any).requestErrorAlert = null;
   (app as any).networkErrorAlert = null;
   (app as any).offlineAlert = null;
-  (app as any).deferredRequests = [];
+  (app as any).deferredRequests = new Map();
   setOnline(true);
 });
 
@@ -282,5 +282,57 @@ describe('Application defers GET requests that fail while offline', () => {
 
     expect(resolved).toHaveBeenCalledWith(response);
     expect(rejected).not.toHaveBeenCalled();
+  });
+
+  it('retries identical deferred requests only once, settling every caller', async () => {
+    setOnline(false);
+    requestSpy.mockImplementationOnce(() => Promise.reject(makeError(0)));
+    requestSpy.mockImplementationOnce(() => Promise.reject(makeError(0)));
+    requestSpy.mockImplementationOnce(() => Promise.reject(makeError(0)));
+
+    // A polling extension fires the same request on every tick while offline.
+    const resolved = [jest.fn(), jest.fn(), jest.fn()];
+    resolved.forEach((callback) => void app.request({ url: '/api/stats', params: { period: 'day' } }).then(callback));
+
+    await flushPromises();
+
+    expect(requestSpy).toHaveBeenCalledTimes(3);
+
+    const response = { data: [] };
+    requestSpy.mockImplementationOnce(() => Promise.resolve(response));
+    setOnline(true);
+    window.dispatchEvent(new Event('online'));
+
+    await flushPromises();
+
+    // One retry for the three identical requests, resolving all callers.
+    expect(requestSpy).toHaveBeenCalledTimes(4);
+    resolved.forEach((callback) => expect(callback).toHaveBeenCalledWith(response));
+  });
+
+  it('retries distinct deferred requests separately', async () => {
+    setOnline(false);
+    requestSpy.mockImplementationOnce(() => Promise.reject(makeError(0)));
+    requestSpy.mockImplementationOnce(() => Promise.reject(makeError(0)));
+
+    const resolvedA = jest.fn();
+    const resolvedB = jest.fn();
+    app.request({ url: '/api/discussions' }).then(resolvedA);
+    app.request({ url: '/api/posts' }).then(resolvedB);
+
+    await flushPromises();
+
+    const responseA = { data: 'discussions' };
+    const responseB = { data: 'posts' };
+    requestSpy.mockImplementationOnce(() => Promise.resolve(responseA));
+    requestSpy.mockImplementationOnce(() => Promise.resolve(responseB));
+    setOnline(true);
+    window.dispatchEvent(new Event('online'));
+
+    await flushPromises();
+
+    expect(requestSpy).toHaveBeenCalledTimes(4);
+    expect(resolvedA).toHaveBeenCalledWith(responseA);
+    expect(resolvedB).toHaveBeenCalledWith(responseB);
   });
 });

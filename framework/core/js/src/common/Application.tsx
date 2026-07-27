@@ -280,15 +280,18 @@ export default class Application {
   protected offlineAlert: number | null = null;
 
   /**
-   * GET requests that failed because the browser was offline. They are
-   * retried, and their original promises settled, once connectivity is
-   * restored.
+   * GET requests that failed because the browser was offline, keyed by
+   * method, URL and params. They are retried, and their original promises
+   * settled, once connectivity is restored. Identical requests (e.g. from a
+   * polling extension) share one entry and are retried only once.
    */
-  protected deferredRequests: {
-    options: FlarumRequestOptions<any>;
-    resolve: (value: any) => void;
-    reject: (error: unknown) => void;
-  }[] = [];
+  protected deferredRequests: Map<
+    string,
+    {
+      options: FlarumRequestOptions<any>;
+      settlers: { resolve: (value: any) => void; reject: (error: unknown) => void }[];
+    }
+  > = new Map();
 
   initialRoute!: string;
 
@@ -583,8 +586,23 @@ export default class Application {
     this.connectionLost();
 
     return new Promise((resolve, reject) => {
-      this.deferredRequests.push({ options: originalOptions, resolve, reject });
+      const key = this.deferredRequestKey(originalOptions);
+      const deferred = this.deferredRequests.get(key);
+
+      if (deferred) {
+        deferred.settlers.push({ resolve, reject });
+      } else {
+        this.deferredRequests.set(key, { options: originalOptions, settlers: [{ resolve, reject }] });
+      }
     });
+  }
+
+  /**
+   * The identity of a request for deferral purposes: requests with the same
+   * key are considered identical and are retried only once.
+   */
+  protected deferredRequestKey(options: FlarumRequestOptions<any>): string {
+    return [options.method ?? 'GET', options.url, JSON.stringify(options.params ?? null)].join(' ');
   }
 
   /**
@@ -757,11 +775,14 @@ export default class Application {
       this.networkErrorAlert = null;
     }
 
-    const deferred = this.deferredRequests;
-    this.deferredRequests = [];
+    const deferred = Array.from(this.deferredRequests.values());
+    this.deferredRequests = new Map();
 
-    deferred.forEach(({ options, resolve, reject }) => {
-      this.request(options).then(resolve, reject);
+    deferred.forEach(({ options, settlers }) => {
+      this.request(options).then(
+        (response) => settlers.forEach(({ resolve }) => resolve(response)),
+        (error) => settlers.forEach(({ reject }) => reject(error))
+      );
     });
 
     if (this.offlineAlert === null) return;
