@@ -2,6 +2,7 @@ import app from '../../../src/forum/app';
 import RequestError from '../../../src/common/utils/RequestError';
 import extractText from '../../../src/common/utils/extractText';
 import { jest } from '@jest/globals';
+import m from 'mithril';
 import type Mithril from 'mithril';
 
 const trans = (key: string) => extractText(app.translator.trans(key));
@@ -25,11 +26,17 @@ function setOnline(value: boolean): void {
   Object.defineProperty(window.navigator, 'onLine', { value, configurable: true });
 }
 
+function flushPromises(): Promise<void> {
+  // A macrotask runs after all pending promise chains, however deep.
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
 beforeEach(() => {
   app.alerts.clear();
   (app as any).requestErrorAlert = null;
   (app as any).networkErrorAlert = null;
   (app as any).offlineAlert = null;
+  (app as any).deferredRequests = [];
   setOnline(true);
 });
 
@@ -189,5 +196,91 @@ describe('Application reacts to browser connectivity events', () => {
     window.dispatchEvent(new Event('online'));
 
     expect(activeAlerts()).toHaveLength(0);
+  });
+});
+
+describe('Application defers GET requests that fail while offline', () => {
+  let requestSpy: ReturnType<typeof jest.spyOn>;
+
+  beforeEach(() => {
+    requestSpy = jest.spyOn(m, 'request');
+  });
+
+  afterEach(() => {
+    requestSpy.mockRestore();
+  });
+
+  it('holds a failed GET request and resolves it once the connection is restored', async () => {
+    setOnline(false);
+    requestSpy.mockImplementationOnce(() => Promise.reject(makeError(0)));
+
+    const resolved = jest.fn();
+    const rejected = jest.fn();
+    app.request({ url: '/api/test' }).then(resolved, rejected);
+
+    await flushPromises();
+
+    expect(resolved).not.toHaveBeenCalled();
+    expect(rejected).not.toHaveBeenCalled();
+    expect(activeAlerts().some((alert) => alert.text === trans('core.lib.error.offline_message'))).toBe(true);
+
+    const response = { data: [] };
+    requestSpy.mockImplementationOnce(() => Promise.resolve(response));
+    setOnline(true);
+    window.dispatchEvent(new Event('online'));
+
+    await flushPromises();
+
+    expect(resolved).toHaveBeenCalledWith(response);
+    expect(rejected).not.toHaveBeenCalled();
+  });
+
+  it('rejects a non-GET request that fails while offline', async () => {
+    setOnline(false);
+    requestSpy.mockImplementationOnce(() => Promise.reject(makeError(0)));
+
+    await expect(app.request({ url: '/api/test', method: 'POST' })).rejects.toBeInstanceOf(RequestError);
+  });
+
+  it('rejects a GET request that fails at the network level while the browser reports being online', async () => {
+    requestSpy.mockImplementationOnce(() => Promise.reject(makeError(0)));
+
+    await expect(app.request({ url: '/api/test' })).rejects.toBeInstanceOf(RequestError);
+    expect(activeAlerts().some((alert) => alert.text === trans('core.lib.error.network_message'))).toBe(true);
+  });
+
+  it('re-defers a retried GET request that fails while still offline', async () => {
+    setOnline(false);
+    requestSpy.mockImplementationOnce(() => Promise.reject(makeError(0)));
+
+    const resolved = jest.fn();
+    const rejected = jest.fn();
+    app.request({ url: '/api/test' }).then(resolved, rejected);
+
+    await flushPromises();
+
+    // The browser briefly reports being online, but the retry fails while
+    // offline again: the request must stay deferred, not reject.
+    requestSpy.mockImplementationOnce(() => {
+      setOnline(false);
+      return Promise.reject(makeError(0));
+    });
+    setOnline(true);
+    window.dispatchEvent(new Event('online'));
+
+    await flushPromises();
+
+    expect(resolved).not.toHaveBeenCalled();
+    expect(rejected).not.toHaveBeenCalled();
+
+    const response = { data: [] };
+    requestSpy.mockImplementationOnce(() => Promise.resolve(response));
+    setOnline(true);
+    window.dispatchEvent(new Event('online'));
+
+    await flushPromises();
+
+    expect(resolved).toHaveBeenCalledWith(response);
+    expect(rejected).not.toHaveBeenCalled();
   });
 });

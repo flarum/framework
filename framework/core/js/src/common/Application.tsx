@@ -279,6 +279,17 @@ export default class Application {
    */
   protected offlineAlert: number | null = null;
 
+  /**
+   * GET requests that failed because the browser was offline. They are
+   * retried, and their original promises settled, once connectivity is
+   * restored.
+   */
+  protected deferredRequests: {
+    options: FlarumRequestOptions<any>;
+    resolve: (value: any) => void;
+    reject: (error: unknown) => void;
+  }[] = [];
+
   initialRoute!: string;
 
   public load(payload: Application['data']) {
@@ -539,7 +550,41 @@ export default class Application {
       this.networkErrorAlert = null;
     }
 
-    return m.request(options).catch((e) => this.requestErrorCatch(e, originalOptions.errorHandler));
+    return m.request(options).catch((e) => {
+      if (this.shouldDeferRequest(e, originalOptions)) {
+        return this.deferRequest(originalOptions);
+      }
+
+      return this.requestErrorCatch(e, originalOptions.errorHandler);
+    });
+  }
+
+  /**
+   * Whether a failed request should be held back and retried once
+   * connectivity is restored, instead of being rejected.
+   *
+   * Only GET requests that failed at the network level while the browser
+   * reported being offline qualify: they are safe to repeat, and the
+   * `online` event provides a reliable signal to retry them.
+   */
+  protected shouldDeferRequest(error: unknown, originalOptions: FlarumRequestOptions<any>): boolean {
+    return (
+      error instanceof RequestError && error.status === 0 && navigator.onLine === false && (originalOptions.method ?? 'GET').toUpperCase() === 'GET'
+    );
+  }
+
+  /**
+   * Hold a request that failed while offline. The returned promise settles
+   * with the result of retrying the request once connectivity is restored.
+   */
+  protected deferRequest<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType> {
+    // Make sure the offline alert is showing, in case the page was loaded
+    // while already offline and no `offline` event was ever fired.
+    this.connectionLost();
+
+    return new Promise((resolve, reject) => {
+      this.deferredRequests.push({ options: originalOptions, resolve, reject });
+    });
   }
 
   /**
@@ -702,14 +747,22 @@ export default class Application {
   }
 
   /**
-   * Dismiss any connection problem alerts and briefly confirm to the user
-   * that connectivity has been restored.
+   * Dismiss any connection problem alerts, retry requests that were deferred
+   * while offline, and briefly confirm to the user that connectivity has
+   * been restored.
    */
   protected connectionRestored(): void {
     if (this.networkErrorAlert !== null) {
       this.alerts.dismiss(this.networkErrorAlert);
       this.networkErrorAlert = null;
     }
+
+    const deferred = this.deferredRequests;
+    this.deferredRequests = [];
+
+    deferred.forEach(({ options, resolve, reject }) => {
+      this.request(options).then(resolve, reject);
+    });
 
     if (this.offlineAlert === null) return;
 
