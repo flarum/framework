@@ -6,6 +6,7 @@ import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { Children } from 'mithril';
 import AlertWidget from './AlertWidget';
+import QueueWidget from './QueueWidget';
 import Link from '../../common/components/Link';
 import Icon from '../../common/components/Icon';
 
@@ -169,6 +170,10 @@ export default class DashboardPage extends AdminPage {
     }
 
     items.add('extensions', <ExtensionsWidget />, 10);
+
+    if ((app.data.queueDriver || 'sync') !== 'sync') {
+      items.add('queue', <QueueWidget />, 15);
+    }
 
     return items;
   }

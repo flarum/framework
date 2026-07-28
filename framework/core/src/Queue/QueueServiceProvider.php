@@ -49,6 +49,21 @@ class QueueServiceProvider extends AbstractServiceProvider
     {
         // Register a simple connection factory that always returns the same
         // connection, as that is enough for our purposes.
+        // The queue stats provider backing the admin dashboard widget.
+        // Extensions with a different queue backend (fof/redis, fof/horizon)
+        // override this binding so the same core widget works for every driver.
+        $this->container->singleton(QueueStatsProvider::class, function (Container $container) {
+            return new DatabaseQueueStatsProvider($container->make('db.connection'));
+        });
+
+        $this->container->singleton(FailedJobs::class, function (Container $container) {
+            return new FailedJobs(
+                $container->make('queue.failer'),
+                $container->make(Factory::class),
+                $container->make('events')
+            );
+        });
+
         // The queue names known to this installation. Extensions that route
         // jobs onto named queues (e.g. via AbstractJob::$onQueue) should
         // append theirs so admin tooling can offer per-queue controls.

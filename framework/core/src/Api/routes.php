@@ -197,6 +197,35 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\PauseQueueController::class)
     );
 
+    // Queue stats for the admin dashboard widget
+    $map->get(
+        '/queue/stats',
+        'queue.stats',
+        $route->toController(Controller\ShowQueueStatsController::class)
+    );
+
+    // Failed jobs — list, retry (one or all), forget
+    $map->get(
+        '/queue/failed',
+        'queue.failed.index',
+        $route->toController(Controller\ListFailedJobsController::class)
+    );
+    $map->post(
+        '/queue/failed/retry',
+        'queue.failed.retryAll',
+        $route->toController(Controller\RetryFailedJobController::class)
+    );
+    $map->post(
+        '/queue/failed/{id}/retry',
+        'queue.failed.retry',
+        $route->toController(Controller\RetryFailedJobController::class)
+    );
+    $map->delete(
+        '/queue/failed/{id}',
+        'queue.failed.forget',
+        $route->toController(Controller\ForgetFailedJobController::class)
+    );
+
     // List available mail drivers, available fields and validation status
     $map->get(
         '/mail/settings',
