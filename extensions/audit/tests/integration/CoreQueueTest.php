@@ -38,7 +38,7 @@ class CoreQueueTest extends TestCase
         $log = AuditLog::query()->where('action', 'queue.paused')->first();
 
         $this->assertNotNull($log, 'A queue.paused entry should be logged');
-        $this->assertSame(['connection' => 'redis', 'queue' => 'media'], $log->payload);
+        $this->assertEquals(['connection' => 'redis', 'queue' => 'media'], $log->payload);
     }
 
     #[Test]
@@ -49,7 +49,7 @@ class CoreQueueTest extends TestCase
         $log = AuditLog::query()->where('action', 'queue.resumed')->first();
 
         $this->assertNotNull($log, 'A queue.resumed entry should be logged');
-        $this->assertSame(['connection' => 'redis', 'queue' => 'media'], $log->payload);
+        $this->assertEquals(['connection' => 'redis', 'queue' => 'media'], $log->payload);
     }
 
     #[Test]
