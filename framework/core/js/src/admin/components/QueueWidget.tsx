@@ -4,7 +4,6 @@ import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 import Icon from '../../common/components/Icon';
 import ItemList from '../../common/utils/ItemList';
-import FailedJobsModal from './FailedJobsModal';
 import type Mithril from 'mithril';
 
 export interface QueueTotals {
@@ -93,7 +92,7 @@ export default class QueueWidget<CustomAttrs extends IDashboardWidgetAttrs = IDa
         'failed',
         totals.failed,
         totals.failed > 0 ? 'QueueWidget-tile--alert' : '',
-        totals.failed > 0 ? () => app.modal.show(FailedJobsModal) : undefined
+        totals.failed > 0 ? () => app.modal.show(() => import('./FailedJobsModal')) : undefined
       ),
       80
     );
