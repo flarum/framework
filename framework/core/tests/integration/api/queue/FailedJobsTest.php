@@ -56,7 +56,7 @@ class FailedJobsTest extends TestCase
                 'connection' => 'flarum',
                 'queue' => 'media',
                 'payload' => $payload,
-                'exception' => "LogicException: nope",
+                'exception' => 'LogicException: nope',
                 'failed_at' => '2026-01-02 00:00:00',
             ],
         ]);

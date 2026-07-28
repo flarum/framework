@@ -13,8 +13,6 @@ use Flarum\Http\RequestUtil;
 use Flarum\Queue\FailedJobs;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\SyncQueue;
-use Illuminate\Support\Arr;
-use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

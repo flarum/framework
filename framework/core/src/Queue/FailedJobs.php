@@ -12,7 +12,6 @@ namespace Flarum\Queue;
 use Illuminate\Contracts\Queue\Factory as Queue;
 use Illuminate\Queue\Events\JobRetryRequested;
 use Illuminate\Queue\Failed\FailedJobProviderInterface;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 /**

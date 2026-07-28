@@ -11,8 +11,6 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Http\RequestUtil;
 use Flarum\Queue\FailedJobs;
-use Illuminate\Contracts\Queue\Queue;
-use Illuminate\Queue\SyncQueue;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -33,7 +31,7 @@ class ForgetFailedJobController implements RequestHandlerInterface
 
         $id = Arr::get($request->getAttribute('routeParameters'), 'id');
 
-        if (!$id || !$this->failed->forget($id)) {
+        if (! $id || ! $this->failed->forget($id)) {
             return new JsonResponse(['errors' => [['status' => '404', 'title' => 'Not Found']]], 404);
         }
 
