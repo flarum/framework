@@ -200,6 +200,13 @@ core:
       view_all: View all on discuss.flarum.org
 
     # These translations are used in the Dashboard page.
+    queue_widget:
+      title: Queue
+      pending: Pending
+      reserved: In progress
+      failed: Failed
+      refresh: Refresh
+
     dashboard:
       queue_paused_warning: "Queue processing is paused (queue: {queues}). Jobs will accumulate until it is resumed."
       queue_paused_all_warning: All queue processing is paused. Jobs will accumulate until it is resumed.

@@ -197,6 +197,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\PauseQueueController::class)
     );
 
+    // Queue stats for the admin dashboard widget
+    $map->get(
+        '/queue/stats',
+        'queue.stats',
+        $route->toController(Controller\ShowQueueStatsController::class)
+    );
+
     // List available mail drivers, available fields and validation status
     $map->get(
         '/mail/settings',
