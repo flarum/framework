@@ -28,5 +28,19 @@ export default class QueueWidget<CustomAttrs extends IDashboardWidgetAttrs = IDa
     load(): Promise<void>;
     content(): JSX.Element;
     tiles(): ItemList<Mithril.Children>;
-    tile(key: string, value: number, className?: string, onclick?: () => void): Mithril.Children;
+    /**
+     * Render a single tile.
+     *
+     * @param label   Either a tile key (resolved against this widget's own
+     *                translation namespace via `tileLabel()`) or ready-made
+     *                label content (a translated string / vnode). Extensions
+     *                subclassing this widget can pass their own label directly.
+     * @param value   The tile value — a number, string, or vnode.
+     */
+    tile(label: string | Mithril.Children, value: Mithril.Children, className?: string, onclick?: () => void): Mithril.Children;
+    /**
+     * Resolve a tile key to its label. Override in a subclass to source tile
+     * labels from an extension's own translation namespace.
+     */
+    tileLabel(key: string): Mithril.Children;
 }
