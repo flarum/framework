@@ -27,6 +27,16 @@ export default class QueueWidget<CustomAttrs extends IDashboardWidgetAttrs = IDa
     className(): string;
     load(): Promise<void>;
     content(): JSX.Element;
+    /**
+     * Content appended after the widget title — e.g. status pills. Empty by
+     * default; a subclass adds items to surface at-a-glance state.
+     */
+    titleItems(): ItemList<Mithril.Children>;
+    /**
+     * Action controls on the right of the header. Ships with the refresh button;
+     * a subclass can add its own (e.g. a link to a fuller dashboard).
+     */
+    headerActions(): ItemList<Mithril.Children>;
     tiles(): ItemList<Mithril.Children>;
     /**
      * Render a single tile.
