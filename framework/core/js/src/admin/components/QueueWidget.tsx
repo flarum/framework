@@ -62,19 +62,44 @@ export default class QueueWidget<CustomAttrs extends IDashboardWidgetAttrs = IDa
         <div className="QueueWidget-header">
           <h3 className="QueueWidget-title">
             <Icon name="fas fa-stream" /> {app.translator.trans('core.admin.queue_widget.title')}
+            {this.titleItems().toArray()}
           </h3>
-          <Button
-            className="Button Button--icon Button--flat"
-            icon="fas fa-sync-alt"
-            loading={this.loading}
-            onclick={() => this.load()}
-            aria-label={app.translator.trans('core.admin.queue_widget.refresh')}
-          />
+          <div className="QueueWidget-headerActions">{this.headerActions().toArray()}</div>
         </div>
 
         {!this.stats ? <LoadingIndicator /> : <div className="QueueWidget-tiles">{this.tiles().toArray()}</div>}
       </div>
     );
+  }
+
+  /**
+   * Content appended after the widget title — e.g. status pills. Empty by
+   * default; a subclass adds items to surface at-a-glance state.
+   */
+  titleItems(): ItemList<Mithril.Children> {
+    return new ItemList<Mithril.Children>();
+  }
+
+  /**
+   * Action controls on the right of the header. Ships with the refresh button;
+   * a subclass can add its own (e.g. a link to a fuller dashboard).
+   */
+  headerActions(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'refresh',
+      <Button
+        className="Button Button--icon Button--flat"
+        icon="fas fa-sync-alt"
+        loading={this.loading}
+        onclick={() => this.load()}
+        aria-label={app.translator.trans('core.admin.queue_widget.refresh')}
+      />,
+      100
+    );
+
+    return items;
   }
 
   tiles(): ItemList<Mithril.Children> {

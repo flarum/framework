@@ -8,6 +8,16 @@
     padding: 16px 20px 12px;
   }
 
+  // Right-hand header controls. `space-between` on -header already pushes this
+  // to the right (it's the second flex child after -title); this lays its own
+  // items — the refresh button plus anything a subclass adds via
+  // headerActions() — out in a row with consistent spacing.
+  &-headerActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   &-title {
     display: flex;
     align-items: center;
