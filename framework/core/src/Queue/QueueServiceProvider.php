@@ -56,6 +56,14 @@ class QueueServiceProvider extends AbstractServiceProvider
             return new DatabaseQueueStatsProvider($container->make('db.connection'));
         });
 
+        $this->container->singleton(FailedJobs::class, function (Container $container) {
+            return new FailedJobs(
+                $container->make('queue.failer'),
+                $container->make(Factory::class),
+                $container->make('events')
+            );
+        });
+
         // The queue names known to this installation. Extensions that route
         // jobs onto named queues (e.g. via AbstractJob::$onQueue) should
         // append theirs so admin tooling can offer per-queue controls.

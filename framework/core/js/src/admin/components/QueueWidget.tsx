@@ -4,6 +4,7 @@ import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 import Icon from '../../common/components/Icon';
 import ItemList from '../../common/utils/ItemList';
+import FailedJobsModal from './FailedJobsModal';
 import type Mithril from 'mithril';
 
 export interface QueueTotals {
@@ -83,17 +84,35 @@ export default class QueueWidget<CustomAttrs extends IDashboardWidgetAttrs = IDa
 
     items.add('pending', this.tile('pending', totals.pending), 100);
     items.add('reserved', this.tile('reserved', totals.reserved), 90);
-    items.add('failed', this.tile('failed', totals.failed, totals.failed > 0 ? 'QueueWidget-tile--alert' : ''), 80);
+    items.add(
+      'failed',
+      // When there are failures, the tile becomes a button opening the failed
+      // jobs view (exception + retry/delete) — a count with no drill-through
+      // is a dead end.
+      this.tile(
+        'failed',
+        totals.failed,
+        totals.failed > 0 ? 'QueueWidget-tile--alert' : '',
+        totals.failed > 0 ? () => app.modal.show(FailedJobsModal) : undefined
+      ),
+      80
+    );
 
     return items;
   }
 
-  tile(key: string, value: number, className = ''): Mithril.Children {
-    return (
-      <div className={'QueueWidget-tile ' + className}>
-        <div className="QueueWidget-tileValue">{value}</div>
-        <div className="QueueWidget-tileLabel">{app.translator.trans(`core.admin.queue_widget.${key}`)}</div>
-      </div>
+  tile(key: string, value: number, className = '', onclick?: () => void): Mithril.Children {
+    const inner = [
+      <div className="QueueWidget-tileLabel">{app.translator.trans(`core.admin.queue_widget.${key}`)}</div>,
+      <div className="QueueWidget-tileValue">{value}</div>,
+    ];
+
+    return onclick ? (
+      <button type="button" className={'QueueWidget-tile QueueWidget-tile--action ' + className} onclick={onclick}>
+        {inner}
+      </button>
+    ) : (
+      <div className={'QueueWidget-tile ' + className}>{inner}</div>
     );
   }
 }

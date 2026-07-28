@@ -206,6 +206,14 @@ core:
       reserved: In progress
       failed: Failed
       refresh: Refresh
+    failed_jobs:
+      title: Failed Jobs
+      none: No failed jobs.
+      meta: "Queue {queue} · failed {time}"
+      details: Details
+      retry: Retry
+      retry_all: Retry all
+      delete: Delete
 
     dashboard:
       queue_paused_warning: "Queue processing is paused (queue: {queues}). Jobs will accumulate until it is resumed."
