@@ -18,6 +18,8 @@ use Flarum\Extension\Event as ExtensionEvent;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Group\Event as GroupEvent;
 use Flarum\Http\Event\DeveloperTokenCreated;
+use Illuminate\Queue\Events\QueuePaused;
+use Illuminate\Queue\Events\QueueResumed;
 use Flarum\Post\Event as PostEvent;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Settings\Event as SettingsEvent;
@@ -66,6 +68,22 @@ return [
         ->register('cache_cleared')
         ->listen(ClearingCache::class, 'cache_cleared', function () {
             return [];
+        }),
+
+    // Queue pausing is a privileged, operationally significant action. Both
+    // the admin UI and the CLI commands route through QueueFactory, which
+    // dispatches these Illuminate events, so listening here captures every
+    // pause channel and records the queue name that was paused (including
+    // extension-defined queues and the "*" wildcard used by "pause all").
+    (new Audit())
+        ->group(null)
+        ->register('queue.paused')
+        ->register('queue.resumed')
+        ->listen(QueuePaused::class, 'queue.paused', function ($event) {
+            return ['connection' => $event->connection, 'queue' => $event->queue];
+        })
+        ->listen(QueueResumed::class, 'queue.resumed', function ($event) {
+            return ['connection' => $event->connection, 'queue' => $event->queue];
         }),
 
     (new Audit())

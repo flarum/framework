@@ -295,6 +295,9 @@ export default class AuditItem implements ClassComponent<AuditItemAttrs> {
         reason: payload.reason ? <code>{payload.reason}</code> : <em>{app.translator.trans(translationPrefix + 'noReason')}</em>,
 
         deleted_count: payload.deleted_count,
+
+        connection: payload.connection ? <code>{payload.connection}</code> : undefined,
+        queue: payload.queue ? <code>{payload.queue}</code> : undefined,
       };
 
       formattedPayload = app.translator.trans(translationKeyForPayload, parameters);
