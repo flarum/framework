@@ -100,9 +100,18 @@ export default class QueueWidget<CustomAttrs extends IDashboardWidgetAttrs = IDa
     return items;
   }
 
-  tile(key: string, value: number, className = '', onclick?: () => void): Mithril.Children {
+  /**
+   * Render a single tile.
+   *
+   * @param label   Either a tile key (resolved against this widget's own
+   *                translation namespace via `tileLabel()`) or ready-made
+   *                label content (a translated string / vnode). Extensions
+   *                subclassing this widget can pass their own label directly.
+   * @param value   The tile value — a number, string, or vnode.
+   */
+  tile(label: string | Mithril.Children, value: Mithril.Children, className = '', onclick?: () => void): Mithril.Children {
     const inner = [
-      <div className="QueueWidget-tileLabel">{app.translator.trans(`core.admin.queue_widget.${key}`)}</div>,
+      <div className="QueueWidget-tileLabel">{typeof label === 'string' ? this.tileLabel(label) : label}</div>,
       <div className="QueueWidget-tileValue">{value}</div>,
     ];
 
@@ -113,5 +122,13 @@ export default class QueueWidget<CustomAttrs extends IDashboardWidgetAttrs = IDa
     ) : (
       <div className={'QueueWidget-tile ' + className}>{inner}</div>
     );
+  }
+
+  /**
+   * Resolve a tile key to its label. Override in a subclass to source tile
+   * labels from an extension's own translation namespace.
+   */
+  tileLabel(key: string): Mithril.Children {
+    return app.translator.trans(`core.admin.queue_widget.${key}`);
   }
 }
