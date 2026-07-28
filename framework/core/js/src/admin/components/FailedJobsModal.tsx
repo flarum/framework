@@ -92,7 +92,7 @@ export default class FailedJobsModal extends Modal<IInternalModalAttrs> {
             <div className="FailedJobsModal-jobMeta">
               {app.translator.trans('core.admin.failed_jobs.meta', {
                 queue: <code>{job.queue}</code>,
-                time: humanTime(job.failed_at),
+                time: humanTime(new Date(job.failed_at)),
               })}
             </div>
           </div>
