@@ -18,11 +18,11 @@ use Flarum\Extension\Event as ExtensionEvent;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Group\Event as GroupEvent;
 use Flarum\Http\Event\DeveloperTokenCreated;
-use Illuminate\Queue\Events\QueuePaused;
-use Illuminate\Queue\Events\QueueResumed;
 use Flarum\Post\Event as PostEvent;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Settings\Event as SettingsEvent;
+use Illuminate\Queue\Events\QueuePaused;
+use Illuminate\Queue\Events\QueueResumed;
 
 // Register usage examples and help for each search gambit so the audit browser can show
 // clickable hints and a syntax help panel. Kept next to the gambit registration below;
