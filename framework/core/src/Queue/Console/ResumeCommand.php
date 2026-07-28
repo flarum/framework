@@ -9,6 +9,7 @@
 
 namespace Flarum\Queue\Console;
 
+use Flarum\Queue\QueueFactory;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Contracts\Queue\Queue;
@@ -21,14 +22,33 @@ use Symfony\Component\Console\Attribute\AsCommand;
 #[AsCommand(name: 'queue:resume')]
 class ResumeCommand extends Command
 {
-    protected $signature = 'queue:resume {queue=default : The name of the queue to resume, optionally prefixed with a connection (connection:queue)} {--all : Resume all queues on the connection}';
+    protected $signature = 'queue:resume {queue? : The queue to resume, optionally prefixed with a connection (connection:queue). Omit to resume all paused queues} {--all : Resume all queues on the connection}';
 
     protected $description = 'Resume processing of jobs on a paused queue';
 
     public function handle(Factory $factory, Queue $connection): int
     {
+        $connectionName = $connection->getConnectionName();
+
+        // A bare `queue:resume` (and --all) means "get jobs flowing again":
+        // clear the wildcard pause and every individually paused queue.
+        // Otherwise the admin footgun returns — "pause all" sets the wildcard
+        // key, which a resume targeting only `default` would silently leave in
+        // place.
+        if (! $this->argument('queue')) {
+            $paused = $factory instanceof QueueFactory ? $factory->pausedQueues($connectionName) : [];
+
+            foreach (array_merge(['*'], $paused) as $queue) {
+                $factory->resume($connectionName, $queue);
+            }
+
+            $this->components->info("Job processing on connection [{$connectionName}] has been resumed.");
+
+            return 0;
+        }
+
         [$connectionName, $queue] = $this->option('all')
-            ? [$connection->getConnectionName(), '*']
+            ? [$connectionName, '*']
             : $this->parseQueue($this->argument('queue'), $connection);
 
         $factory->resume($connectionName, $queue);

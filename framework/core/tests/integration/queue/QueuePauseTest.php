@@ -199,6 +199,50 @@ class QueuePauseTest extends ConsoleTestCase
     }
 
     #[Test]
+    public function a_bare_resume_clears_a_wildcard_pause()
+    {
+        // The operator footgun: pausing everything (e.g. the "pause all" admin
+        // toggle, or `queue:pause --all`) sets the wildcard key, but a plain
+        // `queue:resume` used to only clear the `default` key — leaving the
+        // queue paused with no obvious reason. A bare resume means "get jobs
+        // flowing again", so it must clear whatever pause is in effect.
+        $this->runCommand(['command' => 'queue:pause', '--all' => true]);
+
+        $this->assertTrue($this->factory()->isPaused('flarum', 'default'));
+
+        $this->runCommand(['command' => 'queue:resume']);
+
+        $this->assertFalse($this->factory()->isPaused('flarum', 'default'));
+        $this->assertFalse($this->factory()->isPaused('flarum', 'anything'));
+        $this->assertSame([], $this->factory()->pausedQueues('flarum'));
+    }
+
+    #[Test]
+    public function a_bare_resume_clears_every_individually_paused_queue()
+    {
+        $this->runCommand(['command' => 'queue:pause', 'queue' => 'default']);
+        $this->runCommand(['command' => 'queue:pause', 'queue' => 'media']);
+
+        $this->runCommand(['command' => 'queue:resume']);
+
+        $this->assertSame([], $this->factory()->pausedQueues('flarum'));
+    }
+
+    #[Test]
+    public function resuming_a_named_queue_still_targets_only_that_queue()
+    {
+        $this->runCommand(['command' => 'queue:pause', 'queue' => 'default']);
+        $this->runCommand(['command' => 'queue:pause', 'queue' => 'media']);
+
+        $this->runCommand(['command' => 'queue:resume', 'queue' => 'media']);
+
+        $this->assertTrue($this->factory()->isPaused('flarum', 'default'));
+        $this->assertFalse($this->factory()->isPaused('flarum', 'media'));
+
+        $this->factory()->resume('flarum', 'default');
+    }
+
+    #[Test]
     public function pausing_all_queues_pauses_any_queue_name()
     {
         $factory = $this->factory();
