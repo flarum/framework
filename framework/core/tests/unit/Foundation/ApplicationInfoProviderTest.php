@@ -12,12 +12,15 @@ namespace Flarum\Tests\unit\Foundation;
 use Flarum\Foundation\ApplicationInfoProvider;
 use Flarum\Foundation\Config;
 use Flarum\Locale\Translator;
+use Flarum\Queue\RoutingQueue;
 use Flarum\Testing\unit\TestCase;
 use Flarum\User\SessionManager;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Queue\QueueRoutes;
+use Illuminate\Queue\SyncQueue;
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 use SessionHandlerInterface;
@@ -73,12 +76,34 @@ class ApplicationInfoProviderTest extends TestCase
         $this->assertNull($provider->identifyDatabaseDriverMismatch());
     }
 
+    #[Test]
+    public function queue_driver_is_derived_from_the_connection_class()
+    {
+        $provider = $this->provider('sqlite', null, new SyncQueue());
+
+        $this->assertSame('sync', $provider->identifyQueueDriver());
+    }
+
+    #[Test]
+    public function queue_driver_reports_the_real_driver_when_wrapped_in_a_routing_queue()
+    {
+        // flarum.queue.connection is wrapped in a RoutingQueue so pushes can be
+        // routed by job class. Reporting "routing" would hide the real backend
+        // from `flarum info` and the admin dashboard; unwrap to the driver.
+        $driver = new SyncQueue();
+        $wrapped = new RoutingQueue($driver, new QueueRoutes());
+
+        $provider = $this->provider('sqlite', null, $wrapped);
+
+        $this->assertSame('sync', $provider->identifyQueueDriver());
+    }
+
     /**
      * Build a provider with a configured driver and the version string the
      * server would report from `select version()`. Pass a null version for
      * drivers that should never trigger a version query (pgsql/sqlite).
      */
-    private function provider(string $configuredDriver, ?string $serverVersion): ApplicationInfoProvider
+    private function provider(string $configuredDriver, ?string $serverVersion, ?Queue $queue = null): ApplicationInfoProvider
     {
         $cache = m::mock(CacheRepository::class);
         // Execute the cached closure inline so the detection logic is exercised.
@@ -108,7 +133,7 @@ class ApplicationInfoProviderTest extends TestCase
             $config,
             m::mock(SessionManager::class),
             m::mock(SessionHandlerInterface::class),
-            m::mock(Queue::class),
+            $queue ?? m::mock(Queue::class),
         );
     }
 }
