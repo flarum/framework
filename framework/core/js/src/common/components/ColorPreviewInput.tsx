@@ -26,8 +26,10 @@ export default class ColorPreviewInput<
         attrs.onchange?.({ target: { value: attrs.value } });
       }
 
-      // Validate the color
-      if (!/^#[a-f0-9]{6}$/i.test(attrs.value)) {
+      // An empty field is a valid "no colour" state and must be preserved as
+      // such (stored as an empty string / null), not coerced to a colour. Only
+      // a non-empty value that fails validation is corrected.
+      if (attrs.value !== '' && !/^#[a-f0-9]{6}$/i.test(attrs.value)) {
         attrs.value = '#000000';
         attrs.onchange?.({ target: { value: attrs.value } });
       }
