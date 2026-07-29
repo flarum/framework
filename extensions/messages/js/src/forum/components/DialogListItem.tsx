@@ -67,17 +67,19 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
           e.preventDefault();
           e.stopPropagation();
 
-          this.attrs.dialog
-            .save({ lastReadMessageId: (this.attrs.dialog.data.relationships?.lastMessage.data as ModelIdentifier).id })
-            .finally(() => {
-              if (this.attrs.dialog.unreadCount() === 0) {
-                app.session.user!.pushAttributes({
-                  messageCount: (app.session.user!.attribute<number>('messageCount') ?? 1) - 1,
-                });
-              }
+          const lastMessageId = this.attrs.dialog.messageRelationshipId('lastMessage');
 
-              m.redraw();
-            });
+          if (!lastMessageId) return;
+
+          this.attrs.dialog.save({ lastReadMessageId: lastMessageId }).finally(() => {
+            if (this.attrs.dialog.unreadCount() === 0) {
+              app.session.user!.pushAttributes({
+                messageCount: (app.session.user!.attribute<number>('messageCount') ?? 1) - 1,
+              });
+            }
+
+            m.redraw();
+          });
         }}
       />,
       100

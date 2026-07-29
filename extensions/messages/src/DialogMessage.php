@@ -72,20 +72,39 @@ class DialogMessage extends AbstractModel implements Formattable
         });
 
         static::deleted(function (self $message) {
-            if ($message->dialog) {
-                if ($message->dialog->messages()->count() === 0) {
-                    $message->dialog->delete();
-                } elseif ($message->dialog->first_message_id === $message->id) {
-                    $message->dialog->setFirstMessage(
-                        $message->dialog->messages()->oldest('id')->first()
-                    );
-                    $message->dialog->save();
-                } elseif ($message->dialog->last_message_id === $message->id) {
-                    $message->dialog->setLastMessage(
-                        $message->dialog->messages()->latest('id')->first()
-                    );
-                    $message->dialog->save();
+            $dialog = $message->dialog;
+
+            if (! $dialog) {
+                return;
+            }
+
+            if ($dialog->messages()->count() === 0) {
+                $dialog->delete();
+
+                return;
+            }
+
+            // Both columns are declared with nullOnDelete(), so by the time this
+            // runs the database may already have set whichever one pointed at
+            // this message to null. Unless the dialog happened to be loaded
+            // before the delete, reading it back gives null rather than the id
+            // being looked for, so a pointer that is missing is treated as one
+            // that needs recomputing. That also repairs dialogs left pointing at
+            // nothing by earlier deletions.
+            if ($dialog->first_message_id === null || $dialog->first_message_id == $message->id) {
+                if ($first = $dialog->messages()->oldest('id')->first()) {
+                    $dialog->setFirstMessage($first);
                 }
+            }
+
+            if ($dialog->last_message_id === null || $dialog->last_message_id == $message->id) {
+                if ($last = $dialog->messages()->latest('id')->first()) {
+                    $dialog->setLastMessage($last);
+                }
+            }
+
+            if ($dialog->isDirty()) {
+                $dialog->save();
             }
         });
     }

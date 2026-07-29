@@ -271,7 +271,10 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         }
 
         if (! $model->dialog->first_message_id) {
-            $model->dialog->setFirstMessage($model);
+            // Normally this is the first message of a new dialog. It can also be
+            // a dialog whose first message pointer went missing, though, and
+            // that one starts at its oldest surviving message, not at this one.
+            $model->dialog->setFirstMessage($model->dialog->messages()->oldest('id')->first() ?? $model);
         }
 
         $model->dialog->isDirty() && $model->dialog->save();
