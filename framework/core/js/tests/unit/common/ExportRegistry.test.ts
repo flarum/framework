@@ -50,6 +50,10 @@ describe('ExportRegistry#loadChunk', () => {
     expect(original).toHaveBeenCalledTimes(1);
     expect(done).toHaveBeenCalledTimes(1);
     expect((done.mock.calls[0][0] as Event).type).toBe('load');
+
+    // An unregistered chunk warns and falls back to the URL passed in.
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('No chunk by the ID'));
+    expect(original).toHaveBeenCalledWith('/chunk.js', expect.any(Function), 0, 'test-chunk');
   });
 
   it('reports a chunk load failure while the browser is online', async () => {
