@@ -25,8 +25,18 @@ function makeScriptLoader(outcomes: ('load' | 'error')[]) {
   return loader;
 }
 
+let warnSpy: ReturnType<typeof jest.spyOn>;
+
 beforeEach(() => {
   setOnline(true);
+
+  // The tests don't register any chunks, so the registry legitimately warns
+  // that it has no URL for the chunk and falls back to the one we pass in.
+  warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  warnSpy.mockRestore();
 });
 
 describe('ExportRegistry#loadChunk', () => {
