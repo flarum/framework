@@ -70,9 +70,13 @@ export default class RenameDiscussionModal<
         .save({ title })
         .then(() => {
           if (app.viewingDiscussion(this.discussion)) {
-            app.current.get('stream').update();
+            app.current
+              .get('stream')
+              .update()
+              .then(() => m.redraw());
+          } else {
+            m.redraw();
           }
-          m.redraw();
           this.hide();
         })
         .catch(() => {

@@ -10,6 +10,7 @@ import CommentPost from './components/CommentPost';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
 import routes, { ForumRoutes, makeRouteHelpers } from './routes';
 import Application, { ApplicationData } from '../common/Application';
+import Button from '../common/components/Button';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
@@ -23,6 +24,7 @@ import type Discussion from '../common/models/Discussion';
 import type NotificationModel from '../common/models/Notification';
 import type PostModel from '../common/models/Post';
 import extractText from '../common/utils/extractText';
+import drainPrefetchQueue from '../common/utils/drainPrefetchQueue';
 import Notices from './components/Notices';
 import Footer from './components/Footer';
 import SearchManager from '../common/SearchManager';
@@ -141,6 +143,10 @@ export default class ForumApplication extends Application {
         $('.App').addClass('mobile-safari');
       });
     }
+
+    // Once the app is mounted, warm any registered code-split chunks in the
+    // background so later navigations don't pay for them on the critical path.
+    drainPrefetchQueue(this.prefetch);
   }
 
   /**
@@ -148,5 +154,44 @@ export default class ForumApplication extends Application {
    */
   public viewingDiscussion(discussion: Discussion): boolean {
     return this.current.matches(DiscussionPage, { discussion });
+  }
+
+  /**
+   * Whether we have already alerted the user that the forum's assets have been
+   * updated since they loaded the page. Ensures the prompt is shown only once.
+   */
+  private assetsRevisionAlertShown = false;
+
+  /**
+   * When the server reports an asset revision (on an API response) that differs
+   * from the one this page booted with, the forum's JS/CSS has been rebuilt since
+   * load. Prompt the user to reload to pick up the new assets, at most once.
+   *
+   * Both values are produced server-side (see `AssetsRevision`), so they are
+   * directly comparable regardless of which versioner the forum uses.
+   *
+   * Public so the realtime extension can call it with a pushed revision token.
+   */
+  public checkAssetsRevision(serverRevision: string | null): void {
+    const bootedRevision = this.data?.assetsRevision;
+
+    if (!serverRevision || !bootedRevision || serverRevision === bootedRevision || this.assetsRevisionAlertShown) {
+      return;
+    }
+
+    this.assetsRevisionAlertShown = true;
+
+    this.alerts.show(
+      {
+        type: 'warning',
+        dismissible: true,
+        controls: [
+          <Button className="Button Button--link" onclick={() => window.location.reload()}>
+            {app.translator.trans('core.lib.assets_updated.reload_button')}
+          </Button>,
+        ],
+      },
+      app.translator.trans('core.lib.assets_updated.message')
+    );
   }
 }

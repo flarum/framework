@@ -37,8 +37,11 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
     /**
      * Given a username, load the user's profile from the store, or make a request
      * if we don't have it yet. Then initialize the profile page with that user.
+     *
+     * Resolves once `this.user` is set so that subclasses can safely chain
+     * dependent work (e.g. fetching related resources keyed off the user id).
      */
-    loadUser(username: string): void;
+    loadUser(username: string): Promise<void>;
     /**
      * Build an item list for the content of the sidebar.
      */

@@ -12,6 +12,11 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "audit",
+        "gitRemote": "git@github.com:flarum/audit.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "bbcode",
         "gitRemote": "git@github.com:flarum/bbcode.git",
         "mainBranch": "2.x"
@@ -68,7 +73,7 @@
       },
       {
         "name": "package-manager",
-        "gitRemote": "git@github.com:flarum/package-manager.git",
+        "gitRemote": "git@github.com:flarum/extension-manager.git",
         "mainBranch": "2.x"
       },
       {

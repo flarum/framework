@@ -1,5 +1,173 @@
 # Changelog
 
+## [v2.0.0-rc.5](https://github.com/flarum/framework/compare/v2.0.0-rc.4...v2.0.0-rc.5)
+
+### Added
+
+- (markdown) continue lists when pressing Enter in the Markdown editor by @linkrobins [#4778]
+
+### Changed
+
+- (audit) move the bundled third-party integrations out to their own extensions by @imorland [#4807]
+- (audit) remove the clarkwinkelmann-author-change integration (replaced by fof/author-change) by @imorland [#4806]
+- (deps) remove redundant nested lockfiles for gdpr/realtime by @imorland [#4801]
+
+### Fixed
+
+- (core) set an explicit title on notification emails so it can't leak by @imorland [#4768]
+- (core) register a default for the `show_language_selector` setting by @imorland [#4792]
+- (core) reject oversized-dimension images before decoding by @imorland [#4794]
+- (core) return an empty page instead of a 500 when `page[limit]=0` is requested by @linkrobins [#4775]
+- (core) bind the database transactions manager by @imorland [#4800]
+- (core) render the abandoned-extensions email body by @imorland [#4804]
+- (core) fix iPad/touch devices requiring a double-tap in the discussion list by @imorland [#4556]
+- (a11y) add a `role` attribute to `PostStream` items by @claudiushenrichs [#4780]
+- (messages) use the correct route name in the dialogs dropdown by @imorland [#4791]
+- (tags) show a friendly model name for the tag slug driver setting by @imorland [#4793]
+- (tags) update tag metadata when a pending discussion is approved by @linkrobins [#4777]
+- (gdpr) send the erasure completion email in the user's locale by @grimur82 [#4786]
+- (gdpr) share view data for the erasure completion email by @imorland [#4798]
+- (realtime) recover desktop tabs after silent socket loss and catch up on missed events by @ekumanov [#4718]
+
+### Security
+
+- (core) harden avatar-from-URL fetch with a streaming cap, resolution guard, and link-local block by @imorland [#4795]
+- (deps) pin axios to patched 0.33.x to clear advisories by @imorland [#4802]
+- (deps) bump vulnerable transitive dev deps (minimatch, serialize-javascript) by @imorland [#4803]
+
+### Performance
+
+- (likes) don't default-include post likes on the discussion index by @imorland [#4796]
+- (core) eager-load discussion state on the posts endpoint by @imorland [#4797]
+
+### Documentation
+
+- (core) update the Laravel version in PHP docblocks by @DavideIadeluca [#4762]
+
+## [v2.0.0-rc.4](https://github.com/flarum/framework/compare/v2.0.0-rc.3...v2.0.0-rc.4)
+
+### Added
+
+- (audit) migrate the Audit extension to 2.x, split first-party integrations, and add GDPR/core coverage by @imorland [#4711]
+- (core, realtime) notify browsing users when the forum's assets are updated by @imorland [#4752]
+- (realtime) ambient typing indicators on the discussion list by @imorland [#4731]
+- (realtime) ambient typing dots on the index sidebar tag list by @imorland [#4756]
+- (realtime) make the typing indicator reusable and movable by @imorland [#4721]
+- (gdpr) audit-log the erasure request lifecycle by @imorland [#4732]
+- (approval) log discussion approval in the audit log by @imorland [#4748]
+- (core) add `MariaDB` to the frontend `DatabaseDriver` enum by @DavideIadeluca [#4701]
+
+### Changed
+
+- (tags) convert `TagLinkButton` to TSX with an extensible `linkItems` list by @imorland [#4755]
+
+### Fixed
+
+- (flags) type `Flag::$reason` and `$reason_detail` as nullable by @imorland [#4760]
+- (a11y) fix the aria-label text key for the new discussion button by @claudiushenrichs [#4758]
+- (core) debounce the loading indicator to avoid flicker by @imorland [#4750]
+- (avatar) ensure the base image exists for small avatar uploads by @dsevillamartin [#4740]
+- (tags) delegate tag slug resolution to the active slug driver by @imorland [#4739]
+- (tags) serialize an unslugged tag's slug to the API by @DavideIadeluca [#4746]
+- (realtime) only relay client events to channels the sender is subscribed to by @imorland [#4738]
+- (nicknames) `TypeError` when creating a user with a nickname by @imorland [#4734]
+- (pusher) boot crash and restore discussion-list updates by @imorland [#4730]
+- (core) don't apply JSON:API query validation to internal API requests by @imorland [#4728]
+- (core) return HTTP 503 when the upgrade page is shown by @DavideIadeluca [#4720]
+- (core) add the missing database display name on the `ExtensionPage` by @DavideIadeluca [#4747]
+- (core) add accessible labels to composer control buttons by @imorland [#4723]
+- (a11y) add an accessible label to the new discussion button by @claudiushenrichs [#4749]
+- (realtime) show the correct notification toast, and stop dropping it by @imorland [#4713]
+- (audit) remove circular optional-dependencies on first-party extensions by @imorland [#4712]
+- (core) fix abandoned-extensions sync never being scheduled by @imorland [#4707]
+- (core) avoid re-fetching the page of posts embedded in the initial page load by @ekumanov [#4703]
+- (mentions) fix post mention notification jumping by @zxbmmmmmmmmm [#4686]
+
+### Performance
+
+- (core) avoid loading the target user's groups in the `editCredentials` check by @imorland [#4729]
+- (admin) lazy-load sortablejs to shrink the admin bundle by @imorland [#4754]
+
+### Documentation
+
+- (realtime) provide a realtime docs link by @imorland [#4722]
+
+## [v2.0.0-rc.3](https://github.com/flarum/framework/compare/v2.0.0-rc.2...v2.0.0-rc.3)
+
+### Added
+
+- (core) detect and surface a database driver/server mismatch (e.g. MariaDB vs MySQL) by @imorland [#4682]
+- (core) content negotiation for forum error handling by @dsevillamartin [#4677]
+
+### Fixed
+
+- (core) refresh the user count and list after user creation by @DavideIadeluca [#4687]
+- (core) lopsided post divider on mobile by @linkrobins [#4691]
+- (core) stub the full Queue Pause/Resume surface on `QueueFactory` by @imorland [#4683]
+- (mentions) align mentions in post with the rest of the text by @dsevillamartin [#4692]
+- (emoji) reserve a square box for `img.emoji` to avoid layout shift (CLS) by @imorland [#4685]
+- (core) queue worker `TypeError` on a null connection name with `illuminate/queue` 13.15+ by @imorland [#4700]
+- (tags, sticky) declare `flarum/realtime` as an optional dependency so the realtime extender loads before its consumers, fixing `TypeError: mt(...) is not a constructor` by @imorland [#4699]
+
+### Performance
+
+- (core) fix N+1 `group_user` queries when serializing users by @imorland [#4696]
+
+## [v2.0.0-rc.2](https://github.com/flarum/framework/compare/v2.0.0-rc.1...v2.0.0-rc.2)
+
+### Added
+
+- (core) per-class queue routing on `AbstractJob` by @imorland [#4656]
+- (core) `QueueFactory::getPausedQueues()` for `illuminate/queue` v13.11+ compatibility by @forumaker [#4673]
+
+### Fixed
+
+- (core) add XSLT polyfill so the forum still boots on browsers without XSLT support by @imorland [#4359]
+- (core) misaligned user badges in posts — positioned relative to the username instead of the avatar by @luceos [#4582]
+- (core) hide the search clear button when collapsed in tablet mode by @huoxin233 [#4594]
+- (core) prevent the search modal from opening when the clear button is clicked by @huoxin233 [#4595]
+- (core) prevent discussion list cache wipe on back-navigation to tag pages by @imorland [#4598]
+- (core) send transactional emails in the recipient's preferred locale by @imorland [#4627]
+- (core) restore `text-overflow: ellipsis` on long button labels by @imorland [#4628]
+- (core) scope the `UserResource` groups relationship to viewable groups by @imorland [#4629]
+- (core) add missing `getHidden()` to the `Log\Context\Repository` stub by @imorland [#4633]
+- (core) avoid duplicate `ModelNotFoundException` logs on orphaned queued jobs by @imorland [#4634]
+- (core) resolve `VersionerInterface` from the container and cache rev-manifest reads by @imorland [#4638]
+- (core) track avatar HiDPI variants on users to remove `srcsetFor()` filesystem calls by @imorland [#4639]
+- (core) resolve the email logo URL via the `flarum-assets` disk by @imorland [#4640]
+- (core) lower the SMTP ping threshold to 20s to survive idle-disconnect from relays by @imorland [#4641]
+- (core) notification dedup query never matching non-null data on MySQL by @imorland [#4645]
+- (core) notification and email duplicates from a queue race in `NotificationSyncer` by @imorland [#4647]
+- (core) `TypeError` in the `Revised` event when post content is `NULL` by @imorland [#4648]
+- (core) prevent `UserSecurityPage` crash when the user loads asynchronously by @datlechin [#4651]
+- (core) send the user slug, not username, for the profile author filter by @imorland [#4655]
+- (core) `TextEditor.onbuild` race against async Mithril redraw by @imorland [#4657]
+- (core) surface event posts in discussion `PATCH` responses and route title changes via `rename()` by @imorland [#4658]
+- (core) harden pgsql search configuration handling by @imorland [#4663]
+- (core) replace the async-CSS dual path with a render-blocking stylesheet to fix FOUC by @imorland [#4664]
+- (core) widen `Extend\SearchDriver` class-string types to `SearcherInterface` by @imorland [#4668]
+- (core) guard `EloquentBuffer` against orphaned/mock models by @imorland [#4669]
+- (core) resolve native tooltip flash, async teardown leaks, and dynamic tooltip text by @huoxin233 [#4674]
+- (core) mobile discussion total post count not updating on reply by @imorland [#4678]
+- (admin) keep the extension danger badge visible on long names by @imorland [#4660]
+- (realtime) reconnect the WebSocket and catch up on missed events after iOS Safari backgrounding by @ekumanov [#4590]
+- (realtime) cast boolean setting correctly by @imorland [#4624]
+- (realtime) order users by `joined_at` in `realtime:info` by @imorland [#4630]
+- (realtime) reconstruct Pusher on iOS reconnect to bypass the `lives:2` budget by @ekumanov [#4654]
+- (realtime) only force-reconnect on iOS `visibilitychange` by @imorland [#4662]
+- (gdpr) harden export download with an audit trail, single-use links, and an active expiry check by @imorland [#4642]
+- (tags) restore subquery for permitted tag IDs (regression from #4502) by @imorland [#4649]
+- (flags) drop literal `'undefined'` from the Inappropriate reason and lazy-load `FlagPostModal` by @imorland [#4659]
+- (nicknames) cast min/max length settings to int before passing to `Schema\Str` by @imorland [#4599]
+
+### Changed
+
+- (tags) drop legacy unused background columns from the tags table by @Abdooo2235 [#4529]
+
+### Performance
+
+- (core) skip MIME detection in `JsDirectoryCompiler` when the file extension already matches by @imorland [#4632]
+
 ## [v2.0.0-rc.1](https://github.com/flarum/framework/compare/v2.0.0-beta.8...v2.0.0-rc.1)
 
 ### Added

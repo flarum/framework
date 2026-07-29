@@ -98,6 +98,9 @@ class TagResource extends AbstractDatabaseResource
                 ->get(function (Tag $tag) {
                     return $this->slugManager->forResource($tag::class)->toSlug($tag);
                 }),
+            Schema\Str::make('storedSlug')
+                ->get(fn (Tag $tag) => $tag->slug)
+                ->visible(fn (Tag $tag, FlarumContext $context) => $context->getActor()->can('edit', $tag)),
             Schema\Str::make('color')
                 ->writable()
                 ->nullable()
@@ -112,9 +115,6 @@ class TagResource extends AbstractDatabaseResource
             Schema\Boolean::make('isRestricted')
                 ->writableOnUpdate()
                 ->visible(fn (Tag $tag, FlarumContext $context) => $context->getActor()->isAdmin()),
-            Schema\Str::make('backgroundUrl')
-                ->get(fn (Tag $tag) => $tag->background_path),
-            Schema\Str::make('backgroundMode'),
             Schema\Integer::make('discussionCount'),
             Schema\Integer::make('position')
                 ->nullable(),

@@ -36,7 +36,7 @@ class Model implements ExtenderInterface
      * Add a custom attribute type cast. Should not be applied to non-extension attributes.
      *
      * @param string $attribute: The new attribute name.
-     * @param string $cast: The cast type. See https://laravel.com/docs/11.x/eloquent-mutators#attribute-casting
+     * @param string $cast: The cast type. See https://laravel.com/docs/13.x/eloquent-mutators#attribute-casting
      */
     public function cast(string $attribute, string $cast): self
     {

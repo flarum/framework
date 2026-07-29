@@ -12,6 +12,7 @@ use Flarum\Api\Resource;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Sticky\Api\DiscussionResourceFields;
 use Flarum\Sticky\Event\DiscussionWasStickied;
@@ -57,4 +58,21 @@ return [
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, StickyFilter::class)
         ->addMutator(DiscussionSearcher::class, PinStickiedDiscussionsToTop::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-realtime', fn () => [
+            (new RealtimeExtend())
+                ->broadcastModelEvent(
+                    [DiscussionWasStickied::class, DiscussionWasUnstickied::class],
+                    fn ($event) => $event->discussion,
+                    fn ($event) => $event->user,
+                    'stickiedEvent'
+                ),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-sticky')
+                ->listen(DiscussionWasStickied::class, 'discussion.stickied', fn ($e) => ['discussion_id' => $e->discussion->id])
+                ->listen(DiscussionWasUnstickied::class, 'discussion.unstickied', fn ($e) => ['discussion_id' => $e->discussion->id]),
+        ]),
 ];

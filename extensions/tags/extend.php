@@ -17,11 +17,14 @@ use Flarum\Extend;
 use Flarum\Flags\Api\Resource\FlagResource;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Tags\Access;
 use Flarum\Tags\Api;
+use Flarum\Tags\AuditIntegration;
 use Flarum\Tags\Content;
 use Flarum\Tags\Event\DiscussionWasTagged;
+use Flarum\Tags\IdWithSlugDriver;
 use Flarum\Tags\Listener;
 use Flarum\Tags\Post\DiscussionTaggedPost;
 use Flarum\Tags\Search\Filter\PostTagFilter;
@@ -117,6 +120,7 @@ return [
         ),
 
     (new Extend\Settings())
+        ->default('slug_driver_'.Tag::class, 'default')
         ->serializeToForum('minPrimaryTags', 'flarum-tags.min_primary_tags')
         ->serializeToForum('maxPrimaryTags', 'flarum-tags.max_primary_tags')
         ->serializeToForum('minSecondaryTags', 'flarum-tags.min_secondary_tags')
@@ -153,7 +157,8 @@ return [
         ->setFulltext(TagSearcher::class, FulltextFilter::class),
 
     (new Extend\ModelUrl(Tag::class))
-        ->addSlugDriver('default', Utf8SlugDriver::class),
+        ->addSlugDriver('default', Utf8SlugDriver::class)
+        ->addSlugDriver('id_with_slug', IdWithSlugDriver::class),
 
     /*
      * Fixes DiscussionTaggedPost showing tags as deleted because they are not loaded in the store.
@@ -178,4 +183,38 @@ return [
             return $endpoint
                 ->addDefaultInclude(['eventPostMentionsTags']);
         }),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-realtime', fn () => [
+            (new RealtimeExtend())
+                ->broadcastModelEvent(
+                    [DiscussionWasTagged::class],
+                    fn ($event) => $event->discussion,
+                    fn ($event) => $event->actor,
+                    'taggedEvent'
+                ),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-tags')
+                ->listen(DiscussionWasTagged::class, 'discussion.tagged', fn ($e) => [
+                    'discussion_id' => $e->discussion->id,
+                    'old_tags' => \Illuminate\Support\Arr::pluck($e->oldTags, 'slug'),
+                    // The event only carries the old tags; query the relation fresh for the
+                    // new set rather than reading the (stale, pre-change) preloaded ->tags.
+                    'new_tags' => $e->discussion->tags()->pluck('tags.slug')->all(),
+                ])
+                ->using(new AuditIntegration()),
+
+            // The audit `tag` relationship is only meaningful when tags is present
+            // (AuditLog::getTagAttribute() resolves it from the payload).
+            (new Extend\ApiResource(\Flarum\Audit\Api\Resource\AuditLogResource::class))
+                ->fields(fn () => [
+                    Schema\Relationship\ToOne::make('tag')
+                        ->type('tags')
+                        ->includable()
+                        ->get(fn ($log) => $log->tag),
+                ])
+                ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->addDefaultInclude(['tag'])),
+        ]),
 ];

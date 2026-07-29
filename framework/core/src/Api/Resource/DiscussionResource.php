@@ -94,7 +94,8 @@ class DiscussionResource extends AbstractDatabaseResource
                     'firstPost.editedUser',
                     'firstPost.hiddenUser',
                     'lastPost'
-                ]),
+                ])
+                ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups', 'firstPost.user.groups']),
             Endpoint\Index::make()
                 ->defaultInclude([
                     'user',
@@ -103,7 +104,7 @@ class DiscussionResource extends AbstractDatabaseResource
                     'mostRelevantPost.user'
                 ])
                 ->defaultSort('-lastPostedAt')
-                ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups'])
+                ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups', 'mostRelevantPost.user.groups'])
                 ->paginate(),
         ];
     }
@@ -116,6 +117,17 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->writable(function (Discussion $discussion, Context $context) {
                     return $context->creating()
                         || $context->getActor()->can('rename', $discussion);
+                })
+                ->set(function (Discussion $discussion, string $value, Context $context) {
+                    // On update, route through `rename()` so that `Renamed`
+                    // fires — the listener creates the `discussionRenamed`
+                    // event post and dispatches notifications. The default
+                    // attribute setter would silently skip both.
+                    if ($context->updating()) {
+                        $discussion->rename($value);
+                    } else {
+                        $discussion->title = $value;
+                    }
                 })
                 ->minLength(3)
                 ->maxLength(80),
@@ -207,6 +219,7 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->withLinkage(function (Context $context) {
                     return $context->showing(self::class)
                         || $context->creating(self::class)
+                        || $context->updating(self::class)
                         || $context->creating(PostResource::class);
                 })
                 ->get(function (Discussion $discussion, Context $context) {

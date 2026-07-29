@@ -3,6 +3,7 @@ import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import PostStreamState from '../states/PostStreamState';
 import Discussion from '../../common/models/Discussion';
+import Post from '../../common/models/Post';
 import { ApiResponseSingle } from '../../common/Store';
 export interface IDiscussionPageAttrs extends IPageAttrs {
     id: string;
@@ -52,7 +53,23 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     /**
      * Initialize the component to display the given discussion.
      */
-    show(discussion: ApiResponseSingle<Discussion>): void;
+    show(discussion: ApiResponseSingle<Discussion>, preloadedPosts?: Post[]): void;
+    /**
+     * Extract the page of posts that was embedded in the server-preloaded
+     * discussion document, so the post stream can render without re-fetching
+     * the same posts via the API.
+     *
+     * On the initial page load, Content\Discussion embeds the `page[near]`
+     * window of posts in the preloaded document (it needs them for the noscript
+     * content anyway), and `preloadedApiDocument()` has already pushed them into
+     * the store by the time this runs. Returns the longest run of posts that is
+     * contiguous in stream order: stray posts pulled in by other relationships
+     * (e.g. extension includes) must not corrupt the visible window — that
+     * non-contiguity is what caused #4137. API show responses (post-#4067)
+     * include no posts page, so for in-app navigation this returns an empty
+     * array and the stream fetches as before.
+     */
+    preloadedNearPage(discussion: ApiResponseSingle<Discussion>): Post[];
     /**
      * Build an item list for the contents of the sidebar.
      */

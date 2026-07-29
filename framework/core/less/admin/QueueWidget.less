@@ -1,0 +1,86 @@
+.QueueWidget {
+  padding: 0;
+
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+  }
+
+  // Right-hand header controls. `space-between` on -header already pushes this
+  // to the right (it's the second flex child after -title); this lays its own
+  // items — the refresh button plus anything a subclass adds via
+  // headerActions() — out in a row with consistent spacing.
+  &-headerActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted-color);
+
+    .icon {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+  }
+
+  &-refresh {
+    color: var(--muted-color);
+  }
+
+  &-tiles {
+    display: flex;
+    align-items: flex-end;
+    padding: 0 20px 15px;
+
+    & > :not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+
+  &-tile {
+    min-width: 120px;
+    padding: 4px 0;
+  }
+
+  &-tile--action {
+    border: 0;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    border-radius: var(--border-radius);
+
+    &:hover .QueueWidget-tileValue {
+      text-decoration: underline;
+    }
+  }
+
+  &-tileLabel {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--muted-color);
+  }
+
+  &-tileValue {
+    margin-top: 6px;
+    font-size: 20px;
+    color: var(--text-color);
+  }
+
+  &-tile--alert &-tileValue {
+    color: @error-color;
+  }
+
+  .LoadingIndicator {
+    padding: 0 20px 20px;
+  }
+}

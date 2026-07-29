@@ -51,8 +51,18 @@ export interface Extension {
 
 export enum DatabaseDriver {
   MySQL = 'MySQL',
+  MariaDB = 'MariaDB',
   PostgreSQL = 'PostgreSQL',
   SQLite = 'SQLite',
+}
+
+export interface DatabaseVersionStatus {
+  // A running install is always at or above the hard minimum, so the backend
+  // only ever reports these two states to the admin frontend.
+  status: 'ok' | 'below_recommended';
+  server: string;
+  version: string;
+  recommended: string;
 }
 
 export interface AdminApplicationData extends ApplicationData {
@@ -79,9 +89,13 @@ export interface AdminApplicationData extends ApplicationData {
 
   dbDriver: DatabaseDriver;
   dbVersion: string;
+  dbDriverMismatch: string | null;
+  dbVersionStatus: DatabaseVersionStatus | null;
   dbOptions: Record<string, string>;
   phpVersion: string;
   queueDriver: string;
+  pausedQueues: string[];
+  knownQueues: string[];
   schedulerStatus: string;
   sessionDriver: string;
 }

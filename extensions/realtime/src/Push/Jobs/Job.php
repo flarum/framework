@@ -19,15 +19,6 @@ use Pusher\Pusher;
 
 abstract class Job extends AbstractJob
 {
-    public static ?string $onQueue = null;
-
-    public function __construct()
-    {
-        if (static::$onQueue) {
-            $this->onQueue(static::$onQueue);
-        }
-    }
-
     protected function pusher(): Pusher
     {
         return resolve(Pusher::class);

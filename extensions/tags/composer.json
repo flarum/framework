@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-rc.1"
+        "flarum/core": "^2.0.0-rc.5"
     },
     "autoload": {
         "psr-4": {
@@ -38,6 +38,10 @@
         "flarum-extension": {
             "title": "Tags",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/realtime",
+                "flarum/audit"
+            ],
             "icon": {
                 "name": "fas fa-tags",
                 "backgroundColor": "#F28326",
@@ -80,7 +84,8 @@
     "require-dev": {
         "flarum/core": "*@dev",
         "flarum/testing": "^2.0",
-        "flarum/suspend": "^2.0"
+        "flarum/suspend": "^2.0",
+        "flarum/audit": "*"
     },
     "repositories": [
         {

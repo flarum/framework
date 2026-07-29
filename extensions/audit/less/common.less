@@ -1,0 +1,238 @@
+.AuditSearch {
+    padding: 20px;
+
+    .AuditSearch-refresh {
+        margin-left: 5px;
+        vertical-align: top;
+    }
+
+    .AuditSearchWrapper {
+        display: inline-block;
+        vertical-align: top;
+        position: relative;
+        color: var(--muted-color);
+
+        .FormControl {
+            width: 20em;
+            margin-right: 5px;
+        }
+
+        .Search-clear {
+            position: absolute;
+            top: 0;
+            right: 5px;
+            width: 36px;
+            outline: none;
+        }
+    }
+}
+
+.AuditAutocomplete {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: var(--zindex-dropdown, 1000);
+    min-width: 16em;
+    max-height: 18em;
+    overflow-y: auto;
+    margin: 2px 0 0;
+    padding: 6px 0;
+    list-style: none;
+    background: var(--body-bg);
+    border-radius: 4px;
+    box-shadow: 0 2px 6px var(--shadow-color, rgba(0, 0, 0, 0.2));
+
+    li {
+        list-style: none;
+    }
+
+    .AuditAutocomplete-group {
+        padding: 4px 12px 2px;
+        font-size: 0.8em;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: var(--muted-more-color, var(--muted-color));
+    }
+
+    .AuditAutocomplete-item {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 4px 12px;
+        border: 0;
+        background: none;
+        cursor: pointer;
+
+        &:hover {
+            background: var(--control-bg);
+        }
+
+        code {
+            background: none;
+        }
+    }
+}
+
+.AuditFilters {
+    // Match the search input's left text edge: the .AuditSearch row pads 20px and the input
+    // itself adds its own inner padding + border, so the chips line up under the placeholder
+    // text rather than under the input's outer border.
+    padding: 0 20px 10px 33px;
+    font-size: 0.9em;
+
+    .AuditFilters-quick {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .AuditFilters-label {
+        color: var(--muted-color);
+    }
+
+    .AuditFilters-toggle {
+        margin-left: auto;
+        color: var(--muted-color);
+        background: none;
+
+        &:hover {
+            background: none;
+            color: var(--link-color);
+        }
+    }
+
+    // Pill-shaped, clearly-clickable chips that read as controls (not text) in both themes.
+    .AuditFilters-filter {
+        height: auto;
+        padding: 3px 10px;
+        border: 1px solid var(--control-bg);
+        border-radius: 20px;
+        background: var(--control-bg);
+        color: var(--text-color);
+        line-height: 1.4;
+
+        .Button-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .Button-icon {
+            font-size: 85%;
+            color: var(--muted-color);
+        }
+
+        &:hover {
+            border-color: var(--link-color);
+            background: var(--control-bg);
+            color: var(--link-color);
+
+            .Button-icon {
+                color: var(--link-color);
+            }
+        }
+
+        code {
+            background: none;
+            color: inherit;
+            padding: 0;
+            font-size: 95%;
+        }
+    }
+
+    .AuditFilters-help {
+        margin-top: 10px;
+        padding: 12px 16px;
+        border-radius: 4px;
+        background: var(--control-bg);
+    }
+
+    .AuditFilters-list {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 6px 12px;
+        margin: 0;
+
+        dt {
+            margin: 0;
+        }
+
+        dd {
+            margin: 0;
+            color: var(--muted-color);
+        }
+
+        .AuditFilters-filter {
+            background: var(--body-bg);
+            border-color: var(--body-bg);
+
+            &:hover {
+                border-color: var(--link-color);
+            }
+        }
+    }
+
+    .AuditFilters-values {
+        margin-left: 8px;
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .AuditFilters-syntax {
+        margin: 12px 0 0;
+        padding-left: 18px;
+        color: var(--muted-color);
+    }
+}
+
+.AuditItem {
+    padding: 20px;
+    display: flex;
+    border-top: 1px solid var(--control-bg);
+
+    code, pre {
+        background: var(--control-bg);
+    }
+}
+
+.AuditItemAvatar {
+    width: 80px;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+
+    .Avatar {
+        .Avatar--size(36px);
+    }
+}
+
+.AuditItemData {
+    flex-grow: 1;
+
+    .Dropdown {
+        float: right;
+    }
+
+    // The "filter by …" affordances (actor, client, action) are Button--link buttons rather
+    // than navigation links. Render them inline like the surrounding text instead of as
+    // padded buttons, so they flow within the audit rows.
+    .AuditItemRow .Button--link {
+        display: inline;
+        padding: 0;
+        height: auto;
+        font: inherit;
+        color: var(--link-color);
+        vertical-align: baseline;
+    }
+}
+
+.AuditItemRow:nth-child(2) {
+    font-weight: bold;
+}
+
+.AuditMore {
+    padding: 20px;
+}

@@ -69,6 +69,13 @@ core:
       pgsql:
         search_configuration: Search configuration to use
       queue:
+        pause_label: Pause queue processing
+        pause_all_label: Pause all queues
+        pause_queue_label: "Pause the {queue} queue"
+        pause_help: >-
+          While paused, workers stop picking up new jobs from the affected
+          queues — jobs accumulate until processing is resumed. Jobs that are
+          already running are not affected.
         section_label: Queue
         sync_info: Your forum is using the synchronous queue driver. Jobs are processed immediately in the main process thread.
         sync_help: For better performance and user experience, consider using the database queue driver. Learn more in the documentation.
@@ -193,7 +200,25 @@ core:
       view_all: View all on discuss.flarum.org
 
     # These translations are used in the Dashboard page.
+    queue_widget:
+      title: Queue
+      pending: Pending
+      reserved: In progress
+      failed: Failed
+      refresh: Refresh
+    failed_jobs:
+      title: Failed Jobs
+      none: No failed jobs.
+      meta: "Queue {queue} · failed {time}"
+      details: Details
+      retry: Retry
+      retry_all: Retry all
+      delete: Delete
+
     dashboard:
+      queue_paused_warning: "Queue processing is paused (queue: {queues}). Jobs will accumulate until it is resumed."
+      queue_paused_all_warning: All queue processing is paused. Jobs will accumulate until it is resumed.
+      queue_paused_manage: Manage
       clear_cache_button: Clear Cache
       description: Your forum at a glance.
       info_button: System Info
@@ -232,6 +257,20 @@ core:
       section_disabled_heading: Disabled
       section_disabled_help: These extensions are installed but not currently enabled. Enable them from their settings page, or remove them if no longer needed.
       suggested_by: "Suggested by {extension}"
+
+    # These translations are used in the database driver mismatch warning widget.
+    database-driver-mismatch-warning:
+      detail: |
+        Your <code>config.php</code> is configured to use the <code>{configured}</code> database driver, but Flarum has detected that the database server is actually <code>{actual}</code>.
+
+        Using the wrong driver can cause subtle, hard-to-diagnose bugs. Set <code>'driver' => ''{actual}''</code> in the <code>database</code> section of your <code>config.php</code> file. See <link>Flarum docs</link> for more information.
+      label: Database driver mismatch
+
+    # These translations are used in the database version warning widget.
+    database-version-warning:
+      below-recommended-detail: |
+        Your {server} server is running version <code>{version}</code>. This is supported, but Flarum recommends {server} <code>{recommended}</code> or later for the best performance and to stay on a maintained release. See <link>Flarum docs</link> for more information.
+      below-recommended-label: Database version outdated
 
     # These translations are used in the debug warning widget.
     debug-warning:
@@ -802,11 +841,17 @@ core:
 
   # Translations in this namespace are used by the forum and admin interfaces.
   lib:
+    connection_restored_message: Your connection has been restored.
     debug_button: Debug
 
     # These translations are used in the Alert component.
     alert:
       dismiss_a11y_label: Dismiss alert
+
+    # These translations are shown when the forum's assets are updated while a page is open.
+    assets_updated:
+      message: A newer version of this page is available.
+      reload_button: Reload
 
     # These translations are displayed as tooltips for discussion badges.
     badge:
@@ -845,7 +890,9 @@ core:
       generic_message: "Oops! Something went wrong. Please reload the page and try again."
       generic_cross_origin_message: "Oops! Something went wrong during a cross-origin request. Please reload the page and try again."
       missing_dependencies_message: "Cannot enable {extension} until the following dependencies are enabled: {extensions}"
+      network_message: Something seems to be wrong with your connection. Please check your network and try again.
       not_found_message: The requested resource was not found.
+      offline_message: You appear to be offline. Please check your connection and try again.
       payload_too_large_message: The request payload was too large.
       permission_denied_message: You do not have permission to do that.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.

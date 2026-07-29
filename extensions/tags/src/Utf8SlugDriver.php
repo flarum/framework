@@ -10,13 +10,16 @@
 namespace Flarum\Tags;
 
 use Flarum\Database\AbstractModel;
+use Flarum\Http\BatchSlugDriverInterface;
 use Flarum\Http\SlugDriverInterface;
 use Flarum\User\User;
+use Illuminate\Support\Collection;
 
 /**
  * @implements SlugDriverInterface<Tag>
+ * @implements BatchSlugDriverInterface<Tag>
  */
-class Utf8SlugDriver implements SlugDriverInterface
+class Utf8SlugDriver implements SlugDriverInterface, BatchSlugDriverInterface
 {
     public function __construct(
         protected TagRepository $repository
@@ -44,5 +47,32 @@ class Utf8SlugDriver implements SlugDriverInterface
             ->firstOrFail();
 
         return $tag;
+    }
+
+    public function fromSlugs(array $slugs, User $actor): Collection
+    {
+        // Map decoded slug (the stored column value) back to the caller's input
+        // slug, so the returned collection is keyed exactly as it was queried —
+        // matching fromSlug()'s urldecode() while staying transparent to callers.
+        $decodedToInput = [];
+        foreach ($slugs as $slug) {
+            $decodedToInput[urldecode($slug)] = $slug;
+        }
+
+        /** @var Collection<string, Tag> $map */
+        $map = new Collection();
+
+        $tags = $this->repository
+            ->query()
+            ->whereIn('slug', array_keys($decodedToInput))
+            ->whereVisibleTo($actor)
+            ->get();
+
+        /** @var Tag $tag */
+        foreach ($tags as $tag) {
+            $map[$decodedToInput[$tag->slug]] = $tag;
+        }
+
+        return $map;
     }
 }

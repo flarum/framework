@@ -149,6 +149,8 @@ export interface ApplicationData {
   locales: Record<string, string>;
   resources: SavedModelData[];
   session: { userId: number; csrfToken: string };
+  /** Token representing the compiled asset revisions the page booted with. */
+  assetsRevision?: string;
   maintenanceMode?: MaintenanceMode;
   bisecting?: boolean;
   [key: string]: unknown;
@@ -180,6 +182,20 @@ export default class Application {
    * An ordered list of initializers to bootstrap the application.
    */
   initializers: ItemList<(app: this) => void> = new ItemList();
+
+  /**
+   * An ordered list of chunk loaders to prefetch once the app is idle after
+   * booting.
+   *
+   * Lazily-loaded (code-split) components add a network round-trip the first
+   * time their route is visited. Registering their loader here warms the chunk
+   * in the background so that, by the time the user navigates to it, the
+   * dynamic import resolves from cache instead of blocking on a request.
+   *
+   * Each item is a thunk that triggers the load — a function returning the
+   * dynamic import of the chunk (the same loader passed to a lazy route).
+   */
+  prefetch: ItemList<() => Promise<unknown>> = new ItemList();
 
   /**
    * The app's session.
@@ -288,6 +304,33 @@ export default class Application {
    */
   private requestErrorAlert: number | null = null;
 
+  /**
+   * The key for the Alert that was shown as a result of an AJAX request
+   * failing at the network level (status 0). Unlike other request error
+   * alerts, only one of these is shown at a time.
+   */
+  protected networkErrorAlert: number | null = null;
+
+  /**
+   * The key for the Alert that is shown while the browser reports being
+   * offline.
+   */
+  protected offlineAlert: number | null = null;
+
+  /**
+   * GET requests that failed because the browser was offline, keyed by
+   * method, URL and params. They are retried, and their original promises
+   * settled, once connectivity is restored. Identical requests (e.g. from a
+   * polling extension) share one entry and are retried only once.
+   */
+  protected deferredRequests: Map<
+    string,
+    {
+      options: FlarumRequestOptions<any>;
+      settlers: { resolve: (value: any) => void; reject: (error: unknown) => void }[];
+    }
+  > = new Map();
+
   initialRoute!: string;
 
   /**
@@ -342,6 +385,8 @@ export default class Application {
 
     this.mount();
 
+    this.registerConnectivityListeners();
+
     this.initialRoute = window.location.href;
 
     caughtInitializationErrors.forEach((handler) => handler());
@@ -377,6 +422,21 @@ export default class Application {
     m.mount(document.getElementById('alerts')!, { view: () => <AlertManager state={this.alerts} /> });
 
     this.drawer = new Drawer();
+
+    // Mithril matches routes on the exact pathname and does not tolerate a trailing
+    // slash (e.g. `/d/123-foo/`), so a shared or linked URL with one matches no route
+    // and falls through to the default route, landing the user on the homepage. Strip
+    // it before routing so the URL resolves the same as its slash-less form, mirroring
+    // the server-side strip in `ResolveRoute`. Only applies to path-routed apps (the
+    // forum); hash-routed apps (admin) keep their route in the fragment, so the
+    // pathname is irrelevant and the homepage (`basePath + '/'`) must be left alone.
+    if (m.route.prefix === '') {
+      const { pathname, search, hash } = window.location;
+
+      if (pathname !== basePath + '/' && pathname.length > 1 && pathname.endsWith('/')) {
+        window.history.replaceState(window.history.state, '', pathname.replace(/\/+$/, '') + search + hash);
+      }
+    }
 
     m.route(document.getElementById('content')!, basePath + '/', mapRoutes(this.routes, basePath));
 
@@ -594,6 +654,8 @@ export default class Application {
       if (xhr.getResponseHeader) {
         const csrfToken = xhr.getResponseHeader('X-CSRF-Token');
         if (csrfToken) app.session.csrfToken = csrfToken;
+
+        this.checkAssetsRevision(xhr.getResponseHeader('X-Flarum-Assets-Revision'));
       }
 
       try {
@@ -611,6 +673,20 @@ export default class Application {
   }
 
   /**
+   * Compare the asset revision reported by the server (on every API response) with
+   * the one the page booted with. If they differ, the forum's JS/CSS has been
+   * rebuilt since this page loaded.
+   *
+   * No-op in the base application; the forum app overrides this to prompt the user
+   * to reload. The admin app intentionally does not.
+   *
+   * @param _serverRevision The asset revision reported by the server, or null.
+   */
+  public checkAssetsRevision(_serverRevision: string | null): void {
+    // Overridden by ForumApplication.
+  }
+
+  /**
    * Make an AJAX request, handling any low-level errors that may occur.
    *
    * @see https://mithril.js.org/request.html
@@ -620,7 +696,61 @@ export default class Application {
 
     if (this.requestErrorAlert) this.alerts.dismiss(this.requestErrorAlert);
 
-    return m.request(options).catch((e) => this.requestErrorCatch(e, originalOptions.errorHandler));
+    if (this.networkErrorAlert) {
+      this.alerts.dismiss(this.networkErrorAlert);
+      this.networkErrorAlert = null;
+    }
+
+    return m.request(options).catch((e) => {
+      if (this.shouldDeferRequest(e, originalOptions)) {
+        return this.deferRequest(originalOptions);
+      }
+
+      return this.requestErrorCatch(e, originalOptions.errorHandler);
+    });
+  }
+
+  /**
+   * Whether a failed request should be held back and retried once
+   * connectivity is restored, instead of being rejected.
+   *
+   * Only GET requests that failed at the network level while the browser
+   * reported being offline qualify: they are safe to repeat, and the
+   * `online` event provides a reliable signal to retry them.
+   */
+  protected shouldDeferRequest(error: unknown, originalOptions: FlarumRequestOptions<any>): boolean {
+    return (
+      error instanceof RequestError && error.status === 0 && navigator.onLine === false && (originalOptions.method ?? 'GET').toUpperCase() === 'GET'
+    );
+  }
+
+  /**
+   * Hold a request that failed while offline. The returned promise settles
+   * with the result of retrying the request once connectivity is restored.
+   */
+  protected deferRequest<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType> {
+    // Make sure the offline alert is showing, in case the page was loaded
+    // while already offline and no `offline` event was ever fired.
+    this.connectionLost();
+
+    return new Promise((resolve, reject) => {
+      const key = this.deferredRequestKey(originalOptions);
+      const deferred = this.deferredRequests.get(key);
+
+      if (deferred) {
+        deferred.settlers.push({ resolve, reject });
+      } else {
+        this.deferredRequests.set(key, { options: originalOptions, settlers: [{ resolve, reject }] });
+      }
+    });
+  }
+
+  /**
+   * The identity of a request for deferral purposes: requests with the same
+   * key are considered identical and are retried only once.
+   */
+  protected deferredRequestKey(options: FlarumRequestOptions<any>): string {
+    return [options.method ?? 'GET', options.url, JSON.stringify(options.params ?? null)].join(' ');
   }
 
   /**
@@ -635,6 +765,20 @@ export default class Application {
 
     let content;
     switch (error.status) {
+      // Status 0 means the request failed at the network level: the client is
+      // offline, DNS resolution failed, the origin was unreachable, or the
+      // response was blocked by CORS. Aborted requests never get here, as
+      // Mithril leaves their promises unsettled.
+      case 0:
+        if (navigator.onLine === false) {
+          content = app.translator.trans('core.lib.error.offline_message');
+        } else if (this.requestWasCrossOrigin(error)) {
+          content = app.translator.trans('core.lib.error.generic_cross_origin_message');
+        } else {
+          content = app.translator.trans('core.lib.error.network_message');
+        }
+        break;
+
       case 422:
         content = formattedErrors
           .map((detail) => [detail, <br />])
@@ -733,11 +877,87 @@ export default class Application {
       if (e.status === 500 && isDebug) {
         app.modal.show(RequestErrorModal, { error: e, formattedError: formattedErrors });
       } else if (e.alert) {
-        this.requestErrorAlert = this.alerts.show(e.alert, e.alert.content);
+        if (e.status === 0) {
+          // A connection problem produces a single alert, even if several
+          // parallel requests fail at once.
+          if (!this.connectionAlertActive()) {
+            this.networkErrorAlert = this.alerts.show(e.alert, e.alert.content);
+          }
+        } else {
+          this.requestErrorAlert = this.alerts.show(e.alert, e.alert.content);
+        }
       }
     } else {
       throw e;
     }
+  }
+
+  /**
+   * Whether an alert about a connection problem (a network-level request
+   * failure or the browser being offline) is currently being shown.
+   */
+  protected connectionAlertActive(): boolean {
+    const activeAlerts = this.alerts.getActiveAlerts();
+
+    return (
+      (this.networkErrorAlert !== null && this.networkErrorAlert in activeAlerts) || (this.offlineAlert !== null && this.offlineAlert in activeAlerts)
+    );
+  }
+
+  /**
+   * Register listeners to proactively notify the user when the browser goes
+   * offline and when connectivity is restored.
+   */
+  protected registerConnectivityListeners(): void {
+    window.addEventListener('offline', () => this.connectionLost());
+    window.addEventListener('online', () => this.connectionRestored());
+  }
+
+  /**
+   * Show a persistent (but dismissible) alert while the browser reports being
+   * offline.
+   */
+  protected connectionLost(): void {
+    if (this.offlineAlert !== null && this.offlineAlert in this.alerts.getActiveAlerts()) return;
+
+    // The offline alert supersedes any alert shown for a failed request.
+    if (this.networkErrorAlert !== null) {
+      this.alerts.dismiss(this.networkErrorAlert);
+      this.networkErrorAlert = null;
+    }
+
+    this.offlineAlert = this.alerts.show({ type: 'error', dismissible: true }, app.translator.trans('core.lib.error.offline_message'));
+  }
+
+  /**
+   * Dismiss any connection problem alerts, retry requests that were deferred
+   * while offline, and briefly confirm to the user that connectivity has
+   * been restored.
+   */
+  protected connectionRestored(): void {
+    if (this.networkErrorAlert !== null) {
+      this.alerts.dismiss(this.networkErrorAlert);
+      this.networkErrorAlert = null;
+    }
+
+    const deferred = Array.from(this.deferredRequests.values());
+    this.deferredRequests = new Map();
+
+    deferred.forEach(({ options, settlers }) => {
+      this.request(options).then(
+        (response) => settlers.forEach(({ resolve }) => resolve(response)),
+        (error) => settlers.forEach(({ reject }) => reject(error))
+      );
+    });
+
+    if (this.offlineAlert === null) return;
+
+    this.alerts.dismiss(this.offlineAlert);
+    this.offlineAlert = null;
+
+    const confirmationAlert = this.alerts.show({ type: 'success' }, app.translator.trans('core.lib.connection_restored_message'));
+
+    setTimeout(() => this.alerts.dismiss(confirmationAlert), 10000);
   }
 
   private showDebug(error: RequestError, formattedError: string[]) {

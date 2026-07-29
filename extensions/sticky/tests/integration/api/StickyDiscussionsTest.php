@@ -98,4 +98,54 @@ class StickyDiscussionsTest extends TestCase
             [3, false, false],
         ];
     }
+
+    #[Test]
+    public function sticky_response_exposes_new_event_post_in_linkage()
+    {
+        // Discussion 2 starts un-stickied with one comment post (id 2). Stickying
+        // creates a `discussionStickied` event post via mergePost(). The PATCH
+        // response must surface that new post in the discussion's `posts`
+        // relationship linkage so the client can refresh its post stream without
+        // a full reload. See flarum/framework#TBD.
+        $response = $this->send(
+            $this->request('PATCH', '/api/discussions/2', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'isSticky' => true,
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+        $json = json_decode($body, true);
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $linkage = $json['data']['relationships']['posts']['data'] ?? null;
+        $this->assertIsArray($linkage, 'PATCH response must include the discussion posts relationship linkage');
+
+        $linkageIds = array_map(fn (array $entry) => $entry['id'], $linkage);
+
+        // The original comment post is still there.
+        $this->assertContains('2', $linkageIds, 'Linkage should still contain the original comment post id');
+
+        // And the newly-created event post is too — its id is whatever the next
+        // available id is after the fixture posts (1–4). The discussion gained
+        // exactly one post; assert the linkage grew by one.
+        $this->assertCount(2, $linkageIds, 'Linkage should contain the comment post and the new event post');
+
+        // Identify the new post id (the one that isn't '2') and assert it
+        // corresponds to a `discussionStickied` post in the included array.
+        $newPostId = array_values(array_diff($linkageIds, ['2']))[0] ?? null;
+        $this->assertNotNull($newPostId);
+
+        $stickiedRow = Post::query()->find($newPostId);
+        $this->assertNotNull($stickiedRow, 'New post in linkage should exist');
+        $this->assertEquals('discussionStickied', $stickiedRow->type);
+        $this->assertEquals(2, $stickiedRow->discussion_id);
+    }
 }

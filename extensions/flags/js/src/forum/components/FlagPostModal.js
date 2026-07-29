@@ -92,9 +92,11 @@ export default class FlagPostModal extends FormModal {
           onclick={withAttr('value', this.reason)}
         />
         <strong>{app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_label')}</strong>
-        {app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_text', {
-          a: guidelinesUrl ? <a href={guidelinesUrl} target="_blank" /> : undefined,
-        })}
+        {guidelinesUrl
+          ? app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_text', {
+              a: <a href={guidelinesUrl} target="_blank" />,
+            })
+          : app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_text_no_guidelines')}
         {this.reason() === 'inappropriate' && (
           <textarea
             className="FormControl"

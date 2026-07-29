@@ -271,6 +271,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         return (
           {
             mysql: 'MySQL',
+            mariadb: 'MariaDB',
             sqlite: 'SQLite',
             pgsql: 'PostgreSQL',
           }[database] || database

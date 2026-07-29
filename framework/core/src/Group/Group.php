@@ -73,7 +73,11 @@ class Group extends AbstractModel
         }
 
         if ($this->isDirty(['name_singular', 'name_plural'])) {
-            $this->raise(new Renamed($this));
+            $this->raise(new Renamed(
+                $this,
+                $this->getOriginal('name_singular'),
+                $this->getOriginal('name_plural')
+            ));
         }
 
         return $this;

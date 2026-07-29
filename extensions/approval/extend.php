@@ -66,4 +66,28 @@ return [
 
     (new Extend\ModelPrivate(CommentPost::class))
         ->checker(Listener\UnapproveNewContent::markUnapprovedContentAsPrivate(...)),
+
+    // Refresh tag metadata that flarum/tags skipped while the content was
+    // pending approval (and therefore private). Kept optional/conditional here
+    // so flarum/tags stays unaware of approval.
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-tags', fn () => [
+            (new Extend\Event())
+                ->listen(PostWasApproved::class, Listener\UpdateTagMetadataAfterApproval::class),
+        ]),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-approval')
+                ->listen(PostWasApproved::class, 'post.approved', fn ($e) => [
+                    'discussion_id' => $e->post->discussion_id,
+                    'post_id' => $e->post->id,
+                ])
+                // Approving the first post approves its discussion (see
+                // UpdateDiscussionAfterPostApproval); record that as its own action.
+                ->listen(PostWasApproved::class, 'discussion.approved', fn ($e) => $e->post->number == 1 ? [
+                    'discussion_id' => $e->post->discussion_id,
+                ] : null),
+        ]),
 ];

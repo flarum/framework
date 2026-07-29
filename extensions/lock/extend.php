@@ -84,5 +84,11 @@ return [
                     fn ($event) => $event->user,
                     'lockedEvent'
                 ),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-lock')
+                ->listen(DiscussionWasLocked::class, 'discussion.locked', fn ($e) => ['discussion_id' => $e->discussion->id])
+                ->listen(DiscussionWasUnlocked::class, 'discussion.unlocked', fn ($e) => ['discussion_id' => $e->discussion->id]),
         ]),
 ];

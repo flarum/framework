@@ -19,6 +19,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     maintenance(): JSX.Element;
     queue(): JSX.Element;
     queueItems(): ItemList<Mithril.Children>;
+    queuePauseControl(): JSX.Element;
     queueSyncContent(): JSX.Element;
     queueDatabaseContent(): JSX.Element;
     queueDatabaseSettings(): ItemList<Mithril.Children>;

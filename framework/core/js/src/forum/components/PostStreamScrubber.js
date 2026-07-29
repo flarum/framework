@@ -27,12 +27,16 @@ export default class PostStreamScrubber extends Component {
   view() {
     const count = this.stream.count();
 
-    // Index is left blank for performance reasons, it is filled in in updateScubberValues
-    const viewing = app.translator.trans('core.forum.post_scrubber.viewing_text', {
-      count,
-      index: <span className="Scrubber-index"></span>,
-      formattedCount: <span className="Scrubber-count">{formatNumber(count)}</span>,
-    });
+    // Index is left blank for performance reasons, it is filled in in updateScubberValues.
+    // Built as a function so each usage renders its own vnode tree — reusing a single vnode
+    // instance in two places breaks Mithril's diffing and leaves one copy stale (e.g. the
+    // total count in the mobile header not updating after posting a reply).
+    const viewing = () =>
+      app.translator.trans('core.forum.post_scrubber.viewing_text', {
+        count,
+        index: <span className="Scrubber-index"></span>,
+        formattedCount: <span className="Scrubber-count">{formatNumber(count)}</span>,
+      });
 
     const unreadCount = this.stream.discussion.unreadCount();
     const unreadPercent = count ? Math.min(count - this.stream.index, unreadCount) / count : 0;
@@ -59,7 +63,7 @@ export default class PostStreamScrubber extends Component {
     return (
       <div className={classNames.join(' ')}>
         <button type="button" className="Button Dropdown-toggle" data-toggle="dropdown">
-          {viewing} <Icon name={'fas fa-sort'} />
+          {viewing()} <Icon name={'fas fa-sort'} />
         </button>
 
         <div className="Dropdown-menu dropdown-menu">
@@ -73,7 +77,7 @@ export default class PostStreamScrubber extends Component {
               <div className="Scrubber-handle">
                 <div className="Scrubber-bar" />
                 <div className="Scrubber-info">
-                  <strong>{viewing}</strong>
+                  <strong>{viewing()}</strong>
                   <span className="Scrubber-description"></span>
                 </div>
               </div>

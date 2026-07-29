@@ -37,7 +37,10 @@ class PostMentionedBlueprint implements BlueprintInterface, AlertableInterface, 
 
     public function getData(): array
     {
-        return ['replyNumber' => (int) $this->reply->number];
+        return [
+            'replyNumber' => (int) $this->reply->number,
+            'discussionId' => (int) $this->reply->discussion_id,
+        ];
     }
 
     public function getEmailViews(): array

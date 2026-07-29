@@ -140,7 +140,10 @@ export default function slidable(element) {
         activate($underneathRight);
       } else if ($underneathLeft.length && pos > threshold) {
         activate($underneathLeft);
-      } else {
+      } else if (pos !== 0) {
+        // Only animate back if the slider actually moved — skipping the
+        // animation on a plain tap prevents it from interfering with the
+        // browser's synthetic click event on iOS/touch devices.
         reset();
       }
 

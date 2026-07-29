@@ -79,7 +79,7 @@ export default class PostStream extends Component {
       }
 
       const postStreamElement = (
-        <div className="PostStream-item" {...attrs}>
+        <div className="PostStream-item" role="article" {...attrs}>
           {content}
         </div>
       );

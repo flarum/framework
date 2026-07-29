@@ -27,6 +27,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
                 'mail_format' => 'multipart',
                 'fontawesome_source' => 'local',
                 'maintenance_mode' => 'none',
+                'show_language_selector' => true,
                 'slug_driver_Flarum\Discussion\Discussion' => 'default',
                 'slug_driver_Flarum\User\User' => 'default',
                 'search_driver_Flarum\User\User' => 'default',

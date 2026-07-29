@@ -14,7 +14,6 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Gdpr\Jobs\ExportJob;
-use Flarum\Gdpr\Jobs\GdprJob;
 use Flarum\Gdpr\Models\Export;
 use Flarum\User\User;
 use Illuminate\Contracts\Queue\Queue;
@@ -58,10 +57,7 @@ class ExportResource extends Resource\AbstractDatabaseResource
 
                     $actor->assertCan('exportFor', $user);
 
-                    $this->queue->push(
-                        job: new ExportJob($user, $actor),
-                        queue: GdprJob::$onQueue
-                    );
+                    $this->queue->push(new ExportJob($user, $actor));
                 })
                 ->response(fn () => new EmptyResponse(201)),
         ];

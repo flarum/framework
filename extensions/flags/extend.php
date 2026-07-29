@@ -16,6 +16,7 @@ use Flarum\Flags\Api\ForumResourceFields;
 use Flarum\Flags\Api\PostResourceFields;
 use Flarum\Flags\Api\Resource\FlagResource;
 use Flarum\Flags\Api\UserResourceFields;
+use Flarum\Flags\AuditIntegration;
 use Flarum\Flags\Event\Created as FlagCreated;
 use Flarum\Flags\Event\Deleting as FlagDeleting;
 use Flarum\Flags\Flag;
@@ -29,6 +30,7 @@ use Flarum\User\User;
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
+        ->jsDirectory(__DIR__.'/js/dist/forum')
         ->css(__DIR__.'/less/forum.less')
         ->route('/flags', 'flags', AssertRegistered::class),
 
@@ -79,5 +81,10 @@ return [
                     fn ($event) => $event->flag->post->discussion,
                     'flagged'
                 ),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-flags')
+                ->using(new AuditIntegration()),
         ]),
 ];

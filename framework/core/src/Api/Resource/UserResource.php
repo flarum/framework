@@ -15,6 +15,7 @@ use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Bus\Dispatcher;
 use Flarum\Foundation\ValidationException;
+use Flarum\Group\Group;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -111,15 +112,18 @@ class UserResource extends AbstractDatabaseResource
 
                     return true;
                 })
-                ->defaultInclude(['groups']),
+                ->defaultInclude(['groups'])
+                ->eagerLoad(['groups']),
             Endpoint\Delete::make()
                 ->authenticated()
                 ->can('delete'),
             Endpoint\Show::make()
-                ->defaultInclude(['groups']),
+                ->defaultInclude(['groups'])
+                ->eagerLoad(['groups']),
             Endpoint\Index::make()
                 ->can('searchUsers')
                 ->defaultInclude(['groups'])
+                ->eagerLoad(['groups'])
                 ->paginate(),
             Endpoint\Endpoint::make('avatar.upload')
                 ->route('POST', '/{id}/avatar')
@@ -174,13 +178,16 @@ class UserResource extends AbstractDatabaseResource
                 ->email(['filter'])
                 ->unique('users', 'email', true)
                 ->visible(function (User $user, Context $context) {
-                    return $context->getActor()->can('editCredentials', $user)
-                        || $context->getActor()->id === $user->id;
+                    // Check the cheap self comparison before the editCredentials
+                    // policy, which would otherwise read $user->groups (isAdmin) for
+                    // every serialized user.
+                    return $context->getActor()->id === $user->id
+                        || $context->getActor()->can('editCredentials', $user);
                 })
                 ->writable(function (User $user, Context $context) {
                     return $context->creating()
-                        || $context->getActor()->can('editCredentials', $user)
-                        || $context->getActor()->id === $user->id;
+                        || $context->getActor()->id === $user->id
+                        || $context->getActor()->can('editCredentials', $user);
                 })
                 ->set(function (User $user, string $value, Context $context) {
                     if ($user->exists) {
@@ -198,8 +205,8 @@ class UserResource extends AbstractDatabaseResource
                 }),
             Schema\Boolean::make('isEmailConfirmed')
                 ->visible(function (User $user, Context $context) {
-                    return $context->getActor()->can('editCredentials', $user)
-                        || $context->getActor()->id === $user->id;
+                    return $context->getActor()->id === $user->id
+                        || $context->getActor()->can('editCredentials', $user);
                 })
                 ->writable(fn (User $user, Context $context) => $context->getActor()->isAdmin())
                 ->set(function (User $user, $value, Context $context) {
@@ -310,6 +317,23 @@ class UserResource extends AbstractDatabaseResource
                 }),
 
             Schema\Relationship\ToMany::make('groups')
+                ->get(function (User $user, Context $context) {
+                    // Read the (eager-)loaded relation instead of issuing a fresh
+                    // query per serialized user. Hidden groups are filtered in PHP
+                    // for actors that cannot view them, so the relation can be
+                    // eager-loaded once for the whole payload (see the endpoints'
+                    // eagerLoad of `groups`). Note: isAdmin() also reads $user->groups,
+                    // so the relation must contain all groups (filtering happens here).
+                    $groups = $user->groups;
+
+                    if (! $context->getActor()->can('viewHiddenGroups')) {
+                        // values() re-indexes after filtering so the result stays a
+                        // sequential list (JSON array) rather than a keyed object.
+                        $groups = $groups->filter(fn (Group $group) => ! $group->is_hidden)->values();
+                    }
+
+                    return $groups->all();
+                })
                 ->writable(fn (User $user, Context $context) => $context->updating() && $context->getActor()->can('editGroups', $user))
                 ->includable()
                 ->set(function (User $user, $value, Context $context) {
@@ -419,7 +443,7 @@ class UserResource extends AbstractDatabaseResource
 
         $urlContents = $this->retrieveAvatarFromUrl($url);
 
-        if ($urlContents === null) {
+        if ($urlContents === null || ! $this->withinMaxResolution($urlContents)) {
             return;
         }
 
@@ -465,17 +489,52 @@ class UserResource extends AbstractDatabaseResource
     {
         $contents = $this->retrieveAvatarFromUrl($url);
 
-        return $contents !== null ? $this->imageManager->read($contents) : null;
+        if ($contents === null || ! $this->withinMaxResolution($contents)) {
+            return null;
+        }
+
+        return $this->imageManager->read($contents);
     }
 
     private function retrieveAvatarFromUrl(string $url): ?string
     {
+        $host = parse_url($url, PHP_URL_HOST);
+
+        if (! is_string($host) || $host === '') {
+            return null;
+        }
+
+        // Resolve the host and reject it if it points at a link-local, loopback
+        // or otherwise reserved address (e.g. the cloud metadata endpoint
+        // 169.254.169.254). Private LAN ranges (RFC1918) are intentionally left
+        // reachable so Flarum keeps working behind Docker networks, reverse
+        // proxies and internal CDNs.
+        $ip = $this->resolveToAllowedIp($host);
+
+        if ($ip === null) {
+            return null;
+        }
+
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        $port = parse_url($url, PHP_URL_PORT) ?: ($scheme === 'https' ? 443 : 80);
+
         $maxSizeBytes = $this->imageValidator->getMaxSize() * 1024;
 
-        $client = new Client([
+        $options = [
             'allow_redirects' => false,
             'timeout' => 5,
-        ]);
+            'stream' => true,
+        ];
+
+        // Pin the connection to the address we just validated, so a rebinding
+        // DNS record cannot swap in a blocked address between the check above
+        // and the actual connection. Requires the cURL handler; harmless if
+        // it is unavailable.
+        if (defined('CURLOPT_RESOLVE')) {
+            $options['curl'] = [CURLOPT_RESOLVE => ["$host:$port:$ip"]];
+        }
+
+        $client = new Client($options);
 
         try {
             $response = $client->get($url);
@@ -487,13 +546,72 @@ class UserResource extends AbstractDatabaseResource
             return null;
         }
 
-        $contentLength = $response->getHeaderLine('Content-Length');
+        // Read the body incrementally and abort once it exceeds the maximum
+        // size, rather than trusting the (optional, spoofable) Content-Length
+        // header after the entire response has already been buffered.
+        $body = $response->getBody();
+        $contents = '';
 
-        if ($contentLength !== '' && (int) $contentLength > $maxSizeBytes) {
-            return null;
+        while (! $body->eof()) {
+            $contents .= $body->read(8192);
+
+            if (strlen($contents) > $maxSizeBytes) {
+                return null;
+            }
         }
 
-        return $response->getBody()->getContents();
+        return $contents;
+    }
+
+    /**
+     * Resolve a hostname (or accept a literal IP) and return the first address
+     * that is safe to connect to, or null if the host is unresolvable or only
+     * resolves to blocked (link-local / loopback / reserved) addresses.
+     */
+    private function resolveToAllowedIp(string $host): ?string
+    {
+        $literal = trim($host, '[]');
+
+        if (filter_var($literal, FILTER_VALIDATE_IP)) {
+            return self::isAllowedIp($literal) ? $literal : null;
+        }
+
+        $ips = array_merge(
+            gethostbynamel($host) ?: [],
+            array_column(@dns_get_record($host, DNS_AAAA) ?: [], 'ipv6')
+        );
+
+        foreach ($ips as $ip) {
+            if (self::isAllowedIp($ip)) {
+                return $ip;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Whether an IP address is safe for Flarum to issue a server-side request
+     * to. Link-local, loopback and other reserved ranges are rejected; private
+     * LAN ranges (RFC1918) are intentionally allowed so internal and Docker
+     * hosts keep working.
+     */
+    private static function isAllowedIp(string $ip): bool
+    {
+        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE) !== false;
+    }
+
+    /**
+     * Cheaply reject images whose declared dimensions exceed the maximum
+     * resolution before they are decoded, so a fetched "decompression bomb"
+     * cannot force a huge memory allocation.
+     */
+    private function withinMaxResolution(string $contents): bool
+    {
+        $dimensions = @getimagesizefromstring($contents);
+
+        return $dimensions !== false
+            && $dimensions[0] * $dimensions[1] <= $this->imageValidator->getMaxResolution();
     }
 
     private function fulfillToken(User $user, #[\SensitiveParameter] RegistrationToken $token): void

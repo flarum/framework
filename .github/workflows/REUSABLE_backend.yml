@@ -15,6 +15,36 @@ on:
         default: false
         required: false
 
+      enable_redis:
+        description: "Start a Redis-compatible service (127.0.0.1:6379) for backend tests?"
+        type: boolean
+        default: false
+        required: false
+
+      redis_variant:
+        description: "Which Redis-compatible server to start: 'redis' or 'valkey'."
+        type: string
+        default: 'redis'
+        required: false
+
+      redis_version:
+        description: "Image tag for the Redis/Valkey service, e.g. 'latest', '7.2', '8.0-alpine'."
+        type: string
+        default: 'latest'
+        required: false
+
+      redis_clients:
+        description: >-
+          JSON array of Redis client libraries to run the test matrix against.
+          Only meaningful when `enable_redis` is true. 'phpredis' loads the
+          native `redis` PHP extension; 'predis' relies on the pure-PHP client.
+          Default is a single empty entry, which adds no client dimension and
+          leaves the matrix unchanged for repos that don't need to distinguish
+          clients. Set to e.g. '["phpredis", "predis"]' to test both.
+        type: string
+        default: '[""]'
+        required: false
+
       backend_directory:
         description: The directory of the project where backend code is located. This should contain a `composer.json` file, and is generally the root directory of the repo.
         type: string
@@ -33,6 +63,12 @@ on:
         required: false
         # Keep PHP versions synced with build-install-packages.yml
         default: '["8.3", "8.4", "8.5"]'
+
+      latest_php:
+        description: The latest PHP version to test with. DB-specific jobs run only on this version. Keep in sync with the last entry of php_versions.
+        type: string
+        required: false
+        default: '8.5'
 
       php_extensions:
         description: PHP extensions to install.
@@ -82,6 +118,10 @@ jobs:
         service: ${{ fromJSON(inputs.db_versions) }}
         prefix: ['']
         php_ini_values: [inputs.php_ini_values]
+        # Redis client library to exercise. Defaults to a single empty entry
+        # (no extra dimension); repos that enable_redis can opt into testing
+        # both 'phpredis' and 'predis' via the `redis_clients` input.
+        redis_client: ${{ fromJSON(inputs.redis_clients) }}
 
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrixinclude
         include:
@@ -103,25 +143,25 @@ jobs:
             driver: pgsql
 
           # Include Database prefix tests with only one PHP version (latest).
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
+          - php: ${{ inputs.latest_php }}
             service: 'mysql:5.7'
             db: MySQL 5.7
             driver: mysql
             prefix: flarum_
             prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
+          - php: ${{ inputs.latest_php }}
             service: mariadb
             db: MariaDB
             driver: mariadb
             prefix: flarum_
             prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
+          - php: ${{ inputs.latest_php }}
             service: 'sqlite:3'
             db: SQLite
             driver: sqlite
             prefix: flarum_
             prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
+          - php: ${{ inputs.latest_php }}
             service: 'postgres:10'
             db: PostgreSQL 10
             driver: pgsql
@@ -132,30 +172,26 @@ jobs:
         # - MySQL 8.0 runs on all PHP versions (primary DB for PHP version coverage)
         # - All other DBs run on latest PHP only (DB-specific bugs don't depend on PHP version)
         # - MySQL 5.7 also runs on latest PHP only (floor version coverage)
+        #
+        # This excludes every non-latest PHP version for those DBs, leaving only
+        # `latest_php`. The list must cover all `php_versions` entries EXCEPT the
+        # last one, so keep it in sync when `php_versions` changes size.
         exclude:
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'mysql:5.7'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: 'mysql:5.7'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: 'mysql:5.7'
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: mariadb
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: mariadb
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: mariadb
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'sqlite:3'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'sqlite:3'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
             service: 'sqlite:3'
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'postgres:10'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'postgres:10'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
             service: 'postgres:10'
 
     services:
@@ -192,8 +228,17 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: ${{ inputs.enable_redis && format('{0}:{1}', inputs.redis_variant == 'valkey' && 'valkey/valkey' || 'redis', inputs.redis_version) || '' }}
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping || valkey-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-    name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
+    name: "PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}${{ matrix.redis_client && format(' [{0}]', matrix.redis_client) || '' }}"
 
     if: >-
       inputs.enable_backend_testing &&
@@ -201,7 +246,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
@@ -209,8 +254,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug
-          extensions: ${{ inputs.php_extensions }}
+          # Coverage is not collected or uploaded anywhere, and Xdebug slows the
+          # test suite considerably, so leave it disabled.
+          coverage: none
+          # Append the native `redis` extension only for the phpredis matrix
+          # leg. The predis leg deliberately omits it so fof/redis (and any
+          # redis-enabled repo) falls back to the pure-PHP client, exercising
+          # both code paths.
+          extensions: ${{ inputs.php_extensions }}${{ matrix.redis_client == 'phpredis' && ', redis' || '' }}
           tools: phpunit, composer:v2
           ini-values: ${{ matrix.php_ini_values }}
 
@@ -256,13 +307,13 @@ jobs:
       ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug
+          coverage: none
           extensions: ${{ inputs.php_extensions }}
           tools: phpunit, composer:v2
           ini-values: ${{ matrix.php_ini_values }}

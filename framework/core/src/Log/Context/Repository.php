@@ -81,6 +81,14 @@ class Repository
     }
 
     /**
+     * Get a hidden context value.
+     */
+    public function getHidden(string $key, mixed $default = null): mixed
+    {
+        return $this->hidden[$key] ?? $default;
+    }
+
+    /**
      * Add a hidden context value.
      */
     public function addHidden(string|array $key, mixed $value = null): self

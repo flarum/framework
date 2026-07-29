@@ -172,17 +172,40 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     // @ts-ignore
     app.alerts.showLoading();
 
-    return await original(
-      this.chunkUrl(chunkId) || url,
-      (...args: any) => {
-        // @ts-ignore
-        app.alerts.clearLoading();
+    const chunkUrl = this.chunkUrl(chunkId) || url;
 
-        return done(...args);
-      },
-      key,
-      chunkId
-    );
+    const load = (): Promise<void> =>
+      original(
+        chunkUrl,
+        (...args: any) => {
+          const event: Event | undefined = args[0];
+
+          // A chunk that failed to load because the browser is offline is
+          // retried once connectivity is restored. Its import() promise stays
+          // pending in the meantime, so every caller awaiting the chunk
+          // recovers on its own — mirroring how `Application#request` defers
+          // GET requests that fail while offline.
+          if (event?.type === 'error' && navigator.onLine === false) {
+            const retry = () => {
+              window.removeEventListener('online', retry);
+              load();
+            };
+
+            window.addEventListener('online', retry);
+
+            return;
+          }
+
+          // @ts-ignore
+          app.alerts.clearLoading();
+
+          return done(...args);
+        },
+        key,
+        chunkId
+      );
+
+    return await load();
   }
 
   chunkUrl(chunkId: number | string): string | null {

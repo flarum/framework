@@ -40,6 +40,12 @@ export default function (app: ForumApplication) {
     'user.security': { path: '/u/:username/security', component: () => import('./components/UserSecurityPage'), resolverClass: UserPageResolver },
     notifications: { path: '/notifications', component: () => import('./components/NotificationsPage') },
   };
+
+  // Warm the post stream chunks in the background once the app is idle. Opening
+  // a discussion is the most common navigation, so having these cached avoids a
+  // request on the critical path when the user clicks through to one.
+  app.prefetch.add('postStream', () => import('./components/PostStream'), 100);
+  app.prefetch.add('postStreamScrubber', () => import('./components/PostStreamScrubber'), 100);
 }
 
 export function makeRouteHelpers(app: ForumApplication) {

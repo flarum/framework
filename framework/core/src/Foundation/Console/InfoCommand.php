@@ -10,6 +10,7 @@
 namespace Flarum\Foundation\Console;
 
 use Flarum\Console\AbstractCommand;
+use Flarum\Database\DatabaseRequirements;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\ApplicationInfoProvider;
@@ -66,7 +67,21 @@ class InfoCommand extends AbstractCommand
             $this->output->writeln("<info>PHP memory limit:</info> CLI: {$cliMemoryLimit}, Web: unable to detect");
         }
 
-        $this->output->writeln('<info>'.$this->appInfo->identifyDatabaseDriver().' version:</info> '.$this->appInfo->identifyDatabaseVersion());
+        $dbMismatch = $this->appInfo->identifyDatabaseDriverMismatch();
+        $dbVersionStatus = $this->appInfo->identifyDatabaseVersionStatus();
+        $dbLine = '<info>'.$this->appInfo->identifyDatabaseDriver().' version:</info> '.$this->appInfo->identifyDatabaseVersion();
+
+        if ($dbMismatch) {
+            $dbLine .= " <error>(driver mismatch — config.php is set to '{$this->config['database.driver']}', but the server is {$dbMismatch})</error>";
+        }
+
+        // A booted Flarum is always at or above the hard minimum, so only the
+        // recommended-version nudge is meaningful here.
+        if ($dbVersionStatus && $dbVersionStatus['status'] === DatabaseRequirements::BELOW_RECOMMENDED) {
+            $dbLine .= " <comment>(below the recommended {$dbVersionStatus['server']} {$dbVersionStatus['recommended']})</comment>";
+        }
+
+        $this->output->writeln($dbLine);
 
         $phpExtensions = implode(', ', get_loaded_extensions());
         $this->output->writeln("<info>Loaded extensions:</info> $phpExtensions");
@@ -89,6 +104,14 @@ class InfoCommand extends AbstractCommand
             $this->output->writeln('');
             $this->error(
                 "Don't forget to turn off debug mode! It should never be turned on in a production system."
+            );
+        }
+
+        if ($dbMismatch) {
+            $this->output->writeln('');
+            $this->error(
+                "Your database driver is misconfigured! config.php is set to '{$this->config['database.driver']}', but the server is actually {$dbMismatch}. ".
+                "Set 'driver' => '{$dbMismatch}' in the 'database' section of config.php to avoid subtle query bugs."
             );
         }
 

@@ -62,15 +62,13 @@ export default class UserListPage extends AdminPage {
    * data provided by `AdminPayload.php`, or `flarum/statistics`
    * if installed.
    */
-  readonly userCount: number = app.data.modelStatistics.users.total;
+  private userCount: number = app.data.modelStatistics.users.total;
 
   /**
    * Get total number of user pages.
    */
   private getTotalPageCount(): number {
-    if (this.userCount === -1) return 0;
-
-    return Math.ceil(this.userCount / this.numPerPage);
+    return Math.max(1, Math.ceil(Math.max(0, this.userCount) / this.numPerPage));
   }
 
   /**
@@ -207,7 +205,22 @@ export default class UserListPage extends AdminPage {
 
     items.add(
       'createUser',
-      <Button className="Button UserListPage-createUserBtn" icon="fas fa-user-plus" onclick={() => app.modal.show(CreateUserModal)}>
+      <Button
+        className="Button UserListPage-createUserBtn"
+        icon="fas fa-user-plus"
+        onclick={() =>
+          app.modal.show(CreateUserModal, {
+            onCreated: (user: User) => {
+              this.userCount++;
+              if (app.data?.modelStatistics?.users) {
+                app.data.modelStatistics.users.total = this.userCount;
+              }
+              this.isLoadingPage = true;
+              this.loadPage(this.pageNumber);
+            },
+          })
+        }
+      >
         {app.translator.trans('core.admin.users.create_user_button')}
       </Button>,
       100

@@ -13,6 +13,8 @@ use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\ErrorHandling\ContentNegotiationFormatter;
+use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
@@ -80,9 +82,14 @@ class ForumServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->bind('flarum.forum.error_handler', function (Container $container) {
+            $inDebugMode = $container['flarum.config']->inDebugMode();
+
             return new HttpMiddleware\HandleErrors(
                 $container->make(Registry::class),
-                $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
+                new ContentNegotiationFormatter(
+                    new JsonApiFormatter($inDebugMode),
+                    $inDebugMode ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
+                ),
                 $container->tagged(Reporter::class)
             );
         });
@@ -182,7 +189,8 @@ class ForumServiceProvider extends AbstractServiceProvider
             function () use ($container) {
                 $recompile = new RecompileFrontendAssets(
                     $container->make('flarum.assets.forum'),
-                    $container->make(LocaleManager::class)
+                    $container->make(LocaleManager::class),
+                    $container->make('events')
                 );
                 $recompile->flush();
             }

@@ -23,7 +23,7 @@ class DefaultLanguagePackGuard
 
     public function handle(Disabling $event): void
     {
-        if (! in_array('flarum-locale', $event->extension->extra)) {
+        if (! Arr::has($event->extension->extra, 'flarum-locale')) {
             return;
         }
 

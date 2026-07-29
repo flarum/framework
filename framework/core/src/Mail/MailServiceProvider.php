@@ -14,8 +14,10 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Arr;
 use Psr\Log\LoggerInterface;
@@ -99,8 +101,18 @@ class MailServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Dispatcher $events): void
-    {
+    public function boot(
+        Dispatcher $events,
+        ViewFactory $views,
+        FilesystemFactory $filesystemFactory,
+        SettingsRepositoryInterface $settings,
+    ): void {
         $events->listen(MessageSending::class, MutateEmail::class);
+
+        // Resolve the logo URL via the flarum-assets disk so it stays correct on
+        // installs whose assets are served from a remote bucket / CDN — same path
+        // ForumResource::getLogoUrl() uses for the frontend.
+        $logoPath = $settings->get('logo_path');
+        $views->share('logoUrl', $logoPath ? $filesystemFactory->disk('flarum-assets')->url($logoPath) : null);
     }
 }

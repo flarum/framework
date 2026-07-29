@@ -39,8 +39,15 @@ export interface Extension {
 }
 export declare enum DatabaseDriver {
     MySQL = "MySQL",
+    MariaDB = "MariaDB",
     PostgreSQL = "PostgreSQL",
     SQLite = "SQLite"
+}
+export interface DatabaseVersionStatus {
+    status: 'ok' | 'below_recommended';
+    server: string;
+    version: string;
+    recommended: string;
 }
 export interface AdminApplicationData extends ApplicationData {
     extensions: Record<string, Extension>;
@@ -66,9 +73,13 @@ export interface AdminApplicationData extends ApplicationData {
     };
     dbDriver: DatabaseDriver;
     dbVersion: string;
+    dbDriverMismatch: string | null;
+    dbVersionStatus: DatabaseVersionStatus | null;
     dbOptions: Record<string, string>;
     phpVersion: string;
     queueDriver: string;
+    pausedQueues: string[];
+    knownQueues: string[];
     schedulerStatus: string;
     sessionDriver: string;
 }

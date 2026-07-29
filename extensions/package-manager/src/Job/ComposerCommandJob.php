@@ -29,6 +29,7 @@ class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
         protected AbstractActionCommand $command,
         protected string $phpVersion
     ) {
+        parent::__construct();
     }
 
     public function handle(Dispatcher $bus): void

@@ -28,16 +28,30 @@ use Illuminate\Queue\DatabaseQueue;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Listener as QueueListener;
+use Illuminate\Queue\QueueRoutes;
 use Illuminate\Queue\SyncQueue;
 use Illuminate\Queue\Worker;
 
 class QueueServiceProvider extends AbstractServiceProvider
 {
+    /**
+     * Return the underlying driver connection, seeing through the RoutingQueue
+     * wrapper. Code that needs the concrete driver type (e.g. to detect the
+     * database or sync driver) must unwrap first, since the bound connection is
+     * the wrapper.
+     */
+    protected static function unwrapQueue(mixed $queue): mixed
+    {
+        return $queue instanceof RoutingQueue ? $queue->getDriver() : $queue;
+    }
+
     protected array $commands = [
         Commands\FlushFailedCommand::class,
         Commands\ForgetFailedCommand::class,
         Console\ListenCommand::class,
         Commands\ListFailedCommand::class,
+        Console\PauseCommand::class,
+        Console\ResumeCommand::class,
         Commands\RestartCommand::class,
         Commands\RetryCommand::class,
         Console\WorkCommand::class,
@@ -47,10 +61,44 @@ class QueueServiceProvider extends AbstractServiceProvider
     {
         // Register a simple connection factory that always returns the same
         // connection, as that is enough for our purposes.
+        // The queue stats provider backing the admin dashboard widget.
+        // Extensions with a different queue backend (fof/redis, fof/horizon)
+        // override this binding so the same core widget works for every driver.
+        $this->container->singleton(QueueStatsProvider::class, function (Container $container) {
+            return new DatabaseQueueStatsProvider($container->make('db.connection'));
+        });
+
+        $this->container->singleton(FailedJobs::class, function (Container $container) {
+            return new FailedJobs(
+                $container->make('queue.failer'),
+                $container->make(Factory::class),
+                $container->make('events')
+            );
+        });
+
+        // The queue names known to this installation. Extensions that route
+        // jobs onto named queues should append theirs so admin tooling can
+        // offer per-queue controls.
+        $this->container->singleton('flarum.queue.queues', function () {
+            return ['default'];
+        });
+
+        // Laravel's native job-class => queue route manager. The queue
+        // connection consults it on push (via RoutingQueue) to place a job onto
+        // its registered queue without the dispatch site having to know.
+        // Populated via Flarum\Extend\Queue::route().
+        $this->container->singleton('queue.routes', function () {
+            return new QueueRoutes();
+        });
+
         $this->container->singleton(Factory::class, function (Container $container) {
-            return new QueueFactory(function () use ($container) {
-                return $container->make('flarum.queue.connection');
-            });
+            return new QueueFactory(
+                function () use ($container) {
+                    return $container->make('flarum.queue.connection');
+                },
+                $container->make('cache.store'),
+                $container->make('events')
+            );
         });
 
         // Extensions can override this binding if they want to make Flarum use
@@ -72,6 +120,12 @@ class QueueServiceProvider extends AbstractServiceProvider
             }
 
             $queue->setContainer($container);
+
+            // Give the connection a name so events that carry it (e.g. WorkerIdle)
+            // receive a string rather than null. illuminate/queue 13.15.0 type-hinted
+            // WorkerIdle::$connectionName as `string`, so a null name now throws a
+            // TypeError in the worker loop.
+            $queue->setConnectionName('flarum');
 
             return $queue;
         });
@@ -132,7 +186,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('queue.failer', function (Container $container) {
-            $queue = $container->make('flarum.queue.connection');
+            $queue = static::unwrapQueue($container->make('flarum.queue.connection'));
 
             if ($queue instanceof DatabaseQueue) {
                 /** @var Config $config */
@@ -153,6 +207,7 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         $this->container->alias(ConnectorInterface::class, 'queue.connection');
         $this->container->alias(Factory::class, 'queue');
+        $this->container->alias(Factory::class, QueueFactory::class);
         $this->container->alias(Worker::class, 'queue.worker');
         $this->container->alias(Listener::class, 'queue.listener');
 
@@ -165,7 +220,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         $this->container->extend('flarum.console.commands', function ($commands, Container $container) {
             // Extensions can override the queue connection binding.
             // If they don't, it will be SyncQueue and we don't need queue commands.
-            $connection = $container->make('flarum.queue.connection');
+            $connection = static::unwrapQueue($container->make('flarum.queue.connection'));
 
             if ($connection instanceof SyncQueue) {
                 return $commands;
@@ -180,7 +235,7 @@ class QueueServiceProvider extends AbstractServiceProvider
     protected function registerSchedule(): void
     {
         $this->container->extend('flarum.console.scheduled', function ($scheduled, Container $container) {
-            $queue = $container->make(Queue::class);
+            $queue = static::unwrapQueue($container->make(Queue::class));
 
             // Only schedule the queue worker for the database driver specifically.
             // Other queue drivers (like Redis/Horizon) should handle their own scheduling.
@@ -200,6 +255,22 @@ class QueueServiceProvider extends AbstractServiceProvider
 
     public function boot(Dispatcher $events, Container $container): void
     {
+        // Wrap the final queue connection so jobs are routed onto their
+        // registered queue at push time. Done in boot(), after extensions have
+        // set flarum.queue.connection (FoF Redis replaces it, Horizon wraps
+        // it), so we decorate whatever they ended up with.
+        $container->extend('flarum.queue.connection', function ($queue, $container) {
+            // The sync driver runs jobs inline the moment they are pushed, so a
+            // routed queue name has no effect — leave it unwrapped so the
+            // `instanceof SyncQueue` checks used to detect "no real queue" keep
+            // working. Only real (async) drivers are wrapped for routing.
+            if ($queue instanceof RoutingQueue || $queue instanceof SyncQueue) {
+                return $queue;
+            }
+
+            return new RoutingQueue($queue, $container->make('queue.routes'));
+        });
+
         $events->listen(JobFailed::class, function (JobFailed $event) use ($container) {
             /** @var Registry $registry */
             $registry = $container->make(Registry::class);

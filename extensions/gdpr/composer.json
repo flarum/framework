@@ -23,7 +23,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-rc.1",
+        "flarum/core": "^2.0.0-rc.5",
         "nelexa/zip": "^4.0.2"
     },
     "autoload": {
@@ -41,6 +41,9 @@
         "flarum-extension": {
             "title": "GDPR Data Management",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/audit"
+            ],
             "icon": {
                 "image": "resources/logo.svg",
                 "backgroundColor": "#EBF1FD",
@@ -88,7 +91,8 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
-        "flarum/testing": "^2.0.0-rc.1",
-        "flarum/phpstan": "^2.0.0-rc.1"
+        "flarum/testing": "^2.0.0-rc.5",
+        "flarum/phpstan": "^2.0.0-rc.5",
+        "flarum/audit": "*"
     }
 }

@@ -101,6 +101,11 @@ export default abstract class AbstractGlobalSearch<T extends SearchAttrs = Searc
         className="Search"
         aria-label={this.attrs.a11yRoleLabel}
         onclick={() => {
+          // On phones the search input lives inside the slide-out drawer. Close the drawer as soon as
+          // search is activated, before the modal is shown, so it isn't left open behind (and overlapping)
+          // the full-screen search modal as it animates in. Hiding it here rather than in `openSearchModal`
+          // lets the drawer finish sliding out during the delay below. No-op where the drawer is never open.
+          app.drawer.hide();
           this.$('input').blur();
           setTimeout(() => openSearchModal(), 150);
         }}

@@ -84,4 +84,11 @@ return [
     (new Extend\Policy())
         ->modelPolicy(User::class, Access\UserPolicy::class)
         ->modelPolicy(ErasureRequest::class, Access\ErasureRequestPolicy::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-gdpr')
+                ->using(new AuditIntegration()),
+        ]),
 ];

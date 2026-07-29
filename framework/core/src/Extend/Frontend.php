@@ -268,7 +268,8 @@ class Frontend implements ExtenderInterface
                 function () use ($container, $abstract) {
                     $recompile = new RecompileFrontendAssets(
                         $container->make($abstract),
-                        $container->make(LocaleManager::class)
+                        $container->make(LocaleManager::class),
+                        $container->make('events')
                     );
                     $recompile->flush();
                 }

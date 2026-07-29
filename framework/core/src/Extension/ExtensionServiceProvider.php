@@ -47,17 +47,12 @@ class ExtensionServiceProvider extends AbstractServiceProvider
 
             $manager->extend($container);
         });
-    }
 
-    public function boot(Dispatcher $events, SettingsRepositoryInterface $settings): void
-    {
-        BisectState::setSettings($settings);
-
-        $events->listen(
-            Disabling::class,
-            DefaultLanguagePackGuard::class
-        );
-
+        // Register the abandoned-extensions sync command and its weekly schedule here in
+        // register() rather than boot(). The ConsoleServiceProvider consumes the
+        // `flarum.console.scheduled` array in its own boot() method, and it is registered
+        // before this provider, so appending in boot() would happen too late and the task
+        // would never be scheduled.
         $this->container->extend('flarum.console.commands', function (array $commands) {
             $commands[] = SyncAbandonedExtensionsCommand::class;
 
@@ -73,5 +68,15 @@ class ExtensionServiceProvider extends AbstractServiceProvider
 
             return $scheduled;
         });
+    }
+
+    public function boot(Dispatcher $events, SettingsRepositoryInterface $settings): void
+    {
+        BisectState::setSettings($settings);
+
+        $events->listen(
+            Disabling::class,
+            DefaultLanguagePackGuard::class
+        );
     }
 }

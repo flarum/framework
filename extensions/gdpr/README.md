@@ -24,13 +24,18 @@ All forum users now have a `Personal Data` section within their account settings
 From here, users may self-service export their data from the forum, or start an erasure request. Erasure requests are queued up for admins/moderators to process. Any unprocessed requests that are still pending after 30 days will be processed automatically using the configured default method (Deletion or Anonymization).
 
 #### Specifying which queue to use
-If your forum runs multiple queues, ie `low` and `high`, you may specify which queue jobs for this extension are run on in your skeleton's `extend.php` file:
+If your forum runs multiple queues, ie `low` and `high`, you may route this extension's jobs onto a specific queue with the core `Queue` extender in your `extend.php` file:
 
 ```php
-Flarum\Gdpr\Jobs\GdprJob::$onQueue = 'low';
+use Flarum\Extend;
+use Flarum\Gdpr\Jobs\GdprJob;
 
 return [
-    ... your current extenders,
+    // Routes every GDPR job (erasures and exports) — both extend GdprJob.
+    (new Extend\Queue())
+        ->route(GdprJob::class, 'low'),
+
+    // ... your current extenders,
 ];
 ```
 

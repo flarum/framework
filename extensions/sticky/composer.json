@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-rc.1"
+        "flarum/core": "^2.0.0-rc.5"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +34,9 @@
             "title": "Sticky",
             "category": "feature",
             "optional-dependencies": [
-                "flarum-tags"
+                "flarum/realtime",
+                "flarum/tags",
+                "flarum/audit"
             ],
             "icon": {
                 "name": "fas fa-thumbtack",
@@ -89,6 +91,7 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
+        "flarum/audit": "*",
         "flarum/tags": "*@dev",
         "flarum/testing": "^2.0"
     }

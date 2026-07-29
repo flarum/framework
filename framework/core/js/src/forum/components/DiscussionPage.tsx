@@ -137,7 +137,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
         // component for the first time on page load, then any calls to m.redraw
         // will be ineffective and thus any configs (scroll code) will be run
         // before stuff is drawn to the page.
-        setTimeout(this.show.bind(this, preloadedDiscussion), 0);
+        setTimeout(this.show.bind(this, preloadedDiscussion, this.preloadedNearPage(preloadedDiscussion)), 0);
       } else {
         const params = this.requestParams();
 
@@ -162,7 +162,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   /**
    * Initialize the component to display the given discussion.
    */
-  show(discussion: ApiResponseSingle<Discussion>): void {
+  show(discussion: ApiResponseSingle<Discussion>, preloadedPosts: Post[] = []): void {
     this.loading = false;
 
     app.history.push('discussion', discussion.title());
@@ -172,17 +172,51 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     // Set up the post stream for this discussion, along with the first page of
     // posts we want to display. Tell the stream to scroll down and highlight
     // the specific post that was routed to.
-    this.stream = new PostStreamState(discussion);
+    this.stream = new PostStreamState(discussion, preloadedPosts);
     const rawNearParam = m.route.param('near');
     const nearParam = rawNearParam === 'reply' ? 'reply' : parseInt(rawNearParam);
-    // Post numbers start at 1; use 1 when near is missing/invalid so the first post gets the pop-in
-    const targetPost = nearParam === 'reply' ? 'reply' : nearParam && !isNaN(nearParam) ? nearParam : 1;
+    // Post numbers start at 1; use the first preloaded post (or 1) when near is
+    // missing/invalid so the first post gets the pop-in.
+    const targetPost = nearParam === 'reply' ? 'reply' : nearParam && !isNaN(nearParam) ? nearParam : preloadedPosts[0]?.number() ?? 1;
     this.stream.goToNumber(targetPost, true).then(() => {
       this.discussion = discussion;
 
       app.current.set('discussion', discussion);
       app.current.set('stream', this.stream);
     });
+  }
+
+  /**
+   * Extract the page of posts that was embedded in the server-preloaded
+   * discussion document, so the post stream can render without re-fetching
+   * the same posts via the API.
+   *
+   * On the initial page load, Content\Discussion embeds the `page[near]`
+   * window of posts in the preloaded document (it needs them for the noscript
+   * content anyway), and `preloadedApiDocument()` has already pushed them into
+   * the store by the time this runs. Returns the longest run of posts that is
+   * contiguous in stream order: stray posts pulled in by other relationships
+   * (e.g. extension includes) must not corrupt the visible window — that
+   * non-contiguity is what caused #4137. API show responses (post-#4067)
+   * include no posts page, so for in-app navigation this returns an empty
+   * array and the stream fetches as before.
+   */
+  preloadedNearPage(discussion: ApiResponseSingle<Discussion>): Post[] {
+    let best: Post[] = [];
+    let current: Post[] = [];
+
+    for (const id of discussion.postIds()) {
+      const post = id ? app.store.getById<Post>('posts', id) : null;
+
+      if (post) {
+        current.push(post);
+        if (current.length > best.length) best = current;
+      } else {
+        current = [];
+      }
+    }
+
+    return best;
   }
 
   /**

@@ -391,7 +391,7 @@
       position: relative;
       width: 32px;
       .Post-avatar {
-        display: block;
+        display: inline-flex;
         .Avatar--size(32px);
       }
     }
@@ -400,10 +400,13 @@
       grid-template-columns: auto 1fr;
       gap: 10px;
     }
-    .Post-side .PostUser-badges {
-      top: -4px;
-      left: 6px;
+    .Post-main .PostUser-badges {
+      top: -10px;
+      left: -36px;
       width: 32px;
+    }
+    .Post-header .Post-avatar {
+      display: none;
     }
   }
   .EventPost {

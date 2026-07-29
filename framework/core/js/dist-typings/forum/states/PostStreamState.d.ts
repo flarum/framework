@@ -54,8 +54,23 @@ export default class PostStreamState {
     /**
      * Update the stream so that it loads and includes the latest posts in the
      * discussion, if the end is being viewed.
+     *
+     * Note: viewingEnd() tolerates a drift of at most one post, so this is only
+     * suitable when the store has gained a single new post since the window was
+     * last synced (the live-event case). When several posts land in the store
+     * at once — e.g. they were missed while a realtime connection was down —
+     * capture viewingEnd() BEFORE pushing the new payloads and call syncEnd()
+     * directly instead.
      */
     update(): Promise<void> | Promise<Post[]>;
+    /**
+     * Load through to the latest post in the discussion, expanding the visible
+     * window to the end of the stream. Unlike update(), this places no bound on
+     * how far the window has fallen behind — the caller is responsible for
+     * ensuring the end was being viewed before the posts being caught up on
+     * entered the store.
+     */
+    syncEnd(): Promise<Post[]>;
     /**
      * Load and scroll up to the first post in the discussion.
      */

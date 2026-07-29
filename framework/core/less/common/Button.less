@@ -272,10 +272,13 @@
 }
 .Button-label {
   line-height: inherit;
-  overflow: hidden;
-  text-overflow: ellipsis;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+}
+.Button-labelText {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .Button-helperText {
   font-size: 0.73rem;

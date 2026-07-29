@@ -33,6 +33,11 @@ on:
         type: string
         required: false
         default: test
+      commit_all_dirty:
+        description: "Set to `true` to commit all file changes, not just files in the dist JS directory."
+        type: boolean
+        required: false
+        default: false
 
       enable_bundlewatch:
         description: "Enable Bundlewatch?"
@@ -74,7 +79,7 @@ on:
         description: The node version to use for the workflow.
         type: number
         required: false
-        default: 20
+        default: 24
 
       js_package_manager:
         description: "Enable TypeScript?"
@@ -131,12 +136,12 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.git_actor_token != '' && secrets.git_actor_token || secrets.GITHUB_TOKEN }}
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.js_package_manager }}
@@ -159,7 +164,7 @@ jobs:
         working-directory: ${{ inputs.frontend_directory }}
 
       - name: JS Checks & Production Build
-        uses: flarum/action-build@v4.1
+        uses: flarum/action-build@v5
         with:
           build_script: ${{ inputs.build_script }}
           build_typings_script: ${{ inputs.build_typings_script }}
@@ -170,6 +175,7 @@ jobs:
           package_manager: ${{ inputs.js_package_manager }}
           js_path: ${{ inputs.frontend_directory }}
           do_not_commit: ${{ github.ref != format('refs/heads/{0}', inputs.main_git_branch) || github.event_name != 'push' }}
+          commit_all_dirty: ${{ inputs.commit_all_dirty }}
           git_actor_name: ${{ inputs.git_actor_name || '' }}
           git_actor_email: ${{ inputs.git_actor_email || '' }}
 
