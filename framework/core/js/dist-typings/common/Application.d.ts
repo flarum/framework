@@ -194,6 +194,30 @@ export default class Application {
      * If present, it will be dismissed on the next successful request.
      */
     private requestErrorAlert;
+    /**
+     * The key for the Alert that was shown as a result of an AJAX request
+     * failing at the network level (status 0). Unlike other request error
+     * alerts, only one of these is shown at a time.
+     */
+    protected networkErrorAlert: number | null;
+    /**
+     * The key for the Alert that is shown while the browser reports being
+     * offline.
+     */
+    protected offlineAlert: number | null;
+    /**
+     * GET requests that failed because the browser was offline, keyed by
+     * method, URL and params. They are retried, and their original promises
+     * settled, once connectivity is restored. Identical requests (e.g. from a
+     * polling extension) share one entry and are retried only once.
+     */
+    protected deferredRequests: Map<string, {
+        options: FlarumRequestOptions<any>;
+        settlers: {
+            resolve: (value: any) => void;
+            reject: (error: unknown) => void;
+        }[];
+    }>;
     initialRoute: string;
     load(payload: Application['data']): void;
     boot(): void;
@@ -231,6 +255,25 @@ export default class Application {
      */
     request<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType>;
     /**
+     * Whether a failed request should be held back and retried once
+     * connectivity is restored, instead of being rejected.
+     *
+     * Only GET requests that failed at the network level while the browser
+     * reported being offline qualify: they are safe to repeat, and the
+     * `online` event provides a reliable signal to retry them.
+     */
+    protected shouldDeferRequest(error: unknown, originalOptions: FlarumRequestOptions<any>): boolean;
+    /**
+     * Hold a request that failed while offline. The returned promise settles
+     * with the result of retrying the request once connectivity is restored.
+     */
+    protected deferRequest<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType>;
+    /**
+     * The identity of a request for deferral purposes: requests with the same
+     * key are considered identical and are retried only once.
+     */
+    protected deferredRequestKey(options: FlarumRequestOptions<any>): string;
+    /**
      * By default, show an error alert, and log the error to the console.
      */
     protected requestErrorCatch<ResponseType>(error: RequestError, customErrorHandler: FlarumRequestOptions<ResponseType>['errorHandler']): Promise<never>;
@@ -244,6 +287,27 @@ export default class Application {
      */
     protected requestWasCrossOrigin(error: RequestError): boolean;
     protected requestErrorDefaultHandler(e: unknown, isDebug: boolean, formattedErrors: string[]): void;
+    /**
+     * Whether an alert about a connection problem (a network-level request
+     * failure or the browser being offline) is currently being shown.
+     */
+    protected connectionAlertActive(): boolean;
+    /**
+     * Register listeners to proactively notify the user when the browser goes
+     * offline and when connectivity is restored.
+     */
+    protected registerConnectivityListeners(): void;
+    /**
+     * Show a persistent (but dismissible) alert while the browser reports being
+     * offline.
+     */
+    protected connectionLost(): void;
+    /**
+     * Dismiss any connection problem alerts, retry requests that were deferred
+     * while offline, and briefly confirm to the user that connectivity has
+     * been restored.
+     */
+    protected connectionRestored(): void;
     private showDebug;
     /**
      * Construct a URL to the route with the given name.
