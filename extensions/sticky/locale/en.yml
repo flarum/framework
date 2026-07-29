@@ -11,6 +11,11 @@ flarum-sticky:
     permissions:
       sticky_discussions_label: Sticky discussions
 
+    # These translations are used in the Settings page of the admin interface.
+    settings:
+      pin_sticky_on_all_discussions_label: Pin stickied discussions on the All Discussions page
+      pin_sticky_on_all_discussions_help: When enabled (default), unread stickied discussions are pinned to the top of the All Discussions page. When disabled, stickied discussions appear at their natural position by latest activity. Tag pages always pin stickied discussions to the top regardless of this setting.
+
   # Translations in this namespace are used by the forum user interface.
   forum:
 

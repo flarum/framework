@@ -49,6 +49,9 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\Settings())
+        ->default('flarum-sticky.pin_sticky_on_all_discussions', true),
+
     (new Extend\Event())
         ->listen(Saving::class, SaveStickyToDatabase::class)
         ->listen(DiscussionWasStickied::class, [Listener\CreatePostWhenDiscussionIsStickied::class, 'whenDiscussionWasStickied'])
