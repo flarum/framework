@@ -18,7 +18,6 @@ use Flarum\Foundation\ValidationException;
 use Flarum\Gdpr\Events\ErasureCancelled;
 use Flarum\Gdpr\Events\ErasureRequested;
 use Flarum\Gdpr\Jobs\ErasureJob;
-use Flarum\Gdpr\Jobs\GdprJob;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Gdpr\Notifications\ConfirmErasureBlueprint;
 use Flarum\Gdpr\Notifications\ErasureRequestCancelledBlueprint;
@@ -197,10 +196,7 @@ class ErasureRequestResource extends Resource\AbstractDatabaseResource
 
     public function updated(object $model, OriginalContext $context): ?object
     {
-        $this->queue->push(
-            job: new ErasureJob($model),
-            queue: GdprJob::$onQueue
-        );
+        $this->queue->push(new ErasureJob($model));
 
         return $model;
     }

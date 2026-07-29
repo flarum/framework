@@ -33,19 +33,12 @@ class AbstractJob implements ShouldQueue
     public bool $deleteWhenMissingModels = true;
 
     /**
-     * Optional queue name onto which jobs of this class should be routed.
-     *
-     * Operators (or extensions) may set this on a subclass to dispatch all of
-     * its instances onto a dedicated queue without modifying the dispatch
-     * sites. Subclasses overriding `__construct` must call `parent::__construct()`
-     * to opt in.
+     * Present so subclasses can safely call `parent::__construct()` (many do).
+     * Queue routing is applied when the job is pushed — see
+     * {@see \Flarum\Queue\RoutingQueue} and {@see \Flarum\Extend\Queue} — not
+     * here, so there is nothing to do at construction.
      */
-    public static ?string $onQueue = null;
-
     public function __construct()
     {
-        if (static::$onQueue !== null) {
-            $this->onQueue(static::$onQueue);
-        }
     }
 }
