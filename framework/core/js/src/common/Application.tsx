@@ -75,7 +75,7 @@ export type AsyncNewComponent<Comp> = () => Promise<any & { default: NewComponen
 export type RouteItem<
   Attrs extends ComponentAttrs,
   Comp extends Component<Attrs & { routeName: string }>,
-  RouteArgs extends Record<string, unknown> = {},
+  RouteArgs extends Record<string, unknown> = {}
 > = {
   /**
    * The path for your route.
@@ -111,7 +111,7 @@ export type RouteItem<
 export interface RouteResolver<
   Attrs extends ComponentAttrs,
   Comp extends Component<Attrs & { routeName: string }>,
-  RouteArgs extends Record<string, unknown> = {},
+  RouteArgs extends Record<string, unknown> = {}
 > {
   /**
    * A method which selects which component to render based on
