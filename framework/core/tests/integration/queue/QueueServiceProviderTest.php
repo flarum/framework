@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\queue;
 
 use Flarum\Extend;
+use Flarum\Queue\RoutingQueue;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\DatabaseQueue;
@@ -37,7 +38,10 @@ class QueueServiceProviderTest extends TestCase
 
         $queue = $this->app()->getContainer()->make(Queue::class);
 
-        $this->assertInstanceOf(DatabaseQueue::class, $queue);
+        // The connection is wrapped in a RoutingQueue for job routing; the
+        // underlying driver is the database queue.
+        $this->assertInstanceOf(RoutingQueue::class, $queue);
+        $this->assertInstanceOf(DatabaseQueue::class, $queue->getDriver());
     }
 
     #[Test]

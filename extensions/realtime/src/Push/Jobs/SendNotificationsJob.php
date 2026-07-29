@@ -16,11 +16,8 @@ use Illuminate\Contracts\Queue\Queue;
 
 class SendNotificationsJob extends Job
 {
-    public static ?string $onQueue = null;
-
     public function __construct(private BlueprintInterface $blueprint, private array $recipients)
     {
-        parent::__construct();
     }
 
     public function handle(Queue $queue): void
