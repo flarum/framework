@@ -12,6 +12,7 @@ namespace Flarum\Foundation;
 use Carbon\Carbon;
 use Flarum\Database\DatabaseRequirements;
 use Flarum\Locale\Translator;
+use Flarum\Queue\RoutingQueue;
 use Flarum\User\SessionManager;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
@@ -57,8 +58,13 @@ class ApplicationInfoProvider
 
     public function identifyQueueDriver(): string
     {
+        // The connection is wrapped in a RoutingQueue so pushes can be routed by
+        // job class; the driver underneath is what identifies the queue backend.
+        $queue = $this->queue instanceof RoutingQueue
+            ? $this->queue->getDriver()
+            : $this->queue;
         // Get class name
-        $queue = $this->queue::class;
+        $queue = $queue::class;
         // Drop the namespace
         $queue = Str::afterLast($queue, '\\');
         // Lowercase the class name
