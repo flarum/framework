@@ -45,6 +45,16 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    */
   protected near: number = 0;
 
+  /**
+   * The window of posts obtained without the post stream having to request
+   * one — prefetched in parallel with the discussion, or embedded in the
+   * server-preloaded document — pending consumption by show(). Stashed on the
+   * instance rather than only threaded through show()'s arguments, so an
+   * extension override of show() that forwards just the discussion (a common
+   * mistake) cannot silently drop the window and force a redundant request.
+   */
+  protected pendingPostWindow: Post[] = [];
+
   protected useBrowserScrollRestoration = true;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
@@ -127,25 +137,80 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    * Load the discussion from the API or use the preloaded one.
    */
   load(): void {
+    const preloadedDiscussion = app.preloadedApiDocument<Discussion>();
+
+    // Kick off the network requests immediately: they must not wait for the
+    // async component chunks below, and they must not wait for each other.
+    // The post window is derivable from the route alone, so requesting it
+    // serially after the discussion (what PostStreamState would do) wastes a
+    // full round-trip on every discussion visited.
+    let discussionPromise: Promise<ApiResponseSingle<Discussion>> | null = null;
+    let postsPromise: Promise<Post[]> | null = null;
+
+    if (!preloadedDiscussion) {
+      discussionPromise = app.store.find<Discussion>('discussions', m.route.param('id'), this.requestParams());
+      postsPromise = this.prefetchPosts();
+    }
+
     Promise.all([import('./PostStream'), import('./PostStreamScrubber')]).then(([PostStreamImport, PostStreamScrubberImport]) => {
       this.PostStream = PostStreamImport.default;
       this.PostStreamScrubber = PostStreamScrubberImport.default;
 
-      const preloadedDiscussion = app.preloadedApiDocument<Discussion>();
       if (preloadedDiscussion) {
         // We must wrap this in a setTimeout because if we are mounting this
         // component for the first time on page load, then any calls to m.redraw
         // will be ineffective and thus any configs (scroll code) will be run
         // before stuff is drawn to the page.
-        setTimeout(this.show.bind(this, preloadedDiscussion, this.preloadedNearPage(preloadedDiscussion)), 0);
+        setTimeout(() => {
+          this.pendingPostWindow = this.preloadedNearPage(preloadedDiscussion);
+          this.show(preloadedDiscussion, this.pendingPostWindow);
+        }, 0);
       } else {
-        const params = this.requestParams();
-
-        app.store.find<Discussion>('discussions', m.route.param('id'), params).then(this.show.bind(this));
+        Promise.all([discussionPromise!, postsPromise ?? []]).then(([discussion, posts]) => {
+          this.pendingPostWindow = posts;
+          this.show(discussion, posts);
+        });
       }
     });
 
     m.redraw();
+  }
+
+  /**
+   * Fetch the near-window of posts in parallel with the discussion request.
+   *
+   * This mirrors the request PostStreamState.loadNearNumber() would make
+   * serially after the discussion arrives; with the window already loaded,
+   * the stream finds its target post and makes no request of its own. Only
+   * possible when the discussion is already in the store (in-app navigation —
+   * exactly the case users notice), because the posts filter needs the ID and
+   * the route only carries a slug. Returns null to keep the serial flow when
+   * the discussion is unknown or the target is the reply placeholder. Failures
+   * are swallowed: the discussion request owns error handling, and the stream
+   * falls back to loading its own window.
+   */
+  protected prefetchPosts(): Promise<Post[]> | null {
+    const idParam = m.route.param('id');
+    const discussion = app.store.all<Discussion>('discussions').find((d) => d.slug() === idParam || d.id() === idParam);
+
+    if (!discussion) return null;
+
+    const nearParam = m.route.param('near');
+    if (nearParam === 'reply') return null;
+
+    const near = parseInt(nearParam);
+
+    return app.store
+      .find<Post[]>(
+        'posts',
+        {
+          filter: { discussion: discussion.id() as string },
+          page: { near: !isNaN(near) ? near : 1 },
+        },
+        undefined,
+        { errorHandler: () => {} }
+      )
+      .catch(() => []);
   }
 
   /**
@@ -164,6 +229,14 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    */
   show(discussion: ApiResponseSingle<Discussion>, preloadedPosts: Post[] = []): void {
     this.loading = false;
+
+    // Recover the stashed window if an extension override of show() didn't
+    // forward the posts argument — without it the stream would immediately
+    // re-request posts we already have.
+    if (!preloadedPosts.length && this.pendingPostWindow.length) {
+      preloadedPosts = this.pendingPostWindow;
+    }
+    this.pendingPostWindow = [];
 
     app.history.push('discussion', discussion.title());
     app.setTitle(discussion.title());
