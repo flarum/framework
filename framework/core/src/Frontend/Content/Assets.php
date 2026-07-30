@@ -10,12 +10,12 @@
 namespace Flarum\Frontend\Content;
 
 use Flarum\Foundation\Config;
-use Flarum\Locale\LocaleManager;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Frontend\Assets as FrontendAssets;
 use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Document;
 use Flarum\Frontend\RecompileFrontendAssets;
+use Flarum\Locale\LocaleManager;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
