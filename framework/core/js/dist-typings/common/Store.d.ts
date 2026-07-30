@@ -106,6 +106,7 @@ export default class Store {
      */
     find<M extends Model>(type: string, params?: ApiQueryParamsSingle): Promise<ApiResponseSingle<M>>;
     find<Ms extends Model[]>(type: string, params?: ApiQueryParamsPlural): Promise<ApiResponsePlural<Ms[number]>>;
+    find<Ms extends Model[]>(type: string, params: ApiQueryParamsPlural, query?: undefined, options?: ApiQueryRequestOptions<ApiPayloadPlural>): Promise<ApiResponsePlural<Ms[number]>>;
     find<M extends Model>(type: string, id: string, params?: ApiQueryParamsSingle, options?: ApiQueryRequestOptions<ApiPayloadSingle>): Promise<ApiResponseSingle<M>>;
     find<Ms extends Model[]>(type: string, ids: string[], params?: ApiQueryParamsPlural, options?: ApiQueryRequestOptions<ApiPayloadPlural>): Promise<ApiResponsePlural<Ms[number]>>;
     /**

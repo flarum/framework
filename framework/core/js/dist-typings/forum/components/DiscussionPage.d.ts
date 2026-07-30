@@ -29,6 +29,15 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
      * The number of the first post that is currently visible in the viewport.
      */
     protected near: number;
+    /**
+     * The window of posts obtained without the post stream having to request
+     * one — prefetched in parallel with the discussion, or embedded in the
+     * server-preloaded document — pending consumption by show(). Stashed on the
+     * instance rather than only threaded through show()'s arguments, so an
+     * extension override of show() that forwards just the discussion (a common
+     * mistake) cannot silently drop the window and force a redundant request.
+     */
+    protected pendingPostWindow: Post[];
     protected useBrowserScrollRestoration: boolean;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
@@ -45,6 +54,20 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
      * Load the discussion from the API or use the preloaded one.
      */
     load(): void;
+    /**
+     * Fetch the near-window of posts in parallel with the discussion request.
+     *
+     * This mirrors the request PostStreamState.loadNearNumber() would make
+     * serially after the discussion arrives; with the window already loaded,
+     * the stream finds its target post and makes no request of its own. Only
+     * possible when the discussion is already in the store (in-app navigation —
+     * exactly the case users notice), because the posts filter needs the ID and
+     * the route only carries a slug. Returns null to keep the serial flow when
+     * the discussion is unknown or the target is the reply placeholder. Failures
+     * are swallowed: the discussion request owns error handling, and the stream
+     * falls back to loading its own window.
+     */
+    protected prefetchPosts(): Promise<Post[]> | null;
     /**
      * Get the parameters that should be passed in the API request to get the
      * discussion.
