@@ -16,11 +16,21 @@ const findTag = (slug: string) => app.store.all<Tag>('tags').find((tag) => tag.s
 
 export default function addTagFilter() {
   app.currentTag = function (reload?: boolean) {
+    const slug = this.search.state.params().tags;
+
+    // The cache is only valid for the tag the current route actually points
+    // at. Without this check, the cached tag from a previously visited tag
+    // page leaks into any route that doesn't call currentTag(true) — e.g. a
+    // custom homepage — preselecting composer tags and mis-styling the
+    // "Start a Discussion" button there.
     if (this.currentActiveTag && !reload) {
-      return this.currentActiveTag;
+      if (!slug) {
+        this.currentActiveTag = undefined;
+      } else if (this.currentActiveTag.slug().localeCompare(slug, undefined, { sensitivity: 'base' }) === 0) {
+        return this.currentActiveTag;
+      }
     }
 
-    const slug = this.search.state.params().tags;
     let tag = null;
 
     if (slug) {

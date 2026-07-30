@@ -16,9 +16,11 @@
         "build-typings": "yarn run clean-typings && ([ -e src/@types ] && cp -r src/@types dist-typings/@types || true) && tsc && yarn run post-build-typings",
         "post-build-typings": "find dist-typings -type f -name '*.d.ts' -print0 | xargs -0 sed -i 's,../src/@types,@types,g'",
         "check-typings": "tsc --noEmit --emitDeclarationOnly false",
-        "check-typings-coverage": "typescript-coverage-report"
+        "check-typings-coverage": "typescript-coverage-report",
+        "test": "yarn node --experimental-vm-modules $(yarn bin jest)"
     },
     "devDependencies": {
+        "@flarum/jest-config": "^2.0.0",
         "flarum-tsconfig": "^2.0.0",
         "flarum-webpack-config": "^3.0.0",
         "prettier": "^2.7.1",
