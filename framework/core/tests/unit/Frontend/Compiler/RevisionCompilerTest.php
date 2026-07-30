@@ -34,8 +34,19 @@ class RevisionCompilerTest extends TestCase
     /** @var array<string, string> in-memory stand-in for the assets dir */
     private array $written = [];
 
+    /** @var string[] every put() call, in order — for asserting write-churn */
+    private array $putLog = [];
+
     /** @var array<string, string|null> shared manifest, persists across compilers like production */
     private array $manifest = [];
+
+    /** @var int number of manifest (rev-manifest.json) writes */
+    private int $manifestWrites = 0;
+
+    private function putsFor(string $file): int
+    {
+        return count(array_keys($this->putLog, $file, true));
+    }
 
     protected function setUp(): void
     {
@@ -66,6 +77,7 @@ class RevisionCompilerTest extends TestCase
         $assetsDir = m::mock(Cloud::class);
         $assetsDir->shouldReceive('put')->andReturnUsing(function ($file, $content) {
             $this->written[$file] = $content;
+            $this->putLog[] = $file;
 
             return true;
         });
@@ -83,6 +95,7 @@ class RevisionCompilerTest extends TestCase
         $manifestFs->shouldReceive('put')->with(FileVersioner::REV_MANIFEST, m::type('string'))
             ->andReturnUsing(function ($_, $json) {
                 $this->manifest = json_decode($json, true);
+                $this->manifestWrites++;
 
                 return true;
             });
@@ -102,6 +115,89 @@ class RevisionCompilerTest extends TestCase
     private function makeJsCompiler(): JsCompiler
     {
         return new JsCompiler($this->assetsDir(), 'chunk.js', m::mock(SettingsRepositoryInterface::class), $this->versioner());
+    }
+
+    #[Test]
+    public function force_recompiles_and_writes_even_when_output_is_identical()
+    {
+        // force means FORCE: recompute and write unconditionally — the
+        // trust-nothing repair path for when the on-disk state can't be relied
+        // on. It is not a per-request tool; routine rebuilds use plain commit().
+        $path = $this->sourceFile('a.js', 'console.log(1);');
+
+        $compiler = $this->makeCompiler();
+        $compiler->addSources(fn ($sources) => $sources->addFile($path));
+        $compiler->commit();
+
+        $this->assertSame(1, $this->putsFor('target.js'));
+
+        $compiler->commit(true);
+
+        $this->assertSame(2, $this->putsFor('target.js'), 'force must rewrite even byte-identical output');
+    }
+
+    #[Test]
+    public function recommitting_identical_output_writes_nothing()
+    {
+        $path = $this->sourceFile('a.js', 'console.log(1);');
+
+        $compiler = $this->makeCompiler();
+        $compiler->addSources(fn ($sources) => $sources->addFile($path));
+        $compiler->commit();
+
+        $puts = count($this->putLog);
+        $manifestWrites = $this->manifestWrites;
+
+        $compiler->commit();
+
+        $this->assertSame($puts, count($this->putLog), 'unchanged output must not be rewritten');
+        $this->assertSame($manifestWrites, $this->manifestWrites, 'unchanged output must not rewrite the manifest');
+    }
+
+    #[Test]
+    public function empty_sources_do_not_rewrite_the_manifest_on_every_commit()
+    {
+        // An empty bundle (e.g. a locale CSS with no rules) has no file on disk,
+        // so a naive "write when the file is missing" check re-records its
+        // EMPTY_REVISION — rewriting the whole manifest — on every commit.
+        $compiler = $this->makeCompiler();
+        $compiler->commit();
+
+        $manifestWrites = $this->manifestWrites;
+
+        $compiler->commit();
+
+        $this->assertSame($manifestWrites, $this->manifestWrites, 'an unchanged empty bundle must not rewrite the manifest');
+    }
+
+    #[Test]
+    public function js_compiler_does_not_rewrite_the_sourcemap_when_output_is_unchanged()
+    {
+        $path = $this->sourceFile('chunk.js', 'export const x = 1;');
+
+        $compiler = $this->makeJsCompiler();
+        $compiler->addSources(fn ($sources) => $sources->addFile($path));
+        $compiler->commit();
+
+        $this->assertSame(1, $this->putsFor('chunk.js.map'));
+
+        $compiler->commit();
+
+        $this->assertSame(1, $this->putsFor('chunk.js.map'), 'the sidecar must only be written when the bundle is');
+
+        // A real change writes both again…
+        file_put_contents($path, 'export const x = 2;');
+        clearstatcache(true, $path);
+        $compiler->commit();
+
+        $this->assertSame(2, $this->putsFor('chunk.js.map'));
+        $this->assertSame(2, $this->putsFor('chunk.js'));
+
+        // …and force writes both regardless.
+        $compiler->commit(true);
+
+        $this->assertSame(3, $this->putsFor('chunk.js.map'));
+        $this->assertSame(3, $this->putsFor('chunk.js'));
     }
 
     #[Test]

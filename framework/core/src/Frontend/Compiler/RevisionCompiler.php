@@ -43,6 +43,17 @@ class RevisionCompiler implements CompilerInterface
         $this->filename = $filename;
     }
 
+    /**
+     * Recompile this asset and record its revision. Files are only written when
+     * the compiled output actually differs from what the revision manifest says
+     * is on disk (or the file has gone missing) — so routine rebuilds of
+     * unchanged assets are complete no-ops with zero writes.
+     *
+     * @param bool $force write unconditionally, even when the output is
+     *                    byte-identical — the trust-nothing repair path for when
+     *                    the on-disk state can't be relied on. Not a per-request
+     *                    tool: recompiling is what every commit() already does.
+     */
     public function commit(bool $force = false): void
     {
         $sources = $this->getSources();
@@ -55,18 +66,42 @@ class RevisionCompiler implements CompilerInterface
         // second) and not of the raw source content (which for LESS misses
         // @import contents and variable/import overrides, and for JS misses the
         // sourcemap and format rewrite the written file actually carries).
+        $this->pendingSidecars = [];
+
         $output = $this->renderOutput($sources);
 
         $newRevision = $output === null ? static::EMPTY_REVISION : $this->hashOutput($output);
 
         $oldRevision = $this->versioner->getRevision($this->filename);
 
-        if ($force || $oldRevision !== $newRevision || ! $this->assetsDir->exists($this->filename)) {
+        // The exists() arm repairs a deleted file whose revision is still
+        // recorded; it is guarded on $output so an empty bundle — which
+        // legitimately has no file — doesn't re-record EMPTY_REVISION (and
+        // rewrite the whole manifest) on every commit.
+        if ($force || $oldRevision !== $newRevision || ($output !== null && ! $this->assetsDir->exists($this->filename))) {
             if ($output !== null) {
                 $this->assetsDir->put($this->filename, $output);
+
+                $this->writePendingSidecars();
             }
 
             $this->versioner->putRevision($this->filename, $newRevision);
+        }
+    }
+
+    /**
+     * Sidecar files (e.g. JsCompiler's `.map`) queued by renderOutput() during
+     * the current commit, written only if the primary file is — so an unchanged
+     * bundle rewrites nothing at all.
+     *
+     * @var array<string, string> filename => content
+     */
+    protected array $pendingSidecars = [];
+
+    protected function writePendingSidecars(): void
+    {
+        foreach ($this->pendingSidecars as $file => $content) {
+            $this->assetsDir->put($file, $content);
         }
     }
 
@@ -80,8 +115,9 @@ class RevisionCompiler implements CompilerInterface
      * there is nothing to write (empty sources). This is what the revision is
      * hashed from, so it must be identical to what gets committed — subclasses
      * that transform or add to the output (e.g. JsCompiler's sourcemap handling)
-     * override this and may write sidecar files (like the `.map`) as a side
-     * effect, as long as the returned string is the primary file's content.
+     * override this and queue any sidecar files (like the `.map`) on
+     * {@see $pendingSidecars} rather than writing them, so sidecars are only
+     * written when the bundle itself is.
      *
      * @param SourceInterface[] $sources
      */
