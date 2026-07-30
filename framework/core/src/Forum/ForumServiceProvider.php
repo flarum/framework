@@ -190,9 +190,10 @@ class ForumServiceProvider extends AbstractServiceProvider
                 $recompile = new RecompileFrontendAssets(
                     $container->make('flarum.assets.forum'),
                     $container->make(LocaleManager::class),
-                    $container->make('events')
+                    $container->make('events'),
+                    $container->make(SettingsRepositoryInterface::class)
                 );
-                $recompile->flush();
+                $recompile->markDirty();
             }
         );
 

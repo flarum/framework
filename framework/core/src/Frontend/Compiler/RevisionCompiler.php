@@ -47,22 +47,49 @@ class RevisionCompiler implements CompilerInterface
     {
         $sources = $this->getSources();
 
+        // Render the output once and derive the revision from it. The revision
+        // must change if and only if the bytes a client would download change —
+        // so it is a hash of the compiled OUTPUT, not of source paths/mtimes
+        // (which move on every redeploy or extension toggle even when the result
+        // is byte-identical, and can miss a real change made within the same
+        // second) and not of the raw source content (which for LESS misses
+        // @import contents and variable/import overrides, and for JS misses the
+        // sourcemap and format rewrite the written file actually carries).
+        $output = $this->renderOutput($sources);
+
+        $newRevision = $output === null ? static::EMPTY_REVISION : $this->hashOutput($output);
+
         $oldRevision = $this->versioner->getRevision($this->filename);
 
-        $newRevision = $this->calculateRevision($sources);
-
-        // In case the previous and current revisions do not match
-        // Or no file was written yet, let's save the file to disk.
         if ($force || $oldRevision !== $newRevision || ! $this->assetsDir->exists($this->filename)) {
-            if (! $this->save($this->filename, $sources)) {
-                // If no file was written (because the sources were empty), we
-                // will set the revision to a special value so that we can tell
-                // that this file does not have a URL.
-                $newRevision = static::EMPTY_REVISION;
+            if ($output !== null) {
+                $this->assetsDir->put($this->filename, $output);
             }
 
             $this->versioner->putRevision($this->filename, $newRevision);
         }
+    }
+
+    protected function hashOutput(string $content): string
+    {
+        return hash('crc32b', $content);
+    }
+
+    /**
+     * Produce the exact bytes to write to the primary asset file, or null when
+     * there is nothing to write (empty sources). This is what the revision is
+     * hashed from, so it must be identical to what gets committed — subclasses
+     * that transform or add to the output (e.g. JsCompiler's sourcemap handling)
+     * override this and may write sidecar files (like the `.map`) as a side
+     * effect, as long as the returned string is the primary file's content.
+     *
+     * @param SourceInterface[] $sources
+     */
+    protected function renderOutput(array $sources): ?string
+    {
+        $content = $this->compile($sources);
+
+        return $content === '' ? null : $content;
     }
 
     public function getUrl(): ?string
@@ -92,21 +119,6 @@ class RevisionCompiler implements CompilerInterface
 
     /**
      * @param SourceInterface[] $sources
-     * @return bool true if the file was written, false if there was nothing to write
-     */
-    protected function save(string $file, array $sources): bool
-    {
-        if ($content = $this->compile($sources)) {
-            $this->assetsDir->put($file, $content);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param SourceInterface[] $sources
      */
     protected function compile(array $sources): string
     {
@@ -122,25 +134,6 @@ class RevisionCompiler implements CompilerInterface
     protected function format(string $string): string
     {
         return $string;
-    }
-
-    /**
-     * @param SourceInterface[] $sources
-     */
-    protected function calculateRevision(array $sources): string
-    {
-        $cacheDifferentiator = [$this->getCacheDifferentiator()];
-
-        foreach ($sources as $source) {
-            $cacheDifferentiator[] = $source->getCacheDifferentiator();
-        }
-
-        return hash('crc32b', serialize($cacheDifferentiator));
-    }
-
-    protected function getCacheDifferentiator(): ?array
-    {
-        return null;
     }
 
     public function flush(): void

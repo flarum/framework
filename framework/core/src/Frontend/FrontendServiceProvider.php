@@ -283,9 +283,10 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $recompile = new RecompileFrontendAssets(
                     $container->make('flarum.assets.common'),
                     $container->make(LocaleManager::class),
-                    $container->make('events')
+                    $container->make('events'),
+                    $container->make(SettingsRepositoryInterface::class)
                 );
-                $recompile->flush();
+                $recompile->markDirty();
             }
         );
     }

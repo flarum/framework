@@ -13,6 +13,9 @@ use Flarum\Foundation\Config;
 use Flarum\Frontend\Assets as FrontendAssets;
 use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Document;
+use Flarum\Frontend\RecompileFrontendAssets;
+use Flarum\Locale\LocaleManager;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -45,6 +48,17 @@ class Assets
     {
         $locale = $request->getAttribute('locale');
 
+        // Rebuild any asset set that was flagged dirty (e.g. by an extension
+        // toggle). This runs here — in a freshly-booted request that reflects
+        // the current extension state — rather than in the toggling request,
+        // whose container predates the toggle and would bake stale sources
+        // (e.g. locale bundles without a newly-enabled extension's keys) into
+        // the manifest. The rebuild is in place: nothing is deleted, so
+        // already-served URLs keep resolving and the asset revision token only
+        // moves if the output genuinely changed.
+        $this->recompileIfDirty($this->assets);
+        $this->recompileIfDirty($this->commonAssets);
+
         $compilers = $this->assembleCompilers($locale);
 
         if ($this->config->inDebugMode()) {
@@ -52,6 +66,16 @@ class Assets
         }
 
         $this->addAssetsToDocument($document, $compilers);
+    }
+
+    protected function recompileIfDirty(FrontendAssets $assets): void
+    {
+        (new RecompileFrontendAssets(
+            $assets,
+            $this->container->make(LocaleManager::class),
+            $this->container->make('events'),
+            $this->container->make(SettingsRepositoryInterface::class)
+        ))->recompileIfDirty();
     }
 
     /**

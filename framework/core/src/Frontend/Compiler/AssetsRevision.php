@@ -37,12 +37,37 @@ class AssetsRevision
      * Canonicalise a revisions map (sort by key) and hash it, so the server and
      * client produce the same token from the same manifest regardless of order.
      *
+     * Admin-only assets are excluded: the token exists to tell a *forum* client
+     * that what it loaded has been superseded, but the manifest is shared with
+     * the admin frontend. Without this, rebuilding any admin asset — e.g.
+     * toggling an admin-only extension — would move the token and prompt every
+     * forum visitor to reload for a change that cannot affect them. Forum and
+     * shared (`common`) chunks stay in: the forum can load those, so a genuine
+     * change to one must still trigger the prompt.
+     *
      * @param array<string, string|null> $revisions
      */
     public static function tokenFor(array $revisions): string
     {
+        $revisions = array_filter(
+            $revisions,
+            fn (string $key) => ! self::isAdminAsset($key),
+            ARRAY_FILTER_USE_KEY
+        );
+
         ksort($revisions);
 
         return hash('xxh128', (string) json_encode($revisions));
+    }
+
+    /**
+     * Whether a manifest key names an asset only the admin frontend loads: the
+     * admin entry bundles (`admin.js`/`admin.css` and their locale variants)
+     * and admin code-split chunks (`js/<ext>/admin/…`).
+     */
+    private static function isAdminAsset(string $key): bool
+    {
+        return preg_match('~^admin(-[^.]+)?\.(js|css)$~', $key) === 1
+            || str_contains($key, '/admin/');
     }
 }

@@ -188,11 +188,4 @@ class LessCompiler extends RevisionCompiler
 
         return $sources;
     }
-
-    protected function getCacheDifferentiator(): ?array
-    {
-        return [
-            'import_dirs' => $this->importDirs
-        ];
-    }
 }

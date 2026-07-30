@@ -22,6 +22,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Filesystem\Filesystem;
@@ -88,9 +89,11 @@ class ExtensionManagerServiceProvider extends AbstractServiceProvider
                 if ($extensions->isEnabled($event->extension->getId())) {
                     $recompile = new RecompileFrontendAssets(
                         $container->make('flarum.assets.forum'),
-                        $container->make(LocaleManager::class)
+                        $container->make(LocaleManager::class),
+                        null,
+                        $container->make(SettingsRepositoryInterface::class)
                     );
-                    $recompile->flush();
+                    $recompile->markDirty();
 
                     $extensions->migrate($event->extension);
                     $event->extension->copyAssetsTo($container->make('filesystem')->disk('flarum-assets'));

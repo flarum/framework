@@ -29,6 +29,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Flarum\Settings\Event\Saving;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Laminas\Stratigility\MiddlewarePipe;
@@ -136,9 +137,10 @@ class AdminServiceProvider extends AbstractServiceProvider
                 $recompile = new RecompileFrontendAssets(
                     $container->make('flarum.assets.admin'),
                     $container->make(LocaleManager::class),
-                    $container->make('events')
+                    $container->make('events'),
+                    $container->make(SettingsRepositoryInterface::class)
                 );
-                $recompile->flush();
+                $recompile->markDirty();
             }
         );
 
