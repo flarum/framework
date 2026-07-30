@@ -223,9 +223,33 @@ class DiscussionResource extends AbstractDatabaseResource
                         || $context->creating(PostResource::class);
                 })
                 ->get(function (Discussion $discussion, Context $context) {
-                    // @todo: is it possible to refactor the frontend to not need all post IDs?
-                    //       some kind of percentage-based stream scrubber?
-                    return $discussion->posts()->whereVisibleTo($context->getActor())->select('id')->get()->all();
+                    // @todo: the ID query is now cheap, but the full ID list still bloats the
+                    //        payload on huge discussions. Refactoring the frontend to work from
+                    //        a post count + windowed fetches (percentage-based scrubber) would
+                    //        let us drop the linkage entirely.
+
+                    // This runs on every discussion view and scans every post
+                    // of the discussion, so it uses the single-discussion
+                    // visibility fast path (the actor's access to the
+                    // discussion itself was already established by this
+                    // endpoint) and skips Eloquent hydration: only ids leave
+                    // the database, and the serializer needs no more than
+                    // id-carrying Post instances for the linkage.
+                    $prototype = new Post();
+                    $prototype->exists = true;
+
+                    return $discussion->posts()
+                        ->whereVisibleToInDiscussion($context->getActor(), $discussion)
+                        ->orderBy('posts.number')
+                        ->toBase()
+                        ->pluck('posts.id')
+                        ->map(function ($id) use ($prototype) {
+                            $post = clone $prototype;
+                            $post->setRawAttributes(['id' => $id], true);
+
+                            return $post;
+                        })
+                        ->all();
                 }),
             Schema\Relationship\ToOne::make('mostRelevantPost')
                 ->visible(fn (Discussion $model, Context $context) => $context->listing())

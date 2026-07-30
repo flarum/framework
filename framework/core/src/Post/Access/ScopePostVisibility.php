@@ -13,8 +13,38 @@ use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
-class ScopePostVisibility
+class ScopePostVisibility implements ScopesPostVisibilityWithinDiscussion
 {
+    /**
+     * The fast path for posts of a single, already-authorized discussion: the
+     * per-row discussion subqueries below collapse to constants.
+     */
+    public function withinDiscussion(User $actor, Builder $query, Discussion $discussion): void
+    {
+        // The caller vouches for the discussion being visible, so the
+        // "discussion is visible" EXISTS is omitted entirely.
+
+        // Hide private posts by default. (Per-post: stays in SQL.)
+        $query->where(function ($query) use ($actor) {
+            $query->where('posts.is_private', false)
+                ->orWhere(function ($query) use ($actor) {
+                    $query->whereVisibleTo($actor, 'viewPrivate');
+                });
+        });
+
+        // Hide hidden posts unless the actor authored them or may moderate
+        // this discussion. The policy check is the same one that governs the
+        // actual hide/restore actions (core's global discussion.hidePosts
+        // permission, per-tag moderator grants via the tags policy, admins),
+        // evaluated once instead of per row.
+        if (! $actor->can('hidePosts', $discussion)) {
+            $query->where(function ($query) use ($actor) {
+                $query->whereNull('posts.hidden_at')
+                    ->orWhere('posts.user_id', $actor->id);
+            });
+        }
+    }
+
     public function __invoke(User $actor, Builder $query): void
     {
         // Make sure the post's discussion is visible as well.
