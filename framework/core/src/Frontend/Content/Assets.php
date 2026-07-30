@@ -62,7 +62,7 @@ class Assets
         $compilers = $this->assembleCompilers($locale);
 
         if ($this->config->inDebugMode()) {
-            $this->forceCommit(Arr::flatten($compilers));
+            $this->recompile(Arr::flatten($compilers));
         }
 
         $this->addAssetsToDocument($document, $compilers);
@@ -107,14 +107,17 @@ class Assets
     }
 
     /**
-     * Force compilation of assets when in debug mode.
+     * Recompile assets on every request when in debug mode, so changes show up
+     * immediately. A plain commit() recompiles from source but only writes when
+     * the output actually changed — forcing here would rewrite every bundle,
+     * sourcemap and the revision manifest on every page view.
      *
      * @param CompilerInterface[] $compilers
      */
-    protected function forceCommit(array $compilers): void
+    protected function recompile(array $compilers): void
     {
         foreach ($compilers as $compiler) {
-            $compiler->commit(true);
+            $compiler->commit();
         }
     }
 

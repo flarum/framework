@@ -59,12 +59,12 @@ class JsCompiler extends RevisionCompiler
             $line += substr_count($content, "\n") + 1;
         }
 
-        // Add a comment to the end of our file to point to the sourcemap
-        // we just constructed, then store the map. The JS file itself is
-        // written by the parent from the string we return.
+        // Add a comment to the end of our file to point to the sourcemap we
+        // just constructed, and queue the map so the parent writes it only if
+        // the JS itself is written — identical output rewrites neither file.
         $output[] = '//# sourceMappingURL='.$this->assetsDir->url($mapFile);
 
-        $this->assetsDir->put($mapFile, json_encode($map, JSON_UNESCAPED_SLASHES));
+        $this->pendingSidecars[$mapFile] = json_encode($map, JSON_UNESCAPED_SLASHES);
 
         return implode("\n", $output);
     }
