@@ -54,7 +54,13 @@ class JsDirectoryCompiler implements CompilerInterface
     {
         /** @var DirectorySource $source */
         foreach ($this->getSources() as $source) {
-            $this->eachFile($source, fn (JsCompiler $compiler) => $compiler->getUrl());
+            $live = [];
+            $this->eachFile($source, function (JsCompiler $compiler) use (&$live) {
+                $compiler->getUrl();
+                $live[$compiler->getFilename()] = true;
+            });
+
+            $this->pruneStaleRevisions($source, $live);
         }
 
         return null;
@@ -78,7 +84,37 @@ class JsDirectoryCompiler implements CompilerInterface
 
     protected function compileSource(DirectorySource $source, bool $force = false): void
     {
-        $this->eachFile($source, fn (JsCompiler $compiler) => $compiler->commit($force));
+        // Recompile every chunk that currently exists, tracking which ones we
+        // wrote so we can tell which manifest entries are now stale.
+        $rebuilt = [];
+        $this->eachFile($source, function (JsCompiler $compiler) use (&$rebuilt, $force) {
+            $compiler->commit($force);
+            $rebuilt[$compiler->getFilename()] = true;
+        });
+
+        $this->pruneStaleRevisions($source, $rebuilt);
+    }
+
+    /**
+     * Remove manifest revisions for chunks under this source's destination that
+     * no longer exist (an extension was disabled, or a chunk was removed or
+     * renamed). The in-place rebuild ({@see \Flarum\Frontend\RecompileFrontendAssets::recompile})
+     * deliberately deletes nothing up front, so gone-away chunks must be pruned
+     * here, after the surviving set has been (re)established. The chunk files
+     * themselves are left on disk: a client on an older page can still lazy-load
+     * the chunk it references instead of hitting a 404.
+     *
+     * @param array<string, true> $live filenames of the chunks that still exist
+     */
+    protected function pruneStaleRevisions(DirectorySource $source, array $live): void
+    {
+        $destinationDir = $this->destinationFor($source);
+
+        foreach ($this->versioner->allRevisions() as $filename => $revision) {
+            if (str_starts_with($filename, $destinationDir) && ! isset($live[$filename])) {
+                $this->versioner->putRevision($filename, null);
+            }
+        }
     }
 
     protected function flushSource(DirectorySource $source): void

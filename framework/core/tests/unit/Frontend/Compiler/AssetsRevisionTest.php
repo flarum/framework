@@ -43,4 +43,57 @@ class AssetsRevisionTest extends TestCase
 
         $this->assertNotEquals($base, $added);
     }
+
+    #[Test]
+    public function token_ignores_admin_only_assets()
+    {
+        // The forum client never loads admin assets, so admin-only churn (e.g.
+        // toggling an admin-only extension, which rebuilds the admin bundle and
+        // its admin chunks) must not move the forum token — otherwise every
+        // visitor is prompted to reload for a change that can't affect them.
+        $base = AssetsRevision::tokenFor([
+            'forum.js' => '1',
+            'admin.js' => 'a',
+            'admin.css' => 'a',
+            'admin-en.js' => 'a',
+            'js/fof-example/admin/Page.js' => 'a',
+        ]);
+        $adminChanged = AssetsRevision::tokenFor([
+            'forum.js' => '1',
+            'admin.js' => 'b',
+            'admin.css' => 'b',
+            'admin-en.js' => 'b',
+            'js/fof-example/admin/Page.js' => 'b',
+        ]);
+
+        $this->assertEquals($base, $adminChanged);
+    }
+
+    #[Test]
+    public function token_changes_when_a_forum_or_shared_chunk_changes()
+    {
+        // Split chunks the forum can load ARE part of what the client needs to
+        // know about: a change to a forum or shared (common) chunk must move
+        // the token.
+        $base = AssetsRevision::tokenFor([
+            'forum.js' => '1',
+            'js/fof-blog/forum/pages/BlogComposer.js' => '1',
+            'js/flarum-tags/common/components/TagSelectionModal.js' => '1',
+        ]);
+
+        $forumChunkChanged = AssetsRevision::tokenFor([
+            'forum.js' => '1',
+            'js/fof-blog/forum/pages/BlogComposer.js' => '2',
+            'js/flarum-tags/common/components/TagSelectionModal.js' => '1',
+        ]);
+
+        $commonChunkChanged = AssetsRevision::tokenFor([
+            'forum.js' => '1',
+            'js/fof-blog/forum/pages/BlogComposer.js' => '1',
+            'js/flarum-tags/common/components/TagSelectionModal.js' => '2',
+        ]);
+
+        $this->assertNotEquals($base, $forumChunkChanged, 'a forum chunk change must move the token');
+        $this->assertNotEquals($base, $commonChunkChanged, 'a shared (forum-loadable) chunk change must move the token');
+    }
 }
