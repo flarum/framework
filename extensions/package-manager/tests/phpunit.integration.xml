@@ -5,6 +5,7 @@
     backupGlobals="false"
     cacheDirectory=".phpunit.cache"
     backupStaticProperties="false"
+    displayDetailsOnTestsThatTriggerWarnings="true"
     colors="true"
     processIsolation="true"
     stopOnFailure="false"
