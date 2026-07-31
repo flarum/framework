@@ -47,11 +47,15 @@ class ScopePostVisibility implements ScopesPostVisibilityWithinDiscussion
 
     public function __invoke(User $actor, Builder $query): void
     {
-        // Make sure the post's discussion is visible as well.
-        $query->whereExists(function ($query) use ($actor) {
-            $query->selectRaw('1')
-                ->from('discussions')
-                ->whereColumn('discussions.id', 'posts.discussion_id');
+        // Make sure the post's discussion is visible as well. Shaped as an
+        // uncorrelated IN-subquery rather than a per-row EXISTS: the visible
+        // discussions can then be materialized once per query, instead of the
+        // discussion visibility conditions (which extensions compound) being
+        // re-evaluated for every candidate post row — many posts share few
+        // discussions, so on mention counts, post windows and search results
+        // the EXISTS form did the same work hundreds of times over.
+        $query->whereIn('posts.discussion_id', function ($query) use ($actor) {
+            $query->select('discussions.id')->from('discussions');
             Discussion::query()->setQuery($query)->whereVisibleTo($actor);
         });
 
@@ -69,11 +73,12 @@ class ScopePostVisibility implements ScopesPostVisibilityWithinDiscussion
         if (! $actor->hasPermission('discussion.hidePosts')) {
             $query->where(function ($query) use ($actor) {
                 $query->whereNull('posts.hidden_at')
-                ->orWhere('posts.user_id', $actor->id)
-                    ->orWhereExists(function ($query) use ($actor) {
-                        $query->selectRaw('1')
+                    ->orWhere('posts.user_id', $actor->id)
+                    ->orWhereIn('posts.discussion_id', function ($query) use ($actor) {
+                        $query->select('discussions.id')
                             ->from('discussions')
-                            ->whereColumn('discussions.id', 'posts.discussion_id')
+                            // The 1=0 seed keeps this subquery empty when no
+                            // scoper grants the hidePosts ability at all.
                             ->where(function ($query) use ($actor) {
                                 $query
                                     ->whereRaw('1=0')
