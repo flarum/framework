@@ -130,7 +130,9 @@ abstract class EloquentBuffer
         }
 
         if (! $aggregate && $relationship) {
-            $collection->load([$relationName => $loader]);
+            if (! self::loadLimitedBelongsToMany($collection, $relationName, $loader)) {
+                $collection->load([$relationName => $loader]);
+            }
 
             // Set the inverse relation on the loaded relations.
             $collection->each(function (Model $model) use ($relationName, $relationship) {
@@ -152,6 +154,91 @@ abstract class EloquentBuffer
         } else {
             self::loadAggregate($collection, $relationName, $aggregate, $loader);
         }
+    }
+
+    /**
+     * Load a LIMITED BelongsToMany include (e.g. mentions' "first 4 mentioning
+     * posts per post") without dragging every candidate row through the
+     * database's window sort.
+     *
+     * Laravel compiles a limited eager load into `row_number() OVER
+     * (PARTITION BY ...)` over the relation's full select — every column of
+     * every candidate row (for posts: content blobs included) is materialized
+     * into the window just to keep a handful per parent. Instead, run the
+     * window over the KEYS alone, then fetch only the surviving rows in full.
+     * The related-resource scoping (typically visibility) applies to the
+     * narrow phase, so the kept ids are exactly the ones the one-phase query
+     * would have kept, in the same order.
+     *
+     * Returns false when this isn't a limited BelongsToMany, so the caller
+     * falls back to the plain eager load.
+     */
+    protected static function loadLimitedBelongsToMany(Collection $collection, string $relationName, callable $loader): bool
+    {
+        /** @var Model $parent */
+        $parent = $collection->first();
+
+        $relation = Relation::noConstraints(fn () => $parent->newModelInstance()->{$relationName}());
+
+        if (! $relation instanceof BelongsToMany) {
+            return false;
+        }
+
+        $relation->addEagerConstraints($collection->all());
+
+        // Applies resource scoping and the relationship's scope callback —
+        // including any limit — to the relation.
+        $loader($relation);
+
+        $query = $relation->getQuery();
+
+        // In eager context, a relationship scope's ->limit() lands on the
+        // base builder as groupLimit — the per-parent window — not limit.
+        if (! $query->getQuery()->groupLimit && ! $query->getQuery()->limit) {
+            return false;
+        }
+
+        // The eager loads belong to the full rows, not the key window.
+        $eagerLoads = $query->getEagerLoads();
+        $query->setEagerLoads([]);
+
+        $related = $relation->getRelated();
+        $relatedKeyName = $related->getKeyName();
+
+        // Narrow phase: only the related key survives our select; the pivot
+        // keys are appended automatically. getEager() applies the same
+        // windowed limit the one-phase load would.
+        $query->select($related->qualifyColumn($relatedKeyName));
+
+        $pivotKeyName = $relation->getForeignPivotKeyName();
+        $idsByParent = [];
+
+        foreach ($relation->getEager() as $row) {
+            $idsByParent[$row->getRelation('pivot')->getAttribute($pivotKeyName)][] = $row->getKey();
+        }
+
+        // Full phase: fetch the surviving rows only. Visibility was already
+        // decided when the ids were selected, so no re-scoping is needed —
+        // but the endpoint's nested eager loads are.
+        $ids = array_unique(array_merge(...array_values($idsByParent) ?: [[]]));
+
+        $rows = $ids
+            ? $related->newQuery()->setEagerLoads($eagerLoads)->whereIn($related->getQualifiedKeyName(), $ids)->get()->keyBy($relatedKeyName)
+            : collect();
+
+        foreach ($collection as $model) {
+            $models = [];
+
+            foreach ($idsByParent[$model->getKey()] ?? [] as $id) {
+                if ($rows->has($id)) {
+                    $models[] = $rows[$id];
+                }
+            }
+
+            $model->setRelation($relationName, $related->newCollection($models));
+        }
+
+        return true;
     }
 
     /**
