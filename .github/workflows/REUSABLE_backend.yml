@@ -287,11 +287,42 @@ jobs:
           fi
         working-directory: ${{ inputs.backend_directory }}
         env:
+          FLARUM_REPEATED_QUERY_LOG: ${{ runner.temp }}/repeated-queries.jsonl
           DB_HOST: 127.0.0.1
           DB_PORT: ${{ (matrix.driver == 'mysql' && job.services.mysql.ports['3306']) || (matrix.driver == 'mariadb' && job.services.mariadb.ports['3306']) || (matrix.driver == 'pgsql' && job.services.postgres.ports['5432']) }}
           DB_PREFIX: ${{ matrix.prefix }}
           DB_DRIVER: ${{ matrix.driver }}
           COMPOSER_PROCESS_TIMEOUT: 600
+
+      # Surface the query findings on the pull request itself. A developer who
+      # only ever looks at the checks page would otherwise never see the
+      # warnings PHPUnit prints mid-log. Runs even when the tests fail, since a
+      # failing N+1 is exactly what we want to point at.
+      - name: Report repeated queries
+        if: ${{ !cancelled() }}
+        run: |
+          log="${{ runner.temp }}/repeated-queries.jsonl"
+
+          [ -s "$log" ] || exit 0
+
+          # One annotation per distinct finding; identical findings recur across
+          # tests, so collapse them first.
+          sort -u "$log" | while read -r finding; do
+            level=$(echo "$finding" | jq -r 'if .scaling then "error" else "warning" end')
+            title=$(echo "$finding" | jq -r 'if .scaling then "N+1 query" else "Repeated query" end')
+            echo "$finding" | jq -r --arg level "$level" --arg title "$title" \
+              '"::\($level) title=\($title)::\(.where) — \(.count) executions, \(.distinctBindings) distinct: \(.sql)"'
+          done
+
+          {
+            echo "### Query findings"
+            echo
+            echo "| | Where | Executions | Distinct | Query |"
+            echo "|---|---|---|---|---|"
+            sort -u "$log" | jq -r '"| \(if .scaling then "🛑 N+1" else "⚠️ repeated" end) | `\(.where)` | \(.count) | \(.distinctBindings) | `\(.sql | .[0:120])` |"'
+            echo
+            echo "🛑 grows with your data — fix it. ⚠️ repeats a few values — consider memoising."
+          } >> "$GITHUB_STEP_SUMMARY"
 
   phpstan:
     runs-on: ${{ inputs.runner_type }}

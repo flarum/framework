@@ -118,6 +118,35 @@ class RepeatedQueryDetector
     }
 
     /**
+     * Record a finding for tooling to pick up after the run.
+     *
+     * PHPUnit's own warnings are per-test and easy to miss in a long log, so
+     * findings are also appended to a file when FLARUM_REPEATED_QUERY_LOG
+     * points at one. CI turns that into annotations and a run summary, which
+     * is what reaches a developer who only ever looks at the pull request.
+     *
+     * @param array<array{sql: string, count: int, distinctBindings: int}> $repeats
+     */
+    public static function log(string $where, array $repeats, bool $scaling): void
+    {
+        $path = getenv('FLARUM_REPEATED_QUERY_LOG');
+
+        if (! $path) {
+            return;
+        }
+
+        foreach ($repeats as $repeat) {
+            file_put_contents($path, json_encode([
+                'where' => $where,
+                'scaling' => $scaling,
+                'count' => $repeat['count'],
+                'distinctBindings' => $repeat['distinctBindings'],
+                'sql' => $repeat['sql'],
+            ])."\n", FILE_APPEND | LOCK_EX);
+        }
+    }
+
+    /**
      * @param array<array{sql: string, count: int, distinctBindings: int}> $repeats
      */
     public static function describe(array $repeats): string

@@ -401,11 +401,14 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             fn (array $repeat) => ! RepeatedQueryDetector::scalesWithData($repeat)
         ));
 
+        RepeatedQueryDetector::log($where, $scaling, true);
+        RepeatedQueryDetector::log($where, $wasteful, false);
+
         if ($wasteful) {
             // Raised as a PHP warning: PHPUnit surfaces these against the test
             // that triggered them (with `displayDetailsOnTestsThatTriggerWarnings`
             // it prints the detail) without failing the run.
-            @trigger_error(sprintf(
+            trigger_error(sprintf(
                 "%s repeated queries for the same few values — consider memoising.\n%s",
                 $where,
                 RepeatedQueryDetector::describe($wasteful)
