@@ -408,10 +408,15 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             // Raised as a PHP warning: PHPUnit surfaces these against the test
             // that triggered them (with `displayDetailsOnTestsThatTriggerWarnings`
             // it prints the detail) without failing the run.
+            //
+            // Without that setting PHPUnit reports only a count — "Warnings: 11"
+            // — so the first warning of the run says how to see the rest.
+            // Otherwise the default experience is a number with no next step.
             trigger_error(sprintf(
-                "%s repeated queries for the same few values — consider memoising.\n%s",
+                "%s repeated queries for the same few values — consider memoising.\n%s%s",
                 $where,
-                RepeatedQueryDetector::describe($wasteful)
+                RepeatedQueryDetector::describe($wasteful),
+                RepeatedQueryDetector::hintOnce()
             ), E_USER_WARNING);
         }
 

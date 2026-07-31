@@ -118,6 +118,49 @@ class RepeatedQueryDetector
     }
 
     /**
+     * A pointer, appended to the first warning of a run, explaining how to see
+     * the detail.
+     *
+     * PHPUnit only prints warning messages when the phpunit config sets
+     * `displayDetailsOnTestsThatTriggerWarnings`; without it the run reports a
+     * bare count. Since that is the default in most extensions, the first
+     * warning has to carry its own instructions — and only the first, or it
+     * repeats on every finding.
+     *
+     * Tests usually run with `processIsolation`, so "first" cannot be tracked
+     * in memory: each test is a fresh process. A marker file next to the
+     * findings log gives one hint per run instead of one per process.
+     */
+    public static function hintOnce(): string
+    {
+        $hint = "\n\nRun with --display-warnings, or set"
+            ."\ndisplayDetailsOnTestsThatTriggerWarnings=\"true\" in your phpunit config, to see"
+            ."\nwhich queries these were.";
+
+        // Keyed to the project and to the hour, so every isolated test process
+        // in a run agrees on what "first" means without needing cleanup that a
+        // per-test process can't reliably perform. A later run gets a fresh
+        // hint; a run straddling the hour boundary may hint twice, which is a
+        // fair trade for not carrying state between processes.
+        $marker = sprintf(
+            '%s/flarum-repeated-queries-hinted-%s',
+            sys_get_temp_dir(),
+            md5((string) realpath('.').gmdate('YmdH'))
+        );
+
+        // `x` mode succeeds only for whoever gets there first.
+        $handle = @fopen($marker, 'x');
+
+        if ($handle === false) {
+            return '';
+        }
+
+        fclose($handle);
+
+        return $hint;
+    }
+
+    /**
      * Record a finding for tooling to pick up after the run.
      *
      * PHPUnit's own warnings are per-test and easy to miss in a long log, so
