@@ -16,6 +16,16 @@ use Flarum\User\User;
 
 class GlobalPolicy extends AbstractPolicy
 {
+    /**
+     * Verdicts per "{actor id}:{ability}", so repeated checks within a
+     * request (e.g. canStartDiscussion serialized per tag) don't re-count.
+     * An instance property rather than a function static: policies live for
+     * one container, so this can never leak across requests — or tests.
+     *
+     * @var array<string, bool>
+     */
+    protected array $enoughTags = [];
+
     public function __construct(
         protected SettingsRepositoryInterface $settings
     ) {
@@ -23,60 +33,65 @@ class GlobalPolicy extends AbstractPolicy
 
     public function can(User $actor, string $ability): ?string
     {
-        static $enoughPrimary;
-        static $enoughSecondary;
-
         if ($ability === 'startDiscussion'
             && $actor->hasPermission($ability)
             && $actor->hasPermission('bypassTagCounts')) {
             return $this->allow();
         }
 
-        if ($ability === 'startDiscussion') {
-            $minPrimaryTags = (int) $this->settings->get('flarum-tags.min_primary_tags');
-            $minSecondaryTags = (int) $this->settings->get('flarum-tags.min_secondary_tags');
-
-            if ($minPrimaryTags === 0 && $minSecondaryTags === 0) {
-                return null;
-            }
+        if (! in_array($ability, ['viewForum', 'startDiscussion'])) {
+            return null;
         }
 
-        if (in_array($ability, ['viewForum', 'startDiscussion'])) {
-            if (! isset($enoughPrimary[$actor->id][$ability])) {
-                $primaryTagsWhereNeedsPermission = $this->settings->get('flarum-tags.min_primary_tags');
-                $primaryTagsWhereHasPermission = Tag::whereHasPermission($actor, $ability)
-                    ->where('tags.position', '!=', null)
-                    ->count();
+        $minPrimary = (int) $this->settings->get('flarum-tags.min_primary_tags');
+        $minSecondary = (int) $this->settings->get('flarum-tags.min_secondary_tags');
 
-                if ($ability === 'viewForum') {
-                    $primaryTagsCount = Tag::query()->where('position', '!=', null)->count();
-                    $enoughPrimary[$actor->id][$ability] = $primaryTagsWhereHasPermission >= min($primaryTagsCount, $primaryTagsWhereNeedsPermission);
-                } else {
-                    $enoughPrimary[$actor->id][$ability] = $primaryTagsWhereHasPermission >= $primaryTagsWhereNeedsPermission;
-                }
-            }
-
-            if (! isset($enoughSecondary[$actor->id][$ability])) {
-                $secondaryTagsWhereNeedsPermission = $this->settings->get('flarum-tags.min_secondary_tags');
-                $secondaryTagsWhereHasPermission = Tag::whereHasPermission($actor, $ability)
-                    ->where('tags.position', '=', null)
-                    ->count();
-
-                if ($ability === 'viewForum') {
-                    $secondaryTagsCount = Tag::query()->where(['position' => null, 'parent_id' => null])->count();
-                    $enoughSecondary[$actor->id][$ability] = $secondaryTagsWhereHasPermission >= min($secondaryTagsCount, $secondaryTagsWhereNeedsPermission);
-                } else {
-                    $enoughSecondary[$actor->id][$ability] = $secondaryTagsWhereHasPermission >= $secondaryTagsWhereNeedsPermission;
-                }
-            }
-
-            if ($enoughPrimary[$actor->id][$ability] && $enoughSecondary[$actor->id][$ability]) {
-                return $this->allow();
-            } else {
-                return $this->deny();
-            }
+        if ($ability === 'startDiscussion' && $minPrimary === 0 && $minSecondary === 0) {
+            return null;
         }
 
-        return null;
+        $this->enoughTags["$actor->id:$ability"] ??= $this->enoughTagsWithPermission($actor, $ability, $minPrimary, $minSecondary);
+
+        return $this->enoughTags["$actor->id:$ability"] ? $this->allow() : $this->deny();
+    }
+
+    /**
+     * Can the actor see at least the configured minimum of primary and
+     * secondary tags?
+     *
+     * A pair whose minimum is 0 is trivially satisfied and costs nothing. The
+     * rest is answered by ONE aggregate scan counting both permission-scoped
+     * totals at once — this used to be four separate COUNT queries on every
+     * request. For viewForum, a forum with fewer tags than the minimum only
+     * requires that all of them are visible; those grand totals are fetched
+     * lazily, only when a permission count falls short of its minimum.
+     */
+    protected function enoughTagsWithPermission(User $actor, string $ability, int $minPrimary, int $minSecondary): bool
+    {
+        if ($minPrimary === 0 && $minSecondary === 0) {
+            return true;
+        }
+
+        $withPermission = Tag::whereHasPermission($actor, $ability)
+            ->toBase()
+            ->selectRaw('coalesce(sum(case when tags.position is not null then 1 else 0 end), 0) as primary_count')
+            ->selectRaw('coalesce(sum(case when tags.position is null then 1 else 0 end), 0) as secondary_count')
+            ->first();
+
+        $enoughPrimary = $minPrimary === 0 || $withPermission->primary_count >= $minPrimary;
+        $enoughSecondary = $minSecondary === 0 || $withPermission->secondary_count >= $minSecondary;
+
+        if ($ability === 'viewForum' && (! $enoughPrimary || ! $enoughSecondary)) {
+            $totals = Tag::query()
+                ->toBase()
+                ->selectRaw('coalesce(sum(case when position is not null then 1 else 0 end), 0) as primary_count')
+                ->selectRaw('coalesce(sum(case when position is null and parent_id is null then 1 else 0 end), 0) as secondary_count')
+                ->first();
+
+            $enoughPrimary = $enoughPrimary || $withPermission->primary_count >= min($totals->primary_count, $minPrimary);
+            $enoughSecondary = $enoughSecondary || $withPermission->secondary_count >= min($totals->secondary_count, $minSecondary);
+        }
+
+        return $enoughPrimary && $enoughSecondary;
     }
 }
