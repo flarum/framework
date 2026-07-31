@@ -9,7 +9,9 @@
 
 namespace Flarum\Mail;
 
+use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Container\Container;
@@ -20,6 +22,7 @@ use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Arr;
+use Illuminate\View\View;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
 use Symfony\Component\Mailer\Transport\TransportFactoryInterface;
@@ -102,6 +105,7 @@ class MailServiceProvider extends AbstractServiceProvider
     }
 
     public function boot(
+        Container $container,
         Dispatcher $events,
         ViewFactory $views,
         FilesystemFactory $filesystemFactory,
@@ -114,5 +118,27 @@ class MailServiceProvider extends AbstractServiceProvider
         // ForumResource::getLogoUrl() uses for the frontend.
         $logoPath = $settings->get('logo_path');
         $views->share('logoUrl', $logoPath ? $filesystemFactory->disk('flarum-assets')->url($logoPath) : null);
+
+        // Email bodies are translation strings containing markup — a markdown
+        // link whose text is a discussion title, say — rendered by the
+        // formatter once their parameters have been substituted in. That order
+        // puts the values in front of the parser, so a title can close the link
+        // and choose its own destination, or add an image that loads when the
+        // mail is opened.
+        //
+        // Email views are therefore given a translator that holds parameter
+        // values back and a formatter that puts them in, escaped, after
+        // rendering. Doing it here means no template has to change — including
+        // the ones in extensions that will never be updated.
+        $views->composer('*', function (View $view) use ($container) {
+            if (! str_contains($view->name(), 'email')) {
+                return;
+            }
+
+            $view->with([
+                'translator' => new MailTranslator($container->make(TranslatorInterface::class)),
+                'formatter' => new MailFormatter($container->make(Formatter::class)),
+            ]);
+        });
     }
 }

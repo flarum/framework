@@ -90,6 +90,7 @@
     },
     "require-dev": {
         "flarum/testing": "^2.0",
-        "flarum/approval": "@dev"
+        "flarum/approval": "@dev",
+        "flarum/markdown": "@dev"
     }
 }
