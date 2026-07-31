@@ -103,6 +103,10 @@ class ForumResource extends AbstractResource implements Findable
                 ->get(fn () => $this->settings->get('theme_secondary_color')),
             Schema\Str::make('colorScheme')
                 ->get(fn () => $this->settings->get('color_scheme')),
+            Schema\Str::make('fontAwesomeForcedStyle')
+                ->get(fn () => $this->settings->get('fontawesome_forced_style'))
+                // Only ship the attribute when the feature is actually on.
+                ->visible(fn () => (bool) $this->settings->get('fontawesome_forced_style')),
             Schema\Str::make('logoUrl')
                 ->get(fn () => $this->getLogoUrl()),
             Schema\Str::make('logoDarkModeUrl')

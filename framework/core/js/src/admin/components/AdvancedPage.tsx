@@ -427,6 +427,16 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
           </Form>
         )}
 
+        <Form>
+          {this.buildSettingComponent({
+            type: 'text',
+            setting: 'fontawesome_forced_style',
+            label: app.translator.trans('core.admin.advanced.fontawesome.forced_style_label'),
+            help: app.translator.trans('core.admin.advanced.fontawesome.forced_style_help'),
+            placeholder: 'fa-light',
+          })}
+        </Form>
+
         <Button className="Button" icon="fas fa-icons" onclick={() => app.modal.show(() => import('./FontAwesomePreviewModal'))}>
           {app.translator.trans('core.admin.advanced.fontawesome.preview.button')}
         </Button>

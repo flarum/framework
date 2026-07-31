@@ -26,6 +26,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
                 'theme_secondary_color' => '#4D698E',
                 'mail_format' => 'multipart',
                 'fontawesome_source' => 'local',
+                'fontawesome_forced_style' => '',
                 'maintenance_mode' => 'none',
                 'show_language_selector' => true,
                 'slug_driver_Flarum\Discussion\Discussion' => 'default',
