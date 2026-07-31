@@ -53,6 +53,29 @@
       width: 40px;
     }
   }
+  // `App-primaryControl` is an extension point, so a page can carry several
+  // controls (core's "start discussion" plus, say, an extension's follow
+  // button). Each is absolutely positioned against the right edge, which
+  // stacks them on top of one another. Where they share a parent — they are
+  // list items of the same nav — that parent becomes a right-anchored flex
+  // row instead, so the browser lays them out side by side at whatever width
+  // each one happens to be.
+  :has(> .App-primaryControl ~ .App-primaryControl) {
+    position: absolute;
+    z-index: calc(~"var(--zindex-header) + 1");
+    top: 0;
+    right: 0;
+    display: flex;
+
+    .App.affix &, .Composer & {
+      position: fixed;
+    }
+
+    > .App-primaryControl {
+      position: relative !important;
+      right: auto;
+    }
+  }
   .App-primaryControl {
     width: auto;
     right: 0;
