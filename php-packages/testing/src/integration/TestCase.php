@@ -295,7 +295,110 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function send(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->server()->handle($request);
+        if (! $this->detectsRepeatedQueries()) {
+            return $this->server()->handle($request);
+        }
+
+        $database = $this->database();
+        $wasLogging = $database->logging();
+
+        $database->flushQueryLog();
+        $database->enableQueryLog();
+
+        try {
+            $response = $this->server()->handle($request);
+        } finally {
+            $queries = $database->getQueryLog();
+
+            if (! $wasLogging) {
+                $database->disableQueryLog();
+            }
+        }
+
+        $this->reportRepeatedQueries($request, $queries);
+
+        return $response;
+    }
+
+    /**
+     * Whether requests sent through this test case are inspected for N+1 query
+     * patterns, failing the test when one is found.
+     *
+     * On by default: an N+1 is a defect, and finding it while writing the
+     * feature is far cheaper than finding it in production. Override in a test
+     * case that legitimately needs it off:
+     *
+     *     protected function detectsRepeatedQueries(): bool
+     *     {
+     *         return false; // and say why
+     *     }
+     *
+     * Prefer {@see allowedRepeatedQueries()} to exempt one known query shape
+     * rather than disabling the check for the whole test case. Setting
+     * FLARUM_DETECT_REPEATED_QUERIES=0 turns it off for a whole run, which is
+     * useful when bisecting an unrelated failure.
+     */
+    protected function detectsRepeatedQueries(): bool
+    {
+        $env = getenv('FLARUM_DETECT_REPEATED_QUERIES');
+
+        return $env === false || $env === '' ? true : (bool) filter_var($env, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
+     * Repetitions of one query shape tolerated before a request is reported.
+     * Small fixed-size loops (the actor, a couple of authors) are normal; an
+     * N+1 grows with the fixture, so it clears any sensible threshold.
+     */
+    protected function repeatedQueryThreshold(): int
+    {
+        return (int) (getenv('FLARUM_REPEATED_QUERY_THRESHOLD') ?: 5);
+    }
+
+    /**
+     * Query shapes this test case knowingly repeats, as substrings of the
+     * normalised SQL — e.g. `'from `sessions`'`. A shape matching any of these
+     * does not fail the test.
+     *
+     * Preferable to turning the check off wholesale: the rest of the request
+     * stays covered. Say why each entry is legitimate.
+     *
+     * @return string[]
+     */
+    protected function allowedRepeatedQueries(): array
+    {
+        return [];
+    }
+
+    /**
+     * @param array<array{query: string, bindings: array}> $queries
+     */
+    private function reportRepeatedQueries(ServerRequestInterface $request, array $queries): void
+    {
+        $repeats = RepeatedQueryDetector::findRepeats($queries, $this->repeatedQueryThreshold());
+
+        foreach ($this->allowedRepeatedQueries() as $allowed) {
+            $repeats = array_values(array_filter(
+                $repeats,
+                fn (array $repeat) => ! str_contains(RepeatedQueryDetector::normalise($repeat['sql']), $allowed)
+            ));
+        }
+
+        if (! $repeats) {
+            return;
+        }
+
+        self::fail(sprintf(
+            "%s %s ran repeated queries — likely an N+1.\n\n%s\n\n"
+            ."A query shape repeated with different bindings is usually a relationship, permission check or\n"
+            ."serialized field resolved per model; load it for the whole page instead (eager loading, a\n"
+            ."batched relation, or a single grouped query). If the repetition is legitimate, list the shape\n"
+            ."in %s::allowedRepeatedQueries() with a comment saying why.",
+            $request->getMethod(),
+            (string) $request->getUri()->getPath(),
+            RepeatedQueryDetector::describe($repeats),
+            static::class
+        ));
     }
 
     /**
