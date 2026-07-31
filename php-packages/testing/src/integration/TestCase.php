@@ -393,7 +393,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             ."A query shape repeated with different bindings is usually a relationship, permission check or\n"
             ."serialized field resolved per model; load it for the whole page instead (eager loading, a\n"
             ."batched relation, or a single grouped query). If the repetition is legitimate, list the shape\n"
-            ."in %s::allowedRepeatedQueries() with a comment saying why.",
+            .'in %s::allowedRepeatedQueries() with a comment saying why.',
             $request->getMethod(),
             (string) $request->getUri()->getPath(),
             RepeatedQueryDetector::describe($repeats),
