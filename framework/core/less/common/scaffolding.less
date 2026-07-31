@@ -63,8 +63,19 @@ p {
   @media @desktop {
     width: @screen-desktop;
   }
+  // The xl/xxl breakpoints exist since the extension list UI introduced them,
+  // but the container never used them: every screen wider than 1100px got the
+  // same fixed width, wasting half the viewport on modern displays. The widths
+  // are CSS custom properties (see root.less) so themes can retune each band
+  // without re-declaring the media queries.
   @media @desktop-hd {
-    width: @screen-desktop-hd;
+    width: var(--container-hd);
+  }
+  @media @desktop-xl {
+    width: var(--container-xl);
+  }
+  @media @desktop-xxl {
+    width: var(--container-xxl);
   }
 }
 
