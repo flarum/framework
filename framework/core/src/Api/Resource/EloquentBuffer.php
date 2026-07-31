@@ -14,6 +14,8 @@ use Flarum\Api\Endpoint\Endpoint;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
@@ -148,8 +150,77 @@ abstract class EloquentBuffer
                 }
             });
         } else {
-            $alias = Str::snake($aggregate['name']);
+            self::loadAggregate($collection, $relationName, $aggregate, $loader);
+        }
+    }
+
+    /**
+     * Load a relation aggregate for all buffered models with ONE flat grouped
+     * query.
+     *
+     * Laravel's loadAggregate() emits a correlated scalar subquery per model
+     * (`select id, (select count(*) ... where outer.id = ...)`), which forces
+     * the database to re-evaluate the aggregate's constraints — for API
+     * resources, typically the full visibility scope — once per related row
+     * PER MODEL, with no chance to materialize shared subqueries. A grouped
+     * join over the relation's eager constraints computes every model's
+     * aggregate in a single flat pass instead.
+     *
+     * @param array{name: string, relation: string, column: string, function: string, constrain: callable|null} $aggregate
+     */
+    protected static function loadAggregate(Collection $collection, string $relationName, array $aggregate, callable $loader): void
+    {
+        $alias = Str::snake($aggregate['name']);
+
+        /** @var Model $parent */
+        $parent = $collection->first();
+
+        /** @var Relation $relation */
+        $relation = Relation::noConstraints(fn () => $parent->newModelInstance()->{$relationName}());
+
+        // The key the related rows are grouped and matched back to parents
+        // by, exactly as eager loading would match them.
+        [$groupColumn, $parentKeyName] = match (true) {
+            $relation instanceof BelongsToMany => [$relation->getQualifiedForeignPivotKeyName(), $relation->getParentKeyName()],
+            $relation instanceof HasOneOrMany => [$relation->getQualifiedForeignKeyName(), $relation->getLocalKeyName()],
+            default => [null, null],
+        };
+
+        if ($groupColumn === null) {
+            // Unsupported relation type: fall back to Laravel's per-model
+            // correlated subqueries rather than guessing at key semantics.
             $collection->loadAggregate(["$relationName as $alias" => $loader], $aggregate['column'], $aggregate['function']);
+
+            return;
+        }
+
+        $relation->addEagerConstraints($collection->all());
+
+        // Applies the aggregate's constrain callback (e.g. visibility
+        // scoping) to the relation's underlying Eloquent builder.
+        $loader($relation);
+
+        $query = $relation->getQuery();
+        $grammar = $query->getQuery()->getGrammar();
+
+        $column = $aggregate['column'] === '*'
+            ? '*'
+            : $grammar->wrap($relation->getRelated()->qualifyColumn($aggregate['column']));
+
+        $results = $query
+            ->toBase()
+            ->select($groupColumn)
+            ->selectRaw("{$aggregate['function']}({$column}) as {$grammar->wrap($alias)}")
+            ->groupBy($groupColumn)
+            ->get()
+            ->keyBy(Str::afterLast($groupColumn, '.'));
+
+        $default = $aggregate['function'] === 'count' ? 0 : null;
+
+        foreach ($collection as $model) {
+            $value = $results[$model->getAttribute($parentKeyName)]->{$alias} ?? $default;
+
+            $model->setAttribute($alias, $value);
         }
     }
 }
