@@ -175,6 +175,16 @@
 
 :root {
 
+  // Main container width per breakpoint band. Themes can retune each band
+  // (or pin them all to one value) without re-declaring media queries.
+  --container-hd:                  1200px;
+  --container-xl:                  1300px;
+  --container-xxl:                 1600px;
+
+  // Readability cap for the discussion post stream on wide screens: the
+  // container keeps growing, prose does not. See DiscussionPage.less.
+  --discussion-content-max-width:  1000px;
+
   --primary-color:                 @primary-color;
   --secondary-color:               @secondary-color;
 
