@@ -72,10 +72,14 @@ class GlobalPolicy extends AbstractPolicy
             return true;
         }
 
+        // Unqualified column names: raw fragments bypass the builder's
+        // identifier prefixing, so `tags.position` would break on installs
+        // with a table prefix. The permission subquery lives in the WHERE
+        // clause under an alias, so nothing here is ambiguous.
         $withPermission = Tag::whereHasPermission($actor, $ability)
             ->toBase()
-            ->selectRaw('coalesce(sum(case when tags.position is not null then 1 else 0 end), 0) as primary_count')
-            ->selectRaw('coalesce(sum(case when tags.position is null then 1 else 0 end), 0) as secondary_count')
+            ->selectRaw('coalesce(sum(case when position is not null then 1 else 0 end), 0) as primary_count')
+            ->selectRaw('coalesce(sum(case when position is null then 1 else 0 end), 0) as secondary_count')
             ->first();
 
         $enoughPrimary = $minPrimary === 0 || $withPermission->primary_count >= $minPrimary;
