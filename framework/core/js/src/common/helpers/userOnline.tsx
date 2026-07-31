@@ -9,7 +9,7 @@ export default function userOnline(user: User): Mithril.Vnode<{}, {}> | null {
   if (user.lastSeenAt() && user.isOnline()) {
     return (
       <span className="UserOnline">
-        <Icon name={'fas fa-circle'} />
+        <Icon name={'fa-solid fa-circle'} noStyleOverride />
       </span>
     );
   }

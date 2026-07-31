@@ -102,7 +102,9 @@ export default class UserCard extends Component {
         'lastSeen',
         <span className={classList('UserCard-lastSeen', { online })}>
           {online
-            ? [<Icon name={'fas fa-circle'} />, ' ', app.translator.trans('core.forum.user.online_text')]
+            ? // A filled dot is the "online" signal; a forced light or duotone
+              // style would render it as a thin ring instead.
+              [<Icon name={'fa-solid fa-circle'} noStyleOverride />, ' ', app.translator.trans('core.forum.user.online_text')]
             : [<Icon name={'far fa-clock'} />, ' ', humanTime(lastSeenAt)]}
         </span>,
         100
