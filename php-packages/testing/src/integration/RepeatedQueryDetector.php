@@ -28,6 +28,24 @@ namespace Flarum\Testing\integration;
 class RepeatedQueryDetector
 {
     /**
+     * Does this repeated shape represent work that grows with the data?
+     *
+     * One query per record — the same SQL run once for each of many different
+     * values — is an N+1: add rows and you add queries. Repetitions of the
+     * same few values are merely wasteful: they don't multiply as a forum
+     * grows. Both are worth knowing about, but only the first is a defect that
+     * gets worse over time.
+     *
+     * @param array{count: int, distinctBindings: int} $repeat
+     */
+    public static function scalesWithData(array $repeat): bool
+    {
+        // Allow one duplicate: batch loaders and permission checks often fetch
+        // one value twice while still being per-record work.
+        return $repeat['distinctBindings'] >= $repeat['count'] - 1;
+    }
+
+    /**
      * @param array<array{query: string, bindings: array}> $queries
      * @param int $threshold Repetitions of one shape before it is reported.
      * @return array<array{sql: string, count: int, distinctBindings: int}>

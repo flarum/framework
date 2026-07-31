@@ -141,6 +141,28 @@ class RepeatedQueryDetectorTest extends TestCase
     }
 
     #[Test]
+    public function one_query_per_record_scales_with_the_data()
+    {
+        // The N+1 signature: as many distinct values as executions. Add rows,
+        // add queries — this is the defect that gets worse as a forum grows.
+        $this->assertTrue(RepeatedQueryDetector::scalesWithData(['count' => 10, 'distinctBindings' => 10]));
+
+        // One duplicate is tolerated: batch loaders and permission checks
+        // often re-read a single value while still being per-record work.
+        $this->assertTrue(RepeatedQueryDetector::scalesWithData(['count' => 10, 'distinctBindings' => 9]));
+    }
+
+    #[Test]
+    public function repeating_a_handful_of_values_does_not_scale_with_the_data()
+    {
+        // Wasteful, but bounded: five queries for two users stays five queries
+        // whether the forum has two users or two million.
+        $this->assertFalse(RepeatedQueryDetector::scalesWithData(['count' => 5, 'distinctBindings' => 2]));
+        $this->assertFalse(RepeatedQueryDetector::scalesWithData(['count' => 8, 'distinctBindings' => 4]));
+        $this->assertFalse(RepeatedQueryDetector::scalesWithData(['count' => 6, 'distinctBindings' => 1]));
+    }
+
+    #[Test]
     public function the_description_names_counts_and_binding_diversity()
     {
         $description = RepeatedQueryDetector::describe([

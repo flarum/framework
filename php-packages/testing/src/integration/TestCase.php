@@ -388,17 +388,42 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             return;
         }
 
-        self::fail(sprintf(
-            "%s %s ran repeated queries — likely an N+1.\n\n%s\n\n"
-            ."A query shape repeated with different bindings is usually a relationship, permission check or\n"
-            ."serialized field resolved per model; load it for the whole page instead (eager loading, a\n"
-            ."batched relation, or a single grouped query). If the repetition is legitimate, list the shape\n"
-            .'in %s::allowedRepeatedQueries() with a comment saying why.',
-            $request->getMethod(),
-            (string) $request->getUri()->getPath(),
-            RepeatedQueryDetector::describe($repeats),
-            static::class
+        $where = $request->getMethod().' '.$request->getUri()->getPath();
+
+        // Work that grows with the data is a defect: one query per record
+        // means a forum with a thousand records runs a thousand queries.
+        $scaling = array_values(array_filter($repeats, RepeatedQueryDetector::scalesWithData(...)));
+
+        // The rest repeat a handful of values: wasteful, but it does not
+        // multiply as a forum grows. Worth knowing, not worth failing over.
+        $wasteful = array_values(array_filter(
+            $repeats,
+            fn (array $repeat) => ! RepeatedQueryDetector::scalesWithData($repeat)
         ));
+
+        if ($wasteful) {
+            // Raised as a PHP warning: PHPUnit surfaces these against the test
+            // that triggered them (with `displayDetailsOnTestsThatTriggerWarnings`
+            // it prints the detail) without failing the run.
+            @trigger_error(sprintf(
+                "%s repeated queries for the same few values — consider memoising.\n%s",
+                $where,
+                RepeatedQueryDetector::describe($wasteful)
+            ), E_USER_WARNING);
+        }
+
+        if ($scaling) {
+            self::fail(sprintf(
+                "%s ran one query per record — an N+1.\n\n%s\n\n"
+                ."This is usually a relationship, permission check or serialized field resolved per model.\n"
+                ."Load it for the whole page instead: eager loading, a batched relation, or one grouped\n"
+                ."query. If the repetition is unavoidable, list the shape in\n"
+                .'%s::allowedRepeatedQueries() with a comment saying why.',
+                $where,
+                RepeatedQueryDetector::describe($scaling),
+                static::class
+            ));
+        }
     }
 
     /**
