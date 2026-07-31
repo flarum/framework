@@ -1,9 +1,13 @@
-/// <reference types="mithril" />
+import type Mithril from 'mithril';
 import Component from '../Component';
 import type { ComponentAttrs } from '../Component';
 export interface IDetailedDropdownItemAttrs extends ComponentAttrs {
-    /** The name of an icon to show in the dropdown item. */
-    icon: string;
+    /**
+     * The name of an icon to show in the dropdown item, or a rendered icon —
+     * which lets the caller pass attributes of its own, e.g. `noStyleOverride`
+     * for an icon whose style carries meaning.
+     */
+    icon: string | Mithril.Children;
     /** The label of the dropdown item. */
     label: string;
     /** The description of the item. */
