@@ -181,5 +181,8 @@ class Model implements ExtenderInterface
                 $this->casts
             )
         );
+
+        // Models may already have resolved (and memoised) their casts by now.
+        AbstractModel::flushCastsCache();
     }
 }
