@@ -11,7 +11,10 @@ namespace Flarum\Api\Endpoint\Concerns;
 
 use Closure;
 use Flarum\Api\Resource\AbstractDatabaseResource;
+use Flarum\Api\Schema\Relationship\ToMany;
+use Flarum\Api\Schema\Relationship\ToOne;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Tobyz\JsonApiServer\Context;
 
@@ -89,7 +92,9 @@ trait HasEagerLoading
      */
     protected function loadRelations(Collection $models, Context $context, array $included = []): void
     {
-        if (! $context->collection instanceof AbstractDatabaseResource) {
+        $resource = $context->collection;
+
+        if (! $resource instanceof AbstractDatabaseResource) {
             return;
         }
 
@@ -123,6 +128,74 @@ trait HasEagerLoading
 
         if (! empty($simpleRelations)) {
             $models->loadMissing($simpleRelations);
+        }
+
+        $this->setInverseRelations(
+            $models,
+            $context,
+            $resource,
+            array_merge(array_keys($whereRelations), $simpleRelations)
+        );
+    }
+
+    /**
+     * Point relations loaded above back at the models they were loaded for.
+     *
+     * The relationship buffer does this for the relations it loads (see
+     * EloquentBuffer::load()), but relations pre-loaded here arrive through
+     * loadMissing(), which wires nothing back — and the buffer then skips
+     * them because they are already loaded. Serializing such a related model
+     * re-fetched its parent one row at a time: every visibility check on an
+     * included firstPost read $post->discussion, which IS the discussion
+     * being listed.
+     *
+     * @param string[] $relations
+     */
+    private function setInverseRelations(Collection $models, Context $context, AbstractDatabaseResource $resource, array $relations): void
+    {
+        if ($models->isEmpty() || empty($relations)) {
+            return;
+        }
+
+        /** @var array<string, ToOne|ToMany> $fields */
+        $fields = array_filter(
+            $context->fields($resource),
+            fn ($field) => $field instanceof ToOne || $field instanceof ToMany
+        );
+
+        // Only the first segment of each loaded path is a relation of the
+        // models at hand; deeper segments belong to other parents.
+        $segments = array_unique(array_map(
+            fn (string $relation) => explode('.', $relation)[0],
+            $relations
+        ));
+
+        foreach ($segments as $segment) {
+            // A relationship field may expose the relation under a different
+            // name than the Eloquent relation used in eager load paths.
+            $field = collect($fields)->first(
+                fn (ToOne|ToMany $field) => ($field->property ?? $field->name) === $segment || $field->name === $segment
+            );
+
+            foreach ($models as $model) {
+                if (! $model->relationLoaded($segment)) {
+                    continue;
+                }
+
+                $related = $model->getRelation($segment);
+
+                if (! $related) {
+                    continue;
+                }
+
+                $inverse = $field->inverse ?? Str::camel(class_basename($model));
+
+                foreach ($related instanceof Collection ? $related : [$related] as $rel) {
+                    if ($rel instanceof Model && $rel->isRelation($inverse)) {
+                        $rel->setRelation($inverse, $model);
+                    }
+                }
+            }
         }
     }
 
