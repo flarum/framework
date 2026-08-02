@@ -5,7 +5,6 @@ import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
 import DiscussionListPane from './DiscussionListPane';
-import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
@@ -94,19 +93,24 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   }
 
   view() {
-    if (this.loading || !this.discussion) {
-      return <LoadingIndicator />;
-    }
+    // Keep the page shell rendered while the discussion loads. Bailing out to
+    // a bare loading indicator here blanks the whole layout on every
+    // discussion-to-discussion navigation — including the pinned discussion
+    // list pane, whose contents are already cached and need no network.
+    // PageStructure renders the spinner inside the main area and skips the
+    // hero/sidebar/content closures while `loading` is set, so none of them
+    // run without a discussion.
+    const loading = this.loading || !this.discussion;
 
     return (
       <PageStructure
         className="DiscussionPage"
-        loading={this.loading}
+        loading={loading}
         hero={this.hero.bind(this)}
         sidebar={this.sidebar.bind(this)}
         pane={() => <DiscussionListPane state={app.discussions} />}
       >
-        {this.loading || (
+        {loading || (
           <div className="DiscussionPage-stream">
             <this.PostStream discussion={this.discussion} stream={this.stream} onPositionChange={this.positionChanged.bind(this)} />
           </div>
