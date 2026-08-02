@@ -63,12 +63,17 @@ class DiscussionResourceFields
 
                     return function () use ($discussion, $context) {
                         if (! $discussion->relationLoaded('firstPost')) {
-                            $resource = $context->collection;
+                            // Look the relationship up on the discussions
+                            // resource itself — $context->collection is the
+                            // REQUEST's primary resource, which is a different
+                            // one whenever a sticky discussion is serialized
+                            // as an included resource (e.g. of a posts
+                            // request), and a null relationship sends the
+                            // buffer down its aggregate path.
+                            $resource = $context->api->getResource('discussions');
 
                             /** @var Schema\Relationship\ToOne|null $relationship */
-                            $relationship = $resource instanceof \Tobyz\JsonApiServer\Resource\Resource
-                                ? collect($context->fields($resource))->first(fn ($field) => $field->name === 'firstPost')
-                                : null;
+                            $relationship = collect($context->fields($resource))->first(fn ($field) => $field->name === 'firstPost');
 
                             EloquentBuffer::load($discussion, 'firstPost', $relationship, $context);
                         }
