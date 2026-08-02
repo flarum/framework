@@ -319,7 +319,15 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     return (
       <DiscussionListItemStatsItem
         className="DiscussionListItem-count"
-        icon={showUnread ? [<Icon name={'fas fa-check _checkmark'} />, <Icon name={'fas fa-comment _comment'} />] : <Icon name={'far fa-comment'} />}
+        icon={
+          showUnread ? (
+            // The solid comment against the read state's regular one is what
+            // signals unread, so it must keep its weight under a forced style.
+            [<Icon name={'fas fa-check _checkmark'} />, <Icon name={'fa-solid fa-comment _comment'} noStyleOverride />]
+          ) : (
+            <Icon name={'far fa-comment'} />
+          )
+        }
         label={showUnread ? abbreviateNumber(discussion.unreadCount()) : abbreviateNumber(discussion.replyCount())}
         ariaLabel={app.translator.trans(a11yKey, { count: discussion.unreadCount() })}
         onclick={showUnread ? this.markAsRead.bind(this) : undefined}
