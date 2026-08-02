@@ -141,6 +141,28 @@ class StickyExcerptTest extends TestCase
     }
 
     #[Test]
+    public function a_sticky_discussion_included_in_a_posts_payload_serializes_safely(): void
+    {
+        // The posts index default-includes each post's discussion. When that
+        // discussion is sticky, the excerpt field runs while the REQUEST's
+        // primary resource is posts — the relationship lookup must target the
+        // discussions resource explicitly, or the buffer is handed a null
+        // relationship and crashes down its aggregate path.
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 2])
+                ->withQueryParams(['filter' => ['discussion' => '1']])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $body = json_decode($response->getBody()->getContents(), true);
+        $discussions = array_values(array_filter($body['included'] ?? [], fn (array $r) => $r['type'] === 'discussions'));
+
+        $this->assertNotEmpty($discussions);
+        $this->assertSame('Welcome to the forum everyone', $discussions[0]['attributes']['firstPostExcerpt'] ?? null);
+    }
+
+    #[Test]
     public function disabling_the_excerpt_setting_removes_the_posts_query_entirely(): void
     {
         $this->setting('flarum-sticky.enable_display_excerpt', false);
