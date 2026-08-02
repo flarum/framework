@@ -91,13 +91,13 @@ class DialogMessage extends AbstractModel implements Formattable
             // being looked for, so a pointer that is missing is treated as one
             // that needs recomputing. That also repairs dialogs left pointing at
             // nothing by earlier deletions.
-            if ($dialog->first_message_id === null || $dialog->first_message_id == $message->id) {
+            if ($dialog->first_message_id === null || $dialog->first_message_id === $message->id) {
                 if ($first = $dialog->messages()->oldest('id')->first()) {
                     $dialog->setFirstMessage($first);
                 }
             }
 
-            if ($dialog->last_message_id === null || $dialog->last_message_id == $message->id) {
+            if ($dialog->last_message_id === null || $dialog->last_message_id === $message->id) {
                 if ($last = $dialog->messages()->latest('id')->first()) {
                     $dialog->setLastMessage($last);
                 }
