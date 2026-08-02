@@ -5,7 +5,11 @@ export interface TypingUserMap {
 }
 
 export interface TypingData {
-  displayName: string;
+  /**
+   * Null when the server withheld the identity: the user is hiding their online
+   * status and we are not permitted to see through it.
+   */
+  displayName: string | null;
   discloseOnline: boolean;
   time: number;
 }
@@ -29,15 +33,21 @@ export default class TypingState {
   protected truncationTimer: ReturnType<typeof setTimeout> | null = null;
 
   /**
-   * Record an incoming typing event. When the sender has not disclosed their
-   * online status, their name is replaced with the anonymous placeholder.
+   * Record an incoming typing event.
+   *
+   * Whether we are allowed to know who is typing is decided server-side — a name
+   * only reaches us if we are entitled to it — so this just renders what arrived.
+   * A hidden user we *are* permitted to see is labelled as such, so it's clear
+   * they are invisible to everyone else.
    */
   add(data: TypingData): void {
-    if (!data.discloseOnline) {
-      data.displayName = String(app.translator.trans('flarum-realtime.forum.typing-indicator.anonymous-user'));
-    }
+    const name = data.displayName
+      ? data.discloseOnline
+        ? data.displayName
+        : String(app.translator.trans('flarum-realtime.forum.typing-indicator.hidden-user', { username: data.displayName }))
+      : String(app.translator.trans('flarum-realtime.forum.typing-indicator.anonymous-user'));
 
-    this.usersTyping[data.displayName] = data.time;
+    this.usersTyping[name] = data.time;
     m.redraw();
   }
 

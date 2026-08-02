@@ -11,6 +11,12 @@ declare module 'flarum/common/Application' {
       user: Channel | null;
       /** Presence channel for the currently open discussion (typing indicator). */
       discussion?: Channel;
+      /**
+       * Companion to {@link discussion}, carrying the identities of users typing
+       * while hiding their online status. Only subscribable with core's
+       * `user.viewLastSeenAt` permission.
+       */
+      discussionIdentified?: Channel;
       /** Shared public channel feeding ambient typing dots on the discussion list. */
       indexTyping?: Channel;
       /** Per-restricted-tag channels feeding typing dots for restricted discussions. */

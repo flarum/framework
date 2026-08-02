@@ -12,6 +12,7 @@ namespace Flarum\Realtime\Websocket\Api;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Flarum\Realtime\Push\Payload\Generator;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -28,7 +29,8 @@ class AuthController implements RequestHandlerInterface
     public function __construct(
         protected Pusher $pusher,
         protected Generator $generator,
-        protected PresenceChannelAuthorizer $presenceAuthorizer
+        protected PresenceChannelAuthorizer $presenceAuthorizer,
+        protected SettingsRepositoryInterface $settings
     ) {
     }
 
@@ -98,6 +100,29 @@ class AuthController implements RequestHandlerInterface
     protected function privateMessageTyping(int $id): bool
     {
         return \Flarum\Messages\Dialog::whereVisibleTo($this->actor)->where('id', $id)->exists();
+    }
+
+    /**
+     * Authorize the channel that discloses who is typing while hiding their online
+     * status. `user.viewLastSeenAt` is core's override for the `discloseOnline`
+     * preference, so it gates this too — plus the ordinary requirements for seeing
+     * the typing indicator at all, since this channel carries nothing else.
+     *
+     * Doing it here means the permission is evaluated once per subscription, against
+     * a real actor in a normal request, rather than per event inside the websocket
+     * server. See {@link \Flarum\Realtime\Websocket\Message\Message::relayTyping()}.
+     */
+    protected function typingIdentified(int $id): bool
+    {
+        if (! $this->settings->get('flarum-realtime.typing-indicator')
+            || ! $this->actor->hasPermission('user.viewLastSeenAt')) {
+            return false;
+        }
+
+        $discussion = Discussion::whereVisibleTo($this->actor)->find($id);
+
+        return $discussion !== null
+            && $this->actor->can('flarum-realtime.view-who-types', $discussion);
     }
 
     /**
