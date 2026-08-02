@@ -21,6 +21,8 @@ use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
 use Flarum\User\Console\BackfillAvatarVariantsCommand;
 use Flarum\User\Console\ConvertAvatarsToWebpCommand;
+use Illuminate\Console\CacheCommandMutex;
+use Illuminate\Console\CommandMutex;
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Console\Scheduling\CacheEventMutex;
 use Illuminate\Console\Scheduling\CacheSchedulingMutex;
@@ -54,6 +56,10 @@ class ConsoleServiceProvider extends AbstractServiceProvider
         });
         $this->container->bind(SchedulingMutex::class, function ($container) {
             return new CacheSchedulingMutex($container->make(Factory::class));
+        });
+
+        $this->container->bind(CommandMutex::class, function ($container) {
+            return new CacheCommandMutex($container->make(Factory::class));
         });
 
         $this->container->singleton(LaravelSchedule::class, function (Container $container) {
