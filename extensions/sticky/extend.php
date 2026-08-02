@@ -46,10 +46,7 @@ return [
         ->type(DiscussionStickiedPost::class),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
-        ->fields(DiscussionResourceFields::class)
-        ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Index {
-            return $endpoint->addDefaultInclude(['firstPost']);
-        }),
+        ->fields(DiscussionResourceFields::class),
 
     (new Extend\Event())
         ->listen(DiscussionWasStickied::class, [Listener\CreatePostWhenDiscussionIsStickied::class, 'whenDiscussionWasStickied'])
