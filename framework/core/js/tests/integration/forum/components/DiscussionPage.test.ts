@@ -57,12 +57,18 @@ describe('DiscussionPage', () => {
   beforeAll(() => {
     bootstrapForum();
     app.boot();
+
   });
 
   beforeEach(() => {
     routeParams = {};
     findCalls = [];
     pendingFinds = [];
+
+    // The pane helper is created by ForumApplication when mounting the real
+    // app; the pane component's lifecycle hooks expect it to exist.
+    // @ts-ignore
+    app.pane = app.pane || { enable() {}, disable() {}, hide() {}, show() {}, onmouseleave() {}, togglePinned() {} };
 
     // @ts-ignore
     m.route.param = (key?: string) => (key ? routeParams[key] : routeParams);
@@ -114,6 +120,24 @@ describe('DiscussionPage', () => {
     const models = app.store.pushPayload<Post[]>(document as any);
     pending!.resolve(models);
   };
+
+  test('keeps the page structure while the discussion loads instead of blanking', () => {
+    // Navigating between discussions remounts the page. Rendering a bare
+    // loading indicator during the fetch blanks the whole layout — including
+    // the pinned discussion list pane, whose contents are already cached and
+    // need no network. The shell must stay; only the main area may spin.
+    seedDiscussionFromList();
+    routeParams = { id: '476-test-discussion' };
+
+    const page = mountPage();
+
+    // Nothing resolved yet: the page is loading. The pane slot must exist
+    // (its contents render whenever the list state has items), and the
+    // spinner must be inside the main area, not the whole page.
+    expect(page).toHaveElement('.DiscussionPage');
+    expect(page).toHaveElement('.Page-pane');
+    expect(page).toHaveElement('#page-main .LoadingIndicator');
+  });
 
   test('requests the discussion and the post window in parallel when the discussion is known', () => {
     seedDiscussionFromList();
