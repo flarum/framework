@@ -1,17 +1,50 @@
+// A pending post reads as de-emphasised in its entirety, as it always has. What
+// it must NOT do is carry `opacity` on the <article>: a value below 1 gives the
+// post its own stacking context, and nothing rendered inside it can escape that
+// — not with z-index, not with position: fixed. Every popup the post owns (the
+// user card and the meta dropdown in the header, the controls dropdown in the
+// actions) is drawn as part of that faded group, and the posts after it in the
+// stream paint over the top. The controls menu then cannot be clicked at all,
+// because the clicks land on the post underneath (#4505, and the same root
+// cause behind #4453, #4212, #3031, #950).
+//
+// So the fade is applied to the elements themselves rather than to their common
+// ancestor, and each popup's own container is left out of it. Every part of the
+// post a reader can see while its menus are closed is still at half strength.
 .Post--unapproved {
-  .Post-header, .Post-header a,
-  .PostUser .PostUser-name, .PostUser .PostUser-name a {
+  .Post-header,
+  .Post-header a,
+  .PostUser .PostUser-name,
+  .PostUser .PostUser-name a {
     color: var(--muted-more-color);
   }
+
   .Post-body,
   .Post-footer,
-  .Post-side > *,
   .PostUser-badges,
   .EventPost-icon,
   .EventPost-info {
     opacity: 0.5;
   }
+
+  // The avatar, not the link wrapping it: on 2.x the user card is a sibling
+  // inside the header, but keeping the fade on the image itself holds for any
+  // theme that moves the card inside that link.
+  .Post-avatar,
+  .PostUser-avatar {
+    opacity: 0.5;
+  }
+
+  // Reply, Like, and the controls toggle. Reached one level at a time so the
+  // menu the toggle opens, which is a sibling of it inside .Dropdown, keeps its
+  // own opacity. Fading .Post-actions wholesale would take the menu with it and
+  // put us back where we started.
+  .Post-actions > ul > li > .Button,
+  .Post-controls > .Dropdown-toggle {
+    opacity: 0.5;
+  }
 }
+
 .DiscussionListItem--unapproved {
   .DiscussionListItem--hidden();
 }
