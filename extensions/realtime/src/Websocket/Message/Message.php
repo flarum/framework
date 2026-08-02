@@ -11,6 +11,7 @@ namespace Flarum\Realtime\Websocket\Message;
 
 use Flarum\Realtime\Websocket\Channel\Manager;
 use Flarum\Realtime\Websocket\IndexTypingPresence;
+use Flarum\Realtime\Websocket\TypingIdentity;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use stdClass;
@@ -27,16 +28,28 @@ class Message
             return;
         }
 
-        $channel = $this->manager->find($this->payload->channel);
+        if (! $this->relayTyping()) {
+            $channel = $this->manager->find($this->payload->channel);
 
-        $channel->broadcastToEveryoneExcept(
-            $this->payload,
-            /** @phpstan-ignore-next-line */
-            $this->connection->socketId
-        );
+            $channel->broadcastToEveryoneExcept(
+                $this->payload,
+                /** @phpstan-ignore-next-line */
+                $this->connection->socketId
+            );
+        }
 
         $this->relayIndexTyping();
         $this->relayComposeTyping();
+    }
+
+    /**
+     * The channel carrying the identities of users who are typing while hiding their
+     * online status. Subscription requires `user.viewLastSeenAt` — see
+     * {@link \Flarum\Realtime\Websocket\Api\AuthController::typingIdentified()}.
+     */
+    public static function identifiedTypingChannel(int $discussionId): string
+    {
+        return "private-typingIdentified=$discussionId";
     }
 
     /**
@@ -73,6 +86,98 @@ class Message
         $channel = $this->manager->find($channelName);
 
         return $channel !== null && $channel->hasConnection($this->connection);
+    }
+
+    /**
+     * Relay a discussion typing event, disclosing the typist's identity to exactly
+     * the audience entitled to it. Returns false for anything that isn't discussion
+     * typing, so the caller falls back to the plain relay.
+     *
+     * Core treats `user.viewLastSeenAt` as the override for a user's `discloseOnline`
+     * preference (see UserResource's `lastSeenAt` visibility). Typing is the one place
+     * that override wasn't honoured, because the name was scrubbed at the sender and
+     * so never reached anyone. It can't simply be scrubbed at the *receiver* either:
+     * `private-typing={id}` is subscribable by everyone who can see the discussion, so
+     * a name broadcast there is a name disclosed to all of them.
+     *
+     * Hence the split. When the typist is hiding:
+     *
+     *   - the full payload goes to the identified channel, which only holders of the
+     *     permission can subscribe to;
+     *   - an anonymised payload (no name at all) goes to the discussion channel,
+     *     skipping the identified channel's subscribers so a privileged viewer sees
+     *     one event rather than a name and an `[Anonymous]` for the same person.
+     *
+     * When the typist is disclosing, the single existing broadcast is unchanged. When
+     * nobody privileged is listening, the identified channel doesn't exist and the
+     * behaviour is exactly as before.
+     *
+     * Neither the name nor the preference is taken from the payload — both are looked
+     * up from the identity the connection authenticated with, so a modified client
+     * can't put words in another user's mouth (which it could, before this). An
+     * unidentifiable sender fails closed to anonymous.
+     */
+    protected function relayTyping(): bool
+    {
+        if ($this->payload->event !== 'client-typing'
+            || ! preg_match('/^private-typing=(\d+)$/', $this->payload->channel, $m)) {
+            return false;
+        }
+
+        $discussionId = (int) $m[1];
+        /** @phpstan-ignore-next-line */
+        $sender = $this->connection->socketId;
+
+        $userId = $this->manager->userIdForConnection($this->connection);
+        $identity = $userId !== null ? resolve(TypingIdentity::class)->for($userId) : null;
+
+        $channel = $this->manager->find($this->payload->channel);
+
+        if ($identity !== null && $identity['discloseOnline']) {
+            $channel->broadcastToEveryoneExcept(
+                $this->typingPayload($this->payload->channel, $identity['displayName'], true),
+                $sender
+            );
+
+            return true;
+        }
+
+        $identified = $this->manager->find(self::identifiedTypingChannel($discussionId));
+
+        if ($identified && $identity !== null) {
+            $identified->broadcastToEveryoneExcept(
+                $this->typingPayload($identified->getName(), $identity['displayName'], false),
+                $sender
+            );
+        }
+
+        $channel->broadcastToEveryoneExcept(
+            $this->typingPayload($this->payload->channel, null, false),
+            array_merge([$sender], $identified ? $identified->socketIds() : [])
+        );
+
+        return true;
+    }
+
+    /**
+     * Build a typing payload. The shape is unchanged, so existing `client-typing`
+     * listeners (including the copy in flarum/messages, whose own channel this
+     * doesn't touch) keep working; a null `displayName` is the anonymised form.
+     *
+     * `time` is passed through from the sender: it feeds the frontend's expiry
+     * countdown against the *receiving* browser's clock, exactly as before.
+     */
+    protected function typingPayload(string $channel, ?string $displayName, bool $discloseOnline): stdClass
+    {
+        return (object) [
+            'event' => 'client-typing',
+            'channel' => $channel,
+            'data' => [
+                'displayName' => $displayName,
+                'discloseOnline' => $discloseOnline,
+                'time' => $this->payload->data->time ?? null,
+            ],
+        ];
     }
 
     /**

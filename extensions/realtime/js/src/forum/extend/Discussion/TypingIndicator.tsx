@@ -31,11 +31,10 @@ export default function (): void {
     this.discussion.typingState = new TypingState();
 
     this.actorIsTyping = (): void => {
-      const discloseOnline = app.session.user?.preferences()?.discloseOnline;
-
+      // Nothing identifying is sent: the server resolves who we are from the
+      // connection's authenticated user channel, and decides which audience may
+      // learn it. `time` drives the receiving client's expiry countdown.
       app.websocket_channels.discussion?.trigger('client-typing', {
-        displayName: discloseOnline ? app.session.user?.displayName() : '[anonymous]',
-        discloseOnline,
         time: Date.now(),
       });
     };
@@ -60,12 +59,27 @@ export default function (): void {
     }
 
     if (this.discussion) {
-      app.websocket_channels.discussion = app.websocket.subscribe('private-typing=' + m.route.param('id').match(/[0-9]+/));
+      const discussionId = m.route.param('id').match(/[0-9]+/);
+
+      app.websocket_channels.discussion = app.websocket.subscribe('private-typing=' + discussionId);
 
       if (this.discussion.attribute('canViewWhoTypes')) {
         app.websocket_channels.discussion.bind('client-typing', (data: TypingData) => {
           this.discussion.typingState?.add(data);
         });
+
+        // Users who may see through a hidden online status (core's
+        // `user.viewLastSeenAt`) also listen on the channel that names hidden
+        // typists. Subscription is authorised server-side; the attribute just
+        // avoids asking for a channel we'd be refused. Anonymised events for
+        // those same typists are not sent here, so there's nothing to de-duplicate.
+        if (app.session.user?.attribute('canViewHiddenTypers')) {
+          app.websocket_channels.discussionIdentified = app.websocket.subscribe('private-typingIdentified=' + discussionId);
+
+          app.websocket_channels.discussionIdentified.bind('client-typing', (data: TypingData) => {
+            this.discussion.typingState?.add(data);
+          });
+        }
       }
     }
   });

@@ -64,6 +64,19 @@ return [
 
                     return $settings->get('flarum-realtime.typing-indicator')
                         && $context->getActor()->hasPermissionLike('flarum-realtime.view-who-types');
+                }),
+
+            // Whether to also subscribe to the channel that names users who are typing
+            // while hiding their online status. The channel is authorized server-side
+            // regardless (see AuthController::typingIdentified); this only saves the
+            // client a subscription it would be refused.
+            Schema\Boolean::make('canViewHiddenTypers')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->get(function (User $model, Context $context) {
+                    $settings = resolve(SettingsRepositoryInterface::class);
+
+                    return $settings->get('flarum-realtime.typing-indicator')
+                        && $context->getActor()->hasPermission('user.viewLastSeenAt');
                 })
         ]),
 

@@ -73,6 +73,18 @@ class Channel
         return $this->name;
     }
 
+    /**
+     * The socket IDs currently subscribed to this channel. Used to exclude one
+     * channel's audience from another channel's broadcast — see
+     * {@link \Flarum\Realtime\Websocket\Message\Message::relayTyping()}.
+     *
+     * @return string[]
+     */
+    public function socketIds(): array
+    {
+        return array_keys($this->connections);
+    }
+
     public function broadcast(stdClass $payload): bool
     {
         collect($this->connections)
@@ -81,14 +93,19 @@ class Channel
         return true;
     }
 
-    public function broadcastToEveryoneExcept(stdClass $payload, ?string $socketId): bool
+    /**
+     * @param string|string[]|null $socketIds One or more socket IDs to skip.
+     */
+    public function broadcastToEveryoneExcept(stdClass $payload, string|array|null $socketIds): bool
     {
-        if (! $socketId) {
+        $socketIds = array_filter((array) $socketIds);
+
+        if (empty($socketIds)) {
             return $this->broadcast($payload);
         }
 
         collect($this->connections)
-            ->except($socketId)
+            ->except($socketIds)
             ->each->send(json_encode($payload));
 
         return true;
