@@ -97,6 +97,16 @@ export default function addTagFilter() {
     }
   });
 
+  // Name the current tag in the index title control. The nav dropdown only falls
+  // back to this label when none of its items is active, so it surfaces exactly
+  // when the current tag has no item in the sidebar nav, which is the case for
+  // any secondary tag outside the 3 most discussed ones.
+  extend(IndexPage.prototype, 'view', function () {
+    const tag = app.currentTag();
+
+    if (tag) app.current.set('titleControlLabel', tag.name());
+  });
+
   // If currently viewing a tag, restyle the 'new discussion' button to use
   // the tag's color, and disable if the user isn't allowed to edit.
   extend(IndexSidebar.prototype, 'items', function (items) {
