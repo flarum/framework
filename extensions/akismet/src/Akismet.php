@@ -10,22 +10,40 @@
 namespace Flarum\Akismet;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
 
 class Akismet
 {
-    private string $apiUrl;
+    /**
+     * Akismet's current API form: one fixed host, with the key sent as a POST
+     * parameter. The legacy {key}.rest.akismet.com subdomain form leaked the
+     * secret key into DNS lookups and TLS SNI on every request.
+     */
+    private const API_URL = 'https://rest.akismet.com/1.1';
+
+    /**
+     * Spam checking runs inside the user's own request, so a hanging Akismet
+     * must never hang the forum: keep the timeout short and let callers fail
+     * open when it trips.
+     */
+    private const TIMEOUT_SECONDS = 3;
+
     private array $params = [];
+
+    private ?ClientInterface $client;
 
     public function __construct(
         private readonly string $apiKey,
         string $homeUrl,
         private readonly string $flarumVersion,
         private readonly string $extensionVersion,
-        bool $inDebugMode = false
+        bool $inDebugMode = false,
+        ?ClientInterface $client = null
     ) {
-        $this->apiUrl = "https://$apiKey.rest.akismet.com/1.1";
+        $this->client = $client;
+        $this->params['api_key'] = $apiKey;
         $this->params['blog'] = $homeUrl;
 
         if ($inDebugMode) {
@@ -39,32 +57,58 @@ class Akismet
     }
 
     /**
-     * @param  string  $type  e.g. comment-check, submit-spam or submit-ham;
+     * @param  string  $type  e.g. comment-check, verify-key, submit-spam or submit-ham
+     * @param  array  $overrides  parameters overriding the accumulated ones for this request only
      * @throws GuzzleException
      */
-    protected function sendRequest(string $type): ResponseInterface
+    protected function sendRequest(string $type, array $overrides = []): ResponseInterface
     {
-        $client = new Client();
+        $client = $this->client ??= new Client();
 
-        return $client->request('POST', "$this->apiUrl/$type", [
+        return $client->request('POST', self::API_URL."/$type", [
             'headers' => [
                 'User-Agent' => "Flarum/$this->flarumVersion | Akismet/$this->extensionVersion",
             ],
-            'form_params' => $this->params,
+            'form_params' => array_merge($this->params, $overrides),
+            'timeout' => self::TIMEOUT_SECONDS,
+            'connect_timeout' => self::TIMEOUT_SECONDS,
         ]);
     }
 
     /**
-     * @throws GuzzleException
+     * @return array{isSpam: bool, proTip: string}
+     *
+     * @throws GuzzleException on network failure
+     * @throws AkismetUnexpectedResponseException when Akismet rejects the request
+     *         (e.g. a misconfigured key) — never silently treated as ham.
      */
     public function checkSpam(): array
     {
         $response = $this->sendRequest('comment-check');
 
+        $body = $response->getBody()->getContents();
+
+        if ($body !== 'true' && $body !== 'false') {
+            throw new AkismetUnexpectedResponseException($body, $response->getHeaderLine('X-akismet-debug-help'));
+        }
+
         return [
-            'isSpam' => $response->getBody()->getContents() === 'true',
+            'isSpam' => $body === 'true',
             'proTip' => $response->getHeaderLine('X-akismet-pro-tip'),
         ];
+    }
+
+    /**
+     * Check a key against Akismet's verify-key endpoint. Pass a candidate key
+     * to validate it before it is saved; defaults to the configured key.
+     *
+     * @throws GuzzleException
+     */
+    public function verifyKey(?string $candidateKey = null): bool
+    {
+        $response = $this->sendRequest('verify-key', $candidateKey !== null ? ['api_key' => $candidateKey] : []);
+
+        return $response->getBody()->getContents() === 'valid';
     }
 
     /**
@@ -206,6 +250,14 @@ class Akismet
     public function withLanguage(string $language): Akismet
     {
         return $this->withParam('blog_lang', $language);
+    }
+
+    /**
+     * The character encoding for the form values included in comment_* parameters, such as UTF-8 or ISO-8859-1.
+     */
+    public function withCharset(string $charset): Akismet
+    {
+        return $this->withParam('blog_charset', $charset);
     }
 
     /**

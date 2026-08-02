@@ -10,6 +10,7 @@ flarum-akismet:
     # These translations are used in the Akismet Settings.
     akismet_settings:
       api_key_label: API Key
+      invalid_api_key_message: Akismet rejected this API key. Check it against your Akismet account and try again.
       title: Akismet Settings
       delete_blatant_spam_label: Automatically delete blatant spam
       delete_blatant_spam_help: If Akismet has determined that the comment is blatant spam, instead of flagging, automatically delete post
