@@ -158,6 +158,7 @@ class Assets
 
         if ($this->lessImportDirs) {
             $compiler->setImportDirs($this->lessImportDirs);
+            $compiler->setFontsDir($this->fontsDir());
         }
 
         if ($this->lessImportOverrides) {
@@ -171,6 +172,26 @@ class Assets
         $compiler->setCustomFunctions($this->customFunctions);
 
         return $compiler;
+    }
+
+    /**
+     * Where the webfonts referenced by the compiled CSS live on disk, so their
+     * URLs can be revisioned. Font URLs are written relative to the stylesheet
+     * that imports them (`../webfonts/…`), so the fonts sit beside each LESS
+     * import directory — that is the same directory the assets publisher copies
+     * into `assets/fonts`.
+     */
+    protected function fontsDir(): ?string
+    {
+        foreach (array_keys($this->lessImportDirs ?? []) as $dir) {
+            $candidate = dirname($dir).'/webfonts';
+
+            if (is_dir($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     protected function makeJsDirectoryCompiler(string $string): JsDirectoryCompiler

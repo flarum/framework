@@ -24,10 +24,20 @@ class LessCompiler extends RevisionCompiler
     protected array $customFunctions = [];
     protected ?Collection $lessImportOverrides = null;
     protected ?Collection $fileSourceOverrides = null;
+    protected ?string $fontsDir = null;
 
     public function getCacheDir(): string
     {
         return $this->cacheDir;
+    }
+
+    /**
+     * The directory holding the webfonts that get published to `assets/fonts`.
+     * Used to revision the font URLs emitted into the compiled CSS.
+     */
+    public function setFontsDir(?string $fontsDir): void
+    {
+        $this->fontsDir = $fontsDir;
     }
 
     public function setCacheDir(string $cacheDir): void
@@ -137,9 +147,69 @@ class LessCompiler extends RevisionCompiler
         }
     }
 
+    /**
+     * Point font URLs at the published `assets/fonts` directory, and stamp each
+     * with a revision derived from the font file itself.
+     *
+     * The stylesheet is already cache-busted (`forum.css?v=<rev>`), but the font
+     * URLs inside it were not. On a FontAwesome major upgrade every browser
+     * therefore picked up the new CSS immediately while continuing to serve the
+     * *previous* font file from cache — same filename, same URL, long max-age.
+     * The new CSS asks for codepoints the old font doesn't contain, so every
+     * icon rendered as a placeholder box until that cache entry happened to
+     * expire. Revisioning the URL means a changed font is always a new URL, for
+     * browser and CDN caches alike.
+     *
+     * Because the asset revision is a hash of this compiled output, a font
+     * change also moves the stylesheet's own revision — so connected clients get
+     * the usual "reload for the new version" prompt without any extra wiring.
+     */
     protected function finalize(string $parsedCss): string
     {
-        return str_replace('url("../webfonts/', 'url("./fonts/', $parsedCss);
+        return preg_replace_callback(
+            '~url\("\.\./webfonts/([^"?#]+)([^"]*)"\)~',
+            function (array $matches): string {
+                [, $file, $suffix] = $matches;
+
+                $revision = $this->fontRevision($file);
+
+                // Preserve any existing query/fragment (e.g. `#iefix`), and
+                // don't add a second `?` if one is already there.
+                if ($revision !== null) {
+                    $suffix .= (str_contains($suffix, '?') ? '&' : '?')."v=$revision";
+                }
+
+                return 'url("./fonts/'.$file.$suffix.'")';
+            },
+            $parsedCss
+        ) ?? $parsedCss;
+    }
+
+    /**
+     * A short hash of a webfont's contents, or null when it can't be read —
+     * fonts are published separately, so a compile must never fail just because
+     * the directory isn't there yet.
+     */
+    protected function fontRevision(string $file): ?string
+    {
+        if ($this->fontsDir === null) {
+            return null;
+        }
+
+        // Defend the filesystem read against anything unexpected in the URL.
+        if (basename($file) !== $file) {
+            return null;
+        }
+
+        $path = $this->fontsDir.'/'.$file;
+
+        if (! file_exists($path)) {
+            return null;
+        }
+
+        $hash = @hash_file('xxh128', $path);
+
+        return $hash === false ? null : $hash;
     }
 
     /**
