@@ -1,4 +1,5 @@
 import app from 'flarum/forum/app';
+import extractText from 'flarum/common/utils/extractText';
 
 export interface TypingUserMap {
   [displayName: string]: number;
@@ -41,11 +42,13 @@ export default class TypingState {
    * they are invisible to everyone else.
    */
   add(data: TypingData): void {
+    // extractText, not String(): an interpolated translation comes back as an
+    // array of parts, which String() would join with commas.
     const name = data.displayName
       ? data.discloseOnline
         ? data.displayName
-        : String(app.translator.trans('flarum-realtime.forum.typing-indicator.hidden-user', { username: data.displayName }))
-      : String(app.translator.trans('flarum-realtime.forum.typing-indicator.anonymous-user'));
+        : extractText(app.translator.trans('flarum-realtime.forum.typing-indicator.hidden-user', { username: data.displayName }))
+      : extractText(app.translator.trans('flarum-realtime.forum.typing-indicator.anonymous-user'));
 
     this.usersTyping[name] = data.time;
     m.redraw();
