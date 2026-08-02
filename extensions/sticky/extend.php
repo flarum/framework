@@ -7,7 +7,6 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
