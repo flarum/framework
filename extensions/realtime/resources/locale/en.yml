@@ -4,7 +4,7 @@ flarum-realtime:
             discussion-list-new-activity: "{count, plural, one {Show # updated discussion} other {Show # updated discussions}}"
             discussion-list-new-activity-with-auto-release: "{count, plural, one {# discussion has} other {# discussions have}} updated activity and will be released in {releaseTimeout} seconds. Click to show now."
         typing-indicator:
-            anonymous-user: "[Anonymous]"
+            anonymous-user: "[Hidden]"
             hidden-user: "{username} (hidden)"
             people-are-typing: "{number, plural, one {# person is typing} other {# people are typing}}"
             users-are-typing: "{count, plural, one {{users} is typing} other {{users}{others, plural, =1 { & # other} =0 {} other { & # others}} are typing}}"
