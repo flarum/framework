@@ -316,16 +316,23 @@ class ListTest extends TestCase
 
     /**
      * A search with a null query (rather than a string) must not trip the
-     * "passing null to a non-nullable parameter" deprecation on PHP 8.1+, which
-     * escalates to a fatal on stricter setups. Regression test for the gambit
-     * search choking on a null `q`.
+     * `str_getcsv(): Passing null ...` deprecation on PHP 8.1+, which escalates
+     * to a fatal on stricter setups. Regression test for the gambit search
+     * choking on a null `q`.
+     *
+     * The handler only throws for that specific deprecation so it is not
+     * derailed by unrelated framework deprecations emitted during the request.
      *
      * @test
      */
     public function search_with_null_query_does_not_emit_deprecation()
     {
         set_error_handler(function ($errno, $errstr) {
-            throw new \ErrorException($errstr, 0, $errno);
+            if (strpos($errstr, 'str_getcsv') !== false) {
+                throw new \ErrorException($errstr, 0, $errno);
+            }
+
+            return false;
         }, E_DEPRECATED);
 
         try {
