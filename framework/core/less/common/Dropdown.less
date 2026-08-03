@@ -56,6 +56,17 @@
         align-items: flex-start;
       }
 
+      // Gambit rows document the query syntax rather than naming a command, and
+      // the value of `is:` is every boolean gambit joined together — it grows
+      // with each extension that registers one, so there is no width at which
+      // ellipsising it stays useful. Declared here to override the single-line
+      // defaults above at equal specificity.
+      &.GambitsAutocomplete-gambit {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+      }
+
       &.disabled {
         opacity: 0.4;
         background: none !important;
@@ -247,22 +258,37 @@
 .GambitsAutocomplete {
   &-gambit {
     display: flex;
-    align-items: center;
+    // A wrapped value makes the row taller than one line, so the actions align
+    // to the first line rather than to the middle of the whole row.
+    align-items: flex-start;
 
     > button {
       flex-grow: 1;
+      // Without this the button refuses to shrink below the intrinsic width of
+      // its text, so a long value pushes the row out of the dropdown instead of
+      // wrapping inside it.
+      min-width: 0;
       cursor: pointer;
       gap: 4px;
       display: flex;
-      align-items: center;
+      flex-wrap: wrap;
+      align-items: baseline;
+      text-align: start;
       padding: 8px 15px;
       margin: -8px 0 -8px -15px;
     }
     &-key {
       font-weight: bold;
+      // The key is the label the row is identified by, so it keeps its line
+      // and the value wraps around it.
+      flex-shrink: 0;
     }
     &-value {
       color: var(--control-color);
+      // See the note above: wrap rather than overflow, and break a single
+      // over-long token rather than let it escape the panel.
+      min-width: 0;
+      overflow-wrap: break-word;
     }
     &-actions {
       flex-shrink: 0;
