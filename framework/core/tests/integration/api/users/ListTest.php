@@ -313,4 +313,33 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
         $this->assertEquals([], Arr::pluck($data, 'id'));
     }
+
+    /**
+     * A search with a null query (rather than a string) must not trip the
+     * "passing null to a non-nullable parameter" deprecation on PHP 8.1+, which
+     * escalates to a fatal on stricter setups. Regression test for the gambit
+     * search choking on a null `q`.
+     *
+     * @test
+     */
+    public function search_with_null_query_does_not_emit_deprecation()
+    {
+        set_error_handler(function ($errno, $errstr) {
+            throw new \ErrorException($errstr, 0, $errno);
+        }, E_DEPRECATED);
+
+        try {
+            $response = $this->send(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 1,
+                ])->withQueryParams([
+                    'filter' => ['q' => null],
+                ])
+            );
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
 }
