@@ -84,7 +84,13 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
     const ReplyPlaceholder = this.replyPlaceholderComponent();
     const LoadingPost = this.loadingPostComponent();
 
-    if (messages[0].id() !== (this.attrs.dialog.data.relationships?.firstMessage.data as ModelIdentifier).id) {
+    // A dialog without a first or last message has nothing to load in that
+    // direction, and reading straight through the missing relationship would
+    // take the whole conversation down with it.
+    const firstMessageId = this.attrs.dialog.messageRelationshipId('firstMessage');
+    const lastMessageId = this.attrs.dialog.messageRelationshipId('lastMessage');
+
+    if (firstMessageId && messages[0]?.id() !== firstMessageId) {
       items.push(
         <div className="MessageStream-item" key="loadNext">
           <Button
@@ -108,7 +114,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
 
     messages.forEach((message, index) => items.push(this.messageItem(message, index)));
 
-    if (messages[messages.length - 1].id() !== (this.attrs.dialog.data.relationships?.lastMessage.data as ModelIdentifier).id) {
+    if (lastMessageId && messages[messages.length - 1]?.id() !== lastMessageId) {
       if (LoadingPost) {
         items.push(
           <div className="MessageStream-item" key="loading-prev">
@@ -167,7 +173,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
   }
 
   timeGap(message: DialogMessage): Mithril.Children {
-    if (message.id() === (this.attrs.dialog.data.relationships?.firstMessage.data as ModelIdentifier).id) {
+    if (message.id() === this.attrs.dialog.messageRelationshipId('firstMessage')) {
       this.lastTime = message.createdAt()!;
 
       return (

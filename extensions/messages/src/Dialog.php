@@ -43,6 +43,8 @@ class Dialog extends AbstractModel
     protected $table = 'dialogs';
 
     protected $casts = [
+        'first_message_id' => 'integer',
+        'last_message_id' => 'integer',
         'last_message_at' => 'datetime'
     ];
 
