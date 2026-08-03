@@ -85,9 +85,27 @@ class Discussion
                 ($queryString ? '?'.$queryString : '');
         };
 
+        // Ask for the posts this page is supposed to show, instead of sifting the
+        // included resources for anything post-shaped. Extensions register their
+        // own post relationships on this endpoint: flarum/mentions includes
+        // posts.mentionedBy along with posts.mentionedBy.discussion, so every post
+        // that quoted a post on this page arrives as a full post, with a discussion
+        // relationship and rendered content, and is indistinguishable from the
+        // page's own posts once it is in `included`. That is how quoted posts ended
+        // up printed on pages they do not belong to, and printed again on the page
+        // they do.
+        $postsApiDocument = $this->getPostsApiDocument($request, [
+            'filter' => ['discussion' => $apiDocument->data->id],
+            'sort' => 'number',
+            'page' => [
+                'offset' => ($page - 1) * 20,
+                'limit' => 20,
+            ],
+        ]);
+
         $posts = [];
 
-        foreach ($apiDocument->included as $resource) {
+        foreach ($postsApiDocument->data as $resource) {
             if ($resource->type === 'posts' && isset($resource->relationships->discussion) && isset($resource->attributes->contentHtml)) {
                 $posts[] = $resource;
             }
@@ -129,6 +147,23 @@ class Discussion
         if ($statusCode === 404) {
             throw new RouteNotFoundException;
         }
+
+        return json_decode($response->getBody());
+    }
+
+    /**
+     * Get the result of an API request to list one page of a discussion's posts.
+     *
+     * The primary data of this response is exactly the posts being asked for, so
+     * unlike the discussion endpoint's `included`, extensions cannot add posts of
+     * their own to it.
+     */
+    protected function getPostsApiDocument(Request $request, array $params)
+    {
+        $response = $this->api
+            ->withParentRequest($request)
+            ->withQueryParams($params)
+            ->get('/posts');
 
         return json_decode($response->getBody());
     }
