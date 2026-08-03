@@ -320,15 +320,16 @@ class ListTest extends TestCase
      * to a fatal on stricter setups. Regression test for the gambit search
      * choking on a null `q`.
      *
-     * The handler only throws for that specific deprecation so it is not
-     * derailed by unrelated framework deprecations emitted during the request.
+     * The handler only throws for the "passing null" deprecation so it is not
+     * derailed by unrelated deprecations emitted during the request — including
+     * PHP 8.5's separate deprecation of str_getcsv()'s default $escape argument.
      *
      * @test
      */
     public function search_with_null_query_does_not_emit_deprecation()
     {
         set_error_handler(function ($errno, $errstr) {
-            if (strpos($errstr, 'str_getcsv') !== false) {
+            if (strpos($errstr, 'Passing null') !== false) {
                 throw new \ErrorException($errstr, 0, $errno);
             }
 
