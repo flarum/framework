@@ -70,6 +70,17 @@ export default class Navigation extends Component {
         className={classList('Button Button--icon Navigation-pin', { active: pane.pinned })}
         onclick={pane.togglePinned.bind(pane)}
         icon="fas fa-thumbtack"
+        // The label names the control and stays put; `aria-pressed` carries
+        // whether it is currently on. Swapping the label for the action instead
+        // ("Pin"/"Unpin") would leave a screen reader reading a button whose
+        // name changes under it, with the state only ever implied.
+        //
+        // Stringified deliberately: Mithril treats a boolean as an HTML boolean
+        // attribute, so `false` omits it altogether and `true` renders it empty.
+        // ARIA needs the words, and an absent `aria-pressed` makes this read as
+        // a plain button rather than a toggle that happens to be off.
+        aria-label={app.translator.trans('core.lib.nav.pin_pane_button')}
+        aria-pressed={pane.pinned ? 'true' : 'false'}
       />
     );
   }
