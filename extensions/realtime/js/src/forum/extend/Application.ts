@@ -173,8 +173,22 @@ export default function () {
     // Refresh the data that realtime events would have kept current. Pusher
     // has no server-side buffering: anything that fired while the socket was
     // down is lost, so on reconnect the UI has to catch up by refetching.
+    //
+    // Nobody asked for this refetch, so it must not be visible as one.
+    // `refresh()` empties the list and shows its loading state before the
+    // request goes out, which meant returning to a backgrounded tab — every
+    // time, on iOS, where the reconnect is unconditional — made the discussions
+    // vanish behind a spinner and lose their scroll position. `revalidate()`
+    // leaves the list on screen and swaps the results in when they land.
     const catchUp = (): void => {
-      (app as any).discussions?.refresh?.();
+      const discussions = (app as any).discussions;
+
+      if (discussions?.revalidate) {
+        discussions.revalidate();
+      } else {
+        // Older core without `revalidate()`. Still better than nothing.
+        discussions?.refresh?.();
+      }
 
       const discussion = app.current.get('discussion');
       const stream = app.current.get('stream');
