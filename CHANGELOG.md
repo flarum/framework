@@ -1,5 +1,14 @@
 # Changelog
 
+## [v1.8.18](https://github.com/flarum/framework/compare/v1.8.17...v1.8.18)
+### Added
+* Setting to disable sticky pinning on the All Discussions page (https://github.com/flarum/framework/pull/4607)
+### Fixed
+* No-JS discussion page rendering posts from other pages (https://github.com/flarum/framework/pull/4852)
+* Handle network connection loss in the frontend (https://github.com/flarum/framework/pull/4843)
+* Search with an empty query triggering a `str_getcsv` deprecation on PHP 8.1+ (https://github.com/flarum/framework/pull/4812)
+* [Mentions] Prevent deleted fallback for unsynced posts during formatting (https://github.com/flarum/framework/pull/4826)
+
 ## [v1.8.17](https://github.com/flarum/framework/compare/v1.8.16...v1.8.17)
 ### Added
 * First-party Audit extension (https://github.com/flarum/framework/pull/4704)
