@@ -953,6 +953,7 @@ core:
     # These translations are used in the navigation header.
     nav:
       drawer_button: Open Navigation Drawer
+      pin_pane_button: Pin Discussion List
 
     # These translations are used in forum & admin notices.
     notices:
