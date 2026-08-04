@@ -1,0 +1,50 @@
+/*!
+ * A blank stand-in for the bundled FontAwesome fonts, used when the real icons
+ * come from a Kit or CDN.
+ *
+ * The icon glyph definitions resolve their font through a chain that ends in a
+ * hardcoded 'Font Awesome 7 Free'. When the bundled Free fonts are compiled in
+ * alongside a Kit or Pro CDN, every icon is resolved twice — first against the
+ * bundled font, then again when the remote stylesheet lands — and readers see
+ * that second pass as the icons flickering (or, under a forced style, as
+ * placeholder boxes, since Free lacks most non-solid glyphs). Naming a font
+ * that does not exist is no better: the browser falls through to the default
+ * font, which draws each icon's private-use codepoint as a visible box.
+ *
+ * So the name resolves to this: a real font that draws nothing. Every
+ * FontAwesome codepoint (U+E000-F8FF and U+F0000-FFFFD) maps to a single empty
+ * glyph with a 0.9em advance, so icons hold their space and paint no pixels
+ * until the remote font arrives. The remote stylesheet declares later
+ * same-descriptor faces, which take precedence, so the handover needs no
+ * further machinery.
+ *
+ * The payload is 312 bytes and should never need rebuilding — its only inputs
+ * are the private use ranges, which Unicode fixes, and the advance width. To
+ * reproduce it with fontTools:
+ *
+ *   - FontBuilder(1000, isTTF=True), glyph order [".notdef", "blank"]
+ *   - both glyphs empty, horizontal metrics (900, 0) for each
+ *   - hhea ascent 800, descent -200; name family "Flarum FA Blank"
+ *   - a format 13 cmap subtable (3, 10) mapping every codepoint in
+ *     U+E000-F8FF and U+F0000-FFFFD to "blank", plus a format 4 subtable
+ *     (3, 1) holding one token entry
+ *   - assign the cmap table before setupOS2(), which asserts on its absence
+ *   - give ".notdef" a degenerate zero-area contour rather than no outline at
+ *     all: a truly empty glyf table is a zero-length table, which OTS rejects
+ *     as malformed and the browser then refuses the font outright
+ *   - flavor = "woff2", save, base64
+ */
+@font-face {
+  font-family: "Font Awesome 7 Free";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("data:font/woff2;base64,d09GMgABAAAAAAE4AAoAAAAAAqgAAADwAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAABmAAXAoQMgE2AiQDBgsGAAQgBXgHLBsRAiCeA27bRM1ncM78PDmDmIhdn37F8/V73bm7L9QmmS8ZX11pWsUKEC5GRjEIWZq6TTSVpfpyuqHIghjcRQ5vgP/6y5nBA6mT41OLPAAsyywQjCMrwAgTyG1s6nJoJ+g0a6vueTYzUBxgwE0Dlmqga3qyAABMoLTgSNvAuWHCMKSJhucQAdvgDFAs8RFiF7v/vwgoMBAUGjBAqAQgCC8OX9duX+t+h7ctPgqAViCM6XNjIRNJz0FQSkABAGC4FBC7CCirdrWMdXHqpEzKjvNnMSvg9qbbrktdozmhVAI8M3BP6Lmm7ShCqVMoUrM1AAAA") format("woff2");
+}
+@font-face {
+  font-family: "Font Awesome 7 Free";
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url("data:font/woff2;base64,d09GMgABAAAAAAE4AAoAAAAAAqgAAADwAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAABmAAXAoQMgE2AiQDBgsGAAQgBXgHLBsRAiCeA27bRM1ncM78PDmDmIhdn37F8/V73bm7L9QmmS8ZX11pWsUKEC5GRjEIWZq6TTSVpfpyuqHIghjcRQ5vgP/6y5nBA6mT41OLPAAsyywQjCMrwAgTyG1s6nJoJ+g0a6vueTYzUBxgwE0Dlmqga3qyAABMoLTgSNvAuWHCMKSJhucQAdvgDFAs8RFiF7v/vwgoMBAUGjBAqAQgCC8OX9duX+t+h7ctPgqAViCM6XNjIRNJz0FQSkABAGC4FBC7CCirdrWMdXHqpEzKjvNnMSvg9qbbrktdozmhVAI8M3BP6Lmm7ShCqVMoUrM1AAAA") format("woff2");
+}

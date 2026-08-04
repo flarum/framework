@@ -1,7 +1,32 @@
+// Which glyph each icon is, and how icons size, stack and spin. This names no
+// font and is the same whichever source supplies one, so it is always needed —
+// without it an icon has nothing to draw.
 @import (inline) "fontawesome.css";
+
+// Brands bind their own family rather than the classic one, so they never
+// compete with a remote source's fonts and stay in unconditionally.
 @import (inline) "brands.css";
-@import (inline) "regular.css";
-@import (inline) "solid.css";
+
+// The classic-family binding. For local icons this is the bundled Free font.
+// For a Kit or CDN it is a blank font instead: the glyph definitions above
+// resolve their font through a chain ending in a hardcoded
+// 'Font Awesome 7 Free', and binding that name to the real Free files while a
+// Kit or Pro CDN is on its way means every icon resolves twice — first against
+// the bundled font (wrong glyphs, or placeholder boxes under a forced style),
+// then again when the remote stylesheet lands. The blank font occupies the
+// same name with glyphs that draw nothing, so icons hold their space and stay
+// empty until the remote fonts arrive; the remote stylesheet's own faces are
+// declared later and take precedence from there. See fa-blank.css.
+//
+// `@fa-bundled-fonts` comes from FontAwesome::needsBundledFonts().
+.fa-classic-font-faces() when (@fa-bundled-fonts = true) {
+  @import (inline) "regular.css";
+  @import (inline) "solid.css";
+}
+.fa-classic-font-faces() when (@fa-bundled-fonts = false) {
+  @import (inline) "fa-blank.css";
+}
+.fa-classic-font-faces();
 
 // FontAwesome 7 (and its Kit JS) sets `display: var(--fa-display, inline-block)` on
 // .fas/.far/.fab etc. When a Kit is loaded its dynamically-injected stylesheet lands
