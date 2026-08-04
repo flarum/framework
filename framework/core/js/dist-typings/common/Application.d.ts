@@ -263,6 +263,17 @@ export default class Application {
     load(payload: Application['data']): void;
     protected initialize(): CallableFunction[];
     boot(): void;
+    /**
+     * When the icons come from a Kit or CDN, they hold a blank placeholder font
+     * until the remote stylesheet arrives. The backend wires a rescue — rebinding
+     * the icons to the bundled fonts — to `onerror` on the remote tags, but some
+     * failures never produce an error event: a kit script that loads fine while
+     * its own stylesheet request is blocked, or a connection that hangs rather
+     * than dying. This watchdog covers those. Firing by mistake is harmless: the
+     * remote faces are declared later than the rescued ones whenever they do turn
+     * up, so the icons simply upgrade in place.
+     */
+    protected watchIconFonts(): void;
     beforeMount(callback: () => void): void;
     protected runBeforeMount(): void;
     bootExtensions(extensions: Record<string, {
