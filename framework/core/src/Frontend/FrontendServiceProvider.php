@@ -122,10 +122,12 @@ class FrontendServiceProvider extends AbstractServiceProvider
                             }
                             // Load asynchronously — FA icons are only rendered after JS boots the
                             // SPA, so there is no FOUC risk from deferring this stylesheet.
-                            // The <noscript> fallback covers JS-disabled browsers.
-                            $escaped = e($cdnUrl);
-                            $document->head[] = '<link rel="preload" href="'.$escaped.'" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel=\'stylesheet\'">'
-                                .'<noscript><link rel="stylesheet" href="'.$escaped.'" crossorigin="anonymous"></noscript>';
+                            //
+                            // Deliberately without a <noscript> counterpart: the icons are
+                            // rendered by the SPA, so a browser with scripting off has no icon
+                            // elements on the page for this stylesheet to style. The fallback
+                            // only ever bought such a browser an extra request.
+                            $document->head[] = '<link rel="preload" href="'.e($cdnUrl).'" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel=\'stylesheet\'">';
                         }
                     } elseif ($fontAwesome->useKit()) {
                         $kitUrl = $fontAwesome->kitUrl();
