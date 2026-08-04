@@ -387,9 +387,43 @@ export default class Application {
 
     this.registerConnectivityListeners();
 
+    this.watchIconFonts();
+
     this.initialRoute = window.location.href;
 
     caughtInitializationErrors.forEach((handler) => handler());
+  }
+
+  /**
+   * When the icons come from a Kit or CDN, they hold a blank placeholder font
+   * until the remote stylesheet arrives. The backend wires a rescue — rebinding
+   * the icons to the bundled fonts — to `onerror` on the remote tags, but some
+   * failures never produce an error event: a kit script that loads fine while
+   * its own stylesheet request is blocked, or a connection that hangs rather
+   * than dying. This watchdog covers those. Firing by mistake is harmless: the
+   * remote faces are declared later than the rescued ones whenever they do turn
+   * up, so the icons simply upgrade in place.
+   */
+  protected watchIconFonts(): void {
+    const rescue = (window as any).flarumRescueIconFonts;
+
+    // Only defined by the backend when the icons are remote.
+    if (typeof rescue !== 'function') return;
+
+    setTimeout(() => {
+      // An SVG kit registers no fonts at all — its presence shows in the DOM.
+      if (document.querySelector('svg.svg-inline--fa')) return;
+
+      // The compiled CSS declares three FontAwesome faces of its own (two
+      // blank, one brands). Anything beyond those means a remote stylesheet
+      // arrived and there is nothing to rescue.
+      let faces = 0;
+      document.fonts.forEach((font) => {
+        if (font.family.replace(/['"]/g, '').startsWith('Font Awesome')) faces++;
+      });
+
+      if (faces <= 3) rescue();
+    }, 5000);
   }
 
   public beforeMount(callback: () => void) {

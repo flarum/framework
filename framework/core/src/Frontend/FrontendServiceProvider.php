@@ -111,6 +111,32 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     /** @var FontAwesome $fontAwesome */
                     $fontAwesome = $container->make(FontAwesome::class);
 
+                    if (! $fontAwesome->needsBundledFonts()) {
+                        // When the icons come from a Kit or CDN, the compiled CSS binds
+                        // their font name to a blank placeholder until the remote
+                        // stylesheet arrives (see less/common/Iconography.less). If it
+                        // never arrives — an adblocker eating the kit, a dead CDN — the
+                        // icons would stay blank, so this rescue rebinds the name to the
+                        // bundled Free fonts: visible glyphs, even if not the ones the
+                        // forum paid for. Wired to `onerror` on the tags below, and to a
+                        // watchdog in the frontend for failures that produce no error
+                        // event, like a kit script that loads but whose stylesheet
+                        // request is blocked. Declared before them so it exists whenever
+                        // they fire.
+                        $filesystem = $container->make('filesystem')->disk('flarum-assets');
+
+                        $faces = '';
+                        foreach (['fa-regular-400' => 400, 'fa-solid-900' => 900] as $file => $weight) {
+                            $faces .= '@font-face{font-family:"Font Awesome 7 Free";font-style:normal;font-weight:'.$weight.';font-display:block;'
+                                .'src:url("'.$filesystem->url('fonts/'.$file.'.woff2').'") format("woff2")}';
+                        }
+
+                        $document->head[] = '<script>window.flarumRescueIconFonts=function(){var f=window.flarumRescueIconFonts;if(f.done)return;f.done=true;'
+                            .'var s=document.createElement("style");s.textContent='.json_encode($faces).';document.head.appendChild(s)};</script>';
+                    }
+
+                    $rescue = ' onerror="window.flarumRescueIconFonts&&window.flarumRescueIconFonts()"';
+
                     if ($fontAwesome->useCdn()) {
                         $cdnUrl = $fontAwesome->cdnUrl();
                         if (! empty($cdnUrl)) {
@@ -127,7 +153,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                             // rendered by the SPA, so a browser with scripting off has no icon
                             // elements on the page for this stylesheet to style. The fallback
                             // only ever bought such a browser an extra request.
-                            $document->head[] = '<link rel="preload" href="'.e($cdnUrl).'" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel=\'stylesheet\'">';
+                            $document->head[] = '<link rel="preload" href="'.e($cdnUrl).'" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel=\'stylesheet\'"'.$rescue.'>';
                         }
                     } elseif ($fontAwesome->useKit()) {
                         $kitUrl = $fontAwesome->kitUrl();
@@ -141,7 +167,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                             // Defer Kit JS — it has no dependencies and nothing depends on it
                             // executing synchronously; defer keeps it out of the critical path
                             // while preserving execution order relative to other deferred scripts.
-                            $document->head[] = '<script src="'.e($kitUrl).'" crossorigin="anonymous" defer></script>';
+                            $document->head[] = '<script src="'.e($kitUrl).'" crossorigin="anonymous" defer'.$rescue.'></script>';
                         }
                     }
 
@@ -249,7 +275,15 @@ class FrontendServiceProvider extends AbstractServiceProvider
         $this->container->singleton(
             'flarum.less.custom_variables',
             function (Container $container) {
-                return [];
+                return [
+                    // Whether the compiled CSS binds the icon font name to the
+                    // bundled Free files, or to a blank placeholder that a Kit or
+                    // CDN replaces when its stylesheet lands. See
+                    // less/common/Iconography.less for the whole story.
+                    'fa-bundled-fonts' => function () use ($container) {
+                        return $container->make(FontAwesome::class)->needsBundledFonts() ? 'true' : 'false';
+                    },
+                ];
             }
         );
 

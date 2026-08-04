@@ -67,16 +67,16 @@ class FontAwesomeLoadingTest extends TestCase
         $body = $response->getBody()->getContents();
 
         // Should load CDN CSS asynchronously (preload + onload swap)
-        $this->assertStringContainsString('<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel=\'stylesheet\'">', $body);
+        $this->assertStringContainsString('<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel=\'stylesheet\'" onerror="window.flarumRescueIconFonts&&window.flarumRescueIconFonts()">', $body);
 
         // No `<noscript>` counterpart. Icons are rendered by the SPA, so with
         // scripting off the page contains no icon elements for a stylesheet to
         // style — the fallback only ever cost a request.
         $this->assertStringNotContainsString('<noscript><link rel="stylesheet"', $body);
 
-        // Should not contain local font preloads
-        $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
-        $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
+        // Should not preload the local fonts. (Their filenames do appear in the
+        // rescue payload, which rebinds to them if the remote source fails.)
+        $this->assertStringNotContainsString('as="font"', $body);
     }
 
     #[Test]
@@ -92,11 +92,11 @@ class FontAwesomeLoadingTest extends TestCase
         $body = $response->getBody()->getContents();
 
         // Should load Kit JS deferred (not blocking)
-        $this->assertStringContainsString('<script src="https://kit.fontawesome.com/abc123xyz.js" crossorigin="anonymous" defer></script>', $body);
+        $this->assertStringContainsString('<script src="https://kit.fontawesome.com/abc123xyz.js" crossorigin="anonymous" defer onerror="window.flarumRescueIconFonts&&window.flarumRescueIconFonts()"></script>', $body);
 
-        // Should not contain local font preloads
-        $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
-        $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
+        // Should not preload the local fonts. (Their filenames do appear in the
+        // rescue payload, which rebinds to them if the remote source fails.)
+        $this->assertStringNotContainsString('as="font"', $body);
     }
 
     // Note: Config override tests are handled in unit tests for FontAwesome service
@@ -164,14 +164,14 @@ class FontAwesomeLoadingTest extends TestCase
         $body = $response->getBody()->getContents();
 
         // Should load config CDN CSS asynchronously (preload + onload swap)
-        $this->assertStringContainsString('<link rel="preload" href="https://config.example.com/fontawesome.css" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel=\'stylesheet\'">', $body);
+        $this->assertStringContainsString('<link rel="preload" href="https://config.example.com/fontawesome.css" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel=\'stylesheet\'" onerror="window.flarumRescueIconFonts&&window.flarumRescueIconFonts()">', $body);
 
         // No `<noscript>` counterpart — see the CDN test above.
         $this->assertStringNotContainsString('<noscript><link rel="stylesheet"', $body);
 
-        // Should not contain local font preloads
-        $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
-        $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
+        // Should not preload the local fonts. (Their filenames do appear in the
+        // rescue payload, which rebinds to them if the remote source fails.)
+        $this->assertStringNotContainsString('as="font"', $body);
     }
 
     #[Test]
@@ -194,14 +194,14 @@ class FontAwesomeLoadingTest extends TestCase
         $body = $response->getBody()->getContents();
 
         // Should use config Kit URL with crossorigin attribute, deferred
-        $this->assertStringContainsString('<script src="https://kit.fontawesome.com/config123.js" crossorigin="anonymous" defer></script>', $body);
+        $this->assertStringContainsString('<script src="https://kit.fontawesome.com/config123.js" crossorigin="anonymous" defer onerror="window.flarumRescueIconFonts&&window.flarumRescueIconFonts()"></script>', $body);
 
         // Should not contain database CDN URL
         $this->assertStringNotContainsString('database.example.com', $body);
 
-        // Should not contain local font preloads
-        $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
-        $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
+        // Should not preload the local fonts. (Their filenames do appear in the
+        // rescue payload, which rebinds to them if the remote source fails.)
+        $this->assertStringNotContainsString('as="font"', $body);
     }
 
     #[Test]
