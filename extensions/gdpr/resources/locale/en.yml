@@ -69,6 +69,10 @@ flarum-gdpr:
                 export_description: Retrieves the user's avatar from the filesystem and includes it in the export.
             discussions:
                 export_description: Exports all discussions the user has started. Data restricted to title and creation date.
+            emailbounceevents:
+                anonymize_description: Removes the email address from the user's email bounce history, keeping anonymous records for statistics.
+                delete_description: Deletes the user's email bounce history.
+                export_description: Exports the user's email bounce and spam-complaint history.
             forum:
                 export_description: Exports the forum title, url, username, email and the current date.
             default_user_action: "No action, handled by default user table data handling."

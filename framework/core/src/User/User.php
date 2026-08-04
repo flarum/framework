@@ -48,6 +48,8 @@ use Illuminate\Support\Arr;
  * @property string $display_name
  * @property string $email
  * @property bool $is_email_confirmed
+ * @property \Carbon\Carbon|null $email_bounced_at
+ * @property string|null $email_bounce_reason
  * @property string $password
  * @property string|null $avatar_url
  * @property bool $has_avatar_2x
@@ -86,6 +88,7 @@ class User extends AbstractModel
         'last_seen_at' => 'datetime',
         'marked_all_as_read_at' => 'datetime',
         'read_notifications_at' => 'datetime',
+        'email_bounced_at' => 'datetime',
     ];
 
     /**
@@ -227,8 +230,32 @@ class User extends AbstractModel
         if ($email !== $this->email) {
             $this->email = $email;
 
+            // A new address supersedes any bounce recorded against the old one.
+            $this->clearEmailBounce();
+
             $this->raise(new EmailChanged($this));
         }
+
+        return $this;
+    }
+
+    /**
+     * Has mail to this user's address been reported as permanently
+     * undeliverable (a hard bounce) or been marked as spam by the recipient?
+     */
+    public function hasBouncedEmail(): bool
+    {
+        return $this->email_bounced_at !== null;
+    }
+
+    /**
+     * Clear any recorded bounce/complaint state, e.g. once the user has
+     * updated and re-confirmed their address, or an admin has cleared it.
+     */
+    public function clearEmailBounce(): static
+    {
+        $this->email_bounced_at = null;
+        $this->email_bounce_reason = null;
 
         return $this;
     }

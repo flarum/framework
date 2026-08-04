@@ -240,6 +240,20 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\SendTestMailController::class)
     );
 
+    // Register/unregister the delivery-event webhook with the mail provider
+    $map->post(
+        '/mail/webhook/provision',
+        'mailWebhook.provision',
+        $route->toController(Controller\ProvisionMailWebhookController::class)
+    );
+
+    // Email bounce counts for the admin dashboard widget
+    $map->get(
+        '/mail/bounce-stats',
+        'mailBounceStats',
+        $route->toController(Controller\ShowEmailBounceStatsController::class)
+    );
+
     // Trigger a sync of the abandoned extensions list
     $map->post(
         '/extensions/abandoned/sync',

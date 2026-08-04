@@ -12,6 +12,7 @@ namespace Flarum\Notification\Driver;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Job\SendEmailNotificationJob;
 use Flarum\Notification\MailableInterface;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\Queue\Queue;
 use ReflectionClass;
@@ -19,7 +20,8 @@ use ReflectionClass;
 readonly class EmailNotificationDriver implements NotificationDriverInterface
 {
     public function __construct(
-        private Queue $queue
+        private Queue $queue,
+        private SettingsRepositoryInterface $settings,
     ) {
     }
 
@@ -37,7 +39,13 @@ readonly class EmailNotificationDriver implements NotificationDriverInterface
      */
     protected function mailNotifications(MailableInterface&BlueprintInterface $blueprint, array $recipients): void
     {
+        $suppressBounced = (bool) $this->settings->get('mail_suppress_bounced');
+
         foreach ($recipients as $user) {
+            if ($suppressBounced && $user->hasBouncedEmail()) {
+                continue;
+            }
+
             if ($user->shouldEmail($blueprint::getType())) {
                 $this->queue->push(new SendEmailNotificationJob($blueprint, $user));
             }

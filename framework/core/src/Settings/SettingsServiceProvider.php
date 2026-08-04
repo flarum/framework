@@ -25,6 +25,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
                 'theme_primary_color' => '#4D698E',
                 'theme_secondary_color' => '#4D698E',
                 'mail_format' => 'multipart',
+                'mail_suppress_bounced' => false,
                 'fontawesome_source' => 'local',
                 'fontawesome_forced_style' => '',
                 'maintenance_mode' => 'none',

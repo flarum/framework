@@ -1,4 +1,5 @@
 import Mithril from 'mithril';
+import dayjs from 'dayjs';
 
 import app from '../../admin/app';
 
@@ -82,6 +83,13 @@ export default class UserListPage extends AdminPage {
 
   oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
     super.oninit(vnode);
+
+    // Allow deep-linking to a pre-filled search, e.g. from the dashboard
+    // bounce widget linking to `is:bounced`.
+    const filter = m.route.param('filter');
+    if (filter) {
+      this.query = filter;
+    }
 
     // Get page query value from URL
     const page = parseInt(m.route.param('page'));
@@ -376,6 +384,36 @@ export default class UserListPage extends AdminPage {
       },
       70
     );
+
+    // Only meaningful when the active mail driver can actually report bounces.
+    // With drivers that can't (e.g. SMTP/Sendmail), every user would read the
+    // same and imply monitoring that isn't happening — so we omit the column.
+    if (app.forum.attribute('mailDriverSupportsBounceReporting')) {
+      columns.add(
+        'emailBounced',
+        {
+          name: app.translator.trans('core.admin.users.grid.columns.email_bounced.title'),
+          content: (user: User) => {
+            const bouncedAt = user.emailBouncedAt();
+
+            if (!bouncedAt) {
+              // Absence of a reported bounce — NOT a positive "delivered"
+              // signal, so we render a neutral dash rather than "OK".
+              return <span className="UserList-emailDelivery-ok">—</span>;
+            }
+
+            return (
+              <span className="UserList-emailDelivery-bounced" title={dayjs(bouncedAt).format('LLL')}>
+                {user.emailBounceReason() || app.translator.trans('core.admin.users.grid.columns.email_bounced.bounced')}
+                {' — '}
+                {dayjs(bouncedAt).fromNow()}
+              </span>
+            );
+          },
+        },
+        65
+      );
+    }
 
     columns.add(
       'userActions',
