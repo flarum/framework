@@ -57,7 +57,7 @@ core:
         kit_url_label: Kit URL
         kit_url_help: Your FontAwesome Kit script URL (from kit.fontawesome.com)
         forced_style_label: Forced Icon Style
-        forced_style_help: "Force every icon to a particular FontAwesome style, e.g. \"fa-duotone fa-light\" or \"fa-regular\". Replaces the style declared by core and extensions (brand icons are never changed). The style must be available in your icon source — most styles require FontAwesome Pro. Leave empty to disable."
+        forced_style_help: "Force every icon to a particular FontAwesome style, e.g. \"fa-duotone fa-light\" or \"fa-regular\". Replaces the style declared by core and extensions (brand icons are never changed). Your icon source has to be able to supply the style: the bundled icons are FontAwesome Free, which only covers a few hundred icons outside the solid style, so forcing anything else on them leaves most icons blank. Every style is available with a FontAwesome Pro CDN or Kit. Leave empty to disable."
         config_override:
           label: Config Override
           help: FontAwesome settings are currently set in your config.php file and cannot be changed here.

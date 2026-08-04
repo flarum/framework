@@ -69,8 +69,10 @@ class FontAwesomeLoadingTest extends TestCase
         // Should load CDN CSS asynchronously (preload + onload swap)
         $this->assertStringContainsString('<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel=\'stylesheet\'">', $body);
 
-        // Should include noscript fallback
-        $this->assertStringContainsString('<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous"></noscript>', $body);
+        // No `<noscript>` counterpart. Icons are rendered by the SPA, so with
+        // scripting off the page contains no icon elements for a stylesheet to
+        // style — the fallback only ever cost a request.
+        $this->assertStringNotContainsString('<noscript><link rel="stylesheet"', $body);
 
         // Should not contain local font preloads
         $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
@@ -164,8 +166,8 @@ class FontAwesomeLoadingTest extends TestCase
         // Should load config CDN CSS asynchronously (preload + onload swap)
         $this->assertStringContainsString('<link rel="preload" href="https://config.example.com/fontawesome.css" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel=\'stylesheet\'">', $body);
 
-        // Should include noscript fallback
-        $this->assertStringContainsString('<noscript><link rel="stylesheet" href="https://config.example.com/fontawesome.css" crossorigin="anonymous"></noscript>', $body);
+        // No `<noscript>` counterpart — see the CDN test above.
+        $this->assertStringNotContainsString('<noscript><link rel="stylesheet"', $body);
 
         // Should not contain local font preloads
         $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
