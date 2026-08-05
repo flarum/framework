@@ -95,7 +95,14 @@ class AnnouncementsFetcher
                 'createdAt' => $createdAt,
                 'isSticky' => (bool) Arr::get($discussion, 'attributes.isSticky', false),
                 'url' => 'https://discuss.flarum.org/d/'.$slug,
-                'excerpt' => $this->makeExcerpt(Arr::get($firstPost, 'attributes.contentHtml', '')),
+                // Null where the post never arrived, as against an empty string
+                // for a post that genuinely has no text. Collapsing the two hid
+                // a real fault: discuss.flarum.org stopped serializing the
+                // `firstPost` include, and every forum's announcements widget
+                // rendered blank cards that read as "these posts are empty".
+                'excerpt' => $firstPost === null
+                    ? null
+                    : $this->makeExcerpt(Arr::get($firstPost, 'attributes.contentHtml', '')),
                 'authorName' => Arr::get($user, 'attributes.displayName'),
                 'avatarUrl' => Arr::get($user, 'attributes.avatarUrl'),
             ];
