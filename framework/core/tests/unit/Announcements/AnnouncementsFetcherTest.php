@@ -16,6 +16,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Mockery as m;
@@ -32,16 +33,22 @@ class AnnouncementsFetcherTest extends TestCase
         $this->appInfo->shouldReceive('identifyDatabaseVersion')->andReturn('8.0.32');
     }
 
-    private function makeFetcher(array $responses): AnnouncementsFetcher
+    /**
+     * @param array $history Populated with the requests actually sent, so a test
+     *                       can assert what was asked for and not only what came
+     *                       back.
+     */
+    private function makeFetcher(array $responses, array &$history = []): AnnouncementsFetcher
     {
-        $mock = new MockHandler($responses);
-        $client = new Client(['handler' => HandlerStack::create($mock)]);
+        $stack = HandlerStack::create(new MockHandler($responses));
+        $stack->push(Middleware::history($history));
+
+        $client = new Client(['handler' => $stack]);
 
         $fetcher = new AnnouncementsFetcher($this->appInfo);
 
         // Inject the mock client via reflection
         $ref = new \ReflectionProperty($fetcher, 'client');
-        $ref->setAccessible(true);
         $ref->setValue($fetcher, $client);
 
         return $fetcher;
@@ -187,6 +194,86 @@ class AnnouncementsFetcherTest extends TestCase
 
         $this->assertCount(1, $result);
         $this->assertEquals('Valid', $result[0]['title']);
+    }
+
+    /**
+     * The excerpt and author are read out of `included`, which only arrives if
+     * the request asks for those relationships. Every other test here hands the
+     * transform a well-formed `included` array, so none of them would notice the
+     * request losing its `include`.
+     */
+    public function test_requests_the_relationships_the_excerpt_and_author_need(): void
+    {
+        $history = [];
+        $fetcher = $this->makeFetcher([$this->makeApiResponse([$this->makeDiscussion()])], $history);
+
+        $fetcher->fetch();
+
+        $this->assertCount(1, $history);
+
+        $query = [];
+        parse_str($history[0]['request']->getUri()->getQuery(), $query);
+
+        $this->assertArrayHasKey('include', $query, 'The request did not ask for any relationships.');
+
+        $includes = array_map('trim', explode(',', $query['include']));
+
+        $this->assertContains('firstPost', $includes, 'Without firstPost there is no content to excerpt.');
+        $this->assertContains('user', $includes, 'Without user there is no author name or avatar.');
+    }
+
+    /**
+     * A well-formed response whose `included` is empty, because the relationship
+     * was not serialized — which is what discuss.flarum.org returned while
+     * fof/gamification narrowed the `firstPost` eager load, leaving every
+     * announcement card in every forum's admin panel blank.
+     *
+     * "The excerpt never arrived" and "the post has no text" are different
+     * things, and collapsing both to an empty string is why that went unnoticed.
+     * Only the absence of an excerpt is reportable, so absence is what it says.
+     */
+    public function test_excerpt_is_null_when_the_first_post_was_not_included(): void
+    {
+        $fetcher = $this->makeFetcher([
+            $this->makeApiResponse(
+                [$this->makeDiscussion([], [
+                    'firstPost' => ['data' => ['type' => 'posts', 'id' => '10']],
+                ])],
+                // Declared on the discussion, absent from `included`.
+                []
+            ),
+        ]);
+
+        $result = $fetcher->fetch();
+
+        $this->assertNull(
+            $result[0]['excerpt'],
+            'A missing include produced an empty-string excerpt, indistinguishable from a post with no content.'
+        );
+    }
+
+    /**
+     * A post that genuinely has no text still reports an empty excerpt rather
+     * than null, so the two cases stay distinguishable in both directions.
+     */
+    public function test_excerpt_is_empty_when_the_first_post_has_no_content(): void
+    {
+        $fetcher = $this->makeFetcher([
+            $this->makeApiResponse(
+                [$this->makeDiscussion([], [
+                    'firstPost' => ['data' => ['type' => 'posts', 'id' => '10']],
+                ])],
+                [[
+                    'type' => 'posts',
+                    'id' => '10',
+                    'attributes' => ['contentHtml' => ''],
+                ]]
+            ),
+        ]);
+
+        $result = $fetcher->fetch();
+
+        $this->assertSame('', $result[0]['excerpt']);
     }
 
     public function test_throws_on_network_failure(): void
