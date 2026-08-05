@@ -37,6 +37,7 @@
     },
     "require": {
         "php": "^8.3",
+        "axy/sourcemap": "^1.1",
         "bitworking/mimeparse": "^2.3",
         "dflydev/fig-cookies": "^3.0",
         "doctrine/dbal": "^3.6",
@@ -81,7 +82,6 @@
         "psr/http-server-middleware": "^1.0.2",
         "psy/psysh": "^0.12",
         "s9e/text-formatter": "^2.13",
-        "sycho/sourcemap": "^2.0.0",
         "symfony/config": "^7.0",
         "symfony/console": "^7.0",
         "symfony/event-dispatcher": "^7.0",
