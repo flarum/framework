@@ -203,6 +203,54 @@
   padding: 0;
   list-style: none;
 }
+// Items collapsed out of the header row keep the markup they had on the row,
+// including the flat header-button styling. Inside a menu that reads as a row
+// of unpadded text, so give them the same shape as any other dropdown item.
+.OverflowingList-dropdown > .Dropdown-menu {
+  min-width: 180px;
+
+  > li > .Button,
+  > li > a {
+    text-align: left;
+    width: 100%;
+  }
+
+  // An item that was itself a dropdown on the row would otherwise render its
+  // own toggle and float a second panel alongside this one. Its contents are
+  // laid out inline as a titled group instead: the toggle is redundant once
+  // the group is always open, and a nested panel is unusable on the narrow
+  // screens that trigger the collapse in the first place.
+  .Dropdown {
+    display: block;
+    width: 100%;
+
+    > .Dropdown-toggle,
+    > .Dropdown-menu > li > .Dropdown-toggle {
+      display: none;
+    }
+
+    > .Dropdown-menu {
+      display: block;
+      position: static;
+      float: none;
+      width: 100%;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    // The group's own label stays as a heading, and its children are indented
+    // under it so the nesting that was in the row is still legible.
+    > .Dropdown-menu > li:not(:first-child) > a,
+    > .Dropdown-menu > li:not(:first-child) > .Button {
+      padding-left: 30px;
+    }
+  }
+}
 .Header-logo {
   display: block;
   max-height: 30px;
@@ -256,9 +304,6 @@
       }
     }
   }
-  .Header-secondary .Search {
-    margin: 10px 0;
-  }
 }
 
 // On other devices, we stick the header up the top of the page, overlaying
@@ -303,37 +348,98 @@
     display: flex;
     align-items: center;
   }
+  // Navigation is what yields when the header runs out of room; the controls
+  // opposite it do not. `min-width: 0` is the part that does the work —
+  // without it the flex default of `min-width: auto` pins this to its content
+  // width, so a long set of links (from an extension, or just a lot of tags)
+  // overflows the container and shoves the session controls off the edge
+  // rather than compressing.
+  //
+  // Deliberately no `overflow` here. Header dropdown menus are absolutely
+  // positioned but still descend from this element, so any non-visible
+  // overflow value clips them shut, and `overflow-x` alone is no escape — the
+  // other axis is then forced away from `visible` too. Items that do not fit
+  // are moved into a menu by `OverflowingList` instead of being hidden.
+  // Growing into the leftover room keeps the row reading as one group: with
+  // the controls opposite held to the right edge by their auto margin, any
+  // slack would otherwise collect as a single conspicuous hole between the
+  // two. It costs nothing to lay out, since what actually fits is worked out
+  // from the container's width rather than this element's.
   .Header-primary {
-    //
+    min-width: 0;
+    flex: 1 1 auto;
+
+    .Header-controls {
+      min-width: 0;
+      flex-wrap: nowrap;
+    }
   }
+  // The logo is how you get back to the index once links start dropping off,
+  // so it keeps its full width no matter how tight things get.
   .Header-title {
     font-size: 18px;
     font-weight: normal;
     line-height: 34px;
+    flex-shrink: 0;
   }
+  // No auto margin to push this to the right: an auto margin takes the free
+  // space before flex distributes any of it, which would park the controls at
+  // the edge and leave the slack in one gap mid-row. Nav grows into it
+  // instead, which puts these in the same place whenever the row is full.
   .Header-secondary {
-    margin-left: auto;
+    flex-shrink: 0;
 
-    .Search {
-      margin-right: 10px;
+    // Spacing for the row lives here rather than on the individual controls.
+    // Their own padding varies — an icon button has none horizontally, a
+    // labelled one has 13px either side — so relying on it left the icons
+    // touching each other while the labelled controls sat far apart.
+    //
+    // Kept small deliberately: this row can hold eight or more controls, and
+    // every pixel between them is one the navigation opposite cannot use.
+    .Header-controls {
+      gap: 2px;
     }
   }
 }
 
-@media @tablet {
-  .Header-secondary .Search {
-    input:not(:focus) {
-      width: 1px;
-      background: transparent;
-    }
-    &:not(.active) input {
-      padding-right: 0;
-    }
-    input:not(:focus) ~ .Input-clear {
+// Between tablet and the wide desktop layouts the header carries everything it
+// will ever carry — logo, navigation, and the full set of controls — without
+// the room the widest screens have for it. Labels that repeat what their icon
+// already says are dropped through this range so the navigation keeps its
+// space; they return at `desktop-hd`.
+@media (min-width: @screen-tablet) and (max-width: (@screen-desktop-hd - 0.02)) {
+  // The username goes and the avatar stays: it identifies the session just as
+  // well, and a name truncated to a few characters tells you nothing the
+  // avatar hasn't already. The negative margin that tucks the avatar against
+  // the button's left padding is what would otherwise leave the circle sitting
+  // off-centre.
+  .Header-secondary .SessionDropdown .Dropdown-toggle {
+    .Button-label {
       display: none;
     }
+
+    .Avatar {
+      margin-left: -2px;
+      margin-right: -2px;
+    }
   }
+
+  // The locale name is by far the widest thing left in the row — several times
+  // the width of the icon buttons beside it — and it is the label most easily
+  // spared, since the globe stands in for it and the current language is shown
+  // as the checked item once the menu is open.
+  .Header-secondary .LocaleDropdown .Dropdown-toggle {
+    .Button--icon();
+
+    // Now that the name is gone, the globe is the only thing left to say what
+    // this control selects.
+    .Button-icon {
+      display: inline-block;
+    }
+  }
+
 }
+
 
 @media @desktop-hd {
   .Header-navigation {

@@ -133,3 +133,28 @@ describe('SelectDropdown displays as expected', () => {
     expect(select).not.toContainRaw('Select an option');
   });
 });
+
+describe('SelectDropdown renders an optional icon', () => {
+  const buttons = () => [m('button', { className: 'button-1', active: true }, 'Option A')];
+
+  it('renders no icon by default', () => {
+    const select = mq(m(SelectDropdown, { label: 'Select', defaultLabel: 'Select' }, buttons()));
+
+    expect(select).not.toHaveElement('.Dropdown-toggle .Button-icon');
+  });
+
+  it('renders an icon when given one', () => {
+    // Something has to identify the control wherever its label is hidden —
+    // the locale selector in the header collapses to its icon alone.
+    const select = mq(m(SelectDropdown, { label: 'Select', defaultLabel: 'Select', icon: 'fas fa-globe' }, buttons()));
+
+    expect(select).toHaveElement('.Dropdown-toggle .Button-icon');
+    expect(select).toHaveElement('.fa-globe');
+  });
+
+  it('keeps showing the active option alongside the icon', () => {
+    const select = mq(m(SelectDropdown, { label: 'Select', defaultLabel: 'Select', icon: 'fas fa-globe' }, buttons()));
+
+    expect(select).toContainRaw('Option A');
+  });
+});

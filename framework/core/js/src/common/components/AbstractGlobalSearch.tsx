@@ -3,7 +3,7 @@ import Component, { ComponentAttrs } from '../Component';
 import SearchState from '../states/SearchState';
 import extractText from '../utils/extractText';
 import ItemList from '../utils/ItemList';
-import Input from './Input';
+import Icon from './Icon';
 import type Mithril from 'mithril';
 
 export interface SearchAttrs extends ComponentAttrs {
@@ -90,50 +90,51 @@ export default abstract class AbstractGlobalSearch<T extends SearchAttrs = Searc
     // Hide the search view if no sources were loaded
     if (this.sourceItems().isEmpty()) return <div></div>;
 
+    const value = this.searchState.getValue();
+
+    // Search happens in a modal, so this control does not accept text: it is a
+    // button that opens the modal, and reads as one to assistive technology
+    // rather than as a textbox that refuses input. Where its label is shown —
+    // the drawer — it displays the current query in place of the prompt, so a
+    // search that has been run stays visible after the modal closes.
     const openSearchModal = () => {
-      this.$('input').blur() &&
-        app.modal.show(() => import('../../common/components/SearchModal'), { searchState: this.searchState, sources: this.sourceItems().toArray() });
+      app.modal.show(() => import('../../common/components/SearchModal'), { searchState: this.searchState, sources: this.sourceItems().toArray() });
     };
 
     return (
-      <div
-        role="search"
-        className="Search"
-        aria-label={this.attrs.a11yRoleLabel}
-        onclick={() => {
-          // On phones the search input lives inside the slide-out drawer. Close the drawer as soon as
-          // search is activated, before the modal is shown, so it isn't left open behind (and overlapping)
-          // the full-screen search modal as it animates in. Hiding it here rather than in `openSearchModal`
-          // lets the drawer finish sliding out during the delay below. No-op where the drawer is never open.
-          app.drawer.hide();
-          this.$('input').blur();
-          setTimeout(() => openSearchModal(), 150);
-        }}
-      >
-        <Input
-          type="search"
-          className="Search-input"
-          clearable={this.searchState.getValue()}
-          clearLabel={app.translator.trans('core.lib.search.search_clear_button_accessible_label')}
-          prefixIcon="fas fa-search"
-          aria-label={this.attrs.label}
-          readonly={true}
-          placeholder={this.attrs.label}
-          value={this.searchState.getValue()}
-          onchange={(value: string) => {
-            if (!value) this.searchState.clear();
-            else this.searchState.setValue(value);
+      <div role="search" className="Search" aria-label={this.attrs.a11yRoleLabel}>
+        <button
+          type="button"
+          // `Button--flat` rather than `Button--link`: this sits among the
+          // notification and message controls, which are flat buttons, and
+          // should pick up the same hover and focus treatment as them.
+          className="Search-input Button Button--flat"
+          aria-label={extractText(this.attrs.label)}
+          title={extractText(this.attrs.label)}
+          onclick={() => {
+            // On phones the search button lives inside the slide-out drawer. Close the drawer as soon as
+            // search is activated, before the modal is shown, so it isn't left open behind (and overlapping)
+            // the full-screen search modal as it animates in. Hiding it here rather than in `openSearchModal`
+            // lets the drawer finish sliding out during the delay below. No-op where the drawer is never open.
+            app.drawer.hide();
+            setTimeout(() => openSearchModal(), 150);
           }}
-          inputAttrs={{
-            // for keyboard navigation, click event would be triggered on keydown
-            onkeydown: (e: KeyboardEvent) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                this.$('input').blur() && openSearchModal();
-              }
-            },
-          }}
-        />
+        >
+          <Icon name="fas fa-search" className="Button-icon" />
+          <span className="Button-label">
+            <span className="Button-labelText">{value || this.attrs.label}</span>
+          </span>
+        </button>
+        {!!value && (
+          <button
+            type="button"
+            className="Search-clear Button Button--icon Button--link"
+            aria-label={extractText(app.translator.trans('core.lib.search.search_clear_button_accessible_label'))}
+            onclick={() => this.searchState.clear()}
+          >
+            <Icon name="fas fa-times-circle" />
+          </button>
+        )}
       </div>
     );
   }

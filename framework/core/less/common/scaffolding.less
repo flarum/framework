@@ -57,11 +57,17 @@ p {
   padding-left: 15px;
   padding-right: 15px;
 
+  // Each band is pinned to the width that opens it, so a viewport anywhere
+  // above that lower bound leaves the remainder unused — at 820px the tablet
+  // band still lays out at 768px, and the header has to fit its logo, nav and
+  // controls into 52px less than the screen actually offers. Growing to the
+  // viewport is what stops those colliding. Capped at the next band's floor so
+  // the layout still steps between bands rather than growing without limit.
   @media @tablet {
-    width: @screen-tablet;
+    width: ~"min(@{screen-tablet-max}, 100%)";
   }
   @media @desktop {
-    width: @screen-desktop;
+    width: ~"min(@{screen-desktop-max}, 100%)";
   }
   // The xl/xxl breakpoints exist since the extension list UI introduced them,
   // but the container never used them: every screen wider than 1100px got the
