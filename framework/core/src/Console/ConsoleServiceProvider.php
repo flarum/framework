@@ -98,10 +98,14 @@ class ConsoleServiceProvider extends AbstractServiceProvider
         }
 
         $events->listen(CommandFinished::class, function (CommandFinished $event) use ($container) {
-            $command = $event->command;
             $cache = $container->make(CacheRepository::class);
 
-            if ($command === ScheduleRunCommand::getDefaultName()) {
+            // `CommandFinished` reports the name the command was invoked as, so
+            // this compares against the name Laravel gives `ScheduleRunCommand`
+            // in its `#[AsCommand]` attribute. It used to read that name back
+            // through `Command::getDefaultName()`, which Symfony has since
+            // removed in favour of the attribute.
+            if ($event->command === 'schedule:run') {
                 $cache->forever('flarum:schedule:last_run', Carbon::now());
             }
         });
