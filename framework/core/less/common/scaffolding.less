@@ -68,14 +68,20 @@ p {
   // same fixed width, wasting half the viewport on modern displays. The widths
   // are CSS custom properties (see root.less) so themes can retune each band
   // without re-declaring the media queries.
+  //
+  // A band's width is not tied to the breakpoint that opens it, and a theme can
+  // set it to anything, so each is clamped to the viewport: a width wider than
+  // the band's own lower bound would otherwise overflow (body hides the overflow
+  // and auto margins cannot go negative, so the layout silently clips off-centre
+  // rather than scrolling).
   @media @desktop-hd {
-    width: var(--container-hd);
+    width: ~"min(var(--container-hd), 100%)";
   }
   @media @desktop-xl {
-    width: var(--container-xl);
+    width: ~"min(var(--container-xl), 100%)";
   }
   @media @desktop-xxl {
-    width: var(--container-xxl);
+    width: ~"min(var(--container-xxl), 100%)";
   }
 }
 
