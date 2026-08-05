@@ -168,16 +168,16 @@
         "pusher/pusher-php-server": "^7.2",
         "psy/psysh": "^0.12",
         "s9e/text-formatter": "^2.13",
-        "symfony/config": "^7.0",
-        "symfony/console": "^7.0",
-        "symfony/event-dispatcher": "^7.0",
-        "symfony/http-client": "^7.0",
-        "symfony/mailgun-mailer": "^7.0",
-        "symfony/mime": "^7.0",
+        "symfony/config": "^7.4",
+        "symfony/console": "^7.4",
+        "symfony/event-dispatcher": "^7.4",
+        "symfony/http-client": "^7.4",
+        "symfony/mailgun-mailer": "^7.4",
+        "symfony/mime": "^7.4",
         "symfony/polyfill-intl-messageformatter": "^1.27",
-        "symfony/postmark-mailer": "^7.0",
-        "symfony/translation": "^7.0",
-        "symfony/yaml": "^7.0",
+        "symfony/postmark-mailer": "^7.4",
+        "symfony/translation": "^7.4",
+        "symfony/yaml": "^7.4",
         "wikimedia/less.php": "^5.3"
     },
     "require-dev": {
@@ -186,7 +186,7 @@
         "mockery/mockery": "^1.5",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^12.5.22",
-        "symfony/var-dumper": "^7.0"
+        "symfony/var-dumper": "^7.4"
     },
     "config": {
         "sort-packages": true
