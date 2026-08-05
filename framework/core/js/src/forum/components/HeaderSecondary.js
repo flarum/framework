@@ -53,7 +53,9 @@ export default class HeaderSecondary extends Component {
       items.add(
         'locale',
         <SelectDropdown
+          className="LocaleDropdown"
           buttonClassName="Button Button--link"
+          icon="fas fa-globe"
           accessibleToggleLabel={app.translator.trans('core.forum.header.locale_dropdown_accessible_label')}
         >
           {locales}

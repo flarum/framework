@@ -967,6 +967,11 @@ core:
       kilo_text: K
       mega_text: M
 
+    # These translations are used in the list component that collapses items
+    # which do not fit into a dropdown.
+    overflowing_list:
+      toggle_accessible_label: More items
+
     # These translations are used in the common pagination component.
     pagination:
       back_button: Previous page

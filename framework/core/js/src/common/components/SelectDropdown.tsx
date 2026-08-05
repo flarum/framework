@@ -50,6 +50,10 @@ export default class SelectDropdown<CustomAttrs extends ISelectDropdownAttrs = I
     let label = (activeChild && typeof activeChild === 'object' && 'children' in activeChild && activeChild.children) || this.attrs.defaultLabel;
 
     return [
+      // An icon is what identifies the control once there is no room for its
+      // label — without one, hiding the label leaves a caret floating on its
+      // own with nothing to say what it selects.
+      this.attrs.icon ? <Icon name={this.attrs.icon} className="Button-icon" /> : null,
       <span className="Button-label">
         <span className="Button-labelText">{label}</span>
       </span>,

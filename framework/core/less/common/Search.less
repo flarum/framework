@@ -1,5 +1,48 @@
 .Search {
   position: relative;
+  display: flex;
+  align-items: center;
+}
+
+// The control opens the search modal, so it is a button and carries the same
+// icon-and-label markup as the notification and message controls beside it.
+// That is what lets it collapse to its icon in the header and keep its label
+// in the drawer without any rule of its own — see `Button--icon` below.
+.Search-input .Button-labelText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.Search-clear {
+  color: var(--muted-color);
+}
+
+// In the header the globe stands in for the locale name when there is no room
+// for it, so where the name is showing the icon beside it is just noise — none
+// of the other labelled controls up there carry one. The drawer is the other
+// way round: every entry in that column is an icon and a label together, so
+// the locale keeps both and matches its neighbours.
+@media @tablet-up {
+  .LocaleDropdown .Dropdown-toggle .Button-icon {
+    display: none;
+  }
+}
+
+// In the header the label goes and the magnifying glass stands in for it, the
+// same as every other control up there. The drawer keeps its labels, so the
+// full "Search Forum" stays legible where there is a column to read it in.
+@media @tablet-up {
+  .Header-secondary .Search {
+    .Search-input {
+      .Button--icon();
+    }
+
+    // Clearing is only reachable while the label is showing the query, so the
+    // affordance goes with it rather than sitting beside a bare icon.
+    .Search-clear {
+      display: none;
+    }
+  }
 }
 
 .DiscussionSearchResult {
