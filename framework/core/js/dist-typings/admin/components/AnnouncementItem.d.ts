@@ -8,7 +8,8 @@ export interface AnnouncementData {
     createdAt: string;
     isSticky: boolean;
     url: string;
-    excerpt: string;
+    /** Null where the announcement's first post did not arrive, as against an empty string for a post with no text. */
+    excerpt: string | null;
     authorName: string | null;
     avatarUrl: string | null;
 }
