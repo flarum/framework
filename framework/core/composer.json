@@ -37,7 +37,7 @@
     },
     "require": {
         "php": "^8.3",
-        "axy/sourcemap": "^1.1",
+        "axy/sourcemap": "^1.1.1",
         "bitworking/mimeparse": "^2.3",
         "dflydev/fig-cookies": "^3.0",
         "doctrine/dbal": "^3.6",

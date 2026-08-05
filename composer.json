@@ -119,7 +119,7 @@
     "require": {
         "php": "^8.3",
         "ext-json": "*",
-        "axy/sourcemap": "^1.1",
+        "axy/sourcemap": "^1.1.1",
         "bitworking/mimeparse": "^2.3",
         "composer/composer": "^2.7",
         "dflydev/fig-cookies": "^3.0",
