@@ -15,6 +15,7 @@ use Flarum\Realtime\Push\RealtimeRegistry;
 use Flarum\Realtime\Websocket\Api\PresenceChannelAuthorizer;
 use Flarum\Realtime\Websocket\Channel\Manager;
 use Flarum\Realtime\Websocket\IndexTypingPresence;
+use Flarum\Realtime\Websocket\PusherClientFactory;
 use Flarum\Realtime\Websocket\Settings;
 use Flarum\Realtime\Websocket\TypingIdentity;
 use Illuminate\Contracts\Container\Container;
@@ -48,6 +49,11 @@ class WebsocketProvider extends AbstractServiceProvider
                     'debug' => $config->inDebugMode(),
                     'timeout' => $settings->phpClientTimeout
                 ],
+                // Given no client the SDK builds one carrying only a timeout, so
+                // a push interrupted in transit fails outright. The server on the
+                // other end is ours and restarts on deployment, so brief retries
+                // are the difference between a lost push and a failed job.
+                PusherClientFactory::make($settings->phpClientTimeout),
             );
 
             $pusher->setLogger($container->make(LoggerInterface::class));
