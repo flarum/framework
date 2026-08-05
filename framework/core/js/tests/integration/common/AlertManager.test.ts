@@ -25,6 +25,45 @@ describe('AlertManager', () => {
     expect(manager).not.toContainRaw('Hello, world!');
   });
 
+  /**
+   * The manager needs its own dismiss handler on every alert, so that the
+   * dismiss button removes the alert from the list. Passing one used to mean the
+   * caller's own `ondismiss` was dropped, so an extension could not learn that
+   * its alert had been dismissed — flarum/pwa relies on exactly that to remember
+   * the reader declined, and without it re-asked on every page load.
+   */
+  test('dismissing an alert runs the callback the caller gave', () => {
+    const manager = mq(AlertManager, { state: app.alerts });
+
+    const ondismiss = jest.fn();
+
+    app.alerts.show({ type: 'success', dismissible: true, ondismiss }, 'Hello, world!');
+
+    manager.redraw();
+
+    manager.click('.Alert-dismiss');
+
+    expect(ondismiss).toHaveBeenCalled();
+  });
+
+  /**
+   * ...and the alert must still go away. The manager's own bookkeeping is not
+   * the caller's to replace.
+   */
+  test('dismissing an alert still removes it when the caller supplies a callback', () => {
+    const manager = mq(AlertManager, { state: app.alerts });
+
+    app.alerts.show({ type: 'success', dismissible: true, ondismiss: () => {} }, 'Goodbye, world!');
+
+    manager.redraw();
+    expect(manager).toContainRaw('Goodbye, world!');
+
+    manager.click('.Alert-dismiss');
+
+    manager.redraw();
+    expect(manager).not.toContainRaw('Goodbye, world!');
+  });
+
   test('can clear all alerts', () => {
     const manager = mq(AlertManager, { state: app.alerts });
 
