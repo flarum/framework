@@ -56,4 +56,29 @@ export default class SelectDropdown<CustomAttrs extends ISelectDropdownAttrs = I
       this.attrs.caretIcon ? <Icon name={this.attrs.caretIcon} className="Button-caret" /> : null,
     ];
   }
+
+  /**
+   * Which option is in effect is otherwise conveyed only by a class on the item
+   * and by the toggle button borrowing that option's label — neither of which a
+   * screen reader announces while moving through the menu.
+   *
+   * `aria-current` rather than `aria-selected`: the latter is only valid on
+   * roles this menu does not claim, and claiming them would mean implementing
+   * the whole listbox keyboard contract. Unselected items are left without the
+   * attribute rather than given `"false"`, since only one item can be current
+   * and the absence says as much.
+   */
+  getMenu(items: Mithril.Vnode<any, any>[]): Mithril.Vnode<any, any> {
+    items.forEach((item) => {
+      // Each item arrives wrapped in the list element `listItems` built around
+      // it, so the option itself is the wrapper's child.
+      const option = (Array.isArray(item?.children) ? item.children[0] : item?.children) as Mithril.Children;
+
+      if (isActive(option)) {
+        item.attrs = { ...item.attrs, 'aria-current': 'true' };
+      }
+    });
+
+    return super.getMenu(items);
+  }
 }
