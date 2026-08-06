@@ -209,10 +209,26 @@
 .OverflowingList-dropdown > .Dropdown-menu {
   min-width: 180px;
 
+  // Items arrive from the row as whatever component put them there — a plain
+  // link, a button, the label of a dropdown — carrying whatever alignment and
+  // padding that component uses. A `.Button` centres its contents and pads by
+  // 13px, a menu link starts them and pads by 15px, so left alone the column
+  // comes out ragged: icons at a different offset on every line, shifted by
+  // however long each label happens to be.
+  //
+  // `justify-content` is the part that matters. These are flex containers, so
+  // `text-align` alone does nothing about the centring.
   > li > .Button,
-  > li > a {
+  > li > a,
+  // A split dropdown renders its main action as a direct child of the group
+  // rather than as the first entry of its menu, so it needs naming separately
+  // to line up with the plain items above it.
+  > li > .Dropdown > .Button,
+  > li > .Dropdown > a {
+    justify-content: flex-start;
     text-align: left;
     width: 100%;
+    padding-left: 15px;
   }
 
   // An item that was itself a dropdown on the row would otherwise render its
@@ -243,8 +259,9 @@
       background: transparent;
     }
 
-    // The group's own label stays as a heading, and its children are indented
-    // under it so the nesting that was in the row is still legible.
+    // The group's own label stays as a heading, and its children are stepped in
+    // from the common indent above so the nesting that was in the row is still
+    // legible.
     > .Dropdown-menu > li:not(:first-child) > a,
     > .Dropdown-menu > li:not(:first-child) > .Button {
       padding-left: 30px;
