@@ -3,6 +3,7 @@ import Component, { ComponentAttrs } from '../Component';
 import SearchState from '../states/SearchState';
 import extractText from '../utils/extractText';
 import ItemList from '../utils/ItemList';
+import classList from '../utils/classList';
 import Icon from './Icon';
 import type Mithril from 'mithril';
 
@@ -102,15 +103,19 @@ export default abstract class AbstractGlobalSearch<T extends SearchAttrs = Searc
     };
 
     return (
-      <div role="search" className="Search" aria-label={this.attrs.a11yRoleLabel}>
+      <div role="search" className={classList('Search', { 'Search--active': !!value })} aria-label={this.attrs.a11yRoleLabel}>
         <button
           type="button"
           // `Button--flat` rather than `Button--link`: this sits among the
           // notification and message controls, which are flat buttons, and
           // should pick up the same hover and focus treatment as them.
           className="Search-input Button Button--flat"
-          aria-label={extractText(this.attrs.label)}
-          title={extractText(this.attrs.label)}
+          aria-label={
+            value
+              ? extractText(app.translator.trans('core.lib.search.search_active_button_accessible_label', { query: value }))
+              : extractText(this.attrs.label)
+          }
+          title={value || extractText(this.attrs.label)}
           onclick={() => {
             // On phones the search button lives inside the slide-out drawer. Close the drawer as soon as
             // search is activated, before the modal is shown, so it isn't left open behind (and overlapping)

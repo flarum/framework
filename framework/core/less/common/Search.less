@@ -43,6 +43,35 @@
       display: none;
     }
   }
+
+  // An active search is different: the results being shown are filtered, and
+  // the header is the only place that says so once the modal has been closed.
+  // Hiding the query here would leave someone looking at a filtered page with
+  // nothing to explain it and no way back, so the control takes the room it
+  // needs to show what was searched for and to undo it.
+  .Header-secondary .Search--active {
+    .Search-input {
+      width: auto;
+      max-width: 180px;
+      padding: 8px 13px;
+      color: var(--header-color);
+
+      .Button-label {
+        display: flex;
+      }
+    }
+
+    .Search-clear {
+      display: flex;
+      color: var(--header-color);
+    }
+  }
+}
+
+// The accent marks the control as doing something to the page, matching how the
+// notification bell colours its icon when there is something to attend to.
+.Search--active .Search-input .Button-icon {
+  color: var(--header-color);
 }
 
 .DiscussionSearchResult {
