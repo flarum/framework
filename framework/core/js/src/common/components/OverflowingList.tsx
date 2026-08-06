@@ -94,8 +94,20 @@ export default class OverflowingList extends Component<IOverflowingListAttrs> {
       this.observer = new ResizeObserver(() => this.recalculate());
 
       const list = this.element as HTMLElement;
-      const container = list.parentElement?.parentElement ?? list.parentElement ?? list;
+      const row = list.parentElement;
+      const container = row?.parentElement ?? row ?? list;
       this.observer.observe(container);
+
+      // The siblings are watched as well as the container holding them. They
+      // take their space from the same line this row does and can change size
+      // without the container changing at all — a search control growing to
+      // show an active query, a badge appearing on a button — and the room
+      // they give back is room this row should be able to use again.
+      if (row) {
+        Array.from(container.children).forEach((child) => {
+          if (child !== row) this.observer!.observe(child);
+        });
+      }
     }
 
     // Sibling controls can change width without the container resizing at all
@@ -140,11 +152,20 @@ export default class OverflowingList extends Component<IOverflowingListAttrs> {
     if (!list.isConnected) return;
 
     // Collapsing only makes sense while the items share a single line. In the
-    // drawer the same list is laid out as a vertical column with a whole
-    // screen height to grow into, so there is nothing to save and everything
-    // should simply render.
-    if (getComputedStyle(list).flexDirection !== 'row') {
-      if (this.visibleCount !== itemCount) {
+    // drawer the same list is laid out as a stack of block-level entries with a
+    // whole screen height to grow into, so there is nothing to save and
+    // everything should simply render.
+    //
+    // What decides that is whether the list lays its items out in a row at all,
+    // which means the display type: `flex-direction` is reported as `row` on
+    // everything, flex container or not, so it cannot answer this on its own.
+    const style = getComputedStyle(list);
+    const laysOutInARow = (style.display === 'flex' || style.display === 'inline-flex') && style.flexDirection.startsWith('row');
+
+    // A hidden row measures zero, and zero available space would collapse
+    // every item. Leave the count alone until it can be measured for real.
+    if (!laysOutInARow || !list.clientWidth) {
+      if (!laysOutInARow && this.visibleCount !== itemCount) {
         this.visibleCount = itemCount;
         m.redraw();
       }

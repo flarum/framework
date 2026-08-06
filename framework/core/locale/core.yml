@@ -991,6 +991,7 @@ core:
       options_heading: Search options
       placeholder: Search...
       preview_heading: Search preview
+      search_active_button_accessible_label: "Change search: {query}"
       search_clear_button_accessible_label: Clear search query
 
     # These translations are used by search sources.
