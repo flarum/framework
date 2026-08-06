@@ -94,8 +94,20 @@ export default class OverflowingList extends Component<IOverflowingListAttrs> {
       this.observer = new ResizeObserver(() => this.recalculate());
 
       const list = this.element as HTMLElement;
-      const container = list.parentElement?.parentElement ?? list.parentElement ?? list;
+      const row = list.parentElement;
+      const container = row?.parentElement ?? row ?? list;
       this.observer.observe(container);
+
+      // The siblings are watched as well as the container holding them. They
+      // take their space from the same line this row does and can change size
+      // without the container changing at all — a search control growing to
+      // show an active query, a badge appearing on a button — and the room
+      // they give back is room this row should be able to use again.
+      if (row) {
+        Array.from(container.children).forEach((child) => {
+          if (child !== row) this.observer!.observe(child);
+        });
+      }
     }
 
     // Sibling controls can change width without the container resizing at all
