@@ -14,6 +14,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
 use Flarum\Realtime\Push\RealtimeRegistry;
+use Flarum\Realtime\Websocket\Api\ChannelRegistry;
 use Flarum\Realtime\Websocket\Api\PresenceChannelAuthorizer;
 use Flarum\Realtime\Websocket\Settings;
 use Flarum\User\User;
@@ -56,10 +57,30 @@ class Realtime implements ExtenderInterface
      */
     protected array $presenceChannelGuards = [];
 
+    /**
+     * @var array<string, array{authorize: callable|string|array, scoped: bool}>
+     */
+    protected array $privateChannels = [];
+
+    /**
+     * @var array<string, array{authorize: callable|string|array, scoped: bool}>
+     */
+    protected array $presenceChannels = [];
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->afterResolving(Settings::class, function (Settings $settings) {
             $settings->use($this->configuration);
+        });
+
+        $container->afterResolving(ChannelRegistry::class, function (ChannelRegistry $registry) use ($container) {
+            foreach ($this->privateChannels as $subject => $channel) {
+                $registry->addPrivate($subject, $this->resolveChannelCallback($channel['authorize'], $container), $channel['scoped']);
+            }
+
+            foreach ($this->presenceChannels as $subject => $channel) {
+                $registry->addPresence($subject, $this->resolveChannelCallback($channel['authorize'], $container), $channel['scoped']);
+            }
         });
 
         $container->afterResolving(PresenceChannelAuthorizer::class, function (PresenceChannelAuthorizer $authorizer) {
@@ -368,8 +389,155 @@ class Realtime implements ExtenderInterface
     }
 
     // -------------------------------------------------------------------------
-    // Presence channel authorization
+    // Channels
     // -------------------------------------------------------------------------
+
+    /**
+     * Register a private channel, and how to decide who may subscribe to it.
+     *
+     * By default the channel is scoped to one object: it is `private-{subject}={id}`,
+     * and the callback is given the actor and that id. Pass `scoped: false` for a
+     * forum-wide channel, `private-{subject}` with no id (the callback then gets
+     * null). A name of the other shape is refused before the callback runs.
+     *
+     * Return true to sign the subscription; anything else refuses it.
+     *
+     * Because the check runs here — in an ordinary request, once per subscription —
+     * it has the full permission machinery available, and the websocket server does
+     * no permission work per event. That makes the channel a real privilege
+     * boundary: an extension can carry data on it that the audience of an existing
+     * channel is not entitled to, rather than having to borrow one of realtime's and
+     * inherit its audience.
+     *
+     * Guests reach the callback. Private channels have never required a session (the
+     * discussion typing channel is authorized for anyone who can see the discussion,
+     * guests included), so a members-only channel must say so itself.
+     *
+     * Prefix the subject to keep it yours. Registering one twice on the same
+     * extender throws straight away; if two extensions claim the same subject, the
+     * channel refuses every subscription and the clash is logged, rather than
+     * either extension's permissions silently applying to the other's channel.
+     *
+     * The callback may be a closure, an invokable class name, or
+     * `[SomeClass::class, 'method']`; class names are resolved through the
+     * container when the channel is first authorized, so they can inject what they
+     * need.
+     *
+     * Example (in an extension's extend.php):
+     *
+     *   (new Extend\Conditional())
+     *       ->whenExtensionEnabled('flarum-realtime', fn () => [
+     *           (new \Flarum\Realtime\Extend\Realtime())
+     *               ->privateChannel('acme-readers', function (User $actor, int $discussionId) {
+     *                   $discussion = Discussion::whereVisibleTo($actor)->find($discussionId);
+     *
+     *                   return $discussion !== null
+     *                       && $actor->can('acme-readers.view', $discussion);
+     *               }),
+     *       ]),
+     *
+     * @param string $subject  Channel subject, e.g. 'acme-readers'.
+     * @param callable(User $actor, ?int $id): bool|class-string|array{class-string, string} $authorize
+     * @param bool $scoped  Whether the channel name carries `={id}`.
+     */
+    public function privateChannel(string $subject, callable|string|array $authorize, bool $scoped = true): self
+    {
+        $this->assertNewChannel($this->privateChannels, 'private', $subject);
+
+        $this->privateChannels[$subject] = ['authorize' => $authorize, 'scoped' => $scoped];
+
+        return $this;
+    }
+
+    /**
+     * Register a presence channel, and how to decide who may subscribe to it.
+     *
+     * Presence channels keep a member list and emit `member_added`/`member_removed`,
+     * so a roster needs no announce/keepalive protocol of its own. Return the member
+     * data to publish for this actor — a non-empty array, broadcast to the rest of
+     * the channel, so put only what everyone there may see — or false to refuse.
+     * An empty array is a refusal too.
+     *
+     * By default the channel is scoped to one object, `presence-{subject}={id}`, and
+     * the id is passed to the callback. Pass `scoped: false` for a forum-wide roster,
+     * `presence-{subject}` with no id (the callback then gets null). A name of the
+     * other shape is refused before the callback runs, so a forum-wide channel can't
+     * be multiplied by a client appending ids to it.
+     *
+     * Guests are refused before the callback runs: the member list is keyed by user
+     * id, so there is nothing to publish for them.
+     *
+     * Subjects and callbacks follow the same rules as {@link privateChannel()}. To
+     * add a further condition to a channel someone else registered, use
+     * {@link authorizePresenceChannel()} instead; guards stack, definitions do not.
+     *
+     * Example:
+     *
+     *   (new \Flarum\Realtime\Extend\Realtime())
+     *       ->presenceChannel('acme-readers', function (User $actor, int $discussionId) {
+     *           $discussion = Discussion::whereVisibleTo($actor)->find($discussionId);
+     *
+     *           if ($discussion === null || ! $actor->can('acme-readers.view', $discussion)) {
+     *               return false;
+     *           }
+     *
+     *           return ['displayName' => $actor->display_name];
+     *       }),
+     *
+     * @param string $subject  Channel subject, e.g. 'acme-readers'.
+     * @param callable(User $actor, ?int $id): (array<string, mixed>|false|null)|class-string|array{class-string, string} $authorize
+     * @param bool $scoped  Whether the channel name carries `={id}`.
+     */
+    public function presenceChannel(string $subject, callable|string|array $authorize, bool $scoped = true): self
+    {
+        $this->assertNewChannel($this->presenceChannels, 'presence', $subject);
+
+        $this->presenceChannels[$subject] = ['authorize' => $authorize, 'scoped' => $scoped];
+
+        return $this;
+    }
+
+    /**
+     * Within one extender a repeated subject is a plain mistake, and catching it
+     * here surfaces it while `extend.php` is evaluated — before a second callback,
+     * possibly a more permissive one, could quietly replace the first.
+     */
+    private function assertNewChannel(array $registered, string $type, string $subject): void
+    {
+        if (isset($registered[$subject])) {
+            throw new InvalidArgumentException(
+                "The $type channel subject \"$subject\" is already registered on this extender."
+            );
+        }
+    }
+
+    /**
+     * Turn an invokable class name or a `[class-string, method]` pair into a
+     * callable, resolving the class through the container only when the channel is
+     * first authorized.
+     */
+    private function resolveChannelCallback(callable|string|array $callback, Container $container): callable
+    {
+        if (is_array($callback) && is_string($callback[0] ?? null) && ! is_callable($callback)) {
+            [$class, $method] = $callback;
+
+            return function (...$args) use ($container, $class, $method) {
+                return $container->make($class)->$method(...$args);
+            };
+        }
+
+        if (is_string($callback) && ! is_callable($callback)) {
+            return function (...$args) use ($container, $callback) {
+                return $container->make($callback)(...$args);
+            };
+        }
+
+        if (! is_callable($callback)) {
+            throw new InvalidArgumentException('A channel callback must be callable, an invokable class name, or a [class, method] pair.');
+        }
+
+        return $callback;
+    }
 
     /**
      * Register a callback to authorize access to a presence channel.

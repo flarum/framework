@@ -50,7 +50,7 @@ class Message
     /**
      * The channel carrying the identities of users who are typing while hiding their
      * online status. Subscription requires `user.viewLastSeenAt` — see
-     * {@link \Flarum\Realtime\Websocket\Api\AuthController::typingIdentified()}.
+     * {@link \Flarum\Realtime\Websocket\Api\DefaultChannels::typingIdentified()}.
      */
     public static function identifiedTypingChannel(int $discussionId): string
     {
@@ -173,7 +173,7 @@ class Message
      * The channel naming hidden typists in a private conversation to those who may
      * see through a hidden online status. Subscription requires `user.viewLastSeenAt`
      * and membership of the conversation — see
-     * {@link \Flarum\Realtime\Websocket\Api\AuthController::privateMessageTypingIdentified()}.
+     * {@link \Flarum\Realtime\Websocket\Api\DefaultChannels::privateMessageTypingIdentified()}.
      */
     public static function identifiedDialogTypingChannel(int $dialogId): string
     {
