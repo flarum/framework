@@ -11,7 +11,9 @@ namespace Flarum\Realtime\Tests\unit\Extend;
 
 use Flarum\Realtime\Extend\Realtime as RealtimeExtender;
 use Flarum\Realtime\Push\RealtimeRegistry;
+use Flarum\Realtime\Websocket\Api\ChannelRegistry;
 use Flarum\Realtime\Websocket\Settings;
+use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -19,16 +21,18 @@ use PHPUnit\Framework\TestCase;
 class RealtimeExtenderTest extends TestCase
 {
     private RealtimeRegistry $registry;
+    private ChannelRegistry $channels;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->registry = new RealtimeRegistry();
+        $this->channels = new ChannelRegistry();
     }
 
     /**
      * Runs the extender against a fake container that immediately calls the
-     * afterResolving callbacks for both Settings and RealtimeRegistry.
+     * afterResolving callbacks for Settings, RealtimeRegistry and ChannelRegistry.
      */
     private function runExtender(RealtimeExtender $extender): void
     {
@@ -38,16 +42,21 @@ class RealtimeExtenderTest extends TestCase
         $container = $this->createMock(Container::class);
 
         $registry = $this->registry;
+        $channels = $this->channels;
 
         $container
             ->method('afterResolving')
-            ->willReturnCallback(function (string $abstract, callable $callback) use ($settings, $registry) {
+            ->willReturnCallback(function (string $abstract, callable $callback) use ($settings, $registry, $channels) {
                 if ($abstract === Settings::class) {
                     $callback($settings);
                 }
 
                 if ($abstract === RealtimeRegistry::class) {
                     $callback($registry);
+                }
+
+                if ($abstract === ChannelRegistry::class) {
+                    $callback($channels);
                 }
             });
 
@@ -141,6 +150,32 @@ class RealtimeExtenderTest extends TestCase
     }
 
     #[Test]
+    public function private_channel_registers_with_the_channel_registry(): void
+    {
+        $extender = (new RealtimeExtender())
+            ->privateChannel('acme-readers', fn (User $actor, int $id) => $id === 1);
+
+        $this->runExtender($extender);
+
+        $this->assertTrue($this->channels->authorizePrivate('acme-readers', new User, 1));
+        $this->assertFalse($this->channels->authorizePrivate('acme-readers', new User, 2));
+    }
+
+    #[Test]
+    public function presence_channel_registers_with_the_channel_registry(): void
+    {
+        $extender = (new RealtimeExtender())
+            ->presenceChannel('acme-readers', fn (User $actor, ?int $id) => ['scopedTo' => $id]);
+
+        $this->runExtender($extender);
+
+        $this->assertSame(
+            ['scopedTo' => 5],
+            $this->channels->authorizePresence('acme-readers', new User, 5)
+        );
+    }
+
+    #[Test]
     public function extender_can_be_chained(): void
     {
         $extender = (new RealtimeExtender())
@@ -148,7 +183,9 @@ class RealtimeExtenderTest extends TestCase
             ->broadcastModelEvent('EventB', fn ($e) => $e, null, 'nameB')
             ->broadcastDialogEvent('DialogEvent', fn ($e) => $e->message)
             ->broadcastFlagEvent('FlagEvent', fn ($e) => $e->discussion, 'flagged')
-            ->registerModelEndpoint('MyModel', 'my-models');
+            ->registerModelEndpoint('MyModel', 'my-models')
+            ->privateChannel('acme-readers', fn () => true)
+            ->presenceChannel('acme-readers', fn () => ['ok' => true]);
 
         $this->runExtender($extender);
 
@@ -156,6 +193,8 @@ class RealtimeExtenderTest extends TestCase
         $this->assertCount(1, $this->registry->getDialogEvents());
         $this->assertCount(1, $this->registry->getFlagEvents());
         $this->assertCount(1, $this->registry->getModelEndpoints());
+        $this->assertTrue($this->channels->authorizePrivate('acme-readers', new User, 1));
+        $this->assertSame(['ok' => true], $this->channels->authorizePresence('acme-readers', new User, null));
     }
 
     #[Test]
