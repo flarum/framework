@@ -79,10 +79,10 @@ on:
         description: The node version to use for the workflow.
         type: number
         required: false
-        default: 24
+        default: 26
 
       js_package_manager:
-        description: "Enable TypeScript?"
+        description: "The JS package manager to use (yarn, npm or pnpm)."
         type: string
         default: yarn
         required: false
@@ -119,8 +119,8 @@ on:
 
 env:
   COMPOSER_ROOT_VERSION: dev-main
-  ci_script: ${{ inputs.js_package_manager == 'yarn' && 'yarn install --immutable' || 'npm ci' }}
-  cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || '{0}/package-lock.json', inputs.frontend_directory) }}
+  ci_script: ${{ inputs.js_package_manager == 'yarn' && 'yarn install --immutable' || inputs.js_package_manager == 'pnpm' && 'pnpm install --frozen-lockfile' || 'npm ci' }}
+  cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || inputs.js_package_manager == 'pnpm' && '{0}/pnpm-lock.yaml' || '{0}/package-lock.json', inputs.frontend_directory) }}
   COMPOSER_AUTH: ${{ secrets.composer_auth }}
   DISABLE_V8_COMPILE_CACHE: 1
 
@@ -140,8 +140,14 @@ jobs:
         with:
           token: ${{ secrets.git_actor_token != '' && secrets.git_actor_token || secrets.GITHUB_TOKEN }}
 
+      - name: Set up pnpm
+        if: ${{ inputs.js_package_manager == 'pnpm' }}
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with:
+          package_json_file: ${{ inputs.frontend_directory }}/package.json
+
       - name: Set up Node
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.js_package_manager }}
