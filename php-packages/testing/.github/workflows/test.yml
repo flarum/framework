@@ -56,7 +56,7 @@ jobs:
           php-version: ${{ matrix.php }}
           coverage: xdebug
           extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip
-          tools: phpunit, composer:v2
+          tools: phpunit, composer:2.2
 
       # The authentication alter is necessary because newer mysql versions use the `caching_sha2_password` driver,
       # which isn't supported prior to PHP7.4
