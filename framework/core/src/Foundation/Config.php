@@ -82,7 +82,14 @@ readonly class Config implements ArrayAccess
     {
         $value = $this->data['session']['cookie_expires_on_close'] ?? null;
 
-        return is_bool($value) ? $value : null;
+        if ($value === null) {
+            return null;
+        }
+
+        // Anything PHP would read as true or false is honoured, so a value
+        // arriving from the environment as the string "1" behaves the same way
+        // it does for the other switches in this file.
+        return (bool) $value;
     }
 
     /**

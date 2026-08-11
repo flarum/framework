@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\integration\api\access_tokens;
 
+use Flarum\Http\SessionAccessToken;
 use Flarum\Http\SessionConfig;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -87,6 +88,35 @@ class SessionCookieLifetimeTest extends TestCase
         $this->setting('session.cookie_expires_on_close', true);
 
         $this->assertTrue($this->app()->getContainer()->make(SessionConfig::class)->cookieExpiresOnClose());
+    }
+
+    #[Test]
+    public function values_arriving_as_strings_are_understood()
+    {
+        // Environment variables reach config.php as strings unless they are
+        // literally "true" or "false", so a switch set from the environment has
+        // to be read the same way the other switches in config.php are.
+        $this->config('session.cookie_expires_on_close', '1');
+
+        $this->assertTrue($this->app()->getContainer()->make(SessionConfig::class)->cookieExpiresOnClose());
+    }
+
+    #[Test]
+    public function a_lifetime_arriving_as_a_string_is_understood()
+    {
+        $this->config('session.lifetime', '30');
+
+        $this->assertEquals(30, $this->app()->getContainer()->make(SessionConfig::class)->lifetime());
+    }
+
+    #[Test]
+    public function a_token_lifetime_arriving_as_a_string_is_understood()
+    {
+        $this->config('session.tokens.session', '900');
+
+        $this->app();
+
+        $this->assertEquals(900, SessionAccessToken::lifetime());
     }
 
     #[Test]
