@@ -67,7 +67,7 @@ class CollectGarbage implements Middleware
         return mt_rand(1, 100) <= 2;
     }
 
-    private function getSessionLifetimeInSeconds(): float|int
+    private function getSessionLifetimeInSeconds(): int
     {
         // Read from the same place the session cookie does, so a shortened
         // session is actually swept rather than left on disk until the old
