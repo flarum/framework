@@ -99,6 +99,39 @@ core:
         driver_options:
           default: Default database search
         no_other_drivers: No search drivers are available yet. Install a search driver extension to be able to configure it.
+      sessions:
+        section_label: Sessions
+        lifetime_label: Session Length (minutes)
+        lifetime_help: How long a session may sit idle before it is discarded. Default is 120 minutes.
+        cookie_expires_on_close_label: End sessions when the browser closes
+        cookie_expires_on_close_help: >-
+          Sign people out when they close their browser, rather than keeping them
+          signed in until their session expires. Useful on shared computers.
+        duration_value_label: Length
+        duration_unit_label: Unit
+        never_expires: Never expires
+        enabled: Enabled
+        disabled: Disabled
+        units:
+          seconds: seconds
+          minutes: minutes
+          hours: hours
+          days: days
+          weeks: weeks
+          years: years
+        token_types:
+          session:
+            label: Sign-in Length
+            help: How long someone stays signed in after signing in without choosing to be remembered.
+          session_remember:
+            label: "\"Remember me\" Length"
+            help: >-
+              How long someone stays signed in when they choose to be remembered.
+              This also covers signing in through another service, which is always
+              remembered.
+        config_override:
+          label: Configured in config.php
+          help: Session lengths are set in config.php and cannot be changed here.
       title: Advanced
 
     # These translations are used in the Appearance page.

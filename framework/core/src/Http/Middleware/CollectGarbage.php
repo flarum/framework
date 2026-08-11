@@ -11,6 +11,7 @@ namespace Flarum\Http\Middleware;
 
 use Carbon\Carbon;
 use Flarum\Http\AccessToken;
+use Flarum\Http\SessionConfig;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
 use Flarum\User\RegistrationToken;
@@ -27,7 +28,8 @@ class CollectGarbage implements Middleware
 
     public function __construct(
         protected SessionHandlerInterface $sessionHandler,
-        ConfigRepository $config
+        ConfigRepository $config,
+        protected SessionConfig $sessionLifetimes
     ) {
         $this->sessionConfig = (array) $config->get('session');
     }
@@ -67,6 +69,9 @@ class CollectGarbage implements Middleware
 
     private function getSessionLifetimeInSeconds(): float|int
     {
-        return $this->sessionConfig['lifetime'] * 60;
+        // Read from the same place the session cookie does, so a shortened
+        // session is actually swept rather than left on disk until the old
+        // two-hour default would have caught it.
+        return $this->sessionLifetimes->lifetime() * 60;
     }
 }

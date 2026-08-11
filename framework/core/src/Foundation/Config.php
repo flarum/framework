@@ -39,6 +39,61 @@ readonly class Config implements ArrayAccess
         return $this->data['queue']['driver'] ?? null;
     }
 
+    /**
+     * How long a token of the given type stays valid, in seconds.
+     *
+     * Keyed by the type each token class declares, so a type added by an
+     * extension is configured the same way the ones in core are.
+     *
+     * Zero is meaningful — it means the token never expires — so it is only
+     * values that cannot be honoured at all (negative, or not a number) that
+     * are discarded here in favour of whatever comes next.
+     */
+    public function accessTokenLifetime(string $type): ?int
+    {
+        $lifetime = $this->data['session']['tokens'][$type] ?? null;
+
+        if (! is_numeric($lifetime) || $lifetime < 0) {
+            return null;
+        }
+
+        return (int) $lifetime;
+    }
+
+    /**
+     * How long a session may sit idle before it is discarded, in minutes.
+     */
+    public function sessionLifetime(): ?int
+    {
+        $lifetime = $this->data['session']['lifetime'] ?? null;
+
+        if (! is_numeric($lifetime) || $lifetime <= 0) {
+            return null;
+        }
+
+        return (int) $lifetime;
+    }
+
+    /**
+     * Whether session cookies should be discarded when the browser closes,
+     * rather than lasting for the lifetime of the token behind them.
+     */
+    public function sessionCookieExpiresOnClose(): ?bool
+    {
+        $value = $this->data['session']['cookie_expires_on_close'] ?? null;
+
+        return is_bool($value) ? $value : null;
+    }
+
+    /**
+     * Whether session lifetimes are pinned in `config.php`, and so cannot be
+     * changed from the admin panel.
+     */
+    public function sessionConfigOverride(): bool
+    {
+        return isset($this->data['session']);
+    }
+
     public function inMaintenanceMode(): bool
     {
         return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode() || $this->inSafeMode();
