@@ -6,6 +6,12 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this bug report!
+
+        **Before you start:** active development is on the **2.x** line. **1.8.x** is in
+        maintenance only mode until it reaches end of life on **31 December 2026** — only
+        critical security and critical bug fixes are considered for it, so other 1.x reports
+        are likely to be closed without a fix. If you can, please check whether the problem
+        still happens on 2.x and report it against that.
   - type: textarea
     id: current_behavior
     attributes:
@@ -43,12 +49,17 @@ body:
     id: environment
     attributes:
       label: Environment
+      description: |
+        Please give exact versions rather than "latest" — behaviour often differs
+        between point releases, and the database server in particular varies a lot
+        between MySQL, MariaDB, PostgreSQL and SQLite.
       value: |
         - Flarum version: x.y.z
         - Website URL: http://example.com
         - Webserver: [e.g. apache, nginx]
         - Hosting environment: [e.g. shared, vps]
         - PHP version: x.y.z
+        - Database: [e.g. MySQL 8.4.11, MariaDB 10.11.2, PostgreSQL 16.1, SQLite 3.45]
         - Browser: [e.g. chrome 67, safari 11]
     validations:
       required: true
