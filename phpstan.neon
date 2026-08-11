@@ -41,6 +41,8 @@ parameters:
 	  - extensions/messages/extend.php
 	  - extensions/gdpr/extend.php
 	  - extensions/gdpr/src
+	  - php-packages/phpstan/tests/fixtures/conditional-model-cast/extend.php
+	  - php-packages/phpstan/tests/fixtures/conditional-model-cast/check.php
 	excludePaths:
 		- *.blade.php
 	databaseMigrationsPath: ['framework/core/migrations']
