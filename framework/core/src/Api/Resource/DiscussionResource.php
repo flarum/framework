@@ -271,6 +271,9 @@ class DiscussionResource extends AbstractDatabaseResource
             SortColumn::make('createdAt')
                 ->ascendingAlias('oldest')
                 ->descendingAlias('newest'),
+            SortColumn::make('title')
+                ->ascendingAlias('az')
+                ->descendingAlias('za'),
         ];
     }
 
