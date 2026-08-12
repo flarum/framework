@@ -86,7 +86,9 @@ class DiscussionResource extends AbstractDatabaseResource
             Endpoint\Show::make()
                 ->defaultInclude([
                     'user',
+                    'user.groups',
                     'lastPostedUser',
+                    'lastPostedUser.groups',
                     'firstPost',
                     'firstPost.discussion',
                     'firstPost.user',
@@ -99,9 +101,17 @@ class DiscussionResource extends AbstractDatabaseResource
             Endpoint\Index::make()
                 ->defaultInclude([
                     'user',
+                    // Serialised from the relation eager-loaded below, so this
+                    // costs no extra queries. Without it a user arrives with no
+                    // groups, which means no badges — and the frontend keeps
+                    // that record, so their profile stays badge-less until the
+                    // page is reloaded.
+                    'user.groups',
                     'lastPostedUser',
+                    'lastPostedUser.groups',
                     'mostRelevantPost',
-                    'mostRelevantPost.user'
+                    'mostRelevantPost.user',
+                    'mostRelevantPost.user.groups'
                 ])
                 ->defaultSort('-lastPostedAt')
                 ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups', 'mostRelevantPost.user.groups'])
