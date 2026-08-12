@@ -224,10 +224,7 @@ class InternalLinksTest extends TestCase
         // one of those extensions fatals on construction.
         $container = $this->app()->getContainer();
 
-        $formatter = new class(
-            new \Illuminate\Cache\Repository($container->make('cache.filestore')),
-            $container->make(\Flarum\Foundation\Paths::class)->storage.'/formatter'
-        ) extends Formatter {
+        $formatter = new class(new \Illuminate\Cache\Repository($container->make('cache.filestore')), $container->make(\Flarum\Foundation\Paths::class)->storage.'/formatter') extends Formatter {
         };
 
         $this->assertStringContainsString(

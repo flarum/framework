@@ -10,9 +10,9 @@
 namespace Flarum\Formatter;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Illuminate\Cache\Repository;
-use Flarum\Foundation\Config;
 use Illuminate\Contracts\Container\Container;
 
 class FormatterServiceProvider extends AbstractServiceProvider
