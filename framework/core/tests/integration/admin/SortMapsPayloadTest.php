@@ -9,11 +9,10 @@
 
 namespace Flarum\Tests\integration\admin;
 
-use Flarum\Extend;
 use Flarum\Api\Sort\SortColumn;
+use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
