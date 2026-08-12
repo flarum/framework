@@ -1,0 +1,74 @@
+// A link to a discussion on this forum, shown as the discussion it points at
+// rather than as the address that was pasted.
+//
+// It reads as one object — icon, number, and post number together — so it is
+// laid out as a unit rather than as a run of separate words.
+.UrlLink--discussion {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 0 6px;
+  border-radius: var(--border-radius);
+  background: var(--control-bg);
+  color: var(--control-color);
+  // Keeps the pieces on one line, so a label never wraps with the favicon
+  // stranded at the end of a line.
+  white-space: nowrap;
+
+  // A post body underlines links in running text, and puts that underline on
+  // `.Post-body a` — matched here at equal specificity so the label opts out
+  // without needing `!important`.
+  .Post-body &,
+  .Post-preview & {
+    border-bottom: 0;
+    font-weight: normal;
+  }
+
+  &:hover,
+  &:focus {
+    color: var(--link-color);
+
+    .UrlLink-discussion {
+      text-decoration: underline;
+    }
+  }
+}
+
+.UrlLink-favicon {
+  // Matched to the text beside it rather than the image's own size, which is
+  // whatever was uploaded — often 128px or larger.
+  width: 1em;
+  height: 1em;
+  // The upload may be any aspect ratio; this stops an oblong one stretching.
+  object-fit: contain;
+  border-radius: 2px;
+  flex-shrink: 0;
+  // `align-items: baseline` would sit the image on the text baseline and push
+  // the line taller; nudging it back keeps the label's line-height intact.
+  align-self: center;
+}
+
+.UrlLink-discussion {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+// The reply this link points at, when it names one.
+.UrlLink-post {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--muted-color);
+  font-variant-numeric: tabular-nums;
+  font-size: 90%;
+
+  // Set apart from the discussion number, so `#411` and the reply number do
+  // not read as one long run of digits.
+  padding-left: 5px;
+  border-left: 1px solid var(--control-color);
+}
+
+.UrlLink-postIcon {
+  font-size: 90%;
+  opacity: 0.8;
+}
