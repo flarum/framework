@@ -10,15 +10,19 @@
 namespace Flarum\Foundation;
 
 use Flarum\Http\Middleware as HttpMiddleware;
+use Flarum\Queue\QueueFactory;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Queue\Worker;
 use Laminas\Stratigility\Middleware\OriginalMessages;
 use Laminas\Stratigility\MiddlewarePipe;
 use Middlewares\BasePath;
 use Middlewares\BasePathRouter;
 use Middlewares\RequestHandler;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 
 class InstalledApp implements AppInterface
 {
@@ -70,6 +74,8 @@ class InstalledApp implements AppInterface
 
     protected function getUpdaterHandler(): RequestHandlerInterface|MiddlewarePipe
     {
+        $this->pauseQueueForUpdate();
+
         $pipe = new MiddlewarePipe;
         $pipe->pipe(new BasePath($this->basePath()));
         $pipe->pipe(
@@ -78,6 +84,43 @@ class InstalledApp implements AppInterface
         $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
         return $pipe;
+    }
+
+    /**
+     * Pause the queue for as long as the site needs updating.
+     *
+     * The window between new code landing and its migrations running is when a
+     * worker is most dangerous — it reserves jobs against a schema the code no
+     * longer matches. That window opens the moment `settings.version` drifts,
+     * long before an admin visits /update, so the pause is armed here, the
+     * moment the app first routes a request to the updater, rather than waiting
+     * for the migration itself.
+     *
+     * `MigrateCommand` clears this same flag when the migrations finish, so a
+     * pause armed here is lifted there. Setting an already-set flag is a
+     * no-op, so re-arming on every request through this window is harmless.
+     *
+     * Mirrors `queue:pause --all`, including its refusal to act when pausing is
+     * disabled — a flag no worker reads is only misleading state.
+     */
+    protected function pauseQueueForUpdate(): void
+    {
+        if (! Worker::$pausable) {
+            return;
+        }
+
+        try {
+            $connection = $this->container->make(Queue::class)->getConnectionName();
+
+            $this->container->make(QueueFactory::class)->pause($connection, '*');
+        } catch (\Throwable $e) {
+            // The updater must render even if the queue cannot be reached — a
+            // failure to pause must never be a failure to update. The worker's
+            // own maintenance handling remains the backstop.
+            $this->container->make(LoggerInterface::class)->warning(
+                'Could not pause the queue before serving the updater: '.$e->getMessage()
+            );
+        }
     }
 
     protected function basePath(): string

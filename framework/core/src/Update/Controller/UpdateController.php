@@ -33,11 +33,8 @@ class UpdateController implements RequestHandlerInterface
     {
         $input = $request->getParsedBody();
 
-        if (
-            $this->databaseHasPassword()
-            && Arr::get($input, 'databasePassword') !== $this->config['database.password']
-        ) {
-            return new HtmlResponse('Incorrect database password.', 500);
+        if (! $this->verifyCredentials(is_array($input) ? $input : [])) {
+            return new HtmlResponse('Incorrect database credentials.', 500);
         }
 
         $body = fopen('php://temp', 'wb+');
@@ -53,8 +50,45 @@ class UpdateController implements RequestHandlerInterface
         return new Response($body, 200);
     }
 
-    private function databaseHasPassword(): bool
+    /**
+     * Confirm the caller is the admin, by the only means available before the
+     * app can authenticate anyone: echoing back the database credentials that
+     * config.php holds.
+     *
+     * For MySQL, MariaDB and PostgreSQL the username and password must both
+     * match. On a passwordless database the password half is an empty string
+     * on both sides, so the username is what a passing visitor would not know —
+     * and checking it unconditionally is what closed the old hole, where a null
+     * password meant no check ran at all.
+     *
+     * SQLite has neither a username nor a password — it is a file, not a
+     * network service. There the database file's name stands in as the secret:
+     * still something an admin knows and an anonymous visitor does not.
+     *
+     * @param array<string, mixed> $input
+     */
+    private function verifyCredentials(array $input): bool
     {
-        return $this->config['database.password'] !== null;
+        $username = (string) $this->config['database.username'];
+        $password = (string) $this->config['database.password'];
+
+        if ($username === '' && $password === '') {
+            // No credentials to check — this is SQLite. Fall back to the
+            // database name, the one thing in its config an outsider would not
+            // know. It is a weak secret (defaults like `flarum.sqlite` are
+            // guessable), but a weak check is worth more than none, and it
+            // closes the bodyless-POST hole for this driver too.
+            $database = (string) $this->config['database.database'];
+
+            return hash_equals($database, (string) Arr::get($input, 'databaseName', ''));
+        }
+
+        // Both comparisons are evaluated before they are combined, so a failed
+        // username check does not short-circuit the password check and reveal,
+        // through timing, which half was wrong.
+        $usernameOk = hash_equals($username, (string) Arr::get($input, 'databaseUsername', ''));
+        $passwordOk = hash_equals($password, (string) Arr::get($input, 'databasePassword', ''));
+
+        return $usernameOk && $passwordOk;
     }
 }

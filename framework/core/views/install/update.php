@@ -1,19 +1,33 @@
 <h2>Update Flarum</h2>
 
-<?php if ($needsPassword): ?>
-<p>Enter your database password to update Flarum. Before you proceed, you should <strong>back up your database</strong>. If you have any trouble, get help on the <a href="https://docs.flarum.org/update" target="_blank">Flarum website</a>.</p>
+<?php if ($usesDatabaseName): ?>
+<p>Enter your database name to update Flarum. Before you proceed, you should <strong>back up your database</strong>. If you have any trouble, get help on the <a href="https://docs.flarum.org/update" target="_blank">Flarum website</a>.</p>
 <?php else: ?>
-<p>Click the button below to update Flarum. Before you proceed, you should <strong>back up your database</strong>. If you have any trouble, get help on the <a href="https://docs.flarum.org/update" target="_blank">Flarum website</a>.</p>
+<p>Enter your database username and password to update Flarum. Before you proceed, you should <strong>back up your database</strong>. If your database has no password, leave that field blank. If you have any trouble, get help on the <a href="https://docs.flarum.org/update" target="_blank">Flarum website</a>.</p>
 <?php endif; ?>
 
 <form method="post">
   <div id="error" style="display:none"></div>
 
-  <?php if ($needsPassword): ?>
+  <?php if ($usesDatabaseName): ?>
+  <div class="FormGroup">
+    <div class="FormField">
+      <label>Database Name</label>
+      <input class="FormControl" type="text" name="databaseName" autocomplete="off">
+    </div>
+  </div>
+  <?php else: ?>
+  <div class="FormGroup">
+    <div class="FormField">
+      <label>Database Username</label>
+      <input class="FormControl" type="text" name="databaseUsername" autocomplete="off">
+    </div>
+  </div>
+
   <div class="FormGroup">
     <div class="FormField">
       <label>Database Password</label>
-      <input class="FormControl" type="password" name="databasePassword">
+      <input class="FormControl" type="password" name="databasePassword" autocomplete="off">
     </div>
   </div>
   <?php endif; ?>
