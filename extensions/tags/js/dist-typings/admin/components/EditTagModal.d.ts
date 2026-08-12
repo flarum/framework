@@ -20,11 +20,21 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     icon: Stream<string>;
     isHidden: Stream<boolean>;
     isPrimary: Stream<boolean>;
+    defaultSort: Stream<string>;
     oninit(vnode: Mithril.Vnode<EditTagModalAttrs, this>): void;
     className(): string;
     title(): string | any[] | Mithril.Vnode<import("flarum/common/Component").ComponentAttrs, any>;
     content(): JSX.Element;
     fields(): ItemList<unknown>;
+    /**
+     * The sorts a discussion list can be ordered by, as the forum offers them.
+     *
+     * Read from the payload rather than listed here, so that a sort added by an
+     * extension can be chosen as a tag's default without that extension knowing
+     * anything about tags.
+     */
+    sortOptions(): Record<string, string>;
+    defaultSortField(): JSX.Element;
     submitData(): {
         name: string;
         slug: string;
@@ -33,6 +43,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
         icon: string;
         isHidden: boolean;
         isPrimary: boolean;
+        defaultSort: string | null;
     };
     onsubmit(e: SubmitEvent): void;
     delete(): void;
