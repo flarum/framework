@@ -655,12 +655,14 @@ core:
 
     # These translations are used by the sorting control above the discussion list.
     index_sort:
+      az_button: Title (A–Z)
       latest_button: Latest
       newest_button: => core.ref.newest
       oldest_button: => core.ref.oldest
       relevance_button: => core.ref.relevance
       toggle_dropdown_accessible_label: Change discussion list sorting
       top_button: Top
+      za_button: Title (Z–A)
 
     # These translations are used in the Log In modal dialog.
     log_in:

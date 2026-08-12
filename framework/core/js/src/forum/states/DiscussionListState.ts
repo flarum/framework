@@ -75,6 +75,8 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     map.top = '-commentCount';
     map.newest = '-createdAt';
     map.oldest = 'createdAt';
+    map.az = 'title';
+    map.za = '-title';
 
     return map;
   }
