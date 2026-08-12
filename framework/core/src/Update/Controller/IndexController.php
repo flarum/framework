@@ -40,9 +40,17 @@ class IndexController extends AbstractHtmlController
     {
         $view = $this->view->make('flarum.update::app')->with('title', 'Update Flarum');
 
+        // SQLite has no username or password, so the updater verifies against
+        // the database file's name instead. Only then does the form need that
+        // field — the same condition the verification uses, kept in step so the
+        // form never asks for something the check ignores, or omits something
+        // it requires.
+        $usesDatabaseName = (string) $this->config['database.username'] === ''
+            && (string) $this->config['database.password'] === '';
+
         $view->with('content', $this->view->make('flarum.update::update')->with(
-            'needsPassword',
-            $this->config['database.password'] !== null
+            'usesDatabaseName',
+            $usesDatabaseName
         ));
 
         return $view;
