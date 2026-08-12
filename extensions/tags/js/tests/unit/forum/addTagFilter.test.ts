@@ -4,6 +4,8 @@ import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { jest } from '@jest/globals';
 
+import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
+
 import addTagFilter from '../../../src/forum/addTagFilter';
 import Tag from '../../../src/common/models/Tag';
 
@@ -15,6 +17,9 @@ const coreJsDir = resolve(dirname(fileURLToPath(import.meta.url)), '../../../../
  * changing this value — app.currentTag() must stay consistent with it.
  */
 let routeTagsParam: string | undefined;
+
+/** What m.route.param() would return for the current route. */
+let routeParams: Record<string, string | undefined> = {};
 
 beforeAll(() => {
   const cwd = process.cwd();
@@ -44,6 +49,18 @@ beforeAll(() => {
         attributes: { slug: 'bugs', name: 'Bugs' },
         relationships: { children: { data: [] } },
       },
+      {
+        id: '3',
+        type: 'tags',
+        attributes: { slug: 'sorted', name: 'Sorted', defaultSort: 'az' },
+        relationships: { children: { data: [] } },
+      },
+      {
+        id: '4',
+        type: 'tags',
+        attributes: { slug: 'stale', name: 'Stale', defaultSort: 'sort_from_a_removed_extension' },
+        relationships: { children: { data: [] } },
+      },
     ],
   });
 
@@ -54,6 +71,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   routeTagsParam = undefined;
+  routeParams = {};
   (app as any).currentActiveTag = undefined;
   (app as any).currentTagLoading = false;
 });
@@ -113,5 +131,47 @@ describe('app.currentTag()', () => {
     routeTagsParam = 'bugs';
 
     expect(app.currentTag()!.slug()).toBe('bugs');
+  });
+});
+
+/**
+ * A tag can name the order its page opens with.
+ *
+ * The server applies it when rendering the page, but the first client-side
+ * request is built from the URL alone — so without this the list is fetched
+ * again in the default order and replaces the one the reader arrived to.
+ */
+describe("a tag's default sort", () => {
+  // Drive the real state object, so what is asserted is what the forum does.
+  const params = () => new GlobalSearchState().params();
+
+  beforeEach(() => {
+    (m as any).route = { param: (key: string) => routeParams[key] };
+  });
+
+  it('is used when the reader has not asked for a sort', () => {
+    routeParams = { tags: 'sorted' };
+
+    expect(params().sort).toBe('az');
+  });
+
+  it('leaves a sort chosen by the reader alone', () => {
+    routeParams = { tags: 'sorted', sort: 'newest' };
+
+    expect(params().sort).toBe('newest');
+  });
+
+  it('is absent for a tag that has not set one', () => {
+    routeParams = { tags: 'general' };
+
+    expect(params().sort).toBeUndefined();
+  });
+
+  it('is ignored when the sort no longer exists', () => {
+    // The extension that registered it may simply be disabled for now, and
+    // passing it on would have the API reject the request.
+    routeParams = { tags: 'stale' };
+
+    expect(params().sort).toBeUndefined();
   });
 });

@@ -2,6 +2,7 @@ import app from 'flarum/admin/app';
 import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import ColorPreviewInput from 'flarum/common/components/ColorPreviewInput';
+import Select from 'flarum/common/components/Select';
 import ItemList from 'flarum/common/utils/ItemList';
 import { slug } from 'flarum/common/utils/string';
 import Stream from 'flarum/common/utils/Stream';
@@ -31,6 +32,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
   icon!: Stream<string>;
   isHidden!: Stream<boolean>;
   isPrimary!: Stream<boolean>;
+  defaultSort!: Stream<string>;
 
   oninit(vnode: Mithril.Vnode<EditTagModalAttrs, this>) {
     super.oninit(vnode);
@@ -44,6 +46,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     this.icon = Stream(this.tag.icon() || '');
     this.isHidden = Stream(this.tag.isHidden() || false);
     this.isPrimary = Stream(this.attrs.primary || false);
+    this.defaultSort = Stream(this.tag.defaultSort() || '');
   }
 
   className() {
@@ -137,6 +140,8 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
       10
     );
 
+    items.add('defaultSort', this.defaultSortField(), 5);
+
     items.add(
       'submit',
       <div className="Form-group Form-controls">
@@ -156,6 +161,46 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     return items;
   }
 
+  /**
+   * The sorts a discussion list can be ordered by, as the forum offers them.
+   *
+   * Read from the payload rather than listed here, so that a sort added by an
+   * extension can be chosen as a tag's default without that extension knowing
+   * anything about tags.
+   */
+  sortOptions(): Record<string, string> {
+    const sorts = app.data.sortMaps?.discussions ?? {};
+
+    const options: Record<string, string> = {
+      '': extractText(app.translator.trans('flarum-tags.admin.edit_tag.default_sort_none')),
+    };
+
+    Object.keys(sorts).forEach((key) => {
+      options[key] = extractText(app.translator.trans(`core.lib.index_sort.${key}_button`));
+    });
+
+    // A sort saved earlier whose extension has since gone is kept in the list,
+    // so that it is not silently replaced by whatever happens to sit at the top
+    // of the dropdown when the tag is next edited.
+    const saved = this.defaultSort();
+
+    if (saved && !(saved in options)) {
+      options[saved] = extractText(app.translator.trans('flarum-tags.admin.edit_tag.default_sort_unavailable', { sort: saved }));
+    }
+
+    return options;
+  }
+
+  defaultSortField() {
+    return (
+      <div className="Form-group">
+        <label>{app.translator.trans('flarum-tags.admin.edit_tag.default_sort_label')}</label>
+        <div className="helpText">{app.translator.trans('flarum-tags.admin.edit_tag.default_sort_text')}</div>
+        <Select value={this.defaultSort() ?? ''} options={this.sortOptions()} onchange={this.defaultSort} />
+      </div>
+    );
+  }
+
   submitData() {
     return {
       name: this.name(),
@@ -165,6 +210,8 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
       icon: this.icon(),
       isHidden: this.isHidden(),
       isPrimary: this.isPrimary(),
+      // An empty selection means "no preference", which the API stores as null.
+      defaultSort: this.defaultSort() || null,
     };
   }
 

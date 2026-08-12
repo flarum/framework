@@ -655,14 +655,14 @@ core:
 
     # These translations are used by the sorting control above the discussion list.
     index_sort:
-      az_button: Title (A–Z)
-      latest_button: Latest
+      az_button: => core.ref.title_az
+      latest_button: => core.ref.latest
       newest_button: => core.ref.newest
       oldest_button: => core.ref.oldest
       relevance_button: => core.ref.relevance
       toggle_dropdown_accessible_label: Change discussion list sorting
-      top_button: Top
-      za_button: Title (Z–A)
+      top_button: => core.ref.top
+      za_button: => core.ref.title_za
 
     # These translations are used in the Log In modal dialog.
     log_in:
@@ -964,6 +964,18 @@ core:
       maintenance_mode_low: Down for maintenance. Only administrators can access the forum.
       maintenance_mode_safe: Down for maintenance with safe mode. Only administrators can access the forum and no extensions are booted.
 
+    # The names of the discussion list's sort options. These live here rather
+    # than under `forum` because the admin panel names them too — a tag's
+    # default sort, for one — and the forum namespace is not shipped to it.
+    index_sort:
+      az_button: => core.ref.title_az
+      latest_button: => core.ref.latest
+      newest_button: => core.ref.newest
+      oldest_button: => core.ref.oldest
+      relevance_button: => core.ref.relevance
+      top_button: => core.ref.top
+      za_button: => core.ref.title_za
+
     # These translations are used as suffixes when abbreviating numbers.
     number_suffix:
       kilo_text: K
@@ -1237,6 +1249,7 @@ core:
     light_hc_mode_label: Light High Contrast Mode
     light_mode_label: Light Mode
     load_more: Load More
+    latest: Latest
     loading: Loading...
     log_in: Log In
     log_out: Log Out
@@ -1266,6 +1279,9 @@ core:
     sign_up: Sign Up
     some_others: "{count, plural, one {# other} other {# others}}" # Referenced by flarum-likes.yml, flarum-mentions.yml
     start_a_discussion: Start a Discussion
+    title_az: Title (A–Z)
+    title_za: Title (Z–A)
+    top: Top
     username: Username
     username_or_email_placeholder: Username or Email
     users: Users # Referenced by flarum-statistics.yml
