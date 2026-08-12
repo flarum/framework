@@ -16,13 +16,13 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\Worker;
-use Psr\Log\LoggerInterface;
 use Laminas\Stratigility\Middleware\OriginalMessages;
 use Laminas\Stratigility\MiddlewarePipe;
 use Middlewares\BasePath;
 use Middlewares\BasePathRouter;
 use Middlewares\RequestHandler;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 
 class InstalledApp implements AppInterface
 {
