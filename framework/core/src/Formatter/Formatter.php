@@ -368,9 +368,9 @@ class Formatter
             return null;
         }
 
-        // `/d/1/near-something` and other non-numeric fragments are positions
-        // this cannot label, so the link keeps its address rather than
-        // claiming a post number it did not find.
+        // `/d/1/near-something` and other non-numeric positions cannot be
+        // labelled, so the link keeps its address rather than claiming a post
+        // number it did not find.
         $near = ($matches[2] ?? '') !== '' ? $matches[2] : null;
 
         if ($near !== null && ! ctype_digit($near)) {
@@ -442,22 +442,33 @@ class Formatter
      */
     protected function isInternalUrl(string $url): bool
     {
+        // A scheme with no host — `mailto:`, `tel:`, `data:` — does not address
+        // a place on this or any other site.
+        if (preg_match('~^[a-z][a-z0-9+.-]*:~i', $url) && ! preg_match('~^https?://~i', $url)) {
+            return false;
+        }
+
+        // `//evil.com/x` has no scheme but is absolute, and would otherwise be
+        // read as the path `//evil.com/x` on this forum.
+        if (str_starts_with($url, '//')) {
+            return false;
+        }
+
         $host = parse_url($url, PHP_URL_HOST);
 
-        // Anything without a host is a relative link, a mailto:, or malformed.
-        // A relative link already stays on the forum without any help from us,
-        // and the rest are not ours to claim.
-        if (! is_string($host) || $host === '') {
+        if (is_string($host) && $host !== '') {
+            if (strcasecmp($host, $this->getForumOrigin()['host']) !== 0) {
+                return false;
+            }
+        } elseif (! str_starts_with($url, '/')) {
+            // A path-relative link like `d/1` resolves against whatever page it
+            // happens to be read on, which is not knowable while rendering.
             return false;
         }
 
-        $forum = $this->getForumOrigin();
-
-        if (strcasecmp($host, $forum['host']) !== 0) {
-            return false;
-        }
-
-        $base = $forum['path'];
+        // Either it named this forum's host, or it is a root-relative path on
+        // whatever host the reader is using — which is this forum.
+        $base = $this->getForumOrigin()['path'];
 
         if ($base === '') {
             return true;

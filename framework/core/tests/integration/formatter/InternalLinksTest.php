@@ -126,6 +126,63 @@ class InternalLinksTest extends TestCase
     }
 
     #[Test]
+    public function a_relative_link_is_ours()
+    {
+        // `[text](/d/123)` is how people link within a forum most of the time.
+        // Treating it as external told search engines not to follow a forum's
+        // own links — the very thing this is meant to stop.
+        $this->extension('flarum-markdown');
+
+        $html = $this->render('[FriendsOfFlarum OAuth](/d/25182)');
+
+        $this->assertStringNotContainsString('nofollow', $html);
+        $this->assertStringContainsString('UrlLink--internal', $html);
+    }
+
+    #[Test]
+    public function a_relative_link_outside_the_discussion_routes_is_still_ours()
+    {
+        $this->extension('flarum-markdown');
+
+        $this->assertStringNotContainsString('nofollow', $this->render('[settings](/settings)'));
+    }
+
+    #[Test]
+    public function a_protocol_relative_link_is_not_ours()
+    {
+        // `//evil.com/d/1` has no scheme but is absolute. Read as a path it
+        // would look like this forum's own, which is how you would smuggle a
+        // followed link past this.
+        $this->extension('flarum-markdown');
+
+        $html = $this->render('[evil](//evil.com/d/1)');
+
+        $this->assertStringContainsString('nofollow', $html);
+        $this->assertStringNotContainsString('UrlLink--internal', $html);
+    }
+
+    #[Test]
+    public function a_path_relative_link_is_left_alone()
+    {
+        // `d/1` resolves against whichever page it is read on, and a post can
+        // be read from more than one place, so where it leads is not knowable
+        // while rendering.
+        $this->extension('flarum-markdown');
+
+        $this->assertStringContainsString('nofollow', $this->render('[rel](d/1)'));
+    }
+
+    #[Test]
+    public function a_mailto_link_is_not_claimed_as_ours()
+    {
+        $this->extension('flarum-markdown');
+
+        $html = $this->render('[mail](mailto:someone@example.com)');
+
+        $this->assertStringNotContainsString('UrlLink--internal', $html);
+    }
+
+    #[Test]
     public function a_discussion_link_is_shown_as_the_discussion_it_points_at()
     {
         // A pasted address is unreadable in a sentence. What the reader cares

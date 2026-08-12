@@ -138,6 +138,38 @@ describe('labelDiscussionLinks', () => {
     expect(preview(`${ORIGIN}/forums/d/123`).querySelector('.UrlLink-discussion')).toBeNull();
   });
 
+  it('labels a relative discussion link', () => {
+    // `[text](/d/123)` is how people link within a forum most of the time, and
+    // the browser resolves it against the page it is read on — which is this
+    // forum.
+    const el = document.createElement('div');
+    el.innerHTML = '<p><a href="/d/123-the-slug">/d/123-the-slug</a></p>';
+
+    labelDiscussionLinks(el);
+
+    expect(el.querySelector('.UrlLink-discussion')?.textContent).toBe('#123');
+  });
+
+  it('labels a relative link to a post', () => {
+    const el = document.createElement('div');
+    el.innerHTML = '<p><a href="/d/123-the-slug/4">/d/123-the-slug/4</a></p>';
+
+    labelDiscussionLinks(el);
+
+    expect(el.querySelector('.UrlLink-post')?.textContent).toBe('4');
+  });
+
+  it('does not treat a protocol-relative link as ours', () => {
+    // `//evil.com/d/1` has no scheme but is absolute, and must not be read as
+    // a path on this forum.
+    const el = document.createElement('div');
+    el.innerHTML = '<p><a href="//evil.com/d/1">//evil.com/d/1</a></p>';
+
+    labelDiscussionLinks(el);
+
+    expect(el.querySelector('.UrlLink-discussion')).toBeNull();
+  });
+
   it('can be run twice without doubling the label', () => {
     // The preview re-renders as the writer types, so this must not compound
     // its own output.
