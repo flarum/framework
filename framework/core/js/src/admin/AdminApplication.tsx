@@ -98,6 +98,18 @@ export interface AdminApplicationData extends ApplicationData {
   knownQueues: string[];
   schedulerStatus: string;
   sessionDriver: string;
+
+  sessionByConfig: boolean;
+  sessionLifetime: number;
+  sessionCookieExpiresOnClose: boolean;
+  accessTokenLifetimes: AccessTokenLifetime[];
+}
+
+export interface AccessTokenLifetime {
+  /** The type the token class declares, e.g. `session` or `session_remember`. */
+  type: string;
+  /** How long tokens of this type last, in seconds. Zero means they never expire. */
+  lifetime: number;
 }
 
 export default class AdminApplication extends Application {

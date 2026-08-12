@@ -17,6 +17,8 @@ use Flarum\Foundation\FontAwesome;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Frontend\Document;
 use Flarum\Group\Permission;
+use Flarum\Http\AccessToken;
+use Flarum\Http\SessionConfig;
 use Flarum\Search\AbstractDriver;
 use Flarum\Search\SearcherInterface;
 use Flarum\Settings\Event\Deserializing;
@@ -57,8 +59,36 @@ class AdminPayload
         protected Config $config,
         protected ApplicationInfoProvider $appInfo,
         protected MaintenanceMode $maintenance,
-        protected FontAwesome $fontAwesome
+        protected FontAwesome $fontAwesome,
+        protected SessionConfig $sessionConfig
     ) {
+    }
+
+    /**
+     * The token types whose lifetime an administrator may change, with the
+     * lifetime each currently has.
+     *
+     * Built from the registry rather than a fixed list, so a type added by an
+     * extension is offered alongside the ones core ships.
+     *
+     * @return array<array{type: string, lifetime: int}>
+     */
+    protected function accessTokenLifetimes(): array
+    {
+        $types = [];
+
+        foreach (AccessToken::getModels() as $type => $model) {
+            if (! $model::hasConfigurableLifetime()) {
+                continue;
+            }
+
+            $types[] = [
+                'type' => $type,
+                'lifetime' => $model::lifetime(),
+            ];
+        }
+
+        return $types;
     }
 
     public function __invoke(Document $document, Request $request): void
@@ -124,6 +154,11 @@ class AdminPayload
         $document->payload['safeModeExtensionsConfig'] = $this->config->safeModeExtensions();
 
         $document->payload['announcementsDisabled'] = (bool) $this->config['flarum_announcements.disabled'];
+
+        $document->payload['sessionByConfig'] = $this->sessionConfig->configOverride();
+        $document->payload['sessionLifetime'] = $this->sessionConfig->lifetime();
+        $document->payload['sessionCookieExpiresOnClose'] = $this->sessionConfig->cookieExpiresOnClose();
+        $document->payload['accessTokenLifetimes'] = $this->accessTokenLifetimes();
 
         $document->payload['fontawesomeByConfig'] = $this->fontAwesome->configOverride();
 
