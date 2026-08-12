@@ -48,6 +48,16 @@ class Tag
 
         $tag = $this->slugger->forResource(TagModel::class)->fromSlug($slug, $actor);
 
+        // A tag can name the order its page opens with. Someone who has asked
+        // for a particular sort has said what they want, so their choice wins;
+        // the tag's default only answers the case where nothing was asked.
+        //
+        // The stored value is not guaranteed to still exist — sorts arrive and
+        // leave with the extensions that register them — so an unrecognised one
+        // falls through to the usual order rather than being passed on to the
+        // API, which would reject it.
+        $sort ??= $tag->default_sort;
+
         $params = [
             'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
             'filter' => [

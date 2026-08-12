@@ -119,6 +119,16 @@ class TagResource extends AbstractDatabaseResource
             Schema\Integer::make('position')
                 ->nullable(),
             Schema\Str::make('defaultSort')
+                // The sort a tag's discussion list opens with, stored as the
+                // alias that appears in a URL rather than the API sort behind
+                // it, so that it round-trips through the dropdown unchanged.
+                //
+                // Deliberately unvalidated against the sorts currently
+                // registered: they come and go with the extensions that provide
+                // them, and a value pointing at one that is temporarily absent
+                // should be kept rather than rejected. The forum falls back to
+                // its usual sort while that is the case.
+                ->writable()
                 ->nullable(),
             Schema\Boolean::make('isChild')
                 ->get(fn (Tag $tag) => (bool) $tag->parent_id),

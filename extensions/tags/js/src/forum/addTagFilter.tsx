@@ -133,6 +133,23 @@ export default function addTagFilter() {
   // DiscussionListState that will let us filter discussions by tag.
   extend(GlobalSearchState.prototype, 'params', function (params) {
     params.tags = m.route.param('tags');
+
+    // A tag can name the order its page opens with. The server already applies
+    // it when rendering the page, but the first client-side request is built
+    // from the URL alone — so without this the list is fetched again in the
+    // default order and replaces the one the reader arrived to.
+    //
+    // Only when nothing was asked for: a sort in the URL is the reader's own
+    // choice and outranks the tag's default. An unrecognised sort is left
+    // alone, since the extension that provided it may simply be disabled for
+    // now, and passing it on would have the API reject the request.
+    if (!params.sort && params.tags) {
+      const defaultSort = findTag(params.tags)?.defaultSort();
+
+      if (defaultSort && defaultSort in app.discussions.sortMap()) {
+        params.sort = defaultSort;
+      }
+    }
   });
 
   // Translate that parameter into a gambit appended to the search query.
