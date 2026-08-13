@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.8.19](https://github.com/flarum/framework/compare/v1.8.18...v1.8.19)
+### Security
+* Account takeover via password reset token integer type juggling (https://github.com/flarum/framework/security/advisories/GHSA-55f2-h36g-96c3)
+
 ## [v1.8.18](https://github.com/flarum/framework/compare/v1.8.17...v1.8.18)
 ### Added
 * Setting to disable sticky pinning on the All Discussions page (https://github.com/flarum/framework/pull/4607)

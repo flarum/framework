@@ -42,6 +42,16 @@ class EmailToken extends AbstractModel
     protected $primaryKey = 'token';
 
     /**
+     * The primary key is a random string, not an auto-incrementing integer.
+     * Without this, Eloquent casts the key to an integer before lookup, so a
+     * request supplying `0` matches any token MySQL coerces to `0` (i.e. any
+     * token that does not begin with a digit).
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
+
+    /**
      * Generate an email token for the specified user.
      *
      * @param string $email
