@@ -15,13 +15,20 @@ trait HasSortMap
 {
     public function sortMap(): array
     {
-        /** @var SortColumn[] $sorts */
         $sorts = $this->resolveSorts();
 
         $map = [];
 
         foreach ($sorts as $sort) {
-            $map = array_merge($map, $sort->sortMap());
+            // A resource's sorts are not necessarily core's SortColumn — an
+            // extension may register its own Sort subclass (extension-manager
+            // does, to proxy a sort to an external registry). Only core's
+            // SortColumn carries the alias-to-API-sort map; anything else has
+            // no map to contribute and is skipped rather than fatalling the
+            // whole admin payload.
+            if ($sort instanceof SortColumn) {
+                $map = array_merge($map, $sort->sortMap());
+            }
         }
 
         return $map;
