@@ -134,6 +134,39 @@ class SortMapsPayloadTest extends TestCase
     }
 
     #[Test]
+    public function a_resource_using_a_non_core_sort_type_does_not_break_the_payload()
+    {
+        // A sort does not have to be core's SortColumn — an extension may
+        // register its own Sort subclass (extension-manager does, to proxy a
+        // sort to an external registry). Such a sort has no sortMap(), so
+        // building the admin payload must skip it rather than fatal on the
+        // whole page. Before this was guarded, enabling extension-manager threw
+        // "Call to undefined method ...SortColumn::sortMap()".
+        $this->extend(
+            (new Extend\ApiResource(\Flarum\Api\Resource\DiscussionResource::class))
+                ->sorts(fn () => [
+                    new CustomSort('downloads'),
+                ])
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/admin', ['authenticatedAs' => 1])
+        );
+
+        // The page renders at all — the non-core sort is quietly ignored rather
+        // than bringing the admin panel down.
+        $this->assertEquals(200, $response->getStatusCode());
+
+        preg_match('/<script id="flarum-json-payload" type="application\/json">(.+?)<\/script>/s', (string) $response->getBody(), $matches);
+        $payload = json_decode(html_entity_decode($matches[1]), true);
+
+        // Whatever named sorts the resource has are still published; the
+        // unmappable one just contributes nothing.
+        $this->assertArrayNotHasKey('downloads', $payload['sortMaps']['discussions'] ?? []);
+        $this->assertEquals('-lastPostedAt', $payload['sortMaps']['discussions']['latest']);
+    }
+
+    #[Test]
     public function a_normal_user_never_sees_this()
     {
         // Belt and braces: the admin payload is admin-only, and this test
@@ -143,5 +176,17 @@ class SortMapsPayloadTest extends TestCase
         );
 
         $this->assertEquals(403, $response->getStatusCode());
+    }
+}
+
+/**
+ * A sort that is not core's SortColumn — it extends the base Sort directly and
+ * has no sortMap(), the way extension-manager's own SortColumn does.
+ */
+class CustomSort extends \Tobyz\JsonApiServer\Schema\Sort
+{
+    public function apply(object $query, string $direction, \Tobyz\JsonApiServer\Context $context): void
+    {
+        // Never applied in this test; the base class just requires it to exist.
     }
 }
