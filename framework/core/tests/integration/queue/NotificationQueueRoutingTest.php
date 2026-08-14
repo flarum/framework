@@ -15,7 +15,6 @@ use Flarum\Notification\Driver\EmailNotificationDriver;
 use Flarum\Notification\Job\SendEmailNotificationJob;
 use Flarum\Notification\MailableInterface;
 use Flarum\Notification\NotificationSyncer;
-use Flarum\Queue\RoutingQueue;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -137,13 +136,14 @@ class NotificationQueueRoutingTest extends TestCase
 
         $queue = $this->app()->getContainer()->make(\Illuminate\Contracts\Queue\Queue::class);
 
+        // A bare SyncQueue (not a RoutingQueue) confirms the connection is left
+        // unwrapped, so inline execution and SyncQueue detection keep working.
         $this->assertInstanceOf(
             \Illuminate\Queue\SyncQueue::class,
             $queue,
             'The sync connection must stay unwrapped so inline execution and SyncQueue detection keep working; '.
             'the driver resolves this same connection at push time.'
         );
-        $this->assertNotInstanceOf(RoutingQueue::class, $queue);
     }
 }
 

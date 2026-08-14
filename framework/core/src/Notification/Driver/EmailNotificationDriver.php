@@ -44,6 +44,7 @@ readonly class EmailNotificationDriver implements NotificationDriverInterface
         // (QueueServiceProvider::boot). Capturing the connection in the constructor
         // would grab the unwrapped driver and bypass routing, so mail jobs would
         // fall through to the `default` queue instead of `mail`.
+        /** @var Queue $queue */
         $queue = $this->container->make(Queue::class);
 
         foreach ($recipients as $user) {
