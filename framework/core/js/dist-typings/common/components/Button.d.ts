@@ -10,6 +10,12 @@ export interface IButtonAttrs extends ComponentAttrs {
      */
     icon?: string | boolean | Mithril.Children;
     /**
+     * Keep the icon's declared style even when the forum forces a Font Awesome
+     * style, for an icon whose meaning depends on its style. Forwarded to the
+     * icon this button renders.
+     */
+    noStyleOverride?: boolean;
+    /**
      * Disables button from user input.
      *
      * Default: `false`
