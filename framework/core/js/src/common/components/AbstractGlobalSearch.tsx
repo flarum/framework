@@ -8,10 +8,14 @@ import Icon from './Icon';
 import type Mithril from 'mithril';
 
 export interface SearchAttrs extends ComponentAttrs {
-  /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */
   state: SearchState;
   label: string;
   a11yRoleLabel: string;
+  /**
+   * Render as a compact control for the fixed mobile navigation strip: an icon
+   * button rather than the full-width prompt, with no drawer to close first.
+   */
+  navigation?: boolean;
 }
 
 /**
@@ -102,14 +106,20 @@ export default abstract class AbstractGlobalSearch<T extends SearchAttrs = Searc
       app.modal.show(() => import('../../common/components/SearchModal'), { searchState: this.searchState, sources: this.sourceItems().toArray() });
     };
 
+    const navigation = !!this.attrs.navigation;
+
     return (
-      <div role="search" className={classList('Search', { 'Search--active': !!value })} aria-label={this.attrs.a11yRoleLabel}>
+      <div
+        role="search"
+        className={classList('Search', { 'Search--active': !!value, 'Search--navigation': navigation })}
+        aria-label={this.attrs.a11yRoleLabel}
+      >
         <button
           type="button"
           // `Button--flat` rather than `Button--link`: this sits among the
           // notification and message controls, which are flat buttons, and
           // should pick up the same hover and focus treatment as them.
-          className="Search-input Button Button--flat"
+          className={classList('Search-input Button Button--flat', { 'Button--icon': navigation })}
           aria-label={
             value
               ? extractText(app.translator.trans('core.lib.search.search_active_button_accessible_label', { query: value }))
@@ -117,6 +127,13 @@ export default abstract class AbstractGlobalSearch<T extends SearchAttrs = Searc
           }
           title={value || extractText(this.attrs.label)}
           onclick={() => {
+            if (navigation) {
+              // This control sits in the fixed mobile strip, not the drawer, so
+              // there is nothing to close first.
+              openSearchModal();
+              return;
+            }
+
             // On phones the search button lives inside the slide-out drawer. Close the drawer as soon as
             // search is activated, before the modal is shown, so it isn't left open behind (and overlapping)
             // the full-screen search modal as it animates in. Hiding it here rather than in `openSearchModal`
