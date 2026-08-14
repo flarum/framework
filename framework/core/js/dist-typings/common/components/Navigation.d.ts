@@ -1,10 +1,12 @@
 import Component from '../Component';
 import type Mithril from 'mithril';
+import ItemList from '../utils/ItemList';
 /**
- * The `Navigation` component displays a set of navigation buttons. Typically
- * this is just a back button which pops the app's History. If the user is on
- * the root page and there is no history to pop, then in some instances it may
- * show a button that toggles the app's drawer.
+ * The `Navigation` component displays a set of navigation buttons. In `drawer`
+ * mode — the fixed control strip at the top of the mobile layout — the drawer
+ * toggle is always present, so the menu and the notification badge it carries
+ * stay reachable on every page; the back button joins it only when there is
+ * history to pop. Elsewhere (the desktop header) it is the back button alone.
  *
  * If the app has a pane, it will also include a 'pin' button which toggles the
  * pinned state of the pane.
@@ -12,11 +14,18 @@ import type Mithril from 'mithril';
  * Accepts the following attrs:
  *
  * - `className` The name of a class to set on the root element.
- * - `drawer` Whether or not to show a button to toggle the app's drawer if
- *   there is no more history to pop.
+ * - `drawer` Whether or not to show a button to toggle the app's drawer.
+ * - `search` A rendered search control to include in `drawer` mode, so search
+ *   is reachable from the fixed mobile strip on every page.
  */
 export default class Navigation extends Component {
     view(): JSX.Element;
+    /**
+     * The controls shown in the navigation, as an ItemList so that other parts of
+     * the app — and extensions — can contribute their own. The forum app adds a
+     * search control here in `drawer` mode.
+     */
+    items(): ItemList<Mithril.Children>;
     /**
      * Get the back button.
      */

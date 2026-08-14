@@ -3,10 +3,14 @@ import SearchState from '../states/SearchState';
 import ItemList from '../utils/ItemList';
 import type Mithril from 'mithril';
 export interface SearchAttrs extends ComponentAttrs {
-    /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */
     state: SearchState;
     label: string;
     a11yRoleLabel: string;
+    /**
+     * Render as a compact control for the fixed mobile navigation strip: an icon
+     * button rather than the full-width prompt, with no drawer to close first.
+     */
+    navigation?: boolean;
 }
 /**
  * The `SearchSource` interface defines a tab of search results in the
