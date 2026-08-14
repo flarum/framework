@@ -196,13 +196,22 @@ export default class ExtensionCard<CustomAttrs extends IExtensionAttrs = IExtens
           <Button
             className="Button Button--icon Button--flat"
             icon="fas fa-cloud-arrow-down"
+            aria-label={app.translator.trans('flarum-extension-manager.admin.extensions.install')}
             onclick={() => {
               app.extensionManager.control.requirePackage({ package: extension.name() });
             }}
           />
         );
       } else {
-        items.add('installed', <Button className="Button Button--icon Button--flat Button--success" icon="fas fa-check-circle" disabled={true} />);
+        items.add(
+          'installed',
+          <Button
+            className="Button Button--icon Button--flat Button--success"
+            icon="fas fa-check-circle"
+            aria-label={app.translator.trans('flarum-extension-manager.admin.extensions.already_installed')}
+            disabled={true}
+          />
+        );
       }
     } else {
       if (onClickUpdate && typeof onClickUpdate === 'function') {
