@@ -127,7 +127,7 @@ class NotificationQueueRoutingTest extends TestCase
      * inline on push and `instanceof SyncQueue` detection keeps working. The
      * driver resolves this same connection, so nothing about routing interferes
      * with sync installs. (Inline execution itself is covered by the existing
-     * notification integration tests.)
+     * notification integration tests.).
      */
     #[Test]
     public function sync_queue_connection_stays_unwrapped_for_the_driver(): void
