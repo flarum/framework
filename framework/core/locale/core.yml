@@ -127,6 +127,8 @@ core:
       logo_text: Upload an image to be displayed in place of the forum title.
       logo_dark_mode_heading: Dark mode logo
       logo_dark_mode_text: Upload an alternate logo to be displayed when dark mode is enabled.
+      show_theme_selector_help: Let users switch between the available color schemes from a control in the header.
+      show_theme_selector_label: Show theme selector
       title: Appearance
       color_scheme_label: Color Scheme (default)
       color_schemes:
@@ -640,6 +642,7 @@ core:
       session_dropdown_accessible_label: Toggle session options dropdown menu
       settings_button: => core.ref.settings
       sign_up_link: => core.ref.sign_up
+      theme_switcher_accessible_label: Change theme
 
     # These translations are used on the index page, peripheral to the discussion list.
     index:

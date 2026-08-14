@@ -20,6 +20,12 @@
       .Button--icon();
     }
   }
+
+  // The 425px above sizes the notification and message panels; a menu of short
+  // theme labels should hug its content instead.
+  .ThemeSwitcher .Dropdown-menu {
+    width: auto;
+  }
 }
 
 .HeaderDropdown .Dropdown-toggle.new .Button-icon {

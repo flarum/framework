@@ -24,11 +24,13 @@ class SettingsServiceProvider extends AbstractServiceProvider
             return new Collection([
                 'theme_primary_color' => '#4D698E',
                 'theme_secondary_color' => '#4D698E',
+                'color_scheme' => 'auto',
                 'mail_format' => 'multipart',
                 'fontawesome_source' => 'local',
                 'fontawesome_forced_style' => '',
                 'maintenance_mode' => 'none',
                 'show_language_selector' => true,
+                'show_theme_selector' => true,
                 'slug_driver_Flarum\Discussion\Discussion' => 'default',
                 'slug_driver_Flarum\User\User' => 'default',
                 'search_driver_Flarum\User\User' => 'default',

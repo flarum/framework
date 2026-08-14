@@ -275,6 +275,8 @@ export default class Application {
 
   allowUserColorScheme!: boolean;
 
+  colorScheme!: ColorScheme | string;
+
   refs: Record<string, string> = {
     fontawesome: 'https://fontawesome.com/icons?o=r&m=free',
   };
@@ -510,7 +512,7 @@ export default class Application {
     let scheme;
 
     if (this.allowUserColorScheme) {
-      scheme = userConfiguredPreference;
+      scheme = userConfiguredPreference ?? (this.session.user ? undefined : sessionStorage.getItem('colorScheme') ?? undefined);
     }
 
     scheme ||= forumDefault;
@@ -541,6 +543,8 @@ export default class Application {
   }
 
   setColorScheme(scheme: ColorScheme | string): void {
+    this.colorScheme = scheme;
+
     if (scheme === ColorScheme.Auto) {
       scheme = this.getSystemColorSchemePreference();
     }

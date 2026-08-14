@@ -174,6 +174,19 @@ export default class AppearancePage extends AdminPage {
       60
     );
 
+    if (this.setting('color_scheme')() === 'auto') {
+      items.add(
+        'show-theme-selector',
+        this.buildSettingComponent({
+          type: 'switch',
+          setting: 'show_theme_selector',
+          label: app.translator.trans('core.admin.appearance.show_theme_selector_label'),
+          help: app.translator.trans('core.admin.appearance.show_theme_selector_help'),
+        }),
+        55
+      );
+    }
+
     items.add(
       'colored-header',
       this.buildSettingComponent({
