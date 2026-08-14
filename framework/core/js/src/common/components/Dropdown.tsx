@@ -15,6 +15,11 @@ export interface IDropdownAttrs extends ComponentAttrs {
   menuClassName?: string;
   /** The name of an icon to show in the dropdown toggle button. */
   icon?: string;
+  /**
+   * Keep the toggle icon's declared style even when the forum forces a Font
+   * Awesome style, for an icon whose meaning depends on its style.
+   */
+  noStyleOverride?: boolean;
   /** The name of an icon to show on the right of the button. */
   caretIcon?: string;
   /** The label of the dropdown toggle button. Defaults to 'Controls'. */
@@ -187,7 +192,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
    */
   getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray {
     return [
-      this.attrs.icon ? <Icon name={this.attrs.icon} className="Button-icon" /> : '',
+      this.attrs.icon ? <Icon name={this.attrs.icon} noStyleOverride={this.attrs.noStyleOverride} className="Button-icon" /> : '',
       <span className="Button-label">
         <span className="Button-labelText">{this.attrs.label}</span>
         {this.getButtonSubContent()}

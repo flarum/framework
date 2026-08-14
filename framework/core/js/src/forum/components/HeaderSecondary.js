@@ -7,6 +7,7 @@ import NotificationsDropdown from './NotificationsDropdown';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import GlobalSearch from './GlobalSearch';
+import ThemeSwitcher from './ThemeSwitcher';
 
 /**
  * The `HeaderSecondary` component displays secondary header controls, such as
@@ -27,6 +28,10 @@ export default class HeaderSecondary extends Component {
     const items = new ItemList();
 
     items.add('search', <GlobalSearch state={app.search.state} />, 30);
+
+    if (app.allowUserColorScheme && app.forum.attribute('showThemeSelector')) {
+      items.add('themeSwitcher', <ThemeSwitcher />, 12);
+    }
 
     if (app.forum.attribute('showLanguageSelector') && Object.keys(app.data.locales).length > 1) {
       const locales = [];
