@@ -78,6 +78,71 @@ class AnnouncementsFetcherTest extends TestCase
         ];
     }
 
+    /**
+     * Build the `tags` relationship + matching `included` resources for a set of
+     * tag slugs, so a discussion can be tagged in a test.
+     *
+     * @param string[] $slugs
+     * @return array{0: array<string, mixed>, 1: array<int, array<string, mixed>>}
+     */
+    private function tags(array $slugs): array
+    {
+        $relationship = ['tags' => ['data' => []]];
+        $included = [];
+
+        foreach ($slugs as $slug) {
+            $relationship['tags']['data'][] = ['type' => 'tags', 'id' => $slug];
+            $included[] = ['type' => 'tags', 'id' => $slug, 'attributes' => ['slug' => $slug]];
+        }
+
+        return [$relationship, $included];
+    }
+
+    public function test_excludes_old_line_only_news(): void
+    {
+        [$rel, $included] = $this->tags(['blog', 'version-1x']);
+
+        $fetcher = $this->makeFetcher([
+            $this->makeApiResponse(
+                [$this->makeDiscussion(['id' => '1', 'title' => '1.x patch', 'slug' => 'onex'], $rel)],
+                $included
+            ),
+        ]);
+
+        $this->assertCount(0, $fetcher->fetch(), 'A 1.x-only post must be dropped from a 2.x forum feed.');
+    }
+
+    public function test_keeps_dual_tagged_news(): void
+    {
+        [$rel, $included] = $this->tags(['blog', 'version-1x', 'version-2x']);
+
+        $fetcher = $this->makeFetcher([
+            $this->makeApiResponse(
+                [$this->makeDiscussion(['id' => '1', 'title' => 'Applies to both', 'slug' => 'both'], $rel)],
+                $included
+            ),
+        ]);
+
+        $result = $fetcher->fetch();
+
+        $this->assertCount(1, $result, 'A post tagged for both lines must survive the exclusion.');
+        $this->assertEquals('Applies to both', $result[0]['title']);
+    }
+
+    public function test_keeps_version_neutral_news(): void
+    {
+        [$rel, $included] = $this->tags(['blog', 'meta']);
+
+        $fetcher = $this->makeFetcher([
+            $this->makeApiResponse(
+                [$this->makeDiscussion(['id' => '1', 'title' => 'Community update', 'slug' => 'cu'], $rel)],
+                $included
+            ),
+        ]);
+
+        $this->assertCount(1, $fetcher->fetch(), 'A post with no version tag must always be kept.');
+    }
+
     public function test_transforms_discussion_to_expected_shape(): void
     {
         $fetcher = $this->makeFetcher([
@@ -220,6 +285,7 @@ class AnnouncementsFetcherTest extends TestCase
 
         $this->assertContains('firstPost', $includes, 'Without firstPost there is no content to excerpt.');
         $this->assertContains('user', $includes, 'Without user there is no author name or avatar.');
+        $this->assertContains('tags', $includes, 'Without tags the version-exclusion filter has nothing to read.');
     }
 
     /**
