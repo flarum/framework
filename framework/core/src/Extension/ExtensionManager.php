@@ -110,7 +110,14 @@ class ExtensionManager
             });
         }
 
-        return $this->extensions;
+        // There is no installed.json to read yet, which is the state a forum is
+        // in partway through a composer operation. Returning null from a method
+        // declared to return a Collection turns that moment into a TypeError on
+        // every request, including the admin panel needed to recover. An empty
+        // list is both true and survivable, and matches what
+        // getInstalledPackageNames() already does. Deliberately not cached, so
+        // the next call sees the file once composer has written it.
+        return $this->extensions ?? new Collection();
     }
 
     /**
