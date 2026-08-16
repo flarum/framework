@@ -24,7 +24,7 @@
     ],
     "type": "flarum-extension",
     "require": {
-        "flarum/core": "^2.0.0-rc.5",
+        "flarum/core": "^2.0.0-rc.6",
         "plesk/ratchetphp": "v1.0.4",
         "pusher/pusher-php-server": "^7.2.0"
     },
@@ -87,8 +87,8 @@
         "flarum/flags": "^2.0.0",
         "flarum/tags": "^2.0.0",
         "fof/reactions": "^2.0.0",
-        "flarum/phpstan": "^2.0.0",
-        "flarum/testing": "^2.0.0",
+        "flarum/phpstan": "^2.0.0-rc.6",
+        "flarum/testing": "^2.0.0-rc.6",
         "flarum/messages": "^2.0.0",
         "fof/discussion-views": "^2.0.0"
     },

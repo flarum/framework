@@ -1,5 +1,113 @@
 # Changelog
 
+## [v2.0.0-rc.6](https://github.com/flarum/framework/compare/v2.0.0-rc.5...v2.0.0-rc.6)
+
+### Added
+
+- (core) add a setting to disable sticky pinning on the All Discussions page by @gianniguida [#4609]
+- (core) add a `tinker` command for an interactive REPL by @imorland [#4829]
+- (core) add database version requirements with recommended-version warnings by @imorland [#4834]
+- (core) add pausable queues by @imorland [#4841]
+- (core) add a queue dashboard widget with failed-jobs management by @imorland [#4846]
+- (core) make the queue dashboard widget's tiles extensible by @imorland [#4849]
+- (core) add header extension seams to the queue dashboard widget by @imorland [#4850]
+- (core) allow migrations to run in isolation by @DavideIadeluca [#4864]
+- (core) add a setting to force a FontAwesome icon style forum-wide by @imorland [#4868]
+- (core) fail integration tests that run N+1 queries by @imorland [#4871]
+- (core) add an optional theme switcher in the header by @imorland [#4936]
+- (core) surface search in the fixed mobile navigation by @imorland [#4937]
+- (core) add a setting to sort the discussion list by title by @imorland [#4921]
+- (audit) audit queue pause and resume by @imorland [#4845]
+- (tags) let a tag set the sort its discussion list opens with by @imorland [#4922]
+- (core) show links back to the forum as the discussion they point at by @imorland [#4924]
+
+### Changed
+
+- (core) route queued jobs at push time instead of via a shared static `$onQueue` by @imorland [#4853]
+- (core) unwrap `RoutingQueue` when identifying the queue driver by @imorland [#4855]
+- (core) derive asset revisions from compiled output and rebuild in place by @imorland [#4857]
+- (core) rewrite the embed frontend by @imorland [#4832]
+- (core) don't force asset writes on every debug-mode request by @imorland [#4861]
+- (deps) use the upstream sourcemap package by @imorland [#4895]
+- (deps) raise the Symfony floor to 7.4 by @imorland [#4898]
+- (deps) require the sourcemap release carrying the 8.5 deprecation fix by @imorland [#4904]
+- (ci) fix the PHP-version matrix, drop unused Xdebug, and modernise workflow actions by @imorland [#4835]
+- (ci) add an optional Redis/Valkey service in the reusable backend workflow by @imorland [#4840]
+- (ci) support testing against multiple Redis clients in the reusable backend workflow by @imorland [#4847]
+- (ts) fix the `ext:flarum/flags` typings path in the realtime tsconfig by @imorland [#4858]
+
+### Fixed
+
+- (core) allow boolean settings with truthy defaults to be disabled by @huoxin233 [#4782]
+- (core) fix the search modal overlapping the navigation drawer on mobile by @karl-bullock [#4811]
+- (core) block disabling the default language pack by @TowyTowy [#4813]
+- (core) show the index title control when no nav item is active by @karl-bullock [#4821]
+- (core) fix `DetailedDropdownItem` check and option icons overlapping in phone dropdown menus by @karl-bullock [#4822]
+- (core) fix a 400 on the notifications index from an invalid default include (and its N+1) by @imorland [#4828]
+- (testing) run after-commit callbacks inline in integration tests by @imorland [#4833]
+- (core) cache permissions per group set instead of per `User` instance by @imorland [#4839]
+- (core) fix PHPStan errors under phpstan 2.2.6 / illuminate 13.22 by @imorland [#4842]
+- (core) fix `queue:resume` with no argument clearing every pause by @imorland [#4844]
+- (core) handle network connection loss in the frontend by @gianniguida [#4854]
+- (core) preserve an empty color in `ColorPreviewInput` instead of coercing to black by @imorland [#4856]
+- (tags) validate the `currentTag` cache against the current route's slug by @imorland [#4860]
+- (core) complete the wide-screen breakpoints for the main layout by @imorland [#4869]
+- (core) stop multiple phone header controls stacking on top of each other by @imorland [#4870]
+- (core) keep icons whose style carries meaning out of the forced style by @imorland [#4873]
+- (core) keep the unread comment icon's weight out of the forced style by @imorland [#4878]
+- (core) keep the page shell rendered while a discussion loads by @imorland [#4881]
+- (sticky) look up the excerpt relationship on the discussions resource by @imorland [#4883]
+- (akismet) modernize the API client, fail open, verify keys, and recheck edits by @imorland [#4884]
+- (core) revision webfont URLs so a font upgrade cannot serve from stale caches by @imorland [#4885]
+- (tags) wrap the selected tags in the tag-selection setting by @imorland [#4886]
+- (core) let gambit suggestions wrap instead of running off the dropdown by @imorland [#4888]
+- (realtime) honour `user.viewLastSeenAt` in the typing indicator by @ekumanov [#4880]
+- (realtime) stop the reconnect catch-up from emptying the discussion list by @imorland [#4889]
+- (core) name the pane pin button and expose whether it is pinned by @imorland [#4890]
+- (approval) scope the unapproved fade to text, not the whole post by @karl-bullock [#4836]
+- (mentions) prevent a deleted fallback for unsynced posts during formatting by @huoxin233 [#4824]
+- (messages) repair dialogs left pointing at a deleted first or last message by @karl-bullock [#4851]
+- (core) drop the dead FontAwesome noscript fallback, and say what forcing a style costs by @imorland [#4892]
+- (core) hold icons blank rather than wrong while a Kit or CDN font loads by @imorland [#4893]
+- (core) recognise a finished scheduler run without a removed Symfony method by @imorland [#4897]
+- (core) run the caller's `ondismiss` when an alert is dismissed by @imorland [#4899]
+- (core) tell assistive technology which dropdown option is selected by @imorland [#4900]
+- (core) keep a saved falsy setting in settings modals too by @imorland [#4901]
+- (core) distinguish a missing announcement excerpt from an empty one by @imorland [#4902]
+- (realtime) retry a realtime push whose connection was interrupted by @imorland [#4903]
+- (core) clamp the desktop container widths to the available space by @imorland [#4905]
+- (core) stop the header overlapping itself when it runs out of room by @imorland [#4906]
+- (core) line up the items in the header overflow menu by @imorland [#4908]
+- (core) show and let people cancel an active search from the header by @imorland [#4909]
+- (phpstan) recognize conditional model casts by @drewmt [#4920]
+- (core) treat relative links as the forum's own by @imorland [#4927]
+- (core) include user groups when listing discussions by @imorland [#4928]
+- (core) register `Input` in the common export manifest by @imorland [#4929]
+- (core) don't fatal the admin payload on a non-core sort type by @imorland [#4931]
+- (extension-manager) label the icon-only extension card buttons for screen readers by @imorland [#4934]
+- (a11y) only show the button focus background for keyboard focus by @imorland [#4938]
+- (tags) resolve differently-cased tag slugs in `Utf8SlugDriver::fromSlugs()` by @imorland [#4940]
+- (core) route notification emails through the queue router regardless of provider boot order by @imorland [#4941]
+- (core) make the LESS compiler cache resilient to concurrent writes by @imorland [#4942]
+
+### Security
+
+- (core) stop email values being parsed as markup by @imorland [#4874]
+- (core) declare token models' keys as strings (harden GHSA-55f2-h36g-96c3) by @imorland [#4935]
+
+### Performance
+
+- (core) prefetch the post stream chunks after boot by @imorland [#4838]
+- (core) load the discussion and its post window in parallel by @imorland [#4862]
+- (core) add a single-discussion fast path for the posts ID linkage query by @imorland [#4863]
+- (tags) cut the min-tags policy from four COUNT queries to at most one by @imorland [#4865]
+- (core) materialize post visibility once; flat grouped relation aggregates by @imorland [#4866]
+- (core) load limited BelongsToMany includes in two narrow phases by @imorland [#4867]
+- (core) cache resolved model casts per class by @imorland [#4875]
+- (mentions) eager load the discussion of mentioning posts by @imorland [#4876]
+- (core) point endpoint eager loads back at their parent models by @imorland [#4877]
+- (sticky) serve the excerpt as an attribute instead of including posts by @imorland [#4882]
+
 ## [v2.0.0-rc.5](https://github.com/flarum/framework/compare/v2.0.0-rc.4...v2.0.0-rc.5)
 
 ### Added
