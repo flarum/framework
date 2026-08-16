@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-rc.5",
+        "flarum/core": "^2.0.0-rc.6",
         "flarum/approval": "^2.0"
     },
     "autoload": {
@@ -75,7 +75,7 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
-        "flarum/testing": "^2.0"
+        "flarum/testing": "^2.0.0-rc.6"
     },
     "repositories": [
         {
