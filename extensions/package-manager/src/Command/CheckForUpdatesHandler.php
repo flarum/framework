@@ -100,8 +100,13 @@ class CheckForUpdatesHandler
         $composerJson = $this->composerJson->get();
 
         foreach ($installed as $mainPackageUpdate) {
-            // Skip if not an extension
-            if (! $this->extensions->getExtension(Util::nameToId($mainPackageUpdate['name']))) {
+            $isCore = $mainPackageUpdate['name'] === 'flarum/core';
+
+            // Skip if not an extension. flarum/core is not one, but surfacing a new
+            // major of it is the stated purpose of the first command above, and both
+            // LastUpdateCheck::getNewMajorVersion() and the admin frontend read the
+            // flarum/core entry back out of this list, so it has to survive the loop.
+            if (! $isCore && ! $this->extensions->getExtension(Util::nameToId($mainPackageUpdate['name']))) {
                 continue;
             }
 
