@@ -89,6 +89,7 @@
 - (tags) resolve differently-cased tag slugs in `Utf8SlugDriver::fromSlugs()` by @imorland [#4940]
 - (core) route notification emails through the queue router regardless of provider boot order by @imorland [#4941]
 - (core) make the LESS compiler cache resilient to concurrent writes by @imorland [#4942]
+- (core) keep old-line-only news out of the announcements feed by @imorland [#4945]
 
 ### Security
 

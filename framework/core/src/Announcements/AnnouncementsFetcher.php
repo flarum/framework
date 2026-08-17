@@ -27,6 +27,30 @@ class AnnouncementsFetcher
     }
     protected const API_BASE_URL = 'https://discuss.flarum.org/api/discussions';
     protected const TAG = 'blog';
+
+    /**
+     * Version tags whose news is only relevant to older lines. A discussion is
+     * dropped from the feed when it carries one of these AND none of the tags in
+     * {@see KEEP_VERSION_TAGS} — so a 1.x-only patch note is hidden, but a post
+     * tagged for both 1.x and 2.x still comes through. Version-neutral posts
+     * (Community Updates, announcements) carry neither and are always kept.
+     *
+     * This has to be applied in PHP: the discussions API's negated tag filter
+     * excludes on the mere presence of a tag, so it can't express "1.x but not
+     * also 2.x" and would drop the dual-tagged posts we want to keep.
+     *
+     * @var string[]
+     */
+    protected const EXCLUDE_VERSION_TAGS = ['version-1x'];
+
+    /**
+     * Version tags that rescue a discussion from exclusion — the current line's
+     * news. A post tagged for both an excluded line and this one is kept.
+     *
+     * @var string[]
+     */
+    protected const KEEP_VERSION_TAGS = ['version-2x'];
+
     protected const LIMIT = 8;
     protected const FETCH_LIMIT = 20;
     protected const EXCERPT_LENGTH = 200;
@@ -37,7 +61,7 @@ class AnnouncementsFetcher
             'filter' => ['tag' => self::TAG],
             'sort' => '-createdAt',
             'page' => ['limit' => self::FETCH_LIMIT],
-            'include' => 'firstPost,user',
+            'include' => 'firstPost,user,tags',
         ]);
 
         try {
@@ -61,11 +85,14 @@ class AnnouncementsFetcher
 
         $posts = [];
         $users = [];
+        $tagSlugs = [];
         foreach ($body['included'] ?? [] as $resource) {
             if (Arr::get($resource, 'type') === 'posts') {
                 $posts[$resource['id']] = $resource;
             } elseif (Arr::get($resource, 'type') === 'users') {
                 $users[$resource['id']] = $resource;
+            } elseif (Arr::get($resource, 'type') === 'tags') {
+                $tagSlugs[$resource['id']] = Arr::get($resource, 'attributes.slug');
             }
         }
 
@@ -78,6 +105,12 @@ class AnnouncementsFetcher
 
             // Skip any discussion missing the fields we require to render a card.
             if (! $id || ! $title || ! $slug || ! $createdAt) {
+                continue;
+            }
+
+            // Filter out news for older lines, keeping posts that also target the
+            // current line (dual-tagged) and version-neutral posts.
+            if ($this->isExcludedByVersion($discussion, $tagSlugs)) {
                 continue;
             }
 
@@ -111,6 +144,31 @@ class AnnouncementsFetcher
         usort($items, fn (array $a, array $b) => $b['isSticky'] <=> $a['isSticky']);
 
         return array_slice($items, 0, self::LIMIT);
+    }
+
+    /**
+     * A discussion is excluded when it carries a tag for an older line and none
+     * for the current one — 1.x-only news on a 2.x forum. Dual-tagged and
+     * version-neutral posts are kept.
+     *
+     * @param array<string, mixed> $discussion
+     * @param array<string, string|null> $tagSlugs  tag id => slug, from `included`
+     */
+    private function isExcludedByVersion(array $discussion, array $tagSlugs): bool
+    {
+        $slugs = [];
+        foreach (Arr::get($discussion, 'relationships.tags.data', []) as $tag) {
+            $slug = $tagSlugs[Arr::get($tag, 'id')] ?? null;
+
+            if ($slug !== null) {
+                $slugs[] = $slug;
+            }
+        }
+
+        $hasExcluded = array_intersect($slugs, self::EXCLUDE_VERSION_TAGS) !== [];
+        $hasKept = array_intersect($slugs, self::KEEP_VERSION_TAGS) !== [];
+
+        return $hasExcluded && ! $hasKept;
     }
 
     private function makeExcerpt(string $html): string
