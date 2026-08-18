@@ -90,6 +90,8 @@
 - (core) route notification emails through the queue router regardless of provider boot order by @imorland [#4941]
 - (core) make the LESS compiler cache resilient to concurrent writes by @imorland [#4942]
 - (core) keep old-line-only news out of the announcements feed by @imorland [#4945]
+- (statistics) stop the date range dropdown being clipped by the entity columns by @imorland [#4950]
+- (core) don't underline `Button--text` dropdown toggles on hover by @imorland [#4950]
 
 ### Security
 
