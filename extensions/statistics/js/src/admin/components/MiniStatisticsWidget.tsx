@@ -57,18 +57,22 @@ export default class MiniStatisticsWidget extends DashboardWidget {
             <div className="StatisticsWidget-label">{app.translator.trans('flarum-statistics.admin.statistics.total_label')}</div>
           </div>
 
-          {this.entities.map((entity) => {
-            const totalCount = this.loadingLifetime ? app.translator.trans('flarum-statistics.admin.statistics.loading') : this.getTotalCount(entity);
+          <div className="StatisticsWidget-entityList">
+            {this.entities.map((entity) => {
+              const totalCount = this.loadingLifetime
+                ? app.translator.trans('flarum-statistics.admin.statistics.loading')
+                : this.getTotalCount(entity);
 
-            return (
-              <div className="StatisticsWidget-entity">
-                <h3 className="StatisticsWidget-heading">{app.translator.trans('flarum-statistics.admin.statistics.' + entity + '_heading')}</h3>
-                <div className="StatisticsWidget-total" title={totalCount}>
-                  {this.loadingLifetime ? <LoadingIndicator display="inline" /> : abbreviateNumber(totalCount as number)}
+              return (
+                <div className="StatisticsWidget-entity">
+                  <h3 className="StatisticsWidget-heading">{app.translator.trans('flarum-statistics.admin.statistics.' + entity + '_heading')}</h3>
+                  <div className="StatisticsWidget-total" title={totalCount}>
+                    {this.loadingLifetime ? <LoadingIndicator display="inline" /> : abbreviateNumber(totalCount as number)}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
         <div className="StatisticsWidget-viewFull">
