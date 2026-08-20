@@ -379,7 +379,7 @@ export default class StatisticsWidget extends DashboardWidget {
       labels.push(label);
 
       thisPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i, end: i + period.step }));
-      lastPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i - periodLength, end: i - periodLength }));
+      lastPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i - periodLength, end: i - periodLength + period.step }));
     }
 
     if (thisPeriod.length === 0) {
