@@ -136,7 +136,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ secrets.git_actor_token != '' && secrets.git_actor_token || secrets.GITHUB_TOKEN }}
 
@@ -154,7 +154,7 @@ jobs:
           cache-dependency-path: ${{ env.cache_dependency_path }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: '8.5'
           extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip
@@ -170,7 +170,7 @@ jobs:
         working-directory: ${{ inputs.frontend_directory }}
 
       - name: JS Checks & Production Build
-        uses: flarum/action-build@v5
+        uses: flarum/action-build@4ef2245181c661e2978c9223f65fa865767aacde # v5.0.1
         with:
           build_script: ${{ inputs.build_script }}
           build_typings_script: ${{ inputs.build_typings_script }}
