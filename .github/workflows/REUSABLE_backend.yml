@@ -143,10 +143,10 @@ jobs:
       ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@61b9e3751b92087fd0b06925ba6dd6314e06f089 # v2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: ${{ matrix.php }}
           coverage: xdebug
@@ -198,10 +198,10 @@ jobs:
       ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@61b9e3751b92087fd0b06925ba6dd6314e06f089 # v2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: ${{ matrix.php }}
           coverage: xdebug
