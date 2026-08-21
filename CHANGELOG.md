@@ -92,6 +92,8 @@
 - (core) keep old-line-only news out of the announcements feed by @imorland [#4945]
 - (statistics) stop the date range dropdown being clipped by the entity columns by @imorland [#4950]
 - (core) don't underline `Button--text` dropdown toggles on hover by @imorland [#4950]
+- (statistics) populate the previous period series on the chart by @drewmt [#4952]
+- (statistics) count the whole custom range in the per-entity period totals by @imorland [#4956]
 
 ### Security
 
