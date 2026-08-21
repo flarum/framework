@@ -93,12 +93,12 @@ on:
 
       db_prefix:
         description: >-
-          Table prefix used by the prefixed jobs. Deliberately longer than a realistic prefix:
-          these jobs exist to catch identifier length limits (64 chars on MySQL/MariaDB, 63
-          bytes on PostgreSQL, which truncates silently rather than erroring).
+          Table prefix used by the prefixed jobs, at the maximum length Flarum's installer
+          accepts (see DatabaseConfig). These jobs cover both identifier length limits and
+          the prefix handling in each driver's schema code, so there is one per driver.
         type: string
         required: false
-        default: 'flarum_prefix_test_'
+        default: 'flarum_ci_'
 
       php_ini_values:
         description: PHP ini values
@@ -140,6 +140,7 @@ jobs:
         # a database engine, so a full cross-product buys coverage that cannot fail alone.
         php: ['${{ inputs.latest_php }}']
         service: ${{ fromJSON(inputs.db_versions) }}
+        prefix: ['']
 
         # Redis client library to exercise. Defaults to a single empty entry
         # (no extra dimension); repos that enable_redis can opt into testing
@@ -191,7 +192,9 @@ jobs:
             db: MySQL 8.4
             driver: mysql
 
-          # Prefixed runs, on the two engines where identifier length limits bite.
+          # One prefixed run per driver. Identifier limits differ (64 characters on
+          # MySQL/MariaDB, 63 bytes on PostgreSQL, which truncates silently), and each
+          # driver applies the prefix through its own schema code.
           - php: ${{ inputs.latest_php }}
             service: 'mysql:9.7'
             db: MySQL 9.7
@@ -199,9 +202,21 @@ jobs:
             prefix: ${{ inputs.db_prefix }}
             prefixStr: (prefix)
           - php: ${{ inputs.latest_php }}
+            service: 'mariadb:12.3'
+            db: MariaDB 12.3
+            driver: mariadb
+            prefix: ${{ inputs.db_prefix }}
+            prefixStr: (prefix)
+          - php: ${{ inputs.latest_php }}
             service: 'postgres:18'
             db: PostgreSQL 18
             driver: pgsql
+            prefix: ${{ inputs.db_prefix }}
+            prefixStr: (prefix)
+          - php: ${{ inputs.latest_php }}
+            service: 'sqlite:3'
+            db: SQLite
+            driver: sqlite
             prefix: ${{ inputs.db_prefix }}
             prefixStr: (prefix)
 
@@ -225,7 +240,7 @@ jobs:
           MARIADB_ROOT_PASSWORD: root
         ports:
           - 3306
-        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="healthcheck.sh --connect" --health-interval=10s --health-timeout=5s --health-retries=10
       postgres:
         image: ${{ matrix.driver == 'pgsql' && matrix.service || '' }}
         env:
