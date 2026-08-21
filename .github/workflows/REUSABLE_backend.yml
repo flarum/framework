@@ -93,12 +93,21 @@ on:
 
       db_prefix:
         description: >-
-          Table prefix used by the prefixed jobs, at the maximum length Flarum's installer
-          accepts (see DatabaseConfig). These jobs cover both identifier length limits and
-          the prefix handling in each driver's schema code, so there is one per driver.
+          Table prefix for the prefixed jobs on drivers that allow 64-character identifiers,
+          at the longest Flarum accepts there (DatabaseRequirements::maxTablePrefixLength).
+          These jobs cover both identifier length limits and the prefix handling in each
+          driver's schema code, so there is one per driver, each at that driver's maximum.
         type: string
         required: false
-        default: 'flarum_ci_'
+        default: 'flarum_c_'
+
+      db_prefix_pgsql:
+        description: >-
+          As `db_prefix`, but one byte shorter: PostgreSQL limits identifiers to 63 bytes
+          rather than 64 characters.
+        type: string
+        required: false
+        default: 'flarum_p'
 
       php_ini_values:
         description: PHP ini values
@@ -211,7 +220,7 @@ jobs:
             service: 'postgres:18'
             db: PostgreSQL 18
             driver: pgsql
-            prefix: ${{ inputs.db_prefix }}
+            prefix: ${{ inputs.db_prefix_pgsql }}
             prefixStr: (prefix)
           - php: ${{ inputs.latest_php }}
             service: 'sqlite:3'
