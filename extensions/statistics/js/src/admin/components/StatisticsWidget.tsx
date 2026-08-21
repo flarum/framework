@@ -179,7 +179,7 @@ export default class StatisticsWidget extends DashboardWidget {
       ? null
       : this.selectedPeriod === 'custom'
       ? {
-          start: this.customPeriod?.end!,
+          start: this.customPeriod?.start!,
           end: this.customPeriod?.end!,
           step: 86400,
         }
