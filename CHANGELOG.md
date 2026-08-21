@@ -96,6 +96,7 @@
 - (statistics) count the whole custom range in the per-entity period totals by @imorland [#4956]
 - (core) scope haptic feedback to browsers with the Vibration API, and hide its setting elsewhere by @imorland [#4957]
 - (core) don't treat an unreadable package manifest as an empty extension list by @imorland [#4958]
+- (core) validate the table prefix against the database driver's identifier limit by @imorland [#4961]
 
 ### Security
 
