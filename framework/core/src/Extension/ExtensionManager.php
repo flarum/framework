@@ -16,6 +16,7 @@ use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Event\Enabling;
 use Flarum\Extension\Event\Uninstalled;
 use Flarum\Extension\Exception\CircularDependenciesException;
+use Flarum\Extension\Exception\UnreadableManifestException;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -45,14 +46,28 @@ class ExtensionManager
 
     public function getExtensions(): Collection
     {
-        if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
+        if (is_null($this->extensions)) {
+            $manifest = $this->paths->vendor.'/composer/installed.json';
+
+            if (! $this->filesystem->exists($manifest)) {
+                throw UnreadableManifestException::missing($manifest);
+            }
+
             $extensions = new Collection();
 
             // Load all packages installed by composer.
-            $installed = json_decode($this->filesystem->get($this->paths->vendor.'/composer/installed.json'), true);
+            $installed = json_decode($this->filesystem->get($manifest), true);
+
+            if (! is_array($installed)) {
+                throw UnreadableManifestException::unparsable($manifest);
+            }
 
             // Composer 2.0 changes the structure of the installed.json manifest
             $installed = $installed['packages'] ?? $installed;
+
+            if (! is_array($installed)) {
+                throw UnreadableManifestException::unparsable($manifest);
+            }
 
             // We calculate and store a set of composer package names for all installed Flarum extensions,
             // so we know what is and isn't a flarum extension in `calculateDependencies`.
