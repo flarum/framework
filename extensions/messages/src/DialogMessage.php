@@ -121,21 +121,21 @@ class DialogMessage extends AbstractModel implements Formattable
 
     public function mentionsUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'dialog_message_mentions_user', 'dialog_message_id', 'mentions_user_id');
+        return $this->belongsToMany(User::class, 'message_mentions_user', 'message_id', 'user_id');
     }
 
     public function mentionsPosts(): BelongsToMany
     {
-        return $this->belongsToMany(Post::class, 'dialog_message_mentions_post', 'dialog_message_id', 'mentions_post_id');
+        return $this->belongsToMany(Post::class, 'message_mentions_post', 'message_id', 'post_id');
     }
 
     public function mentionsGroups(): BelongsToMany
     {
-        return $this->belongsToMany(Group::class, 'dialog_message_mentions_group', 'dialog_message_id', 'mentions_group_id');
+        return $this->belongsToMany(Group::class, 'message_mentions_group', 'message_id', 'group_id');
     }
 
     public function mentionsTags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class, 'dialog_message_mentions_tag', 'dialog_message_id', 'mentions_tag_id');
+        return $this->belongsToMany(Tag::class, 'message_mentions_tag', 'message_id', 'tag_id');
     }
 }
