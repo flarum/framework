@@ -33,19 +33,9 @@ return [
             });
         }
     },
-    'down' => function (Builder $schema) use ($tables) {
-        foreach ($tables as $from => [$to, $columns]) {
-            if (! $schema->hasTable($to) || $schema->hasTable($from)) {
-                continue;
-            }
-
-            $schema->table($to, function (Blueprint $table) use ($columns) {
-                foreach ($columns as $old => $new) {
-                    $table->renameColumn($new, $old);
-                }
-            });
-
-            $schema->rename($to, $from);
-        }
+    // Deliberately one-way. The migrations that created these tables drop them by their
+    // current name, and they roll back after this one, so restoring the old names here
+    // would leave that drop with nothing to remove.
+    'down' => function (Builder $schema) {
     },
 ];
