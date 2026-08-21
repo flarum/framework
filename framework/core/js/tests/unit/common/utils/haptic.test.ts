@@ -1,79 +1,127 @@
 import { jest } from '@jest/globals';
-import { WebHaptics } from 'web-haptics';
-import haptic, { isHapticSupported } from '../../../../src/common/utils/haptic';
 
-// haptic.ts creates `_haptics = new WebHaptics()` at module load.
-// Spying on the prototype intercepts calls on the already-created instance.
+const define = (prop: string, value: unknown) => Object.defineProperty(navigator, prop, { value, writable: true, configurable: true });
+
+const originalUserAgent = navigator.userAgent;
+
+/**
+ * `isHapticSupported` is resolved when the module is first evaluated, so each case has to
+ * set the environment up and then load the module fresh.
+ */
+async function loadHaptic(vibrate: unknown, userAgent: string = originalUserAgent) {
+  jest.resetModules();
+  define('vibrate', vibrate);
+  define('userAgent', userAgent);
+
+  const haptic = await import('../../../../src/common/utils/haptic');
+  const { WebHaptics } = await import('web-haptics');
+
+  return { ...haptic, WebHaptics };
+}
+
+afterEach(() => {
+  define('vibrate', undefined);
+  define('userAgent', originalUserAgent);
+  jest.restoreAllMocks();
+});
+
 describe('haptic', () => {
-  let mockTrigger: ReturnType<typeof jest.spyOn>;
+  describe('on a browser with the Vibration API', () => {
+    async function withSpy() {
+      const { default: haptic, WebHaptics } = await loadHaptic(jest.fn());
+      const trigger = jest.spyOn(WebHaptics.prototype, 'trigger').mockImplementation(() => Promise.resolve());
 
-  beforeEach(() => {
-    mockTrigger = jest.spyOn(WebHaptics.prototype, 'trigger').mockImplementation(() => Promise.resolve());
-  });
+      return { haptic, trigger };
+    }
 
-  afterEach(() => {
-    mockTrigger.mockRestore();
-  });
+    it('triggers the light preset by default', async () => {
+      const { haptic, trigger } = await withSpy();
 
-  describe('presets', () => {
-    it('triggers the light preset by default', () => {
       haptic();
-      expect(mockTrigger).toHaveBeenCalledWith('light');
+
+      expect(trigger).toHaveBeenCalledWith('light');
     });
 
-    it.each(['light', 'medium', 'heavy', 'success', 'warning', 'error', 'nudge'] as const)(
-      'passes preset "%s" directly to web-haptics',
-      (preset) => {
-        haptic(preset);
-        expect(mockTrigger).toHaveBeenCalledWith(preset);
-      }
-    );
-  });
+    it.each(['light', 'medium', 'heavy', 'success', 'warning', 'error', 'nudge'] as const)('passes preset "%s" through', async (preset) => {
+      const { haptic, trigger } = await withSpy();
 
-  describe('custom patterns', () => {
-    it('accepts a duration in ms', () => {
+      haptic(preset);
+
+      expect(trigger).toHaveBeenCalledWith(preset);
+    });
+
+    it('accepts a duration in ms', async () => {
+      const { haptic, trigger } = await withSpy();
+
       haptic(50);
-      expect(mockTrigger).toHaveBeenCalledWith(50);
+
+      expect(trigger).toHaveBeenCalledWith(50);
     });
 
-    it('accepts a custom pattern array', () => {
+    it('accepts a custom pattern array', async () => {
+      const { haptic, trigger } = await withSpy();
+
       haptic([100, 50, 100]);
-      expect(mockTrigger).toHaveBeenCalledWith([100, 50, 100]);
+
+      expect(trigger).toHaveBeenCalledWith([100, 50, 100]);
     });
   });
 
-  describe('unsupported devices', () => {
-    it('does not throw on any device', () => {
+  describe('on a browser without the Vibration API', () => {
+    /**
+     * Reaching the library at all is what matters here, not what it would have done.
+     * Its fallback path builds a hidden switch element and drives it from a
+     * requestAnimationFrame loop, which is wasted work on a device that cannot vibrate.
+     */
+    it('does not reach the underlying library', async () => {
+      const { default: haptic, WebHaptics } = await loadHaptic(undefined);
+      const trigger = jest.spyOn(WebHaptics.prototype, 'trigger').mockImplementation(() => Promise.resolve());
+
+      haptic('success');
+
+      expect(trigger).not.toHaveBeenCalled();
+    });
+
+    it('does not throw', async () => {
+      const { default: haptic } = await loadHaptic(undefined);
+
       expect(() => haptic('success')).not.toThrow();
     });
+
+    it('does not reach the library on iOS either', async () => {
+      const iOS = 'Mozilla/5.0 (iPhone; CPU iPhone OS 26_5 like Mac OS X) AppleWebKit/605.1.15';
+      const { default: haptic, WebHaptics } = await loadHaptic(undefined, iOS);
+      const trigger = jest.spyOn(WebHaptics.prototype, 'trigger').mockImplementation(() => Promise.resolve());
+
+      haptic('success');
+
+      expect(trigger).not.toHaveBeenCalled();
+    });
+  });
+});
+
+describe('isHapticSupported', () => {
+  it('is true when the Vibration API is present', async () => {
+    const { isHapticSupported } = await loadHaptic(jest.fn());
+
+    expect(isHapticSupported).toBe(true);
   });
 
-  describe('isHapticSupported', () => {
-    it('is false in jsdom (no navigator.vibrate, non-iOS userAgent)', () => {
-      expect(isHapticSupported).toBe(false);
-    });
+  it('is false when the Vibration API is absent', async () => {
+    const { isHapticSupported } = await loadHaptic(undefined);
 
-    it('is true when navigator.vibrate is a function', async () => {
-      Object.defineProperty(navigator, 'vibrate', { value: jest.fn(), writable: true, configurable: true });
+    expect(isHapticSupported).toBe(false);
+  });
 
-      jest.resetModules();
-      const { isHapticSupported: supported } = await import('../../../../src/common/utils/haptic');
+  /**
+   * iOS has no Vibration API. It briefly produced haptics through an
+   * `<input type="checkbox" switch>` quirk, which WebKit closed in iOS 26.5 by requiring
+   * a trusted event, so support must not be inferred from the user agent.
+   */
+  it('is false on iOS, which has no Vibration API', async () => {
+    const iOS = 'Mozilla/5.0 (iPhone; CPU iPhone OS 26_5 like Mac OS X) AppleWebKit/605.1.15';
+    const { isHapticSupported } = await loadHaptic(undefined, iOS);
 
-      expect(supported).toBe(true);
-
-      Object.defineProperty(navigator, 'vibrate', { value: undefined, writable: true, configurable: true });
-    });
-
-    it('is true on iOS userAgent', async () => {
-      const originalUserAgent = navigator.userAgent;
-      Object.defineProperty(navigator, 'userAgent', { value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)', writable: true, configurable: true });
-
-      jest.resetModules();
-      const { isHapticSupported: supported } = await import('../../../../src/common/utils/haptic');
-
-      expect(supported).toBe(true);
-
-      Object.defineProperty(navigator, 'userAgent', { value: originalUserAgent, writable: true, configurable: true });
-    });
+    expect(isHapticSupported).toBe(false);
   });
 });

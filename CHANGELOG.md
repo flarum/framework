@@ -94,6 +94,7 @@
 - (core) don't underline `Button--text` dropdown toggles on hover by @imorland [#4950]
 - (statistics) populate the previous period series on the chart by @drewmt [#4952]
 - (statistics) count the whole custom range in the per-entity period totals by @imorland [#4956]
+- (core) scope haptic feedback to browsers with the Vibration API, and hide its setting elsewhere by @imorland [#4957]
 
 ### Security
 

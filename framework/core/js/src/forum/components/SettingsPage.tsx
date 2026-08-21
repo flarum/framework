@@ -14,6 +14,7 @@ import classList from '../../common/utils/classList';
 import ThemeMode from '../../common/components/ThemeMode';
 import { camelCaseToSnakeCase } from '../../common/utils/string';
 import { ComponentAttrs } from '../../common/Component';
+import { isHapticSupported } from '../../common/utils/haptic';
 
 /**
  * The `SettingsPage` component displays the user's settings control panel, in
@@ -63,6 +64,10 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
       if (visible && visible() === false) return;
 
+      const children = this[sectionItems]().toArray();
+
+      if (!children.length) return;
+
       items.add(
         section,
         <FieldSet
@@ -70,7 +75,7 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
           label={app.translator.trans(`core.forum.settings.${camelCaseToSnakeCase(section)}_heading`)}
           {...props}
         >
-          {this[sectionItems]().toArray()}
+          {children}
         </FieldSet>,
         100 - index * 10
       );
@@ -148,6 +153,8 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
    */
   deviceItems() {
     const items = new ItemList<Mithril.Children>();
+
+    if (!isHapticSupported) return items;
 
     items.add(
       'hapticFeedback',
