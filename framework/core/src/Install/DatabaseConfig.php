@@ -9,6 +9,7 @@
 
 namespace Flarum\Install;
 
+use Flarum\Database\DatabaseRequirements;
 use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Support\Arrayable;
 
@@ -72,8 +73,10 @@ class DatabaseConfig implements Arrayable
                 throw new ValidationFailed('The prefix may only contain characters and underscores.');
             }
 
-            if (strlen($this->prefix) > 10) {
-                throw new ValidationFailed('The prefix should be no longer than 10 characters.');
+            $maxPrefix = DatabaseRequirements::maxTablePrefixLength($this->driver);
+
+            if ($maxPrefix !== null && strlen($this->prefix) > $maxPrefix) {
+                throw new ValidationFailed("The prefix should be no longer than $maxPrefix characters on $this->driver.");
             }
         }
     }
