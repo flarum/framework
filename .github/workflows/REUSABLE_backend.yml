@@ -77,10 +77,28 @@ on:
         default: 'curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip'
 
       db_versions:
-        description: Versions of databases to test with. Should be array of strings encoded as JSON array
+        description: >-
+          Versions of databases to test with. Should be array of strings encoded as JSON array.
+          Each entry runs on `latest_php`; older PHP versions are covered separately against a
+          single reference database. Images are pinned so a run is reproducible. The default
+          covers, per driver, the version Flarum declares as its minimum, the version it
+          recommends, and the newest long-term release — see Flarum\Database\DatabaseRequirements.
         type: string
         required: false
-        default: '["mysql:5.7", "mysql:8.0.30", "mariadb", "sqlite:3", "postgres:10"]'
+        default: >-
+          ["mysql:5.7", "mysql:8.4", "mysql:9.7",
+           "mariadb:10.3", "mariadb:11.8", "mariadb:12.3",
+           "postgres:10", "postgres:15", "postgres:18",
+           "sqlite:3"]
+
+      db_prefix:
+        description: >-
+          Table prefix used by the prefixed jobs. Deliberately longer than a realistic prefix:
+          these jobs exist to catch identifier length limits (64 chars on MySQL/MariaDB, 63
+          bytes on PostgreSQL, which truncates silently rather than erroring).
+        type: string
+        required: false
+        default: 'flarum_prefix_test_'
 
       php_ini_values:
         description: PHP ini values
@@ -113,86 +131,79 @@ jobs:
     runs-on: ${{ inputs.runner_type }}
 
     strategy:
+      # One database failing should not hide the state of the others.
+      fail-fast: false
+
       matrix:
-        php: ${{ fromJSON(inputs.php_versions) }}
+        # Every database in `db_versions` runs on the latest PHP. Older PHP versions are
+        # added below against one reference database: a PHP-version bug is not specific to
+        # a database engine, so a full cross-product buys coverage that cannot fail alone.
+        php: ['${{ inputs.latest_php }}']
         service: ${{ fromJSON(inputs.db_versions) }}
-        prefix: ['']
-        php_ini_values: [inputs.php_ini_values]
+
         # Redis client library to exercise. Defaults to a single empty entry
         # (no extra dimension); repos that enable_redis can opt into testing
         # both 'phpredis' and 'predis' via the `redis_clients` input.
         redis_client: ${{ fromJSON(inputs.redis_clients) }}
 
-        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrixinclude
         include:
-          # Expands the matrix by naming DBs.
+          # Human-readable names and the driver each image speaks. These match on `service`,
+          # so they annotate the combinations above rather than adding any.
           - service: 'mysql:5.7'
             db: MySQL 5.7
             driver: mysql
-          - service: 'mysql:8.0.30'
-            db: MySQL 8.0
+          - service: 'mysql:8.4'
+            db: MySQL 8.4
             driver: mysql
-          - service: mariadb
-            db: MariaDB
+          - service: 'mysql:9.7'
+            db: MySQL 9.7
+            driver: mysql
+          - service: 'mariadb:10.3'
+            db: MariaDB 10.3
             driver: mariadb
-          - service: 'sqlite:3'
-            db: SQLite
-            driver: sqlite
+          - service: 'mariadb:11.8'
+            db: MariaDB 11.8
+            driver: mariadb
+          - service: 'mariadb:12.3'
+            db: MariaDB 12.3
+            driver: mariadb
           - service: 'postgres:10'
             db: PostgreSQL 10
             driver: pgsql
-
-          # Include Database prefix tests with only one PHP version (latest).
-          - php: ${{ inputs.latest_php }}
-            service: 'mysql:5.7'
-            db: MySQL 5.7
-            driver: mysql
-            prefix: flarum_
-            prefixStr: (prefix)
-          - php: ${{ inputs.latest_php }}
-            service: mariadb
-            db: MariaDB
-            driver: mariadb
-            prefix: flarum_
-            prefixStr: (prefix)
-          - php: ${{ inputs.latest_php }}
-            service: 'sqlite:3'
+          - service: 'postgres:15'
+            db: PostgreSQL 15
+            driver: pgsql
+          - service: 'postgres:18'
+            db: PostgreSQL 18
+            driver: pgsql
+          - service: 'sqlite:3'
             db: SQLite
             driver: sqlite
-            prefix: flarum_
+
+          # PHP coverage, against the recommended MySQL rather than the newest, since that
+          # is the version most installations are expected to be on.
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'mysql:8.4'
+            db: MySQL 8.4
+            driver: mysql
+          - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: 'mysql:8.4'
+            db: MySQL 8.4
+            driver: mysql
+
+          # Prefixed runs, on the two engines where identifier length limits bite.
+          - php: ${{ inputs.latest_php }}
+            service: 'mysql:9.7'
+            db: MySQL 9.7
+            driver: mysql
+            prefix: ${{ inputs.db_prefix }}
             prefixStr: (prefix)
           - php: ${{ inputs.latest_php }}
-            service: 'postgres:10'
-            db: PostgreSQL 10
+            service: 'postgres:18'
+            db: PostgreSQL 18
             driver: pgsql
-            prefix: flarum_
+            prefix: ${{ inputs.db_prefix }}
             prefixStr: (prefix)
-
-        # To reduce number of actions:
-        # - MySQL 8.0 runs on all PHP versions (primary DB for PHP version coverage)
-        # - All other DBs run on latest PHP only (DB-specific bugs don't depend on PHP version)
-        # - MySQL 5.7 also runs on latest PHP only (floor version coverage)
-        #
-        # This excludes every non-latest PHP version for those DBs, leaving only
-        # `latest_php`. The list must cover all `php_versions` entries EXCEPT the
-        # last one, so keep it in sync when `php_versions` changes size.
-        exclude:
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'mysql:5.7'
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'mysql:5.7'
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: mariadb
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: mariadb
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'sqlite:3'
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'sqlite:3'
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'postgres:10'
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'postgres:10'
 
     services:
       mysql:
@@ -263,7 +274,22 @@ jobs:
           # both code paths.
           extensions: ${{ inputs.php_extensions }}${{ matrix.redis_client == 'phpredis' && ', redis' || '' }}
           tools: phpunit, composer:v2
-          ini-values: ${{ matrix.php_ini_values }}
+          ini-values: ${{ inputs.php_ini_values }}
+
+      # SQLite is compiled into PHP rather than run as a service, so its version comes from
+      # the runner image and cannot be pinned like the other drivers. Record it, and fail if
+      # a runner update ever drops below the version Flarum declares as its minimum.
+      - name: Report SQLite version
+        if: matrix.driver == 'sqlite'
+        run: |
+          php -r '
+            $v = SQLite3::version()["versionString"];
+            echo "SQLite $v\n";
+            if (version_compare($v, "3.35.0", "<")) {
+              echo "::error::Runner SQLite $v is below Flarum SQLITE_MINIMUM 3.35.0\n";
+              exit(1);
+            }
+          '
 
       - name: Install Composer dependencies
         run: composer install
@@ -347,7 +373,7 @@ jobs:
           coverage: none
           extensions: ${{ inputs.php_extensions }}
           tools: phpunit, composer:v2
-          ini-values: ${{ matrix.php_ini_values }}
+          ini-values: ${{ inputs.php_ini_values }}
 
       - name: Install Composer dependencies
         run: composer install
