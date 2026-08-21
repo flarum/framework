@@ -97,6 +97,7 @@
 - (core) scope haptic feedback to browsers with the Vibration API, and hide its setting elsewhere by @imorland [#4957]
 - (core) don't treat an unreadable package manifest as an empty extension list by @imorland [#4958]
 - (core) validate the table prefix against the database driver's identifier limit by @imorland [#4961]
+- (core) break ties in sorted listings by primary key so paginated results are stable by @imorland [#4962]
 
 ### Security
 

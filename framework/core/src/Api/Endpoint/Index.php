@@ -24,6 +24,7 @@ use Flarum\Database\Eloquent\Collection;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchManager;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Psr\Http\Message\ResponseInterface as Response;
 use RuntimeException;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
@@ -211,29 +212,49 @@ class Index extends Endpoint
 
     final protected function applySorts($query, Context $context, ?array $sort): void
     {
-        if (! $sort) {
-            return;
+        if ($sort) {
+            $collection = $context->collection;
+
+            if (! $collection instanceof AbstractResource) {
+                throw new RuntimeException('The collection '.$collection::class.' must extend '.AbstractResource::class);
+            }
+
+            $sorts = $collection->resolveSorts();
+
+            foreach ($sort as $name => $direction) {
+                foreach ($sorts as $field) {
+                    if ($field->name === $name && $field->isVisible($context)) {
+                        $field->apply($query, $direction, $context);
+                        continue 2;
+                    }
+                }
+
+                throw (new BadRequestException("Invalid sort: $name"))->setSource([
+                    'parameter' => 'sort',
+                ]);
+            }
         }
 
-        $collection = $context->collection;
+        // Sorting by a column that isn't unique leaves the order of tied rows to the
+        // database, and results are paginated by offset, so an unstable order can repeat a
+        // row on one page and skip it on the next. Ending every sort on the primary key
+        // makes the order total. Applies with no sort too: unordered pagination has the
+        // same problem.
+        //
+        // The direction follows the last ordering already applied, because an InnoDB
+        // secondary index carries the primary key: `column DESC, id DESC` is still answered
+        // by an index on `column` alone, where mixing directions forces a filesort.
+        if ($query instanceof EloquentBuilder) {
+            $direction = 'asc';
 
-        if (! $collection instanceof AbstractResource) {
-            throw new RuntimeException('The collection '.$collection::class.' must extend '.AbstractResource::class);
-        }
-
-        $sorts = $collection->resolveSorts();
-
-        foreach ($sort as $name => $direction) {
-            foreach ($sorts as $field) {
-                if ($field->name === $name && $field->isVisible($context)) {
-                    $field->apply($query, $direction, $context);
-                    continue 2;
+            foreach (array_reverse($query->getQuery()->orders ?? []) as $order) {
+                if (isset($order['direction'])) {
+                    $direction = $order['direction'];
+                    break;
                 }
             }
 
-            throw (new BadRequestException("Invalid sort: $name"))->setSource([
-                'parameter' => 'sort',
-            ]);
+            $query->orderBy($query->getModel()->getQualifiedKeyName(), $direction);
         }
     }
 
