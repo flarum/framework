@@ -1,28 +1,31 @@
 /**
  * Haptic feedback utility.
  *
- * Uses the `web-haptics` package which supports:
- * - Android: via the Web Vibration API (`navigator.vibrate`)
- * - iOS: via a hidden `<input type="checkbox" switch>` toggle that triggers the Taptic Engine
+ * Delegates to the `web-haptics` package, which uses the Web Vibration API
+ * (`navigator.vibrate`). That API is implemented by Chromium, so in practice haptics are
+ * available on Chromium-based Android browsers and nowhere else. iOS Safari has no
+ * vibration API, and WebKit's position on the specification is `oppose`. Firefox removed
+ * its implementation in Firefox 129.
  *
- * Silently no-ops on desktop and unsupported devices — always safe to call unconditionally.
+ * Calls are a no-op wherever the API is absent, so `haptic()` is always safe to call
+ * unconditionally. Use {@link isHapticSupported} to decide whether to show haptic-related UI.
  *
- * **User gesture requirement (Android + iOS):** Both platforms require haptic calls to occur
- * within a synchronous user gesture context. Always call `haptic()` before any `await` or
- * `.then()` — once execution goes async, the browser's gesture token expires and the haptic
- * will be silently ignored.
+ * **User gesture requirement:** haptic calls must occur within a synchronous user gesture
+ * context. Always call `haptic()` before any `await` or `.then()` — once execution goes
+ * async, the browser's gesture token expires and the haptic is silently ignored.
  *
  * @see https://github.com/lochie/web-haptics
+ * @see https://github.com/WebKit/standards-positions/issues/267
  */
 import type { HapticInput } from 'web-haptics';
 export type { HapticInput };
 /**
- * Whether the current device supports haptic feedback.
+ * Whether the current browser can produce haptic feedback.
  *
- * `true` on Android (Web Vibration API) and iOS (Taptic Engine via checkbox trick).
- * `false` on desktop browsers.
+ * Determined by the presence of the Web Vibration API, so this is `true` on Chromium-based
+ * Android browsers and `false` on iOS, desktop, and any other browser without it.
  *
- * Useful for conditionally showing haptic-related UI (e.g. a settings toggle).
+ * Use this to conditionally show haptic-related UI (e.g. a settings toggle).
  */
 export declare const isHapticSupported: boolean;
 /**
