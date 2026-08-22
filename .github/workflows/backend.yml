@@ -2,6 +2,13 @@ name: Backend Tests
 
 on: [workflow_dispatch, push, pull_request]
 
+# Superseded runs keep occupying slots against the account-wide concurrent job limit, so
+# cancel them when a branch is pushed again. Runs on the default branch are left alone,
+# since each merge commit's result is worth having on its own.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/2.x' }}
+
 jobs:
   run:
     uses: ./.github/workflows/REUSABLE_backend.yml
