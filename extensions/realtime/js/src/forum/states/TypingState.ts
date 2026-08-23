@@ -12,6 +12,14 @@ export interface TypingData {
    */
   displayName: string | null;
   discloseOnline: boolean;
+  /**
+   * When the sender believed they were typing, from their own `Date.now()`.
+   *
+   * Kept on the wire for compatibility, but never compared against our clock:
+   * it comes from another machine, and any skew between the two would be read
+   * as the event being that much older (or newer) than it is. Expiry is stamped
+   * on arrival instead — see {@link TypingState.add}.
+   */
   time: number;
 }
 
@@ -50,7 +58,12 @@ export default class TypingState {
         : extractText(app.translator.trans('flarum-realtime.forum.typing-indicator.hidden-user', { username: data.displayName }))
       : extractText(app.translator.trans('flarum-realtime.forum.typing-indicator.anonymous-user'));
 
-    this.usersTyping[name] = data.time;
+    // Our own clock, not `data.time`. A sender whose clock is slow would
+    // otherwise have every event arrive already past EXPIRY_MS and be pruned on
+    // the first read — the indicator would never light up — while a fast clock
+    // would leave them typing forever. IndexTypingState stamps on arrival for
+    // the same reason.
+    this.usersTyping[name] = Date.now();
     m.redraw();
   }
 
@@ -76,7 +89,7 @@ export default class TypingState {
     }
 
     if (latestTime) {
-      this.truncationTimer = setTimeout(() => m.redraw(), latestTime - Date.now());
+      this.truncationTimer = setTimeout(() => m.redraw(), latestTime + EXPIRY_MS - Date.now());
     }
 
     return this.usersTyping;
