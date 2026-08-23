@@ -67,6 +67,11 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "messages",
+        "gitRemote": "git@github.com:flarum/messages.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "nicknames",
         "gitRemote": "git@github.com:flarum/nicknames.git",
         "mainBranch": "2.x"
@@ -109,11 +114,6 @@
       {
         "name": "tags",
         "gitRemote": "git@github.com:flarum/tags.git",
-        "mainBranch": "2.x"
-      },
-      {
-        "name": "messages",
-        "gitRemote": "git@github.com:flarum/messages.git",
         "mainBranch": "2.x"
       }
     ],
