@@ -8,6 +8,14 @@ export interface TypingData {
      */
     displayName: string | null;
     discloseOnline: boolean;
+    /**
+     * When the sender believed they were typing, from their own `Date.now()`.
+     *
+     * Kept on the wire for compatibility, but never compared against our clock:
+     * it comes from another machine, and any skew between the two would be read
+     * as the event being that much older (or newer) than it is. Expiry is stamped
+     * on arrival instead — see {@link TypingState.add}.
+     */
     time: number;
 }
 /**
