@@ -70,13 +70,12 @@
   }
 }
 
-// On the widest bands the container keeps growing but prose should not: long
-// text lines get hard to read. Cap the post stream and let the slack sit
-// between it and the scrubber sidebar (the container is row-reversed, so the
-// auto margin on the content's main-start side absorbs the slack).
-@media @desktop-xl {
+// Cap the post stream for readability on wide screens and centre it, so the
+// slack splits around the column instead of pooling beside the sidebar.
+@media @desktop-hd {
   .DiscussionPage .Page-content {
     max-width: var(--discussion-content-max-width);
+    margin-left: auto;
     margin-right: auto;
   }
 }
