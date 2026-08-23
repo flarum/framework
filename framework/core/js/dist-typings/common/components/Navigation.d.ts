@@ -15,15 +15,12 @@ import ItemList from '../utils/ItemList';
  *
  * - `className` The name of a class to set on the root element.
  * - `drawer` Whether or not to show a button to toggle the app's drawer.
- * - `search` A rendered search control to include in `drawer` mode, so search
- *   is reachable from the fixed mobile strip on every page.
  */
 export default class Navigation extends Component {
     view(): JSX.Element;
     /**
      * The controls shown in the navigation, as an ItemList so that other parts of
-     * the app — and extensions — can contribute their own. The forum app adds a
-     * search control here in `drawer` mode.
+     * the app — and extensions — can contribute their own.
      */
     items(): ItemList<Mithril.Children>;
     /**

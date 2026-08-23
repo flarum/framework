@@ -6,11 +6,6 @@ export interface SearchAttrs extends ComponentAttrs {
     state: SearchState;
     label: string;
     a11yRoleLabel: string;
-    /**
-     * Render as a compact control for the fixed mobile navigation strip: an icon
-     * button rather than the full-width prompt, with no drawer to close first.
-     */
-    navigation?: boolean;
 }
 /**
  * The `SearchSource` interface defines a tab of search results in the
