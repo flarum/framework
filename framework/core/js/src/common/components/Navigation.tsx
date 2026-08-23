@@ -20,8 +20,6 @@ import ItemList from '../utils/ItemList';
  *
  * - `className` The name of a class to set on the root element.
  * - `drawer` Whether or not to show a button to toggle the app's drawer.
- * - `search` A rendered search control to include in `drawer` mode, so search
- *   is reachable from the fixed mobile strip on every page.
  */
 export default class Navigation extends Component {
   view() {
@@ -40,23 +38,13 @@ export default class Navigation extends Component {
 
   /**
    * The controls shown in the navigation, as an ItemList so that other parts of
-   * the app — and extensions — can contribute their own. The forum app adds a
-   * search control here in `drawer` mode.
+   * the app — and extensions — can contribute their own.
    */
   items(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
     if (this.attrs.drawer) {
       items.add('drawer', this.getDrawerButton(), 100);
-
-      // A search control supplied by the frontend — the forum passes one, so
-      // search is reachable on every page from the fixed mobile strip rather
-      // than only from inside the drawer. Kept generic (a rendered child, not a
-      // component reference) so this common component stays free of any
-      // forum-only import.
-      if (this.attrs.search) {
-        items.add('search', this.attrs.search, 95);
-      }
     }
 
     if (app.history?.canGoBack()) {

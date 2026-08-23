@@ -5,7 +5,6 @@ import Pane from './utils/Pane';
 import DiscussionPage from './components/DiscussionPage';
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
-import GlobalSearch from './components/GlobalSearch';
 import DiscussionRenamedNotification from './components/DiscussionRenamedNotification';
 import CommentPost from './components/CommentPost';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
@@ -119,7 +118,7 @@ export default class ForumApplication extends Application {
     // We mount navigation and header components after the page, so components
     // like the back button can access the updated state when rendering.
     m.mount(document.getElementById('app-navigation')!, {
-      view: () => <Navigation className="App-backControl" drawer search={<GlobalSearch state={this.search.state} navigation />} />,
+      view: () => <Navigation className="App-backControl" drawer />,
     });
     m.mount(document.getElementById('header-navigation')!, Navigation);
     m.mount(document.getElementById('header-primary')!, HeaderPrimary);

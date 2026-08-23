@@ -100,6 +100,7 @@
 - (core) validate the table prefix against the database driver's identifier limit by @imorland [#4961]
 - (core) break ties in sorted listings by primary key so paginated results are stable by @imorland [#4962]
 - (core) tune wide-screen reading width and sidebar widths by @imorland [#4964]
+- (core) move mobile search into the drawer and index toolbar by @imorland [#4968]
 
 ### Security
 

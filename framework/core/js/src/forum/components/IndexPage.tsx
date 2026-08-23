@@ -7,6 +7,7 @@ import WelcomeHero from './WelcomeHero';
 import DiscussionPage from './DiscussionPage';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
+import GlobalSearch from './GlobalSearch';
 import extractText from '../../common/utils/extractText';
 import type Mithril from 'mithril';
 import type Discussion from '../../common/models/Discussion';
@@ -205,6 +206,17 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
    */
   actionItems() {
     const items = new ItemList<Mithril.Children>();
+
+    // Search is reachable from the drawer everywhere, but on the index — where
+    // people most often search — surface it directly in the toolbar on phones,
+    // where the header has no room for the search prompt shown on wider screens.
+    items.add(
+      'search',
+      <div className="IndexPage-toolbar-search">
+        <GlobalSearch state={app.search.state} />
+      </div>,
+      110
+    );
 
     items.add(
       'refresh',
