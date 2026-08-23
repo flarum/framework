@@ -9,7 +9,6 @@
 
 namespace Flarum\Tests\integration\api\posts;
 
-use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
