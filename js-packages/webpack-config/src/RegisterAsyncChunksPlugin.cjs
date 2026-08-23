@@ -15,6 +15,13 @@ class RegisterAsyncChunksPlugin {
   }
 
   apply(compiler) {
+    // The extension's own source directory, derived from webpack's context
+    // (the single source of truth set in index.cjs). Used to identify which
+    // modules belong to the extension (as opposed to third-party
+    // `node_modules`). Anchoring to this absolute path avoids false positives
+    // when the project is checked out under a path containing a "src" segment.
+    const srcDir = path.resolve(compiler.options.context, 'src') + path.sep;
+
     compiler.hooks.thisCompilation.tap('RegisterAsyncChunksPlugin', (compilation) => {
       let alreadyOptimized = false;
 
@@ -40,12 +47,6 @@ class RegisterAsyncChunksPlugin {
           const chunks = Array.from(compilation.chunks);
           const chunkModuleMemory = {};
           const modulesToCheck = {};
-
-          // The extension's own source directory. Used to identify which modules
-          // belong to the extension (as opposed to third-party `node_modules`).
-          // Anchoring to this absolute path avoids false positives when the
-          // project is checked out under a path that contains a "src" segment.
-          const srcDir = path.resolve(process.cwd(), 'src') + path.sep;
 
           for (const chunk of chunks) {
             for (const module of compilation.chunkGraph.getChunkModulesIterable(chunk)) {

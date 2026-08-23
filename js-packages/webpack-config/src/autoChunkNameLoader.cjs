@@ -65,7 +65,7 @@ module.exports = function autoChunkNameLoader(source) {
         // The chunk name should be the path relative to the extension's `src`
         // directory. Anchoring to the absolute `src` path avoids picking up an
         // unrelated "src" segment from the project's checkout location.
-        const srcDir = path.resolve(this.rootContext || process.cwd(), 'src') + path.sep;
+        const srcDir = path.resolve(this.rootContext, 'src') + path.sep;
         if (absolutePathToImport.startsWith(srcDir)) {
           chunkPath = absolutePathToImport.slice(srcDir.length);
         }
