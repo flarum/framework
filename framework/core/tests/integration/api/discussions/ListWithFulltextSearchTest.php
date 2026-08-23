@@ -197,13 +197,21 @@ class ListWithFulltextSearchTest extends TestCase
 
         $response = $this->send(
             $this->request('GET', '/api/discussions')
-                ->withQueryParams(['filter' => ['q' => '中文']])
+                ->withQueryParams([
+                    'filter' => ['q' => '中文'],
+                    'include' => 'mostRelevantPost',
+                ])
         );
 
-        $ids = Arr::pluck(json_decode($response->getBody()->getContents(), true)['data'], 'id');
+        $data = json_decode($response->getBody()->getContents(), true);
+        $ids = Arr::pluck($data['data'], 'id');
 
         // Discussion 6 (title 支持中文吗) and discussion 2 (post 7, content 支持中文吗).
         $this->assertEqualsCanonicalizing(['2', '6'], $ids, 'CJK substring should be found with CJK search mode.');
+
+        // The mostRelevantPost include must still resolve, as it does for the
+        // fulltext drivers — post 7 is the matching comment in discussion 2.
+        $this->assertContains('7', Arr::pluck($data['included'], 'id'), 'mostRelevantPost include must resolve in CJK mode.');
     }
 
     #[Test]

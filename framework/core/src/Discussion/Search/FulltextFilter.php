@@ -57,17 +57,30 @@ class FulltextFilter extends AbstractFulltextFilter
     {
         $query = $state->getQuery();
 
-        $query->where(function (Builder $query) use ($state, $value) {
-            $query->where('discussions.title', 'like', "%$value%")
-                ->orWhereExists(function (QueryBuilder $query) use ($state, $value) {
-                    $query->selectRaw('1')
-                        ->from('posts')
-                        ->whereColumn('posts.discussion_id', 'discussions.id')
-                        ->where('posts.type', 'comment')
-                        ->where('posts.content', 'like', "%$value%")
-                        ->whereIn('posts.id', Post::whereVisibleTo($state->getActor())->select('posts.id')->toBase());
-                });
-        });
+        $matchingComments = function (QueryBuilder $query) use ($state, $value): QueryBuilder {
+            return $query
+                ->from('posts')
+                ->whereColumn('posts.discussion_id', 'discussions.id')
+                ->where('posts.type', 'comment')
+                ->where('posts.content', 'like', "%$value%")
+                ->whereIn('posts.id', Post::whereVisibleTo($state->getActor())->select('posts.id')->toBase());
+        };
+
+        // Keep parity with the fulltext drivers so the mostRelevantPost include
+        // still resolves: the earliest matching comment, falling back to the
+        // discussion's first post when only the title matched.
+        $query
+            ->selectSub(function (QueryBuilder $query) use ($matchingComments) {
+                $matchingComments($query)->selectRaw('coalesce(min(posts.id), discussions.first_post_id)');
+            }, 'most_relevant_post_id')
+            ->where(function (Builder $query) use ($value, $matchingComments) {
+                $query->where('discussions.title', 'like', "%$value%")
+                    ->orWhereExists(function (QueryBuilder $query) use ($matchingComments) {
+                        $matchingComments($query)->selectRaw('1');
+                    });
+            });
+
+        $state->setDefaultSort(fn (Builder $query) => $query->orderByDesc('discussions.last_posted_at'));
     }
 
     protected function mysql(DatabaseSearchState $state, string $value): void
