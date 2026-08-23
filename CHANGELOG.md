@@ -101,6 +101,7 @@
 - (core) break ties in sorted listings by primary key so paginated results are stable by @imorland [#4962]
 - (core) tune wide-screen reading width and sidebar widths by @imorland [#4964]
 - (core) move mobile search into the drawer and index toolbar by @imorland [#4968]
+- (realtime) stamp typing events on arrival instead of trusting the sender's clock by @ekumanov [#4966]
 
 ### Security
 
