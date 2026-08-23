@@ -7,6 +7,7 @@ import extractText from '../../common/utils/extractText';
 import KeyboardNavigatable from '../../common/utils/KeyboardNavigatable';
 import Icon from '../../common/components/Icon';
 import SearchState from '../../common/states/SearchState';
+import SearchManager from '../../common/SearchManager';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
 import type Mithril from 'mithril';
@@ -61,6 +62,14 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
    * The minimum query length before sources are searched.
    */
   protected static MIN_SEARCH_LEN = 3;
+
+  /**
+   * The minimum query length for the current forum. Experimental CJK search mode
+   * drops it to 1; otherwise the (subclass-overridable) MIN_SEARCH_LEN applies.
+   */
+  static minSearchLength(): number {
+    return SearchManager.isCjkMode() ? 1 : this.MIN_SEARCH_LEN;
+  }
 
   /**
    * The instance of `SearchState` for this component.
@@ -228,7 +237,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
         search.searchTimeout = window.setTimeout(() => {
           if (state.isCached(query)) return;
 
-          if (query.length >= (search.constructor as typeof Search).MIN_SEARCH_LEN) {
+          if (query.length >= (search.constructor as typeof Search).minSearchLength()) {
             search.sources?.map((source) => {
               if (!source.search) return;
 

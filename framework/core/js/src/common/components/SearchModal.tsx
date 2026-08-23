@@ -311,7 +311,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     this.searchTimeout = window.setTimeout(() => {
       if (source.isCached(query)) return;
 
-      if (query.length >= SearchManager.MIN_SEARCH_LEN) {
+      if (query.length >= SearchManager.minSearchLength()) {
         if (!source.search) return;
 
         this.loadingSources.push(source.resource);
