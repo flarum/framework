@@ -61,14 +61,11 @@ class FulltextFilter extends AbstractFulltextFilter
             $query->where('discussions.title', 'like', "%$value%")
                 ->orWhereExists(function (QueryBuilder $query) use ($state, $value) {
                     $query->selectRaw('1')
-                        ->from(
-                            Post::whereVisibleTo($state->getActor())
-                                ->whereColumn('discussion_id', 'discussions.id')
-                                ->where('type', 'comment')
-                                ->where('content', 'like', "%$value%")
-                                ->limit(1)
-                                ->toBase()
-                        );
+                        ->from('posts')
+                        ->whereColumn('posts.discussion_id', 'discussions.id')
+                        ->where('posts.type', 'comment')
+                        ->where('posts.content', 'like', "%$value%")
+                        ->whereIn('posts.id', Post::whereVisibleTo($state->getActor())->select('posts.id')->toBase());
                 });
         });
     }
