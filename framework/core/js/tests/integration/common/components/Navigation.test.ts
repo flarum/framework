@@ -69,20 +69,6 @@ describe('Navigation', () => {
     expect(nav).toHaveElement('.Navigation-back');
   });
 
-  test('a supplied search control is shown in drawer mode', () => {
-    const nav = mq(Navigation, { drawer: true, search: m('button', { className: 'my-search' }) });
-
-    expect(nav).toHaveElement('.my-search');
-  });
-
-  test('a supplied search control is ignored outside drawer mode', () => {
-    // The desktop header carries its own search; the strip control is a
-    // mobile-only affordance.
-    const nav = mq(Navigation, { search: m('button', { className: 'my-search' }) });
-
-    expect(nav).not.toHaveElement('.my-search');
-  });
-
   test('an extension can add its own control to the group', () => {
     extend(Navigation.prototype, 'items', (items: ItemList<Mithril.Children>) => {
       items.add('custom', m('button', { className: 'my-nav-control' }), 5);

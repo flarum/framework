@@ -192,38 +192,3 @@
 }
 
 
-// The mobile navigation strip carries its own search control, so the copy that
-// lives in the drawer (part of the secondary header) is redundant there and is
-// hidden on phones. It remains on wider screens, where the secondary header is
-// the top bar rather than the drawer.
-@media @phone {
-  .Header-secondary .Search {
-    display: none;
-  }
-}
-
-// The search control in the fixed mobile navigation strip: an icon button
-// sitting alongside the drawer toggle and back button, matching their size and
-// flat treatment rather than the full-width prompt shown elsewhere. When a
-// search is active the clear button sits beside it, so the query can be cleared
-// in one tap rather than by reopening the modal.
-.Search--navigation {
-  .Search-input {
-    .Button--icon();
-  }
-
-  // The clear button reads as part of the search control, not a separate one,
-  // so it tucks against the magnifier rather than sitting a full icon-width
-  // away. It is also a touch smaller — it is a secondary affordance next to the
-  // control it belongs to.
-  .Search-clear {
-    .Button--icon();
-    width: auto;
-    margin-left: -8px;
-    padding: 8px 4px;
-
-    .Button-icon {
-      font-size: 13px;
-    }
-  }
-}
