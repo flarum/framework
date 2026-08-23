@@ -108,6 +108,7 @@
 
 - (core) stop email values being parsed as markup by @imorland [#4874]
 - (core) declare token models' keys as strings (harden GHSA-55f2-h36g-96c3) by @imorland [#4935]
+- (core) authenticate the updater against the database credentials by @imorland [#4972]
 
 ### Performance
 
