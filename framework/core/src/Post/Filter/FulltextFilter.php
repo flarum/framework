@@ -28,6 +28,12 @@ class FulltextFilter extends AbstractFulltextFilter
 
     public function search(SearchState $state, string $value): void
     {
+        if ($this->settings->get('search_cjk_mode')) {
+            $this->like($state, $value);
+
+            return;
+        }
+
         match ($state->getQuery()->getConnection()->getDriverName()) {
             'mysql', 'mariadb' => $this->mysql($state, $value),
             'pgsql' => $this->pgsql($state, $value),
@@ -37,6 +43,11 @@ class FulltextFilter extends AbstractFulltextFilter
     }
 
     protected function sqlite(DatabaseSearchState $state, string $value): void
+    {
+        $this->like($state, $value);
+    }
+
+    protected function like(DatabaseSearchState $state, string $value): void
     {
         $state->getQuery()->where('content', 'like', "%$value%");
     }

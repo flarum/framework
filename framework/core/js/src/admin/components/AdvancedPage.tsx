@@ -85,6 +85,8 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
   searchDrivers() {
     const hasOtherDrivers = Object.keys(this.searchDriverOptions).some((model) => Object.keys(this.searchDriverOptions[model]).length > 1);
 
+    const cjkCapableDriver = app.data.dbDriver === DatabaseDriver.MySQL || app.data.dbDriver === DatabaseDriver.MariaDB;
+
     return (
       <FormSection label={app.translator.trans('core.admin.advanced.search.section_label')}>
         {hasOtherDrivers ? (
@@ -110,6 +112,16 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
           <InfoTile icon="fas fa-database" className="InfoTile--warning">
             {app.translator.trans('core.admin.advanced.search.no_other_drivers')}
           </InfoTile>
+        )}
+        {cjkCapableDriver && (
+          <Form>
+            {this.buildSettingComponent({
+              type: 'switch',
+              setting: 'search_cjk_mode',
+              label: app.translator.trans('core.admin.advanced.search.cjk_mode_label'),
+              help: app.translator.trans('core.admin.advanced.search.cjk_mode_help'),
+            })}
+          </Form>
         )}
       </FormSection>
     );

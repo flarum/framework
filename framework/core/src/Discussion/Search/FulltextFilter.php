@@ -32,6 +32,14 @@ class FulltextFilter extends AbstractFulltextFilter
 
     public function search(SearchState $state, string $value): void
     {
+        // Fulltext tokenisers can't segment CJK, so substring queries only work
+        // via a LIKE match (as SQLite always does).
+        if ($this->settings->get('search_cjk_mode')) {
+            $this->like($state, $value);
+
+            return;
+        }
+
         match ($state->getQuery()->getConnection()->getDriverName()) {
             'mysql', 'mariadb' => $this->mysql($state, $value),
             'pgsql' => $this->pgsql($state, $value),
@@ -41,6 +49,11 @@ class FulltextFilter extends AbstractFulltextFilter
     }
 
     protected function sqlite(DatabaseSearchState $state, string $value): void
+    {
+        $this->like($state, $value);
+    }
+
+    protected function like(DatabaseSearchState $state, string $value): void
     {
         $query = $state->getQuery();
 
