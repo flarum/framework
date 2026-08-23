@@ -51,6 +51,11 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
      */
     protected static MIN_SEARCH_LEN: number;
     /**
+     * The minimum query length for the current forum. Experimental CJK search mode
+     * drops it to 1; otherwise the (subclass-overridable) MIN_SEARCH_LEN applies.
+     */
+    static minSearchLength(): number;
+    /**
      * The instance of `SearchState` for this component.
      */
     protected searchState: SearchState;
