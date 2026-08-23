@@ -71,9 +71,11 @@
 }
 
 // Cap the post stream for readability on wide screens and centre it, so the
-// slack splits around the column instead of pooling beside the sidebar.
+// slack splits around the column instead of pooling beside the sidebar. The cap
+// is in ch, measured against the column's own (wide-screen) font size.
 @media @desktop-hd {
   .DiscussionPage .Page-content {
+    font-size: var(--post-font-size);
     max-width: var(--discussion-content-max-width);
     margin-left: auto;
     margin-right: auto;
