@@ -32,6 +32,14 @@ class FulltextFilter extends AbstractFulltextFilter
 
     public function search(SearchState $state, string $value): void
     {
+        // Fulltext tokenisers can't segment CJK, so substring queries only work
+        // via a LIKE match (as SQLite always does).
+        if ($this->settings->get('search_cjk_mode')) {
+            $this->like($state, $value);
+
+            return;
+        }
+
         match ($state->getQuery()->getConnection()->getDriverName()) {
             'mysql', 'mariadb' => $this->mysql($state, $value),
             'pgsql' => $this->pgsql($state, $value),
@@ -42,22 +50,40 @@ class FulltextFilter extends AbstractFulltextFilter
 
     protected function sqlite(DatabaseSearchState $state, string $value): void
     {
-        $query = $state->getQuery();
+        $this->like($state, $value);
+    }
 
-        $query->where(function (Builder $query) use ($state, $value) {
-            $query->where('discussions.title', 'like', "%$value%")
-                ->orWhereExists(function (QueryBuilder $query) use ($state, $value) {
-                    $query->selectRaw('1')
-                        ->from(
-                            Post::whereVisibleTo($state->getActor())
-                                ->whereColumn('discussion_id', 'discussions.id')
-                                ->where('type', 'comment')
-                                ->where('content', 'like', "%$value%")
-                                ->limit(1)
-                                ->toBase()
-                        );
-                });
-        });
+    protected function like(DatabaseSearchState $state, string $value): void
+    {
+        $query = $state->getQuery();
+        $grammar = $query->getGrammar();
+
+        $matchingComments = function (QueryBuilder $query) use ($state, $value): QueryBuilder {
+            return $query
+                ->from('posts')
+                ->whereColumn('posts.discussion_id', 'discussions.id')
+                ->where('posts.type', 'comment')
+                ->where('posts.content', 'like', "%$value%")
+                ->whereIn('posts.id', Post::whereVisibleTo($state->getActor())->select('posts.id')->toBase());
+        };
+
+        // Keep parity with the fulltext drivers so the mostRelevantPost include
+        // still resolves: the earliest matching comment, falling back to the
+        // discussion's first post when only the title matched.
+        $coalesce = 'coalesce(min('.$grammar->wrap('posts.id').'), '.$grammar->wrap('discussions.first_post_id').')';
+
+        $query
+            ->selectSub(function (QueryBuilder $query) use ($matchingComments, $coalesce) {
+                $matchingComments($query)->selectRaw($coalesce);
+            }, 'most_relevant_post_id')
+            ->where(function (Builder $query) use ($value, $matchingComments) {
+                $query->where('discussions.title', 'like', "%$value%")
+                    ->orWhereExists(function (QueryBuilder $query) use ($matchingComments) {
+                        $matchingComments($query)->selectRaw('1');
+                    });
+            });
+
+        $state->setDefaultSort(fn (Builder $query) => $query->orderByDesc('discussions.last_posted_at'));
     }
 
     protected function mysql(DatabaseSearchState $state, string $value): void

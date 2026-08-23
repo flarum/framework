@@ -99,6 +99,8 @@ core:
         driver_options:
           default: Default database search
         no_other_drivers: No search drivers are available yet. Install a search driver extension to be able to configure it.
+        cjk_mode_label: Optimise search for CJK languages
+        cjk_mode_help: Enable if your forum is primarily in Chinese, Japanese, or Korean. The database's word-based search cannot match parts of CJK text, so this switches to a substring match that can. It is slower on very large forums, where configuring a CJK-aware fulltext parser at the database level (such as MySQL/MariaDB's ngram parser) is a faster alternative.
       title: Advanced
 
     # These translations are used in the Appearance page.
