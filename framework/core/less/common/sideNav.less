@@ -58,15 +58,11 @@
   .sideNav {
     flex-shrink: 0;
 
+    // Fill the sidebar column so the nav never overflows into the gap between it
+    // and the content. Falls back to the base width outside the Page layout,
+    // where the column variable isn't defined.
     &, > ul {
-      width: 190px;
-
-      @media @desktop-hd {
-        width: 260px;
-      }
-      @media @desktop-xxl {
-        width: 280px;
-      }
+      width: var(--sidebar-width, 190px);
     }
     > ul {
       &.affix {
