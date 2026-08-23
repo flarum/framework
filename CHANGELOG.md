@@ -20,6 +20,7 @@
 - (audit) audit queue pause and resume by @imorland [#4845]
 - (tags) let a tag set the sort its discussion list opens with by @imorland [#4922]
 - (core) show links back to the forum as the discussion they point at by @imorland [#4924]
+- (core) add an experimental opt-in CJK search mode by @imorland [#4965]
 
 ### Changed
 
