@@ -56,6 +56,7 @@ class FulltextFilter extends AbstractFulltextFilter
     protected function like(DatabaseSearchState $state, string $value): void
     {
         $query = $state->getQuery();
+        $grammar = $query->getGrammar();
 
         $matchingComments = function (QueryBuilder $query) use ($state, $value): QueryBuilder {
             return $query
@@ -69,9 +70,11 @@ class FulltextFilter extends AbstractFulltextFilter
         // Keep parity with the fulltext drivers so the mostRelevantPost include
         // still resolves: the earliest matching comment, falling back to the
         // discussion's first post when only the title matched.
+        $coalesce = 'coalesce(min('.$grammar->wrap('posts.id').'), '.$grammar->wrap('discussions.first_post_id').')';
+
         $query
-            ->selectSub(function (QueryBuilder $query) use ($matchingComments) {
-                $matchingComments($query)->selectRaw('coalesce(min(posts.id), discussions.first_post_id)');
+            ->selectSub(function (QueryBuilder $query) use ($matchingComments, $coalesce) {
+                $matchingComments($query)->selectRaw($coalesce);
             }, 'most_relevant_post_id')
             ->where(function (Builder $query) use ($value, $matchingComments) {
                 $query->where('discussions.title', 'like', "%$value%")
