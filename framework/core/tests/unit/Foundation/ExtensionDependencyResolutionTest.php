@@ -155,6 +155,53 @@ class ExtensionDependencyResolutionTest extends TestCase
         $this->assertSame(['flarum-tags', 'flarum-realtime'], $order);
     }
 
+    /**
+     * Regression test for https://discuss.flarum.org/d/39536 (and 39516).
+     *
+     * The moderation extensions (suspend, flags, tags, approval, gdpr) all
+     * optionally depend on audit, so they boot after it and their actions are
+     * audited. fof/ban-ips optionally depends on those moderation extensions,
+     * and fof/geoip on ban-ips. Audit additionally declaring an optional
+     * dependency on fof/geoip closed the loop —
+     *
+     *   audit -> geoip -> ban-ips -> {suspend,flags,tags,approval,gdpr} -> audit
+     *
+     * — a real circular dependency across a very common extension set, which
+     * aborted the 1.x -> 2.x upgrade migration with
+     * CircularDependenciesException. Audit never uses geoip on the backend (the
+     * IP enrichment is a frontend extension of core's IPAddress component), so
+     * the edge was dead weight; without it the set resolves cleanly.
+     */
+    #[Test]
+    public function audit_geoip_and_moderation_extensions_resolve_without_a_cycle()
+    {
+        $audit = new FakeExtension('flarum-audit', [], []);
+        $geoip = new FakeExtension('fof-geoip', [], ['fof-ban-ips']);
+        $banIps = new FakeExtension('fof-ban-ips', [], ['flarum-suspend', 'flarum-flags', 'flarum-tags', 'flarum-approval', 'flarum-gdpr']);
+        $suspend = new FakeExtension('flarum-suspend', [], ['flarum-audit']);
+        $flags = new FakeExtension('flarum-flags', [], ['flarum-audit']);
+        $tags = new FakeExtension('flarum-tags', [], ['flarum-audit']);
+        $approval = new FakeExtension('flarum-approval', [], ['flarum-audit']);
+        $gdpr = new FakeExtension('flarum-gdpr', [], ['flarum-audit']);
+
+        $resolved = ExtensionManager::resolveExtensionOrder([$audit, $geoip, $banIps, $suspend, $flags, $tags, $approval, $gdpr]);
+
+        $this->assertEmpty($resolved['circularDependencies'], 'The audit/geoip/ban-ips/moderation set must not be circular.');
+        $this->assertEmpty($resolved['missingDependencies']);
+        $this->assertCount(8, $resolved['valid']);
+
+        $order = array_map(fn ($e) => $e->getId(), $resolved['valid']);
+        $pos = array_flip($order);
+
+        // Audit boots before every extension that audits its actions.
+        foreach (['flarum-suspend', 'flarum-flags', 'flarum-tags', 'flarum-approval', 'flarum-gdpr'] as $consumer) {
+            $this->assertLessThan($pos[$consumer], $pos['flarum-audit'], "audit must boot before $consumer");
+        }
+
+        // ban-ips boots before geoip, which optionally depends on it.
+        $this->assertLessThan($pos['fof-geoip'], $pos['fof-ban-ips'], 'ban-ips must boot before geoip');
+    }
+
     #[Test]
     public function tags_with_realtime_optional_dependency_is_ordered_after_realtime()
     {
