@@ -103,10 +103,15 @@ module.exports = (options = {}) => {
     // not the extension's node_modules where a single `yarn install` puts them,
     // so add the extension's node_modules as an explicit resolver search path.
     modulePaths: [path.join(cwd, 'node_modules')],
-    // Resolve `@flarum/core/...` imports (used by setup-env and the bootstrap
-    // helpers, and available for tests) to wherever core actually lives.
+    // Resolve core imports to wherever core actually lives. `@flarum/core/...`
+    // is used by this package's own setup and bootstrap helpers; `flarum/...`
+    // is the alias extensions import core through at runtime (webpack turns it
+    // into a `flarum.reg` lookup), so map it to core's source for tests too —
+    // otherwise an extension's own components, which import via `flarum/...`,
+    // cannot be tested.
     moduleNameMapper: {
       '^@flarum/core/(.*)$': path.join(coreDir, '$1'),
+      '^flarum/(.*)$': path.join(coreDir, 'src', '$1'),
     },
     // Exposed so the bootstrap helpers can read core's bundled locale file.
     globals: {
