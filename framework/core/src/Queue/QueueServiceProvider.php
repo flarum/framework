@@ -268,6 +268,15 @@ class QueueServiceProvider extends AbstractServiceProvider
                 return $queue;
             }
 
+            // Core names its own driver, but an extension that replaces the
+            // connection (e.g. fof/redis) may leave it unnamed. A null name
+            // flows into pause/resume bookkeeping and the WorkerIdle event,
+            // both of which expect a string — so give any unnamed driver the
+            // default connection name before wrapping it.
+            if ($queue->getConnectionName() === null) {
+                $queue->setConnectionName('flarum');
+            }
+
             return new RoutingQueue($queue, $container->make('queue.routes'));
         });
 
