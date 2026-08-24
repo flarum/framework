@@ -1,6 +1,6 @@
 {
   "name": "@flarum/jest-config",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Jest config for Flarum.",
   "main": "index.cjs",
   "author": "Flarum Team",
@@ -9,14 +9,31 @@
   "prettier": "@flarum/prettier-config",
   "dependencies": {
     "@types/jest": "^29.2.2",
+    "body-scroll-lock": "^4.0.0-beta.0",
+    "bootstrap": "^3.4.1",
+    "clsx": "^1.1.1",
+    "color-thief-browser": "^2.0.2",
+    "dayjs": "^1.10.7",
     "flarum-webpack-config": "^3.0.0",
     "flat": "^5.0.2",
+    "focus-trap": "^6.7.1",
+    "format-message": "^6.2.4",
     "jest": "^29.3.1",
     "jest-environment-jsdom": "^29.3.1",
+    "jquery": "^3.6.0",
+    "jquery.hotkeys": "^0.1.0",
     "js-yaml": "^4.3.1",
     "jsdom": "^24.0.0",
+    "mithril": "^2.2",
     "mithril-query": "^4.0.1",
-    "ts-jest": "^29.0.3"
+    "nanoid": "^3.3.18",
+    "punycode": "^2.1.1",
+    "sortablejs": "^1.14.0",
+    "textarea-caret": "^3.1.0",
+    "throttle-debounce": "^3.0.1",
+    "ts-jest": "^29.0.3",
+    "web-haptics": "^0.0.6",
+    "xslt-polyfill": "^1.0.21"
   },
   "devDependencies": {
     "prettier": "^2.4.1"

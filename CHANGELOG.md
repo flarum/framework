@@ -9,6 +9,7 @@
 - (subscriptions) delete the reply notification job when its post is gone by @karl-bullock [#4975]
 - (audit) break the audit/geoip circular dependency that aborts the upgrade by @imorland [#4978]
 - (tags) align an icon-less tag's square with its label by @imorland [#4979]
+- (jest-config) make frontend testing work in standalone, Composer-installed extensions by @imorland [#4983]
 
 ## [v2.0.0-rc.6](https://github.com/flarum/framework/compare/v2.0.0-rc.5...v2.0.0-rc.6)
 
