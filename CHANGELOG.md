@@ -1,5 +1,15 @@
 # Changelog
 
+## [v2.0.0-rc.7](https://github.com/flarum/framework/compare/v2.0.0-rc.6...v2.0.0-rc.7)
+
+### Fixed
+
+- (core) route internal links correctly on a forum installed in a subdirectory by @ekumanov [#4976]
+- (core) name a queue connection an extension leaves unnamed, so pause/resume no longer fatals by @imorland [#4977]
+- (subscriptions) delete the reply notification job when its post is gone by @karl-bullock [#4975]
+- (audit) break the audit/geoip circular dependency that aborts the upgrade by @imorland [#4978]
+- (tags) align an icon-less tag's square with its label by @imorland [#4979]
+
 ## [v2.0.0-rc.6](https://github.com/flarum/framework/compare/v2.0.0-rc.5...v2.0.0-rc.6)
 
 ### Added
