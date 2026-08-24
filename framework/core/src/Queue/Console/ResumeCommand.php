@@ -38,7 +38,14 @@ class ResumeCommand extends Command
         if (! $this->argument('queue')) {
             $paused = $factory instanceof QueueFactory ? $factory->pausedQueues($connectionName) : [];
 
-            foreach (array_merge(['*'], $paused) as $queue) {
+            // Also clear every known queue name, not only the tracking list.
+            // A queue paused through a path that never recorded the tracking
+            // entry (e.g. the historical queue:pause crash on an unnamed
+            // connection) would otherwise be left paused with no way for
+            // "resume everything" to reach it.
+            $known = (array) $this->laravel->make('flarum.queue.queues');
+
+            foreach (array_unique(array_merge(['*'], $paused, $known)) as $queue) {
                 $factory->resume($connectionName, $queue);
             }
 
