@@ -53,8 +53,13 @@ export default function routeInternalLinks() {
 
     if (basePath && !(path === basePath || path.startsWith(basePath + '/'))) return;
 
-    // What Mithril routes on excludes the base path, since that is its prefix.
-    const route = path.slice(basePath.length) + url.search + url.hash;
+    // What Mithril routes on *includes* the base path. The forum registers its
+    // routes with the base path already baked into each pattern
+    // (`mapRoutes(routes, basePath)`) and leaves `m.route.prefix` empty, so a
+    // path with the base path taken off matches no route at all and Mithril
+    // quietly falls back to the default one — sending every internal link on a
+    // forum installed in a subdirectory to the index instead.
+    const route = path + url.search + url.hash;
 
     // A link to the exact page we are on, anchor and all, has nowhere to go.
     // Letting the browser handle it keeps same-page anchor jumps working.
@@ -62,6 +67,6 @@ export default function routeInternalLinks() {
 
     e.preventDefault();
 
-    m.route.set(route || '/');
+    m.route.set(route);
   });
 }
