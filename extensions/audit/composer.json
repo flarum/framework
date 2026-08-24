@@ -39,10 +39,7 @@
                 "name": "fas fa-book",
                 "backgroundColor": "#2563EB",
                 "color": "#fff"
-            },
-            "optional-dependencies": [
-                "fof/geoip"
-            ]
+            }
         },
         "flarum-cli": {
             "modules": {
