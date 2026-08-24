@@ -2,6 +2,32 @@ const path = require('path');
 const fs = require('fs');
 
 /**
+ * The shared Flarum babel config, with `@babel/preset-env` forced to emit ES
+ * modules. Under Jest that preset otherwise defaults to CommonJS (`modules:
+ * 'auto'`), which does not match `extensionsToTreatAsEsm` and breaks module
+ * loading. Everything else (the Mithril JSX pragma, TypeScript, the plugins)
+ * is kept as-is.
+ */
+function esmBabelConfig() {
+  const config = require('flarum-webpack-config/babel.config.cjs');
+
+  return {
+    ...config,
+    presets: (config.presets || []).map((preset) => {
+      const name = Array.isArray(preset) ? preset[0] : preset;
+
+      if (typeof name === 'string' && name.includes('preset-env')) {
+        const options = Array.isArray(preset) ? preset[1] || {} : {};
+
+        return [name, { ...options, modules: false }];
+      }
+
+      return preset;
+    }),
+  };
+}
+
+/**
  * Locate Flarum core's frontend source (its `js` directory).
  *
  * Inside the monorepo, `@flarum/core` resolves as a workspace package. A
@@ -46,19 +72,28 @@ module.exports = (options = {}) => {
   return {
     testEnvironment: 'jsdom',
     extensionsToTreatAsEsm: ['.ts', '.tsx'],
+    // Everything is transformed by babel-jest, which understands Flarum's
+    // Mithril-flavoured JSX (pragma `m`). We force `@babel/preset-env` to emit
+    // ES modules (`modules: false`) so the output matches
+    // `extensionsToTreatAsEsm` — the shared babel config defaults to `auto`,
+    // which is CommonJS under Jest and clashes with ESM loading (it surfaces as
+    // "Unexpected token" or a broken `class extends` once core's TypeScript is
+    // pulled in from outside the extension).
     transform: {
-      '^.+\\.[tj]sx?$': ['babel-jest', require('flarum-webpack-config/babel.config.cjs')],
-      '^.+\\.tsx?$': [
-        'ts-jest',
-        {
-          useESM: true,
-        },
-      ],
+      '^.+\\.[tj]sx?$': ['babel-jest', esmBabelConfig()],
     },
-    preset: 'ts-jest',
     setupFiles: [path.resolve(__dirname, 'pollyfills.js')],
     setupFilesAfterEnv: [path.resolve(__dirname, 'setup-env.js')],
     moduleDirectories: ['node_modules', 'src'],
+    // This package's setup and bootstrap files live in the extension's
+    // node_modules and import core's TypeScript. Jest ignores node_modules for
+    // transformation by default, and that ignore extends to the core source
+    // pulled in through them — so it reaches Jest untransformed and dies on its
+    // first type annotation. Un-ignore this package (and only this one) so its
+    // helpers, and the core code they import, are transformed; everything else
+    // under node_modules stays ignored, as some ships non-strict JS Jest can't
+    // parse.
+    transformIgnorePatterns: ['/node_modules/(?!@flarum/jest-config/)', '\\.pnp\\.[^\\/]+$'],
     // Transform the extension's own files and, when core is vendored outside
     // it, core's source too — otherwise its TypeScript is loaded untransformed
     // and fails on the first type annotation.
