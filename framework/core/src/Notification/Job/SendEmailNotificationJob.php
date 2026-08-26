@@ -33,9 +33,9 @@ class SendEmailNotificationJob extends AbstractJob
         // fires twice in quick succession (e.g. Posted then Revised), two
         // identical jobs land in the queue for the same recipient, and
         // without a guard each runs and sends an email. Take a short-lived
-        // atomic lock keyed by blueprint+recipient; the first job to claim
-        // it sends the email, the rest no-op. The lock TTL just needs to
-        // outlive normal mail-send latency — minutes is plenty.
+        // atomic lock keyed by the notification's identity and recipient; the
+        // first job to claim it sends the email, the rest no-op. The lock TTL
+        // just needs to outlive normal mail-send latency — minutes is plenty.
         $store = $cache->getStore();
 
         if (! $store instanceof LockProvider) {
@@ -47,20 +47,46 @@ class SendEmailNotificationJob extends AbstractJob
             return;
         }
 
-        $lockKey = sprintf(
-            'flarum.notification.email-sent:%s:%d',
-            $this->blueprint::getType(),
-            $this->recipient->id
-        );
+        // Key the lock on the notification's identity — its subject and data,
+        // not just its type — so that only genuinely duplicate jobs are
+        // suppressed. Keying on type alone silently dropped a legitimate second
+        // notification of the same type to the same user within the TTL (e.g. a
+        // GDPR erasure request made, cancelled, then made again).
+        $lockKey = $this->lockKey();
 
         $lock = $store->lock($lockKey, 600);
 
         if (! $lock->get()) {
             // Another worker has already claimed responsibility for this
-            // (blueprint, recipient) email. Drop silently.
+            // (notification, recipient) email. Drop silently.
             return;
         }
 
         $mailer->send($this->blueprint, $this->recipient);
+    }
+
+    /**
+     * A lock key identifying this exact notification for this recipient. Two
+     * jobs share it only when they represent the same notification — same type,
+     * sender, subject and data — so a repeat of the same event is deduplicated
+     * while a distinct notification of the same type still sends.
+     */
+    private function lockKey(): string
+    {
+        $subject = $this->blueprint->getSubject();
+        $data = $this->blueprint->getData();
+
+        $identity = implode(':', [
+            $this->blueprint::getType(),
+            ($fromUser = $this->blueprint->getFromUser()) ? $fromUser->id : '',
+            $subject ? $subject->getKey() : '',
+            $data === null ? '' : md5(json_encode($data)),
+        ]);
+
+        return sprintf(
+            'flarum.notification.email-sent:%s:%d',
+            md5($identity),
+            $this->recipient->id
+        );
     }
 }
