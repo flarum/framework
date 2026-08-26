@@ -10,9 +10,9 @@
 namespace Flarum\Foundation\Console;
 
 use Flarum\Console\AbstractCommand;
+use Flarum\Formatter\Formatter;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Foundation\Paths;
-use Flarum\Formatter\Formatter;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Command\Command;
