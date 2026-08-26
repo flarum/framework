@@ -129,6 +129,58 @@ class SyncerRaceTest extends TestCase
 
         $this->assertEquals(1, $mailer->sentCount, 'SendEmailNotificationJob is not idempotent — repeated runs sent duplicate emails.');
     }
+
+    #[Test]
+    public function separate_jobs_for_the_same_notification_still_email_once(): void
+    {
+        // The real #4622 race is two *different* blueprint instances of the
+        // same event — Posted builds one, an immediately-following Revised
+        // builds another, both wrapping the same subject with the same data.
+        // They are the same notification and must still be deduplicated to a
+        // single email, even though they are not the same object.
+        $this->app();
+
+        $recipient = User::find(3);
+
+        $mailer = new CountingNotificationMailer();
+        $this->app()->getContainer()->instance(NotificationMailer::class, $mailer);
+
+        $cache = $this->app()->getContainer()->make(\Illuminate\Contracts\Cache\Repository::class);
+
+        $posted = new TestBlueprintMailable(['post' => 1]);
+        $revised = new TestBlueprintMailable(['post' => 1]);
+
+        (new SendEmailNotificationJob($posted, $recipient))->handle($mailer, $cache);
+        (new SendEmailNotificationJob($revised, $recipient))->handle($mailer, $cache);
+
+        $this->assertEquals(1, $mailer->sentCount, 'Two jobs for the same notification sent duplicate emails.');
+    }
+
+    #[Test]
+    public function distinct_notifications_of_the_same_type_both_email_the_recipient(): void
+    {
+        // The idempotence guard must not swallow a genuinely different
+        // notification that happens to share a type and recipient with a recent
+        // one — e.g. a GDPR erasure request made, cancelled, then made again
+        // within the lock's lifetime. Each carries its own data, so each must
+        // send its own email.
+        $this->app();
+
+        $recipient = User::find(3);
+
+        $mailer = new CountingNotificationMailer();
+        $this->app()->getContainer()->instance(NotificationMailer::class, $mailer);
+
+        $cache = $this->app()->getContainer()->make(\Illuminate\Contracts\Cache\Repository::class);
+
+        $first = new TestBlueprintMailable(['request' => 1]);
+        $second = new TestBlueprintMailable(['request' => 2]);
+
+        (new SendEmailNotificationJob($first, $recipient))->handle($mailer, $cache);
+        (new SendEmailNotificationJob($second, $recipient))->handle($mailer, $cache);
+
+        $this->assertEquals(2, $mailer->sentCount, 'A distinct notification of the same type was suppressed.');
+    }
 }
 
 class TestBlueprint implements BlueprintInterface, AlertableInterface
@@ -161,6 +213,15 @@ class TestBlueprint implements BlueprintInterface, AlertableInterface
 
 class TestBlueprintMailable extends TestBlueprint implements MailableInterface
 {
+    public function __construct(private ?array $data = null)
+    {
+    }
+
+    public function getData(): ?array
+    {
+        return $this->data;
+    }
+
     public static function getType(): string
     {
         return 'syncerRaceTestMailable';
