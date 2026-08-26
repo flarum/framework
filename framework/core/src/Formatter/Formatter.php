@@ -140,6 +140,23 @@ class Formatter
         $this->cache->forget('flarum.formatter');
     }
 
+    /**
+     * Build and cache the formatter now, rather than leaving it to the first
+     * post that needs rendering.
+     *
+     * Compiling the renderer can be expensive on a forum with many extensions,
+     * and it happens lazily inside whichever request first renders a post after
+     * the cache was cleared. On a tight web memory limit that request can hit a
+     * fatal and fail silently. Warming here — from `cache:clear`, where the
+     * limit is usually higher — keeps that cost out of the render path.
+     */
+    public function warm(): void
+    {
+        // Resolving any component finalizes the configurator, which compiles
+        // and caches every component at once.
+        $this->getComponent('renderer');
+    }
+
     protected function getConfigurator(): Configurator
     {
         $configurator = new Configurator;
