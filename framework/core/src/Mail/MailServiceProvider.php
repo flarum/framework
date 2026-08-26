@@ -130,8 +130,15 @@ class MailServiceProvider extends AbstractServiceProvider
         // values back and a formatter that puts them in, escaped, after
         // rendering. Doing it here means no template has to change — including
         // the ones in extensions that will never be updated.
+        //
+        // Core's own mail views live in the `mail::` namespace; extensions
+        // conventionally keep theirs under an `email`/`emails` path. Both are
+        // covered so that core notifications are protected too, not only
+        // extension mail. The values are put back on the finished message by
+        // {@see MutateEmail}, so a template that never calls the formatter is
+        // still safe — the marker just survives until then.
         $views->composer('*', function (View $view) use ($container) {
-            if (! str_contains($view->name(), 'email')) {
+            if (! $this->isMailView($view->name())) {
                 return;
             }
 
@@ -140,5 +147,14 @@ class MailServiceProvider extends AbstractServiceProvider
                 'formatter' => new MailFormatter($container->make(Formatter::class)),
             ]);
         });
+    }
+
+    /**
+     * Whether a view name belongs to an email — core's `mail::` namespace, or
+     * an extension view kept under an `email`/`emails` path by convention.
+     */
+    private function isMailView(string $name): bool
+    {
+        return str_starts_with($name, 'mail::') || str_contains($name, 'email');
     }
 }
