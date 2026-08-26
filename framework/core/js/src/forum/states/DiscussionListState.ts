@@ -86,8 +86,16 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
   }
 
   deleteDiscussion(discussion: Discussion): void {
+    // Match by id, not by object reference: realtime hands us a discussion
+    // resolved through the store, which is a fresh instance whenever the store
+    // no longer holds the one already on screen. A reference check would miss
+    // that copy and leave the discussion showing twice.
+    const id = discussion.id();
+
+    if (id == null) return;
+
     for (const page of this.pages) {
-      const index = page.items.indexOf(discussion);
+      const index = page.items.findIndex((d) => d.id() === id);
 
       if (index !== -1) {
         page.items.splice(index, 1);
@@ -95,10 +103,10 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
       }
     }
 
-    const index = this.extraDiscussions.indexOf(discussion);
+    const index = this.extraDiscussions.findIndex((d) => d.id() === id);
 
     if (index !== -1) {
-      this.extraDiscussions.splice(index);
+      this.extraDiscussions.splice(index, 1);
     }
 
     m.redraw();
