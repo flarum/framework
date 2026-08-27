@@ -170,7 +170,7 @@ jobs:
         working-directory: ${{ inputs.frontend_directory }}
 
       - name: JS Checks & Production Build
-        uses: flarum/action-build@4ef2245181c661e2978c9223f65fa865767aacde # v5.0.1
+        uses: flarum/action-build@bf667f571cd12ab6ec0e66e34de8624f18d7f031 # v5.1.0
         with:
           build_script: ${{ inputs.build_script }}
           build_typings_script: ${{ inputs.build_typings_script }}
