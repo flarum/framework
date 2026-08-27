@@ -4,7 +4,7 @@ import AvatarEditor from '../../../../src/forum/components/AvatarEditor';
 beforeAll(() => bootstrapForum());
 
 describe('AvatarEditor upload body', () => {
-  function capture(file: any): FormData {
+  function capture(file: any): FormData | undefined {
     let captured: FormData | undefined;
 
     // @ts-ignore - minimal stub of the pieces upload() touches
@@ -21,7 +21,7 @@ describe('AvatarEditor upload body', () => {
 
     editor.upload(file);
 
-    return captured!;
+    return captured;
   }
 
   test('a real File produces a file part', () => {
@@ -32,10 +32,10 @@ describe('AvatarEditor upload body', () => {
     expect(entry).toBeInstanceOf(File);
   });
 
-  test('undefined produces a text field, not a file part', () => {
-    const entry = capture(undefined).get('avatar');
-
-    expect(entry).not.toBeInstanceOf(File);
-    expect(entry).toBe('undefined');
+  test.each([
+    ['undefined', undefined],
+    ['null', null],
+  ])('%s sends no request at all', (_label, value) => {
+    expect(capture(value)).toBeUndefined();
   });
 });
