@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\JsonApi;
+use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -53,6 +54,12 @@ abstract class UploadImageController extends ShowForumController
         $filenamePrefix = $this->filenamePrefix($request);
 
         $file = Arr::get($request->getUploadedFiles(), $filenamePrefix);
+
+        if (! $file instanceof UploadedFileInterface) {
+            throw new ValidationException([
+                $filenamePrefix => str_replace(':attribute', $filenamePrefix, $this->translator->trans('validation.required')),
+            ]);
+        }
 
         if ($this->validator) {
             $this->container->make($this->validator)->assertImageValid(
