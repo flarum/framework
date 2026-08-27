@@ -122,8 +122,36 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     m.redraw();
   }
 
+  /**
+   * Reconcile the realtime additions after a background revalidation.
+   *
+   * `refresh()` empties `extraDiscussions`, because it routes through
+   * `clear()`. `revalidate()` deliberately does not clear anything before it
+   * asks the API, so it rebuilds `pages` and leaves `extraDiscussions` alone —
+   * and the first page it gets back contains exactly the discussions realtime
+   * put there, since a new post is what moved them to the top. Left unhandled
+   * they render from both places at once, which is what a reader coming back
+   * to an idle tab sees as a duplicate.
+   *
+   * Only the ids the new pages actually contain are dropped. A revalidation
+   * that failed resolves rather than rejecting and leaves `pages` untouched,
+   * so clearing unconditionally would take realtime's additions off a list
+   * that was never reloaded.
+   */
+  public revalidate(): Promise<void> {
+    return super.revalidate().then(() => {
+      // `super.getPages()`, not `this.getPages()`: the override below prepends
+      // `extraDiscussions`, which would match every one of them against itself.
+      const listed = new Set(super.getPages().flatMap((page) => page.items.map((discussion) => discussion.id())));
+
+      this.extraDiscussions = this.extraDiscussions.filter((discussion) => !listed.has(discussion.id()));
+    });
+  }
+
   protected getAllItems(): Discussion[] {
-    return this.extraDiscussions.concat(super.getAllItems());
+    // `getPages()` already prepends `extraDiscussions`, and `super` flattens
+    // that — concatenating them again here would count them twice.
+    return super.getAllItems();
   }
 
   public getPages(): Page<Discussion>[] {
