@@ -13,6 +13,7 @@
 - (core) return a validation error when an image upload arrives without a file by @imorland [#4995]
 - (core) use a dedicated tooltip for post search results by @imorland [#4996]
 - (core) stop the admin users heading inheriting the list header layout by @imorland [#4997]
+- (core) stop `ItemList.toArray()` coercing null content to an empty object, which crashed `PageStructure` without a sidebar by @imorland [#5000]
 
 ## [v2.0.0-rc.7](https://github.com/flarum/framework/compare/v2.0.0-rc.6...v2.0.0-rc.7)
 
