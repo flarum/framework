@@ -1,5 +1,19 @@
 # Changelog
 
+## [v2.0.0-rc.8](https://github.com/flarum/framework/compare/v2.0.0-rc.7...v2.0.0-rc.8)
+
+### Fixed
+
+- (core) restore held-back email values on every message, and protect core mail by @imorland [#4988]
+- (core) key the notification email dedup lock on the notification, not its type by @imorland [#4989]
+- (core) build the text formatter during `cache:clear` instead of on the next request by @imorland [#4990]
+- (core) detect the web memory limit from Debian/Ubuntu's FPM `conf.d` by @imorland [#4991]
+- (core) open the discussion controls in one tap on touch tablets by @imorland [#4992]
+- (core) stop a realtime update duplicating a discussion in the list by @imorland [#4993]
+- (core) return a validation error when an image upload arrives without a file by @imorland [#4995]
+- (core) use a dedicated tooltip for post search results by @imorland [#4996]
+- (core) stop the admin users heading inheriting the list header layout by @imorland [#4997]
+
 ## [v2.0.0-rc.7](https://github.com/flarum/framework/compare/v2.0.0-rc.6...v2.0.0-rc.7)
 
 ### Fixed
