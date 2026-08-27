@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-rc.7"
+        "flarum/core": "^2.0.0-rc.8"
     },
     "autoload": {
         "psr-4": {
@@ -80,7 +80,7 @@
         "flarum/audit": "*",
         "flarum/core": "*@dev",
         "flarum/tags": "*@dev",
-        "flarum/testing": "^2.0.0-rc.7"
+        "flarum/testing": "^2.0.0-rc.8"
     },
     "repositories": [
         {

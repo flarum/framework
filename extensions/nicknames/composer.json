@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-rc.7"
+        "flarum/core": "^2.0.0-rc.8"
     },
     "autoload": {
         "psr-4": {
@@ -70,7 +70,7 @@
         "test:setup": "@php tests/integration/setup.php"
     },
     "require-dev": {
-        "flarum/testing": "^2.0.0-rc.7",
+        "flarum/testing": "^2.0.0-rc.8",
         "flarum/core": "2.x-dev",
         "flarum/audit": "*"
     },
