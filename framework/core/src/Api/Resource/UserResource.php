@@ -36,6 +36,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use InvalidArgumentException;
+use Psr\Http\Message\UploadedFileInterface;
 
 /**
  * @extends AbstractDatabaseResource<User>
@@ -129,6 +130,12 @@ class UserResource extends AbstractDatabaseResource
                 ->route('POST', '/{id}/avatar')
                 ->action(function (Context $context) {
                     $file = Arr::get($context->request->getUploadedFiles(), 'avatar');
+
+                    if (! $file instanceof UploadedFileInterface) {
+                        throw new ValidationException([
+                            'avatar' => str_replace(':attribute', 'avatar', $this->translator->trans('validation.required')),
+                        ]);
+                    }
 
                     return $this->bus->dispatch(
                         new UploadAvatar((int) $context->modelId, $file, $context->getActor())
