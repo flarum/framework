@@ -193,6 +193,10 @@ export default class ItemList<T> {
     const items: Item<T>[] = Object.keys(this._items).map((key, i) => {
       const item = this._items[key];
 
+      if (item.content === null || item.content === undefined) {
+        return { ...item };
+      }
+
       if (!keepPrimitives || isObject(item.content)) {
         // Convert content to object, then proxy it
         return {
