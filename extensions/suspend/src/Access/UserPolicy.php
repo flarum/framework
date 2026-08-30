@@ -22,4 +22,13 @@ class UserPolicy extends AbstractPolicy
 
         return null;
     }
+
+    public function editAvatar(User $actor, User $user): ?string
+    {
+        if ($actor->suspended_until?->isFuture()) {
+            return $this->deny();
+        }
+
+        return null;
+    }
 }
