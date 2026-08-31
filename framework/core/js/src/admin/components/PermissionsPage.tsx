@@ -161,6 +161,16 @@ export default class PermissionsPage extends AdminPage {
       'start',
       80
     );
+
+    app.registry.registerPermission(
+      {
+        icon: 'fas fa-user-circle',
+        label: app.translator.trans('core.admin.permissions.edit_own_avatar_label'),
+        permission: 'user.editAvatar',
+      },
+      'start',
+      70
+    );
   }
 
   static registerReplyPermissions() {

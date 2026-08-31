@@ -48,7 +48,7 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
       <UserCard
         user={this.user}
         className="Hero UserHero"
-        editable={this.user!.canEdit() || this.user === app.session.user}
+        editable={this.user!.canEdit() || this.user!.canEditAvatar()}
         controlsButtonClassName="Button"
       />
     );
