@@ -25,5 +25,22 @@ if (! function_exists('database_path')) {
     }
 }
 
+// PHPStan analyses in parallel, and every worker loads this file. The testing
+// Bootstrapper only guards its install with file_exists() on the config, so
+// workers sharing one tmp dir race: one reads config.php while another is still
+// writing it, and the include returns false. Give each process its own dir.
+$tmp = getenv('FLARUM_TEST_TMP_DIR_LOCAL') ?: getenv('FLARUM_TEST_TMP_DIR') ?: null;
+
+if ($tmp !== null) {
+    $tmp = rtrim($tmp, '/').'/phpstan-'.getmypid();
+
+    if (! is_dir($tmp)) {
+        mkdir($tmp, 0755, true);
+    }
+
+    putenv("FLARUM_TEST_TMP_DIR_LOCAL=$tmp");
+    putenv('FLARUM_TEST_TMP_DIR');
+}
+
 $site = (new \Flarum\Testing\integration\Setup\Bootstrapper())->run();
 $site->bootApp();
