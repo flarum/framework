@@ -229,7 +229,7 @@
         }
     },
     "scripts": {
-        "analyse:phpstan": "phpstan analyse",
+        "analyse:phpstan": "phpstan analyse --memory-limit=1G",
         "clear-cache:phpstan": "phpstan clear-result-cache"
     },
     "scripts-descriptions": {
