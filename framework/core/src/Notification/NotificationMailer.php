@@ -9,6 +9,7 @@
 
 namespace Flarum\Notification;
 
+use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
@@ -27,6 +28,7 @@ class NotificationMailer
         protected SettingsRepositoryInterface $settings,
         protected UrlGenerator $url,
         protected Factory $view,
+        protected SlugManager $slugManager,
     ) {
     }
 
@@ -39,8 +41,10 @@ class NotificationMailer
         $unsubscribeRecord = $this->generateUnsubscribeToken($user->id, $blueprint::getType());
         $unsubscribeRecord->save();
 
+        $userSlug = $this->slugManager->forResource(User::class)->toSlug($user);
+
         $unsubscribeLink = $this->url->to('forum')->route('notifications.unsubscribe', ['userId' => $user->id, 'token' => $unsubscribeRecord->token]);
-        $settingsLink = $this->url->to('forum')->route('settings');
+        $settingsLink = $this->url->to('forum')->route('user', ['username' => $userSlug, 'filter' => 'settings']);
         $type = $blueprint::getType();
         $forumTitle = $this->settings->get('forum_title');
         $username = $user->display_name;

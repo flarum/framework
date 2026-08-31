@@ -35,9 +35,9 @@ export default function (app: ForumApplication) {
       component: () => import('./components/DiscussionsUserPage'),
       resolverClass: UserPageResolver,
     },
-
-    settings: { path: '/settings', component: () => import('./components/SettingsPage') },
+    'user.settings': { path: '/u/:username/settings', component: () => import('./components/SettingsPage'), resolverClass: UserPageResolver },
     'user.security': { path: '/u/:username/security', component: () => import('./components/UserSecurityPage'), resolverClass: UserPageResolver },
+
     notifications: { path: '/notifications', component: () => import('./components/NotificationsPage') },
   };
 

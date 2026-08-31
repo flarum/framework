@@ -10,10 +10,12 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Http\Controller\AbstractHtmlController;
+use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\UnsubscribeToken;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
@@ -25,7 +27,8 @@ class UnsubscribeViewController extends AbstractHtmlController
         protected Factory $view,
         protected UrlGenerator $url,
         protected TranslatorInterface $translator,
-        protected SettingsRepositoryInterface $settings
+        protected SettingsRepositoryInterface $settings,
+        protected SlugManager $slugManager,
     ) {
     }
 
@@ -40,7 +43,10 @@ class UnsubscribeViewController extends AbstractHtmlController
             ->where('token', $token)
             ->first();
 
-        $settingsLink = $this->url->to('forum')->route('settings');
+        $user = User::find($userId);
+        $userSlug = $this->slugManager->forResource(User::class)->toSlug($user);
+
+        $settingsLink = $this->url->to('forum')->route('user', ['username' => $userSlug, 'filter' => 'settings']);
         $forumTitle = $this->settings->get('forum_title');
 
         // If record exists and has not been used before
