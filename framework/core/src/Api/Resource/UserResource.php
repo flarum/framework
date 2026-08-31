@@ -128,6 +128,8 @@ class UserResource extends AbstractDatabaseResource
                 ->paginate(),
             Endpoint\Endpoint::make('avatar.upload')
                 ->route('POST', '/{id}/avatar')
+                ->authenticated()
+                ->can('editAvatar')
                 ->action(function (Context $context) {
                     $file = Arr::get($context->request->getUploadedFiles(), 'avatar');
 
@@ -143,6 +145,8 @@ class UserResource extends AbstractDatabaseResource
                 }),
             Endpoint\Endpoint::make('avatar.delete')
                 ->route('DELETE', '/{id}/avatar')
+                ->authenticated()
+                ->can('editAvatar')
                 ->action(function (Context $context) {
                     return $this->bus->dispatch(
                         new DeleteAvatar(Arr::get($context->request->getQueryParams(), 'id'), $context->getActor())
@@ -309,6 +313,10 @@ class UserResource extends AbstractDatabaseResource
             Schema\Boolean::make('canEdit')
                 ->get(function (User $user, Context $context) {
                     return $context->getActor()->can('edit', $user);
+                }),
+            Schema\Boolean::make('canEditAvatar')
+                ->get(function (User $user, Context $context) {
+                    return $context->getActor()->can('editAvatar', $user);
                 }),
             Schema\Boolean::make('canEditCredentials')
                 ->get(function (User $user, Context $context) {

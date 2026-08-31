@@ -455,6 +455,7 @@ core:
       delete_posts_forever_label: Delete posts forever
       delete_posts_label: Delete posts
       description: Configure who can see and do what.
+      edit_own_avatar_label: Edit own avatar
       edit_posts_label: Edit posts
       edit_users_label: Edit user attributes
       edit_users_credentials_label: Edit user credentials
