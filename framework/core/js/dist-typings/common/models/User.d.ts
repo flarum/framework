@@ -24,6 +24,7 @@ export default class User extends Model {
     discussionCount(): number | undefined;
     commentCount(): number | undefined;
     canEdit(): boolean | undefined;
+    canEditAvatar(): boolean | undefined;
     canEditCredentials(): boolean | undefined;
     canEditGroups(): boolean | undefined;
     canDelete(): boolean | undefined;
