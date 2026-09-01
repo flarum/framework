@@ -158,7 +158,6 @@ export default class DiscoverSection<CustomAttrs extends IDiscoverSectionAttrs =
           this.search(value);
           this.applySearch(value);
         }}
-        inputAttrs={{ className: 'FormControl-alt' }}
         clearable={true}
         placeholder={app.translator.trans('flarum-extension-manager.admin.sections.discover.search')}
         prefixIcon="fas fa-search"
