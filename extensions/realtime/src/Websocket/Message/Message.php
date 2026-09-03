@@ -45,7 +45,7 @@ class Message
     /**
      * The channel carrying the identities of users who are typing while hiding their
      * online status. Subscription requires `user.viewLastSeenAt` — see
-     * {@link \Flarum\Realtime\Websocket\Api\AuthController::typingIdentified()}.
+     * {@link \Flarum\Realtime\Websocket\Api\DefaultChannels::typingIdentified()}.
      */
     public static function identifiedTypingChannel(int $discussionId): string
     {
