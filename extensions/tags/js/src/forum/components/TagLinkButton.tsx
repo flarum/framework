@@ -3,7 +3,6 @@ import Link from 'flarum/common/components/Link';
 import LinkButton from 'flarum/common/components/LinkButton';
 import classList from 'flarum/common/utils/classList';
 import ItemList from 'flarum/common/utils/ItemList';
-import listItems from 'flarum/common/helpers/listItems';
 import type Mithril from 'mithril';
 
 import tagIcon from '../../common/helpers/tagIcon';
@@ -17,7 +16,7 @@ export default class TagLinkButton extends LinkButton {
 
     return (
       <Link className={className} href={this.attrs.route} style={tag ? { '--color': tag.color() } : undefined} title={description || undefined}>
-        {listItems(this.linkItems(tag).toArray())}
+        {this.linkItems(tag).toArray()}
       </Link>
     );
   }
