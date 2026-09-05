@@ -186,9 +186,11 @@ export default class StatisticsWidget extends DashboardWidget {
       : this.periods![this.selectedPeriod!];
 
     if (this.selectedPeriod === 'custom') {
-      if (!this.customPeriodData[this.selectedEntity] && this.loadingCustom[this.selectedEntity] === 'unloaded') {
-        this.loadCustomRangeData(this.selectedEntity);
-      }
+      this.entities.forEach((entity) => {
+        if (!this.customPeriodData[entity] && this.loadingCustom[entity] === 'unloaded') {
+          this.loadCustomRangeData(entity);
+        }
+      });
     } else {
       if (!this.timedData[this.selectedEntity] && this.loadingTimed[this.selectedEntity] === 'unloaded') {
         this.loadTimedData(this.selectedEntity);
@@ -446,6 +448,11 @@ export default class StatisticsWidget extends DashboardWidget {
 
   getPeriodCount(entity: string, period: { start: number; end: number }) {
     const timed: Record<string, number> = (this.selectedPeriod === 'custom' ? this.customPeriodData : this.timedData)[entity];
+
+    if (!timed) {
+      return 0;
+    }
+
     let count = 0;
 
     for (const t in timed) {
