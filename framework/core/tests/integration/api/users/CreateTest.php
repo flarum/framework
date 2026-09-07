@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\integration\api\users;
 
+use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -434,5 +435,55 @@ class CreateTest extends TestCase
             $this->assertEquals($regToken->user_attributes['username'], $user->username);
             $this->assertEquals($regToken->user_attributes['email'], $user->email);
         }
+    }
+
+    #[Test]
+    public function registering_records_the_locale_the_visitor_chose()
+    {
+        $this->app()->getContainer()->make(LocaleManager::class)->addLocale('de', 'Deutsch');
+
+        $response = $this->send(
+            $this->request('POST', '/api/users', [
+                'json' => ['data' => [
+                    'type' => 'users',
+                    'attributes' => [
+                        'username' => 'wilhelm',
+                        'password' => 'too-obscure',
+                        'email' => 'wilhelm@machine.local',
+                    ],
+                ]],
+            ])->withCookieParams(['locale' => 'de'])
+                ->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $user = User::where('username', 'wilhelm')->firstOrFail();
+
+        $this->assertEquals('de', $user->getPreference('locale'));
+    }
+
+    #[Test]
+    public function registering_ignores_a_locale_the_forum_does_not_have()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/users', [
+                'json' => ['data' => [
+                    'type' => 'users',
+                    'attributes' => [
+                        'username' => 'ronald',
+                        'password' => 'too-obscure',
+                        'email' => 'ronald@machine.local',
+                    ],
+                ]],
+            ])->withCookieParams(['locale' => 'not-a-locale'])
+                ->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $user = User::where('username', 'ronald')->firstOrFail();
+
+        $this->assertNull($user->getPreference('locale'));
     }
 }
