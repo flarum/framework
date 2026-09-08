@@ -41,4 +41,51 @@ class DatabaseSettingsRepositoryTest extends TestCase
 
         $this->assertEquals('default', $this->repository->get('key', 'default'));
     }
+
+    public function test_setting_a_value_writes_it_in_a_single_statement()
+    {
+        // One upsert, keyed on the table's primary key. A read-then-write pair
+        // lets two writers both decide the row is missing and both insert it,
+        // and the loser gets a duplicate-key error rather than a stored value.
+        $table = m::mock();
+        $table->shouldReceive('upsert')
+            ->once()
+            ->with(['key' => 'foo', 'value' => 'bar'], ['key'], ['value'])
+            ->andReturn(1);
+
+        $table->shouldNotReceive('exists');
+        $table->shouldNotReceive('insert');
+        $table->shouldNotReceive('update');
+        $table->shouldNotReceive('where');
+
+        $this->connection->shouldReceive('table')->with('settings')->once()->andReturn($table);
+
+        $this->repository->set('foo', 'bar');
+    }
+
+    public function test_setting_a_null_value_is_stored_rather_than_skipped()
+    {
+        // `value` is nullable, and a null is a real stored setting — distinct
+        // from an absent row, which is what makes get() fall back to a default.
+        $table = m::mock();
+        $table->shouldReceive('upsert')
+            ->once()
+            ->with(['key' => 'foo', 'value' => null], ['key'], ['value'])
+            ->andReturn(1);
+
+        $this->connection->shouldReceive('table')->with('settings')->once()->andReturn($table);
+
+        $this->repository->set('foo', null);
+    }
+
+    public function test_deleting_matches_on_the_key()
+    {
+        $table = m::mock();
+        $table->shouldReceive('where')->once()->with('key', 'foo')->andReturnSelf();
+        $table->shouldReceive('delete')->once()->andReturn(1);
+
+        $this->connection->shouldReceive('table')->with('settings')->once()->andReturn($table);
+
+        $this->repository->delete('foo');
+    }
 }
