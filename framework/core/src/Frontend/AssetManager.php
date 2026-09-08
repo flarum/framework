@@ -29,7 +29,12 @@ class AssetManager
 
     public function frontend(string $frontend): Assets
     {
-        if (! in_array($frontend, $this->assets)) {
+        // Keyed by frontend name ('forum'), the value being the container
+        // abstract ('flarum.assets.forum') — so the guard must look at the
+        // keys. Checking the values instead rejected every registered
+        // frontend, while an abstract passed the guard and then resolved an
+        // undefined key.
+        if (! array_key_exists($frontend, $this->assets)) {
             throw new InvalidArgumentException("Unknown frontend: $frontend");
         }
 
