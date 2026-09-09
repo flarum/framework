@@ -11,6 +11,7 @@ namespace Flarum\Foundation\Console;
 
 use Flarum\Console\AbstractCommand;
 use Flarum\Formatter\Formatter;
+use Flarum\Foundation\CacheClearReport;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\AssetManager;
@@ -57,74 +58,126 @@ class CacheClearCommand extends AbstractCommand
 
     protected function fire(): int
     {
-        $this->info('Clearing the cache...');
+        $report = $this->clear((bool) $this->input->getOption('force'));
 
-        $succeeded = $this->cache->flush();
-
-        if (! $succeeded) {
+        if ($report === null) {
             $this->error('Could not clear contents of `storage/cache`. Please adjust file permissions and try again. This can frequently be fixed by clearing cache via the `Tools` dropdown on the Administration Dashboard page.');
 
             return Command::FAILURE;
         }
 
-        $this->info('  cache store');
-
-        $storagePath = $this->paths->storage;
-
-        foreach (['formatter' => 'formatter classes', 'locale' => 'locale catalogues', 'views' => 'compiled views'] as $dir => $label) {
-            $removed = count(array_filter(glob($storagePath.'/'.$dir.'/*') ?: [], 'unlink'));
-
-            $this->info(sprintf('  %s (%d)', $label, $removed));
-        }
-
-        $this->events->dispatch(new ClearingCache);
-
-        $this->info('Rebuilding...');
-
-        // Rebuild now, while we're here and the memory limit is usually
-        // generous, rather than leaving the work to whichever request happens
-        // to arrive next. Each is best-effort: the cache is already cleared, so
-        // a failure here must not fail the command — the render path still
-        // rebuilds lazily, exactly as it did before any of this was warmed.
-        try {
-            $this->formatter->warm();
-
-            $this->info('  formatter');
-        } catch (\Throwable $e) {
-            $this->error('  formatter could not be pre-built: '.$e->getMessage());
-        }
-
-        try {
-            $this->warmAssets((bool) $this->input->getOption('force'));
-        } catch (\Throwable $e) {
-            $this->error('  assets could not be pre-built: '.$e->getMessage());
-        }
+        $this->render($report);
 
         return Command::SUCCESS;
     }
 
     /**
-     * Rebuild every compiled asset set, reporting each locale as it goes.
+     * Empty the caches and rebuild what can be rebuilt here, describing what
+     * happened.
      *
-     * Clearing the cache flags each set as needing a rebuild, and that flag is
-     * what makes the next request do the work. Recompiling without clearing it
-     * would leave every instance still believing it has a rebuild outstanding,
-     * so the first visitor would pay for it regardless — hence the flag is
-     * settled here once the set has been rebuilt. The compilers are driven
-     * directly rather than through
-     * {@see \Flarum\Frontend\RecompileFrontendAssets::recompileIfDirty()} so
-     * that each locale can be reported as it finishes.
+     * Returns null when the cache store could not be emptied, which is the one
+     * failure that leaves nothing worth reporting. Everything after that point
+     * is best-effort: the caches are already gone, so a step that cannot be
+     * pre-built is recorded and the command still succeeds — the render path
+     * rebuilds lazily, exactly as it did before any of this was warmed.
      *
-     * Locales are listed individually because most of the time goes on them: a
-     * forum with a dozen locales compiles a bundle per locale per frontend, and
-     * without the breakdown a slow rebuild is indistinguishable from a hung one.
+     * Public so the admin panel can clear the cache and show the same detail
+     * the console does. A listener is called with each step as it finishes, for
+     * a caller streaming them to a browser rather than waiting for the lot.
      */
-    protected function warmAssets(bool $force): void
+    public function clear(bool $force = false, ?callable $listener = null): ?CacheClearReport
     {
+        if (! $this->cache->flush()) {
+            return null;
+        }
+
+        $report = new CacheClearReport($listener);
+
+        $report->cleared('cache store');
+
+        foreach (['formatter', 'locale', 'views'] as $dir) {
+            $files = glob($this->paths->storage.'/'.$dir.'/*') ?: [];
+
+            $report->cleared($dir, count(array_filter($files, 'unlink')));
+        }
+
+        $this->events->dispatch(new ClearingCache);
+
+        // Rebuild now, while we're here and the memory limit is usually
+        // generous, rather than leaving the work to whichever request happens
+        // to arrive next.
+        try {
+            $this->formatter->warm();
+        } catch (\Throwable $e) {
+            $report->failed('formatter', $e->getMessage());
+        }
+
+        try {
+            $this->warmAssets($report, $force);
+        } catch (\Throwable $e) {
+            $report->failed('assets', $e->getMessage());
+        }
+
+        return $report;
+    }
+
+    protected function render(CacheClearReport $report): void
+    {
+        $this->info('Cleared');
+
+        foreach ($report->getCleared() as $cleared) {
+            $this->info($cleared['files'] === null
+                ? '  '.$cleared['name']
+                : sprintf('  %s (%d)', $cleared['name'], $cleared['files']));
+        }
+
         $table = (new Table($this->output))
             ->setHeaders([['Rebuilt assets'], ['Frontend', 'Bundle', 'Revision', 'Size', 'Time']])
             ->setStyle((new TableStyle)->setCellHeaderFormat('<info>%s</info>'));
 
+        $previous = null;
+
+        foreach ($report->getRebuilt() as $row) {
+            $frontend = $row['locale'] === null
+                ? $row['frontend']
+                : $row['frontend'].' · '.$row['locale'].' ('.$row['localeName'].')';
+
+            $table->addRow([
+                $frontend,
+                $row['bundle'],
+                $this->describe($row),
+                $row['bytes'] === null ? '' : $this->format($row['bytes']),
+                // Bundles compiled together are timed together, so the time is
+                // shown once against the first of them.
+                $frontend === $previous ? '' : $row['milliseconds'].'ms',
+            ]);
+
+            $previous = $frontend;
+        }
+
+        $table->render();
+
+        foreach ($report->getFailures() as $failure) {
+            $this->error(sprintf('  %s could not be pre-built: %s', $failure['step'], $failure['message']));
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    protected function describe(array $row): string
+    {
+        return match ($row['state']) {
+            CacheClearReport::EMPTY => 'nothing to compile',
+            CacheClearReport::CHUNKS => $row['changed'].' changed',
+            CacheClearReport::UNCHANGED => $row['revision'].' unchanged',
+            CacheClearReport::REWRITTEN => $row['revision'].' rewritten',
+            default => ($row['previousRevision'] ?? 'new').' → '.$row['revision'],
+        };
+    }
+
+    protected function warmAssets(CacheClearReport $report, bool $force): void
+    {
         foreach ($this->assets->all() as $name => $assets) {
             // Batched, so the revisions recorded across every compiler below
             // are stored together rather than one statement each.
@@ -133,22 +186,21 @@ class CacheClearCommand extends AbstractCommand
             try {
                 $assetsDir = $assets->getAssetsDir();
 
-                $this->rows($table, $name, [$assets->makeJs(), $assets->makeCss()], $assetsDir, $force);
+                $this->record($report, $name, null, null, [$assets->makeJs(), $assets->makeCss()], $assetsDir, $force);
 
                 foreach ($this->locales->getLocales() as $locale => $display) {
-                    $this->rows(
-                        $table,
-                        $name.' · '.$locale.' ('.$display.')',
+                    $this->record(
+                        $report,
+                        $name,
+                        $locale,
+                        $display,
                         [$assets->makeLocaleJs($locale), $assets->makeLocaleCss($locale)],
                         $assetsDir,
                         $force
                     );
                 }
 
-                // The chunk compiler owns no single filename — it tracks one
-                // revision per split chunk, dozens of them — so there is no one
-                // hash to show. Report how many moved instead.
-                $this->chunkRow($table, $name, $assets->makeJsDirectory(), $force);
+                $this->recordChunks($report, $name, $assets->makeJsDirectory(), $force);
             } finally {
                 $this->versioner->flushWrites();
             }
@@ -158,25 +210,29 @@ class CacheClearCommand extends AbstractCommand
             // outstanding, so the first visitor would pay for it anyway.
             $this->settings->delete('assets_dirty.'.$assets->getName());
         }
-
-        $table->render();
     }
 
     /**
-     * Rebuild some compilers and add a row per bundle.
+     * Rebuild some compilers and record one entry per bundle.
      *
-     * A row per bundle rather than per step: a locale compiles both a js and a
-     * css bundle, and two revisions side by side in one cell read as a single
-     * confusing statement about one file.
+     * Per bundle rather than per step: a locale compiles both a js and a css
+     * bundle, and describing them as one thing hides which of them changed.
      *
-     * The revision is a hash of the compiled output, so an unchanged bundle
-     * keeps the one it had — showing the move is what distinguishes "rebuilt,
-     * same bytes" from "rebuilt, clients will refetch".
+     * The size is read only where a bundle was actually written. On remote
+     * storage that is a round trip, and a bundle whose revision did not move is
+     * byte-identical to the one reported the last time it changed.
      *
      * @param CompilerInterface[] $compilers
      */
-    protected function rows(Table $table, string $set, array $compilers, Cloud $assetsDir, bool $force): void
-    {
+    protected function record(
+        CacheClearReport $report,
+        string $frontend,
+        ?string $locale,
+        ?string $localeName,
+        array $compilers,
+        Cloud $assetsDir,
+        bool $force
+    ): void {
         $before = array_map(
             fn (CompilerInterface $compiler) => $this->versioner->getRevision((string) $compiler->getFilename()),
             $compilers
@@ -188,44 +244,41 @@ class CacheClearCommand extends AbstractCommand
             $compiler->commit($force);
         }
 
-        // Timed together, because that is how they were compiled; shown once.
-        $elapsed = sprintf('%dms', (microtime(true) - $started) * 1000);
+        $elapsed = microtime(true) - $started;
 
         foreach ($compilers as $i => $compiler) {
             $file = (string) $compiler->getFilename();
             $now = $this->versioner->getRevision($file);
 
             // A bundle with no sources at all records EMPTY_REVISION and has no
-            // file, so say so rather than printing the marker as if it were a
-            // hash.
+            // file: there is nothing to size, and nothing to say about a hash.
             if ($now === RevisionCompiler::EMPTY_REVISION) {
-                $table->addRow([$set, $file, 'nothing to compile', '', $i === 0 ? $elapsed : '']);
-
-                continue;
+                $state = CacheClearReport::EMPTY;
+            } elseif ($before[$i] !== $now) {
+                $state = CacheClearReport::REBUILT;
+            } elseif ($force) {
+                $state = CacheClearReport::REWRITTEN;
+            } else {
+                $state = CacheClearReport::UNCHANGED;
             }
 
-            if ($before[$i] === $now && ! $force) {
-                // Byte-identical to what was already there, so nothing was
-                // written and its size is not worth a round trip.
-                $table->addRow([$set, $file, $now.' unchanged', '', $i === 0 ? $elapsed : '']);
-
-                continue;
-            }
-
-            $table->addRow([
-                $set,
+            $report->rebuilt(
+                $frontend,
+                $locale,
+                $localeName,
                 $file,
-                $before[$i] === $now
-                    // Forced: the bytes were rewritten even though they match.
-                    ? $now.' rewritten'
-                    : ($before[$i] ?? 'new').' → '.$now,
-                $this->size($assetsDir, $file),
-                $i === 0 ? $elapsed : '',
-            ]);
+                $state,
+                $state === CacheClearReport::EMPTY ? null : $now,
+                $before[$i],
+                in_array($state, [CacheClearReport::REBUILT, CacheClearReport::REWRITTEN], true)
+                    ? $this->bytes($assetsDir, $file)
+                    : null,
+                $elapsed
+            );
         }
     }
 
-    protected function chunkRow(Table $table, string $set, CompilerInterface $compiler, bool $force): void
+    protected function recordChunks(CacheClearReport $report, string $frontend, CompilerInterface $compiler, bool $force): void
     {
         $before = $this->versioner->allRevisions();
 
@@ -233,21 +286,23 @@ class CacheClearCommand extends AbstractCommand
 
         $compiler->commit($force);
 
-        $elapsed = sprintf('%dms', (microtime(true) - $started) * 1000);
+        $elapsed = microtime(true) - $started;
 
         $after = $this->versioner->allRevisions();
-        $changed = count(array_diff_assoc($after, $before)) + count(array_diff_key($before, $after));
 
-        $table->addRow([$set, 'split chunks', $changed.' changed', '', $elapsed]);
+        $report->rebuiltChunks(
+            $frontend,
+            count(array_diff_assoc($after, $before)) + count(array_diff_key($before, $after)),
+            $elapsed
+        );
     }
 
-    protected function size(Cloud $assetsDir, string $file): string
+    protected function bytes(Cloud $assetsDir, string $file): ?int
     {
         try {
-            return $this->format($assetsDir->size($file));
+            return $assetsDir->size($file);
         } catch (\Throwable $e) {
-            // An empty bundle legitimately has no file.
-            return '';
+            return null;
         }
     }
 
