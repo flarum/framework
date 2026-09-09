@@ -12,6 +12,7 @@ namespace Flarum\Frontend\Content;
 use Flarum\Foundation\Config;
 use Flarum\Frontend\Assets as FrontendAssets;
 use Flarum\Frontend\Compiler\CompilerInterface;
+use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\Document;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
@@ -62,11 +63,24 @@ class Assets
 
         $compilers = $this->assembleCompilers($locale);
 
-        if ($this->config->inDebugMode()) {
-            $this->recompile(Arr::flatten($compilers));
-        }
+        // Assembling the URLs compiles anything with no revision yet — a first
+        // render after a cache clear does so for every asset — and each of
+        // those records a revision. Collect them so they are stored together
+        // rather than one statement per asset. getUrl() reads back the
+        // revision it just recorded, which the versioner answers from the
+        // pending batch.
+        $versioner = $this->container->make(VersionerInterface::class);
+        $versioner->deferWrites();
 
-        $this->addAssetsToDocument($document, $compilers);
+        try {
+            if ($this->config->inDebugMode()) {
+                $this->recompile(Arr::flatten($compilers));
+            }
+
+            $this->addAssetsToDocument($document, $compilers);
+        } finally {
+            $versioner->flushWrites();
+        }
     }
 
     protected function recompileIfDirty(FrontendAssets $assets): void
@@ -76,7 +90,8 @@ class Assets
             $this->container->make(LocaleManager::class),
             $this->container->make('events'),
             $this->container->make(SettingsRepositoryInterface::class),
-            $this->container->make(CacheRepository::class)
+            $this->container->make(CacheRepository::class),
+            $this->container->make(VersionerInterface::class)
         ))->recompileIfDirty();
     }
 

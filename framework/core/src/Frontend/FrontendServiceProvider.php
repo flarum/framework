@@ -15,6 +15,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Foundation\FontAwesome;
 use Flarum\Foundation\Paths;
+use Flarum\Frontend\Compiler\DatabaseVersioner;
 use Flarum\Frontend\Compiler\FileVersioner;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Compiler\VersionerInterface;
@@ -28,15 +29,23 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Database\ConnectionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
+        // Revisions live in their own table, a row per asset, rather than in a
+        // single JSON value beside the compiled files. Every instance rebuilds
+        // a dirty asset set on its next request, and pruning stale chunks
+        // writes during ordinary renders, so revisions are recorded
+        // concurrently — and saving the whole map back on each write silently
+        // drops whatever was recorded in the meantime. {@see FileVersioner}
+        // remains for anyone who needs the manifest file itself.
         $this->container->singleton(VersionerInterface::class, function (Container $container) {
-            return new FileVersioner(
-                $container->make('filesystem')->disk('flarum-assets')
+            return new DatabaseVersioner(
+                $container->make(ConnectionInterface::class)
             );
         });
 

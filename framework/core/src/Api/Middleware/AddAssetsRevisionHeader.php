@@ -10,6 +10,7 @@
 namespace Flarum\Api\Middleware;
 
 use Flarum\Frontend\Compiler\AssetsRevision;
+use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -59,7 +60,8 @@ class AddAssetsRevisionHeader implements Middleware
                 $this->container->make(LocaleManager::class),
                 $this->container->make('events'),
                 $this->container->make(SettingsRepositoryInterface::class),
-                $this->container->make(CacheRepository::class)
+                $this->container->make(CacheRepository::class),
+                $this->container->make(VersionerInterface::class)
             ))->recompileIfDirty();
         }
     }
