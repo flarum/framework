@@ -12,8 +12,10 @@ namespace Flarum\Tests\unit\Frontend;
 use Flarum\Frontend\AssetManager;
 use Flarum\Frontend\Assets;
 use Flarum\Locale\LocaleManager;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\unit\TestCase;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use InvalidArgumentException;
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
@@ -107,5 +109,57 @@ class AssetManagerTest extends TestCase
         $manager->register('admin', 'flarum.assets.admin');
 
         $this->assertSame(['forum' => $forum, 'admin' => $admin], $manager->all());
+    }
+
+    /**
+     * The settings that trigger this — maintenance_mode, safe_mode_extensions
+     * — decide which extensions boot, so the compiled bundles have to be
+     * rebuilt when one changes.
+     *
+     * Flagging, rather than deleting the files as this used to: deleting them
+     * meant the only request that could rebuild during safe mode was an
+     * admin's (they alone get past CheckForMaintenanceMode), so the reduced
+     * safe-mode bundle was recorded as the canonical revision with nothing
+     * left to mark it stale. The forum then served that cut-down JS to
+     * everyone, even after safe mode ended. Flagging leaves the file and its
+     * revision alone, so leaving safe mode flags the sets again and the next
+     * normal request restores the full bundle.
+     */
+    #[Test]
+    public function mark_dirty_flags_every_registered_frontend_without_touching_the_compilers()
+    {
+        $flagged = [];
+
+        $makeAssets = function (string $name) {
+            $assets = m::mock(Assets::class);
+            $assets->shouldReceive('getName')->andReturn($name);
+            // Nothing may be compiled or deleted here.
+            $assets->shouldNotReceive('makeCss', 'makeJs', 'makeLocaleCss', 'makeLocaleJs', 'makeJsDirectory');
+
+            return $assets;
+        };
+
+        $container = m::mock(Container::class);
+        $container->shouldReceive('make')->with('flarum.assets.forum')->andReturn($makeAssets('forum'));
+        $container->shouldReceive('make')->with('flarum.assets.admin')->andReturn($makeAssets('admin'));
+        $container->shouldReceive('make')->with('events')->andReturn(m::mock(Dispatcher::class));
+
+        $settings = m::mock(SettingsRepositoryInterface::class);
+        $settings->shouldReceive('set')->andReturnUsing(function (string $key) use (&$flagged) {
+            $flagged[] = $key;
+        });
+        $settings->shouldNotReceive('delete');
+        $container->shouldReceive('make')->with(SettingsRepositoryInterface::class)->andReturn($settings);
+
+        $locales = m::mock(LocaleManager::class);
+        $locales->shouldReceive('clearCache');
+
+        $manager = new AssetManager($container, $locales);
+        $manager->register('forum', 'flarum.assets.forum');
+        $manager->register('admin', 'flarum.assets.admin');
+
+        $manager->markDirty();
+
+        $this->assertEquals(['assets_dirty.forum', 'assets_dirty.admin'], $flagged);
     }
 }
