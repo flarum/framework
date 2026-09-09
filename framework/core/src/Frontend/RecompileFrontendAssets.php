@@ -208,6 +208,15 @@ class RecompileFrontendAssets
         }
     }
 
+    /**
+     * @deprecated 2.1 Use {@see markDirty()} instead.
+     *
+     * Deleting the compiled files leaves already-served pages pointing at
+     * files that no longer exist, and nulls the revisions that would otherwise
+     * tell the next request what to rebuild. {@see recompile()} overwrites in
+     * place and only where the output differs, and {@see markDirty()} defers
+     * that to a request whose container reflects the change.
+     */
     public function flush(): void
     {
         $this->flushCss();
@@ -216,6 +225,9 @@ class RecompileFrontendAssets
         $this->events?->dispatch(new AssetsRecompiled());
     }
 
+    /**
+     * @deprecated 2.1 See {@see flush()}.
+     */
     protected function flushCss(): void
     {
         $this->assets->makeCss()->flush();
@@ -225,6 +237,9 @@ class RecompileFrontendAssets
         }
     }
 
+    /**
+     * @deprecated 2.1 See {@see flush()}.
+     */
     protected function flushJs(): void
     {
         $this->assets->makeJs()->flush();

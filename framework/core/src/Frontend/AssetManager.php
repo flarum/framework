@@ -10,6 +10,7 @@
 namespace Flarum\Frontend;
 
 use Flarum\Locale\LocaleManager;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
@@ -55,6 +56,39 @@ class AssetManager
         $this->assets[$frontend] = $abstract;
     }
 
+    /**
+     * Flag every frontend as needing a rebuild, without touching the compiled
+     * files or their manifest revisions.
+     *
+     * The rebuild is deferred to the next freshly-booted request. That matters
+     * for the settings this is called for: they change which extensions boot,
+     * so a rebuild in the saving request — whose container booted before the
+     * save — would compile the old extension set and record it as current.
+     *
+     * @see \Flarum\Frontend\RecompileFrontendAssets::markDirty()
+     */
+    public function markDirty(): void
+    {
+        foreach ($this->all() as $assets) {
+            (new RecompileFrontendAssets(
+                $assets,
+                $this->locales,
+                $this->container->make('events'),
+                $this->container->make(SettingsRepositoryInterface::class)
+            ))->markDirty();
+        }
+    }
+
+    /**
+     * @deprecated 2.1 Use {@see markDirty()} instead, which defers the rebuild
+     * to a freshly-booted request rather than deleting the compiled files.
+     *
+     * Deleting them leaves already-served pages pointing at files that no
+     * longer exist, and clears the revisions that tell the next request what
+     * to rebuild — so whichever request arrives first recompiles from its own
+     * container, which for a safe-mode save is the admin's own browser running
+     * a reduced extension set.
+     */
     public function flushJs(): void
     {
         foreach ($this->all() as $assets) {

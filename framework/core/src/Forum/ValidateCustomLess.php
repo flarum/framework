@@ -11,6 +11,7 @@ namespace Flarum\Forum;
 
 use Flarum\Foundation\ValidationException;
 use Flarum\Frontend\Assets;
+use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Flarum\Settings\Event\Saving;
@@ -112,11 +113,16 @@ class ValidateCustomLess
             return;
         }
 
-        $this->assets->makeCss()->flush();
-
-        foreach ($this->locales->getLocales() as $locale => $name) {
-            $this->assets->makeLocaleCss($locale)->flush();
-        }
+        // Flag rather than delete, so the stylesheets already referenced by
+        // served pages keep resolving until their replacements exist. The
+        // rebuild happens on the next request, and only rewrites a file whose
+        // compiled output actually differs.
+        (new RecompileFrontendAssets(
+            $this->assets,
+            $this->locales,
+            $this->container->make('events'),
+            $this->settings
+        ))->markDirty();
     }
 
     protected function hasDirtyCustomLessSettings(Saved|Saving $event): bool
