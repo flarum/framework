@@ -16,6 +16,7 @@ use Flarum\Frontend\Document;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -74,7 +75,8 @@ class Assets
             $assets,
             $this->container->make(LocaleManager::class),
             $this->container->make('events'),
-            $this->container->make(SettingsRepositoryInterface::class)
+            $this->container->make(SettingsRepositoryInterface::class),
+            $this->container->make(CacheRepository::class)
         ))->recompileIfDirty();
     }
 
