@@ -226,6 +226,19 @@ core:
       queue_paused_all_warning: All queue processing is paused. Jobs will accumulate until it is resumed.
       queue_paused_manage: Manage
       clear_cache_button: Clear Cache
+      clear_cache_modal:
+        title: Clearing the Cache
+        working: Rebuilding the compiled assets. This can take a while on larger forums.
+        cleared: "Cleared {name}"
+        cleared_files: "Cleared {name} ({count} files)"
+        rebuilt: "Rebuilt {bundle}"
+        unchanged: "{bundle} was already up to date"
+        rewritten: "Rewrote {bundle}"
+        empty: "{bundle} has nothing to compile"
+        chunks: "Rebuilt the split chunks for {frontend} ({count} changed)"
+        failed: "Could not rebuild {step}: {message}"
+        took: "{time}ms"
+        reload_button: Reload
       description: Your forum at a glance.
       info_button: System Info
       info_modal:

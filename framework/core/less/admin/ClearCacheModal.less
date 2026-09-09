@@ -1,0 +1,92 @@
+.ClearCacheModal {
+  &-steps {
+    list-style: none;
+    margin: 0 0 15px;
+    padding: 0;
+    font-size: 13px;
+    line-height: 1.5;
+
+    // A clear reports a row per bundle per locale, so this is routinely 30+
+    // rows. Scrolling the list rather than the modal keeps the footer — and so
+    // the reload button — where the reader last saw it.
+    max-height: 45vh;
+    overflow-y: auto;
+  }
+
+  &-step {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 3px 0;
+
+    // Steps arrive one at a time over tens of seconds. Without this each new
+    // row appears indistinguishably from the ones already there, and there is
+    // nothing to tell the eye that the list is still moving.
+    animation: ClearCacheModal-step-in 150ms ease-out;
+  }
+
+  &-step-icon {
+    flex-shrink: 0;
+    width: 1em;
+    text-align: center;
+    font-size: 11px;
+  }
+
+  &-step-label {
+    flex: 1;
+    word-break: break-word;
+  }
+
+  &-step-detail {
+    flex-shrink: 0;
+    color: var(--muted-color);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // Most rows are bundles that turned out not to need rebuilding. They earn
+  // their place by showing nothing was skipped, but they are not what the
+  // admin came to read, so they sit back and let the changes carry the colour.
+  &-step--quiet {
+    color: var(--muted-color);
+  }
+
+  &-step--changed .ClearCacheModal-step-icon {
+    color: var(--primary-color);
+  }
+
+  &-step--failed {
+    color: var(--error-color);
+
+    .ClearCacheModal-step-label {
+      font-weight: 600;
+    }
+  }
+
+  &-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border-top: 1px solid var(--control-bg);
+    padding-top: 12px;
+  }
+
+  &-working {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--muted-color);
+  }
+}
+
+@keyframes ClearCacheModal-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
