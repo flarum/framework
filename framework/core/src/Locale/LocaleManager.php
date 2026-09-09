@@ -9,19 +9,74 @@
 
 namespace Flarum\Locale;
 
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Support\Arr;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class LocaleManager
 {
+    /**
+     * A setting any extension can bump to declare that translations have
+     * changed somewhere the registered files cannot show — the database, most
+     * obviously. Its value is opaque: only whether it differs matters.
+     */
+    public const REVISION_STAMP_KEY = 'locale_revision';
+
     protected array $locales = [];
     protected array $js = [];
     protected array $css = [];
 
+    /**
+     * Every translation file registered on this instance, as
+     * `<locale>|<prefix>|<file>`.
+     *
+     * @var list<string>
+     */
+    protected array $registered = [];
+
     public function __construct(
         protected Translator $translator,
-        protected ?string $cacheDir = null
+        protected ?string $cacheDir = null,
+        protected ?SettingsRepositoryInterface $settings = null
     ) {
+    }
+
+    /**
+     * Identifies the translations this instance has been given.
+     *
+     * A compiled catalogue's filename covers only the fallback locales, and in
+     * production `ConfigCache::isFresh()` answers `is_file()` — so once a
+     * catalogue exists nothing detects that the translations behind it have
+     * changed. Enabling an extension on one instance therefore leaves every
+     * other instance serving a catalogue that predates it, indefinitely: no
+     * mtime, no TTL and no revision would ever say otherwise, and only deleting
+     * the file forces a rebuild.
+     *
+     * This is derived from what an instance can see for itself — the files it
+     * was given, plus a stamp for translations that live elsewhere — so an
+     * instance that has been told nothing still works out that its catalogue is
+     * stale. Two instances given the same translations arrive at the same
+     * value, which is what keeps them from rebuilding in turn forever.
+     *
+     * Deliberately not derived from the contents or timestamps of those files:
+     * that would mean asking each registered resource whether it is fresh,
+     * which runs third-party code that has never executed in production — some
+     * of it resolving services and querying the database on every request. A
+     * file edited in place, with nothing added or removed and no stamp bumped,
+     * is the one change this does not see; clearing the cache covers it, which
+     * a deployment does anyway.
+     */
+    public function revision(): string
+    {
+        $registered = $this->registered;
+        sort($registered);
+
+        return hash('xxh128', implode("\n", $registered)."\0".$this->revisionStamp());
+    }
+
+    protected function revisionStamp(): string
+    {
+        return (string) ($this->settings?->get(static::REVISION_STAMP_KEY) ?? '');
     }
 
     public function getLocale(): string
@@ -56,6 +111,9 @@ class LocaleManager
         // `messages` is the default domain, and we want to support MessageFormat
         // for all translations.
         $domain = 'messages'.MessageCatalogueInterface::INTL_DOMAIN_SUFFIX;
+
+        // Recorded so revision() can tell what this instance was given.
+        $this->registered[] = $locale.'|'.$prefix.'|'.$file;
 
         $this->translator->addResource('prefixed_yaml', compact('file', 'prefix'), $locale, $domain);
     }
