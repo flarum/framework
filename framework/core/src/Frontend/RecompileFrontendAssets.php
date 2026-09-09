@@ -12,6 +12,8 @@ namespace Flarum\Frontend;
 use Flarum\Frontend\Event\AssetsRecompiled;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Cache\LockProvider;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use LogicException;
 
@@ -20,11 +22,28 @@ use LogicException;
  */
 class RecompileFrontendAssets
 {
+    /**
+     * How long one request may hold the rebuild lock.
+     *
+     * A process killed mid-rebuild — OOM, an evicted container, a deploy —
+     * never releases the lock, so this is also the longest anything can go
+     * un-rebuilt after a crash. Sixty seconds is roughly twice the slowest
+     * full rebuild measured against remote storage, where every compiled file
+     * costs a network round trip.
+     *
+     * Both failure modes degrade to the behaviour that existed before this
+     * lock, never to anything worse: the dirty flag outlives the lock, so
+     * after a crash the next request past the TTL rebuilds, and a rebuild that
+     * legitimately outruns the TTL simply lets a second request start one.
+     */
+    public const REBUILD_LOCK_SECONDS = 60;
+
     public function __construct(
         protected Assets $assets,
         protected LocaleManager $locales,
         protected ?Dispatcher $events = null,
-        protected ?SettingsRepositoryInterface $settings = null
+        protected ?SettingsRepositoryInterface $settings = null,
+        protected ?CacheRepository $cache = null
     ) {
     }
 
@@ -67,15 +86,68 @@ class RecompileFrontendAssets
             return;
         }
 
+        $store = $this->cache?->getStore();
+
+        if (! $store instanceof LockProvider) {
+            // No atomic lock available (a custom cache driver). Rebuild
+            // unguarded, exactly as before locking existed: losing the
+            // de-duplication is far better than never rebuilding.
+            $this->rebuildAndClear();
+
+            return;
+        }
+
+        // The flag is only cleared once the rebuild has finished, so without a
+        // lock every request arriving during it — page renders and API calls
+        // alike — sees the set as dirty and starts its own rebuild of the same
+        // output. A full rebuild is seconds, so a busy forum runs a stampede of
+        // them. One request does the work; the rest return and serve the
+        // revision already recorded, which stays valid because markDirty()
+        // deletes neither the compiled files nor their revisions.
+        $lock = $store->lock($this->rebuildLockKey(), static::REBUILD_LOCK_SECONDS);
+
+        if (! $lock->get()) {
+            return;
+        }
+
+        try {
+            // Re-read the flag now the lock is held: a request that queued
+            // behind the winner would otherwise immediately rebuild the very
+            // output that winner just committed.
+            if (! $this->settings()->get($this->dirtyKey())) {
+                return;
+            }
+
+            $this->rebuildAndClear();
+        } finally {
+            $lock->release();
+        }
+    }
+
+    /**
+     * Rebuild the set, clear the flag, then announce.
+     *
+     * The flag is cleared before announcing: if the process dies mid-rebuild
+     * the flag survives and the next request simply rebuilds again (a cheap
+     * no-op when the output already matches), while the event only ever fires
+     * once everything — including the bookkeeping — has settled.
+     */
+    protected function rebuildAndClear(): void
+    {
         $this->commitAll();
 
-        // Clear the flag before announcing: if the process dies mid-rebuild the
-        // flag survives and the next request simply rebuilds again (a cheap
-        // no-op when the output already matches), while the event only ever
-        // fires once everything — including the bookkeeping — has settled.
         $this->settings()->delete($this->dirtyKey());
 
         $this->events?->dispatch(new AssetsRecompiled());
+    }
+
+    /**
+     * Scoped to this asset set: the sets are independent, so forum, admin and
+     * common rebuild concurrently rather than queueing behind one another.
+     */
+    protected function rebuildLockKey(): string
+    {
+        return 'flarum.assets.recompile.'.$this->assets->getName();
     }
 
     protected function dirtyKey(): string

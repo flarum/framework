@@ -13,6 +13,7 @@ use Flarum\Frontend\Compiler\AssetsRevision;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -43,7 +44,8 @@ class AddAssetsRevisionHeader implements Middleware
         // not-yet-rebuilt manifest and never move for API-only clients, and no
         // reload prompt would appear until some unrelated visitor happened to
         // load a full page. The rebuild is in place and a no-op when the output
-        // is unchanged, so only the first request after a toggle pays for it.
+        // is unchanged, and it is guarded by an atomic lock, so one request
+        // pays for it while the rest keep serving the recorded revision.
         $this->recompileDirtyAssets();
 
         return $handler->handle($request)->withHeader(self::HEADER_NAME, $this->revision->token());
@@ -56,7 +58,8 @@ class AddAssetsRevisionHeader implements Middleware
                 $this->container->make($assets),
                 $this->container->make(LocaleManager::class),
                 $this->container->make('events'),
-                $this->container->make(SettingsRepositoryInterface::class)
+                $this->container->make(SettingsRepositoryInterface::class),
+                $this->container->make(CacheRepository::class)
             ))->recompileIfDirty();
         }
     }
