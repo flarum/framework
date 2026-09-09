@@ -1,0 +1,93 @@
+{
+    "name": "flarum/oauth-provider",
+    "description": "Turn Flarum into an OAuth 2.0 / OpenID Connect provider.",
+    "type": "flarum-extension",
+    "keywords": [
+        "oauth",
+        "oauth2",
+        "openid",
+        "sso",
+        "authentication"
+    ],
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/flarum/framework/issues",
+        "source": "https://github.com/flarum/oauth-provider",
+        "forum": "https://discuss.flarum.org"
+    },
+    "homepage": "https://flarum.org",
+    "funding": [
+        {
+            "type": "website",
+            "url": "https://flarum.org/donate/"
+        }
+    ],
+    "require": {
+        "flarum/core": "^2.0.0-rc.1",
+        "league/oauth2-server": "^8.5",
+        "lcobucci/jwt": "^4.3 || ^5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\OAuthProvider\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "2.x-dev"
+        },
+        "flarum-extension": {
+            "title": "OAuth Provider",
+            "category": "authentication",
+            "icon": {
+                "name": "fas fa-key",
+                "backgroundColor": "#3B4252",
+                "color": "#ffffff"
+            }
+        },
+        "flarum-cli": {
+            "modules": {
+                "admin": true,
+                "forum": true,
+                "js": true,
+                "jsCommon": false,
+                "css": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": true,
+                "bundlewatch": false,
+                "backendTesting": true,
+                "editorConfig": true,
+                "styleci": true
+            }
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:setup": "@php tests/integration/setup.php"
+    },
+    "require-dev": {
+        "flarum/testing": "^2.0",
+        "flarum/core": "2.x-dev"
+    },
+    "scripts-descriptions": {
+        "test": "Runs all tests.",
+        "test:unit": "Runs all unit tests.",
+        "test:integration": "Runs all integration tests.",
+        "test:setup": "Sets up a database for use with integration tests. Execute this only once."
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../*/*"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
