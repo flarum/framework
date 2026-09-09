@@ -7,7 +7,7 @@
     ],
     "license": "MIT",
     "require": {
-        "flarum/core": "^2.0.0-rc.8"
+        "flarum/core": "^2.0.0"
     },
     "extra": {
         "branch-alias": {
