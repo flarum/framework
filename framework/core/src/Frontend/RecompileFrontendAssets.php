@@ -9,6 +9,7 @@
 
 namespace Flarum\Frontend;
 
+use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\Event\AssetsRecompiled;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -43,7 +44,8 @@ class RecompileFrontendAssets
         protected LocaleManager $locales,
         protected ?Dispatcher $events = null,
         protected ?SettingsRepositoryInterface $settings = null,
-        protected ?CacheRepository $cache = null
+        protected ?CacheRepository $cache = null,
+        protected ?VersionerInterface $versioner = null
     ) {
     }
 
@@ -185,15 +187,25 @@ class RecompileFrontendAssets
 
     protected function commitAll(): void
     {
-        $this->assets->makeCss()->commit();
-        $this->assets->makeJs()->commit();
+        // Each compiler records its own revision, and pruning stale chunks
+        // records one removal per chunk — around eighteen writes on a plain
+        // forum, many more with code splitting. Collect them so the versioner
+        // can store them together instead of once per asset.
+        $this->versioner?->deferWrites();
 
-        foreach ($this->locales->getLocales() as $locale => $name) {
-            $this->assets->makeLocaleCss($locale)->commit();
-            $this->assets->makeLocaleJs($locale)->commit();
+        try {
+            $this->assets->makeCss()->commit();
+            $this->assets->makeJs()->commit();
+
+            foreach ($this->locales->getLocales() as $locale => $name) {
+                $this->assets->makeLocaleCss($locale)->commit();
+                $this->assets->makeLocaleJs($locale)->commit();
+            }
+
+            $this->assets->makeJsDirectory()->commit();
+        } finally {
+            $this->versioner?->flushWrites();
         }
-
-        $this->assets->makeJsDirectory()->commit();
     }
 
     public function flush(): void

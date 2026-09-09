@@ -36,6 +36,18 @@ class FileVersioner implements VersionerInterface
         $this->cachedManifest = $manifest;
     }
 
+    /**
+     * No-ops: every write here already rewrites the whole manifest, so there is
+     * nothing for a batch to save.
+     */
+    public function deferWrites(): void
+    {
+    }
+
+    public function flushWrites(): void
+    {
+    }
+
     public function getRevision(string $file): ?string
     {
         return $this->readManifest()[$file] ?? null;
