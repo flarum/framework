@@ -17,6 +17,7 @@ use Flarum\Bus\Dispatcher;
 use Flarum\Foundation\ValidationException;
 use Flarum\Group\Group;
 use Flarum\Http\SlugManager;
+use Flarum\Locale\LocaleManager;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AvatarUploader;
@@ -51,6 +52,7 @@ class UserResource extends AbstractDatabaseResource
         protected AvatarUploader $avatarUploader,
         protected AvatarValidator $imageValidator,
         protected Dispatcher $bus,
+        protected LocaleManager $locales,
     ) {
     }
 
@@ -77,6 +79,26 @@ class UserResource extends AbstractDatabaseResource
             $user = $this->slugManager->forResource(User::class)->fromSlug($id, $actor);
         } else {
             $user = $this->query($context)->findOrFail($id);
+        }
+
+        return $user;
+    }
+
+    public function newModel(\Tobyz\JsonApiServer\Context $context): object
+    {
+        $user = parent::newModel($context);
+
+        // Someone signing up has already chosen a language for the interface,
+        // so start their account in it: otherwise the activation email, which
+        // reads this preference, always goes out in the forum's default.
+        // An explicit `preferences.locale` in the request still wins, since
+        // fields are applied after this.
+        if ($context->getActor()->isGuest()) {
+            $locale = Arr::get($context->request->getCookieParams(), 'locale');
+
+            if ($locale && $this->locales->hasLocale($locale)) {
+                $user->setPreference('locale', $locale);
+            }
         }
 
         return $user;
