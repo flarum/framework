@@ -170,5 +170,4 @@ class ClearCacheTest extends TestCase
 
         $this->assertEquals(403, $response->getStatusCode());
     }
-
 }
