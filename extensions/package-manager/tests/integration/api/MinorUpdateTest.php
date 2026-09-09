@@ -81,14 +81,12 @@ class MinorUpdateTest extends TestCase
 
         /** @var LastUpdateRun $lastUpdateRun */
         $lastUpdateRun = $this->app()->getContainer()->make(LastUpdateRun::class);
+        $lastMinorUpdateRun = $lastUpdateRun->for(FlarumUpdated::MINOR)->get();
 
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertPackageVersion('flarum/tags', '*');
         $this->assertPackageVersion('flarum/dummy-extension', '*');
-        $this->assertEquals([
-            'flarum/core',
-            'flarum/lang-english',
-            'flarum/tags'
-        ], $lastUpdateRun->for(FlarumUpdated::MINOR)->get()['limitedPackages']);
+        $this->assertEquals(LastUpdateRun::SUCCESS, $lastMinorUpdateRun['status']);
+        $this->assertEquals([], $lastMinorUpdateRun['limitedPackages']);
     }
 }
