@@ -19,7 +19,10 @@ class PostCreationThrottler
 
     public function __invoke(ServerRequestInterface $request): ?bool
     {
-        if (! in_array($request->getAttribute('routeName'), ['discussions.create', 'posts.create'])) {
+        // Editing a post re-parses its content — the same expensive work as
+        // creating one (resolving @mentions, rendering) — so the edit routes
+        // are throttled the same way.
+        if (! in_array($request->getAttribute('routeName'), ['discussions.create', 'posts.create', 'posts.update'])) {
             return null;
         }
 
@@ -29,7 +32,16 @@ class PostCreationThrottler
             return false;
         }
 
-        if (Post::where('user_id', $actor->id)->where('created_at', '>=', Carbon::now()->subSeconds(self::$timeout))->exists()) {
+        // A recent create OR a recent edit counts: both re-parse, and they
+        // share one timeout window rather than giving an attacker a separate
+        // budget for each.
+        $since = Carbon::now()->subSeconds(self::$timeout);
+
+        if (Post::where('user_id', $actor->id)
+            ->where(fn ($query) => $query
+                ->where('created_at', '>=', $since)
+                ->orWhere('edited_at', '>=', $since))
+            ->exists()) {
             return true;
         }
 
