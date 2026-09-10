@@ -56,12 +56,13 @@ class PostEditThrottleTest extends TestCase
         ]);
     }
 
-    private function throttleResult(string $routeName): ?bool
+    private function throttleResult(string $routeName, array $body = ['data' => ['attributes' => ['content' => 'edited']]]): ?bool
     {
         $actor = User::query()->find(2);
 
         $request = (new ServerRequest())
-            ->withAttribute('routeName', $routeName);
+            ->withAttribute('routeName', $routeName)
+            ->withParsedBody($body);
         $request = RequestUtil::withActor($request, $actor);
 
         return $this->app()->getContainer()->make(PostCreationThrottler::class)($request);
@@ -88,6 +89,21 @@ class PostEditThrottleTest extends TestCase
         $this->assertNull(
             $this->throttleResult('posts.update'),
             'an edit long ago must not throttle'
+        );
+    }
+
+    #[Test]
+    public function a_posts_update_without_content_is_not_throttled()
+    {
+        // Approving, hiding, or otherwise touching a post goes through
+        // posts.update but changes no content and re-parses nothing, so it must
+        // pass even when the actor has edited recently.
+        $this->app();
+        $this->seedPost(Carbon::now()->subDay()->toDateTimeString(), Carbon::now()->toDateTimeString());
+
+        $this->assertNull(
+            $this->throttleResult('posts.update', ['data' => ['attributes' => ['isApproved' => true]]]),
+            'a posts.update that does not change content must not be throttled'
         );
     }
 

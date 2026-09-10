@@ -11,6 +11,7 @@ namespace Flarum\Post;
 
 use Carbon\Carbon;
 use Flarum\Http\RequestUtil;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 
 class PostCreationThrottler
@@ -19,10 +20,18 @@ class PostCreationThrottler
 
     public function __invoke(ServerRequestInterface $request): ?bool
     {
+        $routeName = $request->getAttribute('routeName');
+
         // Editing a post re-parses its content — the same expensive work as
-        // creating one (resolving @mentions, rendering) — so the edit routes
-        // are throttled the same way.
-        if (! in_array($request->getAttribute('routeName'), ['discussions.create', 'posts.create', 'posts.update'])) {
+        // creating one (resolving @mentions, rendering) — so a content edit is
+        // throttled the same way. Only a content edit, though: a `posts.update`
+        // that just approves or otherwise touches a post (no `content` in the
+        // body) does no re-parsing and must not be throttled, nor throttled
+        // ahead of its own permission check.
+        $isContentEdit = $routeName === 'posts.update'
+            && Arr::has((array) $request->getParsedBody(), 'data.attributes.content');
+
+        if (! in_array($routeName, ['discussions.create', 'posts.create']) && ! $isContentEdit) {
             return null;
         }
 
