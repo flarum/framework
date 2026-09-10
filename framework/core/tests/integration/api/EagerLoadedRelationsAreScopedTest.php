@@ -208,9 +208,9 @@ class EagerLoadedRelationsAreScopedTest extends TestCase
         $this->assertSame(
             [],
             $unresolved,
-            "These eager-loaded relations could not be resolved to a resource, so they are "
+            'These eager-loaded relations could not be resolved to a resource, so they are '
             ."loaded without a visibility scope:\n\n  ".implode("\n  ", $unresolved)."\n\n"
-            ."Either expose the relationship on the resource, or drop it from the eager-load list."
+            .'Either expose the relationship on the resource, or drop it from the eager-load list.'
         );
     }
 
