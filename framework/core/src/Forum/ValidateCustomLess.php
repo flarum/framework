@@ -57,7 +57,14 @@ class ValidateCustomLess
         );
 
         foreach ($lessFeatureKeys as $key) {
-            if (is_string($event->settings[$key]) && preg_match('/@import|data-uri\s*\(/i', $event->settings[$key])) {
+            // The file system is taken away from the compiler by
+            // LessCompiler::containImports(), which is what actually stops a
+            // custom-LESS file read. This check stays so the administrator is
+            // told at save time rather than silently getting a stylesheet with
+            // the import dropped. `@impor` is matched as well as `@import`,
+            // because less.php matches the directive as `@import?` and so
+            // parses both the same way.
+            if (is_string($event->settings[$key]) && preg_match('/@impor|data-uri\s*\(/i', $event->settings[$key])) {
                 $translator = $this->container->make(TranslatorInterface::class);
 
                 throw new ValidationException([
