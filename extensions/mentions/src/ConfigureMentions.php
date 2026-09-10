@@ -37,6 +37,31 @@ class ConfigureMentions
     ) {
     }
 
+    /**
+     * Per-collection lookup indexes, so a mention is resolved by a keyed map
+     * rather than by scanning the whole mentioned-models collection once per
+     * mention (which is O(N^2) in the number of distinct models mentioned).
+     *
+     * Keyed on the collection object itself: the entry is dropped when the
+     * collection is freed after a parse. A plain array keyed by object id
+     * would be unsafe — PHP reuses an id once the object is gone, so a later
+     * collection could read a previous one's stale index.
+     *
+     * @var \WeakMap<Collection, array<string, \Illuminate\Support\Collection>>
+     */
+    protected static \WeakMap $indexes;
+
+    /**
+     * A map from $key's value to the model, built once per collection.
+     */
+    protected static function indexBy(Collection $models, string $key): \Illuminate\Support\Collection
+    {
+        self::$indexes ??= new \WeakMap();
+        self::$indexes[$models] ??= [];
+
+        return self::$indexes[$models][$key] ??= $models->keyBy($key);
+    }
+
     public function __invoke(Configurator $config): void
     {
         $this->configureUserMentions($config);
@@ -97,9 +122,9 @@ class ConfigureMentions
             }
         } else {
             if ($tag->hasAttribute('username') && $allow_username_format) {
-                $user = $mentions['users']->where('username', $tag->getAttribute('username'))->first();
+                $user = self::indexBy($mentions['users'], 'username')->get($tag->getAttribute('username'));
             } elseif ($tag->hasAttribute('id')) {
-                $user = $mentions['users']->where('id', $tag->getAttribute('id'))->first();
+                $user = self::indexBy($mentions['users'], 'id')->get($tag->getAttribute('id'));
             }
         }
 
@@ -160,7 +185,7 @@ class ConfigureMentions
         if ($mentions === null) {
             $post = Post::query()->with('user')->find($tag->getAttribute('id'));
         } else {
-            $post = $mentions['posts']->where('id', $tag->getAttribute('id'))->first();
+            $post = self::indexBy($mentions['posts'], 'id')->get($tag->getAttribute('id'));
         }
 
         if ($post) {
@@ -249,7 +274,7 @@ class ConfigureMentions
         if ($mentions === null) {
             $group = Group::query()->find($id);
         } else {
-            $group = $mentions['groups']->where('id', $id)->first();
+            $group = self::indexBy($mentions['groups'], 'id')->get($id);
         }
 
         if ($group) {
@@ -339,7 +364,7 @@ class ConfigureMentions
             $model = Tag::query()->where('slug', $slug)->first();
         } else {
             /** @var Tag|null $model */
-            $model = $mentions['tags']->where('slug', $tag->getAttribute('slug'))->first();
+            $model = self::indexBy($mentions['tags'], 'slug')->get($tag->getAttribute('slug'));
         }
 
         if ($model) {
