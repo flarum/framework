@@ -10,6 +10,7 @@
 namespace Flarum\Api\Endpoint\Concerns;
 
 use Closure;
+use Flarum\Api\Context as FlarumContext;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Schema\Relationship\ToMany;
 use Flarum\Api\Schema\Relationship\ToOne;
@@ -169,6 +170,14 @@ trait HasEagerLoading
      */
     private function scopeEagerLoads(array $relations, Context $context, AbstractDatabaseResource $resource, array $callbacks = []): array
     {
+        // Resource scopes are declared against Flarum's context. Without one
+        // there is nothing to apply, so fall back to what each route would
+        // have loaded: its own callbacks where it has them, bare names
+        // otherwise.
+        if (! $context instanceof FlarumContext) {
+            return $callbacks ?: $relations;
+        }
+
         $scoped = [];
 
         foreach ($relations as $relation) {
@@ -223,9 +232,11 @@ trait HasEagerLoading
      */
     private function relationshipField(AbstractDatabaseResource $resource, string $segment, Context $context): ToOne|ToMany|null
     {
-        return collect($context->fields($resource))
+        $field = collect($context->fields($resource))
             ->first(fn ($field) => ($field instanceof ToOne || $field instanceof ToMany)
                 && (($field->property ?? $field->name) === $segment || $field->name === $segment));
+
+        return $field instanceof ToOne || $field instanceof ToMany ? $field : null;
     }
 
     /**
@@ -252,7 +263,7 @@ trait HasEagerLoading
      *
      * @return array<class-string, callable>
      */
-    private function morphConstraints(ToOne|ToMany $field, Context $context): array
+    private function morphConstraints(ToOne|ToMany $field, FlarumContext $context): array
     {
         $constrain = [];
 
