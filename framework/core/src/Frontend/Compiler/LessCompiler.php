@@ -191,10 +191,10 @@ class LessCompiler extends RevisionCompiler
                 }
 
                 return $compiled;
-            // Less_Exception_Compiler extends Less_Exception_Parser, so this
-            // covers both: a refused import (containImports()) raises the
-            // latter, and must drop the offending custom LESS like any other
-            // bad value rather than taking the whole forum down with it.
+                // Less_Exception_Compiler extends Less_Exception_Parser, so this
+                // covers both: a refused import (containImports()) raises the
+                // latter, and must drop the offending custom LESS like any other
+                // bad value rather than taking the whole forum down with it.
             } catch (Less_Exception_Parser $e) {
                 if (isset($sources['custom_less'])) {
                     unset($sources['custom_less']);
