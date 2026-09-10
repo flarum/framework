@@ -66,7 +66,12 @@ plugins.push(new RegisterAsyncChunksPlugin());
 plugins.push(new OverrideChunkLoaderFunction());
 
 module.exports = function () {
+  const context = process.cwd();
+  const srcDir = path.resolve(context, 'src') + path.sep;
+
   return {
+    context,
+
     // Set up entry points for each of the forum + admin apps, but only
     // if they exist.
     entry: getEntryPoints(),
@@ -80,11 +85,11 @@ module.exports = function () {
     module: {
       rules: [
         {
-          include: /src/,
+          include: srcDir,
           loader: path.resolve(__dirname, './autoExportLoader.cjs'),
         },
         {
-          include: /src/,
+          include: srcDir,
           loader: path.resolve(__dirname, './autoChunkNameLoader.cjs'),
         },
         {
