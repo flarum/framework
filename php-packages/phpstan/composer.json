@@ -6,7 +6,7 @@
     "require": {
         "flarum/testing": "^2.0",
         "phpstan/phpstan": "^2.1",
-        "larastan/larastan": "^3.8"
+        "larastan/larastan": "^3.8 <3.12"
     },
     "autoload": {
         "psr-4": {
