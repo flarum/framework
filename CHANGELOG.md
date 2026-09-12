@@ -1,5 +1,40 @@
 # Changelog
 
+## [v2.0.0](https://github.com/flarum/framework/compare/v2.0.0-rc.8...v2.0.0)
+
+### Added
+
+- (core) rebuild the compiled assets from `cache:clear` by @imorland [#5047]
+
+### Fixed
+
+- (core) look up frontends by name in `AssetManager::frontend()` by @imorland [#5040]
+- (core) write settings in a single upsert by @imorland [#5041]
+- (core) rebuild dirty assets once, not once per request by @imorland [#5044]
+- (core) record asset revisions a row at a time by @imorland [#5045]
+- (core) rebuild a compiled catalogue when the translations behind it change by @imorland [#5046]
+- (core) report success from `cache:clear` only once the work is done by @imorland [#5048]
+- (core) stop safe mode's cut-down assets outliving safe mode by @imorland [#5049]
+- (core) resolve translation references in implicitly-loaded fallback catalogues by @gianniguida [#5023]
+- (core) gate avatar changes behind a permission instead of a self check by @imorland [#5017]
+- (core) start a new account in the language its owner signed up in by @karl-bullock [#5037]
+- (core) scope relations that are eager-loaded before serialisation by @imorland [#5052]
+- (core) contain custom LESS to Flarum's own import directories by @imorland [#5053]
+- (realtime) stop the reconnect catch-up duplicating a discussion in the list by @ekumanov [#5003]
+- (tags) stop wrapping the tag link's contents in list items by @imorland [#5032]
+- (akismet) allow the API key setting to be null by @imorland [#5030]
+- (audit) increase vertical density in the audit log by reducing block padding by @claudiushenrichs [#5020]
+- (extension-manager) remove `FormControl-alt` from the search bar in `DiscoverSection` by @claudiushenrichs [#5021]
+
+### Changed
+
+- (ci) give PHPStan enough memory and stop pinning `LARAVEL_VERSION` by @imorland [#5018]
+- (deps) hold larastan below 3.12, which crashes analysing an injected view factory by @imorland [#5054]
+
+### Performance
+
+- (mentions) resolve mentions by index instead of a per-mention scan, and throttle post edits by @imorland [#5056]
+
 ## [v2.0.0-rc.8](https://github.com/flarum/framework/compare/v2.0.0-rc.7...v2.0.0-rc.8)
 
 ### Fixed
