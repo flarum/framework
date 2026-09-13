@@ -38,8 +38,15 @@ class ComposerJson
                     continue;
                 }
 
-                // Only extensions can all be set to * versioning.
-                if (! $this->extensions->getExtension(Extension::nameToId($packageName))) {
+                // Platform requirements such as `php` or `ext-*` have no vendor
+                // segment, so they cannot be turned into an extension id.
+                if (! str_contains($p, '/')) {
+                    continue;
+                }
+
+                // Only extensions can all be set to * versioning. This has to test the
+                // package being iterated, not the wildcard that was passed in.
+                if (! $this->extensions->getExtension(Extension::nameToId($p))) {
                     continue;
                 }
 
