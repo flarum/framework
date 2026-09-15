@@ -39,3 +39,9 @@ services:
 		arguments:
 			- @Flarum\PHPStan\Extender\FilesProvider
 			- @defaultAnalysisParser
+	-
+		class: Flarum\PHPStan\Rules\ExtenderCallbackSignatureRule
+		arguments:
+			parser: @defaultAnalysisParser
+		tags:
+			- phpstan.rules.rule
