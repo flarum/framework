@@ -183,6 +183,14 @@ class InfoCommand extends AbstractCommand
      */
     private function detectWebServerPhpVersion(): ?string
     {
+        // `exec` may be listed in the host's `disable_functions` (common on
+        // shared hosting). Calling it would fatal, so degrade to "unable to
+        // detect" instead. function_exists() returns false for a disabled
+        // function, so this guard is sufficient.
+        if (! function_exists('exec')) {
+            return null;
+        }
+
         // Try common PHP binary paths for web servers
         $possiblePhpBinaries = [
             '/usr/bin/php-fpm'.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
@@ -276,7 +284,9 @@ class InfoCommand extends AbstractCommand
      */
     private function findPackageVersion(string $path, string $fallback = null): ?string
     {
-        if (file_exists("$path/.git")) {
+        // Guard `exec` in case it is disabled on the host (see
+        // detectWebServerPhpVersion()); fall back to the known version.
+        if (function_exists('exec') && file_exists("$path/.git")) {
             $cwd = getcwd();
             chdir($path);
 
