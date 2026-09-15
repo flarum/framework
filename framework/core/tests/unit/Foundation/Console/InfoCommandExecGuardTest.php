@@ -12,7 +12,6 @@ namespace Flarum\Tests\unit\Foundation\Console;
 use Flarum\Foundation\Console\InfoCommand;
 use Flarum\Testing\unit\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use ReflectionClass;
 
 /**
  * `InfoCommand` calls the global `exec()` from within the
@@ -44,7 +43,7 @@ class InfoCommandExecGuardTest extends TestCase
         $this->assertSame(
             0,
             $result['status'],
-            "InfoCommand::findPackageVersion() fataled with exec disabled, so `flarum info` and the ".
+            'InfoCommand::findPackageVersion() fataled with exec disabled, so `flarum info` and the '.
             "admin System Info page break on hosts that disable exec. Output:\n".$result['output']
         );
 
@@ -94,7 +93,7 @@ class InfoCommandExecGuardTest extends TestCase
         $this->assertSame(
             0,
             $result['status'],
-            "InfoCommand::detectWebServerPhpVersion() fataled with exec disabled, so `flarum info` and ".
+            'InfoCommand::detectWebServerPhpVersion() fataled with exec disabled, so `flarum info` and '.
             "the admin System Info page break on hosts that disable exec. Output:\n".$result['output']
         );
 
