@@ -31,6 +31,9 @@ use Illuminate\Support\Collection;
 
 class ExtensionManager
 {
+    /**
+     * @var Collection<string, Extension>|null
+     */
     protected ?Collection $extensions = null;
 
     public function __construct(
@@ -44,6 +47,9 @@ class ExtensionManager
     ) {
     }
 
+    /**
+     * @return Collection<string, Extension>
+     */
     public function getExtensions(): Collection
     {
         if (is_null($this->extensions)) {
@@ -53,6 +59,7 @@ class ExtensionManager
                 throw UnreadableManifestException::missing($manifest);
             }
 
+            /** @var Collection<string, Extension> $extensions */
             $extensions = new Collection();
 
             // Load all packages installed by composer.
