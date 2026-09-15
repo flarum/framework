@@ -17,6 +17,17 @@ class Translator extends BaseTranslator implements TranslatorContract
 {
     const REFERENCE_REGEX = '/^=>\s*([a-z0-9_\-\.]+)$/i';
 
+    /**
+     * Catalogue objects whose `=> reference` values have already been resolved.
+     *
+     * Tracked per object rather than per locale: Symfony stores an original
+     * catalogue per locale but attaches fresh copies as fallbacks of other
+     * locales, so several objects can share one locale name.
+     *
+     * @var \SplObjectStorage|null
+     */
+    private $parsedCatalogues;
+
     public function get($key, array $replace = [], $locale = null)
     {
         return $this->trans($key, $replace, null, $locale);
@@ -39,16 +50,16 @@ class Translator extends BaseTranslator implements TranslatorContract
             $this->assertValidLocale($locale);
         }
 
-        $parse = ! isset($this->catalogues[$locale]);
-
         $catalogue = parent::getCatalogue($locale);
 
-        if ($parse) {
-            $this->parseCatalogue($catalogue);
+        if ($this->parsedCatalogues === null) {
+            $this->parsedCatalogues = new \SplObjectStorage();
+        }
 
-            $fallbackCatalogue = $catalogue;
-            while ($fallbackCatalogue = $fallbackCatalogue->getFallbackCatalogue()) {
-                $this->parseCatalogue($fallbackCatalogue);
+        for ($current = $catalogue; $current !== null; $current = $current->getFallbackCatalogue()) {
+            if (! $this->parsedCatalogues->contains($current)) {
+                $this->parseCatalogue($current);
+                $this->parsedCatalogues->attach($current);
             }
         }
 
