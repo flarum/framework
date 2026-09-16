@@ -119,7 +119,7 @@ class Middleware implements ExtenderInterface
             foreach ($this->insertBeforeMiddlewares as $originalMiddleware => $newMiddleware) {
                 array_splice(
                     $existingMiddleware,
-                    array_search($originalMiddleware, $existingMiddleware),
+                    $this->offsetOf($originalMiddleware, $newMiddleware, $existingMiddleware),
                     0,
                     $newMiddleware
                 );
@@ -128,7 +128,7 @@ class Middleware implements ExtenderInterface
             foreach ($this->insertAfterMiddlewares as $originalMiddleware => $newMiddleware) {
                 array_splice(
                     $existingMiddleware,
-                    array_search($originalMiddleware, $existingMiddleware) + 1,
+                    $this->offsetOf($originalMiddleware, $newMiddleware, $existingMiddleware) + 1,
                     0,
                     $newMiddleware
                 );
@@ -136,5 +136,29 @@ class Middleware implements ExtenderInterface
 
             return array_diff($existingMiddleware, $this->removeMiddlewares);
         });
+    }
+
+    /**
+     * Locate the anchor an insertion is relative to.
+     *
+     * Extenders run in extension order, so another extension may already have
+     * replaced or removed the anchor. Throwing beats defaulting to an offset: the
+     * front of the stack sits ahead of the error handler.
+     *
+     * @param array<string> $existingMiddleware
+     */
+    private function offsetOf(string $originalMiddleware, string $newMiddleware, array $existingMiddleware): int
+    {
+        $offset = array_search($originalMiddleware, $existingMiddleware, true);
+
+        if ($offset === false) {
+            throw new \InvalidArgumentException(
+                "Cannot insert middleware [$newMiddleware] relative to [$originalMiddleware]:"
+                ." it is not present in the [$this->frontend] middleware stack."
+                .' Another extension may have replaced or removed it, or it was never registered.'
+            );
+        }
+
+        return $offset;
     }
 }
