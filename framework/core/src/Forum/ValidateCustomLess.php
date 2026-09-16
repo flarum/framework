@@ -44,33 +44,40 @@ class ValidateCustomLess
             return;
         }
 
-        // Restrict what features can be used in custom LESS. This applies to
-        // the `custom_less` setting as well as any setting registered as a
-        // LESS config variable (e.g. `theme_primary_color`), since those
-        // values are interpolated directly into the LESS source.
-        $lessFeatureKeys = array_merge(
-            isset($event->settings['custom_less']) ? ['custom_less'] : [],
-            array_intersect(
-                array_keys($event->settings),
-                array_column($this->customLessSettings, 'key')
-            )
+        // Restrict what features can be used in custom LESS. The two groups
+        // below are checked differently, because what counts as legitimate
+        // differs between them.
+        $configVarKeys = array_intersect(
+            array_keys($event->settings),
+            array_column($this->customLessSettings, 'key')
         );
 
-        foreach ($lessFeatureKeys as $key) {
-            // The file system is taken away from the compiler by
-            // LessCompiler::containImports(), which is what actually stops a
-            // custom-LESS file read. This check stays so the administrator is
-            // told at save time rather than silently getting a stylesheet with
-            // the import dropped. `@impor` is matched as well as `@import`,
-            // because less.php matches the directive as `@import?` and so
-            // parses both the same way.
-            if (is_string($event->settings[$key]) && preg_match('/@impor|data-uri\s*\(/i', $event->settings[$key])) {
-                $translator = $this->container->make(TranslatorInterface::class);
+        // A setting registered as a LESS config variable (e.g.
+        // `theme_primary_color`) is interpolated as a variable value —
+        // `@config-primary-color: <value>;` — so a value that closes the
+        // declaration can append a directive of its own. These hold colours and
+        // have no legitimate use for an import, so any directive is refused
+        // outright, before the trial compile. That matters: rejecting during
+        // the compile still returns 422 but leaves the value stored, whereas
+        // refusing here stops it being persisted at all.
+        foreach ($configVarKeys as $key) {
+            // `@impor` is matched as well as `@import`, because less.php
+            // matches the directive as `@import?` and so parses both the same.
+            $this->refuse($event, $key, '/@impor|data-uri\s*\(/i');
+        }
 
-                throw new ValidationException([
-                    $key => $translator->trans('core.admin.appearance.custom_styles_cannot_use_less_features')
-                ]);
-            }
+        // `custom_less` is a stylesheet, so an `@import url(...)` pulling in a
+        // webfont is ordinary and must keep working. Imports are therefore left
+        // to LessCompiler::containImports(), which refuses anything outside
+        // Flarum's own import directories by throwing — the trial compile below
+        // turns that into the same validation error. Matching the directive
+        // here instead could only reject every import or none, which is what
+        // broke the webfont case.
+        //
+        // `data-uri(` is still refused: it reads a file without going through
+        // the import machinery, so the compiler never sees it.
+        if (isset($event->settings['custom_less'])) {
+            $this->refuse($event, 'custom_less', '/data-uri\s*\(/i');
         }
 
         // We haven't saved the settings yet, but we want to trial a full
@@ -112,6 +119,25 @@ class ValidateCustomLess
 
         $this->assets->setAssetsDir($assetsDir);
         $this->container->instance(SettingsRepositoryInterface::class, $settings);
+    }
+
+    /**
+     * Refuse a setting whose value uses a LESS feature it may not, so it is
+     * never persisted.
+     *
+     * @throws ValidationException
+     */
+    protected function refuse(Saving $event, string $key, string $pattern): void
+    {
+        if (! is_string($event->settings[$key]) || ! preg_match($pattern, $event->settings[$key])) {
+            return;
+        }
+
+        $translator = $this->container->make(TranslatorInterface::class);
+
+        throw new ValidationException([
+            $key => $translator->trans('core.admin.appearance.custom_styles_cannot_use_less_features')
+        ]);
     }
 
     public function whenSettingsSaved(Saved $event): void

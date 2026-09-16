@@ -84,16 +84,26 @@ class LessCompiler extends RevisionCompiler
      * only ever chases the parser's grammar.
      *
      * Registered as the sole entry in less.php's `import_dirs`. A closure there
-     * is asked to resolve the path and may decline by returning null — but
-     * declining lets less.php fall back to reading the raw path, so an import
-     * we will not resolve has to throw instead.
+     * is asked to resolve the path and may decline by returning null — but for
+     * a local path declining lets less.php fall back to reading the raw path,
+     * so an import we will not resolve has to throw instead.
      *
-     * @return array{0: string, 1: null}
+     * @return array{0: string, 1: null}|null
      *
      * @throws \Less_Exception_Parser
      */
-    protected function containImports(string $path): array
+    protected function containImports(string $path): ?array
     {
+        // A remote stylesheet is not ours to resolve, and declining is safe
+        // here in a way it is not for a local path: less.php has already
+        // flagged an `https?://` (or protocol-relative) import as CSS, so it
+        // emits the directive verbatim for the browser and never reads it.
+        // Throwing instead breaks the ordinary `@import url(...)` used to pull
+        // in a webfont.
+        if (preg_match('#^(https?:)?//#i', $path) === 1) {
+            return null;
+        }
+
         foreach ($this->importDirs as $dir => $uri) {
             // An entry may be given as a bare path with a numeric key, or as
             // `path => uri` for URL rewriting.
