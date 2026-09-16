@@ -177,6 +177,12 @@ class CustomLessFileAccessTest extends TestCase
      * Containment stops the file read, but the administrator should still be
      * told at save time rather than silently getting a stylesheet with the
      * import dropped.
+     *
+     * The import cases are rejected by the trial compile, which turns
+     * `LessCompiler::containImports()`'s refusal into a validation error —
+     * not by a directive match in `ValidateCustomLess`, which would also
+     * reject a perfectly safe remote import. `data-uri(` is still matched
+     * there, since it never reaches the import machinery.
      */
     #[Test]
     public function saving_a_file_reading_directive_is_rejected()
@@ -197,5 +203,61 @@ class CustomLessFileAccessTest extends TestCase
 
         $this->assertEquals(204, $status);
         $this->assertStringContainsString('.custom-less-marker', $this->compiledForumCss());
+    }
+
+    /**
+     * Containment must not reach a remote stylesheet.
+     *
+     * less.php already flags an `https?://` import as CSS and emits it verbatim
+     * for the browser without ever reading it, so there is nothing to contain —
+     * declining is safe here in a way it is not for a local path. Throwing
+     * instead broke the ordinary `@import url(...)` that pulls in a webfont.
+     */
+    /**
+     * Every shape less.php treats as remote, so narrowing the guard to just one
+     * of them (requiring `url(`, say) cannot pass unnoticed.
+     *
+     * @return iterable<string, array{string}>
+     */
+    public static function remoteStylesheetImports(): iterable
+    {
+        // The line from the report, verbatim: single-quoted, and with several
+        // `;`-separated weights inside the query string.
+        yield 'single-quoted webfont' => ["@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap');"];
+        // The same thing double-quoted.
+        yield 'double-quoted webfont' => ['@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap");'];
+        // Without the url() wrapper.
+        yield '@import "..."' => ['@import "https://fonts.googleapis.com/css2?family=Raleway";'];
+        // Protocol-relative, which less.php also flags as remote.
+        yield 'protocol-relative' => ['@import url("//fonts.googleapis.com/css2?family=Raleway");'];
+    }
+
+    #[Test]
+    #[DataProvider('remoteStylesheetImports')]
+    public function custom_less_can_import_a_remote_stylesheet(string $less)
+    {
+        $status = $this->saveCustomLess($less);
+
+        $this->assertEquals(204, $status);
+        $this->assertStringContainsString('fonts.googleapis.com', $this->compiledForumCss());
+    }
+
+    /**
+     * The decline above is scoped to http(s) and protocol-relative URLs, so it
+     * cannot be used to smuggle another scheme past containment.
+     *
+     * This deliberately uses a plain `@import`, not `@import (inline)`: the
+     * decline sits on the path less.php takes for a non-inline import, so an
+     * inline one would never reach it and the test would pass whether or not
+     * the scoping held.
+     */
+    #[Test]
+    public function a_non_http_scheme_is_still_contained()
+    {
+        $secret = $this->secretFile();
+
+        $this->saveCustomLess(sprintf('@impor "file://%s";', $secret));
+
+        $this->assertStringNotContainsString('SECRET-LESS-FILE-READ', $this->compiledForumCss());
     }
 }
