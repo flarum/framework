@@ -12,6 +12,7 @@ namespace Flarum\Testing\Tests\integration;
 use Flarum\Extend;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Config;
+use Flarum\Locale\Translator;
 use Flarum\Settings\DefaultSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\TestCase;
@@ -119,6 +120,16 @@ class TestCaseTest extends TestCase
 
         $enabled = $this->app()->getContainer()->make('flarum.extensions')->isEnabled('flarum-testing-tests');
         $this->assertTrue($enabled);
+    }
+
+    #[Test]
+    public function current_extension_locales_applied_if_specified()
+    {
+        $this->extension('flarum-testing-tests');
+
+        $translator = $this->app()->getContainer()->make(Translator::class);
+
+        $this->assertEquals('Translation from extension', $translator->trans('flarum-testing-tests.test'));
     }
 
     #[Test]
