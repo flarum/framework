@@ -2,7 +2,11 @@ import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import PostStream from '../../../../src/forum/components/PostStream';
 import PostStreamState from '../../../../src/forum/states/PostStreamState';
 import Discussion from '../../../../src/common/models/Discussion';
+import Post from '../../../../src/common/models/Post';
+import ItemList from '../../../../src/common/utils/ItemList';
+import { extend } from '../../../../src/common/extend';
 import app from '../../../../src/forum/app';
+import m from 'mithril';
 import mq from 'mithril-query';
 import { jest } from '@jest/globals';
 
@@ -491,5 +495,173 @@ describe('PostStream position sync (immediate emit + settling lifecycle)', () =>
     instance.settlingTarget = null;
 
     expect(instance.resolveTargetStartNumber()).toBeUndefined();
+  });
+});
+
+describe('PostStream.afterPostItems', () => {
+  /**
+   * The store is shared and never reset, so every discussion here claims its
+   * own id range. Seeding happens inside the tests rather than in the describe
+   * body, because describe bodies all run before any test does -- pushing at
+   * that point would put these posts into `app.store.all('posts')` for the
+   * tests further up the file.
+   */
+  let nextId = 100;
+
+  function seed(postCount: number, loadedOffsets: number[], withFirstPost = false) {
+    const base = nextId;
+    nextId += postCount + 1;
+
+    const discussionId = String(base);
+    const postIds = Array.from({ length: postCount }, (_, i) => String(base + 1 + i));
+
+    app.store.pushPayload({
+      data: {
+        id: discussionId,
+        type: 'discussions',
+        attributes: { title: 'Discussion title' },
+        relationships: {
+          posts: { data: postIds.map((id) => ({ id, type: 'posts' })) },
+          ...(withFirstPost ? { firstPost: { data: { id: postIds[0], type: 'posts' } } } : {}),
+        },
+      },
+    });
+
+    app.store.pushPayload({
+      data: loadedOffsets.map((offset) => ({
+        id: postIds[offset],
+        type: 'posts',
+        attributes: {
+          number: offset + 1,
+          contentType: 'comment',
+          canEdit: false,
+          createdAt: new Date(),
+          contentHtml: `<p>Post ${postIds[offset]}</p>`,
+        },
+        relationships: { discussion: { data: { id: discussionId, type: 'discussions' } } },
+      })),
+    });
+
+    const discussion = app.store.getById<Discussion>('discussions', discussionId)!;
+    const stream = new PostStreamState(discussion, []);
+
+    // `show()` derives the window from the posts it is handed, which cannot
+    // describe a hole. Setting it directly is what leaves the unloaded posts
+    // in view as placeholders.
+    stream.reset(0, postCount);
+
+    return { discussion, stream, postIds };
+  }
+
+  function render(discussion: Discussion, stream: PostStreamState) {
+    return mq(PostStream, { discussion, stream });
+  }
+
+  const original = PostStream.prototype.afterPostItems;
+
+  afterEach(() => {
+    PostStream.prototype.afterPostItems = original;
+  });
+
+  it('adds nothing to the stream when no extension has extended it', () => {
+    const { discussion, stream } = seed(3, [0, 1, 2]);
+
+    expect(render(discussion, stream)).not.toHaveElement('.PostStream-afterPost');
+  });
+
+  it('returns an empty ItemList by default', () => {
+    const { discussion } = seed(1, [0]);
+    const post = app.store.getById<Post>('posts', discussion.postIds()[0])!;
+    const items = PostStream.prototype.afterPostItems.call(null, post, 0);
+
+    expect(items).toBeInstanceOf(ItemList);
+    expect(items.toArray()).toHaveLength(0);
+  });
+
+  it('renders an extension item after every loaded post', () => {
+    extend(PostStream.prototype, 'afterPostItems', function (items: ItemList<any>) {
+      items.add('advert', m('div', { className: 'TestAfterPost' }, 'An advert'));
+    });
+
+    const { discussion, stream } = seed(3, [0, 1, 2]);
+    const rendered = render(discussion, stream);
+
+    expect(rendered.find('.PostStream-afterPost')).toHaveLength(3);
+    expect(rendered.find('.TestAfterPost')).toHaveLength(3);
+    expect(rendered).toContainRaw('An advert');
+  });
+
+  it('is passed the post and its index in the discussion', () => {
+    const seen: Array<[string, number]> = [];
+
+    extend(PostStream.prototype, 'afterPostItems', function (items: ItemList<any>, post: Post, index: number) {
+      seen.push([post.id()!, index]);
+    });
+
+    const { discussion, stream, postIds } = seed(3, [0, 1, 2]);
+    render(discussion, stream);
+
+    expect(seen).toEqual([
+      [postIds[0], 0],
+      [postIds[1], 1],
+      [postIds[2], 2],
+    ]);
+  });
+
+  it('numbers the index from the discussion, not from the loaded page', () => {
+    const seen: number[] = [];
+
+    extend(PostStream.prototype, 'afterPostItems', function (items: ItemList<any>, post: Post, index: number) {
+      seen.push(index);
+    });
+
+    const { discussion, stream } = seed(6, [3, 4, 5]);
+    // The window starts part-way into the discussion, which is what makes the
+    // two numbering schemes disagree.
+    stream.reset(3, 6);
+    render(discussion, stream);
+
+    expect(seen).toEqual([3, 4, 5]);
+  });
+
+  it('is not called for posts that have not loaded yet', () => {
+    // Recorded without dereferencing: `extend` runs the callback inside a
+    // try/catch, so a `post.id()` that threw on a placeholder would be
+    // swallowed and leave this list looking correct.
+    const seen: Array<Post | null | undefined> = [];
+
+    extend(PostStream.prototype, 'afterPostItems', function (items: ItemList<any>, post: Post | null) {
+      seen.push(post);
+      items.add('advert', m('div', { className: 'TestAfterPost' }, 'An advert'));
+    });
+
+    const { discussion, stream, postIds } = seed(4, [0, 2]);
+    const rendered = render(discussion, stream);
+
+    expect(seen.map((post) => post?.id() ?? null)).toEqual([postIds[0], postIds[2]]);
+    expect(rendered.find('.PostStream-afterPost')).toHaveLength(2);
+  });
+
+  it('renders alongside afterFirstPostItems rather than displacing it', () => {
+    extend(PostStream.prototype, 'afterPostItems', function (items: ItemList<any>) {
+      items.add('advert', m('div', { className: 'TestAfterPost' }, 'An advert'));
+    });
+
+    const originalFirst = PostStream.prototype.afterFirstPostItems;
+    extend(PostStream.prototype, 'afterFirstPostItems', function (items: ItemList<any>) {
+      items.add('blurb', m('div', { className: 'TestAfterFirstPost' }, 'A blurb'));
+    });
+
+    try {
+      const { discussion, stream } = seed(2, [0, 1], true);
+      const rendered = render(discussion, stream);
+
+      expect(rendered.find('.PostStream-afterFirstPost')).toHaveLength(1);
+      expect(rendered.find('.PostStream-afterPost')).toHaveLength(2);
+      expect(rendered).toContainRaw('A blurb');
+      expect(rendered).toContainRaw('An advert');
+    } finally {
+      PostStream.prototype.afterFirstPostItems = originalFirst;
+    }
   });
 });

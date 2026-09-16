@@ -84,18 +84,36 @@ export default class PostStream extends Component {
         </div>
       );
 
-      const afterPostItems = post && post.id() === this.discussion.data.relationships.firstPost?.data?.id ? this.afterFirstPostItems().toArray() : [];
+      const afterFirstPostItems =
+        post && post.id() === this.discussion.data.relationships.firstPost?.data?.id ? this.afterFirstPostItems().toArray() : [];
 
-      if (afterPostItems.length > 0) {
-        return m.fragment({ ...attrs }, [
-          postStreamElement,
-          <div className="PostStream-item PostStream-afterFirstPost" key="afterFirstPost">
-            {afterPostItems}
-          </div>,
-        ]);
+      // Not called for a post that hasn't loaded yet: there is nothing to
+      // decide with, and the placeholder is replaced moments later anyway.
+      const afterPostItems = post ? this.afterPostItems(post, this.stream.visibleStart + i).toArray() : [];
+
+      if (afterFirstPostItems.length === 0 && afterPostItems.length === 0) {
+        return postStreamElement;
       }
 
-      return postStreamElement;
+      const siblings = [postStreamElement];
+
+      if (afterFirstPostItems.length > 0) {
+        siblings.push(
+          <div className="PostStream-item PostStream-afterFirstPost" key="afterFirstPost">
+            {afterFirstPostItems}
+          </div>
+        );
+      }
+
+      if (afterPostItems.length > 0) {
+        siblings.push(
+          <div className="PostStream-item PostStream-afterPost" key="afterPost">
+            {afterPostItems}
+          </div>
+        );
+      }
+
+      return m.fragment({ ...attrs }, siblings);
     });
 
     if (!viewingEnd && posts[this.stream.visibleEnd - this.stream.visibleStart - 1]) {
@@ -134,6 +152,24 @@ export default class PostStream extends Component {
    * @returns {ItemList<import('mithril').Children>}
    */
   afterFirstPostItems() {
+    const items = new ItemList();
+
+    return items;
+  }
+
+  /**
+   * Items to render after any one post in the stream.
+   *
+   * Called once per loaded post, so the item list must be built from the
+   * arguments rather than from state: returning the same content for every
+   * post renders it after every post.
+   *
+   * @param {import('../../common/models/Post').default} post
+   * @param {number} index The post's index in the discussion, not in the
+   *                       loaded page -- the same number as `data-index`.
+   * @returns {ItemList<import('mithril').Children>}
+   */
+  afterPostItems(post, index) {
     const items = new ItemList();
 
     return items;
