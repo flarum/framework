@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../vendor/phpunit/phpunit/phpunit.xsd"
+    backupGlobals="false"
+    cacheDirectory=".phpunit.cache"
+    backupStaticProperties="false"
+    colors="true"
+    processIsolation="true"
+    stopOnFailure="false"
+    bootstrap="../../../php-packages/testing/bootstrap/monorepo.php"
+>
+    <source>
+        <include>
+            <directory suffix=".php">../src/</directory>
+        </include>
+    </source>
+    <testsuites>
+        <testsuite name="Flarum Integration Tests">
+            <directory suffix="Test.php">./integration</directory>
+             <exclude>./integration/tmp</exclude>
+        </testsuite>
+    </testsuites>
+</phpunit>
