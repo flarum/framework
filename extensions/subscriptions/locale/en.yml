@@ -39,11 +39,13 @@ flarum-subscriptions:
     sub_controls:
       follow_button: => flarum-subscriptions.ref.follow
       following_button: => flarum-subscriptions.ref.following
-      following_text: Be notified of all replies.
       ignoring_button: => flarum-subscriptions.ref.ignoring
-      ignoring_text: Never be notified. Hide from the discussion list.
-      not_following_button: Not Following
+      not_following_option: Not Following
+      following_option: => flarum-subscriptions.ref.following
+      ignoring_option: => flarum-subscriptions.ref.ignoring
       not_following_text: "Be notified only when @mentioned."
+      following_text: Be notified of all replies.
+      ignoring_text: Never be notified. Hide from the discussion list.
       notify_alert_tooltip: Get a forum notification when there are new posts
       notify_email_tooltip: Get an email when there are new posts
 
