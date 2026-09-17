@@ -1,5 +1,12 @@
 # Changelog
 
+## [v1.8.20](https://github.com/flarum/framework/compare/v1.8.19...v1.8.20)
+### Added
+* PHPStan rule to catch misaligned extender callback signatures that can leak raw model data to API responses (https://github.com/flarum/framework/pull/5050)
+### Fixed
+* Fallback locale (`en`) showing raw `=> …` translation references when a non-English catalogue is compiled first (https://github.com/flarum/framework/pull/5024)
+* `flarum info` and the admin System Info page erroring on hosts where `exec` is disabled (https://github.com/flarum/framework/pull/5060)
+
 ## [v1.8.19](https://github.com/flarum/framework/compare/v1.8.18...v1.8.19)
 ### Security
 * Account takeover via password reset token integer type juggling (https://github.com/flarum/framework/security/advisories/GHSA-55f2-h36g-96c3)
