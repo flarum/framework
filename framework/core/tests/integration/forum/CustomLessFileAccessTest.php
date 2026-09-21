@@ -206,14 +206,6 @@ class CustomLessFileAccessTest extends TestCase
     }
 
     /**
-     * Containment must not reach a remote stylesheet.
-     *
-     * less.php already flags an `https?://` import as CSS and emits it verbatim
-     * for the browser without ever reading it, so there is nothing to contain —
-     * declining is safe here in a way it is not for a local path. Throwing
-     * instead broke the ordinary `@import url(...)` that pulls in a webfont.
-     */
-    /**
      * Every shape less.php treats as remote, so narrowing the guard to just one
      * of them (requiring `url(`, say) cannot pass unnoticed.
      *
@@ -228,8 +220,23 @@ class CustomLessFileAccessTest extends TestCase
         yield 'double-quoted webfont' => ['@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap");'];
         // Without the url() wrapper.
         yield '@import "..."' => ['@import "https://fonts.googleapis.com/css2?family=Raleway";'];
-        // Protocol-relative, which less.php also flags as remote.
-        yield 'protocol-relative' => ['@import url("//fonts.googleapis.com/css2?family=Raleway");'];
+    }
+
+    /**
+     * A protocol-relative import is refused, and this records that as a
+     * deliberate trade rather than an oversight.
+     *
+     * `//host/x` is indistinguishable from the local path `//host/x`, and the
+     * decision has to be made from the path string alone, so allowing it would
+     * re-open the file read that `custom_less_cannot_read_a_file_via_a_double_slash_path`
+     * covers. Writing the scheme out in full is the workaround.
+     */
+    #[Test]
+    public function a_protocol_relative_import_is_refused()
+    {
+        $status = $this->saveCustomLess('@import url("//fonts.googleapis.com/css2?family=Raleway");');
+
+        $this->assertEquals(422, $status);
     }
 
     #[Test]
@@ -243,13 +250,8 @@ class CustomLessFileAccessTest extends TestCase
     }
 
     /**
-     * The decline above is scoped to http(s) and protocol-relative URLs, so it
-     * cannot be used to smuggle another scheme past containment.
-     *
-     * This deliberately uses a plain `@import`, not `@import (inline)`: the
-     * decline sits on the path less.php takes for a non-inline import, so an
-     * inline one would never reach it and the test would pass whether or not
-     * the scoping held.
+     * The decline is scoped to a real `https?://` scheme, so it cannot be used
+     * to smuggle another scheme past containment.
      */
     #[Test]
     public function a_non_http_scheme_is_still_contained()
@@ -257,6 +259,69 @@ class CustomLessFileAccessTest extends TestCase
         $secret = $this->secretFile();
 
         $this->saveCustomLess(sprintf('@impor "file://%s";', $secret));
+
+        $this->assertStringNotContainsString('SECRET-LESS-FILE-READ', $this->compiledForumCss());
+    }
+
+    /**
+     * Paths that a scheme-less `//` guard would wave through.
+     *
+     * A leading `//` is a valid absolute path on POSIX — `//etc/passwd` names
+     * the same file as `/etc/passwd` — so a guard written as `(https?:)?//`
+     * matches a purely local path. `containImports()` is consulted for EVERY
+     * import, inline ones included, and declining does not end the import:
+     * less.php falls back to the raw path (ImportVisitor::run()) and, for an
+     * inline import, reads it with file_get_contents(). The result is inlined
+     * into the world-readable forum.css.
+     *
+     * @return iterable<string, array{string}>
+     */
+    public static function doubleSlashLocalPaths(): iterable
+    {
+        yield '@import (inline)' => ['@import (inline) "//%s";'];
+        // The trailing `t` is optional in less.php's directive regex.
+        yield '@impor (inline)' => ['@impor (inline) "//%s";'];
+        // Three slashes collapse to a valid path too.
+        yield '@import (inline), three slashes' => ['@import (inline) "///%s";'];
+    }
+
+    /**
+     * The cell the original guard missed: an inline import whose path starts
+     * with `//`. Both halves of the earlier test matrix were covered — `//`
+     * with a non-inline import, and `(inline)` with a single-slash path — but
+     * not the two together, which is where the file read lives.
+     */
+    #[Test]
+    #[DataProvider('doubleSlashLocalPaths')]
+    public function custom_less_cannot_read_a_file_via_a_double_slash_path(string $template)
+    {
+        $secret = $this->secretFile();
+
+        $this->saveCustomLess(sprintf($template, ltrim($secret, '/')));
+
+        $this->assertStringNotContainsString(
+            'SECRET-LESS-FILE-READ',
+            $this->compiledForumCss(),
+            'A `//`-prefixed path is local, not remote, and must not be read into the stylesheet.'
+        );
+    }
+
+    /**
+     * The same path shape through a LESS config variable, which is interpolated
+     * as a variable value and so can close the declaration and append its own
+     * directive.
+     */
+    #[Test]
+    public function a_theme_colour_cannot_read_a_file_via_a_double_slash_path()
+    {
+        $secret = $this->secretFile();
+
+        $this->send($this->request('POST', '/api/settings', [
+            'authenticatedAs' => 1,
+            'json' => [
+                'theme_primary_color' => sprintf('#4D698E;@impor (inline) "//%s";', ltrim($secret, '/')),
+            ],
+        ]));
 
         $this->assertStringNotContainsString('SECRET-LESS-FILE-READ', $this->compiledForumCss());
     }

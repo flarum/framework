@@ -94,13 +94,24 @@ class LessCompiler extends RevisionCompiler
      */
     protected function containImports(string $path): ?array
     {
-        // A remote stylesheet is not ours to resolve, and declining is safe
-        // here in a way it is not for a local path: less.php has already
-        // flagged an `https?://` (or protocol-relative) import as CSS, so it
-        // emits the directive verbatim for the browser and never reads it.
-        // Throwing instead breaks the ordinary `@import url(...)` used to pull
-        // in a webfont.
-        if (preg_match('#^(https?:)?//#i', $path) === 1) {
+        // A remote stylesheet is not ours to resolve, so decline it and let
+        // less.php emit the directive for the browser. Declining, rather than
+        // throwing, is what keeps the ordinary `@import url(...)` webfont case
+        // working -- this callback is consulted for every import, and throwing
+        // here would refuse those too.
+        //
+        // The scheme is required. A scheme-less `//host/x` cannot be told apart
+        // from a local path: `//etc/passwd` names the same file as
+        // `/etc/passwd`, so a `(https?:)?//` guard matches a purely local path.
+        // That matters because declining does not end the import -- less.php
+        // falls back to the raw path and, for an `(inline)` import, reads it
+        // with file_get_contents(), inlining the file into the public
+        // stylesheet. The inline flag is not visible from here (less.php passes
+        // this callback the filename alone), so the path string has to be
+        // conclusive on its own.
+        //
+        // The cost is that a protocol-relative import is no longer accepted.
+        if (preg_match('#^https?://#i', $path) === 1) {
             return null;
         }
 
