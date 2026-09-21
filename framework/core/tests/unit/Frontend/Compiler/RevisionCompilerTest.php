@@ -37,6 +37,9 @@ class RevisionCompilerTest extends TestCase
     /** @var string[] every put() call, in order — for asserting write-churn */
     private array $putLog = [];
 
+    /** @var string[] every get() call, in order — for asserting read-churn */
+    private array $getLog = [];
+
     /** @var array<string, string|null> shared manifest, persists across compilers like production */
     private array $manifest = [];
 
@@ -82,6 +85,11 @@ class RevisionCompilerTest extends TestCase
             return true;
         });
         $assetsDir->shouldReceive('exists')->andReturnUsing(fn ($file) => isset($this->written[$file]));
+        $assetsDir->shouldReceive('get')->andReturnUsing(function ($file) {
+            $this->getLog[] = $file;
+
+            return $this->written[$file] ?? null;
+        });
         $assetsDir->shouldReceive('url')->andReturnUsing(fn ($file) => '/assets/'.$file);
 
         return $assetsDir;
@@ -290,5 +298,70 @@ class RevisionCompilerTest extends TestCase
         $compiler3->commit();
 
         $this->assertNotSame($first, $compiler3->getUrl(), 'Changed extension JS must produce a new revision.');
+    }
+
+    /**
+     * The revision manifest and the asset live in different stores, and nothing
+     * makes the two writes atomic, so a partial rebuild can record a revision
+     * for bytes that were never written. The revision then describes the file
+     * incorrectly, and — because commit() renders the same correct output,
+     * hashes it to the revision already on record, and skips — the stale file
+     * is served for good. In production that showed up as custom LESS changes
+     * appearing to save (the revision moved, the "assets changed" prompt fired)
+     * while the stylesheet kept its old contents until an unrelated extension
+     * toggle happened to move the hash.
+     */
+    #[Test]
+    public function commit_repairs_a_file_that_no_longer_matches_its_revision()
+    {
+        $path = $this->sourceFile('a.js', 'console.log(1);');
+
+        $compiler = $this->makeCompiler();
+        $compiler->addSources(fn ($sources) => $sources->addFile($path));
+        $compiler->commit();
+
+        $expected = $this->written['target.js'];
+        $this->assertSame(1, $this->putsFor('target.js'));
+
+        // The file drifts from the revision still recorded for it.
+        $this->written['target.js'] = '/* not what the revision says */';
+
+        // Sources unchanged, so the freshly rendered output still hashes to the
+        // recorded revision: the equality check alone would skip and leave the
+        // wrong bytes in place. Verification is what catches it.
+        $second = $this->makeCompiler();
+        $second->addSources(fn ($sources) => $sources->addFile($path));
+        $second->commit();
+
+        $this->assertSame(
+            $expected,
+            $this->written['target.js'],
+            'a committed file that no longer matches its recorded revision must be rewritten'
+        );
+    }
+
+    /**
+     * The repair above must not cost a write on the ordinary path, where the
+     * file does still match: that would rewrite every bundle on every request
+     * in debug mode, which is exactly what the revision check exists to avoid.
+     */
+    #[Test]
+    public function commit_still_writes_nothing_when_the_file_matches_its_revision()
+    {
+        $path = $this->sourceFile('a.js', 'console.log(1);');
+
+        $compiler = $this->makeCompiler();
+        $compiler->addSources(fn ($sources) => $sources->addFile($path));
+        $compiler->commit();
+
+        $puts = count($this->putLog);
+        $manifestWrites = $this->manifestWrites;
+
+        $second = $this->makeCompiler();
+        $second->addSources(fn ($sources) => $sources->addFile($path));
+        $second->commit();
+
+        $this->assertSame($puts, count($this->putLog), 'an unchanged, intact asset must not be rewritten');
+        $this->assertSame($manifestWrites, $this->manifestWrites, 'nor its revision re-recorded');
     }
 }

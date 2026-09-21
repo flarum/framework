@@ -91,6 +91,45 @@ class CacheClearCommandTest extends ConsoleTestCase
         }
     }
 
+    /**
+     * The revision manifest and the asset live in different stores, and nothing
+     * makes the two writes atomic, so a partial rebuild can record a revision
+     * for bytes that were never written. A plain commit cannot recover from
+     * that on its own: it renders the same correct output, hashes it to the
+     * revision already on record, and skips — so the wrong file is served until
+     * something unrelated moves the hash.
+     *
+     * A cache clear is what an administrator reaches for when the served assets
+     * look wrong, and the admin UI can only ask for the non-forced one, so that
+     * is the clear which has to repair it — without being told to force.
+     */
+    #[Test]
+    public function a_clear_repairs_a_stylesheet_that_no_longer_matches_its_revision()
+    {
+        $assets = $this->app()->getContainer()->make(AssetManager::class)->frontend('forum');
+        $assetsDir = $assets->getAssetsDir();
+        $compiler = $assets->makeCss();
+        $filename = (string) $compiler->getFilename();
+
+        // Compile once directly, rather than through a clear: the JS bundles a
+        // full clear also builds are memory-hungry to concatenate sourcemaps
+        // for, and this test only has anything to say about the stylesheet.
+        $compiler->commit();
+
+        $expected = $assetsDir->get($filename);
+
+        // The file drifts from the revision that remains recorded for it.
+        $assetsDir->put($filename, '/* not what the revision says */');
+
+        $this->runCacheClear();
+
+        $this->assertSame(
+            $expected,
+            $assetsDir->get($filename),
+            'a non-forced clear must rewrite a stylesheet whose contents no longer match its revision'
+        );
+    }
+
     #[Test]
     public function it_records_a_revision_for_the_rebuilt_assets()
     {
