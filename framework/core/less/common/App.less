@@ -64,7 +64,7 @@
     position: absolute;
     z-index: calc(~"var(--zindex-header) + 1");
     top: 0;
-    right: 0;
+    inset-inline-end: 0;
     display: flex;
 
     .App.affix &, .Composer & {
@@ -78,7 +78,7 @@
   }
   .App-primaryControl {
     width: auto;
-    right: 0;
+    inset-inline-end: 0;
 
     &.Dropdown {
       .Button, .Button-caret {
@@ -108,8 +108,8 @@
 
   .App-titleControl {
     width: 200px;
-    left: 50%;
-    margin-left: -100px;
+    inset-inline-start: 50%;
+    margin-inline-start: -100px;
     text-align: center;
     color: var(--header-color) !important;
 
@@ -134,7 +134,7 @@
   }
 
   .App-backControl {
-    left: 0;
+    inset-inline-start: 0;
 
     .Navigation-pin {
       display: none;
@@ -159,7 +159,7 @@
     background: var(--header-bg);
     width: var(--drawer-width);
     position: fixed;
-    left: 0;
+    inset-inline-start: 0;
     top: 0;
     bottom: 0;
     box-shadow: 0 2px 6px var(--shadow-color);
@@ -175,9 +175,9 @@
   .drawer-backdrop {
     position: fixed;
     top: 0;
-    right: 0;
+    inset-inline-end: 0;
     bottom: 0;
-    left: 0;
+    inset-inline-start: 0;
     z-index: var(--zindex-modal-background);
     background-color: var(--overlay-bg);
     opacity: 0;
@@ -226,9 +226,9 @@
   > li > .Dropdown > .Button,
   > li > .Dropdown > a {
     justify-content: flex-start;
-    text-align: left;
+    text-align: start;
     width: 100%;
-    padding-left: 15px;
+    padding-inline-start: 15px;
   }
 
   // An item that was itself a dropdown on the row would otherwise render its
@@ -264,7 +264,7 @@
     // legible.
     > .Dropdown-menu > li:not(:first-child) > a,
     > .Dropdown-menu > li:not(:first-child) > .Button {
-      padding-left: 30px;
+      padding-inline-start: 30px;
     }
   }
 }
@@ -436,8 +436,8 @@
     }
 
     .Avatar {
-      margin-left: -2px;
-      margin-right: -2px;
+      margin-inline-start: -2px;
+      margin-inline-end: -2px;
     }
   }
 

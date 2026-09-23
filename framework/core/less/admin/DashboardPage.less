@@ -27,7 +27,7 @@
 
     > li {
       display: inline-block;
-      margin-right: 30px;
+      margin-inline-end: 30px;
       vertical-align: middle;
 
       &[class^="item-version-"] {
@@ -38,8 +38,8 @@
       }
 
       &.item-tools {
-        float: right;
-        margin-right: 0;
+        float: inline-end;
+        margin-inline-end: 0;
       }
     }
   }
@@ -52,7 +52,7 @@
 
       > li {
         flex: 0 0 50%;
-        margin-right: 0;
+        margin-inline-end: 0;
         vertical-align: unset;
 
         &[class^="item-version-"] {
@@ -79,7 +79,7 @@
   align-items: flex-start;
   
   > i {
-    margin-right: 8px;
+    margin-inline-end: 8px;
     margin-top: 2px;
     opacity: 0.7;
     flex-shrink: 0;
@@ -98,7 +98,7 @@
     display: block;
     
     .LinkButton {
-      margin-left: 4px;
+      margin-inline-start: 4px;
       opacity: 0.6;
       text-decoration: none;
       

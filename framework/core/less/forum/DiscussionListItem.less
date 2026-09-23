@@ -43,13 +43,13 @@
 }
 .DiscussionListItem-badges {
   margin-top: 10px;
-  text-align: right;
+  text-align: end;
   white-space: nowrap;
   pointer-events: none;
 
   position: absolute;
   top: -14px;
-  left: -2px;
+  inset-inline-start: -2px;
 }
 .DiscussionListItem-title {
   margin: 0 0 3px;
@@ -88,7 +88,7 @@
   }
   .item-terminalPost .icon {
     font-size: 11px;
-    margin-right: -1px;
+    margin-inline-end: -1px;
   }
   .item-excerpt {
     margin-top: 4px;
@@ -124,7 +124,7 @@
 
 .MinimalDiscussionListItem {
   .DiscussionListItem-info .item-excerpt {
-    margin-right: 0;
+    margin-inline-end: 0;
   }
 
   .DiscussionListItem-badges {
@@ -185,7 +185,7 @@
   }
   .DiscussionListItem-content {
     position: relative;
-    padding-left: 15px;
+    padding-inline-start: 15px;
 
     &:active {
       background: var(--control-bg);
@@ -198,16 +198,16 @@
   }
   .DiscussionListItem-badges {
     width: 48px;
-    left: -4px;
+    inset-inline-start: -4px;
     top: -15px;
 
     .badge {
       .Badge--size(20px);
-      margin-left: -13px;
+      margin-inline-start: -13px;
     }
   }
   .DiscussionListItem-main {
-    padding-right: 48px;
+    padding-inline-end: 48px;
   }
   .DiscussionListItem-title {
     font-size: 14px;
@@ -220,7 +220,7 @@
   .DiscussionListItem-stats {
     position: absolute;
     top: 12px;
-    right: 12px;
+    inset-inline-end: 12px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -254,10 +254,10 @@
 @media @tablet-up {
   .DiscussionListItem {
     position: relative;
-    margin-right: -15px;
-    padding-right: 25px;
-    padding-left: 15px;
-    margin-left: -15px;
+    margin-inline-end: -15px;
+    padding-inline-end: 25px;
+    padding-inline-start: 15px;
+    margin-inline-start: -15px;
     border-radius: var(--border-radius);
     transition: background 0.2s;
 
@@ -274,7 +274,7 @@
   }
   .DiscussionListItem-controls {
     position: absolute;
-    right: 5px;
+    inset-inline-end: 5px;
     top: 5px;
     z-index: 1;
     opacity: 0;
@@ -288,13 +288,13 @@
       display: block;
     }
     .Dropdown-menu {
-      right: 0;
-      left: auto;
+      inset-inline-end: 0;
+      inset-inline-start: auto;
     }
   }
   .DiscussionListItem-info {
     .item-excerpt {
-      margin-right: 170px;
+      margin-inline-end: 170px;
     }
   }
   .DiscussionListItem-content {

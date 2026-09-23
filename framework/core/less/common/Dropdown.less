@@ -4,7 +4,7 @@
 .Dropdown-menu {
   position: absolute;
   top: 100%;
-  left: 0;
+  inset-inline-start: 0;
   z-index: var(--zindex-dropdown);
   display: none;
   min-width: 160px;
@@ -14,7 +14,7 @@
   border-radius: var(--border-radius);
   box-shadow: 0 2px 6px var(--shadow-color);
   list-style: none;
-  text-align: left;
+  text-align: start;
   color: var(--text-color);
   font-size: 13px;
   line-height: 1.5;
@@ -38,7 +38,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       box-shadow: none;
-      text-align: left;
+      text-align: start;
       font-size: 13px;
       font-weight: normal;
       text-decoration: none;
@@ -89,8 +89,8 @@
   bottom: 100%;
 }
 .Dropdown-menu--right {
-  left: auto;
-  right: 0;
+  inset-inline-start: auto;
+  inset-inline-end: 0;
 }
 .Dropdown-menu--inline {
   position: relative;
@@ -121,8 +121,8 @@
 
 .dropdown-backdrop {
   position: fixed;
-  left: 0;
-  right: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   bottom: 0;
   top: 0;
   z-index: calc(~"var(--zindex-dropdown) - 10");
@@ -186,8 +186,8 @@
   .Dropdown .Dropdown-menu {
     margin: 0;
     position: fixed;
-    left: 0 !important;
-    right: 0 !important;
+    inset-inline-start: 0 !important;
+    inset-inline-end: 0 !important;
     width: auto !important;
     bottom: 0;
     top: auto;
@@ -210,11 +210,11 @@
         padding: 15px 20px;
 
         &.hasIcon {
-          padding-left: 50px;
+          padding-inline-start: 50px;
         }
         .Button-icon {
           font-size: 16px;
-          margin-left: -30px;
+          margin-inline-start: -30px;
         }
         &:hover {
           background: var(--control-bg);

@@ -63,7 +63,7 @@
       > li {
         display: inline;
         color: var(--muted-color);
-        margin-left: 13px;
+        margin-inline-start: 13px;
 
 
         > a {
@@ -71,23 +71,23 @@
         }
 
         > .icon {
-          margin-right: 5px;
+          margin-inline-end: 5px;
         }
       }
     }
 
     .ExtensionIcon {
       --size: 30px;
-      margin-left: 0;
+      margin-inline-start: 0;
     }
 
     &TopItems {
-      margin-left: auto;
+      margin-inline-start: auto;
     }
 
     @media (max-width: @screen-phone-max) {
       &TopItems {
-        float: right;
+        float: inline-end;
         position: relative;
       }
 
@@ -148,7 +148,7 @@
 }
 
 .ExtensionInfo {
-  margin-left: auto;
+  margin-inline-start: auto;
 
   .item-authors {
     a {
@@ -159,7 +159,7 @@
 
 .ExtensionName {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
 }
 
 .ReadmeModal {

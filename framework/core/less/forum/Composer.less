@@ -34,7 +34,7 @@
 
   > li {
     display: inline-block;
-    margin-right: -4px;
+    margin-inline-end: -4px;
   }
   h3 {
     margin: 0;
@@ -66,7 +66,7 @@
     }
     .icon {
       font-size: 14px;
-      margin-right: 3px;
+      margin-inline-end: 3px;
     }
   }
 }
@@ -75,7 +75,7 @@
 }
 .Composer-controls {
   position: absolute;
-  right: 10px;
+  inset-inline-end: 10px;
   top: 10px;
   z-index: 1;
 
@@ -89,8 +89,8 @@
 .ComposerBody-loading {
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   bottom: 0;
   background: var(--body-bg-faded);
   display: none;
@@ -113,8 +113,8 @@
   .Composer {
     position: fixed;
     bottom: 0;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     z-index: var(--zindex-composer);
     background: var(--body-bg);
 
@@ -158,16 +158,16 @@
   .composer-backdrop {
     position: fixed;
     top: 0;
-    right: 0;
+    inset-inline-end: 0;
     bottom: 0;
-    left: 0;
+    inset-inline-start: 0;
     z-index: calc(~"var(--zindex-composer) - 1");
     background-color: var(--overlay-bg);
     opacity: 0.9;
   }
   .ComposerBody-content {
     .minimized & {
-      margin-right: 50px;
+      margin-inline-end: 50px;
     }
   }
   .ComposerBody-avatar {
@@ -223,11 +223,11 @@
   .App-composer {
     position: fixed;
     bottom: 0;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     z-index: var(--zindex-composer);
     pointer-events: none;
-    transition: left 0.2s;
+    transition: inset-inline-start 0.2s;
   }
   .Composer {
     border-radius: var(--border-radius) var(--border-radius) 0 0;
@@ -245,10 +245,10 @@
     }
     &.fullScreen {
       position: fixed;
-      left: 0;
+      inset-inline-start: 0;
       top: 0;
       bottom: 0;
-      right: 0;
+      inset-inline-end: 0;
       margin: 0;
       height: auto;
       border-radius: 0;
@@ -265,7 +265,7 @@
     }
   }
   .ComposerBody-header {
-    margin-right: 120px;
+    margin-inline-end: 120px;
 
     .fullScreen & {
       margin-bottom: 20px;
@@ -273,7 +273,7 @@
 
     .minimized & {
       overflow: hidden;
-      margin-right: 32px;
+      margin-inline-end: 32px;
     }
   }
   .Composer-content {
@@ -299,7 +299,7 @@
     }
   }
   .ComposerBody-avatar {
-    float: left;
+    float: inline-start;
     .Avatar--size(64px);
 
     .minimized &,
@@ -308,11 +308,11 @@
     }
   }
   .ComposerBody-content {
-    margin-left: 85px;
+    margin-inline-start: 85px;
 
     .minimized &,
     .fullScreen & {
-      margin-left: 0;
+      margin-inline-start: 0;
     }
   }
   .ComposerBody-editor {
@@ -327,18 +327,18 @@
 
 @media @desktop-up {
   .Composer:not(.fullScreen) {
-    margin-left: 220px;
-    margin-right: -20px;
+    margin-inline-start: 220px;
+    margin-inline-end: -20px;
 
     .App--discussion & {
-      margin-left: -20px;
-      margin-right: 205px;
+      margin-inline-start: -20px;
+      margin-inline-end: 205px;
     }
   }
 }
 
 @media @desktop-hd {
   .hasPane.panePinned .App-composer {
-    left: var(--pane-width);
+    inset-inline-start: var(--pane-width);
   }
 }
