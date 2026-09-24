@@ -48,6 +48,14 @@ export default function routeInternalLinks() {
     // actually being served from rather than trusting the class alone.
     if (url.origin !== window.location.origin) return;
 
+    // The server marks a link internal by host and path alone, so a link to
+    // an uploaded file under the assets path carries the same marker as a
+    // discussion link. Mithril has no route for it and falls back to the
+    // index, so leave it to the browser to open the file.
+    const assetsBaseUrl = app.forum.attribute<string>('assetsBaseUrl');
+
+    if (assetsBaseUrl && url.href.startsWith(assetsBaseUrl)) return;
+
     const basePath = app.forum.attribute<string>('basePath') || '';
     const path = url.pathname;
 

@@ -83,4 +83,10 @@ describe('routeInternalLinks', () => {
   it('lets a modified click open a new tab', () => {
     expect(click(`${ORIGIN}/d/123-the-slug`, { metaKey: true })).toEqual({ routed: null, prevented: false });
   });
+
+  it('leaves an uploaded file under the assets path to the browser', () => {
+    app.forum.data.attributes!.assetsBaseUrl = `${ORIGIN}/assets`;
+
+    expect(click(`${ORIGIN}/assets/files/report.pdf`)).toEqual({ routed: null, prevented: false });
+  });
 });
