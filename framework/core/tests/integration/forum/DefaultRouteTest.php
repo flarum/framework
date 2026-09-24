@@ -73,7 +73,7 @@ class DefaultRouteTest extends TestCase
     #[Test]
     public function existent_custom_homepage_doesnt_use_default_payload()
     {
-        $this->setDefaultRoute('/settings');
+        $this->setDefaultRoute('/notifications');
 
         $response = $this->send(
             $this->request('GET', '/')

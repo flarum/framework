@@ -59,7 +59,7 @@ export default class SessionDropdown<CustomAttrs extends ISessionDropdownAttrs =
 
     items.add(
       'settings',
-      <LinkButton icon="fas fa-cog" href={app.route('settings')}>
+      <LinkButton icon="fas fa-cog" href={app.route('user.settings', { username: user.slug() })}>
         {app.translator.trans('core.forum.header.settings_button')}
       </LinkButton>,
       50

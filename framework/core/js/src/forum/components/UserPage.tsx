@@ -164,11 +164,11 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
       90
     );
 
-    if (isActor) {
+    if (isActor || app.session.user?.isAdmin()) {
       items.add('separator', <Separator />, -90);
       items.add(
         'settings',
-        <LinkButton href={app.route('settings')} icon="fas fa-cog">
+        <LinkButton href={app.route('user.settings', { username: user.slug() })} icon="fas fa-cog">
           {app.translator.trans('core.forum.user.settings_link')}
         </LinkButton>,
         -100
