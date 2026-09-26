@@ -23,12 +23,16 @@ class Rememberer
 
     /**
      * Sets the remember cookie on a response.
+     *
+     * The lifetime comes off the token's own class, so a subclass declaring a
+     * different `$lifetime` gets a cookie that expires with the token instead of
+     * one outliving it.
      */
     public function remember(ResponseInterface $response, #[\SensitiveParameter] RememberAccessToken $token): ResponseInterface
     {
         return FigResponseCookies::set(
             $response,
-            $this->cookie->make(self::COOKIE_NAME, $token->token, RememberAccessToken::rememberCookieLifeTime())
+            $this->cookie->make(self::COOKIE_NAME, $token->token, $token::rememberCookieLifeTime())
         );
     }
 
