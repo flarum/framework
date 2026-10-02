@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Flags\Tests\integration\api\flags;
 
 use Carbon\Carbon;
@@ -160,6 +167,7 @@ class UserFlagsTest extends TestCase
         $this->assertSame(404, $this->create($this->payload())->getStatusCode());
         $this->assertSame(0, Flag::where('target_user_id', 6)->count());
         $service = $this->app()->getContainer()->make(UserFlagger::class);
+
         try {
             $service->flag(User::findOrFail(6), 'user', 'spam', null, User::findOrFail(2));
             $this->fail('An actor cannot flag a hidden target');

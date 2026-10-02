@@ -14,8 +14,8 @@ use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
 use Flarum\Discussion\Discussion;
 use Flarum\Flags\Flag;
 use Flarum\Post\Post;
-use Flarum\User\User;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
 class AuditTest extends TestCase
