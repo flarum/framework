@@ -11,6 +11,7 @@ namespace Flarum\Flags;
 
 use Flarum\Audit\AuditLogger;
 use Flarum\Post\Post;
+use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -27,7 +28,7 @@ class AuditIntegration
     /**
      * @var string[]
      */
-    public static array $actions = ['post.flagged', 'post.dismissed_flags'];
+    public static array $actions = ['post.flagged', 'post.dismissed_flags', 'user.flagged', 'user.dismissed_flags'];
 
     public function __invoke(Container $container): void
     {
@@ -47,6 +48,9 @@ class AuditIntegration
             $post = ($parent instanceof Post && $this->getQuery()->getModel() instanceof Flag && $this->getQuery()->count())
                 ? $parent
                 : null;
+            $user = ($parent instanceof User && $this->getQuery()->getModel() instanceof Flag && $this->getQuery()->count())
+                ? $parent
+                : null;
 
             // Replicates code from Relation::__call
             $result = $this->forwardCallTo($this->getQuery(), 'delete', func_get_args());
@@ -56,6 +60,9 @@ class AuditIntegration
                     'discussion_id' => $post->discussion->id,
                     'post_id' => $post->id,
                 ]);
+            }
+            if ($user) {
+                AuditLogger::log('user.dismissed_flags', ['user_id' => $user->id]);
             }
 
             // Replicates code from Relation::__call
@@ -72,6 +79,15 @@ class AuditIntegration
         // We only log flags created manually via the extension.
         // We don't log the creation of Approval/Akismet flags.
         if ($flag->type !== 'user') {
+            return;
+        }
+
+        if ($flag->target_user_id) {
+            AuditLogger::log('user.flagged', [
+                'user_id' => $flag->target_user_id,
+                'reason' => $flag->reason ?? ($flag->reason_detail ? 'other' : null),
+            ]);
+
             return;
         }
 

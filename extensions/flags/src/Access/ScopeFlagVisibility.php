@@ -22,6 +22,23 @@ class ScopeFlagVisibility
 
     public function __invoke(User $actor, Builder $query): void
     {
+        $query->where(function (Builder $query) use ($actor) {
+            $query->where(function (Builder $query) use ($actor) {
+                $this->scopePostFlags($actor, $query);
+            })->orWhere(function (Builder $query) use ($actor) {
+                $query->whereNotNull('target_user_id')
+                    ->whereHas('targetUser', fn (Builder $query) => $query->whereVisibleTo($actor));
+
+                // Tag-scoped discussion moderation must never expose account reports.
+                if (! $actor->hasPermission('user.viewFlags')) {
+                    $query->whereRaw('1 = 0');
+                }
+            });
+        });
+    }
+
+    protected function scopePostFlags(User $actor, Builder $query): void
+    {
         $query
             ->whereHas('post', function (Builder $query) use ($actor) {
                 $query->whereVisibleTo($actor);

@@ -16,7 +16,10 @@ use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Flags\Event\Created;
+use Flarum\Flags\Event\UserFlagCreated;
 use Flarum\Flags\Flag;
+use Flarum\Flags\UserFlagger;
+use Flarum\Foundation\ValidationException;
 use Flarum\Http\Exception\InvalidParameterException;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Post\CommentPost;
@@ -24,6 +27,7 @@ use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Tobyz\JsonApiServer\Context;
@@ -37,6 +41,7 @@ class FlagResource extends AbstractDatabaseResource
         protected PostRepository $posts,
         protected TranslatorInterface $translator,
         protected SettingsRepositoryInterface $settings,
+        protected UserFlagger $userFlagger,
     ) {
     }
 
@@ -54,8 +59,8 @@ class FlagResource extends AbstractDatabaseResource
     {
         if ($context->listing(self::class)) {
             $query = Flag::query()->whenPgSql(
-                fn (Builder $query) => $query->distinct('post_id')->orderBy('post_id')->orderBy('created_at', 'desc'),
-                else: fn (Builder $query) => $query->groupBy('post_id')
+                fn (Builder $query) => $query->distinct(['post_id', 'target_user_id'])->orderBy('post_id')->orderBy('target_user_id')->orderBy('created_at', 'desc'),
+                else: fn (Builder $query) => $query->groupBy('post_id', 'target_user_id')
             );
 
             $this->scope($query, $context);
@@ -74,12 +79,23 @@ class FlagResource extends AbstractDatabaseResource
     public function newModel(Context $context): object
     {
         if ($context->creating(self::class)) {
-            Flag::unguard();
+            $postId = Arr::get($context->body(), 'data.relationships.post.data.id');
+            $userId = Arr::get($context->body(), 'data.relationships.targetUser.data.id');
 
-            return Flag::query()->firstOrNew([
-                'post_id' => (int) Arr::get($context->body(), 'data.relationships.post.data.id'),
+            if (($postId === null) === ($userId === null)) {
+                throw new ValidationException([], ['target' => 'Exactly one post or targetUser relationship is required.']);
+            }
+
+            $identity = [
+                'post_id' => $postId === null ? null : (int) $postId,
+                'target_user_id' => $userId === null ? null : (int) $userId,
                 'user_id' => $context->getActor()->id
-            ], [
+            ];
+            if ($userId !== null) {
+                $identity['type'] = 'user';
+            }
+
+            return Flag::query()->firstOrNew($identity, [
                 'type' => 'user',
             ]);
         }
@@ -92,10 +108,10 @@ class FlagResource extends AbstractDatabaseResource
         return [
             Endpoint\Create::make()
                 ->authenticated()
-                ->defaultInclude(['post', 'post.flags', 'user']),
+                ->defaultInclude(['post', 'post.flags', 'targetUser', 'user']),
             Endpoint\Index::make()
                 ->authenticated()
-                ->defaultInclude(['user', 'post', 'post.user', 'post.discussion'])
+                ->defaultInclude(['user', 'post', 'post.user', 'post.discussion', 'targetUser'])
                 // The included discussions and users are serialized like any
                 // others, so they need the relations their own resources
                 // eager load: the actor's discussion state, and group
@@ -105,6 +121,7 @@ class FlagResource extends AbstractDatabaseResource
                     'post.discussion.state',
                     'post.user.groups',
                     'user.groups',
+                    'targetUser.groups',
                 ])
                 ->defaultSort('-createdAt')
                 ->paginate()
@@ -126,6 +143,7 @@ class FlagResource extends AbstractDatabaseResource
             Schema\Str::make('reason')
                 ->writableOnCreate()
                 ->nullable()
+                ->maxLength(255)
                 ->requiredOnCreateWithout(['reasonDetail'])
                 ->validationMessages([
                     'reason.required_without' => $this->translator->trans('flarum-flags.forum.flag_post.reason_missing_message'),
@@ -133,6 +151,7 @@ class FlagResource extends AbstractDatabaseResource
             Schema\Str::make('reasonDetail')
                 ->writableOnCreate()
                 ->nullable()
+                ->maxLength(2000)
                 ->requiredOnCreateWithout(['reason'])
                 ->validationMessages([
                     'reasonDetail.required_without' => $this->translator->trans('flarum-flags.forum.flag_post.reason_missing_message'),
@@ -142,7 +161,13 @@ class FlagResource extends AbstractDatabaseResource
             Schema\Relationship\ToOne::make('post')
                 ->includable()
                 ->writable(fn (Flag $flag, FlarumContext $context) => $context->creating())
-                ->set(function (Flag $flag, Post $post, FlarumContext $context) {
+                ->set(function (Flag $flag, ?Post $post, FlarumContext $context) {
+                    if ($post === null) {
+                        $flag->post_id = null;
+
+                        return;
+                    }
+
                     if (! ($post instanceof CommentPost)) {
                         throw new InvalidParameterException;
                     }
@@ -159,6 +184,20 @@ class FlagResource extends AbstractDatabaseResource
                 }),
             Schema\Relationship\ToOne::make('user')
                 ->includable(),
+            Schema\Relationship\ToOne::make('targetUser')
+                ->type('users')
+                ->includable()
+                ->writable(fn (Flag $flag, FlarumContext $context) => $context->creating())
+                ->set(function (Flag $flag, ?User $target, FlarumContext $context) {
+                    if ($target === null) {
+                        $flag->target_user_id = null;
+
+                        return;
+                    }
+
+                    $this->userFlagger->assertCanFlag($target, $context->getActor());
+                    $flag->target_user_id = $target->id;
+                }),
         ];
     }
 
@@ -171,7 +210,14 @@ class FlagResource extends AbstractDatabaseResource
 
     public function created(object $model, Context $context): ?object
     {
-        $this->events->dispatch(new Created($model, $context->getActor(), $context->body()));
+        if ($model->target_user_id && ! $model->wasRecentlyCreated) {
+            return parent::created($model, $context);
+        }
+
+        $event = $model->target_user_id
+            ? new UserFlagCreated($model, $context->getActor(), $context->body())
+            : new Created($model, $context->getActor(), $context->body());
+        $this->events->dispatch($event);
 
         return parent::created($model, $context);
     }
