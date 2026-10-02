@@ -22,7 +22,7 @@ use Flarum\Flags\Event\Deleting as FlagDeleting;
 use Flarum\Flags\Flag;
 use Flarum\Flags\Listener;
 use Flarum\Forum\Content\AssertRegistered;
-use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\Deleting as PostDeleting;
 use Flarum\Post\Post;
 use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\User\User;
@@ -66,7 +66,7 @@ return [
         ->serializeToForum('guidelinesUrl', 'flarum-flags.guidelines_url'),
 
     (new Extend\Event())
-        ->listen(Deleted::class, Listener\DeleteFlags::class),
+        ->listen(PostDeleting::class, Listener\DeleteFlags::class),
 
     (new Extend\ModelVisibility(Flag::class))
         ->scope(ScopeFlagVisibility::class),

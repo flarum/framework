@@ -10,15 +10,14 @@
 namespace Flarum\Flags;
 
 use Flarum\Audit\AuditLogger;
-use Flarum\Post\Post;
+use Flarum\Flags\Event\Dismissed;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Audit log integration for flarum/flags.
  *
- * Stateful: hooks the Flag model and a HasMany macro to detect flag dismissals. Wired into
+ * Hooks the Flag model's created event and the Dismissed event. Wired into
  * flarum/audit through the Flarum\Audit\Extend\Audit extender's `using()` escape hatch, behind
  * an Extend\Conditional so it's only active when flarum-audit is installed.
  */
@@ -35,36 +34,15 @@ class AuditIntegration
         // listener isn't bound to the model's static dispatcher.
         $container->make(Dispatcher::class)->listen('eloquent.created: '.Flag::class, [$this, 'flagCreated']);
 
-        // We don't use the FlagsWillBeDeleted event as extensions might still prevent deletion at that
-        // point. This macro must stay a closure: it relies on $this being rebound to the HasMany
-        // instance at call time. It registers on the HasMany class (not a model instance), so it is
-        // not part of the serialized model graph that tripped the static model-event closures.
-        HasMany::macro('delete', function () {
-            /** @var HasMany $this */
-            $parent = $this->getParent();
+        $container->make(Dispatcher::class)->listen(Dismissed::class, [$this, 'flagsDismissed']);
+    }
 
-            // Because flarum/flags calls this every time a post is deleted, we need to check if there were actual flags.
-            $post = ($parent instanceof Post && $this->getQuery()->getModel() instanceof Flag && $this->getQuery()->count())
-                ? $parent
-                : null;
-
-            // Replicates code from Relation::__call
-            $result = $this->forwardCallTo($this->getQuery(), 'delete', func_get_args());
-
-            if ($post) {
-                AuditLogger::log('post.dismissed_flags', [
-                    'discussion_id' => $post->discussion->id,
-                    'post_id' => $post->id,
-                ]);
-            }
-
-            // Replicates code from Relation::__call
-            if ($result === $this->getQuery()) {
-                return $this;
-            }
-
-            return $result;
-        });
+    public function flagsDismissed(Dismissed $event): void
+    {
+        AuditLogger::log('post.dismissed_flags', [
+            'discussion_id' => $event->post->discussion->id,
+            'post_id' => $event->post->id,
+        ]);
     }
 
     public function flagCreated(Flag $flag): void

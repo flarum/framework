@@ -10,6 +10,7 @@
 namespace Flarum\Flags\Command;
 
 use Flarum\Flags\Event\Deleting;
+use Flarum\Flags\Event\Dismissed;
 use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Illuminate\Events\Dispatcher;
@@ -30,11 +31,17 @@ class DeleteFlagsHandler
 
         $actor->assertCan('viewFlags', $post->discussion);
 
-        foreach ($post->flags as $flag) {
+        $flags = $post->flags;
+
+        foreach ($flags as $flag) {
             $this->events->dispatch(new Deleting($flag, $actor, $command->data));
         }
 
-        $post->flags()->delete();
+        $flags->each->delete();
+
+        if ($flags->isNotEmpty()) {
+            $this->events->dispatch(new Dismissed($post, $flags, $actor, $command->data));
+        }
 
         return $post;
     }
