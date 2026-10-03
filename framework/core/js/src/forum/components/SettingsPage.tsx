@@ -117,7 +117,38 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
     items.add('notificationGrid', <NotificationGrid user={this.user} />, 100);
 
+    items.add(
+      'resetNotifications',
+      <Button className="Button" onclick={this.resetNotificationPreferences.bind(this)} loading={this.resettingNotifications}>
+        {app.translator.trans('core.forum.settings.reset_notifications_button')}
+      </Button>,
+      90
+    );
+
     return items;
+  }
+
+  resettingNotifications = false;
+
+  /**
+   * Put every notification preference back to the forum's default. Sending
+   * `null` makes the server forget the user's choice, so the registered default
+   * applies again (the defaults live on the server, not in the client).
+   */
+  resetNotificationPreferences() {
+    const user = this.user!;
+    const preferences: Record<string, null> = {};
+
+    Object.keys(user.preferences() || {})
+      .filter((key) => key.startsWith('notify_'))
+      .forEach((key) => (preferences[key] = null));
+
+    this.resettingNotifications = true;
+
+    user.save({ preferences }).finally(() => {
+      this.resettingNotifications = false;
+      m.redraw();
+    });
   }
 
   /**

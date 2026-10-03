@@ -810,6 +810,7 @@ core:
       notify_by_email_heading: => core.ref.email
       notify_by_web_heading: Web
       notify_discussion_renamed_label: Someone renames a discussion I started
+      reset_notifications_button: Reset to defaults
       device_heading: Device
       haptic_feedback_help: Only available on supported mobile devices
       haptic_feedback_label: Enable haptic feedback

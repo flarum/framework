@@ -477,16 +477,20 @@ class User extends AbstractModel
         return Arr::get($this->preferences, $key, $default);
     }
 
+    /**
+     * Set a registered preference. A `null` value puts the preference back to
+     * its registered default.
+     */
     public function setPreference(string $key, mixed $value): static
     {
         if (isset(static::$preferences[$key])) {
             $preferences = $this->preferences;
 
-            $transformer = static::$preferences[$key]['transformer'];
-            if ($transformer !== null) {
-                $preferences[$key] = $transformer($value);
+            if ($value === null) {
+                unset($preferences[$key]);
             } else {
-                $preferences[$key] = $value;
+                $transformer = static::$preferences[$key]['transformer'];
+                $preferences[$key] = $transformer !== null ? $transformer($value) : $value;
             }
 
             $this->preferences = $preferences;
