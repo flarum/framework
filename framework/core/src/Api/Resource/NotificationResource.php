@@ -16,13 +16,11 @@ use Flarum\Bus\Dispatcher;
 use Flarum\Discussion\Discussion;
 use Flarum\Notification\Command\ReadNotification;
 use Flarum\Notification\Notification;
-use Flarum\Notification\NotificationRepository;
 use Flarum\Post\Post;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 use Tobyz\JsonApiServer\Schema\Field\Relationship;
 
 /**
@@ -34,7 +32,6 @@ class NotificationResource extends AbstractDatabaseResource
 
     public function __construct(
         protected Dispatcher $bus,
-        protected NotificationRepository $notifications,
         protected CacheRepository $cache,
     ) {
         $this->initialized = true;
@@ -53,20 +50,6 @@ class NotificationResource extends AbstractDatabaseResource
     public function scope(Builder $query, \Tobyz\JsonApiServer\Context $context): void
     {
         $query->where('user_id', $context->getActor()->id);
-    }
-
-    public function query(\Tobyz\JsonApiServer\Context $context): object
-    {
-        if ($context->listing(self::class)) {
-            /** @var Endpoint\Index $endpoint */
-            $endpoint = $context->endpoint;
-            /** @var OffsetPagination $pagination */
-            $pagination = ($endpoint->paginationResolver)($context);
-
-            return $this->notifications->query($context->getActor(), $pagination->limit, $pagination->offset);
-        }
-
-        return parent::query($context);
     }
 
     public function endpoints(): array
