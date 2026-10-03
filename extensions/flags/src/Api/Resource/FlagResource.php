@@ -71,6 +71,25 @@ class FlagResource extends AbstractDatabaseResource
         return parent::query($context);
     }
 
+    /**
+     * @param Builder<Flag> $query
+     * @param FlarumContext $context
+     */
+    public function count(object $query, Context $context): ?int
+    {
+        // DISTINCT ON selects one report per target on PostgreSQL, but its
+        // target columns cannot be reused in COUNT(DISTINCT col1, col2).
+        // Count a grouped subquery so null post/account targets remain distinct.
+        $query = (clone $query)->whenPgSql(
+            fn (Builder $query) => $query->distinct(false)
+                ->select(['post_id', 'target_user_id'])
+                ->groupBy('post_id', 'target_user_id'),
+            else: fn (Builder $query) => $query
+        );
+
+        return parent::count($query, $context);
+    }
+
     public function scope(Builder $query, Context $context): void
     {
         $query->whereVisibleTo($context->getActor());

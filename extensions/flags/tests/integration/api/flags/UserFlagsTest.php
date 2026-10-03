@@ -217,6 +217,35 @@ class UserFlagsTest extends TestCase
     }
 
     #[Test]
+    public function paginated_list_counts_distinct_targets_without_colliding_post_and_account_ids(): void
+    {
+        $this->app();
+        $this->database()->table('flags')->insert([
+            'post_id' => null,
+            'target_user_id' => 1,
+            'type' => 'user',
+            'user_id' => 2,
+            'reason' => 'spam',
+            'created_at' => Carbon::now(),
+        ]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/flags', ['authenticatedAs' => 4])
+                ->withQueryParams(['page' => ['limit' => '1', 'offset' => '1']])
+        );
+        $body = $response->getBody()->getContents();
+        $this->assertSame(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
+        $this->assertCount(1, $data['data']);
+        $this->assertSame(4, $data['meta']['page']['total']);
+
+        $hidden = $this->send($this->request('GET', '/api/flags', ['authenticatedAs' => 2]));
+        $hiddenBody = $hidden->getBody()->getContents();
+        $this->assertSame(200, $hidden->getStatusCode(), $hiddenBody);
+        $this->assertSame(0, json_decode($hiddenBody, true)['meta']['page']['total']);
+    }
+
+    #[Test]
     public function normal_reporter_cannot_list_or_include_private_account_reports(): void
     {
         $list = $this->send($this->request('GET', '/api/flags', ['authenticatedAs' => 2]));
@@ -334,7 +363,7 @@ class UserFlagsTest extends TestCase
         $this->assertTrue($target['nullable']);
         $keys = $this->database()->getSchemaBuilder()->getForeignKeys('flags');
         $key = collect($keys)->first(fn ($key) => $key['columns'] === ['target_user_id']);
-        $this->assertSame('users', $key['foreign_table']);
+        $this->assertSame($this->database()->getTablePrefix().'users', $key['foreign_table']);
         $this->assertSame('cascade', strtolower($key['on_delete']));
     }
 }
