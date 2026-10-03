@@ -208,6 +208,116 @@ class ListTest extends TestCase
         );
         $this->assertGreaterThanOrEqual(1, $batchedLoads, 'Expected the discussion states to be eager-loaded in a single batched query.');
     }
+
+    #[Test]
+    public function first_page_links_to_the_next_when_more_notifications_exist()
+    {
+        $this->seedRenamedDiscussionNotifications(25);
+
+        $response = $this->send(
+            $this->request('GET', '/api/notifications', ['authenticatedAs' => 2])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        $body = json_decode((string) $response->getBody(), true);
+
+        $this->assertCount(20, $body['data']);
+        $this->assertArrayHasKey('next', $body['links']);
+    }
+
+    #[Test]
+    public function second_page_returns_the_remaining_notifications()
+    {
+        $this->seedRenamedDiscussionNotifications(25);
+
+        $response = $this->send(
+            $this->request('GET', '/api/notifications', ['authenticatedAs' => 2])
+                ->withQueryParams(['page' => ['offset' => 20]])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        $body = json_decode((string) $response->getBody(), true);
+
+        // 26 in all: the 25 seeded, plus the newest one from setUp().
+        $this->assertEquals(['119', '120', '121', '122', '123', '124'], array_column($body['data'], 'id'));
+        $this->assertArrayNotHasKey('next', $body['links']);
+    }
+
+    #[Test]
+    public function notifications_about_the_same_subject_count_once_towards_a_page()
+    {
+        $this->seedRenamedDiscussionNotifications(25);
+
+        // An older, already-read notification on each of the same discussions,
+        // inserted earlier so with a lower id. Each pair groups into one entry,
+        // so the pages must still split at 20 entries, not 20 rows.
+        $older = [];
+
+        for ($i = 0; $i < 25; $i++) {
+            $older[] = ['id' => 50 + $i, 'user_id' => 2, 'from_user_id' => 1, 'type' => 'discussionRenamed', 'subject_id' => 100 + $i, 'read_at' => Carbon::now(), 'created_at' => Carbon::now()->subDays(1)->subMinutes($i)];
+        }
+
+        $this->prepareDatabase([Notification::class => $older]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/notifications', ['authenticatedAs' => 2])
+                ->withQueryParams(['page' => ['offset' => 20]])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        $body = json_decode((string) $response->getBody(), true);
+
+        // 26 entries in all: one per seeded discussion, plus the one from setUp().
+        $this->assertEquals(['119', '120', '121', '122', '123', '124'], array_column($body['data'], 'id'));
+    }
+
+    #[Test]
+    public function read_and_unread_notifications_are_listed_together()
+    {
+        $this->prepareDatabase([
+            Discussion::class => [
+                ['id' => 2, 'title' => 'Bar', 'comment_count' => 1, 'user_id' => 2],
+            ],
+            Notification::class => [
+                ['id' => 2, 'user_id' => 2, 'from_user_id' => 1, 'type' => 'discussionRenamed', 'subject_id' => 2, 'read_at' => Carbon::now(), 'created_at' => Carbon::now()->subMinute()],
+            ],
+        ]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/notifications', ['authenticatedAs' => 2])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        $body = json_decode((string) $response->getBody(), true);
+
+        $this->assertEquals(['1', '2'], array_column($body['data'], 'id'));
+        $this->assertEquals([false, true], array_column(array_column($body['data'], 'attributes'), 'isRead'));
+    }
+
+    /**
+     * Give user 2 one `discussionRenamed` notification on each of $count new
+     * discussions, the newest on the lowest discussion id.
+     */
+    protected function seedRenamedDiscussionNotifications(int $count): void
+    {
+        $discussions = [];
+        $notifications = [];
+
+        for ($i = 0; $i < $count; $i++) {
+            $id = 100 + $i;
+            $discussions[] = ['id' => $id, 'title' => 'D'.$id, 'comment_count' => 1, 'user_id' => 2];
+            $notifications[] = ['id' => $id, 'user_id' => 2, 'from_user_id' => 1, 'type' => 'discussionRenamed', 'subject_id' => $id, 'read_at' => null, 'created_at' => Carbon::now()->subMinutes($i + 1)];
+        }
+
+        $this->prepareDatabase([
+            Discussion::class => $discussions,
+            Notification::class => $notifications,
+        ]);
+    }
 }
 
 class UserSubjectBlueprint implements BlueprintInterface, AlertableInterface
