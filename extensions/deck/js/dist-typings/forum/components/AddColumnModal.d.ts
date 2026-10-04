@@ -24,6 +24,8 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
     fields(): ItemList<Mithril.Children>;
     protected input(field: DeckColumnField): Mithril.Children;
     protected choose(key: string, type: DeckColumnType): void;
+    /** Filters are written in the search modal, which suggests them as they're typed. */
+    protected openFilters(field: DeckColumnField): Promise<void>;
     protected openPicker(field: DeckColumnField): Promise<void>;
     protected back(): void;
     onsubmit(e: SubmitEvent): void;

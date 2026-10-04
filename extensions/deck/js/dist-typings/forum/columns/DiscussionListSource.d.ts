@@ -2,6 +2,7 @@
 import type DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import type { DiscussionListParams } from 'flarum/forum/states/DiscussionListState';
 import type Discussion from 'flarum/common/models/Discussion';
+import type { ApiResponsePlural } from 'flarum/common/Store';
 import type { DeckColumnSource, DeckRealtimeEvent, DeckRealtimeResult } from './DeckColumnType';
 /**
  * A column backed by its own DiscussionListState, so any filter the API
@@ -44,6 +45,11 @@ export default class DiscussionListSource implements DeckColumnSource {
     protected sortsByActivity(): boolean;
     protected advanceKey(discussion: Discussion): void;
     applyNew(): Promise<number | null>;
+    /**
+     * The column's own request, includes and all, narrowed to activity since the
+     * key: a range on an indexed column that usually matches nothing.
+     */
+    protected activeSinceKey(): Promise<ApiResponsePlural<Discussion>>;
     /**
      * `DiscussionListState.addDiscussion()` can't be used here: it removes the
      * discussion through an emitter shared by every list, so it would vanish

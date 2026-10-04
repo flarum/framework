@@ -34,6 +34,7 @@ export default class PostListSource implements DeckColumnSource {
     protected shows(post: Post): boolean;
     protected removePost(id: string): boolean;
     protected insert(post: Post): boolean;
+    /** The column's own request, newest first: whatever it asks for, includes and all, the new posts have too. */
     protected newerPosts(): Promise<Post[]>;
     protected snapshot(): void;
 }

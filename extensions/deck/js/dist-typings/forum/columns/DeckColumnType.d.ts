@@ -68,7 +68,11 @@ export interface DeckColumnField {
     options?: () => Record<string, string>;
     /** Turns the field into a picker. */
     search?: DeckColumnSearch;
-    /** Offers this resource's registered gambits as the member types (e.g. 'discussions'). */
+    /**
+     * Makes the field a query of this resource's registered gambits (e.g.
+     * 'discussions'), written in the search modal with its suggestions and a
+     * preview of what matches.
+     */
     gambits?: string;
     /** A picker of your own; whatever it passes to `onchange` is the field's value. */
     input?: (attrs: {

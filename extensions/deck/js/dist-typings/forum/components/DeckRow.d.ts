@@ -15,7 +15,6 @@ export interface IDeckRowAttrs extends ComponentAttrs {
     scrollLeft: number;
     onscrolled: (scrollLeft: number) => void;
     ondrag: (dragging: boolean) => void;
-    onoverflow: (overflowing: boolean) => void;
     /** Phone only: the index of the column filling the screen. */
     onactive?: (index: number) => void;
 }
@@ -27,7 +26,6 @@ export interface IDeckRowAttrs extends ComponentAttrs {
 export default class DeckRow<CustomAttrs extends IDeckRowAttrs = IDeckRowAttrs> extends Component<CustomAttrs> {
     protected sortableInstance: Sortable | null;
     protected resizeObserver: ResizeObserver | null;
-    protected overflowing: boolean | null;
     protected active: number;
     view(): JSX.Element;
     oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;

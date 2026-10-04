@@ -13,7 +13,6 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
     protected chipSortable: Sortable | null;
     protected media: MediaQueryList[];
     /** Rows, by key, whose columns don't fit across the screen. */
-    protected overflowing: Set<string>;
     /** The column filling the screen in the phone layout. */
     protected activeIndex: number;
     /** Once the hero is gone the toolbar names the page instead. */
@@ -27,6 +26,8 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
     protected rows(): Mithril.Children[];
     protected row(key: string, row: number | null, columns: DeckColumnState[], phone: boolean, grow?: number): Mithril.Children;
     actionItems(): ItemList<Mithril.Children>;
+    /** The deck-wide actions in the toolbar's menu. */
+    optionItems(): ItemList<Mithril.Children>;
     protected addButton(): Mithril.Children;
     protected openAddColumn(): void;
     /**
