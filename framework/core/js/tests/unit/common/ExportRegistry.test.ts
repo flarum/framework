@@ -122,3 +122,66 @@ describe('ExportRegistry#loadChunk', () => {
     expect((done.mock.calls[0][0] as Event).type).toBe('load');
   });
 });
+
+describe('ExportRegistry chunk ids shared between builds (#5027)', () => {
+  // Chunk ids are hashed per build, so two extensions can both emit a chunk
+  // 371. Resolved by id alone, one of them loaded the other's file.
+  function registryWithCollision(): ExportRegistry {
+    const registry = new ExportRegistry();
+
+    registry.addChunkModule(371, 440, 'flarum-tags', 'forum/components/TagDiscussionModal');
+    registry.addChunkModule(371, 440, 'flarum-tags', 'common/components/TagSelectionModal');
+    registry.addChunkModule(371, 544, 'flarum-deck', 'forum/utils/loadSortable');
+
+    return registry;
+  }
+
+  it('resolves each namespace to its own chunk', () => {
+    const registry = registryWithCollision();
+
+    expect(registry.getChunk(371, 'flarum-tags')?.urlPath).toBe('forum/components/TagDiscussionModal');
+    expect(registry.getChunk(371, 'flarum-deck')?.urlPath).toBe('forum/utils/loadSortable');
+  });
+
+  it("keeps each namespace's modules on its own chunk", () => {
+    const registry = registryWithCollision();
+
+    expect(registry.getChunk(371, 'flarum-tags')?.modules).toEqual(['forum/components/TagDiscussionModal', 'common/components/TagSelectionModal']);
+    expect(registry.getChunk(371, 'flarum-deck')?.modules).toEqual(['forum/utils/loadSortable']);
+  });
+
+  it('matches older bundles, which send no namespace, by the file name webpack asked for', () => {
+    const registry = registryWithCollision();
+
+    expect(registry.getChunk(371, undefined, 'https://example.com/assets/forum/utils/loadSortable.js')?.namespace).toBe('flarum-deck');
+    expect(registry.getChunk(371, undefined, 'https://example.com/assets/forum/components/TagDiscussionModal.js?v=1')?.namespace).toBe('flarum-tags');
+  });
+
+  it('falls back to the first chunk registered under the id', () => {
+    const registry = registryWithCollision();
+
+    expect(registry.getChunk(371)?.namespace).toBe('flarum-tags');
+    expect(registry.getChunk(371, undefined, 'https://example.com/assets/forum/unknown.js')?.namespace).toBe('flarum-tags');
+  });
+
+  it('loads a colliding chunk from the extension asking for it', async () => {
+    const registry = registryWithCollision();
+    const original = makeScriptLoader(['load']);
+    const done = jest.fn(() => Promise.resolve());
+
+    const attributes: Record<string, string> = {
+      jsChunksBaseUrl: 'https://cdn.example.com/assets/js',
+      assetsBaseUrl: 'https://cdn.example.com/assets',
+    };
+    const forum = (app as any).forum;
+    (app as any).forum = { attribute: (key: string) => attributes[key] };
+
+    try {
+      await registry.loadChunk(original as any, 'https://cdn.example.com/assets/forum/utils/loadSortable.js', done as any, 0, 371, 'flarum-deck');
+    } finally {
+      (app as any).forum = forum;
+    }
+
+    expect(original).toHaveBeenCalledWith('https://cdn.example.com/assets/js/flarum-deck/forum/utils/loadSortable.js', expect.any(Function), 0, 371);
+  });
+});
