@@ -22,7 +22,19 @@ class DeckLayout
     public const POLL_INTERVAL_SETTING = 'flarum-deck.poll_interval';
     public const MAX_COLUMNS_SETTING = 'flarum-deck.max_columns';
 
-    public const WIDTHS = ['narrow', 'normal', 'wide'];
+    /** The share of the deck's height the top row takes, when there are two. */
+    public const SPLIT_PREFERENCE_KEY = 'deckRowSplit';
+
+    public const MIN_SPLIT = 0.2;
+    public const MAX_SPLIT = 0.8;
+
+    /** Column widths in pixels. Columns stretch past them, in proportion, to fill a row. */
+    public const MIN_WIDTH = 240;
+    public const MAX_WIDTH = 900;
+    public const DEFAULT_WIDTH = 280;
+
+    /** The presets layouts saved before widths could be dragged. */
+    protected const PRESET_WIDTHS = ['narrow' => 240, 'normal' => 280, 'wide' => 420];
 
     /** Columns sit in one of up to this many rows. */
     public const ROWS = 2;
@@ -34,7 +46,7 @@ class DeckLayout
     protected const MAX_PARAM_LENGTH = 200;
 
     /**
-     * @return list<array{id: string, type: string, width: string, row: int, params: array<string, string|int>}>|null
+     * @return list<array{id: string, type: string, width: int, row: int, params: array<string, string|int>}>|null
      */
     public static function sanitize(mixed $value): ?array
     {
@@ -65,7 +77,7 @@ class DeckLayout
     }
 
     /**
-     * @return array{id: string, type: string, width: string, row: int, params: array<string, string|int>}|null
+     * @return array{id: string, type: string, width: int, row: int, params: array<string, string|int>}|null
      */
     protected static function sanitizeColumn(mixed $column): ?array
     {
@@ -84,11 +96,15 @@ class DeckLayout
             return null;
         }
 
-        $width = $column['width'] ?? 'normal';
+        $width = $column['width'] ?? null;
 
-        if (! in_array($width, static::WIDTHS, true)) {
-            $width = 'normal';
+        if (is_string($width)) {
+            $width = static::PRESET_WIDTHS[$width] ?? null;
         }
+
+        $width = is_int($width) || is_float($width)
+            ? (int) round(max(static::MIN_WIDTH, min(static::MAX_WIDTH, $width)))
+            : static::DEFAULT_WIDTH;
 
         $row = $column['row'] ?? 0;
 
@@ -115,6 +131,18 @@ class DeckLayout
         }
 
         return compact('id', 'type', 'width', 'row', 'params');
+    }
+
+    /**
+     * The top row's share of the height, or null for an even split.
+     */
+    public static function sanitizeSplit(mixed $value): ?float
+    {
+        if (! is_int($value) && ! is_float($value)) {
+            return null;
+        }
+
+        return round(max(static::MIN_SPLIT, min(static::MAX_SPLIT, (float) $value)), 3);
     }
 
     public static function maxColumns(SettingsRepositoryInterface $settings): int

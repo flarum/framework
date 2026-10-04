@@ -11,6 +11,7 @@ import ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
 import type Sortable from 'sortablejs';
 import DeckRow from './DeckRow';
+import DeckRowSplit from './DeckRowSplit';
 import DeckState from '../states/DeckState';
 import { canUseDeck } from '../utils/deckLayout';
 import type DeckColumnState from '../states/DeckColumnState';
@@ -132,7 +133,7 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
       <DeckPageStructure
         className={classList('DeckPage Page--vertical', { 'DeckPage--flat': flat, 'DeckPage--phone': phone })}
         hero={() => <DeckPageHero ondismiss={() => (this.heroDismissed = true) && m.redraw()} />}
-        sidebar={() => <DeckSidebar canAddColumn={this.deck.canAddColumn()} onaddcolumn={() => this.openAddColumn()} />}
+        sidebar={() => <DeckSidebar />}
         deck={() => [
           <div className="DeckPage-toolbar">
             {this.heroDismissed ? (
@@ -158,9 +159,7 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
           ),
 
           columns.length ? (
-            <div className="Deck">
-              {flat ? this.row('flat', null, columns, phone) : this.deck.rows().map((row, i) => this.row(`row${i}`, i, row, false))}
-            </div>
+            <div className="Deck">{flat ? this.row('flat', null, columns, phone) : this.rows()}</div>
           ) : (
             <div className="DeckPage-empty">
               <p>{app.translator.trans('flarum-deck.forum.page.empty_text')}</p>
@@ -172,11 +171,24 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
     );
   }
 
-  protected row(key: string, row: number | null, columns: DeckColumnState[], phone: boolean): Mithril.Children {
+  /** Both rows, with a divider to share the height once each has a column. */
+  protected rows(): Mithril.Children[] {
+    const [top, bottom] = this.deck.rows();
+    const split = this.deck.rowSplit();
+
+    if (!top.length || !bottom.length) {
+      return [this.row('row0', 0, top, false), this.row('row1', 1, bottom, false)];
+    }
+
+    return [this.row('row0', 0, top, false, split), <DeckRowSplit key="split" deck={this.deck} />, this.row('row1', 1, bottom, false, 1 - split)];
+  }
+
+  protected row(key: string, row: number | null, columns: DeckColumnState[], phone: boolean, grow?: number): Mithril.Children {
     return (
       <DeckRow
         key={key}
         deck={this.deck}
+        grow={grow}
         row={row}
         columns={columns}
         // On phones columns fill the screen and swipe; they're reordered with the chips instead.
@@ -205,6 +217,8 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
 
   actionItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
+
+    items.add('addColumn', this.addButton(), 100);
 
     items.add(
       'reset',

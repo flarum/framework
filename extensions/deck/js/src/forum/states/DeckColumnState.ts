@@ -84,7 +84,14 @@ export default class DeckColumnState {
     this.checkTimer = null;
   }
 
+  /** See DeckColumnSource.prune(). */
+  prune(): void {
+    this.source.prune?.();
+  }
+
   check(live: boolean): Promise<void> {
+    this.prune();
+
     if (!this.visible) {
       this.stale = true;
 

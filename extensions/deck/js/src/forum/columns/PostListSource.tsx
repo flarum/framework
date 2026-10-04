@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import PostList from 'flarum/forum/components/PostList';
 import type PostListState from 'flarum/forum/states/PostListState';
 import type { PostListParams } from 'flarum/forum/states/PostListState';
-import { DeckPostListState } from '../states/withoutTotals';
+import { DeckPostListState } from '../states/deckListStates';
 import type Post from 'flarum/common/models/Post';
 import type Mithril from 'mithril';
 import type { DeckColumnSource, DeckRealtimeEvent, DeckRealtimeResult } from './DeckColumnType';

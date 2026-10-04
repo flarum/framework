@@ -1,8 +1,10 @@
+import { jest } from '@jest/globals';
 import app from 'flarum/forum/app';
 import type Discussion from 'flarum/common/models/Discussion';
 import type Post from 'flarum/common/models/Post';
 import DiscussionListSource from '../../../../src/forum/columns/DiscussionListSource';
 import DiscussionPostsSource from '../../../../src/forum/columns/DiscussionPostsSource';
+import deckColumnTypes, { registerDefaultColumnTypes } from '../../../../src/forum/columns/deckColumnTypes';
 import {
   DISCUSSION_RESTORED,
   LIKED,
@@ -166,5 +168,78 @@ describe('DiscussionPostsSource', () => {
 
     expect(source.onRealtime(realtime(POST_RESTORED, postEventPayload('306', '31')))).toBe('check');
     expect(source.onRealtime(realtime(POST_RESTORED, postEventPayload('307', '34')))).toBeUndefined();
+  });
+});
+
+describe('keeping columns current', () => {
+  /** A page as the API would return it. */
+  const page = <T>(items: T[]) => Object.assign([...items], { payload: { links: {} } });
+
+  // Reading a discussion sends no realtime event, so a column has to notice by itself.
+  it('drops discussions that no longer belong, judged from the store', () => {
+    const source = new DiscussionListSource({}, (discussion) => discussion.title() !== 'Read');
+    const read = discussion('41');
+    (source.state as any).pages = [{ number: 1, items: [discussion('40'), read] }];
+    (source.state as any).extraDiscussions = [discussion('42')];
+
+    read.pushAttributes({ title: 'Read' });
+    source.prune?.();
+
+    expect(shownIds(source)).toEqual(['42', '40']);
+  });
+
+  it('takes the server’s word on refresh, dropping what it moved to the top itself', async () => {
+    const source = new DiscussionListSource({});
+    (source.state as any).pages = [{ number: 1, items: [discussion('40')] }];
+    (source.state as any).extraDiscussions = [discussion('43')];
+    jest.spyOn(source.state as any, 'loadPage').mockResolvedValue(page([discussion('40')]));
+
+    await source.showNew();
+
+    expect(shownIds(source)).toEqual(['40']);
+  });
+
+  it('keeps what it has when a refresh fails', async () => {
+    const source = new DiscussionListSource({});
+    (source.state as any).pages = [{ number: 1, items: [discussion('40')] }];
+    (source.state as any).extraDiscussions = [discussion('43')];
+    jest.spyOn(source.state as any, 'loadPage').mockRejectedValue(new Error('offline'));
+
+    await source.showNew();
+
+    expect(shownIds(source)).toEqual(['43', '40']);
+  });
+
+  it('shows a reply it inserted only once after a refresh', async () => {
+    const source = new DiscussionPostsSource('31');
+    (source.state as any).pages = [{ number: 1, items: [post('401', '31')] }];
+    (source.state as any).extraPosts = [post('402', '31')];
+    jest.spyOn(source.state as any, 'loadPage').mockResolvedValue(page([post('402', '31'), post('401', '31')]));
+
+    await source.showNew();
+
+    expect(shownIds(source)).toEqual(['402', '401']);
+  });
+});
+
+describe('the Unread column', () => {
+  beforeAll(() => {
+    if (!deckColumnTypes.has('unread')) registerDefaultColumnTypes();
+  });
+
+  it('lets go of a discussion once it has been read', () => {
+    const source = deckColumnTypes.get('unread').createSource({ id: 'u', type: 'unread', width: 280, params: {} }) as DiscussionListSource;
+    app.store.pushPayload({
+      data: discussionData('50', { lastPostNumber: 5, lastReadPostNumber: 2, commentCount: 5, lastPostedAt: '2030-01-01T00:00:00+00:00' }),
+    } as any);
+    const unread = app.store.getById<Discussion>('discussions', '50')!;
+    (source.state as any).pages = [{ number: 1, items: [unread] }];
+
+    source.prune?.();
+    expect(shownIds(source)).toEqual(['50']);
+
+    unread.pushAttributes({ lastReadPostNumber: 5 });
+    source.prune?.();
+    expect(shownIds(source)).toEqual([]);
   });
 });

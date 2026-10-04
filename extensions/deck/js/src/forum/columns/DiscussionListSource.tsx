@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import DiscussionList from 'flarum/forum/components/DiscussionList';
 import type DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import type { DiscussionListParams } from 'flarum/forum/states/DiscussionListState';
-import { DeckDiscussionListState } from '../states/withoutTotals';
+import { DeckDiscussionListState } from '../states/deckListStates';
 import type Discussion from 'flarum/common/models/Discussion';
 import type { ApiResponsePlural } from 'flarum/common/Store';
 import type { DeckColumnSource, DeckRealtimeEvent, DeckRealtimeResult } from './DeckColumnType';
@@ -22,8 +22,23 @@ export default class DiscussionListSource implements DeckColumnSource {
   /** The newest `lastPostedAt` on screen; checks only ask for activity after it. */
   protected key: Date | null = null;
 
-  constructor(params: DiscussionListParams) {
+  /**
+   * @param belongs Whether a discussion still belongs here, for columns that can
+   *                tell from the store (Unread: whether it's still unread), so
+   *                one can leave without asking the server.
+   */
+  constructor(params: DiscussionListParams, protected belongs?: (discussion: Discussion) => boolean) {
     this.state = new DeckDiscussionListState(params);
+  }
+
+  prune(): void {
+    if (!this.belongs) return;
+
+    this.state
+      .getPages()
+      .flatMap((page) => page.items)
+      .filter((discussion) => !this.belongs!(discussion))
+      .forEach((discussion) => this.removeFromList(discussion));
   }
 
   load(): Promise<unknown> {

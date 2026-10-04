@@ -5,26 +5,37 @@
 // which already shows DiscussionListItems at --pane-width.
 //
 // Up to two rows of columns share the height; within a row, columns share
-// the width and only scroll sideways once they're all at their minimum.
+// the width in proportion to their widths, and scroll sideways once they're
+// wider than the screen.
 
 // The page is core's PageStructure in its vertical form (as the Tags and
 // Messages pages use), so the forum's side nav runs across the top. Below it,
 // the deck fills the rest of the screen.
+// Core keeps room at the bottom of every page for a minimised composer. The
+// deck runs to the bottom of the screen instead, and only makes that room
+// while a composer is open, so a draft never covers the bottom of the columns.
+.App.App--deck {
+  --deck-bottom-gap: 0px;
+  padding-bottom: var(--deck-bottom-gap);
+
+  &:has(.Composer.visible) {
+    --deck-bottom-gap: var(--app-bottom-padding);
+  }
+}
+
 .DeckPage {
-  --deck-column-min-width: 280px;
   --deck-edge-fade: 40px;
 
   display: flex;
   flex-direction: column;
-  // The page itself never scrolls; columns do. --app-bottom-padding keeps the
-  // minimised composer from covering the bottom of every column.
-  height: calc(~"100vh - var(--header-height) - var(--app-bottom-padding)");
-  height: calc(~"100dvh - var(--header-height) - var(--app-bottom-padding)");
+  // The page itself never scrolls; columns do.
+  height: calc(~"100vh - var(--header-height) - var(--deck-bottom-gap, 0px)");
+  height: calc(~"100dvh - var(--header-height) - var(--deck-bottom-gap, 0px)");
   padding-bottom: 0;
 
   @media @phone {
-    height: calc(~"100vh - var(--header-height-phone) - var(--app-bottom-padding)");
-    height: calc(~"100dvh - var(--header-height-phone) - var(--app-bottom-padding)");
+    height: calc(~"100vh - var(--header-height-phone) - var(--deck-bottom-gap, 0px)");
+    height: calc(~"100dvh - var(--header-height-phone) - var(--deck-bottom-gap, 0px)");
   }
 
   .Page-main {
@@ -127,7 +138,8 @@
 
 .DeckRow {
   position: relative;
-  flex: 1 1 0;
+  // Its share of the height, from the divider between the rows.
+  flex: var(--deck-row-grow, 1) 1 0;
   min-height: 0;
   display: flex;
 
@@ -228,21 +240,16 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  // Grow factor and minimum together: a wide column takes a bigger share and
-  // gives up less of it before the row starts to scroll.
-  flex: 1 1 var(--deck-column-min-width);
-  min-width: var(--deck-column-min-width);
+  // At least its width, and a share of any spare room in proportion to it, so
+  // the columns fill the row; once they don't fit, exactly its width, and the
+  // row scrolls.
+  flex: var(--deck-column-grow, 280) 0 var(--deck-column-width, 280px);
   border-right: 1px solid var(--control-bg);
   background: var(--body-bg);
   scroll-snap-align: start;
 
-  &--narrow {
-    flex: 0.8 1 calc(~"var(--deck-column-min-width) * 0.85");
-    min-width: calc(~"var(--deck-column-min-width) * 0.85");
-  }
-  &--wide {
-    flex: 1.6 1 calc(~"var(--deck-column-min-width) * 1.5");
-    min-width: calc(~"var(--deck-column-min-width) * 1.5");
+  &--resizing {
+    user-select: none;
   }
 
   &--ghost {
@@ -498,24 +505,109 @@
   }
 
   .DeckColumn {
-    &, &--narrow, &--wide {
-      flex: none;
-      width: 100%;
-      min-width: 0;
-    }
+    flex: none;
+    width: 100%;
+    min-width: 0;
     border-right: 0;
     scroll-snap-stop: always;
   }
 
-  // Columns are reordered by dragging the chips on phones.
-  .DeckColumn-handle {
+  // Columns are reordered by dragging the chips on phones, and fill the screen.
+  .DeckColumn-handle, .DeckColumn-resize {
     display: none;
   }
 
   // Widths and rows only mean something side by side.
   .DeckColumn-menu {
-    .item-width-narrow, .item-width-normal, .item-width-wide, .item-separator3, .item-moveRow {
+    .item-resetWidth, .item-separator3, .item-moveRow {
       display: none;
     }
   }
 }
+
+// A search field: shows the choice, opens the picker.
+.AddColumnModal-pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: start;
+  cursor: pointer;
+
+  .Avatar {
+    --size: 24px;
+  }
+}
+
+.AddColumnModal-pickValue {
+  flex-grow: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.AddColumnModal-pickPlaceholder {
+  color: var(--muted-color);
+}
+
+// A column's edge, which resizes it. It stays inside the column: anything
+// past the last column's edge would make the row scroll.
+.DeckColumn-resize {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 0;
+  width: 6px;
+  cursor: col-resize;
+  touch-action: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    inset-inline-end: 0;
+    width: 2px;
+  }
+
+  &:hover::after, &:focus-visible::after, .DeckColumn--resizing > &::after {
+    background: var(--primary-color);
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+// Between the two rows, sharing the height between them.
+.DeckRowSplit {
+  position: relative;
+  flex: none;
+  height: 7px;
+  margin: -3px 0;
+  z-index: 3;
+  cursor: row-resize;
+  touch-action: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 3px;
+    height: 1px;
+    background: var(--control-bg);
+  }
+
+  &:hover::after, &:focus-visible::after, &--dragging::after {
+    top: 2px;
+    height: 3px;
+    background: var(--primary-color);
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
