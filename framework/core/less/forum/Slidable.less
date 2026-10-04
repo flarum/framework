@@ -13,10 +13,10 @@
       display: none;
       background: var(--secondary-color) !important;
       position: absolute;
-      right: 0;
+      inset-inline-end: 0;
       top: 0;
       bottom: 0;
-      left: 0;
+      inset-inline-start: 0;
       width: 100%;
       height: auto;
       z-index: 0;
@@ -25,7 +25,7 @@
       border-radius: 0;
       box-shadow: none;
       padding: 20px 0;
-      text-align: right;
+      text-align: inline-end;
 
       .icon {
         width: 50px;
@@ -34,10 +34,10 @@
       }
     }
     .Slidable-underneath--left {
-      text-align: left;
+      text-align: inline-start;
     }
     .Slidable-underneath--right {
-      left: unset;
+      inset-inline-start: unset;
     }
     .Slidable-content {
       transition: box-shadow 0.2s, border-radius 0.2s;

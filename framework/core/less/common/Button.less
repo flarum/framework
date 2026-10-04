@@ -25,18 +25,18 @@
       border-radius: 0;
     }
     &:first-of-type:not(:last-of-type):not(.Dropdown-toggle) {
-      margin-left: 0;
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
+      margin-inline-start: 0;
+      border-start-end-radius: 0;
+      border-end-end-radius: 0;
     }
     &:last-of-type:not(:first-of-type), &.Dropdown-toggle:not(:first-of-type) {
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
+      border-start-start-radius: 0;
+      border-end-start-radius: 0;
     }
 
     .Form--centered & {
-      margin-left: 0;
-      margin-right: 0;
+      margin-inline-start: 0;
+      margin-inline-end: 0;
     }
   }
 
@@ -108,13 +108,13 @@
   }
 
   .Button-label {
-    transition: margin-right 0.1s;
+    transition: margin-inline-end 0.1s;
   }
 
   .LoadingIndicator-container {
     color: inherit;
     margin-top: -0.175em;
-    margin-left: 4px;
+    margin-inline-start: 4px;
   }
 
   &:hover,
@@ -137,8 +137,8 @@
 }
 
 .Button--square {
-  padding-left: 9px;
-  padding-right: 9px;
+  padding-inline-start: 9px;
+  padding-inline-end: 9px;
 }
 .Button--rounded {
   border-radius: 18px;
@@ -193,8 +193,8 @@
 .Button--primary {
   .Button--color-auto('button-primary');
   font-weight: bold;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-inline-start: 20px;
+  padding-inline-end: 20px;
 }
 .Button--inverted {
   .Button--color-auto('button-inverted');
@@ -293,12 +293,12 @@
   font-size: 14px;
 }
 .Button-caret {
-  margin-left: 7px;
+  margin-inline-start: 7px;
 }
 .Button-badge {
   font-size: 12px;
   font-weight: bold;
-  margin-left: 10px;
+  margin-inline-start: 10px;
 }
 
 // Remove all user-agent styles from the Button

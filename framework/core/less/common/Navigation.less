@@ -5,8 +5,8 @@
   max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding-left: 8px;
-  padding-right: 8px;
+  padding-inline-start: 8px;
+  padding-inline-end: 8px;
 
   .icon {
     font-size: 14px;
@@ -15,9 +15,9 @@
 .Navigation-pin {
   display: none;
   opacity: 0;
-  margin-left: -5px !important;
+  margin-inline-start: -5px !important;
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
-  transition: opacity 0.2s, margin-left 0.2s;
+  transition: opacity 0.2s, margin-inline-start 0.2s;
 
   .icon {
     transform: rotate(45deg);
@@ -34,7 +34,7 @@
     }
     .Navigation-pin {
       opacity: 1;
-      margin-left: 1px !important;
+      margin-inline-start: 1px !important;
     }
   }
   .hasPane.panePinned .Navigation-pin .icon {
@@ -51,7 +51,7 @@
     position: absolute;
     background: var(--header-color);
     top: 10px;
-    right: 3px;
+    inset-inline-end: 3px;
     width: 14px;
     height: 14px;
     border-radius: 7px;

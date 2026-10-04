@@ -41,9 +41,9 @@
 .ModalManager {
   position: fixed;
   top: 0;
-  right: 0;
+  inset-inline-end: 0;
   bottom: 0;
-  left: 0;
+  inset-inline-start: 0;
   z-index: ~"calc(var(--zindex-modal) + var(--modal-number))";
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
@@ -52,9 +52,9 @@
   &-invisibleBackdrop {
     position: fixed;
     top: 0;
-    right: 0;
+    inset-inline-end: 0;
     bottom: 0;
-    left: 0;
+    inset-inline-start: 0;
   }
 }
 
@@ -105,7 +105,7 @@
     .helpText {
       font-size: 14px;
       line-height: 1.5em;
-      text-align: left;
+      text-align: start;
     }
   }
 
@@ -122,8 +122,8 @@
 
 .Modal-divider {
   border-width: 1px;
-  margin-left: -16px;
-  margin-right: -16px;
+  margin-inline-start: -16px;
+  margin-inline-end: -16px;
 }
 
 .Modal--inverted {
@@ -162,7 +162,7 @@
       padding: 20px 20px 0;
 
       & h3 {
-        text-align: left;
+        text-align: start;
         color: var(--control-color);
         font-size: 16px;
       }
@@ -179,15 +179,15 @@
 
   .Modal-footer {
     padding: 1px 0 0;
-    text-align: left;
+    text-align: start;
   }
 }
 
 @media @phone {
   .ModalManager {
     position: fixed;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     bottom: 0;
     top: 0;
     overflow: auto;
@@ -238,7 +238,7 @@
   }
   .Modal-close {
     position: absolute;
-    right: 10px;
+    inset-inline-end: 10px;
     top: 10px;
     z-index: 2;
   }

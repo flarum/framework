@@ -4,7 +4,7 @@
   color: var(--muted-color);
 
   &-prefix-icon {
-    margin-right: -36px;
+    margin-inline-end: -36px;
     // FA Kit dynamically injects a stylesheet after ours that sets width: 1.25em
     // on .svg-inline--fa elements. !important ensures our fixed width wins.
     width: 36px !important;
@@ -37,7 +37,7 @@
 
   &--withPrefix {
     .FormControl {
-      padding-left: 32px;
+      padding-inline-start: 32px;
     }
   }
 
@@ -60,7 +60,7 @@
     }
 
     .FormControl {
-      padding-right: 32px;
+      padding-inline-end: 32px;
     }
   }
 
@@ -74,9 +74,9 @@
     align-items: center;
     justify-content: center;
     position: absolute;
-    right: 0;
+    inset-inline-end: 0;
     top: 0;
-    margin-left: -36px;
+    margin-inline-start: -36px;
     width: 36px !important;
 
     &.LoadingIndicator {
