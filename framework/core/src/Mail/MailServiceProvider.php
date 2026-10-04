@@ -115,7 +115,8 @@ class MailServiceProvider extends AbstractServiceProvider
 
         // Resolve the logo URL via the flarum-assets disk so it stays correct on
         // installs whose assets are served from a remote bucket / CDN — same path
-        // ForumResource::getLogoUrl() uses for the frontend.
+        // ForumResource::getLogoUrl() uses for the frontend. Mail views get
+        // their own email-safe logo instead; see below.
         $logoPath = $settings->get('logo_path');
         $views->share('logoUrl', $logoPath ? $filesystemFactory->disk('flarum-assets')->url($logoPath) : null);
 
@@ -142,9 +143,18 @@ class MailServiceProvider extends AbstractServiceProvider
                 return;
             }
 
+            // The forum logo is WebP, which many mail clients can't display,
+            // so mail views get the email logo in its place. It's resolved as
+            // each view renders rather than once at boot, so a long-running
+            // queue worker doesn't keep the logo it started with.
+            $logo = $container->make(EmailLogo::class)->resolve();
+
             $view->with([
                 'translator' => new MailTranslator($container->make(TranslatorInterface::class)),
                 'formatter' => new MailFormatter($container->make(Formatter::class)),
+                'logoUrl' => $logo['url'] ?? null,
+                'logoWidth' => $logo['width'] ?? null,
+                'logoHeight' => $logo['height'] ?? null,
             ]);
         });
     }

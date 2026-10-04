@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Http\RequestUtil;
+use Flarum\Mail\EmailLogo;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -22,7 +23,8 @@ class DeleteLogoController extends AbstractDeleteController
 
     public function __construct(
         protected SettingsRepositoryInterface $settings,
-        Factory $filesystemFactory
+        Factory $filesystemFactory,
+        protected EmailLogo $emailLogo
     ) {
         $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
@@ -35,8 +37,19 @@ class DeleteLogoController extends AbstractDeleteController
 
         $this->settings->set($this->filePathSettingKey, null);
 
-        if ($this->uploadDir->exists($path)) {
+        if ($path && $this->uploadDir->exists($path)) {
             $this->uploadDir->delete($path);
         }
+
+        $this->afterDelete();
+    }
+
+    /**
+     * Runs after the logo has been deleted. Removes the email-safe copy that
+     * was stored alongside the forum logo.
+     */
+    protected function afterDelete(): void
+    {
+        $this->emailLogo->deleteCopy();
     }
 }
