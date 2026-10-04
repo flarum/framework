@@ -122,6 +122,8 @@ core:
       edit_css_button: Edit Custom CSS
       edit_footer_button: => core.ref.custom_footer_title
       edit_header_button: => core.ref.custom_header_title
+      email_logo_heading: Email logo
+      email_logo_text: "Upload an image to be displayed at the top of emails. It's saved in a format every email client can show. If you don't upload one, emails use a copy of your logo. If your emails show the forum title instead of your logo, upload your logo again."
       enter_hex_message: Please enter a hexadecimal color code.
       favicon_heading: Favicon
       favicon_text: Upload an image to be displayed as the forum's shortcut icon.
