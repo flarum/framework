@@ -86,7 +86,7 @@ export function registerTestTypes(): void {
   if (!deckColumnTypes.has('test-hidden')) deckColumnTypes.add('test-hidden', testType(false));
 }
 
-export const column = (id: string, row = 0, type = 'test'): DeckColumnConfig => ({ id, type, width: 'normal', row, params: {} });
+export const column = (id: string, row = 0, type = 'test'): DeckColumnConfig => ({ id, type, width: 280, row, params: {} });
 
 /** Sets the member's stored layout (null for never saved) and stubs out saving it. */
 export function setLayout(configs: DeckColumnConfig[] | null) {

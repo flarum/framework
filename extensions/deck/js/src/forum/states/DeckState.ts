@@ -3,8 +3,20 @@ import DeckColumnState from './DeckColumnState';
 import { REMOVED, subjectPost } from '../columns/realtimeEvents';
 import type Post from 'flarum/common/models/Post';
 import type Discussion from 'flarum/common/models/Discussion';
-import { PREFERENCE_KEY, defaultColumns, hasCustomLayout, isDisplayable, maxColumns, saveColumns, storedColumns } from '../utils/deckLayout';
-import type { DeckColumnConfig, DeckColumnWidth } from '../columns/DeckColumnType';
+import {
+  PREFERENCE_KEY,
+  defaultColumns,
+  hasCustomLayout,
+  isDisplayable,
+  maxColumns,
+  resetLayout,
+  saveColumns,
+  saveSplit,
+  storedColumns,
+  storedSplit,
+} from '../utils/deckLayout';
+import { DEFAULT_SPLIT, clampSplit, clampWidth } from '../utils/deckSizes';
+import type { DeckColumnConfig } from '../columns/DeckColumnType';
 
 /** The slice of a pusher-js channel this needs, without depending on flarum/realtime. */
 interface Channel {
@@ -42,6 +54,10 @@ export default class DeckState {
   protected heartbeat: number | null = null;
   protected lastCheck = Date.now();
   protected saveTimer: number | null = null;
+
+  /** The top row's share of the height, or null for an even split. */
+  protected split: number | null = storedSplit();
+  protected splitTimer: number | null = null;
 
   /** Whether the member has a layout of their own, rather than the default. */
   protected customised: boolean;
@@ -185,28 +201,67 @@ export default class DeckState {
     return last === -1 ? this.configs.length : last + 1;
   }
 
-  setWidth(id: string, width: DeckColumnWidth): void {
+  /**
+   * @param save False while the width is still being dragged: it's saved once,
+   *             when the drag ends.
+   */
+  setWidth(id: string, width: number, save = true): void {
     const config = this.configs.find((config) => config.id === id);
 
     if (!config) return;
 
-    config.width = width;
-    this.save();
+    config.width = clampWidth(width);
+
+    save ? this.save() : m.redraw();
+  }
+
+  /** The other columns shown beside one, in its row or along the single strip. */
+  neighbours(id: string, flat: boolean): DeckColumnState[] {
+    const place = this.placeOf(id, flat);
+
+    if (!place) return [];
+
+    return (flat ? this.columns() : this.rows()[place.row]).filter((column) => column.config.id !== id);
+  }
+
+  rowSplit(): number {
+    return this.split ?? DEFAULT_SPLIT;
+  }
+
+  /**
+   * @param split The top row's share of the height; null to split evenly.
+   * @param save False while it's still being dragged.
+   */
+  setRowSplit(split: number | null, save = true): void {
+    this.split = split === null ? null : clampSplit(split);
+
+    if (save) {
+      if (this.splitTimer) clearTimeout(this.splitTimer);
+
+      this.splitTimer = window.setTimeout(() => {
+        this.splitTimer = null;
+        saveSplit(this.split);
+      }, 500);
+    }
+
+    m.redraw();
   }
 
   isCustomised(): boolean {
-    return this.customised;
+    return this.customised || this.split !== null;
   }
 
   reset(): void {
     if (this.saveTimer) clearTimeout(this.saveTimer);
-    this.saveTimer = null;
+    if (this.splitTimer) clearTimeout(this.splitTimer);
+    this.saveTimer = this.splitTimer = null;
 
     this.customised = false;
+    this.split = null;
     this.configs = defaultColumns();
     this.states.clear();
 
-    saveColumns(null);
+    resetLayout();
     m.redraw();
   }
 

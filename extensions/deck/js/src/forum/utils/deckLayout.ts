@@ -1,8 +1,10 @@
 import app from 'flarum/forum/app';
 import deckColumnTypes from '../columns/deckColumnTypes';
-import type { DeckColumnConfig, DeckColumnWidth } from '../columns/DeckColumnType';
+import { DEFAULT_WIDTH } from './deckSizes';
+import type { DeckColumnConfig } from '../columns/DeckColumnType';
 
 export const PREFERENCE_KEY = 'deckColumns';
+export const SPLIT_PREFERENCE_KEY = 'deckRowSplit';
 
 export function canUseDeck(): boolean {
   return !!app.session.user && !!app.forum.attribute<boolean>('canUseDeck');
@@ -16,7 +18,7 @@ export function newColumnId(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
-export function makeColumn(type: string, params: DeckColumnConfig['params'] = {}, width: DeckColumnWidth = 'normal'): DeckColumnConfig {
+export function makeColumn(type: string, params: DeckColumnConfig['params'] = {}, width: number = DEFAULT_WIDTH): DeckColumnConfig {
   return { id: newColumnId(), type, width, row: 0, params };
 }
 
@@ -56,4 +58,20 @@ export function isDisplayable(column: DeckColumnConfig): boolean {
 /** Null clears the layout, so the member follows the default (and any later change to it). */
 export function saveColumns(columns: DeckColumnConfig[] | null): Promise<unknown> {
   return app.session.user!.savePreferences({ [PREFERENCE_KEY]: columns });
+}
+
+/** The top row's share of the height; null for an even split. */
+export function storedSplit(): number | null {
+  const split = app.session.user?.preferences()?.[SPLIT_PREFERENCE_KEY];
+
+  return typeof split === 'number' ? split : null;
+}
+
+export function saveSplit(split: number | null): Promise<unknown> {
+  return app.session.user!.savePreferences({ [SPLIT_PREFERENCE_KEY]: split });
+}
+
+/** Back to the default deck, rows evenly split. */
+export function resetLayout(): Promise<unknown> {
+  return app.session.user!.savePreferences({ [PREFERENCE_KEY]: null, [SPLIT_PREFERENCE_KEY]: null });
 }

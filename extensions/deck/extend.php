@@ -32,7 +32,8 @@ return [
         ->fields(Api\ForumResourceFields::class),
 
     (new Extend\User())
-        ->registerPreference(DeckLayout::PREFERENCE_KEY, [DeckLayout::class, 'sanitize']),
+        ->registerPreference(DeckLayout::PREFERENCE_KEY, [DeckLayout::class, 'sanitize'])
+        ->registerPreference(DeckLayout::SPLIT_PREFERENCE_KEY, [DeckLayout::class, 'sanitizeSplit']),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, Search\LastPostedAfterFilter::class)

@@ -952,6 +952,10 @@ core:
           key: group
           hint: singular or plural group names
 
+    # These translations are used in the group selector component.
+    group_selector:
+      placeholder: Choose a group
+
     # These translations are used in the input component.
     input:
       clear_button: Clear input

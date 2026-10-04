@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import DeckColumns from 'ext:flarum/deck/forum/extenders/DeckColumns';
 import DiscussionListSource from 'ext:flarum/deck/forum/columns/DiscussionListSource';
 import extractText from 'flarum/common/utils/extractText';
-import highlight from 'flarum/common/helpers/highlight';
+import DeckTagSearchSource from './components/DeckTagSearchSource';
 import tagIcon from '../common/helpers/tagIcon';
 import type Tag from '../common/models/Tag';
 
@@ -21,17 +21,10 @@ export default function extendDeck() {
             key: 'tag',
             label: app.translator.trans('flarum-tags.forum.deck.tag_label'),
             placeholder: extractText(app.translator.trans('flarum-tags.forum.deck.tag_placeholder')),
-            // The forum payload already has every tag the member can see.
             search: {
-              minLength: 1,
-              find: (query: string) =>
-                Promise.resolve(
-                  app.store
-                    .all<Tag>('tags')
-                    .filter((tag) => tag.name().toLowerCase().includes(query.toLowerCase()))
-                    .slice(0, 8)
-                ),
-              display: (tag: Tag, query: string) => [tagIcon(tag), ' ', highlight(tag.name(), query)],
+              source: () => new DeckTagSearchSource(),
+              browse: true,
+              display: (tag: Tag) => [tagIcon(tag), ' ', tag.name()],
               label: (tag: Tag) => tag.name(),
               params: (tag: Tag) => ({ slug: tag.slug() }),
             },

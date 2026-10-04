@@ -13,7 +13,8 @@ export default function extendDeck() {
         label: () => extractText(app.translator.trans('flarum-subscriptions.forum.index.following_link')),
         title: () => extractText(app.translator.trans('flarum-subscriptions.forum.index.following_link')),
         isAvailable: () => !!app.session.user,
-        createSource: () => new DiscussionListSource({ filter: { subscription: 'following' } }),
+        createSource: () =>
+          new DiscussionListSource({ filter: { subscription: 'following' } }, (discussion) => discussion.subscription() === 'follow'),
       },
       100
     ),

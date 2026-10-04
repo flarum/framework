@@ -12,6 +12,8 @@ import type DeckColumnState from '../states/DeckColumnState';
 export interface IDeckRowAttrs extends ComponentAttrs {
   deck: DeckState;
   columns: DeckColumnState[];
+  /** The row's share of the deck's height, with two rows. */
+  grow?: number;
   /** Which row this is, or null for the single strip phones and short screens get. */
   row: number | null;
   /** SortableJS, once its chunk has loaded; null until then, or to turn dragging off. */
@@ -39,7 +41,7 @@ export default class DeckRow<CustomAttrs extends IDeckRowAttrs = IDeckRowAttrs> 
     const { columns, deck, row } = this.attrs;
 
     return (
-      <div className={classList('DeckRow', { 'DeckRow--empty': !columns.length })}>
+      <div className={classList('DeckRow', { 'DeckRow--empty': !columns.length })} style={{ '--deck-row-grow': this.attrs.grow ?? 1 }}>
         <Button
           className="Button Button--icon DeckRow-scroll DeckRow-scroll--left"
           icon="fas fa-chevron-left"

@@ -185,3 +185,13 @@ describe('checking', () => {
     expect(state.newCount).toBe(2);
   });
 });
+
+it('prunes before every check', async () => {
+  const state = visibleColumn();
+  const prune = jest.fn();
+  (state.source as any).prune = prune;
+
+  await state.check(false);
+
+  expect(prune).toHaveBeenCalled();
+});

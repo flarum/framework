@@ -80,7 +80,7 @@ export default class TypingActivitySource implements DeckColumnSource {
   }
 
   /** Drops entries older than MAX_AGE_MS; true if any went. */
-  protected prune(): boolean {
+  prune(): boolean {
     const cutoff = Date.now() - MAX_AGE_MS;
     const before = this.entries.length;
 

@@ -1,7 +1,8 @@
 import app from 'flarum/forum/app';
 import ItemList from 'flarum/common/utils/ItemList';
 import Avatar from 'flarum/common/components/Avatar';
-import highlight from 'flarum/common/helpers/highlight';
+import GlobalDiscussionsSearchSource from 'flarum/forum/components/GlobalDiscussionsSearchSource';
+import GlobalUsersSearchSource from 'flarum/forum/components/GlobalUsersSearchSource';
 import type User from 'flarum/common/models/User';
 import extractText from 'flarum/common/utils/extractText';
 import type Discussion from 'flarum/common/models/Discussion';
@@ -46,8 +47,8 @@ const memberField = (): DeckColumnField => ({
   label: app.translator.trans('flarum-deck.forum.add_column.author_label'),
   placeholder: extractText(app.translator.trans('flarum-deck.forum.add_column.author_placeholder')),
   search: {
-    find: (query: string) => app.store.find<User[]>('users', { filter: { q: query }, page: { limit: 6 } }),
-    display: (user: User, query: string) => [<Avatar user={user} />, ' ', highlight(user.displayName(), query)],
+    source: () => new GlobalUsersSearchSource(),
+    display: (user: User) => [<Avatar user={user} />, ' ', user.displayName()],
     label: (user: User) => user.displayName(),
     params: (user: User) => ({ userId: user.id()!, name: user.displayName() }),
   },
@@ -82,7 +83,7 @@ export function registerDefaultColumnTypes(): void {
       label: () => extractText(app.translator.trans('flarum-deck.forum.column_types.unread')),
       title: () => extractText(app.translator.trans('flarum-deck.forum.column_types.unread')),
       isAvailable: () => true,
-      createSource: () => new DiscussionListSource({ filter: { unread: true } }),
+      createSource: () => new DiscussionListSource({ filter: { unread: true } }, (discussion) => discussion.isUnread()),
     },
     80
   );
@@ -171,10 +172,8 @@ export function registerDefaultColumnTypes(): void {
           key: 'discussion',
           label: app.translator.trans('flarum-deck.forum.add_column.discussion_label'),
           placeholder: extractText(app.translator.trans('flarum-deck.forum.add_column.discussion_placeholder')),
-          // Searches only while the member is typing here, never on refresh.
           search: {
-            find: (query: string) => app.store.find<Discussion[]>('discussions', { filter: { q: query }, page: { limit: 6 } }),
-            display: (discussion: Discussion, query: string) => highlight(discussion.title(), query),
+            source: () => new GlobalDiscussionsSearchSource(),
             label: (discussion: Discussion) => discussion.title(),
             params: (discussion: Discussion) => ({ id: discussion.id()!, title: discussion.title() }),
           },

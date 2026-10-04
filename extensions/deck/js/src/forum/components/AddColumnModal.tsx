@@ -4,7 +4,7 @@ import Button from 'flarum/common/components/Button';
 import Form from 'flarum/common/components/Form';
 import Select from 'flarum/common/components/Select';
 import GambitsAutocompleteDropdown from 'flarum/common/components/GambitsAutocompleteDropdown';
-import DeckSearchField from './DeckSearchField';
+import Icon from 'flarum/common/components/Icon';
 import ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
 import deckColumnTypes from '../columns/deckColumnTypes';
@@ -24,6 +24,8 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
   protected typeFields: DeckColumnField[] = [];
   /** Params from search fields, by field key; null until something is picked. */
   protected picked: Record<string, DeckColumnConfig['params'] | null> = {};
+  /** What each search field shows for its choice. */
+  protected chosen: Record<string, Mithril.Children> = {};
   protected error: Mithril.Children = null;
 
   className() {
@@ -105,12 +107,12 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
 
     if (field.search) {
       return (
-        <DeckSearchField
-          id={id}
-          search={field.search}
-          placeholder={field.placeholder}
-          onpick={(params: DeckColumnConfig['params'] | null) => (this.picked[field.key] = params)}
-        />
+        <button type="button" id={id} className="FormControl AddColumnModal-pick" onclick={() => this.openPicker(field)}>
+          <span className="AddColumnModal-pickValue">
+            {this.chosen[field.key] ?? <span className="AddColumnModal-pickPlaceholder">{field.placeholder}</span>}
+          </span>
+          <Icon name="fas fa-magnifying-glass" />
+        </button>
       );
     }
 
@@ -146,6 +148,7 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
     this.type = key;
     this.values = {};
     this.picked = {};
+    this.chosen = {};
     this.error = null;
 
     // A select starts on its first option, so that's the value until changed.
@@ -156,6 +159,29 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
     });
 
     if (!this.typeFields.length) this.add({});
+
+    // Nothing else to do first, so go straight to the search.
+    if (this.typeFields[0]?.search) this.openPicker(this.typeFields[0]);
+  }
+
+  protected async openPicker(field: DeckColumnField): Promise<void> {
+    const search = field.search!;
+
+    // The picker extends core's search modal, which core only loads when it's
+    // first used, so that has to be loaded before the picker's own chunk is.
+    await import('flarum/common/components/SearchModal');
+    const { default: DeckPickerModal } = await import('./DeckPickerModal');
+
+    DeckPickerModal.open(search.source(), {
+      title: field.placeholder ?? field.label,
+      browse: search.browse,
+      onpick: (model) => {
+        this.picked[field.key] = search.params(model);
+        this.chosen[field.key] = search.display?.(model) ?? search.label(model);
+        this.error = null;
+        m.redraw();
+      },
+    });
   }
 
   protected back(): void {

@@ -81,7 +81,7 @@ describe('rearranging', () => {
 
     state.moveTo('a', 0, 2);
     state.moveTo('b', 0, 2);
-    state.setWidth('c', 'wide');
+    state.setWidth('c', 420);
 
     expect(save).not.toHaveBeenCalled();
     jest.runOnlyPendingTimers();
@@ -189,6 +189,55 @@ describe('moving without dragging', () => {
   });
 });
 
+describe('sizing', () => {
+  it('keeps widths in bounds, and saves only once a drag ends', () => {
+    jest.useFakeTimers();
+    const save = setLayout([column('a'), column('b')]);
+    const state = new DeckState();
+
+    state.setWidth('a', 5000, false);
+    jest.runOnlyPendingTimers();
+    expect(state.columns()[0].config.width).toBe(900);
+    expect(save).not.toHaveBeenCalled();
+
+    state.setWidth('a', 500);
+    jest.runOnlyPendingTimers();
+    expect(save).toHaveBeenCalledTimes(1);
+  });
+
+  it('splits the rows evenly until told otherwise, within bounds', () => {
+    jest.useFakeTimers();
+    const save = setLayout([column('a'), column('b', 1)]);
+    const state = new DeckState();
+
+    expect(state.rowSplit()).toBe(0.5);
+
+    state.setRowSplit(0.95);
+    jest.runOnlyPendingTimers();
+
+    expect(state.rowSplit()).toBe(0.8);
+    expect(save).toHaveBeenLastCalledWith({ deckRowSplit: 0.8 });
+  });
+
+  it('starts from the saved split', () => {
+    setLayout(null);
+    app.session.user!.pushAttributes({ preferences: { deckRowSplit: 0.3 } });
+
+    const state = new DeckState();
+
+    expect(state.rowSplit()).toBe(0.3);
+    expect(state.isCustomised()).toBe(true);
+  });
+
+  it('counts the neighbours a column is sized against', () => {
+    setLayout([column('a'), column('b'), column('c', 1)]);
+    const state = new DeckState();
+
+    expect(state.neighbours('a', false).map((column) => column.config.id)).toEqual(['b']);
+    expect(state.neighbours('a', true).map((column) => column.config.id)).toEqual(['b', 'c']);
+  });
+});
+
 describe('resetting', () => {
   it('clears the stored layout and cancels a save still pending', () => {
     jest.useFakeTimers();
@@ -200,7 +249,7 @@ describe('resetting', () => {
     jest.runOnlyPendingTimers();
 
     expect(save).toHaveBeenCalledTimes(1);
-    expect(save).toHaveBeenCalledWith({ [PREFERENCE_KEY]: null });
+    expect(save).toHaveBeenCalledWith({ [PREFERENCE_KEY]: null, deckRowSplit: null });
     expect(state.isCustomised()).toBe(false);
     expect(state.columns().map((column) => column.config.type)).not.toContain('test');
   });

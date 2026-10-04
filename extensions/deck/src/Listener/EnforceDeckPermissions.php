@@ -13,7 +13,7 @@ use Flarum\Deck\DeckLayout;
 use Flarum\User\Event\Saving;
 
 /**
- * The layout is an ordinary user preference, so the preference endpoint would
+ * The layout is made of ordinary user preferences, so the preference endpoint would
  * otherwise accept one from anybody. Members without `deck.use` can't change it.
  */
 class EnforceDeckPermissions
@@ -27,10 +27,13 @@ class EnforceDeckPermissions
         }
 
         $original = (array) ($user->getOriginal('preferences') ?? []);
-        $previous = $original[DeckLayout::PREFERENCE_KEY] ?? null;
 
-        if ($user->getPreference(DeckLayout::PREFERENCE_KEY) !== $previous && $user->cannot('deck.use')) {
-            $user->setPreference(DeckLayout::PREFERENCE_KEY, $previous);
+        foreach ([DeckLayout::PREFERENCE_KEY, DeckLayout::SPLIT_PREFERENCE_KEY] as $key) {
+            $previous = $original[$key] ?? null;
+
+            if ($user->getPreference($key) !== $previous && $user->cannot('deck.use')) {
+                $user->setPreference($key, $previous);
+            }
         }
     }
 }

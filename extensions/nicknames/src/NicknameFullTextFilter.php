@@ -30,10 +30,14 @@ class NicknameFullTextFilter extends AbstractFulltextFilter
         return $this->users
             ->query()
             ->select('id')
-            ->where('username', 'like', "{$searchValue}%")
-            ->orWhere('nickname', 'like', "{$searchValue}%");
+            ->where('username', 'like', "%{$searchValue}%")
+            ->orWhere('nickname', 'like', "%{$searchValue}%");
     }
 
+    /**
+     * Matches the text anywhere in a username or nickname, with names that
+     * start with it first.
+     */
     public function search(SearchState $state, string $value): void
     {
         $state->getQuery()
@@ -41,5 +45,15 @@ class NicknameFullTextFilter extends AbstractFulltextFilter
                 'id',
                 $this->getUserSearchSubQuery($value)
             );
+
+        $state->setDefaultSort(function (Builder $query) use ($value) {
+            $grammar = $query->getGrammar();
+            $username = $grammar->wrap('users.username');
+            $nickname = $grammar->wrap('users.nickname');
+
+            $query
+                ->orderByRaw("CASE WHEN LOWER($username) LIKE ? OR LOWER($nickname) LIKE ? THEN 0 ELSE 1 END", array_fill(0, 2, mb_strtolower($value).'%'))
+                ->orderByRaw("COALESCE($nickname, $username)");
+        });
     }
 }

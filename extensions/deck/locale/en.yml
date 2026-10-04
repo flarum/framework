@@ -44,9 +44,8 @@ flarum-deck:
       open_discussion_button: Open discussion
       refresh_button: Refresh
       remove_button: Remove column
-      width_narrow_button: Narrow
-      width_normal_button: Normal width
-      width_wide_button: Wide
+      reset_width_button: Reset width
+      resize_label: "Resize {title}"
 
     column_types:
       all: All discussions
@@ -89,6 +88,7 @@ flarum-deck:
         subtitle: Follow every conversation you care about, side by side and live. Add columns, drag them into place, and arrange them in up to two rows.
       navigator_label: Columns
       reset_button: Reset columns
+      resize_rows_label: Resize rows
       reset_confirmation: Replace your columns with the default set? This can't be undone.
       scroll_left_label: Scroll left
       scroll_right_label: Scroll right
