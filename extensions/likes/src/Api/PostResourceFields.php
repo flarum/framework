@@ -59,7 +59,10 @@ class PostResourceFields
                     $query
                         ->orderBy(new Expression($grammar->wrap('user_id').' = '.$actor->id), 'desc')
                         ->orderBy('created_at')
-                        ->limit(static::$maxLikes);
+                        ->limit(static::$maxLikes)
+                        // Serializing a liker reads their groups: load them for
+                        // all the likers listed at once, not one by one.
+                        ->with('groups');
                 }),
         ];
     }

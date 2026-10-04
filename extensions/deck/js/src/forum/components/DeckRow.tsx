@@ -21,7 +21,6 @@ export interface IDeckRowAttrs extends ComponentAttrs {
   scrollLeft: number;
   onscrolled: (scrollLeft: number) => void;
   ondrag: (dragging: boolean) => void;
-  onoverflow: (overflowing: boolean) => void;
   /** Phone only: the index of the column filling the screen. */
   onactive?: (index: number) => void;
 }
@@ -34,7 +33,6 @@ export interface IDeckRowAttrs extends ComponentAttrs {
 export default class DeckRow<CustomAttrs extends IDeckRowAttrs = IDeckRowAttrs> extends Component<CustomAttrs> {
   protected sortableInstance: Sortable | null = null;
   protected resizeObserver: ResizeObserver | null = null;
-  protected overflowing: boolean | null = null;
   protected active = 0;
 
   view() {
@@ -133,13 +131,6 @@ export default class DeckRow<CustomAttrs extends IDeckRowAttrs = IDeckRowAttrs> 
 
     this.element.classList.toggle('DeckRow--moreLeft', rtl ? moreAtEnd : moreAtStart);
     this.element.classList.toggle('DeckRow--moreRight', rtl ? moreAtStart : moreAtEnd);
-
-    const overflowing = max > 1;
-
-    if (overflowing !== this.overflowing) {
-      this.overflowing = overflowing;
-      this.attrs.onoverflow(overflowing);
-    }
   }
 
   protected setUpSortable(): void {

@@ -3,7 +3,6 @@ import FormModal, { type IFormModalAttrs } from 'flarum/common/components/FormMo
 import Button from 'flarum/common/components/Button';
 import Form from 'flarum/common/components/Form';
 import Select from 'flarum/common/components/Select';
-import GambitsAutocompleteDropdown from 'flarum/common/components/GambitsAutocompleteDropdown';
 import Icon from 'flarum/common/components/Icon';
 import ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
@@ -124,7 +123,16 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
       return <Select id={id} options={field.options()} value={value} onchange={set} />;
     }
 
-    const text = (
+    if (field.gambits) {
+      return (
+        <button type="button" id={id} className="FormControl AddColumnModal-pick" onclick={() => this.openFilters(field)}>
+          <span className="AddColumnModal-pickValue">{value || <span className="AddColumnModal-pickPlaceholder">{field.placeholder}</span>}</span>
+          <Icon name="fas fa-filter" />
+        </button>
+      );
+    }
+
+    return (
       <input
         id={id}
         className="FormControl"
@@ -133,14 +141,6 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
         value={value}
         oninput={(e: InputEvent) => set((e.target as HTMLInputElement).value)}
       />
-    );
-
-    return field.gambits ? (
-      <GambitsAutocompleteDropdown resource={field.gambits} query={value} onchange={set}>
-        {text}
-      </GambitsAutocompleteDropdown>
-    ) : (
-      text
     );
   }
 
@@ -162,6 +162,30 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
 
     // Nothing else to do first, so go straight to the search.
     if (this.typeFields[0]?.search) this.openPicker(this.typeFields[0]);
+    else if (this.typeFields[0]?.gambits) this.openFilters(this.typeFields[0]);
+  }
+
+  /** Filters are written in the search modal, which suggests them as they're typed. */
+  protected async openFilters(field: DeckColumnField): Promise<void> {
+    // See openPicker(): core's search modal has to be loaded first.
+    await import('flarum/common/components/SearchModal');
+    const { default: DeckFilterModal } = await import('./DeckFilterModal');
+
+    DeckFilterModal.openFor(field.gambits!, {
+      title: field.label,
+      value: this.values[field.key] ?? '',
+      accept: (query) => {
+        const value = field.parse ? field.parse(query) : query;
+
+        return value !== null && value !== '';
+      },
+      invalidText: field.invalidText,
+      onapply: (query) => {
+        this.values[field.key] = query;
+        this.error = null;
+        m.redraw();
+      },
+    });
   }
 
   protected async openPicker(field: DeckColumnField): Promise<void> {

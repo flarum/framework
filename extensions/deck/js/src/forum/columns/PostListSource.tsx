@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import PostList from 'flarum/forum/components/PostList';
 import type PostListState from 'flarum/forum/states/PostListState';
 import type { PostListParams } from 'flarum/forum/states/PostListState';
-import { DeckPostListState } from '../states/deckListStates';
+import { DeckPostListState, asQuery } from '../states/deckListStates';
 import type Post from 'flarum/common/models/Post';
 import type Mithril from 'mithril';
 import type { DeckColumnSource, DeckRealtimeEvent, DeckRealtimeResult } from './DeckColumnType';
@@ -137,11 +137,12 @@ export default class PostListSource implements DeckColumnSource {
     return true;
   }
 
+  /** The column's own request, newest first: whatever it asks for, includes and all, the new posts have too. */
   protected async newerPosts(): Promise<Post[]> {
+    const params = this.state.requestParams();
     const latest = await app.store.find<Post[]>('posts', {
-      filter: { ...(this.state.getParams().filter || {}), type: 'comment' },
+      ...asQuery(params),
       sort: '-createdAt',
-      include: 'user,discussion',
       page: { limit: CHECK_LIMIT, total: 0 },
     });
 

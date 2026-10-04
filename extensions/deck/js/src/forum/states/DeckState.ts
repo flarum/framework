@@ -336,7 +336,9 @@ export default class DeckState {
 
     this.pruneRecentEvents(now);
 
-    if (seen && now - seen.at < DUPLICATE_WINDOW) {
+    // Only the other channel's copy is a duplicate: the same event twice on
+    // one channel is two changes, such as two flags in a row.
+    if (seen && seen.kind !== kind && now - seen.at < DUPLICATE_WINDOW) {
       if (kind === 'user' && seen.kind === 'public') {
         app.store.pushPayload(data);
         this.recentEvents.set(key, { kind, at: seen.at });

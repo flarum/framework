@@ -101,8 +101,13 @@ return [
     (new Extend\Notification)
         ->driver('realtime', Push\NotificationDriver::class),
 
-    (new Extend\ApiResource(Resource\PostResource::class))
-        ->endpoint('show', fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['discussion.tags'])),
+    // Only while Tags is enabled: an include the API doesn't know fails the
+    // whole request, and every post would fail to load.
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-tags', fn () => [
+            (new Extend\ApiResource(Resource\PostResource::class))
+                ->endpoint('show', fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['discussion.tags'])),
+        ]),
 
     (new Extend\Settings())
         // In seconds. Defaults to 10 seconds.

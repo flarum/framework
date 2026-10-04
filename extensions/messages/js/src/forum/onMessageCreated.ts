@@ -2,6 +2,8 @@ import app from 'flarum/forum/app';
 import type Dialog from '../common/models/Dialog';
 import type DialogMessage from '../common/models/DialogMessage';
 
+const includeOf = (include?: string | string[]): string | undefined => (Array.isArray(include) ? include.join(',') : include);
+
 /** The dropdown shows this many unread dialogs. */
 const DROPDOWN_LIMIT = 5;
 
@@ -39,7 +41,8 @@ export default function onMessageCreated(data: any): void {
     show(known);
   } else {
     app.store
-      .find<Dialog>('dialogs', dialogId, { include: 'users.groups,lastMessage' })
+      // As the list asks for dialogs, so this one arrives with what the others have.
+      .find<Dialog>('dialogs', dialogId, { include: includeOf(app.dialogs.requestParams().include) })
       .then(show)
       .catch(() => {});
   }

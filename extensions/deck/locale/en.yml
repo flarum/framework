@@ -29,6 +29,7 @@ flarum-deck:
       pick_a_result_message: "Choose a result for {field} from the suggestions."
       submit_button: Add column
       title: Add a column
+      use_filters_button: Use these filters
 
     column:
       controls_label: "{title} column options"
@@ -87,6 +88,7 @@ flarum-deck:
         hide_label: Hide this introduction
         subtitle: Follow every conversation you care about, side by side and live. Add columns, drag them into place, and arrange them in up to two rows.
       navigator_label: Columns
+      options_label: Deck options
       reset_button: Reset columns
       resize_rows_label: Resize rows
       reset_confirmation: Replace your columns with the default set? This can't be undone.

@@ -4,6 +4,10 @@ import type Discussion from 'flarum/common/models/Discussion';
 import type Post from 'flarum/common/models/Post';
 import DiscussionListSource from '../../../../src/forum/columns/DiscussionListSource';
 import DiscussionPostsSource from '../../../../src/forum/columns/DiscussionPostsSource';
+import PostListSource from '../../../../src/forum/columns/PostListSource';
+import PostListState from 'flarum/forum/states/PostListState';
+import { extend } from 'flarum/common/extend';
+import { asQuery } from '../../../../src/forum/states/deckListStates';
 import deckColumnTypes, { registerDefaultColumnTypes } from '../../../../src/forum/columns/deckColumnTypes';
 import {
   DISCUSSION_RESTORED,
@@ -241,5 +245,79 @@ describe('the Unread column', () => {
     unread.pushAttributes({ lastReadPostNumber: 5 });
     source.prune?.();
     expect(shownIds(source)).toEqual([]);
+  });
+});
+
+describe('post columns', () => {
+  // The discussion page asks for posts without an include, so it gets the
+  // endpoint's defaults, which extensions add to. Columns must too: naming any
+  // include, even one an extension adds to PostListState's (as fof/geoip adds
+  // ipInfo), turns every default off, and posts arrive without their discussion.
+  it('ask for posts as the discussion page does, whatever extensions add to the list', () => {
+    const restore = PostListState.prototype.requestParams;
+    extend(PostListState.prototype, 'requestParams', function (params: any) {
+      params.include = [...(params.include || []), 'ipInfo'];
+    });
+
+    try {
+      expect(new DiscussionPostsSource('31').state.requestParams()).not.toHaveProperty('include');
+    } finally {
+      PostListState.prototype.requestParams = restore;
+    }
+  });
+
+  it('ask for the newest posts first', () => {
+    const source = new DiscussionPostsSource('31');
+
+    expect(source.state.requestParams().sort).toBe('-createdAt');
+  });
+
+  // e.g. flagged posts, which a filter orders by when they were flagged.
+  it('leave the order to the server when told to', () => {
+    const source = new PostListSource({ filter: { flagged: true }, sort: '' });
+
+    expect(source.state.requestParams()).not.toHaveProperty('sort');
+  });
+});
+
+// Checks for new items ask exactly what the column itself does, so the posts
+// and discussions they bring in have everything the column's own do.
+describe('checking for new items', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  const findCall = () => (app.store.find as any).mock.calls[0];
+
+  it('asks for posts the way the column does', async () => {
+    const source = new DiscussionPostsSource('31');
+    const find = jest.spyOn(app.store, 'find').mockResolvedValue([] as any);
+
+    await source.checkForNew();
+
+    const [type, params] = findCall();
+    const own = source.state.requestParams();
+
+    expect(type).toBe('posts');
+    // Post columns name no includes. A key left undefined is sent as a bare
+    // `?include`, which asks for nothing: posts would arrive without their
+    // discussion, and rendering them throws.
+    expect(own).not.toHaveProperty('include');
+    expect(params).not.toHaveProperty('include');
+    expect(params.filter).toMatchObject(own.filter as object);
+    find.mockRestore();
+  });
+
+  it('asks for discussions the way the column does', async () => {
+    const source = new DiscussionListSource({});
+    (source as any).key = new Date('2026-10-01T10:00:00Z');
+    const find = jest.spyOn(app.store, 'find').mockResolvedValue([] as any);
+
+    await source.checkForNew();
+
+    const [type, params] = findCall();
+
+    expect(type).toBe('discussions');
+    expect(params.include).toEqual(asQuery(source.state.requestParams()).include);
+    expect(params.filter).toMatchObject({ lastPostedAfter: '2026-10-01T10:00:00.000Z' });
+    find.mockRestore();
   });
 });

@@ -4,6 +4,7 @@ import DeckPageStructure from './DeckPageStructure';
 import DeckSidebar from './DeckSidebar';
 import DeckPageHero from './DeckPageHero';
 import Button from 'flarum/common/components/Button';
+import Dropdown from 'flarum/common/components/Dropdown';
 import Icon from 'flarum/common/components/Icon';
 import classList from 'flarum/common/utils/classList';
 import extractText from 'flarum/common/utils/extractText';
@@ -31,7 +32,6 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
   protected chipSortable: Sortable | null = null;
   protected media: MediaQueryList[] = [];
   /** Rows, by key, whose columns don't fit across the screen. */
-  protected overflowing = new Set<string>();
   /** The column filling the screen in the phone layout. */
   protected activeIndex = 0;
   /** Once the hero is gone the toolbar names the page instead. */
@@ -124,7 +124,8 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
     const columns = this.deck.columns();
     const phone = this.isPhone();
     const flat = phone || this.isShort();
-    const showTabs = columns.length > 1 && (phone || this.overflowing.size > 0);
+    // The way between columns on phones; side by side, rows scroll themselves.
+    const showTabs = columns.length > 1 && phone;
 
     return (
       // Page--vertical puts core's side nav above the content, as on the Tags
@@ -196,13 +197,6 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
         scrollLeft={deck!.scrollLeft[key] ?? 0}
         onscrolled={(left: number) => (deck!.scrollLeft[key] = left)}
         ondrag={(dragging: boolean) => this.element.querySelector('.Deck')?.classList.toggle('Deck--dragging', dragging)}
-        onoverflow={(overflowing: boolean) => {
-          const had = this.overflowing.has(key);
-
-          overflowing ? this.overflowing.add(key) : this.overflowing.delete(key);
-
-          if (had !== overflowing) m.redraw();
-        }}
         onactive={
           phone
             ? (index: number) => {
@@ -220,22 +214,43 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
 
     items.add('addColumn', this.addButton(), 100);
 
+    // Rarely wanted and can't be undone, so kept a step away rather than as a
+    // button that could be tapped by mistake.
+    items.add(
+      'options',
+      <Dropdown
+        className="DeckPage-options"
+        buttonClassName="Button Button--icon"
+        menuClassName="Dropdown-menu--right"
+        icon="fas fa-ellipsis"
+        accessibleToggleLabel={extractText(app.translator.trans('flarum-deck.forum.page.options_label'))}
+      >
+        {this.optionItems().toArray()}
+      </Dropdown>,
+      90
+    );
+
+    return items;
+  }
+
+  /** The deck-wide actions in the toolbar's menu. */
+  optionItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
     items.add(
       'reset',
       <Button
-        className="Button DeckPage-reset"
         icon="fas fa-rotate-left"
         disabled={!this.deck.isCustomised()}
-        aria-label={extractText(app.translator.trans('flarum-deck.forum.page.reset_button'))}
         onclick={() => {
           if (confirm(extractText(app.translator.trans('flarum-deck.forum.page.reset_confirmation')))) {
             this.deck.reset();
           }
         }}
       >
-        <span className="DeckPage-actionLabel">{app.translator.trans('flarum-deck.forum.page.reset_button')}</span>
+        {app.translator.trans('flarum-deck.forum.page.reset_button')}
       </Button>,
-      90
+      100
     );
 
     return items;
@@ -318,7 +333,6 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
   }
 
   protected onLayoutChange = (): void => {
-    this.overflowing.clear();
     m.redraw();
   };
 

@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import DiscussionList from 'flarum/forum/components/DiscussionList';
 import type DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import type { DiscussionListParams } from 'flarum/forum/states/DiscussionListState';
-import { DeckDiscussionListState } from '../states/deckListStates';
+import { DeckDiscussionListState, asQuery } from '../states/deckListStates';
 import type Discussion from 'flarum/common/models/Discussion';
 import type { ApiResponsePlural } from 'flarum/common/Store';
 import type { DeckColumnSource, DeckRealtimeEvent, DeckRealtimeResult } from './DeckColumnType';
@@ -66,13 +66,7 @@ export default class DiscussionListSource implements DeckColumnSource {
     let latest: ApiResponsePlural<Discussion>;
 
     if (this.key) {
-      const params = this.state.requestParams();
-
-      latest = await app.store.find<Discussion[]>('discussions', {
-        filter: { ...params.filter, lastPostedAfter: this.key.toISOString() },
-        include: 'lastPostedUser',
-        page: { limit: CHECK_LIMIT, total: 0 },
-      });
+      latest = await this.activeSinceKey();
     } else {
       // An empty column has no key yet; its query is cheap by definition.
       latest = (await (this.state as any).loadPage(1)) as ApiResponsePlural<Discussion>;
@@ -162,12 +156,7 @@ export default class DiscussionListSource implements DeckColumnSource {
   async applyNew(): Promise<number | null> {
     if (!this.key || !this.sortsByActivity()) return null;
 
-    const params = this.state.requestParams();
-    const latest = await app.store.find<Discussion[]>('discussions', {
-      filter: { ...params.filter, lastPostedAfter: this.key.toISOString() },
-      include: Array.isArray(params.include) ? params.include.join(',') : params.include,
-      page: { limit: CHECK_LIMIT, total: 0 },
-    });
+    const latest = await this.activeSinceKey();
 
     // Oldest first, so the most recent activity ends up on top.
     [...latest].sort((a, b) => (a.lastPostedAt()?.getTime() ?? 0) - (b.lastPostedAt()?.getTime() ?? 0)).forEach((d) => this.moveToTop(d));
@@ -179,6 +168,20 @@ export default class DiscussionListSource implements DeckColumnSource {
     });
 
     return latest.length;
+  }
+
+  /**
+   * The column's own request, includes and all, narrowed to activity since the
+   * key: a range on an indexed column that usually matches nothing.
+   */
+  protected activeSinceKey(): Promise<ApiResponsePlural<Discussion>> {
+    const params = this.state.requestParams();
+
+    return app.store.find<Discussion[]>('discussions', {
+      ...asQuery(params),
+      filter: { ...params.filter, lastPostedAfter: this.key!.toISOString() },
+      page: { limit: CHECK_LIMIT, total: 0 },
+    });
   }
 
   /**

@@ -145,7 +145,9 @@ describe('a new message', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(find).toHaveBeenCalledWith('dialogs', '9', { include: 'users.groups,lastMessage' });
+    // As the list itself asks for dialogs, so this one arrives with the same.
+    const include = app.dialogs.requestParams().include as string[];
+    expect(find).toHaveBeenCalledWith('dialogs', '9', { include: include.join(',') });
     expect(ids(app.dialogs)).toEqual(['9', '1']);
   });
 

@@ -17,14 +17,16 @@ use Flarum\Flags\Api\PostResourceFields;
 use Flarum\Flags\Api\Resource\FlagResource;
 use Flarum\Flags\Api\UserResourceFields;
 use Flarum\Flags\AuditIntegration;
+use Flarum\Flags\Event\Cleared as FlagCleared;
 use Flarum\Flags\Event\Created as FlagCreated;
-use Flarum\Flags\Event\Deleting as FlagDeleting;
 use Flarum\Flags\Flag;
 use Flarum\Flags\Listener;
+use Flarum\Flags\Search;
 use Flarum\Forum\Content\AssertRegistered;
-use Flarum\Post\Event\Deleted;
+use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
 use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\User\User;
 
 return [
@@ -66,19 +68,24 @@ return [
         ->serializeToForum('guidelinesUrl', 'flarum-flags.guidelines_url'),
 
     (new Extend\Event())
-        ->listen(Deleted::class, Listener\DeleteFlags::class),
+        ->subscribe(Listener\DeleteFlags::class),
 
     (new Extend\ModelVisibility(Flag::class))
         ->scope(ScopeFlagVisibility::class),
+
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(PostSearcher::class, Search\FlaggedFilter::class),
 
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('flarum-realtime', fn () => [
             (new RealtimeExtend())
+                // Cleared, not Deleting: it comes once per post, after the
+                // flags are gone, so moderators are sent what's left.
                 ->broadcastFlagEvent(
-                    [FlagCreated::class, FlagDeleting::class],
-                    fn ($event) => $event->flag->post->discussion,
+                    [FlagCreated::class, FlagCleared::class],
+                    fn (FlagCreated|FlagCleared $event) => ($event instanceof FlagCreated ? $event->flag->post : $event->post)->discussion,
                     'flagged'
                 ),
         ])
