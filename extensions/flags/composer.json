@@ -35,7 +35,8 @@
             "category": "feature",
             "optional-dependencies": [
                 "flarum/realtime",
-                "flarum/audit"
+                "flarum/audit",
+                "flarum/deck"
             ],
             "icon": {
                 "name": "fas fa-flag",

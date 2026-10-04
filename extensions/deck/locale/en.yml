@@ -29,6 +29,7 @@ flarum-deck:
       pick_a_result_message: "Choose a result for {field} from the suggestions."
       submit_button: Add column
       title: Add a column
+      use_filters_button: Use these filters
 
     column:
       controls_label: "{title} column options"

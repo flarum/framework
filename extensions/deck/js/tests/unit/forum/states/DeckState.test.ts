@@ -342,6 +342,18 @@ describe('realtime events', () => {
     expect(sourceOf('a').events).toHaveLength(2);
   });
 
+  // Duplicates only come from the public channel and the member's own both
+  // carrying an event. The same event twice on one channel is two changes,
+  // e.g. two flags in a row, whose payloads are the moderator's user record.
+  it('dispatches the same event twice on one channel', () => {
+    const state = deckWith(column('a'));
+
+    state.onEvent('user', RENAMED, { data: discussionData('19') });
+    state.onEvent('user', RENAMED, { data: discussionData('19') });
+
+    expect(sourceOf('a').events).toHaveLength(2);
+  });
+
   it('ignores pusher’s own events', () => {
     const state = deckWith(column('a'));
 

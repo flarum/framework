@@ -140,6 +140,24 @@ class GeneratorTest extends TestCase
         $this->assertArrayHasKey('likes', $post['relationships']);
     }
 
+    /**
+     * The post comes as the posts endpoint gives it by default, so whatever
+     * other extensions add to a post (flags here) arrives with it.
+     */
+    #[Test]
+    public function includes_what_extensions_add_to_a_post(): void
+    {
+        $this->extension('flarum-flags');
+
+        $payload = $this->generator()(Post::find(1), User::find(1));
+
+        $post = collect($payload['included'] ?? [])->last();
+
+        $this->assertSame(['posts', '1'], [$post['type'], $post['id']]);
+        $this->assertArrayHasKey('flags', $post['relationships']);
+        $this->assertArrayHasKey('user', $post['relationships']);
+    }
+
     #[Test]
     public function generates_notification_payload_for_recipient(): void
     {
