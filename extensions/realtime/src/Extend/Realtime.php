@@ -14,6 +14,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
 use Flarum\Realtime\Push\RealtimeRegistry;
+use Flarum\Realtime\Websocket\Api\ChannelRegistry;
 use Flarum\Realtime\Websocket\Api\PresenceChannelAuthorizer;
 use Flarum\Realtime\Websocket\Settings;
 use Flarum\User\User;
@@ -49,10 +50,30 @@ class Realtime implements ExtenderInterface
      */
     protected array $presenceChannelGuards = [];
 
+    /**
+     * @var array<string, callable>
+     */
+    protected array $privateChannels = [];
+
+    /**
+     * @var array<string, callable>
+     */
+    protected array $presenceChannels = [];
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->afterResolving(Settings::class, function (Settings $settings) {
             $settings->use($this->configuration);
+        });
+
+        $container->afterResolving(ChannelRegistry::class, function (ChannelRegistry $registry) {
+            foreach ($this->privateChannels as $subject => $callback) {
+                $registry->addPrivate($subject, $callback);
+            }
+
+            foreach ($this->presenceChannels as $subject => $callback) {
+                $registry->addPresence($subject, $callback);
+            }
         });
 
         $container->afterResolving(PresenceChannelAuthorizer::class, function (PresenceChannelAuthorizer $authorizer) {
@@ -283,8 +304,92 @@ class Realtime implements ExtenderInterface
     }
 
     // -------------------------------------------------------------------------
-    // Presence channel authorization
+    // Channels
     // -------------------------------------------------------------------------
+
+    /**
+     * Register a private channel, and how to decide who may subscribe to it.
+     *
+     * The channel is `private-{subject}={id}`, and the callback is given the actor
+     * and that id. Return true to sign the subscription; anything else refuses it.
+     *
+     * Because the check runs here — in an ordinary request, once per subscription —
+     * it has the full permission machinery available, and the websocket server does
+     * no permission work per event. That makes the channel a real privilege
+     * boundary: an extension can carry data on it that the audience of an existing
+     * channel is not entitled to, rather than having to borrow one of realtime's and
+     * inherit its audience.
+     *
+     * Guests reach the callback. Private channels have never required a session (the
+     * discussion typing channel is authorized for anyone who can see the discussion,
+     * guests included), so a members-only channel must say so itself.
+     *
+     * Prefix the subject to keep it yours — registering one twice throws.
+     *
+     * Example (in an extension's extend.php):
+     *
+     *   (new Extend\Conditional())
+     *       ->whenExtensionEnabled('flarum-realtime', fn () => [
+     *           (new \Flarum\Realtime\Extend\Realtime())
+     *               ->privateChannel('acme-readers', function (User $actor, int $discussionId) {
+     *                   $discussion = Discussion::whereVisibleTo($actor)->find($discussionId);
+     *
+     *                   return $discussion !== null
+     *                       && $actor->can('acme-readers.view', $discussion);
+     *               }),
+     *       ]),
+     *
+     * @param string $subject  Channel subject, e.g. 'acme-readers'.
+     * @param callable(User $actor, int $id): bool $authorize
+     */
+    public function privateChannel(string $subject, callable $authorize): self
+    {
+        $this->privateChannels[$subject] = $authorize;
+
+        return $this;
+    }
+
+    /**
+     * Register a presence channel, and how to decide who may subscribe to it.
+     *
+     * Presence channels keep a member list and emit `member_added`/`member_removed`,
+     * so a roster needs no announce/keepalive protocol of its own. Return the member
+     * data to publish for this actor — it is broadcast to the rest of the channel, so
+     * put only what everyone there may see — or false to refuse.
+     *
+     * The channel is `presence-{subject}` for a forum-wide one, or
+     * `presence-{subject}={id}` to scope it to a single object, in which case the id
+     * is passed to the callback (and is null otherwise).
+     *
+     * Guests are refused before the callback runs: the member list is keyed by user
+     * id, so there is nothing to publish for them.
+     *
+     * Prefix the subject to keep it yours — registering one twice throws. To add a
+     * further condition to a channel someone else registered, use
+     * {@link authorizePresenceChannel()} instead; guards stack, definitions do not.
+     *
+     * Example:
+     *
+     *   (new \Flarum\Realtime\Extend\Realtime())
+     *       ->presenceChannel('acme-readers', function (User $actor, ?int $discussionId) {
+     *           $discussion = Discussion::whereVisibleTo($actor)->find($discussionId);
+     *
+     *           if ($discussion === null || ! $actor->can('acme-readers.view', $discussion)) {
+     *               return false;
+     *           }
+     *
+     *           return ['displayName' => $actor->display_name];
+     *       }),
+     *
+     * @param string $subject  Channel subject, e.g. 'acme-readers'.
+     * @param callable(User $actor, ?int $id): (array|bool|null) $authorize
+     */
+    public function presenceChannel(string $subject, callable $authorize): self
+    {
+        $this->presenceChannels[$subject] = $authorize;
+
+        return $this;
+    }
 
     /**
      * Register a callback to authorize access to a presence channel.

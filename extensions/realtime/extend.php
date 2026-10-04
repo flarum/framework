@@ -15,6 +15,7 @@ use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtender;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 
@@ -40,6 +41,16 @@ return [
 
     (new Extend\Routes('api'))
         ->post('/websocket/auth', 'websocket.auth', Websocket\Api\AuthController::class),
+
+    // Realtime's own channels, registered through the same extender an extension
+    // would use. See Websocket\Api\DefaultChannels for what each one requires.
+    (new RealtimeExtender())
+        ->privateChannel('user', [Websocket\Api\DefaultChannels::class, 'user'])
+        ->privateChannel('typing', [Websocket\Api\DefaultChannels::class, 'typing'])
+        ->privateChannel('typingIdentified', [Websocket\Api\DefaultChannels::class, 'typingIdentified'])
+        ->privateChannel('privateMessageTyping', [Websocket\Api\DefaultChannels::class, 'privateMessageTyping'])
+        ->privateChannel('index-typing-tag', [Websocket\Api\DefaultChannels::class, 'indexTypingTag'])
+        ->presenceChannel('online', [Websocket\Api\DefaultChannels::class, 'online']),
 
     (new Extend\ApiResource(Resource\ForumResource::class))
         ->fields(Websocket\Api\ForumAttributes::class),
@@ -68,7 +79,7 @@ return [
 
             // Whether to also subscribe to the channel that names users who are typing
             // while hiding their online status. The channel is authorized server-side
-            // regardless (see AuthController::typingIdentified); this only saves the
+            // regardless (see DefaultChannels::typingIdentified); this only saves the
             // client a subscription it would be refused.
             Schema\Boolean::make('canViewHiddenTypers')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
