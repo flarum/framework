@@ -66,22 +66,22 @@ export default function (): void {
     // previous channel objects are discarded with the previous Pusher
     // instance, so re-binding against the new channels is non-duplicating.
     const bindHandlers = (): void => {
-      app.websocket_channels.public?.bind(CORE_POSTED_EVENT, this.websocketEventPosted.bind(this));
-      app.websocket_channels.user?.bind(CORE_POSTED_EVENT, this.websocketEventPosted.bind(this));
+      app.websocket_channels.public?.bind(CORE_POSTED_EVENT, this.websocketEventPosted);
+      app.websocket_channels.user?.bind(CORE_POSTED_EVENT, this.websocketEventPosted);
 
-      app.websocket_channels.public?.bind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate.bind(this));
-      app.websocket_channels.user?.bind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate.bind(this));
+      app.websocket_channels.public?.bind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate);
+      app.websocket_channels.user?.bind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate);
 
-      app.websocket_channels.public?.bind(CORE_REVISED_EVENT, this.websocketEventPosted.bind(this));
-      app.websocket_channels.user?.bind(CORE_REVISED_EVENT, this.websocketEventPosted.bind(this));
+      app.websocket_channels.public?.bind(CORE_REVISED_EVENT, this.websocketEventPosted);
+      app.websocket_channels.user?.bind(CORE_REVISED_EVENT, this.websocketEventPosted);
 
       // A restored post rejoins the stream the way a new one arrives.
-      app.websocket_channels.public?.bind(POST_RESTORED_EVENT, this.websocketEventPosted.bind(this));
-      app.websocket_channels.user?.bind(POST_RESTORED_EVENT, this.websocketEventPosted.bind(this));
+      app.websocket_channels.public?.bind(POST_RESTORED_EVENT, this.websocketEventPosted);
+      app.websocket_channels.user?.bind(POST_RESTORED_EVENT, this.websocketEventPosted);
 
       for (const eventName of RealtimeState.getDiscussionStreamEventNames()) {
-        app.websocket_channels.public?.bind(eventName, this.websocketEventStreamUpdate.bind(this));
-        app.websocket_channels.user?.bind(eventName, this.websocketEventStreamUpdate.bind(this));
+        app.websocket_channels.public?.bind(eventName, this.websocketEventStreamUpdate);
+        app.websocket_channels.user?.bind(eventName, this.websocketEventStreamUpdate);
       }
     };
 
@@ -89,25 +89,27 @@ export default function (): void {
     this._realtimeReconnectDisposer = RealtimeState.onChannelsReconnected(bindHandlers);
   });
 
+  // Unbind only this page's handlers: an unbind by event name alone would
+  // also remove every other component's handler for the same event.
   extend(DiscussionPage.prototype, 'onremove', function (this: any) {
     this._realtimeReconnectDisposer?.();
     this._realtimeReconnectDisposer = null;
 
-    app.websocket_channels.public?.unbind(CORE_POSTED_EVENT);
-    app.websocket_channels.user?.unbind(CORE_POSTED_EVENT);
+    app.websocket_channels.public?.unbind(CORE_POSTED_EVENT, this.websocketEventPosted);
+    app.websocket_channels.user?.unbind(CORE_POSTED_EVENT, this.websocketEventPosted);
 
-    app.websocket_channels.public?.unbind(CORE_RENAMED_EVENT);
-    app.websocket_channels.user?.unbind(CORE_RENAMED_EVENT);
+    app.websocket_channels.public?.unbind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate);
+    app.websocket_channels.user?.unbind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate);
 
-    app.websocket_channels.public?.unbind(CORE_REVISED_EVENT);
-    app.websocket_channels.user?.unbind(CORE_REVISED_EVENT);
+    app.websocket_channels.public?.unbind(CORE_REVISED_EVENT, this.websocketEventPosted);
+    app.websocket_channels.user?.unbind(CORE_REVISED_EVENT, this.websocketEventPosted);
 
-    app.websocket_channels.public?.unbind(POST_RESTORED_EVENT);
-    app.websocket_channels.user?.unbind(POST_RESTORED_EVENT);
+    app.websocket_channels.public?.unbind(POST_RESTORED_EVENT, this.websocketEventPosted);
+    app.websocket_channels.user?.unbind(POST_RESTORED_EVENT, this.websocketEventPosted);
 
     for (const eventName of RealtimeState.getDiscussionStreamEventNames()) {
-      app.websocket_channels.public?.unbind(eventName);
-      app.websocket_channels.user?.unbind(eventName);
+      app.websocket_channels.public?.unbind(eventName, this.websocketEventStreamUpdate);
+      app.websocket_channels.user?.unbind(eventName, this.websocketEventStreamUpdate);
     }
   });
 }

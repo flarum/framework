@@ -16,6 +16,10 @@ const EVENT = 'typing-activity';
 /** Same expiry as realtime's typing indicator: no ping for this long means they stopped. */
 const ACTIVE_MS = 6000;
 const HISTORY = 30;
+/** Past typing drops off after this long. */
+const MAX_AGE_MS = 15 * 60 * 1000;
+/** How often to look for entries that have aged out while the forum was quiet. */
+const PRUNE_EVERY_MS = 60 * 1000;
 
 interface TypingActivityData {
   userId: number | null;
@@ -46,6 +50,7 @@ export default class TypingActivitySource implements DeckColumnSource {
   protected channel: Channel | null = null;
   protected requested = new Set<number>();
   protected expiryTimer: number | null = null;
+  protected pruneTimer: number | null = null;
 
   load(): Promise<unknown> {
     return Promise.resolve();
@@ -61,6 +66,7 @@ export default class TypingActivitySource implements DeckColumnSource {
     this.socket = socket;
     this.channel = socket.subscribe(CHANNEL) as Channel;
     this.channel.bind(EVENT, this.onActivity);
+    this.pruneTimer = window.setInterval(() => this.prune() && m.redraw(), PRUNE_EVERY_MS);
   }
 
   stop(): void {
@@ -69,7 +75,18 @@ export default class TypingActivitySource implements DeckColumnSource {
     this.socket = this.channel = null;
 
     if (this.expiryTimer) clearTimeout(this.expiryTimer);
-    this.expiryTimer = null;
+    if (this.pruneTimer) clearInterval(this.pruneTimer);
+    this.expiryTimer = this.pruneTimer = null;
+  }
+
+  /** Drops entries older than MAX_AGE_MS; true if any went. */
+  protected prune(): boolean {
+    const cutoff = Date.now() - MAX_AGE_MS;
+    const before = this.entries.length;
+
+    this.entries = this.entries.filter((entry) => entry.at.getTime() >= cutoff);
+
+    return this.entries.length !== before;
   }
 
   /** Fed by its own channel; nothing else concerns it. */
@@ -147,6 +164,7 @@ export default class TypingActivitySource implements DeckColumnSource {
     const key = `${data.userId ?? 'someone'}:${data.discussionId ?? 'new'}`;
 
     this.entries = [{ ...data, key, at: new Date() }, ...this.entries.filter((entry) => entry.key !== key)].slice(0, HISTORY);
+    this.prune();
 
     if (data.discussionId && !this.requested.has(data.discussionId)) {
       this.requested.add(data.discussionId);

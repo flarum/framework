@@ -264,7 +264,7 @@ export default class DeckState {
     this.recentEvents.set(key, { kind, at: now });
 
     const pushed = (app.store.pushPayload(data) as any) ?? null;
-    const model = Array.isArray(pushed) ? (pushed[0] ?? null) : pushed;
+    const model = Array.isArray(pushed) ? pushed[0] ?? null : pushed;
     const post = subjectPost(name, data) ?? (model?.data?.type === 'posts' ? model : null);
     const discussion = model?.data?.type === 'discussions' ? (model as Discussion) : post?.discussion() || null;
     const event = { name, payload: data, model, discussion, post };
@@ -284,7 +284,7 @@ export default class DeckState {
       type === 'discussions'
         ? (model as Discussion | null)
         : post?.discussion() ||
-          (data.meta?.discussionId ? (app.store.getById<Discussion>('discussions', String(data.meta.discussionId)) ?? null) : null);
+          (data.meta?.discussionId ? app.store.getById<Discussion>('discussions', String(data.meta.discussionId)) ?? null : null);
     const event = { name: REMOVED, payload: data, model, discussion, post };
     const live = this.isLive();
 

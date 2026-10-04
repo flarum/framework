@@ -44,12 +44,11 @@ export default class DeckColumnState {
   }
 
   /**
-   * @param live Whether realtime is connected. Live columns take new items
-   *             straight away; otherwise they wait behind the "new" pill.
-   */
-  /**
    * Hands a realtime event to the source. Most are handled from the payload
    * alone; those only the server can place queue a check of this column.
+   *
+   * @param live Whether realtime is connected. Live columns take new items
+   *             straight away; otherwise they wait behind the "new" pill.
    */
   handleRealtime(event: DeckRealtimeEvent, live: boolean): void {
     const result = this.source.onRealtime ? this.source.onRealtime(event) : DEFAULT_TRIGGERS.includes(event.name) ? 'check' : undefined;
