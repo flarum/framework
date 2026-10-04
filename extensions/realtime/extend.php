@@ -77,11 +77,23 @@ return [
 
                     return $settings->get('flarum-realtime.typing-indicator')
                         && $context->getActor()->hasPermission('user.viewLastSeenAt');
-                })
+                }),
+
+            // Whether the forum-wide typing feed will accept this user. Authorized
+            // server-side regardless (AuthController::typingActivity).
+            Schema\Boolean::make('canViewAllTyping')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->get(function (User $model, Context $context) {
+                    $settings = resolve(SettingsRepositoryInterface::class);
+
+                    return $settings->get('flarum-realtime.typing-indicator')
+                        && $context->getActor()->hasPermission('flarum-realtime.view-all-typing');
+                }),
         ]),
 
     (new Extend\Event)
         ->subscribe(Push\EventSubscriber::class)
+        ->subscribe(Push\VisibilitySubscriber::class)
         ->listen(\Flarum\Notification\Event\Sent::class, Push\Listener\BroadcastNotifications::class)
         ->listen(\Flarum\Settings\Event\Saved::class, Listener\RestartServerOnSettingChange::class)
         ->listen(\Flarum\Frontend\Event\AssetsRecompiled::class, Listener\BroadcastAssetsRevision::class),

@@ -12,6 +12,15 @@ export default [
       }),
       'view'
     )
+    .permission(
+      () => ({
+        icon: 'fas fa-keyboard',
+        label: app.translator.trans('flarum-realtime.admin.permission.view-all-typing'),
+        permission: 'flarum-realtime.view-all-typing',
+        allowGuest: false,
+      }),
+      'moderate'
+    )
     .setting(() => ({
       setting: 'flarum-realtime.typing-indicator',
       label: app.translator.trans('flarum-realtime.admin.settings.typing-indicator'),

@@ -4,6 +4,7 @@ import Discussion from './extend/Discussion';
 import DiscussionList from './extend/DiscussionList';
 import Tags from './extend/Tags';
 import User from './extend/User';
+import Visibility from './extend/Visibility';
 
 import RealtimeExtend from './extenders/Realtime';
 import RealtimeState from './RealtimeState';
@@ -21,4 +22,5 @@ app.initializers.add('flarum-realtime', () => {
   DiscussionList();
   Tags();
   User();
+  Visibility();
 });

@@ -77,6 +77,7 @@ import './components/Button';
 import './components/Modal';
 import './components/FormModal';
 import './components/GroupBadge';
+import './components/GroupSelector';
 import './components/UserSelectionModal';
 import './components/TextEditor';
 import './components/TextEditorButton';

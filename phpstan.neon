@@ -11,6 +11,8 @@ parameters:
 	  - extensions/approval/extend.php
 	  - extensions/audit/src
 	  - extensions/audit/extend.php
+	  - extensions/deck/src
+	  - extensions/deck/extend.php
 	  - extensions/flags/src
 	  - extensions/flags/extend.php
 	  - extensions/likes/src

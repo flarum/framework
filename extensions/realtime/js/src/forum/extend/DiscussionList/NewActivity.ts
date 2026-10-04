@@ -103,6 +103,9 @@ export default function (): void {
       app.websocket_channels.public?.bind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted.bind(this));
       app.websocket_channels.user?.bind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted.bind(this));
       app.websocket_channels.user?.bind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted.bind(this));
+      // A restored discussion reappears the way new activity does.
+      app.websocket_channels.public?.bind('discussionRestored', this._realtimeWebsocketEventPosted.bind(this));
+      app.websocket_channels.user?.bind('discussionRestored', this._realtimeWebsocketEventPosted.bind(this));
     };
 
     bindHandlers();
@@ -117,6 +120,8 @@ export default function (): void {
     app.websocket_channels.public?.unbind('Flarum\\Post\\Event\\Posted');
     app.websocket_channels.user?.unbind('Flarum\\Discussion\\Event\\Started');
     app.websocket_channels.user?.unbind('Flarum\\Post\\Event\\Posted');
+    app.websocket_channels.public?.unbind('discussionRestored');
+    app.websocket_channels.user?.unbind('discussionRestored');
   });
 
   extend(IndexPage.prototype, 'contentItems', function (this: any, items: ItemList<Mithril.Children>) {

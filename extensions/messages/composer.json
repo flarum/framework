@@ -26,6 +26,7 @@
             "title": "Messages",
             "category": "feature",
             "optional-dependencies": [
+                "flarum/deck",
                 "flarum/realtime",
                 "flarum/tags"
             ],

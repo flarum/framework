@@ -6,6 +6,7 @@ import RealtimeState from '../../RealtimeState';
 const CORE_POSTED_EVENT = 'Flarum\\Post\\Event\\Posted';
 const CORE_RENAMED_EVENT = 'discussionRenamed';
 const CORE_REVISED_EVENT = 'revisedEvent';
+const POST_RESTORED_EVENT = 'postRestored';
 
 export default function (): void {
   extend(DiscussionPage.prototype, 'oninit', function (this: any) {
@@ -74,6 +75,10 @@ export default function (): void {
       app.websocket_channels.public?.bind(CORE_REVISED_EVENT, this.websocketEventPosted.bind(this));
       app.websocket_channels.user?.bind(CORE_REVISED_EVENT, this.websocketEventPosted.bind(this));
 
+      // A restored post rejoins the stream the way a new one arrives.
+      app.websocket_channels.public?.bind(POST_RESTORED_EVENT, this.websocketEventPosted.bind(this));
+      app.websocket_channels.user?.bind(POST_RESTORED_EVENT, this.websocketEventPosted.bind(this));
+
       for (const eventName of RealtimeState.getDiscussionStreamEventNames()) {
         app.websocket_channels.public?.bind(eventName, this.websocketEventStreamUpdate.bind(this));
         app.websocket_channels.user?.bind(eventName, this.websocketEventStreamUpdate.bind(this));
@@ -96,6 +101,9 @@ export default function (): void {
 
     app.websocket_channels.public?.unbind(CORE_REVISED_EVENT);
     app.websocket_channels.user?.unbind(CORE_REVISED_EVENT);
+
+    app.websocket_channels.public?.unbind(POST_RESTORED_EVENT);
+    app.websocket_channels.user?.unbind(POST_RESTORED_EVENT);
 
     for (const eventName of RealtimeState.getDiscussionStreamEventNames()) {
       app.websocket_channels.public?.unbind(eventName);

@@ -11,6 +11,7 @@ namespace Flarum\Realtime\Websocket\Message;
 
 use Flarum\Realtime\Websocket\Channel\Manager;
 use Flarum\Realtime\Websocket\IndexTypingPresence;
+use Flarum\Realtime\Websocket\TypingActivity;
 use Flarum\Realtime\Websocket\TypingIdentity;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
@@ -40,6 +41,7 @@ class Message
 
         $this->relayIndexTyping();
         $this->relayComposeTyping();
+        $this->relayTypingActivity();
     }
 
     /**
@@ -193,6 +195,33 @@ class Message
         }
 
         resolve(IndexTypingPresence::class)->touch((int) $m[1]);
+    }
+
+    /**
+     * Feed discussion and new-discussion typing to the forum-wide activity
+     * channel, which tailors it per subscriber. Skipped entirely while nobody
+     * is subscribed. Private-message typing never goes there.
+     */
+    protected function relayTypingActivity(): void
+    {
+        if (! $this->manager->find(TypingActivity::CHANNEL)) {
+            return;
+        }
+
+        if ($this->payload->event === 'client-typing'
+            && preg_match('/^private-typing=(\d+)$/', $this->payload->channel, $m)) {
+            resolve(TypingActivity::class)->discussion(
+                $this->manager->userIdForConnection($this->connection),
+                (int) $m[1],
+                $this->payload->data->time ?? null
+            );
+        }
+
+        if ($this->payload->event === 'client-index-typing-tags'
+            && preg_match('/^private-user=(\d+)$/', $this->payload->channel, $m)
+            && is_array($this->payload->data->tags ?? null)) {
+            resolve(TypingActivity::class)->newDiscussion((int) $m[1], $this->payload->data->tags);
+        }
     }
 
     /**
