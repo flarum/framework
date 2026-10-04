@@ -16,6 +16,8 @@ import type { DeckColumnWidth } from '../columns/DeckColumnType';
 export interface IDeckColumnAttrs extends ComponentAttrs {
   deck: DeckState;
   column: DeckColumnState;
+  /** Shown in the single strip phones and short screens get, rather than in a row. */
+  flat?: boolean;
 }
 
 const widthLabels = (): Record<DeckColumnWidth, Mithril.Children> => ({
@@ -161,7 +163,31 @@ export default class DeckColumn<CustomAttrs extends IDeckColumnAttrs = IDeckColu
 
     items.add('separator3', <Separator />, 17);
 
-    // Also the keyboard and screen reader way to rearrange, as dragging needs a pointer.
+    // The keyboard and screen reader way to rearrange, as dragging needs a pointer.
+    const flat = !!this.attrs.flat;
+    // Left and right as the reader sees them: in a right-to-left layout, left is later.
+    const right = this.isRtl() ? -1 : 1;
+
+    if (deck.canMoveBy(id, -right, flat)) {
+      items.add(
+        'moveLeft',
+        <Button icon="fas fa-arrow-left" onclick={() => this.move(() => deck.moveBy(id, -right, flat))}>
+          {app.translator.trans('flarum-deck.forum.column.move_left_button')}
+        </Button>,
+        16
+      );
+    }
+
+    if (deck.canMoveBy(id, right, flat)) {
+      items.add(
+        'moveRight',
+        <Button icon="fas fa-arrow-right" onclick={() => this.move(() => deck.moveBy(id, right, flat))}>
+          {app.translator.trans('flarum-deck.forum.column.move_right_button')}
+        </Button>,
+        15.5
+      );
+    }
+
     const row = rowOf(column.config);
     const targetRow = row === 0 ? 1 : 0;
 
@@ -169,7 +195,7 @@ export default class DeckColumn<CustomAttrs extends IDeckColumnAttrs = IDeckColu
       'moveRow',
       <Button
         icon={targetRow === 1 ? 'fas fa-arrow-down' : 'fas fa-arrow-up'}
-        onclick={() => deck.moveTo(id, targetRow, deck.rows()[targetRow].length)}
+        onclick={() => this.move(() => deck.moveTo(id, targetRow, deck.rows()[targetRow].length))}
       >
         {targetRow === 1
           ? app.translator.trans('flarum-deck.forum.column.move_to_bottom_row_button')
@@ -189,6 +215,43 @@ export default class DeckColumn<CustomAttrs extends IDeckColumnAttrs = IDeckColu
     );
 
     return items;
+  }
+
+  /**
+   * Moves the column from its menu, then says where it went and gives focus
+   * back to its menu, which the move took out of the page and put back.
+   */
+  protected move(callback: () => void): void {
+    const { deck, column } = this.attrs;
+    const id = column.config.id;
+    const flat = !!this.attrs.flat;
+
+    callback();
+
+    const place = deck.placeOf(id, flat);
+
+    if (place) {
+      const position = place.index + 1;
+      const count = place.count;
+
+      deck.announcement = extractText(
+        flat
+          ? app.translator.trans('flarum-deck.forum.column.moved_announcement', { position, count })
+          : place.row === 0
+          ? app.translator.trans('flarum-deck.forum.column.moved_in_top_row_announcement', { position, count })
+          : app.translator.trans('flarum-deck.forum.column.moved_in_bottom_row_announcement', { position, count })
+      );
+    }
+
+    // After the dropdown has closed, which would otherwise take focus back.
+    setTimeout(() => {
+      m.redraw.sync();
+      document.querySelector<HTMLElement>(`.DeckColumn[data-column-id="${id}"] .DeckColumn-menu .Dropdown-toggle`)?.focus();
+    });
+  }
+
+  protected isRtl(): boolean {
+    return getComputedStyle(this.element ?? document.documentElement).direction === 'rtl';
   }
 
   showNew() {

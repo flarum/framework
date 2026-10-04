@@ -1,6 +1,11 @@
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import app from 'flarum/forum/app';
 import { jest } from '@jest/globals';
+import flatten from 'flat';
+import jsYaml from 'js-yaml';
+import fs from 'fs';
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
 import deckColumnTypes from '../../../src/forum/columns/deckColumnTypes';
 import { PREFERENCE_KEY } from '../../../src/forum/utils/deckLayout';
 import type {
@@ -19,6 +24,13 @@ export function boot(): void {
   bootstrapForum();
   app.boot();
   booted = true;
+}
+
+/** Deck's own strings, as the forum would have them. */
+export function loadDeckTranslations(): void {
+  const file = resolve(dirname(fileURLToPath(import.meta.url)), '../../../../locale/en.yml');
+
+  app.translator.addTranslations(flatten(jsYaml.load(fs.readFileSync(file, 'utf8')) as object));
 }
 
 /** A source that records what it's handed, for column types registered by tests. */

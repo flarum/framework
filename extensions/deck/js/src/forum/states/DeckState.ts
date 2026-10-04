@@ -46,6 +46,9 @@ export default class DeckState {
   /** Whether the member has a layout of their own, rather than the default. */
   protected customised: boolean;
 
+  /** Read out by screen readers after a column is moved without dragging. */
+  public announcement = '';
+
   constructor() {
     this.customised = hasCustomLayout();
     this.configs = storedColumns();
@@ -147,6 +150,33 @@ export default class DeckState {
     const before = others.slice(0, index).filter((column) => rowOf(column.config) === row).length;
 
     this.moveTo(id, row, before);
+  }
+
+  /** A column's place among the columns shown beside it: in its row, or along the single strip. */
+  placeOf(id: string, flat: boolean): { index: number; count: number; row: number } | null {
+    const column = this.columns().find((column) => column.config.id === id);
+
+    if (!column) return null;
+
+    const row = rowOf(column.config);
+    const peers = flat ? this.columns() : this.rows()[row];
+
+    return { index: peers.indexOf(column), count: peers.length, row };
+  }
+
+  canMoveBy(id: string, delta: number, flat: boolean): boolean {
+    const place = this.placeOf(id, flat);
+
+    return !!place && place.index + delta >= 0 && place.index + delta < place.count;
+  }
+
+  /** Moves a column `delta` places along its row, or along the single strip: the keyboard's drag and drop. */
+  moveBy(id: string, delta: number, flat: boolean): void {
+    if (!this.canMoveBy(id, delta, flat)) return;
+
+    const { index, row } = this.placeOf(id, flat)!;
+
+    flat ? this.moveFlat(id, index + delta) : this.moveTo(id, row, index + delta);
   }
 
   protected endOfRow(row: number): number {

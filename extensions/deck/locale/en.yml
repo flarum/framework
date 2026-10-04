@@ -33,8 +33,13 @@ flarum-deck:
     column:
       controls_label: "{title} column options"
       drag_handle_label: "Drag to move {title}"
+      move_left_button: Move left
+      move_right_button: Move right
       move_to_bottom_row_button: Move to bottom row
       move_to_top_row_button: Move to top row
+      moved_announcement: "Moved to position {position} of {count}."
+      moved_in_bottom_row_announcement: "Moved to position {position} of {count} in the bottom row."
+      moved_in_top_row_announcement: "Moved to position {position} of {count} in the top row."
       new_items_button: "{count, plural, one {# new} other {# new}}"
       open_discussion_button: Open discussion
       refresh_button: Refresh

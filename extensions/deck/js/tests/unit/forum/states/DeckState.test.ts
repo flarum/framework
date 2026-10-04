@@ -138,6 +138,57 @@ describe('rearranging', () => {
   });
 });
 
+describe('moving without dragging', () => {
+  it('moves a column one place along its row', () => {
+    jest.useFakeTimers();
+    setLayout([column('a'), column('b'), column('c'), column('d', 1)]);
+    const state = new DeckState();
+
+    state.moveBy('a', 1, false);
+    expect(ids(state)).toEqual([['b', 'a', 'c'], ['d']]);
+
+    state.moveBy('c', -2, false);
+    expect(ids(state)).toEqual([['c', 'b', 'a'], ['d']]);
+  });
+
+  it('stays within its row', () => {
+    jest.useFakeTimers();
+    setLayout([column('a'), column('b'), column('c', 1)]);
+    const state = new DeckState();
+
+    expect(state.canMoveBy('b', 1, false)).toBe(false);
+    expect(state.canMoveBy('c', -1, false)).toBe(false);
+
+    state.moveBy('b', 1, false);
+    expect(ids(state)).toEqual([['a', 'b'], ['c']]);
+  });
+
+  it('moves along the single strip, across the rows', () => {
+    jest.useFakeTimers();
+    setLayout([column('a'), column('b'), column('c', 1)]);
+    const state = new DeckState();
+
+    expect(state.canMoveBy('b', 1, true)).toBe(true);
+
+    // Strip: a b | c  →  a | c b
+    state.moveBy('b', 1, true);
+    expect(state.columns().map((column) => column.config.id)).toEqual(['a', 'c', 'b']);
+    expect(ids(state)).toEqual([['a'], ['c', 'b']]);
+  });
+
+  it('counts only the columns that are shown', () => {
+    jest.useFakeTimers();
+    setLayout([column('a'), column('h', 0, 'test-hidden'), column('b')]);
+    const state = new DeckState();
+
+    expect(state.placeOf('b', false)).toEqual({ index: 1, count: 2, row: 0 });
+    expect(state.canMoveBy('b', 1, false)).toBe(false);
+
+    state.moveBy('b', -1, false);
+    expect(ids(state)).toEqual([['b', 'a'], []]);
+  });
+});
+
 describe('resetting', () => {
   it('clears the stored layout and cancels a save still pending', () => {
     jest.useFakeTimers();

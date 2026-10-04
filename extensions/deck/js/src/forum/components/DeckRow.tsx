@@ -49,7 +49,7 @@ export default class DeckRow<CustomAttrs extends IDeckRowAttrs = IDeckRowAttrs> 
 
         <div className="DeckRow-columns" data-row={row ?? ''} onscroll={(e: Event & { redraw?: boolean }) => this.onscroll(e)}>
           {columns.map((column) => (
-            <DeckColumn key={column.config.id} deck={deck} column={column} />
+            <DeckColumn key={column.config.id} deck={deck} column={column} flat={row === null} />
           ))}
           {!columns.length && <div className="DeckRow-dropHint">{app.translator.trans('flarum-deck.forum.page.drop_row_hint')}</div>}
         </div>

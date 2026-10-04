@@ -146,6 +146,11 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
             <div className="DeckPage-actions">{this.actionItems().toArray()}</div>
           </div>,
 
+          // Always rendered, so a change to its text is announced.
+          <div className="visually-hidden" role="status" aria-live="polite">
+            {this.deck.announcement}
+          </div>,
+
           showTabs && (
             <nav className="DeckPage-tabs" aria-label={extractText(app.translator.trans('flarum-deck.forum.page.navigator_label'))}>
               {this.tabs(columns, phone)}
