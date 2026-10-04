@@ -1,0 +1,521 @@
+// Deck lays out core's own components (DiscussionList, NotificationList,
+// PostList, Button, Bubble, Dropdown) and nothing else. Colours, type and
+// spacing come from core's variables, so a theme that styles those components
+// styles Deck too. The narrow-column overrides mirror .DiscussionListPane,
+// which already shows DiscussionListItems at --pane-width.
+//
+// Up to two rows of columns share the height; within a row, columns share
+// the width and only scroll sideways once they're all at their minimum.
+
+// The page is core's PageStructure in its vertical form (as the Tags and
+// Messages pages use), so the forum's side nav runs across the top. Below it,
+// the deck fills the rest of the screen.
+.DeckPage {
+  --deck-column-min-width: 280px;
+  --deck-edge-fade: 40px;
+
+  display: flex;
+  flex-direction: column;
+  // The page itself never scrolls; columns do. --app-bottom-padding keeps the
+  // minimised composer from covering the bottom of every column.
+  height: calc(~"100vh - var(--header-height) - var(--app-bottom-padding)");
+  height: calc(~"100dvh - var(--header-height) - var(--app-bottom-padding)");
+  padding-bottom: 0;
+
+  @media @phone {
+    height: calc(~"100vh - var(--header-height-phone) - var(--app-bottom-padding)");
+    height: calc(~"100dvh - var(--header-height-phone) - var(--app-bottom-padding)");
+  }
+
+  .Page-main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  // Core's centred container, holding only the side nav (DeckPageStructure
+  // moves the deck out of it), so the nav lines up as on any other page.
+  .Page-container {
+    flex: none;
+  }
+
+  @media @desktop-up {
+    .Page-sidebar {
+      margin-top: 15px;
+    }
+  }
+}
+
+// Full width with the container's 15px gutter: the container itself caps out
+// at 1200-1500px, about three columns.
+.DeckPage-deck {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 15px;
+}
+
+.DeckPage-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--control-bg);
+}
+
+.DeckPage-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  font-size: 18px;
+  color: var(--heading-color);
+}
+
+.DeckPage-actions {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
+.DeckPage-empty {
+  padding: 60px 15px;
+  text-align: center;
+  color: var(--muted-color);
+}
+
+// Column chips: the switcher on phones, and a way to jump to columns scrolled
+// out of sight elsewhere.
+.DeckPage-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 8px 0;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--control-bg);
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.DeckPage-tab {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.DeckPage-tabCount {
+  position: static;
+}
+
+.DeckPage-tab--ghost {
+  opacity: 0.4;
+}
+
+.Deck {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.DeckRow {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+
+  & + & {
+    border-top: 1px solid var(--control-bg);
+  }
+
+  // An unused second row takes no room, until a column is being dragged and
+  // it becomes somewhere to drop one.
+  &--empty {
+    flex: 0 0 0;
+    overflow: hidden;
+
+    & + .DeckRow, .DeckRow + & {
+      border-top: 0;
+    }
+  }
+
+  // Fades over whichever edge has more columns past it.
+  &::before, &::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    bottom: 0;
+    width: var(--deck-edge-fade);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  &::before {
+    left: 0;
+    background: linear-gradient(to right, var(--body-bg), transparent);
+  }
+  &::after {
+    right: 0;
+    background: linear-gradient(to left, var(--body-bg), transparent);
+  }
+  &--moreLeft::before, &--moreRight::after {
+    opacity: 1;
+  }
+}
+
+.DeckRow-columns {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-left: 1px solid var(--control-bg);
+  scroll-snap-type: x proximity;
+}
+
+// For mouse users, who can't swipe sideways; touch and trackpad scroll as usual.
+.DeckRow-scroll {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  background: var(--body-bg);
+  box-shadow: 0 2px 6px var(--shadow-color);
+
+  &--left {
+    left: 6px;
+  }
+  &--right {
+    right: 6px;
+  }
+}
+
+@media (hover: hover) {
+  .DeckRow--moreLeft:hover .DeckRow-scroll--left, .DeckRow--moreRight:hover .DeckRow-scroll--right {
+    display: inline-flex;
+  }
+}
+
+.DeckRow-dropHint {
+  // Not a drop target itself, so the row underneath gets the drag.
+  pointer-events: none;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px;
+  border: 2px dashed var(--control-bg);
+  border-radius: var(--border-radius);
+  color: var(--muted-color);
+}
+
+.Deck--dragging .DeckRow--empty {
+  flex: 0 0 140px;
+  border-top: 1px solid var(--control-bg);
+}
+
+.DeckColumn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  // Grow factor and minimum together: a wide column takes a bigger share and
+  // gives up less of it before the row starts to scroll.
+  flex: 1 1 var(--deck-column-min-width);
+  min-width: var(--deck-column-min-width);
+  border-right: 1px solid var(--control-bg);
+  background: var(--body-bg);
+  scroll-snap-align: start;
+
+  &--narrow {
+    flex: 0.8 1 calc(~"var(--deck-column-min-width) * 0.85");
+    min-width: calc(~"var(--deck-column-min-width) * 0.85");
+  }
+  &--wide {
+    flex: 1.6 1 calc(~"var(--deck-column-min-width) * 1.5");
+    min-width: calc(~"var(--deck-column-min-width) * 1.5");
+  }
+
+  &--ghost {
+    opacity: 0.4;
+  }
+  &--chosen {
+    box-shadow: 0 2px 10px var(--shadow-color);
+  }
+}
+
+.DeckColumn-handle {
+  flex: none;
+  margin-left: -8px;
+  padding: 6px 4px;
+  color: var(--muted-more-color);
+  cursor: grab;
+  // Lets Sortable take the gesture on touch screens instead of the row scrolling.
+  touch-action: none;
+
+  &:hover {
+    color: var(--muted-color);
+  }
+}
+
+// Mirrors HeaderList's header, the closest thing core has to a column title.
+.DeckColumn-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 4px 6px 4px 15px;
+  border-bottom: 1px solid var(--control-bg);
+}
+
+.DeckColumn-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--muted-color);
+}
+
+.DeckColumn-titleText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.DeckColumn-controls {
+  flex: none;
+}
+
+// Sits on the column's top edge without pushing the list down, so nothing
+// moves until the member asks for the new items.
+.DeckColumn-new {
+  position: relative;
+  z-index: 2;
+  height: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.DeckColumn-newButton {
+  margin-top: 10px;
+  box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+.DeckColumn-body {
+  // Deck keeps the reader's place itself when items arrive at the top.
+  overflow-anchor: none;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 15px;
+}
+
+.DeckColumn-open {
+  display: block;
+  margin: 10px 15px;
+  width: auto;
+}
+
+.DeckColumn {
+  .DiscussionList {
+    margin: 0;
+  }
+
+  .DiscussionList-loadMore, .PostList-loadMore {
+    padding: 0 15px;
+  }
+
+  .PostList {
+    padding: 10px 15px 0;
+  }
+
+  // The column header replaces NotificationList's own, whose controls core
+  // moves into the app header on phones.
+  .HeaderList-header {
+    display: none;
+  }
+}
+
+// HeaderList loads more when its own content scrolls, so it gets the column's
+// height instead of the column body scrolling around it.
+.DeckColumn--notifications {
+  .DeckColumn-body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+
+  .HeaderList {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .HeaderList-content {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+}
+
+.DeckColumn-badge {
+  .Badge--size(20px);
+  flex: none;
+}
+
+// Typing activity column.
+.DeckTyping {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.DeckTyping-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--control-bg);
+  color: var(--muted-color);
+
+  &--active {
+    color: var(--text-color);
+
+    .DeckTyping-icon {
+      color: var(--primary-color);
+      animation: DeckTyping-pulse 1.2s ease-in-out infinite;
+    }
+  }
+}
+
+.DeckTyping-icon {
+  margin-top: 3px;
+}
+
+.DeckTyping-time {
+  display: block;
+  font-size: 12px;
+  color: var(--muted-more-color);
+}
+
+@keyframes DeckTyping-pulse {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .DeckTyping-item--active .DeckTyping-icon {
+    animation: none;
+  }
+}
+
+@media @tablet-up {
+  .DeckColumn {
+    .DiscussionListItem {
+      margin: 0;
+      padding: 0;
+      border-radius: 0;
+    }
+    .DiscussionListItem-content {
+      padding-left: 16px;
+      padding-right: 28px;
+    }
+    .DiscussionListItem-title {
+      font-size: 14px;
+    }
+    .DiscussionListItem-stats {
+      top: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .DiscussionListItem-info {
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      .item-excerpt {
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+.DeckPage--flat .DeckColumn-menu {
+  // Both rows share one strip here, so moving between them would look like nothing happened.
+  .item-moveRow {
+    display: none;
+  }
+}
+
+@media @phone {
+  .DeckPage-toolbar {
+    padding: 8px 0;
+  }
+
+  .DeckPage-title {
+    font-size: 16px;
+  }
+
+  // Icon-only actions, so the title keeps its room.
+  .DeckPage-actionLabel {
+    display: none;
+  }
+
+  // Full bleed: the page gutter would clip chips and columns mid-swipe.
+  .DeckPage-tabs, .Deck {
+    margin: 0 -15px;
+  }
+  .DeckPage-tabs {
+    padding: 8px 15px;
+  }
+
+  .DeckRow-columns {
+    border-left: 0;
+    scroll-snap-type: x mandatory;
+  }
+
+  // One column per screen; swiping replaces the fades and scroll buttons.
+  .DeckRow::before, .DeckRow::after, .DeckRow-scroll {
+    display: none !important;
+  }
+
+  .DeckColumn {
+    &, &--narrow, &--wide {
+      flex: none;
+      width: 100%;
+      min-width: 0;
+    }
+    border-right: 0;
+    scroll-snap-stop: always;
+  }
+
+  // Columns are reordered by dragging the chips on phones.
+  .DeckColumn-handle {
+    display: none;
+  }
+
+  // Widths and rows only mean something side by side.
+  .DeckColumn-menu {
+    .item-width-narrow, .item-width-normal, .item-width-wide, .item-separator3, .item-moveRow {
+      display: none;
+    }
+  }
+}

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MONOREPO_TEST="framework/core extensions/akismet extensions/approval extensions/flags extensions/likes extensions/mentions extensions/nicknames extensions/statistics extensions/sticky extensions/subscriptions extensions/suspend extensions/tags extensions/messages php-packages/testing/tests"
+MONOREPO_TEST="framework/core extensions/akismet extensions/approval extensions/flags extensions/likes extensions/mentions extensions/nicknames extensions/statistics extensions/sticky extensions/subscriptions extensions/suspend extensions/tags extensions/messages extensions/deck php-packages/testing/tests"
 
 for test in $MONOREPO_TEST; do
   echo ""

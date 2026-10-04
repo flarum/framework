@@ -34,7 +34,8 @@
             "title": "Subscriptions",
             "category": "feature",
             "optional-dependencies": [
-                "flarum/approval"
+                "flarum/approval",
+                "flarum/deck"
             ],
             "icon": {
                 "name": "fas fa-star",

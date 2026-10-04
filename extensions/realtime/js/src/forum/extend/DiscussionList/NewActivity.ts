@@ -99,24 +99,31 @@ export default function (): void {
     // Bind handlers against the current channel objects. Extracted so it can
     // re-fire on reconnect — see flarum/framework#4597.
     const bindHandlers = (): void => {
-      app.websocket_channels.public?.bind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted.bind(this));
-      app.websocket_channels.public?.bind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted.bind(this));
-      app.websocket_channels.user?.bind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted.bind(this));
-      app.websocket_channels.user?.bind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted.bind(this));
+      app.websocket_channels.public?.bind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted);
+      app.websocket_channels.public?.bind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted);
+      app.websocket_channels.user?.bind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted);
+      app.websocket_channels.user?.bind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted);
+      // A restored discussion reappears the way new activity does.
+      app.websocket_channels.public?.bind('discussionRestored', this._realtimeWebsocketEventPosted);
+      app.websocket_channels.user?.bind('discussionRestored', this._realtimeWebsocketEventPosted);
     };
 
     bindHandlers();
     this._realtimeReconnectDisposer = RealtimeState.onChannelsReconnected(bindHandlers);
   });
 
+  // Unbind only this page's handler: an unbind by event name alone would
+  // also remove every other component's handler for the same event.
   extend(IndexPage.prototype, 'onremove', function (this: any) {
     this._realtimeReconnectDisposer?.();
     this._realtimeReconnectDisposer = null;
 
-    app.websocket_channels.public?.unbind('Flarum\\Discussion\\Event\\Started');
-    app.websocket_channels.public?.unbind('Flarum\\Post\\Event\\Posted');
-    app.websocket_channels.user?.unbind('Flarum\\Discussion\\Event\\Started');
-    app.websocket_channels.user?.unbind('Flarum\\Post\\Event\\Posted');
+    app.websocket_channels.public?.unbind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted);
+    app.websocket_channels.public?.unbind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted);
+    app.websocket_channels.user?.unbind('Flarum\\Discussion\\Event\\Started', this._realtimeWebsocketEventPosted);
+    app.websocket_channels.user?.unbind('Flarum\\Post\\Event\\Posted', this._realtimeWebsocketEventPosted);
+    app.websocket_channels.public?.unbind('discussionRestored', this._realtimeWebsocketEventPosted);
+    app.websocket_channels.user?.unbind('discussionRestored', this._realtimeWebsocketEventPosted);
   });
 
   extend(IndexPage.prototype, 'contentItems', function (this: any, items: ItemList<Mithril.Children>) {

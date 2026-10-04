@@ -16,6 +16,7 @@ use Flarum\Api\Resource\PostResource;
 use Flarum\Api\Resource\UserResource;
 use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
 use Flarum\Realtime\Push\RealtimeRegistry;
@@ -85,9 +86,15 @@ class Generator
             $postResponse = $this->client
                 ->withActor($recipient ?? new Guest)
                 ->withQueryParams([
-                    'include' => 'user,editedUser,likes',
+                    'include' => implode(',', $this->postIncludes()),
                 ])
                 ->get('/posts/'.$post->id);
+
+            // Its discussion alone would still announce activity the recipient
+            // isn't allowed to know about, such as a reply awaiting approval.
+            if ($postResponse->getStatusCode() !== 200) {
+                return null;
+            }
 
             $postContents = (string) $postResponse->getBody();
             $decodedPostContents = json_decode($postContents, true);
@@ -102,6 +109,23 @@ class Generator
         }
 
         return null;
+    }
+
+    /**
+     * An include the API doesn't know fails the whole request, so `likes` is
+     * only asked for while flarum/likes is enabled.
+     *
+     * @return string[]
+     */
+    protected function postIncludes(): array
+    {
+        $includes = ['user', 'editedUser'];
+
+        if (resolve(ExtensionManager::class)->isEnabled('flarum-likes')) {
+            $includes[] = 'likes';
+        }
+
+        return $includes;
     }
 
     protected function retrieve(AbstractModel $model, array $map): ?string
