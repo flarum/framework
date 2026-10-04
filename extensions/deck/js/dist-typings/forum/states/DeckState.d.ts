@@ -31,6 +31,8 @@ export default class DeckState {
     protected saveTimer: number | null;
     /** Whether the member has a layout of their own, rather than the default. */
     protected customised: boolean;
+    /** Read out by screen readers after a column is moved without dragging. */
+    announcement: string;
     constructor();
     /**
      * Picks up a layout saved from outside the deck (e.g. "Add to Deck" on a
@@ -57,6 +59,15 @@ export default class DeckState {
      * very start), so both rows survive for when there's room for them again.
      */
     moveFlat(id: string, index: number): void;
+    /** A column's place among the columns shown beside it: in its row, or along the single strip. */
+    placeOf(id: string, flat: boolean): {
+        index: number;
+        count: number;
+        row: number;
+    } | null;
+    canMoveBy(id: string, delta: number, flat: boolean): boolean;
+    /** Moves a column `delta` places along its row, or along the single strip: the keyboard's drag and drop. */
+    moveBy(id: string, delta: number, flat: boolean): void;
     protected endOfRow(row: number): number;
     setWidth(id: string, width: DeckColumnWidth): void;
     isCustomised(): boolean;

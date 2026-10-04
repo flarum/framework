@@ -26,6 +26,8 @@ export interface ApiQueryParamsPlural {
         number?: number;
         limit?: number;
         size?: number;
+        /** `0` skips counting every match for `meta.page.total`. */
+        total?: number;
     };
     sort?: string;
     meta?: MetaInformation;
