@@ -25,13 +25,25 @@ class NicknameFullTextFilter extends AbstractFulltextFilter
     ) {
     }
 
+    /**
+     * Case-insensitive on every driver, as core's own user search is:
+     * PostgreSQL's LIKE isn't.
+     */
     private function getUserSearchSubQuery(string $searchValue): Builder
     {
-        return $this->users
-            ->query()
-            ->select('id')
-            ->where('username', 'like', "%{$searchValue}%")
-            ->orWhere('nickname', 'like', "%{$searchValue}%");
+        $query = $this->users->query()->select('id');
+
+        return match ($query->getConnection()->getDriverName()) {
+            'pgsql' => $query
+                ->where('username', 'ilike', "%{$searchValue}%")
+                ->orWhere('nickname', 'ilike', "%{$searchValue}%"),
+            'sqlite' => $query
+                ->whereRaw('LOWER(username) LIKE ?', ['%'.mb_strtolower($searchValue).'%'])
+                ->orWhereRaw('LOWER(nickname) LIKE ?', ['%'.mb_strtolower($searchValue).'%']),
+            default => $query
+                ->where('username', 'like', "%{$searchValue}%")
+                ->orWhere('nickname', 'like', "%{$searchValue}%"),
+        };
     }
 
     /**
