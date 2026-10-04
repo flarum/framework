@@ -29,6 +29,8 @@ export default class DeckColumnState {
     /** However many events arrive, a column asks the server at most every MIN_CHECK_INTERVAL. */
     queueCheck(live: boolean): void;
     cancelCheck(): void;
+    /** See DeckColumnSource.prune(). */
+    prune(): void;
     check(live: boolean): Promise<void>;
     consumeTopInsert(): boolean;
     showNew(): Promise<unknown>;

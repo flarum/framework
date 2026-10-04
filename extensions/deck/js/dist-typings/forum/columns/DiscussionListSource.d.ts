@@ -9,10 +9,17 @@ import type { DeckColumnSource, DeckRealtimeEvent, DeckRealtimeResult } from './
  * having to decide what belongs in the column.
  */
 export default class DiscussionListSource implements DeckColumnSource {
+    protected belongs?: ((discussion: Discussion) => boolean) | undefined;
     readonly state: DiscussionListState;
     /** The newest `lastPostedAt` on screen; checks only ask for activity after it. */
     protected key: Date | null;
-    constructor(params: DiscussionListParams);
+    /**
+     * @param belongs Whether a discussion still belongs here, for columns that can
+     *                tell from the store (Unread: whether it's still unread), so
+     *                one can leave without asking the server.
+     */
+    constructor(params: DiscussionListParams, belongs?: ((discussion: Discussion) => boolean) | undefined);
+    prune(): void;
     load(): Promise<unknown>;
     /** Runs once before the first load, for columns whose params need looking up. */
     protected prepare(): Promise<unknown>;

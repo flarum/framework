@@ -14,6 +14,8 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
     protected typeFields: DeckColumnField[];
     /** Params from search fields, by field key; null until something is picked. */
     protected picked: Record<string, DeckColumnConfig['params'] | null>;
+    /** What each search field shows for its choice. */
+    protected chosen: Record<string, Mithril.Children>;
     protected error: Mithril.Children;
     className(): string;
     title(): string | any[];
@@ -22,6 +24,7 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
     fields(): ItemList<Mithril.Children>;
     protected input(field: DeckColumnField): Mithril.Children;
     protected choose(key: string, type: DeckColumnType): void;
+    protected openPicker(field: DeckColumnField): Promise<void>;
     protected back(): void;
     onsubmit(e: SubmitEvent): void;
     protected add(params: DeckColumnConfig['params']): void;

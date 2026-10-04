@@ -6,6 +6,8 @@ import type DeckColumnState from '../states/DeckColumnState';
 export interface IDeckRowAttrs extends ComponentAttrs {
     deck: DeckState;
     columns: DeckColumnState[];
+    /** The row's share of the deck's height, with two rows. */
+    grow?: number;
     /** Which row this is, or null for the single strip phones and short screens get. */
     row: number | null;
     /** SortableJS, once its chunk has loaded; null until then, or to turn dragging off. */

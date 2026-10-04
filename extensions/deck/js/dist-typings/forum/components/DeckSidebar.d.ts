@@ -1,15 +1,9 @@
 import IndexSidebar, { type IndexSidebarAttrs } from 'flarum/forum/components/IndexSidebar';
-import type ItemList from 'flarum/common/utils/ItemList';
-import type Mithril from 'mithril';
-export interface IDeckSidebarAttrs extends IndexSidebarAttrs {
-    canAddColumn: boolean;
-    onaddcolumn: () => void;
-}
 /**
- * The forum's side nav, with Deck's own primary action in place of starting a
- * discussion, as the Messages page does with sending a message.
+ * The forum's side nav, starting a discussion included: Deck can be all
+ * someone uses, so it's the one place they shouldn't have to leave to post.
+ * Adding a column is the deck's own toolbar action.
  */
-export default class DeckSidebar<CustomAttrs extends IDeckSidebarAttrs = IDeckSidebarAttrs> extends IndexSidebar<CustomAttrs> {
-    static initAttrs(attrs: IDeckSidebarAttrs): void;
-    items(): ItemList<Mithril.Children>;
+export default class DeckSidebar<CustomAttrs extends IndexSidebarAttrs = IndexSidebarAttrs> extends IndexSidebar<CustomAttrs> {
+    static initAttrs(attrs: IndexSidebarAttrs): void;
 }

@@ -32,7 +32,7 @@ export default class TypingActivitySource implements DeckColumnSource {
     start(): void;
     stop(): void;
     /** Drops entries older than MAX_AGE_MS; true if any went. */
-    protected prune(): boolean;
+    prune(): boolean;
     /** Fed by its own channel; nothing else concerns it. */
     onRealtime(): void;
     checkForNew(): Promise<number>;

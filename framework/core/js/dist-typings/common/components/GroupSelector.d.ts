@@ -11,12 +11,14 @@ export interface IGroupSelectorAttrs extends ComponentAttrs {
     groups?: Group[];
     /** Ids of groups to leave out, e.g. `[Group.GUEST_ID]`. */
     exclude?: string[];
+    /** Shown until a group is chosen. */
+    placeholder?: string;
     /** Describes the selector to assistive technology. */
     'aria-label'?: string;
 }
 /**
- * Picks one or more groups, shown the way the admin's group bar shows them:
- * each group as a tile with its badge and plural name.
+ * Picks one or more groups by name, as a standard select (or a MultiSelect
+ * with `multiple`), so it looks like every other choice in a form.
  *
  * ```tsx
  * <GroupSelector value={this.groupId} onchange={(id) => (this.groupId = id)} exclude={[Group.GUEST_ID]} />
@@ -25,7 +27,4 @@ export interface IGroupSelectorAttrs extends ComponentAttrs {
 export default class GroupSelector<CustomAttrs extends IGroupSelectorAttrs = IGroupSelectorAttrs> extends Component<CustomAttrs> {
     view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children;
     groups(): Group[];
-    groupItem(group: Group): Mithril.Children;
-    isSelected(group: Group): boolean;
-    toggle(group: Group): void;
 }

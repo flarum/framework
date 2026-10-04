@@ -1,5 +1,5 @@
 import DeckColumnState from './DeckColumnState';
-import type { DeckColumnConfig, DeckColumnWidth } from '../columns/DeckColumnType';
+import type { DeckColumnConfig } from '../columns/DeckColumnType';
 /** The slice of a pusher-js channel this needs, without depending on flarum/realtime. */
 interface Channel {
     bind_global(callback: (event: string, data: any) => void): void;
@@ -29,6 +29,9 @@ export default class DeckState {
     protected heartbeat: number | null;
     protected lastCheck: number;
     protected saveTimer: number | null;
+    /** The top row's share of the height, or null for an even split. */
+    protected split: number | null;
+    protected splitTimer: number | null;
     /** Whether the member has a layout of their own, rather than the default. */
     protected customised: boolean;
     /** Read out by screen readers after a column is moved without dragging. */
@@ -69,7 +72,19 @@ export default class DeckState {
     /** Moves a column `delta` places along its row, or along the single strip: the keyboard's drag and drop. */
     moveBy(id: string, delta: number, flat: boolean): void;
     protected endOfRow(row: number): number;
-    setWidth(id: string, width: DeckColumnWidth): void;
+    /**
+     * @param save False while the width is still being dragged: it's saved once,
+     *             when the drag ends.
+     */
+    setWidth(id: string, width: number, save?: boolean): void;
+    /** The other columns shown beside one, in its row or along the single strip. */
+    neighbours(id: string, flat: boolean): DeckColumnState[];
+    rowSplit(): number;
+    /**
+     * @param split The top row's share of the height; null to split evenly.
+     * @param save False while it's still being dragged.
+     */
+    setRowSplit(split: number | null, save?: boolean): void;
     isCustomised(): boolean;
     reset(): void;
     /** Batches rapid rearranging into one request. */

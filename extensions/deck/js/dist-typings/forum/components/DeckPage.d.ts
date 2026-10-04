@@ -23,7 +23,9 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
     onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     view(): JSX.Element;
-    protected row(key: string, row: number | null, columns: DeckColumnState[], phone: boolean): Mithril.Children;
+    /** Both rows, with a divider to share the height once each has a column. */
+    protected rows(): Mithril.Children[];
+    protected row(key: string, row: number | null, columns: DeckColumnState[], phone: boolean, grow?: number): Mithril.Children;
     actionItems(): ItemList<Mithril.Children>;
     protected addButton(): Mithril.Children;
     protected openAddColumn(): void;
