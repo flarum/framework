@@ -69,7 +69,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 // Even when using CDN/Kit, we need the base CSS classes compiled into the bundle
                 // The CDN/Kit will override font-face declarations but class definitions remain the same
                 $assets->setLessImportDirs([
-                    $paths->vendor.'/fortawesome/font-awesome/css' => ''
+                    $paths->vendor.'/flarum/font-awesome/css' => ''
                 ]);
 
                 $assets->css($this->addBaseCss(...));
