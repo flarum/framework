@@ -128,7 +128,7 @@ class FrontendDocumentAttributesTest extends TestCase
             (new Frontend('forum'))->extraDocumentClasses('value')
         );
 
-        $this->assertStringContainsString('value', $this->htmlTag());
+        $this->assertMatchesRegularExpression('/\sclass="[^"]*\bvalue\b[^"]*"/', $this->htmlTag());
     }
 
     #[Test]
