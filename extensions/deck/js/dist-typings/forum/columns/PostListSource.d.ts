@@ -27,6 +27,8 @@ export default class PostListSource implements DeckColumnSource {
      * that may want it asks.
      */
     onRealtime(event: DeckRealtimeEvent): DeckRealtimeResult;
+    /** For a prune() that takes posts out: the next page fills an emptied column. */
+    protected refill(): Promise<void>;
     /** Whether a post belongs in this column: undefined when only the server can tell. */
     protected matches(post: Post): boolean | undefined;
     /** Whether a new discussion's first post might belong here: false rules it out. */

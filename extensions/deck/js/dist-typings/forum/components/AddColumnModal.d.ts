@@ -21,6 +21,10 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
     title(): string | any[];
     content(): JSX.Element;
     typeItems(): ItemList<Mithril.Children>;
+    /** The deck's columns of a type. */
+    protected columnsOf(type: string): DeckColumnConfig[];
+    /** Whether the deck already has a column of the chosen type with these params. */
+    protected hasColumnWith(params: DeckColumnConfig['params']): boolean;
     fields(): ItemList<Mithril.Children>;
     protected input(field: DeckColumnField): Mithril.Children;
     protected choose(key: string, type: DeckColumnType): void;

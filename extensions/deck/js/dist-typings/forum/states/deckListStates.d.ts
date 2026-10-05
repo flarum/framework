@@ -1,5 +1,6 @@
 import DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import PostListState from 'flarum/forum/states/PostListState';
+import type PaginatedListState from 'flarum/common/states/PaginatedListState';
 import type { PaginatedListRequestParams } from 'flarum/common/states/PaginatedListState';
 import type { ApiQueryParamsPlural } from 'flarum/common/Store';
 /**
@@ -7,8 +8,16 @@ import type { ApiQueryParamsPlural } from 'flarum/common/Store';
  * the API something alongside a list, and getting what its items get.
  */
 export declare function asQuery(params: PaginatedListRequestParams): ApiQueryParamsPlural;
+/**
+ * Once items leaving have emptied a column while the server has more, the
+ * next page takes their place; a column only shows "nothing here" when there
+ * really is nothing. Reading sends no realtime event, so this is what prune()
+ * is for.
+ */
+export declare function refillIfEmpty(state: PaginatedListState<any>): Promise<void>;
 export declare class DeckDiscussionListState extends DiscussionListState {
     requestParams(): PaginatedListRequestParams;
+    protected mutateRequestParams(params: ApiQueryParamsPlural, page: number): ApiQueryParamsPlural;
     revalidate(): Promise<void>;
 }
 export declare class DeckPostListState extends PostListState {
@@ -22,5 +31,6 @@ export declare class DeckPostListState extends PostListState {
      * when they were flagged.
      */
     requestParams(): PaginatedListRequestParams;
+    protected mutateRequestParams(params: ApiQueryParamsPlural, page: number): ApiQueryParamsPlural;
     revalidate(): Promise<void>;
 }

@@ -17,6 +17,13 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
     protected activeIndex: number;
     /** Once the hero is gone the toolbar names the page instead. */
     protected heroDismissed: boolean;
+    /** Just the deck: the forum's header, nav and the hero out of the way. */
+    protected fullscreen: boolean;
+    static storedFullscreen(): boolean;
+    isFullscreen(): boolean;
+    setFullscreen(on: boolean): void;
+    /** Escape leaves full screen, once nothing above the page (a modal) wants it. */
+    onKeyDown: (e: KeyboardEvent) => void;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
@@ -28,6 +35,8 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
     actionItems(): ItemList<Mithril.Children>;
     /** The deck-wide actions in the toolbar's menu. */
     optionItems(): ItemList<Mithril.Children>;
+    /** As the side nav's, which the deck keeps for the same reason. See DeckSidebar. */
+    protected newDiscussionButton(): Mithril.Children;
     protected addButton(): Mithril.Children;
     protected openAddColumn(): void;
     /**

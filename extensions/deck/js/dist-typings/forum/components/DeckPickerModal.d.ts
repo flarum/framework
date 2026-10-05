@@ -9,6 +9,8 @@ export interface IDeckPickerModalAttrs extends ISearchModalAttrs {
     onpick: (model: Model) => void;
     /** List every result before anything is typed, for short lists such as tags. */
     browse?: boolean;
+    /** Marks results the deck already has a column for. They can still be chosen. */
+    isAdded?: (model: Model) => boolean;
 }
 /**
  * The forum's search modal, choosing a result instead of opening it, so every
@@ -21,8 +23,16 @@ export default class DeckPickerModal<CustomAttrs extends IDeckPickerModalAttrs =
         title: Mithril.Children;
         onpick: (model: Model) => void;
         browse?: boolean;
+        isAdded?: (model: Model) => boolean;
     }): void;
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
+    /**
+     * The source as it is, with results the deck already holds marked. Core's
+     * sources render each result themselves, so the mark goes on afterwards: a
+     * class on the item, and a badge after its content.
+     */
+    protected marking(source: GlobalSearchSource): GlobalSearchSource;
     title(): Mithril.Children;
     oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
