@@ -2,16 +2,13 @@ import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
 import RealtimeExtend from 'ext:flarum/realtime/forum/extenders/Realtime';
 import addRealtimeTypingIndicator from './addRealtimeTypingIndicator';
+import onMessageCreated from './onMessageCreated';
 
 const MESSAGE_CREATED_EVENT = 'Flarum\\Messages\\DialogMessage\\Event\\Created';
 
 export default function extendRealtime() {
   new RealtimeExtend()
-    .onUserChannelEvent(MESSAGE_CREATED_EVENT, (data: unknown) => {
-      app.store.pushPayload(data as any);
-      (app as any).dropdownDialogs?.refresh?.();
-      (app as any).dialogs?.refresh?.();
-    })
+    .onUserChannelEvent(MESSAGE_CREATED_EVENT, (data: unknown) => onMessageCreated(data as any))
     .extend(app, { name: 'flarum-messages', exports: {} });
 
   // Bind the new message event on MessageStream so we can access

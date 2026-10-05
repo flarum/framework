@@ -82,12 +82,17 @@ class Generator
         $decodedContents = json_decode($contents, true);
 
         if ($post) {
+            // No include: the endpoint's defaults, which other extensions add
+            // to (likes, flags, mentions), so the post arrives with all of it.
             $postResponse = $this->client
                 ->withActor($recipient ?? new Guest)
-                ->withQueryParams([
-                    'include' => 'user,editedUser,likes',
-                ])
                 ->get('/posts/'.$post->id);
+
+            // Its discussion alone would still announce activity the recipient
+            // isn't allowed to know about, such as a reply awaiting approval.
+            if ($postResponse->getStatusCode() !== 200) {
+                return null;
+            }
 
             $postContents = (string) $postResponse->getBody();
             $decodedPostContents = json_decode($postContents, true);

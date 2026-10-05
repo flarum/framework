@@ -169,6 +169,20 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\DeleteLogoDarkModeController::class)
     );
 
+    // Upload an email logo
+    $map->post(
+        '/email-logo',
+        'email-logo',
+        $route->toController(Controller\UploadEmailLogoController::class)
+    );
+
+    // Remove the email logo
+    $map->delete(
+        '/email-logo',
+        'email-logo.delete',
+        $route->toController(Controller\DeleteEmailLogoController::class)
+    );
+
     // Upload a favicon
     $map->post(
         '/favicon',

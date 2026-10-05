@@ -3,6 +3,7 @@ import Post from 'flarum/common/models/Post';
 import User from 'flarum/common/models/User';
 import FlagsPage from './components/FlagsPage';
 import Flag from './models/Flag';
+import extendDeck from './extendDeck';
 
 export default [
   new Extend.Routes() //
@@ -19,4 +20,7 @@ export default [
     .hasMany<Flag>('flags')
     .attribute<boolean>('canFlagUser')
     .attribute<boolean>('canViewUserFlags'),
+
+  // flarum/deck is an optional dependency, so it has loaded before this runs.
+  ...('flarum-deck' in flarum.extensions ? extendDeck() : []),
 ];

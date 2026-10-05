@@ -1,0 +1,97 @@
+flarum-deck:
+
+  # Translations in this namespace are used by the admin interface.
+  admin:
+    permissions:
+      use_deck_label: Use Deck
+
+    settings:
+      max_columns_help: Every column is a separate request each time it refreshes. Between 1 and 12.
+      max_columns_label: Maximum columns per member
+      poll_interval_help: How often columns check for new activity when Realtime isn't connected. 0 turns this off; the minimum is 15.
+      poll_interval_label: Refresh interval (seconds)
+
+  # Translations in this namespace are used by the forum user interface.
+  forum:
+    add_column:
+      author_label: Member
+      author_placeholder: Search for a member
+      back_button: Back
+      discussion_label: Discussion
+      discussion_placeholder: Search for a discussion
+      filter_help: "Combine filters from the search, such as tag:, author:, is:unread or is:following. Plain words aren't supported."
+      filter_invalid_message: "Use filters only, such as tag:support is:unread. Plain words aren't supported."
+      filter_label: Filters
+      group_invalid_message: Choose a group.
+      group_label: Group
+      filter_placeholder: e.g. tag:support is:unread
+      invalid_value_message: "Please enter a valid value for {field}."
+      pick_a_result_message: "Choose a result for {field} from the suggestions."
+      submit_button: Add column
+      title: Add a column
+      use_filters_button: Use these filters
+
+    column:
+      controls_label: "{title} column options"
+      drag_handle_label: "Drag to move {title}"
+      move_left_button: Move left
+      move_right_button: Move right
+      move_to_bottom_row_button: Move to bottom row
+      move_to_top_row_button: Move to top row
+      moved_announcement: "Moved to position {position} of {count}."
+      moved_in_bottom_row_announcement: "Moved to position {position} of {count} in the bottom row."
+      moved_in_top_row_announcement: "Moved to position {position} of {count} in the top row."
+      new_items_button: "{count, plural, one {# new} other {# new}}"
+      open_discussion_button: Open discussion
+      refresh_button: Refresh
+      remove_button: Remove column
+      reset_width_button: Reset width
+      resize_label: "Resize {title}"
+
+    column_types:
+      all: All discussions
+      author: Discussions by a member
+      author_posts: Posts by a member
+      author_posts_title: "Posts by {username}"
+      author_title: "Started by {username}"
+      discussion: A discussion
+      filter: Custom filter
+      group_posts: Posts by a group
+      group_posts_title: "Posts by {group}"
+      typing: Typing activity
+      unread: Unread
+
+    discussion_controls:
+      add_to_deck_button: Add to Deck
+      added_message: This discussion is now a column in your Deck.
+
+    index:
+      deck_link: Deck
+
+    typing:
+      empty_text: Nobody's typing right now.
+      offline_text: Typing activity needs a live connection to the realtime server.
+      replying_text: "{name} is replying in {discussion}"
+      someone: Someone
+      starting_in_text: "{name} is starting a discussion in {tags}"
+      starting_text: "{name} is starting a discussion"
+      was_replying_text: "{name} was replying in {discussion}"
+      was_starting_in_text: "{name} was starting a discussion in {tags}"
+      was_starting_text: "{name} was starting a discussion"
+
+    page:
+      add_column_button: Add column
+      column_limit_reached_text: You've reached the maximum number of columns.
+      drop_row_hint: Drop a column here to start a second row
+      empty_text: Your Deck is empty. Add a column to follow conversations live.
+      hero:
+        hide_label: Hide this introduction
+        subtitle: Follow every conversation you care about, side by side and live. Add columns, drag them into place, and arrange them in up to two rows.
+      navigator_label: Columns
+      options_label: Deck options
+      reset_button: Reset columns
+      resize_rows_label: Resize rows
+      reset_confirmation: Replace your columns with the default set? This can't be undone.
+      scroll_left_label: Scroll left
+      scroll_right_label: Scroll right
+      title: Deck

@@ -7,6 +7,10 @@ const [transformer, babel] = shared.transform['^.+\\.[tj]sx?$'];
 // CommonJS transform instead of changing the extension's packaging for tests.
 module.exports = {
   ...shared,
+  moduleNameMapper: {
+    ...shared.moduleNameMapper,
+    '^ext:flarum/deck/(.*)$': '<rootDir>/../../deck/js/src/$1',
+  },
   rootDir: path.resolve(__dirname, '..'),
   roots: [path.resolve(__dirname, '..'), shared.globals.__FLARUM_CORE_DIR__],
   testMatch: ['<rootDir>/tests/**/*.test.ts'],

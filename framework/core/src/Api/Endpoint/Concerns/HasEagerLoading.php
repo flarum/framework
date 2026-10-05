@@ -391,13 +391,18 @@ trait HasEagerLoading
         return $subRelations;
     }
 
+    /**
+     * The constrained eager loads beneath a relationship the serializer is
+     * loading, for `with()` on its query: keyed by the path below it, with
+     * their constraints, as compileWhereEagerLoads() gives the top level.
+     */
     public function getWhereEagerLoadsFor(string $included, Context $context): array
     {
         $subRelations = [];
 
         foreach ($this->loadRelationWhere as $relation => $callable) {
             if (Str::startsWith($relation, "$included.")) {
-                $subRelations[$relation] = Str::after($relation, "$included.");
+                $subRelations[Str::after($relation, "$included.")] = fn ($query) => $callable($query, $context);
             }
         }
 

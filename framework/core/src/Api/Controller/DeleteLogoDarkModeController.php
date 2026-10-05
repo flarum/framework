@@ -12,4 +12,9 @@ namespace Flarum\Api\Controller;
 class DeleteLogoDarkModeController extends DeleteLogoController
 {
     protected string $filePathSettingKey = 'logo_dark_mode_path';
+
+    // The dark mode logo has no email copy.
+    protected function afterDelete(): void
+    {
+    }
 }

@@ -34,6 +34,7 @@ class AdminImageUploadMissingFileTest extends TestCase
     {
         return [
             ['/api/logo', 'logo'],
+            ['/api/email-logo', 'email-logo'],
             ['/api/favicon', 'favicon'],
         ];
     }

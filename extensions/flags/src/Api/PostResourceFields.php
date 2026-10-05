@@ -13,6 +13,7 @@ use Flarum\Api\Context;
 use Flarum\Api\Schema;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PostResourceFields
 {
@@ -36,7 +37,11 @@ class PostResourceFields
                     );
                 }),
             Schema\Relationship\ToMany::make('flags')
-                ->includable(),
+                ->includable()
+                // Who raised each flag is shown with it: load them, and the
+                // groups their serialization reads, for all the flags at once.
+                // Visibility is the flag resource's own scope, applied first.
+                ->scope(fn (HasMany $query) => $query->with('user.groups')),
         ];
     }
 }

@@ -12,6 +12,7 @@ namespace Flarum\Realtime\Websocket\Api;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Flarum\Realtime\Push\Payload\Generator;
+use Flarum\Realtime\Websocket\TypingActivity;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
@@ -40,6 +41,16 @@ class AuthController implements RequestHandlerInterface
 
         $this->actor = RequestUtil::getActor($request);
         $channel = Arr::get($attributes, 'channel_name');
+
+        if ($channel === TypingActivity::CHANNEL) {
+            if ($this->typingActivity()) {
+                $body = $this->pusher->authorizeChannel($channel, Arr::get($attributes, 'socket_id'));
+
+                return new JsonResponse(json_decode($body, true));
+            }
+
+            return new EmptyResponse(403);
+        }
 
         if (preg_match('~^private-index-typing-tag=(?<id>[0-9]+)$~', $channel, $m)) {
             if ($this->indexTypingTag((int) $m['id'])) {
@@ -123,6 +134,17 @@ class AuthController implements RequestHandlerInterface
 
         return $discussion !== null
             && $this->actor->can('flarum-realtime.view-who-types', $discussion);
+    }
+
+    /**
+     * Authorize the forum-wide typing feed. What each subscriber then receives
+     * is narrowed further, per event, by {@link TypingActivity}.
+     */
+    protected function typingActivity(): bool
+    {
+        return ! $this->actor->isGuest()
+            && $this->settings->get('flarum-realtime.typing-indicator')
+            && $this->actor->hasPermission('flarum-realtime.view-all-typing');
     }
 
     /**

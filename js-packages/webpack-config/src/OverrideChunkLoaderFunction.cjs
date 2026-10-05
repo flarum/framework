@@ -1,6 +1,9 @@
 /**
  * This plugin overrides the webpack chunk loader function `__webpack_require__.l` which is a webpack constant
  * with `flarum.reg.loadChunk`, which resides in the flarum app.
+ *
+ * Chunk ids are only unique within one build, so the runtime tells the
+ * registry which extension is asking (flarum/framework#5027).
  */
 const path = require('path');
 const extensionId = require('./extensionId.cjs');
@@ -18,7 +21,10 @@ class OverrideChunkLoaderFunction {
       compilation.mainTemplate.hooks.requireEnsure.tap('OverrideChunkLoaderFunction', (source) => {
         return (
           source +
-          '\nconst originalLoadChunk = __webpack_require__.l;\n__webpack_require__.l = flarum.reg.loadChunk.bind(flarum.reg, originalLoadChunk);'
+          '\nconst originalLoadChunk = __webpack_require__.l;' +
+          '\n__webpack_require__.l = (url, done, key, chunkId) => flarum.reg.loadChunk(originalLoadChunk, url, done, key, chunkId, ' +
+          JSON.stringify(namespace) +
+          ');'
         );
       });
 

@@ -9,6 +9,7 @@
 
 namespace Flarum\Extend;
 
+use Closure;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Extension;
@@ -365,9 +366,22 @@ class Frontend implements ExtenderInterface
             "flarum.frontend.$this->frontend",
             function (ActualFrontend $frontend, Container $container) {
                 $frontend->content(function (Document $document) use ($container) {
-                    foreach ($this->extraDocumentAttributes as $classes) {
-                        $classes = is_callable($classes) ? ContainerUtil::wrapCallback($classes, $container) : $classes;
-                        $document->extraAttributes[] = $classes;
+                    foreach ($this->extraDocumentAttributes as $attributes) {
+                        foreach ($attributes as $key => $value) {
+                            // Only a closure, never `is_callable`. An attribute
+                            // value is a value: `is_callable('value')` is true,
+                            // because Laravel defines a global `value()`, and
+                            // the document would call it with the request.
+                            $value = $value instanceof Closure ? ContainerUtil::wrapCallback($value, $container) : $value;
+
+                            // Classes accumulate; the document holds them as a
+                            // list so that several extensions can each add one.
+                            if ($key === 'class') {
+                                $document->extraAttributes['class'][] = $value;
+                            } else {
+                                $document->extraAttributes[$key] = $value;
+                            }
+                        }
                     }
                 }, 111);
             }

@@ -57,6 +57,28 @@ export default class DialogListState<P extends DialogListParams = DialogListPara
     return super.loadNext();
   }
 
+  /**
+   * Puts a dialog at the top of the list, as a new message in it does, without
+   * reloading. A list that hasn't loaded yet is left alone: it loads fresh.
+   *
+   * @param limit Keep the first page to this many dialogs, for short lists like the dropdown's.
+   */
+  moveToTop(dialog: Dialog, limit?: number): void {
+    if (!this.pages.length) return;
+
+    const id = dialog.id();
+
+    this.pages.forEach((page) => {
+      const index = page.items.findIndex((item) => item.id() === id);
+
+      if (index !== -1) page.items.splice(index, 1);
+    });
+
+    this.pages[0].items.unshift(dialog);
+
+    if (limit && this.pages[0].items.length > limit) this.pages[0].items.length = limit;
+  }
+
   markAllAsRead() {
     return app
       .request({

@@ -1,6 +1,6 @@
 <p align="center">
 
-[![flarum logo](https://flarum.org/assets/img/flarum-banner.png)](https://flarum.org/)
+[![Flarum 2.0: rebuilt from the foundation](https://raw.githubusercontent.com/flarum/framework/2.x/.github/assets/flarum-2.0-banner.png)](https://flarum.org/)
 
 </p>
 

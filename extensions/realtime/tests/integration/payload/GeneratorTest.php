@@ -41,6 +41,8 @@ class GeneratorTest extends TestCase
             ],
             Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Hello</p></t>'],
+                // A reply member 2 can't see (as an unapproved one would be), though its author can.
+                ['id' => 2, 'number' => 2, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<t><p>Hidden</p></t>', 'hidden_at' => Carbon::now()],
             ],
             Notification::class => [
                 ['id' => 1, 'user_id' => 2, 'from_user_id' => 1, 'type' => 'postMentioned', 'subject_id' => 1, 'data' => null, 'created_at' => Carbon::now(), 'read_at' => null, 'is_deleted' => 0],
@@ -99,6 +101,61 @@ class GeneratorTest extends TestCase
         // The post itself should appear in included
         $included = collect($payload['included'] ?? []);
         $this->assertTrue($included->contains(fn ($item) => $item['type'] === 'posts' && $item['id'] === '1'));
+    }
+
+    /**
+     * The discussion alone would still say "something new was posted here",
+     * about a reply the recipient isn't allowed to know exists.
+     */
+    #[Test]
+    public function generates_nothing_for_a_post_the_recipient_cannot_see(): void
+    {
+        $generator = $this->generator();
+
+        $this->assertNull($generator(Post::find(2), User::find(2)));
+        $this->assertNull($generator(Post::find(2)));
+    }
+
+    #[Test]
+    public function generates_a_post_payload_for_those_who_can_see_it(): void
+    {
+        $generator = $this->generator();
+
+        $payload = $generator(Post::find(2), User::find(3));
+
+        $this->assertNotNull($payload);
+        $this->assertTrue(collect($payload['included'] ?? [])->contains(fn ($item) => $item['type'] === 'posts' && $item['id'] === '2'));
+    }
+
+    #[Test]
+    public function includes_likes_while_likes_is_enabled(): void
+    {
+        $this->extension('flarum-likes');
+
+        $payload = $this->generator()(Post::find(2), User::find(3));
+
+        $post = collect($payload['included'] ?? [])->last();
+
+        $this->assertSame(['posts', '2'], [$post['type'], $post['id']]);
+        $this->assertArrayHasKey('likes', $post['relationships']);
+    }
+
+    /**
+     * The post comes as the posts endpoint gives it by default, so whatever
+     * other extensions add to a post (flags here) arrives with it.
+     */
+    #[Test]
+    public function includes_what_extensions_add_to_a_post(): void
+    {
+        $this->extension('flarum-flags');
+
+        $payload = $this->generator()(Post::find(1), User::find(1));
+
+        $post = collect($payload['included'] ?? [])->last();
+
+        $this->assertSame(['posts', '1'], [$post['type'], $post['id']]);
+        $this->assertArrayHasKey('flags', $post['relationships']);
+        $this->assertArrayHasKey('user', $post['relationships']);
     }
 
     #[Test]

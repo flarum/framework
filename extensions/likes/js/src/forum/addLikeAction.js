@@ -27,8 +27,10 @@ export default function () {
 
           // We've saved the fact that we do or don't like the post, but in order
           // to provide instantaneous feedback to the user, we'll need to add or
-          // remove the like from the relationship data manually.
-          const data = post.data.relationships.likes.data;
+          // remove the like from the relationship data manually. A post loaded
+          // without its likes starts from none; the save's response fills them in.
+          const relationships = (post.data.relationships ??= {});
+          const data = (relationships.likes ??= { data: [] }).data;
           data.some((like, i) => {
             if (like.id === app.session.user.id()) {
               data.splice(i, 1);
