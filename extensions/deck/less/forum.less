@@ -23,6 +23,21 @@
   }
 }
 
+// Full screen: just the deck. The forum's header and nav go, and the deck
+// takes the whole height; the toolbar stays, with the way back.
+.App.App--deckFullscreen {
+  padding-top: 0;
+
+  #header, #app-navigation, .DeckPage .Page-container, .DeckPageHero {
+    display: none;
+  }
+
+  .DeckPage {
+    height: calc(~"100vh - var(--deck-bottom-gap, 0px)");
+    height: calc(~"100dvh - var(--deck-bottom-gap, 0px)");
+  }
+}
+
 .DeckPage {
   --deck-edge-fade: 40px;
 
@@ -157,7 +172,10 @@
     }
   }
 
-  // Fades over whichever edge has more columns past it.
+  // Fades over whichever edge has more columns past it. Physical on purpose:
+  // DeckRow sets --moreLeft/--moreRight from scrollLeft, which is physical
+  // too, and a gradient has no inline-start/end form. Both go together when
+  // the row's scrolling is made direction-aware.
   &::before, &::after {
     content: "";
     position: absolute;
@@ -188,7 +206,7 @@
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
-  border-left: 1px solid var(--control-bg);
+  border-inline-start: 1px solid var(--control-bg);
   scroll-snap-type: x proximity;
 }
 
@@ -243,7 +261,7 @@
   // the columns fill the row; once they don't fit, exactly its width, and the
   // row scrolls.
   flex: var(--deck-column-grow, 280) 0 var(--deck-column-width, 280px);
-  border-right: 1px solid var(--control-bg);
+  border-inline-end: 1px solid var(--control-bg);
   background: var(--body-bg);
   scroll-snap-align: start;
 
@@ -261,7 +279,7 @@
 
 .DeckColumn-handle {
   flex: none;
-  margin-left: -8px;
+  margin-inline-start: -8px;
   padding: 6px 4px;
   color: var(--muted-more-color);
   cursor: grab;
@@ -279,7 +297,8 @@
   align-items: center;
   gap: 8px;
   min-height: 46px;
-  padding: 4px 6px 4px 15px;
+  padding-block: 4px;
+  padding-inline: 15px 6px;
   border-bottom: 1px solid var(--control-bg);
 }
 
@@ -440,8 +459,7 @@
       border-radius: 0;
     }
     .DiscussionListItem-content {
-      padding-left: 16px;
-      padding-right: 28px;
+      padding-inline: 16px 28px;
     }
     .DiscussionListItem-title {
       font-size: 14px;
@@ -480,9 +498,10 @@
     font-size: 16px;
   }
 
-  // Icon-only actions, so the title keeps its room.
-  .DeckPage-actionLabel {
-    display: none;
+  // Icon-only, so the title keeps its room: core's round icon button, which
+  // also drops the gap the icon keeps beside a label.
+  .DeckPage-action {
+    .Button--icon();
   }
 
   // Full bleed: the page gutter would clip chips and columns mid-swipe.
@@ -494,7 +513,7 @@
   }
 
   .DeckRow-columns {
-    border-left: 0;
+    border-inline-start: 0;
     scroll-snap-type: x mandatory;
   }
 
@@ -507,7 +526,7 @@
     flex: none;
     width: 100%;
     min-width: 0;
-    border-right: 0;
+    border-inline-end: 0;
     scroll-snap-stop: always;
   }
 
@@ -521,6 +540,24 @@
     .item-resetWidth, .item-separator3, .item-moveRow {
       display: none;
     }
+  }
+}
+
+// "In your deck", on a column type and on a picker result.
+.AddColumnModal-added, .DeckPickerModal-added {
+  margin-inline-start: 8px;
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--muted-color);
+  white-space: nowrap;
+}
+
+.DeckPickerModal-result--added > a {
+  display: flex;
+  align-items: center;
+
+  .DeckPickerModal-added {
+    margin-inline-start: auto;
   }
 }
 
@@ -592,8 +629,7 @@
   &::after {
     content: "";
     position: absolute;
-    left: 0;
-    right: 0;
+    inset-inline: 0;
     top: 3px;
     height: 1px;
     background: var(--control-bg);

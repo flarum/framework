@@ -24,6 +24,8 @@ flarum-deck:
       filter_label: Filters
       group_invalid_message: Choose a group.
       group_label: Group
+      in_deck_badge: In your deck
+      in_deck_count_badge: "In your deck ×{count}"
       filter_placeholder: e.g. tag:support is:unread
       invalid_value_message: "Please enter a valid value for {field}."
       pick_a_result_message: "Choose a result for {field} from the suggestions."
@@ -84,6 +86,8 @@ flarum-deck:
       column_limit_reached_text: You've reached the maximum number of columns.
       drop_row_hint: Drop a column here to start a second row
       empty_text: Your Deck is empty. Add a column to follow conversations live.
+      exit_fullscreen_button: Exit full screen
+      fullscreen_button: Full screen
       hero:
         hide_label: Hide this introduction
         subtitle: Follow every conversation you care about, side by side and live. Add columns, drag them into place, and arrange them in up to two rows.

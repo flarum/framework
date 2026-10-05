@@ -321,3 +321,73 @@ describe('checking for new items', () => {
     find.mockRestore();
   });
 });
+
+// A column that shrinks as things leave it (Unread, as discussions are read;
+// Flagged, as flags are cleared) has the same things leave the server's list,
+// so what it holds is the only reliable measure of where the next page starts.
+describe('loading more of a column that has shrunk', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  const page = <T>(items: T[], more = false) => Object.assign([...items], { payload: { links: more ? { next: 'next' } : {} } });
+  const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  it('asks for discussions from where what it holds ends, not from the page number', async () => {
+    const source = new DiscussionListSource({});
+    (source.state as any).pages = [{ number: 1, items: [discussion('60')], hasNext: true }];
+    (source.state as any).extraDiscussions = [discussion('61')];
+    const find = jest.spyOn(app.store, 'find').mockResolvedValue(page([]) as any);
+
+    await source.state.loadNext();
+
+    // Two held (one of them moved to the top itself), so the next unseen one is third.
+    expect(find.mock.calls[0][1].page.offset).toBe(2);
+  });
+
+  it('asks for posts from where what it holds ends, not from the page number', async () => {
+    const source = new DiscussionPostsSource('31');
+    (source.state as any).pages = [{ number: 1, items: [post('601', '31')], hasNext: true }];
+    (source.state as any).extraPosts = [post('602', '31')];
+    const find = jest.spyOn(app.store, 'find').mockResolvedValue(page([]) as any);
+
+    await source.state.loadNext();
+
+    expect(find.mock.calls[0][1].page.offset).toBe(2);
+  });
+
+  it('leaves the first page’s offset alone', async () => {
+    const source = new DiscussionListSource({});
+    const find = jest.spyOn(app.store, 'find').mockResolvedValue(page([]) as any);
+
+    await source.state.refresh();
+
+    expect(find.mock.calls[0][1].page.offset).toBe(0);
+  });
+
+  it('refills once reading has emptied it while the server has more', async () => {
+    const source = new DiscussionListSource({}, (discussion) => discussion.title() !== 'Read');
+    const read = discussion('62');
+    (source.state as any).pages = [{ number: 1, items: [read], hasNext: true }];
+    const loadPage = jest.spyOn(source.state as any, 'loadPage').mockResolvedValue(page([discussion('63')]));
+
+    read.pushAttributes({ title: 'Read' });
+    source.prune();
+    await tick();
+
+    expect(loadPage).toHaveBeenCalled();
+    expect(shownIds(source)).toEqual(['63']);
+  });
+
+  it('shows nothing once reading has emptied it and the server has no more', async () => {
+    const source = new DiscussionListSource({}, (discussion) => discussion.title() !== 'Read');
+    const read = discussion('64');
+    (source.state as any).pages = [{ number: 1, items: [read], hasNext: false }];
+    const loadPage = jest.spyOn(source.state as any, 'loadPage');
+
+    read.pushAttributes({ title: 'Read' });
+    source.prune();
+    await tick();
+
+    expect(loadPage).not.toHaveBeenCalled();
+    expect(shownIds(source)).toEqual([]);
+  });
+});

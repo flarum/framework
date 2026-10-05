@@ -51,16 +51,47 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
 
       if (!type.isAvailable()) return;
 
+      const added = this.columnsOf(key).length;
+      // A type with no settings can only be added as the same column again.
+      const exhausted = added > 0 && !(type.fields?.() ?? []).length;
+
       items.add(
         key,
-        <Button className="Button Button--block AddColumnModal-type" icon={type.icon} onclick={() => this.choose(key, type)}>
+        <Button
+          className="Button Button--block AddColumnModal-type"
+          data-type={key}
+          icon={type.icon}
+          disabled={exhausted}
+          onclick={() => this.choose(key, type)}
+        >
           {type.label()}
+          {added > 0 && (
+            <span className="AddColumnModal-added">
+              <Icon name="fas fa-check" />{' '}
+              {added > 1
+                ? app.translator.trans('flarum-deck.forum.add_column.in_deck_count_badge', { count: added })
+                : app.translator.trans('flarum-deck.forum.add_column.in_deck_badge')}
+            </span>
+          )}
         </Button>,
         deckColumnTypes.getPriority(key)
       );
     });
 
     return items;
+  }
+
+  /** The deck's columns of a type. */
+  protected columnsOf(type: string): DeckColumnConfig[] {
+    return this.attrs.deck
+      .columns()
+      .map((column) => column.config)
+      .filter((config) => config.type === type);
+  }
+
+  /** Whether the deck already has a column of the chosen type with these params. */
+  protected hasColumnWith(params: DeckColumnConfig['params']): boolean {
+    return this.columnsOf(this.type!).some((config) => Object.entries(params).every(([key, value]) => config.params[key] === value));
   }
 
   fields(): ItemList<Mithril.Children> {
@@ -199,6 +230,7 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
     DeckPickerModal.open(search.source(), {
       title: field.placeholder ?? field.label,
       browse: search.browse,
+      isAdded: (model) => this.hasColumnWith(search.params(model)),
       onpick: (model) => {
         this.picked[field.key] = search.params(model);
         this.chosen[field.key] = search.display?.(model) ?? search.label(model);

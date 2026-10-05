@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import PostList from 'flarum/forum/components/PostList';
 import type PostListState from 'flarum/forum/states/PostListState';
 import type { PostListParams } from 'flarum/forum/states/PostListState';
-import { DeckPostListState, asQuery } from '../states/deckListStates';
+import { DeckPostListState, asQuery, refillIfEmpty } from '../states/deckListStates';
 import type Post from 'flarum/common/models/Post';
 import type Mithril from 'mithril';
 import type { DeckColumnSource, DeckRealtimeEvent, DeckRealtimeResult } from './DeckColumnType';
@@ -96,6 +96,11 @@ export default class PostListSource implements DeckColumnSource {
 
     // Edits and likes: the store already has the change.
     if (post && this.shows(post)) return 'updated';
+  }
+
+  /** For a prune() that takes posts out: the next page fills an emptied column. */
+  protected refill(): Promise<void> {
+    return refillIfEmpty(this.state);
   }
 
   /** Whether a post belongs in this column: undefined when only the server can tell. */

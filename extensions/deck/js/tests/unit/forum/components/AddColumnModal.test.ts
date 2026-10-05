@@ -67,3 +67,63 @@ describe('adding a custom filter column', () => {
     expect(add).toHaveBeenCalledWith(expect.objectContaining({ type: 'filter', params: { query: 'is:unread' } }));
   });
 });
+
+describe('what is already in the deck', () => {
+  function mount(deck: DeckState) {
+    m.mount(root, {
+      view: () =>
+        m(AddColumnModal, {
+          state: new ModalManagerState(),
+          animateShow: () => {},
+          animateHide: () => {},
+          deck,
+        }),
+    });
+  }
+
+  const typeButton = (key: string) => root.querySelector<HTMLButtonElement>(`.AddColumnModal-type[data-type="${key}"]`)!;
+
+  it('marks a column type already in the deck, and offers it again only if it takes settings', () => {
+    setLayout([
+      { id: 'u', type: 'unread', width: 280, row: 0, params: {} },
+      { id: 'f1', type: 'filter', width: 280, row: 0, params: { query: 'is:unread' } },
+      { id: 'f2', type: 'filter', width: 280, row: 0, params: { query: 'is:following' } },
+    ]);
+    mount(new DeckState());
+
+    // Unread takes no settings, so a second one could only be the same column.
+    expect(typeButton('unread').disabled).toBe(true);
+    expect(typeButton('unread').textContent).toContain('In your deck');
+
+    // Two filter columns, and a third could still be different.
+    expect(typeButton('filter').disabled).toBe(false);
+    expect(typeButton('filter').textContent).toContain('In your deck ×2');
+
+    expect(typeButton('all').disabled).toBe(false);
+    expect(typeButton('all').textContent).not.toContain('In your deck');
+  });
+
+  it('tells the picker which results are already columns', async () => {
+    app.store.pushPayload({
+      data: ['21', '22'].map((id) => ({ type: 'users', id, attributes: { username: `user${id}`, displayName: `User ${id}` } })),
+    } as any);
+
+    // A type whose first field is a member picker.
+    const memberType = Object.keys(deckColumnTypes.toObject()).find(
+      (key) => deckColumnTypes.get(key).fields?.()[0]?.search?.source().resource === 'users'
+    )!;
+    const search = deckColumnTypes.get(memberType).fields!()[0].search!;
+
+    setLayout([{ id: 'm', type: memberType, width: 280, row: 0, params: search.params(app.store.getById('users', '21')!) }]);
+    const show = jest.spyOn(app.modal, 'show').mockImplementation(async () => {});
+    mount(new DeckState());
+
+    typeButton(memberType).click();
+    await settle();
+
+    const [, attrs] = show.mock.calls[0] as any[];
+
+    expect(attrs.isAdded(app.store.getById('users', '21'))).toBe(true);
+    expect(attrs.isAdded(app.store.getById('users', '22'))).toBe(false);
+  });
+});

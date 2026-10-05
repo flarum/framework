@@ -1,5 +1,6 @@
 import DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import PostListState from 'flarum/forum/states/PostListState';
+import type PaginatedListState from 'flarum/common/states/PaginatedListState';
 import type { PaginatedListRequestParams } from 'flarum/common/states/PaginatedListState';
 import type { ApiQueryParamsPlural } from 'flarum/common/Store';
 
@@ -27,6 +28,38 @@ export function asQuery(params: PaginatedListRequestParams): ApiQueryParamsPlura
   return { ...query, include: Array.isArray(include) ? include.join(',') : include };
 }
 
+/**
+ * The next page starts where what the column holds ends, not at a multiple of
+ * the page size. Some columns shrink: a discussion read leaves Unread, a post
+ * whose flags are cleared leaves Flagged. The same thing leaves the server's
+ * list, so everything after it moves up, and a page asked for by number
+ * would skip as many as have gone. Items the column moved to the top itself
+ * (realtime) are ahead on the server too, so they count.
+ */
+function nextPageFromHeld(state: PaginatedListState<any>, params: ApiQueryParamsPlural, page: number): ApiQueryParamsPlural {
+  const location = (state as any).location as { page: number };
+
+  if (page > location.page && !params.page?.near) {
+    const held = state.getPages().reduce((count, held) => count + held.items.length, 0);
+
+    params.page = { ...params.page, offset: held };
+  }
+
+  return params;
+}
+
+/**
+ * Once items leaving have emptied a column while the server has more, the
+ * next page takes their place; a column only shows "nothing here" when there
+ * really is nothing. Reading sends no realtime event, so this is what prune()
+ * is for.
+ */
+export function refillIfEmpty(state: PaginatedListState<any>): Promise<void> {
+  if (state.hasItems() || !state.hasNext()) return Promise.resolve();
+
+  return state.loadNext();
+}
+
 /*
  * A column's refresh is the server's answer: whatever Deck put at the top
  * itself goes too, not only what the new first page repeats. Something that
@@ -39,6 +72,10 @@ export function asQuery(params: PaginatedListRequestParams): ApiQueryParamsPlura
 export class DeckDiscussionListState extends DiscussionListState {
   requestParams(): PaginatedListRequestParams {
     return withoutTotal(super.requestParams());
+  }
+
+  protected mutateRequestParams(params: ApiQueryParamsPlural, page: number): ApiQueryParamsPlural {
+    return nextPageFromHeld(this, super.mutateRequestParams(params, page), page);
   }
 
   revalidate(): Promise<void> {
@@ -67,6 +104,10 @@ export class DeckPostListState extends PostListState {
     if (!this.params.sort) delete params.sort;
 
     return params;
+  }
+
+  protected mutateRequestParams(params: ApiQueryParamsPlural, page: number): ApiQueryParamsPlural {
+    return nextPageFromHeld(this, super.mutateRequestParams(params, page), page);
   }
 
   revalidate(): Promise<void> {
