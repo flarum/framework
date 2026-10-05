@@ -1,0 +1,140 @@
+name: Font Awesome sync
+
+# flarum/font-awesome is a slim redistribution of Font Awesome Free, kept in
+# sync with upstream. That repo is quiet, so a schedule living there would be
+# disabled after 60 days of inactivity. This job runs the clock from here, a
+# repo that is never idle, and pokes the mirror only when upstream has a new
+# release.
+
+on:
+  schedule:
+    # Mondays at 06:00 UTC.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Force a sync of this upstream version (e.g. 7.3.1). Leave blank to use the usual latest-release check.'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compare upstream and mirror versions
+        id: versions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          upstream="$(gh api repos/FortAwesome/Font-Awesome/releases/latest --jq .tag_name)"
+          upstream="${upstream#v}"
+
+          # Highest semver-looking tag already in the mirror, or "none".
+          mirror="$(gh api repos/flarum/font-awesome/tags --jq '[.[].name][]' 2>/dev/null \
+            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V | tail -1 || true)"
+          mirror="${mirror:-none}"
+
+          target="${FORCE_VERSION:-$upstream}"
+
+          echo "Upstream latest: $upstream"
+          echo "Mirror latest:   $mirror"
+          echo "Target:          $target"
+
+          echo "upstream=$upstream" >> "$GITHUB_OUTPUT"
+          echo "mirror=$mirror" >> "$GITHUB_OUTPUT"
+          echo "target=$target" >> "$GITHUB_OUTPUT"
+
+          if [ -n "${FORCE_VERSION}" ] || [ "$upstream" != "$mirror" ]; then
+            echo "needs_sync=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "needs_sync=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Report up to date
+        if: steps.versions.outputs.needs_sync == 'false'
+        run: echo "Mirror already at ${{ steps.versions.outputs.mirror }}; nothing to do."
+
+      # Mint a short-lived token from the flarum GitHub App, scoped to
+      # font-awesome. The default GITHUB_TOKEN cannot dispatch to another repo.
+      # Uses the same App as the installation-packages → docs flow; it must be
+      # installed on flarum/font-awesome with Contents: write.
+      - name: Generate App token
+        if: steps.versions.outputs.needs_sync == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.DOCS_APP_ID }}
+          private-key: ${{ secrets.DOCS_APP_PRIVATE_KEY }}
+          owner: flarum
+          repositories: font-awesome
+
+      - name: Trigger the mirror sync
+        if: steps.versions.outputs.needs_sync == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TARGET: ${{ steps.versions.outputs.target }}
+        run: |
+          set -euo pipefail
+          gh api repos/flarum/font-awesome/dispatches \
+            -f event_type=upstream-release \
+            -F "client_payload[version]=$TARGET"
+          echo "Dispatched sync for $TARGET."
+
+      # The mirror has no Discord webhook (that secret lives here), so this job
+      # waits for the mirror to tag the target version and reports the real
+      # outcome, rather than pinging merely because the dispatch was sent.
+      - name: Wait for the mirror to tag the release
+        if: steps.versions.outputs.needs_sync == 'true'
+        id: wait
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET: ${{ steps.versions.outputs.target }}
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 30); do
+            if gh api repos/flarum/font-awesome/tags --jq '[.[].name][]' 2>/dev/null \
+                 | grep -qxF "$TARGET"; then
+              echo "Mirror tagged $TARGET."
+              echo "tagged=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Tag $TARGET not present yet (attempt $i); waiting 20s."
+            sleep 20
+          done
+          echo "::error::Mirror did not tag $TARGET within the timeout."
+          echo "tagged=false" >> "$GITHUB_OUTPUT"
+          exit 1
+
+      - name: Notify Discord — released
+        if: steps.wait.outputs.tagged == 'true'
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TARGET: ${{ steps.versions.outputs.target }}
+          PREVIOUS: ${{ steps.versions.outputs.mirror }}
+        run: |
+          set -euo pipefail
+          [ -n "${WEBHOOK:-}" ] || { echo "No Discord webhook set; skipping."; exit 0; }
+          content=":package: **flarum/font-awesome** updated and released \`${TARGET}\` (was \`${PREVIOUS}\`), matching Font Awesome Free upstream."
+          jq -n --arg c "$content" '{content: $c}' \
+            | curl -fsS -X POST -H 'Content-Type: application/json' -d @- "$WEBHOOK" >/dev/null
+          echo "Discord notified."
+
+      - name: Notify Discord — failure
+        if: failure()
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TARGET: ${{ steps.versions.outputs.target }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          [ -n "${WEBHOOK:-}" ] || { echo "No Discord webhook set; skipping."; exit 0; }
+          content=":rotating_light: **flarum/font-awesome** sync for \`${TARGET:-?}\` failed — the mirror was triggered but did not tag the release, or the check itself errored. <${RUN_URL}>"
+          jq -n --arg c "$content" '{content: $c}' \
+            | curl -fsS -X POST -H 'Content-Type: application/json' -d @- "$WEBHOOK" >/dev/null || true
