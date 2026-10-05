@@ -176,24 +176,27 @@ export type IFormGroupAttrs = ComponentAttrs &
  *            default="option1" />
  */
 export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupAttrs> extends Component<CustomAttrs> {
+  protected readonly inputId = generateElementId();
+  protected readonly helpTextId = generateElementId();
+
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     const customFieldComponents = this.customFieldComponents();
 
-    const { help, type, label, stream, getSetting, containerClassName, ...componentAttrs } = this.attrs;
+    const { key, help, type, label, stream, getSetting, containerClassName, ...componentAttrs } = this.attrs;
 
     // TypeScript being TypeScript
-    const attrs = componentAttrs as unknown as Omit<IFormGroupAttrs, 'stream' | 'label' | 'help' | 'type'>;
+    const attrs = componentAttrs as unknown as Omit<IFormGroupAttrs, 'key' | 'stream' | 'label' | 'help' | 'type'>;
 
     const value = stream ? stream() : null;
 
-    const [inputId, helpTextId] = [generateElementId(), generateElementId()];
+    const { inputId, helpTextId } = this;
 
     let settingElement: Mithril.Children;
 
     // Typescript being Typescript
     // https://github.com/microsoft/TypeScript/issues/14520
     if ((BooleanSettingTypes as readonly string[]).includes(type)) {
-      const switchHelpTextId = help ? generateElementId() : undefined;
+      const switchHelpTextId = help ? helpTextId : undefined;
 
       return (
         <div className={classList('Form-group', containerClassName)}>
