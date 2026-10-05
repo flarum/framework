@@ -158,9 +158,10 @@ class Document implements Renderable
     public array $preloads = [];
 
     /**
-     * Document extra attributes.
+     * Document extra attributes. A Closure value is called with the request;
+     * any other value is used as given.
      *
-     * @var array<string, string|callable|array>
+     * @var array<string, string|Closure|array>
      */
     public array $extraAttributes = [
         'class' => [],

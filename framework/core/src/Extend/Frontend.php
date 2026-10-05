@@ -186,7 +186,10 @@ class Frontend implements ExtenderInterface
      * @example ['data-test' => 'value']
      * @example ['data-test' => function (ServerRequestInterface $request) { return 'value'; }]
      *
-     * @param array<string, string|callable> $attributes
+     * Only a Closure is called for its value. Any other value, including a
+     * string that names a function or an invokable class, is used as given.
+     *
+     * @param array<string, string|Closure> $attributes
      */
     public function extraDocumentAttributes(array $attributes): self
     {
@@ -198,13 +201,14 @@ class Frontend implements ExtenderInterface
     /**
      * Adds document root classes.
      *
-     * Can either be a string or an array of strings.
+     * Can be a string, an array, or a Closure that returns either.
      *
      * An array can be of a format acceptable by the @class blade directive.
      *
      * @example ['class1', 'class2' => true, 'class3' => false]
+     * @example function (ServerRequestInterface $request) { return 'class1'; }
      */
-    public function extraDocumentClasses(string|array|callable $classes): self
+    public function extraDocumentClasses(string|array|Closure $classes): self
     {
         return $this->extraDocumentAttributes(['class' => $classes]);
     }
@@ -364,16 +368,10 @@ class Frontend implements ExtenderInterface
 
         $container->resolving(
             "flarum.frontend.$this->frontend",
-            function (ActualFrontend $frontend, Container $container) {
-                $frontend->content(function (Document $document) use ($container) {
+            function (ActualFrontend $frontend) {
+                $frontend->content(function (Document $document) {
                     foreach ($this->extraDocumentAttributes as $attributes) {
                         foreach ($attributes as $key => $value) {
-                            // Only a closure, never `is_callable`. An attribute
-                            // value is a value: `is_callable('value')` is true,
-                            // because Laravel defines a global `value()`, and
-                            // the document would call it with the request.
-                            $value = $value instanceof Closure ? ContainerUtil::wrapCallback($value, $container) : $value;
-
                             // Classes accumulate; the document holds them as a
                             // list so that several extensions can each add one.
                             if ($key === 'class') {
