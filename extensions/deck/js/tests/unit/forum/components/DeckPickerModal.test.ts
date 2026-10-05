@@ -4,10 +4,11 @@ import ModalManagerState from 'flarum/common/states/ModalManagerState';
 import SearchState from 'flarum/common/states/SearchState';
 import type User from 'flarum/common/models/User';
 import DeckPickerModal from '../../../../src/forum/components/DeckPickerModal';
-import { boot } from '../helpers';
+import { boot, loadDeckTranslations } from '../helpers';
 
 beforeAll(() => {
   boot();
+  loadDeckTranslations();
 
   app.store.pushPayload({
     data: ['21', '22'].map((id) => ({ type: 'users', id, attributes: { username: `user${id}`, displayName: `User ${id}` } })),
@@ -132,5 +133,22 @@ describe('DeckPickerModal', () => {
     open('user');
 
     expect(root.querySelector('.Modal-header h3')?.textContent).toBe('Choose a member');
+  });
+});
+
+describe('results already in the deck', () => {
+  it('are marked, and still offered', () => {
+    const { onpick } = open('user', { isAdded: (model: User) => model.id() === '22' });
+
+    const added = root.querySelector<HTMLElement>('.SearchModal-results li[data-id="22"]')!;
+    const other = root.querySelector<HTMLElement>('.SearchModal-results li[data-id="21"]')!;
+
+    expect(added.classList.contains('DeckPickerModal-result--added')).toBe(true);
+    expect(added.textContent).toContain('In your deck');
+    expect(other.classList.contains('DeckPickerModal-result--added')).toBe(false);
+    expect(other.textContent).not.toContain('In your deck');
+
+    added.querySelector('a')!.click();
+    expect(onpick).toHaveBeenCalledWith(app.store.getById<User>('users', '22'));
   });
 });

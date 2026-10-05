@@ -22,6 +22,11 @@ export interface IDeckPageAttrs extends IPageAttrs {}
 /** Below this height two rows of columns are too cramped, so they share one strip. */
 const SHORT_SCREEN = '(max-height: 640px)';
 
+/** Remembered per browser, like the hero: it's about this screen, not the member. */
+const FULLSCREEN_KEY = 'flarum-deck.fullscreen';
+/** On the app element, where the forum's header and nav are hidden from. */
+const FULLSCREEN_CLASS = 'App--deckFullscreen';
+
 /** Kept between visits so the deck is exactly as the member left it. */
 let deck: { userId: string; state: DeckState; scrollLeft: Record<string, number> } | null = null;
 
@@ -36,6 +41,39 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
   protected activeIndex = 0;
   /** Once the hero is gone the toolbar names the page instead. */
   protected heroDismissed = DeckPageHero.isHidden();
+  /** Just the deck: the forum's header, nav and the hero out of the way. */
+  protected fullscreen = DeckPage.storedFullscreen();
+
+  static storedFullscreen(): boolean {
+    try {
+      return localStorage.getItem(FULLSCREEN_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  isFullscreen(): boolean {
+    return this.fullscreen;
+  }
+
+  setFullscreen(on: boolean): void {
+    this.fullscreen = on;
+    document.getElementById('app')?.classList.toggle(FULLSCREEN_CLASS, on);
+
+    try {
+      if (on) localStorage.setItem(FULLSCREEN_KEY, 'true');
+      else localStorage.removeItem(FULLSCREEN_KEY);
+    } catch {
+      // Private browsing and the like: it lasts until the page reloads.
+    }
+
+    m.redraw();
+  }
+
+  /** Escape leaves full screen, once nothing above the page (a modal) wants it. */
+  onKeyDown = (e: KeyboardEvent): void => {
+    if (e.key === 'Escape' && this.fullscreen && !app.modal.isModalOpen()) this.setFullscreen(false);
+  };
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -91,6 +129,9 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
     this.media = [window.matchMedia(this.phoneQuery()), window.matchMedia(SHORT_SCREEN)];
     this.media.forEach((query) => query.addEventListener('change', this.onLayoutChange));
 
+    document.getElementById('app')?.classList.toggle(FULLSCREEN_CLASS, this.fullscreen);
+    window.addEventListener('keydown', this.onKeyDown);
+
     import('../utils/loadSortable').then(({ default: Sortable }) => {
       this.sortable = Sortable;
       m.redraw();
@@ -115,6 +156,9 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
     this.observer?.disconnect();
     this.chipSortable?.destroy();
     this.media.forEach((query) => query.removeEventListener('change', this.onLayoutChange));
+    window.removeEventListener('keydown', this.onKeyDown);
+    // Leaving the page brings the forum's header and nav back; the setting stays.
+    document.getElementById('app')?.classList.remove(FULLSCREEN_CLASS);
     this.deck.stop();
   }
 
@@ -212,7 +256,24 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
   actionItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
+    // The side nav is out of sight in full screen, and starting a discussion
+    // is the one thing on it the deck can't do without.
+    if (this.fullscreen) items.add('newDiscussion', this.newDiscussionButton(), 110);
+
     items.add('addColumn', this.addButton(), 100);
+
+    items.add(
+      'fullscreen',
+      <Button
+        className="Button Button--icon DeckPage-fullscreen"
+        icon={this.fullscreen ? 'fas fa-compress' : 'fas fa-expand'}
+        aria-pressed={this.fullscreen ? 'true' : 'false'}
+        aria-label={extractText(app.translator.trans(`flarum-deck.forum.page.${this.fullscreen ? 'exit_fullscreen_button' : 'fullscreen_button'}`))}
+        title={extractText(app.translator.trans(`flarum-deck.forum.page.${this.fullscreen ? 'exit_fullscreen_button' : 'fullscreen_button'}`))}
+        onclick={() => this.setFullscreen(!this.fullscreen)}
+      />,
+      95
+    );
 
     // Rarely wanted and can't be undone, so kept a step away rather than as a
     // button that could be tapped by mistake.
@@ -256,12 +317,32 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
     return items;
   }
 
+  /** As the side nav's, which the deck keeps for the same reason. See DeckSidebar. */
+  protected newDiscussionButton(): Mithril.Children {
+    const canStart = app.forum.attribute<boolean>('canStartDiscussion');
+    const label = app.translator.trans(`core.forum.index.${canStart ? 'start_discussion_button' : 'cannot_start_discussion_button'}`);
+
+    return (
+      <Button
+        className="Button Button--primary DeckPage-action DeckPage-newDiscussion"
+        icon="fas fa-edit"
+        disabled={!canStart}
+        aria-label={extractText(label)}
+        onclick={() =>
+          app.composer.load(() => import('flarum/forum/components/DiscussionComposer'), { user: app.session.user }).then(() => app.composer.show())
+        }
+      >
+        <span className="DeckPage-actionLabel">{label}</span>
+      </Button>
+    );
+  }
+
   protected addButton(): Mithril.Children {
     const canAdd = this.deck.canAddColumn();
 
     return (
       <Button
-        className="Button Button--primary DeckPage-add"
+        className="Button Button--primary DeckPage-action DeckPage-add"
         icon="fas fa-plus"
         disabled={!canAdd}
         aria-label={extractText(app.translator.trans('flarum-deck.forum.page.add_column_button'))}

@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import DiscussionList from 'flarum/forum/components/DiscussionList';
 import type DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import type { DiscussionListParams } from 'flarum/forum/states/DiscussionListState';
-import { DeckDiscussionListState, asQuery } from '../states/deckListStates';
+import { DeckDiscussionListState, asQuery, refillIfEmpty } from '../states/deckListStates';
 import type Discussion from 'flarum/common/models/Discussion';
 import type { ApiResponsePlural } from 'flarum/common/Store';
 import type { DeckColumnSource, DeckRealtimeEvent, DeckRealtimeResult } from './DeckColumnType';
@@ -39,6 +39,8 @@ export default class DiscussionListSource implements DeckColumnSource {
       .flatMap((page) => page.items)
       .filter((discussion) => !this.belongs!(discussion))
       .forEach((discussion) => this.removeFromList(discussion));
+
+    refillIfEmpty(this.state);
   }
 
   load(): Promise<unknown> {

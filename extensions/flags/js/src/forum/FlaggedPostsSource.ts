@@ -43,6 +43,8 @@ export default class FlaggedPostsSource extends PostListSource {
     this.shownPosts()
       .filter((post) => !openFlags(post).length)
       .forEach((post) => this.removePost(post.id()!));
+
+    this.refill();
   }
 
   /** An old post can be flagged at any time, so the queue is reloaded rather than added to. */
