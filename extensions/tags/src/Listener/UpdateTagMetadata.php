@@ -50,8 +50,10 @@ class UpdateTagMetadata
     {
         $oldTags = Tag::whereIn('id', Arr::pluck($event->oldTags, 'id'))->get();
 
-        $this->updateTags($event->discussion, -1, $oldTags);
-        $this->updateTags($event->discussion, 1);
+        $delta = $event->discussion->hidden_at ? 0 : 1;
+
+        $this->updateTags($event->discussion, -$delta, $oldTags);
+        $this->updateTags($event->discussion, $delta);
     }
 
     public function whenDiscussionIsDeleted(Deleted $event): void
