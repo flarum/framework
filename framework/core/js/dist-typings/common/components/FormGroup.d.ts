@@ -121,6 +121,8 @@ export type IFormGroupAttrs = ComponentAttrs & FieldComponentOptions & {
  *            default="option1" />
  */
 export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupAttrs> extends Component<CustomAttrs> {
+    protected readonly inputId: string;
+    protected readonly helpTextId: string;
     view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children;
     /**
      * A list of extension-defined custom setting components to be available.
