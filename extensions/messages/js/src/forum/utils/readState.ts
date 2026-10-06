@@ -1,0 +1,29 @@
+import app from 'flarum/forum/app';
+import type Dialog from '../../common/models/Dialog';
+
+/**
+ * Keeps the member's count of unread conversations in step with a dialog
+ * whose read state may just have changed.
+ *
+ * The count is of dialogs, not messages, so it only moves when a dialog goes
+ * from unread to read or back. Taking it from the dialog's state after the
+ * fact sent it negative: an already-read dialog marked read again, or a single
+ * mark finishing after mark-all had already zeroed it.
+ */
+export function reconcileUnread(dialog: Dialog, wasUnread: boolean): void {
+  const user = app.session.user;
+  const isUnread = (dialog.unreadCount() ?? 0) > 0;
+
+  if (!user || isUnread === wasUnread) return;
+
+  user.pushAttributes({
+    messageCount: Math.max(0, (user.attribute<number>('messageCount') ?? 0) + (isUnread ? 1 : -1)),
+  });
+}
+
+/** Marks a dialog read up to a message, keeping the member's count in step. */
+export function markRead(dialog: Dialog, lastReadMessageId: number): Promise<void> {
+  const wasUnread = (dialog.unreadCount() ?? 0) > 0;
+
+  return dialog.save({ lastReadMessageId }).then(() => reconcileUnread(dialog, wasUnread));
+}

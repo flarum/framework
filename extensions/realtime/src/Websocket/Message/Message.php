@@ -29,7 +29,7 @@ class Message
             return;
         }
 
-        if (! $this->relayTyping()) {
+        if (! $this->relayTyping() && ! $this->relayDialogTyping()) {
             $channel = $this->manager->find($this->payload->channel);
 
             $channel->broadcastToEveryoneExcept(
@@ -159,6 +159,88 @@ class Message
         );
 
         return true;
+    }
+
+    /**
+     * The channel naming hidden typists in a private conversation to those who may
+     * see through a hidden online status. Subscription requires `user.viewLastSeenAt`
+     * and membership of the conversation — see
+     * {@link \Flarum\Realtime\Websocket\Api\AuthController::privateMessageTypingIdentified()}.
+     */
+    public static function identifiedDialogTypingChannel(int $dialogId): string
+    {
+        return "private-privateMessageTypingIdentified=$dialogId";
+    }
+
+    /**
+     * Relay typing in a private conversation (flarum/messages), on the same terms
+     * as a discussion: the typist is whoever the connection authenticated as, never
+     * who the payload claims, and a member hiding their online status is named only
+     * to those entitled to see through that.
+     *
+     * The difference from a discussion is the audience. Only the conversation's
+     * members may subscribe, and they already know each other, so there is no
+     * anonymised form worth sending: in a two-member conversation "someone is
+     * typing" names them just as surely. A hidden typist therefore goes to the
+     * identified channel or nowhere. (Once conversations can have many members, an
+     * anonymised relay to the plain channel, as discussions have, may be worth
+     * adding for the larger ones.)
+     *
+     * Returns false for anything that isn't conversation typing, so the caller falls
+     * back to the plain relay. Anything that is, is handled here and never relayed
+     * raw: that would hand the sender's own payload to the recipients.
+     */
+    protected function relayDialogTyping(): bool
+    {
+        if ($this->payload->event !== 'client-typing'
+            || ! preg_match('/^private-privateMessageTyping=(\d+)$/', $this->payload->channel, $m)) {
+            return false;
+        }
+
+        $dialogId = (int) $m[1];
+        /** @phpstan-ignore-next-line */
+        $sender = $this->connection->socketId;
+
+        $userId = $this->manager->userIdForConnection($this->connection);
+        $identity = $userId !== null ? resolve(TypingIdentity::class)->for($userId) : null;
+
+        // Unidentifiable: say nothing, rather than guess.
+        if ($identity === null) {
+            return true;
+        }
+
+        if ($identity['discloseOnline']) {
+            $this->manager->find($this->payload->channel)?->broadcastToEveryoneExcept(
+                $this->dialogTypingPayload($this->payload->channel, $userId),
+                $sender
+            );
+
+            return true;
+        }
+
+        $identified = $this->manager->find(self::identifiedDialogTypingChannel($dialogId));
+
+        $identified?->broadcastToEveryoneExcept(
+            $this->dialogTypingPayload($identified->getName(), $userId),
+            $sender
+        );
+
+        return true;
+    }
+
+    /**
+     * A conversation typing payload carries only who, as the server knows them. The
+     * receiving client looks the member up itself and judges expiry on its own clock.
+     */
+    protected function dialogTypingPayload(string $channel, int $userId): stdClass
+    {
+        return (object) [
+            'event' => 'client-typing',
+            'channel' => $channel,
+            'data' => [
+                'userId' => $userId,
+            ],
+        ];
     }
 
     /**

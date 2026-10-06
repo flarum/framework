@@ -21,6 +21,7 @@ export interface IMessagesPageAttrs extends IPageAttrs {}
 export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMessagesPageAttrs> extends Page<CustomAttrs> {
   protected selectedDialog = Stream<Dialog | null>(null);
   protected currentDialogId: string | null = null;
+  protected loadingDialog = false;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -32,14 +33,14 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
 
     app.current.set('noTagsList', true);
 
-    if (!app.dialogs.hasItems()) {
-      app.dialogs.refresh().then(async () => {
-        if (app.dialogs.hasItems()) {
-          await this.initDialog();
-        }
-      });
-    } else {
+    if (app.dialogs.hasItems()) {
       this.initDialog();
+    } else {
+      // The list failing is no reason not to open a conversation the address names.
+      app.dialogs
+        .refresh()
+        .catch(() => {})
+        .then(() => this.initDialog());
     }
   }
 
@@ -55,13 +56,32 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
 
     const title = app.translator.trans('flarum-messages.forum.messages_page.title', {}, true);
 
-    let dialog: Dialog | null;
+    let dialog: Dialog | null = null;
 
     if (dialogId) {
-      dialog =
-        app.store.getById<Dialog>('dialogs', dialogId) || ((await app.store.find<Dialog>('dialogs', dialogId, this.dialogRequestParams())) as Dialog);
-    } else {
-      dialog = app.dialogs.getAllItems()[0];
+      dialog = app.store.getById<Dialog>('dialogs', dialogId) || null;
+
+      // Not seen yet, or seen only through a message, without its participants.
+      if (!dialog?.users()) {
+        this.loadingDialog = true;
+        m.redraw();
+
+        try {
+          dialog = await app.store.find<Dialog>('dialogs', dialogId, this.dialogRequestParams());
+        } catch {
+          // Gone, or not theirs; the request's own alert says which. Back to the list.
+          this.loadingDialog = false;
+          m.route.set(app.route('messages'));
+
+          return;
+        }
+
+        this.loadingDialog = false;
+      }
+    } else if (app.screen() !== 'phone') {
+      // A phone shows the list on its own. Opening the first conversation
+      // behind it would mark it read without it ever being seen.
+      dialog = app.dialogs.getAllItems()[0] || null;
     }
 
     this.selectedDialog(dialog);
@@ -82,9 +102,9 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
 
     // Scroll the dialog list to the active dialog item if present and not visible.
     const dialogElement = this.element.querySelector('.DialogListItem.active');
-    const container = this.element.querySelector('.DialogList')!;
+    const container = this.element.querySelector('.DialogList');
 
-    if (dialogElement && $(container).offset()!.top + container.clientHeight <= $(dialogElement).offset()!.top) {
+    if (dialogElement && container && $(container).offset()!.top + container.clientHeight <= $(dialogElement).offset()!.top) {
       dialogElement.scrollIntoView();
     }
   }
@@ -92,9 +112,9 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
   view() {
     return (
       <PageStructure className="MessagesPage Page--vertical" loading={false} hero={this.hero.bind(this)} sidebar={() => <MessagesSidebar />}>
-        {app.dialogs.isLoading() ? (
+        {app.dialogs.isInitialLoading() ? (
           <LoadingIndicator />
-        ) : !app.dialogs.hasItems() ? (
+        ) : !app.dialogs.hasItems() && !this.selectedDialog() && !this.loadingDialog ? (
           <InfoTile icon="far fa-envelope-open">{app.translator.trans('flarum-messages.forum.messages_page.empty_text')}</InfoTile>
         ) : (
           <div
@@ -128,19 +148,22 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
       100
     );
 
+    const dialog = this.selectedDialog();
+
     items.add(
       'dialog',
-      this.selectedDialog() ? (
+      dialog ? (
         <DialogSection
           key="dialog"
-          dialog={this.selectedDialog()}
+          dialog={dialog}
           onback={() => {
-            this.currentDialogId = null;
+            // A route change, so the browser's own back button agrees with ours.
+            m.route.set(app.route('messages'));
           }}
         />
-      ) : (
+      ) : this.loadingDialog ? (
         <LoadingIndicator key="loading" display="block" />
-      ),
+      ) : null,
       80
     );
 

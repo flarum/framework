@@ -46,7 +46,8 @@ export default class MessagesSidebar<CustomAttrs extends IMessagesSidebarAttrs =
         .load(() => import('./MessageComposer'), {
           user: app.session.user,
           onsubmit: () => {
-            app.dialogs.refresh();
+            // The new conversation joins the list without taking it off screen.
+            app.dialogs.hasItems() ? app.dialogs.revalidate() : app.dialogs.refresh();
           },
         })
         .then(() => app.composer.show());
