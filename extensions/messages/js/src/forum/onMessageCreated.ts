@@ -42,7 +42,7 @@ export default function onMessageCreated(data: any): void {
   const becameUnread = typeof unreadAfter === 'number' ? unreadAfter === 1 : !wasUnread;
 
   if (!fromSelf && becameUnread) {
-    app.session.user!.pushAttributes({ messageCount: (app.session.user!.attribute<number>('messageCount') ?? 0) + 1 });
+    app.session.user!.pushAttributes({ unreadDialogCount: (app.session.user!.attribute<number>('unreadDialogCount') ?? 0) + 1 });
   }
 
   // A dialog this browser hasn't seen needs its participants for the list.

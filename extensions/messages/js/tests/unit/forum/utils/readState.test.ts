@@ -19,12 +19,12 @@ beforeAll(() => {
   (app.store.models as any).dialogs = Dialog;
 });
 
-beforeEach(() => app.session.user!.pushAttributes({ messageCount: 2 }));
+beforeEach(() => app.session.user!.pushAttributes({ unreadDialogCount: 2 }));
 
 afterEach(() => jest.restoreAllMocks());
 
 const dialog = (unreadCount: number) => app.store.pushObject({ type: 'dialogs', id: String(++nextId), attributes: { unreadCount } } as any) as Dialog;
-const count = () => app.session.user!.attribute<number>('messageCount');
+const count = () => app.session.user!.attribute<number>('unreadDialogCount');
 
 /** The save succeeds, and the dialog comes back with this unread count, as the API sends it for the member. */
 function saving(target: Dialog, unreadAfter: number) {
@@ -61,7 +61,7 @@ describe('reconcileUnread', () => {
   });
 
   it('never goes below zero', () => {
-    app.session.user!.pushAttributes({ messageCount: 0 });
+    app.session.user!.pushAttributes({ unreadDialogCount: 0 });
 
     reconcileUnread(dialog(0), true);
 

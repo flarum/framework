@@ -17,7 +17,7 @@ export function reconcileUnread(dialog: Dialog, wasUnread: boolean): void {
   if (!user || isUnread === wasUnread) return;
 
   user.pushAttributes({
-    messageCount: Math.max(0, (user.attribute<number>('messageCount') ?? 0) + (isUnread ? 1 : -1)),
+    unreadDialogCount: Math.max(0, (user.attribute<number>('unreadDialogCount') ?? 0) + (isUnread ? 1 : -1)),
   });
 }
 

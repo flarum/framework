@@ -26,10 +26,12 @@ class UserResourceFields
             Schema\Boolean::make('canSendAnyMessage')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->is($user) || $context->getActor()->can('sendAnyMessage'))
                 ->get(fn (User $user, Context $context) => $user->can('sendAnyMessage')),
-            // Dialogs with something unread. One query over the membership
-            // table: membership is what visibility means, so there is nothing
-            // to add by scoping dialogs separately.
-            Schema\Integer::make('messageCount')
+            // How many of the member's conversations have something unread: the
+            // badge on the header's messages icon. Conversations, not messages.
+            // One query over the membership table: membership is what
+            // visibility means, so there is nothing to add by scoping dialogs
+            // separately.
+            Schema\Integer::make('unreadDialogCount')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->is($user))
                 ->get(function (object $model, Context $context) {
                     return UserDialogState::query()
