@@ -185,3 +185,119 @@ describe('ExportRegistry chunk ids shared between builds (#5027)', () => {
     expect(original).toHaveBeenCalledWith('https://cdn.example.com/assets/js/flarum-deck/forum/utils/loadSortable.js', expect.any(Function), 0, 371);
   });
 });
+
+describe('ExportRegistry chunks that are not registered yet (#5103)', () => {
+  // RegisterAsyncChunksPlugin appends its `addChunkModule` calls to the module
+  // holding the import. When that module is itself an async chunk — a lazy
+  // import inside a lazily-loaded component — the registrations only run once
+  // that chunk has loaded, which is after the registry is asked for its URL.
+  //
+  // Webpack's own URL is no help there: with automatic publicPath it resolves
+  // the chunk against the directory the entry bundle came from, so a forum
+  // serving chunks from `assets/js/<namespace>/` (S3, a CDN prefix, a
+  // subdirectory install) gets a URL one directory tree too shallow. On a flat
+  // local-disk forum the same wrong URL happens to land on the file, which is
+  // why this stayed hidden.
+  //
+  // The namespace is known even when the chunk is not registered, and webpack
+  // names the file after the chunk's url path, so the correct URL can be
+  // rebuilt from the two.
+  function withForumAttributes<T>(run: () => T): T {
+    const attributes: Record<string, string> = {
+      jsChunksBaseUrl: 'https://cdn.example.com/assets/js',
+      assetsBaseUrl: 'https://cdn.example.com/assets',
+    };
+    const forum = (app as any).forum;
+    (app as any).forum = { attribute: (key: string) => attributes[key] };
+
+    try {
+      return run();
+    } finally {
+      (app as any).forum = forum;
+    }
+  }
+
+  it('rebuilds the url of an unregistered chunk from its namespace', async () => {
+    const registry = new ExportRegistry();
+    const original = makeScriptLoader(['load']);
+    const done = jest.fn(() => Promise.resolve());
+
+    await withForumAttributes(() =>
+      registry.loadChunk(
+        original as any,
+        // What webpack asks for: the entry bundle's directory plus the chunk
+        // file name, with no `js/<namespace>` in between.
+        'https://cdn.example.com/assets/forum/components/DeckPickerModal.js',
+        done as any,
+        0,
+        436,
+        'flarum-deck'
+      )
+    );
+
+    expect(original).toHaveBeenCalledWith(
+      'https://cdn.example.com/assets/js/flarum-deck/forum/components/DeckPickerModal.js',
+      expect.any(Function),
+      0,
+      436
+    );
+  });
+
+  it('keeps the query string off the rebuilt url', async () => {
+    const registry = new ExportRegistry();
+    const original = makeScriptLoader(['load']);
+    const done = jest.fn(() => Promise.resolve());
+
+    await withForumAttributes(() =>
+      registry.loadChunk(
+        original as any,
+        'https://cdn.example.com/assets/forum/components/DeckPickerModal.js?v=abc123',
+        done as any,
+        0,
+        436,
+        'flarum-deck'
+      )
+    );
+
+    expect(original).toHaveBeenCalledWith(
+      'https://cdn.example.com/assets/js/flarum-deck/forum/components/DeckPickerModal.js',
+      expect.any(Function),
+      0,
+      436
+    );
+  });
+
+  it('leaves the url alone when no namespace was given', async () => {
+    // Bundles built before the namespace was passed (flarum-webpack-config
+    // 3.0.4 and earlier) have nothing to rebuild from, so the url webpack
+    // computed is still the best available answer.
+    const registry = new ExportRegistry();
+    const original = makeScriptLoader(['load']);
+    const done = jest.fn(() => Promise.resolve());
+
+    await withForumAttributes(() =>
+      registry.loadChunk(original as any, 'https://cdn.example.com/assets/forum/components/Unknown.js', done as any, 0, 436)
+    );
+
+    expect(original).toHaveBeenCalledWith('https://cdn.example.com/assets/forum/components/Unknown.js', expect.any(Function), 0, 436);
+  });
+
+  it('prefers a registered chunk over rebuilding', async () => {
+    const registry = new ExportRegistry();
+    registry.addChunkModule(436, 500, 'flarum-deck', 'forum/components/DeckPickerModal');
+
+    const original = makeScriptLoader(['load']);
+    const done = jest.fn(() => Promise.resolve());
+
+    await withForumAttributes(() =>
+      registry.loadChunk(original as any, 'https://cdn.example.com/assets/whatever/it/asked/for.js', done as any, 0, 436, 'flarum-deck')
+    );
+
+    expect(original).toHaveBeenCalledWith(
+      'https://cdn.example.com/assets/js/flarum-deck/forum/components/DeckPickerModal.js',
+      expect.any(Function),
+      0,
+      436
+    );
+  });
+});
