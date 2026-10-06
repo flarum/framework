@@ -25,6 +25,8 @@ class DialogFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $state->getQuery()->where('dialog_id', $value, $negate ? '!=' : '=');
+        $ids = array_map('intval', (array) $value);
+
+        $state->getQuery()->{$negate ? 'whereNotIn' : 'whereIn'}('dialog_id', $ids);
     }
 }

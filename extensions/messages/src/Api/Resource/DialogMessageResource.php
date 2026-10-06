@@ -95,7 +95,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ->defaultInclude(['user', 'dialog']),
             Endpoint\Index::make()
                 ->authenticated()
-                ->defaultInclude(['user'])
+                ->defaultInclude(['user', 'dialog'])
                 ->defaultSort('-number')
                 ->eagerLoad(function () {
                     if (! $this->extensions->isEnabled('flarum-mentions')) {
@@ -119,7 +119,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                         $filter = $defaultExtracts['filter'];
                         $dialogId = $filter['dialog'] ?? null;
 
-                        if (count($filter) > 1 || ! $dialogId || ($sort && $sort !== ['number' => 'desc'])) {
+                        if (count($filter) > 1 || ! $dialogId || is_array($dialogId) || ($sort && $sort !== ['number' => 'desc'])) {
                             throw new BadRequestException(
                                 'You can only use page[near] with filter[dialog] and the default sort order'
                             );
@@ -134,7 +134,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                             ->whereVisibleTo($context->getActor())
                             ->count();
 
-                        return max(0, $index - $limit / 2);
+                        return max(0, $index - intdiv($limit, 2));
                     }
 
                     return $defaultExtracts['offset'];
@@ -270,6 +270,11 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
             });
 
             $model->dialog()->associate($dialog);
+        } elseif ($model->dialog && $model->dialog->users()->where('users.id', '!=', $actor->id)->doesntExist()) {
+            // The other member has left; there is no one to send to.
+            throw new ValidationException([
+                'dialog' => $this->translator->trans('flarum-messages.lib.no_other_members_message'),
+            ]);
         }
 
         return parent::creating($model, $context);

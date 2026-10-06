@@ -129,8 +129,13 @@ class Dialog extends AbstractModel
         return $this->users->first(fn (User $user) => $user->id !== $actor?->id);
     }
 
-    public static function setStateUser(User $user): void
+    public static function setStateUser(?User $user): void
     {
         static::$stateUser = $user;
+    }
+
+    public static function stateUser(): ?User
+    {
+        return static::$stateUser;
     }
 }

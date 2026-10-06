@@ -18,7 +18,6 @@ use Flarum\Messages\Http\Middleware\PopulateDialogWithActor;
 use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\User\User;
-use Illuminate\Database\Eloquent\Builder;
 
 return [
     (new Extend\Frontend('forum'))
@@ -62,16 +61,17 @@ return [
             Schema\Boolean::make('canSendAnyMessage')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->is($user) || $context->getActor()->can('sendAnyMessage'))
                 ->get(fn (User $user, Context $context) => $user->can('sendAnyMessage')),
-            Schema\Boolean::make('canDeleteOwnMessages')
-                ->visible(fn (User $user, Context $context) => $context->getActor()->is($user)),
+            // Dialogs with something unread. One query over the membership
+            // table: membership is what visibility means, so there is nothing
+            // to add by scoping dialogs separately.
             Schema\Integer::make('messageCount')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->is($user))
                 ->get(function (object $model, Context $context) {
-                    return Dialog::whereVisibleTo($context->getActor())
-                        ->whereHas('users', function (Builder $query) use ($context) {
-                            $query->where('dialog_user.user_id', $context->getActor()->id)
-                                ->whereColumn('dialog_user.last_read_message_id', '<', 'dialogs.last_message_id');
-                        })->count();
+                    return UserDialogState::query()
+                        ->join('dialogs', 'dialogs.id', '=', 'dialog_user.dialog_id')
+                        ->where('dialog_user.user_id', $context->getActor()->id)
+                        ->whereColumn('dialog_user.last_read_message_id', '<', 'dialogs.last_message_id')
+                        ->count();
                 }),
         ]),
 
@@ -113,6 +113,14 @@ return [
                         ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
                             ->addDefaultInclude(['mentionsTags'])),
                 ]),
+        ]),
+
+    // Messages are personal data: exported with the member, addresses removed
+    // when they are anonymised, gone when they are erased.
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-gdpr', fn () => [
+            (new \Flarum\Gdpr\Extend\UserData())
+                ->addType(Data\Messages::class),
         ]),
 
     (new Extend\Conditional())

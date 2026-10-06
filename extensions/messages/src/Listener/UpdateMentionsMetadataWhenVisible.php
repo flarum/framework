@@ -22,6 +22,10 @@ class UpdateMentionsMetadataWhenVisible
 
     public function handle(DialogMessage\Event\Created|DialogMessage\Event\Updated $event): void
     {
+        if (! $this->extensions->isEnabled('flarum-mentions')) {
+            return;
+        }
+
         $content = $event->message->parsed_content;
 
         $this->syncUserMentions(
