@@ -41,5 +41,25 @@ export default [
       }),
       'reply',
       80
+    )
+    .permission(
+      () => ({
+        icon: 'fas fa-bolt',
+        label: app.translator.trans('flarum-messages.admin.permissions.send_without_throttle_label'),
+        permission: 'dialog.sendMessageWithoutThrottle',
+        allowGuest: false,
+      }),
+      'moderate',
+      95
+    )
+    .permission(
+      () => ({
+        icon: 'fas fa-bullseye',
+        label: app.translator.trans('flarum-messages.admin.permissions.view_ips_label'),
+        permission: 'dialog.viewIps',
+        allowGuest: false,
+      }),
+      'moderate',
+      94
     ),
 ];
