@@ -306,3 +306,47 @@
   flex-direction: column;
   gap: 8px;
 }
+
+// A private message in the global search results, laid out like a user result.
+.MessageSearchResult {
+  margin: 0 -16px;
+
+  > a {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 15px;
+    border-radius: 0;
+    white-space: normal;
+  }
+
+  .Avatar {
+    --size: 36px;
+    flex-shrink: 0;
+  }
+
+  &-text {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  &-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-weight: bold;
+
+    time {
+      font-weight: normal;
+      font-size: 12px;
+      color: var(--muted-color);
+      white-space: nowrap;
+    }
+  }
+
+  &-excerpt {
+    color: var(--muted-color);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+}

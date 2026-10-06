@@ -67,6 +67,7 @@ return [
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addSearcher(Dialog::class, Search\DialogSearcher::class)
         ->addSearcher(DialogMessage::class, Search\DialogMessageSearcher::class)
+        ->setFulltext(Search\DialogMessageSearcher::class, Search\FulltextFilter::class)
         ->addFilter(Search\DialogMessageSearcher::class, DialogMessage\Filter\DialogFilter::class)
         ->addFilter(Search\DialogSearcher::class, Dialog\Filter\UnreadFilter::class),
 

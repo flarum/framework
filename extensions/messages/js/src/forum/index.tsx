@@ -10,6 +10,7 @@ import DialogsDropdown from './components/DialogsDropdown';
 import DialogListState from './states/DialogListState';
 import type User from 'flarum/common/models/User';
 import extendRealtime from './extendRealtime';
+import addMessageSearch from './addMessageSearch';
 
 export { default as extend } from './extend';
 
@@ -76,6 +77,8 @@ app.initializers.add('flarum-messages', () => {
       );
     }
   });
+
+  addMessageSearch();
 
   extend('flarum/forum/components/NotificationGrid', 'notificationTypes', function (items) {
     items.add('messageReceived', {
