@@ -43,11 +43,11 @@ export default class DialogListState<P extends DialogListParams = DialogListPara
   }
 
   load(): Promise<void> {
-    if (app.session.user?.attribute<number>('messageCount') !== this.lastCount) {
+    if (app.session.user?.attribute<number>('unreadDialogCount') !== this.lastCount) {
       this.pages = [];
       this.location = { page: 1 };
 
-      this.lastCount = app.session.user?.attribute<number>('messageCount') || 0;
+      this.lastCount = app.session.user?.attribute<number>('unreadDialogCount') || 0;
     }
 
     if (this.pages.length > 0) {
@@ -89,7 +89,7 @@ export default class DialogListState<P extends DialogListParams = DialogListPara
         app.dialogs.getAllItems().forEach((dialog: Dialog) => {
           dialog.pushAttributes({ unreadCount: 0 });
         });
-        app.session.user!.pushAttributes({ messageCount: 0 });
+        app.session.user!.pushAttributes({ unreadDialogCount: 0 });
         app.dropdownDialogs.clear();
         m.redraw();
       });

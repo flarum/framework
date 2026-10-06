@@ -20,7 +20,7 @@ beforeAll(() => {
 beforeEach(() => {
   (app as any).dialogs = new DialogListState({});
   (app as any).dropdownDialogs = new DialogListState({});
-  app.session.user!.pushAttributes({ messageCount: 0 });
+  app.session.user!.pushAttributes({ unreadDialogCount: 0 });
 });
 
 afterEach(() => jest.restoreAllMocks());
@@ -65,7 +65,7 @@ function listed(state: DialogListState, ...dialogs: Array<ReturnType<typeof dial
 }
 
 const ids = (state: DialogListState) => state.getAllItems().map((dialog) => dialog.id());
-const messageCount = () => app.session.user!.attribute<number>('messageCount');
+const unreadDialogCount = () => app.session.user!.attribute<number>('unreadDialogCount');
 
 describe('DialogListState.moveToTop', () => {
   it('moves a listed dialog to the top', () => {
@@ -111,17 +111,17 @@ describe('a new message', () => {
 
     onMessageCreated(created('1', THEM, 1));
 
-    expect(messageCount()).toBe(1);
+    expect(unreadDialogCount()).toBe(1);
   });
 
   // The count is of unread dialogs, not messages.
   it('does not count another message in a dialog already unread', () => {
     listed(app.dialogs, dialogData('1', 1));
-    app.session.user!.pushAttributes({ messageCount: 1 });
+    app.session.user!.pushAttributes({ unreadDialogCount: 1 });
 
     onMessageCreated(created('1', THEM, 2));
 
-    expect(messageCount()).toBe(1);
+    expect(unreadDialogCount()).toBe(1);
   });
 
   // Deck binds the user channel globally, and global handlers run first: the
@@ -134,16 +134,16 @@ describe('a new message', () => {
     app.store.pushPayload(payload);
     onMessageCreated(payload);
 
-    expect(messageCount()).toBe(1);
+    expect(unreadDialogCount()).toBe(1);
   });
 
   it('goes by the payload, not a store that is behind', () => {
     listed(app.dialogs, dialogData('1'));
-    app.session.user!.pushAttributes({ messageCount: 1 });
+    app.session.user!.pushAttributes({ unreadDialogCount: 1 });
 
     onMessageCreated(created('1', THEM, 2));
 
-    expect(messageCount()).toBe(1);
+    expect(unreadDialogCount()).toBe(1);
   });
 
   it('keeps the member’s own messages out of the unread dropdown and count', () => {
@@ -154,7 +154,7 @@ describe('a new message', () => {
 
     expect(ids(app.dialogs)).toEqual(['2', '1']);
     expect(ids(app.dropdownDialogs)).toEqual(['1']);
-    expect(messageCount()).toBe(0);
+    expect(unreadDialogCount()).toBe(0);
   });
 
   it('fetches a dialog this browser hasn’t seen, with its participants', async () => {
@@ -195,6 +195,6 @@ describe('a new message', () => {
     onMessageCreated({ data: { type: 'dialog-messages', id: '1', relationships: {} } });
 
     expect(ids(app.dialogs)).toEqual(['1']);
-    expect(messageCount()).toBe(0);
+    expect(unreadDialogCount()).toBe(0);
   });
 });
