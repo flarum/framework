@@ -9,11 +9,12 @@
 
 namespace Flarum\Messages;
 
-use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
-use Flarum\Api\Schema;
+use Flarum\Audit\Extend\Audit as AuditExtend;
 use Flarum\Extend;
+use Flarum\Extension\ExtensionManager;
+use Flarum\Gdpr\Extend\UserData as GdprUserData;
 use Flarum\Messages\Http\Middleware\PopulateDialogWithActor;
 use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
@@ -45,43 +46,23 @@ return [
     (new Extend\ModelVisibility(DialogMessage::class))
         ->scope(Access\ScopeDialogMessageVisibility::class),
 
-    new Extend\ApiResource(Api\Resource\DialogResource::class),
-
-    new Extend\ApiResource(Api\Resource\DialogMessageResource::class),
-
-    (new Extend\ThrottleApi())
-        ->set('messageTimeout', DialogMessageThrottler::class),
-
-    (new Extend\ApiResource(Resource\UserResource::class))
-        ->fields(fn () => [
-            // Whether a user can be written to, for those who could write to
-            // them. Not for guests, or anyone else without the permission: it
-            // would tell them who is suspended, and cost a permissions lookup
-            // for every user in every response.
-            Schema\Boolean::make('canSendAnyMessage')
-                ->visible(fn (User $user, Context $context) => $context->getActor()->is($user) || $context->getActor()->can('sendAnyMessage'))
-                ->get(fn (User $user, Context $context) => $user->can('sendAnyMessage')),
-            // Dialogs with something unread. One query over the membership
-            // table: membership is what visibility means, so there is nothing
-            // to add by scoping dialogs separately.
-            Schema\Integer::make('messageCount')
-                ->visible(fn (User $user, Context $context) => $context->getActor()->is($user))
-                ->get(function (object $model, Context $context) {
-                    return UserDialogState::query()
-                        ->join('dialogs', 'dialogs.id', '=', 'dialog_user.dialog_id')
-                        ->where('dialog_user.user_id', $context->getActor()->id)
-                        ->whereColumn('dialog_user.last_read_message_id', '<', 'dialogs.last_message_id')
-                        ->count();
-                }),
-        ]),
-
-    (new Extend\Middleware('api'))
-        ->add(PopulateDialogWithActor::class),
-
     (new Extend\Policy())
         ->modelPolicy(Dialog::class, Access\DialogPolicy::class)
         ->modelPolicy(DialogMessage::class, Access\DialogMessagePolicy::class)
         ->globalPolicy(Access\GlobalPolicy::class),
+
+    new Extend\ApiResource(Api\Resource\DialogResource::class),
+
+    new Extend\ApiResource(Api\Resource\DialogMessageResource::class),
+
+    (new Extend\ApiResource(Resource\UserResource::class))
+        ->fields(Api\UserResourceFields::class),
+
+    (new Extend\ThrottleApi())
+        ->set('messageTimeout', DialogMessageThrottler::class),
+
+    (new Extend\Middleware('api'))
+        ->add(PopulateDialogWithActor::class),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addSearcher(Dialog::class, Search\DialogSearcher::class)
@@ -100,30 +81,25 @@ return [
         ->listen(DialogMessage\Event\Created::class, Listener\UpdateMentionsMetadataWhenVisible::class)
         ->listen(DialogMessage\Event\Updated::class, Listener\UpdateMentionsMetadataWhenVisible::class),
 
-    // The mention relationships, on by default only where their resources
-    // exist. A default include the API can't resolve fails the whole request.
     (new Extend\Conditional())
+        // The mention relationships, on by default only where their resources
+        // exist. A default include the API can't resolve fails the whole request.
         ->whenExtensionEnabled('flarum-mentions', fn () => [
             (new Extend\ApiResource(Api\Resource\DialogMessageResource::class))
                 ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
                     ->addDefaultInclude(['mentionsUsers', 'mentionsPosts', 'mentionsGroups'])),
-            (new Extend\Conditional())
-                ->whenExtensionEnabled('flarum-tags', fn () => [
-                    (new Extend\ApiResource(Api\Resource\DialogMessageResource::class))
-                        ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
-                            ->addDefaultInclude(['mentionsTags'])),
-                ]),
-        ]),
-
-    // Messages are personal data: exported with the member, addresses removed
-    // when they are anonymised, gone when they are erased.
-    (new Extend\Conditional())
+        ])
+        ->when(fn (ExtensionManager $extensions) => $extensions->isEnabled('flarum-mentions') && $extensions->isEnabled('flarum-tags'), fn () => [
+            (new Extend\ApiResource(Api\Resource\DialogMessageResource::class))
+                ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
+                    ->addDefaultInclude(['mentionsTags'])),
+        ])
+        // Messages are personal data: exported with the member, addresses removed
+        // when they are anonymised, gone when they are erased.
         ->whenExtensionEnabled('flarum-gdpr', fn () => [
-            (new \Flarum\Gdpr\Extend\UserData())
+            (new GdprUserData())
                 ->addType(Data\Messages::class),
-        ]),
-
-    (new Extend\Conditional())
+        ])
         ->whenExtensionEnabled('flarum-realtime', fn () => [
             (new RealtimeExtend())
                 ->broadcastDialogEvent(
@@ -132,5 +108,10 @@ return [
                 )
                 ->registerModelEndpoint(DialogMessage::class, 'dialog-messages')
                 ->registerModelEndpoint(Dialog::class, 'dialogs'),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new AuditExtend())
+                ->group('flarum-messages')
+                ->using(new AuditIntegration()),
         ]),
 ];

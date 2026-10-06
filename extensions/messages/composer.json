@@ -26,7 +26,10 @@
             "title": "Messages",
             "category": "feature",
             "optional-dependencies": [
+                "flarum/audit",
                 "flarum/deck",
+                "flarum/gdpr",
+                "flarum/mentions",
                 "flarum/realtime",
                 "flarum/tags"
             ],
@@ -82,6 +85,10 @@
         "test:integration:filter": "Runs integration tests whose name matches: composer test:integration:filter -- ClassName"
     },
     "require-dev": {
-        "flarum/testing": "^2.0.0"
+        "flarum/testing": "^2.0.0",
+        "flarum/audit": "*",
+        "flarum/gdpr": "*",
+        "flarum/mentions": "*",
+        "flarum/tags": "*"
     }
 }

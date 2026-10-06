@@ -113,3 +113,12 @@ flarum-gdpr:
         export_description: Your private messages, with when they were sent and from which address.
         anonymize_description: The addresses your private messages were sent from are removed. The messages stay.
         delete_description: Your private messages are deleted.
+
+# Labels for the audit log entries this extension produces, shown by the
+# (optional) flarum/audit browser. Under its namespace, so it resolves them.
+flarum-audit:
+  lib:
+    browser:
+      dialog:
+        started: Started a private conversation with {username}
+        posted: Sent a private message to {username}
