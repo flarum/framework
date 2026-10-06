@@ -211,7 +211,7 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     // @ts-ignore
     app.alerts.showLoading();
 
-    const chunkUrl = this.chunkUrl(chunkId, namespace, url) || url;
+    const chunkUrl = this.chunkUrl(chunkId, namespace, url) ?? this.rebuiltChunkUrl(url, namespace) ?? url;
 
     const load = (): Promise<void> =>
       original(
@@ -252,10 +252,61 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
 
     if (!chunk) return null;
 
+    return this.versionedChunkUrl(chunk.namespace, chunk.urlPath);
+  }
+
+  /**
+   * Where a chunk lives, for a chunk the registry does not know about.
+   *
+   * A chunk is registered by the module that imports it, so a lazy import
+   * inside another lazy chunk is only registered once that outer chunk has
+   * run — which is after the registry has been asked where the inner one is.
+   *
+   * Webpack's own url cannot stand in for it. Under automatic publicPath it
+   * resolves a chunk against the directory the entry bundle was served from,
+   * which is the assets root rather than `js/<namespace>/`. A forum serving
+   * assets from a flat directory gets away with that; one serving them from
+   * object storage, behind a CDN path, or from a subdirectory install does
+   * not, and the request 404s (or 403s, where the bucket will not confirm a
+   * key it is not allowed to list).
+   *
+   * Both missing pieces are available anyway: the namespace is passed in by
+   * the runtime, and webpack names the file after the chunk's url path, so
+   * the url it asked for carries that path. Nothing here depends on the
+   * registry, only on the layout the asset compiler already writes.
+   */
+  private rebuiltChunkUrl(url?: string, namespace?: string): string | null {
+    if (!url || !namespace) return null;
+
+    // `…/forum/components/DeckPickerModal.js?v=1` → `forum/components/DeckPickerModal`.
+    const urlPath = this.chunkUrlPath(url);
+
+    if (!urlPath) return null;
+
+    return this.versionedChunkUrl(namespace, urlPath);
+  }
+
+  /**
+   * The url path webpack encoded in a chunk's file name, relative to the
+   * frontend it belongs to — the same value {@link Chunk.urlPath} holds for a
+   * registered chunk.
+   */
+  private chunkUrlPath(url: string): string | null {
+    const file = url.split('?')[0].split('#')[0];
+    const match = /(?:^|\/)((?:admin|common|forum)\/.+)\.js$/.exec(file);
+
+    return match?.[1] ?? null;
+  }
+
+  /**
+   * A chunk's url, carrying the revision recorded for it so a rebuild is not
+   * served from cache.
+   */
+  private versionedChunkUrl(namespace: string, urlPath: string): string {
     this._revisions ??= JSON.parse(document.getElementById('flarum-rev-manifest')?.textContent ?? '{}');
 
     // @ts-ignore cannot import the app object here, so we use the global one.
-    const path = `${app.forum.attribute<string>('jsChunksBaseUrl')}/${chunk.namespace}/${chunk.urlPath}.js`;
+    const path = `${app.forum.attribute<string>('jsChunksBaseUrl')}/${namespace}/${urlPath}.js`;
 
     // The paths in the revision are stored as (relative path from the assets path) + the path.
     // @ts-ignore
