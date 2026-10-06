@@ -18,6 +18,7 @@ use Flarum\Gdpr\Extend\UserData as GdprUserData;
 use Flarum\Messages\Http\Middleware\PopulateDialogWithActor;
 use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\Statistics\Extend\Statistics as StatisticsExtend;
 use Flarum\User\User;
 
 return [
@@ -114,5 +115,12 @@ return [
             (new AuditExtend())
                 ->group('flarum-messages')
                 ->using(new AuditIntegration()),
+        ])
+        // How much private messaging there is: conversations started, and the
+        // replies that continue them.
+        ->whenExtensionEnabled('flarum-statistics', fn () => [
+            (new StatisticsExtend())
+                ->entity('dialogs', fn () => Dialog::query(), 'created_at')
+                ->entity('dialog_replies', fn () => DialogMessage::query()->where('number', '>', 1), 'created_at'),
         ]),
 ];
