@@ -5,6 +5,8 @@ parameters:
 	level: 6
 	paths:
 	  - framework/core/src
+	  - extensions/ai/src
+	  - extensions/ai/extend.php
 	  - extensions/akismet/src
 	  - extensions/akismet/extend.php
 	  - extensions/approval/src
