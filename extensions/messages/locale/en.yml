@@ -126,3 +126,11 @@ flarum-audit:
       dialog:
         started: Started a private conversation with {username}
         posted: Sent a private message to {username}
+
+# Labels for the statistics this extension adds, shown by the (optional)
+# flarum/statistics widgets. Under its namespace, so it resolves them.
+flarum-statistics:
+  admin:
+    statistics:
+      dialogs_heading: PM started
+      dialog_replies_heading: PM replies

@@ -31,6 +31,7 @@
                 "flarum/gdpr",
                 "flarum/mentions",
                 "flarum/realtime",
+                "flarum/statistics",
                 "flarum/tags"
             ],
             "icon": {
@@ -89,6 +90,7 @@
         "flarum/audit": "*",
         "flarum/gdpr": "*",
         "flarum/mentions": "*",
+        "flarum/statistics": "*",
         "flarum/tags": "*"
     }
 }
