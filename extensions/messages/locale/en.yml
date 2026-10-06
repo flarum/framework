@@ -5,6 +5,8 @@ flarum-messages:
     permissions:
       send_messages_label: Send private messages
       delete_own_messages_label: Delete own messages
+      send_without_throttle_label: Send messages without throttling
+      view_ips_label: View IP addresses of messages
 
   # Translations in this namespace are used by the forum user interface.
   forum:

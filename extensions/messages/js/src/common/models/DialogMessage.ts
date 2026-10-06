@@ -29,6 +29,10 @@ export default class DialogMessage extends Model {
   createdAt() {
     return Model.attribute<Date, string>('createdAt', Model.transformDate).call(this);
   }
+  /** Only present for those allowed to see it. */
+  ipAddress() {
+    return Model.attribute<string | null | undefined>('ipAddress').call(this);
+  }
 
   dialog() {
     return Model.hasOne<Dialog>('dialog').call(this);

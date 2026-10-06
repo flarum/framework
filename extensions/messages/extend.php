@@ -10,6 +10,7 @@
 namespace Flarum\Messages;
 
 use Flarum\Api\Context;
+use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Extend;
@@ -49,9 +50,17 @@ return [
 
     new Extend\ApiResource(Api\Resource\DialogMessageResource::class),
 
+    (new Extend\ThrottleApi())
+        ->set('messageTimeout', DialogMessageThrottler::class),
+
     (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(fn () => [
+            // Whether a user can be written to, for those who could write to
+            // them. Not for guests, or anyone else without the permission: it
+            // would tell them who is suspended, and cost a permissions lookup
+            // for every user in every response.
             Schema\Boolean::make('canSendAnyMessage')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->is($user) || $context->getActor()->can('sendAnyMessage'))
                 ->get(fn (User $user, Context $context) => $user->can('sendAnyMessage')),
             Schema\Boolean::make('canDeleteOwnMessages')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->is($user)),
@@ -90,6 +99,21 @@ return [
         ->listen(DialogMessage\Event\Created::class, Listener\SendNotificationWhenMessageSent::class)
         ->listen(DialogMessage\Event\Created::class, Listener\UpdateMentionsMetadataWhenVisible::class)
         ->listen(DialogMessage\Event\Updated::class, Listener\UpdateMentionsMetadataWhenVisible::class),
+
+    // The mention relationships, on by default only where their resources
+    // exist. A default include the API can't resolve fails the whole request.
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-mentions', fn () => [
+            (new Extend\ApiResource(Api\Resource\DialogMessageResource::class))
+                ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
+                    ->addDefaultInclude(['mentionsUsers', 'mentionsPosts', 'mentionsGroups'])),
+            (new Extend\Conditional())
+                ->whenExtensionEnabled('flarum-tags', fn () => [
+                    (new Extend\ApiResource(Api\Resource\DialogMessageResource::class))
+                        ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
+                            ->addDefaultInclude(['mentionsTags'])),
+                ]),
+        ]),
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('flarum-realtime', fn () => [

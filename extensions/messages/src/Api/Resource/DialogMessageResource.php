@@ -23,6 +23,8 @@ use Flarum\Locale\Translator;
 use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
+use Flarum\User\User;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -39,6 +41,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         protected LogReporter $log,
         protected Dispatcher $bus,
         protected ExtensionManager $extensions,
+        protected ConnectionInterface $db,
     ) {
     }
 
@@ -83,32 +86,29 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ->visible(function (DialogMessage $message, Context $context): bool {
                     return $context->getActor()->can('delete', $message);
                 }),
+            // The mention relationships are added to these defaults from
+            // extend.php, only when the extensions that provide them are
+            // enabled: naming `mentionsTags` on a forum without Tags makes every
+            // bare request for a message fail with "Resource [tags] not found".
             Endpoint\Show::make()
                 ->authenticated()
-                ->defaultInclude([
-                    'user',
-                    'dialog',
-                    'mentionsUsers',
-                    'mentionsPosts',
-                    'mentionsGroups',
-                    'mentionsTags',
-                ]),
+                ->defaultInclude(['user', 'dialog']),
             Endpoint\Index::make()
                 ->authenticated()
-                ->defaultInclude([
-                    'user',
-                    'mentionsUsers',
-                    'mentionsPosts',
-                    'mentionsGroups',
-                    'mentionsTags',
-                ])
+                ->defaultInclude(['user'])
                 ->defaultSort('-number')
                 ->eagerLoad(function () {
-                    if ($this->extensions->isEnabled('flarum-mentions')) {
-                        return ['mentionsUsers', 'mentionsPosts', 'mentionsGroups', 'mentionsTags'];
+                    if (! $this->extensions->isEnabled('flarum-mentions')) {
+                        return [];
                     }
 
-                    return [];
+                    $relations = ['mentionsUsers', 'mentionsPosts', 'mentionsGroups'];
+
+                    if ($this->extensions->isEnabled('flarum-tags')) {
+                        $relations[] = 'mentionsTags';
+                    }
+
+                    return $relations;
                 })
                 ->extractOffset(function (Context $context, array $defaultExtracts): int {
                     $queryParams = $context->request->getQueryParams();
@@ -172,6 +172,8 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 }),
             Schema\Boolean::make('renderFailed'),
             Schema\DateTime::make('createdAt'),
+            Schema\Str::make('ipAddress')
+                ->visible(fn (DialogMessage $message, Context $context) => $context->getActor()->can('dialog.viewIps')),
 
             // Write-only.
             Schema\Arr::make('users')
@@ -223,7 +225,10 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
      */
     public function creating(object $model, OriginalContext $context): ?object
     {
-        $model->user_id = $context->getActor()->id;
+        $actor = $context->getActor();
+
+        $model->user_id = $actor->id;
+        $model->ip_address = $context->request->getAttribute('ipAddress');
         $data = $context->body()['data'] ?? [];
 
         $this->events->dispatch(
@@ -231,25 +236,40 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         );
 
         if (! $model->dialog_id) {
-            $context->getActor()->assertCan('sendAnyMessage');
+            $actor->assertCan('sendAnyMessage');
 
-            $users = array_filter(Arr::pluck($data['attributes']['users'] ?? [], 'id'), fn (mixed $id) => $id && $id != $model->user_id);
+            $users = array_values(array_unique(array_map(
+                'intval',
+                array_filter(Arr::pluck($data['attributes']['users'] ?? [], 'id'), fn (mixed $id) => $id && (int) $id !== $actor->id)
+            )));
 
-            if (empty($users)) {
+            // Checked before anything is written: a recipient who doesn't exist
+            // used to reach the database, fail on the foreign key, and leave a
+            // dialog with no messages behind.
+            if (empty($users) || User::whereVisibleTo($actor)->whereIn('id', $users)->count() !== count($users)) {
                 throw new ValidationException([
-                    'users' => str_replace(':attribute', 'users', $this->translator->trans('validation.required')),
+                    'users' => str_replace(':attribute', 'users', $this->translator->trans('validation.exists')),
                 ]);
             }
 
-            $dialog = Dialog::for($model, $users);
+            // The dialog and its members go in together, or not at all. Core's
+            // create flow has no transaction of its own.
+            $dialog = $this->db->transaction(function () use ($model, $users, $actor) {
+                $dialog = Dialog::for($model, $users);
+
+                // Only members not yet in the dialog are added: syncing them all
+                // would reset `joined_at` for the ones already there.
+                $members = $dialog->users()->pluck('users.id')->all();
+                $joining = array_diff([...$users, $actor->id], $members);
+
+                if ($joining) {
+                    $dialog->users()->attach(array_fill_keys($joining, ['joined_at' => Carbon::now()]));
+                }
+
+                return $dialog;
+            });
 
             $model->dialog()->associate($dialog);
-
-            $users[] = $model->user_id;
-
-            $dialog->users()->syncWithPivotValues(array_unique($users), [
-                'joined_at' => Carbon::now(),
-            ]);
         }
 
         return parent::creating($model, $context);
