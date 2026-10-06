@@ -19,6 +19,8 @@ use Flarum\Group\Group;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\LocaleManager;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Notification\Notification;
+use Flarum\Notification\NotificationSyncer;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AvatarUploader;
 use Flarum\User\AvatarValidator;
@@ -29,6 +31,7 @@ use Flarum\User\Event\GroupsChanged;
 use Flarum\User\Event\RegisteringFromProvider;
 use Flarum\User\Event\Saving;
 use Flarum\User\Exception\NotAuthenticatedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use GuzzleHttp\Client;
@@ -173,6 +176,36 @@ class UserResource extends AbstractDatabaseResource
                     return $this->bus->dispatch(
                         new DeleteAvatar(Arr::get($context->request->getQueryParams(), 'id'), $context->getActor())
                     );
+                }),
+            Endpoint\Endpoint::make('notificationPreferences.reset')
+                ->route('DELETE', '/{id}/notification-preferences')
+                ->authenticated()
+                ->action(function (Context $context) {
+                    /** @var User $user */
+                    $user = $context->model;
+
+                    // Only the user themselves, the same rule as the `preferences` field.
+                    if ($context->getActor()->id !== $user->id) {
+                        throw new PermissionDeniedException();
+                    }
+
+                    // Every key a driver registers a default for, built the way it is
+                    // registered, then dropped in one save so the defaults apply again.
+                    // The stored value, not the accessor: that merges in every default,
+                    // and saving it back would store the defaults of the other
+                    // preferences too.
+                    $preferences = (array) json_decode($user->getAttributes()['preferences'] ?? 'null', true);
+
+                    foreach (array_keys(Notification::getSubjectModels()) as $type) {
+                        foreach (array_keys(NotificationSyncer::getNotificationDrivers()) as $driver) {
+                            unset($preferences[User::getNotificationPreferenceKey($type, $driver)]);
+                        }
+                    }
+
+                    $user->preferences = $preferences;
+                    $user->save();
+
+                    return $user;
                 }),
         ];
     }

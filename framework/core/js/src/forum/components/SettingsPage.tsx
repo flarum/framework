@@ -131,24 +131,22 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
   resettingNotifications = false;
 
   /**
-   * Put every notification preference back to the forum's default. Sending
-   * `null` makes the server forget the user's choice, so the registered default
-   * applies again (the defaults live on the server, not in the client).
+   * Put every notification preference back to the forum's default. The server
+   * forgets the user's choices in one save, so the registered defaults apply.
    */
   resetNotificationPreferences() {
-    const user = this.user!;
-    const preferences: Record<string, null> = {};
-
-    Object.keys(user.preferences() || {})
-      .filter((key) => key.startsWith('notify_'))
-      .forEach((key) => (preferences[key] = null));
-
     this.resettingNotifications = true;
 
-    user.save({ preferences }).finally(() => {
-      this.resettingNotifications = false;
-      m.redraw();
-    });
+    app
+      .request({
+        method: 'DELETE',
+        url: `${app.forum.attribute('apiUrl')}/users/${this.user!.id()}/notification-preferences`,
+      })
+      .then((response: any) => app.store.pushPayload(response))
+      .finally(() => {
+        this.resettingNotifications = false;
+        m.redraw();
+      });
   }
 
   /**

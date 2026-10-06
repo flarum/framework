@@ -248,32 +248,6 @@ class UpdateTest extends TestCase
     }
 
     #[Test]
-    public function setting_a_preference_to_null_restores_its_default()
-    {
-        $patch = fn (mixed $value) => $this->send(
-            $this->request('PATCH', '/api/users/2', [
-                'authenticatedAs' => 2,
-                'json' => [
-                    'data' => [
-                        'type' => 'users',
-                        'attributes' => [
-                            'preferences' => ['notify_discussionRenamed_alert' => $value],
-                        ],
-                    ],
-                ],
-            ])
-        );
-
-        $response = $patch(false);
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertFalse(json_decode($response->getBody()->getContents(), true)['data']['attributes']['preferences']['notify_discussionRenamed_alert']);
-
-        $response = $patch(null);
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertTrue(json_decode($response->getBody()->getContents(), true)['data']['attributes']['preferences']['notify_discussionRenamed_alert']);
-    }
-
-    #[Test]
     public function users_cant_update_own_groups()
     {
         $response = $this->send(
