@@ -43,7 +43,10 @@ export default class MessageSearchResult<CustomAttrs extends IMessageSearchResul
       'text',
       <div className="MessageSearchResult-text">
         <div className="MessageSearchResult-title">
-          {app.translator.trans('flarum-messages.forum.search_source.conversation_with', { username: username(recipient || null) })}
+          {/* One element, so the title and the time are the row's only two parts. */}
+          <span className="MessageSearchResult-conversation">
+            {app.translator.trans('flarum-messages.forum.search_source.conversation_with', { username: username(recipient || null) })}
+          </span>
           {humanTime(message.createdAt())}
         </div>
         <div className="MessageSearchResult-excerpt">{highlight(message.contentPlain() ?? '', this.highlightRegExp(), 175)}</div>
