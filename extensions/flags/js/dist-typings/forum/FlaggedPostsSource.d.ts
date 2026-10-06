@@ -2,11 +2,19 @@ import PostListSource from 'ext:flarum/deck/forum/columns/PostListSource';
 import type { DeckRealtimeEvent, DeckRealtimeResult } from 'ext:flarum/deck/forum/columns/DeckColumnType';
 import type Post from 'flarum/common/models/Post';
 /**
+ * The base class comes from an optional dependency, and is undefined when that
+ * isn't installed. A class can't extend undefined, and the error would stop all
+ * of Flags from loading, so it extends an empty stand-in instead. It is never
+ * constructed then: the column is only registered alongside the dependency
+ * (see extend.ts).
+ */
+declare const Base: typeof PostListSource;
+/**
  * Posts with open flags, most recently flagged first, each with Flags' own
  * flag bar to act on. The server decides what's listed, so only flags the
  * member may see ever appear.
  */
-export default class FlaggedPostsSource extends PostListSource {
+export default class FlaggedPostsSource extends Base {
     constructor();
     onRealtime(event: DeckRealtimeEvent): DeckRealtimeResult;
     /** A new reply has no flags yet. */
@@ -19,3 +27,4 @@ export default class FlaggedPostsSource extends PostListSource {
     checkForNew(): Promise<number>;
     protected shownPosts(): Post[];
 }
+export {};
