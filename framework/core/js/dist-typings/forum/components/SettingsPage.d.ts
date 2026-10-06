@@ -25,6 +25,12 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
      * Build an item list for the user's notification settings.
      */
     notificationsItems(): ItemList<Mithril.Children>;
+    resettingNotifications: boolean;
+    /**
+     * Put every notification preference back to the forum's default. The server
+     * forgets the user's choices in one save, so the registered defaults apply.
+     */
+    resetNotificationPreferences(): void;
     /**
      * Build an item list for the user's privacy settings.
      */
