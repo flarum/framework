@@ -102,6 +102,38 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     private legacyChunk;
     loadChunk(original: Function, url: string, done: (...args: any) => Promise<void>, key: number, chunkId: number | string, namespace?: string): Promise<void>;
     chunkUrl(chunkId: number | string, namespace?: string, url?: string): string | null;
+    /**
+     * Where a chunk lives, for a chunk the registry does not know about.
+     *
+     * A chunk is registered by the module that imports it, so a lazy import
+     * inside another lazy chunk is only registered once that outer chunk has
+     * run — which is after the registry has been asked where the inner one is.
+     *
+     * Webpack's own url cannot stand in for it. Under automatic publicPath it
+     * resolves a chunk against the directory the entry bundle was served from,
+     * which is the assets root rather than `js/<namespace>/`. A forum serving
+     * assets from a flat directory gets away with that; one serving them from
+     * object storage, behind a CDN path, or from a subdirectory install does
+     * not, and the request 404s (or 403s, where the bucket will not confirm a
+     * key it is not allowed to list).
+     *
+     * Both missing pieces are available anyway: the namespace is passed in by
+     * the runtime, and webpack names the file after the chunk's url path, so
+     * the url it asked for carries that path. Nothing here depends on the
+     * registry, only on the layout the asset compiler already writes.
+     */
+    private rebuiltChunkUrl;
+    /**
+     * The url path webpack encoded in a chunk's file name, relative to the
+     * frontend it belongs to — the same value {@link Chunk.urlPath} holds for a
+     * registered chunk.
+     */
+    private chunkUrlPath;
+    /**
+     * A chunk's url, carrying the revision recorded for it so a rebuild is not
+     * served from cache.
+     */
+    private versionedChunkUrl;
     asyncModuleImport(path: string): Promise<any>;
     clear(): void;
     namespaceAndIdFromPath(path: string): [string, string];
