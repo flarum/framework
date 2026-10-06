@@ -124,6 +124,28 @@ describe('a new message', () => {
     expect(messageCount()).toBe(1);
   });
 
+  // Deck binds the user channel globally, and global handlers run first: the
+  // payload is in the store before this handler sees it, so the store already
+  // says the dialog is unread.
+  it('counts a dialog that became unread even when the payload was already in the store', () => {
+    listed(app.dialogs, dialogData('1'));
+    const payload = created('1', THEM, 1);
+
+    app.store.pushPayload(payload);
+    onMessageCreated(payload);
+
+    expect(messageCount()).toBe(1);
+  });
+
+  it('goes by the payload, not a store that is behind', () => {
+    listed(app.dialogs, dialogData('1'));
+    app.session.user!.pushAttributes({ messageCount: 1 });
+
+    onMessageCreated(created('1', THEM, 2));
+
+    expect(messageCount()).toBe(1);
+  });
+
   it('keeps the member’s own messages out of the unread dropdown and count', () => {
     listed(app.dialogs, dialogData('1'), dialogData('2'));
     listed(app.dropdownDialogs, dialogData('1'));

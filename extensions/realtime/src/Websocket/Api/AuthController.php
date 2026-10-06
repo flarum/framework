@@ -114,6 +114,18 @@ class AuthController implements RequestHandlerInterface
     }
 
     /**
+     * Authorize the channel naming members who type in a private conversation while
+     * hiding their online status: the conversation's members who hold core's
+     * `user.viewLastSeenAt`, the override for that preference. See
+     * {@link \Flarum\Realtime\Websocket\Message\Message::relayDialogTyping()}.
+     */
+    protected function privateMessageTypingIdentified(int $id): bool
+    {
+        return $this->actor->hasPermission('user.viewLastSeenAt')
+            && $this->privateMessageTyping($id);
+    }
+
+    /**
      * Authorize the channel that discloses who is typing while hiding their online
      * status. `user.viewLastSeenAt` is core's override for the `discloseOnline`
      * preference, so it gates this too — plus the ordinary requirements for seeing

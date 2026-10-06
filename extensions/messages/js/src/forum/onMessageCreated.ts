@@ -32,7 +32,16 @@ export default function onMessageCreated(data: any): void {
     m.redraw();
   };
 
-  if (!fromSelf && !wasUnread) {
+  // The count is of unread dialogs, so it moves only when this message is the
+  // first unread one. That is read off the payload, which carries this
+  // member's unread count after the message, rather than off the store:
+  // another handler on the same channel (Deck's) may have put the payload in
+  // the store first, and then the store already said the dialog was unread.
+  const unreadAfter = (data.included ?? []).find((item: any) => item?.type === 'dialogs' && String(item.id) === String(dialogId))?.attributes
+    ?.unreadCount;
+  const becameUnread = typeof unreadAfter === 'number' ? unreadAfter === 1 : !wasUnread;
+
+  if (!fromSelf && becameUnread) {
     app.session.user!.pushAttributes({ messageCount: (app.session.user!.attribute<number>('messageCount') ?? 0) + 1 });
   }
 

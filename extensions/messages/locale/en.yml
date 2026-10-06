@@ -20,7 +20,9 @@ flarum-messages:
     dialog_list:
       load_more_button: => core.ref.load_more
       mark_as_read_tooltip: Mark as read
+      own_last_message_preview: "You: {content}"
       title: Messages
+      unread_count_text: "{count} unread"
       view_all: View all messages
 
     dialog_section:

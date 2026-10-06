@@ -26,7 +26,8 @@ app.initializers.add('flarum-messages', () => {
   );
 
   app.composer.composingMessageTo = function (dialog: Dialog) {
-    return this.isVisible() && this.bodyMatches('flarum/messages/forum/components/MessageComposer', { dialog });
+    // The composer is loaded with `replyingTo`, so that is what must match.
+    return this.isVisible() && this.bodyMatches('flarum/messages/forum/components/MessageComposer', { replyingTo: dialog });
   };
 
   extend(IndexSidebar.prototype, 'navItems', function (items) {
@@ -53,7 +54,7 @@ app.initializers.add('flarum-messages', () => {
 
   // @ts-ignore
   extend(UserControls, 'userControls', (items, user: User) => {
-    if (app.session.user?.canSendAnyMessage()) {
+    if (app.session.user?.canSendAnyMessage() && user !== app.session.user) {
       items.add(
         'sendMessage',
         <Button

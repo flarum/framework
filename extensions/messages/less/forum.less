@@ -101,6 +101,18 @@
 
 .DialogListItem {
   .CompactActions();
+  position: relative;
+
+  // Over the end of the title row, which leaves room for it.
+  &-actions {
+    position: absolute;
+    top: 10px;
+    inset-inline-end: 12px;
+  }
+
+  &--actions &-title {
+    padding-inline-end: 24px;
+  }
 
   &-button {
     display: flex;
@@ -151,8 +163,8 @@
 
     .Bubble {
       top: -4px;
-      right: -4px;
-      left: unset;
+      inset-inline-end: -4px;
+      inset-inline-start: unset;
       height: 18px;
       min-width: 18px;
     }
@@ -190,17 +202,13 @@
     justify-content: flex-start;
     gap: 10px;
   }
-
-  .DialogDropdownList &-actions {
-    margin-inline-start: auto;
-  }
 }
 
 .Message {
-  padding-right: 0;
+  padding-inline-end: 0;
 
   .PostUser-badges {
-    margin-left: -72px;
+    margin-inline-start: -72px;
   }
 }
 
@@ -216,6 +224,8 @@
 .MessageStream, .DialogList {
   --additional-gap: 52px;
   max-height: calc(100vh - var(--header-height) - 140px - var(--additional-gap));
+  // The viewport as it is, under a phone browser's bars.
+  max-height: calc(100dvh - var(--header-height) - 140px - var(--additional-gap));
   overflow: auto;
 
   @media @tablet-up {

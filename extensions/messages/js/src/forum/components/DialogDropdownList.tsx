@@ -31,7 +31,7 @@ export default class DialogDropdownList<CustomAttrs extends IDialogListDropdownA
         title={app.translator.trans('flarum-messages.forum.dialog_list.title')}
         controls={this.controlItems()}
         hasItems={state.hasItems()}
-        loading={state.isLoading()}
+        loading={state.isInitialLoading()}
         emptyText={app.translator.trans('flarum-messages.forum.messages_page.empty_text')}
         loadMore={() => state.hasNext() && !state.isLoadingNext() && state.loadNext()}
         footer={() => (

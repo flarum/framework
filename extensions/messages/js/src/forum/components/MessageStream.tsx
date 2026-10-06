@@ -6,24 +6,34 @@ import MessageStreamState from '../states/MessageStreamState';
 import DialogMessage from '../../common/models/DialogMessage';
 import Stream from 'flarum/common/utils/Stream';
 import Button from 'flarum/common/components/Button';
-import { ModelIdentifier } from 'flarum/common/Model';
 import ScrollListener from 'flarum/common/utils/ScrollListener';
 import Dialog from '../../common/models/Dialog';
 import Message from './Message';
+import { markRead } from '../utils/readState';
 
 export interface IDialogStreamAttrs extends ComponentAttrs {
   dialog: Dialog;
   state: MessageStreamState;
+  /** The number of the message to open on, from a permalink. */
+  near?: number | null;
 }
+
+/** Within this many pixels of the bottom, the reader is following the conversation. */
+const FOLLOWING_THRESHOLD = 100;
+/** How long after the last scroll frame the reader counts as having stopped. */
+const SCROLL_SETTLE_MS = 150;
 
 export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDialogStreamAttrs> extends Component<CustomAttrs> {
   protected replyPlaceholderComponent = Stream<any>(null);
   protected loadingPostComponent = Stream<any>(null);
   protected scrollListener!: ScrollListener;
-  protected initialToBottomScroll = false;
+  protected initialScrollDone = false;
   protected lastTime: Date | null = null;
-  protected checkedRead = false;
   protected markingAsRead = false;
+  protected scrollSettleTimer: number | null = null;
+  protected onVisibilityChange = () => {
+    if (document.visibilityState === 'visible') this.markAsRead();
+  };
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -42,36 +52,41 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
 
     this.scrollListener = new ScrollListener(this.onscroll.bind(this), this.element);
 
-    setTimeout(() => {
-      this.scrollListener.start();
-      this.element.addEventListener('scrollend', this.markAsRead.bind(this));
-    });
+    setTimeout(() => this.scrollListener.start());
+
+    // Read receipts wait for the tab to be looked at.
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+
+    this.settle();
   }
 
   onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onupdate(vnode);
 
-    // @todo: for future versions, consider using the post stream scrubber to scroll through the messages. (big task..)
-    // @todo: introduce read status, to jump to the first unread message instead.
-    if (!this.initialToBottomScroll && !this.attrs.state.isLoading()) {
-      this.scrollToBottom();
-      this.initialToBottomScroll = true;
-    }
-
-    if (this.initialToBottomScroll && !this.checkedRead) {
-      this.markAsRead();
-      this.checkedRead = true;
-    }
+    this.settle();
   }
 
   onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onremove(vnode);
 
     this.scrollListener.stop();
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    if (this.scrollSettleTimer) clearTimeout(this.scrollSettleTimer);
+  }
+
+  /** Once the first messages are on screen: to the permalinked message, or the end. */
+  protected settle(): void {
+    if (this.initialScrollDone || this.attrs.state.isInitialLoading()) return;
+
+    this.initialScrollDone = true;
+    this.scrollToStart();
+    this.markAsRead();
   }
 
   view() {
-    return <div className="MessageStream">{this.attrs.state.isLoading() ? <LoadingIndicator /> : this.content()}</div>;
+    // Only the first load takes the conversation off screen; loading more
+    // keeps it there, with the placeholders at the end being loaded.
+    return <div className="MessageStream">{this.attrs.state.isInitialLoading() ? <LoadingIndicator /> : this.content()}</div>;
   }
 
   content() {
@@ -112,7 +127,13 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
       }
     }
 
-    messages.forEach((message, index) => items.push(this.messageItem(message, index)));
+    // A live region of its own, so that only messages are announced: not the
+    // loading placeholders around them, nor the typing indicator.
+    items.push(
+      <div className="MessageStream-log" role="log" key="log">
+        {messages.map((message) => this.messageItem(message))}
+      </div>
+    );
 
     if (lastMessageId && messages[messages.length - 1]?.id() !== lastMessageId) {
       if (LoadingPost) {
@@ -147,9 +168,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
                   .load(() => import('./MessageComposer'), {
                     user: app.session.user,
                     replyingTo: this.attrs.dialog,
-                    onsubmit: () => {
-                      this.attrs.state.refresh().then(() => setTimeout(() => this.scrollToBottom(), 50));
-                    },
+                    onsubmit: (message: DialogMessage) => this.receive(message),
                   })
                   .then(() => app.composer.show());
               });
@@ -163,9 +182,9 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
     return items;
   }
 
-  messageItem(message: DialogMessage, index: number) {
+  messageItem(message: DialogMessage) {
     return (
-      <div className="MessageStream-item" key={index} data-id={message.id()} data-number={message.number()}>
+      <div className="MessageStream-item" key={message.id()} data-id={message.id()} data-number={message.number()} tabindex="-1">
         {this.timeGap(message)}
         <Message message={message} state={this.attrs.state} />
       </div>
@@ -201,6 +220,42 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
     return null;
   }
 
+  /**
+   * A message that has just joined the conversation, from this member or
+   * another. The reader is taken along when they were at the end already, or
+   * sent it themselves; otherwise they keep their place.
+   */
+  receive(message: DialogMessage): void {
+    const own = message.user() === app.session.user;
+    const state = this.attrs.state;
+
+    if (own && !state.atNewestEnd()) {
+      // Sent from part-way through a long conversation: go to where it landed.
+      state.refresh().then(() => this.afterRedraw(() => this.scrollToBottom()));
+
+      return;
+    }
+
+    const following = own || this.isAtBottom();
+
+    state.push(message);
+
+    if (!following) return;
+
+    this.afterRedraw(() => {
+      this.scrollToBottom();
+      this.markAsRead();
+
+      // The composer has gone; the sender's place is at what they sent.
+      if (own) this.element.querySelector<HTMLElement>(`.MessageStream-item[data-id="${message.id()}"]`)?.focus({ preventScroll: true });
+    });
+  }
+
+  /** After the redraw a state change has asked for. */
+  afterRedraw(callback: () => void): void {
+    requestAnimationFrame(callback);
+  }
+
   onscroll() {
     this.whileMaintainingScroll(() => {
       if (this.element.scrollTop <= 80 && this.attrs.state.hasNext()) {
@@ -213,26 +268,38 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
 
       return null;
     });
+
+    // Read once the reader has stopped, not on every frame on the way. (The
+    // `scrollend` event would do, but older Safari does not fire it.)
+    if (this.scrollSettleTimer) clearTimeout(this.scrollSettleTimer);
+    this.scrollSettleTimer = window.setTimeout(() => this.markAsRead(), SCROLL_SETTLE_MS);
+  }
+
+  isAtBottom(): boolean {
+    return this.element.scrollHeight - this.element.scrollTop - this.element.clientHeight <= FOLLOWING_THRESHOLD;
   }
 
   scrollToBottom() {
-    const near = m.route.param('near');
+    this.element.scrollTop = this.element.scrollHeight;
+  }
 
-    if (near) {
-      const $message = this.element.querySelector(`.MessageStream-item[data-number="${near}"]`);
+  /** The permalinked message, when there is one on screen; otherwise the end. */
+  protected scrollToStart(): void {
+    const near = this.attrs.near;
+    const target = near ? this.element.querySelector<HTMLElement>(`.MessageStream-item[data-number="${near}"]`) : null;
 
-      if ($message) {
-        this.element.scrollTop = $message.getBoundingClientRect().top - this.element.getBoundingClientRect().top;
-        $message.classList.add('flash');
+    if (!target) {
+      this.scrollToBottom();
 
-        // forget near
-        window.history.replaceState(null, '', app.route.dialog(this.attrs.dialog));
-      } else {
-        this.element.scrollTop = this.element.scrollHeight;
-      }
-    } else {
-      this.element.scrollTop = this.element.scrollHeight;
+      return;
     }
+
+    this.element.scrollTop = target.getBoundingClientRect().top - this.element.getBoundingClientRect().top;
+    target.classList.add('flash');
+
+    // The permalink has done its job. The address goes back to the
+    // conversation's own without a route change, which would rebuild the page.
+    window.history.replaceState(null, '', app.route.dialog(this.attrs.dialog));
   }
 
   whileMaintainingScroll(callback: () => null | Promise<void>) {
@@ -252,34 +319,38 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
     }
   }
 
+  /**
+   * Marks read up to the last message on screen. Only what the reader can
+   * see counts: not a tab in the background, and not a pane the phone layout
+   * keeps off screen.
+   */
   markAsRead(): void {
-    const lastVisibleId = Number(
-      this.$('.MessageStream-item[data-id]')
-        .filter((_, $el) => {
-          if (this.element.scrollHeight <= this.element.clientHeight) {
-            return true;
-          }
+    if (this.markingAsRead || !app.session.user) return;
+    if (document.visibilityState !== 'visible' || !this.element?.getClientRects().length) return;
 
-          return this.$().offset()!.top + this.element.clientHeight > $($el).offset()!.top;
-        })
-        .last()
-        .data('id')
-    );
+    const lastVisibleId = this.lastVisibleMessageId();
 
-    if (lastVisibleId && app.session.user && lastVisibleId > (this.attrs.dialog.lastReadMessageId() || 0) && !this.markingAsRead) {
-      this.markingAsRead = true;
+    if (!lastVisibleId || lastVisibleId <= (this.attrs.dialog.lastReadMessageId() || 0)) return;
 
-      this.attrs.dialog.save({ lastReadMessageId: lastVisibleId }).finally(() => {
+    this.markingAsRead = true;
+
+    markRead(this.attrs.dialog, lastVisibleId)
+      .catch(() => {})
+      .finally(() => {
         this.markingAsRead = false;
-
-        if (this.attrs.dialog.unreadCount() === 0) {
-          app.session.user!.pushAttributes({
-            messageCount: (app.session.user!.attribute<number>('messageCount') ?? 1) - 1,
-          });
-        }
-
         m.redraw();
       });
-    }
+  }
+
+  protected lastVisibleMessageId(): number {
+    const bottom = this.element.getBoundingClientRect().bottom;
+    const fits = this.element.scrollHeight <= this.element.clientHeight;
+    let last = 0;
+
+    this.element.querySelectorAll<HTMLElement>('.MessageStream-item[data-id]').forEach((item) => {
+      if (fits || item.getBoundingClientRect().top < bottom) last = Number(item.dataset.id);
+    });
+
+    return last;
   }
 }

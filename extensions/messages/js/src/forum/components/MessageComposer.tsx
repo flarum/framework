@@ -134,8 +134,13 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
       })
       .then((message) => {
         this.composer.hide();
+
         // @ts-ignore
-        m.route.set(app.route('dialog', { id: message.data.relationships!.dialog.data.id }));
+        const dialogId: string = message.data.relationships!.dialog.data.id;
+
+        // Already in this conversation, the route change would rebuild the page under the reader.
+        if (m.route.param('id') !== dialogId) m.route.set(app.route('dialog', { id: dialogId }));
+
         this.attrs.onsubmit?.(message);
       }, this.loaded.bind(this));
   }
