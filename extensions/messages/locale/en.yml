@@ -70,6 +70,10 @@ flarum-messages:
     recipient_selection_modal:
       title: Select the recipients of this message
 
+    search_source:
+      conversation_with: "Conversation with {username}"
+      heading: Messages
+
     settings:
       notify_message_received_label: Someone sends me a message
 
