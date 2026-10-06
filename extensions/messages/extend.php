@@ -109,23 +109,9 @@ return [
                 ->registerModelEndpoint(DialogMessage::class, 'dialog-messages')
                 ->registerModelEndpoint(Dialog::class, 'dialogs'),
         ])
-        // Who started a conversation with whom; not each message, which would
-        // make the log a record of every exchange.
         ->whenExtensionEnabled('flarum-audit', fn () => [
             (new AuditExtend())
                 ->group('flarum-messages')
-                ->listen(DialogMessage\Event\Created::class, 'dialog.started', function (DialogMessage\Event\Created $event) {
-                    $message = $event->message;
-
-                    // Numbers are refreshed from the database before the event, and
-                    // a conversation's first message is always number 1.
-                    if ((int) $message->number !== 1) {
-                        return null;
-                    }
-
-                    $recipient = $message->dialog?->recipient($message->user);
-
-                    return $recipient ? ['dialog_id' => $message->dialog_id, 'user_id' => $recipient->id] : null;
-                }),
+                ->using(new AuditIntegration()),
         ]),
 ];

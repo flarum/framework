@@ -121,3 +121,4 @@ flarum-audit:
     browser:
       dialog:
         started: Started a private conversation with {username}
+        posted: Sent a private message to {username}
