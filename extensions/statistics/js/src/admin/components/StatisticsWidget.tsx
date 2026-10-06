@@ -11,6 +11,7 @@ import classList from 'flarum/common/utils/classList';
 
 import DashboardWidget, { IDashboardWidgetAttrs } from 'flarum/admin/components/DashboardWidget';
 
+import statisticsEntities from '../utils/statisticsEntities';
 import StatisticsWidgetDateSelectionModal, { IDateSelection, IStatisticsWidgetDateSelectionModalAttrs } from './StatisticsWidgetDateSelectionModal';
 
 import type Mithril from 'mithril';
@@ -31,7 +32,7 @@ interface IPeriodDeclaration {
 }
 
 export default class StatisticsWidget extends DashboardWidget {
-  entities = ['users', 'discussions', 'posts'];
+  entities = statisticsEntities();
   periods: undefined | Record<string, IPeriodDeclaration>;
 
   chart: any;
@@ -54,7 +55,7 @@ export default class StatisticsWidget extends DashboardWidget {
     return acc;
   }, {} as Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>);
 
-  selectedEntity = 'users';
+  selectedEntity = this.entities[0];
   selectedPeriod: undefined | string;
 
   chartEntity?: string;

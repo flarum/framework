@@ -12,14 +12,11 @@ namespace Flarum\Statistics\Api\Controller;
 use Carbon\Carbon;
 use DateTime;
 use Exception;
-use Flarum\Discussion\Discussion;
 use Flarum\Http\Exception\InvalidParameterException;
 use Flarum\Http\RequestUtil;
-use Flarum\Post\Post;
-use Flarum\Post\RegisteredTypesScope;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -39,17 +36,19 @@ class ShowStatisticsData implements RequestHandlerInterface
      */
     public static int $timedStatsCacheTtl = 900;
 
+    /**
+     * The statistics registered with the Statistics extender, by name.
+     *
+     * @var array<string, array{query: callable(): Builder, column: string}>
+     */
     protected array $entities = [];
 
     public function __construct(
         protected SettingsRepositoryInterface $settings,
-        protected CacheRepository $cache
+        protected CacheRepository $cache,
+        Container $container
     ) {
-        $this->entities = [
-            'users' => [User::query(), 'joined_at'],
-            'discussions' => [Discussion::query(), 'created_at'],
-            'posts' => [Post::where('type', 'comment')->withoutGlobalScope(RegisteredTypesScope::class), 'created_at']
-        ];
+        $this->entities = $container->bound('flarum-statistics.entities') ? $container->make('flarum-statistics.entities') : [];
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -92,28 +91,44 @@ class ShowStatisticsData implements RequestHandlerInterface
             $endRange = Carbon::createFromTimestampUTC($end)->toDateTime();
 
             // We can't really cache this
-            return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1], $startRange, $endRange);
+            return $this->getTimedCounts($this->query($model), $this->entities[$model]['column'], $startRange, $endRange);
         }
 
         return $this->getTimedStatistics($model);
     }
 
+    /**
+     * A fresh query for one statistic's records.
+     */
+    private function query(string $model): Builder
+    {
+        return ($this->entities[$model]['query'])();
+    }
+
     private function getLifetimeStatistics(): array
     {
-        return $this->cache->remember('flarum-subscriptions.lifetime_stats', self::$lifetimeStatsCacheTtl, function () {
-            return array_map(function ($entity) {
-                return $entity[0]->count();
-            }, $this->entities);
+        return $this->cache->remember('flarum-statistics.lifetime_stats', self::$lifetimeStatsCacheTtl, function () {
+            return array_map(fn (string $model) => $this->query($model)->count(), array_combine(array_keys($this->entities), array_keys($this->entities)));
         });
     }
 
     private function getTimedStatistics(string $model): array
     {
-        return $this->cache->remember("flarum-subscriptions.timed_stats.$model", self::$lifetimeStatsCacheTtl, function () use ($model) {
-            return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1]);
+        return $this->cache->remember("flarum-statistics.timed_stats.$model", self::$timedStatsCacheTtl, function () use ($model) {
+            return $this->getTimedCounts($this->query($model), $this->entities[$model]['column']);
         });
     }
 
+    /**
+     * Counts by the hour for the last day, so today has a shape, and by the
+     * day before that.
+     *
+     * These are two queries rather than one that decides, row by row, which
+     * of the two to format each date as: grouping by the day alone is far
+     * cheaper to compute over a large table, and the last day holds few rows.
+     *
+     * @return array<int, int> The number of records, keyed by the timestamp of each hour or day.
+     */
     private function getTimedCounts(Builder $query, string $column, ?DateTime $startDate = null, ?DateTime $endDate = null): array
     {
         $diff = $startDate && $endDate ? $startDate->diff($endDate) : null;
@@ -131,38 +146,42 @@ class ShowStatisticsData implements RequestHandlerInterface
             $endDate = new DateTime();
         }
 
-        $formats = match ($query->getConnection()->getDriverName()) {
-            'pgsql' => ['YYYY-MM-DD HH24:00:00', 'YYYY-MM-DD'],
-            default => ['%Y-%m-%d %H:00:00', '%Y-%m-%d'],
-        };
+        $hourlyFrom = new DateTime('-25 hours');
 
-        // if within the last 24 hours, group by hour
-        $format = "CASE WHEN $column > ? THEN '$formats[0]' ELSE '$formats[1]' END";
+        $wrapped = $query->getQuery()->getGrammar()->wrap($column);
 
-        $dbFormattedDatetime = match ($query->getConnection()->getDriverName()) {
-            'sqlite' => "strftime($format, $column)",
-            'pgsql' => "TO_CHAR($column, $format)",
-            'mysql', 'mariadb' => "DATE_FORMAT($column, $format)",
+        $byHour = match ($query->getConnection()->getDriverName()) {
+            'sqlite' => "strftime('%Y-%m-%d %H:00:00', $wrapped)",
+            'pgsql' => "TO_CHAR($wrapped, 'YYYY-MM-DD HH24:00:00')",
+            'mysql', 'mariadb' => "DATE_FORMAT($wrapped, '%Y-%m-%d %H:00:00')",
             default => throw new Exception('Unsupported database driver'),
         };
 
-        $results = $query
-            ->selectRaw(
-                $dbFormattedDatetime.' as time_group',
-                [new DateTime('-25 hours')]
-            )
-            ->selectRaw('COUNT(id) as count')
-            ->where($column, '>', $startDate)
-            ->where($column, '<=', $endDate)
-            ->groupBy('time_group')
-            ->pluck('count', 'time_group');
-
         $timed = [];
 
-        $results->each(function ($count, $time) use (&$timed) {
-            $time = new DateTime($time);
-            $timed[$time->getTimestamp()] = (int) $count;
-        });
+        $count = function (Builder $query, string $group, DateTime $from, DateTime $to) use ($column, &$timed) {
+            $query
+                ->selectRaw($group.' as time_group')
+                ->selectRaw('COUNT(id) as count')
+                ->where($column, '>', $from)
+                ->where($column, '<=', $to)
+                ->groupBy('time_group')
+                ->pluck('count', 'time_group')
+                ->each(function ($count, $time) use (&$timed) {
+                    $time = (new DateTime($time))->getTimestamp();
+
+                    // The day the last 24 hours begin on is counted in both
+                    // queries, and its midnight hour shares the day's key.
+                    $timed[$time] = ($timed[$time] ?? 0) + (int) $count;
+                });
+        };
+
+        // DATE() is understood by every supported database.
+        $count(clone $query, "DATE($wrapped)", $startDate, min($endDate, $hourlyFrom));
+
+        if ($endDate > $hourlyFrom) {
+            $count(clone $query, $byHour, max($startDate, $hourlyFrom), $endDate);
+        }
 
         return $timed;
     }
