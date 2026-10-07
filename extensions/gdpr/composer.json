@@ -13,7 +13,8 @@
     "support": {
         "issues": "https://github.com/flarum/framework/issues",
         "source": "https://github.com/flarum/gdpr",
-        "forum": "https://discuss.flarum.org"
+        "forum": "https://discuss.flarum.org",
+        "docs": "https://docs.flarum.org/extensions/gdpr"
     },
     "homepage": "https://flarum.org",
     "funding": [
