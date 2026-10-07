@@ -1,5 +1,42 @@
 import app from '../app';
 
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Patterns compiled so far, keyed by route template (base path included), so
+ * each one is built on the first click that needs it rather than on every click.
+ */
+const patterns = new Map<string, RegExp>();
+
+/**
+ * Turn a route template into a pattern for a path. In Mithril's route syntax,
+ * `:param` is one path segment and `:param...` is the rest of the path.
+ */
+function compile(template: string): RegExp {
+  let pattern = patterns.get(template);
+
+  if (!pattern) {
+    const segments = template
+      .replace(/\/+$/, '')
+      .split('/')
+      .map((segment) => (segment.startsWith(':') ? (segment.endsWith('...') ? '.*' : '[^/]+') : escapeRegExp(segment)));
+
+    pattern = new RegExp(`^${segments.join('/')}/?$`);
+    patterns.set(template, pattern);
+  }
+
+  return pattern;
+}
+
+/**
+ * Whether the forum registered a route for this path. `app.routes` is the
+ * table Mithril's routes are built from (see `mapRoutes()`), extensions'
+ * routes included.
+ */
+function hasRoute(path: string, basePath: string): boolean {
+  return Object.values(app.routes).some((route) => compile(basePath + route.path).test(path));
+}
+
 /**
  * Follow links that point back at this forum without reloading the page.
  *
@@ -48,18 +85,16 @@ export default function routeInternalLinks() {
     // actually being served from rather than trusting the class alone.
     if (url.origin !== window.location.origin) return;
 
-    // The server marks a link internal by host and path alone, so a link to
-    // an uploaded file under the assets path carries the same marker as a
-    // discussion link. Mithril has no route for it and falls back to the
-    // index, so leave it to the browser to open the file.
-    const assetsBaseUrl = app.forum.attribute<string>('assetsBaseUrl');
-
-    if (assetsBaseUrl && url.href.startsWith(assetsBaseUrl)) return;
-
     const basePath = app.forum.attribute<string>('basePath') || '';
     const path = url.pathname;
 
     if (basePath && !(path === basePath || path.startsWith(basePath + '/'))) return;
+
+    // The server marks every link to the forum's own host as internal,
+    // whatever the path: an uploaded file, the admin panel, the API, a feed,
+    // another app on the same host. Mithril has no route for those and falls
+    // back to the index, so only a path the forum routes is handled here.
+    if (!hasRoute(path, basePath)) return;
 
     // What Mithril routes on *includes* the base path. The forum registers its
     // routes with the base path already baked into each pattern

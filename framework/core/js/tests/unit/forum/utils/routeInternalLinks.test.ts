@@ -85,8 +85,58 @@ describe('routeInternalLinks', () => {
   });
 
   it('leaves an uploaded file under the assets path to the browser', () => {
-    app.forum.data.attributes!.assetsBaseUrl = `${ORIGIN}/assets`;
-
     expect(click(`${ORIGIN}/assets/files/report.pdf`)).toEqual({ routed: null, prevented: false });
+  });
+
+  it.each(['/admin', '/api/discussions/1', '/atom', '/auth/github', '/somewhere/else'])(
+    'leaves %s, which the forum has no route for, to the browser',
+    (path) => {
+      expect(click(`${ORIGIN}${path}`)).toEqual({ routed: null, prevented: false });
+    }
+  );
+
+  it('leaves a path with no route to the browser on a forum installed in a subdirectory', () => {
+    app.forum.data.attributes!.basePath = '/forum';
+
+    expect(click(`${ORIGIN}/forum/assets/files/report.pdf`)).toEqual({ routed: null, prevented: false });
+    expect(click(`${ORIGIN}/forum/admin`)).toEqual({ routed: null, prevented: false });
+  });
+
+  it('follows user and post links, with or without a subdirectory', () => {
+    expect(click(`${ORIGIN}/u/admin`).routed).toBe('/u/admin');
+    expect(click(`${ORIGIN}/d/123-the-slug/4`).routed).toBe('/d/123-the-slug/4');
+
+    app.forum.data.attributes!.basePath = '/forum';
+
+    expect(click(`${ORIGIN}/forum/u/admin/discussions`).routed).toBe('/forum/u/admin/discussions');
+    expect(click(`${ORIGIN}/forum/d/123-the-slug/4`).routed).toBe('/forum/d/123-the-slug/4');
+  });
+
+  it("follows a link to the forum's home page", () => {
+    const indexPath = app.routes.index.path;
+
+    app.routes.index.path = '/';
+
+    try {
+      expect(click(`${ORIGIN}/?sort=latest`).routed).toBe('/?sort=latest');
+
+      app.forum.data.attributes!.basePath = '/forum';
+
+      expect(click(`${ORIGIN}/forum/`).routed).toBe('/forum/');
+      expect(click(`${ORIGIN}/forum`).routed).toBe('/forum');
+    } finally {
+      app.routes.index.path = indexPath;
+    }
+  });
+
+  it('follows a route an extension registered', () => {
+    app.routes.tag = { ...app.routes.index, path: '/t/:tags' };
+
+    try {
+      expect(click(`${ORIGIN}/t/general`).routed).toBe('/t/general');
+      expect(click(`${ORIGIN}/t/general/extra`).prevented).toBe(false);
+    } finally {
+      delete app.routes.tag;
+    }
   });
 });
