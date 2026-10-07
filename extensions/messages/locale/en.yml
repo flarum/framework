@@ -87,7 +87,7 @@ flarum-messages:
   # Translations in this namespace are used in emails sent by the forum.
   email:
 
-    # These translations are used in emails sent when a user is mentioned
+    # These translations are used in emails sent when a member is sent a message
     message_received:
       subject: "{user_display_name} sent you a message"
       plain:
@@ -99,8 +99,15 @@ flarum-messages:
           ---
 
           {content}
+
+          ---
+
+          You won't receive any more emails about this conversation until you've read it.
       html:
-        body: "{user_display_name} sent you a [new message]({url})."
+        body: |
+          {user_display_name} sent you a [new message]({url}).
+
+          You won't receive any more emails about this conversation until you've read it.
 
   # Translations in this namespace are used by the forum and admin interfaces.
   lib:
