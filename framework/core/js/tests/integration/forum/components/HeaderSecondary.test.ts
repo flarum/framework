@@ -59,4 +59,20 @@ describe('HeaderSecondary', () => {
     expect(items.has('themeSwitcher')).toBe(false);
     expect(mq(HeaderSecondary)).not.toHaveElement('.ThemeSwitcher');
   });
+
+  test('switches locale through changeLocale, so extensions can override it', () => {
+    const locales = app.data.locales;
+    app.data.locales = { en: 'English', de: 'Deutsch' };
+    app.forum.pushAttributes({ showLanguageSelector: true });
+
+    const changeLocale = jest.spyOn(HeaderSecondary.prototype, 'changeLocale').mockImplementation(() => {});
+
+    const buttons = new HeaderSecondary().items().get('locale').children;
+    buttons[1].attrs.onclick();
+
+    expect(changeLocale).toHaveBeenCalledWith('de');
+
+    changeLocale.mockRestore();
+    app.data.locales = locales;
+  });
 });
