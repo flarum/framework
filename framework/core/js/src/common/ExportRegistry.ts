@@ -322,6 +322,25 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     const module = this.chunkModules.get(`${namespace}:${id}`);
 
     if (!module) {
+      // Not split into a chunk, but possibly in a bundle that has already
+      // loaded: an extension decides for itself whether a module is lazy, and
+      // one that imports it lazily can't know.
+      const loaded = this.checkModule(namespace, id);
+
+      if (loaded) {
+        if (loaded.default !== undefined) return loaded;
+
+        // Shaped as an imported chunk is below. Bundles register the default
+        // export itself, which may be a primitive or frozen and can't take it.
+        if (Object(loaded) === loaded && Object.isExtensible(loaded)) {
+          loaded.default = loaded;
+
+          return loaded;
+        }
+
+        return { default: loaded };
+      }
+
       throw new Error(`No chunk found for module ${namespace}:${id}`);
     }
 

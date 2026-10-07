@@ -301,3 +301,69 @@ describe('ExportRegistry chunks that are not registered yet (#5103)', () => {
     );
   });
 });
+
+describe('ExportRegistry#asyncModuleImport', () => {
+  // `import('ext:…')` compiles to asyncModuleImport, which loads the chunk the
+  // module was split into. A module can just as well sit in its extension's
+  // main bundle — fof/upload's Uploader does, and fof/seo imports it lazily —
+  // in which case there is no chunk, but the module is already loaded.
+  it('resolves a module another bundle has already loaded', async () => {
+    const registry = new ExportRegistry();
+    class Uploader {}
+
+    registry.add('fof-upload', 'forum/handler/Uploader', { default: Uploader });
+
+    const module = await registry.asyncModuleImport('ext:fof/upload/forum/handler/Uploader');
+
+    expect(module.default).toBe(Uploader);
+  });
+
+  it('gives a loaded module without a default export the shape an imported chunk has', async () => {
+    const registry = new ExportRegistry();
+    const helpers = { format: () => 'formatted' };
+
+    registry.add('acme-thing', 'forum/utils/helpers', helpers);
+
+    const module = await registry.asyncModuleImport('ext:acme/thing/forum/utils/helpers');
+
+    expect(module.format()).toBe('formatted');
+    expect(module.default).toBe(module);
+  });
+
+  // Bundles register a module's default export itself, which need not be an
+  // object that can take a `default` property.
+  it('hands back a loaded export that cannot take a default property as the default', async () => {
+    const registry = new ExportRegistry();
+    const frozen = Object.freeze({ limit: 10 });
+
+    registry.add('acme-thing', 'common/constants', frozen);
+    registry.add('acme-thing', 'common/greeting', 'hello');
+
+    expect((await registry.asyncModuleImport('ext:acme/thing/common/constants')).default).toBe(frozen);
+    expect((await registry.asyncModuleImport('ext:acme/thing/common/greeting')).default).toBe('hello');
+  });
+
+  it('still fails for a module that is neither loaded nor in a chunk', async () => {
+    const registry = new ExportRegistry();
+
+    await expect(registry.asyncModuleImport('ext:acme/thing/forum/missing')).rejects.toThrow('No chunk found for module acme-thing:forum/missing');
+  });
+
+  it("still loads a module that is in a chunk through its build's runtime, even once it is loaded", async () => {
+    const registry = new ExportRegistry();
+    class Modal {}
+
+    registry.addChunkModule(12, 34, 'acme-thing', 'forum/components/Modal');
+    registry.add('acme-thing', 'forum/components/Modal', { default: Modal });
+
+    const runtime: any = jest.fn();
+    runtime.e = jest.fn(() => Promise.resolve());
+    (registry as any)._webpack_runtimes['acme-thing'] = runtime;
+
+    const module = await registry.asyncModuleImport('ext:acme/thing/forum/components/Modal');
+
+    expect(runtime.e).toHaveBeenCalledWith('12');
+    expect(runtime.mock.calls[0][0]).toBe('34');
+    expect(module.default).toBe(Modal);
+  });
+});
