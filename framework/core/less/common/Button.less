@@ -259,6 +259,11 @@
     vertical-align: -1px;
     margin: 0;
   }
+  // While loading, the spinner takes the icon's place: side by side they
+  // overflow the fixed width.
+  &.loading .Button-icon {
+    display: none;
+  }
 }
 // Apply the mixin to the class selector so DOM elements with class="Button--icon"
 // get the same styles (hides label/caret, sizes the icon correctly).
