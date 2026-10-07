@@ -10,7 +10,9 @@
 namespace Flarum\Messages\Api;
 
 use Flarum\Api\Context;
+use Flarum\Api\Resource\UserResource;
 use Flarum\Api\Schema;
+use Flarum\Messages\Access\MessagingPermission;
 use Flarum\Messages\UserDialogState;
 use Flarum\User\User;
 
@@ -26,6 +28,16 @@ class UserResourceFields
             Schema\Boolean::make('canSendAnyMessage')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->is($user) || $context->getActor()->can('sendAnyMessage'))
                 ->get(fn (User $user, Context $context) => $user->can('sendAnyMessage')),
+            // Whether the actor may write to this member at all; another
+            // extension can rule them out (flarum/gdpr does for anonymised
+            // accounts). Only on user lists and profiles: the recipient picker
+            // and the profile's button are what need it.
+            Schema\Boolean::make('canMessage')
+                ->visible(fn (User $user, Context $context) => $context->collection instanceof UserResource && $context->getActor()->can('sendAnyMessage'))
+                ->get(fn (User $user, Context $context) => $context->getActor()->can('message', $user)),
+            Schema\Boolean::make('canMessageUsersWithoutPermission')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->is($user))
+                ->get(fn (User $user) => MessagingPermission::canMessageUsersWithoutPermission($user)),
             // How many of the member's conversations have something unread: the
             // badge on the header's messages icon. Conversations, not messages.
             // One query over the membership table: membership is what

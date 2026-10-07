@@ -157,7 +157,9 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
       );
     }
 
-    if (app.session.user!.canSendAnyMessage() && ReplyPlaceholder) {
+    // Per conversation: someone who can't send messages can still reply in one
+    // that someone allowed to message them has opened up.
+    if (this.attrs.dialog.canSendMessage() && ReplyPlaceholder) {
       items.push(
         <div className="MessageStream-item" key="reply">
           <ReplyPlaceholder

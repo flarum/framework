@@ -17,6 +17,7 @@ use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Bus\Dispatcher;
 use Flarum\Locale\Translator;
+use Flarum\Messages\Access\MessagingPermission;
 use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\UserDialogState;
@@ -56,7 +57,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
         return [
             Endpoint\Show::make()
                 ->authenticated()
-                ->eagerLoad('state'),
+                ->eagerLoad(['state', 'users.groups']),
             Endpoint\Update::make()
                 ->authenticated()
                 ->eagerLoad('state'),
@@ -95,7 +96,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->authenticated()
                 ->defaultSort('-lastMessageAt')
                 ->paginate()
-                ->eagerLoad(['users', 'state']),
+                ->eagerLoad(['users.groups', 'state']),
         ];
     }
 
@@ -131,6 +132,15 @@ class DialogResource extends Resource\AbstractDatabaseResource
                     return $dialog->state->last_read_at;
                 }),
             Schema\Integer::make('lastMessageId'),
+            Schema\Boolean::make('anyoneCanReply')
+                ->get(fn (Dialog $dialog) => (bool) $dialog->anyone_can_reply),
+            // Without the policy's own visibility query: a dialog serialised to
+            // the actor is already one of theirs. Only where dialogs are what
+            // was asked for, whose endpoints load the members' groups; a dialog
+            // included with each of its messages would look them up every time.
+            Schema\Boolean::make('canSendMessage')
+                ->visible(fn (Dialog $dialog, Context $context) => $context->collection instanceof self)
+                ->get(fn (Dialog $dialog, Context $context) => MessagingPermission::canSendIn($context->getActor(), $dialog)),
             Schema\Integer::make('lastReadMessageId')
                 ->visible(fn (Dialog $dialog) => $dialog->state !== null)
                 ->get(function (Dialog $dialog) {

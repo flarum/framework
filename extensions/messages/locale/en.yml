@@ -4,6 +4,7 @@ flarum-messages:
   admin:
     permissions:
       send_messages_label: Send private messages
+      message_users_without_permission_label: Message users without messaging permission
       delete_own_messages_label: Delete own messages
       send_without_throttle_label: Send messages without throttling
       view_ips_label: View IP addresses of messages
@@ -68,6 +69,7 @@ flarum-messages:
       title: Messages
 
     recipient_selection_modal:
+      cannot_reply_text: Can't reply to messages
       title: Select the recipients of this message
 
     search_source:
@@ -115,6 +117,8 @@ flarum-messages:
     dialog:
       title: Messaging {username}
     no_other_members_message: There is no one else in this conversation.
+    recipient_cannot_reply_message: "{username} can't reply to messages."
+    recipient_unavailable_message: "{username} can't receive messages."
 
 # Shown by flarum/gdpr when describing what it does with a member's messages.
 flarum-gdpr:
