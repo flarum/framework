@@ -9,7 +9,8 @@
     "support": {
         "issues": "https://github.com/flarum/framework/issues",
         "source": "https://github.com/flarum/nicknames",
-        "forum": "https://discuss.flarum.org"
+        "forum": "https://discuss.flarum.org",
+        "docs": "https://docs.flarum.org/extensions/nicknames"
     },
     "homepage": "https://flarum.org",
     "funding": [
