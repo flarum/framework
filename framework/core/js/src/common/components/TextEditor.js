@@ -72,7 +72,11 @@ export default class TextEditor extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    this._load().then(this.onbuild.bind(this));
+    this._load().then(() => {
+      // The composer can be closed, or the page left, while the editor loads,
+      // and then there's nothing on the page to build it into.
+      if (this.element?.isConnected) this.onbuild();
+    });
   }
 
   onbuild() {
