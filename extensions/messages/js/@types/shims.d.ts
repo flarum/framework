@@ -23,5 +23,7 @@ declare module 'flarum/forum/states/ComposerState' {
 declare module 'flarum/common/models/User' {
   export default interface User {
     canSendAnyMessage(): boolean;
+    canMessage(): boolean;
+    canMessageUsersWithoutPermission(): boolean;
   }
 }

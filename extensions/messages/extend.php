@@ -50,6 +50,7 @@ return [
     (new Extend\Policy())
         ->modelPolicy(Dialog::class, Access\DialogPolicy::class)
         ->modelPolicy(DialogMessage::class, Access\DialogMessagePolicy::class)
+        ->modelPolicy(User::class, Access\UserPolicy::class)
         ->globalPolicy(Access\GlobalPolicy::class),
 
     new Extend\ApiResource(Api\Resource\DialogResource::class),

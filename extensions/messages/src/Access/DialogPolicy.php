@@ -22,6 +22,6 @@ class DialogPolicy extends AbstractPolicy
 
     public function sendMessage(User $actor, Dialog $dialog): bool
     {
-        return $this->view($actor, $dialog) && $actor->hasPermission('dialog.sendMessage');
+        return $this->view($actor, $dialog) && MessagingPermission::canSendIn($actor, $dialog);
     }
 }

@@ -20,6 +20,7 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Foundation\ValidationException;
 use Flarum\Locale\Translator;
+use Flarum\Messages\Access\MessagingPermission;
 use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
@@ -252,6 +253,8 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ]);
             }
 
+            $this->assertRecipientsCanBeMessaged($actor, $users);
+
             // The dialog and its members go in together, or not at all. Core's
             // create flow has no transaction of its own.
             $dialog = $this->db->transaction(function () use ($model, $users, $actor) {
@@ -302,6 +305,12 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
             $model->dialog->setFirstMessage($model->dialog->messages()->oldest('id')->first() ?? $model);
         }
 
+        // Someone allowed to message users without messaging permission has
+        // spoken here, so whoever they're talking to can answer.
+        if (! $model->dialog->anyone_can_reply && MessagingPermission::canMessageUsersWithoutPermission($context->getActor())) {
+            $model->dialog->anyone_can_reply = true;
+        }
+
         $model->dialog->isDirty() && $model->dialog->save();
 
         $this->bus->dispatch(
@@ -313,6 +322,43 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         );
 
         return parent::created($model, $context);
+    }
+
+    /**
+     * Nobody can message someone another extension rules out: flarum/gdpr does
+     * for anonymised accounts. And a new dialog's recipients must be able to
+     * reply, unless the actor may message users without messaging permission
+     * or the dialog they already share has been opened to replies.
+     *
+     * @param int[] $userIds
+     */
+    protected function assertRecipientsCanBeMessaged(User $actor, array $userIds): void
+    {
+        $canMessageUsersWithoutPermission = MessagingPermission::canMessageUsersWithoutPermission($actor);
+
+        foreach (User::query()->whereIn('id', $userIds)->get() as $recipient) {
+            if ($actor->cannot('message', $recipient)) {
+                throw new ValidationException([
+                    'users' => $this->translator->trans('flarum-messages.lib.recipient_unavailable_message', ['username' => $recipient->display_name]),
+                ]);
+            }
+
+            if ($canMessageUsersWithoutPermission || MessagingPermission::canReply($recipient)) {
+                continue;
+            }
+
+            $opened = Dialog::query()
+                ->where('anyone_can_reply', true)
+                ->whereRelation('users', 'user_id', $actor->id)
+                ->whereRelation('users', 'user_id', $recipient->id)
+                ->exists();
+
+            if (! $opened) {
+                throw new ValidationException([
+                    'users' => $this->translator->trans('flarum-messages.lib.recipient_cannot_reply_message', ['username' => $recipient->display_name]),
+                ]);
+            }
+        }
     }
 
     /**
