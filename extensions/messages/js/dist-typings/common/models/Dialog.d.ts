@@ -21,5 +21,8 @@ export default class Dialog extends Model {
     lastMessageId(): number;
     lastReadMessageId(): number;
     lastReadAt(): Date;
+    /** Everyone in it can reply: someone allowed to message users without messaging permission has. */
+    anyoneCanReply(): boolean;
+    canSendMessage(): boolean;
     recipient(): User | null | undefined;
 }

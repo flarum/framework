@@ -4,6 +4,7 @@ import type Mithril from 'mithril';
 export interface IUserSearchResultAttrs extends ComponentAttrs {
     user: User;
     onclick?: (user: User) => void;
+    disabled?: boolean;
     query: string;
 }
 export default class UserSearchResult<CustomAttrs extends IUserSearchResultAttrs = IUserSearchResultAttrs> extends Component<CustomAttrs> {

@@ -19,6 +19,12 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     requestParams(): any;
     view(): JSX.Element;
+    /**
+     * Whether to say the other member can't reply: they can't send messages, and
+     * the viewer can't send here either. Not to viewers who can't send at all,
+     * who aren't told whether anyone else can.
+     */
+    recipientCannotReply(): boolean;
     actionItems(): ItemList<Mithril.Children>;
     controlItems(): ItemList<Mithril.Children>;
 }
