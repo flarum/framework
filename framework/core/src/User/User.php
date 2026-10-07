@@ -495,6 +495,22 @@ class User extends AbstractModel
         return $this;
     }
 
+    /**
+     * Remove the given keys from the stored preferences, so their defaults
+     * apply again. Works on the stored value rather than the accessor, which
+     * merges in every default and would store the others' defaults too.
+     *
+     * @param string[] $keys
+     */
+    public function forgetPreferences(array $keys): static
+    {
+        $preferences = (array) json_decode($this->attributes['preferences'] ?? 'null', true);
+
+        $this->preferences = Arr::except($preferences, $keys);
+
+        return $this;
+    }
+
     public function updateLastSeen(): static
     {
         $now = Carbon::now();
