@@ -506,7 +506,9 @@ class User extends AbstractModel
     {
         $preferences = (array) json_decode($this->attributes['preferences'] ?? 'null', true);
 
-        $this->preferences = Arr::except($preferences, $keys);
+        // Exact keys only: Arr::except() reads dots as nesting, so forgetting
+        // `acme.layout` would reach into a preference named `acme`.
+        $this->preferences = array_diff_key($preferences, array_flip($keys));
 
         return $this;
     }

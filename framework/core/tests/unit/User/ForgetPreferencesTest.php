@@ -35,4 +35,29 @@ class ForgetPreferencesTest extends TestCase
 
         $this->assertSame([], json_decode($user->getAttributes()['preferences'], true));
     }
+
+    #[Test]
+    public function a_dotted_key_is_an_exact_key_not_a_path()
+    {
+        $user = new User();
+        $user->setRawAttributes(['preferences' => json_encode([
+            'acme' => ['layout' => 'grid', 'size' => 2],
+            'acme.layout' => true,
+        ])]);
+
+        $user->forgetPreferences(['acme.layout']);
+
+        $this->assertSame(['acme' => ['layout' => 'grid', 'size' => 2]], json_decode($user->getAttributes()['preferences'], true));
+    }
+
+    #[Test]
+    public function a_dotted_key_that_is_not_stored_changes_nothing()
+    {
+        $user = new User();
+        $user->setRawAttributes(['preferences' => json_encode(['acme' => ['layout' => 'grid', 'size' => 2]])]);
+
+        $user->forgetPreferences(['acme.layout']);
+
+        $this->assertSame(['acme' => ['layout' => 'grid', 'size' => 2]], json_decode($user->getAttributes()['preferences'], true));
+    }
 }
