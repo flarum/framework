@@ -12,6 +12,7 @@ namespace Flarum\Suspend\Listener;
 use Flarum\Suspend\Event\Suspended;
 use Flarum\Suspend\Event\Unsuspended;
 use Flarum\User\Event\Saving;
+use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class SavingUser
@@ -25,6 +26,12 @@ class SavingUser
     {
         $user = $event->user;
         $actor = $event->actor;
+
+        // An admin is never suspended, whatever any policy allows: the policy
+        // only refuses it to actors who hold the permission to suspend.
+        if ($user->isDirty('suspended_until') && $user->suspended_until !== null && $user->isAdmin()) {
+            throw new PermissionDeniedException();
+        }
 
         // When unsuspending, clear reason and message
         if ($user->isDirty('suspended_until') && $user->suspended_until === null) {
