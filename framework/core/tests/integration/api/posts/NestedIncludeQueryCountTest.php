@@ -79,11 +79,16 @@ class NestedIncludeQueryCountTest extends TestCase
         sort($included);
         $this->assertEquals(array_map('strval', range(1, self::DISCUSSIONS)), $included);
 
-        // ...from one query, not one per discussion.
-        // (Integer keys are inlined into the SQL rather than bound.)
+        // ...from one query, not one per discussion. The table name comes from
+        // the connection, so prefixed runs match, and identifier quoting is
+        // stripped (backticks on MySQL/MariaDB, double quotes on PostgreSQL
+        // and SQLite). Integer keys are inlined into the SQL rather than
+        // bound. Expecting exactly one also fails if nothing matches, so a
+        // pattern that can no longer match can't pass silently.
+        $posts = $db->getTablePrefix().'posts';
         $firstPostLoads = array_filter(
             array_column($queries, 'query'),
-            fn (string $sql) => (bool) preg_match('/from [`"]?posts[`"]? where [`"]?posts[`"]?\.[`"]?id[`"]? in \(/', $sql)
+            fn (string $sql) => str_contains(str_replace(['`', '"'], '', $sql), "from $posts where $posts.id in (")
         );
 
         $this->assertCount(1, $firstPostLoads, 'The included discussions\' first posts load in a single query');
