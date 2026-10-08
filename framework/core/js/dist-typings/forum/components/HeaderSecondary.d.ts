@@ -12,6 +12,12 @@ export default class HeaderSecondary extends Component<import("../../common/Comp
      * @return {ItemList}
      */
     items(): ItemList<any>;
+    /**
+     * Switch the forum to the given locale.
+     *
+     * @param {string} locale
+     */
+    changeLocale(locale: string): void;
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";
