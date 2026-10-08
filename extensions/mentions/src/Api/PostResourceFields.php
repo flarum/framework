@@ -30,9 +30,13 @@ class PostResourceFields
                 ->type('posts')
                 ->includable()
                 // Serializing these posts checks whether the actor can see each
-                // one, and that check reads the post's discussion. Without the
-                // eager load every mentioning post fetches it separately.
-                ->scope(fn (BelongsToMany $query) => $query->with('discussion')->oldest('id')->limit(static::$maxMentionedBy)),
+                // one, and that check reads the post's discussion; rendering
+                // their content reads what they mention. Without the eager
+                // loads every mentioning post fetches these separately.
+                ->scope(fn (BelongsToMany $query) => $query
+                    ->with(['discussion', 'mentionsPosts.user', 'mentionsPosts.discussion', 'mentionsUsers', 'mentionsGroups'])
+                    ->oldest('id')
+                    ->limit(static::$maxMentionedBy)),
             Schema\Relationship\ToMany::make('mentionsPosts')
                 ->type('posts'),
             Schema\Relationship\ToMany::make('mentionsUsers')
