@@ -1,5 +1,6 @@
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import HeaderSecondary from '../../../../src/forum/components/HeaderSecondary';
+import { override } from '../../../../src/common/extend';
 import { app } from '../../../../src/forum';
 import mq from 'mithril-query';
 
@@ -58,5 +59,28 @@ describe('HeaderSecondary', () => {
 
     expect(items.has('themeSwitcher')).toBe(false);
     expect(mq(HeaderSecondary)).not.toHaveElement('.ThemeSwitcher');
+  });
+
+  test('switches locale through changeLocale, so extensions can override it', () => {
+    const locales = app.data.locales;
+    app.data.locales = { en: 'English', de: 'Deutsch' };
+    app.forum.pushAttributes({ showLanguageSelector: true });
+
+    const originalChangeLocale = HeaderSecondary.prototype.changeLocale;
+    const switchedTo: string[] = [];
+
+    override(HeaderSecondary.prototype, 'changeLocale', (original: unknown, locale: string) => {
+      switchedTo.push(locale);
+    });
+
+    try {
+      const buttons = new HeaderSecondary().items().get('locale').children;
+      buttons[1].attrs.onclick();
+
+      expect(switchedTo).toEqual(['de']);
+    } finally {
+      HeaderSecondary.prototype.changeLocale = originalChangeLocale;
+      app.data.locales = locales;
+    }
   });
 });
