@@ -191,18 +191,15 @@ class UserResource extends AbstractDatabaseResource
 
                     // Every key a driver registers a default for, built the way it is
                     // registered, then dropped in one save so the defaults apply again.
-                    // The stored value, not the accessor: that merges in every default,
-                    // and saving it back would store the defaults of the other
-                    // preferences too.
-                    $preferences = (array) json_decode($user->getAttributes()['preferences'] ?? 'null', true);
+                    $keys = [];
 
                     foreach (array_keys(Notification::getSubjectModels()) as $type) {
                         foreach (array_keys(NotificationSyncer::getNotificationDrivers()) as $driver) {
-                            unset($preferences[User::getNotificationPreferenceKey($type, $driver)]);
+                            $keys[] = User::getNotificationPreferenceKey($type, $driver);
                         }
                     }
 
-                    $user->preferences = $preferences;
+                    $user->forgetPreferences($keys);
                     $user->save();
 
                     return $user;
