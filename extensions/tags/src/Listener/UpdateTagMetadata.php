@@ -48,10 +48,18 @@ class UpdateTagMetadata
 
     public function whenDiscussionWasTagged(DiscussionWasTagged $event): void
     {
+        $discussion = $event->discussion;
+
+        $wasHidden = ($discussion->hidden_at !== null) !== $discussion->wasChanged('hidden_at');
+
+        if ($wasHidden) {
+            return;
+        }
+
         $oldTags = Tag::whereIn('id', Arr::pluck($event->oldTags, 'id'))->get();
 
-        $this->updateTags($event->discussion, -1, $oldTags);
-        $this->updateTags($event->discussion, 1);
+        $this->updateTags($discussion, -1, $oldTags);
+        $this->updateTags($discussion, 1);
     }
 
     public function whenDiscussionIsDeleted(Deleted $event): void
