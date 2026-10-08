@@ -1,0 +1,48 @@
+flarum-oauth-provider:
+  admin:
+    clients:
+      heading: "OAuth clients"
+      help: "Register third-party applications that can log users in via this forum."
+      new_button: "Add client"
+      empty: "No clients registered yet."
+      name_column: "Name"
+      id_column: "Client ID"
+      redirects_column: "Redirect URIs"
+      status_column: "Status"
+      status_active: "Active"
+      status_revoked: "Revoked"
+      edit_button: "Edit"
+      delete_button: "Delete"
+      rotate_button: "Rotate secret"
+      delete_confirm: "Delete this OAuth client? This will invalidate any existing tokens issued to it."
+      rotate_confirm: "Rotate this client's secret? The old secret will stop working immediately, all existing access/refresh tokens will be revoked, and any apps using the old secret will need the new one to reconnect."
+
+    form:
+      new_title: "Add OAuth client"
+      edit_title: "Edit OAuth client"
+      name_label: "Display name"
+      redirect_uris_label: "Redirect URIs"
+      redirect_uris_help: "One URI per line. The client must send one of these as redirect_uri on the authorization request."
+      scopes_label: "Allowed scopes"
+      scopes_help: "Space-separated list of scopes this client may request."
+      confidential_label: "Confidential client (backend can keep a secret)"
+      confidential_help: "Uncheck for public clients (SPA, mobile) that must use PKCE. This cannot be changed after creation."
+      revoked_label: "Revoked (reject all new auth requests)"
+      save_button: "Save"
+
+    secret_modal:
+      title: "Client created"
+      intro: "Save these credentials now — the secret is not shown again."
+      rotated_title: "Secret rotated"
+      rotated_intro: "The client secret has been replaced. Update the consuming application with the new secret — the old one will no longer work, and any existing sessions have been revoked."
+      client_id_label: "Client ID"
+      client_secret_label: "Client secret"
+      close_button: "I've saved these"
+
+  forum:
+    consent:
+      title: "Authorize application"
+      intro: "Hi {username}, {client} wants to access your account."
+      scopes_heading: "This will allow it to:"
+      approve_button: "Authorize"
+      deny_button: "Cancel"
