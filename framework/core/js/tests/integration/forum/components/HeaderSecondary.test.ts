@@ -1,5 +1,6 @@
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import HeaderSecondary from '../../../../src/forum/components/HeaderSecondary';
+import { override } from '../../../../src/common/extend';
 import { app } from '../../../../src/forum';
 import mq from 'mithril-query';
 
@@ -65,14 +66,21 @@ describe('HeaderSecondary', () => {
     app.data.locales = { en: 'English', de: 'Deutsch' };
     app.forum.pushAttributes({ showLanguageSelector: true });
 
-    const changeLocale = jest.spyOn(HeaderSecondary.prototype, 'changeLocale').mockImplementation(() => {});
+    const originalChangeLocale = HeaderSecondary.prototype.changeLocale;
+    const switchedTo: string[] = [];
 
-    const buttons = new HeaderSecondary().items().get('locale').children;
-    buttons[1].attrs.onclick();
+    override(HeaderSecondary.prototype, 'changeLocale', (original: unknown, locale: string) => {
+      switchedTo.push(locale);
+    });
 
-    expect(changeLocale).toHaveBeenCalledWith('de');
+    try {
+      const buttons = new HeaderSecondary().items().get('locale').children;
+      buttons[1].attrs.onclick();
 
-    changeLocale.mockRestore();
-    app.data.locales = locales;
+      expect(switchedTo).toEqual(['de']);
+    } finally {
+      HeaderSecondary.prototype.changeLocale = originalChangeLocale;
+      app.data.locales = locales;
+    }
   });
 });
