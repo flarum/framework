@@ -5,6 +5,21 @@
 ### Added
 
 - (core) rebuild the compiled assets from `cache:clear` by @imorland [#5047]
+- (core) reset notification preferences to their defaults by @ernestdefoe [#5082]
+- (core) an optional email logo, used in emails in place of the forum logo by @imorland [#5084]
+- (core) skip counting matches on list endpoints with `page[total]=0`, and a `GroupSelector` component by @imorland [#5087]
+- (core) extract the frontend locale change into an extendable method by @DavideIadeluca [#5128]
+- (deck) new bundled extension: live, side-by-side columns at `/deck` by @imorland [#5087]
+- (realtime) broadcast hiding, restoring, deleting and approving posts and discussions, and a typing activity channel by @imorland [#5087]
+- (messages) update the dialog list and header dropdown live when a message arrives by @imorland [#5087]
+- (flags) a `Cleared` event, fired once a post's flags are gone, and a `flagged` post filter by @imorland [#5089]
+- (messages) throttle sending, validate recipients, and record the sender's IP address by @imorland [#5097]
+- (messages) log private conversations to the audit log by @imorland [#5105]
+- (messages) search private messages from the global search by @imorland [#5106]
+- (statistics) let extensions add their own statistics with the `Statistics` extender by @imorland [#5109]
+- (messages) show private messaging in the forum statistics by @imorland [#5110]
+- (messages) email about a conversation once until it's read by @imorland [#5114]
+- (messages) only let members message users who can reply, with a permission to message anyone by @imorland [#5117]
 
 ### Fixed
 
@@ -23,20 +38,65 @@
 - (core) guard `exec()` in `InfoCommand` for hosts where it is disabled by @imorland [#5061]
 - (core) declare the extension collection's generic types by @imorland [#5062]
 - (core) align the post scrubber track with its chevrons by @karl-bullock [#5059]
+- (core) apply `extraDocumentClasses()` and `extraDocumentAttributes()` to the document by @datlechin [#5004]
+- (core) let custom LESS import a remote stylesheet again by @imorland [#5063]
+- (core) require a scheme when declining remote LESS imports by @imorland [#5065]
+- (core) rewrite a compiled asset whose file no longer matches its revision by @imorland [#5066]
+- (core) align the drawer's dropdown labels with the other control labels by @karl-bullock [#5069]
+- (core) load older notifications when scrolling the notifications list by @imorland [#5075]
+- (core) show the logo in emails as PNG instead of WebP by @imorland [#5084]
+- (core) load each extension's lazy chunks from its own build by @imorland [#5085]
+- (core) keep nested `eagerLoadWhere` constraints relative to the relationship loaded by @imorland [#5090]
+- (core) rebuild a chunk url when the chunk is not registered yet by @imorland [#5100]
+- (core) prevent `FormGroup` `key` errors and preserve IDs across redraws by @rafaucau [#5096]
+- (core) make the cache factory's `store()` return the cache store by @imorland [#5112]
+- (core) keep a loading icon button's spinner inside the button by @imorland [#5119]
+- (core) lazily import a module another extension bundles normally by @imorland [#5121]
+- (core) don't fail to anchor the scroll to an element that isn't there by @imorland [#5122]
+- (core) don't build an editor that was removed while it loaded by @imorland [#5123]
+- (core) follow search results under hash routing, and close the modal once one is chosen by @imorland [#5127]
 - (realtime) stop the reconnect catch-up duplicating a discussion in the list by @ekumanov [#5003]
+- (realtime) send posts with the endpoint's default includes, and stop post requests failing without Tags by @imorland [#5089]
+- (realtime) keep discussion list activity that arrives away from the list by @imorland [#5113]
 - (tags) stop wrapping the tag link's contents in list items by @imorland [#5032]
+- (tags) keep discussion counts unchanged when retagging a hidden discussion by @DavideIadeluca [#5101]
 - (akismet) allow the API key setting to be null by @imorland [#5030]
 - (audit) increase vertical density in the audit log by reducing block padding by @claudiushenrichs [#5020]
 - (extension-manager) remove `FormControl-alt` from the search bar in `DiscoverSection` by @claudiushenrichs [#5021]
+- (nicknames) search nicknames case-insensitively on every database driver by @imorland [#5088]
+- (flags) broadcast flags once they're cleared, and stop dismissing flags without a request body failing by @imorland [#5089]
+- (flags) don't fail to load when an optional dependency is missing by @imorland [#5104]
+- (likes) don't throw on a post loaded without its likes by @imorland [#5089]
+- (deck) shrinking columns reload and page correctly, in-deck markers, full screen, logical styles by @imorland [#5094]
+- (messages) unique memberships and numbers, survive member deletion, and a GDPR data type by @imorland [#5098]
+- (messages) unread accounting, live pagination, marking messages read only once they're seen, reconnects and typing privacy by @imorland [#5099]
+- (messages) keep message search results inside the search modal by @imorland [#5108]
+- (statistics) use the extension's own cache keys, and cache counts over time for their own lifetime by @imorland [#5109]
+- (webpack-config) register a lazily imported module under its own chunk by @imorland [#5102]
 
 ### Changed
 
+- (core) match user searches anywhere in the username, not only at its start by @imorland [#5088]
+- (core) depend on the slim `flarum/font-awesome` package instead of `fortawesome/font-awesome`; extensions that need the raw SVGs should require `fortawesome/font-awesome` themselves by @imorland [#5093]
+- (core) tidy up after the document attributes fix by @imorland [#5091]
+- (core) move preference removal onto the `User` model by @ernestdefoe [#5115]
+- (messages) rename the `messageCount` user attribute to `unreadDialogCount` by @imorland [#5107]
+- (extensions) link bundled extensions to their docs pages by @imorland [#5118]
 - (ci) give PHPStan enough memory and stop pinning `LARAVEL_VERSION` by @imorland [#5018]
 - (deps) hold larastan below 3.12, which crashes analysing an injected view factory by @imorland [#5054]
+
+### Security
+
+- (realtime) bound the websocket channel registry against unauthenticated growth by @imorland [#5092]
 
 ### Performance
 
 - (mentions) resolve mentions by index instead of a per-mention scan, and throttle post edits by @imorland [#5056]
+- (mentions) look up a post's mentions together, and preload them for included replies by @imorland [#5129]
+- (audit) index the audit log's `created_at` column by @imorland [#5072]
+- (flags, likes) load flag users and likers' groups for the whole page instead of one by one by @imorland [#5089]
+- (statistics) count over time with two grouped queries instead of formatting each row's date by @imorland [#5109]
+- (suspend) only check whether a user is an admin for actors who can suspend by @imorland [#5130]
 
 ## [v2.0.0-rc.8](https://github.com/flarum/framework/compare/v2.0.0-rc.7...v2.0.0-rc.8)
 
