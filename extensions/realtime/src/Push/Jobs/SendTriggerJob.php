@@ -27,12 +27,14 @@ class SendTriggerJob extends Job
 
     public function __invoke(Queue $queue): void
     {
-        // Resolve a discussion for use with `visibleTo` permission checks.
-        if ($this->model instanceof Discussion) {
-            $discussion = $this->model;
-        } elseif (property_exists($this->model, 'discussion')) {
-            $discussion = $this->model->discussion ?? null;
-        } else {
+        // Resolve a discussion for use with `visibleTo` permission checks. A post's
+        // `discussion` is an Eloquent relation, not a declared property, so it has
+        // to be read through the model.
+        $discussion = $this->model instanceof Discussion
+            ? $this->model
+            : $this->model->getAttribute('discussion');
+
+        if (! $discussion instanceof Discussion) {
             $discussion = null;
         }
 
