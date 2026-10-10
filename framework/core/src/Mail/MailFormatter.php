@@ -35,6 +35,16 @@ class MailFormatter
     }
 
     /**
+     * Turn a slot of the plain-text layout into text: tags removed, entities
+     * decoded. Slots arrive as rendered Blade, so whatever a view printed with
+     * `{{ }}` is escaped already, and plain text has nothing to escape.
+     */
+    public function htmlToPlain(?string $content): string
+    {
+        return html_entity_decode(strip_tags((string) $content), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+    /**
      * Anything else an email view might reach for goes to the real formatter.
      *
      * @param array<mixed> $arguments
