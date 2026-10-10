@@ -15,6 +15,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Flags\Flag;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
 class AuditTest extends TestCase
@@ -117,5 +118,27 @@ class AuditTest extends TestCase
             'discussion_id' => 10,
             'post_id' => 2,
         ]);
+    }
+
+    #[Test]
+    public function account_flag_is_audited_without_dereferencing_a_post(): void
+    {
+        $this->prepareDatabase([User::class => [['id' => 3, 'username' => 'flagtarget', 'email' => 'target@machine.local']]]);
+        $this->sendSuccessfulRequest('POST', '/api/flags', ['json' => ['data' => [
+            'attributes' => ['reason' => 'spam'],
+            'relationships' => ['targetUser' => ['data' => ['type' => 'users', 'id' => '3']]],
+        ]]], 201);
+        $this->assertLogExists('user.flagged', ['user_id' => 3, 'reason' => 'spam']);
+    }
+
+    #[Test]
+    public function account_dismissal_is_audited_separately(): void
+    {
+        $this->prepareDatabase([
+            User::class => [['id' => 3, 'username' => 'flagtarget', 'email' => 'target@machine.local']],
+            Flag::class => [['id' => 30, 'post_id' => null, 'target_user_id' => 3]],
+        ]);
+        $this->sendSuccessfulRequest('DELETE', '/api/users/3/flags', [], 204);
+        $this->assertLogExists('user.dismissed_flags', ['user_id' => 3]);
     }
 }

@@ -10,11 +10,13 @@ flarum-flags:
     # These translations are used in the Permissions page of the admin interface.
     permissions:
       flag_posts_label: Flag posts
+      flag_users_label: Flag user accounts
       view_flags_label: View flagged posts
+      view_user_flags_label: View flagged user accounts
 
     # These translations are used in the Flags Settings modal dialog.
     settings:
-      flag_own_posts_label: Allow users to flag their own posts
+      flag_own_posts_label: Allow users to flag their own posts and accounts
       guidelines_url_label: Community Guidelines URL
       title: Flags Settings
 
@@ -38,10 +40,34 @@ flarum-flags:
       submit_button: => flarum-flags.ref.flag_post
       title: => flarum-flags.ref.flag_post
 
+    flag_user:
+      confirmation_message: Thank you for flagging this account. Our moderators will look into it.
+      dismiss_button: => core.ref.okay
+      reason_details_placeholder: Additional details (optional)
+      reason_inappropriate_label: Inappropriate
+      reason_inappropriate_text: "This account is offensive, abusive, or violates our <a>community guidelines</a>."
+      reason_inappropriate_text_no_guidelines: This account is offensive or abusive.
+      reason_other_label: Other (please specify)
+      reason_spam_label: Spam
+      reason_spam_text: This account is used for spam or unwanted advertising.
+      submit_button: Flag Account
+      title: "Flag {username}'s account"
+
+    user_flags:
+      title: "Flags on {username}'s account"
+      flagged_by_text: "Flagged by {username} {time}"
+      empty_text: No flags on this account.
+      dismiss_button: Dismiss Account Flags
+
+    user_controls:
+      flag_button: Flag Account
+      view_flags_button: Review Account Flags
+
     # These translations are used by the Flagged Posts dropdown, a.k.a. "the flag".
     flagged_posts:
       empty_text: No Flags
       item_text: "{username} in <em>{discussion}</em>"
+      user_item_text: "{username}'s account"
       title: => flarum-flags.ref.flagged_posts
       tooltip: => flarum-flags.ref.flagged_posts
 
@@ -62,7 +88,7 @@ flarum-flags:
   # Translations in this namespace are referenced by two or more unique keys.
   ref:
     flag_post: Flag Post
-    flagged_posts: Flagged Posts
+    flagged_posts: Flagged Posts and Accounts
 
 # Labels for the audit log entries this extension produces, rendered by the (optional)
 # flarum/audit browser. Defined under the flarum-audit namespace so the audit frontend
@@ -73,3 +99,6 @@ flarum-audit:
       post:
         dismissed_flags: Dismissed flags on {postuser}'s {post} in {discussion}
         flagged: Flagged {postuser}'s {post} as {reason} in {discussion}
+      user:
+        dismissed_flags: Dismissed flags on {username}'s account
+        flagged: Flagged {username}'s account as {reason}

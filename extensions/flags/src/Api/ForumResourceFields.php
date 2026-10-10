@@ -20,12 +20,16 @@ class ForumResourceFields
         return [
             Schema\Boolean::make('canViewFlags')
                 ->get(function (object $model, Context $context) {
-                    return $context->getActor()->hasPermissionLike('discussion.viewFlags');
+                    return $context->getActor()->hasPermissionLike('discussion.viewFlags')
+                        || $context->getActor()->hasPermission('user.viewFlags');
                 }),
             Schema\Integer::make('flagCount')
-                ->visible(fn (object $model, Context $context) => $context->getActor()->hasPermissionLike('discussion.viewFlags'))
+                ->visible(fn (object $model, Context $context) => $context->getActor()->hasPermissionLike('discussion.viewFlags') || $context->getActor()->hasPermission('user.viewFlags'))
                 ->get(function (object $model, Context $context) {
-                    return Flag::whereVisibleTo($context->getActor())->distinct()->count('flags.post_id');
+                    $query = Flag::whereVisibleTo($context->getActor());
+
+                    return (clone $query)->distinct()->count('flags.post_id')
+                        + (clone $query)->distinct()->count('flags.target_user_id');
                 }),
         ];
     }
