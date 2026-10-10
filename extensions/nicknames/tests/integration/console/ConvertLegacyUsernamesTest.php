@@ -9,6 +9,7 @@
 
 namespace Flarum\Nicknames\Tests\integration\console;
 
+use Flarum\Audit\AuditLog;
 use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
 use Flarum\Testing\integration\ConsoleTestCase;
 use Flarum\User\User;
@@ -81,11 +82,17 @@ class ConvertLegacyUsernamesTest extends ConsoleTestCase
     {
         $this->convert();
 
-        $this->assertLogExists('user.username_changed', [
-            'user_id' => 2,
-            'old_username' => '12345678901234567890',
-            'new_username' => $this->username(2),
-        ], actorId: null, ip: null);
+        // Sorted, as nothing fixes the order the members are renamed in.
+        $logs = AuditLog::query()->where('action', 'user.username_changed')->get()->sortBy('payload.user_id')->values();
+
+        $this->assertEquals([
+            ['user_id' => 2, 'old_username' => '12345678901234567890', 'new_username' => $this->username(2)],
+            ['user_id' => 3, 'old_username' => '98765', 'new_username' => $this->username(3)],
+        ], $logs->pluck('payload')->all());
+
+        // Renamed from the console: there is no actor or IP address.
+        $this->assertEquals([null, null], $logs->pluck('actor_id')->all());
+        $this->assertEquals([null, null], $logs->pluck('ip_address')->all());
     }
 
     #[Test]
