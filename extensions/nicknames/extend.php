@@ -52,6 +52,9 @@ return [
     (new Extend\Policy())
         ->modelPolicy(User::class, UserPolicy::class),
 
+    (new Extend\Console())
+        ->command(Console\ConvertLegacyUsernamesCommand::class),
+
     (new Extend\Conditional())
         ->whenExtensionEnabled('flarum-audit', fn () => [
             (new \Flarum\Audit\Extend\Audit())
