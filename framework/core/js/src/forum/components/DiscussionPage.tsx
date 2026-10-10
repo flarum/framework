@@ -13,6 +13,8 @@ import Discussion from '../../common/models/Discussion';
 import Post from '../../common/models/Post';
 import { ApiResponseSingle } from '../../common/Store';
 import PageStructure from './PageStructure';
+import Placeholder from '../../common/components/Placeholder';
+import RequestError from '../../common/utils/RequestError';
 
 export interface IDiscussionPageAttrs extends IPageAttrs {
   id: string;
@@ -33,6 +35,12 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    * The discussion that is being viewed.
    */
   protected discussion: Discussion | null = null;
+
+  /**
+   * What loading the discussion failed with, if it failed. The page shows it
+   * in place of the discussion.
+   */
+  protected loadError: unknown = null;
 
   /**
    * A public API for interacting with the post stream.
@@ -93,6 +101,19 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   }
 
   view() {
+    if (this.loadError) {
+      // The error alert is dismissed by the next request, so the page keeps
+      // its own copy of the message.
+      const message =
+        (this.loadError instanceof RequestError && this.loadError.alert?.content) || app.translator.trans('core.lib.error.generic_message');
+
+      return (
+        <PageStructure className="DiscussionPage" pane={() => <DiscussionListPane state={app.discussions} />}>
+          <Placeholder text={message} />
+        </PageStructure>
+      );
+    }
+
     // Keep the page shell rendered while the discussion loads. Bailing out to
     // a bare loading indicator here blanks the whole layout on every
     // discussion-to-discussion navigation — including the pinned discussion
@@ -156,11 +177,13 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
       postsPromise = this.prefetchPosts();
     }
 
-    Promise.all([import('./PostStream'), import('./PostStreamScrubber')]).then(([PostStreamImport, PostStreamScrubberImport]) => {
+    const components = Promise.all([import('./PostStream'), import('./PostStreamScrubber')]).then(([PostStreamImport, PostStreamScrubberImport]) => {
       this.PostStream = PostStreamImport.default;
       this.PostStreamScrubber = PostStreamScrubberImport.default;
+    });
 
-      if (preloadedDiscussion) {
+    if (preloadedDiscussion) {
+      components.then(() => {
         // We must wrap this in a setTimeout because if we are mounting this
         // component for the first time on page load, then any calls to m.redraw
         // will be ineffective and thus any configs (scroll code) will be run
@@ -169,13 +192,23 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
           this.pendingPostWindow = this.preloadedNearPage(preloadedDiscussion);
           this.show(preloadedDiscussion, this.pendingPostWindow);
         }, 0);
-      } else {
-        Promise.all([discussionPromise!, postsPromise ?? []]).then(([discussion, posts]) => {
+      });
+    } else {
+      // Handle a failure from here rather than once the components have loaded:
+      // the request can fail first, and would then be an unhandled rejection.
+      // The default error handler has already shown an alert by then.
+      Promise.all([discussionPromise!, postsPromise ?? [], components]).then(
+        ([discussion, posts]) => {
           this.pendingPostWindow = posts;
           this.show(discussion, posts);
-        });
-      }
-    });
+        },
+        (error) => {
+          this.loading = false;
+          this.loadError = error;
+          m.redraw();
+        }
+      );
+    }
 
     m.redraw();
   }
