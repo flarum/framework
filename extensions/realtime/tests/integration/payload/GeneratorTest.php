@@ -11,6 +11,9 @@ namespace Flarum\Realtime\Tests\integration\payload;
 
 use Carbon\Carbon;
 use Flarum\Api\Client;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource\PostResource;
+use Flarum\Extend;
 use Flarum\Discussion\Discussion;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
@@ -134,9 +137,12 @@ class GeneratorTest extends TestCase
 
         $payload = $this->generator()(Post::find(2), User::find(3));
 
-        $post = collect($payload['included'] ?? [])->last();
+        // Found by identity: the post's own included records follow it, so
+        // its position in the list is not fixed.
+        $post = collect($payload['included'] ?? [])
+            ->first(fn ($item) => $item['type'] === 'posts' && $item['id'] === '2');
 
-        $this->assertSame(['posts', '2'], [$post['type'], $post['id']]);
+        $this->assertNotNull($post);
         $this->assertArrayHasKey('likes', $post['relationships']);
     }
 
@@ -151,11 +157,63 @@ class GeneratorTest extends TestCase
 
         $payload = $this->generator()(Post::find(1), User::find(1));
 
-        $post = collect($payload['included'] ?? [])->last();
+        $post = collect($payload['included'] ?? [])
+            ->first(fn ($item) => $item['type'] === 'posts' && $item['id'] === '1');
 
-        $this->assertSame(['posts', '1'], [$post['type'], $post['id']]);
+        $this->assertNotNull($post);
         $this->assertArrayHasKey('flags', $post['relationships']);
         $this->assertArrayHasKey('user', $post['relationships']);
+    }
+
+    /**
+     * A relationship is only usable if the record it points at travels with
+     * it: the client resolves a relation through the store, so a pointer to a
+     * record that was never included resolves to nothing and the relation
+     * reads as absent.
+     *
+     * The post is fetched from its own endpoint, and the records its includes
+     * produce arrive in that response's `included` — which was dropped,
+     * keeping only `data`. It went unnoticed because every relation core puts
+     * on a post points at something the discussion half supplies anyway
+     * (authors, tags, groups); only a record unique to the post exposes it.
+     */
+    #[Test]
+    public function the_records_a_posts_relationships_point_at_travel_with_it(): void
+    {
+        // A fourth user who neither started the discussion nor posted in it,
+        // so nothing in the discussion half carries them.
+        $this->prepareDatabase([
+            User::class => [
+                ['id' => 4, 'username' => 'editor', 'email' => 'editor@machine.local', 'is_email_confirmed' => 1],
+            ],
+            Post::class => [
+                ['id' => 4, 'number' => 3, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Edited</p></t>', 'edited_at' => Carbon::now(), 'edited_user_id' => 4],
+            ],
+        ]);
+
+        $this->extend(
+            (new Extend\ApiResource(PostResource::class))
+                ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['editedUser']))
+        );
+
+        $payload = $this->generator()(Post::find(4), User::find(1));
+
+        $included = collect($payload['included'] ?? []);
+
+        $post = $included->first(fn ($item) => $item['type'] === 'posts' && $item['id'] === '4');
+
+        $this->assertNotNull($post);
+
+        $editedUser = $post['relationships']['editedUser']['data'] ?? null;
+
+        $this->assertNotNull($editedUser, 'the post should carry its editedUser relationship');
+
+        // The record the relationship points at must be present, or the client
+        // cannot resolve it.
+        $this->assertTrue(
+            $included->contains(fn ($item) => $item['type'] === $editedUser['type'] && $item['id'] === $editedUser['id']),
+            "the payload links {$editedUser['type']}:{$editedUser['id']} but does not include it"
+        );
     }
 
     #[Test]
