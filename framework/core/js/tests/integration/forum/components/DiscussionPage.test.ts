@@ -3,6 +3,7 @@ import app from '../../../../src/forum/app';
 import DiscussionPage from '../../../../src/forum/components/DiscussionPage';
 import Discussion from '../../../../src/common/models/Discussion';
 import Post from '../../../../src/common/models/Post';
+import RequestError from '../../../../src/common/utils/RequestError';
 import mq from 'mithril-query';
 import m from 'mithril';
 
@@ -57,7 +58,6 @@ describe('DiscussionPage', () => {
   beforeAll(() => {
     bootstrapForum();
     app.boot();
-
   });
 
   beforeEach(() => {
@@ -235,5 +235,47 @@ describe('DiscussionPage', () => {
 
     expect(findsFor('discussions')).toHaveLength(1);
     expect(findsFor('posts')).toHaveLength(0);
+  });
+
+  describe('when the discussion request fails', () => {
+    // What app.request rejects with: the error, carrying the alert the
+    // default error handler has already shown.
+    const rejectDiscussion = () => {
+      const error = new RequestError(404, '{"errors":[{"status":"404","code":"not_found"}]}', { url: '/api/discussions/404' } as any, {} as any);
+      error.alert = { type: 'error', content: 'The requested resource was not found.' };
+
+      pendingFinds.find((p) => p.args[0] === 'discussions')!.reject(error);
+    };
+
+    // Jest fails the test if the rejection goes unhandled, which Node reports
+    // only once the microtask queue has drained.
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 10));
+
+    test('shows the error instead of loading forever when it fails before the components load', async () => {
+      routeParams = { id: '404-deleted-discussion' };
+
+      const page = mq(DiscussionPage as any, { id: '404-deleted-discussion' });
+      rejectDiscussion();
+
+      await settle();
+      page.redraw();
+
+      expect(page).not.toHaveElement('#page-main .LoadingIndicator');
+      expect(page).toContainRaw('The requested resource was not found.');
+    });
+
+    test('shows the error instead of loading forever when it fails after the components load', async () => {
+      routeParams = { id: '404-deleted-discussion' };
+
+      const page = mq(DiscussionPage as any, { id: '404-deleted-discussion' });
+
+      await settle();
+      rejectDiscussion();
+      await settle();
+      page.redraw();
+
+      expect(page).not.toHaveElement('#page-main .LoadingIndicator');
+      expect(page).toContainRaw('The requested resource was not found.');
+    });
   });
 });
