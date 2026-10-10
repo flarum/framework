@@ -59,7 +59,11 @@ export default class WelcomeHero<CustomAttrs extends IWelcomeHeroAttrs = IWelcom
    * Hide the welcome hero.
    */
   hide() {
-    localStorage.setItem(LOCAL_STORAGE_KEY, 'true');
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, 'true');
+    } catch (e) {
+      // The browser blocks storage: the hero is shown again next time.
+    }
   }
 
   /**
@@ -69,7 +73,11 @@ export default class WelcomeHero<CustomAttrs extends IWelcomeHeroAttrs = IWelcom
    */
   isHidden(): boolean {
     if (!app.forum.attribute<string>('welcomeTitle')?.trim()) return true;
-    if (localStorage.getItem(LOCAL_STORAGE_KEY)) return true;
+    try {
+      if (localStorage.getItem(LOCAL_STORAGE_KEY)) return true;
+    } catch (e) {
+      // The browser blocks storage.
+    }
 
     return false;
   }

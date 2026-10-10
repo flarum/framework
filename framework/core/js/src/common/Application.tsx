@@ -512,7 +512,15 @@ export default class Application {
     let scheme;
 
     if (this.allowUserColorScheme) {
-      scheme = userConfiguredPreference ?? (this.session.user ? undefined : sessionStorage.getItem('colorScheme') ?? undefined);
+      scheme = userConfiguredPreference;
+
+      if (!this.session.user) {
+        try {
+          scheme ??= sessionStorage.getItem('colorScheme') ?? undefined;
+        } catch (e) {
+          // The browser blocks storage.
+        }
+      }
     }
 
     scheme ||= forumDefault;
