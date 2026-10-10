@@ -127,8 +127,10 @@ class DeletionModeDiscussionsTest extends TestCase
         $this->assertEquals(2, $discussion->comment_count);
         $this->assertEquals(2, $discussion->participant_count);
         $this->assertEquals(3, $discussion->last_post_id);
-        // Still theirs, not credited to whoever replied first.
-        $this->assertNull($discussion->user_id);
+        // Still theirs, not credited to whoever replied first. (Deleting the
+        // user empties the column where the database enforces the foreign
+        // key, which SQLite does not.)
+        $this->assertNotEquals(2, $discussion->user_id);
         $this->assertEquals('2026-01-01 00:01:00', $discussion->created_at->toDateTimeString());
     }
 
