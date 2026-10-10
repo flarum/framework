@@ -14,6 +14,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Contracts\Events\Dispatcher;
 use PHPUnit\Framework\Attributes\Test;
 
 class TagDiscussionCountTest extends TestCase
@@ -32,9 +33,9 @@ class TagDiscussionCountTest extends TestCase
                 ['id' => 2, 'name' => 'Primary 2', 'slug' => 'primary-2', 'is_primary' => true, 'position' => 1, 'parent_id' => null, 'discussion_count' => 1, 'last_posted_at' => $dayAgo, 'last_posted_discussion_id' => 3, 'last_posted_user_id' => 1],
             ],
             Discussion::class => [
-                ['id' => 1, 'title' => 'Visible in tag 1', 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'created_at' => $dayAgo, 'last_posted_at' => $dayAgo, 'last_posted_user_id' => 1],
-                ['id' => 2, 'title' => 'Hidden in tag 1', 'user_id' => 1, 'first_post_id' => 2, 'comment_count' => 1, 'created_at' => $dayAgo, 'last_posted_at' => Carbon::now(), 'last_posted_user_id' => 1, 'hidden_at' => Carbon::now(), 'hidden_user_id' => 1],
-                ['id' => 3, 'title' => 'Visible in tag 2', 'user_id' => 1, 'first_post_id' => 3, 'comment_count' => 1, 'created_at' => $dayAgo, 'last_posted_at' => $dayAgo, 'last_posted_user_id' => 1],
+                ['id' => 1, 'title' => 'Visible in tag 1', 'user_id' => 1, 'first_post_id' => 1, 'last_post_id' => 1, 'last_post_number' => 1, 'comment_count' => 1, 'created_at' => $dayAgo, 'last_posted_at' => $dayAgo, 'last_posted_user_id' => 1],
+                ['id' => 2, 'title' => 'Hidden in tag 1', 'user_id' => 1, 'first_post_id' => 2, 'last_post_id' => 2, 'last_post_number' => 1, 'comment_count' => 1, 'created_at' => $dayAgo, 'last_posted_at' => Carbon::now(), 'last_posted_user_id' => 1, 'hidden_at' => Carbon::now(), 'hidden_user_id' => 1],
+                ['id' => 3, 'title' => 'Visible in tag 2', 'user_id' => 1, 'first_post_id' => 3, 'last_post_id' => 3, 'last_post_number' => 1, 'comment_count' => 1, 'created_at' => $dayAgo, 'last_posted_at' => $dayAgo, 'last_posted_user_id' => 1],
             ],
             Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Text</p></t>'],
@@ -88,6 +89,50 @@ class TagDiscussionCountTest extends TestCase
 
         $this->assertEquals(1, Tag::query()->findOrFail(1)->last_posted_discussion_id);
         $this->assertEquals(2, Tag::query()->findOrFail(2)->last_posted_discussion_id);
+    }
+
+    // Deleting a discussion also deletes its rows in discussion_tag, through a
+    // foreign key cascade. Its tags must still be known afterwards, when the
+    // count is updated, even if nothing had loaded them before the deletion.
+
+    #[Test]
+    public function deleting_a_discussion_removes_it_from_the_tag_count()
+    {
+        $this->deleteAndDispatch(Discussion::class, 1);
+
+        $this->assertDiscussionCounts([1 => 0, 2 => 1]);
+    }
+
+    #[Test]
+    public function deleting_the_last_post_of_a_discussion_removes_the_discussion_from_the_tag_count()
+    {
+        $this->deleteAndDispatch(Post::class, 3);
+
+        $this->assertNull(Discussion::find(3));
+        $this->assertDiscussionCounts([1 => 1, 2 => 0]);
+    }
+
+    #[Test]
+    public function deleting_a_hidden_discussion_does_not_change_tag_counts()
+    {
+        $this->deleteAndDispatch(Discussion::class, 2);
+
+        $this->assertDiscussionCounts([1 => 1, 2 => 1]);
+    }
+
+    /**
+     * @param class-string<Discussion|Post> $class
+     */
+    private function deleteAndDispatch(string $class, int $id): void
+    {
+        $events = $this->app()->getContainer()->make(Dispatcher::class);
+
+        $model = $class::findOrFail($id);
+        $model->delete();
+
+        foreach ($model->releaseEvents() as $event) {
+            $events->dispatch($event);
+        }
     }
 
     private function retagDiscussion(int $discussionId, array $tagIds, array $attributes = []): void
