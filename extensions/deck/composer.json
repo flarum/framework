@@ -6,6 +6,12 @@
     ],
     "type": "flarum-extension",
     "license": "MIT",
+    "support": {
+        "issues": "https://github.com/flarum/framework/issues",
+        "source": "https://github.com/flarum/deck",
+        "forum": "https://discuss.flarum.org",
+        "docs": "https://docs.flarum.org/extensions/deck"
+    },
     "require": {
         "flarum/core": "^2.0.0"
     },
