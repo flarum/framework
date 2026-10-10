@@ -58,10 +58,38 @@ class ComposerAdapter
             // Move the temporary vendor directory to the real vendor directory.
             if ($this->filesystem->isDirectory($temporaryVendorDir) && count($this->filesystem->allFiles($temporaryVendorDir))) {
                 $vendorDir = $this->paths->vendor;
-                if (file_exists($vendorDir)) {
-                    $this->filesystem->deleteDirectory($vendorDir);
+                $previousVendorDir = $vendorDir.'-previous';
+
+                // Left over from a run that was interrupted before it could clean
+                // up after itself.
+                if ($this->filesystem->isDirectory($previousVendorDir)) {
+                    $this->filesystem->deleteDirectory($previousVendorDir);
                 }
-                $this->filesystem->moveDirectory($temporaryVendorDir, $vendorDir);
+
+                // Two renames, rather than deleting the live vendor directory and
+                // then moving the new one into place. Deleting first leaves the
+                // forum with no vendor directory for as long as it takes to remove
+                // and then move several hundred megabytes of packages, and this
+                // runs at the very end of a long job that can be killed by a
+                // worker timeout, a memory limit or a container restart. A process
+                // that dies inside that window leaves the site with no vendor
+                // directory at all, and a temp-vendor nobody thinks to look for.
+                // Renaming is effectively instantaneous on the same filesystem,
+                // and keeps the working tree until the new one is in place.
+                if ($this->filesystem->isDirectory($vendorDir)) {
+                    $this->filesystem->moveDirectory($vendorDir, $previousVendorDir);
+                }
+
+                if (! $this->filesystem->moveDirectory($temporaryVendorDir, $vendorDir)) {
+                    // Put the working tree back rather than leave the site without
+                    // one. The caller records this on the task, so the admin sees a
+                    // failed update instead of a forum that has stopped booting.
+                    $this->filesystem->moveDirectory($previousVendorDir, $vendorDir);
+
+                    throw new \RuntimeException('Failed to move the new vendor directory into place.');
+                }
+
+                $this->filesystem->deleteDirectory($previousVendorDir);
             }
             Config::$defaultConfig['vendor-dir'] = $this->paths->vendor;
         }
