@@ -13,7 +13,6 @@ use Flarum\Bus\Dispatcher;
 use Flarum\ExtensionManager\Command\CheckForUpdates;
 use Flarum\ExtensionManager\Event\FlarumUpdated;
 use Flarum\ExtensionManager\Extension\Event\Updated;
-use Flarum\ExtensionManager\Settings\LastUpdateCheck;
 use Flarum\ExtensionManager\Settings\LastUpdateRun;
 
 class ReCheckForUpdates
@@ -23,19 +22,13 @@ class ReCheckForUpdates
      */
     private $lastUpdateRun;
     /**
-     * @var LastUpdateCheck
-     */
-    private $lastUpdateCheck;
-
-    /**
      * @var Dispatcher
      */
     private $bus;
 
-    public function __construct(LastUpdateRun $lastUpdateRun, LastUpdateCheck $lastUpdateCheck, Dispatcher $bus)
+    public function __construct(LastUpdateRun $lastUpdateRun, Dispatcher $bus)
     {
         $this->lastUpdateRun = $lastUpdateRun;
-        $this->lastUpdateCheck = $lastUpdateCheck;
         $this->bus = $bus;
     }
 
@@ -44,25 +37,19 @@ class ReCheckForUpdates
      */
     public function handle($event): void
     {
-        $previousUpdateCheck = $this->lastUpdateCheck->get();
-
-        $lastUpdateCheck = $this->bus->dispatch(
-            new CheckForUpdates($event->actor)
-        );
-
         if ($event instanceof FlarumUpdated) {
-            $mapPackageName = function (array $package) {
-                return $package['name'];
-            };
-
-            $previousPackages = array_map($mapPackageName, $previousUpdateCheck['updates']['installed']);
-            $lastPackages = array_map($mapPackageName, $lastUpdateCheck['updates']['installed']);
-
+            // Composer replaced vendor files, so this process's stale autoloader cannot safely load new dependency classes.
             $this->lastUpdateRun
                 ->for($event->type)
                 ->with('status', LastUpdateRun::SUCCESS)
-                ->with('limitedPackages', array_intersect($previousPackages, $lastPackages))
+                ->with('limitedPackages', [])
                 ->save();
+
+            return;
         }
+
+        $this->bus->dispatch(
+            new CheckForUpdates($event->actor)
+        );
     }
 }
