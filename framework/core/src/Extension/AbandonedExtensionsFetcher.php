@@ -18,12 +18,19 @@ use Flarum\User\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Queue\Queue;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Throwable;
 
 class AbandonedExtensionsFetcher
 {
     public const SETTINGS_KEY = 'flarum-core.abandoned_extensions_map';
     public const NOTIFY_ADMINS_SETTING = 'flarum-core.notify_admins_on_abandoned';
+
+    /**
+     * Abandoned packages that admins have not yet been notified about.
+     */
+    public const PENDING_NOTIFICATION_KEY = 'flarum-core.abandoned_extensions_pending_notification';
 
     protected const SOURCE_URL = 'https://raw.githubusercontent.com/flarum/abandoned-extensions/main/abandoned.json';
 
@@ -33,6 +40,7 @@ class AbandonedExtensionsFetcher
         protected Client $client,
         protected Queue $queue,
         protected TranslatorInterface $translator,
+        protected ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -51,7 +59,14 @@ class AbandonedExtensionsFetcher
      */
     public function sync(bool $notify = false, bool $manual = false): array
     {
-        $map = $this->fetch();
+        try {
+            $map = $this->fetch();
+        } catch (RuntimeException $e) {
+            $this->logger?->warning($e->getMessage());
+
+            throw $e;
+        }
+
         $installed = $this->installedPackageNames();
 
         $filtered = array_filter(
@@ -68,16 +83,46 @@ class AbandonedExtensionsFetcher
         $this->settings->set(self::SETTINGS_KEY, json_encode($filtered));
 
         if ($notify && $this->settings->get(self::NOTIFY_ADMINS_SETTING)) {
+            // Newly flagged packages are kept until admins have been notified about
+            // them. Otherwise a notification that failed (the mail server was down,
+            // say) would never be retried: by the next sync, they are no longer new.
+            $stored = $this->pendingNotification();
+            $pending = array_values(array_intersect(array_unique([...$stored, ...$new]), array_keys($filtered)));
+
+            if ($pending !== $stored) {
+                $this->settings->set(self::PENDING_NOTIFICATION_KEY, json_encode($pending));
+            }
+
             // Manual trigger: notify about all installed abandoned extensions.
-            // Scheduled trigger: only notify about newly detected ones.
-            $toNotify = $manual ? array_keys($filtered) : $new;
+            // Scheduled trigger: only notify about those not yet notified.
+            $toNotify = $manual ? array_keys($filtered) : $pending;
 
             if ($toNotify) {
-                $this->notifyAdmins($toNotify, $filtered);
+                try {
+                    $this->notifyAdmins($toNotify, $filtered);
+                } catch (Throwable $e) {
+                    $this->logger?->error('Could not notify admins about abandoned extensions, so they will be notified on the next sync: '.$e->getMessage());
+
+                    throw $e;
+                }
+            }
+
+            if ($pending) {
+                $this->settings->set(self::PENDING_NOTIFICATION_KEY, json_encode([]));
             }
         }
 
         return ['count' => count($filtered), 'new' => $new];
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function pendingNotification(): array
+    {
+        $pending = json_decode($this->settings->get(self::PENDING_NOTIFICATION_KEY) ?? '[]', true);
+
+        return is_array($pending) ? $pending : [];
     }
 
     /**
