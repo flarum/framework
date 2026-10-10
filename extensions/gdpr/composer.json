@@ -94,6 +94,7 @@
     "require-dev": {
         "flarum/testing": "^2.0.0",
         "flarum/phpstan": "^2.0.0",
-        "flarum/audit": "*"
+        "flarum/audit": "*",
+        "flarum/tags": "*"
     }
 }

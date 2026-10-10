@@ -216,5 +216,9 @@ return [
                         ->get(fn ($log) => $log->tag),
                 ])
                 ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->addDefaultInclude(['tag'])),
+        ])
+        ->whenExtensionEnabled('flarum-gdpr', fn () => [
+            (new Extend\Event())
+                ->listen(\Flarum\Gdpr\Events\Erased::class, Listener\RefreshLastPostedDiscussionsAfterErasure::class),
         ]),
 ];
