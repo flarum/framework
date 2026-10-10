@@ -173,10 +173,14 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
 
   activate() {
     this.loading = true;
-    const data = {
-      username: this.username(),
+    const data: SaveAttributes = {
       isEmailConfirmed: true,
     };
+
+    if (this.username() !== this.attrs.user.username()) {
+      data.username = this.username();
+    }
+
     this.attrs.user
       .save(data, { errorHandler: this.onerror.bind(this) })
       .then(() => {
@@ -195,7 +199,11 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
     const relationships: SaveRelationships = {};
 
     if (this.attrs.user.canEditCredentials() && !this.nonAdminEditingAdmin()) {
-      data.username = this.username();
+      // Only when changed: a username kept from Flarum 1.x can fail today's
+      // rules, which would stop the rest of the user being saved.
+      if (this.username() !== this.attrs.user.username()) {
+        data.username = this.username();
+      }
 
       if (app.session.user !== this.attrs.user) {
         data.email = this.email();
