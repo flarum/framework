@@ -27,6 +27,11 @@ export default function addPostQuoteButton() {
           m.render($container[0], button.render());
 
           const rects = window.getSelection().getRangeAt(0).getClientRects();
+
+          // Browsers can report no rectangles for a selection, leaving
+          // nowhere to show the button.
+          if (!rects.length) return;
+
           const firstRect = rects[0];
 
           if (e.clientY < firstRect.bottom && e.clientX - firstRect.right < firstRect.left - e.clientX) {
