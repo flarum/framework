@@ -80,7 +80,12 @@ export default class DiscussionListActivity {
     const activeTag: any = params.tags ? (app.store as any).getBy('tags', 'slug', params.tags) : null;
     const noFilters: boolean = Object.keys(params.filter ?? {}).length === 0;
 
-    if (params.q || params.sort || !(activeTag || noFilters)) return;
+    // Activity is placed on top, so the list has to be in order of activity:
+    // no sort, or one that names it (a tag can open its page that way).
+    const sort = (app as any).discussions.currentSort();
+    const byActivity = !sort || sort === '-lastPostedAt';
+
+    if (params.q || !byActivity || !(activeTag || noFilters)) return;
 
     const entity = app.store.pushPayload(data as Parameters<typeof app.store.pushPayload>[0]) as any;
 

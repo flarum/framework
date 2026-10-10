@@ -209,6 +209,15 @@ describe('DiscussionListActivity', () => {
     }
   );
 
+  it('collects activity while the list is in order of activity, even when that order is named', () => {
+    // A tag can open its page in the forum's default order by naming it.
+    list({ sort: 'latest' }, d1, d2, d3);
+    activity.hideList();
+    channel.emit(POSTED, reply('31', '3', '2026-10-06T10:10:00Z'));
+
+    expect(activity.updates.length()).toBe(1);
+  });
+
   it('binds a channel once, however often it is handed the same one', () => {
     activity.bind(channel as any);
     activity.bind(channel as any);
