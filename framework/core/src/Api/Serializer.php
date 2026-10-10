@@ -185,7 +185,15 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
     {
         $i = 0;
         while ($this->deferred->count()) {
+            // One level at a time. Take what has been deferred so far, and
+            // let whatever it defers in turn wait for the next pass. Draining
+            // the live queue instead ran each included resource's
+            // relationships (which are prepended) before the next resource
+            // had even been added, so every relationship below the primary
+            // data was loaded through a buffer holding a single model: an
+            // N+1 for each one.
             $deferred = $this->deferred;
+            $this->deferred = new Collection();
 
             while (($resolve = $deferred->shift()) && is_callable($resolve)) {
                 $resolve();
