@@ -129,6 +129,25 @@ describe('routeInternalLinks', () => {
     }
   });
 
+  it('follows a link to the address of the default route, which mount() moved to the home page', () => {
+    const indexPath = app.routes.index.path;
+    const defaultRoute = app.forum.data.attributes!.defaultRoute;
+
+    app.routes.index.path = '/';
+    app.forum.data.attributes!.defaultRoute = '/all';
+
+    try {
+      expect(click(`${ORIGIN}/all`)).toEqual({ routed: '/all', prevented: true });
+
+      app.forum.data.attributes!.basePath = '/forum';
+
+      expect(click(`${ORIGIN}/forum/all`)).toEqual({ routed: '/forum/all', prevented: true });
+    } finally {
+      app.routes.index.path = indexPath;
+      app.forum.data.attributes!.defaultRoute = defaultRoute;
+    }
+  });
+
   it('follows a route an extension registered', () => {
     app.routes.tag = { ...app.routes.index, path: '/t/:tags' };
 

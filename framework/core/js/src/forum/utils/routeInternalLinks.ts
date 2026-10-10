@@ -34,6 +34,12 @@ function compile(template: string): RegExp {
  * routes included.
  */
 function hasRoute(path: string, basePath: string): boolean {
+  // mount() moves the default route to `/`, but its own address (`/all`, or
+  // whatever the admin chose) still means the home page.
+  const defaultRoute = app.forum.attribute<string>('defaultRoute');
+
+  if (defaultRoute && compile(basePath + defaultRoute).test(path)) return true;
+
   return Object.values(app.routes).some((route) => compile(basePath + route.path).test(path));
 }
 
