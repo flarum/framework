@@ -150,9 +150,11 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
 
     const dialog = this.selectedDialog();
 
-    items.add(
-      'dialog',
-      dialog ? (
+    // Added only when there is something to show: a hole beside the keyed list
+    // makes Mithril throw, and every redraw of the page with it.
+    if (dialog) {
+      items.add(
+        'dialog',
         <DialogSection
           key="dialog"
           dialog={dialog}
@@ -160,12 +162,12 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
             // A route change, so the browser's own back button agrees with ours.
             m.route.set(app.route('messages'));
           }}
-        />
-      ) : this.loadingDialog ? (
-        <LoadingIndicator key="loading" display="block" />
-      ) : null,
-      80
-    );
+        />,
+        80
+      );
+    } else if (this.loadingDialog) {
+      items.add('dialog', <LoadingIndicator key="loading" display="block" />, 80);
+    }
 
     return items;
   }
