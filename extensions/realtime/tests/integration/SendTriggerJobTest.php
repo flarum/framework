@@ -25,8 +25,8 @@ use PHPUnit\Framework\Attributes\Test;
 use Pusher\Pusher;
 
 /**
- * A post reaches the public channel when guests can see its discussion, and
- * connected members only when they can see it themselves.
+ * A post reaches connected members only when they can see its discussion. Post
+ * events never go to the public channel (see #5174).
  */
 class SendTriggerJobTest extends TestCase
 {
@@ -58,12 +58,13 @@ class SendTriggerJobTest extends TestCase
     }
 
     #[Test]
-    public function a_reply_in_a_public_discussion_is_pushed_publicly_and_to_connected_members(): void
+    public function a_reply_in_a_public_discussion_is_pushed_to_connected_members(): void
     {
         $recipients = $this->trigger(postId: 2, connected: [1, 2, 3], actorId: 1);
 
-        // The actor is never sent their own reply.
-        $this->assertSame(['2', '3', 'public'], $recipients);
+        // The actor is never sent their own reply, and post events stay off
+        // the public channel.
+        $this->assertSame(['2', '3'], $recipients);
     }
 
     #[Test]
@@ -75,10 +76,9 @@ class SendTriggerJobTest extends TestCase
     }
 
     /**
-     * A reply awaiting approval in a public discussion: the public job is
-     * queued, because guests can see the discussion, but what is actually
-     * sent is decided per recipient, and a guest cannot see the post. Only
-     * the admin, who can approve it, receives it.
+     * A reply awaiting approval in a public discussion: what is actually sent
+     * is decided per recipient, and only the admin, who can approve it, can
+     * see the post.
      */
     #[Test]
     public function a_reply_awaiting_approval_reaches_nobody_who_cannot_approve_it(): void
@@ -99,9 +99,8 @@ class SendTriggerJobTest extends TestCase
     }
 
     /**
-     * A reply in a discussion under a restricted tag: guests cannot see the
-     * discussion, so no public job is queued at all, and connected members
-     * only receive it if they can see it.
+     * A reply in a discussion under a restricted tag: connected members only
+     * receive it if they can see the discussion.
      */
     #[Test]
     public function a_reply_in_a_restricted_tag_reaches_nobody_who_cannot_see_the_tag(): void

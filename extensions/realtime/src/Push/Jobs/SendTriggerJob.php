@@ -52,8 +52,10 @@ class SendTriggerJob extends Job
                 );
             });
 
-        // If public, push to everyone.
-        if ($discussion && $this->visibleTo($discussion)) {
+        // If public, push to everyone. Only discussion events: `public` reaches
+        // every connected guest, so pushing every post event there as well
+        // would multiply what the websocket server sends (see #5174).
+        if ($this->model instanceof Discussion && $this->visibleTo($this->model)) {
             $queue->push(
                 new SendGeneratedPayloadJob($this->event, $this->model)
             );
