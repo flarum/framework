@@ -46,12 +46,36 @@ class FontAwesomeLoadingTest extends TestCase
         $body = $response->getBody()->getContents();
 
         foreach ($urls as $url) {
-            $this->assertStringContainsString("<link rel=\"preload\" href=\"$url\" as=\"font\" type=\"font/woff2\" crossorigin=\"\">", $body);
+            $this->assertMatchesRegularExpression('~<link rel="preload" href="'.preg_quote($url, '~').'(\?v=[0-9a-f]+)?" as="font" type="font/woff2" crossorigin="">~', $body);
         }
 
         // Should not contain CDN or Kit URLs
         $this->assertStringNotContainsString('cdnjs.cloudflare.com', $body);
         $this->assertStringNotContainsString('kit.fontawesome.com', $body);
+    }
+
+    #[Test]
+    public function font_preloads_use_the_stylesheets_font_urls()
+    {
+        // A preload is only used when its URL is exactly the one the stylesheet
+        // requests. The compiled CSS stamps each font URL with a revision
+        // (`?v=…`), so a bare preload URL made every page fetch the fonts twice.
+        $body = $this->send($this->request('GET', '/'))->getBody()->getContents();
+
+        $assets = $this->app()->getContainer()->make('flarum.assets.forum');
+        $compiler = $assets->makeCss();
+        $compiler->commit(true);
+        $css = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->get($compiler->getFilename());
+
+        foreach (['fa-solid-900.woff2', 'fa-regular-400.woff2'] as $file) {
+            $this->assertMatchesRegularExpression('~url\("\./fonts/'.preg_quote($file, '~').'([^"]*)"\)~', $css);
+            preg_match('~url\("\./fonts/'.preg_quote($file, '~').'([^"]*)"\)~', $css, $m);
+
+            preg_match('~<link rel="preload" href="([^"]*/fonts/'.preg_quote($file, '~').'[^"]*)" as="font"~', $body, $preload);
+            $this->assertNotEmpty($preload, "no preload for $file");
+
+            $this->assertStringEndsWith('fonts/'.$file.$m[1], $preload[1], "the preload for $file is not the URL the stylesheet uses");
+        }
     }
 
     #[Test]
@@ -231,7 +255,7 @@ class FontAwesomeLoadingTest extends TestCase
 
         // Should use local fonts from config
         foreach ($urls as $url) {
-            $this->assertStringContainsString("<link rel=\"preload\" href=\"$url\" as=\"font\" type=\"font/woff2\" crossorigin=\"\">", $body);
+            $this->assertMatchesRegularExpression('~<link rel="preload" href="'.preg_quote($url, '~').'(\?v=[0-9a-f]+)?" as="font" type="font/woff2" crossorigin="">~', $body);
         }
 
         // Should not contain database CDN URL
