@@ -83,3 +83,22 @@ describe.each([
     expect(pairs).toEqual([...new Set(pairs)]);
   });
 });
+
+test('names a chunk after the path below the last src/ directory', async () => {
+  // Building under a directory that is itself called src/ used to name the
+  // chunk after everything below the FIRST src/ ("acme/js/src/forum/..."), so
+  // it was emitted and registered at a path the forum never serves.
+  const assets = await compile('nested/src/acme/js/src/forum/index.js');
+
+  expect(Object.keys(assets)).toContain('forum/components/Lazy.js');
+  expect(registry(registrationsIn(assets['forum.js'])).chunkUrlPath('forum/components/Lazy')).toBe('forum/components/Lazy');
+});
+
+test('registers a chunk whose name was written by hand', async () => {
+  // Babel prints `/* webpackChunkName: … */'./path'` without a space, and the
+  // plugin only recognised the import with one, so the chunk was built but
+  // never registered and loaded from webpack's own (wrong) url.
+  const assets = await compile('src/forum/named.js');
+
+  expect(registry(registrationsIn(assets['forum.js'])).chunkUrlPath('forum/components/Named')).toBe('forum/components/Named');
+});

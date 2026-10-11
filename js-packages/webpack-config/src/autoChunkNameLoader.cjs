@@ -62,8 +62,13 @@ module.exports = function autoChunkNameLoader(source) {
         const absolutePathToImport = path.resolve(path.dirname(pathToThisModule), relativePathToImport);
         let chunkPath = relativePathToImport;
 
-        if (absolutePathToImport.includes('src')) {
-          chunkPath = absolutePathToImport.split(`src${path.sep}`)[1];
+        // The path below the extension's own src/ directory, which is the LAST
+        // one in the path: an extension checked out or built under a directory
+        // that is itself called src/ (~/src/my-extension, a CI workspace,
+        // /state/src/...) has more than one.
+        const srcDir = `${path.sep}src${path.sep}`;
+        if (absolutePathToImport.includes(srcDir)) {
+          chunkPath = absolutePathToImport.slice(absolutePathToImport.lastIndexOf(srcDir) + srcDir.length);
         }
 
         if (path.sep == '\\') {

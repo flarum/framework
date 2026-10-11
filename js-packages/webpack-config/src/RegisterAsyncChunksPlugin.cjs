@@ -131,7 +131,7 @@ class RegisterAsyncChunksPlugin {
 
               // Each line that has a webpackChunkName comment.
               [...module._source._value.matchAll(/.*\/\* webpackChunkName: .* \*\/.*/gm)].forEach(([match]) => {
-                [...match.matchAll(/(.*?) webpackChunkName: '([^']*)'.*? \*\/ '([^']+)'.*?/gm)].forEach(([match, _, urlPath, importPath]) => {
+                [...match.matchAll(/(.*?) webpackChunkName: '([^']*)'.*? \*\/\s*'([^']+)'.*?/gm)].forEach(([match, _, urlPath, importPath]) => {
                   urlPath = this.processUrlPath(urlPath);
 
                   // Import path is relative to module.resource, so we need to resolve it
