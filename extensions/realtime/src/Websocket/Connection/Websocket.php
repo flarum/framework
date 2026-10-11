@@ -40,9 +40,20 @@ class Websocket implements MessageComponentInterface
             return;
         }
 
+        try {
+            $this
+                ->verifyOrigin($conn)
+                ->verifyAppKey($conn);
+        } catch (WebsocketException $e) {
+            // Tell the client why, then drop it. Left open, a rejected
+            // connection could still subscribe to public channels.
+            $conn->send(json_encode($e->getPayload()));
+            $conn->close();
+
+            return;
+        }
+
         $this
-            ->verifyOrigin($conn)
-            ->verifyAppKey($conn)
             ->generateSocketId($conn)
             ->establishConnection($conn);
 
