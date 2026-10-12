@@ -2,6 +2,7 @@ import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 import RealtimeState from '../../RealtimeState';
+import catchUpDiscussion from '../../utils/catchUpDiscussion';
 
 const CORE_POSTED_EVENT = 'Flarum\\Post\\Event\\Posted';
 const CORE_RENAMED_EVENT = 'discussionRenamed';
@@ -23,14 +24,8 @@ export default function (): void {
       if (discussion.id() === this.discussion?.id() && this.stream) {
         const oldCount: number = this.discussion.commentCount();
 
-        app.store.find('discussions', this.discussion.id()).then(() => {
-          if (wasViewingEnd) {
-            this.stream.syncEnd().then((): void => m.redraw());
-          } else {
-            m.redraw();
-          }
-
-          if (!document.hasFocus()) {
+        catchUpDiscussion(this.discussion, this.stream, wasViewingEnd).then((caughtUp) => {
+          if (caughtUp && !document.hasFocus()) {
             app.setTitleCount(Math.max(0, this.discussion.commentCount() - oldCount));
 
             $(window).one('focus', (): void => {
@@ -49,13 +44,7 @@ export default function (): void {
       const discussion = app.store.pushPayload(data as Parameters<typeof app.store.pushPayload>[0]) as any;
 
       if (discussion.id() === this.discussion?.id() && this.stream) {
-        app.store.find('discussions', this.discussion.id()).then(() => {
-          if (wasViewingEnd) {
-            this.stream.syncEnd().then((): void => m.redraw());
-          } else {
-            m.redraw();
-          }
-        });
+        catchUpDiscussion(this.discussion, this.stream, wasViewingEnd);
       }
     };
   });

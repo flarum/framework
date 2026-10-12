@@ -384,7 +384,9 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     // If the user hasn't read past here before, then we'll update their read
     // state and redraw.
     if (app.session.user && endNumber > (discussion.lastReadPostNumber() || 0)) {
-      discussion.save({ lastReadPostNumber: endNumber });
+      // A failed save has shown its own error and put the old read position
+      // back, so the next scroll past here saves it again.
+      discussion.save({ lastReadPostNumber: endNumber }).catch(() => {});
       m.redraw();
     }
   }
