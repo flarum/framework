@@ -90,6 +90,12 @@ export default class PostStreamState {
      */
     goToIndex(index: number, noAnimation?: boolean): Promise<void>;
     /**
+     * A jump whose posts failed to load. The request has shown its own error;
+     * the stream stops waiting for the jump, so the reader can scroll and the
+     * page that asked for it (such as a discussion still loading) can carry on.
+     */
+    protected loadFailed(): void;
+    /**
      * Clear the stream and load posts near a certain number. Returns a promise.
      * If the post with the given number is already loaded, the promise will be
      * resolved immediately.
