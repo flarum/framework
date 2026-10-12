@@ -78,13 +78,17 @@
             "@test:integration"
         ],
         "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:unit:filter": "phpunit -c tests/phpunit.unit.xml --filter",
         "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:integration:filter": "phpunit -c tests/phpunit.integration.xml --filter",
         "test:setup": "@php tests/integration/setup.php"
     },
     "scripts-descriptions": {
         "test": "Runs all tests.",
         "test:unit": "Runs all unit tests.",
+        "test:unit:filter": "Runs unit tests whose name matches: composer test:unit:filter -- ClassName",
         "test:integration": "Runs all integration tests.",
+        "test:integration:filter": "Runs integration tests whose name matches: composer test:integration:filter -- ClassName",
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
