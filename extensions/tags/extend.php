@@ -112,6 +112,10 @@ return [
             function (Endpoint\Index|Endpoint\Show|Endpoint\Create $endpoint) {
                 return $endpoint
                     ->addDefaultInclude(['tags', 'tags.parent'])
+                    // A request that names its own includes may leave out
+                    // `tags.parent`, but each tag's permissions still ask TagPolicy
+                    // about its parent: load them together rather than per tag.
+                    ->eagerLoadWhenIncluded(['tags' => ['tags.parent']])
                     ->eagerLoadWhere('tags', function (Builder|Relation $query, Context $context) {
                         /** @var Builder<Tag>|Relation $query */
                         $query->withStateFor($context->getActor());
