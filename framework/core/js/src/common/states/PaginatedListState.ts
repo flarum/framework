@@ -85,9 +85,11 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
 
     const page: number = this.getPrevPageNumber();
 
-    return this.loadPage(page)
-      .then(this.parseResults.bind(this, page))
-      .finally(() => (this.loadingPrev = false));
+    return this.errorShownByRequest(
+      this.loadPage(page)
+        .then(this.parseResults.bind(this, page))
+        .finally(() => (this.loadingPrev = false))
+    );
   }
 
   public loadNext(): Promise<void> {
@@ -97,9 +99,24 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
 
     const page: number = this.getNextPageNumber();
 
-    return this.loadPage(page)
-      .then(this.parseResults.bind(this, page))
-      .finally(() => (this.loadingNext = false));
+    return this.errorShownByRequest(
+      this.loadPage(page)
+        .then(this.parseResults.bind(this, page))
+        .finally(() => (this.loadingNext = false))
+    );
+  }
+
+  /**
+   * A load that fails has already shown its error: the request did, while
+   * rejecting (see `Application.request()`). Callers that wait for the result
+   * still see the rejection; this only stops one that doesn't, such as a "Load
+   * more" button or a page's first load, from reporting it a second time as an
+   * unhandled rejection.
+   */
+  protected errorShownByRequest<T>(promise: Promise<T>): Promise<T> {
+    promise.catch(() => {});
+
+    return promise;
   }
 
   protected parseResults(pg: number, results: ApiResponsePlural<T>): void {
@@ -279,15 +296,17 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
       this.loadingPage = true;
     }
 
-    return this.loadPage(page)
-      .then((results) => {
-        this.pages = [];
-        this.parseResults(this.location.page, results);
-      })
-      .finally(() => {
-        this.initialLoading = false;
-        this.loadingPage = false;
-      });
+    return this.errorShownByRequest(
+      this.loadPage(page)
+        .then((results) => {
+          this.pages = [];
+          this.parseResults(this.location.page, results);
+        })
+        .finally(() => {
+          this.initialLoading = false;
+          this.loadingPage = false;
+        })
+    );
   }
 
   public getPages(): Page<T>[] {
