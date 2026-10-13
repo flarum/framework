@@ -51,6 +51,9 @@ return [
         ->belongsToMany('mentionsUsers', User::class, 'post_mentions_user', 'post_id', 'mentions_user_id')
         ->belongsToMany('mentionsGroups', Group::class, 'post_mentions_group', 'post_id', 'mentions_group_id'),
 
+    (new Extend\Model(User::class))
+        ->cast('mention_count', 'integer'),
+
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\View)
