@@ -37,6 +37,9 @@ return [
     (new Extend\Model(Post::class))
         ->belongsToMany('likes', User::class, 'post_likes', 'post_id', 'user_id'),
 
+    (new Extend\Model(User::class))
+        ->cast('like_count', 'integer'),
+
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Notification())
