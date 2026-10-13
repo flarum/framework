@@ -1,5 +1,63 @@
 # Changelog
 
+## [v2.0.1](https://github.com/flarum/framework/compare/v2.0.0...v2.0.1)
+
+### Added
+
+- (nicknames) a `nicknames:convert-legacy-usernames` command, to rename the all-digit usernames left by Flarum 1.x's random usernames by @imorland [#5150]
+- (dev) `test:unit:filter` and `test:integration:filter` scripts, to run selected tests by @imorland [#5181]
+
+### Fixed
+
+- (core) make the links in informational emails clickable, and keep their paragraphs by @karl-bullock [#5038]
+- (core) let a link to an uploaded file open instead of routing to the index by @jamalkamaladdin [#5071]
+- (core) don't escape the plain-text part of emails twice by @BartVB [#5134]
+- (core) don't render a user card for a user that no longer exists by @imorland [#5141]
+- (core) accept a class name and an instance method as an `Event` listener by @imorland [#5142]
+- (core) revalidate a user reused from the store when opening their profile by @imorland [#5145]
+- (core) show the error when a discussion fails to load by @imorland [#5147]
+- (core) keep the forum working when the browser blocks storage by @imorland [#5149]
+- (core) only send a changed username from the edit user modal by @imorland [#5151]
+- (core) spread the weekly outside fetches over the week by @imorland [#5152]
+- (core) log abandoned extensions sync failures, and retry the admin notifications that failed by @imorland [#5153]
+- (core) give labelled badges the `img` role by @karl-bullock [#5176]
+- (core) don't rebuild frontend assets in in-process API requests by @imorland [#5180]
+- (core) don't scroll a discussion that is still loading by @imorland [#5183]
+- (core) recover from failed requests without unhandled rejections by @imorland [#5184]
+- (audit) name the actor of an entry logged from the command line by @imorland [#5170]
+- (embed) hide the first post when the embed is opened with `hideFirstPost` by @imorland [#5172]
+- (gdpr) keep discussions consistent when a user is erased in deletion mode by @imorland [#5158]
+- (gdpr) show when an erasure request will be processed automatically by @imorland [#5169]
+- (gdpr) don't leave export files behind in `storage/tmp` by @imorland [#5187]
+- (mentions) quote a link to a discussion as its address by @imorland [#5143]
+- (mentions) don't throw when a selection has no client rects by @imorland [#5148]
+- (messages) show the list on phones instead of an endless spinner by @imorland [#5173]
+- (realtime) send the records a pushed post's relationships point at by @imorland [#5139]
+- (statistics) show the totals for a custom date range instead of 0 by @mmustafasenoglu [#5011]
+- (sticky) pin sticky discussions on tags with a default sort by @imorland [#5165]
+- (subscriptions) don't fail a discussion update that has no attributes by @karl-bullock [#5136]
+- (tags) count a deleted discussion out of its tags by @imorland [#5156]
+- (tags) show Allow tag editing as Never until it is set by @imorland [#5166]
+- (tags, mentions) don't leave a guest's login prompt as an unhandled rejection by @imorland [#5185]
+
+### Changed
+
+- (deck) link Deck to its docs page by @imorland [#5138]
+- (tags) link to the extension's documentation by @imorland [#5159]
+- (extensions) link BBCode, Embed, Emoji and Markdown to their docs pages by @karl-bullock [#5168]
+
+### Security
+
+- (tags) match a restricted tag's permissions by their exact name, so a grant to hide posts no longer reveals the tag's hidden discussions by @imorland [#5162]
+- (tags) leave View forum to its permission when no tags are required, so guests can't see members on a private forum by @imorland [#5163]
+- (realtime) close websocket connections that fail the origin or app key check by @karl-bullock [#5164]
+- (gdpr) confirm erasure from a page, not by opening the emailed link, which mail scanners open by @imorland [#5171]
+
+### Performance
+
+- (core) resolve nested includes one level at a time by @ernestdefoe [#5126]
+- (tags) load tag parents together when a request includes tags by @imorland [#5182]
+
 ## [v2.0.0](https://github.com/flarum/framework/compare/v2.0.0-rc.8...v2.0.0)
 
 ### Added
