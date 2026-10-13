@@ -80,6 +80,29 @@ abstract class AbstractModel extends Eloquent
      */
     public ?array $uniqueKeys = null;
 
+    /**
+     * Whether a value can be one of this model's primary keys.
+     *
+     * For an integer key that means a whole number from 1 to 2147483647, the
+     * range an auto-incrementing `integer` id column holds on every supported
+     * database. PostgreSQL rejects any other value compared with such a column
+     * (`abc`, `1.5`, `99999999999`) with an error instead of matching nothing,
+     * as MySQL and SQLite do. Check first, and treat a value that fails as
+     * "not found".
+     */
+    public static function isValidKey(mixed $key): bool
+    {
+        if ((new static)->getKeyType() !== 'int') {
+            return true;
+        }
+
+        if (is_string($key) && ctype_digit($key)) {
+            $key = (int) $key;
+        }
+
+        return is_int($key) && $key >= 1 && $key <= 2147483647;
+    }
+
     public static function boot()
     {
         parent::boot();

@@ -11,6 +11,7 @@ namespace Flarum\Discussion;
 
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DiscussionRepository
 {
@@ -28,6 +29,10 @@ class DiscussionRepository
      */
     public function findOrFail(int|string $id, ?User $user = null): Discussion
     {
+        if (! Discussion::isValidKey($id)) {
+            throw (new ModelNotFoundException)->setModel(Discussion::class, [$id]);
+        }
+
         $query = $this->query()->where('id', $id);
 
         return $this->scopeVisibleTo($query, $user)->firstOrFail();

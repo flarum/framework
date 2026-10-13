@@ -11,6 +11,7 @@ namespace Flarum\User;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * @template T of User
@@ -35,6 +36,10 @@ class UserRepository
      */
     public function findOrFail(int|string $id, ?User $actor = null): Model
     {
+        if (! User::isValidKey($id)) {
+            throw (new ModelNotFoundException)->setModel(User::class, [$id]);
+        }
+
         $query = $this->query()->where('id', $id);
 
         return $this->scopeVisibleTo($query, $actor)->firstOrFail();

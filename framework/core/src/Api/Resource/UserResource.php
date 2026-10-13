@@ -36,6 +36,7 @@ use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
@@ -81,6 +82,10 @@ class UserResource extends AbstractDatabaseResource
         if (Arr::get($context->request->getQueryParams(), 'bySlug', false)) {
             $user = $this->slugManager->forResource(User::class)->fromSlug($id, $actor);
         } else {
+            if (! User::isValidKey($id)) {
+                throw (new ModelNotFoundException)->setModel(User::class, [$id]);
+            }
+
             $user = $this->query($context)->findOrFail($id);
         }
 

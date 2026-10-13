@@ -11,6 +11,7 @@ namespace Flarum\Api\Resource;
 
 use Flarum\Api\Context as FlarumContext;
 use Flarum\Api\Schema\Contracts\RelationAggregator;
+use Flarum\Database\AbstractModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -216,6 +217,12 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
      */
     public function find(string $id, Context $context): ?object
     {
+        $model = $this->model();
+
+        if (is_subclass_of($model, AbstractModel::class) && ! $model::isValidKey($id)) {
+            return null;
+        }
+
         return $this->query($context)->find($id);
     }
 

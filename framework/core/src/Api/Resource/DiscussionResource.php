@@ -24,6 +24,7 @@ use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 
 /**
@@ -60,6 +61,10 @@ class DiscussionResource extends AbstractDatabaseResource
         if (Arr::get($context->request->getQueryParams(), 'bySlug', false)) {
             $discussion = $this->slugManager->forResource(Discussion::class)->fromSlug($id, $actor);
         } else {
+            if (! Discussion::isValidKey($id)) {
+                throw (new ModelNotFoundException)->setModel(Discussion::class, [$id]);
+            }
+
             $discussion = $this->query($context)->findOrFail($id);
         }
 
