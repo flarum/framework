@@ -7,7 +7,6 @@
  * LICENSE file that was distributed with this source code.
  */
 
-
 namespace Flarum\Likes\Tests\integration\api;
 
 use Carbon\Carbon;
