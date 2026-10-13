@@ -223,8 +223,10 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
                 $preloads = [];
 
-                // Only preload local fonts if using local source
-                if ($fontAwesome->useLocalFonts()) {
+                // Only preload the bundled fonts when the icons are drawn from them.
+                // That includes a CDN or Kit source with no URL, which falls back
+                // to the bundled fonts.
+                if ($fontAwesome->needsBundledFonts()) {
                     // Versioned like the stylesheet's own font URLs. A preload
                     // only helps when its URL is exactly the one the CSS asks
                     // for; with a bare URL here and `?v=` in the CSS, every page
@@ -428,18 +430,21 @@ class FrontendServiceProvider extends AbstractServiceProvider
      * LessCompiler::finalize() appends `?v=<hash of the font file>` to every
      * font URL in the CSS, so a changed font is a new URL. Anything else that
      * points at the same font has to carry that revision too, or the browser
-     * treats it as a different file. The hash is taken from the font
-     * AssetsPublishCommand copies into `assets/fonts`, which is the file the
-     * stylesheet's revision comes from, so it does not depend on the assets
-     * disk being local.
+     * treats it as a different file. The revision comes from the assets, which
+     * read the same file the stylesheet's revision comes from.
      */
     protected static function bundledFontUrl(Container $container, string $file): string
     {
         $url = $container->make('filesystem')->disk('flarum-assets')->url('fonts/'.$file);
 
-        $source = $container->make(Paths::class)->vendor.'/flarum/font-awesome/webfonts/'.$file;
-        $hash = is_file($source) ? @hash_file('xxh128', $source) : false;
+        $revision = $container->make('flarum.assets.forum')->fontRevision($file);
 
-        return $hash ? "$url?v=$hash" : $url;
+        if ($revision === null) {
+            return $url;
+        }
+
+        // As LessCompiler::finalize() does: don't add a second `?` to a URL that
+        // already has a query string.
+        return $url.(str_contains($url, '?') ? '&' : '?').'v='.$revision;
     }
 }

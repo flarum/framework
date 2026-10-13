@@ -79,6 +79,27 @@ class FontAwesomeLoadingTest extends TestCase
     }
 
     #[Test]
+    public function the_font_revision_is_cached()
+    {
+        $assets = $this->app()->getContainer()->make('flarum.assets.forum');
+        $revision = $assets->fontRevision('fa-solid-900.woff2');
+
+        $this->assertNotNull($revision);
+
+        // The preloads are built on every page view; the second lookup must come
+        // from the cache, not from hashing the font again.
+        $events = new \Illuminate\Events\Dispatcher();
+        $hits = [];
+        $events->listen(\Illuminate\Cache\Events\CacheHit::class, function ($event) use (&$hits) {
+            $hits[] = $event->key;
+        });
+        $this->app()->getContainer()->make('cache.store')->setEventDispatcher($events);
+
+        $this->assertSame($revision, $assets->fontRevision('fa-solid-900.woff2'));
+        $this->assertNotEmpty(array_filter($hits, fn ($key) => str_starts_with($key, 'flarum.frontend.font_revision.')));
+    }
+
+    #[Test]
     public function fontawesome_cdn_loads_css_instead_of_local_fonts()
     {
         $this->setting('fontawesome_source', 'cdn');
@@ -128,7 +149,7 @@ class FontAwesomeLoadingTest extends TestCase
     // which is complex in the test environment
 
     #[Test]
-    public function empty_cdn_url_does_not_load_anything()
+    public function empty_cdn_url_preloads_the_bundled_fonts_it_falls_back_to()
     {
         $this->setting('fontawesome_source', 'cdn');
         $this->setting('fontawesome_cdn_url', '');
@@ -142,14 +163,14 @@ class FontAwesomeLoadingTest extends TestCase
         // Should not contain any CDN CSS (empty URL)
         $this->assertStringNotContainsString('cdnjs.cloudflare.com', $body);
 
-        // Should not load local fonts either since source is CDN (just no URL provided)
-        // This is expected behavior - misconfiguration results in no FontAwesome
-        $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
-        $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
+        // With no URL the source can't deliver anything, so the stylesheet uses
+        // the bundled fonts (FontAwesome::needsBundledFonts()), and they're preloaded.
+        $this->assertMatchesRegularExpression('~<link rel="preload" href="[^"]*/fonts/fa-solid-900\.woff2\?v=[0-9a-f]+" as="font"~', $body);
+        $this->assertMatchesRegularExpression('~<link rel="preload" href="[^"]*/fonts/fa-regular-400\.woff2\?v=[0-9a-f]+" as="font"~', $body);
     }
 
     #[Test]
-    public function empty_kit_url_does_not_load_anything()
+    public function empty_kit_url_preloads_the_bundled_fonts_it_falls_back_to()
     {
         $this->setting('fontawesome_source', 'kit');
         $this->setting('fontawesome_kit_url', '');
@@ -163,10 +184,10 @@ class FontAwesomeLoadingTest extends TestCase
         // Should not contain any Kit JS (empty URL)
         $this->assertStringNotContainsString('kit.fontawesome.com', $body);
 
-        // Should not load local fonts either since source is kit (just no URL provided)
-        // This is expected behavior - misconfiguration results in no FontAwesome
-        $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
-        $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
+        // With no URL the source can't deliver anything, so the stylesheet uses
+        // the bundled fonts (FontAwesome::needsBundledFonts()), and they're preloaded.
+        $this->assertMatchesRegularExpression('~<link rel="preload" href="[^"]*/fonts/fa-solid-900\.woff2\?v=[0-9a-f]+" as="font"~', $body);
+        $this->assertMatchesRegularExpression('~<link rel="preload" href="[^"]*/fonts/fa-regular-400\.woff2\?v=[0-9a-f]+" as="font"~', $body);
     }
 
     #[Test]
