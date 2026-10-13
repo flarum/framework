@@ -11,6 +11,7 @@ namespace Flarum\Likes;
 
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 use Flarum\Extend;
 use Flarum\Likes\Api\PostResourceFields;
 use Flarum\Likes\Event\PostWasLiked;
@@ -18,7 +19,6 @@ use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Likes\Notification\PostLikedBlueprint;
 use Flarum\Likes\Query\LikedByFilter;
 use Flarum\Likes\Query\LikedFilter;
-use Flarum\Post\Event\Deleted;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
 use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
@@ -51,6 +51,11 @@ return [
             }
         ),
 
+    (new Extend\ApiResource(Resource\UserResource::class))
+        ->fields(fn () => [
+            Schema\Integer::make('likeCount'),
+        ]),
+
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         // Only default-include post likes where the post is actually displayed
         // (Show/Create render the post stream). The discussion list (Index) never
@@ -79,9 +84,7 @@ return [
     (new Extend\Event())
         ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)
         ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)
-        ->listen(Deleted::class, function (Deleted $event) {
-            $event->post->likes()->detach();
-        }),
+        ->subscribe(Listener\UpdateUserLikeCount::class),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(PostSearcher::class, LikedByFilter::class)
