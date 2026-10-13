@@ -24,5 +24,7 @@ class DestroyExportsCommand extends Command
             ->each(function (Export $export) use ($exporter) {
                 $exporter->expire($export);
             });
+
+        $exporter->removeStaleTemporaryFiles();
     }
 }

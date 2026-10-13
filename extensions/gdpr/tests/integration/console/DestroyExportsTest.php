@@ -10,6 +10,7 @@
 namespace Flarum\Gdpr\tests\integration\console;
 
 use Carbon\Carbon;
+use Flarum\Foundation\Paths;
 use Flarum\Gdpr\Models\Export;
 use Flarum\Notification\Notification;
 use Flarum\Testing\integration\ConsoleTestCase;
@@ -130,5 +131,47 @@ class DestroyExportsTest extends ConsoleTestCase
         // Fresh export's notification is untouched.
         $fresh = Notification::find(3);
         $this->assertEquals(0, $fresh->is_deleted);
+    }
+
+    /**
+     * An export killed part-way, by the queue's timeout or an out-of-memory
+     * worker, never gets to remove what it put in storage/tmp, so the daily
+     * run sweeps up anything an export left there long enough ago.
+     */
+    #[Test]
+    public function temporary_files_left_by_an_unfinished_export_are_removed()
+    {
+        $tmp = $this->app()->getContainer()->make(Paths::class)->storage.'/tmp';
+        @mkdir($tmp, 0777, true);
+
+        $files = [
+            'stale' => "$tmp/data-export-normalAbC123",
+            'staleZip' => "$tmp/data-export-normalAbC123-PartialZipxxxxxxxxxx",
+            'recent' => "$tmp/data-export-normalXyZ789",
+            'unrelated' => "$tmp/something-else",
+        ];
+
+        foreach ($files as $file) {
+            touch($file);
+        }
+
+        touch($files['stale'], Carbon::now()->subDays(2)->getTimestamp());
+        touch($files['staleZip'], Carbon::now()->subDays(2)->getTimestamp());
+        touch($files['unrelated'], Carbon::now()->subDays(2)->getTimestamp());
+
+        try {
+            $this->runCommand(['command' => 'gdpr:destroy-exports']);
+
+            $this->assertFileDoesNotExist($files['stale']);
+            $this->assertFileDoesNotExist($files['staleZip']);
+            // One may still be in progress.
+            $this->assertFileExists($files['recent']);
+            // Not ours.
+            $this->assertFileExists($files['unrelated']);
+        } finally {
+            foreach ($files as $file) {
+                @unlink($file);
+            }
+        }
     }
 }
