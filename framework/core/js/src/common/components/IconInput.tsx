@@ -33,9 +33,10 @@ export default class IconInput<CustomAttrs extends IIconInputAttrs = IIconInputA
         <div className="IconInput-field">
           <Button
             className="Button Button--icon IconInput-toggle"
-            icon={attrs.value?.trim() || placeholder || 'fas fa-icons'}
+            icon={attrs.value?.trim() || 'fas fa-icons'}
             aria-label={label}
             title={label}
+            aria-haspopup="dialog"
             aria-expanded={this.picking ? 'true' : 'false'}
             onclick={() => (this.picking = !this.picking)}
           />
@@ -48,15 +49,25 @@ export default class IconInput<CustomAttrs extends IIconInputAttrs = IIconInputA
             onpick={(icon: string) => {
               this.picking = false;
               this.change(icon);
+              this.refocus();
             }}
-            onclose={() => {
+            onclose={(reason: 'escape' | 'outside') => {
               this.picking = false;
               m.redraw();
+              if (reason === 'escape') this.refocus();
             }}
           />
         )}
       </div>
     );
+  }
+
+  /**
+   * Put focus back on the toggle once the picker — which held it — is gone,
+   * so keyboard and screen reader users keep their place.
+   */
+  refocus() {
+    requestAnimationFrame(() => this.$('.IconInput-toggle').trigger('focus'));
   }
 
   /**

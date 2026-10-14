@@ -12,13 +12,25 @@ export interface IIconPickerAttrs extends ComponentAttrs {
   value?: string;
   /** Called with the full class of the icon picked. */
   onpick: (icon: string) => void;
-  /** Called when the picker should close: Escape, or a click outside it. */
-  onclose: () => void;
+  /**
+   * Called when the picker should close: on Escape, or a click outside it.
+   * Only Escape should move focus back to the field.
+   */
+  onclose: (reason: 'escape' | 'outside') => void;
 }
 
 type IconStyle = 'solid' | 'regular' | 'brands';
 
 const PREFIX: Record<IconStyle, string> = { solid: 'fas', regular: 'far', brands: 'fab' };
+
+const LABEL: Record<IconStyle, string> = {
+  solid: 'core.lib.icon_picker.solid_label',
+  regular: 'core.lib.icon_picker.regular_label',
+  brands: 'core.lib.icon_picker.brands_label',
+};
+
+// Words a search can contain that name a style, not an icon.
+const STYLE_WORDS = new Set(['fa', 'fas', 'far', 'fab', 'fa-solid', 'fa-regular', 'fa-brands']);
 
 /**
  * How many icons are drawn at once. Enough to browse; searching narrows the
@@ -57,7 +69,7 @@ export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPick
       this.closeWatcher = new CloseWatcher();
       this.closeWatcher.onclose = () => {
         this.closeWatcher = undefined;
-        this.attrs.onclose();
+        this.attrs.onclose('escape');
       };
     } else {
       document.addEventListener('keyup', this.onkeyup, true);
@@ -79,15 +91,16 @@ export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPick
   onkeyup = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       e.stopPropagation();
-      this.attrs.onclose();
+      this.attrs.onclose('escape');
     }
   };
 
   onmousedown = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
 
-    // The button that opened the picker toggles it itself.
-    if (!this.element.contains(target) && !target.closest('.IconInput-toggle')) this.attrs.onclose();
+    // The field this picker belongs to — its own toggle included — handles
+    // its own clicks. Any other click closes it, another picker's toggle too.
+    if (!(this.element.parentElement ?? this.element).contains(target)) this.attrs.onclose('outside');
   };
 
   setStyle(style: IconStyle) {
@@ -109,8 +122,7 @@ export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPick
 
   view() {
     const icons = this.icons();
-    const words = this.query.toLowerCase().split(/\s+/).filter(Boolean);
-    const matches = icons ? icons.filter((icon) => words.every((word) => icon.search.includes(word))) : [];
+    const matches = this.matches(icons);
     const prefix = PREFIX[this.style];
 
     return (
@@ -122,6 +134,14 @@ export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPick
             placeholder={app.translator.trans('core.lib.icon_picker.search_placeholder', {}, true)}
             value={this.query}
             oninput={(e: InputEvent) => (this.query = (e.target as HTMLInputElement).value)}
+            onkeydown={(e: KeyboardEvent) => {
+              // The picker usually sits inside a modal's form: Enter picks the
+              // first match rather than submitting it.
+              if (e.key !== 'Enter') return;
+
+              e.preventDefault();
+              if (matches[0]) this.attrs.onpick(`${prefix} fa-${matches[0].name}`);
+            }}
           />
           <div className="ButtonGroup IconPicker-styles">
             {(Object.keys(PREFIX) as IconStyle[]).map((style) => (
@@ -130,7 +150,7 @@ export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPick
                 aria-pressed={this.style === style ? 'true' : 'false'}
                 onclick={() => this.setStyle(style)}
               >
-                {app.translator.trans(`core.lib.icon_picker.${style}_label`)}
+                {app.translator.trans(LABEL[style])}
               </Button>
             ))}
           </div>
@@ -161,6 +181,26 @@ export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPick
         <div className="IconPicker-footer">{icons ? this.footer(matches.length) : null}</div>
       </div>
     );
+  }
+
+  matches(icons: FontAwesomeIcon[] | null): FontAwesomeIcon[] {
+    if (!icons) return [];
+
+    // "fas fa-house" and "fa-house" find the house as well as "house" does.
+    const words = this.query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((word) => word && !STYLE_WORDS.has(word))
+      .map((word) => word.replace(/^fa-/, ''));
+
+    const found = icons.filter((icon) => words.every((word) => icon.search.includes(word)));
+
+    // Enter picks the first result, so the closest names lead: an exact
+    // match, then names that start with the search.
+    const query = words.join('-');
+    const rank = (icon: FontAwesomeIcon) => (icon.name === query ? 0 : icon.name.startsWith(query) ? 1 : 2);
+
+    return query ? found.sort((a, b) => rank(a) - rank(b)) : found;
   }
 
   footer(count: number) {

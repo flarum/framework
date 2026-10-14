@@ -108,7 +108,8 @@ export default function fontAwesomeIcons(): FontAwesomeIconSets {
 
 /**
  * The classic icons that have a free Regular (outline) style. Only a few
- * hundred do.
+ * hundred do. Where Font Awesome comes from a Kit or CDN instead of the bundled
+ * fonts, every classic icon is returned.
  *
  * The Regular font draws one shared placeholder for every icon it lacks — the
  * same shape it draws for a code point no icon uses — so an icon has a Regular
@@ -118,12 +119,12 @@ export function regularFontAwesomeIcons(): Promise<FontAwesomeIcon[]> {
   regular ??= (async () => {
     const font = '400 24px "Font Awesome 7 Free"';
 
-    await document.fonts.load(font, '').catch(() => {});
+    await document.fonts.load(font, '\uf0f3').catch(() => {});
 
     const size = 28;
     const context = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
 
-    if (!context) return [];
+    if (!context) return fontAwesomeIcons().classic;
 
     context.canvas.width = context.canvas.height = size;
     context.textBaseline = 'top';
@@ -136,9 +137,14 @@ export function regularFontAwesomeIcons(): Promise<FontAwesomeIcon[]> {
       return new Uint32Array(context.getImageData(0, 0, size, size).data.buffer);
     };
 
-    const placeholder = pixels('');
+    const placeholder = pixels('\uf8fe');
 
-    return fontAwesomeIcons().classic.filter((icon) => pixels(icon.char).some((value, i) => value !== placeholder[i]));
+    const found = fontAwesomeIcons().classic.filter((icon) => pixels(icon.char).some((value, i) => value !== placeholder[i]));
+
+    // With a Font Awesome Kit or CDN, the bundled family is a blank stand-in
+    // that draws nothing, so nothing is found. The remote fonts decide what
+    // Regular covers there, so offer every classic icon.
+    return found.length ? found : fontAwesomeIcons().classic;
   })();
 
   return regular;
