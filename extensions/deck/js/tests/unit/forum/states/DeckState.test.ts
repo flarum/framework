@@ -407,3 +407,24 @@ describe('realtime events', () => {
     });
   });
 });
+
+describe('leaving the deck', () => {
+  // Realtime is unbound while the deck isn't shown, so a discussion started
+  // meanwhile (a new unread one, say) is only found by asking again.
+  it('has every column catch up once it is shown again', async () => {
+    setLayout([column('a'), column('b', 1)]);
+    const state = new DeckState();
+    const columns = state.columns();
+
+    columns.forEach((column) => (column.visible = true));
+    state.stop();
+
+    expect(columns.map((column) => column.stale)).toEqual([true, true]);
+
+    // As the deck's visibility observer does for a column on screen.
+    await columns[0].check(false);
+
+    expect(sourceOf('a').checkForNew).toHaveBeenCalledTimes(1);
+    expect(columns[0].stale).toBe(false);
+  });
+});

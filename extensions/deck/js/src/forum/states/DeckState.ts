@@ -41,7 +41,7 @@ export const rowOf = (config: DeckColumnConfig): number => (config.row && config
 /**
  * Held for the whole session, so leaving the deck to read a discussion and
  * coming back finds every column, its scroll position and its pending count
- * as they were.
+ * as they were, then catches up on what happened while it was away.
  */
 export default class DeckState {
   /** Every stored column, including ones that can't currently be shown. */
@@ -292,7 +292,14 @@ export default class DeckState {
 
     if (this.heartbeat) clearInterval(this.heartbeat);
     this.heartbeat = null;
-    this.columns().forEach((column) => column.cancelCheck());
+
+    // Nothing is heard while the deck isn't shown, so a discussion started or
+    // replied to meanwhile would never reach a column. Each one catches up
+    // when it's back on screen, as one scrolled out of sight does.
+    this.columns().forEach((column) => {
+      column.cancelCheck();
+      column.stale = true;
+    });
 
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
   }
