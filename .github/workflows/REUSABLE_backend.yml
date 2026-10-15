@@ -123,14 +123,16 @@ on:
 
     secrets:
       composer_auth:
-        description: The Composer auth tokens to use for private packages.
+        description: The Composer auth tokens to use for private packages. Defaults to authenticating GitHub downloads with the workflow's token.
         required: false
 
 env:
   COMPOSER_ROOT_VERSION: dev-main
   # `inputs.composer_directory` defaults to `inputs.backend_directory`
   FLARUM_TEST_TMP_DIR_LOCAL: tests/integration/tmp
-  COMPOSER_AUTH: ${{ secrets.composer_auth }}
+  # Without auth, downloads from GitHub (codeload) are rate limited per runner IP and
+  # fail with HTTP 429; fall back to the calling workflow's own token.
+  COMPOSER_AUTH: ${{ secrets.composer_auth || format('{{"github-oauth":{{"github.com":"{0}"}}}}', github.token) }}
   DB_DATABASE: flarum_test
   DB_USERNAME: flarum
   DB_PASSWORD: password

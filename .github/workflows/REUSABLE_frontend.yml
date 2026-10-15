@@ -111,7 +111,7 @@ on:
         description: The GitHub token to use for Bundlewatch.
         required: false
       composer_auth:
-        description: The Composer auth tokens to use for private packages.
+        description: The Composer auth tokens to use for private packages. Defaults to authenticating GitHub downloads with the workflow's token.
         required: false
       git_actor_token:
         description: The personal access token from the custom git actor.
@@ -121,7 +121,9 @@ env:
   COMPOSER_ROOT_VERSION: dev-main
   ci_script: ${{ inputs.js_package_manager == 'yarn' && 'yarn install --immutable' || inputs.js_package_manager == 'pnpm' && 'pnpm install --frozen-lockfile' || 'npm ci' }}
   cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || inputs.js_package_manager == 'pnpm' && '{0}/pnpm-lock.yaml' || '{0}/package-lock.json', inputs.frontend_directory) }}
-  COMPOSER_AUTH: ${{ secrets.composer_auth }}
+  # Without auth, downloads from GitHub (codeload) are rate limited per runner IP and
+  # fail with HTTP 429; fall back to the calling workflow's own token.
+  COMPOSER_AUTH: ${{ secrets.composer_auth || format('{{"github-oauth":{{"github.com":"{0}"}}}}', github.token) }}
   DISABLE_V8_COMPILE_CACHE: 1
 
 jobs:
