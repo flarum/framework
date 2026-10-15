@@ -317,6 +317,22 @@ jobs:
             }
           '
 
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+        working-directory: ${{ inputs.backend_directory }}
+
+      # Without it every job downloads every package again, and GitHub's codeload rate
+      # limits those downloads per runner IP (HTTP 429) even when authenticated. PR runs
+      # restore the cache saved on their base branch. The download cache holds package
+      # archives, which do not depend on the PHP version.
+      - name: Cache Composer downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles(format('{0}/composer.json', inputs.backend_directory)) }}
+          restore-keys: composer-${{ runner.os }}-
+
       - name: Install Composer dependencies
         run: composer install
         working-directory: ${{ inputs.backend_directory }}
@@ -400,6 +416,22 @@ jobs:
           extensions: ${{ inputs.php_extensions }}
           tools: phpunit, composer:v2
           ini-values: ${{ inputs.php_ini_values }}
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+        working-directory: ${{ inputs.backend_directory }}
+
+      # Without it every job downloads every package again, and GitHub's codeload rate
+      # limits those downloads per runner IP (HTTP 429) even when authenticated. PR runs
+      # restore the cache saved on their base branch. The download cache holds package
+      # archives, which do not depend on the PHP version.
+      - name: Cache Composer downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles(format('{0}/composer.json', inputs.backend_directory)) }}
+          restore-keys: composer-${{ runner.os }}-
 
       - name: Install Composer dependencies
         run: composer install
