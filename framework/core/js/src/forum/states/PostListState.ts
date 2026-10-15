@@ -27,6 +27,9 @@ export default class PostListState<P extends PostListParams = PostListParams> ex
   requestParams(): PaginatedListRequestParams {
     const params = {
       include: ['user', 'discussion'],
+      // Naming includes turns off the API's default ones, which extensions add
+      // to (likes, mentions, flags, ...). Ask for those as well.
+      withDefaultIncludes: true,
       filter: {
         type: 'comment',
         ...(this.params.filter || {}),
