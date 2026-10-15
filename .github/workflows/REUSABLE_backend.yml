@@ -317,25 +317,54 @@ jobs:
             }
           '
 
-      - name: Get Composer cache directory
+      # GitHub's codeload throttles archive downloads from Actions runner IPs (HTTP 429),
+      # authenticated or not, so keep Composer's download cache between runs. It holds
+      # package archives, which do not depend on the PHP version. The key rotates daily so
+      # new releases are picked up; a miss falls back to the newest earlier cache.
+      - name: Prepare Composer cache
         id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+        run: |
+          {
+            echo "dir=$(composer config cache-files-dir)"
+            echo "key=composer-${{ runner.os }}-${{ hashFiles(format('{0}/composer.json', inputs.backend_directory), format('{0}/composer.lock', inputs.backend_directory)) }}"
+            echo "date=$(date -u +%Y-%m-%d)"
+          } >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.backend_directory }}
 
-      # Without it every job downloads every package again, and GitHub's codeload rate
-      # limits those downloads per runner IP (HTTP 429) even when authenticated. PR runs
-      # restore the cache saved on their base branch. The download cache holds package
-      # archives, which do not depend on the PHP version.
-      - name: Cache Composer downloads
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Restore Composer downloads
+        id: composer-cache-restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ runner.os }}-${{ hashFiles(format('{0}/composer.json', inputs.backend_directory)) }}
-          restore-keys: composer-${{ runner.os }}-
+          key: ${{ steps.composer-cache.outputs.key }}-${{ steps.composer-cache.outputs.date }}
+          restore-keys: |
+            ${{ steps.composer-cache.outputs.key }}-
+            composer-${{ runner.os }}-
 
+      # Retried because a throttled archive often downloads on a later attempt; archives
+      # already fetched are reused from the cache, so a retry only re-requests what failed.
       - name: Install Composer dependencies
-        run: composer install
+        run: |
+          for attempt in 1 2 3; do
+            if composer install; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "::warning::composer install failed (attempt $attempt of 3), retrying"
+              sleep $((attempt * 30))
+            fi
+          done
+          exit 1
         working-directory: ${{ inputs.backend_directory }}
+
+      # Saved even when the install failed, so every archive that did download is kept
+      # and a re-run of the failed jobs restores it instead of downloading again.
+      - name: Save Composer downloads
+        if: always() && steps.composer-cache.outputs.dir != '' && steps.composer-cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ steps.composer-cache.outputs.key }}-${{ steps.composer-cache.outputs.date }}
 
       # If we have a `inputs.monorepo_tests`, we will run tests for each item of the provided array in a ::group::item
       # If we don't have a `inputs.monorepo_tests`, we will run tests for the current repository
@@ -417,25 +446,54 @@ jobs:
           tools: phpunit, composer:v2
           ini-values: ${{ inputs.php_ini_values }}
 
-      - name: Get Composer cache directory
+      # GitHub's codeload throttles archive downloads from Actions runner IPs (HTTP 429),
+      # authenticated or not, so keep Composer's download cache between runs. It holds
+      # package archives, which do not depend on the PHP version. The key rotates daily so
+      # new releases are picked up; a miss falls back to the newest earlier cache.
+      - name: Prepare Composer cache
         id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+        run: |
+          {
+            echo "dir=$(composer config cache-files-dir)"
+            echo "key=composer-${{ runner.os }}-${{ hashFiles(format('{0}/composer.json', inputs.backend_directory), format('{0}/composer.lock', inputs.backend_directory)) }}"
+            echo "date=$(date -u +%Y-%m-%d)"
+          } >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.backend_directory }}
 
-      # Without it every job downloads every package again, and GitHub's codeload rate
-      # limits those downloads per runner IP (HTTP 429) even when authenticated. PR runs
-      # restore the cache saved on their base branch. The download cache holds package
-      # archives, which do not depend on the PHP version.
-      - name: Cache Composer downloads
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Restore Composer downloads
+        id: composer-cache-restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ runner.os }}-${{ hashFiles(format('{0}/composer.json', inputs.backend_directory)) }}
-          restore-keys: composer-${{ runner.os }}-
+          key: ${{ steps.composer-cache.outputs.key }}-${{ steps.composer-cache.outputs.date }}
+          restore-keys: |
+            ${{ steps.composer-cache.outputs.key }}-
+            composer-${{ runner.os }}-
 
+      # Retried because a throttled archive often downloads on a later attempt; archives
+      # already fetched are reused from the cache, so a retry only re-requests what failed.
       - name: Install Composer dependencies
-        run: composer install
+        run: |
+          for attempt in 1 2 3; do
+            if composer install; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "::warning::composer install failed (attempt $attempt of 3), retrying"
+              sleep $((attempt * 30))
+            fi
+          done
+          exit 1
         working-directory: ${{ inputs.backend_directory }}
+
+      # Saved even when the install failed, so every archive that did download is kept
+      # and a re-run of the failed jobs restores it instead of downloading again.
+      - name: Save Composer downloads
+        if: always() && steps.composer-cache.outputs.dir != '' && steps.composer-cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ steps.composer-cache.outputs.key }}-${{ steps.composer-cache.outputs.date }}
 
       - name: Create MySQL Database
         run: |
