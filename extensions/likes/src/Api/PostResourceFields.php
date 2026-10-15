@@ -36,7 +36,7 @@ class PostResourceFields
                         $post->likes()->attach($actor->id);
 
                         $post->raise(new PostWasLiked($post, $actor));
-                    } elseif ($currentlyLiked) {
+                    } elseif (! $liked && $currentlyLiked) {
                         $post->likes()->detach($actor->id);
 
                         $post->raise(new PostWasUnliked($post, $actor));
