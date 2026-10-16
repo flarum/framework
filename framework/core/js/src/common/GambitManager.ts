@@ -70,15 +70,14 @@ export default class GambitManager {
 
     if (gambits.length === 0) return q;
 
-    Object.keys(filter).forEach((key) => {
+    Object.keys(filter).forEach((filterKey) => {
+      const negate = filterKey[0] === '-';
+      const key = negate ? filterKey.substring(1) : filterKey;
+
       for (const gambit of gambits) {
-        const negate = key[0] === '-';
-
-        if (negate) key = key.substring(1);
-
         if (gambit.filterKey() !== key) continue;
 
-        q += ` ${gambit.fromFilter(filter[key], negate)}`;
+        q += ` ${gambit.fromFilter(filter[filterKey], negate)}`;
       }
     });
 
