@@ -12,6 +12,7 @@ namespace Flarum\Mentions\Listener;
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Mentions\Job\SendMentionsNotificationsJob;
+use Flarum\Mentions\UserMentionCount;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
@@ -24,7 +25,8 @@ class UpdateMentionsMetadataWhenVisible
 {
     public function __construct(
         protected ExtensionManager $extensions,
-        protected Queue $queue
+        protected Queue $queue,
+        protected UserMentionCount $mentionCount
     ) {
     }
 
@@ -40,10 +42,18 @@ class UpdateMentionsMetadataWhenVisible
             return;
         }
 
-        $this->syncUserMentions(
+        $changes = $this->syncUserMentions(
             $event->post,
             $userMentions = Utils::getAttributeValues($content, 'USERMENTION', 'id')
         );
+
+        // An approved post was already synced while it was private, so its
+        // mentions start counting now even though none of them changed.
+        $this->mentionCount->refresh(array_merge(
+            $changes['attached'],
+            $changes['detached'],
+            $event instanceof PostWasApproved ? $userMentions : []
+        ));
 
         $this->syncPostMentions(
             $event->post,
@@ -65,10 +75,12 @@ class UpdateMentionsMetadataWhenVisible
         $this->queue->push(new SendMentionsNotificationsJob($event->post, $userMentions, $postMentions, $groupMentions));
     }
 
-    protected function syncUserMentions(Post $post, array $mentioned): void
+    protected function syncUserMentions(Post $post, array $mentioned): array
     {
-        $post->mentionsUsers()->sync($mentioned);
+        $changes = $post->mentionsUsers()->sync($mentioned);
         $post->unsetRelation('mentionsUsers');
+
+        return $changes;
     }
 
     protected function syncPostMentions(Post $reply, array $mentioned): void
