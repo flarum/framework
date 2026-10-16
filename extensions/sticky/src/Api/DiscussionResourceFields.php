@@ -59,7 +59,9 @@ class DiscussionResourceFields
                     // endpoint instead would mark it loaded (null) on every
                     // row and break clients that explicitly include
                     // firstPost for all discussions, like fof/synopsis.
-                    EloquentBuffer::add($discussion, 'firstPost');
+                    if (! $discussion->relationLoaded('firstPost')) {
+                        EloquentBuffer::add($discussion, 'firstPost');
+                    }
 
                     return function () use ($discussion, $context) {
                         if (! $discussion->relationLoaded('firstPost')) {
