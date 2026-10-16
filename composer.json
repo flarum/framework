@@ -38,6 +38,7 @@
     "autoload": {
         "psr-4": {
             "Flarum\\": "framework/core/src",
+            "Flarum\\Ai\\": "extensions/ai/src",
             "Flarum\\Akismet\\": "extensions/akismet/src",
             "Flarum\\Approval\\": "extensions/approval/src",
             "Flarum\\Audit\\": "extensions/audit/src",
@@ -68,6 +69,7 @@
     "autoload-dev": {
         "psr-4": {
             "Flarum\\Tests\\": "tests",
+            "Flarum\\Ai\\Tests\\": "extensions/ai/tests",
             "Flarum\\Akismet\\Tests\\": "extensions/akismet/tests",
             "Flarum\\Deck\\Tests\\": "extensions/deck/tests",
             "Flarum\\Approval\\Tests\\": "extensions/approval/tests",
@@ -92,6 +94,7 @@
     },
     "replace": {
         "flarum/core": "self.version",
+        "flarum/ai": "self.version",
         "flarum/akismet": "self.version",
         "flarum/approval": "self.version",
         "flarum/audit": "self.version",
@@ -143,6 +146,7 @@
         "illuminate/events": "^13.0",
         "illuminate/filesystem": "^13.0",
         "illuminate/hashing": "^13.0",
+        "illuminate/http": "^13.0",
         "illuminate/mail": "^13.0",
         "illuminate/queue": "^13.11",
         "illuminate/session": "^13.0",
@@ -154,6 +158,7 @@
         "laminas/laminas-diactoros": "^3.0",
         "laminas/laminas-httphandlerrunner": "^2.6",
         "laminas/laminas-stratigility": "^3.10",
+        "laravel/ai": "~1.1.0",
         "league/flysystem": "^3.15",
         "league/flysystem-memory": "^3.15",
         "matthiasmullie/minify": "^1.3",
@@ -173,13 +178,16 @@
         "s9e/text-formatter": "^2.13",
         "symfony/config": "^7.4",
         "symfony/console": "^7.4",
+        "symfony/error-handler": "^7.4",
         "symfony/event-dispatcher": "^7.4",
         "symfony/http-client": "^7.4",
+        "symfony/http-kernel": "^7.4",
         "symfony/mailgun-mailer": "^7.4",
         "symfony/mime": "^7.4",
         "symfony/polyfill-intl-messageformatter": "^1.27",
         "symfony/postmark-mailer": "^7.4",
         "symfony/translation": "^7.4",
+        "symfony/uid": "^7.4",
         "symfony/yaml": "^7.4",
         "wikimedia/less.php": "^5.3"
     },
@@ -198,6 +206,7 @@
     "prefer-stable": true,
     "extra": {
         "flarum-subextensions": [
+            "extensions/ai",
             "extensions/akismet",
             "extensions/approval",
             "extensions/audit",
