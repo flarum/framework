@@ -182,6 +182,19 @@ class Assets
      * import directory — that is the same directory the assets publisher copies
      * into `assets/fonts`.
      */
+    protected function fontsDir(): ?string
+    {
+        foreach (array_keys($this->lessImportDirs ?? []) as $dir) {
+            $candidate = dirname($dir).'/webfonts';
+
+            if (is_dir($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * The revision the compiled stylesheet puts on a webfont's URL (`?v=…`), or
      * null when the font can't be read. Anything else that links to a bundled
@@ -209,19 +222,6 @@ class Assets
         );
 
         return $revision === '' ? null : $revision;
-    }
-
-    protected function fontsDir(): ?string
-    {
-        foreach (array_keys($this->lessImportDirs ?? []) as $dir) {
-            $candidate = dirname($dir).'/webfonts';
-
-            if (is_dir($candidate)) {
-                return $candidate;
-            }
-        }
-
-        return null;
     }
 
     protected function makeJsDirectoryCompiler(string $string): JsDirectoryCompiler
