@@ -30,7 +30,7 @@ export default function () {
 
             if (!next) next = app.flags.cache[0];
 
-            if (next) {
+            if (next && next.post()) {
               const nextPost = next.post();
               app.flags.index = nextPost;
               m.route.set(app.route.post(nextPost));

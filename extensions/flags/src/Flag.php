@@ -18,14 +18,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property int $post_id
+ * @property int|null $post_id
+ * @property int|null $target_user_id
  * @property int $user_id
  * @property string $type
  * @property string|null $reason
  * @property string|null $reason_detail
  * @property Carbon $created_at
  *
- * @property-read Post $post
+ * @property-read Post|null $post
+ * @property-read User|null $targetUser
  * @property-read User $user
  */
 class Flag extends AbstractModel
@@ -39,6 +41,8 @@ class Flag extends AbstractModel
 
     protected $casts = ['created_at' => 'datetime'];
 
+    protected $fillable = ['post_id', 'target_user_id', 'type', 'user_id'];
+
     public function post(): BelongsTo
     {
         return $this->belongsTo(Post::class);
@@ -47,5 +51,10 @@ class Flag extends AbstractModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function targetUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'target_user_id');
     }
 }
