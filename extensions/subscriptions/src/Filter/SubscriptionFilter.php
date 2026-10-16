@@ -14,6 +14,7 @@ use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 use Flarum\User\User;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -22,6 +23,11 @@ use Illuminate\Database\Eloquent\Builder;
 class SubscriptionFilter implements FilterInterface
 {
     use ValidateFilterTrait;
+
+    public function __construct(
+        private readonly Container $container,
+    ) {
+    }
 
     public function getFilterKey(): string
     {
@@ -32,9 +38,34 @@ class SubscriptionFilter implements FilterInterface
     {
         $value = $this->asString($value);
 
-        preg_match('/^(follow|ignor)(?:ing|ed)$/i', $value, $matches);
+        $canonicalValue = $this->resolveCanonicalValue($value);
 
-        $this->constrain($state->getQuery(), $state->getActor(), $matches[1], $negate);
+        if ($canonicalValue === null) {
+            // Unrecognised value — match nothing rather than everything.
+            $state->getQuery()->whereRaw('0 = 1');
+
+            return;
+        }
+
+        $this->constrain($state->getQuery(), $state->getActor(), $canonicalValue, $negate);
+    }
+
+    /**
+     * Resolve a filter value to its canonical database value using the
+     * registered subscription type registry. Returns null if unrecognised.
+     */
+    protected function resolveCanonicalValue(string $value): ?string
+    {
+        /** @var array<string, string[]> $types */
+        $types = $this->container->make('flarum-subscriptions.subscription_types');
+
+        foreach ($types as $canonical => $aliases) {
+            if (in_array($value, $aliases, true)) {
+                return $canonical;
+            }
+        }
+
+        return null;
     }
 
     protected function constrain(Builder $query, User $actor, string $subscriptionType, bool $negate): void
@@ -42,9 +73,9 @@ class SubscriptionFilter implements FilterInterface
         $method = $negate ? 'whereNotIn' : 'whereIn';
         $query->$method('discussions.id', function ($query) use ($actor, $subscriptionType) {
             $query->select('discussion_id')
-            ->from('discussion_user')
-            ->where('user_id', $actor->id)
-                ->where('subscription', $subscriptionType === 'follow' ? 'follow' : 'ignore');
+                ->from('discussion_user')
+                ->where('user_id', $actor->id)
+                ->where('subscription', $subscriptionType);
         });
     }
 }
