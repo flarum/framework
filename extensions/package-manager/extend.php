@@ -7,80 +7,112 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\ExtensionManager;
-
+use Flarum\ExtensionManager\Api\Controller;
+use Flarum\ExtensionManager\Console\CheckCommand;
+use Flarum\ExtensionManager\Console\PruneCommand;
+use Flarum\ExtensionManager\Console\RebuildAssetsCommand;
+use Flarum\ExtensionManager\Console\RepairFormatterCommand;
+use Flarum\ExtensionManager\Console\UpdateCommand;
+use Flarum\ExtensionManager\ExtensionManagerServiceProvider;
 use Flarum\Extend;
-use Flarum\ExtensionManager\Api\Resource\ExternalExtensionResource;
-use Flarum\ExtensionManager\Api\Resource\TaskResource;
-use Flarum\ExtensionManager\Exception\CannotFetchExternalExtension;
-use Flarum\Foundation\Paths;
-use Flarum\Frontend\Document;
-use Illuminate\Contracts\Queue\Queue;
-use Illuminate\Queue\SyncQueue;
 
 return [
-    (new Extend\Routes('api'))
-        ->post('/extension-manager/extensions', 'extension-manager.extensions.require', Api\Controller\RequireExtensionController::class)
-        ->patch('/extension-manager/extensions/{id}', 'extension-manager.extensions.update', Api\Controller\UpdateExtensionController::class)
-        ->delete('/extension-manager/extensions/{id}', 'extension-manager.extensions.remove', Api\Controller\RemoveExtensionController::class)
-        ->post('/extension-manager/check-for-updates', 'extension-manager.check-for-updates', Api\Controller\CheckForUpdatesController::class)
-        ->post('/extension-manager/why-not', 'extension-manager.why-not', Api\Controller\WhyNotController::class)
-        ->post('/extension-manager/minor-update', 'extension-manager.minor-update', Api\Controller\MinorUpdateController::class)
-        ->post('/extension-manager/major-update', 'extension-manager.major-update', Api\Controller\MajorUpdateController::class)
-        ->post('/extension-manager/global-update', 'extension-manager.global-update', Api\Controller\GlobalUpdateController::class)
-        ->post('/extension-manager/composer', 'extension-manager.composer', Api\Controller\ConfigureComposerController::class),
-
-    new Extend\ApiResource(TaskResource::class),
-    new Extend\ApiResource(ExternalExtensionResource::class),
+    (new Extend\ServiceProvider())
+        ->register(ExtensionManagerServiceProvider::class),
 
     (new Extend\Frontend('admin'))
-        ->css(__DIR__.'/less/admin.less')
         ->js(__DIR__.'/js/dist/admin.js')
-        ->content(function (Document $document) {
-            $paths = resolve(Paths::class);
+        ->css(__DIR__.'/less/admin.less'),
 
-            $document->payload['flarum-extension-manager.writable_dirs'] = is_writable($paths->vendor)
-                && is_writable($paths->storage)
-                && (! file_exists($paths->storage.'/.composer') || is_writable($paths->storage.'/.composer'))
-                && is_writable($paths->base.'/composer.json')
-                && is_writable($paths->base.'/composer.lock');
-
-            // Extensions can override the default queue driver
-            $queue = resolve('flarum.queue.connection');
-            $document->payload['flarum-extension-manager.using_sync_queue'] = $queue instanceof SyncQueue;
-
-            // Check if required functions are available (may be disabled in restricted environments)
-            $requiredFunctions = ['proc_open', 'escapeshellarg'];
-            $missingFunctions = [];
-            foreach ($requiredFunctions as $function) {
-                if (! function_exists($function)) {
-                    $missingFunctions[] = $function;
-                }
-            }
-            $document->payload['flarum-extension-manager.missing_functions'] = $missingFunctions;
-        }),
+    (new Extend\Console())
+        ->command(CheckCommand::class)
+        /*
+         * 🚨 Registered as a command so it runs in its OWN process, after the
+         * files have moved. Repairing the formatter means building it, and
+         * building it inside the request that just replaced Flarum's files
+         * loads a half-old class map.
+         */
+        ->command(RepairFormatterCommand::class)
+        ->command(RebuildAssetsCommand::class)
+        /*
+         * 🚨 The same run the admin screen drives, with a terminal turning the
+         * handle instead of a browser. Deliberately not scheduled, and never
+         * will be: an update that starts itself is an update nobody chose to be
+         * present for.
+         */
+        ->command(UpdateCommand::class)
+        /*
+         * 🚨 Daily, and cheap enough to mean it. This is one HTTP call per
+         * installed package with no Composer involved — a resolve on a schedule
+         * would be 165 MB on somebody else's shared host, every night, for a
+         * question they may not have asked.
+         */
+        ->schedule(CheckCommand::class, function ($event): void { $event->daily(); })
+        /*
+         * 🚨 Tidies the rollback copies no rollback can reach. Also runs at the
+         * end of every update; nightly catches the forum that has not updated
+         * in a month and is still carrying the copies from the last one.
+         *
+         * 🚨 NO arguments, and it must stay that way: a scheduled
+         * `['--dry-run' => true]` renders as `--dry-run='1'`, which a no-value
+         * option refuses — every night, into /dev/null.
+         */
+        ->command(PruneCommand::class)
+        ->schedule(PruneCommand::class, function ($event): void { $event->dailyAt('04:20'); }),
 
     new Extend\Locales(__DIR__.'/locale'),
 
-    (new Extend\Settings())
-        ->default(Settings\LastUpdateCheck::key(), json_encode(Settings\LastUpdateCheck::default()))
-        ->default(Settings\LastUpdateRun::key(), json_encode(Settings\LastUpdateRun::default()))
-        ->default('flarum-extension-manager.queue_jobs', '0')
-        ->default('flarum-extension-manager.minimum_stability', 'stable')
-        ->default('flarum-extension-manager.task_retention_days', 7),
-
-    (new Extend\ServiceProvider)
-        ->register(ExtensionManagerServiceProvider::class),
-
-    (new Extend\ErrorHandling)
-        ->handler(Exception\ComposerCommandFailedException::class, Exception\ExceptionHandler::class)
-        ->handler(Exception\ComposerRequireFailedException::class, Exception\ExceptionHandler::class)
-        ->handler(Exception\ComposerUpdateFailedException::class, Exception\ExceptionHandler::class)
-        ->handler(Exception\MajorUpdateFailedException::class, Exception\ExceptionHandler::class)
-        ->type(CannotFetchExternalExtension::class, 'cannot_fetch_external_extension')
-        ->status('extension_already_installed', 409)
-        ->status('extension_not_installed', 409)
-        ->status('no_new_major_version', 409)
-        ->status('extension_not_directly_dependency', 409)
-        ->status('cannot_fetch_external_extension', 503),
+    /*
+     * 🚨 Two endpoints, and the split matters.
+     *
+     * `state` is a read: the admin screen polls it, and it must stay cheap
+     * enough to poll every second or two without being noticed.
+     *
+     * `step` does exactly one unit of work and returns. That is the whole
+     * design — progress is a function of how many times this is called, so a
+     * host that cuts every request at thirty seconds can still finish an update
+     * that takes ten minutes. Nothing here ever loops.
+     */
+    (new Extend\Routes('api'))
+        ->get('/extension-manager/state', 'extension-manager.state', Controller\StateController::class)
+        ->post('/extension-manager/check', 'extension-manager.check', Controller\CheckController::class)
+        ->get('/extension-manager/release-notes', 'extension-manager.release-notes', Controller\ReleaseNotesController::class)
+        ->post('/extension-manager/update', 'extension-manager.update', Controller\StartController::class)
+        ->post('/extension-manager/step', 'extension-manager.step', Controller\StepController::class)
+        ->post('/extension-manager/rollback', 'extension-manager.rollback', Controller\RollbackController::class)
+        /*
+         * GET is a dry run (what a prune would free, for the confirm); POST
+         * prunes or saves the retention settings. Kept off /state, which is
+         * polled during an update — sizing the trash walks every file in it.
+         */
+        ->get('/extension-manager/trash', 'extension-manager.trash', Controller\TrashController::class)
+        ->post('/extension-manager/trash', 'extension-manager.trash.act', Controller\TrashController::class)
+        /*
+         * 🚨 Discovery is two endpoints, and the split is deliberate. `discover`
+         * is one call to Packagist's search. `compat` is one call PER PACKAGE to
+         * work out whether each result fits the Flarum actually installed —
+         * doing both in one request would mean a dozen round trips before
+         * anything appeared on a screen somebody is typing into.
+         */
+        ->get('/extension-manager/core', 'extension-manager.core', Controller\CoreController::class)
+        /*
+         * 🚨 One route, both verbs. GET reports where Composer looks, what it
+         * accepts and which hosts have a credential — never the credentials
+         * themselves. POST carries an action. Keeping them together means there
+         * is one place that asserts admin for all of it.
+         */
+        ->get('/extension-manager/config', 'extension-manager.config', Controller\ConfigController::class)
+        ->post('/extension-manager/config', 'extension-manager.config.set', Controller\ConfigController::class)
+        ->get('/extension-manager/discover', 'extension-manager.discover', Controller\DiscoverController::class)
+        ->post('/extension-manager/discover/compat', 'extension-manager.compat', Controller\CompatController::class)
+        /*
+         * 🚨 Millwright's paths, for the update that replaces Millwright with
+         * this package. The admin tab that started it is still running
+         * Millwright's script, and once the files swap that script's next
+         * poll and step land here. Without them the run stalls at finalise.
+         * Remove in Flarum 3.0.
+         */
+        ->get('/millwright/state', 'extension-manager.legacy.state', Controller\StateController::class)
+        ->post('/millwright/step', 'extension-manager.legacy.step', Controller\StepController::class)
+        ->post('/millwright/rollback', 'extension-manager.legacy.rollback', Controller\RollbackController::class),
 ];

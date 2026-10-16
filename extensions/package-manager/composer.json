@@ -1,12 +1,13 @@
 {
     "name": "flarum/extension-manager",
-    "description": "An extension manager to install, update and remove extension packages from the interface (Wrapper around composer).",
+    "description": "Install, update and roll back extensions and Flarum itself from the admin panel, on any host including shared hosting. Every step is a checkpoint, so an interrupted update loses progress, never the site.",
     "keywords": [
         "extensions",
         "composer",
         "packages",
         "manager",
-        "updater"
+        "updater",
+        "rollback"
     ],
     "type": "flarum-extension",
     "license": "MIT",
@@ -26,8 +27,10 @@
         "composer/composer": "^2.7"
     },
     "require-dev": {
-        "flarum/testing": "^2.1",
-        "flarum/tags": "*"
+        "flarum/testing": "^2.1"
+    },
+    "replace": {
+        "ernestdefoe/millwright": "*"
     },
     "extra": {
         "flarum-extension": {
@@ -42,14 +45,8 @@
             "excludeScaffolding": [
                 ".github/workflows/backend.yml",
                 "js/src/admin/index.ts",
-                "tests/phpunit.integration.xml",
-                "tests/integration/setup.php"
+                "tests/phpunit.integration.xml"
             ],
-            "excludeScaffoldingConfigKeys": {
-                "composer.json": [
-                    "scripts.test:setup"
-                ]
-            },
             "modules": {
                 "admin": true,
                 "forum": false,
@@ -70,7 +67,10 @@
     "autoload": {
         "psr-4": {
             "Flarum\\ExtensionManager\\": "src/"
-        }
+        },
+        "files": [
+            "bootstrap/web-reset.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -86,10 +86,7 @@
         "test:unit:filter": "phpunit -c tests/phpunit.unit.xml --filter",
         "test:integration": "phpunit -c tests/phpunit.integration.xml",
         "test:integration:filter": "phpunit -c tests/phpunit.integration.xml --filter",
-        "test:setup": [
-            "@php tests/integration/setup.php",
-            "cd ${FLARUM_TEST_TMP_DIR_LOCAL:-${FLARUM_TEST_TMP_DIR:-./tests/integration/tmp}} && composer install"
-        ]
+        "test:setup": "@php tests/integration/setup.php"
     },
     "scripts-descriptions": {
         "test": "Runs all tests.",

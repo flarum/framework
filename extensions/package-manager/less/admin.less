@@ -1,62 +1,1765 @@
-@import "admin/Label";
-@import "admin/TaskOutputModal";
-@import "admin/QueueSection";
-@import "admin/ControlSection";
-@import "admin/DiscoverSection";
-@import "admin/ExtensionCard";
+// The Extension Manager — admin
+//
+// 🚨 One visual language across every screen, built from Flarum's own theme
+// variables via color-mix so it follows the admin into dark mode instead of
+// pinning light greys. Three shades do almost all the work:
+//
+//   12% of the text colour — a border
+//    8% — a hairline between rows
+//    3% — a tint that separates "what is" from "what you can do"
+//
+// Everything is a card with the same chrome: a head that says what this is and
+// what it means, a body of rows, and where there is something to do, a tinted
+// foot. Consistency here is not decoration — when every panel is shaped the
+// same way, a number in an unfamiliar place still reads.
 
-.ExtensionManager-controlSection {
-  > .container {
-    padding-bottom: 0;
-  }
+@mw-border: color-mix(in srgb, var(--text-color) 12%, transparent);
+@mw-hairline: color-mix(in srgb, var(--text-color) 8%, transparent);
+@mw-tint: color-mix(in srgb, var(--text-color) 3%, transparent);
+@mw-radius: 10px;
+@mw-pad: 18px;
+
+// ── tabs ─────────────────────────────────────────────────────────────────────
+//
+// A segmented control rather than loose buttons: these are four views of one
+// thing, and loose buttons read as four unrelated actions.
+
+.ExtensionManager-tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid @mw-border;
+  border-radius: 9px;
+  background: @mw-tint;
+  margin-bottom: 22px;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
-.FormControl-container {
+.ExtensionManager-tab {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  border: 0;
+  background: none;
+  color: var(--muted-color);
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
+  gap: 7px;
+
+  &:hover { color: var(--text-color); }
+
+  &.is-active {
+    background: var(--body-bg);
+    color: var(--text-color);
+    font-weight: 600;
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--text-color) 10%, transparent);
+  }
 }
 
-.ButtonGroup--full {
+.ExtensionManager-count {
+  display: inline-block;
+  min-width: 18px;
+  padding: 0 6px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  background: var(--primary-color);
+  color: #fff;
+}
+
+// ── the shared card ──────────────────────────────────────────────────────────
+
+.ExtensionManager-card,
+.ExtensionManager-core,
+.ExtensionManager-run,
+.ExtensionManager-banner {
+  border: 1px solid @mw-border;
+  border-radius: @mw-radius;
+  background: var(--body-bg);
+  overflow: hidden;
+}
+
+.ExtensionManager-cardHead,
+.ExtensionManager-coreHead,
+.ExtensionManager-runHead {
+  padding: 16px @mw-pad 14px;
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted-color);
+    font-size: 13px;
+    line-height: 1.5;
+    max-width: 68ch;
+  }
+}
+
+// ── Flarum itself ────────────────────────────────────────────────────────────
+
+.ExtensionManager-core { margin-bottom: 20px; }
+
+.ExtensionManager-coreHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ExtensionManager-coreTitle { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.ExtensionManager-corenow,
+.ExtensionManager-coreNote { color: var(--muted-color); font-size: 13px; }
+.ExtensionManager-coreNote { padding: 0 @mw-pad @mw-pad; }
+
+.ExtensionManager-coreSummary {
+  padding: 0 @mw-pad 14px;
+  font-size: 13px;
+  color: var(--muted-color);
+  max-width: 78ch;
+
+  > div + div { margin-top: 6px; }
+}
+
+// 🚨 The blocking sentence is the one thing on this panel that changes what
+// somebody can do, so it is the one thing given full-strength text and a rule.
+.ExtensionManager-coreBlocked {
+  color: var(--text-color);
+  font-weight: 600;
+  padding: 10px 13px;
+  border-inline-start: 3px solid var(--alert-error-color, #d83e3e);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--alert-error-color, #d83e3e) 8%, transparent);
+}
+
+.ExtensionManager-coreClear {
+  color: var(--text-color);
+  padding: 10px 13px;
+  border-inline-start: 3px solid color-mix(in srgb, var(--primary-color) 55%, transparent);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--primary-color) 7%, transparent);
+}
+
+.ExtensionManager-coreRows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid @mw-hairline;
+  font-size: 13px;
+}
+
+.ExtensionManager-coreRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 16px;
+  align-items: baseline;
+  padding: 9px @mw-pad;
+
+  & + & { border-top: 1px solid @mw-hairline; }
+
+  // A blocker is the only row here in full-strength text; the rest is context.
+  &.is-blocked .ExtensionManager-coreState { color: var(--text-color); font-weight: 600; }
+  &.is-blocked { background: color-mix(in srgb, var(--alert-error-color, #d83e3e) 4%, transparent); }
+}
+
+.ExtensionManager-corePkg {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ExtensionManager-coreState { color: var(--muted-color); text-align: end; }
+.ExtensionManager-coreChecking { font-style: italic; }
+
+// ── the row above the extension grid ─────────────────────────────────────────
+
+.ExtensionManager-updateAll { margin-bottom: 14px; }
+
+.ExtensionManager-checkline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  margin-bottom: 18px;
+  border: 1px solid @mw-border;
+  border-radius: 8px;
+  background: @mw-tint;
+  color: var(--muted-color);
+  font-size: 13px;
+
+  b { color: var(--text-color); }
+}
+
+// ── extension cards ──────────────────────────────────────────────────────────
+//
+// 🚨 A fixed row for the name, a flexible middle, and a foot pinned to the
+// bottom. Without the grid the cards in a row end at different heights and the
+// buttons sit at different y — which is the single thing that makes a grid of
+// cards look unfinished.
+
+.ExtensionManager-grid {
+  display: grid;
+  /* 🚨 The `min()` is ESCAPED. less.php has a min() of its own and refuses to
+     compare a pixel length with a percentage — unescaped, this file stops
+     compiling and takes the whole admin stylesheet bundle with it.
+     Without the min(), a container narrower than the track gets a column wider
+     than itself, and .ExtensionManager-card's overflow:hidden then CLIPS the badge
+     and the Update button rather than wrapping them.
+
+     🚨 `minmax(0, ...)` on the capped grid below for the same reason: a track
+     sized to min-content is a track that can be wider than the container. */
+  grid-template-columns: repeat(auto-fill, minmax(~"min(300px, 100%)", 1fr));
+  gap: 14px;
+}
+
+/*
+ * Three across, never four.
+ *
+ * A card carries a name, a package, a version, up to two tags and two buttons.
+ * At four columns on a wide admin the package name is the width of the card and
+ * the Update button has nowhere to go; three gives every one of them
+ * room on one line. Below this the auto-fill above takes over and steps down to
+ * two and then one on its own.
+ */
+@media (min-width: 1000px) {
+  .ExtensionManager-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.ExtensionManager-grid .ExtensionManager-card {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  transition: border-color .15s ease;
+
+  &:hover { border-color: color-mix(in srgb, var(--text-color) 22%, transparent); }
+
+  /*
+   * 🚨 This one line is why the badge and the Update button were cut off.
+   *
+   * A grid ITEM defaults to `min-width: auto`, which means it refuses to be
+   * narrower than its own content. So the card's rows sized themselves to the
+   * longest package name — measured at 438px inside a 330px card — and the
+   * card's `overflow: hidden` quietly sliced off everything past its edge:
+   * half the badge, and the Update button entirely.
+   *
+   * Nothing about it looks like an error. The row simply is that wide, and the
+   * flex-wrap inside it never triggers because from its own point of view it
+   * has all the room it asked for.
+   */
+  > * { min-width: 0; }
+}
+
+.ExtensionManager-cardTop {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 14px @mw-pad 0;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: none;
+
+    .ExtensionManager-name { color: var(--link-color); }
+  }
+}
+
+.ExtensionManager-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.ExtensionManager-name {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// On a Discover card the name links to Packagist; it reads as the name until hovered.
+a.ExtensionManager-name {
+  display: block;
+  color: inherit;
+
+  &:hover,
+  &:focus-visible { color: var(--link-color); text-decoration: underline; }
+}
+
+.ExtensionManager-pkg {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  color: var(--muted-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ExtensionManager-desc {
+  color: var(--muted-color);
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 10px @mw-pad 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ExtensionManager-meta {
+  padding: 10px @mw-pad 0;
+  font-size: 12px;
+  color: var(--muted-color);
+  font-variant-numeric: tabular-nums;
+
+  .fa-circle-down { margin-inline-end: 3px; opacity: .8; }
+}
+
+.ExtensionManager-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 11px @mw-pad;
+  border-top: 1px solid @mw-hairline;
+  background: @mw-tint;
+}
+
+.ExtensionManager-actions,
+.ExtensionManager-tags { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+// ── chips ────────────────────────────────────────────────────────────────────
+
+.ExtensionManager-tag {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--text-color) 8%, transparent);
+  color: var(--muted-color);
+
+  &--ok {
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+    color: color-mix(in srgb, var(--primary-color) 78%, var(--text-color));
+  }
+
+  &--warn {
+    background: color-mix(in srgb, #c77700 14%, transparent);
+    color: color-mix(in srgb, #8a5200 80%, var(--text-color));
+  }
+
+  &--muted { background: color-mix(in srgb, var(--text-color) 6%, transparent); }
+}
+
+// ── "update available" ───────────────────────────────────────────────────────
+//
+// 🚨 A word, not a colour. The Update button and the "from → to" pair say what
+// the card means, so it still reads on a monochrome screen, to a colourblind
+// admin, and in a screenshot pasted into a support thread. The border only
+// reinforces it.
+
+.ExtensionManager-cardId {
+  // 🚨 `flex: 1 1 0` with min-width:0, so a long package name can be narrower
+  // than its own content. The default `min-width: auto` on a flex item is what
+  // lets "huseyinfiliz/discussion-ban" in a monospace face push the row wider
+  // than the card and get clipped.
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.ExtensionManager-name,
+.ExtensionManager-pkg {
+  overflow-wrap: anywhere;
+}
+
+// The card itself carries the state too, so a card needing attention is
+// findable by shape at a glance down a long grid.
+// 🚨 Two classes, not one: the plain `.ExtensionManager-card` rule comes later in
+// this file and was overriding the border colour, so only the inset bar showed.
+// In the theme's own colour rather than a fixed orange (ClaudiusH, 2026-10-13).
+.ExtensionManager-card.ExtensionManager-card--update {
+  border-color: color-mix(in srgb, var(--button-primary-bg) 45%, transparent);
+  box-shadow: inset 3px 0 0 0 color-mix(in srgb, var(--button-primary-bg) 70%, transparent);
+}
+
+// ── the banner's list of what is actually out of date ────────────────────────
+
+.ExtensionManager-banner-list {
+  list-style: none;
+  margin: 6px 0 8px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+}
+
+.ExtensionManager-banner-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--text-color) 7%, transparent);
+  font-size: 12px;
+}
+
+.ExtensionManager-banner-name { font-weight: 700; }
+
+.ExtensionManager-banner-vers {
+  color: var(--muted-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.ExtensionManager-banner-more {
+  color: var(--muted-color);
+  background: none !important;
+  padding-inline: 2px !important;
+}
+
+// ── search ───────────────────────────────────────────────────────────────────
+
+.ExtensionManager-search {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+
+  .FormControl { flex: 1; min-width: 0; }
+}
+
+// The category row under the search. Same on-state as the stability ladder, so
+// "this one is chosen" looks the same everywhere on the page.
+.ExtensionManager-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.ExtensionManager-chip {
+  font: inherit;
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 12%, transparent);
+  background: transparent;
+  color: var(--muted-color);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+
+  &:hover:not(.is-on) { color: var(--text-color); background: color-mix(in srgb, var(--text-color) 5%, transparent); }
+  &:focus-visible { outline: none; box-shadow: 0 0 0 3px @mw-primary-soft; }
+
+  &.is-on {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+  }
+}
+
+.ExtensionManager-searchNote { color: var(--muted-color); font-size: 13px; margin-bottom: 18px; }
+.ExtensionManager-more { margin-top: 20px; text-align: center; }
+
+.ExtensionManager-empty,
+.ExtensionManager-cardEmpty {
+  padding: 16px;
+  border: 1px dashed color-mix(in srgb, var(--text-color) 18%, transparent);
+  border-radius: 8px;
+  color: var(--muted-color);
+  font-size: 13px;
+}
+
+.ExtensionManager-empty { margin: 8px 0; }
+
+.ExtensionManager-notice {
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  border-inline-start: 3px solid var(--alert-error-color, #d83e3e);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--alert-error-color, #d83e3e) 8%, transparent);
+  font-size: 13px;
+  max-width: 78ch;
+}
+
+// ── a run in progress ────────────────────────────────────────────────────────
+//
+// 🚨 Deliberately calm. This is read while somebody is anxious about their
+// site, so nothing animates, pulses or competes with the two things that
+// matter: which step it is on, and what the log says.
+
+.ExtensionManager-run { margin-bottom: 24px; }
+.ExtensionManager-run--failed { border-color: color-mix(in srgb, var(--alert-error-color, #d83e3e) 45%, transparent); }
+
+.ExtensionManager-runHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.ExtensionManager-driver { color: var(--muted-color); font-size: 12px; max-width: 52ch; }
+.ExtensionManager-runTarget { color: var(--muted-color); font-size: 13px; overflow-wrap: anywhere; }
+
+.ExtensionManager-phases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0 @mw-pad;
+  font-size: 12px;
+}
+
+.ExtensionManager-phase {
+  color: var(--muted-color);
+  padding: 4px 11px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--text-color) 6%, transparent);
+
+  &.is-now { background: var(--primary-color); color: #fff; font-weight: 600; }
+  &.is-done { opacity: 0.7; }
+
+  .fas { margin-right: 6px; font-size: 11px; }
+}
+
+.ExtensionManager-progress { padding: 16px @mw-pad 0; }
+
+.ExtensionManager-progressBar {
+  height: 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--text-color) 8%, transparent);
+  overflow: hidden;
+}
+
+.ExtensionManager-progressFill {
+  height: 100%;
+  background: var(--primary-color);
+  transition: width .3s ease;
+}
+
+.ExtensionManager-progressText {
+  margin-top: 8px;
+  // Holds its line while a phase has nothing to say yet, so the box below
+  // does not jump up and back (ClaudiusH, 2026-10-13).
+  min-height: 1lh;
+  font-size: 13px;
+  color: var(--muted-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.ExtensionManager-error { padding: 16px @mw-pad 0; }
+.ExtensionManager-errorWhere { font-weight: 700; margin-bottom: 8px; font-size: 13px; }
+
+.ExtensionManager-errorText {
+  // Composer's own words, scrolling sideways rather than wrapping mid-constraint
+  // — the exact string is what somebody searches for.
+  white-space: pre;
+  overflow-x: auto;
+  max-height: 260px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--text-color) 6%, transparent);
+  margin-bottom: 12px;
+}
+
+.ExtensionManager-stall,
+.ExtensionManager-next {
+  margin: 14px @mw-pad 0;
+  font-size: 13px;
+  color: var(--muted-color);
+  max-width: 74ch;
+}
+
+.ExtensionManager-log {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 14px @mw-pad;
+  border-top: 1px solid @mw-hairline;
+  background: @mw-tint;
+  font-size: 13px;
+  max-height: 320px;
+  overflow-y: auto;
+
+  li { padding: 3px 0; color: var(--muted-color); }
+
+  // The most recent line is the one being looked for.
+  li:last-child { color: var(--text-color); font-weight: 600; }
+}
+
+.ExtensionManager-runActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 14px @mw-pad;
+}
+
+.ExtensionManager-undo {
+  color: var(--muted-color);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+// ── this host ────────────────────────────────────────────────────────────────
+
+.ExtensionManager-summary {
+  border: 1px solid @mw-border;
+  border-radius: @mw-radius;
+  background: var(--body-bg);
+  padding: 16px @mw-pad;
+  margin-bottom: 14px;
+
+  h3 { margin: 0 0 4px; font-size: 15px; font-weight: 700; }
+  p { margin: 0; color: var(--muted-color); font-size: 13px; max-width: 74ch; }
+}
+
+.ExtensionManager-checks {
+  border: 1px solid @mw-border;
+  border-radius: @mw-radius;
+  background: var(--body-bg);
+  overflow: hidden;
+}
+
+.ExtensionManager-check {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 12px;
+  padding: 13px @mw-pad;
+
+  & + & { border-top: 1px solid @mw-hairline; }
+}
+
+.ExtensionManager-check-what { font-weight: 600; font-size: 13.5px; margin-bottom: 2px; }
+.ExtensionManager-check-why { color: var(--muted-color); font-size: 13px; line-height: 1.5; max-width: 74ch; }
+
+// ── the dashboard banner ─────────────────────────────────────────────────────
+
+.ExtensionManager-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: center;
+  justify-content: space-between;
+  border-inline-start: 3px solid var(--primary-color);
+  border-radius: 0 @mw-radius @mw-radius 0;
+  padding: 14px @mw-pad;
+  margin-bottom: 20px;
+}
+
+.ExtensionManager-banner-title { font-weight: 700; margin-bottom: 2px; }
+.ExtensionManager-banner-body { color: var(--muted-color); font-size: 13px; max-width: 74ch; }
+.ExtensionManager-banner-actions { display: flex; gap: 8px; align-items: center; }
+
+// ── Sources: repositories, stability, credentials ────────────────────────────
+//
+// 🚨 Cards, not a stack of form rows. The three things on this screen — where
+// Composer looks, what it accepts, how it authenticates — are separate
+// decisions with separate consequences, and a flat list of inputs separated by
+// hairlines makes them read as one long form nobody finishes reading.
+//
+// Every colour is derived from Flarum's own variables with color-mix, so the
+// screen follows the admin theme into dark mode instead of pinning light greys.
+
+.ExtensionManager-sourcesNote {
+  color: var(--muted-color);
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.ExtensionManager-card {
+  border: 1px solid color-mix(in srgb, var(--text-color) 12%, transparent);
+  border-radius: 10px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  background: var(--body-bg);
+}
+
+.ExtensionManager-cardHead {
+  padding: 16px 18px 14px;
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted-color);
+    font-size: 13px;
+    line-height: 1.5;
+    max-width: 68ch;
+  }
+}
+
+// ── the rows ────────────────────────────────────────────────────────────────
+//
+// 🚨 A grid, so the columns line up down the list. As flex, a `composer` badge
+// is wider than a `vcs` one and every URL starts at a different x — which reads
+// as carelessness before it reads as anything else.
+
+.ExtensionManager-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid color-mix(in srgb, var(--text-color) 8%, transparent);
+}
+
+.ExtensionManager-row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 18px;
+
+  & + & {
+    border-top: 1px solid color-mix(in srgb, var(--text-color) 7%, transparent);
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--text-color) 3%, transparent);
+  }
+}
+
+.ExtensionManager-kind {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  text-align: center;
+  padding: 3px 0;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--text-color) 8%, transparent);
+  color: var(--muted-color);
+}
+
+.ExtensionManager-rowMain {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// "token set" — a state, not an action. Green enough to scan, quiet enough not
+// to compete with the button beside it.
+.ExtensionManager-held {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: color-mix(in srgb, var(--primary-color) 78%, var(--text-color));
+}
+
+// 🚨 Reads as quiet until you approach it, then as destructive. A Remove that
+// looks dangerous at rest makes a settings screen feel hazardous to use; one
+// that never looks dangerous gets clicked by accident.
+.ExtensionManager-rowAction {
+  font: inherit;
+  font-size: 12px;
+  border: 0;
+  background: none;
+  color: var(--muted-color);
+  padding: 4px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--alert-error-color, #d83e3e) 12%, transparent);
+    color: var(--alert-error-color, #d83e3e);
+  }
+
+  &:disabled { opacity: .5; cursor: default; }
+}
+
+// ── the footer where things are added ───────────────────────────────────────
+//
+// 🚨 Tinted and separated on purpose. "What is configured" and "add another"
+// are different acts, and when they share a background the form reads as
+// another row in the list.
+
+.ExtensionManager-cardFoot,
+.ExtensionManager-cardControls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 18px;
+  border-top: 1px solid color-mix(in srgb, var(--text-color) 8%, transparent);
+  background: color-mix(in srgb, var(--text-color) 3%, transparent);
+
+  .FormControl { width: auto; height: 36px; }
+  input.FormControl { flex: 1; min-width: 0; }
+
+  &--wrap { flex-wrap: wrap; }
+}
+
+.ExtensionManager-cardControls { background: none; }
+
+.ExtensionManager-kindSelect { min-width: 132px; }
+
+.ExtensionManager-cardEmpty {
+  margin: 0 18px 16px;
+  padding: 14px 16px;
+  border: 1px dashed color-mix(in srgb, var(--text-color) 18%, transparent);
+  border-radius: 8px;
+  color: var(--muted-color);
+  font-size: 13px;
+}
+
+// ── the callout ─────────────────────────────────────────────────────────────
+//
+// 🚨 Visually distinct from the description above it, because it says something
+// different: the description explains the setting, the callout states the
+// consequence of the value currently chosen. In the same grey at the same size
+// they read as one paragraph and the consequence is skipped.
+
+.ExtensionManager-callout {
+  margin: 0 18px 16px;
+  padding: 11px 14px;
+  border-inline-start: 3px solid color-mix(in srgb, var(--primary-color) 55%, transparent);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--primary-color) 7%, transparent);
+  color: var(--text-color);
+  font-size: 13px;
+  line-height: 1.55;
+  max-width: 76ch;
+}
+
+.ExtensionManager-callout--lock {
+  border-inline-start-color: color-mix(in srgb, var(--text-color) 35%, transparent);
+  background: color-mix(in srgb, var(--text-color) 5%, transparent);
+  color: var(--muted-color);
+}
+
+.ExtensionManager-check {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--muted-color);
+}
+
+// ── rollback copies ─────────────────────────────────────────────────────────
+//
+// Three facts in a row, then the two settings and the button in the tinted
+// footer every other card uses for "change something".
+
+.ExtensionManager-trash { margin-top: 20px; }
+
+.ExtensionManager-trashNotice { margin: 0 18px 14px; }
+
+.ExtensionManager-trashStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 24px;
+  margin: 0;
+  padding: 4px 18px 16px;
+
+  dt {
+    color: var(--muted-color);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 3px;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.ExtensionManager-trashField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted-color);
+  white-space: nowrap;
+
+  // Overrides the footer's "inputs fill the row": these hold a number.
+  input.FormControl { flex: 0 0 auto; width: 76px; }
+}
+
+.ExtensionManager-trashSpacer { flex: 1; }
+
+.ExtensionManager-trashDone {
+  margin: 14px 18px 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ExtensionManager-trash .ExtensionManager-callout { margin-top: 14px; }
+
+// ── the command-line PHP setting (This host) ─────────────────────────────────
+
+.ExtensionManager-phpSetting {
+  margin-top: 18px;
+  padding: 14px @mw-pad;
+  border: 1px solid @mw-border;
+  border-radius: @mw-radius;
+  background: var(--body-bg);
+
+  label { display: block; }
+}
+
+.ExtensionManager-phpSetting-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  max-width: 720px;
+
+  input.FormControl { flex: 1 1 260px; min-width: 0; font-family: var(--font-family-monospace, monospace); }
+}
+
+.ExtensionManager-phpSetting-msg {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted-color);
+
+  // The text stays the theme's own colour: a borrowed alert colour can be
+  // white. The red is the bar beside it.
+  &.is-error {
+    color: var(--text-color);
+    padding: 6px 10px;
+    border-inline-start: 3px solid #d83e3e;
+    background: color-mix(in srgb, #d83e3e 8%, transparent);
+  }
+}
+
+// ── Sources, redesigned ──────────────────────────────────────────────────────
+//
+// 🚨 Scoped to .ExtensionManager-src so the shared card chrome other tabs use is
+// untouched. Same three shades as everywhere else, plus the forum's primary
+// colour for "this is chosen" — nothing here pins a light-mode grey.
+
+@mw-primary-soft: color-mix(in srgb, var(--primary-color) 12%, transparent);
+@mw-primary-line: color-mix(in srgb, var(--primary-color) 45%, transparent);
+@mw-danger: #d83e3e;
+
+.ExtensionManager-src {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  i[aria-hidden] { line-height: 1; }
+}
+
+// at a glance
+.ExtensionManager-src-overview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  @media (max-width: 760px) { grid-template-columns: 1fr; }
+}
+
+.ExtensionManager-src-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid @mw-border;
+  border-radius: @mw-radius;
+  background: var(--body-bg);
+  color: var(--text-color);
+  text-decoration: none;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+
+  &:hover, &:focus-visible {
+    text-decoration: none;
+    border-color: @mw-primary-line;
+    box-shadow: 0 4px 14px -8px var(--primary-color);
+    transform: translateY(-1px);
+  }
+}
+
+.ExtensionManager-src-statIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: @mw-primary-soft;
+  color: var(--primary-color);
+  font-size: 16px;
+}
+
+.ExtensionManager-src-statText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  strong { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+  span { color: var(--muted-color); font-size: 12.5px; }
+}
+
+// cards
+.ExtensionManager-src-card {
+  border: 1px solid @mw-border;
+  border-radius: @mw-radius + 2px;
+  background: var(--body-bg);
+  overflow: hidden;
+  scroll-margin-top: 80px;
+}
+
+.ExtensionManager-src-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px @mw-pad 16px;
+  flex-wrap: wrap;
+}
+
+.ExtensionManager-src-headIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: @mw-tint;
+  border: 1px solid @mw-hairline;
+  color: var(--muted-color);
+  font-size: 15px;
+}
+
+.ExtensionManager-src-headText {
+  flex: 1 1 320px;
+  min-width: 0;
+
+  h3 { margin: 2px 0 4px; font-size: 15.5px; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+  p { margin: 0; color: var(--muted-color); font-size: 13px; line-height: 1.55; max-width: 70ch; }
+}
+
+.ExtensionManager-src-count {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: @mw-tint;
+  border: 1px solid @mw-hairline;
+  color: var(--muted-color);
+}
+
+.ExtensionManager-src-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  align-self: center;
+  padding: 0 12px;
+  height: 34px;
+  border: 1px solid @mw-border;
+  border-radius: 999px;
+  background: @mw-tint;
+  color: var(--muted-color);
+  margin: 0;
+  font-weight: normal;
+
+  input {
+    border: 0;
+    background: transparent;
+    outline: none;
+    color: var(--text-color);
+    font: inherit;
+    font-size: 13px;
+    width: 190px;
+  }
+
+  &:focus-within { border-color: @mw-primary-line; box-shadow: 0 0 0 3px @mw-primary-soft; }
+}
+
+// rows
+.ExtensionManager-src-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid @mw-hairline;
+}
+
+.ExtensionManager-src-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px @mw-pad;
+  border-bottom: 1px solid @mw-hairline;
+  transition: background .12s;
+
+  &:last-child { border-bottom: 0; }
+  &:hover { background: @mw-tint; }
+  &.is-confirming { background: color-mix(in srgb, @mw-danger 7%, transparent); }
+
+  .ExtensionManager-src-actions { opacity: .55; transition: opacity .12s; }
+  &:hover .ExtensionManager-src-actions, &:focus-within .ExtensionManager-src-actions { opacity: 1; }
+}
+
+.ExtensionManager-src-logo {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  font-size: 17px;
+  background: @mw-tint;
+  color: var(--text-color);
+  border: 1px solid @mw-hairline;
+}
+
+.ExtensionManager-src-logo--github { background: color-mix(in srgb, var(--text-color) 88%, transparent); color: var(--body-bg); border-color: transparent; }
+.ExtensionManager-src-logo--gitlab { background: color-mix(in srgb, #fc6d26 14%, transparent); color: #e2432a; border-color: transparent; }
+.ExtensionManager-src-logo--bitbucket { background: color-mix(in srgb, #2684ff 14%, transparent); color: #2684ff; border-color: transparent; }
+.ExtensionManager-src-logo--path { background: color-mix(in srgb, #d9a400 16%, transparent); color: #b88a00; border-color: transparent; }
+.ExtensionManager-src-logo--bearer,
+.ExtensionManager-src-logo--http { background: @mw-primary-soft; color: var(--primary-color); border-color: transparent; }
+
+.ExtensionManager-src-itemText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  > strong {
+    font-size: 14px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  > span { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--muted-color); }
+}
+
+.ExtensionManager-src-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: @mw-tint;
+  border: 1px solid @mw-hairline;
+  color: var(--muted-color);
+}
+
+.ExtensionManager-src-held { display: inline-flex; align-items: center; gap: 5px; color: #2e9b5b; font-weight: 600; }
+
+.ExtensionManager-src-actions,
+.ExtensionManager-src-confirm {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ExtensionManager-src-confirm > span { font-size: 13px; font-weight: 600; margin-right: 4px; }
+
+.ExtensionManager-src-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted-color);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background .12s, color .12s, border-color .12s;
+
+  &:hover, &:focus-visible { background: @mw-tint; border-color: @mw-hairline; color: var(--text-color); text-decoration: none; }
+  &[disabled] { opacity: .4; cursor: default; }
+}
+
+.ExtensionManager-src-icon--danger:hover,
+.ExtensionManager-src-icon--danger:focus-visible { color: @mw-danger; background: color-mix(in srgb, @mw-danger 9%, transparent); }
+
+.the Extension Manager .Button--danger,
+.ExtensionManager-src .Button--danger { background: @mw-danger; color: #fff; }
+
+.ExtensionManager-src-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px @mw-pad;
+  border-top: 1px solid @mw-hairline;
+  color: var(--muted-color);
+  font-size: 13px;
+
+  i { font-size: 18px; opacity: .7; }
+}
+
+// add forms
+.ExtensionManager-src-add {
+  padding: 16px @mw-pad 18px;
+  border-top: 1px solid @mw-hairline;
+  background: @mw-tint;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ExtensionManager-src-addTitle {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted-color);
+}
+
+.ExtensionManager-src-choices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+
+  &--four { grid-template-columns: repeat(4, 1fr); }
+
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); &--four { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { grid-template-columns: 1fr; &--four { grid-template-columns: 1fr; } }
+}
+
+.ExtensionManager-src-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid @mw-border;
+  border-radius: 9px;
+  background: var(--body-bg);
+  color: var(--text-color);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  transition: border-color .12s, box-shadow .12s, background .12s;
+
+  > i { margin-top: 2px; font-size: 15px; color: var(--muted-color); width: 18px; text-align: center; }
+
+  > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  strong { font-size: 13px; font-weight: 600; }
+  small { font-size: 11.5px; color: var(--muted-color); line-height: 1.35; }
+
+  &:hover { border-color: @mw-primary-line; }
+  &:focus-visible { outline: none; box-shadow: 0 0 0 3px @mw-primary-soft; }
+
+  &.is-on {
+    border-color: var(--primary-color);
+    background: @mw-primary-soft;
+    box-shadow: inset 0 0 0 1px var(--primary-color);
+
+    > i { color: var(--primary-color); }
+  }
+}
+
+.ExtensionManager-src-field {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid @mw-border;
+    border-radius: 9px;
+    background: var(--body-bg);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 13.5px;
+    outline: none;
+
+    &:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px @mw-primary-soft; }
+  }
+
+  .Button { height: 38px; border-radius: 9px; }
+}
+
+.ExtensionManager-src-fieldIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  border-radius: 9px;
+  border: 1px solid @mw-border;
+  background: var(--body-bg);
+  color: var(--muted-color);
+  font-size: 16px;
+}
+
+.ExtensionManager-src-hint {
+  font-size: 12.5px;
+  color: var(--muted-color);
+  padding-left: 46px;
+
+  &.is-warn { color: #b87100; }
+}
+
+.ExtensionManager-src-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 10px;
+
+  &--three { grid-template-columns: 1fr 1fr 1.2fr; }
+
+  @media (max-width: 700px) { grid-template-columns: 1fr; &--three { grid-template-columns: 1fr; } }
+}
+
+.ExtensionManager-src-labelled {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  font-weight: normal;
+
+  > span:first-child { font-size: 12px; font-weight: 600; color: var(--muted-color); }
+
+  .FormControl { border-radius: 9px; height: 38px; }
+}
+
+.ExtensionManager-src-secret {
+  position: relative;
+  display: block;
+
+  .FormControl { padding-right: 42px; }
+  .ExtensionManager-src-icon { position: absolute; right: 3px; top: 3px; }
+}
+
+.ExtensionManager-src-addFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .Button { border-radius: 9px; }
+}
+
+.ExtensionManager-src-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+// stability
+.ExtensionManager-src-body {
+  padding: 4px @mw-pad 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ExtensionManager-src-ladder {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  padding: 4px;
+  border: 1px solid @mw-border;
+  border-radius: 11px;
+  background: @mw-tint;
+
+  @media (max-width: 640px) { grid-template-columns: repeat(2, 1fr); gap: 4px; }
+}
+
+.ExtensionManager-src-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 9px 6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted-color);
+  cursor: pointer;
+  font: inherit;
+  transition: background .15s, color .15s, box-shadow .15s;
+
+  strong { font-size: 13.5px; font-weight: 700; }
+  small { font-size: 11px; opacity: .85; }
+
+  &:hover:not(.is-on) { color: var(--text-color); background: color-mix(in srgb, var(--text-color) 5%, transparent); }
+  &:focus-visible { outline: none; box-shadow: 0 0 0 3px @mw-primary-soft; }
+
+  &.is-accepted { color: var(--text-color); }
+
+  &.is-on {
+    background: var(--primary-color);
+    color: #fff;
+    box-shadow: 0 6px 16px -10px var(--primary-color);
+
+    small { opacity: .9; }
+  }
+
+  &[disabled] { cursor: progress; }
+}
+
+.ExtensionManager-src-reco {
+  color: #2e9b5b;
+  font-weight: 700;
+
+  .is-on & { color: #fff; }
+}
+
+.ExtensionManager-src-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 9px;
+  background: color-mix(in srgb, #2e9b5b 9%, transparent);
+  border: 1px solid color-mix(in srgb, #2e9b5b 22%, transparent);
+  font-size: 13px;
+  line-height: 1.55;
+
+  > i { color: #2e9b5b; margin-top: 3px; }
+}
+
+.ExtensionManager-src-callout--lock {
+  margin: 0 @mw-pad 18px;
+  background: @mw-tint;
+  border-color: @mw-hairline;
+  color: var(--muted-color);
+
+  > i { color: var(--muted-color); }
+}
+
+.ExtensionManager-src-switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  cursor: pointer;
+  font-weight: normal;
+
+  input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+
+  .ExtensionManager-src-track {
+    flex: none;
+    position: relative;
+    width: 38px;
+    height: 22px;
+    margin-top: 1px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--text-color) 22%, transparent);
+    transition: background .15s;
+
+    span {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+      transition: transform .15s;
+    }
+  }
+
+  input:checked + .ExtensionManager-src-track { background: var(--primary-color); }
+  input:checked + .ExtensionManager-src-track span { transform: translateX(16px); }
+  input:focus-visible + .ExtensionManager-src-track { box-shadow: 0 0 0 3px @mw-primary-soft; }
+}
+
+.ExtensionManager-src-switchText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong { font-size: 13.5px; font-weight: 600; }
+  small { font-size: 12px; color: var(--muted-color); }
+}
+
+.ExtensionManager-src-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 9px;
+  background: color-mix(in srgb, @mw-danger 9%, transparent);
+  border: 1px solid color-mix(in srgb, @mw-danger 30%, transparent);
+  color: var(--text-color);
+  font-size: 13px;
+
+  > i { color: @mw-danger; }
+}
+
+.ExtensionManager-src-note {
+  margin: 0;
+  color: var(--muted-color);
+  font-size: 12.5px;
+}
+
+// Flarum's admin caps .FormControl and bare inputs at a fixed width; inside
+// these fields they fill the space they're given instead.
+.ExtensionManager-src-field input,
+.ExtensionManager-src-labelled .FormControl,
+.ExtensionManager-src-secret .FormControl {
   width: 100%;
+  max-width: none;
+}
+
+// repositories as compact cards, grouped by owner
+.ExtensionManager-src-group {
+  padding: 4px @mw-pad 16px;
+  border-top: 1px solid @mw-hairline;
+
+  & + & { border-top: 1px dashed @mw-hairline; }
+}
+
+.ExtensionManager-src-groupHead {
   display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0 10px;
+  font-size: 13px;
 
-  > .Button:first-child {
-    flex-grow: 1;
-    text-align: start;
-  }
+  strong { font-weight: 700; }
+  > span:not(.ExtensionManager-src-logo):not(.ExtensionManager-src-count) { color: var(--muted-color); }
+  .ExtensionManager-src-count { margin-left: 2px; }
 }
 
-.ConfigureAuth-hosts, .ConfigureComposer-repositories {
-  > .ButtonGroup {
-    margin-bottom: 8px;
-  }
+.ExtensionManager-src-logo--sm {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: 13px;
 }
 
-.flarum-extension-manager-Page .SettingsGroups .Form {
-  max-height: unset;
+// 🚨 Explicit columns from the page width, not auto-fill: auto-fill beside the
+// admin sidebar has collapsed to one column on this site before.
+.ExtensionManager-src-tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+
+  @media (min-width: 700px) { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 1100px) { grid-template-columns: repeat(3, 1fr); }
+  @media (min-width: 1500px) { grid-template-columns: repeat(4, 1fr); }
 }
 
-.ExtensionManager-SettingsGroups {
+.ExtensionManager-src-tile {
+  position: relative;
   display: flex;
-  column-count: 3;
-  column-gap: 30px;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 6px 6px 6px 12px;
+  border: 1px solid @mw-border;
+  border-radius: 9px;
+  background: var(--body-bg);
+  transition: border-color .12s, box-shadow .12s;
+
+  &:hover, &:focus-within {
+    border-color: @mw-primary-line;
+    box-shadow: 0 3px 12px -8px var(--primary-color);
+  }
+
+  &.is-confirming {
+    grid-column: span 1;
+    border-color: color-mix(in srgb, @mw-danger 45%, transparent);
+    background: color-mix(in srgb, @mw-danger 6%, transparent);
+  }
+
+  .ExtensionManager-src-badge { flex: none; }
+}
+
+.ExtensionManager-src-tileName {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ExtensionManager-src-tileActions {
+  flex: none;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity .12s;
+
+  .ExtensionManager-src-tile:hover &,
+  .ExtensionManager-src-tile:focus-within & { opacity: 1; }
+
+  @media (hover: none) { opacity: 1; }
+}
+
+.ExtensionManager-src-icon--sm { width: 28px; height: 28px; font-size: 12px; border-radius: 7px; }
+
+.ExtensionManager-src-tileConfirm {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+
+  > span:first-child { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  > span:last-child { display: flex; gap: 4px; flex: none; }
+  .Button--sm { padding: 4px 9px; font-size: 12px; }
+}
+
+.ExtensionManager-src-callout--lock {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid @mw-hairline;
+  border-radius: 0;
+  padding: 12px @mw-pad;
+}
+
+// Flarum styles every search input; inside the pill it should be bare.
+.ExtensionManager-src-filter input[type=search] {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  height: auto;
+  padding: 0;
+  min-width: 0;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+
+  &::-webkit-search-decoration { -webkit-appearance: none; }
+}
+
+// 🚨 Themes (Bespoke, for one) style every input with a border and fill. The
+// pill IS the field here, so the input inside it must stay bare whatever the
+// theme says.
+.ExtensionManager-src .ExtensionManager-src-filter input[type=search] {
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.ExtensionManager-checkNow .fa-spin { margin-right: 6px; }
+
+.ExtensionManager-checkPrompt { flex-basis: 100%; margin: 0; font-weight: 600; color: var(--text-color); }
+.ExtensionManager-checkline--overdue { border-color: var(--primary-color); }
+
+// ── recent updates ───────────────────────────────────────────────────────────
+
+.ExtensionManager-history { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+
+.ExtensionManager-historyItem {
+  border: 1px solid var(--control-bg);
+  border-radius: 10px;
+  padding: 12px @mw-pad;
+  background: var(--body-bg);
+}
+
+.ExtensionManager-historyHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+
+  time { color: var(--muted-color); font-size: 13px; }
+}
+
+.ExtensionManager-historyChanges {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+
+  li { overflow-wrap: anywhere; }
+  .ExtensionManager-pkg { margin: 0 6px 0 4px; }
+}
+
+.ExtensionManager-historyVersions { color: var(--muted-color); white-space: nowrap; }
+.ExtensionManager-historyNote { margin-top: 6px; color: var(--muted-color); font-size: 12px; }
+
+.ExtensionManager-coreNightly {
+  display: flex;
   flex-wrap: wrap;
-  margin-top: 24px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  // Inside .ExtensionManager-core, which has no padding of its own: each part pads
+  // itself. Without this the text sat against the panel's border (ClaudiusH).
+  padding: 14px @mw-pad;
+  border-top: 1px solid var(--control-bg);
+  color: var(--muted-color);
+  font-size: 13px;
 
-  .FormSection {
-    min-width: 300px;
-    max-height: 500px;
-    min-height: 20vh;
-    max-width: 400px;
+  b { color: var(--text-color); }
+}
 
-    @media (max-width: 1209px) {
-      margin-bottom: 20px;
-    }
+// ── release notes modal ──────────────────────────────────────────────────────
 
-    .Form-controls {
-      margin-top: auto;
-    }
+.ExtensionManager-release {
+  & + & { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--control-bg); }
+
+  h4 {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 0 0 8px;
+    font-size: 16px;
+
+    time { color: var(--muted-color); font-size: 12px; font-weight: normal; }
   }
+}
+
+.ExtensionManager-releaseBody {
+  overflow-wrap: anywhere;
+
+  h1, h2, h3 { font-size: 15px; margin: 14px 0 6px; }
+  h4, h5, h6 { font-size: 14px; margin: 12px 0 4px; }
+  ul, ol { padding-left: 22px; }
+  pre { white-space: pre-wrap; }
+  table { display: block; overflow-x: auto; }
+}
+
+.ExtensionManager-releaseEmpty { color: var(--muted-color); }
+.ExtensionManager-notesLink { margin: 18px 0 0; }
+
+.ExtensionManager-details {
+  > summary { cursor: pointer; padding: 10px @mw-pad; color: var(--muted-color); font-size: 13px; }
+  &[open] > summary { padding-bottom: 4px; }
 }

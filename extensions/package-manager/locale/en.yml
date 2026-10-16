@@ -1,188 +1,770 @@
 flarum-extension-manager:
   admin:
-    auth_config:
-      add_label: New authentication method
-      add_modal:
-        host_label: Host
-        host_placeholder: "example: bearer.flarum.org"
-        submit_button: Submit
-        token_label: Token
-        type_label: Type
-        unchanged_token_placeholder: "(unchanged)"
-      delete_confirmation: Are you sure you want to delete this authentication method?
-      delete_label: Delete authentication method
-      edit_label: Edit authentication method
-      fields:
-        host: Host
-        token: Token
-      no_auth_methods_configured: No authentication methods configured. This is an optional advanced feature to allow installing from private repositories.
-      remove_button_label: Remove authentication method
-      title: Authentication Methods
-      types:
-        github-oauth: GitHub OAuth
-        gitlab-oauth: GitLab OAuth
-        gitlab-token: GitLab Token
-        bearer: HTTP Bearer
+    tab_installed: "Installed ({count})"
+    tab_host: This host
+    enabled: enabled
+    disabled: disabled
+    version_unknown: version unknown
+    library: Composer package
+    library_why: A library this forum requires in its own composer.json. It has no settings page, and the Extension Manager never offers to remove it.
+
+    # 🚨 "A newer version exists" — never "an update is available". The cheap
+    # check knows the first and cannot know the second, and a badge that
+    # overstates itself is one people stop reading.
+    none_newer: Everything checkable is up to date.
+    some_newer: "{count, plural, one {# extension has} other {# extensions have}} a newer version."
+    core_newer: Flarum itself has a newer version.
+    core_newer_too: So does Flarum itself.
+    checked_ago: "Checked {when}."
+    uncheckable: "{count} could not be checked — no repository this forum knows about lists them."
+    tracking: "{count} track a branch, so there is no version to compare."
+    check_now: Check now
+    check_for_updates: Check for updates
+    check_overdue: Check for updates to get the latest security fixes and features for your extensions.
+    learn_more: Learn more
+    notes_title: "{name}: what's new since {from}"
+    notes_on_github: See the releases on GitHub
+    notes_none: No release notes were published on GitHub for these versions.
+    notes_empty_release: No notes were written for this release.
+    notes_failed: The release notes could not be loaded from GitHub just now.
+    checking: Checking…
+
+    banner_title: "{count} package(s) have a newer version"
+    banner_body: >-
+      That does not always mean you can install it — what else has to change, and
+      whether anything blocks it, is worked out when you ask.
+    banner_checked: "Last checked {when}."
+    banner_uncheckable: "{count} package(s) could not be checked at all."
+    banner_more: "and {count} more"
+    banner_open: Take a look
+    banner_dismiss: Not now
+    ago_minutes: "{count, plural, one {# minute} other {# minutes}} ago"
+    ago_hours: "{count, plural, one {# hour} other {# hours}} ago"
+    ago_days: "{count, plural, one {# day} other {# days}} ago"
+
+    # 🚨 "Update", never "Upgrade". An upgrade sounds like a decision; an update
+    # sounds like maintenance, and this is maintenance.
+    update: Update
+    repin_confirm: >-
+      This forum requires an exact version of {count} extension(s), so a newer
+      one cannot be installed until that requirement is changed. Continue, and
+      composer.json will be updated to require the new version before anything
+      is downloaded. A rollback puts the requirement back too.
+    update_all: "Update all {count}"
+    update_one: "Update {name}"
+    run_details: Update details
+    starting: Starting…
+    start_failed: >-
+      The update could not be started, and the forum did not say why. Nothing has
+      changed.
+
+    path_install: local checkout
+    path_install_why: >-
+      This extension is a symlink into a directory on this server, so it is
+      probably one you are working on. The Extension Manager will not replace it — update it
+      with git instead.
+
+    open_settings: Open the {name} settings
+
+    run_working: Updating
+    run_done: Update finished
+    run_failed: The update stopped
+    run_rolled_back: Update undone
+    run_target_update: Updating {packages}
+    run_target_install: Installing {packages}
+    run_target_remove: Removing {packages}
+    run_target_more: "{shown} and {count} more"
+
+    phase_plan: Working out what changes
+    phase_fetch: Downloading
+    phase_apply: Swapping files in
+    phase_finalise: Finishing up
+
+    working_out: Asking Composer what this involves. This is the slow part.
+    working_on: "{item} — {index} of {total}"
+    # The runner's own step names, as shown under the progress bar.
+    step_check_the_site: Checking the site
+    step_work_out_what_changes: Working out what changes
+    step_check_file_permissions: Checking file permissions
+    step_register: Updating Composer's records
+    step_migrations: Running database migrations
+    step_assets: Publishing assets
+    step_caches: Clearing caches
+    step_code_cache: Clearing PHP's code cache
+    step_check_the_site_again: Checking the site again
+    step_tidy_the_trash: Tidying old copies
+
+    failed_at: "It stopped during: {step}"
+    roll_back: Undo this update
+    rolling_back: Undoing…
+    roll_back_confirm: >-
+      Put the extensions this update changed back to the versions they were
+      before it, along with composer.json and composer.lock?
+    roll_back_confirm_db: >-
+      Put the extensions this update changed back to the versions they were
+      before it, along with composer.json and composer.lock? This update also
+      changed the database ({count} change(s)). Undoing reverses those too,
+      which removes anything stored in what they added.
+    rollback_failed: >-
+      The rollback itself failed. Nothing was deleted at any point, so the old
+      files are still under storage/extension-manager/trash.
+    dismiss: Dismiss
+    reload_page: Reload the page
+    reload_page_why: This page still has the previous versions' code and version numbers until it reloads.
+
+    # 🚨 Each of these says what IS happening, not just that something is wrong.
+    # A message that only signals trouble is how somebody ends up refreshing a
+    # page for ten minutes.
+    another_driver: >-
+      A background worker is doing the next step, so this page is just watching.
+    nothing_moved: >-
+      Nothing has moved for a couple of minutes. That is normal while Composer is
+      working something out; if it stays like this, the log below is the place to
+      look.
+    poll_unauthorised: >-
+      This screen cannot reach the server to drive the update — usually a
+      session that has expired while the page sat open. The update itself is
+      unaffected and is being carried on in the background. Reload the page.
+    watching_only: Showing progress read-only.
+    poll_failing: >-
+      This page has failed to reach the forum {count} times in a row. The update
+      itself is unaffected — it keeps its place on disk — and this will keep
+      trying.
+
+    tab_discover: Find extensions
+    tab_history: Recent updates
+    history_empty: Nothing has been updated, installed or removed with the Extension Manager on this forum yet.
+    history_updated: Updated
+    history_installed: Installed
+    history_removed: Removed
+    history_undone: Undone
+    history_failed: Stopped
+    history_new: "{version} (new)"
+    history_removed_from: "{version} (removed)"
+    history_nothing: Nothing changed
+    history_migrations: "Changed the database ({count} change(s))."
+
+    search: Search
+    searching: Searching…
+    discover_placeholder: Search Packagist for a Flarum extension
+    discover_hint: >-
+      Every Flarum extension published on Packagist, most widely used first.
+    # 🚨 Against the version this forum RUNS, not against "Flarum 2". A forum on
+    # 2.0.0 and one on 2.1.0 get different answers, and saying which version was
+    # used is what makes the badge checkable.
+    discover_against: "Checked against the Flarum {version} this forum runs."
+    discover_none: "Nothing on Packagist matches “{query}”."
+    discover_failed: >-
+      The search could not be run. Packagist may be unreachable from this server.
+
+    downloads: "{count} downloads"
+    open_packagist: "{name} on Packagist"
+    category_label: Show
+    category_all: All
+    category_theme: Themes
+    category_language: Languages
+    category_widget: Widgets
+    install: Install
+    already_installed: installed
+    abandoned: abandoned by its author
+
+    # 🚨 "Says it works", never "works". A declared constraint is the author's
+    # claim; whether the rest of this site allows it is a question only the plan
+    # can answer, and it is answered when Install is pressed.
+    compat_no: not for this Flarum
+    compat_no_why: "Its newest release asks for flarum/core {requires}."
+    compat_unknown: could not check
+    compat_prerelease: "{version} — a pre-release"
+    abandoned_why: >-
+      Its author has marked it as no longer maintained. It may still work.
+    abandoned_for: "Its author says to use {replacement} instead."
+    replaced: replaced
+    replaced_by: "replaced by {replacement}"
+    replaced_why: >-
+      This name is an old one. The extension moved to a new package, and installing the old name
+      gives you the new extension under the wrong id, which then cannot be enabled.
+    install_replacement: "Install {replacement}"
+    installed_as: "installed as {replacement}"
+
+    core_title: Flarum itself
+    core_nightly_title: Nightly build.
+    core_nightly_help: >-
+      For testing what the next release will be: Flarum and its bundled
+      extensions move to the development branch together. Not for a live forum.
+    core_nightly_button: Try the nightly build
+    core_nightly_confirm: >-
+      Move Flarum and its bundled extensions to the nightly development build?
+      Its database changes are recorded, and "Undo this update" returns the
+      forum to the release it is on now.
+    core_loading: Checking Flarum…
+    core_running: "This forum runs Flarum {version}."
+    core_current: No newer Flarum has been published since the last check.
+    core_update_to: "Update Flarum to {version}"
+    core_failed: >-
+      The Extension Manager could not work out what upgrading Flarum would involve. Nothing
+      has changed.
+
+    # 🚨 Stated as a consequence, never as a bare count. "3 extensions" is a
+    # number; "the upgrade would be refused" is the thing somebody needs to know,
+    # and it is why the button is disabled.
+    core_blocked: >-
+      {count} extension(s) have no release that works with Flarum {version}, so
+      the upgrade would be refused. They are listed below.
+    core_clear: "Every installed extension has a release that works with Flarum {version}."
+    core_updating_too: >-
+      {count} extension(s) will be updated at the same time, because their current
+      version does not support the new Flarum.
+    core_checking: "Checking {count} more extension(s)…"
+
+    core_row_blocked: "no release for this Flarum — asks for {requires}"
+    core_row_updating: "will update to {version}"
+    core_row_unknown: could not be checked
+
+    remove: Remove
+    # 🚨 Says how this differs from the Purge button sitting next to it. Flarum's
+    # Purge removes the extension's DATA and says plainly that it does not
+    # uninstall the extension; this removes the CODE. Together they are a full
+    # uninstall, and neither one alone should imply it is.
+    remove_confirm: >-
+      Remove {name}'s files from this server? This is the part Composer would do.
+      The old files are kept, so it can be undone. Its database tables and
+      settings are left alone — Flarum's own Purge button is what removes those,
+      and doing that first is worth considering if you are not coming back.
+
+    # 🚨 A spinner with no end is the failure this extension replaces. If the
+    # page cannot load, it says so and offers the one useful action.
+    load_failed: >-
+      The Extension Manager could not load. Its API did not answer — check the browser
+      console and your forum's error log for what went wrong.
+    load_timeout: >-
+      The Extension Manager's own page did not finish loading. Nothing is wrong with your
+      site or your extensions; something is stopping this page talking to the
+      forum. The browser console will say what.
+    try_again: Try again
+    discover_empty: >-
+      Packagist returned nothing. That is unusual — it may be having a moment.
+    show_more: Show more
+    loading_more: Loading…
+    # 🚨 "Remove files", not "Uninstall". Flarum already has an Uninstall button
+    # on this page that purges the extension's DATA; this one takes the code off
+    # the server. Two buttons a few pixels apart must not claim the same thing.
+    remove_files: Remove files
+
+    tab_sources: Sources
+    add: Add
+    cancel: Cancel
+    save: Save
+    config_failed: >-
+      The Extension Manager could not read composer.json. Nothing has been changed.
+
+    repos_title: Where Composer looks
+    repos_help: >-
+      Extensions that are not on Packagist — your own private repositories, or a
+      paid marketplace — have to be listed here before Composer can find them.
+    repos_none: Only Packagist. Nothing private or paid can be installed.
+    repos_placeholder: "https://github.com/you/your-extension"
+    repos_confirm: >-
+      Stop looking in {url}? Anything installed from it stays where it is, but it
+      cannot be updated or reinstalled until the repository is added again.
+
+    stability_title: How finished a release has to be
+    stability_help: >-
+      Composer refuses anything less finished than this. The error it gives when
+      the setting is too strict says the package "could not be found in any
+      version", which sounds like the package is missing rather than like a
+      setting is wrong.
+    prefer_stable: Still prefer a stable release when one exists
+
+    # ── Sources, redesigned ───────────────────────────────────────────────
+    src_stat_repos: "{count, plural, one {repository} other {repositories}}"
+    src_stat_level: lowest release accepted
+    src_stat_auth: "{count, plural, one {host can sign in} other {hosts can sign in}}"
+    src_filter: Filter repositories
+    src_no_match: "No repository matches “{query}”."
+    src_open: Open in a new tab
+    src_remove_q: Remove?
+    src_remove_named: "Remove {name}?"
+    src_remove_label: "Remove {name}"
+    src_add_repo: Add a repository
+    src_duplicate: That repository is already listed.
+    src_will_add: "Adds {name} from {where}."
+    src_recommended: recommended
+    src_prefer_stable_help: >-
+      When an extension has both a beta and a finished release that would work, take the finished one.
+    src_add_auth: Add a credential
+    src_host: Host
+    src_username: Username
+    src_password: Password
+    src_token: Token
+    src_show: Show
+    src_hide: Hide
+    src_replace: Replace
+    src_token_stored: token stored
+    src_save_auth: Save credential
+    src_token_github: Create a GitHub token (repo scope)
+    src_token_gitlab: Create a GitLab access token
+    type_vcs: Git repository
+    type_vcs_help: GitHub, GitLab, Bitbucket or any Git host
+    type_vcs_placeholder: "https://github.com/you/your-extension"
+    type_composer: Composer repository
+    type_composer_help: Private Packagist or a paid marketplace
+    type_composer_placeholder: "https://repo.example.com"
+    type_path: Folder on this server
+    type_path_help: A local checkout, for development
+    type_path_placeholder: "/home/you/extensions/your-extension"
+    kind_github-oauth: GitHub token
+    kind_github-oauth_help: Private GitHub repositories
+    kind_gitlab-token: GitLab token
+    kind_gitlab-token_help: GitLab.com or your own GitLab
+    kind_bearer: Bearer token
+    kind_bearer_help: Marketplaces that give you an API token
+    kind_http-basic: Username & password
+    kind_http-basic_help: Private Packagist and older repositories
+    level_stable: Stable
+    level_stable_short: finished only
+    level_rc: RC
+    level_rc_short: release candidates
+    level_beta: Beta
+    level_alpha: Alpha
+    level_alpha_short: early previews
+    level_dev: Dev
+    level_dev_short: unreleased code
+    # What each level means, said before the change: the consequence is the part
+    # somebody is deciding about.
+    level_stable_means: >-
+      Only finished releases. Flarum 2 itself is stable, but many of its extensions
+      are still betas or release candidates, and this cannot install those.
+    level_rc_means: Release candidates as well as finished releases.
+    level_beta_means: >-
+      Betas too. Many Flarum 2 extensions are still published as betas or release
+      candidates, so this is the usual choice.
+    level_alpha_means: Alphas as well — early code that is expected to change.
+    level_dev_means: >-
+      Unreleased code straight from a branch, which can change under you without
+      a version number changing.
+
+    auth_title: Credentials
+    auth_help: >-
+      For private repositories and paid marketplaces. Stored in auth.json, which
+      Composer reads and which sits outside the web root.
+    auth_none: None stored. Private and paid repositories will fail to download.
+    auth_host_placeholder: "github.com"
+    auth_user_placeholder: username
+    auth_secret_placeholder: token or password
+    auth_confirm: >-
+      Remove the credential for {host}? Anything that needs it will stop
+      downloading until it is set again.
+    # 🚨 Said on screen, not just in the code. Somebody who expects to be able to
+    # read a token back needs to know why they cannot, or they will assume it did
+    # not save and enter it repeatedly.
+    auth_writeonly: >-
+      The Extension Manager never shows a stored credential — not even to you. It shows
+      which hosts have one. To change a credential, enter the new value; it
+      replaces the old one.
+
+
+    # ── rollback copies ──────────────────────────────────────────────────────
+    trash_title: Rollback copies
+    trash_help: >-
+      Every update keeps the versions it replaced, so it can be rolled back.
+      Copies no rollback can use any more are tidied after each update and
+      every night. The copies the latest update needs are never removed.
+    trash_size: Taking up
+    trash_size_value: "{size} in {count, plural, one {# copy} other {# copies}}"
+    trash_freeable: Can be tidied now
+    trash_freeable_value: "{size} — {count, plural, one {# item} other {# items}}"
+    trash_freeable_none: Nothing — everything kept is still needed
+    trash_last: Last tidied
+    trash_last_value: "{when} — {count, plural, =0 {nothing to remove} other {removed #, freed {size}}}"
+    trash_last_never: Not yet
+    trash_keep_days: Keep rollback copies for
+    trash_days: days
+    trash_keep_runs: or for the last
+    trash_runs: updates
+    trash_prune: Tidy now
+    trash_pruning: Tidying…
+    trash_saved: Saved.
+    trash_rule: >-
+      Copies from the last {days} days or the last {runs} updates are kept,
+      whichever keeps more. Copies for the latest update, for one still in
+      progress and for anything that changed in the last day are always kept.
+    trash_confirm: >-
+      Remove {count, plural, one {# item} other {# items}} and free {size}?
+      They belong to updates that can no longer be rolled back from this
+      screen. The latest update can still be rolled back.
+    trash_done: "{count, plural, =0 {Nothing needed removing.} one {Removed # item, freeing {size}.} other {Removed # items, freeing {size}.}}"
+    trash_failed: The Extension Manager could not read its rollback copies.
+
+    # 🚨 The host tab's PHP diagnosis. Three faults, three fixes: proc_open
+    # disabled, no command-line PHP found (usually open_basedir), or one found
+    # that fails to run. And always the reminder that the PHP somebody tests
+    # over SSH is configured separately from the website's.
+    host:
+      spawn_ok: Can run Composer as a separate process
+      spawn_ok_why: Composer runs outside the web request, so its memory use is its own and cannot take the site down with it.
+      in_process: Runs without separate processes
+      in_process_why: >-
+        The Extension Manager cannot start a separate process on this host, so it runs
+        Composer inside the web request instead. Composer still
+        only works out what changes; the Extension Manager downloads and swaps the files
+        itself, journalled, so every update can be rolled back as usual.
+      in_process_limits: >-
+        The limits: Composer shares the request's memory and time, so the first
+        update takes longer while Composer's cache is cold (measured on a forum
+        with 346 packages and 22 private GitHub repositories: about {cold}
+        seconds the first time, about {warm} once the cache is warm), and
+        private Git repositories need a GitHub token or a Composer repository,
+        because git cannot run here.
+      in_process_fix_ini: "To run Composer in its own process instead, ask your host to remove proc_open from disable_functions. The setting comes from {ini}, or from the PHP settings of this site in your hosting panel."
+      in_process_fix: To run Composer in its own process instead, ask your host to remove proc_open from disable_functions for this site.
+      in_process_no_php: >-
+        No command-line PHP was found to start a separate process with (the PHP
+        row below says why). Fixing that moves Composer back into its own
+        process.
+      memory_in_process: "Memory: {limit} (raised while Composer works)"
+      memory_in_process_why: >-
+        This host lets the Extension Manager lift memory_limit while Composer runs inside
+        the request, and it is put back afterwards, so updates of any size can
+        be worked out.
+      time_none: "Execution limit: none"
+      time_limit: "Execution limit: {seconds} seconds"
+      time_in_process_lifted: >-
+        The Extension Manager lifts the time limit while Composer works out an update, and
+        puts it back afterwards. A proxy in front of PHP can still cut a long
+        request short; if one does, the Extension Manager tries again with what Composer
+        already downloaded.
+      time_in_process_locked: >-
+        This host limits each request to {seconds} seconds of PHP time and
+        does not let the Extension Manager extend that. Working out an update is one
+        request, so on a cold cache it may be cut short, by this limit or by
+        the web server's own timeout.
+      time_in_process_retry: >-
+        If it is, nothing is changed: the Extension Manager tries again by itself, up to
+        six times, and each try starts further along because Composer keeps
+        what it downloaded. If it still cannot finish, ask your host to raise
+        max_execution_time for this site (120 seconds is plenty).
+      git_needed: Some package sources need git, which cannot run here
+      git_needed_why: >-
+        Composer reads these sources with git, and this host does not let PHP
+        start programs, so an update would stop before changing anything.
+      git_needed_token: "Add a GitHub token under Sources so Composer reads these through GitHub's API instead: {urls}"
+      git_needed_git: "These can only be read with git. Serve their packages from a Composer repository (Packagist, Private Packagist or Satis) instead, or remove the source: {urls}"
+      ssh_differs: >-
+        If proc_open and PHP work when you test them over SSH, that is expected:
+        the PHP you use over SSH is a different program, configured separately
+        from the PHP that runs your website. What matters here is the website's.
+      php_found: "Command-line PHP: {path} {version}"
+      php_found_why: Found and proved by running it. Composer and Flarum's own commands run with this PHP.
+      php_found_override_why: This is the path set below. It runs, and reports itself as the command-line PHP.
+      php_hidden: "open_basedir is hiding the command-line PHP ({path})"
+      php_hidden_why: >-
+        This website's PHP is only allowed to look inside: {openBasedir}. The
+        command-line PHP lives outside that list, so the Extension Manager cannot find it,
+        even though it is installed.
+      php_hidden_fix_plesk: >-
+        To fix it in Plesk: Websites & Domains → your domain → PHP Settings →
+        open_basedir, and add :{dir} to the end of the value. Save, then reload
+        this page.
+      php_hidden_fix_cpanel: >-
+        To fix it in cPanel: MultiPHP INI Editor → choose this domain → find
+        open_basedir and add :{dir} to the end of it (or ask your host to). Save,
+        then reload this page.
+      php_hidden_fix_generic: >-
+        To fix it: add :{dir} to open_basedir in this site's php.ini or PHP-FPM
+        pool (php_admin_value[open_basedir]), then restart PHP-FPM and reload
+        this page.
+      php_fails: "Found a command-line PHP that will not run ({path})"
+      php_fails_why: "Running it failed with: {error}"
+      php_missing: No command-line PHP was found
+      php_missing_why: >-
+        Composer needs PHP's command-line program (often called php or php8.x),
+        and none was found in the usual places. Ask your host where it is, or
+        to install it.
+      php_override_broken_title: The command-line PHP set below does not work
+      php_override_broken: "The path set below, {path}, does not run as the command-line PHP. It may have moved after a PHP upgrade."
+      php_override_detected: "The Extension Manager found a working one at {path}. Use that path below, or clear the setting to let the Extension Manager find it."
+      php_override_hint: If you know where the command-line PHP is, enter its full path below and the Extension Manager will check it and use it.
+      summary_in_process: >-
+        Everything works on this host, with Composer running inside the web
+        request because separate processes are not allowed. Updates still
+        replace one package at a time, journalled, so they stay safe and
+        reversible.
+      summary_in_process_time: >-
+        Updates work here, with Composer running inside the web request. This
+        host's time limit is short and locked, so the first update may need a
+        retry or two, which the Extension Manager does by itself.
+      summary_in_process_git: >-
+        Composer runs inside the web request on this host, and some of this
+        site's package sources need git, which cannot run here. The git row
+        below says what to change.
+      php_setting_label: Command-line PHP path
+      php_setting_help: >-
+        Only needed when the Extension Manager cannot find it by itself. Use the full path
+        to the command-line PHP (not php-fpm), for example
+        /opt/plesk/php/8.5/bin/php. It is checked by running it before it is
+        saved. Leave empty to let the Extension Manager look.
+      php_setting_save: Save
+      php_setting_clear: Clear
+      php_setting_saved: Saved. The Extension Manager will use this PHP.
+      php_setting_cleared: Cleared. The Extension Manager will look for the command-line PHP itself.
+
+    php_path_not_absolute: Enter the full path, starting with /.
+    php_path_missing: "There is nothing at {path}."
+    php_path_not_executable: "{path} exists but is not executable."
+    php_path_hidden_and_silent: >-
+      {path} is outside this site's open_basedir, so the Extension Manager cannot look at
+      it, and running it did nothing. Check the path, or add its folder to
+      open_basedir.
+    php_path_did_not_run: "{path} did not run. {error}"
+    php_path_not_cli: '{path} is PHP, but the "{sapi}" kind, not the command-line PHP. Use the php binary beside it, not php-fpm or php-cgi.'
+
+  # Messages the server writes: API errors, run notes, host checks. Read
+  # through Flarum\ExtensionManager\Lang.
+  api:
+    unknown_action: "Unknown action."
+    apply:
+      local_path: "{package} is installed from a local path — {path} is a symlink into a checkout on this machine. The Extension Manager will not replace it, because the copy you are editing would stop being the copy the forum uses. Update it with git instead."
+      move_aside_failed: "Could not move {from} aside to {to}"
+      move_in_failed: "Could not move {from} into place at {to}"
+      previous_unfinished: "A previous apply did not finish. Roll it back or resume it before starting another."
+    change:
+      added: "{package} {version} (new)"
+      removed: "{package} {version} (removed)"
+    check:
+      no_lock: "The Extension Manager could not read composer.lock, so it cannot tell what is installed."
     composer:
-      add_repository_label: Add Repository
-      delete_repository_confirmation: Are you sure you want to delete this repository? All extensions installed from this repository will be removed.
-      delete_repository_label: Delete repository
-      edit_repository_label: Edit repository
-      title: Composer
-      minimum_stability:
-        label: Minimum Stability
-        help: The type of packages allowed to be installed. Do not change this unless you know what you are doing.
-        options:
-          stable: Stable (Recommended)
-          rc: Release Candidate
-          beta: Beta
-          alpha: Alpha
-          dev: Dev
-      repositories:
-        label: Repositories
-        help: >
-          Add additional repositories to install packages from. This is an advanced feature, do not add repositories that are not trusted, as they can be used to execute malicious code on your server.
-        types:
-          composer: composer
-          vcs: vcs
-          path: path
-        add_modal:
-          name_label: Name
-          type_label: Type
-          url: URL
-          submit_button: Submit
-
-    exceptions:
-      composer_command_failure: Failed to execute. Check the composer logs in storage/logs/composer.
-      extension_already_installed: Extension is already installed.
-      extension_not_directly_dependency: Extension is installed as a dependency of another extension, it cannot be directly removed.
-      extension_not_installed: Extension not found.
-
-      guessed_cause:
-        extension_incompatible_with_instance: The extension is most likely incompatible with your current Flarum instance.
-        extension_not_found: The extension was not found or does not exist.
-        extensions_incompatible_with_new_major: >
-          Some installed extensions are not compatible with the newest major release.
-          Please wait until the extensions are updated to be compatible by the authors, or remove them before proceeding.
-
-    extensions:
-      already_installed: This extension is already installed
-      check_why_it_failed_updating: Show why it did not update to the latest.
-      install: Install a new extension
-      install_help: >
-        Fill in the extension package name to proceed. You can specify a <semantic_link>semantic version</semantic_link> using the format <code>vendor/package-name:version</code>.
-        Visit {link} to browse available packages.
-      proceed: Proceed
-      remove: Uninstall
-      successful_install: "{extension} was installed successfully, redirecting.."
-      successful_remove: Extension removed successfully.
-      successful_update: "{extension} was updated successfully, redirecting.."
-      update: Update
-      update_soft_label: Soft update
-      update_hard_label: Hard update
-
-    file_permissions: >
-      The extension manager requires read and write permissions on the following files and directories: composer.json, composer.lock, vendor, storage, storage/.composer
-
-    major_updater:
-      description: >
-        Major Flarum updates are not backwards compatible, meaning that some of your currently installed extensions, and manually made modifications might not work with this new version.
-        Please make sure to make a backup of your database and files before proceeding.
-      dry_run: Dry Run
-      dry_run_help: A dry run emulates the update to see if your current setup can safely update, this does not mean that your manual made custom modifications will work in the newer version.
-      failure:
-        desc: The last major update failed, some installed extensions are not compatible with the new major release.
-        why: Find out more
-
-      title: Flarum {version} Major Update Available
-      update: Update
-
-    minor_update_confirmation:
-      content: This will also update any other extensions/packages with available updates.
-
-    required_php_functions: >
-      The extension manager requires the following PHP functions to be enabled: <code>{functions}</code>.
-      If you do not have access to the PHP configuration, please contact your hosting provider.
-
-    sections:
-      discover:
-        description: Add new features and integrations to your Flarum forum with extensions.
-        empty_results: Looks like there are no extensions available.
-        extension:
-          badges:
-            abandoned: Abandoned
-            fof: Friends Of Flarum
-            flarum: Flarum
-          downloads: "{count, plural, one {{formattedCount} download} other {{formattedCount} downloads}}"
-        search: Search...
-        server_error: Service currently unavailable, please try again later.
-        sort:
-          top: Most Downloads
-        tabs:
-          discover: Discover
-          extensions: Extensions
-          languages: Languages
-          themes: Themes
-        title: Extensions
-      queue:
-        columns:
-          details: Details
-          elapsed_time: Completed in
-          peak_memory_used: Peak Memory Usage
-          operation: Operation
-          package: Package
-          status: Status
-        none: There are no tasks yet.
-        operations:
-          extension_install: Install extension
-          extension_remove: Remove extension
-          extension_update: Update extension
-          update_check: Check for updates
-          update_global: Update all software packages
-          update_major: Major update
-          update_minor: Minor update
-          why_not: Analyze why a package cannot be updated
-        output_modal:
-          cause_unknown: Unknown
-          command: Composer Command
-          guessed_cause: Cause
-          output: Output
-        refresh: Refresh tasks list
-        statuses:
-          success: Success
-          failure: Failed
-          pending: Pending
-          running: Running
-        task_just_started: Task just started
-        title: Queue
-      settings:
-        title: Options and Queue
-        description: Configure the extension manager and check operations in the queue.
-
-    settings:
-      title: => core.ref.settings
-      access_warning: Please be careful to who you give access to the admin area, the extension manager could be misused by bad actors to install packages that can lead to security breaches.
-      debug_mode_warning: You are running in debug mode, the extension manager cannot properly install and update local development packages. Please use the command line interface instead for such purposes.
-      queue_jobs: Run operations in the background queue
-      queue_jobs_help: >
-        You can read about a <basic_impl_link>basic queue</basic_impl_link> implementation or a <adv_impl_link>more advanced</adv_impl_link> one.
-        Make sure the PHP version used for the queue is {php_version}. Make sure <folder_perms_link>folder permissions</folder_perms_link> are correctly configured.
-      task_retention_days: Task retention days
-      task_retention_days_help: >
-          The number of days to keep completed tasks in the database. Tasks older than this will be deleted.
-          Set to 0 to keep all tasks.
-
+      advice_memory: "Ask your host to raise memory_limit for this site (256 MB is plenty), or update fewer extensions at once."
+      advice_time: "Composer keeps what it downloads, so pressing Update again later often gets further. If it keeps stopping, ask your host to raise max_execution_time for this site (120 seconds is plenty), or to allow proc_open so Composer can run in its own process."
+      and_more: ", and {count} more"
+      assets_published: "Assets published"
+      autoloader_copy_failed: "Could not save a copy of the autoloader, so Composer was not run."
+      broke_site_no_restore: "This update stopped the site from answering, and there is nothing saved to put back."
+      broke_site_restored: "This update stopped the site from answering, so it has been put back."
+      caches_cleared: "Caches cleared; the formatter and the compiled assets rebuilt"
+      composer_failed: "Composer failed:"
+      core_db_failed: "Flarum's files were updated but its database could not be: {error}"
+      core_db_failed_undone: "Flarum's files were updated but its database could not be ({error}), so the update was undone before the site could be left showing \"Update Flarum\"."
+      core_db_unchanged: "the database still records Flarum {version} after migrating."
+      core_moved: "Flarum moved from {from} to {to}, so its database was brought up to date straight away"
+      core_same_version: "Flarum still records {version}, the version of its new code, so its database is brought up to date with the other migrations"
+      downloaded: "Downloaded {package}"
+      flarum_command_failed: "`flarum {command}` failed:"
+      health_503_waiting: "The site answered 503 while the web server may still be re-reading the new files; looking again shortly."
+      health_down_before: "The site was already not answering before this update started ({why}), so this update will not be judged by whether it answers afterwards."
+      health_no_address: "No site address is configured, so this update will not be judged by whether the site answers."
+      health_not_checked: "The site was not checked, because there is no way to reach it from here."
+      health_ok_after: "The site is answering normally after the update."
+      health_ok_before: "The site is answering before we start."
+      health_still_down: "The site is still not answering, but it was not answering before this update either — so this has been left in place rather than blamed for it."
+      limit_joiner: ", and "
+      limit_memory: "this host does not let the Extension Manager raise memory_limit ({limit})"
+      limit_note: "Composer ran inside the web request, and {limits}."
+      limit_time: "this host does not let the Extension Manager lift the {seconds}-second time limit"
+      migrations_none: "Migrations run (no database changes)"
+      migrations_run: "Migrations run: {count} database change(s), which undoing this update reverses"
+      missing: "Composer itself could not be found. It ships with the Extension Manager, so this usually means the install is incomplete — reinstalling the extension should restore it."
+      needs_git: "Composer needed to run git (for a Git or path repository) and this host does not allow PHP to start other programs. For a GitHub or GitLab repository, add an access token under the Extension Manager → Sources so Composer uses their API instead of git; otherwise install the package from a Composer repository (Packagist, Private Packagist or Satis)."
+      no_archive: "There is no downloadable archive for {package}. It is probably installed from source or a path repository, which the Extension Manager cannot fetch."
+      not_in_plan: "{package} is not in the plan."
+      nothing_changed_install: "Nothing changed — that package is already installed at this version."
+      nothing_changed_remove: "Nothing changed — that package was not a direct requirement of this site."
+      nothing_moved_pinned: "Nothing moved, because {pins}. A newer version cannot be installed until that requirement is changed."
+      nothing_to_do: "nothing to do"
+      nothing_to_update: "Nothing to update — everything is already at the newest version it can be."
+      permissions_not_checked: "File permissions not checked on this host"
+      permissions_ok: "Every file this update changes is writable"
+      pin_raised: "{package} required at {version} instead of {current}"
+      pinned_to: "{package} is pinned to {constraint}"
+      registered: "Composer now knows about the change"
+      reread_done: "The web server has re-read the new files."
+      resolve_failed: "Composer could not work out an update:"
+      resolve_gave_up: "Nothing was changed. {how} — {attempts} times in a row, before Composer finished working out this update."
+      resolve_retrying: "{how} before Composer finished. Nothing was changed. Trying again (attempt {attempt} of {attempts}); Composer kept what it had already downloaded, so this attempt starts further along."
+      save_before_resolve_failed: "Could not save a copy of {file} before resolving, so nothing was started."
+      still_wants_changes: "Composer still wants to change {count} package(s) after the update was applied, so it was stopped before touching any files. Nothing is broken; roll this run back from the Extension Manager screen."
+      stopped: "The web server stopped the request"
+      stopped_memory: "This host stopped the request when it reached its memory limit ({limit})"
+      stopped_time: "This host stopped the request after {seconds} seconds"
+      stopped_unknown: "The web server stopped the request after about {seconds} seconds"
+      the_error_was: "The error was: {error}"
+      tidy_left: "Old rollback copies were left for the nightly tidy: {error}"
+      tidy_no_storage: "Old rollback copies were not tidied: no storage path is known here."
+      tidy_nothing: "No old rollback copies to remove."
+      tidy_removed: "Removed {count, plural, one {# old rollback copy} other {# old rollback copies}}, freeing {size}."
+      tidy_rest_tonight: "The rest will be tidied tonight."
+      wait_too_long: "The files are updated. This host re-reads them only every {seconds} second(s), which is too long to wait here — restart PHP-FPM to make the update take effect now."
+      waiting_reread: "Waiting {seconds} more second(s) for the web server to re-read the new files."
+      web_cache_cleared: "Cleared the web server's compiled-code cache, so the new files are used."
+      will_change: "{count} package(s) will change: {list}"
+    config:
+      basic_needs_username: "http-basic needs a username as well as a password."
+      credential_empty: "The credential is empty."
+      detail_token_set: "token set"
+      detail_username: "username {username}"
+      json_encode_failed: "Could not encode {file}: {error}"
+      json_invalid: "{file} is not valid JSON, so the Extension Manager will not overwrite it. Fix it by hand first — {error}."
+      json_refuse_write: "Refusing to write {file}: the result does not parse."
+      json_replace_failed: "Could not replace {path}."
+      json_unreadable: "Could not read {path}."
+      json_write_failed: "Could not write next to {path}. Check the directory is writable."
+      no_credential: "There is no credential stored for that host."
+      not_a_hostname: "That is not a hostname. Use github.com, not https://github.com/…."
+      repo_bad_url: "That does not look like a repository URL. Use https://, git@ or ssh://."
+      repo_exists: "That repository is already configured."
+      repo_missing: "That repository is not in composer.json."
+      repo_needs_url: "A repository needs a URL."
+      repo_path_not_url: "A path repository needs a filesystem path, not a URL."
+      repo_type_unsupported: "The Extension Manager does not add ''{type}'' repositories. Choose vcs, composer or path."
+      stability_invalid: "Minimum stability must be one of: {levels}."
+      takes_effect_next_time: "These take effect the next time something is installed or updated."
+      unknown_credential_type: "Unknown credential type. Use one of: {kinds}."
+      unknown_error: "unknown error"
+    core:
+      no_lock: "The Extension Manager could not read composer.lock, so it cannot work out what an upgrade would involve."
+    discover:
+      unexpected: "Packagist returned something unexpected."
+      unreachable: "Packagist could not be reached."
+    fetch:
+      checksum: "The download of {package} does not match its published checksum. It was not unpacked."
+      download_failed: "Could not download {url} (HTTP {code})."
+      not_archive: "The download of {package} is not a readable archive."
+      path_escapes: "Refusing to unpack {package}: the archive contains a path that escapes it."
+      private_hint: "If this package is private, the Extension Manager found no credentials for it — check auth.json."
+      read_entry_failed: "Could not read {name} out of the {package} archive."
+      staging_failed: "Could not create the staging directory for {package}."
+    flarum_command:
+      no_console: "`flarum {command}` could not be run: Flarum's console is not available here."
+      unknown: "`flarum {command}` is not a command on this forum."
+    fresh:
+      cleared: "Cleared PHP's compiled-code cache; the next request runs this step with the new code."
+      needs_web: "Waiting for the Extension Manager admin page to run this step: this host cannot start separate processes, and this long-running process still has the previous code loaded."
+      waiting_request: "Waiting for a fresh request so the new code is the code that runs."
+    fs:
+      create_failed: "Could not create {path}"
+      read_failed: "Could not read {path}."
+    git:
+      add_token: "Add a GitHub token under the Extension Manager → Sources so Composer reads these through GitHub's API instead: {urls}."
+      blocked: "Nothing was changed. This host does not allow PHP to start other programs, so Composer cannot run git, and some of this site's package sources need it."
+      git_only: "These can only be read with git: {urls}. Serve those packages from a Composer repository instead (Packagist, Private Packagist or Satis), or remove the source if nothing uses it."
+    health:
+      answered: "The site answered {status}."
+      asked_directly: "(asked this server directly; its own address is not reachable from here)"
+      never_reached: "The site was never reached."
+      no_answer: "The site did not answer at all ({error})."
+      no_http: "This host has no way to make an HTTP request."
+      no_response: "no response"
+    capability:
+      disk_free: "Disk: {gb} GB free"
+      disk_unknown: "Disk: unknown"
+      disk_why: "The previous version of anything replaced is kept so you can roll back. That needs room for what changed, not for a second copy of everything."
+      memory: "Memory: {memory}"
+      memory_full: "A resolve on a forum this size peaks around 165 MB, so everything works, including updating Flarum itself."
+      memory_none: "Below about 160 MB, Composer cannot resolve dependencies here at all. Ask your host to raise memory_limit — 256 MB is plenty."
+      memory_targeted: "Enough to update one extension at a time, but not to re-resolve everything at once. Updating Flarum needs about 192 MB."
+      opcache_delay: "The cache cannot be cleared from here, so an update becomes live within {seconds} second(s) rather than immediately."
+      opcache_handled: "The Extension Manager clears the compiled-code cache when an update finishes, so the new files are used straight away rather than after a delay."
+      opcache_never_rereads: "PHP caches compiled code and never re-reads files"
+      opcache_off: "No compiled-code cache"
+      opcache_off_why: "Nothing stands between the files an update writes and the code that runs."
+      opcache_rereads: "PHP re-reads changed files every {seconds} second(s)"
+      opcache_restart: "This host never re-reads changed files and the cache cannot be cleared from here, so PHP-FPM has to be restarted for an update to take effect."
+      summary_full: "Everything works on this host. Updates replace one package at a time, which is safe and reversible."
+      summary_none: "This host does not have enough memory for Composer to work out what an update involves. Everything else is ready — ask your host to raise memory_limit to 256 MB."
+      summary_targeted: "You can update extensions one at a time here. Updating Flarum itself needs a little more memory than this host allows."
+      time_limit: "Execution limit: {seconds} seconds"
+      time_limit_why: "Not a problem. The Extension Manager does one small step per request, so an update that takes ten minutes still finishes on a host that cuts every request at {seconds} seconds."
+      time_none: "Execution limit: none"
+      time_none_why: "Not that it matters — no single step needs more than a few seconds either way."
+      unlimited: "unlimited"
+    installed:
+      rewrite_failed: "Could not rewrite vendor/composer/installed.json."
+    journal:
+      append_failed: "Cannot append to the journal at {path}"
+      dir_failed: "Cannot create the journal directory at {path}"
+      read_failed: "Cannot read the journal at {path}"
+      write_failed: "Cannot write the journal at {path}"
+    migrations:
+      already_reversed: "Already reversed: {list}."
+      irreversible: "Nothing was undone: this update changed the database with {migration}, which has no way to reverse itself. Putting the old version back would leave it running on a database it was not written for."
+      irreversible_ext: "Nothing was undone: this update changed the database with {migration} ({extension}), which has no way to reverse itself. Putting the old version back would leave it running on a database it was not written for."
+      none_reversed: "Nothing had been reversed yet."
+      reversed: "reversed database change {migration}"
+      undo_stopped: "Undoing stopped while reversing {migration}: {error}"
+    opcache:
+      cleared: "Cleared PHP's compiled-code cache so the new files are used."
+      cli_delay: "This step ran from the command line, which cannot clear the web server's compiled-code cache. The files are updated and PHP will pick them up within {seconds} second(s) on its own."
+      cli_restart: "This step ran from the command line, which cannot clear the web server's compiled-code cache. The files are updated, but PHP on this host is set never to re-read them (opcache.validate_timestamps is off), so restart PHP-FPM to make the update take effect."
+      fine: "No compiled-code cache is in the way here."
+      not_cleared_delay: "The files are updated. PHP's compiled-code cache could not be cleared from here, so the change becomes live within {seconds} second(s)."
+      not_cleared_restart: "The files are updated, but PHP's compiled-code cache could not be cleared from here and this host is set never to re-read files. Restart PHP-FPM to make the update take effect."
+    permissions:
+      and_more: "… and {count} more"
+      blocked: "Nothing was changed: {count} path(s) this update needs to change are not writable by {user}, usually because a command was run as root. Give them back to the web server user and run the update again, for example as root:"
+      web_user: "the web server user"
+    php:
+      exit_code: "exit code {code}"
+      wrong_sapi: "reports SAPI \"{sapi}\", not cli"
+    process:
+      start_failed: "Could not start {command}."
+      the_command: "the command"
+      the_command_start: "The command"
+      timeout: "{command} did not finish within {seconds}s."
+    prune:
+      base_not_dir: "Refusing to delete inside {path}: it is not a directory."
+      cannot_list: "Cannot list {path}."
+      journal_unreadable: "Nothing was removed: the journal of {id} could not be read, and it may be needed for a rollback."
+      not_inside: "Refusing to delete {path}: it is not inside {base}."
+      not_readable: "{path} is not readable."
+      not_single_name: "Refusing to delete ''{name}'': it is not a single name inside {base}."
+      remove_dir_failed: "Could not remove {path} — something in it could not be deleted."
+      remove_failed: "Could not remove {path}."
+      resolves_outside: "Refusing to delete {path}: it resolves outside {base}."
+    release_notes:
+      none: "No release notes are known for that package."
+    restore:
+      assets_rebuilt: "Assets and caches rebuilt"
+      command_failed: "The files are back, but `php flarum {command}` failed, so the forum may still be serving the newer version's assets. Run `php flarum assets:publish`, `php flarum cache:clear` and `php flarum extension-manager:repair-formatter` and `php flarum extension-manager:rebuild-assets` to finish."
+      composer_failed: "The files are back, but Composer could not be run here ({error}). Run `composer install` to finish putting things back."
+      migrations_queued: "database changes queued to be reversed on the next request"
+      record_failed: "The files are back, but Composer could not update its own record. Run `composer install` to finish putting things back."
+      record_put_back: "Composer's record put back"
+    rollback:
+      move_aside_failed: "Could not move {path} aside during rollback"
+      nothing: "There is nothing to roll back."
+      nothing_changed: "That update never got as far as changing anything, so there is nothing to undo."
+      put_back_failed: "Could not put {file} back from {from}"
+      remove_failed: "Could not remove {path} during rollback"
+      restore_failed: "Could not restore {from} to {to}"
+      restored: "restored {file}"
+    run:
+      dir_failed: "Could not create the run directory at {path}"
+      failed_during: "Failed during {step}: {error}"
+      finished: "Finished"
+      finished_phase: "Finished {phase}"
+      no_worker: "There is no background worker on this forum, so keep this page open until it finishes. It will pick up where it left off if you do close it."
+      nothing_to_undo: "nothing to undo"
+      put_back: "Put back automatically: {undone}"
+      queue_worker: "queue worker"
+      rolled_back: "Rolled back: {undone}"
+      starting: "Starting"
+      state_move_failed: "Cannot move the run state into place at {path}"
+      state_write_failed: "Cannot write the run state at {path}"
+      worker_available: "A background worker is available, so this will carry on even if you close this page."
+      worker_stopped: "The background worker running this update stopped: {error}"
+    stale_cache:
+      set_aside: "Set aside a cache owned by another user, which Flarum rebuilds; delete it as root when convenient:"
+    start:
+      in_progress: "An update is already in progress."
+      in_progress_stale: "An update is already in progress, though nothing has moved for {minutes} minutes."
+      no_nightly: "There is no nightly build to move to: Packagist has no development branch for this Flarum, or could not be reached. Nothing was started."
+      not_a_package: "That is not a package name: {package}"
+      not_direct: "{package} is not something this site requires directly — it was installed because another extension depends on it. Removing that extension will take this one with it."
+      not_enough_memory: "This host does not have enough memory for Composer to work out what an update involves. Nothing was started. Ask your host to raise memory_limit to 256 MB and try again."
+      nothing_selected: "Nothing was selected, so nothing was started."
+      replaced: "{name} has been replaced by another package, so it was not installed. Its Packagist page or repository names the one to use now."
+      replaced_by: "{name} has been replaced by {replacement}. Install {replacement} instead; installing the old name gives you the new extension under the wrong id."
+      still_enabled: "{package} is still enabled. Turn it off on the Extensions page first, check the forum is happy without it, and then remove it."
     updater:
-      up_to_date: No pending updates.
-      check_for_updates: Check for updates
-      flarum: Flarum Core
-      global_update_successful: Successfully updated all packages.
-      last_update_checked_at: "Last Update Check: "
-      run_global_update: Run Global Update
-      updater_title: Updates
-      updater_help: Runs a check for new extension and Flarum updates.
-
-    update_successful: Flarum successfully updated.
-
-    why_not_modal:
-      title: Why Won't it Update
+      answered: "Flarum's updater did not update the database (it answered {status}: {body})."
+      no_http: "This host cannot make an HTTP request, so Flarum's updater could not be asked to update the database."
+      unreachable: "Flarum's updater did not update the database (it could not be reached: {error})."

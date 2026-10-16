@@ -62,7 +62,8 @@
             "Flarum\\Testing\\": "php-packages/testing/src"
         },
         "files": [
-            "framework/core/src/helpers.php"
+            "framework/core/src/helpers.php",
+            "extensions/package-manager/bootstrap/web-reset.php"
         ]
     },
     "autoload-dev": {

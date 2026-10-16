@@ -9,99 +9,97 @@
 
 namespace Flarum\ExtensionManager;
 
-use Composer\Config;
-use Composer\Console\Application;
-use Composer\Util\Platform;
-use Flarum\Extension\ExtensionManager;
-use Flarum\ExtensionManager\Composer\ComposerAdapter;
-use Flarum\ExtensionManager\Event\FlarumUpdated;
-use Flarum\ExtensionManager\Extension\Event\Updated;
-use Flarum\ExtensionManager\Listener\ClearCacheAfterUpdate;
-use Flarum\ExtensionManager\Listener\ReCheckForUpdates;
+use Flarum\ExtensionManager\Host\StorageDir;
+use Flarum\ExtensionManager\Run\Drivers;
+use Flarum\ExtensionManager\Run\RunStore;
+use Flarum\ExtensionManager\Run\StepRunner;
+use Flarum\ExtensionManager\Run\StepsFactory;
+use Flarum\ExtensionManager\Work\ComposerStepsFactory;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
-use Flarum\Frontend\RecompileFrontendAssets;
-use Flarum\Locale\LocaleManager;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Filesystem\Filesystem;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\RotatingFileHandler;
-use Monolog\Logger;
+use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Contracts\Queue\Factory as QueueFactory;
 
 class ExtensionManagerServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
-        $this->container->singleton(ComposerAdapter::class, function (Container $container) {
-            // This should only ever be resolved when running composer commands,
-            // because we modify other environment configurations.
-            $composer = new Application();
-            $composer->setAutoExit(false);
+        /*
+         * A CLI update asking the web server to drop its compiled code; see
+         * Opcache::requestWebReset(). bootstrap/web-reset.php takes it before any
+         * extension boots; this covers a site whose storage is not where that
+         * file looks, and is not a second stat everywhere else.
+         */
+        if (PHP_SAPI !== 'cli') {
+            $storage = $this->container->make(Paths::class)->storage;
 
-            /** @var Paths $paths */
-            $paths = $container->make(Paths::class);
+            if (! defined('FLARUM_EXTENSION_MANAGER_EARLY_STORAGE') || $storage !== FLARUM_EXTENSION_MANAGER_EARLY_STORAGE) {
+                \Flarum\ExtensionManager\Host\Opcache::honourWebReset($storage);
+            }
+        }
 
-            Platform::putenv('COMPOSER_HOME', "$paths->storage/.composer");
-            Platform::putenv('COMPOSER', "$paths->base/composer.json");
-            Platform::putenv('COMPOSER_DISABLE_XDEBUG_WARN', '1');
-            Config::$defaultConfig['vendor-dir'] = $paths->vendor;
+        $this->container->singleton(RunStore::class, function ($container) {
+            /*
+             * Under storage/, which is already writable, already excluded from
+             * the web root, and already backed up with the rest of the site. A
+             * run's state is not secret but it is not public either.
+             */
+            return new RunStore(StorageDir::of($container->make(Paths::class)->storage).'/runs');
+        });
 
-            // When running simple require, update and remove commands on packages,
-            // composer 2 doesn't really need this much unless the extensions are very loaded dependency wise,
-            // but this is necessary for running flarum updates.
-            @ini_set('memory_limit', '1G');
-            @set_time_limit(5 * 60);
-
-            return new ComposerAdapter(
-                $composer,
-                $container->make(OutputLogger::class),
-                $container->make(Paths::class),
-                $container->make(Filesystem::class)
+        $this->container->singleton(Drivers::class, function ($container) {
+            return new Drivers(
+                $container->make(QueueFactory::class),
+                $container->make(Dispatcher::class)
             );
         });
 
-        $this->container->alias(ComposerAdapter::class, 'flarum.composer');
-
-        $this->container->singleton(OutputLogger::class, function (Container $container) {
-            $logPath = $container->make(Paths::class)->storage.'/logs/composer/output.log';
-            $handler = new RotatingFileHandler($logPath, Logger::INFO);
-            $handler->setFormatter(new LineFormatter(null, null, true, true));
-
-            $logger = new Logger('composer', [$handler]);
-
-            return new OutputLogger($logger);
+        /*
+         * 🚨 Bound as a FACTORY, never as the work for "the current run".
+         *
+         * The obvious binding — ask the store for the latest run and build the
+         * work around it — is correct under PHP-FPM and wrong in a queue worker,
+         * which is a long-lived process where a singleton outlives the job that
+         * created it. That worker would carry the finished run's staging
+         * directory and journal into the next run, and a journal that disagrees
+         * with what happened is a rollback that restores the wrong files.
+         *
+         * Handing the id in at step() time removes the question entirely.
+         */
+        $this->container->singleton(StepsFactory::class, function ($container) {
+            /*
+             * 🚨 Config is REQUIRED here, and this line is why.
+             *
+             * It used to be optional with a null default and this binding did
+             * not pass it — so `siteUrl()` returned '' on every install, and
+             * every run reported "No site address is configured, so this update
+             * will not be judged by whether the site answers." The health check
+             * and the automatic rollback-when-the-site-breaks were therefore
+             * never once exercised, on any forum, since the day they were
+             * written. Nothing errored; the feature simply was not there.
+             */
+            return new ComposerStepsFactory(
+                $container->make(Paths::class),
+                $container->make(Config::class)
+            );
         });
-    }
 
-    public function boot(Container $container): void
-    {
-        /** @var Dispatcher $events */
-        $events = $container->make('events');
+        /*
+         * 🚨 The lock directory is what stops two drivers doing the same item.
+         * On a forum with a queue, the admin page polling and a worker WILL run
+         * at once — without this they both read the same index and a package is
+         * applied twice.
+         */
+        $this->container->singleton(StepRunner::class, function ($container) {
+            $storage = $container->make(Paths::class)->storage;
 
-        $events->listen(
-            [Updated::class],
-            function (Updated $event) use ($container) {
-                /** @var ExtensionManager $extensions */
-                $extensions = $container->make(ExtensionManager::class);
-
-                if ($extensions->isEnabled($event->extension->getId())) {
-                    $recompile = new RecompileFrontendAssets(
-                        $container->make('flarum.assets.forum'),
-                        $container->make(LocaleManager::class),
-                        null,
-                        $container->make(SettingsRepositoryInterface::class)
-                    );
-                    $recompile->markDirty();
-
-                    $extensions->migrate($event->extension);
-                    $event->extension->copyAssetsTo($container->make('filesystem')->disk('flarum-assets'));
-                }
-            }
-        );
-
-        $events->listen(FlarumUpdated::class, ClearCacheAfterUpdate::class);
-        $events->listen([FlarumUpdated::class, Updated::class], ReCheckForUpdates::class);
+            return new StepRunner(
+                $container->make(RunStore::class),
+                $container->make(StepsFactory::class),
+                fn () => time(),
+                StorageDir::of($storage).'/locks'
+            );
+        });
     }
 }
