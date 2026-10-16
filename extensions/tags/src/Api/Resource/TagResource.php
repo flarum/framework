@@ -89,7 +89,7 @@ class TagResource extends AbstractDatabaseResource
      * permission checks) and the actor's read state. Load those for every
      * discussion in the response together, rather than once per row. (A tag's
      * own parent is loaded above, and its children get theirs from the
-     * inverse relation.)
+     * inverse relation.).
      */
     protected function relationsTheIncludesRead(): array
     {
