@@ -33,11 +33,15 @@ export default function addPostQuoteButton() {
           if (!rects.length) return;
 
           const firstRect = rects[0];
+          const lastRect = rects[rects.length - 1];
 
-          if (e.clientY < firstRect.bottom && e.clientX - firstRect.right < firstRect.left - e.clientX) {
+          // A selection made by touch is reported by selectionchange, which
+          // has no pointer position to place the button by.
+          if (e.type === 'selectionchange') {
+            button.showTouch(firstRect, lastRect);
+          } else if (e.clientY < firstRect.bottom && e.clientX - firstRect.right < firstRect.left - e.clientX) {
             button.showStart(firstRect.left, firstRect.top);
           } else {
-            const lastRect = rects[rects.length - 1];
             button.showEnd(lastRect.right, lastRect.bottom);
           }
         }
