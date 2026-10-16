@@ -11,7 +11,7 @@ export default function addLikesTabToUserProfile() {
     items.add(
       'likes',
       <LinkButton href={app.route('user.likes', { username: user?.slug() })} icon="far fa-thumbs-up">
-        {app.translator.trans('flarum-likes.forum.user.likes_link')}
+        {app.translator.trans('flarum-likes.forum.user.likes_link')} <span className="Button-badge">{user?.likeCount()}</span>
       </LinkButton>,
       88
     );
