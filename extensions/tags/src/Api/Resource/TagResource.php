@@ -65,7 +65,9 @@ class TagResource extends AbstractDatabaseResource
     public function endpoints(): array
     {
         return [
-            Endpoint\Show::make(),
+            Endpoint\Show::make()
+                ->eagerLoad(['parent'])
+                ->eagerLoadWhenIncluded($this->relationsTheIncludesRead()),
             Endpoint\Create::make()
                 ->authenticated()
                 ->can('createTag'),
@@ -76,7 +78,23 @@ class TagResource extends AbstractDatabaseResource
                 ->authenticated()
                 ->can('delete'),
             Endpoint\Index::make()
-                ->defaultInclude(['parent']),
+                ->defaultInclude(['parent'])
+                ->eagerLoad(['parent'])
+                ->eagerLoadWhenIncluded($this->relationsTheIncludesRead()),
+        ];
+    }
+
+    /**
+     * Serializing an included discussion reads its tags and their parents (for
+     * permission checks) and the actor's read state. Load those for every
+     * discussion in the response together, rather than once per row. (A tag's
+     * own parent is loaded above, and its children get theirs from the
+     * inverse relation.).
+     */
+    protected function relationsTheIncludesRead(): array
+    {
+        return [
+            'lastPostedDiscussion' => ['lastPostedDiscussion.state', 'lastPostedDiscussion.tags.parent'],
         ];
     }
 
@@ -144,7 +162,10 @@ class TagResource extends AbstractDatabaseResource
                 ->writable(fn (Tag $tag, FlarumContext $context) => (bool) Arr::get($context->body(), 'attributes.isPrimary')),
             Schema\Relationship\ToMany::make('children')
                 ->type('tags')
-                ->includable(),
+                ->includable()
+                // A child's parent is the tag it was loaded for, which its
+                // permission checks then read without querying it again.
+                ->inverse('parent'),
             Schema\Relationship\ToOne::make('lastPostedDiscussion')
                 ->type('discussions')
                 ->includable(),
