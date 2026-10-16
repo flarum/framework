@@ -175,6 +175,31 @@ describe('the quote button', () => {
     expect(quoteButton().style.top).toBe(`${580 - 70 - BUTTON_HEIGHT}px`);
   });
 
+  it('stays on screen for a touch selection taller than the screen', () => {
+    const element = renderPost();
+
+    selectByTouch(element, [
+      { left: 15, right: 360, top: 23, bottom: 43 },
+      { left: 15, right: 200, top: 619, bottom: 639 },
+    ]);
+
+    expect(quoteButton().style.top).toBe('10px');
+  });
+
+  // Core's composer resize and post scrubber drag end on a document mouseup.
+  it('leaves document mouseup handlers registered elsewhere alone', () => {
+    const element = renderPost();
+    const otherHandler = jest.fn();
+    $(document).on('mouseup', otherHandler);
+
+    selectByTouch(element, [{ left: 40, right: 200, top: 60, bottom: 80 }]);
+    $(document).trigger('mouseup');
+    $(document).trigger('mouseup');
+
+    expect(otherHandler).toHaveBeenCalledTimes(2);
+    $(document).off('mouseup', otherHandler);
+  });
+
   // Dragging a selection handle fires selectionchange over and over, showing
   // the button again each time without a click in between.
   it('stops listening for clicks once hidden, however many times it was shown', () => {
