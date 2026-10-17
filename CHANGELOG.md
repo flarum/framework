@@ -22,14 +22,19 @@
 - (core) render `<b>` and `<u>` in translations again, instead of `{undefined}` by @imorland [#5224]
 - (core) keep modals centred when their scrollbar comes and goes by @imorland [#5227]
 - (core) limit repeated failed logins from one address, and say so on the login form by @imorland [#5229]
+- (core) count hidden groups when checking a serialised user's permissions, so an admin in a hidden group is no longer treated as a member by @imorland [#5241]
 - (deck) catch columns up on what happened while away from the Deck by @HawkForge [#5193]
 - (likes) don't unlike a post when `isLiked` is set to true again by @imorland [#5206]
 - (mentions) keep the quote button on screen and clear of the phone's selection handles by @ekumanov [#5205]
 - (realtime) answer every push when two arrive at once, so events aren't lost by @imorland [#5218]
+- (testing) create `storage/locale` for the test site, so test suites no longer end with warnings about writing translation catalogues by @imorland [#5235]
 - (webpack-config) register a default exported arrow function, call or property as its value, not the first name in it by @imorland [#5234]
 
 ### Performance
 
+- (core) serialize a resource's fields once when a response reaches it more than once, and stop post lists asking for a total they don't show by @imorland [#5238]
+- (core) keep the formatter's renderer instead of reloading it for every post by @imorland [#5239]
+- (core) remember whether a user is an administrator instead of checking their groups for every permission by @imorland [#5240]
 - (tags) load what tag permission checks read together, not per tag by @imorland [#5214]
 - (tags) load the actor's tag state for all the listed tags together, not per tag by @imorland [#5233]
 
