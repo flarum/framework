@@ -34,12 +34,14 @@ class PostResourceFields
                 // one, and that check reads the post's discussion; rendering
                 // their content reads what they mention. Their author is
                 // included with them, but only after their fields are, so the
-                // checks among those that read it would each load it. Without
-                // the eager loads every mentioning post fetches these separately.
+                // checks among those that read it would each load it, and
+                // serializing the author reads their groups. Without the eager
+                // loads every mentioning post fetches these separately.
                 ->scope(fn (BelongsToMany $query, Context $context) => $query
                     ->with([
                         'discussion',
                         'user' => fn (Relation $user) => $user->whereVisibleTo($context->getActor()),
+                        'user.groups',
                         'mentionsPosts.user',
                         'mentionsPosts.discussion',
                         'mentionsUsers',
