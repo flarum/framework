@@ -44,6 +44,20 @@ class Formatter
     protected string|false|null $faviconUrl = false;
 
     /**
+     * The renderer as compiled, which every render starts from a copy of.
+     *
+     * The cached formatter holds the parser and the JavaScript as well, so
+     * fetching it for every render read and unserialized all of it again: a
+     * list renders every post in it.
+     */
+    protected ?Renderer $renderer = null;
+
+    /**
+     * Whether the autoloader for the compiled renderer class is registered.
+     */
+    protected bool $rendererAutoloaded = false;
+
+    /**
      * `$config` is optional because extensions subclass this and call
      * `parent::__construct()` with the two arguments that existed before it
      * was added. When it is absent the forum's address is resolved from the
@@ -138,6 +152,8 @@ class Formatter
     public function flush(): void
     {
         $this->cache->forget('flarum.formatter');
+
+        $this->renderer = null;
     }
 
     /**
@@ -298,13 +314,21 @@ class Formatter
 
     protected function getRenderer(): Renderer
     {
-        spl_autoload_register(function ($class) {
-            if (file_exists($file = $this->cacheDir.'/'.$class.'.php')) {
-                include $file;
-            }
-        });
+        if (! $this->rendererAutoloaded) {
+            spl_autoload_register(function ($class) {
+                if (file_exists($file = $this->cacheDir.'/'.$class.'.php')) {
+                    include $file;
+                }
+            });
 
-        return $this->getComponent('renderer');
+            $this->rendererAutoloaded = true;
+        }
+
+        $this->renderer ??= $this->getComponent('renderer');
+
+        // Rendering callbacks may set parameters for the post being rendered,
+        // so every render starts from the renderer as compiled.
+        return clone $this->renderer;
     }
 
     /**
