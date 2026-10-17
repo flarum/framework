@@ -5,6 +5,7 @@ import GeneralSearchSource from '../../../../src/admin/components/GeneralSearchS
 import SearchState from '../../../../src/common/states/SearchState';
 import { app } from '../../../../src/admin';
 import Stream from '../../../../src/common/utils/Stream';
+import m from 'mithril';
 
 beforeAll(() => bootstrapAdmin());
 
@@ -181,3 +182,45 @@ describe('SearchModal result links', () => {
     expect(closeSpy).not.toHaveBeenCalled();
   });
 });
+
+describe('SearchModal.activeTabItems', () => {
+  beforeAll(() => app.boot());
+
+  it('includes fullPageLink immediately while results are loading', () => {
+    const modal = new SearchModal();
+    (modal as any).query = Stream('test');
+    (modal as any).loadingSources = ['discussions'];
+    const fakeSource = {
+      resource: 'discussions',
+      fullPage: () => m('li', 'Search all discussions for "test"'),
+      view: () => [],
+      customGrouping: () => false,
+    };
+    (modal as any).activeSource = Stream(fakeSource);
+    (modal as any).gambits = () => [];
+
+    const items = modal.activeTabItems();
+
+    expect(items.has('fullPageLink')).toBe(true);
+    expect(items.getPriority('fullPageLink')).toBe(80);
+  });
+
+  it('does not include fullPageLink when query is empty', () => {
+    const modal = new SearchModal();
+    (modal as any).query = Stream('');
+    (modal as any).loadingSources = [];
+    const fakeSource = {
+      resource: 'discussions',
+      fullPage: () => m('li', 'Search all discussions for ""'),
+      view: () => [],
+      customGrouping: () => false,
+    };
+    (modal as any).activeSource = Stream(fakeSource);
+    (modal as any).gambits = () => [];
+
+    const items = modal.activeTabItems();
+
+    expect(items.has('fullPageLink')).toBe(false);
+  });
+});
+
