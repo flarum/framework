@@ -19,6 +19,7 @@
 - (core) only require the PDO driver for the chosen database when installing by @imorland [#5212]
 - (core) don't leave already-loaded models queued in the relationship buffer by @imorland [#5213]
 - (core) let extensions listen to `MessageSending` by @imorland [#5217]
+- (core) render `<b>` and `<u>` in translations again, instead of `{undefined}` by @imorland [#5224]
 - (deck) catch columns up on what happened while away from the Deck by @HawkForge [#5193]
 - (likes) don't unlike a post when `isLiked` is set to true again by @imorland [#5206]
 - (mentions) keep the quote button on screen and clear of the phone's selection handles by @ekumanov [#5205]
