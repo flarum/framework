@@ -384,6 +384,12 @@ class UserResource extends AbstractDatabaseResource
                 }),
 
             Schema\Relationship\ToMany::make('groups')
+                // Whether a user is an admin, and what else they may do, is
+                // read from this relation (isAdmin(), hasPermission()) by the
+                // policies that decide what is serialized about them, so it
+                // must hold every group they are in, including the hidden
+                // ones the actor may not see. Those are left out below.
+                ->withoutRelatedScope()
                 ->get(function (User $user, Context $context) {
                     // Read the (eager-)loaded relation instead of issuing a fresh
                     // query per serialized user. Hidden groups are filtered in PHP
