@@ -100,6 +100,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 'flarum.api.check_for_maintenance',
                 HttpMiddleware\CheckCsrfToken::class,
                 Middleware\ThrottleApi::class,
+                Middleware\RecordFailedLogins::class,
                 HttpMiddleware\PopulateWithActor::class,
             ];
         });

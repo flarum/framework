@@ -694,6 +694,7 @@ core:
       sign_up_text: "Don't have an account? <a>Sign Up</a>"
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
+      too_many_attempts_message: => core.ref.too_many_login_attempts_message
       username_or_email_placeholder: => core.ref.username_or_email_placeholder
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
@@ -1143,6 +1144,7 @@ core:
       remember_me_label: => core.ref.remember_me_label
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
+      too_many_attempts_message: => core.ref.too_many_login_attempts_message
 
     # Translations in this namespace are displayed by the Reset Password interface.
     reset_password:
@@ -1307,6 +1309,7 @@ core:
     start_a_discussion: Start a Discussion
     title_az: Title (A–Z)
     title_za: Title (Z–A)
+    too_many_login_attempts_message: Too many failed attempts to log in. Please wait a few minutes, then try again.
     top: Top
     username: Username
     username_or_email_placeholder: Username or Email
