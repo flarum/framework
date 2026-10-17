@@ -14,7 +14,9 @@ use Flarum\Discussion\Discussion;
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
 use Flarum\Realtime\Push\RealtimeRegistry;
+use Flarum\Realtime\Websocket\Api\AuthController;
 use Flarum\Realtime\Websocket\Api\PresenceChannelAuthorizer;
+use Flarum\Realtime\Websocket\Api\PrivateChannelAuthorizer;
 use Flarum\Realtime\Websocket\Settings;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
@@ -49,6 +51,11 @@ class Realtime implements ExtenderInterface
      */
     protected array $presenceChannelGuards = [];
 
+    /**
+     * @var array<string, callable[]>
+     */
+    protected array $privateChannelGuards = [];
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->afterResolving(Settings::class, function (Settings $settings) {
@@ -59,6 +66,14 @@ class Realtime implements ExtenderInterface
             foreach ($this->presenceChannelGuards as $channel => $callbacks) {
                 foreach ($callbacks as $callback) {
                     $authorizer->add($channel, $callback);
+                }
+            }
+        });
+
+        $container->afterResolving(PrivateChannelAuthorizer::class, function (PrivateChannelAuthorizer $authorizer) {
+            foreach ($this->privateChannelGuards as $subject => $callbacks) {
+                foreach ($callbacks as $callback) {
+                    $authorizer->add($subject, $callback);
                 }
             }
         });
@@ -313,6 +328,59 @@ class Realtime implements ExtenderInterface
     public function authorizePresenceChannel(string $channel, callable $callback): self
     {
         $this->presenceChannelGuards[$channel][] = $callback;
+
+        return $this;
+    }
+
+    // -------------------------------------------------------------------------
+    // Private channel authorization
+    // -------------------------------------------------------------------------
+
+    /**
+     * Register a private channel of your own, `private-{subject}={id}`, and the
+     * callback that decides who may subscribe to it.
+     *
+     * Once subscribed, a connection can send `client-` events to everyone else
+     * on the channel, and the server can push to it with `Pusher::trigger()`.
+     * This is what an extension needs for anything scoped to one model, such
+     * as a document being edited together, a call or a game, where the
+     * per-user channel would mean a round trip through PHP for every message.
+     *
+     * The callback receives the actor (who may be a guest) and the numeric id
+     * from the channel name. Access is granted only if it returns exactly
+     * `true`; any other value denies. When several callbacks are registered for
+     * one subject, all of them must return `true`.
+     *
+     * The subject must be letters only, which is what the channel name format
+     * allows. Realtime's own subjects (`user`, `typing` and the rest) can't be
+     * registered, so an extension can never widen access to them.
+     *
+     * Example (in an extension's extend.php):
+     *
+     *   (new Extend\Conditional())
+     *       ->whenExtensionEnabled('flarum-realtime', fn () => [
+     *           (new \Flarum\Realtime\Extend\Realtime())
+     *               ->authorizePrivateChannel('postEdit', function (User $actor, int $id) {
+     *                   $post = Post::whereVisibleTo($actor)->find($id);
+     *
+     *                   return $post !== null && $actor->can('edit', $post);
+     *               }),
+     *       ]),
+     *
+     * @param string $subject  Channel subject, e.g. 'postEdit' for `private-postEdit=42`.
+     * @param callable(User $actor, int $id): bool $callback
+     */
+    public function authorizePrivateChannel(string $subject, callable $callback): self
+    {
+        if (! preg_match('/^[a-zA-Z]+$/', $subject)) {
+            throw new InvalidArgumentException("Private channel subject [$subject] must contain letters only.");
+        }
+
+        if (method_exists(AuthController::class, $subject)) {
+            throw new InvalidArgumentException("Private channel subject [$subject] is reserved by realtime.");
+        }
+
+        $this->privateChannelGuards[$subject][] = $callback;
 
         return $this;
     }

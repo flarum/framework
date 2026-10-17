@@ -11,8 +11,11 @@ namespace Flarum\Realtime\Tests\unit\Extend;
 
 use Flarum\Realtime\Extend\Realtime as RealtimeExtender;
 use Flarum\Realtime\Push\RealtimeRegistry;
+use Flarum\Realtime\Websocket\Api\PrivateChannelAuthorizer;
 use Flarum\Realtime\Websocket\Settings;
+use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -20,10 +23,13 @@ class RealtimeExtenderTest extends TestCase
 {
     private RealtimeRegistry $registry;
 
+    private PrivateChannelAuthorizer $privateAuthorizer;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->registry = new RealtimeRegistry();
+        $this->privateAuthorizer = new PrivateChannelAuthorizer();
     }
 
     /**
@@ -38,10 +44,15 @@ class RealtimeExtenderTest extends TestCase
         $container = $this->createMock(Container::class);
 
         $registry = $this->registry;
+        $privateAuthorizer = $this->privateAuthorizer;
 
         $container
             ->method('afterResolving')
-            ->willReturnCallback(function (string $abstract, callable $callback) use ($settings, $registry) {
+            ->willReturnCallback(function (string $abstract, callable $callback) use ($settings, $registry, $privateAuthorizer) {
+                if ($abstract === PrivateChannelAuthorizer::class) {
+                    $callback($privateAuthorizer);
+                }
+
                 if ($abstract === Settings::class) {
                     $callback($settings);
                 }
@@ -164,5 +175,58 @@ class RealtimeExtenderTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         (new RealtimeExtender())->daemonUrl('https://example.com/some/path');
+    }
+
+    #[Test]
+    public function authorize_private_channel_registers_with_the_authorizer(): void
+    {
+        $this->runExtender(
+            (new RealtimeExtender())->authorizePrivateChannel('postEdit', fn (User $actor, int $id) => $id === 7)
+        );
+
+        $actor = $this->createStub(User::class);
+
+        $this->assertTrue($this->privateAuthorizer->authorize('postEdit', $actor, 7));
+        $this->assertFalse($this->privateAuthorizer->authorize('postEdit', $actor, 8));
+    }
+
+    public static function invalidPrivateSubjects(): array
+    {
+        return [
+            'empty' => [''],
+            'hyphen' => ['post-edit'],
+            'digit' => ['post2'],
+            'equals sign' => ['post=1'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('invalidPrivateSubjects')]
+    public function authorize_private_channel_rejects_subjects_the_channel_format_cannot_carry(string $subject): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new RealtimeExtender())->authorizePrivateChannel($subject, fn () => true);
+    }
+
+    public static function reservedPrivateSubjects(): array
+    {
+        return [
+            'user' => ['user'],
+            'user, other case' => ['User'],
+            'typing' => ['typing'],
+            'typingIdentified' => ['typingIdentified'],
+            'privateMessageTyping' => ['privateMessageTyping'],
+            'controller method' => ['handle'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('reservedPrivateSubjects')]
+    public function authorize_private_channel_cannot_redefine_realtimes_own_channels(string $subject): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new RealtimeExtender())->authorizePrivateChannel($subject, fn () => true);
     }
 }

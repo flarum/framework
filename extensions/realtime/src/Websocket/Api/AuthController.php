@@ -31,6 +31,7 @@ class AuthController implements RequestHandlerInterface
         protected Pusher $pusher,
         protected Generator $generator,
         protected PresenceChannelAuthorizer $presenceAuthorizer,
+        protected PrivateChannelAuthorizer $privateAuthorizer,
         protected SettingsRepositoryInterface $settings
     ) {
     }
@@ -64,7 +65,14 @@ class AuthController implements RequestHandlerInterface
         }
 
         if (preg_match('~^private-(?<subject>[a-zA-Z]+)=(?<id>[0-9]+)$~', $channel, $m)) {
-            if (method_exists($this, $m['subject']) && call_user_func([$this, $m['subject']], $m['id'])) {
+            // Realtime's own channels are authorized by a method of the same name,
+            // and can't be redefined from outside. Any other subject is open only
+            // if an extension registered it with Extend\Realtime::authorizePrivateChannel().
+            $authorized = method_exists($this, $m['subject'])
+                ? call_user_func([$this, $m['subject']], $m['id'])
+                : $this->privateAuthorizer->authorize($m['subject'], $this->actor, (int) $m['id']);
+
+            if ($authorized) {
                 $socketId = Arr::get($attributes, 'socket_id');
 
                 // Compute the auth body
