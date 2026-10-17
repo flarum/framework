@@ -30,6 +30,7 @@
 ### Performance
 
 - (tags) load what tag permission checks read together, not per tag by @imorland [#5214]
+- (tags) load the actor's tag state for all the listed tags together, not per tag by @imorland [#5233]
 
 ## [v2.0.1](https://github.com/flarum/framework/compare/v2.0.0...v2.0.1)
 
