@@ -26,6 +26,7 @@
 - (likes) don't unlike a post when `isLiked` is set to true again by @imorland [#5206]
 - (mentions) keep the quote button on screen and clear of the phone's selection handles by @ekumanov [#5205]
 - (realtime) answer every push when two arrive at once, so events aren't lost by @imorland [#5218]
+- (webpack-config) register a default exported arrow function, call or property as its value, not the first name in it by @imorland [#5234]
 
 ### Performance
 
