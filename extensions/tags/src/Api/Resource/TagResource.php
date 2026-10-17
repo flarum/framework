@@ -19,6 +19,7 @@ use Flarum\Tags\Event\Deleting;
 use Flarum\Tags\Event\Saving;
 use Flarum\Tags\Tag;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Tobyz\JsonApiServer\Context;
 
@@ -80,7 +81,12 @@ class TagResource extends AbstractDatabaseResource
             Endpoint\Index::make()
                 ->defaultInclude(['parent'])
                 ->eagerLoad(['parent'])
-                ->eagerLoadWhenIncluded($this->relationsTheIncludesRead()),
+                ->eagerLoadWhenIncluded($this->relationsTheIncludesRead())
+                // Listing finds tags with the tag searcher, not scope(), which
+                // is where the actor's state is loaded: load it here instead.
+                ->eagerLoadWhere('state', function (Builder|Relation $query, FlarumContext $context) {
+                    $query->where('user_id', $context->getActor()->id);
+                }),
         ];
     }
 
