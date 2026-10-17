@@ -1,5 +1,6 @@
 import app from 'flarum/common/app';
 import { KeyValueGambit } from 'flarum/common/query/IGambit';
+import type Tag from '../../models/Tag';
 
 export default class TagGambit extends KeyValueGambit {
   predicates = true;
@@ -14,6 +15,15 @@ export default class TagGambit extends KeyValueGambit {
 
   filterKey(): string {
     return 'tag';
+  }
+
+  values() {
+    return (app.store.all<Tag>('tags') || [])
+      .map((tag) => ({
+        value: tag.slug(),
+        label: tag.name(),
+      }))
+      .filter((opt) => !!opt.value);
   }
 
   gambitValueToFilterValue(value: string): string[] {
