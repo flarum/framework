@@ -172,7 +172,11 @@ class Index extends Endpoint
 
                 $total ??= null;
 
-                return compact('models', 'meta', 'pagination', 'total');
+                // A searcher fetches one result past the page, so it knows
+                // whether there are more where the page being full only hints.
+                $more = $context instanceof Context ? $context->getSearchResults()?->areMoreResults() : null;
+
+                return compact('models', 'meta', 'pagination', 'total', 'more');
             })
             ->beforeSerialization(function (Context $context, array $results) {
                 // @phpstan-ignore-next-line
@@ -202,6 +206,12 @@ class Index extends Endpoint
                 if ($pagination) {
                     $meta['page'] = array_merge($meta['page'] ?? [], $pagination->meta());
                     $links = array_merge($links, $pagination->links(count($data), $total));
+
+                    // Without a total, a last page that happens to be full would
+                    // otherwise link to a next one, which is empty.
+                    if ($total === null && ($results['more'] ?? null) === false) {
+                        unset($links['next']);
+                    }
                 }
 
                 return json_api_response(compact('data', 'included', 'meta', 'links'));
