@@ -1,5 +1,37 @@
 # Changelog
 
+## [v2.0.2](https://github.com/flarum/framework/compare/v2.0.1...v2.0.2)
+
+### Added
+
+- (core) a `withDefaultIncludes` query parameter, to keep an endpoint's default includes alongside the ones a request names by @imorland [#5207]
+
+### Fixed
+
+- (core) accept a route resolver that narrows its component in the typings by @datlechin [#5009]
+- (core) preload the icon fonts at the URL the stylesheet uses, so each font downloads once by @karl-bullock [#5175]
+- (core) return 404, not 500, for a model with id 0 by @karl-bullock [#5191]
+- (core) focus the editor when the reply and edit composers open by @HawkForge [#5192]
+- (core) keep negated filters when a search is turned back into text by @HawkForge [#5202]
+- (core) keep the search clear button inside the search field in the phone drawer by @imorland [#5208]
+- (core) stop the header shifting when a modal opens by @imorland [#5209]
+- (core) keep the back button the same height on every page by @imorland [#5210]
+- (core) only require the PDO driver for the chosen database when installing by @imorland [#5212]
+- (core) don't leave already-loaded models queued in the relationship buffer by @imorland [#5213]
+- (core) let extensions listen to `MessageSending` by @imorland [#5217]
+- (core) render `<b>` and `<u>` in translations again, instead of `{undefined}` by @imorland [#5224]
+- (core) keep modals centred when their scrollbar comes and goes by @imorland [#5227]
+- (core) limit repeated failed logins from one address, and say so on the login form by @imorland [#5229]
+- (deck) catch columns up on what happened while away from the Deck by @HawkForge [#5193]
+- (likes) don't unlike a post when `isLiked` is set to true again by @imorland [#5206]
+- (mentions) keep the quote button on screen and clear of the phone's selection handles by @ekumanov [#5205]
+- (realtime) answer every push when two arrive at once, so events aren't lost by @imorland [#5218]
+
+### Performance
+
+- (tags) load what tag permission checks read together, not per tag by @imorland [#5214]
+- (tags) load the actor's tag state for all the listed tags together, not per tag by @imorland [#5233]
+
 ## [v2.0.1](https://github.com/flarum/framework/compare/v2.0.0...v2.0.1)
 
 ### Added
