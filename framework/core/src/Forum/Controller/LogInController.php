@@ -82,6 +82,9 @@ class LogInController implements RequestHandlerInterface
             if ($response->getStatusCode() === 401) {
                 $errors = new MessageBag(['identification' => $this->translator->trans('core.views.log_in.invalid_login_message')]);
                 $request->getAttribute('session')->put('errors', $errors);
+            } elseif ($response->getStatusCode() === 429) {
+                $errors = new MessageBag(['identification' => $this->translator->trans('core.views.log_in.too_many_attempts_message')]);
+                $request->getAttribute('session')->put('errors', $errors);
             }
 
             return new RedirectResponse($this->url->to('forum')->route('maintenance.login'));
