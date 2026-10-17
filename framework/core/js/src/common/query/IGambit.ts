@@ -65,9 +65,15 @@ export enum GambitType {
   Grouped = 'grouped',
 }
 
+export type GambitValueOption = {
+  value: string;
+  label?: string;
+};
+
 export type KeyValueGambitSuggestion = {
   key: string;
   hint: string;
+  values?: (string | GambitValueOption)[] | (() => (string | GambitValueOption)[]);
 };
 
 export type GroupedGambitSuggestion = {
@@ -166,10 +172,18 @@ export abstract class KeyValueGambit implements IGambit<GambitType.KeyValue> {
     return `${negate ? '-' : ''}${this.key()}:${this.filterValueToGambitValue(value)}`;
   }
 
-  suggestion() {
+  /**
+   * Optional list of suggested values or value options for this gambit.
+   */
+  values(): (string | GambitValueOption)[] {
+    return [];
+  }
+
+  suggestion(): KeyValueGambitSuggestion {
     return {
       key: this.key(),
       hint: this.hint(),
+      values: () => this.values(),
     };
   }
 
