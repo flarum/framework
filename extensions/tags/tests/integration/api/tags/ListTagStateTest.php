@@ -46,7 +46,7 @@ class ListTagStateTest extends TestCase
         );
 
         $this->prepareDatabase([
-            Tag::class  => array_merge($this->tags(), [
+            Tag::class => array_merge($this->tags(), [
                 ['id' => 20, 'name' => 'Alpha', 'slug' => 'alpha', 'position' => 20, 'parent_id' => null],
                 ['id' => 21, 'name' => 'Beta', 'slug' => 'beta', 'position' => 21, 'parent_id' => null],
                 ['id' => 22, 'name' => 'Kid of Alpha', 'slug' => 'kid-of-alpha', 'position' => 0, 'parent_id' => 20],
