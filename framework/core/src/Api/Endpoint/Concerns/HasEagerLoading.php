@@ -201,18 +201,26 @@ trait HasEagerLoading
                 // instead of it.
                 $callback = $callbacks[$path] ?? null;
 
+                // A relationship marked withoutRelatedScope() is read by more
+                // than the serialiser, so it is loaded in full, and leaves out
+                // what the actor may not see when it is serialised. The path
+                // still resolves through it: the segments beyond it are scoped
+                // as usual.
+                $inFull = $field && ! $field->relatedScope;
+
                 // Polymorphic relations span several resources, so the scope has
                 // to be applied per concrete model class through constrain() --
                 // the same shape EloquentBuffer::load() uses. Calling scope() on
                 // a MorphTo's own builder would resolve the related model's
                 // scopes against the wrong model.
-                $constrain = $field ? $this->morphConstraints($field, $context) : [];
+                $constrain = $field && ! $inFull ? $this->morphConstraints($field, $context) : [];
+                $scopedBy = $inFull ? null : $related;
 
-                $scoped[$path] = function (Relation|Builder $query) use ($related, $context, $callback, $constrain) {
+                $scoped[$path] = function (Relation|Builder $query) use ($scopedBy, $context, $callback, $constrain) {
                     if ($query instanceof MorphTo && $constrain) {
                         $query->constrain($constrain);
-                    } elseif ($related) {
-                        $related->scope($query instanceof Relation ? $query->getQuery() : $query, $context);
+                    } elseif ($scopedBy) {
+                        $scopedBy->scope($query instanceof Relation ? $query->getQuery() : $query, $context);
                     }
 
                     if ($callback) {
