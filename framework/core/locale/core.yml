@@ -957,6 +957,18 @@ core:
     group_selector:
       placeholder: Choose a group
 
+    # These translations are used by the icon picker and the icon input that opens it.
+    icon_picker:
+      brands_label: Brands
+      count_text: "{count, plural, one {# icon} other {# icons}}"
+      label: Choose an icon
+      more_text: "Showing {shown} of {count}. Search to narrow it down."
+      no_results_text: No icons match. You can still type any Font Awesome class in the field.
+      open_button: Choose an icon
+      regular_label: Regular
+      search_placeholder: Search icons
+      solid_label: Solid
+
     # These translations are used in the input component.
     input:
       clear_button: Clear input
