@@ -124,7 +124,7 @@ class ProfilePostListQueryCountTest extends TestCase
         for ($k = 1; $k <= self::DISCUSSIONS; $k++) {
             $reply = $replies[(string) (20 + $k)] ?? null;
 
-            $this->assertNotNull($reply, "The reply mentioning post ".(10 + $k).' is not included.');
+            $this->assertNotNull($reply, 'The reply mentioning post '.(10 + $k).' is not included.');
             $this->assertSame('4', $reply['relationships']['user']['data']['id'] ?? null);
             $this->assertSame((string) $k, $reply['relationships']['discussion']['data']['id'] ?? null);
         }
