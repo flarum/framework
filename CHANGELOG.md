@@ -20,6 +20,8 @@
 - (core) don't leave already-loaded models queued in the relationship buffer by @imorland [#5213]
 - (core) let extensions listen to `MessageSending` by @imorland [#5217]
 - (core) render `<b>` and `<u>` in translations again, instead of `{undefined}` by @imorland [#5224]
+- (core) keep modals centred when their scrollbar comes and goes by @imorland [#5227]
+- (core) limit repeated failed logins from one address, and say so on the login form by @imorland [#5229]
 - (deck) catch columns up on what happened while away from the Deck by @HawkForge [#5193]
 - (likes) don't unlike a post when `isLiked` is set to true again by @imorland [#5206]
 - (mentions) keep the quote button on screen and clear of the phone's selection handles by @ekumanov [#5205]
