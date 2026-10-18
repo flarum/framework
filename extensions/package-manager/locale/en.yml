@@ -215,6 +215,12 @@ flarum-extension-manager:
       {count} extension(s) will be updated at the same time, because their current
       version does not support the new Flarum.
     core_checking: "Checking {count} more extension(s)…"
+    # Their require says yes; their copy of Flarum's code may still not match.
+    core_overrides: >-
+      {count, plural, one {This extension replaces part of Flarum itself, so saying it supports Flarum {version} is not enough: its copy is frozen at the Flarum it was written for.} other {These extensions replace parts of Flarum itself, so saying they support Flarum {version} is not enough: their copies are frozen at the Flarum they were written for.}}
+      If the update breaks the site it is put back. Check with the {count, plural, one {author} other {authors}} first,
+      or remove {count, plural, one {it} other {them}} for the update; disabling is not enough, because Composer still loads the copy.
+    core_row_overrides: "replaces {classes}"
 
     core_row_blocked: "no release for this Flarum — asks for {requires}"
     core_row_updating: "will update to {version}"
@@ -587,6 +593,7 @@ flarum-extension-manager:
       stopped_time: "This host stopped the request after {seconds} seconds"
       stopped_unknown: "The web server stopped the request after about {seconds} seconds"
       the_error_was: "The error was: {error}"
+      replaced_core_class: "{package} replaces Flarum's own {class} with a copy of its own, and that copy does not match this version of Flarum. Ask its author for a release that supports it, or remove {package}, then update Flarum again."
       tidy_left: "Old rollback copies were left for the nightly tidy: {error}"
       tidy_no_storage: "Old rollback copies were not tidied: no storage path is known here."
       tidy_nothing: "No old rollback copies to remove."

@@ -11,6 +11,7 @@ namespace Flarum\ExtensionManager\Api\Controller;
 
 use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Lang;
+use Flarum\ExtensionManager\Plan\CoreOverrides;
 use Flarum\ExtensionManager\Plan\CoreUpgrade;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Paths;
@@ -78,6 +79,9 @@ class CoreController implements RequestHandlerInterface
          * Doing it here took 28 seconds against this dev forum's 58 extensions.
          */
         $preflight = (new CoreUpgrade())->preflight($packages, $target);
+
+        // Extensions that replace part of Flarum: their `require` can say yes and still be wrong.
+        $preflight['overrides'] = (new CoreOverrides())->find($packages, $this->paths->vendor);
 
         return new JsonResponse([
             'current' => $current,

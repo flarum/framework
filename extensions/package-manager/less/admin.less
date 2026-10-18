@@ -139,9 +139,22 @@
   color: var(--text-color);
   font-weight: 600;
   padding: 10px 13px;
-  border-inline-start: 3px solid var(--alert-error-color, #d83e3e);
+  border-inline-start: 3px solid var(--error-color, #d83e3e);
   border-radius: 0 8px 8px 0;
-  background: color-mix(in srgb, var(--alert-error-color, #d83e3e) 8%, transparent);
+  background: color-mix(in srgb, var(--error-color, #d83e3e) 8%, transparent);
+}
+
+// An extension that replaces part of Flarum: a warning, not a block, because
+// it may well be fine and the update is put back if it is not.
+.ExtensionManager-coreOverrides {
+  color: var(--text-color);
+  padding: 10px 13px;
+  border-inline-start: 3px solid #c77700;
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, #c77700 9%, transparent);
+
+  ul { margin: 6px 0 0; padding-inline-start: 18px; }
+  code { font-size: 12px; overflow-wrap: anywhere; }
 }
 
 .ExtensionManager-coreClear {
@@ -171,7 +184,7 @@
 
   // A blocker is the only row here in full-strength text; the rest is context.
   &.is-blocked .ExtensionManager-coreState { color: var(--text-color); font-weight: 600; }
-  &.is-blocked { background: color-mix(in srgb, var(--alert-error-color, #d83e3e) 4%, transparent); }
+  &.is-blocked { background: color-mix(in srgb, var(--error-color, #d83e3e) 4%, transparent); }
 }
 
 .ExtensionManager-corePkg {
@@ -499,9 +512,9 @@ a.ExtensionManager-name {
 .ExtensionManager-notice {
   padding: 12px 14px;
   margin-bottom: 18px;
-  border-inline-start: 3px solid var(--alert-error-color, #d83e3e);
+  border-inline-start: 3px solid var(--error-color, #d83e3e);
   border-radius: 0 8px 8px 0;
-  background: color-mix(in srgb, var(--alert-error-color, #d83e3e) 8%, transparent);
+  background: color-mix(in srgb, var(--error-color, #d83e3e) 8%, transparent);
   font-size: 13px;
   max-width: 78ch;
 }
@@ -513,7 +526,7 @@ a.ExtensionManager-name {
 // matter: which step it is on, and what the log says.
 
 .ExtensionManager-run { margin-bottom: 24px; }
-.ExtensionManager-run--failed { border-color: color-mix(in srgb, var(--alert-error-color, #d83e3e) 45%, transparent); }
+.ExtensionManager-run--failed { border-color: color-mix(in srgb, var(--error-color, #d83e3e) 45%, transparent); }
 
 .ExtensionManager-runHead {
   display: flex;
@@ -794,8 +807,8 @@ a.ExtensionManager-name {
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--alert-error-color, #d83e3e) 12%, transparent);
-    color: var(--alert-error-color, #d83e3e);
+    background: color-mix(in srgb, var(--error-color, #d83e3e) 12%, transparent);
+    color: var(--error-color, #d83e3e);
   }
 
   &:disabled { opacity: .5; cursor: default; }

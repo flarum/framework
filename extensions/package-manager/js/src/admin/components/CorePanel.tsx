@@ -5,7 +5,6 @@ import Component from 'flarum/common/Component';
 
 declare const m: any;
 
-
 interface Row {
   package: string;
   installed: string;
@@ -114,11 +113,11 @@ export default class CorePanel extends Component<CoreAttrs> {
         )}
 
         {/*
-          * The nightly build: Flarum and its bundled extensions moved to the
-          * development branch together, for testing what the next release
-          * will be. The server works out which packages and which branch;
-          * undo returns the forum to the release it was on.
-          */}
+         * The nightly build: Flarum and its bundled extensions moved to the
+         * development branch together, for testing what the next release
+         * will be. The server works out which packages and which branch;
+         * undo returns the forum to the release it was on.
+         */}
         <div className="ExtensionManager-coreNightly">
           <div>
             <b>{t('core_nightly_title')}</b> {t('core_nightly_help')}
@@ -142,23 +141,47 @@ export default class CorePanel extends Component<CoreAttrs> {
     const blocked = this.blocked();
     const updating = p.updating || 0;
     const pending = (p.pending || []).length;
+    const overrides: { package: string; classes: string[] }[] = p.overrides || [];
 
     return (
       <div className="ExtensionManager-coreSummary">
         {/*
-          * 🚨 The blocking case is stated as a consequence, not as a count. "3
-          * extensions" is a number; "these three have no release that works with
-          * Flarum 2.1, so the upgrade would be refused" is something somebody can
-          * act on — and it is why the button above is disabled.
-          */}
+         * 🚨 The blocking case is stated as a consequence, not as a count. "3
+         * extensions" is a number; "these three have no release that works with
+         * Flarum 2.1, so the upgrade would be refused" is something somebody can
+         * act on — and it is why the button above is disabled.
+         */}
         {blocked > 0 ? (
-          <div className="ExtensionManager-coreBlocked">{t('core_blocked', { count: blocked, version: p.target })}</div>
-        ) : pending === 0 ? (
+          <div className="ExtensionManager-coreBlocked">
+            {t('core_blocked', { count: blocked, version: p.target })}
+          </div>
+        ) : null}
+        {/*
+         * 🚨 In place of "every extension works": their require says yes, and
+         * irmmr/flarum-ext-rtl's frozen copy of LessCompiler still took a forum
+         * down on Flarum 2.0.2 (ClaudiusH, 2026-10-18). A warning, not a block.
+         */}
+        {overrides.length ? (
+          <div className="ExtensionManager-coreOverrides">
+            {t('core_overrides', { count: overrides.length, version: p.target })}
+            <ul>
+              {overrides.map((o) => (
+                <li>
+                  <b>{o.package}</b>{' '}
+                  {t('core_row_overrides', { classes: <code>{o.classes.join(', ')}</code> })}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        {blocked > 0 || overrides.length ? null : pending === 0 ? (
           <div className="ExtensionManager-coreClear">{t('core_clear', { version: p.target })}</div>
         ) : null}
 
         {updating > 0 ? <div>{t('core_updating_too', { count: updating })}</div> : null}
-        {pending > 0 ? <div className="ExtensionManager-coreChecking">{t('core_checking', { count: pending })}</div> : null}
+        {pending > 0 ? (
+          <div className="ExtensionManager-coreChecking">{t('core_checking', { count: pending })}</div>
+        ) : null}
       </div>
     );
   }
@@ -229,7 +252,10 @@ export default class CorePanel extends Component<CoreAttrs> {
 
   runPreflight(target: string) {
     app
-      .request({ method: 'GET', url: apiUrl() + '/extension-manager/core?target=' + encodeURIComponent(target) })
+      .request({
+        method: 'GET',
+        url: apiUrl() + '/extension-manager/core?target=' + encodeURIComponent(target),
+      })
       .then((data: any) => {
         this.preflight = data.preflight;
         m.redraw();
