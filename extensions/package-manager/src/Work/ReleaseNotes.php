@@ -13,16 +13,18 @@ use DOMDocument;
 use DOMElement;
 use DOMNode;
 use Flarum\ExtensionManager\Config\AuthTokens;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * What an update gives you: every GitHub release between the installed version
  * and the one on offer.
  *
- * 🚨 Every release in the range, not just the newest. Somebody going from
+ * Every release in the range, not just the newest. Somebody going from
  * 1.2.0 to 1.5.0 gets three releases' worth of changes, and the one that
  * matters (a breaking change in 1.3.0) is rarely in the newest release's notes.
  *
- * 🚨 The repository comes from the saved update check, never from the browser.
+ * The repository comes from the saved update check, never from the browser.
  * The request names a package and nothing else, so this can only ever ask
  * GitHub about a repository Packagist or the site's own configuration named.
  *
@@ -32,17 +34,18 @@ use Flarum\ExtensionManager\Config\AuthTokens;
  */
 class ReleaseNotes
 {
-    private const ALLOWED = [
+    protected const ALLOWED = [
         'p', 'br', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li',
         'a', 'strong', 'b', 'em', 'i', 'code', 'pre', 'blockquote', 'del',
         'table', 'thead', 'tbody', 'tr', 'th', 'td', 'details', 'summary',
     ];
 
     public function __construct(
-        private string $cacheDir,
-        private AuthTokens $auth,
-        private int $freshFor = 21600,
-        private int $timeout = 15,
+        protected string $cacheDir,
+        protected AuthTokens $auth,
+        protected ClientInterface $http,
+        protected int $freshFor = 21600,
+        protected int $timeout = 15,
     ) {
     }
 
@@ -113,7 +116,7 @@ class ReleaseNotes
     }
 
     /** Newer than what is installed, and no newer than what is on offer. */
-    private function inRange(string $tag, string $from, string $to): bool
+    protected function inRange(string $tag, string $from, string $to): bool
     {
         $v = ltrim($tag, 'v');
 
@@ -158,7 +161,7 @@ class ReleaseNotes
         return $out;
     }
 
-    private static function walk(DOMNode $node): void
+    protected static function walk(DOMNode $node): void
     {
         foreach (iterator_to_array($node->childNodes) as $child) {
             if ($child->nodeType === XML_COMMENT_NODE) {
@@ -204,21 +207,20 @@ class ReleaseNotes
         }
     }
 
-    private function get(string $url): ?string
+    protected function get(string $url): ?string
     {
-        $headers = "User-Agent: the Extension Manager\r\nAccept: application/vnd.github.html+json\r\n";
-        $header = $this->auth->headerFor('github.com');
+        $authorization = $this->auth->authorizationFor($url);
 
-        if ($header !== null) {
-            $headers .= $header."\r\n";
+        try {
+            return (string) $this->http->request('GET', $url, [
+                'timeout' => $this->timeout,
+                'http_errors' => false,
+                'allow_redirects' => ['max' => 5, 'protocols' => ['https'], 'referer' => false],
+                'headers' => ['User-Agent' => 'The Extension Manager', 'Accept' => 'application/vnd.github.html+json']
+                    + ($authorization !== null ? ['Authorization' => $authorization] : []),
+            ])->getBody();
+        } catch (GuzzleException) {
+            return null;
         }
-
-        $body = @file_get_contents($url, false, stream_context_create(['http' => [
-            'timeout' => $this->timeout,
-            'header' => $headers,
-            'ignore_errors' => true,
-        ]]));
-
-        return is_string($body) ? $body : null;
     }
 }

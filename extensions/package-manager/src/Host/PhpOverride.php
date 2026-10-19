@@ -10,29 +10,32 @@
 namespace Flarum\ExtensionManager\Host;
 
 use Flarum\ExtensionManager\Config\JsonFile;
+use Flarum\Locale\TranslatorInterface;
 
 /**
  * The command-line PHP an admin has pointed the Extension Manager at, for the hosts where
  * looking for one cannot work.
  *
- * 🚨 In storage, not in Flarum's settings table, like everything else
+ * In storage, not in Flarum's settings table, like everything else
  * The Extension Manager keeps: the processes that read it run while vendor/ is being
  * replaced, and crash recovery reads it with nothing booted at all.
  *
- * 🚨 Validated when it is saved, by RUNNING it — not by is_file, which
+ * Validated when it is saved, by RUNNING it — not by is_file, which
  * open_basedir makes lie, and not by name, which says nothing about whether
  * the binary is the FPM one.
  */
 class PhpOverride
 {
-    public function __construct(private string $storagePath)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected string $storagePath,
+    ) {
     }
 
     public function get(): ?string
     {
         try {
-            $path = (new JsonFile($this->file()))->read()['path'] ?? null;
+            $path = (new JsonFile($this->translator, $this->file()))->read()['path'] ?? null;
         } catch (\Throwable) {
             return null;
         }
@@ -41,17 +44,18 @@ class PhpOverride
     }
 
     /**
-     * Why this path cannot be used, as a translation key and its parameters,
+     * Why this path cannot be used, as the last part of a translation key under
+     * api.php_path and its parameters,
      * or null when it is a working command-line PHP.
      *
      * @return array{0:string, 1:array<string,string>}|null
      */
     public function refusal(string $path, ?PhpBinary $php = null): ?array
     {
-        $php ??= new PhpBinary();
+        $php ??= new PhpBinary($this->translator);
 
         if ($path === '' || $path[0] !== '/') {
-            return ['php_path_not_absolute', []];
+            return ['not_absolute', []];
         }
 
         $probe = $php->probe($path);
@@ -61,24 +65,24 @@ class PhpOverride
         }
 
         if (! $probe['hidden'] && ! is_file($path)) {
-            return ['php_path_missing', ['path' => $path]];
+            return ['missing', ['path' => $path]];
         }
 
         if ($probe['error'] === 'not executable') {
-            return ['php_path_not_executable', ['path' => $path]];
+            return ['not_executable', ['path' => $path]];
         }
 
         if (! $probe['ran']) {
             return $probe['hidden']
-                ? ['php_path_hidden_and_silent', ['path' => $path]]
-                : ['php_path_did_not_run', ['path' => $path, 'error' => '']];
+                ? ['hidden_and_silent', ['path' => $path]]
+                : ['did_not_run', ['path' => $path, 'error' => '']];
         }
 
         if ($probe['sapi'] !== null && $probe['sapi'] !== 'cli') {
-            return ['php_path_not_cli', ['path' => $path, 'sapi' => (string) $probe['sapi']]];
+            return ['not_cli', ['path' => $path, 'sapi' => (string) $probe['sapi']]];
         }
 
-        return ['php_path_did_not_run', ['path' => $path, 'error' => (string) $probe['error']]];
+        return ['did_not_run', ['path' => $path, 'error' => (string) $probe['error']]];
     }
 
     public function set(?string $path): void
@@ -95,10 +99,10 @@ class PhpOverride
             return;
         }
 
-        (new JsonFile($this->file()))->write(['path' => $path]);
+        (new JsonFile($this->translator, $this->file()))->write(['path' => $path]);
     }
 
-    private function file(): string
+    protected function file(): string
     {
         return StorageDir::of($this->storagePath).'/php.json';
     }

@@ -11,10 +11,11 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 On a forum with a queue, two drivers WILL run at once — the admin page
+ * On a forum with a queue, two drivers WILL run at once — the admin page
  * polling and a worker picking up the job — and without a lock both read the
  * same index, both do the same item, and a package is applied twice.
  *
@@ -62,14 +63,14 @@ class ConcurrencyTest extends TestCase
                 pclose($h);
             }
 
-            if ((new RunStore($this->dir))->load('r1')?->isFinished()) {
+            if ((new RunStore(EnglishTranslator::make(), $this->dir))->load('r1')?->isFinished()) {
                 break;
             }
         }
 
         $done = $this->completed();
 
-        $this->assertSame(Run::DONE, (new RunStore($this->dir))->load('r1')?->state);
+        $this->assertSame(Run::DONE, (new RunStore(EnglishTranslator::make(), $this->dir))->load('r1')?->state);
 
         $this->assertSame(
             array_values(array_unique($done)),

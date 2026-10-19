@@ -1,31 +1,26 @@
 import app from 'flarum/admin/app';
-import t from '../t';
-import Component from 'flarum/common/Component';
+import Component, { type ComponentAttrs } from 'flarum/common/Component';
+import Button from 'flarum/common/components/Button';
+import type Mithril from 'mithril';
 import apiUrl from '../apiUrl';
+import { alertError } from '../errors';
+import type { HostReport, TranslationParams } from '../types';
 
-declare const m: any;
-
-interface Line {
-  key: string;
-  params?: Record<string, string>;
+export interface HostPanelAttrs extends ComponentAttrs {
+  host: HostReport | null;
+  onchange?: () => void;
 }
-interface Check {
-  id: string;
-  ok: boolean;
-  warn: boolean;
-  what?: string;
-  why?: string;
-  whatKey?: string;
-  whatParams?: Record<string, string>;
-  whyKeys?: Line[];
-  override?: string | null;
+
+/** A line of the report the server sent as a key relative to this extension's admin strings. */
+function hostLine(key: string, params?: TranslationParams): Mithril.Children {
+  return app.translator.trans('flarum-extension-manager.admin.' + key, params || {});
 }
 
 /**
  * What this host will and will not let the Extension Manager do — shown before anything is
  * pressed, which is the entire point.
  *
- * 🚨 Every row says what it MEANS, not just what it is. "memory_limit: 128M" is
+ * Every row says what it MEANS, not just what it is. "memory_limit: 128M" is
  * a fact; "Composer cannot resolve dependencies here at all — ask your host for
  * 256 MB" is something somebody can act on. A panel of facts without
  * consequences is the spinner problem wearing a different hat.
@@ -33,17 +28,16 @@ interface Check {
  * Rows that arrive as keys (the PHP diagnosis) are translated here; the older
  * rows still arrive as text.
  */
-export default class HostPanel extends Component {
+export default class HostPanel extends Component<HostPanelAttrs> {
   phpPath: string | null = null;
   saving = false;
-  message: { ok: boolean; text: any } | null = null;
 
-  view(vnode: any) {
-    const host = vnode.attrs.host;
+  view() {
+    const host = this.attrs.host;
 
     if (!host) return null;
 
-    const checks = host.checks as Check[];
+    const checks = host.checks;
     const phpRow = checks.find((c) => c.id === 'php');
 
     if (this.phpPath === null) this.phpPath = (phpRow && phpRow.override) || '';
@@ -51,8 +45,8 @@ export default class HostPanel extends Component {
     return (
       <div className="ExtensionManager-host">
         <div className="ExtensionManager-summary">
-          <h3>{t('tab_host')}</h3>
-          <p>{host.summaryKey ? t(host.summaryKey) : host.summary}</p>
+          <h3>{app.translator.trans('flarum-extension-manager.admin.host.title')}</h3>
+          <p>{host.summaryKey ? hostLine(host.summaryKey) : host.summary}</p>
         </div>
 
         <div className="ExtensionManager-checks">
@@ -60,11 +54,11 @@ export default class HostPanel extends Component {
             <div className="ExtensionManager-check" key={c.id}>
               <div aria-hidden="true">{c.warn ? '⚠️' : c.ok ? '✅' : '❌'}</div>
               <div>
-                <div className="ExtensionManager-check-what">{c.whatKey ? t(c.whatKey, c.whatParams) : c.what}</div>
+                <div className="ExtensionManager-check-what">{c.whatKey ? hostLine(c.whatKey, c.whatParams) : c.what}</div>
                 {c.whyKeys ? (
                   c.whyKeys.map((line, i) => (
                     <div className="ExtensionManager-check-why" key={i}>
-                      {t(line.key, line.params)}
+                      {hostLine(line.key, line.params)}
                     </div>
                   ))
                 ) : (
@@ -75,7 +69,7 @@ export default class HostPanel extends Component {
           ))}
         </div>
 
-        {phpRow ? this.phpSetting(vnode.attrs.onchange) : null}
+        {phpRow ? this.phpSetting(this.attrs.onchange) : null}
       </div>
     );
   }
@@ -91,9 +85,9 @@ export default class HostPanel extends Component {
         }}
       >
         <label className="ExtensionManager-check-what" for="ExtensionManager-phpPath">
-          {t('host.php_setting_label')}
+          {app.translator.trans('flarum-extension-manager.admin.host.php_setting_label')}
         </label>
-        <div className="ExtensionManager-check-why">{t('host.php_setting_help')}</div>
+        <div className="ExtensionManager-check-why">{app.translator.trans('flarum-extension-manager.admin.host.php_setting_help')}</div>
         <div className="ExtensionManager-phpSetting-row">
           <input
             id="ExtensionManager-phpPath"
@@ -101,53 +95,48 @@ export default class HostPanel extends Component {
             placeholder="/opt/plesk/php/8.5/bin/php"
             spellcheck={false}
             value={this.phpPath}
-            oninput={(e: any) => (this.phpPath = e.target.value)}
+            oninput={(e: InputEvent) => (this.phpPath = (e.target as HTMLInputElement).value)}
           />
-          <button className="Button Button--primary" type="submit" disabled={this.saving}>
-            {t('host.php_setting_save')}
-          </button>
-          <button
+          <Button className="Button Button--primary" type="submit" disabled={this.saving}>
+            {app.translator.trans('flarum-extension-manager.admin.host.php_setting_save')}
+          </Button>
+          <Button
             className="Button"
-            type="button"
             disabled={this.saving}
             onclick={() => {
               this.phpPath = '';
               this.save('', onchange);
             }}
           >
-            {t('host.php_setting_clear')}
-          </button>
+            {app.translator.trans('flarum-extension-manager.admin.host.php_setting_clear')}
+          </Button>
         </div>
-        {this.message ? (
-          <div className={'ExtensionManager-phpSetting-msg' + (this.message.ok ? '' : ' is-error')} role="status">
-            {this.message.text}
-          </div>
-        ) : null}
       </form>
     );
   }
 
   save(path: string, onchange?: () => void) {
     this.saving = true;
-    this.message = null;
 
     app
       .request({
         method: 'POST',
         url: apiUrl() + '/extension-manager/config',
         body: { action: 'set-php', path },
-        errorHandler: () => {},
+        // The refusal names what is wrong with the path, in the server's words.
+        errorHandler: alertError('flarum-extension-manager.admin.composer.config_failed'),
       })
       .then(() => {
-        this.message = { ok: true, text: t(path ? 'host.php_setting_saved' : 'host.php_setting_cleared') };
+        app.alerts.show(
+          { type: 'success' },
+          path
+            ? app.translator.trans('flarum-extension-manager.admin.host.php_setting_saved')
+            : app.translator.trans('flarum-extension-manager.admin.host.php_setting_cleared')
+        );
         if (onchange) onchange();
       })
-      .catch((e: any) => {
-        const body = e?.response || {};
-        this.message = {
-          ok: false,
-          text: body.errorKey ? t(body.errorKey, body.errorParams) : body.error || e?.message || '',
-        };
+      .catch(() => {
+        // Already shown by alertError.
       })
       .then(() => {
         this.saving = false;

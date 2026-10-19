@@ -14,6 +14,8 @@ use Flarum\ExtensionManager\Console\PruneCommand;
 use Flarum\ExtensionManager\Console\RebuildAssetsCommand;
 use Flarum\ExtensionManager\Console\RepairFormatterCommand;
 use Flarum\ExtensionManager\Console\UpdateCommand;
+use Flarum\ExtensionManager\Exception\RefusedException;
+use Flarum\ExtensionManager\Exception\RefusedExceptionHandler;
 use Flarum\ExtensionManager\ExtensionManagerServiceProvider;
 
 return [
@@ -27,7 +29,7 @@ return [
     (new Extend\Console())
         ->command(CheckCommand::class)
         /*
-         * 🚨 Registered as a command so it runs in its OWN process, after the
+         * Registered as a command so it runs in its OWN process, after the
          * files have moved. Repairing the formatter means building it, and
          * building it inside the request that just replaced Flarum's files
          * loads a half-old class map.
@@ -35,25 +37,25 @@ return [
         ->command(RepairFormatterCommand::class)
         ->command(RebuildAssetsCommand::class)
         /*
-         * 🚨 The same run the admin screen drives, with a terminal turning the
+         * The same run the admin screen drives, with a terminal turning the
          * handle instead of a browser. Deliberately not scheduled, and never
          * will be: an update that starts itself is an update nobody chose to be
          * present for.
          */
         ->command(UpdateCommand::class)
         /*
-         * 🚨 Daily, and cheap enough to mean it. This is one HTTP call per
+         * Daily, and cheap enough to mean it. This is one HTTP call per
          * installed package with no Composer involved — a resolve on a schedule
          * would be 165 MB on somebody else's shared host, every night, for a
          * question they may not have asked.
          */
         ->schedule(CheckCommand::class, function ($event): void { $event->daily(); })
         /*
-         * 🚨 Tidies the rollback copies no rollback can reach. Also runs at the
+         * Tidies the rollback copies no rollback can reach. Also runs at the
          * end of every update; nightly catches the forum that has not updated
          * in a month and is still carrying the copies from the last one.
          *
-         * 🚨 NO arguments, and it must stay that way: a scheduled
+         * NO arguments, and it must stay that way: a scheduled
          * `['--dry-run' => true]` renders as `--dry-run='1'`, which a no-value
          * option refuses — every night, into /dev/null.
          */
@@ -62,8 +64,11 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\ErrorHandling())
+        ->handler(RefusedException::class, RefusedExceptionHandler::class),
+
     /*
-     * 🚨 Two endpoints, and the split matters.
+     * Two endpoints, and the split matters.
      *
      * `state` is a read: the admin screen polls it, and it must stay cheap
      * enough to poll every second or two without being noticed.
@@ -88,7 +93,7 @@ return [
         ->get('/extension-manager/trash', 'extension-manager.trash', Controller\TrashController::class)
         ->post('/extension-manager/trash', 'extension-manager.trash.act', Controller\TrashController::class)
         /*
-         * 🚨 Discovery is two endpoints, and the split is deliberate. `discover`
+         * Discovery is two endpoints, and the split is deliberate. `discover`
          * is one call to Packagist's search. `compat` is one call PER PACKAGE to
          * work out whether each result fits the Flarum actually installed —
          * doing both in one request would mean a dozen round trips before
@@ -96,7 +101,7 @@ return [
          */
         ->get('/extension-manager/core', 'extension-manager.core', Controller\CoreController::class)
         /*
-         * 🚨 One route, both verbs. GET reports where Composer looks, what it
+         * One route, both verbs. GET reports where Composer looks, what it
          * accepts and which hosts have a credential — never the credentials
          * themselves. POST carries an action. Keeping them together means there
          * is one place that asserts admin for all of it.
@@ -106,7 +111,7 @@ return [
         ->get('/extension-manager/discover', 'extension-manager.discover', Controller\DiscoverController::class)
         ->post('/extension-manager/discover/compat', 'extension-manager.compat', Controller\CompatController::class)
         /*
-         * 🚨 Millwright's paths, for the update that replaces Millwright with
+         * Millwright's paths, for the update that replaces Millwright with
          * this package. The admin tab that started it is still running
          * Millwright's script, and once the files swap that script's next
          * poll and step land here. Without them the run stalls at finalise.

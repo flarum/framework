@@ -10,9 +10,10 @@
 namespace Flarum\ExtensionManager\Prune;
 
 use Flarum\ExtensionManager\Apply\Journal;
-use Flarum\ExtensionManager\Lang;
+use Flarum\ExtensionManager\Exception\RefusedException;
 use Flarum\ExtensionManager\Plan\Change;
 use Flarum\ExtensionManager\Run\Run;
+use Flarum\Locale\TranslatorInterface;
 use RuntimeException;
 use Throwable;
 
@@ -23,7 +24,7 @@ use Throwable;
  * and until this existed nothing ever took them out again: fbsfb.com reached
  * 971 MB across 19 updates, half of it one extension's leftover node_modules.
  *
- * 🚨 THE RULE, and the reason it is shaped this way.
+ * THE RULE, and the reason it is shaped this way.
  *
  * Only the NEWEST run can be rolled back — RollbackController, the console and
  * the screen all act on `RunStore::latest()` and nothing else. So the copies
@@ -47,7 +48,7 @@ use Throwable;
  * The run's own JSON summary is kept: it is a few hundred bytes, and it is the
  * record that an update happened.
  *
- * 🚨 Fails CLOSED. A protected run whose journal cannot be read stops the whole
+ * Fails CLOSED. A protected run whose journal cannot be read stops the whole
  * prune; a run summary that cannot be parsed protects that run's directory. A
  * prune that does nothing is a nuisance. A prune that guessed is an outage.
  */
@@ -57,11 +58,12 @@ class Pruner
     public const GRACE = 86400;
 
     /** @var callable():int */
-    private $clock;
+    protected $clock;
 
     public function __construct(
-        private string $dataDir,
-        private Retention $retention,
+        protected TranslatorInterface $translator,
+        protected string $dataDir,
+        protected Retention $retention,
         ?callable $clock = null,
     ) {
         $this->clock = $clock ?? fn () => time();
@@ -104,7 +106,7 @@ class Pruner
 
         foreach ($runs as $run) {
             if (isset($protected[$run->id])) {
-                // 🚨 Fails closed: an unreadable journal here throws, and nothing is removed.
+                // Fails closed: an unreadable journal here throws, and nothing is removed.
                 foreach ($this->references($run->id, true) as $name) {
                     $protectedRefs[$name] ??= $run->id;
                 }
@@ -144,8 +146,8 @@ class Pruner
             }
         }
 
-        $trash = is_dir($this->trashDir()) ? new Contained($this->trashDir()) : null;
-        $runsDir = is_dir($this->runsDir()) ? new Contained($this->runsDir()) : null;
+        $trash = is_dir($this->trashDir()) ? new Contained($this->translator, $this->trashDir()) : null;
+        $runsDir = is_dir($this->runsDir()) ? new Contained($this->translator, $this->runsDir()) : null;
 
         $removeBytes = 0;
 
@@ -191,7 +193,7 @@ class Pruner
     /**
      * Decide, then remove.
      *
-     * 🚨 The decision is made immediately before the removal, in the same call,
+     * The decision is made immediately before the removal, in the same call,
      * so there is no window in which a stale plan can be carried out against a
      * tree that has moved on — and anything that arrives in between is younger
      * than the grace period and kept anyway.
@@ -207,8 +209,8 @@ class Pruner
         $started = microtime(true);
         $plan = $this->plan(false);
 
-        $trash = is_dir($this->trashDir()) ? new Contained($this->trashDir()) : null;
-        $runs = is_dir($this->runsDir()) ? new Contained($this->runsDir()) : null;
+        $trash = is_dir($this->trashDir()) ? new Contained($this->translator, $this->trashDir()) : null;
+        $runs = is_dir($this->runsDir()) ? new Contained($this->translator, $this->runsDir()) : null;
 
         $removed = [];
         $failed = [];
@@ -259,7 +261,7 @@ class Pruner
      * @param array{keepDays:int, keepRuns:int} $settings
      * @return array<string,string> run id => reason
      */
-    private function protectedRuns(array $runs, array $unreadable, array $settings, int $now): array
+    protected function protectedRuns(array $runs, array $unreadable, array $settings, int $now): array
     {
         $out = [];
 
@@ -302,13 +304,13 @@ class Pruner
      * @param array<string,string> $protected run id => reason
      * @return list<array<string,mixed>>
      */
-    private function trashEntries(int $now, array $protectedRefs, array $otherRefs, array $protected): array
+    protected function trashEntries(int $now, array $protectedRefs, array $otherRefs, array $protected): array
     {
         if (! is_dir($this->trashDir())) {
             return [];
         }
 
-        $trash = new Contained($this->trashDir());
+        $trash = new Contained($this->translator, $this->trashDir());
         $out = [];
 
         foreach ($trash->names() as $name) {
@@ -345,13 +347,13 @@ class Pruner
      * @param array<string,string> $protected
      * @return list<array<string,mixed>>
      */
-    private function runDirs(int $now, array $runs, array $protected): array
+    protected function runDirs(int $now, array $runs, array $protected): array
     {
         if (! is_dir($this->runsDir())) {
             return [];
         }
 
-        $dir = new Contained($this->runsDir());
+        $dir = new Contained($this->translator, $this->runsDir());
         $known = [];
 
         foreach ($runs as $run) {
@@ -387,14 +389,14 @@ class Pruner
     /**
      * Every run summary, newest first, plus the ids whose summary is unreadable.
      *
-     * 🚨 Read here rather than through RunStore::all(), which skips a file it
+     * Read here rather than through RunStore::all(), which skips a file it
      * cannot parse. Skipping is right for a screen and wrong for a prune: an
      * unreadable summary might be the newest run, and its copies are then
      * exactly the ones that must not go.
      *
      * @return array{0: list<Run>, 1: array<string,true>}
      */
-    private function runs(): array
+    protected function runs(): array
     {
         $runs = [];
         $unreadable = [];
@@ -427,7 +429,7 @@ class Pruner
      *
      * @return list<string>
      */
-    private function references(string $id, bool $mustRead): array
+    protected function references(string $id, bool $mustRead): array
     {
         if (! preg_match('/^[A-Za-z0-9_-]{1,64}$/', $id)) {
             return [];
@@ -441,15 +443,16 @@ class Pruner
 
         try {
             if (! is_readable($path)) {
-                throw new RuntimeException(Lang::trans('prune.not_readable', ['path' => $path]));
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.prune.not_readable', ['path' => $path]));
             }
 
-            $entries = (new Journal($path))->entries();
+            $entries = (new Journal($this->translator, $path))->entries();
         } catch (Throwable $e) {
             if ($mustRead) {
-                throw new RuntimeException(
-                    Lang::trans('prune.journal_unreadable', ['id' => $id]),
-                    0,
+                throw new RefusedException(
+                    $this->translator->trans('flarum-extension-manager.api.prune.journal_unreadable', ['id' => $id]),
+                    'journal_unreadable',
+                    409,
                     $e
                 );
             }

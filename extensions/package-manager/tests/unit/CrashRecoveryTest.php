@@ -12,14 +12,14 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Rollback;
 use Flarum\ExtensionManager\Plan\Change;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 The safety case. If these fail, the Extension Manager has no reason to exist.
+ * The safety case. If these fail, the Extension Manager has no reason to exist.
  *
- * The claim being tested is the one the previous Extension Manager cannot make: kill an
- * update at ANY point and the site is still intact, and can still be put back
+ * The claim being tested: kill an update at ANY point and the site is still intact, and can still be put back
  * exactly as it was. Not "usually recoverable with ssh" — recoverable by
  * replaying a file.
  *
@@ -72,7 +72,7 @@ class CrashRecoveryTest extends TestCase
 
         $this->assertNotSame(0, $exit, 'the harness was supposed to be killed, not to finish');
 
-        (new Rollback($this->dir('vendor'), $this->dir('trash'), $this->journal()))->run();
+        (new Rollback(EnglishTranslator::make(), $this->dir('vendor'), $this->dir('trash'), $this->journal()))->run();
 
         $this->assertSame(
             $before,
@@ -93,7 +93,7 @@ class CrashRecoveryTest extends TestCase
             (new Change(Change::ADD, 'acme/newthing', null, '1.0.0'))->toArray(),
         ], $killAt);
 
-        (new Rollback($this->dir('vendor'), $this->dir('trash'), $this->journal()))->run();
+        (new Rollback(EnglishTranslator::make(), $this->dir('vendor'), $this->dir('trash'), $this->journal()))->run();
 
         $this->assertSame(
             $before,
@@ -130,7 +130,7 @@ class CrashRecoveryTest extends TestCase
 
         $this->assertSame('NEW widget v2', $this->read('vendor/acme/widget/file.txt'));
 
-        (new Rollback($this->dir('vendor'), $this->dir('trash'), $this->journal()))->run();
+        (new Rollback(EnglishTranslator::make(), $this->dir('vendor'), $this->dir('trash'), $this->journal()))->run();
 
         $this->assertSame($before, $this->snapshot($this->dir('vendor')));
     }
@@ -160,7 +160,7 @@ class CrashRecoveryTest extends TestCase
             (new Change(Change::REPLACE, 'acme/three', '1', '2'))->toArray(),
         ], 'stashed', killOnPackage: 'acme/two');
 
-        (new Rollback($this->dir('vendor'), $this->dir('trash'), $this->journal()))->run();
+        (new Rollback(EnglishTranslator::make(), $this->dir('vendor'), $this->dir('trash'), $this->journal()))->run();
 
         $this->assertSame($before, $this->snapshot($this->dir('vendor')));
     }
@@ -193,7 +193,7 @@ class CrashRecoveryTest extends TestCase
 
     private function journal(): Journal
     {
-        return new Journal($this->dir('journal.jsonl'));
+        return new Journal(EnglishTranslator::make(), $this->dir('journal.jsonl'));
     }
 
     private function dir(string $name): string

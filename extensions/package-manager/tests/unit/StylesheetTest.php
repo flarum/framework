@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * The stylesheets compile with the compiler Flarum actually uses.
  *
- * 🚨 less.php and less.js do not agree, and the disagreement is not academic.
+ * less.php and less.js do not agree, and the disagreement is not academic.
  * `minmax(min(100%, 280px), 1fr)` builds happily under node and throws
  * "incompatible types" under less.php — LESS has a `min()` of its own and will
  * not compare a percentage with a pixel length. Flarum compiles every

@@ -1,7 +1,7 @@
 /**
  * The decisions the run screen makes, as functions with no DOM and no network.
  *
- * 🚨 Every one of these was a bug in production, and none of them was testable
+ * Every one of these was a bug in production, and none of them was testable
  * where it lived.
  *
  * They were expressions buried inside a Mithril component — `!!this.run &&
@@ -53,7 +53,7 @@ export function showingRun(run: RunLike | null | undefined, dismissed: boolean):
  * Whether the panel takes the WHOLE page, hiding the tabs and the extension
  * grid.
  *
- * 🚨 Only while a run is live. Hiding the grid during an update is deliberate —
+ * Only while a run is live. Hiding the grid during an update is deliberate —
  * a row of Update buttons beside a running update invites a second one, and the
  * honest answer to the second press is a refusal.
  *
@@ -69,7 +69,7 @@ export function hidesPage(run: RunLike | null | undefined, dismissed: boolean): 
 /**
  * Whether a remembered dismissal applies to the run now on screen.
  *
- * 🚨 Keyed to the run's id, so a NEW run is never silently pre-dismissed, and
+ * Keyed to the run's id, so a NEW run is never silently pre-dismissed, and
  * never restored for a live one — dismissing must not become a way to hide an
  * update that is halfway through applying itself.
  */
@@ -83,7 +83,7 @@ export function dismissalApplies(run: RunLike | null | undefined, storedId: stri
 /**
  * Whether the run panel should start its polling loop now.
  *
- * 🚨 Asked on EVERY redraw, not only when the panel is created — and that
+ * Asked on EVERY redraw, not only when the panel is created — and that
  * difference is the frozen progress panel.
  *
  * A finished run keeps its panel on screen, and the loop stops for good once it
@@ -114,10 +114,10 @@ const MAX_DELAY = 15000;
 /**
  * What to do after an attempt to drive the run.
  *
- * 🚨 A failed poll is never a failed update. The run's state is on disk and
+ * A failed poll is never a failed update. The run's state is on disk and
  * another driver may well be advancing it; this call simply did not land.
  *
- * 🚨 And a failure to DRIVE is not a reason to stop WATCHING. `/extension-manager/step`
+ * And a failure to DRIVE is not a reason to stop WATCHING. `/extension-manager/step`
  * is a POST that takes the lock; `/extension-manager/state` is a GET that changes
  * nothing. When the first fails the second still works, and the panel's whole
  * job is to show progress. Falling back is what stops a completed update
@@ -154,7 +154,7 @@ export interface CardLike {
 /**
  * Whether a requirement admits exactly one version.
  *
- * 🚨 This is the difference between "press Update and it updates" and "press
+ * This is the difference between "press Update and it updates" and "press
  * Update and nothing happens, forever". A forum that requires `3.5.1` cannot be
  * moved to 3.6.0 by any resolve — the constraint forbids it — so the card must
  * offer to raise the requirement rather than pretending a resolve will do it.
@@ -172,7 +172,7 @@ export function isExactPin(constraint: string | null | undefined): boolean {
 /**
  * What a card in the extension grid offers.
  *
- * 🚨 `pathInstall` beats everything. Composer installs a path repository as a
+ * `pathInstall` beats everything. Composer installs a path repository as a
  * symlink into a checkout on this machine — how every extension developer runs
  * their own work — and the Extension Manager will not replace one. Offering the button and
  * refusing afterwards is a worse way to learn that than not being offered it.
@@ -187,7 +187,7 @@ export function cardOffers(card: CardLike) {
     highlight: hasUpdate,
     update: canAct,
     /*
-     * 🚨 Pressing Update on a pinned package must say what it will really do.
+     * Pressing Update on a pinned package must say what it will really do.
      * The requirement changes first; the resolve follows. Anything less makes
      * the button a no-op that reports success.
      */

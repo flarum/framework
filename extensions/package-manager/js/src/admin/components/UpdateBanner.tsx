@@ -1,11 +1,10 @@
 import app from 'flarum/admin/app';
-import t from '../t';
 import apiUrl from '../apiUrl';
-import Component from 'flarum/common/Component';
+import type { StatePayload, Updates } from '../types';
+import Component, { type ComponentAttrs } from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import LinkButton from 'flarum/common/components/LinkButton';
-
-declare const m: any;
+import type Mithril from 'mithril';
 
 interface Pending {
   package: string;
@@ -18,20 +17,20 @@ interface Pending {
  * Tells an admin, on the page they already land on, that something is out of
  * date — without overstating what that means.
  *
- * 🚨 The wording matters more than the banner. "3 updates available" is a claim
+ * The wording matters more than the banner. "3 updates available" is a claim
  * this cannot back: the cheap Packagist check knows a newer version EXISTS, not
  * that it will install alongside everything else on the forum. So it says a
  * newer version exists and offers to go and find out properly, which is a
  * sentence that stays true.
  *
- * 🚨 It also carries its own age. A badge with no timestamp is indistinguishable
+ * It also carries its own age. A badge with no timestamp is indistinguishable
  * from a stale one, and a stale badge is how people learn to ignore badges.
  */
 export default class UpdateBanner extends Component {
   loading = true;
   count = 0;
   /**
-   * 🚨 WHICH packages, not just how many.
+   * WHICH packages, not just how many.
    *
    * The banner used to say "1 package has a newer version" and stop there, so
    * the only way to find out which one was to open the page and read a grid of
@@ -44,13 +43,19 @@ export default class UpdateBanner extends Component {
   uncheckable = 0;
   dismissed = false;
 
-  oninit(vnode: any) {
+  oninit(vnode: Mithril.Vnode<ComponentAttrs, this>) {
     super.oninit(vnode);
 
     app
-      .request({ method: 'GET', url: apiUrl() + '/extension-manager/state' })
-      .then((data: any) => {
-        const updates = data.updates || {};
+      .request<StatePayload>({
+        method: 'GET',
+        url: apiUrl() + '/extension-manager/state',
+        // A dashboard is not the place to report that a background check could
+        // not run. The Extension Manager page says so properly.
+        errorHandler: () => {},
+      })
+      .then((data) => {
+        const updates: Partial<Updates> = data.updates || {};
         const available = updates.available || {};
 
         /*
@@ -60,7 +65,7 @@ export default class UpdateBanner extends Component {
          * the Extensions page. Fall back to the package when the two cannot be
          * matched, which is better than saying nothing.
          */
-        const installed: any[] = data.installed || [];
+        const installed = data.installed || [];
 
         this.pending = Object.keys(available).map((pkg) => ({
           package: pkg,
@@ -78,8 +83,6 @@ export default class UpdateBanner extends Component {
         m.redraw();
       })
       .catch(() => {
-        // A dashboard is not the place to report that a background check could
-        // not run. The Extension Manager page says so properly.
         this.loading = false;
         m.redraw();
       });
@@ -91,22 +94,29 @@ export default class UpdateBanner extends Component {
     return (
       <div className="ExtensionManager-banner">
         <div>
-          <div className="ExtensionManager-banner-title">{t('banner_title', { count: this.count })}</div>
+          <div className="ExtensionManager-banner-title">
+            {app.translator.trans('flarum-extension-manager.admin.updater.banner.title', { count: this.count })}
+          </div>
 
           {this.names()}
 
           <div className="ExtensionManager-banner-body">
-            {t('banner_body')}
-            {this.checkedAt ? ' ' + t('banner_checked', { when: this.ago(this.checkedAt) }) : ''}
-            {this.uncheckable > 0 ? ' ' + t('banner_uncheckable', { count: this.uncheckable }) : ''}
+            {app.translator.trans('flarum-extension-manager.admin.updater.banner.body')}
+            {this.checkedAt
+              ? ' ' + app.translator.trans('flarum-extension-manager.admin.updater.banner.checked', { when: this.ago(this.checkedAt) }, true)
+              : ''}
+            {this.uncheckable > 0
+              ? ' ' + app.translator.trans('flarum-extension-manager.admin.updater.banner.uncheckable', { count: this.uncheckable }, true)
+              : ''}
           </div>
         </div>
         <div className="ExtensionManager-banner-actions">
-          {LinkButton.component(
-            { className: 'Button Button--primary', href: app.route('extension', { id: 'flarum-extension-manager', tab: 'installed' }) },
-            t('banner_open')
-          )}
-          {Button.component({ className: 'Button Button--link', onclick: () => this.dismiss() }, t('banner_dismiss'))}
+          <LinkButton className="Button Button--primary" href={app.route('extension', { id: 'flarum-extension-manager', tab: 'installed' })}>
+            {app.translator.trans('flarum-extension-manager.admin.updater.banner.open')}
+          </LinkButton>
+          <Button className="Button Button--link" onclick={() => this.dismiss()}>
+            {app.translator.trans('flarum-extension-manager.admin.updater.banner.dismiss')}
+          </Button>
         </div>
       </div>
     );
@@ -115,7 +125,7 @@ export default class UpdateBanner extends Component {
   /**
    * The extensions themselves, with the versions involved.
    *
-   * 🚨 Capped, and honest about the cap. A forum with thirty out-of-date
+   * Capped, and honest about the cap. A forum with thirty out-of-date
    * packages would otherwise turn a banner into a wall, and the reader who has
    * thirty does not need them enumerated — they need to open the page.
    */
@@ -135,13 +145,17 @@ export default class UpdateBanner extends Component {
             ) : null}
           </li>
         ))}
-        {rest > 0 ? <li className="ExtensionManager-banner-more">{t('banner_more', { count: rest })}</li> : null}
+        {rest > 0 ? (
+          <li className="ExtensionManager-banner-more">
+            {app.translator.trans('flarum-extension-manager.admin.updater.banner.more', { count: rest })}
+          </li>
+        ) : null}
       </ul>
     );
   }
 
   /**
-   * 🚨 Dismissal is remembered against WHICH packages were out of date, not as a
+   * Dismissal is remembered against WHICH packages were out of date, not as a
    * flag. Dismissing "3 updates" and then never hearing about a fourth is how a
    * notification quietly stops working.
    */
@@ -161,8 +175,8 @@ export default class UpdateBanner extends Component {
     this.dismissed = true;
 
     app
-      .request({ method: 'GET', url: apiUrl() + '/extension-manager/state' })
-      .then((data: any) => {
+      .request<StatePayload>({ method: 'GET', url: apiUrl() + '/extension-manager/state', errorHandler: () => {} })
+      .then((data) => {
         try {
           localStorage.setItem(this.key(Object.keys(data.updates?.available || {})), '1');
         } catch {
@@ -177,10 +191,12 @@ export default class UpdateBanner extends Component {
   private ago(unix: number): string {
     const mins = Math.max(1, Math.round((Date.now() / 1000 - unix) / 60));
 
-    if (mins < 60) return t('ago_minutes', { count: mins });
+    if (mins < 60) return app.translator.trans('flarum-extension-manager.admin.updater.ago.minutes', { count: mins }, true);
 
     const hours = Math.round(mins / 60);
 
-    return hours < 48 ? t('ago_hours', { count: hours }) : t('ago_days', { count: Math.round(hours / 24) });
+    return hours < 48
+      ? app.translator.trans('flarum-extension-manager.admin.updater.ago.hours', { count: hours }, true)
+      : app.translator.trans('flarum-extension-manager.admin.updater.ago.days', { count: Math.round(hours / 24) }, true);
   }
 }

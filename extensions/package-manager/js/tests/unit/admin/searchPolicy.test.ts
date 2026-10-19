@@ -23,7 +23,7 @@ describe('searching as you type', () => {
   });
 
   /*
-   * 🚨 Typing a character and deleting it, or blurring and refocusing, must not
+   * Typing a character and deleting it, or blurring and refocusing, must not
    * re-run a search whose results are already on screen. Under a stale-response
    * guard the visible effect is a list that flickers for nothing.
    */
@@ -49,7 +49,7 @@ describe('searching as you type', () => {
 
 describe('pressing the button or Return', () => {
   /*
-   * 🚨 An explicit action is never refused by a heuristic meant for keystrokes.
+   * An explicit action is never refused by a heuristic meant for keystrokes.
    * A control that silently does nothing is worse than no control.
    */
   it('searches immediately, even for a query too short to type-search', () => {

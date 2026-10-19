@@ -1,412 +1,437 @@
 flarum-extension-manager:
+  # The admin page. Laid out in sections, with the long-standing keys kept
+  # wherever the concept is the same, so existing translations carry across.
   admin:
-    tab_installed: "Installed ({count})"
-    tab_host: This host
-    enabled: enabled
-    disabled: disabled
-    version_unknown: version unknown
-    library: Composer package
-    library_why: A library this forum requires in its own composer.json. It has no settings page, and the Extension Manager never offers to remove it.
+    actions:
+      add: Add
+      cancel: Cancel
+      remove: Remove
+      save: Save
 
-    # 🚨 "A newer version exists" — never "an update is available". The cheap
-    # check knows the first and cannot know the second, and a badge that
-    # overstates itself is one people stop reading.
-    none_newer: Everything checkable is up to date.
-    some_newer: "{count, plural, one {# extension has} other {# extensions have}} a newer version."
-    core_newer: Flarum itself has a newer version.
-    core_newer_too: So does Flarum itself.
-    checked_ago: "Checked {when}."
-    uncheckable: "{count} could not be checked — no repository this forum knows about lists them."
-    tracking: "{count} track a branch, so there is no version to compare."
-    check_now: Check now
-    check_for_updates: Check for updates
-    check_overdue: Check for updates to get the latest security fixes and features for your extensions.
-    learn_more: Learn more
-    notes_title: "{name}: what's new since {from}"
-    notes_on_github: See the releases on GitHub
-    notes_none: No release notes were published on GitHub for these versions.
-    notes_empty_release: No notes were written for this release.
-    notes_failed: The release notes could not be loaded from GitHub just now.
-    checking: Checking…
+    page:
+      # A spinner with no end is the failure this extension replaces. If the
+      # page cannot load, it says so and offers the one useful action.
+      load_failed: >-
+        The Extension Manager could not load. Its API did not answer — check the browser
+        console and your forum's error log for what went wrong.
+      load_timeout: >-
+        The Extension Manager's own page did not finish loading. Nothing is wrong with your
+        site or your extensions; something is stopping this page talking to the
+        forum. The browser console will say what.
+      try_again: Try again
 
-    banner_title: "{count, plural, one {# package has} other {# packages have}} a newer version"
-    banner_body: >-
-      That does not always mean you can install it — what else has to change, and
-      whether anything blocks it, is worked out when you ask.
-    banner_checked: "Last checked {when}."
-    banner_uncheckable: "{count, plural, one {# package} other {# packages}} could not be checked at all."
-    banner_more: "and {count} more"
-    banner_open: Take a look
-    banner_dismiss: Not now
-    ago_minutes: "{count, plural, one {# minute} other {# minutes}} ago"
-    ago_hours: "{count, plural, one {# hour} other {# hours}} ago"
-    ago_days: "{count, plural, one {# day} other {# days}} ago"
+    sections:
+      discover:
+        title: Find extensions
+        search: Search Packagist for a Flarum extension
+        search_button: Search
+        searching: Searching…
+        hint: >-
+          Every Flarum extension published on Packagist, most widely used first.
+        # Against the version this forum RUNS, not against "Flarum 2". A forum on
+        # 2.0.0 and one on 2.1.0 get different answers, and saying which version
+        # was used is what makes the badge checkable.
+        against: "Checked against the Flarum {version} this forum runs."
+        no_match: "Nothing on Packagist matches “{query}”."
+        empty_results: >-
+          Packagist returned nothing. That is unusual — it may be having a moment.
+        server_error: >-
+          The search could not be run. Packagist may be unreachable from this server.
+        show_more: Show more
+        loading_more: Loading…
+        open_packagist: "{name} on Packagist"
+        tabs:
+          label: Show
+          all: All
+          themes: Themes
+          languages: Languages
+          widgets: Widgets
+        extension:
+          downloads: "{count, plural, one {{formattedCount} download} other {{formattedCount} downloads}}"
+          badges:
+            abandoned: abandoned by its author
+          abandoned_why: >-
+            Its author has marked it as no longer maintained. It may still work.
+          abandoned_for: "Its author says to use {replacement} instead."
+          replaced: replaced
+          replaced_by: "replaced by {replacement}"
+          replaced_why: >-
+            This name is an old one. The extension moved to a new package, and installing the old name
+            gives you the new extension under the wrong id, which then cannot be enabled.
+          install_replacement: "Install {replacement}"
+          installed_as: "installed as {replacement}"
+        # "Says it works", never "works". A declared constraint is the author's
+        # claim; whether the rest of this site allows it is a question only the
+        # plan can answer, and it is answered when Install is pressed.
+        compat:
+          incompatible: not for this Flarum
+          incompatible_why: "Its newest release asks for flarum/core {requires}."
+          unknown: could not check
+          prerelease: "{version} — a pre-release"
+          checking: Checking…
 
-    # 🚨 "Update", never "Upgrade". An upgrade sounds like a decision; an update
-    # sounds like maintenance, and this is maintenance.
-    update: Update
-    repin_confirm: >-
-      This forum requires an exact version of {count, plural, one {# extension} other {# extensions}}, so a newer
-      one cannot be installed until that requirement is changed. Continue, and
-      composer.json will be updated to require the new version before anything
-      is downloaded. A rollback puts the requirement back too.
-    update_all: "Update all {count}"
-    update_one: "Update {name}"
-    run_details: Update details
-    starting: Starting…
-    start_failed: >-
-      The update could not be started, and the forum did not say why. Nothing has
-      changed.
+      installed:
+        title: "Installed ({count})"
 
-    path_install: local checkout
-    path_install_why: >-
-      This extension is a symlink into a directory on this server, so it is
-      probably one you are working on. The Extension Manager will not replace it — update it
-      with git instead.
+      queue:
+        title: Recent updates
+        none: Nothing has been updated, installed or removed with the Extension Manager on this forum yet.
+        operations:
+          extension_install: Installed
+          extension_remove: Removed
+          extension_update: Updated
+        statuses:
+          failure: Stopped
+          rolled_back: Undone
+        new_version: "{version} (new)"
+        removed_version: "{version} (removed)"
+        nothing: Nothing changed
+        migrations: "Changed the database ({count, plural, one {# change} other {# changes}})."
 
-    open_settings: Open the {name} settings
+    extensions:
+      install: Install
+      already_installed: installed
+      # "Update", never "Upgrade". An upgrade sounds like a decision; an update
+      # sounds like maintenance, and this is maintenance.
+      update: Update
+      update_one: "Update {name}"
+      repin_confirm: >-
+        This forum requires an exact version of {count, plural, one {# extension} other {# extensions}}, so a newer
+        one cannot be installed until that requirement is changed. Continue, and
+        composer.json will be updated to require the new version before anything
+        is downloaded. A rollback puts the requirement back too.
+      remove: Remove
+      # "Remove files", not "Uninstall". Flarum already has an Uninstall button
+      # on the extension's page that purges its DATA; this one takes the code off
+      # the server. Two buttons a few pixels apart must not claim the same thing.
+      remove_files: Remove files
+      # Says how this differs from the Purge button beside it. Flarum's Purge
+      # removes the extension's DATA and says plainly that it does not uninstall
+      # the extension; this removes the CODE. Together they are a full uninstall,
+      # and neither one alone should imply it is.
+      remove_confirm: >-
+        Remove {name}'s files from this server? This is the part Composer would do.
+        The old files are kept, so it can be undone. Its database tables and
+        settings are left alone — Flarum's own Purge button is what removes those,
+        and doing that first is worth considering if you are not coming back.
+      enabled: enabled
+      disabled: disabled
+      version_unknown: version unknown
+      library: Composer package
+      library_why: A library this forum requires in its own composer.json. It has no settings page, and the Extension Manager never offers to remove it.
+      path_install: local checkout
+      path_install_why: >-
+        This extension is a symlink into a directory on this server, so it is
+        probably one you are working on. The Extension Manager will not replace it — update it
+        with git instead.
+      open_settings: Open the {name} settings
+      learn_more: Learn more
 
-    run_working: Updating
-    run_done: Update finished
-    run_failed: The update stopped
-    run_rolled_back: Update undone
-    run_target_update: Updating {packages}
-    run_target_install: Installing {packages}
-    run_target_remove: Removing {packages}
-    run_target_more: "{shown} and {count} more"
+    updater:
+      # "A newer version exists" — never "an update is available". The cheap
+      # check knows the first and cannot know the second, and a badge that
+      # overstates itself is one people stop reading.
+      up_to_date: Everything checkable is up to date.
+      some_newer: "{count, plural, one {# extension has} other {# extensions have}} a newer version."
+      core_newer: Flarum itself has a newer version.
+      core_newer_too: So does Flarum itself.
+      last_update_checked_at: "Checked {when}."
+      uncheckable: "{count} could not be checked — no repository this forum knows about lists them."
+      tracking: "{count} track a branch, so there is no version to compare."
+      check_now: Check now
+      check_for_updates: Check for updates
+      check_overdue: Check for updates to get the latest security fixes and features for your extensions.
+      checking: Checking…
+      run_global_update: "Update all {count}"
+      starting: Starting…
+      ago:
+        minutes: "{count, plural, one {# minute} other {# minutes}} ago"
+        hours: "{count, plural, one {# hour} other {# hours}} ago"
+        days: "{count, plural, one {# day} other {# days}} ago"
 
-    phase_plan: Working out what changes
-    phases_label: Progress
-    phase_fetch: Downloading
-    phase_apply: Swapping files in
-    phase_finalise: Finishing up
+      # On the dashboard.
+      banner:
+        title: "{count, plural, one {# package has} other {# packages have}} a newer version"
+        body: >-
+          That does not always mean you can install it — what else has to change, and
+          whether anything blocks it, is worked out when you ask.
+        checked: "Last checked {when}."
+        uncheckable: "{count, plural, one {# package} other {# packages}} could not be checked at all."
+        more: "and {count} more"
+        open: Take a look
+        dismiss: Not now
 
-    working_out: Asking Composer what this involves. This is the slow part.
-    working_on: "{item} — {index} of {total}"
-    # The runner's own step names, as shown under the progress bar.
-    step_check_the_site: Checking the site
-    step_work_out_what_changes: Working out what changes
-    step_check_file_permissions: Checking file permissions
-    step_register: Updating Composer's records
-    step_migrations: Running database migrations
-    step_assets: Publishing assets
-    step_caches: Clearing caches
-    step_code_cache: Clearing PHP's code cache
-    step_check_the_site_again: Checking the site again
-    step_tidy_the_trash: Tidying old copies
+      flarum: Flarum itself
+      core:
+        loading: Checking Flarum…
+        running: "This forum runs Flarum {version}."
+        current: No newer Flarum has been published since the last check.
+        update_to: "Update Flarum to {version}"
+        failed: >-
+          The Extension Manager could not work out what upgrading Flarum would involve. Nothing
+          has changed.
+        # Stated as a consequence, never as a bare count. "3 extensions" is a
+        # number; "the upgrade would be refused" is the thing somebody needs to
+        # know, and it is why the button is disabled.
+        blocked: >-
+          {count, plural, one {# extension has} other {# extensions have}} no release that works with Flarum {version}, so
+          the upgrade would be refused. They are listed below.
+        clear: "Every installed extension has a release that works with Flarum {version}."
+        updating_too: >-
+          {count, plural, one {# extension} other {# extensions}} will be updated at the same time, because their current
+          version does not support the new Flarum.
+        checking: "Checking {count, plural, one {# more extension} other {# more extensions}}…"
+        # Their require says yes; their copy of Flarum's code may still not match.
+        overrides: >-
+          {count, plural, one {This extension replaces part of Flarum itself, so saying it supports Flarum {version} is not enough: its copy is frozen at the Flarum it was written for.} other {These extensions replace parts of Flarum itself, so saying they support Flarum {version} is not enough: their copies are frozen at the Flarum they were written for.}}
+          If the update breaks the site it is put back. Check with the {count, plural, one {author} other {authors}} first,
+          or remove {count, plural, one {it} other {them}} for the update; disabling is not enough, because Composer still loads the copy.
+        row_overrides: "replaces {classes}"
+        row_blocked: "no release for this Flarum — asks for {requires}"
+        row_updating: "will update to {version}"
+        row_unknown: could not be checked
+        nightly:
+          title: Nightly build.
+          help: >-
+            For testing what the next release will be: Flarum and its bundled
+            extensions move to the development branch together. Not for a live forum.
+          button: Try the nightly build
+          confirm: >-
+            Move Flarum and its bundled extensions to the nightly development build?
+            Its database changes are recorded, and "Undo this update" returns the
+            forum to the release it is on now.
 
-    failed_at: "It stopped during: {step}"
-    roll_back: Undo this update
-    rolling_back: Undoing…
-    roll_back_confirm: >-
-      Put the extensions this update changed back to the versions they were
-      before it, along with composer.json and composer.lock?
-    roll_back_confirm_db: >-
-      Put the extensions this update changed back to the versions they were
-      before it, along with composer.json and composer.lock? This update also
-      changed the database ({count, plural, one {# change} other {# changes}}). Undoing reverses those too,
-      which removes anything stored in what they added.
-    rollback_failed: >-
-      The rollback itself failed. Nothing was deleted at any point, so the old
-      files are still under storage/extension-manager/trash.
-    dismiss: Dismiss
-    reload_page: Reload the page
-    reload_page_why: This page still has the previous versions' code and version numbers until it reloads.
+    release_notes:
+      title: "{name}: what's new since {from}"
+      on_github: See the releases on GitHub
+      none: No release notes were published on GitHub for these versions.
+      empty_release: No notes were written for this release.
+      failed: The release notes could not be loaded from GitHub just now.
 
-    # 🚨 Each of these says what IS happening, not just that something is wrong.
-    # A message that only signals trouble is how somebody ends up refreshing a
-    # page for ten minutes.
-    another_driver: >-
-      A background worker is doing the next step, so this page is just watching.
-    nothing_moved: >-
-      Nothing has moved for a couple of minutes. That is normal while Composer is
-      working something out; if it stays like this, the log below is the place to
-      look.
-    poll_unauthorised: >-
-      This screen cannot reach the server to drive the update — usually a
-      session that has expired while the page sat open. The update itself is
-      unaffected and is being carried on in the background. Reload the page.
-    watching_only: Showing progress read-only.
-    poll_failing: >-
-      This page has failed to reach the forum {count} times in a row. The update
-      itself is unaffected — it keeps its place on disk — and this will keep
-      trying.
+    run:
+      working: Updating
+      done: Update finished
+      failed: The update stopped
+      rolled_back: Update undone
+      target:
+        update: Updating {packages}
+        install: Installing {packages}
+        remove: Removing {packages}
+        more: "{shown} and {count} more"
+      details: Update details
+      start_failed: >-
+        The update could not be started, and the forum did not say why. Nothing has
+        changed.
+      phases_label: Progress
+      phases:
+        plan: Working out what changes
+        fetch: Downloading
+        apply: Swapping files in
+        finalise: Finishing up
+      working_out: Asking Composer what this involves. This is the slow part.
+      working_on: "{item} — {index} of {total}"
+      # The runner's own step names, as shown under the progress bar.
+      steps:
+        check_the_site: Checking the site
+        work_out_what_changes: Working out what changes
+        check_file_permissions: Checking file permissions
+        register: Updating Composer's records
+        migrations: Running database migrations
+        assets: Publishing assets
+        caches: Clearing caches
+        code_cache: Clearing PHP's code cache
+        check_the_site_again: Checking the site again
+        tidy_the_trash: Tidying old copies
+      failed_at: "It stopped during: {step}"
+      roll_back: Undo this update
+      rolling_back: Undoing…
+      roll_back_confirm: >-
+        Put the extensions this update changed back to the versions they were
+        before it, along with composer.json and composer.lock?
+      roll_back_confirm_db: >-
+        Put the extensions this update changed back to the versions they were
+        before it, along with composer.json and composer.lock? This update also
+        changed the database ({count, plural, one {# change} other {# changes}}). Undoing reverses those too,
+        which removes anything stored in what they added.
+      rollback_failed: >-
+        The rollback itself failed. Nothing was deleted at any point, so the old
+        files are still under storage/extension-manager/trash.
+      dismiss: Dismiss
+      reload_page: Reload the page
+      reload_page_why: This page still has the previous versions' code and version numbers until it reloads.
+      # Each of these says what IS happening, not just that something is wrong.
+      # A message that only signals trouble is how somebody ends up refreshing a
+      # page for ten minutes.
+      another_driver: >-
+        A background worker is doing the next step, so this page is just watching.
+      nothing_moved: >-
+        Nothing has moved for a couple of minutes. That is normal while Composer is
+        working something out; if it stays like this, the log below is the place to
+        look.
+      poll_unauthorised: >-
+        This screen cannot reach the server to drive the update — usually a
+        session that has expired while the page sat open. The update itself is
+        unaffected and is being carried on in the background. Reload the page.
+      watching_only: Showing progress read-only.
+      poll_failing: >-
+        This page has failed to reach the forum {count} times in a row. The update
+        itself is unaffected — it keeps its place on disk — and this will keep
+        trying.
 
-    tab_discover: Find extensions
-    tab_history: Recent updates
-    history_empty: Nothing has been updated, installed or removed with the Extension Manager on this forum yet.
-    history_updated: Updated
-    history_installed: Installed
-    history_removed: Removed
-    history_undone: Undone
-    history_failed: Stopped
-    history_new: "{version} (new)"
-    history_removed_from: "{version} (removed)"
-    history_nothing: Nothing changed
-    history_migrations: "Changed the database ({count, plural, one {# change} other {# changes}})."
+    composer:
+      title: Sources
+      config_failed: >-
+        The Extension Manager could not read composer.json. Nothing has been changed.
+      add_repository_label: Add a repository
+      delete_repository_label: "Remove {name}"
+      repositories:
+        label: Where Composer looks
+        help: >-
+          Extensions that are not on Packagist — your own private repositories, or a
+          paid marketplace — have to be listed here before Composer can find them.
+        none: Only Packagist. Nothing private or paid can be installed.
+        stat: "{count, plural, one {repository} other {repositories}}"
+        filter: Filter repositories
+        no_match: "No repository matches “{query}”."
+        open: Open in a new tab
+        remove_named: "Remove {name}?"
+        duplicate: That repository is already listed.
+        will_add: "Adds {name} from {where}."
+        types:
+          vcs: Git repository
+          composer: Composer repository
+          path: Folder on this server
+        type_help:
+          vcs: GitHub, GitLab, Bitbucket or any Git host
+          composer: Private Packagist or a paid marketplace
+          path: A local checkout, for development
+        placeholders:
+          vcs: "https://github.com/you/your-extension"
+          composer: "https://repo.example.com"
+          path: "/home/you/extensions/your-extension"
+      minimum_stability:
+        label: How finished a release has to be
+        help: >-
+          Composer refuses anything less finished than this. The error it gives when
+          the setting is too strict says the package "could not be found in any
+          version", which sounds like the package is missing rather than like a
+          setting is wrong.
+        stat: lowest release accepted
+        recommended: recommended
+        prefer_stable: Still prefer a stable release when one exists
+        prefer_stable_help: >-
+          When an extension has both a beta and a finished release that would work, take the finished one.
+        options:
+          stable: Stable
+          rc: RC
+          beta: Beta
+          alpha: Alpha
+          dev: Dev
+        short:
+          stable: finished only
+          rc: release candidates
+          alpha: early previews
+          dev: unreleased code
+        # What each level means, said before the change: the consequence is the
+        # part somebody is deciding about.
+        means:
+          stable: >-
+            Only finished releases. Flarum 2 itself is stable, but many of its extensions
+            are still betas or release candidates, and this cannot install those.
+          rc: Release candidates as well as finished releases.
+          beta: >-
+            Betas too. Many Flarum 2 extensions are still published as betas or release
+            candidates, so this is the usual choice.
+          alpha: Alphas as well — early code that is expected to change.
+          dev: >-
+            Unreleased code straight from a branch, which can change under you without
+            a version number changing.
 
-    search: Search
-    searching: Searching…
-    discover_placeholder: Search Packagist for a Flarum extension
-    discover_hint: >-
-      Every Flarum extension published on Packagist, most widely used first.
-    # 🚨 Against the version this forum RUNS, not against "Flarum 2". A forum on
-    # 2.0.0 and one on 2.1.0 get different answers, and saying which version was
-    # used is what makes the badge checkable.
-    discover_against: "Checked against the Flarum {version} this forum runs."
-    discover_none: "Nothing on Packagist matches “{query}”."
-    discover_failed: >-
-      The search could not be run. Packagist may be unreachable from this server.
+    auth_config:
+      title: Credentials
+      help: >-
+        For private repositories and paid marketplaces. Stored in auth.json, which
+        Composer reads and which sits outside the web root.
+      no_auth_methods_configured: None stored. Private and paid repositories will fail to download.
+      stat: "{count, plural, one {host can sign in} other {hosts can sign in}}"
+      add_label: Add a credential
+      edit_label: Replace
+      remove_button_label: "Remove {name}"
+      remove_q: Remove?
+      submit_button: Save credential
+      token_stored: token stored
+      show: Show
+      hide: Hide
+      fields:
+        host: Host
+        username: Username
+        password: Password
+        token: Token
+      add_modal:
+        host_placeholder: "github.com"
+        username_placeholder: username
+        secret_placeholder: token or password
+      types:
+        github-oauth: GitHub token
+        gitlab-token: GitLab token
+        bearer: Bearer token
+        http-basic: Username & password
+      type_help:
+        github-oauth: Private GitHub repositories
+        gitlab-token: GitLab.com or your own GitLab
+        bearer: Marketplaces that give you an API token
+        http-basic: Private Packagist and older repositories
+      create_github_token: Create a GitHub token (repo scope)
+      create_gitlab_token: Create a GitLab access token
+      # The note GitHub keeps beside the token, so its owner knows what it is for.
+      github_token_note: "Composer on {forum}"
+      # Said on screen, not just in the code. Somebody who expects to be able to
+      # read a token back needs to know why they cannot, or they will assume it
+      # did not save and enter it repeatedly.
+      write_only: >-
+        The Extension Manager never shows a stored credential — not even to you. It shows
+        which hosts have one. To change a credential, enter the new value; it
+        replaces the old one.
 
-    downloads: "{count} downloads"
-    open_packagist: "{name} on Packagist"
-    category_label: Show
-    category_all: All
-    category_theme: Themes
-    category_language: Languages
-    category_widget: Widgets
-    install: Install
-    already_installed: installed
-    abandoned: abandoned by its author
+    trash:
+      title: Rollback copies
+      help: >-
+        Every update keeps the versions it replaced, so it can be rolled back.
+        Copies no rollback can use any more are tidied after each update and
+        every night. The copies the latest update needs are never removed.
+      size: Taking up
+      size_value: "{size} in {count, plural, one {# copy} other {# copies}}"
+      freeable: Can be tidied now
+      freeable_value: "{size} — {count, plural, one {# item} other {# items}}"
+      freeable_none: Nothing — everything kept is still needed
+      last: Last tidied
+      last_value: "{when} — {count, plural, =0 {nothing to remove} other {removed #, freed {size}}}"
+      last_never: Not yet
+      keep_days: Keep rollback copies for
+      days: days
+      keep_runs: or for the last
+      runs: updates
+      prune: Tidy now
+      pruning: Tidying…
+      saved: Saved.
+      rule: >-
+        Copies from the last {days} days or the last {runs} updates are kept,
+        whichever keeps more. Copies for the latest update, for one still in
+        progress and for anything that changed in the last day are always kept.
+      confirm: >-
+        Remove {count, plural, one {# item} other {# items}} and free {size}?
+        They belong to updates that can no longer be rolled back from this
+        screen. The latest update can still be rolled back.
+      done: "{count, plural, =0 {Nothing needed removing.} one {Removed # item, freeing {size}.} other {Removed # items, freeing {size}.}}"
+      failed: The Extension Manager could not read its rollback copies.
 
-    # 🚨 "Says it works", never "works". A declared constraint is the author's
-    # claim; whether the rest of this site allows it is a question only the plan
-    # can answer, and it is answered when Install is pressed.
-    compat_no: not for this Flarum
-    compat_no_why: "Its newest release asks for flarum/core {requires}."
-    compat_unknown: could not check
-    compat_prerelease: "{version} — a pre-release"
-    abandoned_why: >-
-      Its author has marked it as no longer maintained. It may still work.
-    abandoned_for: "Its author says to use {replacement} instead."
-    replaced: replaced
-    replaced_by: "replaced by {replacement}"
-    replaced_why: >-
-      This name is an old one. The extension moved to a new package, and installing the old name
-      gives you the new extension under the wrong id, which then cannot be enabled.
-    install_replacement: "Install {replacement}"
-    installed_as: "installed as {replacement}"
-
-    core_title: Flarum itself
-    core_nightly_title: Nightly build.
-    core_nightly_help: >-
-      For testing what the next release will be: Flarum and its bundled
-      extensions move to the development branch together. Not for a live forum.
-    core_nightly_button: Try the nightly build
-    core_nightly_confirm: >-
-      Move Flarum and its bundled extensions to the nightly development build?
-      Its database changes are recorded, and "Undo this update" returns the
-      forum to the release it is on now.
-    core_loading: Checking Flarum…
-    core_running: "This forum runs Flarum {version}."
-    core_current: No newer Flarum has been published since the last check.
-    core_update_to: "Update Flarum to {version}"
-    core_failed: >-
-      The Extension Manager could not work out what upgrading Flarum would involve. Nothing
-      has changed.
-
-    # 🚨 Stated as a consequence, never as a bare count. "3 extensions" is a
-    # number; "the upgrade would be refused" is the thing somebody needs to know,
-    # and it is why the button is disabled.
-    core_blocked: >-
-      {count, plural, one {# extension has} other {# extensions have}} no release that works with Flarum {version}, so
-      the upgrade would be refused. They are listed below.
-    core_clear: "Every installed extension has a release that works with Flarum {version}."
-    core_updating_too: >-
-      {count, plural, one {# extension} other {# extensions}} will be updated at the same time, because their current
-      version does not support the new Flarum.
-    core_checking: "Checking {count, plural, one {# more extension} other {# more extensions}}…"
-    # Their require says yes; their copy of Flarum's code may still not match.
-    core_overrides: >-
-      {count, plural, one {This extension replaces part of Flarum itself, so saying it supports Flarum {version} is not enough: its copy is frozen at the Flarum it was written for.} other {These extensions replace parts of Flarum itself, so saying they support Flarum {version} is not enough: their copies are frozen at the Flarum they were written for.}}
-      If the update breaks the site it is put back. Check with the {count, plural, one {author} other {authors}} first,
-      or remove {count, plural, one {it} other {them}} for the update; disabling is not enough, because Composer still loads the copy.
-    core_row_overrides: "replaces {classes}"
-
-    core_row_blocked: "no release for this Flarum — asks for {requires}"
-    core_row_updating: "will update to {version}"
-    core_row_unknown: could not be checked
-
-    remove: Remove
-    # 🚨 Says how this differs from the Purge button sitting next to it. Flarum's
-    # Purge removes the extension's DATA and says plainly that it does not
-    # uninstall the extension; this removes the CODE. Together they are a full
-    # uninstall, and neither one alone should imply it is.
-    remove_confirm: >-
-      Remove {name}'s files from this server? This is the part Composer would do.
-      The old files are kept, so it can be undone. Its database tables and
-      settings are left alone — Flarum's own Purge button is what removes those,
-      and doing that first is worth considering if you are not coming back.
-
-    # 🚨 A spinner with no end is the failure this extension replaces. If the
-    # page cannot load, it says so and offers the one useful action.
-    load_failed: >-
-      The Extension Manager could not load. Its API did not answer — check the browser
-      console and your forum's error log for what went wrong.
-    load_timeout: >-
-      The Extension Manager's own page did not finish loading. Nothing is wrong with your
-      site or your extensions; something is stopping this page talking to the
-      forum. The browser console will say what.
-    try_again: Try again
-    discover_empty: >-
-      Packagist returned nothing. That is unusual — it may be having a moment.
-    show_more: Show more
-    loading_more: Loading…
-    # 🚨 "Remove files", not "Uninstall". Flarum already has an Uninstall button
-    # on this page that purges the extension's DATA; this one takes the code off
-    # the server. Two buttons a few pixels apart must not claim the same thing.
-    remove_files: Remove files
-
-    tab_sources: Sources
-    add: Add
-    cancel: Cancel
-    save: Save
-    config_failed: >-
-      The Extension Manager could not read composer.json. Nothing has been changed.
-
-    repos_title: Where Composer looks
-    repos_help: >-
-      Extensions that are not on Packagist — your own private repositories, or a
-      paid marketplace — have to be listed here before Composer can find them.
-    repos_none: Only Packagist. Nothing private or paid can be installed.
-    repos_placeholder: "https://github.com/you/your-extension"
-    repos_confirm: >-
-      Stop looking in {url}? Anything installed from it stays where it is, but it
-      cannot be updated or reinstalled until the repository is added again.
-
-    stability_title: How finished a release has to be
-    stability_help: >-
-      Composer refuses anything less finished than this. The error it gives when
-      the setting is too strict says the package "could not be found in any
-      version", which sounds like the package is missing rather than like a
-      setting is wrong.
-    prefer_stable: Still prefer a stable release when one exists
-
-    # ── Sources, redesigned ───────────────────────────────────────────────
-    src_stat_repos: "{count, plural, one {repository} other {repositories}}"
-    src_stat_level: lowest release accepted
-    src_stat_auth: "{count, plural, one {host can sign in} other {hosts can sign in}}"
-    src_filter: Filter repositories
-    src_no_match: "No repository matches “{query}”."
-    src_open: Open in a new tab
-    src_remove_q: Remove?
-    src_remove_named: "Remove {name}?"
-    src_remove_label: "Remove {name}"
-    src_add_repo: Add a repository
-    src_duplicate: That repository is already listed.
-    src_will_add: "Adds {name} from {where}."
-    src_recommended: recommended
-    src_prefer_stable_help: >-
-      When an extension has both a beta and a finished release that would work, take the finished one.
-    src_add_auth: Add a credential
-    src_host: Host
-    src_username: Username
-    src_password: Password
-    src_token: Token
-    src_show: Show
-    src_hide: Hide
-    src_replace: Replace
-    src_token_stored: token stored
-    src_save_auth: Save credential
-    src_token_github: Create a GitHub token (repo scope)
-    src_token_gitlab: Create a GitLab access token
-    type_vcs: Git repository
-    type_vcs_help: GitHub, GitLab, Bitbucket or any Git host
-    type_vcs_placeholder: "https://github.com/you/your-extension"
-    type_composer: Composer repository
-    type_composer_help: Private Packagist or a paid marketplace
-    type_composer_placeholder: "https://repo.example.com"
-    type_path: Folder on this server
-    type_path_help: A local checkout, for development
-    type_path_placeholder: "/home/you/extensions/your-extension"
-    kind_github-oauth: GitHub token
-    kind_github-oauth_help: Private GitHub repositories
-    kind_gitlab-token: GitLab token
-    kind_gitlab-token_help: GitLab.com or your own GitLab
-    kind_bearer: Bearer token
-    kind_bearer_help: Marketplaces that give you an API token
-    kind_http-basic: Username & password
-    kind_http-basic_help: Private Packagist and older repositories
-    level_stable: Stable
-    level_stable_short: finished only
-    level_rc: RC
-    level_rc_short: release candidates
-    level_beta: Beta
-    level_alpha: Alpha
-    level_alpha_short: early previews
-    level_dev: Dev
-    level_dev_short: unreleased code
-    # What each level means, said before the change: the consequence is the part
-    # somebody is deciding about.
-    level_stable_means: >-
-      Only finished releases. Flarum 2 itself is stable, but many of its extensions
-      are still betas or release candidates, and this cannot install those.
-    level_rc_means: Release candidates as well as finished releases.
-    level_beta_means: >-
-      Betas too. Many Flarum 2 extensions are still published as betas or release
-      candidates, so this is the usual choice.
-    level_alpha_means: Alphas as well — early code that is expected to change.
-    level_dev_means: >-
-      Unreleased code straight from a branch, which can change under you without
-      a version number changing.
-
-    auth_title: Credentials
-    auth_help: >-
-      For private repositories and paid marketplaces. Stored in auth.json, which
-      Composer reads and which sits outside the web root.
-    auth_none: None stored. Private and paid repositories will fail to download.
-    auth_host_placeholder: "github.com"
-    auth_user_placeholder: username
-    auth_secret_placeholder: token or password
-    auth_confirm: >-
-      Remove the credential for {host}? Anything that needs it will stop
-      downloading until it is set again.
-    # 🚨 Said on screen, not just in the code. Somebody who expects to be able to
-    # read a token back needs to know why they cannot, or they will assume it did
-    # not save and enter it repeatedly.
-    auth_writeonly: >-
-      The Extension Manager never shows a stored credential — not even to you. It shows
-      which hosts have one. To change a credential, enter the new value; it
-      replaces the old one.
-
-
-    # ── rollback copies ──────────────────────────────────────────────────────
-    trash_title: Rollback copies
-    trash_help: >-
-      Every update keeps the versions it replaced, so it can be rolled back.
-      Copies no rollback can use any more are tidied after each update and
-      every night. The copies the latest update needs are never removed.
-    trash_size: Taking up
-    trash_size_value: "{size} in {count, plural, one {# copy} other {# copies}}"
-    trash_freeable: Can be tidied now
-    trash_freeable_value: "{size} — {count, plural, one {# item} other {# items}}"
-    trash_freeable_none: Nothing — everything kept is still needed
-    trash_last: Last tidied
-    trash_last_value: "{when} — {count, plural, =0 {nothing to remove} other {removed #, freed {size}}}"
-    trash_last_never: Not yet
-    trash_keep_days: Keep rollback copies for
-    trash_days: days
-    trash_keep_runs: or for the last
-    trash_runs: updates
-    trash_prune: Tidy now
-    trash_pruning: Tidying…
-    trash_saved: Saved.
-    trash_rule: >-
-      Copies from the last {days} days or the last {runs} updates are kept,
-      whichever keeps more. Copies for the latest update, for one still in
-      progress and for anything that changed in the last day are always kept.
-    trash_confirm: >-
-      Remove {count, plural, one {# item} other {# items}} and free {size}?
-      They belong to updates that can no longer be rolled back from this
-      screen. The latest update can still be rolled back.
-    trash_done: "{count, plural, =0 {Nothing needed removing.} one {Removed # item, freeing {size}.} other {Removed # items, freeing {size}.}}"
-    trash_failed: The Extension Manager could not read its rollback copies.
-
-    # 🚨 The host tab's PHP diagnosis. Three faults, three fixes: proc_open
+    # The host tab's PHP diagnosis. Three faults, three fixes: proc_open
     # disabled, no command-line PHP found (usually open_basedir), or one found
     # that fails to run. And always the reminder that the PHP somebody tests
-    # over SSH is configured separately from the website's.
+    # over SSH is configured separately from the website's. The server sends
+    # these keys, relative to admin.
     host:
+      title: This host
       spawn_ok: Can run Composer as a separate process
       spawn_ok_why: Composer runs outside the web request, so its memory use is its own and cannot take the site down with it.
       in_process: Runs without separate processes
@@ -515,18 +540,9 @@ flarum-extension-manager:
       php_setting_saved: Saved. The Extension Manager will use this PHP.
       php_setting_cleared: Cleared. The Extension Manager will look for the command-line PHP itself.
 
-    php_path_not_absolute: Enter the full path, starting with /.
-    php_path_missing: "There is nothing at {path}."
-    php_path_not_executable: "{path} exists but is not executable."
-    php_path_hidden_and_silent: >-
-      {path} is outside this site's open_basedir, so the Extension Manager cannot look at
-      it, and running it did nothing. Check the path, or add its folder to
-      open_basedir.
-    php_path_did_not_run: "{path} did not run. {error}"
-    php_path_not_cli: '{path} is PHP, but the "{sapi}" kind, not the command-line PHP. Use the php binary beside it, not php-fpm or php-cgi.'
 
-  # Messages the server writes: API errors, run notes, host checks. Read
-  # through Flarum\ExtensionManager\Lang.
+  # Messages the server writes: API errors, run notes, host checks.
+  # Translated on the server through Flarum's translator.
   api:
     unknown_action: "Unknown action."
     apply:
@@ -637,6 +653,7 @@ flarum-extension-manager:
       checksum: "The download of {package} does not match its published checksum. It was not unpacked."
       download_failed: "Could not download {url} (HTTP {code})."
       not_archive: "The download of {package} is not a readable archive."
+      not_https: "Refusing to download {url}: archives are only fetched over HTTPS, as Composer does."
       path_escapes: "Refusing to unpack {package}: the archive contains a path that escapes it."
       private_hint: "If this package is private, the Extension Manager found no credentials for it — check auth.json."
       read_entry_failed: "Could not read {name} out of the {package} archive."
@@ -660,7 +677,6 @@ flarum-extension-manager:
       asked_directly: "(asked this server directly; its own address is not reachable from here)"
       never_reached: "The site was never reached."
       no_answer: "The site did not answer at all ({error})."
-      no_http: "This host has no way to make an HTTP request."
       no_response: "no response"
     capability:
       disk_free: "Disk: {gb} GB free"
@@ -713,6 +729,16 @@ flarum-extension-manager:
     php:
       exit_code: "exit code {code}"
       wrong_sapi: "reports SAPI \"{sapi}\", not cli"
+    php_path:
+      not_absolute: Enter the full path, starting with /.
+      missing: "There is nothing at {path}."
+      not_executable: "{path} exists but is not executable."
+      hidden_and_silent: >-
+        {path} is outside this site's open_basedir, so the Extension Manager cannot look at
+        it, and running it did nothing. Check the path, or add its folder to
+        open_basedir.
+      did_not_run: "{path} did not run. {error}"
+      not_cli: '{path} is PHP, but the "{sapi}" kind, not the command-line PHP. Use the php binary beside it, not php-fpm or php-cgi.'
     process:
       start_failed: "Could not start {command}."
       the_command: "the command"
@@ -775,5 +801,4 @@ flarum-extension-manager:
       still_enabled: "{package} is still enabled. Turn it off on the Extensions page first, check the forum is happy without it, and then remove it."
     updater:
       answered: "Flarum's updater did not update the database (it answered {status}: {body})."
-      no_http: "This host cannot make an HTTP request, so Flarum's updater could not be asked to update the database."
       unreachable: "Flarum's updater did not update the database (it could not be reached: {error})."

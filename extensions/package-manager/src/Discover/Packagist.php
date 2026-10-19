@@ -9,12 +9,12 @@
 
 namespace Flarum\ExtensionManager\Discover;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
 
 /**
  * Finding extensions, in two cheap requests rather than one slow one.
  *
- * 🚨 The split is the design. Packagist's search tells you a package exists and
+ * The split is the design. Packagist's search tells you a package exists and
  * nothing about whether it works with your Flarum; that answer lives in each
  * package's own metadata file, one HTTP call per package. Doing all of it in the
  * request that serves a search means a dozen round trips before anything appears
@@ -27,14 +27,13 @@ use Flarum\ExtensionManager\Lang;
 class Packagist
 {
     /**
-     * What each category adds to the search, the way the previous Extension Manager splits its
-     * list. Packagist has no category field, so each is the nearest thing it
+     * What each category adds to the search. Packagist has no category field, so each is the nearest thing it
      * does have, chosen by measuring what comes back (2026-10-13):
      *
      * - themes by the word, not the tag: `tags=theme` finds 24 and misses Asirem
      *   and Fluent; the word finds 78, and every one of those 24.
      * - languages and widgets by tag, which Packagist ORs: 319 and 37, against
-     *   137 for the previous Extension Manager's `flarum-lang` (one vendor's packs only).
+     *   137 for the `flarum-lang` tag alone (one vendor's packs only).
      *
      * @var array<string,array{q?:string,tags?:list<string>}>
      */
@@ -46,8 +45,9 @@ class Packagist
 
     /** @param ?callable(string):?string $get overridable so tests never touch a network */
     public function __construct(
-        private Cache $cache,
-        private $get = null,
+        protected TranslatorInterface $translator,
+        protected Cache $cache,
+        protected $get = null,
     ) {
         $this->get ??= fn (string $url) => $this->fetch($url);
     }
@@ -55,7 +55,7 @@ class Packagist
     /**
      * Search, or — with no query — browse.
      *
-     * 🚨 An empty query is a valid request, not an error. Packagist answers
+     * An empty query is a valid request, not an error. Packagist answers
      * `type=flarum-extension` with no `q` by returning every Flarum extension
      * published, most popular first: 2306 of them. That is what somebody opening
      * a tab called "Find extensions" is asking for, and requiring them to guess
@@ -82,18 +82,18 @@ class Packagist
 
         if ($body === null) {
             /*
-             * 🚨 Reported, never turned into an empty list. "Nothing found" and
+             * Reported, never turned into an empty list. "Nothing found" and
              * "could not reach Packagist" look identical on screen and mean
              * opposite things — the first ends a search, the second means try
              * again in a minute.
              */
-            return ['results' => [], 'total' => 0, 'error' => Lang::trans('discover.unreachable'), 'more' => false];
+            return ['results' => [], 'total' => 0, 'error' => $this->translator->trans('flarum-extension-manager.api.discover.unreachable'), 'more' => false];
         }
 
         $data = json_decode($body, true);
 
         if (! is_array($data) || ! isset($data['results'])) {
-            return ['results' => [], 'total' => 0, 'error' => Lang::trans('discover.unexpected'), 'more' => false];
+            return ['results' => [], 'total' => 0, 'error' => $this->translator->trans('flarum-extension-manager.api.discover.unexpected'), 'more' => false];
         }
 
         $results = [];
@@ -112,7 +112,7 @@ class Packagist
                 'favers' => (int) ($row['favers'] ?? 0),
                 'repository' => (string) ($row['repository'] ?? ''),
                 /*
-                 * 🚨 Carried through rather than dropped. Packagist marks a
+                 * Carried through rather than dropped. Packagist marks a
                  * package abandoned when its author says so, and installing one
                  * unknowingly is exactly the kind of thing somebody would want
                  * to have been told before rather than after.
@@ -141,7 +141,7 @@ class Packagist
         $out = [];
 
         /*
-         * 🚨 The core version is part of the key. A verdict is not a fact about
+         * The core version is part of the key. A verdict is not a fact about
          * a package, it is a fact about a package AND the Flarum asking — so a
          * cache keyed on the name alone would keep answering for the version the
          * site used to run for a day after an upgrade, which is exactly when
@@ -156,7 +156,7 @@ class Packagist
         }
 
         /*
-         * 🚨 Followed to the end. jaspervriends/flarum-seo names
+         * Followed to the end. jaspervriends/flarum-seo names
          * v17development/flarum-seo as its replacement, which is itself an old
          * name for fof/seo: offering the middle one would install the very
          * thing this guards against. Three hops at most, and never in a circle.
@@ -180,7 +180,7 @@ class Packagist
     }
 
     /** @return array<string,mixed> */
-    private function one(string $name, Compatibility $compat, string $scope): array
+    protected function one(string $name, Compatibility $compat, string $scope): array
     {
         $cached = $this->cache->get($scope.$name);
 
@@ -213,7 +213,7 @@ class Packagist
      *
      * Only ever asked for a package whose newest release replaces its own name,
      * so this is one extra request for a rare case, cached with the verdict.
-     * 🚨 GitHub only, and the host is fixed here rather than taken from the
+     * GitHub only, and the host is fixed here rather than taken from the
      * metadata: a source URL is somebody else's data, and following it wherever
      * it points would let a package steer this server's requests. Anywhere else,
      * the answer is "replaced, by something we can't name" — install is still
@@ -221,7 +221,7 @@ class Packagist
      *
      * @param array<string,mixed> $source
      */
-    private function realName(string $name, array $source): ?string
+    protected function realName(string $name, array $source): ?string
     {
         $url = (string) ($source['url'] ?? '');
         $ref = (string) ($source['reference'] ?? '');
@@ -239,7 +239,7 @@ class Packagist
             : null;
     }
 
-    private function fetch(string $url): ?string
+    protected function fetch(string $url): ?string
     {
         $context = stream_context_create(['http' => [
             'timeout' => 15,

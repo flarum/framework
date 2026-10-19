@@ -10,23 +10,22 @@
 namespace Flarum\ExtensionManager\Work;
 
 use Flarum\ExtensionManager\Host\PhpBinary;
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
 use RuntimeException;
 
 /**
  * Runs Composer: in its own process where the host allows it, inside this one
  * where it does not.
  *
- * 🚨 A subprocess by preference. The previous Extension Manager runs Composer inside the PHP
- * worker serving the request AND lets it rewrite vendor/, so a killed request
- * can take the vendor directory with it and a booted Flarum shares the
- * resolve's memory budget. Out of process, Composer gets its own limit, its own
+ * A subprocess by preference. Composer run inside the PHP worker serving the
+ * request shares a booted Flarum's memory budget, and if it may rewrite vendor/
+ * a killed request can take the vendor directory with it. Out of process, Composer gets its own limit, its own
  * lifetime, and its failures are exit codes rather than a dead worker.
  *
- * 🚨 In-process where a subprocess is impossible — proc_open disabled, or no
- * command-line PHP — and this used to refuse instead. What made Extension
- * Manager fragile was never the process Composer ran in: it was Composer
- * writing vendor/ from inside a request that could be killed. The Extension Manager never
+ * In-process where a subprocess is impossible — proc_open disabled, or no
+ * command-line PHP — and this used to refuse instead. The danger was never the
+ * process Composer ran in: it was Composer writing vendor/ from inside a request
+ * that could be killed. The Extension Manager never
  * lets Composer touch a package directory. Composer only RESOLVES (`--no-install`
  * writes composer.lock and nothing else), Fetcher downloads, and Applier swaps
  * directories with journalled renames. The one write Composer makes here is the
@@ -40,15 +39,16 @@ use RuntimeException;
  */
 class ComposerRunner
 {
-    private PhpBinary $php;
+    protected PhpBinary $php;
 
     public function __construct(
-        private string $installPath,
-        private ?string $composerBin = null,
-        private ?string $composerHome = null,
+        protected TranslatorInterface $translator,
+        protected string $installPath,
+        protected ?string $composerBin = null,
+        protected ?string $composerHome = null,
         ?string $phpBin = null,
     ) {
-        $this->php = new PhpBinary($phpBin);
+        $this->php = new PhpBinary($translator, $phpBin);
     }
 
     /** The same runner, judging the host through a different PhpBinary. */
@@ -69,7 +69,7 @@ class ComposerRunner
     /**
      * Composer will run inside this PHP process rather than in its own.
      *
-     * 🚨 Asked of THIS process. A queue worker's PHP often has a different
+     * Asked of THIS process. A queue worker's PHP often has a different
      * php.ini from the website's, so the same run can spawn from the worker and
      * run in-process from the admin page — and both are fine.
      */
@@ -109,10 +109,10 @@ class ComposerRunner
             ['--no-interaction', '--working-dir='.$this->installPath]
         );
 
-        return Process::run($cmd, $this->installPath, [
+        return Process::run($this->translator, $cmd, $this->installPath, [
             'PATH' => getenv('PATH') ?: '/usr/bin:/bin',
             /*
-             * 🚨 -1, set explicitly. Composer raises its own limit to 1.5G on
+             * -1, set explicitly. Composer raises its own limit to 1.5G on
              * startup unless this is set, which would make any measurement of
              * what a host can actually do meaningless — and the whole capability
              * panel depends on those measurements being real.
@@ -127,7 +127,7 @@ class ComposerRunner
      * The same command, through Composer's own console application, in this
      * process.
      *
-     * 🚨 An argv ARRAY, exactly as the subprocess gets, and never a string to
+     * An argv ARRAY, exactly as the subprocess gets, and never a string to
      * be parsed: the only user-supplied values are package names that
      * StartController has already matched against Composer's own pattern.
      *
@@ -137,7 +137,7 @@ class ComposerRunner
     public function runInProcess(array $args): array
     {
         /*
-         * 🚨 No plugins and no scripts, in-process always. Either would be
+         * No plugins and no scripts, in-process always. Either would be
          * somebody else's code running inside this request — and most of
          * them start a program anyway, which is the thing this host forbids.
          */
@@ -163,13 +163,13 @@ class ComposerRunner
                 $code = $application->run(new \Symfony\Component\Console\Input\ArgvInput($argv), $output);
             } catch (\Throwable $e) {
                 $code = 1;
-                $output->writeln(self::explainThrowable($e));
+                $output->writeln($this->explainThrowable($e));
             }
 
             $said = trim($output->fetch());
 
             if ($code !== 0 && (! $limits['memory'] || ! $limits['time'])) {
-                $said .= "\n".self::limitNote($limits);
+                $said .= "\n".$this->limitNote($limits);
             }
 
             return ['code' => $code, 'output' => $said];
@@ -177,7 +177,7 @@ class ComposerRunner
     }
 
     /**
-     * 🚨 Every variable that changes what Composer does, set the way the
+     * Every variable that changes what Composer does, set the way the
      * subprocess sets them — plus the one that replaces a call to git.
      *
      * COMPOSER_ROOT_VERSION: without it Composer asks git what version the
@@ -186,7 +186,7 @@ class ComposerRunner
      *
      * @return array<string,string>
      */
-    private function inProcessEnv(): array
+    protected function inProcessEnv(): array
     {
         $env = [
             'COMPOSER_HOME' => $this->composerHome(),
@@ -217,15 +217,15 @@ class ComposerRunner
     }
 
     /**
-     * 🚨 Composer reaching for git on a host that cannot start programs throws
+     * Composer reaching for git on a host that cannot start programs throws
      * Symfony's "relies on proc_open" LogicException, from deep inside a VCS or
      * path repository. Turned into the sentence that says what to do.
      */
-    public static function explainThrowable(\Throwable $e): string
+    public function explainThrowable(\Throwable $e): string
     {
         for ($t = $e; $t !== null; $t = $t->getPrevious()) {
             if (str_contains($t->getMessage(), 'proc_open')) {
-                return Lang::trans('composer.needs_git');
+                return $this->translator->trans('flarum-extension-manager.api.composer.needs_git');
             }
         }
 
@@ -235,23 +235,23 @@ class ComposerRunner
     /**
      * @param array{memory:bool, time:bool} $limits
      */
-    private static function limitNote(array $limits): string
+    protected function limitNote(array $limits): string
     {
         $parts = [];
 
         if (! $limits['memory']) {
-            $parts[] = Lang::trans('composer.limit_memory', ['limit' => (string) ini_get('memory_limit')]);
+            $parts[] = $this->translator->trans('flarum-extension-manager.api.composer.limit_memory', ['limit' => (string) ini_get('memory_limit')]);
         }
 
         if (! $limits['time']) {
-            $parts[] = Lang::trans('composer.limit_time', ['seconds' => (string) ini_get('max_execution_time')]);
+            $parts[] = $this->translator->trans('flarum-extension-manager.api.composer.limit_time', ['seconds' => (string) ini_get('max_execution_time')]);
         }
 
-        return Lang::trans('composer.limit_note', ['limits' => implode(Lang::trans('composer.limit_joiner'), $parts)]);
+        return $this->translator->trans('flarum-extension-manager.api.composer.limit_note', ['limits' => implode($this->translator->trans('flarum-extension-manager.api.composer.limit_joiner'), $parts)]);
     }
 
     /**
-     * 🚨 The BUNDLED Composer first, and a host's own only as a last resort.
+     * The BUNDLED Composer first, and a host's own only as a last resort.
      *
      * The Extension Manager requires composer/composer, so the library is in the same
      * vendor tree as everything else and is simply always there. That is not
@@ -264,7 +264,7 @@ class ComposerRunner
      * process, own limit. The in-process fallback uses this same bundled
      * library through its autoloader.
      */
-    private function binary(): ?string
+    protected function binary(): ?string
     {
         if ($this->composerBin !== null) {
             return $this->composerBin;
@@ -291,8 +291,8 @@ class ComposerRunner
      * Reached only when neither way can work: no subprocess, and no Composer
      * library to run in-process either.
      */
-    private function whyNot(): string
+    protected function whyNot(): string
     {
-        return Lang::trans('composer.missing');
+        return $this->translator->trans('flarum-extension-manager.api.composer.missing');
     }
 }

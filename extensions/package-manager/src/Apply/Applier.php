@@ -9,23 +9,23 @@
 
 namespace Flarum\ExtensionManager\Apply;
 
-use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Plan\Change;
+use Flarum\Locale\TranslatorInterface;
 use RuntimeException;
 
 /**
  * Puts a plan into the vendor tree, one package at a time, writing down each
  * step before it takes it.
  *
- * 🚨 Two renames, never a delete.
+ * Two renames, never a delete.
  *
  *     vendor/<pkg>   → trash/<pkg>@<version>     (the old one is kept)
  *     staging/<pkg>  → vendor/<pkg>              (the new one arrives)
  *
  * Both are `rename()` (Tree::move), so each is atomic and effectively instantaneous. The
- * package is absent between them, and only between them — microseconds, for one
- * package, against the previous Extension Manager's window of deleting 1.3 GB and moving it
- * back. Nothing is deleted at all during an apply: the old tree waits in the
+ * package is absent between them, and only between them: microseconds, for one
+ * package, where deleting a tree and moving another in takes far longer.
+ * Nothing is deleted at all during an apply: the old tree waits in the
  * trash until somebody prunes it, which is what makes rollback possible long
  * after the fact.
  *
@@ -46,15 +46,16 @@ class Applier
      *        rather than at a convenient one.
      */
     public function __construct(
-        private string $vendorDir,
-        private string $stagingDir,
-        private string $trashDir,
-        private Journal $journal,
-        private $observer = null,
+        protected TranslatorInterface $translator,
+        protected string $vendorDir,
+        protected string $stagingDir,
+        protected string $trashDir,
+        protected Journal $journal,
+        protected $observer = null,
     ) {
     }
 
-    private function observe(string $label, Change $change): void
+    protected function observe(string $label, Change $change): void
     {
         if ($this->observer !== null) {
             ($this->observer)($label, $change);
@@ -69,14 +70,14 @@ class Applier
     {
         if ($this->journal->exists() && ! $this->journal->isComplete()) {
             /*
-             * 🚨 Refuse rather than continue. A journal with an unfinished entry
+             * Refuse rather than continue. A journal with an unfinished entry
              * means a previous apply died, and the tree is in a state only that
              * journal can explain. Starting a second apply on top of it would
              * interleave two records and make both unreadable — which is how a
              * recoverable situation becomes a manual one.
              */
             throw new RuntimeException(
-                Lang::trans('apply.previous_unfinished')
+                $this->translator->trans('flarum-extension-manager.api.apply.previous_unfinished')
             );
         }
 
@@ -92,7 +93,7 @@ class Applier
     /**
      * One package, journalled.
      *
-     * 🚨 No "did the last run finish" guard here, unlike apply(). When the step
+     * No "did the last run finish" guard here, unlike apply(). When the step
      * driver is doing the sequencing, an unfinished journal is the NORMAL state
      * — it is the record of the run currently in progress. Refusing on it would
      * make the second step of every update fail.
@@ -120,11 +121,11 @@ class Applier
         $this->journal->complete($seq);
         $this->observe('completed', $change);
 
-        return $change->describe();
+        return $change->describe($this->translator);
     }
 
     /**
-     * 🚨 A package installed as a symlink belongs to somebody else.
+     * A package installed as a symlink belongs to somebody else.
      *
      * Composer installs a path repository by linking vendor/<pkg> at a checkout
      * on disk — the way every extension developer runs their own work, and the
@@ -137,18 +138,18 @@ class Applier
      * symptom, because "could not move" would send somebody hunting for a
      * permissions problem that does not exist.
      */
-    private function refusePathInstall(Change $change): void
+    protected function refusePathInstall(Change $change): void
     {
         $live = $this->path($this->vendorDir, $change->relativePath());
 
         if (is_link($live)) {
             throw new RuntimeException(
-                Lang::trans('apply.local_path', ['package' => $change->package, 'path' => 'vendor/'.$change->relativePath()])
+                $this->translator->trans('flarum-extension-manager.api.apply.local_path', ['package' => $change->package, 'path' => 'vendor/'.$change->relativePath()])
             );
         }
     }
 
-    private function replace(Change $change): void
+    protected function replace(Change $change): void
     {
         $this->stash($change);
         $this->observe('stashed', $change);
@@ -157,13 +158,13 @@ class Applier
         $this->observe('installed', $change);
     }
 
-    private function add(Change $change): void
+    protected function add(Change $change): void
     {
         $this->install($change);
         $this->observe('installed', $change);
     }
 
-    private function remove(Change $change): void
+    protected function remove(Change $change): void
     {
         $this->stash($change);
         $this->observe('stashed', $change);
@@ -179,13 +180,13 @@ class Applier
     /**
      * Remove the vendor namespace directory if that was the last package in it.
      *
-     * 🚨 Only when empty, and never above the vendor directory itself. rmdir
+     * Only when empty, and never above the vendor directory itself. rmdir
      * refuses a non-empty directory, so the check and the act cannot disagree.
      * An uninstall that leaves vendor/acme/ behind is not wrong so much as
      * unfinished, and it is the sort of litter that makes somebody wonder what
      * else was left half done.
      */
-    private function tidyVendorDir(string $dir): void
+    protected function tidyVendorDir(string $dir): void
     {
         $vendor = rtrim($this->vendorDir, DIRECTORY_SEPARATOR);
 
@@ -197,7 +198,7 @@ class Applier
     }
 
     /** Move the installed version aside. Kept, never deleted. */
-    private function stash(Change $change): void
+    protected function stash(Change $change): void
     {
         $live = $this->path($this->vendorDir, $change->relativePath());
 
@@ -227,12 +228,12 @@ class Applier
         $this->ensureDir(dirname($target));
 
         if (! Tree::move($live, $target)) {
-            throw new RuntimeException(Lang::trans('apply.move_aside_failed', ['from' => $live, 'to' => $target]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.apply.move_aside_failed', ['from' => $live, 'to' => $target]));
         }
     }
 
     /** Move the staged version into place. */
-    private function install(Change $change): void
+    protected function install(Change $change): void
     {
         $staged = $this->path($this->stagingDir, $change->relativePath());
 
@@ -259,24 +260,24 @@ class Applier
         $this->ensureDir(dirname($live));
 
         if (! Tree::move($staged, $live)) {
-            throw new RuntimeException(Lang::trans('apply.move_in_failed', ['from' => $staged, 'to' => $live]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.apply.move_in_failed', ['from' => $staged, 'to' => $live]));
         }
     }
 
     /**
-     * 🚨 Join a trusted base with a relative path that has already been
+     * Join a trusted base with a relative path that has already been
      * validated by Change::relativePath(). Kept in one place so there is one
      * thing to audit rather than five string concatenations.
      */
-    private function path(string $base, string $relative): string
+    protected function path(string $base, string $relative): string
     {
         return rtrim($base, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$relative;
     }
 
-    private function ensureDir(string $dir): void
+    protected function ensureDir(string $dir): void
     {
         if (! is_dir($dir) && ! mkdir($dir, 0775, true) && ! is_dir($dir)) {
-            throw new RuntimeException(Lang::trans('fs.create_failed', ['path' => $dir]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fs.create_failed', ['path' => $dir]));
         }
     }
 }

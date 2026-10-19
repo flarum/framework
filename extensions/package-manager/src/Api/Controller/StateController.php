@@ -18,6 +18,7 @@ use Flarum\ExtensionManager\Work\PendingUndo;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
+use Flarum\Locale\TranslatorInterface;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -26,7 +27,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * Everything the admin screen draws, in one read.
  *
- * 🚨 Polled while a run is going, so it stays a read — it never advances
+ * Polled while a run is going, so it stays a read — it never advances
  * anything, never repairs anything, and never has a side effect. Mixing "tell me
  * the state" with "make something happen" is how a page refresh ends up
  * starting a second update.
@@ -34,9 +35,10 @@ use Psr\Http\Server\RequestHandlerInterface;
 class StateController implements RequestHandlerInterface
 {
     public function __construct(
-        private ExtensionManager $extensions,
-        private Paths $paths,
-        private RunStore $runs,
+        protected TranslatorInterface $translator,
+        protected ExtensionManager $extensions,
+        protected Paths $paths,
+        protected RunStore $runs,
     ) {
     }
 
@@ -45,20 +47,20 @@ class StateController implements RequestHandlerInterface
         RequestUtil::getActor($request)->assertAdmin();
 
         $run = $this->runs->latest();
-        $undoError = PendingUndo::finish($run, $this->paths);
+        $undoError = PendingUndo::finish($this->translator, $run, $this->paths);
 
         $check = new UpdateCheck(StorageDir::of($this->paths->storage).'/updates.json');
         $cached = $check->current($this->paths->base.'/composer.lock');
 
         return new JsonResponse([
-            'host' => (new Capability($this->paths->base, PhpBinary::forStorage($this->paths->storage), $this->paths->storage.'/.composer'))->report(),
+            'host' => (new Capability($this->translator, $this->paths->base, PhpBinary::forStorage($this->translator, $this->paths->storage), $this->paths->storage.'/.composer'))->report(),
             'installed' => $this->installed($cached['updates'] ?? []),
             'run' => $this->runs->present($run),
             'undoError' => $undoError,
             'history' => $this->runs->history(),
             'runIsStale' => $run !== null && $run->isStale(time()),
             /*
-             * 🚨 Sent with its age and its blind spots, never as a bare count.
+             * Sent with its age and its blind spots, never as a bare count.
              * "3 updates" is a claim; "3 updates, checked 2 hours ago, and 4
              * packages could not be checked at all" is the truth, and the second
              * is what lets somebody decide whether to trust it.
@@ -80,7 +82,7 @@ class StateController implements RequestHandlerInterface
     }
 
     /** @return list<array<string,mixed>> */
-    private function installed(array $updates): array
+    protected function installed(array $updates): array
     {
         $require = (array) ($this->readJson($this->paths->base.'/composer.json')['require'] ?? []);
         $out = [];
@@ -94,14 +96,14 @@ class StateController implements RequestHandlerInterface
                 'icon' => $extension->getIcon(),
                 'enabled' => $this->extensions->isEnabled($extension->getId()),
                 /*
-                 * 🚨 A HINT from the cheap Packagist check, not a promise. It
+                 * A HINT from the cheap Packagist check, not a promise. It
                  * means "a newer version exists", not "you can have it" — only
                  * the plan answers that, and the screen has to keep the two
                  * apart or the badge becomes something people learn to ignore.
                  */
                 'update' => $updates[$extension->name] ?? null,
                 /*
-                 * 🚨 The screen has to know a requirement is an exact pin,
+                 * The screen has to know a requirement is an exact pin,
                  * because that changes what pressing Update means: not "fetch
                  * the newer version" but "change what this forum requires, then
                  * fetch it". Two different acts, and the second one edits
@@ -109,7 +111,7 @@ class StateController implements RequestHandlerInterface
                  */
                 'constraint' => $require[$extension->name] ?? null,
                 /*
-                 * 🚨 Reported so the SCREEN can explain, rather than the apply
+                 * Reported so the SCREEN can explain, rather than the apply
                  * refusing later. Composer installs a path repository as a
                  * symlink into a checkout on this machine — the way every
                  * extension developer runs their own work. The Extension Manager will not
@@ -122,7 +124,7 @@ class StateController implements RequestHandlerInterface
         }
 
         /*
-         * 🚨 Libraries the forum requires itself, beside its extensions. They
+         * Libraries the forum requires itself, beside its extensions. They
          * have no settings page, so they never had a card, and an update to
          * one (fof/redis 2.0.0) went unseen. Dependencies pulled in by other
          * packages are left out: nobody chose those.
@@ -157,7 +159,7 @@ class StateController implements RequestHandlerInterface
     }
 
     /** @return array<string,mixed> */
-    private function readJson(string $path): array
+    protected function readJson(string $path): array
     {
         $data = is_file($path) ? json_decode((string) file_get_contents($path), true) : null;
 

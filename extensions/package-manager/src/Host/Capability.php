@@ -9,17 +9,16 @@
 
 namespace Flarum\ExtensionManager\Host;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
 
 /**
  * What this host will and will not let the Extension Manager do, established by looking
  * rather than by hoping.
  *
- * 🚨 This is shown to the admin BEFORE they press anything, and that is the
- * point of it. The single most infuriating thing about the current tooling is
- * that it behaves mysteriously on constrained hosting and never says why — you
- * discover the limit by hitting it, halfway through an update, with the site
- * down. A tool that knows it cannot do zero-downtime updates should say so on a
+ * This is shown to the admin BEFORE they press anything, and that is the point
+ * of it. A tool that behaves mysteriously on constrained hosting and never says
+ * why makes you discover the limit by hitting it, halfway through an update,
+ * with the site down. A tool that knows it cannot do zero-downtime updates should say so on a
  * settings page, in advance.
  *
  * The thresholds are measured, not guessed. On a 253-package install a full
@@ -36,28 +35,29 @@ class Capability
     public const NONE = 'none';
 
     /**
-     * 🚨 MEASURED, in-process, on dev.ernestdefoe.online's own composer.json
+     * MEASURED, in-process, on dev.ernestdefoe.online's own composer.json
      * with proc_open disabled — a cold Composer cache, then a warm one. Shown
      * on the panel so a short time limit can be judged against a real number.
      */
-    private const RESOLVE_COLD = '145';
-    private const RESOLVE_WARM = '27';
+    protected const RESOLVE_COLD = '145';
+    protected const RESOLVE_WARM = '27';
 
-    private PhpBinary $php;
+    protected PhpBinary $php;
 
     /** @var array{memory:bool, time:bool, timeLimit:int}|null */
-    private ?array $limits = null;
+    protected ?array $limits = null;
 
     /** @var list<array{url:string, why:string}>|null */
-    private ?array $blockers = null;
+    protected ?array $blockers = null;
 
     /**
      * @param array{memory:bool, time:bool, timeLimit:int}|null $limits for tests: what the host lets be lifted
      */
     public function __construct(
-        private string $installPath,
+        protected TranslatorInterface $translator,
+        protected string $installPath,
         PhpBinary $php,
-        private ?string $composerHome = null,
+        protected ?string $composerHome = null,
         ?array $limits = null,
     ) {
         $this->php = $php;
@@ -74,7 +74,7 @@ class Capability
     }
 
     /** @return array{memory:bool, time:bool, timeLimit:int} */
-    private function limits(): array
+    protected function limits(): array
     {
         return $this->limits ??= \Flarum\ExtensionManager\Work\InProcess::limits();
     }
@@ -123,7 +123,7 @@ class Capability
     /**
      * How updates are applied here.
      *
-     * 🚨 One strategy, on every host, and that is a decision rather than a
+     * One strategy, on every host, and that is a decision rather than a
      * missing feature. This used to advertise a second "slots" tier where a
      * symlink is flipped between prepared directories so nothing is ever
      * missing — the panel said so, and no such code existed.
@@ -144,7 +144,7 @@ class Capability
         return 'journal';
     }
 
-    private function memoryCheck(int $bytes): array
+    protected function memoryCheck(int $bytes): array
     {
         if ($this->inProcess() && $this->limits()['memory']) {
             return [
@@ -158,27 +158,27 @@ class Capability
         }
 
         $tier = $this->resolveTier($bytes);
-        $mb = $bytes === -1 ? Lang::trans('capability.unlimited') : round($bytes / 1048576).' MB';
+        $mb = $bytes === -1 ? $this->translator->trans('flarum-extension-manager.api.capability.unlimited') : round($bytes / 1048576).' MB';
 
         return [
             'id' => 'memory',
             'ok' => $tier !== self::NONE,
             'warn' => $tier === self::TARGETED,
-            'what' => Lang::trans('capability.memory', ['memory' => $mb]),
+            'what' => $this->translator->trans('flarum-extension-manager.api.capability.memory', ['memory' => $mb]),
             'why' => match ($tier) {
-                self::FULL => Lang::trans('capability.memory_full'),
-                self::TARGETED => Lang::trans('capability.memory_targeted'),
-                default => Lang::trans('capability.memory_none'),
+                self::FULL => $this->translator->trans('flarum-extension-manager.api.capability.memory_full'),
+                self::TARGETED => $this->translator->trans('flarum-extension-manager.api.capability.memory_targeted'),
+                default => $this->translator->trans('flarum-extension-manager.api.capability.memory_none'),
             },
         ];
     }
 
-    private function timeCheck(): array
+    protected function timeCheck(): array
     {
         $limit = (int) ini_get('max_execution_time');
 
         /*
-         * 🚨 In-process, the resolve is ONE long step inside one request, so
+         * In-process, the resolve is ONE long step inside one request, so
          * the per-request limit is suddenly the thing that matters — and on
          * IONOS/Plesk shared hosting it is both short and locked. Said here,
          * before anybody presses Update, with the number.
@@ -205,17 +205,17 @@ class Capability
             'id' => 'time',
             'ok' => true,
             'warn' => false,
-            'what' => $limit === 0 ? Lang::trans('capability.time_none') : Lang::trans('capability.time_limit', ['seconds' => $limit]),
+            'what' => $limit === 0 ? $this->translator->trans('flarum-extension-manager.api.capability.time_none') : $this->translator->trans('flarum-extension-manager.api.capability.time_limit', ['seconds' => $limit]),
             'why' => $limit === 0
-                ? Lang::trans('capability.time_none_why')
-                : Lang::trans('capability.time_limit_why', ['seconds' => $limit]),
+                ? $this->translator->trans('flarum-extension-manager.api.capability.time_none_why')
+                : $this->translator->trans('flarum-extension-manager.api.capability.time_limit_why', ['seconds' => $limit]),
         ];
     }
 
-    private function subprocessCheck(): array
+    protected function subprocessCheck(): array
     {
         /*
-         * 🚨 It names the php.ini, and says that it is the WEBSITE's. The
+         * It names the php.ini, and says that it is the WEBSITE's. The
          * usual way somebody "proves" this is wrong is to test proc_open over
          * SSH, where it works — because that is a different PHP with its own
          * configuration.
@@ -264,13 +264,13 @@ class Capability
      *
      * @return list<array<string,mixed>>
      */
-    private function gitCheck(): array
+    protected function gitCheck(): array
     {
         if (! $this->inProcess()) {
             return [];
         }
 
-        $blockers = $this->blockers ??= (new \Flarum\ExtensionManager\Work\NeedsGit(
+        $blockers = $this->blockers ??= (new \Flarum\ExtensionManager\Work\NeedsGit($this->translator, 
             $this->installPath,
             $this->composerHome ?? $this->installPath.'/storage/.composer'
         ))->blockers();
@@ -305,7 +305,7 @@ class Capability
      *
      * @return list<array<string,mixed>>
      */
-    private function phpCheck(): array
+    protected function phpCheck(): array
     {
         if (! $this->canSpawn()) {
             return [];     // the row above already says why nothing can run
@@ -370,27 +370,27 @@ class Capability
     }
 
     /**
-     * 🚨 The check that decides whether an update is VISIBLE.
+     * The check that decides whether an update is VISIBLE.
      *
      * Everything else here is about whether an update can run. This is about
      * whether anybody will be able to tell that it did — on a host tuned with
      * validate_timestamps off, new files land, every phase reports success, and
      * the site serves the old code until PHP is restarted.
      */
-    private function opcacheCheck(): array
+    protected function opcacheCheck(): array
     {
-        $o = (new Opcache())->situation();
+        $o = (new Opcache($this->translator))->situation();
 
         if (! $o['enabled']) {
             return [
                 'id' => 'opcache', 'ok' => true, 'warn' => false,
-                'what' => Lang::trans('capability.opcache_off'),
-                'why' => Lang::trans('capability.opcache_off_why'),
+                'what' => $this->translator->trans('flarum-extension-manager.api.capability.opcache_off'),
+                'why' => $this->translator->trans('flarum-extension-manager.api.capability.opcache_off_why'),
             ];
         }
 
         /*
-         * 🚨 Not a warning when the Extension Manager can handle it, and it usually can:
+         * Not a warning when the Extension Manager can handle it, and it usually can:
          * the finalise step clears the cache from the web request that runs it.
          * The row exists so somebody debugging "the update did not take" has
          * somewhere to look, not to alarm them about a normal setup.
@@ -402,17 +402,17 @@ class Capability
             'ok' => $handled,
             'warn' => ! $handled,
             'what' => $o['validates']
-                ? Lang::trans('capability.opcache_rereads', ['seconds' => max(1, $o['freq'])])
-                : Lang::trans('capability.opcache_never_rereads'),
+                ? $this->translator->trans('flarum-extension-manager.api.capability.opcache_rereads', ['seconds' => max(1, $o['freq'])])
+                : $this->translator->trans('flarum-extension-manager.api.capability.opcache_never_rereads'),
             'why' => $handled
-                ? Lang::trans('capability.opcache_handled')
+                ? $this->translator->trans('flarum-extension-manager.api.capability.opcache_handled')
                 : ($o['validates']
-                    ? Lang::trans('capability.opcache_delay', ['seconds' => max(1, $o['freq'])])
-                    : Lang::trans('capability.opcache_restart')),
+                    ? $this->translator->trans('flarum-extension-manager.api.capability.opcache_delay', ['seconds' => max(1, $o['freq'])])
+                    : $this->translator->trans('flarum-extension-manager.api.capability.opcache_restart')),
         ];
     }
 
-    private function diskCheck(): array
+    protected function diskCheck(): array
     {
         $free = @disk_free_space($this->installPath);
         $gb = $free === false ? null : round($free / 1073741824, 1);
@@ -421,22 +421,22 @@ class Capability
             'id' => 'disk',
             'ok' => $gb === null || $gb > 1,
             'warn' => $gb !== null && $gb <= 1,
-            'what' => $gb === null ? Lang::trans('capability.disk_unknown') : Lang::trans('capability.disk_free', ['gb' => $gb]),
-            'why' => Lang::trans('capability.disk_why'),
+            'what' => $gb === null ? $this->translator->trans('flarum-extension-manager.api.capability.disk_unknown') : $this->translator->trans('flarum-extension-manager.api.capability.disk_free', ['gb' => $gb]),
+            'why' => $this->translator->trans('flarum-extension-manager.api.capability.disk_why'),
         ];
     }
 
-    private function summary(int $bytes): string
+    protected function summary(int $bytes): string
     {
         return match ($this->resolveTier($bytes)) {
-            self::FULL => Lang::trans('capability.summary_full'),
-            self::TARGETED => Lang::trans('capability.summary_targeted'),
-            default => Lang::trans('capability.summary_none'),
+            self::FULL => $this->translator->trans('flarum-extension-manager.api.capability.summary_full'),
+            self::TARGETED => $this->translator->trans('flarum-extension-manager.api.capability.summary_targeted'),
+            default => $this->translator->trans('flarum-extension-manager.api.capability.summary_none'),
         };
     }
 
     /** The summary when Composer runs in-process, which the English one would call "everything works". */
-    private function summaryKey(): ?string
+    protected function summaryKey(): ?string
     {
         if (! $this->inProcess() || $this->resolveTier() === self::NONE) {
             return null;
@@ -451,7 +451,7 @@ class Capability
             : 'host.summary_in_process_time';
     }
 
-    private function memoryBytes(): int
+    protected function memoryBytes(): int
     {
         // In-process, the Extension Manager lifts the limit for the resolve if it may.
         if ($this->inProcess() && $this->limits()['memory']) {
@@ -475,7 +475,7 @@ class Capability
         };
     }
 
-    private function canSpawn(): bool
+    protected function canSpawn(): bool
     {
         return $this->php->canSpawn();
     }

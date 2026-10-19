@@ -11,6 +11,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\ExtensionManager\Config\JsonFile;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ReleaseNotes;
 use PHPUnit\Framework\TestCase;
 
@@ -31,7 +32,7 @@ class ReleaseNotesTest extends TestCase
 
     private function notes(): ReleaseNotes
     {
-        return new ReleaseNotes($this->dir, new AuthTokens(new JsonFile($this->dir.'/auth.json')));
+        return new ReleaseNotes($this->dir, new AuthTokens(EnglishTranslator::make(), new JsonFile(EnglishTranslator::make(), $this->dir.'/auth.json')), new \GuzzleHttp\Client());
     }
 
     private function update(): array

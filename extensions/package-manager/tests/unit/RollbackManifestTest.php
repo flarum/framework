@@ -13,10 +13,11 @@ use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Rollback;
 use Flarum\ExtensionManager\Plan\Change;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 The rule these protect: a rollback puts back the site's RECORD of itself,
+ * The rule these protect: a rollback puts back the site's RECORD of itself,
  * not only its files.
  *
  * The plan phase runs `composer update --no-install`, which rewrites
@@ -49,10 +50,10 @@ class RollbackManifestTest extends TestCase
 
     private function rollback(): Rollback
     {
-        return new Rollback(
+        return new Rollback(EnglishTranslator::make(), 
             $this->dir.'/install/vendor',
             $this->dir.'/trash',
-            new Journal($this->dir.'/work/journal.jsonl'),
+            new Journal(EnglishTranslator::make(), $this->dir.'/work/journal.jsonl'),
             $this->dir.'/install',
             $this->dir.'/work'
         );
@@ -60,11 +61,11 @@ class RollbackManifestTest extends TestCase
 
     private function applyOne(): void
     {
-        (new Applier(
+        (new Applier(EnglishTranslator::make(), 
             $this->dir.'/install/vendor',
             $this->dir.'/staging',
             $this->dir.'/trash',
-            new Journal($this->dir.'/work/journal.jsonl')
+            new Journal(EnglishTranslator::make(), $this->dir.'/work/journal.jsonl')
         ))->applyOne(new Change(Change::REPLACE, 'acme/widget', '1.0.0', '2.0.0'));
     }
 
@@ -124,11 +125,11 @@ class RollbackManifestTest extends TestCase
         file_put_contents($this->dir.'/staging/newco/thing/it.php', 'new');
         file_put_contents($this->dir.'/work/composer.lock.before', '{"packages":[]}');
 
-        (new Applier(
+        (new Applier(EnglishTranslator::make(), 
             $this->dir.'/install/vendor',
             $this->dir.'/staging',
             $this->dir.'/trash',
-            new Journal($this->dir.'/work/journal.jsonl')
+            new Journal(EnglishTranslator::make(), $this->dir.'/work/journal.jsonl')
         ))->applyOne(new Change(Change::ADD, 'newco/thing', null, '1.0.0'));
 
         $this->assertDirectoryExists($this->dir.'/install/vendor/newco/thing');
@@ -143,7 +144,7 @@ class RollbackManifestTest extends TestCase
     public function test_a_run_that_failed_before_moving_any_file_is_still_undone(): void
     {
         /*
-         * 🚨 The case that reported "nothing to undo" while leaving a site
+         * The case that reported "nothing to undo" while leaving a site
          * broken. Composer rewrites composer.json and composer.lock as soon as
          * the plan succeeds — before any file moves, so before the journal has
          * an entry. A failure right after that leaves the manifests describing a
@@ -172,11 +173,11 @@ class RollbackManifestTest extends TestCase
         file_put_contents($this->dir.'/install/vendor/lonely/pkg/it.php', 'x');
         file_put_contents($this->dir.'/work/composer.lock.before', '{"packages":[]}');
 
-        (new Applier(
+        (new Applier(EnglishTranslator::make(), 
             $this->dir.'/install/vendor',
             $this->dir.'/staging',
             $this->dir.'/trash',
-            new Journal($this->dir.'/work/journal.jsonl')
+            new Journal(EnglishTranslator::make(), $this->dir.'/work/journal.jsonl')
         ))->applyOne(new Change(Change::REMOVE, 'lonely/pkg', '1.0.0', null));
 
         $this->assertDirectoryDoesNotExist($this->dir.'/install/vendor/lonely');

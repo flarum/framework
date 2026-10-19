@@ -14,7 +14,7 @@ use RuntimeException;
 /**
  * The step found the site broken, put everything back, and is saying so.
  *
- * 🚨 Distinct from an ordinary failure, and the distinction is not cosmetic. A
+ * Distinct from an ordinary failure, and the distinction is not cosmetic. A
  * failed run leaves the admin screen offering a Roll back button; a run that
  * has ALREADY rolled itself back must not, or the first thing a worried admin
  * does is unwind a tree that is already correct.

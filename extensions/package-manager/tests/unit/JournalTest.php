@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Apply\Journal;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -38,7 +39,7 @@ class JournalTest extends TestCase
     {
         // The entire safety argument rests on this ordering: the record exists
         // before the action it describes is taken.
-        $journal = new Journal($this->path);
+        $journal = new Journal(EnglishTranslator::make(), $this->path);
         $seq = $journal->begin(['change' => ['op' => 'replace', 'package' => 'a/b']]);
 
         $this->assertSame(1, $seq);
@@ -49,15 +50,15 @@ class JournalTest extends TestCase
     {
         // A resumed run constructs a new Journal over the same file; it must not
         // restart numbering and collide with what is already recorded.
-        (new Journal($this->path))->begin(['change' => ['package' => 'a/one']]);
-        $second = (new Journal($this->path))->begin(['change' => ['package' => 'a/two']]);
+        (new Journal(EnglishTranslator::make(), $this->path))->begin(['change' => ['package' => 'a/one']]);
+        $second = (new Journal(EnglishTranslator::make(), $this->path))->begin(['change' => ['package' => 'a/two']]);
 
         $this->assertSame(2, $second);
     }
 
     public function test_a_begun_entry_is_reported_as_interrupted_until_completed(): void
     {
-        $journal = new Journal($this->path);
+        $journal = new Journal(EnglishTranslator::make(), $this->path);
         $seq = $journal->begin(['change' => ['package' => 'a/b']]);
 
         $this->assertCount(1, $journal->interrupted());
@@ -71,10 +72,10 @@ class JournalTest extends TestCase
 
     public function test_a_half_written_final_line_is_discarded_not_fatal(): void
     {
-        // 🚨 Exactly what a SIGKILL mid-write leaves. The entries before it are
+        // Exactly what a SIGKILL mid-write leaves. The entries before it are
         // still authoritative and must survive; the fragment describes an action
         // that had not been recorded, so it had not started either.
-        $journal = new Journal($this->path);
+        $journal = new Journal(EnglishTranslator::make(), $this->path);
         $seq = $journal->begin(['change' => ['package' => 'a/first']]);
         $journal->complete($seq);
 
@@ -89,7 +90,7 @@ class JournalTest extends TestCase
 
     public function test_a_blank_or_junk_line_does_not_derail_the_record(): void
     {
-        $journal = new Journal($this->path);
+        $journal = new Journal(EnglishTranslator::make(), $this->path);
         $journal->complete($journal->begin(['change' => ['package' => 'a/first']]));
 
         file_put_contents($this->path, "\n\nnot json at all\n", FILE_APPEND);
@@ -105,7 +106,7 @@ class JournalTest extends TestCase
     {
         // Guards a subtle wrong answer: "no interrupted entries" must not be
         // read as "a finished apply" when nothing ever ran.
-        $journal = new Journal($this->path);
+        $journal = new Journal(EnglishTranslator::make(), $this->path);
 
         $this->assertFalse($journal->exists());
         $this->assertSame([], $journal->entries());
@@ -115,7 +116,7 @@ class JournalTest extends TestCase
     public function test_entries_keep_the_order_they_were_written_in(): void
     {
         // Rollback replays these in reverse, so order is not cosmetic.
-        $journal = new Journal($this->path);
+        $journal = new Journal(EnglishTranslator::make(), $this->path);
 
         foreach (['a/one', 'a/two', 'a/three'] as $pkg) {
             $journal->complete($journal->begin(['change' => ['package' => $pkg]]));

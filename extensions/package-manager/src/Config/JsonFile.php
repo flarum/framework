@@ -9,13 +9,14 @@
 
 namespace Flarum\ExtensionManager\Config;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\ExtensionManager\Exception\RefusedException;
+use Flarum\Locale\TranslatorInterface;
 use RuntimeException;
 
 /**
  * Reading and writing the two files Composer will not let you get wrong twice.
  *
- * 🚨 composer.json and auth.json are the files that decide whether Composer can
+ * composer.json and auth.json are the files that decide whether Composer can
  * run at all. A malformed composer.json does not degrade a site, it stops every
  * future install and update dead — including the one that would put it back. So
  * every write here is: validate, back up, write to a temporary file, fsync, and
@@ -27,8 +28,10 @@ use RuntimeException;
  */
 class JsonFile
 {
-    public function __construct(private string $path)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected string $path,
+    ) {
     }
 
     public function exists(): bool
@@ -46,20 +49,20 @@ class JsonFile
         $raw = @file_get_contents($this->path);
 
         if ($raw === false) {
-            throw new RuntimeException(Lang::trans('config.json_unreadable', ['path' => $this->path]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.config.json_unreadable', ['path' => $this->path]));
         }
 
         $data = json_decode($raw, true);
 
         if (! is_array($data)) {
             /*
-             * 🚨 Refuse rather than treat it as empty. Returning [] here would
+             * Refuse rather than treat it as empty. Returning [] here would
              * mean the next write replaces a file we could not understand with
              * one built from nothing — turning a file somebody could still fix
              * by hand into one whose contents are gone.
              */
-            throw new RuntimeException(
-                Lang::trans('config.json_invalid', ['file' => basename($this->path), 'error' => json_last_error_msg() ?: Lang::trans('config.unknown_error')])
+            throw new RefusedException(
+                $this->translator->trans('flarum-extension-manager.api.config.json_invalid', ['file' => basename($this->path), 'error' => json_last_error_msg() ?: $this->translator->trans('flarum-extension-manager.api.config.unknown_error')])
             );
         }
 
@@ -68,29 +71,39 @@ class JsonFile
 
     /**
      * @param array<string,mixed> $data
-     * @param int $mode permissions for a file we are creating; 0600 for secrets
+     * @param int $mode the most open the file may be; 0600 for secrets. An
+     *                  existing file keeps its own mode where that is tighter.
+     * @param bool $backup false for a file that holds secrets: a copy of one
+     *                     is one more place for them to leak from
      */
-    public function write(array $data, int $mode = 0664): void
+    public function write(array $data, int $mode = 0664, bool $backup = true): void
     {
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         if ($json === false) {
-            throw new RuntimeException(Lang::trans('config.json_encode_failed', ['file' => basename($this->path), 'error' => json_last_error_msg()]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.config.json_encode_failed', ['file' => basename($this->path), 'error' => json_last_error_msg()]));
         }
 
-        // 🚨 Prove it parses before it goes anywhere near the real path.
+        // Prove it parses before it goes anywhere near the real path.
         if (json_decode($json, true) === null) {
-            throw new RuntimeException(Lang::trans('config.json_refuse_write', ['file' => basename($this->path)]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.config.json_refuse_write', ['file' => basename($this->path)]));
         }
 
-        $this->backup();
+        if ($this->exists()) {
+            $mode &= fileperms($this->path) & 0777;
+        }
+
+        $backup ? $this->backup($mode) : $this->removeBackups();
 
         $tmp = $this->path.'.extension-manager-'.bin2hex(random_bytes(4));
-        $handle = @fopen($tmp, 'w');
+        $handle = @fopen($tmp, 'x');
 
         if ($handle === false) {
-            throw new RuntimeException(Lang::trans('config.json_write_failed', ['path' => $this->path]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.config.json_write_failed', ['path' => $this->path]));
         }
+
+        // Before anything is written, so a secret is never in a file others can read.
+        @chmod($tmp, $mode);
 
         try {
             fwrite($handle, $json."\n");
@@ -102,31 +115,50 @@ class JsonFile
             fclose($handle);
         }
 
-        @chmod($tmp, $mode);
-
         if (! @rename($tmp, $this->path)) {
             @unlink($tmp);
 
-            throw new RuntimeException(Lang::trans('config.json_replace_failed', ['path' => $this->path]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.config.json_replace_failed', ['path' => $this->path]));
         }
     }
 
     /**
-     * Keep the previous contents, timestamped.
+     * Keep the previous contents, once, with the file's own permissions.
      *
-     * 🚨 Beside the file rather than in a temp directory, so somebody debugging
-     * a broken site at 2am finds them without being told where to look.
+     * Beside the file rather than in a temp directory, so somebody debugging a
+     * broken site at 2am finds it without being told where to look. One copy,
+     * replaced by the next write, rather than one per write kept for ever.
      */
-    private function backup(): void
+    protected function backup(int $mode): void
     {
+        $this->removeBackups();
+
         if (! $this->exists()) {
             return;
         }
 
-        $to = $this->path.'.extension-manager-backup-'.date('Ymd-His');
+        $to = $this->path.'.extension-manager-backup';
+        $tmp = $to.'.'.bin2hex(random_bytes(4));
+        $handle = @fopen($tmp, 'x');
 
-        if (! is_file($to)) {
-            @copy($this->path, $to);
+        if ($handle === false) {
+            return;
+        }
+
+        @chmod($tmp, $mode);
+        fwrite($handle, (string) @file_get_contents($this->path));
+        fclose($handle);
+
+        if (! @rename($tmp, $to)) {
+            @unlink($tmp);
+        }
+    }
+
+    /** Copies earlier versions kept, one per write, and the single copy for a file that no longer wants one. */
+    protected function removeBackups(): void
+    {
+        foreach (glob($this->path.'.extension-manager-backup*') ?: [] as $old) {
+            @unlink($old);
         }
     }
 }

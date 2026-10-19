@@ -9,7 +9,7 @@
 
 namespace Flarum\ExtensionManager\Plan;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
 use InvalidArgumentException;
 
 /**
@@ -56,7 +56,7 @@ class Change
     /**
      * The path this package occupies inside a vendor tree.
      *
-     * 🚨 Derived, never taken from input. A package name reaching the filesystem
+     * Derived, never taken from input. A package name reaching the filesystem
      * is exactly where a traversal would get in, and the constructor's check for
      * a single slash is not enough on its own — "a/../../etc" has one slash.
      */
@@ -79,12 +79,12 @@ class Change
         return str_replace('/', '+', $this->package).'@'.($this->from ?? 'absent');
     }
 
-    public function describe(): string
+    public function describe(TranslatorInterface $translator): string
     {
         return match ($this->op) {
             self::REPLACE => "{$this->package} {$this->from} → {$this->to}",
-            self::ADD => Lang::trans('change.added', ['package' => $this->package, 'version' => $this->to]),
-            self::REMOVE => Lang::trans('change.removed', ['package' => $this->package, 'version' => $this->from]),
+            self::ADD => $translator->trans('flarum-extension-manager.api.change.added', ['package' => $this->package, 'version' => $this->to]),
+            self::REMOVE => $translator->trans('flarum-extension-manager.api.change.removed', ['package' => $this->package, 'version' => $this->from]),
             default => $this->package,
         };
     }

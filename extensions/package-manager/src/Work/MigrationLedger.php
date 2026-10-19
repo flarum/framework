@@ -11,7 +11,8 @@ namespace Flarum\ExtensionManager\Work;
 
 use Flarum\Database\Migrator;
 use Flarum\Extension\ExtensionManager;
-use Flarum\ExtensionManager\Lang;
+use Flarum\ExtensionManager\Exception\RefusedException;
+use Flarum\Locale\TranslatorInterface;
 use Illuminate\Database\ConnectionInterface;
 use RuntimeException;
 use Throwable;
@@ -19,7 +20,7 @@ use Throwable;
 /**
  * Which database migrations an update ran, so undoing it can reverse them.
  *
- * 🚨 Undo used to put the old CODE back over the new SCHEMA. Moving files is
+ * Undo used to put the old CODE back over the new SCHEMA. Moving files is
  * all a rename can do, and a migration the update ran stays run: the older
  * version then boots against columns and tables it has never heard of, or
  * misses ones it needs. ClaudiusH asked the obvious question on 2026-10-07 —
@@ -31,7 +32,7 @@ use Throwable;
  * down step, undo refuses before touching anything: old code on a newer
  * database is the outcome this exists to prevent.
  *
- * 🚨 In TWO requests, and from COPIES. Found undoing Flarum rc.8 → nightly,
+ * In TWO requests, and from COPIES. Found undoing Flarum rc.8 → nightly,
  * 2026-10-07: nightly's API middleware reads the `asset_revisions` table its
  * own migration creates, on every response. Reversing that migration inside
  * the undo request — which still has nightly's code loaded — dropped the
@@ -44,10 +45,12 @@ use Throwable;
  * Recorded in two halves so a run killed mid-step still knows: the "before"
  * state is saved once, before migrate runs, and the difference is taken after.
  */
-final class MigrationLedger
+class MigrationLedger
 {
-    public function __construct(private string $workDir)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected string $workDir,
+    ) {
     }
 
     /** Before `flarum migrate`: what has already run, and the version Flarum records. Saved once. */
@@ -144,8 +147,8 @@ final class MigrationLedger
                 call_user_func($down, $db->getSchemaBuilder());
             } catch (Throwable $e) {
                 throw new RuntimeException(
-                    Lang::trans('migrations.undo_stopped', ['migration' => $m['migration'], 'error' => $e->getMessage()]).' '
-                    .($done ? Lang::trans('migrations.already_reversed', ['list' => implode(', ', $done)]) : Lang::trans('migrations.none_reversed'))
+                    $this->translator->trans('flarum-extension-manager.api.migrations.undo_stopped', ['migration' => $m['migration'], 'error' => $e->getMessage()]).' '
+                    .($done ? $this->translator->trans('flarum-extension-manager.api.migrations.already_reversed', ['list' => implode(', ', $done)]) : $this->translator->trans('flarum-extension-manager.api.migrations.none_reversed'))
                 );
             }
 
@@ -157,7 +160,7 @@ final class MigrationLedger
         @unlink($this->workDir.'/migrations.json');
         @unlink($this->workDir.'/migrations.pending');
 
-        return array_map(fn ($name) => Lang::trans('migrations.reversed', ['migration' => $name]), $done);
+        return array_map(fn ($name) => $this->translator->trans('flarum-extension-manager.api.migrations.reversed', ['migration' => $name]), $done);
     }
 
     /**
@@ -166,7 +169,7 @@ final class MigrationLedger
      *
      * @return list<array{0: array{migration:string, extension:?string}, 1: callable}>
      */
-    private function downs(Migrator $migrator, ExtensionManager $extensions, string $vendorPath): array
+    protected function downs(Migrator $migrator, ExtensionManager $extensions, string $vendorPath): array
     {
         $steps = [];
 
@@ -176,10 +179,12 @@ final class MigrationLedger
             $migration = $migrator->resolve($dir, $m['migration']);
 
             if (! isset($migration['down']) || ! is_callable($migration['down'])) {
-                throw new RuntimeException(
+                throw new RefusedException(
                     $m['extension']
-                        ? Lang::trans('migrations.irreversible_ext', ['migration' => $m['migration'], 'extension' => $m['extension']])
-                        : Lang::trans('migrations.irreversible', ['migration' => $m['migration']])
+                        ? $this->translator->trans('flarum-extension-manager.api.migrations.irreversible_ext', ['migration' => $m['migration'], 'extension' => $m['extension']])
+                        : $this->translator->trans('flarum-extension-manager.api.migrations.irreversible', ['migration' => $m['migration']]),
+                    'irreversible_migration',
+                    409
                 );
             }
 
@@ -189,7 +194,7 @@ final class MigrationLedger
         return $steps;
     }
 
-    private function restoreVersion(ConnectionInterface $db): void
+    protected function restoreVersion(ConnectionInterface $db): void
     {
         $version = $this->beforeState()['version'];
 
@@ -199,7 +204,7 @@ final class MigrationLedger
     }
 
     /** @return array{migrations: list<array{migration:string, extension:?string}>, version: ?string} */
-    private function beforeState(): array
+    protected function beforeState(): array
     {
         $raw = (array) json_decode((string) @file_get_contents($this->workDir.'/migrations.before.json'), true);
 
@@ -209,20 +214,20 @@ final class MigrationLedger
             : ['migrations' => (array) ($raw['migrations'] ?? []), 'version' => $raw['version'] ?? null];
     }
 
-    private function liveDir(?string $extension, ExtensionManager $extensions, string $vendorPath): string
+    protected function liveDir(?string $extension, ExtensionManager $extensions, string $vendorPath): string
     {
         return $extension === null
             ? $vendorPath.'/flarum/core/migrations'
             : $extensions->getExtension($extension)?->getPath().'/migrations';
     }
 
-    private function copyDir(?string $extension): string
+    protected function copyDir(?string $extension): string
     {
         return $this->workDir.'/migrations/'.($extension ?? 'core');
     }
 
     /** @return list<array{migration:string, extension:?string}> */
-    private function current(ConnectionInterface $db): array
+    protected function current(ConnectionInterface $db): array
     {
         return $db->table('migrations')->get(['migration', 'extension'])
             ->map(fn ($row) => ['migration' => (string) $row->migration, 'extension' => $row->extension !== null ? (string) $row->extension : null])

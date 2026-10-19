@@ -9,13 +9,13 @@
 
 namespace Flarum\ExtensionManager\Run;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
 use RuntimeException;
 
 /**
  * Where a run's state lives between requests.
  *
- * 🚨 Written atomically — a temp file plus a rename — because this is read by
+ * Written atomically — a temp file plus a rename — because this is read by
  * one request while another is writing it. Every poll of the admin screen reads
  * this file, and every step writes it; a torn read would show a run that never
  * existed, and on a busy forum that would be common rather than rare.
@@ -28,8 +28,10 @@ use RuntimeException;
  */
 class RunStore
 {
-    public function __construct(private string $dir)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected string $dir,
+    ) {
     }
 
     public function save(Run $run): void
@@ -44,7 +46,7 @@ class RunStore
         $handle = fopen($temp, 'wb');
 
         if ($handle === false) {
-            throw new RuntimeException(Lang::trans('run.state_write_failed', ['path' => $temp]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.run.state_write_failed', ['path' => $temp]));
         }
 
         fwrite($handle, $json);
@@ -52,12 +54,12 @@ class RunStore
         fsync($handle);
         fclose($handle);
 
-        // 🚨 rename() is atomic, so a concurrent reader sees either the whole
+        // rename() is atomic, so a concurrent reader sees either the whole
         // previous state or the whole new one, and never a half-written file.
         if (! @rename($temp, $path)) {
             @unlink($temp);
 
-            throw new RuntimeException(Lang::trans('run.state_move_failed', ['path' => $path]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.run.state_move_failed', ['path' => $path]));
         }
 
         // Every run that reaches an end is in the history, from this one place.
@@ -145,9 +147,9 @@ class RunStore
         @unlink($this->path($id));
     }
 
-    private function path(string $id): string
+    protected function path(string $id): string
     {
-        // 🚨 Ids are generated, never taken from a request — but this is the
+        // Ids are generated, never taken from a request — but this is the
         // second place a name reaches the filesystem, so it is checked here too
         // rather than trusted because of where it came from.
         if (! preg_match('/^[A-Za-z0-9_-]{1,64}$/', $id)) {
@@ -157,10 +159,10 @@ class RunStore
         return rtrim($this->dir, '/').'/'.$id.'.json';
     }
 
-    private function ensureDir(): void
+    protected function ensureDir(): void
     {
         if (! is_dir($this->dir) && ! mkdir($this->dir, 0775, true) && ! is_dir($this->dir)) {
-            throw new RuntimeException(Lang::trans('run.dir_failed', ['path' => $this->dir]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.run.dir_failed', ['path' => $this->dir]));
         }
     }
 }

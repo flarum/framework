@@ -11,6 +11,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Host\Capability;
 use Flarum\ExtensionManager\Host\PhpBinary;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -26,7 +27,7 @@ class CapabilityTest extends TestCase
         ini_set('memory_limit', $limit);
 
         try {
-            return $fn(new Capability(sys_get_temp_dir(), new PhpBinary()));
+            return $fn(new Capability(EnglishTranslator::make(), sys_get_temp_dir(), new PhpBinary(EnglishTranslator::make())));
         } finally {
             ini_set('memory_limit', $was);
         }
@@ -56,9 +57,9 @@ class CapabilityTest extends TestCase
 
     public function test_every_check_explains_itself(): void
     {
-        // 🚨 A capability panel that lists facts without consequences is the same
+        // A capability panel that lists facts without consequences is the same
         // failure as a spinner: technically informative, practically useless.
-        $report = (new Capability(sys_get_temp_dir(), new PhpBinary()))->report();
+        $report = (new Capability(EnglishTranslator::make(), sys_get_temp_dir(), new PhpBinary(EnglishTranslator::make())))->report();
 
         $this->assertNotEmpty($report['checks']);
 

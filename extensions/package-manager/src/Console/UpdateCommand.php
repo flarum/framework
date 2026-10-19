@@ -20,6 +20,7 @@ use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 use Flarum\ExtensionManager\Work\WorkDir;
 use Flarum\Foundation\Paths;
+use Flarum\Locale\TranslatorInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -27,7 +28,7 @@ use Symfony\Component\Console\Input\InputOption;
  * `php flarum extension-manager:update vendor/name` — the update the admin screen
  * does, driven from a terminal.
  *
- * 🚨 It is the SAME run. Not a second implementation that happens to call
+ * It is the SAME run. Not a second implementation that happens to call
  * Composer: it writes the same work directory, advances the same phases through
  * the same StepRunner, journals the same way and rolls back the same way. A
  * console command that reimplemented any of that would be a second set of bugs
@@ -39,7 +40,7 @@ use Symfony\Component\Console\Input\InputOption;
  * cut us off, so this loops until the run finishes and prints the log as it
  * goes.
  *
- * 🚨 It deliberately does NOT nudge a queue worker. On a forum with Horizon,
+ * It deliberately does NOT nudge a queue worker. On a forum with Horizon,
  * handing the run to a worker as well would mean two drivers on one run — the
  * lock in StepRunner makes that safe rather than corrupting, but it also means
  * this process would sit watching someone else work and could not report a
@@ -56,18 +57,19 @@ class UpdateCommand extends AbstractCommand
     /**
      * Log lines already printed, by index.
      *
-     * 🚨 By index and by value, not by counting. A waiting step REPLACES the
+     * By index and by value, not by counting. A waiting step REPLACES the
      * last line rather than appending (Run::waiting), so a counter would either
      * miss it or repeat everything after it.
      *
      * @var array<int,string>
      */
-    private array $printed = [];
+    protected array $printed = [];
 
     public function __construct(
-        private Paths $paths,
-        private RunStore $runs,
-        private StepRunner $runner,
+        protected TranslatorInterface $translator,
+        protected Paths $paths,
+        protected RunStore $runs,
+        protected StepRunner $runner,
     ) {
         parent::__construct();
     }
@@ -147,7 +149,7 @@ class UpdateCommand extends AbstractCommand
 
         if (($refusal = $this->notInstalled($named)) !== null) {
             /*
-             * 🚨 Refused rather than attempted, because `composer update` on a
+             * Refused rather than attempted, because `composer update` on a
              * package that is not installed does nothing at all and reports
              * success. A typo would otherwise print a clean run and leave the
              * site exactly as it was.
@@ -157,7 +159,7 @@ class UpdateCommand extends AbstractCommand
             return 1;
         }
 
-        if ((new Capability($this->paths->base, \Flarum\ExtensionManager\Host\PhpBinary::forStorage($this->paths->storage), $this->paths->storage.'/.composer'))->resolveTier() === Capability::NONE) {
+        if ((new Capability($this->translator, $this->paths->base, \Flarum\ExtensionManager\Host\PhpBinary::forStorage($this->translator, $this->paths->storage), $this->paths->storage.'/.composer'))->resolveTier() === Capability::NONE) {
             $this->error('This host does not have enough memory for Composer to work out what an update involves. '
                 .'Nothing was started. Ask your host to raise memory_limit to 256 MB and try again.');
 
@@ -181,7 +183,7 @@ class UpdateCommand extends AbstractCommand
 
         if (array_diff_key($repinner->pinned($named), $pins) !== []) {
             /*
-             * 🚨 A pin with no newer version in the stored check. Straight
+             * A pin with no newer version in the stored check. Straight
              * after a release the check still predates it, so --repin had
              * nothing to raise to: the run went through every step, said
              * "Done." and moved nothing (live box, 2026-10-13, v1.21.2). Ask
@@ -208,7 +210,7 @@ class UpdateCommand extends AbstractCommand
         if ($pins !== []) {
             if (! $this->input->getOption('repin')) {
                 /*
-                 * 🚨 The failure this command exists to end. Without the flag
+                 * The failure this command exists to end. Without the flag
                  * we could still start a run, and Composer would answer
                  * "Nothing to modify in lock file", exit 0, and the run would
                  * go green having moved nothing. Refusing, by name, with the
@@ -233,7 +235,7 @@ class UpdateCommand extends AbstractCommand
 
         $id = 'r'.date('Ymd-His').'-'.bin2hex(random_bytes(3));
 
-        (new WorkDir($this->paths->storage, $id))->create()->remember($named, 'update', $repin);
+        (new WorkDir($this->translator, $this->paths->storage, $id))->create()->remember($named, 'update', $repin);
 
         $this->info('Updating '.implode(', ', $named));
 
@@ -243,11 +245,11 @@ class UpdateCommand extends AbstractCommand
     /**
      * Take over a run somebody else started.
      *
-     * 🚨 Worth having on its own: a run left behind by a browser tab that was
+     * Worth having on its own: a run left behind by a browser tab that was
      * closed, or by a worker that died, is exactly the state that used to need
      * someone to know what a work directory was.
      */
-    private function resume(): int
+    protected function resume(): int
     {
         $run = $this->runs->latest();
 
@@ -271,7 +273,7 @@ class UpdateCommand extends AbstractCommand
     /**
      * Turn the handle until the run stops, printing what it says as it says it.
      */
-    private function pump(Run $run): int
+    protected function pump(Run $run): int
     {
         $deadline = time() + max(60, (int) $this->input->getOption('timeout'));
 
@@ -284,7 +286,7 @@ class UpdateCommand extends AbstractCommand
 
             if (time() > $deadline) {
                 /*
-                 * 🚨 The run is NOT abandoned or rolled back here. It is on
+                 * The run is NOT abandoned or rolled back here. It is on
                  * disk, mid-phase, and resumable — deciding to undo somebody's
                  * half-finished update because a timeout elapsed is not this
                  * command's call to make.
@@ -313,7 +315,7 @@ class UpdateCommand extends AbstractCommand
 
         if ($run->state === Run::DONE && $this->movedNothing($run)) {
             /*
-             * 🚨 Green, and nothing changed. Whatever the reason — a dependency
+             * Green, and nothing changed. Whatever the reason — a dependency
              * holding it back, a constraint — the exit code must not say this
              * update happened. The plan's own sentence is in the log above.
              */
@@ -347,7 +349,7 @@ class UpdateCommand extends AbstractCommand
      *
      * @param list<string> $log
      */
-    private function emit(array $log): void
+    protected function emit(array $log): void
     {
         foreach ($log as $i => $line) {
             if (($this->printed[$i] ?? null) === $line) {
@@ -360,7 +362,7 @@ class UpdateCommand extends AbstractCommand
     }
 
     /** Which of these the site does not actually have, if any. */
-    private function notInstalled(array $packages): ?string
+    protected function notInstalled(array $packages): ?string
     {
         $lock = @file_get_contents($this->paths->base.'/composer.lock');
 
@@ -389,7 +391,7 @@ class UpdateCommand extends AbstractCommand
     }
 
     /** See Plan\Nightly: the server works out what moves, and to which branch. */
-    private function nightly(): int
+    protected function nightly(): int
     {
         $existing = $this->runs->latest();
 
@@ -408,7 +410,7 @@ class UpdateCommand extends AbstractCommand
         }
 
         $id = 'r'.date('Ymd-His').'-'.bin2hex(random_bytes(3));
-        (new WorkDir($this->paths->storage, $id))->create()->remember(array_keys($targets), 'update', $targets);
+        (new WorkDir($this->translator, $this->paths->storage, $id))->create()->remember(array_keys($targets), 'update', $targets);
 
         $this->info('Moving '.count($targets).' Flarum package(s) to '.reset($targets).': '.implode(', ', array_keys($targets)));
 
@@ -416,28 +418,28 @@ class UpdateCommand extends AbstractCommand
     }
 
     /** An update whose plan was worked out and came to nothing. */
-    private function movedNothing(Run $run): bool
+    protected function movedNothing(Run $run): bool
     {
-        $plan = (new WorkDir($this->paths->storage, $run->id))->root().'/plan.json';
+        $plan = (new WorkDir($this->translator, $this->paths->storage, $run->id))->root().'/plan.json';
 
         return is_file($plan) && (((array) json_decode((string) file_get_contents($plan), true))['changes'] ?? null) === [];
     }
 
     /**
-     * Ask Packagist and the site's private repositories again, as
+     * Ask Packagist and the site's protected repositories again, as
      * extension-manager:check --force does. Overridable so the tests need no network.
      */
     protected function recheck(): void
     {
-        $this->check()->refreshSite($this->paths->base);
+        $this->check()->refreshSite($this->translator, $this->paths->base);
     }
 
-    private function check(): UpdateCheck
+    protected function check(): UpdateCheck
     {
         return new UpdateCheck($this->storagePath('updates.json'));
     }
 
-    private function storagePath(string $file): string
+    protected function storagePath(string $file): string
     {
         return StorageDir::of($this->paths->storage).'/'.$file;
     }

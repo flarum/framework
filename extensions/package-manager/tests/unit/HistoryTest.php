@@ -12,6 +12,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 use Flarum\ExtensionManager\Apply\Tree;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /** "Recently updated", as an app store keeps it: written from RunStore::save, kept past pruning. */
@@ -35,7 +36,7 @@ class HistoryTest extends TestCase
 
     public function test_a_finished_run_is_recorded_once_and_an_undo_updates_it(): void
     {
-        $store = new RunStore($this->dir.'/runs');
+        $store = new RunStore(EnglishTranslator::make(), $this->dir.'/runs');
         $run = Run::start('r1', 1000);
 
         $store->save($run);

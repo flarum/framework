@@ -11,51 +11,54 @@ namespace Flarum\ExtensionManager\Work;
 
 use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\ExtensionManager\Config\Repositories;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Versions for packages Packagist has never heard of.
  *
- * 🚨 This exists because the check was silently useless for exactly the
+ * This exists because the check was silently useless for exactly the
  * extensions somebody paid for.
  *
  * `extension-manager:check` asks Packagist about every installed extension. A premium
- * extension is not on Packagist — it comes from a private Composer repository —
+ * extension is not on Packagist — it comes from a protected Composer repository —
  * so it came back `uncheckable` and the forum was never told a new version
  * existed. On Ernest's two sites that was 7 and 9 packages, and they were the
  * paid ones.
  *
- * A private Composer repository is just `packages.json` at a URL, which is the
+ * A protected Composer repository is just `packages.json` at a URL, which is the
  * same shape Composer itself reads. So the fix is not special-cased to anybody:
  * whatever `composer` repositories the site has configured get asked, with
  * whatever credentials the site already has for them.
  *
- * 🚨 It fetches each repository ONCE per check, not once per package. A forum
- * with nine private extensions would otherwise be nine downloads of the same
+ * It fetches each repository ONCE per check, not once per package. A forum
+ * with nine protected extensions would otherwise be nine downloads of the same
  * index, on a schedule, for one question.
  */
 class PrivateIndex
 {
     /** @var array<string, array<string, list<string>>|null> url => index, or null if it could not be read */
-    private array $indexes = [];
+    protected array $indexes = [];
 
     /** @var array<string, list<string>|null> owner/repo => tags */
-    private array $tagLists = [];
+    protected array $tagLists = [];
 
     /** @var array<string, string|null> vcs url => the package it publishes */
-    private array $packageNames = [];
+    protected array $packageNames = [];
 
     /** @var array<string, array<string,string>> package => version => release URL */
-    private array $releaseNotes = [];
+    protected array $releaseNotes = [];
 
     public function __construct(
-        private Repositories $repositories,
-        private AuthTokens $auth,
-        private int $timeout = 15,
+        protected Repositories $repositories,
+        protected AuthTokens $auth,
+        protected ClientInterface $http,
+        protected int $timeout = 15,
     ) {
     }
 
     /**
-     * Every version of $package any configured private repository offers.
+     * Every version of $package any configured protected repository offers.
      *
      * @return list<string>|null null when no repository knows the package —
      *                           which keeps it honestly "uncheckable" rather
@@ -78,7 +81,7 @@ class PrivateIndex
         }
 
         /*
-         * 🚨 Then the GitHub repositories, because that is how a self-published
+         * Then the GitHub repositories, because that is how a self-published
          * extension is usually installed.
          *
          * Ernest's own two forums install his premium extensions from `vcs`
@@ -124,7 +127,7 @@ class PrivateIndex
     /**
      * @return array<string,string> owner/repo => the original url
      */
-    private function githubRepositories(): array
+    protected function githubRepositories(): array
     {
         $out = [];
 
@@ -146,13 +149,13 @@ class PrivateIndex
     /**
      * Which package a vcs repository provides.
      *
-     * 🚨 Asked of the repository's own composer.json, not guessed from the URL.
+     * Asked of the repository's own composer.json, not guessed from the URL.
      * `github.com/ernestdefoe/fantasy-flarum` publishes `ernestdefoe/fantasy`,
      * and `github.com/ernestdefoe/gameday-flarum` publishes
      * `ernestdefoe/gameday` — matching on the URL would check the wrong package
      * or, worse, silently check nothing while appearing to work.
      */
-    private function packageOf(string $url): ?string
+    protected function packageOf(string $url): ?string
     {
         if (array_key_exists($url, $this->packageNames)) {
             return $this->packageNames[$url];
@@ -162,7 +165,8 @@ class PrivateIndex
             return $this->packageNames[$url] = null;
         }
 
-        $body = $this->get('https://raw.githubusercontent.com/'.$m[1].'/'.$m[2].'/HEAD/composer.json', 'github.com');
+        // From GitHub's API, the one host a github.com token is sent to.
+        $body = $this->get('https://api.github.com/repos/'.$m[1].'/'.$m[2].'/contents/composer.json', 'application/vnd.github.raw+json');
         $data = is_string($body) ? json_decode($body, true) : null;
         $name = is_array($data) && isset($data['name']) ? (string) $data['name'] : null;
 
@@ -170,13 +174,13 @@ class PrivateIndex
     }
 
     /** @return list<string>|null */
-    private function tags(string $repo): ?array
+    protected function tags(string $repo): ?array
     {
         if (array_key_exists($repo, $this->tagLists)) {
             return $this->tagLists[$repo];
         }
 
-        $body = $this->get('https://api.github.com/repos/'.$repo.'/tags?per_page=100', 'github.com');
+        $body = $this->get('https://api.github.com/repos/'.$repo.'/tags?per_page=100');
         $data = is_string($body) ? json_decode($body, true) : null;
 
         if (! is_array($data)) {
@@ -195,13 +199,13 @@ class PrivateIndex
     }
 
     /** @return list<string> */
-    private function composerRepositories(): array
+    protected function composerRepositories(): array
     {
         $urls = [];
 
         foreach ($this->repositories->all() as $repo) {
             /*
-             * 🚨 `composer` type only. A `vcs` repository has no index to read —
+             * `composer` type only. A `vcs` repository has no index to read —
              * answering it would mean cloning, which is not something to do on a
              * nightly schedule — and a `path` repository is a checkout on this
              * machine, which the Extension Manager will not replace anyway.
@@ -223,7 +227,7 @@ class PrivateIndex
     /**
      * @return array<string, list<string>>|null package => versions
      */
-    private function index(string $url): ?array
+    protected function index(string $url): ?array
     {
         if (array_key_exists($url, $this->indexes)) {
             return $this->indexes[$url];
@@ -235,38 +239,36 @@ class PrivateIndex
     /**
      * One HTTP GET, with the host's credential attached if there is one.
      *
-     * 🚨 Credentials are matched by HOST, the way Composer does it. A repository
+     * Credentials are matched by HOST, the way Composer does it. A repository
      * at https://example.com/composer authenticates as example.com — looking one
      * up by URL finds nothing and the request 401s with no visible reason.
      *
-     * 🚨 `ignore_errors` so a 401 or 404 comes back as a body rather than as a
-     * warning-and-false. A private repository the site has no credential for is
+     * `http_errors` off, so a 401 or 404 comes back as a body rather than as
+     * an exception. A protected repository the site has no credential for is
      * a normal state — a lapsed subscription, a token not pasted in yet — and
      * the honest outcome is "could not check", never a failed scheduled command
      * that also abandons the packages it COULD have checked.
      */
-    private function get(string $url, ?string $host = null): ?string
+    protected function get(string $url, string $accept = 'application/json'): ?string
     {
-        $headers = "User-Agent: the Extension Manager\r\nAccept: application/json\r\n";
+        $authorization = $this->auth->authorizationFor($url);
 
-        $host ??= (string) (parse_url($url, PHP_URL_HOST) ?: '');
-        $header = $host === '' ? null : $this->auth->headerFor($host);
-
-        if ($header !== null) {
-            $headers .= $header."\r\n";
+        try {
+            return (string) $this->http->request('GET', $url, [
+                'timeout' => $this->timeout,
+                'http_errors' => false,
+                // A redirect may not leave HTTPS, and Guzzle drops the credential when one leaves the host.
+                'allow_redirects' => ['max' => 5, 'protocols' => ['https'], 'referer' => false],
+                'headers' => ['User-Agent' => 'The Extension Manager', 'Accept' => $accept]
+                    + ($authorization !== null ? ['Authorization' => $authorization] : []),
+            ])->getBody();
+        } catch (GuzzleException) {
+            return null;
         }
-
-        $body = @file_get_contents($url, false, stream_context_create(['http' => [
-            'timeout' => $this->timeout,
-            'header' => $headers,
-            'ignore_errors' => true,
-        ]]));
-
-        return is_string($body) ? $body : null;
     }
 
     /** @return array<string, list<string>>|null */
-    private function fetchIndex(string $url): ?array
+    protected function fetchIndex(string $url): ?array
     {
         $body = $this->get($url.'/packages.json');
 

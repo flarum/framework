@@ -2,24 +2,14 @@ import app from 'flarum/admin/app';
 import Modal, { type IInternalModalAttrs } from 'flarum/common/components/Modal';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import apiUrl from '../apiUrl';
-import t from '../t';
+import type { Release, ReleaseNotesPayload } from '../types';
 import type Mithril from 'mithril';
-
-declare const m: any;
 
 export interface IReleaseNotesModalAttrs extends IInternalModalAttrs {
   name: string;
   package: string;
   from: string;
   to: string;
-}
-
-interface Release {
-  name: string;
-  tag: string;
-  url: string;
-  publishedAt: string | null;
-  html: string;
 }
 
 /**
@@ -36,7 +26,7 @@ export default class ReleaseNotesModal extends Modal<IReleaseNotesModalAttrs> {
     super.oninit(vnode);
 
     app
-      .request<any>({ method: 'GET', url: apiUrl() + '/extension-manager/release-notes', params: { package: this.attrs.package } })
+      .request<ReleaseNotesPayload>({ method: 'GET', url: apiUrl() + '/extension-manager/release-notes', params: { package: this.attrs.package } })
       .then((data) => {
         this.releases = data.releases || [];
         this.url = data.url || null;
@@ -53,7 +43,11 @@ export default class ReleaseNotesModal extends Modal<IReleaseNotesModalAttrs> {
   }
 
   title() {
-    return t('notes_title', { name: this.attrs.name, from: this.attrs.from, to: this.attrs.to });
+    return app.translator.trans('flarum-extension-manager.admin.release_notes.title', {
+      name: this.attrs.name,
+      from: this.attrs.from,
+      to: this.attrs.to,
+    });
   }
 
   content() {
@@ -66,14 +60,19 @@ export default class ReleaseNotesModal extends Modal<IReleaseNotesModalAttrs> {
     const link = this.url ? (
       <p className="ExtensionManager-notesLink">
         <a href={this.url} target="_blank" rel="noopener noreferrer">
-          {t('notes_on_github')} <i className="fas fa-external-link-alt" aria-hidden="true" />
+          {app.translator.trans('flarum-extension-manager.admin.release_notes.on_github')}{' '}
+          <i className="fas fa-external-link-alt" aria-hidden="true" />
         </a>
       </p>
     ) : null;
 
     const releases =
       this.failed || this.releases.length === 0 ? (
-        <p>{this.failed ? t('notes_failed') : t('notes_none')}</p>
+        <p>
+          {this.failed
+            ? app.translator.trans('flarum-extension-manager.admin.release_notes.failed')
+            : app.translator.trans('flarum-extension-manager.admin.release_notes.none')}
+        </p>
       ) : (
         <div className="ExtensionManager-releases">
           {this.releases.map((r) => (
@@ -88,7 +87,7 @@ export default class ReleaseNotesModal extends Modal<IReleaseNotesModalAttrs> {
               {r.html ? (
                 <div className="ExtensionManager-releaseBody">{m.trust(r.html)}</div>
               ) : (
-                <p className="ExtensionManager-releaseEmpty">{t('notes_empty_release')}</p>
+                <p className="ExtensionManager-releaseEmpty">{app.translator.trans('flarum-extension-manager.admin.release_notes.empty_release')}</p>
               )}
             </section>
           ))}

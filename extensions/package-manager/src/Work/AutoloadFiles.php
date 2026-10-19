@@ -12,7 +12,7 @@ namespace Flarum\ExtensionManager\Work;
 /**
  * Keep Composer's autoloader from requiring files the swap has just taken away.
  *
- * 🚨 Composer requires every `autoload.files` entry on EVERY request, with no
+ * Composer requires every `autoload.files` entry on EVERY request, with no
  * check that the file exists. So the moment a swap moves away a package that
  * has one (a removal, or an update whose new version dropped that file), every
  * request dies in the autoloader before Flarum, or this updater, can run.
@@ -25,7 +25,7 @@ namespace Flarum\ExtensionManager\Work;
  * and that rebuild, so it does the least that can: drop the entries whose file
  * is gone, in the same request that moved it.
  */
-final class AutoloadFiles
+class AutoloadFiles
 {
     /** @return list<string> the files no longer required */
     public static function pruneMissing(string $vendorDir): array

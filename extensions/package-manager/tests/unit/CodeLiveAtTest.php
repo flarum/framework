@@ -11,13 +11,14 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerRunner;
 use Flarum\ExtensionManager\Work\ComposerSteps;
 use Flarum\ExtensionManager\Work\Fetcher;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 When the web server will have re-read the update's files.
+ * When the web server will have re-read the update's files.
  *
  * Timed from the autoloader alone, an update that changes no classes
  * (2.0.0-rc.8 → 2.0.0) found an old timestamp, skipped the wait, and was
@@ -41,13 +42,13 @@ class CodeLiveAtTest extends TestCase
 
     private function liveAt(int $freq): int
     {
-        $journal = new Journal($this->dir.'/work/journal.jsonl');
-        $steps = new ComposerSteps(
+        $journal = new Journal(EnglishTranslator::make(), $this->dir.'/work/journal.jsonl');
+        $steps = new ComposerSteps(EnglishTranslator::make(), 
             $this->dir.'/project',
             $this->dir.'/work',
-            new ComposerRunner($this->dir.'/project', __FILE__, $this->dir.'/home'),
-            new Fetcher($this->dir.'/work/staging'),
-            new Applier($this->dir.'/project/vendor', $this->dir.'/work/staging', $this->dir.'/work/trash', $journal),
+            new ComposerRunner(EnglishTranslator::make(), $this->dir.'/project', __FILE__, $this->dir.'/home'),
+            new Fetcher(EnglishTranslator::make(), new \GuzzleHttp\Client(), $this->dir.'/work/staging'),
+            new Applier(EnglishTranslator::make(), $this->dir.'/project/vendor', $this->dir.'/work/staging', $this->dir.'/work/trash', $journal),
             $journal,
             vendorPath: $this->dir.'/project/vendor',
         );

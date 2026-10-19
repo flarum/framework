@@ -14,7 +14,7 @@ use Flarum\ExtensionManager\Plan\LockDiff;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 The plan is the promise. Everything downstream — how much is downloaded,
+ * The plan is the promise. Everything downstream — how much is downloaded,
  * how much is replaced, how much a rollback costs — follows from this diff being
  * exactly right, and it is also the screen somebody approves before their site
  * changes. A wrong diff is a lie they acted on.
@@ -76,7 +76,7 @@ class LockDiffTest extends TestCase
 
     public function test_the_order_is_stable(): void
     {
-        // 🚨 A resumed run re-derives this list and carries on at a saved index.
+        // A resumed run re-derives this list and carries on at a saved index.
         // If the order moved between runs it would redo one package and skip
         // another — Composer's own ordering is not stable, so this sorts.
         $before = $this->lock(['z/last' => '1.0.0', 'a/first' => '1.0.0', 'm/mid' => '1.0.0']);
@@ -124,7 +124,7 @@ class LockDiffTest extends TestCase
 
     public function test_it_says_why_each_package_is_in_the_plan(): void
     {
-        // 🚨 "You asked for this" and "something you asked for needs it" are
+        // "You asked for this" and "something you asked for needs it" are
         // different, and that difference is why anyone reads the screen.
         $after = ['packages' => [
             ['name' => 'fof/pwa', 'version' => '2.0.0', 'require' => ['psr/clock' => '^1.0']],

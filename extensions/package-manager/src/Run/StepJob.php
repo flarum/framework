@@ -9,22 +9,21 @@
 
 namespace Flarum\ExtensionManager\Run;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Queue\AbstractJob;
 use Illuminate\Contracts\Bus\Dispatcher;
 
 /**
  * Turns the handle from a queue worker, where a forum has one.
  *
- * 🚨 An OPTION, never the path. The previous Extension Manager's central failure is that the
- * queue is the only way work happens, so when a job dies the update dies with
- * it, the task row is left saying `running`, and every later update is silently
- * refused. Here the queue is one of three interchangeable drivers — the admin
+ * An option, never the path. When the queue is the only way work happens, a job
+ * that dies takes the update with it, leaves its record saying `running`, and
+ * every later update is silently refused. Here the queue is one of three interchangeable drivers — the admin
  * page polling and a cron tick are the others — and the run is complete state on
  * disk that any of them can pick up. Kill this job and an admin refreshing the
  * page finishes the update.
  *
- * 🚨 It re-dispatches itself rather than looping to the end. A worker timeout is
+ * It re-dispatches itself rather than looping to the end. A worker timeout is
  * as real a limit as a web request's, and the whole design is built on never
  * needing a long one. Each job does a few seconds of work and hands on.
  */
@@ -33,14 +32,14 @@ class StepJob extends AbstractJob
     /**
      * How long one job keeps taking turns before handing on to a fresh one.
      *
-     * 🚨 This is a budget, not a limit: it is checked BETWEEN turns, so a
+     * This is a budget, not a limit: it is checked BETWEEN turns, so a
      * single long turn overruns it by however long that turn takes. Planning is
      * the one that does — see $timeout below.
      */
-    private const BUDGET_SECONDS = 20;
+    protected const BUDGET_SECONDS = 20;
 
     /**
-     * 🚨 One try, on purpose.
+     * One try, on purpose.
      *
      * Retrying is what turns one dead job into "has been attempted too many
      * times" and a wedged queue. There is nothing to retry anyway: the run's
@@ -50,7 +49,7 @@ class StepJob extends AbstractJob
     public int $tries = 1;
 
     /**
-     * 🚨 Long enough for the one step that genuinely takes minutes.
+     * Long enough for the one step that genuinely takes minutes.
      *
      * The budget above keeps each TURN of the loop short, and the comment
      * beside it says nothing here needs to be near a worker timeout. That was
@@ -66,7 +65,7 @@ class StepJob extends AbstractJob
      */
     public int $timeout = 900;
 
-    public function __construct(private string $runId)
+    public function __construct(protected string $runId)
     {
         parent::__construct();
     }
@@ -88,7 +87,7 @@ class StepJob extends AbstractJob
             }
 
             /*
-             * 🚨 Another driver has the lock — almost always the admin page,
+             * Another driver has the lock — almost always the admin page,
              * which polls from the moment the run starts. This used to RETURN,
              * and nothing ever dispatched another job: the page won the first
              * race, the worker bowed out in 3ms, and the run was driven by the
@@ -101,7 +100,7 @@ class StepJob extends AbstractJob
              * safe; the cost is one worker sleeping between turns, which is the
              * job it was dispatched to do.
              *
-             * 🚨 A waiting step is waiting on the CLOCK, not on us. Calling it
+             * A waiting step is waiting on the CLOCK, not on us. Calling it
              * again immediately would spin the loop as fast as the filesystem
              * answers for the whole budget, on a host that has just been made
              * to run a Composer install.
@@ -117,11 +116,10 @@ class StepJob extends AbstractJob
     }
 
     /**
-     * 🚨 A failed job must not leave the run looking alive.
+     * A failed job must not leave the run looking alive.
      *
-     * This is the exact hole in the tooling being replaced: the job dies, the
-     * task row still says `running`, and the dispatcher then refuses every later
-     * update because something looks busy. Recording the failure means the admin
+     * Otherwise the job dies, the run still says `running`, and every later
+     * update is refused because something looks busy. Recording the failure means the admin
      * screen can show it and offer a rollback.
      */
     public function failed(\Throwable $e): void
@@ -130,11 +128,11 @@ class StepJob extends AbstractJob
         $run = $store->load($this->runId);
 
         if ($run !== null && ! $run->isFinished()) {
-            $store->save($run->failed(
-                Lang::trans('run.worker_stopped', ['error' => $e->getMessage()]),
-                Lang::trans('run.queue_worker'),
-                time()
-            ));
+            $translator = resolve(TranslatorInterface::class);
+            $error = $translator->trans('flarum-extension-manager.api.run.worker_stopped', ['error' => $e->getMessage()]);
+            $step = $translator->trans('flarum-extension-manager.api.run.queue_worker');
+
+            $store->save($run->failed($error, $step, time(), resolve(StepRunner::class)->failedNote($step, $error)));
         }
     }
 }

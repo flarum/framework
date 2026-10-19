@@ -12,19 +12,19 @@ namespace Flarum\ExtensionManager\Apply;
 use Flarum\Database\Migrator;
 use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Host\Opcache;
-use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Work\ComposerRunner;
 use Flarum\ExtensionManager\Work\FlarumCommand;
 use Flarum\ExtensionManager\Work\InstalledRecord;
 use Flarum\ExtensionManager\Work\MigrationLedger;
 use Flarum\ExtensionManager\Work\StaleCache;
+use Flarum\Locale\TranslatorInterface;
 use Illuminate\Database\ConnectionInterface;
 use Throwable;
 
 /**
  * Put everything back the way it was, once, in one place.
  *
- * 🚨 Extracted because there are now TWO callers — the admin pressing the
+ * Extracted because there are now TWO callers — the admin pressing the
  * button, and the run undoing itself when the site stops answering — and two
  * copies of "put it back" is the last thing this extension should have. The
  * subtle half is not moving the files: it is reconciling Composer's record
@@ -35,13 +35,14 @@ use Throwable;
 class Restore
 {
     public function __construct(
-        private string $vendorPath,
-        private string $basePath,
-        private string $workDirRoot,
-        private string $trashPath,
-        private Journal $journal,
-        private ComposerRunner $composer,
-        private string $storagePath = '',
+        protected TranslatorInterface $translator,
+        protected string $vendorPath,
+        protected string $basePath,
+        protected string $workDirRoot,
+        protected string $trashPath,
+        protected Journal $journal,
+        protected ComposerRunner $composer,
+        protected string $storagePath = '',
     ) {
     }
 
@@ -62,7 +63,7 @@ class Restore
          * back. The reversal itself waits for the next request, booted from
          * the restored code. See MigrationLedger.
          */
-        $ledger = new MigrationLedger($this->workDirRoot);
+        $ledger = new MigrationLedger($this->translator, $this->workDirRoot);
         $pending = $ledger->prepare(
             resolve(ConnectionInterface::class),
             resolve(Migrator::class),
@@ -70,7 +71,7 @@ class Restore
             $this->vendorPath
         );
 
-        $undone = array_merge($pending ? [Lang::trans('restore.migrations_queued')] : [], (new Rollback(
+        $undone = array_merge($pending ? [$this->translator->trans('flarum-extension-manager.api.restore.migrations_queued')] : [], (new Rollback($this->translator, 
             $this->vendorPath,
             $this->trashPath,
             $this->journal,
@@ -82,7 +83,7 @@ class Restore
 
         if ($undone !== []) {
             /*
-             * 🚨 `install`, not `dump-autoload`. Moving the files back leaves
+             * `install`, not `dump-autoload`. Moving the files back leaves
              * vendor/composer/installed.json still claiming a package whose
              * directory is gone, and dump-autoload regenerates the autoloader
              * FROM that record — it faithfully rebuilds the wrong thing.
@@ -93,21 +94,21 @@ class Restore
              * they come from the restored files.
              */
             try {
-                // 🚨 Record first, or `install` re-extracts the packages just
+                // Record first, or `install` re-extracts the packages just
                 // put back — with a Composer that lives in this same vendor/,
                 // which is how an update took wowcraft.online down. Synced
                 // from the restored lock, install only rebuilds the autoloader.
-                (new InstalledRecord($this->basePath))->syncFromLock();
+                (new InstalledRecord($this->translator, $this->basePath))->syncFromLock();
 
                 $result = $this->composer->run(['install', '--no-scripts']);
 
                 if ($result['code'] === 0) {
-                    $undone[] = Lang::trans('restore.record_put_back');
+                    $undone[] = $this->translator->trans('flarum-extension-manager.api.restore.record_put_back');
                 } else {
-                    $note = Lang::trans('restore.record_failed');
+                    $note = $this->translator->trans('flarum-extension-manager.api.restore.record_failed');
                 }
             } catch (Throwable $e) {
-                $note = Lang::trans('restore.composer_failed', ['error' => $e->getMessage()]);
+                $note = $this->translator->trans('flarum-extension-manager.api.restore.composer_failed', ['error' => $e->getMessage()]);
             }
         }
 
@@ -121,7 +122,7 @@ class Restore
     /**
      * Make the forum SERVE what was just put back.
      *
-     * 🚨 Putting the files back is not the same as undoing the update. The
+     * Putting the files back is not the same as undoing the update. The
      * update's last phase published the new version's assets and rebuilt the
      * caches from it, and none of that lives in vendor/. Proved on the demo
      * forum: after rolling fof/polls back from rc.4 to rc.3, vendor and the
@@ -133,14 +134,14 @@ class Restore
      *
      * @param list<string> $undone appended to as each one succeeds
      */
-    private function refresh(array &$undone): ?string
+    protected function refresh(array &$undone): ?string
     {
         if (! is_file($this->basePath.'/flarum')) {
             return null;   // not a forum (the tests' trees)
         }
 
         /*
-         * 🚨 In-process, the formatter is FORGOTTEN, not rebuilt. This request
+         * In-process, the formatter is FORGOTTEN, not rebuilt. This request
          * booted the version being rolled back, so building the formatter
          * here would bake that version's extenders into the cache the older
          * code then renders with. Forgotten, the next request — running the
@@ -148,12 +149,12 @@ class Restore
          * clearing caches only copy and delete files, so they are safe here.
          */
         // A root-owned cache would fail cache:clear below; see StaleCache.
-        $setAside = StaleCache::describe(StaleCache::setAside($this->storagePath));
+        $setAside = StaleCache::describe(StaleCache::setAside($this->storagePath), $this->translator);
         if ($setAside !== '') {
             $undone[] = $setAside;
         }
 
-        $flarum = new FlarumCommand($this->basePath, $this->composer);
+        $flarum = new FlarumCommand($this->translator, $this->basePath, $this->composer);
         $inProcess = ! $this->composer->processes();
         $commands = [
             ['assets:publish', []],
@@ -171,21 +172,21 @@ class Restore
             }
 
             if ($result['code'] !== 0) {
-                return Lang::trans('restore.command_failed', ['command' => $command])
+                return $this->translator->trans('flarum-extension-manager.api.restore.command_failed', ['command' => $command])
                     ."\n".FlarumCommand::excerpt($result['output']);
             }
         }
 
-        $undone[] = Lang::trans('restore.assets_rebuilt');
+        $undone[] = $this->translator->trans('flarum-extension-manager.api.restore.assets_rebuilt');
 
         /*
-         * 🚨 And the web server's compiled-code cache, as an update's finish
+         * And the web server's compiled-code cache, as an update's finish
          * does. Without it, Flarum-in-a-box (2026-10-07) kept serving the
          * newer version's extend.php after the files were put back: every page
          * 500'd on a class the restored version never had, until PHP-FPM was
          * restarted by hand.
          */
-        $undone[] = (new Opcache())->clear()['why'];
+        $undone[] = (new Opcache($this->translator))->clear()['why'];
 
         return null;
     }

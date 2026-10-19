@@ -9,13 +9,13 @@
 
 namespace Flarum\ExtensionManager\Run;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
 use Throwable;
 
 /**
  * Advances a run by exactly one unit of work.
  *
- * 🚨 This is the answer to the constraint that actually matters. Memory was
+ * This is the answer to the constraint that actually matters. Memory was
  * never the thing stopping updates on shared hosting — `max_execution_time` was,
  * and every other limit that punishes one long operation. So nothing here loops:
  * a call does one item and returns. Progress becomes a function of how many
@@ -32,8 +32,8 @@ use Throwable;
  *     a stuck update indistinguishable from a working one.
  *   - **It never skips work because something looks busy.** A stale run is
  *     reported to the caller with its age; it is not a reason to refuse. That
- *     refusal, done silently, is why one dead the previous Extension Manager task blocks every
- *     later update forever.
+ *     refusal, done silently, would let one dead task block every later update
+ *     forever.
  */
 class StepRunner
 {
@@ -42,23 +42,23 @@ class StepRunner
      * already working on the run. Not an error — the caller should report it and
      * carry on polling.
      */
-    private bool $busy = false;
+    protected bool $busy = false;
 
     /**
      * True when the last call to step() left the run on the same item on
      * purpose — the work is done but its effect is not live yet. The caller
      * should keep polling, and should not treat the pause as progress.
      */
-    private bool $waiting = false;
+    protected bool $waiting = false;
 
     /**
      * True when the wait can only be ended by a web request — see
      * NeedsWebRequest. A queue worker or terminal should stop asking.
      */
-    private bool $needsWeb = false;
+    protected bool $needsWeb = false;
 
     /**
-     * 🚨 A factory is preferred over a fixed Steps, so the run id is an argument
+     * A factory is preferred over a fixed Steps, so the run id is an argument
      * rather than something the container decided once and remembered. Inside a
      * queue worker — a long-lived process — a remembered one carries the
      * previous run's staging directory and journal into the next run. A bare
@@ -68,14 +68,15 @@ class StepRunner
      * @param callable():int $clock
      */
     public function __construct(
-        private RunStore $store,
-        private Steps|StepsFactory $steps,
-        private $clock,
-        private ?string $lockDir = null,
+        protected TranslatorInterface $translator,
+        protected RunStore $store,
+        protected Steps|StepsFactory $steps,
+        protected $clock,
+        protected ?string $lockDir = null,
     ) {
     }
 
-    private function stepsFor(string $runId): Steps
+    protected function stepsFor(string $runId): Steps
     {
         return $this->steps instanceof StepsFactory
             ? $this->steps->for($runId)
@@ -99,7 +100,7 @@ class StepRunner
 
     public function begin(string $id): Run
     {
-        $run = Run::start($id, $this->now());
+        $run = Run::start($id, $this->now(), $this->translator->trans('flarum-extension-manager.api.run.starting'));
         $this->store->save($run);
 
         return $run;
@@ -125,7 +126,7 @@ class StepRunner
         }
 
         /*
-         * 🚨 One driver at a time.
+         * One driver at a time.
          *
          * The whole point of the design is that anything can turn the handle —
          * the admin page polling, a cron tick, a queue worker — and on a forum
@@ -154,7 +155,7 @@ class StepRunner
     }
 
     /** @return resource|null */
-    private function acquire(string $id)
+    protected function acquire(string $id)
     {
         $dir = $this->lockDir;
 
@@ -181,7 +182,7 @@ class StepRunner
         return $handle;
     }
 
-    private function work(Run $run): Run
+    protected function work(Run $run): Run
     {
         $id = $run->id;
 
@@ -238,7 +239,10 @@ class StepRunner
                 $run = $run->revertedAfter(
                     $reverted->getMessage(),
                     "$phase → $item",
-                    $reverted->undone,
+                    [
+                        $this->failedNote("$phase → $item", $reverted->getMessage()),
+                        $this->translator->trans('flarum-extension-manager.api.run.put_back', ['undone' => $this->undoneList($reverted->undone)]),
+                    ],
                     $this->now()
                 );
                 $this->store->save($run);
@@ -246,7 +250,7 @@ class StepRunner
                 return $run;
             } catch (NotYet $waiting) {
                 /*
-                 * 🚨 Not done, not failed — and the index does NOT move.
+                 * Not done, not failed — and the index does NOT move.
                  *
                  * A step that has done everything it can but whose effect is
                  * not live yet used to have no way to say so, so it said "done"
@@ -264,7 +268,7 @@ class StepRunner
             }
 
             /*
-             * 🚨 Saved AFTER the work, which means a process killed in between
+             * Saved AFTER the work, which means a process killed in between
              * repeats this item on resume. That is deliberate and it is why
              * doItem must be idempotent: repeating work is recoverable, skipping
              * it silently is not.
@@ -279,7 +283,7 @@ class StepRunner
             return $run;
         } catch (Throwable $e) {
             $where = $item === null ? "$phase (planning)" : "$phase → $item";
-            $run = $run->failed($e->getMessage(), $where, $this->now());
+            $run = $run->failed($e->getMessage(), $where, $this->now(), $this->failedNote($where, $e->getMessage()));
             $this->store->save($run);
 
             return $run;
@@ -287,22 +291,34 @@ class StepRunner
     }
 
     /** Move to the next phase, or finish if that was the last one. */
-    private function leavePhase(Run $run): Run
+    protected function leavePhase(Run $run): Run
     {
         $order = Run::PHASES;
         $at = array_search($run->phase, $order, true);
         $next = $at === false ? null : ($order[$at + 1] ?? null);
 
         $run = $next === null
-            ? $run->finished($this->now())
-            : $run->enteredPhase($next, $this->now(), Lang::trans('run.finished_phase', ['phase' => $run->phase]));
+            ? $run->finished($this->now(), $this->translator->trans('flarum-extension-manager.api.run.finished'))
+            : $run->enteredPhase($next, $this->now(), $this->translator->trans('flarum-extension-manager.api.run.finished_phase', ['phase' => $run->phase]));
 
         $this->store->save($run);
 
         return $run;
     }
 
-    private function now(): int
+    /** The log line for a failed step. */
+    public function failedNote(string $step, string $error): string
+    {
+        return $this->translator->trans('flarum-extension-manager.api.run.failed_during', ['step' => $step, 'error' => $error]);
+    }
+
+    /** @param list<string> $undone */
+    public function undoneList(array $undone): string
+    {
+        return implode(', ', $undone) ?: $this->translator->trans('flarum-extension-manager.api.run.nothing_to_undo');
+    }
+
+    protected function now(): int
     {
         return ($this->clock)();
     }

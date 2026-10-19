@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\InputOption;
  * Rebuild every frontend's compiled JavaScript, CSS and translations from the
  * code now installed.
  *
- * 🚨 cache:clear does not do this before Flarum 2.0.0. After 1.17.0 updated
+ * cache:clear does not do this before Flarum 2.0.0. After 1.17.0 updated
  * itself to 1.18.0, ernestdefoe.online served the 7 October admin bundle and
  * fbsfb a translation bundle built before the update. Every step reported
  * success and the new screen never arrived: its strings were missing and its
@@ -50,7 +50,7 @@ class RebuildAssetsCommand extends AbstractCommand
         $markDirty = (bool) $this->input->getOption('mark-dirty');
 
         /*
-         * 🚨 A custom LESS error recorded during the update window is retried,
+         * A custom LESS error recorded during the update window is retried,
          * not trusted. Flarum leaves the custom LESS out for as long as the
          * flag is set, and the flag was written by a request that compiled new
          * LESS with old PHP. Cleared here, it is set again by the compile below

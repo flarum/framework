@@ -12,10 +12,11 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 discuss.flarum.org d/40012: the previous Extension Manager featured and installed
+ * discuss.flarum.org d/40012: an extension list featured and installed
  * v17development/flarum-seo, an old name whose repository moved to fof/seo and
  * now declares it REPLACES the old name. The result was FoF SEO under the wrong
  * id, refusing to enable. The shapes below are Packagist's real ones, minified.
@@ -31,7 +32,7 @@ class ReplacedPackageTest extends TestCase
 
     private function packagist(array $responses, array &$asked = []): Packagist
     {
-        return new Packagist(new Cache($this->dir), function (string $url) use ($responses, &$asked) {
+        return new Packagist(EnglishTranslator::make(), new Cache($this->dir), function (string $url) use ($responses, &$asked) {
             $asked[] = $url;
 
             return $responses[$url] ?? null;

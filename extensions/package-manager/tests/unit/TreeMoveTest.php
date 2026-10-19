@@ -13,7 +13,7 @@ use Flarum\ExtensionManager\Apply\Tree;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 Docker's overlay filesystem refuses to rename a directory from the image,
+ * Docker's overlay filesystem refuses to rename a directory from the image,
  * so Tree::move falls back to copy-then-delete. That fallback can be killed
  * between its copy and its delete; these pin how it is finished. (EXDEV itself
  * cannot be produced on a single test filesystem; it was proved on

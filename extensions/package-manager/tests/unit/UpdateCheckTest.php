@@ -13,11 +13,11 @@ use Flarum\ExtensionManager\Work\UpdateCheck;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 The rule: this produces a HINT, never a promise.
+ * The rule: this produces a HINT, never a promise.
  *
  * "3.6.0 exists" and "you can have 3.6.0" are different questions, and only a
- * resolve answers the second. Conflating them is why the current tooling's
- * update badges are so often wrong — and a badge people learn to distrust is
+ * resolve answers the second. Conflating them makes update badges wrong, and a
+ * badge people learn to distrust is
  * worse than no badge.
  */
 class UpdateCheckTest extends TestCase
@@ -79,7 +79,7 @@ class UpdateCheckTest extends TestCase
     public function test_a_site_on_a_dev_branch_is_not_offered_a_tagged_release(): void
     {
         /*
-         * 🚨 And vice versa. Mixing them produces "update available: dev-main"
+         * And vice versa. Mixing them produces "update available: dev-main"
          * on a forum deliberately pinned to a stable tag, which trains people to
          * ignore the badge entirely.
          */
@@ -103,7 +103,7 @@ class UpdateCheckTest extends TestCase
 
     public function test_a_package_it_cannot_check_is_named_rather_than_assumed_current(): void
     {
-        // 🚨 Leaving a private package out would imply it is up to date, which is
+        // Leaving a private package out would imply it is up to date, which is
         // a guess presented as a fact.
         $result = $this->check()->refresh(
             ['public/one' => '1.0.0', 'private/two' => '1.0.0'],
@@ -128,7 +128,7 @@ class UpdateCheckTest extends TestCase
     public function test_only_extensions_and_flarum_itself_are_worth_checking(): void
     {
         /*
-         * 🚨 Run against a real forum this returned 59 "updates", nearly all
+         * Run against a real forum this returned 59 "updates", nearly all
          * transitive — illuminate/collections 13.30.0 → 13.30.1, guzzle 7 → 8.
          * Nobody updates those individually; they arrive with the extension that
          * needs them, and several are pinned by flarum/core so the newer version
@@ -191,7 +191,7 @@ class UpdateCheckTest extends TestCase
     }
 
     /**
-     * 🚨 A branch install is not a failed check.
+     * A branch install is not a failed check.
      *
      * `dev-main` has no version to be newer than, and whether the branch has
      * moved is something only a resolve can answer. Counting these as
@@ -242,7 +242,7 @@ class UpdateCheckTest extends TestCase
     }
 
     /**
-     * 🚨 A fresh install has no storage/extension-manager yet — nothing makes it until
+     * A fresh install has no storage/extension-manager yet — nothing makes it until
      * the first run. The check used to write into the missing directory, the @
      * hid it, and the screen said "Not checked yet" forever.
      */
@@ -262,7 +262,7 @@ class UpdateCheckTest extends TestCase
     }
 
     /**
-     * 🚨 ClaudiusH, 2026-10-07: straight after updating Mobile Tab to 2.0.1 its
+     * ClaudiusH, 2026-10-07: straight after updating Mobile Tab to 2.0.1 its
      * card still offered "2.0.0 → 2.0.1", from the check saved before it.
      */
     public function test_an_update_already_installed_is_no_longer_offered(): void

@@ -11,14 +11,15 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Packagist;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 The rule these protect: an empty query means BROWSE, never "return
+ * The rule these protect: an empty query means BROWSE, never "return
  * nothing".
  *
- * The previous Extension Manager shows everything installable the moment you open it, and
- * that is the right behaviour — somebody opening a tab called "Find extensions"
+ * Showing everything installable the moment the tab opens is the right
+ * behaviour: somebody opening a tab called "Find extensions"
  * is asking what exists, not to guess a search term first. The first version of
  * this refused an empty query and left the tab blank, which made a catalogue
  * behave like a command line and read, reasonably, as broken.
@@ -47,7 +48,7 @@ class DiscoverBrowseTest extends TestCase
     {
         $urls = new \ArrayObject();
 
-        $p = new Packagist(new Cache($this->dir), function (string $url) use ($urls, $body) {
+        $p = new Packagist(EnglishTranslator::make(), new Cache($this->dir), function (string $url) use ($urls, $body) {
             $urls->append($url);
 
             return $body;
@@ -135,11 +136,11 @@ class DiscoverBrowseTest extends TestCase
     public function test_an_unreachable_packagist_is_reported_not_silently_empty(): void
     {
         /*
-         * 🚨 "Nothing found" and "could not reach Packagist" look identical on
+         * "Nothing found" and "could not reach Packagist" look identical on
          * screen and mean opposite things: the first ends a search, the second
          * means try again in a minute.
          */
-        $p = new Packagist(new Cache($this->dir), fn () => null);
+        $p = new Packagist(EnglishTranslator::make(), new Cache($this->dir), fn () => null);
         $found = $p->search('');
 
         $this->assertSame([], $found['results']);

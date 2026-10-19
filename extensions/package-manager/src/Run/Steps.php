@@ -24,7 +24,7 @@ interface Steps
     /**
      * Everything this phase has to get through, as stable identifiers.
      *
-     * 🚨 Must be deterministic and repeatable. A resumed run recomputes this and
+     * Must be deterministic and repeatable. A resumed run recomputes this and
      * carries on at the saved index, so if the list came back in a different
      * order the run would redo one item and skip another.
      *
@@ -35,7 +35,7 @@ interface Steps
     /**
      * Do exactly one item, and return a line for the log if it is worth one.
      *
-     * 🚨 Must be idempotent. The driver saves progress after the item, so a
+     * Must be idempotent. The driver saves progress after the item, so a
      * process killed between doing the work and recording it will do that item
      * again on resume. Everything in phase 2 was built for this: a stash whose
      * source is already gone is a no-op, not an error.

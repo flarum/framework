@@ -9,12 +9,13 @@
 
 namespace Flarum\ExtensionManager\Tests\Unit;
 
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerRunner;
 use Flarum\ExtensionManager\Work\InstalledRecord;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 The rule these protect: after an update is applied, the register step's
+ * The rule these protect: after an update is applied, the register step's
  * `composer install` must have NOTHING to do.
  *
  * When it had something to do it re-extracted every changed package, using a
@@ -58,7 +59,7 @@ class InstalledRecordTest extends TestCase
             'dev-package-names' => [],
         ]);
 
-        $count = (new InstalledRecord($this->dir))->syncFromLock();
+        $count = (new InstalledRecord(EnglishTranslator::make(), $this->dir))->syncFromLock();
 
         $record = json_decode(file_get_contents($this->dir.'/vendor/composer/installed.json'), true);
         $byName = array_column($record['packages'], null, 'name');
@@ -102,7 +103,7 @@ class InstalledRecordTest extends TestCase
             ],
             'require' => ['acme/widget' => '*'],
         ]);
-        $runner = new ComposerRunner($this->dir, $composer, $this->dir.'/.composer');
+        $runner = new ComposerRunner(EnglishTranslator::make(), $this->dir, $composer, $this->dir.'/.composer');
         $this->assertSame(0, $runner->run(['install', '--no-scripts'])['code']);
 
         // What the Extension Manager does: plan to 2.0.0 without installing, then place
@@ -114,7 +115,7 @@ class InstalledRecordTest extends TestCase
         $before = $runner->run(['install', '--no-scripts', '--dry-run']);
         $this->assertSame(1, InstalledRecord::plannedOperations($before['output']), 'the stale record is what makes Composer re-extract');
 
-        (new InstalledRecord($this->dir))->syncFromLock();
+        (new InstalledRecord(EnglishTranslator::make(), $this->dir))->syncFromLock();
 
         $after = $runner->run(['install', '--no-scripts', '--dry-run']);
         $this->assertSame(0, $after['code'], $after['output']);

@@ -9,13 +9,13 @@
 
 namespace Flarum\ExtensionManager\Apply;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
 use RuntimeException;
 
 /**
  * An append-only record of what an apply has done, and what it was about to do.
  *
- * 🚨 This is the whole safety story. Everything else in the Extension Manager is
+ * This is the whole safety story. Everything else in the Extension Manager is
  * convenience; if this file is wrong, an interrupted update is unrecoverable and
  * the product has no reason to exist.
  *
@@ -37,11 +37,13 @@ use RuntimeException;
  */
 class Journal
 {
-    private const STATE_BEGUN = 'begun';
-    private const STATE_DONE = 'done';
+    protected const STATE_BEGUN = 'begun';
+    protected const STATE_DONE = 'done';
 
-    public function __construct(private string $path)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected string $path,
+    ) {
     }
 
     public function path(): string
@@ -89,7 +91,7 @@ class Journal
         $handle = fopen($this->path, 'rb');
 
         if ($handle === false) {
-            throw new RuntimeException(Lang::trans('journal.read_failed', ['path' => $this->path]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.journal.read_failed', ['path' => $this->path]));
         }
 
         $bySeq = [];
@@ -105,7 +107,7 @@ class Journal
             $row = json_decode($line, true);
 
             /*
-             * 🚨 A malformed final line is NORMAL, not corruption: it is what a
+             * A malformed final line is NORMAL, not corruption: it is what a
              * process killed mid-write leaves behind. Discarding it is correct —
              * the action it described had not been recorded as begun, so it had
              * not started either.
@@ -159,7 +161,7 @@ class Journal
         }
     }
 
-    private function nextSeq(): int
+    protected function nextSeq(): int
     {
         $entries = $this->entries();
 
@@ -167,7 +169,7 @@ class Journal
     }
 
     /**
-     * 🚨 Flushed AND fsync'd before returning.
+     * Flushed AND fsync'd before returning.
      *
      * Without the fsync the line sits in the OS page cache, and a power loss or
      * container kill loses the record while keeping the filesystem change it was
@@ -175,18 +177,18 @@ class Journal
      * to make impossible. The cost is one sync per package, against an operation
      * that is already doing disk I/O.
      */
-    private function write(array $row): void
+    protected function write(array $row): void
     {
         $dir = dirname($this->path);
 
         if (! is_dir($dir) && ! mkdir($dir, 0775, true) && ! is_dir($dir)) {
-            throw new RuntimeException(Lang::trans('journal.dir_failed', ['path' => $dir]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.journal.dir_failed', ['path' => $dir]));
         }
 
         $handle = fopen($this->path, 'ab');
 
         if ($handle === false) {
-            throw new RuntimeException(Lang::trans('journal.write_failed', ['path' => $this->path]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.journal.write_failed', ['path' => $this->path]));
         }
 
         $line = json_encode($row, JSON_UNESCAPED_SLASHES)."\n";
@@ -194,7 +196,7 @@ class Journal
         if (fwrite($handle, $line) === false) {
             fclose($handle);
 
-            throw new RuntimeException(Lang::trans('journal.append_failed', ['path' => $this->path]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.journal.append_failed', ['path' => $this->path]));
         }
 
         fflush($handle);

@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Api\Controller\StartController;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerSteps;
 use Flarum\ExtensionManager\Work\WorkDir;
 use PHPUnit\Framework\TestCase;
@@ -18,7 +19,7 @@ use ReflectionClass;
 /**
  * Raising a pinned requirement so an update can actually happen.
  *
- * 🚨 The whole feature exists because pressing Update on a pinned package did
+ * The whole feature exists because pressing Update on a pinned package did
  * nothing and said Finished. It edits composer.json, so every rule here is
  * about making that edit small, expected, and reversible.
  */
@@ -46,7 +47,7 @@ class RepinTest extends TestCase
     // ── what the SERVER will allow ───────────────────────────────────────────
 
     /**
-     * 🚨 The browser asks WHETHER. It never says to WHAT.
+     * The browser asks WHETHER. It never says to WHAT.
      *
      * The target comes from this site's own check, so a requirement can only be
      * moved to the version printed on the card the admin just read. A version
@@ -128,7 +129,7 @@ class RepinTest extends TestCase
     }
 
     /**
-     * 🚨 Even with permission, only a package this run was asked about. A repin
+     * Even with permission, only a package this run was asked about. A repin
      * map that named something else would otherwise edit a requirement the
      * admin never saw.
      */
@@ -141,7 +142,7 @@ class RepinTest extends TestCase
     }
 
     /**
-     * 🚨 It raises to an EXACT version, never to a range. A site that pinned
+     * It raises to an EXACT version, never to a range. A site that pinned
      * 3.5.1 deliberately stays pinned at 3.6.0 — quietly converting it to ^3.6
      * would hand back the drift the pin existed to stop.
      */
@@ -163,31 +164,31 @@ class RepinTest extends TestCase
     // ── and that the permission actually travels ─────────────────────────────
 
     /**
-     * 🚨 A run outlives the request that started it, so the permission has to be
+     * A run outlives the request that started it, so the permission has to be
      * on disk with the package list. A worker picking this up an hour later must
      * raise the requirement the admin was SHOWN, not recompute it from a check
      * that may have been refreshed since.
      */
     public function test_the_permission_survives_being_written_down(): void
     {
-        $work = new WorkDir($this->dir, 'r-test');
+        $work = new WorkDir(EnglishTranslator::make(), $this->dir, 'r-test');
         $work->create()->remember(['a/pinned'], 'update', ['a/pinned' => '1.1.0']);
 
-        $this->assertSame(['a/pinned'], (new WorkDir($this->dir, 'r-test'))->requested());
-        $this->assertSame(['a/pinned' => '1.1.0'], (new WorkDir($this->dir, 'r-test'))->repin());
+        $this->assertSame(['a/pinned'], (new WorkDir(EnglishTranslator::make(), $this->dir, 'r-test'))->requested());
+        $this->assertSame(['a/pinned' => '1.1.0'], (new WorkDir(EnglishTranslator::make(), $this->dir, 'r-test'))->repin());
     }
 
     /** An older run, written before this existed, must simply have none. */
     public function test_a_run_recorded_without_a_permission_raises_nothing(): void
     {
-        $work = new WorkDir($this->dir, 'r-old');
+        $work = new WorkDir(EnglishTranslator::make(), $this->dir, 'r-old');
         $work->create()->remember(['a/pinned'], 'update');
 
-        $this->assertSame([], (new WorkDir($this->dir, 'r-old'))->repin());
+        $this->assertSame([], (new WorkDir(EnglishTranslator::make(), $this->dir, 'r-old'))->repin());
     }
 
     /**
-     * 🚨 And the factory hands it to the steps.
+     * And the factory hands it to the steps.
      *
      * Twice today a correct piece of code sat unreached because nothing passed
      * it in — the health check for its whole life, and the pin explanation for
@@ -250,6 +251,7 @@ class RepinTest extends TestCase
             'requested' => $requested,
             'mode' => 'update',
             'repin' => $repin,
+            'translator' => EnglishTranslator::make(),
         ] as $prop => $value) {
             $reflection->getProperty($prop)->setValue($steps, $value);
         }

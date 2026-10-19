@@ -9,7 +9,7 @@
 
 namespace Flarum\ExtensionManager\Work;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
 use RuntimeException;
 
 /**
@@ -20,14 +20,17 @@ use RuntimeException;
  * at the start of a request that loaded the new code, which is the caller's to
  * guarantee (ComposerSteps asks FreshCode first).
  *
- * 🚨 One place for both, because there are two callers — the update's finish
+ * One place for both, because there are two callers — the update's finish
  * and Restore — and the copy of "how to run a flarum command" that drifted
  * would be the one somebody only meets on a host without proc_open.
  */
-final class FlarumCommand
+class FlarumCommand
 {
-    public function __construct(private string $installPath, private ComposerRunner $composer)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected string $installPath,
+        protected ComposerRunner $composer,
+    ) {
     }
 
     /**
@@ -38,7 +41,7 @@ final class FlarumCommand
     {
         if ($this->composer->processes()) {
             /*
-             * 🚨 No memory limit, as Composer gets (COMPOSER_MEMORY_LIMIT) and as
+             * No memory limit, as Composer gets (COMPOSER_MEMORY_LIMIT) and as
              * the in-process path already takes. Flarum 2's cache:clear compiles
              * every frontend in one process, and less.php's cache stores each
              * parsed node with its own copy of the file path (a 12 KB stylesheet
@@ -52,7 +55,7 @@ final class FlarumCommand
                 $argv[] = $value === true ? $name : $name.'='.$value;
             }
 
-            return Process::run($argv, $this->installPath);
+            return Process::run($this->translator, $argv, $this->installPath);
         }
 
         return $this->inProcess($command, $options);
@@ -61,7 +64,7 @@ final class FlarumCommand
     /**
      * What to show of a failed command's output: its head AND its tail.
      *
-     * 🚨 PHP, Xdebug and Symfony all print the error FIRST and the stack after
+     * PHP, Xdebug and Symfony all print the error FIRST and the stack after
      * it. Keeping only the last twelve lines kept the frames and dropped the one
      * line that named the failure: a customer's `cache:clear` (2026-10-18) came
      * back as twelve Xdebug frames, each kilobytes of dumped arguments, and no
@@ -85,12 +88,12 @@ final class FlarumCommand
      * @param array<string,bool|string> $options
      * @return array{code:int, output:string}
      */
-    private function inProcess(string $command, array $options): array
+    protected function inProcess(string $command, array $options): array
     {
         $container = \Illuminate\Container\Container::getInstance();
 
         if (! $container->bound('flarum.console.commands')) {
-            throw new RuntimeException(Lang::trans('flarum_command.no_console', ['command' => $command]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.flarum_command.no_console', ['command' => $command]));
         }
 
         $found = null;
@@ -109,7 +112,7 @@ final class FlarumCommand
         }
 
         if ($found === null) {
-            throw new RuntimeException(Lang::trans('flarum_command.unknown', ['command' => $command]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.flarum_command.unknown', ['command' => $command]));
         }
 
         $output = new \Symfony\Component\Console\Output\BufferedOutput(

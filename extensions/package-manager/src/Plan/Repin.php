@@ -14,7 +14,7 @@ use Flarum\ExtensionManager\Work\UpdateCheck;
 /**
  * Which pinned requirements an update may raise, and to what.
  *
- * 🚨 The whole feature exists because pressing Update on a pinned package did
+ * The whole feature exists because pressing Update on a pinned package did
  * nothing and said Finished. `composer update vendor/name` against
  * `"vendor/name": "2.1.1"` answers "Nothing to modify in lock file" and exits
  * 0 — the constraint forbids the move, and nothing anywhere says so.
@@ -36,11 +36,11 @@ use Flarum\ExtensionManager\Work\UpdateCheck;
  * still has to have been given permission — `repin: true` from the screen, or
  * `--repin` on the command line.
  */
-final class Repin
+class Repin
 {
     public function __construct(
-        private string $composerJsonPath,
-        private string $updatesJsonPath,
+        protected string $composerJsonPath,
+        protected string $updatesJsonPath,
     ) {
     }
 
@@ -61,7 +61,7 @@ final class Repin
             $to = $available[$package]['to'] ?? null;
 
             /*
-             * 🚨 Only a target NEWER than the pin. The check is saved when it
+             * Only a target NEWER than the pin. The check is saved when it
              * runs and an update does not re-run it, so straight after moving
              * to v1.21.3 it still said "→ v1.21.3": --repin "raised" v1.21.3 to
              * v1.21.3 and the run moved nothing (live box, 2026-10-13).
@@ -83,7 +83,7 @@ final class Repin
      * Which of these composer.json holds at an exact version, whether or not
      * the check knows of anything newer.
      *
-     * 🚨 A pinned package with no target is one an update CANNOT move: Composer
+     * A pinned package with no target is one an update CANNOT move: Composer
      * answers "Nothing to modify in lock file" and the run goes green. The
      * console asks this so it can re-check, or refuse, instead of starting it.
      *
@@ -119,13 +119,13 @@ final class Repin
     }
 
     /** @return array<string,mixed> */
-    private function cachedUpdates(): array
+    protected function cachedUpdates(): array
     {
         return (array) ((new UpdateCheck($this->updatesJsonPath))->cached()['updates'] ?? []);
     }
 
     /** @return array<string,mixed> */
-    private function readJson(string $path): array
+    protected function readJson(string $path): array
     {
         $data = is_file($path) ? json_decode((string) file_get_contents($path), true) : null;
 

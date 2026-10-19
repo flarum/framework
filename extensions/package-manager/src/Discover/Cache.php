@@ -12,7 +12,7 @@ namespace Flarum\ExtensionManager\Discover;
 /**
  * A small on-disk cache with an expiry.
  *
- * 🚨 A miss is never an error and a corrupt entry is never fatal. This holds
+ * A miss is never an error and a corrupt entry is never fatal. This holds
  * nothing that cannot be fetched again, so every failure path here returns
  * "not cached" and lets the caller do the work. A cache that can break the
  * feature it speeds up is worse than no cache.
@@ -20,8 +20,8 @@ namespace Flarum\ExtensionManager\Discover;
 class Cache
 {
     public function __construct(
-        private string $dir,
-        private int $ttl = 86400,
+        protected string $dir,
+        protected int $ttl = 86400,
     ) {
     }
 
@@ -49,7 +49,7 @@ class Cache
         @file_put_contents($this->path($key), json_encode($value));
     }
 
-    private function path(string $key): string
+    protected function path(string $key): string
     {
         // Hashed, so a package name can never become a path.
         return $this->dir.'/'.sha1($key).'.json';

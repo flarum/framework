@@ -14,13 +14,14 @@ use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Prune\Pruner;
 use Flarum\ExtensionManager\Prune\Retention;
 use Flarum\Foundation\Paths;
+use Flarum\Locale\TranslatorInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Throwable;
 
 /**
  * `php flarum extension-manager:prune [--dry-run]` — tidy the rollback copies.
  *
- * Scheduled daily with NO arguments. 🚨 A scheduled `['--dry-run' => true]`
+ * Scheduled daily with NO arguments. A scheduled `['--dry-run' => true]`
  * would render as `--dry-run='1'`, which a no-value option refuses — every
  * night, into /dev/null. The flag is for a person at a terminal.
  *
@@ -29,8 +30,10 @@ use Throwable;
  */
 class PruneCommand extends AbstractCommand
 {
-    public function __construct(private Paths $paths)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected Paths $paths,
+    ) {
         parent::__construct();
     }
 
@@ -44,7 +47,7 @@ class PruneCommand extends AbstractCommand
     protected function fire(): int
     {
         $dir = StorageDir::of($this->paths->storage);
-        $pruner = new Pruner($dir, new Retention($dir));
+        $pruner = new Pruner($this->translator, $dir, new Retention($dir));
 
         try {
             if ($this->input->getOption('dry-run')) {
@@ -71,7 +74,7 @@ class PruneCommand extends AbstractCommand
         return $summary['failed'] === [] ? 0 : 1;
     }
 
-    private function dryRun(Pruner $pruner): int
+    protected function dryRun(Pruner $pruner): int
     {
         $plan = $pruner->plan(true);
 

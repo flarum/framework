@@ -13,12 +13,13 @@ use Flarum\Console\AbstractCommand;
 use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 use Flarum\Foundation\Paths;
+use Flarum\Locale\TranslatorInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
  * `php flarum extension-manager:check` — is anything newer available?
  *
- * 🚨 One cheap HTTP call per installed package, and no Composer. That is what
+ * One cheap HTTP call per installed package, and no Composer. That is what
  * makes it safe to run nightly on somebody else's shared hosting: a resolve
  * would be 16 seconds and 165 MB, which is not something to do on a schedule on
  * a host that may only have 256 MB to begin with.
@@ -28,8 +29,10 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class CheckCommand extends AbstractCommand
 {
-    public function __construct(private Paths $paths)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected Paths $paths,
+    ) {
         parent::__construct();
     }
 
@@ -51,14 +54,14 @@ class CheckCommand extends AbstractCommand
         }
 
         /*
-         * 🚨 Extensions, Flarum, and what composer.json requires itself, asked
-         * of Packagist first and then the site's own private repositories — see
+         * Extensions, Flarum, and what composer.json requires itself, asked
+         * of Packagist first and then the site's own protected repositories — see
          * UpdateCheck::interesting() and refreshWith(). A premium extension is
          * not on Packagist, so it used to come back "uncheckable" and its owner
          * was never told a new version existed. Packagist stays FIRST so a
-         * private repository can never shadow a public package.
+         * protected repository can never shadow a public package.
          */
-        $result = $check->refreshSite($this->paths->base);
+        $result = $check->refreshSite($this->translator, $this->paths->base);
 
         if ($result === null) {
             $this->error('Could not read composer.lock, so there is nothing to check.');
@@ -84,7 +87,7 @@ class CheckCommand extends AbstractCommand
         }
 
         /*
-         * 🚨 Reported separately, because it is not a failure. A branch install
+         * Reported separately, because it is not a failure. A branch install
          * has no version to be newer than; whether the branch has moved is a
          * question for the update itself.
          */

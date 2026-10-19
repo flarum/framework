@@ -1,6 +1,6 @@
 // The Extension Manager — admin
 //
-// 🚨 One visual language across every screen, built from Flarum's own theme
+// One visual language across every screen, built from Flarum's own theme
 // variables via color-mix so it follows the admin into dark mode instead of
 // pinning light greys. Three shades do almost all the work:
 //
@@ -18,6 +18,12 @@
 @mw-tint: color-mix(in srgb, var(--text-color) 3%, transparent);
 @mw-radius: 10px;
 @mw-pad: 18px;
+
+// Status colours, from Flarum's own success and warning tokens, pulled toward
+// the text colour so they stay readable on a light and a dark admin alike.
+@mw-ok: color-mix(in srgb, var(--control-success-color) 60%, var(--text-color));
+@mw-warn: color-mix(in srgb, var(--control-warning-color) 70%, var(--text-color));
+@mw-warn-line: var(--control-warning-color);
 
 // ── tabs ─────────────────────────────────────────────────────────────────────
 //
@@ -71,7 +77,7 @@
   line-height: 18px;
   text-align: center;
   background: var(--primary-color);
-  color: #fff;
+  color: var(--button-primary-color);
 }
 
 // ── the shared card ──────────────────────────────────────────────────────────
@@ -133,15 +139,15 @@
   > div + div { margin-top: 6px; }
 }
 
-// 🚨 The blocking sentence is the one thing on this panel that changes what
+// The blocking sentence is the one thing on this panel that changes what
 // somebody can do, so it is the one thing given full-strength text and a rule.
 .ExtensionManager-coreBlocked {
   color: var(--text-color);
   font-weight: 600;
   padding: 10px 13px;
-  border-inline-start: 3px solid var(--error-color, #d83e3e);
+  border-inline-start: 3px solid var(--error-color);
   border-radius: 0 8px 8px 0;
-  background: color-mix(in srgb, var(--error-color, #d83e3e) 8%, transparent);
+  background: color-mix(in srgb, var(--error-color) 8%, transparent);
 }
 
 // An extension that replaces part of Flarum: a warning, not a block, because
@@ -149,9 +155,9 @@
 .ExtensionManager-coreOverrides {
   color: var(--text-color);
   padding: 10px 13px;
-  border-inline-start: 3px solid #c77700;
+  border-inline-start: 3px solid @mw-warn-line;
   border-radius: 0 8px 8px 0;
-  background: color-mix(in srgb, #c77700 9%, transparent);
+  background: color-mix(in srgb, var(--control-warning-color) 9%, transparent);
 
   ul { margin: 6px 0 0; padding-inline-start: 18px; }
   code { font-size: 12px; overflow-wrap: anywhere; }
@@ -184,7 +190,7 @@
 
   // A blocker is the only row here in full-strength text; the rest is context.
   &.is-blocked .ExtensionManager-coreState { color: var(--text-color); font-weight: 600; }
-  &.is-blocked { background: color-mix(in srgb, var(--error-color, #d83e3e) 4%, transparent); }
+  &.is-blocked { background: color-mix(in srgb, var(--error-color) 4%, transparent); }
 }
 
 .ExtensionManager-corePkg {
@@ -220,21 +226,21 @@
 
 // ── extension cards ──────────────────────────────────────────────────────────
 //
-// 🚨 A fixed row for the name, a flexible middle, and a foot pinned to the
+// A fixed row for the name, a flexible middle, and a foot pinned to the
 // bottom. Without the grid the cards in a row end at different heights and the
 // buttons sit at different y — which is the single thing that makes a grid of
 // cards look unfinished.
 
 .ExtensionManager-grid {
   display: grid;
-  /* 🚨 The `min()` is ESCAPED. less.php has a min() of its own and refuses to
+  /* The `min()` is ESCAPED. less.php has a min() of its own and refuses to
      compare a pixel length with a percentage — unescaped, this file stops
      compiling and takes the whole admin stylesheet bundle with it.
      Without the min(), a container narrower than the track gets a column wider
      than itself, and .ExtensionManager-card's overflow:hidden then CLIPS the badge
      and the Update button rather than wrapping them.
 
-     🚨 `minmax(0, ...)` on the capped grid below for the same reason: a track
+     `minmax(0, ...)` on the capped grid below for the same reason: a track
      sized to min-content is a track that can be wider than the container. */
   grid-template-columns: repeat(auto-fill, minmax(~"min(300px, 100%)", 1fr));
   gap: 14px;
@@ -261,7 +267,7 @@
   &:hover { border-color: color-mix(in srgb, var(--text-color) 22%, transparent); }
 
   /*
-   * 🚨 This one line is why the badge and the Update button were cut off.
+   * This one line is why the badge and the Update button were cut off.
    *
    * A grid ITEM defaults to `min-width: auto`, which means it refuses to be
    * narrower than its own content. So the card's rows sized themselves to the
@@ -300,9 +306,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--button-primary-color);
   font-weight: 700;
   font-size: 15px;
+}
+
+// A Packagist result has no icon of its own.
+.ExtensionManager-icon--plain {
+  background: var(--control-bg);
+  color: var(--muted-color);
 }
 
 .ExtensionManager-name {
@@ -383,8 +395,8 @@ a.ExtensionManager-name {
   }
 
   &--warn {
-    background: color-mix(in srgb, #c77700 14%, transparent);
-    color: color-mix(in srgb, #8a5200 80%, var(--text-color));
+    background: color-mix(in srgb, var(--control-warning-color) 14%, transparent);
+    color: @mw-warn;
   }
 
   &--muted { background: color-mix(in srgb, var(--text-color) 6%, transparent); }
@@ -392,13 +404,13 @@ a.ExtensionManager-name {
 
 // ── "update available" ───────────────────────────────────────────────────────
 //
-// 🚨 A word, not a colour. The Update button and the "from → to" pair say what
+// A word, not a colour. The Update button and the "from → to" pair say what
 // the card means, so it still reads on a monochrome screen, to a colourblind
 // admin, and in a screenshot pasted into a support thread. The border only
 // reinforces it.
 
 .ExtensionManager-cardId {
-  // 🚨 `flex: 1 1 0` with min-width:0, so a long package name can be narrower
+  // `flex: 1 1 0` with min-width:0, so a long package name can be narrower
   // than its own content. The default `min-width: auto` on a flex item is what
   // lets "huseyinfiliz/discussion-ban" in a monospace face push the row wider
   // than the card and get clipped.
@@ -413,7 +425,7 @@ a.ExtensionManager-name {
 
 // The card itself carries the state too, so a card needing attention is
 // findable by shape at a glance down a long grid.
-// 🚨 Two classes, not one: the plain `.ExtensionManager-card` rule comes later in
+// Two classes, not one: the plain `.ExtensionManager-card` rule comes later in
 // this file and was overriding the border colour, so only the inset bar showed.
 // In the theme's own colour rather than a fixed orange (ClaudiusH, 2026-10-13).
 .ExtensionManager-card.ExtensionManager-card--update {
@@ -491,7 +503,7 @@ a.ExtensionManager-name {
   &.is-on {
     background: var(--primary-color);
     border-color: var(--primary-color);
-    color: #fff;
+    color: var(--button-primary-color);
   }
 }
 
@@ -509,24 +521,14 @@ a.ExtensionManager-name {
 
 .ExtensionManager-empty { margin: 8px 0; }
 
-.ExtensionManager-notice {
-  padding: 12px 14px;
-  margin-bottom: 18px;
-  border-inline-start: 3px solid var(--error-color, #d83e3e);
-  border-radius: 0 8px 8px 0;
-  background: color-mix(in srgb, var(--error-color, #d83e3e) 8%, transparent);
-  font-size: 13px;
-  max-width: 78ch;
-}
-
 // ── a run in progress ────────────────────────────────────────────────────────
 //
-// 🚨 Deliberately calm. This is read while somebody is anxious about their
+// Deliberately calm. This is read while somebody is anxious about their
 // site, so nothing animates, pulses or competes with the two things that
 // matter: which step it is on, and what the log says.
 
 .ExtensionManager-run { margin-bottom: 24px; }
-.ExtensionManager-run--failed { border-color: color-mix(in srgb, var(--error-color, #d83e3e) 45%, transparent); }
+.ExtensionManager-run--failed { border-color: color-mix(in srgb, var(--error-color) 45%, transparent); }
 
 .ExtensionManager-runHead {
   display: flex;
@@ -591,9 +593,9 @@ a.ExtensionManager-name {
   // The part of the current phase already done is the darker share.
   &.is-now {
     background: linear-gradient(to right,
-      color-mix(in srgb, var(--primary-color) 78%, #000) var(--mw-fill, 0%),
+      var(--button-primary-bg-active) var(--mw-fill, 0%),
       var(--primary-color) var(--mw-fill, 0%));
-    color: #fff;
+    color: var(--button-primary-color);
     font-weight: 600;
   }
 }
@@ -610,7 +612,7 @@ a.ExtensionManager-name {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 
-  .is-done & { border-color: transparent; background: var(--primary-color); color: #fff; }
+  .is-done & { border-color: transparent; background: var(--primary-color); color: var(--button-primary-color); }
 }
 
 .ExtensionManager-phaseLabel {
@@ -629,7 +631,7 @@ a.ExtensionManager-name {
   &:first-child:last-child { clip-path: none; border-radius: 8px; }
   &.is-now {
     background: linear-gradient(to left,
-      color-mix(in srgb, var(--primary-color) 78%, #000) var(--mw-fill, 0%),
+      var(--button-primary-bg-active) var(--mw-fill, 0%),
       var(--primary-color) var(--mw-fill, 0%));
   }
 }
@@ -762,19 +764,13 @@ a.ExtensionManager-name {
 
 // ── Sources: repositories, stability, credentials ────────────────────────────
 //
-// 🚨 Cards, not a stack of form rows. The three things on this screen — where
+// Cards, not a stack of form rows. The three things on this screen — where
 // Composer looks, what it accepts, how it authenticates — are separate
 // decisions with separate consequences, and a flat list of inputs separated by
 // hairlines makes them read as one long form nobody finishes reading.
 //
 // Every colour is derived from Flarum's own variables with color-mix, so the
 // screen follows the admin theme into dark mode instead of pinning light greys.
-
-.ExtensionManager-sourcesNote {
-  color: var(--muted-color);
-  font-size: 13px;
-  margin-bottom: 20px;
-}
 
 .ExtensionManager-card {
   border: 1px solid color-mix(in srgb, var(--text-color) 12%, transparent);
@@ -805,7 +801,7 @@ a.ExtensionManager-name {
 
 // ── the rows ────────────────────────────────────────────────────────────────
 //
-// 🚨 A grid, so the columns line up down the list. As flex, a `composer` badge
+// A grid, so the columns line up down the list. As flex, a `composer` badge
 // is wider than a `vcs` one and every URL starts at a different x — which reads
 // as carelessness before it reads as anything else.
 
@@ -861,7 +857,7 @@ a.ExtensionManager-name {
   color: color-mix(in srgb, var(--primary-color) 78%, var(--text-color));
 }
 
-// 🚨 Reads as quiet until you approach it, then as destructive. A Remove that
+// Reads as quiet until you approach it, then as destructive. A Remove that
 // looks dangerous at rest makes a settings screen feel hazardous to use; one
 // that never looks dangerous gets clicked by accident.
 .ExtensionManager-rowAction {
@@ -875,8 +871,8 @@ a.ExtensionManager-name {
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--error-color, #d83e3e) 12%, transparent);
-    color: var(--error-color, #d83e3e);
+    background: color-mix(in srgb, var(--error-color) 12%, transparent);
+    color: var(--error-color);
   }
 
   &:disabled { opacity: .5; cursor: default; }
@@ -884,7 +880,7 @@ a.ExtensionManager-name {
 
 // ── the footer where things are added ───────────────────────────────────────
 //
-// 🚨 Tinted and separated on purpose. "What is configured" and "add another"
+// Tinted and separated on purpose. "What is configured" and "add another"
 // are different acts, and when they share a background the form reads as
 // another row in the list.
 
@@ -918,7 +914,7 @@ a.ExtensionManager-name {
 
 // ── the callout ─────────────────────────────────────────────────────────────
 //
-// 🚨 Visually distinct from the description above it, because it says something
+// Visually distinct from the description above it, because it says something
 // different: the description explains the setting, the callout states the
 // consequence of the value currently chosen. In the same grey at the same size
 // they read as one paragraph and the consequence is skipped.
@@ -956,8 +952,6 @@ a.ExtensionManager-name {
 // footer every other card uses for "change something".
 
 .ExtensionManager-trash { margin-top: 20px; }
-
-.ExtensionManager-trashNotice { margin: 0 18px 14px; }
 
 .ExtensionManager-trashStats {
   display: grid;
@@ -997,12 +991,6 @@ a.ExtensionManager-name {
 
 .ExtensionManager-trashSpacer { flex: 1; }
 
-.ExtensionManager-trashDone {
-  margin: 14px 18px 0;
-  font-size: 13px;
-  font-weight: 600;
-}
-
 .ExtensionManager-trash .ExtensionManager-callout { margin-top: 14px; }
 
 // ── the command-line PHP setting (This host) ─────────────────────────────────
@@ -1027,30 +1015,14 @@ a.ExtensionManager-name {
   input.FormControl { flex: 1 1 260px; min-width: 0; font-family: var(--font-family-monospace, monospace); }
 }
 
-.ExtensionManager-phpSetting-msg {
-  margin-top: 8px;
-  font-size: 13px;
-  color: var(--muted-color);
-
-  // The text stays the theme's own colour: a borrowed alert colour can be
-  // white. The red is the bar beside it.
-  &.is-error {
-    color: var(--text-color);
-    padding: 6px 10px;
-    border-inline-start: 3px solid #d83e3e;
-    background: color-mix(in srgb, #d83e3e 8%, transparent);
-  }
-}
-
 // ── Sources, redesigned ──────────────────────────────────────────────────────
 //
-// 🚨 Scoped to .ExtensionManager-src so the shared card chrome other tabs use is
+// Scoped to .ExtensionManager-src so the shared card chrome other tabs use is
 // untouched. Same three shades as everywhere else, plus the forum's primary
 // colour for "this is chosen" — nothing here pins a light-mode grey.
 
 @mw-primary-soft: color-mix(in srgb, var(--primary-color) 12%, transparent);
 @mw-primary-line: color-mix(in srgb, var(--primary-color) 45%, transparent);
-@mw-danger: #d83e3e;
 
 .ExtensionManager-src {
   display: flex;
@@ -1203,7 +1175,7 @@ a.ExtensionManager-name {
 
   &:last-child { border-bottom: 0; }
   &:hover { background: @mw-tint; }
-  &.is-confirming { background: color-mix(in srgb, @mw-danger 7%, transparent); }
+  &.is-confirming { background: color-mix(in srgb, var(--error-color) 7%, transparent); }
 
   .ExtensionManager-src-actions { opacity: .55; transition: opacity .12s; }
   &:hover .ExtensionManager-src-actions, &:focus-within .ExtensionManager-src-actions { opacity: 1; }
@@ -1223,9 +1195,9 @@ a.ExtensionManager-name {
 }
 
 .ExtensionManager-src-logo--github { background: color-mix(in srgb, var(--text-color) 88%, transparent); color: var(--body-bg); border-color: transparent; }
-.ExtensionManager-src-logo--gitlab { background: color-mix(in srgb, #fc6d26 14%, transparent); color: #e2432a; border-color: transparent; }
-.ExtensionManager-src-logo--bitbucket { background: color-mix(in srgb, #2684ff 14%, transparent); color: #2684ff; border-color: transparent; }
-.ExtensionManager-src-logo--path { background: color-mix(in srgb, #d9a400 16%, transparent); color: #b88a00; border-color: transparent; }
+.ExtensionManager-src-logo--gitlab,
+.ExtensionManager-src-logo--bitbucket { background: color-mix(in srgb, var(--text-color) 10%, transparent); color: var(--text-color); border-color: transparent; }
+.ExtensionManager-src-logo--path { background: color-mix(in srgb, var(--control-warning-color) 16%, transparent); color: @mw-warn; border-color: transparent; }
 .ExtensionManager-src-logo--bearer,
 .ExtensionManager-src-logo--http { background: @mw-primary-soft; color: var(--primary-color); border-color: transparent; }
 
@@ -1257,7 +1229,7 @@ a.ExtensionManager-name {
   color: var(--muted-color);
 }
 
-.ExtensionManager-src-held { display: inline-flex; align-items: center; gap: 5px; color: #2e9b5b; font-weight: 600; }
+.ExtensionManager-src-held { display: inline-flex; align-items: center; gap: 5px; color: @mw-ok; font-weight: 600; }
 
 .ExtensionManager-src-actions,
 .ExtensionManager-src-confirm {
@@ -1287,10 +1259,7 @@ a.ExtensionManager-name {
 }
 
 .ExtensionManager-src-icon--danger:hover,
-.ExtensionManager-src-icon--danger:focus-visible { color: @mw-danger; background: color-mix(in srgb, @mw-danger 9%, transparent); }
-
-.the Extension Manager .Button--danger,
-.ExtensionManager-src .Button--danger { background: @mw-danger; color: #fff; }
+.ExtensionManager-src-icon--danger:focus-visible { color: var(--error-color); background: color-mix(in srgb, var(--error-color) 9%, transparent); }
 
 .ExtensionManager-src-empty {
   display: flex;
@@ -1406,7 +1375,7 @@ a.ExtensionManager-name {
   color: var(--muted-color);
   padding-left: 46px;
 
-  &.is-warn { color: #b87100; }
+  &.is-warn { color: @mw-warn; }
 }
 
 .ExtensionManager-src-grid {
@@ -1501,7 +1470,7 @@ a.ExtensionManager-name {
 
   &.is-on {
     background: var(--primary-color);
-    color: #fff;
+    color: var(--button-primary-color);
     box-shadow: 0 6px 16px -10px var(--primary-color);
 
     small { opacity: .9; }
@@ -1511,10 +1480,10 @@ a.ExtensionManager-name {
 }
 
 .ExtensionManager-src-reco {
-  color: #2e9b5b;
+  color: @mw-ok;
   font-weight: 700;
 
-  .is-on & { color: #fff; }
+  .is-on & { color: var(--button-primary-color); }
 }
 
 .ExtensionManager-src-callout {
@@ -1523,12 +1492,12 @@ a.ExtensionManager-name {
   gap: 10px;
   padding: 12px 14px;
   border-radius: 9px;
-  background: color-mix(in srgb, #2e9b5b 9%, transparent);
-  border: 1px solid color-mix(in srgb, #2e9b5b 22%, transparent);
+  background: color-mix(in srgb, var(--control-success-color) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--control-success-color) 22%, transparent);
   font-size: 13px;
   line-height: 1.55;
 
-  > i { color: #2e9b5b; margin-top: 3px; }
+  > i { color: @mw-ok; margin-top: 3px; }
 }
 
 .ExtensionManager-src-callout--lock {
@@ -1567,8 +1536,8 @@ a.ExtensionManager-name {
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+      background: var(--body-bg);
+      box-shadow: 0 1px 3px var(--shadow-color);
       transition: transform .15s;
     }
   }
@@ -1585,20 +1554,6 @@ a.ExtensionManager-name {
 
   strong { font-size: 13.5px; font-weight: 600; }
   small { font-size: 12px; color: var(--muted-color); }
-}
-
-.ExtensionManager-src-error {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 9px;
-  background: color-mix(in srgb, @mw-danger 9%, transparent);
-  border: 1px solid color-mix(in srgb, @mw-danger 30%, transparent);
-  color: var(--text-color);
-  font-size: 13px;
-
-  > i { color: @mw-danger; }
 }
 
 .ExtensionManager-src-note {
@@ -1643,7 +1598,7 @@ a.ExtensionManager-name {
   font-size: 13px;
 }
 
-// 🚨 Explicit columns from the page width, not auto-fill: auto-fill beside the
+// Explicit columns from the page width, not auto-fill: auto-fill beside the
 // admin sidebar has collapsed to one column on this site before.
 .ExtensionManager-src-tiles {
   list-style: none;
@@ -1677,8 +1632,8 @@ a.ExtensionManager-name {
 
   &.is-confirming {
     grid-column: span 1;
-    border-color: color-mix(in srgb, @mw-danger 45%, transparent);
-    background: color-mix(in srgb, @mw-danger 6%, transparent);
+    border-color: color-mix(in srgb, var(--error-color) 45%, transparent);
+    background: color-mix(in srgb, var(--error-color) 6%, transparent);
   }
 
   .ExtensionManager-src-badge { flex: none; }
@@ -1745,7 +1700,7 @@ a.ExtensionManager-name {
   &::-webkit-search-decoration { -webkit-appearance: none; }
 }
 
-// 🚨 Themes (Bespoke, for one) style every input with a border and fill. The
+// Themes (Bespoke, for one) style every input with a border and fill. The
 // pill IS the field here, so the input inside it must stay bare whatever the
 // theme says.
 .ExtensionManager-src .ExtensionManager-src-filter input[type=search] {
@@ -1843,4 +1798,24 @@ a.ExtensionManager-name {
 .ExtensionManager-details {
   > summary { cursor: pointer; padding: 10px @mw-pad; color: var(--muted-color); font-size: 13px; }
   &[open] > summary { padding-bottom: 4px; }
+}
+
+// ── alerts and confirmations ─────────────────────────────────────────────────
+
+.ExtensionManager-alert { margin-bottom: 18px; }
+
+.ExtensionManager-confirm-message { line-height: 1.55; }
+
+.ExtensionManager-confirm-details {
+  margin-top: 12px;
+
+  ul { margin: 0; padding-inline-start: 18px; font-size: 13px; }
+  code { font-size: 12px; overflow-wrap: anywhere; }
+}
+
+.ExtensionManager-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
 }

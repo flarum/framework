@@ -9,12 +9,12 @@
 
 namespace Flarum\ExtensionManager\Work;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
 
 /**
  * A cache somebody else owns, moved out of the way instead of refused.
  *
- * 🚨 Found on a Flarum-in-a-box container, 2026-10-07: its entrypoint runs
+ * Found on a Flarum-in-a-box container, 2026-10-07: its entrypoint runs
  * `php flarum` as root, so storage/cache and storage/formatter fill with
  * root-owned entries. Permissions refused every update over them, and "Put
  * everything back" failed at `cache:clear` for the same reason, on a host
@@ -32,11 +32,11 @@ use Flarum\ExtensionManager\Lang;
  * offending entries are renamed hidden inside it instead (see setAside).
  * Only when neither is possible does Permissions refuse, as before.
  */
-final class StaleCache
+class StaleCache
 {
-    private const DIRS = ['cache', 'formatter'];
+    protected const DIRS = ['cache', 'formatter'];
 
-    private const HIDDEN = '.root-owned-';
+    protected const HIDDEN = '.root-owned-';
 
     /** @return string[] the directories moved aside */
     public static function setAside(string $storagePath): array
@@ -63,7 +63,7 @@ final class StaleCache
             }
 
             /*
-             * 🚨 Otherwise each offending entry, renamed hidden inside it.
+             * Otherwise each offending entry, renamed hidden inside it.
              *
              * ClaudiusH's container, 2026-10-07, on 1.13.0: storage/ itself was
              * not writable (or the cache is a mounted volume), so the rename
@@ -102,7 +102,7 @@ final class StaleCache
     }
 
     /** This entry, or anything under it, cannot be changed by this process. */
-    private static function blocks(string $path): bool
+    protected static function blocks(string $path): bool
     {
         if (! is_writable($path)) {
             return true;
@@ -112,16 +112,16 @@ final class StaleCache
     }
 
     /** One line for a step result, or '' when nothing moved. */
-    public static function describe(array $moved): string
+    public static function describe(array $moved, TranslatorInterface $translator): string
     {
-        return $moved === [] ? '' : Lang::trans('stale_cache.set_aside').' rm -rf '
+        return $moved === [] ? '' : $translator->trans('flarum-extension-manager.api.stale_cache.set_aside').' rm -rf '
             .implode(' ', array_map('escapeshellarg', $moved));
     }
 
-    private static function hasUnwritable(string $root): bool
+    protected static function hasUnwritable(string $root): bool
     {
         $found = [];
-        (new Permissions('', '', ''))->walkInto($root, $found);
+        Permissions::walkInto($root, $found);
 
         return $found !== [];
     }

@@ -1,7 +1,7 @@
 /**
  * When a keystroke should become a search.
  *
- * 🚨 Live search is a request per keystroke unless something says otherwise,
+ * Live search is a request per keystroke unless something says otherwise,
  * and the something has to be a rule, not a feeling. This one is aimed at
  * somebody else's Packagist quota and somebody else's shared host: a person
  * typing "discussion" is eleven searches if nothing stops it, and ten of them
@@ -16,7 +16,7 @@
 export const SEARCH_DEBOUNCE_MS = 350;
 
 /**
- * 🚨 Two, not one. A single letter matches most of Packagist, so it costs a
+ * Two, not one. A single letter matches most of Packagist, so it costs a
  * full round trip to return something nobody can use — and it is the character
  * every search passes through on the way to a real query.
  */
@@ -37,7 +37,7 @@ export function liveSearchPlan(query: string, lastSearched: string | null): Sear
   const trimmed = query.trim();
 
   /*
-   * 🚨 Already showing it. Without this, blurring and refocusing, or typing a
+   * Already showing it. Without this, blurring and refocusing, or typing a
    * character and deleting it, re-runs a search whose results are already on
    * screen — and because results arrive out of order under a stale-response
    * guard, the visible effect is a list that flickers for no reason.
@@ -47,7 +47,7 @@ export function liveSearchPlan(query: string, lastSearched: string | null): Sear
   }
 
   /*
-   * 🚨 An emptied box is a real intention, not an absence of one: it means
+   * An emptied box is a real intention, not an absence of one: it means
    * "show me what there is" — which is what this tab opens with. Treating it as
    * "too short" would leave the last search's results stranded under an empty
    * field.
@@ -66,7 +66,7 @@ export function liveSearchPlan(query: string, lastSearched: string | null): Sear
 /**
  * Pressing the button or hitting Return means now, whatever the rule says.
  *
- * 🚨 An explicit action must never be refused by a heuristic meant for
+ * An explicit action must never be refused by a heuristic meant for
  * keystrokes. Somebody searching a one-letter vendor prefix has asked for it,
  * and a control that silently does nothing is worse than no control.
  */

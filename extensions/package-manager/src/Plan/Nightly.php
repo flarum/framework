@@ -12,7 +12,7 @@ namespace Flarum\ExtensionManager\Plan;
 /**
  * Moving Flarum to its nightly build: which requirements change, and to what.
  *
- * 🚨 The update check never offers a branch to a forum on a tagged release —
+ * The update check never offers a branch to a forum on a tagged release —
  * rightly, as a badge — so a nightly cannot come from it. And the forum's own
  * composer.json cannot reach one either: `flarum/core: ^2.0.0-rc.8` with the
  * bundled extensions at `*` under `minimum-stability: beta` and
@@ -30,12 +30,12 @@ namespace Flarum\ExtensionManager\Plan;
  * Undo is unchanged: composer.json is saved before the requirements are
  * raised, and putting it back returns the forum to the release it was on.
  */
-final class Nightly
+class Nightly
 {
     /** @var callable(string):?array */
-    private $fetch;
+    protected $fetch;
 
-    public function __construct(private string $composerJsonPath, private string $lockPath, ?callable $fetch = null)
+    public function __construct(protected string $composerJsonPath, protected string $lockPath, ?callable $fetch = null)
     {
         $this->fetch = $fetch ?? fn (string $name) => self::devVersions($name);
     }

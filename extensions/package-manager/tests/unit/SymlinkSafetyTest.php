@@ -13,11 +13,12 @@ use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Rollback;
 use Flarum\ExtensionManager\Plan\Change;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 /**
- * 🚨 The rule these protect: a symlink is one thing to remove, never a door.
+ * The rule these protect: a symlink is one thing to remove, never a door.
  *
  * Composer installs a path repository by LINKING vendor/<pkg> at a checkout on
  * disk. That is how every extension developer runs their own work, so it is
@@ -47,11 +48,11 @@ class SymlinkSafetyTest extends TestCase
 
     private function applier(): Applier
     {
-        return new Applier(
+        return new Applier(EnglishTranslator::make(), 
             $this->dir.'/vendor',
             $this->dir.'/staging',
             $this->dir.'/trash',
-            new Journal($this->dir.'/journal.jsonl')
+            new Journal(EnglishTranslator::make(), $this->dir.'/journal.jsonl')
         );
     }
 
@@ -89,7 +90,7 @@ class SymlinkSafetyTest extends TestCase
     public function test_the_rollback_does_not_reach_through_a_link_either(): void
     {
         /*
-         * 🚨 The applier and the rollback each had their own copy of the delete,
+         * The applier and the rollback each had their own copy of the delete,
          * and they drifted — the hole was closed in one and left open in the
          * other. There is one copy now (Apply\Tree), and this is here so the
          * second caller cannot quietly regrow its own.
@@ -111,10 +112,10 @@ class SymlinkSafetyTest extends TestCase
         // clears before it moves the live copy aside.
         symlink($checkout, $this->dir.'/trash/'.$change->trashName().'.rolledback');
 
-        (new Rollback(
+        (new Rollback(EnglishTranslator::make(), 
             $this->dir.'/vendor',
             $this->dir.'/trash',
-            new Journal($this->dir.'/journal.jsonl')
+            new Journal(EnglishTranslator::make(), $this->dir.'/journal.jsonl')
         ))->run();
 
         $this->assertFileExists($checkout.'/src/Unpushed.php');
@@ -144,7 +145,7 @@ class SymlinkSafetyTest extends TestCase
         $this->assertTrue(is_link($this->dir.'/vendor/acme/widget'), 'the link stays exactly where it was');
         $this->assertFileExists($checkout.'/composer.json');
 
-        // 🚨 And nothing was written down. A refusal that leaves a half-open
+        // And nothing was written down. A refusal that leaves a half-open
         // journal entry makes the NEXT run refuse too, for a reason that has
         // nothing to do with what is wrong.
         $this->assertFileDoesNotExist($this->dir.'/journal.jsonl');

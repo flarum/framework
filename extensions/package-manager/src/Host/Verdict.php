@@ -12,7 +12,7 @@ namespace Flarum\ExtensionManager\Host;
 /**
  * Is this update to blame for the site being down?
  *
- * 🚨 A pure rule, on its own, because it is the dangerous part.
+ * A pure rule, on its own, because it is the dangerous part.
  *
  * Everything else here is plumbing — a curl call, a log tail — and if the
  * plumbing misbehaves the worst case is a check that does not run. This rule
@@ -23,7 +23,7 @@ namespace Flarum\ExtensionManager\Host;
  * Separated from the network so every combination can be asserted, rather than
  * only the ones a test host happens to be able to produce.
  */
-final class Verdict
+class Verdict
 {
     /** Nothing to judge by: the check could not run before OR after. */
     public const NOT_JUDGED = 'not-judged';
@@ -45,7 +45,7 @@ final class Verdict
     {
         if ($before === 'unchecked') {
             /*
-             * 🚨 Never BROKEN_BY_THIS. Without a before, a site that is down
+             * Never BROKEN_BY_THIS. Without a before, a site that is down
              * now might have been down for a week — and this branch is reached
              * precisely on the hosts where the checker itself does not work, so
              * it would fire on every update on that host and undo all of them.

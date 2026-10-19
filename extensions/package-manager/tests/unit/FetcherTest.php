@@ -9,7 +9,13 @@
 
 namespace Flarum\ExtensionManager\Tests\Unit;
 
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\ExtensionManager\Work\Fetcher;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use ZipArchive;
@@ -49,18 +55,104 @@ class FetcherTest extends TestCase
         return $path;
     }
 
+    /** @var list<array{request: \Psr\Http\Message\RequestInterface}> */
+    private array $sent = [];
+
+    /** A Fetcher whose HTTP client answers from $responses and records what it sent. */
+    private function fetcher(array $responses, ?array $auth = null): Fetcher
+    {
+        $stack = HandlerStack::create(new MockHandler($responses));
+        $this->sent = [];
+        $stack->push(Middleware::history($this->sent));
+
+        $authPath = null;
+
+        if ($auth !== null) {
+            $authPath = $this->dir.'/auth.json';
+            file_put_contents($authPath, json_encode($auth));
+        }
+
+        return new Fetcher(EnglishTranslator::make(), new Client(['handler' => $stack]), $this->dir.'/staging', $authPath);
+    }
+
     private function fetchLocal(string $archive, string $package, ?string $shasum = null): void
     {
-        $fetcher = new Fetcher($this->dir.'/staging');
-        // file:// so the download path is exercised without a network.
-        $fetcher->fetch($package, [
-            'url' => 'file://'.$archive, 'type' => 'zip', 'reference' => null, 'shasum' => $shasum,
+        // Served by a mock client, so the download path is exercised without a network.
+        $this->fetcher([new Response(200, [], (string) file_get_contents($archive))])->fetch($package, [
+            'url' => 'https://example.test/archive.zip', 'type' => 'zip', 'reference' => null, 'shasum' => $shasum,
         ]);
+    }
+
+    private function source(string $url): array
+    {
+        return ['url' => $url, 'type' => 'zip', 'reference' => null, 'shasum' => null];
+    }
+
+    public function test_a_plain_http_archive_is_refused_before_any_request(): void
+    {
+        $fetcher = $this->fetcher([]);
+
+        try {
+            $fetcher->fetch('a/b', $this->source('http://example.test/a.zip'));
+            $this->fail('an http:// archive should have been refused');
+        } catch (RuntimeException $e) {
+            $this->assertStringContainsString('HTTPS', $e->getMessage());
+        }
+
+        $this->assertSame([], $this->sent);
+    }
+
+    public function test_other_protocols_are_refused_too(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->fetcher([])->fetch('a/b', $this->source('file:///etc/passwd'));
+    }
+
+    public function test_a_redirect_that_leaves_https_is_refused(): void
+    {
+        $fetcher = $this->fetcher([new Response(302, ['Location' => 'http://example.test/a.zip'])]);
+
+        try {
+            $fetcher->fetch('a/b', $this->source('https://example.test/a.zip'));
+            $this->fail('a redirect to http:// should have been refused');
+        } catch (RuntimeException $e) {
+            $this->assertStringContainsString('allowed redirect protocols', $e->getMessage());
+        }
+
+        $this->assertCount(1, $this->sent, 'the http:// address was never requested');
+        $this->assertDirectoryDoesNotExist($this->dir.'/staging/a/b');
+    }
+
+    public function test_a_token_goes_to_its_exact_host_and_never_to_a_subdomain(): void
+    {
+        $archive = (string) file_get_contents($this->zip('h.zip', ['pkg/composer.json' => '{"name":"a/b"}']));
+        $auth = ['bearer' => ['repo.example.test' => 'secret'], 'http-basic' => ['example.test' => ['username' => 'u', 'password' => 'p']]];
+
+        $this->fetcher([new Response(200, [], $archive)], $auth)->fetch('a/b', $this->source('https://repo.example.test/a.zip'));
+        $this->assertSame('Bearer secret', $this->sent[0]['request']->getHeaderLine('Authorization'));
+
+        $this->fetcher([new Response(200, [], $archive)], $auth)->fetch('c/d', $this->source('https://cdn.repo.example.test/c.zip'));
+        $this->assertFalse($this->sent[0]['request']->hasHeader('Authorization'), 'a subdomain is a different host');
+    }
+
+    public function test_a_github_token_is_sent_to_the_api_and_dropped_on_the_redirect_to_codeload(): void
+    {
+        $archive = (string) file_get_contents($this->zip('i.zip', ['pkg/composer.json' => '{"name":"a/b"}']));
+
+        $this->fetcher([
+            new Response(302, ['Location' => 'https://codeload.github.com/a/b/legacy.zip/abc']),
+            new Response(200, [], $archive),
+        ], ['github-oauth' => ['github.com' => 'ghp_secret']])->fetch('a/b', $this->source('https://api.github.com/repos/a/b/zipball/abc'));
+
+        $this->assertSame('Bearer ghp_secret', $this->sent[0]['request']->getHeaderLine('Authorization'));
+        $this->assertSame('codeload.github.com', $this->sent[1]['request']->getUri()->getHost());
+        $this->assertFalse($this->sent[1]['request']->hasHeader('Authorization'), 'the token never leaves api.github.com');
+        $this->assertFileExists($this->dir.'/staging/a/b/composer.json');
     }
 
     public function test_the_generated_wrapper_directory_is_stripped(): void
     {
-        // 🚨 GitHub wraps everything in "owner-repo-abc1234/". What lands in
+        // GitHub wraps everything in "owner-repo-abc1234/". What lands in
         // staging has to be the package itself, or apply would move a directory
         // containing the package rather than the package.
         $archive = $this->zip('a.zip', [
@@ -87,7 +179,7 @@ class FetcherTest extends TestCase
 
     public function test_a_wrong_checksum_stops_it_before_anything_is_unpacked(): void
     {
-        // 🚨 The last point a substituted archive can be caught. After this,
+        // The last point a substituted archive can be caught. After this,
         // apply moves it into place without asking further questions.
         $archive = $this->zip('c.zip', ['pkg/composer.json' => '{}']);
 

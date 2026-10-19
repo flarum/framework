@@ -9,29 +9,29 @@
 
 namespace Flarum\ExtensionManager\Host;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
 
 /**
  * Where the command-line PHP is — and, when it cannot be found, WHY.
  *
- * 🚨 PHP_BINARY is the wrong answer under FPM, and FPM is most hosts. Under
+ * PHP_BINARY is the wrong answer under FPM, and FPM is most hosts. Under
  * php-fpm it is the FPM binary — handing it a script does not run the script,
  * and the failure is the confusing kind: proc_open succeeds, a process starts,
  * and it exits having done nothing recognisable.
  *
- * 🚨 Every candidate is PROVED rather than trusted, by running it and asking
+ * Every candidate is PROVED rather than trusted, by running it and asking
  * which SAPI it is. Guessing from the filename is not good enough: the first
  * version of this trusted PHP_BINDIR, and on the machine it was written on
  * PHP_BINDIR is `/bin` — which contains no PHP at all. It failed safely and
  * with a clear message, which is the only reason it was cheap to find.
  *
- * 🚨 The most reliable candidate is the FPM binary's OWN DIRECTORY with `-fpm`
+ * The most reliable candidate is the FPM binary's OWN DIRECTORY with `-fpm`
  * stripped: `php85-fpm` sits beside `php85`, same build, same version, same
  * extensions. That layout is shared by Herd, cPanel, Plesk and most distro
  * packages, and it is checked before anything on a fixed path so a forum gets
  * the PHP it is actually running rather than whatever the host defaults to.
  *
- * 🚨 open_basedir. Plesk sets it on every site by default
+ * open_basedir. Plesk sets it on every site by default
  * (`{WEBSPACEROOT}{/}{:}{TMP}{/}`), and under it `is_file('/opt/plesk/php/8.5/bin/php')`
  * is simply FALSE from the website, while the same check over SSH — a different
  * PHP with a different php.ini — is true. A real customer on Plesk was stuck
@@ -45,11 +45,11 @@ class PhpBinary
     public const PANEL_PLESK = 'plesk';
     public const PANEL_CPANEL = 'cpanel';
 
-    private ?string $resolved = null;
-    private bool $searched = false;
+    protected ?string $resolved = null;
+    protected bool $searched = false;
 
     /** @var array<string, array{ok:bool, hidden:bool, ran:bool, sapi:?string, version:?string, error:?string}> */
-    private array $probes = [];
+    protected array $probes = [];
 
     /**
      * Everything but the first argument is for tests — they stand in for the
@@ -60,20 +60,21 @@ class PhpBinary
      * @param (\Closure(string): array{code:int, out:string, err:string})|null $runner
      */
     public function __construct(
-        private ?string $override = null,
-        private ?array $candidates = null,
-        private ?string $openBasedir = null,
-        private ?\Closure $runner = null,
-        private ?string $phpBinary = null,
-        private ?string $sapi = null,
-        private ?string $disabledFunctions = null,
+        protected TranslatorInterface $translator,
+        protected ?string $override = null,
+        protected ?array $candidates = null,
+        protected ?string $openBasedir = null,
+        protected ?\Closure $runner = null,
+        protected ?string $phpBinary = null,
+        protected ?string $sapi = null,
+        protected ?string $disabledFunctions = null,
     ) {
     }
 
     /** The PHP this forum's processes run with: the admin's choice, if they made one. */
-    public static function forStorage(string $storagePath): self
+    public static function forStorage(TranslatorInterface $translator, string $storagePath): self
     {
-        return new self((new PhpOverride($storagePath))->get());
+        return new self($translator, (new PhpOverride($translator, $storagePath))->get());
     }
 
     public function path(): ?string
@@ -157,7 +158,7 @@ class PhpBinary
             $err = trim($run['err']) !== '' ? trim($run['err']) : trim($run['out']);
             $result['error'] = $err !== ''
                 ? mb_substr(strtok($err, "\n") ?: $err, 0, 300)
-                : ($sapi !== null && $sapi !== 'cli' ? Lang::trans('php.wrong_sapi', ['sapi' => $sapi]) : Lang::trans('php.exit_code', ['code' => (string) $run['code']]));
+                : ($sapi !== null && $sapi !== 'cli' ? $this->translator->trans('flarum-extension-manager.api.php.wrong_sapi', ['sapi' => $sapi]) : $this->translator->trans('flarum-extension-manager.api.php.exit_code', ['code' => (string) $run['code']]));
         }
 
         return $this->probes[$candidate] = $result;
@@ -357,26 +358,26 @@ class PhpBinary
         return $this->candidates = array_values(array_unique($candidates));
     }
 
-    private function looksLikePanelPhp(string $path): bool
+    protected function looksLikePanelPhp(string $path): bool
     {
         return str_starts_with($path, '/opt/plesk/php/')
             || str_starts_with($path, '/opt/cpanel/')
             || str_starts_with($path, dirname($this->phpBinary()).'/');
     }
 
-    private function iniFile(): ?string
+    protected function iniFile(): ?string
     {
         $file = php_ini_loaded_file();
 
         return $file === false ? null : $file;
     }
 
-    private function phpBinary(): string
+    protected function phpBinary(): string
     {
         return $this->phpBinary ?? PHP_BINARY;
     }
 
-    private function sapi(): string
+    protected function sapi(): string
     {
         return $this->sapi ?? PHP_SAPI;
     }
@@ -385,7 +386,7 @@ class PhpBinary
      * @param list<string> $command
      * @return array{code:int, out:string, err:string}
      */
-    private function run(array $command): array
+    protected function run(array $command): array
     {
         if ($this->runner !== null) {
             return ($this->runner)($command[0]);

@@ -12,7 +12,7 @@ namespace Flarum\ExtensionManager\Apply;
 /**
  * Removing and moving a directory, done once.
  *
- * 🚨 One copy on purpose. The applier and the rollback each had their own, and
+ * One copy on purpose. The applier and the rollback each had their own, and
  * they drifted: the symlink hole was fixed in one and left open in the other, so
  * a rollback could still reach through a link into a working checkout and empty
  * it. Two implementations of a dangerous operation is two chances to fix it
@@ -21,7 +21,7 @@ namespace Flarum\ExtensionManager\Apply;
 class Tree
 {
     /**
-     * 🚨 Never walks through a symlink.
+     * Never walks through a symlink.
      *
      * RecursiveDirectoryIterator follows them by default, and is_dir() is true
      * for a link pointing at a directory — so the obvious version of this
@@ -69,7 +69,7 @@ class Tree
     /**
      * rename(), and where the filesystem refuses one, copy then delete.
      *
-     * 🚨 Docker's overlay filesystem refuses to rename a directory that came
+     * Docker's overlay filesystem refuses to rename a directory that came
      * from the IMAGE (EXDEV, "Cross-device link") — and in an image with
      * Flarum baked in, that is every package in vendor/. Found on
      * Flarum-in-a-box, 2026-10-07: no update could move the installed version
@@ -125,7 +125,7 @@ class Tree
     }
 
     /** A link is copied as a link, never followed — see delete(). */
-    private static function copy(string $from, string $to): bool
+    protected static function copy(string $from, string $to): bool
     {
         if (is_link($from)) {
             $target = readlink($from);

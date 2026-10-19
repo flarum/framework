@@ -18,7 +18,7 @@ use ReflectionParameter;
 /**
  * The site address must be able to reach the health check.
  *
- * 🚨 This exists because it could not, for the entire life of the feature.
+ * This exists because it could not, for the entire life of the feature.
  *
  * `ComposerStepsFactory::__construct` took `?Config $config = null`, and the
  * single line that constructs it — the StepsFactory binding in the service

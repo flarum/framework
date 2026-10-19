@@ -1,25 +1,23 @@
-import extractText from 'flarum/common/utils/extractText';
 import app from 'flarum/admin/app';
-import t from '../t';
-import Component from 'flarum/common/Component';
+import Component, { type ComponentAttrs } from 'flarum/common/Component';
+import Alert from 'flarum/common/components/Alert';
+import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import type Mithril from 'mithril';
 import apiUrl from '../apiUrl';
-
-declare const m: any;
-
-const s = t;
+import { alertError, serverMessage } from '../errors';
+import type { ConfigPayload, Repository as Repo, StoredCredential as Stored } from '../types';
 
 /**
  * Where Composer looks, what it will accept, and how it authenticates.
  *
- * 🚨 These three settings are why the extension this replaces could not simply
- * be removed. The Extension Manager could install and update, but it could not tell
- * Composer where a private repository lives, that release candidates are
- * acceptable, or how to authenticate to a paid one — and a forum whose own
- * extensions live in private repositories cannot resolve a single one without
- * them.
+ * These three settings are what a forum needs before Composer can install
+ * anything beyond public Packagist: where a private repository lives, that
+ * release candidates are acceptable, and how to authenticate to a paid one — a
+ * forum whose own extensions live in private repositories cannot resolve a
+ * single one without them.
  *
- * 🚨 A stored credential is never sent to the browser. This screen shows which
+ * A stored credential is never sent to the browser. This screen shows which
  * hosts have one; entering a value replaces it. That is a deliberate limit, not
  * an oversight — a settings page that displays your token back to you turns
  * every screenshot into a leak.
@@ -29,28 +27,17 @@ const s = t;
  * exact one Composer gets.
  */
 
-interface Repo {
-  type: string;
-  url: string;
-}
-
-interface Stored {
-  kind: string;
-  host: string;
-  detail: string;
-}
-
 /** What a repository URL points at, for the icon and the readable name. */
 function describe(url: string, type: string): { icon: string; name: string; where: string; tone: string } {
   if (type === 'path') {
     return { icon: 'fas fa-folder-open', name: url.replace(/\/+$/, '').split('/').pop() || url, where: url, tone: 'path' };
   }
 
-  const m = /^https?:\/\/([^/]+)\/(.+?)(?:\.git)?\/?$/i.exec(url.trim());
-  if (!m) return { icon: 'fas fa-box', name: url, where: '', tone: 'other' };
+  const match = /^https?:\/\/([^/]+)\/(.+?)(?:\.git)?\/?$/i.exec(url.trim());
+  if (!match) return { icon: 'fas fa-box', name: url, where: '', tone: 'other' };
 
-  const host = m[1].toLowerCase();
-  const name = type === 'composer' ? host : m[2];
+  const host = match[1].toLowerCase();
+  const name = type === 'composer' ? host : match[2];
 
   if (host.endsWith('github.com')) return { icon: 'fab fa-github', name, where: host, tone: 'github' };
   if (host.includes('gitlab')) return { icon: 'fab fa-gitlab', name, where: host, tone: 'gitlab' };
@@ -77,8 +64,9 @@ const LADDER = ['stable', 'RC', 'beta', 'alpha', 'dev'];
 export default class SourcesTab extends Component {
   private loading = true;
   private saving = false;
-  private data: any = null;
-  private error: string | null = null;
+  private data: ConfigPayload | null = null;
+  /** Why the settings could not be read at all, when they could not. */
+  private loadError: string | null = null;
 
   // repositories
   private repoType = 'vcs';
@@ -94,29 +82,32 @@ export default class SourcesTab extends Component {
   private reveal = false;
   private confirmAuth: string | null = null;
 
-  oninit(vnode: any) {
+  oninit(vnode: Mithril.Vnode<ComponentAttrs, this>) {
     super.oninit(vnode);
     this.load();
   }
 
   view() {
     if (this.loading) return <LoadingIndicator />;
-    if (!this.data) return <div className="ExtensionManager-notice">{this.error || t('config_failed')}</div>;
+
+    const data = this.data;
+
+    if (!data) {
+      return (
+        <Alert type="error" dismissible={false} className="ExtensionManager-alert">
+          {this.loadError || app.translator.trans('flarum-extension-manager.admin.composer.config_failed')}
+        </Alert>
+      );
+    }
 
     return (
       <div className="ExtensionManager-sources ExtensionManager-src">
-        {this.overview()}
-        {this.error ? (
-          <div className="ExtensionManager-src-error" role="alert">
-            <i className="fas fa-circle-exclamation" aria-hidden="true" />
-            <span>{this.error}</span>
-          </div>
-        ) : null}
-        {this.repositories()}
-        {this.stability()}
-        {this.credentials()}
+        {this.overview(data)}
+        {this.repositories(data)}
+        {this.stability(data)}
+        {this.credentials(data)}
         <p className="ExtensionManager-src-note">
-          <i className="fas fa-circle-info" aria-hidden="true" /> {this.data.note}
+          <i className="fas fa-circle-info" aria-hidden="true" /> {data.note}
         </p>
       </div>
     );
@@ -129,12 +120,12 @@ export default class SourcesTab extends Component {
    * release must be, and how many hosts it can sign in to. Each tile jumps to
    * the card that changes it.
    */
-  overview() {
-    const repos: Repo[] = this.data.repositories || [];
-    const stored: Stored[] = this.data.auth?.stored || [];
-    const level = this.data.stability?.minimumStability || 'stable';
+  overview(data: ConfigPayload) {
+    const repos = data.repositories || [];
+    const stored = data.auth?.stored || [];
+    const level = data.stability?.minimumStability || 'stable';
 
-    const tile = (icon: string, value: any, label: any, target: string) => (
+    const tile = (icon: string, value: Mithril.Children, label: Mithril.Children, target: string) => (
       <a
         className="ExtensionManager-src-stat"
         href={'#' + target}
@@ -155,17 +146,32 @@ export default class SourcesTab extends Component {
 
     return (
       <div className="ExtensionManager-src-overview">
-        {tile('fas fa-code-branch', repos.length, t('src_stat_repos', { count: repos.length }), 'mw-src-repos')}
-        {tile('fas fa-flask', t('level_' + level.toLowerCase()), t('src_stat_level'), 'mw-src-stability')}
-        {tile('fas fa-key', stored.length, t('src_stat_auth', { count: stored.length }), 'mw-src-auth')}
+        {tile(
+          'fas fa-code-branch',
+          repos.length,
+          app.translator.trans('flarum-extension-manager.admin.composer.repositories.stat', { count: repos.length }),
+          'mw-src-repos'
+        )}
+        {tile(
+          'fas fa-flask',
+          app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.options.' + level.toLowerCase()),
+          app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.stat'),
+          'mw-src-stability'
+        )}
+        {tile(
+          'fas fa-key',
+          stored.length,
+          app.translator.trans('flarum-extension-manager.admin.auth_config.stat', { count: stored.length }),
+          'mw-src-auth'
+        )}
       </div>
     );
   }
 
   // ── repositories ────────────────────────────────────────────────────────
 
-  repositories() {
-    const repos: Repo[] = this.data.repositories || [];
+  repositories(data: ConfigPayload) {
+    const repos = data.repositories || [];
     const q = this.filter.trim().toLowerCase();
     const shown = q ? repos.filter((r) => r.url.toLowerCase().includes(q)) : repos;
 
@@ -177,19 +183,20 @@ export default class SourcesTab extends Component {
           </div>
           <div className="ExtensionManager-src-headText">
             <h3>
-              {t('repos_title')} <span className="ExtensionManager-src-count">{repos.length}</span>
+              {app.translator.trans('flarum-extension-manager.admin.composer.repositories.label')}{' '}
+              <span className="ExtensionManager-src-count">{repos.length}</span>
             </h3>
-            <p>{t('repos_help')}</p>
+            <p>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.help')}</p>
           </div>
           {repos.length > 6 ? (
             <label className="ExtensionManager-src-filter">
               <i className="fas fa-magnifying-glass" aria-hidden="true" />
               <input
                 type="search"
-                placeholder={s('src_filter')}
-                aria-label={s('src_filter')}
+                placeholder={app.translator.trans('flarum-extension-manager.admin.composer.repositories.filter', {}, true)}
+                aria-label={app.translator.trans('flarum-extension-manager.admin.composer.repositories.filter', {}, true)}
                 value={this.filter}
-                oninput={(e: any) => (this.filter = e.target.value)}
+                oninput={(e: InputEvent) => (this.filter = (e.target as HTMLInputElement).value)}
               />
             </label>
           ) : null}
@@ -198,11 +205,11 @@ export default class SourcesTab extends Component {
         {repos.length === 0 ? (
           <div className="ExtensionManager-src-empty">
             <i className="fas fa-box-open" aria-hidden="true" />
-            <span>{t('repos_none')}</span>
+            <span>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.none')}</span>
           </div>
         ) : shown.length === 0 ? (
           <div className="ExtensionManager-src-empty">
-            <span>{t('src_no_match', { query: this.filter })}</span>
+            <span>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.no_match', { query: this.filter })}</span>
           </div>
         ) : (
           this.groups(shown).map((g) => (
@@ -220,13 +227,13 @@ export default class SourcesTab extends Component {
           ))
         )}
 
-        {this.addRepo(repos)}
+        {this.addRepo(data, repos)}
       </section>
     );
   }
 
   /**
-   * 🚨 Grouped by owner and host, so "ernestdefoe · github.com" is said once
+   * Grouped by owner and host, so "ernestdefoe · github.com" is said once
    * instead of twenty-two times. Most forums keep their private extensions
    * under one account, and the repeated half of every row was the clutter.
    */
@@ -236,7 +243,7 @@ export default class SourcesTab extends Component {
     for (const r of repos) {
       const d = describe(r.url, r.type);
       const slash = r.type === 'vcs' ? d.name.indexOf('/') : -1;
-      const owner = slash > 0 ? d.name.slice(0, slash) : s('type_' + r.type);
+      const owner = slash > 0 ? d.name.slice(0, slash) : this.typeLabel(r.type);
       const key = owner + '@' + (slash > 0 ? d.where : r.type);
       let g = out.find((x) => x.key === key);
 
@@ -268,24 +275,24 @@ export default class SourcesTab extends Component {
       <li className={'ExtensionManager-src-tile' + (confirming ? ' is-confirming' : '')} key={r.url} title={r.url}>
         {confirming ? (
           <div className="ExtensionManager-src-tileConfirm">
-            <span>{t('src_remove_named', { name: short })}</span>
+            <span>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.remove_named', { name: short })}</span>
             <span>
-              <button className="Button Button--sm" onclick={() => (this.confirmRepo = null)}>
-                {t('cancel')}
-              </button>
-              <button
+              <Button className="Button Button--sm" onclick={() => (this.confirmRepo = null)}>
+                {app.translator.trans('flarum-extension-manager.admin.actions.cancel')}
+              </Button>
+              <Button
                 className="Button Button--sm Button--danger"
                 disabled={this.saving}
                 onclick={() => this.send({ action: 'remove-repository', url: r.url }, () => (this.confirmRepo = null))}
               >
-                {t('remove')}
-              </button>
+                {app.translator.trans('flarum-extension-manager.admin.actions.remove')}
+              </Button>
             </span>
           </div>
         ) : (
           [
             <span className="ExtensionManager-src-tileName">{short}</span>,
-            r.type !== 'vcs' ? <span className="ExtensionManager-src-badge">{t('type_' + r.type)}</span> : null,
+            r.type !== 'vcs' ? <span className="ExtensionManager-src-badge">{this.typeLabel(r.type)}</span> : null,
             <span className="ExtensionManager-src-tileActions">
               {linkable ? (
                 <a
@@ -293,8 +300,8 @@ export default class SourcesTab extends Component {
                   href={r.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  title={s('src_open')}
-                  aria-label={s('src_open')}
+                  title={app.translator.trans('flarum-extension-manager.admin.composer.repositories.open', {}, true)}
+                  aria-label={app.translator.trans('flarum-extension-manager.admin.composer.repositories.open', {}, true)}
                 >
                   <i className="fas fa-arrow-up-right-from-square" aria-hidden="true" />
                 </a>
@@ -302,8 +309,8 @@ export default class SourcesTab extends Component {
               <button
                 className="ExtensionManager-src-icon ExtensionManager-src-icon--sm ExtensionManager-src-icon--danger"
                 disabled={this.saving}
-                title={s('remove')}
-                aria-label={s('src_remove_label', { name: d.name })}
+                title={app.translator.trans('flarum-extension-manager.admin.actions.remove', {}, true)}
+                aria-label={app.translator.trans('flarum-extension-manager.admin.composer.delete_repository_label', { name: d.name }, true)}
                 onclick={() => (this.confirmRepo = r.url)}
               >
                 <i className="fas fa-trash-can" aria-hidden="true" />
@@ -315,8 +322,13 @@ export default class SourcesTab extends Component {
     );
   }
 
-  addRepo(repos: Repo[]) {
-    const types: string[] = this.data.types || ['vcs', 'composer', 'path'];
+  /** A repository type's name: "Git repository", "Folder on this server"… */
+  typeLabel(type: string): string {
+    return app.translator.trans('flarum-extension-manager.admin.composer.repositories.types.' + type, {}, true);
+  }
+
+  addRepo(data: ConfigPayload, repos: Repo[]) {
+    const types = data.types || ['vcs', 'composer', 'path'];
     const url = this.repoUrl.trim();
     const d = url ? describe(url, this.repoType) : null;
     const duplicate = url !== '' && repos.some((r) => r.url.replace(/\/+$/, '') === url.replace(/\/+$/, ''));
@@ -330,9 +342,13 @@ export default class SourcesTab extends Component {
           this.send({ action: 'add-repository', type: this.repoType, url }, () => (this.repoUrl = ''));
         }}
       >
-        <div className="ExtensionManager-src-addTitle">{t('src_add_repo')}</div>
+        <div className="ExtensionManager-src-addTitle">{app.translator.trans('flarum-extension-manager.admin.composer.add_repository_label')}</div>
 
-        <div className="ExtensionManager-src-choices" role="radiogroup" aria-label={s('src_add_repo')}>
+        <div
+          className="ExtensionManager-src-choices"
+          role="radiogroup"
+          aria-label={app.translator.trans('flarum-extension-manager.admin.composer.add_repository_label', {}, true)}
+        >
           {types.map((ty) => (
             <button
               type="button"
@@ -343,8 +359,8 @@ export default class SourcesTab extends Component {
             >
               <i className={(TYPES[ty] || TYPES.vcs).icon} aria-hidden="true" />
               <span>
-                <strong>{t('type_' + ty)}</strong>
-                <small>{t('type_' + ty + '_help')}</small>
+                <strong>{this.typeLabel(ty)}</strong>
+                <small>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.type_help.' + ty)}</small>
               </span>
             </button>
           ))}
@@ -355,14 +371,14 @@ export default class SourcesTab extends Component {
             <i className={d ? d.icon : (TYPES[this.repoType] || TYPES.vcs).icon} aria-hidden="true" />
           </span>
           <input
-            placeholder={s('type_' + this.repoType + '_placeholder')}
-            aria-label={s('type_' + this.repoType + '_placeholder')}
+            placeholder={app.translator.trans('flarum-extension-manager.admin.composer.repositories.placeholders.' + this.repoType, {}, true)}
+            aria-label={app.translator.trans('flarum-extension-manager.admin.composer.repositories.placeholders.' + this.repoType, {}, true)}
             value={this.repoUrl}
-            oninput={(e: any) => (this.repoUrl = e.target.value)}
+            oninput={(e: InputEvent) => (this.repoUrl = (e.target as HTMLInputElement).value)}
           />
-          <button className="Button Button--primary" type="submit" disabled={this.saving || !url || duplicate}>
-            <i className="fas fa-plus" aria-hidden="true" /> {t('add')}
-          </button>
+          <Button className="Button Button--primary" type="submit" icon="fas fa-plus" disabled={this.saving || !url || duplicate}>
+            {app.translator.trans('flarum-extension-manager.admin.actions.add')}
+          </Button>
         </div>
 
         {/*
@@ -370,9 +386,13 @@ export default class SourcesTab extends Component {
          * uses — or why it won't be.
          */}
         {duplicate ? (
-          <div className="ExtensionManager-src-hint is-warn">{t('src_duplicate')}</div>
+          <div className="ExtensionManager-src-hint is-warn">
+            {app.translator.trans('flarum-extension-manager.admin.composer.repositories.duplicate')}
+          </div>
         ) : d && d.where ? (
-          <div className="ExtensionManager-src-hint">{t('src_will_add', { name: d.name, where: d.where })}</div>
+          <div className="ExtensionManager-src-hint">
+            {app.translator.trans('flarum-extension-manager.admin.composer.repositories.will_add', { name: d.name, where: d.where })}
+          </div>
         ) : null}
       </form>
     );
@@ -380,11 +400,11 @@ export default class SourcesTab extends Component {
 
   // ── stability ───────────────────────────────────────────────────────────
 
-  stability() {
-    const st = this.data.stability || {};
-    const current: string = st.minimumStability || 'stable';
-    const levels: string[] = st.levels || LADDER;
-    const means = (l: string) => extractText(t('level_' + l.toLowerCase() + '_means'));
+  stability(data: ConfigPayload) {
+    const st = data.stability || { minimumStability: 'stable', preferStable: false };
+    const current = st.minimumStability || 'stable';
+    const levels = st.levels || LADDER;
+    const means = (l: string) => app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.means.' + l.toLowerCase(), {}, true);
 
     return (
       <section className="ExtensionManager-src-card" id="mw-src-stability">
@@ -393,18 +413,22 @@ export default class SourcesTab extends Component {
             <i className="fas fa-flask" aria-hidden="true" />
           </div>
           <div className="ExtensionManager-src-headText">
-            <h3>{t('stability_title')}</h3>
-            <p>{t('stability_help')}</p>
+            <h3>{app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.label')}</h3>
+            <p>{app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.help')}</p>
           </div>
         </header>
 
         <div className="ExtensionManager-src-body">
           {/*
-           * 🚨 A ladder, most finished first, because that is what the setting
+           * A ladder, most finished first, because that is what the setting
            * is: everything at and above the chosen step is accepted. A select
            * hid the other four choices and the order between them.
            */}
-          <div className="ExtensionManager-src-ladder" role="radiogroup" aria-label={s('stability_title')}>
+          <div
+            className="ExtensionManager-src-ladder"
+            role="radiogroup"
+            aria-label={app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.label', {}, true)}
+          >
             {levels.map((l, i) => {
               const on = l === current;
               const accepted = i <= levels.indexOf(current);
@@ -419,11 +443,13 @@ export default class SourcesTab extends Component {
                   className={'ExtensionManager-src-step' + (on ? ' is-on' : accepted ? ' is-accepted' : '')}
                   onclick={() => !on && this.send({ action: 'set-stability', minimumStability: l, preferStable: st.preferStable })}
                 >
-                  <strong>{t('level_' + l.toLowerCase())}</strong>
+                  <strong>{app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.options.' + l.toLowerCase())}</strong>
                   {l === 'beta' ? (
-                    <small className="ExtensionManager-src-reco">{t('src_recommended')}</small>
+                    <small className="ExtensionManager-src-reco">
+                      {app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.recommended')}
+                    </small>
                   ) : (
-                    <small>{t('level_' + l.toLowerCase() + '_short')}</small>
+                    <small>{app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.short.' + l.toLowerCase())}</small>
                   )}
                 </button>
               );
@@ -441,14 +467,16 @@ export default class SourcesTab extends Component {
               role="switch"
               checked={!!st.preferStable}
               disabled={this.saving}
-              onchange={(e: any) => this.send({ action: 'set-stability', minimumStability: current, preferStable: e.target.checked })}
+              onchange={(e: Event) =>
+                this.send({ action: 'set-stability', minimumStability: current, preferStable: (e.target as HTMLInputElement).checked })
+              }
             />
             <span className="ExtensionManager-src-track" aria-hidden="true">
               <span />
             </span>
             <span className="ExtensionManager-src-switchText">
-              <strong>{t('prefer_stable')}</strong>
-              <small>{t('src_prefer_stable_help')}</small>
+              <strong>{app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.prefer_stable')}</strong>
+              <small>{app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.prefer_stable_help')}</small>
             </span>
           </label>
         </div>
@@ -458,9 +486,9 @@ export default class SourcesTab extends Component {
 
   // ── credentials ─────────────────────────────────────────────────────────
 
-  credentials() {
-    const a = this.data.auth || {};
-    const stored: Stored[] = a.stored || [];
+  credentials(data: ConfigPayload) {
+    const a = data.auth || { stored: [] };
+    const stored = a.stored || [];
 
     return (
       <section className="ExtensionManager-src-card" id="mw-src-auth">
@@ -470,16 +498,17 @@ export default class SourcesTab extends Component {
           </div>
           <div className="ExtensionManager-src-headText">
             <h3>
-              {t('auth_title')} <span className="ExtensionManager-src-count">{stored.length}</span>
+              {app.translator.trans('flarum-extension-manager.admin.auth_config.title')}{' '}
+              <span className="ExtensionManager-src-count">{stored.length}</span>
             </h3>
-            <p>{t('auth_help')}</p>
+            <p>{app.translator.trans('flarum-extension-manager.admin.auth_config.help')}</p>
           </div>
         </header>
 
         {stored.length === 0 ? (
           <div className="ExtensionManager-src-empty">
             <i className="fas fa-lock-open" aria-hidden="true" />
-            <span>{t('auth_none')}</span>
+            <span>{app.translator.trans('flarum-extension-manager.admin.auth_config.no_auth_methods_configured')}</span>
           </div>
         ) : (
           <ul className="ExtensionManager-src-list">{stored.map((c) => this.authRow(c))}</ul>
@@ -489,7 +518,7 @@ export default class SourcesTab extends Component {
 
         <div className="ExtensionManager-src-callout ExtensionManager-src-callout--lock">
           <i className="fas fa-shield-halved" aria-hidden="true" />
-          <span>{t('auth_writeonly')}</span>
+          <span>{app.translator.trans('flarum-extension-manager.admin.auth_config.write_only')}</span>
         </div>
       </section>
     );
@@ -508,30 +537,31 @@ export default class SourcesTab extends Component {
         <span className="ExtensionManager-src-itemText">
           <strong>{c.host}</strong>
           <span>
-            <span className="ExtensionManager-src-badge">{t('kind_' + c.kind)}</span>
+            <span className="ExtensionManager-src-badge">{app.translator.trans('flarum-extension-manager.admin.auth_config.types.' + c.kind)}</span>
             <span className="ExtensionManager-src-held">
-              <i className="fas fa-lock" aria-hidden="true" /> {c.detail === 'token set' ? t('src_token_stored') : c.detail}
+              <i className="fas fa-lock" aria-hidden="true" />{' '}
+              {c.detail === 'token set' ? app.translator.trans('flarum-extension-manager.admin.auth_config.token_stored') : c.detail}
             </span>
           </span>
         </span>
 
         {confirming ? (
           <span className="ExtensionManager-src-confirm">
-            <span>{t('src_remove_q')}</span>
-            <button className="Button Button--sm" onclick={() => (this.confirmAuth = null)}>
-              {t('cancel')}
-            </button>
-            <button
+            <span>{app.translator.trans('flarum-extension-manager.admin.auth_config.remove_q')}</span>
+            <Button className="Button Button--sm" onclick={() => (this.confirmAuth = null)}>
+              {app.translator.trans('flarum-extension-manager.admin.actions.cancel')}
+            </Button>
+            <Button
               className="Button Button--sm Button--danger"
               disabled={this.saving}
               onclick={() => this.send({ action: 'remove-auth', kind: c.kind, host: c.host }, () => (this.confirmAuth = null))}
             >
-              {t('remove')}
-            </button>
+              {app.translator.trans('flarum-extension-manager.admin.actions.remove')}
+            </Button>
           </span>
         ) : (
           <span className="ExtensionManager-src-actions">
-            <button
+            <Button
               className="Button Button--sm"
               disabled={this.saving}
               onclick={() => {
@@ -543,13 +573,13 @@ export default class SourcesTab extends Component {
                 setTimeout(() => (document.getElementById('mw-src-secret') as HTMLInputElement | null)?.focus(), 0);
               }}
             >
-              {t('src_replace')}
-            </button>
+              {app.translator.trans('flarum-extension-manager.admin.auth_config.edit_label')}
+            </Button>
             <button
               className="ExtensionManager-src-icon ExtensionManager-src-icon--danger"
               disabled={this.saving}
-              title={s('remove')}
-              aria-label={s('src_remove_label', { name: c.host })}
+              title={app.translator.trans('flarum-extension-manager.admin.actions.remove', {}, true)}
+              aria-label={app.translator.trans('flarum-extension-manager.admin.auth_config.remove_button_label', { name: c.host }, true)}
               onclick={() => (this.confirmAuth = key)}
             >
               <i className="fas fa-trash-can" aria-hidden="true" />
@@ -561,7 +591,7 @@ export default class SourcesTab extends Component {
   }
 
   /**
-   * 🚨 Every credential kind links to the page that makes one. A field that asks
+   * Every credential kind links to the page that makes one. A field that asks
    * for a token without saying where tokens come from sends somebody to search
    * GitHub's settings for the right screen and the right scope.
    */
@@ -569,14 +599,24 @@ export default class SourcesTab extends Component {
     const host = this.authHost.trim() || KINDS[this.authKind]?.host || '';
 
     if (this.authKind === 'github-oauth') {
+      // The note GitHub keeps beside the token, so its owner can tell later what it is for.
+      const note = app.translator.trans(
+        'flarum-extension-manager.admin.auth_config.github_token_note',
+        { forum: app.forum.attribute<string>('title') },
+        true
+      );
+
       return {
-        href: 'https://github.com/settings/tokens/new?scopes=repo&description=the Extension Manager',
-        label: s('src_token_github'),
+        href: 'https://github.com/settings/tokens/new?scopes=repo&description=' + encodeURIComponent(note),
+        label: app.translator.trans('flarum-extension-manager.admin.auth_config.create_github_token', {}, true),
       };
     }
 
     if (this.authKind === 'gitlab-token' && /^[a-z0-9.-]+$/i.test(host)) {
-      return { href: 'https://' + host + '/-/user_settings/personal_access_tokens', label: s('src_token_gitlab') };
+      return {
+        href: 'https://' + host + '/-/user_settings/personal_access_tokens',
+        label: app.translator.trans('flarum-extension-manager.admin.auth_config.create_gitlab_token', {}, true),
+      };
     }
 
     return null;
@@ -592,7 +632,7 @@ export default class SourcesTab extends Component {
         onsubmit={(e: Event) => {
           e.preventDefault();
           this.send({ action: 'set-auth', kind: this.authKind, host: this.authHost, username: this.authUser, secret: this.authSecret }, () => {
-            // 🚨 Cleared from memory as soon as it has been sent.
+            // Cleared from memory as soon as it has been sent.
             this.authSecret = '';
             this.authUser = '';
             this.reveal = false;
@@ -600,9 +640,13 @@ export default class SourcesTab extends Component {
           });
         }}
       >
-        <div className="ExtensionManager-src-addTitle">{t('src_add_auth')}</div>
+        <div className="ExtensionManager-src-addTitle">{app.translator.trans('flarum-extension-manager.admin.auth_config.add_label')}</div>
 
-        <div className="ExtensionManager-src-choices ExtensionManager-src-choices--four" role="radiogroup" aria-label={s('src_add_auth')}>
+        <div
+          className="ExtensionManager-src-choices ExtensionManager-src-choices--four"
+          role="radiogroup"
+          aria-label={app.translator.trans('flarum-extension-manager.admin.auth_config.add_label', {}, true)}
+        >
           {kinds.map((k) => (
             <button
               type="button"
@@ -618,8 +662,8 @@ export default class SourcesTab extends Component {
             >
               <i className={(KINDS[k] || KINDS.bearer).icon} aria-hidden="true" />
               <span>
-                <strong>{t('kind_' + k)}</strong>
-                <small>{t('kind_' + k + '_help')}</small>
+                <strong>{app.translator.trans('flarum-extension-manager.admin.auth_config.types.' + k)}</strong>
+                <small>{app.translator.trans('flarum-extension-manager.admin.auth_config.type_help.' + k)}</small>
               </span>
             </button>
           ))}
@@ -627,30 +671,34 @@ export default class SourcesTab extends Component {
 
         <div className={'ExtensionManager-src-grid' + (basic ? ' ExtensionManager-src-grid--three' : '')}>
           <label className="ExtensionManager-src-labelled">
-            <span>{t('src_host')}</span>
+            <span>{app.translator.trans('flarum-extension-manager.admin.auth_config.fields.host')}</span>
             <input
               className="FormControl"
-              placeholder={s('auth_host_placeholder')}
+              placeholder={app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.host_placeholder', {}, true)}
               value={this.authHost}
-              oninput={(e: any) => (this.authHost = e.target.value)}
+              oninput={(e: InputEvent) => (this.authHost = (e.target as HTMLInputElement).value)}
             />
           </label>
 
           {basic ? (
             <label className="ExtensionManager-src-labelled">
-              <span>{t('src_username')}</span>
+              <span>{app.translator.trans('flarum-extension-manager.admin.auth_config.fields.username')}</span>
               <input
                 className="FormControl"
                 autocomplete="off"
-                placeholder={s('auth_user_placeholder')}
+                placeholder={app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.username_placeholder', {}, true)}
                 value={this.authUser}
-                oninput={(e: any) => (this.authUser = e.target.value)}
+                oninput={(e: InputEvent) => (this.authUser = (e.target as HTMLInputElement).value)}
               />
             </label>
           ) : null}
 
           <label className="ExtensionManager-src-labelled">
-            <span>{basic ? t('src_password') : t('src_token')}</span>
+            <span>
+              {basic
+                ? app.translator.trans('flarum-extension-manager.admin.auth_config.fields.password')
+                : app.translator.trans('flarum-extension-manager.admin.auth_config.fields.token')}
+            </span>
             <span className="ExtensionManager-src-secret">
               <input
                 id="mw-src-secret"
@@ -658,15 +706,15 @@ export default class SourcesTab extends Component {
                 type={this.reveal ? 'text' : 'password'}
                 autocomplete="new-password"
                 spellcheck={false}
-                placeholder={s('auth_secret_placeholder')}
+                placeholder={app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.secret_placeholder', {}, true)}
                 value={this.authSecret}
-                oninput={(e: any) => (this.authSecret = e.target.value)}
+                oninput={(e: InputEvent) => (this.authSecret = (e.target as HTMLInputElement).value)}
               />
               <button
                 type="button"
                 className="ExtensionManager-src-icon"
-                aria-label={s(this.reveal ? 'src_hide' : 'src_show')}
-                title={s(this.reveal ? 'src_hide' : 'src_show')}
+                aria-label={this.revealLabel()}
+                title={this.revealLabel()}
                 onclick={() => (this.reveal = !this.reveal)}
               >
                 <i className={this.reveal ? 'fas fa-eye-slash' : 'fas fa-eye'} aria-hidden="true" />
@@ -683,56 +731,66 @@ export default class SourcesTab extends Component {
           ) : (
             <span />
           )}
-          <button
+          <Button
             className="Button Button--primary"
             type="submit"
+            icon="fas fa-lock"
             disabled={this.saving || !this.authHost.trim() || !this.authSecret || (basic && !this.authUser.trim())}
           >
-            <i className="fas fa-lock" aria-hidden="true" /> {t('src_save_auth')}
-          </button>
+            {app.translator.trans('flarum-extension-manager.admin.auth_config.submit_button')}
+          </Button>
         </div>
       </form>
     );
+  }
+
+  revealLabel(): string {
+    return this.reveal
+      ? app.translator.trans('flarum-extension-manager.admin.auth_config.hide', {}, true)
+      : app.translator.trans('flarum-extension-manager.admin.auth_config.show', {}, true);
   }
 
   // ── plumbing ────────────────────────────────────────────────────────────
 
   load() {
     app
-      .request({ method: 'GET', url: apiUrl() + '/extension-manager/config' })
-      .then((data: any) => {
+      .request<ConfigPayload>({ method: 'GET', url: apiUrl() + '/extension-manager/config', errorHandler: () => {} })
+      .then((data) => {
         this.data = data;
         this.loading = false;
         m.redraw();
       })
-      .catch((e: any) => {
+      .catch((e) => {
         this.loading = false;
-        this.error = e?.response?.error || s('config_failed');
+        this.loadError = serverMessage(e);
         m.redraw();
       });
   }
 
-  send(body: any, after?: () => void) {
+  send(body: Record<string, unknown>, after?: () => void) {
     this.saving = true;
-    this.error = null;
     m.redraw();
 
     app
-      .request({ method: 'POST', url: apiUrl() + '/extension-manager/config', body })
-      .then((data: any) => {
+      .request<ConfigPayload>({
+        method: 'POST',
+        url: apiUrl() + '/extension-manager/config',
+        body,
+        /*
+         * The server's own words. Every refusal from the Config classes is
+         * written for the person who typed the value — "that is not a hostname"
+         * tells them what to change; "could not save" does not.
+         */
+        errorHandler: alertError('flarum-extension-manager.admin.composer.config_failed'),
+      })
+      .then((data) => {
         this.data = data;
         this.saving = false;
         if (after) after();
         m.redraw();
       })
-      .catch((e: any) => {
-        /*
-         * 🚨 The server's own words. Every refusal from the Config classes is
-         * written for the person who typed the value — "that is not a hostname"
-         * tells them what to change; "could not save" does not.
-         */
+      .catch(() => {
         this.saving = false;
-        this.error = e?.response?.error || s('config_failed');
         m.redraw();
       });
   }

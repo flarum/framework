@@ -10,10 +10,11 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Host\Opcache;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 The rule these protect: an update that cannot be seen has not happened.
+ * The rule these protect: an update that cannot be seen has not happened.
  *
  * Everything else in this extension is about whether an update can RUN. This is
  * about whether anybody can tell that it did. On a host tuned with
@@ -31,7 +32,7 @@ class OpcacheTest extends TestCase
     public function test_a_revalidate_window_is_treated_as_stale_risk_not_as_fine(): void
     {
         /*
-         * 🚨 The bug this test exists for, found by installing this extension on
+         * The bug this test exists for, found by installing this extension on
          * a production forum. It has validate_timestamps ON — which looks fine —
          * and revalidate_freq 60, the default in Flarum's own Docker image. PHP
          * therefore does not re-read a changed file for up to a MINUTE, and
@@ -40,7 +41,7 @@ class OpcacheTest extends TestCase
          *
          * Reading only validate_timestamps called that "fine" and did nothing.
          */
-        $s = (new Opcache())->situationFrom(['opcache.enable' => true, 'opcache.validate_timestamps' => true, 'opcache.revalidate_freq' => 60]);
+        $s = (new Opcache(EnglishTranslator::make()))->situationFrom(['opcache.enable' => true, 'opcache.validate_timestamps' => true, 'opcache.revalidate_freq' => 60]);
 
         $this->assertSame(Opcache::STALE_RISK, $s['state']);
         $this->assertTrue($s['validates']);
@@ -49,7 +50,7 @@ class OpcacheTest extends TestCase
 
     public function test_no_opcache_at_all_is_the_only_state_needing_nothing(): void
     {
-        $s = (new Opcache())->situationFrom(['opcache.enable' => false]);
+        $s = (new Opcache(EnglishTranslator::make()))->situationFrom(['opcache.enable' => false]);
 
         $this->assertSame(Opcache::FINE, $s['state']);
     }
@@ -59,7 +60,7 @@ class OpcacheTest extends TestCase
         // Where timestamps ARE checked, a worker that cannot reset is not a
         // problem to escalate — the change becomes live on its own shortly, and
         // saying so is more useful than a warning about restarting PHP-FPM.
-        $o = new class extends Opcache {
+        $o = new class(EnglishTranslator::make()) extends Opcache {
             public function situation(): array
             {
                 return ['state' => Opcache::STALE_RISK, 'enabled' => true, 'validates' => true, 'freq' => 60, 'canReset' => true];
@@ -76,14 +77,14 @@ class OpcacheTest extends TestCase
     public function test_a_worker_says_plainly_that_it_cannot_fix_this(): void
     {
         /*
-         * 🚨 The queue-worker case, and the reason it is called out rather than
+         * The queue-worker case, and the reason it is called out rather than
          * quietly returning success: opcache_reset() in a CLI worker resets that
          * worker's own cache, which nobody is using, and leaves the web pool
          * exactly as stale as before. Reporting success for having called a
          * function is how this gets diagnosed three days later as "the update
          * didn't work".
          */
-        $o = new class extends Opcache {
+        $o = new class(EnglishTranslator::make()) extends Opcache {
             public function situation(): array
             {
                 return ['state' => Opcache::STALE_RISK, 'enabled' => true, 'validates' => false, 'freq' => 0, 'canReset' => true];
@@ -102,7 +103,7 @@ class OpcacheTest extends TestCase
     {
         // Whatever this machine is configured to do, the shape must hold — this
         // is consulted on a page load and on every finalise.
-        $s = (new Opcache())->situation();
+        $s = (new Opcache(EnglishTranslator::make()))->situation();
 
         $this->assertContains($s['state'], [Opcache::FINE, Opcache::STALE_RISK]);
         $this->assertIsBool($s['enabled']);
@@ -112,11 +113,11 @@ class OpcacheTest extends TestCase
 
     public function test_clearing_never_throws(): void
     {
-        // 🚨 It runs as the last step of a finished update. By then the files,
+        // It runs as the last step of a finished update. By then the files,
         // the lock and Composer's record all agree; a cache that could not be
         // cleared is something to say, never a reason to fail work that was
         // correct and offer to undo it.
-        $result = (new Opcache())->clear();
+        $result = (new Opcache(EnglishTranslator::make()))->clear();
 
         $this->assertIsBool($result['done']);
         $this->assertNotSame('', $result['why']);

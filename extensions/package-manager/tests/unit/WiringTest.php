@@ -14,8 +14,10 @@ use Flarum\ExtensionManager\Run\Drivers;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\StepsFactory;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
+use Flarum\Locale\TranslatorInterface;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
@@ -26,7 +28,7 @@ use ReflectionClass;
 /**
  * The application actually assembles the things the other tests exercise.
  *
- * 🚨 THIS IS THE TEST THAT WAS MISSING, and its absence is the most expensive
+ * THIS IS THE TEST THAT WAS MISSING, and its absence is the most expensive
  * mistake in this codebase so far.
  *
  * Every other test here builds its subject by hand, which means a unit can be
@@ -77,6 +79,7 @@ class WiringTest extends TestCase
 
         $this->container->instance(QueueFactory::class, $queue);
         $this->container->instance(Dispatcher::class, $this->createStub(Dispatcher::class));
+        $this->container->instance(TranslatorInterface::class, EnglishTranslator::make());
 
         /*
          * Flarum's AbstractServiceProvider takes the Application contract and
@@ -121,7 +124,7 @@ class WiringTest extends TestCase
     }
 
     /**
-     * 🚨 The safety net is REACHABLE, not merely correct.
+     * The safety net is REACHABLE, not merely correct.
      *
      * The site address is what turns the health check on. With it empty, every
      * run reports "this update will not be judged by whether the site answers"
@@ -144,7 +147,7 @@ class WiringTest extends TestCase
     /**
      * And the other direction.
      *
-     * 🚨 Flarum's own Config REFUSES to be built without a `url` key, so "no
+     * Flarum's own Config REFUSES to be built without a `url` key, so "no
      * address configured" is not actually reachable through it — which is worth
      * knowing, because it means an empty site URL in production could only ever
      * have come from the address never being ASKED for. Which is exactly what

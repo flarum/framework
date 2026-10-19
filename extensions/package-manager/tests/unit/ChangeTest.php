@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 class ChangeTest extends TestCase
 {
     /**
-     * 🚨 A package name is the one piece of plan data that reaches the
+     * A package name is the one piece of plan data that reaches the
      * filesystem, so it is the way in. The constructor's "must contain a slash"
      * check is not enough on its own — "a/../../etc" satisfies it — which is why
      * relativePath() validates every segment rather than the string as a whole.

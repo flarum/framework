@@ -14,7 +14,7 @@ use RuntimeException;
 /**
  * This item is not finished, and it is not failing either. Come back.
  *
- * 🚨 The third answer a step needs, and its absence is what let a completed run
+ * The third answer a step needs, and its absence is what let a completed run
  * lie.
  *
  * Every step could previously say "done" or "failed", so a step that had

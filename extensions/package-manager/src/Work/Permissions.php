@@ -10,8 +10,8 @@
 namespace Flarum\ExtensionManager\Work;
 
 use FilesystemIterator;
-use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Plan\Change;
+use Flarum\Locale\TranslatorInterface;
 use RecursiveCallbackFilterIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -20,7 +20,7 @@ use Throwable;
 /**
  * Everything the update will have to change, checked before it changes any of it.
  *
- * 🚨 Both of these were found mid-run on real forums, 2026-10-02, and each was
+ * Both of these were found mid-run on real forums, 2026-10-02, and each was
  * worse for being found late:
  *
  * - A package directory owned by root. Moving a directory to another parent
@@ -40,12 +40,13 @@ use Throwable;
 class Permissions
 {
     /** Enough to show the pattern without burying the instruction. */
-    private const SHOWN = 10;
+    protected const SHOWN = 10;
 
     public function __construct(
-        private string $basePath,
-        private string $vendorPath,
-        private string $storagePath,
+        protected TranslatorInterface $translator,
+        protected string $basePath,
+        protected string $vendorPath,
+        protected string $storagePath,
     ) {
     }
 
@@ -88,20 +89,20 @@ class Permissions
     public function explain(array $blocked): string
     {
         $user = function_exists('posix_geteuid') && function_exists('posix_getpwuid')
-            ? (posix_getpwuid(posix_geteuid())['name'] ?? Lang::trans('permissions.web_user'))
-            : Lang::trans('permissions.web_user');
+            ? (posix_getpwuid(posix_geteuid())['name'] ?? $this->translator->trans('flarum-extension-manager.api.permissions.web_user'))
+            : $this->translator->trans('flarum-extension-manager.api.permissions.web_user');
 
         $shown = array_slice($blocked, 0, self::SHOWN);
         $more = count($blocked) - count($shown);
 
-        return Lang::trans('permissions.blocked', ['count' => count($blocked), 'user' => $user])
+        return $this->translator->trans('flarum-extension-manager.api.permissions.blocked', ['count' => count($blocked), 'user' => $user])
             ."\n  chown -R $user ".escapeshellarg($this->vendorPath).' '
             .escapeshellarg($this->storagePath)."\n"
             .implode("\n", array_map(fn ($p) => '  '.$p, $shown))
-            .($more > 0 ? "\n  ".Lang::trans('permissions.and_more', ['count' => $more]) : '');
+            .($more > 0 ? "\n  ".$this->translator->trans('flarum-extension-manager.api.permissions.and_more', ['count' => $more]) : '');
     }
 
-    private function need(string $path, array &$blocked): void
+    protected static function need(string $path, array &$blocked): void
     {
         if (file_exists($path) && ! is_writable($path)) {
             $blocked[] = $path;
@@ -109,13 +110,13 @@ class Permissions
     }
 
     /** Every entry under $root this process cannot change, appended to $blocked. */
-    public function walkInto(string $root, array &$blocked): void
+    public static function walkInto(string $root, array &$blocked): void
     {
         if (! is_dir($root)) {
             return;
         }
 
-        $this->need($root, $blocked);
+        self::need($root, $blocked);
 
         try {
             // What StaleCache set aside is never read again, so it blocks nothing.

@@ -9,13 +9,13 @@
 
 namespace Flarum\ExtensionManager\Prune;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
 use RuntimeException;
 
 /**
  * Deleting things that live directly inside ONE directory, and nothing else.
  *
- * 🚨 This is the only code in the Extension Manager that deletes a rollback copy, so it is
+ * This is the only code in the Extension Manager that deletes a rollback copy, so it is
  * written to be incapable of three things, each of which has happened somewhere:
  *
  *   1. **Walking through a symlink.** A link is one thing to remove, never a
@@ -33,14 +33,16 @@ use RuntimeException;
  */
 class Contained
 {
-    private string $base;
+    protected string $base;
 
-    public function __construct(string $base)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        string $base,
+    ) {
         $real = realpath($base);
 
         if ($real === false || ! is_dir($real)) {
-            throw new RuntimeException(Lang::trans('prune.base_not_dir', ['path' => $base]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.prune.base_not_dir', ['path' => $base]));
         }
 
         $this->base = rtrim($real, DIRECTORY_SEPARATOR);
@@ -64,7 +66,7 @@ class Contained
     /**
      * Remove an entry given as a full path.
      *
-     * 🚨 The path must be a DIRECT child of the base. Its parent is resolved
+     * The path must be a DIRECT child of the base. Its parent is resolved
      * (so `trash/../vendor/x` is seen for what it is) but the entry itself is
      * not — resolving a link to decide whether to delete it would be asking the
      * link where it points, which is the one question that must not matter.
@@ -74,7 +76,7 @@ class Contained
         $parent = realpath(dirname($path));
 
         if ($parent === false || rtrim($parent, DIRECTORY_SEPARATOR) !== $this->base) {
-            throw new RuntimeException(Lang::trans('prune.not_inside', ['path' => $path, 'base' => $this->base]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.prune.not_inside', ['path' => $path, 'base' => $this->base]));
         }
 
         return $this->removePath($this->entry(basename($path)));
@@ -89,7 +91,7 @@ class Contained
     /**
      * When an entry last changed, as far as the filesystem will say.
      *
-     * 🚨 The LATER of mtime and ctime. A rename keeps a directory's mtime — a
+     * The LATER of mtime and ctime. A rename keeps a directory's mtime — a
      * package moved to the trash today still says when Composer extracted it,
      * months ago — but it does update ctime, which is the moment it arrived.
      * Taking the later of the two means a copy is never judged older than it is.
@@ -107,23 +109,23 @@ class Contained
         $names = @scandir($this->base);
 
         if ($names === false) {
-            throw new RuntimeException(Lang::trans('prune.cannot_list', ['path' => $this->base]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.prune.cannot_list', ['path' => $this->base]));
         }
 
         return array_values(array_filter($names, fn ($n) => $n !== '.' && $n !== '..'));
     }
 
-    private function entry(string $name): string
+    protected function entry(string $name): string
     {
         if ($name === '' || $name === '.' || $name === '..' || str_contains($name, '/')
             || str_contains($name, '\\') || str_contains($name, "\0")) {
-            throw new RuntimeException(Lang::trans('prune.not_single_name', ['name' => $name, 'base' => $this->base]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.prune.not_single_name', ['name' => $name, 'base' => $this->base]));
         }
 
         return $this->base.DIRECTORY_SEPARATOR.$name;
     }
 
-    private function removePath(string $path): int
+    protected function removePath(string $path): int
     {
         $stat = @lstat($path);
 
@@ -135,7 +137,7 @@ class Contained
             $bytes = $this->bytes($stat);
 
             if (! @unlink($path) && (is_link($path) || file_exists($path))) {
-                throw new RuntimeException(Lang::trans('prune.remove_failed', ['path' => $path]));
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.prune.remove_failed', ['path' => $path]));
             }
 
             return $bytes;
@@ -144,7 +146,7 @@ class Contained
         return $this->removeDir($path);
     }
 
-    private function removeDir(string $dir): int
+    protected function removeDir(string $dir): int
     {
         $this->assertInside($dir);
 
@@ -162,7 +164,7 @@ class Contained
                 continue;
             }
 
-            // 🚨 is_link FIRST: is_dir() is true for a link to a directory.
+            // is_link FIRST: is_dir() is true for a link to a directory.
             if (is_link($path) || ! is_dir($path)) {
                 $bytes += $this->bytes($stat);
                 @unlink($path);
@@ -177,13 +179,13 @@ class Contained
         $bytes += $stat === false ? 0 : $this->bytes($stat);
 
         if (! @rmdir($dir) && is_dir($dir)) {
-            throw new RuntimeException(Lang::trans('prune.remove_dir_failed', ['path' => $dir]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.prune.remove_dir_failed', ['path' => $dir]));
         }
 
         return $bytes;
     }
 
-    private function measure(string $path): int
+    protected function measure(string $path): int
     {
         $stat = @lstat($path);
 
@@ -207,22 +209,22 @@ class Contained
     }
 
     /**
-     * 🚨 Checked on every directory before anything inside it is touched. The
+     * Checked on every directory before anything inside it is touched. The
      * walk never goes through a link, so this cannot fail in practice — which
      * is exactly why it is here: if it ever does, something about the tree is
      * not what this class assumes, and stopping is the only safe response.
      */
-    private function assertInside(string $dir): void
+    protected function assertInside(string $dir): void
     {
         $real = realpath($dir);
 
         if ($real === false || ! str_starts_with($real, $this->base.DIRECTORY_SEPARATOR)) {
-            throw new RuntimeException(Lang::trans('prune.resolves_outside', ['path' => $dir, 'base' => $this->base]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.prune.resolves_outside', ['path' => $dir, 'base' => $this->base]));
         }
     }
 
     /** @param array<string|int,int> $stat */
-    private function bytes(array $stat): int
+    protected function bytes(array $stat): int
     {
         // Blocks, like du, when the platform reports them; size otherwise.
         $blocks = (int) ($stat['blocks'] ?? -1);

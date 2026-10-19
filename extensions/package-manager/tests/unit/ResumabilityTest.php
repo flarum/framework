@@ -11,10 +11,11 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 The claim this whole design exists to support: an update finishes on a host
+ * The claim this whole design exists to support: an update finishes on a host
  * that keeps killing it.
  *
  * Every other test here kills a process at a point chosen to be interesting.
@@ -72,14 +73,14 @@ class ResumabilityTest extends TestCase
             $processes++;
             $this->spawn($plan, random_int(1, 3));
 
-            $run = (new RunStore($this->dir))->load('r1');
+            $run = (new RunStore(EnglishTranslator::make(), $this->dir))->load('r1');
 
             if ($run !== null && $run->isFinished()) {
                 break;
             }
         }
 
-        $run = (new RunStore($this->dir))->load('r1');
+        $run = (new RunStore(EnglishTranslator::make(), $this->dir))->load('r1');
 
         $this->assertNotNull($run);
         $this->assertSame(Run::DONE, $run->state, "gave up after $processes processes");
@@ -109,7 +110,7 @@ class ResumabilityTest extends TestCase
             $processes++;
             $this->spawn($plan, 1);   // the harshest case: one step per process
 
-            $run = (new RunStore($this->dir))->load('r1');
+            $run = (new RunStore(EnglishTranslator::make(), $this->dir))->load('r1');
 
             if ($run !== null && $run->isFinished()) {
                 break;
@@ -118,7 +119,7 @@ class ResumabilityTest extends TestCase
 
         $done = $this->completedItems();
 
-        $this->assertSame(Run::DONE, (new RunStore($this->dir))->load('r1')?->state);
+        $this->assertSame(Run::DONE, (new RunStore(EnglishTranslator::make(), $this->dir))->load('r1')?->state);
         $this->assertLessThanOrEqual(
             count($plan['fetch']) * 2,
             count($done),
@@ -134,7 +135,7 @@ class ResumabilityTest extends TestCase
         for ($i = 0; $i < 30; $i++) {
             $this->spawn($plan, 5);
 
-            if ((new RunStore($this->dir))->load('r1')?->isFinished()) {
+            if ((new RunStore(EnglishTranslator::make(), $this->dir))->load('r1')?->isFinished()) {
                 break;
             }
         }
@@ -151,7 +152,7 @@ class ResumabilityTest extends TestCase
     public function test_a_kill_inside_the_work_then_record_gap_repeats_that_item_and_still_completes(): void
     {
         /*
-         * 🚨 The gap idempotency exists for, and the one the other tests here do
+         * The gap idempotency exists for, and the one the other tests here do
          * NOT reach: killing after a step returns lands after the save, so the
          * item is never repeated. This kills between doing the work and
          * recording it, which is the only moment where a resumed run redoes
@@ -176,7 +177,7 @@ class ResumabilityTest extends TestCase
             'the interrupted item should be redone once, and the run carry on'
         );
 
-        $this->assertSame(Run::DONE, (new RunStore($this->dir))->load('r1')?->state);
+        $this->assertSame(Run::DONE, (new RunStore(EnglishTranslator::make(), $this->dir))->load('r1')?->state);
     }
 
     // ── helpers ──────────────────────────────────────────────────────────

@@ -16,7 +16,7 @@ namespace Flarum\ExtensionManager\Host;
  * Read from the file, because the class in this process's memory is the OLD
  * core's — loaded before the swap, and PHP cannot load it twice.
  */
-final class CoreVersion
+class CoreVersion
 {
     public static function onDisk(string $vendorPath): ?string
     {

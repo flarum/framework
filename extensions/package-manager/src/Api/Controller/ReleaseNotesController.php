@@ -11,12 +11,14 @@ namespace Flarum\ExtensionManager\Api\Controller;
 
 use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\ExtensionManager\Config\JsonFile;
+use Flarum\ExtensionManager\Exception\RefusedException;
 use Flarum\ExtensionManager\Host\StorageDir;
-use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Work\ReleaseNotes;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
+use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\Client;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -28,8 +30,10 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class ReleaseNotesController implements RequestHandlerInterface
 {
-    public function __construct(private Paths $paths)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected Paths $paths,
+    ) {
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -43,12 +47,13 @@ class ReleaseNotesController implements RequestHandlerInterface
         $notes = isset($updates[$package])
             ? (new ReleaseNotes(
                 StorageDir::of($this->paths->storage).'/release-notes',
-                new AuthTokens(new JsonFile($this->paths->base.'/auth.json')),
+                new AuthTokens($this->translator, new JsonFile($this->translator, $this->paths->base.'/auth.json')),
+                new Client(),
             ))->between($updates[$package])
             : null;
 
         if ($notes === null) {
-            return new JsonResponse(['error' => Lang::trans('release_notes.none')], 404);
+            throw new RefusedException($this->translator->trans('flarum-extension-manager.api.release_notes.none'), 'no_release_notes', 404);
         }
 
         return new JsonResponse(['package' => $package, 'from' => $updates[$package]['from'], 'to' => $updates[$package]['to']] + $notes);

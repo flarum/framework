@@ -27,6 +27,7 @@ use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\Steps;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 
 [$script, $dir, $runId, $itemsJson, $logPath, $budget] = $argv;
 $killInside = $argv[6] ?? '';
@@ -63,8 +64,8 @@ $steps = new class($plan, $logPath, $killInside) implements Steps {
     }
 };
 
-$store = new RunStore($dir);
-$runner = new StepRunner($store, $steps, fn () => time(), $dir.'/locks');
+$store = new RunStore(EnglishTranslator::make(), $dir);
+$runner = new StepRunner(EnglishTranslator::make(), $store, $steps, fn () => time(), $dir.'/locks');
 
 if ($store->load($runId) === null) {
     $runner->begin($runId);

@@ -13,7 +13,7 @@ namespace Flarum\ExtensionManager\Work;
  * Runs a piece of somebody else's console code inside this PHP process, and
  * puts back everything it changed.
  *
- * 🚨 This process is not ours. Under PHP-FPM it is the request serving an admin
+ * This process is not ours. Under PHP-FPM it is the request serving an admin
  * page, and in a queue worker it lives on to run every other job the forum has.
  * Composer and Symfony Console both treat the process they run in as their own:
  * Composer's ErrorHandler replaces the error handler and turns error_reporting
@@ -26,10 +26,10 @@ namespace Flarum\ExtensionManager\Work;
  * So everything that is touched is snapshotted first and restored in a
  * `finally`, including when the code inside throws.
  */
-final class InProcess
+class InProcess
 {
     /** Environment variables the code inside is known to set. */
-    private const WATCHED_ENV = [
+    protected const WATCHED_ENV = [
         'COMPOSER_HOME', 'COMPOSER_ROOT_VERSION', 'COMPOSER_MEMORY_LIMIT', 'COMPOSER_NO_INTERACTION',
         'COMPOSER_CACHE_DIR', 'COMPOSER_NO_AUDIT', 'COMPOSER_ALLOW_SUPERUSER', 'HOME', 'LINES', 'COLUMNS', 'SHELL_VERBOSITY',
     ];
@@ -102,7 +102,7 @@ final class InProcess
             }
 
             /*
-             * 🚨 Put back the request's own limit. This restarts its clock, so
+             * Put back the request's own limit. This restarts its clock, so
              * the rest of a request that has just spent a minute in Composer
              * gets its normal allowance rather than being killed at once.
              */
@@ -148,7 +148,7 @@ final class InProcess
         return ['memory' => $memory, 'time' => $time, 'timeLimit' => $timeLimit];
     }
 
-    private static function putEnv(string $name, string $value): void
+    protected static function putEnv(string $name, string $value): void
     {
         if (function_exists('putenv')) {
             @putenv("$name=$value");
@@ -158,7 +158,7 @@ final class InProcess
         $_SERVER[$name] = $_ENV[$name] = $value;
     }
 
-    private static function currentErrorHandler(): mixed
+    protected static function currentErrorHandler(): mixed
     {
         $current = set_error_handler(static fn () => false);
         restore_error_handler();
@@ -166,7 +166,7 @@ final class InProcess
         return $current;
     }
 
-    private static function currentExceptionHandler(): mixed
+    protected static function currentExceptionHandler(): mixed
     {
         $current = set_exception_handler(static fn () => null);
         restore_exception_handler();
@@ -175,12 +175,12 @@ final class InProcess
     }
 
     /**
-     * 🚨 Pop rather than set. Composer PUSHES its handler (once in the
+     * Pop rather than set. Composer PUSHES its handler (once in the
      * constructor path, again in doRun), and setting the old one on top would
      * leave Composer's underneath it, to resurface the next time anybody calls
      * restore_error_handler(). Bounded, and falls back to setting it outright.
      */
-    private static function restoreErrorHandler(mixed $previous): void
+    protected static function restoreErrorHandler(mixed $previous): void
     {
         for ($i = 0; $i < 16 && self::currentErrorHandler() !== $previous; $i++) {
             restore_error_handler();
@@ -191,7 +191,7 @@ final class InProcess
         }
     }
 
-    private static function restoreExceptionHandler(mixed $previous): void
+    protected static function restoreExceptionHandler(mixed $previous): void
     {
         for ($i = 0; $i < 16 && self::currentExceptionHandler() !== $previous; $i++) {
             restore_exception_handler();

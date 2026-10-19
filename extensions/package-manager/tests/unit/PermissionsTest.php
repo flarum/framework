@@ -11,6 +11,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Plan\Change;
 use Flarum\ExtensionManager\Run\Run;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerStepsFactory;
 use Flarum\ExtensionManager\Work\Permissions;
 use Flarum\ExtensionManager\Work\StaleCache;
@@ -20,7 +21,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 /**
- * 🚨 A root-owned package directory or cache file must stop an update BEFORE it
+ * A root-owned package directory or cache file must stop an update BEFORE it
  * starts. Found mid-run instead, each left a real forum half-updated or
  * 500ing on 2026-10-02. chmod stands in for root ownership: the check is
  * is_writable either way.
@@ -51,7 +52,7 @@ class PermissionsTest extends TestCase
 
     private function permissions(): Permissions
     {
-        return new Permissions($this->dir, $this->dir.'/vendor', $this->dir.'/storage');
+        return new Permissions(EnglishTranslator::make(), $this->dir, $this->dir.'/vendor', $this->dir.'/storage');
     }
 
     public function test_a_writable_site_is_not_blocked(): void
@@ -87,7 +88,7 @@ class PermissionsTest extends TestCase
     }
 
     /**
-     * 🚨 The wiring, not just the rule: built the way a real run builds it,
+     * The wiring, not just the rule: built the way a real run builds it,
      * planning includes the check and the check refuses and puts the
      * composer files back.
      */
@@ -109,7 +110,7 @@ class PermissionsTest extends TestCase
             'base' => $this->dir, 'public' => $this->dir.'/public',
             'storage' => $this->dir.'/storage', 'vendor' => $this->dir.'/vendor',
         ]);
-        $steps = (new ComposerStepsFactory($paths, new Config(['url' => 'https://example.test'])))->for('r1');
+        $steps = (new ComposerStepsFactory(EnglishTranslator::make(), $paths, new Config(['url' => 'https://example.test'])))->for('r1');
         $run = Run::start('r1', time());
 
         $this->assertContains('check file permissions', $steps->itemsFor('plan', $run));
@@ -126,7 +127,7 @@ class PermissionsTest extends TestCase
     }
 
     /**
-     * 🚨 Flarum-in-a-box, 2026-10-07: root-owned cache entries refused every
+     * Flarum-in-a-box, 2026-10-07: root-owned cache entries refused every
      * update. A cache is disposable, so when storage/ is writable it is moved
      * aside and the run goes ahead. chmod on the parent directory stands in
      * for root owning it: nothing inside can then be deleted by this user.
@@ -177,7 +178,7 @@ class PermissionsTest extends TestCase
             'base' => $this->dir, 'public' => $this->dir.'/public',
             'storage' => $this->dir.'/storage', 'vendor' => $this->dir.'/vendor',
         ]);
-        $steps = (new ComposerStepsFactory($paths, new Config(['url' => 'https://example.test'])))->for('r1');
+        $steps = (new ComposerStepsFactory(EnglishTranslator::make(), $paths, new Config(['url' => 'https://example.test'])))->for('r1');
 
         $result = $steps->doItem('plan', 'check file permissions', Run::start('r1', time()));
 
@@ -186,7 +187,7 @@ class PermissionsTest extends TestCase
     }
 
     /**
-     * 🚨 ClaudiusH, 2026-10-07, on 1.13.0: storage/ not writable, so the whole
+     * ClaudiusH, 2026-10-07, on 1.13.0: storage/ not writable, so the whole
      * cache could not be renamed and the refusal came back. The cache
      * directory itself was writable, so each offending entry is renamed
      * hidden inside it, where Flarum never reads it and cache:clear skips it.

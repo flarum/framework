@@ -15,6 +15,8 @@ use Flarum\ExtensionManager\Run\Steps;
 use Flarum\ExtensionManager\Run\StepsFactory;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
+use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\Client;
 
 /**
  * Assembles a run's Composer, downloader and applier around that run's own
@@ -28,7 +30,7 @@ use Flarum\Foundation\Paths;
 class ComposerStepsFactory implements StepsFactory
 {
     /**
-     * 🚨 `$config` is not optional, and must not be made optional again.
+     * `$config` is not optional, and must not be made optional again.
      *
      * It was `?Config $config = null`, and the one place that constructs this
      * did not pass it. The result was silent: no error, no warning, just an
@@ -36,12 +38,15 @@ class ComposerStepsFactory implements StepsFactory
      * that never ran anywhere. A required parameter turns that into a failure
      * at construction, where somebody would see it.
      */
-    public function __construct(private Paths $paths, private Config $config)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected Paths $paths,
+        protected Config $config,
+    ) {
     }
 
     /**
-     * 🚨 The site's OWN configured address, and an empty string when there
+     * The site's OWN configured address, and an empty string when there
      * isn't one.
      *
      * Not a guess from the request, because the process that runs a step is
@@ -50,7 +55,7 @@ class ComposerStepsFactory implements StepsFactory
      * is worse than none, since it would either pass while the real site is
      * down or fail while it is fine — and the second one now undoes updates.
      */
-    private function siteUrl(): string
+    protected function siteUrl(): string
     {
         try {
             $url = (string) $this->config->url();
@@ -63,20 +68,20 @@ class ComposerStepsFactory implements StepsFactory
 
     public function for(string $runId): Steps
     {
-        $workDir = new WorkDir($this->paths->storage, $runId);
-        $journal = new Journal($workDir->journalPath());
+        $workDir = new WorkDir($this->translator, $this->paths->storage, $runId);
+        $journal = new Journal($this->translator, $workDir->journalPath());
 
-        return new ComposerSteps(
+        return new ComposerSteps($this->translator, 
             $this->paths->base,
             $workDir->root(),
-            new ComposerRunner(
+            new ComposerRunner($this->translator, 
                 $this->paths->base,
                 null,
                 $this->paths->storage.'/.composer',
-                (new \Flarum\ExtensionManager\Host\PhpOverride($this->paths->storage))->get()
+                (new \Flarum\ExtensionManager\Host\PhpOverride($this->translator, $this->paths->storage))->get()
             ),
-            new Fetcher($workDir->staging(), $this->paths->base.'/auth.json'),
-            new Applier($this->paths->vendor, $workDir->staging(), $workDir->trash(), $journal),
+            new Fetcher($this->translator, new Client(), $workDir->staging(), $this->paths->base.'/auth.json'),
+            new Applier($this->translator, $this->paths->vendor, $workDir->staging(), $workDir->trash(), $journal),
             $journal,
             $workDir->requested(),
             $workDir->mode(),

@@ -55,7 +55,7 @@ The wording is deliberate: it says a newer version *exists*, never that an updat
 itself is one people learn to ignore.
 
 **Finishes the job.** Moving the files is the easy half. After a change lands,
-The Extension Manager registers it with Composer, runs any migrations it brought, publishes
+it registers it with Composer, runs any migrations it brought, publishes
 its assets, clears the caches and rebuilds the post formatter, waits for PHP to
 re-read the new files, and then asks the site whether it is still answering. Only
 then does it say the update is done.
@@ -72,23 +72,19 @@ is the usual casualty: posts stop rendering site-wide while `/` carries on
 answering 200, so nobody notices for hours. The Extension Manager ships a guard for the
 console entry that ends the whole class of it — see below.
 
-## Compared with the previous Extension Manager
+## After the files land
 
-The previous Extension Manager does run migrations, publish assets and clear caches
-— but that work is wired to a **core** update. Installing or updating an
-*extension* runs the Composer command and stops there.
+| | what follows |
+|---|---|
+| install an extension | everything below, and core migrates and publishes assets when you *enable* it |
+| update an extension | migrations, assets, caches, formatter, code cache, health check |
+| update Flarum itself | all of the above |
+| PHP's compiled-code cache | waited for, then cleared |
+| is the site still up afterwards | checked, and rolled back if not |
 
-| after the files land | the previous Extension Manager | the Extension Manager |
-|---|---|---|
-| install an extension | core migrates and publishes assets when you *enable* it | same, plus everything below |
-| **update an extension** | **nothing** | migrations, assets, caches, formatter, code cache, health check |
-| update Flarum itself | migrate, assets, cache clear | all of the above |
-| PHP's compiled-code cache | never touched | waited for, then cleared |
-| is the site still up afterwards | not checked | checked, and rolled back if not |
-
-So the gap is on **updates**, not installs. Update an already-enabled extension
-that ships a new migration or new JS, and the schema is left behind the code and
-the browser keeps serving the old assets, with nothing saying so.
+An update to an already-enabled extension that ships a new migration or new JS
+is finished the same way as a core update, so the schema never lags the code and
+the browser never keeps serving the old assets.
 
 ## Hosts without proc_open: "Runs without separate processes"
 
@@ -189,7 +185,7 @@ quietly serving the old code. Replacing a directory keeps the path constant, so
 the ordinary timestamp check picks it up in seconds.
 
 **It does not delete your data when you remove an extension.** Tables and
-settings stay. This matches the previous Extension Manager, and it is the reversible choice.
+settings stay. It is the reversible choice.
 
 ## Tests
 

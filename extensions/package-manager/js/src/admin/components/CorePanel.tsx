@@ -1,24 +1,18 @@
 import app from 'flarum/admin/app';
-import t from '../t';
 import apiUrl from '../apiUrl';
-import Component from 'flarum/common/Component';
+import type { CompatPayload, CorePayload, CoreRow, Preflight, Verdict } from '../types';
+import Component, { type ComponentAttrs } from 'flarum/common/Component';
+import Alert from 'flarum/common/components/Alert';
+import Button from 'flarum/common/components/Button';
+import type Mithril from 'mithril';
+import { confirmAction } from './ConfirmModal';
 
-declare const m: any;
-
-interface Row {
-  package: string;
-  installed: string;
-  state: 'ready' | 'needs-update' | 'blocked' | 'unknown';
-  requires: string | null;
-  to: string | null;
-}
-
-interface CoreAttrs {
+interface CoreAttrs extends ComponentAttrs {
   starting: boolean;
   /** When the page's update check last ran; a new one means this panel asks again. */
   checkedAt: number | null;
   /*
-   * 🚨 NOT `onupdate`. That is one of Mithril's component lifecycle hooks, so an
+   * NOT `onupdate`. That is one of Mithril's component lifecycle hooks, so an
    * attr by that name is called by Mithril on every redraw — with a vnode, not a
    * package list. A core update would have started every time the page repainted.
    * `oninit`, `oncreate`, `onbeforeupdate`, `onupdate`, `onbeforeremove` and
@@ -34,14 +28,14 @@ const BATCH = 12;
 /**
  * Flarum itself.
  *
- * 🚨 Updating core is the one operation whose blast radius is the whole forum,
+ * Updating core is the one operation whose blast radius is the whole forum,
  * so the question "what would this do to my extensions" is answered before
  * anything is pressed, per extension, by name. Composer's answer to the same
  * question is a refusal at the end of a long wait, written in package
  * constraints, from which somebody has to work out which of their thirty
  * extensions is the problem.
  *
- * 🚨 The pre-flight arrives in two parts and this is not an optimisation. The
+ * The pre-flight arrives in two parts and this is not an optimisation. The
  * cheap half — does the version you ALREADY have declare support — is in
  * composer.lock and is instant for any number of extensions. The rest costs one
  * HTTP call each: 58 of them took 28 seconds in a single request when this was
@@ -51,19 +45,19 @@ export default class CorePanel extends Component<CoreAttrs> {
   private loading = true;
   private current: string | null = null;
   private newest: { from: string; to: string } | null = null;
-  private preflight: any = null;
+  private preflight: Preflight | null = null;
   private checking = false;
-  private error: string | null = null;
+  private failed = false;
   private seenCheck: number | null = null;
 
-  oninit(vnode: any) {
+  oninit(vnode: Mithril.Vnode<CoreAttrs, this>) {
     super.oninit(vnode);
     this.seenCheck = this.attrs.checkedAt;
     this.load();
   }
 
   /*
-   * 🚨 Asks again after every check. This panel loads once, so "Check now" found
+   * Asks again after every check. This panel loads once, so "Check now" found
    * Flarum 2.0.1 in the line above while this box still said no newer Flarum had
    * been published, until a reload (ClaudiusH, 2026-10-14).
    */
@@ -74,33 +68,40 @@ export default class CorePanel extends Component<CoreAttrs> {
   }
 
   view() {
-    if (this.loading) return <div className="ExtensionManager-core">{t('core_loading')}</div>;
+    if (this.loading)
+      return <div className="ExtensionManager-core">{app.translator.trans('flarum-extension-manager.admin.updater.core.loading')}</div>;
 
     return (
       <div className="ExtensionManager-core">
         <div className="ExtensionManager-coreHead">
           <div>
-            <div className="ExtensionManager-coreTitle">{t('core_title')}</div>
-            <div className="ExtensionManager-corenow">{t('core_running', { version: this.current })}</div>
+            <div className="ExtensionManager-coreTitle">{app.translator.trans('flarum-extension-manager.admin.updater.flarum')}</div>
+            <div className="ExtensionManager-corenow">
+              {app.translator.trans('flarum-extension-manager.admin.updater.core.running', { version: this.current })}
+            </div>
           </div>
           {this.newest ? (
-            <button
+            <Button
               className="Button Button--primary"
               disabled={this.attrs.starting || this.blocked() > 0}
               onclick={() => this.attrs.onbegin(this.packagesToUpdate())}
             >
-              {t('core_update_to', { version: this.newest.to })}
-            </button>
+              {app.translator.trans('flarum-extension-manager.admin.updater.core.update_to', { version: this.newest.to })}
+            </Button>
           ) : null}
         </div>
 
-        {this.error ? <div className="ExtensionManager-notice">{this.error}</div> : null}
+        {this.failed ? (
+          <Alert type="error" dismissible={false} className="ExtensionManager-alert">
+            {app.translator.trans('flarum-extension-manager.admin.updater.core.failed')}
+          </Alert>
+        ) : null}
 
         {!this.newest ? (
-          <div className="ExtensionManager-coreNote">{t('core_current')}</div>
+          <div className="ExtensionManager-coreNote">{app.translator.trans('flarum-extension-manager.admin.updater.core.current')}</div>
         ) : (
           /*
-           * 🚨 .filter(Boolean), because a `null` child counts as an unkeyed
+           * .filter(Boolean), because a `null` child counts as an unkeyed
            * vnode and Mithril refuses a children list that mixes keyed and
            * unkeyed. Both of these return null in ordinary situations —
            * summary() before the pre-flight arrives, rows() when nothing is
@@ -120,14 +121,24 @@ export default class CorePanel extends Component<CoreAttrs> {
          */}
         <div className="ExtensionManager-coreNightly">
           <div>
-            <b>{t('core_nightly_title')}</b> {t('core_nightly_help')}
+            <b>{app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.title')}</b>{' '}
+            {app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.help')}
           </div>
-          <button className="Button" disabled={this.attrs.starting} onclick={() => confirm(t('core_nightly_confirm')) && this.attrs.onnightly()}>
-            {t('core_nightly_button')}
-          </button>
+          <Button className="Button" disabled={this.attrs.starting} onclick={() => this.confirmNightly()}>
+            {app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.button')}
+          </Button>
         </div>
       </div>
     );
+  }
+
+  confirmNightly() {
+    confirmAction({
+      title: app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.button'),
+      message: app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.confirm'),
+      confirmText: app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.button'),
+      onconfirm: () => this.attrs.onnightly(),
+    });
   }
 
   summary() {
@@ -137,46 +148,59 @@ export default class CorePanel extends Component<CoreAttrs> {
     const blocked = this.blocked();
     const updating = p.updating || 0;
     const pending = (p.pending || []).length;
-    const overrides: { package: string; classes: string[] }[] = p.overrides || [];
+    const overrides = p.overrides || [];
 
     return (
       <div className="ExtensionManager-coreSummary">
         {/*
-         * 🚨 The blocking case is stated as a consequence, not as a count. "3
+         * The blocking case is stated as a consequence, not as a count. "3
          * extensions" is a number; "these three have no release that works with
          * Flarum 2.1, so the upgrade would be refused" is something somebody can
          * act on — and it is why the button above is disabled.
          */}
-        {blocked > 0 ? <div className="ExtensionManager-coreBlocked">{t('core_blocked', { count: blocked, version: p.target })}</div> : null}
+        {blocked > 0 ? (
+          <div className="ExtensionManager-coreBlocked">
+            {app.translator.trans('flarum-extension-manager.admin.updater.core.blocked', { count: blocked, version: p.target })}
+          </div>
+        ) : null}
         {/*
-         * 🚨 In place of "every extension works": their require says yes, and
+         * In place of "every extension works": their require says yes, and
          * irmmr/flarum-ext-rtl's frozen copy of LessCompiler still took a forum
          * down on Flarum 2.0.2 (ClaudiusH, 2026-10-18). A warning, not a block.
          */}
         {overrides.length ? (
           <div className="ExtensionManager-coreOverrides">
-            {t('core_overrides', { count: overrides.length, version: p.target })}
+            {app.translator.trans('flarum-extension-manager.admin.updater.core.overrides', { count: overrides.length, version: p.target })}
             <ul>
               {overrides.map((o) => (
                 <li>
-                  <b>{o.package}</b> {t('core_row_overrides', { classes: <code>{o.classes.join(', ')}</code> })}
+                  <b>{o.package}</b>{' '}
+                  {app.translator.trans('flarum-extension-manager.admin.updater.core.row_overrides', {
+                    classes: <code>{o.classes.join(', ')}</code>,
+                  })}
                 </li>
               ))}
             </ul>
           </div>
         ) : null}
         {blocked > 0 || overrides.length ? null : pending === 0 ? (
-          <div className="ExtensionManager-coreClear">{t('core_clear', { version: p.target })}</div>
+          <div className="ExtensionManager-coreClear">
+            {app.translator.trans('flarum-extension-manager.admin.updater.core.clear', { version: p.target })}
+          </div>
         ) : null}
 
-        {updating > 0 ? <div>{t('core_updating_too', { count: updating })}</div> : null}
-        {pending > 0 ? <div className="ExtensionManager-coreChecking">{t('core_checking', { count: pending })}</div> : null}
+        {updating > 0 ? <div>{app.translator.trans('flarum-extension-manager.admin.updater.core.updating_too', { count: updating })}</div> : null}
+        {pending > 0 ? (
+          <div className="ExtensionManager-coreChecking">
+            {app.translator.trans('flarum-extension-manager.admin.updater.core.checking', { count: pending })}
+          </div>
+        ) : null}
       </div>
     );
   }
 
   rows() {
-    const rows: Row[] = this.preflight?.verdicts || [];
+    const rows: CoreRow[] = this.preflight?.verdicts || [];
 
     // Only the ones that are not simply fine. A wall of "ready" is not an answer
     // to "what stops me", and there are fifty-eight of them on this forum.
@@ -191,10 +215,10 @@ export default class CorePanel extends Component<CoreAttrs> {
             <span className="ExtensionManager-corePkg">{r.package}</span>
             <span className="ExtensionManager-coreState">
               {r.state === 'blocked'
-                ? t('core_row_blocked', { requires: r.requires || '?' })
+                ? app.translator.trans('flarum-extension-manager.admin.updater.core.row_blocked', { requires: r.requires || '?' })
                 : r.state === 'needs-update'
-                ? t('core_row_updating', { version: r.to })
-                : t('core_row_unknown')}
+                ? app.translator.trans('flarum-extension-manager.admin.updater.core.row_updating', { version: r.to || '?' })
+                : app.translator.trans('flarum-extension-manager.admin.updater.core.row_unknown')}
             </span>
           </li>
         ))}
@@ -207,21 +231,22 @@ export default class CorePanel extends Component<CoreAttrs> {
   }
 
   /**
-   * 🚨 Core AND every extension that needs to move, resolved together in one
+   * Core AND every extension that needs to move, resolved together in one
    * request. Updating core alone would leave Composer refusing, because the
    * extensions still on disk pin the old version — and updating them one at a
    * time afterwards means a forum that is broken in between.
    */
   packagesToUpdate(): string[] {
-    const rows: Row[] = this.preflight?.verdicts || [];
+    const rows: CoreRow[] = this.preflight?.verdicts || [];
 
     return ['flarum/core', ...rows.filter((r) => r.state === 'needs-update').map((r) => r.package)];
   }
 
   load() {
     app
-      .request({ method: 'GET', url: apiUrl() + '/extension-manager/core' })
-      .then((data: any) => {
+      .request<CorePayload>({ method: 'GET', url: apiUrl() + '/extension-manager/core' })
+      .then((data) => {
+        this.failed = false;
         this.current = data.current;
         this.newest = data.newest || null;
         // A pre-flight belongs to the version it was run against.
@@ -234,18 +259,18 @@ export default class CorePanel extends Component<CoreAttrs> {
       })
       .catch(() => {
         this.loading = false;
-        this.error = t('core_failed');
+        this.failed = true;
         m.redraw();
       });
   }
 
   runPreflight(target: string) {
     app
-      .request({
+      .request<CorePayload>({
         method: 'GET',
         url: apiUrl() + '/extension-manager/core?target=' + encodeURIComponent(target),
       })
-      .then((data: any) => {
+      .then((data) => {
         this.preflight = data.preflight;
         m.redraw();
 
@@ -253,7 +278,7 @@ export default class CorePanel extends Component<CoreAttrs> {
         if (pending.length) this.resolve(pending, target);
       })
       .catch(() => {
-        this.error = t('core_failed');
+        this.failed = true;
         m.redraw();
       });
   }
@@ -271,31 +296,34 @@ export default class CorePanel extends Component<CoreAttrs> {
     const rest = pending.slice(BATCH);
 
     app
-      .request({
+      .request<CompatPayload>({
         method: 'POST',
         url: apiUrl() + '/extension-manager/discover/compat',
         body: { packages: batch, core: target },
       })
-      .then((data: any) => {
+      .then((data) => {
         this.applyVerdicts(data.verdicts || {});
-        this.preflight.pending = rest;
+        if (this.preflight) this.preflight.pending = rest;
         m.redraw();
         this.resolve(rest, target);
       })
       .catch(() => {
         /*
-         * 🚨 The rows already answered stay. Failing to reach Packagist for one
+         * The rows already answered stay. Failing to reach Packagist for one
          * batch is not a reason to throw away the fifty extensions the lock
          * already cleared — those answers cost nothing and are still true.
          */
         this.checking = false;
-        this.preflight.pending = [];
+        if (this.preflight) this.preflight.pending = [];
         m.redraw();
       });
   }
 
-  applyVerdicts(verdicts: Record<string, any>) {
-    const rows: Row[] = this.preflight?.verdicts || [];
+  applyVerdicts(verdicts: Record<string, Verdict>) {
+    const preflight = this.preflight;
+    if (!preflight) return;
+
+    const rows = preflight.verdicts || [];
 
     rows.forEach((r) => {
       const v = verdicts[r.package];
@@ -314,7 +342,7 @@ export default class CorePanel extends Component<CoreAttrs> {
     const order: Record<string, number> = { blocked: 0, unknown: 1, 'needs-update': 2, ready: 3 };
     rows.sort((a, b) => order[a.state] - order[b.state] || a.package.localeCompare(b.package));
 
-    this.preflight.blocked = rows.filter((r) => r.state === 'blocked').length;
-    this.preflight.updating = rows.filter((r) => r.state === 'needs-update').length;
+    preflight.blocked = rows.filter((r) => r.state === 'blocked').length;
+    preflight.updating = rows.filter((r) => r.state === 'needs-update').length;
   }
 }

@@ -14,10 +14,11 @@ use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\Steps;
 use Flarum\ExtensionManager\Run\StepsFactory;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 The rule this protects: the work belongs to the run, not to the process.
+ * The rule this protects: the work belongs to the run, not to the process.
  *
  * Under PHP-FPM nothing survives a request, so a container that resolves "the
  * current run" once is right by accident. A queue worker is a long-lived
@@ -48,7 +49,7 @@ class StepsFactoryTest extends TestCase
     public function test_each_run_gets_work_built_for_that_run(): void
     {
         $factory = $this->recordingFactory();
-        $runner = new StepRunner(new RunStore($this->dir), $factory, fn () => $this->clock);
+        $runner = new StepRunner(EnglishTranslator::make(), new RunStore(EnglishTranslator::make(), $this->dir), $factory, fn () => $this->clock);
 
         $runner->begin('run-a');
         $runner->step('run-a');
@@ -67,8 +68,8 @@ class StepsFactoryTest extends TestCase
          * wrong ones.
          */
         $factory = $this->recordingFactory();
-        $store = new RunStore($this->dir);
-        $runner = new StepRunner($store, $factory, fn () => $this->clock);
+        $store = new RunStore(EnglishTranslator::make(), $this->dir);
+        $runner = new StepRunner(EnglishTranslator::make(), $store, $factory, fn () => $this->clock);
 
         $runner->begin('run-a');
         while (! $store->load('run-a')?->isFinished()) {
@@ -109,7 +110,7 @@ class StepsFactoryTest extends TestCase
             }
         };
 
-        $runner = new StepRunner(new RunStore($this->dir), $steps, fn () => $this->clock);
+        $runner = new StepRunner(EnglishTranslator::make(), new RunStore(EnglishTranslator::make(), $this->dir), $steps, fn () => $this->clock);
         $runner->begin('r1');
         $runner->step('r1');
         $run = $runner->step('r1');

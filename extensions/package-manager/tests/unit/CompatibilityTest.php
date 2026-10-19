@@ -12,10 +12,11 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 The rule these protect: "not for this Flarum" is a claim, and a claim must
+ * The rule these protect: "not for this Flarum" is a claim, and a claim must
  * never be manufactured by a failure.
  *
  * The bug that made this file necessary: `admits()` caught \Throwable, so when
@@ -46,7 +47,7 @@ class CompatibilityTest extends TestCase
     public function test_a_release_candidate_core_is_not_excluded_by_a_caret_two_constraint(): void
     {
         /*
-         * 🚨 The case every forum is in right now: Flarum 2 has no stable
+         * The case every forum is in right now: Flarum 2 has no stable
          * release, so every install is on an rc. Plain semver says 2.0.0-rc.8 is
          * LESS than 2.0.0 — but Composer's `^2.0` normalises with a -dev lower
          * bound and does admit it, which is why the constraint has to be read
@@ -114,7 +115,7 @@ class CompatibilityTest extends TestCase
     public function test_a_verdict_is_cached_against_the_core_version_that_produced_it(): void
     {
         /*
-         * 🚨 A verdict is a fact about a package AND the Flarum asking. Keyed on
+         * A verdict is a fact about a package AND the Flarum asking. Keyed on
          * the name alone, an upgrade would keep serving yesterday's answers for
          * a day — exactly when somebody goes looking for extensions that now work.
          */
@@ -122,7 +123,7 @@ class CompatibilityTest extends TestCase
         $calls = 0;
 
         $body = json_encode($this->p2('acme/w', [['version' => '2.0.0', 'require' => ['flarum/core' => '^2.0']]]));
-        $packagist = new Packagist(new Cache($dir), function () use (&$calls, $body) {
+        $packagist = new Packagist(EnglishTranslator::make(), new Cache($dir), function () use (&$calls, $body) {
             $calls++;
 
             return $body;
@@ -146,7 +147,7 @@ class CompatibilityTest extends TestCase
         $dir = sys_get_temp_dir().'/mw-compat-'.bin2hex(random_bytes(4));
         $calls = 0;
 
-        $packagist = new Packagist(new Cache($dir), function () use (&$calls) {
+        $packagist = new Packagist(EnglishTranslator::make(), new Cache($dir), function () use (&$calls) {
             $calls++;
 
             return null;

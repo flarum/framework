@@ -10,13 +10,14 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Run\Run;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerStepsFactory;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 A plan that moved nothing does not migrate, publish assets or clear
+ * A plan that moved nothing does not migrate, publish assets or clear
  * caches. On the live box (2026-10-13) such a run went through every finalise
  * step and looked exactly like an update that happened.
  */
@@ -69,7 +70,7 @@ class NothingMovedTest extends TestCase
             'storage' => $this->dir.'/storage', 'vendor' => $this->dir.'/vendor',
         ]);
 
-        return (new ComposerStepsFactory($paths, new Config(['url' => 'https://example.test'])))
+        return (new ComposerStepsFactory(EnglishTranslator::make(), $paths, new Config(['url' => 'https://example.test'])))
             ->for('r1')->itemsFor('finalise', Run::start('r1', time()));
     }
 }

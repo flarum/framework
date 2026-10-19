@@ -9,12 +9,14 @@
 
 namespace Flarum\ExtensionManager\Host;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Does the site still answer?
  *
- * 🚨 Over HTTP, as a visitor, not by booting Flarum in this process.
+ * Over HTTP, as a visitor, not by booting Flarum in this process.
  *
  * The failure this exists to catch is a site that will not BOOT — an extension
  * whose extend.php throws, a class the autoloader cannot find, a migration that
@@ -29,10 +31,13 @@ use Flarum\ExtensionManager\Lang;
 class SiteHealth
 {
     /** Long enough for a cold boot on a small host, short enough not to hang a run. */
-    private const TIMEOUT = 15;
+    protected const TIMEOUT = 15;
 
-    public function __construct(private string $url)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected ClientInterface $http,
+        protected string $url,
+    ) {
     }
 
     /**
@@ -40,11 +45,11 @@ class SiteHealth
      */
     public function check(int $attempts = 3): array
     {
-        $last = ['ok' => false, 'status' => null, 'why' => Lang::trans('health.never_reached')];
+        $last = ['ok' => false, 'status' => null, 'why' => $this->translator->trans('flarum-extension-manager.api.health.never_reached')];
 
         for ($i = 0; $i < max(1, $attempts); $i++) {
             /*
-             * 🚨 A fresh query string every attempt. Between this extension, a
+             * A fresh query string every attempt. Between this extension, a
              * CDN and Flarum's own response cache there are several places a
              * 200 from before the update could be served from, and a cached
              * success is the one answer that would make this check worse than
@@ -75,16 +80,16 @@ class SiteHealth
     /**
      * @return array{ok:bool, status:int|null, why:string, body?:string}
      */
-    private function once(string $url): array
+    protected function once(string $url): array
     {
         $direct = $this->request($url);
 
-        if ($direct['status'] !== null || ! function_exists('curl_init')) {
+        if ($direct['status'] !== null) {
             return $direct;
         }
 
         /*
-         * 🚨 Unreachable at its own address: ask the web server on this
+         * Unreachable at its own address: ask the web server on this
          * machine directly, naming the site in the Host header.
          *
          * Inside a container the forum's address is the HOST's — localhost:8080
@@ -117,61 +122,46 @@ class SiteHealth
             return $direct;
         }
 
-        return ['ok' => $local['ok'], 'status' => $local['status'], 'why' => $local['why'].' '.Lang::trans('health.asked_directly')];
+        return ['ok' => $local['ok'], 'status' => $local['status'], 'why' => $local['why'].' '.$this->translator->trans('flarum-extension-manager.api.health.asked_directly')];
     }
 
     /**
      * @return array{ok:bool, status:int|null, why:string, body?:string}
      */
-    private function request(string $url, ?string $hostHeader = null): array
+    protected function request(string $url, ?string $hostHeader = null): array
     {
-        if (! function_exists('curl_init')) {
+        try {
+            $response = $this->http->request('GET', $url, [
+                'timeout' => self::TIMEOUT,
+                'connect_timeout' => 8,
+                'http_errors' => false,
+                // A redirect is a working site, and following one only adds ways to fail.
+                'allow_redirects' => false,
+                'headers' => ['User-Agent' => 'The Extension Manager health check', 'Cache-Control' => 'no-cache', 'Pragma' => 'no-cache']
+                    + ($hostHeader !== null ? ['Host' => $hostHeader] : []),
+            ]);
+        } catch (GuzzleException $e) {
             /*
-             * 🚨 Reported as UNUSABLE, never as healthy. A check that cannot run
-             * must not be allowed to look like a pass — the caller compares this
-             * answer before and after the update, and "cannot check" is a
-             * perfectly good answer as long as it is the same one both times.
+             * Could not connect, or no way to make a request at all. Reported
+             * as unusable, never as healthy: the caller compares this answer
+             * before and after the update, and "cannot check" is a perfectly
+             * good answer as long as it is the same one both times.
              */
-            return ['ok' => false, 'status' => null, 'why' => Lang::trans('health.no_http')];
+            return ['ok' => false, 'status' => null, 'why' => $this->translator->trans('flarum-extension-manager.api.health.no_answer', ['error' => $e->getMessage() ?: $this->translator->trans('flarum-extension-manager.api.health.no_response')])];
         }
 
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_NOBODY => false,
-            CURLOPT_TIMEOUT => self::TIMEOUT,
-            CURLOPT_CONNECTTIMEOUT => 8,
-            // A redirect is a working site, and following one only adds ways to fail.
-            CURLOPT_FOLLOWLOCATION => false,
-            CURLOPT_USERAGENT => 'The Extension Manager health check',
-            CURLOPT_HTTPHEADER => array_merge(['Cache-Control: no-cache', 'Pragma: no-cache'], $hostHeader !== null ? ['Host: '.$hostHeader] : []),
-        ]);
-
-        $body = curl_exec($ch);
-        $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        $error = curl_error($ch);
+        $status = $response->getStatusCode();
 
         /*
-         * 🚨 No curl_close(). It has done nothing since PHP 8.0 and is
-         * deprecated in 8.5 — and this runs on every update, so keeping it
-         * would write a deprecation notice into the very log the next failure
-         * is read from.
-         */
-
-        if ($body === false || $status === 0) {
-            return ['ok' => false, 'status' => null, 'why' => Lang::trans('health.no_answer', ['error' => $error ?: Lang::trans('health.no_response')])];
-        }
-
-        /*
-         * 🚨 Only 5xx is a broken site. A 403 or a 404 is a site making a
-         * decision, which needs a working boot to make — and a private forum
+         * Only 5xx is a broken site. A 403 or a 404 is a site making a
+         * decision, which needs a working boot to make, and a protected forum
          * answering 403 to a signed-out request is not an outage, it is that
          * forum working exactly as configured.
          */
         if ($status >= 500) {
-            return ['ok' => false, 'status' => $status, 'why' => Lang::trans('health.answered', ['status' => (string) $status])];
+            return ['ok' => false, 'status' => $status, 'why' => $this->translator->trans('flarum-extension-manager.api.health.answered', ['status' => (string) $status])];
         }
 
-        return ['ok' => true, 'status' => $status, 'why' => Lang::trans('health.answered', ['status' => (string) $status]), 'body' => (string) $body];
+        return ['ok' => true, 'status' => $status, 'why' => $this->translator->trans('flarum-extension-manager.api.health.answered', ['status' => (string) $status]), 'body' => (string) $response->getBody()];
     }
 }

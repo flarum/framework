@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 class FailureExcerptTest extends TestCase
 {
     /**
-     * 🚨 The customer case: an Xdebug trace prints the error first and then a
+     * The customer case: an Xdebug trace prints the error first and then a
      * frame per line. The old tail-only cut kept frames 8–19 and lost the error.
      */
     public function test_a_long_xdebug_trace_keeps_the_error_line_at_the_top(): void

@@ -9,14 +9,14 @@
 
 namespace Flarum\ExtensionManager\Apply;
 
-use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Plan\Change;
+use Flarum\Locale\TranslatorInterface;
 use RuntimeException;
 
 /**
  * Undoes an apply by reading its journal backwards.
  *
- * 🚨 It must work on a journal whose last entry is `begun` and not `done` —
+ * It must work on a journal whose last entry is `begun` and not `done` —
  * that is the whole reason the journal is written before the act. That entry
  * describes a change that may have happened fully, partly, or not at all, and
  * the on-disk state is the only authority. So every step here is written to be
@@ -39,11 +39,12 @@ class Rollback
      *        filesystem half on a bare tree with no Composer project in it.
      */
     public function __construct(
-        private string $vendorDir,
-        private string $trashDir,
-        private Journal $journal,
-        private ?string $installPath = null,
-        private ?string $savedManifests = null,
+        protected TranslatorInterface $translator,
+        protected string $vendorDir,
+        protected string $trashDir,
+        protected Journal $journal,
+        protected ?string $installPath = null,
+        protected ?string $savedManifests = null,
     ) {
     }
 
@@ -53,7 +54,7 @@ class Rollback
     public function run(): array
     {
         /*
-         * 🚨 No early return on an empty journal.
+         * No early return on an empty journal.
          *
          * An empty journal means no FILES were moved. It does not mean nothing
          * changed: the plan phase runs Composer with --no-install, and Composer
@@ -82,7 +83,7 @@ class Rollback
                 default => throw new RuntimeException("Unknown change \"{$change->op}\" in the journal for {$change->package}"),
             };
 
-            $undone[] = $change->describe();
+            $undone[] = $change->describe($this->translator);
         }
 
         foreach ($this->restoreManifests() as $line) {
@@ -95,7 +96,7 @@ class Rollback
     /**
      * Put composer.lock — and composer.json, if installing changed it — back.
      *
-     * 🚨 Without this a rollback is only half a rollback, and the half it leaves
+     * Without this a rollback is only half a rollback, and the half it leaves
      * out is the half that misleads. The plan phase runs `composer update
      * --no-install`, which rewrites the lock immediately; moving the files back
      * afterwards while leaving the lock claiming the new versions gives a site
@@ -109,7 +110,7 @@ class Rollback
      *
      * @return list<string>
      */
-    private function restoreManifests(): array
+    protected function restoreManifests(): array
     {
         if ($this->installPath === null || $this->savedManifests === null) {
             return [];
@@ -127,17 +128,17 @@ class Rollback
             }
 
             if (! @copy($saved, $this->installPath.'/'.$file)) {
-                throw new RuntimeException(Lang::trans('rollback.put_back_failed', ['file' => $file, 'from' => $saved]));
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.rollback.put_back_failed', ['file' => $file, 'from' => $saved]));
             }
 
-            $done[] = Lang::trans('rollback.restored', ['file' => $file]);
+            $done[] = $this->translator->trans('flarum-extension-manager.api.rollback.restored', ['file' => $file]);
         }
 
         return $done;
     }
 
     /** Put the stashed version back, discarding whatever is live. */
-    private function restore(Change $change, string $trashName): void
+    protected function restore(Change $change, string $trashName): void
     {
         $live = $this->path($this->vendorDir, $change->relativePath());
         $stash = $this->path($this->trashDir, $trashName);
@@ -158,19 +159,19 @@ class Rollback
             Tree::delete($aside);
 
             if (! Tree::move($live, $aside)) {
-                throw new RuntimeException(Lang::trans('rollback.move_aside_failed', ['path' => $live]));
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.rollback.move_aside_failed', ['path' => $live]));
             }
         }
 
         $this->ensureDir(dirname($live));
 
         if (! Tree::move($stash, $live)) {
-            throw new RuntimeException(Lang::trans('rollback.restore_failed', ['from' => $stash, 'to' => $live]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.rollback.restore_failed', ['from' => $stash, 'to' => $live]));
         }
     }
 
     /** Take out a package this apply had added. */
-    private function uninstall(Change $change): void
+    protected function uninstall(Change $change): void
     {
         $live = $this->path($this->vendorDir, $change->relativePath());
 
@@ -184,7 +185,7 @@ class Rollback
         $this->ensureDir(dirname($aside));
 
         if (! Tree::move($live, $aside)) {
-            throw new RuntimeException(Lang::trans('rollback.remove_failed', ['path' => $live]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.rollback.remove_failed', ['path' => $live]));
         }
 
         $this->tidyVendorDir(dirname($live));
@@ -193,7 +194,7 @@ class Rollback
     /**
      * Remove the vendor namespace directory if this was the last package in it.
      *
-     * 🚨 Only when empty, and never above the vendor directory itself. rmdir
+     * Only when empty, and never above the vendor directory itself. rmdir
      * refuses a non-empty directory, so the check and the act cannot disagree
      * even if something is written between them.
      *
@@ -201,7 +202,7 @@ class Rollback
      * everything back the way it was should not leave an empty vendor/acme/
      * behind as evidence that it did not quite.
      */
-    private function tidyVendorDir(string $dir): void
+    protected function tidyVendorDir(string $dir): void
     {
         $vendor = rtrim($this->vendorDir, DIRECTORY_SEPARATOR);
 
@@ -212,15 +213,15 @@ class Rollback
         @rmdir($dir);
     }
 
-    private function path(string $base, string $relative): string
+    protected function path(string $base, string $relative): string
     {
         return rtrim($base, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$relative;
     }
 
-    private function ensureDir(string $dir): void
+    protected function ensureDir(string $dir): void
     {
         if (! is_dir($dir) && ! mkdir($dir, 0775, true) && ! is_dir($dir)) {
-            throw new RuntimeException(Lang::trans('fs.create_failed', ['path' => $dir]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fs.create_failed', ['path' => $dir]));
         }
     }
 }

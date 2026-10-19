@@ -14,6 +14,7 @@ use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\Steps;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\ExtensionManager\Work\WorkDir;
 use Flarum\Foundation\Paths;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +23,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * `extension-manager:update` — the admin screen's update, driven from a terminal.
  *
- * 🚨 Most of what is tested here is what the command REFUSES to do, because
+ * Most of what is tested here is what the command REFUSES to do, because
  * every refusal replaces a way of quietly doing nothing:
  *
  *   - a pinned requirement, where Composer answers "nothing to modify" and
@@ -55,7 +56,7 @@ class UpdateCommandTest extends TestCase
     // ── what it refuses ──────────────────────────────────────────────────────
 
     /**
-     * 🚨 `composer update` on a package that is not installed does nothing at
+     * `composer update` on a package that is not installed does nothing at
      * all and reports success, so a typo would otherwise print a clean run and
      * leave the site exactly as it was.
      */
@@ -81,7 +82,7 @@ class UpdateCommandTest extends TestCase
     }
 
     /**
-     * 🚨 And it says how to take it over, because a run left behind by a closed
+     * And it says how to take it over, because a run left behind by a closed
      * browser tab is exactly the state that used to need someone who knew what
      * a work directory was.
      */
@@ -98,7 +99,7 @@ class UpdateCommandTest extends TestCase
     }
 
     /**
-     * 🚨 The failure this command exists to end.
+     * The failure this command exists to end.
      *
      * Against `"a/thing": "1.0.0"`, `composer update a/thing` answers "Nothing
      * to modify in lock file" and exits 0. Starting a run anyway would go green
@@ -123,7 +124,7 @@ class UpdateCommandTest extends TestCase
     }
 
     /**
-     * 🚨 Live box, 2026-10-13: `--repin` straight after v1.21.2 was published.
+     * Live box, 2026-10-13: `--repin` straight after v1.21.2 was published.
      * The stored check predated the release, so there was nothing to raise the
      * pin to; the run went through every step, printed "Done." and moved
      * nothing. A pin with no known target is checked again first.
@@ -139,11 +140,11 @@ class UpdateCommandTest extends TestCase
         $this->assertSame(0, $tester->getStatusCode());
         $this->assertStringContainsString('checking again first', $tester->getDisplay());
         $this->assertStringContainsString('Raising a/thing from v1.0.0 to v1.0.1', $tester->getDisplay());
-        $this->assertSame(['a/thing' => 'v1.0.1'], (new WorkDir($this->dir, $this->store()->latest()?->id ?? ''))->repin());
+        $this->assertSame(['a/thing' => 'v1.0.1'], (new WorkDir(EnglishTranslator::make(), $this->dir, $this->store()->latest()?->id ?? ''))->repin());
     }
 
     /**
-     * 🚨 The check is saved when it runs, and an update does not re-run it, so
+     * The check is saved when it runs, and an update does not re-run it, so
      * straight after moving to v1.0.1 it still says "→ v1.0.1". That is not a
      * target: raising v1.0.1 to v1.0.1 moved nothing (live box, 2026-10-13).
      */
@@ -208,7 +209,7 @@ class UpdateCommandTest extends TestCase
     }
 
     /**
-     * 🚨 A run whose plan came to nothing finished green and printed "Done.".
+     * A run whose plan came to nothing finished green and printed "Done.".
      * The exit code is what a script reads, so it must say nothing moved.
      */
     public function test_a_run_that_moved_nothing_exits_non_zero(): void
@@ -225,7 +226,7 @@ class UpdateCommandTest extends TestCase
     // ── what it does ─────────────────────────────────────────────────────────
 
     /**
-     * 🚨 The permission is written down with the run, not kept in memory: a run
+     * The permission is written down with the run, not kept in memory: a run
      * outlives the process that started it, and the version raised to must be
      * the one the check found, not whatever a later check says.
      */
@@ -243,8 +244,8 @@ class UpdateCommandTest extends TestCase
         $this->assertStringContainsString('Raising a/thing from 1.0.0 to 1.1.0', $tester->getDisplay());
 
         $id = $this->store()->latest()?->id ?? '';
-        $this->assertSame(['a/thing' => '1.1.0'], (new WorkDir($this->dir, $id))->repin());
-        $this->assertSame(['a/thing'], (new WorkDir($this->dir, $id))->requested());
+        $this->assertSame(['a/thing' => '1.1.0'], (new WorkDir(EnglishTranslator::make(), $this->dir, $id))->repin());
+        $this->assertSame(['a/thing'], (new WorkDir(EnglishTranslator::make(), $this->dir, $id))->requested());
     }
 
     public function test_it_drives_the_run_to_done_and_prints_what_happened(): void
@@ -267,7 +268,7 @@ class UpdateCommandTest extends TestCase
     }
 
     /**
-     * 🚨 A line is printed once. A waiting step replaces the last line of the
+     * A line is printed once. A waiting step replaces the last line of the
      * log rather than appending, so anything counting would repeat the tail of
      * the run on every poll.
      */
@@ -343,7 +344,7 @@ class UpdateCommandTest extends TestCase
     }
 
     /**
-     * 🚨 It drives the run itself and never hands it to a worker.
+     * It drives the run itself and never hands it to a worker.
      *
      * Handing it over would make the exit code a lie: the command would finish
      * successfully while the update it started went on to fail somewhere else,
@@ -397,14 +398,14 @@ class UpdateCommandTest extends TestCase
     {
         $store = $this->store();
 
-        $command = new class(new Paths(['base' => $this->dir, 'public' => $this->dir, 'storage' => $this->dir, 'vendor' => $this->dir]), $store, new StepRunner($store, $this->steps($plan, $failOn, $planChanges, $this->dir), fn (): int => time()), $recheck ?? fn () => throw new \LogicException('No re-check expected.')) extends UpdateCommand {
+        $command = new class(new Paths(['base' => $this->dir, 'public' => $this->dir, 'storage' => $this->dir, 'vendor' => $this->dir]), $store, new StepRunner(EnglishTranslator::make(), $store, $this->steps($plan, $failOn, $planChanges, $this->dir), fn (): int => time()), $recheck ?? fn () => throw new \LogicException('No re-check expected.')) extends UpdateCommand {
             /** @var callable():void */
             private $recheckWith;
 
             public function __construct(Paths $paths, RunStore $runs, StepRunner $runner, callable $recheck)
             {
                 $this->recheckWith = $recheck;
-                parent::__construct($paths, $runs, $runner);
+                parent::__construct(EnglishTranslator::make(), $paths, $runs, $runner);
             }
 
             protected function recheck(): void
@@ -421,7 +422,7 @@ class UpdateCommandTest extends TestCase
 
     private function store(): RunStore
     {
-        return new RunStore($this->dir.'/extension-manager/runs');
+        return new RunStore(EnglishTranslator::make(), $this->dir.'/extension-manager/runs');
     }
 
     /** @param array<string,list<string>> $plan */
@@ -445,7 +446,7 @@ class UpdateCommandTest extends TestCase
                 }
 
                 if ($phase === 'plan' && $this->planChanges !== null) {
-                    file_put_contents((new WorkDir($this->dir, $run->id))->root().'/plan.json', json_encode(['changes' => $this->planChanges]));
+                    file_put_contents((new WorkDir(EnglishTranslator::make(), $this->dir, $run->id))->root().'/plan.json', json_encode(['changes' => $this->planChanges]));
                 }
 
                 return "$phase $item";

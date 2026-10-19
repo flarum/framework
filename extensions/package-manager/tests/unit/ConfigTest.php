@@ -13,16 +13,16 @@ use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\ExtensionManager\Config\JsonFile;
 use Flarum\ExtensionManager\Config\Repositories;
 use Flarum\ExtensionManager\Config\Stability;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 /**
- * 🚨 The rules these protect:
+ * The rules these protect:
  *
  *   - a stored credential is never readable back out of this extension;
  *   - a malformed composer.json is never written, and never overwritten;
- *   - the settings that decide whether Composer can find anything are the ones
- *     that made the tool it replaces impossible to remove.
+ *   - the settings that decide whether Composer can find anything at all.
  */
 class ConfigTest extends TestCase
 {
@@ -47,7 +47,7 @@ class ConfigTest extends TestCase
             file_put_contents($path, json_encode($data));
         }
 
-        return new JsonFile($path);
+        return new JsonFile(EnglishTranslator::make(), $path);
     }
 
     // ── credentials ─────────────────────────────────────────────────────────
@@ -55,12 +55,12 @@ class ConfigTest extends TestCase
     public function test_a_stored_credential_is_never_returned(): void
     {
         /*
-         * 🚨 The single most important test here. A settings screen that shows
+         * The single most important test here. A settings screen that shows
          * your GitHub token back to you turns every screenshot and support
          * ticket into a credential leak, and the person it leaks from has no
          * reason to think anything happened.
          */
-        $auth = new AuthTokens($this->file('auth.json', []));
+        $auth = new AuthTokens(EnglishTranslator::make(), $this->file('auth.json', []));
         $auth->set('github-oauth', 'github.com', 'ghp_thismustneverappear');
         $auth->set('http-basic', 'floxum.com', 'sekrit', 'ernest');
 
@@ -79,7 +79,7 @@ class ConfigTest extends TestCase
     public function test_the_credential_really_is_written_for_composer(): void
     {
         // Write-only to the admin, but Composer still has to be able to read it.
-        $auth = new AuthTokens($this->file('auth.json', []));
+        $auth = new AuthTokens(EnglishTranslator::make(), $this->file('auth.json', []));
         $auth->set('github-oauth', 'github.com', 'ghp_token');
 
         $onDisk = json_decode(file_get_contents($this->dir.'/auth.json'), true);
@@ -91,19 +91,19 @@ class ConfigTest extends TestCase
     public function test_http_basic_needs_a_username(): void
     {
         $this->expectExceptionMessageMatches('/username/');
-        (new AuthTokens($this->file('auth.json', [])))->set('http-basic', 'floxum.com', 'pw');
+        (new AuthTokens(EnglishTranslator::make(), $this->file('auth.json', [])))->set('http-basic', 'floxum.com', 'pw');
     }
 
     public function test_a_url_pasted_where_a_hostname_belongs_is_refused(): void
     {
         // Composer matches on hostname; a URL here silently never matches.
         $this->expectExceptionMessageMatches('/hostname/');
-        (new AuthTokens($this->file('auth.json', [])))->set('github-oauth', 'https://github.com/', 'x');
+        (new AuthTokens(EnglishTranslator::make(), $this->file('auth.json', [])))->set('github-oauth', 'https://github.com/', 'x');
     }
 
     public function test_removing_a_credential_removes_the_empty_kind_too(): void
     {
-        $auth = new AuthTokens($this->file('auth.json', []));
+        $auth = new AuthTokens(EnglishTranslator::make(), $this->file('auth.json', []));
         $auth->set('bearer', 'floxum.com', 'tok');
         $auth->remove('bearer', 'floxum.com');
 
@@ -114,7 +114,7 @@ class ConfigTest extends TestCase
 
     public function test_repositories_are_listed_with_their_type(): void
     {
-        $repos = new Repositories($this->file('composer.json', ['repositories' => [
+        $repos = new Repositories(EnglishTranslator::make(), $this->file('composer.json', ['repositories' => [
             ['type' => 'vcs', 'url' => 'https://github.com/a/b'],
             ['type' => 'composer', 'url' => 'https://floxum.com/composer'],
         ]]));
@@ -124,7 +124,7 @@ class ConfigTest extends TestCase
 
     public function test_a_duplicate_repository_is_refused(): void
     {
-        $repos = new Repositories($this->file('composer.json', ['repositories' => [
+        $repos = new Repositories(EnglishTranslator::make(), $this->file('composer.json', ['repositories' => [
             ['type' => 'vcs', 'url' => 'https://github.com/a/b'],
         ]]));
 
@@ -136,7 +136,7 @@ class ConfigTest extends TestCase
     {
         // Composer resolves in order, so appending cannot change how anything
         // already installed is found.
-        $repos = new Repositories($this->file('composer.json', ['repositories' => [
+        $repos = new Repositories(EnglishTranslator::make(), $this->file('composer.json', ['repositories' => [
             ['type' => 'composer', 'url' => 'https://floxum.com/composer'],
         ]]));
 
@@ -148,7 +148,7 @@ class ConfigTest extends TestCase
 
     public function test_nonsense_is_not_written_into_composer_json(): void
     {
-        $repos = new Repositories($this->file('composer.json', []));
+        $repos = new Repositories(EnglishTranslator::make(), $this->file('composer.json', []));
 
         try {
             $repos->add('vcs', 'not a url');
@@ -163,7 +163,7 @@ class ConfigTest extends TestCase
 
     public function test_removing_a_repository_that_is_not_there_says_so(): void
     {
-        $repos = new Repositories($this->file('composer.json', ['repositories' => []]));
+        $repos = new Repositories(EnglishTranslator::make(), $this->file('composer.json', ['repositories' => []]));
 
         $this->expectExceptionMessageMatches('/not in composer.json/');
         $repos->remove('https://github.com/a/b');
@@ -173,7 +173,7 @@ class ConfigTest extends TestCase
 
     public function test_stability_reports_and_sets(): void
     {
-        $s = new Stability($this->file('composer.json', ['minimum-stability' => 'beta', 'prefer-stable' => true]));
+        $s = new Stability(EnglishTranslator::make(), $this->file('composer.json', ['minimum-stability' => 'beta', 'prefer-stable' => true]));
 
         $this->assertSame('beta', $s->current()['minimumStability']);
         $this->assertTrue($s->current()['preferStable']);
@@ -186,21 +186,20 @@ class ConfigTest extends TestCase
     public function test_an_invented_stability_level_is_refused(): void
     {
         $this->expectExceptionMessageMatches('/must be one of/');
-        (new Stability($this->file('composer.json', [])))->set('mostly-fine', true);
+        (new Stability(EnglishTranslator::make(), $this->file('composer.json', [])))->set('mostly-fine', true);
     }
 
     public function test_every_level_explains_what_it_means(): void
     {
         // The consequence is what somebody is deciding about, not the word.
-        $locale = \Symfony\Component\Yaml\Yaml::parseFile(__DIR__.'/../../locale/en.yml')['flarum-extension-manager']['admin'];
+        $means = \Symfony\Component\Yaml\Yaml::parseFile(__DIR__.'/../../locale/en.yml')['flarum-extension-manager']['admin']['composer']['minimum_stability']['means'];
 
         foreach (Stability::LEVELS as $level) {
-            $key = 'level_'.strtolower($level).'_means';
-            $this->assertNotEmpty($locale[$key] ?? null, "$level has no explanation");
+            $this->assertNotEmpty($means[strtolower($level)] ?? null, "$level has no explanation");
         }
 
-        // 🚨 Flarum 2 is stable now; the old copy said it was still a release candidate.
-        $this->assertStringContainsString('Flarum 2 itself is stable', $locale['level_stable_means']);
+        // Flarum 2 is stable now; the old copy said it was still a release candidate.
+        $this->assertStringContainsString('Flarum 2 itself is stable', $means['stable']);
     }
 
     // ── the file itself ─────────────────────────────────────────────────────
@@ -208,23 +207,70 @@ class ConfigTest extends TestCase
     public function test_a_broken_composer_json_is_refused_rather_than_replaced(): void
     {
         /*
-         * 🚨 Treating unreadable JSON as an empty array would replace a file
+         * Treating unreadable JSON as an empty array would replace a file
          * somebody could still fix by hand with one built from nothing.
          */
         file_put_contents($this->dir.'/composer.json', '{"require": {,,,}');
 
         $this->expectExceptionMessageMatches('/not valid JSON/');
-        (new Repositories(new JsonFile($this->dir.'/composer.json')))->all();
+        (new Repositories(EnglishTranslator::make(), new JsonFile(EnglishTranslator::make(), $this->dir.'/composer.json')))->all();
     }
 
-    public function test_the_previous_contents_are_kept(): void
+    public function test_the_previous_contents_are_kept_once_with_the_files_own_mode(): void
     {
-        $s = new Stability($this->file('composer.json', ['minimum-stability' => 'stable', 'name' => 'flarum/flarum']));
-        $s->set('beta', true);
+        $file = $this->file('composer.json', ['minimum-stability' => 'stable', 'name' => 'flarum/flarum']);
+        chmod($this->dir.'/composer.json', 0640);
+        touch($this->dir.'/composer.json.extension-manager-backup-20260101-000000');
 
-        $backups = glob($this->dir.'/composer.json.extension-manager-backup-*');
-        $this->assertNotEmpty($backups, 'a write with no backup is a write that cannot be undone');
-        $this->assertStringContainsString('stable', file_get_contents($backups[0]));
+        $s = new Stability(EnglishTranslator::make(), $file);
+        $s->set('beta', true);
+        $s->set('RC', true);
+
+        $backups = glob($this->dir.'/composer.json.extension-manager-backup*');
+        $this->assertSame([$this->dir.'/composer.json.extension-manager-backup'], $backups, 'one copy, not one per write for ever');
+        $this->assertStringContainsString('beta', (string) file_get_contents($backups[0]), 'the contents before the last write');
+        $this->assertSame(0640, fileperms($backups[0]) & 0777);
+        $this->assertSame(0640, fileperms($this->dir.'/composer.json') & 0777, 'a write never loosens the file');
+    }
+
+    /**
+     * No copy of auth.json is kept: it holds credentials, and a backup made
+     * with the default mode was readable by other local users. Copies left by
+     * earlier versions are removed on the next write.
+     */
+    public function test_auth_json_is_never_copied_and_old_copies_go(): void
+    {
+        file_put_contents($this->dir.'/auth.json', json_encode(['bearer' => ['example.test' => 'old-secret']]));
+        chmod($this->dir.'/auth.json', 0600);
+        file_put_contents($this->dir.'/auth.json.extension-manager-backup-20260101-000000', '{"bearer":{"example.test":"old-secret"}}');
+
+        (new AuthTokens(EnglishTranslator::make(), new JsonFile(EnglishTranslator::make(), $this->dir.'/auth.json')))->set('bearer', 'example.test', 'new-secret');
+
+        $this->assertSame([$this->dir.'/auth.json'], glob($this->dir.'/auth.json*'));
+        $this->assertSame(0600, fileperms($this->dir.'/auth.json') & 0777);
+    }
+
+    public function test_a_credential_in_a_repository_url_never_reaches_the_screen(): void
+    {
+        $repos = new Repositories(EnglishTranslator::make(), $this->file('composer.json', ['repositories' => [
+            ['type' => 'composer', 'url' => 'https://user:s3cret@repo.example.test'],
+            ['type' => 'vcs', 'url' => 'https://ghp_token@github.com/a/private'],
+            ['type' => 'vcs', 'url' => 'git@github.com:a/b.git'],
+            'named' => ['type' => 'composer', 'url' => 'https://repo.example.test/plain'],
+        ]]));
+
+        $shown = json_encode($repos->all());
+        $this->assertStringNotContainsString('s3cret', (string) $shown);
+        $this->assertStringNotContainsString('ghp_token', (string) $shown);
+        $this->assertSame(
+            ['https://***@repo.example.test', 'https://***@github.com/a/private', 'git@github.com:a/b.git', 'https://repo.example.test/plain'],
+            array_column($repos->all(), 'url')
+        );
+
+        // The screen removes by what it was shown.
+        $repos->remove('https://***@repo.example.test');
+        $this->assertCount(3, $repos->all());
+        $this->assertStringContainsString('ghp_token', (string) file_get_contents($this->dir.'/composer.json'), 'the others are untouched');
     }
 
     public function test_writing_preserves_everything_else_in_the_file(): void
@@ -238,7 +284,7 @@ class ConfigTest extends TestCase
             'minimum-stability' => 'stable',
         ];
 
-        $s = new Stability($this->file('composer.json', $original));
+        $s = new Stability(EnglishTranslator::make(), $this->file('composer.json', $original));
         $s->set('beta', true);
 
         $after = json_decode(file_get_contents($this->dir.'/composer.json'), true);

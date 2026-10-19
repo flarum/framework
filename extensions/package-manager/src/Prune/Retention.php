@@ -12,7 +12,7 @@ namespace Flarum\ExtensionManager\Prune;
 /**
  * How long rollback copies are kept, and when they were last tidied.
  *
- * 🚨 A file under storage/extension-manager, like everything else the Extension Manager keeps,
+ * A file under storage/extension-manager, like everything else the Extension Manager keeps,
  * rather than a Flarum setting. The prune runs at the end of an update — inside
  * a queue worker, mid-way through a run whose whole design is that it needs
  * nothing but the disk — and it must read the same answer there as the admin
@@ -23,7 +23,7 @@ class Retention
     public const DEFAULT_DAYS = 30;
     public const DEFAULT_RUNS = 5;
 
-    public function __construct(private string $dir)
+    public function __construct(protected string $dir)
     {
     }
 
@@ -61,12 +61,12 @@ class Retention
     }
 
     /**
-     * 🚨 Zero is allowed and means "only what the newest update needs" — the
+     * Zero is allowed and means "only what the newest update needs" — the
      * prune keeps that whatever these say. A value that is not a whole number
      * falls back to the default rather than to zero, so a typo can never be
      * read as "keep nothing".
      */
-    private function clamp(mixed $value, int $max, int $default): int
+    protected function clamp(mixed $value, int $max, int $default): int
     {
         if (is_string($value)) {
             $value = trim($value);
@@ -80,7 +80,7 @@ class Retention
     }
 
     /** @return array<string,mixed> */
-    private function read(string $file): array
+    protected function read(string $file): array
     {
         $path = $this->dir.'/'.$file;
         $data = is_file($path) ? json_decode((string) file_get_contents($path), true) : null;
@@ -89,7 +89,7 @@ class Retention
     }
 
     /** @param array<string,mixed> $data */
-    private function write(string $file, array $data): void
+    protected function write(string $file, array $data): void
     {
         if (! is_dir($this->dir)) {
             @mkdir($this->dir, 0775, true);

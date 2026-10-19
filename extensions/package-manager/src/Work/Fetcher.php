@@ -9,14 +9,17 @@
 
 namespace Flarum\ExtensionManager\Work;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\ExtensionManager\Config\AuthTokens;
+use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use RuntimeException;
 use ZipArchive;
 
 /**
  * Gets one package's archive and unpacks it into the staging area.
  *
- * 🚨 Staging, never `vendor/`. Fetch is the long, failure-prone phase — a slow
+ * Staging, never `vendor/`. Fetch is the long, failure-prone phase — a slow
  * mirror, a 404, a host that cuts the request — and none of that is allowed
  * anywhere near the tree the site is running from. By the time apply starts,
  * every file is already on disk and verified, so the only thing left is two
@@ -28,8 +31,10 @@ use ZipArchive;
 class Fetcher
 {
     public function __construct(
-        private string $stagingDir,
-        private ?string $authPath = null,
+        protected TranslatorInterface $translator,
+        protected ClientInterface $http,
+        protected string $stagingDir,
+        protected ?string $authPath = null,
     ) {
     }
 
@@ -54,14 +59,14 @@ class Fetcher
                 $actual = hash_file('sha1', $archive);
 
                 /*
-                 * 🚨 Checked before anything is unpacked. A corrupted or
+                 * Checked before anything is unpacked. A corrupted or
                  * substituted archive that reached the staging area would be
                  * applied by the next phase without further question — this is
                  * the only point where that can still be caught.
                  */
                 if (! hash_equals($source['shasum'], (string) $actual)) {
                     throw new RuntimeException(
-                        Lang::trans('fetch.checksum', ['package' => $package])
+                        $this->translator->trans('flarum-extension-manager.api.fetch.checksum', ['package' => $package])
                     );
                 }
             }
@@ -72,90 +77,72 @@ class Fetcher
         }
     }
 
-    private function download(string $url): string
+    protected function download(string $url): string
     {
+        /*
+         * Composer's own rule (secure-http): an archive is fetched over HTTPS
+         * or not at all, and a redirect may not leave HTTPS either.
+         */
+        if (strtolower((string) parse_url($url, PHP_URL_SCHEME)) !== 'https') {
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fetch.not_https', ['url' => $url]));
+        }
+
         $tmp = tempnam(sys_get_temp_dir(), 'mw-');
+        $headers = $this->authHeaders($url);
+        $code = 0;
+        $err = '';
 
-        $handle = fopen($tmp, 'wb');
-        $ch = curl_init($url);
+        try {
+            $code = $this->http->request('GET', $url, [
+                'sink' => $tmp,
+                'timeout' => 300,
+                'connect_timeout' => 20,
+                'http_errors' => false,
+                /*
+                 * Guzzle drops the Authorization header when a redirect leaves
+                 * the origin, as GitHub's api.github.com -> codeload.github.com
+                 * does, so a token is only ever sent to the host it is for.
+                 */
+                'allow_redirects' => ['max' => 5, 'protocols' => ['https'], 'referer' => false],
+                'headers' => ['User-Agent' => 'The Extension Manager'] + $headers,
+            ])->getStatusCode();
+        } catch (GuzzleException $e) {
+            $err = $e->getMessage();
+        }
 
-        curl_setopt_array($ch, [
-            CURLOPT_FILE => $handle,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_MAXREDIRS => 5,
-            CURLOPT_TIMEOUT => 300,
-            CURLOPT_CONNECTTIMEOUT => 20,
-            CURLOPT_USERAGENT => 'The Extension Manager',
-            CURLOPT_HTTPHEADER => $this->authHeaders($url),
-        ]);
-
-        $ok = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $err = curl_error($ch);
-
-        // curl_close() has done nothing since PHP 8.0 and is deprecated in 8.5.
-        // The handle is released when it goes out of scope.
-        unset($ch);
-        fclose($handle);
-
-        if ($ok === false || $code >= 400) {
+        if ($code === 0 || $code >= 400) {
             @unlink($tmp);
 
             /*
-             * 🚨 A 404 from a private repository means "not authenticated", not
-             * "does not exist" — GitHub hides private resources behind 404
-             * rather than 403. Saying so here saves the hour it otherwise costs
-             * to work out that the commit is fine and the token is not.
+             * A 404 from a protected repository means "not authenticated", not
+             * "does not exist": GitHub hides protected resources behind 404
+             * rather than 403. Saying so saves the hour it otherwise costs to
+             * work out that the commit is fine and the token is not.
              */
-            $hint = $code === 404 && $this->authHeaders($url) === []
-                ? ' '.Lang::trans('fetch.private_hint')
+            $hint = $code === 404 && $headers === []
+                ? ' '.$this->translator->trans('flarum-extension-manager.api.fetch.private_hint')
                 : '';
 
-            throw new RuntimeException(Lang::trans('fetch.download_failed', ['url' => $url, 'code' => (string) $code]).$hint.($err ? " $err" : ''));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fetch.download_failed', ['url' => $url, 'code' => (string) $code]).$hint.($err ? " $err" : ''));
         }
 
         return $tmp;
     }
 
     /**
-     * @return list<string>
+     * The credential for exactly this URL's host; see AuthTokens::authorization().
+     *
+     * @return array<string,string>
      */
-    private function authHeaders(string $url): array
+    protected function authHeaders(string $url): array
     {
-        $auth = $this->auth();
-        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        $authorization = AuthTokens::authorization($this->auth(), $url);
 
-        foreach (($auth['github-oauth'] ?? []) as $h => $token) {
-            if ($this->hostMatches($host, (string) $h)) {
-                return ['Authorization: Bearer '.$token];
-            }
-        }
-
-        foreach (($auth['bearer'] ?? []) as $h => $token) {
-            if ($this->hostMatches($host, (string) $h)) {
-                return ['Authorization: Bearer '.$token];
-            }
-        }
-
-        foreach (($auth['http-basic'] ?? []) as $h => $cred) {
-            if ($this->hostMatches($host, (string) $h) && isset($cred['username'], $cred['password'])) {
-                return ['Authorization: Basic '.base64_encode($cred['username'].':'.$cred['password'])];
-            }
-        }
-
-        return [];
-    }
-
-    private function hostMatches(string $host, string $configured): bool
-    {
-        $configured = strtolower($configured);
-
-        // api.github.com and codeload.github.com both belong to a github.com entry.
-        return $host === $configured || str_ends_with($host, '.'.$configured);
+        return $authorization === null ? [] : ['Authorization' => $authorization];
     }
 
     /** @return array<string,mixed> */
-    private function auth(): array
+    protected function auth(): array
     {
         if ($this->authPath === null || ! is_file($this->authPath)) {
             return [];
@@ -165,24 +152,24 @@ class Fetcher
     }
 
     /**
-     * 🚨 Archives from GitHub and friends wrap everything in a single generated
+     * Archives from GitHub and friends wrap everything in a single generated
      * top-level directory whose name nobody should depend on. It is stripped, so
      * what lands in staging is the package itself and the apply phase can move
      * it straight into place.
      */
-    private function unzip(string $archive, string $target, string $package): void
+    protected function unzip(string $archive, string $target, string $package): void
     {
         $zip = new ZipArchive();
 
         if ($zip->open($archive) !== true) {
-            throw new RuntimeException(Lang::trans('fetch.not_archive', ['package' => $package]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fetch.not_archive', ['package' => $package]));
         }
 
         $root = $this->commonRoot($zip);
         $this->deleteTree($target);
 
         if (! mkdir($target, 0775, true) && ! is_dir($target)) {
-            throw new RuntimeException(Lang::trans('fetch.staging_failed', ['package' => $package]));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fetch.staging_failed', ['package' => $package]));
         }
 
         for ($i = 0; $i < $zip->numFiles; $i++) {
@@ -193,22 +180,22 @@ class Fetcher
                 continue;
             }
 
-            // 🚨 An archive is untrusted input, and "../" inside an entry name is
+            // An archive is untrusted input, and "../" inside an entry name is
             // the oldest way out of a target directory there is.
             if (str_contains($rel, '..')) {
-                throw new RuntimeException(Lang::trans('fetch.path_escapes', ['package' => $package]));
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fetch.path_escapes', ['package' => $package]));
             }
 
             $to = $target.'/'.$rel;
 
             if (! is_dir(dirname($to)) && ! mkdir(dirname($to), 0775, true) && ! is_dir(dirname($to))) {
-                throw new RuntimeException(Lang::trans('fs.create_failed', ['path' => dirname($to)]));
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fs.create_failed', ['path' => dirname($to)]));
             }
 
             $stream = $zip->getStream($name);
 
             if ($stream === false) {
-                throw new RuntimeException(Lang::trans('fetch.read_entry_failed', ['name' => $name, 'package' => $package]));
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fetch.read_entry_failed', ['name' => $name, 'package' => $package]));
             }
 
             file_put_contents($to, $stream);
@@ -219,7 +206,7 @@ class Fetcher
     }
 
     /** The single wrapping directory, if every entry shares one. */
-    private function commonRoot(ZipArchive $zip): ?string
+    protected function commonRoot(ZipArchive $zip): ?string
     {
         $root = null;
 
@@ -243,7 +230,7 @@ class Fetcher
         return $root;
     }
 
-    private function safePath(string $package): string
+    protected function safePath(string $package): string
     {
         foreach (explode('/', $package) as $part) {
             if (! preg_match('/^[A-Za-z0-9._-]+$/', $part) || $part === '.' || $part === '..') {
@@ -254,7 +241,7 @@ class Fetcher
         return $package;
     }
 
-    private function deleteTree(string $dir): void
+    protected function deleteTree(string $dir): void
     {
         if (! is_dir($dir)) {
             return;

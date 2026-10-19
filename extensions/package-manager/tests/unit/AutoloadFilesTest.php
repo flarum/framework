@@ -13,7 +13,7 @@ use Flarum\ExtensionManager\Work\AutoloadFiles;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 Composer requires every `autoload.files` entry on every request, without
+ * Composer requires every `autoload.files` entry on every request, without
  * checking it exists. Removing irmmr/flarum-ext-rtl moved its files entry away
  * mid-run, and every request after that, the updater's own included, died in
  * the autoloader (ClaudiusH, 2026-10-19).

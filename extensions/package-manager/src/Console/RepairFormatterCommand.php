@@ -17,7 +17,7 @@ use Flarum\Foundation\Paths;
 /**
  * Put Flarum's post formatter back into a state that can render.
  *
- * 🚨 This exists because `flarum cache:clear` reliably breaks post rendering on
+ * This exists because `flarum cache:clear` reliably breaks post rendering on
  * any forum whose cache driver is not the file store — which is every forum
  * running fof/redis.
  *
@@ -32,8 +32,8 @@ use Flarum\Foundation\Paths;
  *
  * It is not a race. It happens every single time.
  *
- * 🚨 The symptom hides: a discussion LIST renders no post bodies, so `/` and
- * `/all` stay 200 while every discussion, private message and queued mail dies.
+ * The symptom hides: a discussion LIST renders no post bodies, so `/` and
+ * `/all` stay 200 while every discussion, protected message and queued mail dies.
  * A site can sit like that for hours looking fine.
  *
  * `Formatter::flush()` forgets the entry through the formatter's own cache — the
@@ -75,7 +75,7 @@ class RepairFormatterCommand extends AbstractCommand
         $formatter->warm();
 
         /*
-         * 🚨 Then CHECK, because flush() cannot fail loudly.
+         * Then CHECK, because flush() cannot fail loudly.
          *
          * A cache entry written by a process running as root cannot be deleted
          * or overwritten by www-data. flush() unlinks nothing, warm() writes a
@@ -119,7 +119,7 @@ class RepairFormatterCommand extends AbstractCommand
      *
      * @return list<string>
      */
-    private function strandedCacheFiles(): array
+    protected function strandedCacheFiles(): array
     {
         $me = function_exists('posix_geteuid') ? posix_geteuid() : null;
 

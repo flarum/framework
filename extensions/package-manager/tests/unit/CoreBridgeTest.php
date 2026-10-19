@@ -13,6 +13,7 @@ use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Tree;
 use Flarum\ExtensionManager\Host\PhpBinary;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerRunner;
 use Flarum\ExtensionManager\Work\ComposerSteps;
 use Flarum\ExtensionManager\Work\Fetcher;
@@ -23,7 +24,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 /**
- * 🚨 Flarum's nightly build already says 2.0.0, and so does the 2.0.0 release
+ * Flarum's nightly build already says 2.0.0, and so does the 2.0.0 release
  * it becomes. Moving a forum from one to the other moves flarum/core without
  * moving the version, so nothing puts the forum behind "Update Flarum" and
  * there is nothing to bridge. The bridge used to demand that migrate change
@@ -94,15 +95,15 @@ class CoreBridgeTest extends TestCase
 
     private function bridge(): string
     {
-        $journal = new Journal($this->dir.'/work/journal.jsonl');
-        $php = new PhpBinary(PHP_BINARY, null, '', null, PHP_BINARY, 'cli', '');
+        $journal = new Journal(EnglishTranslator::make(), $this->dir.'/work/journal.jsonl');
+        $php = new PhpBinary(EnglishTranslator::make(), PHP_BINARY, null, '', null, PHP_BINARY, 'cli', '');
 
-        $steps = new ComposerSteps(
+        $steps = new ComposerSteps(EnglishTranslator::make(), 
             $this->dir.'/project',
             $this->dir.'/work',
-            (new ComposerRunner($this->dir.'/project', __FILE__, $this->dir.'/home'))->withPhp($php),
-            new Fetcher($this->dir.'/work/staging'),
-            new Applier($this->dir.'/project/vendor', $this->dir.'/work/staging', $this->dir.'/work/trash', $journal),
+            (new ComposerRunner(EnglishTranslator::make(), $this->dir.'/project', __FILE__, $this->dir.'/home'))->withPhp($php),
+            new Fetcher(EnglishTranslator::make(), new \GuzzleHttp\Client(), $this->dir.'/work/staging'),
+            new Applier(EnglishTranslator::make(), $this->dir.'/project/vendor', $this->dir.'/work/staging', $this->dir.'/work/trash', $journal),
             $journal,
             vendorPath: $this->dir.'/project/vendor',
         );

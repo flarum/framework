@@ -9,13 +9,13 @@
 
 namespace Flarum\ExtensionManager\Config;
 
-use Flarum\ExtensionManager\Lang;
-use RuntimeException;
+use Flarum\ExtensionManager\Exception\RefusedException;
+use Flarum\Locale\TranslatorInterface;
 
 /**
  * How finished a release has to be before Composer will install it.
  *
- * 🚨 Flarum 2 itself is stable since 2.0.0, but many of its extensions are still
+ * Flarum 2 itself is stable since 2.0.0, but many of its extensions are still
  * betas or release candidates, and a site on the default `stable` cannot install
  * those — the error says the package "could not be found in any version", which
  * sounds like the package is missing rather than like a setting is wrong.
@@ -27,8 +27,10 @@ class Stability
     /** Composer's own order, loosest last. */
     public const LEVELS = ['stable', 'RC', 'beta', 'alpha', 'dev'];
 
-    public function __construct(private JsonFile $file)
-    {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected JsonFile $file,
+    ) {
     }
 
     /** @return array{minimumStability:string, preferStable:bool} */
@@ -47,7 +49,7 @@ class Stability
     public function set(string $level, bool $preferStable): void
     {
         if (! in_array($level, self::LEVELS, true)) {
-            throw new RuntimeException(Lang::trans('config.stability_invalid', ['levels' => implode(', ', self::LEVELS)]));
+            throw new RefusedException($this->translator->trans('flarum-extension-manager.api.config.stability_invalid', ['levels' => implode(', ', self::LEVELS)]));
         }
 
         $data = $this->file->read();

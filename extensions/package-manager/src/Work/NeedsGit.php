@@ -9,13 +9,14 @@
 
 namespace Flarum\ExtensionManager\Work;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\ExtensionManager\Config\Repositories;
+use Flarum\Locale\TranslatorInterface;
 
 /**
  * The package sources Composer can only read by running git — which a host
  * that disables proc_open will not let it do.
  *
- * 🚨 Asked BEFORE the resolve, from composer.json alone. Left to Composer, a
+ * Asked BEFORE the resolve, from composer.json alone. Left to Composer, a
  * source like this fails halfway through the resolve as a Symfony LogicException
  * about proc_open, with a stack trace, on a screen whose owner did nothing
  * wrong. Every case below is one where the answer is known in advance.
@@ -24,7 +25,7 @@ use Flarum\ExtensionManager\Lang;
  *     definition.
  *   - A `vcs` repository on a host Composer has no API driver for is git.
  *   - GitHub with `"no-api": true` is git.
- *   - GitHub WITHOUT a token: Composer tries the API, and a private repository
+ *   - GitHub WITHOUT a token: Composer tries the API, and a protected repository
  *     answers 404, which Composer treats as "fall back to git". A public one
  *     works until the shared host's IP uses up GitHub's 60 anonymous calls an
  *     hour — then it, too, falls back to git. A token fixes both.
@@ -32,15 +33,19 @@ use Flarum\ExtensionManager\Lang;
  *     what branch the directory is on.
  *
  * GitLab and Bitbucket are left alone without a token: a public repository
- * there works through the API, and a private one fails with a sentence from
+ * there works through the API, and a protected one fails with a sentence from
  * ComposerRunner::explainThrowable rather than a trace.
  */
-final class NeedsGit
+class NeedsGit
 {
     public const WHY_TOKEN = 'token';
     public const WHY_GIT = 'git';
 
-    public function __construct(private string $installPath, private string $composerHome)
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected string $installPath,
+        protected string $composerHome,
+    )
     {
     }
 
@@ -81,7 +86,8 @@ final class NeedsGit
             };
 
             if ($why !== null) {
-                $out[] = ['url' => $url, 'why' => $why];
+                // Shown to the admin, so never with a credential in it.
+                $out[] = ['url' => Repositories::redact($url), 'why' => $why];
             }
         }
 
@@ -93,19 +99,19 @@ final class NeedsGit
      *
      * @param list<array{url:string, why:string}> $blockers
      */
-    public static function explain(array $blockers): string
+    public function explain(array $blockers): string
     {
         $tokens = array_column(array_filter($blockers, fn ($b) => $b['why'] === self::WHY_TOKEN), 'url');
         $git = array_column(array_filter($blockers, fn ($b) => $b['why'] === self::WHY_GIT), 'url');
 
-        $out = Lang::trans('git.blocked');
+        $out = $this->translator->trans('flarum-extension-manager.api.git.blocked');
 
         if ($tokens !== []) {
-            $out .= ' '.Lang::trans('git.add_token', ['urls' => implode(', ', $tokens)]);
+            $out .= ' '.$this->translator->trans('flarum-extension-manager.api.git.add_token', ['urls' => implode(', ', $tokens)]);
         }
 
         if ($git !== []) {
-            $out .= ' '.Lang::trans('git.git_only', ['urls' => implode(', ', $git)]);
+            $out .= ' '.$this->translator->trans('flarum-extension-manager.api.git.git_only', ['urls' => implode(', ', $git)]);
         }
 
         return $out;
@@ -128,7 +134,7 @@ final class NeedsGit
      * @param array<string,mixed> $config composer.json's own config block
      * @return list<string>
      */
-    private function githubTokenHosts(array $config): array
+    protected function githubTokenHosts(array $config): array
     {
         $sources = [
             (array) ($config['github-oauth'] ?? []),
@@ -155,7 +161,7 @@ final class NeedsGit
     }
 
     /** @param array<string,mixed> $options */
-    private function pathNeedsGit(string $url, array $options): bool
+    protected function pathNeedsGit(string $url, array $options): bool
     {
         $pattern = str_starts_with($url, '/') ? $url : $this->installPath.'/'.$url;
 
@@ -175,7 +181,7 @@ final class NeedsGit
     }
 
     /** @return array<string,mixed> */
-    private function read(string $path): array
+    protected function read(string $path): array
     {
         $data = is_file($path) ? json_decode((string) @file_get_contents($path), true) : null;
 

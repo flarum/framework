@@ -16,6 +16,7 @@ use Flarum\ExtensionManager\Discover\Packagist;
 use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
+use Flarum\Locale\TranslatorInterface;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -24,7 +25,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * Search Packagist for extensions.
  *
- * 🚨 One HTTP call, and no compatibility work. Whether each result fits this
+ * One HTTP call, and no compatibility work. Whether each result fits this
  * Flarum is a separate question costing a request per package, and doing it here
  * would make somebody wait a dozen round trips before seeing anything — on a
  * screen they are typing into, on a host that may cut the request at thirty
@@ -33,8 +34,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 class DiscoverController implements RequestHandlerInterface
 {
     public function __construct(
-        private Paths $paths,
-        private ExtensionManager $extensions,
+        protected TranslatorInterface $translator,
+        protected Paths $paths,
+        protected ExtensionManager $extensions,
     ) {
     }
 
@@ -47,7 +49,7 @@ class DiscoverController implements RequestHandlerInterface
         $page = max(1, min(20, (int) ($params['page'] ?? 1)));
 
         /*
-         * 🚨 No query means BROWSE, not "return nothing". The first version
+         * No query means BROWSE, not "return nothing". The first version
          * refused an empty query and left the tab blank until somebody guessed a
          * search term — a catalogue behaving like a command line. Packagist
          * answers this by popularity, which is the right default ordering for
@@ -56,10 +58,10 @@ class DiscoverController implements RequestHandlerInterface
          * The page number is clamped: it reaches an outbound URL, and twenty
          * pages is more than anybody browses before searching instead.
          */
-        $found = (new Packagist($this->cache()))->search($query, 12, $page, (string) ($params['category'] ?? ''));
+        $found = (new Packagist($this->translator, $this->cache()))->search($query, 12, $page, (string) ($params['category'] ?? ''));
 
         /*
-         * 🚨 Marked rather than filtered out. Somebody searching for an
+         * Marked rather than filtered out. Somebody searching for an
          * extension they already have should be told they have it — hiding it
          * looks like the search is broken, and they try again with different
          * words.
@@ -81,7 +83,7 @@ class DiscoverController implements RequestHandlerInterface
         return new JsonResponse($found);
     }
 
-    private function cache(): Cache
+    protected function cache(): Cache
     {
         return new Cache(StorageDir::of($this->paths->storage).'/packagist');
     }

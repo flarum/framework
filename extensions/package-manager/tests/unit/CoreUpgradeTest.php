@@ -13,7 +13,7 @@ use Flarum\ExtensionManager\Plan\CoreUpgrade;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 The rule these protect: the question "what would upgrading Flarum do to my
+ * The rule these protect: the question "what would upgrading Flarum do to my
  * extensions" is answered BEFORE anything is pressed, per extension, by name.
  *
  * Composer's answer to the same question is a refusal at the end of a long wait,
@@ -36,7 +36,7 @@ class CoreUpgradeTest extends TestCase
     public function test_the_lock_alone_answers_for_extensions_that_already_fit(): void
     {
         /*
-         * 🚨 The important property is not the verdict, it is that NOTHING was
+         * The important property is not the verdict, it is that NOTHING was
          * asked. Doing one Packagist call per extension took 28 seconds against
          * a real forum's 58 extensions — an endpoint that cannot finish inside
          * thirty seconds, built into the screen whose whole promise is that
@@ -95,7 +95,7 @@ class CoreUpgradeTest extends TestCase
     public function test_a_package_nobody_could_check_stays_unknown_and_is_not_called_blocked(): void
     {
         /*
-         * 🚨 "Not on Packagist" is not "incompatible". Promoting it would tell
+         * "Not on Packagist" is not "incompatible". Promoting it would tell
          * somebody their upgrade is impossible when it may be fine — worse than
          * saying nothing, because they would believe it and stop.
          */

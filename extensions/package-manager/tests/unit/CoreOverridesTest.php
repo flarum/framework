@@ -13,7 +13,7 @@ use Flarum\ExtensionManager\Plan\CoreOverrides;
 use PHPUnit\Framework\TestCase;
 
 /**
- * 🚨 An extension that ships its own copy of one of Flarum's classes passes
+ * An extension that ships its own copy of one of Flarum's classes passes
  * every `require` check and still breaks on the first Flarum release that
  * changes the class. irmmr/flarum-ext-rtl did exactly this with LessCompiler,
  * and Flarum 2.0.2 answered 500 to every page (ClaudiusH, 2026-10-18).

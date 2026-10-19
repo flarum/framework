@@ -20,7 +20,6 @@ use Flarum\ExtensionManager\Host\Opcache;
 use Flarum\ExtensionManager\Host\SiteHealth;
 use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Host\Verdict;
-use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Plan\Change;
 use Flarum\ExtensionManager\Plan\CoreOverrides;
 use Flarum\ExtensionManager\Plan\LockDiff;
@@ -31,6 +30,8 @@ use Flarum\ExtensionManager\Run\Reverted;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\Steps;
 use Flarum\Foundation\Config;
+use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\Client;
 use Illuminate\Database\ConnectionInterface;
 use RuntimeException;
 
@@ -43,7 +44,7 @@ use RuntimeException;
  * small, repeatable and honest, and that work is in LockDiff, Fetcher and
  * Applier. This class only says what the units are and in what order.
  *
- * 🚨 Every doItem() has to be safe to run twice. The driver saves progress AFTER
+ * Every doItem() has to be safe to run twice. The driver saves progress AFTER
  * the work, so a process killed in between asks for the same item again on
  * resume. Fetch checks whether the package is already staged; apply's stash is a
  * no-op when the source is already gone; the finalise commands are all
@@ -52,26 +53,27 @@ use RuntimeException;
 class ComposerSteps implements Steps
 {
     public function __construct(
-        private string $installPath,
-        private string $workDir,
-        private ComposerRunner $composer,
-        private Fetcher $fetcher,
-        private Applier $applier,
-        private Journal $journal,
+        protected TranslatorInterface $translator,
+        protected string $installPath,
+        protected string $workDir,
+        protected ComposerRunner $composer,
+        protected Fetcher $fetcher,
+        protected Applier $applier,
+        protected Journal $journal,
         /** @var list<string> the packages the user asked to change */
-        private array $requested = [],
+        protected array $requested = [],
         /** 'update', 'install' for something new, or 'remove' to take one out */
-        private string $mode = 'update',
+        protected string $mode = 'update',
         /*
-         * 🚨 Optional, and every one of them degrades to "cannot check" rather
+         * Optional, and every one of them degrades to "cannot check" rather
          * than to "fine". A host that cannot be asked whether its site is up
          * must not have that read as a yes — see verify().
          */
-        private string $vendorPath = '',
-        private string $storagePath = '',
-        private string $siteUrl = '',
+        protected string $vendorPath = '',
+        protected string $storagePath = '',
+        protected string $siteUrl = '',
         /**
-         * 🚨 Requirements this run is authorised to RAISE, package => version.
+         * Requirements this run is authorised to RAISE, package => version.
          *
          * A forum that pins `page-builder` to `3.5.1` cannot be moved to 3.6.0
          * by a resolve, however many times somebody presses Update — the
@@ -81,7 +83,7 @@ class ComposerSteps implements Steps
          *
          * @var array<string,string>
          */
-        private array $repin = [],
+        protected array $repin = [],
     ) {
     }
 
@@ -92,13 +94,13 @@ class ComposerSteps implements Steps
             'fetch' => array_map(fn (Change $c) => $c->package, $this->downloadable()),
             'apply' => array_map(fn (Change $c) => $c->package, $this->applyOrder()),
             /*
-             * 🚨 'tidy the trash' is LAST, after the site has been checked: an
+             * 'tidy the trash' is LAST, after the site has been checked: an
              * update that is about to be undone automatically must not have its
              * housekeeping run first. Its copies would be kept anyway — this
              * run is the newest — but there is no reason to find out.
              */
             /*
-             * 🚨 Nothing, when the plan moved nothing. Migrating, publishing
+             * Nothing, when the plan moved nothing. Migrating, publishing
              * assets and clearing every cache on a site that did not change is
              * all cost and no update, and it is what let a run that moved
              * nothing look exactly like one that did (live box, 2026-10-13).
@@ -128,24 +130,24 @@ class ComposerSteps implements Steps
     /**
      * Ask Composer what would change, and write it down.
      *
-     * 🚨 `--no-install`: this updates composer.lock and NOTHING else. Composer's
+     * `--no-install`: this updates composer.lock and NOTHING else. Composer's
      * own install would rebuild a tree; all that is wanted here is the answer to
      * "what moves", which is 16 seconds and 165 MB rather than minutes and a
      * mutated vendor directory. The install is ours to do, one package at a
      * time, after the user has seen the list.
      */
-    private function resolve(): string
+    protected function resolve(): string
     {
         $lockPath = $this->installPath.'/composer.lock';
 
         /*
-         * 🚨 Saved BEFORE Composer is allowed to rewrite them, and used by the
+         * Saved BEFORE Composer is allowed to rewrite them, and used by the
          * rollback. `--no-install` updates the lock the moment it succeeds, so
          * without a copy taken here there is no way back to the site's own
          * record of itself — and a rollback that restores the files but not the
          * lock leaves a site whose manifest describes work that was undone.
          *
-         * 🚨 Taken ONCE, and a retry starts from it. A resolve killed part-way
+         * Taken ONCE, and a retry starts from it. A resolve killed part-way
          * — a host's time limit, a proxy timeout — can leave composer.json
          * edited by `require` and the lock half-way to new. Copying again on
          * the retry would save THAT as "before", and the rollback would put
@@ -157,15 +159,16 @@ class ComposerSteps implements Steps
         $inProcess = $this->composer->inProcess();
 
         if ($inProcess) {
-            $blockers = (new NeedsGit($this->installPath, $this->composer->composerHome()))->blockers();
+            $needsGit = new NeedsGit($this->translator, $this->installPath, $this->composer->composerHome());
+            $blockers = $needsGit->blockers();
 
             if ($blockers !== []) {
-                throw new RuntimeException(NeedsGit::explain($blockers));
+                throw new RuntimeException($needsGit->explain($blockers));
             }
         }
 
         /*
-         * 🚨 `require` for an install, `update` for an update, and they are not
+         * `require` for an install, `update` for an update, and they are not
          * interchangeable: running `update` on a package that is not installed
          * does nothing whatsoever and exits 0. The run would sail through every
          * phase, change nothing, and report success — the exact silent failure
@@ -178,14 +181,14 @@ class ComposerSteps implements Steps
         $args = match ($this->mode) {
             'install' => array_merge(['require'], $this->requested, ['--no-install', '--no-scripts']),
             /*
-             * 🚨 `remove` takes the package out of composer.json AND re-resolves
+             * `remove` takes the package out of composer.json AND re-resolves
              * the lock, which is what makes the dependencies it dragged in go
              * too. `--no-install` stops Composer touching vendor: the removal
              * happens through the same journalled apply as everything else, so
              * the files go to the trash rather than being deleted and an
              * uninstall is as reversible as an update.
              *
-             * 🚨 `--no-update-with-dependencies`: a removal only takes things
+             * `--no-update-with-dependencies`: a removal only takes things
              * away. Composer's default lets the removed package's dependencies
              * update too, so taking one extension out could move a library it
              * shared with another, which is a download and a change nobody
@@ -193,7 +196,7 @@ class ComposerSteps implements Steps
              */
             'remove' => array_merge(['remove'], $this->requested, ['--no-install', '--no-scripts', '--no-update-with-dependencies']),
             /*
-             * 🚨 `-w`, NOT `-W`.
+             * `-w`, NOT `-W`.
              *
              * `--with-all-dependencies` also updates packages that are ROOT
              * requirements — so asking to update one extension moved twenty-five
@@ -222,11 +225,11 @@ class ComposerSteps implements Steps
             // Composer's own words, not a summary of them: it is usually precise
             // about which constraint could not be satisfied, and paraphrasing
             // that loses the only part anyone can act on.
-            throw new RuntimeException(Lang::trans('composer.resolve_failed')."\n".$result['output']);
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.resolve_failed')."\n".$result['output']);
         }
 
         /*
-         * 🚨 The new lock is put back immediately. Composer has already written
+         * The new lock is put back immediately. Composer has already written
          * it, and leaving it in place while the packages on disk are still the
          * old ones would mean a lock that disagrees with vendor/ — which the
          * next resolve would silently build on. The plan we just computed is the
@@ -244,15 +247,15 @@ class ComposerSteps implements Steps
 
         if ($changes === []) {
             return match ($this->mode) {
-                'install' => Lang::trans('composer.nothing_changed_install'),
-                'remove' => Lang::trans('composer.nothing_changed_remove'),
+                'install' => $this->translator->trans('flarum-extension-manager.api.composer.nothing_changed_install'),
+                'remove' => $this->translator->trans('flarum-extension-manager.api.composer.nothing_changed_remove'),
                 default => $this->whyNothingMoved(),
             };
         }
 
-        $shown = array_map(fn (Change $c) => $c->describe(), array_slice($changes, 0, 5));
-        $note = Lang::trans('composer.will_change', ['count' => count($changes), 'list' => implode(', ', $shown)])
-            .(count($changes) > 5 ? Lang::trans('composer.and_more', ['count' => count($changes) - 5]) : '');
+        $shown = array_map(fn (Change $c) => $c->describe($this->translator), array_slice($changes, 0, 5));
+        $note = $this->translator->trans('flarum-extension-manager.api.composer.will_change', ['count' => count($changes), 'list' => implode(', ', $shown)])
+            .(count($changes) > 5 ? $this->translator->trans('flarum-extension-manager.api.composer.and_more', ['count' => count($changes) - 5]) : '');
 
         return $raised === [] ? $note : implode('; ', $raised).'. '.$note;
     }
@@ -260,19 +263,19 @@ class ComposerSteps implements Steps
     /**
      * How many times a resolve killed by the host is tried before giving up.
      *
-     * 🚨 Six, from a measurement rather than a feeling: on dev's real
-     * composer.json (346 packages, 22 private GitHub repositories) a cold
+     * Six, from a measurement rather than a feeling: on dev's real
+     * composer.json (346 packages, 22 protected GitHub repositories) a cold
      * in-process resolve took 144s and a warm one 27s. Each killed attempt
      * keeps what it downloaded, so a host that cuts requests at 30 seconds gets
      * there in about five tries; three would give up on it with the cache
      * nearly full.
      */
-    private const RESOLVE_ATTEMPTS = 6;
+    protected const RESOLVE_ATTEMPTS = 6;
 
     /**
      * Copy the manifests aside the first time; put them back on every retry.
      */
-    private function startFromSaved(): void
+    protected function startFromSaved(): void
     {
         foreach (['composer.lock', 'composer.json'] as $file) {
             $saved = $this->workDir.'/'.$file.'.before';
@@ -283,7 +286,7 @@ class ComposerSteps implements Steps
                     self::replaceFile($saved, $live);
                 }
             } elseif (! copy($live, $saved)) {
-                throw new RuntimeException(Lang::trans('composer.save_before_resolve_failed', ['file' => $file]));
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.save_before_resolve_failed', ['file' => $file]));
             }
         }
     }
@@ -292,7 +295,7 @@ class ComposerSteps implements Steps
      * The resolve, inside this request — and what happens when the host kills
      * the request before Composer finishes.
      *
-     * 🚨 On shared hosting the request has a time limit the Extension Manager may not be
+     * On shared hosting the request has a time limit the Extension Manager may not be
      * allowed to lift, and a proxy in front of it may cut it off regardless. A
      * kill there is not a failure of the update, so it must not look like one:
      *
@@ -310,7 +313,7 @@ class ComposerSteps implements Steps
      * @param list<string> $args
      * @return array{code:int, output:string}
      */
-    private function resolveInProcess(array $args): array
+    protected function resolveInProcess(array $args): array
     {
         $path = $this->workDir.'/resolve.attempt.json';
         $prev = is_file($path) ? (array) json_decode((string) @file_get_contents($path), true) : [];
@@ -324,7 +327,7 @@ class ComposerSteps implements Steps
                 $this->startFromSaved();
 
                 throw new RuntimeException(
-                    Lang::trans('composer.resolve_gave_up', ['how' => $how, 'attempts' => self::RESOLVE_ATTEMPTS]).' '.$this->limitAdvice($prev)
+                    $this->translator->trans('flarum-extension-manager.api.composer.resolve_gave_up', ['how' => $how, 'attempts' => self::RESOLVE_ATTEMPTS]).' '.$this->limitAdvice($prev)
                 );
             }
 
@@ -333,7 +336,7 @@ class ComposerSteps implements Steps
                 @file_put_contents($path, json_encode($prev));
 
                 throw new NotYet(
-                    Lang::trans('composer.resolve_retrying', ['how' => $how, 'attempt' => $attempts + 1, 'attempts' => self::RESOLVE_ATTEMPTS])
+                    $this->translator->trans('flarum-extension-manager.api.composer.resolve_retrying', ['how' => $how, 'attempt' => $attempts + 1, 'attempts' => self::RESOLVE_ATTEMPTS])
                 );
             }
         }
@@ -380,29 +383,29 @@ class ComposerSteps implements Steps
     }
 
     /** @param array<string,mixed> $attempt */
-    private function howItStopped(array $attempt): string
+    protected function howItStopped(array $attempt): string
     {
         $seconds = (int) ($attempt['seconds'] ?? 0);
 
         return match ($attempt['stopped'] ?? null) {
-            'time' => Lang::trans('composer.stopped_time', ['seconds' => (int) ($attempt['timeLimit'] ?? $seconds)]),
-            'memory' => Lang::trans('composer.stopped_memory', ['limit' => (string) ($attempt['memoryLimit'] ?? '?')]),
-            'unknown' => Lang::trans('composer.stopped_unknown', ['seconds' => $seconds]),
-            default => Lang::trans('composer.stopped'),
+            'time' => $this->translator->trans('flarum-extension-manager.api.composer.stopped_time', ['seconds' => (int) ($attempt['timeLimit'] ?? $seconds)]),
+            'memory' => $this->translator->trans('flarum-extension-manager.api.composer.stopped_memory', ['limit' => (string) ($attempt['memoryLimit'] ?? '?')]),
+            'unknown' => $this->translator->trans('flarum-extension-manager.api.composer.stopped_unknown', ['seconds' => $seconds]),
+            default => $this->translator->trans('flarum-extension-manager.api.composer.stopped'),
         };
     }
 
     /** @param array<string,mixed> $attempt */
-    private function limitAdvice(array $attempt): string
+    protected function limitAdvice(array $attempt): string
     {
         return match ($attempt['stopped'] ?? null) {
-            'memory' => Lang::trans('composer.advice_memory'),
-            default => Lang::trans('composer.advice_time'),
+            'memory' => $this->translator->trans('flarum-extension-manager.api.composer.advice_memory'),
+            default => $this->translator->trans('flarum-extension-manager.api.composer.advice_time'),
         };
     }
 
     /** Copy beside, then rename over: never a half-written file in place. */
-    private static function replaceFile(string $from, string $to): bool
+    protected static function replaceFile(string $from, string $to): bool
     {
         $tmp = $to.'.extension-manager-'.bin2hex(random_bytes(3));
 
@@ -418,19 +421,19 @@ class ComposerSteps implements Steps
     /**
      * Raise the requirements this run was authorised to raise.
      *
-     * 🚨 composer.json is edited BEFORE the resolve, and only for packages the
+     * composer.json is edited BEFORE the resolve, and only for packages the
      * admin was shown. `composer.json.before` is already saved a few lines
      * above, and Rollback restores it — so an update that raises a pin and then
      * fails puts the requirement back with everything else.
      *
-     * 🚨 It raises to an EXACT version, never to a range. A site that pinned
+     * It raises to an EXACT version, never to a range. A site that pinned
      * `3.5.1` deliberately stays pinned at `3.6.0`; quietly converting it to
      * `^3.6` would hand back the drift the pin was there to stop, as a side
      * effect of an unrelated click.
      *
      * @return list<string> what changed, for the log
      */
-    private function raisePins(): array
+    protected function raisePins(): array
     {
         if ($this->repin === [] || $this->mode !== 'update') {
             return [];
@@ -454,7 +457,7 @@ class ComposerSteps implements Steps
             }
 
             $json['require'][$package] = $version;
-            $raised[] = Lang::trans('composer.pin_raised', ['package' => $package, 'version' => $version, 'current' => $current]);
+            $raised[] = $this->translator->trans('flarum-extension-manager.api.composer.pin_raised', ['package' => $package, 'version' => $version, 'current' => $current]);
         }
 
         if ($raised === []) {
@@ -469,7 +472,7 @@ class ComposerSteps implements Steps
     /**
      * Why an update changed nothing.
      *
-     * 🚨 "Everything is already at the newest version it can be" is true and
+     * "Everything is already at the newest version it can be" is true and
      * useless, and on a pinned forum it is actively misleading.
      *
      * A site that pins `ernestdefoe/page-builder` to `3.5.1` will be told by the
@@ -481,7 +484,7 @@ class ComposerSteps implements Steps
      * So when a requested package did not move, name its constraint. The admin
      * can then do the one thing that would help.
      */
-    private function whyNothingMoved(): string
+    protected function whyNothingMoved(): string
     {
         $json = $this->readJson($this->installPath.'/composer.json');
         $pinned = [];
@@ -499,21 +502,21 @@ class ComposerSteps implements Steps
              * those genuinely can be "already newest".
              */
             if (preg_match('/^v?\d+\.\d+\.\d+/', $constraint) && ! preg_match('/[\^~*|]|\s-\s/', $constraint)) {
-                $pinned[] = Lang::trans('composer.pinned_to', ['package' => $package, 'constraint' => $constraint]);
+                $pinned[] = $this->translator->trans('flarum-extension-manager.api.composer.pinned_to', ['package' => $package, 'constraint' => $constraint]);
             }
         }
 
         if ($pinned === []) {
-            return Lang::trans('composer.nothing_to_update');
+            return $this->translator->trans('flarum-extension-manager.api.composer.nothing_to_update');
         }
 
-        return Lang::trans('composer.nothing_moved_pinned', ['pins' => implode('; ', $pinned)]);
+        return $this->translator->trans('flarum-extension-manager.api.composer.nothing_moved_pinned', ['pins' => implode('; ', $pinned)]);
     }
 
     /**
      * Did the command achieve what it was asked to, whatever it says?
      *
-     * 🚨 Only consulted when the exit code is non-zero, and only for a removal.
+     * Only consulted when the exit code is non-zero, and only for a removal.
      * `composer remove --no-install` updates composer.json and the lock exactly
      * as wanted, and THEN checks whether the package has gone from vendor —
      * which it has not, because --no-install is us telling Composer not to touch
@@ -528,7 +531,7 @@ class ComposerSteps implements Steps
      * @param array<string,mixed> $before
      * @param array<string,mixed> $after
      */
-    private function didWhatWasAsked(array $before, array $after): bool
+    protected function didWhatWasAsked(array $before, array $after): bool
     {
         if ($this->mode !== 'remove' || $this->requested === []) {
             return false;
@@ -548,26 +551,26 @@ class ComposerSteps implements Steps
         return true;
     }
 
-    private function fetchOne(string $package): string
+    protected function fetchOne(string $package): string
     {
         $plan = $this->planFile();
         $source = $plan['sources'][$package] ?? null;
 
         if ($source === null) {
             throw new RuntimeException(
-                Lang::trans('composer.no_archive', ['package' => $package])
+                $this->translator->trans('flarum-extension-manager.api.composer.no_archive', ['package' => $package])
             );
         }
 
         $this->fetcher->fetch($package, $source);
 
-        return Lang::trans('composer.downloaded', ['package' => $package]);
+        return $this->translator->trans('flarum-extension-manager.api.composer.downloaded', ['package' => $package]);
     }
 
     /**
      * The plan in the order it is applied: Flarum core LAST.
      *
-     * 🚨 A host without processes applies one package per request, and the
+     * A host without processes applies one package per request, and the
      * moment core's files land every later request gets "Update Flarum".
      * Alphabetically core was 4th of 27 on rc.8 → nightly, so the other 23
      * swaps — and the database update after them — could never run. Last, it
@@ -575,7 +578,7 @@ class ComposerSteps implements Steps
      *
      * @return list<Change>
      */
-    private function applyOrder(): array
+    protected function applyOrder(): array
     {
         $plan = $this->plan();
         usort($plan, fn (Change $a, Change $b) => (int) ($a->package === 'flarum/core') <=> (int) ($b->package === 'flarum/core'));
@@ -583,7 +586,7 @@ class ComposerSteps implements Steps
         return $plan;
     }
 
-    private function applyOne(string $package): string
+    protected function applyOne(string $package): string
     {
         $plan = $this->applyOrder();
 
@@ -592,14 +595,14 @@ class ComposerSteps implements Steps
                 $done = $this->applier->applyOne($change);
 
                 /*
-                 * 🚨 In this request, before anything else can fail. A package
+                 * In this request, before anything else can fail. A package
                  * with `autoload.files` that this swap took away (a removal, or
                  * a new version without that file) would otherwise kill every
                  * request in Composer's autoloader, this updater's next step and
                  * its undo included. See AutoloadFiles.
                  */
                 if (AutoloadFiles::pruneMissing($this->installPath.'/vendor') !== []) {
-                    $done .= '. '.Lang::trans('composer.autoload_files_pruned');
+                    $done .= '. '.$this->translator->trans('flarum-extension-manager.api.composer.autoload_files_pruned');
                 }
 
                 $this->dropStaleCode();
@@ -613,11 +616,11 @@ class ComposerSteps implements Steps
             }
         }
 
-        throw new RuntimeException(Lang::trans('composer.not_in_plan', ['package' => $package]));
+        throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.not_in_plan', ['package' => $package]));
     }
 
     /** @param list<Change> $plan */
-    private function movesCore(array $plan): bool
+    protected function movesCore(array $plan): bool
     {
         foreach ($plan as $change) {
             if ($change->package === 'flarum/core' && $change->op === Change::REPLACE) {
@@ -631,7 +634,7 @@ class ComposerSteps implements Steps
     /**
      * Bring the database up to date in the SAME request that swapped core.
      *
-     * 🚨 Once Flarum's files are newer than its database, every request gets
+     * Once Flarum's files are newer than its database, every request gets
      * the "Update Flarum" page — the Extension Manager's own step endpoint included — so
      * the finalise phase could never be reached from the web, and neither
      * could the undo button. Where a process can be started, `php flarum
@@ -639,15 +642,15 @@ class ComposerSteps implements Steps
      * updater is asked to (see FlarumUpdater). If neither works, this request
      * undoes the update before it ends, because no later one could.
      */
-    private function bridgeCore(): string
+    protected function bridgeCore(): string
     {
         $db = resolve(ConnectionInterface::class);
-        $ledger = new MigrationLedger($this->workDir);
+        $ledger = new MigrationLedger($this->translator, $this->workDir);
         $ledger->before($db);
         $was = $db->table('settings')->where('key', 'version')->value('value');
 
         /*
-         * 🚨 Only a new VERSION puts the forum behind "Update Flarum". A core
+         * Only a new VERSION puts the forum behind "Update Flarum". A core
          * that moves without one — the nightly build (2.x-dev) to the release
          * it becomes, both of which say 2.0.0 — leaves the site answering, so
          * the migrations step later in this run is still reachable and does
@@ -656,17 +659,17 @@ class ComposerSteps implements Steps
          * on a host without proc_open Flarum's updater is not there to ask.
          */
         if ($was !== null && $was === CoreVersion::onDisk($this->vendorPath !== '' ? $this->vendorPath : $this->installPath.'/vendor')) {
-            return Lang::trans('composer.core_same_version', ['version' => $was]);
+            return $this->translator->trans('flarum-extension-manager.api.composer.core_same_version', ['version' => $was]);
         }
 
         try {
-            (new Opcache())->clear();
+            (new Opcache($this->translator))->clear();
 
             if ($this->composer->canSpawn()) {
                 $this->registerWith(null);
                 $this->flarum('migrate', '');
             } else {
-                (new FlarumUpdater($this->siteUrl, (array) (resolve(Config::class)['database'] ?? [])))->migrate();
+                (new FlarumUpdater($this->translator, new Client(), $this->siteUrl, (array) (resolve(Config::class)['database'] ?? []), $this->storagePath))->migrate();
             }
 
             $now = $db->table('settings')->where('key', 'version')->value('value');
@@ -676,21 +679,21 @@ class ComposerSteps implements Steps
             $this->clearWebCache();
 
             if ($now === $was) {
-                throw new RuntimeException(Lang::trans('composer.core_db_unchanged', ['version' => $was]));
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.core_db_unchanged', ['version' => $was]));
             }
 
-            return Lang::trans('composer.core_moved', ['from' => $was, 'to' => $now]);
+            return $this->translator->trans('flarum-extension-manager.api.composer.core_moved', ['from' => $was, 'to' => $now]);
         } catch (\Throwable $e) {
             $restore = $this->restore();
 
             if ($restore === null || ! $restore->possible()) {
-                throw new RuntimeException(Lang::trans('composer.core_db_failed', ['error' => $e->getMessage()]));
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.core_db_failed', ['error' => $e->getMessage()]));
             }
 
             $done = $restore->run();
 
             throw new Reverted(
-                Lang::trans('composer.core_db_failed_undone', ['error' => $e->getMessage()]).($done['note'] !== null ? ' '.$done['note'] : ''),
+                $this->translator->trans('flarum-extension-manager.api.composer.core_db_failed_undone', ['error' => $e->getMessage()]).($done['note'] !== null ? ' '.$done['note'] : ''),
                 $done['undone']
             );
         }
@@ -699,59 +702,59 @@ class ComposerSteps implements Steps
     /**
      * Remove rollback copies no rollback can reach any more.
      *
-     * 🚨 Never fails the run, and never takes long. The update is finished and
+     * Never fails the run, and never takes long. The update is finished and
      * verified by now; housekeeping that throws must not turn it red and offer
      * to undo correct work, so a failure is reported in the log and left for
      * the nightly prune. The time budget keeps a host that cuts requests at 30
      * seconds from killing this step mid-way — what is left is picked up later.
      */
-    private function tidyTrash(): string
+    protected function tidyTrash(): string
     {
         if ($this->storagePath === '') {
-            return Lang::trans('composer.tidy_no_storage');
+            return $this->translator->trans('flarum-extension-manager.api.composer.tidy_no_storage');
         }
 
         try {
             $dir = StorageDir::of($this->storagePath);
-            $summary = (new Pruner($dir, new Retention($dir)))->prune('finished update', 10.0);
+            $summary = (new Pruner($this->translator, $dir, new Retention($dir)))->prune('finished update', 10.0);
         } catch (\Throwable $e) {
-            return Lang::trans('composer.tidy_left', ['error' => $e->getMessage()]);
+            return $this->translator->trans('flarum-extension-manager.api.composer.tidy_left', ['error' => $e->getMessage()]);
         }
 
         if ($summary['removed'] === 0) {
-            return Lang::trans('composer.tidy_nothing');
+            return $this->translator->trans('flarum-extension-manager.api.composer.tidy_nothing');
         }
 
-        return Lang::trans('composer.tidy_removed', ['count' => $summary['removed'], 'size' => Pruner::human((int) $summary['freed'])])
-            .($summary['complete'] ? '' : ' '.Lang::trans('composer.tidy_rest_tonight'));
+        return $this->translator->trans('flarum-extension-manager.api.composer.tidy_removed', ['count' => $summary['removed'], 'size' => Pruner::human((int) $summary['freed'])])
+            .($summary['complete'] ? '' : ' '.$this->translator->trans('flarum-extension-manager.api.composer.tidy_rest_tonight'));
     }
 
     /** Longer than this and telling the truth beats parking the admin screen. */
-    private const WAIT_CAP = 180;
+    protected const WAIT_CAP = 180;
 
-    private function finalise(string $item, Run $run): string
+    protected function finalise(string $item, Run $run): string
     {
         return match ($item) {
             'register' => $this->register(),
             'migrations' => $this->migrate(),
-            'assets' => $this->flarum('assets:publish', Lang::trans('composer.assets_published')),
+            'assets' => $this->flarum('assets:publish', $this->translator->trans('flarum-extension-manager.api.composer.assets_published')),
             'caches' => $this->clearCaches(),
             'check the site again' => $this->verify($run),
             'tidy the trash' => $this->tidyTrash(),
             /*
-             * 🚨 Last, and it is the step that decides whether any of the others
+             * Last, and it is the step that decides whether any of the others
              * were visible. On a host with opcache.validate_timestamps off, every
              * phase above can succeed and the site carries on serving the old
              * compiled code until PHP is restarted — an update that reports
              * success and changed nothing anybody can see.
              */
             'code cache' => $this->codeCache(),
-            default => Lang::trans('composer.nothing_to_do'),
+            default => $this->translator->trans('flarum-extension-manager.api.composer.nothing_to_do'),
         };
     }
 
     /**
-     * 🚨 `install`, not `dump-autoload`, and the difference is whether the
+     * `install`, not `dump-autoload`, and the difference is whether the
      * update exists at all.
      *
      * Composer's record of what is installed is vendor/composer/installed.json,
@@ -765,7 +768,7 @@ class ComposerSteps implements Steps
      * tree already agrees — measured at 2.2s for a one-package change on a
      * 226-package forum, touching only what moved.
      *
-     * 🚨 It does re-extract the packages this run changed, because Composer
+     * It does re-extract the packages this run changed, because Composer
      * trusts its own record rather than the disk. That is a known cost and it
      * is worth it: the staged apply is what makes the RISKY window atomic and
      * reversible, and this runs afterwards, against a tree that is already
@@ -774,7 +777,7 @@ class ComposerSteps implements Steps
     /**
      * Clear Flarum's caches, and leave the formatter able to render.
      *
-     * 🚨 `cache:clear` on its own takes post rendering down, and this is not a
+     * `cache:clear` on its own takes post rendering down, and this is not a
      * race — it happens every time on any forum whose cache driver is not the
      * file store, which is every forum running fof/redis.
      *
@@ -786,7 +789,7 @@ class ComposerSteps implements Steps
      * names a class whose file is gone, and every post render dies with
      * `__PHP_Incomplete_Class`. `rememberForever` means nothing fixes it later.
      *
-     * 🚨 An earlier version of this method deleted storage/formatter/*.php
+     * An earlier version of this method deleted storage/formatter/*.php
      * itself, on the theory that clearing both halves left a consistent state.
      * That was precisely backwards: deleting the file while the entry survives
      * IS the break, so it manufactured the failure it was written to prevent —
@@ -795,30 +798,30 @@ class ComposerSteps implements Steps
      * The repair command forgets the entry through the formatter's OWN cache and
      * rebuilds both halves together.
      */
-    private function clearCaches(): string
+    protected function clearCaches(): string
     {
         // A cache left root-owned (a `php flarum cache:clear` run as root while
         // this run waited) would fail the clear below; see StaleCache.
-        $setAside = StaleCache::describe(StaleCache::setAside($this->storagePath));
+        $setAside = StaleCache::describe(StaleCache::setAside($this->storagePath), $this->translator);
 
         $this->flarum('cache:clear', 'cleared');
         $this->flarum('extension-manager:repair-formatter', 'formatter rebuilt');
         // Before Flarum 2.0.0, cache:clear leaves the compiled bundles as they
         // were: the update's new screen never reached the browser.
         $this->needsFreshCode();
-        $rebuilt = (new FlarumCommand($this->installPath, $this->composer))->run('extension-manager:rebuild-assets');
+        $rebuilt = (new FlarumCommand($this->translator, $this->installPath, $this->composer))->run('extension-manager:rebuild-assets');
         $warnings = array_values(array_filter(
             array_map('trim', explode("\n", (string) $rebuilt['output'])),
             fn (string $line) => str_starts_with($line, 'Warning:')
         ));
 
-        return Lang::trans('composer.caches_cleared')
+        return $this->translator->trans('flarum-extension-manager.api.composer.caches_cleared')
             .($setAside === '' ? '' : '. '.$setAside)
             .($warnings === [] ? '' : '. '.implode(' ', $warnings));
     }
 
     /**
-     * 🚨 Never fails the run.
+     * Never fails the run.
      *
      * By this point the files are updated, the lock is updated, and Composer's
      * record agrees with both. A compiled-code cache that could not be cleared
@@ -828,7 +831,7 @@ class ComposerSteps implements Steps
     /**
      * What the site was doing BEFORE we touched anything.
      *
-     * 🚨 Without this, an automatic rollback is a liability rather than a
+     * Without this, an automatic rollback is a liability rather than a
      * safety net. A site that was already down for its own reasons — a bad
      * config, a full disk, a database that went away — would fail the check
      * afterwards too, and the update would be blamed and undone for a fault it
@@ -838,68 +841,68 @@ class ComposerSteps implements Steps
      * judged by whether the site answers", and the only way to know is to have
      * asked before.
      */
-    private function baseline(): string
+    protected function baseline(): string
     {
         $health = $this->health();
 
         if ($health === null) {
             $this->rememberHealth('unchecked');
 
-            return Lang::trans('composer.health_no_address');
+            return $this->translator->trans('flarum-extension-manager.api.composer.health_no_address');
         }
 
         $result = $health->check(2);
         $this->rememberHealth($result['ok'] ? 'ok' : 'down');
 
         return $result['ok']
-            ? Lang::trans('composer.health_ok_before')
-            : Lang::trans('composer.health_down_before', ['why' => $result['why']]);
+            ? $this->translator->trans('flarum-extension-manager.api.composer.health_ok_before')
+            : $this->translator->trans('flarum-extension-manager.api.composer.health_down_before', ['why' => $result['why']]);
     }
 
     /**
      * Did this update break the site? If so, put it back and say why.
      *
-     * 🚨 This is the last item on purpose. It runs after the code cache step
+     * This is the last item on purpose. It runs after the code cache step
      * has waited for the web tier to be serving the new files, so what it asks
      * is a real question: a check that ran before then would be asking whether
      * the OLD code still works, and would pass every time.
      */
-    private function verify(Run $run): string
+    protected function verify(Run $run): string
     {
         $health = $this->health();
         $before = $this->rememberedHealth();
 
         if ($health === null || $before === 'unchecked') {
-            return Lang::trans('composer.health_not_checked');
+            return $this->translator->trans('flarum-extension-manager.api.composer.health_not_checked');
         }
 
         $result = $health->check(3);
 
         /*
-         * 🚨 Flarum answers 503 with its "Update Flarum" page while php-fpm is
+         * Flarum answers 503 with its "Update Flarum" page while php-fpm is
          * still running the old code against a database the update already
          * migrated. That's the web server not having re-read the files yet,
          * not a broken update. Within the window it can take, wait and look
          * again rather than put back an update that is about to work.
          */
         if (! $result['ok'] && ($result['status'] ?? null) === 503) {
-            $situation = (new Opcache())->situation();
+            $situation = (new Opcache($this->translator))->situation();
             $freq = (int) ($situation['freq'] ?? 0);
 
             if ($situation['validates'] && $freq > 0 && $freq <= self::WAIT_CAP && time() < $this->codeLiveAt($freq) + $freq) {
-                throw new NotYet(Lang::trans('composer.health_503_waiting'));
+                throw new NotYet($this->translator->trans('flarum-extension-manager.api.composer.health_503_waiting'));
             }
         }
 
         switch (Verdict::from($before, $result['ok'])) {
             case Verdict::HEALTHY:
-                return Lang::trans('composer.health_ok_after');
+                return $this->translator->trans('flarum-extension-manager.api.composer.health_ok_after');
 
             case Verdict::ALREADY_BROKEN:
-                return Lang::trans('composer.health_still_down');
+                return $this->translator->trans('flarum-extension-manager.api.composer.health_still_down');
 
             case Verdict::NOT_JUDGED:
-                return Lang::trans('composer.health_not_checked');
+                return $this->translator->trans('flarum-extension-manager.api.composer.health_not_checked');
         }
 
         /*
@@ -911,10 +914,10 @@ class ComposerSteps implements Steps
 
         $said = $why === null
             ? $result['why']
-            : $result['why'].' '.Lang::trans('composer.the_error_was', ['error' => $why]);
+            : $result['why'].' '.$this->translator->trans('flarum-extension-manager.api.composer.the_error_was', ['error' => $why]);
 
         /*
-         * 🚨 When the error names one of Flarum's classes and an extension ships
+         * When the error names one of Flarum's classes and an extension ships
          * its own copy of that class, say so. "Call to undefined method
          * Flarum\...\LessCompiler::fontRevisionIn()" reads like Flarum or this
          * updater is broken; the real cause was irmmr/flarum-ext-rtl's frozen
@@ -923,14 +926,14 @@ class ComposerSteps implements Steps
         $culprit = CoreOverrides::culpritFor((string) $why.' '.$result['why'], $this->coreOverrides());
 
         if ($culprit !== null) {
-            $said .= ' '.Lang::trans('composer.replaced_core_class', $culprit);
+            $said .= ' '.$this->translator->trans('flarum-extension-manager.api.composer.replaced_core_class', $culprit);
         }
 
         $restore = $this->restore();
 
         if ($restore === null || ! $restore->possible()) {
             throw new RuntimeException(
-                Lang::trans('composer.broke_site_no_restore').' '.$said
+                $this->translator->trans('flarum-extension-manager.api.composer.broke_site_no_restore').' '.$said
             );
         }
 
@@ -940,7 +943,7 @@ class ComposerSteps implements Steps
 
         $done = $restore->run();
 
-        $message = Lang::trans('composer.broke_site_restored').' '.$said;
+        $message = $this->translator->trans('flarum-extension-manager.api.composer.broke_site_restored').' '.$said;
 
         if ($done['note'] !== null) {
             $message .= ' '.$done['note'];
@@ -950,7 +953,7 @@ class ComposerSteps implements Steps
     }
 
     /** @return list<array{package:string, classes:list<string>}> */
-    private function coreOverrides(): array
+    protected function coreOverrides(): array
     {
         $lock = json_decode((string) @file_get_contents($this->installPath.'/composer.lock'), true);
         $vendor = $this->vendorPath !== '' ? $this->vendorPath : $this->installPath.'/vendor';
@@ -963,7 +966,7 @@ class ComposerSteps implements Steps
      * wait briefly for a request to take it up. True when it did. On the web
      * this process can reset its own, so there is nothing to ask.
      */
-    private function clearWebCache(): bool
+    protected function clearWebCache(): bool
     {
         if (PHP_SAPI !== 'cli' || $this->storagePath === '' || ($health = $this->health()) === null) {
             return false;
@@ -985,7 +988,7 @@ class ComposerSteps implements Steps
     }
 
     /**
-     * 🚨 Straight after the files change, not at the end of the run.
+     * Straight after the files change, not at the end of the run.
      *
      * With revalidate_freq=60 the web server kept running a package's OLD
      * compiled extend.php against its NEW files for every step between the swap
@@ -993,27 +996,27 @@ class ComposerSteps implements Steps
      * beta still registered, and every page and the admin panel on fbsfb.com
      * answered "class not found" until the cache was cleared (2026-10-15).
      */
-    private function dropStaleCode(): void
+    protected function dropStaleCode(): void
     {
         if (PHP_SAPI !== 'cli') {
-            (new Opcache())->clear();
+            (new Opcache($this->translator))->clear();
         } else {
             $this->clearWebCache();
         }
     }
 
-    private function health(): ?SiteHealth
+    protected function health(): ?SiteHealth
     {
-        return $this->siteUrl === '' ? null : new SiteHealth($this->siteUrl);
+        return $this->siteUrl === '' ? null : new SiteHealth($this->translator, new Client(), $this->siteUrl);
     }
 
-    private function restore(): ?Restore
+    protected function restore(): ?Restore
     {
         if ($this->vendorPath === '' || $this->storagePath === '') {
             return null;
         }
 
-        return new Restore(
+        return new Restore($this->translator, 
             $this->vendorPath,
             $this->installPath,
             $this->workDir,
@@ -1025,18 +1028,18 @@ class ComposerSteps implements Steps
     }
 
     /**
-     * 🚨 On disk, in the run's own scratch space, because the process that
+     * On disk, in the run's own scratch space, because the process that
      * takes the baseline is very often not the process that checks it again —
      * a queue worker starts the run and an admin page polling finishes it. In
      * memory it would simply be absent by then, which reads as "never checked"
      * and quietly disables the whole safety net.
      */
-    private function rememberHealth(string $state): void
+    protected function rememberHealth(string $state): void
     {
         @file_put_contents($this->workDir.'/health.before', $state);
     }
 
-    private function rememberedHealth(): string
+    protected function rememberedHealth(): string
     {
         $saved = @file_get_contents($this->workDir.'/health.before');
 
@@ -1044,7 +1047,7 @@ class ComposerSteps implements Steps
     }
 
     /**
-     * 🚨 This step WAITS, and that is the whole point of it.
+     * This step WAITS, and that is the whole point of it.
      *
      * It used to clear what it could, return a sentence, and let the run finish.
      * On a queue worker it cannot reach the web server's compiled-code cache at
@@ -1061,13 +1064,13 @@ class ComposerSteps implements Steps
      * So the run stays in progress until the web tier can actually see the new
      * files. Finished now means in effect.
      */
-    private function codeCache(): string
+    protected function codeCache(): string
     {
         if ($this->clearWebCache()) {
-            return Lang::trans('composer.web_cache_cleared');
+            return $this->translator->trans('flarum-extension-manager.api.composer.web_cache_cleared');
         }
 
-        $opcache = new Opcache();
+        $opcache = new Opcache($this->translator);
         $situation = $opcache->situation();
         $result = $opcache->clear();
 
@@ -1095,21 +1098,21 @@ class ComposerSteps implements Steps
              * than telling the truth and letting them restart PHP.
              */
             if ($left > self::WAIT_CAP) {
-                return Lang::trans('composer.wait_too_long', ['seconds' => $situation['freq']]);
+                return $this->translator->trans('flarum-extension-manager.api.composer.wait_too_long', ['seconds' => $situation['freq']]);
             }
 
             throw new NotYet(
-                Lang::trans('composer.waiting_reread', ['seconds' => $left])
+                $this->translator->trans('flarum-extension-manager.api.composer.waiting_reread', ['seconds' => $left])
             );
         }
 
-        return Lang::trans('composer.reread_done');
+        return $this->translator->trans('flarum-extension-manager.api.composer.reread_done');
     }
 
     /**
      * When the web tier is guaranteed to have re-read the autoloader.
      *
-     * 🚨 Measured from the AUTOLOADER, not from now. It is the file whose
+     * Measured from the AUTOLOADER, not from now. It is the file whose
      * staleness actually breaks a site — a class that exists on disk and is
      * unknown to the running process — and it stops changing at the register
      * step, so the phases in between count towards the wait instead of being
@@ -1119,10 +1122,10 @@ class ComposerSteps implements Steps
      * checked a file, not from when the file changed, so the worst case is one
      * full window after the write.
      */
-    private function codeLiveAt(int $freq): int
+    protected function codeLiveAt(int $freq): int
     {
         /*
-         * 🚨 Timed from Composer's install record as well as the autoloader.
+         * Timed from Composer's install record as well as the autoloader.
          * The autoloader is only rewritten when the set of classes changes, and
          * 2.0.0-rc.8 → 2.0.0 changed none, so its timestamp was days old and the
          * wait was skipped. The site was checked while php-fpm still ran rc.8
@@ -1144,16 +1147,16 @@ class ComposerSteps implements Steps
      * it cannot change. See Permissions for the two half-finished runs this
      * replaces. Skipped, not passed, when the paths were never supplied.
      */
-    private function checkPermissions(): string
+    protected function checkPermissions(): string
     {
         if ($this->vendorPath === '' || $this->storagePath === '') {
-            return Lang::trans('composer.permissions_not_checked');
+            return $this->translator->trans('flarum-extension-manager.api.composer.permissions_not_checked');
         }
 
         // A root-owned cache is moved aside rather than refused; see StaleCache.
-        $setAside = StaleCache::describe(StaleCache::setAside($this->storagePath));
+        $setAside = StaleCache::describe(StaleCache::setAside($this->storagePath), $this->translator);
 
-        $permissions = new Permissions($this->installPath, $this->vendorPath, $this->storagePath);
+        $permissions = new Permissions($this->translator, $this->installPath, $this->vendorPath, $this->storagePath);
         $blocked = $permissions->blocked($this->plan());
 
         if ($blocked !== []) {
@@ -1169,20 +1172,20 @@ class ComposerSteps implements Steps
             throw new RuntimeException($permissions->explain($blocked));
         }
 
-        return Lang::trans('composer.permissions_ok').($setAside !== '' ? '. '.$setAside : '');
+        return $this->translator->trans('flarum-extension-manager.api.composer.permissions_ok').($setAside !== '' ? '. '.$setAside : '');
     }
 
     /**
      * Make Composer's record and autoloader match the tree, without letting it
      * re-extract anything. See InstalledRecord for the outage this prevents.
      *
-     * 🚨 The dry run is the guard, not a formality. If Composer would still
+     * The dry run is the guard, not a formality. If Composer would still
      * change files after the record is synced, something disagrees that this
      * step does not understand — and finding that out by letting Composer
      * delete its own dependencies is how a site goes down. Stopping here leaves
      * the applied tree in place and rollback available.
      */
-    private function register(): string
+    protected function register(): string
     {
         $this->needsFreshCode();
 
@@ -1205,29 +1208,29 @@ class ComposerSteps implements Steps
         }
     }
 
-    private function registerWith(?string $snapshot): string
+    protected function registerWith(?string $snapshot): string
     {
-        (new InstalledRecord($this->installPath))->syncFromLock();
+        (new InstalledRecord($this->translator, $this->installPath))->syncFromLock();
 
         $dry = $this->composer->run(['install', '--no-scripts', '--dry-run']);
         if ($dry['code'] !== 0) {
-            throw new RuntimeException(Lang::trans('composer.composer_failed')."\n".$dry['output']);
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.composer_failed')."\n".$dry['output']);
         }
 
         $planned = InstalledRecord::plannedOperations($dry['output']);
         if ($planned > 0) {
             throw new RuntimeException(
-                Lang::trans('composer.still_wants_changes', ['count' => $planned])."\n"
+                $this->translator->trans('flarum-extension-manager.api.composer.still_wants_changes', ['count' => $planned])."\n"
                 .$dry['output']
             );
         }
 
         if ($snapshot === null) {
-            return $this->composerCommand(['install', '--no-scripts'], Lang::trans('composer.registered'));
+            return $this->composerCommand(['install', '--no-scripts'], $this->translator->trans('flarum-extension-manager.api.composer.registered'));
         }
 
         /*
-         * 🚨 In-process, the autoloader is written by THIS request, and a host
+         * In-process, the autoloader is written by THIS request, and a host
          * that kills it mid-write would leave vendor/composer half old, half
          * new: every page a fatal. The snapshot taken before the record was
          * synced goes back on the way down, so a kill leaves the autoloader
@@ -1242,7 +1245,7 @@ class ComposerSteps implements Steps
         });
 
         try {
-            return $this->composerCommand(['install', '--no-scripts'], Lang::trans('composer.registered'));
+            return $this->composerCommand(['install', '--no-scripts'], $this->translator->trans('flarum-extension-manager.api.composer.registered'));
         } finally {
             $done = true;
         }
@@ -1251,25 +1254,25 @@ class ComposerSteps implements Steps
     /**
      * Copy Composer's record and autoloader aside before an in-process install.
      */
-    private function snapshotAutoloader(): string
+    protected function snapshotAutoloader(): string
     {
         $dir = $this->workDir.'/register.before';
         $source = $this->installPath.'/vendor/composer';
 
         if (! is_dir($dir) && ! mkdir($dir, 0775, true) && ! is_dir($dir)) {
-            throw new RuntimeException(Lang::trans('composer.autoloader_copy_failed'));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.autoloader_copy_failed'));
         }
 
         foreach ([...(glob($source.'/*.php') ?: []), $source.'/installed.json', $this->installPath.'/vendor/autoload.php'] as $file) {
             if (is_file($file) && ! copy($file, $dir.'/'.$this->snapshotName($file))) {
-                throw new RuntimeException(Lang::trans('composer.autoloader_copy_failed'));
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.autoloader_copy_failed'));
             }
         }
 
         return $dir;
     }
 
-    private function restoreAutoloader(string $dir): void
+    protected function restoreAutoloader(string $dir): void
     {
         foreach (glob($dir.'/*') ?: [] as $saved) {
             $name = basename($saved);
@@ -1281,48 +1284,48 @@ class ComposerSteps implements Steps
         }
     }
 
-    private function snapshotName(string $file): string
+    protected function snapshotName(string $file): string
     {
         return basename(dirname($file)) === 'composer' ? 'composer.'.basename($file) : basename($file);
     }
 
-    private function composerCommand(array $args, string $note): string
+    protected function composerCommand(array $args, string $note): string
     {
         $raised = $this->raisePins();
 
         $result = $this->composer->run($args);
 
         if ($result['code'] !== 0) {
-            throw new RuntimeException(Lang::trans('composer.composer_failed')."\n".$result['output']);
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.composer_failed')."\n".$result['output']);
         }
 
         return $note;
     }
 
     /** `flarum migrate`, writing down what it ran so undo can reverse it. See MigrationLedger. */
-    private function migrate(): string
+    protected function migrate(): string
     {
-        $ledger = new MigrationLedger($this->workDir);
+        $ledger = new MigrationLedger($this->translator, $this->workDir);
         $db = resolve(ConnectionInterface::class);
 
         $ledger->before($db);
         $this->flarum('migrate', 'migrations run');
         $added = $ledger->after($db, resolve(ExtensionManager::class), $this->vendorPath);
 
-        return $added === [] ? Lang::trans('composer.migrations_none') : Lang::trans('composer.migrations_run', ['count' => count($added)]);
+        return $added === [] ? $this->translator->trans('flarum-extension-manager.api.composer.migrations_none') : $this->translator->trans('flarum-extension-manager.api.composer.migrations_run', ['count' => count($added)]);
     }
 
-    private function flarum(string $command, string $note): string
+    protected function flarum(string $command, string $note): string
     {
         /*
-         * 🚨 After the swap, and in a process that has the new code: its own
+         * After the swap, and in a process that has the new code: its own
          * process where the host allows one; otherwise this request, which
          * needsFreshCode() has made sure started after the swap and after
          * opcache let go of the old files. Booting Flarum's commands inside the
          * request that replaced its files would load a half-old, half-new class
          * map.
          *
-         * 🚨 Through the same PhpBinary the Composer phases use. When these
+         * Through the same PhpBinary the Composer phases use. When these
          * disagreed, an update could get through planning, downloading and the
          * swap — every expensive, risky part — and then fail on the last phase
          * because this one alone was spawned with a binary that cannot run a
@@ -1330,10 +1333,10 @@ class ComposerSteps implements Steps
          */
         $this->needsFreshCode();
 
-        $result = (new FlarumCommand($this->installPath, $this->composer))->run($command);
+        $result = (new FlarumCommand($this->translator, $this->installPath, $this->composer))->run($command);
 
         if ($result['code'] !== 0) {
-            throw new RuntimeException(Lang::trans('composer.flarum_command_failed', ['command' => $command])."\n".FlarumCommand::excerpt($result['output']));
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.flarum_command_failed', ['command' => $command])."\n".FlarumCommand::excerpt($result['output']));
         }
 
         return $note;
@@ -1343,15 +1346,15 @@ class ComposerSteps implements Steps
      * Wait for a fresh request before running post-swap code in this process.
      * A no-op wherever a subprocess does the work.
      */
-    private function needsFreshCode(): void
+    protected function needsFreshCode(): void
     {
         if (! $this->composer->canSpawn()) {
-            (new FreshCode($this->workDir, $this->installPath, new Opcache()))->ensure();
+            (new FreshCode($this->translator, $this->workDir, $this->installPath, new Opcache($this->translator)))->ensure();
         }
     }
 
     /** @return list<Change> */
-    private function plan(): array
+    protected function plan(): array
     {
         return array_map(
             fn (array $row) => Change::fromArray($row),
@@ -1360,7 +1363,7 @@ class ComposerSteps implements Steps
     }
 
     /** @return list<Change> */
-    private function downloadable(): array
+    protected function downloadable(): array
     {
         $sources = $this->planFile()['sources'] ?? [];
 
@@ -1371,7 +1374,7 @@ class ComposerSteps implements Steps
     }
 
     /** @return array<string,mixed> */
-    private function planFile(): array
+    protected function planFile(): array
     {
         $path = $this->workDir.'/plan.json';
 
@@ -1383,7 +1386,7 @@ class ComposerSteps implements Steps
     }
 
     /** @return array<string,mixed> */
-    private function readJson(string $path): array
+    protected function readJson(string $path): array
     {
         return (array) json_decode((string) file_get_contents($path), true);
     }
