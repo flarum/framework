@@ -39,17 +39,35 @@ class InProcessComposerTest extends TestCase
 {
     private string $dir;
 
+    /** COMPOSER_AUTH as the test found it, put back afterwards. */
+    private string|false $composerAuth = false;
+
     protected function setUp(): void
     {
         $this->dir = sys_get_temp_dir().'/mw-inproc-'.bin2hex(random_bytes(6));
         mkdir($this->dir.'/project', 0775, true);
         mkdir($this->dir.'/work', 0775, true);
         mkdir($this->dir.'/home', 0775, true);
+
+        /*
+         * 🚨 A token from the environment counts, as it should, so these tests
+         * must not inherit one. CI's PHP setup exports COMPOSER_AUTH with a
+         * GitHub token, and the "needs a token" cases passed locally and failed
+         * there.
+         */
+        $this->composerAuth = getenv('COMPOSER_AUTH');
+        putenv('COMPOSER_AUTH');
+        unset($_SERVER['COMPOSER_AUTH'], $_ENV['COMPOSER_AUTH']);
     }
 
     protected function tearDown(): void
     {
         $this->rmTree($this->dir);
+
+        if ($this->composerAuth !== false) {
+            putenv('COMPOSER_AUTH='.$this->composerAuth);
+            $_SERVER['COMPOSER_AUTH'] = $this->composerAuth;
+        }
     }
 
     // ── runner selection ────────────────────────────────────────────────
@@ -208,7 +226,7 @@ class InProcessComposerTest extends TestCase
 
     public function test_planning_refuses_with_a_sentence_and_changes_nothing(): void
     {
-        $json = ['require' => [], 'repositories' => [['type' => 'vcs', 'url' => 'https://github.com/acme/private-a']]];
+        $json = ['require' => (object) [], 'repositories' => [['type' => 'vcs', 'url' => 'https://github.com/acme/private-a']]];
         $this->writeJson('project/composer.json', $json);
         $this->writeJson('project/composer.lock', ['packages' => []]);
         $before = file_get_contents($this->dir.'/project/composer.json');

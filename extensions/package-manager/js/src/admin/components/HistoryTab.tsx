@@ -45,8 +45,8 @@ export default class HistoryTab extends Component<{ history: any[]; installed: a
                         {c.op === 'add'
                           ? t('history_new', { version: c.to })
                           : c.op === 'remove'
-                            ? t('history_removed_from', { version: c.from })
-                            : `${c.from} → ${c.to}`}
+                          ? t('history_removed_from', { version: c.from })
+                          : `${c.from} → ${c.to}`}
                       </span>
                     </li>
                   ))

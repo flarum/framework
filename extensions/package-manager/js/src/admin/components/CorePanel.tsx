@@ -193,8 +193,8 @@ export default class CorePanel extends Component<CoreAttrs> {
               {r.state === 'blocked'
                 ? t('core_row_blocked', { requires: r.requires || '?' })
                 : r.state === 'needs-update'
-                  ? t('core_row_updating', { version: r.to })
-                  : t('core_row_unknown')}
+                ? t('core_row_updating', { version: r.to })
+                : t('core_row_unknown')}
             </span>
           </li>
         ))}

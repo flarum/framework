@@ -405,8 +405,8 @@ export default class ExtensionManagerPage extends ExtensionPage {
           {this.starting
             ? t('starting')
             : names.length === 1
-              ? t('update_one', { name: updatable[0].name })
-              : t('update_all', { count: names.length })}
+            ? t('update_one', { name: updatable[0].name })
+            : t('update_all', { count: names.length })}
         </button>
       </div>
     );
@@ -575,8 +575,8 @@ export default class ExtensionManagerPage extends ExtensionPage {
             {n === 0 && !this.coreHasUpdate()
               ? t('none_newer')
               : n === 0
-                ? t('core_newer')
-                : t('some_newer', { count: n }) + (this.coreHasUpdate() ? ' ' + t('core_newer_too') : '')}
+              ? t('core_newer')
+              : t('some_newer', { count: n }) + (this.coreHasUpdate() ? ' ' + t('core_newer_too') : '')}
           </b>{' '}
           {t('checked_ago', { when: this.ago(this.updates.checkedAt) })}
           {uncheckable > 0 ? ' ' + t('uncheckable', { count: uncheckable }) : ''}

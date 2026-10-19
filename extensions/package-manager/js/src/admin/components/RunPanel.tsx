@@ -135,12 +135,12 @@ export default class RunPanel extends Component<RunPanelAttrs> {
               {done
                 ? t('run_done')
                 : rolled
-                  ? t('run_rolled_back')
-                  : failed
-                    ? t('run_failed')
-                    : target
-                      ? t('run_target_' + mode, { packages: target })
-                      : t('run_working')}
+                ? t('run_rolled_back')
+                : failed
+                ? t('run_failed')
+                : target
+                ? t('run_target_' + mode, { packages: target })
+                : t('run_working')}
             </h3>
             {target && (done || failed || rolled) ? <div className="ExtensionManager-runTarget">{target}</div> : null}
           </div>
