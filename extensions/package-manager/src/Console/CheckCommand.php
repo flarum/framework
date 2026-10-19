@@ -9,9 +9,9 @@
 
 namespace Flarum\ExtensionManager\Console;
 
+use Flarum\Console\AbstractCommand;
 use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Work\UpdateCheck;
-use Flarum\Console\AbstractCommand;
 use Flarum\Foundation\Paths;
 use Symfony\Component\Console\Input\InputOption;
 

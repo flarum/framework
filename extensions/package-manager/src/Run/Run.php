@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Run;
 
 use Flarum\ExtensionManager\Lang;
+
 /**
  * The state of one update, as a value.
  *

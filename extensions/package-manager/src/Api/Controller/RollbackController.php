@@ -9,9 +9,9 @@
 
 namespace Flarum\ExtensionManager\Api\Controller;
 
-use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Restore;
+use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Work\ComposerRunner;
 use Flarum\ExtensionManager\Work\WorkDir;

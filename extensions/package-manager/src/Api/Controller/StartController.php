@@ -9,19 +9,19 @@
 
 namespace Flarum\ExtensionManager\Api\Controller;
 
-use Flarum\ExtensionManager\Host\StorageDir;
-use Flarum\ExtensionManager\Lang;
+use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
 use Flarum\ExtensionManager\Host\Capability;
+use Flarum\ExtensionManager\Host\StorageDir;
+use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Plan\Nightly;
 use Flarum\ExtensionManager\Plan\Repin;
 use Flarum\ExtensionManager\Run\Drivers;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Work\WorkDir;
-use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;

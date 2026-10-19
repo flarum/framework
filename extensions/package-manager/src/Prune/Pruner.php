@@ -9,8 +9,8 @@
 
 namespace Flarum\ExtensionManager\Prune;
 
-use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Apply\Journal;
+use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Plan\Change;
 use Flarum\ExtensionManager\Run\Run;
 use RuntimeException;

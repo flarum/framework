@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Work;
 
 use Flarum\ExtensionManager\Lang;
+
 /**
  * A cache somebody else owns, moved out of the way instead of refused.
  *

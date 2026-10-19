@@ -9,9 +9,9 @@
 
 namespace Flarum\ExtensionManager\Work;
 
+use FilesystemIterator;
 use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Plan\Change;
-use FilesystemIterator;
 use RecursiveCallbackFilterIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;

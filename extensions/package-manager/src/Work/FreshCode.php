@@ -9,8 +9,8 @@
 
 namespace Flarum\ExtensionManager\Work;
 
-use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Host\Opcache;
+use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Run\NeedsWebRequest;
 use Flarum\ExtensionManager\Run\NotYet;
 

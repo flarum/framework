@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Discover;
 
 use Flarum\ExtensionManager\Lang;
+
 /**
  * Finding extensions, in two cheap requests rather than one slow one.
  *

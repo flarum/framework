@@ -9,12 +9,12 @@
 
 namespace Flarum\ExtensionManager\Api\Controller;
 
-use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\ExtensionManager\Config\JsonFile;
 use Flarum\ExtensionManager\Config\Repositories;
 use Flarum\ExtensionManager\Config\Stability;
 use Flarum\ExtensionManager\Host\PhpOverride;
+use Flarum\ExtensionManager\Lang;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
 use Illuminate\Support\Arr;

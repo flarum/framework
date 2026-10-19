@@ -9,10 +9,10 @@
 
 namespace Flarum\ExtensionManager\Api\Controller;
 
-use Flarum\ExtensionManager\Host\StorageDir;
-use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\ExtensionManager\Config\JsonFile;
+use Flarum\ExtensionManager\Host\StorageDir;
+use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Work\ReleaseNotes;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 use Flarum\Foundation\Paths;

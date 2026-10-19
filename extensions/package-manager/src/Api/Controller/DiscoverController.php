@@ -9,11 +9,11 @@
 
 namespace Flarum\ExtensionManager\Api\Controller;
 
+use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
 use Flarum\ExtensionManager\Host\StorageDir;
-use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
 use Laminas\Diactoros\Response\JsonResponse;

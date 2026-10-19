@@ -9,9 +9,9 @@
 
 namespace Flarum\ExtensionManager\Work;
 
-use Flarum\ExtensionManager\Run\Run;
 use Flarum\Database\Migrator;
 use Flarum\Extension\ExtensionManager;
+use Flarum\ExtensionManager\Run\Run;
 use Flarum\Foundation\Paths;
 use Illuminate\Database\ConnectionInterface;
 use Throwable;

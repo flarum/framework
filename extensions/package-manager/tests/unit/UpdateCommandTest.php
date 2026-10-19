@@ -397,12 +397,7 @@ class UpdateCommandTest extends TestCase
     {
         $store = $this->store();
 
-        $command = new class(
-            new Paths(['base' => $this->dir, 'public' => $this->dir, 'storage' => $this->dir, 'vendor' => $this->dir]),
-            $store,
-            new StepRunner($store, $this->steps($plan, $failOn, $planChanges, $this->dir), fn (): int => time()),
-            $recheck ?? fn () => throw new \LogicException('No re-check expected.'),
-        ) extends UpdateCommand {
+        $command = new class(new Paths(['base' => $this->dir, 'public' => $this->dir, 'storage' => $this->dir, 'vendor' => $this->dir]), $store, new StepRunner($store, $this->steps($plan, $failOn, $planChanges, $this->dir), fn (): int => time()), $recheck ?? fn () => throw new \LogicException('No re-check expected.')) extends UpdateCommand {
             /** @var callable():void */
             private $recheckWith;
 

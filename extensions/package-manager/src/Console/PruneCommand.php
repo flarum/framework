@@ -9,10 +9,10 @@
 
 namespace Flarum\ExtensionManager\Console;
 
+use Flarum\Console\AbstractCommand;
 use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Prune\Pruner;
 use Flarum\ExtensionManager\Prune\Retention;
-use Flarum\Console\AbstractCommand;
 use Flarum\Foundation\Paths;
 use Symfony\Component\Console\Input\InputOption;
 use Throwable;

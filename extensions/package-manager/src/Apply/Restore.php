@@ -9,15 +9,15 @@
 
 namespace Flarum\ExtensionManager\Apply;
 
-use Flarum\ExtensionManager\Lang;
+use Flarum\Database\Migrator;
+use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Host\Opcache;
+use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Work\ComposerRunner;
 use Flarum\ExtensionManager\Work\FlarumCommand;
 use Flarum\ExtensionManager\Work\InstalledRecord;
 use Flarum\ExtensionManager\Work\MigrationLedger;
 use Flarum\ExtensionManager\Work\StaleCache;
-use Flarum\Database\Migrator;
-use Flarum\Extension\ExtensionManager;
 use Illuminate\Database\ConnectionInterface;
 use Throwable;
 

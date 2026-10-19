@@ -9,13 +9,13 @@
 
 namespace Flarum\ExtensionManager\Api\Controller;
 
+use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Host\Capability;
 use Flarum\ExtensionManager\Host\PhpBinary;
 use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Work\PendingUndo;
 use Flarum\ExtensionManager\Work\UpdateCheck;
-use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
 use Laminas\Diactoros\Response\JsonResponse;

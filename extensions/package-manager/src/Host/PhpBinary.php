@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Host;
 
 use Flarum\ExtensionManager\Lang;
+
 /**
  * Where the command-line PHP is — and, when it cannot be found, WHY.
  *

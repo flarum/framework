@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Host;
 
 use Flarum\ExtensionManager\Lang;
+
 /**
  * What this host will and will not let the Extension Manager do, established by looking
  * rather than by hoping.

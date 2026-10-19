@@ -9,8 +9,8 @@
 
 namespace Flarum\ExtensionManager\Console;
 
-use Flarum\ExtensionManager\Work\StaleCache;
 use Flarum\Console\AbstractCommand;
+use Flarum\ExtensionManager\Work\StaleCache;
 use Flarum\Formatter\Formatter;
 use Flarum\Foundation\Paths;
 

@@ -9,9 +9,7 @@
 
 namespace Flarum\ExtensionManager\Work;
 
-use Flarum\ExtensionManager\Plan\CoreOverrides;
-use Flarum\ExtensionManager\Host\StorageDir;
-use Flarum\ExtensionManager\Lang;
+use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Restore;
@@ -20,8 +18,11 @@ use Flarum\ExtensionManager\Host\ErrorLog;
 use Flarum\ExtensionManager\Host\FlarumUpdater;
 use Flarum\ExtensionManager\Host\Opcache;
 use Flarum\ExtensionManager\Host\SiteHealth;
+use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Host\Verdict;
+use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Plan\Change;
+use Flarum\ExtensionManager\Plan\CoreOverrides;
 use Flarum\ExtensionManager\Plan\LockDiff;
 use Flarum\ExtensionManager\Prune\Pruner;
 use Flarum\ExtensionManager\Prune\Retention;
@@ -29,7 +30,6 @@ use Flarum\ExtensionManager\Run\NotYet;
 use Flarum\ExtensionManager\Run\Reverted;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\Steps;
-use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Config;
 use Illuminate\Database\ConnectionInterface;
 use RuntimeException;

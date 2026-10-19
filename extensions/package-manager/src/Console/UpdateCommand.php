@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Console;
 
+use Flarum\Console\AbstractCommand;
 use Flarum\ExtensionManager\Host\Capability;
 use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Plan\Nightly;
@@ -18,7 +19,6 @@ use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 use Flarum\ExtensionManager\Work\WorkDir;
-use Flarum\Console\AbstractCommand;
 use Flarum\Foundation\Paths;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;

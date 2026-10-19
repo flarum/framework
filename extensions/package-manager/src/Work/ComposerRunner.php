@@ -9,8 +9,8 @@
 
 namespace Flarum\ExtensionManager\Work;
 
-use Flarum\ExtensionManager\Lang;
 use Flarum\ExtensionManager\Host\PhpBinary;
+use Flarum\ExtensionManager\Lang;
 use RuntimeException;
 
 /**

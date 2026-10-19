@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Work;
 
 use Flarum\ExtensionManager\Lang;
+
 /**
  * The package sources Composer can only read by running git — which a host
  * that disables proc_open will not let it do.

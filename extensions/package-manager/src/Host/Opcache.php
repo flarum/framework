@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Host;
 
 use Flarum\ExtensionManager\Lang;
+
 /**
  * Whether the code this update writes will actually be the code that runs.
  *

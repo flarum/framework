@@ -7,6 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
+use Flarum\Extend;
 use Flarum\ExtensionManager\Api\Controller;
 use Flarum\ExtensionManager\Console\CheckCommand;
 use Flarum\ExtensionManager\Console\PruneCommand;
@@ -14,7 +15,6 @@ use Flarum\ExtensionManager\Console\RebuildAssetsCommand;
 use Flarum\ExtensionManager\Console\RepairFormatterCommand;
 use Flarum\ExtensionManager\Console\UpdateCommand;
 use Flarum\ExtensionManager\ExtensionManagerServiceProvider;
-use Flarum\Extend;
 
 return [
     (new Extend\ServiceProvider())

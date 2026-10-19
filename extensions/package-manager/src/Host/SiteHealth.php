@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Host;
 
 use Flarum\ExtensionManager\Lang;
+
 /**
  * Does the site still answer?
  *
