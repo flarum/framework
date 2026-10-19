@@ -391,7 +391,8 @@ class InProcessComposerTest extends TestCase
     {
         $journal = new Journal(EnglishTranslator::make(), $this->dir.'/work/journal.jsonl');
 
-        return new ComposerSteps(EnglishTranslator::make(), 
+        return new ComposerSteps(
+            EnglishTranslator::make(),
             $this->dir.'/project',
             $this->dir.'/work',
             $this->runner('proc_open'),

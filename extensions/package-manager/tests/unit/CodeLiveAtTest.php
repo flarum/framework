@@ -43,7 +43,8 @@ class CodeLiveAtTest extends TestCase
     private function liveAt(int $freq): int
     {
         $journal = new Journal(EnglishTranslator::make(), $this->dir.'/work/journal.jsonl');
-        $steps = new ComposerSteps(EnglishTranslator::make(), 
+        $steps = new ComposerSteps(
+            EnglishTranslator::make(),
             $this->dir.'/project',
             $this->dir.'/work',
             new ComposerRunner(EnglishTranslator::make(), $this->dir.'/project', __FILE__, $this->dir.'/home'),

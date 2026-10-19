@@ -22,7 +22,6 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RuntimeException;
 
 /**
  * Put everything back the way it was.
@@ -43,7 +42,8 @@ class RollbackController implements RequestHandlerInterface
 
     protected function composer(): ComposerRunner
     {
-        return new ComposerRunner($this->translator, 
+        return new ComposerRunner(
+            $this->translator,
             $this->paths->base,
             null,
             $this->paths->storage.'/.composer',
@@ -91,7 +91,8 @@ class RollbackController implements RequestHandlerInterface
          * exactly the pair that drifts, and the half that drifts is Composer's
          * record, which fails silently and months later.
          */
-        $restore = new Restore($this->translator, 
+        $restore = new Restore(
+            $this->translator,
             $this->paths->vendor,
             $this->paths->base,
             $workDir->root(),

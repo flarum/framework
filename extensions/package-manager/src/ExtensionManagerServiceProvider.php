@@ -50,7 +50,8 @@ class ExtensionManagerServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton(Drivers::class, function ($container) {
-            return new Drivers($container->make(TranslatorInterface::class), 
+            return new Drivers(
+                $container->make(TranslatorInterface::class),
                 $container->make(QueueFactory::class),
                 $container->make(Dispatcher::class)
             );
@@ -96,7 +97,8 @@ class ExtensionManagerServiceProvider extends AbstractServiceProvider
         $this->container->singleton(StepRunner::class, function ($container) {
             $storage = $container->make(Paths::class)->storage;
 
-            return new StepRunner($container->make(TranslatorInterface::class), 
+            return new StepRunner(
+                $container->make(TranslatorInterface::class),
                 $container->make(RunStore::class),
                 $container->make(StepsFactory::class),
                 fn () => time(),

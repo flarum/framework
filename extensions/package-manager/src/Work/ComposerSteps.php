@@ -1016,7 +1016,8 @@ class ComposerSteps implements Steps
             return null;
         }
 
-        return new Restore($this->translator, 
+        return new Restore(
+            $this->translator,
             $this->vendorPath,
             $this->installPath,
             $this->workDir,

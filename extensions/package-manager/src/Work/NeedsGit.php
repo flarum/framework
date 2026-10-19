@@ -45,8 +45,7 @@ class NeedsGit
         protected TranslatorInterface $translator,
         protected string $installPath,
         protected string $composerHome,
-    )
-    {
+    ) {
     }
 
     /**

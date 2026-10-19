@@ -71,10 +71,12 @@ class ComposerStepsFactory implements StepsFactory
         $workDir = new WorkDir($this->translator, $this->paths->storage, $runId);
         $journal = new Journal($this->translator, $workDir->journalPath());
 
-        return new ComposerSteps($this->translator, 
+        return new ComposerSteps(
+            $this->translator,
             $this->paths->base,
             $workDir->root(),
-            new ComposerRunner($this->translator, 
+            new ComposerRunner(
+                $this->translator,
                 $this->paths->base,
                 null,
                 $this->paths->storage.'/.composer',

@@ -35,7 +35,8 @@ class PhpBinaryDiagnosisTest extends TestCase
     /** @param array<string, array{code:int, out:string, err:string}> $answers */
     private function host(array $answers, ?string $override = null, string $basedir = self::PLESK_BASEDIR, string $disabled = '', ?array $candidates = null): PhpBinary
     {
-        return new PhpBinary(EnglishTranslator::make(), 
+        return new PhpBinary(
+            EnglishTranslator::make(),
             $override,
             $candidates ?? [self::PLESK_CLI, '/usr/bin/php8.5', '/usr/bin/php'],
             $basedir,

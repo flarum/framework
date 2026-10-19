@@ -270,7 +270,8 @@ class Capability
             return [];
         }
 
-        $blockers = $this->blockers ??= (new \Flarum\ExtensionManager\Work\NeedsGit($this->translator, 
+        $blockers = $this->blockers ??= (new \Flarum\ExtensionManager\Work\NeedsGit(
+            $this->translator,
             $this->installPath,
             $this->composerHome ?? $this->installPath.'/storage/.composer'
         ))->blockers();

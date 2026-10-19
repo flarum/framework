@@ -48,7 +48,8 @@ class SymlinkSafetyTest extends TestCase
 
     private function applier(): Applier
     {
-        return new Applier(EnglishTranslator::make(), 
+        return new Applier(
+            EnglishTranslator::make(),
             $this->dir.'/vendor',
             $this->dir.'/staging',
             $this->dir.'/trash',
@@ -112,7 +113,8 @@ class SymlinkSafetyTest extends TestCase
         // clears before it moves the live copy aside.
         symlink($checkout, $this->dir.'/trash/'.$change->trashName().'.rolledback');
 
-        (new Rollback(EnglishTranslator::make(), 
+        (new Rollback(
+            EnglishTranslator::make(),
             $this->dir.'/vendor',
             $this->dir.'/trash',
             new Journal(EnglishTranslator::make(), $this->dir.'/journal.jsonl')

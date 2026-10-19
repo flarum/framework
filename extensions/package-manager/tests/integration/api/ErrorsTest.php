@@ -9,13 +9,16 @@
 
 namespace Flarum\ExtensionManager\Tests\integration\api;
 
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Refusals reach the browser through Flarum's error handling, with a detail
- * for the admin to read. (The test harness loads only core's translations, so
- * the detail here is the translation key; the unit tests check the English.)
+ * for the admin to read: whatever the forum's translator says for the key.
+ * Locally the harness may load only core's translations (the detail is then
+ * the key); CI loads the extension's (it is the English), so the test asks the
+ * translator rather than assuming either.
  */
 class ErrorsTest extends TestCase
 {
@@ -36,7 +39,10 @@ class ErrorsTest extends TestCase
         $this->assertEquals(422, $response->getStatusCode());
         $error = json_decode((string) $response->getBody(), true)['errors'][0];
         $this->assertSame('validation_error', $error['code']);
-        $this->assertStringEndsWith('unknown_action', $error['detail']);
+        $this->assertSame(
+            $this->app()->getContainer()->make(TranslatorInterface::class)->trans('flarum-extension-manager.api.unknown_action'),
+            $error['detail']
+        );
         $this->assertSame('/data/attributes/action', $error['source']['pointer']);
     }
 

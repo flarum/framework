@@ -77,7 +77,8 @@ class DriversTest extends TestCase
 
     public function test_a_misconfigured_queue_falls_back_instead_of_failing_the_update(): void
     {
-        $drivers = new Drivers(EnglishTranslator::make(), 
+        $drivers = new Drivers(
+            EnglishTranslator::make(),
             $this->queue(new RuntimeException('no connection')),
             $this->createStub(Dispatcher::class)
         );

@@ -98,7 +98,8 @@ class CoreBridgeTest extends TestCase
         $journal = new Journal(EnglishTranslator::make(), $this->dir.'/work/journal.jsonl');
         $php = new PhpBinary(EnglishTranslator::make(), PHP_BINARY, null, '', null, PHP_BINARY, 'cli', '');
 
-        $steps = new ComposerSteps(EnglishTranslator::make(), 
+        $steps = new ComposerSteps(
+            EnglishTranslator::make(),
             $this->dir.'/project',
             $this->dir.'/work',
             (new ComposerRunner(EnglishTranslator::make(), $this->dir.'/project', __FILE__, $this->dir.'/home'))->withPhp($php),

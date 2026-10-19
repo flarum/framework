@@ -71,7 +71,8 @@ class Restore
             $this->vendorPath
         );
 
-        $undone = array_merge($pending ? [$this->translator->trans('flarum-extension-manager.api.restore.migrations_queued')] : [], (new Rollback($this->translator, 
+        $undone = array_merge($pending ? [$this->translator->trans('flarum-extension-manager.api.restore.migrations_queued')] : [], (new Rollback(
+            $this->translator,
             $this->vendorPath,
             $this->trashPath,
             $this->journal,
