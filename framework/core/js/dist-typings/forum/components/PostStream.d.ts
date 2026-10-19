@@ -21,6 +21,19 @@ export default class PostStream extends Component<import("../../common/Component
      */
     afterFirstPostItems(): ItemList<import('mithril').Children>;
     /**
+     * Items to render after any one post in the stream.
+     *
+     * Called once per loaded post, so the item list must be built from the
+     * arguments rather than from state: returning the same content for every
+     * post renders it after every post.
+     *
+     * @param {import('../../common/models/Post').default} post
+     * @param {number} index The post's index in the discussion, not in the
+     *                       loaded page -- the same number as `data-index`.
+     * @returns {ItemList<import('mithril').Children>}
+     */
+    afterPostItems(post: import('../../common/models/Post').default, index: number): ItemList<import('mithril').Children>;
+    /**
      * @returns {ItemList<import('mithril').Children>}
      */
     endItems(): ItemList<import('mithril').Children>;
