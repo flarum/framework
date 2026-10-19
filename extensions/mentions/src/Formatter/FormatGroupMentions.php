@@ -9,7 +9,6 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Database\AbstractModel;
 use Flarum\Group\Group;
 use Flarum\Locale\TranslatorInterface;
 use s9e\TextFormatter\Renderer;
@@ -17,6 +16,8 @@ use s9e\TextFormatter\Utils;
 
 class FormatGroupMentions
 {
+    use LooksUpMentionedModels;
+
     public function __construct(
         private readonly TranslatorInterface $translator
     ) {
@@ -24,12 +25,11 @@ class FormatGroupMentions
 
     public function __invoke(Renderer $renderer, mixed $context, string $xml): string
     {
-        return Utils::replaceAttributes($xml, 'GROUPMENTION', function ($attributes) use ($context) {
+        $groups = $this->mentionedModels($context, 'mentionsGroups', $xml, 'GROUPMENTION', Group::query());
+
+        return Utils::replaceAttributes($xml, 'GROUPMENTION', function ($attributes) use ($groups) {
             /** @var Group|null $group */
-            $group = match (true) {
-                $context instanceof AbstractModel && $context->relationLoaded('mentionsGroups') => $context->mentionsGroups->find($attributes['id']), // @phpstan-ignore-line
-                default => Group::query()->find($attributes['id']),
-            };
+            $group = $groups->find($attributes['id']);
 
             if ($group) {
                 $attributes['groupname'] = $group->name_plural;

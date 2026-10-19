@@ -353,4 +353,21 @@ class ProcessErasureTest extends TestCase
         $this->assertEquals(ErasureRequest::STATUS_USER_CONFIRMED, $cancelledConfirmedRequest->status);
         $this->assertNull($cancelledConfirmedRequest->processed_at);
     }
+
+    #[Test]
+    public function scheduled_processing_says_how_long_the_request_waited()
+    {
+        $app = $this->app();
+
+        $request = ErasureRequest::query()->find(2);
+        $request->user_confirmed_at = Carbon::now()->subDays(31);
+        $request->save();
+
+        $app->getContainer()->call([new ProcessEraseRequests(), 'handle']);
+
+        $this->assertEquals(
+            'Automatically processed after 30 days through scheduled task.',
+            ErasureRequest::query()->find(2)->processor_comment
+        );
+    }
 }

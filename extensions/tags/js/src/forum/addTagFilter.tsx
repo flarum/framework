@@ -14,6 +14,18 @@ import type Tag from '../common/models/Tag';
 
 const findTag = (slug: string) => app.store.all<Tag>('tags').find((tag) => tag.slug().localeCompare(slug, undefined, { sensitivity: 'base' }) === 0);
 
+/**
+ * The sort a tag's page opens with, if it names one that still exists. An
+ * unrecognised sort is ignored, since the extension that provided it may
+ * simply be disabled for now, and passing it on would have the API reject
+ * the request.
+ */
+const tagDefaultSort = (slug: string | undefined): string | undefined => {
+  const defaultSort = slug ? findTag(slug)?.defaultSort() : null;
+
+  return defaultSort && defaultSort in app.discussions.sortMap() ? defaultSort : undefined;
+};
+
 export default function addTagFilter() {
   app.currentTag = function (reload?: boolean) {
     const slug = this.search.state.params().tags;
@@ -140,16 +152,18 @@ export default function addTagFilter() {
     // default order and replaces the one the reader arrived to.
     //
     // Only when nothing was asked for: a sort in the URL is the reader's own
-    // choice and outranks the tag's default. An unrecognised sort is left
-    // alone, since the extension that provided it may simply be disabled for
-    // now, and passing it on would have the API reject the request.
-    if (!params.sort && params.tags) {
-      const defaultSort = findTag(params.tags)?.defaultSort();
+    // choice and outranks the tag's default.
+    if (!params.sort) {
+      const defaultSort = tagDefaultSort(params.tags);
 
-      if (defaultSort && defaultSort in app.discussions.sortMap()) {
-        params.sort = defaultSort;
-      }
+      if (defaultSort) params.sort = defaultSort;
     }
+  });
+
+  // That order is the page's own, so the sort dropdown leaves it out of the URL
+  // and names any other, the forum's default included.
+  override(GlobalSearchState.prototype, 'defaultSort', function (original) {
+    return tagDefaultSort(m.route.param('tags')) ?? original();
   });
 
   // Translate that parameter into a gambit appended to the search query.

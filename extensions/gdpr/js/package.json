@@ -16,9 +16,11 @@
     "check-typings": "tsc --noEmit --emitDeclarationOnly false",
     "check-typings-coverage": "typescript-coverage-report",
     "format": "prettier --write src",
-    "format-check": "prettier --check src"
+    "format-check": "prettier --check src",
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)"
   },
   "devDependencies": {
+    "@flarum/jest-config": "^2.0.0",
     "flarum-webpack-config": "^3.0.0",
     "@flarum/prettier-config": "^1.0.0",
     "flarum-tsconfig": "^2.0.0",

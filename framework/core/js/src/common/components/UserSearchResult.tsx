@@ -13,6 +13,7 @@ import type ForumApplication from '../../forum/ForumApplication';
 export interface IUserSearchResultAttrs extends ComponentAttrs {
   user: User;
   onclick?: (user: User) => void;
+  disabled?: boolean;
   query: string;
 }
 
@@ -25,10 +26,12 @@ export default class UserSearchResult<CustomAttrs extends IUserSearchResultAttrs
         className={classList('UserSearchResult', this.attrs.className)}
         data-index={'users' + user.id()}
         data-id={user.id()}
-        onclick={this.attrs.onclick}
+        onclick={this.attrs.disabled ? undefined : this.attrs.onclick}
       >
         {this.attrs.onclick ? (
-          <button type="button">{this.content(vnode)}</button>
+          <button type="button" disabled={this.attrs.disabled}>
+            {this.content(vnode)}
+          </button>
         ) : (
           <Link
             href={

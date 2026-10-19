@@ -245,9 +245,14 @@ class Tag extends AbstractModel
         $hasGlobalPermission = $user->hasPermission($currPermission);
         $isAdmin = $user->isAdmin();
 
+        // A tag permission is stored as `tag{id}.{permission}`. Discussion
+        // abilities are asked for by name (`hide`) and stored with their
+        // prefix (`discussion.hide`), so accept either, but only exactly:
+        // `discussion.hidePosts` is not `discussion.hide`.
         $tagIdsWithPermission = collect($user->getPermissions())
-            ->filter(fn (string $p) => str_starts_with($p, 'tag') && str_contains($p, $currPermission))
-            ->map(fn (string $p) => (int) substr(explode('.', $p, 2)[0], 3))
+            ->map(fn (string $p) => preg_match('/^tag(\d+)\.(.+)$/', $p, $matches) ? $matches : null)
+            ->filter(fn (?array $matches) => $matches && in_array($matches[2], [$currPermission, "discussion.$currPermission"], true))
+            ->map(fn (array $matches) => (int) $matches[1])
             ->values();
 
         return $query

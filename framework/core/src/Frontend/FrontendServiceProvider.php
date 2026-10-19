@@ -15,6 +15,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Foundation\FontAwesome;
 use Flarum\Foundation\Paths;
+use Flarum\Frontend\Compiler\DatabaseVersioner;
 use Flarum\Frontend\Compiler\FileVersioner;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Compiler\VersionerInterface;
@@ -28,15 +29,23 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Database\ConnectionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
+        // Revisions live in their own table, a row per asset, rather than in a
+        // single JSON value beside the compiled files. Every instance rebuilds
+        // a dirty asset set on its next request, and pruning stale chunks
+        // writes during ordinary renders, so revisions are recorded
+        // concurrently — and saving the whole map back on each write silently
+        // drops whatever was recorded in the meantime. {@see FileVersioner}
+        // remains for anyone who needs the manifest file itself.
         $this->container->singleton(VersionerInterface::class, function (Container $container) {
-            return new FileVersioner(
-                $container->make('filesystem')->disk('flarum-assets')
+            return new DatabaseVersioner(
+                $container->make(ConnectionInterface::class)
             );
         });
 
@@ -60,7 +69,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 // Even when using CDN/Kit, we need the base CSS classes compiled into the bundle
                 // The CDN/Kit will override font-face declarations but class definitions remain the same
                 $assets->setLessImportDirs([
-                    $paths->vendor.'/fortawesome/font-awesome/css' => ''
+                    $paths->vendor.'/flarum/font-awesome/css' => ''
                 ]);
 
                 $assets->css($this->addBaseCss(...));
@@ -123,12 +132,10 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         // event, like a kit script that loads but whose stylesheet
                         // request is blocked. Declared before them so it exists whenever
                         // they fire.
-                        $filesystem = $container->make('filesystem')->disk('flarum-assets');
-
                         $faces = '';
                         foreach (['fa-regular-400' => 400, 'fa-solid-900' => 900] as $file => $weight) {
                             $faces .= '@font-face{font-family:"Font Awesome 7 Free";font-style:normal;font-weight:'.$weight.';font-display:block;'
-                                .'src:url("'.$filesystem->url('fonts/'.$file.'.woff2').'") format("woff2")}';
+                                .'src:url("'.self::bundledFontUrl($container, $file.'.woff2').'") format("woff2")}';
                         }
 
                         $document->head[] = '<script>window.flarumRescueIconFonts=function(){var f=window.flarumRescueIconFonts;if(f.done)return;f.done=true;'
@@ -216,18 +223,22 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
                 $preloads = [];
 
-                // Only preload local fonts if using local source
-                if ($fontAwesome->useLocalFonts()) {
-                    $filesystem = $container->make('filesystem')->disk('flarum-assets');
-
+                // Only preload the bundled fonts when the icons are drawn from them.
+                // That includes a CDN or Kit source with no URL, which falls back
+                // to the bundled fonts.
+                if ($fontAwesome->needsBundledFonts()) {
+                    // Versioned like the stylesheet's own font URLs. A preload
+                    // only helps when its URL is exactly the one the CSS asks
+                    // for; with a bare URL here and `?v=` in the CSS, every page
+                    // downloaded both fonts twice.
                     $preloads = [
                         [
-                            'href' => $filesystem->url('fonts/fa-solid-900.woff2'),
+                            'href' => self::bundledFontUrl($container, 'fa-solid-900.woff2'),
                             'as' => 'font',
                             'type' => 'font/woff2',
                             'crossorigin' => ''
                         ], [
-                            'href' => $filesystem->url('fonts/fa-regular-400.woff2'),
+                            'href' => self::bundledFontUrl($container, 'fa-regular-400.woff2'),
                             'as' => 'font',
                             'type' => 'font/woff2',
                             'crossorigin' => ''
@@ -410,5 +421,30 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
             return $customLess;
         });
+    }
+
+    /**
+     * The URL of a bundled Font Awesome webfont, stamped with the same revision
+     * the compiled stylesheet gives it.
+     *
+     * LessCompiler::finalize() appends `?v=<hash of the font file>` to every
+     * font URL in the CSS, so a changed font is a new URL. Anything else that
+     * points at the same font has to carry that revision too, or the browser
+     * treats it as a different file. The revision comes from the assets, which
+     * read the same file the stylesheet's revision comes from.
+     */
+    protected static function bundledFontUrl(Container $container, string $file): string
+    {
+        $url = $container->make('filesystem')->disk('flarum-assets')->url('fonts/'.$file);
+
+        $revision = $container->make('flarum.assets.forum')->fontRevision($file);
+
+        if ($revision === null) {
+            return $url;
+        }
+
+        // As LessCompiler::finalize() does: don't add a second `?` to a URL that
+        // already has a query string.
+        return $url.(str_contains($url, '?') ? '&' : '?').'v='.$revision;
     }
 }

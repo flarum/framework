@@ -38,10 +38,27 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
      * Given a username, load the user's profile from the store, or make a request
      * if we don't have it yet. Then initialize the profile page with that user.
      *
+     * A user in the store is shown straight away, but the record may have arrived in
+     * another endpoint's payload, carrying only the relationships that endpoint
+     * included. Every user has `joinTime` whichever endpoint it came from, so that
+     * says nothing about what else is loaded: whatever the user endpoint includes by
+     * default, which is anything an extension adds to a profile, can be missing. So
+     * such a user is fetched in the background, once, and the response updates the
+     * same record the page is showing.
+     *
      * Resolves once `this.user` is set so that subclasses can safely chain
-     * dependent work (e.g. fetching related resources keyed off the user id).
+     * dependent work (e.g. fetching related resources keyed off the user id). It
+     * does not wait for that background fetch.
      */
     loadUser(username: string): Promise<void>;
+    /**
+     * Fetch a user from the user endpoint, unless that has already been done, to
+     * fill in what the payload they first arrived in did not carry.
+     *
+     * It is silent: the page already has a user to show, so a failure is not worth an
+     * alert, and the next visit tries again.
+     */
+    protected completeUser(user: User): void;
     /**
      * Build an item list for the content of the sidebar.
      */

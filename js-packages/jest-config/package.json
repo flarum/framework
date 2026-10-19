@@ -23,7 +23,7 @@
     "jest-environment-jsdom": "^29.3.1",
     "jquery": "^3.6.0",
     "jquery.hotkeys": "^0.1.0",
-    "js-yaml": "^4.3.1",
+    "js-yaml": "^4.3.2",
     "jsdom": "^24.0.0",
     "mithril": "^2.2",
     "mithril-query": "^4.0.1",

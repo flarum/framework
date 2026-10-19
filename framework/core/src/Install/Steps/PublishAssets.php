@@ -28,7 +28,7 @@ readonly class PublishAssets implements ReversibleStep
     public function run(): void
     {
         (new Filesystem)->copyDirectory(
-            "$this->vendorPath/fortawesome/font-awesome/webfonts",
+            "$this->vendorPath/flarum/font-awesome/webfonts",
             $this->targetPath()
         );
     }

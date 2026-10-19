@@ -22,6 +22,11 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "deck",
+        "gitRemote": "git@github.com:flarum/deck.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "embed",
         "gitRemote": "git@github.com:flarum/embed.git",
         "mainBranch": "2.x"

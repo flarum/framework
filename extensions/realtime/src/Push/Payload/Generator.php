@@ -82,19 +82,44 @@ class Generator
         $decodedContents = json_decode($contents, true);
 
         if ($post) {
+            // No include: the endpoint's defaults, which other extensions add
+            // to (likes, flags, mentions), so the post arrives with all of it.
             $postResponse = $this->client
                 ->withActor($recipient ?? new Guest)
-                ->withQueryParams([
-                    'include' => 'user,editedUser,likes',
-                ])
                 ->get('/posts/'.$post->id);
+
+            // Its discussion alone would still announce activity the recipient
+            // isn't allowed to know about, such as a reply awaiting approval.
+            if ($postResponse->getStatusCode() !== 200) {
+                return null;
+            }
 
             $postContents = (string) $postResponse->getBody();
             $decodedPostContents = json_decode($postContents, true);
 
-            if (isset($decodedPostContents['data'])) {
-                $decodedContents['included'][] = $decodedPostContents['data'];
-            }
+            // The post and the records its own relationships point at. A
+            // relationship is only usable if the record it points at is
+            // present: the client resolves relations through its store, so a
+            // pointer to a record that never arrived resolves to nothing and
+            // the relation reads as absent. Only `data` was kept, so the post
+            // linked data it did not carry — invisible for relations the
+            // discussion half supplies anyway (authors, tags), but not for
+            // anything the post alone has.
+            $fromPost = array_merge(
+                isset($decodedPostContents['data']) ? [$decodedPostContents['data']] : [],
+                $decodedPostContents['included'] ?? []
+            );
+
+            // The discussion half carries its own, leaner copy of the same
+            // post — serialized without the includes the posts endpoint adds.
+            // Both halves overlap on other records too, so de-duplicate on
+            // type+id, keeping the post endpoint's version where they differ.
+            $decodedContents['included'] = array_values(
+                collect($fromPost)
+                    ->merge($decodedContents['included'] ?? [])
+                    ->unique(fn (array $record) => $record['type'].':'.$record['id'])
+                    ->all()
+            );
         }
 
         if ($response->getStatusCode() === 200 && ! empty($contents)) {

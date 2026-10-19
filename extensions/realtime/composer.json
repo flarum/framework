@@ -11,9 +11,9 @@
     "license": "MIT",
     "support": {
         "issues": "https://github.com/flarum/framework/issues",
-        "source": "https://github.com/flarum/pusher",
+        "source": "https://github.com/flarum/realtime",
         "forum": "https://discuss.flarum.org",
-        "docs": "https://docs.flarum.org/2.x/extend/realtime"
+        "docs": "https://docs.flarum.org/extensions/realtime"
     },
     "homepage": "https://flarum.org",
     "funding": [
@@ -24,7 +24,7 @@
     ],
     "type": "flarum-extension",
     "require": {
-        "flarum/core": "^2.0.0-rc.8",
+        "flarum/core": "^2.1",
         "plesk/ratchetphp": "v1.0.4",
         "pusher/pusher-php-server": "^7.2.0"
     },
@@ -71,25 +71,29 @@
             "@test:integration"
         ],
         "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:unit:filter": "phpunit -c tests/phpunit.unit.xml --filter",
         "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:integration:filter": "phpunit -c tests/phpunit.integration.xml --filter",
         "test:setup": "@php tests/integration/setup.php"
     },
     "scripts-descriptions": {
         "test": "Runs all tests.",
         "test:unit": "Runs all unit tests.",
+        "test:unit:filter": "Runs unit tests whose name matches: composer test:unit:filter -- ClassName",
         "test:integration": "Runs all integration tests.",
+        "test:integration:filter": "Runs integration tests whose name matches: composer test:integration:filter -- ClassName",
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
         "fof/best-answer": "^2.0.0",
-        "flarum/lock": "^2.0.0",
-        "flarum/likes": "^2.0.0",
-        "flarum/flags": "^2.0.0",
-        "flarum/tags": "^2.0.0",
+        "flarum/lock": "^2.1",
+        "flarum/likes": "^2.1",
+        "flarum/flags": "^2.1",
+        "flarum/tags": "^2.1",
         "fof/reactions": "^2.0.0",
-        "flarum/phpstan": "^2.0.0-rc.8",
-        "flarum/testing": "^2.0.0-rc.8",
-        "flarum/messages": "^2.0.0",
+        "flarum/phpstan": "^2.1",
+        "flarum/testing": "^2.1",
+        "flarum/messages": "^2.1",
         "fof/discussion-views": "^2.0.0"
     },
     "minimum-stability": "dev",

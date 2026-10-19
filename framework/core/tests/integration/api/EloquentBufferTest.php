@@ -9,8 +9,10 @@
 
 namespace Flarum\Tests\integration\api;
 
+use Carbon\Carbon;
 use Flarum\Api\Context;
 use Flarum\Api\Resource\EloquentBuffer;
+use Flarum\Discussion\Discussion;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -30,7 +32,31 @@ class EloquentBufferTest extends TestCase
             User::class => [
                 $this->normalUser(),
             ],
+            Discussion::class => [
+                ['id' => 1, 'title' => 'a', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'comment_count' => 1],
+                ['id' => 2, 'title' => 'b', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'comment_count' => 1],
+                ['id' => 3, 'title' => 'c', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 2, 'comment_count' => 1],
+            ],
         ]);
+    }
+
+    #[Test]
+    public function relations_loaded_before_serialization_are_not_left_in_the_buffer()
+    {
+        $this->app();
+
+        // The discussion list includes `user` by default and eager loads it
+        // before serializing, so there is nothing for the buffer to load.
+        // Only load() empties the buffer, so a model queued anyway would stay
+        // for the rest of the process and be loaded again by later requests.
+        foreach ([1, 2] as $request) {
+            $response = $this->send(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 1])
+            );
+
+            $this->assertEquals(200, $response->getStatusCode());
+            $this->assertCount(0, EloquentBuffer::getBuffer(new Discussion(), 'user') ?? [], "After request $request");
+        }
     }
 
     #[Test]

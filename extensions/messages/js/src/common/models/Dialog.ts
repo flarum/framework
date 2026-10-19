@@ -51,6 +51,14 @@ export default class Dialog extends Model {
     return Model.attribute<Date, string>('lastReadAt', Model.transformDate).call(this);
   }
 
+  /** Everyone in it can reply: someone allowed to message users without messaging permission has. */
+  anyoneCanReply() {
+    return Model.attribute<boolean>('anyoneCanReply').call(this);
+  }
+  canSendMessage() {
+    return Model.attribute<boolean>('canSendMessage').call(this);
+  }
+
   recipient() {
     let users = this.users();
 

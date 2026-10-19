@@ -11,6 +11,7 @@ import classList from 'flarum/common/utils/classList';
 
 import DashboardWidget, { IDashboardWidgetAttrs } from 'flarum/admin/components/DashboardWidget';
 
+import statisticsEntities from '../utils/statisticsEntities';
 import StatisticsWidgetDateSelectionModal, { IDateSelection, IStatisticsWidgetDateSelectionModalAttrs } from './StatisticsWidgetDateSelectionModal';
 
 import type Mithril from 'mithril';
@@ -31,7 +32,7 @@ interface IPeriodDeclaration {
 }
 
 export default class StatisticsWidget extends DashboardWidget {
-  entities = ['users', 'discussions', 'posts'];
+  entities = statisticsEntities();
   periods: undefined | Record<string, IPeriodDeclaration>;
 
   chart: any;
@@ -54,7 +55,7 @@ export default class StatisticsWidget extends DashboardWidget {
     return acc;
   }, {} as Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>);
 
-  selectedEntity = 'users';
+  selectedEntity = this.entities[0];
   selectedPeriod: undefined | string;
 
   chartEntity?: string;
@@ -186,9 +187,11 @@ export default class StatisticsWidget extends DashboardWidget {
       : this.periods![this.selectedPeriod!];
 
     if (this.selectedPeriod === 'custom') {
-      if (!this.customPeriodData[this.selectedEntity] && this.loadingCustom[this.selectedEntity] === 'unloaded') {
-        this.loadCustomRangeData(this.selectedEntity);
-      }
+      this.entities.forEach((entity) => {
+        if (!this.customPeriodData[entity] && this.loadingCustom[entity] === 'unloaded') {
+          this.loadCustomRangeData(entity);
+        }
+      });
     } else {
       if (!this.timedData[this.selectedEntity] && this.loadingTimed[this.selectedEntity] === 'unloaded') {
         this.loadTimedData(this.selectedEntity);
@@ -446,6 +449,11 @@ export default class StatisticsWidget extends DashboardWidget {
 
   getPeriodCount(entity: string, period: { start: number; end: number }) {
     const timed: Record<string, number> = (this.selectedPeriod === 'custom' ? this.customPeriodData : this.timedData)[entity];
+
+    if (!timed) {
+      return 0;
+    }
+
     let count = 0;
 
     for (const t in timed) {

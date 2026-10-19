@@ -76,6 +76,21 @@ export default class AppearancePage extends AdminPage {
     );
 
     items.add(
+      'email-logo',
+      <div className="Form-group">
+        <label>{app.translator.trans('core.admin.appearance.email_logo_heading')}</label>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.email_logo_text')}</div>
+        <UploadImageButton
+          name="email-logo"
+          routePath="email-logo"
+          value={app.data.settings.email_logo_path}
+          url={app.forum.attribute('emailLogoUrl')}
+        />
+      </div>,
+      95
+    );
+
+    items.add(
       'favicon',
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.appearance.favicon_heading')}</label>
@@ -237,6 +252,11 @@ export default class AppearancePage extends AdminPage {
         id: 'logo_heading',
         label: app.translator.trans('core.admin.appearance.logo_heading', {}, true),
         help: app.translator.trans('core.admin.appearance.logo_text', {}, true),
+      },
+      {
+        id: 'email_logo_heading',
+        label: app.translator.trans('core.admin.appearance.email_logo_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.email_logo_text', {}, true),
       },
       {
         id: 'favicon_heading',

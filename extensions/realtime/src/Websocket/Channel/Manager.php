@@ -25,10 +25,23 @@ class Manager
     private array $connections = [];
     private array $channels = [];
     private int $maxConnections;
+    private int $maxChannelsPerConnection;
     private bool $connectionsAllowed = true;
     private array $urls;
     private array $users = [];
     private array $userSockets = [];
+
+    /**
+     * socketId => [channelName => true], the channels each connection currently
+     * holds. Kept so a channel can be removed the moment its last connection
+     * leaves (the channel's own connection list isn't enough — we need to know
+     * which connection owned which channel without scanning the whole registry),
+     * and so one connection's subscriptions can be capped. See
+     * {@link $maxChannelsPerConnection}.
+     *
+     * @var array<string, array<string, true>>
+     */
+    private array $socketChannels = [];
 
     /**
      * socketId => user id, for connections that have successfully subscribed to
@@ -48,6 +61,7 @@ class Manager
     public function __construct(Settings $settings, Config $config)
     {
         $this->maxConnections = $settings->maxConnections;
+        $this->maxChannelsPerConnection = $settings->maxChannelsPerConnection;
         $this->urls = [
             parse_url($config->url(), PHP_URL_HOST),
             $settings->jsClientHost
@@ -91,19 +105,46 @@ class Manager
 
     public function subscribeToChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface
     {
+        /** @phpstan-ignore-next-line */
+        $socketId = $connection->socketId;
+
+        // A connection already holding its full quota of channels is refused
+        // before anything is allocated. One unauthenticated socket must not be
+        // able to grow the registry without bound by subscribing to endless
+        // unique names — the connection limit counts sockets, not channels.
+        // Re-subscribing to a channel this connection already holds is not a new
+        // allocation, so it is never blocked.
+        if (! isset($this->socketChannels[$socketId][$channelName])
+            && count($this->socketChannels[$socketId] ?? []) >= $this->maxChannelsPerConnection) {
+            return $this->createFulfilledPromise(false);
+        }
+
+        $isNewChannel = ! $this->has($channelName);
         $channel = $this->findOrCreate($channelName);
 
-        /** @phpstan-ignore-next-line */
-        $this->connections[$connection->socketId] = true;
+        // subscribe() throws on an invalid private/presence signature. A channel
+        // we created only to serve this attempt must not outlive the rejection,
+        // or an unauthenticated client could fill the registry with empty
+        // channels one failed signature at a time.
+        try {
+            $subscribed = $channel->subscribe($connection, $payload);
+        } catch (\Throwable $e) {
+            if ($isNewChannel && ! $channel->hasConnections()) {
+                unset($this->channels[$channelName]);
+            }
 
+            throw $e;
+        }
+
+        $this->connections[$socketId] = true;
         $this->connectionsAllowed = count($this->connections) < $this->maxConnections;
 
-        // Only recorded once the subscription is accepted — PrivateChannel::subscribe()
-        // throws on an invalid signature, so an unauthenticated claim never lands here.
-        $subscribed = $channel->subscribe($connection, $payload);
-
         if ($subscribed) {
+            $this->socketChannels[$socketId][$channelName] = true;
             $this->rememberUserChannel($connection, $channelName);
+        } elseif ($isNewChannel && ! $channel->hasConnections()) {
+            // A channel that declined the subscription and holds no one else.
+            unset($this->channels[$channelName]);
         }
 
         return $this->createFulfilledPromise($subscribed);
@@ -122,9 +163,18 @@ class Manager
             unset($this->socketUsers[$connection->socketId]);
         }
 
-        return $this->createFulfilledPromise(
-            $channel->unsubscribe($connection)
-        );
+        /** @phpstan-ignore-next-line */
+        unset($this->socketChannels[$connection->socketId][$channelName]);
+
+        $result = $channel->unsubscribe($connection);
+
+        // Drop the channel once its last connection has gone, rather than
+        // leaving an empty object in the long-lived registry.
+        if (! $channel->hasConnections()) {
+            unset($this->channels[$channelName]);
+        }
+
+        return $this->createFulfilledPromise($result);
     }
 
     /**
@@ -167,7 +217,7 @@ class Manager
         });
 
         /** @phpstan-ignore-next-line */
-        unset($this->connections[$connection->socketId], $this->socketUsers[$connection->socketId]);
+        unset($this->connections[$connection->socketId], $this->socketUsers[$connection->socketId], $this->socketChannels[$connection->socketId]);
 
         $this->connectionsAllowed = count($this->connections) < $this->maxConnections;
 

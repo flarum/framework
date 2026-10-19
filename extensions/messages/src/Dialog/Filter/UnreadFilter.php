@@ -26,7 +26,7 @@ class UnreadFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $state->getQuery()->whereHas('users', function (Builder $query) use ($state) {
+        $state->getQuery()->{$negate ? 'whereDoesntHave' : 'whereHas'}('users', function (Builder $query) use ($state) {
             $query
                 ->where('dialog_user.user_id', $state->getActor()->id)
                 ->whereColumn('dialog_user.last_read_message_id', '<', 'dialogs.last_message_id');

@@ -1,5 +1,6 @@
 flarum-realtime:
     forum:
+        discussion-removed: This discussion has been removed.
         push:
             discussion-list-new-activity: "{count, plural, one {Show # updated discussion} other {Show # updated discussions}}"
             discussion-list-new-activity-with-auto-release: "{count, plural, one {# discussion has} other {# discussions have}} updated activity and will be released in {releaseTimeout} seconds. Click to show now."
@@ -20,6 +21,7 @@ flarum-realtime:
                     label: Display who is typing
     admin:
         permission:
+            view-all-typing: See who is typing anywhere on the forum
             view-who-types: View who is typing
         settings:
             release-discussion-updates: DiscussionList updates

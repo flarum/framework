@@ -31,6 +31,7 @@ class UpdateTagMetadata
     {
         $events->listen(Started::class, $this->whenDiscussionIsStarted(...));
         $events->listen(DiscussionWasTagged::class, $this->whenDiscussionWasTagged(...));
+        $events->listen('eloquent.deleting: '.Discussion::class, $this->whenDiscussionIsDeleting(...));
         $events->listen(Deleted::class, $this->whenDiscussionIsDeleted(...));
         $events->listen(Hidden::class, $this->whenDiscussionIsHidden(...));
         $events->listen(Restored::class, $this->whenDiscussionIsRestored(...));
@@ -48,10 +49,28 @@ class UpdateTagMetadata
 
     public function whenDiscussionWasTagged(DiscussionWasTagged $event): void
     {
+        $discussion = $event->discussion;
+
+        $wasHidden = ($discussion->hidden_at !== null) !== $discussion->wasChanged('hidden_at');
+
+        if ($wasHidden) {
+            return;
+        }
+
         $oldTags = Tag::whereIn('id', Arr::pluck($event->oldTags, 'id'))->get();
 
-        $this->updateTags($event->discussion, -1, $oldTags);
-        $this->updateTags($event->discussion, 1);
+        $this->updateTags($discussion, -1, $oldTags);
+        $this->updateTags($discussion, 1);
+    }
+
+    /**
+     * Deleting a discussion deletes its rows in discussion_tag through a
+     * foreign key cascade. Its tags are needed afterwards, to update their
+     * counts, so load them while they can still be found.
+     */
+    public function whenDiscussionIsDeleting(Discussion $discussion): void
+    {
+        $discussion->loadMissing('tags');
     }
 
     public function whenDiscussionIsDeleted(Deleted $event): void

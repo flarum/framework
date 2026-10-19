@@ -34,11 +34,17 @@ class DatabaseSettingsRepository implements SettingsRepositoryInterface
 
     public function set(string $key, mixed $value): void
     {
-        $query = $this->database->table('settings')->where('key', $key);
-
-        $method = $query->exists() ? 'update' : 'insert';
-
-        $query->$method(compact('key', 'value'));
+        // A single statement, resolved against `key` — the table's primary key.
+        // Reading first and then choosing insert or update lets two concurrent
+        // writers both find the row missing and both insert it: one wins, the
+        // other fails on the primary key. That is reachable whenever several
+        // processes write the same setting for the first time at once, such as
+        // on a fresh deploy or in the requests following a cache clear.
+        $this->database->table('settings')->upsert(
+            compact('key', 'value'),
+            ['key'],
+            ['value']
+        );
     }
 
     public function delete(string $keyLike): void

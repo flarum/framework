@@ -17,6 +17,7 @@ use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
+use Flarum\Mail\EmailLogo;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
@@ -115,6 +116,9 @@ class ForumResource extends AbstractResource implements Findable
                 ->get(fn () => $this->getLogoDarkModeUrl()),
             Schema\Str::make('faviconUrl')
                 ->get(fn () => $this->getFaviconUrl()),
+            Schema\Str::make('emailLogoUrl')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->getEmailLogoUrl()),
             Schema\Str::make('headerHtml')
                 ->get(fn () => $this->settings->get('custom_header')),
             Schema\Str::make('footerHtml')
@@ -169,6 +173,13 @@ class ForumResource extends AbstractResource implements Findable
         $logoPath = $this->settings->get('logo_dark_mode_path');
 
         return $logoPath ? $this->getAssetUrl($logoPath) : null;
+    }
+
+    protected function getEmailLogoUrl(): ?string
+    {
+        $emailLogoPath = $this->settings->get(EmailLogo::PATH_KEY);
+
+        return $emailLogoPath ? $this->getAssetUrl($emailLogoPath) : null;
     }
 
     protected function getFaviconUrl(): ?string

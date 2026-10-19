@@ -48,6 +48,10 @@
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
   overflow-y: auto;
+  // A modal that grows and shrinks, like search as you type, would otherwise
+  // jump sideways each time its scrollbar comes and goes. Reserving the space
+  // on both sides keeps it centred either way.
+  scrollbar-gutter: stable both-edges;
 
   &-invisibleBackdrop {
     position: fixed;

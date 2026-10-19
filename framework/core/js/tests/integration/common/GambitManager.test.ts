@@ -43,4 +43,17 @@ describe('GambitManager', () => {
       }
     );
   });
+
+  test('filters are converted back to gambits', function () {
+    expect(gambits.from('discussions', 'lorem', { created: '2023-07-07', hidden: true, author: 'behz' })).toStrictEqual(
+      'lorem created:2023-07-07 is:hidden author:behz'
+    );
+  });
+
+  test('negated filters are converted back to negated gambits', function () {
+    expect(gambits.from('discussions', 'lorem', { '-hidden': true, '-unread': true })).toStrictEqual('lorem -is:hidden -is:unread');
+    expect(gambits.from('discussions', 'lorem', { '-created': '2023-07-07', '-author': 'behz' })).toStrictEqual(
+      'lorem -created:2023-07-07 -author:behz'
+    );
+  });
 });

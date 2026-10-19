@@ -128,7 +128,7 @@ export default class PostStreamState {
 
     this.paused = true;
 
-    this.loadPromise = this.loadNearNumber(number);
+    this.loadPromise = this.loadNearNumber(number).catch(() => this.loadFailed());
 
     this.needsScroll = true;
     this.targetPost = { number };
@@ -149,7 +149,7 @@ export default class PostStreamState {
   goToIndex(index: number, noAnimation = false): Promise<void> {
     this.paused = true;
 
-    this.loadPromise = this.loadNearIndex(index);
+    this.loadPromise = this.loadNearIndex(index).catch(() => this.loadFailed());
 
     this.needsScroll = true;
     this.targetPost = { index };
@@ -159,6 +159,16 @@ export default class PostStreamState {
     m.redraw();
 
     return this.loadPromise;
+  }
+
+  /**
+   * A jump whose posts failed to load. The request has shown its own error;
+   * the stream stops waiting for the jump, so the reader can scroll and the
+   * page that asked for it (such as a discussion still loading) can carry on.
+   */
+  protected loadFailed(): void {
+    this.paused = false;
+    this.needsScroll = false;
   }
 
   /**
@@ -261,10 +271,12 @@ export default class PostStreamState {
 
     this.loadPageTimeouts[start] = setTimeout(
       () => {
-        this.loadRange(start, end).then(() => {
-          redraw();
-          this.pagesLoading--;
-        });
+        this.loadRange(start, end)
+          .then(() => redraw())
+          // The request has shown its own error. Scroll loading waits while a
+          // page is loading, so the count must come down either way.
+          .catch(() => {})
+          .finally(() => this.pagesLoading--);
         delete this.loadPageTimeouts[start];
       },
       this.pagesLoading - 1 ? 1000 : 0

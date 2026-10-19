@@ -6,7 +6,7 @@ export default class NotificationList extends Component<import("../../common/Com
     constructor();
     view(): JSX.Element;
     controlItems(): ItemList<any>;
-    content(state: any): any;
+    content(state: any): any[] | null;
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";

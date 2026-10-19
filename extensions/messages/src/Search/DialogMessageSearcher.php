@@ -18,6 +18,6 @@ class DialogMessageSearcher extends AbstractSearcher
 {
     public function getQuery(User $actor): Builder
     {
-        return DialogMessage::whereVisibleTo($actor);
+        return DialogMessage::whereVisibleTo($actor)->select('dialog_messages.*');
     }
 }

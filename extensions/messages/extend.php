@@ -9,15 +9,17 @@
 
 namespace Flarum\Messages;
 
-use Flarum\Api\Context;
+use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
-use Flarum\Api\Schema;
+use Flarum\Audit\Extend\Audit as AuditExtend;
 use Flarum\Extend;
+use Flarum\Extension\ExtensionManager;
+use Flarum\Gdpr\Extend\UserData as GdprUserData;
 use Flarum\Messages\Http\Middleware\PopulateDialogWithActor;
 use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\Statistics\Extend\Statistics as StatisticsExtend;
 use Flarum\User\User;
-use Illuminate\Database\Eloquent\Builder;
 
 return [
     (new Extend\Frontend('forum'))
@@ -45,38 +47,29 @@ return [
     (new Extend\ModelVisibility(DialogMessage::class))
         ->scope(Access\ScopeDialogMessageVisibility::class),
 
+    (new Extend\Policy())
+        ->modelPolicy(Dialog::class, Access\DialogPolicy::class)
+        ->modelPolicy(DialogMessage::class, Access\DialogMessagePolicy::class)
+        ->modelPolicy(User::class, Access\UserPolicy::class)
+        ->globalPolicy(Access\GlobalPolicy::class),
+
     new Extend\ApiResource(Api\Resource\DialogResource::class),
 
     new Extend\ApiResource(Api\Resource\DialogMessageResource::class),
 
     (new Extend\ApiResource(Resource\UserResource::class))
-        ->fields(fn () => [
-            Schema\Boolean::make('canSendAnyMessage')
-                ->get(fn (User $user, Context $context) => $user->can('sendAnyMessage')),
-            Schema\Boolean::make('canDeleteOwnMessages')
-                ->visible(fn (User $user, Context $context) => $context->getActor()->is($user)),
-            Schema\Integer::make('messageCount')
-                ->visible(fn (User $user, Context $context) => $context->getActor()->is($user))
-                ->get(function (object $model, Context $context) {
-                    return Dialog::whereVisibleTo($context->getActor())
-                        ->whereHas('users', function (Builder $query) use ($context) {
-                            $query->where('dialog_user.user_id', $context->getActor()->id)
-                                ->whereColumn('dialog_user.last_read_message_id', '<', 'dialogs.last_message_id');
-                        })->count();
-                }),
-        ]),
+        ->fields(Api\UserResourceFields::class),
+
+    (new Extend\ThrottleApi())
+        ->set('messageTimeout', DialogMessageThrottler::class),
 
     (new Extend\Middleware('api'))
         ->add(PopulateDialogWithActor::class),
 
-    (new Extend\Policy())
-        ->modelPolicy(Dialog::class, Access\DialogPolicy::class)
-        ->modelPolicy(DialogMessage::class, Access\DialogMessagePolicy::class)
-        ->globalPolicy(Access\GlobalPolicy::class),
-
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addSearcher(Dialog::class, Search\DialogSearcher::class)
         ->addSearcher(DialogMessage::class, Search\DialogMessageSearcher::class)
+        ->setFulltext(Search\DialogMessageSearcher::class, Search\FulltextFilter::class)
         ->addFilter(Search\DialogMessageSearcher::class, DialogMessage\Filter\DialogFilter::class)
         ->addFilter(Search\DialogSearcher::class, Dialog\Filter\UnreadFilter::class),
 
@@ -92,6 +85,24 @@ return [
         ->listen(DialogMessage\Event\Updated::class, Listener\UpdateMentionsMetadataWhenVisible::class),
 
     (new Extend\Conditional())
+        // The mention relationships, on by default only where their resources
+        // exist. A default include the API can't resolve fails the whole request.
+        ->whenExtensionEnabled('flarum-mentions', fn () => [
+            (new Extend\ApiResource(Api\Resource\DialogMessageResource::class))
+                ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
+                    ->addDefaultInclude(['mentionsUsers', 'mentionsPosts', 'mentionsGroups'])),
+        ])
+        ->when(fn (ExtensionManager $extensions) => $extensions->isEnabled('flarum-mentions') && $extensions->isEnabled('flarum-tags'), fn () => [
+            (new Extend\ApiResource(Api\Resource\DialogMessageResource::class))
+                ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
+                    ->addDefaultInclude(['mentionsTags'])),
+        ])
+        // Messages are personal data: exported with the member, addresses removed
+        // when they are anonymised, gone when they are erased.
+        ->whenExtensionEnabled('flarum-gdpr', fn () => [
+            (new GdprUserData())
+                ->addType(Data\Messages::class),
+        ])
         ->whenExtensionEnabled('flarum-realtime', fn () => [
             (new RealtimeExtend())
                 ->broadcastDialogEvent(
@@ -100,5 +111,17 @@ return [
                 )
                 ->registerModelEndpoint(DialogMessage::class, 'dialog-messages')
                 ->registerModelEndpoint(Dialog::class, 'dialogs'),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new AuditExtend())
+                ->group('flarum-messages')
+                ->using(new AuditIntegration()),
+        ])
+        // How much private messaging there is: conversations started, and the
+        // replies that continue them.
+        ->whenExtensionEnabled('flarum-statistics', fn () => [
+            (new StatisticsExtend())
+                ->entity('dialogs', fn () => Dialog::query(), 'created_at')
+                ->entity('dialog_replies', fn () => DialogMessage::query()->where('number', '>', 1), 'created_at'),
         ]),
 ];

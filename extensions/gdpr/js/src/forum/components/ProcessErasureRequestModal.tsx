@@ -2,6 +2,7 @@ import Form from 'flarum/common/components/Form';
 import app from 'flarum/forum/app';
 import type { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
+import fullTime from 'flarum/common/helpers/fullTime';
 import humanTime from 'flarum/common/helpers/humanTime';
 import username from 'flarum/common/helpers/username';
 import extractText from 'flarum/common/utils/extractText';
@@ -72,8 +73,9 @@ export default class ProcessErasureRequestModal<
           <>
             <p>{app.translator.trans('flarum-gdpr.forum.process_erasure.confirmed_at', { date: humanTime(userConfirmedAt) })}</p>
             <p>
+              {/* A date to come, which humanTime would show as "a few seconds ago". 30 days is gdpr:process-erase-requests' wait. */}
               {app.translator.trans('flarum-gdpr.forum.process_erasure.eligible_at', {
-                date: humanTime(new Date(userConfirmedAt.getTime() + 30 * 24 * 60 * 60 * 1000)),
+                date: fullTime(new Date(userConfirmedAt.getTime() + 30 * 24 * 60 * 60 * 1000)),
               })}
             </p>
           </>

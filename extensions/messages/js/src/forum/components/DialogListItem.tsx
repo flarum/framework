@@ -9,7 +9,7 @@ import humanTime from 'flarum/common/helpers/humanTime';
 import ItemList from 'flarum/common/utils/ItemList';
 import Button from 'flarum/common/components/Button';
 import type Dialog from '../../common/models/Dialog';
-import { ModelIdentifier } from 'flarum/common/Model';
+import { markRead } from '../utils/readState';
 
 export interface IDialogListItemAttrs extends ComponentAttrs {
   dialog: Dialog;
@@ -22,12 +22,14 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
     const dialog = this.attrs.dialog;
 
     const recipient = dialog.recipient();
-    const lastMessage = dialog.lastMessage();
+    const unread = dialog.unreadCount();
+    const actions = this.attrs.actions ? this.actionItems().toArray() : [];
 
     return (
       <li
         className={classList('DialogListItem', {
-          'DialogListItem--unread': dialog.unreadCount(),
+          'DialogListItem--unread': unread,
+          'DialogListItem--actions': actions.length,
           active: this.attrs.active,
         })}
       >
@@ -39,51 +41,62 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
         >
           <div className="DialogListItem-avatar">
             <Avatar user={recipient} />
-            {!!dialog.unreadCount() && <div className="Bubble Bubble--primary">{dialog.unreadCount()}</div>}
+            {!!unread && (
+              <div className="Bubble Bubble--primary">
+                <span aria-hidden="true">{unread}</span>
+                <span className="sr-only">{app.translator.trans('flarum-messages.forum.dialog_list.unread_count_text', { count: unread })}</span>
+              </div>
+            )}
           </div>
           <div className="DialogListItem-content">
             <div className="DialogListItem-title">
               {username(recipient)}
               {humanTime(dialog.lastMessageAt()!)}
-              {this.attrs.actions && <div className="DialogListItem-actions">{this.actionItems().toArray()}</div>}
             </div>
-            <div className="DialogListItem-lastMessage">{lastMessage ? lastMessage.contentPlain()?.slice(0, 80) : ''}</div>
+            <div className="DialogListItem-lastMessage">{this.preview()}</div>
           </div>
         </Link>
+        {/* Beside the link, not inside it: a button nested in a link is neither to a browser nor a screen reader. */}
+        {!!actions.length && <div className="DialogListItem-actions">{actions}</div>}
       </li>
     );
   }
 
+  /** The last message, said to be the member's own when it is. */
+  preview(): Mithril.Children {
+    const lastMessage = this.attrs.dialog.lastMessage();
+
+    if (!lastMessage) return '';
+
+    const content = lastMessage.contentPlain()?.slice(0, 80) ?? '';
+
+    return lastMessage.user() === app.session.user
+      ? app.translator.trans('flarum-messages.forum.dialog_list.own_last_message_preview', { content })
+      : content;
+  }
+
   actionItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
+    const dialog = this.attrs.dialog;
+    const lastMessageId = dialog.messageRelationshipId('lastMessage');
 
-    items.add(
-      'markAsRead',
-      <Button
-        className="Notification-action Button Button--link"
-        icon="fas fa-check"
-        aria-label={app.translator.trans('flarum-messages.forum.dialog_list.mark_as_read_tooltip')}
-        onclick={(e: Event) => {
-          e.preventDefault();
-          e.stopPropagation();
-
-          const lastMessageId = this.attrs.dialog.messageRelationshipId('lastMessage');
-
-          if (!lastMessageId) return;
-
-          this.attrs.dialog.save({ lastReadMessageId: lastMessageId }).finally(() => {
-            if (this.attrs.dialog.unreadCount() === 0) {
-              app.session.user!.pushAttributes({
-                messageCount: (app.session.user!.attribute<number>('messageCount') ?? 1) - 1,
-              });
-            }
-
-            m.redraw();
-          });
-        }}
-      />,
-      100
-    );
+    // Nothing to mark on a dialog that is read, or one with no messages.
+    if (dialog.unreadCount() && lastMessageId) {
+      items.add(
+        'markAsRead',
+        <Button
+          className="Notification-action Button Button--link"
+          icon="fas fa-check"
+          aria-label={app.translator.trans('flarum-messages.forum.dialog_list.mark_as_read_tooltip')}
+          onclick={() => {
+            markRead(dialog, Number(lastMessageId))
+              .catch(() => {})
+              .finally(() => m.redraw());
+          }}
+        />,
+        100
+      );
+    }
 
     return items;
   }

@@ -8,6 +8,7 @@
  * - `discussion`
  */
 export default class ReplyComposer extends ComposerBody<import("./ComposerBody").IComposerBodyAttrs> {
+    static focusOnSelector: () => string;
     static initAttrs(attrs: any): void;
     constructor();
     /**

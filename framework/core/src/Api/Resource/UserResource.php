@@ -17,7 +17,10 @@ use Flarum\Bus\Dispatcher;
 use Flarum\Foundation\ValidationException;
 use Flarum\Group\Group;
 use Flarum\Http\SlugManager;
+use Flarum\Locale\LocaleManager;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Notification\Notification;
+use Flarum\Notification\NotificationSyncer;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AvatarUploader;
 use Flarum\User\AvatarValidator;
@@ -28,6 +31,7 @@ use Flarum\User\Event\GroupsChanged;
 use Flarum\User\Event\RegisteringFromProvider;
 use Flarum\User\Event\Saving;
 use Flarum\User\Exception\NotAuthenticatedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use GuzzleHttp\Client;
@@ -51,6 +55,7 @@ class UserResource extends AbstractDatabaseResource
         protected AvatarUploader $avatarUploader,
         protected AvatarValidator $imageValidator,
         protected Dispatcher $bus,
+        protected LocaleManager $locales,
     ) {
     }
 
@@ -77,6 +82,26 @@ class UserResource extends AbstractDatabaseResource
             $user = $this->slugManager->forResource(User::class)->fromSlug($id, $actor);
         } else {
             $user = $this->query($context)->findOrFail($id);
+        }
+
+        return $user;
+    }
+
+    public function newModel(\Tobyz\JsonApiServer\Context $context): object
+    {
+        $user = parent::newModel($context);
+
+        // Someone signing up has already chosen a language for the interface,
+        // so start their account in it: otherwise the activation email, which
+        // reads this preference, always goes out in the forum's default.
+        // An explicit `preferences.locale` in the request still wins, since
+        // fields are applied after this.
+        if ($context->getActor()->isGuest()) {
+            $locale = Arr::get($context->request->getCookieParams(), 'locale');
+
+            if ($locale && $this->locales->hasLocale($locale)) {
+                $user->setPreference('locale', $locale);
+            }
         }
 
         return $user;
@@ -151,6 +176,33 @@ class UserResource extends AbstractDatabaseResource
                     return $this->bus->dispatch(
                         new DeleteAvatar(Arr::get($context->request->getQueryParams(), 'id'), $context->getActor())
                     );
+                }),
+            Endpoint\Endpoint::make('notificationPreferences.reset')
+                ->route('DELETE', '/{id}/notification-preferences')
+                ->authenticated()
+                ->action(function (Context $context) {
+                    /** @var User $user */
+                    $user = $context->model;
+
+                    // Only the user themselves, the same rule as the `preferences` field.
+                    if ($context->getActor()->id !== $user->id) {
+                        throw new PermissionDeniedException();
+                    }
+
+                    // Every key a driver registers a default for, built the way it is
+                    // registered, then dropped in one save so the defaults apply again.
+                    $keys = [];
+
+                    foreach (array_keys(Notification::getSubjectModels()) as $type) {
+                        foreach (array_keys(NotificationSyncer::getNotificationDrivers()) as $driver) {
+                            $keys[] = User::getNotificationPreferenceKey($type, $driver);
+                        }
+                    }
+
+                    $user->forgetPreferences($keys);
+                    $user->save();
+
+                    return $user;
                 }),
         ];
     }
@@ -332,6 +384,12 @@ class UserResource extends AbstractDatabaseResource
                 }),
 
             Schema\Relationship\ToMany::make('groups')
+                // Whether a user is an admin, and what else they may do, is
+                // read from this relation (isAdmin(), hasPermission()) by the
+                // policies that decide what is serialized about them, so it
+                // must hold every group they are in, including the hidden
+                // ones the actor may not see. Those are left out below.
+                ->withoutRelatedScope()
                 ->get(function (User $user, Context $context) {
                     // Read the (eager-)loaded relation instead of issuing a fresh
                     // query per serialized user. Hidden groups are filtered in PHP

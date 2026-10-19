@@ -122,6 +122,8 @@ core:
       edit_css_button: Edit Custom CSS
       edit_footer_button: => core.ref.custom_footer_title
       edit_header_button: => core.ref.custom_header_title
+      email_logo_heading: Email logo
+      email_logo_text: "Upload an image to be displayed at the top of emails. It's saved in a format every email client can show. If you don't upload one, emails use a copy of your logo. If your emails show the forum title instead of your logo, upload your logo again."
       enter_hex_message: Please enter a hexadecimal color code.
       favicon_heading: Favicon
       favicon_text: Upload an image to be displayed as the forum's shortcut icon.
@@ -226,6 +228,19 @@ core:
       queue_paused_all_warning: All queue processing is paused. Jobs will accumulate until it is resumed.
       queue_paused_manage: Manage
       clear_cache_button: Clear Cache
+      clear_cache_modal:
+        title: Clearing the Cache
+        working: Rebuilding the compiled assets. This can take a while on larger forums.
+        cleared: "Cleared {name}"
+        cleared_files: "Cleared {name} ({count} files)"
+        rebuilt: "Rebuilt {bundle}"
+        unchanged: "{bundle} was already up to date"
+        rewritten: "Rewrote {bundle}"
+        empty: "{bundle} has nothing to compile"
+        chunks: "Rebuilt the split chunks for {frontend} ({count} changed)"
+        failed: "Could not rebuild {step}: {message}"
+        took: "{time}ms"
+        reload_button: Reload
       description: Your forum at a glance.
       info_button: System Info
       info_modal:
@@ -679,6 +694,7 @@ core:
       sign_up_text: "Don't have an account? <a>Sign Up</a>"
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
+      too_many_attempts_message: => core.ref.too_many_login_attempts_message
       username_or_email_placeholder: => core.ref.username_or_email_placeholder
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
@@ -797,6 +813,7 @@ core:
       notify_by_email_heading: => core.ref.email
       notify_by_web_heading: Web
       notify_discussion_renamed_label: Someone renames a discussion I started
+      reset_notifications_button: Reset to defaults
       device_heading: Device
       haptic_feedback_help: Only available on supported mobile devices
       haptic_feedback_label: Enable haptic feedback
@@ -936,6 +953,10 @@ core:
         group:
           key: group
           hint: singular or plural group names
+
+    # These translations are used in the group selector component.
+    group_selector:
+      placeholder: Choose a group
 
     # These translations are used in the input component.
     input:
@@ -1123,6 +1144,7 @@ core:
       remember_me_label: => core.ref.remember_me_label
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
+      too_many_attempts_message: => core.ref.too_many_login_attempts_message
 
     # Translations in this namespace are displayed by the Reset Password interface.
     reset_password:
@@ -1287,6 +1309,7 @@ core:
     start_a_discussion: Start a Discussion
     title_az: Title (A–Z)
     title_za: Title (Z–A)
+    too_many_login_attempts_message: Too many failed attempts to log in. Please wait a few minutes, then try again.
     top: Top
     username: Username
     username_or_email_placeholder: Username or Email

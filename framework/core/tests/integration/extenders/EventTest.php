@@ -80,6 +80,27 @@ class EventTest extends TestCase
     }
 
     #[Test]
+    public function custom_listener_works_with_class_and_instance_method_and_can_inject_stuff()
+    {
+        // The class is resolved through the container, so this also tests that stuff can be injected into it.
+        $this->extend((new Extend\Event)->listen(Created::class, [CustomMethodListener::class, 'whenGroupCreated']));
+
+        $group = $this->buildGroup();
+
+        $this->assertEquals('Admin', $group->name_singular);
+    }
+
+    #[Test]
+    public function custom_listener_works_with_class_and_static_method()
+    {
+        $this->extend((new Extend\Event)->listen(Created::class, [CustomStaticMethodListener::class, 'whenGroupCreated']));
+
+        $group = $this->buildGroup();
+
+        $this->assertEquals('static', $group->name_singular);
+    }
+
+    #[Test]
     public function custom_subscriber_works()
     {
         // Because it injects a translator, this also tests that stuff can be injected into this callback.
@@ -114,6 +135,27 @@ class CustomListener
     public function handle(Created $event)
     {
         $event->group->name_singular = $this->translator->trans('core.group.admin');
+    }
+}
+
+class CustomMethodListener
+{
+    public function __construct(
+        protected TranslatorInterface $translator
+    ) {
+    }
+
+    public function whenGroupCreated(Created $event): void
+    {
+        $event->group->name_singular = $this->translator->trans('core.group.admin');
+    }
+}
+
+class CustomStaticMethodListener
+{
+    public static function whenGroupCreated(Created $event): void
+    {
+        $event->group->name_singular = 'static';
     }
 }
 

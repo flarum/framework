@@ -5,7 +5,11 @@
   }
 }
 .Scrubber-scrollbar {
-  margin: 8px 0 8px 3px;
+  // The left margin centres the track under the chevron buttons that cap it
+  // above and below: those sit flush with the container, and their icons are
+  // wider than the 1px track, so a smaller margin leaves the whole column
+  // visibly left of the two icons pointing at it.
+  margin: 8px 0 8px 8px;
   height: 300px;
   min-height: 50px; // JavaScript sets a max-height
   position: relative;

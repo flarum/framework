@@ -22,6 +22,11 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
      */
     protected discussion: Discussion | null;
     /**
+     * What loading the discussion failed with, if it failed. The page shows it
+     * in place of the discussion.
+     */
+    protected loadError: unknown;
+    /**
      * A public API for interacting with the post stream.
      */
     protected stream: PostStreamState | null;

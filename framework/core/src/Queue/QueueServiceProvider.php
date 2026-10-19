@@ -171,11 +171,10 @@ class QueueServiceProvider extends AbstractServiceProvider
                     return $this->container['cache.store'];
                 }
 
-                // We have to define this explicitly
-                // so that we implement the interface.
-                public function store($name = null): mixed
+                // Flarum has a single cache store, so every name resolves to it.
+                public function store($name = null): Repository
                 {
-                    return $this->__call($name, null);
+                    return $this->driver();
                 }
 
                 public function __call(string $name, ?array $arguments): mixed

@@ -9,6 +9,7 @@
 
 namespace Flarum\Frontend;
 
+use Closure;
 use Flarum\Formatter\XsltPolyfill;
 use Flarum\Foundation\Config;
 use Flarum\Frontend\Compiler\VersionerInterface;
@@ -157,9 +158,10 @@ class Document implements Renderable
     public array $preloads = [];
 
     /**
-     * Document extra attributes.
+     * Document extra attributes. A Closure value is called with the request;
+     * any other value is used as given.
      *
-     * @var array<string, string|callable|array>
+     * @var array<string, string|Closure|array>
      */
     public array $extraAttributes = [
         'class' => [],
@@ -244,7 +246,9 @@ class Document implements Renderable
         $extraClasses = $this->extraAttributes['class'] ?? [];
 
         foreach ($extraClasses as $class) {
-            if (is_callable($class)) {
+            // Only a closure. A class name is a string, and `is_callable` on a
+            // string is true whenever a global function happens to share it.
+            if ($class instanceof Closure) {
                 $class = $class($this->request);
             }
 
@@ -263,7 +267,7 @@ class Document implements Renderable
                 continue;
             }
 
-            if (is_callable($value)) {
+            if ($value instanceof Closure) {
                 $value = $value($this->request);
             }
 
