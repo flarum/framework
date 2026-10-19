@@ -4,7 +4,8 @@ on:
   workflow_dispatch:
   push:
   pull_request:
-    # `ready_for_review` runs the full matrix once a draft is ready; drafts only get one job.
+    # `ready_for_review` runs the full matrix once a draft is ready; drafts get one job per
+    # database driver, on the newest PHP.
     types: [opened, synchronize, reopened, ready_for_review]
 
 # Superseded runs keep occupying slots against the account-wide concurrent job limit, so
@@ -20,6 +21,13 @@ jobs:
   # manual runs and failed lookups always run them.
   changes:
     runs-on: ubuntu-latest
+
+    # Pull request events from this repository's own branches are tested by their push run,
+    # so skip them here too, except when a draft is marked ready for review.
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name != github.repository ||
+      github.event.action == 'ready_for_review'
 
     outputs:
       backend: ${{ steps.check.outputs.backend }}
