@@ -134,9 +134,10 @@ on:
 
       reduce_drafts:
         description: >-
-          Run a single job (the newest PHP on SQLite, or the first database listed) for draft pull
-          requests, and the full matrix once they are marked ready for review. Callers that turn
-          this on should add `ready_for_review` to their `pull_request` trigger types.
+          For draft pull requests, run only the newest PHP against the newest version of each
+          database driver, prefixed, and the full matrix once they are marked ready for review.
+          Callers that turn this on should add `ready_for_review` to their `pull_request` trigger
+          types.
         type: boolean
         required: false
         default: false
@@ -192,7 +193,7 @@ jobs:
           PR_DRAFT: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          # A draft only gets a single quick job, when the caller asks for that. Pushes to a
+          # A draft gets one job per database driver, when the caller asks for that. Pushes to a
           # branch with an open draft pull request in this repository count as drafts too.
           draft=false
           if [ "$REDUCE_DRAFTS" = "true" ]; then
@@ -228,11 +229,13 @@ jobs:
             | ($phps[0]) as $oldest
             | (if ($dbs | length) == 0 then ["sqlite:3"] else $dbs end) as $dbs
             | ($dbs | map(select(driver == "sqlite")) | first) as $sqlite
+            | ([$dbs[] | {d: driver, s: .}] | group_by(.d) | map(map(.s) | sort_by(vkey))) as $groups
             | (if $draft then
-                [job($newest; ($sqlite // $dbs[0]); false)]
+                # The newest PHP on the newest version of each driver, prefixed: a prefixed run
+                # covers everything a plain one does, plus the prefix handling.
+                [ $groups[] | job($newest; last; true) ]
               else
-                ([$dbs[] | {d: driver, s: .}] | group_by(.d) | map(map(.s) | sort_by(vkey))) as $groups
-                | [ $groups[] as $g
+                [ $groups[] as $g
                     | ($g | length) as $n
                     | if $n == 1 then
                         job($oldest; $g[0]; false), job($newest; $g[0]; true)
