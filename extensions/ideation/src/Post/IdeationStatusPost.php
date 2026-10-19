@@ -21,7 +21,7 @@ use Flarum\Post\Post;
  * Content: [old status, new status, merged-into discussion id], plus the
  * GitHub item that caused it when the move was automatic.
  *
- * 🚨 Only the id of the idea it was merged into, never its title: everyone
+ * Only the id of the idea it was merged into, never its title: everyone
  * who can read this discussion reads this post, and the other idea may sit
  * somewhere they cannot see. The forum loads the title through the API,
  * which checks.

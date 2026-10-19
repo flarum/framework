@@ -25,7 +25,7 @@ use WeakMap;
 class LinkLookup
 {
     /** @var WeakMap<ServerRequestInterface, stdClass>|null */
-    private static ?WeakMap $requests = null;
+    protected static ?WeakMap $requests = null;
 
     public static function links(Discussion $discussion, Context $context): Closure
     {

@@ -17,8 +17,8 @@ namespace Flarum\Ideation\GitHub;
  */
 final class Reference
 {
-    private const OWNER = '[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})';
-    private const REPO = '[A-Za-z0-9._-]{1,100}';
+    protected const OWNER = '[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})';
+    protected const REPO = '[A-Za-z0-9._-]{1,100}';
 
     public function __construct(
         public readonly string $repo,
@@ -47,7 +47,7 @@ final class Reference
         return null;
     }
 
-    private static function make(string $owner, string $repo, string $type, string $number): ?self
+    protected static function make(string $owner, string $repo, string $type, string $number): ?self
     {
         $repo = preg_replace('/\.git$/', '', $repo);
 

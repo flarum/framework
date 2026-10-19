@@ -15,22 +15,25 @@ use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
 
 /**
- * Both answers come from the actor's permissions (loaded once per request)
+ * Voting and moderating are the permissions `discussion.ideationVote` and
+ * `discussion.ideationModerate`, granted by core's discussion policy like any
+ * other `discussion.*` ability, so the tags extension can scope them to a
+ * restricted tag (`tag{id}.discussion.ideationVote`).
+ *
+ * The answers come from the actor's permissions (loaded once per request)
  * and the discussion's own columns, so asking per card on the board costs no
  * queries.
  */
 class DiscussionPolicy extends AbstractPolicy
 {
-    public function ideationVote(User $actor, Discussion $discussion): bool
+    public function ideationVote(User $actor, Discussion $discussion): ?string
     {
         // A closed idea's count is the record of how wanted it was, so it is
         // frozen for everyone, administrators included.
-        return Status::isOpen($discussion->ideation_status)
-            && $actor->hasPermission('ideation.vote');
-    }
+        if (! Status::isOpen($discussion->ideation_status)) {
+            return $this->deny();
+        }
 
-    public function ideationModerate(User $actor, Discussion $discussion): bool
-    {
-        return $actor->hasPermission('ideation.moderate');
+        return null;
     }
 }

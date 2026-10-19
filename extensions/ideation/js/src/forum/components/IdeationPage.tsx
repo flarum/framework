@@ -15,12 +15,13 @@ import type Mithril from 'mithril';
 import VoteButton from './VoteButton';
 import GithubLinks from './GithubLinks';
 import BoardDrag from '../drag';
-import { t } from '../t';
 import { COLUMNS, ICONS, SETTABLE, statusLabel } from '../status';
 
 const PAGE = 10;
 
 type Column = { items: Discussion[]; loading: boolean; more: boolean };
+
+type TagLike = { name(): string; color(): string | null };
 
 /** The list view's sorts, as the API names them. */
 const SORTS: Record<string, string> = { votes: '-ideationVotes', newest: '-createdAt', latest: '-lastPostedAt' };
@@ -40,7 +41,7 @@ class IdeationSidebar extends IndexSidebar {
         disabled={!canPost}
         onclick={() => postIdea()}
       >
-        {t(canPost ? 'post_idea' : 'cannot_post_idea')}
+        {app.translator.trans(canPost ? 'flarum-ideation.forum.post_idea' : 'flarum-ideation.forum.cannot_post_idea')}
       </Button>
     );
 
@@ -58,9 +59,9 @@ function postIdea() {
     .load(() => import('flarum/forum/components/DiscussionComposer'), {
       user: app.session.user,
       ideationIdea: true,
-      titlePlaceholder: extractText(t('composer.title_placeholder')),
-      placeholder: extractText(t('composer.body_placeholder')),
-      submitLabel: t('composer.submit'),
+      titlePlaceholder: app.translator.trans('flarum-ideation.forum.composer.title_placeholder', {}, true),
+      placeholder: app.translator.trans('flarum-ideation.forum.composer.body_placeholder', {}, true),
+      submitLabel: app.translator.trans('flarum-ideation.forum.composer.submit'),
     })
     .then(() => app.composer.show());
 }
@@ -86,12 +87,12 @@ export default class IdeationPage extends Page {
 
     this.load();
 
-    app.history.push('ideation', extractText(t('title')));
+    app.history.push('ideation', app.translator.trans('flarum-ideation.forum.title', {}, true));
   }
 
   oncreate(vnode: Mithril.VnodeDOM<IPageAttrs, this>) {
     super.oncreate(vnode);
-    app.setTitle(extractText(t('title')));
+    app.setTitle(app.translator.trans('flarum-ideation.forum.title', {}, true));
     app.setTitleCount(0);
   }
 
@@ -114,8 +115,8 @@ export default class IdeationPage extends Page {
       <header className="Hero IdeationHero">
         <div className="container">
           <div className="containerNarrow">
-            <h1 className="Hero-title">{t('title')}</h1>
-            <div className="Hero-subtitle">{t('subtitle')}</div>
+            <h1 className="Hero-title">{app.translator.trans('flarum-ideation.forum.title')}</h1>
+            <div className="Hero-subtitle">{app.translator.trans('flarum-ideation.forum.subtitle')}</div>
           </div>
         </div>
       </header>
@@ -136,7 +137,7 @@ export default class IdeationPage extends Page {
     return [
       <ul className="IdeationPage-toolbar-view">
         <li>
-          <div className="ButtonGroup IdeationPage-mode" role="group" aria-label={extractText(t('view.label'))}>
+          <div className="ButtonGroup IdeationPage-mode" role="group" aria-label={app.translator.trans('flarum-ideation.forum.view.label', {}, true)}>
             {(['board', 'list'] as const).map((mode) => (
               <Button
                 className={classList('Button', this.mode === mode && 'active')}
@@ -144,7 +145,7 @@ export default class IdeationPage extends Page {
                 aria-pressed={this.mode === mode ? 'true' : 'false'}
                 onclick={() => this.change({ mode })}
               >
-                {t('view.' + mode)}
+                {app.translator.trans('flarum-ideation.forum.view.' + mode)}
               </Button>
             ))}
           </div>
@@ -152,10 +153,10 @@ export default class IdeationPage extends Page {
         {this.mode === 'list' ? (
           <li>
             {menu(
-              this.status === 'all' ? t('filter.all') : statusLabel(this.status),
+              this.status === 'all' ? app.translator.trans('flarum-ideation.forum.filter.all') : statusLabel(this.status),
               ['all', ...SETTABLE],
               this.status,
-              (v) => (v === 'all' ? t('filter.all') : statusLabel(v)),
+              (v) => (v === 'all' ? app.translator.trans('flarum-ideation.forum.filter.all') : statusLabel(v)),
               (status) => this.change({ status })
             )}
           </li>
@@ -163,10 +164,10 @@ export default class IdeationPage extends Page {
         {this.mode === 'list' ? (
           <li>
             {menu(
-              t('sort.' + this.sort),
+              app.translator.trans('flarum-ideation.forum.sort.' + this.sort),
               ['votes', 'newest', 'latest'],
               this.sort,
-              (v) => t('sort.' + v),
+              (v) => app.translator.trans('flarum-ideation.forum.sort.' + v),
               (sort) => this.change({ sort })
             )}
           </li>
@@ -178,8 +179,8 @@ export default class IdeationPage extends Page {
             className="FormControl IdeationPage-search"
             type="search"
             value={this.q}
-            placeholder={extractText(t('search_placeholder'))}
-            aria-label={extractText(t('search_placeholder'))}
+            placeholder={app.translator.trans('flarum-ideation.forum.search_placeholder', {}, true)}
+            aria-label={app.translator.trans('flarum-ideation.forum.search_placeholder', {}, true)}
             oninput={(e: InputEvent) => {
               const q = (e.target as HTMLInputElement).value;
               window.clearTimeout(this.searchTimer);
@@ -225,7 +226,7 @@ export default class IdeationPage extends Page {
     return (
       <section
         className={classList('IdeationColumn', 'IdeationStatus--' + status, this.over === status && 'IdeationColumn--over')}
-        data-rm-column={status}
+        data-ideation-column={status}
         key={status}
       >
         <h2 className="IdeationColumn-title">
@@ -234,13 +235,15 @@ export default class IdeationPage extends Page {
         </h2>
         <div className="IdeationColumn-cards">
           {column.items.map((discussion) => this.card(discussion))}
-          {!column.loading && !column.items.length ? <p className="IdeationColumn-empty">{t('empty_column')}</p> : null}
+          {!column.loading && !column.items.length ? (
+            <p className="IdeationColumn-empty">{app.translator.trans('flarum-ideation.forum.empty_column')}</p>
+          ) : null}
         </div>
         {column.loading ? (
           <LoadingIndicator />
         ) : column.more ? (
           <Button className="Button Button--block IdeationColumn-more" onclick={() => this.loadColumn(status, true)}>
-            {t('load_more')}
+            {app.translator.trans('flarum-ideation.forum.load_more')}
           </Button>
         ) : null}
       </section>
@@ -258,12 +261,14 @@ export default class IdeationPage extends Page {
     return (
       <div className="IdeationList">
         {list.items.map((discussion) => this.card(discussion, true))}
-        {!list.loading && !list.items.length ? <p className="IdeationColumn-empty">{t('empty_list')}</p> : null}
+        {!list.loading && !list.items.length ? (
+          <p className="IdeationColumn-empty">{app.translator.trans('flarum-ideation.forum.empty_list')}</p>
+        ) : null}
         {list.loading ? (
           <LoadingIndicator />
         ) : list.more ? (
           <Button className="Button Button--block IdeationColumn-more" onclick={() => this.loadColumn('list', true)}>
-            {t('load_more')}
+            {app.translator.trans('flarum-ideation.forum.load_more')}
           </Button>
         ) : null}
       </div>
@@ -271,12 +276,20 @@ export default class IdeationPage extends Page {
   }
 
   card(discussion: Discussion, withStatus = false) {
-    const status = discussion.attribute<string>('ideationStatus');
+    const status = discussion.ideationStatus() || '';
 
-    const tags = (discussion as any).tags?.() || [];
+    // Tags are an optional dependency, so their model is not imported.
+    const tags = ((discussion as Discussion & { tags?: () => (TagLike | undefined)[] | false }).tags?.() || []).filter(
+      (tag): tag is TagLike => !!tag
+    );
 
     return (
-      <article className="IdeationCard" data-rm-idea={discussion.id()} key={discussion.id()}>
+      <article
+        className="IdeationCard"
+        data-ideation-idea={discussion.id()}
+        data-ideation-movable={discussion.canIdeationModerate() ? '' : undefined}
+        key={discussion.id()}
+      >
         <VoteButton discussion={discussion} />
         <div className="IdeationCard-body">
           <Link className="IdeationCard-title" href={app.route.discussion(discussion)}>
@@ -290,15 +303,18 @@ export default class IdeationPage extends Page {
             ) : null}
             {tags.length ? (
               <span className="TagsLabel">
-                {tags.map((tag: any) => (
+                {tags.map((tag) => (
                   <span className={classList('TagLabel', tag.color() && 'colored')} style={tag.color() ? { '--tag-bg': tag.color() } : undefined}>
                     <span className="TagLabel-text">{tag.name()}</span>
                   </span>
                 ))}
               </span>
             ) : null}
-            <GithubLinks links={discussion.attribute('ideationGithub') || []} compact />
-            <span className="IdeationCard-replies" title={extractText(t('replies', { count: discussion.replyCount() }))}>
+            <GithubLinks links={discussion.ideationGithub() || []} compact />
+            <span
+              className="IdeationCard-replies"
+              title={app.translator.trans('flarum-ideation.forum.replies', { count: discussion.replyCount() }, true)}
+            >
               <Icon name="far fa-comment" /> {discussion.replyCount()}
             </span>
           </div>
@@ -354,7 +370,7 @@ export default class IdeationPage extends Page {
   /** A card dropped on another column: move it now, keep it if the server agrees. */
   move(id: string, status: string) {
     const discussion = app.store.getById<Discussion>('discussions', id);
-    const from = discussion?.attribute<string>('ideationStatus');
+    const from = discussion?.ideationStatus();
 
     if (!discussion || !from || from === status) return;
 

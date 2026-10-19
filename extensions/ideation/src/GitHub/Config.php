@@ -50,7 +50,7 @@ class Config
     }
 
     /**
-     * 🚨 Only repositories on the list can be linked. With a token, the
+     * Only repositories on the list can be linked. With a token, the
      * forum can read private repositories, and a link shows its title to
      * everyone who can read the idea; the list is what keeps a moderator
      * from pointing the owner's token at something private.

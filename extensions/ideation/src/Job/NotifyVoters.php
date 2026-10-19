@@ -17,6 +17,7 @@ use Flarum\Notification\NotificationSyncer;
 use Flarum\Queue\AbstractJob;
 use Flarum\User\Guest;
 use Flarum\User\User;
+use Illuminate\Support\Collection;
 
 /**
  * Tell everyone who voted for an idea that it shipped.
@@ -43,28 +44,33 @@ class NotifyVoters extends AbstractJob
             return;
         }
 
-        $voters = User::query()
-            ->whereIn('id', Vote::query()->select('user_id')->where('discussion_id', $discussion->id))
-            ->where('id', '!=', $this->actorId)
-            ->get();
-
         /*
-         * 🚨 A vote is not a licence to read. Someone who voted while an idea
+         * A vote is not a licence to read. Someone who voted while an idea
          * sat in a tag they have since lost access to must not be told its
          * title. One query settles it for an idea any guest can read, which is
          * nearly all of them; only a restricted idea is checked per voter.
          */
         $public = Discussion::query()->whereVisibleTo(new Guest())->whereKey($discussion->id)->exists();
 
-        if (! $public) {
-            $voters = $voters->filter(
-                fn (User $user) => Discussion::query()->whereVisibleTo($user)->whereKey($discussion->id)->exists()
-            );
-        }
+        $voters = [];
+
+        // Read in chunks, so no one query loads every voter of a popular idea;
+        // synced once at the end, because a sync takes the alert back from
+        // anyone it is not given to.
+        User::query()
+            ->whereIn('id', Vote::query()->select('user_id')->where('discussion_id', $discussion->id))
+            ->where('id', '!=', $this->actorId)
+            ->chunkById(150, function (Collection $users) use (&$voters, $public, $discussion) {
+                foreach ($users as $user) {
+                    if ($public || Discussion::query()->whereVisibleTo($user)->whereKey($discussion->id)->exists()) {
+                        $voters[] = $user;
+                    }
+                }
+            });
 
         $notifications->sync(
             new IdeaShippedBlueprint($discussion, User::query()->find($this->actorId)),
-            $voters->values()->all()
+            $voters
         );
     }
 }

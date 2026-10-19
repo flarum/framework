@@ -25,6 +25,8 @@ idea ships.
   both keeps one vote.
 - **Permissions:** *Post ideas*, *Vote* and *Move, merge and decline ideas*,
   in the permission grid. Members can post and vote, moderators can move.
+  With flarum/tags, voting and moving can be granted per restricted tag, like
+  any other discussion permission.
 - **GitHub, optionally.** Moderators link an idea to GitHub issues, pull
   requests and milestones, and everyone sees their live state on the idea and
   its card ("PR #5034 merged", "2.1 · 70%"). Optional rules move an idea to

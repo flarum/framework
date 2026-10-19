@@ -33,7 +33,7 @@ use WeakMap;
 class VoteLookup
 {
     /** @var WeakMap<ServerRequestInterface, stdClass>|null */
-    private static ?WeakMap $requests = null;
+    protected static ?WeakMap $requests = null;
 
     public static function voted(Discussion $discussion, Context $context): bool|Closure
     {

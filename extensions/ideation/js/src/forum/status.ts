@@ -1,6 +1,5 @@
 import app from 'flarum/forum/app';
 import type Discussion from 'flarum/common/models/Discussion';
-import { t } from './t';
 
 /** The board's columns, in order. Declined ideas are listed, not columned. */
 export const COLUMNS = ['under_review', 'planned', 'in_progress', 'shipped'];
@@ -17,9 +16,9 @@ export const ICONS: Record<string, string> = {
   merged: 'fas fa-code-merge',
 };
 
-export const statusLabel = (status: string) => t('status.' + status);
+export const statusLabel = (status: string) => app.translator.trans('flarum-ideation.forum.status.' + status);
 
-export const isOpen = (status: string | null) => status === 'under_review' || status === 'planned' || status === 'in_progress';
+export const isOpen = (status: string | null | undefined) => status === 'under_review' || status === 'planned' || status === 'in_progress';
 
 /**
  * Vote or take a vote back. The count moves at once and is put back if the
@@ -32,8 +31,8 @@ export function toggleVote(discussion: Discussion): Promise<unknown> {
     return Promise.resolve();
   }
 
-  const voted = !!discussion.attribute('ideationVoted');
-  const votes = discussion.attribute<number>('ideationVotes') || 0;
+  const voted = !!discussion.ideationVoted();
+  const votes = discussion.ideationVotes() || 0;
 
   discussion.pushAttributes({ ideationVoted: !voted, ideationVotes: Math.max(0, votes + (voted ? -1 : 1)) });
   m.redraw();

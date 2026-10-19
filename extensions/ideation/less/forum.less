@@ -1,19 +1,18 @@
 /*
- * Built on core's own variables so it follows the forum's colours, dark mode
- * and theme. 🚨 No core variable is redefined at :root; the one colour of our
- * own per status lives on the status class.
+ * Every colour is one of core's variables, so it follows the forum's
+ * colours, dark mode and theme. No core variable is redefined at :root; each
+ * status picks its colour on the status class.
  */
 
-.IdeationStatus--under_review { --rm-status: #6b7f99; }
-.IdeationStatus--planned { --rm-status: #7c5cc4; }
-.IdeationStatus--in_progress { --rm-status: #c27c0e; }
-.IdeationStatus--shipped { --rm-status: #2f9e5b; }
-.IdeationStatus--declined { --rm-status: #c4473f; }
-.IdeationStatus--merged { --rm-status: #8a8f98; }
+.IdeationStatus--under_review { --ideation-status: var(--secondary-color); }
+.IdeationStatus--planned { --ideation-status: var(--primary-color); }
+.IdeationStatus--in_progress { --ideation-status: var(--control-warning-color); }
+.IdeationStatus--shipped { --ideation-status: var(--control-success-color); }
+.IdeationStatus--declined { --ideation-status: var(--error-color); }
+.IdeationStatus--merged { --ideation-status: var(--muted-color); }
 
 .Badge--ideation {
-  --badge-bg: var(--rm-status);
-  --badge-color: #fff;
+  --badge-bg: var(--ideation-status);
 }
 
 /* ---- the vote ---------------------------------------------------------- */
@@ -51,7 +50,7 @@
   &,
   &:hover:not(:disabled),
   &:focus-visible,
-  // 🚨 Doubled class: the wide one is also a .Button, and core's disabled
+  // Doubled class: the wide one is also a .Button, and core's disabled
   // button style otherwise wins and leaves white text on a light grey.
   &.IdeationVote:disabled {
     background: var(--button-primary-bg);
@@ -74,6 +73,13 @@
   }
 }
 
+// Core's Button wraps the count and label in its own spans; they lay out as
+// if they were the vote's own children.
+.IdeationVote .Button-label,
+.IdeationVote .Button-labelText {
+  display: contents;
+}
+
 /* ---- the discussion page and lists ------------------------------------- */
 
 .IdeationPanel {
@@ -92,7 +98,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--rm-status);
+  color: var(--ideation-status);
   font-weight: bold;
 }
 
@@ -111,7 +117,7 @@
 }
 
 .IdeationStatusPost-status {
-  color: var(--rm-status);
+  color: var(--ideation-status);
 }
 
 /* ---- the roadmap page ------------------------------------------------- */
@@ -163,14 +169,14 @@
 
 .IdeationColumn {
   background: var(--control-bg);
-  border-top: 3px solid var(--rm-status);
+  border-top: 3px solid var(--ideation-status);
   border-radius: var(--border-radius);
   padding: 10px;
   transition: box-shadow 0.15s;
 }
 
 .IdeationColumn--over {
-  box-shadow: 0 0 0 2px var(--rm-status);
+  box-shadow: 0 0 0 2px var(--ideation-status);
 }
 
 .IdeationColumn-title {
@@ -180,7 +186,7 @@
   margin: 0 0 10px;
   font-size: 14px;
   font-weight: bold;
-  color: var(--rm-status);
+  color: var(--ideation-status);
 }
 
 .IdeationColumn-cards {
@@ -212,7 +218,7 @@
 }
 
 .IdeationCard-status {
-  color: var(--rm-status);
+  color: var(--ideation-status);
   font-weight: bold;
 }
 
@@ -225,24 +231,9 @@
   box-shadow: 0 1px 2px var(--shadow-color);
 }
 
-.IdeationBoard--draggable .IdeationList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  .IdeationCard {
-    padding: 12px 15px;
-    box-shadow: none;
-    border: 1px solid var(--control-bg);
-  }
-}
-
-.IdeationCard-status {
-  color: var(--rm-status);
-  font-weight: bold;
-}
-
-.IdeationCard {
+// Only the ideas this moderator can move, which a tag-scoped permission
+// may limit.
+.IdeationBoard--draggable .IdeationCard[data-ideation-movable] {
   cursor: grab;
   touch-action: pan-y;
 }
@@ -287,8 +278,8 @@
   gap: 6px;
 
   .Button.active {
-    background: var(--rm-status);
-    color: #fff;
+    background: var(--ideation-status);
+    color: var(--text-on-dark);
   }
 }
 
@@ -349,12 +340,12 @@
 
 /* ---- GitHub links ------------------------------------------------------ */
 
-.IdeationGithub--open { --ig-state: #1a7f37; }
+.IdeationGithub--open { --ideation-github-state: var(--control-success-color); }
 .IdeationGithub--completed,
-.IdeationGithub--merged { --ig-state: #8250df; }
-.IdeationGithub--closed { --ig-state: #cf222e; }
-.IdeationGithub--not_planned { --ig-state: var(--muted-color); }
-.IdeationGithub--milestone.IdeationGithub--closed { --ig-state: #8250df; }
+.IdeationGithub--merged { --ideation-github-state: var(--primary-color); }
+.IdeationGithub--closed { --ideation-github-state: var(--error-color); }
+.IdeationGithub--not_planned { --ideation-github-state: var(--muted-color); }
+.IdeationGithub--milestone.IdeationGithub--closed { --ideation-github-state: var(--primary-color); }
 
 .IdeationGithub {
   list-style: none;
@@ -383,7 +374,7 @@
 
 .IdeationGithub-icon {
   margin-top: 3px;
-  color: var(--ig-state);
+  color: var(--ideation-github-state);
 }
 
 .IdeationGithub-text {
@@ -414,7 +405,7 @@
     display: block;
     height: 100%;
     border-radius: 2px;
-    background: var(--ig-state, #1a7f37);
+    background: var(--ideation-github-state, var(--control-success-color));
   }
 }
 
@@ -430,7 +421,7 @@
   white-space: nowrap;
 
   .icon {
-    color: var(--ig-state);
+    color: var(--ideation-github-state);
   }
 }
 

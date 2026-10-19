@@ -19,10 +19,10 @@ class IdeationTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    private const MEMBER = 2;
-    private const MOD = 3;
-    private const OTHER = 4;
-    private const OUTSIDER = 5;
+    protected const MEMBER = 2;
+    protected const MOD = 3;
+    protected const OTHER = 4;
+    protected const OUTSIDER = 5;
 
     protected function setUp(): void
     {
@@ -60,7 +60,7 @@ class IdeationTest extends TestCase
         ]);
     }
 
-    private function patch(int $discussionId, ?int $actor, array $attributes): ResponseInterface
+    protected function patch(int $discussionId, ?int $actor, array $attributes): ResponseInterface
     {
         return $this->send($this->request('PATCH', "/api/discussions/$discussionId", [
             'authenticatedAs' => $actor,
@@ -68,17 +68,17 @@ class IdeationTest extends TestCase
         ]));
     }
 
-    private function attrs(ResponseInterface $response): array
+    protected function attrs(ResponseInterface $response): array
     {
         return json_decode((string) $response->getBody(), true)['data']['attributes'];
     }
 
-    private function votes(int $discussionId): int
+    protected function votes(int $discussionId): int
     {
         return (int) $this->database()->table('discussions')->where('id', $discussionId)->value('ideation_votes');
     }
 
-    private function voteRows(int $discussionId): array
+    protected function voteRows(int $discussionId): array
     {
         return $this->database()->table('ideation_votes')->where('discussion_id', $discussionId)->orderBy('user_id')->pluck('user_id')->map(fn ($id) => (int) $id)->all();
     }

@@ -19,7 +19,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  * POST /api/ideation/github/webhook — GitHub tells us an issue, pull request
  * or milestone changed.
  *
- * 🚨 Nothing is read until the signature checks out: an HMAC-SHA256 of the
+ * Nothing is read until the signature checks out: an HMAC-SHA256 of the
  * raw body with the forum's secret, compared in constant time. No secret set
  * (or the integration off) means every delivery is refused; this endpoint
  * never runs unauthenticated. It only ever updates links that already exist,
@@ -28,7 +28,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 class WebhookController implements RequestHandlerInterface
 {
     /** GitHub caps payloads at 25 MB; the events used here are a few KB. */
-    private const MAX_BYTES = 2_000_000;
+    protected const MAX_BYTES = 2_000_000;
 
     public function __construct(
         protected Config $config,
@@ -88,7 +88,7 @@ class WebhookController implements RequestHandlerInterface
         return new JsonResponse(['ok' => true, 'updated' => $updated]);
     }
 
-    private function item(string $repo, mixed $data, callable $normalise): int
+    protected function item(string $repo, mixed $data, callable $normalise): int
     {
         if (! is_array($data) || ! isset($data['number'])) {
             return 0;
