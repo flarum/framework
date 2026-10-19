@@ -157,6 +157,26 @@ class Run
         ]);
     }
 
+    /**
+     * A run that failed while Finishing up, started again from that phase's
+     * first step. Only that phase: by then every file is in place, and its
+     * steps (registering with Composer, migrations, assets, caches, the health
+     * check) are each safe to repeat.
+     */
+    public function retryingFinalise(int $now, string $note): self
+    {
+        return $this->copy([
+            'state' => self::RUNNING,
+            'phase' => 'finalise',
+            'items' => [],
+            'index' => 0,
+            'error' => null,
+            'errorStep' => null,
+            'movedAt' => $now,
+            'log' => [...$this->log, $note],
+        ]);
+    }
+
     public function finished(int $now, string $note): self
     {
         return $this->copy([

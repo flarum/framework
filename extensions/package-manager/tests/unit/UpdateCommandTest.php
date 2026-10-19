@@ -294,6 +294,68 @@ class UpdateCommandTest extends TestCase
         $this->assertSame(Run::DONE, $this->store()->load('r-somebody-elses')?->state);
     }
 
+    /**
+     * Once a run swaps this extension's own package, the old code in memory
+     * must not carry on: Finishing up goes to a fresh process (1.24.0 to
+     * 1.25.0 failed at "register" with "TranslatorInterface, string given").
+     */
+    public function test_a_run_that_replaces_the_updater_itself_finishes_in_a_fresh_process(): void
+    {
+        $this->site(require: ['flarum/extension-manager' => '^1.0'], installed: ['flarum/extension-manager' => '1.0.0']);
+
+        $tester = $this->runCommand(['packages' => ['flarum/extension-manager']], [
+            'apply' => ['flarum/extension-manager'],
+            'finalise' => ['register', 'caches'],
+        ]);
+
+        $run = $this->store()->latest();
+        $this->assertStringContainsString("HANDED OVER {$run?->id} at finalise", $tester->getDisplay());
+        $this->assertStringNotContainsString('finalise register', $tester->getDisplay(), 'Nothing in Finishing up ran with the old code.');
+        $this->assertSame(Run::RUNNING, $run?->state);
+    }
+
+    public function test_a_run_that_did_not_touch_the_updater_finishes_here(): void
+    {
+        $this->site(require: ['a/thing' => '^1.0'], installed: ['a/thing' => '1.0.0']);
+
+        $tester = $this->runCommand(['packages' => ['a/thing']], ['apply' => ['a/thing'], 'finalise' => ['register']]);
+
+        $this->assertStringNotContainsString('HANDED OVER', $tester->getDisplay());
+        $this->assertSame(Run::DONE, $this->store()->latest()?->state);
+    }
+
+    /**
+     * How a self-update from a version without the hand-over finishes: the
+     * files are in place, so --resume starts Finishing up again with the new code.
+     */
+    public function test_resume_retries_a_run_that_failed_while_finishing_up(): void
+    {
+        $this->site(require: [], installed: []);
+        $failed = Run::start('r-self-update', time())
+            ->enteredPhase('finalise', time())
+            ->withItems(['register', 'caches'], time())
+            ->failed('TranslatorInterface, string given', 'finalise → register', time(), 'Failed during finalise → register');
+        $this->store()->save($failed);
+
+        $tester = $this->runCommand(['--resume' => true], ['finalise' => ['register', 'caches']]);
+
+        $this->assertSame(0, $tester->getStatusCode());
+        $this->assertStringContainsString('Retrying r-self-update from the start of Finishing up', $tester->getDisplay());
+        $this->assertStringContainsString('finalise register', $tester->getDisplay());
+        $this->assertSame(Run::DONE, $this->store()->load('r-self-update')?->state);
+    }
+
+    public function test_resume_does_not_retry_a_run_that_failed_before_finishing_up(): void
+    {
+        $this->site(require: [], installed: []);
+        $this->store()->save(Run::start('r-early', time())->failed('the disk filled up', 'apply → a/thing', time(), 'Failed'));
+
+        $tester = $this->runCommand(['--resume' => true], ['apply' => ['a/thing']]);
+
+        $this->assertSame(1, $tester->getStatusCode());
+        $this->assertSame(Run::FAILED, $this->store()->load('r-early')?->state);
+    }
+
     public function test_resume_with_nothing_to_resume_says_so(): void
     {
         $this->site(require: [], installed: []);
@@ -411,6 +473,14 @@ class UpdateCommandTest extends TestCase
             protected function recheck(): void
             {
                 ($this->recheckWith)();
+            }
+
+            // A real hand-over starts `php flarum`; here it only says it would.
+            protected function handOver(Run $run): int
+            {
+                $this->output->writeln("HANDED OVER {$run->id} at {$run->phase}");
+
+                return 0;
             }
         };
 

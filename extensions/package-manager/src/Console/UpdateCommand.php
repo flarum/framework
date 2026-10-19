@@ -65,6 +65,9 @@ class UpdateCommand extends AbstractCommand
      */
     protected array $printed = [];
 
+    /** This extension's own package: once a run swaps it, the old code must stop. */
+    protected const SELF = 'flarum/extension-manager';
+
     public function __construct(
         protected TranslatorInterface $translator,
         protected Paths $paths,
@@ -249,6 +252,32 @@ class UpdateCommand extends AbstractCommand
      * closed, or by a worker that died, is exactly the state that used to need
      * someone to know what a work directory was.
      */
+    /**
+     * Finish a run in a fresh process, after this one replaced its own code.
+     */
+    protected function handOver(Run $run): int
+    {
+        $disabled = array_map('trim', explode(',', (string) ini_get('disable_functions')));
+
+        if (! function_exists('proc_open') || in_array('proc_open', $disabled, true)) {
+            $this->error("This update replaced the updater itself, so {$run->id} has to finish with the new code. "
+                .'Run `php flarum extension-manager:update --resume`, or open the Extension Manager in the admin panel.');
+
+            return 1;
+        }
+
+        $this->info('This update replaced the updater itself, so a fresh process finishes it with the new code.');
+
+        $process = proc_open(
+            [PHP_BINARY, $this->paths->base.'/flarum', 'extension-manager:update', '--resume', '--timeout='.(int) $this->input->getOption('timeout')],
+            [STDIN, STDOUT, STDERR],
+            $pipes,
+            $this->paths->base
+        );
+
+        return is_resource($process) ? proc_close($process) : 1;
+    }
+
     protected function resume(): int
     {
         $run = $this->runs->latest();
@@ -257,6 +286,20 @@ class UpdateCommand extends AbstractCommand
             $this->error('There is no run to resume.');
 
             return 1;
+        }
+
+        /*
+         * A run that failed while Finishing up is retried from that phase's
+         * first step: the files are already in place and every step there can
+         * be repeated. This is how a self-update from a version without the
+         * hand-over below finishes: run --resume, and the new code completes it.
+         */
+        if ($run->state === Run::FAILED && $run->phase === 'finalise') {
+            $run = $run->retryingFinalise(time(), "Retrying Finishing up from its first step, after: {$run->error}");
+            $this->runs->save($run);
+            $this->info("Retrying {$run->id} from the start of Finishing up.");
+
+            return $this->pump($run);
         }
 
         if ($run->isFinished()) {
@@ -276,12 +319,28 @@ class UpdateCommand extends AbstractCommand
     protected function pump(Run $run): int
     {
         $deadline = time() + max(60, (int) $this->input->getOption('timeout'));
+        $replacedItself = false;
 
         while (true) {
             $this->emit($run->log);
 
             if ($run->isFinished()) {
                 break;
+            }
+
+            /*
+             * This process has the old version of this extension loaded. Once
+             * its own package has been swapped, the rest must run in a fresh
+             * process: the old classes in memory meeting new files on disk
+             * fail as soon as a constructor has changed (1.24.0 to 1.25.0,
+             * "TranslatorInterface, string given" at Finishing up).
+             */
+            if ($run->phase === 'apply' && in_array(static::SELF, $run->items, true)) {
+                $replacedItself = true;
+            }
+
+            if ($replacedItself && $run->phase === 'finalise') {
+                return $this->handOver($run);
             }
 
             if (time() > $deadline) {
