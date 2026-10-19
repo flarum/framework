@@ -1,6 +1,12 @@
 name: Backend Tests
 
-on: [workflow_dispatch, push, pull_request]
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+    # `ready_for_review` runs the full matrix once a draft is ready; drafts get one job per
+    # database driver, on the newest PHP.
+    types: [opened, synchronize, reopened, ready_for_review]
 
 # Superseded runs keep occupying slots against the account-wide concurrent job limit, so
 # cancel them when a branch is pushed again. Runs on the default branch are left alone,
@@ -10,9 +16,52 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/2.x' }}
 
 jobs:
+  # Skips the database matrix when a change cannot affect it: only JavaScript, styles,
+  # images or Markdown. Anything else, or any doubt, runs the tests. The default branch,
+  # manual runs and failed lookups always run them.
+  changes:
+    runs-on: ubuntu-latest
+
+    # Pull request events from this repository's own branches are tested by their push run,
+    # so skip them here too, except when a draft is marked ready for review.
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name != github.repository ||
+      github.event.action == 'ready_for_review'
+
+    outputs:
+      backend: ${{ steps.check.outputs.backend }}
+
+    steps:
+      - name: Check changed files
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          backend=true
+
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            files=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files" --jq '.[].filename') || files=""
+          elif [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF" != "refs/heads/2.x" ]; then
+            files=$(gh api "repos/$GITHUB_REPOSITORY/compare/2.x...$GITHUB_SHA" --jq 'if (.files | length) >= 300 then empty else .files[].filename end') || files=""
+          else
+            files=""
+          fi
+
+          if [ -n "$files" ] && ! echo "$files" | grep -qvE '^(framework/core/js/|extensions/[^/]+/js/|js-packages/)|\.(less|css|md|ts|tsx|js|jsx|map|svg|png|jpe?g|gif|ico|woff2?)$|(^|/)(package\.json|yarn\.lock)$'; then
+            backend=false
+          fi
+
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          echo "Backend tests needed: $backend"
+
   run:
+    needs: changes
     uses: ./.github/workflows/REUSABLE_backend.yml
     with:
-      enable_backend_testing: true
+      enable_backend_testing: ${{ needs.changes.outputs.backend == 'true' }}
       backend_directory: .
+      max_parallel: 8
+      reduce_drafts: true
       monorepo_tests: "framework/core extensions/akismet extensions/approval extensions/audit extensions/flags extensions/likes extensions/mentions extensions/nicknames extensions/statistics extensions/sticky extensions/subscriptions extensions/suspend extensions/tags extensions/messages extensions/gdpr extensions/realtime extensions/lock extensions/deck php-packages/testing/tests"
