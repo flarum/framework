@@ -24,6 +24,9 @@ return [
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
+        // The chunks loaded on demand (the release notes window). Without this
+        // Flarum never publishes them and the button 404s (ClaudiusH).
+        ->jsDirectory(__DIR__.'/js/dist/admin')
         ->css(__DIR__.'/less/admin.less'),
 
     (new Extend\Console())
