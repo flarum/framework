@@ -165,6 +165,7 @@ class SubscriptionFilterTest extends TestCase
         return [
             'following' => ['following'],
             'followed' => ['followed'],
+            'mixed case' => ['Following'],
         ];
     }
 
@@ -189,6 +190,7 @@ class SubscriptionFilterTest extends TestCase
         return [
             'ignoring' => ['ignoring'],
             'ignored' => ['ignored'],
+            'mixed case' => ['IGNORED'],
         ];
     }
 

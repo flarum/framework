@@ -6,6 +6,10 @@ export default class LikedByGambit extends KeyValueGambit {
     return app.translator.trans('flarum-likes.lib.gambits.posts.likedBy.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'likedBy';
+  }
+
   hint(): string {
     return app.translator.trans('flarum-likes.lib.gambits.posts.likedBy.hint', {}, true);
   }

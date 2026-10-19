@@ -52,15 +52,18 @@ class SubscriptionFilter implements FilterInterface
 
     /**
      * Resolve a filter value to its canonical database value using the
-     * registered subscription type registry. Returns null if unrecognised.
+     * registered subscription type registry, ignoring case as the previous
+     * pattern did. Returns null if unrecognised.
      */
     protected function resolveCanonicalValue(string $value): ?string
     {
         /** @var array<string, string[]> $types */
         $types = $this->container->make('flarum-subscriptions.subscription_types');
 
+        $value = mb_strtolower($value);
+
         foreach ($types as $canonical => $aliases) {
-            if (in_array($value, $aliases, true)) {
+            if (in_array($value, array_map(mb_strtolower(...), $aliases), true)) {
                 return $canonical;
             }
         }

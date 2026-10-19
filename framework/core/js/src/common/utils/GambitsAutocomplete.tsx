@@ -45,7 +45,6 @@ export default class GambitsAutocomplete {
             .join(', '),
         }),
         pattern: () => '',
-        canonicalPattern: () => '',
         filterKey: () => '',
         toFilter: () => [],
         fromFilter: () => '',

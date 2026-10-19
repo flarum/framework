@@ -15,8 +15,9 @@ export default interface IGambit<Type extends GambitType = GambitType> {
    * The canonical English pattern for this gambit, used as an alias so that
    * English always works regardless of the active locale.
    * Implementations should derive this from canonicalKey() rather than key().
+   * Optional, so gambits that implement this interface directly keep working.
    */
-  canonicalPattern(): string;
+  canonicalPattern?(): string;
 
   /**
    * This is the method to transform a gambit into a filter format.
@@ -119,7 +120,7 @@ export abstract class BooleanGambit implements IGambit<GambitType.Grouped> {
   }
 
   canonicalPattern(): string {
-    // Always use the untranslated English group key and canonical keyword(s)
+    // Use the untranslated group key (is/has/allows) and canonical keyword(s)
     // so that English input works regardless of the active locale.
     let key = this.canonicalKey();
 
@@ -127,7 +128,7 @@ export abstract class BooleanGambit implements IGambit<GambitType.Grouped> {
       key = key.join('|');
     }
 
-    return `is:(${key})`;
+    return `${this.booleanKey()}:(${key})`;
   }
 
   toFilter(_matches: string[], negate: boolean): Record<string, any> {

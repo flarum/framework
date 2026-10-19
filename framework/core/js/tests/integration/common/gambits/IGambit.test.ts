@@ -7,6 +7,7 @@
  */
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import { app } from '../../../../src/forum';
+import GambitManager from '../../../../src/common/GambitManager';
 
 import { BooleanGambit, KeyValueGambit, GambitType } from '../../../../src/common/query/IGambit';
 import AuthorGambit from '../../../../src/common/query/discussions/AuthorGambit';
@@ -370,9 +371,6 @@ describe('KeyValueGambit with custom valuePattern()', () => {
 // hardcoded English keyword, independent of what key() returns (which may be
 // translated). GambitManager will use this to build an alias pattern so that
 // the English keyword always works regardless of locale.
-//
-// These tests will FAIL until canonicalKey() is added to BooleanGambit and
-// KeyValueGambit in IGambit.ts.
 // ---------------------------------------------------------------------------
 
 describe('TDD: BooleanGambit canonicalKey()', () => {
@@ -418,6 +416,16 @@ describe('TDD: BooleanGambit canonicalKey()', () => {
     expect(typeof (gambit as any).canonicalPattern).toBe('function');
     expect((gambit as any).canonicalPattern()).toBe('is:(hidden)');
   });
+
+  test('canonicalPattern() keeps the gambit\'s own group key', () => {
+    class HasGambit extends TranslatedBooleanGambit {
+      booleanKey(): 'has' {
+        return 'has';
+      }
+    }
+
+    expect(new HasGambit().canonicalPattern()).toBe('has:(hidden)');
+  });
 });
 
 describe('TDD: KeyValueGambit canonicalKey()', () => {
@@ -457,5 +465,49 @@ describe('TDD: KeyValueGambit canonicalKey()', () => {
     const gambit = new TranslatedKeyValueGambit();
     expect(typeof (gambit as any).canonicalPattern).toBe('function');
     expect((gambit as any).canonicalPattern()).toBe('author:(.+)');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Built-in gambits under a translated locale: the translated and the English
+// keywords both work, and filters are written back in the active locale.
+// ---------------------------------------------------------------------------
+
+describe('built-in gambits with translated keywords', () => {
+  const translated: Record<string, string> = {
+    'core.lib.gambits.group_keys.is': 'ist',
+    'core.lib.gambits.discussions.author.key': 'autor',
+    'core.lib.gambits.discussions.hidden.key': 'versteckt',
+  };
+  const original: Record<string, string> = {};
+  const gambits = new GambitManager();
+
+  beforeAll(() => {
+    Object.keys(translated).forEach((key) => (original[key] = app.translator.translations[key] as string));
+    app.translator.addTranslations(translated);
+  });
+
+  afterAll(() => {
+    app.translator.addTranslations(original);
+  });
+
+  test('translated keywords match', () => {
+    expect(gambits.apply('discussions', { q: 'lorem autor:behz ist:versteckt' })).toStrictEqual({
+      q: 'lorem',
+      author: 'behz',
+      hidden: true,
+    });
+  });
+
+  test('English keywords still match', () => {
+    expect(gambits.apply('discussions', { q: 'lorem author:behz -is:hidden' })).toStrictEqual({
+      q: 'lorem',
+      author: 'behz',
+      '-hidden': true,
+    });
+  });
+
+  test('filters are written back with the translated keywords', () => {
+    expect(gambits.from('discussions', 'lorem', { author: 'behz', hidden: true })).toStrictEqual('lorem autor:behz ist:versteckt');
   });
 });

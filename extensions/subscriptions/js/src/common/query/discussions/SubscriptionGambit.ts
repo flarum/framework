@@ -16,19 +16,13 @@ export default class SubscriptionGambit extends BooleanGambit {
   toFilter(matches: string[], negate: boolean): Record<string, any> {
     const filterKey = (negate ? '-' : '') + this.filterKey();
 
-    // Map the matched surface keyword to the canonical internal DB value.
-    // This ensures SubscriptionFilter always receives 'follow' or 'ignore'
-    // regardless of which locale keyword was used.
-    const allFollowKeys = [
-      'following',
-      'followed',
-      app.translator.trans('flarum-subscriptions.lib.gambits.discussions.subscription.following_key', {}, true),
-    ];
-
-    const value = allFollowKeys.includes(matches[1]) ? 'follow' : 'ignore';
+    // Map the matched keyword, translated or English, to the value stored in
+    // the database, so SubscriptionFilter always receives 'follow' or 'ignore'.
+    const keyword = matches[1].toLowerCase();
+    const followKeys = [this.key()[0], this.canonicalKey()[0]].map((key) => key.toLowerCase());
 
     return {
-      [filterKey]: value,
+      [filterKey]: followKeys.includes(keyword) ? 'follow' : 'ignore',
     };
   }
 
@@ -37,12 +31,11 @@ export default class SubscriptionGambit extends BooleanGambit {
   }
 
   fromFilter(value: string, negate: boolean): string {
-    const key = this.key();
-    // value is the canonical DB value ('follow' or 'ignore'); map back to
-    // the locale-appropriate surface keyword for display in the search bar.
-    const keyword = value === 'follow' ? key[0] : key[1];
+    // The value is 'follow' or 'ignore', or a legacy 'following'/'ignoring';
+    // show the keyword for the active locale in the search bar.
+    const keyword = /^follow/i.test(value) ? this.key()[0] : this.key()[1];
 
-    return `${negate ? '-' : ''}is:${keyword}`;
+    return `${negate ? '-' : ''}${this.groupKey()}:${keyword}`;
   }
 
   enabled(): boolean {

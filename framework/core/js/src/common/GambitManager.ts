@@ -50,9 +50,10 @@ export default class GambitManager {
 
         // If the translated pattern didn't match, try the canonical English
         // pattern as an alias — so English always works regardless of locale.
-        if (!matches && gambit.canonicalPattern() !== gambit.pattern()) {
-          const canonicalPattern = new RegExp(`^(-?)${gambit.canonicalPattern()}$`, 'i');
-          matches = bit.match(canonicalPattern);
+        const canonicalPattern = gambit.canonicalPattern?.();
+
+        if (!matches && canonicalPattern && canonicalPattern !== gambit.pattern()) {
+          matches = bit.match(new RegExp(`^(-?)${canonicalPattern}$`, 'i'));
         }
 
         if (matches) {
