@@ -20,7 +20,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0",
+        "flarum/core": "^2.1",
         "ext-json": "*"
     },
     "autoload": {
@@ -92,7 +92,7 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
-        "flarum/testing": "^2.0.0",
+        "flarum/testing": "^2.1",
         "flarum/approval": "*",
         "flarum/flags": "*",
         "flarum/lock": "*",
