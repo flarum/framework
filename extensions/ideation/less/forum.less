@@ -1,0 +1,441 @@
+/*
+ * Built on core's own variables so it follows the forum's colours, dark mode
+ * and theme. 🚨 No core variable is redefined at :root; the one colour of our
+ * own per status lives on the status class.
+ */
+
+.IdeationStatus--under_review { --rm-status: #6b7f99; }
+.IdeationStatus--planned { --rm-status: #7c5cc4; }
+.IdeationStatus--in_progress { --rm-status: #c27c0e; }
+.IdeationStatus--shipped { --rm-status: #2f9e5b; }
+.IdeationStatus--declined { --rm-status: #c4473f; }
+.IdeationStatus--merged { --rm-status: #8a8f98; }
+
+.Badge--ideation {
+  --badge-bg: var(--rm-status);
+  --badge-color: #fff;
+}
+
+/* ---- the vote ---------------------------------------------------------- */
+
+.IdeationVote {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 44px;
+  padding: 5px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius);
+  background: var(--control-bg);
+  color: var(--control-color);
+  font-weight: bold;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.75;
+  }
+}
+
+.IdeationVote--voted {
+  &,
+  &:hover:not(:disabled),
+  &:focus-visible,
+  // 🚨 Doubled class: the wide one is also a .Button, and core's disabled
+  // button style otherwise wins and leaves white text on a light grey.
+  &.IdeationVote:disabled {
+    background: var(--button-primary-bg);
+    border-color: var(--button-primary-bg);
+    color: var(--button-primary-color);
+  }
+}
+
+.IdeationVote-icon {
+  font-size: 12px;
+}
+
+.IdeationVote--wide {
+  flex-direction: row;
+  gap: 8px;
+  width: 100%;
+
+  .IdeationVote-label {
+    font-weight: normal;
+  }
+}
+
+/* ---- the discussion page and lists ------------------------------------- */
+
+.IdeationPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.IdeationPanel-merged {
+  white-space: normal;
+  height: auto;
+}
+
+.IdeationPanel-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--rm-status);
+  font-weight: bold;
+}
+
+/* In a discussion list, a small pill above the reply count, sized like it. */
+.DiscussionListItem-stats .IdeationVote {
+  flex-direction: row;
+  gap: 4px;
+  min-width: 0;
+  padding: 2px 6px;
+  margin-bottom: 6px;
+  font-size: 12px;
+
+  .IdeationVote-icon {
+    font-size: 10px;
+  }
+}
+
+.IdeationStatusPost-status {
+  color: var(--rm-status);
+}
+
+/* ---- the roadmap page ------------------------------------------------- */
+
+/*
+ * Core's toolbar layout under our own class names: themes restyle or hide
+ * .IndexPage-toolbar for their discussion lists (Bespoke's category layout
+ * hides it outright), and that must not take the board's controls with it.
+ */
+.IdeationPage-toolbar,
+.IdeationPage-toolbar-view,
+.IdeationPage-toolbar-action {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.IdeationPage-toolbar {
+  margin-bottom: 15px;
+}
+
+.IdeationPage-toolbar-action {
+  margin-inline-start: auto;
+}
+
+.IdeationPage-mode {
+  display: inline-flex;
+
+  .Button.active {
+    background: var(--control-bg);
+    color: var(--control-color);
+    font-weight: bold;
+  }
+}
+
+.IdeationPage-search {
+  width: 220px;
+}
+
+.IdeationBoard {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.IdeationColumn {
+  background: var(--control-bg);
+  border-top: 3px solid var(--rm-status);
+  border-radius: var(--border-radius);
+  padding: 10px;
+  transition: box-shadow 0.15s;
+}
+
+.IdeationColumn--over {
+  box-shadow: 0 0 0 2px var(--rm-status);
+}
+
+.IdeationColumn-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--rm-status);
+}
+
+.IdeationColumn-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.IdeationColumn-empty {
+  margin: 4px 0;
+  color: var(--muted-color);
+  font-size: 13px;
+}
+
+.IdeationColumn-more {
+  margin-top: 8px;
+}
+
+.IdeationList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .IdeationCard {
+    padding: 12px 15px;
+    box-shadow: none;
+    border: 1px solid var(--control-bg);
+  }
+}
+
+.IdeationCard-status {
+  color: var(--rm-status);
+  font-weight: bold;
+}
+
+.IdeationCard {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: var(--body-bg);
+  border-radius: var(--border-radius);
+  box-shadow: 0 1px 2px var(--shadow-color);
+}
+
+.IdeationBoard--draggable .IdeationList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .IdeationCard {
+    padding: 12px 15px;
+    box-shadow: none;
+    border: 1px solid var(--control-bg);
+  }
+}
+
+.IdeationCard-status {
+  color: var(--rm-status);
+  font-weight: bold;
+}
+
+.IdeationCard {
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.IdeationCard--dragging {
+  opacity: 0.4;
+}
+
+.IdeationDragging,
+.IdeationDragging * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+.IdeationCard-body {
+  min-width: 0;
+}
+
+.IdeationCard-title {
+  display: block;
+  color: var(--heading-color);
+  font-weight: bold;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.IdeationCard-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted-color);
+}
+
+/* ---- moderation ------------------------------------------------------- */
+
+.IdeationModal-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  .Button.active {
+    background: var(--rm-status);
+    color: #fff;
+  }
+}
+
+.IdeationModal-remove {
+  margin-top: 6px;
+  padding-inline: 0;
+}
+
+.IdeationModal-results {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+
+  .Button {
+    width: 100%;
+    margin-bottom: 4px;
+    text-align: start;
+  }
+
+  .Button-label,
+  .Button-labelText {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+  }
+}
+
+.IdeationModal-merge .Button--primary {
+  height: auto;
+  white-space: normal;
+}
+
+.IdeationModal-result-votes {
+  flex-shrink: 0;
+  color: var(--muted-color);
+}
+
+@media @tablet {
+  .IdeationBoard {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media @phone {
+  .IdeationBoard {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .IdeationPage-search {
+    width: 100%;
+  }
+
+  .IdeationPage-toolbar-action {
+    flex-basis: 100%;
+  }
+}
+
+/* ---- GitHub links ------------------------------------------------------ */
+
+.IdeationGithub--open { --ig-state: #1a7f37; }
+.IdeationGithub--completed,
+.IdeationGithub--merged { --ig-state: #8250df; }
+.IdeationGithub--closed { --ig-state: #cf222e; }
+.IdeationGithub--not_planned { --ig-state: var(--muted-color); }
+.IdeationGithub--milestone.IdeationGithub--closed { --ig-state: #8250df; }
+
+.IdeationGithub {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.IdeationGithub-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.IdeationGithub-link {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  color: var(--text-color);
+
+  &:hover .IdeationGithub-title {
+    text-decoration: underline;
+  }
+}
+
+.IdeationGithub-icon {
+  margin-top: 3px;
+  color: var(--ig-state);
+}
+
+.IdeationGithub-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.IdeationGithub-title {
+  font-size: 13px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+.IdeationGithub-meta {
+  font-size: 12px;
+  color: var(--muted-color);
+}
+
+.IdeationGithub-progress {
+  display: block;
+  height: 4px;
+  margin-top: 4px;
+  border-radius: 2px;
+  background: var(--control-bg);
+
+  > span {
+    display: block;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--ig-state, #1a7f37);
+  }
+}
+
+.IdeationGithub--compact {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.IdeationGithub-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+
+  .icon {
+    color: var(--ig-state);
+  }
+}
+
+.IdeationModal-githubAdd {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
