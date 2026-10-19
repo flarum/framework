@@ -5,8 +5,10 @@ import apiUrl from '../apiUrl';
 
 declare const m: any;
 
-
-interface Line { key: string; params?: Record<string, string> }
+interface Line {
+  key: string;
+  params?: Record<string, string>;
+}
 interface Check {
   id: string;
   ok: boolean;

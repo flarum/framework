@@ -591,6 +591,17 @@ class ComposerSteps implements Steps
             if ($change->package === $package) {
                 $done = $this->applier->applyOne($change);
 
+                /*
+                 * 🚨 In this request, before anything else can fail. A package
+                 * with `autoload.files` that this swap took away (a removal, or
+                 * a new version without that file) would otherwise kill every
+                 * request in Composer's autoloader, this updater's next step and
+                 * its undo included. See AutoloadFiles.
+                 */
+                if (AutoloadFiles::pruneMissing($this->installPath.'/vendor') !== []) {
+                    $done .= '. '.Lang::trans('composer.autoload_files_pruned');
+                }
+
                 $this->dropStaleCode();
 
                 // The last swap of an update that moved Flarum itself.
@@ -786,6 +797,10 @@ class ComposerSteps implements Steps
      */
     private function clearCaches(): string
     {
+        // A cache left root-owned (a `php flarum cache:clear` run as root while
+        // this run waited) would fail the clear below; see StaleCache.
+        $setAside = StaleCache::describe(StaleCache::setAside($this->storagePath));
+
         $this->flarum('cache:clear', 'cleared');
         $this->flarum('extension-manager:repair-formatter', 'formatter rebuilt');
         // Before Flarum 2.0.0, cache:clear leaves the compiled bundles as they
@@ -798,6 +813,7 @@ class ComposerSteps implements Steps
         ));
 
         return Lang::trans('composer.caches_cleared')
+            .($setAside === '' ? '' : '. '.$setAside)
             .($warnings === [] ? '' : '. '.implode(' ', $warnings));
     }
 
@@ -1317,9 +1333,7 @@ class ComposerSteps implements Steps
         $result = (new FlarumCommand($this->installPath, $this->composer))->run($command);
 
         if ($result['code'] !== 0) {
-            $lines = explode("\n", $result['output']);
-
-            throw new RuntimeException(Lang::trans('composer.flarum_command_failed', ['command' => $command])."\n".implode("\n", array_slice($lines, -12)));
+            throw new RuntimeException(Lang::trans('composer.flarum_command_failed', ['command' => $command])."\n".FlarumCommand::excerpt($result['output']));
         }
 
         return $note;

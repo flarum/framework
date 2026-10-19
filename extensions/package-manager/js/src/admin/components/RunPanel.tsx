@@ -7,7 +7,6 @@ import Component from 'flarum/common/Component';
 
 declare const m: any;
 
-
 const PHASES = ['plan', 'fetch', 'apply', 'finalise'];
 
 /**
@@ -132,7 +131,17 @@ export default class RunPanel extends Component<RunPanelAttrs> {
       <div className={'ExtensionManager-run' + (failed ? ' ExtensionManager-run--failed' : '')}>
         <div className="ExtensionManager-runHead">
           <div>
-            <h3>{done ? t('run_done') : rolled ? t('run_rolled_back') : failed ? t('run_failed') : target ? t('run_target_' + mode, { packages: target }) : t('run_working')}</h3>
+            <h3>
+              {done
+                ? t('run_done')
+                : rolled
+                  ? t('run_rolled_back')
+                  : failed
+                    ? t('run_failed')
+                    : target
+                      ? t('run_target_' + mode, { packages: target })
+                      : t('run_working')}
+            </h3>
             {target && (done || failed || rolled) ? <div className="ExtensionManager-runTarget">{target}</div> : null}
           </div>
           {this.attrs.driver ? <span className="ExtensionManager-driver">{this.attrs.driver}</span> : null}
@@ -146,11 +155,11 @@ export default class RunPanel extends Component<RunPanelAttrs> {
             <div className="ExtensionManager-errorWhere">{t('failed_at', { step: whereLabel(run.errorStep) })}</div>
             <pre className="ExtensionManager-errorText">{run.error}</pre>
             {/*
-              * 🚨 Offered on a FAILURE, not just on a finished run. The journal
-              * records each move before it is made, so a half-finished apply is
-              * exactly as reversible as a complete one — and this is the moment
-              * somebody most needs to know that.
-              */}
+             * 🚨 Offered on a FAILURE, not just on a finished run. The journal
+             * records each move before it is made, so a half-finished apply is
+             * exactly as reversible as a complete one — and this is the moment
+             * somebody most needs to know that.
+             */}
             <button className="Button" disabled={this.rollingBack} onclick={() => this.rollback()}>
               {this.rollingBack ? t('rolling_back') : t('roll_back')}
             </button>
@@ -158,18 +167,18 @@ export default class RunPanel extends Component<RunPanelAttrs> {
         ) : null}
 
         {/*
-          * 🚨 A rolled-back run shows its reason too, and this used to be the
-          * one state that did not.
-          *
-          * When the admin pressed the button they knew why. Now a run can undo
-          * ITSELF — the site stopped answering and it put everything back — and
-          * "Rolled back" on its own leaves them with a forum that works, an
-          * update that vanished, and no idea which of the two is the problem.
-          * The sentence names the extension and the line.
-          *
-          * No Roll back button here: the tree is already correct, and offering
-          * to undo it again is the first thing a worried admin would press.
-          */}
+         * 🚨 A rolled-back run shows its reason too, and this used to be the
+         * one state that did not.
+         *
+         * When the admin pressed the button they knew why. Now a run can undo
+         * ITSELF — the site stopped answering and it put everything back — and
+         * "Rolled back" on its own leaves them with a forum that works, an
+         * update that vanished, and no idea which of the two is the problem.
+         * The sentence names the extension and the line.
+         *
+         * No Roll back button here: the tree is already correct, and offering
+         * to undo it again is the first thing a worried admin would press.
+         */}
         {rolled && run.error ? (
           <div className="ExtensionManager-error">
             <div className="ExtensionManager-errorWhere">{t('failed_at', { step: whereLabel(run.errorStep) })}</div>
@@ -182,44 +191,38 @@ export default class RunPanel extends Component<RunPanelAttrs> {
         {this.misses > 2 && !done && !failed && !rolled ? (
           <div className="ExtensionManager-stall">
             {/*
-              * 🚨 Says WHICH problem. A 400 or 401 here is an expired session —
-              * the update is fine and a reload fixes the screen — and telling
-              * somebody "nothing has moved" instead sends them looking at the
-              * update.
-              */}
-            {this.outcome.message === 'unauthorised'
-              ? t('poll_unauthorised')
-              : t('poll_failing', { count: this.misses })}
+             * 🚨 Says WHICH problem. A 400 or 401 here is an expired session —
+             * the update is fine and a reload fixes the screen — and telling
+             * somebody "nothing has moved" instead sends them looking at the
+             * update.
+             */}
+            {this.outcome.message === 'unauthorised' ? t('poll_unauthorised') : t('poll_failing', { count: this.misses })}
             {this.watching ? ' ' + t('watching_only') : ''}
           </div>
         ) : null}
 
-        {this.attrs.busy && !done && !failed && !rolled ? (
-          <div className="ExtensionManager-stall">{t('another_driver')}</div>
-        ) : null}
+        {this.attrs.busy && !done && !failed && !rolled ? <div className="ExtensionManager-stall">{t('another_driver')}</div> : null}
 
         {/*
-          * 🚨 Every one of these is silenced once the run has ended. "Nothing
-          * has moved for a couple of minutes" is true of a failed run and
-          * useless — it points somebody at a stall when the panel above already
-          * says exactly what went wrong.
-          */}
-        {this.attrs.stale && !done && !failed && !rolled ? (
-          <div className="ExtensionManager-stall">{t('nothing_moved')}</div>
-        ) : null}
+         * 🚨 Every one of these is silenced once the run has ended. "Nothing
+         * has moved for a couple of minutes" is true of a failed run and
+         * useless — it points somebody at a stall when the panel above already
+         * says exactly what went wrong.
+         */}
+        {this.attrs.stale && !done && !failed && !rolled ? <div className="ExtensionManager-stall">{t('nothing_moved')}</div> : null}
 
         {/*
-          * 🚨 A FINISHED update can be undone too, and the screen used to
-          * offer that only on a failure. The endpoint, the journal and the
-          * trash all exist for exactly this — "it worked, and I wish it had
-          * not" is the rollback people actually need — so a button that only
-          * appears when something broke left the feature unreachable.
-          *
-          * But on a finished run it is the last resort, not the next step:
-          * Dismiss leads, and Undo is a quiet link after it. "Put everything
-          * back" sat first, as a full button, and read to a tester like a
-          * cleanup of leftover files (ClaudiusH, 2026-10-07).
-          */}
+         * 🚨 A FINISHED update can be undone too, and the screen used to
+         * offer that only on a failure. The endpoint, the journal and the
+         * trash all exist for exactly this — "it worked, and I wish it had
+         * not" is the rollback people actually need — so a button that only
+         * appears when something broke left the feature unreachable.
+         *
+         * But on a finished run it is the last resort, not the next step:
+         * Dismiss leads, and Undo is a quiet link after it. "Put everything
+         * back" sat first, as a full button, and read to a tester like a
+         * cleanup of leftover files (ClaudiusH, 2026-10-07).
+         */}
         {done || rolled || failed ? (
           <div className="ExtensionManager-runActions">
             <button className="Button" onclick={() => this.attrs.ondismiss()}>
@@ -248,10 +251,10 @@ export default class RunPanel extends Component<RunPanelAttrs> {
         ) : null}
 
         {/*
-          * The step-by-step log, for the curious: the phases and the bar above
-          * already say what is happening (ClaudiusH, 2026-10-09). Open on a
-          * failure, where it is the evidence.
-          */}
+         * The step-by-step log, for the curious: the phases and the bar above
+         * already say what is happening (ClaudiusH, 2026-10-09). Open on a
+         * failure, where it is the evidence.
+         */}
         <details className="ExtensionManager-details" open={failed || rolled}>
           <summary>{t('run_details')}</summary>
           <ol className="ExtensionManager-log">
@@ -285,7 +288,11 @@ export default class RunPanel extends Component<RunPanelAttrs> {
           // A check on what is behind, a spinner on what is happening: a row of
           // pills with one highlighted read to a tester as tabs (ClaudiusH).
           <li key={p} className={'ExtensionManager-phase' + (i < at ? ' is-done' : i === at ? ' is-now' : '')}>
-            {i < at ? <i className="fas fa-check" aria-hidden="true" /> : i === at ? <i className="fas fa-circle-notch fa-spin" aria-hidden="true" /> : null}
+            {i < at ? (
+              <i className="fas fa-check" aria-hidden="true" />
+            ) : i === at ? (
+              <i className="fas fa-circle-notch fa-spin" aria-hidden="true" />
+            ) : null}
             {t('phase_' + p)}
           </li>
         ))}
@@ -300,27 +307,20 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     return (
       <div className="ExtensionManager-progress">
         <div className="ExtensionManager-progressBar">
-          <div
-            className="ExtensionManager-progressFill"
-            style={{ width: (total ? Math.round((run.index / total) * 100) : 0) + '%' }}
-          />
+          <div className="ExtensionManager-progressFill" style={{ width: (total ? Math.round((run.index / total) * 100) : 0) + '%' }} />
         </div>
         {/*
-          * 🚨 The item's own name, not "step 3 of 7". A package name tells you
-          * what is being touched right now; a number tells you nothing you can
-          * act on if it stops.
-          */}
+         * 🚨 The item's own name, not "step 3 of 7". A package name tells you
+         * what is being touched right now; a number tells you nothing you can
+         * act on if it stops.
+         */}
         <div className="ExtensionManager-progressText">
           {/*
-            * 🚨 "Asking Composer what this involves" is the PLAN phase's
-            * sentence. Every phase starts with no items for a moment, and it
-            * used to say that during the download, the swap and the finish too.
-            */}
-          {total
-            ? t('working_on', { item, index: Math.min(run.index + 1, total), total })
-            : run.phase === 'plan'
-              ? t('working_out')
-              : null}
+           * 🚨 "Asking Composer what this involves" is the PLAN phase's
+           * sentence. Every phase starts with no items for a moment, and it
+           * used to say that during the download, the swap and the finish too.
+           */}
+          {total ? t('working_on', { item, index: Math.min(run.index + 1, total), total }) : run.phase === 'plan' ? t('working_out') : null}
         </div>
       </div>
     );

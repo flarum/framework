@@ -143,7 +143,9 @@ export default class SourcesTab extends Component {
           document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }}
       >
-        <span className="ExtensionManager-src-statIcon"><i className={icon} aria-hidden="true" /></span>
+        <span className="ExtensionManager-src-statIcon">
+          <i className={icon} aria-hidden="true" />
+        </span>
         <span className="ExtensionManager-src-statText">
           <strong>{value}</strong>
           <span>{label}</span>
@@ -170,7 +172,9 @@ export default class SourcesTab extends Component {
     return (
       <section className="ExtensionManager-src-card" id="mw-src-repos">
         <header className="ExtensionManager-src-head">
-          <div className="ExtensionManager-src-headIcon"><i className="fas fa-code-branch" aria-hidden="true" /></div>
+          <div className="ExtensionManager-src-headIcon">
+            <i className="fas fa-code-branch" aria-hidden="true" />
+          </div>
           <div className="ExtensionManager-src-headText">
             <h3>
               {t('repos_title')} <span className="ExtensionManager-src-count">{repos.length}</span>
@@ -237,7 +241,14 @@ export default class SourcesTab extends Component {
       let g = out.find((x) => x.key === key);
 
       if (!g) {
-        g = { key, owner, where: slash > 0 ? d.where : '', icon: slash > 0 ? d.icon : (TYPES[r.type] || TYPES.vcs).icon, tone: slash > 0 ? d.tone : 'other', repos: [] };
+        g = {
+          key,
+          owner,
+          where: slash > 0 ? d.where : '',
+          icon: slash > 0 ? d.icon : (TYPES[r.type] || TYPES.vcs).icon,
+          tone: slash > 0 ? d.tone : 'other',
+          repos: [],
+        };
         out.push(g);
       }
 
@@ -259,7 +270,9 @@ export default class SourcesTab extends Component {
           <div className="ExtensionManager-src-tileConfirm">
             <span>{t('src_remove_named', { name: short })}</span>
             <span>
-              <button className="Button Button--sm" onclick={() => (this.confirmRepo = null)}>{t('cancel')}</button>
+              <button className="Button Button--sm" onclick={() => (this.confirmRepo = null)}>
+                {t('cancel')}
+              </button>
               <button
                 className="Button Button--sm Button--danger"
                 disabled={this.saving}
@@ -275,7 +288,14 @@ export default class SourcesTab extends Component {
             r.type !== 'vcs' ? <span className="ExtensionManager-src-badge">{t('type_' + r.type)}</span> : null,
             <span className="ExtensionManager-src-tileActions">
               {linkable ? (
-                <a className="ExtensionManager-src-icon ExtensionManager-src-icon--sm" href={r.url} target="_blank" rel="noopener noreferrer" title={s('src_open')} aria-label={s('src_open')}>
+                <a
+                  className="ExtensionManager-src-icon ExtensionManager-src-icon--sm"
+                  href={r.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={s('src_open')}
+                  aria-label={s('src_open')}
+                >
                   <i className="fas fa-arrow-up-right-from-square" aria-hidden="true" />
                 </a>
               ) : null}
@@ -346,9 +366,9 @@ export default class SourcesTab extends Component {
         </div>
 
         {/*
-          * Says what will be added before it is, in the same words the list
-          * uses — or why it won't be.
-          */}
+         * Says what will be added before it is, in the same words the list
+         * uses — or why it won't be.
+         */}
         {duplicate ? (
           <div className="ExtensionManager-src-hint is-warn">{t('src_duplicate')}</div>
         ) : d && d.where ? (
@@ -369,7 +389,9 @@ export default class SourcesTab extends Component {
     return (
       <section className="ExtensionManager-src-card" id="mw-src-stability">
         <header className="ExtensionManager-src-head">
-          <div className="ExtensionManager-src-headIcon"><i className="fas fa-flask" aria-hidden="true" /></div>
+          <div className="ExtensionManager-src-headIcon">
+            <i className="fas fa-flask" aria-hidden="true" />
+          </div>
           <div className="ExtensionManager-src-headText">
             <h3>{t('stability_title')}</h3>
             <p>{t('stability_help')}</p>
@@ -378,10 +400,10 @@ export default class SourcesTab extends Component {
 
         <div className="ExtensionManager-src-body">
           {/*
-            * 🚨 A ladder, most finished first, because that is what the setting
-            * is: everything at and above the chosen step is accepted. A select
-            * hid the other four choices and the order between them.
-            */}
+           * 🚨 A ladder, most finished first, because that is what the setting
+           * is: everything at and above the chosen step is accepted. A select
+           * hid the other four choices and the order between them.
+           */}
           <div className="ExtensionManager-src-ladder" role="radiogroup" aria-label={s('stability_title')}>
             {levels.map((l, i) => {
               const on = l === current;
@@ -398,7 +420,11 @@ export default class SourcesTab extends Component {
                   onclick={() => !on && this.send({ action: 'set-stability', minimumStability: l, preferStable: st.preferStable })}
                 >
                   <strong>{t('level_' + l.toLowerCase())}</strong>
-                  {l === 'beta' ? <small className="ExtensionManager-src-reco">{t('src_recommended')}</small> : <small>{t('level_' + l.toLowerCase() + '_short')}</small>}
+                  {l === 'beta' ? (
+                    <small className="ExtensionManager-src-reco">{t('src_recommended')}</small>
+                  ) : (
+                    <small>{t('level_' + l.toLowerCase() + '_short')}</small>
+                  )}
                 </button>
               );
             })}
@@ -417,7 +443,9 @@ export default class SourcesTab extends Component {
               disabled={this.saving}
               onchange={(e: any) => this.send({ action: 'set-stability', minimumStability: current, preferStable: e.target.checked })}
             />
-            <span className="ExtensionManager-src-track" aria-hidden="true"><span /></span>
+            <span className="ExtensionManager-src-track" aria-hidden="true">
+              <span />
+            </span>
             <span className="ExtensionManager-src-switchText">
               <strong>{t('prefer_stable')}</strong>
               <small>{t('src_prefer_stable_help')}</small>
@@ -437,7 +465,9 @@ export default class SourcesTab extends Component {
     return (
       <section className="ExtensionManager-src-card" id="mw-src-auth">
         <header className="ExtensionManager-src-head">
-          <div className="ExtensionManager-src-headIcon"><i className="fas fa-key" aria-hidden="true" /></div>
+          <div className="ExtensionManager-src-headIcon">
+            <i className="fas fa-key" aria-hidden="true" />
+          </div>
           <div className="ExtensionManager-src-headText">
             <h3>
               {t('auth_title')} <span className="ExtensionManager-src-count">{stored.length}</span>
@@ -488,7 +518,9 @@ export default class SourcesTab extends Component {
         {confirming ? (
           <span className="ExtensionManager-src-confirm">
             <span>{t('src_remove_q')}</span>
-            <button className="Button Button--sm" onclick={() => (this.confirmAuth = null)}>{t('cancel')}</button>
+            <button className="Button Button--sm" onclick={() => (this.confirmAuth = null)}>
+              {t('cancel')}
+            </button>
             <button
               className="Button Button--sm Button--danger"
               disabled={this.saving}
@@ -559,16 +591,13 @@ export default class SourcesTab extends Component {
         className="ExtensionManager-src-add"
         onsubmit={(e: Event) => {
           e.preventDefault();
-          this.send(
-            { action: 'set-auth', kind: this.authKind, host: this.authHost, username: this.authUser, secret: this.authSecret },
-            () => {
-              // 🚨 Cleared from memory as soon as it has been sent.
-              this.authSecret = '';
-              this.authUser = '';
-              this.reveal = false;
-              this.authHost = KINDS[this.authKind]?.host || '';
-            }
-          );
+          this.send({ action: 'set-auth', kind: this.authKind, host: this.authHost, username: this.authUser, secret: this.authSecret }, () => {
+            // 🚨 Cleared from memory as soon as it has been sent.
+            this.authSecret = '';
+            this.authUser = '';
+            this.reveal = false;
+            this.authHost = KINDS[this.authKind]?.host || '';
+          });
         }}
       >
         <div className="ExtensionManager-src-addTitle">{t('src_add_auth')}</div>

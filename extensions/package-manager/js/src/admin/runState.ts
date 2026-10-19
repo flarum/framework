@@ -73,10 +73,7 @@ export function hidesPage(run: RunLike | null | undefined, dismissed: boolean): 
  * never restored for a live one — dismissing must not become a way to hide an
  * update that is halfway through applying itself.
  */
-export function dismissalApplies(
-  run: RunLike | null | undefined,
-  storedId: string | null
-): boolean {
+export function dismissalApplies(run: RunLike | null | undefined, storedId: string | null): boolean {
   if (!run || !run.id || !storedId) return false;
   if (runIsLive(run)) return false;
 

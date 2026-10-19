@@ -42,7 +42,11 @@ export default class HistoryTab extends Component<{ history: any[]; installed: a
                     <li key={c.package}>
                       <b>{names[c.package] || c.package}</b> <span className="ExtensionManager-pkg">{c.package}</span>{' '}
                       <span className="ExtensionManager-historyVersions">
-                        {c.op === 'add' ? t('history_new', { version: c.to }) : c.op === 'remove' ? t('history_removed_from', { version: c.from }) : `${c.from} → ${c.to}`}
+                        {c.op === 'add'
+                          ? t('history_new', { version: c.to })
+                          : c.op === 'remove'
+                            ? t('history_removed_from', { version: c.from })
+                            : `${c.from} → ${c.to}`}
                       </span>
                     </li>
                   ))
@@ -50,7 +54,9 @@ export default class HistoryTab extends Component<{ history: any[]; installed: a
                   <li>{(entry.requested || []).join(', ') || t('history_nothing')}</li>
                 )}
               </ul>
-              {entry.migrations > 0 ? <div className="ExtensionManager-historyNote">{t('history_migrations', { count: entry.migrations })}</div> : null}
+              {entry.migrations > 0 ? (
+                <div className="ExtensionManager-historyNote">{t('history_migrations', { count: entry.migrations })}</div>
+              ) : null}
             </li>
           );
         })}

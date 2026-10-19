@@ -29,12 +29,12 @@ flarum-extension-manager:
     notes_failed: The release notes could not be loaded from GitHub just now.
     checking: Checking…
 
-    banner_title: "{count} package(s) have a newer version"
+    banner_title: "{count, plural, one {# package has} other {# packages have}} a newer version"
     banner_body: >-
       That does not always mean you can install it — what else has to change, and
       whether anything blocks it, is worked out when you ask.
     banner_checked: "Last checked {when}."
-    banner_uncheckable: "{count} package(s) could not be checked at all."
+    banner_uncheckable: "{count, plural, one {# package} other {# packages}} could not be checked at all."
     banner_more: "and {count} more"
     banner_open: Take a look
     banner_dismiss: Not now
@@ -46,7 +46,7 @@ flarum-extension-manager:
     # sounds like maintenance, and this is maintenance.
     update: Update
     repin_confirm: >-
-      This forum requires an exact version of {count} extension(s), so a newer
+      This forum requires an exact version of {count, plural, one {# extension} other {# extensions}}, so a newer
       one cannot be installed until that requirement is changed. Continue, and
       composer.json will be updated to require the new version before anything
       is downloaded. A rollback puts the requirement back too.
@@ -103,7 +103,7 @@ flarum-extension-manager:
     roll_back_confirm_db: >-
       Put the extensions this update changed back to the versions they were
       before it, along with composer.json and composer.lock? This update also
-      changed the database ({count} change(s)). Undoing reverses those too,
+      changed the database ({count, plural, one {# change} other {# changes}}). Undoing reverses those too,
       which removes anything stored in what they added.
     rollback_failed: >-
       The rollback itself failed. Nothing was deleted at any point, so the old
@@ -142,7 +142,7 @@ flarum-extension-manager:
     history_new: "{version} (new)"
     history_removed_from: "{version} (removed)"
     history_nothing: Nothing changed
-    history_migrations: "Changed the database ({count} change(s))."
+    history_migrations: "Changed the database ({count, plural, one {# change} other {# changes}})."
 
     search: Search
     searching: Searching…
@@ -208,13 +208,13 @@ flarum-extension-manager:
     # number; "the upgrade would be refused" is the thing somebody needs to know,
     # and it is why the button is disabled.
     core_blocked: >-
-      {count} extension(s) have no release that works with Flarum {version}, so
+      {count, plural, one {# extension has} other {# extensions have}} no release that works with Flarum {version}, so
       the upgrade would be refused. They are listed below.
     core_clear: "Every installed extension has a release that works with Flarum {version}."
     core_updating_too: >-
-      {count} extension(s) will be updated at the same time, because their current
+      {count, plural, one {# extension} other {# extensions}} will be updated at the same time, because their current
       version does not support the new Flarum.
-    core_checking: "Checking {count} more extension(s)…"
+    core_checking: "Checking {count, plural, one {# more extension} other {# more extensions}}…"
     # Their require says yes; their copy of Flarum's code may still not match.
     core_overrides: >-
       {count, plural, one {This extension replaces part of Flarum itself, so saying it supports Flarum {version} is not enough: its copy is frozen at the Flarum it was written for.} other {These extensions replace parts of Flarum itself, so saying they support Flarum {version} is not enough: their copies are frozen at the Flarum they were written for.}}
@@ -547,6 +547,7 @@ flarum-extension-manager:
       broke_site_no_restore: "This update stopped the site from answering, and there is nothing saved to put back."
       broke_site_restored: "This update stopped the site from answering, so it has been put back."
       caches_cleared: "Caches cleared; the formatter and the compiled assets rebuilt"
+      autoload_files_pruned: "Composer stopped loading the files that left with it, so the site keeps answering until the autoloader is rebuilt"
       composer_failed: "Composer failed:"
       core_db_failed: "Flarum's files were updated but its database could not be: {error}"
       core_db_failed_undone: "Flarum's files were updated but its database could not be ({error}), so the update was undone before the site could be left showing \"Update Flarum\"."
@@ -567,7 +568,7 @@ flarum-extension-manager:
       limit_note: "Composer ran inside the web request, and {limits}."
       limit_time: "this host does not let the Extension Manager lift the {seconds}-second time limit"
       migrations_none: "Migrations run (no database changes)"
-      migrations_run: "Migrations run: {count} database change(s), which undoing this update reverses"
+      migrations_run: "Migrations run: {count, plural, one {# database change} other {# database changes}}, which undoing this update reverses"
       missing: "Composer itself could not be found. It ships with the Extension Manager, so this usually means the install is incomplete — reinstalling the extension should restore it."
       needs_git: "Composer needed to run git (for a Git or path repository) and this host does not allow PHP to start other programs. For a GitHub or GitLab repository, add an access token under the Extension Manager → Sources so Composer uses their API instead of git; otherwise install the package from a Composer repository (Packagist, Private Packagist or Satis)."
       no_archive: "There is no downloadable archive for {package}. It is probably installed from source or a path repository, which the Extension Manager cannot fetch."
@@ -587,7 +588,7 @@ flarum-extension-manager:
       resolve_gave_up: "Nothing was changed. {how} — {attempts} times in a row, before Composer finished working out this update."
       resolve_retrying: "{how} before Composer finished. Nothing was changed. Trying again (attempt {attempt} of {attempts}); Composer kept what it had already downloaded, so this attempt starts further along."
       save_before_resolve_failed: "Could not save a copy of {file} before resolving, so nothing was started."
-      still_wants_changes: "Composer still wants to change {count} package(s) after the update was applied, so it was stopped before touching any files. Nothing is broken; roll this run back from the Extension Manager screen."
+      still_wants_changes: "Composer still wants to change {count, plural, one {# package} other {# packages}} after the update was applied, so it was stopped before touching any files. Nothing is broken; roll this run back from the Extension Manager screen."
       stopped: "The web server stopped the request"
       stopped_memory: "This host stopped the request when it reached its memory limit ({limit})"
       stopped_time: "This host stopped the request after {seconds} seconds"
@@ -599,10 +600,10 @@ flarum-extension-manager:
       tidy_nothing: "No old rollback copies to remove."
       tidy_removed: "Removed {count, plural, one {# old rollback copy} other {# old rollback copies}}, freeing {size}."
       tidy_rest_tonight: "The rest will be tidied tonight."
-      wait_too_long: "The files are updated. This host re-reads them only every {seconds} second(s), which is too long to wait here — restart PHP-FPM to make the update take effect now."
-      waiting_reread: "Waiting {seconds} more second(s) for the web server to re-read the new files."
+      wait_too_long: "The files are updated. This host re-reads them only every {seconds, plural, one {# second} other {# seconds}}, which is too long to wait here — restart PHP-FPM to make the update take effect now."
+      waiting_reread: "Waiting {seconds, plural, one {# more second} other {# more seconds}} for the web server to re-read the new files."
       web_cache_cleared: "Cleared the web server's compiled-code cache, so the new files are used."
-      will_change: "{count} package(s) will change: {list}"
+      will_change: "{count, plural, one {# package} other {# packages}} will change: {list}"
     config:
       basic_needs_username: "http-basic needs a username as well as a password."
       credential_empty: "The credential is empty."
@@ -668,12 +669,12 @@ flarum-extension-manager:
       memory_full: "A resolve on a forum this size peaks around 165 MB, so everything works, including updating Flarum itself."
       memory_none: "Below about 160 MB, Composer cannot resolve dependencies here at all. Ask your host to raise memory_limit — 256 MB is plenty."
       memory_targeted: "Enough to update one extension at a time, but not to re-resolve everything at once. Updating Flarum needs about 192 MB."
-      opcache_delay: "The cache cannot be cleared from here, so an update becomes live within {seconds} second(s) rather than immediately."
+      opcache_delay: "The cache cannot be cleared from here, so an update becomes live within {seconds, plural, one {# second} other {# seconds}} rather than immediately."
       opcache_handled: "The Extension Manager clears the compiled-code cache when an update finishes, so the new files are used straight away rather than after a delay."
       opcache_never_rereads: "PHP caches compiled code and never re-reads files"
       opcache_off: "No compiled-code cache"
       opcache_off_why: "Nothing stands between the files an update writes and the code that runs."
-      opcache_rereads: "PHP re-reads changed files every {seconds} second(s)"
+      opcache_rereads: "PHP re-reads changed files every {seconds, plural, one {# second} other {# seconds}}"
       opcache_restart: "This host never re-reads changed files and the cache cannot be cleared from here, so PHP-FPM has to be restarted for an update to take effect."
       summary_full: "Everything works on this host. Updates replace one package at a time, which is safe and reversible."
       summary_none: "This host does not have enough memory for Composer to work out what an update involves. Everything else is ready — ask your host to raise memory_limit to 256 MB."
@@ -699,14 +700,14 @@ flarum-extension-manager:
       undo_stopped: "Undoing stopped while reversing {migration}: {error}"
     opcache:
       cleared: "Cleared PHP's compiled-code cache so the new files are used."
-      cli_delay: "This step ran from the command line, which cannot clear the web server's compiled-code cache. The files are updated and PHP will pick them up within {seconds} second(s) on its own."
+      cli_delay: "This step ran from the command line, which cannot clear the web server's compiled-code cache. The files are updated and PHP will pick them up within {seconds, plural, one {# second} other {# seconds}} on its own."
       cli_restart: "This step ran from the command line, which cannot clear the web server's compiled-code cache. The files are updated, but PHP on this host is set never to re-read them (opcache.validate_timestamps is off), so restart PHP-FPM to make the update take effect."
       fine: "No compiled-code cache is in the way here."
-      not_cleared_delay: "The files are updated. PHP's compiled-code cache could not be cleared from here, so the change becomes live within {seconds} second(s)."
+      not_cleared_delay: "The files are updated. PHP's compiled-code cache could not be cleared from here, so the change becomes live within {seconds, plural, one {# second} other {# seconds}}."
       not_cleared_restart: "The files are updated, but PHP's compiled-code cache could not be cleared from here and this host is set never to re-read files. Restart PHP-FPM to make the update take effect."
     permissions:
       and_more: "… and {count} more"
-      blocked: "Nothing was changed: {count} path(s) this update needs to change are not writable by {user}, usually because a command was run as root. Give them back to the web server user and run the update again, for example as root:"
+      blocked: "Nothing was changed: {count, plural, one {# path this update needs to change is not writable} other {# paths this update needs to change are not writable}} by {user}, usually because a command was run as root. Give them back to the web server user and run the update again, for example as root:"
       web_user: "the web server user"
     php:
       exit_code: "exit code {code}"

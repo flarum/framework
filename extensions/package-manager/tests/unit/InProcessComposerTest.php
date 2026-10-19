@@ -235,7 +235,7 @@ class InProcessComposerTest extends TestCase
 
         $note = $this->steps(['acme/widget'], 'install')->doItem('plan', 'work out what changes', new Run('r1'));
 
-        $this->assertStringContainsString('1 package(s) will change', $note);
+        $this->assertStringContainsString('1 package will change', $note);
 
         $lock = json_decode((string) file_get_contents($this->dir.'/project/composer.lock'), true);
         $this->assertSame('acme/widget', $lock['packages'][0]['name']);
@@ -277,7 +277,7 @@ class InProcessComposerTest extends TestCase
         $this->assertSame($original, file_get_contents($this->dir.'/project/composer.json'), 'put back before anything else');
 
         $note = $steps->doItem('plan', 'work out what changes', new Run('r1'));
-        $this->assertStringContainsString('1 package(s) will change', $note);
+        $this->assertStringContainsString('1 package will change', $note);
     }
 
     public function test_after_six_killed_attempts_it_stops_with_the_limit_named(): void

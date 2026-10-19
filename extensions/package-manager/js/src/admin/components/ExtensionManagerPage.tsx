@@ -2,14 +2,7 @@ import app from 'flarum/admin/app';
 import t from '../t';
 import extractText from 'flarum/common/utils/extractText';
 import apiUrl from '../apiUrl';
-import {
-  cardOffers,
-  dismissalApplies,
-  hidesPage,
-  runIsLive,
-  showingRun,
-  sortForGrid,
-} from '../runState';
+import { cardOffers, dismissalApplies, hidesPage, runIsLive, showingRun, sortForGrid } from '../runState';
 import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Link from 'flarum/common/components/Link';
@@ -268,10 +261,7 @@ export default class ExtensionManagerPage extends ExtensionPage {
           ) : this.tab === 'history' ? (
             <HistoryTab history={this.history} installed={this.installed} />
           ) : this.tab === 'discover' ? (
-            <DiscoverTab
-              starting={this.starting}
-              oninstall={(name: string) => this.start([name], 'install')}
-            />
+            <DiscoverTab starting={this.starting} oninstall={(name: string) => this.start([name], 'install')} />
           ) : (
             this.installedTab()
           )}
@@ -315,19 +305,14 @@ export default class ExtensionManagerPage extends ExtensionPage {
    */
   private reloadIfSelf(run: any) {
     // Flarum core too: the page's own JavaScript and version are core's.
-    const reloads = (run?.packages || []).some(
-      (p: string) => p === SELF_PACKAGE || p === 'flarum/core'
-    );
+    const reloads = (run?.packages || []).some((p: string) => p === SELF_PACKAGE || p === 'flarum/core');
     /*
      * 🚨 And after an install. A new extension is missing from the admin
      * sidebar until the page reloads, so it could not be opened and switched
      * on, which is the obvious next step (ClaudiusH, 2026-10-09). Like
      * The previous Extension Manager, reload onto its own page.
      */
-    const installed =
-      run?.state === 'done' && run.mode === 'install' && (run.packages || []).length === 1
-        ? run.packages[0]
-        : null;
+    const installed = run?.state === 'done' && run.mode === 'install' && (run.packages || []).length === 1 ? run.packages[0] : null;
     if (!run || !['done', 'rolled-back'].includes(run.state) || (!reloads && !installed)) return;
 
     const key = 'extension-manager.reloaded.' + run.id + '.' + run.state;
@@ -440,9 +425,7 @@ export default class ExtensionManagerPage extends ExtensionPage {
     const list = Array.isArray(entry) ? entry : [entry];
     const names = packages ?? list.map((e: any) => e.package);
 
-    const lines = list
-      .map((e: any) => `  ${e.package}: ${e.constraint} → ${e.update?.to ?? '?'}`)
-      .join('\n');
+    const lines = list.map((e: any) => `  ${e.package}: ${e.constraint} → ${e.update?.to ?? '?'}`).join('\n');
 
     if (!confirm(extractText(t('repin_confirm', { count: list.length })) + '\n\n' + lines)) return;
 
@@ -466,12 +449,7 @@ export default class ExtensionManagerPage extends ExtensionPage {
    *        and exits 0, so a run in the wrong mode would pass every phase,
    *        change nothing, and report success.
    */
-  start(
-    packages: string[],
-    mode: 'update' | 'install' | 'remove' = 'update',
-    repin = false,
-    nightly = false
-  ) {
+  start(packages: string[], mode: 'update' | 'install' | 'remove' = 'update', repin = false, nightly = false) {
     this.starting = true;
     this.notice = null;
     this.rollbackNote = null;
@@ -598,8 +576,7 @@ export default class ExtensionManagerPage extends ExtensionPage {
               ? t('none_newer')
               : n === 0
                 ? t('core_newer')
-                : t('some_newer', { count: n }) +
-                  (this.coreHasUpdate() ? ' ' + t('core_newer_too') : '')}
+                : t('some_newer', { count: n }) + (this.coreHasUpdate() ? ' ' + t('core_newer_too') : '')}
           </b>{' '}
           {t('checked_ago', { when: this.ago(this.updates.checkedAt) })}
           {uncheckable > 0 ? ' ' + t('uncheckable', { count: uncheckable }) : ''}
@@ -625,19 +602,10 @@ export default class ExtensionManagerPage extends ExtensionPage {
   }
 
   checkButton(age: 'fresh' | 'recent' | 'overdue') {
-    const className =
-      age === 'fresh'
-        ? 'Button Button--link'
-        : age === 'recent'
-          ? 'Button'
-          : 'Button Button--primary';
+    const className = age === 'fresh' ? 'Button Button--link' : age === 'recent' ? 'Button' : 'Button Button--primary';
 
     return (
-      <button
-        className={className + ' ExtensionManager-checkNow'}
-        disabled={this.checking}
-        onclick={() => this.checkNow()}
-      >
+      <button className={className + ' ExtensionManager-checkNow'} disabled={this.checking} onclick={() => this.checkNow()}>
         {/* A spinner as well as the words: "Checking…" alone reads as a label. */}
         {this.checking ? <i className="fas fa-circle-notch fa-spin" aria-hidden="true" /> : null}
         {this.checking ? t('checking') : age === 'fresh' ? t('check_now') : t('check_for_updates')}
@@ -670,9 +638,7 @@ export default class ExtensionManagerPage extends ExtensionPage {
     const mins = Math.max(1, Math.round(Date.now() / 1000 - unix) / 60);
     if (mins < 60) return t('ago_minutes', { count: Math.round(mins) });
     const hours = Math.round(mins / 60);
-    return hours < 48
-      ? t('ago_hours', { count: hours })
-      : t('ago_days', { count: Math.round(hours / 24) });
+    return hours < 48 ? t('ago_hours', { count: hours }) : t('ago_days', { count: Math.round(hours / 24) });
   }
 
   /** Anything with a newer version first — that is what somebody came to see. */
@@ -682,17 +648,8 @@ export default class ExtensionManagerPage extends ExtensionPage {
 
   cardTop(e: Installed) {
     return [
-      <div
-        className="ExtensionManager-icon"
-        style={{ background: e.icon?.backgroundColor || 'var(--primary-color)' }}
-      >
-        {e.library ? (
-          <i className="fas fa-box" />
-        ) : e.icon?.name ? (
-          <i className={e.icon.name} />
-        ) : (
-          e.name.charAt(0)
-        )}
+      <div className="ExtensionManager-icon" style={{ background: e.icon?.backgroundColor || 'var(--primary-color)' }}>
+        {e.library ? <i className="fas fa-box" /> : e.icon?.name ? <i className={e.icon.name} /> : e.name.charAt(0)}
       </div>,
       <div className="ExtensionManager-cardId">
         <div className="ExtensionManager-name">{e.name}</div>
@@ -705,10 +662,7 @@ export default class ExtensionManagerPage extends ExtensionPage {
     return (
       <div className="ExtensionManager-grid">
         {this.sorted().map((e) => (
-          <div
-            className={'ExtensionManager-card' + (cardOffers(e).highlight ? ' ExtensionManager-card--update' : '')}
-            key={e.id}
-          >
+          <div className={'ExtensionManager-card' + (cardOffers(e).highlight ? ' ExtensionManager-card--update' : '')} key={e.id}>
             {/* The extension's own settings page, the way the Extensions list opens it. A library has none. */}
             {e.library ? (
               <div className="ExtensionManager-cardTop" title={extractText(t('library_why'))}>
@@ -731,9 +685,7 @@ export default class ExtensionManagerPage extends ExtensionPage {
              * time only crowded the package name out (ClaudiusH, 2026-10-13).
              */}
             <div className="ExtensionManager-meta">
-              <span>
-                {e.update ? `${e.update.from} → ${e.update.to}` : e.version || t('version_unknown')}
-              </span>
+              <span>{e.update ? `${e.update.from} → ${e.update.to}` : e.version || t('version_unknown')}</span>
             </div>
 
             <div className="ExtensionManager-foot">
@@ -746,10 +698,7 @@ export default class ExtensionManagerPage extends ExtensionPage {
                */}
               <span className="ExtensionManager-tags">
                 {e.library ? (
-                  <span
-                    className="ExtensionManager-tag ExtensionManager-tag--muted"
-                    title={extractText(t('library_why'))}
-                  >
+                  <span className="ExtensionManager-tag ExtensionManager-tag--muted" title={extractText(t('library_why'))}>
                     {t('library')}
                   </span>
                 ) : (
@@ -758,10 +707,7 @@ export default class ExtensionManagerPage extends ExtensionPage {
                   </span>
                 )}
                 {e.pathInstall ? (
-                  <span
-                    className="ExtensionManager-tag ExtensionManager-tag--muted"
-                    title={t('path_install_why')}
-                  >
+                  <span className="ExtensionManager-tag ExtensionManager-tag--muted" title={t('path_install_why')}>
                     {t('path_install')}
                   </span>
                 ) : null}
@@ -791,19 +737,13 @@ export default class ExtensionManagerPage extends ExtensionPage {
                   <button
                     className="Button Button--primary Button--sm"
                     disabled={this.starting}
-                    onclick={() =>
-                      cardOffers(e).repin ? this.confirmRepin(e) : this.start([e.package])
-                    }
+                    onclick={() => (cardOffers(e).repin ? this.confirmRepin(e) : this.start([e.package]))}
                   >
                     {t('update')}
                   </button>
                 ) : null}
                 {cardOffers(e).remove ? (
-                  <button
-                    className="Button Button--sm"
-                    disabled={this.starting}
-                    onclick={() => this.confirmRemove(e)}
-                  >
+                  <button className="Button Button--sm" disabled={this.starting} onclick={() => this.confirmRemove(e)}>
                     {t('remove')}
                   </button>
                 ) : null}

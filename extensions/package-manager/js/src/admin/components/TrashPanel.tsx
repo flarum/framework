@@ -7,7 +7,6 @@ import apiUrl from '../apiUrl';
 
 declare const m: any;
 
-
 function human(bytes: number): string {
   const units: [string, number][] = [
     ['GB', 1 << 30],
@@ -70,11 +69,7 @@ export default class TrashPanel extends Component {
           </div>
           <div>
             <dt>{t('trash_freeable')}</dt>
-            <dd>
-              {d.removeCount > 0
-                ? t('trash_freeable_value', { size: human(d.removeBytes), count: d.removeCount })
-                : t('trash_freeable_none')}
-            </dd>
+            <dd>{d.removeCount > 0 ? t('trash_freeable_value', { size: human(d.removeBytes), count: d.removeCount }) : t('trash_freeable_none')}</dd>
           </div>
           <div>
             <dt>{t('trash_last')}</dt>
@@ -125,17 +120,16 @@ export default class TrashPanel extends Component {
             {t('save')}
           </button>
           <span className="ExtensionManager-trashSpacer" />
-          <button
-            className="Button Button--primary"
-            type="button"
-            disabled={this.busy || d.removeCount === 0}
-            onclick={() => this.prune()}
-          >
+          <button className="Button Button--primary" type="button" disabled={this.busy || d.removeCount === 0} onclick={() => this.prune()}>
             {this.busy ? t('trash_pruning') : t('trash_prune')}
           </button>
         </form>
 
-        {this.done ? <div className="ExtensionManager-trashDone" role="status">{this.done}</div> : null}
+        {this.done ? (
+          <div className="ExtensionManager-trashDone" role="status">
+            {this.done}
+          </div>
+        ) : null}
 
         <div className="ExtensionManager-callout">{t('trash_rule', { days: d.settings.keepDays, runs: d.settings.keepRuns })}</div>
       </section>

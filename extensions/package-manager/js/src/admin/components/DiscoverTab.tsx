@@ -7,7 +7,6 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 
 declare const m: any;
 
-
 interface Found {
   name: string;
   description: string;
@@ -112,20 +111,20 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
             }}
           />
           {/*
-            * Kept, and not decorative: it forces a search the typing rule
-            * declines — a one-character vendor prefix, or the same query again
-            * after an error.
-            */}
+           * Kept, and not decorative: it forces a search the typing rule
+           * declines — a one-character vendor prefix, or the same query again
+           * after an error.
+           */}
           <button className="Button Button--primary" type="submit" disabled={this.searching}>
             {this.searching ? t('searching') : t('search')}
           </button>
         </form>
 
         {/*
-          * Under the search rather than as tabs: the tab row above is already the
-          * page's own navigation, and a second row of tabs reads as a level of it.
-          * A row of chips, so every category is visible without opening anything.
-          */}
+         * Under the search rather than as tabs: the tab row above is already the
+         * page's own navigation, and a second row of tabs reads as a level of it.
+         * A row of chips, so every category is visible without opening anything.
+         */}
         <div className="ExtensionManager-chips" role="radiogroup" aria-label={t('category_label')}>
           {['', 'theme', 'language', 'widget'].map((c) => (
             <button
@@ -145,18 +144,14 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
           ))}
         </div>
 
-        <div className="ExtensionManager-searchNote">
-          {this.core ? t('discover_against', { version: this.core }) : t('discover_hint')}
-        </div>
+        <div className="ExtensionManager-searchNote">{this.core ? t('discover_against', { version: this.core }) : t('discover_hint')}</div>
 
         {this.error ? <div className="ExtensionManager-notice">{this.error}</div> : null}
 
         {this.searching ? <LoadingIndicator /> : null}
 
         {!this.searching && this.searched && this.results.length === 0 && !this.error ? (
-          <div className="ExtensionManager-empty">
-            {this.query ? t('discover_none', { query: this.query }) : t('discover_empty')}
-          </div>
+          <div className="ExtensionManager-empty">{this.query ? t('discover_none', { query: this.query }) : t('discover_empty')}</div>
         ) : null}
 
         <div className="ExtensionManager-grid">{this.results.map((r) => this.card(r))}</div>
@@ -182,7 +177,7 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
 
     this.stopTyping();
 
-    if (! plan.search) return;
+    if (!plan.search) return;
 
     this.typing = setTimeout(() => {
       this.typing = null;
@@ -232,7 +227,9 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
         </div>
 
         {/* Clamped to two lines, so the whole of it on hover. */}
-        <div className="ExtensionManager-desc" title={r.description}>{r.description}</div>
+        <div className="ExtensionManager-desc" title={r.description}>
+          {r.description}
+        </div>
 
         <div className="ExtensionManager-meta">
           <span>
@@ -243,15 +240,15 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
         <div className="ExtensionManager-foot">
           <span className="ExtensionManager-tags">
             {/*
-              * 🚨 Abandoned and "does it work" are separate facts and both are
-              * shown. Putting abandoned in the single badge slot hid the
-              * compatibility answer while still offering Install, so the tag
-              * beside the button read like a verdict on the wrong question.
-              */}
+             * 🚨 Abandoned and "does it work" are separate facts and both are
+             * shown. Putting abandoned in the single badge slot hid the
+             * compatibility answer while still offering Install, so the tag
+             * beside the button read like a verdict on the wrong question.
+             */}
             {/*
-              * "Installed as X" already says it was replaced, and by what, so
-              * "replaced by X" beside it only said it twice (ClaudiusH, 2026-10-13).
-              */}
+             * "Installed as X" already says it was replaced, and by what, so
+             * "replaced by X" beside it only said it twice (ClaudiusH, 2026-10-13).
+             */}
             {instead && this.installedNames.includes(instead) ? null : instead ? (
               <span className="ExtensionManager-tag ExtensionManager-tag--warn" title={t('replaced_why')}>
                 {t('replaced_by', { replacement: instead })}
@@ -310,9 +307,7 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
    * is the single most useful thing to say about an abandoned extension.
    */
   abandonedTitle(r: Found): string {
-    return typeof r.abandoned === 'string' && r.abandoned
-      ? t('abandoned_for', { replacement: r.abandoned })
-      : t('abandoned_why');
+    return typeof r.abandoned === 'string' && r.abandoned ? t('abandoned_for', { replacement: r.abandoned }) : t('abandoned_why');
   }
 
   /**
@@ -356,11 +351,7 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
     if (!v || v.compatible !== true) return null;
 
     return (
-      <button
-        className="Button Button--primary Button--sm"
-        disabled={this.attrs.starting}
-        onclick={() => this.attrs.oninstall(r.name)}
-      >
+      <button className="Button Button--primary Button--sm" disabled={this.attrs.starting} onclick={() => this.attrs.oninstall(r.name)}>
         {t('install')}
       </button>
     );
@@ -409,7 +400,11 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
         this.error = data.error || null;
         m.redraw();
 
-        if (this.results.length) this.checkCompat(this.results.map((r) => r.name), mine);
+        if (this.results.length)
+          this.checkCompat(
+            this.results.map((r) => r.name),
+            mine
+          );
       })
       .catch(() => {
         if (mine !== this.seq) return;
@@ -442,7 +437,14 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
     app
       .request({
         method: 'GET',
-        url: apiUrl() + '/extension-manager/discover?page=' + (this.page + 1) + '&q=' + encodeURIComponent(this.query.trim()) + '&category=' + this.category,
+        url:
+          apiUrl() +
+          '/extension-manager/discover?page=' +
+          (this.page + 1) +
+          '&q=' +
+          encodeURIComponent(this.query.trim()) +
+          '&category=' +
+          this.category,
       })
       .then((data: any) => {
         if (mine !== this.seq) return;
@@ -455,7 +457,11 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
         this.results = this.results.concat(fresh);
         m.redraw();
 
-        if (fresh.length) this.checkCompat(fresh.map((r) => r.name), mine);
+        if (fresh.length)
+          this.checkCompat(
+            fresh.map((r) => r.name),
+            mine
+          );
       })
       .catch(() => {
         if (mine !== this.seq) return;

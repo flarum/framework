@@ -7,7 +7,6 @@ import LinkButton from 'flarum/common/components/LinkButton';
 
 declare const m: any;
 
-
 interface Pending {
   package: string;
   name: string;
@@ -136,9 +135,7 @@ export default class UpdateBanner extends Component {
             ) : null}
           </li>
         ))}
-        {rest > 0 ? (
-          <li className="ExtensionManager-banner-more">{t('banner_more', { count: rest })}</li>
-        ) : null}
+        {rest > 0 ? <li className="ExtensionManager-banner-more">{t('banner_more', { count: rest })}</li> : null}
       </ul>
     );
   }
@@ -184,8 +181,6 @@ export default class UpdateBanner extends Component {
 
     const hours = Math.round(mins / 60);
 
-    return hours < 48
-      ? t('ago_hours', { count: hours })
-      : t('ago_days', { count: Math.round(hours / 24) });
+    return hours < 48 ? t('ago_hours', { count: hours }) : t('ago_days', { count: Math.round(hours / 24) });
   }
 }

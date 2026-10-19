@@ -122,11 +122,7 @@ export default class CorePanel extends Component<CoreAttrs> {
           <div>
             <b>{t('core_nightly_title')}</b> {t('core_nightly_help')}
           </div>
-          <button
-            className="Button"
-            disabled={this.attrs.starting}
-            onclick={() => confirm(t('core_nightly_confirm')) && this.attrs.onnightly()}
-          >
+          <button className="Button" disabled={this.attrs.starting} onclick={() => confirm(t('core_nightly_confirm')) && this.attrs.onnightly()}>
             {t('core_nightly_button')}
           </button>
         </div>
@@ -151,11 +147,7 @@ export default class CorePanel extends Component<CoreAttrs> {
          * Flarum 2.1, so the upgrade would be refused" is something somebody can
          * act on — and it is why the button above is disabled.
          */}
-        {blocked > 0 ? (
-          <div className="ExtensionManager-coreBlocked">
-            {t('core_blocked', { count: blocked, version: p.target })}
-          </div>
-        ) : null}
+        {blocked > 0 ? <div className="ExtensionManager-coreBlocked">{t('core_blocked', { count: blocked, version: p.target })}</div> : null}
         {/*
          * 🚨 In place of "every extension works": their require says yes, and
          * irmmr/flarum-ext-rtl's frozen copy of LessCompiler still took a forum
@@ -167,8 +159,7 @@ export default class CorePanel extends Component<CoreAttrs> {
             <ul>
               {overrides.map((o) => (
                 <li>
-                  <b>{o.package}</b>{' '}
-                  {t('core_row_overrides', { classes: <code>{o.classes.join(', ')}</code> })}
+                  <b>{o.package}</b> {t('core_row_overrides', { classes: <code>{o.classes.join(', ')}</code> })}
                 </li>
               ))}
             </ul>
@@ -179,9 +170,7 @@ export default class CorePanel extends Component<CoreAttrs> {
         ) : null}
 
         {updating > 0 ? <div>{t('core_updating_too', { count: updating })}</div> : null}
-        {pending > 0 ? (
-          <div className="ExtensionManager-coreChecking">{t('core_checking', { count: pending })}</div>
-        ) : null}
+        {pending > 0 ? <div className="ExtensionManager-coreChecking">{t('core_checking', { count: pending })}</div> : null}
       </div>
     );
   }
