@@ -282,20 +282,35 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     // Where the run is, in the list as shown; a hidden phase counts as passed.
     const at = shown.indexOf(run.phase) === -1 ? shown.indexOf('apply') : shown.indexOf(run.phase);
 
+    // How far through the current phase, which fills its own segment.
+    const total = (run.items || []).length;
+    const fill = total ? Math.round((Math.min(run.index, total) / total) * 100) : 0;
+
+    /*
+     * 🚨 One bar in sections, not a row of pills. Pills read as tags or tabs
+     * (ClaudiusH); a tracker whose sections complete says where the run is and
+     * how much is left. The current section fills as its steps finish, which
+     * replaces the separate thin bar that used to sit under it.
+     */
     return (
-      <ol className="ExtensionManager-phases">
-        {shown.map((p, i) => (
-          // A check on what is behind, a spinner on what is happening: a row of
-          // pills with one highlighted read to a tester as tabs (ClaudiusH).
-          <li key={p} className={'ExtensionManager-phase' + (i < at ? ' is-done' : i === at ? ' is-now' : '')}>
-            {i < at ? (
-              <i className="fas fa-check" aria-hidden="true" />
-            ) : i === at ? (
-              <i className="fas fa-circle-notch fa-spin" aria-hidden="true" />
-            ) : null}
-            {t('phase_' + p)}
-          </li>
-        ))}
+      <ol className="ExtensionManager-phases" aria-label={extractText(t('phases_label'))}>
+        {shown.map((p, i) => {
+          const state = i < at ? 'done' : i === at ? 'now' : 'next';
+
+          return (
+            <li
+              key={p}
+              className={'ExtensionManager-phase is-' + state}
+              aria-current={state === 'now' ? 'step' : undefined}
+              style={state === 'now' ? { '--mw-fill': fill + '%' } : undefined}
+            >
+              <span className="ExtensionManager-phaseMark" aria-hidden="true">
+                {state === 'done' ? <i className="fas fa-check" /> : state === 'now' ? <i className="fas fa-circle-notch fa-spin" /> : i + 1}
+              </span>
+              <span className="ExtensionManager-phaseLabel">{t('phase_' + p)}</span>
+            </li>
+          );
+        })}
       </ol>
     );
   }
@@ -306,9 +321,6 @@ export default class RunPanel extends Component<RunPanelAttrs> {
 
     return (
       <div className="ExtensionManager-progress">
-        <div className="ExtensionManager-progressBar">
-          <div className="ExtensionManager-progressFill" style={{ width: (total ? Math.round((run.index / total) * 100) : 0) + '%' }} />
-        </div>
         {/*
          * 🚨 The item's own name, not "step 3 of 7". A package name tells you
          * what is being touched right now; a number tells you nothing you can

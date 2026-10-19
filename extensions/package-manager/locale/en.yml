@@ -76,6 +76,7 @@ flarum-extension-manager:
     run_target_more: "{shown} and {count} more"
 
     phase_plan: Working out what changes
+    phases_label: Progress
     phase_fetch: Downloading
     phase_apply: Swapping files in
     phase_finalise: Finishing up

@@ -541,40 +541,108 @@ a.ExtensionManager-name {
 
 .ExtensionManager-phases {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
   list-style: none;
   margin: 0;
   padding: 0 @mw-pad;
-  font-size: 12px;
+  font-size: 12.5px;
 }
 
+// One bar in chevron sections, after ClaudiusH's tracker. Each section is cut
+// with clip-path: a notch on the way in, a point on the way out, and a 3px
+// seam between them where the panel shows through.
 .ExtensionManager-phase {
+  --mw-notch: 11px;
+  --mw-in: polygon(0 0, calc(100% - var(--mw-notch)) 0, 100% 50%, calc(100% - var(--mw-notch)) 100%, 0 100%, var(--mw-notch) 50%);
+  // Sized by their labels, so the longest ("Working out what changes") is not
+  // the one cut short; the spare width is shared out evenly.
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 calc(var(--mw-notch) + 6px) 0 calc(var(--mw-notch) + 10px);
+  margin-inline-start: calc(3px - var(--mw-notch));
+  clip-path: var(--mw-in);
+  background: color-mix(in srgb, var(--text-color) 7%, transparent);
   color: var(--muted-color);
-  padding: 4px 11px;
-  border-radius: 20px;
-  background: color-mix(in srgb, var(--text-color) 6%, transparent);
+  transition: background .3s, color .3s;
 
-  &.is-now { background: var(--primary-color); color: #fff; font-weight: 600; }
-  &.is-done { opacity: 0.7; }
+  &:first-child {
+    margin-inline-start: 0;
+    padding-left: 12px;
+    border-radius: 8px 0 0 8px;
+    clip-path: polygon(0 0, calc(100% - var(--mw-notch)) 0, 100% 50%, calc(100% - var(--mw-notch)) 100%, 0 100%);
+  }
 
-  .fas { margin-right: 6px; font-size: 11px; }
+  &:last-child {
+    padding-right: 14px;
+    border-radius: 0 8px 8px 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, var(--mw-notch) 50%);
+  }
+
+  &:first-child:last-child { clip-path: none; border-radius: 8px; }
+
+  &.is-done {
+    background: color-mix(in srgb, var(--primary-color) 16%, transparent);
+    color: var(--text-color);
+  }
+
+  // The part of the current phase already done is the darker share.
+  &.is-now {
+    background: linear-gradient(to right,
+      color-mix(in srgb, var(--primary-color) 78%, #000) var(--mw-fill, 0%),
+      var(--primary-color) var(--mw-fill, 0%));
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+.ExtensionManager-phaseMark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  font-size: 10.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+
+  .is-done & { border-color: transparent; background: var(--primary-color); color: #fff; }
+}
+
+.ExtensionManager-phaseLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Right to left: the same shapes, mirrored.
+[dir='rtl'] .ExtensionManager-phase {
+  --mw-in: polygon(var(--mw-notch) 0, 100% 0, calc(100% - var(--mw-notch)) 50%, 100% 100%, var(--mw-notch) 100%, 0 50%);
+
+  &:first-child { padding: 0 12px 0 calc(var(--mw-notch) + 6px); border-radius: 0 8px 8px 0; clip-path: polygon(var(--mw-notch) 0, 100% 0, 100% 100%, var(--mw-notch) 100%, 0 50%); }
+  &:last-child { border-radius: 8px 0 0 8px; clip-path: polygon(0 0, 100% 0, calc(100% - var(--mw-notch)) 50%, 100% 100%, 0 100%); }
+  &:first-child:last-child { clip-path: none; border-radius: 8px; }
+  &.is-now {
+    background: linear-gradient(to left,
+      color-mix(in srgb, var(--primary-color) 78%, #000) var(--mw-fill, 0%),
+      var(--primary-color) var(--mw-fill, 0%));
+  }
+}
+
+// A phone keeps one label, the current one, so the bar never wraps.
+@media (max-width: 767.98px) {
+  .ExtensionManager-phase:not(.is-now) {
+    flex: none;
+    .ExtensionManager-phaseLabel { display: none; }
+  }
 }
 
 .ExtensionManager-progress { padding: 16px @mw-pad 0; }
-
-.ExtensionManager-progressBar {
-  height: 6px;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--text-color) 8%, transparent);
-  overflow: hidden;
-}
-
-.ExtensionManager-progressFill {
-  height: 100%;
-  background: var(--primary-color);
-  transition: width .3s ease;
-}
 
 .ExtensionManager-progressText {
   margin-top: 8px;
