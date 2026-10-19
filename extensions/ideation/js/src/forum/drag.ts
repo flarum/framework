@@ -29,11 +29,7 @@ export default class BoardDrag {
   private holdTimer: number | null = null;
   private over: string | null = null;
 
-  constructor(
-    private root: HTMLElement,
-    private onOver: (column: string | null) => void,
-    private onDrop: (id: string, column: string) => void
-  ) {
+  constructor(private root: HTMLElement, private onOver: (column: string | null) => void, private onDrop: (id: string, column: string) => void) {
     this.down = this.down.bind(this);
     this.move = this.move.bind(this);
     this.up = this.up.bind(this);
