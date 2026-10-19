@@ -12,7 +12,6 @@ namespace Flarum\Subscriptions\Tests\integration\api\discussions;
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
-use Flarum\Subscriptions\Extend\Subscription;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -23,8 +22,7 @@ use PHPUnit\Framework\Attributes\Test;
 /**
  * Tests for SubscriptionFilter — verifies that filter[subscription]=following
  * and filter[subscription]=ignoring correctly constrain the discussion list,
- * including negation. These act as a regression guard before any localization
- * alias work is introduced.
+ * including negation, the accepted value variants and unrecognised values.
  */
 class SubscriptionFilterTest extends TestCase
 {
@@ -39,26 +37,20 @@ class SubscriptionFilterTest extends TestCase
         $this->prepareDatabase([
             User::class => [
                 $this->normalUser(),
-                ['id' => 3, 'username' => 'acme', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1],
             ],
             Discussion::class => [
                 ['id' => 1, 'title' => 'Followed by normal', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
                 ['id' => 2, 'title' => 'Ignored by normal', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 2, 'comment_count' => 1],
                 ['id' => 3, 'title' => 'No subscription', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 3, 'comment_count' => 1],
-                ['id' => 10, 'title' => 'Also followed by acme', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 10, 'comment_count' => 1],
             ],
             Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo</p></t>'],
                 ['id' => 2, 'number' => 1, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo</p></t>'],
                 ['id' => 3, 'number' => 1, 'discussion_id' => 3, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo</p></t>'],
-                ['id' => 10, 'number' => 1, 'discussion_id' => 10, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo</p></t>'],
             ],
             'discussion_user' => [
                 ['discussion_id' => 1, 'user_id' => 2, 'last_read_post_number' => 1, 'subscription' => 'follow'],
                 ['discussion_id' => 2, 'user_id' => 2, 'last_read_post_number' => 1, 'subscription' => 'ignore'],
-                // User 3 (acme) follows discussion 10 — kept separate from user 2's subscriptions
-                // so the negation tests (which assert exact ID sets for user 2) are not affected.
-                ['discussion_id' => 10, 'user_id' => 3, 'last_read_post_number' => 1, 'subscription' => 'follow'],
             ],
         ]);
     }
@@ -347,47 +339,5 @@ class SubscriptionFilterTest extends TestCase
 
         $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
         $this->assertEmpty($ids, 'An empty subscription value should return no results, not crash');
-    }
-
-    // -------------------------------------------------------------------------
-    // Subscription extender — third-party type registration
-    // -------------------------------------------------------------------------
-
-    #[Test]
-    public function subscription_extender_registers_additional_alias_for_existing_type(): void
-    {
-        // Register a third-party alias ('subscribed') that maps to the built-in 'follow' canonical.
-        // User 3 (acme) follows discussion 10 — seeded in setUp().
-        $this->extend(
-            (new Subscription())
-                ->addSubscriptionType('follow', ['subscribed'])
-        );
-
-        $response = $this->send(
-            $this->request('GET', '/api/discussions', ['authenticatedAs' => 3])
-                ->withQueryParams(['filter' => ['subscription' => 'subscribed']])
-        );
-
-        $body = $response->getBody()->getContents();
-        $this->assertEquals(200, $response->getStatusCode(), $body);
-
-        $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
-        $this->assertContains('10', $ids, "'subscribed' alias should resolve to 'follow' and match discussion 10");
-    }
-
-    #[Test]
-    public function subscription_extender_unregistered_alias_returns_empty(): void
-    {
-        // Without registering 'subscribed', it should return no results.
-        $response = $this->send(
-            $this->request('GET', '/api/discussions', ['authenticatedAs' => 3])
-                ->withQueryParams(['filter' => ['subscription' => 'subscribed']])
-        );
-
-        $body = $response->getBody()->getContents();
-        $this->assertEquals(200, $response->getStatusCode(), $body);
-
-        $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
-        $this->assertEmpty($ids, 'Unregistered alias should return no results');
     }
 }

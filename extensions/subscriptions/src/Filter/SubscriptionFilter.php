@@ -14,7 +14,6 @@ use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 use Flarum\User\User;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -24,10 +23,15 @@ class SubscriptionFilter implements FilterInterface
 {
     use ValidateFilterTrait;
 
-    public function __construct(
-        private readonly Container $container,
-    ) {
-    }
+    /**
+     * The values accepted for each subscription stored in `discussion_user`.
+     *
+     * @var array<string, string[]>
+     */
+    protected const VALUES = [
+        'follow' => ['follow', 'following', 'followed'],
+        'ignore' => ['ignore', 'ignoring', 'ignored'],
+    ];
 
     public function getFilterKey(): string
     {
@@ -51,20 +55,16 @@ class SubscriptionFilter implements FilterInterface
     }
 
     /**
-     * Resolve a filter value to its canonical database value using the
-     * registered subscription type registry, ignoring case as the previous
-     * pattern did. Returns null if unrecognised.
+     * Resolve a filter value to the subscription stored in the database,
+     * ignoring case as the previous pattern did. Returns null if unrecognised.
      */
     protected function resolveCanonicalValue(string $value): ?string
     {
-        /** @var array<string, string[]> $types */
-        $types = $this->container->make('flarum-subscriptions.subscription_types');
-
         $value = mb_strtolower($value);
 
-        foreach ($types as $canonical => $aliases) {
-            if (in_array($value, array_map(mb_strtolower(...), $aliases), true)) {
-                return $canonical;
+        foreach (static::VALUES as $subscription => $values) {
+            if (in_array($value, $values, true)) {
+                return $subscription;
             }
         }
 
