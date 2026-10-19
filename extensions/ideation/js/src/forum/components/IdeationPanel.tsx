@@ -5,7 +5,6 @@ import Link from 'flarum/common/components/Link';
 import type Discussion from 'flarum/common/models/Discussion';
 import VoteButton from './VoteButton';
 import GithubLinks from './GithubLinks';
-import { t } from '../t';
 import { ICONS, statusLabel } from '../status';
 
 export interface IdeationPanelAttrs extends ComponentAttrs {
@@ -16,8 +15,8 @@ export interface IdeationPanelAttrs extends ComponentAttrs {
 export default class IdeationPanel extends Component<IdeationPanelAttrs> {
   view() {
     const discussion = this.attrs.discussion;
-    const status = discussion.attribute<string>('ideationStatus');
-    const mergedInto = discussion.attribute<number>('ideationMergedIntoId');
+    const status = discussion.ideationStatus() || '';
+    const mergedInto = discussion.ideationMergedIntoId();
 
     return (
       <div className="IdeationPanel">
@@ -27,12 +26,12 @@ export default class IdeationPanel extends Component<IdeationPanelAttrs> {
         </Link>
         {status === 'merged' && mergedInto ? (
           <Link className="Button Button--block IdeationPanel-merged" href={app.route('discussion', { id: String(mergedInto) })}>
-            {t('panel.go_to_merged')}
+            {app.translator.trans('flarum-ideation.forum.panel.go_to_merged')}
           </Link>
         ) : (
           <VoteButton discussion={discussion} wide />
         )}
-        <GithubLinks links={discussion.attribute('ideationGithub') || []} />
+        <GithubLinks links={discussion.ideationGithub() || []} />
       </div>
     );
   }

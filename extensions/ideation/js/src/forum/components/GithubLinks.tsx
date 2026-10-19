@@ -1,8 +1,8 @@
+import app from 'flarum/forum/app';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
+import Button from 'flarum/common/components/Button';
 import Icon from 'flarum/common/components/Icon';
 import classList from 'flarum/common/utils/classList';
-import extractText from 'flarum/common/utils/extractText';
-import { t } from '../t';
 
 export type GithubLink = {
   id: number;
@@ -66,7 +66,8 @@ export default class GithubLinks extends Component<GithubLinksAttrs> {
                 <span className="IdeationGithub-text">
                   <span className="IdeationGithub-title">{link.title}</span>
                   <span className="IdeationGithub-meta">
-                    {link.type === 'milestone' ? link.repo : `${link.repo}#${link.number}`} · {t('github.state.' + link.type + '.' + link.state)}
+                    {link.type === 'milestone' ? link.repo : `${link.repo}#${link.number}`} ·{' '}
+                    {app.translator.trans('flarum-ideation.forum.github.state.' + link.type + '.' + link.state)}
                   </span>
                   {pct !== null ? (
                     <span className="IdeationGithub-progress" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
@@ -76,14 +77,12 @@ export default class GithubLinks extends Component<GithubLinksAttrs> {
                 </span>
               </a>
               {this.attrs.onunlink ? (
-                <button
-                  type="button"
+                <Button
                   className="Button Button--icon Button--link IdeationGithub-remove"
-                  aria-label={extractText(t('github.remove'))}
-                  onclick={() => this.attrs.onunlink!(link)}
-                >
-                  <Icon name="fas fa-times" />
-                </button>
+                  icon="fas fa-times"
+                  aria-label={app.translator.trans('flarum-ideation.forum.github.remove', {}, true)}
+                  onclick={() => this.attrs.onunlink?.(link)}
+                />
               ) : null}
             </li>
           );

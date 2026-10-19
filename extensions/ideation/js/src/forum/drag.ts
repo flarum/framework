@@ -1,15 +1,15 @@
 /**
  * Dragging an idea card to another column, with a mouse or a finger.
  *
- * Adapted from Bug Tracker's board drag. 🚨 Pointer events rather than HTML5
+ * Adapted from Bug Tracker's board drag. Pointer events rather than HTML5
  * drag-and-drop: `draggable` + dragstart/drop never fires on touch, so a board
- * built on it is dead on a phone. 🚨 The ghost is positioned inline, because
+ * built on it is dead on a phone. The ghost is positioned inline, because
  * it is a clone of the card and would otherwise match the card's own rules
  * and sit in the layout instead of under the pointer.
  */
 
-const COLUMN = '[data-rm-column]';
-const CARD = '[data-rm-idea]';
+const COLUMN = '[data-ideation-column]';
+const CARD = '[data-ideation-idea]';
 
 /** Touch needs a deliberate hold, or scrolling the board picks up a card. */
 const HOLD_MS = 180;
@@ -17,19 +17,23 @@ const HOLD_MS = 180;
 const SLOP_PX = 5;
 
 export default class BoardDrag {
-  private ghost: HTMLElement | null = null;
-  private source: HTMLElement | null = null;
-  private id = '';
-  private startX = 0;
-  private startY = 0;
-  private offsetX = 0;
-  private offsetY = 0;
-  private armed = false;
-  private dragging = false;
-  private holdTimer: number | null = null;
-  private over: string | null = null;
+  protected ghost: HTMLElement | null = null;
+  protected source: HTMLElement | null = null;
+  protected id = '';
+  protected startX = 0;
+  protected startY = 0;
+  protected offsetX = 0;
+  protected offsetY = 0;
+  protected armed = false;
+  protected dragging = false;
+  protected holdTimer: number | null = null;
+  protected over: string | null = null;
 
-  constructor(private root: HTMLElement, private onOver: (column: string | null) => void, private onDrop: (id: string, column: string) => void) {
+  constructor(
+    protected root: HTMLElement,
+    protected onOver: (column: string | null) => void,
+    protected onDrop: (id: string, column: string) => void
+  ) {
     this.down = this.down.bind(this);
     this.move = this.move.bind(this);
     this.up = this.up.bind(this);
@@ -41,17 +45,19 @@ export default class BoardDrag {
     this.cleanup();
   }
 
-  private down(e: PointerEvent) {
+  protected down(e: PointerEvent) {
     if (e.button !== 0 && e.pointerType === 'mouse') return;
 
     const target = e.target as HTMLElement;
     const card = target.closest?.(CARD) as HTMLElement | null;
 
-    // A link or button inside a card is a link or a button, not a handle.
-    if (!card || target.closest('a, button, input')) return;
+    // A link or button inside a card is a link or a button, not a handle;
+    // and a moderator whose permission is scoped to some tags moves only
+    // the ideas in them.
+    if (!card || !card.hasAttribute('data-ideation-movable') || target.closest('a, button, input')) return;
 
     this.source = card;
-    this.id = card.getAttribute('data-rm-idea') || '';
+    this.id = card.getAttribute('data-ideation-idea') || '';
     this.startX = e.clientX;
     this.startY = e.clientY;
 
@@ -69,7 +75,7 @@ export default class BoardDrag {
     }
   }
 
-  private begin(x: number, y: number) {
+  protected begin(x: number, y: number) {
     if (this.dragging || !this.source) return;
 
     this.dragging = true;
@@ -86,7 +92,7 @@ export default class BoardDrag {
       pointerEvents: 'none',
       zIndex: '2147483000',
       transform: 'rotate(1.5deg) scale(1.02)',
-      boxShadow: '0 12px 28px rgba(0,0,0,.28)',
+      boxShadow: '0 12px 28px var(--shadow-color)',
     });
 
     document.body.appendChild(ghost);
@@ -97,7 +103,7 @@ export default class BoardDrag {
     this.place(x, y);
   }
 
-  private move(e: PointerEvent) {
+  protected move(e: PointerEvent) {
     if (!this.armed) return;
 
     if (!this.dragging) {
@@ -122,7 +128,7 @@ export default class BoardDrag {
       return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
     });
 
-    const over = column?.getAttribute('data-rm-column') || null;
+    const over = column?.getAttribute('data-ideation-column') || null;
 
     if (over !== this.over) {
       this.over = over;
@@ -130,13 +136,13 @@ export default class BoardDrag {
     }
   }
 
-  private place(x: number, y: number) {
+  protected place(x: number, y: number) {
     if (!this.ghost) return;
     this.ghost.style.left = x - this.offsetX + 'px';
     this.ghost.style.top = y - this.offsetY + 'px';
   }
 
-  private up() {
+  protected up() {
     const dropped = this.dragging ? this.over : null;
     const id = this.id;
 
@@ -145,7 +151,7 @@ export default class BoardDrag {
     if (dropped) this.onDrop(id, dropped);
   }
 
-  private cleanup() {
+  protected cleanup() {
     if (this.holdTimer) window.clearTimeout(this.holdTimer);
     this.holdTimer = null;
 

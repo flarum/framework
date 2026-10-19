@@ -20,7 +20,6 @@ use Flarum\Ideation\GitHub\Links;
 use Flarum\Ideation\Service\Votes;
 use Flarum\Ideation\Status;
 use Flarum\Locale\TranslatorInterface;
-use Illuminate\Contracts\Events\Dispatcher;
 
 /**
  * Everything Ideation adds to a discussion.
@@ -34,7 +33,6 @@ class DiscussionFields
 {
     public function __construct(
         protected Votes $votes,
-        protected Dispatcher $events,
         protected TranslatorInterface $translator,
         protected GitHubConfig $github,
         protected Links $links
@@ -76,6 +74,11 @@ class DiscussionFields
             Schema\Boolean::make('canIdeationVote')
                 ->visible($isIdea)
                 ->get(fn (Discussion $d, Context $context) => $context->getActor()->can('ideationVote', $d)),
+
+            // Per discussion, because a moderator's permission may be scoped
+            // to the discussion's tags.
+            Schema\Boolean::make('canIdeationModerate')
+                ->get(fn (Discussion $d, Context $context) => $context->getActor()->can('ideationModerate', $d)),
 
             Schema\DateTime::make('ideationStatusChangedAt')
                 ->visible($isIdea)
@@ -147,8 +150,7 @@ class DiscussionFields
             $d->ideation_merged_into_id = null;
         }
 
-        $actor = $context->getActor();
-        $d->afterSave(fn () => $this->events->dispatch(new StatusChanged($d, $actor, $old, $value)));
+        $d->raise(new StatusChanged($d, $context->getActor(), $old, $value));
     }
 
     protected function merge(Discussion $source, ?int $targetId, Context $context): void
@@ -175,7 +177,7 @@ class DiscussionFields
         $source->ideation_merged_into_id = $target->id;
         $source->ideation_status_changed_at = Carbon::now();
 
-        $source->afterSave(function () use ($source, $target, $actor, $old) {
+        $source->afterSave(function () use ($source, $target) {
             // Ideas already folded into this one follow it to the target, so
             // nothing ever points at a merged idea.
             Discussion::query()
@@ -183,8 +185,9 @@ class DiscussionFields
                 ->update(['ideation_merged_into_id' => $target->id]);
 
             $this->votes->move($source, $target);
-
-            $this->events->dispatch(new StatusChanged($source, $actor, $old, Status::MERGED, $target));
         });
+
+        // Dispatched once the discussion is saved, after the votes have moved.
+        $source->raise(new StatusChanged($source, $actor, $old, Status::MERGED, $target));
     }
 }

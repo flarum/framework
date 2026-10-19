@@ -2,9 +2,8 @@ import app from 'flarum/forum/app';
 import Modal, { type IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import classList from 'flarum/common/utils/classList';
-import extractText from 'flarum/common/utils/extractText';
 import type Discussion from 'flarum/common/models/Discussion';
-import { t } from '../t';
+import type PostStreamState from 'flarum/forum/states/PostStreamState';
 import { ICONS, SETTABLE, statusLabel } from '../status';
 import GithubLinks, { type GithubLink } from './GithubLinks';
 
@@ -27,18 +26,18 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
   }
 
   title() {
-    return t('modal.title');
+    return app.translator.trans('flarum-ideation.forum.modal.title');
   }
 
   content() {
     const discussion = this.attrs.discussion;
-    const current = discussion.attribute<string | null>('ideationStatus');
+    const current = discussion.ideationStatus();
 
     return (
       <div className="Modal-body">
         <div className="Form">
           <div className="Form-group">
-            <label>{t('modal.status_label')}</label>
+            <label>{app.translator.trans('flarum-ideation.forum.modal.status_label')}</label>
             <div className="IdeationModal-statuses">
               {SETTABLE.map((status) => (
                 <Button
@@ -58,12 +57,12 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
                 disabled={this.loading}
                 onclick={() => this.save({ ideationStatus: null })}
               >
-                {t('modal.remove')}
+                {app.translator.trans('flarum-ideation.forum.modal.remove')}
               </Button>
             ) : null}
           </div>
 
-          {current && current !== 'merged' && app.forum.attribute('ideationGithub') ? this.githubForm() : null}
+          {current && current !== 'merged' && app.forum.attribute<boolean>('ideationGithub') ? this.githubForm() : null}
           {current && current !== 'merged' ? this.mergeForm() : null}
         </div>
       </div>
@@ -75,18 +74,15 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
 
     return (
       <div className="Form-group IdeationModal-github">
-        <label for="ideation-github">{t('modal.github_label')}</label>
-        <GithubLinks
-          links={discussion.attribute<GithubLink[]>('ideationGithub') || []}
-          onunlink={(link: GithubLink) => this.saveGithub({ ideationGithubUnlink: link.id })}
-        />
+        <label for="ideation-github">{app.translator.trans('flarum-ideation.forum.modal.github_label')}</label>
+        <GithubLinks links={discussion.ideationGithub() || []} onunlink={(link: GithubLink) => this.saveGithub({ ideationGithubUnlink: link.id })} />
         <div className="IdeationModal-githubAdd">
           <input
             id="ideation-github"
             className="FormControl"
             type="text"
             value={this.githubRef}
-            placeholder={extractText(t('modal.github_placeholder'))}
+            placeholder={app.translator.trans('flarum-ideation.forum.modal.github_placeholder', {}, true)}
             oninput={(e: InputEvent) => (this.githubRef = (e.target as HTMLInputElement).value)}
             onkeydown={(e: KeyboardEvent) => {
               if (e.key === 'Enter') {
@@ -96,7 +92,7 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
             }}
           />
           <Button className="Button" icon="fab fa-github" loading={this.linking} disabled={!this.githubRef.trim()} onclick={() => this.linkGithub()}>
-            {t('modal.github_link')}
+            {app.translator.trans('flarum-ideation.forum.modal.github_link')}
           </Button>
         </div>
       </div>
@@ -115,7 +111,9 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
 
     return this.attrs.discussion
       .save(attributes)
-      .then(() => (app.current.get('stream') as any)?.update?.())
+      .then(() => {
+        (app.current.get('stream') as PostStreamState | undefined)?.update();
+      })
       .catch(() => {})
       .finally(() => {
         this.linking = false;
@@ -126,14 +124,14 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
   mergeForm() {
     return (
       <div className="Form-group IdeationModal-merge">
-        <label for="ideation-merge">{t('modal.merge_label')}</label>
-        <p className="helpText">{t('modal.merge_help')}</p>
+        <label for="ideation-merge">{app.translator.trans('flarum-ideation.forum.modal.merge_label')}</label>
+        <p className="helpText">{app.translator.trans('flarum-ideation.forum.modal.merge_help')}</p>
         <input
           id="ideation-merge"
           className="FormControl"
           type="search"
           value={this.query}
-          placeholder={extractText(t('modal.merge_placeholder'))}
+          placeholder={app.translator.trans('flarum-ideation.forum.modal.merge_placeholder', {}, true)}
           oninput={(e: InputEvent) => this.search((e.target as HTMLInputElement).value)}
         />
         <ul className="IdeationModal-results" role="listbox">
@@ -145,7 +143,9 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
                 onclick={() => (this.target = idea)}
               >
                 <span className="IdeationModal-result-title">{idea.title()}</span>
-                <span className="IdeationModal-result-votes">{t('votes', { count: idea.attribute<number>('ideationVotes') || 0 })}</span>
+                <span className="IdeationModal-result-votes">
+                  {app.translator.trans('flarum-ideation.forum.votes', { count: idea.ideationVotes() || 0 })}
+                </span>
               </Button>
             </li>
           ))}
@@ -156,7 +156,9 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
           loading={this.loading}
           onclick={() => this.save({ ideationMergedIntoId: Number(this.target!.id()) })}
         >
-          {this.target ? t('modal.merge_into', { title: this.target.title() }) : t('modal.merge_button')}
+          {this.target
+            ? app.translator.trans('flarum-ideation.forum.modal.merge_into', { title: this.target.title() })
+            : app.translator.trans('flarum-ideation.forum.modal.merge_button')}
         </Button>
       </div>
     );
@@ -187,7 +189,7 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
       .save(attributes)
       .then(() => {
         // The move is an event post in the discussion: show it.
-        (app.current.get('stream') as any)?.update?.();
+        (app.current.get('stream') as PostStreamState | undefined)?.update();
         this.hide();
       })
       .catch(() => {})

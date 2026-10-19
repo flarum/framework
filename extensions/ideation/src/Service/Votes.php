@@ -17,7 +17,7 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Query\Builder;
 
 /**
- * 🚨 The one door to `ideation_votes`. Every change to a vote row changes the
+ * The one door to `ideation_votes`. Every change to a vote row changes the
  * idea's count in the same transaction and by the number of rows actually
  * written, so the count cannot drift from the table: a repeated vote inserts
  * nothing and adds nothing, a repeated unvote deletes nothing and takes

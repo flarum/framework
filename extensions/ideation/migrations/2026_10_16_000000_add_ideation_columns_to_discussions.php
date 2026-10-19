@@ -21,7 +21,7 @@ use Illuminate\Database\Schema\Builder;
  * only by atomic increments and decrements next to the vote row itself.
  */
 /*
- * 🚨 Index names are given, not generated: the generated ones are prefix +
+ * Index names are given, not generated: the generated ones are prefix +
  * table + every column, and "flarum_c_discussions_ideation_status_ideation_status_changed_at_index"
  * is over MariaDB's 64-character limit. The prefix is kept in them because
  * PostgreSQL index names are per schema, not per table.

@@ -15,6 +15,7 @@ use Flarum\Api\Sort\SortColumn;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
+use Flarum\Extension\Extension;
 use Flarum\Ideation\Access\DiscussionPolicy;
 use Flarum\Ideation\Api\DiscussionFields;
 use Flarum\Ideation\Event\StatusChanged;
@@ -26,6 +27,7 @@ use Flarum\Ideation\Search\IdeationFilter;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\User\Event\Deleting;
 use Illuminate\Console\Scheduling\Event;
+use Illuminate\Contracts\Container\Container;
 use Tobyz\JsonApiServer\Schema\CustomSort;
 
 return [
@@ -58,8 +60,10 @@ return [
         ->fields(fn () => [
             Schema\Boolean::make('ideationCanPost')
                 ->get(fn ($forum, Context $context) => $context->getActor()->hasPermission('ideation.postIdeas')),
+            // Whether the actor moderates ideas anywhere, globally or in a tag;
+            // each discussion's `canIdeationModerate` says where.
             Schema\Boolean::make('ideationCanModerate')
-                ->get(fn ($forum, Context $context) => $context->getActor()->hasPermission('ideation.moderate')),
+                ->get(fn ($forum, Context $context) => $context->getActor()->hasPermissionLike('discussion.ideationModerate')),
             // Whether ideas show GitHub links at all; the token, secret and
             // repository list never leave the server.
             Schema\Boolean::make('ideationGithub')
@@ -102,8 +106,21 @@ return [
             $event->hourly()->withoutOverlapping();
         }),
 
-    (new Extend\ServiceProvider())
-        ->register(GitHub\GitHubServiceProvider::class),
+    // The GitHub client, unless something (a test's fake) is bound already.
+    new class implements Extend\ExtenderInterface {
+        public function extend(Container $container, ?Extension $extension = null): void
+        {
+            $container->bindIf(GitHub\Client::class, GitHub\HttpClient::class);
+        }
+    },
+
+    (new Extend\Settings())
+        ->default(GitHub\Config::PREFIX.'enabled', false)
+        ->default(GitHub\Config::PREFIX.'repos', '')
+        ->default(GitHub\Config::PREFIX.'token', '')
+        ->default(GitHub\Config::PREFIX.'secret', '')
+        ->default(GitHub\Config::PREFIX.'auto_progress', false)
+        ->default(GitHub\Config::PREFIX.'auto_ship', false),
 
     (new Extend\Event())
         ->listen(StatusChanged::class, Listener\RecordStatusChange::class)

@@ -11,6 +11,7 @@ namespace Flarum\Ideation\GitHub;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Foundation\ValidationException;
 use Flarum\Ideation\Event\StatusChanged;
 use Flarum\Ideation\Status;
@@ -21,11 +22,13 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Collection;
 
 /**
- * 🚨 The one door to `ideation_github_links`: linking, unlinking, the
+ * The one door to `ideation_github_links`: linking, unlinking, the
  * webhook, the sync and the automatic status moves all come through here.
  */
 class Links
 {
+    use DispatchEventsTrait;
+
     public function __construct(
         protected Config $config,
         protected Client $client,
@@ -200,14 +203,15 @@ class Links
             return;
         }
 
-        $old = $discussion->ideation_status;
+        $actor = $cause?->user_id ? (User::query()->find($cause->user_id) ?? new Guest()) : new Guest();
+
+        $discussion->raise(new StatusChanged($discussion, $actor, $discussion->ideation_status, $next, null, $cause?->reference() ?? 'GitHub'));
+
         $discussion->ideation_status = $next;
         $discussion->ideation_status_changed_at = Carbon::now();
         $discussion->save();
 
-        $actor = $cause?->user_id ? (User::query()->find($cause->user_id) ?? new Guest()) : new Guest();
-
-        $this->events->dispatch(new StatusChanged($discussion, $actor, $old, $next, null, $cause?->reference() ?? 'GitHub'));
+        $this->dispatchEventsFor($discussion, $actor);
     }
 
     protected function fill(Link $link, array $item): void

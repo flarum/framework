@@ -23,11 +23,11 @@ class GitHubTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    private const MEMBER = 2;
-    private const MOD = 3;
-    private const SECRET = 'test-webhook-secret';
+    protected const MEMBER = 2;
+    protected const MOD = 3;
+    protected const SECRET = 'test-webhook-secret';
 
-    private FakeGitHub $github;
+    protected FakeGitHub $github;
 
     protected function setUp(): void
     {
@@ -72,7 +72,7 @@ class GitHubTest extends TestCase
         ];
     }
 
-    private function boot(array $settings = []): void
+    protected function boot(array $settings = []): void
     {
         foreach ($settings as $key => $value) {
             $this->setting("flarum-ideation.github.$key", $value);
@@ -81,7 +81,7 @@ class GitHubTest extends TestCase
         $this->app()->getContainer()->instance(Client::class, $this->github);
     }
 
-    private function patch(int $id, ?int $actor, array $attributes): ResponseInterface
+    protected function patch(int $id, ?int $actor, array $attributes): ResponseInterface
     {
         return $this->send($this->request('PATCH', "/api/discussions/$id", [
             'authenticatedAs' => $actor,
@@ -89,12 +89,12 @@ class GitHubTest extends TestCase
         ]));
     }
 
-    private function show(int $id, ?int $actor = null): array
+    protected function show(int $id, ?int $actor = null): array
     {
         return json_decode((string) $this->send($this->request('GET', "/api/discussions/$id", ['authenticatedAs' => $actor]))->getBody(), true)['data']['attributes'];
     }
 
-    private function webhook(string $event, array $payload, ?string $secret = self::SECRET): ResponseInterface
+    protected function webhook(string $event, array $payload, ?string $secret = self::SECRET): ResponseInterface
     {
         $raw = json_encode($payload);
         $request = (new ServerRequest([], [], '/api/ideation/github/webhook', 'POST'))
