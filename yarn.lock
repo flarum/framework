@@ -1416,7 +1416,7 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-2.0.1.tgz#35adc6222e3662fa2222ce123b961476a746b9ea"
   integrity sha512-HqmEUIGRJ5fSXchkVgR5F7qn48bDBzv0kWj/Kfu5e6uci4UlEeng4331LnBkWffb++Ei3FOVLxo8JJWMFBDMeQ==
 
-"@twemoji/api@17", "@twemoji/api@^17.0.2":
+"@twemoji/api@17.0.2", "@twemoji/api@^17.0.2":
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/@twemoji/api/-/api-17.0.2.tgz#cd1bf3d74c494fa48733382904cefe81f60e63d0"
   integrity sha512-5xIdBcFLpRW4goXNdNNz497TzMHF2a76yElEaqISxVPj+KpJB82KuXHczfjhhTCsPaP1lAhM3qPtvAhMG7e71A==
@@ -1962,10 +1962,10 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
 
-axios@^0.24.0, axios@^0.33.0:
-  version "0.33.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.33.0.tgz#91fc5e231db5b81ab6474c0a945a603c55601f6e"
-  integrity sha512-juz19g7B3UWT9r3+tgRFQf2Bdy6IKDVroiyuVOUrkILVKHpqHL++K1l8ybvfdEP9B/VE72vk8vllbnedVCm/og==
+axios@^0.24.0, axios@^0.34.0:
+  version "0.34.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.34.0.tgz#8ecc4e5d865e3f36c9dc432ee490a88e8dd009c2"
+  integrity sha512-CkOmqy7BaT4VC9+wRUmSM3LVwCkKK3UYc7koEqIHWRpOTJypwdNctaVOgnOjhHP3599Ubq2K8KqYwfC7c8NdPQ==
   dependencies:
     follow-redirects "^1.15.4"
     form-data "^4.0.4"
@@ -2481,9 +2481,9 @@ data-urls@^5.0.0:
     whatwg-url "^14.0.0"
 
 dayjs@^1.10.4, dayjs@^1.10.7:
-  version "1.11.13"
-  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.13.tgz#92430b0139055c3ebb60150aa13e860a4b5a366c"
-  integrity sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==
+  version "1.11.23"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.23.tgz#b0a363506dde5f36cf5075e42ebe8115165a8c79"
+  integrity sha512-QDTCU0M0MxR3hQfnlDJfwekQiaanm1ubOD231u73WBckQ/fsamwRLiE2GBz6D3a/xF1NgfiDLJjXBa1hYOYTtQ==
 
 debounce@^1.2.1:
   version "1.2.1"
@@ -4161,7 +4161,7 @@ mithril-query@^4.0.1:
     pretty-html-log "1.1.1"
     yields-keycode "1.1.0"
 
-mithril@^2.2:
+mithril@2.2.8, mithril@^2.2:
   version "2.2.8"
   resolved "https://registry.yarnpkg.com/mithril/-/mithril-2.2.8.tgz#076410f6e5c1c36d039ee668690a9c6332f11a33"
   integrity sha512-P9SP7y22qNdsKKGofrPMvQzTQvUjEH03eENeR5KXTj+rGFyvs+DqZyx3HS5c7K7EMOo0OYmcZnLEY/sc2ybLdQ==
@@ -4475,7 +4475,7 @@ pusher-js@*:
   dependencies:
     tweetnacl "^1.0.3"
 
-pusher-js@^7.0.6, pusher-js@^7.6.0:
+pusher-js@^7.6.0:
   version "7.6.0"
   resolved "https://registry.yarnpkg.com/pusher-js/-/pusher-js-7.6.0.tgz#8e4535856371be0f475a42b3eec1f8b5614672de"
   integrity sha512-5CJ7YN5ZdC24E0ETraCU5VYFv0IY5ziXhrS0gS5+9Qrro1E4M1lcZhtr9H1H+6jNSLj1LKKAgcLeE1EH9GxMlw==
@@ -4485,9 +4485,9 @@ pusher-js@^7.0.6, pusher-js@^7.6.0:
     tweetnacl "^1.0.3"
 
 pusher-js@^8.4.0:
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/pusher-js/-/pusher-js-8.4.0.tgz#eb28dca291f553ad9622f4e421d14c23abbaf40f"
-  integrity sha512-wp3HqIIUc1GRyu1XrP6m2dgyE9MoCsXVsWNlohj0rjSkLf+a0jLvEyVubdg58oMk7bhjBWnFClgp8jfAa6Ak4Q==
+  version "8.6.0"
+  resolved "https://registry.yarnpkg.com/pusher-js/-/pusher-js-8.6.0.tgz#933e924f59938b31e2e9eb41af9c8b6bf9932f6b"
+  integrity sha512-wShJPfCS/kYkCBVzVW67wa9cnQIgHTszEK2XHNrFkOgGruuGw081aERAxfRjfdFU+WcIt8x6dvbwkTW4iZuQ8Q==
   dependencies:
     tweetnacl "^1.0.3"
 
@@ -4888,9 +4888,9 @@ slash@^3.0.0:
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
 
 sortablejs@^1.14.0:
-  version "1.15.3"
-  resolved "https://registry.yarnpkg.com/sortablejs/-/sortablejs-1.15.3.tgz#033668db5ebfb11167d1249ab88e748f27959e29"
-  integrity sha512-zdK3/kwwAK1cJgy1rwl1YtNTbRmc8qW/+vgXf75A7NHag5of4pyI6uK86ktmQETyWRH7IGaE73uZOOBcGxgqZg==
+  version "1.15.7"
+  resolved "https://registry.yarnpkg.com/sortablejs/-/sortablejs-1.15.7.tgz#83a0bddc472117ee328dea20b2e6f490fed20f86"
+  integrity sha512-Kk8wLQPlS+yi1ZEf48a4+fzHa4yxjC30M/Sr2AnQu+f/MPwvvX9XjZ6OWejiz8crBsLwSq8GHqaxaET7u6ux0A==
 
 source-map-support@0.5.13:
   version "0.5.13"
@@ -5590,9 +5590,9 @@ xmlchars@^2.2.0:
   integrity sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==
 
 xslt-polyfill@^1.0.21:
-  version "1.0.21"
-  resolved "https://registry.yarnpkg.com/xslt-polyfill/-/xslt-polyfill-1.0.21.tgz#3e6bfab76233c08b7a6beb177b901bad4d3b5e29"
-  integrity sha512-WB1iuiCV8mX5nQ7aI8G4kRCCgQrTr8R8ibkzOyzRqyFpPCRglvUYamBggLZIgqdQYybyWbERe0tZ2NZ1+NRNNQ==
+  version "1.0.31"
+  resolved "https://registry.yarnpkg.com/xslt-polyfill/-/xslt-polyfill-1.0.31.tgz#24bf859ddb0b60a8348844ee4c616a0c7cc78763"
+  integrity sha512-ojWdHilMmtl3oXqsmsy5AQcRORBpHAyf2ACt7uO0u4lzw5iMkVtI2golreHi5DDCTiBgxLTXODOUjUOy+OGiSg==
 
 y18n@^5.0.5:
   version "5.0.8"
