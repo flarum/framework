@@ -27,11 +27,16 @@ export function slug(string: string, mode: SluggingMode = SluggingMode.ALPHANUME
 
     case SluggingMode.ALPHANUMERIC:
     default:
-      return string
-        .toLowerCase()
-        .replace(/[^a-z0-9]/gi, '-')
-        .replace(/-+/g, '-')
-        .replace(/-$|^-/g, '');
+      return (
+        string
+          .toLowerCase()
+          // Decompose accented letters and drop the marks, so "tecnología" becomes "tecnologia" rather than "tecnolog-a".
+          .normalize('NFD')
+          .replace(/\p{M}/gu, '')
+          .replace(/[^a-z0-9]/gi, '-')
+          .replace(/-+/g, '-')
+          .replace(/-$|^-/g, '')
+      );
   }
 }
 
