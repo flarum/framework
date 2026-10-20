@@ -21,7 +21,7 @@
         "flarum-tsconfig": "^2.0.0",
         "flarum-webpack-config": "^3.0.0",
         "prettier": "^2.5.1",
-        "typescript": "^4.5.4",
+        "typescript": "^5.9.3",
         "typescript-coverage-report": "^0.6.1",
         "webpack": "^5.104.1",
         "webpack-cli": "^4.9.1"

@@ -29,7 +29,7 @@
         "@flarum/jest-config": "^2.0.0",
         "@flarum/prettier-config": "^1.0.0",
         "flarum-tsconfig": "^2.0.0",
-        "typescript": "^4.5.4",
+        "typescript": "^5.9.3",
         "typescript-coverage-report": "^0.6.1"
     }
 }
