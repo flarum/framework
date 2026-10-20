@@ -2,7 +2,6 @@
  * @jest-environment node
  */
 import compiler from './compiler.js';
-import 'regenerator-runtime/runtime';
 
 const compile = async (path, useFinalOutput = false) => {
   const stats = await compiler(path);

@@ -2,7 +2,6 @@
  * @jest-environment node
  */
 import compile, { registrationsIn } from './chunkCompiler.js';
-import 'regenerator-runtime/runtime';
 import RegisterAsyncChunksPlugin from '../src/RegisterAsyncChunksPlugin.cjs';
 
 // The plugin memoises across compilations on a static, so each test needs a
