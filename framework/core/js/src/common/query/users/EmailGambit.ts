@@ -6,6 +6,10 @@ export default class EmailGambit extends KeyValueGambit {
     return app.translator.trans('core.lib.gambits.users.email.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'email';
+  }
+
   hint(): string {
     return app.translator.trans('core.lib.gambits.users.email.hint', {}, true);
   }

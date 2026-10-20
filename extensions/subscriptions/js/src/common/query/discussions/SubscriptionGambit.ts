@@ -9,11 +9,20 @@ export default class SubscriptionGambit extends BooleanGambit {
     ];
   }
 
+  canonicalKey(): string[] {
+    return ['following', 'ignoring'];
+  }
+
   toFilter(matches: string[], negate: boolean): Record<string, any> {
-    const key = (negate ? '-' : '') + this.filterKey();
+    const filterKey = (negate ? '-' : '') + this.filterKey();
+
+    // Map the matched keyword, translated or English, to the value stored in
+    // the database, so SubscriptionFilter always receives 'follow' or 'ignore'.
+    const keyword = matches[1].toLowerCase();
+    const followKeys = [this.key()[0], this.canonicalKey()[0]].map((key) => key.toLowerCase());
 
     return {
-      [key]: matches[1],
+      [filterKey]: followKeys.includes(keyword) ? 'follow' : 'ignore',
     };
   }
 
@@ -22,7 +31,11 @@ export default class SubscriptionGambit extends BooleanGambit {
   }
 
   fromFilter(value: string, negate: boolean): string {
-    return `${negate ? '-' : ''}is:${value}`;
+    // The value is 'follow' or 'ignore', or a legacy 'following'/'ignoring';
+    // show the keyword for the active locale in the search bar.
+    const keyword = /^follow/i.test(value) ? this.key()[0] : this.key()[1];
+
+    return `${negate ? '-' : ''}${this.groupKey()}:${keyword}`;
   }
 
   enabled(): boolean {
