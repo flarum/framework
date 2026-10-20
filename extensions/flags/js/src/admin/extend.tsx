@@ -33,5 +33,23 @@ export default [
       }),
       'reply',
       65
+    )
+    .permission(
+      () => ({
+        icon: 'fas fa-user',
+        label: app.translator.trans('flarum-flags.admin.permissions.view_user_flags_label'),
+        permission: 'user.viewFlags',
+      }),
+      'moderate',
+      64
+    )
+    .permission(
+      () => ({
+        icon: 'fas fa-flag',
+        label: app.translator.trans('flarum-flags.admin.permissions.flag_users_label'),
+        permission: 'user.flag',
+      }),
+      'start',
+      64
     ),
 ];

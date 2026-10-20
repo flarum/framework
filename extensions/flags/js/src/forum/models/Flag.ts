@@ -17,7 +17,10 @@ export default class Flag extends Model {
   }
 
   post() {
-    return Model.hasOne<Post>('post').call(this);
+    return Model.hasOne<Post | null>('post').call(this);
+  }
+  targetUser() {
+    return Model.hasOne<User | null>('targetUser').call(this);
   }
   user() {
     return Model.hasOne<User | null>('user').call(this);

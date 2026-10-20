@@ -15,6 +15,14 @@ declare module 'flarum/forum/ForumApplication' {
   }
 }
 
+declare module 'flarum/common/models/User' {
+  export default interface User {
+    flags: () => false | (Flag | undefined)[];
+    canFlagUser: () => boolean;
+    canViewUserFlags: () => boolean;
+  }
+}
+
 declare module 'flarum/forum/components/Post' {
   export default interface Post {
     flagReason: (flag: Flag) => Mithril.Children;

@@ -2,6 +2,7 @@ import app from 'flarum/forum/app';
 
 import FlagListState from './states/FlagListState';
 import addFlagControl from './addFlagControl';
+import addUserFlagControl from './addUserFlagControl';
 import addFlagsDropdown from './addFlagsDropdown';
 import addFlagsToPosts from './addFlagsToPosts';
 import extendRealtime from './extendRealtime';
@@ -12,6 +13,7 @@ app.initializers.add('flarum-flags', () => {
   app.flags = new FlagListState(app);
 
   addFlagControl();
+  addUserFlagControl();
   addFlagsDropdown();
   addFlagsToPosts();
 

@@ -12,6 +12,7 @@ use Flarum\Api\Resource;
 use Flarum\Extend;
 use Flarum\Flags\Access\ScopeFlagVisibility;
 use Flarum\Flags\Api\Controller\DeleteFlagsController;
+use Flarum\Flags\Api\Controller\DeleteUserFlagsController;
 use Flarum\Flags\Api\ForumResourceFields;
 use Flarum\Flags\Api\PostResourceFields;
 use Flarum\Flags\Api\Resource\FlagResource;
@@ -40,10 +41,12 @@ return [
         ->js(__DIR__.'/js/dist/admin.js'),
 
     (new Extend\Routes('api'))
-        ->delete('/posts/{id}/flags', 'flags.delete', DeleteFlagsController::class),
+        ->delete('/posts/{id}/flags', 'flags.delete', DeleteFlagsController::class)
+        ->delete('/users/{id}/flags', 'user-flags.delete', DeleteUserFlagsController::class),
 
     (new Extend\Model(User::class))
-        ->cast('read_flags_at', 'datetime'),
+        ->cast('read_flags_at', 'datetime')
+        ->hasMany('flags', Flag::class, 'target_user_id'),
 
     (new Extend\Model(Post::class))
         ->hasMany('flags', Flag::class, 'post_id'),
@@ -61,6 +64,11 @@ return [
 
     (new Extend\ApiResource(Resource\PostResource::class))
         ->endpoint([Endpoint\Index::class, Endpoint\Show::class], function (Endpoint\Index|Endpoint\Show $endpoint) {
+            return $endpoint->addDefaultInclude(['flags', 'flags.user']);
+        }),
+
+    (new Extend\ApiResource(Resource\UserResource::class))
+        ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint) {
             return $endpoint->addDefaultInclude(['flags', 'flags.user']);
         }),
 
