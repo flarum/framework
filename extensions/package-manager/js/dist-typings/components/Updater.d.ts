@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component, { ComponentAttrs } from 'flarum/common/Component';
 import ItemList from 'flarum/common/utils/ItemList';
 export interface IUpdaterAttrs extends ComponentAttrs {

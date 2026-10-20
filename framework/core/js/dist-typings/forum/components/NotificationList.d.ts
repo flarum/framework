@@ -8,5 +8,5 @@ export default class NotificationList extends Component<import("../../common/Com
     controlItems(): ItemList<any>;
     content(state: any): any[] | null;
 }
-import Component from "../../common/Component";
-import ItemList from "../../common/utils/ItemList";
+import Component from '../../common/Component';
+import ItemList from '../../common/utils/ItemList';

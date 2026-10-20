@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import { GambitType } from '../query/IGambit';
 import type IGambit from '../query/IGambit';
 import { type AutocompleteCheck } from '../utils/AutocompleteReader';

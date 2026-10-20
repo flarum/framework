@@ -19,7 +19,7 @@ export default class PostStream extends Component<import("../../common/Component
     /**
      * @returns {ItemList<import('mithril').Children>}
      */
-    afterFirstPostItems(): ItemList<import('mithril').Children>;
+    afterFirstPostItems(): ItemList<import("mithril").Children>;
     /**
      * Items to render after any one post in the stream.
      *
@@ -32,11 +32,11 @@ export default class PostStream extends Component<import("../../common/Component
      *                       loaded page -- the same number as `data-index`.
      * @returns {ItemList<import('mithril').Children>}
      */
-    afterPostItems(post: import('../../common/models/Post').default, index: number): ItemList<import('mithril').Children>;
+    afterPostItems(post: import("../../common/models/Post").default, index: number): ItemList<import("mithril").Children>;
     /**
      * @returns {ItemList<import('mithril').Children>}
      */
-    endItems(): ItemList<import('mithril').Children>;
+    endItems(): ItemList<import("mithril").Children>;
     onupdate(vnode: any): void;
     oncreate(vnode: any): void;
     onremove(vnode: any): void;
@@ -147,7 +147,7 @@ export default class PostStream extends Component<import("../../common/Component
         number: number;
     } | {
         index: number;
-        reply?: boolean | undefined;
+        reply?: boolean;
     } | null | undefined;
     settlingStabilityTimer: NodeJS.Timeout | null | undefined;
     settlingHardTimer: NodeJS.Timeout | null | undefined;
@@ -221,6 +221,6 @@ export default class PostStream extends Component<import("../../common/Component
      */
     flashItem($item: JQuery): void;
 }
-import Component from "../../common/Component";
-import ScrollListener from "../../common/utils/ScrollListener";
-import ItemList from "../../common/utils/ItemList";
+import Component from '../../common/Component';
+import ScrollListener from '../../common/utils/ScrollListener';
+import ItemList from '../../common/utils/ItemList';

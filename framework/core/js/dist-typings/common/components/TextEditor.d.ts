@@ -53,13 +53,13 @@ export default class TextEditor extends Component<import("../Component").Compone
      *
      * @return {ItemList<import('mithril').Children>}
      */
-    controlItems(): ItemList<import('mithril').Children>;
+    controlItems(): ItemList<import("mithril").Children>;
     /**
      * Build an item list for the toolbar controls.
      *
      * @return {ItemList<import('mithril').Children>}
      */
-    toolbarItems(): ItemList<import('mithril').Children>;
+    toolbarItems(): ItemList<import("mithril").Children>;
     /**
      * Handle input into the textarea.
      *
@@ -71,6 +71,6 @@ export default class TextEditor extends Component<import("../Component").Compone
      */
     onsubmit(): void;
 }
-import Component from "../Component";
-import BasicEditorDriver from "../utils/BasicEditorDriver";
-import ItemList from "../utils/ItemList";
+import Component from '../Component';
+import BasicEditorDriver from '../utils/BasicEditorDriver';
+import ItemList from '../utils/ItemList';

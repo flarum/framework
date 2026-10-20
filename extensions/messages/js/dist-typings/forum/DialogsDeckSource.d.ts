@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import type { DeckColumnSource, DeckRealtimeEvent, DeckRealtimeResult } from 'ext:flarum/deck/forum/columns/DeckColumnType';
 import type Dialog from '../common/models/Dialog';
 /**

@@ -7,12 +7,6 @@ export default class Composer extends Component<import("../../common/Component")
     constructor();
     oninit(vnode: any): void;
     /**
-     * The composer's "state".
-     *
-     * @type {ComposerState}
-     */
-    state: ComposerState | undefined;
-    /**
      * Whether or not the composer currently has focus.
      *
      * @type {Boolean}
@@ -99,7 +93,7 @@ export default class Composer extends Component<import("../../common/Component")
      *
      * @return {ItemList<import('mithril').Children>}
      */
-    controlItems(): ItemList<import('mithril').Children>;
+    controlItems(): ItemList<import("mithril").Children>;
     /**
      * Initialize default Composer height.
      */
@@ -115,6 +109,5 @@ export default class Composer extends Component<import("../../common/Component")
      */
     changeHeight(height: number): void;
 }
-import Component from "../../common/Component";
-import ComposerState from "../states/ComposerState";
-import ItemList from "../../common/utils/ItemList";
+import Component from '../../common/Component';
+import ItemList from '../../common/utils/ItemList';

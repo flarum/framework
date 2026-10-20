@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Task from '../models/Task';
 interface TaskOutputModalAttrs extends IInternalModalAttrs {
