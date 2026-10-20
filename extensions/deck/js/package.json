@@ -12,7 +12,7 @@
         "prettier": "^2.5.1",
         "@flarum/prettier-config": "^1.0.0",
         "flarum-tsconfig": "^2.0.0",
-        "typescript": "^4.5.4",
+        "typescript": "^5.9.3",
         "typescript-coverage-report": "^0.6.1",
         "@types/sortablejs": "^1.15.9",
         "@flarum/jest-config": "^2.0.0"
