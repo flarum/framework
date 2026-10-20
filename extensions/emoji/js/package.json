@@ -4,7 +4,7 @@
     "version": "0.0.0",
     "prettier": "@flarum/prettier-config",
     "dependencies": {
-        "@twemoji/api": "17",
+        "@twemoji/api": "17.0.2",
         "emojibase-data": "17",
         "simple-emoji-map": "^1.0.0"
     },
