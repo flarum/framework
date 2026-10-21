@@ -4,7 +4,7 @@ import { app } from '../../../../src/forum';
 import ModalManager from '../../../../src/common/components/ModalManager';
 import GlobalDiscussionsSearchSource from '../../../../src/forum/components/GlobalDiscussionsSearchSource';
 import ChangeEmailModal from '../../../../src/forum/components/ChangeEmailModal';
-import ChangePasswordModal from '../../../../src/forum/components/ChangePasswordModal';
+import RequestPasswordResetModal from '../../../../src/forum/components/RequestPasswordResetModal';
 import ForgotPasswordModal from '../../../../src/forum/components/ForgotPasswordModal';
 import LogInModal from '../../../../src/forum/components/LogInModal';
 import NewAccessTokenModal from '../../../../src/forum/components/NewAccessTokenModal';
@@ -21,7 +21,7 @@ describe('Modals', () => {
   test('ChangeEmailModal renders', () => {
     const manager = mq(ModalManager, { state: app.modal });
 
-    app.modal.show(ChangeEmailModal);
+    app.modal.show(ChangeEmailModal, { user: app.session.user! });
 
     manager.redraw();
 
@@ -29,10 +29,10 @@ describe('Modals', () => {
     expect(manager).toHaveElement('.ModalManager');
   });
 
-  test('ChangePasswordModal renders', () => {
+  test('RequestPasswordResetModal renders', () => {
     const manager = mq(ModalManager, { state: app.modal });
 
-    app.modal.show(ChangePasswordModal);
+    app.modal.show(RequestPasswordResetModal, { user: app.session.user! });
 
     manager.redraw();
 

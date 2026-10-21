@@ -1,21 +1,29 @@
-import app from '../../forum/app';
+import app from '../app';
 import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from '../../common/components/Button';
 import Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
 import Form from '../../common/components/Form';
 
+import type User from '../../common/models/User';
+
+export interface IRequestPasswordResetModalAttrs extends IFormModalAttrs {
+  user: User;
+}
+
 /**
- * The `ChangePasswordModal` component shows a modal dialog which allows the
+ * The `RequestPasswordResetModal` component shows a modal dialog which allows the
  * user to send themself a password reset email.
  */
-export default class ChangePasswordModal<CustomAttrs extends IFormModalAttrs = IFormModalAttrs> extends FormModal<CustomAttrs> {
+export default class RequestPasswordResetModal<
+  CustomAttrs extends IRequestPasswordResetModalAttrs = IRequestPasswordResetModalAttrs
+> extends FormModal<CustomAttrs> {
   className() {
-    return 'ChangePasswordModal Modal--small';
+    return 'RequestPasswordResetModal Modal--small';
   }
 
   title() {
-    return app.translator.trans('core.forum.change_password.title');
+    return app.translator.trans('core.forum.request_password_reset.title');
   }
 
   content() {
@@ -29,13 +37,13 @@ export default class ChangePasswordModal<CustomAttrs extends IFormModalAttrs = I
   fields() {
     const fields = new ItemList<Mithril.Children>();
 
-    fields.add('help', <p className="helpText">{app.translator.trans('core.forum.change_password.text')}</p>);
+    fields.add('help', <p className="helpText">{app.translator.trans('core.forum.request_password_reset.text')}</p>);
 
     fields.add(
       'submit',
       <div className="Form-group Form-controls">
         <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
-          {app.translator.trans('core.forum.change_password.send_button')}
+          {app.translator.trans('core.forum.request_password_reset.send_button')}
         </Button>
       </div>
     );
@@ -58,6 +66,6 @@ export default class ChangePasswordModal<CustomAttrs extends IFormModalAttrs = I
   }
 
   requestBody() {
-    return { email: app.session.user!.email() };
+    return { email: this.attrs.user.email() };
   }
 }
