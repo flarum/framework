@@ -19,9 +19,11 @@ class RememberAccessToken extends AccessToken
 
     /**
      * Just a helper method so we can re-use the lifetime value which is protected.
+     *
+     * Resolved late so subclasses declaring their own `$lifetime` are honoured.
      */
     public static function rememberCookieLifeTime(): int
     {
-        return self::$lifetime;
+        return static::$lifetime;
     }
 }

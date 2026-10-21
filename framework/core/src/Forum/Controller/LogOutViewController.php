@@ -9,8 +9,8 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Foundation\Config;
 use Flarum\Http\RequestUtil;
+use Flarum\Http\ReturnUrlValidator;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
@@ -26,7 +26,7 @@ class LogOutViewController implements RequestHandlerInterface
     public function __construct(
         protected Factory $view,
         protected UrlGenerator $url,
-        protected Config $config
+        protected ReturnUrlValidator $returnUrl
     ) {
     }
 
@@ -55,30 +55,11 @@ class LogOutViewController implements RequestHandlerInterface
 
     protected function sanitizeReturnUrl(string $url, string $base): Uri
     {
-        if (empty($url)) {
-            return new Uri($base);
-        }
-
-        try {
-            $parsedUrl = new Uri($url);
-        } catch (\InvalidArgumentException) {
-            return new Uri($base);
-        }
-
-        if (in_array($parsedUrl->getHost(), $this->getAllowedRedirectDomains())) {
-            return $parsedUrl;
-        }
-
-        return new Uri($base);
+        return $this->returnUrl->sanitize($url, $base);
     }
 
     protected function getAllowedRedirectDomains(): array
     {
-        $forumUri = $this->config->url();
-
-        return array_merge(
-            [$forumUri->getHost()],
-            $this->config->offsetGet('redirectDomains') ?? []
-        );
+        return $this->returnUrl->allowedHosts();
     }
 }
