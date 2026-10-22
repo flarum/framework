@@ -2,7 +2,6 @@ import Model from 'flarum/common/Model';
 import User from 'flarum/common/models/User';
 import Discussion from 'flarum/common/models/Discussion';
 import Post from 'flarum/common/models/Post';
-import Tag from 'flarum/tags/common/models/Tag';
 export default class AuditLog extends Model {
     actorId: () => string;
     client: () => string;
@@ -16,6 +15,6 @@ export default class AuditLog extends Model {
     discussion: () => false | Discussion;
     newDiscussion: () => false | Discussion;
     post: () => false | Post;
-    tag: () => false | Tag;
+    tag: () => any;
     user: () => false | User;
 }
