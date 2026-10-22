@@ -49,7 +49,8 @@ on:
         description: The type of runner to use for the jobs. This should be one of the types supported by the `runs-on` keyword.
         type: string
         required: false
-        default: 'ubuntu-latest'
+        # Ubuntu 26.04's MySQL no longer loads `mysql_native_password`, which the PHP 7.3 tests need.
+        default: 'ubuntu-24.04'
 
     secrets:
       composer_auth:
@@ -154,10 +155,14 @@ jobs:
           tools: phpunit, composer:2.2
           ini-values: ${{ matrix.php_ini_values }}
 
+      # The authentication alter is necessary because newer mysql versions use the `caching_sha2_password` driver,
+      # which isn't supported prior to PHP7.4
+      # When we drop support for PHP7.3, we should remove this from the setup.
       - name: Create MySQL Database
         run: |
           sudo systemctl start mysql
           mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
+          mysql -uroot -proot -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';" --port 13306
 
       - name: Install Composer dependencies
         run: composer install
