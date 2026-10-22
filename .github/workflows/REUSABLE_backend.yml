@@ -154,14 +154,10 @@ jobs:
           tools: phpunit, composer:2.2
           ini-values: ${{ matrix.php_ini_values }}
 
-      # The authentication alter is necessary because newer mysql versions use the `caching_sha2_password` driver,
-      # which isn't supported prior to PHP7.4
-      # When we drop support for PHP7.3, we should remove this from the setup.
       - name: Create MySQL Database
         run: |
           sudo systemctl start mysql
           mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
-          mysql -uroot -proot -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';" --port 13306
 
       - name: Install Composer dependencies
         run: composer install
