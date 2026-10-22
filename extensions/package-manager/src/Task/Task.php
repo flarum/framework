@@ -67,6 +67,7 @@ class Task extends AbstractModel
 
         $task->operation = $operation;
         $task->package = $package;
+        $task->output = '';
         $task->status = static::PENDING;
         $task->created_at = Carbon::now();
 
