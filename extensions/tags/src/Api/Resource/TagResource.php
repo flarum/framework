@@ -56,7 +56,9 @@ class TagResource extends AbstractDatabaseResource
     {
         $actor = $context->getActor();
 
-        if (is_numeric($id) && $tag = $this->query($context)->find($id)) {
+        $query = $this->query($context);
+
+        if ($this->idCanBeKey($query->getModel(), $id) && $tag = $query->find($id)) {
             return $tag;
         }
 

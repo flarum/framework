@@ -138,6 +138,16 @@ class ShowTest extends TestCase
     }
 
     #[Test]
+    public function numeric_but_non_integer_id_is_not_found(): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/tags/1.5')
+        );
+
+        $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
+    }
+
+    #[Test]
     public function admin_sees_stored_slug_attribute(): void
     {
         $response = $this->send(

@@ -224,7 +224,23 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
      */
     public function find(string $id, Context $context): ?object
     {
-        return $this->query($context)->find($id);
+        $query = $this->query($context);
+
+        if (! $this->idCanBeKey($query->getModel(), $id)) {
+            return null;
+        }
+
+        return $query->find($id);
+    }
+
+    /**
+     * Whether the id can be a key of the model. An integer key only matches
+     * digits: databases treat anything else differently (MySQL reads "2abc"
+     * as 2, PostgreSQL rejects the query), so it is answered as not found.
+     */
+    protected function idCanBeKey(Model $model, string $id): bool
+    {
+        return $model->getKeyType() !== 'int' || ctype_digit($id);
     }
 
     /**
