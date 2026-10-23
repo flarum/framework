@@ -37,7 +37,7 @@
     "xslt-polyfill": "^1.0.21"
   },
   "devDependencies": {
-    "prettier": "^2.4.1"
+    "prettier": "^3.9.10"
   },
   "scripts": {
     "dev": "echo 'skipping..'",

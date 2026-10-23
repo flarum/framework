@@ -287,7 +287,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     const nearParam = rawNearParam === 'reply' ? 'reply' : parseInt(rawNearParam);
     // Post numbers start at 1; use the first preloaded post (or 1) when near is
     // missing/invalid so the first post gets the pop-in.
-    const targetPost = nearParam === 'reply' ? 'reply' : nearParam && !isNaN(nearParam) ? nearParam : preloadedPosts[0]?.number() ?? 1;
+    const targetPost = nearParam === 'reply' ? 'reply' : nearParam && !isNaN(nearParam) ? nearParam : (preloadedPosts[0]?.number() ?? 1);
     this.stream.goToNumber(targetPost, true).then(() => {
       this.discussion = discussion;
 
