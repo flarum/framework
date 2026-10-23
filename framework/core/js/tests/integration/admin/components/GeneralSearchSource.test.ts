@@ -85,4 +85,45 @@ describe('GeneralSearchSource', () => {
       expect(result!.tree).toEqual(['Upload limit']);
     });
   });
+
+  describe('search results with a link property', () => {
+    beforeEach(() => {
+      app.generalIndex
+        .group('test-extension-links', { label: 'Test Extension 3', icon: { name: 'fas fa-cog' }, link: '/admin/test3' })
+        .for('test-extension-links')
+        .add('settings', [
+          {
+            id: 'tab_setting',
+            label: 'Colour scheme',
+            link: '/admin/test3?tab=appearance',
+          },
+          {
+            id: 'plain_setting',
+            label: 'Colour depth',
+          },
+        ]);
+    });
+
+    it('links to the item link when one is given', async () => {
+      const source = new GeneralSearchSource();
+      await source.search('colour scheme', 10);
+
+      const results = source['results'].get('colour scheme') ?? [];
+      const result = results.find((r) => r.id.includes('tab_setting'));
+
+      expect(result).toBeDefined();
+      expect(result!.link).toBe('/admin/test3?tab=appearance');
+    });
+
+    it('falls back to the group link when the item has none', async () => {
+      const source = new GeneralSearchSource();
+      await source.search('colour depth', 10);
+
+      const results = source['results'].get('colour depth') ?? [];
+      const result = results.find((r) => r.id.includes('plain_setting'));
+
+      expect(result).toBeDefined();
+      expect(result!.link).toBe('/admin/test3');
+    });
+  });
 });
