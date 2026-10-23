@@ -17,6 +17,7 @@ use Flarum\Foundation\Application;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\ClientInterface;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -37,6 +38,7 @@ class CoreController implements RequestHandlerInterface
         protected TranslatorInterface $translator,
         protected Paths $paths,
         protected Application $app,
+        protected ClientInterface $http,
     ) {
     }
 
@@ -106,7 +108,7 @@ class CoreController implements RequestHandlerInterface
          * so the panel read "This forum runs Flarum 2.0.0" above "Update
          * Flarum to v2.0.0" until the next check (ClaudiusH, 2026-10-09).
          */
-        $updates = (new \Flarum\ExtensionManager\Work\UpdateCheck(StorageDir::of($this->paths->storage).'/updates.json'))
+        $updates = (new \Flarum\ExtensionManager\Work\UpdateCheck(StorageDir::of($this->paths->storage).'/updates.json', $this->http))
             ->current($this->paths->base.'/composer.lock')['updates'] ?? [];
 
         return $updates['flarum/core'] ?? null;

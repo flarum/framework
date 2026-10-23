@@ -31,7 +31,7 @@ use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\Steps;
 use Flarum\Foundation\Config;
 use Flarum\Locale\TranslatorInterface;
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Illuminate\Database\ConnectionInterface;
 use RuntimeException;
 
@@ -60,6 +60,7 @@ class ComposerSteps implements Steps
         protected Fetcher $fetcher,
         protected Applier $applier,
         protected Journal $journal,
+        protected ClientInterface $http,
         /** @var list<string> the packages the user asked to change */
         protected array $requested = [],
         /** 'update', 'install' for something new, or 'remove' to take one out */
@@ -404,6 +405,22 @@ class ComposerSteps implements Steps
         };
     }
 
+    /**
+     * The version Flarum records, read from the settings table itself rather
+     * than through SettingsRepositoryInterface. It is changed by another
+     * process (`php flarum migrate`) or another request (Flarum's updater)
+     * while this one runs, and the repository keeps every setting it read for
+     * the life of the request, or longer behind a cache such as fof/redis; the
+     * command line drives a whole run in one process. A cached value would
+     * make a database that did move look as if it had not.
+     */
+    protected function recordedVersion(ConnectionInterface $db): ?string
+    {
+        $version = $db->table('settings')->where('key', 'version')->value('value');
+
+        return $version === null ? null : (string) $version;
+    }
+
     /** Copy beside, then rename over: never a half-written file in place. */
     protected static function replaceFile(string $from, string $to): bool
     {
@@ -647,7 +664,7 @@ class ComposerSteps implements Steps
         $db = resolve(ConnectionInterface::class);
         $ledger = new MigrationLedger($this->translator, $this->workDir);
         $ledger->before($db);
-        $was = $db->table('settings')->where('key', 'version')->value('value');
+        $was = $this->recordedVersion($db);
 
         /*
          * Only a new VERSION puts the forum behind "Update Flarum". A core
@@ -669,10 +686,10 @@ class ComposerSteps implements Steps
                 $this->registerWith(null);
                 $this->flarum('migrate', '');
             } else {
-                (new FlarumUpdater($this->translator, new Client(), $this->siteUrl, (array) (resolve(Config::class)['database'] ?? []), $this->storagePath))->migrate();
+                (new FlarumUpdater($this->translator, $this->http, $this->siteUrl, (array) (resolve(Config::class)['database'] ?? []), $this->storagePath))->migrate();
             }
 
-            $now = $db->table('settings')->where('key', 'version')->value('value');
+            $now = $this->recordedVersion($db);
 
             // The database is now ahead of the web server's compiled code: close
             // that window at once rather than within opcache's own timer.
@@ -1007,7 +1024,7 @@ class ComposerSteps implements Steps
 
     protected function health(): ?SiteHealth
     {
-        return $this->siteUrl === '' ? null : new SiteHealth($this->translator, new Client(), $this->siteUrl);
+        return $this->siteUrl === '' ? null : new SiteHealth($this->translator, $this->http, $this->siteUrl);
     }
 
     protected function restore(): ?Restore

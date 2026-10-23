@@ -113,6 +113,38 @@ class StepRunnerTest extends TestCase
         $this->assertStringContainsString('could not fetch boom', (string) $run->error);
     }
 
+    /**
+     * A failure from underneath the extension is named for what it is, in a
+     * translated sentence, with its own message kept as the detail; the
+     * extension's own failures are already sentences and pass through.
+     */
+    public function test_a_failure_from_underneath_is_put_into_a_translated_sentence(): void
+    {
+        $runner = $this->newRunner($this->fakeSteps([]));
+        $request = new \GuzzleHttp\Psr7\Request('GET', 'https://repo.example.test/x.zip');
+
+        $this->assertSame('A database error stopped this step: SQLSTATE[42S01]', $runner->describe(new \PDOException('SQLSTATE[42S01]')));
+        $this->assertSame('A download or request did not get through: timed out', $runner->describe(new \GuzzleHttp\Exception\ConnectException('timed out', $request)));
+        $this->assertSame('A download or request did not get through: 403', $runner->describe(new \Composer\Downloader\TransportException('403')));
+        $this->assertStringStartsWith('An unexpected PHP error stopped this step', $runner->describe(new \TypeError('bad argument')));
+        $this->assertSame('could not fetch boom', $runner->describe(new \RuntimeException('could not fetch boom')));
+    }
+
+    public function test_a_failed_step_records_the_described_error(): void
+    {
+        [$runner, $steps] = $this->make(['plan' => [], 'fetch' => ['a'], 'apply' => [], 'finalise' => []]);
+        $steps->throw = new \PDOException('SQLSTATE[HY000]: General error');
+        $runner->begin('r1');
+
+        $guard = 0;
+        do {
+            $run = $runner->step('r1');
+        } while (! $run->isFinished() && ++$guard < 50);
+
+        $this->assertSame('A database error stopped this step: SQLSTATE[HY000]: General error', $run->error);
+        $this->assertStringContainsString('A database error stopped this step', (string) ($run->log[array_key_last($run->log)] ?? ''));
+    }
+
     public function test_stepping_a_finished_run_returns_it_unchanged_rather_than_doing_nothing_quietly(): void
     {
         [$runner, $steps] = $this->make(['plan' => [], 'fetch' => ['a'], 'apply' => [], 'finalise' => []]);
@@ -263,6 +295,7 @@ class StepRunnerTest extends TestCase
         return new class($plan) implements Steps {
             public array $done = [];
             public ?string $explodeOn = null;
+            public ?\Throwable $throw = null;
 
             /** Item that is not finished yet, and how many more calls it needs. */
             public ?string $waitOn = null;
@@ -279,6 +312,10 @@ class StepRunnerTest extends TestCase
 
             public function doItem(string $phase, string $item, Run $run): ?string
             {
+                if ($this->throw !== null) {
+                    throw $this->throw;
+                }
+
                 if ($item === $this->explodeOn) {
                     throw new \RuntimeException("could not fetch $item");
                 }

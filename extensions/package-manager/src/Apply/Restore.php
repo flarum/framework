@@ -18,7 +18,7 @@ use Flarum\ExtensionManager\Work\InstalledRecord;
 use Flarum\ExtensionManager\Work\MigrationLedger;
 use Flarum\ExtensionManager\Work\StaleCache;
 use Flarum\Locale\TranslatorInterface;
-use Illuminate\Database\ConnectionInterface;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Throwable;
 
 /**
@@ -65,7 +65,7 @@ class Restore
          */
         $ledger = new MigrationLedger($this->translator, $this->workDirRoot);
         $pending = $ledger->prepare(
-            resolve(ConnectionInterface::class),
+            resolve(SettingsRepositoryInterface::class),
             resolve(Migrator::class),
             resolve(ExtensionManager::class),
             $this->vendorPath

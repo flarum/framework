@@ -17,6 +17,7 @@ use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\ClientInterface;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -37,6 +38,7 @@ class DiscoverController implements RequestHandlerInterface
         protected TranslatorInterface $translator,
         protected Paths $paths,
         protected ExtensionManager $extensions,
+        protected ClientInterface $http,
     ) {
     }
 
@@ -58,7 +60,7 @@ class DiscoverController implements RequestHandlerInterface
          * The page number is clamped: it reaches an outbound URL, and twenty
          * pages is more than anybody browses before searching instead.
          */
-        $found = (new Packagist($this->translator, $this->cache()))->search($query, 12, $page, (string) ($params['category'] ?? ''));
+        $found = (new Packagist($this->translator, $this->cache(), $this->http))->search($query, 12, $page, (string) ($params['category'] ?? ''));
 
         /*
          * Marked rather than filtered out. Somebody searching for an

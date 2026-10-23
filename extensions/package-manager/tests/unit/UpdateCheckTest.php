@@ -36,7 +36,7 @@ class UpdateCheckTest extends TestCase
 
     private function check(): UpdateCheck
     {
-        return new UpdateCheck($this->cache);
+        return new UpdateCheck($this->cache, new \GuzzleHttp\Client());
     }
 
     private function feed(array $map): callable
@@ -115,7 +115,7 @@ class UpdateCheckTest extends TestCase
 
     public function test_the_answer_is_cached_and_ages(): void
     {
-        $check = new UpdateCheck($this->cache, freshFor: 3600);
+        $check = new UpdateCheck($this->cache, new \GuzzleHttp\Client(), freshFor: 3600);
 
         $this->assertTrue($check->isStale(), 'never checked is stale');
 
@@ -200,7 +200,7 @@ class UpdateCheckTest extends TestCase
      */
     public function test_a_branch_install_is_reported_as_tracking_not_as_uncheckable(): void
     {
-        $check = new UpdateCheck($this->cache);
+        $check = new UpdateCheck($this->cache, new \GuzzleHttp\Client());
 
         $result = $check->refresh(
             ['vendor/branchy' => 'dev-main', 'vendor/tagged' => '1.0.0'],
@@ -215,7 +215,7 @@ class UpdateCheckTest extends TestCase
     /** And it costs no request, which is what keeps a nightly check cheap. */
     public function test_a_branch_install_is_never_fetched(): void
     {
-        $check = new UpdateCheck($this->cache);
+        $check = new UpdateCheck($this->cache, new \GuzzleHttp\Client());
         $asked = [];
 
         $check->refresh(
@@ -233,7 +233,7 @@ class UpdateCheckTest extends TestCase
     /** Something genuinely unreachable is still named, not quietly dropped. */
     public function test_an_unreachable_package_is_still_reported(): void
     {
-        $check = new UpdateCheck($this->cache);
+        $check = new UpdateCheck($this->cache, new \GuzzleHttp\Client());
 
         $result = $check->refresh(['vendor/private' => '1.0.0'], fn () => null);
 
@@ -249,7 +249,7 @@ class UpdateCheckTest extends TestCase
     public function test_the_result_is_kept_when_its_directory_does_not_exist_yet(): void
     {
         $dir = sys_get_temp_dir().'/mw-fresh-'.bin2hex(random_bytes(6));
-        $check = new UpdateCheck($dir.'/extension-manager/updates.json');
+        $check = new UpdateCheck($dir.'/extension-manager/updates.json', new \GuzzleHttp\Client());
 
         $check->refresh(['a/b' => '1.0.0'], fn () => ['1.0.0', '1.1.0']);
 
