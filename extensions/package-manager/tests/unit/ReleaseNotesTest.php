@@ -114,7 +114,7 @@ class ReleaseNotesTest extends TestCase
     {
         $out = ReleaseNotes::clean($html);
 
-        $this->assertStringNotContainsString("<img", $out);
+        $this->assertStringNotContainsString('<img', $out);
 
         // Text is escaped, so every "<" left starts a tag, and each must have exactly this shape.
         preg_match_all('/<[^>]*>?/', $out, $tags);
