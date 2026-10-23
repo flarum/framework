@@ -17,6 +17,7 @@ use Flarum\ExtensionManager\Work\PrivateIndex;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -100,6 +101,43 @@ class PrivateIndexTest extends TestCase
         $method = (new ReflectionClass($index))->getMethod('composerRepositories');
 
         $this->assertCount(1, $method->invoke($index));
+    }
+
+    /**
+     * A credential written into the repository URL is used, as Composer uses
+     * it: as http-basic for that host, ahead of auth.json, in a header rather
+     * than the URL, and never over plain HTTP.
+     */
+    public function test_a_credential_in_the_repository_url_is_used_for_the_check(): void
+    {
+        $sent = [];
+        $stack = HandlerStack::create($this->responses);
+        $stack->push(Middleware::history($sent));
+        $index = json_encode(['packages' => ['vendor/paid' => ['1.0.0' => ['version' => '1.0.0']]]]);
+        $this->responses->append(new Response(200, [], $index), new Response(200, [], $index));
+
+        file_put_contents($this->dir.'/composer.json', json_encode(['repositories' => [
+            ['type' => 'composer', 'url' => 'https://us%40er:p%3As@s@repo.example.test/composer'],
+            ['type' => 'composer', 'url' => 'http://user:plain@insecure.test'],
+        ]]));
+        file_put_contents($this->dir.'/auth.json', json_encode(['bearer' => ['repo.example.test' => 'other']]));
+
+        $private = new PrivateIndex(
+            new Repositories(EnglishTranslator::make(), new JsonFile(EnglishTranslator::make(), $this->dir.'/composer.json')),
+            new AuthTokens(EnglishTranslator::make(), new JsonFile(EnglishTranslator::make(), $this->dir.'/auth.json')),
+            new Client(['handler' => $stack])
+        );
+
+        $this->assertSame(['1.0.0'], $private->versionsFor('vendor/paid'));
+        $this->assertCount(2, $sent);
+
+        $secure = $sent[0]['request'];
+        $this->assertSame('https://repo.example.test/composer/packages.json', (string) $secure->getUri());
+        $this->assertSame('Basic '.base64_encode('us@er:p:s@s'), $secure->getHeaderLine('Authorization'));
+
+        $insecure = $sent[1]['request'];
+        $this->assertSame('http://insecure.test/packages.json', (string) $insecure->getUri());
+        $this->assertFalse($insecure->hasHeader('Authorization'));
     }
 
     /** A Composer index keys by version and repeats it inside; both shapes work. */
