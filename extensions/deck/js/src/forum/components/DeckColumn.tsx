@@ -251,8 +251,8 @@ export default class DeckColumn<CustomAttrs extends IDeckColumnAttrs = IDeckColu
         flat
           ? app.translator.trans('flarum-deck.forum.column.moved_announcement', { position, count })
           : place.row === 0
-          ? app.translator.trans('flarum-deck.forum.column.moved_in_top_row_announcement', { position, count })
-          : app.translator.trans('flarum-deck.forum.column.moved_in_bottom_row_announcement', { position, count })
+            ? app.translator.trans('flarum-deck.forum.column.moved_in_top_row_announcement', { position, count })
+            : app.translator.trans('flarum-deck.forum.column.moved_in_bottom_row_announcement', { position, count })
       );
     }
 

@@ -138,7 +138,7 @@ export default class ExtensionCard<CustomAttrs extends IExtensionAttrs = IExtens
     const items = new ItemList<Mithril.Children>();
 
     const { updates, isCore } = this.attrs;
-    const latestVersion = updates ? updates['latest-minor'] ?? (updates['latest-major'] && !isCore ? updates['latest-major'] : null) : null;
+    const latestVersion = updates ? (updates['latest-minor'] ?? (updates['latest-major'] && !isCore ? updates['latest-major'] : null)) : null;
 
     if (this.attrs.extension instanceof ExternalExtension) {
       items.add(
