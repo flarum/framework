@@ -625,7 +625,10 @@ class UpdateTest extends TestCase
                 ],
             ])
         );
-        $this->assertContains($response->getStatusCode(), [403, 404], (string) $response->getBody());
+        // How the group lookup treats a non-integer id depends on the database:
+        // it may coerce it to group 1 (which the guard then refuses), find no
+        // group, or reject the query. Whichever, the request must fail.
+        $this->assertGreaterThanOrEqual(400, $response->getStatusCode(), (string) $response->getBody());
         $this->assertFalse(User::find(3)->isAdmin());
     }
 
