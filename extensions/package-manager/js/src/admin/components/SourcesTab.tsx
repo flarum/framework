@@ -310,7 +310,7 @@ export default class SourcesTab extends Component {
                 className="ExtensionManager-src-icon ExtensionManager-src-icon--sm ExtensionManager-src-icon--danger"
                 disabled={this.saving}
                 title={app.translator.trans('flarum-extension-manager.admin.actions.remove', {}, true)}
-                aria-label={app.translator.trans('flarum-extension-manager.admin.composer.delete_repository_label', { name: d.name }, true)}
+                aria-label={app.translator.trans('flarum-extension-manager.admin.composer.remove_repository_label', { name: d.name }, true)}
                 onclick={() => (this.confirmRepo = r.url)}
               >
                 <i className="fas fa-trash-can" aria-hidden="true" />
@@ -579,7 +579,7 @@ export default class SourcesTab extends Component {
               className="ExtensionManager-src-icon ExtensionManager-src-icon--danger"
               disabled={this.saving}
               title={app.translator.trans('flarum-extension-manager.admin.actions.remove', {}, true)}
-              aria-label={app.translator.trans('flarum-extension-manager.admin.auth_config.remove_button_label', { name: c.host }, true)}
+              aria-label={app.translator.trans('flarum-extension-manager.admin.auth_config.remove_host_label', { name: c.host }, true)}
               onclick={() => (this.confirmAuth = key)}
             >
               <i className="fas fa-trash-can" aria-hidden="true" />
