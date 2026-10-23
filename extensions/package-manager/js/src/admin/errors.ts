@@ -22,11 +22,6 @@ export function serverMessage(e: unknown): string | null {
 
   if (details.length) return details.join(' ');
 
-  // A refusal sent as one of this extension's keys, relative to its admin strings.
-  if (body.errorKey) {
-    return app.translator.trans('flarum-extension-manager.admin.' + body.errorKey, body.errorParams || {}, true);
-  }
-
   return body.error || null;
 }
 

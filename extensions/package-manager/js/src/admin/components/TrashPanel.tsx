@@ -33,14 +33,14 @@ function human(bytes: number): string {
  * to and what happens cannot drift apart.
  */
 export default class TrashPanel extends Component {
-  private loading = true;
-  private busy = false;
-  private data: TrashPayload | null = null;
+  protected loading = true;
+  protected busy = false;
+  protected data: TrashPayload | null = null;
   /** Why the copies could not be read at all, when they could not. */
-  private loadError: string | null = null;
+  protected loadError: string | null = null;
 
-  private keepDays = '';
-  private keepRuns = '';
+  protected keepDays = '';
+  protected keepRuns = '';
 
   oninit(vnode: Mithril.Vnode<ComponentAttrs, this>) {
     super.oninit(vnode);
@@ -201,7 +201,7 @@ export default class TrashPanel extends Component {
       });
   }
 
-  private show(data: TrashPayload) {
+  protected show(data: TrashPayload) {
     this.data = data;
     this.keepDays = String(data.settings.keepDays);
     this.keepRuns = String(data.settings.keepRuns);
