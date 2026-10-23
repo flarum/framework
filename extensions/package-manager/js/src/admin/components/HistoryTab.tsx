@@ -47,8 +47,8 @@ export default class HistoryTab extends Component<HistoryTabAttrs> {
                         {c.op === 'add'
                           ? app.translator.trans('flarum-extension-manager.admin.sections.queue.new_version', { version: c.to })
                           : c.op === 'remove'
-                          ? app.translator.trans('flarum-extension-manager.admin.sections.queue.removed_version', { version: c.from })
-                          : `${c.from} → ${c.to}`}
+                            ? app.translator.trans('flarum-extension-manager.admin.sections.queue.removed_version', { version: c.from })
+                            : `${c.from} → ${c.to}`}
                       </span>
                     </li>
                   ))
@@ -75,8 +75,8 @@ export default class HistoryTab extends Component<HistoryTabAttrs> {
     return entry.mode === 'install'
       ? app.translator.trans('flarum-extension-manager.admin.sections.queue.operations.extension_install')
       : entry.mode === 'remove'
-      ? app.translator.trans('flarum-extension-manager.admin.sections.queue.operations.extension_remove')
-      : app.translator.trans('flarum-extension-manager.admin.sections.queue.operations.extension_update');
+        ? app.translator.trans('flarum-extension-manager.admin.sections.queue.operations.extension_remove')
+        : app.translator.trans('flarum-extension-manager.admin.sections.queue.operations.extension_update');
   }
 
   private tone(state: RunState): string {

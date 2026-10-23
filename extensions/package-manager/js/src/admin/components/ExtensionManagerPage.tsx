@@ -428,8 +428,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
           {this.starting
             ? app.translator.trans('flarum-extension-manager.admin.updater.starting')
             : names.length === 1
-            ? app.translator.trans('flarum-extension-manager.admin.extensions.update_one', { name: updatable[0].name })
-            : app.translator.trans('flarum-extension-manager.admin.updater.run_global_update', { count: names.length })}
+              ? app.translator.trans('flarum-extension-manager.admin.extensions.update_one', { name: updatable[0].name })
+              : app.translator.trans('flarum-extension-manager.admin.updater.run_global_update', { count: names.length })}
         </Button>
       </div>
     );
@@ -614,11 +614,11 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
             {n === 0 && !this.coreHasUpdate()
               ? app.translator.trans('flarum-extension-manager.admin.updater.up_to_date')
               : n === 0
-              ? app.translator.trans('flarum-extension-manager.admin.updater.core_newer')
-              : [
-                  app.translator.trans('flarum-extension-manager.admin.updater.some_newer', { count: n }),
-                  this.coreHasUpdate() ? ' ' + app.translator.trans('flarum-extension-manager.admin.updater.core_newer_too', {}, true) : '',
-                ]}
+                ? app.translator.trans('flarum-extension-manager.admin.updater.core_newer')
+                : [
+                    app.translator.trans('flarum-extension-manager.admin.updater.some_newer', { count: n }),
+                    this.coreHasUpdate() ? ' ' + app.translator.trans('flarum-extension-manager.admin.updater.core_newer_too', {}, true) : '',
+                  ]}
           </b>{' '}
           {app.translator.trans('flarum-extension-manager.admin.updater.last_update_checked_at', { when: this.ago(checkedAt) })}
           {uncheckable > 0 ? ' ' + app.translator.trans('flarum-extension-manager.admin.updater.uncheckable', { count: uncheckable }, true) : ''}
@@ -657,8 +657,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
         {this.checking
           ? app.translator.trans('flarum-extension-manager.admin.updater.checking')
           : age === 'fresh'
-          ? app.translator.trans('flarum-extension-manager.admin.updater.check_now')
-          : app.translator.trans('flarum-extension-manager.admin.updater.check_for_updates')}
+            ? app.translator.trans('flarum-extension-manager.admin.updater.check_now')
+            : app.translator.trans('flarum-extension-manager.admin.updater.check_for_updates')}
       </Button>
     );
   }

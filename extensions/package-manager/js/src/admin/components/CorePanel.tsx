@@ -217,8 +217,8 @@ export default class CorePanel extends Component<CoreAttrs> {
               {r.state === 'blocked'
                 ? app.translator.trans('flarum-extension-manager.admin.updater.core.row_blocked', { requires: r.requires || '?' })
                 : r.state === 'needs-update'
-                ? app.translator.trans('flarum-extension-manager.admin.updater.core.row_updating', { version: r.to || '?' })
-                : app.translator.trans('flarum-extension-manager.admin.updater.core.row_unknown')}
+                  ? app.translator.trans('flarum-extension-manager.admin.updater.core.row_updating', { version: r.to || '?' })
+                  : app.translator.trans('flarum-extension-manager.admin.updater.core.row_unknown')}
             </span>
           </li>
         ))}

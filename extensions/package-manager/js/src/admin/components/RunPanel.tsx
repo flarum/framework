@@ -150,12 +150,12 @@ export default class RunPanel extends Component<RunPanelAttrs> {
               {done
                 ? app.translator.trans('flarum-extension-manager.admin.run.done')
                 : rolled
-                ? app.translator.trans('flarum-extension-manager.admin.run.rolled_back')
-                : failed
-                ? app.translator.trans('flarum-extension-manager.admin.run.failed')
-                : target
-                ? app.translator.trans('flarum-extension-manager.admin.run.target.' + mode, { packages: target })
-                : app.translator.trans('flarum-extension-manager.admin.run.working')}
+                  ? app.translator.trans('flarum-extension-manager.admin.run.rolled_back')
+                  : failed
+                    ? app.translator.trans('flarum-extension-manager.admin.run.failed')
+                    : target
+                      ? app.translator.trans('flarum-extension-manager.admin.run.target.' + mode, { packages: target })
+                      : app.translator.trans('flarum-extension-manager.admin.run.working')}
             </h3>
             {target && (done || failed || rolled) ? <div className="ExtensionManager-runTarget">{target}</div> : null}
           </div>
@@ -361,8 +361,8 @@ export default class RunPanel extends Component<RunPanelAttrs> {
           {total
             ? app.translator.trans('flarum-extension-manager.admin.run.working_on', { item, index: Math.min(run.index + 1, total), total })
             : run.phase === 'plan'
-            ? app.translator.trans('flarum-extension-manager.admin.run.working_out')
-            : null}
+              ? app.translator.trans('flarum-extension-manager.admin.run.working_out')
+              : null}
         </div>
       </div>
     );

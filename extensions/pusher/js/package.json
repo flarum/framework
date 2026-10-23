@@ -3,6 +3,20 @@
     "name": "@flarum/pusher",
     "version": "0.0.0",
     "prettier": "@flarum/prettier-config",
+    "dependencies": {
+        "pusher-js": "^8.4.0"
+    },
+    "devDependencies": {
+        "@flarum/prettier-config": "^1.0.0",
+        "@types/pusher-js": "^5.1.0",
+        "flarum-tsconfig": "^2.0.0",
+        "flarum-webpack-config": "^3.1.0",
+        "prettier": "^3.9.10",
+        "typescript": "^5.9.3",
+        "typescript-coverage-report": "^0.6.4",
+        "webpack": "^5.104.1",
+        "webpack-cli": "^7.2.3"
+    },
     "scripts": {
         "dev": "webpack --mode development --watch",
         "build": "webpack --mode production",
@@ -14,19 +28,5 @@
         "post-build-typings": "find dist-typings -type f -name '*.d.ts' -print0 | xargs -0 sed -i 's,../src/@types,@types,g'",
         "check-typings": "tsc --noEmit --emitDeclarationOnly false",
         "check-typings-coverage": "typescript-coverage-report"
-    },
-    "devDependencies": {
-        "@flarum/prettier-config": "^1.0.0",
-        "@types/pusher-js": "^5.1.0",
-        "flarum-tsconfig": "^2.0.0",
-        "flarum-webpack-config": "^3.0.0",
-        "prettier": "^2.5.1",
-        "typescript": "^5.9.3",
-        "typescript-coverage-report": "^0.6.1",
-        "webpack": "^5.104.1",
-        "webpack-cli": "^4.9.1"
-    },
-    "dependencies": {
-        "pusher-js": "^8.4.0"
     }
 }

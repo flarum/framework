@@ -25,7 +25,10 @@ export default class TypingState {
   /** Member id => when they were last heard from, on this clock. */
   protected lastHeard = new Map<string, number>();
 
-  constructor(protected participants: () => User[], protected self: () => string | null | undefined) {}
+  constructor(
+    protected participants: () => User[],
+    protected self: () => string | null | undefined
+  ) {}
 
   static signal(userId: string): TypingSignal {
     return { userId };
