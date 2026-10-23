@@ -48,6 +48,14 @@ class Run
         public readonly ?string $errorStep = null,
         public readonly int $startedAt = 0,
         public readonly int $movedAt = 0,
+        /*
+         * Where it stopped, as data: the phase id and the item it was on (null
+         * while the phase was still being planned). `errorStep` is the same
+         * place as text for the log and the CLI; the admin screen labels these
+         * in the reader's language instead of parsing that text.
+         */
+        public readonly ?string $errorPhase = null,
+        public readonly ?string $errorItem = null,
     ) {
     }
 
@@ -146,12 +154,14 @@ class Run
      * and three layers away from the cause.
      */
     /** @param string $note the log line saying so */
-    public function failed(string $error, string $step, int $now, string $note): self
+    public function failed(string $error, string $step, int $now, string $note, ?string $phase = null, ?string $item = null): self
     {
         return $this->copy([
             'state' => self::FAILED,
             'error' => $error,
             'errorStep' => $step,
+            'errorPhase' => $phase,
+            'errorItem' => $item,
             'movedAt' => $now,
             'log' => [...$this->log, $note],
         ]);
@@ -172,6 +182,8 @@ class Run
             'index' => 0,
             'error' => null,
             'errorStep' => null,
+            'errorPhase' => null,
+            'errorItem' => null,
             'movedAt' => $now,
             'log' => [...$this->log, $note],
         ]);
@@ -205,12 +217,14 @@ class Run
      *
      * @param list<string> $notes the log lines saying so
      */
-    public function revertedAfter(string $why, string $step, array $notes, int $now): self
+    public function revertedAfter(string $why, string $step, array $notes, int $now, ?string $phase = null, ?string $item = null): self
     {
         return $this->copy([
             'state' => self::ROLLBACK,
             'error' => $why,
             'errorStep' => $step,
+            'errorPhase' => $phase,
+            'errorItem' => $item,
             'movedAt' => $now,
             'log' => [...$this->log, ...$notes],
         ]);
@@ -224,6 +238,7 @@ class Run
             'items' => $this->items, 'index' => $this->index, 'log' => $this->log,
             'error' => $this->error, 'errorStep' => $this->errorStep,
             'startedAt' => $this->startedAt, 'movedAt' => $this->movedAt,
+            'errorPhase' => $this->errorPhase, 'errorItem' => $this->errorItem,
         ];
     }
 
@@ -241,6 +256,8 @@ class Run
             isset($row['errorStep']) ? (string) $row['errorStep'] : null,
             (int) ($row['startedAt'] ?? 0),
             (int) ($row['movedAt'] ?? 0),
+            isset($row['errorPhase']) ? (string) $row['errorPhase'] : null,
+            isset($row['errorItem']) ? (string) $row['errorItem'] : null,
         );
     }
 
