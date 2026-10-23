@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\api\users;
 
 use Carbon\Carbon;
+use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Throttler\EmailChangeThrottler;
@@ -619,6 +620,57 @@ class UpdateTest extends TestCase
             ])
         );
         $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * A non-admin with editGroups must not be able to smuggle themselves into
+     * the Administrator group by sending a group id that bypasses the string
+     * comparison in the admin guard but is coerced to 1 on storage (e.g. a
+     * float or a non-numeric suffix, truncated by a non-strict MySQL column).
+     *
+     * The security invariant is that the user never ends up an administrator;
+     * the malformed id is simply ignored.
+     *
+     * @dataProvider malformedAdminGroupIds
+     * @test
+     */
+    public function regular_users_cant_promote_self_to_admin_with_malformed_group_id($malformedId)
+    {
+        $this->giveNormalUsersEditPerms();
+        $this->send(
+            $this->request('PATCH', '/api/users/3', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'relationships' => [
+                            'groups' => [
+                                'data' => [
+                                    ['id' => $malformedId, 'type' => 'group']
+                                ]
+                            ]
+                        ],
+                    ]
+                ],
+            ])
+        );
+
+        $this->assertFalse(
+            User::find(3)->isAdmin(),
+            "User 3 must not be an administrator after sending group id ".var_export($malformedId, true)
+        );
+        $this->assertFalse(
+            User::find(3)->groups->contains('id', Group::ADMINISTRATOR_ID),
+            "User 3 must not be in the Administrator group after sending group id ".var_export($malformedId, true)
+        );
+    }
+
+    public function malformedAdminGroupIds(): array
+    {
+        return [
+            'float' => [1.5],
+            'float string' => ['1.4'],
+            'numeric prefix' => ['1abc'],
+        ];
     }
 
     /**

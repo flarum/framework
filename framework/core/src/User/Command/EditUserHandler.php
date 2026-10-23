@@ -10,6 +10,7 @@
 namespace Flarum\User\Command;
 
 use Flarum\Foundation\DispatchEventsTrait;
+use Flarum\Group\Group;
 use Flarum\User\Event\GroupsChanged;
 use Flarum\User\Event\Saving;
 use Flarum\User\User;
@@ -115,13 +116,20 @@ class EditUserHandler
 
             $newGroupIds = [];
             foreach ($relationships['groups']['data'] as $group) {
-                if ($id = Arr::get($group, 'id')) {
-                    $newGroupIds[] = $id;
+                $id = Arr::get($group, 'id');
+
+                // Only accept positive integer group ids. A non-integer id
+                // (e.g. 1.5, "1.4" or "1abc") would slip past the admin check
+                // below but be coerced to 1 when stored, which a non-admin
+                // could abuse to join the Administrator group.
+                if ((is_int($id) || (is_string($id) && ctype_digit($id))) && (int) $id > 0) {
+                    $newGroupIds[] = (int) $id;
                 }
             }
 
             // Ensure non-admins aren't adding/removing admins
-            $adminChanged = in_array('1', array_diff($oldGroupIds, $newGroupIds)) || in_array('1', array_diff($newGroupIds, $oldGroupIds));
+            $adminChanged = in_array(Group::ADMINISTRATOR_ID, array_diff($oldGroupIds, $newGroupIds))
+                || in_array(Group::ADMINISTRATOR_ID, array_diff($newGroupIds, $oldGroupIds));
             $actor->assertPermission(! $adminChanged || $actor->isAdmin());
 
             $user->raise(
