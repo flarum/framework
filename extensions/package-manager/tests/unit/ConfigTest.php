@@ -161,6 +161,37 @@ class ConfigTest extends TestCase
         $repos->add('magic', 'https://example.test/x');
     }
 
+    /** Composer refuses plain http:// and git:// while secure-http is on, so the form does too. */
+    public function test_an_insecure_repository_is_refused_while_secure_http_is_on(): void
+    {
+        foreach (['http://repo.example.test', 'HTTP://repo.example.test', 'git://example.test/a/b.git'] as $url) {
+            $repos = new Repositories(EnglishTranslator::make(), $this->file('composer.json', []));
+
+            try {
+                $repos->add('composer', $url);
+                $this->fail("$url should have been refused");
+            } catch (RuntimeException $e) {
+                $this->assertStringContainsString('secure-http', $e->getMessage());
+            }
+
+            $this->assertSame([], $repos->all(), 'nothing written');
+        }
+    }
+
+    public function test_an_insecure_repository_is_accepted_where_composer_would_accept_it(): void
+    {
+        foreach ([['secure-http' => false], ['secure-http' => 'false'], ['disable-tls' => true]] as $config) {
+            $repos = new Repositories(EnglishTranslator::make(), $this->file('composer.json', ['config' => $config]));
+
+            $this->assertFalse($repos->secureHttp());
+            $repos->add('composer', 'http://repo.example.test');
+            $this->assertSame('http://repo.example.test', $repos->all()[0]['url']);
+        }
+
+        $this->assertTrue((new Repositories(EnglishTranslator::make(), $this->file('composer.json', ['config' => ['secure-http' => true]])))->secureHttp());
+        $this->assertTrue((new Repositories(EnglishTranslator::make(), $this->file('composer.json', [])))->secureHttp());
+    }
+
     public function test_removing_a_repository_that_is_not_there_says_so(): void
     {
         $repos = new Repositories(EnglishTranslator::make(), $this->file('composer.json', ['repositories' => []]));

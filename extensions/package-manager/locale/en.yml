@@ -636,6 +636,7 @@ flarum-extension-manager:
       not_a_hostname: "That is not a hostname. Use github.com, not https://github.com/…."
       repo_bad_url: "That does not look like a repository URL. Use https://, git@ or ssh://."
       repo_exists: "That repository is already configured."
+      repo_insecure: "Composer will not use a repository over plain http:// or git:// while its secure-http setting is on, and credentials would travel unencrypted. Use https:// or ssh://."
       repo_missing: "That repository is not in composer.json."
       repo_needs_url: "A repository needs a URL."
       repo_path_not_url: "A path repository needs a filesystem path, not a URL."
@@ -801,4 +802,6 @@ flarum-extension-manager:
       still_enabled: "{package} is still enabled. Turn it off on the Extensions page first, check the forum is happy without it, and then remove it."
     updater:
       answered: "Flarum's updater did not update the database (it answered {status}: {body})."
+      no_storage: "Flarum's updater was not asked to update the database: it is given a one-time token rather than the database credentials, and this site has no storage directory to keep one in. Update Flarum from the command line instead, with php flarum extension-manager:update."
+      token_refused: "Flarum's updater did not accept the one-time token, so the database was not updated. The token is redeemed before Flarum starts, from the config.php and storage directory beside vendor/; on a site that keeps them elsewhere, update Flarum from the command line instead, with php flarum extension-manager:update."
       unreachable: "Flarum's updater did not update the database (it could not be reached: {error})."

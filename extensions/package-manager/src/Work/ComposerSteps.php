@@ -29,7 +29,6 @@ use Flarum\ExtensionManager\Run\NotYet;
 use Flarum\ExtensionManager\Run\Reverted;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\Steps;
-use Flarum\Foundation\Config;
 use Flarum\Locale\TranslatorInterface;
 use GuzzleHttp\Client;
 use Illuminate\Database\ConnectionInterface;
@@ -285,7 +284,7 @@ class ComposerSteps implements Steps
                 if (@file_get_contents($saved) !== @file_get_contents($live)) {
                     self::replaceFile($saved, $live);
                 }
-            } elseif (! copy($live, $saved)) {
+            } elseif (! self::copyWithMode($live, $saved, is_file($live) ? fileperms($live) & 0777 : 0600)) {
                 throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.save_before_resolve_failed', ['file' => $file]));
             }
         }
@@ -404,12 +403,37 @@ class ComposerSteps implements Steps
         };
     }
 
-    /** Copy beside, then rename over: never a half-written file in place. */
+    /** Copy beside, then rename over: never a half-written file in place, and the file keeps its own mode. */
     protected static function replaceFile(string $from, string $to): bool
     {
-        $tmp = $to.'.extension-manager-'.bin2hex(random_bytes(3));
+        $mode = @fileperms(is_file($to) ? $to : $from);
 
-        if (! @copy($from, $tmp) || ! @rename($tmp, $to)) {
+        return self::copyWithMode($from, $to, $mode === false ? 0600 : $mode & 0777);
+    }
+
+    /**
+     * Copy $from to $to through a file beside it that only its owner can read
+     * before a byte is written, and that has $mode before it is renamed into
+     * place.
+     *
+     * composer.json can hold http-basic credentials or a token in a repository
+     * URL, so a copy made with copy() alone, which takes the umask's mode,
+     * could be readable where the original is not.
+     */
+    protected static function copyWithMode(string $from, string $to, int $mode): bool
+    {
+        $tmp = $to.'.extension-manager-'.bin2hex(random_bytes(3));
+        $handle = @fopen($tmp, 'x');
+
+        if ($handle === false) {
+            return false;
+        }
+
+        fclose($handle);
+
+        // copy() onto an existing file truncates it and keeps its mode: owner
+        // only while it is written, then the final mode, which may be read-only.
+        if (! @chmod($tmp, 0600) || ! @copy($from, $tmp) || ! @chmod($tmp, $mode) || ! @rename($tmp, $to)) {
             @unlink($tmp);
 
             return false;
@@ -669,7 +693,7 @@ class ComposerSteps implements Steps
                 $this->registerWith(null);
                 $this->flarum('migrate', '');
             } else {
-                (new FlarumUpdater($this->translator, new Client(), $this->siteUrl, (array) (resolve(Config::class)['database'] ?? []), $this->storagePath))->migrate();
+                (new FlarumUpdater($this->translator, new Client(), $this->siteUrl, $this->storagePath))->migrate();
             }
 
             $now = $db->table('settings')->where('key', 'version')->value('value');
