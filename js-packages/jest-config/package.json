@@ -1,6 +1,6 @@
 {
   "name": "@flarum/jest-config",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Jest config for Flarum.",
   "main": "index.cjs",
   "author": "Flarum Team",
@@ -15,7 +15,7 @@
     "clsx": "^1.1.1",
     "color-thief-browser": "^2.0.2",
     "dayjs": "^1.10.7",
-    "flarum-webpack-config": "^3.0.0",
+    "flarum-webpack-config": "^3.1.0",
     "flat": "^5.0.2",
     "focus-trap": "^6.7.1",
     "format-message": "^6.2.4",
