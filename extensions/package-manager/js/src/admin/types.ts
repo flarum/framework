@@ -250,8 +250,6 @@ export interface TrashPayload {
 export interface ErrorPayload {
   errors?: { detail?: string; code?: string }[];
   error?: string;
-  errorKey?: string;
-  errorParams?: TranslationParams;
   /** A refused start names the run already going. */
   run?: Run;
   stale?: boolean;

@@ -61,7 +61,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
   /** Set when the first load fails or never arrives, so the page can say so. */
   loadError: string | null = null;
   /** The 10-second safety net for the first load, cleared when the page goes. */
-  private loadTimeout: ReturnType<typeof setTimeout> | null = null;
+  protected loadTimeout: ReturnType<typeof setTimeout> | null = null;
   host: HostReport | null = null;
   installed: Installed[] = [];
   updates: Updates = { available: {}, checkedAt: null, stale: true, uncheckable: [], tracking: [] };
@@ -91,9 +91,9 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
    * no Update buttons and no way to reach them. Keyed by id so a NEW run is
    * never silently pre-dismissed.
    */
-  private static DISMISS_KEY = 'extension-manager.dismissedRun';
+  protected static DISMISS_KEY = 'extension-manager.dismissedRun';
 
-  private storedDismissal(): string | null {
+  protected storedDismissal(): string | null {
     try {
       return localStorage.getItem(ExtensionManagerPage.DISMISS_KEY);
     } catch {
@@ -102,7 +102,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     }
   }
 
-  private rememberDismissed(id: string | null) {
+  protected rememberDismissed(id: string | null) {
     if (!id) return;
 
     try {
@@ -117,6 +117,13 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
 
     if (vnode.attrs.tab === 'installed') this.tab = 'installed';
 
+    this.attemptLoad();
+  }
+
+  /** The first load, and each "Try again": guarded by the timeout, and never allowed to throw. */
+  attemptLoad() {
+    this.firstLoad = true;
+
     /*
      * The safety net is armed BEFORE the thing it protects against, and the
      * first version of it was not. It sat after `this.load()`, so a load that
@@ -124,15 +131,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
      * skipped past it, escaped oninit, and left the spinner on screen forever.
      * A guard that runs only when the guarded code succeeds is not a guard.
      */
-    this.loadTimeout = setTimeout(() => {
-      this.loadTimeout = null;
-
-      if (this.firstLoad) {
-        this.loadError = app.translator.trans('flarum-extension-manager.admin.page.load_timeout', {}, true);
-        this.firstLoad = false;
-        m.redraw();
-      }
-    }, 10000);
+    this.armLoadTimeout();
 
     /*
      * And the call itself cannot be allowed to escape. An exception inside a
@@ -147,6 +146,25 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
         e instanceof Error && e.message ? e.message : app.translator.trans('flarum-extension-manager.admin.page.load_failed', {}, true);
       this.firstLoad = false;
     }
+  }
+
+  /**
+   * Gives the first load ten seconds before saying it never arrived. Armed
+   * again by "Try again", so a retry that hangs says so too instead of
+   * spinning forever.
+   */
+  armLoadTimeout() {
+    if (this.loadTimeout !== null) clearTimeout(this.loadTimeout);
+
+    this.loadTimeout = setTimeout(() => {
+      this.loadTimeout = null;
+
+      if (this.firstLoad) {
+        this.loadError = app.translator.trans('flarum-extension-manager.admin.page.load_timeout', {}, true);
+        this.firstLoad = false;
+        m.redraw();
+      }
+    }, 10000);
   }
 
   /** A timer that outlives its page fires into whatever the admin opened next. */
@@ -221,13 +239,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
             <Alert type="error" dismissible={false} className="ExtensionManager-alert">
               {this.loadError}
             </Alert>
-            <Button
-              className="Button"
-              onclick={() => {
-                this.firstLoad = true;
-                this.load();
-              }}
-            >
+            <Button className="Button" onclick={() => this.attemptLoad()}>
               {app.translator.trans('flarum-extension-manager.admin.page.try_again')}
             </Button>
           </div>
@@ -247,31 +259,23 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
           {this.showingRun() ? this.runPanel() : null}
 
           {this.hidesPage() ? null : (
-            <div className="ExtensionManager-tabs" role="tablist">
-              {(
-                [
-                  { id: 'discover', label: app.translator.trans('flarum-extension-manager.admin.sections.discover.title'), badge: 0 },
-                  {
-                    id: 'installed',
-                    label: app.translator.trans('flarum-extension-manager.admin.sections.installed.title', { count: this.installed.length }),
-                    badge: this.updateCount(),
-                  },
-                  { id: 'history', label: app.translator.trans('flarum-extension-manager.admin.sections.queue.title'), badge: 0 },
-                  { id: 'sources', label: app.translator.trans('flarum-extension-manager.admin.composer.title'), badge: 0 },
-                  { id: 'host', label: app.translator.trans('flarum-extension-manager.admin.host.title'), badge: 0 },
-                ] as { id: Tab; label: Mithril.Children; badge: number }[]
-              ).map((tab) => (
-                <button
-                  key={tab.id}
-                  role="tab"
-                  aria-selected={this.tab === tab.id}
-                  className={'ExtensionManager-tab' + (this.tab === tab.id ? ' is-active' : '')}
-                  onclick={() => (this.tab = tab.id)}
-                >
-                  {tab.label}
-                  {tab.badge > 0 ? <span className="ExtensionManager-count">{tab.badge}</span> : null}
-                </button>
-              ))}
+            <div className="Tabs ExtensionManager-tabs">
+              <div className="Tabs-nav" role="tablist">
+                {this.tabItems().map((tab) => (
+                  <Button
+                    key={tab.id}
+                    className="Button Button--link"
+                    role="tab"
+                    active={this.tab === tab.id}
+                    aria-selected={this.tab === tab.id ? 'true' : 'false'}
+                    onclick={() => (this.tab = tab.id)}
+                  >
+                    {tab.label}
+                    {tab.badge > 0 ? <span className="ExtensionManager-count">{tab.badge}</span> : null}
+                  </Button>
+                ))}
+              </div>
+              <hr className="Tabs-divider" />
             </div>
           )}
 
@@ -292,6 +296,21 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
         </div>
       </div>
     );
+  }
+
+  /** The page's tabs, in order, with the number of updates waiting on Installed. */
+  tabItems(): { id: Tab; label: Mithril.Children; badge: number }[] {
+    return [
+      { id: 'discover', label: app.translator.trans('flarum-extension-manager.admin.sections.discover.title'), badge: 0 },
+      {
+        id: 'installed',
+        label: app.translator.trans('flarum-extension-manager.admin.sections.installed.title', { count: this.installed.length }),
+        badge: this.updateCount(),
+      },
+      { id: 'history', label: app.translator.trans('flarum-extension-manager.admin.sections.queue.title'), badge: 0 },
+      { id: 'sources', label: app.translator.trans('flarum-extension-manager.admin.composer.title'), badge: 0 },
+      { id: 'host', label: app.translator.trans('flarum-extension-manager.admin.host.title'), badge: 0 },
+    ];
   }
 
   /**
@@ -317,7 +336,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
   }
 
   /** The page's own content is suppressed only while something is happening. */
-  private hidesPage(): boolean {
+  protected hidesPage(): boolean {
     return hidesPage(this.run, this.dismissed);
   }
 
@@ -327,7 +346,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
    * (ClaudiusH, 2026-10-07). So the page reloads, once per run and outcome.
    * The finished panel comes straight back, because the run is on disk.
    */
-  private reloadIfSelf(run: Run | null) {
+  protected reloadIfSelf(run: Run | null) {
     // Flarum core too: the page's own JavaScript and version are core's.
     const reloads = (run?.packages || []).some((p) => p === SELF_PACKAGE || p === 'flarum/core');
     /*
