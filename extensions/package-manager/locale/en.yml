@@ -135,14 +135,14 @@ flarum-extension-manager:
       some_newer: "{count, plural, one {# extension has} other {# extensions have}} a newer version."
       core_newer: Flarum itself has a newer version.
       core_newer_too: So does Flarum itself.
-      last_update_checked_at: "Checked {when}."
+      last_checked: "Checked {when}."
       uncheckable: "{count} could not be checked — no repository this forum knows about lists them."
       tracking: "{count} track a branch, so there is no version to compare."
       check_now: Check now
       check_for_updates: Check for updates
       check_overdue: Check for updates to get the latest security fixes and features for your extensions.
       checking: Checking…
-      run_global_update: "Update all {count}"
+      update_all: "Update all {count}"
       starting: Starting…
       ago:
         minutes: "{count, plural, one {# minute} other {# minutes}} ago"
@@ -283,7 +283,7 @@ flarum-extension-manager:
       config_failed: >-
         The Extension Manager could not read composer.json. Nothing has been changed.
       add_repository_label: Add a repository
-      delete_repository_label: "Remove {name}"
+      remove_repository_label: "Remove {name}"
       repositories:
         label: Where Composer looks
         help: >-
@@ -356,7 +356,7 @@ flarum-extension-manager:
       stat: "{count, plural, one {host can sign in} other {hosts can sign in}}"
       add_label: Add a credential
       edit_label: Replace
-      remove_button_label: "Remove {name}"
+      remove_host_label: "Remove {name}"
       remove_q: Remove?
       submit_button: Save credential
       token_stored: token stored
