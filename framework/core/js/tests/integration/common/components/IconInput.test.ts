@@ -562,3 +562,76 @@ describe('in a forum that forces an icon style', () => {
     expect(input).not.toHaveElement('.IconPicker-forced');
   });
 });
+
+describe('in a forum whose assets are served from another domain', () => {
+  const base = 'https://cdn.example.com/assets';
+  let real: StyleSheet[];
+
+  /**
+   * A stylesheet the page loaded but can't read: served from another domain,
+   * without a CORS request.
+   */
+  const unreadable = (href: string) =>
+    ({
+      href,
+      get cssRules(): CSSRuleList {
+        throw new DOMException('Not allowed to access cross-origin stylesheet', 'SecurityError');
+      },
+    }) as unknown as StyleSheet;
+
+  const pageSheets = (sheets: StyleSheet[]) => jest.spyOn(Document.prototype, 'styleSheets', 'get').mockReturnValue(sheets as any);
+
+  beforeAll(() => {
+    app.boot();
+    real = Array.from(document.styleSheets);
+  });
+
+  beforeEach(() => app.forum.pushAttributes({ assetsBaseUrl: base }));
+
+  afterEach(() => {
+    delete (globalThis as any).fetch;
+  });
+
+  it("fetches the forum's own stylesheet with CORS and lists its icons", async () => {
+    const fetch = jest.fn(async () => ({ ok: true, text: async () => '.fa-rocket{--fa:"\\f135"}' }));
+    (globalThis as any).fetch = fetch;
+    pageSheets([...real, unreadable(`${base}/forum.css?v=1`)]);
+
+    const input = mq(IconInput, { bidi: Stream('') });
+    await openPicker(input);
+
+    expect(fetch).toHaveBeenCalledWith(`${base}/forum.css?v=1`, { mode: 'cors', credentials: 'omit', cache: 'no-store' });
+    expect(input).toHaveElement('.IconPicker-icon[title="fas fa-rocket"]');
+  });
+
+  it("leaves other sites' stylesheets alone", async () => {
+    const fetch = jest.fn();
+    (globalThis as any).fetch = fetch;
+    pageSheets([...real, unreadable('https://fonts.example.org/families.css')]);
+
+    const input = mq(IconInput, { bidi: Stream('') });
+    await openPicker(input);
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(input).toHaveElement('.IconPicker-icon[title="fas fa-house"]');
+  });
+
+  it("says why there are no icons when the stylesheet can't be fetched either, and still takes a typed class", async () => {
+    (globalThis as any).fetch = jest.fn(async () => {
+      throw new TypeError('Failed to fetch');
+    });
+    pageSheets([unreadable(`${base}/forum.css?v=2`)]);
+
+    const values: string[] = [];
+    const input = mq(IconInput, { value: '', onchange: (e: { target: { value: string } }) => values.push(e.target.value) });
+    await openPicker(input);
+
+    expect(input).toHaveElement('.IconPicker-unreadable');
+    expect(input).not.toHaveElement('.IconPicker-grid');
+
+    input.setValue('.IconPicker input[type=search]', 'fas fa-house');
+    input.click('.IconPicker-use');
+
+    expect(values).toEqual(['fas fa-house']);
+  });
+});

@@ -5,7 +5,13 @@ import Icon from './Icon';
 import LoadingIndicator from './LoadingIndicator';
 import Select from './Select';
 import classList from '../utils/classList';
-import { fontAwesomeStyles, fontAwesomeIconsFor, type FontAwesomeIcon, type FontAwesomeStyle } from '../utils/fontAwesomeIcons';
+import fontAwesomeIcons, {
+  fetchUnreadableStylesheets,
+  fontAwesomeStyles,
+  fontAwesomeIconsFor,
+  type FontAwesomeIcon,
+  type FontAwesomeStyle,
+} from '../utils/fontAwesomeIcons';
 import type Mithril from 'mithril';
 
 export interface IIconPickerAttrs extends ComponentAttrs {
@@ -54,6 +60,8 @@ const SHOWN = 240;
  */
 export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPickerAttrs> extends Component<CustomAttrs> {
   query = '';
+  /** Whether the forum's stylesheets are still being fetched to read them. */
+  reading = false;
   styles: FontAwesomeStyle[] = [];
   style?: FontAwesomeStyle;
   /** The icons of each style shown so far, by its class. */
@@ -63,6 +71,21 @@ export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPick
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
+    const fetching = fetchUnreadableStylesheets(app.forum?.attribute<string>('assetsBaseUrl'));
+
+    if (fetching) {
+      this.reading = true;
+      fetching.then(() => {
+        this.reading = false;
+        this.readStyles();
+        m.redraw();
+      });
+    } else {
+      this.readStyles();
+    }
+  }
+
+  readStyles() {
     this.styles = fontAwesomeStyles();
     this.setStyle(this.styleOf(this.attrs.value || '') ?? this.styles[0]);
   }
@@ -187,6 +210,10 @@ export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPick
     const name = this.searchWords().join('-');
     const exact = name ? matches.find((icon) => icon.name === name) : undefined;
     const typedClass = this.typedClass();
+
+    // No icon could be read from any stylesheet, even fetched again: say why,
+    // rather than showing an empty list as though nothing matched.
+    const unreadable = !this.reading && !fontAwesomeIcons().classic.length && !fontAwesomeIcons().brands.length;
     const prefix = this.style?.prefix ?? 'fas';
     const families = [...new Set(this.styles.map((style) => style.family))];
     const weights = this.styles.filter((style) => style.family === this.style?.family);
@@ -252,7 +279,11 @@ export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPick
 
           {forcedStyle && <p className="IconPicker-forced helpText">{app.translator.trans('core.lib.icon_picker.forced_style_text')}</p>}
 
-          {icons ? (
+          {unreadable ? (
+            <p className="IconPicker-unreadable helpText">
+              {app.translator.trans('core.lib.icon_picker.unreadable_text', { example: <code>fas fa-house</code> })}
+            </p>
+          ) : icons ? (
             <div className="IconPicker-grid">
               {matches.slice(0, SHOWN).map((icon) => {
                 const value = `${prefix} fa-${icon.name}`;
@@ -275,7 +306,7 @@ export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPick
           )}
 
           <div className="IconPicker-footer">
-            <span className="IconPicker-count">{icons ? this.footer(matches.length) : null}</span>
+            <span className="IconPicker-count">{icons && !unreadable ? this.footer(matches.length) : null}</span>
             {typedClass && !exact && (
               <Button className="Button Button--link IconPicker-use" onclick={() => this.attrs.onpick(typedClass)}>
                 {app.translator.trans('core.lib.icon_picker.use_button', { value: <code>{typedClass}</code> })}

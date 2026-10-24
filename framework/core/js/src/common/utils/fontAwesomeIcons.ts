@@ -37,6 +37,12 @@ interface Read {
 let read: Read | null = null;
 const coverage = new Map<string, Promise<FontAwesomeIcon[]>>();
 
+/**
+ * The rules of stylesheets the page can't read, fetched again with CORS, by
+ * URL. `null` where that failed too.
+ */
+const fetched = new Map<string, CSSRuleList | null>();
+
 const SINGLE_CLASS = /^\.fa-[a-z0-9-]+$/;
 
 // The short classes that select a style: fas, fal, fad, fass, fasdl… but not
@@ -107,9 +113,13 @@ function readStylesheets(): Read {
     let rules: CSSRuleList;
 
     try {
-      rules = sheet.cssRules;
+      rules = (sheet as CSSStyleSheet).cssRules;
     } catch (e) {
-      continue;
+      const refetched = sheet.href ? fetched.get(sheet.href) : null;
+
+      if (!refetched) continue;
+
+      rules = refetched;
     }
 
     let inBrands = false;
@@ -188,6 +198,12 @@ function readStylesheets(): Read {
     }
   }
 
+  // Icons were read, so something draws them, even if no font for a classic
+  // style could be: offer them as Solid, Font Awesome's default.
+  if (classic.size && !styles.some((style) => style.family !== 'brands')) {
+    styles.push({ prefix: 'fas', family: 'classic', weight: 900, font: families.get('classic') ?? DEFAULT_CLASSIC_FONT });
+  }
+
   const familyRank = (family: string) =>
     family === 'brands' ? Infinity : FAMILY_ORDER.includes(family) ? FAMILY_ORDER.indexOf(family) : FAMILY_ORDER.length;
   const weightRank = (weight: number) => (WEIGHT_ORDER.includes(weight) ? WEIGHT_ORDER.indexOf(weight) : WEIGHT_ORDER.length);
@@ -219,6 +235,75 @@ function isPlain(icon: FontAwesomeIcon): boolean {
 }
 
 /**
+ * Fetch the stylesheets under the forum's asset URL that the page can't read,
+ * so their icons can be listed. A stylesheet served from another domain, such
+ * as a bucket or CDN, is loaded without CORS, and the browser keeps its rules
+ * from scripts even where the host would allow them. Fetched again with CORS,
+ * those rules can be read wherever the host sends the header for it.
+ *
+ * Returns `null` when there is nothing to fetch, so the icons can be read
+ * straight away.
+ */
+export function fetchUnreadableStylesheets(assetsBaseUrl: string | null | undefined): Promise<void> | null {
+  if (!assetsBaseUrl || typeof fetch === 'undefined') return null;
+
+  const hrefs = Array.from(document.styleSheets)
+    .filter((sheet) => {
+      try {
+        return !(sheet as CSSStyleSheet).cssRules;
+      } catch (e) {
+        return true;
+      }
+    })
+    .map((sheet) => sheet.href)
+    .filter((href): href is string => !!href && href.startsWith(assetsBaseUrl) && !fetched.has(href));
+
+  if (!hrefs.length) return null;
+
+  return Promise.all(
+    hrefs.map((href) =>
+      // Past the browser's cache: the page loaded the stylesheet without CORS,
+      // and a host that only answers CORS headers to a CORS request (as R2
+      // does, with Vary: Origin) left that copy without them.
+      fetch(href, { mode: 'cors', credentials: 'omit', cache: 'no-store' })
+        .then((response) => (response.ok ? response.text() : Promise.reject()))
+        .then(
+          (text) => fetched.set(href, parseStylesheet(text)),
+          () => fetched.set(href, null)
+        )
+    )
+  ).then(() => {
+    read = null;
+  });
+}
+
+/**
+ * The rules of a stylesheet's text, parsed without styling anything on the
+ * page or loading its fonts again.
+ */
+function parseStylesheet(text: string): CSSRuleList | null {
+  try {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(text);
+
+    return sheet.cssRules;
+  } catch (e) {
+    // Without constructable stylesheets, parse it in a <style> that applies
+    // to nothing, and take it out again.
+    const style = document.createElement('style');
+
+    style.media = 'not all';
+    style.textContent = text;
+    document.head.appendChild(style);
+
+    const rules = style.sheet?.cssRules ?? null;
+    style.remove();
+
+    return rules;
+  }
+}
+
+/**
  * The Font Awesome icons this forum can draw, read from the stylesheets it has
  * already loaded. There is no icon list to download, and the result always
  * matches the Font Awesome version in use, including a Kit's.
@@ -226,8 +311,8 @@ function isPlain(icon: FontAwesomeIcon): boolean {
  * Every icon is a rule like `.fa-house{--fa:"\f015"}`. Brand icons follow the
  * brands `@font-face`, which is what tells a brand from a classic icon.
  *
- * Stylesheets served from another origin (assets on a CDN) cannot be read, so
- * their icons are not listed. They can still be typed.
+ * Stylesheets served from another domain can only be read once fetched again
+ * with CORS: see `fetchUnreadableStylesheets()`.
  */
 export default function fontAwesomeIcons(): FontAwesomeIconSets {
   return current().icons;

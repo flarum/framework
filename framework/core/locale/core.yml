@@ -975,6 +975,7 @@ core:
       open_button: Choose an icon
       remove_button: Remove icon
       search_placeholder: Search icons, or type a class
+      unreadable_text: "Icons can't be listed here, because this forum's styles are served from another site that doesn't allow it. Type an icon's class instead, such as {example}."
       use_button: "Use {value}"
       weights:
         light: Light
