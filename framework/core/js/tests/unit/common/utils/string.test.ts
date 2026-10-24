@@ -16,6 +16,16 @@ describe('string', () => {
     expect(string.slug(stringToSlugify, string.SluggingMode.ALPHANUMERIC)).toBe('hello-world');
   });
 
+  it('should strip accents instead of replacing accented letters with hyphens', () => {
+    expect(string.slug('Tecnología')).toBe('tecnologia');
+    expect(string.slug('Inversión y Señales')).toBe('inversion-y-senales');
+    expect(string.slug('Über Café', string.SluggingMode.ALPHANUMERIC)).toBe('uber-cafe');
+  });
+
+  it('should keep accented letters in UTF8 slugging mode', () => {
+    expect(string.slug('Tecnología', string.SluggingMode.UTF8)).toBe('tecnología');
+  });
+
   it('should make the first character of a string uppercase', () => {
     const stringToUppercase = 'hello, world!';
     expect(string.ucfirst(stringToUppercase)).toBe('Hello, world!');
