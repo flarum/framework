@@ -87,6 +87,11 @@ class Repositories
             throw new RefusedException($this->translator->trans('flarum-extension-manager.api.config.repo_bad_url'));
         }
 
+        // Composer's own rule: refused here rather than by every later resolve.
+        if (preg_match('#^(http|git)://#i', $url) && $this->secureHttp()) {
+            throw new RefusedException($this->translator->trans('flarum-extension-manager.api.config.repo_insecure'));
+        }
+
         $data = $this->file->read();
         $repos = (array) ($data['repositories'] ?? []);
 
@@ -137,6 +142,19 @@ class Repositories
 
         $data['repositories'] = $keep;
         $this->file->write($data);
+    }
+
+    /**
+     * Composer's secure-http, as this site's composer.json sets it, read the
+     * way Composer reads it: on unless turned off, and off when disable-tls is
+     * on. While it is on, Composer refuses http://, git://, ftp:// and svn://.
+     */
+    public function secureHttp(): bool
+    {
+        $config = (array) ($this->file->read()['config'] ?? []);
+        $on = fn (mixed $value): bool => $value !== 'false' && (bool) $value;
+
+        return ! $on($config['disable-tls'] ?? false) && $on($config['secure-http'] ?? true);
     }
 
     /**

@@ -49,6 +49,9 @@ class PrivateIndex
     /** @var array<string, array<string,string>> package => version => release URL */
     protected array $releaseNotes = [];
 
+    /** @var list<string>|null the composer repositories' URLs, once read */
+    protected ?array $composerUrls = null;
+
     public function __construct(
         protected Repositories $repositories,
         protected AuthTokens $auth,
@@ -201,7 +204,13 @@ class PrivateIndex
     /** @return list<string> */
     protected function composerRepositories(): array
     {
+        // Asked once per package, so composer.json is read once per check.
+        if ($this->composerUrls !== null) {
+            return $this->composerUrls;
+        }
+
         $urls = [];
+        $secureHttp = $this->repositories->secureHttp();
 
         foreach ($this->repositories->all() as $repo) {
             /*
@@ -216,12 +225,19 @@ class PrivateIndex
 
             $url = rtrim((string) ($repo['url'] ?? ''), '/');
 
-            if ($url !== '' && str_starts_with($url, 'http')) {
+            $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
+
+            /*
+             * Plain http only where Composer itself would use it, with
+             * secure-http turned off, and even then no credential from
+             * auth.json goes with it (see AuthTokens::authorization()).
+             */
+            if ($scheme === 'https' || ($scheme === 'http' && ! $secureHttp)) {
                 $urls[] = $url;
             }
         }
 
-        return array_values(array_unique($urls));
+        return $this->composerUrls = array_values(array_unique($urls));
     }
 
     /**
