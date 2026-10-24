@@ -406,6 +406,21 @@ describe('IconInput', () => {
     expect(input).not.toHaveElement('.IconPicker-remove');
   });
 
+  it('picks from what was typed when Enter comes before the next redraw', async () => {
+    const values: string[] = [];
+    const input = mq(IconInput, { value: 'fas fa-house', onchange: (e: { target: { value: string } }) => values.push(e.target.value) });
+
+    await openPicker(input);
+
+    // Typed and entered at once, as with a paste: no redraw in between.
+    const search = input.first('.IconPicker input[type=search]') as HTMLInputElement;
+    search.value = 'message';
+    search.dispatchEvent(new (search.ownerDocument.defaultView as any).Event('input'));
+    input.keydown('.IconPicker input[type=search]', 'enter', { key: 'Enter', cancelable: true });
+
+    expect(values).toEqual(['fas fa-message']);
+  });
+
   it('closes on Escape before a surrounding modal hears it', async () => {
     const input = mq(IconInput, { bidi: Stream('') });
     const modal = jest.fn();

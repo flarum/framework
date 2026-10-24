@@ -236,15 +236,11 @@ export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPick
             oninput={(e: InputEvent) => this.search((e.target as HTMLInputElement).value)}
             onkeydown={(e: KeyboardEvent) => {
               // The picker usually sits inside a modal's form: Enter picks
-              // rather than submitting it. An icon named exactly comes first,
-              // then a typed class nothing matches, then the closest match.
+              // rather than submitting it.
               if (e.key !== 'Enter') return;
 
               e.preventDefault();
-
-              if (exact) this.attrs.onpick(`${prefix} fa-${exact.name}`);
-              else if (typedClass && !matches.length) this.attrs.onpick(typedClass);
-              else if (matches[0]) this.attrs.onpick(`${prefix} fa-${matches[0].name}`);
+              this.pickFromSearch();
             }}
           />
         </div>
@@ -321,6 +317,23 @@ export default class IconPicker<CustomAttrs extends IIconPickerAttrs = IIconPick
         </div>
       </div>
     );
+  }
+
+  /**
+   * Pick for Enter: an icon named exactly, then a typed class nothing matches,
+   * then the closest match. Worked out from the search as it is now, as Enter
+   * can come before the redraw that follows typing, such as after a paste.
+   */
+  pickFromSearch() {
+    const matches = this.matches(this.icons());
+    const name = this.searchWords().join('-');
+    const exact = name ? matches.find((icon) => icon.name === name) : undefined;
+    const typedClass = this.typedClass();
+    const prefix = this.style?.prefix ?? 'fas';
+
+    if (exact) this.attrs.onpick(`${prefix} fa-${exact.name}`);
+    else if (typedClass && !matches.length) this.attrs.onpick(typedClass);
+    else if (matches[0]) this.attrs.onpick(`${prefix} fa-${matches[0].name}`);
   }
 
   /**
