@@ -13,6 +13,7 @@ use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
 use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Tests\unit\FakeHttp;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -32,11 +33,11 @@ class ReplacedPackageTest extends TestCase
 
     private function packagist(array $responses, array &$asked = []): Packagist
     {
-        return new Packagist(EnglishTranslator::make(), new Cache($this->dir), function (string $url) use ($responses, &$asked) {
+        return new Packagist(EnglishTranslator::make(), new Cache($this->dir), FakeHttp::client(function (string $url) use ($responses, &$asked) {
             $asked[] = $url;
 
             return $responses[$url] ?? null;
-        });
+        }));
     }
 
     public function test_minified_metadata_is_expanded_so_an_inherited_requirement_counts(): void

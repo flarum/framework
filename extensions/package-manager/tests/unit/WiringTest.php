@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Tests\Unit;
 
+use Flarum\ExtensionManager\Api\Controller\CheckController;
 use Flarum\ExtensionManager\ExtensionManagerServiceProvider;
 use Flarum\ExtensionManager\Run\Drivers;
 use Flarum\ExtensionManager\Run\RunStore;
@@ -18,6 +19,7 @@ use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\ClientInterface;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
@@ -94,6 +96,7 @@ class WiringTest extends TestCase
         $app->method('bind')->willReturnCallback(fn ($a, $c = null, $shared = false) => $real->bind($a, $c, $shared));
         $app->method('instance')->willReturnCallback(fn ($a, $i) => $real->instance($a, $i));
         $app->method('make')->willReturnCallback(fn ($a, array $p = []) => $real->make($a, $p));
+        $app->method('when')->willReturnCallback(fn ($concrete) => $real->when($concrete));
 
         (new ExtensionManagerServiceProvider($app))->register();
     }
@@ -116,6 +119,44 @@ class WiringTest extends TestCase
             Drivers::class => [Drivers::class],
             StepRunner::class => [StepRunner::class],
         ];
+    }
+
+    /**
+     * The HTTP client is given to the extension's own classes only, by name.
+     * One that takes it but is missing from the list would fail to build, so
+     * the list is checked against the constructors.
+     */
+    public function test_every_controller_and_command_that_takes_the_http_client_is_given_it(): void
+    {
+        $src = dirname(__DIR__, 2).'/src/';
+        $takes = [];
+
+        foreach (array_merge(glob($src.'Api/Controller/*.php') ?: [], glob($src.'Console/*.php') ?: []) as $file) {
+            $class = 'Flarum\\ExtensionManager\\'.str_replace('/', '\\', substr($file, strlen($src), -4));
+
+            foreach ((new ReflectionClass($class))->getConstructor()?->getParameters() ?? [] as $parameter) {
+                $type = $parameter->getType();
+
+                if ($type instanceof \ReflectionNamedType && $type->getName() === ClientInterface::class) {
+                    $takes[] = $class;
+                }
+            }
+        }
+
+        $given = ExtensionManagerServiceProvider::NEEDS_HTTP;
+        sort($takes);
+        sort($given);
+
+        $this->assertSame($given, $takes);
+    }
+
+    public function test_a_controller_gets_the_one_shared_client(): void
+    {
+        $controller = $this->container->make(CheckController::class);
+        $http = (new ReflectionClass($controller))->getProperty('http')->getValue($controller);
+
+        $this->assertInstanceOf(ClientInterface::class, $http);
+        $this->assertSame($this->container->make('flarum-extension-manager.http'), $http);
     }
 
     public function test_the_steps_factory_resolves(): void

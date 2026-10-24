@@ -399,6 +399,7 @@ class InProcessComposerTest extends TestCase
             new Fetcher(EnglishTranslator::make(), new \GuzzleHttp\Client(), $this->dir.'/work/staging'),
             new Applier(EnglishTranslator::make(), $this->dir.'/project/vendor', $this->dir.'/work/staging', $this->dir.'/work/trash', $journal),
             $journal,
+            new \GuzzleHttp\Client(),
             $packages,
             $mode
         );
