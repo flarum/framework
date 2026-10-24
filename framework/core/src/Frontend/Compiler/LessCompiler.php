@@ -387,14 +387,24 @@ class LessCompiler extends RevisionCompiler
         ) ?? $parsedCss;
     }
 
+    protected function fontRevision(string $file): ?string
+    {
+        return static::fontRevisionIn($this->fontsDir, $file);
+    }
+
     /**
      * A short hash of a webfont's contents, or null when it can't be read —
      * fonts are published separately, so a compile must never fail just because
      * the directory isn't there yet.
+     *
+     * This is the one place the revision is worked out: anything else that links
+     * to a bundled font (the font preloads) goes through
+     * {@see \Flarum\Frontend\Assets::fontRevision()}, which calls this with the
+     * same directory, so its URL is the one the stylesheet requests.
      */
-    protected function fontRevision(string $file): ?string
+    public static function fontRevisionIn(?string $fontsDir, string $file): ?string
     {
-        if ($this->fontsDir === null) {
+        if ($fontsDir === null) {
             return null;
         }
 
@@ -403,7 +413,7 @@ class LessCompiler extends RevisionCompiler
             return null;
         }
 
-        $path = $this->fontsDir.'/'.$file;
+        $path = $fontsDir.'/'.$file;
 
         if (! file_exists($path)) {
             return null;

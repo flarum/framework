@@ -176,7 +176,7 @@ export default function addTagFilter() {
 
     if (this.params.tags) {
       params.filter ||= {};
-      params.filter.tag = this.params.tags;
+      (params.filter as Record<string, any>).tag = this.params.tags;
     }
   });
 }

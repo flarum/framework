@@ -14,7 +14,7 @@ export declare const rowOf: (config: DeckColumnConfig) => number;
 /**
  * Held for the whole session, so leaving the deck to read a discussion and
  * coming back finds every column, its scroll position and its pending count
- * as they were.
+ * as they were, then catches up on what happened while it was away.
  */
 export default class DeckState {
     /** Every stored column, including ones that can't currently be shown. */

@@ -19,6 +19,7 @@ use Flarum\Tags\Event\Deleting;
 use Flarum\Tags\Event\Saving;
 use Flarum\Tags\Tag;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Tobyz\JsonApiServer\Context;
 
@@ -55,7 +56,9 @@ class TagResource extends AbstractDatabaseResource
     {
         $actor = $context->getActor();
 
-        if (is_numeric($id) && $tag = $this->query($context)->find($id)) {
+        $query = $this->query($context);
+
+        if ($this->idCanBeKey($query->getModel(), $id) && $tag = $query->find($id)) {
             return $tag;
         }
 
@@ -65,7 +68,9 @@ class TagResource extends AbstractDatabaseResource
     public function endpoints(): array
     {
         return [
-            Endpoint\Show::make(),
+            Endpoint\Show::make()
+                ->eagerLoad(['parent'])
+                ->eagerLoadWhenIncluded($this->relationsTheIncludesRead()),
             Endpoint\Create::make()
                 ->authenticated()
                 ->can('createTag'),
@@ -76,7 +81,28 @@ class TagResource extends AbstractDatabaseResource
                 ->authenticated()
                 ->can('delete'),
             Endpoint\Index::make()
-                ->defaultInclude(['parent']),
+                ->defaultInclude(['parent'])
+                ->eagerLoad(['parent'])
+                ->eagerLoadWhenIncluded($this->relationsTheIncludesRead())
+                // Listing finds tags with the tag searcher, not scope(), which
+                // is where the actor's state is loaded: load it here instead.
+                ->eagerLoadWhere('state', function (Builder|Relation $query, FlarumContext $context) {
+                    $query->where('user_id', $context->getActor()->id);
+                }),
+        ];
+    }
+
+    /**
+     * Serializing an included discussion reads its tags and their parents (for
+     * permission checks) and the actor's read state. Load those for every
+     * discussion in the response together, rather than once per row. (A tag's
+     * own parent is loaded above, and its children get theirs from the
+     * inverse relation.).
+     */
+    protected function relationsTheIncludesRead(): array
+    {
+        return [
+            'lastPostedDiscussion' => ['lastPostedDiscussion.state', 'lastPostedDiscussion.tags.parent'],
         ];
     }
 
@@ -144,7 +170,10 @@ class TagResource extends AbstractDatabaseResource
                 ->writable(fn (Tag $tag, FlarumContext $context) => (bool) Arr::get($context->body(), 'attributes.isPrimary')),
             Schema\Relationship\ToMany::make('children')
                 ->type('tags')
-                ->includable(),
+                ->includable()
+                // A child's parent is the tag it was loaded for, which its
+                // permission checks then read without querying it again.
+                ->inverse('parent'),
             Schema\Relationship\ToOne::make('lastPostedDiscussion')
                 ->type('discussions')
                 ->includable(),

@@ -19,5 +19,5 @@ export default class HeaderSecondary extends Component<import("../../common/Comp
      */
     changeLocale(locale: string): void;
 }
-import Component from "../../common/Component";
-import ItemList from "../../common/utils/ItemList";
+import Component from '../../common/Component';
+import ItemList from '../../common/utils/ItemList';

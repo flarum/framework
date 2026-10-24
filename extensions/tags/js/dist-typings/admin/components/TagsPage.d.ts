@@ -8,4 +8,4 @@ export default class TagsPage extends ExtensionPage<import("flarum/admin/compone
     setMinTags(minTags: any, maxTags: any, value: any): void;
     onSortUpdate(e: any): void;
 }
-import ExtensionPage from "flarum/admin/components/ExtensionPage";
+import ExtensionPage from 'flarum/admin/components/ExtensionPage';

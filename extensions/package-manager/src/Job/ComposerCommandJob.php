@@ -9,66 +9,30 @@
 
 namespace Flarum\ExtensionManager\Job;
 
-use Flarum\Bus\Dispatcher;
-use Flarum\ExtensionManager\Command\AbstractActionCommand;
-use Flarum\ExtensionManager\Composer\ComposerAdapter;
-use Flarum\ExtensionManager\Exception\ComposerCommandFailedException;
 use Flarum\Queue\AbstractJob;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Throwable;
+use Psr\Log\LoggerInterface;
 
+/**
+ * A job the Extension Manager queued before it kept its runs under storage/.
+ *
+ * Kept so that one still waiting in the queue when a forum updates is taken off
+ * it quietly instead of failing in the worker. It does nothing: the command it
+ * carried and the task row it reported to no longer exist. Remove in 3.0.
+ *
+ * The properties are untyped on purpose: the command they held was an instance
+ * of a class that is gone, which unserializes as __PHP_Incomplete_Class.
+ */
 class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
 {
-    /**
-     * The number of seconds the job can run before timing out.
-     */
-    public int $timeout = 60 * 3;
+    /** @var mixed */
+    protected $command;
 
-    public function __construct(
-        protected AbstractActionCommand $command,
-        protected string $phpVersion
-    ) {
-        parent::__construct();
-    }
+    /** @var mixed */
+    protected $phpVersion;
 
-    public function handle(Dispatcher $bus): void
+    public function handle(LoggerInterface $logger): void
     {
-        try {
-            $this->command->task->start();
-
-            ComposerAdapter::setPhpVersion($this->phpVersion);
-
-            $bus->dispatch($this->command);
-
-            $this->command->task->end(true);
-        } catch (Throwable $exception) {
-            $this->abort($exception);
-        }
-    }
-
-    public function abort(Throwable $exception): void
-    {
-        if (empty($this->command->task->output)) {
-            $this->command->task->output = $exception->getMessage();
-        }
-
-        if ($exception instanceof ComposerCommandFailedException) {
-            $this->command->task->guessed_cause = $exception->guessCause();
-        }
-
-        $this->command->task->end(false);
-    }
-
-    public function failed(Throwable $exception): void
-    {
-        $this->abort($exception);
-    }
-
-    public function middleware(): array
-    {
-        return [
-            new WithoutOverlapping(),
-        ];
+        $logger->info('[flarum/extension-manager] Discarded a queued Composer command left from an earlier version of the Extension Manager. Run it again from the admin panel if it is still needed.');
     }
 }

@@ -27,7 +27,10 @@ export default class DiscussionListSource implements DeckColumnSource {
    *                tell from the store (Unread: whether it's still unread), so
    *                one can leave without asking the server.
    */
-  constructor(params: DiscussionListParams, protected belongs?: (discussion: Discussion) => boolean) {
+  constructor(
+    params: DiscussionListParams,
+    protected belongs?: (discussion: Discussion) => boolean
+  ) {
     this.state = new DeckDiscussionListState(params);
   }
 

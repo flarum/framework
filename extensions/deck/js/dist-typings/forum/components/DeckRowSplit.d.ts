@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
 import type DeckState from '../states/DeckState';
 export interface IDeckRowSplitAttrs extends ComponentAttrs {

@@ -26,6 +26,38 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
     private array $primary = [];
     private Collection $deferred;
 
+    /**
+     * Whether each field of each resource in the document is visible, as its
+     * first visit found.
+     *
+     * A resource is visited again for every include path that reaches it,
+     * often on another instance of its model: a post's `discussion`, and the
+     * same discussion as `mentionedBy.discussion`. Visibility depends on the
+     * record and the actor, not the instance, so asking again only re-ran the
+     * checks of fields already known to be hidden, on an instance that may lack
+     * the relations those checks read: each one was then loaded on its own.
+     *
+     * @var array<string, array<string, bool>>
+     */
+    private array $visible = [];
+
+    /**
+     * Relationships of each resource that a visit not including them had
+     * nothing to serialize for (no linkage, no meta), as any other visit that
+     * doesn't include them would find.
+     *
+     * @var array<string, array<string, true>>
+     */
+    private array $emptyUnlessIncluded = [];
+
+    /**
+     * The model each resource was first visited with. A value that visit left
+     * pending is not asked for again on the same model.
+     *
+     * @var array<string, mixed>
+     */
+    private array $models = [];
+
     public function __construct(Context $context)
     {
         $this->context = $context->withSerializer($this);
@@ -66,26 +98,49 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
 
         $key = $this->key($type = $resource->type(), $id = $resource->getId($model, $context));
 
-        $url = "{$context->api->basePath}/$type/$id";
-
         if (! isset($this->map[$key])) {
             $this->map[$key] = [
                 'type' => $type,
                 'id' => $id,
                 'links' => [
-                    'self' => $url,
+                    'self' => "{$context->api->basePath}/$type/$id",
                 ],
             ];
         }
+
+        $sameModel = ($this->models[$key] ??= $model) === $model;
 
         foreach ($this->context->sparseFields($resource) as $field) {
             if (has_value($this->map[$key], $field)) {
                 continue;
             }
 
-            $context = $context->withField($field)->withInclude($include[$field->name] ?? null);
+            $fieldInclude = $include[$field->name] ?? null;
+            $visible = $this->visible[$key][$field->name] ?? null;
 
-            if (! $field->isVisible($context)) {
+            if ($visible === false) {
+                continue;
+            }
+
+            if ($visible === true) {
+                // An attribute that is visible but has no value yet is pending
+                // from an earlier visit of this same model, which will set it.
+                // Another instance of the record gets its own value as before.
+                if (! $field instanceof Relationship) {
+                    if ($sameModel) {
+                        continue;
+                    }
+                } elseif ($fieldInclude === null && isset($this->emptyUnlessIncluded[$key][$field->name])) {
+                    // What a relationship serializes to depends on the include
+                    // it is reached with, so a visit that includes it still adds
+                    // the related resources, at the depth it asks for.
+                    continue;
+                }
+            }
+
+            $context = $context->withField($field)->withInclude($fieldInclude);
+
+            if ($visible === null && ! ($this->visible[$key][$field->name] = $field->isVisible($context))) {
                 continue;
             }
 
@@ -97,6 +152,8 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
                     ! $field instanceof Relationship
                 ) {
                     set_value($this->map[$key], $field, $value);
+                } elseif ($context->include === null) {
+                    $this->emptyUnlessIncluded[$key][$field->name] = true;
                 }
             }, $field instanceof Relationship);
         }

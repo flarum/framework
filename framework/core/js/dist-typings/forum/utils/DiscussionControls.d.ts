@@ -73,6 +73,6 @@ declare namespace DiscussionControls {
     /**
      * Rename the discussion.
      */
-    function renameAction(): any;
+    function renameAction(): Promise<void>;
 }
-import ItemList from "../../common/utils/ItemList";
+import ItemList from '../../common/utils/ItemList';

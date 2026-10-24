@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import type Discussion from 'flarum/common/models/Discussion';
 import type Post from 'flarum/common/models/Post';
 import PostListSource from './PostListSource';

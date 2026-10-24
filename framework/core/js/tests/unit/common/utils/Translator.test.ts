@@ -1,5 +1,8 @@
 import Translator from '../../../../src/common/Translator';
 import extractText from '../../../../src/common/utils/extractText';
+import mq from 'mithril-query';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
+import { jest } from '@jest/globals';
 
 /*
  * These tests should be in sync with PHP tests in `tests/unit/Locale/TranslatorTest.php`, to make sure that JS
@@ -78,4 +81,42 @@ test('translations added before setLocale are retained', () => {
   translator.setLocale('pl');
 
   expect(extractText(translator.trans('test6', {}))).toBe('Witaj świecie');
+});
+
+test('b tags render without a matching parameter', () => {
+  const translator = new Translator();
+  translator.addTranslations({
+    test7: 'Published on <b>{datetime}</b>.',
+  });
+
+  const rendered = mq(m('p', translator.trans('test7', { datetime: 'Monday' })));
+
+  expect(rendered.first('p').innerHTML).toBe('Published on <b>Monday</b>.');
+});
+
+test('u tags render without a matching parameter', () => {
+  const translator = new Translator();
+  translator.addTranslations({
+    test8: 'Read the <u>{document}</u> first.',
+  });
+
+  const rendered = mq(m('p', translator.trans('test8', { document: 'rules' })));
+
+  expect(rendered.first('p').innerHTML).toBe('Read the <u>rules</u> first.');
+});
+
+test('tags with no handler fire a debug warning', () => {
+  bootstrapForum({ resources: [{ type: 'forums', id: '1', attributes: { debug: true } }] });
+  const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+  const translator = new Translator();
+  translator.addTranslations({
+    test9: 'Matches for <mark>{query}</mark>',
+  });
+
+  translator.trans('test9', { query: 'drafts' });
+
+  expect(warn).toHaveBeenCalledWith(expect.stringContaining('<mark>'));
+
+  warn.mockRestore();
 });

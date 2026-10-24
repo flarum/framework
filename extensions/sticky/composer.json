@@ -20,7 +20,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0"
+        "flarum/core": "^2.1"
     },
     "autoload": {
         "psr-4": {
@@ -98,6 +98,6 @@
     "require-dev": {
         "flarum/audit": "*",
         "flarum/tags": "*@dev",
-        "flarum/testing": "^2.0.0"
+        "flarum/testing": "^2.1"
     }
 }

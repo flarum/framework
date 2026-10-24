@@ -19,14 +19,18 @@
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
   transition: opacity 0.2s, margin-left 0.2s;
 
+  // The same size as the back button it sits beside. The two share a button
+  // group, which stretches both to the taller one, so a bigger pin made the
+  // back button taller on pages with the pane than on the rest.
   .icon {
+    font-size: 14px;
     transform: rotate(45deg);
   }
 }
 
 @media @desktop-hd {
   .Navigation-pin {
-    display: block;
+    display: inline-flex;
   }
   .hasPane.panePinned, .hasPane.paneShowing {
     .Navigation-back {

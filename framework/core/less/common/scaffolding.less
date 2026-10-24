@@ -6,6 +6,13 @@
   }
 }
 
+// The body always shows a scrollbar, so this changes nothing until a modal
+// hides it to stop the page scrolling. Then its space stays reserved and
+// nothing moves, fixed elements such as the header included.
+html {
+  scrollbar-gutter: stable;
+}
+
 // Fix to prevent horizontal scrolling bug on iOS
 @media @phone {
   html {

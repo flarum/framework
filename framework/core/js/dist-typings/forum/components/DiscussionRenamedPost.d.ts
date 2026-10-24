@@ -12,4 +12,4 @@ export default class DiscussionRenamedPost extends EventPost {
         new: JSX.Element;
     };
 }
-import EventPost from "./EventPost";
+import EventPost from './EventPost';

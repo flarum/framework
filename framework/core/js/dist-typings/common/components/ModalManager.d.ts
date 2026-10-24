@@ -1,4 +1,3 @@
-/// <reference types="dom-close-watcher" />
 import Component from '../Component';
 import { FocusTrap } from '../utils/focusTrap';
 import type ModalManagerState from '../states/ModalManagerState';

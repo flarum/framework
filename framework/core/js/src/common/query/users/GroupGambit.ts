@@ -6,6 +6,10 @@ export default class GroupGambit extends KeyValueGambit {
     return app.translator.trans('core.lib.gambits.users.group.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'group';
+  }
+
   hint(): string {
     return app.translator.trans('core.lib.gambits.users.group.hint', {}, true);
   }

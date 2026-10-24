@@ -41,7 +41,7 @@ export const rowOf = (config: DeckColumnConfig): number => (config.row && config
 /**
  * Held for the whole session, so leaving the deck to read a discussion and
  * coming back finds every column, its scroll position and its pending count
- * as they were.
+ * as they were, then catches up on what happened while it was away.
  */
 export default class DeckState {
   /** Every stored column, including ones that can't currently be shown. */
@@ -292,7 +292,14 @@ export default class DeckState {
 
     if (this.heartbeat) clearInterval(this.heartbeat);
     this.heartbeat = null;
-    this.columns().forEach((column) => column.cancelCheck());
+
+    // Nothing is heard while the deck isn't shown, so a discussion started or
+    // replied to meanwhile would never reach a column. Each one catches up
+    // when it's back on screen, as one scrolled out of sight does.
+    this.columns().forEach((column) => {
+      column.cancelCheck();
+      column.stale = true;
+    });
 
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
   }
@@ -351,7 +358,7 @@ export default class DeckState {
     this.recentEvents.set(key, { kind, at: now });
 
     const pushed = (app.store.pushPayload(data) as any) ?? null;
-    const model = Array.isArray(pushed) ? pushed[0] ?? null : pushed;
+    const model = Array.isArray(pushed) ? (pushed[0] ?? null) : pushed;
     const post = subjectPost(name, data) ?? (model?.data?.type === 'posts' ? model : null);
     const discussion = model?.data?.type === 'discussions' ? (model as Discussion) : post?.discussion() || null;
     const event = { name, payload: data, model, discussion, post };
@@ -371,7 +378,7 @@ export default class DeckState {
       type === 'discussions'
         ? (model as Discussion | null)
         : post?.discussion() ||
-          (data.meta?.discussionId ? app.store.getById<Discussion>('discussions', String(data.meta.discussionId)) ?? null : null);
+          (data.meta?.discussionId ? (app.store.getById<Discussion>('discussions', String(data.meta.discussionId)) ?? null) : null);
     const event = { name: REMOVED, payload: data, model, discussion, post };
     const live = this.isLive();
 

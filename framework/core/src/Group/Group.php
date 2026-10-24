@@ -72,7 +72,15 @@ class Group extends AbstractModel
             $this->name_plural = $namePlural;
         }
 
-        if ($this->isDirty(['name_singular', 'name_plural'])) {
+        // The API sets each name with its own call, so replace any rename
+        // already pending to raise one event per save. A new group isn't
+        // being renamed, so it raises none.
+        $this->pendingEvents = array_values(array_filter(
+            $this->pendingEvents,
+            fn (object $event) => ! $event instanceof Renamed
+        ));
+
+        if ($this->exists && $this->isDirty(['name_singular', 'name_plural'])) {
             $this->raise(new Renamed(
                 $this,
                 $this->getOriginal('name_singular'),
