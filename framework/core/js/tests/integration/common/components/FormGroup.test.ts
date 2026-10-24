@@ -48,7 +48,7 @@ describe('FormGroup boolean/switch type', () => {
 });
 
 describe('FormGroup icon type', () => {
-  it('renders an IconInput: the text field plus the picker toggle', () => {
+  it('renders an IconInput: the field plus the picker toggle', () => {
     const stream = Stream('fas fa-bolt');
     const group = mq(m(FormGroup, { type: 'icon', label: 'Icon', help: 'Any Font Awesome class.', stream }));
 

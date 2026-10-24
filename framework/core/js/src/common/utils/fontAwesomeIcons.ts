@@ -12,10 +12,48 @@ export interface FontAwesomeIconSets {
   brands: FontAwesomeIcon[];
 }
 
-let icons: FontAwesomeIconSets | null = null;
-let regular: Promise<FontAwesomeIcon[]> | null = null;
+export interface FontAwesomeStyle {
+  /** The class that selects the style, such as `fas` or `fasl`. */
+  prefix: string;
+  /** The family: `classic`, `duotone`, `sharp`, `sharp-duotone`, `brands`… */
+  family: string;
+  /** The font weight: 900 solid, 400 regular, 300 light, 100 thin. */
+  weight: number;
+  /** The font the family draws with, such as "Font Awesome 7 Pro". */
+  font: string;
+}
+
+/**
+ * Everything read from the page's stylesheets. A Kit adds its stylesheet
+ * after the page loads, so this is read again whenever the page's
+ * stylesheets change.
+ */
+interface Read {
+  sheets: StyleSheet[];
+  icons: FontAwesomeIconSets;
+  styles: FontAwesomeStyle[];
+}
+
+let read: Read | null = null;
+const coverage = new Map<string, Promise<FontAwesomeIcon[]>>();
 
 const SINGLE_CLASS = /^\.fa-[a-z0-9-]+$/;
+
+// The short classes that select a style: fas, fal, fad, fass, fasdl… but not
+// .fa itself, nor an icon (.fa-house).
+const STYLE_CLASS = /^\.fa[a-z]{1,5}$/;
+
+// Families whose classes don't draw the icon list: a Kit's own uploaded icons.
+const OTHER_FAMILIES = ['kit', 'kit-duotone'];
+
+// The order families are offered in. Others follow, then brands.
+const FAMILY_ORDER = ['classic', 'duotone', 'sharp', 'sharp-duotone'];
+
+// Solid first, as the default, then lighter.
+const WEIGHT_ORDER = [900, 400, 300, 100];
+
+// What the classic family draws with when no stylesheet names it.
+const DEFAULT_CLASSIC_FONT = 'Font Awesome 7 Free';
 
 // CSSRule.STYLE_RULE and CSSRule.FONT_FACE_RULE. Compared by number, because
 // not every environment exposes the CSSFontFaceRule class to test against.
@@ -35,23 +73,35 @@ function decodeGlyph(value: string): string {
   return body.startsWith('\\') ? body.slice(1) : body;
 }
 
-/**
- * The Font Awesome icons this forum can draw, read from the stylesheet it has
- * already loaded. There is no icon list to download, and the result always
- * matches the bundled Font Awesome version.
- *
- * Every icon is a rule like `.fa-house{--fa:"\f015"}`. Iconography.less inlines
- * fontawesome.css (the classic icons) and then brands.css, whose glyphs follow
- * the brands `@font-face` — which is what tells a brand from a classic icon.
- *
- * Stylesheets served from another origin (a Font Awesome Kit, or assets on a
- * CDN) cannot be read, so their icons are not listed. They can still be typed.
- */
-export default function fontAwesomeIcons(): FontAwesomeIconSets {
-  if (icons) return icons;
+function unquote(value: string): string {
+  return value.trim().replace(/^["']|["']$/g, '');
+}
 
+/** The weights a `font-weight` descriptor covers: one, or a range such as `100 900`. */
+function weightRange(value: string): [number, number] {
+  const named: Record<string, number> = { normal: 400, bold: 700 };
+  const [min, max = min] = (value.trim() || 'normal').split(/\s+/).map((part) => named[part] ?? parseInt(part, 10));
+
+  return [min, max];
+}
+
+function readStylesheets(): Read {
   const classic = new Map<string, FontAwesomeIcon>();
   const brands = new Map<string, FontAwesomeIcon>();
+
+  // What each style class selects, and what each family variable names. Later
+  // rules win, as they do in the cascade: a Kit's classes and variables
+  // override the bundled ones. Font Awesome's own short classes are known
+  // from the start, for when the stylesheet that defines them can't be read
+  // or never arrived, such as after core rescues a failed CDN or Kit with the
+  // bundled fonts alone. They are still only offered for a font that's there.
+  const classes = new Map<string, { family?: string; weight?: number }>([
+    ['fas', { family: 'classic', weight: 900 }],
+    ['far', { family: 'classic', weight: 400 }],
+    ['fab', { family: 'brands', weight: 400 }],
+  ]);
+  const families = new Map<string, string>();
+  const faces: { font: string; min: number; max: number }[] = [];
 
   for (const sheet of Array.from(document.styleSheets)) {
     let rules: CSSRuleList;
@@ -66,31 +116,55 @@ export default function fontAwesomeIcons(): FontAwesomeIconSets {
 
     for (const rule of Array.from(rules)) {
       if (rule.type === FONT_FACE_RULE) {
-        inBrands = /brands/i.test((rule as CSSFontFaceRule).style.getPropertyValue('font-family'));
+        const style = (rule as CSSFontFaceRule).style;
+        const font = unquote(style.getPropertyValue('font-family'));
+        const [min, max] = weightRange(style.getPropertyValue('font-weight'));
+
+        faces.push({ font, min, max });
+        inBrands = /brands/i.test(font);
         continue;
       }
 
       if (rule.type !== STYLE_RULE) continue;
 
-      const glyph = (rule as CSSStyleRule).style.getPropertyValue('--fa');
+      const style = (rule as CSSStyleRule).style;
+      const selectors = (rule as CSSStyleRule).selectorText.split(',').map((selector) => selector.trim());
+
+      for (const [, family, font] of style.cssText.matchAll(/--fa-family-([a-z-]+)\s*:\s*([^;]+)/g)) {
+        families.set(family, unquote(font));
+      }
+
+      const family = style.getPropertyValue('--fa-family').match(/var\(\s*--fa-family-([a-z-]+)\s*\)/)?.[1];
+      const weight = parseInt(style.getPropertyValue('--fa-style'), 10);
+
+      if (family || weight) {
+        for (const selector of selectors.filter((selector) => STYLE_CLASS.test(selector))) {
+          const current = classes.get(selector.slice(1)) ?? {};
+
+          classes.set(selector.slice(1), { family: family ?? current.family, weight: weight || current.weight });
+        }
+      }
+
+      const glyph = style.getPropertyValue('--fa');
       if (!glyph) continue;
 
-      const selectors = (rule as CSSStyleRule).selectorText.split(',').map((selector) => selector.trim());
       if (!selectors.every((selector) => SINGLE_CLASS.test(selector))) continue;
 
       // In a combined rule the last selector is the current name and the
       // others are old aliases. An alias with a rule of its own shares its
       // glyph with the real icon, so it becomes a search word rather than a
-      // duplicate.
+      // duplicate. A Kit repeats the icons the bundled stylesheet defines, so
+      // a name is only added once.
       const list = inBrands ? brands : classic;
       const char = decodeGlyph(glyph);
-      const names = selectors.map((selector) => selector.slice(4)).join(' ');
+      const names = selectors.map((selector) => selector.slice(4));
       const existing = list.get(char);
 
       if (existing) {
-        existing.search += ' ' + names;
+        const words = existing.search.split(' ');
+        existing.search = [...words, ...names.filter((name) => !words.includes(name))].join(' ');
       } else {
-        list.set(char, { name: selectors[selectors.length - 1].slice(4), char, search: names });
+        list.set(char, { name: names[names.length - 1], char, search: names.join(' ') });
       }
     }
   }
@@ -98,54 +172,125 @@ export default function fontAwesomeIcons(): FontAwesomeIconSets {
   // Font Awesome also draws plain digits, letters and symbols (fa-0, fa-a,
   // fa-hashtag's "#"). They are real icons, but the least useful to browse,
   // so they come after the pictograms.
-  const pictogramsFirst = (list: Map<string, FontAwesomeIcon>) =>
-    [...list.values()].sort((a, b) => Number(a.char.codePointAt(0)! < 0x80) - Number(b.char.codePointAt(0)! < 0x80));
+  const pictogramsFirst = (list: Map<string, FontAwesomeIcon>) => [...list.values()].sort((a, b) => Number(isPlain(a)) - Number(isPlain(b)));
 
-  icons = { classic: pictogramsFirst(classic), brands: pictogramsFirst(brands) };
+  // A style is offered when its class selects a family and weight, and a font
+  // for that family covers the weight.
+  const styles: FontAwesomeStyle[] = [];
 
-  return icons;
+  for (const [prefix, { family, weight }] of classes) {
+    if (!family || !weight || OTHER_FAMILIES.includes(family)) continue;
+
+    const font = families.get(family) ?? (family === 'classic' ? DEFAULT_CLASSIC_FONT : undefined);
+
+    if (font && faces.some((face) => face.font === font && face.min <= weight && weight <= face.max)) {
+      styles.push({ prefix, family, weight, font });
+    }
+  }
+
+  const familyRank = (family: string) =>
+    family === 'brands' ? Infinity : FAMILY_ORDER.includes(family) ? FAMILY_ORDER.indexOf(family) : FAMILY_ORDER.length;
+  const weightRank = (weight: number) => (WEIGHT_ORDER.includes(weight) ? WEIGHT_ORDER.indexOf(weight) : WEIGHT_ORDER.length);
+
+  styles.sort(
+    (a, b) => familyRank(a.family) - familyRank(b.family) || a.family.localeCompare(b.family) || weightRank(a.weight) - weightRank(b.weight)
+  );
+
+  return {
+    sheets: Array.from(document.styleSheets),
+    icons: { classic: pictogramsFirst(classic), brands: pictogramsFirst(brands) },
+    styles,
+  };
+}
+
+function current(): Read {
+  const sheets = document.styleSheets;
+
+  if (!read || read.sheets.length !== sheets.length || read.sheets.some((sheet, i) => sheet !== sheets[i])) {
+    read = readStylesheets();
+    coverage.clear();
+  }
+
+  return read;
+}
+
+function isPlain(icon: FontAwesomeIcon): boolean {
+  return icon.char.codePointAt(0)! < 0x80;
 }
 
 /**
- * The classic icons that have a free Regular (outline) style. Only a few
- * hundred do. Where Font Awesome comes from a Kit or CDN instead of the bundled
- * fonts, every classic icon is returned.
+ * The Font Awesome icons this forum can draw, read from the stylesheets it has
+ * already loaded. There is no icon list to download, and the result always
+ * matches the Font Awesome version in use, including a Kit's.
  *
- * The Regular font draws one shared placeholder for every icon it lacks — the
- * same shape it draws for a code point no icon uses — so an icon has a Regular
- * style exactly when it draws differently from that placeholder.
+ * Every icon is a rule like `.fa-house{--fa:"\f015"}`. Brand icons follow the
+ * brands `@font-face`, which is what tells a brand from a classic icon.
+ *
+ * Stylesheets served from another origin (assets on a CDN) cannot be read, so
+ * their icons are not listed. They can still be typed.
  */
-export function regularFontAwesomeIcons(): Promise<FontAwesomeIcon[]> {
-  regular ??= (async () => {
-    const font = '400 24px "Font Awesome 7 Free"';
+export default function fontAwesomeIcons(): FontAwesomeIconSets {
+  return current().icons;
+}
 
-    await document.fonts.load(font, '\uf0f3').catch(() => {});
+/**
+ * The styles this forum can draw icons in: each family (classic, duotone,
+ * sharp, brands…) at each weight (solid, regular, light, thin) that a loaded
+ * font covers. The bundled Free fonts give classic Solid and Regular, and
+ * brands; a Pro Kit adds the rest.
+ */
+export function fontAwesomeStyles(): FontAwesomeStyle[] {
+  return current().styles;
+}
 
-    const size = 28;
-    const context = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+/**
+ * The icons a style draws. Every icon has a Solid style, and a Pro font draws
+ * every icon in every style, but only a few hundred free icons have a Regular
+ * style. So the other weights of a Free font are measured, which takes a
+ * moment: that answer comes as a promise.
+ */
+export function fontAwesomeIconsFor(style: FontAwesomeStyle): FontAwesomeIcon[] | Promise<FontAwesomeIcon[]> {
+  const list = style.family === 'brands' ? fontAwesomeIcons().brands : fontAwesomeIcons().classic;
 
-    if (!context) return fontAwesomeIcons().classic;
+  if (style.family === 'brands' || style.weight === 900 || !/\bFree\b/.test(style.font)) return list;
 
-    context.canvas.width = context.canvas.height = size;
-    context.textBaseline = 'top';
-    context.font = font;
+  const key = `${style.weight} ${style.font}`;
 
-    const pixels = (char: string) => {
-      context.clearRect(0, 0, size, size);
-      context.fillText(char, 2, 2);
+  if (!coverage.has(key)) coverage.set(key, drawable(list, `${style.weight} 24px "${style.font}"`));
 
-      return new Uint32Array(context.getImageData(0, 0, size, size).data.buffer);
-    };
+  return coverage.get(key)!;
+}
 
-    const placeholder = pixels('\uf8fe');
+/**
+ * The icons a font draws. A Free font draws one shared placeholder for every
+ * icon it lacks — the same shape it draws for a code point no icon uses — so
+ * an icon is drawn exactly when it differs from that placeholder.
+ */
+async function drawable(list: FontAwesomeIcon[], font: string): Promise<FontAwesomeIcon[]> {
+  await document.fonts.load(font, '').catch(() => {});
 
-    const found = fontAwesomeIcons().classic.filter((icon) => pixels(icon.char).some((value, i) => value !== placeholder[i]));
+  const size = 28;
+  const context = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
 
-    // With a Font Awesome Kit or CDN, the bundled family is a blank stand-in
-    // that draws nothing, so nothing is found. The remote fonts decide what
-    // Regular covers there, so offer every classic icon.
-    return found.length ? found : fontAwesomeIcons().classic;
-  })();
+  if (!context) return list;
 
-  return regular;
+  context.canvas.width = context.canvas.height = size;
+  context.textBaseline = 'top';
+  context.font = font;
+
+  const pixels = (char: string) => {
+    context.clearRect(0, 0, size, size);
+    context.fillText(char, 2, 2);
+
+    return new Uint32Array(context.getImageData(0, 0, size, size).data.buffer);
+  };
+
+  const placeholder = pixels('');
+  const found = list.filter((icon) => pixels(icon.char).some((value, i) => value !== placeholder[i]));
+
+  // While a Kit or CDN supplies the fonts, the bundled Free faces are a blank
+  // stand-in: no icon draws, but plain characters such as "!" fall back to a
+  // system font and do. Measured by pictograms alone, nothing was found: the
+  // remote fonts decide the coverage there, so offer every icon.
+  return found.some((icon) => !isPlain(icon)) ? found : list;
 }

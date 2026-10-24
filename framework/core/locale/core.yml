@@ -960,15 +960,27 @@ core:
 
     # These translations are used by the icon picker and the icon input that opens it.
     icon_picker:
-      brands_label: Brands
       count_text: "{count, plural, one {# icon} other {# icons}}"
+      families:
+        brands: Brands
+        classic: Classic
+        duotone: Duotone
+        sharp: Sharp
+        sharp_duotone: Sharp Duotone
+      family_label: Icon family
+      forced_style_text: "Every icon on this forum is shown in the style set on the Advanced page, so the style you choose here won't show while that setting is on."
       label: Choose an icon
       more_text: "Showing {shown} of {count}. Search to narrow it down."
-      no_results_text: No icons match. You can still type any Font Awesome class in the field.
+      no_results_text: No icons match.
       open_button: Choose an icon
-      regular_label: Regular
-      search_placeholder: Search icons
-      solid_label: Solid
+      remove_button: Remove icon
+      search_placeholder: Search icons, or type a class
+      use_button: "Use {value}"
+      weights:
+        light: Light
+        regular: Regular
+        solid: Solid
+        thin: Thin
 
     # These translations are used in the input component.
     input:
