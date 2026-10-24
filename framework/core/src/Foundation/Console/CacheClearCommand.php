@@ -95,7 +95,7 @@ class CacheClearCommand extends AbstractCommand
 
         $report->cleared('cache store');
 
-        foreach (['formatter', 'locale', 'views'] as $dir) {
+        foreach (['formatter', 'less', 'locale', 'views'] as $dir) {
             $files = glob($this->paths->storage.'/'.$dir.'/*') ?: [];
 
             $report->cleared($dir, count(array_filter($files, 'unlink')));
