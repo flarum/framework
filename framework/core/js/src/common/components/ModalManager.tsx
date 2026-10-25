@@ -33,6 +33,9 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   // Keep track if there's an modal closing
   protected modalClosing: boolean = false;
 
+  // The key of the modal being closed
+  protected closingModalKey: number | undefined;
+
   protected keyUpListener: null | ((e: KeyboardEvent) => void) = null;
 
   view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children {
@@ -97,6 +100,14 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
   onupdate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
     super.onupdate(vnode);
+
+    // The modal being animated out was closed some other way, such as by a
+    // page loaded at the same time (Page closes any open modal). Its dialog is
+    // gone, so its `transitionend` never fires; without this, every later
+    // modal would be ignored when asked to close.
+    if (this.modalClosing && this.attrs.state.modal?.key !== this.closingModalKey) {
+      this.modalClosing = false;
+    }
 
     requestAnimationFrame(() => {
       try {
@@ -202,11 +213,13 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     if (this.modalClosing) return;
     this.modalClosing = true;
 
+    const closingKey = (this.closingModalKey = this.attrs.state.modal?.key);
+
     const afterModalClosedCallback = () => {
       this.modalClosing = false;
 
-      // Close the dialog
-      this.attrs.state.close();
+      // Close the dialog, unless it was already closed some other way
+      if (this.attrs.state.modal?.key === closingKey) this.attrs.state.close();
 
       closedCallback();
     };
