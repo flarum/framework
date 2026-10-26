@@ -1,5 +1,15 @@
 @php
   $primaryColor = $settings->get('theme_primary_color', '#000');
+
+  // Same YIQ check as the forum's primary buttons (root.less): light primary colors get dark text.
+  $hex = ltrim($primaryColor, '#');
+  if (strlen($hex) === 3) {
+    $hex = preg_replace('/./', '$0$0', $hex);
+  }
+  $isLight = strlen($hex) === 6 && ctype_xdigit($hex)
+    && (hexdec(substr($hex, 0, 2)) * 299 + hexdec(substr($hex, 2, 2)) * 587 + hexdec(substr($hex, 4, 2)) * 114) >= 128000;
+  $buttonTextColor = $isLight ? '#333' : '#fff';
+  $linkColor = $isLight ? '#333' : $primaryColor;
 @endphp
 
 <!DOCTYPE html>
@@ -30,7 +40,7 @@
       }
       a {
         cursor: pointer;
-        color: {{ $primaryColor }};
+        color: {{ $linkColor }};
         text-decoration: none;
         font-weight: bold;
       }
@@ -46,7 +56,7 @@
         display: inline-block;
         padding: 15px 25px;
         background: {{ $primaryColor }};
-        color: #fff;
+        color: {{ $buttonTextColor }};
         text-decoration: none;
         text-align: center;
         vertical-align: middle;
