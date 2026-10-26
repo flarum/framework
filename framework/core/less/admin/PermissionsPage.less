@@ -67,27 +67,41 @@
     z-index: 1;
 
     &:first-child {
-      z-index: 3;
+      z-index: 4;
       background: var(--body-bg);
 
-      @media @tablet-up {
-        inset-inline-start: 0;
-      }
+      inset-inline-start: 0;
     }
 
     &:not(:hover) .PermissionGrid-removeScope {
       display: none;
     }
+
+    @media @phone {
+      min-width: 110px;
+
+      &:first-child {
+        min-width: 120px;
+        max-width: 120px;
+        border-inline-end: 1px solid var(--control-bg);
+      }
+    }
   }
   tbody {
     th {
       padding-inline-end: 50px;
-      z-index: 4;
+      z-index: 3;
       background: inherit;
 
-      @media @tablet-up {
-        position: sticky;
-        inset-inline-start: 0;
+      position: sticky;
+      inset-inline-start: 0;
+
+      @media @phone {
+        padding-inline-end: 10px;
+        min-width: 120px;
+        max-width: 120px;
+        white-space: normal;
+        border-inline-end: 1px solid var(--control-bg);
       }
 
       .icon {
