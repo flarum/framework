@@ -28,20 +28,20 @@ export interface RunPanelAttrs extends ComponentAttrs {
  */
 export default class RunPanel extends Component<RunPanelAttrs> {
     /** Consecutive failed polls. A host hiccup is not a failed update. */
-    private misses;
-    private polling;
-    private rollingBack;
+    protected misses: number;
+    protected polling: boolean;
+    protected rollingBack: boolean;
     /** True once we have fallen back to reading progress instead of driving it. */
-    private watching;
+    protected watching: boolean;
     /** The HTTP status of the last failed drive, so the panel can be specific. */
-    private lastStatus;
+    protected lastStatus: number | null;
     /** What the last failure means and what to do next — see runState.pollOutcome. */
-    private outcome;
+    protected outcome: import("../runState").PollOutcome;
     /** The run the loop is following, so a new one starts with a clean slate. */
-    private following;
+    protected following: string | null;
     oncreate(vnode: Mithril.VnodeDOM<RunPanelAttrs, this>): void;
     onupdate(vnode: Mithril.VnodeDOM<RunPanelAttrs, this>): void;
-    private follow;
+    protected follow(): void;
     onremove(): void;
     /** Which extensions this run is for: the names, or the first few and a count. */
     target(packages: string[]): string;
@@ -63,7 +63,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
      * Keeps polling on the same backoff so a transient failure recovers into
      * driving again by itself.
      */
-    private watch;
+    protected watch(): void;
     /** Undoing a run that worked is asked for, and says whether the database goes back too. */
     confirmRollback(run: Run): void;
     rollback(): void;

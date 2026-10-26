@@ -50,9 +50,9 @@ export default class UpdateBanner extends Component {
      * flag. Dismissing "3 updates" and then never hearing about a fourth is how a
      * notification quietly stops working.
      */
-    private key;
-    private wasDismissed;
-    private dismiss;
-    private ago;
+    protected key(packages: string[]): string;
+    protected wasDismissed(packages: string[]): boolean;
+    protected dismiss(): void;
+    protected ago(unix: number): string;
 }
 export {};

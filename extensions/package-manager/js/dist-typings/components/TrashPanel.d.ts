@@ -11,18 +11,18 @@ import type { TrashPayload } from '../types';
  * to and what happens cannot drift apart.
  */
 export default class TrashPanel extends Component {
-    private loading;
-    private busy;
-    private data;
+    protected loading: boolean;
+    protected busy: boolean;
+    protected data: TrashPayload | null;
     /** Why the copies could not be read at all, when they could not. */
-    private loadError;
-    private keepDays;
-    private keepRuns;
+    protected loadError: string | null;
+    protected keepDays: string;
+    protected keepRuns: string;
     oninit(vnode: Mithril.Vnode<ComponentAttrs, this>): void;
     view(): JSX.Element;
     confirmPrune(d: TrashPayload): void;
     load(): void;
     /** A change: its outcome is announced through Flarum's alerts, and a refusal in the server's own words. */
     send(body: Record<string, string>, doneText?: string): void;
-    private show;
+    protected show(data: TrashPayload): void;
 }

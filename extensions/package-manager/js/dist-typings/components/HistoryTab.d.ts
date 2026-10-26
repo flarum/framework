@@ -1,5 +1,5 @@
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
-import type { HistoryEntry, Installed } from '../types';
+import type { HistoryEntry, Installed, RunState } from '../types';
 export interface HistoryTabAttrs extends ComponentAttrs {
     history: HistoryEntry[];
     installed: Installed[];
@@ -10,6 +10,6 @@ export interface HistoryTabAttrs extends ComponentAttrs {
  */
 export default class HistoryTab extends Component<HistoryTabAttrs> {
     view(): JSX.Element;
-    private outcome;
-    private tone;
+    protected outcome(entry: HistoryEntry): string | any[];
+    protected tone(state: RunState): string;
 }

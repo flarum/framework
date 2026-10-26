@@ -238,8 +238,6 @@ export interface ErrorPayload {
         code?: string;
     }[];
     error?: string;
-    errorKey?: string;
-    errorParams?: TranslationParams;
     /** A refused start names the run already going. */
     run?: Run;
     stale?: boolean;

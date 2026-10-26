@@ -19,25 +19,25 @@ interface DiscoverAttrs extends ComponentAttrs {
  */
 export default class DiscoverTab extends Component<DiscoverAttrs> {
     oninit(vnode: Mithril.Vnode<DiscoverAttrs, this>): void;
-    private query;
+    protected query: string;
     /** '' is everything; the rest are the keys of Packagist::CATEGORIES. */
-    private category;
-    private searching;
-    private searched;
-    private page;
-    private more;
-    private loadingMore;
-    private results;
-    private verdicts;
-    private installedNames;
-    private checking;
-    private error;
-    private core;
-    private seq;
+    protected category: string;
+    protected searching: boolean;
+    protected searched: boolean;
+    protected page: number;
+    protected more: boolean;
+    protected loadingMore: boolean;
+    protected results: Found[];
+    protected verdicts: Record<string, Verdict>;
+    protected installedNames: string[];
+    protected checking: boolean;
+    protected error: string | null;
+    protected core: string | null;
+    protected seq: number;
     /** The query whose results are on screen, so a keystroke can tell if anything changed. */
-    private lastSearched;
+    protected lastSearched: string | null;
     /** The pending debounce, so a new keystroke replaces it rather than adding to it. */
-    private typing;
+    protected typing: ReturnType<typeof setTimeout> | null;
     view(): JSX.Element;
     /**
      * A keystroke, considered.
