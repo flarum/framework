@@ -29,6 +29,7 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
     protected loadingMore: boolean;
     protected results: Found[];
     protected verdicts: Record<string, Verdict>;
+    protected minimumStability: string;
     protected installedNames: string[];
     protected checking: boolean;
     protected error: string | null;
@@ -65,6 +66,8 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
      */
     replacement(r: Found, v?: Verdict): string | null;
     action(r: Found, v?: Verdict): JSX.Element | null;
+    /** Whether the forum's minimum stability lets Composer install this release. */
+    allowed(v: Verdict): boolean;
     short(n: number): string;
     search(): void;
     /**
