@@ -1,10 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="1200" height="600">
-  <clipPath id="a">
-    <path d="M30 15h30v15zv15H0zH0V0zV0h30z"/>
-  </clipPath>
-  <path d="M0 0v30h60V0z" fill="#00247d"/>
-  <path d="M0 0l60 30m0-30L0 30" stroke="#fff" stroke-width="6"/>
-  <path d="M0 0l60 30m0-30L0 30" clip-path="url(#a)" stroke="#cf142b" stroke-width="4"/>
-  <path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/>
-  <path d="M30 0v30M0 15h60" stroke="#cf142b" stroke-width="6"/>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 60 60" width="600" height="600">
+  <defs>
+    <path id="s" d="M0 -1.848L0.415 -0.571L1.758 -0.571L0.671 0.218L1.086 1.495L0 0.706L-1.086 1.495L-0.671 0.218L-1.758 -0.571L-0.415 -0.571z" fill="#fff"/>
+    <g id="r6"><use xlink:href="#s" x="3.78"/><use xlink:href="#s" x="11.34"/><use xlink:href="#s" x="18.9"/><use xlink:href="#s" x="26.46"/><use xlink:href="#s" x="34.02"/><use xlink:href="#s" x="41.58"/></g>
+    <g id="r5"><use xlink:href="#s" x="7.56"/><use xlink:href="#s" x="15.12"/><use xlink:href="#s" x="22.68"/><use xlink:href="#s" x="30.24"/><use xlink:href="#s" x="37.8"/></g>
+    <clipPath id="uk"><path d="M60 0v60H0z"/></clipPath>
+    <clipPath id="saltire"><path d="M30 15h60v30zv30H-30zH-30V-15zV-15h60z"/></clipPath>
+  </defs>
+  <path d="M0 0h60v60H0z" fill="#fff"/>
+  <path d="M0 0h60v4.615H0zM0 9.231h60v4.615H0zM0 18.462h60v4.615H0zM0 27.692h60v4.615H0zM0 36.923h60v4.615H0zM0 46.154h60v4.615H0zM0 55.385h60v4.615H0z" fill="#B22234"/>
+  <path d="M0 0h45.36v32.308H0z" fill="#3C3B6E"/>
+  <use xlink:href="#r6" y="3.24"/><use xlink:href="#r5" y="6.48"/><use xlink:href="#r6" y="9.72"/><use xlink:href="#r5" y="12.96"/><use xlink:href="#r6" y="16.2"/><use xlink:href="#r5" y="19.44"/><use xlink:href="#r6" y="22.68"/><use xlink:href="#r5" y="25.92"/><use xlink:href="#r6" y="29.16"/>
+  <g clip-path="url(#uk)">
+    <path d="M0 0h60v60H0z" fill="#012169"/>
+    <g transform="translate(40 40) scale(1.5) translate(-30 -15)">
+      <path d="M-30-15l120 60m0-60L-30 45" stroke="#fff" stroke-width="6"/>
+      <path d="M-30-15l120 60m0-60L-30 45" clip-path="url(#saltire)" stroke="#C8102E" stroke-width="4"/>
+      <path d="M30-15v60M-30 15h120" stroke="#fff" stroke-width="10"/>
+      <path d="M30-15v60M-30 15h120" stroke="#C8102E" stroke-width="6"/>
+    </g>
+  </g>
+  <path d="M60 0L0 60" stroke="#fff" stroke-width="1.5"/>
 </svg>
