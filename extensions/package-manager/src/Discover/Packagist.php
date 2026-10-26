@@ -147,9 +147,9 @@ class Packagist
          * site used to run for a day after an upgrade, which is exactly when
          * somebody goes looking for extensions that now work.
          */
-        // "v2": verdicts cached before replacements were detected carry no
-        // replaced flag, and must not be read as "not replaced".
-        $scope = 'compat:v2:'.$compat->coreVersion().':';
+        // "v3": verdicts cached before untagged packages were read from their
+        // ~dev file say "could not check" for every one of them.
+        $scope = 'compat:v3:'.$compat->coreVersion().':';
 
         foreach ($names as $name) {
             $out[$name] = $this->one($name, $compat, $scope);
@@ -196,7 +196,21 @@ class Packagist
             return ['compatible' => null, 'version' => null, 'requires' => null, 'stability' => null, 'replaced' => false, 'replacedBy' => null];
         }
 
-        $verdict = $compat->verdict($name, (array) json_decode($body, true));
+        $p2 = (array) json_decode($body, true);
+
+        /*
+         * Packagist keeps branches in a second file. A package that has never
+         * been tagged (fof/translate, fof/extension-releases) has an empty list
+         * in the first, and read alone that is "could not check" for something
+         * a forum on Dev stability installs fine. One more request, and only for
+         * packages with no releases at all.
+         */
+        if (($p2['packages'][$name] ?? null) === []) {
+            $dev = $this->fetch('https://repo.packagist.org/p2/'.$name.'~dev.json');
+            $p2 = $dev === null ? $p2 : (array) json_decode($dev, true);
+        }
+
+        $verdict = $compat->verdict($name, $p2);
 
         if ($verdict['replaced'] && $verdict['replacedBy'] === null) {
             $verdict['replacedBy'] = $this->realName($name, (array) $verdict['source']);
