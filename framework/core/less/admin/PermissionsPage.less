@@ -69,14 +69,20 @@
     &:first-child {
       z-index: 3;
       background: var(--body-bg);
-
-      @media @tablet-up {
-        left: 0;
-      }
+      left: 0;
     }
 
     &:not(:hover) .PermissionGrid-removeScope {
       display: none;
+    }
+
+    @media @phone {
+      min-width: 110px;
+
+      &:first-child {
+        min-width: 120px;
+        max-width: 120px;
+      }
     }
   }
   tbody {
@@ -85,9 +91,15 @@
       z-index: 4;
       background: inherit;
 
-      @media @tablet-up {
-        position: sticky;
-        left: 0;
+      position: sticky;
+      left: 0;
+
+      @media @phone {
+        padding-right: 10px;
+        min-width: 120px;
+        max-width: 120px;
+        white-space: normal;
+        box-shadow: 1px 0 0 var(--control-bg);
       }
 
       .icon {
