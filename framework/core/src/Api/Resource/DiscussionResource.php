@@ -60,7 +60,13 @@ class DiscussionResource extends AbstractDatabaseResource
         if (Arr::get($context->request->getQueryParams(), 'bySlug', false)) {
             $discussion = $this->slugManager->forResource(Discussion::class)->fromSlug($id, $actor);
         } else {
-            $discussion = $this->query($context)->findOrFail($id);
+            $query = $this->query($context);
+
+            if (! $this->idCanBeKey($query->getModel(), $id)) {
+                return null;
+            }
+
+            $discussion = $query->findOrFail($id);
         }
 
         return $discussion;

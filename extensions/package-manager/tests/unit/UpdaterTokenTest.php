@@ -18,6 +18,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 /**
  * A core update asks Flarum's updater to migrate with a one-time token, never
@@ -114,7 +115,6 @@ class UpdaterTokenTest extends TestCase
             EnglishTranslator::make(),
             new Client(['handler' => $stack]),
             'https://forum.example.test/',
-            ['username' => 'forum', 'password' => 's3cret'],
             $this->dir.'/storage'
         );
 
@@ -142,17 +142,46 @@ class UpdaterTokenTest extends TestCase
             EnglishTranslator::make(),
             new Client(['handler' => $stack]),
             'https://forum.example.test/',
-            ['username' => 'forum', 'password' => 's3cret'],
             $this->dir.'/storage'
         );
 
-        $this->assertSame('Migrated', $updater->migrate());
-        $this->assertCount(3, $sent);
-        $this->assertSame('forum.example.test', $sent[1]['request']->getUri()->getHost());
-        $this->assertStringNotContainsString('s3cret', (string) $sent[1]['request']->getBody());
+        try {
+            $updater->migrate();
+            $this->fail('A token the site could not redeem must not be followed by the credentials.');
+        } catch (RuntimeException $e) {
+            $this->assertStringContainsString('did not accept the one-time token', $e->getMessage());
+        }
 
-        // A token the site could not redeem: the credentials go to this machine only.
-        $this->assertSame('127.0.0.1', $sent[2]['request']->getUri()->getHost());
-        $this->assertStringContainsString('s3cret', (string) $sent[2]['request']->getBody());
+        $this->assertCount(2, $sent, 'no third request carrying the credentials');
+        $this->assertSame('forum.example.test', $sent[1]['request']->getUri()->getHost());
+
+        foreach ($sent as $call) {
+            $this->assertStringNotContainsString('s3cret', (string) $call['request']->getBody());
+            $this->assertStringNotContainsString('forum', (string) $call['request']->getBody());
+            $this->assertSame(64, strlen($call['request']->getHeaderLine(UpdaterToken::HEADER)));
+        }
+    }
+
+    public function test_without_a_storage_directory_nothing_is_sent(): void
+    {
+        $sent = [];
+        $stack = HandlerStack::create(new MockHandler([new Response(200, [], 'Migrated')]));
+        $stack->push(Middleware::history($sent));
+
+        $updater = new FlarumUpdater(
+            EnglishTranslator::make(),
+            new Client(['handler' => $stack]),
+            'https://forum.example.test/',
+            ''
+        );
+
+        try {
+            $updater->migrate();
+            $this->fail('No storage directory means no token, and the credentials are never the alternative.');
+        } catch (RuntimeException $e) {
+            $this->assertStringContainsString('no storage directory', $e->getMessage());
+        }
+
+        $this->assertSame([], $sent);
     }
 }

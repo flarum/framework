@@ -9,6 +9,7 @@ import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
 import extractText from '../../common/utils/extractText';
 import ColorPreviewInput from '../../common/components/ColorPreviewInput';
+import IconInput from '../../common/components/IconInput';
 import Form from '../../common/components/Form';
 
 export interface IEditGroupModalAttrs extends IFormModalAttrs {
@@ -91,7 +92,7 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
         <div className="helpText">
           {app.translator.trans('core.admin.edit_group.icon_text', { a: <a href={app.refs.fontawesome} tabindex="-1" /> })}
         </div>
-        <input className="FormControl" placeholder="fas fa-bolt" bidi={this.icon} />
+        <IconInput placeholder="fas fa-bolt" bidi={this.icon} />
       </div>,
       10
     );

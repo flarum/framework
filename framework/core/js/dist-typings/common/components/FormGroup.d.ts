@@ -33,6 +33,7 @@ declare const SelectSettingTypes: readonly ["select", "dropdown", "selectdropdow
 declare const RadioSettingTypes: readonly ["radio"];
 declare const TextareaSettingTypes: readonly ["textarea"];
 declare const ColorPreviewSettingType: "color-preview";
+declare const IconSettingType: "icon";
 declare const ImageUploadSettingType: "image-upload";
 declare const StackedFormControlType: "stacked-text";
 /**
@@ -70,6 +71,13 @@ export interface TextareaFieldComponentOptions extends CommonFieldOptions {
 export interface ColorPreviewFieldComponentOptions extends CommonFieldOptions {
     type: typeof ColorPreviewSettingType;
 }
+/**
+ * Valid options for the setting component builder to generate an IconInput:
+ * a Font Awesome class field with an icon picker.
+ */
+export interface IconFieldComponentOptions extends CommonFieldOptions {
+    type: typeof IconSettingType;
+}
 export interface ImageUploadFieldComponentOptions extends CommonFieldOptions, IUploadImageButtonAttrs {
     type: typeof ImageUploadSettingType;
 }
@@ -87,7 +95,7 @@ export interface CustomFieldComponentOptions extends CommonFieldOptions {
 /**
  * All valid options for the setting component builder.
  */
-export type FieldComponentOptions = HTMLInputFieldComponentOptions | SwitchFieldComponentOptions | SelectFieldComponentOptions | TextareaFieldComponentOptions | ColorPreviewFieldComponentOptions | ImageUploadFieldComponentOptions | StackedFormControlFieldComponentOptions | CustomFieldComponentOptions;
+export type FieldComponentOptions = HTMLInputFieldComponentOptions | SwitchFieldComponentOptions | SelectFieldComponentOptions | TextareaFieldComponentOptions | ColorPreviewFieldComponentOptions | IconFieldComponentOptions | ImageUploadFieldComponentOptions | StackedFormControlFieldComponentOptions | CustomFieldComponentOptions;
 export type IFormGroupAttrs = ComponentAttrs & FieldComponentOptions & {
     stream?: Stream<any>;
     getSetting?: (key: string) => Stream<any>;

@@ -5,6 +5,7 @@ import Select from './Select';
 import UploadImageButton from './UploadImageButton';
 import classList from '../utils/classList';
 import ColorPreviewInput from './ColorPreviewInput';
+import IconInput from './IconInput';
 import Stream from '../utils/Stream';
 import ItemList from '../utils/ItemList';
 import type { IUploadImageButtonAttrs } from './UploadImageButton';
@@ -67,6 +68,7 @@ const SelectSettingTypes = ['select', 'dropdown', 'selectdropdown'] as const;
 const RadioSettingTypes = ['radio'] as const;
 const TextareaSettingTypes = ['textarea'] as const;
 const ColorPreviewSettingType = 'color-preview' as const;
+const IconSettingType = 'icon' as const;
 const ImageUploadSettingType = 'image-upload' as const;
 const StackedFormControlType = 'stacked-text' as const;
 
@@ -111,6 +113,14 @@ export interface ColorPreviewFieldComponentOptions extends CommonFieldOptions {
   type: typeof ColorPreviewSettingType;
 }
 
+/**
+ * Valid options for the setting component builder to generate an IconInput:
+ * a Font Awesome class field with an icon picker.
+ */
+export interface IconFieldComponentOptions extends CommonFieldOptions {
+  type: typeof IconSettingType;
+}
+
 export interface ImageUploadFieldComponentOptions extends CommonFieldOptions, IUploadImageButtonAttrs {
   type: typeof ImageUploadSettingType;
 }
@@ -137,6 +147,7 @@ export type FieldComponentOptions =
   | SelectFieldComponentOptions
   | TextareaFieldComponentOptions
   | ColorPreviewFieldComponentOptions
+  | IconFieldComponentOptions
   | ImageUploadFieldComponentOptions
   | StackedFormControlFieldComponentOptions
   | CustomFieldComponentOptions;
@@ -257,6 +268,8 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
 
       if ((TextareaSettingTypes as readonly string[]).includes(type)) {
         settingElement = <textarea id={inputId} aria-describedby={helpTextId} bidi={stream} {...attrs} />;
+      } else if (type === IconSettingType) {
+        settingElement = <IconInput id={inputId} aria-describedby={helpTextId} bidi={stream} {...attrs} />;
       } else {
         let Tag: VnodeElementTag | typeof ColorPreviewInput = 'input';
 

@@ -1,0 +1,115 @@
+.IconInput {
+  // .Form-group is a flex column aligned to the start, where a box that sets
+  // no width shrinks to its content. Fill the row like the plain input did.
+  width: 100%;
+  align-self: stretch;
+
+  &-field {
+    display: flex;
+    gap: 8px;
+
+    .FormControl {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &-toggle {
+    flex-shrink: 0;
+  }
+}
+
+.IconPicker {
+  // The search row stands in for the field: the same layout, no box.
+  &-bar {
+    display: flex;
+    gap: 8px;
+
+    .FormControl {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &-panel {
+    margin-top: 8px;
+    padding: 10px;
+    border: 1px solid var(--control-bg);
+    border-radius: var(--border-radius);
+    background: var(--body-bg);
+    box-shadow: 0 6px 16px var(--shadow-color);
+
+    // A modal gives its fields the body background, which is this panel's
+    // own: keep the controls in it distinct. As specific as the modal's rule
+    // and then some, since that one comes later.
+    .IconPicker & .FormControl {
+      --form-control-bg: var(--control-bg);
+      --form-control-color: var(--control-color);
+    }
+  }
+
+  &-styles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  &-weights {
+    display: flex;
+  }
+
+  &-forced,
+  &-unreadable {
+    margin: 0 0 8px;
+  }
+
+  &-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+    gap: 4px;
+    max-height: 232px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  &-icon {
+    height: 38px;
+    border: 0;
+    border-radius: var(--border-radius);
+    background: none;
+    color: var(--text-color);
+    font-size: 16px;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--control-bg);
+    }
+
+    &.active {
+      background: var(--primary-color);
+      color: var(--body-bg);
+    }
+  }
+
+  &-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--muted-color);
+
+    .Button--link {
+      padding: 0;
+      font-size: 12px;
+    }
+  }
+
+  &-count {
+    flex: 1;
+  }
+}

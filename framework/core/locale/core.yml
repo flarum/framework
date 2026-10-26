@@ -958,6 +958,31 @@ core:
     group_selector:
       placeholder: Choose a group
 
+    # These translations are used by the icon picker and the icon input that opens it.
+    icon_picker:
+      count_text: "{count, plural, one {# icon} other {# icons}}"
+      families:
+        brands: Brands
+        classic: Classic
+        duotone: Duotone
+        sharp: Sharp
+        sharp_duotone: Sharp Duotone
+      family_label: Icon family
+      forced_style_text: "Every icon on this forum is shown in the style set on the Advanced page, so the style you choose here won't show while that setting is on."
+      label: Choose an icon
+      more_text: "Showing {shown} of {count}. Search to narrow it down."
+      no_results_text: No icons match.
+      open_button: Choose an icon
+      remove_button: Remove icon
+      search_placeholder: Search icons, or type a class
+      unreadable_text: "Icons can't be listed here, because this forum's styles are served from another site that doesn't allow it. Type an icon's class instead, such as {example}."
+      use_button: "Use {value}"
+      weights:
+        light: Light
+        regular: Regular
+        solid: Solid
+        thin: Thin
+
     # These translations are used in the input component.
     input:
       clear_button: Clear input

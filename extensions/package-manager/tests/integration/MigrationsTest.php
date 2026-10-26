@@ -11,6 +11,7 @@ namespace Flarum\ExtensionManager\Tests\integration;
 
 use Flarum\Database\Migrator;
 use Flarum\Extension\Extension;
+use Flarum\Foundation\Paths;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Database\Schema\Builder;
 use PHPUnit\Framework\Attributes\Test;
@@ -30,6 +31,7 @@ class MigrationsTest extends TestCase
     protected const ADD_CAUSE = '2023_12_09_000000_add_guessed_cause_column_to_package_manager_tasks_table';
     protected const RENAME = '2024_01_10_000000_rename_to_extension_manager';
     protected const DROP = '2026_10_17_000000_drop_extension_manager_tasks_table';
+    protected const OLD_BACKUPS = '2026_10_23_000000_remove_old_config_backups';
 
     protected function setUp(): void
     {
@@ -60,7 +62,7 @@ class MigrationsTest extends TestCase
         $this->migrator()->run($this->path(), $this->manager());
 
         $this->assertNoTables();
-        $this->assertSame([self::CREATE, self::ADD_CAUSE, self::RENAME, self::DROP], $this->ran(self::ID));
+        $this->assertSame([self::CREATE, self::ADD_CAUSE, self::RENAME, self::DROP, self::OLD_BACKUPS], $this->ran(self::ID));
         $this->assertSame([], $this->ran(self::OLD_ID));
 
         $this->rollBack();
@@ -76,7 +78,7 @@ class MigrationsTest extends TestCase
         $this->migrator()->run($this->path(), $this->manager());
 
         $this->assertNoTables();
-        $this->assertSame([self::CREATE, self::ADD_CAUSE, self::RENAME, self::DROP], $this->ran(self::ID));
+        $this->assertSame([self::CREATE, self::ADD_CAUSE, self::RENAME, self::DROP, self::OLD_BACKUPS], $this->ran(self::ID));
         $this->assertSame([], $this->ran(self::OLD_ID), 'the 2024 rename clears the old ID’s rows');
         $this->assertNoOldSettings();
 
@@ -94,7 +96,7 @@ class MigrationsTest extends TestCase
         $this->migrator()->run($this->path(), $this->manager());
 
         $this->assertNoTables();
-        $this->assertSame([self::CREATE, self::ADD_CAUSE, self::RENAME, self::DROP], $this->ran(self::ID));
+        $this->assertSame([self::CREATE, self::ADD_CAUSE, self::RENAME, self::DROP, self::OLD_BACKUPS], $this->ran(self::ID));
         $this->assertNoOldSettings();
 
         $this->rollBack();
@@ -111,6 +113,44 @@ class MigrationsTest extends TestCase
         $this->database()->table('extension_manager_tasks')->insert($this->task());
 
         $this->rollBack();
+    }
+
+    /**
+     * Copies of auth.json and composer.json made by earlier versions can hold
+     * credentials in plain text. They go once; the current composer.json
+     * backup and everything else beside them stay.
+     */
+    #[Test]
+    public function old_config_backups_are_removed_and_nothing_else_is(): void
+    {
+        $base = $this->app()->getContainer()->make(Paths::class)->base;
+        $old = ['auth.json.millwright-backup-20261001-120000', 'auth.json.millwright-backup', 'auth.json.extension-manager-backup', 'composer.json.millwright-backup-20261001-120000'];
+        $kept = ['auth.json', 'composer.json.extension-manager-backup', 'auth.json.millwright-backup-dir', 'xauth.json.millwright-backup'];
+
+        // Only what this test creates is cleaned up afterwards.
+        $kept = array_values(array_filter($kept, fn ($name) => ! file_exists($base.'/'.$name)));
+
+        try {
+            foreach (array_merge($old, $kept) as $name) {
+                str_ends_with($name, '-dir') ? @mkdir($base.'/'.$name) : file_put_contents($base.'/'.$name, '{"bearer":{"example.test":"secret"}}');
+            }
+
+            $this->migrator()->run($this->path(), $this->manager());
+
+            foreach ($old as $name) {
+                $this->assertFileDoesNotExist($base.'/'.$name);
+            }
+
+            foreach ($kept as $name) {
+                $this->assertFileExists($base.'/'.$name);
+            }
+
+            $this->rollBack();
+        } finally {
+            foreach (array_merge($old, $kept) as $name) {
+                is_dir($base.'/'.$name) ? @rmdir($base.'/'.$name) : @unlink($base.'/'.$name);
+            }
+        }
     }
 
     protected function rollBack(): void
