@@ -67,6 +67,7 @@ flarum-extension-manager:
           incompatible: not for this Flarum
           incompatible_why: "Its newest release asks for flarum/core {requires}."
           unknown: could not check
+          needs_stability: "needs {level} in Sources"
           prerelease: "{version} — a pre-release"
           checking: Checking…
 

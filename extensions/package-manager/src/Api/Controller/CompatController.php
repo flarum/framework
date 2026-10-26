@@ -10,6 +10,8 @@
 namespace Flarum\ExtensionManager\Api\Controller;
 
 use Composer\Semver\VersionParser;
+use Flarum\ExtensionManager\Config\JsonFile;
+use Flarum\ExtensionManager\Config\Stability;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
@@ -80,6 +82,9 @@ class CompatController implements RequestHandlerInterface
         return new JsonResponse([
             'verdicts' => $packagist->verdicts($names, new Compatibility($core)),
             'core' => $core,
+            // Not part of a verdict: the verdicts are cached for every admin,
+            // and this is a setting that can change between two searches.
+            'minimumStability' => (new Stability($this->translator, new JsonFile($this->translator, $this->paths->base.'/composer.json')))->current()['minimumStability'],
         ]);
     }
 
