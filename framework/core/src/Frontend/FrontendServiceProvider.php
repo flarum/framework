@@ -349,8 +349,11 @@ class FrontendServiceProvider extends AbstractServiceProvider
     /**
      * Compute the dark-mode body background colour from the forum's secondary colour hex.
      * Mirrors the LESS formula: hsl(@secondary-hue, min(20%, @secondary-sat), 10%).
+     *
+     * Also used by the layout of the standalone pages (errors, password reset...),
+     * which have no compiled stylesheet to take it from.
      */
-    private static function computeDarkBodyBg(string $hex): string
+    public static function computeDarkBodyBg(string $hex): string
     {
         $hex = ltrim($hex, '#');
 
