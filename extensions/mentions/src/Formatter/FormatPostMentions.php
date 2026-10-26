@@ -9,7 +9,6 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\TranslatorInterface;
@@ -19,6 +18,8 @@ use s9e\TextFormatter\Utils;
 
 class FormatPostMentions
 {
+    use LooksUpMentionedModels;
+
     public function __construct(
         private readonly TranslatorInterface $translator,
         private readonly SlugManager $slugManager
@@ -30,12 +31,11 @@ class FormatPostMentions
      */
     public function __invoke(Renderer $renderer, mixed $context, string $xml): string
     {
-        return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($context) {
+        $posts = $this->mentionedModels($context, 'mentionsPosts', $xml, 'POSTMENTION', Post::query()->with(['user', 'discussion']));
+
+        return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($posts) {
             /** @var Post|null $post */
-            $post = match (true) {
-                $context instanceof AbstractModel && $context->relationLoaded('mentionsPosts') => $context->mentionsPosts->find($attributes['id']), // @phpstan-ignore-line
-                default => Post::query()->find($attributes['id']),
-            };
+            $post = $posts->find($attributes['id']);
 
             if ($post && $post->user) {
                 $attributes['displayname'] = $post->user->display_name;

@@ -4,7 +4,10 @@ flarum-messages:
   admin:
     permissions:
       send_messages_label: Send private messages
+      message_users_without_permission_label: Message users without messaging permission
       delete_own_messages_label: Delete own messages
+      send_without_throttle_label: Send messages without throttling
+      view_ips_label: View IP addresses of messages
 
   # Translations in this namespace are used by the forum user interface.
   forum:
@@ -18,7 +21,9 @@ flarum-messages:
     dialog_list:
       load_more_button: => core.ref.load_more
       mark_as_read_tooltip: Mark as read
+      own_last_message_preview: "You: {content}"
       title: Messages
+      unread_count_text: "{count} unread"
       view_all: View all messages
 
     dialog_section:
@@ -64,7 +69,12 @@ flarum-messages:
       title: Messages
 
     recipient_selection_modal:
+      cannot_reply_text: Can't reply to messages
       title: Select the recipients of this message
+
+    search_source:
+      conversation_with: "Conversation with {username}"
+      heading: Messages
 
     settings:
       notify_message_received_label: Someone sends me a message
@@ -79,7 +89,7 @@ flarum-messages:
   # Translations in this namespace are used in emails sent by the forum.
   email:
 
-    # These translations are used in emails sent when a user is mentioned
+    # These translations are used in emails sent when a member is sent a message
     message_received:
       subject: "{user_display_name} sent you a message"
       plain:
@@ -91,11 +101,47 @@ flarum-messages:
           ---
 
           {content}
+
+          ---
+
+          You won't receive any more emails about this conversation until you've read it.
       html:
-        body: "{user_display_name} sent you a [new message]({url})."
+        body: |
+          {user_display_name} sent you a [new message]({url}).
+
+          You won't receive any more emails about this conversation until you've read it.
 
   # Translations in this namespace are used by the forum and admin interfaces.
   lib:
 
     dialog:
       title: Messaging {username}
+    no_other_members_message: There is no one else in this conversation.
+    recipient_cannot_reply_message: "{username} can't reply to messages."
+    recipient_unavailable_message: "{username} can't receive messages."
+
+# Shown by flarum/gdpr when describing what it does with a member's messages.
+flarum-gdpr:
+  lib:
+    data:
+      messages:
+        export_description: Your private messages, with when they were sent and from which address.
+        anonymize_description: The addresses your private messages were sent from are removed. The messages stay.
+        delete_description: Your private messages are deleted.
+
+# Labels for the audit log entries this extension produces, shown by the
+# (optional) flarum/audit browser. Under its namespace, so it resolves them.
+flarum-audit:
+  lib:
+    browser:
+      dialog:
+        started: Started a private conversation with {username}
+        posted: Sent a private message to {username}
+
+# Labels for the statistics this extension adds, shown by the (optional)
+# flarum/statistics widgets. Under its namespace, so it resolves them.
+flarum-statistics:
+  admin:
+    statistics:
+      dialogs_heading: PM started
+      dialog_replies_heading: PM replies

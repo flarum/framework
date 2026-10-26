@@ -43,8 +43,8 @@
         "doctrine/dbal": "^3.6",
         "dragonmantank/cron-expression": "*",
         "fakerphp/faker": "^1.9.1",
+        "flarum/font-awesome": "^7.0",
         "flarum/json-api-server": "^0.1.0",
-        "fortawesome/font-awesome": "^7.0",
         "franzl/whoops-middleware": "2.0",
         "guzzlehttp/guzzle": "^7.7",
         "illuminate/bus": "^13.0",
@@ -96,7 +96,7 @@
         "wikimedia/less.php": "^5.3"
     },
     "require-dev": {
-        "flarum/testing": "^2.0.0",
+        "flarum/testing": "^2.1",
         "symfony/var-dumper": "^7.4"
     },
     "autoload": {
@@ -148,13 +148,17 @@
             "@test:integration"
         ],
         "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:unit:filter": "phpunit -c tests/phpunit.unit.xml --filter",
         "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:integration:filter": "phpunit -c tests/phpunit.integration.xml --filter",
         "test:setup": "@php tests/integration/setup.php"
     },
     "scripts-descriptions": {
         "test": "Runs all tests.",
         "test:unit": "Runs all unit tests.",
+        "test:unit:filter": "Runs unit tests whose name matches: composer test:unit:filter -- ClassName",
         "test:integration": "Runs all integration tests.",
+        "test:integration:filter": "Runs integration tests whose name matches: composer test:integration:filter -- ClassName",
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "repositories": [

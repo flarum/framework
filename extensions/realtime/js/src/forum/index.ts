@@ -4,13 +4,14 @@ import Discussion from './extend/Discussion';
 import DiscussionList from './extend/DiscussionList';
 import Tags from './extend/Tags';
 import User from './extend/User';
+import Visibility from './extend/Visibility';
 
-import RealtimeExtend from './extenders/Realtime';
+// Registers itself, for other extensions to import with ext:.
+import './extenders/Realtime';
 import RealtimeState from './RealtimeState';
 
-// Manually register these for other extensions to consume via ext: imports,
-// since the autoExportLoader cannot match ES class / instance default exports.
-flarum.reg.add('flarum-realtime', 'forum/extenders/Realtime', RealtimeExtend);
+// The autoExportLoader leaves out modules at the root of forum/, so register
+// this one by hand for other extensions to import with ext:.
 flarum.reg.add('flarum-realtime', 'forum/RealtimeState', RealtimeState);
 
 export { default as extend } from './extend';
@@ -21,4 +22,5 @@ app.initializers.add('flarum-realtime', () => {
   DiscussionList();
   Tags();
   User();
+  Visibility();
 });

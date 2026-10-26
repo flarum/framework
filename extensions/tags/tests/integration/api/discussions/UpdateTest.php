@@ -82,6 +82,32 @@ class UpdateTest extends TestCase
     }
 
     #[Test]
+    public function user_cant_change_tags_when_set_to_never()
+    {
+        // The Permissions page saves "Never" as 0 minutes.
+        $this->setting('allow_tag_change', '0');
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/discussions/1', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'relationships' => [
+                            'tags' => [
+                                'data' => [
+                                    ['type' => 'tags', 'id' => 2]
+                                ]
+                            ]
+                        ]
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    #[Test]
     public function user_can_change_tags_without_setting()
     {
         $this->setting('allow_tag_change', '-1');

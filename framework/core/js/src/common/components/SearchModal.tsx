@@ -128,7 +128,9 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     return (
       <div className="Tabs">
         <div className="Tabs-nav">{this.tabItems().toArray()}</div>
-        <div className="Tabs-content SearchModal-tabs-content">{this.activeTabItems().toArray()}</div>
+        <div className="Tabs-content SearchModal-tabs-content" onclick={this.onLinkClick.bind(this)}>
+          {this.activeTabItems().toArray()}
+        </div>
       </div>
     );
   }
@@ -344,18 +346,41 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
       selectedUrl = id && this.activeSource().gotoItem(id as string);
     }
 
-    // Fallback: if gotoItem returned null or item has no data-id, check for a link
-    if (!selectedUrl && item.find('a').length) {
-      selectedUrl = item.find('a').attr('href') || null;
-    }
-
+    const link = item.find('a')[0];
     const query = this.query();
 
     if (query && selectedUrl) {
       m.route.set(selectedUrl);
+
+      // A result on the page that's already open doesn't start a new page,
+      // which is otherwise what closes the modal.
+      app.modal.close();
+    } else if (query && link) {
+      // Followed as a click on it would be: its href carries the frontend's
+      // route prefix (`#/…` in the admin), which m.route.set would add again.
+      // The click reaches onLinkClick, which closes the modal.
+      link.click();
     } else if (item.find('button').length) {
       item.find('button')[0].click();
     }
+  }
+
+  /**
+   * Closes the modal once one of its links is followed. Following one to the
+   * page that's already open doesn't start a new page, which is otherwise
+   * what closes it. Clicks meant for a new tab or window leave it open.
+   */
+  protected onLinkClick(e: MouseEvent): void {
+    const link = e.target instanceof Element ? e.target.closest('a[href]') : null;
+
+    if (!link || link.getAttribute('target') === '_blank' || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
+      return;
+    }
+
+    // Closed the way a new page closes it. hide() animates the close, and a
+    // new page removing the modal before that ends would leave the modal
+    // manager unable to close any later one.
+    app.modal.close();
   }
 
   /**

@@ -156,8 +156,13 @@ class Index extends Endpoint
 
                 $models = $collection->results($query, $context);
 
+                // Counting every match can cost far more than fetching the page,
+                // e.g. for a filter no index can count. Clients that don't show a
+                // total can skip it with `page[total]=0`; `links.next` is then
+                // worked out from the page being full.
                 if (
                     $collection instanceof Countable &&
+                    $this->wantsTotal($context) &&
                     ! is_null($total = $collection->count($query, $context))
                 ) {
                     $meta['page']['total'] = $total;
@@ -167,7 +172,11 @@ class Index extends Endpoint
 
                 $total ??= null;
 
-                return compact('models', 'meta', 'pagination', 'total');
+                // A searcher fetches one result past the page, so it knows
+                // whether there are more where the page being full only hints.
+                $more = $context instanceof Context ? $context->getSearchResults()?->areMoreResults() : null;
+
+                return compact('models', 'meta', 'pagination', 'total', 'more');
             })
             ->beforeSerialization(function (Context $context, array $results) {
                 // @phpstan-ignore-next-line
@@ -197,6 +206,12 @@ class Index extends Endpoint
                 if ($pagination) {
                     $meta['page'] = array_merge($meta['page'] ?? [], $pagination->meta());
                     $links = array_merge($links, $pagination->links(count($data), $total));
+
+                    // Without a total, a last page that happens to be full would
+                    // otherwise link to a next one, which is empty.
+                    if ($total === null && ($results['more'] ?? null) === false) {
+                        unset($links['next']);
+                    }
                 }
 
                 return json_api_response(compact('data', 'included', 'meta', 'links'));
@@ -291,6 +306,16 @@ class Index extends Endpoint
         } catch (Sourceable $e) {
             throw $e->prependSource(['parameter' => 'filter']);
         }
+    }
+
+    /**
+     * Whether the request wants `meta.page.total`; `page[total]=0` (or `false`) opts out.
+     */
+    protected function wantsTotal(Context $context): bool
+    {
+        $total = $context->queryParam('page')['total'] ?? null;
+
+        return ! in_array($total, ['0', 'false', 0, false], true);
     }
 
     public function paginate(int $defaultLimit = 20, int $maxLimit = 50): static

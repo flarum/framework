@@ -8,6 +8,8 @@ export default class DialogMessage extends Model {
     renderFailed(): boolean | undefined;
     contentPlain(): string | null | undefined;
     createdAt(): Date;
+    /** Only present for those allowed to see it. */
+    ipAddress(): string | null | undefined;
     dialog(): false | Dialog;
     user(): false | User;
     canDelete(): boolean;

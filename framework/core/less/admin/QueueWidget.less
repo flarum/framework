@@ -80,7 +80,10 @@
     color: @error-color;
   }
 
-  .LoadingIndicator {
+  // The card's placeholder while its stats load. The spacing goes on the
+  // container: padding on a spinner itself stretches the circle into an oval,
+  // the refresh button's included.
+  &-content > .LoadingIndicator-container {
     padding: 0 20px 20px;
   }
 }

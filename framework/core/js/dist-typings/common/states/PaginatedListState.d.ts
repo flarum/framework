@@ -52,6 +52,14 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     clear(): void;
     loadPrev(): Promise<void>;
     loadNext(): Promise<void>;
+    /**
+     * A load that fails has already shown its error: the request did, while
+     * rejecting (see `Application.request()`). Callers that wait for the result
+     * still see the rejection; this only stops one that doesn't, such as a "Load
+     * more" button or a page's first load, from reporting it a second time as an
+     * unhandled rejection.
+     */
+    protected errorShownByRequest<T>(promise: Promise<T>): Promise<T>;
     protected parseResults(pg: number, results: ApiResponsePlural<T>): void;
     /**
      * Load a new page of results.

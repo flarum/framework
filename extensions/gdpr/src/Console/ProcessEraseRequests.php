@@ -33,7 +33,7 @@ class ProcessEraseRequests extends Command
                 $request->status = ErasureRequest::STATUS_PROCESSED;
                 $request->processed_at = Carbon::now();
                 $request->processed_mode = $request->processed_mode ?? $settings->get('flarum-gdpr.default-erasure');
-                $request->processor_comment = 'Automatically processed after '.static::days.' through scheduled task.';
+                $request->processor_comment = 'Automatically processed after '.static::days.' days through scheduled task.';
                 $request->save();
 
                 $queue->push(new ErasureJob($request));

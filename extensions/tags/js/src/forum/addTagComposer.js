@@ -15,7 +15,12 @@ export default function addTagComposer() {
     if (tag) {
       const parent = tag.parent();
       const tags = parent ? [parent, tag] : [tag];
-      promise.then((composer) => (composer.fields.tags = tags));
+      // A guest is asked to log in instead, which rejects the promise. Whoever
+      // started the discussion handles that; this chain must handle it too.
+      promise.then(
+        (composer) => (composer.fields.tags = tags),
+        () => {}
+      );
     } else {
       app.composer.fields.tags = [];
     }

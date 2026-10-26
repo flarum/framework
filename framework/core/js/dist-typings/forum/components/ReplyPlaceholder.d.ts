@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component, { type ComponentAttrs } from '../../common/Component';
 import type Discussion from '../../common/models/Discussion';
 import type Model from '../../common/Model';

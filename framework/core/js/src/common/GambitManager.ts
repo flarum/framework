@@ -48,6 +48,14 @@ export default class GambitManager {
         const pattern = new RegExp(`^(-?)${gambit.pattern()}$`, 'i');
         let matches = bit.match(pattern);
 
+        // If the translated pattern didn't match, try the canonical English
+        // pattern as an alias — so English always works regardless of locale.
+        const canonicalPattern = gambit.canonicalPattern?.();
+
+        if (!matches && canonicalPattern && canonicalPattern !== gambit.pattern()) {
+          matches = bit.match(new RegExp(`^(-?)${canonicalPattern}$`, 'i'));
+        }
+
         if (matches) {
           const negate = matches[1] === '-';
 
@@ -70,15 +78,14 @@ export default class GambitManager {
 
     if (gambits.length === 0) return q;
 
-    Object.keys(filter).forEach((key) => {
+    Object.keys(filter).forEach((filterKey) => {
+      const negate = filterKey[0] === '-';
+      const key = negate ? filterKey.substring(1) : filterKey;
+
       for (const gambit of gambits) {
-        const negate = key[0] === '-';
-
-        if (negate) key = key.substring(1);
-
         if (gambit.filterKey() !== key) continue;
 
-        q += ` ${gambit.fromFilter(filter[key], negate)}`;
+        q += ` ${gambit.fromFilter(filter[filterKey], negate)}`;
       }
     });
 

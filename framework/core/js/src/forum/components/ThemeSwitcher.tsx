@@ -42,7 +42,11 @@ export default class ThemeSwitcher<CustomAttrs extends ComponentAttrs = Componen
     if (app.session.user) {
       app.session.user.savePreferences({ colorScheme: scheme });
     } else {
-      sessionStorage.setItem('colorScheme', scheme);
+      try {
+        sessionStorage.setItem('colorScheme', scheme);
+      } catch (e) {
+        // The browser blocks storage: the scheme applies until the page is left.
+      }
     }
 
     m.redraw();

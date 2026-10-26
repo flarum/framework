@@ -136,7 +136,8 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
             <Switch
               state={this.changingState ? !isEnabled : isEnabled}
               loading={this.changingState}
-              onchange={this.toggle.bind(this, this.extension.id)}
+              // toggle() takes no arguments, but subclasses still receive the bound id.
+              onchange={(this.toggle as (...args: unknown[]) => void).bind(this, this.extension.id)}
             >
               {isEnabled ? app.translator.trans('core.admin.extension.enabled') : app.translator.trans('core.admin.extension.disabled')}
             </Switch>

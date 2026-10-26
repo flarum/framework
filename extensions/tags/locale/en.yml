@@ -85,6 +85,12 @@ flarum-tags:
     composer_discussion:
       choose_tags_link: => flarum-tags.ref.choose_tags
 
+    # These translations are used by the Tag column in flarum/deck.
+    deck:
+      column_label: Tag
+      tag_label: Tag
+      tag_placeholder: Search for a tag
+
     # These translations are used by the discussion control buttons.
     discussion_controls:
       edit_tags_button: Edit Tags

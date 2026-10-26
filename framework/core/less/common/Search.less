@@ -68,6 +68,24 @@
   }
 }
 
+// The drawer stretches every control to the full width of its row, the clear
+// button included. With a search active the search button has to make room for
+// it, so it may shrink below its label, and the clear button keeps the size it
+// has in the header.
+@media @phone {
+  .Header-controls .Search {
+    .Search-input {
+      min-width: 0;
+    }
+
+    .Search-clear {
+      width: 36px;
+      flex-shrink: 0;
+      justify-content: center;
+    }
+  }
+}
+
 // The accent marks the control as doing something to the page, matching how the
 // notification bell colours its icon when there is something to attend to.
 .Search--active .Search-input .Button-icon {

@@ -181,12 +181,12 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       'sort',
       <Dropdown
         buttonClassName="Button"
-        label={sortOptions[app.search.state.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0]}
+        label={sortOptions[app.search.state.params().sort] || sortOptions[app.search.state.defaultSort()]}
         accessibleToggleLabel={app.translator.trans('core.forum.index_sort.toggle_dropdown_accessible_label')}
       >
         {Object.keys(sortOptions).map((value) => {
           const label = sortOptions[value];
-          const active = (app.search.state.params().sort || Object.keys(sortMap)[0]) === value;
+          const active = (app.search.state.params().sort || app.search.state.defaultSort()) === value;
 
           return (
             <Button icon={active ? 'fas fa-check' : true} onclick={() => app.search.state.changeSort(value)} active={active}>

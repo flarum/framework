@@ -7,7 +7,7 @@ import type Mithril from 'mithril';
 
 export default class UserPageResolver<
   Attrs extends IUserPageAttrs = IUserPageAttrs,
-  RouteArgs extends Record<string, unknown> = {}
+  RouteArgs extends Record<string, unknown> = {},
 > extends DefaultResolver<Attrs, UserPage<Attrs>, RouteArgs> {
   canonicalizeUserSlug(slug: string | undefined) {
     if (!slug) return;

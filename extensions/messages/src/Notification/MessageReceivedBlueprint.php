@@ -49,7 +49,7 @@ class MessageReceivedBlueprint implements BlueprintInterface, MailableInterface
     public function getEmailSubject(TranslatorInterface $translator): string
     {
         return $translator->trans('flarum-messages.email.message_received.subject', [
-            '{user_display_name}' => $this->message->user->display_name,
+            '{user_display_name}' => $this->message->user->display_name ?? $translator->trans('core.lib.username.deleted_text'),
         ]);
     }
 

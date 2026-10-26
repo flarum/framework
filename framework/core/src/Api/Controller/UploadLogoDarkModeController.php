@@ -16,4 +16,7 @@ class UploadLogoDarkModeController extends UploadLogoController
     protected string $filePathSettingKey = 'logo_dark_mode_path';
     protected string $filenamePrefix = 'logo-dark-mode';
     protected ?string $validator = LogoValidator::class;
+
+    // Emails have a light background, so they never use the dark mode logo.
+    protected bool $makeEmailCopy = false;
 }

@@ -12,5 +12,12 @@ export default class DialogListState<P extends DialogListParams = DialogListPara
     requestParams(): PaginatedListRequestParams;
     sortMap(): SortMap;
     load(): Promise<void>;
+    /**
+     * Puts a dialog at the top of the list, as a new message in it does, without
+     * reloading. A list that hasn't loaded yet is left alone: it loads fresh.
+     *
+     * @param limit Keep the first page to this many dialogs, for short lists like the dropdown's.
+     */
+    moveToTop(dialog: Dialog, limit?: number): void;
     markAllAsRead(): Promise<void>;
 }

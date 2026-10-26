@@ -101,6 +101,18 @@
 
 .DialogListItem {
   .CompactActions();
+  position: relative;
+
+  // Over the end of the title row, which leaves room for it.
+  &-actions {
+    position: absolute;
+    top: 10px;
+    inset-inline-end: 12px;
+  }
+
+  &--actions &-title {
+    padding-inline-end: 24px;
+  }
 
   &-button {
     display: flex;
@@ -151,8 +163,8 @@
 
     .Bubble {
       top: -4px;
-      right: -4px;
-      left: unset;
+      inset-inline-end: -4px;
+      inset-inline-start: unset;
       height: 18px;
       min-width: 18px;
     }
@@ -190,17 +202,13 @@
     justify-content: flex-start;
     gap: 10px;
   }
-
-  .DialogDropdownList &-actions {
-    margin-inline-start: auto;
-  }
 }
 
 .Message {
-  padding-right: 0;
+  padding-inline-end: 0;
 
   .PostUser-badges {
-    margin-left: -72px;
+    margin-inline-start: -72px;
   }
 }
 
@@ -216,6 +224,8 @@
 .MessageStream, .DialogList {
   --additional-gap: 52px;
   max-height: calc(100vh - var(--header-height) - 140px - var(--additional-gap));
+  // The viewport as it is, under a phone browser's bars.
+  max-height: calc(100dvh - var(--header-height) - 140px - var(--additional-gap));
   overflow: auto;
 
   @media @tablet-up {
@@ -295,4 +305,61 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+// A private message in the global search results, laid out like a user result.
+// Under .Dropdown-menu, to outrank its `> li > a` item styles.
+.Dropdown-menu > .MessageSearchResult {
+  margin: 0 -16px;
+
+  > a {
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 15px;
+    border-radius: 0;
+  }
+
+  .Avatar {
+    --size: 36px;
+    flex-shrink: 0;
+  }
+}
+
+.MessageSearchResult {
+  &-text {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  &-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    font-weight: bold;
+
+    time {
+      flex-shrink: 0;
+      font-weight: normal;
+      font-size: 12px;
+      color: var(--muted-color);
+    }
+  }
+
+  // Kept to one line, cut short when a name is too long for it.
+  &-conversation {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Dropdown items don't wrap; the excerpt does, as a post's does.
+  &-excerpt {
+    margin-top: 2px;
+    white-space: normal;
+    word-break: break-word;
+    font-size: 12px;
+    line-height: 1.5em;
+    color: var(--muted-color);
+  }
 }

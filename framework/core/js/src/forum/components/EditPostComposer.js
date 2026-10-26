@@ -23,6 +23,8 @@ function minimizeComposerIfFullScreen(e) {
  * - `post`
  */
 export default class EditPostComposer extends ComposerBody {
+  static focusOnSelector = () => '.TextEditor-editor';
+
   static initAttrs(attrs) {
     super.initAttrs(attrs);
 

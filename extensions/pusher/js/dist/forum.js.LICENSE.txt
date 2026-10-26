@@ -1,5 +1,5 @@
 /*!
- * Pusher JavaScript Library v8.4.0
+ * Pusher JavaScript Library v8.6.0
  * https://pusher.com/
  *
  * Copyright 2020, Pusher

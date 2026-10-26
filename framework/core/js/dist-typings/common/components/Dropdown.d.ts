@@ -1,4 +1,3 @@
-/// <reference types="dom-close-watcher" />
 import Component, { ComponentAttrs } from '../Component';
 import type Mithril from 'mithril';
 export interface IDropdownAttrs extends ComponentAttrs {

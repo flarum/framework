@@ -31,6 +31,7 @@ use Flarum\User\Event\Registered;
 use Flarum\User\Event\Saving;
 use Flarum\User\Throttler\EmailActivationThrottler;
 use Flarum\User\Throttler\EmailChangeThrottler;
+use Flarum\User\Throttler\LoginThrottler;
 use Flarum\User\Throttler\PasswordResetThrottler;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -63,6 +64,7 @@ class UserServiceProvider extends AbstractServiceProvider
             $throttlers['emailChangeTimeout'] = $container->make(EmailChangeThrottler::class);
             $throttlers['emailActivationTimeout'] = $container->make(EmailActivationThrottler::class);
             $throttlers['passwordResetTimeout'] = $container->make(PasswordResetThrottler::class);
+            $throttlers['loginAttempts'] = $container->make(LoginThrottler::class);
 
             return $throttlers;
         });

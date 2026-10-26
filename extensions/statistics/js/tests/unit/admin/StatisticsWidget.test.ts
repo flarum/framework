@@ -7,6 +7,7 @@ import jsYaml from 'js-yaml';
 import flatten from 'flat';
 
 import StatisticsWidget from '../../../src/admin/components/StatisticsWidget';
+import MiniStatisticsWidget from '../../../src/admin/components/MiniStatisticsWidget';
 import { Chart } from '../../stubs/frappe-charts';
 
 const testDir = dirname(fileURLToPath(import.meta.url));
@@ -129,5 +130,28 @@ describe('the per-entity count for a custom date range', () => {
     const period = container.querySelector('.StatisticsWidget-period');
 
     expect(period?.getAttribute('title')).toBe(String(140 + 130 + 120 + 110 + 100 + 90 + 80));
+  });
+});
+
+describe('the statistics the widgets show', () => {
+  afterEach(() => app.forum.pushAttributes({ statisticsEntities: undefined }));
+
+  it('are the built-in ones when the forum does not list any', () => {
+    expect(new StatisticsWidget().entities).toEqual(['users', 'discussions', 'posts']);
+    expect(new MiniStatisticsWidget().entities).toEqual(['users', 'discussions', 'posts']);
+  });
+
+  // Other extensions add theirs with the Statistics extender.
+  it('are every statistic the forum lists, in its order, added ones included', () => {
+    app.forum.pushAttributes({ statisticsEntities: ['users', 'discussions', 'posts', 'polls'] });
+
+    expect(new StatisticsWidget().entities).toEqual(['users', 'discussions', 'posts', 'polls']);
+    expect(new MiniStatisticsWidget().entities).toEqual(['users', 'discussions', 'posts', 'polls']);
+  });
+
+  it('start the full page on the first of them', () => {
+    app.forum.pushAttributes({ statisticsEntities: ['polls', 'users'] });
+
+    expect(new StatisticsWidget().selectedEntity).toBe('polls');
   });
 });

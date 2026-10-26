@@ -21,11 +21,51 @@ const optionsSchema = {
 
 let namespace;
 
+/**
+ * The name a module's default export can be registered under, if it has one.
+ *
+ * A named function or class, or a plain identifier, is registered by its name.
+ * Anything else is an expression with no name of its own (an arrow function,
+ * a call, `foo.bar`...), so it is assigned to a variable, which is registered
+ * instead. Babel drops the parentheses around an arrow function's only
+ * parameter, so `export default (x) => ...` reaches us as `export default x =>`.
+ *
+ * Anonymous function and class declarations are left as they are: naming them
+ * through an expression would lose their hoisting.
+ */
+function nameDefaultExport(source) {
+  const statement = /^export\s+default\s+/m.exec(source);
+
+  if (!statement) {
+    return { source, defaultExport: null };
+  }
+
+  const rest = source.slice(statement.index + statement[0].length);
+  const declaration = /^(?:(?:async\s+)?function\s*\*?|(?:abstract\s+)?class)(?![\w$])\s*(?!extends(?![\w$]))([A-Za-z_$][\w$]*)?/.exec(rest);
+
+  if (declaration) {
+    return { source, defaultExport: declaration[1] || null };
+  }
+
+  const identifier = /^([A-Za-z_$][\w$]*)\s*(?:;|$)/m.exec(rest);
+
+  if (identifier) {
+    return { source, defaultExport: identifier[1] };
+  }
+
+  const variable = '__flarum_default_export__';
+
+  return {
+    source: `let ${variable};\n` + source.slice(0, statement.index) + statement[0] + `${variable} = ` + rest,
+    defaultExport: variable,
+  };
+}
+
 function addAutoExports(source, pathToModule, moduleName) {
   let addition = '';
+  let defaultExport;
 
-  const defaultExportMatches = [...source.matchAll(/export\s+?default\s(?:abstract\s)?(?:async\s)?(?:(?:function|abstract|class)\s)?([A-Za-z_]*)/gm)];
-  const defaultExport = defaultExportMatches.length ? defaultExportMatches[0][1] : null;
+  ({ source, defaultExport } = nameDefaultExport(source));
 
   // In case of an index.js file that exports multiple modules
   // we need to add the directory as a module.

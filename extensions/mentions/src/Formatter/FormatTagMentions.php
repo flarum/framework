@@ -9,7 +9,6 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Database\AbstractModel;
 use Flarum\Tags\Tag;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use s9e\TextFormatter\Renderer;
@@ -17,14 +16,15 @@ use s9e\TextFormatter\Utils;
 
 class FormatTagMentions
 {
+    use LooksUpMentionedModels;
+
     public function __invoke(Renderer $renderer, mixed $context, string $xml, ?Request $request = null): string
     {
-        return Utils::replaceAttributes($xml, 'TAGMENTION', function ($attributes) use ($context) {
+        $tags = $this->mentionedModels($context, 'mentionsTags', $xml, 'TAGMENTION', Tag::query());
+
+        return Utils::replaceAttributes($xml, 'TAGMENTION', function ($attributes) use ($tags) {
             /** @var Tag|null $tag */
-            $tag = match (true) {
-                $context instanceof AbstractModel && $context->relationLoaded('mentionsTags') => $context->mentionsTags->find($attributes['id']), // @phpstan-ignore-line
-                default => Tag::query()->find($attributes['id']),
-            };
+            $tag = $tags->find($attributes['id']);
 
             if ($tag) {
                 $attributes['deleted'] = false;

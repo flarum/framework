@@ -42,6 +42,7 @@
             "Flarum\\Approval\\": "extensions/approval/src",
             "Flarum\\Audit\\": "extensions/audit/src",
             "Flarum\\BBCode\\": "extensions/bbcode/src",
+            "Flarum\\Deck\\": "extensions/deck/src",
             "Flarum\\Flags\\": "extensions/flags/src",
             "Flarum\\Gdpr\\": "extensions/gdpr/src",
             "Flarum\\Likes\\": "extensions/likes/src",
@@ -61,13 +62,15 @@
             "Flarum\\Testing\\": "php-packages/testing/src"
         },
         "files": [
-            "framework/core/src/helpers.php"
+            "framework/core/src/helpers.php",
+            "extensions/package-manager/bootstrap/web-reset.php"
         ]
     },
     "autoload-dev": {
         "psr-4": {
             "Flarum\\Tests\\": "tests",
             "Flarum\\Akismet\\Tests\\": "extensions/akismet/tests",
+            "Flarum\\Deck\\Tests\\": "extensions/deck/tests",
             "Flarum\\Approval\\Tests\\": "extensions/approval/tests",
             "Flarum\\Audit\\Tests\\": "extensions/audit/tests",
             "Flarum\\Flags\\Tests\\": "extensions/flags/tests",
@@ -94,6 +97,7 @@
         "flarum/approval": "self.version",
         "flarum/audit": "self.version",
         "flarum/bbcode": "self.version",
+        "flarum/deck": "self.version",
         "flarum/embed": "self.version",
         "flarum/emoji": "self.version",
         "flarum/flags": "self.version",
@@ -126,8 +130,8 @@
         "doctrine/dbal": "^3.6.2",
         "dragonmantank/cron-expression": "^3.3",
         "fakerphp/faker": "^1.9.1",
+        "flarum/font-awesome": "^7.0",
         "flarum/json-api-server": "^0.1.0",
-        "fortawesome/font-awesome": "^7.0",
         "franzl/whoops-middleware": "2.0",
         "guzzlehttp/guzzle": "*",
         "illuminate/bus": "^13.0",
@@ -199,6 +203,7 @@
             "extensions/approval",
             "extensions/audit",
             "extensions/bbcode",
+            "extensions/deck",
             "extensions/embed",
             "extensions/emoji",
             "extensions/flags",

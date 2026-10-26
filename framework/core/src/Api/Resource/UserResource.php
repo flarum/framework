@@ -19,6 +19,8 @@ use Flarum\Group\Group;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\LocaleManager;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Notification\Notification;
+use Flarum\Notification\NotificationSyncer;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AvatarUploader;
 use Flarum\User\AvatarValidator;
@@ -29,6 +31,7 @@ use Flarum\User\Event\GroupsChanged;
 use Flarum\User\Event\RegisteringFromProvider;
 use Flarum\User\Event\Saving;
 use Flarum\User\Exception\NotAuthenticatedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use GuzzleHttp\Client;
@@ -78,7 +81,13 @@ class UserResource extends AbstractDatabaseResource
         if (Arr::get($context->request->getQueryParams(), 'bySlug', false)) {
             $user = $this->slugManager->forResource(User::class)->fromSlug($id, $actor);
         } else {
-            $user = $this->query($context)->findOrFail($id);
+            $query = $this->query($context);
+
+            if (! $this->idCanBeKey($query->getModel(), $id)) {
+                return null;
+            }
+
+            $user = $query->findOrFail($id);
         }
 
         return $user;
@@ -173,6 +182,33 @@ class UserResource extends AbstractDatabaseResource
                     return $this->bus->dispatch(
                         new DeleteAvatar(Arr::get($context->request->getQueryParams(), 'id'), $context->getActor())
                     );
+                }),
+            Endpoint\Endpoint::make('notificationPreferences.reset')
+                ->route('DELETE', '/{id}/notification-preferences')
+                ->authenticated()
+                ->action(function (Context $context) {
+                    /** @var User $user */
+                    $user = $context->model;
+
+                    // Only the user themselves, the same rule as the `preferences` field.
+                    if ($context->getActor()->id !== $user->id) {
+                        throw new PermissionDeniedException();
+                    }
+
+                    // Every key a driver registers a default for, built the way it is
+                    // registered, then dropped in one save so the defaults apply again.
+                    $keys = [];
+
+                    foreach (array_keys(Notification::getSubjectModels()) as $type) {
+                        foreach (array_keys(NotificationSyncer::getNotificationDrivers()) as $driver) {
+                            $keys[] = User::getNotificationPreferenceKey($type, $driver);
+                        }
+                    }
+
+                    $user->forgetPreferences($keys);
+                    $user->save();
+
+                    return $user;
                 }),
         ];
     }
@@ -354,6 +390,12 @@ class UserResource extends AbstractDatabaseResource
                 }),
 
             Schema\Relationship\ToMany::make('groups')
+                // Whether a user is an admin, and what else they may do, is
+                // read from this relation (isAdmin(), hasPermission()) by the
+                // policies that decide what is serialized about them, so it
+                // must hold every group they are in, including the hidden
+                // ones the actor may not see. Those are left out below.
+                ->withoutRelatedScope()
                 ->get(function (User $user, Context $context) {
                     // Read the (eager-)loaded relation instead of issuing a fresh
                     // query per serialized user. Hidden groups are filtered in PHP
@@ -377,17 +419,16 @@ class UserResource extends AbstractDatabaseResource
                     $actor = $context->getActor();
 
                     $oldGroups = $user->groups()->get()->all();
-                    $oldGroupIds = Arr::pluck($oldGroups, 'id');
+                    $oldGroupIds = array_map(fn (Group $group) => (int) $group->id, $oldGroups);
 
-                    $newGroupIds = [];
-                    foreach ($value as $group) {
-                        if ($id = Arr::get($group, 'id')) {
-                            $newGroupIds[] = $id;
-                        }
-                    }
+                    // The relationship resolves each identifier to a group that
+                    // exists, so compare the ids of those groups, never the raw
+                    // identifiers the request sent.
+                    $newGroupIds = array_map(fn (Group $group) => (int) $group->id, $value);
 
                     // Ensure non-admins aren't adding/removing admins
-                    $adminChanged = in_array('1', array_diff($oldGroupIds, $newGroupIds)) || in_array('1', array_diff($newGroupIds, $oldGroupIds));
+                    $adminChanged = in_array(Group::ADMINISTRATOR_ID, array_diff($oldGroupIds, $newGroupIds), true)
+                        || in_array(Group::ADMINISTRATOR_ID, array_diff($newGroupIds, $oldGroupIds), true);
                     $actor->assertPermission(! $adminChanged || $actor->isAdmin());
 
                     $user->raise(
