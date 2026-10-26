@@ -19,7 +19,7 @@ use PHPUnit\Framework\Attributes\Test;
 
 class DefaultLanguagePackGuardTest extends TestCase
 {
-    private function guard(string $defaultLocale): DefaultLanguagePackGuard
+    private function guard(?string $defaultLocale): DefaultLanguagePackGuard
     {
         $settings = $this->createStub(SettingsRepositoryInterface::class);
         $settings->method('get')
@@ -64,6 +64,16 @@ class DefaultLanguagePackGuardTest extends TestCase
         $this->expectNotToPerformAssertions();
 
         $this->guard('en')->handle(
+            $this->disabling(['flarum-extension' => ['title' => 'Some Extension']], 'acme/some-extension')
+        );
+    }
+
+    #[Test]
+    public function it_allows_disabling_a_non_language_pack_extension_when_no_default_locale_is_set()
+    {
+        $this->expectNotToPerformAssertions();
+
+        $this->guard(null)->handle(
             $this->disabling(['flarum-extension' => ['title' => 'Some Extension']], 'acme/some-extension')
         );
     }

@@ -24,7 +24,7 @@ readonly class Meta
     public function __invoke(Document $document, Request $request): void
     {
         $document->language = $this->locales->getLocale();
-        $document->direction = 'ltr';
+        $document->direction = $this->locales->getDirection();
 
         $document->meta = array_merge($document->meta, $this->buildMeta($document));
         $document->head = array_merge($document->head, $this->buildHead($document));
