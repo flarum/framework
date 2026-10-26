@@ -13,6 +13,7 @@ use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
 use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Tests\unit\FakeHttp;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -123,11 +124,11 @@ class CompatibilityTest extends TestCase
         $calls = 0;
 
         $body = json_encode($this->p2('acme/w', [['version' => '2.0.0', 'require' => ['flarum/core' => '^2.0']]]));
-        $packagist = new Packagist(EnglishTranslator::make(), new Cache($dir), function () use (&$calls, $body) {
+        $packagist = new Packagist(EnglishTranslator::make(), new Cache($dir), FakeHttp::client(function () use (&$calls, $body) {
             $calls++;
 
             return $body;
-        });
+        }));
 
         $packagist->verdicts(['acme/w'], new Compatibility('1.8.0'));
         $packagist->verdicts(['acme/w'], new Compatibility('1.8.0'));
@@ -147,11 +148,11 @@ class CompatibilityTest extends TestCase
         $dir = sys_get_temp_dir().'/mw-compat-'.bin2hex(random_bytes(4));
         $calls = 0;
 
-        $packagist = new Packagist(EnglishTranslator::make(), new Cache($dir), function () use (&$calls) {
+        $packagist = new Packagist(EnglishTranslator::make(), new Cache($dir), FakeHttp::client(function () use (&$calls) {
             $calls++;
 
             return null;
-        });
+        }));
 
         $packagist->verdicts(['acme/w'], new Compatibility('2.0.0'));
         $packagist->verdicts(['acme/w'], new Compatibility('2.0.0'));

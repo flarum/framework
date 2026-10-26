@@ -18,6 +18,7 @@ use Flarum\Foundation\Application;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\ClientInterface;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -40,6 +41,7 @@ class CompatController implements RequestHandlerInterface
         protected TranslatorInterface $translator,
         protected Paths $paths,
         protected Application $app,
+        protected ClientInterface $http,
     ) {
     }
 
@@ -73,7 +75,7 @@ class CompatController implements RequestHandlerInterface
          */
         $core = $this->targetOr($this->coreVersion(), Arr::get((array) $request->getParsedBody(), 'core'));
 
-        $packagist = new Packagist($this->translator, new Cache(StorageDir::of($this->paths->storage).'/packagist'));
+        $packagist = new Packagist($this->translator, new Cache(StorageDir::of($this->paths->storage).'/packagist'), $this->http);
 
         return new JsonResponse([
             'verdicts' => $packagist->verdicts($names, new Compatibility($core)),

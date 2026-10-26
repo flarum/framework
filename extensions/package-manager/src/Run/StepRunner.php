@@ -9,7 +9,11 @@
 
 namespace Flarum\ExtensionManager\Run;
 
+use Composer\Downloader\TransportException;
+use Error;
 use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use PDOException;
 use Throwable;
 
 /**
@@ -283,7 +287,8 @@ class StepRunner
             return $run;
         } catch (Throwable $e) {
             $where = $item === null ? "$phase (planning)" : "$phase → $item";
-            $run = $run->failed($e->getMessage(), $where, $this->now(), $this->failedNote($where, $e->getMessage()));
+            $error = $this->describe($e);
+            $run = $run->failed($error, $where, $this->now(), $this->failedNote($where, $error));
             $this->store->save($run);
 
             return $run;
@@ -304,6 +309,30 @@ class StepRunner
         $this->store->save($run);
 
         return $run;
+    }
+
+    /**
+     * What a failed step tells the admin.
+     *
+     * The extension's own failures already carry a translated sentence. A
+     * database, network or PHP error from underneath it, which may come from
+     * Flarum, Composer or another extension, is put into one that says what
+     * kind of thing went wrong, with the original message kept as the detail
+     * an admin or a support thread needs.
+     */
+    public function describe(Throwable $e): string
+    {
+        $key = match (true) {
+            // Laravel's QueryException is one of these.
+            $e instanceof PDOException => 'failed_database',
+            $e instanceof GuzzleException, $e instanceof TransportException => 'failed_network',
+            $e instanceof Error => 'failed_internal',
+            default => null,
+        };
+
+        return $key === null
+            ? $e->getMessage()
+            : $this->translator->trans('flarum-extension-manager.api.run.'.$key, ['error' => $e->getMessage()]);
     }
 
     /** The log line for a failed step. */

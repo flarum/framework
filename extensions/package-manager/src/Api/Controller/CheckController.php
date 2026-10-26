@@ -15,6 +15,7 @@ use Flarum\ExtensionManager\Work\UpdateCheck;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\ClientInterface;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -32,6 +33,7 @@ class CheckController implements RequestHandlerInterface
     public function __construct(
         protected TranslatorInterface $translator,
         protected Paths $paths,
+        protected ClientInterface $http,
     ) {
     }
 
@@ -39,7 +41,7 @@ class CheckController implements RequestHandlerInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $check = new UpdateCheck(StorageDir::of($this->paths->storage).'/updates.json');
+        $check = new UpdateCheck(StorageDir::of($this->paths->storage).'/updates.json', $this->http);
 
         // The same check as the console command, protected repositories
         // included: see UpdateCheck::refreshSite().

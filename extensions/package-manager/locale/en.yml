@@ -774,7 +774,10 @@ flarum-extension-manager:
       restored: "restored {file}"
     run:
       dir_failed: "Could not create the run directory at {path}"
+      failed_database: "A database error stopped this step: {error}"
       failed_during: "Failed during {step}: {error}"
+      failed_internal: "An unexpected PHP error stopped this step: {error}"
+      failed_network: "A download or request did not get through: {error}"
       finished: "Finished"
       finished_phase: "Finished {phase}"
       no_worker: "There is no background worker on this forum, so keep this page open until it finishes. It will pick up where it left off if you do close it."

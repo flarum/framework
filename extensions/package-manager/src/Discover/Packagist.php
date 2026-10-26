@@ -10,6 +10,8 @@
 namespace Flarum\ExtensionManager\Discover;
 
 use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Finding extensions, in two cheap requests rather than one slow one.
@@ -43,13 +45,11 @@ class Packagist
         'widget' => ['tags' => ['widget', 'widgets']],
     ];
 
-    /** @param ?callable(string):?string $get overridable so tests never touch a network */
     public function __construct(
         protected TranslatorInterface $translator,
         protected Cache $cache,
-        protected $get = null,
+        protected ClientInterface $http,
     ) {
-        $this->get ??= fn (string $url) => $this->fetch($url);
     }
 
     /**
@@ -78,7 +78,7 @@ class Packagist
             $url .= '&tags[]='.rawurlencode($tag);
         }
 
-        $body = ($this->get)($url);
+        $body = $this->fetch($url);
 
         if ($body === null) {
             /*
@@ -188,7 +188,7 @@ class Packagist
             return $cached;
         }
 
-        $body = ($this->get)('https://repo.packagist.org/p2/'.$name.'.json');
+        $body = $this->fetch('https://repo.packagist.org/p2/'.$name.'.json');
 
         if ($body === null) {
             // Not cached: a package that could not be reached today may be
@@ -231,7 +231,7 @@ class Packagist
             return null;
         }
 
-        $body = ($this->get)("https://raw.githubusercontent.com/{$m[1]}/{$m[2]}/{$ref}/composer.json");
+        $body = $this->fetch("https://raw.githubusercontent.com/{$m[1]}/{$m[2]}/{$ref}/composer.json");
         $real = strtolower((string) (json_decode((string) $body, true)['name'] ?? ''));
 
         return preg_match('#^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9](([_.]|-{1,2})?[a-z0-9]+)*$#', $real) && $real !== strtolower($name)
@@ -239,15 +239,19 @@ class Packagist
             : null;
     }
 
+    /** The body, or null when the request failed or was answered with an error. */
     protected function fetch(string $url): ?string
     {
-        $context = stream_context_create(['http' => [
-            'timeout' => 15,
-            'header' => "User-Agent: the Extension Manager (Flarum extension updater)\r\n",
-        ]]);
+        try {
+            $response = $this->http->request('GET', $url, [
+                'timeout' => 15,
+                'http_errors' => false,
+                'headers' => ['User-Agent' => 'the Extension Manager (Flarum extension updater)'],
+            ]);
+        } catch (GuzzleException) {
+            return null;
+        }
 
-        $body = @file_get_contents($url, false, $context);
-
-        return $body === false ? null : $body;
+        return $response->getStatusCode() < 300 ? (string) $response->getBody() : null;
     }
 }

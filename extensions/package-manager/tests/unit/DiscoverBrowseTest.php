@@ -12,6 +12,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Packagist;
 use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Tests\unit\FakeHttp;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -48,11 +49,11 @@ class DiscoverBrowseTest extends TestCase
     {
         $urls = new \ArrayObject();
 
-        $p = new Packagist(EnglishTranslator::make(), new Cache($this->dir), function (string $url) use ($urls, $body) {
+        $p = new Packagist(EnglishTranslator::make(), new Cache($this->dir), FakeHttp::client(function (string $url) use ($urls, $body) {
             $urls->append($url);
 
             return $body;
-        });
+        }));
 
         return [$p, $urls];
     }
@@ -116,11 +117,11 @@ class DiscoverBrowseTest extends TestCase
         $p->search('dark', 12, 1, 'theme');
         $p->search('', 12, 1, 'language');
 
-        $this->assertStringContainsString('&tags[]=widget&tags[]=widgets', $urls[0] ?? '');
+        $this->assertStringContainsString('&tags[]=widget&tags[]=widgets', urldecode($urls[0] ?? ''));
         $this->assertStringNotContainsString('&q=', $urls[0] ?? '');
         // Themes are found by the word, alongside whatever was typed.
         $this->assertStringContainsString('q=dark%20theme', $urls[1] ?? '');
-        $this->assertStringContainsString('&tags[]=locale&tags[]=language', $urls[2] ?? '');
+        $this->assertStringContainsString('&tags[]=locale&tags[]=language', urldecode($urls[2] ?? ''));
     }
 
     public function test_an_unknown_category_never_reaches_the_url(): void
@@ -140,7 +141,7 @@ class DiscoverBrowseTest extends TestCase
          * screen and mean opposite things: the first ends a search, the second
          * means try again in a minute.
          */
-        $p = new Packagist(EnglishTranslator::make(), new Cache($this->dir), fn () => null);
+        $p = new Packagist(EnglishTranslator::make(), new Cache($this->dir), FakeHttp::client(fn () => null));
         $found = $p->search('');
 
         $this->assertSame([], $found['results']);
