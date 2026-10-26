@@ -4,6 +4,7 @@ import { alertError } from '../errors';
 import { pollOutcome, runIsOver, shouldPoll } from '../runState';
 import type { RollbackPayload, Run, StatePayload, StepPayload } from '../types';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
+import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
 import type RequestError from 'flarum/common/utils/RequestError';
 import type Mithril from 'mithril';
@@ -70,18 +71,18 @@ export interface RunPanelAttrs extends ComponentAttrs {
  */
 export default class RunPanel extends Component<RunPanelAttrs> {
   /** Consecutive failed polls. A host hiccup is not a failed update. */
-  private misses = 0;
-  private polling = false;
-  private rollingBack = false;
+  protected misses = 0;
+  protected polling = false;
+  protected rollingBack = false;
   /** True once we have fallen back to reading progress instead of driving it. */
-  private watching = false;
+  protected watching = false;
   /** The HTTP status of the last failed drive, so the panel can be specific. */
-  private lastStatus: number | null = null;
+  protected lastStatus: number | null = null;
   /** What the last failure means and what to do next — see runState.pollOutcome. */
-  private outcome = pollOutcome(null, 0);
+  protected outcome = pollOutcome(null, 0);
 
   /** The run the loop is following, so a new one starts with a clean slate. */
-  private following: string | null = null;
+  protected following: string | null = null;
 
   oncreate(vnode: Mithril.VnodeDOM<RunPanelAttrs, this>) {
     super.oncreate(vnode);
@@ -99,7 +100,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     this.follow();
   }
 
-  private follow() {
+  protected follow() {
     const run = this.attrs.run;
 
     if (run?.id && run.id !== this.following) {
@@ -207,10 +208,14 @@ export default class RunPanel extends Component<RunPanelAttrs> {
           </div>
         ) : null}
 
-        {this.attrs.rollbackNote ? <div className="ExtensionManager-next">{this.attrs.rollbackNote}</div> : null}
+        {this.attrs.rollbackNote ? (
+          <Alert type="warning" dismissible={false} className="ExtensionManager-runNotice">
+            {this.attrs.rollbackNote}
+          </Alert>
+        ) : null}
 
         {this.misses > 2 && !done && !failed && !rolled ? (
-          <div className="ExtensionManager-stall">
+          <Alert type="warning" dismissible={false} className="ExtensionManager-runNotice">
             {/*
              * Says WHICH problem. A 400 or 401 here is an expired session —
              * the update is fine and a reload fixes the screen — and telling
@@ -221,11 +226,13 @@ export default class RunPanel extends Component<RunPanelAttrs> {
               ? app.translator.trans('flarum-extension-manager.admin.run.poll_unauthorised')
               : app.translator.trans('flarum-extension-manager.admin.run.poll_failing', { count: this.misses })}
             {this.watching ? ' ' + app.translator.trans('flarum-extension-manager.admin.run.watching_only', {}, true) : ''}
-          </div>
+          </Alert>
         ) : null}
 
         {this.attrs.busy && !done && !failed && !rolled ? (
-          <div className="ExtensionManager-stall">{app.translator.trans('flarum-extension-manager.admin.run.another_driver')}</div>
+          <Alert type="warning" dismissible={false} className="ExtensionManager-runNotice">
+            {app.translator.trans('flarum-extension-manager.admin.run.another_driver')}
+          </Alert>
         ) : null}
 
         {/*
@@ -235,7 +242,9 @@ export default class RunPanel extends Component<RunPanelAttrs> {
          * says exactly what went wrong.
          */}
         {this.attrs.stale && !done && !failed && !rolled ? (
-          <div className="ExtensionManager-stall">{app.translator.trans('flarum-extension-manager.admin.run.nothing_moved')}</div>
+          <Alert type="warning" dismissible={false} className="ExtensionManager-runNotice">
+            {app.translator.trans('flarum-extension-manager.admin.run.nothing_moved')}
+          </Alert>
         ) : null}
 
         {/*
@@ -430,7 +439,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
    * Keeps polling on the same backoff so a transient failure recovers into
    * driving again by itself.
    */
-  private watch() {
+  protected watch() {
     app
       .request<StatePayload>({ method: 'GET', url: apiUrl() + '/extension-manager/state' })
       .then((data) => {

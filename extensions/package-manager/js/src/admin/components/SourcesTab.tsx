@@ -2,6 +2,7 @@ import app from 'flarum/admin/app';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
 import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
+import Switch from 'flarum/common/components/Switch';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import type Mithril from 'mithril';
 import apiUrl from '../apiUrl';
@@ -62,25 +63,25 @@ const KINDS: Record<string, { icon: string; host: string }> = {
 const LADDER = ['stable', 'RC', 'beta', 'alpha', 'dev'];
 
 export default class SourcesTab extends Component {
-  private loading = true;
-  private saving = false;
-  private data: ConfigPayload | null = null;
+  protected loading = true;
+  protected saving = false;
+  protected data: ConfigPayload | null = null;
   /** Why the settings could not be read at all, when they could not. */
-  private loadError: string | null = null;
+  protected loadError: string | null = null;
 
   // repositories
-  private repoType = 'vcs';
-  private repoUrl = '';
-  private filter = '';
-  private confirmRepo: string | null = null;
+  protected repoType = 'vcs';
+  protected repoUrl = '';
+  protected filter = '';
+  protected confirmRepo: string | null = null;
 
   // credentials
-  private authKind = 'github-oauth';
-  private authHost = 'github.com';
-  private authUser = '';
-  private authSecret = '';
-  private reveal = false;
-  private confirmAuth: string | null = null;
+  protected authKind = 'github-oauth';
+  protected authHost = 'github.com';
+  protected authUser = '';
+  protected authSecret = '';
+  protected reveal = false;
+  protected confirmAuth: string | null = null;
 
   oninit(vnode: Mithril.Vnode<ComponentAttrs, this>) {
     super.oninit(vnode);
@@ -306,15 +307,14 @@ export default class SourcesTab extends Component {
                   <i className="fas fa-arrow-up-right-from-square" aria-hidden="true" />
                 </a>
               ) : null}
-              <button
+              <Button
                 className="ExtensionManager-src-icon ExtensionManager-src-icon--sm ExtensionManager-src-icon--danger"
+                icon="fas fa-trash-can"
                 disabled={this.saving}
                 title={app.translator.trans('flarum-extension-manager.admin.actions.remove', {}, true)}
                 aria-label={app.translator.trans('flarum-extension-manager.admin.composer.remove_repository_label', { name: d.name }, true)}
                 onclick={() => (this.confirmRepo = r.url)}
-              >
-                <i className="fas fa-trash-can" aria-hidden="true" />
-              </button>
+              />
             </span>,
           ]
         )}
@@ -350,19 +350,16 @@ export default class SourcesTab extends Component {
           aria-label={app.translator.trans('flarum-extension-manager.admin.composer.add_repository_label', {}, true)}
         >
           {types.map((ty) => (
-            <button
-              type="button"
+            <Button
               role="radio"
               aria-checked={this.repoType === ty ? 'true' : 'false'}
               className={'ExtensionManager-src-choice' + (this.repoType === ty ? ' is-on' : '')}
+              icon={(TYPES[ty] || TYPES.vcs).icon}
+              helperText={app.translator.trans('flarum-extension-manager.admin.composer.repositories.type_help.' + ty)}
               onclick={() => (this.repoType = ty)}
             >
-              <i className={(TYPES[ty] || TYPES.vcs).icon} aria-hidden="true" />
-              <span>
-                <strong>{this.typeLabel(ty)}</strong>
-                <small>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.type_help.' + ty)}</small>
-              </span>
-            </button>
+              {this.typeLabel(ty)}
+            </Button>
           ))}
         </div>
 
@@ -434,24 +431,25 @@ export default class SourcesTab extends Component {
               const accepted = i <= levels.indexOf(current);
 
               return (
-                <button
-                  type="button"
+                <Button
                   role="radio"
                   aria-checked={on ? 'true' : 'false'}
                   title={means(l)}
                   disabled={this.saving}
                   className={'ExtensionManager-src-step' + (on ? ' is-on' : accepted ? ' is-accepted' : '')}
+                  helperText={
+                    l === 'beta' ? (
+                      <span className="ExtensionManager-src-reco">
+                        {app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.recommended')}
+                      </span>
+                    ) : (
+                      app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.short.' + l.toLowerCase())
+                    )
+                  }
                   onclick={() => !on && this.send({ action: 'set-stability', minimumStability: l, preferStable: st.preferStable })}
                 >
-                  <strong>{app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.options.' + l.toLowerCase())}</strong>
-                  {l === 'beta' ? (
-                    <small className="ExtensionManager-src-reco">
-                      {app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.recommended')}
-                    </small>
-                  ) : (
-                    <small>{app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.short.' + l.toLowerCase())}</small>
-                  )}
-                </button>
+                  {app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.options.' + l.toLowerCase())}
+                </Button>
               );
             })}
           </div>
@@ -461,24 +459,18 @@ export default class SourcesTab extends Component {
             <span>{means(current)}</span>
           </div>
 
-          <label className="ExtensionManager-src-switch">
-            <input
-              type="checkbox"
-              role="switch"
-              checked={!!st.preferStable}
-              disabled={this.saving}
-              onchange={(e: Event) =>
-                this.send({ action: 'set-stability', minimumStability: current, preferStable: (e.target as HTMLInputElement).checked })
-              }
-            />
-            <span className="ExtensionManager-src-track" aria-hidden="true">
-              <span />
-            </span>
+          <Switch
+            className="ExtensionManager-src-switch"
+            state={!!st.preferStable}
+            disabled={this.saving}
+            inputAttrs={{ role: 'switch' }}
+            onchange={(checked: boolean) => this.send({ action: 'set-stability', minimumStability: current, preferStable: checked })}
+          >
             <span className="ExtensionManager-src-switchText">
               <strong>{app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.prefer_stable')}</strong>
               <small>{app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.prefer_stable_help')}</small>
             </span>
-          </label>
+          </Switch>
         </div>
       </section>
     );
@@ -575,15 +567,14 @@ export default class SourcesTab extends Component {
             >
               {app.translator.trans('flarum-extension-manager.admin.auth_config.edit_label')}
             </Button>
-            <button
+            <Button
               className="ExtensionManager-src-icon ExtensionManager-src-icon--danger"
+              icon="fas fa-trash-can"
               disabled={this.saving}
               title={app.translator.trans('flarum-extension-manager.admin.actions.remove', {}, true)}
               aria-label={app.translator.trans('flarum-extension-manager.admin.auth_config.remove_host_label', { name: c.host }, true)}
               onclick={() => (this.confirmAuth = key)}
-            >
-              <i className="fas fa-trash-can" aria-hidden="true" />
-            </button>
+            />
           </span>
         )}
       </li>
@@ -648,11 +639,12 @@ export default class SourcesTab extends Component {
           aria-label={app.translator.trans('flarum-extension-manager.admin.auth_config.add_label', {}, true)}
         >
           {kinds.map((k) => (
-            <button
-              type="button"
+            <Button
               role="radio"
               aria-checked={this.authKind === k ? 'true' : 'false'}
               className={'ExtensionManager-src-choice' + (this.authKind === k ? ' is-on' : '')}
+              icon={(KINDS[k] || KINDS.bearer).icon}
+              helperText={app.translator.trans('flarum-extension-manager.admin.auth_config.type_help.' + k)}
               onclick={() => {
                 const was = KINDS[this.authKind]?.host || '';
                 this.authKind = k;
@@ -660,12 +652,8 @@ export default class SourcesTab extends Component {
                 if (!this.authHost.trim() || this.authHost === was) this.authHost = KINDS[k]?.host || '';
               }}
             >
-              <i className={(KINDS[k] || KINDS.bearer).icon} aria-hidden="true" />
-              <span>
-                <strong>{app.translator.trans('flarum-extension-manager.admin.auth_config.types.' + k)}</strong>
-                <small>{app.translator.trans('flarum-extension-manager.admin.auth_config.type_help.' + k)}</small>
-              </span>
-            </button>
+              {app.translator.trans('flarum-extension-manager.admin.auth_config.types.' + k)}
+            </Button>
           ))}
         </div>
 
@@ -710,15 +698,13 @@ export default class SourcesTab extends Component {
                 value={this.authSecret}
                 oninput={(e: InputEvent) => (this.authSecret = (e.target as HTMLInputElement).value)}
               />
-              <button
-                type="button"
+              <Button
                 className="ExtensionManager-src-icon"
+                icon={this.reveal ? 'fas fa-eye-slash' : 'fas fa-eye'}
                 aria-label={this.revealLabel()}
                 title={this.revealLabel()}
                 onclick={() => (this.reveal = !this.reveal)}
-              >
-                <i className={this.reveal ? 'fas fa-eye-slash' : 'fas fa-eye'} aria-hidden="true" />
-              </button>
+              />
             </span>
           </label>
         </div>

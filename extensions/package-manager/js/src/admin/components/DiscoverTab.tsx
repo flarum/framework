@@ -49,25 +49,25 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
     this.search();
   }
 
-  private query = '';
+  protected query = '';
   /** '' is everything; the rest are the keys of Packagist::CATEGORIES. */
-  private category = '';
-  private searching = false;
-  private searched = false;
-  private page = 1;
-  private more = false;
-  private loadingMore = false;
-  private results: Found[] = [];
-  private verdicts: Record<string, Verdict> = {};
-  private installedNames: string[] = [];
-  private checking = false;
-  private error: string | null = null;
-  private core: string | null = null;
-  private seq = 0;
+  protected category = '';
+  protected searching = false;
+  protected searched = false;
+  protected page = 1;
+  protected more = false;
+  protected loadingMore = false;
+  protected results: Found[] = [];
+  protected verdicts: Record<string, Verdict> = {};
+  protected installedNames: string[] = [];
+  protected checking = false;
+  protected error: string | null = null;
+  protected core: string | null = null;
+  protected seq = 0;
   /** The query whose results are on screen, so a keystroke can tell if anything changed. */
-  private lastSearched: string | null = null;
+  protected lastSearched: string | null = null;
   /** The pending debounce, so a new keystroke replaces it rather than adding to it. */
-  private typing: ReturnType<typeof setTimeout> | null = null;
+  protected typing: ReturnType<typeof setTimeout> | null = null;
 
   view() {
     return (
@@ -120,8 +120,7 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
           aria-label={app.translator.trans('flarum-extension-manager.admin.sections.discover.tabs.label', {}, true)}
         >
           {CATEGORIES.map((c) => (
-            <button
-              type="button"
+            <Button
               role="radio"
               aria-checked={this.category === c.id ? 'true' : 'false'}
               className={'ExtensionManager-chip' + (this.category === c.id ? ' is-on' : '')}
@@ -133,7 +132,7 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
               }}
             >
               {app.translator.trans(c.label)}
-            </button>
+            </Button>
           ))}
         </div>
 

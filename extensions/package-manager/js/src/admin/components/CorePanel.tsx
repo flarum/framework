@@ -42,13 +42,13 @@ const BATCH = 12;
  * first built, which is the very failure the extension exists to prevent.
  */
 export default class CorePanel extends Component<CoreAttrs> {
-  private loading = true;
-  private current: string | null = null;
-  private newest: { from: string; to: string } | null = null;
-  private preflight: Preflight | null = null;
-  private checking = false;
-  private failed = false;
-  private seenCheck: number | null = null;
+  protected loading = true;
+  protected current: string | null = null;
+  protected newest: { from: string; to: string } | null = null;
+  protected preflight: Preflight | null = null;
+  protected checking = false;
+  protected failed = false;
+  protected seenCheck: number | null = null;
 
   oninit(vnode: Mithril.Vnode<CoreAttrs, this>) {
     super.oninit(vnode);
@@ -159,9 +159,9 @@ export default class CorePanel extends Component<CoreAttrs> {
          * act on — and it is why the button above is disabled.
          */}
         {blocked > 0 ? (
-          <div className="ExtensionManager-coreBlocked">
+          <Alert type="error" dismissible={false}>
             {app.translator.trans('flarum-extension-manager.admin.updater.core.blocked', { count: blocked, version: p.target })}
-          </div>
+          </Alert>
         ) : null}
         {/*
          * In place of "every extension works": their require says yes, and
@@ -169,7 +169,7 @@ export default class CorePanel extends Component<CoreAttrs> {
          * down on Flarum 2.0.2 (ClaudiusH, 2026-10-18). A warning, not a block.
          */}
         {overrides.length ? (
-          <div className="ExtensionManager-coreOverrides">
+          <Alert type="warning" dismissible={false} className="ExtensionManager-coreOverrides">
             {app.translator.trans('flarum-extension-manager.admin.updater.core.overrides', { count: overrides.length, version: p.target })}
             <ul>
               {overrides.map((o) => (
@@ -181,12 +181,12 @@ export default class CorePanel extends Component<CoreAttrs> {
                 </li>
               ))}
             </ul>
-          </div>
+          </Alert>
         ) : null}
         {blocked > 0 || overrides.length ? null : pending === 0 ? (
-          <div className="ExtensionManager-coreClear">
+          <Alert type="success" dismissible={false}>
             {app.translator.trans('flarum-extension-manager.admin.updater.core.clear', { version: p.target })}
-          </div>
+          </Alert>
         ) : null}
 
         {updating > 0 ? <div>{app.translator.trans('flarum-extension-manager.admin.updater.core.updating_too', { count: updating })}</div> : null}
