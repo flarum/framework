@@ -49,7 +49,7 @@ class PostmarkWebhookBounceTest extends TestCase
         ]);
     }
 
-    private function postmarkPayload(string $recordType, string $recipient): array
+    private function postmarkPayload(string $recordType, string $recipient, string $type = 'HardBounce', bool $inactive = true): array
     {
         $date = '2026-07-23T12:00:00Z';
 
@@ -59,8 +59,8 @@ class PostmarkWebhookBounceTest extends TestCase
             'Recipient' => $recipient,
             'Email' => $recipient,
             'Description' => 'The server was unable to deliver your message',
-            'Type' => 'HardBounce',
-            'TypeCode' => 1,
+            'Type' => $type,
+            'Inactive' => $inactive,
             // The converter reads a record-type-specific timestamp field.
             'BouncedAt' => $date,
             'DeliveredAt' => $date,
@@ -118,6 +118,16 @@ class PostmarkWebhookBounceTest extends TestCase
         // IpsRequestMatcher fails -> RejectWebhookException(406).
         $this->assertEquals(406, $response->getStatusCode());
         $this->assertFalse(User::find(3)->hasBouncedEmail());
+    }
+
+    #[Test]
+    public function a_bounce_that_did_not_deactivate_the_address_does_not_flag(): void
+    {
+        $response = $this->postWebhook($this->postmarkPayload('Bounce', 'bouncer@example.com', 'SoftBounce', false));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertFalse(User::find(3)->hasBouncedEmail());
+        $this->assertEquals(0, EmailBounceEvent::where('email', 'bouncer@example.com')->count());
     }
 
     #[Test]
