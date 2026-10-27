@@ -11,8 +11,11 @@ namespace Flarum\Mail;
 
 use Flarum\Settings\SettingsRepositoryInterface;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Query;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
+use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 use Symfony\Component\Mailer\Bridge\Mailgun\RemoteEvent\MailgunPayloadConverter;
 use Symfony\Component\Mailer\Bridge\Mailgun\Transport\MailgunTransportFactory;
 use Symfony\Component\Mailer\Bridge\Mailgun\Webhook\MailgunRequestParser;
@@ -30,6 +33,8 @@ class MailgunDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebho
      * deliberately excluded so we never suppress over a transient problem.
      */
     protected const WEBHOOK_EVENTS = ['permanent_fail', 'complained'];
+
+    protected const MAX_WEBHOOK_URLS = 3;
 
     public function availableSettings(): array
     {
@@ -91,32 +96,31 @@ class MailgunDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebho
     {
         $client = $this->apiClient($settings);
 
-        // Mailgun keys webhooks by event type, so we PUT each type to make the
-        // call idempotent: updating the URL if the webhook exists, creating it
-        // if it doesn't. Only a 404 is expected/handled — any other non-2xx
-        // (401 bad key, 400 bad payload, …) throws so the caller can surface a
-        // real error instead of reporting a false success.
         foreach (self::WEBHOOK_EVENTS as $event) {
-            $response = $client->request('PUT', "webhooks/$event", [
-                'form_params' => ['url' => $url],
-                'http_errors' => false,
-            ]);
+            $urls = $this->webhookUrls($client, $event);
 
-            $status = $response->getStatusCode();
+            if (in_array($url, $urls, true)) {
+                continue;
+            }
 
-            if ($status === 404) {
-                // Webhook doesn't exist yet — create it (throws on failure).
-                $client->request('POST', 'webhooks', [
-                    'form_params' => ['id' => $event, 'url' => $url],
-                ]);
-            } elseif ($status < 200 || $status >= 300) {
-                throw new \RuntimeException(sprintf(
-                    'Mailgun rejected the webhook registration for "%s" (HTTP %d): %s',
+            if (count($urls) >= self::MAX_WEBHOOK_URLS) {
+                throw new RuntimeException(sprintf(
+                    'Mailgun already sends the "%s" webhook to %d other URLs, the most it allows. Remove one in the Mailgun dashboard and try again.',
                     $event,
-                    $status,
-                    (string) $response->getBody()
+                    count($urls)
                 ));
             }
+
+            if ($urls === []) {
+                $this->assertSuccessful($client->request('POST', 'webhooks', [
+                    'form_params' => ['id' => $event, 'url' => $url],
+                    'http_errors' => false,
+                ]), $event);
+
+                continue;
+            }
+
+            $this->putWebhookUrls($client, $event, [...$urls, $url]);
         }
     }
 
@@ -125,9 +129,63 @@ class MailgunDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebho
         $client = $this->apiClient($settings);
 
         foreach (self::WEBHOOK_EVENTS as $event) {
-            $client->request('DELETE', "webhooks/$event", [
-                'http_errors' => false,
-            ]);
+            $urls = $this->webhookUrls($client, $event);
+
+            if (! in_array($url, $urls, true)) {
+                continue;
+            }
+
+            $remaining = array_values(array_diff($urls, [$url]));
+
+            if ($remaining === []) {
+                $this->assertSuccessful($client->request('DELETE', "webhooks/$event", ['http_errors' => false]), $event);
+
+                continue;
+            }
+
+            $this->putWebhookUrls($client, $event, $remaining);
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function webhookUrls(Client $client, string $event): array
+    {
+        $response = $client->request('GET', "webhooks/$event", ['http_errors' => false]);
+
+        if ($response->getStatusCode() === 404) {
+            return [];
+        }
+
+        $this->assertSuccessful($response, $event);
+
+        return array_values((array) (json_decode((string) $response->getBody(), true)['webhook']['urls'] ?? []));
+    }
+
+    /**
+     * @param list<string> $urls
+     */
+    protected function putWebhookUrls(Client $client, string $event, array $urls): void
+    {
+        $this->assertSuccessful($client->request('PUT', "webhooks/$event", [
+            'body' => Query::build(['url' => $urls]),
+            'headers' => ['Content-Type' => 'application/x-www-form-urlencoded'],
+            'http_errors' => false,
+        ]), $event);
+    }
+
+    protected function assertSuccessful(ResponseInterface $response, string $event): void
+    {
+        $status = $response->getStatusCode();
+
+        if ($status < 200 || $status >= 300) {
+            throw new RuntimeException(sprintf(
+                'Mailgun rejected the request for the "%s" webhook (HTTP %d): %s',
+                $event,
+                $status,
+                (string) $response->getBody()
+            ));
         }
     }
 
