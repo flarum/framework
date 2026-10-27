@@ -40,11 +40,12 @@
     box-shadow: 0 6px 16px var(--shadow-color);
 
     // A modal gives its fields the body background, which is this panel's
-    // own: keep the controls in it distinct. As specific as the modal's rule
-    // and then some, since that one comes later.
+    // own: keep the controls in it distinct, with the field colours of the
+    // page. As specific as the modal's rule and then some, since that one
+    // comes later.
     .IconPicker & .FormControl {
-      --form-control-bg: var(--control-bg);
-      --form-control-color: var(--control-color);
+      --form-control-bg: inherit;
+      --form-control-color: inherit;
     }
   }
 

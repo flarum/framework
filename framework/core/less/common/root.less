@@ -115,6 +115,12 @@
 
   --discussion-title-color:        darken(@discussion-title-color-light, 20%);
 
+  // Field text sits on the control background or the body background, and
+  // the control colour alone falls short of 7:1 on some palettes.
+  @form-control-color:             mix(@text-color-light, @control-color, 20%);
+  --form-control-color:            @form-control-color;
+  --form-control-placeholder-color: @form-control-color;
+
   .Button--color-vars(@control-color, @control-bg-light, 'button');
   .Button--color-vars(@control-color, @body-bg-light, 'button-inverted');
 }
@@ -151,6 +157,10 @@
 
   --discussion-title-color:        lighten(@discussion-title-color-dark, 20%);
 
+  @form-control-color:             mix(@text-color-dark, @control-color, 20%);
+  --form-control-color:            @form-control-color;
+  --form-control-placeholder-color: @form-control-color;
+
   .Button--color-vars(@control-color, @control-bg-dark, 'button');
   .Button--color-vars(@control-color, @body-bg-dark, 'button-inverted');
 }
@@ -166,6 +176,12 @@
 
     .light-contents-vars(@header-color-colored-dark, @header-control-bg-colored-dark, darken(@header-control-color-colored-dark, 15), 'header-colored');
   }
+
+  // Fields get an edge, and a focus ring in their own text colour: the
+  // primary colour can be too close to the background to show.
+  --form-control-border-color:     var(--control-color);
+  --form-control-focus-border-color: currentColor;
+  --form-control-focus-outline:    2px solid currentColor;
 
   --yiq-threshold: 80;
 }
