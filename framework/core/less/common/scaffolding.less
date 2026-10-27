@@ -59,10 +59,10 @@ p {
 }
 
 .container {
-  margin-right: auto;
-  margin-left: auto;
-  padding-left: 15px;
-  padding-right: 15px;
+  margin-inline-end: auto;
+  margin-inline-start: auto;
+  padding-inline-start: 15px;
+  padding-inline-end: 15px;
 
   // Each band is pinned to the width that opens it, so a viewport anywhere
   // above that lower bound leaves the remainder unused — at 820px the tablet
@@ -112,8 +112,8 @@ p {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     background: rgba(128, 128, 128, 0.2);
   }
 
@@ -121,8 +121,8 @@ p {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
   }
 }
 
@@ -144,15 +144,15 @@ input[type="search"] {
 
 .checkbox {
   display: block;
-  padding-left: 20px;
+  padding-inline-start: 20px;
   margin-bottom: 5px;
   cursor: pointer;
 
   input[type=checkbox],
   input[type=radio] {
-    margin-left: -20px;
+    margin-inline-start: -20px;
     margin-top: 2px;
-    float: left;
+    float: start;
   }
 }
 

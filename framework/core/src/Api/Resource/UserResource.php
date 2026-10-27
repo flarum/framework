@@ -81,7 +81,13 @@ class UserResource extends AbstractDatabaseResource
         if (Arr::get($context->request->getQueryParams(), 'bySlug', false)) {
             $user = $this->slugManager->forResource(User::class)->fromSlug($id, $actor);
         } else {
-            $user = $this->query($context)->findOrFail($id);
+            $query = $this->query($context);
+
+            if (! $this->idCanBeKey($query->getModel(), $id)) {
+                return null;
+            }
+
+            $user = $query->findOrFail($id);
         }
 
         return $user;
@@ -413,17 +419,16 @@ class UserResource extends AbstractDatabaseResource
                     $actor = $context->getActor();
 
                     $oldGroups = $user->groups()->get()->all();
-                    $oldGroupIds = Arr::pluck($oldGroups, 'id');
+                    $oldGroupIds = array_map(fn (Group $group) => (int) $group->id, $oldGroups);
 
-                    $newGroupIds = [];
-                    foreach ($value as $group) {
-                        if ($id = Arr::get($group, 'id')) {
-                            $newGroupIds[] = $id;
-                        }
-                    }
+                    // The relationship resolves each identifier to a group that
+                    // exists, so compare the ids of those groups, never the raw
+                    // identifiers the request sent.
+                    $newGroupIds = array_map(fn (Group $group) => (int) $group->id, $value);
 
                     // Ensure non-admins aren't adding/removing admins
-                    $adminChanged = in_array('1', array_diff($oldGroupIds, $newGroupIds)) || in_array('1', array_diff($newGroupIds, $oldGroupIds));
+                    $adminChanged = in_array(Group::ADMINISTRATOR_ID, array_diff($oldGroupIds, $newGroupIds), true)
+                        || in_array(Group::ADMINISTRATOR_ID, array_diff($newGroupIds, $oldGroupIds), true);
                     $actor->assertPermission(! $adminChanged || $actor->isAdmin());
 
                     $user->raise(

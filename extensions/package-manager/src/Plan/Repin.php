@@ -121,7 +121,7 @@ class Repin
     /** @return array<string,mixed> */
     protected function cachedUpdates(): array
     {
-        return (array) ((new UpdateCheck($this->updatesJsonPath))->cached()['updates'] ?? []);
+        return (array) (UpdateCheck::cachedIn($this->updatesJsonPath)['updates'] ?? []);
     }
 
     /** @return array<string,mixed> */

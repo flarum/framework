@@ -16,7 +16,7 @@ use Flarum\ExtensionManager\Run\StepsFactory;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Flarum\Locale\TranslatorInterface;
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 
 /**
  * Assembles a run's Composer, downloader and applier around that run's own
@@ -42,6 +42,7 @@ class ComposerStepsFactory implements StepsFactory
         protected TranslatorInterface $translator,
         protected Paths $paths,
         protected Config $config,
+        protected ClientInterface $http,
     ) {
     }
 
@@ -82,9 +83,10 @@ class ComposerStepsFactory implements StepsFactory
                 $this->paths->storage.'/.composer',
                 (new \Flarum\ExtensionManager\Host\PhpOverride($this->translator, $this->paths->storage))->get()
             ),
-            new Fetcher($this->translator, new Client(), $workDir->staging(), $this->paths->base.'/auth.json'),
+            new Fetcher($this->translator, $this->http, $workDir->staging(), $this->paths->base.'/auth.json'),
             new Applier($this->translator, $this->paths->vendor, $workDir->staging(), $workDir->trash(), $journal),
             $journal,
+            $this->http,
             $workDir->requested(),
             $workDir->mode(),
             $this->paths->vendor,

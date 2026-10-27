@@ -116,10 +116,13 @@ class PrivateIndexTest extends TestCase
         $index = json_encode(['packages' => ['vendor/paid' => ['1.0.0' => ['version' => '1.0.0']]]]);
         $this->responses->append(new Response(200, [], $index), new Response(200, [], $index));
 
-        file_put_contents($this->dir.'/composer.json', json_encode(['repositories' => [
-            ['type' => 'composer', 'url' => 'https://us%40er:p%3As@s@repo.example.test/composer'],
-            ['type' => 'composer', 'url' => 'http://user:plain@insecure.test'],
-        ]]));
+        file_put_contents($this->dir.'/composer.json', json_encode([
+            'config' => ['secure-http' => false],
+            'repositories' => [
+                ['type' => 'composer', 'url' => 'https://us%40er:p%3As@s@repo.example.test/composer'],
+                ['type' => 'composer', 'url' => 'http://user:plain@insecure.test'],
+            ],
+        ]));
         file_put_contents($this->dir.'/auth.json', json_encode(['bearer' => ['repo.example.test' => 'other']]));
 
         $private = new PrivateIndex(
@@ -138,6 +141,48 @@ class PrivateIndexTest extends TestCase
         $insecure = $sent[1]['request'];
         $this->assertSame('http://insecure.test/packages.json', (string) $insecure->getUri());
         $this->assertFalse($insecure->hasHeader('Authorization'));
+    }
+
+    /** Composer's secure-http: a plain http:// repository is not asked while it is on. */
+    public function test_a_plain_http_repository_is_not_asked_while_secure_http_is_on(): void
+    {
+        $index = $this->index(['repositories' => [
+            ['type' => 'composer', 'url' => 'http://insecure.test/composer'],
+            ['type' => 'composer', 'url' => 'https://secure.test/composer'],
+        ]]);
+
+        $method = (new ReflectionClass($index))->getMethod('composerRepositories');
+
+        $this->assertSame(['https://secure.test/composer'], $method->invoke($index));
+    }
+
+    /** With it off it is asked, as Composer would, but never with a credential from auth.json. */
+    public function test_a_plain_http_repository_never_gets_a_credential(): void
+    {
+        $sent = [];
+        $stack = HandlerStack::create($this->responses);
+        $stack->push(Middleware::history($sent));
+        $this->responses->append(new Response(200, [], json_encode(['packages' => ['vendor/paid' => ['1.0.0' => ['version' => '1.0.0']]]])));
+
+        file_put_contents($this->dir.'/composer.json', json_encode([
+            'config' => ['secure-http' => false],
+            'repositories' => [['type' => 'composer', 'url' => 'http://insecure.test/composer']],
+        ]));
+        file_put_contents($this->dir.'/auth.json', json_encode([
+            'http-basic' => ['insecure.test' => ['username' => 'token', 'password' => 'shh']],
+            'bearer' => ['insecure.test' => 'shh'],
+        ]));
+
+        $index = new PrivateIndex(
+            new Repositories(EnglishTranslator::make(), new JsonFile(EnglishTranslator::make(), $this->dir.'/composer.json')),
+            new AuthTokens(EnglishTranslator::make(), new JsonFile(EnglishTranslator::make(), $this->dir.'/auth.json')),
+            new Client(['handler' => $stack])
+        );
+
+        $this->assertSame(['1.0.0'], $index->versionsFor('vendor/paid'));
+        $this->assertCount(1, $sent);
+        $this->assertSame('http://insecure.test/composer/packages.json', (string) $sent[0]['request']->getUri());
+        $this->assertFalse($sent[0]['request']->hasHeader('Authorization'));
     }
 
     /** A Composer index keys by version and repeats it inside; both shapes work. */

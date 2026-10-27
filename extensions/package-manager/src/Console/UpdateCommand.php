@@ -21,6 +21,7 @@ use Flarum\ExtensionManager\Work\UpdateCheck;
 use Flarum\ExtensionManager\Work\WorkDir;
 use Flarum\Foundation\Paths;
 use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\ClientInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -73,6 +74,7 @@ class UpdateCommand extends AbstractCommand
         protected Paths $paths,
         protected RunStore $runs,
         protected StepRunner $runner,
+        protected ClientInterface $http,
     ) {
         parent::__construct();
     }
@@ -460,7 +462,7 @@ class UpdateCommand extends AbstractCommand
             return 1;
         }
 
-        $targets = (new Nightly($this->paths->base.'/composer.json', $this->paths->base.'/composer.lock'))->targets();
+        $targets = (new Nightly($this->paths->base.'/composer.json', $this->paths->base.'/composer.lock', $this->http))->targets();
 
         if ($targets === []) {
             $this->error('There is no nightly build to move to: Packagist has no development branch for this Flarum, or could not be reached. Nothing was started.');
@@ -495,7 +497,7 @@ class UpdateCommand extends AbstractCommand
 
     protected function check(): UpdateCheck
     {
-        return new UpdateCheck($this->storagePath('updates.json'));
+        return new UpdateCheck($this->storagePath('updates.json'), $this->http);
     }
 
     protected function storagePath(string $file): string

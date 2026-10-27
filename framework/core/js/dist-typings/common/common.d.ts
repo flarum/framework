@@ -67,6 +67,7 @@ import './components/LinkButton';
 import './components/Checkbox';
 import './components/Input';
 import './components/ColorPreviewInput';
+import './components/IconInput';
 import './components/SelectDropdown';
 import './components/ModalManager';
 import './components/Button';

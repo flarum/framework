@@ -67,6 +67,7 @@ flarum-extension-manager:
           incompatible: not for this Flarum
           incompatible_why: "Its newest release asks for flarum/core {requires}."
           unknown: could not check
+          needs_stability: "needs {level} in Sources"
           prerelease: "{version} — a pre-release"
           checking: Checking…
 
@@ -135,14 +136,14 @@ flarum-extension-manager:
       some_newer: "{count, plural, one {# extension has} other {# extensions have}} a newer version."
       core_newer: Flarum itself has a newer version.
       core_newer_too: So does Flarum itself.
-      last_update_checked_at: "Checked {when}."
+      last_checked: "Checked {when}."
       uncheckable: "{count} could not be checked — no repository this forum knows about lists them."
       tracking: "{count} track a branch, so there is no version to compare."
       check_now: Check now
       check_for_updates: Check for updates
       check_overdue: Check for updates to get the latest security fixes and features for your extensions.
       checking: Checking…
-      run_global_update: "Update all {count}"
+      update_all: "Update all {count}"
       starting: Starting…
       ago:
         minutes: "{count, plural, one {# minute} other {# minutes}} ago"
@@ -283,7 +284,7 @@ flarum-extension-manager:
       config_failed: >-
         The Extension Manager could not read composer.json. Nothing has been changed.
       add_repository_label: Add a repository
-      delete_repository_label: "Remove {name}"
+      remove_repository_label: "Remove {name}"
       repositories:
         label: Where Composer looks
         help: >-
@@ -356,7 +357,7 @@ flarum-extension-manager:
       stat: "{count, plural, one {host can sign in} other {hosts can sign in}}"
       add_label: Add a credential
       edit_label: Replace
-      remove_button_label: "Remove {name}"
+      remove_host_label: "Remove {name}"
       remove_q: Remove?
       submit_button: Save credential
       token_stored: token stored
@@ -636,6 +637,7 @@ flarum-extension-manager:
       not_a_hostname: "That is not a hostname. Use github.com, not https://github.com/…."
       repo_bad_url: "That does not look like a repository URL. Use https://, git@ or ssh://."
       repo_exists: "That repository is already configured."
+      repo_insecure: "Composer will not use a repository over plain http:// or git:// while its secure-http setting is on, and credentials would travel unencrypted. Use https:// or ssh://."
       repo_missing: "That repository is not in composer.json."
       repo_needs_url: "A repository needs a URL."
       repo_path_not_url: "A path repository needs a filesystem path, not a URL."
@@ -773,7 +775,10 @@ flarum-extension-manager:
       restored: "restored {file}"
     run:
       dir_failed: "Could not create the run directory at {path}"
+      failed_database: "A database error stopped this step: {error}"
       failed_during: "Failed during {step}: {error}"
+      failed_internal: "An unexpected PHP error stopped this step: {error}"
+      failed_network: "A download or request did not get through: {error}"
       finished: "Finished"
       finished_phase: "Finished {phase}"
       no_worker: "There is no background worker on this forum, so keep this page open until it finishes. It will pick up where it left off if you do close it."
@@ -801,4 +806,6 @@ flarum-extension-manager:
       still_enabled: "{package} is still enabled. Turn it off on the Extensions page first, check the forum is happy without it, and then remove it."
     updater:
       answered: "Flarum's updater did not update the database (it answered {status}: {body})."
+      no_storage: "Flarum's updater was not asked to update the database: it is given a one-time token rather than the database credentials, and this site has no storage directory to keep one in. Update Flarum from the command line instead, with php flarum extension-manager:update."
+      token_refused: "Flarum's updater did not accept the one-time token, so the database was not updated. The token is redeemed before Flarum starts, from the config.php and storage directory beside vendor/; on a site that keeps them elsewhere, update Flarum from the command line instead, with php flarum extension-manager:update."
       unreachable: "Flarum's updater did not update the database (it could not be reached: {error})."

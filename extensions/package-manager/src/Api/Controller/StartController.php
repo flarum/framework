@@ -27,6 +27,7 @@ use Flarum\Foundation\Paths;
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\ClientInterface;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -51,6 +52,7 @@ class StartController implements RequestHandlerInterface
         protected Paths $paths,
         protected ExtensionManager $extensions,
         protected Application $app,
+        protected ClientInterface $http,
     ) {
     }
 
@@ -66,7 +68,7 @@ class StartController implements RequestHandlerInterface
      */
     protected function replaced(array $packages): ?string
     {
-        $packagist = new Packagist($this->translator, new Cache(StorageDir::of($this->paths->storage).'/packagist'));
+        $packagist = new Packagist($this->translator, new Cache(StorageDir::of($this->paths->storage).'/packagist'), $this->http);
         $verdicts = $packagist->verdicts(array_slice($packages, 0, 5), new Compatibility(ltrim($this->app->version(), 'v')));
 
         foreach ($verdicts as $name => $verdict) {
@@ -138,7 +140,7 @@ class StartController implements RequestHandlerInterface
          * and to which branch. See Plan\Nightly.
          */
         $nightly = filter_var(Arr::get($body, 'nightly', false), FILTER_VALIDATE_BOOL)
-            ? (new Nightly($this->paths->base.'/composer.json', $this->paths->base.'/composer.lock'))->targets()
+            ? (new Nightly($this->paths->base.'/composer.json', $this->paths->base.'/composer.lock', $this->http))->targets()
             : null;
 
         if ($nightly === []) {

@@ -2,6 +2,7 @@ import app from 'flarum/admin/app';
 import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import ColorPreviewInput from 'flarum/common/components/ColorPreviewInput';
+import IconInput from 'flarum/common/components/IconInput';
 import Select from 'flarum/common/components/Select';
 import ItemList from 'flarum/common/utils/ItemList';
 import { slug } from 'flarum/common/utils/string';
@@ -122,7 +123,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
         <div className="helpText">
           {app.translator.trans('flarum-tags.admin.edit_tag.icon_text', { a: <a href={app.refs.fontawesome} tabindex="-1" /> })}
         </div>
-        <input className="FormControl" placeholder="fas fa-bolt" bidi={this.icon} />
+        <IconInput placeholder="fas fa-bolt" bidi={this.icon} />
       </div>,
       10
     );
