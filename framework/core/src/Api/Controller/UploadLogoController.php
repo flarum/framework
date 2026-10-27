@@ -30,8 +30,10 @@ class UploadLogoController extends UploadImageController
 
     protected function makeImage(UploadedFileInterface $file): EncodedImageInterface
     {
+        $logo = $this->container->make('flarum.forum.logo');
+
         $image = $this->imageManager->read($file->getStream()->getMetadata('uri'))
-            ->scale(height: 60);
+            ->scale(height: $logo['height']);
 
         if ($image->isAnimated()) {
             $this->resolvedExtension = 'gif';
@@ -41,7 +43,7 @@ class UploadLogoController extends UploadImageController
 
         $this->resolvedExtension = 'webp';
 
-        return $image->toWebp();
+        return $image->toWebp(quality: $logo['quality']);
     }
 
     protected function afterStore(ServerRequestInterface $request, UploadedFileInterface $file): void
