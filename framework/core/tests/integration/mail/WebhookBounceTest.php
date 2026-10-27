@@ -53,7 +53,7 @@ class WebhookBounceTest extends TestCase
 
     private function signedPayload(string $event, string $recipient): array
     {
-        $timestamp = '1700000000';
+        $timestamp = (string) time();
         $token = 'abc123token';
         $signature = hash_hmac('sha256', $timestamp.$token, self::SIGNING_KEY);
 
@@ -66,7 +66,7 @@ class WebhookBounceTest extends TestCase
             'event-data' => [
                 'event' => $event,
                 'id' => 'evt-1',
-                'timestamp' => 1700000000.123456,
+                'timestamp' => (float) $timestamp,
                 'recipient' => $recipient,
                 'severity' => 'permanent',
                 'delivery-status' => [
