@@ -91,6 +91,16 @@ class SessionAdminPayloadTest extends TestCase
     }
 
     #[Test]
+    public function choosing_a_session_driver_in_config_pins_nothing()
+    {
+        // `session.driver` picks where sessions are stored; it says nothing
+        // about how long they last, so the admin panel keeps those controls.
+        $this->config('session.driver', 'file');
+
+        $this->assertFalse($this->payload()['sessionByConfig']);
+    }
+
+    #[Test]
     public function payload_says_when_config_pins_the_values()
     {
         $this->config('session.lifetime', 30);

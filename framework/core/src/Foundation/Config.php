@@ -95,10 +95,15 @@ readonly class Config implements ArrayAccess
     /**
      * Whether session lifetimes are pinned in `config.php`, and so cannot be
      * changed from the admin panel.
+     *
+     * Only the keys about how long sessions last count: `session.driver`, which
+     * picks where they are stored, leaves those controls with the admin panel.
      */
     public function sessionConfigOverride(): bool
     {
-        return isset($this->data['session']);
+        $session = $this->data['session'] ?? [];
+
+        return isset($session['lifetime']) || isset($session['cookie_expires_on_close']) || isset($session['tokens']);
     }
 
     public function inMaintenanceMode(): bool
