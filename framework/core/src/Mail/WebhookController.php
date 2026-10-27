@@ -48,7 +48,7 @@ class WebhookController implements RequestHandlerInterface
 
         // Only the active driver, and only if it can receive webhooks, is
         // allowed to process them. Anything else is a silent no-op.
-        if (! $driver instanceof HandlesWebhooks) {
+        if (! $driver instanceof HandlesWebhooks || ! $driver->webhookConfigured($this->settings)) {
             return new EmptyResponse(404);
         }
 
@@ -66,8 +66,8 @@ class WebhookController implements RequestHandlerInterface
         // allowlist (Postmark/Brevo), or SNS certificate (SES). We never verify
         // here, and we must NOT assume a secret is what authenticates: some
         // providers legitimately have no secret. Pass whatever the driver
-        // supplies (or an empty string); drivers that require it enforce that
-        // themselves and reject via RejectWebhookException.
+        // supplies (or an empty string); a driver that needs one reports itself
+        // unconfigured without it, and is refused above.
         $secret = $driver->getWebhookSigningSecret($this->settings) ?? '';
 
         try {
