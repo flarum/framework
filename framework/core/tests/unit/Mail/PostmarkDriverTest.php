@@ -11,6 +11,7 @@ namespace Flarum\Tests\unit\Mail;
 
 use Flarum\Mail\HandlesWebhooks;
 use Flarum\Mail\PostmarkDriver;
+use Flarum\Mail\PostmarkWebhookParser;
 use Flarum\Mail\ProvisionsWebhooks;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\unit\TestCase;
@@ -20,7 +21,6 @@ use Illuminate\Validation\Factory as ValidatorFactory;
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Mailer\Bridge\Postmark\Transport\PostmarkApiTransport;
-use Symfony\Component\Mailer\Bridge\Postmark\Webhook\PostmarkRequestParser;
 
 class PostmarkDriverTest extends TestCase
 {
@@ -178,7 +178,7 @@ class PostmarkDriverTest extends TestCase
     {
         $parser = $this->driver->getWebhookRequestParser($this->settings($this->validSettings()));
 
-        $this->assertInstanceOf(PostmarkRequestParser::class, $parser);
+        $this->assertInstanceOf(PostmarkWebhookParser::class, $parser);
     }
 
     #[Test]

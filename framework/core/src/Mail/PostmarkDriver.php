@@ -69,7 +69,7 @@ class PostmarkDriver implements DriverInterface, HandlesWebhooks
         // Postmark authenticates inbound webhooks by verifying the request
         // originates from its published IP range (handled inside the parser's
         // request matcher), not by a shared secret.
-        return new PostmarkRequestParser(new PostmarkPayloadConverter());
+        return new PostmarkWebhookParser(new PostmarkRequestParser(new PostmarkPayloadConverter()));
     }
 
     public function getWebhookSigningSecret(SettingsRepositoryInterface $settings): ?string
