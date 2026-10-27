@@ -169,4 +169,56 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
 
     return pages;
   }
+
+  /**
+   * The filters the list is currently showing results for, as the API takes
+   * them: `q` folded into `filter`, and whatever extensions add — the tag of a
+   * tag page, say — already in place, since this is the same thing
+   * `requestParams()` asks the API for.
+   *
+   * Filters that single nothing out are left off, so a list showing every
+   * discussion is recognisable as one however it was arrived at.
+   */
+  public activeFilters(): Record<string, any> {
+    const filter = (this.requestParams().filter ?? {}) as Record<string, any>;
+
+    return Object.fromEntries(Object.entries(filter).filter(([, value]) => value !== undefined && value !== null && value !== ''));
+  }
+
+  /**
+   * Mark the discussions in this list as read.
+   *
+   * The API is given the filters the list was fetched with, so a filtered list
+   * only marks its own discussions read rather than the whole forum. With no
+   * filters it is every discussion, which the server still records as one
+   * timestamp on the user instead of a row per discussion.
+   */
+  public markAllAsRead(): Promise<void> {
+    const filter = this.activeFilters();
+    const everything = !Object.keys(filter).length;
+
+    return app
+      .request({
+        method: 'POST',
+        url: app.forum.attribute('apiUrl') + '/discussions/read',
+        params: { filter },
+      })
+      .then(() => {
+        if (everything) {
+          app.session.user?.pushAttributes({ markedAllAsReadAt: new Date().toISOString() });
+        }
+
+        this.getAllItems().forEach((discussion) => {
+          const lastPostNumber = discussion.lastPostNumber();
+
+          // Nothing to have read up to, in a discussion whose posts are all
+          // gone. Writing null here would read as never having read it.
+          if (lastPostNumber != null) {
+            discussion.pushAttributes({ lastReadPostNumber: lastPostNumber });
+          }
+        });
+
+        m.redraw();
+      });
+  }
 }
