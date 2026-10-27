@@ -14,7 +14,7 @@ return [
     'up' => function (Builder $schema) {
         $schema->table('users', function (Blueprint $table) {
             $table->timestamp('email_bounced_at')->nullable()->after('is_email_confirmed');
-            $table->string('email_bounce_reason')->nullable()->after('email_bounced_at');
+            $table->text('email_bounce_reason')->nullable()->after('email_bounced_at');
         });
     },
 
