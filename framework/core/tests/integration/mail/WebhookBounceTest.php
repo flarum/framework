@@ -136,6 +136,17 @@ class WebhookBounceTest extends TestCase
     }
 
     #[Test]
+    public function a_webhook_is_refused_when_no_signing_key_is_set(): void
+    {
+        $this->setting('mail_mailgun_webhook_signing_key', '');
+
+        $response = $this->postWebhook($this->signedPayload('failed', 'bouncer@example.com'));
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertFalse(User::find(3)->hasBouncedEmail());
+    }
+
+    #[Test]
     public function a_successful_delivery_does_not_flag(): void
     {
         $response = $this->postWebhook($this->signedPayload('delivered', 'bouncer@example.com'));

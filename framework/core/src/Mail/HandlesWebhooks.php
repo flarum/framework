@@ -44,8 +44,9 @@ interface HandlesWebhooks
      * The secret passed to the parser's `parse()` call, if this provider uses
      * one. Return null when the provider authenticates by other means (e.g.
      * Postmark's IP allowlist) — this is a valid, fully-supported state, NOT a
-     * misconfiguration. Providers that require a secret (e.g. Mailgun) reject
-     * the request from within their own parser when it is missing.
+     * misconfiguration. Providers that require a secret (e.g. Mailgun) must
+     * return false from webhookConfigured() while it is missing, so the request
+     * is refused before it reaches the parser.
      */
     public function getWebhookSigningSecret(SettingsRepositoryInterface $settings): ?string;
 
