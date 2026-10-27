@@ -56,7 +56,9 @@ export default class UserCard extends Component {
     return this.attrs.editable ? (
       <AvatarEditor user={user} className="UserCard-avatar" />
     ) : (
-      <Link href={app.route.user(user)}>
+      // The name links to the same place, so keyboard and screen reader users
+      // get one link per card rather than two.
+      <Link href={app.route.user(user)} tabindex="-1" aria-hidden="true">
         <div className="UserCard-avatar">
           <Avatar user={user} loading="eager" />
         </div>
@@ -74,7 +76,11 @@ export default class UserCard extends Component {
     const user = this.attrs.user;
     const badges = user.badges().toArray();
 
-    items.add('identity', <h1 className="UserCard-identity">{username(user)}</h1>, 100);
+    items.add(
+      'identity',
+      <h1 className="UserCard-identity">{this.attrs.editable ? username(user) : <Link href={app.route.user(user)}>{username(user)}</Link>}</h1>,
+      100
+    );
 
     if (badges.length) {
       items.add('badges', <ul className="UserCard-badges badges">{listItems(badges)}</ul>, 90);
