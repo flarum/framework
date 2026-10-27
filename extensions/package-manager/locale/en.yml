@@ -76,6 +76,8 @@ flarum-extension-manager:
 
       queue:
         title: Recent updates
+        # The name a history entry shows for flarum/core.
+        flarum: Flarum
         none: Nothing has been updated, installed or removed with the Extension Manager on this forum yet.
         operations:
           extension_install: Installed
@@ -135,10 +137,10 @@ flarum-extension-manager:
       up_to_date: Everything checkable is up to date.
       some_newer: "{count, plural, one {# extension has} other {# extensions have}} a newer version."
       core_newer: Flarum itself has a newer version.
-      core_newer_too: So does Flarum itself.
-      last_checked: "Checked {when}."
-      uncheckable: "{count} could not be checked — no repository this forum knows about lists them."
-      tracking: "{count} track a branch, so there is no version to compare."
+      some_newer_and_core: "{count, plural, one {# extension has} other {# extensions have}} a newer version. So does Flarum itself."
+      # {summary} is one of the four lines above; {when} is one of the "ago" strings below.
+      check_line: >-
+        <b>{summary}</b> Checked {when}.{uncheckable, plural, =0 {} other { # could not be checked — no repository this forum knows about lists them.}}{tracking, plural, =0 {} other { # track a branch, so there is no version to compare.}}
       check_now: Check now
       check_for_updates: Check for updates
       check_overdue: Check for updates to get the latest security fixes and features for your extensions.
@@ -153,11 +155,10 @@ flarum-extension-manager:
       # On the dashboard.
       banner:
         title: "{count, plural, one {# package has} other {# packages have}} a newer version"
-        body: >-
+        # {checked} is "yes" when there has been a check; {when} is one of the "ago" strings.
+        details: >-
           That does not always mean you can install it — what else has to change, and
-          whether anything blocks it, is worked out when you ask.
-        checked: "Last checked {when}."
-        uncheckable: "{count, plural, one {# package} other {# packages}} could not be checked at all."
+          whether anything blocks it, is worked out when you ask.{checked, select, yes { Last checked {when}.} other {}}{uncheckable, plural, =0 {} one { # package could not be checked at all.} other { # packages could not be checked at all.}}
         more: "and {count} more"
         open: Take a look
         dismiss: Not now
@@ -244,6 +245,7 @@ flarum-extension-manager:
         check_the_site_again: Checking the site again
         tidy_the_trash: Tidying old copies
       failed_at: "It stopped during: {step}"
+      failed_at_step: "It stopped during: {phase} → {step}"
       roll_back: Undo this update
       rolling_back: Undoing…
       roll_back_confirm: >-
@@ -269,15 +271,16 @@ flarum-extension-manager:
         Nothing has moved for a couple of minutes. That is normal while Composer is
         working something out; if it stays like this, the log below is the place to
         look.
-      poll_unauthorised: >-
+      # {watching} is "yes" once the page has fallen back to reading progress
+      # instead of driving it.
+      cannot_drive: >-
         This screen cannot reach the server to drive the update — usually a
         session that has expired while the page sat open. The update itself is
-        unaffected and is being carried on in the background. Reload the page.
-      watching_only: Showing progress read-only.
-      poll_failing: >-
+        unaffected and is being carried on in the background. Reload the page.{watching, select, yes { Showing progress read-only.} other {}}
+      cannot_reach: >-
         This page has failed to reach the forum {count} times in a row. The update
         itself is unaffected — it keeps its place on disk — and this will keep
-        trying.
+        trying.{watching, select, yes { Showing progress read-only.} other {}}
 
     composer:
       title: Sources
@@ -361,6 +364,7 @@ flarum-extension-manager:
       remove_q: Remove?
       submit_button: Save credential
       token_stored: token stored
+      username_stored: "username {username}"
       show: Show
       hide: Hide
       fields:
@@ -433,6 +437,11 @@ flarum-extension-manager:
     # these keys, relative to admin.
     host:
       title: This host
+      # Read out for each row's status icon.
+      status:
+        ok: OK
+        warn: Warning
+        fail: Problem
       spawn_ok: Can run Composer as a separate process
       spawn_ok_why: Composer runs outside the web request, so its memory use is its own and cannot take the site down with it.
       in_process: Runs without separate processes
@@ -625,8 +634,6 @@ flarum-extension-manager:
     config:
       basic_needs_username: "http-basic needs a username as well as a password."
       credential_empty: "The credential is empty."
-      detail_token_set: "token set"
-      detail_username: "username {username}"
       json_encode_failed: "Could not encode {file}: {error}"
       json_invalid: "{file} is not valid JSON, so the Extension Manager will not overwrite it. Fix it by hand first — {error}."
       json_refuse_write: "Refusing to write {file}: the result does not parse."

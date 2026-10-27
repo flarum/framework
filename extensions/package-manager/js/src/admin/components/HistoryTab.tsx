@@ -20,7 +20,7 @@ export default class HistoryTab extends Component<HistoryTabAttrs> {
 
     const names: Record<string, string> = {};
     (this.attrs.installed || []).forEach((e) => (names[e.package] = e.name));
-    names['flarum/core'] = names['flarum/core'] || 'Flarum';
+    names['flarum/core'] = names['flarum/core'] || app.translator.trans('flarum-extension-manager.admin.sections.queue.flarum', {}, true);
 
     return (
       <ol className="ExtensionManager-history">

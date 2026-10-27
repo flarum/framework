@@ -34,6 +34,9 @@ interface DiscoverAttrs extends ComponentAttrs {
  * be the slower, worse version of the same screen.
  */
 export default class DiscoverTab extends Component<DiscoverAttrs> {
+  /** One formatter for every card's download count; the locale does not change while the page is open. */
+  protected compact: Intl.NumberFormat | null = null;
+
   /*
    * The list loads on open, with no query, showing everything installable
    * straight away, which is the right behaviour: somebody opening
@@ -422,10 +425,11 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
     return order.indexOf((v.stability || 'stable').toLowerCase()) <= order.indexOf(this.minimumStability.toLowerCase());
   }
 
+  /** A download count, abbreviated the way the forum's locale does it: 220K, 1.5M; 220 k, 1,5 M in French. */
   short(n: number): string {
-    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-    if (n >= 1000) return Math.round(n / 1000) + 'k';
-    return String(n);
+    this.compact ??= new Intl.NumberFormat(app.data.locale, { notation: 'compact' });
+
+    return this.compact.format(n);
   }
 
   search() {

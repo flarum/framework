@@ -33,14 +33,23 @@ function stepLabel(item: string): string {
   return STEPS.includes(step) ? app.translator.trans('flarum-extension-manager.admin.run.steps.' + step, {}, true) : item;
 }
 
-/** "finalise → register" from the runner, as "Finishing up → Updating Composer's records". */
-function whereLabel(where: string | null): string {
-  if (!where) return '';
-  const [raw, item] = String(where).split(' → ');
-  const phase = raw.replace(/ \(planning\)$/, '');
+/**
+ * Where a run stopped, in one sentence: "It stopped during: Finishing up →
+ * Updating Composer's records". Built from the phase and item the server
+ * records, never from its log text. A run with no phase recorded (the queue
+ * worker died, or it failed before the server kept one) shows the server's
+ * own description, which it translated.
+ */
+function failedAt(run: Run): string {
+  const phase = run.errorPhase;
+
+  if (!phase) return app.translator.trans('flarum-extension-manager.admin.run.failed_at', { step: run.errorStep || '' }, true);
+
   const named = PHASES.includes(phase) ? app.translator.trans('flarum-extension-manager.admin.run.phases.' + phase, {}, true) : phase;
 
-  return item ? named + ' → ' + stepLabel(item) : named;
+  return run.errorItem
+    ? app.translator.trans('flarum-extension-manager.admin.run.failed_at_step', { phase: named, step: stepLabel(run.errorItem) }, true)
+    : app.translator.trans('flarum-extension-manager.admin.run.failed_at', { step: named }, true);
 }
 
 export interface RunPanelAttrs extends ComponentAttrs {
@@ -168,9 +177,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
 
         {failed ? (
           <div className="ExtensionManager-error">
-            <div className="ExtensionManager-errorWhere">
-              {app.translator.trans('flarum-extension-manager.admin.run.failed_at', { step: whereLabel(run.errorStep) })}
-            </div>
+            <div className="ExtensionManager-errorWhere">{failedAt(run)}</div>
             <pre className="ExtensionManager-errorText">{run.error}</pre>
             {/*
              * Offered on a FAILURE, not just on a finished run. The journal
@@ -201,9 +208,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
          */}
         {rolled && run.error ? (
           <div className="ExtensionManager-error">
-            <div className="ExtensionManager-errorWhere">
-              {app.translator.trans('flarum-extension-manager.admin.run.failed_at', { step: whereLabel(run.errorStep) })}
-            </div>
+            <div className="ExtensionManager-errorWhere">{failedAt(run)}</div>
             <pre className="ExtensionManager-errorText">{run.error}</pre>
           </div>
         ) : null}
@@ -223,9 +228,11 @@ export default class RunPanel extends Component<RunPanelAttrs> {
              * update.
              */}
             {this.outcome.message === 'unauthorised'
-              ? app.translator.trans('flarum-extension-manager.admin.run.poll_unauthorised')
-              : app.translator.trans('flarum-extension-manager.admin.run.poll_failing', { count: this.misses })}
-            {this.watching ? ' ' + app.translator.trans('flarum-extension-manager.admin.run.watching_only', {}, true) : ''}
+              ? app.translator.trans('flarum-extension-manager.admin.run.cannot_drive', { watching: this.watching ? 'yes' : 'no' })
+              : app.translator.trans('flarum-extension-manager.admin.run.cannot_reach', {
+                  count: this.misses,
+                  watching: this.watching ? 'yes' : 'no',
+                })}
           </Alert>
         ) : null}
 

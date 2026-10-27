@@ -111,6 +111,38 @@ class StepRunnerTest extends TestCase
         $this->assertSame(Run::FAILED, $run->state);
         $this->assertSame('fetch → boom', $run->errorStep);
         $this->assertStringContainsString('could not fetch boom', (string) $run->error);
+
+        // And as data, so the admin screen never has to parse the text above.
+        $this->assertSame('fetch', $run->errorPhase);
+        $this->assertSame('boom', $run->errorItem);
+        $this->assertSame(['fetch', 'boom'], [$run->toArray()['errorPhase'], $run->toArray()['errorItem']]);
+    }
+
+    public function test_a_failure_while_planning_a_phase_records_the_phase_and_no_item(): void
+    {
+        [$runner, $steps] = $this->make(['plan' => [], 'fetch' => ['a'], 'apply' => [], 'finalise' => []]);
+        $steps->explodePlanning = 'fetch';
+        $runner->begin('r1');
+
+        $guard = 0;
+        do {
+            $run = $runner->step('r1');
+        } while (! $run->isFinished() && ++$guard < 50);
+
+        $this->assertSame(Run::FAILED, $run->state);
+        $this->assertSame('fetch (planning)', $run->errorStep);
+        $this->assertSame('fetch', $run->errorPhase);
+        $this->assertNull($run->errorItem);
+    }
+
+    public function test_a_run_saved_before_the_error_fields_existed_still_loads(): void
+    {
+        $run = Run::fromArray(['id' => 'r1', 'state' => Run::FAILED, 'error' => 'x', 'errorStep' => 'fetch → boom']);
+
+        $this->assertSame('fetch → boom', $run->errorStep);
+        $this->assertNull($run->errorPhase);
+        $this->assertNull($run->errorItem);
+        $this->assertSame($run->toArray(), Run::fromArray($run->toArray())->toArray());
     }
 
     /**
@@ -295,6 +327,8 @@ class StepRunnerTest extends TestCase
         return new class($plan) implements Steps {
             public array $done = [];
             public ?string $explodeOn = null;
+            /** Phase whose list of items cannot be worked out. */
+            public ?string $explodePlanning = null;
             public ?\Throwable $throw = null;
 
             /** Item that is not finished yet, and how many more calls it needs. */
@@ -307,6 +341,10 @@ class StepRunnerTest extends TestCase
 
             public function itemsFor(string $phase, Run $run): array
             {
+                if ($phase === $this->explodePlanning) {
+                    throw new \RuntimeException("could not plan $phase");
+                }
+
                 return $this->plan[$phase] ?? [];
             }
 

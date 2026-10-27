@@ -532,7 +532,9 @@ export default class SourcesTab extends Component {
             <span className="ExtensionManager-src-badge">{app.translator.trans('flarum-extension-manager.admin.auth_config.types.' + c.kind)}</span>
             <span className="ExtensionManager-src-held">
               <i className="fas fa-lock" aria-hidden="true" />{' '}
-              {c.detail === 'token set' ? app.translator.trans('flarum-extension-manager.admin.auth_config.token_stored') : c.detail}
+              {c.username === null
+                ? app.translator.trans('flarum-extension-manager.admin.auth_config.token_stored')
+                : app.translator.trans('flarum-extension-manager.admin.auth_config.username_stored', { username: c.username })}
             </span>
           </span>
         </span>

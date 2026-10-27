@@ -60,6 +60,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
 
   /** Set when the first load fails or never arrives, so the page can say so. */
   loadError: string | null = null;
+  /** The exception's own text, shown under the translated message when there is one. */
+  loadErrorDetail: string | null = null;
   /** The 10-second safety net for the first load, cleared when the page goes. */
   protected loadTimeout: ReturnType<typeof setTimeout> | null = null;
   host: HostReport | null = null;
@@ -142,8 +144,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     try {
       this.load();
     } catch (e) {
-      this.loadError =
-        e instanceof Error && e.message ? e.message : app.translator.trans('flarum-extension-manager.admin.page.load_failed', {}, true);
+      this.loadError = app.translator.trans('flarum-extension-manager.admin.page.load_failed', {}, true);
+      this.loadErrorDetail = e instanceof Error && e.message ? e.message : null;
       this.firstLoad = false;
     }
   }
@@ -179,6 +181,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
 
   load() {
     this.loadError = null;
+    this.loadErrorDetail = null;
 
     app
       .request<StatePayload>({ method: 'GET', url: apiUrl() + '/extension-manager/state' })
@@ -238,6 +241,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
           <div className="container">
             <Alert type="error" dismissible={false} className="ExtensionManager-alert">
               {this.loadError}
+              {this.loadErrorDetail ? <code className="ExtensionManager-alertDetail">{this.loadErrorDetail}</code> : null}
             </Alert>
             <Button className="Button" onclick={() => this.attemptLoad()}>
               {app.translator.trans('flarum-extension-manager.admin.page.try_again')}
@@ -629,23 +633,24 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
           <p className="ExtensionManager-checkPrompt">{app.translator.trans('flarum-extension-manager.admin.updater.check_overdue')}</p>
         ) : null}
         <span>
-          <b>
-            {n === 0 && !this.coreHasUpdate()
-              ? app.translator.trans('flarum-extension-manager.admin.updater.up_to_date')
-              : n === 0
-                ? app.translator.trans('flarum-extension-manager.admin.updater.core_newer')
-                : [
-                    app.translator.trans('flarum-extension-manager.admin.updater.some_newer', { count: n }),
-                    this.coreHasUpdate() ? ' ' + app.translator.trans('flarum-extension-manager.admin.updater.core_newer_too', {}, true) : '',
-                  ]}
-          </b>{' '}
-          {app.translator.trans('flarum-extension-manager.admin.updater.last_checked', { when: this.ago(checkedAt) })}
-          {uncheckable > 0 ? ' ' + app.translator.trans('flarum-extension-manager.admin.updater.uncheckable', { count: uncheckable }, true) : ''}
-          {tracking > 0 ? ' ' + app.translator.trans('flarum-extension-manager.admin.updater.tracking', { count: tracking }, true) : ''}
+          {app.translator.trans('flarum-extension-manager.admin.updater.check_line', {
+            summary: this.checkSummary(n),
+            when: this.ago(checkedAt),
+            uncheckable,
+            tracking,
+          })}
         </span>
         {this.checkButton(age)}
       </div>
     );
+  }
+
+  /** The check line's first sentence: what the last check found. */
+  checkSummary(n: number): string {
+    const core = this.coreHasUpdate();
+    const key = n === 0 ? (core ? 'core_newer' : 'up_to_date') : core ? 'some_newer_and_core' : 'some_newer';
+
+    return app.translator.trans('flarum-extension-manager.admin.updater.' + key, { count: n }, true);
   }
 
   /**

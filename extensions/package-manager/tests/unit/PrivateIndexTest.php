@@ -201,6 +201,12 @@ class PrivateIndexTest extends TestCase
         $this->assertStringNotContainsString('sup3r-secret', (string) $reported);
         $this->assertStringNotContainsString('another-secret', (string) $reported);
         $this->assertStringContainsString('example.test', (string) $reported);
+
+        // The username, not the secret, and null for a token: the admin screen words both.
+        $this->assertSame([
+            ['kind' => 'bearer', 'host' => 'other.test', 'username' => null],
+            ['kind' => 'http-basic', 'host' => 'example.test', 'username' => 'token'],
+        ], $auth->all());
     }
 
     public function test_http_basic_becomes_a_basic_header(): void

@@ -247,7 +247,9 @@ class StepRunner
                         $this->failedNote("$phase → $item", $reverted->getMessage()),
                         $this->translator->trans('flarum-extension-manager.api.run.put_back', ['undone' => $this->undoneList($reverted->undone)]),
                     ],
-                    $this->now()
+                    $this->now(),
+                    $phase,
+                    $item
                 );
                 $this->store->save($run);
 
@@ -288,7 +290,7 @@ class StepRunner
         } catch (Throwable $e) {
             $where = $item === null ? "$phase (planning)" : "$phase → $item";
             $error = $this->describe($e);
-            $run = $run->failed($error, $where, $this->now(), $this->failedNote($where, $error));
+            $run = $run->failed($error, $where, $this->now(), $this->failedNote($where, $error), $phase, $item);
             $this->store->save($run);
 
             return $run;

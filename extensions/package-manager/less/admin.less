@@ -684,6 +684,15 @@ a.ExtensionManager-name {
   & + & { border-top: 1px solid @mw-hairline; }
 }
 
+.ExtensionManager-check-mark {
+  font-size: 16px;
+  line-height: 1.2;
+
+  &--ok { color: var(--alert-success-color); }
+  &--warn { color: var(--alert-color); }
+  &--fail { color: var(--error-color); }
+}
+
 .ExtensionManager-check-what { font-weight: 600; font-size: 13.5px; margin-bottom: 2px; }
 .ExtensionManager-check-why { color: var(--muted-color); font-size: 13px; line-height: 1.5; max-width: 74ch; }
 
@@ -1734,3 +1743,6 @@ a.ExtensionManager-name {
   gap: 8px;
   margin-top: 20px;
 }
+
+// The exception's own text under the page's load error.
+.ExtensionManager-alertDetail { display: block; margin-top: 6px; white-space: pre-wrap; }

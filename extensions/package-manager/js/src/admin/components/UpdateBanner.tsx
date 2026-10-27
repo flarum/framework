@@ -101,13 +101,11 @@ export default class UpdateBanner extends Component {
           {this.names()}
 
           <div className="ExtensionManager-banner-body">
-            {app.translator.trans('flarum-extension-manager.admin.updater.banner.body')}
-            {this.checkedAt
-              ? ' ' + app.translator.trans('flarum-extension-manager.admin.updater.banner.checked', { when: this.ago(this.checkedAt) }, true)
-              : ''}
-            {this.uncheckable > 0
-              ? ' ' + app.translator.trans('flarum-extension-manager.admin.updater.banner.uncheckable', { count: this.uncheckable }, true)
-              : ''}
+            {app.translator.trans('flarum-extension-manager.admin.updater.banner.details', {
+              checked: this.checkedAt ? 'yes' : 'no',
+              when: this.checkedAt ? this.ago(this.checkedAt) : '',
+              uncheckable: this.uncheckable,
+            })}
           </div>
         </div>
         <div className="ExtensionManager-banner-actions">
