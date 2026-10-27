@@ -1,4 +1,4 @@
-import type { Verdict } from '../types';
+import type { Preflight, Verdict } from '../types';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
 import type Mithril from 'mithril';
 interface CoreAttrs extends ComponentAttrs {
@@ -25,13 +25,16 @@ interface CoreAttrs extends ComponentAttrs {
  * first built, which is the very failure the extension exists to prevent.
  */
 export default class CorePanel extends Component<CoreAttrs> {
-    private loading;
-    private current;
-    private newest;
-    private preflight;
-    private checking;
-    private failed;
-    private seenCheck;
+    protected loading: boolean;
+    protected current: string | null;
+    protected newest: {
+        from: string;
+        to: string;
+    } | null;
+    protected preflight: Preflight | null;
+    protected checking: boolean;
+    protected failed: boolean;
+    protected seenCheck: number | null;
     oninit(vnode: Mithril.Vnode<CoreAttrs, this>): void;
     onupdate(): void;
     view(): JSX.Element;

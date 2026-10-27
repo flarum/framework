@@ -68,7 +68,7 @@ export default class HistoryTab extends Component<HistoryTabAttrs> {
     );
   }
 
-  private outcome(entry: HistoryEntry) {
+  protected outcome(entry: HistoryEntry) {
     if (entry.state === 'rolled-back') return app.translator.trans('flarum-extension-manager.admin.sections.queue.statuses.rolled_back');
     if (entry.state === 'failed') return app.translator.trans('flarum-extension-manager.admin.sections.queue.statuses.failure');
 
@@ -79,7 +79,7 @@ export default class HistoryTab extends Component<HistoryTabAttrs> {
         : app.translator.trans('flarum-extension-manager.admin.sections.queue.operations.extension_update');
   }
 
-  private tone(state: RunState): string {
+  protected tone(state: RunState): string {
     return state === 'done' ? ' ExtensionManager-tag--ok' : state === 'failed' ? ' ExtensionManager-tag--warn' : ' ExtensionManager-tag--muted';
   }
 }

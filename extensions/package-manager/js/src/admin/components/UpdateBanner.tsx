@@ -157,11 +157,11 @@ export default class UpdateBanner extends Component {
    * flag. Dismissing "3 updates" and then never hearing about a fourth is how a
    * notification quietly stops working.
    */
-  private key(packages: string[]): string {
+  protected key(packages: string[]): string {
     return 'extension-manager.dismissed.' + packages.sort().join(',');
   }
 
-  private wasDismissed(packages: string[]): boolean {
+  protected wasDismissed(packages: string[]): boolean {
     try {
       return localStorage.getItem(this.key(packages)) === '1';
     } catch {
@@ -169,7 +169,7 @@ export default class UpdateBanner extends Component {
     }
   }
 
-  private dismiss() {
+  protected dismiss() {
     this.dismissed = true;
 
     app
@@ -186,7 +186,7 @@ export default class UpdateBanner extends Component {
     m.redraw();
   }
 
-  private ago(unix: number): string {
+  protected ago(unix: number): string {
     const mins = Math.max(1, Math.round((Date.now() / 1000 - unix) / 60));
 
     if (mins < 60) return app.translator.trans('flarum-extension-manager.admin.updater.ago.minutes', { count: mins }, true);

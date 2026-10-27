@@ -2,21 +2,21 @@ import Component, { type ComponentAttrs } from 'flarum/common/Component';
 import type Mithril from 'mithril';
 import type { ConfigPayload, Repository as Repo, StoredCredential as Stored } from '../types';
 export default class SourcesTab extends Component {
-    private loading;
-    private saving;
-    private data;
+    protected loading: boolean;
+    protected saving: boolean;
+    protected data: ConfigPayload | null;
     /** Why the settings could not be read at all, when they could not. */
-    private loadError;
-    private repoType;
-    private repoUrl;
-    private filter;
-    private confirmRepo;
-    private authKind;
-    private authHost;
-    private authUser;
-    private authSecret;
-    private reveal;
-    private confirmAuth;
+    protected loadError: string | null;
+    protected repoType: string;
+    protected repoUrl: string;
+    protected filter: string;
+    protected confirmRepo: string | null;
+    protected authKind: string;
+    protected authHost: string;
+    protected authUser: string;
+    protected authSecret: string;
+    protected reveal: boolean;
+    protected confirmAuth: string | null;
     oninit(vnode: Mithril.Vnode<ComponentAttrs, this>): void;
     view(): JSX.Element;
     /**

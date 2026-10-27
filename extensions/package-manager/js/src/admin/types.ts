@@ -187,6 +187,8 @@ export interface CompatPayload {
   verdicts: Record<string, Verdict>;
   /** The Flarum version the verdicts were worked out against. */
   core?: string;
+  /** composer.json's minimum-stability: what Composer will agree to install. */
+  minimumStability?: string;
 }
 
 export interface Found {
@@ -255,8 +257,6 @@ export interface TrashPayload {
 export interface ErrorPayload {
   errors?: { detail?: string; code?: string }[];
   error?: string;
-  errorKey?: string;
-  errorParams?: TranslationParams;
   /** A refused start names the run already going. */
   run?: Run;
   stale?: boolean;

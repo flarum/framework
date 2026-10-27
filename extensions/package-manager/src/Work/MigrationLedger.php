@@ -13,6 +13,7 @@ use Flarum\Database\Migrator;
 use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Exception\RefusedException;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\ConnectionInterface;
 use RuntimeException;
 use Throwable;
@@ -61,6 +62,7 @@ class MigrationLedger
         if (! is_file($path)) {
             file_put_contents($path, json_encode([
                 'migrations' => $this->current($db),
+                // From the table, not the settings repository: see ComposerSteps::recordedVersion().
                 'version' => $db->table('settings')->where('key', 'version')->value('value'),
             ]));
         }
@@ -108,16 +110,16 @@ class MigrationLedger
      *
      * @return bool whether a reversal is now pending
      */
-    public function prepare(ConnectionInterface $db, Migrator $migrator, ExtensionManager $extensions, string $vendorPath): bool
+    public function prepare(SettingsRepositoryInterface $settings, Migrator $migrator, ExtensionManager $extensions, string $vendorPath): bool
     {
         if ($this->ran() === []) {
-            $this->restoreVersion($db);
+            $this->restoreVersion($settings);
 
             return false;
         }
 
         $this->downs($migrator, $extensions, $vendorPath);   // throws if any cannot be reversed
-        $this->restoreVersion($db);
+        $this->restoreVersion($settings);
         touch($this->workDir.'/migrations.pending');
 
         return true;
@@ -194,12 +196,18 @@ class MigrationLedger
         return $steps;
     }
 
-    protected function restoreVersion(ConnectionInterface $db): void
+    /**
+     * Through the settings repository, so a cache in front of the settings
+     * table (Flarum's own for the request, or one such as fof/redis that
+     * outlives it) learns the version too, and the restored code is not
+     * told the database is newer than it is.
+     */
+    protected function restoreVersion(SettingsRepositoryInterface $settings): void
     {
         $version = $this->beforeState()['version'];
 
         if (is_string($version) && $version !== '') {
-            $db->table('settings')->where('key', 'version')->update(['value' => $version]);
+            $settings->set('version', $version);
         }
     }
 

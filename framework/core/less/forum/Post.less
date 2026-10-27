@@ -28,14 +28,14 @@
 
     > li {
       display: inline;
-      margin-right: 10px;
+      margin-inline-end: 10px;
     }
   }
 
   .UserCard {
     position: absolute;
     top: 0;
-    left: 0;
+    inset-inline-start: 0;
     z-index: var(--zindex-dropdown);
     transition: opacity 0.2s, transform 0.2s;
     transform: scale(0.95);
@@ -51,7 +51,7 @@
   .Avatar {
     .Avatar--size(32px);
     vertical-align: middle;
-    margin-right: 5px;
+    margin-inline-end: 5px;
   }
 }
 .PostUser {
@@ -70,7 +70,7 @@
   }
 
   .UserOnline {
-    margin-right: 5px;
+    margin-inline-end: 5px;
 
     & .icon {
       font-size: 12px;
@@ -81,7 +81,7 @@
   }
 }
 .PostUser-badges {
-  text-align: right;
+  text-align: inline-end;
   white-space: nowrap;
   pointer-events: none;
 }
@@ -237,7 +237,7 @@
   font-weight: bold;
 }
 .PostMeta-time, .PostMeta-ip {
-  margin-left: 5px;
+  margin-inline-start: 5px;
 }
 .PostMeta-permalink {
   margin-top: 10px;
@@ -254,7 +254,7 @@
 }
 
 .EventPost-icon {
-  float: left;
+  float: inline-start;
 }
 .EventPost {
   &, a {
@@ -298,7 +298,7 @@
   }
   .icon {
     font-size: 14px;
-    margin-right: 5px;
+    margin-inline-end: 5px;
   }
 
   &:empty {
@@ -307,7 +307,7 @@
 }
 .Post-actions {
   margin-top: -5px;
-  float: right;
+  float: inline-end;
   position: relative;
 
   transition: opacity 0.2s;
@@ -325,8 +325,8 @@
 
   > ul {
     > li {
-      margin-right: 0;
-      margin-left: -5px;
+      margin-inline-end: 0;
+      margin-inline-start: -5px;
       display: inline-block;
       vertical-align: top;
     }
@@ -338,7 +338,7 @@
 
 .PostPreview {
   color: var(--muted-color);
-  padding-left: 50px;
+  padding-inline-start: 50px;
   line-height: 1.7em;
 
   .PostPreview-excerpt {
@@ -346,8 +346,8 @@
   }
 
   &-badge, .Avatar {
-    float: left;
-    margin-left: -50px;
+    float: inline-start;
+    margin-inline-start: -50px;
     .Avatar--size(32px);
   }
   &-badge {
@@ -356,10 +356,10 @@
   .username {
     color: var(--text-color);
     font-weight: bold;
-    margin-right: 5px;
+    margin-inline-end: 5px;
   }
   time {
-    margin-right: 5px;
+    margin-inline-end: 5px;
     text-transform: uppercase;
     font-size: 11px;
     font-weight: 600;
@@ -368,7 +368,7 @@
 
 @media @phone {
   .Post {
-    padding-right: 0;
+    padding-inline-end: 0;
   }
   .Post-side {
     .Post-avatar {
@@ -378,12 +378,12 @@
   .PostUser-badges {
     position: absolute;
     top: -12px;
-    left: 6px;
+    inset-inline-start: 6px;
     width: 32px;
 
     .Badge {
       .Badge--size(20px);
-      margin-left: -13px;
+      margin-inline-start: -13px;
     }
   }
   .CommentPost.editing {
@@ -402,7 +402,7 @@
     }
     .Post-main .PostUser-badges {
       top: -10px;
-      left: -36px;
+      inset-inline-start: -36px;
       width: 32px;
     }
     .Post-header .Post-avatar {
@@ -410,11 +410,11 @@
     }
   }
   .EventPost {
-    padding-left: 50px;
+    padding-inline-start: 50px;
   }
   .EventPost-icon {
     font-size: 18px;
-    margin-left: -30px;
+    margin-inline-start: -30px;
     margin-top: 2px;
   }
 }
@@ -437,14 +437,14 @@
     display: none;
   }
   .PostUser-badges {
-    float: left;
+    float: inline-start;
     position: relative;
-    margin-left: calc(~"5px - var(--avatar-column-width)");
+    margin-inline-start: calc(~"5px - var(--avatar-column-width)");
     margin-top: -3px;
     width: 64px;
   }
   .EventPost-icon {
-    text-align: right;
+    text-align: inline-end;
     width: 64px;
     font-size: 22px;
   }
@@ -455,8 +455,8 @@
   cursor: text;
   overflow: hidden;
   margin-top: 50px;
-  margin-left: 0;
-  padding-left: var(--post-padding);
+  margin-inline-start: 0;
+  padding-inline-start: var(--post-padding);
   border: 2px dashed var(--control-bg);
   color: var(--muted-color);
   border-radius: 10px;
@@ -464,7 +464,7 @@
   display: block;
   appearance: none;
   -webkit-appearance: none;
-  text-align: left;
+  text-align: start;
   width: 100%;
 
   .Post-container {
@@ -495,7 +495,7 @@
   .ReplyPlaceholder {
     border-color: transparent;
     transition: border-color 0.2s;
-    margin-left: calc(0px - var(--post-padding));
+    margin-inline-start: calc(0px - var(--post-padding));
     width: calc(100% + var(--post-padding));
 
     .Post-header {

@@ -29,9 +29,8 @@ use Flarum\ExtensionManager\Run\NotYet;
 use Flarum\ExtensionManager\Run\Reverted;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\Steps;
-use Flarum\Foundation\Config;
 use Flarum\Locale\TranslatorInterface;
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Illuminate\Database\ConnectionInterface;
 use RuntimeException;
 
@@ -60,6 +59,7 @@ class ComposerSteps implements Steps
         protected Fetcher $fetcher,
         protected Applier $applier,
         protected Journal $journal,
+        protected ClientInterface $http,
         /** @var list<string> the packages the user asked to change */
         protected array $requested = [],
         /** 'update', 'install' for something new, or 'remove' to take one out */
@@ -285,7 +285,7 @@ class ComposerSteps implements Steps
                 if (@file_get_contents($saved) !== @file_get_contents($live)) {
                     self::replaceFile($saved, $live);
                 }
-            } elseif (! copy($live, $saved)) {
+            } elseif (! self::copyWithMode($live, $saved, is_file($live) ? fileperms($live) & 0777 : 0600)) {
                 throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.save_before_resolve_failed', ['file' => $file]));
             }
         }
@@ -404,12 +404,53 @@ class ComposerSteps implements Steps
         };
     }
 
-    /** Copy beside, then rename over: never a half-written file in place. */
+    /**
+     * The version Flarum records, read from the settings table itself rather
+     * than through SettingsRepositoryInterface. It is changed by another
+     * process (`php flarum migrate`) or another request (Flarum's updater)
+     * while this one runs, and the repository keeps every setting it read for
+     * the life of the request, or longer behind a cache such as fof/redis; the
+     * command line drives a whole run in one process. A cached value would
+     * make a database that did move look as if it had not.
+     */
+    protected function recordedVersion(ConnectionInterface $db): ?string
+    {
+        $version = $db->table('settings')->where('key', 'version')->value('value');
+
+        return $version === null ? null : (string) $version;
+    }
+
+    /** Copy beside, then rename over: never a half-written file in place, and the file keeps its own mode. */
     protected static function replaceFile(string $from, string $to): bool
     {
-        $tmp = $to.'.extension-manager-'.bin2hex(random_bytes(3));
+        $mode = @fileperms(is_file($to) ? $to : $from);
 
-        if (! @copy($from, $tmp) || ! @rename($tmp, $to)) {
+        return self::copyWithMode($from, $to, $mode === false ? 0600 : $mode & 0777);
+    }
+
+    /**
+     * Copy $from to $to through a file beside it that only its owner can read
+     * before a byte is written, and that has $mode before it is renamed into
+     * place.
+     *
+     * composer.json can hold http-basic credentials or a token in a repository
+     * URL, so a copy made with copy() alone, which takes the umask's mode,
+     * could be readable where the original is not.
+     */
+    protected static function copyWithMode(string $from, string $to, int $mode): bool
+    {
+        $tmp = $to.'.extension-manager-'.bin2hex(random_bytes(3));
+        $handle = @fopen($tmp, 'x');
+
+        if ($handle === false) {
+            return false;
+        }
+
+        fclose($handle);
+
+        // copy() onto an existing file truncates it and keeps its mode: owner
+        // only while it is written, then the final mode, which may be read-only.
+        if (! @chmod($tmp, 0600) || ! @copy($from, $tmp) || ! @chmod($tmp, $mode) || ! @rename($tmp, $to)) {
             @unlink($tmp);
 
             return false;
@@ -647,7 +688,7 @@ class ComposerSteps implements Steps
         $db = resolve(ConnectionInterface::class);
         $ledger = new MigrationLedger($this->translator, $this->workDir);
         $ledger->before($db);
-        $was = $db->table('settings')->where('key', 'version')->value('value');
+        $was = $this->recordedVersion($db);
 
         /*
          * Only a new VERSION puts the forum behind "Update Flarum". A core
@@ -669,10 +710,10 @@ class ComposerSteps implements Steps
                 $this->registerWith(null);
                 $this->flarum('migrate', '');
             } else {
-                (new FlarumUpdater($this->translator, new Client(), $this->siteUrl, (array) (resolve(Config::class)['database'] ?? []), $this->storagePath))->migrate();
+                (new FlarumUpdater($this->translator, $this->http, $this->siteUrl, $this->storagePath))->migrate();
             }
 
-            $now = $db->table('settings')->where('key', 'version')->value('value');
+            $now = $this->recordedVersion($db);
 
             // The database is now ahead of the web server's compiled code: close
             // that window at once rather than within opcache's own timer.
@@ -1007,7 +1048,7 @@ class ComposerSteps implements Steps
 
     protected function health(): ?SiteHealth
     {
-        return $this->siteUrl === '' ? null : new SiteHealth($this->translator, new Client(), $this->siteUrl);
+        return $this->siteUrl === '' ? null : new SiteHealth($this->translator, $this->http, $this->siteUrl);
     }
 
     protected function restore(): ?Restore

@@ -12,7 +12,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     /** Set when the first load fails or never arrives, so the page can say so. */
     loadError: string | null;
     /** The 10-second safety net for the first load, cleared when the page goes. */
-    private loadTimeout;
+    protected loadTimeout: ReturnType<typeof setTimeout> | null;
     host: HostReport | null;
     installed: Installed[];
     updates: Updates;
@@ -37,14 +37,28 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
      * no Update buttons and no way to reach them. Keyed by id so a NEW run is
      * never silently pre-dismissed.
      */
-    private static DISMISS_KEY;
-    private storedDismissal;
-    private rememberDismissed;
+    protected static DISMISS_KEY: string;
+    protected storedDismissal(): string | null;
+    protected rememberDismissed(id: string | null): void;
     oninit(vnode: Mithril.Vnode<ExtensionManagerPageAttrs, this>): void;
+    /** The first load, and each "Try again": guarded by the timeout, and never allowed to throw. */
+    attemptLoad(): void;
+    /**
+     * Gives the first load ten seconds before saying it never arrived. Armed
+     * again by "Try again", so a retry that hangs says so too instead of
+     * spinning forever.
+     */
+    armLoadTimeout(): void;
     /** A timer that outlives its page fires into whatever the admin opened next. */
     onremove(vnode: Mithril.VnodeDOM<ExtensionManagerPageAttrs, this>): void;
     load(): void;
     content(): JSX.Element;
+    /** The page's tabs, in order, with the number of updates waiting on Installed. */
+    tabItems(): {
+        id: Tab;
+        label: Mithril.Children;
+        badge: number;
+    }[];
     /**
      * A FINISHED run keeps its panel until somebody dismisses it. The screen
      * returning to normal on its own would throw away the log at the exact moment
@@ -62,14 +76,14 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
      */
     runIsLive(): boolean;
     /** The page's own content is suppressed only while something is happening. */
-    private hidesPage;
+    protected hidesPage(): boolean;
     /**
      * The Extension Manager updating ITSELF leaves this page running the old version's
      * code: the header still said v1.15.0 under a finished v1.16.1 update
      * (ClaudiusH, 2026-10-07). So the page reloads, once per run and outcome.
      * The finished panel comes straight back, because the run is on disk.
      */
-    private reloadIfSelf;
+    protected reloadIfSelf(run: Run | null): void;
     runPanel(): JSX.Element;
     /**
      * Every package with a newer version, in one press.

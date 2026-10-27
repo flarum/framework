@@ -9,9 +9,11 @@
 
 namespace Flarum\ExtensionManager\Work;
 
+use DOMCdataSection;
 use DOMDocument;
 use DOMElement;
 use DOMNode;
+use DOMText;
 use Flarum\ExtensionManager\Config\AuthTokens;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
@@ -40,6 +42,22 @@ class ReleaseNotes
         'table', 'thead', 'tbody', 'tr', 'th', 'td', 'details', 'summary',
     ];
 
+    /**
+     * Removed with their content: active or embedded content, form controls,
+     * foreign markup (svg, math), and the raw-text elements whose content was
+     * never meant to be read as text.
+     */
+    protected const DROPPED = [
+        'script', 'style', 'iframe', 'frame', 'frameset', 'object', 'embed', 'applet', 'param',
+        'form', 'input', 'button', 'textarea', 'select', 'option', 'svg', 'math', 'template',
+        'noscript', 'noembed', 'noframes', 'xmp', 'plaintext', 'listing', 'title', 'head',
+        'img', 'video', 'audio', 'picture', 'source', 'track', 'canvas', 'map', 'area',
+        'base', 'link', 'meta',
+    ];
+
+    /** Part of the cache key, so notes cleaned by an earlier rule are not served after it changes. */
+    protected const CLEAN_VERSION = 2;
+
     public function __construct(
         protected string $cacheDir,
         protected AuthTokens $auth,
@@ -66,7 +84,7 @@ class ReleaseNotes
         $repo = $m[1].'/'.$m[2];
         $from = (string) ($update['from'] ?? '');
         $to = (string) ($update['to'] ?? '');
-        $cache = $this->cacheDir.'/'.sha1($repo.'|'.$from.'|'.$to).'.json';
+        $cache = $this->cacheDir.'/'.sha1(self::CLEAN_VERSION.'|'.$repo.'|'.$from.'|'.$to).'.json';
 
         if (is_file($cache) && time() - (int) filemtime($cache) < $this->freshFor) {
             $hit = json_decode((string) file_get_contents($cache), true);
@@ -96,7 +114,8 @@ class ReleaseNotes
             $releases[] = [
                 'name' => trim((string) ($release['name'] ?? '')) ?: $tag,
                 'tag' => $tag,
-                'url' => (string) ($release['html_url'] ?? $url),
+                // Shown as a link too, so held to the same rule as the page it came from.
+                'url' => preg_match('#^https://github\.com/[^\s"<>]*$#', (string) ($release['html_url'] ?? '')) ? (string) $release['html_url'] : $url,
                 'publishedAt' => isset($release['published_at']) ? (string) $release['published_at'] : null,
                 'html' => self::clean((string) ($release['body_html'] ?? '')),
             ];
@@ -125,12 +144,17 @@ class ReleaseNotes
     }
 
     /**
-     * Release notes as HTML the admin page can show: only the tags above, only
-     * http(s) links, no attributes but a link's href. Anything else is unwrapped
-     * to its text, apart from content that should never be shown at all.
+     * Release notes as HTML the admin page can show: only the tags in ALLOWED,
+     * no attributes but a link's http(s) href, and every piece of text escaped.
+     * An element not on the list is unwrapped to its text, and one in DROPPED
+     * goes with everything inside it.
      *
      * GitHub already sanitises what it renders. This is the second check, made
-     * here, because the page it lands on is an administrator's.
+     * here, because the page it lands on is an administrator's and shows it
+     * with m.trust(). So the output is written out here, tag by tag, rather
+     * than by libxml's serialiser: libxml keeps the text of raw-text elements
+     * such as xmp, noembed, noframes and plaintext unescaped wherever that text
+     * is moved to, and a browser then parses it as markup.
      */
     public static function clean(string $html): string
     {
@@ -140,71 +164,68 @@ class ReleaseNotes
 
         $doc = new DOMDocument();
         $previous = libxml_use_internal_errors(true);
-        $doc->loadHTML('<?xml encoding="utf-8"?><div id="mw-root">'.$html.'</div>', LIBXML_NONET);
+        $doc->loadHTML('<?xml encoding="utf-8"?><body>'.$html.'</body>', LIBXML_NONET);
         libxml_clear_errors();
         libxml_use_internal_errors($previous);
 
-        $root = $doc->getElementById('mw-root');
+        $body = $doc->getElementsByTagName('body')->item(0);
 
-        if (! $root) {
-            return '';
-        }
-
-        self::walk($root);
-
-        $out = '';
-
-        foreach (iterator_to_array($root->childNodes) as $child) {
-            $out .= $doc->saveHTML($child);
-        }
-
-        return $out;
+        return $body ? self::render($body) : '';
     }
 
-    protected static function walk(DOMNode $node): void
+    protected static function render(DOMNode $node): string
     {
-        foreach (iterator_to_array($node->childNodes) as $child) {
-            if ($child->nodeType === XML_COMMENT_NODE) {
-                $node->removeChild($child);
+        $out = '';
+
+        foreach ($node->childNodes as $child) {
+            // CDATA extends DOMText, and is never text a release page means to show.
+            if ($child instanceof DOMText && ! $child instanceof DOMCdataSection) {
+                $out .= self::escape($child->data);
                 continue;
             }
 
+            // Comments, processing instructions and anything else that is not an element.
             if (! $child instanceof DOMElement) {
                 continue;
             }
 
             $tag = strtolower($child->tagName);
 
-            if (in_array($tag, ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'textarea', 'select', 'svg', 'math', 'template', 'noscript', 'img', 'video', 'audio', 'picture', 'source'], true)) {
-                $node->removeChild($child);
+            if (in_array($tag, self::DROPPED, true)) {
                 continue;
             }
 
-            self::walk($child);
+            $inner = self::render($child);
 
             if (! in_array($tag, self::ALLOWED, true)) {
-                while ($child->firstChild) {
-                    $node->insertBefore($child->firstChild, $child);
-                }
-
-                $node->removeChild($child);
+                $out .= $inner;
                 continue;
             }
 
-            $href = $tag === 'a' ? $child->getAttribute('href') : '';
-
-            foreach (iterator_to_array($child->attributes) as $attribute) {
-                $child->removeAttribute($attribute->nodeName);
+            if ($tag === 'br' || $tag === 'hr') {
+                $out .= '<'.$tag.'>';
+                continue;
             }
 
-            if ($tag === 'a') {
-                if (preg_match('#^https?://#i', $href)) {
-                    $child->setAttribute('href', $href);
-                    $child->setAttribute('target', '_blank');
-                    $child->setAttribute('rel', 'noopener noreferrer nofollow');
-                }
-            }
+            $out .= '<'.$tag.($tag === 'a' ? self::link($child->getAttribute('href')) : '').'>'.$inner.'</'.$tag.'>';
         }
+
+        return $out;
+    }
+
+    /** A link's attributes: an absolute http(s) URL with nothing a browser would strip or reinterpret, or none. */
+    protected static function link(string $href): string
+    {
+        if (! preg_match('#^https?://[^/?\#\s]#i', $href) || preg_match('/[\x00-\x20\x7f]/', $href)) {
+            return '';
+        }
+
+        return ' href="'.self::escape($href).'" target="_blank" rel="noopener noreferrer nofollow"';
+    }
+
+    protected static function escape(string $text): string
+    {
+        return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
     }
 
     protected function get(string $url): ?string

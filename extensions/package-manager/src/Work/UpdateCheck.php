@@ -13,7 +13,8 @@ use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\ExtensionManager\Config\JsonFile;
 use Flarum\ExtensionManager\Config\Repositories;
 use Flarum\Locale\TranslatorInterface;
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Whether anything newer exists, asked cheaply.
@@ -48,6 +49,7 @@ class UpdateCheck
 
     public function __construct(
         protected string $cachePath,
+        protected ClientInterface $http,
         protected int $freshFor = 21600,        // six hours
     ) {
     }
@@ -246,18 +248,28 @@ class UpdateCheck
         return $this->refreshWith($this->interesting($packages, self::directRequires($base.'/composer.json')), new PrivateIndex(
             new Repositories($translator, new JsonFile($translator, $base.'/composer.json')),
             new AuthTokens($translator, new JsonFile($translator, $base.'/auth.json')),
-            new Client(),
+            $this->http,
         ));
     }
 
     /** @return array<string,mixed> */
     public function cached(): array
     {
-        if (! is_file($this->cachePath)) {
+        return self::cachedIn($this->cachePath);
+    }
+
+    /**
+     * The saved check, for a reader that never asks anything new.
+     *
+     * @return array<string,mixed>
+     */
+    public static function cachedIn(string $cachePath): array
+    {
+        if (! is_file($cachePath)) {
             return ['checkedAt' => null, 'updates' => [], 'uncheckable' => [], 'tracking' => []];
         }
 
-        return (array) json_decode((string) file_get_contents($this->cachePath), true);
+        return (array) json_decode((string) file_get_contents($cachePath), true);
     }
 
     /**
@@ -363,16 +375,12 @@ class UpdateCheck
      */
     public function fromPackagist(string $name): ?array
     {
-        $url = 'https://repo.packagist.org/p2/'.$name.'.json';
-
-        $context = stream_context_create(['http' => [
-            'timeout' => 15,
-            'header' => "User-Agent: the Extension Manager\r\n",
-        ]]);
-
-        $body = @file_get_contents($url, false, $context);
-
-        if ($body === false) {
+        try {
+            $body = (string) $this->http->request('GET', 'https://repo.packagist.org/p2/'.$name.'.json', [
+                'timeout' => 15,
+                'headers' => ['User-Agent' => 'the Extension Manager'],
+            ])->getBody();
+        } catch (GuzzleException) {
             return null;
         }
 

@@ -9,6 +9,9 @@
 
 namespace Flarum\ExtensionManager\Plan;
 
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+
 /**
  * Moving Flarum to its nightly build: which requirements change, and to what.
  *
@@ -35,9 +38,14 @@ class Nightly
     /** @var callable(string):?array */
     protected $fetch;
 
-    public function __construct(protected string $composerJsonPath, protected string $lockPath, ?callable $fetch = null)
-    {
-        $this->fetch = $fetch ?? fn (string $name) => self::devVersions($name);
+    /** @param ?callable(string):?array $fetch a package's branch versions; Packagist's when not given */
+    public function __construct(
+        protected string $composerJsonPath,
+        protected string $lockPath,
+        protected ClientInterface $http,
+        ?callable $fetch = null,
+    ) {
+        $this->fetch = $fetch ?? fn (string $name) => $this->devVersions($name);
     }
 
     /** The branch this forum's Flarum would track, e.g. `2.x-dev`, or null if core cannot be read. */
@@ -83,11 +91,18 @@ class Nightly
     }
 
     /** @return list<string>|null the package's branch versions on Packagist, null when unreachable */
-    public static function devVersions(string $name): ?array
+    public function devVersions(string $name): ?array
     {
-        $ctx = stream_context_create(['http' => ['timeout' => 10, 'user_agent' => 'The Extension Manager (+https://github.com/flarum/extension-manager)']]);
-        $json = @file_get_contents('https://repo.packagist.org/p2/'.$name.'~dev.json', false, $ctx);
-        $data = is_string($json) ? json_decode($json, true) : null;
+        try {
+            $json = (string) $this->http->request('GET', 'https://repo.packagist.org/p2/'.$name.'~dev.json', [
+                'timeout' => 10,
+                'headers' => ['User-Agent' => 'The Extension Manager (+https://github.com/flarum/extension-manager)'],
+            ])->getBody();
+        } catch (GuzzleException) {
+            return null;
+        }
+
+        $data = json_decode($json, true);
 
         if (! is_array($data)) {
             return null;
