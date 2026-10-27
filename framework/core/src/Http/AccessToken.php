@@ -63,9 +63,23 @@ class AccessToken extends AbstractModel
     /**
      * How long this access token should be valid from the time of last activity.
      * This value will be used in the validity and expiration checks.
+     *
+     * This is the default for the type, not the last word on it: a site can
+     * shorten or lengthen it from `config.php` or the admin panel. Read the
+     * resolved value with `lifetime()` rather than this property.
+     *
      * @var int Lifetime in seconds. Zero means it will never expire.
      */
     protected static int $lifetime = 0;
+
+    /**
+     * Whether a site may change this type's lifetime.
+     *
+     * Types whose whole purpose is to outlive a session — API tokens issued to
+     * a script, say — have nothing to gain from an expiry box in the admin
+     * panel, and would be broken by one set carelessly.
+     */
+    protected static bool $configurableLifetime = true;
 
     /**
      * Difference from the current `last_activity_at` attribute value before `updateLastSeen()`
@@ -150,24 +164,51 @@ class AccessToken extends AbstractModel
     }
 
     /**
+     * How long this type of token stays valid, in seconds, taking into account
+     * anything the site has configured. Zero means it never expires.
+     *
+     * Resolved rather than fixed: `config.php` wins, then the setting an admin
+     * can change, then the default the class declares. A site that configures
+     * nothing keeps the lifetime it has always had.
+     */
+    public static function lifetime(): int
+    {
+        if (! static::$configurableLifetime) {
+            return static::$lifetime;
+        }
+
+        $lifetime = resolve(SessionConfig::class)->tokenLifetime(static::$type);
+
+        return $lifetime ?? static::$lifetime;
+    }
+
+    /**
+     * Whether a site may change how long this type of token lasts.
+     */
+    public static function hasConfigurableLifetime(): bool
+    {
+        return static::$configurableLifetime;
+    }
+
+    /**
      * Filters which tokens are valid at the given date for this particular token type.
-     * Uses the static::$lifetime value by default, can be overridden by children classes.
+     * Uses the resolved lifetime by default, can be overridden by children classes.
      */
     protected static function scopeValid(Builder $query, Carbon $date): void
     {
-        if (static::$lifetime > 0) {
-            $query->where('last_activity_at', '>', $date->clone()->subSeconds(static::$lifetime));
+        if (($lifetime = static::lifetime()) > 0) {
+            $query->where('last_activity_at', '>', $date->clone()->subSeconds($lifetime));
         }
     }
 
     /**
      * Filters which tokens are expired at the given date and ready for garbage collection.
-     * Uses the static::$lifetime value by default, can be overridden by children classes.
+     * Uses the resolved lifetime by default, can be overridden by children classes.
      */
     protected static function scopeExpired(Builder $query, Carbon $date): void
     {
-        if (static::$lifetime > 0) {
-            $query->where('last_activity_at', '<', $date->clone()->subSeconds(static::$lifetime));
+        if (($lifetime = static::lifetime()) > 0) {
+            $query->where('last_activity_at', '<', $date->clone()->subSeconds($lifetime));
         } else {
             $query->whereRaw('FALSE');
         }
