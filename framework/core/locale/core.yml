@@ -422,6 +422,8 @@ core:
       suppress_bounced_label: Stop emailing bounced addresses
       suppress_bounced_help: "When enabled, users whose address has bounced or filed a spam complaint will be skipped when sending notification emails, until they update and confirm their address."
       title: => core.ref.email
+      webhook_url_label: Webhook URL
+      webhook_url_help: "Add this URL as a webhook in your mail provider's dashboard, with bounce and spam complaint events turned on."
 
     # These translations are used in the email bounces dashboard widget.
     email_bounces:

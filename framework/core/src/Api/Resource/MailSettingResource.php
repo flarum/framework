@@ -12,6 +12,7 @@ namespace Flarum\Api\Resource;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
+use Flarum\Http\UrlGenerator;
 use Flarum\Mail\DriverInterface;
 use Flarum\Mail\HandlesWebhooks;
 use Flarum\Mail\ProvisionsWebhooks;
@@ -29,7 +30,8 @@ class MailSettingResource extends AbstractResource implements Findable
     public function __construct(
         protected SettingsRepositoryInterface $settings,
         protected Factory $validator,
-        protected Container $container
+        protected Container $container,
+        protected UrlGenerator $url
     ) {
     }
 
@@ -89,6 +91,11 @@ class MailSettingResource extends AbstractResource implements Findable
                 ->get(fn () => $this->container->make('flarum.mail.configured_driver') instanceof HandlesWebhooks),
             Schema\Boolean::make('canProvisionWebhooks')
                 ->get(fn () => $this->container->make('flarum.mail.configured_driver') instanceof ProvisionsWebhooks),
+            Schema\Str::make('webhookUrl')
+                ->nullable()
+                ->get(fn () => $this->container->make('flarum.mail.configured_driver') instanceof HandlesWebhooks
+                    ? $this->url->to('forum')->route('mailWebhook', ['driver' => $this->settings->get('mail_driver')])
+                    : null),
         ];
     }
 }
