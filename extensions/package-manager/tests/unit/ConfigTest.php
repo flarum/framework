@@ -304,6 +304,31 @@ class ConfigTest extends TestCase
         $this->assertStringContainsString('ghp_token', (string) file_get_contents($this->dir.'/composer.json'), 'the others are untouched');
     }
 
+    /** A password with a raw @ in it is redacted whole, the way parse_url() and Composer split it. */
+    public function test_a_password_containing_an_at_sign_is_redacted_whole(): void
+    {
+        $this->assertSame('https://***@repo.example.test/x', Repositories::redact('https://user:p@ss@repo.example.test/x'));
+        $this->assertSame('https://repo.example.test/x?k=a@b', Repositories::redact('https://repo.example.test/x?k=a@b'));
+        $this->assertSame('https://repo.example.test#a@b', Repositories::redact('https://repo.example.test#a@b'));
+        $this->assertSame('ssh://git@github.com/a/b.git', Repositories::redact('ssh://git@github.com/a/b.git'));
+        $this->assertSame('git@github.com:a/b.git', Repositories::redact('git@github.com:a/b.git'));
+    }
+
+    /** The extension's own requests need the URL as written; only all() is for the screen. */
+    public function test_the_unredacted_urls_are_kept_for_internal_use(): void
+    {
+        $repos = new Repositories(EnglishTranslator::make(), $this->file('composer.json', ['repositories' => [
+            ['type' => 'composer', 'url' => 'https://user:s3cret@repo.example.test'],
+            'https://ghp_token@named.test' => ['type' => 'composer', 'url' => 'https://repo.example.test/plain'],
+        ]]));
+
+        $this->assertSame(['https://user:s3cret@repo.example.test', 'https://repo.example.test/plain'], array_column($repos->unredacted(), 'url'));
+        $this->assertSame('https://ghp_token@named.test', $repos->unredacted()[1]['name']);
+        $this->assertSame(['name', 'type', 'url', 'canonical'], array_keys($repos->all()[0]), 'all() keeps its shape');
+        $this->assertSame('https://***@named.test', $repos->all()[1]['name']);
+        $this->assertStringNotContainsString('s3cret', (string) json_encode($repos->all()));
+    }
+
     public function test_writing_preserves_everything_else_in_the_file(): void
     {
         // The file holds the site's entire dependency list. Rewriting it must

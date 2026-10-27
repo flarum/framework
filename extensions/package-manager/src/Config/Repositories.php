@@ -33,9 +33,26 @@ class Repositories
     }
 
     /**
+     * For showing: every credential written into a URL or name is redacted.
+     *
      * @return list<array{name:string,type:string,url:string,canonical:bool}>
      */
     public function all(): array
+    {
+        return array_map(
+            fn (array $repo) => array_merge($repo, ['name' => self::redact($repo['name']), 'url' => self::redact($repo['url'])]),
+            $this->unredacted()
+        );
+    }
+
+    /**
+     * For this extension's own requests only, never for a response: the URLs
+     * as composer.json has them, credentials included, so a repository at
+     * https://user:token@repo.example.com can be asked as Composer asks it.
+     *
+     * @return list<array{name:string,type:string,url:string,canonical:bool}>
+     */
+    public function unredacted(): array
     {
         $out = [];
 
@@ -47,10 +64,9 @@ class Repositories
             $out[] = [
                 // Composer accepts repositories as a list or as a keyed map, and
                 // the key is the name when it is a map.
-                'name' => self::redact((string) ($repo['name'] ?? (is_string($key) ? $key : ($repo['url'] ?? '')))),
+                'name' => (string) ($repo['name'] ?? (is_string($key) ? $key : ($repo['url'] ?? ''))),
                 'type' => (string) ($repo['type'] ?? '?'),
-                // Never a credential written into the URL; see redact().
-                'url' => self::redact((string) ($repo['url'] ?? '')),
+                'url' => (string) ($repo['url'] ?? ''),
                 'canonical' => (bool) ($repo['canonical'] ?? true),
             ];
         }
@@ -165,7 +181,8 @@ class Repositories
     public static function redact(string $url): string
     {
         return (string) preg_replace_callback(
-            '#^([a-z][a-z0-9+.-]*://)([^/@]*)@#i',
+            // Up to the LAST @ before the path, as parse_url() and Composer read it.
+            '#^([a-z][a-z0-9+.-]*://)([^/?\#]*)@#i',
             fn (array $m) => preg_match('#^https?://$#i', $m[1]) || str_contains($m[2], ':') ? $m[1].'***@' : $m[0],
             $url
         );
