@@ -19,7 +19,7 @@ return Migration::createTable(
         // be deleted/anonymized without losing the historical event.
         $table->unsignedInteger('user_id')->nullable();
         $table->string('type'); // 'bounce' | 'complaint'
-        $table->string('reason')->nullable();
+        $table->text('reason')->nullable();
         $table->timestamp('created_at');
 
         $table->index('created_at');

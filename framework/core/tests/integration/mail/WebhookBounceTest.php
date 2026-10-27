@@ -114,6 +114,21 @@ class WebhookBounceTest extends TestCase
     }
 
     #[Test]
+    public function a_long_provider_reason_is_kept_in_full(): void
+    {
+        $reason = rtrim(str_repeat('550 5.1.1 The email account that you tried to reach does not exist. ', 6));
+
+        $payload = $this->signedPayload('failed', 'bouncer@example.com');
+        $payload['event-data']['delivery-status']['description'] = $reason;
+
+        $response = $this->postWebhook($payload);
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertEquals($reason, User::find(3)->email_bounce_reason);
+        $this->assertEquals($reason, \Flarum\Mail\EmailBounceEvent::where('email', 'bouncer@example.com')->value('reason'));
+    }
+
+    #[Test]
     public function complaint_flags_the_user(): void
     {
         $response = $this->postWebhook($this->signedPayload('complained', 'bouncer@example.com'));
