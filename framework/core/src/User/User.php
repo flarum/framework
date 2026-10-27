@@ -96,6 +96,17 @@ class User extends AbstractModel
     protected ?array $permissions = null;
 
     /**
+     * Whether the user is an administrator, and the groups that says so of.
+     *
+     * Every permission check asks, so serializing a list asks hundreds of times
+     * about the same users. Replacing the groups relation replaces the
+     * collection, which has the answer worked out again.
+     *
+     * @var array{Collection, bool}|null
+     */
+    protected ?array $administrator = null;
+
+    /**
      * An array of callables, through each of which the user's list of groups is passed
      * before being returned.
      *
@@ -495,6 +506,24 @@ class User extends AbstractModel
         return $this;
     }
 
+    /**
+     * Remove the given keys from the stored preferences, so their defaults
+     * apply again. Works on the stored value rather than the accessor, which
+     * merges in every default and would store the others' defaults too.
+     *
+     * @param string[] $keys
+     */
+    public function forgetPreferences(array $keys): static
+    {
+        $preferences = (array) json_decode($this->attributes['preferences'] ?? 'null', true);
+
+        // Exact keys only: Arr::except() reads dots as nesting, so forgetting
+        // `acme.layout` would reach into a preference named `acme`.
+        $this->preferences = array_diff_key($preferences, array_flip($keys));
+
+        return $this;
+    }
+
     public function updateLastSeen(): static
     {
         $now = Carbon::now();
@@ -508,7 +537,13 @@ class User extends AbstractModel
 
     public function isAdmin(): bool
     {
-        return $this->groups->contains(Group::ADMINISTRATOR_ID);
+        $groups = $this->groups;
+
+        if ($this->administrator === null || $this->administrator[0] !== $groups) {
+            $this->administrator = [$groups, $groups->contains(Group::ADMINISTRATOR_ID)];
+        }
+
+        return $this->administrator[1];
     }
 
     /**

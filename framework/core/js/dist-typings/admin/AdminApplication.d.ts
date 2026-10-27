@@ -82,6 +82,12 @@ export interface AdminApplicationData extends ApplicationData {
     knownQueues: string[];
     schedulerStatus: string;
     sessionDriver: string;
+    /**
+     * The sort options each resource offers, keyed by resource type, and within
+     * that by the alias that appears in a URL. Mirrors what the forum receives,
+     * so admin UI can offer sorting without keeping its own copy of the list.
+     */
+    sortMaps: Record<string, Record<string, string>>;
 }
 export default class AdminApplication extends Application {
     /**

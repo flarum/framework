@@ -99,6 +99,8 @@ core:
         driver_options:
           default: Default database search
         no_other_drivers: No search drivers are available yet. Install a search driver extension to be able to configure it.
+        cjk_mode_label: Optimise search for CJK languages
+        cjk_mode_help: Enable if your forum is primarily in Chinese, Japanese, or Korean. The database's word-based search cannot match parts of CJK text, so this switches to a substring match that can. It is slower on very large forums, where configuring a CJK-aware fulltext parser at the database level (such as MySQL/MariaDB's ngram parser) is a faster alternative.
       sessions:
         section_label: Sessions
         lifetime_label: Session Length (minutes)
@@ -153,6 +155,8 @@ core:
       edit_css_button: Edit Custom CSS
       edit_footer_button: => core.ref.custom_footer_title
       edit_header_button: => core.ref.custom_header_title
+      email_logo_heading: Email logo
+      email_logo_text: "Upload an image to be displayed at the top of emails. It's saved in a format every email client can show. If you don't upload one, emails use a copy of your logo. If your emails show the forum title instead of your logo, upload your logo again."
       enter_hex_message: Please enter a hexadecimal color code.
       favicon_heading: Favicon
       favicon_text: Upload an image to be displayed as the forum's shortcut icon.
@@ -160,6 +164,8 @@ core:
       logo_text: Upload an image to be displayed in place of the forum title.
       logo_dark_mode_heading: Dark mode logo
       logo_dark_mode_text: Upload an alternate logo to be displayed when dark mode is enabled.
+      show_theme_selector_help: Let users switch between the available color schemes from a control in the header.
+      show_theme_selector_label: Show theme selector
       title: Appearance
       color_scheme_label: Color Scheme (default)
       color_schemes:
@@ -255,6 +261,19 @@ core:
       queue_paused_all_warning: All queue processing is paused. Jobs will accumulate until it is resumed.
       queue_paused_manage: Manage
       clear_cache_button: Clear Cache
+      clear_cache_modal:
+        title: Clearing the Cache
+        working: Rebuilding the compiled assets. This can take a while on larger forums.
+        cleared: "Cleared {name}"
+        cleared_files: "Cleared {name} ({count} files)"
+        rebuilt: "Rebuilt {bundle}"
+        unchanged: "{bundle} was already up to date"
+        rewritten: "Rewrote {bundle}"
+        empty: "{bundle} has nothing to compile"
+        chunks: "Rebuilt the split chunks for {frontend} ({count} changed)"
+        failed: "Could not rebuild {step}: {message}"
+        took: "{time}ms"
+        reload_button: Reload
       description: Your forum at a glance.
       info_button: System Info
       info_modal:
@@ -484,6 +503,7 @@ core:
       delete_posts_forever_label: Delete posts forever
       delete_posts_label: Delete posts
       description: Configure who can see and do what.
+      edit_own_avatar_label: Edit own avatar
       edit_posts_label: Edit posts
       edit_users_label: Edit user attributes
       edit_users_credentials_label: Edit user credentials
@@ -673,6 +693,7 @@ core:
       session_dropdown_accessible_label: Toggle session options dropdown menu
       settings_button: => core.ref.settings
       sign_up_link: => core.ref.sign_up
+      theme_switcher_accessible_label: Change theme
 
     # These translations are used on the index page, peripheral to the discussion list.
     index:
@@ -688,12 +709,14 @@ core:
 
     # These translations are used by the sorting control above the discussion list.
     index_sort:
-      latest_button: Latest
+      az_button: => core.ref.title_az
+      latest_button: => core.ref.latest
       newest_button: => core.ref.newest
       oldest_button: => core.ref.oldest
       relevance_button: => core.ref.relevance
       toggle_dropdown_accessible_label: Change discussion list sorting
-      top_button: Top
+      top_button: => core.ref.top
+      za_button: => core.ref.title_za
 
     # These translations are used in the Log In modal dialog.
     log_in:
@@ -704,6 +727,7 @@ core:
       sign_up_text: "Don't have an account? <a>Sign Up</a>"
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
+      too_many_attempts_message: => core.ref.too_many_login_attempts_message
       username_or_email_placeholder: => core.ref.username_or_email_placeholder
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
@@ -822,6 +846,7 @@ core:
       notify_by_email_heading: => core.ref.email
       notify_by_web_heading: Web
       notify_discussion_renamed_label: Someone renames a discussion I started
+      reset_notifications_button: Reset to defaults
       device_heading: Device
       haptic_feedback_help: Only available on supported mobile devices
       haptic_feedback_label: Enable haptic feedback
@@ -962,6 +987,35 @@ core:
           key: group
           hint: singular or plural group names
 
+    # These translations are used in the group selector component.
+    group_selector:
+      placeholder: Choose a group
+
+    # These translations are used by the icon picker and the icon input that opens it.
+    icon_picker:
+      count_text: "{count, plural, one {# icon} other {# icons}}"
+      families:
+        brands: Brands
+        classic: Classic
+        duotone: Duotone
+        sharp: Sharp
+        sharp_duotone: Sharp Duotone
+      family_label: Icon family
+      forced_style_text: "Every icon on this forum is shown in the style set on the Advanced page, so the style you choose here won't show while that setting is on."
+      label: Choose an icon
+      more_text: "Showing {shown} of {count}. Search to narrow it down."
+      no_results_text: No icons match.
+      open_button: Choose an icon
+      remove_button: Remove icon
+      search_placeholder: Search icons, or type a class
+      unreadable_text: "Icons can't be listed here, because this forum's styles are served from another site that doesn't allow it. Type an icon's class instead, such as {example}."
+      use_button: "Use {value}"
+      weights:
+        light: Light
+        regular: Regular
+        solid: Solid
+        thin: Thin
+
     # These translations are used in the input component.
     input:
       clear_button: Clear input
@@ -994,6 +1048,18 @@ core:
       bisecting_continue: Continue bisecting
       maintenance_mode_low: Down for maintenance. Only administrators can access the forum.
       maintenance_mode_safe: Down for maintenance with safe mode. Only administrators can access the forum and no extensions are booted.
+
+    # The names of the discussion list's sort options. These live here rather
+    # than under `forum` because the admin panel names them too — a tag's
+    # default sort, for one — and the forum namespace is not shipped to it.
+    index_sort:
+      az_button: => core.ref.title_az
+      latest_button: => core.ref.latest
+      newest_button: => core.ref.newest
+      oldest_button: => core.ref.oldest
+      relevance_button: => core.ref.relevance
+      top_button: => core.ref.top
+      za_button: => core.ref.title_za
 
     # These translations are used as suffixes when abbreviating numbers.
     number_suffix:
@@ -1136,6 +1202,7 @@ core:
       remember_me_label: => core.ref.remember_me_label
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
+      too_many_attempts_message: => core.ref.too_many_login_attempts_message
 
     # Translations in this namespace are displayed by the Reset Password interface.
     reset_password:
@@ -1268,6 +1335,7 @@ core:
     light_hc_mode_label: Light High Contrast Mode
     light_mode_label: Light Mode
     load_more: Load More
+    latest: Latest
     loading: Loading...
     log_in: Log In
     log_out: Log Out
@@ -1297,6 +1365,10 @@ core:
     sign_up: Sign Up
     some_others: "{count, plural, one {# other} other {# others}}" # Referenced by flarum-likes.yml, flarum-mentions.yml
     start_a_discussion: Start a Discussion
+    title_az: Title (A–Z)
+    title_za: Title (Z–A)
+    too_many_login_attempts_message: Too many failed attempts to log in. Please wait a few minutes, then try again.
+    top: Top
     username: Username
     username_or_email_placeholder: Username or Email
     users: Users # Referenced by flarum-statistics.yml

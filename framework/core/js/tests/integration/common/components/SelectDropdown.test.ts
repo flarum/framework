@@ -2,6 +2,7 @@ import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import SelectDropdown from '../../../../src/common/components/SelectDropdown';
 import mq from 'mithril-query';
 import m from 'mithril';
+import { app } from '../../../../src/forum';
 
 beforeAll(() => bootstrapForum());
 
@@ -156,5 +157,31 @@ describe('SelectDropdown renders an optional icon', () => {
     const select = mq(m(SelectDropdown, { label: 'Select', defaultLabel: 'Select', icon: 'fas fa-globe' }, buttons()));
 
     expect(select).toContainRaw('Option A');
+  });
+});
+
+describe('SelectDropdown forwards noStyleOverride to its toggle icon', () => {
+  beforeAll(() => app.boot());
+
+  afterEach(() => app.forum.pushAttributes({ fontAwesomeForcedStyle: null }));
+
+  it('keeps the declared toggle icon style when noStyleOverride is set', () => {
+    app.forum.pushAttributes({ fontAwesomeForcedStyle: 'fa-duotone fa-light' });
+
+    const select = mq(
+      m(SelectDropdown, { icon: 'fa-regular fa-sun', noStyleOverride: true, defaultLabel: 'x' }, [m('button', { active: true }, 'A')])
+    );
+
+    expect(select.rootEl.querySelector('.Dropdown-toggle .Button-icon')?.className).toContain('fa-regular');
+  });
+
+  it('rewrites the toggle icon style by default when the forum forces one', () => {
+    app.forum.pushAttributes({ fontAwesomeForcedStyle: 'fa-duotone fa-light' });
+
+    const select = mq(
+      m(SelectDropdown, { icon: 'fa-regular fa-sun', defaultLabel: 'x' }, [m('button', { active: true }, 'A')])
+    );
+
+    expect(select.rootEl.querySelector('.Dropdown-toggle .Button-icon')?.className).not.toContain('fa-regular');
   });
 });

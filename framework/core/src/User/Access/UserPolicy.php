@@ -22,6 +22,19 @@ class UserPolicy extends AbstractPolicy
         return null;
     }
 
+    public function editAvatar(User $actor, User $user): ?string
+    {
+        // Changing someone else's avatar is a moderation action, and needs the same
+        // authority as editing them. Denied rather than abstained, so the `user.editAvatar`
+        // permission — which only ever covers your own avatar — cannot grant it through
+        // the generic `can()` fallback below.
+        if ($actor->id !== $user->id) {
+            return $actor->can('edit', $user) ? $this->allow() : $this->deny();
+        }
+
+        return $actor->hasPermission('user.editAvatar') ? $this->allow() : null;
+    }
+
     public function editCredentials(User $actor, User $user): ?string
     {
         // Check the actor's permission first. When they cannot edit credentials

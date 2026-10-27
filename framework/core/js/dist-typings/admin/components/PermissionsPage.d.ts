@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import AdminPage from './AdminPage';
 export default class PermissionsPage extends AdminPage {
     headerInfo(): {

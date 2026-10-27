@@ -155,7 +155,7 @@ class QueueFactory implements Factory
      *
      * @return string[]
      */
-    public function pausedQueues(string $connection): array
+    public function pausedQueues(?string $connection): array
     {
         $tracked = (array) ($this->cache?->get("flarum:queue:paused-list:{$connection}") ?? []);
 
@@ -168,7 +168,7 @@ class QueueFactory implements Factory
         return $paused;
     }
 
-    protected function trackPausedQueue(string $connection, string $queue): void
+    protected function trackPausedQueue(?string $connection, string $queue): void
     {
         $tracked = (array) ($this->cache?->get("flarum:queue:paused-list:{$connection}") ?? []);
 
@@ -178,7 +178,7 @@ class QueueFactory implements Factory
         }
     }
 
-    protected function untrackPausedQueue(string $connection, string $queue): void
+    protected function untrackPausedQueue(?string $connection, string $queue): void
     {
         $tracked = (array) ($this->cache?->get("flarum:queue:paused-list:{$connection}") ?? []);
 

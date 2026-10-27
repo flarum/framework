@@ -35,7 +35,7 @@ class Akismet
     private ?ClientInterface $client;
 
     public function __construct(
-        private readonly string $apiKey,
+        private readonly ?string $apiKey,
         string $homeUrl,
         private readonly string $flarumVersion,
         private readonly string $extensionVersion,
@@ -43,7 +43,7 @@ class Akismet
         ?ClientInterface $client = null
     ) {
         $this->client = $client;
-        $this->params['api_key'] = $apiKey;
+        $this->params['api_key'] = $apiKey ?? '';
         $this->params['blog'] = $homeUrl;
 
         if ($inDebugMode) {

@@ -60,7 +60,13 @@ class DiscussionResource extends AbstractDatabaseResource
         if (Arr::get($context->request->getQueryParams(), 'bySlug', false)) {
             $discussion = $this->slugManager->forResource(Discussion::class)->fromSlug($id, $actor);
         } else {
-            $discussion = $this->query($context)->findOrFail($id);
+            $query = $this->query($context);
+
+            if (! $this->idCanBeKey($query->getModel(), $id)) {
+                return null;
+            }
+
+            $discussion = $query->findOrFail($id);
         }
 
         return $discussion;
@@ -86,7 +92,9 @@ class DiscussionResource extends AbstractDatabaseResource
             Endpoint\Show::make()
                 ->defaultInclude([
                     'user',
+                    'user.groups',
                     'lastPostedUser',
+                    'lastPostedUser.groups',
                     'firstPost',
                     'firstPost.discussion',
                     'firstPost.user',
@@ -99,9 +107,17 @@ class DiscussionResource extends AbstractDatabaseResource
             Endpoint\Index::make()
                 ->defaultInclude([
                     'user',
+                    // Serialised from the relation eager-loaded below, so this
+                    // costs no extra queries. Without it a user arrives with no
+                    // groups, which means no badges — and the frontend keeps
+                    // that record, so their profile stays badge-less until the
+                    // page is reloaded.
+                    'user.groups',
                     'lastPostedUser',
+                    'lastPostedUser.groups',
                     'mostRelevantPost',
-                    'mostRelevantPost.user'
+                    'mostRelevantPost.user',
+                    'mostRelevantPost.user.groups'
                 ])
                 ->defaultSort('-lastPostedAt')
                 ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups', 'mostRelevantPost.user.groups'])
@@ -271,6 +287,9 @@ class DiscussionResource extends AbstractDatabaseResource
             SortColumn::make('createdAt')
                 ->ascendingAlias('oldest')
                 ->descendingAlias('newest'),
+            SortColumn::make('title')
+                ->ascendingAlias('az')
+                ->descendingAlias('za'),
         ];
     }
 

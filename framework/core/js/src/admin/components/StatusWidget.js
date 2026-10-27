@@ -4,7 +4,7 @@ import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
-import LoadingModal from './LoadingModal';
+import ClearCacheModal from './ClearCacheModal';
 import LinkButton from '../../common/components/LinkButton';
 import saveSettings from '../utils/saveSettings';
 import StatusWidgetItem from './StatusWidgetItem';
@@ -110,22 +110,10 @@ export default class StatusWidget extends DashboardWidget {
   }
 
   handleClearCache(e) {
-    app.modal.show(LoadingModal);
-
-    app
-      .request({
-        method: 'DELETE',
-        url: app.forum.attribute('apiUrl') + '/cache',
-      })
-      .then(() => window.location.reload())
-      .catch((e) => {
-        if (e.status === 409) {
-          app.alerts.clear();
-          app.alerts.show({ type: 'error' }, app.translator.trans('core.admin.dashboard.io_error_message'));
-        }
-
-        app.modal.close();
-      });
+    // The modal does the request itself: clearing the cache rebuilds every
+    // asset bundle and reports each step as it finishes, and reading those
+    // needs the response as it is written rather than once it is complete.
+    app.modal.show(ClearCacheModal);
   }
 
   handleShowInfo() {

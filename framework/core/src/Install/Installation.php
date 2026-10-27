@@ -108,10 +108,12 @@ class Installation
                 'json',
                 'mbstring',
                 'openssl',
-                'pdo_mysql',
                 'tokenizer',
                 'zip',
             ]),
+            // Only the chosen database's driver is needed, and that is checked
+            // once it has been chosen.
+            new Prerequisite\AnyPhpExtension(array_values(array_unique(DatabaseConfig::DRIVER_EXTENSIONS))),
             new Prerequisite\WritablePaths([
                 $this->paths->base,
                 $this->getAssetPath().'/*',

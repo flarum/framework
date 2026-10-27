@@ -11,6 +11,7 @@ namespace Flarum\Database;
 
 use Faker\Factory as FakerFactory;
 use Faker\Generator as FakerGenerator;
+use Flarum\Database\Exception\TablePrefixTooLong;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
 use Illuminate\Container\Container as ContainerImplementation;
@@ -37,6 +38,14 @@ class DatabaseServiceProvider extends AbstractServiceProvider
             $manager = new Manager($container);
 
             $config = $container['flarum']->config('database');
+
+            // Only the installer validates the prefix, so an installation that was upgraded
+            // from 1.x or had its config.php edited by hand has never had this checked.
+            $maxPrefix = DatabaseRequirements::maxTablePrefixLength($config['driver']);
+
+            if ($maxPrefix !== null && strlen($config['prefix'] ?? '') > $maxPrefix) {
+                throw new TablePrefixTooLong($config['prefix'], $config['driver']);
+            }
 
             if (in_array($config['driver'], ['mysql', 'mariadb'])) {
                 $config['engine'] = 'InnoDB';

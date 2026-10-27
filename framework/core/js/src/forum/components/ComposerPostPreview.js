@@ -1,6 +1,7 @@
 /*global s9e*/
 
 import Component from '../../common/Component';
+import labelDiscussionLinks from '../utils/labelDiscussionLinks';
 
 /**
  * The `ComposerPostPreview` component renders Markdown as HTML using the
@@ -41,7 +42,14 @@ export default class ComposerPostPreview extends Component {
 
       preview = content;
 
-      this.attrs.surround(() => s9e.TextFormatter.preview(preview || '', vnode.dom));
+      this.attrs.surround(() => {
+        s9e.TextFormatter.preview(preview || '', vnode.dom);
+
+        // The JS formatter works from the raw text alone, so it cannot know
+        // which links point back at this forum. Applied after it runs, so the
+        // preview matches what the server will render.
+        labelDiscussionLinks(vnode.dom);
+      });
     };
     updatePreview();
 

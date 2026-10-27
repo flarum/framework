@@ -14,7 +14,7 @@ export default function extendRealtime() {
     .extend(app, { name: 'flarum-flags', exports: {} });
 
   extend(DiscussionPage.prototype, 'oncreate', function (this: any) {
-    app.websocket_channels.user?.bind('flaggedStream', (data: unknown) => {
+    this.flaggedStreamHandler = (data: unknown) => {
       const discussion = app.store.pushPayload(data as any) as any;
 
       if (discussion?.id() === this.discussion?.id() && this.stream) {
@@ -23,10 +23,14 @@ export default function extendRealtime() {
           .then(() => this.stream.update())
           .then(() => m.redraw());
       }
-    });
+    };
+
+    app.websocket_channels.user?.bind('flaggedStream', this.flaggedStreamHandler);
   });
 
+  // Only this page's handler: unbinding by event name alone would also remove
+  // anyone else's handler for the event.
   extend(DiscussionPage.prototype, 'onremove', function (this: any) {
-    app.websocket_channels.user?.unbind('flaggedStream');
+    app.websocket_channels.user?.unbind('flaggedStream', this.flaggedStreamHandler);
   });
 }

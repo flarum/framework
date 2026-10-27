@@ -6,6 +6,10 @@ export default class LockedGambit extends BooleanGambit {
     return app.translator.trans('flarum-lock.lib.gambits.discussions.locked.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'locked';
+  }
+
   filterKey(): string {
     return 'locked';
   }

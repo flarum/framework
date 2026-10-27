@@ -3,6 +3,7 @@ const path = require('path');
 const { NormalModuleReplacementPlugin } = require('webpack');
 const RegisterAsyncChunksPlugin = require('./RegisterAsyncChunksPlugin.cjs');
 const OverrideChunkLoaderFunction = require('./OverrideChunkLoaderFunction.cjs');
+const extensionId = require('./extensionId.cjs');
 
 const entryPointNames = ['forum', 'admin'];
 const entryPointExts = ['js', 'ts'];
@@ -114,6 +115,11 @@ module.exports = function () {
       path: path.resolve(process.cwd(), 'dist'),
       library: 'module.exports',
       libraryTarget: 'assign',
+      // Each build's runtime gets its own chunk array. They used to share
+      // `webpackChunkmodule_exports`, so a chunk one extension loaded was marked
+      // installed in every runtime, and another extension's chunk with the same
+      // id then resolved to nothing. See flarum/framework#5027.
+      chunkLoadingGlobal: `webpackChunk_${extensionId(require(path.resolve(process.cwd(), '../composer.json')).name).replace(/[^\w$]/g, '_')}`,
       devtoolNamespace: require(path.resolve(process.cwd(), 'package.json')).name,
       clean: true,
     },

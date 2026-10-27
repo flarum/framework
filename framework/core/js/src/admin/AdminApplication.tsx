@@ -103,6 +103,13 @@ export interface AdminApplicationData extends ApplicationData {
   sessionLifetime: number;
   sessionCookieExpiresOnClose: boolean;
   accessTokenLifetimes: AccessTokenLifetime[];
+
+  /**
+   * The sort options each resource offers, keyed by resource type, and within
+   * that by the alias that appears in a URL. Mirrors what the forum receives,
+   * so admin UI can offer sorting without keeping its own copy of the list.
+   */
+  sortMaps: Record<string, Record<string, string>>;
 }
 
 export interface AccessTokenLifetime {

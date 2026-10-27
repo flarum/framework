@@ -150,10 +150,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
 
     items.add(
       'avatar',
-      <Tooltip
-        text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
-        position="right"
-      >
+      <Tooltip text={this.authorTooltipText(user)} position="right">
         {user ? (
           <Link className="DiscussionListItem-author-avatar" href={app.route.user(user)}>
             <Avatar user={user} title="" />
@@ -170,6 +167,13 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     items.add('badges', this.badgesView(), 90);
 
     return items;
+  }
+
+  authorTooltipText(user: User | null | false): Mithril.Children {
+    return app.translator.trans('core.forum.discussion_list.started_text', {
+      user,
+      ago: humanTime(this.attrs.discussion.createdAt()),
+    });
   }
 
   badgesView(): Mithril.Children {

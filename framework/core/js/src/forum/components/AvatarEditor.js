@@ -157,7 +157,7 @@ export default class AvatarEditor extends Component {
       .appendTo('body')
       .hide()
       .click()
-      .on('input', (e) => {
+      .on('input change', (e) => {
         this.upload($(e.target)[0].files[0]);
       });
   }
@@ -168,7 +168,7 @@ export default class AvatarEditor extends Component {
    * @param {File} file
    */
   upload(file) {
-    if (this.loading) return;
+    if (this.loading || !(file instanceof Blob)) return;
 
     const user = this.attrs.user;
     const data = new FormData();

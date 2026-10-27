@@ -59,6 +59,43 @@ class DatabaseRequirements
     public const SQLITE_MINIMUM = '3.35.0';
 
     /**
+     * How long an identifier each driver accepts. MySQL and MariaDB count characters;
+     * PostgreSQL counts bytes. SQLite imposes no practical limit.
+     */
+    public const IDENTIFIER_LIMITS = [
+        'mysql' => 64,
+        'mariadb' => 64,
+        'pgsql' => 63,
+    ];
+
+    /**
+     * Length of the longest index or foreign key name any migration in core or the bundled
+     * extensions generates, currently `dialog_message_mentions_group_dialog_message_id_foreign`
+     * from flarum/messages.
+     *
+     * Laravel prepends the table prefix to generated index and foreign key names as well as
+     * to table names, so this plus the prefix has to fit inside the driver's limit. Because
+     * migrations are immutable and a new installation replays all of them, this is set by
+     * migration history rather than by the current schema — renaming a table later does not
+     * change it.
+     *
+     * flarum/testing asserts this against the migrations actually being run, so a migration
+     * introducing a longer name fails there rather than in someone's installation.
+     */
+    public const LONGEST_MIGRATION_IDENTIFIER = 55;
+
+    /**
+     * Longest table prefix, in bytes, that leaves room for every identifier the migrations
+     * generate. Null where the driver has no meaningful limit.
+     */
+    public static function maxTablePrefixLength(string $driver): ?int
+    {
+        $limit = self::IDENTIFIER_LIMITS[$driver] ?? null;
+
+        return $limit === null ? null : $limit - self::LONGEST_MIGRATION_IDENTIFIER;
+    }
+
+    /**
      * The result of comparing a version against the tiers.
      */
     public const OK = 'ok';

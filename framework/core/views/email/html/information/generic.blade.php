@@ -1,3 +1,3 @@
 <x-mail::html.information>
-    {{ $infoContent ?? '' }}
+    {!! $formatter->plainToHtml($infoContent ?? '') !!}
 </x-mail::html.information>

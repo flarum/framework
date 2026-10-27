@@ -17,6 +17,7 @@ import GlobalSearchState from './states/GlobalSearchState';
 import DiscussionListState from './states/DiscussionListState';
 import ComposerState from './states/ComposerState';
 import isSafariMobile from './utils/isSafariMobile';
+import routeInternalLinks from './utils/routeInternalLinks';
 
 import type Notification from './components/Notification';
 import type Post from './components/Post';
@@ -116,24 +117,31 @@ export default class ForumApplication extends Application {
 
     // We mount navigation and header components after the page, so components
     // like the back button can access the updated state when rendering.
-    m.mount(document.getElementById('app-navigation')!, { view: () => <Navigation className="App-backControl" drawer /> });
+    m.mount(document.getElementById('app-navigation')!, {
+      view: () => <Navigation className="App-backControl" drawer />,
+    });
     m.mount(document.getElementById('header-navigation')!, Navigation);
     m.mount(document.getElementById('header-primary')!, HeaderPrimary);
     m.mount(document.getElementById('header-secondary')!, HeaderSecondary);
     m.mount(document.getElementById('notices')!, Notices);
     m.mount(document.getElementById('footer')!, Footer);
 
+    // Registered before the listeners below, which are bound to elements that
+    // are not on every page — so a missing one cannot stop this from running.
+    routeInternalLinks();
+
     // Route the home link back home when clicked. We do not want it to register
     // if the user is opening it in a new tab, however.
-    document.getElementById('home-link')!.addEventListener('click', (e) => {
+    document.getElementById('home-link')?.addEventListener('click', (e) => {
       if (e.ctrlKey || e.metaKey || e.button === 1) return;
       e.preventDefault();
       app.history.home();
 
       // Reload the current user so that their unread notification count is refreshed.
+      // If that fails, the request has shown its own error.
       const userId = app.session.user?.id();
       if (userId) {
-        app.store.find('users', userId);
+        app.store.find('users', userId).catch(() => {});
         m.redraw();
       }
     });

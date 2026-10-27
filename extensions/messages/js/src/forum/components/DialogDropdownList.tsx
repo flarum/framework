@@ -31,7 +31,7 @@ export default class DialogDropdownList<CustomAttrs extends IDialogListDropdownA
         title={app.translator.trans('flarum-messages.forum.dialog_list.title')}
         controls={this.controlItems()}
         hasItems={state.hasItems()}
-        loading={state.isLoading()}
+        loading={state.isInitialLoading()}
         emptyText={app.translator.trans('flarum-messages.forum.messages_page.empty_text')}
         loadMore={() => state.hasNext() && !state.isLoadingNext() && state.loadNext()}
         footer={() => (
@@ -51,7 +51,7 @@ export default class DialogDropdownList<CustomAttrs extends IDialogListDropdownA
     const items = new ItemList();
     const state = this.attrs.state;
 
-    if (app.session.user!.attribute<number>('messageCount') > 0) {
+    if (app.session.user!.attribute<number>('unreadDialogCount') > 0) {
       items.add(
         'mark_all_as_read',
         <Tooltip text={app.translator.trans('flarum-messages.forum.messages_page.mark_all_as_read_tooltip')}>

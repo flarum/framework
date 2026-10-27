@@ -179,11 +179,15 @@
   // (or pin them all to one value) without re-declaring media queries.
   --container-hd:                  1200px;
   --container-xl:                  1300px;
-  --container-xxl:                 1600px;
+  --container-xxl:                 1500px;
 
   // Readability cap for the discussion post stream on wide screens: the
-  // container keeps growing, prose does not. See DiscussionPage.less.
-  --discussion-content-max-width:  1000px;
+  // container keeps growing, prose does not. Font-relative so the line length
+  // holds as font size or zoom changes. See DiscussionPage.less.
+  --discussion-content-max-width:  100ch;
+
+  // Post body font size, bumped up on wide screens where there is room.
+  --post-font-size:                14px;
 
   --primary-color:                 @primary-color;
   --secondary-color:               @secondary-color;
@@ -287,7 +291,7 @@
   @media @phone { --flarum-screen: phone; }
   @media @tablet { --flarum-screen: tablet; }
   @media @desktop { --flarum-screen: desktop; }
-  @media @desktop-hd { --flarum-screen: desktop-hd; }
+  @media @desktop-hd { --flarum-screen: desktop-hd; --post-font-size: 15px; }
 
   // ---------------------------------
   // COMPONENT LAYOUTS

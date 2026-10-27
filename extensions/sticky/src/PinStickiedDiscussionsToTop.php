@@ -10,22 +10,28 @@
 namespace Flarum\Sticky;
 
 use DateTime;
+use Flarum\Api\Resource\DiscussionResource;
+use Flarum\Http\SlugManager;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchCriteria;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Search\Filter\TagFilter;
+use Flarum\Tags\Tag;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Query\Builder;
 
 class PinStickiedDiscussionsToTop
 {
     public function __construct(
-        protected SettingsRepositoryInterface $settings
+        protected SettingsRepositoryInterface $settings,
+        protected SlugManager $slugManager,
+        protected DiscussionResource $discussions
     ) {
     }
 
     public function __invoke(DatabaseSearchState $state, SearchCriteria $criteria): void
     {
-        if ($criteria->sortIsDefault && ! $state->isFulltextSearch()) {
+        if (! $state->isFulltextSearch() && ($criteria->sortIsDefault || $this->sortIsTagDefault($state, $criteria))) {
             $query = $state->getQuery()->getQuery();
 
             // Tag pages always pin stickied discussions to the top.
@@ -94,6 +100,41 @@ class PinStickiedDiscussionsToTop
             $query->offset = null;
             $sticky->offset = null;
         }
+    }
+
+    /**
+     * Is a tag page listed in the order the tag opens with? A tag can name its
+     * own default sort, which the page then asks for by name. That makes the
+     * sort explicit, but it is still the order nobody chose.
+     */
+    protected function sortIsTagDefault(DatabaseSearchState $state, SearchCriteria $criteria): bool
+    {
+        $filters = $state->getActiveFilters();
+        $slug = $criteria->filters['tag'] ?? null;
+
+        if (count($filters) !== 1 || ! $filters[0] instanceof TagFilter || ! is_string($slug) || str_contains($slug, ',')) {
+            return false;
+        }
+
+        try {
+            /** @var Tag $tag */
+            $tag = $this->slugManager->forResource(Tag::class)->fromSlug($slug, $state->getActor());
+        } catch (ModelNotFoundException) {
+            return false;
+        }
+
+        if (! $tag->default_sort || ! ($sort = $this->discussions->sortMap()[$tag->default_sort] ?? null)) {
+            return false;
+        }
+
+        // In the shape the API hands the searcher: `-createdAt` is ['createdAt' => 'desc'].
+        $fields = [];
+
+        foreach (explode(',', $sort) as $field) {
+            $fields[ltrim($field, '-')] = str_starts_with($field, '-') ? 'desc' : 'asc';
+        }
+
+        return $fields === $criteria->sort;
     }
 
     /**

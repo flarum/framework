@@ -21,6 +21,11 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     headerItems(): import("flarum/common/utils/ItemList").default<Mithril.Children>;
     /**
+     * Why someone can't be picked as a recipient, if they can't: they couldn't
+     * reply. The server still has the final say when the message is sent.
+     */
+    recipientUnavailable(user: User): Mithril.Children;
+    /**
      * Get the data to submit to the server when the discussion is saved.
      */
     data(): Record<string, unknown>;

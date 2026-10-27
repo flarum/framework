@@ -246,10 +246,11 @@ class TypingRelayTest extends TestCase
     #[Test]
     public function leaves_typing_on_other_channels_untouched(): void
     {
-        // flarum/messages relays `client-typing` on its own dialog channel. That
-        // isn't discussion typing, so it must pass through verbatim.
+        // A `client-typing` on some other private channel isn't discussion typing
+        // (nor conversation typing, which has its own relay), so it passes through
+        // verbatim.
         $sender = $this->connection('1.1');
-        $dialog = 'private-privateMessageTyping=3';
+        $dialog = 'private-somethingElse=3';
         $channel = $this->channel($dialog, $sender);
         $this->withIdentity('Bob', false);
 

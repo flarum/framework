@@ -1,4 +1,3 @@
-/// <reference types="dom-close-watcher" />
 import Component, { ComponentAttrs } from '../Component';
 import type Mithril from 'mithril';
 export interface IDropdownAttrs extends ComponentAttrs {
@@ -10,6 +9,11 @@ export interface IDropdownAttrs extends ComponentAttrs {
     menuClassName?: string;
     /** The name of an icon to show in the dropdown toggle button. */
     icon?: string;
+    /**
+     * Keep the toggle icon's declared style even when the forum forces a Font
+     * Awesome style, for an icon whose meaning depends on its style.
+     */
+    noStyleOverride?: boolean;
     /** The name of an icon to show on the right of the button. */
     caretIcon?: string;
     /** The label of the dropdown toggle button. Defaults to 'Controls'. */

@@ -72,7 +72,8 @@ export default abstract class HeaderDropdown<CustomAttrs extends IHeaderDropdown
     if (app.drawer.isOpen()) {
       this.goToRoute();
     } else {
-      this.attrs.state?.load();
+      // A list that fails to load has shown its own error.
+      Promise.resolve(this.attrs.state?.load()).catch(() => {});
     }
   }
 

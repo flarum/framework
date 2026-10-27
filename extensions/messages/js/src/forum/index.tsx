@@ -10,6 +10,7 @@ import DialogsDropdown from './components/DialogsDropdown';
 import DialogListState from './states/DialogListState';
 import type User from 'flarum/common/models/User';
 import extendRealtime from './extendRealtime';
+import addMessageSearch from './addMessageSearch';
 
 export { default as extend } from './extend';
 
@@ -26,7 +27,8 @@ app.initializers.add('flarum-messages', () => {
   );
 
   app.composer.composingMessageTo = function (dialog: Dialog) {
-    return this.isVisible() && this.bodyMatches('flarum/messages/forum/components/MessageComposer', { dialog });
+    // The composer is loaded with `replyingTo`, so that is what must match.
+    return this.isVisible() && this.bodyMatches('flarum/messages/forum/components/MessageComposer', { replyingTo: dialog });
   };
 
   extend(IndexSidebar.prototype, 'navItems', function (items) {
@@ -45,19 +47,27 @@ app.initializers.add('flarum-messages', () => {
     }
   });
 
+  // For every member, not only those who can send: someone without messaging
+  // permission can still be messaged by staff, and needs to see it.
   extend(HeaderSecondary.prototype, 'items', function (items) {
-    if (app.session.user?.canSendAnyMessage()) {
+    if (app.session.user) {
       items.add('messages', <DialogsDropdown state={app.dropdownDialogs} />, 15);
     }
   });
 
   // @ts-ignore
   extend(UserControls, 'userControls', (items, user: User) => {
-    if (app.session.user?.canSendAnyMessage()) {
+    // Not on accounts nobody can write to, such as those anonymised by flarum/gdpr.
+    if (app.session.user?.canSendAnyMessage() && user !== app.session.user && user.canMessage() !== false) {
+      // Someone who can't send messages couldn't reply, so only those allowed
+      // to message users without messaging permission may write to them.
+      const available = user.canSendAnyMessage() || app.session.user.canMessageUsersWithoutPermission();
+
       items.add(
         'sendMessage',
         <Button
           icon="fas fa-envelope"
+          disabled={!available}
           onclick={() => {
             import('flarum/forum/components/ComposerBody').then(() => {
               app.composer
@@ -68,13 +78,15 @@ app.initializers.add('flarum-messages', () => {
                 .then(() => app.composer.show());
             });
           }}
-          helperText={user.canSendAnyMessage() ? null : app.translator.trans('flarum-messages.forum.user_controls.cannot_reply_text')}
+          helperText={available ? null : app.translator.trans('flarum-messages.forum.user_controls.cannot_reply_text')}
         >
           {app.translator.trans('flarum-messages.forum.user_controls.send_message_button')}
         </Button>
       );
     }
   });
+
+  addMessageSearch();
 
   extend('flarum/forum/components/NotificationGrid', 'notificationTypes', function (items) {
     items.add('messageReceived', {

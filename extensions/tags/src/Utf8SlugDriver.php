@@ -54,9 +54,18 @@ class Utf8SlugDriver implements SlugDriverInterface, BatchSlugDriverInterface
         // Map decoded slug (the stored column value) back to the caller's input
         // slug, so the returned collection is keyed exactly as it was queried —
         // matching fromSlug()'s urldecode() while staying transparent to callers.
-        $decodedToInput = [];
+        //
+        // The lookup is keyed case-insensitively: Flarum's default collation
+        // (utf8mb4_unicode_ci) makes the WHERE IN match differently-cased slugs,
+        // so a query for "Extensions" can return the stored "extensions" row.
+        // Keying on the raw stored slug would then miss the input entry and
+        // raise "Undefined array key". Fold both sides to compare like-for-like.
+        $foldedToInput = [];
+        $decodedSlugs = [];
         foreach ($slugs as $slug) {
-            $decodedToInput[urldecode($slug)] = $slug;
+            $decoded = urldecode($slug);
+            $decodedSlugs[] = $decoded;
+            $foldedToInput[mb_strtolower($decoded)] = $slug;
         }
 
         /** @var Collection<string, Tag> $map */
@@ -64,13 +73,16 @@ class Utf8SlugDriver implements SlugDriverInterface, BatchSlugDriverInterface
 
         $tags = $this->repository
             ->query()
-            ->whereIn('slug', array_keys($decodedToInput))
+            ->whereIn('slug', $decodedSlugs)
             ->whereVisibleTo($actor)
             ->get();
 
         /** @var Tag $tag */
         foreach ($tags as $tag) {
-            $map[$decodedToInput[$tag->slug]] = $tag;
+            // Fall back to the tag's own slug if the folded input is somehow
+            // absent, so a returned row is never dropped and never warns.
+            $input = $foldedToInput[mb_strtolower($tag->slug)] ?? $tag->slug;
+            $map[$input] = $tag;
         }
 
         return $map;

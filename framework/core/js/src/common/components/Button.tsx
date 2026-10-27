@@ -16,6 +16,12 @@ export interface IButtonAttrs extends ComponentAttrs {
    */
   icon?: string | boolean | Mithril.Children;
   /**
+   * Keep the icon's declared style even when the forum forces a Font Awesome
+   * style, for an icon whose meaning depends on its style. Forwarded to the
+   * icon this button renders.
+   */
+  noStyleOverride?: boolean;
+  /**
    * Disables button from user input.
    *
    * Default: `false`
@@ -64,7 +70,18 @@ export interface IButtonAttrs extends ComponentAttrs {
  */
 export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> extends Component<CustomAttrs> {
   view(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
-    let { type, 'aria-label': ariaLabel, icon: iconName, disabled, loading, className, class: _class, helperText, ...attrs } = this.attrs;
+    let {
+      type,
+      'aria-label': ariaLabel,
+      icon: iconName,
+      noStyleOverride,
+      disabled,
+      loading,
+      className,
+      class: _class,
+      helperText,
+      ...attrs
+    } = this.attrs;
 
     // If no `type` attr provided, set to "button"
     type ||= 'button';
@@ -116,7 +133,12 @@ export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> ext
     const icon = this.attrs.icon;
 
     return [
-      icon && (typeof icon === 'string' || icon === true ? <Icon name={icon} className="Button-icon" /> : icon),
+      icon &&
+        (typeof icon === 'string' || icon === true ? (
+          <Icon name={icon} noStyleOverride={this.attrs.noStyleOverride} className="Button-icon" />
+        ) : (
+          icon
+        )),
       children && (
         <span className="Button-label">
           <span className="Button-labelText">{children}</span>

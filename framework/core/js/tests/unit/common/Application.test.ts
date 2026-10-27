@@ -342,3 +342,44 @@ describe('Application defers GET requests that fail while offline', () => {
     expect(resolvedB).toHaveBeenCalledWith(responseB);
   });
 });
+
+describe('Application restores a guest colour scheme for the tab session', () => {
+  const setColorScheme = jest.spyOn(app, 'setColorScheme').mockImplementation(() => {});
+
+  beforeEach(() => {
+    setColorScheme.mockClear();
+    sessionStorage.clear();
+    app.session.user = undefined as any;
+    app.forum.pushAttributes({ colorScheme: 'auto' });
+
+    window.matchMedia = jest.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+    })) as any;
+  });
+
+  test('a scheme stored this session is applied on boot', () => {
+    sessionStorage.setItem('colorScheme', 'dark');
+
+    (app as any).initColorScheme();
+
+    expect(setColorScheme).toHaveBeenCalledWith('dark');
+  });
+
+  test('with nothing stored, the forum default applies', () => {
+    (app as any).initColorScheme();
+
+    expect(setColorScheme).toHaveBeenCalledWith('auto');
+  });
+
+  test('a forum-forced scheme ignores any stored guest choice', () => {
+    sessionStorage.setItem('colorScheme', 'dark');
+    app.forum.pushAttributes({ colorScheme: 'light' });
+
+    (app as any).initColorScheme();
+
+    expect(setColorScheme).toHaveBeenCalledWith('light');
+  });
+});

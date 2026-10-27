@@ -8,7 +8,6 @@ import Icon from './Icon';
 import type Mithril from 'mithril';
 
 export interface SearchAttrs extends ComponentAttrs {
-  /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */
   state: SearchState;
   label: string;
   a11yRoleLabel: string;

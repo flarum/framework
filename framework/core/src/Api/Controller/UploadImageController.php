@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\JsonApi;
+use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -54,6 +55,12 @@ abstract class UploadImageController extends ShowForumController
 
         $file = Arr::get($request->getUploadedFiles(), $filenamePrefix);
 
+        if (! $file instanceof UploadedFileInterface) {
+            throw new ValidationException([
+                $filenamePrefix => str_replace(':attribute', $filenamePrefix, $this->translator->trans('validation.required')),
+            ]);
+        }
+
         if ($this->validator) {
             $this->container->make($this->validator)->assertImageValid(
                 $filenamePrefix,
@@ -75,6 +82,8 @@ abstract class UploadImageController extends ShowForumController
 
         $this->settings->set($filePathSettingKey, $uploadName);
 
+        $this->afterStore($request, $file);
+
         return parent::handle(
             // The parent controller expects a show forum request.
             // `GET /api/forum`
@@ -83,6 +92,14 @@ abstract class UploadImageController extends ShowForumController
     }
 
     abstract protected function makeImage(UploadedFileInterface $file): EncodedImageInterface|StreamInterface;
+
+    /**
+     * Runs after the image has been stored and its setting saved, before the
+     * forum document is returned. Override it to store derived images.
+     */
+    protected function afterStore(ServerRequestInterface $request, UploadedFileInterface $file): void
+    {
+    }
 
     protected function fileExtension(ServerRequestInterface $request, UploadedFileInterface $file): string
     {

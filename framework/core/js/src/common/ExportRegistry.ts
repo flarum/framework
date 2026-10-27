@@ -44,13 +44,18 @@ export interface IChunkRegistry {
 
   /**
    * Get a registered chunk. Each chunk has at least one module (the default one).
+   *
+   * Chunk ids are only unique within one build, so pass the namespace of the
+   * build asking. Bundles built before flarum-webpack-config sent it can't, so
+   * without it the chunk is matched by its file name in `url` where ids
+   * collide, and is otherwise the first registered under the id.
    */
-  getChunk(chunkId: number | string): Chunk | null;
+  getChunk(chunkId: number | string, namespace?: string, url?: string): Chunk | null;
 
   /**
    * The chunk loader which overrides the default Webpack chunk loader.
    */
-  loadChunk(original: Function, url: string, done: () => Promise<void>, key: number, chunkId: number | string): Promise<void>;
+  loadChunk(original: Function, url: string, done: () => Promise<void>, key: number, chunkId: number | string, namespace?: string): Promise<void>;
 
   /**
    * Responsible for loading external chunks.
@@ -88,8 +93,11 @@ type Module = {
 export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
   moduleExports = new Map<string, Map<string, any>>();
   onLoads = new Map<string, Map<string, Function[]>>();
+  /** The first chunk registered under each id, as before ids were namespaced. */
   chunks = new Map<string, Chunk>();
   chunkModules = new Map<string, Module>();
+  /** Every chunk, by `namespace:chunkId`. */
+  private namespacedChunks = new Map<string, Chunk>();
   private _revisions: any = null;
   private _webpack_runtimes: any = {
     // @ts-ignore
@@ -141,14 +149,18 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
   }
 
   addChunkModule(chunkId: number | string, moduleId: number | string, namespace: string, urlPath: string): void {
-    if (!this.chunks.has(chunkId.toString())) {
-      this.chunks.set(chunkId.toString(), {
-        namespace,
-        urlPath,
-        modules: [urlPath],
-      });
+    const id = chunkId.toString();
+    const key = `${namespace}:${id}`;
+    const chunk = this.namespacedChunks.get(key);
+
+    if (chunk) {
+      chunk.modules?.push(urlPath);
     } else {
-      this.chunks.get(chunkId.toString())?.modules?.push(urlPath);
+      const created: Chunk = { namespace, urlPath, modules: [urlPath] };
+
+      this.namespacedChunks.set(key, created);
+
+      if (!this.chunks.has(id)) this.chunks.set(id, created);
     }
 
     this.chunkModules.set(`${namespace}:${urlPath}`, {
@@ -157,8 +169,9 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     });
   }
 
-  getChunk(chunkId: number | string): Chunk | null {
-    const chunk = this.chunks.get(chunkId.toString()) ?? null;
+  getChunk(chunkId: number | string, namespace?: string, url?: string): Chunk | null {
+    const id = chunkId.toString();
+    const chunk = (namespace ? this.namespacedChunks.get(`${namespace}:${id}`) : this.legacyChunk(id, url)) ?? null;
 
     if (!chunk) {
       console.warn(`[Export Registry] No chunk by the ID ${chunkId} found.`);
@@ -168,11 +181,37 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     return chunk;
   }
 
-  async loadChunk(original: Function, url: string, done: (...args: any) => Promise<void>, key: number, chunkId: number | string): Promise<void> {
+  /**
+   * For bundles that don't say which build is asking. Webpack names the file
+   * after the chunk, so where ids collide the URL usually tells them apart;
+   * two builds with a chunk of the same name can't be, and the first wins.
+   */
+  private legacyChunk(id: string, url?: string): Chunk | undefined {
+    if (url) {
+      const file = url.split('?')[0];
+
+      for (const [key, chunk] of this.namespacedChunks) {
+        if (key.endsWith(`:${id}`) && (file === `${chunk.urlPath}.js` || file.endsWith(`/${chunk.urlPath}.js`))) {
+          return chunk;
+        }
+      }
+    }
+
+    return this.chunks.get(id);
+  }
+
+  async loadChunk(
+    original: Function,
+    url: string,
+    done: (...args: any) => Promise<void>,
+    key: number,
+    chunkId: number | string,
+    namespace?: string
+  ): Promise<void> {
     // @ts-ignore
     app.alerts.showLoading();
 
-    const chunkUrl = this.chunkUrl(chunkId) || url;
+    const chunkUrl = this.chunkUrl(chunkId, namespace, url) ?? this.rebuiltChunkUrl(url, namespace) ?? url;
 
     const load = (): Promise<void> =>
       original(
@@ -208,15 +247,66 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     return await load();
   }
 
-  chunkUrl(chunkId: number | string): string | null {
-    const chunk = this.getChunk(chunkId.toString());
+  chunkUrl(chunkId: number | string, namespace?: string, url?: string): string | null {
+    const chunk = this.getChunk(chunkId.toString(), namespace, url);
 
     if (!chunk) return null;
 
+    return this.versionedChunkUrl(chunk.namespace, chunk.urlPath);
+  }
+
+  /**
+   * Where a chunk lives, for a chunk the registry does not know about.
+   *
+   * A chunk is registered by the module that imports it, so a lazy import
+   * inside another lazy chunk is only registered once that outer chunk has
+   * run — which is after the registry has been asked where the inner one is.
+   *
+   * Webpack's own url cannot stand in for it. Under automatic publicPath it
+   * resolves a chunk against the directory the entry bundle was served from,
+   * which is the assets root rather than `js/<namespace>/`. A forum serving
+   * assets from a flat directory gets away with that; one serving them from
+   * object storage, behind a CDN path, or from a subdirectory install does
+   * not, and the request 404s (or 403s, where the bucket will not confirm a
+   * key it is not allowed to list).
+   *
+   * Both missing pieces are available anyway: the namespace is passed in by
+   * the runtime, and webpack names the file after the chunk's url path, so
+   * the url it asked for carries that path. Nothing here depends on the
+   * registry, only on the layout the asset compiler already writes.
+   */
+  private rebuiltChunkUrl(url?: string, namespace?: string): string | null {
+    if (!url || !namespace) return null;
+
+    // `…/forum/components/DeckPickerModal.js?v=1` → `forum/components/DeckPickerModal`.
+    const urlPath = this.chunkUrlPath(url);
+
+    if (!urlPath) return null;
+
+    return this.versionedChunkUrl(namespace, urlPath);
+  }
+
+  /**
+   * The url path webpack encoded in a chunk's file name, relative to the
+   * frontend it belongs to — the same value {@link Chunk.urlPath} holds for a
+   * registered chunk.
+   */
+  private chunkUrlPath(url: string): string | null {
+    const file = url.split('?')[0].split('#')[0];
+    const match = /(?:^|\/)((?:admin|common|forum)\/.+)\.js$/.exec(file);
+
+    return match?.[1] ?? null;
+  }
+
+  /**
+   * A chunk's url, carrying the revision recorded for it so a rebuild is not
+   * served from cache.
+   */
+  private versionedChunkUrl(namespace: string, urlPath: string): string {
     this._revisions ??= JSON.parse(document.getElementById('flarum-rev-manifest')?.textContent ?? '{}');
 
     // @ts-ignore cannot import the app object here, so we use the global one.
-    const path = `${app.forum.attribute<string>('jsChunksBaseUrl')}/${chunk.namespace}/${chunk.urlPath}.js`;
+    const path = `${app.forum.attribute<string>('jsChunksBaseUrl')}/${namespace}/${urlPath}.js`;
 
     // The paths in the revision are stored as (relative path from the assets path) + the path.
     // @ts-ignore
@@ -232,6 +322,25 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     const module = this.chunkModules.get(`${namespace}:${id}`);
 
     if (!module) {
+      // Not split into a chunk, but possibly in a bundle that has already
+      // loaded: an extension decides for itself whether a module is lazy, and
+      // one that imports it lazily can't know.
+      const loaded = this.checkModule(namespace, id);
+
+      if (loaded) {
+        if (loaded.default !== undefined) return loaded;
+
+        // Shaped as an imported chunk is below. Bundles register the default
+        // export itself, which may be a primitive or frozen and can't take it.
+        if (Object(loaded) === loaded && Object.isExtensible(loaded)) {
+          loaded.default = loaded;
+
+          return loaded;
+        }
+
+        return { default: loaded };
+      }
+
       throw new Error(`No chunk found for module ${namespace}:${id}`);
     }
 
@@ -255,6 +364,7 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     this.onLoads.clear();
     this.chunks.clear();
     this.chunkModules.clear();
+    this.namespacedChunks.clear();
   }
 
   namespaceAndIdFromPath(path: string): [string, string] {

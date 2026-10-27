@@ -397,7 +397,11 @@ export default class Composer extends Component {
    * Initialize default Composer height.
    */
   initializeHeight() {
-    this.state.height = localStorage.getItem('composerHeight');
+    try {
+      this.state.height = localStorage.getItem('composerHeight');
+    } catch (e) {
+      // The browser blocks storage.
+    }
 
     if (!this.state.height) {
       this.state.height = this.defaultHeight();
@@ -420,6 +424,10 @@ export default class Composer extends Component {
     this.state.height = height;
     this.updateHeight();
 
-    localStorage.setItem('composerHeight', this.state.height);
+    try {
+      localStorage.setItem('composerHeight', this.state.height);
+    } catch (e) {
+      // The browser blocks storage: the height is kept until the page is left.
+    }
   }
 }

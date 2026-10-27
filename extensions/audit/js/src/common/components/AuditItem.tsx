@@ -86,6 +86,10 @@ export default class AuditItem implements ClassComponent<AuditItemAttrs> {
     const tag = log.tag();
     const user = log.user();
 
+    // An entry logged from the command line can still have an actor, such as the moderator who
+    // started a queued job. Only one without an actor is shown as the command line's own.
+    const byCommandLine = log.client() === 'cli' && log.actorId() === null;
+
     const clientRow = [];
 
     if (log.ipAddress()) {
@@ -94,7 +98,7 @@ export default class AuditItem implements ClassComponent<AuditItemAttrs> {
       clientRow.push(<IPAddress ip={log.ipAddress()} />);
     }
 
-    if (log.client() !== 'session' && log.client() !== 'cli') {
+    if (log.client() !== 'session' && !byCommandLine) {
       clientRow.push(
         <Button className="Button Button--link" onclick={() => changeQuery('client:' + log.client())}>
           {app.translator.trans(translationPrefix + 'client.' + log.client())}
@@ -106,7 +110,7 @@ export default class AuditItem implements ClassComponent<AuditItemAttrs> {
 
     let avatarElement;
 
-    if (log.client() === 'cli') {
+    if (byCommandLine) {
       avatarElement = <Icon name="fas fa-terminal" />;
     } else if (log.actorId() === null) {
       avatarElement = <Icon name="fas fa-user-secret" />;
@@ -123,7 +127,7 @@ export default class AuditItem implements ClassComponent<AuditItemAttrs> {
 
     let usernameElement;
 
-    if (log.client() === 'cli') {
+    if (byCommandLine) {
       usernameElement = (
         <Button className="Button Button--link" onclick={() => changeQuery('client:cli')}>
           {app.translator.trans(translationPrefix + 'client.cli')}
@@ -165,6 +169,11 @@ export default class AuditItem implements ClassComponent<AuditItemAttrs> {
     // we'd fall back to raw JSON). Treat any present entry as "a message exists".
     if (app.translator.translations[translationKeyForPayload]) {
       const parameters = {
+        // Any plain value in the payload is available as a placeholder of the same
+        // name, so an extension's own actions can use their own keys. Lists and
+        // objects only show in the raw view, and the placeholders below win.
+        ...Object.fromEntries(Object.entries(payload).filter(([, value]) => ['string', 'number', 'boolean'].includes(typeof value))),
+
         // We can't call this translation parameter {user} because it's reserved by Flarum
         username: (
           <Link external href={user ? routes().user(user) : '#'}>

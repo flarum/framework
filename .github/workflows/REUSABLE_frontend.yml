@@ -79,10 +79,10 @@ on:
         description: The node version to use for the workflow.
         type: number
         required: false
-        default: 24
+        default: 26
 
       js_package_manager:
-        description: "Enable TypeScript?"
+        description: "The JS package manager to use (yarn, npm or pnpm)."
         type: string
         default: yarn
         required: false
@@ -111,7 +111,7 @@ on:
         description: The GitHub token to use for Bundlewatch.
         required: false
       composer_auth:
-        description: The Composer auth tokens to use for private packages.
+        description: The Composer auth tokens to use for private packages. Defaults to authenticating GitHub downloads with the workflow's token.
         required: false
       git_actor_token:
         description: The personal access token from the custom git actor.
@@ -119,9 +119,11 @@ on:
 
 env:
   COMPOSER_ROOT_VERSION: dev-main
-  ci_script: ${{ inputs.js_package_manager == 'yarn' && 'yarn install --immutable' || 'npm ci' }}
-  cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || '{0}/package-lock.json', inputs.frontend_directory) }}
-  COMPOSER_AUTH: ${{ secrets.composer_auth }}
+  ci_script: ${{ inputs.js_package_manager == 'yarn' && 'yarn install --immutable' || inputs.js_package_manager == 'pnpm' && 'pnpm install --frozen-lockfile' || 'npm ci' }}
+  cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || inputs.js_package_manager == 'pnpm' && '{0}/pnpm-lock.yaml' || '{0}/package-lock.json', inputs.frontend_directory) }}
+  # Without auth, downloads from GitHub (codeload) are rate limited per runner IP and
+  # fail with HTTP 429; fall back to the calling workflow's own token.
+  COMPOSER_AUTH: ${{ secrets.composer_auth || format('{{"github-oauth":{{"github.com":"{0}"}}}}', github.token) }}
   DISABLE_V8_COMPILE_CACHE: 1
 
 jobs:
@@ -136,35 +138,86 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ secrets.git_actor_token != '' && secrets.git_actor_token || secrets.GITHUB_TOKEN }}
 
+      - name: Set up pnpm
+        if: ${{ inputs.js_package_manager == 'pnpm' }}
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: ${{ inputs.frontend_directory }}/package.json
+
       - name: Set up Node
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.js_package_manager }}
           cache-dependency-path: ${{ env.cache_dependency_path }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: '8.5'
           extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip
           tools: composer:v2
 
-      # Needed since tsconfig draws typings from vendor folder.
-      - name: Install Composer dependencies
-        run: composer install
+      # GitHub's codeload throttles archive downloads from Actions runner IPs (HTTP 429),
+      # authenticated or not, so keep Composer's download cache between runs. It holds
+      # package archives, which do not depend on the PHP version. The key rotates daily so
+      # new releases are picked up; a miss falls back to the newest earlier cache.
+      - name: Prepare Composer cache
+        id: composer-cache
+        run: |
+          {
+            echo "dir=$(composer config cache-files-dir)"
+            echo "key=composer-${{ runner.os }}-${{ hashFiles(format('{0}/composer.json', inputs.backend_directory), format('{0}/composer.lock', inputs.backend_directory)) }}"
+            echo "date=$(date -u +%Y-%m-%d)"
+          } >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.backend_directory }}
+
+      - name: Restore Composer downloads
+        id: composer-cache-restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ steps.composer-cache.outputs.key }}-${{ steps.composer-cache.outputs.date }}
+          restore-keys: |
+            ${{ steps.composer-cache.outputs.key }}-
+            composer-${{ runner.os }}-
+
+      # Needed since tsconfig draws typings from vendor folder.
+      # Retried because a throttled archive often downloads on a later attempt; archives
+      # already fetched are reused from the cache, so a retry only re-requests what failed.
+      - name: Install Composer dependencies
+        run: |
+          for attempt in 1 2 3; do
+            if composer install; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "::warning::composer install failed (attempt $attempt of 3), retrying"
+              sleep $((attempt * 30))
+            fi
+          done
+          exit 1
+        working-directory: ${{ inputs.backend_directory }}
+
+      # Saved even when the install failed, so every archive that did download is kept
+      # and a re-run of the failed jobs restores it instead of downloading again.
+      - name: Save Composer downloads
+        if: always() && steps.composer-cache.outputs.dir != '' && steps.composer-cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ steps.composer-cache.outputs.key }}-${{ steps.composer-cache.outputs.date }}
 
       - name: Install JS dependencies
         run: ${{ env.ci_script }}
         working-directory: ${{ inputs.frontend_directory }}
 
       - name: JS Checks & Production Build
-        uses: flarum/action-build@v5
+        uses: flarum/action-build@428ab157aff78453d13c5d61a81c34c5be0871aa # v5.1.1
         with:
           build_script: ${{ inputs.build_script }}
           build_typings_script: ${{ inputs.build_typings_script }}

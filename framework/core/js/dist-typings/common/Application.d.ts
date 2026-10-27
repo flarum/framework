@@ -217,6 +217,7 @@ export default class Application {
     pane: any;
     data: ApplicationData;
     allowUserColorScheme: boolean;
+    colorScheme: ColorScheme | string;
     refs: Record<string, string>;
     private _title;
     private _titleCount;

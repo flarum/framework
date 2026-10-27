@@ -5,6 +5,7 @@ import Select from './Select';
 import UploadImageButton from './UploadImageButton';
 import classList from '../utils/classList';
 import ColorPreviewInput from './ColorPreviewInput';
+import IconInput from './IconInput';
 import Stream from '../utils/Stream';
 import ItemList from '../utils/ItemList';
 import type { IUploadImageButtonAttrs } from './UploadImageButton';
@@ -67,6 +68,7 @@ const SelectSettingTypes = ['select', 'dropdown', 'selectdropdown'] as const;
 const RadioSettingTypes = ['radio'] as const;
 const TextareaSettingTypes = ['textarea'] as const;
 const ColorPreviewSettingType = 'color-preview' as const;
+const IconSettingType = 'icon' as const;
 const ImageUploadSettingType = 'image-upload' as const;
 const StackedFormControlType = 'stacked-text' as const;
 
@@ -111,6 +113,14 @@ export interface ColorPreviewFieldComponentOptions extends CommonFieldOptions {
   type: typeof ColorPreviewSettingType;
 }
 
+/**
+ * Valid options for the setting component builder to generate an IconInput:
+ * a Font Awesome class field with an icon picker.
+ */
+export interface IconFieldComponentOptions extends CommonFieldOptions {
+  type: typeof IconSettingType;
+}
+
 export interface ImageUploadFieldComponentOptions extends CommonFieldOptions, IUploadImageButtonAttrs {
   type: typeof ImageUploadSettingType;
 }
@@ -137,6 +147,7 @@ export type FieldComponentOptions =
   | SelectFieldComponentOptions
   | TextareaFieldComponentOptions
   | ColorPreviewFieldComponentOptions
+  | IconFieldComponentOptions
   | ImageUploadFieldComponentOptions
   | StackedFormControlFieldComponentOptions
   | CustomFieldComponentOptions;
@@ -176,24 +187,27 @@ export type IFormGroupAttrs = ComponentAttrs &
  *            default="option1" />
  */
 export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupAttrs> extends Component<CustomAttrs> {
+  protected readonly inputId = generateElementId();
+  protected readonly helpTextId = generateElementId();
+
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     const customFieldComponents = this.customFieldComponents();
 
-    const { help, type, label, stream, getSetting, containerClassName, ...componentAttrs } = this.attrs;
+    const { key, help, type, label, stream, getSetting, containerClassName, ...componentAttrs } = this.attrs;
 
     // TypeScript being TypeScript
-    const attrs = componentAttrs as unknown as Omit<IFormGroupAttrs, 'stream' | 'label' | 'help' | 'type'>;
+    const attrs = componentAttrs as unknown as Omit<IFormGroupAttrs, 'key' | 'stream' | 'label' | 'help' | 'type'>;
 
     const value = stream ? stream() : null;
 
-    const [inputId, helpTextId] = [generateElementId(), generateElementId()];
+    const { inputId, helpTextId } = this;
 
     let settingElement: Mithril.Children;
 
     // Typescript being Typescript
     // https://github.com/microsoft/TypeScript/issues/14520
     if ((BooleanSettingTypes as readonly string[]).includes(type)) {
-      const switchHelpTextId = help ? generateElementId() : undefined;
+      const switchHelpTextId = help ? helpTextId : undefined;
 
       return (
         <div className={classList('Form-group', containerClassName)}>
@@ -254,6 +268,8 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
 
       if ((TextareaSettingTypes as readonly string[]).includes(type)) {
         settingElement = <textarea id={inputId} aria-describedby={helpTextId} bidi={stream} {...attrs} />;
+      } else if (type === IconSettingType) {
+        settingElement = <IconInput id={inputId} aria-describedby={helpTextId} bidi={stream} {...attrs} />;
       } else {
         let Tag: VnodeElementTag | typeof ColorPreviewInput = 'input';
 

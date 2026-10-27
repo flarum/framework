@@ -83,6 +83,9 @@ export default class User extends Model {
   canEdit() {
     return Model.attribute<boolean | undefined>('canEdit').call(this);
   }
+  canEditAvatar() {
+    return Model.attribute<boolean | undefined>('canEditAvatar').call(this);
+  }
   canEditCredentials() {
     return Model.attribute<boolean | undefined>('canEditCredentials').call(this);
   }

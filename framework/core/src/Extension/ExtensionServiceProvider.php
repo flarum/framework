@@ -13,11 +13,13 @@ use Flarum\Extension\Console\SyncAbandonedExtensionsCommand;
 use Flarum\Extension\Console\WeeklySchedule;
 use Flarum\Extension\Event\Disabling;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
 use GuzzleHttp\Client;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\Queue;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ExtensionServiceProvider extends AbstractServiceProvider
@@ -33,7 +35,8 @@ class ExtensionServiceProvider extends AbstractServiceProvider
                 $container->make('flarum.settings'),
                 new Client(),
                 $container->make(Queue::class),
-                $container->make(TranslatorInterface::class)
+                $container->make(TranslatorInterface::class),
+                $container->make(LoggerInterface::class),
             );
         });
 
@@ -59,11 +62,12 @@ class ExtensionServiceProvider extends AbstractServiceProvider
             return $commands;
         });
 
-        $this->container->extend('flarum.console.scheduled', function (array $scheduled) {
+        $this->container->extend('flarum.console.scheduled', function (array $scheduled, Container $container) {
             $scheduled[] = [
                 'command' => SyncAbandonedExtensionsCommand::class,
                 'args' => ['--notify'],
-                'callback' => new WeeklySchedule(),
+                // Each forum fetches the list at a time of its own, not all at once.
+                'callback' => new WeeklySchedule((string) $container->make(Config::class)->url()),
             ];
 
             return $scheduled;

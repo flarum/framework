@@ -171,11 +171,10 @@ class QueueServiceProvider extends AbstractServiceProvider
                     return $this->container['cache.store'];
                 }
 
-                // We have to define this explicitly
-                // so that we implement the interface.
-                public function store($name = null): mixed
+                // Flarum has a single cache store, so every name resolves to it.
+                public function store($name = null): Repository
                 {
-                    return $this->__call($name, null);
+                    return $this->driver();
                 }
 
                 public function __call(string $name, ?array $arguments): mixed
@@ -266,6 +265,15 @@ class QueueServiceProvider extends AbstractServiceProvider
             // working. Only real (async) drivers are wrapped for routing.
             if ($queue instanceof RoutingQueue || $queue instanceof SyncQueue) {
                 return $queue;
+            }
+
+            // Core names its own driver, but an extension that replaces the
+            // connection (e.g. fof/redis) may leave it unnamed. A null name
+            // flows into pause/resume bookkeeping and the WorkerIdle event,
+            // both of which expect a string — so give any unnamed driver the
+            // default connection name before wrapping it.
+            if ($queue->getConnectionName() === null) {
+                $queue->setConnectionName('flarum');
             }
 
             return new RoutingQueue($queue, $container->make('queue.routes'));

@@ -8,6 +8,10 @@ export default class TagGambit extends KeyValueGambit {
     return app.translator.trans('flarum-tags.lib.gambits.discussions.tag.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'tag';
+  }
+
   hint(): string {
     return app.translator.trans('flarum-tags.lib.gambits.discussions.tag.hint', {}, true);
   }

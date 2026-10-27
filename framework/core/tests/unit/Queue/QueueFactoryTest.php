@@ -11,12 +11,39 @@ namespace Flarum\Tests\unit\Queue;
 
 use Flarum\Queue\QueueFactory;
 use Flarum\Testing\unit\TestCase;
+use Illuminate\Cache\ArrayStore;
+use Illuminate\Cache\Repository;
 use Illuminate\Contracts\Queue\Queue;
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 
 class QueueFactoryTest extends TestCase
 {
+    /**
+     * A queue connection bound by an extension may carry no name — core only
+     * names its own driver, and (e.g.) fof/redis replaces the binding without
+     * one, so `getConnectionName()` returns null. That null flows into
+     * `pause()`, so the pause bookkeeping must tolerate it rather than fatal on
+     * a `string` type hint (the recurring `queue:pause` crash).
+     */
+    #[Test]
+    public function pausing_a_connection_with_no_name_does_not_fatal(): void
+    {
+        $cache = new Repository(new ArrayStore());
+        $factory = new QueueFactory(fn () => m::mock(Queue::class), $cache);
+
+        // Previously threw: trackPausedQueue(): Argument #1 must be string, null given.
+        $factory->pause(null, 'default');
+
+        $this->assertTrue($factory->isPaused(null, 'default'));
+        $this->assertContains('default', $factory->pausedQueues(null));
+
+        $factory->resume(null, 'default');
+
+        $this->assertFalse($factory->isPaused(null, 'default'));
+        $this->assertNotContains('default', $factory->pausedQueues(null));
+    }
+
     #[Test]
     public function connection_resolves_and_caches_the_queue_from_the_factory_callback(): void
     {

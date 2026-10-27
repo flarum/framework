@@ -44,14 +44,22 @@ abstract class SafeSubstitution
     }
 
     /**
-     * Put the marked values back into rendered output, escaped so that they
-     * are shown rather than interpreted.
+     * Put the marked values back into rendered output.
+     *
+     * In HTML the values are escaped so that they are shown rather than
+     * interpreted. In a plain-text part there is no markup to protect against,
+     * so the value is put back as-is — escaping it there would show literal
+     * entities like `&amp;` to the reader. Pass `$escape = false` for text.
      */
-    public static function restore(string $rendered): string
+    public static function restore(string $rendered, bool $escape = true): string
     {
         return preg_replace_callback(
             '/'.self::PREFIX.'([A-Za-z0-9]*)'.self::SUFFIX.'/',
-            fn (array $matches) => htmlspecialchars(self::decode($matches[1]), ENT_QUOTES, 'UTF-8'),
+            function (array $matches) use ($escape) {
+                $value = self::decode($matches[1]);
+
+                return $escape ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value;
+            },
             $rendered
         ) ?? $rendered;
     }
