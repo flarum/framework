@@ -20,6 +20,7 @@ class Theme implements ExtenderInterface
     private array $fileSourceOverrides = [];
     private array $customFunctions = [];
     private array $lessVariables = [];
+    private array $logo = [];
 
     /**
      * This can be used to override `LESS` files that are imported within the code.
@@ -131,8 +132,38 @@ class Theme implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Sets how the forum logo and the dark mode logo are stored when uploaded.
+     *
+     * The header shows the logo at most 30px tall. By default it is stored 90px
+     * tall, so it stays sharp on screens with three times the pixel density, as
+     * WebP at quality 90. A theme that shows the logo larger can store it taller.
+     * An animated logo is stored as GIF, which has no quality setting.
+     *
+     * A logo that has already been uploaded keeps its size and quality until it
+     * is uploaded again.
+     *
+     * ```php
+     * (new Extend\Theme())
+     *   ->logo(height: 120, quality: 95)
+     * ```
+     *
+     * @param int|null $height The height to store the logo at, in pixels.
+     * @param int|null $quality The WebP quality, from 1 to 100.
+     */
+    public function logo(?int $height = null, ?int $quality = null): self
+    {
+        $this->logo = array_merge($this->logo, array_filter(compact('height', 'quality'), fn (?int $value) => $value !== null));
+
+        return $this;
+    }
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
+        $container->extend('flarum.forum.logo', function (array $logo) {
+            return array_merge($logo, $this->logo);
+        });
+
         $container->extend('flarum.frontend.custom_less_functions', function (array $customFunctions) {
             return array_merge($customFunctions, $this->customFunctions);
         });

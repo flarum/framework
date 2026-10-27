@@ -175,6 +175,15 @@ class ForumServiceProvider extends AbstractServiceProvider
                 'oldest' => 'createdAt'
             ];
         });
+
+        // How an uploaded logo is stored. The header shows it at most 30px
+        // tall, so storing it at 90px keeps it sharp on 3x screens.
+        $this->container->singleton('flarum.forum.logo', function () {
+            return [
+                'height' => 90,
+                'quality' => 90,
+            ];
+        });
     }
 
     public function boot(Container $container, Dispatcher $events, Factory $view): void
