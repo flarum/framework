@@ -22,7 +22,8 @@ interface ProvisionsWebhooks
 {
     /**
      * Register (or update) the delivery-event webhook with the provider,
-     * pointing it at the given Flarum webhook URL. Must be idempotent.
+     * pointing it at the given Flarum webhook URL. Must be idempotent, and
+     * must keep any URLs other applications registered with the provider.
      *
      * @throws \Exception if provisioning fails (e.g. bad credentials); the
      *         caller is responsible for surfacing the error to the admin.
@@ -30,8 +31,8 @@ interface ProvisionsWebhooks
     public function registerWebhook(SettingsRepositoryInterface $settings, string $url): void;
 
     /**
-     * Remove the webhook previously registered for the given Flarum webhook
-     * URL. Should not throw if the webhook does not exist.
+     * Remove the given Flarum webhook URL from the provider, leaving any
+     * other URLs in place. Should not throw if it is not registered.
      */
     public function unregisterWebhook(SettingsRepositoryInterface $settings, string $url): void;
 }
