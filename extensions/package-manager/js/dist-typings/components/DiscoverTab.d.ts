@@ -18,6 +18,8 @@ interface DiscoverAttrs extends ComponentAttrs {
  * be the slower, worse version of the same screen.
  */
 export default class DiscoverTab extends Component<DiscoverAttrs> {
+    /** One formatter for every card's download count; the locale does not change while the page is open. */
+    protected compact: Intl.NumberFormat | null;
     oninit(vnode: Mithril.Vnode<DiscoverAttrs, this>): void;
     protected query: string;
     /** '' is everything; the rest are the keys of Packagist::CATEGORIES. */
@@ -68,6 +70,7 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
     action(r: Found, v?: Verdict): JSX.Element | null;
     /** Whether the forum's minimum stability lets Composer install this release. */
     allowed(v: Verdict): boolean;
+    /** A download count, abbreviated the way the forum's locale does it: 220K, 1.5M; 220 k, 1,5 M in French. */
     short(n: number): string;
     search(): void;
     /**

@@ -11,6 +11,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     firstLoad: boolean;
     /** Set when the first load fails or never arrives, so the page can say so. */
     loadError: string | null;
+    /** The exception's own text, shown under the translated message when there is one. */
+    loadErrorDetail: string | null;
     /** The 10-second safety net for the first load, cleared when the page goes. */
     protected loadTimeout: ReturnType<typeof setTimeout> | null;
     host: HostReport | null;
@@ -151,6 +153,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
      * whether to believe it.
      */
     checkLine(): JSX.Element;
+    /** The check line's first sentence: what the last check found. */
+    checkSummary(n: number): string;
     /**
      * How hard to ask, by how old the last check is (ClaudiusH, 2026-10-09):
      * checked today, a quiet link to check again; within the week, an ordinary

@@ -10,7 +10,11 @@ export interface Run extends RunLike {
     index: number;
     log: string[];
     error: string | null;
+    /** Where it stopped, as text for the log; the screen uses the two fields below. */
     errorStep: string | null;
+    /** The phase it stopped in, and the item it was on (null while planning). */
+    errorPhase?: string | null;
+    errorItem?: string | null;
     startedAt?: number;
     movedAt?: number;
     packages: string[];
@@ -197,7 +201,8 @@ export interface Repository {
 export interface StoredCredential {
     kind: string;
     host: string;
-    detail: string;
+    /** The http-basic username, which is not the secret; null for a token. */
+    username: string | null;
 }
 export interface ConfigPayload {
     repositories: Repository[];
