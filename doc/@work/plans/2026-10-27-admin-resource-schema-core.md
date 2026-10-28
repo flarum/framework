@@ -2,9 +2,9 @@
 
 > **For implementing agents:** execute task-by-task. Use `verification-before-completion` after each task. Spawn `flarum-tester` for the test step when convenient. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Status:** draft. It becomes `approved` once the spec's D1–D10 are signed off; Task 0 is that gate.
+**Status:** implemented (Tasks 1–10 done, see "As built"). Task 0 stays open: the spec's D1–D12 still need owner sign-off. The owner decisions of 2026-10-28 are applied in the spec.
 **Spec:** `doc/@work/specs/2026-10-27-admin-resource-schema-core.md`
-**Flarum target:** `2.x` (`flarum/framework` monorepo, `framework/core`)
+**Flarum target:** `2.x` (`flarum/framework` monorepo, `framework/core`). Lands after v2.0.2, in the next minor release.
 **Goal:** Add a per-actor resource schema endpoint and generic admin table/form components to core, and rebuild the admin user list on them without breaking any existing extender or JS extension point.
 **Architecture summary:**
 - **Schema resource.** `ResourceSchemaResource` (JSON:API `resource-schemas`, `Show` only) asks `ResourceDescriber` to build the descriptor. `ResourceDescriber` builds it from `resolveFields()`, `resolveSorts()` and `resolveEndpoints()`, `Type::schema()` and `SearchManager`, evaluated against synthetic contexts for the current actor.
@@ -21,9 +21,9 @@
 - UI hints live in a dedicated `$ui` bag on `FlarumField` (`ui()` / `getUi()`), never inside `$schema`, so `->schema()` cannot wipe them.
 - Describability and filter descriptions are opted in through extenders (`Extend\ApiResource::describable()`, `Extend\SearchDriver::describeFilter()`), so an extension can opt in resources and filters it does not own. There is no marker interface on resources.
 - Core's `Flarum\Api\Context` gains nothing. Describe-only state lives on `Flarum\Api\Describe\DescribeContext extends Context`.
-- The descriptor omits default-valued keys. Defaults are in spec §5. The one exception is `schemaVersion`, which is always emitted (`1` in 2.0).
-- 2.0 ships no modal replacement (spec D8). `CreateUserModal` / `EditUserModal` stay the modals `UserListPage` opens. `ResourceFormModal` is built and tested but not wired anywhere.
-- All new public API (`ResourceTable`, `ResourceFormModal`, `ResourceDeleteModal`, `ResourceDescriber`, `DescribeContext`, `DescribesFilter`, `->ui()`, `->describable()`, `->describeFilter()`) is marked `@experimental` in docblocks and docs. Only the descriptor endpoint shape is versioned.
+- The descriptor omits default-valued keys. Defaults are in spec §5. The one exception is `schemaVersion`, which is always emitted (`1`).
+- No modal is replaced (spec D8). `CreateUserModal` / `EditUserModal` stay the modals `UserListPage` opens. `ResourceFormModal` is built and tested but not wired anywhere.
+- All new public API (spec §6, "New public API") follows the normal BC promise. The descriptor shape is versioned by `schemaVersion`.
 - New `UserListPage` API is limited to these additive seams: `createModal()` / `editModal(user)` (D8), and `bulkActionItems()` / `canExport()` (D11). Existing items, keys, priorities, CSS classes and URLs do not change. The only new UI is header and table additions (sort headers, filter row, row delete, "Columns" dropdown, admin-only "Export CSV"). *(This replaces an earlier "no visual change" line that contradicted Task 8; confirm at Task 0.)*
 - D11 features are opt-in per `ResourceDefinition`. `bulkActions()` is empty and `canExport()` defaults to `capabilities.list`. Column preferences use `localStorage` only behind `ColumnPreferences`, with every access in try/catch.
 - CSV cells never stringify vnodes, and every cell passes the formula-injection guard (spec D11).
@@ -104,11 +104,13 @@
 **Type:** HITL
 **Blocked by:** None
 
-- [ ] **Step 1:** Present spec D1–D10 to the team, adding the "Proposal 2" note to work item #169. Pay particular attention to the following:
+- [ ] **Step 1:** Present spec D1–D12 to the team, adding the "Proposal 2" note to work item #169. Pay particular attention to the following:
   - D2: no new permission.
-  - D8: confirm BC in 2.0 with 2.1 seams (`createModal()` / `editModal()`, unwired `ResourceFormModal`, `schemaVersion: 1`, `@experimental` markings). Recommended outcome: yes.
+  - D8: confirm the seams (`createModal()` / `editModal()`, unwired `ResourceFormModal`, `schemaVersion: 1`) and the two user-list BC breaks in spec §6. Recommended outcome: yes.
+  - Spec §7: keep shipping the form components undocumented, or remove them until a page uses them. Recommended: remove.
   - D10: is this upstream-bound or GB-fork-only?
-  - D11: the user-list defaults for 2.0. Recommended: column toggles on, CSV admin-only, bulk select off behind the `bulkActionItems()` seam, and no client validation until 2.1. Also confirm the replaced "no visual change" constraint in Global Constraints.
+  - D11: the user-list defaults. Recommended: column toggles on, CSV admin-only, bulk select off behind the `bulkActionItems()` seam, and no client validation while the user modals stay.
+  - D12: the filter toolbar, with search-covered filters hidden by default (`'all'`). Also confirm the replaced "no visual change" constraint in Global Constraints.
 - [ ] **Step 2:** Record the outcomes in the spec. Set the spec to `approved` and this plan to `approved`.
 
 ### Task 1 — `FlarumField::ui()` hints
@@ -123,7 +125,7 @@
 - Produces:
   - `FlarumField::ui(array $hints): static`, which merges into a dedicated `protected array $ui` property. `$schema` is never touched, so a later `->schema([...])` keeps the hints. (Revised after review: hints first lived in `schema['x-flarum-ui']`.)
   - `FlarumField::getUi(): array`
-  - `ui()` carries an `@experimental` docblock tag. The docblock lists the consumed keys (`column`, `display`, `label`) and the keys reserved for forms in 2.1 (`group`, `priority`, `widget`, `placeholder`).
+  - The `ui()` docblock lists the consumed keys (`column`, `display`, `label`) and the keys reserved for forms (`group`, `priority`, `widget`, `placeholder`).
   - *(Removed after review: `Context::describing()` / `withDescribing()`. Replaced by `DescribeContext` in Task 3.)*
 
 - [x] **Step 1: Write the failing test.**
@@ -133,7 +135,7 @@
 - [x] **Step 2: Run the test and confirm RED.** Command: `composer test -- --filter ApiResourceUiHintTest`, run from `framework/core`. Expected: `Call to undefined method ...::ui()`. (Deps live in the repo-root `vendor`; the working command is `../../vendor/bin/phpunit -c tests/phpunit.integration.xml --filter ApiResourceUiHintTest` from `framework/core`.)
 - [x] **Step 3: Implement `ui()` and `getUi()` on `FlarumField`** with a dedicated `$ui` property.
 - [x] **Step 4: Run the test and confirm GREEN.**
-- [ ] **Step 5: Commit.** `feat(api): field ui hints`
+- [x] **Step 5: Commit.** `feat(api): field ui hints` (fe4ba577e)
 
 ### Task 2 — Search metadata accessors + `DescribesFilter`
 
@@ -146,10 +148,10 @@
 
 **Interfaces:**
 - Produces:
-  - `DescribesFilter::describe(): array{kind: 'string'|'boolean'|'enum'|'relationship', enum?: list<string>, related?: string}`, with an `@experimental` docblock tag.
+  - `DescribesFilter::describe(): array{kind: 'string'|'boolean'|'enum'|'relationship', enum?: list<string>, related?: string}`.
   - `SearchManager::filters(string $resourceClass): list<FilterInterface>`, for the database driver's searcher for that model. Returns `[]` when the resource is not searchable.
   - `SearchManager::fulltext(string $resourceClass): bool`
-  - `Extend\SearchDriver::describeFilter(string $searcherClass, string $filterKey, array|callable|class-string $description)`, `@experimental`. It describes any filter key, including filters the extension does not own or closure-based ones.
+  - `Extend\SearchDriver::describeFilter(string $searcherClass, string $filterKey, array|callable|class-string $description)`. It describes any filter key, including filters the extension does not own or closure-based ones.
   - `SearchManager::describeFilters(string $resourceClass): array<string, array>`. Per registered key: the extender description wins, otherwise the first filter implementing `DescribesFilter`, otherwise the key is left out. Descriptions for unregistered keys are ignored.
 - These accessors replace the POC's reads of the `flarum.search.filters` and `flarum.search.fulltext` container bindings.
 
@@ -163,7 +165,7 @@
 - [x] **Step 2: Run the test and confirm RED.** (Skipped: the test was written after the code.)
 - [x] **Step 3: Implement the accessors and the two `describe()` methods.**
 - [x] **Step 4: Run the test and confirm GREEN.** Also run `composer test -- --filter 'users\\\\SearchTest|GroupSearchTest'` to confirm search is unchanged.
-- [ ] **Step 5: Commit.** `feat(search): expose searcher filter metadata`
+- [x] **Step 5: Commit.** `feat(search): expose searcher filter metadata` (f3f02473e)
 
 ### Task 3 — `ResourceDescriber` (inference core)
 
@@ -180,7 +182,6 @@
   - `ResourceDescriber::isDescribable(Resource $resource): bool`: true when the resource is an `AbstractDatabaseResource` and an instance of a class opted in through `Extend\ApiResource::describable()`.
   - `ResourceDescriber::describe(Resource $resource, User $actor, ServerRequestInterface $request): array`, which throws `InvalidArgumentException` for a non-describable resource and otherwise returns the spec §5 `attributes` shape with default keys omitted. It always emits `schemaVersion: 1` (via a `ResourceDescriber::SCHEMA_VERSION` constant), the only exception to default omission.
   - `DescribeContext extends Context` with `mode()` / `withMode()`.
-  - `ResourceDescriber`, `DescribeContext` and `Extend\ApiResource::describable()` carry an `@experimental` docblock tag.
 - Rules ported from POC `src/Resource/DescriptorBuilder.php` on `sh/admin-crud/5-hardening`:
   - Synthetic contexts are `DescribeContext`s for `Create` (`newModel()`), `Update` (blank model with `exists = true`), `Show` and `Index`, each with its `mode`.
   - `kind` comes from the field class or `Attribute->type`.
@@ -210,7 +211,7 @@
 - [x] **Step 2: Run the tests and confirm RED.**
 - [x] **Step 3: Implement the classes.** `FieldDescriber` owns the per-field logic; `ResourceDescriber` owns the resource-level keys. (Done. No `Index` getter was needed: `limit`, `maxLimit` and `defaultSort` are already public. A field is dropped only when it is neither visible nor writable. After review: the `Describable` interface was replaced by the `describable()` extender, `Context::withDescribing()` by `DescribeContext`, and `filters` now come from `SearchManager::describeFilters()`. After the second review: type-schema `null` values and the default `minLength: 0` are dropped; `min:`/`max:` map by kind (`minLength`/`maxLength` for strings, `minimum`/`maximum` for integers and numbers, `minItems`/`maxItems` for arrays) via `RuleHints::parse($rules, $kind)`; `url` maps to `format: 'url'`; only the exact `required` rule counts; a guest gets `new ($resource->model())` instead of `newModel()`; `capabilities.create` is checked against a context without a model (type-level, global permissions only); visibility is a plain fail-closed bool (a throwing read mode never counts, a mode returning true wins); an uninitialised `Relationship::$collections` reports `types: []`; `label` is emitted on every field per D7 and removed from the copied `ui` bag; `FieldDescriber` takes `Flarum\Locale\TranslatorInterface`; `SearchManager`'s new methods take `$modelClass`.)
 - [x] **Step 4: Run the tests and confirm GREEN.**
-- [ ] **Step 5: Commit.** `feat(api): infer resource descriptors from json:api resources`
+- [x] **Step 5: Commit.** `feat(api): infer resource descriptors from json:api resources` (7fb18d011)
 
 ### Task 3b — Descriptor additions for D11
 
@@ -235,7 +236,7 @@
 - [x] **Step 2: Run and confirm RED.** Command: `../../vendor/bin/phpunit -c tests/phpunit.unit.xml --filter RuleHintsTest`, then the same with `phpunit.integration.xml --filter InferenceTest`, from `framework/core`.
 - [x] **Step 3: Implement.** (Done. `RuleHints` also accepts paired bracket delimiters such as `{…}` and `(…)`, and normalises the flag order to `imsu`. `capabilities.delete` is type-level only: the `Delete` endpoint's `isVisible()` is not evaluated, because its `can('delete')` needs a row.)
 - [x] **Step 4: Run and confirm GREEN.**
-- [ ] **Step 5: Commit.** `feat(api): describe pattern flags and delete capability`
+- [x] **Step 5: Commit.** `feat(api): describe pattern flags and delete capability` (7fb18d011, folded into the inference commit)
 
 ### Task 4 — `resource-schemas` endpoint
 
@@ -264,7 +265,7 @@
 - [x] **Step 2: Run the test and confirm RED.** (5 of 7 failed with 404; the two 404 cases passed trivially.) Command: `composer test -- --filter resource_schemas`
 - [x] **Step 3: Implement the resource and register it in `flarum.api.resources`.** (ETag via the endpoint `response()` hook: serialize with `Serializer`, sha1 the JSON of `data.attributes`, `EmptyResponse(304)` on a matching `If-None-Match`; no middleware needed. Gate is a `before()` hook. Model is a per-request `stdClass`; the descriptor is built lazily in field getters, so guests never reach `describe()`. `ResourceDescriber` is resolved lazily from the container, because injecting it recurses through `JsonApi` → `flarum.api.resources`. `find()` also 404s a class-name id.)
 - [x] **Step 4: Run the test and confirm GREEN.**
-- [ ] **Step 5: Commit.** `feat(api): resource-schemas endpoint`
+- [x] **Step 5: Commit.** `feat(api): resource-schemas endpoint` (5dd3007ec)
 
   > **Post-review (backend, round 2):** fixes test-first (RED then GREEN).
   > - W1: `DescribesFilter::describe(User $actor): ?array` (null hides); `SearchManager::describeFilters($modelClass, User $actor)`; extender callables receive the actor and may return null, arrays stay static. `EmailFilter` and `SuspendedFilter` mirror their `filter()` gates (`user.editCredentials`, `can('suspend', new Guest)`); `GroupFilter` and `LikedFilter` are ungated, like their `filter()`.
@@ -306,7 +307,7 @@
   *Done:* binding defaults to `[Resource\UserResource::class]`; the redundant `describable()` opt-in was removed from `ShowTest`. `ui()` on the four column fields, each with its `core.admin.users.grid.columns.{username,display_name,join_time,group_badges}.title` label. Self-only fields did **not** leak (their `actor->id === user->id` checks are false against the synthetic, id-less model), so no `DescribeContext` gate was added. **Describer change:** a `searchUsers`-only actor got `email` with `visible:false, writable.create:true`, because `email` is writable whenever `creating()`. `ResourceDescriber` now computes `capabilities.create` first and passes the write modes to `FieldDescriber::describe()` (new optional `$writeModes` param); when the actor cannot create, create-time writability, `required.create` and `default` are not described.
 - [x] **Step 4: Run the test and confirm GREEN.** Then run the whole `tests/integration/api/users` suite and confirm it is unchanged.
   *Done:* `UsersSchemaTest` 7 tests / 42 assertions OK. `--filter 'resource_schemas|api\\users\\|search\\|ApiResourceUiHintTest'` 201 tests / 852 assertions OK; Describe unit tests 16 OK; phpstan on `src/Api` clean. (The 3 deprecations are vendor `middlewares/utils` on PHP 8.5.)
-- [ ] **Step 5: Commit.** `feat(users): describe the users resource`
+- [x] **Step 5: Commit.** `feat(users): describe the users resource` (8eb8780c0)
 
 ### Task 6 — Common JS: descriptor → fields → inputs → state
 
@@ -341,7 +342,7 @@
   > - `ResourceFormState.save()` adopts the model `save()` resolves to (a new record resolves to a different store instance), else a second save would POST again.
   > - Numeric `ui.column` becomes `column.priority`; field order is declaration order. Reserved `ui.priority`, `ui.widget`, `ui.placeholder` and the POC's `help` / `relatedSearch` are not consumed (spec §5); `RelationInput` search defaults to on.
   > - No `index.ts` barrel (core auto-exports by path). `canCreate()` reads `capabilities.create`. `InputFactory.unregister(type)` added.
-- [ ] **Step 5: Commit.** `feat(common): generic resource definition, form and list state`
+- [x] **Step 5: Commit.** `feat(common): generic resource definition, form and list state` (3cbef9ef4)
 
 ### Task 6b — Client-side validation
 
@@ -375,7 +376,7 @@
   > - `save()` rejects with `ValidationError` (`errors: Record<string, string[]>`). The state has no DOM, so `ResourceForm` focuses the first `.has-error` field on catching it (`focusFirstInvalid()`).
   > - While updating, only changed fields are validated (only they are sent); this is what makes "unchanged `required.update`" pass. Blur (`validateField(key)`, wired via `onfocusout`) checks changed fields only and clears only errors it set, never the server's.
   > - Blank (whitespace-only) strings count as absent, as in Laravel: only `required` applies. Length counts code points. `minItems`/`maxItems` are not checked (no message keys in the plan).
-- [ ] **Step 5: Commit.** `feat(common): client-side validation from resource descriptors`
+- [x] **Step 5: Commit.** `feat(common): client-side validation from resource descriptors` (3cbef9ef4, folded into the common commit)
 
 ### Task 7 — Admin JS: `ResourceTable`, form and delete modals
 
@@ -391,8 +392,7 @@
     - `className?`, the root class (the user list passes `UserListPage-grid`);
     - `onCreate?()` and `onEdit?(model)`, which replace the default `ResourceFormModal`. `UserListPage` passes callbacks that call its `createModal()` / `editModal()` seams (Task 8);
     - `rowAttrs?(model)`, used for `data-user-id`.
-  - `ResourceFormModal` mirrors the old modals' overridable surface so extenders can port by renaming the base class: `fields(): ItemList` (same ItemList-of-inputs idea as `CreateUserModal` / `EditUserModal`), `data()`, `submitData()` (dirty-only, FND-220) and an `onsaved` callback. It is built and tested against the users descriptor in 2.0 but is **not wired** to any page.
-  - `@experimental` docblock tag on the class docblocks of `ResourceTable`, `ResourceFormModal` and `ResourceDeleteModal`, and on their public attrs and methods.
+  - `ResourceFormModal` mirrors the old modals' overridable surface so extenders can port by renaming the base class: `fields(): ItemList` (same ItemList-of-inputs idea as `CreateUserModal` / `EditUserModal`), `data()`, `submitData()` (dirty-only, FND-220) and an `onsaved` callback. It is built and tested against the users descriptor but is **not wired** to any page.
   - Region ItemLists, as in the POC: `toolbarItems`, `actionItems`, `rowActions`, `headerView`, `rowView` and `paginationView`.
 - Edit and delete are gated by `model.attribute('canEdit'/'canDelete')`. Pagination uses core `Pagination` when the total is known.
 
@@ -416,11 +416,11 @@
   > - `ColumnData.attrs` is `(model) => attrs` for a record's cell (the spec names it without a shape). Inferred columns are built as `ColumnData` too, so header/cell rendering has one path; a field column's numeric `priority` orders it.
   > - The actions column (`rowActions`) is always appended after `columns`. Task 8 must decide how it relates to `UserListPage`'s own `userActions` column.
   > - `ResourceFormModal` extends `FormModal` and lays out the fields itself (no nested `ResourceForm`), so `fields()` is the rendered ItemList: one item per writable field, keyed by name, plus `errors` and `submit` (-10, as in `EditUserModal`). `data()` is the dirty save data; `submitData()` is what is sent and defaults to `data()`. To share rendering, `ResourceForm.tsx` now exports `renderFormField()` / `renderFieldError()` (its `fieldView`/`errorView` delegate), and `ResourceFormState.save(data?)` takes the payload to send (default `buildSaveData()`).
-  > - Parity: an admin editing another user gets `username`, `email`, `isEmailConfirmed`, `password`, `groups`. The test checks against `EditUserModal`'s real `fields()` keys and pins `isEmailConfirmed` as the only extra (`EditUserModal` sets it through the "Activate" button in its email item). In create mode the inferred form also offers `token` (write-only, create-only); a 2.1 users subclass will want to hide it.
+  > - Parity: an admin editing another user gets `username`, `email`, `isEmailConfirmed`, `password`, `groups`. The test checks against `EditUserModal`'s real `fields()` keys and pins `isEmailConfirmed` as the only extra (`EditUserModal` sets it through the "Activate" button in its email item). In create mode the inferred form also offers `token` (write-only, create-only); a users subclass would want to hide it (since Task 8, `ui.widget: 'hidden'` does).
   > - Relation search: `RelationInput.UNSEARCHABLE_TYPES` (~~default `{'groups'}`~~ empty since Task 8; the admin user list registers `groups`) and `RelationInput.isSearchable(type)` decide the search box when the spec has no `search`; the resolvers no longer force `search: true`. This covers the users form's `groups` and the filter bar's `group` filter.
   > - The users stub descriptor (`tests/integration/admin/fixtures/usersDescriptor.ts`) is built from `UserResource` + `FieldDescriber` and the assertions in `UsersSchemaTest.php`, not from a captured response.
   > - Locale keys: `core.admin.resource.{table,form,delete}.*`. Less: `less/admin/ResourceTable.less`, imported from `less/admin.less`.
-- [ ] **Step 5: Commit.** `feat(admin): generic resource table and modals`
+- [x] **Step 5: Commit.** `feat(admin): generic resource table and modals` (eba4b1542)
 
 ### Task 7b — Column toggles + CSV export
 
@@ -458,9 +458,9 @@
   > - Paging continues while the page is non-empty and `links.next` is set, or (without it) `offset < meta.page.total`, or a full page came back: `links.next` is dropped on a post-filtered short page. Pages after the first still request the total (no `page[total]=0`); progress reports `(rows, min(total, maxRows))`.
   > - Abort: checked after each page; the in-flight request finishes, then the promise rejects with an `AbortError` and nothing downloads. Truncation (`maxRows` reached with more rows) still downloads, and `ResourceTable` shows a warning alert.
   > - `ColumnPreferences` is a class with static `key()`/`load()`/`save()` and an `@internal` `clear()` for tests. Memory wins over storage on read, so a failed `setItem` still reads back. A corrupt or non-array value reads as no preference. ~~The stored set is the full hidden set, so once the user has made a choice, `hidden:true` defaults no longer apply (a later-added default-hidden column shows until toggled).~~ **Corrected (with Task 7c):** only explicit choices are stored, as a JSON object `{columnKey: visible}` under the same key. `load(type): Map<string, boolean>` (empty, never null, when there are none) and `save(type, choices: Map<string, boolean>)`. A column the user never toggled follows its `hidden` default, so a default-hidden column added later starts hidden (new `ResourceTable` case). A stored array (the 7b format) reads as "these keys explicitly hidden"; non-boolean values are dropped. `ResourceTable.hiddenColumns()` became `storedChoices()` (protected); ~~`toggleColumn()` still prunes choices for columns that no longer exist or are not toggleable~~ **(Task 8 cleanup)** `toggleColumn()` keeps them: stale keys are ignored, not deleted (spec D11), so a column whose extension is off for a while gets its choice back. `ColumnPreferences.test.ts` now has 4 cases (legacy array added).
-  > - `ResourceTable`: `viewItems` gains `columns` (-10, only when a column is toggleable) and `export` (-20), after the filters. New `@experimental` methods `visibleColumns()`, `isColumnVisible()`, `toggleColumn()`, `exportButton()`, `exportCsv(maxRows?)` and the `exporting` property; the export button turns into a cancel button with progress while running, and `onremove` aborts it. ~~Saving drops stored keys of columns that no longer exist or are not toggleable.~~ Saving keeps them (Task 8 cleanup). `ColumnsDropdown` takes `{columns: {key, name, visible}[], onchange(key, visible)}`; checkbox clicks stop propagation so the menu stays open.
+  > - `ResourceTable`: `viewItems` gains `columns` (-10, only when a column is toggleable) and `export` (-20), after the filters. New methods `visibleColumns()`, `isColumnVisible()`, `toggleColumn()`, `exportButton()`, `exportCsv(maxRows?)` and the `exporting` property; the export button turns into a cancel button with progress while running, and `onremove` aborts it. ~~Saving drops stored keys of columns that no longer exist or are not toggleable.~~ Saving keeps them (Task 8 cleanup). `ColumnsDropdown` takes `{columns: {key, name, visible}[], onchange(key, visible)}`; checkbox clicks stop propagation so the menu stays open.
   > - Locale keys under `core.admin.resource.table.*`: `columns_button`, `columns_label`, `export_button`, `export_error`, `export_progress`, `export_progress_total`, `export_truncated`. Less: `.ResourceTable-columns`, `.ResourceTable-columnToggle`.
-- [ ] **Step 5: Commit.** `feat(admin): column toggles and csv export for resource tables`
+- [x] **Step 5: Commit.** `feat(admin): column toggles and csv export for resource tables` (3cbef9ef4 + eba4b1542, folded)
 
 ### Task 7c — Bulk select + bulk delete
 
@@ -494,12 +494,12 @@
   > **Notes (Task 7c):** `BulkRunner.test.ts` (1) and 5 new `ResourceTable.test.ts` cases (plus the 7b correction's case). RED: `BulkRunner`/`ResourceTable` suites failed on the missing modules. The two behavioural cases (page change clears the selection; a later default-hidden column starts hidden) were also checked by mutating the code back: both fail. Full suite 121 suites / 900 tests; `check-typings` and prettier clean; `build` not run (it rewrites tracked `js/dist`). Deviations:
   > - **`bulkActions(selection, context)`**, not `bulkActions(selection)`. `ResourceDefinition` is in `common` and may not import the admin `BulkResultModal` (import boundary), and the helper needs the list to read the selected models and refresh. `BulkActionContext<M>` (in `BulkRunner.ts`) is `{list, runner, showResult(summary)}`; `ResourceTable.bulkContext()` builds it with `bulkRunner()` (overridable, default `new SequentialBulkRunner()`) and `showResult` opening `BulkResultModal` with `{summary}`. `bulkDelete(context)` returns the button; `runBulkDelete(context)` is the (public, awaitable) work.
   > - Types: `BulkResult<M>` as planned; `BulkSummary<M> = BulkResult<M> & {skipped}`; `BulkProgress(done, total)`. The runner keeps `ok`/`failed` in input order, catches synchronous throws too, and calls `onProgress` after each settled op.
-  > - Selection: `ResourceSelection = IdsSelection | MatchingSelection` with `MatchingSelection = never` (reserved); `ResourceSelectionMode = 'ids' | 'matching'`. Methods switch on `selection.mode` and end in a `never` branch. `ResourceListState.goto()` clears it, so page, sort, filter, search, the refresh button and the post-delete refresh all clear it. New `@experimental` methods: `isSelected`, `setSelected`, `setPageSelected`, `isPageSelected`, `clearSelection`, `selectedModels` (page order; ids are page-scoped).
+  > - Selection: `ResourceSelection = IdsSelection | MatchingSelection` with `MatchingSelection = never` (reserved); `ResourceSelectionMode = 'ids' | 'matching'`. Methods switch on `selection.mode` and end in a `never` branch. `ResourceListState.goto()` clears it, so page, sort, filter, search, the refresh button and the post-delete refresh all clear it. New methods: `isSelected`, `setSelected`, `setPageSelected`, `isPageSelected`, `clearSelection`, `selectedModels` (page order; ids are page-scoped).
   > - `bulkDelete`: confirms with `window.confirm` (as `EditGroupModal`/`ExtensionPage` do) and the **deletable** count; no confirm when nothing is deletable (the summary then only lists skipped rows). Deletes pass `errorHandler: () => {}` so one alert per failed row doesn't stack up; the modal shows each failure's reason (the content core's alert would have shown, else `result_unknown_error`). After the modal opens, the list reloads the page (one page back if every row on it was deleted). A `bulkDeleting` flag guards double clicks; the button is disabled with no selection.
   > - `ResourceTable`: `bulkActionItems()` (the definition's list), `bulkView()` (toolbar region `bulk`, priority 25, with a "{count} selected" live count), `selectAllView()` (header checkbox, indeterminate when partly selected), `selectView(model)`; `rowView(model, columns, selectable = false)` gained the third param and an `is-selected` row class. The spec's extra "**and** `capabilities.delete || bulkActions`" condition is not implemented; the plan's "renders only when `bulkActions(selection)` has items" is.
   > - `BulkResultModal` is delete-specific in wording (`result_deleted`, title "Bulk delete"); `bodyItems()` (`deleted`, `failed`, `skipped`) and `reason(error)` are the extension points.
   > - Locale keys: `core.admin.resource.bulk.{close_button,delete_button,delete_confirmation,result_deleted,result_failed,result_skipped,result_title,result_unknown_error}` and `core.admin.resource.table.{bulk_label,select_all_label,select_label,selected}`. ~~`bulkDelete()` lives in `common` but uses `core.admin.*` keys: it only renders in the admin table.~~ **(Task 8 cleanup)** `delete_button` and `delete_confirmation` moved to `core.lib.resource.bulk.*`, since `bulkDelete()` is common code; `BulkResultModal` (admin) keeps the rest under `core.admin.resource.bulk.*`. Less: `.ResourceTable-bulk`, `-selectedCount`, `-selectHeader`, `-selectCell`, `-row.is-selected`, `.BulkResultModal`.
-- [ ] **Step 5: Commit.** `feat(admin): bulk selection and bulk delete for resource tables`
+- [x] **Step 5: Commit.** `feat(admin): bulk selection and bulk delete for resource tables` (3cbef9ef4 + eba4b1542, folded)
 
 ### Task 8 — Rebuild `UserListPage` on `ResourceTable`
 
@@ -515,11 +515,11 @@
   - `actionItems()`, with `createUser` 100, which opens `this.createModal()` (default `CreateUserModal`) with `onCreated` and bumps `modelStatistics.users.total`.
   - `columns()`, with keys `id` 100, `username` 90, `displayName` 85, `joinDate` 80, `groupBadges` 70, `emailAddress` 70 and `userActions` -90. Add `sort` to `username` and `joinDate` (`joinedAt`). `userActions` still renders the `userActionItems(user)` Dropdown.
   - `userActionItems(user)`, with `editUser` opening `this.editModal(user)` (default `EditUserModal`) with the same `user` and `onsaved` attrs as today. Add `delete` at priority -100, gated by `user.canDelete()`, which opens `ResourceDeleteModal`.
-  - New additive seams (spec D8): `createModal(): typeof Modal` returns `CreateUserModal`, and `editModal(user: User): typeof Modal` returns `EditUserModal`. Both carry an `@experimental` docblock tag. `ResourceTable`'s `onCreate` / `onEdit` call them. Overriding them (via `override` or `extend`) changes which modal opens in 2.1 with a one-line change. Nothing else about the modals changes in 2.0.
+  - New additive seams (spec D8): `createModal(): typeof Modal` returns `CreateUserModal`, and `editModal(user: User): typeof Modal` returns `EditUserModal`. `ResourceTable`'s `onCreate` / `onEdit` call them. Overriding them (via `override` or `extend`) changes which modal opens. Nothing else about the modals changes.
   - `headerInfo()` and `loadPage(pageNumber)` (zero-based, delegating to the list state's page). `loadPage` sends `filter[q]`, `page[limit]=50` and the current sort.
   - `goToPage(page)` (one-based) and the `?page=` URL.
-- New D11 seams, both `@experimental`:
-  - `bulkActionItems(): ItemList` is empty in 2.0. It is passed to the table's `bulkActions`, so there is no checkbox column unless an extension adds an item.
+- New D11 seams:
+  - `bulkActionItems(): ItemList` is empty. It is passed to the table's `bulkActions`, so there is no checkbox column unless an extension adds an item.
   - `canExport(): boolean` returns `!!app.session.user?.isAdmin()`.
 - Column toggles are on. The `id`, `username` and `userActions` columns get `toggleable:false`. `emailAddress` gets `csv: u => u.email() ?? ''` and keeps its per-row show/hide toggle. `groupBadges` gets `csv: u => u.groups().map(g => g.nameSingular()).join('; ')`, and `joinDate` gets `csv: u => u.joinTime()?.toISOString()`.
 - `UserListPage` passes `columns()` into `ResourceTable` (D8), so descriptor-only columns are appended only for `ui.column` fields that are not already keyed.
@@ -547,7 +547,7 @@
   > - **Markup** is now a `<table>` (`th`/`td`), not the CSS grid of `div`s; `less/admin/UsersListPage.less` drops the grid layout rules (`display:grid`, `--columns`, `.loading-container()`, cell flex) that would break a table. The `--columns` inline style is gone.
   > - **State.** The page owns `definition` (`ResourceDefinition<User>('users')`) and `list` (`ResourceListState`, `pageSize: 50`), both `protected`, and passes `state`. `query` (including unsent typing), `pageData` (`undefined` until a page is loaded) and `numPerPage` are protected getters onto the list. `loadPage(n)` is `list.goto(n + 1)`; `goToPage(p)` is `loadPage(p - 1)`. The search debounce stays 250 ms and sends `filter[q]` through `list.setQuery()`.
   > - **URL.** The list syncs `page`, `sort`, `q` and `filter[…]`. `?page=2` loads offset 50. Deviation: `page` is omitted on page 1 (the list's `writeUrl()`), where the old page always wrote `?page=1`; and an out-of-range `?page=` shows the empty state instead of re-requesting the last page.
-  > - **Seams.** `createModal()` returns `CreateUserModal`. `editModal(user)` returns a stable module-level loader `() => import('…/EditUserModal')`, not the class: today's edit button lazy-loads that chunk, and returning the class would pull it into the admin bundle. Both are typed `UserListModal` (= what `app.modal.show()` accepts) instead of the plan's `typeof Modal`. The edit modal gets `{user, onsaved}`; today's call passed only `{user}` and `EditUserModal` ignores `onsaved` (it is there for the 2.1 `ResourceFormModal` switch).
+  > - **Seams.** `createModal()` returns `CreateUserModal`. `editModal(user)` returns a stable module-level loader `() => import('…/EditUserModal')`, not the class: today's edit button lazy-loads that chunk, and returning the class would pull it into the admin bundle. Both are typed `UserListModal` (= what `app.modal.show()` accepts) instead of the plan's `typeof Modal`. The edit modal gets `{user, onsaved}`; today's call passed only `{user}` and `EditUserModal` ignores `onsaved` (it is there for a replacement modal that saves).
   > - **`bulkActionItems(context: BulkActionContext<User>)`**, not `bulkActionItems()`: an item such as `definition.bulkDelete(context)` needs the list and runner (the same reason as 7c's `bulkActions(selection, context)`). Empty by default. `canExport()` is `!!app.session.user?.isAdmin()`, passed as `exportable`.
   > - **Delete** is `userActionItems` key `delete` (-100, `user.canDelete()`, class `UserList-deleteUser`, label `core.admin.resource.table.delete_button`): `ResourceDeleteModal` with the page's definition; `ondeleted` lowers `modelStatistics.users.total` and reloads (one page back when the last row went).
   > - **Columns.** `id`, `username`, `userActions` are `toggleable:false`; `username` sorts by `username`, `joinDate` by `joinedAt`. CSV: `joinDate` ISO time, `groupBadges` `; `-joined `nameSingular`s, `emailAddress` the email; `username` and `displayName` export their raw attribute (key = field); `id` and `userActions` are left out. Descriptor columns are appended only for fields with an explicit `ui.column` hint that the page doesn't already show: `username`, `displayName`, `joinTime` (→ `joinDate`) and `groups` (→ `groupBadges`) are mapped in a private `FIELD_COLUMNS`; sortable-only fields (`commentCount`, …) get no column. suspend's `suspendedUntil` (`ui.column 60`) appears after `emailAddress`.
@@ -564,8 +564,8 @@
   > - **CSV.** `csvCell` exports a vnode-like object (with `tag`) or a value `JSON.stringify` rejects (circular, BigInt) as `''`.
   > - **`ui.widget: 'hidden'`.** `fieldsFromDescriptor` gives such a field no form input (users' `token`); other `widget` values stay reserved and ignored. The users fixture now has `token.ui.widget: 'hidden'` and `required: {create: true}` on `username`, `email`, `password`; `ResourceFormModal.test.ts` checks the create form has no token and marks the three required.
   > - **Tests added:** page-1 URL without `page`; `?page=99`; zero / missing totals; rows kept on search/sort/filter (state, table, users page); `editModal()` returns the stable lazy loader resolving to `EditUserModal`; `onremove` clears timers and aborts a running export; the export error alert clears `exporting`; no unhandled rejection from a failed debounced search or a failed post-bulk-delete reload; bulk actions built once per redraw; end-to-end bulk delete with one failed DELETE (2 deleted, the failed row named, total −2); end-to-end CSV with `@evil` / `=HYPERLINK("x")`.
-  > - **Comments.** `ResourceTable.tsx` / `ResourceListState.ts`: `@experimental` stays on the classes, exported types, the attrs interfaces and the extension seams (`items`, `toolbarItems`, `viewItems`, `actionItems`, `bulkActionItems`, `bulkContext`, `bulkRunner`, `columns`, `rowActions`); dropped from helper members, and docblocks that only restated the name were removed.
-- [ ] **Step 5: Commit.** `refactor(admin): build the user list on the resource table`
+  > - **Comments.** `ResourceTable.tsx` / `ResourceListState.ts`: docblocks that only restated the name were removed.
+- [x] **Step 5: Commit.** `refactor(admin): build the user list on the resource table` (7cdffd907)
 
 ### Task 9 — Bundled extension compatibility
 
@@ -581,18 +581,18 @@
   - With nicknames enabled, `nickname` is described as `visible:false`, `writable {create, update}`, `nullable`, kind `string`, for the admin. Verified: `->visible(false)` plus `->writable(can('editNickname'))`, so the plan's "writable and invisible" guess was right. → `extensions/nicknames/tests/integration/api/UsersSchemaTest.php`
   - With gdpr enabled, `DELETE /api/users/{id}` as admin still goes through `UserResourceDeleteEndpoint` (reuses `DeleteUserTest`'s anonymise assertion), and the users descriptor has `capabilities.delete: true`. → `extensions/gdpr/tests/integration/api/UsersSchemaDeleteTest.php`
   - With likes enabled, the `liked` filter is described as `relationship` → `posts`. → `extensions/likes/tests/integration/api/UsersSchemaTest.php`
-  - [ ] gdpr's admin JS `userActionItems` → `export-data` still renders. Add a jest case in `extensions/gdpr/js` if a test setup exists there; otherwise do a manual click-through in Task 10. **Pending Task 8.**
+  - [x] gdpr's admin JS `userActionItems` → `export-data` still renders. Covered by the `UserListPage.test.ts` `userActionItems` case (Task 8) and the Task 10 click-through.
 - [x] **Step 2: Run the tests and confirm RED where new.** suspend (2 failures: no `suspended` filter, no `ui.column`) and likes (no `liked` filter) were RED. nicknames and gdpr passed straight away, as expected: they pin behaviour that must keep working.
 - [x] **Step 3: Implement.** `SuspendedFilter` and `LikedFilter` implement `DescribesFilter`; `suspendedUntil` gets `->ui(['column' => 60])`. Likes semantics verified: `LikedFilter` on `UserSearcher` takes a **post id** and keeps users with a `post_likes` row for that post, so `related: posts`. (`likedBy` is a separate `PostSearcher` filter taking a username or user id; it is not on users.)
 - [x] **Step 4: Run each extension's suite and confirm GREEN.** Integration suites, run with a private sqlite DB per extension: suspend 31 tests, likes 30, nicknames 32, gdpr 111, all OK. gdpr's 3 warnings are existing `RepeatedQueryDetector` notices on `POST /api/gdpr-exports`, unrelated. PHPStan is clean on `extensions/{suspend,likes}/src`.
-- [ ] **Step 5: Commit.** `feat(extensions): describe user filters and suspend column`
+- [x] **Step 5: Commit.** `feat(extensions): describe user filters and suspend column` (82f08a7f7)
 
 ### Task 10 — Locales, docs, click-through
 
 **Type:** HITL (visual sign-off) · **Blocked by:** Task 9
 
-- [ ] **Step 1: Add the `core.admin.resource.*` and `core.lib.resource.*` keys** used by Tasks 6–8, with en only (core policy). Run `yarn --cwd framework/core/js build`.
-- [ ] **Step 2: Do a click-through on a dev forum** using the `flarum-clickthrough-probe` skill:
+- [x] **Step 1: Add the `core.admin.resource.*` and `core.lib.resource.*` keys** used by Tasks 6–8, with en only (core policy). Run `yarn --cwd framework/core/js build`.
+- [ ] **Step 2: Do a click-through on a dev forum** using the `flarum-clickthrough-probe` skill. *Partly done 2026-10-28:* an automated probe on a scratch dev forum (65 PASS; its real failures were fixed) plus targeted checks of the toolbar, counts, export and row menus. Edit/delete steps timed out in the probe, and the spreadsheet check and the owner's manual sign-off are still open:
   - `/admin#/users` with suspend, nicknames and gdpr enabled;
   - sort by username and joined date;
   - filter by group and by suspended;
@@ -602,28 +602,53 @@
   - hide two columns, reload, and confirm they stay hidden; repeat in a private window and confirm the table still works;
   - export CSV with an active group filter, then open the file in a spreadsheet: check umlauts (UTF-8 BOM), commas in display names, and that no formula executes;
   - a high-contrast theme.
-- [ ] **Step 3: Write the extender docs.** Cover `->ui()`, `Describable`, `DescribesFilter`, `ResourceTable` and `schemaVersion`, for the 2.x docs repo or the CHANGELOG `Added` section. Include:
-  - the `@experimental` policy: `ResourceTable`, `ResourceFormModal`, `ResourceDeleteModal`, `ResourceDescriber`, `DescribesFilter` and `->ui()` may change in 2.1 without a BC break; only the descriptor endpoint shape is versioned through `schemaVersion`;
-  - the `ui` keys: `column`, `display` and `label` are consumed in 2.0; `group`, `priority`, `widget` and `placeholder` are reserved for forms;
-  - an "Upgrading to 2.1" note (spec D8 migration path): `UserListPage.createModal()` / `editModal()` will return `ResourceFormModal` subclasses; `extend(CreateUserModal.prototype, 'fields')` moves to `extend(UserResourceFormModal.prototype, 'fields')` with the same ItemList keys; the forum `EditUserModal` is untouched; 2.1 adds `@deprecated` and `console.warn` on the old modal hooks only when generic forms are enabled; 2.0 emits none.
-- [ ] **Step 4: Commit.** `docs: resource schemas and resource table`
+- [x] **Step 3: Write the extender docs.** Cover `->ui()`, `Describable`, `DescribesFilter`, `ResourceTable` and `schemaVersion`, for the 2.x docs repo or the CHANGELOG `Added` section. Include:
+  - the stability statement: all new API is under the normal BC promise, and the descriptor shape is versioned through `schemaVersion`;
+  - the `ui` keys: `column`, `display` and `label` are consumed; `group`, `priority`, `widget` and `placeholder` are reserved for forms;
+  - the release note: the user list is a `<table>`, and `headerItems()` render inside the table toolbar.
+  > **Done:** `doc/extend/resource-schemas.md`, CHANGELOG `Unreleased`. Revised 2026-10-28 to the owner decisions: stability under the normal BC promise, no future-version claims, and `ResourceFormModal` no longer documented (spec §7).
+- [x] **Step 4: Commit.** `docs: resource schemas and resource table` (2865e7260)
 
 ---
 
-## Follow-ups (not in this plan)
+## As built
 
-- 2.1 modal migration (spec D8 "2.1 migration path"):
-  - override `UserListPage.createModal()` / `editModal()` to return `ResourceFormModal` subclasses (`UserResourceFormModal`);
-  - extenders move `extend(CreateUserModal.prototype, 'fields')` to `extend(UserResourceFormModal.prototype, 'fields')` with the same ItemList keys;
-  - the forum `EditUserModal` (nicknames) stays until a forum-side form lands;
-  - add `@deprecated` and `console.warn` on the old modal hooks only when generic forms are enabled, with removal no earlier than 3.0.
+`git log --oneline 2.x..HEAD`, oldest first:
+
+- `151a3d602` docs: admin resource schema spec and plan
+- `fe4ba577e` feat(api): field ui hints (Task 1)
+- `f3f02473e` feat(search): expose searcher filter metadata (Task 2)
+- `7fb18d011` feat(api): infer resource descriptors from json:api resources (Tasks 3, 3b)
+- `5dd3007ec` feat(api): resource-schemas endpoint (Task 4)
+- `8eb8780c0` feat(users): describe the users resource (Task 5)
+- `3cbef9ef4` feat(common): generic resource definition, form and list state (Tasks 6, 6b, and the common parts of 7b, 7c)
+- `eba4b1542` feat(admin): generic resource table and modals (Tasks 7, 7b, 7c)
+- `7cdffd907` refactor(admin): build the user list on the resource table (Task 8)
+- `82f08a7f7` feat(extensions): describe user filters and suspend column (Task 9)
+- `2865e7260` docs: resource schemas and resource table (Task 10)
+- `462a56cc3` fix(api): check the Delete endpoint's authorization for capabilities.delete (spec D2, D11)
+- `8c07fcaf7` refactor(admin): write full translation keys in the bulk result modal and validation
+- `e98ac2c05` feat(admin): labelled filter toolbar for resource tables (spec D12)
+- `68a5713eb` feat(admin): count matching users and leave guests out of the group filter (spec D12)
+- `7f661dbe8` feat(admin): configure which filters the search box covers (spec D12)
+- `72f9c7ba0` fix(admin): show row menus below a short table, and left-align Delete (spec D12)
+
+The owner decisions of 2026-10-28 (normal BC promise for all new API, no future-version claims, re-baseline after
+v2.0.2, search-covered filters hidden by default) are applied to the docs and are being applied to the code; they are not yet committed.
+
+The D12 commits supersede some task notes above. "Columns" and "Export CSV" moved from `viewItems()` to
+`displayItems()` in the second toolbar row. `UserListPage.headerItems()` no longer render as the page's own header:
+they fill the table toolbar's search, view, count and actions slots (spec D12). The spec is the source of truth.
+
+## Possible follow-ups (not in this plan)
+
+- Swap the user modals for generic form modals through `UserListPage.createModal()` / `editModal()`. This depends on the spec §7 decision. The forum `EditUserModal` (nicknames) stays until a forum-side form lands.
 - An `Index` on `resource-schemas` (SCIM `/ResourceTypes`) once a consumer needs discovery.
-- D11 2.1 paths, each a single swap behind an interface already shipped in 2.0:
+- D11 later paths, each a single swap behind an interface that already ships:
   - `bulkDelete` enabled by default on `UserListPage.bulkActionItems()`;
   - `BulkRunner` swapped to json-api-server `Atomic` once core registers it;
   - `selection.mode: 'matching'` ("select all N");
   - `exportCsv` moved to a server-side `text/csv` stream for sets larger than `maxRows`;
   - `ColumnPreferences` backed by a registered user preference;
-  - async validation via `ui.asyncValidate`;
-  - client validation on users arriving with the `ResourceFormModal` switch (D8).
+  - async validation via `ui.asyncValidate`.
 - Move base-products and translate onto `flarum/common/resource/*`. This closes #169 Proposal 1.

@@ -1,10 +1,10 @@
 # Resource schemas and the resource table
 
-Flarum 2.0 can describe an API resource to the admin frontend. The server builds a descriptor of the resource's fields, sorts and filters for the current actor. The admin frontend turns that descriptor into a table with sorting, filters, pagination, row actions, column toggles and a CSV export. The admin user list is built this way.
+Flarum can describe an API resource to the admin frontend. This arrives in the first minor release after v2.0.2. The server builds a descriptor of the resource's fields, sorts and filters for the current actor. The admin frontend turns that descriptor into a table with sorting, filters, pagination, row actions, column toggles and a CSV export. The admin user list is built this way.
 
 This guide shows how to opt a resource in, how to shape what the table shows, and how to extend the user list.
 
-> **Experimental.** Everything on this page except the descriptor shape is `@experimental` in 2.0. See [Stability](#stability) before you build on it.
+Everything on this page is public API under Flarum's normal backwards-compatibility promise. The descriptor shape is versioned by `schemaVersion`.
 
 **Audience:** extension developers who know `Extend\ApiResource` and the 2.x JSON:API resources. **Applies to:** `flarum/core` 2.x.
 
@@ -54,7 +54,7 @@ A trimmed response for `GET /api/resource-schemas/users` as an administrator, wi
 
 | Key | Meaning | When present |
 |---|---|---|
-| `schemaVersion` | Version of the descriptor shape. `1` in 2.0. | Always |
+| `schemaVersion` | Version of the descriptor shape, currently `1`. | Always |
 | `endpoint` | The resource's collection path, for example `/users`. | Always |
 | `capabilities` | `list` and `create`: whether the actor passes the `Index` and `Create` endpoints. `delete`: the actor passes the `Delete` endpoint's authorization, checked against a blank stored record (for users, `user.delete`). | `list` and `create` always; `delete` only when true |
 | `pagination` | `defaultLimit` and `maxLimit` of the `Index` endpoint. | When `Index` paginates |
@@ -106,7 +106,7 @@ On the client, `loadDescriptor(type)` from `flarum/common/resource/descriptor` m
 
 ### `schemaVersion`
 
-`schemaVersion` is always sent, even though every other default is left out. It is `1` in 2.0. New optional keys do not change it. A change that would break a client that reads version `1` raises it. Check it if you read the endpoint yourself.
+`schemaVersion` is always sent, even though every other default is left out. It is currently `1`. New optional keys do not change it. A change that would break a client that reads version `1` raises it. Check it if you read the endpoint yourself.
 
 ## Make a resource describable
 
@@ -158,7 +158,7 @@ return [
 
 ### Hint keys
 
-| Key | Value | 2.0 |
+| Key | Value | Status |
 |---|---|---|
 | `column` | `true`, or an integer priority (higher is further left). `false` hides the column. | Used |
 | `display` | The attribute used to label a related record, for example `nameSingular` for groups. | Used |
@@ -168,7 +168,7 @@ return [
 | `widget` | Form input type. | Reserved for forms |
 | `placeholder` | Input placeholder. | Reserved for forms |
 
-Reserved keys are accepted and sent in the descriptor, but 2.0 ignores them. There is one exception: `widget: 'hidden'` already marks a field that no form offers, such as the users `token` field. A `required_without` rule that names only such fields makes the other field describe as required.
+Reserved keys are accepted and sent in the descriptor, but nothing reads them yet. There is one exception: `widget: 'hidden'` already marks a field that no form offers, such as the users `token` field. A `required_without` rule that names only such fields makes the other field describe as required.
 
 In a generic `ResourceTable`, a visible field becomes a column when it has `ui.column` or is sortable. The admin user list adds columns only for fields with `ui.column`.
 
@@ -241,7 +241,7 @@ The table sends "Yes" of a boolean filter as `filter[key]=1` and "No" as `filter
 
 So a filter described as `boolean` must constrain the query on `$negate`, not on `$value`. `SuspendedFilter` does this: without `$negate` it matches suspended users, with it the others. A filter that ignores `$negate` returns the "Yes" rows for "No".
 
-The same applies to a filter of another kind that shares its key with a `boolean` field: the table treats it as boolean too.
+The same applies to a filter of another kind that shares its key with a `boolean` field: the table treats it as boolean too. On the client, set `negatable` on the filter to override this.
 
 ### Relationship filters and their display attribute
 
@@ -277,7 +277,7 @@ The rules:
 - An extender description wins over the filter's own `describe()`.
 - Without either, the filter is left out.
 - A description for a key that has no registered filter is ignored.
-- Only the database search driver is read.
+- Only the database search driver is described. A site that searches the resource with another driver (for example an external index) gets `search: false` and no filters, because the database filters would not match what its `Index` endpoint runs.
 
 The list of filters is not guaranteed to be complete. Do not build UI that assumes it is.
 
@@ -331,15 +331,17 @@ The table loads the descriptor and then the list. It reads and writes the page, 
 What the table offers, and what decides it:
 
 - **Columns** come from the fields. Pass `columns` (an `ItemList<ColumnData>`) to replace them.
-- **Create** shows when `definition.canCreate()` is true. **Edit** and **Delete** show per row from the record's `canEdit` and `canDelete` attributes. Create and edit open `ResourceFormModal` unless you pass `onCreate` or `onEdit`. Delete opens `ResourceDeleteModal`, which calls the resource's `Delete` endpoint.
+- **Create** shows when `definition.canCreate()` is true. **Edit** and **Delete** show per row from the record's `canEdit` and `canDelete` attributes. Pass `onCreate` and `onEdit` to open your own modals. Without them the table opens a built-in form modal, which is not documented API yet. Delete opens `ResourceDeleteModal`, which calls the resource's `Delete` endpoint.
 - **Export CSV** shows when `definition.canExport()` is true. It defaults to `capabilities.list`. Pass `exportable` or override `canExport()` to narrow it, for example when the type holds personal data.
 - **Search** shows when the descriptor has `search`. It is a core `Input`. When the type has enabled gambits, it sits inside the gambit autocomplete, so `key:value` can be typed.
 - **Filters** show as dropdown buttons labelled "{label}: {value}". The first `inlineFilters` (default 3, `ResourceTable.INLINE_FILTERS`) are on the toolbar. The rest are under "More filters"; picking one adds its button. A filter with a value is always on the toolbar.
-- A filter whose key a gambit covers can be left to the search box, where it is typed as `key:value`. The `searchCoveredFilters` attribute sets the policy: `'text'` (the default) leaves out only text-like filters, `'all'` every covered filter, `'none'` none. A filter's own `hideWhenSearchable` wins over the policy. The user list exposes the policy as `UserListPage.searchCoveredFilters()`, which returns `'text'`, so Group and Suspended keep their dropdowns.
+- A filter whose key a gambit covers is left to the search box by default, where it is typed as `key:value`. The `searchCoveredFilters` attribute sets the policy: `'all'` (the default) leaves out every covered filter, `'text'` only text-like filters, `'none'` none. A filter's own `hideWhenSearchable` wins over the policy; `false` keeps its dropdown. The user list exposes the policy as `UserListPage.searchCoveredFilters()`, which returns `'all'`: group, suspended and email are typed as `group:`, `is:suspended` and `email:`. Likes' `liked` filter has no gambit, so it keeps its dropdown.
+- **Relationship filters** list the related records in their menu, with a search box, "Load more" and "Retry" after a failed request. Set `exclude(model)` on the filter to leave records out. The user list leaves out the guest group.
 - **Boolean filters** offer Any, Yes and No. No is sent as `filter[-key]=1`, see [Boolean filters must honour `$negate`](#boolean-filters-must-honour-negate).
-- **Chips** sit in a second row, one per filter with a value, with a remove button and "Clear all". When a gambit typed in the search sets the same key, the chip is marked as overridden, because the gambit wins on the server.
+- **Chips** sit in a second row, one per filter with a value, with a remove button and "Clear all". When a gambit typed in the search sends the same key with the same sign, the chip is marked as overridden, because the gambit wins on the server. When it sends the key with the opposite sign (`-suspended` against `suspended`), the chip is marked as a conflict.
 - **Columns dropdown** and **Export CSV** sit at the end of the second row. The dropdown lists every column whose `toggleable` is not `false`. The choice is kept in the browser's `localStorage`. The table still works when storage is blocked.
 - **Compact mode.** Below core's phone breakpoint, or with `compactFilters`, the filters fold into one "Filters (n)" dropdown.
+- **Row menus** open below their row even in a short table: an open menu is positioned `fixed` at its toggle, so the scrolling table does not clip it.
 - **Bulk select** appears only when `definition.bulkActions(selection, context)` returns items. It is empty by default. `definition.bulkDelete(context)` is a ready-made "Delete selected" item.
 
 To change the definition, extend `ResourceDefinition`. For example, `query()` adds request parameters and `actions(model)` adds row actions:
@@ -364,7 +366,7 @@ Every region of `ResourceTable` is an `ItemList` method you can extend: `items()
 - `items()` holds `toolbar`, `subToolbar` (only when it has items), `table` and `pagination`.
 - `viewItems()` holds `search`, `sort`, one `filter-{key}` per inline filter and `moreFilters`. In compact mode it holds one `filters` item instead of the filter items.
 - `subToolbarItems()` holds `filters` (the chips and "Clear all") and `display`.
-- `displayItems()` holds `columns` and `export`. They used to be toolbar items.
+- `displayItems()` holds `columns` and `export`.
 - `chipItems()` holds one chip per filter with a value, keyed by the filter key.
 
 ## Extend the admin user list
@@ -374,12 +376,13 @@ Every region of `ResourceTable` is an `ItemList` method you can extend: `items()
 `headerItems()` no longer renders as a row of its own. Its items render inside the table's toolbar:
 
 - `search` takes the table's search slot.
-- `totalUsers` takes the count slot.
-- Every other item goes in the actions group, which keeps the class `UserListPage-header`.
+- Items ranked above `totalUsers` go in the view group, at their own priority.
+- `totalUsers` takes the count slot. While a search or filter narrows the list, it reads "N matching users of M".
+- The remaining items go in the actions group, which keeps the class `UserListPage-header`.
 
 The filters, chips, "Columns" and "Export CSV" come from `ResourceTable`, as described above. The user list has no sort dropdown: sort by the column headers.
 
-2.0 adds four seams.
+The user list adds five seams.
 
 | Method | Default | Use it to |
 |---|---|---|
@@ -387,8 +390,9 @@ The filters, chips, "Columns" and "Export CSV" come from `ResourceTable`, as des
 | `editModal(user)` | A lazy loader for `EditUserModal` | Change the modal a row's "Edit" opens. It gets `user` and `onsaved(user)` attributes. |
 | `bulkActionItems(context)` | An empty `ItemList` | Add bulk actions. The checkbox column appears once this has an item. |
 | `canExport()` | `app.session.user.isAdmin()` | Change who sees "Export CSV". The export contains email addresses. |
+| `searchCoveredFilters()` | `'all'` | Choose which filters stay in the search box instead of the toolbar. |
 
-Both modal seams may return a modal class or a loader such as `() => import('./components/MyModal')`. Anything `app.modal.show()` accepts works.
+Both modal seams may return a modal class or a loader such as `() => import('./components/MyModal')`. Anything `app.modal.show()` accepts works. Use them to swap the modal for your own.
 
 Offer a bulk delete:
 
@@ -422,43 +426,20 @@ override(UserListPage.prototype, 'createModal', function () {
 
 `InviteUserModal` must call `this.attrs.onCreated(user)` after it saves, so the page bumps the user total and reloads.
 
-## Stability
+## Release note: changes to the admin user list
 
-These are marked `@experimental` in 2.0:
+The user list changes in two ways that can break a theme or an extension.
 
-- `ResourceTable`, `ResourceFormModal` and `ResourceDeleteModal` (`flarum/admin/components/resource/*`);
-- everything under `flarum/common/resource/*`, including `RelationOptions`, `Filter.kind` and `Filter.negatable`, and `ResourceListState.isNegatable()`, `filterParam()` and `clearFilters()`;
-- `ResourceTable.INLINE_FILTERS` and the `inlineFilters` and `compactFilters` attributes;
-- `Flarum\Api\Describe\ResourceDescriber` and `Flarum\Api\Describe\DescribeContext`;
-- `Flarum\Search\Filter\DescribesFilter`;
-- `->ui()` on schema fields;
-- `Extend\ApiResource::describable()` and `Extend\SearchDriver::describeFilter()`;
-- the `UserListPage` seams `createModal()`, `editModal()`, `bulkActionItems()` and `canExport()`.
-
-`Pill` gained a `deleteLabel` attribute, the accessible label of its delete button. It is a backward-compatible addition and not experimental.
-
-The experimental APIs may change in 2.1 without a backwards-compatibility break being declared. Only the descriptor shape returned by `GET /api/resource-schemas/{type}` is versioned, through `schemaVersion`. Pin your extension to a minor version if it depends on an experimental API, and test it against each 2.x minor release.
-
-## Upgrading to 2.1
-
-2.1 is planned to move the admin user list onto the generic form modal. 2.0 ships the seams for it and changes no behaviour.
-
-- `UserListPage.createModal()` and `editModal()` will return `ResourceFormModal` subclasses (`UserResourceFormModal`). Nothing else on `UserListPage` changes.
-- If you extend `CreateUserModal.prototype` or `EditUserModal.prototype` with `fields`, move to `extend(UserResourceFormModal.prototype, 'fields', …)`. The `ItemList` keys stay the same. `data()`, `submitData()` and `onsaved` keep their meaning.
-- The forum's `EditUserModal` (used by nicknames) is not changed. Only the admin user list switches.
-- 2.0 emits no deprecation warnings. 2.1 adds `@deprecated` and a `console.warn` on the old modal hooks, but only when generic forms are enabled. The old hooks are not removed before 3.0.
-
-If you override `createModal()` or `editModal()` yourself, your override keeps working in 2.1.
-
-## Release note: the user list is a `<table>`
-
-The admin user list used to be a CSS grid of `div` elements with ARIA table roles. It is now a native `<table>`.
+**The user list is a native `<table>`.** It used to be a CSS grid of `div` elements with ARIA table roles.
 
 - The root element has the class `UserListPage-table`. `UserListPage-grid` (with `--loading`, `--loadingPage` and `--loaded`) is on the table container.
 - Cells keep their `UserListPage-grid-*` and `UserList-*` classes and their `data-user-id` and `data-column-name` attributes.
 - The `--columns` inline style is gone.
-- The header items are no longer a row above the list. The table toolbar holds them and the filters in two rows: search, filters and actions first, then the filter chips, "Columns" and "Export CSV". The actions group keeps the class `UserListPage-header`.
 
-If your CSS relies on `display: grid` or `grid-template-columns` on the user list, update it for table layout.
+If your CSS relies on `display: grid`, `grid-template-columns` or `--columns` on the user list, update it for table layout.
+
+**`headerItems()` render inside the table toolbar.** The old header row above the list is gone. `search` sits in the search slot, items ranked above `totalUsers` in the view group, `totalUsers` in the count slot, and the rest in the actions group, which keeps the class `UserListPage-header`. See [Extend the admin user list](#extend-the-admin-user-list).
 
 The TypeScript-private members `pageNumber`, `loadingPageNumber`, `isLoadingPage`, `getTotalPageCount` and `setPageNumberInUrl` were removed. Use `loadPage()` and `goToPage()`.
+
+`Pill` gained a `deleteLabel` attribute, the accessible label of its delete button.
