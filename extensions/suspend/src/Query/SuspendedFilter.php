@@ -11,16 +11,18 @@ namespace Flarum\Suspend\Query;
 
 use Carbon\Carbon;
 use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\DescribesFilter;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\User\Guest;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
  */
-class SuspendedFilter implements FilterInterface
+class SuspendedFilter implements FilterInterface, DescribesFilter
 {
     public function __construct(
         protected UserRepository $users
@@ -30,6 +32,16 @@ class SuspendedFilter implements FilterInterface
     public function getFilterKey(): string
     {
         return 'suspended';
+    }
+
+    public function describe(User $actor): ?array
+    {
+        // Mirrors `filter()`, which ignores the value unless the actor can suspend.
+        if (! $actor->can('suspend', new Guest())) {
+            return null;
+        }
+
+        return ['kind' => 'boolean'];
     }
 
     public function filter(SearchState $state, string|array $value, bool $negate): void

@@ -31,7 +31,8 @@ class UserResourceFields
             Schema\DateTime::make('suspendedUntil')
                 ->writable($canSuspend)
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $canSuspend($user, $context))
-                ->nullable(),
+                ->nullable()
+                ->ui(['column' => 60]),
         ];
     }
 }
