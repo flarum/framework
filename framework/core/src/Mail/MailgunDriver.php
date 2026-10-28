@@ -21,6 +21,7 @@ use Symfony\Component\Mailer\Bridge\Mailgun\Transport\MailgunTransportFactory;
 use Symfony\Component\Mailer\Bridge\Mailgun\Webhook\MailgunRequestParser;
 use Symfony\Component\Mailer\Transport\Dsn;
 use Symfony\Component\Mailer\Transport\TransportInterface;
+use Symfony\Component\RemoteEvent\Event\Mailer\MailerDeliveryEvent;
 use Symfony\Component\Webhook\Client\RequestParserInterface;
 
 class MailgunDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebhooks
@@ -92,6 +93,16 @@ class MailgunDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebho
         return $this->getWebhookSigningSecret($settings) !== null;
     }
 
+    public function webhooksAvailable(SettingsRepositoryInterface $settings): bool
+    {
+        return true;
+    }
+
+    public function isPermanentFailure(MailerDeliveryEvent $event): bool
+    {
+        return true;
+    }
+
     public function registerWebhook(SettingsRepositoryInterface $settings, string $url): void
     {
         $client = $this->apiClient($settings);
@@ -103,11 +114,13 @@ class MailgunDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebho
                 continue;
             }
 
-            if (count($urls) >= self::MAX_WEBHOOK_URLS) {
+            $others = $this->withoutEndpoint($urls, $url);
+
+            if (count($others) >= self::MAX_WEBHOOK_URLS) {
                 throw new RuntimeException(sprintf(
                     'Mailgun already sends the "%s" webhook to %d other URLs, the most it allows. Remove one in the Mailgun dashboard and try again.',
                     $event,
-                    count($urls)
+                    count($others)
                 ));
             }
 
@@ -120,7 +133,7 @@ class MailgunDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebho
                 continue;
             }
 
-            $this->putWebhookUrls($client, $event, [...$urls, $url]);
+            $this->putWebhookUrls($client, $event, [...$others, $url]);
         }
     }
 
@@ -130,12 +143,11 @@ class MailgunDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebho
 
         foreach (self::WEBHOOK_EVENTS as $event) {
             $urls = $this->webhookUrls($client, $event);
+            $remaining = $this->withoutEndpoint($urls, $url);
 
-            if (! in_array($url, $urls, true)) {
+            if ($remaining === $urls) {
                 continue;
             }
-
-            $remaining = array_values(array_diff($urls, [$url]));
 
             if ($remaining === []) {
                 $this->assertSuccessful($client->request('DELETE', "webhooks/$event", ['http_errors' => false]), $event);
@@ -145,6 +157,19 @@ class MailgunDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebho
 
             $this->putWebhookUrls($client, $event, $remaining);
         }
+    }
+
+    /**
+     * The URLs that are not the given endpoint, whatever credentials either carries.
+     *
+     * @param list<string> $urls
+     * @return list<string>
+     */
+    protected function withoutEndpoint(array $urls, string $url): array
+    {
+        $endpoint = fn (string $url) => preg_replace('#^([a-z][a-z0-9+.-]*://)[^/@]*@#i', '$1', $url);
+
+        return array_values(array_filter($urls, fn (string $existing) => $endpoint($existing) !== $endpoint($url)));
     }
 
     /**

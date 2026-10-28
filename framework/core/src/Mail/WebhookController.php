@@ -13,7 +13,6 @@ use Flarum\Mail\Event\EmailBounced;
 use Flarum\Mail\Event\EmailComplained;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\UserRepository;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -34,7 +33,7 @@ use Symfony\Component\Webhook\Exception\RejectWebhookException;
 class WebhookController implements RequestHandlerInterface
 {
     public function __construct(
-        protected Container $container,
+        protected MailWebhooks $webhooks,
         protected SettingsRepositoryInterface $settings,
         protected UserRepository $users,
         protected Dispatcher $events,
@@ -44,19 +43,23 @@ class WebhookController implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $driver = $this->container->make('flarum.mail.configured_driver');
-
-        // Only the active driver, and only if it can receive webhooks, is
-        // allowed to process them. Anything else is a silent no-op.
-        if (! $driver instanceof HandlesWebhooks || ! $driver->webhookConfigured($this->settings)) {
-            return new EmptyResponse(404);
-        }
-
+        $driver = $this->webhooks->driver();
         $requested = Arr::get($request->getQueryParams(), 'driver');
         $active = $this->settings->get('mail_driver');
 
+        // Only the active driver, and only if it can receive webhooks, is
+        // allowed to process them. Anything else is refused, and logged so an
+        // admin can see why no bounces arrive.
+        if (! $driver) {
+            return $this->refuse($request, 404, sprintf('the active mail driver "%s" cannot receive webhooks', $active));
+        }
+
+        if (! $driver->webhookConfigured($this->settings)) {
+            return $this->refuse($request, 404, sprintf('the "%s" mail driver is not fully configured to receive webhooks', $active));
+        }
+
         if ($requested !== null && $requested !== $active) {
-            return new EmptyResponse(404);
+            return $this->refuse($request, 404, sprintf('it was sent for the "%s" mail driver, but the active driver is "%s"', $requested, $active));
         }
 
         $parser = $driver->getWebhookRequestParser($this->settings);
@@ -73,7 +76,7 @@ class WebhookController implements RequestHandlerInterface
         try {
             $event = $parser->parse($symfonyRequest, $secret);
         } catch (RejectWebhookException $e) {
-            return new EmptyResponse($e->getStatusCode());
+            return $this->refuse($request, $e->getStatusCode(), sprintf('the "%s" mail driver rejected it: %s', $active, $e->getMessage()));
         }
 
         // A null return means the request was verified and handled but carried
@@ -82,22 +85,35 @@ class WebhookController implements RequestHandlerInterface
         // way so the provider stops retrying.
         if ($event !== null) {
             foreach (is_array($event) ? $event : [$event] as $remoteEvent) {
-                $this->handleEvent($remoteEvent);
+                $this->handleEvent($driver, $remoteEvent);
             }
         }
 
         return new EmptyResponse(200);
     }
 
-    protected function handleEvent(object $event): void
+    protected function refuse(ServerRequestInterface $request, int $status, string $reason): ResponseInterface
+    {
+        $this->logger->warning(sprintf(
+            'Refused a mail webhook from %s: %s.',
+            $request->getAttribute('ipAddress') ?? Arr::get($request->getServerParams(), 'REMOTE_ADDR', 'an unknown address'),
+            rtrim($reason, '.')
+        ));
+
+        return new EmptyResponse($status);
+    }
+
+    protected function handleEvent(HandlesWebhooks $driver, object $event): void
     {
         $email = null;
         $reason = '';
 
         if ($event instanceof MailerDeliveryEvent) {
             // Only permanent failures suppress. DEFERRED (transient),
-            // DELIVERED and RECEIVED are ignored.
-            if (! in_array($event->getName(), [MailerDeliveryEvent::BOUNCE, MailerDeliveryEvent::DROPPED], true)) {
+            // DELIVERED and RECEIVED are ignored, and the driver decides
+            // whether its provider's bounce or drop was permanent.
+            if (! in_array($event->getName(), [MailerDeliveryEvent::BOUNCE, MailerDeliveryEvent::DROPPED], true)
+                || ! $driver->isPermanentFailure($event)) {
                 return;
             }
 

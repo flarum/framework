@@ -162,6 +162,18 @@ class WebhookBounceTest extends TestCase
     }
 
     #[Test]
+    public function a_temporary_failure_does_not_flag(): void
+    {
+        $payload = $this->signedPayload('failed', 'bouncer@example.com');
+        $payload['event-data']['severity'] = 'temporary';
+
+        $response = $this->postWebhook($payload);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertFalse(User::find(3)->hasBouncedEmail());
+    }
+
+    #[Test]
     public function a_successful_delivery_does_not_flag(): void
     {
         $response = $this->postWebhook($this->signedPayload('delivered', 'bouncer@example.com'));

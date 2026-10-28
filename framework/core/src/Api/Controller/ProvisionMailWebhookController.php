@@ -10,10 +10,8 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Http\RequestUtil;
-use Flarum\Http\UrlGenerator;
-use Flarum\Mail\ProvisionsWebhooks;
+use Flarum\Mail\MailWebhooks;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -27,9 +25,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 class ProvisionMailWebhookController implements RequestHandlerInterface
 {
     public function __construct(
-        protected Container $container,
+        protected MailWebhooks $webhooks,
         protected SettingsRepositoryInterface $settings,
-        protected UrlGenerator $url,
     ) {
     }
 
@@ -37,17 +34,13 @@ class ProvisionMailWebhookController implements RequestHandlerInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $driver = $this->container->make('flarum.mail.configured_driver');
+        $driver = $this->webhooks->provisioner();
 
-        if (! $driver instanceof ProvisionsWebhooks) {
-            return new JsonResponse([
-                'error' => 'The active mail driver does not support webhook provisioning.',
-            ], 422);
+        if (! $driver) {
+            return $this->error('The active mail driver cannot register webhooks.');
         }
 
-        $webhookUrl = $this->url->to('forum')->route('mailWebhook', [
-            'driver' => $this->settings->get('mail_driver'),
-        ]);
+        $webhookUrl = $this->webhooks->url();
 
         $unregister = (bool) Arr::get($request->getParsedBody(), 'unregister', false);
 
@@ -58,14 +51,21 @@ class ProvisionMailWebhookController implements RequestHandlerInterface
                 $driver->registerWebhook($this->settings, $webhookUrl);
             }
         } catch (\Throwable $e) {
-            return new JsonResponse([
-                'error' => $e->getMessage(),
-            ], 502);
+            return $this->error($e->getMessage());
         }
 
         return new JsonResponse([
             'registered' => ! $unregister,
             'url' => $webhookUrl,
         ]);
+    }
+
+    protected function error(string $detail): ResponseInterface
+    {
+        return new JsonResponse([
+            'errors' => [
+                ['status' => '422', 'code' => 'mail_webhook_not_registered', 'detail' => $detail],
+            ],
+        ], 422);
     }
 }
