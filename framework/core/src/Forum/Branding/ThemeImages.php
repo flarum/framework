@@ -76,6 +76,14 @@ class ThemeImages
     }
 
     /**
+     * @return array<string, string> name => path on the assets disk
+     */
+    public function paths(string $image): array
+    {
+        return $this->sync()[$image]['paths'] ?? [];
+    }
+
+    /**
      * The email copy of a theme image, as EmailLogo resolves it.
      *
      * @return array{url: string, width: int|null, height: int|null}|null

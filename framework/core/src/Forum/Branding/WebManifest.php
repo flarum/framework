@@ -26,7 +26,8 @@ class WebManifest
         protected Branding $branding,
         protected AppIcon $appIcon,
         protected UrlGenerator $url,
-        protected Container $container
+        protected Container $container,
+        protected ShortName $shortName
     ) {
     }
 
@@ -45,6 +46,7 @@ class WebManifest
 
         $manifest = array_filter([
             'name' => $this->settings->get('forum_title'),
+            'short_name' => $this->shortName->setting(),
             'description' => $this->settings->get('forum_description'),
             'start_url' => $base,
             'scope' => $base,
