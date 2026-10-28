@@ -12,6 +12,7 @@ namespace Flarum\Api\Resource;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Schema;
+use Flarum\Api\Sort\SortColumn;
 use Flarum\Http\AccessToken;
 use Flarum\Http\DeveloperAccessToken;
 use Flarum\Http\Event\DeveloperTokenCreated;
@@ -83,22 +84,34 @@ class AccessTokenResource extends AbstractDatabaseResource
                     return $context->getActor()->id === $token->user_id && ! in_array('token', $token->getHidden(), true);
                 }),
             Schema\Integer::make('userId'),
-            Schema\DateTime::make('createdAt'),
-            Schema\DateTime::make('lastActivityAt'),
+            Schema\Relationship\ToOne::make('user')
+                ->includable()
+                ->ui(['column' => 90, 'display' => 'username', 'label' => 'core.admin.access_tokens.columns.user']),
+            Schema\Str::make('type')
+                ->ui(['column' => 80, 'label' => 'core.admin.access_tokens.columns.type']),
+            Schema\DateTime::make('createdAt')
+                ->ui(['column' => 50, 'label' => 'core.admin.access_tokens.columns.created_at']),
+            Schema\DateTime::make('lastActivityAt')
+                ->ui(['column' => 40, 'label' => 'core.admin.access_tokens.columns.last_activity_at']),
             Schema\Boolean::make('isCurrent')
-                ->get(function (#[\SensitiveParameter] AccessToken $token, Context $context) {
-                    return $token->token === $context->request->getAttribute('session')->get('access_token');
-                }),
+                ->get(fn (#[\SensitiveParameter] AccessToken $token, Context $context) => $this->isCurrent($token, $context)),
             Schema\Boolean::make('isSessionToken')
                 ->get(function (#[\SensitiveParameter] AccessToken $token) {
                     return in_array($token->type, [SessionAccessToken::$type, RememberAccessToken::$type], true);
                 }),
+            // The current session is only ended by logging out, see `delete()`.
+            Schema\Boolean::make('canDelete')
+                ->get(fn (#[\SensitiveParameter] AccessToken $token, Context $context) => ! $this->isCurrent($token, $context)
+                    && $context->getActor()->can('revoke', $token)),
             Schema\Str::make('title')
                 ->writableOnCreate()
                 ->requiredOnCreate()
-                ->maxLength(255),
-            Schema\Str::make('lastIpAddress'),
+                ->maxLength(255)
+                ->ui(['column' => 75, 'label' => 'core.admin.access_tokens.columns.title']),
+            Schema\Str::make('lastIpAddress')
+                ->ui(['column' => 60, 'label' => 'core.admin.access_tokens.columns.last_ip_address']),
             Schema\Str::make('device')
+                ->ui(['column' => 70, 'label' => 'core.admin.access_tokens.columns.device'])
                 ->get(function (#[\SensitiveParameter] AccessToken $token) {
                     $agent = new Agent();
                     $agent->setUserAgent($token->last_user_agent);
@@ -109,6 +122,22 @@ class AccessTokenResource extends AbstractDatabaseResource
                     ]);
                 }),
         ];
+    }
+
+    public function sorts(): array
+    {
+        return [
+            SortColumn::make('createdAt'),
+            SortColumn::make('lastActivityAt'),
+        ];
+    }
+
+    protected function isCurrent(#[\SensitiveParameter] AccessToken $token, Context $context): bool
+    {
+        /** @var Session|null $session */
+        $session = $context->request->getAttribute('session');
+
+        return $session !== null && $token->token === $session->get('access_token');
     }
 
     public function created(object $model, \Tobyz\JsonApiServer\Context $context): ?object

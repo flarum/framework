@@ -25,6 +25,8 @@ import './components/LoadingModal';
 import './components/DashboardPage';
 import './components/BasicsPage';
 import './components/UserListPage';
+import './components/AccessTokenListPage';
+import './components/AccessTokenRevokeModal';
 import './components/EditCustomHeaderModal';
 import './components/PermissionsPage';
 import './components/PermissionDropdown';

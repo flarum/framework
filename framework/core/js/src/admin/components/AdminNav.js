@@ -112,6 +112,14 @@ export default class AdminNav extends Component {
       50
     );
 
+    items.add(
+      'accessTokens',
+      <LinkButton href={app.route('accessTokens')} icon="fas fa-user-lock" title={app.translator.trans('core.admin.nav.access_tokens_title')}>
+        {app.translator.trans('core.admin.nav.access_tokens_button')}
+      </LinkButton>,
+      45
+    );
+
     if (app.data.settings.show_advanced_settings) {
       items.add(
         'advanced',

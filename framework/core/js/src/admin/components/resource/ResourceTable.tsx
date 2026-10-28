@@ -472,7 +472,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /** Whether the descriptor offers `filter[q]`. */
   isSearchable(): boolean {
-    return this.attrs.definition.descriptor?.search !== false;
+    return !!this.attrs.definition.descriptor?.search;
   }
 
   /** The search box: core `Input`, inside the gambit autocomplete when the type has gambits. */

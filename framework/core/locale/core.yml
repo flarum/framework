@@ -7,6 +7,33 @@ core:
   # Translations in this namespace are used by the admin interface.
   admin:
 
+    # These translations are used in the Access Tokens page.
+    access_tokens:
+      cannot_revoke_current: Your current session. Log out to end it.
+      columns:
+        created_at: Created
+        device: Device
+        last_activity_at: Last active
+        last_ip_address: IP address
+        title: Title
+        type: Type
+        user: User
+      current_session: Current session
+      description: "See and revoke the sessions and developer tokens of your forum's users."
+      never: Never
+      revoke:
+        confirmation: "Revoke {name} of {username}? Whatever is signed in with it is logged out at once."
+        submit_button: Revoke
+        title: Revoke Access Token
+      revoke_button: Revoke
+      revoked: Access token revoked.
+      title: Access Tokens
+      types:
+        developer: Developer token
+        session: Session
+        session_remember: Remembered session
+      untitled: Untitled
+
     # These translations are used in the Advanced page.
     advanced:
       description: "Configure advanced settings for your forum."
@@ -462,6 +489,8 @@ core:
 
     # These translations are used in the navigation bar.
     nav:
+      access_tokens_button: => core.admin.access_tokens.title
+      access_tokens_title: => core.admin.access_tokens.description
       advanced_button: => core.admin.advanced.title
       advanced_title: => core.admin.advanced.description
       appearance_button: => core.admin.appearance.title
