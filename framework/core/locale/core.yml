@@ -652,6 +652,7 @@ core:
 
         invalid_column_content: Invalid
 
+      matching_users: "{count, plural, one {# matching user} other {# matching users}} of {total}"
       search_placeholder: => core.ref.search_users
       title: => core.ref.users
       total_users: "Total users: {count}"

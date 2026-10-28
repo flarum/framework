@@ -24,6 +24,8 @@ import type { BulkActionContext, BulkSummary } from '../../common/resource/BulkR
 import { renderColumn } from '../../common/resource/field';
 import RelationInput from '../../common/resource/inputs/RelationInput';
 import ResourceDefinition from '../../common/resource/ResourceDefinition';
+import Group from '../../common/models/Group';
+import type Model from '../../common/Model';
 import ResourceListState from '../../common/resource/ResourceListState';
 import type { Field } from '../../common/resource/types';
 import ResourceTable, { type ColumnData as ResourceColumnData, type ResourceTableAttrs } from './resource/ResourceTable';
@@ -257,7 +259,7 @@ export default class UserListPage extends AdminPage {
   oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
     super.oninit(vnode);
 
-    this.definition = new ResourceDefinition<User>('users');
+    this.definition = new UserResourceDefinition('users');
     // The table loads the list, reading the 1-based `?page=` (and sort, search, filters) from the URL.
     this.list = new ResourceListState<User>(this.definition, { pageSize: 50 });
   }
@@ -296,6 +298,21 @@ export default class UserListPage extends AdminPage {
     ];
   }
 
+  /**
+   * The forum's user count, or, while a search or filter narrows the list, the matching count out
+   * of it. The matching count is the total the API sends for the current query.
+   */
+  protected totalUsersLabel(): Mithril.Children {
+    const filter = this.list.listParams().filter;
+    const narrowed = !!filter && Object.keys(filter).length > 0;
+
+    if (narrowed && this.list.hasTotal()) {
+      return app.translator.trans('core.admin.users.matching_users', { count: this.list.totalItems, total: this.userCount });
+    }
+
+    return app.translator.trans('core.admin.users.total_users', { count: this.userCount });
+  }
+
   headerItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
@@ -321,11 +338,7 @@ export default class UserListPage extends AdminPage {
       100
     );
 
-    items.add(
-      'totalUsers',
-      <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
-      90
-    );
+    items.add('totalUsers', <p class="UserListPage-totalUsers">{this.totalUsersLabel()}</p>, 90);
 
     items.add('actions', <div className="UserListPage-actions">{this.actionItems().toArray()}</div>, 80);
 
@@ -712,5 +725,20 @@ export default class UserListPage extends AdminPage {
     });
 
     return columns;
+  }
+}
+
+/**
+ * The users definition: the group filter leaves out the guest group, which no user is a member of.
+ */
+class UserResourceDefinition extends ResourceDefinition<User> {
+  filters() {
+    const filters = super.filters();
+
+    if (filters.has('group')) {
+      filters.get('group').exclude = (group: Model) => group.id() === Group.GUEST_ID;
+    }
+
+    return filters;
   }
 }

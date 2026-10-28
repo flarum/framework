@@ -206,6 +206,12 @@ export interface Filter {
    * @experimental
    */
   negatable?: boolean;
+  /**
+   * Leaves records out of a relationship filter's menu, e.g. a group no user can be in.
+   *
+   * @experimental
+   */
+  exclude?: (model: Model) => boolean;
 }
 
 export interface JsonApiError {

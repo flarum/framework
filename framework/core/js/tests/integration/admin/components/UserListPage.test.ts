@@ -692,6 +692,27 @@ describe('UserListPage', () => {
     expect(out).toContainRaw('Overridden by the search');
   });
 
+  test('the count is the forum total, or the matching total while a filter narrows the list', async () => {
+    const { out } = await rendered();
+
+    expect(out).toContainRaw('Total users: 3');
+
+    window.history.replaceState(null, '', '/admin#/users?filter%5Bgroup%5D=4');
+    respond(() => Promise.resolve(results([user('2', {}, ['4'])], 1)));
+    const narrowed = await rendered();
+
+    expect(lastParams().filter).toMatchObject({ group: '4' });
+    expect(narrowed.out).toContainRaw('1 matching user of 3');
+  });
+
+  test('the group filter leaves out the guest group', async () => {
+    const { page } = await rendered();
+    const exclude = (page as any).definition.filters().get('group').exclude;
+
+    expect(exclude(group('2', 'Guest'))).toBe(true);
+    expect(exclude(group('4', 'Mod'))).toBe(false);
+  });
+
   test('the displayName CSV value drops zero-width spaces', async () => {
     const { page } = await rendered();
 

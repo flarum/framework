@@ -306,6 +306,17 @@ describe('ResourceTable toolbar', () => {
     expect(out).toHaveElement('.ResourceTable-filter--owner li.active button[data-value="8"]');
   });
 
+  test("a relationship filter's exclude leaves records out of its menu", async () => {
+    const { out, table } = await rendered();
+
+    table.filters!.get('owner').exclude = (model) => model.id() === '8';
+    await table.relationOptions('owner', 'owners').loadItems();
+    out.redraw();
+
+    expect(out.find('.ResourceTable-filter--owner .Dropdown-menu button[data-value]')).toHaveLength(2);
+    expect(out).not.toHaveElement('.ResourceTable-filter--owner button[data-value="8"]');
+  });
+
   test('compact mode collapses the filters into one "Filters (n)" dropdown of labelled sections', async () => {
     window.history.replaceState(null, '', '/admin#/gadgets?filter%5Bstatus%5D=live');
 
@@ -322,7 +333,11 @@ describe('ResourceTable toolbar', () => {
     expect(out).not.toHaveElement('.ResourceTable-toolbar select');
     expect(out).not.toHaveElement('.ResourceTable-toolbar .ResourceRelationInput');
     expect(out).toHaveElement('.ResourceTable-filterGroupItem--status.active button[data-value="live"]');
-    expect(out.find('.ResourceTable-filterGroupItem--active button[data-value]').map((b: any) => b.getAttribute('data-value'))).toEqual(['', '1', '0']);
+    expect(out.find('.ResourceTable-filterGroupItem--active button[data-value]').map((b: any) => b.getAttribute('data-value'))).toEqual([
+      '',
+      '1',
+      '0',
+    ]);
     expect(out).toHaveElement('.ResourceTable-filterGroupItem--color input');
   });
 

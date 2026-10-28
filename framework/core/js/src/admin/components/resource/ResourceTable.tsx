@@ -671,7 +671,9 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
         </div>
       );
 
-      items.push(Object.assign(heading, { itemClassName: classList('Dropdown-header', 'ResourceTable-filterGroup', `ResourceTable-filterGroup--${key}`) }));
+      items.push(
+        Object.assign(heading, { itemClassName: classList('Dropdown-header', 'ResourceTable-filterGroup', `ResourceTable-filterGroup--${key}`) })
+      );
 
       this.filterMenuItems(key, filter).forEach((item) => items.push(this.inFilterGroup(item, key)));
     });
@@ -900,7 +902,8 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     items.push(this.filterChoice(key, '', anyLabel(), current === ''));
 
     const selected = current ? relatedModel(spec.related, current) : null;
-    const records = options.items.filter((model) => model.id() !== current);
+    const exclude = this.filters?.has(key) ? this.filters.get(key).exclude : undefined;
+    const records = options.items.filter((model) => model.id() !== current && !exclude?.(model));
 
     if (selected) items.push(this.filterChoice(key, current, label(selected), true));
 
@@ -1007,10 +1010,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
           deleteLabel={app.translator.trans('core.admin.resource.table.remove_filter_label', { label }, true)}
           ondelete={() => this.list.setFilter(key, '')}
         >
-          <span
-            className="ResourceTable-chipText"
-            title={note ?? undefined}
-          >
+          <span className="ResourceTable-chipText" title={note ?? undefined}>
             {app.translator.trans('core.admin.resource.table.filter_label', { label, value: this.filterValueLabel(key, filter, value) })}
           </span>
           {note && <span className="visually-hidden">({note})</span>}
