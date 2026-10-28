@@ -34,6 +34,7 @@ class ApiResource implements ExtenderInterface
     private array $sorts = [];
     private array $removeSorts = [];
     private array $sort = [];
+    private bool $describable = false;
 
     public function __construct(
         /**
@@ -229,8 +230,33 @@ class ApiResource implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Opt the resource in to the `resource-schemas` descriptor endpoint, which
+     * the generic admin resource components read.
+     *
+     * Any extension can opt in any resource, including one it does not own.
+     *
+     * @experimental May change in 2.1 without a BC break.
+     */
+    public function describable(): self
+    {
+        $this->describable = true;
+
+        return $this;
+    }
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
+        if ($this->describable) {
+            $container->extend('flarum.api.describable_resources', function (array $resources) {
+                if (! in_array($this->resourceClass, $resources, true)) {
+                    $resources[] = $this->resourceClass;
+                }
+
+                return $resources;
+            });
+        }
+
         if (! (new ReflectionClass($this->resourceClass))->isAbstract()) {
             $container->extend('flarum.api.resources', function (array $resources) {
                 if (! in_array($this->resourceClass, $resources, true)) {
