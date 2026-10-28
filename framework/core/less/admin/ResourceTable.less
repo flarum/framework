@@ -7,27 +7,64 @@
     display: block;
   }
 
-  &-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 20px;
-    margin-bottom: 16px;
-  }
-
-  &-toolbarView,
-  &-toolbarActions {
+  // Row 1: search and filters on the left, the total and the actions on the right.
+  &-toolbar,
+  &-subToolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: 8px 16px;
   }
 
-  &-toolbarActions {
+  &-toolbar {
+    margin-bottom: 8px;
+  }
+
+  // Row 2: active filter chips on the left, "Columns" and "Export CSV" on the right.
+  &-subToolbar {
+    margin-bottom: 12px;
+  }
+
+  &-toolbarView,
+  &-toolbarActions,
+  &-display,
+  &-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  &-chips {
+    flex: 1 1 auto;
+  }
+
+  &-toolbarActions,
+  &-display {
+    flex: none;
     margin-inline-start: auto;
   }
 
-  &-search {
-    width: 220px;
+  &-toolbarActions {
+    gap: 10px;
+  }
+
+  &-count {
+    color: var(--muted-color);
+    white-space: nowrap;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &-searchGroup {
+    .Input,
+    .AutocompleteDropdown {
+      width: 260px;
+      max-width: 100%;
+    }
   }
 
   &-columns .Dropdown-menu {
@@ -45,17 +82,144 @@
     cursor: pointer;
   }
 
+  // One filter: a dropdown button "{label}: {value}".
   &-filter {
-    min-width: 140px;
-    max-width: 260px;
+    .Dropdown-toggle {
+      max-width: 280px;
+    }
+
+    .Button-labelText {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &.is-active .ResourceTable-filterValue {
+      font-weight: bold;
+    }
+
+    .Dropdown-menu {
+      min-width: 220px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+  }
+
+  &-filterName {
+    color: var(--muted-color);
+  }
+
+  &-filterControl,
+  &-filterSearch {
+    padding: 6px 12px;
 
     .Form-group {
       margin-bottom: 0;
     }
 
-    > .FormControl,
+    .FormControl,
     .Select {
       width: 100%;
+    }
+  }
+
+  &-filterSearch {
+    padding-bottom: 4px;
+  }
+
+  &-filterError {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    padding: 6px 15px;
+    color: var(--muted-color);
+    white-space: normal;
+  }
+
+  // The compact "Filters (n)" menu: a heading per filter over the same items as its dropdown.
+  &-filtersMenu {
+    .Dropdown-menu {
+      min-width: 260px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .Button.is-active {
+      font-weight: bold;
+    }
+
+    .Dropdown-header.ResourceTable-filterGroup {
+      padding-top: 12px;
+      padding-bottom: 4px;
+    }
+  }
+
+  &-chips {
+    .Pill-list {
+      gap: 6px;
+    }
+  }
+
+  &-chip--overridden .ResourceTable-chipText {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+
+  &-chip--conflict .ResourceTable-chipText {
+    text-decoration: underline wavy var(--alert-error-bg, currentColor);
+    text-underline-offset: 3px;
+  }
+
+  &-clearFilters {
+    padding-inline: 4px;
+  }
+
+  @media @phone {
+    &-toolbarView,
+    &-searchGroup {
+      flex: 1 1 100%;
+    }
+
+    &-searchGroup .Input,
+    &-searchGroup .AutocompleteDropdown {
+      width: 100%;
+    }
+
+    // The total on the left, the actions on the right, on their own line.
+    &-toolbarActions {
+      flex: 1 1 100%;
+      margin-inline-start: 0;
+    }
+
+    &-count {
+      margin-inline-end: auto;
+    }
+
+    // Line the section headings up with core's phone sheet items.
+    &-filtersMenu .Dropdown-header.ResourceTable-filterGroup {
+      padding-inline: 20px;
+      padding-top: 16px;
+    }
+
+    &-filtersMenu .ResourceTable-filterControl,
+    &-filtersMenu .ResourceTable-filterSearch {
+      padding-inline: 20px;
+    }
+  }
+
+  // Forced colours drop box-shadow focus rings and cell backgrounds.
+  @media (forced-colors: active) {
+    .Button:focus-visible,
+    .Dropdown-toggle:focus-visible,
+    .FormControl:focus-visible,
+    .Pill .Button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+
+    &-table tbody tr td {
+      border-block-end: 1px solid CanvasText;
     }
   }
 

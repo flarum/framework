@@ -3,12 +3,8 @@
   padding-bottom: 24px;
   overflow-x: auto;
 
-  &-header:not(.AdminHeader) {
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    column-gap: 8px;
-  }
+  // Since the list's toolbar row, `-header` is the table's toolbar actions group (see
+  // ResourceTable.less), which does the layout.
 
   &-totalUsers {
     margin: 0;

@@ -191,6 +191,21 @@ export interface FilterContext {
 export interface Filter {
   label: Mithril.Children;
   input: InputSpec | ((ctx: FilterContext) => Mithril.Children);
+  /**
+   * The described filter's kind, when the filter was inferred.
+   *
+   * @experimental
+   */
+  kind?: FilterDescriptor['kind'];
+  /**
+   * "No" (`'0'`) is sent as the negated key, `filter[-key]=1`, instead of `filter[key]=0`: core's
+   * filter manager negates a leading `-`, and boolean filters such as suspend's `suspended` ignore
+   * the value. Inferred boolean filters are negatable. This is the source of truth for
+   * `ResourceListState.isNegatable()`; left undefined, the descriptor decides.
+   *
+   * @experimental
+   */
+  negatable?: boolean;
 }
 
 export interface JsonApiError {

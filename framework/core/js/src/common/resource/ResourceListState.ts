@@ -125,7 +125,13 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
       query.forEach((value, key) => {
         const match = key.match(FILTER_PARAM);
 
-        if (match && filters.includes(match[1]) && value !== '') filter[match[1]] = value;
+        if (!match || value === '') return;
+
+        if (filters.includes(match[1])) {
+          filter[match[1]] = value;
+        } else if (match[1].startsWith('-') && this.isNegatable(match[1].slice(1)) && value === '1') {
+          filter[match[1].slice(1)] = '0';
+        }
       });
 
       const sort = query.get('sort') ?? '';
@@ -143,6 +149,45 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
 
   filterKeys(): string[] {
     return (this.definition.descriptor?.filters ?? []).map((filter) => filter.key);
+  }
+
+  /**
+   * Whether "No" (`'0'`) of this filter is sent as `filter[-key]=1`. The definition's filter decides
+   * when it sets `negatable` (so a subclass or extension can opt a filter in or out); otherwise
+   * described boolean filters, and filters named after a boolean field, are negatable.
+   *
+   * @experimental
+   */
+  isNegatable(key: string): boolean {
+    const filters = this.definition.filters();
+    const negatable = filters.has(key) ? filters.get(key).negatable : undefined;
+
+    if (negatable !== undefined) return negatable;
+
+    const descriptor = this.definition.descriptor;
+    const filter = descriptor?.filters?.find((f) => f.key === key);
+
+    if (!filter) return false;
+
+    return filter.kind === 'boolean' || descriptor!.fields.some((field) => field.name === key && field.kind === 'boolean');
+  }
+
+  /**
+   * The `filter[…]` key and value one list filter is sent (and written to the URL) as.
+   *
+   * @experimental
+   */
+  filterParam(key: string, value: string): [string, string] {
+    return value === '0' && this.isNegatable(key) ? [`-${key}`, '1'] : [key, value];
+  }
+
+  /**
+   * Remove every structured filter (the search stays).
+   *
+   * @experimental
+   */
+  clearFilters(): Promise<void> {
+    return this.update({ ...this.params, filter: {} });
   }
 
   isSortable(sort: string): boolean {
@@ -318,7 +363,10 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
     if (this.params.q) filter.q = this.params.q;
 
     Object.entries(this.params.filter ?? {}).forEach(([key, value]) => {
-      if (value !== '' && value !== null && value !== undefined) filter[key] = value;
+      if (value === '' || value === null || value === undefined) return;
+
+      const [param, sent] = this.filterParam(key, value);
+      filter[param] = sent;
     });
 
     const params: PaginatedListRequestParams = { ...base };
@@ -363,7 +411,10 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
 
     if (this.params.sort) query.set('sort', this.params.sort);
     if (this.params.q) query.set('q', this.params.q);
-    Object.entries(this.params.filter ?? {}).forEach(([key, value]) => query.set(`filter[${key}]`, value));
+    Object.entries(this.params.filter ?? {}).forEach(([key, value]) => {
+      const [param, sent] = this.filterParam(key, value);
+      query.set(`filter[${param}]`, sent);
+    });
     if (page > 1) query.set('page', String(page));
 
     writeQuery(query);

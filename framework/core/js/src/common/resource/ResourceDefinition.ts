@@ -96,10 +96,21 @@ export default class ResourceDefinition<M extends Model = Model> {
 
     described.forEach((filter, index) => {
       const field = fields.has(filter.key) ? fields.get(filter.key) : null;
+      // A relationship filter named apart from its field (`group` / `groups`) takes the display hint
+      // of a relationship field over the same type.
+      const related =
+        !field && filter.kind === 'relationship' && filter.related
+          ? (this.descriptor!.fields.find((d) => d.relationship?.types.includes(filter.related!)) ?? null)
+          : null;
 
       filters.add(
         filter.key,
-        { label: field?.label ?? humanize(filter.key), input: resolveFilterInput(filter, field?.descriptor ?? null, resolvers) },
+        {
+          label: field?.label ?? humanize(filter.key),
+          input: resolveFilterInput(filter, field?.descriptor ?? related, resolvers),
+          kind: filter.kind,
+          negatable: filter.kind === 'boolean' || field?.descriptor?.kind === 'boolean',
+        },
         (described.length - index) * 10
       );
     });

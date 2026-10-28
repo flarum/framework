@@ -187,6 +187,7 @@ Return `null` to hide the filter from this actor. Mirror the permission check th
 
 namespace Flarum\Suspend\Query;
 
+use Carbon\Carbon;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\DescribesFilter;
 use Flarum\Search\Filter\FilterInterface;
@@ -220,12 +221,33 @@ class SuspendedFilter implements FilterInterface, DescribesFilter
             return;
         }
 
-        // Constrain the query.
+        // `$negate` is true for `filter[-suspended]`: match users who are not suspended.
+        $state->getQuery()->where(function ($query) use ($negate) {
+            if ($negate) {
+                $query->where('suspended_until', null)->orWhere('suspended_until', '<', Carbon::now());
+            } else {
+                $query->where('suspended_until', '>', Carbon::now());
+            }
+        });
     }
 }
 ```
 
 An ungated filter returns the same description for everyone. Likes' `LikedFilter` returns `['kind' => 'relationship', 'related' => 'posts']`.
+
+### Boolean filters must honour `$negate`
+
+The table sends "Yes" of a boolean filter as `filter[key]=1` and "No" as `filter[-key]=1`. It never sends `filter[key]=0`. `FilterManager` strips the leading `-` and calls `filter()` with `$negate = true`. The value is not read.
+
+So a filter described as `boolean` must constrain the query on `$negate`, not on `$value`. `SuspendedFilter` does this: without `$negate` it matches suspended users, with it the others. A filter that ignores `$negate` returns the "Yes" rows for "No".
+
+The same applies to a filter of another kind that shares its key with a `boolean` field: the table treats it as boolean too.
+
+### Relationship filters and their display attribute
+
+A `relationship` filter lists the records of its `related` type. Each record is labelled by a `display` attribute, `name` by default.
+
+When the filter has a field of the same name, it takes that field's `ui.display`. When it does not, it takes the `ui.display` of a relationship field over the same type. The users `group` filter has no `group` field, so it takes `nameSingular` from the `groups` field. Give the relationship field a `display` hint and the filter follows.
 
 ### Use `Extend\SearchDriver::describeFilter()`
 
@@ -311,7 +333,13 @@ What the table offers, and what decides it:
 - **Columns** come from the fields. Pass `columns` (an `ItemList<ColumnData>`) to replace them.
 - **Create** shows when `definition.canCreate()` is true. **Edit** and **Delete** show per row from the record's `canEdit` and `canDelete` attributes. Create and edit open `ResourceFormModal` unless you pass `onCreate` or `onEdit`. Delete opens `ResourceDeleteModal`, which calls the resource's `Delete` endpoint.
 - **Export CSV** shows when `definition.canExport()` is true. It defaults to `capabilities.list`. Pass `exportable` or override `canExport()` to narrow it, for example when the type holds personal data.
-- **Columns dropdown** lists every column whose `toggleable` is not `false`. The choice is kept in the browser's `localStorage`. The table still works when storage is blocked.
+- **Search** shows when the descriptor has `search`. It is a core `Input`. When the type has enabled gambits, it sits inside the gambit autocomplete, so `key:value` can be typed.
+- **Filters** show as dropdown buttons labelled "{label}: {value}". The first `inlineFilters` (default 3, `ResourceTable.INLINE_FILTERS`) are on the toolbar. The rest are under "More filters"; picking one adds its button. A filter with a value is always on the toolbar.
+- A text filter whose key a gambit covers is left out while there is a search box. Type `key:value` in the search instead.
+- **Boolean filters** offer Any, Yes and No. No is sent as `filter[-key]=1`, see [Boolean filters must honour `$negate`](#boolean-filters-must-honour-negate).
+- **Chips** sit in a second row, one per filter with a value, with a remove button and "Clear all". When a gambit typed in the search sets the same key, the chip is marked as overridden, because the gambit wins on the server.
+- **Columns dropdown** and **Export CSV** sit at the end of the second row. The dropdown lists every column whose `toggleable` is not `false`. The choice is kept in the browser's `localStorage`. The table still works when storage is blocked.
+- **Compact mode.** Below core's phone breakpoint, or with `compactFilters`, the filters fold into one "Filters (n)" dropdown.
 - **Bulk select** appears only when `definition.bulkActions(selection, context)` returns items. It is empty by default. `definition.bulkDelete(context)` is a ready-made "Delete selected" item.
 
 To change the definition, extend `ResourceDefinition`. For example, `query()` adds request parameters and `actions(model)` adds row actions:
@@ -331,11 +359,25 @@ export default class BadgeDefinition extends ResourceDefinition<Badge> {
 }
 ```
 
-Every region of `ResourceTable` is an `ItemList` method you can extend: `items()`, `toolbarItems()`, `viewItems()`, `actionItems()`, `columns()` and `rowActions(model)`.
+Every region of `ResourceTable` is an `ItemList` method you can extend: `items()`, `toolbarItems()`, `viewItems()`, `actionItems()`, `subToolbarItems()`, `displayItems()`, `chipItems()`, `columns()` and `rowActions(model)`.
+
+- `items()` holds `toolbar`, `subToolbar` (only when it has items), `table` and `pagination`.
+- `viewItems()` holds `search`, `sort`, one `filter-{key}` per inline filter and `moreFilters`. In compact mode it holds one `filters` item instead of the filter items.
+- `subToolbarItems()` holds `filters` (the chips and "Clear all") and `display`.
+- `displayItems()` holds `columns` and `export`. They used to be toolbar items.
+- `chipItems()` holds one chip per filter with a value, keyed by the filter key.
 
 ## Extend the admin user list
 
 `UserListPage` is built on `ResourceTable` and keeps all its existing methods, item keys and priorities. `headerItems`, `actionItems`, `columns`, `userActionItems`, `headerInfo`, `loadPage` and `goToPage` work as before. A column can now also set `sort`, `className`, `attrs`, `toggleable`, `hidden` and `csv`.
+
+`headerItems()` no longer renders as a row of its own. Its items render inside the table's toolbar:
+
+- `search` takes the table's search slot.
+- `totalUsers` takes the count slot.
+- Every other item goes in the actions group, which keeps the class `UserListPage-header`.
+
+The filters, chips, "Columns" and "Export CSV" come from `ResourceTable`, as described above. The user list has no sort dropdown: sort by the column headers.
 
 2.0 adds four seams.
 
@@ -385,14 +427,17 @@ override(UserListPage.prototype, 'createModal', function () {
 These are marked `@experimental` in 2.0:
 
 - `ResourceTable`, `ResourceFormModal` and `ResourceDeleteModal` (`flarum/admin/components/resource/*`);
-- everything under `flarum/common/resource/*`;
+- everything under `flarum/common/resource/*`, including `RelationOptions`, `Filter.kind` and `Filter.negatable`, and `ResourceListState.isNegatable()`, `filterParam()` and `clearFilters()`;
+- `ResourceTable.INLINE_FILTERS` and the `inlineFilters` and `compactFilters` attributes;
 - `Flarum\Api\Describe\ResourceDescriber` and `Flarum\Api\Describe\DescribeContext`;
 - `Flarum\Search\Filter\DescribesFilter`;
 - `->ui()` on schema fields;
 - `Extend\ApiResource::describable()` and `Extend\SearchDriver::describeFilter()`;
 - the `UserListPage` seams `createModal()`, `editModal()`, `bulkActionItems()` and `canExport()`.
 
-They may change in 2.1 without a backwards-compatibility break being declared. Only the descriptor shape returned by `GET /api/resource-schemas/{type}` is versioned, through `schemaVersion`. Pin your extension to a minor version if it depends on an experimental API, and test it against each 2.x minor release.
+`Pill` gained a `deleteLabel` attribute, the accessible label of its delete button. It is a backward-compatible addition and not experimental.
+
+The experimental APIs may change in 2.1 without a backwards-compatibility break being declared. Only the descriptor shape returned by `GET /api/resource-schemas/{type}` is versioned, through `schemaVersion`. Pin your extension to a minor version if it depends on an experimental API, and test it against each 2.x minor release.
 
 ## Upgrading to 2.1
 
@@ -412,6 +457,7 @@ The admin user list used to be a CSS grid of `div` elements with ARIA table role
 - The root element has the class `UserListPage-table`. `UserListPage-grid` (with `--loading`, `--loadingPage` and `--loaded`) is on the table container.
 - Cells keep their `UserListPage-grid-*` and `UserList-*` classes and their `data-user-id` and `data-column-name` attributes.
 - The `--columns` inline style is gone.
+- The header items are no longer a row above the list. The table toolbar holds them and the filters in two rows: search, filters and actions first, then the filter chips, "Columns" and "Export CSV". The actions group keeps the class `UserListPage-header`.
 
 If your CSS relies on `display: grid` or `grid-template-columns` on the user list, update it for table layout.
 

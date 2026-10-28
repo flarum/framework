@@ -66,28 +66,79 @@ interface UserListTableAttrs extends ResourceTableAttrs<User> {
   bulkActions: (context: BulkActionContext<User>) => ItemList<Mithril.Children>;
   /** Called with the number of users a bulk action deleted, before its summary shows. */
   onBulkDeleted: (count: number) => void;
+  /** The page's `headerItems()`, rendered into the table's toolbar. */
+  headerItems: () => ItemList<Mithril.Children>;
 }
 
 /**
- * The user list's table: the page header already has the search and the create button, and the
- * `userActions` column is the actions column, so the table leaves out its own. Cells keep the
- * `UserListPage-grid-*` classes and `data-user-id`. A bulk action's deleted users lower the user total.
+ * The user list's table. The page's `headerItems()` render in the table's toolbar, in priority
+ * order, split at `totalUsers` (priority 90 unless an extension moves it):
+ *
+ * - `search` (the gambit search) replaces the table's search in the left view group;
+ * - every other item ranked above `totalUsers` renders in the view group too, at its own priority
+ *   (`header-{key}`): an item between `search` (100) and `totalUsers` (90) right after the search,
+ *   an item above `search` before it. The table's filters (priority 80 and below) follow;
+ * - `totalUsers` fills the count slot of the right actions group;
+ * - the items ranked at or below `totalUsers` (`actions`: "New User", and any an extension adds)
+ *   follow the count there, replacing the table's refresh/create.
+ *
+ * The sort is the column headers, and the `userActions` column is the actions column, so the table
+ * leaves out its own. Cells keep the `UserListPage-grid-*` classes and `data-user-id`. A bulk
+ * action's deleted users lower the user total.
  */
 class UserListTable extends ResourceTable<User, UserListTableAttrs> {
+  /** `headerItems()` of the toolbar pass in progress, so it is built once per redraw. */
+  protected header: ItemList<Mithril.Children> | null = null;
+
+  /** The priority splitting the header between the view group and the actions group. */
+  protected headerSplit(header: ItemList<Mithril.Children>): number {
+    return header.has('totalUsers') ? header.getPriority('totalUsers') : 90;
+  }
+
   toolbarItems(): ItemList<Mithril.Children> {
-    const items = super.toolbarItems();
+    const header = (this.header = this.attrs.headerItems());
 
-    items.remove('actions');
+    try {
+      const items = super.toolbarItems();
+      const total = header.has('totalUsers') ? header.get('totalUsers') : null;
+      const split = this.headerSplit(header);
+      const rest = new ItemList<Mithril.Children>();
 
-    return items;
+      Object.entries(header.toObject()).forEach(([key, item]) => {
+        if (key !== 'search' && key !== 'totalUsers' && item.priority <= split) rest.add(key, item.content as Mithril.Children, item.priority);
+      });
+
+      items.setContent(
+        'actions',
+        <div className="ResourceTable-toolbarActions UserListPage-header">
+          {total !== null && this.countView(total)}
+          {rest.toArray()}
+        </div>
+      );
+
+      return items;
+    } finally {
+      this.header = null;
+    }
   }
 
   viewItems(): ItemList<Mithril.Children> {
     const items = super.viewItems();
+    const header = this.header ?? this.attrs.headerItems();
+    const split = this.headerSplit(header);
 
-    // Search is the page's gambit search; the sort is the column headers.
     if (items.has('search')) items.remove('search');
     if (items.has('sort')) items.remove('sort');
+
+    Object.entries(header.toObject()).forEach(([key, item]) => {
+      if (key === 'totalUsers' || (key !== 'search' && item.priority <= split)) return;
+
+      if (key === 'search') {
+        items.add('search', <div className="ResourceTable-searchGroup">{item.content as Mithril.Children}</div>, item.priority);
+      } else {
+        items.add(`header-${key}`, item.content as Mithril.Children, item.priority);
+      }
+    });
 
     return items;
   }
@@ -224,7 +275,6 @@ export default class UserListPage extends AdminPage {
     const loading = this.pageData === undefined;
 
     return [
-      <div className="UserListPage-header">{this.headerItems().toArray()}</div>,
       <UserListTable
         definition={this.definition}
         state={this.list}
@@ -241,6 +291,7 @@ export default class UserListPage extends AdminPage {
         rowAttrs={(user: User) => ({ 'data-user-id': user.id() })}
         onCreate={() => this.showCreateModal()}
         onEdit={(user: User) => this.showEditModal(user)}
+        headerItems={() => this.headerItems()}
       />,
     ];
   }
@@ -259,6 +310,8 @@ export default class UserListPage extends AdminPage {
         <Input
           type="search"
           placeholder={app.translator.trans('core.admin.users.search_placeholder')}
+          ariaLabel={extractText(app.translator.trans('core.admin.users.search_placeholder'))}
+          prefixIcon="fas fa-search"
           clearable={true}
           loading={this.searchDraft !== null || this.list.isLoading()}
           value={this.query}
@@ -388,6 +441,8 @@ export default class UserListPage extends AdminPage {
       {
         name: app.translator.trans('core.admin.users.grid.columns.display_name.title'),
         content: (user: User) => user.displayName(),
+        // Nickname display names carry zero-width spaces (the nickname driver's email hardening).
+        csv: (user: User) => (user.displayName() ?? '').replace(/\u200B/g, ''),
       },
       85
     );

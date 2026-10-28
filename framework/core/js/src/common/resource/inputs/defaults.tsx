@@ -131,8 +131,10 @@ const fetching = new Set<string>();
 /**
  * The model behind a filter's id. A value from the URL (deep link, reload) may not be in the
  * store yet: fetch it once, so the picker can show the active filter.
+ *
+ * @experimental
  */
-function relatedModel(type: string, id: string): Model | null {
+export function relatedModel(type: string, id: string): Model | null {
   const model = app.store.getById(type, id);
 
   if (model || fetching.has(`${type}:${id}`)) return model ?? null;

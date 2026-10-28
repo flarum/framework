@@ -115,6 +115,62 @@ describe('ResourceListState', () => {
     expect(urlQuery().get('filter[status]')).toBeNull();
   });
 
+  test("isNegatable() honours the definition's Filter.negatable over the descriptor", async () => {
+    class Custom extends ResourceDefinition<Thing> {
+      filters() {
+        const items = super.filters();
+
+        items.setContent('active', { ...items.get('active'), negatable: false });
+        items.setContent('brand', { ...items.get('brand'), negatable: true });
+
+        return items;
+      }
+    }
+
+    const state = await loaded(new Custom('things'));
+
+    expect(state.isNegatable('active')).toBe(false);
+    expect(state.isNegatable('brand')).toBe(true);
+    expect(state.filterParam('brand', '0')).toEqual(['-brand', '1']);
+    expect(state.filterParam('active', '0')).toEqual(['active', '0']);
+  });
+
+  test('boolean "No" is sent and written as the negated key; the URL form reads back', async () => {
+    const state = await loaded();
+
+    expect(state.isNegatable('active')).toBe(true);
+    expect(state.isNegatable('status')).toBe(false);
+
+    await state.setFilter('active', '0');
+
+    expect(find).toHaveBeenLastCalledWith('things', expect.objectContaining({ filter: { '-active': '1' } }));
+    expect(urlQuery().get('filter[-active]')).toBe('1');
+    expect(urlQuery().get('filter[active]')).toBeNull();
+    expect(state.getFilter('active')).toBe('0');
+
+    await state.setFilter('active', '1');
+
+    expect(find).toHaveBeenLastCalledWith('things', expect.objectContaining({ filter: { active: '1' } }));
+    expect(urlQuery().get('filter[-active]')).toBeNull();
+
+    setUrl('filter%5B-active%5D=1&filter%5B-status%5D=1');
+    const reloaded = await loaded();
+
+    expect(reloaded.getFilter('active')).toBe('0');
+    expect(reloaded.getFilter('status')).toBe('');
+    expect(find).toHaveBeenLastCalledWith('things', expect.objectContaining({ filter: { '-active': '1' } }));
+  });
+
+  test('clearFilters keeps the search and resets to page 1', async () => {
+    setUrl('q=knife&filter%5Bstatus%5D=live&page=2');
+    const state = await loaded();
+
+    await state.clearFilters();
+
+    expect(find).toHaveBeenLastCalledWith('things', { filter: { q: 'knife' }, page: { offset: 0, limit: 20 } });
+    expect(urlQuery().get('filter[status]')).toBeNull();
+  });
+
   test('a search sets filter[q] and resets to page 1', async () => {
     setUrl('page=3');
     const state = await loaded();

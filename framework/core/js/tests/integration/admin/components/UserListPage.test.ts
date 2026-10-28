@@ -240,8 +240,9 @@ describe('UserListPage', () => {
     test('rows keep the UserListPage classes and data attributes, with exactly one actions column', async () => {
       const { out } = await rendered();
 
-      expect(out).toHaveElement('.UserListPage-header .UserListPage-totalUsers');
-      expect(out).toHaveElement('.UserListPage-header .UserListPage-createUserBtn');
+      // The header items render in the table's toolbar: totalUsers in the count slot, actions beside it.
+      expect(out).toHaveElement('.ResourceTable-toolbarActions.UserListPage-header .ResourceTable-count[role=status] .UserListPage-totalUsers');
+      expect(out).toHaveElement('.ResourceTable-toolbarActions.UserListPage-header .UserListPage-actions .UserListPage-createUserBtn');
       // `UserListPage-grid` is the table container only, as it was the grid section only.
       expect(out).toHaveElement('.ResourceTable.UserListPage-table');
       expect(out).not.toHaveElement('.ResourceTable.UserListPage-grid');
@@ -260,15 +261,16 @@ describe('UserListPage', () => {
       expect(out).not.toHaveElement('.ResourceTable-actions');
       expect(out.find('tr[data-user-id="2"] .UserList-userActions')).toHaveLength(1);
 
-      // The page header keeps search and create; the table doesn't repeat them.
-      expect(out).toHaveElement('.UserListPage-header input[type=search]');
+      // The page's search and create replace the table's own.
+      expect(out).toHaveElement('.ResourceTable-toolbarView .ResourceTable-searchGroup input[type=search]');
+      expect(out.find('input[type=search]')).toHaveLength(1);
       expect(out).not.toHaveElement('.ResourceTable-search');
       expect(out).not.toHaveElement('.ResourceTable-create');
       expect(out).not.toHaveElement('.ResourceTable-refresh');
       expect(out).not.toHaveElement('.ResourceTable-sortDropdown');
     });
 
-    test("the descriptor's filters render as a filter row; gambits stay in filter[q]", async () => {
+    test("the descriptor's filters render in the toolbar; gambit-backed text filters are left to the search; gambits stay in filter[q]", async () => {
       jest.useFakeTimers();
 
       try {
@@ -276,10 +278,11 @@ describe('UserListPage', () => {
         await jest.runAllTimersAsync();
         out.redraw();
 
-        expect(out).toHaveElement('.ResourceTable-toolbar .ResourceTable-filter--email');
+        // `email:` is a users gambit, so the search box covers the email filter.
+        expect(out).not.toHaveElement('.ResourceTable-toolbar .ResourceTable-filter--email');
         expect(out).toHaveElement('.ResourceTable-toolbar .ResourceTable-filter--group');
 
-        out.setValue('.UserListPage-header input[type=search]', 'email:a@b.c');
+        out.setValue('.ResourceTable-toolbarView .ResourceTable-searchGroup input[type=search]', 'email:a@b.c');
         await jest.runAllTimersAsync();
 
         expect(lastParams()).toMatchObject({ filter: { q: 'email:a@b.c' }, page: { limit: 50, offset: 0 } });
@@ -311,6 +314,21 @@ describe('UserListPage', () => {
     expect(out).toHaveElement('th[data-column-name=legacy]');
     expect(out).not.toHaveElement('th[data-column-name=legacy] button');
     expect(out).toContainRaw('legacy-user2');
+  });
+
+  test('a headerItems item between search (100) and totalUsers (90) renders right after the search', async () => {
+    patch(UserListPage.prototype, 'headerItems');
+    extend(UserListPage.prototype, 'headerItems', (items) => {
+      items.add('between', m('span', { className: 'ExtBetween' }, 'between'), 95);
+      items.add('low', m('span', { className: 'ExtLow' }, 'low'), 85);
+    });
+
+    const { out } = await rendered();
+
+    expect(out).toHaveElement('.ResourceTable-toolbarView .ResourceTable-searchGroup + .ExtBetween');
+    expect(out).not.toHaveElement('.UserListPage-header .ExtBetween');
+    expect(out).toHaveElement('.UserListPage-header .ExtLow');
+    expect(out).not.toHaveElement('.ResourceTable-toolbarView .ExtLow');
   });
 
   test('an extension userActionItems item (as gdpr adds export-data) renders in the row dropdown', async () => {
@@ -376,7 +394,7 @@ describe('UserListPage', () => {
       expect(out).toHaveElement('.UserListPage-grid.UserListPage-grid--loaded');
 
       resolve = deferNext();
-      out.setValue('.UserListPage-header input[type=search]', 'user3');
+      out.setValue('.ResourceTable-toolbarView .ResourceTable-searchGroup input[type=search]', 'user3');
       await jest.advanceTimersByTimeAsync(300);
       out.redraw();
 
@@ -408,7 +426,7 @@ describe('UserListPage', () => {
 
       const calls = find.mock.calls.length;
 
-      out.setValue('.UserListPage-header input[type=search]', 'user3');
+      out.setValue('.ResourceTable-toolbarView .ResourceTable-searchGroup input[type=search]', 'user3');
       page.onremove({ dom: document.createElement('div') } as any);
       await jest.advanceTimersByTimeAsync(1000);
 
@@ -648,6 +666,36 @@ describe('UserListPage', () => {
       expect(lines[1]).toBe('user2,User 2,2021-01-01T00:00:00.000Z,Mod; Helper,user2@machine.local');
       expect(lines[2]).toBe('user3,User 3,2021-01-01T00:00:00.000Z,,three@machine.local');
     });
+  });
+
+  test('header items render in the toolbar, an extension item included', async () => {
+    patch(UserListPage.prototype, 'headerItems');
+    extend(UserListPage.prototype, 'headerItems', (items) => {
+      items.add('extra', m('span', { className: 'HeaderExtra' }, 'Extra'), 85);
+    });
+
+    const { out } = await rendered();
+
+    expect(out).toHaveElement('.ResourceTable-toolbarView .AutocompleteDropdown input[type=search]');
+    expect(out).toHaveElement('.ResourceTable-toolbarActions .ResourceTable-count .UserListPage-totalUsers');
+    expect(out).toHaveElement('.ResourceTable-toolbarActions .HeaderExtra');
+    expect(out).toHaveElement('.ResourceTable-toolbarActions .UserListPage-actions');
+  });
+
+  test('a group filter with a gambit of the same key in the search is marked overridden', async () => {
+    window.history.replaceState(null, '', '/admin#/users?filter%5Bgroup%5D=4&q=group%3AHelper');
+
+    const { out } = await rendered();
+
+    expect(lastParams().filter).toMatchObject({ group: '4' });
+    expect(out).toHaveElement('.ResourceTable-subToolbar .ResourceTable-chip--group.ResourceTable-chip--overridden');
+    expect(out).toContainRaw('Overridden by the search');
+  });
+
+  test('the displayName CSV value drops zero-width spaces', async () => {
+    const { page } = await rendered();
+
+    expect(page.columns().get('displayName').csv!(user('9', { displayName: 'a.\u200Bb' }))).toBe('a.b');
   });
 
   test('groups pickers have no search box (core groups have no searcher)', () => {
