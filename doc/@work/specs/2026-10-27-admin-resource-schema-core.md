@@ -84,7 +84,9 @@ second, non-JSON:API protocol in `/api`.
 `flarum.api.describable_resources` and checked with `ResourceDescriber::isDescribable()` (`instanceof`, so
 subclasses count). It is an extender rather than a marker interface because an extension cannot make a
 resource it does not own implement an interface; with the extender, core opts in `users` and any extension
-can opt in its own resources or core's. An undescribed type or an unknown type returns 404.
+can opt in its own resources or core's. An undescribed type or an unknown type returns 404. A guest gets 401
+for any type, before the type is looked up, so guests cannot probe which types are opted in. An actor who
+fails both checks below gets 403.
 The actor must pass the authorization of the resource's `Index` **or**
 `Create` endpoint. No new permission is introduced: "you can describe what you can list or create." FND-102
 applies: `Create` with a null model only sees global permissions. That is correct here, because the question is

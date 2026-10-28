@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- (core) a `GET /api/resource-schemas/{type}` endpoint that describes a resource's fields, sorts and filters to the current actor, with `Extend\ApiResource::describable()`, `->ui()` field hints, `DescribesFilter` and `Extend\SearchDriver::describeFilter()` (experimental)
+- (core) generic admin `ResourceTable`, `ResourceFormModal` and `ResourceDeleteModal` components, with sorting, filters, column toggles and CSV export (experimental)
+- (core) `createModal()`, `editModal()`, `bulkActionItems()` and `canExport()` seams on `UserListPage` (experimental)
+- (likes, suspend) describe the `liked` and `suspended` user filters, and show `suspendedUntil` as a user list column
+
+### Changed
+
+- (core) build the admin user list on `ResourceTable`, with sortable headers, a filter row, row delete, a "Columns" menu and an admin-only CSV export
+- (core) render the admin user list as a native `<table>`; class names and `data-*` attributes are kept, but CSS that relies on `display: grid` or the `--columns` style needs updating
+
 ## [v2.0.2](https://github.com/flarum/framework/compare/v2.0.1...v2.0.2)
 
 ### Added
