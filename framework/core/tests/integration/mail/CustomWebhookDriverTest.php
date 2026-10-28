@@ -174,7 +174,6 @@ class CustomWebhookDriverTest extends TestCase
     }
 }
 
-
 class WebhookTestDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebhooks
 {
     /** @var list<string> */
