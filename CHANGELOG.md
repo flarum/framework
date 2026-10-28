@@ -22,6 +22,7 @@
 
 ### Fixed
 
+- (core) `requiredOnUpdate()` on API resource fields was inverted (required on create, never on update); it now requires the field on update. GDPR erasure processing no longer accepts an empty `processedMode` and fails with a 500
 - (core) the resource table showed a search box for types without fulltext search
 
 ## [v2.0.2](https://github.com/flarum/framework/compare/v2.0.1...v2.0.2)

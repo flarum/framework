@@ -255,6 +255,12 @@ class InferenceTest extends TestCase
     }
 
     #[Test]
+    public function required_on_update_is_required_on_update_only()
+    {
+        $this->assertSame(['update' => true], $this->field($this->describe(), 'mandatoryOnUpdate')['required'] ?? null);
+    }
+
+    #[Test]
     public function required_without_counts_when_every_alternative_is_hidden_or_undescribed()
     {
         $descriptor = $this->describe();
@@ -520,6 +526,9 @@ class ScratchGroupResource extends AbstractDatabaseResource
                 ->writable(),
             Schema\Str::make('mandatory')
                 ->requiredOnCreate()
+                ->writable(),
+            Schema\Str::make('mandatoryOnUpdate')
+                ->requiredOnUpdate()
                 ->writable(),
             Schema\Str::make('hiddenAlternative')
                 ->hidden()
