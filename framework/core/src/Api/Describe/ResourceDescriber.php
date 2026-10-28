@@ -90,7 +90,7 @@ class ResourceDescriber
             return false;
         }
 
-        $request = RequestUtil::withActor($request, $actor);
+        $request = $this->standInRequest($request, $actor);
         $endpoints = $this->endpoints($resource);
 
         return $this->canList($resource, $request, $endpoints['index'] ?? null)
@@ -103,7 +103,7 @@ class ResourceDescriber
             throw new InvalidArgumentException("The resource [{$resource->type()}] is not describable.");
         }
 
-        $request = RequestUtil::withActor($request, $actor);
+        $request = $this->standInRequest($request, $actor);
 
         $endpoints = $this->endpoints($resource);
 
@@ -270,6 +270,21 @@ class ResourceDescriber
         }
 
         return $contexts;
+    }
+
+    /**
+     * The request closures see: the actor, but none of the describe request's own
+     * query parameters, body or route parameters, which belong to the describe
+     * endpoint rather than to the resource being described.
+     */
+    protected function standInRequest(ServerRequestInterface $request, User $actor): ServerRequestInterface
+    {
+        $request = $request
+            ->withQueryParams([])
+            ->withParsedBody(null)
+            ->withoutAttribute('routeParameters');
+
+        return RequestUtil::withActor($request, $actor);
     }
 
     protected function baseContext(AbstractDatabaseResource $resource, ServerRequestInterface $request): DescribeContext

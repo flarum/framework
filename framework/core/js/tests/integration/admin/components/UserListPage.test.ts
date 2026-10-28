@@ -719,6 +719,24 @@ describe('UserListPage', () => {
     expect(text.out).not.toHaveElement('.ResourceTable-filter--email');
   });
 
+  test('a search-covered group filter from the URL has no dropdown but a removable chip', async () => {
+    window.history.replaceState(null, '', '/admin#/users?filter%5Bgroup%5D=4');
+
+    const { out } = await rendered();
+
+    expect(lastParams().filter).toMatchObject({ group: '4' });
+    expect(out).not.toHaveElement('.ResourceTable-filter--group');
+    expect(out).toHaveElement('.ResourceTable-subToolbar .ResourceTable-chip--group');
+
+    out.click('.ResourceTable-chip--group button');
+    await flush();
+    await flush();
+    out.redraw();
+
+    expect(lastParams().filter ?? {}).not.toHaveProperty('group');
+    expect(out).not.toHaveElement('.ResourceTable-chip--group');
+  });
+
   test('the group filter leaves out the guest group', async () => {
     const { page } = await rendered();
     const exclude = (page as any).definition.filters().get('group').exclude;

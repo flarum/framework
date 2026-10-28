@@ -53,7 +53,6 @@ export interface FieldDescriptor {
   required?: { create?: boolean; update?: boolean };
   nullable?: boolean;
   sortable?: boolean;
-  filterable?: boolean;
   /** `writable` or `required` depends on the actual record; the flags are a best guess. */
   conditional?: boolean;
   constraints?: FieldConstraints;

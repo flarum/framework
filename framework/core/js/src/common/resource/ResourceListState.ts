@@ -47,23 +47,12 @@ export interface IdsSelection {
   ids: Set<string>;
 }
 
-/**
- * Reserved for "select all N matching" (every record matching the current search and filters, across
- * pages). Not produced yet, so the type is `never`: code switching on `selection.mode` handles
- * `'ids'` and ends in a `never` branch, which stops compiling once this gains a shape.
- */
-export type MatchingSelection = never;
-
-export type ResourceSelectionMode = 'ids' | 'matching';
+export type ResourceSelectionMode = 'ids';
 
 /**
  * The bulk selection of a resource list.
  */
-export type ResourceSelection = IdsSelection | MatchingSelection;
-
-function unknownSelection(mode: never): never {
-  throw new Error(`Unknown selection mode: ${mode}`);
-}
+export type ResourceSelection = IdsSelection;
 
 const FILTER_PARAM = /^filter\[(.+)\]$/;
 
@@ -255,29 +244,12 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
   }
 
   isSelected(id: string): boolean {
-    const selection = this.selection;
-    const mode = selection.mode;
-
-    switch (mode) {
-      case 'ids':
-        return selection.ids.has(id);
-      default:
-        return unknownSelection(mode);
-    }
+    return this.selection.ids.has(id);
   }
 
   setSelected(id: string, selected: boolean): void {
-    const selection = this.selection;
-    const mode = selection.mode;
-
-    switch (mode) {
-      case 'ids':
-        if (selected) selection.ids.add(id);
-        else selection.ids.delete(id);
-        break;
-      default:
-        unknownSelection(mode);
-    }
+    if (selected) this.selection.ids.add(id);
+    else this.selection.ids.delete(id);
   }
 
   setPageSelected(selected: boolean): void {
@@ -297,15 +269,9 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
 
   /** The selected records, in page order. */
   selectedModels(): M[] {
-    const selection = this.selection;
-    const mode = selection.mode;
+    const ids = this.selection.ids;
 
-    switch (mode) {
-      case 'ids':
-        return this.getItems().filter((model) => selection.ids.has(model.id()!));
-      default:
-        return unknownSelection(mode);
-    }
+    return this.getItems().filter((model) => ids.has(model.id()!));
   }
 
   /**

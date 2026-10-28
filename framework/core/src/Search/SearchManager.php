@@ -74,6 +74,7 @@ class SearchManager
 
     /**
      * The filters registered on the database driver's searcher for a model, keyed by filter key.
+     * Empty for a model the site searches with another driver.
      *
      * @param class-string<AbstractModel> $modelClass
      * @return array<string, array<\Flarum\Search\Filter\FilterInterface>>
@@ -109,6 +110,10 @@ class SearchManager
      */
     public function fulltext(string $modelClass): bool
     {
+        if ($this->searchedByAnotherDriver($modelClass)) {
+            return $this->driverFor($modelClass)->supports($modelClass);
+        }
+
         $searcher = $this->databaseSearcher($modelClass);
 
         return $searcher && $searcher->getFilterManager()->getFulltext() !== null;
@@ -122,6 +127,10 @@ class SearchManager
      */
     public function describeSearch(string $modelClass, User $actor): array
     {
+        if ($this->searchedByAnotherDriver($modelClass)) {
+            return ['fulltext' => $this->fulltext($modelClass), 'filters' => []];
+        }
+
         $searcher = $this->databaseSearcher($modelClass);
 
         if (! $searcher) {
@@ -172,11 +181,22 @@ class SearchManager
         return $described;
     }
 
+    /**
+     * Whether the site searches this model with a driver other than the database driver.
+     *
+     * `query()` sends only fulltext queries to that driver, so it serves `q`; filter-only
+     * queries still run on the database searcher, but a filter combined with `q` goes to
+     * the other driver, which may not support it. Such a model is described with the other
+     * driver's fulltext support and no filters, which is the conservative reading.
+     */
+    protected function searchedByAnotherDriver(string $modelClass): bool
+    {
+        return ! $this->driverFor($modelClass) instanceof DatabaseSearchDriver;
+    }
+
     protected function databaseSearcher(string $modelClass): ?Database\AbstractSearcher
     {
-        // A resource the site searches with another driver (an external index) is not described:
-        // the database searcher's filters and fulltext would not be what its Index endpoint runs.
-        if (! $this->driverFor($modelClass) instanceof DatabaseSearchDriver) {
+        if ($this->searchedByAnotherDriver($modelClass)) {
             return null;
         }
 

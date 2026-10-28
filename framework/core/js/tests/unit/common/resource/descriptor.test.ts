@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import { app } from '../../../../src/admin';
 import ResourceSchema from '../../../../src/common/models/ResourceSchema';
-import { clearDescriptorCache, isRequired, isWritable, loadDescriptor } from '../../../../src/common/resource/descriptor';
+import { SCHEMA_VERSION, clearDescriptorCache, isRequired, isWritable, loadDescriptor } from '../../../../src/common/resource/descriptor';
 import { bootAdmin, descriptor, fd, schemaDocument } from './fixtures';
 
 describe('loadDescriptor', () => {
@@ -36,6 +36,20 @@ describe('loadDescriptor', () => {
 
     await expect(loadDescriptor('things')).rejects.toEqual({ status: 403 });
     await expect(loadDescriptor('things')).resolves.toMatchObject({ schemaVersion: 1 });
+    expect(request).toHaveBeenCalledTimes(2);
+  });
+
+  test('rejects a descriptor newer than the client supports, without memoizing', async () => {
+    const request = jest
+      .fn()
+      .mockImplementationOnce(() => Promise.resolve(schemaDocument(descriptor([], { schemaVersion: SCHEMA_VERSION + 1 }))))
+      .mockImplementationOnce(() => Promise.resolve(schemaDocument(descriptor([]))));
+    app.request = request as any;
+
+    await expect(loadDescriptor('things')).rejects.toThrow(
+      `The "things" resource descriptor has schemaVersion ${SCHEMA_VERSION + 1}, but this client supports up to ${SCHEMA_VERSION}.`
+    );
+    await expect(loadDescriptor('things')).resolves.toMatchObject({ schemaVersion: SCHEMA_VERSION });
     expect(request).toHaveBeenCalledTimes(2);
   });
 

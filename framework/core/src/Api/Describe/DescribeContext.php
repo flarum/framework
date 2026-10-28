@@ -16,8 +16,9 @@ use Flarum\Api\Context;
  *
  * Field, endpoint and sort closures are evaluated against it to infer what the
  * actor may see and write. Its model is an unsaved instance (marked as existing
- * for `update` and `show`), and its request carries no body, query or route
- * parameters. Row-dependent closures can check `$context instanceof
+ * for `update` and `show`), and its request is a stand-in derived from the
+ * describe request: it carries the actor, but its query parameters, parsed body
+ * and route parameters (`routeParameters` attribute) are stripped. Row-dependent closures can check `$context instanceof
  * DescribeContext` to short-circuit; a closure that throws makes a field absent
  * (visibility) or `conditional` (writability).
  *

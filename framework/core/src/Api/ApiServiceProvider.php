@@ -51,6 +51,8 @@ class ApiServiceProvider extends AbstractServiceProvider
          * Resource classes opted in to the `resource-schemas` endpoint.
          * Core describes users and access tokens; extensions opt in more resources through
          * `Extend\ApiResource::describable()`.
+         *
+         * @internal Not part of the extension API; use the extenders.
          */
         $this->container->singleton('flarum.api.describable_resources', function () {
             return [

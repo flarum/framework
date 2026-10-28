@@ -43,7 +43,10 @@ class InferenceTest extends TestCase
             (new Extend\ApiResource(ScratchFullUserResource::class))->describable(),
             (new Extend\ApiResource(ScratchLockedGroupResource::class))->describable(),
             (new Extend\ApiResource(ScratchClosedGroupResource::class))->describable(),
+            (new Extend\ApiResource(ScratchRequestRecordingGroupResource::class))->describable(),
         );
+
+        ScratchRequestRecordingGroupResource::$seen = [];
 
         ScratchRecordingGroupResource::$newModelCalls = 0;
     }
@@ -126,6 +129,33 @@ class InferenceTest extends TestCase
     public function the_schema_version_is_always_emitted()
     {
         $this->assertSame(1, $this->describe()['schemaVersion']);
+    }
+
+    #[Test]
+    public function closures_see_the_actor_but_not_the_describe_requests_query_body_or_route()
+    {
+        /** @var JsonApi $api */
+        $api = $this->app()->getContainer()->make(JsonApi::class);
+
+        $request = (new ServerRequest)
+            ->withQueryParams(['filter' => ['q' => 'x'], 'page' => ['limit' => 5]])
+            ->withParsedBody(['data' => ['type' => 'groups']])
+            ->withAttribute('routeParameters', ['id' => '1']);
+
+        $this->app()->getContainer()->make(ResourceDescriber::class)->describe(
+            $api->getResource('scratch-request-recording-groups'),
+            User::find(1),
+            $request
+        );
+
+        $this->assertNotEmpty(ScratchRequestRecordingGroupResource::$seen);
+
+        foreach (ScratchRequestRecordingGroupResource::$seen as $seen) {
+            $this->assertSame([], $seen['query']);
+            $this->assertNull($seen['body']);
+            $this->assertNull($seen['route']);
+            $this->assertSame(1, $seen['actor']);
+        }
     }
 
     #[Test]
@@ -653,6 +683,35 @@ class ScratchClosedGroupResource extends ScratchGroupResource
             Endpoint\Index::make()
                 ->visible(fn () => throw new RuntimeException('fails closed')),
             Endpoint\Show::make(),
+        ];
+    }
+}
+
+class ScratchRequestRecordingGroupResource extends ScratchGroupResource
+{
+    /** @var list<array{query: array, body: mixed, route: mixed, actor: int|null}> */
+    public static array $seen = [];
+
+    public function type(): string
+    {
+        return 'scratch-request-recording-groups';
+    }
+
+    public function fields(): array
+    {
+        return [
+            ...parent::fields(),
+            Schema\Str::make('requestProbe')
+                ->visible(function (Context $context) {
+                    static::$seen[] = [
+                        'query' => $context->request->getQueryParams(),
+                        'body' => $context->request->getParsedBody(),
+                        'route' => $context->request->getAttribute('routeParameters'),
+                        'actor' => \Flarum\Http\RequestUtil::getActor($context->request)->id,
+                    ];
+
+                    return true;
+                }),
         ];
     }
 }

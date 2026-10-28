@@ -9,6 +9,8 @@
 
 namespace Flarum\Tests\integration\search;
 
+use Flarum\Discussion\Discussion;
+use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Search\Database\DatabaseSearchState;
@@ -124,14 +126,25 @@ class SearchManagerMetadataTest extends TestCase
     }
 
     #[Test]
-    public function a_resource_searched_by_another_driver_is_not_described()
+    public function a_resource_searched_by_another_driver_is_described_with_its_fulltext_and_no_filters()
     {
         $this->extend((new Extend\SearchDriver(ExternalSearchDriver::class))->addSearcher(User::class, UserSearcher::class));
         $this->setting('search_driver_'.User::class, ExternalSearchDriver::name());
 
-        $this->assertSame(['fulltext' => false, 'filters' => []], $this->manager()->describeSearch(User::class, $this->admin()));
+        $this->assertTrue($this->manager()->searchable(User::class));
+        $this->assertSame(['fulltext' => true, 'filters' => []], $this->manager()->describeSearch(User::class, $this->admin()));
+        $this->assertSame([], $this->manager()->describeFilters(User::class, $this->admin()));
         $this->assertSame([], $this->manager()->filters(User::class));
-        $this->assertFalse($this->manager()->fulltext(User::class));
+        $this->assertTrue($this->manager()->fulltext(User::class));
+    }
+
+    #[Test]
+    public function a_resource_another_driver_does_not_support_has_no_fulltext()
+    {
+        $this->extend((new Extend\SearchDriver(ExternalSearchDriver::class))->addSearcher(Discussion::class, DiscussionSearcher::class));
+        $this->setting('search_driver_'.User::class, ExternalSearchDriver::name());
+
+        $this->assertSame(['fulltext' => false, 'filters' => []], $this->manager()->describeSearch(User::class, $this->admin()));
     }
 
     #[Test]

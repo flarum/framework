@@ -15,18 +15,20 @@ namespace Flarum\Api\Describe;
  * Core's `Str::email()` / `regex()` helpers emit rules rather than type schema,
  * so this parser is the only source for those constraints. Rule objects and
  * closures are ignored.
+ *
+ * @internal Not part of the extension API; use the extenders.
  */
 class RuleHints
 {
     /**
      * PCRE modifiers that mean the same thing as a JS `RegExp` flag of the same letter.
      */
-    protected const JS_FLAGS = ['i', 'm', 's', 'u'];
+    protected const array JS_FLAGS = ['i', 'm', 's', 'u'];
 
     /**
      * Paired delimiters PCRE accepts, opening => closing.
      */
-    protected const BRACKETS = ['(' => ')', '{' => '}', '[' => ']', '<' => '>'];
+    protected const array BRACKETS = ['(' => ')', '{' => '}', '[' => ']', '<' => '>'];
 
     /**
      * `min:` and `max:` depend on the field kind: a length for strings, a value
