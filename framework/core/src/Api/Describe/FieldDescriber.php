@@ -147,6 +147,11 @@ class FieldDescriber
         // The label is resolved above; don't send it twice.
         unset($ui['label']);
 
+        // A placeholder that is an existing translation key is sent translated, like a label.
+        if (isset($ui['placeholder']) && is_string($ui['placeholder'])) {
+            $ui['placeholder'] = $this->translate($ui['placeholder']) ?? $ui['placeholder'];
+        }
+
         if ($ui) {
             $description['ui'] = $ui;
         }

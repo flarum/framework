@@ -26,15 +26,23 @@ export interface FieldConstraints {
 }
 
 /**
- * `FlarumField::ui()` hints. The admin consumes `column`, `display` and `widget: 'hidden'` (no form
- * input); `group`, `priority`, other `widget` values and `placeholder` are accepted but currently
- * ignored. The server resolves `label` into the field's `label`.
+ * `FlarumField::ui()` hints. The admin consumes `column`, `display`, `widget` and `placeholder`;
+ * `group` and `priority` are accepted but currently ignored. The server resolves `label` into the
+ * field's `label`, and translates a `placeholder` that is a translation key.
  */
 export interface FieldUiHints {
   /** `true` shows a column, a number shows one with that priority, `false` hides it. */
   column?: boolean | number;
   /** The attribute that labels a related record. */
   display?: string;
+  /**
+   * A string field's input: `'hidden'` gives none, `'color'` the colour preview input, `'icon'` the
+   * icon input, any other value is the input type, rendered by the renderer registered for it on
+   * the form's `InputFactory` (else by `FormGroup`).
+   */
+  widget?: 'hidden' | 'color' | 'icon' | (string & {});
+  /** The input's placeholder. */
+  placeholder?: string;
   [key: string]: unknown;
 }
 

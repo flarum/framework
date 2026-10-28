@@ -67,6 +67,27 @@ describe('ResourceListState', () => {
     return state;
   }
 
+  test('an unpaginated type is requested whole, without page parameters, and ?page clamps to 1', async () => {
+    jest.restoreAllMocks();
+    clearDescriptorCache();
+    app.request = jest.fn(() => Promise.resolve(schemaDocument({ ...things, pagination: undefined }))) as any;
+    await new ResourceDefinition('things').load();
+    jest.spyOn(app.store, 'find').mockImplementation(find as any);
+    setUrl('sort=name&page=3');
+
+    const state = await loaded();
+
+    expect(find).toHaveBeenLastCalledWith('things', { sort: 'name' });
+    expect(state.currentPage()).toBe(1);
+    expect(urlQuery().has('page')).toBe(false);
+
+    await state.goto(2);
+
+    expect(find).toHaveBeenLastCalledWith('things', { sort: 'name' });
+    expect(state.currentPage()).toBe(1);
+    expect(state.hasNext()).toBe(false);
+  });
+
   test('reads sort, search, filters and page from the URL', async () => {
     setUrl('sort=-name&q=knife&filter%5Bstatus%5D=live&filter%5Bsecret%5D=x&page=2');
 

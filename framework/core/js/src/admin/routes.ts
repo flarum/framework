@@ -6,6 +6,7 @@ import AppearancePage from './components/AppearancePage';
 import MailPage from './components/MailPage';
 import UserListPage from './components/UserListPage';
 import AccessTokenListPage from './components/AccessTokenListPage';
+import GroupListPage from './components/GroupListPage';
 import ExtensionPage from './components/ExtensionPage';
 import ExtensionPageResolver from './resolvers/ExtensionPageResolver';
 import AdvancedPage from './components/AdvancedPage';
@@ -27,6 +28,7 @@ export default function (app: AdminApplication) {
     mail: { path: '/mail', component: MailPage },
     users: { path: '/users', component: UserListPage },
     accessTokens: { path: '/access-tokens', component: AccessTokenListPage },
+    groups: { path: '/groups', component: GroupListPage },
     advanced: { path: '/advanced', component: AdvancedPage },
     extension: { path: '/extension/:id', component: ExtensionPage, resolverClass: ExtensionPageResolver },
   };

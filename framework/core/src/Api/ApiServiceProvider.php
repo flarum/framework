@@ -49,7 +49,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         /**
          * Resource classes opted in to the `resource-schemas` endpoint.
-         * Core describes users and access tokens; extensions opt in more resources through
+         * Core describes users, access tokens and groups; extensions opt in more resources through
          * `Extend\ApiResource::describable()`.
          *
          * @internal Not part of the extension API; use the extenders.
@@ -58,6 +58,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             return [
                 Resource\UserResource::class,
                 Resource\AccessTokenResource::class,
+                Resource\GroupResource::class,
             ];
         });
 

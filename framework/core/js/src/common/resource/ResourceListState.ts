@@ -1,6 +1,6 @@
 import PaginatedListState, { type PaginatedListRequestParams } from '../states/PaginatedListState';
 import type Model from '../Model';
-import type { ApiResponsePlural } from '../Store';
+import type { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
 import type ResourceDefinition from './ResourceDefinition';
 
 export interface ResourceListParams {
@@ -193,7 +193,20 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
    * Once a page is on screen, a new search, sort or filter keeps its rows (with `isLoading()`) until
    * the new page arrives; only the first load is the empty initial-loading state.
    */
+  /**
+   * Whether the type's list is paginated: its descriptor has `pagination`. An unpaginated list
+   * (groups) is requested whole, without `page[limit]`/`page[offset]`, and always shows page 1.
+   * True until the descriptor is loaded.
+   */
+  isPaginated(): boolean {
+    const descriptor = this.definition.descriptor;
+
+    return !descriptor || !!descriptor.pagination;
+  }
+
   public refresh(page: number = 1): Promise<void> {
+    if (!this.isPaginated()) page = 1;
+
     if (!this.pages.length) return super.refresh(page);
 
     this.loadingPrev = false;
@@ -207,6 +220,8 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
    * is known.
    */
   public goto(page: number): Promise<void> {
+    if (!this.isPaginated()) page = 1;
+
     this.clearSelection();
     this.writeUrl(page);
 
@@ -293,6 +308,15 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
 
       return results;
     });
+  }
+
+  /** An unpaginated type gets no page parameters, so the server sends every record. */
+  protected mutateRequestParams(params: ApiQueryParamsPlural, page: number): ApiQueryParamsPlural {
+    const mutated = super.mutateRequestParams(params, page);
+
+    if (!this.isPaginated()) delete mutated.page;
+
+    return mutated;
   }
 
   protected requestParams(): PaginatedListRequestParams {

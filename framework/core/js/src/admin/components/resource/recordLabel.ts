@@ -1,20 +1,5 @@
-import type Model from '../../../common/Model';
-
 /**
- * Attributes tried, in order, to name a record in titles and confirmations.
+ * Moved to `common/resource/recordLabel`; kept here so existing imports keep working. Name a record
+ * through `ResourceDefinition.recordLabel()`, which a definition can override.
  */
-export const RECORD_LABEL_ATTRIBUTES = ['name', 'title', 'label', 'displayName', 'username', 'slug'];
-
-/**
- * A short human name for a record: the first non-empty string among the usual naming attributes,
- * else `#id`.
- */
-export default function recordLabel(model: Model): string {
-  for (const key of RECORD_LABEL_ATTRIBUTES) {
-    const value = model.attribute<unknown>(key);
-
-    if (typeof value === 'string' && value.trim() !== '') return value;
-  }
-
-  return `#${model.id()}`;
-}
+export { default, RECORD_LABEL_ATTRIBUTES } from '../../../common/resource/recordLabel';

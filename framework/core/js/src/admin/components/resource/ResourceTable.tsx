@@ -30,7 +30,6 @@ import type Mithril from 'mithril';
 import BulkResultModal from './BulkResultModal';
 import ColumnsDropdown from './ColumnsDropdown';
 import floatMenus from './floatMenus';
-import recordLabel from './recordLabel';
 import ResourceDeleteModal from './ResourceDeleteModal';
 import ResourceFormModal from './ResourceFormModal';
 
@@ -335,7 +334,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     return {
       list: this.list,
       runner: this.bulkRunner(),
-      showResult: (summary: BulkSummary<M>) => app.modal.show(BulkResultModal, { summary }),
+      showResult: (summary: BulkSummary<M>) => app.modal.show(BulkResultModal, { summary, definition: this.attrs.definition }),
     };
   }
 
@@ -1197,7 +1196,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
         <input
           type="checkbox"
           className="ResourceTable-select"
-          aria-label={app.translator.trans('core.admin.resource.table.select_label', { name: recordLabel(model) }, true)}
+          aria-label={app.translator.trans('core.admin.resource.table.select_label', { name: this.attrs.definition.recordLabel(model) }, true)}
           checked={this.list.isSelected(id)}
           onchange={(e: Event) => this.list.setSelected(id, (e.target as HTMLInputElement).checked)}
         />

@@ -23,6 +23,7 @@ export function descriptor(fields: FieldDescriptor[], extra: Partial<ResourceDes
     schemaVersion: 1,
     endpoint: '/things',
     capabilities: { list: true, create: true },
+    pagination: { defaultLimit: 20, maxLimit: 50 },
     search: true,
     fields,
     ...extra,

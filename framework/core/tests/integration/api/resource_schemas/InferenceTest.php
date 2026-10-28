@@ -15,7 +15,7 @@ use Flarum\Api\Describe\ResourceDescriber;
 use Flarum\Api\Endpoint;
 use Flarum\Api\JsonApi;
 use Flarum\Api\Resource\AbstractDatabaseResource;
-use Flarum\Api\Resource\GroupResource;
+use Flarum\Api\Resource\PostResource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Extend;
@@ -179,15 +179,15 @@ class InferenceTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $this->describe('groups');
+        $this->describe('posts');
     }
 
     #[Test]
     public function an_extension_can_opt_in_a_resource_it_does_not_own()
     {
-        $this->extend((new Extend\ApiResource(GroupResource::class))->describable());
+        $this->extend((new Extend\ApiResource(PostResource::class))->describable());
 
-        $this->assertSame('/groups', $this->describe('groups')['endpoint']);
+        $this->assertSame('/posts', $this->describe('posts')['endpoint']);
     }
 
     #[Test]
@@ -432,7 +432,7 @@ class InferenceTest extends TestCase
         $this->assertTrue($describer->canDescribe($api->getResource('scratch-locked-groups'), User::find(1), new ServerRequest));
         $this->assertFalse($describer->canDescribe($api->getResource('scratch-closed-groups'), User::find(1), new ServerRequest));
         // Not opted in.
-        $this->assertFalse($describer->canDescribe($api->getResource('groups'), User::find(1), new ServerRequest));
+        $this->assertFalse($describer->canDescribe($api->getResource('posts'), User::find(1), new ServerRequest));
     }
 
     private function assertNoNull(array $value, string $path = ''): void

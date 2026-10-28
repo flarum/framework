@@ -51,12 +51,37 @@ function dateColumn(d: FieldDescriptor): Field<any>['column'] {
 }
 
 /**
+ * `ui.widget` values that name an input type by another name: `color` is rendered by
+ * `ColorPreviewInput` (FormGroup's `color-preview`).
+ */
+export const WIDGET_ALIASES: Record<string, string> = { color: 'color-preview' };
+
+/**
  * The default input resolvers, one per field kind. A resolver maps a descriptor to an input spec
  * (rendered by the form's `InputFactory`) plus value/serialize/column overrides. Add your own with a
  * higher priority; a resolver returning `null` falls through.
  */
 export function defaultInputResolvers(): ItemList<InputResolver> {
   const resolvers = new ItemList<InputResolver>();
+
+  // A string field's `ui.widget` (other than 'hidden') names its input type: `color` and `icon`
+  // render through FormGroup, any other value through the renderer an extension registers on the
+  // form's InputFactory. The inputs read a string, so a missing value starts empty.
+  resolvers.add(
+    'widget',
+    (d) => {
+      const widget = d.ui?.widget;
+
+      if (d.kind !== 'string' || typeof widget !== 'string' || widget === '' || widget === 'hidden') return null;
+
+      return {
+        input: { type: WIDGET_ALIASES[widget] ?? widget, ...stringAttrs(d) },
+        value: (model) => (model?.attribute(d.name) as string | null | undefined) ?? '',
+        serialize: nullableString(d),
+      };
+    },
+    60
+  );
 
   resolvers.add(
     'relation',

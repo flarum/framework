@@ -5,7 +5,7 @@ import ItemList from '../../../../src/common/utils/ItemList';
 import Stream from '../../../../src/common/utils/Stream';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
 import { fieldsFromDescriptor, patchField } from '../../../../src/common/resource/fieldsFromDescriptor';
-import { defaultInputResolvers } from '../../../../src/common/resource/resolvers';
+import { defaultInputResolvers, WIDGET_ALIASES } from '../../../../src/common/resource/resolvers';
 import { defaultFormInputs } from '../../../../src/common/resource/inputs/defaults';
 import InputFactory from '../../../../src/common/resource/inputs/InputFactory';
 import RelationInput from '../../../../src/common/resource/inputs/RelationInput';
@@ -164,8 +164,49 @@ describe('fieldsFromDescriptor', () => {
     expect(field.column).toBe(false);
   });
 
-  test('other ui.widget values are ignored', () => {
-    expect(inputOf(single(fd('bio', 'string', { ui: { widget: 'markdown' } })))).toMatchObject({ type: 'text' });
+  test("ui.widget 'color' → the colour preview input, an empty value sent as null", () => {
+    const field = single(fd('color', 'string', { nullable: true, writable: { create: true, update: true }, ui: { widget: 'color' } }));
+
+    expect(inputOf(field)).toEqual({ type: 'color-preview' });
+    expect(field.serialize!('')).toEqual({ color: null });
+    expect(field.serialize!('#aabbcc')).toEqual({ color: '#aabbcc' });
+    // The inputs read a string, so a missing value starts empty.
+    expect(field.value!(null)).toBe('');
+  });
+
+  test("ui.widget 'icon' → the icon input", () => {
+    const field = single(fd('icon', 'string', { nullable: true, writable: { update: true }, ui: { widget: 'icon' } }));
+
+    expect(inputOf(field)).toEqual({ type: 'icon' });
+    expect(field.serialize!('')).toEqual({ icon: null });
+  });
+
+  test('another ui.widget value is the input type, for a renderer an extension registers', () => {
+    expect(inputOf(single(fd('bio', 'string', { writable: { update: true }, constraints: { maxLength: 500 }, ui: { widget: 'markdown' } })))).toEqual(
+      {
+        type: 'markdown',
+        maxlength: 500,
+      }
+    );
+  });
+
+  test('ui.widget only applies to strings', () => {
+    expect(inputOf(single(fd('count', 'integer', { writable: { update: true }, ui: { widget: 'color' } })))).toMatchObject({ type: 'number' });
+  });
+
+  test('ui.placeholder lands on the input spec', () => {
+    expect(inputOf(single(fd('title', 'string', { writable: { update: true }, ui: { placeholder: 'e.g. Mods' } })))).toMatchObject({
+      type: 'text',
+      placeholder: 'e.g. Mods',
+    });
+    expect(inputOf(single(fd('icon', 'string', { writable: { update: true }, ui: { widget: 'icon', placeholder: 'fas fa-bolt' } })))).toEqual({
+      type: 'icon',
+      placeholder: 'fas fa-bolt',
+    });
+  });
+
+  test('WIDGET_ALIASES maps color to color-preview', () => {
+    expect(WIDGET_ALIASES).toEqual({ color: 'color-preview' });
   });
 
   test('declaration order; ui.priority is ignored', () => {

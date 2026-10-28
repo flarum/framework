@@ -470,6 +470,18 @@ core:
         title_extension: "Reset {extensionTitle} Settings"
       safe_mode_warning: Safe mode is currently enabled. Extensions are not booted and their settings are therefore inaccessible.
 
+    # These translations are used in the Groups page of the admin interface.
+    groups:
+      description: Create groups, and edit their names, badges and visibility.
+      fields:
+        color: => core.ref.color
+        icon: => core.ref.icon
+        is_hidden: => core.admin.edit_group.hide_label
+        name_plural: Name (plural)
+        name_singular: Name (singular)
+      icon_text: => core.ref.icon_text
+      title: Groups
+
     # These translations are used in the secondary header.
     header:
       get_help: Get Help
@@ -514,6 +526,8 @@ core:
       dashboard_title: => core.admin.dashboard.description
       email_button: => core.ref.email
       email_title: => core.admin.email.description
+      groups_button: => core.admin.groups.title
+      groups_title: => core.admin.groups.description
       permissions_button: => core.admin.permissions.title
       permissions_title: => core.admin.permissions.description
       userlist_button: => core.admin.users.title

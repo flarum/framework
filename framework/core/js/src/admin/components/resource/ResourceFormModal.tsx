@@ -14,7 +14,6 @@ import ResourceFormState from '../../../common/resource/ResourceFormState';
 import type { Field, SaveData } from '../../../common/resource/types';
 import { ValidationError } from '../../../common/resource/validation';
 import type Mithril from 'mithril';
-import recordLabel from './recordLabel';
 
 export interface ResourceFormModalAttrs<M extends Model = Model> extends IFormModalAttrs {
   definition: ResourceDefinition<M>;
@@ -35,8 +34,6 @@ export interface ResourceFormModalAttrs<M extends Model = Model> extends IFormMo
  * because the server answers 403 for a non-writable field present in the payload. Fields are
  * validated against the descriptor before the request; 422/403 field errors show under their
  * field.
- *
- * No core page uses it yet.
  */
 export default class ResourceFormModal<
   M extends Model = Model,
@@ -89,7 +86,7 @@ export default class ResourceFormModal<
     const model = this.attrs.model;
 
     return model?.exists
-      ? app.translator.trans('core.admin.resource.form.edit_title', { name: recordLabel(model) })
+      ? app.translator.trans('core.admin.resource.form.edit_title', { name: this.attrs.definition.recordLabel(model) })
       : app.translator.trans('core.admin.resource.form.create_title');
   }
 

@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Resource;
 
+use Flarum\Api\Context as FlarumContext;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
@@ -64,6 +65,10 @@ class GroupResource extends AbstractDatabaseResource
 
     public function fields(): array
     {
+        // Writable when creating (the Create endpoint checks `createGroup`) or when the actor
+        // may edit the group, so the descriptor offers no input to anyone else.
+        $writable = fn (Group $group, FlarumContext $context) => $context->creating() || $context->getActor()->can('edit', $group);
+
         return [
             Schema\Str::make('nameSingular')
                 ->requiredOnCreate()
@@ -73,8 +78,10 @@ class GroupResource extends AbstractDatabaseResource
                 ->set(function (Group $group, $value) {
                     $group->rename($value, null);
                 })
-                ->writable()
-                ->required(),
+                ->writable($writable)
+                // Present names may not be empty; an update need not send them.
+                ->rule('filled')
+                ->ui(['column' => 90, 'label' => 'core.admin.groups.fields.name_singular', 'placeholder' => 'core.admin.edit_group.singular_placeholder']),
             Schema\Str::make('namePlural')
                 ->requiredOnCreate()
                 ->get(function (Group $group) {
@@ -83,18 +90,28 @@ class GroupResource extends AbstractDatabaseResource
                 ->set(function (Group $group, $value) {
                     $group->rename(null, $value);
                 })
-                ->writable()
-                ->required(),
+                ->writable($writable)
+                // Present names may not be empty; an update need not send them.
+                ->rule('filled')
+                ->ui(['column' => 85, 'label' => 'core.admin.groups.fields.name_plural', 'placeholder' => 'core.admin.edit_group.plural_placeholder']),
             Schema\Str::make('color')
                 ->nullable()
-                ->writable(),
+                ->writable($writable)
+                ->ui(['widget' => 'color', 'label' => 'core.admin.groups.fields.color', 'placeholder' => '#aaaaaa']),
             Schema\Str::make('icon')
                 ->nullable()
-                ->writable(),
+                ->writable($writable)
+                ->ui(['widget' => 'icon', 'label' => 'core.admin.groups.fields.icon', 'placeholder' => 'fas fa-bolt']),
             Schema\Boolean::make('isHidden')
-                ->writable(),
+                ->writable($writable)
+                ->ui(['column' => 60, 'label' => 'core.admin.groups.fields.is_hidden']),
             Schema\Integer::make('position')
                 ->nullable(),
+
+            Schema\Boolean::make('canEdit')
+                ->get(fn (Group $group, FlarumContext $context) => $context->getActor()->can('edit', $group)),
+            Schema\Boolean::make('canDelete')
+                ->get(fn (Group $group, FlarumContext $context) => $context->getActor()->can('delete', $group)),
         ];
     }
 

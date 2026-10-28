@@ -89,4 +89,46 @@ class UpdateTest extends TestCase
 
         $this->assertCount(0, $this->renamed);
     }
+    protected function patch(int $id, array $attributes)
+    {
+        return $this->send(
+            $this->request('PATCH', "/api/groups/$id", [
+                'authenticatedAs' => 1,
+                'json' => ['data' => ['type' => 'groups', 'id' => (string) $id, 'attributes' => $attributes]],
+            ])
+        );
+    }
+
+    #[Test]
+    public function the_colour_can_be_changed_without_sending_the_names()
+    {
+        $response = $this->patch(10, ['color' => '#654321']);
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame('#654321', Group::find(10)->color);
+        $this->assertSame('flarumite', Group::find(10)->name_singular);
+    }
+
+    #[Test]
+    public function a_built_in_group_keeps_its_stored_names_when_only_its_colour_changes()
+    {
+        $response = $this->patch(Group::ADMINISTRATOR_ID, ['color' => '#000000']);
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        $group = Group::find(Group::ADMINISTRATOR_ID);
+        $this->assertSame('#000000', $group->color);
+        // Not the translated "Admin" the API shows.
+        $this->assertSame('Admin', $group->name_singular);
+        $this->assertSame('Admins', $group->name_plural);
+    }
+
+    #[Test]
+    public function a_name_cannot_be_emptied()
+    {
+        $response = $this->patch(10, ['nameSingular' => '']);
+
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame('flarumite', Group::find(10)->name_singular);
+    }
 }

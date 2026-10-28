@@ -5,7 +5,6 @@ import type Model from '../../../common/Model';
 import ItemList from '../../../common/utils/ItemList';
 import type ResourceDefinition from '../../../common/resource/ResourceDefinition';
 import type Mithril from 'mithril';
-import recordLabel from './recordLabel';
 
 export interface ResourceDeleteModalAttrs<M extends Model = Model> extends IFormModalAttrs {
   definition: ResourceDefinition<M>;
@@ -49,7 +48,9 @@ export default class ResourceDeleteModal<
     items.add(
       'confirmation',
       <p className="ResourceDeleteModal-confirmation">
-        {app.translator.trans('core.admin.resource.delete.confirmation', { name: <strong>{recordLabel(this.attrs.model)}</strong> })}
+        {app.translator.trans('core.admin.resource.delete.confirmation', {
+          name: <strong>{this.attrs.definition.recordLabel(this.attrs.model)}</strong>,
+        })}
       </p>,
       100
     );

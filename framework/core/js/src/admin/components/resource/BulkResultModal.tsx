@@ -6,10 +6,13 @@ import ItemList from '../../../common/utils/ItemList';
 import RequestError from '../../../common/utils/RequestError';
 import type { BulkSummary } from '../../../common/resource/BulkRunner';
 import type Mithril from 'mithril';
-import recordLabel from './recordLabel';
+import type ResourceDefinition from '../../../common/resource/ResourceDefinition';
+import recordLabel from '../../../common/resource/recordLabel';
 
 export interface BulkResultModalAttrs<M extends Model = Model> extends IInternalModalAttrs {
   summary: BulkSummary<M>;
+  /** Names the records through `definition.recordLabel()`; without it, the default label. */
+  definition?: ResourceDefinition<M>;
 }
 
 /**
@@ -36,6 +39,10 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
     ];
   }
 
+  label(model: M): string {
+    return this.attrs.definition ? this.attrs.definition.recordLabel(model) : recordLabel(model);
+  }
+
   /**
    * `deleted`, then `failed` and `skipped` when they have records.
    */
@@ -59,7 +66,7 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
           <ul>
             {failed.map(({ model, error }) => (
               <li data-id={model.id()}>
-                <strong>{recordLabel(model)}</strong>: {this.reason(error)}
+                <strong>{this.label(model)}</strong>: {this.reason(error)}
               </li>
             ))}
           </ul>
@@ -75,7 +82,7 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
           <p>{app.translator.trans('core.admin.resource.bulk.result_skipped', { count: skipped.length })}</p>
           <ul>
             {skipped.map((model) => (
-              <li data-id={model.id()}>{recordLabel(model)}</li>
+              <li data-id={model.id()}>{this.label(model)}</li>
             ))}
           </ul>
         </div>,

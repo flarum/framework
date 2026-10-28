@@ -6,6 +6,7 @@ import ItemList from '../utils/ItemList';
 import extractText from '../utils/extractText';
 import type { BulkActionContext, BulkSummary } from './BulkRunner';
 import { loadDescriptor } from './descriptor';
+import recordLabel from './recordLabel';
 import { fieldsFromDescriptor } from './fieldsFromDescriptor';
 import { bareFilterInput, defaultFilterInputs, defaultFormInputs } from './inputs/defaults';
 import InputFactory from './inputs/InputFactory';
@@ -216,6 +217,15 @@ export default class ResourceDefinition<M extends Model = Model> {
    */
   canExport(): boolean {
     return !!this.descriptor?.capabilities.list;
+  }
+
+  /**
+   * A short human name for one record, in modal titles, confirmations and the bulk summary. Defaults
+   * to the first non-empty naming attribute (`name`, `title`, `label`, `displayName`, `username`,
+   * `slug`), else `#id`.
+   */
+  recordLabel(model: M): string {
+    return recordLabel(model);
   }
 
   label(_n: number): string {

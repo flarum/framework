@@ -97,6 +97,14 @@ export default class AdminNav extends Component {
     );
 
     items.add(
+      'groups',
+      <LinkButton href={app.route('groups')} icon="fas fa-user-tag" title={app.translator.trans('core.admin.nav.groups_title')}>
+        {app.translator.trans('core.admin.nav.groups_button')}
+      </LinkButton>,
+      65
+    );
+
+    items.add(
       'appearance',
       <LinkButton href={app.route('appearance')} icon="fas fa-paint-brush" title={app.translator.trans('core.admin.nav.appearance_title')}>
         {app.translator.trans('core.admin.nav.appearance_button')}
