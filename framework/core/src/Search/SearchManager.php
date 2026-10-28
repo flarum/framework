@@ -174,6 +174,12 @@ class SearchManager
 
     protected function databaseSearcher(string $modelClass): ?Database\AbstractSearcher
     {
+        // A resource the site searches with another driver (an external index) is not described:
+        // the database searcher's filters and fulltext would not be what its Index endpoint runs.
+        if (! $this->driverFor($modelClass) instanceof DatabaseSearchDriver) {
+            return null;
+        }
+
         $driver = $this->driver(DatabaseSearchDriver::name());
 
         if (! $driver->supports($modelClass)) {

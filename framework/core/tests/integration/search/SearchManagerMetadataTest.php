@@ -124,6 +124,17 @@ class SearchManagerMetadataTest extends TestCase
     }
 
     #[Test]
+    public function a_resource_searched_by_another_driver_is_not_described()
+    {
+        $this->extend((new Extend\SearchDriver(ExternalSearchDriver::class))->addSearcher(User::class, UserSearcher::class));
+        $this->setting('search_driver_'.User::class, ExternalSearchDriver::name());
+
+        $this->assertSame(['fulltext' => false, 'filters' => []], $this->manager()->describeSearch(User::class, $this->admin()));
+        $this->assertSame([], $this->manager()->filters(User::class));
+        $this->assertFalse($this->manager()->fulltext(User::class));
+    }
+
+    #[Test]
     public function users_support_fulltext()
     {
         $this->assertTrue($this->manager()->fulltext(User::class));
@@ -209,3 +220,12 @@ class CustomMetadataFilter implements FilterInterface
     {
     }
 }
+
+class ExternalSearchDriver extends \Flarum\Search\AbstractDriver
+{
+    public static function name(): string
+    {
+        return 'external';
+    }
+}
+
