@@ -228,4 +228,21 @@ class MailgunWebhookProvisioningTest extends TestCase
             'GET /v3/domains/mg.example.com/webhooks/complained',
         ], $this->requests());
     }
+
+    #[Test]
+    public function registering_with_new_credentials_replaces_the_url_with_the_old_ones(): void
+    {
+        $old = 'https://old:secret@forum.example.com/mail/webhook/mailgun';
+        $new = 'https://new:secret@forum.example.com/mail/webhook/mailgun';
+
+        $this->driver(
+            self::urls(self::OTHER, $old),
+            new Response(200),
+            self::urls($old),
+            new Response(200),
+        )->registerWebhook($this->settings(), $new);
+
+        $this->assertSame([self::OTHER, $new], $this->sentUrls(1));
+        $this->assertSame([$new], $this->sentUrls(3));
+    }
 }

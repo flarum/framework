@@ -413,6 +413,8 @@ core:
       not_sending_message: Flarum currently does not send emails. This can be due to the selected driver, or errors in its configuration.
       register_webhook_button: Register webhook with provider
       register_webhook_success: "Webhook registered with your mail provider."
+      unregister_webhook_button: Remove webhook from provider
+      unregister_webhook_success: "Webhook removed from your mail provider."
       send_test_mail_button: Send
       send_test_mail_heading: Send Test Mail
       send_test_mail_success: "Test mail sent successfully!"
@@ -422,8 +424,12 @@ core:
       suppress_bounced_label: Stop emailing bounced addresses
       suppress_bounced_help: "When enabled, users whose address has bounced or filed a spam complaint will be skipped when sending notification emails, until they update and confirm their address."
       title: => core.ref.email
+      webhook_password_label: Webhook password
       webhook_url_label: Webhook URL
       webhook_url_help: "Add this URL as a webhook in your mail provider's dashboard, with bounce and spam complaint events turned on."
+      webhook_url_provision_help: "Register webhook with provider adds this URL to your mail provider for you."
+      webhook_username_label: Webhook username
+      webhook_username_help: "Only needed if your forum is behind HTTP basic authentication, such as a protected staging site. The username and password are added to the webhook URL so your mail provider can get through."
 
     # These translations are used in the email bounces dashboard widget.
     email_bounces:

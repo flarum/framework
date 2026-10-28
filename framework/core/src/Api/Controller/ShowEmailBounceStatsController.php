@@ -12,10 +12,8 @@ namespace Flarum\Api\Controller;
 use Carbon\Carbon;
 use Flarum\Http\RequestUtil;
 use Flarum\Mail\EmailBounceEvent;
-use Flarum\Mail\HandlesWebhooks;
-use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Mail\MailWebhooks;
 use Flarum\User\User;
-use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -29,8 +27,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 class ShowEmailBounceStatsController implements RequestHandlerInterface
 {
     public function __construct(
-        protected Container $container,
-        protected SettingsRepositoryInterface $settings,
+        protected MailWebhooks $webhooks,
     ) {
     }
 
@@ -48,7 +45,7 @@ class ShowEmailBounceStatsController implements RequestHandlerInterface
             // Whether the inbound return path is actually usable: the driver
             // can receive webhooks AND a signing secret is configured (without
             // it, incoming webhooks are rejected and no bounces are recorded).
-            'configured' => $this->webhookConfigured(),
+            'configured' => $this->webhooks->configured(),
             // Users still flagged as bounced right now (unresolved).
             'affected' => User::whereNotNull('email_bounced_at')->count(),
             // Users who had a bounce event but are no longer flagged — i.e.
@@ -64,15 +61,5 @@ class ShowEmailBounceStatsController implements RequestHandlerInterface
     protected function countSince(Carbon $since): int
     {
         return EmailBounceEvent::where('created_at', '>=', $since)->count();
-    }
-
-    protected function webhookConfigured(): bool
-    {
-        $driver = $this->container->make('flarum.mail.configured_driver');
-
-        // The driver decides what "configured" means for its provider (Mailgun
-        // needs a signing key; Postmark needs nothing beyond IP verification).
-        return $driver instanceof HandlesWebhooks
-            && $driver->webhookConfigured($this->settings);
     }
 }

@@ -10,6 +10,7 @@
 namespace Flarum\Mail;
 
 use Flarum\Settings\SettingsRepositoryInterface;
+use Symfony\Component\RemoteEvent\Event\Mailer\MailerDeliveryEvent;
 use Symfony\Component\Webhook\Client\RequestParserInterface;
 
 /**
@@ -58,4 +59,20 @@ interface HandlesWebhooks
      * config (e.g. Postmark, verified by IP) should simply return true.
      */
     public function webhookConfigured(SettingsRepositoryInterface $settings): bool;
+
+    /**
+     * Whether this driver can report bounces at all with the current settings.
+     * Return false for a configuration that never delivers mail to real
+     * recipients, such as a sandbox mode, and Flarum hides bounce handling
+     * entirely instead of warning that it is not set up.
+     */
+    public function webhooksAvailable(SettingsRepositoryInterface $settings): bool;
+
+    /**
+     * Whether a bounce or drop the parser reported is permanent. Flarum only
+     * flags the recipient when it is. Many providers report soft bounces as
+     * bounces too, so check the provider's own payload, available from
+     * $event->getPayload().
+     */
+    public function isPermanentFailure(MailerDeliveryEvent $event): bool;
 }

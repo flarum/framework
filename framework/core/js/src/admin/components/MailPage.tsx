@@ -114,19 +114,37 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
             label: app.translator.trans('core.admin.email.suppress_bounced_label'),
             help: app.translator.trans('core.admin.email.suppress_bounced_help'),
           })}
-          {!this.status!.canProvisionWebhooks && this.status!.webhookUrl && (
+          {this.buildSettingComponent({
+            type: 'text',
+            setting: 'mail_webhook_username',
+            label: app.translator.trans('core.admin.email.webhook_username_label'),
+            help: app.translator.trans('core.admin.email.webhook_username_help'),
+          })}
+          {this.buildSettingComponent({
+            type: 'password',
+            setting: 'mail_webhook_password',
+            label: app.translator.trans('core.admin.email.webhook_password_label'),
+          })}
+          {this.status!.webhookUrl && (
             <FormGroup
               type="text"
               label={app.translator.trans('core.admin.email.webhook_url_label')}
-              help={app.translator.trans('core.admin.email.webhook_url_help')}
+              help={app.translator.trans(
+                this.status!.canProvisionWebhooks ? 'core.admin.email.webhook_url_provision_help' : 'core.admin.email.webhook_url_help'
+              )}
               stream={Stream(this.status!.webhookUrl)}
               readonly
             />
           )}
           {this.status!.canProvisionWebhooks && (
-            <Button className="Button" disabled={this.provisioningWebhook || this.isChanged()} onclick={() => this.provisionWebhook()}>
-              {app.translator.trans('core.admin.email.register_webhook_button')}
-            </Button>
+            <div className="ButtonGroup">
+              <Button className="Button" disabled={this.provisioningWebhook || this.isChanged()} onclick={() => this.provisionWebhook(false)}>
+                {app.translator.trans('core.admin.email.register_webhook_button')}
+              </Button>
+              <Button className="Button" disabled={this.provisioningWebhook || this.isChanged()} onclick={() => this.provisionWebhook(true)}>
+                {app.translator.trans('core.admin.email.unregister_webhook_button')}
+              </Button>
+            </div>
           )}
         </FieldSet>
       </Form>
@@ -273,7 +291,7 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
       });
   }
 
-  provisionWebhook() {
+  provisionWebhook(unregister: boolean) {
     if (this.provisioningWebhook) return;
 
     this.provisioningWebhook = true;
@@ -282,10 +300,14 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
       .request({
         method: 'POST',
         url: app.forum.attribute('apiUrl') + '/mail/webhook/provision',
+        body: { unregister },
       })
       .then(() => {
         this.provisioningWebhook = false;
-        app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.email.register_webhook_success'));
+        app.alerts.show(
+          { type: 'success' },
+          app.translator.trans(unregister ? 'core.admin.email.unregister_webhook_success' : 'core.admin.email.register_webhook_success')
+        );
         m.redraw();
       })
       .catch((error) => {

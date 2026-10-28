@@ -12,10 +12,8 @@ namespace Flarum\Api\Resource;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
-use Flarum\Http\UrlGenerator;
 use Flarum\Mail\DriverInterface;
-use Flarum\Mail\HandlesWebhooks;
-use Flarum\Mail\ProvisionsWebhooks;
+use Flarum\Mail\MailWebhooks;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Validation\Factory;
@@ -31,7 +29,7 @@ class MailSettingResource extends AbstractResource implements Findable
         protected SettingsRepositoryInterface $settings,
         protected Factory $validator,
         protected Container $container,
-        protected UrlGenerator $url
+        protected MailWebhooks $webhooks
     ) {
     }
 
@@ -88,14 +86,12 @@ class MailSettingResource extends AbstractResource implements Findable
                     return $configured->validate($this->settings, $this->validator);
                 }),
             Schema\Boolean::make('canReceiveWebhooks')
-                ->get(fn () => $this->container->make('flarum.mail.configured_driver') instanceof HandlesWebhooks),
+                ->get(fn () => $this->webhooks->driver() !== null),
             Schema\Boolean::make('canProvisionWebhooks')
-                ->get(fn () => $this->container->make('flarum.mail.configured_driver') instanceof ProvisionsWebhooks),
+                ->get(fn () => $this->webhooks->provisioner() !== null),
             Schema\Str::make('webhookUrl')
                 ->nullable()
-                ->get(fn () => $this->container->make('flarum.mail.configured_driver') instanceof HandlesWebhooks
-                    ? $this->url->to('forum')->route('mailWebhook', ['driver' => $this->settings->get('mail_driver')])
-                    : null),
+                ->get(fn () => $this->webhooks->driver() ? $this->webhooks->url() : null),
         ];
     }
 }
