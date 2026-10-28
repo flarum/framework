@@ -104,7 +104,7 @@ class LogoUploadTest extends TestCase
     public function an_extension_can_store_the_logo_taller_and_at_another_quality(string $endpoint): void
     {
         $this->extend(
-            (new Extend\Theme())->logo(height: 120, quality: 50)
+            (new Extend\Theme())->logoSize(height: 120, quality: 50)
         );
 
         $source = $this->pngFile(800, 200);
@@ -119,7 +119,7 @@ class LogoUploadTest extends TestCase
     public function setting_only_the_quality_keeps_the_default_height(): void
     {
         $this->extend(
-            (new Extend\Theme())->logo(quality: 50)
+            (new Extend\Theme())->logoSize(quality: 50)
         );
 
         $source = $this->pngFile(800, 200);
@@ -134,7 +134,7 @@ class LogoUploadTest extends TestCase
     public function setting_only_the_height_keeps_the_default_quality(): void
     {
         $this->extend(
-            (new Extend\Theme())->logo(height: 120)
+            (new Extend\Theme())->logoSize(height: 120)
         );
 
         $source = $this->pngFile(800, 200);

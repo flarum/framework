@@ -120,4 +120,16 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'savePassword',
         $route->toController(Controller\SavePasswordController::class)
     );
+
+    $map->get(
+        '/manifest',
+        'manifest',
+        $route->toController(Controller\WebManifestController::class)
+    );
+
+    $map->get(
+        '/favicon.ico',
+        'favicon.ico',
+        $route->toController(Controller\FaviconController::class)
+    );
 };

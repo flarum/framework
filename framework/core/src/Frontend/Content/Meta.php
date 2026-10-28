@@ -9,16 +9,29 @@
 
 namespace Flarum\Frontend\Content;
 
+use Flarum\Forum\Branding\Branding;
+use Flarum\Forum\Branding\WebManifest;
 use Flarum\Frontend\Document;
+use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 readonly class Meta
 {
+    private Branding $branding;
+    private WebManifest $manifest;
+    private UrlGenerator $url;
+
     public function __construct(
-        private LocaleManager $locales
+        private LocaleManager $locales,
+        ?Branding $branding = null,
+        ?WebManifest $manifest = null,
+        ?UrlGenerator $url = null
     ) {
+        $this->branding = $branding ?? resolve(Branding::class);
+        $this->manifest = $manifest ?? resolve(WebManifest::class);
+        $this->url = $url ?? resolve(UrlGenerator::class);
     }
 
     public function __invoke(Document $document, Request $request): void
@@ -45,8 +58,22 @@ readonly class Meta
     {
         $head = [];
 
-        if ($faviconUrl = Arr::get($document->getForumApiDocument(), 'data.attributes.faviconUrl')) {
-            $head['favicon'] = '<link rel="shortcut icon" href="'.e($faviconUrl).'">';
+        if ($ico = $this->branding->faviconIcoUrl()) {
+            $head['favicon'] = '<link rel="icon" href="'.e($ico).'" sizes="32x32">';
+        } elseif ($favicon = $this->branding->faviconUrl()) {
+            $head['favicon'] = '<link rel="icon" href="'.e($favicon).'">';
+        }
+
+        if ($svg = $this->branding->faviconSvgUrl()) {
+            $head['favicon-svg'] = '<link rel="icon" href="'.e($svg).'" type="image/svg+xml">';
+        }
+
+        if ($appleTouchIcon = $this->branding->appIconUrls()['apple-touch-icon.png'] ?? null) {
+            $head['apple-touch-icon'] = '<link rel="apple-touch-icon" href="'.e($appleTouchIcon).'">';
+        }
+
+        if ($this->manifest->isLinked()) {
+            $head['manifest'] = '<link rel="manifest" href="'.e($this->url->to('forum')->route('manifest')).'">';
         }
 
         return $head;

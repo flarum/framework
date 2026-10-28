@@ -9,12 +9,10 @@
 
 namespace Flarum\Formatter;
 
+use Flarum\Forum\Branding\Branding;
 use Flarum\Foundation\Config;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository;
-use Illuminate\Contracts\Filesystem\Cloud;
-use Illuminate\Contracts\Filesystem\Factory;
 use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Configurator;
 use s9e\TextFormatter\Parser;
@@ -430,19 +428,7 @@ class Formatter
     protected function getFaviconUrl(): ?string
     {
         if ($this->faviconUrl === false) {
-            $path = resolve(SettingsRepositoryInterface::class)->get('favicon_path');
-
-            // Resolved through the assets filesystem rather than assembled by
-            // hand, so a forum serving its uploads from a CDN gets the CDN
-            // address here too.
-            if ($path) {
-                /** @var Cloud $assets */
-                $assets = resolve(Factory::class)->disk('flarum-assets');
-
-                $this->faviconUrl = $assets->url($path);
-            } else {
-                $this->faviconUrl = null;
-            }
+            $this->faviconUrl = resolve(Branding::class)->faviconUrl();
         }
 
         return $this->faviconUrl;

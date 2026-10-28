@@ -25,3 +25,64 @@
     line-height: 1;
   }
 }
+
+.UploadImageButton-image img {
+  display: block;
+  max-width: 100%;
+  max-height: 90px;
+  margin-bottom: 10px;
+}
+
+.UploadImageButton-lock {
+  margin: 0;
+}
+
+.FaviconPreview {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.FaviconPreview-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 200px;
+  padding: 6px 12px;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  background: var(--control-bg);
+  font-size: 12px;
+}
+
+.FaviconPreview-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.AppIconPreview {
+  display: flex;
+  gap: 24px;
+  margin-top: 15px;
+}
+
+.AppIconPreview-item {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted-color);
+}
+
+.AppIconPreview-icon {
+  display: block;
+  margin: 0 auto 6px;
+  box-shadow: 0 2px 6px var(--shadow-color);
+
+  &--apple {
+    border-radius: 22.5%;
+  }
+
+  &--android {
+    border-radius: 50%;
+  }
+}
