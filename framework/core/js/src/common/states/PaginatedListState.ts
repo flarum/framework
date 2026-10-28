@@ -164,7 +164,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     }
 
     return app.store.find<T[]>(this.type, this.mutateRequestParams(params, page)).then((results) => {
-      const usedPerPage = results.payload?.meta?.perPage;
+      const usedPerPage = results.payload?.meta?.page?.limit || results.payload?.meta?.perPage;
       const usedTotal = results.payload?.meta?.page?.total;
 
       /*
