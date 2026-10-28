@@ -107,7 +107,20 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
    * @experimental
    */
   compactFilters?: boolean;
+  /**
+   * Which filters the toolbar leaves out when a gambit of the same key covers them, so they are
+   * typed into the search box as `key:value` instead: `'text'` (default) only text-like filters,
+   * `'all'` every covered filter, `'none'` none. A filter's own `hideWhenSearchable` wins.
+   *
+   * @experimental
+   */
+  searchCoveredFilters?: SearchCoveredFilters;
 }
+
+/**
+ * @experimental
+ */
+export type SearchCoveredFilters = 'text' | 'all' | 'none';
 
 const anyLabel = () => app.translator.trans('core.lib.resource.filter.any', {}, true);
 /** Core's `@phone` breakpoint. */
@@ -571,13 +584,27 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * The filters the toolbar offers, by priority: a text filter that a gambit of the same key covers
-   * is left out while the search box is there (the search box takes `key:value`).
+   * The filters the toolbar offers, by priority, without those the search box covers
+   * (`isCoveredBySearch()`).
    */
   toolbarFilters(): [string, Filter][] {
     const gambitKeys = this.isSearchable() ? new Set(this.gambits().map((gambit) => gambit.filterKey())) : new Set<string>();
 
-    return ordered(this.filters ?? new ItemList<Filter>()).filter(([key, filter]) => !(gambitKeys.has(key) && this.isTextFilter(filter)));
+    return ordered(this.filters ?? new ItemList<Filter>()).filter(([key, filter]) => !(gambitKeys.has(key) && this.isCoveredBySearch(key, filter)));
+  }
+
+  /**
+   * Whether a filter that a gambit of the same key covers is left to the search box: the filter's
+   * `hideWhenSearchable`, else the `searchCoveredFilters` policy.
+   *
+   * @experimental
+   */
+  isCoveredBySearch(key: string, filter: Filter): boolean {
+    if (filter.hideWhenSearchable !== undefined) return filter.hideWhenSearchable;
+
+    const policy = this.attrs.searchCoveredFilters ?? 'text';
+
+    return policy === 'all' || (policy === 'text' && this.isTextFilter(filter));
   }
 
   isTextFilter(filter: Filter): boolean {

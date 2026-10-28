@@ -212,6 +212,13 @@ export interface Filter {
    * @experimental
    */
   exclude?: (model: Model) => boolean;
+  /**
+   * Leave this filter out of the toolbar (`true`) or keep it (`false`) when a gambit of the same
+   * key covers it; left undefined, the table's `searchCoveredFilters` decides.
+   *
+   * @experimental
+   */
+  hideWhenSearchable?: boolean;
 }
 
 export interface JsonApiError {

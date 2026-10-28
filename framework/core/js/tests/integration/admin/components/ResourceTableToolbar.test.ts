@@ -160,6 +160,32 @@ describe('ResourceTable toolbar', () => {
     expect(out).toHaveElement('.ResourceTable-filter--color .ResourceTable-filterControl input');
   });
 
+  test('searchCoveredFilters "all" leaves out every covered filter, "none" keeps them all', async () => {
+    const all = await rendered({ inlineFilters: 10, searchCoveredFilters: 'all' });
+
+    expect(all.out).not.toHaveElement('.ResourceTable-filter--email');
+    expect(all.out).not.toHaveElement('.ResourceTable-filter--active');
+    expect(all.out).toHaveElement('.ResourceTable-filter--status');
+
+    const none = await rendered({ inlineFilters: 10, searchCoveredFilters: 'none' });
+
+    expect(none.out).toHaveElement('.ResourceTable-filter--email');
+    expect(none.out).toHaveElement('.ResourceTable-filter--active');
+  });
+
+  test("a filter's hideWhenSearchable wins over the table's policy", async () => {
+    const { out, table } = await rendered({ inlineFilters: 10 });
+
+    expect(out).toHaveElement('.ResourceTable-filter--active');
+
+    table.filters!.get('active').hideWhenSearchable = true;
+    table.filters!.get('email').hideWhenSearchable = false;
+    out.redraw();
+
+    expect(out).not.toHaveElement('.ResourceTable-filter--active');
+    expect(out).toHaveElement('.ResourceTable-filter--email');
+  });
+
   test('filters past inlineFilters go under "More filters"; picking one adds its button', async () => {
     const { out } = await rendered();
 

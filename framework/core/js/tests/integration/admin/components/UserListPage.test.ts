@@ -705,6 +705,19 @@ describe('UserListPage', () => {
     expect(narrowed.out).toContainRaw('1 matching user of 3');
   });
 
+  test('searchCoveredFilters() is the toolbar policy: "all" leaves group to the group: gambit', async () => {
+    const { out } = await rendered();
+
+    expect(out).toHaveElement('.ResourceTable-filter--group');
+    expect(out).not.toHaveElement('.ResourceTable-filter--email');
+
+    patch(UserListPage.prototype, 'searchCoveredFilters');
+    UserListPage.prototype.searchCoveredFilters = () => 'all';
+    const all = await rendered();
+
+    expect(all.out).not.toHaveElement('.ResourceTable-filter--group');
+  });
+
   test('the group filter leaves out the guest group', async () => {
     const { page } = await rendered();
     const exclude = (page as any).definition.filters().get('group').exclude;

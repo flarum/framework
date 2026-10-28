@@ -28,7 +28,7 @@ import Group from '../../common/models/Group';
 import type Model from '../../common/Model';
 import ResourceListState from '../../common/resource/ResourceListState';
 import type { Field } from '../../common/resource/types';
-import ResourceTable, { type ColumnData as ResourceColumnData, type ResourceTableAttrs } from './resource/ResourceTable';
+import ResourceTable, { type ColumnData as ResourceColumnData, type ResourceTableAttrs, type SearchCoveredFilters } from './resource/ResourceTable';
 import ResourceDeleteModal from './resource/ResourceDeleteModal';
 
 /**
@@ -294,6 +294,7 @@ export default class UserListPage extends AdminPage {
         onCreate={() => this.showCreateModal()}
         onEdit={(user: User) => this.showEditModal(user)}
         headerItems={() => this.headerItems()}
+        searchCoveredFilters={this.searchCoveredFilters()}
       />,
     ];
   }
@@ -386,6 +387,17 @@ export default class UserListPage extends AdminPage {
    */
   bulkActionItems(_context: BulkActionContext<User>): ItemList<Mithril.Children> {
     return new ItemList<Mithril.Children>();
+  }
+
+  /**
+   * Which filters the toolbar leaves to the search box when a gambit covers them (see
+   * `ResourceTable`'s `searchCoveredFilters`): text-like filters such as `email`, so `group` and
+   * `suspended` keep their dropdowns.
+   *
+   * @experimental
+   */
+  searchCoveredFilters(): SearchCoveredFilters {
+    return 'text';
   }
 
   /**
