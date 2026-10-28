@@ -12,6 +12,7 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Flarum\Frontend\Assets;
 use Illuminate\Contracts\Container\Container;
+use InvalidArgumentException;
 use RuntimeException;
 
 class Theme implements ExtenderInterface
@@ -20,7 +21,9 @@ class Theme implements ExtenderInterface
     private array $fileSourceOverrides = [];
     private array $customFunctions = [];
     private array $lessVariables = [];
-    private array $logo = [];
+    private array $logoSize = [];
+    private array $images = [];
+    private array $manifestModifiers = [];
 
     /**
      * This can be used to override `LESS` files that are imported within the code.
@@ -133,35 +136,172 @@ class Theme implements ExtenderInterface
     }
 
     /**
-     * Sets how the forum logo and the dark mode logo are stored when uploaded.
+     * Sets how the forum logo and the dark mode logo are stored.
      *
      * The header shows the logo at most 30px tall. By default it is stored 90px
      * tall, so it stays sharp on screens with three times the pixel density, as
      * WebP at quality 90. A theme that shows the logo larger can store it taller.
-     * An animated logo is stored as GIF, which has no quality setting.
+     * An animated logo is stored as GIF, which has no quality setting, and an SVG
+     * logo set with logo() is used as it is.
      *
      * A logo that has already been uploaded keeps its size and quality until it
      * is uploaded again.
      *
      * ```php
      * (new Extend\Theme())
-     *   ->logo(height: 120, quality: 95)
+     *   ->logoSize(height: 120, quality: 95)
      * ```
      *
      * @param int|null $height The height to store the logo at, in pixels.
      * @param int|null $quality The WebP quality, from 1 to 100.
      */
-    public function logo(?int $height = null, ?int $quality = null): self
+    public function logoSize(?int $height = null, ?int $quality = null): self
     {
-        $this->logo = array_merge($this->logo, array_filter(compact('height', 'quality'), fn (?int $value) => $value !== null));
+        $this->logoSize = array_merge($this->logoSize, array_filter(compact('height', 'quality'), fn (?int $value) => $value !== null));
 
         return $this;
+    }
+
+    /**
+     * Sets the forum logo. Admins see it on the Appearance page but can't change it.
+     *
+     * An SVG is used as it is. Any other image is stored like an uploaded logo.
+     *
+     * @param string $file Absolute path of a PNG, JPEG, WebP, GIF or SVG file.
+     */
+    public function logo(string $file): self
+    {
+        $this->images['logo'] = ['file' => $this->imageFile($file, svg: true)];
+
+        return $this;
+    }
+
+    /**
+     * Sets the logo shown in dark mode. Admins can't change it.
+     *
+     * @param string $file Absolute path of a PNG, JPEG, WebP, GIF or SVG file.
+     */
+    public function logoDarkMode(string $file): self
+    {
+        $this->images['logo_dark_mode'] = ['file' => $this->imageFile($file, svg: true)];
+
+        return $this;
+    }
+
+    /**
+     * Sets the logo shown in emails. Admins can't change it.
+     *
+     * Mail clients can't be relied on to show SVG, so this must be another format.
+     * Without it, emails use a copy of a logo set with logo(), if that isn't an SVG.
+     *
+     * @param string $file Absolute path of a PNG, JPEG, WebP or GIF file.
+     */
+    public function emailLogo(string $file): self
+    {
+        $this->images['email_logo'] = ['file' => $this->imageFile($file, svg: false)];
+
+        return $this;
+    }
+
+    /**
+     * Sets the favicon. Admins can't change it.
+     *
+     * The .ico and PNG versions browsers need are drawn from the image, which
+     * should be at least 48px square. Browsers that support SVG favicons use
+     * the SVG, if one is given, instead.
+     *
+     * @param string $file Absolute path of a PNG, JPEG, WebP or GIF file.
+     * @param string|null $svg Absolute path of an SVG version.
+     */
+    public function favicon(string $file, ?string $svg = null): self
+    {
+        $this->images['favicon'] = [
+            'file' => $this->imageFile($file, svg: false),
+            'svg' => $svg === null ? null : $this->svgFile($svg),
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Sets the app icon that phones show for the forum on their home screen.
+     * Admins can't change it.
+     *
+     * The icon should be square and at least 512px. Apple's touch icon and
+     * Android's maskable icon are drawn on the background colour.
+     *
+     * @param string $file Absolute path of a PNG, JPEG, WebP or GIF file.
+     * @param string|null $background A CSS hex colour. Defaults to the one set on the Appearance page.
+     */
+    public function appIcon(string $file, ?string $background = null): self
+    {
+        $this->images['app_icon'] = [
+            'file' => $this->imageFile($file, svg: false),
+            'background' => $background,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Changes the forum's web app manifest, which phones read when the forum
+     * is added to a home screen.
+     *
+     * ```php
+     * (new Extend\Theme())
+     *   ->manifest(fn (array $manifest) => ['short_name' => 'Acme'] + $manifest)
+     * ```
+     *
+     * @param callable(array): array $callback Receives the manifest and returns it changed.
+     */
+    public function manifest(callable $callback): self
+    {
+        $this->manifestModifiers[] = $callback;
+
+        return $this;
+    }
+
+    private function imageFile(string $file, bool $svg): string
+    {
+        if (! is_file($file)) {
+            throw new InvalidArgumentException("The image $file does not exist.");
+        }
+
+        if (! $svg && $this->isSvg($file)) {
+            throw new InvalidArgumentException("The image $file must be a PNG, JPEG, WebP or GIF file, not an SVG.");
+        }
+
+        return $file;
+    }
+
+    private function svgFile(string $file): string
+    {
+        if (! is_file($file) || ! $this->isSvg($file)) {
+            throw new InvalidArgumentException("The image $file must be an SVG file.");
+        }
+
+        return $file;
+    }
+
+    private function isSvg(string $file): bool
+    {
+        return strtolower(pathinfo($file, PATHINFO_EXTENSION)) === 'svg';
     }
 
     public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->extend('flarum.forum.logo', function (array $logo) {
-            return array_merge($logo, $this->logo);
+            return array_merge($logo, $this->logoSize);
+        });
+
+        $container->extend('flarum.forum.manifest', function (array $modifiers) {
+            return array_merge($modifiers, $this->manifestModifiers);
+        });
+
+        $owner = $extension?->getTitle();
+
+        $container->extend('flarum.theme.images', function (array $images) use ($owner) {
+            return array_merge($images, array_map(fn (array $image) => $image + ['owner' => $owner], $this->images));
         });
 
         $container->extend('flarum.frontend.custom_less_functions', function (array $customFunctions) {

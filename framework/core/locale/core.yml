@@ -158,8 +158,14 @@ core:
       email_logo_heading: Email logo
       email_logo_text: "Upload an image to be displayed at the top of emails. It's saved in a format every email client can show. If you don't upload one, emails use a copy of your logo. If your emails show the forum title instead of your logo, upload your logo again."
       enter_hex_message: Please enter a hexadecimal color code.
+      app_icon_background_help: "Fills the transparent parts of the app icon on iPhones and iPads, and the space around it on Android."
+      app_icon_background_label: App Icon Background
+      app_icon_heading: App Icon
+      app_icon_preview_android_label: Android
+      app_icon_preview_apple_label: iPhone and iPad
+      app_icon_text: "Upload a square image, at least 512 pixels across, for phones to show when someone adds the forum to their home screen. If you don't upload a favicon, it's used as the favicon too."
       favicon_heading: Favicon
-      favicon_text: Upload an image to be displayed as the forum's shortcut icon.
+      favicon_text: "Upload an image to be displayed as the forum's icon in browser tabs and bookmarks. A square image at least 48 pixels across stays sharp; an .ico file works too."
       logo_heading: Logo
       logo_text: Upload an image to be displayed in place of the forum title.
       logo_dark_mode_heading: Dark mode logo
@@ -554,6 +560,8 @@ core:
     # These translations are used in image upload buttons.
     upload_image:
       remove_button: => core.ref.remove
+      set_by_extension_text: "Set by {extension}, so it can't be changed here."
+      set_in_code_text: "Set in the forum's code, so it can't be changed here."
       upload_button: Choose an Image...
 
     # These translations are used for the users list on the admin dashboard.
@@ -1223,6 +1231,9 @@ core:
 
   # Translations in this namespace are used in messages output by the API.
   api:
+    app_icon_too_small_message: "The app icon must be at least {size} pixels wide or tall, so it stays sharp on home screens."
+    image_set_by_code_message: "This image is set in the forum's code, so it can't be changed here."
+    image_set_by_theme_message: "This image is set by the {extension} extension, so it can't be changed here."
     invalid_username_message: "The username may only contain letters, numbers, and dashes. With at least one letter."
     invalid_filter_type:
       must_be_numeric_message: "The {filter} filter must be numeric."

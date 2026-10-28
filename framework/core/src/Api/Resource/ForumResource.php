@@ -13,11 +13,11 @@ use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
+use Flarum\Forum\Branding\Branding;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
-use Flarum\Mail\EmailLogo;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
@@ -34,13 +34,17 @@ class ForumResource extends AbstractResource implements Findable
      */
     protected Filesystem $assetsFilesystem;
 
+    protected Branding $branding;
+
     public function __construct(
         protected UrlGenerator $url,
         protected SettingsRepositoryInterface $settings,
         protected Config $config,
-        Factory $filesystemFactory
+        Factory $filesystemFactory,
+        ?Branding $branding = null
     ) {
         $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
+        $this->branding = $branding ?? resolve(Branding::class);
     }
 
     public function type(): string
@@ -119,6 +123,15 @@ class ForumResource extends AbstractResource implements Findable
             Schema\Str::make('emailLogoUrl')
                 ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
                 ->get(fn () => $this->getEmailLogoUrl()),
+            Schema\Str::make('appIconUrl')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->branding->appIconUrls()['icon-512.png'] ?? null),
+            Schema\Str::make('appleTouchIconUrl')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->branding->appIconUrls()['apple-touch-icon.png'] ?? null),
+            Schema\Str::make('maskableIconUrl')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->branding->appIconUrls()['icon-maskable-512.png'] ?? null),
             Schema\Str::make('headerHtml')
                 ->get(fn () => $this->settings->get('custom_header')),
             Schema\Str::make('footerHtml')
@@ -163,30 +176,22 @@ class ForumResource extends AbstractResource implements Findable
 
     protected function getLogoUrl(): ?string
     {
-        $logoPath = $this->settings->get('logo_path');
-
-        return $logoPath ? $this->getAssetUrl($logoPath) : null;
+        return $this->branding->logoUrl();
     }
 
     protected function getLogoDarkModeUrl(): ?string
     {
-        $logoPath = $this->settings->get('logo_dark_mode_path');
-
-        return $logoPath ? $this->getAssetUrl($logoPath) : null;
+        return $this->branding->logoDarkModeUrl();
     }
 
     protected function getEmailLogoUrl(): ?string
     {
-        $emailLogoPath = $this->settings->get(EmailLogo::PATH_KEY);
-
-        return $emailLogoPath ? $this->getAssetUrl($emailLogoPath) : null;
+        return $this->branding->emailLogoUrl();
     }
 
     protected function getFaviconUrl(): ?string
     {
-        $faviconPath = $this->settings->get('favicon_path');
-
-        return $faviconPath ? $this->getAssetUrl($faviconPath) : null;
+        return $this->branding->faviconUrl();
     }
 
     public function getAssetUrl(string $assetPath): string
