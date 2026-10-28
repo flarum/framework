@@ -158,9 +158,9 @@ export default class AuditItem implements ClassComponent<AuditItemAttrs> {
       translationKeyForPayload = translationPrefix + 'setting_changed_with_values';
     }
 
-    // A reset attempt for an email with no matching account uses a distinct message.
-    if (log.action() === 'user.password_reset_attempted' && !payload.matched) {
-      translationKeyForPayload = translationPrefix + 'user.password_reset_attempted_unmatched';
+    // An action for an email with no matching account uses a distinct message.
+    if (payload.matched === false && app.translator.translations[translationKeyForPayload + '_unmatched']) {
+      translationKeyForPayload += '_unmatched';
     }
 
     // In Flarum 2.x a stored translation may be a plain string OR a `Translation` object
