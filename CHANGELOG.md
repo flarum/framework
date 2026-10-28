@@ -12,18 +12,24 @@
 - (core) generic form components as public API: `ResourceFormModal`, `ResourceForm`, `ResourceFormState`, client-side validation from the descriptor, field error mapping, `InputFactory` and the default inputs, `RelationInput` and `RelationOptions`
 - (core) an admin Access Tokens page to list and revoke users' sessions, remembered sessions and developer tokens; the current session can't be revoked there
 - (core) `access-tokens` is describable, with `createdAt`/`lastActivityAt` sorts, an includable `user` relationship, and `type` and `canDelete` attributes
+- (core) an admin Groups page (`/admin#/groups`) to list, create, edit and delete groups with their colour and icon, built on the generic resource form
+- (core) `groups` is describable, group API responses include `canEdit` and `canDelete`, and the groups `hidden` filter is described as a boolean filter
+- (core) resource schema `ui()` hints: `widget` accepts `'color'`, `'icon'` or any input type an extension registers, and `placeholder` sets the input's placeholder (translated when it is a translation key)
+- (core) `ResourceDefinition.recordLabel()` names a record in modal titles and confirmations; `ResourceListState.isPaginated()`, and a type whose list is not paginated is requested whole instead of 20 at a time
 - (likes, suspend) describe the `liked` and `suspended` user filters, and show `suspendedUntil` as a user list column
 
 ### Changed
 
 - (core) build the admin user list on `ResourceTable`, with sortable headers, filter chips, row delete, a "Columns" menu, an admin-only CSV export and a "matching users" count while a search or filter is active; filters a gambit covers (group, suspended, email) are typed in the search, and only filters without a gambit get a dropdown
 - (core) render the admin user list as a native `<table>`; class names and `data-*` attributes are kept, but CSS that relies on `display: grid` or the `--columns` style breaks
+- (core) **Breaking:** the admin, guest and member groups (ids 1–3) can no longer be deleted through the API, by anyone including administrators (`DELETE /api/groups/{1,2,3}` returns 403), because core depends on them; the moderator group and custom groups can still be deleted
 - (core) render `UserListPage.headerItems()` inside the user table's toolbar instead of a header row of their own: `search` in the search slot, items ranked above `totalUsers` beside it, `totalUsers` in the count slot, and the rest in the actions group, which keeps the class `UserListPage-header`
 
 ### Fixed
 
 - (core) `requiredOnUpdate()` on API resource fields was inverted (required on create, never on update); it now requires the field on update. GDPR erasure processing no longer accepts an empty `processedMode` and fails with a 500
 - (core) the resource table showed a search box for types without fulltext search
+- (core) updating a group required sending both names; a `PATCH /api/groups/{id}` with only `color` now works, and the names still may not be emptied
 
 ## [v2.0.2](https://github.com/flarum/framework/compare/v2.0.1...v2.0.2)
 

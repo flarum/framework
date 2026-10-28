@@ -1,6 +1,6 @@
 # Resource schema endpoint + generic admin CRUD in core — decisions
 
-**Status:** in-progress. Implemented on `sh/admin-resource-schema-core`; D1–D13 await owner sign-off (Task 0). The owner decisions of 2026-10-28 are applied.
+**Status:** in-progress. Implemented on `sh/admin-resource-schema-core`; D1–D14 await owner sign-off (Task 0). The owner decisions of 2026-10-28 are applied.
 **Reference:** [`doc/extend/resource-schemas.md`](../../extend/resource-schemas.md) documents what exists and how to use it. This file holds only the decisions and why.
 **Origin:** GlowingBlue/flarum-extensions#169 "Flarum frontend component library". Proposal 1 extracts the POC into `glowingblue/flarum-lib-frontend`; this is Proposal 2: put it in core, with the admin user list as the first consumer.
 **POC:** `flarum-ext-base-products`, branches `sh/admin-crud/{1-backend,2-common,3-admin,4-products,5-hardening}`, spec `doc/@work/specs/2026-10-08-admin-resource-crud.md` there.
@@ -91,6 +91,15 @@ Each decision: what, why, rejected alternatives. Shapes, keys and API surfaces a
 - *Why no create:* developer tokens are created by their owners on the forum.
 - *Why `-lastActivityAt` is written to the URL:* the resource has no default sort, and the sort controls must show the active one.
 
+**D14 — Groups page.** `groups` is describable and core ships `GroupListPage` (`/admin#/groups`, nav priority 65, between Permissions and Appearance) on `ResourceTable` and `ResourceFormModal`, through `GroupDefinition`. Surface in the guide ("The admin groups page").
+- *Why this page:* a first core consumer of the generic form, on a resource small enough to need no custom modal: badge, names and hidden as columns; colour and icon as inputs; delete through `ResourceDeleteModal`.
+- *Why groups 1–3 cannot be deleted:* core depends on the admin, guest and member groups (`Guest`, `User::groups()`). `GroupPolicy::delete()` force-denies them for everyone, administrators included; the moderator group and custom groups stay deletable, and every group stays editable. A BC break, in the guide's release notes.
+- *Why names are `requiredOnCreate()` + `filled`:* the form sends only changed fields, and the old `required()` rejected an update without both names. Sending them would write the translated built-in names ("Admin") into the database; the legacy `EditGroupModal` still sends every field.
+- *Resource changes:* `canEdit` / `canDelete` from the policy; fields writable on create or with `can('edit')`, so the descriptor offers no input to others; `HiddenFilter` describes itself as `boolean`. The `Index` endpoint stays unpaginated, so the list requests every record.
+- *Generic additions it needed:* `ui.widget` values beyond `'hidden'` (`'color'`, `'icon'`, or any registered input type), `ui.placeholder` (translated on the server), `ResourceDefinition.recordLabel()` (`recordLabel` moved to `common/`, the admin path re-exports it), `ResourceListState.isPaginated()`.
+- *Not included:* member counts; drag reordering, which stays on the Permissions page.
+- *Rejected:* a tab on `PermissionsPage` (`GroupBar` keeps the ordering there, and a page of its own stays simple); hiding Delete for built-in groups only in the UI, which leaves the API open.
+
 **Form components — public API (owner, 2026-10-28; resolves the former open decision).** `ResourceFormModal`, `ResourceForm`, `ResourceFormState`, the inputs (`InputFactory`, defaults, `RelationInput` / `RelationOptions`), validation and error mapping are documented in the guide.
 - *Why:* GB extensions use them, and `ResourceTable`'s default Create and Edit open `ResourceFormModal`. Core auto-exports by path, so an undocumented class would still be importable and hard to change.
 - `ResourceFormModal` mirrors the old user modals' surface (`fields()`, `data()`, `submitData()`, `onsaved`), so an extender ports by renaming the base class; a jest parity test pins its writable users fields against `EditUserModal`'s.
@@ -98,7 +107,7 @@ Each decision: what, why, rejected alternatives. Shapes, keys and API surfaces a
 
 ## Open items
 
-- **Task 0 — owner sign-off of D1–D13.** Points to confirm: D2 (no new permission; every member may read the users descriptor), D8 (seams and the two BC breaks), D10 (upstream-bound or GB-fork-only), D11 user-list defaults, D12 (`'all'` default), D13.
+- **Task 0 — owner sign-off of D1–D14.** Points to confirm: D2 (no new permission; every member may read the users descriptor), D8 (seams and the two BC breaks), D10 (upstream-bound or GB-fork-only), D11 user-list defaults, D12 (`'all'` default), D13, D14 (groups 1–3 undeletable for everyone; the legacy `EditGroupModal` hides Delete for all three).
 - **Manual click-through (plan Task 10 Step 2), partly done 2026-10-28.** Done: an automated probe on a scratch dev forum (65 PASS; its real failures were fixed) and targeted checks of the toolbar, counts, export and row menus. Open: the edit and delete probe steps (timed out), opening an exported CSV in a spreadsheet (umlauts via BOM, commas in names, no formula executes), a high-contrast theme, and the owner's manual sign-off. Scope: `/admin#/users` with suspend, nicknames and gdpr; sort; filter; `email:` gambit; create, edit, delete, gdpr export; `?page=2`; hidden columns survive reload and a private window.
 
 ## Possible follow-ups
@@ -139,7 +148,9 @@ Each decision: what, why, rejected alternatives. Shapes, keys and API surfaces a
 - `7719918d2` docs: merge the as-built design into the spec, drop experimental and future-version claims
 - `b23b1601b` feat(admin): access tokens page
 - `e9b67b7f9` fix: review fixes for the resource schema API
-- (this commit) docs: consolidate the spec, plan and guide
+- `923c43a4c` docs: consolidate the spec, plan and guide
+- `0e77be147` fix(api): requiredOnUpdate() requires the field on update
+- `05f9a7696` feat(admin): groups page on the generic resource form
 
 The task-by-task plan was folded into this file and deleted; git history keeps it (`doc/@work/plans/2026-10-27-admin-resource-schema-core.md` at `7719918d2`).
 

@@ -1,6 +1,6 @@
 # Resource schemas, tables and forms
 
-Flarum can describe an API resource to the frontend. The server builds a descriptor of the resource's fields, sorts and filters for the current actor. The frontend turns that descriptor into an admin table (sorting, filters, pagination, row actions, column toggles, CSV export, bulk actions) and into create and edit forms with client-side validation. The admin user list and the admin access token list are built on the table.
+Flarum can describe an API resource to the frontend. The server builds a descriptor of the resource's fields, sorts and filters for the current actor. The frontend turns that descriptor into an admin table (sorting, filters, pagination, row actions, column toggles, CSV export, bulk actions) and into create and edit forms with client-side validation. The admin user list, the admin access token list and the admin groups page are built on the table; the groups page also uses the generic form.
 
 This page is the reference for that API. It ships in the first minor release after v2.0.2.
 
@@ -88,7 +88,7 @@ Each field has `name`, `kind` and `label`. `kind` is one of `string`, `integer`,
 | `constraints` | `{}` | `minLength`, `maxLength`, `pattern`, `patternFlags`, `enum`, `format` (`email`, `url`), `minimum`, `maximum`, `minItems`, `maxItems`. See below. |
 | `default` | none | The `Create` endpoint's default for the field. Scalar kinds only, and only for an actor who can create. |
 | `relationship` | none | `{types: string[]}` on `toOne` and `toMany` fields. |
-| `ui` | `{}` | The field's `->ui()` hints, without `label`. |
+| `ui` | `{}` | The field's `->ui()` hints, without `label`. A `placeholder` that is an existing translation key is sent translated. |
 
 Constraints come from two sources:
 
@@ -131,7 +131,7 @@ On the client, `loadDescriptor(type)` from `flarum/common/resource/descriptor` m
 
 ## Make a resource describable
 
-A resource is describable only when an extension opts it in. Core opts in `users` and `access-tokens`. Opt in your own resource in `extend.php`:
+A resource is describable only when an extension opts it in. Core opts in `users`, `access-tokens` and `groups`. Opt in your own resource in `extend.php`:
 
 ```php
 <?php
@@ -190,8 +190,9 @@ return [
 | `column` | `true`, or an integer priority (higher is further left). `false` hides the column. | Tables |
 | `display` | The attribute that labels a related record, for example `nameSingular` for groups. | Tables, relation inputs and relationship filters |
 | `label` | A translation key or a literal. The server resolves it into the field's `label`. | Server |
-| `widget` | `'hidden'`: the field gets no form input (users' `token`), and a `required_without` rule naming only such fields describes as required. | `'hidden'` only. Core's Groups page will add more values. |
-| `group`, `priority`, `placeholder` | Form section, form order, input placeholder. | Not read. Accepted and sent in the descriptor. |
+| `widget` | `'hidden'`: the field gets no form input (users' `token`), and a `required_without` rule naming only such fields describes as required. On a `string` field, any other value names the input type: `'color'` is the colour input with preview (`color-preview`), `'icon'` the icon input with picker, and anything else is used as the type as written. Register a renderer for a type of your own on the definition's `formInputs()` factory; a type without a renderer goes to `FormGroup`. A blank value is sent as `null` when the field is nullable. | Forms. `'hidden'` on any field, the other values on `string` fields only. |
+| `placeholder` | The input's placeholder. A translation key that exists is sent translated, like `label`; anything else is sent as written. | Forms, unless the field's input sets its own placeholder |
+| `group`, `priority` | Form section, form order. | Not read. Accepted and sent in the descriptor. |
 
 In a `ResourceTable` with inferred columns, a visible field becomes a column when it has `ui.column` or is sortable. The admin user list adds columns only for fields with `ui.column`.
 
@@ -380,7 +381,7 @@ The table loads the descriptor and then the list. It reads and writes the page, 
 
 ### What the table offers
 
-- **Create** shows when `definition.canCreate()` is true (`capabilities.create`). **Edit** and **Delete** show per row from the record's `canEdit` and `canDelete` attributes. Delete opens `ResourceDeleteModal`, which calls the type's `Delete` endpoint (an extension's replacement included).
+- **Create** shows when `definition.canCreate()` is true (`capabilities.create`). **Edit** and **Delete** show per row from the record's `canEdit` and `canDelete` attributes, so a resource must serialize them, for example `Schema\Boolean::make('canDelete')->get(fn (Badge $badge, Context $context) => $context->getActor()->can('delete', $badge))`. A row without them gets neither button. Delete opens `ResourceDeleteModal`, which calls the type's `Delete` endpoint (an extension's replacement included).
 - **Sort** by the column headers and a sort dropdown, over the descriptor's `sorts`.
 - **Search** is a core `Input`, shown when the descriptor has `search`. When the type has enabled gambits, it sits inside the gambit autocomplete, so `key:value` can be typed.
 - **Filters** are dropdown buttons labelled "{label}: {value}". The first `inlineFilters` are on the toolbar; the rest are under "More filters", and picking one adds its button. A filter with a value is always on the toolbar.
@@ -392,6 +393,7 @@ The table loads the descriptor and then the list. It reads and writes the page, 
 - **Export CSV** (`definition.canExport()`, default `capabilities.list`): pages through the current filter and sort at `pagination.maxLimit`, up to 5000 rows, through the normal list endpoint, so the file holds only what the actor can see. It downloads `{type}-{YYYY-MM-DD}.csv` with a UTF-8 BOM. Quoting follows RFC 4180. A value starting with `=`, `+`, `-`, `@`, tab or carriage return gets a `'` prefix. The button turns into a cancel button with progress while running.
 - **Bulk select** appears only when `definition.bulkActions(selection, context)` returns items. It is empty by default. The selection holds the ids of the current page and is cleared on any page, sort, filter or search change. `definition.bulkDelete(context)` is a ready-made "Delete selected" item: it confirms with the deletable count, skips rows whose `canDelete` is false, runs one `DELETE` per record (three at a time) and opens `BulkResultModal` with what was deleted, skipped or failed.
 - **Row menus** open below their row even in a short table: `floatMenus()` positions an open menu `fixed` at its toggle.
+- **Unpaginated types.** When the descriptor has no `pagination` (the `Index` endpoint sets no limit, as for groups), `ResourceListState` requests the list without `page[limit]` and `page[offset]`, so the server sends every record. The list stays on page 1, a `?page=` in the URL is ignored, and no pager shows. `list.isPaginated()` tells the two cases apart; it is `true` until the descriptor is loaded.
 
 ### Regions
 
@@ -417,13 +419,14 @@ Every region is an `ItemList` method you can extend:
 |---|---|
 | `load()` | Fetches the descriptor (memoized). Views await it. |
 | `fields()` | The field registry from the descriptor (`fieldsFromDescriptor()`). |
-| `inputResolvers()` | `defaultInputResolvers()`: one per kind (`relation`, `enum`, `boolean`, `number`, `date`, `datetime`, `textarea`, `string`). `array` fields get no input. |
+| `inputResolvers()` | `defaultInputResolvers()`: `widget` (a string field's `ui.widget`, see [Hint keys](#hint-keys)), then one per kind (`relation`, `enum`, `boolean`, `number`, `date`, `datetime`, `textarea`, `string`). `array` fields get no input. |
 | `formInputs()`, `filterInputs()` | The `InputFactory` for forms and for the filter toolbar. |
 | `filterResolvers()`, `filters()` | One `Filter` per described filter. |
 | `actions(model)`, `toolbar(list)` | Empty `ItemList`s for row actions and toolbar items. |
 | `bulkActions(selection, context)`, `bulkDelete(context)`, `runBulkDelete(context)` | No bulk actions; the delete helper. |
 | `query()` | Extra list request parameters, merged under the list's own. |
 | `canCreate()`, `canExport()` | `capabilities.create`, `capabilities.list`. |
+| `recordLabel(model)` | The name of one record in the edit modal title ("Edit {name}"), the delete confirmation, the bulk result and the row checkbox's label: the first non-empty string among `name`, `title`, `label`, `displayName`, `username` and `slug`, else `#id`. Override it when the naming attribute is another one. |
 | `label(n)` | The humanised type. |
 
 ```ts
@@ -599,6 +602,21 @@ The module exports these seams:
 
 `AccessTokenRevokeModal` (`flarum/admin/components/AccessTokenRevokeModal`) extends `ResourceDeleteModal` and revokes through `DELETE /api/access-tokens/{id}`. The same module exports `accessTokenTypeLabel(type)` and `accessTokenLabel(token)`.
 
+## The admin groups page
+
+`GroupListPage` (`flarum/admin/components/GroupListPage`, route `groups`, `/admin#/groups`) lists every group the actor can see and creates, edits and deletes them through `ResourceFormModal` and `ResourceDeleteModal`. It has no CSV export. Reordering groups stays on the Permissions page.
+
+The `groups` descriptor:
+
+- `nameSingular` (column 90) and `namePlural` (column 85) have translated placeholders. They are required on create. An update may leave them out, but may not empty them (`filled`).
+- `color` has `widget: 'color'` and `icon` has `widget: 'icon'`. `isHidden` is column 60.
+- These five fields are writable when creating (the `Create` endpoint checks `createGroup`) or when the actor can edit the group.
+- `canEdit` and `canDelete` come from `GroupPolicy`. The admin, guest and member groups (ids 1–3) are never deletable, see [Release notes](#release-notes).
+- The `Index` endpoint has no limit, so there is no `pagination` and the page shows every group.
+- The `hidden` filter is described as `boolean`.
+
+The module exports `GroupDefinition`. It adds a `badge` column (priority 100, no input), help text under the icon input, and `recordLabel()` returns the singular name. Add a column or an input the same way as on any resource: a `->ui()` hint on a field added through `Extend\ApiResource(GroupResource::class)`, or `extend(GroupDefinition.prototype, 'fields', …)`.
+
 ## Public API
 
 Covered by the backwards-compatibility promise:
@@ -615,12 +633,13 @@ Covered by the backwards-compatibility promise:
   - `resource/types`, `resource/descriptor` (`loadDescriptor`, `clearDescriptorCache`, `isWritable`, `isRequired`), `resource/ResourceDefinition`, `resource/ResourceListState`, `resource/fieldsFromDescriptor`, `resource/field`, `resource/resolvers`.
   - `resource/ResourceForm`, `resource/ResourceFormState`, `resource/validation`, `resource/errors`.
   - `resource/inputs/InputFactory`, `resource/inputs/defaults`, `resource/inputs/RelationInput`, `resource/inputs/RelationOptions`.
-  - `resource/csv`, `resource/ColumnPreferences`, `resource/BulkRunner`.
+  - `resource/csv`, `resource/ColumnPreferences`, `resource/BulkRunner`, `resource/recordLabel` (`recordLabel`, `RECORD_LABEL_ATTRIBUTES`; `flarum/admin/components/resource/recordLabel` re-exports it).
   - `Pill`'s `deleteLabel` attribute.
 - **JS, `flarum/admin/`**
   - `components/resource/ResourceTable` (with `ResourceTableAttrs`, `ColumnData`, `SearchCoveredFilters`, `INLINE_FILTERS` and the regions above), `ResourceFormModal`, `ResourceDeleteModal`, `ColumnsDropdown`, `BulkResultModal`, `floatMenus`.
   - `UserListPage`'s `createModal()`, `editModal()`, `bulkActionItems()`, `canExport()`, `searchCoveredFilters()`, and its exported types `ColumnData` and `UserListModal`.
   - `components/AccessTokenListPage` (`AccessTokenDefinition`, `AccessTokenListState`, `AccessTokenTable`, `DEFAULT_ACCESS_TOKEN_SORT`) and `components/AccessTokenRevokeModal` (`accessTokenTypeLabel`, `accessTokenLabel`).
+  - `components/GroupListPage` (`GroupDefinition`).
 
 Internal, not covered: the container bindings `flarum.api.describable_resources` and `flarum.search.filter_descriptions` (use the extenders), and the classes `Flarum\Api\Describe\FieldDescriber` and `Flarum\Api\Describe\RuleHints` (the descriptor from `ResourceDescriber::describe()` is the contract).
 
@@ -641,3 +660,7 @@ If your CSS relies on `display: grid`, `grid-template-columns` or `--columns` on
 The TypeScript-private members `pageNumber`, `loadingPageNumber`, `isLoadingPage`, `getTotalPageCount` and `setPageNumberInUrl` were removed. Use `loadPage()` and `goToPage()`.
 
 `Pill` gained a `deleteLabel` attribute, the accessible label of its delete button.
+
+**The admin, guest and member groups cannot be deleted.** `GroupPolicy::delete()` force-denies groups 1–3 for every actor, administrators included, because core relies on them (`Guest`, `User::groups()`). `DELETE /api/groups/1`, `/2` and `/3` return `403`, and their rows carry `canDelete: false`. The moderator group and custom groups can still be deleted. The legacy `EditGroupModal` hides Delete for all three (it hid it only for the admin group; the Permissions page never opens it for guest or member).
+
+**A group update need not send both names.** `nameSingular` and `namePlural` used to be required on every request; they are now required on create only, and may not be emptied. A `PATCH /api/groups/{id}` with only `color` succeeds.
