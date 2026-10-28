@@ -617,7 +617,7 @@ export default class UserListPage extends AdminPage {
         'delete',
         <Button
           icon="fas fa-trash-alt"
-          className="Button UserList-deleteUser"
+          className="UserList-deleteUser"
           onclick={() =>
             app.modal.show(ResourceDeleteModal, {
               definition: this.definition,

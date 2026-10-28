@@ -225,6 +225,8 @@
 
   &-container {
     position: relative;
+    // Scrolling sideways also clips vertically; open row menus are positioned `fixed` (see
+    // floatMenus.ts), so they show below a short table.
     overflow-x: auto;
     border-radius: var(--border-radius);
 

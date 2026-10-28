@@ -29,6 +29,7 @@ import type { Field, Filter } from '../../../common/resource/types';
 import type Mithril from 'mithril';
 import BulkResultModal from './BulkResultModal';
 import ColumnsDropdown from './ColumnsDropdown';
+import floatMenus from './floatMenus';
 import recordLabel from './recordLabel';
 import ResourceDeleteModal from './ResourceDeleteModal';
 import ResourceFormModal from './ResourceFormModal';
@@ -157,6 +158,8 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   loadError: boolean = false;
   /** The running export, if any. */
   exporting: { controller: AbortController; rows: number; total: number | null } | null = null;
+  /** Removes the row menus' fixed positioning listeners (`floatMenus`). */
+  protected unfloatMenus: (() => void) | null = null;
 
   /** The user's explicit column choices (key to visible); read from `ColumnPreferences` on first use. */
   protected columnChoices: Map<string, boolean> | null = null;
@@ -1182,6 +1185,8 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       <div
         className={classList('ResourceTable-container', loading && 'ResourceTable-container--loading', this.attrs.tableClassName)}
         aria-busy={loading ? 'true' : 'false'}
+        oncreate={(vnode: Mithril.VnodeDOM) => (this.unfloatMenus = floatMenus(vnode.dom as HTMLElement))}
+        onremove={() => this.unfloatMenus?.()}
       >
         <table className="ResourceTable-table">
           <caption className="visually-hidden">{this.attrs.definition.label(2)}</caption>
