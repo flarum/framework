@@ -24,50 +24,18 @@
     }
   }
 
+  // The list is a `ResourceTable` (`-table`, see ResourceTable.less): the grid classes stay on the
+  // table container (`-grid`, with `--loading`/`--loadingPage`/`--loaded`), its header cells
+  // (`-grid-header`) and its body cells (`-grid-rowItem`) for extension styles; the table itself
+  // does the layout, striping and loading overlay.
   &-grid {
     width: 100%;
-    position: relative;
-    border-radius: var(--border-radius);
-
-    // Use CSS custom properties to define the number of columns in the grid
-    grid-template-columns: repeat(var(--columns), max-content);
-
-    // Ensure mobile scrollbar isn't on top of content
-    padding-bottom: 4px;
-
-    // Table refreshing overlay
-    &--loadingPage {
-      .loading-container();
-    }
-
-    &--loaded,
-    &--loadingPage {
-      display: grid;
-    }
-
-    &-header {
-      font-weight: bold;
-      border-bottom: 1px solid var(--muted-more-color);
-      padding: 8px 16px;
-      background: var(--control-bg);
-    }
 
     &-rowItem {
-      padding: 4px 16px;
-      display: flex;
-      align-items: center;
-
       &[data-column-name="userActions"] {
+        width: 1%;
         padding: 0;
         position: relative;
-      }
-
-      &--shaded {
-        background: var(--body-bg-shaded);
-
-        [data-theme^=dark] & {
-          background: var(--body-bg-light);
-        }
       }
     }
   }
