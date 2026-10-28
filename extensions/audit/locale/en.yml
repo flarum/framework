@@ -114,8 +114,12 @@ flarum-audit:
                 avatar_removed: Removed {username}'s avatar
                 created: Created {username}'s account
                 deleted: Deleted {username}
+                email_bounced: "Mail to {username} bounced: {reason}"
+                email_bounced_unmatched: "Mail to {email} bounced (no matching account): {reason}"
                 email_changed: Changed {username}'s email from {old_email} to {new_email}
                 email_change_requested: Requested to change {username}'s email to {new_email}
+                email_complained: "{username} marked mail from the forum as spam"
+                email_complained_unmatched: Mail to {email} was marked as spam (no matching account)
                 groups_changed: Changed {username}'s groups from {old_groups} to {new_groups}
                 logged_in: Logged in {username} account
                 logged_in_with_provider: Logged in {username} account using {provider}
