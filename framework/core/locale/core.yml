@@ -540,6 +540,55 @@ core:
       signup_closed_button: Closed
       signup_open_button: Open
 
+    # These translations are used by the generic resource table and its modals.
+    resource:
+      bulk:
+        close_button: => core.ref.okay
+        result_deleted: "{count, plural, one {# entry deleted.} other {# entries deleted.}}"
+        result_failed: "{count, plural, one {# entry could not be deleted:} other {# entries could not be deleted:}}"
+        result_skipped: "{count, plural, one {# entry was skipped because you may not delete it:} other {# entries were skipped because you may not delete them:}}"
+        result_title: Bulk delete
+        result_unknown_error: Something went wrong.
+      delete:
+        cancel_button: Cancel
+        confirmation: "Delete {name}? This cannot be undone."
+        submit_button: => core.ref.delete
+        title: => core.ref.delete
+      form:
+        create_title: Create
+        edit_title: "Edit {name}"
+      table:
+        actions_label: Actions
+        bulk_label: Selected entries
+        columns_button: Columns
+        columns_label: Show or hide columns
+        create_button: Create
+        delete_button: => core.ref.delete
+        edit_button: => core.ref.edit
+        empty: There is nothing here yet.
+        export_button: Export CSV
+        export_error: The export failed.
+        export_progress: "Exporting… {count} (cancel)"
+        export_progress_total: "Exporting… {count} of {total} (cancel)"
+        export_truncated: "{count, plural, one {Only the first # row was exported.} other {Only the first # rows were exported.}}"
+        load_error: This list could not be loaded. You may not have permission to manage it.
+        next_button: Next
+        no_results: Nothing matches your search or filters.
+        page: "Page {page}"
+        pagination_label: Pagination
+        previous_button: Previous
+        refresh_button: => core.ref.refresh
+        search_label: Search
+        search_placeholder: Search…
+        select_all_label: Select all entries on this page
+        select_label: "Select {name}"
+        selected: "{count, plural, one {# selected} other {# selected}}"
+        sort_ascending: "{label} (ascending)"
+        sort_default: Default order
+        sort_descending: "{label} (descending)"
+        sort_label: Change sort order
+        total: "{count, plural, one {# entry} other {# entries}}"
+
     # These translations are used by the admin-specific search sources.
     search_source:
       general:
@@ -1079,6 +1128,31 @@ core:
       last_button: Go to last page
       next_button: Next page
       page_counter: Page {current} of {total}
+
+    # These translations are used by the generic resource forms and filters.
+    resource:
+      bulk:
+        delete_button: "{count, plural, =0 {Delete selected} other {Delete # selected}}"
+        delete_confirmation: "{count, plural, one {Delete # entry? This cannot be undone.} other {Delete # entries? This cannot be undone.}}"
+      filter:
+        any: Any
+        "no": "No"
+        "yes": "Yes"
+      form:
+        load_error: This form could not be loaded.
+        submit_button: => core.ref.save_changes
+      relation:
+        load_more: Load more
+      validation:
+        email: Enter a valid email address.
+        enum: Choose one of the listed values.
+        max_length: "Enter at most {count, plural, one {# character} other {# characters}}."
+        maximum: "Enter a value of at most {max}."
+        min_length: "Enter at least {count, plural, one {# character} other {# characters}}."
+        minimum: "Enter a value of at least {min}."
+        pattern: This value has an invalid format.
+        required: This field is required.
+        url: Enter a valid URL.
 
     # These translations are used by the abstract search component and search modal.
     search:

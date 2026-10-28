@@ -1,0 +1,227 @@
+// Generic resource admin: ResourceTable, ResourceFormModal, ResourceDeleteModal, BulkResultModal (@experimental).
+
+.ResourceTable {
+  padding-bottom: 24px;
+
+  &-error .Alert {
+    display: block;
+  }
+
+  &-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    margin-bottom: 16px;
+  }
+
+  &-toolbarView,
+  &-toolbarActions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &-toolbarActions {
+    margin-inline-start: auto;
+  }
+
+  &-search {
+    width: 220px;
+  }
+
+  &-columns .Dropdown-menu {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  &-columnToggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 6px 15px;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  &-filter {
+    min-width: 140px;
+    max-width: 260px;
+
+    .Form-group {
+      margin-bottom: 0;
+    }
+
+    > .FormControl,
+    .Select {
+      width: 100%;
+    }
+  }
+
+  &-container {
+    position: relative;
+    overflow-x: auto;
+    border-radius: var(--border-radius);
+
+    > .LoadingIndicator-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &--loading .ResourceTable-table {
+      opacity: 0.5;
+    }
+  }
+
+  &-table {
+    width: 100%;
+    border-collapse: collapse;
+    padding-bottom: 4px;
+
+    th,
+    td {
+      padding: 8px 16px;
+      text-align: start;
+      vertical-align: middle;
+    }
+
+    thead th {
+      font-weight: bold;
+      white-space: nowrap;
+      background: var(--control-bg);
+      border-bottom: 1px solid var(--muted-more-color);
+    }
+
+    tbody tr:nth-child(even) td {
+      background: var(--body-bg-shaded);
+
+      [data-theme^="dark"] & {
+        background: var(--body-bg-light);
+      }
+    }
+  }
+
+  &-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+  }
+
+  &-sortIcon {
+    color: var(--muted-more-color);
+
+    .is-sorted & {
+      color: var(--primary-color);
+    }
+  }
+
+  &-bulk {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    flex-basis: 100%;
+  }
+
+  &-selectedCount {
+    color: var(--muted-color);
+  }
+
+  &-selectHeader,
+  &-selectCell {
+    width: 1%;
+    padding-inline-end: 0 !important;
+
+    input {
+      margin: 0;
+      cursor: pointer;
+    }
+  }
+
+  &-row.is-selected td {
+    background: var(--control-bg) !important;
+  }
+
+  &-actionsHeader,
+  &-actions {
+    width: 1%;
+    white-space: nowrap;
+    text-align: end !important;
+  }
+
+  &-actions {
+    > * + * {
+      margin-inline-start: 5px;
+    }
+  }
+
+  &-empty {
+    padding: 24px 16px !important;
+    text-align: center !important;
+    color: var(--muted-color);
+  }
+
+  &-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 20px;
+    margin-top: 16px;
+  }
+
+  &-total {
+    color: var(--muted-color);
+  }
+
+  &-prevNext {
+    justify-content: center;
+  }
+
+  &-page {
+    color: var(--muted-color);
+  }
+
+  &-nextIcon {
+    margin-inline: 7px 0;
+  }
+}
+
+.ResourceFormModal {
+  .ResourceForm-error {
+    color: var(--control-danger-color);
+  }
+
+  .ResourceForm-field.has-error .FormControl {
+    border-color: var(--control-danger-color);
+  }
+}
+
+.ResourceDeleteModal-confirmation {
+  margin-bottom: 0;
+}
+
+.BulkResultModal {
+  ul {
+    margin: 4px 0 12px;
+    padding-inline-start: 20px;
+  }
+
+  &-failed li {
+    color: var(--control-danger-color);
+  }
+}
