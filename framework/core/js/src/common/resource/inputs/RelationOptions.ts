@@ -7,8 +7,6 @@ import RelationInput from './RelationInput';
  * loads, for menus that render the records as their own items (the resource table's relationship
  * filter). Searches send `filter[q]`; "Load more" appends the next page; only the latest request
  * lands.
- *
- * @experimental
  */
 export default class RelationOptions {
   items: Model[] = [];

@@ -270,7 +270,7 @@ describe('UserListPage', () => {
       expect(out).not.toHaveElement('.ResourceTable-sortDropdown');
     });
 
-    test("the descriptor's filters render in the toolbar; gambit-backed text filters are left to the search; gambits stay in filter[q]", async () => {
+    test("the descriptor's gambit-backed filters are left to the search; gambits stay in filter[q]", async () => {
       jest.useFakeTimers();
 
       try {
@@ -278,9 +278,9 @@ describe('UserListPage', () => {
         await jest.runAllTimersAsync();
         out.redraw();
 
-        // `email:` is a users gambit, so the search box covers the email filter.
+        // `email:` and `group:` are users gambits, so the search box covers both filters.
         expect(out).not.toHaveElement('.ResourceTable-toolbar .ResourceTable-filter--email');
-        expect(out).toHaveElement('.ResourceTable-toolbar .ResourceTable-filter--group');
+        expect(out).not.toHaveElement('.ResourceTable-toolbar .ResourceTable-filter--group');
 
         out.setValue('.ResourceTable-toolbarView .ResourceTable-searchGroup input[type=search]', 'email:a@b.c');
         await jest.runAllTimersAsync();
@@ -705,17 +705,18 @@ describe('UserListPage', () => {
     expect(narrowed.out).toContainRaw('1 matching user of 3');
   });
 
-  test('searchCoveredFilters() is the toolbar policy: "all" leaves group to the group: gambit', async () => {
+  test('searchCoveredFilters() is the toolbar policy: "all" by default leaves group to the group: gambit, "text" keeps its dropdown', async () => {
     const { out } = await rendered();
 
-    expect(out).toHaveElement('.ResourceTable-filter--group');
+    expect(out).not.toHaveElement('.ResourceTable-filter--group');
     expect(out).not.toHaveElement('.ResourceTable-filter--email');
 
     patch(UserListPage.prototype, 'searchCoveredFilters');
-    UserListPage.prototype.searchCoveredFilters = () => 'all';
-    const all = await rendered();
+    UserListPage.prototype.searchCoveredFilters = () => 'text';
+    const text = await rendered();
 
-    expect(all.out).not.toHaveElement('.ResourceTable-filter--group');
+    expect(text.out).toHaveElement('.ResourceTable-filter--group');
+    expect(text.out).not.toHaveElement('.ResourceTable-filter--email');
   });
 
   test('the group filter leaves out the guest group', async () => {

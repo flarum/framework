@@ -18,8 +18,6 @@ import { ValidationError } from './validation';
 /**
  * Focus the first text field inside `root` (else its first control), unless the user already
  * moved focus into one.
- *
- * @experimental
  */
 export function focusFirstControl(root: Element | null | undefined): void {
   const active = document.activeElement;
@@ -36,8 +34,6 @@ export function focusFirstControl(root: Element | null | undefined): void {
 
 /**
  * A field's error message(s), one line each.
- *
- * @experimental
  */
 export function renderFieldError(error: string): Mithril.Children {
   return (
@@ -53,8 +49,6 @@ export function renderFieldError(error: string): Mithril.Children {
  * One visible field of a form state: an input spec through `inputs` (with the required hint), a
  * function input through `input(ctx)`, its error below. Blur validates the field. Shared by
  * `ResourceForm` and modals that lay out the fields themselves.
- *
- * @experimental
  */
 export function renderFormField<M extends Model>(
   state: ResourceFormState<M>,
@@ -100,9 +94,6 @@ export function renderFormField<M extends Model>(
   );
 }
 
-/**
- * @experimental
- */
 export interface ResourceFormAttrs<M extends Model> extends ComponentAttrs {
   definition: ResourceDefinition<M>;
   /** The record to edit; omit or null to create one. */
@@ -127,8 +118,6 @@ export interface ResourceFormAttrs<M extends Model> extends ComponentAttrs {
  * through the form's `InputFactory` (with required/maxlength/min/max/options hints), function inputs
  * through `input(ctx)`. Field errors show under their field; unmatched ones above the submit button.
  * Only changed fields are sent.
- *
- * @experimental
  */
 export default class ResourceForm<M extends Model = Model, Attrs extends ResourceFormAttrs<M> = ResourceFormAttrs<M>> extends Component<Attrs> {
   formState: ResourceFormState<M> | null = null;

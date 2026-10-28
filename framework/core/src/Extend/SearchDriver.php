@@ -132,8 +132,6 @@ class SearchDriver implements ExtenderInterface
      * Works for any filter key, including filters this extension does not own.
      * It takes precedence over a filter implementing \Flarum\Search\Filter\DescribesFilter.
      *
-     * @experimental May change in 2.1 without a BC break.
-     *
      * @param class-string<SearcherInterface> $searcherClass : The class of the Searcher the filter is registered on.
      * @param string $filterKey : The filter key, as returned by FilterInterface::getFilterKey().
      * @param array<string, mixed>|(callable(\Flarum\User\User): (array<string, mixed>|null))|class-string $description

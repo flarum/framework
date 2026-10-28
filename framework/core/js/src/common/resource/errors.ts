@@ -38,8 +38,6 @@ function matches(key: string, field: Field<any>, name: string): boolean {
  * Pass only the fields that have an input. A field that merely holds a container other fields
  * write into (e.g. `translations`) must be `input: false`: otherwise it matches every pointer below
  * it by its first segment and takes the errors of the fields inside.
- *
- * @experimental
  */
 export function mapErrors(errors: JsonApiError[], fields: ItemList<Field<any>>): Record<string, string> {
   const entries = Object.entries(fields.toObject()).map(([key, item]) => [key, item.content as Field<any>] as const);

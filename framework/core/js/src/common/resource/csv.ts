@@ -7,8 +7,6 @@ import type ResourceListState from './ResourceListState';
 
 /**
  * What `exportCsv` needs from a table column. `ResourceTable`'s `ColumnData` satisfies it.
- *
- * @experimental
  */
 export interface ExportColumn<M extends Model = Model> {
   /** The header cell; reduced to its text. */
@@ -19,9 +17,6 @@ export interface ExportColumn<M extends Model = Model> {
   hidden?: boolean;
 }
 
-/**
- * @experimental
- */
 export interface ExportCsvOptions<M extends Model = Model> {
   /** The table's columns in display order, keyed as in its `ItemList`. */
   columns: [string, ExportColumn<M>][];
@@ -33,9 +28,6 @@ export interface ExportCsvOptions<M extends Model = Model> {
   signal?: AbortSignal;
 }
 
-/**
- * @experimental
- */
 export interface ExportCsvResult {
   rows: number;
   /** More rows matched than `maxRows`. */
@@ -65,8 +57,6 @@ function jsonCell(value: object): string {
  * spreadsheet reads it as text. Telling a negative number from `-2+3+cmd|...` is exactly the kind
  * of judgement such guards get wrong, so we don't try. A vnode-like object (with a `tag`) or a
  * value `JSON.stringify` rejects becomes an empty cell.
- *
- * @experimental
  */
 export function csvCell(value: unknown): string {
   if (value === null || value === undefined) return '';
@@ -80,8 +70,6 @@ export function csvCell(value: unknown): string {
 
 /**
  * A CSV document: the header, then one record per row, each line ending with CRLF.
- *
- * @experimental
  */
 export function toCsv(rows: unknown[][], header: string[]): string {
   return [header, ...rows].map((row) => row.map(csvCell).join(',') + '\r\n').join('');
@@ -124,8 +112,6 @@ function download(filename: string, content: string, type: string): void {
  * else the raw attribute when the column key is a descriptor field (relationships excluded), else
  * the column is left out; rendered cell content is never stringified. Hidden columns are left out.
  * The file starts with a UTF-8 BOM so spreadsheet apps detect the encoding.
- *
- * @experimental The transport may move server-side for large sets; the signature stays.
  */
 export async function exportCsv<M extends Model>(state: ResourceListState<M>, options: ExportCsvOptions<M>): Promise<ExportCsvResult> {
   const { maxRows = 5000, onProgress, signal } = options;

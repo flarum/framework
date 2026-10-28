@@ -30,9 +30,6 @@ use Tobyz\JsonApiServer\Resource\Resource;
  *
  * Only resources opted in through `Extend\ApiResource::describable()` are
  * describable, so any extension can opt in any resource.
- *
- * @experimental May change in 2.1 without a BC break. Only the descriptor shape
- *               is versioned, through `schemaVersion`.
  */
 class ResourceDescriber
 {

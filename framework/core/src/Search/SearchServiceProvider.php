@@ -108,8 +108,6 @@ class SearchServiceProvider extends AbstractServiceProvider
         /**
          * Filter descriptions for the `resource-schemas` endpoint, keyed by
          * searcher class and filter key. See `Extend\SearchDriver::describeFilter()`.
-         *
-         * @experimental
          */
         $this->container->singleton('flarum.search.filter_descriptions', function () {
             return [];

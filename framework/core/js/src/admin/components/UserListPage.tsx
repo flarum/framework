@@ -40,8 +40,6 @@ export type ColumnData = ResourceColumnData<User>;
 /**
  * What `createModal()` / `editModal()` return: anything `app.modal.show()` takes, a modal class or a
  * loader of one.
- *
- * @experimental
  */
 export type UserListModal = Parameters<ModalManagerState['show']>[0];
 
@@ -362,8 +360,6 @@ export default class UserListPage extends AdminPage {
 
   /**
    * The modal the "New User" button opens; it gets an `onCreated(user)` callback.
-   *
-   * @experimental 2.1 may return a `ResourceFormModal` subclass.
    */
   createModal(): UserListModal {
     return CreateUserModal;
@@ -371,8 +367,6 @@ export default class UserListPage extends AdminPage {
 
   /**
    * The modal a row's "Edit" opens; it gets `user` and an `onsaved(user)` callback.
-   *
-   * @experimental 2.1 may return a `ResourceFormModal` subclass.
    */
   editModal(_user: User): UserListModal {
     return loadEditUserModal;
@@ -382,8 +376,6 @@ export default class UserListPage extends AdminPage {
    * Actions for the selected users. Empty, so the list has no checkbox column; adding an item adds
    * it. `context.list` holds the selection; `ResourceDefinition.bulkDelete(context)` is a ready-made
    * item.
-   *
-   * @experimental
    */
   bulkActionItems(_context: BulkActionContext<User>): ItemList<Mithril.Children> {
     return new ItemList<Mithril.Children>();
@@ -391,20 +383,17 @@ export default class UserListPage extends AdminPage {
 
   /**
    * Which filters the toolbar leaves to the search box when a gambit covers them (see
-   * `ResourceTable`'s `searchCoveredFilters`): text-like filters such as `email`, so `group` and
-   * `suspended` keep their dropdowns.
-   *
-   * @experimental
+   * `ResourceTable`'s `searchCoveredFilters`): every covered filter, so `group` and `suspended`
+   * are typed in the search as `group:` / `is:suspended`. Filters without a gambit, e.g. likes'
+   * `liked`, keep their dropdowns.
    */
   searchCoveredFilters(): SearchCoveredFilters {
-    return 'text';
+    return 'all';
   }
 
   /**
    * Whether the "Export CSV" button shows: administrators only, since the export holds email
    * addresses.
-   *
-   * @experimental
    */
   canExport(): boolean {
     return !!app.session.user?.isAdmin();

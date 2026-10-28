@@ -37,8 +37,6 @@ import ResourceFormModal from './ResourceFormModal';
 /**
  * One table column. `{name, content}` is the shape `UserListPage.columns()` has always used; the rest
  * is optional.
- *
- * @experimental
  */
 export interface ColumnData<M extends Model = Model> {
   /** The header cell's content. */
@@ -62,9 +60,6 @@ export interface ColumnData<M extends Model = Model> {
   csv?: (model: M) => string | number | null;
 }
 
-/**
- * @experimental
- */
 export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAttrs {
   definition: ResourceDefinition<M>;
   /** An existing list state; one is created (and owned) otherwise. */
@@ -98,29 +93,20 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
   /**
    * How many filters show as toolbar buttons before the rest go under "More filters". Default
    * `ResourceTable.INLINE_FILTERS` (3).
-   *
-   * @experimental
    */
   inlineFilters?: number;
   /**
    * Collapse the filters into one "Filters" dropdown. Default: at phone width.
-   *
-   * @experimental
    */
   compactFilters?: boolean;
   /**
    * Which filters the toolbar leaves out when a gambit of the same key covers them, so they are
-   * typed into the search box as `key:value` instead: `'text'` (default) only text-like filters,
-   * `'all'` every covered filter, `'none'` none. A filter's own `hideWhenSearchable` wins.
-   *
-   * @experimental
+   * typed into the search box as `key:value` instead: `'all'` (default) every covered filter,
+   * `'text'` only text-like filters, `'none'` none. A filter's own `hideWhenSearchable` wins.
    */
   searchCoveredFilters?: SearchCoveredFilters;
 }
 
-/**
- * @experimental
- */
 export type SearchCoveredFilters = 'text' | 'all' | 'none';
 
 const anyLabel = () => app.translator.trans('core.lib.resource.filter.any', {}, true);
@@ -141,12 +127,9 @@ function ordered<T>(list: ItemList<T>): [string, T][] {
  * described filter, numbered (core `Pagination`) or prev/next pagination, and create/edit/delete
  * gated by `canCreate()` and the rows' `canEdit`/`canDelete` attributes. Every region is an
  * `ItemList` for extensions.
- *
- * @experimental
  */
 export default class ResourceTable<M extends Model = Model, Attrs extends ResourceTableAttrs<M> = ResourceTableAttrs<M>> extends Component<Attrs> {
   static SEARCH_DELAY = 300;
-  /** @experimental */
   static INLINE_FILTERS = 3;
 
   list!: ResourceListState<M>;
@@ -263,8 +246,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   /**
    * The table's regions: `toolbar`, `subToolbar` (active filter chips, "Columns", "Export CSV"),
    * `table`, `pagination`.
-   *
-   * @experimental
    */
   items(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -289,8 +270,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   /**
    * `view` (search, sort, filters), `actions` (the total, then `actionItems()`) and, when the
    * definition has bulk actions, `bulk`.
-   *
-   * @experimental
    */
   toolbarItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -317,8 +296,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   /**
    * The count slot: a polite live region, so assistive technology hears the new total after a
    * search or filter change.
-   *
-   * @experimental
    */
   countView(content: Mithril.Children): Mithril.Children {
     return (
@@ -345,8 +322,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   /**
    * The definition's bulk actions for the current selection. While empty, the table has no checkbox
    * column.
-   *
-   * @experimental
    */
   bulkActionItems(): ItemList<Mithril.Children> {
     return this.attrs.definition.bulkActions(this.list.selection, this.bulkContext());
@@ -355,8 +330,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   /**
    * What the definition's bulk actions run with: this table's list, `bulkRunner()`, and
    * `BulkResultModal` for the outcome.
-   *
-   * @experimental
    */
   bulkContext(): BulkActionContext<M> {
     return {
@@ -368,8 +341,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /**
    * The runner bulk actions use: one request per record, 3 at a time.
-   *
-   * @experimental
    */
   bulkRunner(): BulkRunner {
     return new SequentialBulkRunner();
@@ -379,8 +350,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
    * Search (`search`, when the type is searchable), sort, then the filters: the first
    * `inlineFilters` (`filter-{key}`) and "More filters" (`moreFilters`) for the rest, or one
    * "Filters" dropdown (`filters`) in compact mode.
-   *
-   * @experimental
    */
   viewItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -417,8 +386,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   /**
    * The row under the toolbar: the active filter chips and "Clear all" (`filters`), then `display`
    * ("Columns" and "Export CSV").
-   *
-   * @experimental
    */
   subToolbarItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -448,8 +415,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /**
    * The "Columns" dropdown (when a column is toggleable) and the CSV export (when `exportable`).
-   *
-   * @experimental
    */
   displayItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -475,8 +440,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /**
    * Refresh, create (when `canCreate()`), then the definition's toolbar items.
-   *
-   * @experimental
    */
   actionItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -599,13 +562,11 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   /**
    * Whether a filter that a gambit of the same key covers is left to the search box: the filter's
    * `hideWhenSearchable`, else the `searchCoveredFilters` policy.
-   *
-   * @experimental
    */
   isCoveredBySearch(key: string, filter: Filter): boolean {
     if (filter.hideWhenSearchable !== undefined) return filter.hideWhenSearchable;
 
-    const policy = this.attrs.searchCoveredFilters ?? 'text';
+    const policy = this.attrs.searchCoveredFilters ?? 'all';
 
     return policy === 'all' || (policy === 'text' && this.isTextFilter(filter));
   }
@@ -1006,8 +967,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
    * One chip per filter with a value: "{label}: {value}" and a remove button. A chip whose filter
    * key a gambit in the search also sends is marked overridden, since the gambit wins; one the
    * search sends with the opposite sign (`-suspended` vs `suspended`) is marked as conflicting.
-   *
-   * @experimental
    */
   chipItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -1115,8 +1074,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /**
    * The columns: the `columns` attr, else one per field with a column, by the column's priority.
-   *
-   * @experimental
    */
   columns(): ItemList<ColumnData<M>> {
     if (this.attrs.columns) return this.attrs.columns;
@@ -1313,8 +1270,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /**
    * Edit (`canEdit`), delete (`canDelete`), then the definition's row actions.
-   *
-   * @experimental
    */
   rowActions(model: M): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();

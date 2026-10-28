@@ -8,8 +8,6 @@ import type { InputContext, InputRenderer, InputSpec } from '../types';
  * the fallback (`FormGroup` unless one is given). Every form and filter bar renders through one:
  * `definition.formInputs()` / `definition.filterInputs()` by default, or the factory passed to a
  * single view. Register a type to add or replace an input everywhere the factory is used.
- *
- * @experimental
  */
 export default class InputFactory {
   /**

@@ -3,18 +3,12 @@ import type Model from '../Model';
 import type { ApiResponsePlural } from '../Store';
 import type ResourceDefinition from './ResourceDefinition';
 
-/**
- * @experimental
- */
 export interface ResourceListParams {
   sort?: string;
   q?: string;
   filter?: Record<string, string>;
 }
 
-/**
- * @experimental
- */
 export interface ResourceListOptions {
   /** Read and write `sort`, `q`, `filter[key]` and `page` in the URL query. Default true. */
   syncUrl?: boolean;
@@ -23,8 +17,6 @@ export interface ResourceListOptions {
 
 /**
  * The query string of the current route: after the hash for hash routes (admin), else the search.
- *
- * @experimental
  */
 export function readQuery(): URLSearchParams {
   const hash = window.location.hash;
@@ -34,8 +26,6 @@ export function readQuery(): URLSearchParams {
 
 /**
  * Replace the query string of the current route without adding a history entry.
- *
- * @experimental
  */
 export function writeQuery(params: URLSearchParams): void {
   const query = params.toString();
@@ -51,8 +41,6 @@ export function writeQuery(params: URLSearchParams): void {
 
 /**
  * Records picked by id on the current page.
- *
- * @experimental
  */
 export interface IdsSelection {
   mode: 'ids';
@@ -61,22 +49,15 @@ export interface IdsSelection {
 
 /**
  * Reserved for "select all N matching" (every record matching the current search and filters, across
- * pages). Not produced in 2.0, so the type is `never`: code switching on `selection.mode` handles
+ * pages). Not produced yet, so the type is `never`: code switching on `selection.mode` handles
  * `'ids'` and ends in a `never` branch, which stops compiling once this gains a shape.
- *
- * @experimental
  */
 export type MatchingSelection = never;
 
-/**
- * @experimental
- */
 export type ResourceSelectionMode = 'ids' | 'matching';
 
 /**
  * The bulk selection of a resource list.
- *
- * @experimental
  */
 export type ResourceSelection = IdsSelection | MatchingSelection;
 
@@ -90,8 +71,6 @@ const FILTER_PARAM = /^filter\[(.+)\]$/;
  * A paginated list of one resource type. Sorts and filters come from the definition's descriptor:
  * unknown sorts are ignored, empty filters are omitted. Pagination adapts — `hasTotal()` when the API
  * sends `meta.page.total` (numbered pages), else `hasPrev()`/`hasNext()` from the links.
- *
- * @experimental
  */
 export default class ResourceListState<M extends Model = Model> extends PaginatedListState<M, ResourceListParams> {
   public readonly definition: ResourceDefinition<M>;
@@ -155,8 +134,6 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
    * Whether "No" (`'0'`) of this filter is sent as `filter[-key]=1`. The definition's filter decides
    * when it sets `negatable` (so a subclass or extension can opt a filter in or out); otherwise
    * described boolean filters, and filters named after a boolean field, are negatable.
-   *
-   * @experimental
    */
   isNegatable(key: string): boolean {
     const filters = this.definition.filters();
@@ -174,8 +151,6 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
 
   /**
    * The `filter[…]` key and value one list filter is sent (and written to the URL) as.
-   *
-   * @experimental
    */
   filterParam(key: string, value: string): [string, string] {
     return value === '0' && this.isNegatable(key) ? [`-${key}`, '1'] : [key, value];
@@ -183,8 +158,6 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
 
   /**
    * Remove every structured filter (the search stays).
-   *
-   * @experimental
    */
   clearFilters(): Promise<void> {
     return this.update({ ...this.params, filter: {} });

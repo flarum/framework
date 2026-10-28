@@ -11,8 +11,6 @@ const patterns = new WeakMap<FieldDescriptor, RegExp | null>();
 
 /**
  * Rejected by `ResourceFormState.save()` when client-side validation fails; no request was sent.
- *
- * @experimental
  */
 export class ValidationError extends Error {
   constructor(public readonly errors: Record<string, string[]>) {
@@ -65,8 +63,6 @@ function isUrl(value: string): boolean {
  * Check a value against a field's `required` flag for the mode and its constraints, returning the
  * translated messages (none when valid). Uniqueness and anything else that needs the server is left
  * to it, as are `conditional` fields, which callers skip. A pattern JS cannot compile is skipped.
- *
- * @experimental
  */
 export function validateValue(field: FieldDescriptor, value: unknown, mode: FormMode): string[] {
   if (isAbsent(value)) {

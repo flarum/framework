@@ -235,8 +235,6 @@ class ApiResource implements ExtenderInterface
      * the generic admin resource components read.
      *
      * Any extension can opt in any resource, including one it does not own.
-     *
-     * @experimental May change in 2.1 without a BC break.
      */
     public function describable(): self
     {

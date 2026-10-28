@@ -22,8 +22,6 @@ use Flarum\Api\Context;
  * (visibility) or `conditional` (writability).
  *
  * The `with*()` methods clone, so derived contexts stay a `DescribeContext`.
- *
- * @experimental May change in 2.1 without a BC break.
  */
 class DescribeContext extends Context
 {

@@ -75,8 +75,6 @@ class SearchManager
     /**
      * The filters registered on the database driver's searcher for a model, keyed by filter key.
      *
-     * @experimental
-     *
      * @param class-string<AbstractModel> $modelClass
      * @return array<string, array<\Flarum\Search\Filter\FilterInterface>>
      */
@@ -96,8 +94,6 @@ class SearchManager
      * describes itself. Filters with neither are left out, and so are filters
      * whose description is null for this actor.
      *
-     * @experimental
-     *
      * @param class-string<AbstractModel> $modelClass
      * @return array<string, array<string, mixed>>
      */
@@ -109,8 +105,6 @@ class SearchManager
     }
 
     /**
-     * @experimental
-     *
      * @param class-string<AbstractModel> $modelClass
      */
     public function fulltext(string $modelClass): bool
@@ -122,8 +116,6 @@ class SearchManager
 
     /**
      * `fulltext()` and `describeFilters()` together, resolving the searcher once.
-     *
-     * @experimental
      *
      * @param class-string<AbstractModel> $modelClass
      * @return array{fulltext: bool, filters: array<string, array<string, mixed>>}

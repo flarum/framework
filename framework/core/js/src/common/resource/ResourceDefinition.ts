@@ -27,8 +27,6 @@ function humanize(value: string): string {
  * Everything a view needs to know about a resource type. `new ResourceDefinition('users')` is a full
  * definition whose fields, sorts and filters are inferred from the server's descriptor; subclasses
  * (and `extend()`) override by key.
- *
- * @experimental
  */
 export default class ResourceDefinition<M extends Model = Model> {
   descriptor: ResourceDescriptor | null = null;
@@ -129,8 +127,6 @@ export default class ResourceDefinition<M extends Model = Model> {
   /**
    * The actions offered for the selected records. Empty by default; a table renders its checkbox
    * column only when this has items. Add `bulkDelete(context)` for the built-in delete.
-   *
-   * @experimental
    */
   bulkActions(_selection: ResourceSelection, _context: BulkActionContext<M>): ItemList<Mithril.Children> {
     return new ItemList<Mithril.Children>();
@@ -143,8 +139,6 @@ export default class ResourceDefinition<M extends Model = Model> {
    * `context.showResult()` and then refreshes the list.
    *
    * Opt-in: no definition offers it unless it adds it.
-   *
-   * @experimental
    */
   bulkDelete(context: BulkActionContext<M>): Mithril.Children {
     const count = context.list.selectedModels().length;
@@ -166,8 +160,6 @@ export default class ResourceDefinition<M extends Model = Model> {
   /**
    * The work behind `bulkDelete()`. Resolves to the summary, or null when there was nothing to do or
    * the user cancelled.
-   *
-   * @experimental
    */
   async runBulkDelete(context: BulkActionContext<M>): Promise<BulkSummary<M> | null> {
     if (this.bulkDeleting) return null;

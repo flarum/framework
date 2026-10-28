@@ -16,9 +16,6 @@ import { ValidationError } from '../../../common/resource/validation';
 import type Mithril from 'mithril';
 import recordLabel from './recordLabel';
 
-/**
- * @experimental
- */
 export interface ResourceFormModalAttrs<M extends Model = Model> extends IFormModalAttrs {
   definition: ResourceDefinition<M>;
   /** The record to edit; omit or null to create one. */
@@ -39,9 +36,7 @@ export interface ResourceFormModalAttrs<M extends Model = Model> extends IFormMo
  * validated against the descriptor before the request; 422/403 field errors show under their
  * field.
  *
- * Not wired into any page in 2.0.
- *
- * @experimental
+ * No core page uses it yet.
  */
 export default class ResourceFormModal<
   M extends Model = Model,
@@ -49,19 +44,11 @@ export default class ResourceFormModal<
 > extends FormModal<Attrs> {
   /**
    * The form's state; null until the descriptor is loaded.
-   *
-   * @experimental
    */
   formState: ResourceFormState<M> | null = null;
 
-  /**
-   * @experimental
-   */
   loadError: boolean = false;
 
-  /**
-   * @experimental
-   */
   inputs!: InputFactory;
 
   protected focused: boolean = false;
@@ -110,9 +97,6 @@ export default class ResourceFormModal<
     return <div className="Modal-body">{this.body()}</div>;
   }
 
-  /**
-   * @experimental
-   */
   body(): Mithril.Children {
     if (this.loadError) {
       return <div className="ResourceForm ResourceForm--error">{app.translator.trans('core.lib.resource.form.load_error')}</div>;
@@ -132,8 +116,6 @@ export default class ResourceFormModal<
   /**
    * One item per field the actor may write in the current mode, keyed by field name, then the
    * unmatched server errors (`errors`) and the `submit` button. Empty while loading.
-   *
-   * @experimental
    */
   fields(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -164,8 +146,6 @@ export default class ResourceFormModal<
 
   /**
    * Render one field: its input, its error below.
-   *
-   * @experimental
    */
   fieldView(key: string, field: Field<M>): Mithril.Children {
     return renderFormField(this.formState!, this.inputs, key, field);
@@ -173,8 +153,6 @@ export default class ResourceFormModal<
 
   /**
    * The save data of the changed fields.
-   *
-   * @experimental
    */
   data(): SaveData {
     return this.formState?.buildSaveData() ?? {};
@@ -182,8 +160,6 @@ export default class ResourceFormModal<
 
   /**
    * What the submit sends; `data()` by default.
-   *
-   * @experimental
    */
   submitData(): SaveData {
     return this.data();
@@ -218,8 +194,6 @@ export default class ResourceFormModal<
 
   /**
    * Called with the saved record: passes it to the `onsaved` attr, then closes.
-   *
-   * @experimental
    */
   onsaved(model: M): void {
     this.attrs.onsaved?.(model);

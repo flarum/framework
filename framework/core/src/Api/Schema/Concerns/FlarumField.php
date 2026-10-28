@@ -58,14 +58,12 @@ trait FlarumField
      * Hints are merged into a dedicated bag, so several extenders can each add
      * their own keys, and `->schema()` is never touched.
      *
-     * Consumed in 2.0: `column` (bool|int priority), `display` (the attribute
-     * used to label a related record) and `label` (translation key or literal).
-     * Reserved for forms in 2.1, accepted but ignored for now: `group`,
-     * `priority`, `widget` and `placeholder`. One exception: `widget: 'hidden'`
+     * Consumed: `column` (bool|int priority), `display` (the attribute used to
+     * label a related record) and `label` (translation key or literal).
+     * Accepted but currently ignored: `group`, `priority`, `widget` and
+     * `placeholder`. One exception: `widget: 'hidden'`
      * means the field is never offered in a form, so a `required_without` rule
      * naming only such fields describes as required.
-     *
-     * @experimental May change in 2.1 without a BC break.
      *
      * @param array<string, mixed> $hints
      */
@@ -77,8 +75,6 @@ trait FlarumField
     }
 
     /**
-     * @experimental
-     *
      * @return array<string, mixed>
      */
     public function getUi(): array

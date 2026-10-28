@@ -29,8 +29,6 @@ function pad(n: number): string {
 
 /**
  * ISO 8601 → the local `YYYY-MM-DDTHH:mm` a datetime-local input expects.
- *
- * @experimental
  */
 export function toLocalDateTime(value: unknown): string | null {
   if (empty(value)) return null;
@@ -56,8 +54,6 @@ function dateColumn(d: FieldDescriptor): Field<any>['column'] {
  * The default input resolvers, one per field kind. A resolver maps a descriptor to an input spec
  * (rendered by the form's `InputFactory`) plus value/serialize/column overrides. Add your own with a
  * higher priority; a resolver returning `null` falls through.
- *
- * @experimental
  */
 export function defaultInputResolvers(): ItemList<InputResolver> {
   const resolvers = new ItemList<InputResolver>();
@@ -184,8 +180,6 @@ export function defaultInputResolvers(): ItemList<InputResolver> {
 
 /**
  * The first non-null resolver result by priority.
- *
- * @experimental
  */
 export function resolveInput(d: FieldDescriptor, resolvers: ItemList<InputResolver>): Partial<Field<any>> {
   for (const resolver of resolvers.toArray()) {
@@ -202,8 +196,6 @@ export function resolveInput(d: FieldDescriptor, resolvers: ItemList<InputResolv
  * `tri-state`, `relationship` → `relation`); a filter that says less falls back to its same-named
  * field, then to `text`. Add your own with a higher priority; a resolver returning `null` falls
  * through.
- *
- * @experimental
  */
 export function defaultFilterResolvers(): ItemList<FilterResolver> {
   const resolvers = new ItemList<FilterResolver>();
@@ -237,8 +229,6 @@ export function defaultFilterResolvers(): ItemList<FilterResolver> {
 
 /**
  * The first non-null filter resolver result by priority.
- *
- * @experimental
  */
 export function resolveFilterInput(filter: FilterDescriptor, d: FieldDescriptor | null, resolvers: ItemList<FilterResolver>): Filter['input'] {
   for (const resolver of resolvers.toArray()) {

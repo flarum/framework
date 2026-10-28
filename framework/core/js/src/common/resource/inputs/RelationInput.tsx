@@ -38,8 +38,6 @@ export interface RelationInputAttrs extends ComponentAttrs {
  * An async picker over `app.store.find(type, { filter: { q }, page })`. Single relations render a
  * select, multiple relations a list of switches; a search box (fulltext) narrows the options and
  * "Load more" appends the next page. The current selection is always offered, loaded or not.
- *
- * @experimental
  */
 export default class RelationInput<Attrs extends RelationInputAttrs = RelationInputAttrs> extends Component<Attrs> {
   static SEARCH_DELAY = 250;

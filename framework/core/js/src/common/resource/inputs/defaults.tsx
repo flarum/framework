@@ -10,8 +10,6 @@ import RelationInput from './RelationInput';
 
 /**
  * Filter types typed into rather than picked; the filter bar commits them debounced.
- *
- * @experimental
  */
 export const TEXT_FILTER_TYPES = ['text', 'search', 'number', 'email', 'url'];
 
@@ -21,8 +19,6 @@ const labelText = (ctx: InputContext): string | undefined => (ctx.label ? extrac
 
 /**
  * The id a form renderer gives its control, so `formGroup()`'s label points at it.
- *
- * @experimental
  */
 export function inputId(ctx: InputContext): string {
   return `ResourceForm-input-${ctx.name}`;
@@ -31,8 +27,6 @@ export function inputId(ctx: InputContext): string {
 /**
  * Wrap a control the way `FormGroup` does: label, help, control. For form input renderers; pass
  * `id` when the control carries `inputId(ctx)`, so clicking the label focuses it.
- *
- * @experimental
  */
 export function formGroup(ctx: InputContext, control: Mithril.Children, id?: string): Mithril.Children {
   return (
@@ -51,8 +45,6 @@ export type Choices = [string, string][];
 
 /**
  * A native select over ordered choices, `ctx.stream` holding the value (`''` for none).
- *
- * @experimental
  */
 export function orderedSelect(choices: Choices, ctx: InputContext, attrs: Record<string, unknown> = {}): Mithril.Children {
   const value = ctx.stream() ?? '';
@@ -82,8 +74,6 @@ export function orderedSelect(choices: Choices, ctx: InputContext, attrs: Record
  * - `relation`: `{ related, multiple?, display?, nullable?, search? }`, the stream holds model(s).
  * - `enum`: `{ choices, nullable? }` in their given order. Without `nullable`, an empty value shows a
  *   disabled blank choice until one is picked.
- *
- * @experimental
  */
 export function defaultFormInputs(): ItemList<InputRenderer> {
   const inputs = new ItemList<InputRenderer>();
@@ -131,8 +121,6 @@ const fetching = new Set<string>();
 /**
  * The model behind a filter's id. A value from the URL (deep link, reload) may not be in the
  * store yet: fetch it once, so the picker can show the active filter.
- *
- * @experimental
  */
 export function relatedModel(type: string, id: string): Model | null {
   const model = app.store.getById(type, id);
@@ -150,8 +138,6 @@ export function relatedModel(type: string, id: string): Model | null {
 
 /**
  * The filter bar's fallback for types without a renderer: a bare input of that type.
- *
- * @experimental
  */
 export const bareFilterInput: InputRenderer = (spec, ctx) => (
   <input
@@ -172,8 +158,6 @@ export const bareFilterInput: InputRenderer = (spec, ctx) => (
  * - `text`, `search`, `number`, `email`, `url`: a typed input, the label as placeholder.
  * - `tri-state`: any / yes / no as `''` / `'1'` / `'0'` (core's `asBool` convention).
  * - `relation`: `{ related, display?, placeholder?, search? }`, a single picker; the stream holds the id.
- *
- * @experimental
  */
 export function defaultFilterInputs(): ItemList<InputRenderer> {
   const inputs = new ItemList<InputRenderer>();

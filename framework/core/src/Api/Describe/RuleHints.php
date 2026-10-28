@@ -15,8 +15,6 @@ namespace Flarum\Api\Describe;
  * Core's `Str::email()` / `regex()` helpers emit rules rather than type schema,
  * so this parser is the only source for those constraints. Rule objects and
  * closures are ignored.
- *
- * @experimental May change in 2.1 without a BC break.
  */
 class RuleHints
 {

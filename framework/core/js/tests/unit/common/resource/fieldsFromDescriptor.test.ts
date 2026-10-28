@@ -164,11 +164,11 @@ describe('fieldsFromDescriptor', () => {
     expect(field.column).toBe(false);
   });
 
-  test('other ui.widget values are reserved and ignored in 2.0', () => {
+  test('other ui.widget values are ignored', () => {
     expect(inputOf(single(fd('bio', 'string', { ui: { widget: 'markdown' } })))).toMatchObject({ type: 'text' });
   });
 
-  test('declaration order; the reserved ui.priority is ignored in 2.0', () => {
+  test('declaration order; ui.priority is ignored', () => {
     const fields = fieldsFromDescriptor(
       descriptor([fd('a', 'string'), fd('b', 'string'), fd('c', 'string', { ui: { priority: 10000 } })]),
       defaultInputResolvers()

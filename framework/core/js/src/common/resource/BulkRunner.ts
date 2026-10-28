@@ -4,8 +4,6 @@ import type ResourceListState from './ResourceListState';
 /**
  * The outcome of running one operation over many records: the records it succeeded for, in input
  * order, and the ones it failed for with their errors.
- *
- * @experimental
  */
 export interface BulkResult<M> {
   ok: M[];
@@ -14,8 +12,6 @@ export interface BulkResult<M> {
 
 /**
  * A bulk result plus the selected records the action left out (e.g. no `canDelete`).
- *
- * @experimental
  */
 export interface BulkSummary<M> extends BulkResult<M> {
   skipped: M[];
@@ -23,8 +19,6 @@ export interface BulkSummary<M> extends BulkResult<M> {
 
 /**
  * Called after each operation settles, with the number settled so far and the total.
- *
- * @experimental
  */
 export type BulkProgress = (done: number, total: number) => void;
 
@@ -33,8 +27,6 @@ export type BulkProgress = (done: number, total: number) => void;
  *
  * The interface is the seam for an all-or-nothing runner, e.g. json-api-server's Atomic extension
  * once core registers it: one request instead of one per record.
- *
- * @experimental
  */
 export interface BulkRunner {
   run<M>(models: M[], op: (model: M) => Promise<unknown>, onProgress?: BulkProgress): Promise<BulkResult<M>>;
@@ -42,8 +34,6 @@ export interface BulkRunner {
 
 /**
  * What a definition's bulk actions get from the view that renders them.
- *
- * @experimental
  */
 export interface BulkActionContext<M extends Model = Model> {
   /** The list the selection belongs to; refreshed after an action. */
@@ -57,8 +47,6 @@ export interface BulkActionContext<M extends Model = Model> {
  * Runs each record's operation through its own request, at most `concurrency` at a time (3 by
  * default, to stay well inside browser and server connection limits). Despite the name, "sequential"
  * means request by request, not strictly one after another.
- *
- * @experimental
  */
 export class SequentialBulkRunner implements BulkRunner {
   constructor(readonly concurrency: number = 3) {}

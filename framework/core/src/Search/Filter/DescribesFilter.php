@@ -13,8 +13,6 @@ use Flarum\User\User;
 
 /**
  * Implemented by filters that can describe themselves to the generic admin components.
- *
- * @experimental May change in 2.1 without a BC break.
  */
 interface DescribesFilter
 {

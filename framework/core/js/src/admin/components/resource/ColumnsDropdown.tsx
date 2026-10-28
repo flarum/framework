@@ -6,8 +6,6 @@ import type Mithril from 'mithril';
 
 /**
  * One toggleable column as `ColumnsDropdown` lists it.
- *
- * @experimental
  */
 export interface ColumnsDropdownItem {
   key: string;
@@ -15,9 +13,6 @@ export interface ColumnsDropdownItem {
   visible: boolean;
 }
 
-/**
- * @experimental
- */
 export interface ColumnsDropdownAttrs extends ComponentAttrs {
   columns: ColumnsDropdownItem[];
   onchange: (key: string, visible: boolean) => void;
@@ -26,8 +21,6 @@ export interface ColumnsDropdownAttrs extends ComponentAttrs {
 /**
  * A "Columns" dropdown with one checkbox per toggleable column. The menu stays open while boxes are
  * ticked.
- *
- * @experimental
  */
 export default class ColumnsDropdown<Attrs extends ColumnsDropdownAttrs = ColumnsDropdownAttrs> extends Component<Attrs> {
   view(): Mithril.Children {

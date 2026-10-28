@@ -12,8 +12,6 @@ const cache = new Map<string, Promise<ResourceDescriptor>>();
  * The descriptor is a copy of the response's attributes, not the stored record's: the store merges
  * a refetch into the attributes object it already holds, so a key the server now omits would
  * survive, and a descriptor handed out earlier would change underneath its user.
- *
- * @experimental
  */
 export function loadDescriptor(type: string): Promise<ResourceDescriptor> {
   let promise = cache.get(type);
@@ -40,24 +38,16 @@ export function loadDescriptor(type: string): Promise<ResourceDescriptor> {
 
 /**
  * Forget memoized descriptors (all, or one type).
- *
- * @experimental
  */
 export function clearDescriptorCache(type?: string): void {
   if (type === undefined) cache.clear();
   else cache.delete(type);
 }
 
-/**
- * @experimental
- */
 export function isWritable(d: FieldDescriptor, mode: FormMode): boolean {
   return !!d.writable?.[mode];
 }
 
-/**
- * @experimental
- */
 export function isRequired(d: FieldDescriptor, mode: FormMode): boolean {
   return !!d.required?.[mode];
 }

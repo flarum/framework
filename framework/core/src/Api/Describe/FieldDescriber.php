@@ -33,8 +33,6 @@ use Tobyz\JsonApiServer\Schema\Type\Str;
  * Visibility fails closed: a field is visible only when a read mode says so,
  * and a check that throws counts as "not visible". Writability fails open and
  * is flagged `conditional` (spec D3).
- *
- * @experimental May change in 2.1 without a BC break.
  */
 class FieldDescriber
 {

@@ -4,8 +4,6 @@ import type { FieldDescriptor, FilterDescriptor, ResourceDescriptor } from '../r
 /**
  * A `resource-schemas` record: the descriptor of one resource type, built for the current actor.
  * Its id is the described type.
- *
- * @experimental
  */
 export default class ResourceSchema extends Model {
   schemaVersion() {

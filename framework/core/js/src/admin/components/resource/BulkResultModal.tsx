@@ -8,9 +8,6 @@ import type { BulkSummary } from '../../../common/resource/BulkRunner';
 import type Mithril from 'mithril';
 import recordLabel from './recordLabel';
 
-/**
- * @experimental
- */
 export interface BulkResultModalAttrs<M extends Model = Model> extends IInternalModalAttrs {
   summary: BulkSummary<M>;
 }
@@ -18,8 +15,6 @@ export interface BulkResultModalAttrs<M extends Model = Model> extends IInternal
 /**
  * The outcome of a bulk delete (`ResourceDefinition.bulkDelete()`): how many records were deleted,
  * each failed record with its reason, and the selected records it left out.
- *
- * @experimental
  */
 export default class BulkResultModal<M extends Model = Model, Attrs extends BulkResultModalAttrs<M> = BulkResultModalAttrs<M>> extends Modal<Attrs> {
   className(): string {
@@ -43,8 +38,6 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
 
   /**
    * `deleted`, then `failed` and `skipped` when they have records.
-   *
-   * @experimental
    */
   bodyItems(): ItemList<Mithril.Children> {
     const { ok, failed, skipped } = this.attrs.summary;
@@ -96,8 +89,6 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
   /**
    * Why one record failed: the message core's error alert would have shown for the request (the
    * validation details for a 422), else a generic message.
-   *
-   * @experimental
    */
   reason(error: unknown): Mithril.Children {
     if (error instanceof RequestError && error.alert?.content) {

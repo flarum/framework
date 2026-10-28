@@ -10,8 +10,6 @@ export type FormMode = 'create' | 'update';
 
 /**
  * Hints the client can check before sending. The server stays authoritative.
- *
- * @experimental
  */
 export interface FieldConstraints {
   minLength?: number;
@@ -28,11 +26,9 @@ export interface FieldConstraints {
 }
 
 /**
- * `FlarumField::ui()` hints. 2.0 consumes `column`, `display` and `widget: 'hidden'` (no form
- * input); `group`, `priority`, other `widget` values and `placeholder` are reserved for forms and
- * ignored until 2.1. The server resolves `label` into the field's `label`.
- *
- * @experimental
+ * `FlarumField::ui()` hints. The admin consumes `column`, `display` and `widget: 'hidden'` (no form
+ * input); `group`, `priority`, other `widget` values and `placeholder` are accepted but currently
+ * ignored. The server resolves `label` into the field's `label`.
  */
 export interface FieldUiHints {
   /** `true` shows a column, a number shows one with that priority, `false` hides it. */
@@ -45,8 +41,6 @@ export interface FieldUiHints {
 /**
  * One field of a resource descriptor. Default-valued keys are omitted by the server; read the
  * mode-dependent flags through `isWritable()` / `isRequired()`.
- *
- * @experimental
  */
 export interface FieldDescriptor {
   name: string;
@@ -70,9 +64,6 @@ export interface FieldDescriptor {
   ui?: FieldUiHints;
 }
 
-/**
- * @experimental
- */
 export interface FilterDescriptor {
   key: string;
   kind: 'string' | 'boolean' | 'enum' | 'relationship';
@@ -83,8 +74,6 @@ export interface FilterDescriptor {
 
 /**
  * The attributes of `GET /api/resource-schemas/{type}`, built per actor by the server.
- *
- * @experimental Only the shape is versioned, through `schemaVersion`.
  */
 export interface ResourceDescriptor {
   schemaVersion: number;
@@ -112,8 +101,6 @@ export interface FieldContext<M extends Model, V> {
  * An input by type name plus its attrs, e.g. `{ type: 'relation', related: 'groups', multiple: true }`.
  * An `InputFactory` renders it through the renderer registered for the type, else through
  * `FormGroup` (`text`, `select`, `switch`, …).
- *
- * @experimental
  */
 export interface InputSpec extends CommonFieldOptions {
   type: string;
@@ -123,8 +110,6 @@ export interface InputSpec extends CommonFieldOptions {
 /**
  * What an input renderer gets besides its spec. Form inputs also get the form, the record and the
  * descriptor; filter inputs only the name, stream and label.
- *
- * @experimental
  */
 export interface InputContext<V = unknown> {
   name: string;
@@ -150,8 +135,6 @@ export interface FieldColumn<M extends Model> {
 /**
  * One keyed entry of a resource's field registry: a table column and a form input.
  * Setting a facet to `false` hides it in that view.
- *
- * @experimental
  */
 export interface Field<M extends Model, V = unknown> {
   label: Mithril.Children;
@@ -185,16 +168,12 @@ export interface FilterContext {
 
 /**
  * A list filter, sent as `filter[{key}]`. An empty value is omitted.
- *
- * @experimental
  */
 export interface Filter {
   label: Mithril.Children;
   input: InputSpec | ((ctx: FilterContext) => Mithril.Children);
   /**
    * The described filter's kind, when the filter was inferred.
-   *
-   * @experimental
    */
   kind?: FilterDescriptor['kind'];
   /**
@@ -202,21 +181,16 @@ export interface Filter {
    * filter manager negates a leading `-`, and boolean filters such as suspend's `suspended` ignore
    * the value. Inferred boolean filters are negatable. This is the source of truth for
    * `ResourceListState.isNegatable()`; left undefined, the descriptor decides.
-   *
-   * @experimental
    */
   negatable?: boolean;
   /**
    * Leaves records out of a relationship filter's menu, e.g. a group no user can be in.
-   *
-   * @experimental
    */
   exclude?: (model: Model) => boolean;
   /**
    * Leave this filter out of the toolbar (`true`) or keep it (`false`) when a gambit of the same
-   * key covers it; left undefined, the table's `searchCoveredFilters` decides.
-   *
-   * @experimental
+   * key covers it; `false` keeps a covered filter's dropdown even under the default
+   * `searchCoveredFilters: 'all'`. Left undefined, the table's `searchCoveredFilters` decides.
    */
   hideWhenSearchable?: boolean;
 }

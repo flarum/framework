@@ -7,9 +7,6 @@ import type ResourceDefinition from '../../../common/resource/ResourceDefinition
 import type Mithril from 'mithril';
 import recordLabel from './recordLabel';
 
-/**
- * @experimental
- */
 export interface ResourceDeleteModalAttrs<M extends Model = Model> extends IFormModalAttrs {
   definition: ResourceDefinition<M>;
   model: M;
@@ -21,8 +18,6 @@ export interface ResourceDeleteModalAttrs<M extends Model = Model> extends IForm
  * Confirm and delete one record through the type's `Delete` endpoint (an extension's replacement,
  * such as gdpr's, included). Focus starts on Cancel, the safe choice; errors show as the modal's
  * alert.
- *
- * @experimental
  */
 export default class ResourceDeleteModal<
   M extends Model = Model,
@@ -47,8 +42,6 @@ export default class ResourceDeleteModal<
 
   /**
    * The modal body: the `confirmation` naming the record.
-   *
-   * @experimental
    */
   bodyItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -66,8 +59,6 @@ export default class ResourceDeleteModal<
 
   /**
    * The footer buttons: `cancel` and `submit`.
-   *
-   * @experimental
    */
   footerItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();

@@ -132,7 +132,7 @@ describe('ResourceTable toolbar', () => {
   });
 
   test('boolean "No" is sent as the negated key and round-trips through the URL', async () => {
-    const { out } = await rendered();
+    const { out } = await rendered({ searchCoveredFilters: 'text' });
 
     out.click('.ResourceTable-filter--active button[data-value="0"]');
     await settle(out);
@@ -147,25 +147,27 @@ describe('ResourceTable toolbar', () => {
     expect(lastParams().filter).toEqual({ active: '1' });
 
     window.history.replaceState(null, '', '/admin#/gadgets?filter%5B-active%5D=1');
-    const reloaded = (await rendered()).out;
+    const reloaded = (await rendered({ searchCoveredFilters: 'text' })).out;
 
     expect(lastParams().filter).toEqual({ '-active': '1' });
     expect(reloaded.first('.ResourceTable-filter--active .Dropdown-toggle').textContent).toContain('Active: No');
   });
 
-  test('a text filter that a gambit of the same key covers is left out', async () => {
+  test('by default every filter that a gambit of the same key covers is left out; uncovered ones stay', async () => {
     const { out } = await rendered({ inlineFilters: 10 });
 
     expect(out).not.toHaveElement('.ResourceTable-filter--email');
+    expect(out).not.toHaveElement('.ResourceTable-filter--active');
+    expect(out).toHaveElement('.ResourceTable-filter--status');
     expect(out).toHaveElement('.ResourceTable-filter--color .ResourceTable-filterControl input');
   });
 
-  test('searchCoveredFilters "all" leaves out every covered filter, "none" keeps them all', async () => {
-    const all = await rendered({ inlineFilters: 10, searchCoveredFilters: 'all' });
+  test('searchCoveredFilters "text" leaves out only covered text filters, "none" keeps them all', async () => {
+    const text = await rendered({ inlineFilters: 10, searchCoveredFilters: 'text' });
 
-    expect(all.out).not.toHaveElement('.ResourceTable-filter--email');
-    expect(all.out).not.toHaveElement('.ResourceTable-filter--active');
-    expect(all.out).toHaveElement('.ResourceTable-filter--status');
+    expect(text.out).not.toHaveElement('.ResourceTable-filter--email');
+    expect(text.out).toHaveElement('.ResourceTable-filter--active');
+    expect(text.out).toHaveElement('.ResourceTable-filter--color .ResourceTable-filterControl input');
 
     const none = await rendered({ inlineFilters: 10, searchCoveredFilters: 'none' });
 
@@ -176,18 +178,26 @@ describe('ResourceTable toolbar', () => {
   test("a filter's hideWhenSearchable wins over the table's policy", async () => {
     const { out, table } = await rendered({ inlineFilters: 10 });
 
-    expect(out).toHaveElement('.ResourceTable-filter--active');
+    expect(out).not.toHaveElement('.ResourceTable-filter--active');
 
-    table.filters!.get('active').hideWhenSearchable = true;
-    table.filters!.get('email').hideWhenSearchable = false;
+    table.filters!.get('active').hideWhenSearchable = false;
     out.redraw();
 
-    expect(out).not.toHaveElement('.ResourceTable-filter--active');
-    expect(out).toHaveElement('.ResourceTable-filter--email');
+    expect(out).toHaveElement('.ResourceTable-filter--active');
+    expect(out).not.toHaveElement('.ResourceTable-filter--email');
+
+    const text = await rendered({ inlineFilters: 10, searchCoveredFilters: 'text' });
+
+    text.table.filters!.get('active').hideWhenSearchable = true;
+    text.table.filters!.get('email').hideWhenSearchable = false;
+    text.out.redraw();
+
+    expect(text.out).not.toHaveElement('.ResourceTable-filter--active');
+    expect(text.out).toHaveElement('.ResourceTable-filter--email');
   });
 
   test('filters past inlineFilters go under "More filters"; picking one adds its button', async () => {
-    const { out } = await rendered();
+    const { out } = await rendered({ searchCoveredFilters: 'text' });
 
     expect(out.find('.ResourceTable-toolbarView .ResourceTable-filter')).toHaveLength(3);
     expect(out).not.toHaveElement('.ResourceTable-filter--color');
@@ -346,7 +356,7 @@ describe('ResourceTable toolbar', () => {
   test('compact mode collapses the filters into one "Filters (n)" dropdown of labelled sections', async () => {
     window.history.replaceState(null, '', '/admin#/gadgets?filter%5Bstatus%5D=live');
 
-    const { out } = await rendered({ compactFilters: true });
+    const { out } = await rendered({ compactFilters: true, searchCoveredFilters: 'text' });
 
     expect(out).not.toHaveElement('.ResourceTable-toolbarView .ResourceTable-filter');
     expect(out).not.toHaveElement('.ResourceTable-moreFilters');

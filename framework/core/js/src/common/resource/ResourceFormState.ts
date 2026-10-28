@@ -14,8 +14,6 @@ import { ValidationError, validateValue } from './validation';
  * The editing state of one record: a stream per visible field, the values it started with, shared
  * view state and the field errors. Only changed fields are sent, because the server answers 403 for
  * any non-writable field present in the payload.
- *
- * @experimental
  */
 export default class ResourceFormState<M extends Model = Model> {
   /** The record being edited; null while creating. Replaced by the saved record. */

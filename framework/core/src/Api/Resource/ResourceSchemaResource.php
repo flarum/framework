@@ -37,9 +37,6 @@ use function Tobyz\JsonApiServer\json_api_response;
  * lazily built descriptor, so the descriptor is never built for an actor who
  * fails authorization, and nothing is memoised on this (singleton) resource.
  *
- * @experimental May change in 2.1 without a BC break. Only the descriptor shape
- *               is versioned, through `schemaVersion`.
- *
  * @extends AbstractResource<stdClass>
  */
 class ResourceSchemaResource extends AbstractResource implements Contracts\Findable

@@ -5,8 +5,6 @@
  * and resize. Menus that are already fixed (core's phone sheets) are left alone.
  *
  * Returns a function that removes the listeners.
- *
- * @experimental
  */
 export default function floatMenus(container: HTMLElement): () => void {
   const properties = ['position', 'margin', 'top', 'bottom', 'left', 'right'];
