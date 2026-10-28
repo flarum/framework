@@ -22,7 +22,7 @@ export class ValidationError extends Error {
 }
 
 function message(key: string, params: Record<string, unknown> = {}): string {
-  return app.translator.trans(`core.lib.resource.validation.${key}`, params, true);
+  return app.translator.trans(key, params, true);
 }
 
 /**
@@ -70,7 +70,7 @@ function isUrl(value: string): boolean {
  */
 export function validateValue(field: FieldDescriptor, value: unknown, mode: FormMode): string[] {
   if (isAbsent(value)) {
-    return isRequired(field, mode) ? [message('required')] : [];
+    return isRequired(field, mode) ? [message('core.lib.resource.validation.required')] : [];
   }
 
   const c = field.constraints ?? {};
@@ -79,29 +79,29 @@ export function validateValue(field: FieldDescriptor, value: unknown, mode: Form
   if (typeof value === 'string') {
     const length = [...value].length;
 
-    if (c.minLength !== undefined && length < c.minLength) errors.push(message('min_length', { count: c.minLength }));
-    if (c.maxLength !== undefined && length > c.maxLength) errors.push(message('max_length', { count: c.maxLength }));
+    if (c.minLength !== undefined && length < c.minLength) errors.push(message('core.lib.resource.validation.min_length', { count: c.minLength }));
+    if (c.maxLength !== undefined && length > c.maxLength) errors.push(message('core.lib.resource.validation.max_length', { count: c.maxLength }));
 
     if (c.pattern !== undefined) {
       const regex = pattern(field);
 
-      if (regex && !regex.test(value)) errors.push(message('pattern'));
+      if (regex && !regex.test(value)) errors.push(message('core.lib.resource.validation.pattern'));
     }
 
-    if (c.format === 'email' && !EMAIL.test(value)) errors.push(message('email'));
-    if (c.format === 'url' && !isUrl(value)) errors.push(message('url'));
+    if (c.format === 'email' && !EMAIL.test(value)) errors.push(message('core.lib.resource.validation.email'));
+    if (c.format === 'url' && !isUrl(value)) errors.push(message('core.lib.resource.validation.url'));
   }
 
   if (c.enum && (typeof value === 'string' || typeof value === 'number') && !c.enum.includes(String(value))) {
-    errors.push(message('enum'));
+    errors.push(message('core.lib.resource.validation.enum'));
   }
 
   if ((c.minimum !== undefined || c.maximum !== undefined) && (typeof value === 'number' || typeof value === 'string')) {
     const n = Number(value);
 
     if (Number.isFinite(n)) {
-      if (c.minimum !== undefined && n < c.minimum) errors.push(message('minimum', { min: c.minimum }));
-      if (c.maximum !== undefined && n > c.maximum) errors.push(message('maximum', { max: c.maximum }));
+      if (c.minimum !== undefined && n < c.minimum) errors.push(message('core.lib.resource.validation.minimum', { min: c.minimum }));
+      if (c.maximum !== undefined && n > c.maximum) errors.push(message('core.lib.resource.validation.maximum', { max: c.maximum }));
     }
   }
 

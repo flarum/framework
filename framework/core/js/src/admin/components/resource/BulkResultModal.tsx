@@ -15,8 +15,6 @@ export interface BulkResultModalAttrs<M extends Model = Model> extends IInternal
   summary: BulkSummary<M>;
 }
 
-const t = (key: string, params: Record<string, unknown> = {}) => app.translator.trans(`core.admin.resource.bulk.${key}`, params);
-
 /**
  * The outcome of a bulk delete (`ResourceDefinition.bulkDelete()`): how many records were deleted,
  * each failed record with its reason, and the selected records it left out.
@@ -29,7 +27,7 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
   }
 
   title(): Mithril.Children {
-    return t('result_title');
+    return app.translator.trans('core.admin.resource.bulk.result_title');
   }
 
   content(): Mithril.Children {
@@ -37,7 +35,7 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
       <div className="Modal-body">{this.bodyItems().toArray()}</div>,
       <div className="Modal-footer">
         <Button className="Button Button--primary BulkResultModal-close" onclick={() => this.hide()}>
-          {t('close_button')}
+          {app.translator.trans('core.admin.resource.bulk.close_button')}
         </Button>
       </div>,
     ];
@@ -55,7 +53,7 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
     items.add(
       'deleted',
       <p className="BulkResultModal-deleted" data-count={ok.length}>
-        {t('result_deleted', { count: ok.length })}
+        {app.translator.trans('core.admin.resource.bulk.result_deleted', { count: ok.length })}
       </p>,
       100
     );
@@ -64,7 +62,7 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
       items.add(
         'failed',
         <div className="BulkResultModal-failed" data-count={failed.length}>
-          <p>{t('result_failed', { count: failed.length })}</p>
+          <p>{app.translator.trans('core.admin.resource.bulk.result_failed', { count: failed.length })}</p>
           <ul>
             {failed.map(({ model, error }) => (
               <li data-id={model.id()}>
@@ -81,7 +79,7 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
       items.add(
         'skipped',
         <div className="BulkResultModal-skipped" data-count={skipped.length}>
-          <p>{t('result_skipped', { count: skipped.length })}</p>
+          <p>{app.translator.trans('core.admin.resource.bulk.result_skipped', { count: skipped.length })}</p>
           <ul>
             {skipped.map((model) => (
               <li data-id={model.id()}>{recordLabel(model)}</li>
@@ -106,6 +104,6 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
       return error.alert.content as Mithril.Children;
     }
 
-    return t('result_unknown_error');
+    return app.translator.trans('core.admin.resource.bulk.result_unknown_error');
   }
 }
