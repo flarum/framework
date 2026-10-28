@@ -98,8 +98,8 @@ filters they could already reach through `GET /api/users` or sign-up. For exampl
 `email` is never readable (`visible: false`) and the `email` filter is absent. While sign-up is open, `email`,
 `password` and `username` still appear as create-only inputs, because the sign-up form asks for them anyway.
 Create-only keys are absent when the actor cannot create (FND-296). Filters are actor-scoped through
-`DescribesFilter::describe(User $actor)` (D6). `capabilities.delete` is type-level (any non-guest), and each
-row's `canDelete` decides. An admin page that needs a tighter gate checks its own permission client-side.
+`DescribesFilter::describe(User $actor)` (D6). `capabilities.delete` runs the `Delete` endpoint's own authorization against a blank stored record (so
+users need `user.delete`); each row's `canDelete` still decides. An admin page that needs a tighter gate checks its own permission client-side.
 *Alt B:* describe every `AbstractDatabaseResource`. This leaks field names of resources no admin UI uses.
 
 **D3 — Inference with synthetic contexts, using a dedicated `DescribeContext`.** The builder evaluates closures
@@ -217,7 +217,7 @@ User-list defaults in 2.0, all additive, and the existing `emailAddress` show/hi
 - **Client-side validation:** none in 2.0, because the user modals stay (D8). It arrives with `ResourceFormModal` in 2.1.
 
 Descriptor additions, which are additive, so `schemaVersion` stays `1`:
-- `capabilities.delete`: the `Delete` endpoint exists and the actor is authenticated. This is type-level only; per-row `canDelete` still decides.
+- `capabilities.delete`: the `Delete` endpoint exists and the actor passes its authorization against a blank stored record (users: `user.delete`). A policy that decides per record may deny here; per-row `canDelete` still decides.
 - `constraints.patternFlags`: the PCRE flags translated to JS (`i`, `m`, `s`, `u`; anything else drops the pattern).
 
 ## 5. Descriptor shape (v1)

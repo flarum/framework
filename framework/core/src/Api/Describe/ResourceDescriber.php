@@ -135,8 +135,7 @@ class ResourceDescriber
             ],
         ];
 
-        // Type-level only: whether a given row can be deleted is still the row's `canDelete`.
-        if (isset($endpoints['delete']) && ! $actor->isGuest()) {
+        if ($this->canDelete($request, $endpoints['delete'] ?? null, $contexts['update'])) {
             $descriptor['capabilities']['delete'] = true;
         }
 
@@ -306,6 +305,22 @@ class ResourceDescriber
         }
 
         return $this->allowed($endpoint, $this->baseContext($resource, $request)->withMode('create')->withEndpoint($endpoint));
+    }
+
+    /**
+     * Type-level: the Delete endpoint's own authorization against the blank
+     * stored model of the update context, so model policies apply (users need
+     * `user.delete`). A policy that decides per record (e.g. "own posts only")
+     * sees no owner and may deny; whether a given row can be deleted is still
+     * the row's `canDelete`.
+     */
+    protected function canDelete(ServerRequestInterface $request, ?Endpoint\Delete $endpoint, DescribeContext $update): bool
+    {
+        if (! $endpoint || RequestUtil::getActor($request)->isGuest()) {
+            return false;
+        }
+
+        return $this->allowed($endpoint, $update->withEndpoint($endpoint));
     }
 
     protected function allowed(?object $endpoint, Context $context): bool

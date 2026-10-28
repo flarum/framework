@@ -31,15 +31,20 @@ class UsersSchemaTest extends TestCase
             User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'searcher', 'email' => 'searcher@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 4, 'username' => 'deleter', 'email' => 'deleter@machine.local', 'is_email_confirmed' => 1],
             ],
             Group::class => [
                 ['id' => 40, 'name_singular' => 'Searcher', 'name_plural' => 'Searchers'],
+                ['id' => 41, 'name_singular' => 'Deleter', 'name_plural' => 'Deleters'],
             ],
             'group_user' => [
                 ['user_id' => 3, 'group_id' => 40],
+                ['user_id' => 4, 'group_id' => 41],
             ],
             'group_permission' => [
                 ['permission' => 'searchUsers', 'group_id' => 40],
+                ['permission' => 'searchUsers', 'group_id' => 41],
+                ['permission' => 'user.delete', 'group_id' => 41],
             ],
         ]);
     }
@@ -182,13 +187,20 @@ class UsersSchemaTest extends TestCase
     }
 
     #[Test]
+    public function a_member_with_the_delete_permission_gets_the_delete_capability()
+    {
+        $this->assertTrue($this->describe(4)['capabilities']['delete'] ?? false);
+    }
+
+    #[Test]
     public function a_default_member_gets_a_member_scoped_descriptor()
     {
         // Default install: sign-up open, members hold `searchUsers` (spec D2).
         $descriptor = $this->describe(2);
         $fields = $this->fieldsByName($descriptor);
 
-        $this->assertSame(['list' => true, 'create' => true, 'delete' => true], $descriptor['capabilities']);
+        // Members lack `user.delete`, so `delete` is omitted (false is the default).
+        $this->assertSame(['list' => true, 'create' => true], $descriptor['capabilities']);
         // `lastSeenAt` needs `user.viewLastSeenAt` (moderators by default).
         $this->assertSame(['username', 'commentCount', 'discussionCount', 'joinedAt'], $descriptor['sorts']);
         // The email filter needs `user.editCredentials`, like `EmailFilter::filter()`.

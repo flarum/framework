@@ -223,7 +223,7 @@
 **Interfaces:**
 - Produces:
   - `constraints.patternFlags`. PCRE flags `i`, `m`, `s` and `u` map to the same JS flags. Any other flag (`x`, `U`, `D`, …) drops `pattern` and `patternFlags` entirely.
-  - `capabilities.delete: true` when the resource has a `Delete` endpoint and the actor is not a guest.
+  - `capabilities.delete: true` when the resource has a `Delete` endpoint and the actor passes its authorization against a blank stored record (revised 2026-10-28; first shipped as "any non-guest").
 - `schemaVersion` stays `1`.
 
 - [x] **Step 1: Write the failing tests.**

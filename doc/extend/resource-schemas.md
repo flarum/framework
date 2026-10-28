@@ -56,7 +56,7 @@ A trimmed response for `GET /api/resource-schemas/users` as an administrator, wi
 |---|---|---|
 | `schemaVersion` | Version of the descriptor shape. `1` in 2.0. | Always |
 | `endpoint` | The resource's collection path, for example `/users`. | Always |
-| `capabilities` | `list` and `create`: whether the actor passes the `Index` and `Create` endpoints. `delete`: the type has a `Delete` endpoint and the actor is registered. | `list` and `create` always; `delete` only when true |
+| `capabilities` | `list` and `create`: whether the actor passes the `Index` and `Create` endpoints. `delete`: the actor passes the `Delete` endpoint's authorization, checked against a blank stored record (for users, `user.delete`). | `list` and `create` always; `delete` only when true |
 | `pagination` | `defaultLimit` and `maxLimit` of the `Index` endpoint. | When `Index` paginates |
 | `defaultSort` | The `Index` endpoint's default sort string. | When it is set (users have none) |
 | `search` | `true` when the resource's searcher has a fulltext filter. | When true |
@@ -64,7 +64,7 @@ A trimmed response for `GET /api/resource-schemas/users` as an administrator, wi
 | `filters` | The described filters, see [Describe search filters](#describe-search-filters). | When at least one is described |
 | `fields` | One entry per field the actor can see or write. | Always |
 
-`capabilities.delete` is type-level. Whether one row can be deleted is still that record's `canDelete` attribute.
+`capabilities.delete` is type-level. A policy that decides per record ("own posts only") sees a blank record here and may deny. Whether one row can be deleted is still that record's `canDelete` attribute.
 
 ### Field keys
 
