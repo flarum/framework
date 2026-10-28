@@ -26,6 +26,7 @@ class SearchDriver implements ExtenderInterface
     private array $fulltext = [];
     private array $filters = [];
     private array $mutators = [];
+    private array $filterDescriptions = [];
 
     /**
      * @param class-string<AbstractDriver> $driverClass: The driver class you are modifying or adding.
@@ -125,8 +126,42 @@ class SearchDriver implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Describe a filter for the `resource-schemas` descriptor endpoint.
+     *
+     * Works for any filter key, including filters this extension does not own.
+     * It takes precedence over a filter implementing \Flarum\Search\Filter\DescribesFilter.
+     *
+     * @experimental May change in 2.1 without a BC break.
+     *
+     * @param class-string<SearcherInterface> $searcherClass : The class of the Searcher the filter is registered on.
+     * @param string $filterKey : The filter key, as returned by FilterInterface::getFilterKey().
+     * @param array<string, mixed>|(callable(\Flarum\User\User): (array<string, mixed>|null))|class-string $description
+     *        For example `['kind' => 'string']` or `['kind' => 'relationship', 'related' => 'groups']`.
+     *        An array is shown to every actor who can describe the resource. A callable
+     *        (or invokable class) receives the actor and returns null to hide the filter:
+     *        mirror the permission check the filter itself makes.
+     */
+    public function describeFilter(string $searcherClass, string $filterKey, array|callable|string $description): self
+    {
+        $this->filterDescriptions[$searcherClass][$filterKey] = $description;
+
+        return $this;
+    }
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
+        $container->extend('flarum.search.filter_descriptions', function (array $oldDescriptions) {
+            foreach ($this->filterDescriptions as $searcherClass => $descriptions) {
+                $oldDescriptions[$searcherClass] = array_merge(
+                    $oldDescriptions[$searcherClass] ?? [],
+                    $descriptions
+                );
+            }
+
+            return $oldDescriptions;
+        });
+
         $container->extend('flarum.search.drivers', function (array $oldDrivers) {
             $oldDrivers[$this->driverClass] = array_merge(
                 $oldDrivers[$this->driverClass] ?? [],

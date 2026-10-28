@@ -10,8 +10,11 @@
 namespace Flarum\Search;
 
 use Flarum\Database\AbstractModel;
+use Flarum\Foundation\ContainerUtil;
 use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\Search\Filter\DescribesFilter;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 
@@ -67,6 +70,127 @@ class SearchManager
         }
 
         return $defaultDriver->searcher($resourceClass)->search($criteria);
+    }
+
+    /**
+     * The filters registered on the database driver's searcher for a model, keyed by filter key.
+     *
+     * @experimental
+     *
+     * @param class-string<AbstractModel> $modelClass
+     * @return array<string, array<\Flarum\Search\Filter\FilterInterface>>
+     */
+    public function filters(string $modelClass): array
+    {
+        $searcher = $this->databaseSearcher($modelClass);
+
+        return $searcher ? $searcher->getFilterManager()->all() : [];
+    }
+
+    /**
+     * Descriptions of the filters registered for a model, keyed by filter key,
+     * as seen by the given actor.
+     *
+     * A description registered through `Extend\SearchDriver::describeFilter()`
+     * wins; otherwise the first filter for the key implementing `DescribesFilter`
+     * describes itself. Filters with neither are left out, and so are filters
+     * whose description is null for this actor.
+     *
+     * @experimental
+     *
+     * @param class-string<AbstractModel> $modelClass
+     * @return array<string, array<string, mixed>>
+     */
+    public function describeFilters(string $modelClass, User $actor): array
+    {
+        $searcher = $this->databaseSearcher($modelClass);
+
+        return $searcher ? $this->describeSearcherFilters($searcher, $actor) : [];
+    }
+
+    /**
+     * @experimental
+     *
+     * @param class-string<AbstractModel> $modelClass
+     */
+    public function fulltext(string $modelClass): bool
+    {
+        $searcher = $this->databaseSearcher($modelClass);
+
+        return $searcher && $searcher->getFilterManager()->getFulltext() !== null;
+    }
+
+    /**
+     * `fulltext()` and `describeFilters()` together, resolving the searcher once.
+     *
+     * @experimental
+     *
+     * @param class-string<AbstractModel> $modelClass
+     * @return array{fulltext: bool, filters: array<string, array<string, mixed>>}
+     */
+    public function describeSearch(string $modelClass, User $actor): array
+    {
+        $searcher = $this->databaseSearcher($modelClass);
+
+        if (! $searcher) {
+            return ['fulltext' => false, 'filters' => []];
+        }
+
+        return [
+            'fulltext' => $searcher->getFilterManager()->getFulltext() !== null,
+            'filters' => $this->describeSearcherFilters($searcher, $actor),
+        ];
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    protected function describeSearcherFilters(Database\AbstractSearcher $searcher, User $actor): array
+    {
+        $registered = $this->container->make('flarum.search.filter_descriptions')[$searcher::class] ?? [];
+
+        $described = [];
+
+        foreach ($searcher->getFilterManager()->all() as $key => $filters) {
+            $key = (string) $key;
+            $description = null;
+
+            if (isset($registered[$key])) {
+                $description = $registered[$key];
+
+                // Arrays are static; callables decide per actor and may return null to hide.
+                if (! is_array($description)) {
+                    $description = ContainerUtil::wrapCallback($description, $this->container)($actor);
+                }
+            } else {
+                foreach ($filters as $filter) {
+                    if ($filter instanceof DescribesFilter) {
+                        $description = $filter->describe($actor);
+
+                        break;
+                    }
+                }
+            }
+
+            if ($description !== null) {
+                $described[$key] = (array) $description;
+            }
+        }
+
+        return $described;
+    }
+
+    protected function databaseSearcher(string $modelClass): ?Database\AbstractSearcher
+    {
+        $driver = $this->driver(DatabaseSearchDriver::name());
+
+        if (! $driver->supports($modelClass)) {
+            return null;
+        }
+
+        $searcher = $driver->searcher($modelClass);
+
+        return $searcher instanceof Database\AbstractSearcher ? $searcher : null;
     }
 
     public function searchable(string $resourceClass): bool

@@ -105,6 +105,16 @@ class SearchServiceProvider extends AbstractServiceProvider
             return [];
         });
 
+        /**
+         * Filter descriptions for the `resource-schemas` endpoint, keyed by
+         * searcher class and filter key. See `Extend\SearchDriver::describeFilter()`.
+         *
+         * @experimental
+         */
+        $this->container->singleton('flarum.search.filter_descriptions', function () {
+            return [];
+        });
+
         // Indexers aren't driver specific.
         // For example, a search driver implementation may support searching discussions,
         // and would need to index discussions for that, but it would also need to index
