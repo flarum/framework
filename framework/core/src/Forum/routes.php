@@ -132,4 +132,10 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'favicon.ico',
         $route->toController(Controller\FaviconController::class)
     );
+
+    $map->get(
+        '/opensearch',
+        'opensearch',
+        $route->toController(Controller\OpenSearchController::class)
+    );
 };

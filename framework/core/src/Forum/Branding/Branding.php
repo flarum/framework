@@ -81,6 +81,25 @@ class Branding
         return $this->appIconUrls()['favicon.ico'] ?? null;
     }
 
+    /**
+     * Where the favicon a page can show is stored on the assets disk: a PNG, or
+     * an uploaded .ico.
+     */
+    public function faviconPath(): ?string
+    {
+        if ($this->theme->has('favicon')) {
+            return $this->theme->paths('favicon')['png'] ?? null;
+        }
+
+        if ($path = $this->settings->get('favicon_path')) {
+            return $path;
+        }
+
+        $appIcon = $this->theme->has('app_icon') ? $this->theme->paths('app_icon') : $this->files->paths('app_icon_paths');
+
+        return $appIcon['favicon.png'] ?? null;
+    }
+
     public function faviconSvgUrl(): ?string
     {
         return $this->theme->urls('favicon')['svg'] ?? null;

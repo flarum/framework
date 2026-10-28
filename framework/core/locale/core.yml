@@ -196,6 +196,8 @@ core:
       avatar_driver_text: Select a driver that should be used for users' avatars when no user-uploaded avatar is available. By default, no avatar will be displayed when a user has not uploaded one.
       forum_description_heading: Forum Description
       forum_description_text: Enter a short sentence or two that describes your forum. This will appear in the meta tag and show up in search engines.
+      forum_short_name_heading: Short Name
+      forum_short_name_text: "Up to 16 characters, used where the forum title doesn't fit: under the forum's icon on a phone's home screen, and when someone adds the forum as a search engine in their browser. Without one, the forum title is used, cut short at a whole word if it is too long."
       forum_title_heading: Forum Title
       home_page_heading: Home Page
       home_page_text: Choose the page which users will first see when they visit your forum.

@@ -10,6 +10,7 @@
 namespace Flarum\Frontend\Content;
 
 use Flarum\Forum\Branding\Branding;
+use Flarum\Forum\Branding\ShortName;
 use Flarum\Forum\Branding\WebManifest;
 use Flarum\Frontend\Document;
 use Flarum\Http\UrlGenerator;
@@ -22,16 +23,19 @@ readonly class Meta
     private Branding $branding;
     private WebManifest $manifest;
     private UrlGenerator $url;
+    private ShortName $shortName;
 
     public function __construct(
         private LocaleManager $locales,
         ?Branding $branding = null,
         ?WebManifest $manifest = null,
-        ?UrlGenerator $url = null
+        ?UrlGenerator $url = null,
+        ?ShortName $shortName = null
     ) {
         $this->branding = $branding ?? resolve(Branding::class);
         $this->manifest = $manifest ?? resolve(WebManifest::class);
         $this->url = $url ?? resolve(UrlGenerator::class);
+        $this->shortName = $shortName ?? resolve(ShortName::class);
     }
 
     public function __invoke(Document $document, Request $request): void
@@ -71,6 +75,8 @@ readonly class Meta
         if ($appleTouchIcon = $this->branding->appIconUrls()['apple-touch-icon.png'] ?? null) {
             $head['apple-touch-icon'] = '<link rel="apple-touch-icon" href="'.e($appleTouchIcon).'">';
         }
+
+        $head['opensearch'] = '<link rel="search" type="application/opensearchdescription+xml" title="'.e($this->shortName->get()).'" href="'.e($this->url->to('forum')->route('opensearch')).'">';
 
         if ($this->manifest->isLinked()) {
             $head['manifest'] = '<link rel="manifest" href="'.e($this->url->to('forum')->route('manifest')).'">';
