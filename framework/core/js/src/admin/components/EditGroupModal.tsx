@@ -114,7 +114,7 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
           {app.translator.trans('core.admin.edit_group.submit_button')}
         </Button>
 
-        {this.group.exists && this.group.id() !== Group.ADMINISTRATOR_ID && (
+        {this.group.exists && ![Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID].includes(this.group.id()!) && (
           <button type="button" className="Button EditGroupModal-delete" onclick={this.deleteGroup.bind(this)}>
             {app.translator.trans('core.admin.edit_group.delete_button')}
           </button>
