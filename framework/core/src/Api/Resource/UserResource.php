@@ -305,8 +305,8 @@ class UserResource extends AbstractDatabaseResource
             // Registration token.
             Schema\Str::make('token')
                 ->visible(false)
-                // Set by the sign-up flow, never typed into a form. Also makes
-                // username, email and password describe as required on create.
+                // Set by the sign-up flow, never typed into a form. Absent from the
+                // admin form, so `required_without:token` makes the credentials required.
                 ->ui(['widget' => 'hidden'])
                 ->writable(function (User $user, Context $context) {
                     return $context->creating();
