@@ -676,11 +676,13 @@ export default class UserListPage extends AdminPage {
   }
 
   private userDeleted(): void {
-    const page = this.list.currentPage();
-
     this.setUserCount(this.userCount - 1);
-    // Deleting the last row of a page goes back one page.
-    this.loadPage((this.list.getItems().length <= 1 && page > 1 ? page - 1 : page) - 1);
+    this.list
+      .gotoAfterRemoval()
+      .catch(() => {
+        // The request has already shown its error.
+      })
+      .finally(() => m.redraw());
   }
 
   private setUserCount(count: number): void {

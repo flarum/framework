@@ -238,6 +238,16 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
     );
   }
 
+  /**
+   * Reload after `removed` records of the current page were deleted: the previous page when they
+   * were all of this one, else this page.
+   */
+  public gotoAfterRemoval(removed: number = 1): Promise<void> {
+    const page = this.currentPage();
+
+    return this.goto(removed >= this.getItems().length && page > 1 ? page - 1 : page);
+  }
+
   hasTotal(): boolean {
     return this.totalItems !== null;
   }

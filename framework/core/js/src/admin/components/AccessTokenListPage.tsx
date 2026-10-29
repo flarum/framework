@@ -169,7 +169,7 @@ export class AccessTokenTable extends ResourceTable<AccessToken> {
           icon="fas fa-ban fa-fw"
           title={label}
           aria-label={label}
-          onclick={() => this.revoke(token)}
+          onclick={() => this.delete(token)}
         />,
         90
       );
@@ -178,18 +178,16 @@ export class AccessTokenTable extends ResourceTable<AccessToken> {
     return items;
   }
 
-  /** `AccessTokenRevokeModal` for the token; revoking the last row of a page goes back one page. */
-  revoke(token: AccessToken): void {
-    app.modal.show(AccessTokenRevokeModal, {
-      definition: this.attrs.definition,
-      model: token,
-      ondeleted: () => {
-        const page = this.list.currentPage();
-
-        app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.access_tokens.revoked'));
-        this.reload(this.list.getItems().length <= 1 && page > 1 ? page - 1 : page);
+  /** Revoking replaces deleting: `AccessTokenRevokeModal`, then a notice. */
+  deleteModal(token: AccessToken) {
+    return {
+      modal: AccessTokenRevokeModal,
+      attrs: {
+        definition: this.attrs.definition,
+        model: token,
+        ondeleted: () => app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.access_tokens.revoked')),
       },
-    });
+    };
   }
 }
 

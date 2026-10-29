@@ -30,8 +30,12 @@ import type Mithril from 'mithril';
 import BulkResultModal from './BulkResultModal';
 import ColumnsDropdown from './ColumnsDropdown';
 import floatMenus from './floatMenus';
-import ResourceDeleteModal from './ResourceDeleteModal';
+import ResourceDeleteModal, { type ResourceDeleteModalAttrs } from './ResourceDeleteModal';
 import ResourceFormModal from './ResourceFormModal';
+import type ModalManagerState from '../../../common/states/ModalManagerState';
+
+/** What `app.modal.show()` takes: a modal class or a loader of one. */
+type ModalClass = Parameters<ModalManagerState['show']>[0];
 
 /**
  * One table column. `{name, content}` is the shape `UserListPage.columns()` has always used; the rest
@@ -1455,15 +1459,23 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     });
   }
 
-  /** `ResourceDeleteModal` for the record; deleting the last row of a page goes back one page. */
-  delete(model: M): void {
-    app.modal.show(ResourceDeleteModal, {
-      definition: this.attrs.definition,
-      model,
-      ondeleted: () => {
-        const page = this.list.currentPage();
+  /**
+   * The modal that confirms and deletes one record, and its attrs. `delete()` chains the list
+   * reload onto the attrs' `ondeleted`.
+   */
+  deleteModal(model: M): { modal: ModalClass; attrs: Pick<ResourceDeleteModalAttrs<M>, 'definition' | 'model' | 'ondeleted'> } {
+    return { modal: ResourceDeleteModal, attrs: { definition: this.attrs.definition, model } };
+  }
 
-        this.reload(this.list.getItems().length <= 1 && page > 1 ? page - 1 : page);
+  /** `deleteModal()` for the record; deleting the last row of a page goes back one page. */
+  delete(model: M): void {
+    const { modal, attrs } = this.deleteModal(model);
+
+    app.modal.show(modal, {
+      ...attrs,
+      ondeleted: (deleted: M) => {
+        attrs.ondeleted?.(deleted);
+        this.list.gotoAfterRemoval();
       },
     });
   }

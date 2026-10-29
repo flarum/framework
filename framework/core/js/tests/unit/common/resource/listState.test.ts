@@ -212,6 +212,19 @@ describe('ResourceListState', () => {
     expect(find).toHaveBeenLastCalledWith('things', expect.objectContaining({ page: { offset: 60, limit: 20 } }));
   });
 
+  test('gotoAfterRemoval goes back a page only when the removed rows emptied it', async () => {
+    const two = Object.assign([new Thing(), new Thing()] as Model[], { payload: { data: [], meta: {}, links: {} } });
+    find.mockImplementation(() => Promise.resolve(two));
+    const state = await loaded();
+
+    await state.goto(3);
+    await state.gotoAfterRemoval();
+    expect(state.currentPage()).toBe(3);
+
+    await state.gotoAfterRemoval(2);
+    expect(state.currentPage()).toBe(2);
+  });
+
   test('without syncUrl, the URL is neither read nor written', async () => {
     setUrl('sort=-name');
     const state = new ResourceListState(new ResourceDefinition<Thing>('things'), { syncUrl: false });

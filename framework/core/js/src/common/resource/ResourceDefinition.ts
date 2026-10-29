@@ -183,11 +183,9 @@ export default class ResourceDefinition<M extends Model = Model> {
       // The summary reports each failure, so the per-request error alert is suppressed.
       const result = await context.runner.run(deletable, (model) => model.delete({}, { errorHandler: () => {} }));
       const summary: BulkSummary<M> = { ...result, skipped };
-      const page = list.currentPage();
-      const emptied = result.ok.length >= list.getItems().length;
 
       context.showResult(summary);
-      await list.goto(emptied && page > 1 ? page - 1 : page);
+      await list.gotoAfterRemoval(result.ok.length);
 
       return summary;
     } finally {
