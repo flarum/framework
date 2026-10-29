@@ -26,7 +26,6 @@ export interface ResourceFilterBarAttrs<M extends Model = Model> {
   filters: ItemList<Filter>;
 }
 
-/** How many filters show as toolbar buttons before the rest go under "More filters". */
 const INLINE_FILTERS = 3;
 
 const anyLabel = () => app.translator.trans('core.lib.resource.filter.any', {}, true);
@@ -68,8 +67,8 @@ export default class ResourceFilterBar<M extends Model = Model> {
   }
 
   /**
-   * The toolbar items: the first `inlineFilters()` filters (`filter-{key}`, 80 down) and "More filters"
-   * (`moreFilters`, 10) for the rest.
+   * The toolbar items: the first `inlineFilters()` filters (`filter-{key}`, 80 down) and "More
+   * filters" (`moreFilters`, 10) for the rest.
    */
   items(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -115,8 +114,8 @@ export default class ResourceFilterBar<M extends Model = Model> {
   }
 
   /**
-   * The toolbar filters split into those shown as buttons (the first `inlineFilters()`, the promoted ones and
-   * every filter with a value) and the rest.
+   * The toolbar filters split into those shown as buttons (the first `inlineFilters()`, the
+   * promoted ones and every filter with a value) and the rest.
    */
   layout(): { inline: [string, Filter][]; more: [string, Filter][] } {
     const inline: [string, Filter][] = [];

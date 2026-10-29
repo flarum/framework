@@ -210,8 +210,8 @@ export default class ResourceFormState<M extends Model = Model> {
   }
 
   /**
-   * Validate, then save `data` (default: the changed fields, `buildSaveData()`). Invalid fields reject with a `ValidationError` and no
-   * request; their messages land in `errors` like the server's. 422/403 field errors land in
+   * Validate, then save `data` (default: the changed fields, `buildSaveData()`). Invalid fields
+   * reject with a `ValidationError` and no request; their messages land in `errors` like the server's. 422/403 field errors land in
    * `errors` (keyed by field, `'*'` for the rest) instead of the global alert; the promise still
    * rejects.
    */

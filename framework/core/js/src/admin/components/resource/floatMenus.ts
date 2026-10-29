@@ -1,7 +1,7 @@
 /**
  * Lets the dropdown menus inside a scrolling container escape its clipping. A container that
- * scrolls sideways (the resource table's) also clips vertically, so a row menu below a short table
- * was cut off. An open menu is positioned `fixed` at its toggle instead, and kept there on scroll
+ * scrolls sideways (the resource table's) also clips vertically, which would cut off a row menu below a
+ * short table. An open menu is positioned `fixed` at its toggle instead, and kept there on scroll
  * and resize. Menus that are already fixed (core's phone sheets) are left alone.
  *
  * Returns a function that removes the listeners.

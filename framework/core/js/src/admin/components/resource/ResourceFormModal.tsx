@@ -30,8 +30,8 @@ export interface ResourceFormModalAttrs<M extends Model = Model> extends IFormMo
  *
  * Its overridable surface mirrors `CreateUserModal` / `EditUserModal`, so an extension ports by
  * renaming the base class: `fields()` is the ItemList of form groups (keyed by field name, plus
- * `submit`), `data()` the save data and `submitData()` what is sent. Only changed fields are sent,
- * because the server answers 403 for a non-writable field present in the payload. Fields are
+ * `submit`), `data()` the save data and `submitData()` what is sent. Only changed fields are sent (see
+ * `ResourceFormState`). Fields are
  * validated against the descriptor before the request; 422/403 field errors show under their
  * field.
  */

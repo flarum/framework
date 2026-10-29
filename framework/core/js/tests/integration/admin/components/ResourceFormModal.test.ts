@@ -85,7 +85,7 @@ describe('ResourceFormModal', () => {
     );
     const { modal: legacy } = await render<EditUserModal>(EditUserModal, modalAttrs({ user }));
 
-    // The reference: what EditUserModal offers today.
+    // The reference: what EditUserModal offers.
     expect(fieldKeys(legacy.fields())).toEqual(EDIT_USER_MODAL_CORE_FIELDS);
 
     const keys = fieldKeys(resource.fields());

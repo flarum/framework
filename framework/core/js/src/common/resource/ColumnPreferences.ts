@@ -5,12 +5,9 @@
  * follows its `hidden` default, so a default-hidden column added later still starts hidden.
  *
  * The choices are kept in `localStorage` under `flarum.resourceTable.{type}.columns` (a JSON
- * object). Every storage access is wrapped in try/catch: when storage is unavailable or full (private mode, quota,
- * a sandboxed frame), the choices live in memory for the session. The in-memory value wins over
- * storage, so a write that failed is still read back.
- *
- * The storage backend is private to this class, so it can move to user preferences without
- * changing `load()` / `save()`.
+ * object). When storage is unavailable or full (private mode, quota, a sandboxed frame), they live
+ * in memory for the session. The in-memory value wins over storage, so a write that failed is
+ * still read back.
  */
 export default class ColumnPreferences {
   protected static memory = new Map<string, Record<string, boolean>>();

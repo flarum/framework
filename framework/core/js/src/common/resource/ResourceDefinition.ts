@@ -98,7 +98,8 @@ export default class ResourceDefinition<M extends Model = Model> {
   }
 
   /**
-   * One filter per described filter, its input from `filterInput()`, rendered by `filterInputs()`. Labelled by the same-named field, else the humanized key.
+   * One filter per described filter, its input from `filterInput()`, rendered by `filterInputs()`.
+   * Labelled by the same-named field, else the humanized key.
    */
   filters(): ItemList<Filter> {
     const filters = new ItemList<Filter>();
@@ -184,8 +185,7 @@ export default class ResourceDefinition<M extends Model = Model> {
 
   /**
    * A short human name for one record, in modal titles, confirmations and the bulk summary. Defaults
-   * to the first non-empty naming attribute (`name`, `title`, `label`, `displayName`, `username`,
-   * `slug`), else `#id`.
+   * to `recordLabel()`.
    */
   recordLabel(model: M): string {
     return recordLabel(model);

@@ -10,9 +10,6 @@ import type { InputContext, InputRenderer, InputSpec } from '../types';
  * single view. Register a type to add or replace an input everywhere the factory is used.
  */
 export default class InputFactory {
-  /**
-   * @param fallbackRenderer renders types without a registered renderer; default FormGroup.
-   */
   constructor(
     readonly registry: ItemList<InputRenderer> = new ItemList<InputRenderer>(),
     protected fallbackRenderer?: InputRenderer

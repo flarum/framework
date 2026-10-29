@@ -241,7 +241,7 @@ describe('UserListPage', () => {
       // The header items render in the table's toolbar: totalUsers in the count slot, actions beside it.
       expect(out).toHaveElement('.ResourceTable-toolbarActions.UserListPage-header .ResourceTable-count[role=status] .UserListPage-totalUsers');
       expect(out).toHaveElement('.ResourceTable-toolbarActions.UserListPage-header .UserListPage-actions .UserListPage-createUserBtn');
-      // `UserListPage-grid` is the table container only, as it was the grid section only.
+      // `UserListPage-grid` is the table container only.
       expect(out).toHaveElement('.ResourceTable.UserListPage-table');
       expect(out).not.toHaveElement('.ResourceTable.UserListPage-grid');
       expect(out).toHaveElement('.UserListPage-table > .ResourceTable-container.UserListPage-grid > table');

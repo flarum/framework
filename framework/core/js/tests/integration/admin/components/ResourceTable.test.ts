@@ -404,7 +404,7 @@ describe('ResourceTable', () => {
 
       toggle(out, 'name', false);
 
-      // Ignored, not deleted (spec D11): the stale and non-toggleable keys stay stored.
+      // Ignored, not deleted: the stale and non-toggleable keys stay stored.
       expect(ColumnPreferences.load('things')).toEqual(
         new Map([
           ['gone', false],

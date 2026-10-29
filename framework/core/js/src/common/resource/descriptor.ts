@@ -13,7 +13,8 @@ const cache = new Map<string, Promise<ResourceDescriptor>>();
 /**
  * Find the `resource-schemas` record of a type, memoized per session. The server sends an ETag with
  * `Cache-Control: private`, so the browser revalidates across sessions. Rejects (without the global
- * error alert) on 403 and other failures, and on a `schemaVersion` newer than `SCHEMA_VERSION`; a failed load is not memoized.
+ * error alert) on 403 and other failures, and on a `schemaVersion` newer than `SCHEMA_VERSION`; a
+ * failed load is not memoized.
  *
  * The descriptor is a copy of the response's attributes, not the stored record's: the store merges
  * a refetch into the attributes object it already holds, so a key the server now omits would

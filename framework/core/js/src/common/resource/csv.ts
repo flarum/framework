@@ -11,7 +11,7 @@ import type ResourceListState from './ResourceListState';
 export interface ExportColumn<M extends Model = Model> {
   /** The header cell; reduced to its text. */
   name: Mithril.Children;
-  /** The cell value. Without it, the raw attribute when the column key is a descriptor field, else the column is skipped. */
+  /** The cell value; see `exportCsv()` for the fallback. */
   csv?: (model: M) => string | number | null;
   /** Hidden columns are not exported. */
   hidden?: boolean;
@@ -54,8 +54,8 @@ function jsonCell(value: object): string {
  * starting with `= + - @`, a tab or a carriage return.
  *
  * The guard is uniform, so it also changes harmless values: `-5` is exported as `'-5`, and a
- * spreadsheet reads it as text. Telling a negative number from `-2+3+cmd|...` is exactly the kind
- * of judgement such guards get wrong, so we don't try. A vnode-like object (with a `tag`) or a
+ * spreadsheet reads it as text. Telling a negative number from `-2+3+cmd|...` is the judgement such
+ * guards get wrong. A vnode-like object (with a `tag`) or a
  * value `JSON.stringify` rejects becomes an empty cell.
  */
 export function csvCell(value: unknown): string {

@@ -58,9 +58,6 @@ const FIELD_COLUMNS: Record<string, string> = {
   groups: 'groupBadges',
 };
 
-/**
- * `EditUserModal` stays a lazily loaded chunk, as it was before `editModal()` existed.
- */
 const loadEditUserModal = () => import('../../common/components/EditUserModal');
 
 interface UserListTableAttrs extends ResourceTableAttrs<User> {
@@ -714,8 +711,9 @@ export default class UserListPage extends AdminPage {
 
 /**
  * The users definition. Its `bulkActions()` are the list's bulk actions: empty, so the list has no
- * checkbox column until an extension adds one (`bulkDeleteAction(context)` is a ready-made item). The group
- * filter labels groups like the `groups` field does, and leaves out the guest group, which no user is a member of.
+ * checkbox column until an extension adds one (`bulkDeleteAction(context)` is a ready-made item).
+ * The group filter labels groups like the `groups` field does, and leaves out the guest group,
+ * which no user is a member of.
  */
 export class UserResourceDefinition extends ResourceDefinition<User> {
   label(count: number): string {

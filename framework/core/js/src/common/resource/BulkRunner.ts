@@ -46,8 +46,7 @@ export interface BulkActionContext<M extends Model = Model> {
 
 /**
  * Runs one operation per record, at most `concurrency` at a time (3 by default, to stay well inside
- * browser and server connection limits), and collects the outcome. One failure never stops the
- * others.
+ * browser and server connection limits).
  */
 export class ConcurrentBulkRunner implements BulkRunner {
   constructor(readonly concurrency: number = 3) {}

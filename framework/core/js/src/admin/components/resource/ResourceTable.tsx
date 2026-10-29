@@ -34,8 +34,8 @@ import type ModalManagerState from '../../../common/states/ModalManagerState';
 type ModalClass = Parameters<ModalManagerState['show']>[0];
 
 /**
- * One table column. `{name, content}` is the shape `UserListPage.columns()` has always used; the rest
- * is optional.
+ * One table column. `{name, content}` is the shape of `UserListPage.columns()`; the rest is
+ * optional.
  */
 export interface ColumnData<M extends Model = Model> {
   /** The header cell's content. */
@@ -50,7 +50,7 @@ export interface ColumnData<M extends Model = Model> {
   attrs?: (model: M) => Record<string, unknown>;
   /** Listed in the "Columns" dropdown, so the user can hide it. Default true. */
   toggleable?: boolean;
-  /** Hidden until the user shows it. A stored choice for this column wins; other columns' choices don't affect it. */
+  /** Hidden until the user shows it. A stored choice for this column wins. */
   hidden?: boolean;
   /**
    * The column's CSV value. Without it, the CSV takes the raw attribute when the column key is a
@@ -91,8 +91,8 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
 
 /**
  * The admin table for one resource type: columns from the definition's fields (or the `columns`
- * attr), header and dropdown sorting over the descriptor's sorts, debounced search, one control per
- * described filter, numbered (core `Pagination`) or prev/next pagination, and create/edit/delete
+ * attr), header and dropdown sorting over the descriptor's sorts, debounced search, the filter bar
+ * (`filterBar()`), numbered (core `Pagination`) or prev/next pagination, and create/edit/delete
  * gated by `canCreate()` and the rows' `canEdit`/`canDelete` attributes. Every region is an
  * `ItemList` for extensions.
  */
@@ -201,9 +201,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     return items;
   }
 
-  // ---------------------------------------------------------------------------------------------
-  // Toolbar
-
   /**
    * `view` (search, sort, filters), `actions` (the total, then `actionItems()`) and, when the
    * definition has bulk actions, `bulk`.
@@ -299,9 +296,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * Search (`search`, when the type is searchable), sort, then the filter bar's items: the first
-   * three filters (`filter-{key}`) and "More filters" (`moreFilters`) for the rest, or one
-   * "Filters" dropdown (`filters`) at phone width.
+   * Search (`search`, when the type is searchable), sort, then the filter bar's `items()`.
    */
   viewItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -337,7 +332,8 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * The "Columns" dropdown (when a column is toggleable) and the CSV export (when `definition.canExport()`).
+   * The "Columns" dropdown (when a column is toggleable) and the CSV export (when
+   * `definition.canExport()`).
    */
   displayItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -481,9 +477,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       .replace(/[-_]+/g, ' ')
       .replace(/^./, (c) => c.toUpperCase());
   }
-
-  // ---------------------------------------------------------------------------------------------
-  // Table
 
   /**
    * The columns: the `columns` attr, else one per field with a column, by the column's priority,
@@ -745,9 +738,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     );
   }
 
-  // ---------------------------------------------------------------------------------------------
-  // Pagination
-
   /** Core's `Pagination` when the API sends a total (the toolbar shows it), else previous/next. */
   paginationView(): Mithril.Children {
     const list = this.list;
@@ -785,9 +775,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       </nav>
     );
   }
-
-  // ---------------------------------------------------------------------------------------------
-  // Actions
 
   /** Reload the current page, keeping the rows on screen. */
   reload(page: number = this.list.currentPage()): Promise<void> {
