@@ -186,8 +186,8 @@ export interface Filter {
   /**
    * "No" (`'0'`) is sent as the negated key, `filter[-key]=1`, instead of `filter[key]=0`: core's
    * filter manager negates a leading `-`, and boolean filters such as suspend's `suspended` ignore
-   * the value. Inferred boolean filters are negatable. This is the source of truth for
-   * `ResourceListState.isNegatable()`; left undefined, the descriptor decides.
+   * the value. Inferred boolean filters, and filters named after a boolean field, are negatable.
+   * `ResourceListState.isNegatable()` reads it.
    */
   negatable?: boolean;
   /**

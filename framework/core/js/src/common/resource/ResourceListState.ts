@@ -1,7 +1,9 @@
 import PaginatedListState, { type PaginatedListRequestParams } from '../states/PaginatedListState';
 import type Model from '../Model';
 import type { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
+import ItemList from '../utils/ItemList';
 import type ResourceDefinition from './ResourceDefinition';
+import type { Filter } from './types';
 
 export interface ResourceListParams {
   sort?: string;
@@ -65,6 +67,9 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
   public readonly definition: ResourceDefinition<M>;
   protected syncUrl: boolean;
 
+  /** `definition.filters()`, built once the descriptor is loaded. */
+  protected filters: ItemList<Filter> | null = null;
+
   /** Page-scoped: any page, sort, filter or search change (and a reload) clears it. */
   public selection: ResourceSelection = { mode: 'ids', ids: new Set() };
 
@@ -82,6 +87,7 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
   /** Load the descriptor, adopt the URL's params (validated against it) and load the page. */
   async load(): Promise<void> {
     await this.definition.load();
+    this.filters = null;
 
     let page = 1;
 
@@ -115,27 +121,26 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
     return this.definition.descriptor?.sorts ?? [];
   }
 
+  /** The keys of the definition's filters, an `extend()`-added one included. */
   filterKeys(): string[] {
-    return (this.definition.descriptor?.filters ?? []).map((filter) => filter.key);
+    return Object.keys(this.definitionFilters().toObject());
   }
 
   /**
-   * Whether "No" (`'0'`) of this filter is sent as `filter[-key]=1`. The definition's filter decides
-   * when it sets `negatable` (so a subclass or extension can opt a filter in or out); otherwise
-   * described boolean filters, and filters named after a boolean field, are negatable.
+   * Whether "No" (`'0'`) of this filter is sent as `filter[-key]=1`: the definition's
+   * `Filter.negatable`.
    */
   isNegatable(key: string): boolean {
-    const filters = this.definition.filters();
-    const negatable = filters.has(key) ? filters.get(key).negatable : undefined;
+    const filters = this.definitionFilters();
 
-    if (negatable !== undefined) return negatable;
+    return filters.has(key) && !!filters.get(key).negatable;
+  }
 
-    const descriptor = this.definition.descriptor;
-    const filter = descriptor?.filters?.find((f) => f.key === key);
+  /** `definition.filters()`, built once per descriptor load; empty until then. */
+  protected definitionFilters(): ItemList<Filter> {
+    if (!this.filters && this.definition.descriptor) this.filters = this.definition.filters();
 
-    if (!filter) return false;
-
-    return filter.kind === 'boolean' || descriptor!.fields.some((field) => field.name === key && field.kind === 'boolean');
+    return this.filters ?? new ItemList<Filter>();
   }
 
   /**

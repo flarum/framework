@@ -156,6 +156,33 @@ describe('ResourceListState', () => {
     expect(state.filterParam('active', '0')).toEqual(['active', '0']);
   });
 
+  test('a filter added to the definition (not described) is restored from the URL', async () => {
+    class Extended extends ResourceDefinition<Thing> {
+      filters() {
+        return super.filters().add('extra', { label: 'Extra', input: { type: 'text' } });
+      }
+    }
+
+    setUrl('filter%5Bextra%5D=x');
+    const state = await loaded(new Extended('things'));
+
+    expect(state.getFilter('extra')).toBe('x');
+    expect(find).toHaveBeenLastCalledWith('things', expect.objectContaining({ filter: { extra: 'x' } }));
+  });
+
+  test('isNegatable() builds the definition filters once per load', async () => {
+    const definition = new ResourceDefinition<Thing>('things');
+    const filters = jest.spyOn(definition, 'filters');
+    const state = await loaded(definition);
+
+    filters.mockClear();
+    state.isNegatable('active');
+    state.filterParam('active', '0');
+    state.filterParam('status', 'live');
+
+    expect(filters).not.toHaveBeenCalled();
+  });
+
   test('boolean "No" is sent and written as the negated key; the URL form reads back', async () => {
     const state = await loaded();
 
