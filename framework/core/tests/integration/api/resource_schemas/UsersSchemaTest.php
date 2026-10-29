@@ -200,7 +200,7 @@ class UsersSchemaTest extends TestCase
     #[Test]
     public function a_default_member_gets_a_member_scoped_descriptor()
     {
-        // Default install: sign-up open, members hold `searchUsers` (spec D2).
+        // Default install: sign-up open, members hold `searchUsers`.
         $descriptor = $this->describe(2);
         $fields = $this->fieldsByName($descriptor);
 

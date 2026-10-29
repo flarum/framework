@@ -69,7 +69,7 @@ class ShowTest extends TestCase
             ->delete();
 
         // With sign-up open, `UserResource`'s Create endpoint is visible to
-        // every actor, which the D2 "Index or Create" gate would accept.
+        // every actor, which the list-or-create gate would accept.
         $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('allow_sign_up', false);
 
         $response = $this->send(

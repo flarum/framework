@@ -53,10 +53,8 @@ trait FlarumField
     }
 
     /**
-     * Attach UI hints for the generic admin resource components.
-     *
-     * Hints are merged into a dedicated bag, so several extenders can each add
-     * their own keys, and `->schema()` is never touched.
+     * Attach UI hints for the generic admin resource components. Hints are
+     * merged, so several extenders can each add their own keys.
      *
      * - `column`: bool, or int priority, to show the field as a grid column;
      * - `display`: the attribute used to label a related record;

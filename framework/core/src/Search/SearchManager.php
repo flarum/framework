@@ -79,7 +79,7 @@ class SearchManager
      * `query()` sends only fulltext queries to a non-database driver, so such a model keeps
      * `fulltext` if that driver supports it. Filter-only queries still run on the database
      * searcher, but a filter combined with `q` goes to the other driver, which may not support
-     * it, so no filters are described: the conservative reading.
+     * it, so no filters are described.
      *
      * @param class-string<AbstractModel> $modelClass
      * @return array{fulltext: bool, filters: array<string, array<string, mixed>>}

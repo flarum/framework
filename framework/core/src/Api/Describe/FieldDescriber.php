@@ -32,7 +32,7 @@ use Tobyz\JsonApiServer\Schema\Type\Str;
  *
  * Visibility fails closed: a field is visible only when a read mode says so,
  * and a check that throws counts as "not visible". Writability fails open and
- * is flagged `conditional` (spec D3). Requirements are described per write
+ * is flagged `conditional`. Requirements are described per write
  * mode: `required` when unconditional, `requiredWhen` for Laravel's conditional
  * required rules, and `requiredConditional` when a required-type rule cannot
  * be described, so the server decides.
@@ -174,9 +174,6 @@ class FieldDescriber
     /**
      * A field is visible when it would be serialized on at least one read endpoint.
      *
-     * Fails closed: a mode whose check throws does not count, so a field whose
-     * every read check throws is not visible.
-     *
      * @param array<string, DescribeContext> $contexts
      */
     protected function visible(Field $field, array $contexts): bool
@@ -270,7 +267,7 @@ class FieldDescriber
     }
 
     /**
-     * Resolves the label (spec D7):
+     * Resolves the label:
      * 1. `ui.label`, translated when it is an existing key, otherwise literal;
      * 2. `core.admin.resource.{type}.{snake_name}`, when it exists;
      * 3. the humanised field name (`joinTime` becomes "Join time").
@@ -287,9 +284,6 @@ class FieldDescriber
             ?? ucfirst(str_replace('_', ' ', $snake));
     }
 
-    /**
-     * Translates a string when it is a translation key that exists, otherwise returns null.
-     */
     protected function translate(string $key): ?string
     {
         // Only key-shaped strings: a literal label must not reach the message formatter.

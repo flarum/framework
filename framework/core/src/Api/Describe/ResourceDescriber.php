@@ -29,9 +29,6 @@ use Tobyz\JsonApiServer\Resource\Resource;
  */
 class ResourceDescriber
 {
-    /**
-     * Always emitted: the one exception to default-omission.
-     */
     public const int SCHEMA_VERSION = 1;
 
     /**
@@ -77,8 +74,8 @@ class ResourceDescriber
     }
 
     /**
-     * "You can describe what you can list or create" (spec D2): the same
-     * checks as the descriptor's `capabilities.list` and `capabilities.create`.
+     * An actor can describe what they can list or create: the same checks as
+     * the descriptor's `capabilities.list` and `capabilities.create`.
      */
     public function canDescribe(Resource $resource, User $actor, ServerRequestInterface $request): bool
     {
