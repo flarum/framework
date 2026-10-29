@@ -16,8 +16,8 @@
   text-align: center;
   color: var(--text-color);
   font-weight: bold;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-inline-start: 10px;
+  padding-inline-end: 10px;
 }
 .Group-name {
   display: block;
@@ -28,7 +28,7 @@
 .Group--add {
   color: var(--muted-color);
   width: auto;
-  margin-left: 10px;
+  margin-inline-start: 10px;
   font-weight: normal;
 
   .Group-icon {
@@ -49,7 +49,7 @@
 
   td, th {
     padding: 5px;
-    text-align: left;
+    text-align: start;
   }
   td {
     color: var(--muted-color);
@@ -71,7 +71,7 @@
       background: var(--body-bg);
 
       @media @tablet-up {
-        left: 0;
+        inset-inline-start: 0;
       }
     }
 
@@ -81,17 +81,17 @@
   }
   tbody {
     th {
-      padding-right: 50px;
+      padding-inline-end: 50px;
       z-index: 4;
       background: inherit;
 
       @media @tablet-up {
         position: sticky;
-        left: 0;
+        inset-inline-start: 0;
       }
 
       .icon {
-        margin-right: 5px;
+        margin-inline-end: 5px;
         font-size: 14px;
         width: 18px;
         text-align: center;

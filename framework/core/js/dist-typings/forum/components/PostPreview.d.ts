@@ -18,4 +18,4 @@ export default class PostPreview extends Component<import("../../common/Componen
      */
     excerpt(): string;
 }
-import Component from "../../common/Component";
+import Component from '../../common/Component';

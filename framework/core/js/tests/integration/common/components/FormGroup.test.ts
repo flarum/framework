@@ -46,3 +46,26 @@ describe('FormGroup boolean/switch type', () => {
     expect(inputEl?.attrs?.['aria-describedby']).toBeFalsy();
   });
 });
+
+describe('FormGroup icon type', () => {
+  it('renders an IconInput: the field plus the picker toggle', () => {
+    const stream = Stream('fas fa-bolt');
+    const group = mq(m(FormGroup, { type: 'icon', label: 'Icon', help: 'Any Font Awesome class.', stream }));
+
+    // The stream reaches the field through `bidi`, which this environment does
+    // not wire up; IconInput's own tests cover the value.
+    expect(group).toHaveElement('.IconInput input.FormControl');
+    expect(group).toHaveElement('.IconInput-toggle');
+  });
+
+  it('labels and describes the text field', () => {
+    const group = mq(m(FormGroup, { type: 'icon', label: 'Icon', help: 'Any Font Awesome class.', stream: Stream('') }));
+
+    const input = group.first('.IconInput input.FormControl') as HTMLInputElement;
+    const label = group.first('label') as HTMLLabelElement;
+    const help = group.first('.helpText') as HTMLElement;
+
+    expect(label.getAttribute('for')).toBe(input.id);
+    expect(input.getAttribute('aria-describedby')).toBe(help.id);
+  });
+});

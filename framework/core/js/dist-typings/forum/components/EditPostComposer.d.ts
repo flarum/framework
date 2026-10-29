@@ -23,4 +23,4 @@ export default class EditPostComposer extends ComposerBody<import("./ComposerBod
      */
     data(): Record<string, unknown>;
 }
-import ComposerBody from "./ComposerBody";
+import ComposerBody from './ComposerBody';

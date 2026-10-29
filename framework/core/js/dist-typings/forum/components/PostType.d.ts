@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component, { type ComponentAttrs } from '../../common/Component';
 import type Post from '../../common/models/Post';
 export interface IPostTypeAttrs extends ComponentAttrs {

@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import type DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import type { DiscussionListParams } from 'flarum/forum/states/DiscussionListState';
 import type Discussion from 'flarum/common/models/Discussion';

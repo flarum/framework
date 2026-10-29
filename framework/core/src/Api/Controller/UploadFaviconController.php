@@ -10,8 +10,9 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Admin\FaviconValidator;
-use Intervention\Image\Interfaces\EncodedImageInterface;
-use Psr\Http\Message\StreamInterface;
+use Flarum\Forum\Branding\IconSet;
+use Flarum\Forum\Branding\StoredFiles;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadFaviconController extends UploadImageController
@@ -19,21 +20,29 @@ class UploadFaviconController extends UploadImageController
     protected string $filePathSettingKey = 'favicon_path';
     protected string $filenamePrefix = 'favicon';
     protected ?string $validator = FaviconValidator::class;
+    protected ?string $themeImage = 'favicon';
 
-    protected function makeImage(UploadedFileInterface $file): EncodedImageInterface|StreamInterface
+    protected ?string $ico = null;
+
+    protected function makeImage(UploadedFileInterface $file): string
     {
-        $this->fileExtension = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
+        if ($this->container->make(FaviconValidator::class)->isIco($file)) {
+            $this->fileExtension = 'ico';
+            $this->ico = null;
 
-        if ($this->fileExtension === 'ico') {
-            return $file->getStream();
+            return (string) $file->getStream();
         }
 
-        $encodedImage = $this->imageManager->read($file->getStream()->getMetadata('uri'))
-            ->scale(64, 64)
-            ->toPng();
+        $favicon = $this->container->make(IconSet::class)->favicon((string) $file->getStream());
 
         $this->fileExtension = 'png';
+        $this->ico = $favicon['ico'];
 
-        return $encodedImage;
+        return $favicon['png'];
+    }
+
+    protected function afterStore(ServerRequestInterface $request, UploadedFileInterface $file): void
+    {
+        $this->container->make(StoredFiles::class)->replace('favicon_ico_path', $this->ico, 'favicon', 'ico');
     }
 }

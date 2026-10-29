@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
 import DialogListState from '../states/DialogListState';
 import Dialog from '../../common/models/Dialog';

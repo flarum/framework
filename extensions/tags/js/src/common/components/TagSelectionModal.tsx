@@ -63,7 +63,7 @@ export type ITagSelectionModalState = undefined;
 
 export default class TagSelectionModal<
   CustomAttrs extends ITagSelectionModalAttrs = ITagSelectionModalAttrs,
-  CustomState extends ITagSelectionModalState = ITagSelectionModalState
+  CustomState extends ITagSelectionModalState = ITagSelectionModalState,
 > extends FormModal<CustomAttrs, CustomState> {
   protected loading = true;
   protected tags!: Tag[];

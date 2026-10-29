@@ -24,7 +24,7 @@
     ],
     "type": "flarum-extension",
     "require": {
-        "flarum/core": "^2.0.0",
+        "flarum/core": "^2.1",
         "plesk/ratchetphp": "v1.0.4",
         "pusher/pusher-php-server": "^7.2.0"
     },
@@ -86,14 +86,14 @@
     },
     "require-dev": {
         "fof/best-answer": "^2.0.0",
-        "flarum/lock": "^2.0.0",
-        "flarum/likes": "^2.0.0",
-        "flarum/flags": "^2.0.0",
-        "flarum/tags": "^2.0.0",
+        "flarum/lock": "^2.1",
+        "flarum/likes": "^2.1",
+        "flarum/flags": "^2.1",
+        "flarum/tags": "^2.1",
         "fof/reactions": "^2.0.0",
-        "flarum/phpstan": "^2.0.0",
-        "flarum/testing": "^2.0.0",
-        "flarum/messages": "^2.0.0",
+        "flarum/phpstan": "^2.1",
+        "flarum/testing": "^2.1",
+        "flarum/messages": "^2.1",
         "fof/discussion-views": "^2.0.0"
     },
     "minimum-stability": "dev",

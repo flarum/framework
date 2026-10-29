@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component from 'flarum/common/Component';
 import type { CommonFieldOptions } from 'flarum/common/components/FormGroup';
 import type Stream from 'flarum/common/utils/Stream';

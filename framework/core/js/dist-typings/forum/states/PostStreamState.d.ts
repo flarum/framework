@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import type Discussion from '../../common/models/Discussion';
 import type Post from '../../common/models/Post';
 export default class PostStreamState {
