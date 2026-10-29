@@ -3,6 +3,7 @@ import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
 import AutocompleteDropdown from '../../../../src/common/components/AutocompleteDropdown';
 import ResourceTable from '../../../../src/admin/components/resource/ResourceTable';
+import ResourceFilterBar from '../../../../src/admin/components/resource/ResourceFilterBar';
 import CompactFilterBar, { ALWAYS_QUERY } from '../../../../src/admin/components/resource/CompactFilterBar';
 import Model from '../../../../src/common/Model';
 import EmailGambit from '../../../../src/common/query/users/EmailGambit';
@@ -201,6 +202,26 @@ describe('ResourceTable toolbar', () => {
 
     expect(out).toHaveElement('.ResourceTable-toolbarView .ResourceTable-filter--size');
     expect(out.find('.ResourceTable-moreFilters .ResourceTable-moreFilter')).toHaveLength(1);
+  });
+
+  test('a bar\'s inlineFilters() sets how many filters show before "More filters"', async () => {
+    class OneInlineBar extends ResourceFilterBar<Gadget> {
+      inlineFilters(): number {
+        return 1;
+      }
+    }
+
+    class OneInlineTable extends ResourceTable<Gadget> {
+      filterBar() {
+        return new OneInlineBar({ definition: this.attrs.definition, list: this.list, filters: this.attrs.definition.filters() });
+      }
+    }
+
+    const out = mq(OneInlineTable, { definition: new KeepActive('gadgets') });
+    await settle(out);
+
+    expect(out.find('.ResourceTable-toolbarView .ResourceTable-filter')).toHaveLength(1);
+    expect(out.find('.ResourceTable-moreFilters .ResourceTable-moreFilter')).toHaveLength(4);
   });
 
   test('a filter with a value is always on the toolbar', async () => {

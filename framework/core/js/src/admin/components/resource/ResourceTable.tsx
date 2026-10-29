@@ -550,7 +550,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /** The user's explicit column choices, key to visible. */
-  protected storedChoices(): Map<string, boolean> {
+  storedChoices(): Map<string, boolean> {
     return (this.columnChoices ??= ColumnPreferences.load(this.attrs.definition.type));
   }
 

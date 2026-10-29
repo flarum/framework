@@ -94,7 +94,7 @@ export default class CompactFilterBar<M extends Model = Model> extends ResourceF
   }
 
   /** Mark a menu item's `<li>` as belonging to one filter's section of the compact menu. */
-  protected inGroup(item: Mithril.Children, key: string): Mithril.Children {
+  inGroup(item: Mithril.Children, key: string): Mithril.Children {
     if (item && typeof item === 'object' && 'tag' in item) {
       const vnode = item as Mithril.Vnode<{ itemClassName?: string }> & { itemClassName?: string };
       const groupClass = classList('ResourceTable-filterGroupItem', `ResourceTable-filterGroupItem--${key}`);

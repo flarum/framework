@@ -68,7 +68,7 @@ export default class ResourceFilterBar<M extends Model = Model> {
   }
 
   /**
-   * The toolbar items: the first three filters (`filter-{key}`, 80 down) and "More filters"
+   * The toolbar items: the first `inlineFilters()` filters (`filter-{key}`, 80 down) and "More filters"
    * (`moreFilters`, 10) for the rest.
    */
   items(): ItemList<Mithril.Children> {
@@ -109,8 +109,13 @@ export default class ResourceFilterBar<M extends Model = Model> {
     return ordered(this.filters).filter(([key, filter]) => !(gambitKeys.has(key) && filter.hideWhenSearchable !== false));
   }
 
+  /** How many filters show as toolbar buttons before the rest go under "More filters". */
+  inlineFilters(): number {
+    return INLINE_FILTERS;
+  }
+
   /**
-   * The toolbar filters split into those shown as buttons (the first three, the promoted ones and
+   * The toolbar filters split into those shown as buttons (the first `inlineFilters()`, the promoted ones and
    * every filter with a value) and the rest.
    */
   layout(): { inline: [string, Filter][]; more: [string, Filter][] } {
@@ -120,7 +125,7 @@ export default class ResourceFilterBar<M extends Model = Model> {
     this.toolbarFilters().forEach((entry, index) => {
       const [key] = entry;
 
-      if (index < INLINE_FILTERS || this.promoted.has(key) || this.list.getFilter(key) !== '') inline.push(entry);
+      if (index < this.inlineFilters() || this.promoted.has(key) || this.list.getFilter(key) !== '') inline.push(entry);
       else more.push(entry);
     });
 
@@ -210,7 +215,7 @@ export default class ResourceFilterBar<M extends Model = Model> {
   }
 
   /** Focus a promoted filter's toggle after the redraw that created it. */
-  protected focusPending(key: string): void {
+  focusPending(key: string): void {
     if (this.pendingFocus !== key) return;
 
     const toggle = this.doms[key]?.querySelector('.Dropdown-toggle') as HTMLElement | null;
@@ -260,7 +265,8 @@ export default class ResourceFilterBar<M extends Model = Model> {
     ];
   }
 
-  protected choice(key: string, value: string, label: Mithril.Children, active: boolean): Mithril.Children {
+  /** One choice of a choice filter's menu; picking it sets the filter. */
+  choice(key: string, value: string, label: Mithril.Children, active: boolean): Mithril.Children {
     return (
       <Button
         icon={active ? 'fas fa-check' : true}
@@ -288,7 +294,7 @@ export default class ResourceFilterBar<M extends Model = Model> {
   }
 
   /** Load a relationship filter's first records, once. */
-  protected loadRelation(key: string, filter: Filter): void {
+  loadRelation(key: string, filter: Filter): void {
     const relation = this.relationSpec(filter);
 
     if (relation) this.relationOptions(key, relation.related).ensureLoaded();
