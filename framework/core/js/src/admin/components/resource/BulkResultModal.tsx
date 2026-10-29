@@ -16,7 +16,7 @@ export interface BulkResultModalAttrs<M extends Model = Model> extends IInternal
 }
 
 /**
- * The outcome of a bulk delete (`ResourceDefinition.bulkDelete()`): how many records were deleted,
+ * The outcome of a bulk delete (`bulkDeleteAction()`): how many records were deleted,
  * each failed record with its reason, and the selected records it left out.
  */
 export default class BulkResultModal<M extends Model = Model, Attrs extends BulkResultModalAttrs<M> = BulkResultModalAttrs<M>> extends Modal<Attrs> {

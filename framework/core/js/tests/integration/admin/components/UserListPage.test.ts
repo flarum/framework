@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals';
+import { bulkDeleteAction } from '../../../../src/common/resource/bulkDelete';
 import dayjs from 'dayjs';
 import m from 'mithril';
 import mq from 'mithril-query';
@@ -538,8 +539,8 @@ describe('UserListPage', () => {
 
   test('a bulk delete where one row fails deletes the others, names the failed row and lowers the total by 2', async () => {
     patch(UserResourceDefinition.prototype, 'bulkActions');
-    extend(UserResourceDefinition.prototype, 'bulkActions', function (this: UserResourceDefinition, items, _selection, context) {
-      items.add('delete', this.bulkDelete(context));
+    extend(UserResourceDefinition.prototype, 'bulkActions', function (items, _selection, context) {
+      items.add('delete', bulkDeleteAction(context));
     });
     respond(() => Promise.resolve(results([user('2'), user('3'), user('4', { displayName: 'Refused' })], 3)));
 

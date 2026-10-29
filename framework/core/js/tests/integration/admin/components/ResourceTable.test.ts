@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals';
+import { bulkDeleteAction } from '../../../../src/common/resource/bulkDelete';
 import m from 'mithril';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
@@ -452,7 +453,7 @@ describe('ResourceTable', () => {
 
     class DeleteDefinition extends ResourceDefinition<Thing> {
       bulkActions(selection: ResourceSelection, context: BulkActionContext<Thing>) {
-        return super.bulkActions(selection, context).add('delete', this.bulkDelete(context));
+        return super.bulkActions(selection, context).add('delete', bulkDeleteAction(context));
       }
     }
 

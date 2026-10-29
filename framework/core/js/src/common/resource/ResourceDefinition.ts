@@ -1,10 +1,7 @@
 import type Mithril from 'mithril';
-import app from '../app';
-import Button from '../components/Button';
 import type Model from '../Model';
 import ItemList from '../utils/ItemList';
-import extractText from '../utils/extractText';
-import type { BulkActionContext, BulkSummary } from './BulkRunner';
+import type { BulkActionContext } from './BulkRunner';
 import { loadDescriptor } from './descriptor';
 import recordLabel from './recordLabel';
 import { fieldsFromDescriptor } from './fieldsFromDescriptor';
@@ -31,9 +28,6 @@ function humanize(value: string): string {
  */
 export default class ResourceDefinition<M extends Model = Model> {
   descriptor: ResourceDescriptor | null = null;
-
-  /** Whether a `bulkDelete()` run is in progress, so a second click is ignored. */
-  protected bulkDeleting: boolean = false;
 
   constructor(readonly type: string) {}
 
@@ -121,71 +115,11 @@ export default class ResourceDefinition<M extends Model = Model> {
 
   /**
    * The actions offered for the selected records. Empty by default; a table renders its checkbox
-   * column only when this has items. Add `bulkDelete(context)` for the built-in delete.
+   * column only when this has items. Add `bulkDeleteAction(context)` (`./bulkDelete`) for the built-in
+   * delete.
    */
   bulkActions(_selection: ResourceSelection, _context: BulkActionContext<M>): ItemList<Mithril.Children> {
     return new ItemList<Mithril.Children>();
-  }
-
-  /**
-   * A "Delete selected" button for `bulkActions()`. It confirms with the count, leaves out rows whose
-   * `canDelete` is false, deletes the others one request per record through `context.runner` (so an
-   * extension's replaced `Delete` endpoint runs per record), shows the summary through
-   * `context.showResult()` and then refreshes the list.
-   *
-   * Opt-in: no definition offers it unless it adds it.
-   */
-  bulkDelete(context: BulkActionContext<M>): Mithril.Children {
-    const count = context.list.selectedModels().length;
-
-    return m(
-      Button,
-      {
-        className: 'Button Button--danger ResourceTable-bulkDelete',
-        icon: 'fas fa-trash-alt',
-        disabled: !count,
-        loading: this.bulkDeleting,
-        // The summary reports the deletes; a failed reload has already shown its error.
-        onclick: () => this.runBulkDelete(context).catch(() => {}),
-      },
-      app.translator.trans('core.lib.resource.bulk.delete_button', { count })
-    );
-  }
-
-  /**
-   * The work behind `bulkDelete()`. Resolves to the summary, or null when there was nothing to do or
-   * the user cancelled.
-   */
-  async runBulkDelete(context: BulkActionContext<M>): Promise<BulkSummary<M> | null> {
-    if (this.bulkDeleting) return null;
-
-    const { list } = context;
-    const selected = list.selectedModels();
-    const deletable = selected.filter((model) => !!model.attribute('canDelete'));
-    const skipped = selected.filter((model) => !model.attribute('canDelete'));
-
-    if (!selected.length) return null;
-
-    if (deletable.length && !confirm(extractText(app.translator.trans('core.lib.resource.bulk.delete_confirmation', { count: deletable.length })))) {
-      return null;
-    }
-
-    this.bulkDeleting = true;
-    m.redraw();
-
-    try {
-      // The summary reports each failure, so the per-request error alert is suppressed.
-      const result = await context.runner.run(deletable, (model) => model.delete({}, { errorHandler: () => {} }));
-      const summary: BulkSummary<M> = { ...result, skipped };
-
-      context.showResult(summary);
-      await list.gotoAfterRemoval(result.ok.length);
-
-      return summary;
-    } finally {
-      this.bulkDeleting = false;
-      m.redraw();
-    }
   }
 
   /**
