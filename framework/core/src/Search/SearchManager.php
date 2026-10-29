@@ -111,7 +111,7 @@ class SearchManager
      *
      * @return array<string, array<string, mixed>>
      */
-    private function describeFilters(Database\AbstractSearcher $searcher, User $actor): array
+    protected function describeFilters(Database\AbstractSearcher $searcher, User $actor): array
     {
         $registered = $this->container->make('flarum.search.filter_descriptions')[$searcher::class] ?? [];
 

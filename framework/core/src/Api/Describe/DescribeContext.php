@@ -17,6 +17,10 @@ use Flarum\Api\Context;
  * row-dependent closures can check `$context instanceof DescribeContext` to
  * short-circuit; a closure that throws makes a field absent (visibility) or
  * `conditional` (writability).
+ *
+ * The request is a stand-in that carries the actor; its query, parsed body and
+ * `routeParameters` attribute are stripped.
+ * The `with*()` methods clone, so derived contexts stay a `DescribeContext`.
  */
 class DescribeContext extends Context
 {
