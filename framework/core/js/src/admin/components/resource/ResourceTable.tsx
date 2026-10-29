@@ -125,6 +125,8 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       .load()
       .then(() => {
         this.fields = definition.fields();
+        // The bar before this redraw, so the first loaded render shows the filters; `finally`
+        // redraws again once the rows arrive.
         this.bar = this.filterBar();
         m.redraw();
 
@@ -287,7 +289,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
    * `CompactFilterBar` that collapses into one "Filters (n)" dropdown at phone width.
    */
   filterBar(): ResourceFilterBar<M> {
-    const attrs = { definition: this.attrs.definition, list: this.list, filters: this.attrs.definition.filters() };
+    const attrs = { definition: this.attrs.definition, list: this.list };
     const compact = this.attrs.compactFilters;
 
     if (compact === false) return new ResourceFilterBar<M>(attrs);

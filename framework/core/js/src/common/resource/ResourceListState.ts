@@ -3,7 +3,7 @@ import type Model from '../Model';
 import type { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
 import ItemList from '../utils/ItemList';
 import type ResourceDefinition from './ResourceDefinition';
-import type { Filter } from './types';
+import type { Filter, ResourceDescriptor } from './types';
 
 export interface ResourceListParams {
   sort?: string;
@@ -59,8 +59,9 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
   public readonly definition: ResourceDefinition<M>;
   protected syncUrl: boolean;
 
-  /** `definition.filters()`, built once the descriptor is loaded. */
-  protected filters: ItemList<Filter> | null = null;
+  /** `definition.filters()` and the descriptor it was built for. */
+  protected filterItems: ItemList<Filter> | null = null;
+  protected filtersDescriptor: ResourceDescriptor | null = null;
 
   /** Page-scoped: any page, sort, filter or search change (and a reload) clears it. */
   public selection: ResourceSelection = { ids: new Set() };
@@ -79,7 +80,6 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
   /** Load the descriptor, adopt the URL's params (validated against it) and load the page. */
   async load(): Promise<void> {
     await this.definition.load();
-    this.filters = null;
 
     let page = 1;
 
@@ -115,7 +115,7 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
 
   /** The keys of the definition's filters, an `extend()`-added one included. */
   filterKeys(): string[] {
-    return Object.keys(this.definitionFilters().toObject());
+    return Object.keys(this.filters().toObject());
   }
 
   /**
@@ -123,16 +123,24 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
    * `Filter.negatable`.
    */
   isNegatable(key: string): boolean {
-    const filters = this.definitionFilters();
+    const filters = this.filters();
 
     return filters.has(key) && !!filters.get(key).negatable;
   }
 
-  /** `definition.filters()`, built once per descriptor load; empty until then. */
-  protected definitionFilters(): ItemList<Filter> {
-    if (!this.filters && this.definition.descriptor) this.filters = this.definition.filters();
+  /**
+   * `definition.filters()`, built once per descriptor and shared with the table's filter bar, so
+   * both read the same list. Empty until the descriptor is loaded.
+   */
+  filters(): ItemList<Filter> {
+    const descriptor = this.definition.descriptor;
 
-    return this.filters ?? new ItemList<Filter>();
+    if (descriptor && descriptor !== this.filtersDescriptor) {
+      this.filterItems = this.definition.filters();
+      this.filtersDescriptor = descriptor;
+    }
+
+    return this.filterItems ?? new ItemList<Filter>();
   }
 
   /**

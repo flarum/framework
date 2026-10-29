@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals';
+import m from 'mithril';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
 import AutocompleteDropdown from '../../../../src/common/components/AutocompleteDropdown';
@@ -123,6 +124,31 @@ describe('ResourceTable toolbar', () => {
     out.redraw();
   }
 
+  test('the table and its list state share one filters() build', async () => {
+    const build = jest.spyOn(ResourceDefinition.prototype, 'filters');
+    const { table } = await rendered();
+
+    expect(build).toHaveBeenCalledTimes(1);
+    expect(table.bar!.filters).toBe(table.list.filters());
+  });
+
+  test('the filter bar exists at the redraw after the descriptor loads, and the rows load redraws again', async () => {
+    const barAtRedraw: boolean[] = [];
+    let table: ResourceTable<Gadget> | null = null;
+    const oninit = jest.spyOn(ResourceTable.prototype, 'oninit');
+    jest.spyOn(m, 'redraw').mockImplementation((() => barAtRedraw.push(!!table?.bar)) as any);
+
+    const out = mq(ResourceTable, { definition: new ResourceDefinition<Gadget>('gadgets') });
+    table = oninit.mock.contexts[0] as ResourceTable<Gadget>;
+    await flush();
+    await flush();
+    out.redraw();
+
+    expect(barAtRedraw.length).toBeGreaterThanOrEqual(2);
+    expect(barAtRedraw.every(Boolean)).toBe(true);
+    expect(out).toHaveElement('.ResourceTable-filter--status .Dropdown-toggle');
+  });
+
   test('each filter is a dropdown button with a visible "{label}: {value}" label', async () => {
     const { out } = await rendered();
 
@@ -213,7 +239,7 @@ describe('ResourceTable toolbar', () => {
 
     class OneInlineTable extends ResourceTable<Gadget> {
       filterBar() {
-        return new OneInlineBar({ definition: this.attrs.definition, list: this.list, filters: this.attrs.definition.filters() });
+        return new OneInlineBar({ definition: this.attrs.definition, list: this.list });
       }
     }
 

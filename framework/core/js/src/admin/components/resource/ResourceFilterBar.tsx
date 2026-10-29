@@ -22,8 +22,6 @@ import ordered from './ordered';
 export interface ResourceFilterBarAttrs<M extends Model = Model> {
   definition: ResourceDefinition<M>;
   list: ResourceListState<M>;
-  /** The definition's `filters()`, built once the descriptor is loaded. */
-  filters: ItemList<Filter>;
 }
 
 const INLINE_FILTERS = 3;
@@ -39,7 +37,6 @@ const anyLabel = () => app.translator.trans('core.lib.resource.filter.any', {}, 
 export default class ResourceFilterBar<M extends Model = Model> {
   readonly definition: ResourceDefinition<M>;
   readonly list: ResourceListState<M>;
-  readonly filters: ItemList<Filter>;
   readonly inputs: InputFactory;
   /** Text filters typed but not yet committed, keyed by filter. */
   readonly drafts = new Drafts();
@@ -56,8 +53,12 @@ export default class ResourceFilterBar<M extends Model = Model> {
   constructor(readonly attrs: ResourceFilterBarAttrs<M>) {
     this.definition = attrs.definition;
     this.list = attrs.list;
-    this.filters = attrs.filters;
     this.inputs = attrs.definition.filterInputs();
+  }
+
+  /** The list's `filters()`: one build per descriptor, shared with the list state. */
+  get filters(): ItemList<Filter> {
+    return this.list.filters();
   }
 
   /** Stop pending commits and record loads. */
