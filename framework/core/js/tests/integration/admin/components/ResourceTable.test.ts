@@ -3,6 +3,7 @@ import m from 'mithril';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
 import ResourceTable, { type ColumnData } from '../../../../src/admin/components/resource/ResourceTable';
+import ExportCsvButton from '../../../../src/admin/components/resource/ExportCsvButton';
 import ResourceFormModal from '../../../../src/admin/components/resource/ResourceFormModal';
 import BulkResultModal from '../../../../src/admin/components/resource/BulkResultModal';
 import Button from '../../../../src/common/components/Button';
@@ -237,32 +238,48 @@ describe('ResourceTable', () => {
       expect(lastParams(find)).toMatchObject({ filter: { q: 'knife' } });
     });
 
-    test('onremove clears the pending timers and aborts a running export', async () => {
+    test('onremove clears the pending search', async () => {
       const { out, table } = await instance();
       const calls = find.mock.calls.length;
 
       out.setValue('input.ResourceTable-search', 'knife');
-      find.mockImplementation(() => new Promise(() => {}));
-      table.exportCsv();
-
-      const controller = table.exporting!.controller;
-
       table.onremove({} as any);
       await new Promise((r) => setTimeout(r, SEARCH_DELAY + 50));
 
+      expect(find.mock.calls.length).toBe(calls);
+    });
+
+    /** An `ExportCsvButton` over the table's list and visible columns. */
+    async function exportButton() {
+      const { table } = await instance();
+      const oninit = jest.spyOn(ExportCsvButton.prototype, 'oninit');
+      const out = mq(ExportCsvButton, { list: table.list, columns: () => table.visibleColumns() });
+      const button = oninit.mock.contexts[0] as ExportCsvButton<Thing>;
+      oninit.mockRestore();
+
+      return { out, button };
+    }
+
+    test('removing the export button aborts a running export', async () => {
+      const { button } = await exportButton();
+
+      find.mockImplementation(() => new Promise(() => {}));
+      button.export();
+
+      const controller = button.exporting!.controller;
+
+      button.onremove({} as any);
+
       expect(controller.signal.aborted).toBe(true);
-      // The export's first page request, and no search request.
-      expect(find.mock.calls.length).toBe(calls + 1);
-      expect(lastParams(find)).not.toMatchObject({ filter: { q: 'knife' } });
     });
 
     test('a failed export shows the export_error alert and clears exporting', async () => {
-      const { out, table } = await instance();
+      const { out, button } = await exportButton();
       const show = jest.spyOn(app.alerts, 'show').mockImplementation(() => 0 as any);
       jest.spyOn(console, 'error').mockImplementation(() => {});
 
       find.mockImplementation(() => Promise.reject(new Error('500')));
-      const pending = table.exportCsv();
+      const pending = button.export();
       out.redraw();
 
       expect(out).toHaveElement('.ResourceTable-export--running');
@@ -272,7 +289,7 @@ describe('ResourceTable', () => {
 
       expect(show).toHaveBeenCalledWith({ type: 'error' }, expect.anything());
       expect(show.mock.calls.at(-1)![1]).toEqual(app.translator.trans('core.admin.resource.table.export_error'));
-      expect(table.exporting).toBeNull();
+      expect(button.exporting).toBeNull();
       expect(out).not.toHaveElement('.ResourceTable-export--running');
     });
   });

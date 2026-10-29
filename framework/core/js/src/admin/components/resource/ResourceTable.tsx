@@ -13,7 +13,6 @@ import ItemList from '../../../common/utils/ItemList';
 import classList from '../../../common/utils/classList';
 import { ConcurrentBulkRunner, type BulkActionContext, type BulkSummary } from '../../../common/resource/BulkRunner';
 import ColumnPreferences from '../../../common/resource/ColumnPreferences';
-import { exportCsv } from '../../../common/resource/csv';
 import { renderColumn } from '../../../common/resource/field';
 import type ResourceDefinition from '../../../common/resource/ResourceDefinition';
 import ResourceListState from '../../../common/resource/ResourceListState';
@@ -22,6 +21,7 @@ import type Mithril from 'mithril';
 import BulkResultModal from './BulkResultModal';
 import ColumnsDropdown from './ColumnsDropdown';
 import Drafts from './Drafts';
+import ExportCsvButton from './ExportCsvButton';
 import floatMenus from './floatMenus';
 import ordered from './ordered';
 import ResourceDeleteModal, { type ResourceDeleteModalAttrs } from './ResourceDeleteModal';
@@ -98,8 +98,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   /** The filters' toolbar items and chips (`filterBar()`); null until the descriptor is loaded. */
   bar: ResourceFilterBar<M> | null = null;
   loadError: boolean = false;
-  /** The running export, if any. */
-  exporting: { controller: AbortController; rows: number; total: number | null } | null = null;
   /** Removes the row menus' fixed positioning listeners (`floatMenus`). */
   protected unfloatMenus: (() => void) | null = null;
 
@@ -140,7 +138,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
     this.searchDraft.discard();
     this.bar?.destroy();
-    this.exporting?.controller.abort();
   }
 
   view(): Mithril.Children {
@@ -340,7 +337,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     }
 
     if (this.attrs.definition.canExport()) {
-      items.add('export', this.exportButton(), 10);
+      items.add('export', <ExportCsvButton list={this.list} columns={() => this.visibleColumns()} />, 10);
     }
 
     return items;
@@ -756,64 +753,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
         </Button>
       </nav>
     );
-  }
-
-  // ---------------------------------------------------------------------------------------------
-  // Export
-
-  exportButton(): Mithril.Children {
-    const exporting = this.exporting;
-
-    if (exporting) {
-      return (
-        <Button
-          className="Button ResourceTable-export ResourceTable-export--running"
-          icon="fas fa-times"
-          onclick={() => exporting.controller.abort()}
-        >
-          {exporting.total
-            ? app.translator.trans('core.admin.resource.table.export_progress_total', { count: exporting.rows, total: exporting.total })
-            : app.translator.trans('core.admin.resource.table.export_progress', { count: exporting.rows })}
-        </Button>
-      );
-    }
-
-    return (
-      <Button className="Button ResourceTable-export" icon="fas fa-file-csv" onclick={() => this.exportCsv()}>
-        {app.translator.trans('core.admin.resource.table.export_button')}
-      </Button>
-    );
-  }
-
-  /** Download the visible columns of every record matching the current search, filters and sort. */
-  exportCsv(maxRows?: number): Promise<void> {
-    if (this.exporting) return Promise.resolve();
-
-    const controller = new AbortController();
-    this.exporting = { controller, rows: 0, total: null };
-
-    return exportCsv(this.list, {
-      columns: this.visibleColumns(),
-      maxRows,
-      signal: controller.signal,
-      onProgress: (rows, total) => {
-        if (this.exporting) Object.assign(this.exporting, { rows, total });
-        m.redraw();
-      },
-    })
-      .then(({ rows, truncated }) => {
-        if (truncated) app.alerts.show({ type: 'warning' }, app.translator.trans('core.admin.resource.table.export_truncated', { count: rows }));
-      })
-      .catch((error) => {
-        if (error?.name === 'AbortError') return;
-
-        console.error(`ResourceTable(${this.attrs.definition.type}): export failed`, error);
-        app.alerts.show({ type: 'error' }, app.translator.trans('core.admin.resource.table.export_error'));
-      })
-      .finally(() => {
-        this.exporting = null;
-        m.redraw();
-      });
   }
 
   // ---------------------------------------------------------------------------------------------
