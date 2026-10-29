@@ -97,6 +97,14 @@ export default class AdminNav extends Component {
     );
 
     items.add(
+      'groups',
+      <LinkButton href={app.route('groups')} icon="fas fa-user-tag" title={app.translator.trans('core.admin.nav.groups_title')}>
+        {app.translator.trans('core.admin.nav.groups_button')}
+      </LinkButton>,
+      65
+    );
+
+    items.add(
       'appearance',
       <LinkButton href={app.route('appearance')} icon="fas fa-paint-brush" title={app.translator.trans('core.admin.nav.appearance_title')}>
         {app.translator.trans('core.admin.nav.appearance_button')}
@@ -110,6 +118,14 @@ export default class AdminNav extends Component {
         {app.translator.trans('core.admin.nav.userlist_button')}
       </LinkButton>,
       50
+    );
+
+    items.add(
+      'accessTokens',
+      <LinkButton href={app.route('accessTokens')} icon="fas fa-user-lock" title={app.translator.trans('core.admin.nav.access_tokens_title')}>
+        {app.translator.trans('core.admin.nav.access_tokens_button')}
+      </LinkButton>,
+      45
     );
 
     if (app.data.settings.show_advanced_settings) {

@@ -107,7 +107,7 @@ trait HasValidationRules
 
     public function requiredOnUpdate(): static
     {
-        return $this->required(fn (Context $context) => ! $context->updating());
+        return $this->required(fn (Context $context) => $context->updating());
     }
 
     public function requiredWith(array $fields, bool|callable $condition): static

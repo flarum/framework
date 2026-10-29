@@ -10,20 +10,27 @@
 namespace Flarum\Group\Filter;
 
 use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\DescribesFilter;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
+use Flarum\User\User;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
  */
-class HiddenFilter implements FilterInterface
+class HiddenFilter implements FilterInterface, DescribesFilter
 {
     use ValidateFilterTrait;
 
     public function getFilterKey(): string
     {
         return 'hidden';
+    }
+
+    public function describe(User $actor): ?array
+    {
+        return ['kind' => 'boolean'];
     }
 
     public function filter(SearchState $state, string|array $value, bool $negate): void

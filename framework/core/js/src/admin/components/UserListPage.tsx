@@ -2,7 +2,6 @@ import Mithril from 'mithril';
 
 import app from '../../admin/app';
 
-import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 import Dropdown from '../../common/components/Dropdown';
 
@@ -10,6 +9,7 @@ import listItems from '../../common/helpers/listItems';
 
 import type User from '../../common/models/User';
 import type { IPageAttrs } from '../../common/components/Page';
+import type ModalManagerState from '../../common/states/ModalManagerState';
 
 import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
@@ -20,40 +20,223 @@ import CreateUserModal from './CreateUserModal';
 import Icon from '../../common/components/Icon';
 import Input from '../../common/components/Input';
 import GambitsAutocompleteDropdown from '../../common/components/GambitsAutocompleteDropdown';
-import Pagination from '../../common/components/Pagination';
+import type { BulkActionContext, BulkSummary } from '../../common/resource/BulkRunner';
+import { renderColumn } from '../../common/resource/field';
+import { patchFilter } from '../../common/resource/fieldsFromDescriptor';
+import RelationInput from '../../common/resource/inputs/RelationInput';
+import ResourceDefinition from '../../common/resource/ResourceDefinition';
+import Group from '../../common/models/Group';
+import type Model from '../../common/Model';
+import ResourceListState from '../../common/resource/ResourceListState';
+import type { Field, FieldDescriptor, FilterDescriptor } from '../../common/resource/types';
+import ResourceTable, { type ColumnData as ResourceColumnData, type ResourceTableAttrs } from './resource/ResourceTable';
+import ResourceDeleteModal from './resource/ResourceDeleteModal';
 
-type ColumnData = {
-  /**
-   * Column title
-   */
-  name: Mithril.Children;
-  /**
-   * Component(s) to show for this column.
-   */
-  content: (user: User) => Mithril.Children;
+/**
+ * One user list column. `{name, content}` is all an extension needs; the other keys (`sort`,
+ * `className`, `attrs`, `toggleable`, `hidden`, `csv`) are `ResourceTable`'s.
+ */
+export type ColumnData = ResourceColumnData<User>;
+
+/**
+ * What `createModal()` / `editModal()` return: anything `app.modal.show()` takes, a modal class or a
+ * loader of one.
+ */
+export type UserListModal = Parameters<ModalManagerState['show']>[0];
+
+// Core's groups have no fulltext searcher, so relation pickers over them (the users form's groups,
+// the list's group filter) render without a search box.
+RelationInput.UNSEARCHABLE_TYPES.add('groups');
+
+/**
+ * Descriptor fields the page already shows under another column key; they get no inferred column.
+ */
+const FIELD_COLUMNS: Record<string, string> = {
+  username: 'username',
+  displayName: 'displayName',
+  joinTime: 'joinDate',
+  groups: 'groupBadges',
 };
+
+const loadEditUserModal = () => import('../../common/components/EditUserModal');
+
+interface UserListTableAttrs extends ResourceTableAttrs<User> {
+  /** Opens the page's create modal. */
+  createUser: () => void;
+  /** Opens the page's edit modal. */
+  editUser: (user: User) => void;
+  /** Called with the number of users a bulk action deleted, before its summary shows. */
+  onBulkDeleted: (count: number) => void;
+  /** The page's `headerItems()`, rendered into the table's toolbar. */
+  headerItems: () => ItemList<Mithril.Children>;
+}
+
+/**
+ * The user list's table. The page's `headerItems()` render in the table's toolbar, in priority
+ * order, split at `totalUsers` (priority 90 unless an extension moves it):
+ *
+ * - `search` (the gambit search) replaces the table's search in the left view group;
+ * - every other item ranked above `totalUsers` renders in the view group too, at its own priority
+ *   (`header-{key}`): an item between `search` (100) and `totalUsers` (90) right after the search,
+ *   an item above `search` before it. The table's filters (priority 80 and below) follow;
+ * - `totalUsers` fills the count slot of the right actions group;
+ * - the items ranked at or below `totalUsers` (`actions`: "New User", and any an extension adds)
+ *   follow the count there, replacing the table's refresh/create.
+ *
+ * The sort is the column headers, and the `userActions` column is the actions column (the page's
+ * columns replace the table's, its own actions column included). The table container keeps the
+ * `UserListPage-grid` classes, the rows and cells `data-user-id`, the cells the
+ * `UserListPage-grid-*` classes. Create and edit open the page's modals. A bulk action's deleted
+ * users lower the user total.
+ */
+class UserListTable extends ResourceTable<User, UserListTableAttrs> {
+  /** `headerItems()` of the toolbar pass in progress, so it is built once per redraw. */
+  protected header: ItemList<Mithril.Children> | null = null;
+
+  /** The priority splitting the header between the view group and the actions group. */
+  protected headerSplit(header: ItemList<Mithril.Children>): number {
+    return header.has('totalUsers') ? header.getPriority('totalUsers') : 90;
+  }
+
+  toolbarItems(): ItemList<Mithril.Children> {
+    const header = (this.header = this.attrs.headerItems());
+
+    try {
+      const items = super.toolbarItems();
+      const total = header.has('totalUsers') ? header.get('totalUsers') : null;
+      const split = this.headerSplit(header);
+      const rest = new ItemList<Mithril.Children>();
+
+      Object.entries(header.toObject()).forEach(([key, item]) => {
+        if (key !== 'search' && key !== 'totalUsers' && item.priority <= split) rest.add(key, item.content as Mithril.Children, item.priority);
+      });
+
+      items.setContent(
+        'actions',
+        <div className="ResourceTable-toolbarActions UserListPage-header">
+          {total !== null && this.countView(total)}
+          {rest.toArray()}
+        </div>
+      );
+
+      return items;
+    } finally {
+      this.header = null;
+    }
+  }
+
+  viewItems(): ItemList<Mithril.Children> {
+    const items = super.viewItems();
+    const header = this.header ?? this.attrs.headerItems();
+    const split = this.headerSplit(header);
+
+    if (items.has('search')) items.remove('search');
+    if (items.has('sort')) items.remove('sort');
+
+    Object.entries(header.toObject()).forEach(([key, item]) => {
+      if (key === 'totalUsers' || (key !== 'search' && item.priority <= split)) return;
+
+      if (key === 'search') {
+        items.add('search', <div className="ResourceTable-searchGroup">{item.content as Mithril.Children}</div>, item.priority);
+      } else {
+        items.add(`header-${key}`, item.content as Mithril.Children, item.priority);
+      }
+    });
+
+    return items;
+  }
+
+  create(): void {
+    this.attrs.createUser();
+  }
+
+  edit(user: User): void {
+    this.attrs.editUser(user);
+  }
+
+  bulkContext(): BulkActionContext<User> {
+    const context = super.bulkContext();
+    const showResult = context.showResult;
+
+    return {
+      ...context,
+      showResult: (summary: BulkSummary<User>) => {
+        // `ok` holds every record the action succeeded for; only deleted ones leave the total.
+        const deleted = summary.ok.filter((user) => !user.exists).length;
+
+        if (deleted) this.attrs.onBulkDeleted(deleted);
+
+        showResult(summary);
+      },
+    };
+  }
+
+  containerClassName(): string {
+    const state = !this.list.getPages().length ? 'loading' : this.list.isLoading() ? 'loadingPage' : 'loaded';
+
+    return classList(super.containerClassName(), 'UserListPage-grid', `UserListPage-grid--${state}`);
+  }
+
+  headerView(key: string, column: ColumnData): Mithril.Children {
+    return super.headerView(key, { ...column, className: classList(column.className, 'UserListPage-grid-header') });
+  }
+
+  rowView(user: User, columns: [string, ColumnData][], selectable: boolean = false): Mithril.Children {
+    const shaded = this.list.getItems().indexOf(user) % 2 > 0;
+    return super.rowView(
+      user,
+      columns.map(([key, column]) => [
+        key,
+        {
+          ...column,
+          className: classList(column.className, 'UserListPage-grid-rowItem', shaded && 'UserListPage-grid-rowItem--shaded'),
+          attrs: (model: User) => ({ ...(column.attrs?.(model) ?? {}), 'data-user-id': model.id() }),
+        },
+      ]),
+      selectable
+    );
+  }
+
+  rowAttrs(user: User): Record<string, unknown> {
+    return { ...super.rowAttrs(user), 'data-user-id': user.id() };
+  }
+}
 
 /**
  * Admin page which displays a paginated list of all users on the forum.
  */
 export default class UserListPage extends AdminPage {
-  private query: string = '';
-  private throttledSearch = debounce(250, () => this.loadPage(0));
+  /**
+   * The users resource; its descriptor drives the sorts, the filter row and extension columns.
+   */
+  protected definition!: ResourceDefinition<User>;
 
   /**
-   * Number of users to load per page.
+   * The list: search, sort, filters and the current page (synced with the URL).
    */
-  private numPerPage: number = 50;
+  protected list!: ResourceListState<User>;
 
   /**
-   * Current page number. Zero-indexed.
+   * Search text typed but not yet sent.
    */
-  private pageNumber: number = 0;
+  protected searchDraft: string | null = null;
 
-  /**
-   * Page number being loaded. Zero-indexed.
-   */
-  private loadingPageNumber: number = 0;
+  /** `definition.fields()`, built once the descriptor is loaded. */
+  private descriptorFields: ItemList<Field<User>> | null = null;
+
+  private throttledSearch = debounce(250, () => {
+    const query = this.searchDraft ?? '';
+
+    this.list
+      .setQuery(query)
+      .catch(() => {
+        // The request has already shown its error.
+      })
+      .finally(() => {
+        if (this.searchDraft === query) this.searchDraft = null;
+        m.redraw();
+      });
+  });
 
   /**
    * Total number of forum users.
@@ -65,112 +248,80 @@ export default class UserListPage extends AdminPage {
   private userCount: number = app.data.modelStatistics.users.total;
 
   /**
-   * Get total number of user pages.
+   * The current search query, including text not yet sent.
    */
-  private getTotalPageCount(): number {
-    return Math.max(1, Math.ceil(Math.max(0, this.userCount) / this.numPerPage));
+  protected get query(): string {
+    return this.searchDraft ?? this.list.getQuery();
   }
 
   /**
    * This page's array of users.
    *
-   * `undefined` when page loads as no data has been fetched.
+   * `undefined` until a page has been fetched (and while the list reloads from scratch).
    */
-  private pageData: User[] | undefined = undefined;
+  protected get pageData(): User[] | undefined {
+    return this.list.getPages().length ? this.list.getItems() : undefined;
+  }
 
-  private isLoadingPage: boolean = false;
+  /**
+   * Number of users to load per page.
+   */
+  protected get numPerPage(): number {
+    return this.list.pageSize ?? 50;
+  }
 
   oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
     super.oninit(vnode);
 
-    // Get page query value from URL
-    const page = parseInt(m.route.param('page'));
+    this.definition = new UserResourceDefinition('users');
+    // The table loads the list, reading the 1-based `?page=` (and sort, search, filters) from the URL.
+    this.list = new ResourceListState<User>(this.definition, { pageSize: 50 });
+  }
 
-    if (isNaN(page) || page < 1) {
-      this.setPageNumberInUrl(1);
-      this.pageNumber = 0;
-    } else {
-      this.pageNumber = page - 1;
-    }
+  onremove(vnode: Mithril.VnodeDOM<IPageAttrs, this>) {
+    super.onremove(vnode);
 
-    this.loadingPageNumber = this.pageNumber;
+    this.throttledSearch.cancel();
   }
 
   /**
    * Component to render.
    */
   content() {
-    if (typeof this.pageData === 'undefined') {
-      this.loadPage(this.pageNumber);
-
-      return [
-        <section className="UserListPage-grid UserListPage-grid--loading">
-          <LoadingIndicator containerClassName="LoadingIndicator--block" size="large" />
-        </section>,
-      ];
-    }
-
-    const columns = this.columns().toArray();
-
     return [
-      <div className="UserListPage-header">{this.headerItems().toArray()}</div>,
-      <section
-        className={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
-        style={{ '--columns': columns.length }}
-        role="table"
-        // +1 to account for header
-        aria-rowcount={this.pageData.length + 1}
-        aria-colcount={columns.length}
-        aria-live="polite"
-        aria-busy={this.isLoadingPage ? 'true' : 'false'}
-      >
-        {/* Render columns */}
-        {columns.map((column, colIndex) => (
-          <div className="UserListPage-grid-header" role="columnheader" aria-colindex={colIndex + 1} aria-rowindex={1}>
-            {column.name}
-          </div>
-        ))}
-
-        {/* Render user data */}
-        {this.pageData.map((user, rowIndex) =>
-          columns.map((col, colIndex) => {
-            const columnContent = col.content && col.content(user);
-
-            return (
-              <div
-                className={classList(['UserListPage-grid-rowItem', rowIndex % 2 > 0 && 'UserListPage-grid-rowItem--shaded'])}
-                data-user-id={user.id()}
-                data-column-name={col.itemName}
-                aria-colindex={colIndex + 1}
-                // +2 to account for 0-based index, and for the header row
-                aria-rowindex={rowIndex + 2}
-                role="cell"
-              >
-                {columnContent || app.translator.trans('core.admin.users.grid.invalid_column_content')}
-              </div>
-            );
-          })
-        )}
-
-        {/* Loading spinner that shows when a new page is being loaded */}
-        {this.isLoadingPage && <LoadingIndicator size="large" />}
-      </section>,
-      <Pagination
-        currentPage={this.pageNumber + 1}
-        loadingPageNumber={this.loadingPageNumber + 1}
-        total={this.userCount}
-        perPage={this.numPerPage}
-        onChange={this.goToPage.bind(this)}
+      <UserListTable
+        definition={this.definition}
+        state={this.list}
+        className="UserListPage-table"
+        columns={this.tableColumns()}
+        onBulkDeleted={(count: number) => this.setUserCount(this.userCount - count)}
+        createUser={() => this.showCreateModal()}
+        editUser={(user: User) => this.showEditModal(user)}
+        headerItems={() => this.headerItems()}
       />,
     ];
+  }
+
+  /**
+   * The forum's user count, or, while a search or filter narrows the list, the matching count out
+   * of it. The matching count is the total the API sends for the current query.
+   */
+  protected totalUsersLabel(): Mithril.Children {
+    const filter = this.list.listParams().filter;
+    const narrowed = !!filter && Object.keys(filter).length > 0;
+
+    if (narrowed && this.list.hasTotal()) {
+      return app.translator.trans('core.admin.users.matching_users', { count: this.list.totalItems, total: this.userCount });
+    }
+
+    return app.translator.trans('core.admin.users.total_users', { count: this.userCount });
   }
 
   headerItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
     const onchange = (value: string) => {
-      this.isLoadingPage = true;
-      this.query = value;
+      this.searchDraft = value;
       this.throttledSearch();
     };
 
@@ -180,8 +331,10 @@ export default class UserListPage extends AdminPage {
         <Input
           type="search"
           placeholder={app.translator.trans('core.admin.users.search_placeholder')}
+          ariaLabel={extractText(app.translator.trans('core.admin.users.search_placeholder'))}
+          prefixIcon="fas fa-search"
           clearable={true}
-          loading={this.isLoadingPage}
+          loading={this.searchDraft !== null || this.list.isLoading()}
           value={this.query}
           onchange={onchange}
         />
@@ -189,11 +342,7 @@ export default class UserListPage extends AdminPage {
       100
     );
 
-    items.add(
-      'totalUsers',
-      <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
-      90
-    );
+    items.add('totalUsers', <p class="UserListPage-totalUsers">{this.totalUsersLabel()}</p>, 90);
 
     items.add('actions', <div className="UserListPage-actions">{this.actionItems().toArray()}</div>, 80);
 
@@ -205,22 +354,7 @@ export default class UserListPage extends AdminPage {
 
     items.add(
       'createUser',
-      <Button
-        className="Button UserListPage-createUserBtn"
-        icon="fas fa-user-plus"
-        onclick={() =>
-          app.modal.show(CreateUserModal, {
-            onCreated: (user: User) => {
-              this.userCount++;
-              if (app.data?.modelStatistics?.users) {
-                app.data.modelStatistics.users.total = this.userCount;
-              }
-              this.isLoadingPage = true;
-              this.loadPage(this.pageNumber);
-            },
-          })
-        }
-      >
+      <Button className="Button UserListPage-createUserBtn" icon="fas fa-user-plus" onclick={() => this.showCreateModal()}>
         {app.translator.trans('core.admin.users.create_user_button')}
       </Button>,
       100
@@ -230,12 +364,31 @@ export default class UserListPage extends AdminPage {
   }
 
   /**
+   * The modal the "New User" button opens; it gets an `onCreated(user)` callback.
+   */
+  createModal(): UserListModal {
+    return CreateUserModal;
+  }
+
+  /**
+   * The modal a row's "Edit" opens; it gets `user` and an `onsaved(user)` callback.
+   */
+  editModal(_user: User): UserListModal {
+    return loadEditUserModal;
+  }
+
+  /**
    * Build an item list of columns to show for each user.
    *
    * Each column in the list should be an object with keys `name` and `content`.
    *
    * `name` is a string that will be used as the column name.
    * `content` is a function with the User model passed as the first and only argument.
+   *
+   * Optional keys: `sort` (a users sort, which makes the header sort the list), `className`,
+   * `attrs`, `toggleable` (false keeps it out of the "Columns" dropdown), `hidden` (hidden until
+   * shown) and `csv` (the column's CSV value; without it the column is left out of the export unless
+   * its key is a users attribute).
    *
    * See `UserListPage.tsx` for examples.
    */
@@ -247,6 +400,7 @@ export default class UserListPage extends AdminPage {
       {
         name: app.translator.trans('core.admin.users.grid.columns.user_id.title'),
         content: (user: User) => user.id() ?? null,
+        toggleable: false,
       },
       100
     );
@@ -268,6 +422,8 @@ export default class UserListPage extends AdminPage {
             </a>
           );
         },
+        sort: 'username',
+        toggleable: false,
       },
       90
     );
@@ -277,6 +433,8 @@ export default class UserListPage extends AdminPage {
       {
         name: app.translator.trans('core.admin.users.grid.columns.display_name.title'),
         content: (user: User) => user.displayName(),
+        // Nickname display names carry zero-width spaces (the nickname driver's email hardening).
+        csv: (user: User) => (user.displayName() ?? '').replace(/\u200B/g, ''),
       },
       85
     );
@@ -290,6 +448,8 @@ export default class UserListPage extends AdminPage {
             {app.translator.formatDateTime(dayjs(user.joinTime()), 'core.lib.datetime_formats.userListJoinDate')}
           </span>
         ),
+        sort: 'joinedAt',
+        csv: (user: User) => user.joinTime()?.toISOString() ?? null,
       },
       80
     );
@@ -307,6 +467,11 @@ export default class UserListPage extends AdminPage {
             return app.translator.trans('core.admin.users.grid.columns.group_badges.no_badges');
           }
         },
+        csv: (user: User) =>
+          (user.groups() || [])
+            .filter(Boolean)
+            .map((group) => group!.nameSingular())
+            .join('; '),
       },
       70
     );
@@ -373,6 +538,7 @@ export default class UserListPage extends AdminPage {
             </div>
           );
         },
+        csv: (user: User) => user.email() ?? '',
       },
       70
     );
@@ -391,6 +557,7 @@ export default class UserListPage extends AdminPage {
             {this.userActionItems(user).toArray()}
           </Dropdown>
         ),
+        toggleable: false,
       },
       -90
     );
@@ -406,11 +573,31 @@ export default class UserListPage extends AdminPage {
       <Button
         icon="fas fa-pencil-alt"
         title={app.translator.trans('core.admin.users.grid.columns.user_actions.edit_user.tooltip', { username: user.displayName() }, true)}
-        onclick={() => app.modal.show(() => import('../../common/components/EditUserModal'), { user })}
+        onclick={() => this.showEditModal(user)}
       >
         {app.translator.trans('core.admin.users.grid.columns.user_actions.edit_user.button')}
       </Button>
     );
+
+    if (user.canDelete()) {
+      items.add(
+        'delete',
+        <Button
+          icon="fas fa-trash-alt"
+          className="UserList-deleteUser"
+          onclick={() =>
+            app.modal.show(ResourceDeleteModal, {
+              definition: this.definition,
+              model: user,
+              ondeleted: () => this.userDeleted(),
+            })
+          }
+        >
+          {app.translator.trans('core.admin.resource.table.delete_button')}
+        </Button>,
+        -100
+      );
+    }
 
     return items;
   }
@@ -425,67 +612,133 @@ export default class UserListPage extends AdminPage {
   }
 
   /**
-   * Asynchronously fetch the next set of users to be rendered.
+   * Load and display a page of users, with the current search, filters and sort.
    *
-   * Returns an array of Users, plus the raw API payload.
-   *
-   * Uses the `this.numPerPage` as the response limit, and automatically calculates the offset required from `pageNumber`.
+   * Uses `numPerPage` as the response limit, and calculates the offset required from `pageNumber`.
    *
    * @param pageNumber The **zero-based** page number to load and display
    */
   async loadPage(pageNumber: number) {
     if (pageNumber < 0) pageNumber = 0;
 
-    this.loadingPageNumber = pageNumber;
-    this.setPageNumberInUrl(pageNumber + 1);
-
-    app.store
-      .find<User[]>('users', {
-        filter: { q: this.query },
-        page: {
-          limit: this.numPerPage,
-          offset: pageNumber * this.numPerPage,
-        },
-      })
-      .then((apiData) => {
-        let data = apiData;
-
-        // @ts-ignore
-        delete data.payload;
-
-        const lastPage = this.getTotalPageCount();
-
-        if (pageNumber > lastPage) {
-          this.loadPage(lastPage - 1);
-        } else {
-          this.pageData = data;
-          this.pageNumber = pageNumber;
-          this.loadingPageNumber = pageNumber;
-          this.isLoadingPage = false;
-        }
-
-        m.redraw();
-      })
-      .catch((err: Error) => {
-        console.error(err);
-        this.pageData = [];
-      });
+    try {
+      await this.list.goto(pageNumber + 1);
+    } catch {
+      // The request has already shown its error.
+    } finally {
+      m.redraw();
+    }
   }
 
   /**
    * @param page The **1-based** page number
    */
   goToPage(page: number) {
-    this.isLoadingPage = true;
     this.loadPage(page - 1);
   }
 
-  private setPageNumberInUrl(pageNumber: number) {
-    const search = window.location.hash.split('?', 2);
-    const params = new URLSearchParams(search?.[1] ?? '');
+  private showCreateModal(): void {
+    app.modal.show(this.createModal(), {
+      onCreated: () => {
+        this.setUserCount(this.userCount + 1);
+        this.loadPage(this.list.currentPage() - 1);
+      },
+    });
+  }
 
-    params.set('page', `${pageNumber}`);
-    // window.location.hash = search?.[0] + '?' + params.toString();
-    window.history.replaceState(null, '', search?.[0] + '?' + params.toString());
+  private showEditModal(user: User): void {
+    app.modal.show(this.editModal(user), {
+      user,
+      onsaved: () => m.redraw(),
+    });
+  }
+
+  private userDeleted(): void {
+    this.setUserCount(this.userCount - 1);
+    this.list
+      .gotoAfterRemoval()
+      .catch(() => {
+        // The request has already shown its error.
+      })
+      .finally(() => m.redraw());
+  }
+
+  private setUserCount(count: number): void {
+    this.userCount = count;
+
+    if (app.data?.modelStatistics?.users) {
+      app.data.modelStatistics.users.total = count;
+    }
+  }
+
+  /**
+   * `columns()`, plus a column for each descriptor field hinted with `ui.column` (e.g. an extension's)
+   * that the page doesn't already show. Fields that only have a column because they are sortable
+   * get none.
+   */
+  private tableColumns(): ItemList<ColumnData> {
+    const columns = new ItemList<ColumnData>();
+    Object.entries(this.columns().toObject()).forEach(([key, item]) => {
+      const column = item.content as ColumnData;
+
+      // A fresh fallback per cell: one vnode must not be mounted in two places.
+      columns.add(
+        key,
+        { ...column, content: (user: User) => column.content(user) || app.translator.trans('core.admin.users.grid.invalid_column_content') },
+        item.priority
+      );
+    });
+
+    if (!this.definition.descriptor) return columns;
+
+    this.descriptorFields ??= this.definition.fields();
+
+    Object.entries(this.descriptorFields.toObject()).forEach(([key, item]) => {
+      const field = item.content as Field<User>;
+
+      if (!field.column || !field.descriptor?.ui?.column || Object.prototype.hasOwnProperty.call(FIELD_COLUMNS, key) || columns.has(key)) return;
+
+      columns.add(
+        key,
+        { name: field.label, content: (user: User) => renderColumn(key, field, user), sort: field.column.sort },
+        field.column.priority ?? item.priority
+      );
+    });
+
+    return columns;
+  }
+}
+
+/**
+ * The users definition. Its `bulkActions()` are the list's bulk actions: empty, so the list has no
+ * checkbox column until an extension adds one (`bulkDeleteAction(context)` is a ready-made item).
+ * The group filter labels groups like the `groups` field does, and leaves out the guest group,
+ * which no user is a member of.
+ */
+export class UserResourceDefinition extends ResourceDefinition<User> {
+  label(count: number): string {
+    return extractText(app.translator.trans('core.admin.users.label', { count }));
+  }
+
+  /**
+   * Administrators only: the export holds email addresses.
+   */
+  canExport(): boolean {
+    return !!app.session.user?.isAdmin() && super.canExport();
+  }
+
+  filterInput(filter: FilterDescriptor, d: FieldDescriptor | null) {
+    // Named apart from the `groups` relationship, so it takes that field's display hint.
+    if (filter.key === 'group') d = this.descriptor?.fields.find((field) => field.name === 'groups') ?? d;
+
+    return super.filterInput(filter, d);
+  }
+
+  filters() {
+    const filters = super.filters();
+
+    patchFilter(filters, 'group', { exclude: (model: Model) => model.id() === Group.GUEST_ID });
+
+    return filters;
   }
 }

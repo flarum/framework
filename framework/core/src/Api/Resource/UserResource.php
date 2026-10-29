@@ -228,6 +228,7 @@ class UserResource extends AbstractDatabaseResource
                 ])
                 ->minLength(3)
                 ->maxLength(30)
+                ->ui(['column' => 90, 'label' => 'core.admin.users.grid.columns.username.title'])
                 ->writable(function (User $user, Context $context) {
                     return $context->creating()
                         || $context->getActor()->can('editCredentials', $user);
@@ -304,6 +305,9 @@ class UserResource extends AbstractDatabaseResource
             // Registration token.
             Schema\Str::make('token')
                 ->visible(false)
+                // Set by the sign-up flow, never typed into a form. Absent from the
+                // admin form, so `required_without:token` makes the credentials required.
+                ->ui(['widget' => 'hidden'])
                 ->writable(function (User $user, Context $context) {
                     return $context->creating();
                 })
@@ -319,7 +323,8 @@ class UserResource extends AbstractDatabaseResource
                     }
                 })
                 ->save(fn () => null),
-            Schema\Str::make('displayName'),
+            Schema\Str::make('displayName')
+                ->ui(['column' => 85, 'label' => 'core.admin.users.grid.columns.display_name.title']),
             Schema\Str::make('avatarUrl'),
             Schema\Str::make('avatarSrcset'),
             Schema\Boolean::make('hasUploadedAvatar'),
@@ -328,7 +333,8 @@ class UserResource extends AbstractDatabaseResource
                     return $this->slugManager->forResource(User::class)->toSlug($user);
                 }),
             Schema\DateTime::make('joinTime')
-                ->property('joined_at'),
+                ->property('joined_at')
+                ->ui(['column' => 80, 'label' => 'core.admin.users.grid.columns.join_time.title']),
             Schema\Integer::make('discussionCount'),
             Schema\Integer::make('commentCount'),
             Schema\DateTime::make('lastSeenAt')
@@ -396,6 +402,7 @@ class UserResource extends AbstractDatabaseResource
                 // must hold every group they are in, including the hidden
                 // ones the actor may not see. Those are left out below.
                 ->withoutRelatedScope()
+                ->ui(['column' => 70, 'display' => 'nameSingular', 'label' => 'core.admin.users.grid.columns.group_badges.title'])
                 ->get(function (User $user, Context $context) {
                     // Read the (eager-)loaded relation instead of issuing a fresh
                     // query per serialized user. Hidden groups are filtered in PHP

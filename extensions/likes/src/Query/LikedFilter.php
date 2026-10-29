@@ -10,15 +10,17 @@
 namespace Flarum\Likes\Query;
 
 use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\DescribesFilter;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
  */
-class LikedFilter implements FilterInterface
+class LikedFilter implements FilterInterface, DescribesFilter
 {
     use ValidateFilterTrait;
 
@@ -30,6 +32,15 @@ class LikedFilter implements FilterInterface
     public function getFilterKey(): string
     {
         return 'liked';
+    }
+
+    /**
+     * The value is a post id: the filter keeps the users who liked that post.
+     * Ungated, like `filter()`.
+     */
+    public function describe(User $actor): ?array
+    {
+        return ['kind' => 'relationship', 'related' => 'posts'];
     }
 
     public function filter(SearchState $state, string|array $value, bool $negate): void

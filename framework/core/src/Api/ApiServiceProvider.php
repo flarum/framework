@@ -42,7 +42,23 @@ class ApiServiceProvider extends AbstractServiceProvider
                 Resource\AccessTokenResource::class,
                 Resource\MailSettingResource::class,
                 Resource\ExtensionReadmeResource::class,
+                Resource\ResourceSchemaResource::class,
                 Resource\SystemInfoResource::class,
+            ];
+        });
+
+        /**
+         * Resource classes opted in to the `resource-schemas` endpoint.
+         * Core describes users, access tokens and groups; extensions opt in more resources through
+         * `Extend\ApiResource::describable()`.
+         *
+         * @internal Not part of the extension API; use the extenders.
+         */
+        $this->container->singleton('flarum.api.describable_resources', function () {
+            return [
+                Resource\UserResource::class,
+                Resource\AccessTokenResource::class,
+                Resource\GroupResource::class,
             ];
         });
 

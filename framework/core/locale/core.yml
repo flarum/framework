@@ -7,6 +7,34 @@ core:
   # Translations in this namespace are used by the admin interface.
   admin:
 
+    # These translations are used in the Access Tokens page.
+    access_tokens:
+      cannot_revoke_current: Your current session. Log out to end it.
+      columns:
+        created_at: Created
+        device: Device
+        last_activity_at: Last active
+        last_ip_address: IP address
+        title: Title
+        type: Type
+        user: User
+      current_session: Current session
+      description: "See and revoke the sessions and developer tokens of your forum's users."
+      label: "{count, plural, one {Access token} other {Access tokens}}"
+      never: Never
+      revoke:
+        confirmation: "Revoke {name} of {username}? Whatever is signed in with it is logged out at once."
+        submit_button: Revoke
+        title: Revoke Access Token
+      revoke_button: Revoke
+      revoked: Access token revoked.
+      title: Access Tokens
+      types:
+        developer: Developer token
+        session: Session
+        session_remember: Remembered session
+      untitled: Untitled
+
     # These translations are used in the Advanced page.
     advanced:
       description: "Configure advanced settings for your forum."
@@ -451,6 +479,19 @@ core:
         title_extension: "Reset {extensionTitle} Settings"
       safe_mode_warning: Safe mode is currently enabled. Extensions are not booted and their settings are therefore inaccessible.
 
+    # These translations are used in the Groups page of the admin interface.
+    groups:
+      description: Create groups, and edit their names, badges and visibility.
+      fields:
+        color: => core.ref.color
+        icon: => core.ref.icon
+        is_hidden: => core.admin.edit_group.hide_label
+        name_plural: Name (plural)
+        name_singular: Name (singular)
+      icon_text: => core.ref.icon_text
+      label: "{count, plural, one {Group} other {Groups}}"
+      title: Groups
+
     # These translations are used in the secondary header.
     header:
       get_help: Get Help
@@ -470,6 +511,8 @@ core:
 
     # These translations are used in the navigation bar.
     nav:
+      access_tokens_button: => core.admin.access_tokens.title
+      access_tokens_title: => core.admin.access_tokens.description
       advanced_button: => core.admin.advanced.title
       advanced_title: => core.admin.advanced.description
       appearance_button: => core.admin.appearance.title
@@ -493,6 +536,8 @@ core:
       dashboard_title: => core.admin.dashboard.description
       email_button: => core.ref.email
       email_title: => core.admin.email.description
+      groups_button: => core.admin.groups.title
+      groups_title: => core.admin.groups.description
       permissions_button: => core.admin.permissions.title
       permissions_title: => core.admin.permissions.description
       userlist_button: => core.admin.users.title
@@ -547,6 +592,65 @@ core:
       members_button: => core.group.members
       signup_closed_button: Closed
       signup_open_button: Open
+
+    # These translations are used by the generic resource table and its modals.
+    resource:
+      bulk:
+        close_button: => core.ref.okay
+        result_deleted: "{count, plural, one {# entry deleted.} other {# entries deleted.}}"
+        result_failed: "{count, plural, one {# entry could not be deleted:} other {# entries could not be deleted:}}"
+        result_skipped: "{count, plural, one {# entry was skipped because you may not delete it:} other {# entries were skipped because you may not delete them:}}"
+        result_title: Bulk delete
+        result_unknown_error: Something went wrong.
+      delete:
+        cancel_button: Cancel
+        confirmation: "Delete {name}? This cannot be undone."
+        submit_button: => core.ref.delete
+        title: => core.ref.delete
+      form:
+        create_title: "Create {label}"
+        edit_title: "Edit {name}"
+      table:
+        actions_label: Actions
+        bulk_label: Selected entries
+        clear_filters_button: Clear all
+        columns_button: Columns
+        columns_label: Show or hide columns
+        conflicts_with_search: Conflicts with the search
+        create_button: Create
+        delete_button: => core.ref.delete
+        edit_button: => core.ref.edit
+        empty: There is nothing here yet.
+        export_button: Export CSV
+        export_error: The export failed.
+        export_progress: "Exporting… {count} (cancel)"
+        export_progress_total: "Exporting… {count} of {total} (cancel)"
+        export_truncated: "{count, plural, one {Only the first # row was exported.} other {Only the first # rows were exported.}}"
+        filter_label: "{label}: {value}"
+        filter_toggle_label: "{label}: {value}, change filter"
+        filters_button: "{count, plural, =0 {Filters} other {Filters (#)}}"
+        filters_label: Filters
+        load_error: This list could not be loaded. You may not have permission to manage it.
+        more_filters_button: More filters
+        more_filters_label: More filters, show another filter
+        next_button: Next
+        no_results: Nothing matches your search or filters.
+        overridden_by_search: Overridden by the search
+        page: "Page {page}"
+        pagination_label: Pagination
+        previous_button: Previous
+        refresh_button: => core.ref.refresh
+        remove_filter_label: "Remove filter {label}"
+        search_label: Search
+        search_placeholder: "Search {label}…"
+        select_all_label: Select all entries on this page
+        select_label: "Select {name}"
+        selected: "{count, plural, one {# selected} other {# selected}}"
+        sort_ascending: "{label} (ascending)"
+        sort_default: Default order
+        sort_descending: "{label} (descending)"
+        sort_label: Change sort order
+        total: "{count, plural, one {# entry} other {# entries}}"
 
     # These translations are used by the admin-specific search sources.
     search_source:
@@ -603,6 +707,8 @@ core:
 
         invalid_column_content: Invalid
 
+      label: "{count, plural, one {User} other {Users}}"
+      matching_users: "{count, plural, one {# matching user} other {# matching users}} of {total}"
       search_placeholder: => core.ref.search_users
       title: => core.ref.users
       total_users: "Total users: {count}"
@@ -1089,6 +1195,33 @@ core:
       last_button: Go to last page
       next_button: Next page
       page_counter: Page {current} of {total}
+
+    # These translations are used by the generic resource forms and filters.
+    resource:
+      bulk:
+        delete_button: "{count, plural, =0 {Delete selected} other {Delete # selected}}"
+        delete_confirmation: "{count, plural, one {Delete # entry? This cannot be undone.} other {Delete # entries? This cannot be undone.}}"
+      filter:
+        any: Any
+        "no": "No"
+        "yes": "Yes"
+      form:
+        load_error: This form could not be loaded.
+        submit_button: => core.ref.save_changes
+      relation:
+        load_error: Could not load the options.
+        load_more: Load more
+        retry_button: Retry
+      validation:
+        email: Enter a valid email address.
+        enum: Choose one of the listed values.
+        max_length: "Enter at most {count, plural, one {# character} other {# characters}}."
+        maximum: "Enter a value of at most {max}."
+        min_length: "Enter at least {count, plural, one {# character} other {# characters}}."
+        minimum: "Enter a value of at least {min}."
+        pattern: This value has an invalid format.
+        required: This field is required.
+        url: Enter a valid URL.
 
     # These translations are used by the abstract search component and search modal.
     search:

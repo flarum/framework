@@ -1,0 +1,276 @@
+// Generic resource admin: ResourceTable, ResourceFormModal, ResourceDeleteModal, BulkResultModal.
+
+.ResourceTable {
+  padding-bottom: 24px;
+
+  &-error .Alert {
+    display: block;
+  }
+
+  // Row 1: search and filters on the left, the total and the actions on the right.
+  &-toolbar,
+  &-subToolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+  }
+
+  &-toolbar {
+    margin-bottom: 8px;
+  }
+
+  // Row 2: active filter chips on the left, "Columns" and "Export CSV" on the right.
+  &-subToolbar {
+    margin-bottom: 12px;
+  }
+
+  &-toolbarView,
+  &-toolbarActions,
+  &-display {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  &-toolbarActions,
+  &-display {
+    flex: none;
+    margin-inline-start: auto;
+  }
+
+  &-toolbarActions {
+    gap: 10px;
+  }
+
+  &-count {
+    color: var(--muted-color);
+    white-space: nowrap;
+  }
+
+  &-searchGroup {
+    .Input,
+    .AutocompleteDropdown {
+      width: 260px;
+      max-width: 100%;
+    }
+  }
+
+  &-columns .Dropdown-menu {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  &-columnToggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 6px 15px;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  @media @phone {
+    &-toolbarView,
+    &-searchGroup {
+      flex: 1 1 100%;
+    }
+
+    &-searchGroup .Input,
+    &-searchGroup .AutocompleteDropdown {
+      width: 100%;
+    }
+
+    // The total on the left, the actions on the right, on their own line.
+    &-toolbarActions {
+      flex: 1 1 100%;
+      margin-inline-start: 0;
+    }
+
+    &-count {
+      margin-inline-end: auto;
+    }
+  }
+
+  // Forced colours drop box-shadow focus rings and cell backgrounds.
+  @media (forced-colors: active) {
+    .Button:focus-visible,
+    .Dropdown-toggle:focus-visible,
+    .FormControl:focus-visible,
+    .Pill .Button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+
+    &-table tbody tr td {
+      border-block-end: 1px solid CanvasText;
+    }
+  }
+
+  &-container {
+    position: relative;
+    // Scrolling sideways also clips vertically; open row menus are positioned `fixed` (see
+    // floatMenus.ts), so they show below a short table.
+    overflow-x: auto;
+    border-radius: var(--border-radius);
+
+    > .LoadingIndicator-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &--loading .ResourceTable-table {
+      opacity: 0.5;
+    }
+  }
+
+  &-table {
+    width: 100%;
+    border-collapse: collapse;
+    padding-bottom: 4px;
+
+    th,
+    td {
+      padding: 8px 16px;
+      text-align: start;
+      vertical-align: middle;
+    }
+
+    thead th {
+      font-weight: bold;
+      white-space: nowrap;
+      background: var(--control-bg);
+      border-bottom: 1px solid var(--muted-more-color);
+    }
+
+    tbody tr:nth-child(even) td {
+      background: var(--body-bg-shaded);
+
+      [data-theme^="dark"] & {
+        background: var(--body-bg-light);
+      }
+    }
+  }
+
+  &-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+  }
+
+  &-sortIcon {
+    color: var(--muted-more-color);
+
+    .is-sorted & {
+      color: var(--primary-color);
+    }
+  }
+
+  &-bulk {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    flex-basis: 100%;
+  }
+
+  &-selectedCount {
+    color: var(--muted-color);
+  }
+
+  &-selectHeader,
+  &-selectCell {
+    width: 1%;
+    padding-inline-end: 0 !important;
+
+    input {
+      margin: 0;
+      cursor: pointer;
+    }
+  }
+
+  &-row.is-selected td {
+    background: var(--control-bg) !important;
+  }
+
+  &-actions {
+    width: 1%;
+    white-space: nowrap;
+    text-align: end !important;
+  }
+
+  &-actions {
+    > * + * {
+      margin-inline-start: 5px;
+    }
+  }
+
+  &-empty {
+    padding: 24px 16px !important;
+    text-align: center !important;
+    color: var(--muted-color);
+  }
+
+  &-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 20px;
+    margin-top: 16px;
+  }
+
+  &-prevNext {
+    justify-content: center;
+  }
+
+  &-page {
+    color: var(--muted-color);
+  }
+
+  &-nextIcon {
+    margin-inline: 7px 0;
+  }
+}
+
+.ResourceFormModal {
+  .ResourceForm-error {
+    color: var(--control-danger-color);
+  }
+
+  .ResourceForm-field.has-error .FormControl {
+    border-color: var(--control-danger-color);
+  }
+}
+
+.ResourceDeleteModal-confirmation {
+  margin-bottom: 0;
+}
+
+.BulkResultModal {
+  ul {
+    margin: 4px 0 12px;
+    padding-inline-start: 20px;
+  }
+
+  &-failed li {
+    color: var(--control-danger-color);
+  }
+}

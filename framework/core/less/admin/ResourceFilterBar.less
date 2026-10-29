@@ -1,0 +1,111 @@
+// The filters of a ResourceTable (ResourceFilterBar, FilterChips).
+
+.ResourceTable {
+  &-chips {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  // One filter: a dropdown button "{label}: {value}".
+  &-filter {
+    .Dropdown-toggle {
+      max-width: 280px;
+    }
+
+    .Button-labelText {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &.is-active .ResourceTable-filterValue {
+      font-weight: bold;
+    }
+
+    .Dropdown-menu {
+      min-width: 220px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+  }
+
+  &-filterName {
+    color: var(--muted-color);
+  }
+
+  &-filterControl,
+  &-filterSearch {
+    padding: 6px 12px;
+
+    .Form-group {
+      margin-bottom: 0;
+    }
+
+    .FormControl,
+    .Select {
+      width: 100%;
+    }
+  }
+
+  &-filterSearch {
+    padding-bottom: 4px;
+  }
+
+  &-filterError {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    padding: 6px 15px;
+    color: var(--muted-color);
+    white-space: normal;
+  }
+
+  // The compact "Filters (n)" menu: a heading per filter over the same items as its dropdown.
+  &-filtersMenu {
+    .Dropdown-menu {
+      min-width: 260px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .Button.is-active {
+      font-weight: bold;
+    }
+
+    .Dropdown-header.ResourceTable-filterGroup {
+      padding-top: 12px;
+      padding-bottom: 4px;
+    }
+  }
+
+  &-chip--overridden .ResourceTable-chipText {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+
+  &-chip--conflict .ResourceTable-chipText {
+    text-decoration: underline wavy var(--alert-error-bg, currentColor);
+    text-underline-offset: 3px;
+  }
+
+  &-clearFilters {
+    padding-inline: 4px;
+  }
+
+  @media @phone {
+    // Line the section headings up with core's phone sheet items.
+    &-filtersMenu .Dropdown-header.ResourceTable-filterGroup {
+      padding-inline: 20px;
+      padding-top: 16px;
+    }
+
+    &-filtersMenu .ResourceTable-filterControl,
+    &-filtersMenu .ResourceTable-filterSearch {
+      padding-inline: 20px;
+    }
+  }
+}
