@@ -12,17 +12,11 @@ namespace Flarum\Api\Describe;
 use Flarum\Api\Context;
 
 /**
- * A synthetic context used to build a resource descriptor.
- *
- * Field, endpoint and sort closures are evaluated against it to infer what the
- * actor may see and write. Its model is an unsaved instance (marked as existing
- * for `update` and `show`), and its request is a stand-in derived from the
- * describe request: it carries the actor, but its query parameters, parsed body
- * and route parameters (`routeParameters` attribute) are stripped. Row-dependent closures can check `$context instanceof
- * DescribeContext` to short-circuit; a closure that throws makes a field absent
- * (visibility) or `conditional` (writability).
- *
- * The `with*()` methods clone, so derived contexts stay a `DescribeContext`.
+ * The synthetic context field, endpoint and sort closures are evaluated against
+ * to build a resource descriptor. There is no real row and no query or body, so
+ * row-dependent closures can check `$context instanceof DescribeContext` to
+ * short-circuit; a closure that throws makes a field absent (visibility) or
+ * `conditional` (writability).
  */
 class DescribeContext extends Context
 {

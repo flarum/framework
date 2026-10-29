@@ -23,13 +23,9 @@ use Throwable;
 use Tobyz\JsonApiServer\Resource\Resource;
 
 /**
- * Builds a client-facing descriptor of a JSON:API resource for a given actor.
- *
- * The descriptor is inferred from the resource's own fields, endpoints, sorts
- * and search filters, evaluated against synthetic `DescribeContext`s.
- *
- * Only resources opted in through `Extend\ApiResource::describable()` are
- * describable, so any extension can opt in any resource.
+ * Builds a client-facing descriptor of a JSON:API resource for a given actor,
+ * inferred from the resource's fields, endpoints, sorts and search filters.
+ * Only resources opted in through `Extend\ApiResource::describable()` qualify.
  */
 class ResourceDescriber
 {
@@ -294,9 +290,6 @@ class ResourceDescriber
             ->withResource($resource);
     }
 
-    /**
-     * Type-level: the Index endpoint against an index-mode context without a model.
-     */
     protected function canList(AbstractDatabaseResource $resource, ServerRequestInterface $request, ?Endpoint\Index $endpoint): bool
     {
         if (! $endpoint) {
