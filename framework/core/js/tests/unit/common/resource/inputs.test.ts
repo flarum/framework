@@ -9,7 +9,8 @@ import InputFactory from '../../../../src/common/resource/inputs/InputFactory';
 import RelationInput from '../../../../src/common/resource/inputs/RelationInput';
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
 import ResourceForm from '../../../../src/common/resource/ResourceForm';
-import type { InputContext, FieldDescriptor, InputSpec } from '../../../../src/common/resource/types';
+import ItemList from '../../../../src/common/utils/ItemList';
+import type { InputContext, InputResolver, InputSpec } from '../../../../src/common/resource/types';
 import { bootAdmin, descriptor, fd, schemaDocument } from './fixtures';
 
 class Thing extends Model {}
@@ -146,8 +147,8 @@ describe('form input factories', () => {
       super('things');
     }
 
-    fieldInput(d: FieldDescriptor) {
-      return d.name === 'color' ? { input: { type: 'swatch' } } : super.fieldInput(d);
+    inputResolvers(): ItemList<InputResolver> {
+      return super.inputResolvers().add('color', (d) => (d.name === 'color' ? { input: { type: 'swatch' } } : null), 100);
     }
 
     formInputs(): InputFactory {

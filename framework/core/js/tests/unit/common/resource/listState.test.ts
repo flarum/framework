@@ -1,10 +1,11 @@
 import { jest } from '@jest/globals';
 import { app } from '../../../../src/admin';
 import Model from '../../../../src/common/Model';
+import type ItemList from '../../../../src/common/utils/ItemList';
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
 import ResourceListState from '../../../../src/common/resource/ResourceListState';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
-import type { FieldDescriptor, FilterDescriptor } from '../../../../src/common/resource/types';
+import type { FilterResolver } from '../../../../src/common/resource/types';
 import { bootAdmin, descriptor, fd, schemaDocument } from './fixtures';
 
 class Thing extends Model {}
@@ -417,10 +418,10 @@ describe('ResourceDefinition.filters', () => {
     expect(filters.get('group').label).toBe('Group');
   });
 
-  test('a filterInput() override handles its filters and leaves the rest to super', async () => {
+  test('a higher-priority filter resolver wins; null falls through', async () => {
     class BrandDefinition extends ResourceDefinition {
-      filterInput(filter: FilterDescriptor, d: FieldDescriptor | null) {
-        return filter.key === 'brand' ? { type: 'search', debounce: false } : super.filterInput(filter, d);
+      filterResolvers(): ItemList<FilterResolver> {
+        return super.filterResolvers().add('brand', (filter) => (filter.key === 'brand' ? { type: 'search', debounce: false } : null), 100);
       }
     }
 
