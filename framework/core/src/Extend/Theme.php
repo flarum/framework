@@ -9,6 +9,7 @@
 
 namespace Flarum\Extend;
 
+use Closure;
 use Flarum\Extension\Extension;
 use Flarum\Frontend\Assets;
 use Illuminate\Contracts\Container\Container;
@@ -167,9 +168,20 @@ class Theme implements ExtenderInterface
      *
      * An SVG is used as it is. Any other image is stored like an uploaded logo.
      *
-     * @param string $file Absolute path of a PNG, JPEG, WebP, GIF or SVG file.
+     * Instead of a path, any image can be given a callable that returns one,
+     * to choose it on each request. Its parameters are resolved from the
+     * container. While it returns null, the image is the admin's to set.
+     * Returning a different file draws the image again, so it should return
+     * the same file for every visitor.
+     *
+     * ```php
+     * (new Extend\Theme())
+     *   ->logo(fn (SettingsRepositoryInterface $settings) => __DIR__."/logos/{$settings->get('acme.season')}.svg")
+     * ```
+     *
+     * @param string|callable $file Absolute path of a PNG, JPEG, WebP, GIF or SVG file.
      */
-    public function logo(string $file): self
+    public function logo(string|callable $file): self
     {
         $this->images['logo'] = ['file' => $this->imageFile($file, svg: true)];
 
@@ -179,9 +191,9 @@ class Theme implements ExtenderInterface
     /**
      * Sets the logo shown in dark mode. Admins can't change it.
      *
-     * @param string $file Absolute path of a PNG, JPEG, WebP, GIF or SVG file.
+     * @param string|callable $file Absolute path of a PNG, JPEG, WebP, GIF or SVG file.
      */
-    public function logoDarkMode(string $file): self
+    public function logoDarkMode(string|callable $file): self
     {
         $this->images['logo_dark_mode'] = ['file' => $this->imageFile($file, svg: true)];
 
@@ -194,9 +206,9 @@ class Theme implements ExtenderInterface
      * Mail clients can't be relied on to show SVG, so this must be another format.
      * Without it, emails use a copy of a logo set with logo(), if that isn't an SVG.
      *
-     * @param string $file Absolute path of a PNG, JPEG, WebP or GIF file.
+     * @param string|callable $file Absolute path of a PNG, JPEG, WebP or GIF file.
      */
-    public function emailLogo(string $file): self
+    public function emailLogo(string|callable $file): self
     {
         $this->images['email_logo'] = ['file' => $this->imageFile($file, svg: false)];
 
@@ -210,10 +222,10 @@ class Theme implements ExtenderInterface
      * should be at least 48px square. Browsers that support SVG favicons use
      * the SVG, if one is given, instead.
      *
-     * @param string $file Absolute path of a PNG, JPEG, WebP or GIF file.
-     * @param string|null $svg Absolute path of an SVG version.
+     * @param string|callable $file Absolute path of a PNG, JPEG, WebP or GIF file.
+     * @param string|callable|null $svg Absolute path of an SVG version.
      */
-    public function favicon(string $file, ?string $svg = null): self
+    public function favicon(string|callable $file, string|callable|null $svg = null): self
     {
         $this->images['favicon'] = [
             'file' => $this->imageFile($file, svg: false),
@@ -230,14 +242,14 @@ class Theme implements ExtenderInterface
      * The icon should be square and at least 512px. Apple's touch icon and
      * Android's maskable icon are drawn on the background colour.
      *
-     * @param string $file Absolute path of a PNG, JPEG, WebP or GIF file.
-     * @param string|null $background A CSS hex colour. Defaults to the one set on the Appearance page.
+     * @param string|callable $file Absolute path of a PNG, JPEG, WebP or GIF file.
+     * @param string|callable|null $background A CSS hex colour. Defaults to the one set on the Appearance page.
      */
-    public function appIcon(string $file, ?string $background = null): self
+    public function appIcon(string|callable $file, string|callable|null $background = null): self
     {
         $this->images['app_icon'] = [
             'file' => $this->imageFile($file, svg: false),
-            'background' => $background,
+            'background' => is_string($background) || $background === null ? $background : Closure::fromCallable($background),
         ];
 
         return $this;
@@ -261,8 +273,12 @@ class Theme implements ExtenderInterface
         return $this;
     }
 
-    private function imageFile(string $file, bool $svg): string
+    private function imageFile(string|callable $file, bool $svg): string|Closure
     {
+        if (! is_string($file)) {
+            return Closure::fromCallable($file);
+        }
+
         if (! is_file($file)) {
             throw new InvalidArgumentException("The image $file does not exist.");
         }
@@ -274,8 +290,12 @@ class Theme implements ExtenderInterface
         return $file;
     }
 
-    private function svgFile(string $file): string
+    private function svgFile(string|callable $file): string|Closure
     {
+        if (! is_string($file)) {
+            return Closure::fromCallable($file);
+        }
+
         if (! is_file($file) || ! $this->isSvg($file)) {
             throw new InvalidArgumentException("The image $file must be an SVG file.");
         }
