@@ -13,7 +13,6 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Search\Database\DatabaseSearchDriver;
-use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchManager;
 use Flarum\Search\SearchState;
@@ -224,4 +223,3 @@ class ExternalSearchDriver extends \Flarum\Search\AbstractDriver
         return 'external';
     }
 }
-

@@ -10,8 +10,8 @@
 namespace Flarum\Tests\unit\Api\Describe;
 
 use Flarum\Api\Describe\RuleHints;
-use Illuminate\Validation\Rule;
 use Flarum\Testing\unit\TestCase;
+use Illuminate\Validation\Rule;
 use PHPUnit\Framework\Attributes\Test;
 
 class RuleHintsTest extends TestCase

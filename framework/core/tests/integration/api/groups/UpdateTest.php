@@ -89,6 +89,7 @@ class UpdateTest extends TestCase
 
         $this->assertCount(0, $this->renamed);
     }
+
     protected function patch(int $id, array $attributes)
     {
         return $this->send(
