@@ -62,8 +62,7 @@ trait FlarumField
      * - `display`: the attribute used to label a related record;
      * - `label`: translation key or literal;
      * - `placeholder`: translation key or literal, for the form input;
-     * - `widget`: the form input to use; `hidden` means the field is never offered
-     *   in a form, so a `required_without` rule naming only such fields describes as required.
+     * - `widget`: the form input to use; `hidden` means the field is never offered in a form.
      *
      * Other keys, such as `group` and `priority`, are passed through but not read.
      *

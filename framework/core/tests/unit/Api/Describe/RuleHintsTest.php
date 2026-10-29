@@ -10,6 +10,7 @@
 namespace Flarum\Tests\unit\Api\Describe;
 
 use Flarum\Api\Describe\RuleHints;
+use Illuminate\Validation\Rule;
 use Flarum\Testing\unit\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -118,7 +119,7 @@ class RuleHintsTest extends TestCase
     #[Test]
     public function ignores_rule_objects_and_closures()
     {
-        $hints = RuleHints::parse([new \stdClass, fn () => true, 'nullable']);
+        $hints = RuleHints::parse([new \stdClass, fn () => true]);
 
         $this->assertSame([], $hints);
     }
@@ -133,5 +134,116 @@ class RuleHintsTest extends TestCase
     public function accepts_pipe_delimited_strings()
     {
         $this->assertSame(['required' => true, 'maxLength' => 5], RuleHints::parse('required|max:5'));
+    }
+
+    #[Test]
+    public function nullable_filled_and_present_are_hints()
+    {
+        $this->assertSame(['nullable' => true, 'filled' => true, 'present' => true], RuleHints::parse(['nullable', 'filled', 'present']));
+    }
+
+    #[Test]
+    public function the_plain_required_rule_is_always_required()
+    {
+        $this->assertSame(['always' => true, 'when' => [], 'undescribable' => false], RuleHints::requirements(['required', 'max:5']));
+        $this->assertSame(['always' => true, 'when' => [], 'undescribable' => false], RuleHints::requirements('required|max:5'));
+    }
+
+    #[Test]
+    public function no_required_rule_is_not_required()
+    {
+        $this->assertSame(['always' => false, 'when' => [], 'undescribable' => false], RuleHints::requirements(['max:5', 'nullable', 'required_array_keys:a']));
+    }
+
+    public static function conditions(): array
+    {
+        return [
+            'with' => ['required_with:a,b', ['rule' => 'with', 'fields' => ['a', 'b']]],
+            'withAll' => ['required_with_all:a,b', ['rule' => 'withAll', 'fields' => ['a', 'b']]],
+            'without' => ['required_without:a', ['rule' => 'without', 'fields' => ['a']]],
+            'withoutAll' => ['required_without_all:a,b', ['rule' => 'withoutAll', 'fields' => ['a', 'b']]],
+            'if' => ['required_if:type,a', ['rule' => 'if', 'fields' => ['type'], 'values' => ['a']]],
+            'if with commas' => ['required_if:type,a,b', ['rule' => 'if', 'fields' => ['type'], 'values' => ['a', 'b']]],
+            'unless' => ['required_unless:type,a,b', ['rule' => 'unless', 'fields' => ['type'], 'values' => ['a', 'b']]],
+            'ifAccepted' => ['required_if_accepted:terms', ['rule' => 'ifAccepted', 'fields' => ['terms']]],
+            'ifDeclined' => ['required_if_declined:terms', ['rule' => 'ifDeclined', 'fields' => ['terms']]],
+        ];
+    }
+
+    #[Test]
+    #[\PHPUnit\Framework\Attributes\DataProvider('conditions')]
+    public function each_conditional_required_rule_is_a_condition(string $rule, array $condition)
+    {
+        $this->assertSame(['always' => false, 'when' => [$condition], 'undescribable' => false], RuleHints::requirements([$rule]));
+    }
+
+    #[Test]
+    public function several_conditions_are_kept_in_order()
+    {
+        $this->assertSame([
+            ['rule' => 'without', 'fields' => ['token']],
+            ['rule' => 'if', 'fields' => ['type'], 'values' => ['a', 'b']],
+        ], RuleHints::requirements(['required_without:token', 'required_if:type,a,b'])['when']);
+    }
+
+    #[Test]
+    public function quoted_values_are_unquoted()
+    {
+        $this->assertSame(
+            [['rule' => 'if', 'fields' => ['type'], 'values' => ['a,b', 'c']]],
+            RuleHints::requirements(['required_if:type,"a,b",c'])['when']
+        );
+    }
+
+    #[Test]
+    public function the_plain_required_rule_makes_conditions_moot()
+    {
+        $this->assertSame(['always' => true, 'when' => [], 'undescribable' => false], RuleHints::requirements(['required_with:a', 'required']));
+    }
+
+    #[Test]
+    public function a_required_if_rule_object_with_a_boolean_is_resolved()
+    {
+        $this->assertTrue(RuleHints::requirements([Rule::requiredIf(true)])['always']);
+        $this->assertSame(['always' => false, 'when' => [], 'undescribable' => false], RuleHints::requirements([Rule::requiredIf(false)]));
+    }
+
+    public static function undescribable(): array
+    {
+        return [
+            'requiredIf closure' => [[Rule::requiredIf(fn () => true)]],
+            'implicit rule object' => [[new class implements \Illuminate\Contracts\Validation\ImplicitRule {
+                public function passes($attribute, $value)
+                {
+                    return true;
+                }
+
+                public function message()
+                {
+                    return '';
+                }
+            }]],
+            'unknown required rule' => [['required_something:a']],
+            'required_if without values' => [['required_if:type']],
+            'required with exclude' => [['exclude_if:type,a', 'required']],
+            'condition with exclude' => [['required_with:a', 'exclude_without:b']],
+        ];
+    }
+
+    #[Test]
+    #[\PHPUnit\Framework\Attributes\DataProvider('undescribable')]
+    public function a_required_rule_that_cannot_be_described_is_marked(array $rules)
+    {
+        $requirements = RuleHints::requirements($rules);
+
+        $this->assertTrue($requirements['undescribable']);
+        $this->assertFalse($requirements['always']);
+        $this->assertSame([], $requirements['when']);
+    }
+
+    #[Test]
+    public function an_exclude_rule_alone_is_not_a_requirement()
+    {
+        $this->assertSame(['always' => false, 'when' => [], 'undescribable' => false], RuleHints::requirements(['exclude_if:type,a', 'max:5']));
     }
 }

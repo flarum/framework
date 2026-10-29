@@ -162,12 +162,6 @@ class ResourceDescriber
     }
 
     /**
-     * Describes every field, in two passes.
-     *
-     * A `required_without` / `required_without_all` rule counts as required only
-     * when no alternative it names is offered to the client (spec D3, N5), and
-     * whether a field is offered is known only once every field is described.
-     *
      * @param array{create: DescribeContext, update: DescribeContext, show: DescribeContext, index: DescribeContext} $contexts
      * @param array<string, true> $sortable
      * @param list<'create'|'update'> $writeModes
@@ -175,33 +169,14 @@ class ResourceDescriber
      */
     protected function describeFields(AbstractDatabaseResource $resource, array $contexts, array $sortable, array $writeModes): array
     {
-        $described = [];
+        $fields = [];
 
         foreach ($resource->resolveFields() as $field) {
             $description = $this->fields->describe($field, $resource, $contexts, $sortable, $writeModes);
 
             if ($description !== null) {
-                $described[] = [$field, $description];
+                $fields[] = $description;
             }
-        }
-
-        // A field is offered when it is described and not a hidden widget.
-        $offered = [];
-
-        foreach ($described as [, $description]) {
-            if (($description['ui']['widget'] ?? null) !== 'hidden') {
-                $offered[$description['name']] = true;
-            }
-        }
-
-        $fields = [];
-
-        foreach ($described as [$field, $description]) {
-            if ($this->fields->hasRequiredWithout($field)) {
-                $description = $this->fields->describe($field, $resource, $contexts, $sortable, $writeModes, $offered) ?? $description;
-            }
-
-            $fields[] = $description;
         }
 
         return $fields;

@@ -25,6 +25,7 @@ use Flarum\Testing\integration\TestCase;
 use Flarum\User\Guest;
 use Flarum\User\User;
 use InvalidArgumentException;
+use Illuminate\Validation\Rule;
 use Laminas\Diactoros\ServerRequest;
 use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
@@ -246,12 +247,17 @@ class InferenceTest extends TestCase
     }
 
     #[Test]
-    public function a_conditionally_required_rule_does_not_make_a_field_required()
+    public function a_conditional_required_rule_is_described_as_required_when()
     {
         $field = $this->field($this->describe(), 'partner');
 
         $this->assertArrayNotHasKey('required', $field);
+        $this->assertSame([
+            'create' => [['rule' => 'with', 'fields' => ['flavour']]],
+            'update' => [['rule' => 'with', 'fields' => ['flavour']]],
+        ], $field['requiredWhen'] ?? null);
         $this->assertSame(['create' => true], $this->field($this->describe(), 'mandatory')['required']);
+        $this->assertArrayNotHasKey('requiredWhen', $this->field($this->describe(), 'mandatory'));
     }
 
     #[Test]
@@ -261,19 +267,58 @@ class InferenceTest extends TestCase
     }
 
     #[Test]
-    public function required_without_counts_when_every_alternative_is_hidden_or_undescribed()
+    public function conditions_are_collected_per_write_mode()
     {
-        $descriptor = $this->describe();
+        $field = $this->field($this->describe(), 'perMode');
 
-        $this->assertSame(['create' => true], $this->field($descriptor, 'withoutHidden')['required'] ?? null);
-        $this->assertSame(['create' => true, 'update' => true], $this->field($descriptor, 'withoutUndescribed')['required'] ?? null);
-        $this->assertSame(['create' => true, 'update' => true], $this->field($descriptor, 'withoutAllHidden')['required'] ?? null);
+        $this->assertArrayNotHasKey('required', $field);
+        $this->assertSame([
+            'create' => [['rule' => 'without', 'fields' => ['flavour']]],
+            'update' => [['rule' => 'with', 'fields' => ['rank']]],
+        ], $field['requiredWhen'] ?? null);
     }
 
     #[Test]
-    public function required_without_does_not_count_when_an_alternative_is_offered()
+    public function several_conditions_are_listed_in_order()
     {
-        $this->assertArrayNotHasKey('required', $this->field($this->describe(), 'withoutOffered'));
+        $this->assertSame([
+            ['rule' => 'if', 'fields' => ['flavour'], 'values' => ['a', 'b']],
+            ['rule' => 'withoutAll', 'fields' => ['rank', 'slug']],
+        ], $this->field($this->describe(), 'multiple')['requiredWhen']['create'] ?? null);
+    }
+
+    #[Test]
+    public function a_mode_in_which_the_field_is_not_writable_has_no_conditions()
+    {
+        $this->assertSame(
+            ['create' => [['rule' => 'without', 'fields' => ['flavour']]]],
+            $this->field($this->describe(), 'createOnlyConditional')['requiredWhen'] ?? null
+        );
+    }
+
+    #[Test]
+    public function a_required_rule_that_cannot_be_described_leaves_the_decision_to_the_server()
+    {
+        $descriptor = $this->describe();
+
+        foreach (['requiredByClosure', 'requiredNextToExclude'] as $name) {
+            $field = $this->field($descriptor, $name);
+
+            $this->assertTrue($field['requiredConditional'] ?? false, $name);
+            $this->assertArrayNotHasKey('required', $field, $name);
+            $this->assertArrayNotHasKey('requiredWhen', $field, $name);
+        }
+
+        $this->assertArrayNotHasKey('requiredConditional', $this->field($descriptor, 'partner'));
+    }
+
+    #[Test]
+    public function a_nullable_rule_makes_the_field_nullable()
+    {
+        $field = $this->field($this->describe(), 'nullableByRule');
+
+        $this->assertTrue($field['nullable'] ?? false);
+        $this->assertSame(['filled' => true], $field['constraints'] ?? null);
     }
 
     #[Test]
@@ -527,21 +572,27 @@ class ScratchGroupResource extends AbstractDatabaseResource
             Schema\Str::make('mandatoryOnUpdate')
                 ->requiredOnUpdate()
                 ->writable(),
-            Schema\Str::make('hiddenAlternative')
-                ->hidden()
-                ->writableOnCreate()
-                ->ui(['widget' => 'hidden']),
-            Schema\Str::make('withoutHidden')
-                ->requiredOnCreateWithout(['hiddenAlternative'])
+            Schema\Str::make('perMode')
+                ->requiredOnCreateWithout(['flavour'])
+                ->requiredOnUpdateWith(['rank'])
                 ->writable(),
-            Schema\Str::make('withoutOffered')
-                ->requiredOnCreateWithout(['hiddenAlternative', 'flavour'])
+            Schema\Str::make('multiple')
+                ->rule('required_if:flavour,a,b')
+                ->rule('required_without_all:rank,slug')
                 ->writable(),
-            Schema\Str::make('withoutUndescribed')
-                ->requiredWithout(['ghost'], true)
+            Schema\Str::make('createOnlyConditional')
+                ->requiredWithout(['flavour'], true)
+                ->writableOnCreate(),
+            Schema\Str::make('requiredByClosure')
+                ->rule(fn () => Rule::requiredIf(fn () => true))
                 ->writable(),
-            Schema\Str::make('withoutAllHidden')
-                ->rule('required_without_all:hiddenAlternative,ghost')
+            Schema\Str::make('requiredNextToExclude')
+                ->rule('exclude_if:flavour,a')
+                ->required()
+                ->writable(),
+            Schema\Str::make('nullableByRule')
+                ->rule('nullable')
+                ->rule('filled')
                 ->writable(),
             UntypedRelationship::make('untyped'),
             Schema\Str::make('labelKey')

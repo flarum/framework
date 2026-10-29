@@ -32,7 +32,10 @@ use Tobyz\JsonApiServer\Schema\Type\Str;
  *
  * Visibility fails closed: a field is visible only when a read mode says so,
  * and a check that throws counts as "not visible". Writability fails open and
- * is flagged `conditional` (spec D3).
+ * is flagged `conditional` (spec D3). Requirements are described per write
+ * mode: `required` when unconditional, `requiredWhen` for Laravel's conditional
+ * required rules, and `requiredConditional` when a required-type rule cannot
+ * be described, so the server decides.
  *
  * @internal Not part of the extension API; use the extenders.
  */
@@ -42,11 +45,6 @@ class FieldDescriber
         'minLength', 'maxLength', 'pattern', 'patternFlags', 'enum', 'format',
         'minimum', 'maximum', 'minItems', 'maxItems',
     ];
-
-    /**
-     * Rules that require a field unless another named field is sent.
-     */
-    protected const array REQUIRED_WITHOUT_RULES = ['required_without', 'required_without_all'];
 
     public function __construct(
         protected TranslatorInterface $translator
@@ -58,19 +56,17 @@ class FieldDescriber
      * @param array<string, true> $sortable names of sorts visible to the actor
      * @param list<'create'|'update'> $writeModes the write modes the actor has at type level;
      *                                           create is dropped when the actor cannot create
-     * @param array<string, true>|null $offered names of the fields offered to the client (described and
-     *                                          not a hidden widget). When given, a `required_without` /
-     *                                          `required_without_all` rule counts as required if none of
-     *                                          its alternatives is offered. When null, only `required` counts.
      * @return array<string, mixed>|null
      */
-    public function describe(Field $field, AbstractDatabaseResource $resource, array $contexts, array $sortable, array $writeModes = ['create', 'update'], ?array $offered = null): ?array
+    public function describe(Field $field, AbstractDatabaseResource $resource, array $contexts, array $sortable, array $writeModes = ['create', 'update']): ?array
     {
         $visible = $this->visible($field, $contexts);
 
         $conditional = false;
         $writable = [];
         $required = [];
+        $requiredWhen = [];
+        $requiredConditional = false;
 
         foreach ($writeModes as $mode) {
             [$isWritable, $failed] = $this->writable($field, $contexts[$mode]);
@@ -80,9 +76,17 @@ class FieldDescriber
             if ($isWritable) {
                 $writable[$mode] = true;
 
-                if ($this->required($field, $contexts[$mode], $offered)) {
+                $requirements = $this->required($field, $contexts[$mode]);
+
+                if ($requirements['always']) {
                     $required[$mode] = true;
                 }
+
+                if ($requirements['when']) {
+                    $requiredWhen[$mode] = $requirements['when'];
+                }
+
+                $requiredConditional = $requiredConditional || $requirements['undescribable'];
             }
         }
 
@@ -108,11 +112,19 @@ class FieldDescriber
             $description['required'] = $required;
         }
 
+        if ($requiredWhen) {
+            $description['requiredWhen'] = $requiredWhen;
+        }
+
+        if ($requiredConditional) {
+            $description['requiredConditional'] = true;
+        }
+
         if ($writable) {
             $description['writable'] = $writable;
         }
 
-        if ($field->nullable) {
+        if ($field->nullable || $this->hasRule($field, 'nullable')) {
             $description['nullable'] = true;
         }
 
@@ -199,68 +211,37 @@ class FieldDescriber
     }
 
     /**
-     * Whether the field has a `required_without` / `required_without_all` rule,
-     * so that its description depends on which other fields are offered.
+     * How the field is required in one write mode, from that mode's evaluated
+     * rules. Rules that cannot be evaluated leave the decision to the server.
+     *
+     * @return array{always: bool, when: list<array{rule: string, fields: list<string>, values?: list<string>}>, undescribable: bool}
      */
-    public function hasRequiredWithout(Field $field): bool
+    protected function required(Field $field, Context $context): array
+    {
+        if (! method_exists($field, 'getValidationRules')) {
+            return ['always' => false, 'when' => [], 'undescribable' => false];
+        }
+
+        try {
+            $rules = $field->getValidationRules($context->withField($field))[$field->name] ?? [];
+        } catch (Throwable) {
+            return ['always' => false, 'when' => [], 'undescribable' => true];
+        }
+
+        return RuleHints::requirements($rules);
+    }
+
+    /**
+     * Whether the field declares the given string rule, in any mode.
+     */
+    protected function hasRule(Field $field, string $name): bool
     {
         if (! method_exists($field, 'getRules')) {
             return false;
         }
 
         foreach ($field->getRules() as $entry) {
-            if (is_string($entry['rule']) && in_array(explode(':', $entry['rule'], 2)[0], self::REQUIRED_WITHOUT_RULES, true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * The unconditional `required` rule counts. So do `required_without` and
-     * `required_without_all` when `$offered` is given and none of the fields
-     * they name is offered: the client cannot send an alternative, so the field
-     * is required in practice (users' `requiredOnCreateWithout(['token'])`).
-     * `required_with`, `required_if` and friends depend on other input, so the
-     * server stays the judge.
-     *
-     * @param array<string, true>|null $offered
-     */
-    protected function required(Field $field, Context $context, ?array $offered = null): bool
-    {
-        if (! method_exists($field, 'getValidationRules')) {
-            return false;
-        }
-
-        try {
-            $rules = $field->getValidationRules($context->withField($field))[$field->name] ?? [];
-        } catch (Throwable) {
-            return false;
-        }
-
-        if (in_array('required', $rules, true)) {
-            return true;
-        }
-
-        if ($offered === null) {
-            return false;
-        }
-
-        foreach ($rules as $rule) {
-            if (! is_string($rule)) {
-                continue;
-            }
-
-            [$name, $arguments] = array_pad(explode(':', $rule, 2), 2, '');
-
-            if (! in_array($name, self::REQUIRED_WITHOUT_RULES, true) || $arguments === '') {
-                continue;
-            }
-
-            $alternatives = array_map('trim', explode(',', $arguments));
-
-            if (! array_intersect_key($offered, array_flip($alternatives))) {
+            if ($entry['rule'] === $name) {
                 return true;
             }
         }
@@ -351,7 +332,9 @@ class FieldDescriber
             }
 
             $hints = RuleHints::parse($rules, $kind);
-            unset($hints['required']);
+
+            // Requirements and nullability have their own descriptor keys.
+            unset($hints['required'], $hints['nullable']);
 
             // A rule pattern replaces the type's, together with its flags.
             if (isset($hints['pattern'])) {
