@@ -1,7 +1,8 @@
 import type Mithril from 'mithril';
 import type Model from '../Model';
 import ItemList from '../utils/ItemList';
-import type { BulkActionContext } from './BulkRunner';
+import type { BulkActionContext, BulkSummary } from './BulkRunner';
+import { bulkDeleteAction, runBulkDelete } from './bulkDelete';
 import { loadDescriptor } from './descriptor';
 import recordLabel from './recordLabel';
 import { fieldsFromDescriptor } from './fieldsFromDescriptor';
@@ -135,11 +136,27 @@ export default class ResourceDefinition<M extends Model = Model> {
 
   /**
    * The actions offered for the selected records. Empty by default; a table renders its checkbox
-   * column only when this has items. Add `bulkDeleteAction(context)` (`./bulkDelete`) for the built-in
+   * column only when this has items. Add `this.bulkDelete(context)` for the built-in
    * delete.
    */
   bulkActions(_selection: ResourceSelection, _context: BulkActionContext<M>): ItemList<Mithril.Children> {
     return new ItemList<Mithril.Children>();
+  }
+
+  /**
+   * The built-in "Delete selected" button, for `bulkActions()`: `bulkDeleteAction()` running
+   * `this.runBulkDelete()`.
+   */
+  bulkDelete(context: BulkActionContext<M>): Mithril.Children {
+    return bulkDeleteAction(context, (c) => this.runBulkDelete(c));
+  }
+
+  /**
+   * The work behind `bulkDelete()`, see `runBulkDelete()` in `./bulkDelete`. Override it to delete
+   * differently and keep the button.
+   */
+  runBulkDelete(context: BulkActionContext<M>): Promise<BulkSummary<M> | null> {
+    return runBulkDelete(context);
   }
 
   /**

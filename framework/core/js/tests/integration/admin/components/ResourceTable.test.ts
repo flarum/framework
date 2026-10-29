@@ -561,6 +561,28 @@ describe('ResourceTable', () => {
       expect(contexts.at(-1)!.runner).toBe(runner);
     });
 
+    test("the definition's bulkDelete() button runs its runBulkDelete()", async () => {
+      const run = jest.fn(() => Promise.resolve(null));
+
+      class OwnDeleteDefinition extends ResourceDefinition<Thing> {
+        bulkActions(selection: ResourceSelection, context: BulkActionContext<Thing>) {
+          return super.bulkActions(selection, context).add('delete', this.bulkDelete(context));
+        }
+
+        runBulkDelete(context: BulkActionContext<Thing>) {
+          return run(context);
+        }
+      }
+
+      const out = await rendered({ definition: new OwnDeleteDefinition('things') });
+
+      check(out, 'tr[data-id="1"] input.ResourceTable-select', true);
+      out.click('.ResourceTable-bulk .ResourceTable-bulkDelete');
+      await flush();
+
+      expect(run).toHaveBeenCalledTimes(1);
+    });
+
     test('a bulk delete whose reload fails leaves no unhandled rejection', async () => {
       const rejections: unknown[] = [];
       const onRejection = (reason: unknown) => rejections.push(reason);

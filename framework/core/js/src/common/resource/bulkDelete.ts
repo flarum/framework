@@ -13,9 +13,13 @@ const running = new WeakSet<ResourceListState<any>>();
  * A "Delete selected" button for a definition's `bulkActions()`. It confirms with the count, leaves
  * out rows whose `canDelete` is false, deletes the others one request per record through
  * `context.runner` (so an extension's replaced `Delete` endpoint runs per record), shows the summary
- * through `context.showResult()` and then refreshes the list.
+ * through `context.showResult()` and then refreshes the list. `run` replaces the work behind the
+ * button (default `runBulkDelete`).
  */
-export function bulkDeleteAction<M extends Model>(context: BulkActionContext<M>): Mithril.Children {
+export function bulkDeleteAction<M extends Model>(
+  context: BulkActionContext<M>,
+  run: (context: BulkActionContext<M>) => Promise<unknown> = runBulkDelete
+): Mithril.Children {
   const count = context.list.selectedModels().length;
 
   return m(
@@ -26,7 +30,7 @@ export function bulkDeleteAction<M extends Model>(context: BulkActionContext<M>)
       disabled: !count,
       loading: running.has(context.list),
       // The summary reports the deletes; a failed reload has already shown its error.
-      onclick: () => runBulkDelete(context).catch(() => {}),
+      onclick: () => run(context).catch(() => {}),
     },
     app.translator.trans('core.lib.resource.bulk.delete_button', { count })
   );
