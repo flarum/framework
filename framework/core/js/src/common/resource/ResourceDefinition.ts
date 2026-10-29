@@ -7,10 +7,10 @@ import recordLabel from './recordLabel';
 import { fieldsFromDescriptor } from './fieldsFromDescriptor';
 import { bareFilterInput, defaultFilterInputs, defaultFormInputs } from './inputs/defaults';
 import InputFactory from './inputs/InputFactory';
-import { defaultFilterResolvers, defaultInputResolvers, resolveFilterInput } from './resolvers';
+import { defaultFieldInput, defaultFilterInput } from './fieldDefaults';
 import type { ResourceSelection } from './ResourceListState';
 import type ResourceListState from './ResourceListState';
-import type { Field, Filter, FilterResolver, InputResolver, ResourceDescriptor } from './types';
+import type { Field, FieldDefaults, FieldDescriptor, Filter, FilterDescriptor, ResourceDescriptor } from './types';
 
 function humanize(value: string): string {
   const words = value
@@ -40,8 +40,13 @@ export default class ResourceDefinition<M extends Model = Model> {
     return this;
   }
 
-  inputResolvers(): ItemList<InputResolver> {
-    return defaultInputResolvers();
+  /**
+   * A described field's input and the value/serialize/column overrides that go with it; null for
+   * none. Default: `defaultFieldInput()` (widget, relation, enum, by kind, textarea, string).
+   * Override it for the fields you handle and return `super.fieldInput(d)` for the rest.
+   */
+  fieldInput(d: FieldDescriptor): FieldDefaults<M> | null {
+    return defaultFieldInput(d);
   }
 
   /**
@@ -64,19 +69,20 @@ export default class ResourceDefinition<M extends Model = Model> {
       throw new Error(`ResourceDefinition(${this.type}): call load() before fields().`);
     }
 
-    return fieldsFromDescriptor<M>(this.descriptor, this.inputResolvers());
+    return fieldsFromDescriptor<M>(this.descriptor, (d) => this.fieldInput(d));
   }
 
   /**
-   * Maps described filters to input specs, see `defaultFilterResolvers()`.
+   * A described filter's input; `d` is the same-named field's descriptor, null when there is none.
+   * Default: `defaultFilterInput()` (enum, yes/no, relation, else text). Override it for the filters
+   * you handle and return `super.filterInput(filter, d)` for the rest.
    */
-  filterResolvers(): ItemList<FilterResolver> {
-    return defaultFilterResolvers();
+  filterInput(filter: FilterDescriptor, d: FieldDescriptor | null): Filter['input'] {
+    return defaultFilterInput(filter, d);
   }
 
   /**
-   * One filter per described filter, its input from the first matching `filterResolvers()` entry,
-   * rendered by `filterInputs()`. Labelled by the same-named field, else the humanized key.
+   * One filter per described filter, its input from `filterInput()`, rendered by `filterInputs()`. Labelled by the same-named field, else the humanized key.
    */
   filters(): ItemList<Filter> {
     const filters = new ItemList<Filter>();
@@ -85,7 +91,6 @@ export default class ResourceDefinition<M extends Model = Model> {
     if (!described.length) return filters;
 
     const fields = this.fields();
-    const resolvers = this.filterResolvers();
 
     described.forEach((filter, index) => {
       const field = fields.has(filter.key) ? fields.get(filter.key) : null;
@@ -94,7 +99,7 @@ export default class ResourceDefinition<M extends Model = Model> {
         filter.key,
         {
           label: field?.label ?? humanize(filter.key),
-          input: resolveFilterInput(filter, field?.descriptor ?? null, resolvers),
+          input: this.filterInput(filter, field?.descriptor ?? null),
           kind: filter.kind,
           negatable: filter.kind === 'boolean' || field?.descriptor?.kind === 'boolean',
         },

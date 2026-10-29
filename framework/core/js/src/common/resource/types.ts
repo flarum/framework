@@ -160,13 +160,11 @@ export interface Field<M extends Model, V = unknown> {
   descriptor?: FieldDescriptor;
 }
 
-export type InputResolver = (d: FieldDescriptor) => Partial<Field<any>> | null;
-
 /**
- * Maps a described filter to its input. `d` is the descriptor of the same-named field, null when
- * there is none. Return `null` to fall through to the next resolver.
+ * What a field's descriptor implies for it: its input and the value, serialize and column overrides
+ * that go with it. See `ResourceDefinition.fieldInput()`.
  */
-export type FilterResolver = (filter: FilterDescriptor, d: FieldDescriptor | null) => Filter['input'] | null;
+export type FieldDefaults<M extends Model = any> = Partial<Pick<Field<M>, 'input' | 'value' | 'serialize' | 'column'>>;
 
 export interface FilterContext {
   stream: Stream<string>;

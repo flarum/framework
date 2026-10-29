@@ -5,12 +5,12 @@ import ItemList from '../../../../src/common/utils/ItemList';
 import Stream from '../../../../src/common/utils/Stream';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
 import { fieldsFromDescriptor, patchField, patchFilter } from '../../../../src/common/resource/fieldsFromDescriptor';
-import { defaultInputResolvers, WIDGET_ALIASES } from '../../../../src/common/resource/resolvers';
+import { WIDGET_ALIASES } from '../../../../src/common/resource/fieldDefaults';
 import { defaultFormInputs } from '../../../../src/common/resource/inputs/defaults';
 import InputFactory from '../../../../src/common/resource/inputs/InputFactory';
 import RelationInput from '../../../../src/common/resource/inputs/RelationInput';
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
-import type { Field, Filter, InputResolver } from '../../../../src/common/resource/types';
+import type { Field, FieldDescriptor, Filter } from '../../../../src/common/resource/types';
 import { bootAdmin, descriptor, fd, schemaDocument } from './fixtures';
 
 function inputOf(field: Field<any>): any {
@@ -18,7 +18,7 @@ function inputOf(field: Field<any>): any {
 }
 
 function single(d: ReturnType<typeof fd>) {
-  return fieldsFromDescriptor(descriptor([d]), defaultInputResolvers()).get(d.name);
+  return fieldsFromDescriptor(descriptor([d])).get(d.name);
 }
 
 describe('fieldsFromDescriptor', () => {
@@ -150,8 +150,7 @@ describe('fieldsFromDescriptor', () => {
 
   test('a column when sortable (sorting by the field name) or ui.column; else none', () => {
     const fields = fieldsFromDescriptor(
-      descriptor([fd('title', 'string', { sortable: true }), fd('note', 'string', { ui: { column: true } }), fd('body', 'string')]),
-      defaultInputResolvers()
+      descriptor([fd('title', 'string', { sortable: true }), fd('note', 'string', { ui: { column: true } }), fd('body', 'string')])
     );
 
     expect(fields.get('title').column).toMatchObject({ sort: 'title' });
@@ -221,38 +220,36 @@ describe('fieldsFromDescriptor', () => {
   });
 
   test('declaration order; ui.priority is ignored', () => {
-    const fields = fieldsFromDescriptor(
-      descriptor([fd('a', 'string'), fd('b', 'string'), fd('c', 'string', { ui: { priority: 10000 } })]),
-      defaultInputResolvers()
-    );
+    const fields = fieldsFromDescriptor(descriptor([fd('a', 'string'), fd('b', 'string'), fd('c', 'string', { ui: { priority: 10000 } })]));
 
     expect(fields.toArray().map((f) => f.descriptor!.name)).toEqual(['a', 'b', 'c']);
   });
 });
 
-describe('input resolvers', () => {
-  test('a higher-priority resolver wins', () => {
-    const resolvers = defaultInputResolvers();
-    resolvers.add('custom', (d) => (d.name === 'title' ? { input: { type: 'color-preview' } } : null), 1000);
+describe('ResourceDefinition.fieldInput', () => {
+  test('an override handles its fields and leaves the rest to super', () => {
+    class Custom extends ResourceDefinition {
+      fieldInput(d: FieldDescriptor) {
+        return d.name === 'title' ? { input: { type: 'color-preview' } } : super.fieldInput(d);
+      }
+    }
 
-    const fields = fieldsFromDescriptor(descriptor([fd('title', 'string'), fd('other', 'string')]), resolvers);
+    const definition = new Custom('things');
+    definition.descriptor = descriptor([fd('title', 'string'), fd('other', 'string')]);
+    const fields = definition.fields();
 
     expect(inputOf(fields.get('title')).type).toBe('color-preview');
     expect(inputOf(fields.get('other')).type).toBe('text');
   });
 
-  test('null falls through to the next resolver', () => {
-    const resolvers = new ItemList<InputResolver>();
-    resolvers.add('never', () => null, 100);
-    resolvers.add('fallback', () => ({ input: { type: 'tel' } }), 0);
-
-    expect(inputOf(fieldsFromDescriptor(descriptor([fd('phone', 'string')]), resolvers).get('phone')).type).toBe('tel');
+  test('null means no input', () => {
+    expect(fieldsFromDescriptor(descriptor([fd('phone', 'string')]), () => null).get('phone').input).toBe(false);
   });
 });
 
 describe('patchField', () => {
   test('merges shallowly and keeps other keys', () => {
-    const fields = fieldsFromDescriptor(descriptor([fd('url', 'string', { sortable: true })]), defaultInputResolvers());
+    const fields = fieldsFromDescriptor(descriptor([fd('url', 'string', { sortable: true })]));
     const render = () => 'link';
 
     patchField(fields, 'url', { column: { render } });
@@ -264,7 +261,7 @@ describe('patchField', () => {
   });
 
   test('is a no-op for an absent key', () => {
-    const fields = fieldsFromDescriptor(descriptor([fd('a', 'string')]), defaultInputResolvers());
+    const fields = fieldsFromDescriptor(descriptor([fd('a', 'string')]));
 
     patchField(fields, 'missing', { label: 'x' });
 

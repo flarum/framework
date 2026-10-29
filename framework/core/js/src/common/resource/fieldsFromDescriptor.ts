@@ -1,10 +1,10 @@
 import type Model from '../Model';
 import ItemList from '../utils/ItemList';
 import { isWritable } from './descriptor';
-import { resolveInput } from './resolvers';
-import type { Field, FieldColumn, FieldDescriptor, Filter, InputResolver, ResourceDescriptor } from './types';
+import { defaultFieldInput } from './fieldDefaults';
+import type { Field, FieldColumn, FieldDefaults, FieldDescriptor, Filter, ResourceDescriptor } from './types';
 
-function column<M extends Model>(d: FieldDescriptor, resolved: Partial<Field<M>>): Field<M>['column'] {
+function column<M extends Model>(d: FieldDescriptor, resolved: FieldDefaults<M>): Field<M>['column'] {
   const hint = d.ui?.column;
 
   if (d.visible === false || hint === false || resolved.column === false) return false;
@@ -19,19 +19,22 @@ function column<M extends Model>(d: FieldDescriptor, resolved: Partial<Field<M>>
 }
 
 /**
- * Turn a descriptor into the keyed field registry, in declaration order. The input comes from the
- * first matching resolver and is kept when the field is writable on create or update and its
- * `ui.widget` is not `'hidden'`; another `ui.widget` value names the input type (see the `widget`
- * resolver) and `ui.placeholder` becomes the input's placeholder. A column is shown for a visible
+ * Turn a descriptor into the keyed field registry, in declaration order. The input comes from
+ * `fieldInput` (`ResourceDefinition.fieldInput()`) and is kept when the field is writable on create or update and its
+ * `ui.widget` is not `'hidden'`; another `ui.widget` value names the input type (see
+ * `defaultFieldInput()`) and `ui.placeholder` becomes the input's placeholder. A column is shown for a visible
  * field that is sortable (sorting by its name) or has `ui.column`; a numeric `ui.column` is the
  * column's priority, `false` hides it.
  */
-export function fieldsFromDescriptor<M extends Model>(d: ResourceDescriptor, resolvers: ItemList<InputResolver>): ItemList<Field<M>> {
+export function fieldsFromDescriptor<M extends Model>(
+  d: ResourceDescriptor,
+  fieldInput: (d: FieldDescriptor) => FieldDefaults<M> | null = defaultFieldInput
+): ItemList<Field<M>> {
   const fields = new ItemList<Field<M>>();
   const count = d.fields.length;
 
   d.fields.forEach((descriptor, index) => {
-    const resolved = resolveInput(descriptor, resolvers) as Partial<Field<M>>;
+    const resolved: FieldDefaults<M> = fieldInput(descriptor) ?? { input: false };
     // `ui.widget: 'hidden'` (e.g. users' `token`): no form input.
     const editable = descriptor.ui?.widget !== 'hidden' && (isWritable(descriptor, 'create') || isWritable(descriptor, 'update'));
 
