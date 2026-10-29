@@ -166,10 +166,11 @@ class UsersSchemaTest extends TestCase
     }
 
     #[Test]
-    public function credentials_are_required_on_create_declared_via_ui_required()
+    public function credentials_are_required_on_create_when_the_token_is_a_hidden_widget()
     {
         $fields = $this->fieldsByName($this->describe(1));
 
+        // `requiredOnCreateWithout(['token'])`: the only alternative is hidden from forms.
         foreach (['username', 'email', 'password'] as $name) {
             $this->assertSame(['create' => true], $fields[$name]['required'] ?? null, "[$name] is not required on create.");
         }

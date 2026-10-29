@@ -62,9 +62,8 @@ trait FlarumField
      * - `display`: the attribute used to label a related record;
      * - `label`: translation key or literal;
      * - `placeholder`: translation key or literal, for the form input;
-     * - `required`: true, false, or `['create' => bool, 'update' => bool]`; overrides the
-     *   required flag inferred from the `required` rule, in writable modes only;
-     * - `widget`: the form input to use; `hidden` means the field is never offered in a form.
+     * - `widget`: the form input to use; `hidden` means the field is never offered
+     *   in a form, so a `required_without` rule naming only such fields describes as required.
      *
      * Other keys, such as `group` and `priority`, are passed through but not read.
      *
