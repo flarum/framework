@@ -13,7 +13,7 @@ import ItemList from '../../../../src/common/utils/ItemList';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
 import ColumnPreferences from '../../../../src/common/resource/ColumnPreferences';
-import type { BulkActionContext, BulkSummary } from '../../../../src/common/resource/BulkRunner';
+import type { BulkActionContext, BulkRunner, BulkSummary } from '../../../../src/common/resource/BulkRunner';
 import ResourceListState, { type ResourceSelection } from '../../../../src/common/resource/ResourceListState';
 import { bootAdmin, descriptor, fd, schemaDocument } from '../../../unit/common/resource/fixtures';
 
@@ -533,6 +533,32 @@ describe('ResourceTable', () => {
       out.redraw();
 
       expect(bulkActions).toHaveBeenCalledTimes(1);
+    });
+
+    test("the table's bulkRunner() is the runner its bulk actions get", async () => {
+      const runner: BulkRunner = { run: jest.fn() as any };
+      const contexts: BulkActionContext<Thing>[] = [];
+
+      class RunnerTable extends ResourceTable<Thing> {
+        bulkRunner(): BulkRunner {
+          return runner;
+        }
+      }
+
+      class SpyDefinition extends BulkDefinition {
+        bulkActions(selection: ResourceSelection, context: BulkActionContext<Thing>) {
+          contexts.push(context);
+
+          return super.bulkActions(selection, context);
+        }
+      }
+
+      const out = mq(RunnerTable, { definition: new SpyDefinition('things') });
+      await flush();
+      await flush();
+      out.redraw();
+
+      expect(contexts.at(-1)!.runner).toBe(runner);
     });
 
     test('a bulk delete whose reload fails leaves no unhandled rejection', async () => {

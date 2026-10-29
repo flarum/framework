@@ -11,7 +11,7 @@ import Pagination from '../../../common/components/Pagination';
 import type Model from '../../../common/Model';
 import ItemList from '../../../common/utils/ItemList';
 import classList from '../../../common/utils/classList';
-import { ConcurrentBulkRunner, type BulkActionContext, type BulkSummary } from '../../../common/resource/BulkRunner';
+import { ConcurrentBulkRunner, type BulkActionContext, type BulkRunner, type BulkSummary } from '../../../common/resource/BulkRunner';
 import ColumnPreferences from '../../../common/resource/ColumnPreferences';
 import { renderColumn } from '../../../common/resource/field';
 import type ResourceDefinition from '../../../common/resource/ResourceDefinition';
@@ -260,13 +260,20 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * What the definition's bulk actions run with: this table's list, a runner sending one request
-   * per record, 3 at a time, and `BulkResultModal` for the outcome.
+   * The runner the bulk actions run with. Default: one request per record, 3 at a time.
+   */
+  bulkRunner(): BulkRunner {
+    return new ConcurrentBulkRunner();
+  }
+
+  /**
+   * What the definition's bulk actions run with: this table's list, `bulkRunner()`, and
+   * `BulkResultModal` for the outcome.
    */
   bulkContext(): BulkActionContext<M> {
     return {
       list: this.list,
-      runner: new ConcurrentBulkRunner(),
+      runner: this.bulkRunner(),
       showResult: (summary: BulkSummary<M>) => app.modal.show(BulkResultModal, { summary, definition: this.attrs.definition }),
     };
   }

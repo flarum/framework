@@ -23,12 +23,23 @@ export interface BulkSummary<M> extends BulkResult<M> {
 export type BulkProgress = (done: number, total: number) => void;
 
 /**
+ * Runs one operation per record and collects the outcome. One failure never stops the others.
+ *
+ * The interface is the seam for another strategy, e.g. an all-or-nothing runner on json-api-server's
+ * Atomic extension: one request instead of one per record. A table picks its runner in
+ * `ResourceTable.bulkRunner()`.
+ */
+export interface BulkRunner {
+  run<M>(models: M[], op: (model: M) => Promise<unknown>, onProgress?: BulkProgress): Promise<BulkResult<M>>;
+}
+
+/**
  * What a definition's bulk actions get from the view that renders them.
  */
 export interface BulkActionContext<M extends Model = Model> {
   /** The list the selection belongs to; refreshed after an action. */
   list: ResourceListState<M>;
-  runner: ConcurrentBulkRunner;
+  runner: BulkRunner;
   /** Show the outcome of an action; the admin `ResourceTable` opens `BulkResultModal`. */
   showResult(summary: BulkSummary<M>): void;
 }
@@ -38,7 +49,7 @@ export interface BulkActionContext<M extends Model = Model> {
  * browser and server connection limits), and collects the outcome. One failure never stops the
  * others.
  */
-export class ConcurrentBulkRunner {
+export class ConcurrentBulkRunner implements BulkRunner {
   constructor(readonly concurrency: number = 3) {}
 
   async run<M>(models: M[], op: (model: M) => Promise<unknown>, onProgress?: BulkProgress): Promise<BulkResult<M>> {
