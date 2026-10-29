@@ -725,9 +725,13 @@ describe('UserListPage', () => {
     expect(out).not.toHaveElement('.ResourceTable-chip--group');
   });
 
-  test('the group filter leaves out the guest group', async () => {
+  test('the group filter labels groups like the groups field and leaves out the guest group', async () => {
     const { page } = await rendered();
-    const exclude = (page as any).definition.filters().get('group').exclude;
+    const filter = (page as any).definition.filters().get('group');
+    const exclude = filter.exclude;
+
+    // The `groups` field's display hint, though the filter is named `group`.
+    expect(filter.input).toMatchObject({ type: 'relation', related: 'groups', display: 'nameSingular' });
 
     expect(exclude(group('2', 'Guest'))).toBe(true);
     expect(exclude(group('4', 'Mod'))).toBe(false);

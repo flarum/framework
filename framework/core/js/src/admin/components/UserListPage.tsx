@@ -23,6 +23,7 @@ import GambitsAutocompleteDropdown from '../../common/components/GambitsAutocomp
 import type { BulkActionContext, BulkSummary } from '../../common/resource/BulkRunner';
 import { renderColumn } from '../../common/resource/field';
 import { patchFilter } from '../../common/resource/fieldsFromDescriptor';
+import { resolveFilterInput } from '../../common/resource/resolvers';
 import RelationInput from '../../common/resource/inputs/RelationInput';
 import ResourceDefinition from '../../common/resource/ResourceDefinition';
 import Group from '../../common/models/Group';
@@ -718,7 +719,7 @@ export default class UserListPage extends AdminPage {
 /**
  * The users definition. Its `bulkActions()` are the list's bulk actions: empty, so the list has no
  * checkbox column until an extension adds one (`bulkDelete(context)` is a ready-made item). The group
- * filter leaves out the guest group, which no user is a member of.
+ * filter labels groups like the `groups` field does, and leaves out the guest group, which no user is a member of.
  */
 export class UserResourceDefinition extends ResourceDefinition<User> {
   label(count: number): string {
@@ -734,8 +735,14 @@ export class UserResourceDefinition extends ResourceDefinition<User> {
 
   filters() {
     const filters = super.filters();
+    const group = this.descriptor?.filters?.find((filter) => filter.key === 'group');
+    const groups = this.descriptor?.fields.find((field) => field.name === 'groups') ?? null;
 
-    patchFilter(filters, 'group', { exclude: (group: Model) => group.id() === Group.GUEST_ID });
+    patchFilter(filters, 'group', {
+      // Named apart from the `groups` relationship, so it takes that field's display hint.
+      ...(group && { input: resolveFilterInput(group, groups, this.filterResolvers()) }),
+      exclude: (model: Model) => model.id() === Group.GUEST_ID,
+    });
 
     return filters;
   }
