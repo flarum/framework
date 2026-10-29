@@ -15,8 +15,17 @@ function stringAttrs(d: FieldDescriptor): Record<string, unknown> {
   return d.constraints?.maxLength !== undefined ? { maxlength: d.constraints.maxLength } : {};
 }
 
-function nullableString(d: FieldDescriptor): Field<any>['serialize'] {
-  return (v) => ({ [d.name]: empty(v) && d.nullable ? null : (v ?? '') });
+/**
+ * A field's serializer: a value goes through `convert`; an empty one is sent as null when the field
+ * is nullable, else as `emptyValue`, else (no `emptyValue`) not at all.
+ */
+function serializer(d: FieldDescriptor, convert: (v: any) => unknown = (v) => v, emptyValue?: unknown): Field<any>['serialize'] {
+  return (v) => {
+    if (!empty(v)) return { [d.name]: convert(v) };
+    if (d.nullable) return { [d.name]: null };
+
+    return emptyValue === undefined ? {} : { [d.name]: emptyValue };
+  };
 }
 
 function choices(values: string[]): [string, string][] {
@@ -77,7 +86,7 @@ export function defaultInputResolvers(): ItemList<InputResolver> {
       return {
         input: { type: WIDGET_ALIASES[widget] ?? widget, ...stringAttrs(d) },
         value: (model) => (model?.attribute(d.name) as string | null | undefined) ?? '',
-        serialize: nullableString(d),
+        serialize: serializer(d, (v) => v, ''),
       };
     },
     60
@@ -110,7 +119,7 @@ export function defaultInputResolvers(): ItemList<InputResolver> {
     (d) => {
       if (d.kind !== 'string' || !d.constraints?.enum) return null;
 
-      return { input: { type: 'enum', choices: choices(d.constraints.enum), nullable: !!d.nullable }, serialize: nullableString(d) };
+      return { input: { type: 'enum', choices: choices(d.constraints.enum), nullable: !!d.nullable }, serialize: serializer(d, (v) => v, '') };
     },
     40
   );
@@ -138,7 +147,7 @@ export function defaultInputResolvers(): ItemList<InputResolver> {
 
       return {
         input: { type: 'number', ...attrs },
-        serialize: (v) => ({ [d.name]: empty(v) ? null : Number(v) }),
+        serialize: serializer(d, Number),
       };
     },
     30
@@ -151,7 +160,7 @@ export function defaultInputResolvers(): ItemList<InputResolver> {
         ? {
             input: { type: 'date' },
             value: (model) => (model?.attribute(d.name) as string | null | undefined)?.slice(0, 10) ?? null,
-            serialize: (v) => ({ [d.name]: empty(v) ? null : v }),
+            serialize: serializer(d),
             column: dateColumn(d),
           }
         : null,
@@ -165,7 +174,7 @@ export function defaultInputResolvers(): ItemList<InputResolver> {
         ? {
             input: { type: 'datetime-local' },
             value: (model) => toLocalDateTime(model?.attribute(d.name)),
-            serialize: (v) => ({ [d.name]: empty(v) ? null : new Date(v as string).toISOString() }),
+            serialize: serializer(d, (v) => new Date(v).toISOString()),
             column: dateColumn(d),
           }
         : null,
@@ -178,7 +187,7 @@ export function defaultInputResolvers(): ItemList<InputResolver> {
       const max = d.constraints?.maxLength;
 
       return d.kind === 'string' && max !== undefined && max > TEXTAREA_THRESHOLD
-        ? { input: { type: 'textarea', ...stringAttrs(d) }, serialize: nullableString(d) }
+        ? { input: { type: 'textarea', ...stringAttrs(d) }, serialize: serializer(d, (v) => v, '') }
         : null;
     },
     20
@@ -192,7 +201,7 @@ export function defaultInputResolvers(): ItemList<InputResolver> {
       const format = d.constraints?.format;
       const type = format === 'email' || format === 'url' ? format : 'text';
 
-      return { input: { type, ...stringAttrs(d) }, serialize: nullableString(d) };
+      return { input: { type, ...stringAttrs(d) }, serialize: serializer(d, (v) => v, '') };
     },
     10
   );
