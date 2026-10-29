@@ -554,6 +554,11 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     return (this.columnChoices ??= ColumnPreferences.load(this.attrs.definition.type));
   }
 
+  /** Extra classes for the table's container (`.ResourceTable-container`). Default: none. */
+  containerClassName(): string {
+    return '';
+  }
+
   /** The table: header, rows (or the empty state) and a loading overlay. */
   tableView(): Mithril.Children {
     const columns = this.visibleColumns();
@@ -564,7 +569,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
     return (
       <div
-        className={classList('ResourceTable-container', loading && 'ResourceTable-container--loading')}
+        className={classList('ResourceTable-container', loading && 'ResourceTable-container--loading', this.containerClassName())}
         aria-busy={loading ? 'true' : 'false'}
         oncreate={(vnode: Mithril.VnodeDOM) => (this.unfloatMenus = floatMenus(vnode.dom as HTMLElement))}
         onremove={() => this.unfloatMenus?.()}
@@ -663,14 +668,22 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
+   * Extra attributes for one record's `<tr>`; a `className` joins the row's own. Default: none.
+   */
+  rowAttrs(_model: M): Record<string, unknown> {
+    return {};
+  }
+
+  /**
    * One record's row: the checkbox when `selectable`, a cell per column (`data-column-name` is the
    * column key).
    */
   rowView(model: M, columns: [string, ColumnData<M>][], selectable: boolean = false): Mithril.Children {
     const selected = selectable && this.list.isSelected(model.id()!);
+    const { className, ...attrs } = this.rowAttrs(model);
 
     return (
-      <tr key={model.id()} data-id={model.id()} className={classList('ResourceTable-row', selected && 'is-selected')}>
+      <tr {...attrs} key={model.id()} data-id={model.id()} className={classList('ResourceTable-row', selected && 'is-selected', className as string)}>
         {selectable && this.selectView(model)}
         {columns.map(([key, column]) => (
           <td data-column-name={key} className={column.className} {...(column.attrs?.(model) ?? {})}>

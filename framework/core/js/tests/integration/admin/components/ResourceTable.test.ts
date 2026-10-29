@@ -142,6 +142,26 @@ describe('ResourceTable', () => {
     expect(out).not.toHaveElement('.ResourceTable-actions');
   });
 
+  test('rowAttrs() and containerClassName() add to the row and the container', async () => {
+    class MarkedTable extends ResourceTable<Thing> {
+      rowAttrs(model: Thing) {
+        return { 'data-thing': model.id(), className: 'Thing-row' };
+      }
+
+      containerClassName() {
+        return 'Things-grid';
+      }
+    }
+
+    const out = mq(MarkedTable, { definition: new ResourceDefinition<Thing>('things') });
+    await flush();
+    await flush();
+    out.redraw();
+
+    expect(out).toHaveElement('.ResourceTable-container.Things-grid');
+    expect(out).toHaveElement('tr.ResourceTable-row.Thing-row[data-id="1"][data-thing="1"]');
+  });
+
   test('each cell has data-column-name set to its ItemList key', async () => {
     const out = await rendered();
 

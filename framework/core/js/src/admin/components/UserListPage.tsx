@@ -174,13 +174,10 @@ class UserListTable extends ResourceTable<User, UserListTableAttrs> {
     };
   }
 
-  tableView(): Mithril.Children {
-    const vnode = super.tableView() as Mithril.Vnode<{ className?: string }>;
+  containerClassName(): string {
     const state = !this.list.getPages().length ? 'loading' : this.list.isLoading() ? 'loadingPage' : 'loaded';
 
-    vnode.attrs.className = classList(vnode.attrs.className, 'UserListPage-grid', `UserListPage-grid--${state}`);
-
-    return vnode;
+    return classList(super.containerClassName(), 'UserListPage-grid', `UserListPage-grid--${state}`);
   }
 
   headerView(key: string, column: ColumnData): Mithril.Children {
@@ -189,7 +186,7 @@ class UserListTable extends ResourceTable<User, UserListTableAttrs> {
 
   rowView(user: User, columns: [string, ColumnData][], selectable: boolean = false): Mithril.Children {
     const shaded = this.list.getItems().indexOf(user) % 2 > 0;
-    const row = super.rowView(
+    return super.rowView(
       user,
       columns.map(([key, column]) => [
         key,
@@ -200,11 +197,11 @@ class UserListTable extends ResourceTable<User, UserListTableAttrs> {
         },
       ]),
       selectable
-    ) as Mithril.Vnode<Record<string, unknown>>;
+    );
+  }
 
-    row.attrs['data-user-id'] = user.id();
-
-    return row;
+  rowAttrs(user: User): Record<string, unknown> {
+    return { ...super.rowAttrs(user), 'data-user-id': user.id() };
   }
 }
 
