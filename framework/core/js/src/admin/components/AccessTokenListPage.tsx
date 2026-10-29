@@ -42,6 +42,19 @@ export class AccessTokenDefinition extends ResourceDefinition<AccessToken> {
   }
 
   /**
+   * A developer token's title, else its type and device.
+   */
+  recordLabel(token: AccessToken): string {
+    if (token.type() === 'developer') {
+      return token.title() || extractText(app.translator.trans('core.admin.access_tokens.untitled'));
+    }
+
+    const type = accessTokenTypeLabel(token.type());
+
+    return token.device() ? `${type} (${token.device()})` : type;
+  }
+
+  /**
    * Administrators only, like the user list: the export holds IP addresses.
    */
   canExport(): boolean {

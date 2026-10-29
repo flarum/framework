@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
 import AccessTokenListPage, { AccessTokenDefinition, DEFAULT_ACCESS_TOKEN_SORT } from '../../../../src/admin/components/AccessTokenListPage';
-import AccessTokenRevokeModal, { accessTokenLabel } from '../../../../src/admin/components/AccessTokenRevokeModal';
+import AccessTokenRevokeModal from '../../../../src/admin/components/AccessTokenRevokeModal';
 import AdminNav from '../../../../src/admin/components/AdminNav';
 import type AccessToken from '../../../../src/common/models/AccessToken';
 import ColumnPreferences from '../../../../src/common/resource/ColumnPreferences';
@@ -220,7 +220,7 @@ describe('AccessTokenListPage', () => {
     expect(modal).toContainRaw('Backup script');
     expect(modal).toContainRaw('normal');
     expect(modal).toHaveElement('.AccessTokenRevokeModal-submit');
-    expect(accessTokenLabel(tokens()[2])).toBe('Remembered session (Chrome on Mac)');
+    expect(new AccessTokenDefinition().recordLabel(tokens()[2])).toBe('Remembered session (Chrome on Mac)');
   });
 
   test('filters come from the descriptor, with readable type labels', async () => {

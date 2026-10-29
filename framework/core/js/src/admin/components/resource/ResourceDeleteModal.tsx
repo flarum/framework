@@ -74,13 +74,21 @@ export default class ResourceDeleteModal<
 
     items.add(
       'submit',
-      <Button type="submit" className="Button Button--danger ResourceDeleteModal-submit" loading={this.loading}>
-        {app.translator.trans('core.admin.resource.delete.submit_button')}
+      <Button type="submit" className={this.submitClassName()} loading={this.loading}>
+        {this.submitLabel()}
       </Button>,
       90
     );
 
     return items;
+  }
+
+  submitLabel(): Mithril.Children {
+    return app.translator.trans('core.admin.resource.delete.submit_button');
+  }
+
+  submitClassName(): string {
+    return 'Button Button--danger ResourceDeleteModal-submit';
   }
 
   onready(): void {

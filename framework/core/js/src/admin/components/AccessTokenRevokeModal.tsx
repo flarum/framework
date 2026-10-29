@@ -1,6 +1,5 @@
 import app from '../../admin/app';
 import type Mithril from 'mithril';
-import Button from '../../common/components/Button';
 import type AccessToken from '../../common/models/AccessToken';
 import ItemList from '../../common/utils/ItemList';
 import extractText from '../../common/utils/extractText';
@@ -21,19 +20,6 @@ export function accessTokenTypeLabel(type: string | null | undefined): string {
     default:
       return type ?? '';
   }
-}
-
-/**
- * A short name for one token: a developer token's title, else its type and device.
- */
-export function accessTokenLabel(token: AccessToken): string {
-  if (token.type() === 'developer') {
-    return token.title() || extractText(app.translator.trans('core.admin.access_tokens.untitled'));
-  }
-
-  const type = accessTokenTypeLabel(token.type());
-
-  return token.device() ? `${type} (${token.device()})` : type;
 }
 
 /**
@@ -59,7 +45,7 @@ export default class AccessTokenRevokeModal<
       'confirmation',
       <p className="ResourceDeleteModal-confirmation">
         {app.translator.trans('core.admin.access_tokens.revoke.confirmation', {
-          name: <strong>{accessTokenLabel(token)}</strong>,
+          name: <strong>{this.attrs.definition.recordLabel(token)}</strong>,
           username: <strong>{user ? user.username() : `#${token.userId()}`}</strong>,
         })}
       </p>,
@@ -69,16 +55,11 @@ export default class AccessTokenRevokeModal<
     return items;
   }
 
-  footerItems(): ItemList<Mithril.Children> {
-    const items = super.footerItems();
+  submitLabel(): Mithril.Children {
+    return app.translator.trans('core.admin.access_tokens.revoke.submit_button');
+  }
 
-    items.setContent(
-      'submit',
-      <Button type="submit" className="Button Button--danger ResourceDeleteModal-submit AccessTokenRevokeModal-submit" loading={this.loading}>
-        {app.translator.trans('core.admin.access_tokens.revoke.submit_button')}
-      </Button>
-    );
-
-    return items;
+  submitClassName(): string {
+    return `${super.submitClassName()} AccessTokenRevokeModal-submit`;
   }
 }
