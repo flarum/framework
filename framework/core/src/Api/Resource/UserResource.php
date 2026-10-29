@@ -15,10 +15,15 @@ use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Bus\Dispatcher;
 use Flarum\Foundation\ValidationException;
+use Flarum\Group\Group;
 use Flarum\Http\SlugManager;
+use Flarum\Locale\LocaleManager;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Notification\Notification;
+use Flarum\Notification\NotificationSyncer;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AvatarUploader;
+use Flarum\User\AvatarValidator;
 use Flarum\User\Command\DeleteAvatar;
 use Flarum\User\Command\UploadAvatar;
 use Flarum\User\Event\Deleting;
@@ -26,6 +31,7 @@ use Flarum\User\Event\GroupsChanged;
 use Flarum\User\Event\RegisteringFromProvider;
 use Flarum\User\Event\Saving;
 use Flarum\User\Exception\NotAuthenticatedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use GuzzleHttp\Client;
@@ -34,6 +40,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use InvalidArgumentException;
+use Psr\Http\Message\UploadedFileInterface;
 
 /**
  * @extends AbstractDatabaseResource<User>
@@ -46,7 +53,9 @@ class UserResource extends AbstractDatabaseResource
         protected SettingsRepositoryInterface $settings,
         protected ImageManager $imageManager,
         protected AvatarUploader $avatarUploader,
+        protected AvatarValidator $imageValidator,
         protected Dispatcher $bus,
+        protected LocaleManager $locales,
     ) {
     }
 
@@ -72,7 +81,33 @@ class UserResource extends AbstractDatabaseResource
         if (Arr::get($context->request->getQueryParams(), 'bySlug', false)) {
             $user = $this->slugManager->forResource(User::class)->fromSlug($id, $actor);
         } else {
-            $user = $this->query($context)->findOrFail($id);
+            $query = $this->query($context);
+
+            if (! $this->idCanBeKey($query->getModel(), $id)) {
+                return null;
+            }
+
+            $user = $query->findOrFail($id);
+        }
+
+        return $user;
+    }
+
+    public function newModel(\Tobyz\JsonApiServer\Context $context): object
+    {
+        $user = parent::newModel($context);
+
+        // Someone signing up has already chosen a language for the interface,
+        // so start their account in it: otherwise the activation email, which
+        // reads this preference, always goes out in the forum's default.
+        // An explicit `preferences.locale` in the request still wins, since
+        // fields are applied after this.
+        if ($context->getActor()->isGuest()) {
+            $locale = Arr::get($context->request->getCookieParams(), 'locale');
+
+            if ($locale && $this->locales->hasLocale($locale)) {
+                $user->setPreference('locale', $locale);
+            }
         }
 
         return $user;
@@ -109,20 +144,31 @@ class UserResource extends AbstractDatabaseResource
 
                     return true;
                 })
-                ->defaultInclude(['groups']),
+                ->defaultInclude(['groups'])
+                ->eagerLoad(['groups']),
             Endpoint\Delete::make()
                 ->authenticated()
                 ->can('delete'),
             Endpoint\Show::make()
-                ->defaultInclude(['groups']),
+                ->defaultInclude(['groups'])
+                ->eagerLoad(['groups']),
             Endpoint\Index::make()
                 ->can('searchUsers')
                 ->defaultInclude(['groups'])
+                ->eagerLoad(['groups'])
                 ->paginate(),
             Endpoint\Endpoint::make('avatar.upload')
                 ->route('POST', '/{id}/avatar')
+                ->authenticated()
+                ->can('editAvatar')
                 ->action(function (Context $context) {
                     $file = Arr::get($context->request->getUploadedFiles(), 'avatar');
+
+                    if (! $file instanceof UploadedFileInterface) {
+                        throw new ValidationException([
+                            'avatar' => str_replace(':attribute', 'avatar', $this->translator->trans('validation.required')),
+                        ]);
+                    }
 
                     return $this->bus->dispatch(
                         new UploadAvatar((int) $context->modelId, $file, $context->getActor())
@@ -130,10 +176,39 @@ class UserResource extends AbstractDatabaseResource
                 }),
             Endpoint\Endpoint::make('avatar.delete')
                 ->route('DELETE', '/{id}/avatar')
+                ->authenticated()
+                ->can('editAvatar')
                 ->action(function (Context $context) {
                     return $this->bus->dispatch(
                         new DeleteAvatar(Arr::get($context->request->getQueryParams(), 'id'), $context->getActor())
                     );
+                }),
+            Endpoint\Endpoint::make('notificationPreferences.reset')
+                ->route('DELETE', '/{id}/notification-preferences')
+                ->authenticated()
+                ->action(function (Context $context) {
+                    /** @var User $user */
+                    $user = $context->model;
+
+                    // Only the user themselves, the same rule as the `preferences` field.
+                    if ($context->getActor()->id !== $user->id) {
+                        throw new PermissionDeniedException();
+                    }
+
+                    // Every key a driver registers a default for, built the way it is
+                    // registered, then dropped in one save so the defaults apply again.
+                    $keys = [];
+
+                    foreach (array_keys(Notification::getSubjectModels()) as $type) {
+                        foreach (array_keys(NotificationSyncer::getNotificationDrivers()) as $driver) {
+                            $keys[] = User::getNotificationPreferenceKey($type, $driver);
+                        }
+                    }
+
+                    $user->forgetPreferences($keys);
+                    $user->save();
+
+                    return $user;
                 }),
         ];
     }
@@ -172,13 +247,16 @@ class UserResource extends AbstractDatabaseResource
                 ->email(['filter'])
                 ->unique('users', 'email', true)
                 ->visible(function (User $user, Context $context) {
-                    return $context->getActor()->can('editCredentials', $user)
-                        || $context->getActor()->id === $user->id;
+                    // Check the cheap self comparison before the editCredentials
+                    // policy, which would otherwise read $user->groups (isAdmin) for
+                    // every serialized user.
+                    return $context->getActor()->id === $user->id
+                        || $context->getActor()->can('editCredentials', $user);
                 })
                 ->writable(function (User $user, Context $context) {
                     return $context->creating()
-                        || $context->getActor()->can('editCredentials', $user)
-                        || $context->getActor()->id === $user->id;
+                        || $context->getActor()->id === $user->id
+                        || $context->getActor()->can('editCredentials', $user);
                 })
                 ->set(function (User $user, string $value, Context $context) {
                     if ($user->exists) {
@@ -196,8 +274,8 @@ class UserResource extends AbstractDatabaseResource
                 }),
             Schema\Boolean::make('isEmailConfirmed')
                 ->visible(function (User $user, Context $context) {
-                    return $context->getActor()->can('editCredentials', $user)
-                        || $context->getActor()->id === $user->id;
+                    return $context->getActor()->id === $user->id
+                        || $context->getActor()->can('editCredentials', $user);
                 })
                 ->writable(fn (User $user, Context $context) => $context->getActor()->isAdmin())
                 ->set(function (User $user, $value, Context $context) {
@@ -243,6 +321,7 @@ class UserResource extends AbstractDatabaseResource
                 ->save(fn () => null),
             Schema\Str::make('displayName'),
             Schema\Str::make('avatarUrl'),
+            Schema\Str::make('avatarSrcset'),
             Schema\Boolean::make('hasUploadedAvatar'),
             Schema\Str::make('slug')
                 ->get(function (User $user) {
@@ -293,6 +372,10 @@ class UserResource extends AbstractDatabaseResource
                 ->get(function (User $user, Context $context) {
                     return $context->getActor()->can('edit', $user);
                 }),
+            Schema\Boolean::make('canEditAvatar')
+                ->get(function (User $user, Context $context) {
+                    return $context->getActor()->can('editAvatar', $user);
+                }),
             Schema\Boolean::make('canEditCredentials')
                 ->get(function (User $user, Context $context) {
                     return $context->getActor()->can('editCredentials', $user);
@@ -307,23 +390,45 @@ class UserResource extends AbstractDatabaseResource
                 }),
 
             Schema\Relationship\ToMany::make('groups')
+                // Whether a user is an admin, and what else they may do, is
+                // read from this relation (isAdmin(), hasPermission()) by the
+                // policies that decide what is serialized about them, so it
+                // must hold every group they are in, including the hidden
+                // ones the actor may not see. Those are left out below.
+                ->withoutRelatedScope()
+                ->get(function (User $user, Context $context) {
+                    // Read the (eager-)loaded relation instead of issuing a fresh
+                    // query per serialized user. Hidden groups are filtered in PHP
+                    // for actors that cannot view them, so the relation can be
+                    // eager-loaded once for the whole payload (see the endpoints'
+                    // eagerLoad of `groups`). Note: isAdmin() also reads $user->groups,
+                    // so the relation must contain all groups (filtering happens here).
+                    $groups = $user->groups;
+
+                    if (! $context->getActor()->can('viewHiddenGroups')) {
+                        // values() re-indexes after filtering so the result stays a
+                        // sequential list (JSON array) rather than a keyed object.
+                        $groups = $groups->filter(fn (Group $group) => ! $group->is_hidden)->values();
+                    }
+
+                    return $groups->all();
+                })
                 ->writable(fn (User $user, Context $context) => $context->updating() && $context->getActor()->can('editGroups', $user))
                 ->includable()
                 ->set(function (User $user, $value, Context $context) {
                     $actor = $context->getActor();
 
                     $oldGroups = $user->groups()->get()->all();
-                    $oldGroupIds = Arr::pluck($oldGroups, 'id');
+                    $oldGroupIds = array_map(fn (Group $group) => (int) $group->id, $oldGroups);
 
-                    $newGroupIds = [];
-                    foreach ($value as $group) {
-                        if ($id = Arr::get($group, 'id')) {
-                            $newGroupIds[] = $id;
-                        }
-                    }
+                    // The relationship resolves each identifier to a group that
+                    // exists, so compare the ids of those groups, never the raw
+                    // identifiers the request sent.
+                    $newGroupIds = array_map(fn (Group $group) => (int) $group->id, $value);
 
                     // Ensure non-admins aren't adding/removing admins
-                    $adminChanged = in_array('1', array_diff($oldGroupIds, $newGroupIds)) || in_array('1', array_diff($newGroupIds, $oldGroupIds));
+                    $adminChanged = in_array(Group::ADMINISTRATOR_ID, array_diff($oldGroupIds, $newGroupIds), true)
+                        || in_array(Group::ADMINISTRATOR_ID, array_diff($newGroupIds, $oldGroupIds), true);
                     $actor->assertPermission(! $adminChanged || $actor->isAdmin());
 
                     $user->raise(
@@ -380,9 +485,18 @@ class UserResource extends AbstractDatabaseResource
 
     private function applyToken(User $user, #[\SensitiveParameter] RegistrationToken $token): void
     {
-        foreach ($token->user_attributes as $k => $v) {
+        $attributes = $token->user_attributes;
+
+        foreach ($attributes as $k => $v) {
             if ($k === 'avatar_url') {
-                $this->uploadAvatarFromUrl($user, $v);
+                $url2x = $attributes['avatar_url_2x'] ?? null;
+                $url3x = $attributes['avatar_url_3x'] ?? null;
+                $this->uploadAvatarFromUrl($user, $v, $url2x, $url3x);
+                continue;
+            }
+
+            // These are handled above alongside avatar_url.
+            if ($k === 'avatar_url_2x' || $k === 'avatar_url_3x') {
                 continue;
             }
 
@@ -401,7 +515,34 @@ class UserResource extends AbstractDatabaseResource
     /**
      * @throws InvalidArgumentException
      */
-    private function uploadAvatarFromUrl(User $user, string $url): void
+    private function uploadAvatarFromUrl(User $user, string $url, ?string $url2x = null, ?string $url3x = null): void
+    {
+        $this->assertValidAvatarUrl($url);
+
+        $urlContents = $this->retrieveAvatarFromUrl($url);
+
+        if ($urlContents === null || ! $this->withinMaxResolution($urlContents)) {
+            return;
+        }
+
+        // If the OAuth driver provided explicit HiDPI URLs, fetch and store them directly.
+        if ($url2x !== null || $url3x !== null) {
+            $image1x = $this->imageManager->read($urlContents);
+            $image2x = $url2x !== null ? $this->readAvatarFromUrl($url2x) : null;
+            $image3x = $url3x !== null ? $this->readAvatarFromUrl($url3x) : null;
+
+            $this->avatarUploader->uploadPresized($user, $image1x, $image2x, $image3x);
+        } else {
+            $image = $this->imageManager->read($urlContents);
+
+            $this->avatarUploader->upload($user, $image);
+        }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    private function assertValidAvatarUrl(string $url): void
     {
         $urlValidator = $this->validation->make(compact('url'), [
             'url' => 'required|active_url',
@@ -420,19 +561,58 @@ class UserResource extends AbstractDatabaseResource
                 'avatar_url' => "Provided avatar URL must have scheme http or https. Scheme provided was $scheme.",
             ]);
         }
+    }
 
-        $urlContents = $this->retrieveAvatarFromUrl($url);
+    private function readAvatarFromUrl(string $url): ?\Intervention\Image\Interfaces\ImageInterface
+    {
+        $contents = $this->retrieveAvatarFromUrl($url);
 
-        if ($urlContents !== null) {
-            $image = $this->imageManager->read($urlContents);
-
-            $this->avatarUploader->upload($user, $image);
+        if ($contents === null || ! $this->withinMaxResolution($contents)) {
+            return null;
         }
+
+        return $this->imageManager->read($contents);
     }
 
     private function retrieveAvatarFromUrl(string $url): ?string
     {
-        $client = new Client();
+        $host = parse_url($url, PHP_URL_HOST);
+
+        if (! is_string($host) || $host === '') {
+            return null;
+        }
+
+        // Resolve the host and reject it if it points at a link-local, loopback
+        // or otherwise reserved address (e.g. the cloud metadata endpoint
+        // 169.254.169.254). Private LAN ranges (RFC1918) are intentionally left
+        // reachable so Flarum keeps working behind Docker networks, reverse
+        // proxies and internal CDNs.
+        $ip = $this->resolveToAllowedIp($host);
+
+        if ($ip === null) {
+            return null;
+        }
+
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        $port = parse_url($url, PHP_URL_PORT) ?: ($scheme === 'https' ? 443 : 80);
+
+        $maxSizeBytes = $this->imageValidator->getMaxSize() * 1024;
+
+        $options = [
+            'allow_redirects' => false,
+            'timeout' => 5,
+            'stream' => true,
+        ];
+
+        // Pin the connection to the address we just validated, so a rebinding
+        // DNS record cannot swap in a blocked address between the check above
+        // and the actual connection. Requires the cURL handler; harmless if
+        // it is unavailable.
+        if (defined('CURLOPT_RESOLVE')) {
+            $options['curl'] = [CURLOPT_RESOLVE => ["$host:$port:$ip"]];
+        }
+
+        $client = new Client($options);
 
         try {
             $response = $client->get($url);
@@ -444,7 +624,72 @@ class UserResource extends AbstractDatabaseResource
             return null;
         }
 
-        return $response->getBody()->getContents();
+        // Read the body incrementally and abort once it exceeds the maximum
+        // size, rather than trusting the (optional, spoofable) Content-Length
+        // header after the entire response has already been buffered.
+        $body = $response->getBody();
+        $contents = '';
+
+        while (! $body->eof()) {
+            $contents .= $body->read(8192);
+
+            if (strlen($contents) > $maxSizeBytes) {
+                return null;
+            }
+        }
+
+        return $contents;
+    }
+
+    /**
+     * Resolve a hostname (or accept a literal IP) and return the first address
+     * that is safe to connect to, or null if the host is unresolvable or only
+     * resolves to blocked (link-local / loopback / reserved) addresses.
+     */
+    private function resolveToAllowedIp(string $host): ?string
+    {
+        $literal = trim($host, '[]');
+
+        if (filter_var($literal, FILTER_VALIDATE_IP)) {
+            return self::isAllowedIp($literal) ? $literal : null;
+        }
+
+        $ips = array_merge(
+            gethostbynamel($host) ?: [],
+            array_column(@dns_get_record($host, DNS_AAAA) ?: [], 'ipv6')
+        );
+
+        foreach ($ips as $ip) {
+            if (self::isAllowedIp($ip)) {
+                return $ip;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Whether an IP address is safe for Flarum to issue a server-side request
+     * to. Link-local, loopback and other reserved ranges are rejected; private
+     * LAN ranges (RFC1918) are intentionally allowed so internal and Docker
+     * hosts keep working.
+     */
+    private static function isAllowedIp(string $ip): bool
+    {
+        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE) !== false;
+    }
+
+    /**
+     * Cheaply reject images whose declared dimensions exceed the maximum
+     * resolution before they are decoded, so a fetched "decompression bomb"
+     * cannot force a huge memory allocation.
+     */
+    private function withinMaxResolution(string $contents): bool
+    {
+        $dimensions = @getimagesizefromstring($contents);
+
+        return $dimensions !== false
+            && $dimensions[0] * $dimensions[1] <= $this->imageValidator->getMaxResolution();
     }
 
     private function fulfillToken(User $user, #[\SensitiveParameter] RegistrationToken $token): void

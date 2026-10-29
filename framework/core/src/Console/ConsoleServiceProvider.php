@@ -19,7 +19,10 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
+use Flarum\User\Console\BackfillAvatarVariantsCommand;
 use Flarum\User\Console\ConvertAvatarsToWebpCommand;
+use Illuminate\Console\CacheCommandMutex;
+use Illuminate\Console\CommandMutex;
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Console\Scheduling\CacheEventMutex;
 use Illuminate\Console\Scheduling\CacheSchedulingMutex;
@@ -55,6 +58,10 @@ class ConsoleServiceProvider extends AbstractServiceProvider
             return new CacheSchedulingMutex($container->make(Factory::class));
         });
 
+        $this->container->bind(CommandMutex::class, function ($container) {
+            return new CacheCommandMutex($container->make(Factory::class));
+        });
+
         $this->container->singleton(LaravelSchedule::class, function (Container $container) {
             return $container->make(Schedule::class, ['timezone' => $container['config']['app.timezone']]);
         });
@@ -70,7 +77,9 @@ class ConsoleServiceProvider extends AbstractServiceProvider
                 ScheduleRunCommand::class,
                 ToggleExtensionCommand::class,
                 BisectCommand::class,
+                TinkerCommand::class,
                 ConvertAvatarsToWebpCommand::class,
+                BackfillAvatarVariantsCommand::class,
                 // Used internally to create DB dumps before major releases.
                 // \Flarum\Database\Console\GenerateDumpCommand::class
             ];
@@ -89,10 +98,14 @@ class ConsoleServiceProvider extends AbstractServiceProvider
         }
 
         $events->listen(CommandFinished::class, function (CommandFinished $event) use ($container) {
-            $command = $event->command;
             $cache = $container->make(CacheRepository::class);
 
-            if ($command === ScheduleRunCommand::getDefaultName()) {
+            // `CommandFinished` reports the name the command was invoked as, so
+            // this compares against the name Laravel gives `ScheduleRunCommand`
+            // in its `#[AsCommand]` attribute. It used to read that name back
+            // through `Command::getDefaultName()`, which Symfony has since
+            // removed in favour of the attribute.
+            if ($event->command === 'schedule:run') {
                 $cache->forever('flarum:schedule:last_run', Carbon::now());
             }
         });

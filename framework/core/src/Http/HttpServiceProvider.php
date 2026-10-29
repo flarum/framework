@@ -67,6 +67,14 @@ class HttpServiceProvider extends AbstractServiceProvider
         $this->container->bind(SlugManager::class, function (Container $container) {
             return new SlugManager($container->make('flarum.http.selectedSlugDrivers'));
         });
+
+        $this->container->singleton('flarum.http.access_token_types', function () {
+            return [
+                DeveloperAccessToken::class,
+                RememberAccessToken::class,
+                SessionAccessToken::class,
+            ];
+        });
     }
 
     public function boot(): void
@@ -78,13 +86,7 @@ class HttpServiceProvider extends AbstractServiceProvider
 
     protected function setAccessTokenTypes(): void
     {
-        $models = [
-            DeveloperAccessToken::class,
-            RememberAccessToken::class,
-            SessionAccessToken::class
-        ];
-
-        foreach ($models as $model) {
+        foreach ($this->container->make('flarum.http.access_token_types') as $model) {
             AccessToken::setModel($model::$type, $model);
         }
     }

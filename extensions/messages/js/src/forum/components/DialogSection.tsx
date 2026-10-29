@@ -15,21 +15,29 @@ import listItems from 'flarum/common/helpers/listItems';
 
 export interface IDialogStreamAttrs extends ComponentAttrs {
   dialog: Dialog;
+  onback?: () => void;
 }
 
 export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDialogStreamAttrs> extends Component<CustomAttrs> {
   protected loading = false;
   protected messages!: MessageStreamState;
+  /**
+   * The permalinked message, taken from the route once. The stream drops it
+   * from the address after opening on it, and the route's own copy would
+   * still say it afterwards.
+   */
+  protected near: number | null = null;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
+    this.near = parseInt(m.route.param('near')) || null;
     this.messages = new MessageStreamState(this.requestParams());
 
     this.messages.refresh();
   }
 
-  requestParams(forgetNear = false): any {
+  requestParams(): any {
     const params: any = {
       filter: {
         dialog: this.attrs.dialog.id(),
@@ -37,11 +45,8 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
       sort: '-number',
     };
 
-    const near = m.route.param('near');
-
-    if (near && !forgetNear) {
-      params.page = params.page || {};
-      params.page.near = parseInt(near);
+    if (this.near) {
+      params.page = { near: this.near };
     }
 
     return params;
@@ -49,6 +54,7 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
 
   view() {
     const recipient = this.attrs.dialog.recipient();
+    const recipientCannotReply = this.recipientCannotReply();
 
     return (
       <div className="DialogSection">
@@ -57,7 +63,7 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
           <div className="DialogSection-header-info">
             <h2 className="DialogSection-header-info-title">
               {(recipient && <Link href={app.route.user(recipient!)}>{username(recipient)}</Link>) || username(recipient)}
-              {recipient && recipient.canSendAnyMessage() ? null : (
+              {!recipientCannotReply ? null : (
                 <span className="DialogSection-header-info-helperText">
                   {app.translator.trans('flarum-messages.forum.dialog_section.cannot_reply_text')}
                 </span>
@@ -67,9 +73,20 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
           </div>
           <div className="DialogSection-header-actions">{this.actionItems().toArray()}</div>
         </div>
-        <MessageStream dialog={this.attrs.dialog} state={this.messages} />
+        <MessageStream dialog={this.attrs.dialog} state={this.messages} near={this.near} />
       </div>
     );
+  }
+
+  /**
+   * Whether to say the other member can't reply: they can't send messages, and
+   * the viewer can't send here either. Not to viewers who can't send at all,
+   * who aren't told whether anyone else can.
+   */
+  recipientCannotReply(): boolean {
+    const recipient = this.attrs.dialog.recipient();
+
+    return !recipient || (app.session.user!.canSendAnyMessage() && !recipient.canSendAnyMessage() && !this.attrs.dialog.canSendMessage());
   }
 
   actionItems() {

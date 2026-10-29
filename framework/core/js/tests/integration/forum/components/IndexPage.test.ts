@@ -97,4 +97,16 @@ describe('IndexPage', () => {
       expect(page).toContainRaw('Discussion 2');
     });
   });
+
+  test('the toolbar carries a search control', () => {
+    const page = mq(IndexPage, {});
+
+    return new Promise((resolve) => setTimeout(resolve, 0)).then(() => {
+      page.redraw();
+
+      // Mobile searches from the toolbar rather than the nav strip; the control
+      // is present here (its visibility is scoped to phones in CSS).
+      expect(page).toHaveElement('.IndexPage-toolbar-search');
+    });
+  });
 });

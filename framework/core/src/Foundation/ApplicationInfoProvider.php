@@ -10,7 +10,9 @@
 namespace Flarum\Foundation;
 
 use Carbon\Carbon;
+use Flarum\Database\DatabaseRequirements;
 use Flarum\Locale\Translator;
+use Flarum\Queue\RoutingQueue;
 use Flarum\User\SessionManager;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
@@ -56,8 +58,13 @@ class ApplicationInfoProvider
 
     public function identifyQueueDriver(): string
     {
+        // The connection is wrapped in a RoutingQueue so pushes can be routed by
+        // job class; the driver underneath is what identifies the queue backend.
+        $queue = $this->queue instanceof RoutingQueue
+            ? $this->queue->getDriver()
+            : $this->queue;
         // Get class name
-        $queue = $this->queue::class;
+        $queue = $queue::class;
         // Drop the namespace
         $queue = Str::afterLast($queue, '\\');
         // Lowercase the class name
@@ -92,6 +99,112 @@ class ApplicationInfoProvider
             'sqlite' => 'SQLite',
             default => $this->config['database.driver'],
         };
+    }
+
+    /**
+     * Detect when the configured database driver does not match the server
+     * actually being used.
+     *
+     * The common case is configuring the 'mysql' driver while connecting to a
+     * MariaDB server (or vice versa). Because Illuminate uses a distinct
+     * connection class and query grammar per driver, this mismatch can cause
+     * subtle, hard-to-diagnose query bugs.
+     *
+     * Returns the driver that *should* be configured, or null when the
+     * configured driver matches the server (or detection does not apply, e.g.
+     * for pgsql/sqlite which cannot be confused for one another).
+     */
+    public function identifyDatabaseDriverMismatch(): ?string
+    {
+        $configured = $this->config['database.driver'];
+
+        // Only MySQL and MariaDB can be mistaken for one another.
+        if (! in_array($configured, ['mysql', 'mariadb'], true)) {
+            return null;
+        }
+
+        $isMariaDb = $this->cache->remember('flarum:db_is_mariadb', 86400, function () {
+            // MariaDB always reports "MariaDB" in its version string; MySQL never does.
+            return Str::contains($this->db->selectOne('select version() as version')->version, 'MariaDB');
+        });
+
+        $actual = $isMariaDb ? 'mariadb' : 'mysql';
+
+        return $actual === $configured ? null : $actual;
+    }
+
+    /**
+     * Assess the running database version against Flarum's minimum and
+     * recommended tiers.
+     *
+     * MySQL, MariaDB and PostgreSQL each carry a two-tier requirement; SQLite
+     * (which only has a hard floor enforced at install time) returns null. The
+     * returned array mirrors what the admin frontend needs to render a warning
+     * consistent with the driver-mismatch alert.
+     *
+     * @return array{status: string, server: string, version: string, recommended: string}|null
+     */
+    public function identifyDatabaseVersionStatus(): ?array
+    {
+        $tuple = match ($this->config['database.driver']) {
+            'mysql', 'mariadb' => $this->mysqlFamilyVersionTuple(),
+            'pgsql' => $this->pgsqlVersionTuple(),
+            default => null,
+        };
+
+        if ($tuple === null || $tuple['version'] === null) {
+            return null;
+        }
+
+        return [
+            'status' => DatabaseRequirements::compare($tuple['version'], $tuple['minimum'], $tuple['recommended']),
+            'server' => $tuple['server'],
+            'version' => $tuple['version'],
+            'recommended' => $tuple['recommended'],
+        ];
+    }
+
+    /**
+     * @return array{server: string, version: ?string, minimum: string, recommended: string}
+     */
+    private function mysqlFamilyVersionTuple(): array
+    {
+        // Cache for 24 hours since the database version rarely changes. This is
+        // the unmodified VERSION() string (unlike flarum:db_version, which is
+        // trimmed for display) so we can correctly parse MariaDB's legacy
+        // "5.5.5-" compatibility prefix before comparing.
+        $raw = $this->cache->remember('flarum:db_version_raw', 86400, function () {
+            return $this->db->selectOne('select version() as version')->version;
+        });
+
+        $isMariaDb = DatabaseRequirements::isMariaDb($raw);
+        $tiers = DatabaseRequirements::mysqlFamilyTiers($isMariaDb);
+
+        return [
+            'server' => $isMariaDb ? 'MariaDB' : 'MySQL',
+            'version' => DatabaseRequirements::normaliseVersion($raw, $isMariaDb),
+            'minimum' => $tiers['minimum'],
+            'recommended' => $tiers['recommended'],
+        ];
+    }
+
+    /**
+     * @return array{server: string, version: ?string, minimum: string, recommended: string}
+     */
+    private function pgsqlVersionTuple(): array
+    {
+        // SHOW server_version returns a clean version (e.g. "15.3"), unlike
+        // SELECT version() which includes platform info.
+        $version = $this->cache->remember('flarum:db_version_pgsql', 86400, function () {
+            return Str::before($this->db->selectOne('show server_version')->server_version, ' ');
+        });
+
+        return [
+            'server' => 'PostgreSQL',
+            'version' => DatabaseRequirements::normaliseVersion($version, false),
+            'minimum' => DatabaseRequirements::PGSQL_MINIMUM,
+            'recommended' => DatabaseRequirements::PGSQL_RECOMMENDED,
+        ];
     }
 
     public function identifyDatabaseOptions(): array

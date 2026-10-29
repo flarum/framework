@@ -56,6 +56,13 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
   protected loadingNext: boolean = false;
   protected loadingPage: boolean = false;
 
+  /**
+   * The in-flight background refresh, if any. Deliberately not part of the
+   * `isLoading()` family: a revalidation is invisible by design, so exposing it
+   * there would put the loading state back on screen.
+   */
+  protected revalidating: Promise<void> | null = null;
+
   protected constructor(params: P = {} as P, page: number = 1, pageSize: number | null = null) {
     this.params = params;
 
@@ -78,9 +85,11 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
 
     const page: number = this.getPrevPageNumber();
 
-    return this.loadPage(page)
-      .then(this.parseResults.bind(this, page))
-      .finally(() => (this.loadingPrev = false));
+    return this.errorShownByRequest(
+      this.loadPage(page)
+        .then(this.parseResults.bind(this, page))
+        .finally(() => (this.loadingPrev = false))
+    );
   }
 
   public loadNext(): Promise<void> {
@@ -90,9 +99,24 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
 
     const page: number = this.getNextPageNumber();
 
-    return this.loadPage(page)
-      .then(this.parseResults.bind(this, page))
-      .finally(() => (this.loadingNext = false));
+    return this.errorShownByRequest(
+      this.loadPage(page)
+        .then(this.parseResults.bind(this, page))
+        .finally(() => (this.loadingNext = false))
+    );
+  }
+
+  /**
+   * A load that fails has already shown its error: the request did, while
+   * rejecting (see `Application.request()`). Callers that wait for the result
+   * still see the rejection; this only stops one that doesn't, such as a "Load
+   * more" button or a page's first load, from reporting it a second time as an
+   * unhandled rejection.
+   */
+  protected errorShownByRequest<T>(promise: Promise<T>): Promise<T> {
+    promise.catch(() => {});
+
+    return promise;
   }
 
   protected parseResults(pg: number, results: ApiResponsePlural<T>): void {
@@ -227,6 +251,44 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     return this.goto(page);
   }
 
+  /**
+   * Reload the first page without taking the current results off screen.
+   *
+   * `refresh()` clears the list and shows the loading state before it asks the
+   * API for anything, which is what you want when the reader has changed what
+   * they are looking at: the old results are wrong, and showing them would be a
+   * lie. It is the wrong shape for a background catch-up — a reconnected
+   * websocket, a regained network — where what is on screen is still valid and
+   * merely out of date. There, clearing first means the reader watches content
+   * they already had disappear behind a spinner, and loses their scroll
+   * position, to service a request they never made.
+   *
+   * This keeps the list rendered and swaps the results in when they arrive. A
+   * failure resolves rather than rejecting: a background refresh that could not
+   * complete should leave the reader exactly as they were, not blank the page.
+   */
+  public revalidate(): Promise<void> {
+    // A second call while one is in flight would race to replace `pages`, and
+    // the loser would win by arriving last.
+    if (this.revalidating) return this.revalidating;
+
+    this.revalidating = this.loadPage(1)
+      .then((results) => {
+        this.pages = [];
+        this.parseResults(1, results);
+      })
+      .catch(() => {
+        // Deliberately swallowed. There is no user-initiated action to report
+        // a failure for, and the results already on screen remain the best
+        // answer available.
+      })
+      .finally(() => {
+        this.revalidating = null;
+      });
+
+    return this.revalidating;
+  }
+
   public goto(page: number): Promise<void> {
     this.location = { page };
 
@@ -234,15 +296,17 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
       this.loadingPage = true;
     }
 
-    return this.loadPage(page)
-      .then((results) => {
-        this.pages = [];
-        this.parseResults(this.location.page, results);
-      })
-      .finally(() => {
-        this.initialLoading = false;
-        this.loadingPage = false;
-      });
+    return this.errorShownByRequest(
+      this.loadPage(page)
+        .then((results) => {
+          this.pages = [];
+          this.parseResults(this.location.page, results);
+        })
+        .finally(() => {
+          this.initialLoading = false;
+          this.loadingPage = false;
+        })
+    );
   }
 
   public getPages(): Page<T>[] {

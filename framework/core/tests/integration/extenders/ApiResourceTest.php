@@ -27,7 +27,6 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
-use Illuminate\Database\PostgresConnection;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
 use Tobyz\JsonApiServer\Schema\Field\Field;
@@ -572,11 +571,10 @@ class ApiResourceTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        if ($this->database() instanceof PostgresConnection) {
-            $this->assertEquals([2, 1, 4, 5, 6, 3], Arr::pluck($payload['data'], 'id'));
-        } else {
-            $this->assertEquals([2, 6, 5, 4, 1, 3], Arr::pluck($payload['data'], 'id'));
-        }
+        // Discussions 1, 4, 5 and 6 all belong to user 2, so `-userId` alone does not order
+        // them. Every sort ends on the primary key, in the same direction, which makes the
+        // order total and the same on every driver.
+        $this->assertEquals([2, 6, 5, 4, 1, 3], Arr::pluck($payload['data'], 'id'));
     }
 
     #[Test]

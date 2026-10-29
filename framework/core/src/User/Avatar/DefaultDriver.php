@@ -20,4 +20,9 @@ class DefaultDriver implements DriverInterface
     {
         return null;
     }
+
+    public function avatarSrcset(User $user): ?string
+    {
+        return null;
+    }
 }

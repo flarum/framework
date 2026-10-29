@@ -1,6 +1,6 @@
 <p align="center">
 
-[![flarum logo](https://flarum.org/images/flarum.svg)](https://flarum.org/)
+[![Flarum 2.0: rebuilt from the foundation](https://raw.githubusercontent.com/flarum/framework/2.x/.github/assets/flarum-2.0-banner.png)](https://flarum.org/)
 
 </p>
 
@@ -24,7 +24,7 @@
 
 * **Powerful and extensible.** Customize, extend, and integrate Flarum to suit your community. Flarum’s architecture is amazingly flexible, with a powerful Extension API.
 
-![Screenshot of a Flarum instance, showing multiple discussions and tags.](https://flarum.org/assets/flarum/home-screenshot.png)
+![Screenshot of a Flarum instance, showing multiple discussions and tags.](https://flarum.org/assets/img/home-screenshot-new.png)
 
 ## Installation
 

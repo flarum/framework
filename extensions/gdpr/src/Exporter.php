@@ -22,6 +22,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Exporter
 {
+    protected const TEMPORARY_FILE_PREFIX = 'data-export-';
+
     protected string $storagePath;
 
     public function __construct(
@@ -41,10 +43,28 @@ class Exporter
     {
         $tmpDir = $this->getTempDir();
 
-        $file = tempnam($tmpDir, 'data-export-'.$user->username);
+        // tempnam() creates an empty file to claim the name; the archive is
+        // written beside it under a longer, unguessable name. Both go when the
+        // export ends, however it ends. An export killed outright, by a queue
+        // timeout or an out-of-memory worker, is swept up by
+        // removeStaleTemporaryFiles() instead.
+        $placeholder = tempnam($tmpDir, self::TEMPORARY_FILE_PREFIX.$user->username);
 
-        $file .= '-'.Str::random(20);
+        $file = $placeholder.'-'.Str::random(20);
 
+        try {
+            return $this->writeExport($user, $actor, $file);
+        } finally {
+            foreach ([$placeholder, $file] as $path) {
+                if (is_file($path)) {
+                    unlink($path);
+                }
+            }
+        }
+    }
+
+    protected function writeExport(User $user, User $actor, string $file): Export
+    {
         foreach ($this->processor->removableUserColumns() as $column) {
             if ($user->{$column} !== null) {
                 $user->{$column} = null;
@@ -83,12 +103,26 @@ class Exporter
 
         $this->storageManager->storeExport($export, $file);
 
-        unlink($file);
-
         return $export;
     }
 
-    public function destroy(Export $export): void
+    /**
+     * Remove what exports left in the temporary directory and never got to
+     * clean up, because the process running them was killed. Anything older
+     * than a day is far older than any export can run.
+     */
+    public function removeStaleTemporaryFiles(int $olderThanSeconds = 86400): void
+    {
+        $cutoff = time() - $olderThanSeconds;
+
+        foreach (glob($this->getTempDir().DIRECTORY_SEPARATOR.self::TEMPORARY_FILE_PREFIX.'*') ?: [] as $path) {
+            if (is_file($path) && filemtime($path) < $cutoff) {
+                unlink($path);
+            }
+        }
+    }
+
+    public function expire(Export $export): void
     {
         $this->storageManager->deleteStoredExport($export);
 
@@ -97,7 +131,8 @@ class Exporter
             ->where('subject_id', $export->id)
             ->update(['is_deleted' => true]);
 
-        $export->delete();
+        $export->file = null;
+        $export->save();
     }
 
     private function getTempDir(): string

@@ -23,5 +23,7 @@ class ForumContent
     {
         $document->payload['flarum-realtime.typing-indicator'] = (bool) $this->settings->get('flarum-realtime.typing-indicator');
         $document->payload['flarum-realtime.release-discussion-updates'] = (bool) $this->settings->get('flarum-realtime.release-discussion-updates');
+        $document->payload['flarum-realtime.index-typing-indicator'] = (bool) $this->settings->get('flarum-realtime.index-typing-indicator');
+        $document->payload['flarum-realtime.index-typing-indicator-restricted'] = (bool) $this->settings->get('flarum-realtime.index-typing-indicator-restricted');
     }
 }

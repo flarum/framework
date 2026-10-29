@@ -10,35 +10,31 @@
 namespace Flarum\Sticky;
 
 use DateTime;
+use Flarum\Api\Resource\DiscussionResource;
+use Flarum\Http\SlugManager;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchCriteria;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Search\Filter\TagFilter;
+use Flarum\Tags\Tag;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Query\Builder;
 
 class PinStickiedDiscussionsToTop
 {
     public function __construct(
-        protected SettingsRepositoryInterface $settings
+        protected SettingsRepositoryInterface $settings,
+        protected SlugManager $slugManager,
+        protected DiscussionResource $discussions
     ) {
     }
 
     public function __invoke(DatabaseSearchState $state, SearchCriteria $criteria): void
     {
-        if ($criteria->sortIsDefault && ! $state->isFulltextSearch()) {
+        if (! $state->isFulltextSearch() && ($criteria->sortIsDefault || $this->sortIsTagDefault($state, $criteria))) {
             $query = $state->getQuery()->getQuery();
-            $onlyStickyUnread = $this->settings->get('flarum-sticky.only_sticky_unread_discussions');
 
-            // If only sticky unread discussions is disabled, then pin all stickied
-            // discussions to the top whether they are read or not.
-            if (! $onlyStickyUnread) {
-                $this->pinStickiedToTop($query);
-
-                return;
-            }
-
-            // If we are viewing a specific tag, then pin all stickied
-            // discussions to the top no matter what.
+            // Tag pages always pin stickied discussions to the top.
             $filters = $state->getActiveFilters();
 
             if ($count = count($filters)) {
@@ -49,10 +45,27 @@ class PinStickiedDiscussionsToTop
                 return;
             }
 
-            // Otherwise, if we are viewing "all discussions", only pin stickied
-            // discussions to the top if they are unread. To do this in a
-            // performant way we create another query which will select all
-            // stickied discussions, marry them into the main query, and then
+            // The remainder of this method handles the All Discussions page only.
+
+            // Admins can disable sticky pinning on this page entirely. When disabled,
+            // stickied discussions appear at their natural last_posted_at position
+            // and the only_sticky_unread_discussions setting becomes a no-op (the
+            // distinction between read and unread sticky no longer matters).
+            if (! $this->settings->get('flarum-sticky.pin_sticky_on_all_discussions', true)) {
+                return;
+            }
+
+            // If unread-only floating is disabled, pin all stickied discussions to
+            // the top regardless of read state.
+            if (! $this->settings->get('flarum-sticky.only_sticky_unread_discussions')) {
+                $this->pinStickiedToTop($query);
+
+                return;
+            }
+
+            // Otherwise, only pin stickied discussions to the top if they are unread.
+            // To do this in a performant way we create another query which will select
+            // all stickied discussions, marry them into the main query, and then
             // reorder the unread ones up to the top.
             $sticky = clone $query;
             $sticky->where('is_sticky', true);
@@ -87,6 +100,41 @@ class PinStickiedDiscussionsToTop
             $query->offset = null;
             $sticky->offset = null;
         }
+    }
+
+    /**
+     * Is a tag page listed in the order the tag opens with? A tag can name its
+     * own default sort, which the page then asks for by name. That makes the
+     * sort explicit, but it is still the order nobody chose.
+     */
+    protected function sortIsTagDefault(DatabaseSearchState $state, SearchCriteria $criteria): bool
+    {
+        $filters = $state->getActiveFilters();
+        $slug = $criteria->filters['tag'] ?? null;
+
+        if (count($filters) !== 1 || ! $filters[0] instanceof TagFilter || ! is_string($slug) || str_contains($slug, ',')) {
+            return false;
+        }
+
+        try {
+            /** @var Tag $tag */
+            $tag = $this->slugManager->forResource(Tag::class)->fromSlug($slug, $state->getActor());
+        } catch (ModelNotFoundException) {
+            return false;
+        }
+
+        if (! $tag->default_sort || ! ($sort = $this->discussions->sortMap()[$tag->default_sort] ?? null)) {
+            return false;
+        }
+
+        // In the shape the API hands the searcher: `-createdAt` is ['createdAt' => 'desc'].
+        $fields = [];
+
+        foreach (explode(',', $sort) as $field) {
+            $fields[ltrim($field, '-')] = str_starts_with($field, '-') ? 'desc' : 'asc';
+        }
+
+        return $fields === $criteria->sort;
     }
 
     /**

@@ -6,6 +6,13 @@
   }
 }
 
+// The body always shows a scrollbar, so this changes nothing until a modal
+// hides it to stop the page scrolling. Then its space stays reserved and
+// nothing moves, fixed elements such as the header included.
+html {
+  scrollbar-gutter: stable;
+}
+
 // Fix to prevent horizontal scrolling bug on iOS
 @media @phone {
   html {
@@ -52,19 +59,42 @@ p {
 }
 
 .container {
-  margin-right: auto;
-  margin-left: auto;
-  padding-left: 15px;
-  padding-right: 15px;
+  margin-inline-end: auto;
+  margin-inline-start: auto;
+  padding-inline-start: 15px;
+  padding-inline-end: 15px;
 
+  // Each band is pinned to the width that opens it, so a viewport anywhere
+  // above that lower bound leaves the remainder unused — at 820px the tablet
+  // band still lays out at 768px, and the header has to fit its logo, nav and
+  // controls into 52px less than the screen actually offers. Growing to the
+  // viewport is what stops those colliding. Capped at the next band's floor so
+  // the layout still steps between bands rather than growing without limit.
   @media @tablet {
-    width: @screen-tablet;
+    width: ~"min(@{screen-tablet-max}, 100%)";
   }
   @media @desktop {
-    width: @screen-desktop;
+    width: ~"min(@{screen-desktop-max}, 100%)";
   }
+  // The xl/xxl breakpoints exist since the extension list UI introduced them,
+  // but the container never used them: every screen wider than 1100px got the
+  // same fixed width, wasting half the viewport on modern displays. The widths
+  // are CSS custom properties (see root.less) so themes can retune each band
+  // without re-declaring the media queries.
+  //
+  // A band's width is not tied to the breakpoint that opens it, and a theme can
+  // set it to anything, so each is clamped to the viewport: a width wider than
+  // the band's own lower bound would otherwise overflow (body hides the overflow
+  // and auto margins cannot go negative, so the layout silently clips off-centre
+  // rather than scrolling).
   @media @desktop-hd {
-    width: @screen-desktop-hd;
+    width: ~"min(var(--container-hd), 100%)";
+  }
+  @media @desktop-xl {
+    width: ~"min(var(--container-xl), 100%)";
+  }
+  @media @desktop-xxl {
+    width: ~"min(var(--container-xxl), 100%)";
   }
 }
 
@@ -82,8 +112,8 @@ p {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     background: rgba(128, 128, 128, 0.2);
   }
 
@@ -91,8 +121,8 @@ p {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
   }
 }
 
@@ -114,15 +144,15 @@ input[type="search"] {
 
 .checkbox {
   display: block;
-  padding-left: 20px;
+  padding-inline-start: 20px;
   margin-bottom: 5px;
   cursor: pointer;
 
   input[type=checkbox],
   input[type=radio] {
-    margin-left: -20px;
+    margin-inline-start: -20px;
     margin-top: 2px;
-    float: left;
+    float: inline-start;
   }
 }
 

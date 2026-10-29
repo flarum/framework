@@ -21,6 +21,7 @@ class SendPusherNotificationsJob extends AbstractJob
         /** @var User[] */
         private readonly array $recipients
     ) {
+        parent::__construct();
     }
 
     public function handle(Pusher $pusher): void

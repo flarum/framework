@@ -12,6 +12,8 @@ namespace Flarum\Realtime\Websocket\Api;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Flarum\Realtime\Push\Payload\Generator;
+use Flarum\Realtime\Websocket\TypingActivity;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -27,7 +29,9 @@ class AuthController implements RequestHandlerInterface
 
     public function __construct(
         protected Pusher $pusher,
-        protected Generator $generator
+        protected Generator $generator,
+        protected PresenceChannelAuthorizer $presenceAuthorizer,
+        protected SettingsRepositoryInterface $settings
     ) {
     }
 
@@ -37,6 +41,27 @@ class AuthController implements RequestHandlerInterface
 
         $this->actor = RequestUtil::getActor($request);
         $channel = Arr::get($attributes, 'channel_name');
+
+        if ($channel === TypingActivity::CHANNEL) {
+            if ($this->typingActivity()) {
+                $body = $this->pusher->authorizeChannel($channel, Arr::get($attributes, 'socket_id'));
+
+                return new JsonResponse(json_decode($body, true));
+            }
+
+            return new EmptyResponse(403);
+        }
+
+        if (preg_match('~^private-index-typing-tag=(?<id>[0-9]+)$~', $channel, $m)) {
+            if ($this->indexTypingTag((int) $m['id'])) {
+                $socketId = Arr::get($attributes, 'socket_id');
+                $body = $this->pusher->authorizeChannel($channel, $socketId);
+
+                return new JsonResponse(json_decode($body, true));
+            }
+
+            return new EmptyResponse(403);
+        }
 
         if (preg_match('~^private-(?<subject>[a-zA-Z]+)=(?<id>[0-9]+)$~', $channel, $m)) {
             if (method_exists($this, $m['subject']) && call_user_func([$this, $m['subject']], $m['id'])) {
@@ -50,7 +75,9 @@ class AuthController implements RequestHandlerInterface
         }
 
         if (preg_match('~^presence-(?<subject>[a-z-]+)$~', $channel, $m)) {
-            if (! $this->actor->isGuest() && method_exists($this, $m['subject'])) {
+            if (! $this->actor->isGuest() && method_exists($this, $m['subject'])
+                && $this->presenceAuthorizer->authorize($m['subject'], $this->actor)
+            ) {
                 $payload = call_user_func([$this, $m['subject']], $this->actor);
 
                 // Only if the method returns anything, will we allow authentication.
@@ -84,6 +111,65 @@ class AuthController implements RequestHandlerInterface
     protected function privateMessageTyping(int $id): bool
     {
         return \Flarum\Messages\Dialog::whereVisibleTo($this->actor)->where('id', $id)->exists();
+    }
+
+    /**
+     * Authorize the channel naming members who type in a private conversation while
+     * hiding their online status: the conversation's members who hold core's
+     * `user.viewLastSeenAt`, the override for that preference. See
+     * {@link \Flarum\Realtime\Websocket\Message\Message::relayDialogTyping()}.
+     */
+    protected function privateMessageTypingIdentified(int $id): bool
+    {
+        return $this->actor->hasPermission('user.viewLastSeenAt')
+            && $this->privateMessageTyping($id);
+    }
+
+    /**
+     * Authorize the channel that discloses who is typing while hiding their online
+     * status. `user.viewLastSeenAt` is core's override for the `discloseOnline`
+     * preference, so it gates this too — plus the ordinary requirements for seeing
+     * the typing indicator at all, since this channel carries nothing else.
+     *
+     * Doing it here means the permission is evaluated once per subscription, against
+     * a real actor in a normal request, rather than per event inside the websocket
+     * server. See {@link \Flarum\Realtime\Websocket\Message\Message::relayTyping()}.
+     */
+    protected function typingIdentified(int $id): bool
+    {
+        if (! $this->settings->get('flarum-realtime.typing-indicator')
+            || ! $this->actor->hasPermission('user.viewLastSeenAt')) {
+            return false;
+        }
+
+        $discussion = Discussion::whereVisibleTo($this->actor)->find($id);
+
+        return $discussion !== null
+            && $this->actor->can('flarum-realtime.view-who-types', $discussion);
+    }
+
+    /**
+     * Authorize the forum-wide typing feed. What each subscriber then receives
+     * is narrowed further, per event, by {@link TypingActivity}.
+     */
+    protected function typingActivity(): bool
+    {
+        return ! $this->actor->isGuest()
+            && $this->settings->get('flarum-realtime.typing-indicator')
+            && $this->actor->hasPermission('flarum-realtime.view-all-typing');
+    }
+
+    /**
+     * Authorize a restricted-tag index-typing channel: the actor may listen iff
+     * they can see the tag. Reaching this without flarum-tags active is rejected.
+     */
+    protected function indexTypingTag(int $id): bool
+    {
+        if (! class_exists(\Flarum\Tags\Tag::class)) {
+            return false;
+        }
+
+        return \Flarum\Tags\Tag::whereVisibleTo($this->actor)->where('id', $id)->exists();
     }
 
     protected function online(User $actor): array

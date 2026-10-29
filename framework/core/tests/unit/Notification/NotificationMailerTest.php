@@ -46,6 +46,7 @@ class NotificationMailerTest extends TestCase
 
         // Common stub setup
         $this->translator->shouldReceive('setLocale')->once();
+        $this->translator->shouldReceive('trans')->with('core.email.notification.default_title')->andReturn('Notification')->byDefault();
         $this->settings->shouldReceive('get')->with('default_locale')->andReturn('en');
         $this->settings->shouldReceive('get')->with('forum_title')->andReturn('Test Forum');
 
@@ -74,6 +75,32 @@ class NotificationMailerTest extends TestCase
         $this->mailer->shouldReceive('send')->once();
 
         $this->notificationMailer->send($this->makeBlueprint(), $this->makeUser());
+    }
+
+    #[Test]
+    public function send_provides_a_default_title_so_the_body_heading_cannot_leak_from_a_previous_email(): void
+    {
+        // The notification template renders `{{ $title ?? trans('...default_title') }}`.
+        // Because the view factory is a singleton, a `title` shared by an earlier
+        // informational email (password reset etc.) lingers and is picked up here
+        // unless NotificationMailer supplies its own. So NotificationMailer must pass
+        // an explicit `title` in the data it renders with. (See #4767.)
+        $this->translator->shouldReceive('trans')
+            ->with('core.email.notification.default_title')
+            ->andReturn('Notification');
+
+        $captured = null;
+        $this->mailer->shouldReceive('send')->once()
+            ->with(m::any(), m::on(function ($data) use (&$captured) {
+                $captured = $data;
+
+                return true;
+            }), m::any());
+
+        $this->notificationMailer->send($this->makeBlueprint(), $this->makeUser());
+
+        $this->assertArrayHasKey('title', $captured, 'NotificationMailer must pass an explicit title.');
+        $this->assertSame('Notification', $captured['title']);
     }
 
     #[Test]

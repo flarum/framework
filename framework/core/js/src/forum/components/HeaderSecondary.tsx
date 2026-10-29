@@ -7,6 +7,7 @@ import NotificationsDropdown from './NotificationsDropdown';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import GlobalSearch from './GlobalSearch';
+import ThemeSwitcher from './ThemeSwitcher';
 
 import type Mithril from 'mithril';
 
@@ -27,6 +28,10 @@ export default class HeaderSecondary<CustomAttrs extends IHeaderSecondaryAttrs =
 
     items.add('search', <GlobalSearch state={app.search.state} />, 30);
 
+    if (app.allowUserColorScheme && app.forum.attribute('showThemeSelector')) {
+      items.add('themeSwitcher', <ThemeSwitcher />, 12);
+    }
+
     if (app.forum.attribute('showLanguageSelector') && Object.keys(app.data.locales).length > 1) {
       const locales = [];
 
@@ -35,14 +40,7 @@ export default class HeaderSecondary<CustomAttrs extends IHeaderSecondaryAttrs =
           <Button
             active={app.data.locale === locale}
             icon={app.data.locale === locale ? 'fas fa-check' : true}
-            onclick={() => {
-              if (app.session.user) {
-                app.session.user.savePreferences({ locale }).then(() => window.location.reload());
-              } else {
-                document.cookie = `locale=${locale}; path=/; expires=Tue, 19 Jan 2038 03:14:07 GMT`;
-                window.location.reload();
-              }
-            }}
+            onclick={() => this.changeLocale(locale)}
           >
             {app.data.locales[locale]}
           </Button>
@@ -52,7 +50,9 @@ export default class HeaderSecondary<CustomAttrs extends IHeaderSecondaryAttrs =
       items.add(
         'locale',
         <SelectDropdown
+          className="LocaleDropdown"
           buttonClassName="Button Button--link"
+          icon="fas fa-globe"
           accessibleToggleLabel={app.translator.trans('core.forum.header.locale_dropdown_accessible_label')}
         >
           {locales}
@@ -85,5 +85,17 @@ export default class HeaderSecondary<CustomAttrs extends IHeaderSecondaryAttrs =
     }
 
     return items;
+  }
+
+  /**
+   * Switch the forum to the given locale.
+   */
+  changeLocale(locale: string) {
+    if (app.session.user) {
+      app.session.user.savePreferences({ locale }).then(() => window.location.reload());
+    } else {
+      document.cookie = `locale=${locale}; path=/; expires=Tue, 19 Jan 2038 03:14:07 GMT`;
+      window.location.reload();
+    }
   }
 }

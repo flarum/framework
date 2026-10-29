@@ -56,6 +56,8 @@ core:
         cdn_url_help: Full URL to the FontAwesome CSS file on a CDN
         kit_url_label: Kit URL
         kit_url_help: Your FontAwesome Kit script URL (from kit.fontawesome.com)
+        forced_style_label: Forced Icon Style
+        forced_style_help: "Force every icon to a particular FontAwesome style, e.g. \"fa-duotone fa-light\" or \"fa-regular\". Replaces the style declared by core and extensions (brand icons are never changed). Your icon source has to be able to supply the style: the bundled icons are FontAwesome Free, which only covers a few hundred icons outside the solid style, so forcing anything else on them leaves most icons blank. Every style is available with a FontAwesome Pro CDN or Kit. Leave empty to disable."
         config_override:
           label: Config Override
           help: FontAwesome settings are currently set in your config.php file and cannot be changed here.
@@ -69,6 +71,13 @@ core:
       pgsql:
         search_configuration: Search configuration to use
       queue:
+        pause_label: Pause queue processing
+        pause_all_label: Pause all queues
+        pause_queue_label: "Pause the {queue} queue"
+        pause_help: >-
+          While paused, workers stop picking up new jobs from the affected
+          queues — jobs accumulate until processing is resumed. Jobs that are
+          already running are not affected.
         section_label: Queue
         sync_info: Your forum is using the synchronous queue driver. Jobs are processed immediately in the main process thread.
         sync_help: For better performance and user experience, consider using the database queue driver. Learn more in the documentation.
@@ -90,6 +99,41 @@ core:
         driver_options:
           default: Default database search
         no_other_drivers: No search drivers are available yet. Install a search driver extension to be able to configure it.
+        cjk_mode_label: Optimise search for CJK languages
+        cjk_mode_help: Enable if your forum is primarily in Chinese, Japanese, or Korean. The database's word-based search cannot match parts of CJK text, so this switches to a substring match that can. It is slower on very large forums, where configuring a CJK-aware fulltext parser at the database level (such as MySQL/MariaDB's ngram parser) is a faster alternative.
+      sessions:
+        section_label: Sessions
+        lifetime_label: Session Length (minutes)
+        lifetime_help: How long a session may sit idle before it is discarded. Default is 120 minutes.
+        cookie_expires_on_close_label: End sessions when the browser closes
+        cookie_expires_on_close_help: >-
+          Sign people out when they close their browser, rather than keeping them
+          signed in until their session expires. Useful on shared computers.
+        duration_value_label: Length
+        duration_unit_label: Unit
+        never_expires: Never expires
+        enabled: Enabled
+        disabled: Disabled
+        units:
+          seconds: seconds
+          minutes: minutes
+          hours: hours
+          days: days
+          weeks: weeks
+          years: years
+        token_types:
+          session:
+            label: Sign-in Length
+            help: How long someone stays signed in after signing in without choosing to be remembered.
+          session_remember:
+            label: "\"Remember me\" Length"
+            help: >-
+              How long someone stays signed in when they choose to be remembered.
+              This also covers signing in through another service, which is always
+              remembered.
+        config_override:
+          label: Configured in config.php
+          help: Session lengths are set in config.php and cannot be changed here.
       title: Advanced
 
     # These translations are used in the Appearance page.
@@ -111,13 +155,23 @@ core:
       edit_css_button: Edit Custom CSS
       edit_footer_button: => core.ref.custom_footer_title
       edit_header_button: => core.ref.custom_header_title
+      email_logo_heading: Email logo
+      email_logo_text: "Upload an image to be displayed at the top of emails. It's saved in a format every email client can show. If you don't upload one, emails use a copy of your logo. If your emails show the forum title instead of your logo, upload your logo again."
       enter_hex_message: Please enter a hexadecimal color code.
+      app_icon_background_help: "Fills the transparent parts of the app icon on iPhones and iPads, and the space around it on Android."
+      app_icon_background_label: App Icon Background
+      app_icon_heading: App Icon
+      app_icon_preview_android_label: Android
+      app_icon_preview_apple_label: iPhone and iPad
+      app_icon_text: "Upload a square image, at least 512 pixels across, for phones to show when someone adds the forum to their home screen. If you don't upload a favicon, it's used as the favicon too."
       favicon_heading: Favicon
-      favicon_text: Upload an image to be displayed as the forum's shortcut icon.
+      favicon_text: "Upload an image to be displayed as the forum's icon in browser tabs and bookmarks. A square image at least 48 pixels across stays sharp; an .ico file works too."
       logo_heading: Logo
       logo_text: Upload an image to be displayed in place of the forum title.
       logo_dark_mode_heading: Dark mode logo
       logo_dark_mode_text: Upload an alternate logo to be displayed when dark mode is enabled.
+      show_theme_selector_help: Let users switch between the available color schemes from a control in the header.
+      show_theme_selector_label: Show theme selector
       title: Appearance
       color_scheme_label: Color Scheme (default)
       color_schemes:
@@ -141,7 +195,9 @@ core:
       avatar_driver_heading: User Avatar
       avatar_driver_text: Select a driver that should be used for users' avatars when no user-uploaded avatar is available. By default, no avatar will be displayed when a user has not uploaded one.
       forum_description_heading: Forum Description
-      forum_description_text: Enter a short sentence or two that describes your community. This will appear in the meta tag and show up in search engines.
+      forum_description_text: Enter a short sentence or two that describes your forum. This will appear in the meta tag and show up in search engines.
+      forum_short_name_heading: Short Name
+      forum_short_name_text: "Up to 16 characters, used where the forum title doesn't fit: under the forum's icon on a phone's home screen, and when someone adds the forum as a search engine in their browser. Without one, the forum title is used, cut short at a whole word if it is too long."
       forum_title_heading: Forum Title
       home_page_heading: Home Page
       home_page_text: Choose the page which users will first see when they visit your forum.
@@ -159,6 +215,12 @@ core:
       title: Basics
       welcome_banner_heading: Welcome Banner
       welcome_banner_text: Configure the text that displays in the banner on the All Discussions page. Use this to welcome guests to your forum.
+      abandoned_extensions_heading: Abandoned Extensions
+      abandoned_extensions_text: "Flarum maintains a <a>community list of abandoned extensions</a>. When an installed extension appears on the list, it will be flagged in the admin panel."
+      abandoned_extensions_sync_button: Check Now
+      abandoned_extensions_sync_success: "Abandoned extensions list updated. {count} matching installed extension(s) found."
+      abandoned_extensions_sync_error: Failed to fetch the abandoned extensions list. Please try again later.
+      abandoned_extensions_notify_admins_label: Email admins when a newly abandoned extension is detected during the weekly check
 
     # These translations are used in the Create User modal.
     create_user:
@@ -187,8 +249,39 @@ core:
       view_all: View all on discuss.flarum.org
 
     # These translations are used in the Dashboard page.
+    queue_widget:
+      title: Queue
+      pending: Pending
+      reserved: In progress
+      failed: Failed
+      refresh: Refresh
+    failed_jobs:
+      title: Failed Jobs
+      none: No failed jobs.
+      meta: "Queue {queue} · failed {time}"
+      details: Details
+      retry: Retry
+      retry_all: Retry all
+      delete: Delete
+
     dashboard:
+      queue_paused_warning: "Queue processing is paused (queue: {queues}). Jobs will accumulate until it is resumed."
+      queue_paused_all_warning: All queue processing is paused. Jobs will accumulate until it is resumed.
+      queue_paused_manage: Manage
       clear_cache_button: Clear Cache
+      clear_cache_modal:
+        title: Clearing the Cache
+        working: Rebuilding the compiled assets. This can take a while on larger forums.
+        cleared: "Cleared {name}"
+        cleared_files: "Cleared {name} ({count} files)"
+        rebuilt: "Rebuilt {bundle}"
+        unchanged: "{bundle} was already up to date"
+        rewritten: "Rewrote {bundle}"
+        empty: "{bundle} has nothing to compile"
+        chunks: "Rebuilt the split chunks for {frontend} ({count} changed)"
+        failed: "Could not rebuild {step}: {message}"
+        took: "{time}ms"
+        reload_button: Reload
       description: Your forum at a glance.
       info_button: System Info
       info_modal:
@@ -226,6 +319,20 @@ core:
       section_disabled_heading: Disabled
       section_disabled_help: These extensions are installed but not currently enabled. Enable them from their settings page, or remove them if no longer needed.
       suggested_by: "Suggested by {extension}"
+
+    # These translations are used in the database driver mismatch warning widget.
+    database-driver-mismatch-warning:
+      detail: |
+        Your <code>config.php</code> is configured to use the <code>{configured}</code> database driver, but Flarum has detected that the database server is actually <code>{actual}</code>.
+
+        Using the wrong driver can cause subtle, hard-to-diagnose bugs. Set <code>'driver' => ''{actual}''</code> in the <code>database</code> section of your <code>config.php</code> file. See <link>Flarum docs</link> for more information.
+      label: Database driver mismatch
+
+    # These translations are used in the database version warning widget.
+    database-version-warning:
+      below-recommended-detail: |
+        Your {server} server is running version <code>{version}</code>. This is supported, but Flarum recommends {server} <code>{recommended}</code> or later for the best performance and to stay on a maintained release. See <link>Flarum docs</link> for more information.
+      below-recommended-label: Database version outdated
 
     # These translations are used in the debug warning widget.
     debug-warning:
@@ -376,6 +483,7 @@ core:
         discussion: Discussion
         feature: Features
         formatting: Formatting
+        forum-widget: Forum Widgets
         infrastructure: Infrastructure
         language: Languages
         moderation: Moderation
@@ -403,6 +511,7 @@ core:
       delete_posts_forever_label: Delete posts forever
       delete_posts_label: Delete posts
       description: Configure who can see and do what.
+      edit_own_avatar_label: Edit own avatar
       edit_posts_label: Edit posts
       edit_users_label: Edit user attributes
       edit_users_credentials_label: Edit user credentials
@@ -453,6 +562,8 @@ core:
     # These translations are used in image upload buttons.
     upload_image:
       remove_button: => core.ref.remove
+      set_by_extension_text: "Set by {extension}, so it can't be changed here."
+      set_in_code_text: "Set in the forum's code, so it can't be changed here."
       upload_button: Choose an Image...
 
     # These translations are used for the users list on the admin dashboard.
@@ -592,6 +703,7 @@ core:
       session_dropdown_accessible_label: Toggle session options dropdown menu
       settings_button: => core.ref.settings
       sign_up_link: => core.ref.sign_up
+      theme_switcher_accessible_label: Change theme
 
     # These translations are used on the index page, peripheral to the discussion list.
     index:
@@ -607,12 +719,14 @@ core:
 
     # These translations are used by the sorting control above the discussion list.
     index_sort:
-      latest_button: Latest
+      az_button: => core.ref.title_az
+      latest_button: => core.ref.latest
       newest_button: => core.ref.newest
       oldest_button: => core.ref.oldest
       relevance_button: => core.ref.relevance
       toggle_dropdown_accessible_label: Change discussion list sorting
-      top_button: Top
+      top_button: => core.ref.top
+      za_button: => core.ref.title_za
 
     # These translations are used in the Log In modal dialog.
     log_in:
@@ -623,6 +737,7 @@ core:
       sign_up_text: "Don't have an account? <a>Sign Up</a>"
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
+      too_many_attempts_message: => core.ref.too_many_login_attempts_message
       username_or_email_placeholder: => core.ref.username_or_email_placeholder
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
@@ -741,6 +856,7 @@ core:
       notify_by_email_heading: => core.ref.email
       notify_by_web_heading: Web
       notify_discussion_renamed_label: Someone renames a discussion I started
+      reset_notifications_button: Reset to defaults
       device_heading: Device
       haptic_feedback_help: Only available on supported mobile devices
       haptic_feedback_label: Enable haptic feedback
@@ -795,11 +911,17 @@ core:
 
   # Translations in this namespace are used by the forum and admin interfaces.
   lib:
+    connection_restored_message: Your connection has been restored.
     debug_button: Debug
 
     # These translations are used in the Alert component.
     alert:
       dismiss_a11y_label: Dismiss alert
+
+    # These translations are shown when the forum's assets are updated while a page is open.
+    assets_updated:
+      message: A newer version of this page is available.
+      reload_button: Reload
 
     # These translations are displayed as tooltips for discussion badges.
     badge:
@@ -838,7 +960,9 @@ core:
       generic_message: "Oops! Something went wrong. Please reload the page and try again."
       generic_cross_origin_message: "Oops! Something went wrong during a cross-origin request. Please reload the page and try again."
       missing_dependencies_message: "Cannot enable {extension} until the following dependencies are enabled: {extensions}"
+      network_message: Something seems to be wrong with your connection. Please check your network and try again.
       not_found_message: The requested resource was not found.
+      offline_message: You appear to be offline. Please check your connection and try again.
       payload_too_large_message: The request payload was too large.
       permission_denied_message: You do not have permission to do that.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
@@ -873,6 +997,35 @@ core:
           key: group
           hint: singular or plural group names
 
+    # These translations are used in the group selector component.
+    group_selector:
+      placeholder: Choose a group
+
+    # These translations are used by the icon picker and the icon input that opens it.
+    icon_picker:
+      count_text: "{count, plural, one {# icon} other {# icons}}"
+      families:
+        brands: Brands
+        classic: Classic
+        duotone: Duotone
+        sharp: Sharp
+        sharp_duotone: Sharp Duotone
+      family_label: Icon family
+      forced_style_text: "Every icon on this forum is shown in the style set on the Advanced page, so the style you choose here won't show while that setting is on."
+      label: Choose an icon
+      more_text: "Showing {shown} of {count}. Search to narrow it down."
+      no_results_text: No icons match.
+      open_button: Choose an icon
+      remove_button: Remove icon
+      search_placeholder: Search icons, or type a class
+      unreadable_text: "Icons can't be listed here, because this forum's styles are served from another site that doesn't allow it. Type an icon's class instead, such as {example}."
+      use_button: "Use {value}"
+      weights:
+        light: Light
+        regular: Regular
+        solid: Solid
+        thin: Thin
+
     # These translations are used in the input component.
     input:
       clear_button: Clear input
@@ -897,6 +1050,7 @@ core:
     # These translations are used in the navigation header.
     nav:
       drawer_button: Open Navigation Drawer
+      pin_pane_button: Pin Discussion List
 
     # These translations are used in forum & admin notices.
     notices:
@@ -905,10 +1059,27 @@ core:
       maintenance_mode_low: Down for maintenance. Only administrators can access the forum.
       maintenance_mode_safe: Down for maintenance with safe mode. Only administrators can access the forum and no extensions are booted.
 
+    # The names of the discussion list's sort options. These live here rather
+    # than under `forum` because the admin panel names them too — a tag's
+    # default sort, for one — and the forum namespace is not shipped to it.
+    index_sort:
+      az_button: => core.ref.title_az
+      latest_button: => core.ref.latest
+      newest_button: => core.ref.newest
+      oldest_button: => core.ref.oldest
+      relevance_button: => core.ref.relevance
+      top_button: => core.ref.top
+      za_button: => core.ref.title_za
+
     # These translations are used as suffixes when abbreviating numbers.
     number_suffix:
       kilo_text: K
       mega_text: M
+
+    # These translations are used in the list component that collapses items
+    # which do not fit into a dropdown.
+    overflowing_list:
+      toggle_accessible_label: More items
 
     # These translations are used in the common pagination component.
     pagination:
@@ -929,6 +1100,7 @@ core:
       options_heading: Search options
       placeholder: Search...
       preview_heading: Search preview
+      search_active_button_accessible_label: "Change search: {query}"
       search_clear_button_accessible_label: Clear search query
 
     # These translations are used by search sources.
@@ -1040,6 +1212,7 @@ core:
       remember_me_label: => core.ref.remember_me_label
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
+      too_many_attempts_message: => core.ref.too_many_login_attempts_message
 
     # Translations in this namespace are displayed by the Reset Password interface.
     reset_password:
@@ -1060,6 +1233,9 @@ core:
 
   # Translations in this namespace are used in messages output by the API.
   api:
+    app_icon_too_small_message: "The app icon must be at least {size} pixels wide or tall, so it stays sharp on home screens."
+    image_set_by_code_message: "This image is set in the forum's code, so it can't be changed here."
+    image_set_by_theme_message: "This image is set by the {extension} extension, so it can't be changed here."
     invalid_username_message: "The username may only contain letters, numbers, and dashes. With at least one letter."
     invalid_filter_type:
       must_be_numeric_message: "The {filter} filter must be numeric."
@@ -1131,6 +1307,14 @@ core:
 
         If this was not you, please ignore this email.
 
+    # These translations are used in emails sent to admins when abandoned extensions are detected
+    abandoned_extensions:
+      subject: "Action required: abandoned extension(s) detected"
+      body_intro: "The following installed extension(s) have been flagged as abandoned:"
+      body_outro: "Please review these extensions and consider migrating to alternatives where available."
+      line_with_replacement: "{package} (suggested replacement: {replacement})"
+      line_no_replacement: "{package} (no replacement available)"
+
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!
   ##
@@ -1164,6 +1348,7 @@ core:
     light_hc_mode_label: Light High Contrast Mode
     light_mode_label: Light Mode
     load_more: Load More
+    latest: Latest
     loading: Loading...
     log_in: Log In
     log_out: Log Out
@@ -1193,6 +1378,10 @@ core:
     sign_up: Sign Up
     some_others: "{count, plural, one {# other} other {# others}}" # Referenced by flarum-likes.yml, flarum-mentions.yml
     start_a_discussion: Start a Discussion
+    title_az: Title (A–Z)
+    title_za: Title (Z–A)
+    too_many_login_attempts_message: Too many failed attempts to log in. Please wait a few minutes, then try again.
+    top: Top
     username: Username
     username_or_email_placeholder: Username or Email
     users: Users # Referenced by flarum-statistics.yml

@@ -1,0 +1,17 @@
+// The selected tags are rendered inside the button that opens the tag picker.
+// A button does not wrap its contents, so a setting holding more than a handful
+// of tags ran the labels off the edge of the settings panel instead of flowing
+// onto a second line.
+.SelectTagsSettingComponent {
+  .Button {
+    height: auto;
+    white-space: normal;
+    text-align: left;
+  }
+
+  .TagsLabel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+}

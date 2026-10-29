@@ -1,5 +1,3 @@
-import sortable from 'sortablejs';
-
 import app from '../../admin/app';
 import Component, { ComponentAttrs } from '../../common/Component';
 import GroupBadge from '../../common/components/GroupBadge';
@@ -32,10 +30,21 @@ export interface IGroupBarAttrs extends ComponentAttrs {
 export default class GroupBar<CustomAttrs extends IGroupBarAttrs = IGroupBarAttrs> extends Component<CustomAttrs> {
   groups: Group[] = [];
 
+  /** sortablejs, lazy-loaded; attached once available. */
+  sortable: typeof import('sortablejs') | null = null;
+
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.groups = sortGroups(this.attrs.groups);
+
+    // Lazy-load sortablejs (~120KB) so it only ships when the permissions page,
+    // the one place GroupBar is used, is opened. Importing a local wrapper (rather
+    // than the package directly) gives the chunk a correctly-namespaced URL.
+    import('../utils/loadSortable').then(({ default: sortable }) => {
+      this.sortable = sortable;
+      this.makeSortable();
+    });
   }
 
   onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
@@ -61,7 +70,25 @@ export default class GroupBar<CustomAttrs extends IGroupBarAttrs = IGroupBarAttr
   }
 
   onGroupBarCreate(vnode: Mithril.VnodeDOM) {
-    sortable.create(vnode.dom as HTMLElement, {
+    this.element = vnode.dom;
+    this.makeSortable();
+  }
+
+  /**
+   * Attach sortable once both the element exists and sortablejs has loaded. Called
+   * from both `oncreate` and the lazy import's resolution, so it runs whichever
+   * completes last.
+   */
+  makeSortable() {
+    // `this.sortable` and `this.element` are populated by two independent triggers
+    // (the lazy import resolving and `oncreate`); bail until both are ready. We also
+    // require the element to still be in the document, since the import can resolve
+    // after the component is gone.
+    if (!this.sortable || !this.element?.isConnected) {
+      return;
+    }
+
+    this.sortable.create(this.element as HTMLElement, {
       group: 'groups',
       delay: 50,
       delayOnTouchOnly: true,

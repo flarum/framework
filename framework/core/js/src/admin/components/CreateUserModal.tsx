@@ -8,6 +8,7 @@ import type Mithril from 'mithril';
 import Switch from '../../common/components/Switch';
 import { generateRandomString } from '../../common/utils/string';
 import Form from '../../common/components/Form';
+import type User from '../../common/models/User';
 
 export interface ICreateUserModalAttrs extends IFormModalAttrs {
   username?: string;
@@ -15,6 +16,7 @@ export interface ICreateUserModalAttrs extends IFormModalAttrs {
   password?: string;
   token?: string;
   provided?: string[];
+  onCreated?: (user: User) => void;
 }
 
 export type SignupBody = {
@@ -208,17 +210,17 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
     this.loading = true;
 
     app.store
-      .createRecord('users', {})
+      .createRecord<User>('users', {})
       .save(this.submitData(), {
         errorHandler: this.onerror.bind(this),
       })
-      .then(() => {
+      .then((createdUser) => {
         if (this.bulkAdd()) {
           this.resetData();
         } else {
           this.hide();
         }
-
+        this.attrs.onCreated?.(createdUser);
         this.alertAttrs = null;
       })
       .finally(() => {

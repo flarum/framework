@@ -118,6 +118,8 @@ export interface ApplicationData {
         userId: number;
         csrfToken: string;
     };
+    /** Token representing the compiled asset revisions the page booted with. */
+    assetsRevision?: string;
     maintenanceMode?: MaintenanceMode;
     bisecting?: boolean;
     [key: string]: unknown;
@@ -146,6 +148,19 @@ export default class Application {
      * An ordered list of initializers to bootstrap the application.
      */
     initializers: ItemList<(app: this) => void>;
+    /**
+     * An ordered list of chunk loaders to prefetch once the app is idle after
+     * booting.
+     *
+     * Lazily-loaded (code-split) components add a network round-trip the first
+     * time their route is visited. Registering their loader here warms the chunk
+     * in the background so that, by the time the user navigates to it, the
+     * dynamic import resolves from cache instead of blocking on a request.
+     *
+     * Each item is a thunk that triggers the load — a function returning the
+     * dynamic import of the chunk (the same loader passed to a lazy route).
+     */
+    prefetch: ItemList<() => Promise<unknown>>;
     /**
      * The app's session.
      *
@@ -202,6 +217,7 @@ export default class Application {
     pane: any;
     data: ApplicationData;
     allowUserColorScheme: boolean;
+    colorScheme: ColorScheme | string;
     refs: Record<string, string>;
     private _title;
     private _titleCount;
@@ -214,6 +230,30 @@ export default class Application {
      * If present, it will be dismissed on the next successful request.
      */
     private requestErrorAlert;
+    /**
+     * The key for the Alert that was shown as a result of an AJAX request
+     * failing at the network level (status 0). Unlike other request error
+     * alerts, only one of these is shown at a time.
+     */
+    protected networkErrorAlert: number | null;
+    /**
+     * The key for the Alert that is shown while the browser reports being
+     * offline.
+     */
+    protected offlineAlert: number | null;
+    /**
+     * GET requests that failed because the browser was offline, keyed by
+     * method, URL and params. They are retried, and their original promises
+     * settled, once connectivity is restored. Identical requests (e.g. from a
+     * polling extension) share one entry and are retried only once.
+     */
+    protected deferredRequests: Map<string, {
+        options: FlarumRequestOptions<any>;
+        settlers: {
+            resolve: (value: any) => void;
+            reject: (error: unknown) => void;
+        }[];
+    }>;
     initialRoute: string;
     /**
      * @internal
@@ -224,6 +264,17 @@ export default class Application {
     load(payload: Application['data']): void;
     protected initialize(): CallableFunction[];
     boot(): void;
+    /**
+     * When the icons come from a Kit or CDN, they hold a blank placeholder font
+     * until the remote stylesheet arrives. The backend wires a rescue — rebinding
+     * the icons to the bundled fonts — to `onerror` on the remote tags, but some
+     * failures never produce an error event: a kit script that loads fine while
+     * its own stylesheet request is blocked, or a connection that hangs rather
+     * than dying. This watchdog covers those. Firing by mistake is harmless: the
+     * remote faces are declared later than the rescued ones whenever they do turn
+     * up, so the icons simply upgrade in place.
+     */
+    protected watchIconFonts(): void;
     beforeMount(callback: () => void): void;
     protected runBeforeMount(): void;
     bootExtensions(extensions: Record<string, {
@@ -259,11 +310,41 @@ export default class Application {
     updateTitle(): void;
     protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType>;
     /**
+     * Compare the asset revision reported by the server (on every API response) with
+     * the one the page booted with. If they differ, the forum's JS/CSS has been
+     * rebuilt since this page loaded.
+     *
+     * No-op in the base application; the forum app overrides this to prompt the user
+     * to reload. The admin app intentionally does not.
+     *
+     * @param _serverRevision The asset revision reported by the server, or null.
+     */
+    checkAssetsRevision(_serverRevision: string | null): void;
+    /**
      * Make an AJAX request, handling any low-level errors that may occur.
      *
      * @see https://mithril.js.org/request.html
      */
     request<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType>;
+    /**
+     * Whether a failed request should be held back and retried once
+     * connectivity is restored, instead of being rejected.
+     *
+     * Only GET requests that failed at the network level while the browser
+     * reported being offline qualify: they are safe to repeat, and the
+     * `online` event provides a reliable signal to retry them.
+     */
+    protected shouldDeferRequest(error: unknown, originalOptions: FlarumRequestOptions<any>): boolean;
+    /**
+     * Hold a request that failed while offline. The returned promise settles
+     * with the result of retrying the request once connectivity is restored.
+     */
+    protected deferRequest<ResponseType>(originalOptions: FlarumRequestOptions<ResponseType>): Promise<ResponseType>;
+    /**
+     * The identity of a request for deferral purposes: requests with the same
+     * key are considered identical and are retried only once.
+     */
+    protected deferredRequestKey(options: FlarumRequestOptions<any>): string;
     /**
      * By default, show an error alert, and log the error to the console.
      */
@@ -278,6 +359,27 @@ export default class Application {
      */
     protected requestWasCrossOrigin(error: RequestError): boolean;
     protected requestErrorDefaultHandler(e: unknown, isDebug: boolean, formattedErrors: string[]): void;
+    /**
+     * Whether an alert about a connection problem (a network-level request
+     * failure or the browser being offline) is currently being shown.
+     */
+    protected connectionAlertActive(): boolean;
+    /**
+     * Register listeners to proactively notify the user when the browser goes
+     * offline and when connectivity is restored.
+     */
+    protected registerConnectivityListeners(): void;
+    /**
+     * Show a persistent (but dismissible) alert while the browser reports being
+     * offline.
+     */
+    protected connectionLost(): void;
+    /**
+     * Dismiss any connection problem alerts, retry requests that were deferred
+     * while offline, and briefly confirm to the user that connectivity has
+     * been restored.
+     */
+    protected connectionRestored(): void;
     private showDebug;
     /**
      * Construct a URL to the route with the given name.

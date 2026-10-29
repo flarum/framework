@@ -10,9 +10,12 @@ import ItemList from '../../common/utils/ItemList';
 import InfoTile from '../../common/components/InfoTile';
 import { MaintenanceMode } from '../../common/Application';
 import Button from '../../common/components/Button';
+import Switch from '../../common/components/Switch';
 import classList from '../../common/utils/classList';
 import ExtensionBisect from './ExtensionBisect';
 import { DatabaseDriver } from '../AdminApplication';
+import type { AccessTokenLifetime } from '../AdminApplication';
+import { DURATION_UNITS, toDuration, toSeconds, type DurationUnit } from '../../common/utils/duration';
 
 export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
   searchDriverOptions: Record<string, Record<string, string>> = {};
@@ -78,11 +81,169 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
 
     items.add('queue', this.queue(), 70);
 
+    items.add('sessions', this.sessions(), 60);
+
     return items;
+  }
+
+  sessions() {
+    return <FormSection label={app.translator.trans('core.admin.advanced.sessions.section_label')}>{this.sessionItems().toArray()}</FormSection>;
+  }
+
+  sessionItems() {
+    const items = new ItemList<Mithril.Children>();
+
+    // Pinned in config.php, so an administrator can be shown what the lengths
+    // are without being able to loosen them from here.
+    if (app.data.sessionByConfig) {
+      items.add('content', this.sessionConfigOverride(), 100);
+
+      return items;
+    }
+
+    items.add('lifetime', this.sessionLifetime(), 100);
+
+    const tokens = this.sessionTokenLifetimes();
+    if (tokens) items.add('tokens', tokens, 90);
+
+    items.add('cookie', this.sessionCookieControl(), 80);
+
+    return items;
+  }
+
+  sessionConfigOverride() {
+    const tokens = app.data.accessTokenLifetimes || [];
+
+    return (
+      <div className="Form-group">
+        <label>{app.translator.trans('core.admin.advanced.sessions.config_override.label')}</label>
+        <p className="helpText">{app.translator.trans('core.admin.advanced.sessions.config_override.help')}</p>
+        <ul className="SessionLifetimes-summary">
+          <li>
+            <strong>{app.translator.trans('core.admin.advanced.sessions.lifetime_label')}</strong>{' '}
+            {this.durationLabel((app.data.sessionLifetime || 0) * 60)}
+          </li>
+          {tokens.map((token) => (
+            <li key={token.type}>
+              <strong>{this.tokenTypeLabel(token.type)}</strong> {this.durationLabel(token.lifetime)}
+            </li>
+          ))}
+          <li>
+            <strong>{app.translator.trans('core.admin.advanced.sessions.cookie_expires_on_close_label')}</strong>{' '}
+            {app.translator.trans(`core.admin.advanced.sessions.${app.data.sessionCookieExpiresOnClose ? 'enabled' : 'disabled'}`)}
+          </li>
+        </ul>
+      </div>
+    );
+  }
+
+  sessionLifetime() {
+    return (
+      <Form>
+        {this.buildSettingComponent({
+          type: 'number',
+          setting: 'session.lifetime',
+          label: app.translator.trans('core.admin.advanced.sessions.lifetime_label'),
+          help: app.translator.trans('core.admin.advanced.sessions.lifetime_help'),
+          placeholder: '120',
+          min: 1,
+        })}
+      </Form>
+    );
+  }
+
+  /**
+   * One control per registered token type, so a type added by an extension is
+   * configured here alongside the ones core ships.
+   */
+  sessionTokenLifetimes() {
+    const tokens = app.data.accessTokenLifetimes || [];
+
+    if (!tokens.length) return null;
+
+    return <Form>{tokens.map((token) => this.tokenLifetimeControl(token))}</Form>;
+  }
+
+  tokenLifetimeControl(token: AccessTokenLifetime) {
+    const setting = this.setting(`session.tokens.${token.type}`, String(token.lifetime));
+    const current = toDuration(Number(setting()) || token.lifetime);
+
+    const update = (value: number, unit: DurationUnit) => setting(String(toSeconds(value, unit)));
+
+    return (
+      <div className="Form-group SessionLifetime" key={token.type}>
+        <label>{this.tokenTypeLabel(token.type)}</label>
+        <p className="helpText">{this.tokenTypeHelp(token.type)}</p>
+        <div className="SessionLifetime-input">
+          <input
+            className="FormControl SessionLifetime-value"
+            type="number"
+            min="0"
+            value={current.value}
+            aria-label={app.translator.trans('core.admin.advanced.sessions.duration_value_label')}
+            oninput={(e: InputEvent) => update(Number((e.target as HTMLInputElement).value), current.unit)}
+          />
+          <select
+            className="FormControl SessionLifetime-unit"
+            value={current.unit}
+            aria-label={app.translator.trans('core.admin.advanced.sessions.duration_unit_label')}
+            onchange={(e: InputEvent) => update(current.value, (e.target as HTMLSelectElement).value as DurationUnit)}
+          >
+            {DURATION_UNITS.map(({ unit }) => (
+              <option key={unit} value={unit}>
+                {app.translator.trans(`core.admin.advanced.sessions.units.${unit}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
+  sessionCookieControl() {
+    return (
+      <Form>
+        {this.buildSettingComponent({
+          type: 'switch',
+          setting: 'session.cookie_expires_on_close',
+          label: app.translator.trans('core.admin.advanced.sessions.cookie_expires_on_close_label'),
+          help: app.translator.trans('core.admin.advanced.sessions.cookie_expires_on_close_help'),
+        })}
+      </Form>
+    );
+  }
+
+  /**
+   * A name for a token type. Types core knows about are named properly; one
+   * added by an extension falls back to its own identifier rather than going
+   * unlabelled.
+   */
+  tokenTypeLabel(type: string): string {
+    const key = `core.admin.advanced.sessions.token_types.${type}.label`;
+    const translated = extractText(app.translator.trans(key));
+
+    return translated === key ? type : translated;
+  }
+
+  tokenTypeHelp(type: string): Mithril.Children {
+    const key = `core.admin.advanced.sessions.token_types.${type}.help`;
+    const translated = extractText(app.translator.trans(key));
+
+    return translated === key ? null : translated;
+  }
+
+  durationLabel(seconds: number): string {
+    const { value, unit } = toDuration(seconds);
+
+    if (!seconds) return extractText(app.translator.trans('core.admin.advanced.sessions.never_expires'));
+
+    return `${value} ${extractText(app.translator.trans(`core.admin.advanced.sessions.units.${unit}`))}`;
   }
 
   searchDrivers() {
     const hasOtherDrivers = Object.keys(this.searchDriverOptions).some((model) => Object.keys(this.searchDriverOptions[model]).length > 1);
+
+    const cjkCapableDriver = app.data.dbDriver === DatabaseDriver.MySQL || app.data.dbDriver === DatabaseDriver.MariaDB;
 
     return (
       <FormSection label={app.translator.trans('core.admin.advanced.search.section_label')}>
@@ -109,6 +270,16 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
           <InfoTile icon="fas fa-database" className="InfoTile--warning">
             {app.translator.trans('core.admin.advanced.search.no_other_drivers')}
           </InfoTile>
+        )}
+        {cjkCapableDriver && (
+          <Form>
+            {this.buildSettingComponent({
+              type: 'switch',
+              setting: 'search_cjk_mode',
+              label: app.translator.trans('core.admin.advanced.search.cjk_mode_label'),
+              help: app.translator.trans('core.admin.advanced.search.cjk_mode_help'),
+            })}
+          </Form>
         )}
       </FormSection>
     );
@@ -215,7 +386,56 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
       items.add('content', this.queueCustomContent(), 100);
     }
 
+    if (driver !== 'sync') {
+      items.add('pause', this.queuePauseControl(), 110);
+    }
+
     return items;
+  }
+
+  queuePauseControl() {
+    const paused = app.data.pausedQueues || [];
+    const knownQueues = app.data.knownQueues || ['default'];
+    const allPaused = paused.includes('*');
+
+    const toggle = (queue: string, value: boolean) =>
+      app
+        .request({
+          method: 'POST',
+          url: app.forum.attribute('apiUrl') + '/queue/pause',
+          body: { paused: value, queue },
+        })
+        .then(() => {
+          app.data.pausedQueues = value ? [...paused, queue] : paused.filter((name) => name !== queue);
+          m.redraw();
+        });
+
+    // With a single known queue, separate "all" and per-queue switches are
+    // redundant — offer one switch that pauses everything.
+    if (knownQueues.length <= 1) {
+      return (
+        <div className="Form-group AdvancedPage-queuePause">
+          <Switch state={allPaused || paused.includes(knownQueues[0])} onchange={(value: boolean) => toggle('*', value)}>
+            {app.translator.trans('core.admin.advanced.queue.pause_label')}
+          </Switch>
+          <p className="helpText">{app.translator.trans('core.admin.advanced.queue.pause_help')}</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="Form-group AdvancedPage-queuePause">
+        <Switch state={allPaused} onchange={(value: boolean) => toggle('*', value)}>
+          {app.translator.trans('core.admin.advanced.queue.pause_all_label')}
+        </Switch>
+        {knownQueues.map((queue) => (
+          <Switch state={allPaused || paused.includes(queue)} disabled={allPaused} onchange={(value: boolean) => toggle(queue, value)}>
+            {app.translator.trans('core.admin.advanced.queue.pause_queue_label', { queue })}
+          </Switch>
+        ))}
+        <p className="helpText">{app.translator.trans('core.admin.advanced.queue.pause_help')}</p>
+      </div>
+    );
   }
 
   queueSyncContent() {
@@ -376,6 +596,16 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
               })}
           </Form>
         )}
+
+        <Form>
+          {this.buildSettingComponent({
+            type: 'text',
+            setting: 'fontawesome_forced_style',
+            label: app.translator.trans('core.admin.advanced.fontawesome.forced_style_label'),
+            help: app.translator.trans('core.admin.advanced.fontawesome.forced_style_help'),
+            placeholder: 'fa-light',
+          })}
+        </Form>
 
         <Button className="Button" icon="fas fa-icons" onclick={() => app.modal.show(() => import('./FontAwesomePreviewModal'))}>
           {app.translator.trans('core.admin.advanced.fontawesome.preview.button')}

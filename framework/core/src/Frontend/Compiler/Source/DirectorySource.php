@@ -33,11 +33,6 @@ class DirectorySource implements SourceInterface
         return '';
     }
 
-    public function getCacheDifferentiator(): array
-    {
-        return [$this->path, filemtime($this->path)];
-    }
-
     public function getFilesystem(): FilesystemAdapter
     {
         return $this->filesystem;

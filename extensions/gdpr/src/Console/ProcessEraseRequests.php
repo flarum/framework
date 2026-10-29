@@ -11,7 +11,6 @@ namespace Flarum\Gdpr\Console;
 
 use Carbon\Carbon;
 use Flarum\Gdpr\Jobs\ErasureJob;
-use Flarum\Gdpr\Jobs\GdprJob;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
@@ -34,13 +33,10 @@ class ProcessEraseRequests extends Command
                 $request->status = ErasureRequest::STATUS_PROCESSED;
                 $request->processed_at = Carbon::now();
                 $request->processed_mode = $request->processed_mode ?? $settings->get('flarum-gdpr.default-erasure');
-                $request->processor_comment = 'Automatically processed after '.static::days.' through scheduled task.';
+                $request->processor_comment = 'Automatically processed after '.static::days.' days through scheduled task.';
                 $request->save();
 
-                $queue->push(
-                    job: new ErasureJob($request),
-                    queue: GdprJob::$onQueue
-                );
+                $queue->push(new ErasureJob($request));
             });
     }
 }

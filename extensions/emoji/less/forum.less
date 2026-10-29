@@ -1,5 +1,6 @@
 img.emoji {
   height: 1.5em;
+  aspect-ratio: 1; // reserve a square box while the SVG loads to avoid layout shift (CLS)
   margin: 0 .1em;
   vertical-align: -0.3em;
 }

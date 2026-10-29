@@ -1,145 +1,179 @@
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
-// @ts-ignore - throttle lacks TS declarations
-import throttle from 'lodash-es/throttle';
 import Icon from 'flarum/common/components/Icon';
 import classList from 'flarum/common/utils/classList';
-import Stream from 'flarum/common/utils/Stream';
+import RealtimeState from 'ext:flarum/realtime/forum/RealtimeState';
+import type Mithril from 'mithril';
+import type User from 'flarum/common/models/User';
+import TypingState, { announces } from './utils/TypingState';
+import type Dialog from '../common/models/Dialog';
+import type MessageStream from './components/MessageStream';
+
+const TYPING_EVENT = 'client-typing';
+/** How often the draft is checked for changes. */
+const CHECK_EVERY_MS = 1000;
+/** The least time between two signals from this member. */
+const SIGNAL_EVERY_MS = 2000;
+/** Names shown before falling back to "and N others". */
+const MAX_NAMED = 3;
+
+/** A MessageStream, with what the typing indicator keeps on it. */
+type TypingStream = MessageStream & {
+  typingState: TypingState;
+  /** The conversation's channel, and the identified one for those who may see hidden typists. */
+  typingChannels: { bind: Function; unbind: Function; trigger: Function; unsubscribe: Function }[];
+  typingHandler: (data: unknown) => void;
+  typingDisposeReconnect: (() => void) | null;
+  typingCheckTimer: number | null;
+  typingExpiryTimer: number | null;
+  typingPrevious: string;
+  typingDirty: boolean;
+  typingSentAt: number;
+  subscribeTyping(): void;
+  unsubscribeTyping(): void;
+  checkTyping(): void;
+};
+
+function typingChannelName(dialog: Dialog): string {
+  return 'private-privateMessageTyping=' + dialog.id();
+}
+
+/** Names members who type while hiding their online status; only holders of `user.viewLastSeenAt` may join. */
+function identifiedTypingChannelName(dialog: Dialog): string {
+  return 'private-privateMessageTypingIdentified=' + dialog.id();
+}
 
 /**
- * Adds a typing indicator to the MessageStream component when flarum/realtime
- * is enabled. Binds to a per-dialog private Pusher channel to send/receive
- * `client-typing` events.
+ * A typing indicator in a conversation, when flarum/realtime is enabled.
+ * Members signal on the conversation's own private channel, which only its
+ * members may join. The realtime server replaces the signal with who sent it,
+ * as the socket knows them, and honours their online-status preference the
+ * way it does for discussions; see TypingState for the receiving side.
  */
 export default function addRealtimeTypingIndicator() {
-  extend('ext:flarum/messages/forum/components/MessageStream', 'content', function (this: any, items: any) {
-    const typingUsers = Object.keys(this.getTypingUsers());
-
-    const count = typingUsers.length;
-    const max = 3;
-
-    const classes = classList(['TypingUsersContainer', count > 0 && 'TypingUsersContainer-active']);
-    const typingIcon = count > 0 ? 'fas fa-ellipsis-h fa-beat' : 'fas fa-pause';
-
-    const namedUsers = typingUsers.slice(0, max).join(', ');
-
-    let showUsers = true;
-
-    if (app.session?.user) {
-      showUsers = (app.session.user as any).preferences()?.['flarum-realtime.typing-indicator-full'];
-    }
-
-    items.splice(
-      items.length - 1,
-      0,
-      <div className={classes} key="typing">
-        <div className="TypingUsers">
-          <Icon name={typingIcon} />
-          {count > 0
-            ? showUsers
-              ? app.translator.trans('flarum-realtime.forum.typing-indicator.users-are-typing', {
-                  users: namedUsers,
-                  count: count,
-                  others: Math.max(count - max, 0),
-                })
-              : app.translator.trans('flarum-realtime.forum.typing-indicator.people-are-typing', { number: count })
-            : app.translator.trans('flarum-realtime.forum.typing-indicator.no-activity')}
-        </div>
-      </div>
+  extend('ext:flarum/messages/forum/components/MessageStream', 'oninit', function (this: TypingStream) {
+    this.typingState = new TypingState(
+      () => (this.attrs.dialog.users() || []).filter((user): user is User => !!user),
+      () => app.session.user?.id()
     );
-  });
+    this.typingChannels = [];
+    this.typingDisposeReconnect = null;
+    this.typingCheckTimer = null;
+    this.typingExpiryTimer = null;
+    this.typingPrevious = '';
+    this.typingDirty = false;
+    this.typingSentAt = 0;
 
-  extend('ext:flarum/messages/forum/components/MessageStream', 'oninit', function (this: any) {
-    this.previousContent = (Stream as any)('');
-    this.usersTyping = (Stream as any)({});
-    this.typingTruncationListener = null;
-    this.typingListener = null;
-
-    this.getTypingUsers = function (this: any) {
-      const invalidateWhen = new Date().getTime() - 3500;
-
-      const users = this.usersTyping();
-      let timeout: number | null = null;
-
-      for (const displayName in users) {
-        const time = users[displayName];
-
-        if (time < invalidateWhen) {
-          delete users[displayName];
-        } else if (!timeout || timeout < time) {
-          timeout = time;
-        }
-      }
-
-      this.usersTyping(users);
-
-      if (timeout && this.typingTruncationListener) {
-        clearTimeout(this.typingTruncationListener);
-      }
-
-      if (timeout) {
-        this.typingTruncationListener = setTimeout(
-          function (this: any) {
-            m.redraw();
-          }.bind(this),
-          timeout - new Date().getTime()
-        );
-      }
-
-      return users;
+    this.typingHandler = (data: unknown) => {
+      if (this.typingState.received(data)) m.redraw();
     };
 
-    this.userTyping = function (this: any, data: any) {
-      if (!data.discloseOnline) {
+    this.subscribeTyping = () => {
+      this.unsubscribeTyping();
+
+      const names = [typingChannelName(this.attrs.dialog)];
+
+      // Subscription is authorised server-side; the attribute just avoids
+      // asking for a channel we'd be refused.
+      if (app.session.user?.attribute('canViewHiddenTypers')) names.push(identifiedTypingChannelName(this.attrs.dialog));
+
+      // Kept on this instance: a shared slot was unsubscribed by the stream
+      // being torn down, taking the one just set up for the next dialog with it.
+      this.typingChannels = names.map((name) => app.websocket?.subscribe(name)).filter((channel) => !!channel);
+      this.typingChannels.forEach((channel) => channel.bind(TYPING_EVENT, this.typingHandler));
+    };
+
+    this.unsubscribeTyping = () => {
+      this.typingChannels.forEach((channel) => {
+        channel.unbind(TYPING_EVENT, this.typingHandler);
+        channel.unsubscribe();
+      });
+      this.typingChannels = [];
+    };
+
+    // Only this conversation's own draft counts: the composer may be open on a
+    // discussion instead, and typing there is not typing here.
+    this.checkTyping = () => {
+      const composer = app.composer;
+
+      if (!composer.isVisible() || !composer.bodyMatches('flarum/messages/forum/components/MessageComposer', { replyingTo: this.attrs.dialog })) {
+        this.typingPrevious = '';
+        this.typingDirty = false;
+
         return;
       }
 
-      const users = this.usersTyping();
-      users[data.displayName] = data.time;
-      this.usersTyping(users);
-      m.redraw();
-    };
+      const content = composer.fields?.content?.() ?? '';
 
-    this.actorIsTyping = function (this: any) {
-      const discloseOnline = (app.session.user as any)?.preferences()?.discloseOnline;
+      if (announces(this.typingPrevious, content)) this.typingDirty = true;
+      this.typingPrevious = content;
 
-      (app as any).websocket_channels?.privateMessages?.trigger('client-typing', {
-        displayName: discloseOnline ? app.session.user?.displayName() : '[anonymous]',
-        discloseOnline,
-        time: Date.now(),
-      });
-    };
+      const now = Date.now();
 
-    this.checkTyping = function (this: any) {
-      if (this.previousContent() !== (app as any).composer?.fields?.content()) {
-        this.actorIsTyping();
-        this.previousContent((app as any).composer?.fields?.content());
+      if (this.typingDirty && now - this.typingSentAt >= SIGNAL_EVERY_MS) {
+        // Nothing to say but "typing": the server adds who, from the socket.
+        this.typingChannels[0]?.trigger(TYPING_EVENT, {});
+        this.typingDirty = false;
+        this.typingSentAt = now;
       }
     };
   });
 
-  extend('ext:flarum/messages/forum/components/MessageStream', 'oncreate', function (this: any) {
-    if ((app as any).forum?.attribute('websocket.disallow_connection')) return;
+  extend('ext:flarum/messages/forum/components/MessageStream', 'oncreate', function (this: TypingStream) {
+    if (app.forum.attribute('websocket.disallow_connection')) return;
     if (!this.attrs?.dialog) return;
 
-    this.typingListener = throttle(
-      function (this: any) {
-        this.checkTyping();
-      }.bind(this),
-      2000
-    );
-    this.typingListener = setInterval(this.typingListener, 1000);
-
-    (app as any).websocket_channels = (app as any).websocket_channels || {};
-    (app as any).websocket_channels.privateMessages = (app as any).websocket?.subscribe('private-privateMessageTyping=' + this.attrs.dialog.id());
-    (app as any).websocket_channels.privateMessages?.bind('client-typing', (data: any) => {
-      this.userTyping(data);
-    });
+    this.subscribeTyping();
+    // A reconnect replaces the Pusher instance and its channels; this one has to be set up again on the new one.
+    this.typingDisposeReconnect = RealtimeState.onChannelsReconnected(() => this.subscribeTyping());
+    this.typingCheckTimer = window.setInterval(() => this.checkTyping(), CHECK_EVERY_MS);
   });
 
-  extend('ext:flarum/messages/forum/components/MessageStream', 'onremove', function (this: any) {
-    if (this.typingListener) clearInterval(this.typingListener);
-    if (this.typingTruncationListener) clearTimeout(this.typingTruncationListener);
-    (app as any).websocket_channels?.privateMessages?.unsubscribe();
+  extend('ext:flarum/messages/forum/components/MessageStream', 'onremove', function (this: TypingStream) {
+    if (this.typingCheckTimer) clearInterval(this.typingCheckTimer);
+    if (this.typingExpiryTimer) clearTimeout(this.typingExpiryTimer);
+    this.typingDisposeReconnect?.();
+    this.typingDisposeReconnect = null;
+    this.unsubscribeTyping();
+  });
+
+  extend('ext:flarum/messages/forum/components/MessageStream', 'content', function (this: TypingStream, items: Mithril.Children[]) {
+    const users = this.typingState.users();
+
+    // Redraw when the earliest signal expires, so the indicator clears itself.
+    if (this.typingExpiryTimer) clearTimeout(this.typingExpiryTimer);
+    const expiry = this.typingState.msUntilNextExpiry();
+    this.typingExpiryTimer = expiry === null ? null : window.setTimeout(() => m.redraw(), expiry);
+
+    const indicator = (
+      <div className={classList('TypingUsersContainer', users.length > 0 && 'TypingUsersContainer-active')} key="typing">
+        <div className="TypingUsers">
+          <Icon name={users.length > 0 ? 'fas fa-ellipsis-h fa-beat' : 'fas fa-pause'} />
+          {typingText(users)}
+        </div>
+      </div>
+    );
+
+    // Just above the reply box, when there is one.
+    const reply = items.findIndex((item) => (item as Mithril.Vnode | null)?.key === 'reply');
+    items.splice(reply === -1 ? items.length : reply, 0, indicator);
+  });
+}
+
+function typingText(users: User[]): Mithril.Children {
+  if (!users.length) return app.translator.trans('flarum-realtime.forum.typing-indicator.no-activity');
+
+  // Realtime's own preference; the forum default is to name people.
+  const named = app.session.user?.preferences()?.['flarum-realtime.typing-indicator-full'] ?? true;
+
+  if (!named) return app.translator.trans('flarum-realtime.forum.typing-indicator.people-are-typing', { number: users.length });
+
+  return app.translator.trans('flarum-realtime.forum.typing-indicator.users-are-typing', {
+    users: users
+      .slice(0, MAX_NAMED)
+      .map((user) => user.displayName())
+      .join(', '),
+    count: users.length,
+    others: Math.max(users.length - MAX_NAMED, 0),
   });
 }

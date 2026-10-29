@@ -3,6 +3,10 @@
   width: 16px;
   height: 16px;
   display: inline-block;
+  // An inline-block sits on the text baseline, riding high above the optical
+  // centre of the label next to it; a font icon does not, because it is text.
+  // Centre the square so an icon-less tag lines up with its label.
+  vertical-align: middle;
   background: var(--color, var(--control-bg));
 
   &.untagged {

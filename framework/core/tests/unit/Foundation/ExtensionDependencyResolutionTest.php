@@ -121,6 +121,106 @@ class ExtensionDependencyResolutionTest extends TestCase
 
         $this->assertEquals($expected, ExtensionManager::resolveExtensionOrder($exts));
     }
+
+    /**
+     * Regression test for https://discuss.flarum.org/d/39359.
+     *
+     * flarum/realtime registers its `Realtime` JS extender on the export
+     * registry at module-evaluation time, and consumer extensions read it
+     * back via `flarum.reg.get(...)`. The combined forum.js concatenates
+     * extensions in resolved order, so realtime MUST be ordered before any
+     * consumer — otherwise the consumer's `reg.get` runs before realtime's
+     * `reg.add` and instantiates `undefined` ("mt(...) is not a constructor").
+     *
+     * With no dependency edge, resolveExtensionOrder falls back to
+     * REVERSE-alphabetical by id (Kahn's algorithm output is reversed at the
+     * end). So a consumer whose id sorts AFTER "flarum-realtime" — e.g.
+     * "flarum-tags" or "flarum-sticky" — is emitted BEFORE realtime: the
+     * broken order. (Consumers with ids before "flarum-realtime", like
+     * flags/likes/lock/messages, happen to come out after realtime and work by
+     * luck.) Declaring flarum/realtime as an optional dependency forces
+     * realtime ahead of the consumer regardless of id.
+     */
+    #[Test]
+    public function tags_without_realtime_dependency_falls_back_to_broken_order()
+    {
+        $realtime = new FakeExtension('flarum-realtime', []);
+        $tags = new FakeExtension('flarum-tags', []); // no optional dep — the bug
+
+        $resolved = ExtensionManager::resolveExtensionOrder([$tags, $realtime]);
+        $order = array_map(fn ($e) => $e->getId(), $resolved['valid']);
+
+        // Broken: "flarum-tags" sorts after "flarum-realtime", and reverse
+        // ordering therefore emits tags BEFORE realtime.
+        $this->assertSame(['flarum-tags', 'flarum-realtime'], $order);
+    }
+
+    /**
+     * Regression test for https://discuss.flarum.org/d/39536 (and 39516).
+     *
+     * The moderation extensions (suspend, flags, tags, approval, gdpr) all
+     * optionally depend on audit, so they boot after it and their actions are
+     * audited. fof/ban-ips optionally depends on those moderation extensions,
+     * and fof/geoip on ban-ips. Audit additionally declaring an optional
+     * dependency on fof/geoip closed the loop —
+     *
+     *   audit -> geoip -> ban-ips -> {suspend,flags,tags,approval,gdpr} -> audit
+     *
+     * — a real circular dependency across a very common extension set, which
+     * aborted the 1.x -> 2.x upgrade migration with
+     * CircularDependenciesException. Audit never uses geoip on the backend (the
+     * IP enrichment is a frontend extension of core's IPAddress component), so
+     * the edge was dead weight; without it the set resolves cleanly.
+     */
+    #[Test]
+    public function audit_geoip_and_moderation_extensions_resolve_without_a_cycle()
+    {
+        $audit = new FakeExtension('flarum-audit', [], []);
+        $geoip = new FakeExtension('fof-geoip', [], ['fof-ban-ips']);
+        $banIps = new FakeExtension('fof-ban-ips', [], ['flarum-suspend', 'flarum-flags', 'flarum-tags', 'flarum-approval', 'flarum-gdpr']);
+        $suspend = new FakeExtension('flarum-suspend', [], ['flarum-audit']);
+        $flags = new FakeExtension('flarum-flags', [], ['flarum-audit']);
+        $tags = new FakeExtension('flarum-tags', [], ['flarum-audit']);
+        $approval = new FakeExtension('flarum-approval', [], ['flarum-audit']);
+        $gdpr = new FakeExtension('flarum-gdpr', [], ['flarum-audit']);
+
+        $resolved = ExtensionManager::resolveExtensionOrder([$audit, $geoip, $banIps, $suspend, $flags, $tags, $approval, $gdpr]);
+
+        $this->assertEmpty($resolved['circularDependencies'], 'The audit/geoip/ban-ips/moderation set must not be circular.');
+        $this->assertEmpty($resolved['missingDependencies']);
+        $this->assertCount(8, $resolved['valid']);
+
+        $order = array_map(fn ($e) => $e->getId(), $resolved['valid']);
+        $pos = array_flip($order);
+
+        // Audit boots before every extension that audits its actions.
+        foreach (['flarum-suspend', 'flarum-flags', 'flarum-tags', 'flarum-approval', 'flarum-gdpr'] as $consumer) {
+            $this->assertLessThan($pos[$consumer], $pos['flarum-audit'], "audit must boot before $consumer");
+        }
+
+        // ban-ips boots before geoip, which optionally depends on it.
+        $this->assertLessThan($pos['fof-geoip'], $pos['fof-ban-ips'], 'ban-ips must boot before geoip');
+    }
+
+    #[Test]
+    public function tags_with_realtime_optional_dependency_is_ordered_after_realtime()
+    {
+        $realtime = new FakeExtension('flarum-realtime', []);
+        // The fix: declare flarum/realtime as an optional dependency.
+        $tags = new FakeExtension('flarum-tags', [], ['flarum-realtime']);
+
+        $resolved = ExtensionManager::resolveExtensionOrder([$tags, $realtime]);
+        $order = array_map(fn ($e) => $e->getId(), $resolved['valid']);
+
+        $this->assertEmpty($resolved['missingDependencies']);
+        $this->assertEmpty($resolved['circularDependencies']);
+        $this->assertSame(['flarum-realtime', 'flarum-tags'], $order);
+        $this->assertLessThan(
+            array_search('flarum-tags', $order),
+            array_search('flarum-realtime', $order),
+            'flarum-realtime must be ordered before a consumer that optionally depends on it'
+        );
+    }
 }
 
 class FakeExtension

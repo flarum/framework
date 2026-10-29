@@ -11,9 +11,11 @@ namespace Flarum\Notification\Job;
 
 use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\Notification\Event\Sent;
 use Flarum\Notification\Notification;
 use Flarum\Queue\AbstractJob;
 use Flarum\User\User;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class SendNotificationsJob extends AbstractJob
 {
@@ -22,10 +24,36 @@ class SendNotificationsJob extends AbstractJob
         /** @var User[] */
         private readonly array $recipients = []
     ) {
+        parent::__construct();
     }
 
     public function handle(): void
     {
-        Notification::notify($this->recipients, $this->blueprint);
+        // Race guard for #4622: NotificationSyncer::sync() reads matchingBlueprint
+        // and decides who's a "new" recipient *before* the actual INSERT happens
+        // (here). If sync() is called twice in rapid succession (e.g. Posted
+        // followed quickly by Revised) before either job runs, both reads see no
+        // row and both jobs queue the same recipients. Re-run the dedup check at
+        // INSERT time so only the first job actually inserts; later jobs no-op.
+        $alreadyInserted = Notification::matchingBlueprint($this->blueprint)
+            ->whereIn('user_id', array_map(fn (User $user) => $user->id, $this->recipients))
+            ->pluck('user_id')
+            ->all();
+
+        $newRecipients = array_filter(
+            $this->recipients,
+            fn (User $user) => ! in_array($user->id, $alreadyInserted, true)
+        );
+
+        if (empty($newRecipients)) {
+            return;
+        }
+
+        Notification::notify($newRecipients, $this->blueprint);
+
+        // Announce the insert so listeners can act on the now-existing records (e.g. realtime
+        // broadcasting). Resolved from the container rather than injected to keep handle()'s
+        // signature stable; mirrors the resolve() use in Notification::notify() itself.
+        resolve(Dispatcher::class)->dispatch(new Sent($this->blueprint, array_values($newRecipients)));
     }
 }

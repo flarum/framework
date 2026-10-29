@@ -3,6 +3,7 @@ import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import PostStreamState from '../states/PostStreamState';
 import Discussion from '../../common/models/Discussion';
+import Post from '../../common/models/Post';
 import { ApiResponseSingle } from '../../common/Store';
 export interface IDiscussionPageAttrs extends IPageAttrs {
     id: string;
@@ -21,6 +22,11 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
      */
     protected discussion: Discussion | null;
     /**
+     * What loading the discussion failed with, if it failed. The page shows it
+     * in place of the discussion.
+     */
+    protected loadError: unknown;
+    /**
      * A public API for interacting with the post stream.
      */
     protected stream: PostStreamState | null;
@@ -28,6 +34,15 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
      * The number of the first post that is currently visible in the viewport.
      */
     protected near: number;
+    /**
+     * The window of posts obtained without the post stream having to request
+     * one — prefetched in parallel with the discussion, or embedded in the
+     * server-preloaded document — pending consumption by show(). Stashed on the
+     * instance rather than only threaded through show()'s arguments, so an
+     * extension override of show() that forwards just the discussion (a common
+     * mistake) cannot silently drop the window and force a redundant request.
+     */
+    protected pendingPostWindow: Post[];
     protected useBrowserScrollRestoration: boolean;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
@@ -45,6 +60,20 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
      */
     load(): void;
     /**
+     * Fetch the near-window of posts in parallel with the discussion request.
+     *
+     * This mirrors the request PostStreamState.loadNearNumber() would make
+     * serially after the discussion arrives; with the window already loaded,
+     * the stream finds its target post and makes no request of its own. Only
+     * possible when the discussion is already in the store (in-app navigation —
+     * exactly the case users notice), because the posts filter needs the ID and
+     * the route only carries a slug. Returns null to keep the serial flow when
+     * the discussion is unknown or the target is the reply placeholder. Failures
+     * are swallowed: the discussion request owns error handling, and the stream
+     * falls back to loading its own window.
+     */
+    protected prefetchPosts(): Promise<Post[]> | null;
+    /**
      * Get the parameters that should be passed in the API request to get the
      * discussion.
      */
@@ -52,7 +81,23 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     /**
      * Initialize the component to display the given discussion.
      */
-    show(discussion: ApiResponseSingle<Discussion>): void;
+    show(discussion: ApiResponseSingle<Discussion>, preloadedPosts?: Post[]): void;
+    /**
+     * Extract the page of posts that was embedded in the server-preloaded
+     * discussion document, so the post stream can render without re-fetching
+     * the same posts via the API.
+     *
+     * On the initial page load, Content\Discussion embeds the `page[near]`
+     * window of posts in the preloaded document (it needs them for the noscript
+     * content anyway), and `preloadedApiDocument()` has already pushed them into
+     * the store by the time this runs. Returns the longest run of posts that is
+     * contiguous in stream order: stray posts pulled in by other relationships
+     * (e.g. extension includes) must not corrupt the visible window — that
+     * non-contiguity is what caused #4137. API show responses (post-#4067)
+     * include no posts page, so for in-app navigation this returns an empty
+     * array and the stream fetches as before.
+     */
+    preloadedNearPage(discussion: ApiResponseSingle<Discussion>): Post[];
     /**
      * Build an item list for the contents of the sidebar.
      */

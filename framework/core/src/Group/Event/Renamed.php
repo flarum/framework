@@ -16,6 +16,10 @@ class Renamed
 {
     public function __construct(
         public Group $group,
+        // The previous names, captured before the rename was saved. Optional/nullable so
+        // existing listeners and callers that don't supply them keep working.
+        public ?string $oldNameSingular = null,
+        public ?string $oldNamePlural = null,
         public ?User $actor = null
     ) {
     }

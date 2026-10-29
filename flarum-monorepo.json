@@ -12,8 +12,18 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "audit",
+        "gitRemote": "git@github.com:flarum/audit.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "bbcode",
         "gitRemote": "git@github.com:flarum/bbcode.git",
+        "mainBranch": "2.x"
+      },
+      {
+        "name": "deck",
+        "gitRemote": "git@github.com:flarum/deck.git",
         "mainBranch": "2.x"
       },
       {
@@ -62,13 +72,18 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "messages",
+        "gitRemote": "git@github.com:flarum/messages.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "nicknames",
         "gitRemote": "git@github.com:flarum/nicknames.git",
         "mainBranch": "2.x"
       },
       {
         "name": "package-manager",
-        "gitRemote": "git@github.com:flarum/package-manager.git",
+        "gitRemote": "git@github.com:flarum/extension-manager.git",
         "mainBranch": "2.x"
       },
       {
@@ -104,11 +119,6 @@
       {
         "name": "tags",
         "gitRemote": "git@github.com:flarum/tags.git",
-        "mainBranch": "2.x"
-      },
-      {
-        "name": "messages",
-        "gitRemote": "git@github.com:flarum/messages.git",
         "mainBranch": "2.x"
       }
     ],

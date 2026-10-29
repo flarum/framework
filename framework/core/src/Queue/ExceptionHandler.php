@@ -11,6 +11,7 @@ namespace Flarum\Queue;
 
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandling;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 
 readonly class ExceptionHandler implements ExceptionHandling
@@ -33,23 +34,21 @@ readonly class ExceptionHandler implements ExceptionHandling
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @return void
+     * Not applicable in a queue context — re-throw so the worker can handle it.
      */
-    public function render($request, Throwable $e) /** @phpstan-ignore-line */
+    public function render($request, Throwable $e): never
     {
-        // TODO: Implement render() method.
+        throw $e;
     }
 
     /**
      * Render an exception to the console.
      *
-     * @param  \Symfony\Component\Console\Output\OutputInterface $output
-     * @return void
+     * @param OutputInterface $output
      */
-    public function renderForConsole($output, Throwable $e)
+    public function renderForConsole($output, Throwable $e): void
     {
-        // TODO: Implement renderForConsole() method.
+        $output->writeln((string) $e);
     }
 
     /**

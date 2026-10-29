@@ -8,6 +8,14 @@
   }
 }
 
+.DetailedDropdownItem-checkIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  flex-shrink: 0;
+}
+
 .DetailedDropdownItem-content {
   display: grid;
   grid-template-columns: 25px 1fr;
@@ -19,4 +27,20 @@
   color: var(--muted-color);
   font-size: 12px;
   margin-top: 3px;
+}
+
+@media @phone {
+  // The phone dropdown styles assume one icon per menu item and pull it into
+  // the row's left gutter with a negative margin. This component renders two
+  // icons (check + option icon), so that treatment stacks them on top of each
+  // other. Undo it and let the component's own columns lay the icons out.
+  .Dropdown .Dropdown-menu > li > .DetailedDropdownItem {
+    &.hasIcon {
+      padding-inline-start: 20px;
+    }
+
+    .Button-icon {
+      margin-inline-start: 0;
+    }
+  }
 }

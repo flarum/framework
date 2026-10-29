@@ -18,7 +18,13 @@ interface SettingsRepositoryInterface
      * You may still need to use the `$default` parameters here in cases where you need to
      * access the default value of a dynamic setting.
      *
+     * Reads shared, mutable state: another process can change a setting between
+     * two calls, so re-reading the same key may legitimately return a different
+     * value.
+     *
      * @see Settings::default()
+     *
+     * @phpstan-impure
      */
     public function get(string $key, mixed $default = null): mixed;
 

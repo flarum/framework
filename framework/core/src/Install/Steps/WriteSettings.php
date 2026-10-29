@@ -47,6 +47,7 @@ readonly class WriteSettings implements Step
     {
         return [
             'allow_hide_own_posts' => 'reply',
+            'avatar_driver' => 'default',
             'allow_post_editing' => 'reply',
             'allow_renaming' => '10',
             'allow_sign_up' => '1',

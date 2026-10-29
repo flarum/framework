@@ -5,7 +5,6 @@ import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
 import DiscussionListPane from './DiscussionListPane';
-import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
@@ -14,6 +13,8 @@ import Discussion from '../../common/models/Discussion';
 import Post from '../../common/models/Post';
 import { ApiResponseSingle } from '../../common/Store';
 import PageStructure from './PageStructure';
+import Placeholder from '../../common/components/Placeholder';
+import RequestError from '../../common/utils/RequestError';
 
 export interface IDiscussionPageAttrs extends IPageAttrs {
   id: string;
@@ -36,6 +37,12 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   protected discussion: Discussion | null = null;
 
   /**
+   * What loading the discussion failed with, if it failed. The page shows it
+   * in place of the discussion.
+   */
+  protected loadError: unknown = null;
+
+  /**
    * A public API for interacting with the post stream.
    */
   protected stream: PostStreamState | null = null;
@@ -44,6 +51,16 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    * The number of the first post that is currently visible in the viewport.
    */
   protected near: number = 0;
+
+  /**
+   * The window of posts obtained without the post stream having to request
+   * one — prefetched in parallel with the discussion, or embedded in the
+   * server-preloaded document — pending consumption by show(). Stashed on the
+   * instance rather than only threaded through show()'s arguments, so an
+   * extension override of show() that forwards just the discussion (a common
+   * mistake) cannot silently drop the window and force a redundant request.
+   */
+  protected pendingPostWindow: Post[] = [];
 
   protected useBrowserScrollRestoration = true;
 
@@ -84,19 +101,37 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   }
 
   view() {
-    if (this.loading || !this.discussion) {
-      return <LoadingIndicator />;
+    if (this.loadError) {
+      // The error alert is dismissed by the next request, so the page keeps
+      // its own copy of the message.
+      const message =
+        (this.loadError instanceof RequestError && this.loadError.alert?.content) || app.translator.trans('core.lib.error.generic_message');
+
+      return (
+        <PageStructure className="DiscussionPage" pane={() => <DiscussionListPane state={app.discussions} />}>
+          <Placeholder text={message} />
+        </PageStructure>
+      );
     }
+
+    // Keep the page shell rendered while the discussion loads. Bailing out to
+    // a bare loading indicator here blanks the whole layout on every
+    // discussion-to-discussion navigation — including the pinned discussion
+    // list pane, whose contents are already cached and need no network.
+    // PageStructure renders the spinner inside the main area and skips the
+    // hero/sidebar/content closures while `loading` is set, so none of them
+    // run without a discussion.
+    const loading = this.loading || !this.discussion;
 
     return (
       <PageStructure
         className="DiscussionPage"
-        loading={this.loading}
+        loading={loading}
         hero={this.hero.bind(this)}
         sidebar={this.sidebar.bind(this)}
         pane={() => <DiscussionListPane state={app.discussions} />}
       >
-        {this.loading || (
+        {loading || (
           <div className="DiscussionPage-stream">
             <this.PostStream discussion={this.discussion} stream={this.stream} onPositionChange={this.positionChanged.bind(this)} />
           </div>
@@ -127,25 +162,92 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    * Load the discussion from the API or use the preloaded one.
    */
   load(): void {
-    Promise.all([import('./PostStream'), import('./PostStreamScrubber')]).then(([PostStreamImport, PostStreamScrubberImport]) => {
+    const preloadedDiscussion = app.preloadedApiDocument<Discussion>();
+
+    // Kick off the network requests immediately: they must not wait for the
+    // async component chunks below, and they must not wait for each other.
+    // The post window is derivable from the route alone, so requesting it
+    // serially after the discussion (what PostStreamState would do) wastes a
+    // full round-trip on every discussion visited.
+    let discussionPromise: Promise<ApiResponseSingle<Discussion>> | null = null;
+    let postsPromise: Promise<Post[]> | null = null;
+
+    if (!preloadedDiscussion) {
+      discussionPromise = app.store.find<Discussion>('discussions', m.route.param('id'), this.requestParams());
+      postsPromise = this.prefetchPosts();
+    }
+
+    const components = Promise.all([import('./PostStream'), import('./PostStreamScrubber')]).then(([PostStreamImport, PostStreamScrubberImport]) => {
       this.PostStream = PostStreamImport.default;
       this.PostStreamScrubber = PostStreamScrubberImport.default;
+    });
 
-      const preloadedDiscussion = app.preloadedApiDocument<Discussion>();
-      if (preloadedDiscussion) {
+    if (preloadedDiscussion) {
+      components.then(() => {
         // We must wrap this in a setTimeout because if we are mounting this
         // component for the first time on page load, then any calls to m.redraw
         // will be ineffective and thus any configs (scroll code) will be run
         // before stuff is drawn to the page.
-        setTimeout(this.show.bind(this, preloadedDiscussion), 0);
-      } else {
-        const params = this.requestParams();
-
-        app.store.find<Discussion>('discussions', m.route.param('id'), params).then(this.show.bind(this));
-      }
-    });
+        setTimeout(() => {
+          this.pendingPostWindow = this.preloadedNearPage(preloadedDiscussion);
+          this.show(preloadedDiscussion, this.pendingPostWindow);
+        }, 0);
+      });
+    } else {
+      // Handle a failure from here rather than once the components have loaded:
+      // the request can fail first, and would then be an unhandled rejection.
+      // The default error handler has already shown an alert by then.
+      Promise.all([discussionPromise!, postsPromise ?? [], components]).then(
+        ([discussion, posts]) => {
+          this.pendingPostWindow = posts;
+          this.show(discussion, posts);
+        },
+        (error) => {
+          this.loading = false;
+          this.loadError = error;
+          m.redraw();
+        }
+      );
+    }
 
     m.redraw();
+  }
+
+  /**
+   * Fetch the near-window of posts in parallel with the discussion request.
+   *
+   * This mirrors the request PostStreamState.loadNearNumber() would make
+   * serially after the discussion arrives; with the window already loaded,
+   * the stream finds its target post and makes no request of its own. Only
+   * possible when the discussion is already in the store (in-app navigation —
+   * exactly the case users notice), because the posts filter needs the ID and
+   * the route only carries a slug. Returns null to keep the serial flow when
+   * the discussion is unknown or the target is the reply placeholder. Failures
+   * are swallowed: the discussion request owns error handling, and the stream
+   * falls back to loading its own window.
+   */
+  protected prefetchPosts(): Promise<Post[]> | null {
+    const idParam = m.route.param('id');
+    const discussion = app.store.all<Discussion>('discussions').find((d) => d.slug() === idParam || d.id() === idParam);
+
+    if (!discussion) return null;
+
+    const nearParam = m.route.param('near');
+    if (nearParam === 'reply') return null;
+
+    const near = parseInt(nearParam);
+
+    return app.store
+      .find<Post[]>(
+        'posts',
+        {
+          filter: { discussion: discussion.id() as string },
+          page: { near: !isNaN(near) ? near : 1 },
+        },
+        undefined,
+        { errorHandler: () => {} }
+      )
+      .catch(() => []);
   }
 
   /**
@@ -162,8 +264,16 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   /**
    * Initialize the component to display the given discussion.
    */
-  show(discussion: ApiResponseSingle<Discussion>): void {
+  show(discussion: ApiResponseSingle<Discussion>, preloadedPosts: Post[] = []): void {
     this.loading = false;
+
+    // Recover the stashed window if an extension override of show() didn't
+    // forward the posts argument — without it the stream would immediately
+    // re-request posts we already have.
+    if (!preloadedPosts.length && this.pendingPostWindow.length) {
+      preloadedPosts = this.pendingPostWindow;
+    }
+    this.pendingPostWindow = [];
 
     app.history.push('discussion', discussion.title());
     app.setTitle(discussion.title());
@@ -172,17 +282,51 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     // Set up the post stream for this discussion, along with the first page of
     // posts we want to display. Tell the stream to scroll down and highlight
     // the specific post that was routed to.
-    this.stream = new PostStreamState(discussion);
+    this.stream = new PostStreamState(discussion, preloadedPosts);
     const rawNearParam = m.route.param('near');
     const nearParam = rawNearParam === 'reply' ? 'reply' : parseInt(rawNearParam);
-    // Post numbers start at 1; use 1 when near is missing/invalid so the first post gets the pop-in
-    const targetPost = nearParam === 'reply' ? 'reply' : nearParam && !isNaN(nearParam) ? nearParam : 1;
+    // Post numbers start at 1; use the first preloaded post (or 1) when near is
+    // missing/invalid so the first post gets the pop-in.
+    const targetPost = nearParam === 'reply' ? 'reply' : nearParam && !isNaN(nearParam) ? nearParam : (preloadedPosts[0]?.number() ?? 1);
     this.stream.goToNumber(targetPost, true).then(() => {
       this.discussion = discussion;
 
       app.current.set('discussion', discussion);
       app.current.set('stream', this.stream);
     });
+  }
+
+  /**
+   * Extract the page of posts that was embedded in the server-preloaded
+   * discussion document, so the post stream can render without re-fetching
+   * the same posts via the API.
+   *
+   * On the initial page load, Content\Discussion embeds the `page[near]`
+   * window of posts in the preloaded document (it needs them for the noscript
+   * content anyway), and `preloadedApiDocument()` has already pushed them into
+   * the store by the time this runs. Returns the longest run of posts that is
+   * contiguous in stream order: stray posts pulled in by other relationships
+   * (e.g. extension includes) must not corrupt the visible window — that
+   * non-contiguity is what caused #4137. API show responses (post-#4067)
+   * include no posts page, so for in-app navigation this returns an empty
+   * array and the stream fetches as before.
+   */
+  preloadedNearPage(discussion: ApiResponseSingle<Discussion>): Post[] {
+    let best: Post[] = [];
+    let current: Post[] = [];
+
+    for (const id of discussion.postIds()) {
+      const post = id ? app.store.getById<Post>('posts', id) : null;
+
+      if (post) {
+        current.push(post);
+        if (current.length > best.length) best = current;
+      } else {
+        current = [];
+      }
+    }
+
+    return best;
   }
 
   /**
@@ -240,7 +384,9 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     // If the user hasn't read past here before, then we'll update their read
     // state and redraw.
     if (app.session.user && endNumber > (discussion.lastReadPostNumber() || 0)) {
-      discussion.save({ lastReadPostNumber: endNumber });
+      // A failed save has shown its own error and put the old read position
+      // back, so the next scroll past here saves it again.
+      discussion.save({ lastReadPostNumber: endNumber }).catch(() => {});
       m.redraw();
     }
   }

@@ -11,6 +11,7 @@ namespace Flarum\Frontend\Content;
 
 use Flarum\Extension\BisectState;
 use Flarum\Foundation\MaintenanceMode;
+use Flarum\Frontend\Compiler\AssetsRevision;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\LocaleManager;
@@ -22,7 +23,8 @@ readonly class CorePayload
     public function __construct(
         private LocaleManager $locales,
         private MaintenanceMode $maintenance,
-        private SettingsRepositoryInterface $settings
+        private SettingsRepositoryInterface $settings,
+        private AssetsRevision $assetsRevision
     ) {
     }
 
@@ -46,6 +48,9 @@ readonly class CorePayload
             ],
             'locales' => $this->locales->getLocales(),
             'locale' => $request->getAttribute('locale'),
+            // Token for the compiled assets this page booted with. Compared against the
+            // X-Flarum-Assets-Revision header on later API responses to detect a rebuild.
+            'assetsRevision' => $this->assetsRevision->token(),
         ];
 
         if ($this->maintenance->inMaintenanceMode()) {

@@ -22,8 +22,8 @@ export default class UserCard extends Component<import("../../common/Component")
      *
      * @return {ItemList<import('mithril').Children>}
      */
-    infoItems(): ItemList<import('mithril').Children>;
+    infoItems(): ItemList<import("mithril").Children>;
     controlsItems(): ItemList<any>;
 }
-import Component from "../../common/Component";
-import ItemList from "../../common/utils/ItemList";
+import Component from '../../common/Component';
+import ItemList from '../../common/utils/ItemList';

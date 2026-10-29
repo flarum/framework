@@ -96,6 +96,16 @@ class FlagResource extends AbstractDatabaseResource
             Endpoint\Index::make()
                 ->authenticated()
                 ->defaultInclude(['user', 'post', 'post.user', 'post.discussion'])
+                // The included discussions and users are serialized like any
+                // others, so they need the relations their own resources
+                // eager load: the actor's discussion state, and group
+                // memberships for permission checks. Without this each
+                // flag's discussion reads `discussion_user` on its own.
+                ->eagerLoad([
+                    'post.discussion.state',
+                    'post.user.groups',
+                    'user.groups',
+                ])
                 ->defaultSort('-createdAt')
                 ->paginate()
                 ->after(function (FlarumContext $context, $data) {

@@ -169,6 +169,20 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\DeleteLogoDarkModeController::class)
     );
 
+    // Upload an email logo
+    $map->post(
+        '/email-logo',
+        'email-logo',
+        $route->toController(Controller\UploadEmailLogoController::class)
+    );
+
+    // Remove the email logo
+    $map->delete(
+        '/email-logo',
+        'email-logo.delete',
+        $route->toController(Controller\DeleteEmailLogoController::class)
+    );
+
     // Upload a favicon
     $map->post(
         '/favicon',
@@ -183,11 +197,68 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\DeleteFaviconController::class)
     );
 
+    // Discussions a browser suggests when the forum is its search engine
+    $map->get(
+        '/opensearch/suggestions',
+        'opensearch.suggestions',
+        $route->toController(Controller\ShowOpenSearchSuggestionsController::class)
+    );
+
+    // Upload an app icon
+    $map->post(
+        '/app-icon',
+        'app-icon',
+        $route->toController(Controller\UploadAppIconController::class)
+    );
+
+    // Remove the app icon
+    $map->delete(
+        '/app-icon',
+        'app-icon.delete',
+        $route->toController(Controller\DeleteAppIconController::class)
+    );
+
     // Clear the cache
     $map->delete(
         '/cache',
         'cache.clear',
         $route->toController(Controller\ClearCacheController::class)
+    );
+
+    // Pause or resume queue processing
+    $map->post(
+        '/queue/pause',
+        'queue.pause',
+        $route->toController(Controller\PauseQueueController::class)
+    );
+
+    // Queue stats for the admin dashboard widget
+    $map->get(
+        '/queue/stats',
+        'queue.stats',
+        $route->toController(Controller\ShowQueueStatsController::class)
+    );
+
+    // Failed jobs — list, retry (one or all), forget
+    $map->get(
+        '/queue/failed',
+        'queue.failed.index',
+        $route->toController(Controller\ListFailedJobsController::class)
+    );
+    $map->post(
+        '/queue/failed/retry',
+        'queue.failed.retryAll',
+        $route->toController(Controller\RetryFailedJobController::class)
+    );
+    $map->post(
+        '/queue/failed/{id}/retry',
+        'queue.failed.retry',
+        $route->toController(Controller\RetryFailedJobController::class)
+    );
+    $map->delete(
+        '/queue/failed/{id}',
+        'queue.failed.forget',
+        $route->toController(Controller\ForgetFailedJobController::class)
     );
 
     // List available mail drivers, available fields and validation status
@@ -202,6 +273,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         '/mail/test',
         'mailTest',
         $route->toController(Controller\SendTestMailController::class)
+    );
+
+    // Trigger a sync of the abandoned extensions list
+    $map->post(
+        '/extensions/abandoned/sync',
+        'extensions.abandoned.sync',
+        $route->toController(Controller\SyncAbandonedExtensionsController::class)
     );
 
     // List Flarum community announcements from discuss.flarum.org

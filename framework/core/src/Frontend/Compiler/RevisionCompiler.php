@@ -25,14 +25,12 @@ class RevisionCompiler implements CompilerInterface
 
     public const EMPTY_REVISION = 'empty';
 
-    protected VersionerInterface $versioner;
-
     public function __construct(
         protected Cloud $assetsDir,
         protected string $filename,
-        protected SettingsRepositoryInterface $settings
+        protected SettingsRepositoryInterface $settings,
+        protected VersionerInterface $versioner,
     ) {
-        $this->versioner = new FileVersioner($assetsDir);
     }
 
     public function getFilename(): string
@@ -45,26 +43,116 @@ class RevisionCompiler implements CompilerInterface
         $this->filename = $filename;
     }
 
+    /**
+     * Recompile this asset and record its revision. Files are only written when
+     * the compiled output actually differs from what the revision manifest says
+     * is on disk (or the file has gone missing) — so routine rebuilds of
+     * unchanged assets are complete no-ops with zero writes.
+     *
+     * @param bool $force write unconditionally, even when the output is
+     *                    byte-identical — the trust-nothing repair path for when
+     *                    the on-disk state can't be relied on. Not a per-request
+     *                    tool: recompiling is what every commit() already does.
+     */
     public function commit(bool $force = false): void
     {
         $sources = $this->getSources();
 
+        // Render the output once and derive the revision from it. The revision
+        // must change if and only if the bytes a client would download change —
+        // so it is a hash of the compiled OUTPUT, not of source paths/mtimes
+        // (which move on every redeploy or extension toggle even when the result
+        // is byte-identical, and can miss a real change made within the same
+        // second) and not of the raw source content (which for LESS misses
+        // @import contents and variable/import overrides, and for JS misses the
+        // sourcemap and format rewrite the written file actually carries).
+        $this->pendingSidecars = [];
+
+        $output = $this->renderOutput($sources);
+
+        $newRevision = $output === null ? static::EMPTY_REVISION : $this->hashOutput($output);
+
         $oldRevision = $this->versioner->getRevision($this->filename);
 
-        $newRevision = $this->calculateRevision($sources);
+        // The committed file is checked, not assumed from its revision. A
+        // missing file is the obvious case, but a file whose contents have
+        // drifted is the dangerous one: the revision and the file live in
+        // different stores — the manifest in the database, the asset on the
+        // assets disk — and nothing makes the two writes atomic, so a partial
+        // rebuild can leave a revision recorded for bytes that were never
+        // written. Trusting the revision alone then serves that file for good,
+        // because every later commit renders the correct output, hashes it to
+        // the revision already on record, and skips the write. Only an
+        // unrelated change large enough to move the hash would break the loop.
+        //
+        // Guarded on $output so an empty bundle — which legitimately has no
+        // file — doesn't re-record EMPTY_REVISION (and rewrite the whole
+        // manifest) on every commit.
+        if ($force || $oldRevision !== $newRevision || ($output !== null && ! $this->committedFileMatches($output))) {
+            if ($output !== null) {
+                $this->assetsDir->put($this->filename, $output);
 
-        // In case the previous and current revisions do not match
-        // Or no file was written yet, let's save the file to disk.
-        if ($force || $oldRevision !== $newRevision || ! $this->assetsDir->exists($this->filename)) {
-            if (! $this->save($this->filename, $sources)) {
-                // If no file was written (because the sources were empty), we
-                // will set the revision to a special value so that we can tell
-                // that this file does not have a URL.
-                $newRevision = static::EMPTY_REVISION;
+                $this->writePendingSidecars();
             }
 
             $this->versioner->putRevision($this->filename, $newRevision);
         }
+    }
+
+    /**
+     * Sidecar files (e.g. JsCompiler's `.map`) queued by renderOutput() during
+     * the current commit, written only if the primary file is — so an unchanged
+     * bundle rewrites nothing at all.
+     *
+     * @var array<string, string> filename => content
+     */
+    protected array $pendingSidecars = [];
+
+    protected function writePendingSidecars(): void
+    {
+        foreach ($this->pendingSidecars as $file => $content) {
+            $this->assetsDir->put($file, $content);
+        }
+    }
+
+    protected function hashOutput(string $content): string
+    {
+        return hash('crc32b', $content);
+    }
+
+    /**
+     * Whether the committed file is really the output its revision claims.
+     *
+     * Read back and compared rather than assumed: a recorded revision is only
+     * evidence about the file if the write that recorded it also landed.
+     */
+    protected function committedFileMatches(string $output): bool
+    {
+        if (! $this->assetsDir->exists($this->filename)) {
+            return false;
+        }
+
+        $committed = $this->assetsDir->get($this->filename);
+
+        return $committed !== null && $this->hashOutput($committed) === $this->hashOutput($output);
+    }
+
+    /**
+     * Produce the exact bytes to write to the primary asset file, or null when
+     * there is nothing to write (empty sources). This is what the revision is
+     * hashed from, so it must be identical to what gets committed — subclasses
+     * that transform or add to the output (e.g. JsCompiler's sourcemap handling)
+     * override this and queue any sidecar files (like the `.map`) on
+     * {@see $pendingSidecars} rather than writing them, so sidecars are only
+     * written when the bundle itself is.
+     *
+     * @param SourceInterface[] $sources
+     */
+    protected function renderOutput(array $sources): ?string
+    {
+        $content = $this->compile($sources);
+
+        return $content === '' ? null : $content;
     }
 
     public function getUrl(): ?string
@@ -94,21 +182,6 @@ class RevisionCompiler implements CompilerInterface
 
     /**
      * @param SourceInterface[] $sources
-     * @return bool true if the file was written, false if there was nothing to write
-     */
-    protected function save(string $file, array $sources): bool
-    {
-        if ($content = $this->compile($sources)) {
-            $this->assetsDir->put($file, $content);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param SourceInterface[] $sources
      */
     protected function compile(array $sources): string
     {
@@ -124,25 +197,6 @@ class RevisionCompiler implements CompilerInterface
     protected function format(string $string): string
     {
         return $string;
-    }
-
-    /**
-     * @param SourceInterface[] $sources
-     */
-    protected function calculateRevision(array $sources): string
-    {
-        $cacheDifferentiator = [$this->getCacheDifferentiator()];
-
-        foreach ($sources as $source) {
-            $cacheDifferentiator[] = $source->getCacheDifferentiator();
-        }
-
-        return hash('crc32b', serialize($cacheDifferentiator));
-    }
-
-    protected function getCacheDifferentiator(): ?array
-    {
-        return null;
     }
 
     public function flush(): void

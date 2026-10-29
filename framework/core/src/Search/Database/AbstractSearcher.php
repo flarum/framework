@@ -45,6 +45,9 @@ abstract class AbstractSearcher implements SearcherInterface
             $mutator($search, $criteria);
         }
 
+        // After the mutators, since one may have rewritten the query into a union.
+        $this->applyTieBreaker($search);
+
         $query = $search->getQuery();
 
         // Execute the search query and retrieve the results. We get one more
@@ -93,6 +96,55 @@ abstract class AbstractSearcher implements SearcherInterface
                 }
             }
         }
+    }
+
+    /**
+     * Order rows the requested sort leaves tied.
+     *
+     * Sorting by a column that isn't unique leaves the order of tied rows to the database,
+     * which is free to differ between engines, versions and even executions. Results are
+     * then paginated by offset, so an unstable order can repeat a row on one page and skip
+     * it on the next. Ending every sort on the primary key makes the order total.
+     */
+    protected function applyTieBreaker(DatabaseSearchState $state): void
+    {
+        $query = $state->getQuery();
+        $base = $query->getQuery();
+        $model = $query->getModel();
+
+        if (! empty($base->unions)) {
+            // A union's ordering resolves against the columns of the result, so it cannot
+            // name a table.
+            $base->unionOrders[] = [
+                'column' => $model->getKeyName(),
+                'direction' => static::lastOrderDirection($base->unionOrders),
+            ];
+
+            return;
+        }
+
+        $query->orderBy(
+            $model->getQualifiedKeyName(),
+            static::lastOrderDirection($base->orders)
+        );
+    }
+
+    /**
+     * The direction of the last ordering in a list, or ascending if it has none.
+     *
+     * The tie breaker follows it rather than always ascending: an InnoDB secondary index
+     * already carries the primary key, so `column DESC, id DESC` is still answered by an
+     * index on `column` alone, where mixing the two directions forces a filesort.
+     */
+    protected static function lastOrderDirection(?array $orders): string
+    {
+        foreach (array_reverse($orders ?? []) as $order) {
+            if (isset($order['direction'])) {
+                return $order['direction'];
+            }
+        }
+
+        return 'asc';
     }
 
     protected function applyOffset(DatabaseSearchState $state, int $offset): void

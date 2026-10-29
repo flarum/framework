@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\discussions;
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
@@ -164,6 +165,72 @@ class ListWithFulltextSearchTest extends TestCase
 
         $this->assertEqualsCanonicalizing(['2', '6'], $ids, 'IDs do not match');
         $this->assertEqualsCanonicalizing(['7'], Arr::pluck($data['included'], 'id'));
+    }
+
+    #[Test]
+    public function cannot_search_cjk_substring_by_default()
+    {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('SQLite already searches by substring.');
+        }
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams(['filter' => ['q' => '中文']])
+        );
+
+        $ids = Arr::pluck(json_decode($response->getBody()->getContents(), true)['data'], 'id');
+
+        $this->assertEquals([], $ids, 'CJK substring should not be found without CJK search mode.');
+    }
+
+    #[Test]
+    public function can_search_cjk_substring_with_cjk_mode()
+    {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('SQLite already searches by substring.');
+        }
+
+        // setUp() has already booted the app, so the pre-boot setting() stash is
+        // ignored; write straight to the repository the request reads.
+        $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('search_cjk_mode', '1');
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams([
+                    'filter' => ['q' => '中文'],
+                    'include' => 'mostRelevantPost',
+                ])
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true);
+        $ids = Arr::pluck($data['data'], 'id');
+
+        // Discussion 6 (title 支持中文吗) and discussion 2 (post 7, content 支持中文吗).
+        $this->assertEqualsCanonicalizing(['2', '6'], $ids, 'CJK substring should be found with CJK search mode.');
+
+        // The mostRelevantPost include must still resolve, as it does for the
+        // fulltext drivers — post 7 is the matching comment in discussion 2.
+        $this->assertContains('7', Arr::pluck($data['included'], 'id'), 'mostRelevantPost include must resolve in CJK mode.');
+    }
+
+    #[Test]
+    public function cjk_mode_leaves_latin_search_working()
+    {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('No fulltext search in SQLite.');
+        }
+
+        $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('search_cjk_mode', '1');
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams(['filter' => ['q' => 'lightsail']])
+        );
+
+        $ids = Arr::pluck(json_decode($response->getBody()->getContents(), true)['data'], 'id');
+
+        $this->assertEqualsCanonicalizing(['1', '2', '3'], $ids, 'Latin search must still work with CJK mode on.');
     }
 
     #[Test]

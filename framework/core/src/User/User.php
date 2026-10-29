@@ -17,6 +17,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
+use Flarum\Group\PermissionCache;
 use Flarum\Http\AccessToken;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
@@ -49,6 +50,8 @@ use Illuminate\Support\Arr;
  * @property bool $is_email_confirmed
  * @property string $password
  * @property string|null $avatar_url
+ * @property bool $has_avatar_2x
+ * @property bool $has_avatar_3x
  * @property array $preferences
  * @property \Carbon\Carbon|null $joined_at
  * @property \Carbon\Carbon|null $last_seen_at
@@ -77,6 +80,8 @@ class User extends AbstractModel
     protected $casts = [
         'id' => 'integer',
         'is_email_confirmed' => 'boolean',
+        'has_avatar_2x' => 'boolean',
+        'has_avatar_3x' => 'boolean',
         'joined_at' => 'datetime',
         'last_seen_at' => 'datetime',
         'marked_all_as_read_at' => 'datetime',
@@ -89,6 +94,17 @@ class User extends AbstractModel
      * @var string[]|null
      */
     protected ?array $permissions = null;
+
+    /**
+     * Whether the user is an administrator, and the groups that says so of.
+     *
+     * Every permission check asks, so serializing a list asks hundreds of times
+     * about the same users. Replacing the groups relation replaces the
+     * collection, which has the answer worked out again.
+     *
+     * @var array{Collection, bool}|null
+     */
+    protected ?array $administrator = null;
 
     /**
      * An array of callables, through each of which the user's list of groups is passed
@@ -130,6 +146,11 @@ class User extends AbstractModel
     protected static Access\Gate $gate;
 
     /**
+     * The shared per-group-set permission cache.
+     */
+    protected static ?PermissionCache $permissionCache = null;
+
+    /**
      * Callbacks to check passwords.
      *
      * @var callable[]
@@ -155,11 +176,7 @@ class User extends AbstractModel
             $avatarPath = $user->getRawOriginal('avatar_url');
 
             if ($avatarPath) {
-                $disk = resolve(Factory::class)->disk('flarum-avatars');
-
-                if ($disk->exists($avatarPath)) {
-                    $disk->delete($avatarPath);
-                }
+                resolve(AvatarUploader::class)->deleteAllVariants($avatarPath);
             }
         });
 
@@ -179,6 +196,11 @@ class User extends AbstractModel
     public static function setGate(Access\Gate $gate): void
     {
         static::$gate = $gate;
+    }
+
+    public static function setPermissionCache(PermissionCache $cache): void
+    {
+        static::$permissionCache = $cache;
     }
 
     public static function setDisplayNameDriver(DisplayNameDriver $driver): void
@@ -292,6 +314,17 @@ class User extends AbstractModel
         }
 
         return $value ?? static::$avatarDriver->avatarUrl($this);
+    }
+
+    public function getAvatarSrcsetAttribute(): ?string
+    {
+        $value = $this->getRawOriginal('avatar_url');
+
+        if ($value && ! str_contains($value, '://')) {
+            return resolve(AvatarUploader::class)->srcsetFor($this);
+        }
+
+        return static::$avatarDriver->avatarSrcset($this);
     }
 
     public function getDisplayNameAttribute(): string
@@ -473,6 +506,24 @@ class User extends AbstractModel
         return $this;
     }
 
+    /**
+     * Remove the given keys from the stored preferences, so their defaults
+     * apply again. Works on the stored value rather than the accessor, which
+     * merges in every default and would store the others' defaults too.
+     *
+     * @param string[] $keys
+     */
+    public function forgetPreferences(array $keys): static
+    {
+        $preferences = (array) json_decode($this->attributes['preferences'] ?? 'null', true);
+
+        // Exact keys only: Arr::except() reads dots as nesting, so forgetting
+        // `acme.layout` would reach into a preference named `acme`.
+        $this->preferences = array_diff_key($preferences, array_flip($keys));
+
+        return $this;
+    }
+
     public function updateLastSeen(): static
     {
         $now = Carbon::now();
@@ -486,7 +537,13 @@ class User extends AbstractModel
 
     public function isAdmin(): bool
     {
-        return $this->groups->contains(Group::ADMINISTRATOR_ID);
+        $groups = $this->groups;
+
+        if ($this->administrator === null || $this->administrator[0] !== $groups) {
+            $this->administrator = [$groups, $groups->contains(Group::ADMINISTRATOR_ID)];
+        }
+
+        return $this->administrator[1];
     }
 
     /**
@@ -610,10 +667,11 @@ class User extends AbstractModel
     }
 
     /**
-     * Define the relationship with the permissions of all the groups that
-     * the user is in.
+     * The IDs of the groups the user's permissions are drawn from.
+     *
+     * @return int[]
      */
-    public function permissions(): Builder
+    public function permissionGroupIds(): array
     {
         $groupIds = [Group::GUEST_ID];
 
@@ -629,18 +687,42 @@ class User extends AbstractModel
             $groupIds = $processor($this, $groupIds);
         }
 
-        return Permission::query()->whereIn('group_id', $groupIds);
+        return $groupIds;
+    }
+
+    /**
+     * Define the relationship with the permissions of all the groups that
+     * the user is in.
+     */
+    public function permissions(): Builder
+    {
+        return Permission::query()->whereIn('group_id', $this->permissionGroupIds());
     }
 
     /**
      * Get a list of permissions that the user has.
+     *
+     * Permissions depend only on the set of groups the user belongs to, so
+     * they are shared through a per-group-set cache: users with the same
+     * groups reuse one `group_permission` load instead of querying once per
+     * User instance.
      *
      * @return string[]
      */
     public function getPermissions(): array
     {
         if (is_null($this->permissions)) {
-            $this->permissions = $this->permissions()->pluck('permission')->all();
+            $groupIds = $this->permissionGroupIds();
+
+            $permissions = static::$permissionCache?->get($groupIds);
+
+            if (is_null($permissions)) {
+                $permissions = Permission::query()->whereIn('group_id', $groupIds)->pluck('permission')->all();
+
+                static::$permissionCache?->put($groupIds, $permissions);
+            }
+
+            $this->permissions = $permissions;
         }
 
         return $this->permissions;

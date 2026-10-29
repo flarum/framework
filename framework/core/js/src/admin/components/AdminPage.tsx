@@ -175,7 +175,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
 
     const { setting, json, refreshAfterSaving, ...attrs } = entry;
 
-    const originalBidi: (value?: string) => any = this.setting(setting);
+    const originalBidi: (value?: string) => any = this.setting(setting, (entry as any).default ?? '');
     let bidi: (value?: string) => any;
 
     if (json) {
@@ -226,7 +226,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
    * with the setting key, which is used by `resetButton()` in the reset modal.
    */
   setting(key: string, fallback: string = '', label?: Mithril.Children): Stream<string> {
-    this.settings[key] = this.settings[key] || Stream<string>(app.data.settings[key] || fallback);
+    this.settings[key] = this.settings[key] || Stream<string>(app.data.settings[key] ?? fallback);
 
     if (label !== undefined) {
       this.settingLabels[key] = label;

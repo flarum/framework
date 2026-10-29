@@ -15,6 +15,36 @@ on:
         default: false
         required: false
 
+      enable_redis:
+        description: "Start a Redis-compatible service (127.0.0.1:6379) for backend tests?"
+        type: boolean
+        default: false
+        required: false
+
+      redis_variant:
+        description: "Which Redis-compatible server to start: 'redis' or 'valkey'."
+        type: string
+        default: 'redis'
+        required: false
+
+      redis_version:
+        description: "Image tag for the Redis/Valkey service, e.g. 'latest', '7.2', '8.0-alpine'."
+        type: string
+        default: 'latest'
+        required: false
+
+      redis_clients:
+        description: >-
+          JSON array of Redis client libraries to run the test matrix against.
+          Only meaningful when `enable_redis` is true. 'phpredis' loads the
+          native `redis` PHP extension; 'predis' relies on the pure-PHP client.
+          Default is a single empty entry, which adds no client dimension and
+          leaves the matrix unchanged for repos that don't need to distinguish
+          clients. Set to e.g. '["phpredis", "predis"]' to test both.
+        type: string
+        default: '[""]'
+        required: false
+
       backend_directory:
         description: The directory of the project where backend code is located. This should contain a `composer.json` file, and is generally the root directory of the repo.
         type: string
@@ -34,6 +64,14 @@ on:
         # Keep PHP versions synced with build-install-packages.yml
         default: '["8.3", "8.4", "8.5"]'
 
+      latest_php:
+        description: >-
+          The newest PHP version, which carries the prefixed runs. Used only when it is one of
+          `php_versions`; otherwise the newest entry of `php_versions` is used.
+        type: string
+        required: false
+        default: '8.5'
+
       php_extensions:
         description: PHP extensions to install.
         type: string
@@ -41,10 +79,38 @@ on:
         default: 'curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip'
 
       db_versions:
-        description: Versions of databases to test with. Should be array of strings encoded as JSON array
+        description: >-
+          Versions of databases to test with. Should be array of strings encoded as JSON array.
+          Each entry runs once, paired with one of `php_versions` (oldest with oldest), so every
+          PHP version and every database is covered without running the full cross-product.
+          Images are pinned so a run is reproducible. The default
+          covers, per driver, the version Flarum declares as its minimum, the version it
+          recommends, and the newest long-term release — see Flarum\Database\DatabaseRequirements.
         type: string
         required: false
-        default: '["mysql:5.7", "mysql:8.0.30", "mariadb", "sqlite:3", "postgres:10"]'
+        default: >-
+          ["mysql:5.7", "mysql:8.4", "mysql:9.7",
+           "mariadb:10.3", "mariadb:11.8", "mariadb:12.3",
+           "postgres:10", "postgres:15", "postgres:18",
+           "sqlite:3"]
+
+      db_prefix:
+        description: >-
+          Table prefix for the prefixed jobs on drivers that allow 64-character identifiers,
+          at the longest Flarum accepts there (DatabaseRequirements::maxTablePrefixLength).
+          These jobs cover both identifier length limits and the prefix handling in each
+          driver's schema code, so there is one per driver, each at that driver's maximum.
+        type: string
+        required: false
+        default: 'flarum_c_'
+
+      db_prefix_pgsql:
+        description: >-
+          As `db_prefix`, but one byte shorter: PostgreSQL limits identifiers to 63 bytes
+          rather than 64 characters.
+        type: string
+        required: false
+        default: 'flarum_p'
 
       php_ini_values:
         description: PHP ini values
@@ -58,105 +124,148 @@ on:
         required: false
         default: 'ubuntu-latest'
 
+      max_parallel:
+        description: >-
+          The most test jobs of one run to execute at once. Lower it to stop a single run from
+          taking every runner available to the account.
+        type: number
+        required: false
+        default: 256
+
+      reduce_drafts:
+        description: >-
+          For draft pull requests, run only the newest PHP against the newest version of each
+          database driver, prefixed, and the full matrix once they are marked ready for review.
+          Callers that turn this on should add `ready_for_review` to their `pull_request` trigger
+          types.
+        type: boolean
+        required: false
+        default: false
+
     secrets:
       composer_auth:
-        description: The Composer auth tokens to use for private packages.
+        description: The Composer auth tokens to use for private packages. Defaults to authenticating GitHub downloads with the workflow's token.
         required: false
 
 env:
   COMPOSER_ROOT_VERSION: dev-main
   # `inputs.composer_directory` defaults to `inputs.backend_directory`
   FLARUM_TEST_TMP_DIR_LOCAL: tests/integration/tmp
-  COMPOSER_AUTH: ${{ secrets.composer_auth }}
+  # Without auth, downloads from GitHub (codeload) are rate limited per runner IP and
+  # fail with HTTP 429; fall back to the calling workflow's own token.
+  COMPOSER_AUTH: ${{ secrets.composer_auth || format('{{"github-oauth":{{"github.com":"{0}"}}}}', github.token) }}
   DB_DATABASE: flarum_test
   DB_USERNAME: flarum
   DB_PASSWORD: password
 
 jobs:
+  # Works out the test matrix from the inputs, so a caller that lists fewer PHP versions or
+  # databases gets exactly those, with no other changes on its side.
+  #
+  # Rather than running every PHP version against every database, each PHP version is paired
+  # with a version of every engine: the oldest PHP with the oldest database of each driver,
+  # through to the newest PHP with the newest. The newest version of each driver also carries
+  # the prefixed run (identifier limits and the prefix handling are per driver), and a driver
+  # with a single version gets both a plain and a prefixed run. Every PHP version listed runs
+  # at least once. With the defaults this is 11 jobs, one per database plus a prefixed SQLite.
+  plan:
+    name: Plan the test matrix
+    runs-on: ${{ inputs.runner_type }}
+
+    if: >-
+      inputs.enable_backend_testing &&
+      ((github.event_name == 'pull_request' && (github.event.pull_request.head.repo.full_name != github.repository || github.event.action == 'ready_for_review')) || github.event_name != 'pull_request')
+
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+
+    steps:
+      - name: Plan
+        id: plan
+        env:
+          PHP_VERSIONS: ${{ inputs.php_versions }}
+          DB_VERSIONS: ${{ inputs.db_versions }}
+          LATEST_PHP: ${{ inputs.latest_php }}
+          REDIS_CLIENTS: ${{ inputs.redis_clients }}
+          DB_PREFIX: ${{ inputs.db_prefix }}
+          DB_PREFIX_PGSQL: ${{ inputs.db_prefix_pgsql }}
+          REDUCE_DRAFTS: ${{ inputs.reduce_drafts }}
+          PR_DRAFT: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # A draft gets one job per database driver, when the caller asks for that. Pushes to a
+          # branch with an open draft pull request in this repository count as drafts too.
+          draft=false
+          if [ "$REDUCE_DRAFTS" = "true" ]; then
+            if [ "$PR_DRAFT" = "true" ]; then
+              draft=true
+            elif [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF" != "refs/heads/${{ github.event.repository.default_branch }}" ]; then
+              open=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&head=$GITHUB_REPOSITORY_OWNER:$GITHUB_REF_NAME" --jq '.[0].draft' 2>/dev/null || true)
+              [ "$open" = "true" ] && draft=true
+            fi
+          fi
+
+          matrix=$(jq -n -c \
+            --argjson php "$PHP_VERSIONS" \
+            --argjson dbs "$DB_VERSIONS" \
+            --arg latest "$LATEST_PHP" \
+            --argjson redis "$REDIS_CLIENTS" \
+            --arg prefix "$DB_PREFIX" \
+            --arg prefixPgsql "$DB_PREFIX_PGSQL" \
+            --argjson draft "$draft" '
+            def vkey: [splits("[.:-]") | tonumber? // 0];
+            def driver: (split(":")[0]) as $i
+              | if $i == "postgres" then "pgsql" elif $i == "sqlite" then "sqlite" elif $i == "mariadb" then "mariadb" else "mysql" end;
+            def dbname: (split(":")) as $p
+              | ({mysql: "MySQL", mariadb: "MariaDB", postgres: "PostgreSQL", sqlite: "SQLite"}[$p[0]] // $p[0]) as $n
+              | if $p[0] == "sqlite" then $n else "\($n) \($p[1] // "")" end;
+            def job($php; $service; $pre):
+              {php: $php, service: $service, db: ($service | dbname), driver: ($service | driver),
+               prefix: (if $pre then (if ($service | driver) == "pgsql" then $prefixPgsql else $prefix end) else "" end),
+               prefixStr: (if $pre then "(prefix)" else "" end)};
+
+            ($php | sort_by(vkey)) as $phps
+            | (if ($phps | index($latest)) then $latest else $phps[-1] end) as $newest
+            | ($phps[0]) as $oldest
+            | (if ($dbs | length) == 0 then ["sqlite:3"] else $dbs end) as $dbs
+            | ($dbs | map(select(driver == "sqlite")) | first) as $sqlite
+            | ([$dbs[] | {d: driver, s: .}] | group_by(.d) | map(map(.s) | sort_by(vkey))) as $groups
+            | (if $draft then
+                # The newest PHP on the newest version of each driver, prefixed: a prefixed run
+                # covers everything a plain one does, plus the prefix handling.
+                [ $groups[] | job($newest; last; true) ]
+              else
+                [ $groups[] as $g
+                    | ($g | length) as $n
+                    | if $n == 1 then
+                        job($oldest; $g[0]; false), job($newest; $g[0]; true)
+                      else
+                        range(0; $n) as $i
+                        | job($phps[((($i * (($phps | length) - 1)) / ($n - 1)) | round)]; $g[$i]; $i == $n - 1)
+                      end ]
+                | . as $jobs
+                | ($jobs | map(.php)) as $covered
+                | $jobs + [ $phps[] | select(. as $v | $covered | index($v) | not)
+                            | job(.; ($sqlite // $dbs[0]); false) ]
+              end)
+            | [ .[] as $j | $redis[] as $r | $j + {redis_client: $r} ]
+            | {include: .}')
+
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "$matrix" | jq -r '.include[] | "PHP \(.php) / \(.db) \(.prefixStr)"'
+
   test:
+    needs: plan
     runs-on: ${{ inputs.runner_type }}
 
     strategy:
-      matrix:
-        php: ${{ fromJSON(inputs.php_versions) }}
-        service: ${{ fromJSON(inputs.db_versions) }}
-        prefix: ['']
-        php_ini_values: [inputs.php_ini_values]
+      # One database failing should not hide the state of the others.
+      fail-fast: false
 
-        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrixinclude
-        include:
-          # Expands the matrix by naming DBs.
-          - service: 'mysql:5.7'
-            db: MySQL 5.7
-            driver: mysql
-          - service: 'mysql:8.0.30'
-            db: MySQL 8.0
-            driver: mysql
-          - service: mariadb
-            db: MariaDB
-            driver: mariadb
-          - service: 'sqlite:3'
-            db: SQLite
-            driver: sqlite
-          - service: 'postgres:10'
-            db: PostgreSQL 10
-            driver: pgsql
+      # Lets a caller keep one run from taking every runner it has.
+      max-parallel: ${{ inputs.max_parallel }}
 
-          # Include Database prefix tests with only one PHP version (latest).
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
-            service: 'mysql:5.7'
-            db: MySQL 5.7
-            driver: mysql
-            prefix: flarum_
-            prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
-            service: mariadb
-            db: MariaDB
-            driver: mariadb
-            prefix: flarum_
-            prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
-            service: 'sqlite:3'
-            db: SQLite
-            driver: sqlite
-            prefix: flarum_
-            prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
-            service: 'postgres:10'
-            db: PostgreSQL 10
-            driver: pgsql
-            prefix: flarum_
-            prefixStr: (prefix)
-
-        # To reduce number of actions:
-        # - MySQL 8.0 runs on all PHP versions (primary DB for PHP version coverage)
-        # - All other DBs run on latest PHP only (DB-specific bugs don't depend on PHP version)
-        # - MySQL 5.7 also runs on latest PHP only (floor version coverage)
-        exclude:
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'mysql:5.7'
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'mysql:5.7'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: 'mysql:5.7'
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: mariadb
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: mariadb
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: mariadb
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'sqlite:3'
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'sqlite:3'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: 'sqlite:3'
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'postgres:10'
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'postgres:10'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: 'postgres:10'
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
 
     services:
       mysql:
@@ -178,7 +287,7 @@ jobs:
           MARIADB_ROOT_PASSWORD: root
         ports:
           - 3306
-        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="healthcheck.sh --connect" --health-interval=10s --health-timeout=5s --health-retries=10
       postgres:
         image: ${{ matrix.driver == 'pgsql' && matrix.service || '' }}
         env:
@@ -192,31 +301,106 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: ${{ inputs.enable_redis && format('{0}:{1}', inputs.redis_variant == 'valkey' && 'valkey/valkey' || 'redis', inputs.redis_version) || '' }}
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping || valkey-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-    name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
+    name: "PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}${{ matrix.redis_client && format(' [{0}]', matrix.redis_client) || '' }}"
 
     if: >-
       inputs.enable_backend_testing &&
-      ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
+      ((github.event_name == 'pull_request' && (github.event.pull_request.head.repo.full_name != github.repository || github.event.action == 'ready_for_review')) || github.event_name != 'pull_request')
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug
-          extensions: ${{ inputs.php_extensions }}
+          # Coverage is not collected or uploaded anywhere, and Xdebug slows the
+          # test suite considerably, so leave it disabled.
+          coverage: none
+          # Append the native `redis` extension only for the phpredis matrix
+          # leg. The predis leg deliberately omits it so fof/redis (and any
+          # redis-enabled repo) falls back to the pure-PHP client, exercising
+          # both code paths.
+          extensions: ${{ inputs.php_extensions }}${{ matrix.redis_client == 'phpredis' && ', redis' || '' }}
           tools: phpunit, composer:v2
-          ini-values: ${{ matrix.php_ini_values }}
+          ini-values: ${{ inputs.php_ini_values }}
 
-      - name: Install Composer dependencies
-        run: composer install
+      # SQLite is compiled into PHP rather than run as a service, so its version comes from
+      # the runner image and cannot be pinned like the other drivers. Record it, and fail if
+      # a runner update ever drops below the version Flarum declares as its minimum.
+      - name: Report SQLite version
+        if: matrix.driver == 'sqlite'
+        run: |
+          php -r '
+            $v = SQLite3::version()["versionString"];
+            echo "SQLite $v\n";
+            if (version_compare($v, "3.35.0", "<")) {
+              echo "::error::Runner SQLite $v is below Flarum SQLITE_MINIMUM 3.35.0\n";
+              exit(1);
+            }
+          '
+
+      # GitHub's codeload throttles archive downloads from Actions runner IPs (HTTP 429),
+      # authenticated or not, so keep Composer's download cache between runs. It holds
+      # package archives, which do not depend on the PHP version. The key rotates daily so
+      # new releases are picked up; a miss falls back to the newest earlier cache.
+      - name: Prepare Composer cache
+        id: composer-cache
+        run: |
+          {
+            echo "dir=$(composer config cache-files-dir)"
+            echo "key=composer-${{ runner.os }}-${{ hashFiles(format('{0}/composer.json', inputs.backend_directory), format('{0}/composer.lock', inputs.backend_directory)) }}"
+            echo "date=$(date -u +%Y-%m-%d)"
+          } >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.backend_directory }}
+
+      - name: Restore Composer downloads
+        id: composer-cache-restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ steps.composer-cache.outputs.key }}-${{ steps.composer-cache.outputs.date }}
+          restore-keys: |
+            ${{ steps.composer-cache.outputs.key }}-
+            composer-${{ runner.os }}-
+
+      # Retried because a throttled archive often downloads on a later attempt; archives
+      # already fetched are reused from the cache, so a retry only re-requests what failed.
+      - name: Install Composer dependencies
+        run: |
+          for attempt in 1 2 3; do
+            if composer install; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "::warning::composer install failed (attempt $attempt of 3), retrying"
+              sleep $((attempt * 30))
+            fi
+          done
+          exit 1
+        working-directory: ${{ inputs.backend_directory }}
+
+      # Saved even when the install failed, so every archive that did download is kept
+      # and a re-run of the failed jobs restores it instead of downloading again.
+      - name: Save Composer downloads
+        if: always() && steps.composer-cache.outputs.dir != '' && steps.composer-cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ steps.composer-cache.outputs.key }}-${{ steps.composer-cache.outputs.date }}
 
       # If we have a `inputs.monorepo_tests`, we will run tests for each item of the provided array in a ::group::item
       # If we don't have a `inputs.monorepo_tests`, we will run tests for the current repository
@@ -236,11 +420,42 @@ jobs:
           fi
         working-directory: ${{ inputs.backend_directory }}
         env:
+          FLARUM_REPEATED_QUERY_LOG: ${{ runner.temp }}/repeated-queries.jsonl
           DB_HOST: 127.0.0.1
           DB_PORT: ${{ (matrix.driver == 'mysql' && job.services.mysql.ports['3306']) || (matrix.driver == 'mariadb' && job.services.mariadb.ports['3306']) || (matrix.driver == 'pgsql' && job.services.postgres.ports['5432']) }}
           DB_PREFIX: ${{ matrix.prefix }}
           DB_DRIVER: ${{ matrix.driver }}
           COMPOSER_PROCESS_TIMEOUT: 600
+
+      # Surface the query findings on the pull request itself. A developer who
+      # only ever looks at the checks page would otherwise never see the
+      # warnings PHPUnit prints mid-log. Runs even when the tests fail, since a
+      # failing N+1 is exactly what we want to point at.
+      - name: Report repeated queries
+        if: ${{ !cancelled() }}
+        run: |
+          log="${{ runner.temp }}/repeated-queries.jsonl"
+
+          [ -s "$log" ] || exit 0
+
+          # One annotation per distinct finding; identical findings recur across
+          # tests, so collapse them first.
+          sort -u "$log" | while read -r finding; do
+            level=$(echo "$finding" | jq -r 'if .scaling then "error" else "warning" end')
+            title=$(echo "$finding" | jq -r 'if .scaling then "N+1 query" else "Repeated query" end')
+            echo "$finding" | jq -r --arg level "$level" --arg title "$title" \
+              '"::\($level) title=\($title)::\(.where) — \(.count) executions, \(.distinctBindings) distinct: \(.sql)"'
+          done
+
+          {
+            echo "### Query findings"
+            echo
+            echo "| | Where | Executions | Distinct | Query |"
+            echo "|---|---|---|---|---|"
+            sort -u "$log" | jq -r '"| \(if .scaling then "🛑 N+1" else "⚠️ repeated" end) | `\(.where)` | \(.count) | \(.distinctBindings) | `\(.sql | .[0:120])` |"'
+            echo
+            echo "🛑 grows with your data — fix it. ⚠️ repeats a few values — consider memoising."
+          } >> "$GITHUB_STEP_SUMMARY"
 
   phpstan:
     runs-on: ${{ inputs.runner_type }}
@@ -256,20 +471,65 @@ jobs:
       ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug
+          coverage: none
           extensions: ${{ inputs.php_extensions }}
           tools: phpunit, composer:v2
-          ini-values: ${{ matrix.php_ini_values }}
+          ini-values: ${{ inputs.php_ini_values }}
 
-      - name: Install Composer dependencies
-        run: composer install
+      # GitHub's codeload throttles archive downloads from Actions runner IPs (HTTP 429),
+      # authenticated or not, so keep Composer's download cache between runs. It holds
+      # package archives, which do not depend on the PHP version. The key rotates daily so
+      # new releases are picked up; a miss falls back to the newest earlier cache.
+      - name: Prepare Composer cache
+        id: composer-cache
+        run: |
+          {
+            echo "dir=$(composer config cache-files-dir)"
+            echo "key=composer-${{ runner.os }}-${{ hashFiles(format('{0}/composer.json', inputs.backend_directory), format('{0}/composer.lock', inputs.backend_directory)) }}"
+            echo "date=$(date -u +%Y-%m-%d)"
+          } >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.backend_directory }}
+
+      - name: Restore Composer downloads
+        id: composer-cache-restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ steps.composer-cache.outputs.key }}-${{ steps.composer-cache.outputs.date }}
+          restore-keys: |
+            ${{ steps.composer-cache.outputs.key }}-
+            composer-${{ runner.os }}-
+
+      # Retried because a throttled archive often downloads on a later attempt; archives
+      # already fetched are reused from the cache, so a retry only re-requests what failed.
+      - name: Install Composer dependencies
+        run: |
+          for attempt in 1 2 3; do
+            if composer install; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "::warning::composer install failed (attempt $attempt of 3), retrying"
+              sleep $((attempt * 30))
+            fi
+          done
+          exit 1
+        working-directory: ${{ inputs.backend_directory }}
+
+      # Saved even when the install failed, so every archive that did download is kept
+      # and a re-run of the failed jobs restores it instead of downloading again.
+      - name: Save Composer downloads
+        if: always() && steps.composer-cache.outputs.dir != '' && steps.composer-cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ steps.composer-cache.outputs.key }}-${{ steps.composer-cache.outputs.date }}
 
       - name: Create MySQL Database
         run: |

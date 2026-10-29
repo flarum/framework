@@ -59,7 +59,9 @@ export default class UserCard<CustomAttrs extends IUserCardAttrs = IUserCardAttr
     return this.attrs.editable ? (
       <AvatarEditor user={user} className="UserCard-avatar" />
     ) : (
-      <Link href={app.route.user(user)}>
+      // The name links to the same place, so keyboard and screen reader users
+      // get one link per card rather than two.
+      <Link href={app.route.user(user)} tabindex="-1" aria-hidden="true">
         <div className="UserCard-avatar">
           <Avatar user={user} loading="eager" />
         </div>
@@ -77,7 +79,11 @@ export default class UserCard<CustomAttrs extends IUserCardAttrs = IUserCardAttr
     const user = this.attrs.user;
     const badges = user.badges().toArray();
 
-    items.add('identity', <h1 className="UserCard-identity">{username(user)}</h1>, 100);
+    items.add(
+      'identity',
+      <h1 className="UserCard-identity">{this.attrs.editable ? username(user) : <Link href={app.route.user(user)}>{username(user)}</Link>}</h1>,
+      100
+    );
 
     if (badges.length) {
       items.add('badges', <ul className="UserCard-badges badges">{listItems(badges)}</ul>, 90);
@@ -104,7 +110,9 @@ export default class UserCard<CustomAttrs extends IUserCardAttrs = IUserCardAttr
         'lastSeen',
         <span className={classList('UserCard-lastSeen', { online })}>
           {online
-            ? [<Icon name={'fas fa-circle'} />, ' ', app.translator.trans('core.forum.user.online_text')]
+            ? // A filled dot is the "online" signal; a forced light or duotone
+              // style would render it as a thin ring instead.
+              [<Icon name={'fa-solid fa-circle'} noStyleOverride />, ' ', app.translator.trans('core.forum.user.online_text')]
             : [<Icon name={'far fa-clock'} />, ' ', humanTime(lastSeenAt)]}
         </span>,
         100
@@ -131,7 +139,7 @@ export default class UserCard<CustomAttrs extends IUserCardAttrs = IUserCardAttr
           buttonClassName={this.attrs.controlsButtonClassName}
           label={app.translator.trans('core.forum.user_controls.button')}
           accessibleToggleLabel={app.translator.trans('core.forum.user_controls.toggle_dropdown_accessible_label')}
-          icon={this.attrs.controlsButtonClassName?.includes('Button--icon') ? 'fas fa-ellipsis-v' : undefined}
+          icon="fas fa-ellipsis-v"
         >
           {controls}
         </Dropdown>,

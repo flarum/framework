@@ -60,7 +60,13 @@ class DiscussionResource extends AbstractDatabaseResource
         if (Arr::get($context->request->getQueryParams(), 'bySlug', false)) {
             $discussion = $this->slugManager->forResource(Discussion::class)->fromSlug($id, $actor);
         } else {
-            $discussion = $this->query($context)->findOrFail($id);
+            $query = $this->query($context);
+
+            if (! $this->idCanBeKey($query->getModel(), $id)) {
+                return null;
+            }
+
+            $discussion = $query->findOrFail($id);
         }
 
         return $discussion;
@@ -86,7 +92,9 @@ class DiscussionResource extends AbstractDatabaseResource
             Endpoint\Show::make()
                 ->defaultInclude([
                     'user',
+                    'user.groups',
                     'lastPostedUser',
+                    'lastPostedUser.groups',
                     'firstPost',
                     'firstPost.discussion',
                     'firstPost.user',
@@ -94,16 +102,25 @@ class DiscussionResource extends AbstractDatabaseResource
                     'firstPost.editedUser',
                     'firstPost.hiddenUser',
                     'lastPost'
-                ]),
+                ])
+                ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups', 'firstPost.user.groups']),
             Endpoint\Index::make()
                 ->defaultInclude([
                     'user',
+                    // Serialised from the relation eager-loaded below, so this
+                    // costs no extra queries. Without it a user arrives with no
+                    // groups, which means no badges — and the frontend keeps
+                    // that record, so their profile stays badge-less until the
+                    // page is reloaded.
+                    'user.groups',
                     'lastPostedUser',
+                    'lastPostedUser.groups',
                     'mostRelevantPost',
-                    'mostRelevantPost.user'
+                    'mostRelevantPost.user',
+                    'mostRelevantPost.user.groups'
                 ])
                 ->defaultSort('-lastPostedAt')
-                ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups'])
+                ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups', 'mostRelevantPost.user.groups'])
                 ->paginate(),
         ];
     }
@@ -116,6 +133,17 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->writable(function (Discussion $discussion, Context $context) {
                     return $context->creating()
                         || $context->getActor()->can('rename', $discussion);
+                })
+                ->set(function (Discussion $discussion, string $value, Context $context) {
+                    // On update, route through `rename()` so that `Renamed`
+                    // fires — the listener creates the `discussionRenamed`
+                    // event post and dispatches notifications. The default
+                    // attribute setter would silently skip both.
+                    if ($context->updating()) {
+                        $discussion->rename($value);
+                    } else {
+                        $discussion->title = $value;
+                    }
                 })
                 ->minLength(3)
                 ->maxLength(80),
@@ -207,12 +235,37 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->withLinkage(function (Context $context) {
                     return $context->showing(self::class)
                         || $context->creating(self::class)
+                        || $context->updating(self::class)
                         || $context->creating(PostResource::class);
                 })
                 ->get(function (Discussion $discussion, Context $context) {
-                    // @todo: is it possible to refactor the frontend to not need all post IDs?
-                    //       some kind of percentage-based stream scrubber?
-                    return $discussion->posts()->whereVisibleTo($context->getActor())->select('id')->get()->all();
+                    // @todo: the ID query is now cheap, but the full ID list still bloats the
+                    //        payload on huge discussions. Refactoring the frontend to work from
+                    //        a post count + windowed fetches (percentage-based scrubber) would
+                    //        let us drop the linkage entirely.
+
+                    // This runs on every discussion view and scans every post
+                    // of the discussion, so it uses the single-discussion
+                    // visibility fast path (the actor's access to the
+                    // discussion itself was already established by this
+                    // endpoint) and skips Eloquent hydration: only ids leave
+                    // the database, and the serializer needs no more than
+                    // id-carrying Post instances for the linkage.
+                    $prototype = new Post();
+                    $prototype->exists = true;
+
+                    return $discussion->posts()
+                        ->whereVisibleToInDiscussion($context->getActor(), $discussion)
+                        ->orderBy('posts.number')
+                        ->toBase()
+                        ->pluck('posts.id')
+                        ->map(function ($id) use ($prototype) {
+                            $post = clone $prototype;
+                            $post->setRawAttributes(['id' => $id], true);
+
+                            return $post;
+                        })
+                        ->all();
                 }),
             Schema\Relationship\ToOne::make('mostRelevantPost')
                 ->visible(fn (Discussion $model, Context $context) => $context->listing())
@@ -234,6 +287,9 @@ class DiscussionResource extends AbstractDatabaseResource
             SortColumn::make('createdAt')
                 ->ascendingAlias('oldest')
                 ->descendingAlias('newest'),
+            SortColumn::make('title')
+                ->ascendingAlias('az')
+                ->descendingAlias('za'),
         ];
     }
 

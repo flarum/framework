@@ -6,4 +6,4 @@ export default class ComposerButton extends Button<import("../../common/componen
     static initAttrs(attrs: any): void;
     constructor();
 }
-import Button from "../../common/components/Button";
+import Button from '../../common/components/Button';

@@ -12,4 +12,4 @@ export default class PostEdited extends Component<import("../../common/Component
     view(): JSX.Element;
     oncreate(vnode: any): void;
 }
-import Component from "../../common/Component";
+import Component from '../../common/Component';

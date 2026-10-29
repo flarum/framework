@@ -79,6 +79,38 @@ class RegistrationTest extends TestCase
     }
 
     #[Test]
+    public function provide_avatar_2x_stores_hidpi_url(): void
+    {
+        $this->registration->provideAvatar2x('https://example.com/avatar@2x.jpg');
+
+        $provided = $this->registration->getProvided();
+        $this->assertEquals('https://example.com/avatar@2x.jpg', $provided['avatar_url_2x']);
+    }
+
+    #[Test]
+    public function provide_avatar_3x_stores_hidpi_url(): void
+    {
+        $this->registration->provideAvatar3x('https://example.com/avatar@3x.jpg');
+
+        $provided = $this->registration->getProvided();
+        $this->assertEquals('https://example.com/avatar@3x.jpg', $provided['avatar_url_3x']);
+    }
+
+    #[Test]
+    public function all_avatar_variants_can_be_provided_together(): void
+    {
+        $this->registration
+            ->provideAvatar('https://example.com/avatar.jpg')
+            ->provideAvatar2x('https://example.com/avatar@2x.jpg')
+            ->provideAvatar3x('https://example.com/avatar@3x.jpg');
+
+        $provided = $this->registration->getProvided();
+        $this->assertEquals('https://example.com/avatar.jpg', $provided['avatar_url']);
+        $this->assertEquals('https://example.com/avatar@2x.jpg', $provided['avatar_url_2x']);
+        $this->assertEquals('https://example.com/avatar@3x.jpg', $provided['avatar_url_3x']);
+    }
+
+    #[Test]
     public function payload_is_stored_and_retrieved(): void
     {
         $payload = ['raw_data' => 'from_provider', 'extra' => 42];

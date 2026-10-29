@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Dropdown, { IDropdownAttrs } from 'flarum/common/components/Dropdown';
 import type Discussion from 'flarum/common/models/Discussion';
 export interface ISubscriptionMenuAttrs extends IDropdownAttrs {

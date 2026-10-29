@@ -12,7 +12,11 @@ namespace Flarum\Forum;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
+use Flarum\Forum\Branding\Branding;
+use Flarum\Forum\Branding\Listener\RedrawAppIcon;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\ErrorHandling\ContentNegotiationFormatter;
+use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
@@ -25,6 +29,7 @@ use Flarum\Frontend\AssetManager;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Frontend;
+use Flarum\Frontend\FrontendServiceProvider;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
@@ -37,6 +42,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Laminas\Stratigility\MiddlewarePipe;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -80,9 +86,14 @@ class ForumServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->bind('flarum.forum.error_handler', function (Container $container) {
+            $inDebugMode = $container['flarum.config']->inDebugMode();
+
             return new HttpMiddleware\HandleErrors(
                 $container->make(Registry::class),
-                $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
+                new ContentNegotiationFormatter(
+                    new JsonApiFormatter($inDebugMode),
+                    $inDebugMode ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
+                ),
                 $container->tagged(Reporter::class)
             );
         });
@@ -165,6 +176,23 @@ class ForumServiceProvider extends AbstractServiceProvider
                 'oldest' => 'createdAt'
             ];
         });
+
+        // How an uploaded logo is stored. The header shows it at most 30px
+        // tall, so storing it at 90px keeps it sharp on 3x screens.
+        $this->container->singleton('flarum.forum.manifest', function () {
+            return [];
+        });
+
+        $this->container->singleton('flarum.theme.images', function () {
+            return [];
+        });
+
+        $this->container->singleton('flarum.forum.logo', function () {
+            return [
+                'height' => 90,
+                'quality' => 90,
+            ];
+        });
     }
 
     public function boot(Container $container, Dispatcher $events, Factory $view): void
@@ -177,14 +205,29 @@ class ForumServiceProvider extends AbstractServiceProvider
             'formatter' => $container->make(Formatter::class),
         ]);
 
+        // The standalone pages (errors, password reset, email confirmation...)
+        // load none of the forum's assets, so the layout they share is given
+        // what it needs to follow the forum's color scheme and show its favicon.
+        $view->composer('flarum.forum::layouts.basic', function (View $layout) use ($container) {
+            /** @var SettingsRepositoryInterface $settings */
+            $settings = $container->make(SettingsRepositoryInterface::class);
+            $layout->with([
+                'colorScheme' => $settings->get('color_scheme') ?? 'auto',
+                'darkBodyBg' => FrontendServiceProvider::computeDarkBodyBg($settings->get('theme_secondary_color') ?? '#536F90'),
+                'faviconUrl' => $container->make(Branding::class)->faviconUrl(),
+            ]);
+        });
+
         $events->listen(
             [Enabled::class, Disabled::class, ClearingCache::class],
             function () use ($container) {
                 $recompile = new RecompileFrontendAssets(
                     $container->make('flarum.assets.forum'),
-                    $container->make(LocaleManager::class)
+                    $container->make(LocaleManager::class),
+                    $container->make('events'),
+                    $container->make(SettingsRepositoryInterface::class)
                 );
-                $recompile->flush();
+                $recompile->markDirty();
             }
         );
 
@@ -201,6 +244,8 @@ class ForumServiceProvider extends AbstractServiceProvider
                 $validator->whenSettingsSaved($event);
             }
         );
+
+        $events->listen(Saved::class, RedrawAppIcon::class);
 
         $events->listen(
             Saving::class,

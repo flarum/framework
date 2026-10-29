@@ -33,7 +33,11 @@ class User extends Type
     {
         $columns = $this->getTableColumns($this->user);
 
-        $remove = ['id', 'username', 'password', 'email', 'is_email_confirmed', 'preferences', 'joined_at', 'anonymized', 'discussion_count', 'comment_count'];
+        // `$remove` here means "skip this column when wiping to null" — i.e. preserve
+        // the existing value or set it explicitly below. NOT NULL boolean columns
+        // (e.g. has_avatar_*) are listed here because nulling them would violate
+        // their constraint; they're set explicitly after the loop instead.
+        $remove = ['id', 'username', 'password', 'email', 'is_email_confirmed', 'preferences', 'joined_at', 'anonymized', 'discussion_count', 'comment_count', 'has_avatar_2x', 'has_avatar_3x'];
 
         foreach ($columns as $column) {
             if (in_array($column, $remove)) {
@@ -51,6 +55,10 @@ class User extends Type
         $this->user->setPreferencesAttribute([]);
         $this->user->joined_at = Carbon::now();
         $this->user->anonymized = true;
+        // The avatar files themselves are removed by Data\Assets::anonymize(); reset
+        // the variant flags here to match.
+        $this->user->has_avatar_2x = false;
+        $this->user->has_avatar_3x = false;
         $this->user->groups()->sync([]);
 
         $this->user->save();

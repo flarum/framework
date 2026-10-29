@@ -10,6 +10,10 @@
 namespace Flarum\Realtime\Websocket\Message;
 
 use Flarum\Realtime\Websocket\Channel\Manager;
+use Flarum\Realtime\Websocket\IndexTypingPresence;
+use Flarum\Realtime\Websocket\TypingActivity;
+use Flarum\Realtime\Websocket\TypingIdentity;
+use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use stdClass;
 
@@ -21,13 +25,308 @@ class Message
 
     public function respond(): void
     {
-        $channel = $this->manager->find($this->payload->channel);
+        if (! $this->isAuthorizedClientEvent()) {
+            return;
+        }
 
-        optional($channel)
-            ->broadcastToEveryoneExcept(
+        if (! $this->relayTyping() && ! $this->relayDialogTyping()) {
+            $channel = $this->manager->find($this->payload->channel);
+
+            $channel->broadcastToEveryoneExcept(
                 $this->payload,
                 /** @phpstan-ignore-next-line */
                 $this->connection->socketId
             );
+        }
+
+        $this->relayIndexTyping();
+        $this->relayComposeTyping();
+        $this->relayTypingActivity();
+    }
+
+    /**
+     * The channel carrying the identities of users who are typing while hiding their
+     * online status. Subscription requires `user.viewLastSeenAt` — see
+     * {@link \Flarum\Realtime\Websocket\Api\AuthController::typingIdentified()}.
+     */
+    public static function identifiedTypingChannel(int $discussionId): string
+    {
+        return "private-typingIdentified=$discussionId";
+    }
+
+    /**
+     * Client-originated events are only permitted under the same rules Pusher
+     * enforces, so a connection cannot forge events into channels it has no
+     * business broadcasting to:
+     *
+     *   - the event name must be prefixed `client-`;
+     *   - the target must be a private/presence channel (never a public one);
+     *   - the channel must already exist and the sending connection must be
+     *     subscribed to it.
+     *
+     * Without this, any connection holding the public app key could inject forged
+     * events (e.g. spoofed notifications) into another user's private channel
+     * without ever authorising a subscription.
+     */
+    protected function isAuthorizedClientEvent(): bool
+    {
+        $channelName = $this->payload->channel ?? null;
+        $event = $this->payload->event ?? null;
+
+        if (! is_string($channelName) || ! is_string($event)) {
+            return false;
+        }
+
+        if (! Str::startsWith($event, 'client-')) {
+            return false;
+        }
+
+        if (! Str::startsWith($channelName, ['private-', 'presence-'])) {
+            return false;
+        }
+
+        $channel = $this->manager->find($channelName);
+
+        return $channel !== null && $channel->hasConnection($this->connection);
+    }
+
+    /**
+     * Relay a discussion typing event, disclosing the typist's identity to exactly
+     * the audience entitled to it. Returns false for anything that isn't discussion
+     * typing, so the caller falls back to the plain relay.
+     *
+     * Core treats `user.viewLastSeenAt` as the override for a user's `discloseOnline`
+     * preference (see UserResource's `lastSeenAt` visibility). Typing is the one place
+     * that override wasn't honoured, because the name was scrubbed at the sender and
+     * so never reached anyone. It can't simply be scrubbed at the *receiver* either:
+     * `private-typing={id}` is subscribable by everyone who can see the discussion, so
+     * a name broadcast there is a name disclosed to all of them.
+     *
+     * Hence the split. When the typist is hiding:
+     *
+     *   - the full payload goes to the identified channel, which only holders of the
+     *     permission can subscribe to;
+     *   - an anonymised payload (no name at all) goes to the discussion channel,
+     *     skipping the identified channel's subscribers so a privileged viewer sees
+     *     one event rather than a name and an `[Anonymous]` for the same person.
+     *
+     * When the typist is disclosing, the single existing broadcast is unchanged. When
+     * nobody privileged is listening, the identified channel doesn't exist and the
+     * behaviour is exactly as before.
+     *
+     * Neither the name nor the preference is taken from the payload — both are looked
+     * up from the identity the connection authenticated with, so a modified client
+     * can't put words in another user's mouth (which it could, before this). An
+     * unidentifiable sender fails closed to anonymous.
+     */
+    protected function relayTyping(): bool
+    {
+        if ($this->payload->event !== 'client-typing'
+            || ! preg_match('/^private-typing=(\d+)$/', $this->payload->channel, $m)) {
+            return false;
+        }
+
+        $discussionId = (int) $m[1];
+        /** @phpstan-ignore-next-line */
+        $sender = $this->connection->socketId;
+
+        $userId = $this->manager->userIdForConnection($this->connection);
+        $identity = $userId !== null ? resolve(TypingIdentity::class)->for($userId) : null;
+
+        $channel = $this->manager->find($this->payload->channel);
+
+        if ($identity !== null && $identity['discloseOnline']) {
+            $channel->broadcastToEveryoneExcept(
+                $this->typingPayload($this->payload->channel, $identity['displayName'], true),
+                $sender
+            );
+
+            return true;
+        }
+
+        $identified = $this->manager->find(self::identifiedTypingChannel($discussionId));
+
+        if ($identified && $identity !== null) {
+            $identified->broadcastToEveryoneExcept(
+                $this->typingPayload($identified->getName(), $identity['displayName'], false),
+                $sender
+            );
+        }
+
+        $channel->broadcastToEveryoneExcept(
+            $this->typingPayload($this->payload->channel, null, false),
+            array_merge([$sender], $identified ? $identified->socketIds() : [])
+        );
+
+        return true;
+    }
+
+    /**
+     * The channel naming hidden typists in a private conversation to those who may
+     * see through a hidden online status. Subscription requires `user.viewLastSeenAt`
+     * and membership of the conversation — see
+     * {@link \Flarum\Realtime\Websocket\Api\AuthController::privateMessageTypingIdentified()}.
+     */
+    public static function identifiedDialogTypingChannel(int $dialogId): string
+    {
+        return "private-privateMessageTypingIdentified=$dialogId";
+    }
+
+    /**
+     * Relay typing in a private conversation (flarum/messages), on the same terms
+     * as a discussion: the typist is whoever the connection authenticated as, never
+     * who the payload claims, and a member hiding their online status is named only
+     * to those entitled to see through that.
+     *
+     * The difference from a discussion is the audience. Only the conversation's
+     * members may subscribe, and they already know each other, so there is no
+     * anonymised form worth sending: in a two-member conversation "someone is
+     * typing" names them just as surely. A hidden typist therefore goes to the
+     * identified channel or nowhere. (Once conversations can have many members, an
+     * anonymised relay to the plain channel, as discussions have, may be worth
+     * adding for the larger ones.)
+     *
+     * Returns false for anything that isn't conversation typing, so the caller falls
+     * back to the plain relay. Anything that is, is handled here and never relayed
+     * raw: that would hand the sender's own payload to the recipients.
+     */
+    protected function relayDialogTyping(): bool
+    {
+        if ($this->payload->event !== 'client-typing'
+            || ! preg_match('/^private-privateMessageTyping=(\d+)$/', $this->payload->channel, $m)) {
+            return false;
+        }
+
+        $dialogId = (int) $m[1];
+        /** @phpstan-ignore-next-line */
+        $sender = $this->connection->socketId;
+
+        $userId = $this->manager->userIdForConnection($this->connection);
+        $identity = $userId !== null ? resolve(TypingIdentity::class)->for($userId) : null;
+
+        // Unidentifiable: say nothing, rather than guess.
+        if ($identity === null) {
+            return true;
+        }
+
+        if ($identity['discloseOnline']) {
+            $this->manager->find($this->payload->channel)?->broadcastToEveryoneExcept(
+                $this->dialogTypingPayload($this->payload->channel, $userId),
+                $sender
+            );
+
+            return true;
+        }
+
+        $identified = $this->manager->find(self::identifiedDialogTypingChannel($dialogId));
+
+        $identified?->broadcastToEveryoneExcept(
+            $this->dialogTypingPayload($identified->getName(), $userId),
+            $sender
+        );
+
+        return true;
+    }
+
+    /**
+     * A conversation typing payload carries only who, as the server knows them. The
+     * receiving client looks the member up itself and judges expiry on its own clock.
+     */
+    protected function dialogTypingPayload(string $channel, int $userId): stdClass
+    {
+        return (object) [
+            'event' => 'client-typing',
+            'channel' => $channel,
+            'data' => [
+                'userId' => $userId,
+            ],
+        ];
+    }
+
+    /**
+     * Build a typing payload. The shape is unchanged, so existing `client-typing`
+     * listeners (including the copy in flarum/messages, whose own channel this
+     * doesn't touch) keep working; a null `displayName` is the anonymised form.
+     *
+     * `time` is passed through from the sender: it feeds the frontend's expiry
+     * countdown against the *receiving* browser's clock, exactly as before.
+     */
+    protected function typingPayload(string $channel, ?string $displayName, bool $discloseOnline): stdClass
+    {
+        return (object) [
+            'event' => 'client-typing',
+            'channel' => $channel,
+            'data' => [
+                'displayName' => $displayName,
+                'discloseOnline' => $discloseOnline,
+                'time' => $this->payload->data->time ?? null,
+            ],
+        ];
+    }
+
+    /**
+     * In addition to relaying the raw typing event to the discussion's own channel,
+     * feed it into the coalesced index-typing presence so the discussion list can
+     * show an ambient dot. See {@link IndexTypingPresence}.
+     */
+    protected function relayIndexTyping(): void
+    {
+        if ($this->payload->event !== 'client-typing'
+            || ! preg_match('/^private-typing=(\d+)$/', $this->payload->channel, $m)) {
+            return;
+        }
+
+        resolve(IndexTypingPresence::class)->touch((int) $m[1]);
+    }
+
+    /**
+     * Feed discussion and new-discussion typing to the forum-wide activity
+     * channel, which tailors it per subscriber. Skipped entirely while nobody
+     * is subscribed. Private-message typing never goes there.
+     */
+    protected function relayTypingActivity(): void
+    {
+        if (! $this->manager->find(TypingActivity::CHANNEL)) {
+            return;
+        }
+
+        if ($this->payload->event === 'client-typing'
+            && preg_match('/^private-typing=(\d+)$/', $this->payload->channel, $m)) {
+            resolve(TypingActivity::class)->discussion(
+                $this->manager->userIdForConnection($this->connection),
+                (int) $m[1],
+                $this->payload->data->time ?? null
+            );
+        }
+
+        if ($this->payload->event === 'client-index-typing-tags'
+            && preg_match('/^private-user=(\d+)$/', $this->payload->channel, $m)
+            && is_array($this->payload->data->tags ?? null)) {
+            resolve(TypingActivity::class)->newDiscussion((int) $m[1], $this->payload->data->tags);
+        }
+    }
+
+    /**
+     * Feed compose-typing for a *new* discussion into the index-typing presence so
+     * the tag list lights up before the discussion exists. There's no discussion id
+     * yet, so the client sends the tag IDs it has selected, on its own
+     * `private-user={id}` channel — the user id comes from the (already authorised)
+     * channel name, never from the payload, and IndexTypingPresence re-authorises
+     * each claimed tag against that user before surfacing it.
+     */
+    protected function relayComposeTyping(): void
+    {
+        if ($this->payload->event !== 'client-index-typing-tags'
+            || ! preg_match('/^private-user=(\d+)$/', $this->payload->channel, $m)) {
+            return;
+        }
+
+        $tags = $this->payload->data->tags ?? null;
+
+        if (! is_array($tags)) {
+            return;
+        }
+
+        resolve(IndexTypingPresence::class)->touchTags((int) $m[1], $tags);
     }
 }

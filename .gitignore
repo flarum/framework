@@ -7,6 +7,7 @@ Thumbs.db
 tests/.phpunit.cache
 tests/.phpunit.result.cache
 /tests/integration/tmp
+/tmp
 .vagrant
 .idea/*
 .vscode

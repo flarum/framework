@@ -33,8 +33,6 @@ class DiscussionVisibilityTest extends TestCase
     {
         parent::setUp();
 
-        Tag::flushPermittedTagCache();
-
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
@@ -143,5 +141,78 @@ class DiscussionVisibilityTest extends TestCase
 
         $ids = Arr::pluck($discussions, 'id');
         $this->assertEqualsCanonicalizing([], $ids);
+    }
+
+    #[Test]
+    public function permission_on_child_does_not_grant_visibility_when_parent_is_off_limits()
+    {
+        // The visibility scope's clause:
+        //   ->whereIn('tags.id', $permittedIds)
+        //   ->where(fn($q) => $q->whereIn('tags.parent_id', $permittedIds)
+        //                       ->orWhereNull('tags.parent_id'))
+        //
+        // means a tag is visible only if EITHER its parent is also in the
+        // permitted set OR the tag has no parent. This is a load-bearing
+        // protection: an admin who restricts a parent tag must not have
+        // their restriction silently undermined by a per-child permission
+        // grant on a descendant.
+        //
+        // Concretely in this fixture: tag 8 (Primary Restricted Child
+        // Restricted) has parent tag 6 (Primary Restricted). The user has
+        // tag8.arbitraryAbility but NOT tag6.arbitraryAbility — so any
+        // discussion tagged with tag 8 alone should NOT be visible.
+        $this->app();
+
+        $this->database()->table('discussion_tag')->insert([
+            ['discussion_id' => 1, 'tag_id' => 8],
+        ]);
+
+        $user = User::find(2);
+        $discussions = Discussion::whereVisibleTo($user, 'arbitraryAbility')->get();
+
+        $ids = Arr::pluck($discussions, 'id');
+        $this->assertNotContains(1, $ids, 'Permission on a restricted child tag must not bypass the parent-tag restriction.');
+    }
+
+    #[Test]
+    public function permission_on_child_grants_visibility_when_parent_is_unrestricted()
+    {
+        // Symmetric case: tag 5 (Primary 2 Child Restricted) has parent
+        // tag 2 (Primary 2, unrestricted). The user has tag5.arbitraryAbility
+        // and the global perm. A discussion tagged with tag 5 alone should
+        // be visible — the parent_id IS allowed (it's unrestricted, so any
+        // user with the global perm has access).
+        //
+        // Discussion 3 in the fixture has tags [2, 5] which already covers
+        // this; this test makes the property explicit with a single-tag
+        // case to isolate the parent_id clause.
+        $this->app();
+
+        $this->database()->table('discussion_tag')->insert([
+            ['discussion_id' => 1, 'tag_id' => 5],
+        ]);
+
+        $user = User::find(2);
+        $discussions = Discussion::whereVisibleTo($user, 'arbitraryAbility')->get();
+
+        $ids = Arr::pluck($discussions, 'id');
+        $this->assertContains(1, $ids, 'Permission on a restricted child tag whose parent is unrestricted should grant visibility.');
+    }
+
+    #[Test]
+    public function root_restricted_tag_with_explicit_permission_is_visible()
+    {
+        // Tag 14 (Primary Restricted 3) is restricted, has no parent, and
+        // the user has tag14.arbitraryAbility. The orWhereNull('tags.parent_id')
+        // branch of the visibility scope should let this through.
+        // Discussion 7 in the fixture covers this implicitly; this test
+        // pins the property explicitly.
+        $this->app();
+
+        $user = User::find(2);
+        $discussions = Discussion::whereVisibleTo($user, 'arbitraryAbility')->get();
+
+        $ids = Arr::pluck($discussions, 'id');
+        $this->assertContains(7, $ids, 'Permission on a restricted root tag (no parent) should grant visibility.');
     }
 }

@@ -71,10 +71,28 @@ export default class PostStreamState {
   /**
    * Update the stream so that it loads and includes the latest posts in the
    * discussion, if the end is being viewed.
+   *
+   * Note: viewingEnd() tolerates a drift of at most one post, so this is only
+   * suitable when the store has gained a single new post since the window was
+   * last synced (the live-event case). When several posts land in the store
+   * at once — e.g. they were missed while a realtime connection was down —
+   * capture viewingEnd() BEFORE pushing the new payloads and call syncEnd()
+   * directly instead.
    */
   update() {
     if (!this.viewingEnd()) return Promise.resolve();
 
+    return this.syncEnd();
+  }
+
+  /**
+   * Load through to the latest post in the discussion, expanding the visible
+   * window to the end of the stream. Unlike update(), this places no bound on
+   * how far the window has fallen behind — the caller is responsible for
+   * ensuring the end was being viewed before the posts being caught up on
+   * entered the store.
+   */
+  syncEnd(): Promise<Post[]> {
     this.visibleEnd = this.count();
 
     return this.loadRange(this.visibleStart, this.visibleEnd);
@@ -110,7 +128,7 @@ export default class PostStreamState {
 
     this.paused = true;
 
-    this.loadPromise = this.loadNearNumber(number);
+    this.loadPromise = this.loadNearNumber(number).catch(() => this.loadFailed());
 
     this.needsScroll = true;
     this.targetPost = { number };
@@ -131,7 +149,7 @@ export default class PostStreamState {
   goToIndex(index: number, noAnimation = false): Promise<void> {
     this.paused = true;
 
-    this.loadPromise = this.loadNearIndex(index);
+    this.loadPromise = this.loadNearIndex(index).catch(() => this.loadFailed());
 
     this.needsScroll = true;
     this.targetPost = { index };
@@ -141,6 +159,16 @@ export default class PostStreamState {
     m.redraw();
 
     return this.loadPromise;
+  }
+
+  /**
+   * A jump whose posts failed to load. The request has shown its own error;
+   * the stream stops waiting for the jump, so the reader can scroll and the
+   * page that asked for it (such as a discussion still loading) can carry on.
+   */
+  protected loadFailed(): void {
+    this.paused = false;
+    this.needsScroll = false;
   }
 
   /**
@@ -243,10 +271,12 @@ export default class PostStreamState {
 
     this.loadPageTimeouts[start] = setTimeout(
       () => {
-        this.loadRange(start, end).then(() => {
-          redraw();
-          this.pagesLoading--;
-        });
+        this.loadRange(start, end)
+          .then(() => redraw())
+          // The request has shown its own error. Scroll loading waits while a
+          // page is loading, so the count must come down either way.
+          .catch(() => {})
+          .finally(() => this.pagesLoading--);
         delete this.loadPageTimeouts[start];
       },
       this.pagesLoading - 1 ? 1000 : 0

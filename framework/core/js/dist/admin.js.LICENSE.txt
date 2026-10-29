@@ -43,9 +43,7 @@
 * @license MIT, https://github.com/focus-trap/focus-trap/blob/master/LICENSE
 */
 
-/**!
- * Sortable 1.15.3
- * @author	RubaXa   <trash@rubaxa.org>
- * @author	owenm    <owen23355@gmail.com>
- * @license MIT
- */
+/*!
+* tabbable 5.3.3
+* @license MIT, https://github.com/focus-trap/tabbable/blob/master/LICENSE
+*/

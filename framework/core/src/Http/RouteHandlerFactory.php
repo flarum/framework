@@ -47,7 +47,15 @@ class RouteHandlerFactory
             /** @var JsonApi $api */
             $api = $this->container->make(JsonApi::class);
 
-            $api->validateQueryParameters($request);
+            // Internal requests (e.g. a frontend page preloading its API
+            // document via Api\Client) forward the browser's query string,
+            // which may carry params like `fbclid` that the JSON:API spec
+            // requires us to reject on external requests. Skip that strict
+            // validation internally so such params don't 400 the page; the
+            // resource still only acts on the params it understands.
+            if (! RequestUtil::isInternal($request)) {
+                $api->validateQueryParameters($request);
+            }
 
             $request = $request->withQueryParams(array_merge($request->getQueryParams(), $routeParams));
 

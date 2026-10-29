@@ -107,12 +107,14 @@ export default class Tooltip extends Component<TooltipAttrs> {
     private oldText;
     private oldVisibility;
     private shouldRecreateTooltip;
+    private shouldUpdateText;
     private shouldChangeTooltipVisibility;
     view(vnode: Mithril.Vnode<TooltipAttrs, this>): Mithril.ChildArray;
     oncreate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>): void;
     onupdate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>): void;
     onremove(vnode: Mithril.VnodeDOM<TooltipAttrs, this>): void;
     private recreateTooltip;
+    private updateText;
     private updateVisibility;
     private createTooltip;
     private getRealText;

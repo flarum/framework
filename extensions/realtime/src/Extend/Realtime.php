@@ -14,6 +14,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
 use Flarum\Realtime\Push\RealtimeRegistry;
+use Flarum\Realtime\Websocket\Api\PresenceChannelAuthorizer;
 use Flarum\Realtime\Websocket\Settings;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
@@ -43,10 +44,23 @@ class Realtime implements ExtenderInterface
      */
     protected array $modelEndpoints = [];
 
+    /**
+     * @var array<string, callable[]>
+     */
+    protected array $presenceChannelGuards = [];
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->afterResolving(Settings::class, function (Settings $settings) {
             $settings->use($this->configuration);
+        });
+
+        $container->afterResolving(PresenceChannelAuthorizer::class, function (PresenceChannelAuthorizer $authorizer) {
+            foreach ($this->presenceChannelGuards as $channel => $callbacks) {
+                foreach ($callbacks as $callback) {
+                    $authorizer->add($channel, $callback);
+                }
+            }
         });
 
         $container->afterResolving(RealtimeRegistry::class, function (RealtimeRegistry $registry) {
@@ -264,6 +278,41 @@ class Realtime implements ExtenderInterface
     public function registerModelEndpoint(string $modelClass, string $endpoint): self
     {
         $this->modelEndpoints[$modelClass] = $endpoint;
+
+        return $this;
+    }
+
+    // -------------------------------------------------------------------------
+    // Presence channel authorization
+    // -------------------------------------------------------------------------
+
+    /**
+     * Register a callback to authorize access to a presence channel.
+     *
+     * The callback receives the actor and the channel subject name (the part
+     * after `presence-`, e.g. `'online'` for `presence-online`). Return
+     * `false` to deny; any other return value (including `null`) is treated as
+     * a pass. All registered callbacks for the channel must pass before the
+     * authentication response is issued.
+     *
+     * The actor is guaranteed to be a logged-in user — guests are rejected
+     * before callbacks are invoked.
+     *
+     * Example (in an extension's extend.php):
+     *
+     *   (new Extend\Conditional())
+     *       ->whenExtensionEnabled('flarum-realtime', fn () => [
+     *           (new \Flarum\Realtime\Extend\Realtime())
+     *               ->authorizePresenceChannel('online',
+     *                   fn (User $actor) => $actor->hasPermission('viewOnlineUsersWidget')),
+     *       ]),
+     *
+     * @param string $channel  Channel subject name, e.g. 'online'.
+     * @param callable(User $actor, string $channel): bool $callback
+     */
+    public function authorizePresenceChannel(string $channel, callable $callback): self
+    {
+        $this->presenceChannelGuards[$channel][] = $callback;
 
         return $this;
     }

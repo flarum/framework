@@ -36,7 +36,7 @@ class PostResourceFields
                         $post->likes()->attach($actor->id);
 
                         $post->raise(new PostWasLiked($post, $actor));
-                    } elseif ($currentlyLiked) {
+                    } elseif (! $liked && $currentlyLiked) {
                         $post->likes()->detach($actor->id);
 
                         $post->raise(new PostWasUnliked($post, $actor));
@@ -59,7 +59,10 @@ class PostResourceFields
                     $query
                         ->orderBy(new Expression($grammar->wrap('user_id').' = '.$actor->id), 'desc')
                         ->orderBy('created_at')
-                        ->limit(static::$maxLikes);
+                        ->limit(static::$maxLikes)
+                        // Serializing a liker reads their groups: load them for
+                        // all the likers listed at once, not one by one.
+                        ->with('groups');
                 }),
         ];
     }

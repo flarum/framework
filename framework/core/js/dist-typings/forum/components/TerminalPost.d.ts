@@ -10,4 +10,4 @@ export default class TerminalPost extends Component<import("../../common/Compone
     constructor();
     view(): JSX.Element;
 }
-import Component from "../../common/Component";
+import Component from '../../common/Component';

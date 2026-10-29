@@ -28,6 +28,12 @@ class FulltextFilter extends AbstractFulltextFilter
 
     public function search(SearchState $state, string $value): void
     {
+        if ($this->settings->get('search_cjk_mode')) {
+            $this->like($state, $value);
+
+            return;
+        }
+
         match ($state->getQuery()->getConnection()->getDriverName()) {
             'mysql', 'mariadb' => $this->mysql($state, $value),
             'pgsql' => $this->pgsql($state, $value),
@@ -37,6 +43,11 @@ class FulltextFilter extends AbstractFulltextFilter
     }
 
     protected function sqlite(DatabaseSearchState $state, string $value): void
+    {
+        $this->like($state, $value);
+    }
+
+    protected function like(DatabaseSearchState $state, string $value): void
     {
         $state->getQuery()->where('content', 'like', "%$value%");
     }
@@ -70,13 +81,15 @@ class FulltextFilter extends AbstractFulltextFilter
 
         $grammar = $query->getGrammar();
 
-        $matchCondition = "to_tsvector('$searchConfig', ".$grammar->wrap('posts.content').") @@ plainto_tsquery('$searchConfig', ?)";
-        $matchScore = "ts_rank(to_tsvector('$searchConfig', ".$grammar->wrap('posts.content')."), plainto_tsquery('$searchConfig', ?))";
+        $matchCondition = 'to_tsvector(?::regconfig, '.$grammar->wrap('posts.content').') @@ plainto_tsquery(?::regconfig, ?)';
+        $matchScore = 'ts_rank(to_tsvector(?::regconfig, '.$grammar->wrap('posts.content').'), plainto_tsquery(?::regconfig, ?))';
 
-        $query->whereRaw($matchCondition, [$value]);
+        $matchBindings = [$searchConfig, $searchConfig, $value];
 
-        $state->setDefaultSort(function (Builder $query) use ($value, $matchScore) {
-            $query->orderByRaw($matchScore.' desc', [$value]);
+        $query->whereRaw($matchCondition, $matchBindings);
+
+        $state->setDefaultSort(function (Builder $query) use ($matchBindings, $matchScore) {
+            $query->orderByRaw($matchScore.' desc', $matchBindings);
         });
     }
 }

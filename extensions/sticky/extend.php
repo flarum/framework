@@ -7,11 +7,11 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Sticky\Api\DiscussionResourceFields;
 use Flarum\Sticky\Event\DiscussionWasStickied;
@@ -32,8 +32,11 @@ return [
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Settings())
+        ->default('flarum-sticky.enable_display_excerpt', true)
+        ->default('flarum-sticky.only_sticky_unread_discussions', true)
+        ->default('flarum-sticky.pin_sticky_on_all_discussions', true)
         ->serializeToForum('excerptDisplayEnabled', 'flarum-sticky.enable_display_excerpt', 'boolval')
-        ->default('flarum-sticky.enable_display_excerpt', true),
+        ->serializeToForum('onlyStickyUnreadDiscussions', 'flarum-sticky.only_sticky_unread_discussions', 'boolval'),
 
     (new Extend\Model(Discussion::class))
         ->cast('is_sticky', 'bool'),
@@ -42,10 +45,7 @@ return [
         ->type(DiscussionStickiedPost::class),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
-        ->fields(DiscussionResourceFields::class)
-        ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Index {
-            return $endpoint->addDefaultInclude(['firstPost']);
-        }),
+        ->fields(DiscussionResourceFields::class),
 
     (new Extend\Event())
         ->listen(DiscussionWasStickied::class, [Listener\CreatePostWhenDiscussionIsStickied::class, 'whenDiscussionWasStickied'])
@@ -55,7 +55,20 @@ return [
         ->addFilter(DiscussionSearcher::class, StickyFilter::class)
         ->addMutator(DiscussionSearcher::class, PinStickiedDiscussionsToTop::class),
 
-    (new Extend\Settings())
-        ->default('flarum-sticky.only_sticky_unread_discussions', true)
-        ->serializeToForum('onlyStickyUnreadDiscussions', 'flarum-sticky.only_sticky_unread_discussions', 'boolval'),
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-realtime', fn () => [
+            (new RealtimeExtend())
+                ->broadcastModelEvent(
+                    [DiscussionWasStickied::class, DiscussionWasUnstickied::class],
+                    fn ($event) => $event->discussion,
+                    fn ($event) => $event->user,
+                    'stickiedEvent'
+                ),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-sticky')
+                ->listen(DiscussionWasStickied::class, 'discussion.stickied', fn ($e) => ['discussion_id' => $e->discussion->id])
+                ->listen(DiscussionWasUnstickied::class, 'discussion.unstickied', fn ($e) => ['discussion_id' => $e->discussion->id]),
+        ]),
 ];

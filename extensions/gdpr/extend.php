@@ -28,7 +28,8 @@ return [
 
     (new Extend\Routes('forum'))
         ->get('/gdpr/export/{file}', 'gdpr.export', Http\Controller\ExportController::class)
-        ->get('/gdpr/erasure/confirm/{token}', 'gdpr.erasure.confirm', Http\Controller\ConfirmErasureController::class),
+        ->get('/gdpr/erasure/confirm/{token}', 'gdpr.erasure.confirm', Http\Controller\ConfirmErasureViewController::class)
+        ->post('/gdpr/erasure/confirm/{token}', 'gdpr.erasure.confirm.submit', Http\Controller\ConfirmErasureController::class),
 
     (new Extend\Notification())
         ->type(Notifications\ExportAvailableBlueprint::class, ['alert', 'email'])
@@ -84,4 +85,11 @@ return [
     (new Extend\Policy())
         ->modelPolicy(User::class, Access\UserPolicy::class)
         ->modelPolicy(ErasureRequest::class, Access\ErasureRequestPolicy::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-gdpr')
+                ->using(new AuditIntegration()),
+        ]),
 ];
