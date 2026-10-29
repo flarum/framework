@@ -7,7 +7,6 @@ import Icon from '../../common/components/Icon';
 import IPAddress from '../../common/components/IPAddress';
 import Tooltip from '../../common/components/Tooltip';
 import humanTime from '../../common/helpers/humanTime';
-import type { IPageAttrs } from '../../common/components/Page';
 import type AccessToken from '../../common/models/AccessToken';
 import type User from '../../common/models/User';
 import ResourceDefinition from '../../common/resource/ResourceDefinition';
@@ -16,7 +15,7 @@ import ResourceListState, { readQuery, writeQuery } from '../../common/resource/
 import type { Filter } from '../../common/resource/types';
 import ItemList from '../../common/utils/ItemList';
 import extractText from '../../common/utils/extractText';
-import AdminPage from './AdminPage';
+import ResourceListPage from './ResourceListPage';
 import AccessTokenRevokeModal, { accessTokenTypeLabel } from './AccessTokenRevokeModal';
 import ResourceTable, { patchColumn, type ColumnData } from './resource/ResourceTable';
 
@@ -205,18 +204,16 @@ export class AccessTokenTable extends ResourceTable<AccessToken> {
  * Admin page listing every session, remembered session and developer token of the forum's users,
  * for actors with `moderateAccessTokens`.
  */
-export default class AccessTokenListPage extends AdminPage {
-  protected definition!: AccessTokenDefinition;
-  protected list!: AccessTokenListState;
-
-  oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
-    super.oninit(vnode);
-
-    this.definition = new AccessTokenDefinition();
-    this.list = new AccessTokenListState(this.definition, { pageSize: 50 });
+export default class AccessTokenListPage extends ResourceListPage<AccessTokenDefinition> {
+  createDefinition() {
+    return new AccessTokenDefinition();
   }
 
-  headerInfo() {
+  createList() {
+    return new AccessTokenListState(this.definition, { pageSize: 50 });
+  }
+
+  page() {
     return {
       className: 'AccessTokenListPage',
       icon: 'fas fa-user-lock',
@@ -225,7 +222,7 @@ export default class AccessTokenListPage extends AdminPage {
     };
   }
 
-  content() {
-    return <AccessTokenTable definition={this.definition} state={this.list} className="AccessTokenListPage-table" />;
+  tableComponent() {
+    return AccessTokenTable;
   }
 }

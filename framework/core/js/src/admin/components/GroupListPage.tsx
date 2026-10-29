@@ -1,17 +1,13 @@
-import type Mithril from 'mithril';
-
 import app from '../../admin/app';
 
 import GroupBadge from '../../common/components/GroupBadge';
-import type { IPageAttrs } from '../../common/components/Page';
 import type Group from '../../common/models/Group';
 import ResourceDefinition from '../../common/resource/ResourceDefinition';
 import { patchField } from '../../common/resource/fieldsFromDescriptor';
 import type { Field } from '../../common/resource/types';
 import type ItemList from '../../common/utils/ItemList';
 import extractText from '../../common/utils/extractText';
-import AdminPage from './AdminPage';
-import ResourceTable from './resource/ResourceTable';
+import ResourceListPage from './ResourceListPage';
 
 /**
  * The groups resource: a badge column in front of the names, help for the icon, and a group named
@@ -66,25 +62,17 @@ export class GroupDefinition extends ResourceDefinition<Group> {
  * Admin page listing every group, with create, edit and (for all but the admin, guest and member
  * groups) delete. Reordering stays on the permissions page.
  */
-export default class GroupListPage extends AdminPage {
-  protected definition!: GroupDefinition;
-
-  oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
-    super.oninit(vnode);
-
-    this.definition = new GroupDefinition();
+export default class GroupListPage extends ResourceListPage<GroupDefinition> {
+  createDefinition() {
+    return new GroupDefinition();
   }
 
-  headerInfo() {
+  page() {
     return {
       className: 'GroupListPage',
       icon: 'fas fa-user-tag',
       title: app.translator.trans('core.admin.groups.title'),
       description: app.translator.trans('core.admin.groups.description'),
     };
-  }
-
-  content() {
-    return <ResourceTable definition={this.definition} className="GroupListPage-table" />;
   }
 }

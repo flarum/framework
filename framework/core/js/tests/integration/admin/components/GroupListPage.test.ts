@@ -145,6 +145,13 @@ describe('GroupListPage', () => {
     expect(out).toHaveElement('.ResourceTable-filter--hidden');
   });
 
+  test('it is a ResourceListPage: the header and the table in the padded wrapper', async () => {
+    const out = await rendered();
+
+    expect(out).toHaveElement('.AdminPage.GroupListPage .GroupListPage-header');
+    expect(out).toHaveElement('.ResourceListPage .ResourceTable.GroupListPage-table');
+  });
+
   test('built-in groups have edit but no delete; other groups have both', async () => {
     const out = await rendered();
 
