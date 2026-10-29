@@ -63,6 +63,15 @@ export interface ColumnData<M extends Model = Model> {
   csv?: (model: M) => string | number | null;
 }
 
+/**
+ * Shallow-merge `patch` into the column at `key`. No-op if the key is absent.
+ */
+export function patchColumn<M extends Model>(columns: ItemList<ColumnData<M>>, key: string, patch: Partial<ColumnData<M>>): void {
+  if (!columns.has(key)) return;
+
+  columns.setContent(key, { ...columns.get(key), ...patch });
+}
+
 export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAttrs {
   definition: ResourceDefinition<M>;
   /** An existing list state; one is created (and owned) otherwise. */

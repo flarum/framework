@@ -22,6 +22,7 @@ import Input from '../../common/components/Input';
 import GambitsAutocompleteDropdown from '../../common/components/GambitsAutocompleteDropdown';
 import type { BulkActionContext, BulkSummary } from '../../common/resource/BulkRunner';
 import { renderColumn } from '../../common/resource/field';
+import { patchFilter } from '../../common/resource/fieldsFromDescriptor';
 import RelationInput from '../../common/resource/inputs/RelationInput';
 import ResourceDefinition from '../../common/resource/ResourceDefinition';
 import Group from '../../common/models/Group';
@@ -736,9 +737,7 @@ class UserResourceDefinition extends ResourceDefinition<User> {
   filters() {
     const filters = super.filters();
 
-    if (filters.has('group')) {
-      filters.get('group').exclude = (group: Model) => group.id() === Group.GUEST_ID;
-    }
+    patchFilter(filters, 'group', { exclude: (group: Model) => group.id() === Group.GUEST_ID });
 
     return filters;
   }

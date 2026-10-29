@@ -11,13 +11,14 @@ import type { IPageAttrs } from '../../common/components/Page';
 import type AccessToken from '../../common/models/AccessToken';
 import type User from '../../common/models/User';
 import ResourceDefinition from '../../common/resource/ResourceDefinition';
+import { patchFilter } from '../../common/resource/fieldsFromDescriptor';
 import ResourceListState, { readQuery, writeQuery } from '../../common/resource/ResourceListState';
 import type { Filter } from '../../common/resource/types';
 import ItemList from '../../common/utils/ItemList';
 import extractText from '../../common/utils/extractText';
 import AdminPage from './AdminPage';
 import AccessTokenRevokeModal, { accessTokenTypeLabel } from './AccessTokenRevokeModal';
-import ResourceTable, { type ColumnData } from './resource/ResourceTable';
+import ResourceTable, { patchColumn, type ColumnData } from './resource/ResourceTable';
 
 /**
  * The list's order when the URL names none: most recent activity first.
@@ -63,13 +64,9 @@ export class AccessTokenDefinition extends ResourceDefinition<AccessToken> {
 
   filters(): ItemList<Filter> {
     const filters = super.filters();
+    const values = this.descriptor?.filters?.find((f) => f.key === 'type')?.enum ?? [];
 
-    if (filters.has('type')) {
-      const filter = filters.get('type');
-      const values = this.descriptor?.filters?.find((f) => f.key === 'type')?.enum ?? [];
-
-      filter.input = { type: 'enum', choices: values.map((value) => [value, accessTokenTypeLabel(value)]) };
-    }
+    patchFilter(filters, 'type', { input: { type: 'enum', choices: values.map((value) => [value, accessTokenTypeLabel(value)]) } });
 
     return filters;
   }
@@ -103,11 +100,7 @@ export class AccessTokenTable extends ResourceTable<AccessToken> {
   columns(): ItemList<ColumnData<AccessToken>> {
     const columns = super.columns();
 
-    const patch = (key: string, column: Partial<ColumnData<AccessToken>>) => {
-      if (columns.has(key)) columns.setContent(key, { ...columns.get(key), ...column });
-    };
-
-    patch('user', {
+    patchColumn(columns, 'user', {
       content: (token) => {
         const user = token.user();
 
@@ -123,7 +116,7 @@ export class AccessTokenTable extends ResourceTable<AccessToken> {
       toggleable: false,
     });
 
-    patch('type', {
+    patchColumn(columns, 'type', {
       content: (token) => (
         <span className="AccessTokenList-type">
           {accessTokenTypeLabel(token.type())}
@@ -133,16 +126,16 @@ export class AccessTokenTable extends ResourceTable<AccessToken> {
       csv: (token) => token.type(),
     });
 
-    patch('lastIpAddress', {
+    patchColumn(columns, 'lastIpAddress', {
       content: (token) => (token.lastIpAddress() ? <IPAddress key={token.id()} ip={token.lastIpAddress()} /> : null),
     });
 
-    patch('createdAt', {
+    patchColumn(columns, 'createdAt', {
       content: (token) => (token.createdAt() ? humanTime(token.createdAt()) : null),
       csv: (token) => token.createdAt()?.toISOString() ?? null,
     });
 
-    patch('lastActivityAt', {
+    patchColumn(columns, 'lastActivityAt', {
       content: (token) =>
         token.lastActivityAt() ? (
           humanTime(token.lastActivityAt())

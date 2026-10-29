@@ -2,7 +2,7 @@ import type Model from '../Model';
 import ItemList from '../utils/ItemList';
 import { isWritable } from './descriptor';
 import { resolveInput } from './resolvers';
-import type { Field, FieldColumn, FieldDescriptor, InputResolver, ResourceDescriptor } from './types';
+import type { Field, FieldColumn, FieldDescriptor, Filter, InputResolver, ResourceDescriptor } from './types';
 
 function column<M extends Model>(d: FieldDescriptor, resolved: Partial<Field<M>>): Field<M>['column'] {
   const hint = d.ui?.column;
@@ -60,6 +60,15 @@ export function fieldsFromDescriptor<M extends Model>(d: ResourceDescriptor, res
  * Shallow-merge `patch` into the field at `key`. No-op if the key is absent.
  */
 export function patchField<M extends Model>(f: ItemList<Field<M>>, key: string, patch: Partial<Field<M>>): void {
+  if (!f.has(key)) return;
+
+  f.setContent(key, { ...f.get(key), ...patch });
+}
+
+/**
+ * Shallow-merge `patch` into the filter at `key`. No-op if the key is absent.
+ */
+export function patchFilter(f: ItemList<Filter>, key: string, patch: Partial<Filter>): void {
   if (!f.has(key)) return;
 
   f.setContent(key, { ...f.get(key), ...patch });

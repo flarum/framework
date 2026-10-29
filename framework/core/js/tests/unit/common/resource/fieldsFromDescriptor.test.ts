@@ -4,13 +4,13 @@ import { app } from '../../../../src/admin';
 import ItemList from '../../../../src/common/utils/ItemList';
 import Stream from '../../../../src/common/utils/Stream';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
-import { fieldsFromDescriptor, patchField } from '../../../../src/common/resource/fieldsFromDescriptor';
+import { fieldsFromDescriptor, patchField, patchFilter } from '../../../../src/common/resource/fieldsFromDescriptor';
 import { defaultInputResolvers, WIDGET_ALIASES } from '../../../../src/common/resource/resolvers';
 import { defaultFormInputs } from '../../../../src/common/resource/inputs/defaults';
 import InputFactory from '../../../../src/common/resource/inputs/InputFactory';
 import RelationInput from '../../../../src/common/resource/inputs/RelationInput';
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
-import type { Field, InputResolver } from '../../../../src/common/resource/types';
+import type { Field, Filter, InputResolver } from '../../../../src/common/resource/types';
 import { bootAdmin, descriptor, fd, schemaDocument } from './fixtures';
 
 function inputOf(field: Field<any>): any {
@@ -282,5 +282,17 @@ describe('ResourceDefinition', () => {
 
   test('label humanizes the type', () => {
     expect(new ResourceDefinition('product-categories').label(2)).toBe('Product categories');
+  });
+});
+
+describe('patchFilter', () => {
+  test('merges shallowly; a no-op for an absent key', () => {
+    const filters = new ItemList<Filter>().add('type', { label: 'Type', input: { type: 'text' }, negatable: true });
+
+    patchFilter(filters, 'type', { input: { type: 'enum', choices: [] } });
+    patchFilter(filters, 'missing', { label: 'Missing' });
+
+    expect(filters.get('type')).toEqual({ label: 'Type', input: { type: 'enum', choices: [] }, negatable: true });
+    expect(filters.has('missing')).toBe(false);
   });
 });
