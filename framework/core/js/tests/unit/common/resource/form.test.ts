@@ -78,6 +78,23 @@ describe('ResourceFormState', () => {
     expect(state.buildSaveData()).toEqual({ title: 'Big knife' });
   });
 
+  test('shared() is one stream per key, never sent and kept across reset()', async () => {
+    const state = await ResourceFormState.create(new ThingDefinition(), thing);
+    const open = state.shared('advancedOpen', false);
+
+    expect(state.shared('advancedOpen', true)).toBe(open);
+    expect(open()).toBe(false);
+
+    open(true);
+    state.stream('title')('Big knife');
+
+    expect(state.buildSaveData()).toEqual({ title: 'Big knife' });
+
+    state.reset();
+
+    expect(state.shared('advancedOpen', false)()).toBe(true);
+  });
+
   test('changed container fields and a changed relationship deep-merge', async () => {
     const state = await ResourceFormState.create(new ThingDefinition(), thing);
 

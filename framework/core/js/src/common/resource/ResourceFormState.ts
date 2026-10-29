@@ -25,6 +25,7 @@ export default class ResourceFormState<M extends Model = Model> {
   saving: boolean = false;
   /** Keys whose entry in `errors` came from client-side validation, not the server. */
   protected clientErrorKeys = new Set<string>();
+  protected sharedStreams: Record<string, Stream<any>> = {};
 
   /**
    * Await the definition's descriptor, then build the state.
@@ -96,6 +97,14 @@ export default class ResourceFormState<M extends Model = Model> {
       this.initial[key] = value;
       this.streams[key] = Stream(value);
     });
+  }
+
+  /**
+   * Form-wide view state several inputs share, created on first use. Never sent, and kept across
+   * `reset()`.
+   */
+  shared<V>(key: string, initial: V): Stream<V> {
+    return (this.sharedStreams[key] ??= Stream(initial));
   }
 
   stream<V = unknown>(key: string): Stream<V> {
