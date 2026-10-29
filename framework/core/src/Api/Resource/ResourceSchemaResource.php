@@ -13,17 +13,12 @@ use Flarum\Api\Context;
 use Flarum\Api\Describe\ResourceDescriber;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Schema;
-use Flarum\Api\Serializer;
 use Flarum\Http\RequestUtil;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Container\Container;
-use Laminas\Diactoros\Response\EmptyResponse;
-use Psr\Http\Message\ResponseInterface;
 use stdClass;
 use Tobyz\JsonApiServer\Context as BaseContext;
 use Tobyz\JsonApiServer\Exception\ResourceNotFoundException;
-
-use function Tobyz\JsonApiServer\json_api_response;
 
 /**
  * Exposes `ResourceDescriber` descriptors as `GET /api/resource-schemas/{type}`.
@@ -102,8 +97,7 @@ class ResourceSchemaResource extends AbstractResource implements Contracts\Finda
                     if (! $this->describer()->canDescribe($context->model->resource, $context->getActor(), $context->request)) {
                         throw new PermissionDeniedException();
                     }
-                })
-                ->response(fn (Context $context, stdClass $schema) => $this->respond($context, $schema)),
+                }),
         ];
     }
 
@@ -120,52 +114,5 @@ class ResourceSchemaResource extends AbstractResource implements Contracts\Finda
     protected function descriptor(stdClass $schema, Context $context): array
     {
         return $schema->descriptor ??= $this->describer()->describe($schema->resource, $context->getActor(), $context->request);
-    }
-
-    /**
-     * Serialize the document, then answer with an ETag over its attributes.
-     * The descriptor depends on the actor and locale, hence `private`.
-     */
-    protected function respond(Context $context, stdClass $schema): ResponseInterface
-    {
-        $serializer = new Serializer($context);
-        $serializer->addPrimary($context->resource($this->type()), $schema, []);
-
-        [$primary] = $serializer->serialize();
-
-        $document = ['data' => $primary[0]];
-
-        $etag = '"'.sha1(json_encode($document['data']['attributes'] ?? [], JSON_THROW_ON_ERROR)).'"';
-
-        $headers = ['ETag' => $etag, 'Cache-Control' => 'private'];
-
-        if ($this->matchesIfNoneMatch($context->request->getHeaderLine('If-None-Match'), $etag)) {
-            return new EmptyResponse(304, $headers);
-        }
-
-        $response = json_api_response($document);
-
-        foreach ($headers as $name => $value) {
-            $response = $response->withHeader($name, $value);
-        }
-
-        return $response;
-    }
-
-    protected function matchesIfNoneMatch(string $header, string $etag): bool
-    {
-        if ($header === '') {
-            return false;
-        }
-
-        foreach (explode(',', $header) as $candidate) {
-            $candidate = trim($candidate);
-
-            if ($candidate === '*' || preg_replace('/^W\//', '', $candidate) === $etag) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

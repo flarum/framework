@@ -57,8 +57,6 @@ class ShowTest extends TestCase
         $this->assertSame('resource-schemas', $json['data']['type']);
         $this->assertSame('users', $json['data']['id']);
         $this->assertSame(1, $json['data']['attributes']['schemaVersion']);
-        $this->assertNotEmpty($response->getHeaderLine('ETag'));
-        $this->assertStringContainsString('private', $response->getHeaderLine('Cache-Control'));
     }
 
     #[Test]
@@ -129,29 +127,6 @@ class ShowTest extends TestCase
     }
 
     #[Test]
-    public function a_matching_if_none_match_gets_not_modified()
-    {
-        $first = $this->send(
-            $this->request('GET', '/api/resource-schemas/users', ['authenticatedAs' => 1])
-        );
-
-        $this->assertEquals(200, $first->getStatusCode(), (string) $first->getBody());
-
-        $etag = $first->getHeaderLine('ETag');
-
-        $this->assertNotEmpty($etag);
-
-        $second = $this->send(
-            $this->request('GET', '/api/resource-schemas/users', ['authenticatedAs' => 1])
-                ->withHeader('If-None-Match', $etag)
-        );
-
-        $this->assertEquals(304, $second->getStatusCode());
-        $this->assertSame('', (string) $second->getBody());
-        $this->assertSame($etag, $second->getHeaderLine('ETag'));
-    }
-
-    #[Test]
     public function a_guest_is_unauthenticated_for_any_id()
     {
         // No probing which types exist or are describable without logging in.
@@ -173,65 +148,5 @@ class ShowTest extends TestCase
         );
 
         $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
-    }
-
-    #[Test]
-    public function a_non_matching_if_none_match_gets_the_document()
-    {
-        $response = $this->send(
-            $this->request('GET', '/api/resource-schemas/users', ['authenticatedAs' => 1])
-                ->withHeader('If-None-Match', '"not-the-etag"')
-        );
-
-        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
-        $this->assertSame('users', json_decode((string) $response->getBody(), true)['data']['id']);
-    }
-
-    #[Test]
-    public function a_weak_or_wildcard_if_none_match_gets_not_modified()
-    {
-        $etag = $this->send(
-            $this->request('GET', '/api/resource-schemas/users', ['authenticatedAs' => 1])
-        )->getHeaderLine('ETag');
-
-        foreach (['W/'.$etag, '*', '"other", '.$etag] as $header) {
-            $response = $this->send(
-                $this->request('GET', '/api/resource-schemas/users', ['authenticatedAs' => 1])
-                    ->withHeader('If-None-Match', $header)
-            );
-
-            $this->assertEquals(304, $response->getStatusCode(), "If-None-Match: $header");
-        }
-    }
-
-    #[Test]
-    public function not_modified_is_private()
-    {
-        $etag = $this->send(
-            $this->request('GET', '/api/resource-schemas/users', ['authenticatedAs' => 1])
-        )->getHeaderLine('ETag');
-
-        $response = $this->send(
-            $this->request('GET', '/api/resource-schemas/users', ['authenticatedAs' => 1])
-                ->withHeader('If-None-Match', $etag)
-        );
-
-        $this->assertEquals(304, $response->getStatusCode());
-        $this->assertSame('private', $response->getHeaderLine('Cache-Control'));
-    }
-
-    #[Test]
-    public function admin_and_member_etags_differ()
-    {
-        $admin = $this->send(
-            $this->request('GET', '/api/resource-schemas/users', ['authenticatedAs' => 1])
-        );
-        $member = $this->send(
-            $this->request('GET', '/api/resource-schemas/users', ['authenticatedAs' => 2])
-        );
-
-        $this->assertEquals(200, $admin->getStatusCode(), (string) $admin->getBody());
-        $this->assertEquals(200, $member->getStatusCode(), (string) $member->getBody());
-        $this->assertNotSame($admin->getHeaderLine('ETag'), $member->getHeaderLine('ETag'));
     }
 }
