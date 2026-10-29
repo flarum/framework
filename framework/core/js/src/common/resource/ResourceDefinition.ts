@@ -7,10 +7,10 @@ import recordLabel from './recordLabel';
 import { fieldsFromDescriptor } from './fieldsFromDescriptor';
 import { bareFilterInput, defaultFilterInputs, defaultFormInputs } from './inputs/defaults';
 import InputFactory from './inputs/InputFactory';
-import { defaultFilterResolvers, defaultInputResolvers, resolveFilterInput } from './resolvers';
+import { defaultFilterResolvers, defaultInputResolvers, resolveFilterInput, resolveInput } from './resolvers';
 import type { ResourceSelection } from './ResourceListState';
 import type ResourceListState from './ResourceListState';
-import type { Field, Filter, FilterResolver, InputResolver, ResourceDescriptor } from './types';
+import type { Field, FieldDescriptor, Filter, FilterDescriptor, FilterResolver, InputResolver, ResourceDescriptor } from './types';
 
 function humanize(value: string): string {
   const words = value
@@ -40,8 +40,21 @@ export default class ResourceDefinition<M extends Model = Model> {
     return this;
   }
 
+  /**
+   * Maps described fields to inputs, see `defaultInputResolvers()`. Add a keyed resolver with a
+   * higher priority to handle your fields; `fieldInput()` consults the list.
+   */
   inputResolvers(): ItemList<InputResolver> {
     return defaultInputResolvers();
+  }
+
+  /**
+   * A described field's input and the value/serialize/column overrides that go with it, null for
+   * none: the first matching `inputResolvers()` entry. Override it to decide one field outright and
+   * return `super.fieldInput(d)` for the rest.
+   */
+  fieldInput(d: FieldDescriptor): Partial<Field<M>> | null {
+    return (resolveInput(d, this.inputResolvers()) as Partial<Field<M>>) ?? null;
   }
 
   /**
@@ -64,7 +77,7 @@ export default class ResourceDefinition<M extends Model = Model> {
       throw new Error(`ResourceDefinition(${this.type}): call load() before fields().`);
     }
 
-    return fieldsFromDescriptor<M>(this.descriptor, this.inputResolvers());
+    return fieldsFromDescriptor<M>(this.descriptor, (d) => this.fieldInput(d));
   }
 
   /**
@@ -75,8 +88,16 @@ export default class ResourceDefinition<M extends Model = Model> {
   }
 
   /**
-   * One filter per described filter, its input from the first matching `filterResolvers()` entry,
-   * rendered by `filterInputs()`. Labelled by the same-named field, else the humanized key.
+   * A described filter's input; `d` is the same-named field's descriptor, null when there is none.
+   * The first matching `filterResolvers()` entry. Override it to decide one filter outright and
+   * return `super.filterInput(filter, d)` for the rest.
+   */
+  filterInput(filter: FilterDescriptor, d: FieldDescriptor | null): Filter['input'] {
+    return resolveFilterInput(filter, d, this.filterResolvers());
+  }
+
+  /**
+   * One filter per described filter, its input from `filterInput()`, rendered by `filterInputs()`. Labelled by the same-named field, else the humanized key.
    */
   filters(): ItemList<Filter> {
     const filters = new ItemList<Filter>();
@@ -85,7 +106,6 @@ export default class ResourceDefinition<M extends Model = Model> {
     if (!described.length) return filters;
 
     const fields = this.fields();
-    const resolvers = this.filterResolvers();
 
     described.forEach((filter, index) => {
       const field = fields.has(filter.key) ? fields.get(filter.key) : null;
@@ -94,7 +114,7 @@ export default class ResourceDefinition<M extends Model = Model> {
         filter.key,
         {
           label: field?.label ?? humanize(filter.key),
-          input: resolveFilterInput(filter, field?.descriptor ?? null, resolvers),
+          input: this.filterInput(filter, field?.descriptor ?? null),
           kind: filter.kind,
           negatable: filter.kind === 'boolean' || field?.descriptor?.kind === 'boolean',
         },

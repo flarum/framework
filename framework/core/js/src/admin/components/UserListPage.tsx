@@ -23,13 +23,12 @@ import GambitsAutocompleteDropdown from '../../common/components/GambitsAutocomp
 import type { BulkActionContext, BulkSummary } from '../../common/resource/BulkRunner';
 import { renderColumn } from '../../common/resource/field';
 import { patchFilter } from '../../common/resource/fieldsFromDescriptor';
-import { resolveFilterInput } from '../../common/resource/resolvers';
 import RelationInput from '../../common/resource/inputs/RelationInput';
 import ResourceDefinition from '../../common/resource/ResourceDefinition';
 import Group from '../../common/models/Group';
 import type Model from '../../common/Model';
 import ResourceListState from '../../common/resource/ResourceListState';
-import type { Field } from '../../common/resource/types';
+import type { Field, FieldDescriptor, FilterDescriptor } from '../../common/resource/types';
 import ResourceTable, { type ColumnData as ResourceColumnData, type ResourceTableAttrs } from './resource/ResourceTable';
 import ResourceDeleteModal from './resource/ResourceDeleteModal';
 
@@ -733,16 +732,17 @@ export class UserResourceDefinition extends ResourceDefinition<User> {
     return !!app.session.user?.isAdmin() && super.canExport();
   }
 
+  filterInput(filter: FilterDescriptor, d: FieldDescriptor | null) {
+    // Named apart from the `groups` relationship, so it takes that field's display hint.
+    if (filter.key === 'group') d = this.descriptor?.fields.find((field) => field.name === 'groups') ?? d;
+
+    return super.filterInput(filter, d);
+  }
+
   filters() {
     const filters = super.filters();
-    const group = this.descriptor?.filters?.find((filter) => filter.key === 'group');
-    const groups = this.descriptor?.fields.find((field) => field.name === 'groups') ?? null;
 
-    patchFilter(filters, 'group', {
-      // Named apart from the `groups` relationship, so it takes that field's display hint.
-      ...(group && { input: resolveFilterInput(group, groups, this.filterResolvers()) }),
-      exclude: (model: Model) => model.id() === Group.GUEST_ID,
-    });
+    patchFilter(filters, 'group', { exclude: (model: Model) => model.id() === Group.GUEST_ID });
 
     return filters;
   }

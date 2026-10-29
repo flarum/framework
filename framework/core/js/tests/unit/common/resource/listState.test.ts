@@ -5,7 +5,7 @@ import type ItemList from '../../../../src/common/utils/ItemList';
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
 import ResourceListState from '../../../../src/common/resource/ResourceListState';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
-import type { FilterResolver } from '../../../../src/common/resource/types';
+import type { FieldDescriptor, Filter, FilterDescriptor, FilterResolver } from '../../../../src/common/resource/types';
 import { bootAdmin, descriptor, fd, schemaDocument } from './fixtures';
 
 class Thing extends Model {}
@@ -422,6 +422,19 @@ describe('ResourceDefinition.filters', () => {
     class BrandDefinition extends ResourceDefinition {
       filterResolvers(): ItemList<FilterResolver> {
         return super.filterResolvers().add('brand', (filter) => (filter.key === 'brand' ? { type: 'search', debounce: false } : null), 100);
+      }
+    }
+
+    const filters = (await new BrandDefinition('things').load()).filters();
+
+    expect(filters.get('brand').input).toEqual({ type: 'search', debounce: false });
+    expect(filters.get('active').input).toEqual({ type: 'tri-state' });
+  });
+
+  test('filterInput() can decide a filter outright and defer the rest to the resolvers', async () => {
+    class BrandDefinition extends ResourceDefinition {
+      filterInput(filter: FilterDescriptor, d: FieldDescriptor | null): Filter['input'] {
+        return filter.key === 'brand' ? { type: 'search', debounce: false } : super.filterInput(filter, d);
       }
     }
 

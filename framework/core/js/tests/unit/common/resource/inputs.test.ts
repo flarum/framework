@@ -10,7 +10,7 @@ import RelationInput from '../../../../src/common/resource/inputs/RelationInput'
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
 import ResourceForm from '../../../../src/common/resource/ResourceForm';
 import ItemList from '../../../../src/common/utils/ItemList';
-import type { InputContext, InputResolver, InputSpec } from '../../../../src/common/resource/types';
+import type { FieldDescriptor, InputContext, InputResolver, InputSpec } from '../../../../src/common/resource/types';
 import { bootAdmin, descriptor, fd, schemaDocument } from './fixtures';
 
 class Thing extends Model {}
@@ -164,6 +164,18 @@ describe('form input factories', () => {
 
     expect(out).toHaveElement('.ResourceForm-field--color .Swatch');
     expect(out).toHaveElement('input[name=title]');
+  });
+
+  test('fieldInput() can decide a field outright and defer the rest to the resolvers', async () => {
+    class OverrideDefinition extends ResourceDefinition<Thing> {
+      fieldInput(d: FieldDescriptor) {
+        return d.name === 'title' ? { input: { type: 'textarea' as const } } : super.fieldInput(d);
+      }
+    }
+
+    const fields = (await new OverrideDefinition('things').load()).fields();
+
+    expect(fields.get('title').input).toEqual({ type: 'textarea' });
   });
 
   test('the inputs attr replaces the factory for one form', async () => {
