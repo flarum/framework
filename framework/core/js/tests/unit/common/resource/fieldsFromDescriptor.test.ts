@@ -90,10 +90,10 @@ describe('fieldsFromDescriptor', () => {
     expect(inputOf(single(fd('publishedAt', 'datetime'))).type).toBe('datetime-local');
   });
 
-  test('an empty value is null when the field is nullable; else "" for strings and omitted for the other kinds', () => {
+  test('an empty value is "" for a non-nullable string, else null', () => {
     for (const kind of ['integer', 'number', 'date', 'datetime'] as const) {
       expect(single(fd('x', kind, { nullable: true })).serialize!('')).toEqual({ x: null });
-      expect(single(fd('x', kind, { nullable: false })).serialize!('')).toEqual({});
+      expect(single(fd('x', kind, { nullable: false })).serialize!('')).toEqual({ x: null });
     }
 
     expect(single(fd('x', 'string', { nullable: true })).serialize!('')).toEqual({ x: null });

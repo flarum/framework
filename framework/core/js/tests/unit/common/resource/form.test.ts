@@ -91,6 +91,17 @@ describe('ResourceFormState', () => {
     });
   });
 
+  test('clearing a non-nullable number sends null for the server to reject; an untouched empty one is not sent', async () => {
+    serve(descriptor([fd('price', 'number', { nullable: false }), fd('stock', 'integer', { nullable: false })]));
+    app.store.pushObject({ type: 'things', id: '1', attributes: { price: 12, stock: null } } as any);
+
+    const state = await ResourceFormState.create(new ResourceDefinition<Thing>('things'), thing);
+
+    state.stream('price')('');
+
+    expect(state.buildSaveData()).toEqual({ price: null });
+  });
+
   test('typing into an empty value and clearing it again is not a change', async () => {
     const state = await ResourceFormState.create(new ThingDefinition(), thing);
 

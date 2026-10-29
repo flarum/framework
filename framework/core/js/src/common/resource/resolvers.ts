@@ -16,15 +16,15 @@ function stringAttrs(d: FieldDescriptor): Record<string, unknown> {
 }
 
 /**
- * A field's serializer: a value goes through `convert`; an empty one is sent as null when the field
- * is nullable, else as `emptyValue`, else (no `emptyValue`) not at all.
+ * A field's serializer: a value goes through `convert`; an empty one is sent as `emptyValue` when
+ * the field is not nullable and has one (strings: ""), else as null. Only a changed field is
+ * serialized, so a cleared non-nullable field reaches the server, whose 422 lands on the field.
  */
 function serializer(d: FieldDescriptor, convert: (v: any) => unknown = (v) => v, emptyValue?: unknown): Field<any>['serialize'] {
   return (v) => {
     if (!empty(v)) return { [d.name]: convert(v) };
-    if (d.nullable) return { [d.name]: null };
 
-    return emptyValue === undefined ? {} : { [d.name]: emptyValue };
+    return { [d.name]: d.nullable || emptyValue === undefined ? null : emptyValue };
   };
 }
 
