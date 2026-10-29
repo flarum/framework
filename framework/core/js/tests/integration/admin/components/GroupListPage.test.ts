@@ -179,6 +179,7 @@ describe('GroupListPage', () => {
       modalAttrs({ definition: new GroupDefinition(), model: null, onsaved })
     );
 
+    expect(modal.title()).toEqual(app.translator.trans('core.admin.groups.create_title'));
     expect(out).toHaveElement('input[name=nameSingular][required][placeholder="Singular (e.g. Mod)"]');
     expect(out).toHaveElement('input[name=namePlural][required]');
     expect(out).toHaveElement('.ResourceForm-field--color .ColorInput');

@@ -87,7 +87,7 @@ export default class ResourceFormModal<
 
     return model?.exists
       ? app.translator.trans('core.admin.resource.form.edit_title', { name: this.attrs.definition.recordLabel(model) })
-      : app.translator.trans('core.admin.resource.form.create_title');
+      : (this.attrs.definition.createTitle() ?? app.translator.trans('core.admin.resource.form.create_title'));
   }
 
   content(): Mithril.Children {

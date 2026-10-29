@@ -427,6 +427,7 @@ Every region is an `ItemList` method you can extend:
 | `query()` | Extra list request parameters, merged under the list's own. |
 | `canCreate()`, `canExport()` | `capabilities.create`, `capabilities.list`. |
 | `recordLabel(model)` | The name of one record in the edit modal title ("Edit {name}"), the delete confirmation, the bulk result and the row checkbox's label: the first non-empty string among `name`, `title`, `label`, `displayName`, `username` and `slug`, else `#id`. Override it when the naming attribute is another one. |
+| `createTitle()` | The create modal's title, e.g. "Create Group". `null` (the default) keeps the generic "Create". |
 | `label(n)` | The humanised type. |
 
 ```ts
@@ -615,7 +616,7 @@ The `groups` descriptor:
 - The `Index` endpoint has no limit, so there is no `pagination` and the page shows every group.
 - The `hidden` filter is described as `boolean`.
 
-The module exports `GroupDefinition`. It adds a `badge` column (priority 100, no input), help text under the icon input, and `recordLabel()` returns the singular name. Add a column or an input the same way as on any resource: a `->ui()` hint on a field added through `Extend\ApiResource(GroupResource::class)`, or `extend(GroupDefinition.prototype, 'fields', …)`.
+The module exports `GroupDefinition`. It adds a `badge` column (priority 100, no input), help text under the icon input, `recordLabel()` returns the singular name, and `createTitle()` gives the create modal the title "Create Group". Add a column or an input the same way as on any resource: a `->ui()` hint on a field added through `Extend\ApiResource(GroupResource::class)`, or `extend(GroupDefinition.prototype, 'fields', …)`.
 
 ## Public API
 

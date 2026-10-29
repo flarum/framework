@@ -52,6 +52,10 @@ export class GroupDefinition extends ResourceDefinition<Group> {
     return group.nameSingular() || super.recordLabel(group);
   }
 
+  createTitle(): Mithril.Children {
+    return app.translator.trans('core.admin.groups.create_title');
+  }
+
   label(_n: number): string {
     return extractText(app.translator.trans('core.admin.groups.title'));
   }

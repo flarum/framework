@@ -15,7 +15,7 @@
 - (core) an admin Groups page (`/admin#/groups`) to list, create, edit and delete groups with their colour and icon, built on the generic resource form
 - (core) `groups` is describable, group API responses include `canEdit` and `canDelete`, and the groups `hidden` filter is described as a boolean filter
 - (core) resource schema `ui()` hints: `widget` accepts `'color'`, `'icon'` or any input type an extension registers, and `placeholder` sets the input's placeholder (translated when it is a translation key)
-- (core) `ResourceDefinition.recordLabel()` names a record in modal titles and confirmations; `ResourceListState.isPaginated()`, and a type whose list is not paginated is requested whole instead of 20 at a time
+- (core) `ResourceDefinition.recordLabel()` names a record in modal titles and confirmations, and `ResourceDefinition.createTitle()` titles the create modal; `ResourceListState.isPaginated()`, and a type whose list is not paginated is requested whole instead of 20 at a time
 - (likes, suspend) describe the `liked` and `suspended` user filters, and show `suspendedUntil` as a user list column
 
 ### Changed

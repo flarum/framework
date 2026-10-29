@@ -472,6 +472,7 @@ core:
 
     # These translations are used in the Groups page of the admin interface.
     groups:
+      create_title: => core.admin.edit_group.title
       description: Create groups, and edit their names, badges and visibility.
       fields:
         color: => core.ref.color

@@ -228,6 +228,13 @@ export default class ResourceDefinition<M extends Model = Model> {
     return recordLabel(model);
   }
 
+  /**
+   * The create modal's title, e.g. "Create Group". Null (the default) keeps the generic "Create".
+   */
+  createTitle(): Mithril.Children | null {
+    return null;
+  }
+
   label(_n: number): string {
     return humanize(this.type);
   }
