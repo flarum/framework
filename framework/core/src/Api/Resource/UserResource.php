@@ -228,7 +228,7 @@ class UserResource extends AbstractDatabaseResource
                 ])
                 ->minLength(3)
                 ->maxLength(30)
-                ->ui(['column' => 90, 'label' => 'core.admin.users.grid.columns.username.title'])
+                ->ui(['column' => 90, 'label' => 'core.admin.users.grid.columns.username.title', 'required' => ['create' => true]])
                 ->writable(function (User $user, Context $context) {
                     return $context->creating()
                         || $context->getActor()->can('editCredentials', $user);
@@ -245,6 +245,7 @@ class UserResource extends AbstractDatabaseResource
                 ->validationMessages([
                     'email.required_without' => $translator->trans('validation.required', ['attribute' => $translator->trans('validation.attributes.email')])
                 ])
+                ->ui(['required' => ['create' => true]])
                 ->email(['filter'])
                 ->unique('users', 'email', true)
                 ->visible(function (User $user, Context $context) {
@@ -289,6 +290,7 @@ class UserResource extends AbstractDatabaseResource
                 ->validationMessages([
                     'password.required_without' => $translator->trans('validation.required', ['attribute' => $translator->trans('validation.attributes.password')])
                 ])
+                ->ui(['required' => ['create' => true]])
                 ->minLength(8)
                 ->visible(false)
                 ->writable(function (User $user, Context $context) {

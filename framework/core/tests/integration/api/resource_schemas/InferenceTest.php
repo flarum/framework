@@ -260,19 +260,45 @@ class InferenceTest extends TestCase
     }
 
     #[Test]
-    public function required_without_counts_when_every_alternative_is_hidden_or_undescribed()
+    public function required_without_does_not_make_a_field_required()
     {
         $descriptor = $this->describe();
 
-        $this->assertSame(['create' => true], $this->field($descriptor, 'withoutHidden')['required'] ?? null);
-        $this->assertSame(['create' => true, 'update' => true], $this->field($descriptor, 'withoutUndescribed')['required'] ?? null);
-        $this->assertSame(['create' => true, 'update' => true], $this->field($descriptor, 'withoutAllHidden')['required'] ?? null);
+        $this->assertArrayNotHasKey('required', $this->field($descriptor, 'without'));
+        $this->assertArrayNotHasKey('required', $this->field($descriptor, 'withoutAll'));
     }
 
     #[Test]
-    public function required_without_does_not_count_when_an_alternative_is_offered()
+    public function ui_required_true_requires_the_field_in_every_writable_mode()
     {
-        $this->assertArrayNotHasKey('required', $this->field($this->describe(), 'withoutOffered'));
+        $this->assertSame(['create' => true, 'update' => true], $this->field($this->describe(), 'forcedRequired')['required'] ?? null);
+    }
+
+    #[Test]
+    public function ui_required_false_wins_over_the_required_rule()
+    {
+        $this->assertArrayNotHasKey('required', $this->field($this->describe(), 'forcedOptional'));
+    }
+
+    #[Test]
+    public function ui_required_per_mode_overrides_each_mode()
+    {
+        $this->assertSame(['create' => true], $this->field($this->describe(), 'requiredPerMode')['required'] ?? null);
+    }
+
+    #[Test]
+    public function ui_required_is_limited_to_writable_modes()
+    {
+        $this->assertSame(['create' => true], $this->field($this->describe(), 'forcedCreateOnly')['required'] ?? null);
+    }
+
+    #[Test]
+    public function ui_required_is_not_emitted_inside_ui()
+    {
+        $descriptor = $this->describe();
+
+        $this->assertArrayNotHasKey('ui', $this->field($descriptor, 'forcedRequired'));
+        $this->assertSame(['column' => true], $this->field($descriptor, 'requiredPerMode')['ui'] ?? null);
     }
 
     #[Test]
@@ -511,22 +537,26 @@ class ScratchGroupResource extends AbstractDatabaseResource
             Schema\Str::make('mandatoryOnUpdate')
                 ->requiredOnUpdate()
                 ->writable(),
-            Schema\Str::make('hiddenAlternative')
-                ->hidden()
+            Schema\Str::make('without')
+                ->requiredOnCreateWithout(['flavour'])
+                ->writable(),
+            Schema\Str::make('withoutAll')
+                ->rule('required_without_all:flavour,ghost')
+                ->writable(),
+            Schema\Str::make('forcedRequired')
+                ->writable()
+                ->ui(['required' => true]),
+            Schema\Str::make('forcedOptional')
+                ->requiredOnCreate()
+                ->writable()
+                ->ui(['required' => false]),
+            Schema\Str::make('requiredPerMode')
+                ->requiredOnUpdate()
+                ->writable()
+                ->ui(['required' => ['create' => true, 'update' => false], 'column' => true]),
+            Schema\Str::make('forcedCreateOnly')
                 ->writableOnCreate()
-                ->ui(['widget' => 'hidden']),
-            Schema\Str::make('withoutHidden')
-                ->requiredOnCreateWithout(['hiddenAlternative'])
-                ->writable(),
-            Schema\Str::make('withoutOffered')
-                ->requiredOnCreateWithout(['hiddenAlternative', 'flavour'])
-                ->writable(),
-            Schema\Str::make('withoutUndescribed')
-                ->requiredWithout(['ghost'], true)
-                ->writable(),
-            Schema\Str::make('withoutAllHidden')
-                ->rule('required_without_all:hiddenAlternative,ghost')
-                ->writable(),
+                ->ui(['required' => true]),
             UntypedRelationship::make('untyped'),
             Schema\Str::make('labelKey')
                 ->ui(['label' => 'core.admin.users.grid.columns.join_time.title', 'column' => true]),

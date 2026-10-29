@@ -42,11 +42,6 @@ class FieldDescriber
         'minimum', 'maximum', 'minItems', 'maxItems',
     ];
 
-    /**
-     * Rules that require a field unless another named field is sent.
-     */
-    protected const array REQUIRED_WITHOUT_RULES = ['required_without', 'required_without_all'];
-
     public function __construct(
         protected TranslatorInterface $translator
     ) {
@@ -57,14 +52,11 @@ class FieldDescriber
      * @param array<string, true> $sortable names of sorts visible to the actor
      * @param list<'create'|'update'> $writeModes the write modes the actor has at type level;
      *                                           create is dropped when the actor cannot create
-     * @param array<string, true>|null $offered names of the fields offered to the client (described and
-     *                                          not a hidden widget). When given, a `required_without` /
-     *                                          `required_without_all` rule counts as required if none of
-     *                                          its alternatives is offered. When null, only `required` counts.
      * @return array<string, mixed>|null
      */
-    public function describe(Field $field, AbstractDatabaseResource $resource, array $contexts, array $sortable, array $writeModes = ['create', 'update'], ?array $offered = null): ?array
+    public function describe(Field $field, AbstractDatabaseResource $resource, array $contexts, array $sortable, array $writeModes = ['create', 'update']): ?array
     {
+        $ui = method_exists($field, 'getUi') ? $field->getUi() : [];
         $visible = $this->visible($field, $contexts);
 
         $conditional = false;
@@ -79,7 +71,10 @@ class FieldDescriber
             if ($isWritable) {
                 $writable[$mode] = true;
 
-                if ($this->required($field, $contexts[$mode], $offered)) {
+                // `ui.required` is true, false, or a per-mode map; it overrides the inferred value.
+                $override = is_array($ui['required'] ?? null) ? ($ui['required'][$mode] ?? null) : ($ui['required'] ?? null);
+
+                if ($override ?? $this->required($field, $contexts[$mode])) {
                     $required[$mode] = true;
                 }
             }
@@ -91,7 +86,6 @@ class FieldDescriber
         }
 
         $kind = $this->kind($field);
-        $ui = method_exists($field, 'getUi') ? $field->getUi() : [];
 
         $description = [
             'name' => $field->name,
@@ -143,8 +137,8 @@ class FieldDescriber
             $description['sortable'] = true;
         }
 
-        // The label is resolved above; don't send it twice.
-        unset($ui['label']);
+        // The label and required are resolved above; don't send them twice.
+        unset($ui['label'], $ui['required']);
 
         // A placeholder that is an existing translation key is sent translated, like a label.
         if (isset($ui['placeholder']) && is_string($ui['placeholder'])) {
@@ -198,35 +192,11 @@ class FieldDescriber
     }
 
     /**
-     * Whether the field has a `required_without` / `required_without_all` rule,
-     * so that its description depends on which other fields are offered.
-     */
-    public function hasRequiredWithout(Field $field): bool
-    {
-        if (! method_exists($field, 'getRules')) {
-            return false;
-        }
-
-        foreach ($field->getRules() as $entry) {
-            if (is_string($entry['rule']) && in_array(explode(':', $entry['rule'], 2)[0], self::REQUIRED_WITHOUT_RULES, true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * The unconditional `required` rule counts. So do `required_without` and
-     * `required_without_all` when `$offered` is given and none of the fields
-     * they name is offered: the client cannot send an alternative, so the field
-     * is required in practice (users' `requiredOnCreateWithout(['token'])`).
+     * Only the unconditional `required` rule counts. `required_without`,
      * `required_with`, `required_if` and friends depend on other input, so the
-     * server stays the judge.
-     *
-     * @param array<string, true>|null $offered
+     * server stays the judge; declare `ui.required` to override.
      */
-    protected function required(Field $field, Context $context, ?array $offered = null): bool
+    protected function required(Field $field, Context $context): bool
     {
         if (! method_exists($field, 'getValidationRules')) {
             return false;
@@ -238,33 +208,7 @@ class FieldDescriber
             return false;
         }
 
-        if (in_array('required', $rules, true)) {
-            return true;
-        }
-
-        if ($offered === null) {
-            return false;
-        }
-
-        foreach ($rules as $rule) {
-            if (! is_string($rule)) {
-                continue;
-            }
-
-            [$name, $arguments] = array_pad(explode(':', $rule, 2), 2, '');
-
-            if (! in_array($name, self::REQUIRED_WITHOUT_RULES, true) || $arguments === '') {
-                continue;
-            }
-
-            $alternatives = array_map('trim', explode(',', $arguments));
-
-            if (! array_intersect_key($offered, array_flip($alternatives))) {
-                return true;
-            }
-        }
-
-        return false;
+        return in_array('required', $rules, true);
     }
 
     protected function kind(Field $field): string
