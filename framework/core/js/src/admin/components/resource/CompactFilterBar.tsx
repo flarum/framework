@@ -12,10 +12,13 @@ import ResourceFilterBar, { type ResourceFilterBarAttrs } from './ResourceFilter
 /** Core's `@phone` breakpoint. */
 export const PHONE_QUERY = '(max-width: 767.98px)';
 
+/** A media query that always matches: the bar is always compact. */
+export const ALWAYS_QUERY = 'all';
+
 /**
  * A filter bar that collapses into one "Filters (n)" dropdown while `query` matches (default:
- * phone width), with a labelled section per filter, for core's phone sheet. Wider, it is the
- * plain bar.
+ * phone width; `ALWAYS_QUERY` for always), with a labelled section per filter, for core's phone
+ * sheet. Otherwise it is the plain bar.
  */
 export default class CompactFilterBar<M extends Model = Model> extends ResourceFilterBar<M> {
   protected media: MediaQueryList | null;

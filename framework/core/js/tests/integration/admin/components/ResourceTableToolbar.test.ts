@@ -3,6 +3,7 @@ import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
 import AutocompleteDropdown from '../../../../src/common/components/AutocompleteDropdown';
 import ResourceTable from '../../../../src/admin/components/resource/ResourceTable';
+import CompactFilterBar, { ALWAYS_QUERY } from '../../../../src/admin/components/resource/CompactFilterBar';
 import Model from '../../../../src/common/Model';
 import EmailGambit from '../../../../src/common/query/users/EmailGambit';
 import { BooleanGambit } from '../../../../src/common/query/IGambit';
@@ -381,6 +382,36 @@ describe('ResourceTable toolbar', () => {
       table.bar!.destroy();
 
       expect(listeners).toHaveLength(0);
+    });
+
+    test('compactFilters: false keeps the plain bar at phone width', async () => {
+      const { out, table } = await rendered({ compactFilters: false });
+
+      expect(table.bar).not.toBeInstanceOf(CompactFilterBar);
+      expect(out).not.toHaveElement('.ResourceTable-filtersMenu');
+      expect(out).toHaveElement('.ResourceTable-filter--status');
+    });
+
+    test('compactFilters: true is compact at any width', async () => {
+      phone = false;
+      (window as any).matchMedia = jest.fn((query: string) => ({
+        matches: query === ALWAYS_QUERY || phone,
+        addEventListener() {},
+        removeEventListener() {},
+      }));
+
+      const { out } = await rendered({ compactFilters: true });
+
+      expect(window.matchMedia).toHaveBeenCalledWith(ALWAYS_QUERY);
+      expect(out).toHaveElement('.ResourceTable-filtersMenu');
+    });
+
+    test('unset, compactFilters follows the viewport', async () => {
+      phone = false;
+
+      const { out } = await rendered();
+
+      expect(out).not.toHaveElement('.ResourceTable-filtersMenu');
     });
 
     test('compact mode collapses the filters into one "Filters (n)" dropdown of labelled sections', async () => {

@@ -25,8 +25,8 @@ import ExportCsvButton from './ExportCsvButton';
 import floatMenus from './floatMenus';
 import ordered from './ordered';
 import ResourceDeleteModal, { type ResourceDeleteModalAttrs } from './ResourceDeleteModal';
-import CompactFilterBar from './CompactFilterBar';
-import type ResourceFilterBar from './ResourceFilterBar';
+import CompactFilterBar, { ALWAYS_QUERY, PHONE_QUERY } from './CompactFilterBar';
+import ResourceFilterBar from './ResourceFilterBar';
 import ResourceFormModal from './ResourceFormModal';
 import type ModalManagerState from '../../../common/states/ModalManagerState';
 
@@ -82,6 +82,11 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
   columns?: ItemList<ColumnData<M>>;
   /** Added to the root element's class. */
   className?: string;
+  /**
+   * The filters as one "Filters (n)" dropdown: `true` always, `false` never, unset at phone width.
+   * Read by `filterBar()`.
+   */
+  compactFilters?: boolean;
 }
 
 /**
@@ -280,11 +285,17 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /**
    * The filter bar for the loaded filters, built once: its state (drafts, promoted filters, relation
-   * menus) lives as long as the table. Default: `CompactFilterBar`, the plain bar that collapses
-   * into one "Filters (n)" dropdown at phone width; return a `ResourceFilterBar` to never collapse.
+   * menus) lives as long as the table. Follows the `compactFilters` attr: a plain
+   * `ResourceFilterBar` for `false`, an always compact `CompactFilterBar` for `true`, and unset the
+   * `CompactFilterBar` that collapses into one "Filters (n)" dropdown at phone width.
    */
   filterBar(): ResourceFilterBar<M> {
-    return new CompactFilterBar<M>({ definition: this.attrs.definition, list: this.list, filters: this.attrs.definition.filters() });
+    const attrs = { definition: this.attrs.definition, list: this.list, filters: this.attrs.definition.filters() };
+    const compact = this.attrs.compactFilters;
+
+    if (compact === false) return new ResourceFilterBar<M>(attrs);
+
+    return new CompactFilterBar<M>(attrs, compact ? ALWAYS_QUERY : PHONE_QUERY);
   }
 
   /**
