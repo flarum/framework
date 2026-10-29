@@ -54,7 +54,7 @@ class ThemeImages
     protected const KEEP_RETIRED_FOR = 30 * 24 * 60 * 60;
 
     /**
-     * image => [setting => the drawn file it holds]
+     * image => [setting => the drawn file it holds].
      */
     protected const SETTINGS = [
         'logo' => ['logo_path' => 'image'],
