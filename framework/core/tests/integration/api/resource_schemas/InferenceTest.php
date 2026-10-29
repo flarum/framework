@@ -20,7 +20,6 @@ use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Extend;
 use Flarum\Group\Group;
-use Flarum\Locale\LocaleManager;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Guest;
 use Flarum\User\User;
@@ -304,30 +303,12 @@ class InferenceTest extends TestCase
     }
 
     #[Test]
-    public function a_description_that_is_a_translation_key_is_the_label()
+    public function a_description_is_never_the_label()
     {
-        $this->assertSame('Display name', $this->field($this->describe(), 'described')['label']);
-    }
+        $descriptor = $this->describe();
 
-    #[Test]
-    public function a_description_that_is_not_a_translation_key_is_not_the_label()
-    {
-        $this->assertSame('Described literal', $this->field($this->describe(), 'describedLiteral')['label']);
-    }
-
-    #[Test]
-    public function the_conventional_resource_key_is_the_label_when_it_exists()
-    {
-        $file = sys_get_temp_dir().'/flarum-describe-'.uniqid().'.yml';
-        file_put_contents($file, "core:\n  admin:\n    resource:\n      scratch-groups:\n        join_time: Joined at\n");
-
-        try {
-            $this->app()->getContainer()->make(LocaleManager::class)->addTranslations('en', $file);
-
-            $this->assertSame('Joined at', $this->field($this->describe(), 'joinTime')['label']);
-        } finally {
-            @unlink($file);
-        }
+        $this->assertSame('Described', $this->field($descriptor, 'described')['label']);
+        $this->assertSame('Described literal', $this->field($descriptor, 'describedLiteral')['label']);
     }
 
     #[Test]

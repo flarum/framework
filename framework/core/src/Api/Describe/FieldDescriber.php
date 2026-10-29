@@ -13,7 +13,6 @@ use Flarum\Api\Context;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Locale\TranslatorInterface;
 use Illuminate\Support\Str as StrHelper;
-use Symfony\Component\Translation\TranslatorBagInterface;
 use Throwable;
 use Tobyz\JsonApiServer\Schema\Field\Attribute;
 use Tobyz\JsonApiServer\Schema\Field\Field;
@@ -97,7 +96,7 @@ class FieldDescriber
         $description = [
             'name' => $field->name,
             'kind' => $kind,
-            'label' => $this->label($field, $resource->type(), $ui['label'] ?? null),
+            'label' => $this->label($field, $ui['label'] ?? null),
         ];
 
         if (! $visible) {
@@ -289,42 +288,28 @@ class FieldDescriber
     }
 
     /**
-     * Resolves the label (spec D7):
-     * 1. `ui.label`, translated when it is an existing key, otherwise literal;
-     * 2. the field description, when it is an existing translation key;
-     * 3. `core.admin.resource.{type}.{snake_name}`, when it exists;
-     * 4. the humanised field name (`joinTime` becomes "Join time").
+     * `ui.label`, translated when it is an existing key, otherwise literal;
+     * else the humanised field name (`joinTime` becomes "Join time").
      */
-    protected function label(Field $field, string $type, mixed $uiLabel): string
+    protected function label(Field $field, mixed $uiLabel): string
     {
         if (is_string($uiLabel) && $uiLabel !== '') {
             return $this->translate($uiLabel) ?? $uiLabel;
         }
 
-        if ($field->description !== null && ($label = $this->translate($field->description)) !== null) {
-            return $label;
-        }
-
-        $snake = StrHelper::snake($field->name);
-
-        return $this->translate("core.admin.resource.$type.$snake")
-            ?? ucfirst(str_replace('_', ' ', $snake));
+        return ucfirst(str_replace('_', ' ', StrHelper::snake($field->name)));
     }
 
-    /**
-     * Translates a string when it is a translation key that exists, otherwise returns null.
-     */
     protected function translate(string $key): ?string
     {
+        // Only key-shaped strings: a literal label must not reach the message formatter.
         if (! preg_match('/^[a-z0-9_-]+(\.[a-z0-9_-]+)+$/i', $key)) {
             return null;
         }
 
-        $exists = $this->translator instanceof TranslatorBagInterface
-            ? $this->translator->getCatalogue()->has($key)
-            : $this->translator->trans($key) !== $key;
+        $translation = $this->translator->trans($key);
 
-        return $exists ? $this->translator->trans($key) : null;
+        return $translation !== $key ? $translation : null;
     }
 
     /**
