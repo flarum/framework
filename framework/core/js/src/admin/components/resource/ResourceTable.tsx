@@ -8,29 +8,24 @@ import Icon from '../../../common/components/Icon';
 import Input from '../../../common/components/Input';
 import LoadingIndicator from '../../../common/components/LoadingIndicator';
 import Pagination from '../../../common/components/Pagination';
-import Pill from '../../../common/components/Pill';
-import Separator from '../../../common/components/Separator';
-import type IGambit from '../../../common/query/IGambit';
 import type Model from '../../../common/Model';
 import ItemList from '../../../common/utils/ItemList';
 import classList from '../../../common/utils/classList';
-import extractText from '../../../common/utils/extractText';
-import type Stream from '../../../common/utils/Stream';
 import { ConcurrentBulkRunner, type BulkActionContext, type BulkSummary } from '../../../common/resource/BulkRunner';
 import ColumnPreferences from '../../../common/resource/ColumnPreferences';
 import { exportCsv } from '../../../common/resource/csv';
 import { renderColumn } from '../../../common/resource/field';
-import { relatedModel, TEXT_FILTER_TYPES } from '../../../common/resource/inputs/defaults';
-import RelationOptions from '../../../common/resource/inputs/RelationOptions';
-import type InputFactory from '../../../common/resource/inputs/InputFactory';
 import type ResourceDefinition from '../../../common/resource/ResourceDefinition';
 import ResourceListState from '../../../common/resource/ResourceListState';
-import type { Field, Filter } from '../../../common/resource/types';
+import type { Field } from '../../../common/resource/types';
 import type Mithril from 'mithril';
 import BulkResultModal from './BulkResultModal';
 import ColumnsDropdown from './ColumnsDropdown';
+import Drafts from './Drafts';
 import floatMenus from './floatMenus';
+import ordered from './ordered';
 import ResourceDeleteModal, { type ResourceDeleteModalAttrs } from './ResourceDeleteModal';
+import ResourceFilterBar from './ResourceFilterBar';
 import ResourceFormModal from './ResourceFormModal';
 import type ModalManagerState from '../../../common/states/ModalManagerState';
 
@@ -92,22 +87,8 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
   compactFilters?: boolean;
 }
 
-/** How long the search and text filters wait for typing to stop, in ms. */
-const SEARCH_DELAY = 300;
-/** How many filters show as toolbar buttons before the rest go under "More filters". */
-const INLINE_FILTERS = 3;
-
-const anyLabel = () => app.translator.trans('core.lib.resource.filter.any', {}, true);
 /** Core's `@phone` breakpoint. */
 const PHONE_QUERY = '(max-width: 767.98px)';
-
-/** Item-list entries in render order: priority descending, insertion order for ties. */
-function ordered<T>(list: ItemList<T>): [string, T][] {
-  return Object.entries(list.toObject())
-    .map(([key, item], index) => ({ key, content: item.content as T, priority: item.priority, index }))
-    .sort((a, b) => b.priority - a.priority || a.index - b.index)
-    .map(({ key, content }) => [key, content]);
-}
 
 /**
  * The admin table for one resource type: columns from the definition's fields (or the `columns`
@@ -118,11 +99,10 @@ function ordered<T>(list: ItemList<T>): [string, T][] {
  */
 export default class ResourceTable<M extends Model = Model, Attrs extends ResourceTableAttrs<M> = ResourceTableAttrs<M>> extends Component<Attrs> {
   list!: ResourceListState<M>;
-  filterInputs!: InputFactory;
   /** Null until the descriptor is loaded. */
   fields: ItemList<Field<M>> | null = null;
-  /** Built once the descriptor is loaded; `definition.filters()` rebuilds every field. */
-  filters: ItemList<Filter> | null = null;
+  /** The filters' toolbar items and chips (`filterBar()`); null until the descriptor is loaded. */
+  bar: ResourceFilterBar<M> | null = null;
   loadError: boolean = false;
   /** The running export, if any. */
   exporting: { controller: AbortController; rows: number; total: number | null } | null = null;
@@ -132,16 +112,8 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   /** The user's explicit column choices (key to visible); read from `ColumnPreferences` on first use. */
   protected columnChoices: Map<string, boolean> | null = null;
 
-  /** Uncommitted text in the search and text filters, so typing isn't reverted by the debounce. */
-  protected drafts: Record<string, string> = {};
-  protected timers: Record<string, ReturnType<typeof setTimeout>> = {};
-
-  /** Filters the user added from "More filters". */
-  protected promotedFilters: Set<string> = new Set();
-  /** A filter promoted from "More filters" whose toggle takes focus once drawn. */
-  protected pendingFocus: string | null = null;
-  /** The record menus of relationship filters, by filter key. */
-  protected relations: Record<string, RelationOptions> = {};
+  /** The search typed but not yet sent. */
+  protected searchDraft = new Drafts();
   /** Whether the viewport is phone-sized. */
   protected phone: boolean = false;
   protected phoneQuery: MediaQueryList | null = null;
@@ -159,7 +131,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     const { definition, state, syncUrl, pageSize } = this.attrs;
 
     this.list = state ?? new ResourceListState<M>(definition, { syncUrl, pageSize });
-    this.filterInputs = definition.filterInputs();
 
     if (typeof window.matchMedia === 'function') {
       this.phoneQuery = window.matchMedia(PHONE_QUERY);
@@ -171,7 +142,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       .load()
       .then(() => {
         this.fields = definition.fields();
-        this.filters = definition.filters();
+        this.bar = this.filterBar();
         m.redraw();
 
         return this.list.load();
@@ -187,8 +158,8 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   onremove(vnode: Mithril.VnodeDOM<Attrs, this>) {
     super.onremove(vnode);
 
-    Object.values(this.timers).forEach(clearTimeout);
-    Object.values(this.relations).forEach((options) => options.cancel());
+    this.searchDraft.discard();
+    this.bar?.destroy();
     this.phoneQuery?.removeEventListener?.('change', this.onPhoneChange);
     this.exporting?.controller.abort();
   }
@@ -325,8 +296,21 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * Search (`search`, when the type is searchable), sort, then the filters: the first
-   * three (`filter-{key}`) and "More filters" (`moreFilters`) for the rest, or one
+   * The filter bar for the loaded filters. The bar's state (drafts, promoted filters, relation
+   * menus) lives as long as the table.
+   */
+  filterBar(): ResourceFilterBar<M> {
+    return new ResourceFilterBar<M>({
+      definition: this.attrs.definition,
+      list: this.list,
+      filters: this.attrs.definition.filters(),
+      compact: this.attrs.compactFilters ?? this.phone,
+    });
+  }
+
+  /**
+   * Search (`search`, when the type is searchable), sort, then the filter bar's items: the first
+   * three filters (`filter-{key}`) and "More filters" (`moreFilters`) for the rest, or one
    * "Filters" dropdown (`filters`) in compact mode.
    */
   viewItems(): ItemList<Mithril.Children> {
@@ -340,25 +324,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       items.add('sort', this.sortDropdown(), 90);
     }
 
-    if (this.isCompact()) {
-      const filters = this.toolbarFilters();
-
-      if (filters.length) items.add('filters', this.compactFiltersView(filters), 80);
-
-      return items;
-    }
-
-    const { inline, more } = this.filterLayout();
-
-    inline.forEach(([key, filter], index) => {
-      items.add(`filter-${key}`, this.filterView(key, filter), 80 - index);
-    });
-
-    if (more.length) {
-      items.add('moreFilters', this.moreFiltersView(more), 10);
-    }
-
-    return items;
+    return this.bar ? items.merge(this.bar.items()) : items;
   }
 
   /**
@@ -367,20 +333,9 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
    */
   subToolbarItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
-    const chips = this.chipItems();
+    const chips = this.bar?.chips();
 
-    if (!chips.isEmpty()) {
-      items.add(
-        'filters',
-        <div className="ResourceTable-chips" role="group" aria-label={app.translator.trans('core.admin.resource.table.filters_label', {}, true)}>
-          <div className="Pill-list">{chips.toArray()}</div>
-          <Button className="Button Button--link ResourceTable-clearFilters" onclick={() => this.clearFilters()}>
-            {app.translator.trans('core.admin.resource.table.clear_filters_button')}
-          </Button>
-        </div>,
-        100
-      );
-    }
+    if (chips) items.add('filters', chips, 100);
 
     const display = this.displayItems();
 
@@ -457,8 +412,8 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   searchView(): Mithril.Children {
     const type = this.attrs.definition.type;
     const id = `ResourceTable-search-${type}`;
-    const value = this.draft('q', () => this.list.getQuery());
-    const onchange = (v: string) => this.debounce('q', v, (q) => this.list.setQuery(q));
+    const value = this.searchDraft.get('q', () => this.list.getQuery());
+    const onchange = (v: string) => this.searchDraft.set('q', v, (q) => this.list.setQuery(q));
 
     const input = (
       <Input
@@ -466,7 +421,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
         type="search"
         prefixIcon="fas fa-search"
         clearable={true}
-        loading={'q' in this.drafts || this.list.isLoading()}
+        loading={this.searchDraft.has('q') || this.list.isLoading()}
         value={value}
         placeholder={app.translator.trans('core.admin.resource.table.search_placeholder', { label: this.attrs.definition.label(2) }, true)}
         ariaLabel={app.translator.trans('core.admin.resource.table.search_label', {}, true)}
@@ -480,7 +435,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
         <label className="visually-hidden" for={id}>
           {app.translator.trans('core.admin.resource.table.search_label')}
         </label>
-        {this.gambits().length ? (
+        {this.bar?.gambits().length ? (
           <GambitsAutocompleteDropdown resource={type} query={value} onchange={onchange}>
             {input}
           </GambitsAutocompleteDropdown>
@@ -489,179 +444,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
         )}
       </div>
     );
-  }
-
-  /** The type's enabled gambits; empty when it has none. */
-  gambits(): IGambit[] {
-    return (app.search?.gambits?.for(this.attrs.definition.type) ?? []).filter((gambit) => gambit.enabled());
-  }
-
-  /**
-   * The filter keys the gambits typed into the search send, sign included (`-group` for
-   * `-group:x`); on the server they win over a structured filter of the same key.
-   */
-  searchFilterKeys(): Set<string> {
-    const keys = new Set<string>();
-    const q = this.list.getQuery();
-
-    if (q && this.gambits().length) {
-      app.search.gambits.match(this.attrs.definition.type, q, (gambit, matches, negate) => {
-        Object.keys(gambit.toFilter(matches, negate)).forEach((key) => keys.add(key));
-      });
-    }
-
-    return keys;
-  }
-
-  /**
-   * How the search relates to one structured filter value: `overridden` when a gambit sends the
-   * same filter key, `conflict` when it sends the same filter with the opposite sign, else null.
-   */
-  searchRelation(key: string, value: string, searchKeys: Set<string> = this.searchFilterKeys()): 'overridden' | 'conflict' | null {
-    const [sent] = this.list.filterParam(key, value);
-
-    if (searchKeys.has(sent)) return 'overridden';
-
-    const opposite = sent.startsWith('-') ? sent.slice(1) : `-${sent}`;
-
-    return searchKeys.has(opposite) ? 'conflict' : null;
-  }
-
-  /**
-   * The filters the toolbar offers, by priority. A filter that a gambit of the same key covers is
-   * left to the search box unless its `hideWhenSearchable` is false.
-   */
-  toolbarFilters(): [string, Filter][] {
-    const gambitKeys = this.isSearchable() ? new Set(this.gambits().map((gambit) => gambit.filterKey())) : new Set<string>();
-
-    return ordered(this.filters ?? new ItemList<Filter>()).filter(([key, filter]) => !(gambitKeys.has(key) && filter.hideWhenSearchable !== false));
-  }
-
-  /**
-   * The toolbar filters split into those shown as buttons (the first three, the ones the
-   * user picked from "More filters" and every filter with a value) and the rest.
-   */
-  filterLayout(): { inline: [string, Filter][]; more: [string, Filter][] } {
-    const inline: [string, Filter][] = [];
-    const more: [string, Filter][] = [];
-
-    this.toolbarFilters().forEach((entry, index) => {
-      const [key] = entry;
-
-      if (index < INLINE_FILTERS || this.promotedFilters.has(key) || this.list.getFilter(key) !== '') inline.push(entry);
-      else more.push(entry);
-    });
-
-    return { inline, more };
-  }
-
-  /** "More filters": one item per filter not on the toolbar; picking one adds its button. */
-  moreFiltersView(filters: [string, Filter][]): Mithril.Children {
-    return (
-      <Dropdown
-        className="ResourceTable-moreFilters"
-        buttonClassName="Button"
-        icon="fas fa-filter"
-        label={app.translator.trans('core.admin.resource.table.more_filters_button')}
-        accessibleToggleLabel={app.translator.trans('core.admin.resource.table.more_filters_label', {}, true)}
-        helperText={null}
-      >
-        {filters.map(([key, filter]) => (
-          <Button className="ResourceTable-moreFilter" data-filter={key} onclick={() => this.promoteFilter(key)}>
-            {filter.label}
-          </Button>
-        ))}
-      </Dropdown>
-    );
-  }
-
-  /** Show a filter from "More filters" as a button; its toggle takes focus once drawn. */
-  promoteFilter(key: string): void {
-    this.promotedFilters.add(key);
-    this.pendingFocus = key;
-  }
-
-  /** Focus a promoted filter's toggle after the redraw that created it. */
-  protected focusPending(key: string, dom: Element | null): void {
-    if (this.pendingFocus !== key) return;
-
-    const toggle = dom?.querySelector('.Dropdown-toggle') as HTMLElement | null;
-
-    if (toggle) {
-      this.pendingFocus = null;
-      toggle.focus();
-    }
-  }
-
-  /** Set a filter from the toolbar, keeping its button inline for the session even when set back to Any. */
-  protected setToolbarFilter(key: string, value: string): Promise<void> {
-    this.promotedFilters.add(key);
-
-    return this.list.setFilter(key, value);
-  }
-
-  /** Whether the filters collapse into one "Filters" dropdown: the `compactFilters` attr, else phone width. */
-  isCompact(): boolean {
-    return this.attrs.compactFilters ?? this.phone;
-  }
-
-  /**
-   * The compact "Filters (n)" dropdown: one section per filter, a heading with its label over the
-   * same items its desktop dropdown lists (`filterMenuItems`). Flat menu items, so core's phone
-   * sheet styling applies to them.
-   */
-  compactFiltersView(filters: [string, Filter][]): Mithril.Children {
-    const count = filters.filter(([key]) => this.list.getFilter(key) !== '').length;
-    const items: Mithril.Children[] = [];
-
-    filters.forEach(([key, filter], index) => {
-      if (index) items.push(<Separator />);
-
-      const heading = (
-        <div className="ResourceTable-filterGroupLabel" onclick={(e: MouseEvent) => e.stopPropagation()}>
-          {filter.label}
-        </div>
-      );
-
-      items.push(
-        Object.assign(heading, { itemClassName: classList('Dropdown-header', 'ResourceTable-filterGroup', `ResourceTable-filterGroup--${key}`) })
-      );
-
-      this.filterMenuItems(key, filter).forEach((item) => items.push(this.inFilterGroup(item, key)));
-    });
-
-    return (
-      <Dropdown
-        className="ResourceTable-filtersMenu"
-        buttonClassName={classList('Button', count && 'is-active')}
-        icon="fas fa-filter"
-        label={app.translator.trans('core.admin.resource.table.filters_button', { count })}
-        accessibleToggleLabel={extractText(app.translator.trans('core.admin.resource.table.filters_button', { count }))}
-        helperText={null}
-        onshow={() =>
-          filters.forEach(([key, filter]) => {
-            const relation = this.relationSpec(filter);
-            if (relation) this.relationOptions(key, relation.related).ensureLoaded();
-          })
-        }
-      >
-        {items}
-      </Dropdown>
-    );
-  }
-
-  /** Mark a menu item's `<li>` as belonging to one filter's section of the compact menu. */
-  protected inFilterGroup(item: Mithril.Children, key: string): Mithril.Children {
-    if (item && typeof item === 'object' && 'tag' in item) {
-      const vnode = item as Mithril.Vnode<{ itemClassName?: string }> & { itemClassName?: string };
-      const groupClass = classList('ResourceTable-filterGroupItem', `ResourceTable-filterGroupItem--${key}`);
-
-      // listItems reads `attrs.itemClassName` first, so join an existing one rather than shadow it.
-      if (vnode.attrs?.itemClassName) vnode.attrs.itemClassName = classList(vnode.attrs.itemClassName, groupClass);
-      else vnode.itemClassName = groupClass;
-    }
-
-    return item;
   }
 
   /** The sort dropdown: the default order, then each descriptor sort ascending and descending. */
@@ -708,326 +490,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       .replace(/([a-z])([A-Z])/g, '$1 $2')
       .replace(/[-_]+/g, ' ')
       .replace(/^./, (c) => c.toUpperCase());
-  }
-
-  /**
-   * One filter as a dropdown button labelled "{label}: {value}". Choice filters (yes/no, enum)
-   * list their values, relationship filters the related records; other filters (text, an
-   * extension's custom control) render their control inside the menu.
-   */
-  filterView(key: string, filter: Filter): Mithril.Children {
-    const value = this.list.getFilter(key);
-    const valueLabel = value === '' ? anyLabel() : this.filterValueLabel(key, filter, value);
-    const relation = this.relationSpec(filter);
-
-    return (
-      <Dropdown
-        className={classList('ResourceTable-filter', `ResourceTable-filter--${key}`, value !== '' && 'is-active')}
-        buttonClassName="Button"
-        label={
-          <span>
-            <span className="ResourceTable-filterName">{filter.label}:</span> <span className="ResourceTable-filterValue">{valueLabel}</span>
-          </span>
-        }
-        accessibleToggleLabel={app.translator.trans(
-          'core.admin.resource.table.filter_toggle_label',
-          { label: extractText(filter.label), value: extractText(valueLabel) },
-          true
-        )}
-        helperText={null}
-        oncreate={(vnode: Mithril.VnodeDOM) => this.focusPending(key, vnode.dom)}
-        onupdate={(vnode: Mithril.VnodeDOM) => this.focusPending(key, vnode.dom)}
-        onshow={() => {
-          this.promotedFilters.add(key);
-          if (relation) this.relationOptions(key, relation.related).ensureLoaded();
-          this.focusFilterMenu(key);
-        }}
-      >
-        {this.filterMenuItems(key, filter)}
-      </Dropdown>
-    );
-  }
-
-  /** Focus the first text box of an opened filter menu (a text filter, a relationship search). */
-  protected focusFilterMenu(key: string): void {
-    (this.element?.querySelector(`.ResourceTable-filter--${key} .Dropdown-menu input`) as HTMLElement | null)?.focus();
-  }
-
-  /** The `[value, label]` choices of a choice filter (yes/no, enum), "Any" first; null for others. */
-  filterChoices(_key: string, filter: Filter): [string, Mithril.Children][] | null {
-    if (typeof filter.input === 'function') return null;
-
-    if (filter.input.type === 'tri-state') {
-      return [
-        ['', anyLabel()],
-        ['1', app.translator.trans('core.lib.resource.filter.yes', {}, true)],
-        ['0', app.translator.trans('core.lib.resource.filter.no', {}, true)],
-      ];
-    }
-
-    if (filter.input.type === 'enum') {
-      return [['', anyLabel()], ...(filter.input.choices as [string, string][])];
-    }
-
-    return null;
-  }
-
-  /** The menu of one filter dropdown. */
-  filterMenuItems(key: string, filter: Filter): Mithril.Children[] {
-    const choices = this.filterChoices(key, filter);
-    const current = this.list.getFilter(key);
-
-    if (choices) {
-      return choices.map(([value, label]) => this.filterChoice(key, value, label, value === current));
-    }
-
-    const relation = this.relationSpec(filter);
-
-    if (relation) return this.relationMenuItems(key, relation);
-
-    return [
-      <div className="ResourceTable-filterControl" onclick={(e: MouseEvent) => e.stopPropagation()}>
-        {this.filterControl(key, filter)}
-      </div>,
-    ];
-  }
-
-  protected filterChoice(key: string, value: string, label: Mithril.Children, active: boolean): Mithril.Children {
-    return (
-      <Button
-        icon={active ? 'fas fa-check' : true}
-        active={active}
-        itemClassName={active ? 'active' : undefined}
-        aria-pressed={active ? 'true' : 'false'}
-        data-value={value}
-        onclick={() => this.setToolbarFilter(key, value)}
-      >
-        {label}
-      </Button>
-    );
-  }
-
-  /** The relationship spec of a `relation` filter, else null. */
-  relationSpec(filter: Filter): { related: string; display: string } | null {
-    if (typeof filter.input === 'function' || filter.input.type !== 'relation' || !filter.input.related) return null;
-
-    return { related: filter.input.related, display: filter.input.display ?? 'name' };
-  }
-
-  /** The loaded records of one relationship filter's menu. */
-  relationOptions(key: string, related: string): RelationOptions {
-    return (this.relations[key] ??= new RelationOptions(related));
-  }
-
-  /**
-   * A search box when the related type is searchable, "Any", the records (the current one first)
-   * and "Load more".
-   */
-  relationMenuItems(key: string, spec: { related: string; display: string }): Mithril.Children[] {
-    const options = this.relationOptions(key, spec.related);
-    const current = this.list.getFilter(key);
-    const label = (model: Model) => String(model.attribute(spec.display) ?? model.id());
-    const items: Mithril.Children[] = [];
-
-    if (options.searchable()) {
-      items.push(
-        <div className="ResourceTable-filterSearch" onclick={(e: MouseEvent) => e.stopPropagation()}>
-          <input
-            className="FormControl"
-            type="search"
-            value={options.query}
-            placeholder={app.translator.trans('core.lib.search.placeholder', {}, true)}
-            aria-label={app.translator.trans('core.lib.search.placeholder', {}, true)}
-            oninput={(e: InputEvent) => options.search((e.target as HTMLInputElement).value)}
-            onkeydown={(e: KeyboardEvent) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                options.cancel();
-                options.loadItems();
-              }
-            }}
-          />
-        </div>
-      );
-    }
-
-    items.push(this.filterChoice(key, '', anyLabel(), current === ''));
-
-    const selected = current ? relatedModel(spec.related, current) : null;
-    const exclude = this.filters?.has(key) ? this.filters.get(key).exclude : undefined;
-    const records = options.items.filter((model) => model.id() !== current && !exclude?.(model));
-
-    if (selected) items.push(this.filterChoice(key, current, label(selected), true));
-
-    records.forEach((model) => items.push(this.filterChoice(key, model.id()!, label(model), false)));
-
-    if (options.failed) {
-      items.push(
-        <div className="ResourceTable-filterError" role="alert" onclick={(e: MouseEvent) => e.stopPropagation()}>
-          <span>{app.translator.trans('core.lib.resource.relation.load_error')}</span>
-          {!options.isLoading && (
-            <Button
-              className="Button Button--link ResourceTable-filterRetry"
-              onclick={(e: MouseEvent) => {
-                e.stopPropagation();
-                options.retry();
-              }}
-            >
-              {app.translator.trans('core.lib.resource.relation.retry_button')}
-            </Button>
-          )}
-        </div>
-      );
-    } else if (options.isLoading) {
-      items.push(<LoadingIndicator display="block" size="small" />);
-    } else if (options.hasMore) {
-      items.push(
-        <Button
-          className="ResourceTable-filterMore"
-          icon="fas fa-angle-down"
-          onclick={(e: MouseEvent) => {
-            e.stopPropagation();
-            options.loadMore();
-          }}
-        >
-          {app.translator.trans('core.lib.resource.relation.load_more')}
-        </Button>
-      );
-    }
-
-    return items;
-  }
-
-  /** One filter's control from the filter input factory (or the filter's own function). */
-  filterControl(key: string, filter: Filter): Mithril.Children {
-    const stream = this.filterStream(key, filter);
-
-    return typeof filter.input === 'function'
-      ? filter.input({ stream })
-      : this.filterInputs.render(filter.input, { name: key, stream, label: filter.label });
-  }
-
-  /** How a set filter value reads on its button and chip. */
-  filterValueLabel(key: string, filter: Filter, value: string): Mithril.Children {
-    const choice = this.filterChoices(key, filter)?.find(([v]) => v === value);
-
-    if (choice) return choice[1];
-
-    const relation = this.relationSpec(filter);
-
-    if (relation) {
-      const model = relatedModel(relation.related, value);
-
-      return model ? String(model.attribute(relation.display) ?? value) : value;
-    }
-
-    return value;
-  }
-
-  /**
-   * One chip per filter with a value: "{label}: {value}" and a remove button. A chip whose filter
-   * key a gambit in the search also sends is marked overridden, since the gambit wins; one the
-   * search sends with the opposite sign (`-suspended` vs `suspended`) is marked as conflicting.
-   */
-  chipItems(): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
-    const searchKeys = this.searchFilterKeys();
-
-    ordered(this.filters ?? new ItemList<Filter>()).forEach(([key, filter], index) => {
-      const value = this.list.getFilter(key);
-
-      if (value === '') return;
-
-      const relation = this.searchRelation(key, value, searchKeys);
-      const note =
-        relation === 'overridden'
-          ? app.translator.trans('core.admin.resource.table.overridden_by_search', {}, true)
-          : relation === 'conflict'
-            ? app.translator.trans('core.admin.resource.table.conflicts_with_search', {}, true)
-            : null;
-      const label = extractText(filter.label);
-
-      items.add(
-        key,
-        <Pill
-          className={classList(
-            'ResourceTable-chip',
-            `ResourceTable-chip--${key}`,
-            relation === 'overridden' && 'ResourceTable-chip--overridden',
-            relation === 'conflict' && 'ResourceTable-chip--conflict'
-          )}
-          deletable={true}
-          deleteLabel={app.translator.trans('core.admin.resource.table.remove_filter_label', { label }, true)}
-          ondelete={() => this.list.setFilter(key, '')}
-        >
-          <span className="ResourceTable-chipText" title={note ?? undefined}>
-            {app.translator.trans('core.admin.resource.table.filter_label', { label, value: this.filterValueLabel(key, filter, value) })}
-          </span>
-          {note && <span className="visually-hidden">({note})</span>}
-        </Pill>,
-        100 - index
-      );
-    });
-
-    return items;
-  }
-
-  /** Remove every structured filter. */
-  clearFilters(): Promise<void> {
-    Object.keys(this.drafts)
-      .filter((key) => key.startsWith('filter:'))
-      .forEach((key) => {
-        clearTimeout(this.timers[key]);
-        delete this.drafts[key];
-      });
-
-    return this.list.clearFilters().catch(() => {});
-  }
-
-  /**
-   * A stream over one list filter. Text-like filters (or specs with `debounce: true`) keep a draft
-   * and commit debounced.
-   */
-  filterStream(key: string, filter: Filter): Stream<string> {
-    const debounced = typeof filter.input !== 'function' && (filter.input.debounce ?? TEXT_FILTER_TYPES.includes(filter.input.type));
-    const draftKey = `filter:${key}`;
-
-    const stream = (...args: [string] | []) => {
-      if (args.length) {
-        const value = args[0] ?? '';
-
-        if (debounced) this.debounce(draftKey, value, (v) => this.setToolbarFilter(key, v));
-        else this.setToolbarFilter(key, value);
-
-        return value;
-      }
-
-      return debounced ? this.draft(draftKey, () => this.list.getFilter(key)) : this.list.getFilter(key);
-    };
-
-    return stream as unknown as Stream<string>;
-  }
-
-  protected draft(key: string, committed: () => string): string {
-    return key in this.drafts ? this.drafts[key] : committed();
-  }
-
-  protected debounce(key: string, value: string, commit: (value: string) => Promise<void>): void {
-    this.drafts[key] = value;
-
-    clearTimeout(this.timers[key]);
-
-    this.timers[key] = setTimeout(() => {
-      delete this.timers[key];
-      commit(value)
-        // A failed request has already shown its error.
-        .catch(() => {})
-        .finally(() => {
-          if (this.drafts[key] === value) delete this.drafts[key];
-          m.redraw();
-        });
-      m.redraw();
-    }, SEARCH_DELAY);
   }
 
   // ---------------------------------------------------------------------------------------------

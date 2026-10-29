@@ -181,7 +181,7 @@ describe('ResourceTable toolbar', () => {
 
     expect(out).not.toHaveElement('.ResourceTable-filter--active');
 
-    table.filters!.get('active').hideWhenSearchable = false;
+    table.bar!.filters.get('active').hideWhenSearchable = false;
     out.redraw();
 
     expect(out).toHaveElement('.ResourceTable-filter--active');
@@ -282,7 +282,7 @@ describe('ResourceTable toolbar', () => {
 
   test('a relationship menu whose records failed to load shows an error row with Retry', async () => {
     const { out, table } = await rendered();
-    const options = table.relationOptions('owner', 'owners');
+    const options = table.bar!.relationOptions('owner', 'owners');
 
     find.mockImplementationOnce(() => Promise.reject(new Error('nope')));
     await options.loadItems().catch(() => {});
@@ -319,7 +319,7 @@ describe('ResourceTable toolbar', () => {
   test('a relationship filter lists the related records, with "Any" first', async () => {
     const { out, table } = await rendered();
 
-    await table.relationOptions('owner', 'owners').loadItems();
+    await table.bar!.relationOptions('owner', 'owners').loadItems();
     out.redraw();
 
     expect(lastParams('owners')).toMatchObject({ page: { offset: 0 } });
@@ -337,8 +337,8 @@ describe('ResourceTable toolbar', () => {
   test("a relationship filter's exclude leaves records out of its menu", async () => {
     const { out, table } = await rendered();
 
-    table.filters!.get('owner').exclude = (model) => model.id() === '8';
-    await table.relationOptions('owner', 'owners').loadItems();
+    table.bar!.filters.get('owner').exclude = (model) => model.id() === '8';
+    await table.bar!.relationOptions('owner', 'owners').loadItems();
     out.redraw();
 
     expect(out.find('.ResourceTable-filter--owner .Dropdown-menu button[data-value]')).toHaveLength(2);
@@ -372,7 +372,7 @@ describe('ResourceTable toolbar', () => {
   test('compact mode lists relationship records as choices and sets the filter', async () => {
     const { out, table } = await rendered({ compactFilters: true });
 
-    await table.relationOptions('owner', 'owners').loadItems();
+    await table.bar!.relationOptions('owner', 'owners').loadItems();
     out.redraw();
 
     expect(out.first('.ResourceTable-filterGroup--owner .ResourceTable-filterGroupLabel').textContent).toBe('Owner');
