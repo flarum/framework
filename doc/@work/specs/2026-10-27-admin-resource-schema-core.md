@@ -1,6 +1,6 @@
 # Resource schema endpoint + generic admin CRUD in core — decisions
 
-**Status:** in-progress. Implemented on `sh/admin-resource-schema-core`; D1–D14 await owner sign-off (Task 0). The owner decisions of 2026-10-28 and 2026-10-29 are applied.
+**Status:** in-progress. Implemented on `sh/admin-resource-schema-core`; D1–D15 signed off by the owner on 2026-10-29. The owner decisions of 2026-10-28 and 2026-10-29 are applied.
 **Reference:** [`doc/extend/resource-schemas.md`](../../extend/resource-schemas.md) documents what exists and how to use it. This file holds only the decisions and why.
 **Origin:** GlowingBlue/flarum-extensions#169 "Flarum frontend component library". Proposal 1 extracts the POC into `glowingblue/flarum-lib-frontend`; this is Proposal 2: put it in core, with the admin user list as the first consumer.
 **POC:** `flarum-ext-base-products`, branches `sh/admin-crud/{1-backend,2-common,3-admin,4-products,5-hardening}`, spec `doc/@work/specs/2026-10-08-admin-resource-crud.md` there.
@@ -115,7 +115,6 @@ Each decision: what, why, rejected alternatives. Shapes, keys and API surfaces a
 
 ## Open items
 
-- **Task 0 — owner sign-off of D1–D15.** Points to confirm: D2 (no new permission; every member may read the users descriptor), D8 (seams and the two BC breaks), D10 (upstream-bound or GB-fork-only), D11 user-list defaults, D13, D14 (groups 1–3 undeletable for everyone; the legacy `EditGroupModal` hides Delete for all three).
 - **Manual click-through (plan Task 10 Step 2), partly done 2026-10-28.** Done: an automated probe on a scratch dev forum (65 PASS; its real failures were fixed) and targeted checks of the toolbar, counts, export and row menus. Open: the edit and delete probe steps (timed out), opening an exported CSV in a spreadsheet (umlauts via BOM, commas in names, no formula executes), a high-contrast theme, and the owner's manual sign-off. Scope: `/admin#/users` with suspend, nicknames and gdpr; sort; filter; `email:` gambit; create, edit, delete, gdpr export; `?page=2`; hidden columns survive reload and a private window.
 
 ## Possible follow-ups
