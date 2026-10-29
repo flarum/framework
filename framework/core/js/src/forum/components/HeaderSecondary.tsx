@@ -1,5 +1,5 @@
 import app from '../app';
-import Component, { ComponentAttrs } from '../../common/Component';
+import Component, { type ComponentAttrs } from '../../common/Component';
 import Button from '../../common/components/Button';
 import SessionDropdown from './SessionDropdown';
 import SelectDropdown from '../../common/components/SelectDropdown';
