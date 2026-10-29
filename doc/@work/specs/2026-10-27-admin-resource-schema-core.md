@@ -1,6 +1,6 @@
 # Resource schema endpoint + generic admin CRUD in core — decisions
 
-**Status:** in-progress. Implemented on `sh/admin-resource-schema-core`; D1–D14 await owner sign-off (Task 0). The owner decisions of 2026-10-28 are applied.
+**Status:** in-progress. Implemented on `sh/admin-resource-schema-core`; D1–D14 await owner sign-off (Task 0). The owner decisions of 2026-10-28 and 2026-10-29 are applied.
 **Reference:** [`doc/extend/resource-schemas.md`](../../extend/resource-schemas.md) documents what exists and how to use it. This file holds only the decisions and why.
 **Origin:** GlowingBlue/flarum-extensions#169 "Flarum frontend component library". Proposal 1 extracts the POC into `glowingblue/flarum-lib-frontend`; this is Proposal 2: put it in core, with the admin user list as the first consumer.
 **POC:** `flarum-ext-base-products`, branches `sh/admin-crud/{1-backend,2-common,3-admin,4-products,5-hardening}`, spec `doc/@work/specs/2026-10-08-admin-resource-crud.md` there.
@@ -33,27 +33,29 @@ Each decision: what, why, rejected alternatives. Shapes, keys and API surfaces a
 - *Why these failure rules:* a `visible` closure that throws hides the field (fail closed, nothing leaks); a `writable` closure that throws counts as writable with `conditional: true` (fail open is safe, because the server still enforces it).
 - *Why guests never call `newModel()`:* `UserResource::newModel()` sets the locale cookie for guests. Guests never reach the builder anyway (D2); the builder uses a bare model for them as a second guard.
 - *Rejected:* `Context::describing()` / `withDescribing()` on core's `Context` (first review), which adds describe-only state to every request.
+- *Required rules (owner, 2026-10-29):* each writable mode's evaluated rules are read. An unconditional `required` gives `required[mode]`. Laravel's conditional required rules (`required_with*`, `required_without*`, `required_if`, `required_unless`, `required_if_accepted`, `required_if_declined`) are described as data, `requiredWhen[mode]`, and the client evaluates them live against the form's values. `requiredConditional: true` marks what only the server can decide: `Rule::requiredIf(closure)`, implicit rule objects, unknown or malformed `required_*`, required next to `exclude*`, a rules closure that throws. *Why:* the client marks and checks the field exactly when the server would require it, with no guess. *Rejected:* inferring "required" from `required_without` when the named fields were not offered (`ui.widget: 'hidden'`), a guess that held for users' `token` only.
 
 **D4 — UI hints in a dedicated bag: `FlarumField::ui()`.**
 - *Why not `$schema`:* `->schema()` replaces the whole array, so a later call would wipe hints; a separate bag also keeps them out of any future OpenAPI output. Several extenders merge their keys.
 - *Why:* an extension adds a user-list column with no JS (suspend's `suspendedUntil`).
 - *Rejected:* `schema['x-flarum-ui']` (first implementation, replaced after review).
 
-**D5 — Constraints from `Type::schema()`, plus a tolerant rule parser.** json-api-server types already return a JSON-Schema fragment. String rules `required`, `email`, `url`, `in:`, `regex:` (with `patternFlags`), `min:` and `max:` (mapped by kind) fill the rest; core's `Str::email()` / `regex()` emit rules, not type schema.
+**D5 — Constraints from `Type::schema()`, plus a tolerant rule parser.** json-api-server types already return a JSON-Schema fragment. String rules `email`, `url`, `in:`, `regex:` (with `patternFlags`), `filled`, `present`, `nullable`, `min:` and `max:` (mapped by kind) fill the rest (required rules: D3); core's `Str::email()` / `regex()` emit rules, not type schema.
 - *Why:* the POC read public properties, which coupled it to json-api-server internals.
 - A PCRE flag JS lacks drops the pattern, so the client never validates against a pattern with a different meaning.
 
 **D6 — Search metadata through `SearchManager` and `DescribesFilter`.**
-- *Why `SearchManager` methods:* they replace the POC's reads of the `flarum.search.filters` / `flarum.search.fulltext` container bindings.
+- *Why `SearchManager::describeSearch()`:* it replaces the POC's reads of the `flarum.search.filters` / `flarum.search.fulltext` container bindings. One public method returns `{fulltext, filters}`; `describeFilters()` is protected (owner, 2026-10-29), so the search surface the BC promise covers stays one call.
 - *Why `describe(User $actor): ?array`:* a filter that `filter()` ignores for an actor must not be offered to that actor; null hides it. `EmailFilter` and `SuspendedFilter` mirror their gates.
 - *Why also `Extend\SearchDriver::describeFilter()`:* an extension cannot add the interface to a filter it does not own, or to a closure filter. Descriptions are keyed by the exact searcher class.
 - *Why only filters that are described:* an undescribed filter's kind is unknown, so the UI could not render it correctly. The UI must not assume the list is complete.
 - *Driver rule:* `SearchManager::query()` sends only fulltext queries to the configured driver; filter-only queries always run on the database searcher (FND-186). For a resource whose configured driver is not the database driver, the descriptor keeps `search: true` while the resource is searchable, because that driver serves `q`, and describes no filters: a filter combined with `q` runs on that driver, where the database descriptions may not hold. Conservative by design (reviewer B1).
 - *Negation contract:* boolean "No" is `filter[-key]=1`, never `filter[key]=0`. *Why:* core's `FilterManager` already negates a leading `-`, and boolean filters such as `suspended` ignore the value, so `=0` would return the "Yes" rows.
 
-**D7 — Labels resolved server-side.** Order in the guide ("Labels").
-- *Why:* extension-added fields carry their own translation keys; one place resolves them in the actor's locale. Core user columns reuse `core.admin.users.grid.columns.*`.
-- The ETag is the sha1 of the attributes. The locale is not an input, but the labels differ by locale, so the ETag does too.
+**D7 — Labels resolved server-side.** Order: `ui.label` (translated when the catalogue has the key, else literal) → `core.admin.resource.{type}.{snake_name}` when it exists → the humanised name. `->description()` is never a label.
+- *Why:* extension-added fields carry their own translation keys; one place resolves them in the actor's locale. Core user columns reuse `core.admin.users.grid.columns.*`. The `core.admin.resource.{type}.*` convention lets an extension label a field it does not own with a locale file alone.
+- *Rejected:* `->description()` as a label step; a description is prose for API docs, not a column heading.
+- *ETag removed (owner, 2026-10-29):* the endpoint uses the default `Show` response. The client memoizes the descriptor for the session, so a conditional request saved almost nothing and cost a custom endpoint.
 
 **D8 — `UserListPage` keeps its public API and composes `ResourceTable`; the user modals stay.**
 - No feature flag, no dual implementation. Kept surface and the two seams `createModal()` / `editModal(user)` are in the guide.
@@ -72,13 +74,16 @@ Each decision: what, why, rejected alternatives. Shapes, keys and API surfaces a
 **D11 — Validation, bulk select, CSV export, column toggles: opt-in per `ResourceDefinition`.** Behaviour in the guide.
 - *Why opt-in:* a page gets nothing it did not ask for; the user list opts in only where the result is purely additive.
 - *Why client-side only, each:* the cheap, safe version ships now. Validation leaves uniqueness and `conditional` fields to the server. Bulk runs one request per row (so gdpr's replaced `Delete` runs per user) instead of json-api-server's `Atomic`, which core does not register. CSV pages through the list endpoint, so it can never contain data the actor could not already see; the formula guard prefixes `'`. Column choices stay in `localStorage`, explicit choices only, so a later default-hidden column starts hidden.
-- *User-list defaults:* column toggles on (`id`, `username`, `userActions` fixed); CSV admin-only, because emails are PII; bulk select off behind the empty `bulkActionItems()` seam; no client validation, because the user modals stay (D8); one actions column (`actionsColumn={false}`).
+- *User-list defaults:* column toggles on (`id`, `username`, `userActions` fixed); CSV admin-only (`UserResourceDefinition.canExport()`), because emails are PII; bulk select off behind the empty `UserResourceDefinition.bulkActions()`; no client validation, because the user modals stay (D8); one actions column (the page's `columns` replace the table's `actions`).
+- *Export gate:* `definition.canExport()` only, no table attr. Groups return false (nothing to export), access tokens admin-only (IP addresses).
 - *Not included:* select-all-matching (the selection holds the current page's ids), server-side CSV streaming, server-side column preferences, async validation.
 
-**D12 — Labelled filter toolbar, search-covered filters hidden by default.** Two rows (search, filters, count, actions; then chips, columns, export). Regions and keys in the guide.
+**D12 — Labelled filter bar, search-covered filters hidden by default.** Two rows (search, filters, count, actions; then chips, columns, export). Regions and keys in the guide. The bar is its own class (`ResourceFilterBar`, `CompactFilterBar` at phone width or with `compactFilters`, `FilterChips`), swapped through `ResourceTable.filterBar()`.
 - *Why labelled dropdowns, inline first three, "More filters":* a type can have many filters; a filter with a value always stays visible.
 - *Why chips mark gambit overlap:* a gambit typed in the search wins on the server; the chip says so instead of silently doing nothing.
-- *Why `searchCoveredFilters: 'all'` by default (owner, 2026-10-28):* a filter a gambit covers would be offered twice. On the stock user list, `group`, `suspended` and `email` are typed as gambits, so no dropdown shows for them; only filters without a gambit (likes' `liked`) get one. The group filter's guest exclusion applies when an extension brings the dropdown back through `searchCoveredFilters()`.
+- *Why hidden by default (owner, 2026-10-28):* a filter a gambit covers would be offered twice. On the stock user list, `group`, `suspended` and `email` are typed as gambits, so no dropdown shows for them; only filters without a gambit (likes' `liked`) get one.
+- *Per filter only (owner, 2026-10-29):* `Filter.hideWhenSearchable` (default `true`) is the only control; `false` keeps the dropdown. *Rejected:* a table-wide `searchCoveredFilters` policy (`'all'` / `'text'` / `'none'`), which only the user list used and which duplicated the per-filter flag.
+- *Negation:* `Filter.negatable` is the only source; `definition.filters()` sets it for boolean filters and filters named after a boolean field.
 - *Why `floatMenus()`:* the horizontally scrolling table container also clips vertically, which cut off row menus below a short table.
 - *Why `headerItems()` fill the toolbar slots:* one toolbar instead of two stacked headers; the actions group keeps `UserListPage-header`.
 
@@ -100,6 +105,9 @@ Each decision: what, why, rejected alternatives. Shapes, keys and API surfaces a
 - *Not included:* member counts; drag reordering, which stays on the Permissions page.
 - *Rejected:* a tab on `PermissionsPage` (`GroupBar` keeps the ordering there, and a page of its own stays simple); hiding Delete for built-in groups only in the UI, which leaves the API open.
 
+**D15 — Lean base (owner, 2026-10-29).** Generic Flarum/Laravel capabilities and extension seams stay in the base even when one core page is their only consumer: resolvers plus `fieldInput()` / `filterInput()`, `bulkDelete()` / `runBulkDelete()` / `BulkRunner`, `compactFilters`, `rowAttrs()` / `containerClassName()`, `ResourceFormState.shared()`, the full `requiredWhen` rule set. Lean means opt-in variants, not removal. What went were table attrs that duplicated a method or served one page: `onCreate` / `onEdit` (override `create()` / `edit()`), `rowAttrs` / `tableClassName`, `actionsColumn`, `exportable`, `inlineFilters`, `searchCoveredFilters`, `filterInputs` / `formInputs`.
+- *Labels:* `ResourceDefinition.label(count)` names the type (singular and plural through ICU), and the create modal reads "Create {label}" with `label(1)`. *Rejected:* `createTitle()`, a second hook for what the label already says.
+
 **Form components — public API (owner, 2026-10-28; resolves the former open decision).** `ResourceFormModal`, `ResourceForm`, `ResourceFormState`, the inputs (`InputFactory`, defaults, `RelationInput` / `RelationOptions`), validation and error mapping are documented in the guide.
 - *Why:* GB extensions use them, and `ResourceTable`'s default Create and Edit open `ResourceFormModal`. Core auto-exports by path, so an undocumented class would still be importable and hard to change.
 - `ResourceFormModal` mirrors the old user modals' surface (`fields()`, `data()`, `submitData()`, `onsaved`), so an extender ports by renaming the base class; a jest parity test pins its writable users fields against `EditUserModal`'s.
@@ -107,14 +115,14 @@ Each decision: what, why, rejected alternatives. Shapes, keys and API surfaces a
 
 ## Open items
 
-- **Task 0 — owner sign-off of D1–D14.** Points to confirm: D2 (no new permission; every member may read the users descriptor), D8 (seams and the two BC breaks), D10 (upstream-bound or GB-fork-only), D11 user-list defaults, D12 (`'all'` default), D13, D14 (groups 1–3 undeletable for everyone; the legacy `EditGroupModal` hides Delete for all three).
+- **Task 0 — owner sign-off of D1–D15.** Points to confirm: D2 (no new permission; every member may read the users descriptor), D8 (seams and the two BC breaks), D10 (upstream-bound or GB-fork-only), D11 user-list defaults, D13, D14 (groups 1–3 undeletable for everyone; the legacy `EditGroupModal` hides Delete for all three).
 - **Manual click-through (plan Task 10 Step 2), partly done 2026-10-28.** Done: an automated probe on a scratch dev forum (65 PASS; its real failures were fixed) and targeted checks of the toolbar, counts, export and row menus. Open: the edit and delete probe steps (timed out), opening an exported CSV in a spreadsheet (umlauts via BOM, commas in names, no formula executes), a high-contrast theme, and the owner's manual sign-off. Scope: `/admin#/users` with suspend, nicknames and gdpr; sort; filter; `email:` gambit; create, edit, delete, gdpr export; `?page=2`; hidden columns survive reload and a private window.
 
 ## Possible follow-ups
 
 - Swap the user modals for generic form modals through `createModal()` / `editModal()`. The forum `EditUserModal` (nicknames) stays until a forum-side form exists.
 - An `Index` on `resource-schemas` (SCIM `/ResourceTypes`) once a consumer needs discovery.
-- `bulkDelete` on by default in `UserListPage.bulkActionItems()`.
+- `bulkDelete` on by default in `UserResourceDefinition.bulkActions()`.
 - `BulkRunner` backed by json-api-server `Atomic` once core registers it.
 - Select all N matching records.
 - Server-side `text/csv` export for sets larger than `maxRows`.
@@ -151,6 +159,49 @@ Each decision: what, why, rejected alternatives. Shapes, keys and API surfaces a
 - `923c43a4c` docs: consolidate the spec, plan and guide
 - `0e77be147` fix(api): requiredOnUpdate() requires the field on update
 - `05f9a7696` feat(admin): groups page on the generic resource form
+- `2863c293e` fix(admin): hide Delete for the guest and member groups in EditGroupModal
+- `d3a5d2db4` docs: groups page (D14), widget and placeholder hints, recordLabel
+- `e9e51cad8` feat(admin): title the group create modal "Create Group"
+- `1cfcccf84` refactor(search): fold search metadata into one describeSearch()
+- `4d43991f1` refactor(api): drop the resource schema ETag and use the default Show response
+- `d4d34c34f` refactor(admin): ResourceListState.gotoAfterRemoval() and ResourceTable.deleteModal()
+- `687d81698` refactor(api): resolve field labels from ui.label or the field name only
+- `9aeece1fd` refactor(admin): gate the CSV export on definition.canExport() only
+- `5966431b2` refactor(admin): AccessTokenDefinition.recordLabel() and ResourceDeleteModal submit hooks
+- `b88ad01fe` feat(admin): patchColumn() and patchFilter() helpers
+- `c9198962c` docs(api): fix the ui() hints docblock and trim describer docblocks
+- `6a4e86f16` refactor(admin): drop ResourceTable attrs that only the users page used
+- `a738adcca` refactor(admin): drop the searchCoveredFilters policy; Filter.hideWhenSearchable is the override
+- `f4b5e0383` refactor(admin): label(count) names the type; create modal reads "Create {label}"
+- `c2702962d` refactor(api): declare required fields with ui.required instead of inferring required_without
+- `217a65317` refactor(admin): the group filter's display hint moves into the users definition
+- `0daec1138` fix(admin): ResourceListState reads filter keys and negatability from definition.filters(), once per load
+- `09a17c0cc` fix(admin): number, date and datetime fields honour nullable when empty
+- `3bae3fc2e` refactor(admin): remove dead resource code
+- `3cd4fe5cc` style(admin): trim redundant ResourceTable rules
+- `85d2cc1e6` fix(admin): a cleared non-nullable number, date or datetime is sent as null
+- `252c64905` refactor(admin): extract ResourceFilterBar and FilterChips from ResourceTable
+- `c64371229` refactor(admin): the compact phone filter menu becomes CompactFilterBar
+- `5dbbc9612` refactor(admin): extract the CSV export into ExportCsvButton
+- `2e3caadf7` refactor(admin): bulk delete moves out of ResourceDefinition into bulkDeleteAction()
+- `1d2b3ea6b` refactor(admin): fieldInput() and filterInput() replace the resolver lists
+- `5cb38fa8d` feat(admin): ResourceListPage, the shell of an admin page that is one ResourceTable
+- `95aaa164d` Revert "refactor(api): declare required fields with ui.required instead of inferring required_without"
+- `56323f7ec` Revert "refactor(admin): fieldInput() and filterInput() replace the resolver lists"
+- `4ef6fcec2` fix(api): restore the core.admin.resource label convention and the catalogue check
+- `50b8b26cd` refactor(api): make describeFilters() protected and restore DescribeContext caller notes
+- `6b3e4ea78` feat(admin): fieldInput() and filterInput() on ResourceDefinition, over the resolver lists
+- `33df0be30` feat(admin): restore the BulkRunner interface and ResourceTable.bulkRunner()
+- `d96d3050e` feat(admin): bulkDelete() and runBulkDelete() delegates on ResourceDefinition
+- `40e4208c4` feat(admin): restore the compactFilters attr on ResourceTable
+- `534963f0b` feat(api): describe Laravel's conditional required rules as requiredWhen
+- `284f131ad` feat(admin): rowAttrs() and containerClassName() seams on ResourceTable
+- `2a3f9cee4` feat(admin): restore ResourceFormState.shared() for view state the inputs of one form share
+- `d2852e0c1` feat(admin): export the renderer and resolver helpers
+- `d6ea96454` feat(admin): public filter bar seams and inlineFilters()
+- `67592c20c` docs(api): trim comments in the resource-schema PHP
+- `2d6fa0a99` feat(admin): evaluate requiredWhen conditions live in resource forms
+- `a6ddc4803` docs(admin): trim comments in the resource layer
 
 The task-by-task plan was folded into this file and deleted; git history keeps it (`doc/@work/plans/2026-10-27-admin-resource-schema-core.md` at `7719918d2`).
 
@@ -159,7 +210,7 @@ The task-by-task plan was folded into this file and deleted; git history keeps i
 - Migrating the other core admin pages (permissions, extensions) to the generic table in this work.
 - Forum pages built on `ResourceForm`. It lives in `common/` and works there, but no forum page migrates.
 - Translatable fields, which are base-products' contract.
-- A persistent server cache of descriptors: building one is a few closure calls on admin-only traffic, and a cache would bring back the POC's "closures must not depend on the actor" caveat (FND-123). ETag and the client memo stay.
+- A persistent server cache of descriptors: building one is a few closure calls on admin-only traffic, and a cache would bring back the POC's "closures must not depend on the actor" caveat (FND-123). The client memo stays.
 - A global capabilities document (SCIM `/ServiceProviderConfig`): global flags are SCIM's weak spot; capabilities go per resource and per field instead.
 - SCIM filter grammar, PATCH ops and record ETags: JSON:API `filter[key]`, `page`, `sort` and dirty-only PATCH cover it.
 - A generic action schema (approve, suspend, …): row actions stay JS ItemLists calling their own endpoints.
