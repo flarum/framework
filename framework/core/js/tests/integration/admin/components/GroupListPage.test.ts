@@ -132,7 +132,7 @@ describe('GroupListPage', () => {
 
     const headers = out.find('th[data-column-name]').map((th: any) => th.getAttribute('data-column-name'));
 
-    expect(headers).toEqual(['badge', 'nameSingular', 'namePlural', 'isHidden']);
+    expect(headers).toEqual(['badge', 'nameSingular', 'namePlural', 'isHidden', 'actions']);
     expect(out).toHaveElement('tbody .Badge.Badge--group--1');
     expect(out).toContainRaw('Admins');
 

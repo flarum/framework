@@ -64,7 +64,10 @@ const FIELD_COLUMNS: Record<string, string> = {
 const loadEditUserModal = () => import('../../common/components/EditUserModal');
 
 interface UserListTableAttrs extends ResourceTableAttrs<User> {
-  bulkActions: (context: BulkActionContext<User>) => ItemList<Mithril.Children>;
+  /** Opens the page's create modal. */
+  createUser: () => void;
+  /** Opens the page's edit modal. */
+  editUser: (user: User) => void;
   /** Called with the number of users a bulk action deleted, before its summary shows. */
   onBulkDeleted: (count: number) => void;
   /** The page's `headerItems()`, rendered into the table's toolbar. */
@@ -83,9 +86,11 @@ interface UserListTableAttrs extends ResourceTableAttrs<User> {
  * - the items ranked at or below `totalUsers` (`actions`: "New User", and any an extension adds)
  *   follow the count there, replacing the table's refresh/create.
  *
- * The sort is the column headers, and the `userActions` column is the actions column, so the table
- * leaves out its own. Cells keep the `UserListPage-grid-*` classes and `data-user-id`. A bulk
- * action's deleted users lower the user total.
+ * The sort is the column headers, and the `userActions` column is the actions column (the page's
+ * columns replace the table's, its own actions column included). The table container keeps the
+ * `UserListPage-grid` classes, the rows and cells `data-user-id`, the cells the
+ * `UserListPage-grid-*` classes. Create and edit open the page's modals. A bulk action's deleted
+ * users lower the user total.
  */
 class UserListTable extends ResourceTable<User, UserListTableAttrs> {
   /** `headerItems()` of the toolbar pass in progress, so it is built once per redraw. */
@@ -144,8 +149,12 @@ class UserListTable extends ResourceTable<User, UserListTableAttrs> {
     return items;
   }
 
-  bulkActionItems(): ItemList<Mithril.Children> {
-    return this.attrs.bulkActions(this.bulkContext());
+  create(): void {
+    this.attrs.createUser();
+  }
+
+  edit(user: User): void {
+    this.attrs.editUser(user);
   }
 
   bulkContext(): BulkActionContext<User> {
@@ -165,14 +174,22 @@ class UserListTable extends ResourceTable<User, UserListTableAttrs> {
     };
   }
 
+  tableView(): Mithril.Children {
+    const vnode = super.tableView() as Mithril.Vnode<{ className?: string }>;
+    const state = !this.list.getPages().length ? 'loading' : this.list.isLoading() ? 'loadingPage' : 'loaded';
+
+    vnode.attrs.className = classList(vnode.attrs.className, 'UserListPage-grid', `UserListPage-grid--${state}`);
+
+    return vnode;
+  }
+
   headerView(key: string, column: ColumnData): Mithril.Children {
     return super.headerView(key, { ...column, className: classList(column.className, 'UserListPage-grid-header') });
   }
 
   rowView(user: User, columns: [string, ColumnData][], selectable: boolean = false): Mithril.Children {
     const shaded = this.list.getItems().indexOf(user) % 2 > 0;
-
-    return super.rowView(
+    const row = super.rowView(
       user,
       columns.map(([key, column]) => [
         key,
@@ -183,7 +200,11 @@ class UserListTable extends ResourceTable<User, UserListTableAttrs> {
         },
       ]),
       selectable
-    );
+    ) as Mithril.Vnode<Record<string, unknown>>;
+
+    row.attrs['data-user-id'] = user.id();
+
+    return row;
   }
 }
 
@@ -273,24 +294,15 @@ export default class UserListPage extends AdminPage {
    * Component to render.
    */
   content() {
-    const loading = this.pageData === undefined;
-
     return [
       <UserListTable
         definition={this.definition}
         state={this.list}
         className="UserListPage-table"
-        tableClassName={classList(
-          'UserListPage-grid',
-          loading ? 'UserListPage-grid--loading' : this.list.isLoading() ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'
-        )}
         columns={this.tableColumns()}
-        actionsColumn={false}
-        bulkActions={(context: BulkActionContext<User>) => this.bulkActionItems(context)}
         onBulkDeleted={(count: number) => this.setUserCount(this.userCount - count)}
-        rowAttrs={(user: User) => ({ 'data-user-id': user.id() })}
-        onCreate={() => this.showCreateModal()}
-        onEdit={(user: User) => this.showEditModal(user)}
+        createUser={() => this.showCreateModal()}
+        editUser={(user: User) => this.showEditModal(user)}
         headerItems={() => this.headerItems()}
         searchCoveredFilters={this.searchCoveredFilters()}
       />,
@@ -370,15 +382,6 @@ export default class UserListPage extends AdminPage {
    */
   editModal(_user: User): UserListModal {
     return loadEditUserModal;
-  }
-
-  /**
-   * Actions for the selected users. Empty, so the list has no checkbox column; adding an item adds
-   * it. `context.list` holds the selection; `ResourceDefinition.bulkDelete(context)` is a ready-made
-   * item.
-   */
-  bulkActionItems(_context: BulkActionContext<User>): ItemList<Mithril.Children> {
-    return new ItemList<Mithril.Children>();
   }
 
   /**
@@ -724,9 +727,11 @@ export default class UserListPage extends AdminPage {
 }
 
 /**
- * The users definition: the group filter leaves out the guest group, which no user is a member of.
+ * The users definition. Its `bulkActions()` are the list's bulk actions: empty, so the list has no
+ * checkbox column until an extension adds one (`bulkDelete(context)` is a ready-made item). The group
+ * filter leaves out the guest group, which no user is a member of.
  */
-class UserResourceDefinition extends ResourceDefinition<User> {
+export class UserResourceDefinition extends ResourceDefinition<User> {
   /**
    * Administrators only: the export holds email addresses.
    */

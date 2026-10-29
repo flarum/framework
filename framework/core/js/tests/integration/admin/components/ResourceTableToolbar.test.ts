@@ -154,7 +154,7 @@ describe('ResourceTable toolbar', () => {
   });
 
   test('by default every filter that a gambit of the same key covers is left out; uncovered ones stay', async () => {
-    const { out } = await rendered({ inlineFilters: 10 });
+    const { out } = await rendered();
 
     expect(out).not.toHaveElement('.ResourceTable-filter--email');
     expect(out).not.toHaveElement('.ResourceTable-filter--active');
@@ -163,20 +163,20 @@ describe('ResourceTable toolbar', () => {
   });
 
   test('searchCoveredFilters "text" leaves out only covered text filters, "none" keeps them all', async () => {
-    const text = await rendered({ inlineFilters: 10, searchCoveredFilters: 'text' });
+    const text = await rendered({ searchCoveredFilters: 'text' });
 
     expect(text.out).not.toHaveElement('.ResourceTable-filter--email');
     expect(text.out).toHaveElement('.ResourceTable-filter--active');
-    expect(text.out).toHaveElement('.ResourceTable-filter--color .ResourceTable-filterControl input');
+    expect(text.out).toHaveElement('.ResourceTable-moreFilter[data-filter=color]');
 
-    const none = await rendered({ inlineFilters: 10, searchCoveredFilters: 'none' });
+    const none = await rendered({ searchCoveredFilters: 'none' });
 
-    expect(none.out).toHaveElement('.ResourceTable-filter--email');
+    expect(none.out).toHaveElement('.ResourceTable-moreFilter[data-filter=email]');
     expect(none.out).toHaveElement('.ResourceTable-filter--active');
   });
 
   test("a filter's hideWhenSearchable wins over the table's policy", async () => {
-    const { out, table } = await rendered({ inlineFilters: 10 });
+    const { out, table } = await rendered();
 
     expect(out).not.toHaveElement('.ResourceTable-filter--active');
 
@@ -186,7 +186,7 @@ describe('ResourceTable toolbar', () => {
     expect(out).toHaveElement('.ResourceTable-filter--active');
     expect(out).not.toHaveElement('.ResourceTable-filter--email');
 
-    const text = await rendered({ inlineFilters: 10, searchCoveredFilters: 'text' });
+    const text = await rendered({ searchCoveredFilters: 'text' });
 
     text.table.filters!.get('active').hideWhenSearchable = true;
     text.table.filters!.get('email').hideWhenSearchable = false;
@@ -196,7 +196,7 @@ describe('ResourceTable toolbar', () => {
     expect(text.out).toHaveElement('.ResourceTable-filter--email');
   });
 
-  test('filters past inlineFilters go under "More filters"; picking one adds its button', async () => {
+  test('filters past the first three go under "More filters"; picking one adds its button', async () => {
     const { out } = await rendered({ searchCoveredFilters: 'text' });
 
     expect(out.find('.ResourceTable-toolbarView .ResourceTable-filter')).toHaveLength(3);
@@ -211,13 +211,13 @@ describe('ResourceTable toolbar', () => {
   });
 
   test('a filter with a value is always on the toolbar', async () => {
-    window.history.replaceState(null, '', '/admin#/gadgets?filter%5Bcolor%5D=red');
+    window.history.replaceState(null, '', '/admin#/gadgets?filter%5Bsize%5D=s');
 
-    const { out } = await rendered({ inlineFilters: 1 });
+    const { out } = await rendered();
 
     expect(out).toHaveElement('.ResourceTable-filter--status');
-    expect(out).toHaveElement('.ResourceTable-filter--color.is-active');
-    expect(out).not.toHaveElement('.ResourceTable-filter--active');
+    expect(out).toHaveElement('.ResourceTable-filter--size.is-active');
+    expect(out).not.toHaveElement('.ResourceTable-moreFilters');
   });
 
   test('active filters show as chips; one can be removed, "Clear all" removes all', async () => {
@@ -276,7 +276,7 @@ describe('ResourceTable toolbar', () => {
   test('a filter shown because it has a value stays on the toolbar when set back to Any', async () => {
     window.history.replaceState(null, '', '/admin#/gadgets?filter%5Bsize%5D=s');
 
-    const { out } = await rendered({ inlineFilters: 1 });
+    const { out } = await rendered();
 
     expect(out).toHaveElement('.ResourceTable-filter--size.is-active');
 
@@ -309,7 +309,7 @@ describe('ResourceTable toolbar', () => {
   });
 
   test('accessible names start with the visible text', async () => {
-    const { out } = await rendered({ inlineFilters: 1 });
+    const { out } = await rendered();
 
     expect(out.first('.ResourceTable-filter--status .Dropdown-toggle').getAttribute('aria-label')).toMatch(/^Status: Any/);
     expect(out.first('.ResourceTable-moreFilters .Dropdown-toggle').getAttribute('aria-label')).toMatch(/^More filters/);

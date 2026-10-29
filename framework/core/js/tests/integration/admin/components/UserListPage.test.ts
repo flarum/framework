@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import m from 'mithril';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
-import UserListPage from '../../../../src/admin/components/UserListPage';
+import UserListPage, { UserResourceDefinition } from '../../../../src/admin/components/UserListPage';
 import CreateUserModal from '../../../../src/admin/components/CreateUserModal';
 import ResourceDeleteModal from '../../../../src/admin/components/resource/ResourceDeleteModal';
 import BulkResultModal from '../../../../src/admin/components/resource/BulkResultModal';
@@ -192,7 +192,6 @@ describe('UserListPage', () => {
         'goToPage',
         'createModal',
         'editModal',
-        'bulkActionItems',
       ]) {
         expect(typeof (UserListPage.prototype as any)[method]).toBe('function');
       }
@@ -218,7 +217,6 @@ describe('UserListPage', () => {
       ]);
       expect(entries(page.userActionItems(user('3', { canDelete: false })))).toEqual([['editUser', 0]]);
       expect(page.headerInfo()).toMatchObject({ className: 'UserListPage', icon: 'fas fa-users' });
-      expect(page.bulkActionItems({} as any).isEmpty()).toBe(true);
       expect((page as any).numPerPage).toBe(50);
     });
 
@@ -256,7 +254,6 @@ describe('UserListPage', () => {
 
       // One actions column: the page's own `userActions`, not the table's.
       expect(out).toHaveElement('th[data-column-name=userActions]');
-      expect(out).not.toHaveElement('.ResourceTable-actionsHeader');
       expect(out).not.toHaveElement('.ResourceTable-actions');
       expect(out.find('tr[data-user-id="2"] .UserList-userActions')).toHaveLength(1);
 
@@ -540,9 +537,9 @@ describe('UserListPage', () => {
   });
 
   test('a bulk delete where one row fails deletes the others, names the failed row and lowers the total by 2', async () => {
-    patch(UserListPage.prototype, 'bulkActionItems');
-    extend(UserListPage.prototype, 'bulkActionItems', function (this: UserListPage, items, context) {
-      items.add('delete', (this as any).definition.bulkDelete(context));
+    patch(UserResourceDefinition.prototype, 'bulkActions');
+    extend(UserResourceDefinition.prototype, 'bulkActions', function (this: UserResourceDefinition, items, _selection, context) {
+      items.add('delete', this.bulkDelete(context));
     });
     respond(() => Promise.resolve(results([user('2'), user('3'), user('4', { displayName: 'Refused' })], 3)));
 
@@ -607,9 +604,9 @@ describe('UserListPage', () => {
       expect(out).not.toHaveElement('.ResourceTable-select');
     });
 
-    test('a bulkActionItems item adds the checkbox column', async () => {
-      patch(UserListPage.prototype, 'bulkActionItems');
-      extend(UserListPage.prototype, 'bulkActionItems', (items) => {
+    test('a bulkActions item adds the checkbox column', async () => {
+      patch(UserResourceDefinition.prototype, 'bulkActions');
+      extend(UserResourceDefinition.prototype, 'bulkActions', (items) => {
         items.add('x', m(Button, { className: 'Button BulkX' }, 'X'));
       });
 

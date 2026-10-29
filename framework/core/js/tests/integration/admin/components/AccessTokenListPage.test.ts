@@ -164,7 +164,7 @@ describe('AccessTokenListPage', () => {
 
     const headers = out.find('th[data-column-name]').map((th: any) => th.getAttribute('data-column-name'));
 
-    expect(headers).toEqual(['user', 'type', 'title', 'device', 'lastIpAddress', 'createdAt', 'lastActivityAt']);
+    expect(headers).toEqual(['user', 'type', 'title', 'device', 'lastIpAddress', 'createdAt', 'lastActivityAt', 'actions']);
     expect(out).not.toHaveElement('[data-column-name=token]');
 
     expect(out).toHaveElement('a.AccessTokenList-user[href$="/u/normal"]');

@@ -23,6 +23,9 @@ const things = descriptor([fd('name', 'string', { sortable: true }), fd('price',
   filters: [{ key: 'status', kind: 'enum', enum: ['draft', 'live'] }],
 });
 
+/** ResourceTable's search debounce, in ms. */
+const SEARCH_DELAY = 300;
+
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 function thing(id: string, attributes: Record<string, unknown> = {}): Thing {
@@ -120,12 +123,12 @@ describe('ResourceTable', () => {
     expect(out).not.toHaveElement('tr[data-id="2"] .ResourceTable-delete');
   });
 
-  test('passing columns replaces the inferred columns', async () => {
+  test('passing columns replaces the inferred columns and the actions column', async () => {
     const columns = new ItemList<ColumnData<Thing>>();
     columns.add('label', { name: 'Label', content: (m) => `#${m.id()} ${m.attribute('name')}`, className: 'Thing-label' }, 20);
     columns.add('price', { name: 'Cost', content: (m) => String(m.attribute('price')), sort: 'price' }, 10);
 
-    const out = await rendered({ columns, className: 'Things-grid', rowAttrs: (m: Thing) => ({ 'data-thing-id': m.id() }) });
+    const out = await rendered({ columns, className: 'Things-grid' });
 
     expect(out).not.toHaveElement('th[data-column-name=name]');
     expect(out).toHaveElement('th[data-column-name=label]');
@@ -134,7 +137,7 @@ describe('ResourceTable', () => {
     expect(out).toContainRaw('Cost');
     expect(out).toHaveElement('td.Thing-label[data-column-name=label]');
     expect(out).toHaveElement('.ResourceTable.Things-grid');
-    expect(out).toHaveElement('tr[data-thing-id="1"]');
+    expect(out).not.toHaveElement('.ResourceTable-actions');
   });
 
   test('each cell has data-column-name set to its ItemList key', async () => {
@@ -145,38 +148,20 @@ describe('ResourceTable', () => {
     expect(out).not.toHaveElement('td[data-column-name=notes]');
   });
 
-  test('onCreate and onEdit replace the default modal', async () => {
+  test('create and edit open ResourceFormModal', async () => {
     class CreatableDefinition extends ResourceDefinition<Thing> {
       canCreate(): boolean {
         return true;
       }
     }
 
-    const fallback = await rendered({ definition: new CreatableDefinition('things') });
-    fallback.click('.ResourceTable-create');
-    expect(app.modal.show).toHaveBeenCalledWith(ResourceFormModal, expect.objectContaining({ model: null }));
-
-    (app.modal.show as jest.Mock).mockClear();
-
-    const onCreate = jest.fn();
-    const onEdit = jest.fn();
-    const out = await rendered({ definition: new CreatableDefinition('things'), onCreate, onEdit });
+    const out = await rendered({ definition: new CreatableDefinition('things') });
 
     out.click('.ResourceTable-create');
+    expect(app.modal.show).toHaveBeenLastCalledWith(ResourceFormModal, expect.objectContaining({ model: null }));
+
     out.click('tr[data-id="2"] .ResourceTable-edit');
-
-    expect(onCreate).toHaveBeenCalledTimes(1);
-    expect(onEdit).toHaveBeenCalledWith(app.store.getById('things', '2'));
-    expect(app.modal.show).not.toHaveBeenCalled();
-  });
-
-  test('tableClassName goes on the table container; className on the root', async () => {
-    const out = await rendered({ className: 'Things-table', tableClassName: 'Things-grid' });
-
-    expect(out).toHaveElement('.ResourceTable.Things-table');
-    expect(out).not.toHaveElement('.ResourceTable.Things-grid');
-    expect(out).toHaveElement('.ResourceTable > .ResourceTable-container.Things-grid > table.ResourceTable-table');
-    expect(out).not.toHaveElement('.ResourceTable-toolbar .Things-grid');
+    expect(app.modal.show).toHaveBeenLastCalledWith(ResourceFormModal, expect.objectContaining({ model: app.store.getById('things', '2') }));
   });
 
   describe('loading', () => {
@@ -219,7 +204,6 @@ describe('ResourceTable', () => {
   describe('lifecycle', () => {
     let rejections: unknown[];
     const onRejection = (reason: unknown) => rejections.push(reason);
-    const delay = ResourceTable.SEARCH_DELAY;
 
     beforeEach(() => {
       rejections = [];
@@ -228,7 +212,6 @@ describe('ResourceTable', () => {
 
     afterEach(() => {
       process.off('unhandledRejection', onRejection);
-      ResourceTable.SEARCH_DELAY = delay;
     });
 
     /** Render and return the component instance too. */
@@ -242,14 +225,12 @@ describe('ResourceTable', () => {
     }
 
     test('a failed debounced search leaves no unhandled rejection', async () => {
-      ResourceTable.SEARCH_DELAY = 0;
       const out = await rendered();
 
       find.mockImplementation(() => Promise.reject(new Error('500')));
       out.setValue('input.ResourceTable-search', 'knife');
+      await new Promise((r) => setTimeout(r, SEARCH_DELAY + 50));
       await flush();
-      await flush();
-      await new Promise((r) => setTimeout(r, 10));
       out.redraw();
 
       expect(rejections).toEqual([]);
@@ -267,7 +248,7 @@ describe('ResourceTable', () => {
       const controller = table.exporting!.controller;
 
       table.onremove({} as any);
-      await new Promise((r) => setTimeout(r, ResourceTable.SEARCH_DELAY + 50));
+      await new Promise((r) => setTimeout(r, SEARCH_DELAY + 50));
 
       expect(controller.signal.aborted).toBe(true);
       // The export's first page request, and no search request.
@@ -419,13 +400,12 @@ describe('ResourceTable', () => {
     });
   });
 
-  test('actionsColumn:false leaves out the actions column', async () => {
-    const out = await rendered({ actionsColumn: false });
+  test('the actions column is the last column, not toggleable', async () => {
+    const out = await rendered();
 
-    expect(out).toHaveElement('td[data-column-name=name]');
-    expect(out).not.toHaveElement('.ResourceTable-actionsHeader');
-    expect(out).not.toHaveElement('.ResourceTable-actions');
-    expect(await rendered()).toHaveElement('tr[data-id="1"] td.ResourceTable-actions');
+    expect(out).toHaveElement('th.ResourceTable-actions[data-column-name=actions] .visually-hidden');
+    expect(out).toHaveElement('tr[data-id="1"] td.ResourceTable-actions[data-column-name=actions] .ResourceTable-edit');
+    expect(out).not.toHaveElement('.ResourceTable-columns input[name="actions"]');
   });
 
   describe('export', () => {

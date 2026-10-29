@@ -16,7 +16,7 @@ import ItemList from '../../../common/utils/ItemList';
 import classList from '../../../common/utils/classList';
 import extractText from '../../../common/utils/extractText';
 import type Stream from '../../../common/utils/Stream';
-import { SequentialBulkRunner, type BulkActionContext, type BulkRunner, type BulkSummary } from '../../../common/resource/BulkRunner';
+import { SequentialBulkRunner, type BulkActionContext, type BulkSummary } from '../../../common/resource/BulkRunner';
 import ColumnPreferences from '../../../common/resource/ColumnPreferences';
 import { exportCsv } from '../../../common/resource/csv';
 import { renderColumn } from '../../../common/resource/field';
@@ -79,32 +79,13 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
   /** Sync sort, search, filters and page with the URL. Default true. */
   syncUrl?: boolean;
   pageSize?: number;
-  /** The input factory for the create/edit form; default `definition.formInputs()`. */
-  formInputs?: InputFactory;
-  /** The input factory for the filter bar; default `definition.filterInputs()`. */
-  filterInputs?: InputFactory;
-  /** Replaces the columns inferred from the descriptor; the keys become `data-column-name`. */
+  /**
+   * Replaces the columns inferred from the descriptor, the actions column included; the keys become
+   * `data-column-name`.
+   */
   columns?: ItemList<ColumnData<M>>;
   /** Added to the root element's class. */
   className?: string;
-  /** Added to the table container's class (the element around the `<table>` and its loading overlay). */
-  tableClassName?: string;
-  /** Replaces the default create modal (`ResourceFormModal`). */
-  onCreate?: () => void;
-  /** Replaces the default edit modal (`ResourceFormModal`). */
-  onEdit?: (model: M) => void;
-  /** Extra attributes for one record's row, e.g. `data-user-id`. */
-  rowAttrs?: (model: M) => Record<string, unknown>;
-  /**
-   * Append the actions column (`rowActions()`: edit, delete, the definition's actions). Default
-   * true. Pass false when `columns` brings its own actions column, so there is exactly one.
-   */
-  actionsColumn?: boolean;
-  /**
-   * How many filters show as toolbar buttons before the rest go under "More filters". Default
-   * `ResourceTable.INLINE_FILTERS` (3).
-   */
-  inlineFilters?: number;
   /**
    * Collapse the filters into one "Filters" dropdown. Default: at phone width.
    */
@@ -118,6 +99,11 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
 }
 
 export type SearchCoveredFilters = 'text' | 'all' | 'none';
+
+/** How long the search and text filters wait for typing to stop, in ms. */
+const SEARCH_DELAY = 300;
+/** How many filters show as toolbar buttons before the rest go under "More filters". */
+const INLINE_FILTERS = 3;
 
 const anyLabel = () => app.translator.trans('core.lib.resource.filter.any', {}, true);
 /** Core's `@phone` breakpoint. */
@@ -139,9 +125,6 @@ function ordered<T>(list: ItemList<T>): [string, T][] {
  * `ItemList` for extensions.
  */
 export default class ResourceTable<M extends Model = Model, Attrs extends ResourceTableAttrs<M> = ResourceTableAttrs<M>> extends Component<Attrs> {
-  static SEARCH_DELAY = 300;
-  static INLINE_FILTERS = 3;
-
   list!: ResourceListState<M>;
   filterInputs!: InputFactory;
   /** Null until the descriptor is loaded. */
@@ -184,7 +167,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     const { definition, state, syncUrl, pageSize } = this.attrs;
 
     this.list = state ?? new ResourceListState<M>(definition, { syncUrl, pageSize });
-    this.filterInputs = this.attrs.filterInputs ?? definition.filterInputs();
+    this.filterInputs = definition.filterInputs();
 
     if (typeof window.matchMedia === 'function') {
       this.phoneQuery = window.matchMedia(PHONE_QUERY);
@@ -338,27 +321,20 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * What the definition's bulk actions run with: this table's list, `bulkRunner()`, and
-   * `BulkResultModal` for the outcome.
+   * What the definition's bulk actions run with: this table's list, a runner sending one request
+   * per record, 3 at a time, and `BulkResultModal` for the outcome.
    */
   bulkContext(): BulkActionContext<M> {
     return {
       list: this.list,
-      runner: this.bulkRunner(),
+      runner: new SequentialBulkRunner(),
       showResult: (summary: BulkSummary<M>) => app.modal.show(BulkResultModal, { summary, definition: this.attrs.definition }),
     };
   }
 
   /**
-   * The runner bulk actions use: one request per record, 3 at a time.
-   */
-  bulkRunner(): BulkRunner {
-    return new SequentialBulkRunner();
-  }
-
-  /**
    * Search (`search`, when the type is searchable), sort, then the filters: the first
-   * `inlineFilters` (`filter-{key}`) and "More filters" (`moreFilters`) for the rest, or one
+   * three (`filter-{key}`) and "More filters" (`moreFilters`) for the rest, or one
    * "Filters" dropdown (`filters`) in compact mode.
    */
   viewItems(): ItemList<Mithril.Children> {
@@ -586,18 +562,17 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * The toolbar filters split into those shown as buttons (the first `inlineFilters`, the ones the
+   * The toolbar filters split into those shown as buttons (the first three, the ones the
    * user picked from "More filters" and every filter with a value) and the rest.
    */
   filterLayout(): { inline: [string, Filter][]; more: [string, Filter][] } {
-    const limit = this.attrs.inlineFilters ?? ResourceTable.INLINE_FILTERS;
     const inline: [string, Filter][] = [];
     const more: [string, Filter][] = [];
 
     this.toolbarFilters().forEach((entry, index) => {
       const [key] = entry;
 
-      if (index < limit || this.promotedFilters.has(key) || this.list.getFilter(key) !== '') inline.push(entry);
+      if (index < INLINE_FILTERS || this.promotedFilters.has(key) || this.list.getFilter(key) !== '') inline.push(entry);
       else more.push(entry);
     });
 
@@ -1076,14 +1051,15 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
           m.redraw();
         });
       m.redraw();
-    }, ResourceTable.SEARCH_DELAY);
+    }, SEARCH_DELAY);
   }
 
   // ---------------------------------------------------------------------------------------------
   // Table
 
   /**
-   * The columns: the `columns` attr, else one per field with a column, by the column's priority.
+   * The columns: the `columns` attr, else one per field with a column, by the column's priority,
+   * then `actions` (`rowActions()`).
    */
   columns(): ItemList<ColumnData<M>> {
     if (this.attrs.columns) return this.attrs.columns;
@@ -1101,6 +1077,17 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
         field.column.priority ?? item.priority
       );
     });
+
+    columns.add(
+      'actions',
+      {
+        name: <span className="visually-hidden">{app.translator.trans('core.admin.resource.table.actions_label')}</span>,
+        content: (model) => this.rowActions(model).toArray(),
+        className: 'ResourceTable-actions',
+        toggleable: false,
+      },
+      -100
+    );
 
     return columns;
   }
@@ -1146,11 +1133,10 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     const loading = this.list.isLoading();
     const initial = this.list.isInitialLoading() && !models.length;
     const selectable = !this.currentBulkActions().isEmpty();
-    const actions = this.attrs.actionsColumn !== false;
 
     return (
       <div
-        className={classList('ResourceTable-container', loading && 'ResourceTable-container--loading', this.attrs.tableClassName)}
+        className={classList('ResourceTable-container', loading && 'ResourceTable-container--loading')}
         aria-busy={loading ? 'true' : 'false'}
         oncreate={(vnode: Mithril.VnodeDOM) => (this.unfloatMenus = floatMenus(vnode.dom as HTMLElement))}
         onremove={() => this.unfloatMenus?.()}
@@ -1161,11 +1147,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
             <tr>
               {selectable && this.selectAllView()}
               {columns.map(([key, column]) => this.headerView(key, column))}
-              {actions && (
-                <th scope="col" className="ResourceTable-actionsHeader">
-                  <span className="visually-hidden">{app.translator.trans('core.admin.resource.table.actions_label')}</span>
-                </th>
-              )}
             </tr>
           </thead>
           <tbody>
@@ -1173,7 +1154,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
               ? null
               : models.length
                 ? models.map((model) => this.rowView(model, columns, selectable))
-                : this.emptyView(columns.length + (selectable ? 1 : 0) + (actions ? 1 : 0))}
+                : this.emptyView(columns.length + (selectable ? 1 : 0))}
           </tbody>
         </table>
         {loading && <LoadingIndicator size="large" />}
@@ -1255,25 +1236,19 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /**
    * One record's row: the checkbox when `selectable`, a cell per column (`data-column-name` is the
-   * column key), then the row actions (unless the `actionsColumn` attr is false).
+   * column key).
    */
   rowView(model: M, columns: [string, ColumnData<M>][], selectable: boolean = false): Mithril.Children {
     const selected = selectable && this.list.isSelected(model.id()!);
 
     return (
-      <tr
-        key={model.id()}
-        data-id={model.id()}
-        className={classList('ResourceTable-row', selected && 'is-selected')}
-        {...(this.attrs.rowAttrs?.(model) ?? {})}
-      >
+      <tr key={model.id()} data-id={model.id()} className={classList('ResourceTable-row', selected && 'is-selected')}>
         {selectable && this.selectView(model)}
         {columns.map(([key, column]) => (
           <td data-column-name={key} className={column.className} {...(column.attrs?.(model) ?? {})}>
             {column.content(model)}
           </td>
         ))}
-        {this.attrs.actionsColumn !== false && <td className="ResourceTable-actions">{this.rowActions(model).toArray()}</td>}
       </tr>
     );
   }
@@ -1436,34 +1411,14 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     return this.list.goto(Math.max(1, page));
   }
 
-  /** The `onCreate` attr, else `ResourceFormModal` for a new record. */
+  /** `ResourceFormModal` for a new record. */
   create(): void {
-    if (this.attrs.onCreate) {
-      this.attrs.onCreate();
-      return;
-    }
-
-    app.modal.show(ResourceFormModal, {
-      definition: this.attrs.definition,
-      model: null,
-      inputs: this.attrs.formInputs,
-      onsaved: () => this.reload(),
-    });
+    app.modal.show(ResourceFormModal, { definition: this.attrs.definition, model: null, onsaved: () => this.reload() });
   }
 
-  /** The `onEdit` attr, else `ResourceFormModal` for the record. */
+  /** `ResourceFormModal` for the record. */
   edit(model: M): void {
-    if (this.attrs.onEdit) {
-      this.attrs.onEdit(model);
-      return;
-    }
-
-    app.modal.show(ResourceFormModal, {
-      definition: this.attrs.definition,
-      model,
-      inputs: this.attrs.formInputs,
-      onsaved: () => this.reload(),
-    });
+    app.modal.show(ResourceFormModal, { definition: this.attrs.definition, model, onsaved: () => this.reload() });
   }
 
   /**
