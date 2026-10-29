@@ -1,21 +1,19 @@
-import app from '../../forum/app';
-import Component from '../../common/Component';
+import app from '../app';
+import Component, { ComponentAttrs } from '../../common/Component';
 import humanTime from '../../common/utils/humanTime';
 import Tooltip from '../../common/components/Tooltip';
+
+import type Post from '../../common/models/Post';
+
+export interface IPostEditedAttrs extends ComponentAttrs {
+  post: Post;
+}
 
 /**
  * The `PostEdited` component displays information about when and by whom a post
  * was edited.
- *
- * ### Attrs
- *
- * - `post`
  */
-export default class PostEdited extends Component {
-  oninit(vnode) {
-    super.oninit(vnode);
-  }
-
+export default class PostEdited<CustomAttrs extends IPostEditedAttrs = IPostEditedAttrs> extends Component<CustomAttrs> {
   view() {
     const post = this.attrs.post;
     const editedUser = post.editedUser();
@@ -26,9 +24,5 @@ export default class PostEdited extends Component {
         <span className="PostEdited">{app.translator.trans('core.forum.post.edited_text')}</span>
       </Tooltip>
     );
-  }
-
-  oncreate(vnode) {
-    super.oncreate(vnode);
   }
 }

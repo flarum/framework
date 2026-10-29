@@ -1,5 +1,5 @@
-import app from '../../forum/app';
-import Component from '../../common/Component';
+import app from '../app';
+import Component, { type ComponentAttrs } from '../../common/Component';
 import Button from '../../common/components/Button';
 import SessionDropdown from './SessionDropdown';
 import SelectDropdown from '../../common/components/SelectDropdown';
@@ -9,23 +9,22 @@ import listItems from '../../common/helpers/listItems';
 import GlobalSearch from './GlobalSearch';
 import ThemeSwitcher from './ThemeSwitcher';
 
+import type Mithril from 'mithril';
+
+export interface IHeaderSecondaryAttrs extends ComponentAttrs {}
+
 /**
  * The `HeaderSecondary` component displays secondary header controls, such as
  * the search box and the user menu. On the default skin, these are shown on the
  * right side of the header.
  */
-export default class HeaderSecondary extends Component {
+export default class HeaderSecondary<CustomAttrs extends IHeaderSecondaryAttrs = IHeaderSecondaryAttrs> extends Component<CustomAttrs> {
   view() {
     return <ul className="Header-controls">{listItems(this.items().toArray())}</ul>;
   }
 
-  /**
-   * Build an item list for the controls.
-   *
-   * @return {ItemList}
-   */
   items() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     items.add('search', <GlobalSearch state={app.search.state} />, 30);
 
@@ -90,10 +89,8 @@ export default class HeaderSecondary extends Component {
 
   /**
    * Switch the forum to the given locale.
-   *
-   * @param {string} locale
    */
-  changeLocale(locale) {
+  changeLocale(locale: string) {
     if (app.session.user) {
       app.session.user.savePreferences({ locale }).then(() => window.location.reload());
     } else {

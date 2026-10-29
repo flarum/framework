@@ -12,6 +12,7 @@ namespace Flarum\Admin\Content;
 use Flarum\Api\Resource\AbstractResource;
 use Flarum\Database\AbstractModel;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Forum\Branding\ThemeImages;
 use Flarum\Foundation\ApplicationInfoProvider;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\FontAwesome;
@@ -138,6 +139,7 @@ class AdminPayload
 
         $document->payload['settings'] = $settings;
         $document->payload['permissions'] = Permission::map();
+        $document->payload['themeImages'] = (object) $this->container->make(ThemeImages::class)->owners();
         $extensions = $this->extensions->getExtensions()->toArray();
 
         // Allow a stored override (e.g. written by a future scheduled Packagist check) to supplement
