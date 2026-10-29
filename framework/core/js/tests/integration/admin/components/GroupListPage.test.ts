@@ -6,6 +6,7 @@ import GroupListPage, { GroupDefinition } from '../../../../src/admin/components
 import ResourceDeleteModal from '../../../../src/admin/components/resource/ResourceDeleteModal';
 import ResourceFormModal from '../../../../src/admin/components/resource/ResourceFormModal';
 import type Group from '../../../../src/common/models/Group';
+import extractText from '../../../../src/common/utils/extractText';
 import ColumnPreferences from '../../../../src/common/resource/ColumnPreferences';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
 import { bootAdmin, schemaDocument } from '../../../unit/common/resource/fixtures';
@@ -179,7 +180,8 @@ describe('GroupListPage', () => {
       modalAttrs({ definition: new GroupDefinition(), model: null, onsaved })
     );
 
-    expect(modal.title()).toEqual(app.translator.trans('core.admin.groups.create_title'));
+    expect(extractText(modal.title())).toBe('Create Group');
+    expect([new GroupDefinition().label(1), new GroupDefinition().label(2)]).toEqual(['Group', 'Groups']);
     expect(out).toHaveElement('input[name=nameSingular][required][placeholder="Singular (e.g. Mod)"]');
     expect(out).toHaveElement('input[name=namePlural][required]');
     expect(out).toHaveElement('.ResourceForm-field--color .ColorInput');

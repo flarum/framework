@@ -227,13 +227,11 @@ export default class ResourceDefinition<M extends Model = Model> {
   }
 
   /**
-   * The create modal's title, e.g. "Create Group". Null (the default) keeps the generic "Create".
+   * The name of `count` records of this type, e.g. "Group" for 1 ("Create Group") and "Groups" for
+   * more (the search placeholder, the table caption). Defaults to the humanized type for any count;
+   * override it with an ICU plural translation.
    */
-  createTitle(): Mithril.Children | null {
-    return null;
-  }
-
-  label(_n: number): string {
+  label(_count: number): string {
     return humanize(this.type);
   }
 }

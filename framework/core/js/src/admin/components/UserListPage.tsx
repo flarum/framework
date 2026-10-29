@@ -721,6 +721,10 @@ export default class UserListPage extends AdminPage {
  * filter leaves out the guest group, which no user is a member of.
  */
 export class UserResourceDefinition extends ResourceDefinition<User> {
+  label(count: number): string {
+    return extractText(app.translator.trans('core.admin.users.label', { count }));
+  }
+
   /**
    * Administrators only: the export holds email addresses.
    */

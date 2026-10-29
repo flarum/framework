@@ -20,6 +20,7 @@ core:
         user: User
       current_session: Current session
       description: "See and revoke the sessions and developer tokens of your forum's users."
+      label: "{count, plural, one {Access token} other {Access tokens}}"
       never: Never
       revoke:
         confirmation: "Revoke {name} of {username}? Whatever is signed in with it is logged out at once."
@@ -472,7 +473,6 @@ core:
 
     # These translations are used in the Groups page of the admin interface.
     groups:
-      create_title: => core.admin.edit_group.title
       description: Create groups, and edit their names, badges and visibility.
       fields:
         color: => core.ref.color
@@ -481,6 +481,7 @@ core:
         name_plural: Name (plural)
         name_singular: Name (singular)
       icon_text: => core.ref.icon_text
+      label: "{count, plural, one {Group} other {Groups}}"
       title: Groups
 
     # These translations are used in the secondary header.
@@ -599,7 +600,7 @@ core:
         submit_button: => core.ref.delete
         title: => core.ref.delete
       form:
-        create_title: Create
+        create_title: "Create {label}"
         edit_title: "Edit {name}"
       table:
         actions_label: Actions
@@ -696,6 +697,7 @@ core:
 
         invalid_column_content: Invalid
 
+      label: "{count, plural, one {User} other {Users}}"
       matching_users: "{count, plural, one {# matching user} other {# matching users}} of {total}"
       search_placeholder: => core.ref.search_users
       title: => core.ref.users

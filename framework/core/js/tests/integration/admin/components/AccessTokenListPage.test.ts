@@ -220,6 +220,7 @@ describe('AccessTokenListPage', () => {
     expect(modal).toContainRaw('Backup script');
     expect(modal).toContainRaw('normal');
     expect(modal).toHaveElement('.AccessTokenRevokeModal-submit');
+    expect(new AccessTokenDefinition().label(2)).toBe('Access tokens');
     expect(new AccessTokenDefinition().recordLabel(tokens()[2])).toBe('Remembered session (Chrome on Mac)');
   });
 

@@ -42,6 +42,10 @@ export class AccessTokenDefinition extends ResourceDefinition<AccessToken> {
     return false;
   }
 
+  label(count: number): string {
+    return extractText(app.translator.trans('core.admin.access_tokens.label', { count }));
+  }
+
   /**
    * A developer token's title, else its type and device.
    */

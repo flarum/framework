@@ -57,12 +57,8 @@ export class GroupDefinition extends ResourceDefinition<Group> {
     return false;
   }
 
-  createTitle(): Mithril.Children {
-    return app.translator.trans('core.admin.groups.create_title');
-  }
-
-  label(_n: number): string {
-    return extractText(app.translator.trans('core.admin.groups.title'));
+  label(count: number): string {
+    return extractText(app.translator.trans('core.admin.groups.label', { count }));
   }
 }
 
