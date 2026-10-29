@@ -52,6 +52,11 @@ export class GroupDefinition extends ResourceDefinition<Group> {
     return group.nameSingular() || super.recordLabel(group);
   }
 
+  /** A handful of records, nothing to export. */
+  canExport(): boolean {
+    return false;
+  }
+
   createTitle(): Mithril.Children {
     return app.translator.trans('core.admin.groups.create_title');
   }
@@ -84,6 +89,6 @@ export default class GroupListPage extends AdminPage {
   }
 
   content() {
-    return <ResourceTable definition={this.definition} className="GroupListPage-table" exportable={false} />;
+    return <ResourceTable definition={this.definition} className="GroupListPage-table" />;
   }
 }

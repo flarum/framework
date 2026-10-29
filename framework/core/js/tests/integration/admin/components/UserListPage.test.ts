@@ -193,7 +193,6 @@ describe('UserListPage', () => {
         'createModal',
         'editModal',
         'bulkActionItems',
-        'canExport',
       ]) {
         expect(typeof (UserListPage.prototype as any)[method]).toBe('function');
       }
@@ -626,9 +625,8 @@ describe('UserListPage', () => {
 
       app.session.user!.pushAttributes({ isAdmin: false });
 
-      const { out, page } = await rendered();
+      const { out } = await rendered();
 
-      expect(page.canExport()).toBe(false);
       expect(out).not.toHaveElement('.ResourceTable-export');
     });
 

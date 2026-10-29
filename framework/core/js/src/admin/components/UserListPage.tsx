@@ -285,7 +285,6 @@ export default class UserListPage extends AdminPage {
         )}
         columns={this.tableColumns()}
         actionsColumn={false}
-        exportable={this.canExport()}
         bulkActions={(context: BulkActionContext<User>) => this.bulkActionItems(context)}
         onBulkDeleted={(count: number) => this.setUserCount(this.userCount - count)}
         rowAttrs={(user: User) => ({ 'data-user-id': user.id() })}
@@ -389,14 +388,6 @@ export default class UserListPage extends AdminPage {
    */
   searchCoveredFilters(): SearchCoveredFilters {
     return 'all';
-  }
-
-  /**
-   * Whether the "Export CSV" button shows: administrators only, since the export holds email
-   * addresses.
-   */
-  canExport(): boolean {
-    return !!app.session.user?.isAdmin();
   }
 
   /**
@@ -735,6 +726,13 @@ export default class UserListPage extends AdminPage {
  * The users definition: the group filter leaves out the guest group, which no user is a member of.
  */
 class UserResourceDefinition extends ResourceDefinition<User> {
+  /**
+   * Administrators only: the export holds email addresses.
+   */
+  canExport(): boolean {
+    return !!app.session.user?.isAdmin() && super.canExport();
+  }
+
   filters() {
     const filters = super.filters();
 

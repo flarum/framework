@@ -86,8 +86,6 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
   onEdit?: (model: M) => void;
   /** Extra attributes for one record's row, e.g. `data-user-id`. */
   rowAttrs?: (model: M) => Record<string, unknown>;
-  /** Offer the CSV export. Default `definition.canExport()`. */
-  exportable?: boolean;
   /**
    * Append the actions column (`rowActions()`: edit, delete, the definition's actions). Default
    * true. Pass false when `columns` brings its own actions column, so there is exactly one.
@@ -417,7 +415,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * The "Columns" dropdown (when a column is toggleable) and the CSV export (when `exportable`).
+   * The "Columns" dropdown (when a column is toggleable) and the CSV export (when `definition.canExport()`).
    */
   displayItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -434,7 +432,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       );
     }
 
-    if (this.attrs.exportable ?? this.attrs.definition.canExport()) {
+    if (this.attrs.definition.canExport()) {
       items.add('export', this.exportButton(), 10);
     }
 

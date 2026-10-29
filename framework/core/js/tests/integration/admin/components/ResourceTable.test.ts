@@ -429,9 +429,8 @@ describe('ResourceTable', () => {
   });
 
   describe('export', () => {
-    test('the export button follows canExport() and the exportable attr', async () => {
+    test('the export button follows canExport()', async () => {
       expect(await rendered()).toHaveElement('.ResourceTable-export');
-      expect(await rendered({ exportable: false })).not.toHaveElement('.ResourceTable-export');
 
       class NoExport extends ResourceDefinition<Thing> {
         canExport(): boolean {
