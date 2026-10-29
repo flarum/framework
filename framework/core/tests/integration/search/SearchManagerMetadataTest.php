@@ -46,6 +46,14 @@ class SearchManagerMetadataTest extends TestCase
         return $this->app()->getContainer()->make(SearchManager::class);
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function describedFilters(User $actor): array
+    {
+        return $this->manager()->describeSearch(User::class, $actor)['filters'];
+    }
+
     private function admin(): User
     {
         $this->app();
@@ -61,19 +69,18 @@ class SearchManagerMetadataTest extends TestCase
     }
 
     #[Test]
-    public function filters_are_exposed_by_key()
+    public function filters_are_described_by_key()
     {
-        $filters = $this->manager()->filters(User::class);
+        $filters = $this->describedFilters($this->admin());
 
         $this->assertArrayHasKey('email', $filters);
         $this->assertArrayHasKey('group', $filters);
     }
 
     #[Test]
-    public function filters_are_empty_for_non_searchable_resources()
+    public function search_is_empty_for_non_searchable_resources()
     {
-        $this->assertSame([], $this->manager()->filters(stdClass::class));
-        $this->assertFalse($this->manager()->fulltext(stdClass::class));
+        $this->assertSame(['fulltext' => false, 'filters' => []], $this->manager()->describeSearch(stdClass::class, $this->admin()));
     }
 
     #[Test]
@@ -94,8 +101,8 @@ class SearchManagerMetadataTest extends TestCase
     #[Test]
     public function described_filters_are_scoped_to_the_actor()
     {
-        $admin = $this->manager()->describeFilters(User::class, $this->admin());
-        $member = $this->manager()->describeFilters(User::class, $this->member());
+        $admin = $this->describedFilters($this->admin());
+        $member = $this->describedFilters($this->member());
 
         $this->assertArrayHasKey('email', $admin);
         $this->assertArrayNotHasKey('email', $member);
@@ -111,18 +118,8 @@ class SearchManagerMetadataTest extends TestCase
                 ->describeFilter(UserSearcher::class, 'customMetadata', fn (User $actor) => $actor->isAdmin() ? ['kind' => 'boolean'] : null)
         );
 
-        $this->assertSame(['kind' => 'boolean'], $this->manager()->describeFilters(User::class, $this->admin())['customMetadata']);
-        $this->assertArrayNotHasKey('customMetadata', $this->manager()->describeFilters(User::class, $this->member()));
-    }
-
-    #[Test]
-    public function search_is_described_in_one_pass()
-    {
-        $search = $this->manager()->describeSearch(User::class, $this->admin());
-
-        $this->assertTrue($search['fulltext']);
-        $this->assertSame($this->manager()->describeFilters(User::class, $this->admin()), $search['filters']);
-        $this->assertSame(['fulltext' => false, 'filters' => []], $this->manager()->describeSearch(stdClass::class, $this->admin()));
+        $this->assertSame(['kind' => 'boolean'], $this->describedFilters($this->admin())['customMetadata']);
+        $this->assertArrayNotHasKey('customMetadata', $this->describedFilters($this->member()));
     }
 
     #[Test]
@@ -133,9 +130,6 @@ class SearchManagerMetadataTest extends TestCase
 
         $this->assertTrue($this->manager()->searchable(User::class));
         $this->assertSame(['fulltext' => true, 'filters' => []], $this->manager()->describeSearch(User::class, $this->admin()));
-        $this->assertSame([], $this->manager()->describeFilters(User::class, $this->admin()));
-        $this->assertSame([], $this->manager()->filters(User::class));
-        $this->assertTrue($this->manager()->fulltext(User::class));
     }
 
     #[Test]
@@ -150,24 +144,13 @@ class SearchManagerMetadataTest extends TestCase
     #[Test]
     public function users_support_fulltext()
     {
-        $this->assertTrue($this->manager()->fulltext(User::class));
-    }
-
-    #[Test]
-    public function custom_filters_appear()
-    {
-        $this->extend(
-            (new Extend\SearchDriver(DatabaseSearchDriver::class))
-                ->addFilter(UserSearcher::class, CustomMetadataFilter::class)
-        );
-
-        $this->assertArrayHasKey('customMetadata', $this->manager()->filters(User::class));
+        $this->assertTrue($this->manager()->describeSearch(User::class, $this->admin())['fulltext']);
     }
 
     #[Test]
     public function filters_describe_through_the_interface()
     {
-        $described = $this->manager()->describeFilters(User::class, $this->admin());
+        $described = $this->describedFilters($this->admin());
 
         $this->assertSame(['kind' => 'string'], $described['email']);
         $this->assertSame(['kind' => 'relationship', 'related' => 'groups'], $described['group']);
@@ -181,7 +164,7 @@ class SearchManagerMetadataTest extends TestCase
                 ->addFilter(UserSearcher::class, CustomMetadataFilter::class)
         );
 
-        $this->assertArrayNotHasKey('customMetadata', $this->manager()->describeFilters(User::class, $this->admin()));
+        $this->assertArrayNotHasKey('customMetadata', $this->describedFilters($this->admin()));
     }
 
     #[Test]
@@ -193,7 +176,7 @@ class SearchManagerMetadataTest extends TestCase
                 ->describeFilter(UserSearcher::class, 'customMetadata', ['kind' => 'boolean'])
         );
 
-        $this->assertSame(['kind' => 'boolean'], $this->manager()->describeFilters(User::class, $this->admin())['customMetadata']);
+        $this->assertSame(['kind' => 'boolean'], $this->describedFilters($this->admin())['customMetadata']);
     }
 
     #[Test]
@@ -206,7 +189,7 @@ class SearchManagerMetadataTest extends TestCase
 
         $this->assertSame(
             ['kind' => 'string', 'format' => 'email'],
-            $this->manager()->describeFilters(User::class, $this->admin())['email']
+            $this->describedFilters($this->admin())['email']
         );
     }
 
@@ -218,7 +201,7 @@ class SearchManagerMetadataTest extends TestCase
                 ->describeFilter(UserSearcher::class, 'nope', ['kind' => 'string'])
         );
 
-        $this->assertArrayNotHasKey('nope', $this->manager()->describeFilters(User::class, $this->admin()));
+        $this->assertArrayNotHasKey('nope', $this->describedFilters($this->admin()));
     }
 }
 

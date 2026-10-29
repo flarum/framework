@@ -73,80 +73,45 @@ class SearchManager
     }
 
     /**
-     * The filters registered on the database driver's searcher for a model, keyed by filter key.
-     * Empty for a model the site searches with another driver.
+     * Whether a model supports fulltext search, and the filters it can be listed by,
+     * keyed by filter key, as seen by the given actor.
      *
-     * @param class-string<AbstractModel> $modelClass
-     * @return array<string, array<\Flarum\Search\Filter\FilterInterface>>
-     */
-    public function filters(string $modelClass): array
-    {
-        $searcher = $this->databaseSearcher($modelClass);
-
-        return $searcher ? $searcher->getFilterManager()->all() : [];
-    }
-
-    /**
-     * Descriptions of the filters registered for a model, keyed by filter key,
-     * as seen by the given actor.
-     *
-     * A description registered through `Extend\SearchDriver::describeFilter()`
-     * wins; otherwise the first filter for the key implementing `DescribesFilter`
-     * describes itself. Filters with neither are left out, and so are filters
-     * whose description is null for this actor.
-     *
-     * @param class-string<AbstractModel> $modelClass
-     * @return array<string, array<string, mixed>>
-     */
-    public function describeFilters(string $modelClass, User $actor): array
-    {
-        $searcher = $this->databaseSearcher($modelClass);
-
-        return $searcher ? $this->describeSearcherFilters($searcher, $actor) : [];
-    }
-
-    /**
-     * @param class-string<AbstractModel> $modelClass
-     */
-    public function fulltext(string $modelClass): bool
-    {
-        if ($this->searchedByAnotherDriver($modelClass)) {
-            return $this->driverFor($modelClass)->supports($modelClass);
-        }
-
-        $searcher = $this->databaseSearcher($modelClass);
-
-        return $searcher && $searcher->getFilterManager()->getFulltext() !== null;
-    }
-
-    /**
-     * `fulltext()` and `describeFilters()` together, resolving the searcher once.
+     * `query()` sends only fulltext queries to a non-database driver, so such a model keeps
+     * `fulltext` if that driver supports it. Filter-only queries still run on the database
+     * searcher, but a filter combined with `q` goes to the other driver, which may not support
+     * it, so no filters are described: the conservative reading.
      *
      * @param class-string<AbstractModel> $modelClass
      * @return array{fulltext: bool, filters: array<string, array<string, mixed>>}
      */
     public function describeSearch(string $modelClass, User $actor): array
     {
-        if ($this->searchedByAnotherDriver($modelClass)) {
-            return ['fulltext' => $this->fulltext($modelClass), 'filters' => []];
+        $driver = $this->driverFor($modelClass);
+
+        if (! $driver instanceof DatabaseSearchDriver) {
+            return ['fulltext' => $driver->supports($modelClass), 'filters' => []];
         }
 
-        $searcher = $this->databaseSearcher($modelClass);
+        $searcher = $driver->supports($modelClass) ? $driver->searcher($modelClass) : null;
 
-        if (! $searcher) {
+        if (! $searcher instanceof Database\AbstractSearcher) {
             return ['fulltext' => false, 'filters' => []];
         }
 
         return [
             'fulltext' => $searcher->getFilterManager()->getFulltext() !== null,
-            'filters' => $this->describeSearcherFilters($searcher, $actor),
+            'filters' => $this->describeFilters($searcher, $actor),
         ];
     }
 
     /**
+     * A description registered through `Extend\SearchDriver::describeFilter()` wins; otherwise
+     * the first filter for the key implementing `DescribesFilter` describes itself. Filters with
+     * neither, or whose description is null for this actor, are left out.
+     *
      * @return array<string, array<string, mixed>>
      */
-    protected function describeSearcherFilters(Database\AbstractSearcher $searcher, User $actor): array
+    private function describeFilters(Database\AbstractSearcher $searcher, User $actor): array
     {
         $registered = $this->container->make('flarum.search.filter_descriptions')[$searcher::class] ?? [];
 
@@ -179,36 +144,6 @@ class SearchManager
         }
 
         return $described;
-    }
-
-    /**
-     * Whether the site searches this model with a driver other than the database driver.
-     *
-     * `query()` sends only fulltext queries to that driver, so it serves `q`; filter-only
-     * queries still run on the database searcher, but a filter combined with `q` goes to
-     * the other driver, which may not support it. Such a model is described with the other
-     * driver's fulltext support and no filters, which is the conservative reading.
-     */
-    protected function searchedByAnotherDriver(string $modelClass): bool
-    {
-        return ! $this->driverFor($modelClass) instanceof DatabaseSearchDriver;
-    }
-
-    protected function databaseSearcher(string $modelClass): ?Database\AbstractSearcher
-    {
-        if ($this->searchedByAnotherDriver($modelClass)) {
-            return null;
-        }
-
-        $driver = $this->driver(DatabaseSearchDriver::name());
-
-        if (! $driver->supports($modelClass)) {
-            return null;
-        }
-
-        $searcher = $driver->searcher($modelClass);
-
-        return $searcher instanceof Database\AbstractSearcher ? $searcher : null;
     }
 
     public function searchable(string $resourceClass): bool
