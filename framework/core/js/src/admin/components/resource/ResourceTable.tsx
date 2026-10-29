@@ -90,15 +90,7 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
    * Collapse the filters into one "Filters" dropdown. Default: at phone width.
    */
   compactFilters?: boolean;
-  /**
-   * Which filters the toolbar leaves out when a gambit of the same key covers them, so they are
-   * typed into the search box as `key:value` instead: `'all'` (default) every covered filter,
-   * `'text'` only text-like filters, `'none'` none. A filter's own `hideWhenSearchable` wins.
-   */
-  searchCoveredFilters?: SearchCoveredFilters;
 }
-
-export type SearchCoveredFilters = 'text' | 'all' | 'none';
 
 /** How long the search and text filters wait for typing to stop, in ms. */
 const SEARCH_DELAY = 300;
@@ -536,29 +528,13 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * The filters the toolbar offers, by priority, without those the search box covers
-   * (`isCoveredBySearch()`).
+   * The filters the toolbar offers, by priority. A filter that a gambit of the same key covers is
+   * left to the search box unless its `hideWhenSearchable` is false.
    */
   toolbarFilters(): [string, Filter][] {
     const gambitKeys = this.isSearchable() ? new Set(this.gambits().map((gambit) => gambit.filterKey())) : new Set<string>();
 
-    return ordered(this.filters ?? new ItemList<Filter>()).filter(([key, filter]) => !(gambitKeys.has(key) && this.isCoveredBySearch(key, filter)));
-  }
-
-  /**
-   * Whether a filter that a gambit of the same key covers is left to the search box: the filter's
-   * `hideWhenSearchable`, else the `searchCoveredFilters` policy.
-   */
-  isCoveredBySearch(key: string, filter: Filter): boolean {
-    if (filter.hideWhenSearchable !== undefined) return filter.hideWhenSearchable;
-
-    const policy = this.attrs.searchCoveredFilters ?? 'all';
-
-    return policy === 'all' || (policy === 'text' && this.isTextFilter(filter));
-  }
-
-  isTextFilter(filter: Filter): boolean {
-    return typeof filter.input !== 'function' && TEXT_FILTER_TYPES.includes(filter.input.type);
+    return ordered(this.filters ?? new ItemList<Filter>()).filter(([key, filter]) => !(gambitKeys.has(key) && filter.hideWhenSearchable !== false));
   }
 
   /**

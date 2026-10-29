@@ -195,9 +195,8 @@ export interface Filter {
    */
   exclude?: (model: Model) => boolean;
   /**
-   * Leave this filter out of the toolbar (`true`) or keep it (`false`) when a gambit of the same
-   * key covers it; `false` keeps a covered filter's dropdown even under the default
-   * `searchCoveredFilters: 'all'`. Left undefined, the table's `searchCoveredFilters` decides.
+   * Whether the toolbar leaves this filter to the search box when a gambit of the same key covers
+   * it. Default true; `false` keeps its dropdown.
    */
   hideWhenSearchable?: boolean;
 }

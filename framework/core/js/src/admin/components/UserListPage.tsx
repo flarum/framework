@@ -29,7 +29,7 @@ import Group from '../../common/models/Group';
 import type Model from '../../common/Model';
 import ResourceListState from '../../common/resource/ResourceListState';
 import type { Field } from '../../common/resource/types';
-import ResourceTable, { type ColumnData as ResourceColumnData, type ResourceTableAttrs, type SearchCoveredFilters } from './resource/ResourceTable';
+import ResourceTable, { type ColumnData as ResourceColumnData, type ResourceTableAttrs } from './resource/ResourceTable';
 import ResourceDeleteModal from './resource/ResourceDeleteModal';
 
 /**
@@ -304,7 +304,6 @@ export default class UserListPage extends AdminPage {
         createUser={() => this.showCreateModal()}
         editUser={(user: User) => this.showEditModal(user)}
         headerItems={() => this.headerItems()}
-        searchCoveredFilters={this.searchCoveredFilters()}
       />,
     ];
   }
@@ -382,16 +381,6 @@ export default class UserListPage extends AdminPage {
    */
   editModal(_user: User): UserListModal {
     return loadEditUserModal;
-  }
-
-  /**
-   * Which filters the toolbar leaves to the search box when a gambit covers them (see
-   * `ResourceTable`'s `searchCoveredFilters`): every covered filter, so `group` and `suspended`
-   * are typed in the search as `group:` / `is:suspended`. Filters without a gambit, e.g. likes'
-   * `liked`, keep their dropdowns.
-   */
-  searchCoveredFilters(): SearchCoveredFilters {
-    return 'all';
   }
 
   /**

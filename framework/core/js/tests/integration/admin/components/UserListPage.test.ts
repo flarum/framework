@@ -700,18 +700,11 @@ describe('UserListPage', () => {
     expect(narrowed.out).toContainRaw('1 matching user of 3');
   });
 
-  test('searchCoveredFilters() is the toolbar policy: "all" by default leaves group to the group: gambit, "text" keeps its dropdown', async () => {
+  test('filters a gambit covers are left to the search box', async () => {
     const { out } = await rendered();
 
     expect(out).not.toHaveElement('.ResourceTable-filter--group');
     expect(out).not.toHaveElement('.ResourceTable-filter--email');
-
-    patch(UserListPage.prototype, 'searchCoveredFilters');
-    UserListPage.prototype.searchCoveredFilters = () => 'text';
-    const text = await rendered();
-
-    expect(text.out).toHaveElement('.ResourceTable-filter--group');
-    expect(text.out).not.toHaveElement('.ResourceTable-filter--email');
   });
 
   test('a search-covered group filter from the URL has no dropdown but a removable chip', async () => {
