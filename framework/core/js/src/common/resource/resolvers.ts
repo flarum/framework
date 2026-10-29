@@ -20,7 +20,7 @@ function stringAttrs(d: FieldDescriptor): Record<string, unknown> {
  * the field is not nullable and has one (strings: ""), else as null. Only a changed field is
  * serialized, so a cleared non-nullable field reaches the server, whose 422 lands on the field.
  */
-function serializer(d: FieldDescriptor, convert: (v: any) => unknown = (v) => v, emptyValue?: unknown): Field<any>['serialize'] {
+export function serializer(d: FieldDescriptor, convert: (v: any) => unknown = (v) => v, emptyValue?: unknown): Field<any>['serialize'] {
   return (v) => {
     if (!empty(v)) return { [d.name]: convert(v) };
 
@@ -39,7 +39,7 @@ function pad(n: number): string {
 /**
  * ISO 8601 → the local `YYYY-MM-DDTHH:mm` a datetime-local input expects.
  */
-function toLocalDateTime(value: unknown): string | null {
+export function toLocalDateTime(value: unknown): string | null {
   if (empty(value)) return null;
 
   const date = new Date(value as string);

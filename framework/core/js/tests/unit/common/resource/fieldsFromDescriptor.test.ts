@@ -5,7 +5,7 @@ import ItemList from '../../../../src/common/utils/ItemList';
 import Stream from '../../../../src/common/utils/Stream';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
 import { fieldsFromDescriptor, patchField, patchFilter } from '../../../../src/common/resource/fieldsFromDescriptor';
-import { defaultInputResolvers, WIDGET_ALIASES } from '../../../../src/common/resource/resolvers';
+import { defaultInputResolvers, serializer, toLocalDateTime, WIDGET_ALIASES } from '../../../../src/common/resource/resolvers';
 import { defaultFormInputs } from '../../../../src/common/resource/inputs/defaults';
 import InputFactory from '../../../../src/common/resource/inputs/InputFactory';
 import RelationInput from '../../../../src/common/resource/inputs/RelationInput';
@@ -305,5 +305,20 @@ describe('patchFilter', () => {
 
     expect(filters.get('type')).toEqual({ label: 'Type', input: { type: 'enum', choices: [] }, negatable: true });
     expect(filters.has('missing')).toBe(false);
+  });
+});
+
+describe('resolver helpers', () => {
+  test('serializer() converts a value and sends an empty one as emptyValue, or null when nullable or without one', () => {
+    expect(serializer(fd('x', 'integer'), Number)!('3')).toEqual({ x: 3 });
+    expect(serializer(fd('x', 'string', { nullable: false }), (v) => v, '')!('')).toEqual({ x: '' });
+    expect(serializer(fd('x', 'string', { nullable: true }), (v) => v, '')!('')).toEqual({ x: null });
+    expect(serializer(fd('x', 'integer'))!(null)).toEqual({ x: null });
+  });
+
+  test('toLocalDateTime() gives the local YYYY-MM-DDTHH:mm, null for empty or invalid', () => {
+    expect(toLocalDateTime(new Date(2026, 0, 2, 3, 4).toISOString())).toBe('2026-01-02T03:04');
+    expect(toLocalDateTime('')).toBeNull();
+    expect(toLocalDateTime('nope')).toBeNull();
   });
 });
