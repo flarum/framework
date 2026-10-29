@@ -11,8 +11,8 @@ import type { Field, FormMode, JsonApiError, SaveData } from './types';
 import { ValidationError, validateValue } from './validation';
 
 /**
- * The editing state of one record: a stream per visible field, the values it started with, shared
- * view state and the field errors. Only changed fields are sent, because the server answers 403 for
+ * The editing state of one record: a stream per visible field, the values it started with and
+ * the field errors. Only changed fields are sent, because the server answers 403 for
  * any non-writable field present in the payload.
  */
 export default class ResourceFormState<M extends Model = Model> {
@@ -25,7 +25,6 @@ export default class ResourceFormState<M extends Model = Model> {
   saving: boolean = false;
   /** Keys whose entry in `errors` came from client-side validation, not the server. */
   protected clientErrorKeys = new Set<string>();
-  protected sharedStreams: Record<string, Stream<any>> = {};
 
   /**
    * Await the definition's descriptor, then build the state.
@@ -97,14 +96,6 @@ export default class ResourceFormState<M extends Model = Model> {
       this.initial[key] = value;
       this.streams[key] = Stream(value);
     });
-  }
-
-  /**
-   * Form-wide view state several inputs share, created on first use. Never sent, and kept across
-   * `reset()`.
-   */
-  shared<V>(key: string, initial: V): Stream<V> {
-    return (this.sharedStreams[key] ??= Stream(initial));
   }
 
   stream<V = unknown>(key: string): Stream<V> {

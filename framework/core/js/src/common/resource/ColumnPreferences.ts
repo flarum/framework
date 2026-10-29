@@ -5,8 +5,7 @@
  * follows its `hidden` default, so a default-hidden column added later still starts hidden.
  *
  * The choices are kept in `localStorage` under `flarum.resourceTable.{type}.columns` (a JSON
- * object). An array there (the format of the first 2.0 betas) reads as "these keys hidden". Every
- * storage access is wrapped in try/catch: when storage is unavailable or full (private mode, quota,
+ * object). Every storage access is wrapped in try/catch: when storage is unavailable or full (private mode, quota,
  * a sandboxed frame), the choices live in memory for the session. The in-memory value wins over
  * storage, so a write that failed is still read back.
  *
@@ -70,9 +69,7 @@ export default class ColumnPreferences {
   protected static parse(value: unknown): Map<string, boolean> {
     const choices = new Map<string, boolean>();
 
-    if (Array.isArray(value)) {
-      value.forEach((key) => typeof key === 'string' && choices.set(key, false));
-    } else if (value !== null && typeof value === 'object') {
+    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
       Object.entries(value).forEach(([key, visible]) => typeof visible === 'boolean' && choices.set(key, visible));
     }
 

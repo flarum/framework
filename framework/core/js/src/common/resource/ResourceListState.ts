@@ -42,19 +42,11 @@ export function writeQuery(params: URLSearchParams): void {
 }
 
 /**
- * Records picked by id on the current page.
+ * The bulk selection of a resource list: records picked by id on the current page.
  */
-export interface IdsSelection {
-  mode: 'ids';
+export interface ResourceSelection {
   ids: Set<string>;
 }
-
-export type ResourceSelectionMode = 'ids';
-
-/**
- * The bulk selection of a resource list.
- */
-export type ResourceSelection = IdsSelection;
 
 const FILTER_PARAM = /^filter\[(.+)\]$/;
 
@@ -71,7 +63,7 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
   protected filters: ItemList<Filter> | null = null;
 
   /** Page-scoped: any page, sort, filter or search change (and a reload) clears it. */
-  public selection: ResourceSelection = { mode: 'ids', ids: new Set() };
+  public selection: ResourceSelection = { ids: new Set() };
 
   constructor(definition: ResourceDefinition<M>, options: ResourceListOptions = {}) {
     super({}, 1, options.pageSize ?? PaginatedListState.DEFAULT_PAGE_SIZE);
@@ -195,10 +187,6 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
   }
 
   /**
-   * Once a page is on screen, a new search, sort or filter keeps its rows (with `isLoading()`) until
-   * the new page arrives; only the first load is the empty initial-loading state.
-   */
-  /**
    * Whether the type's list is paginated: its descriptor has `pagination`. An unpaginated list
    * (groups) is requested whole, without `page[limit]`/`page[offset]`, and always shows page 1.
    * True until the descriptor is loaded.
@@ -283,7 +271,7 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
   }
 
   setPageSelected(selected: boolean): void {
-    this.selection = { mode: 'ids', ids: new Set(selected ? this.getItems().map((model) => model.id()!) : []) };
+    this.selection = { ids: new Set(selected ? this.getItems().map((model) => model.id()!) : []) };
   }
 
   /** Whether the page has records and all of them are selected. */
@@ -294,7 +282,7 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
   }
 
   clearSelection(): void {
-    this.selection = { mode: 'ids', ids: new Set() };
+    this.selection = { ids: new Set() };
   }
 
   /** The selected records, in page order. */

@@ -34,15 +34,10 @@ describe('ColumnPreferences', () => {
     expect(ColumnPreferences.load('others')).toEqual(new Map());
   });
 
-  test('a stored array (the earlier format) reads as those columns explicitly hidden', () => {
-    window.localStorage.setItem(KEY, JSON.stringify(['price', 'notes', 3]));
+  test('a stored array reads as no choices', () => {
+    window.localStorage.setItem(KEY, JSON.stringify(['price', 'notes']));
 
-    expect(ColumnPreferences.load('things')).toEqual(
-      new Map([
-        ['price', false],
-        ['notes', false],
-      ])
-    );
+    expect(ColumnPreferences.load('things')).toEqual(new Map());
   });
 
   test('a throwing setItem falls back to memory', () => {

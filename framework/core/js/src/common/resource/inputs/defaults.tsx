@@ -28,7 +28,7 @@ export function inputId(ctx: InputContext): string {
  * Wrap a control the way `FormGroup` does: label, help, control. For form input renderers; pass
  * `id` when the control carries `inputId(ctx)`, so clicking the label focuses it.
  */
-export function formGroup(ctx: InputContext, control: Mithril.Children, id?: string): Mithril.Children {
+function formGroup(ctx: InputContext, control: Mithril.Children, id?: string): Mithril.Children {
   return (
     <div className="Form-group">
       {ctx.label && <label for={id}>{ctx.label}</label>}
@@ -46,7 +46,7 @@ export type Choices = [string, string][];
 /**
  * A native select over ordered choices, `ctx.stream` holding the value (`''` for none).
  */
-export function orderedSelect(choices: Choices, ctx: InputContext, attrs: Record<string, unknown> = {}): Mithril.Children {
+function orderedSelect(choices: Choices, ctx: InputContext, attrs: Record<string, unknown> = {}): Mithril.Children {
   const value = ctx.stream() ?? '';
 
   return (

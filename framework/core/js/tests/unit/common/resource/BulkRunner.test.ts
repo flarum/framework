@@ -1,6 +1,6 @@
-import { SequentialBulkRunner } from '../../../../src/common/resource/BulkRunner';
+import { ConcurrentBulkRunner } from '../../../../src/common/resource/BulkRunner';
 
-describe('SequentialBulkRunner', () => {
+describe('ConcurrentBulkRunner', () => {
   test('runs every op with at most 3 in flight and reports the failed one', async () => {
     const models = [1, 2, 3, 4, 5].map((id) => ({ id }));
     const failure = new Error('refused');
@@ -8,7 +8,7 @@ describe('SequentialBulkRunner', () => {
     let inFlight = 0;
     let maxInFlight = 0;
 
-    const result = await new SequentialBulkRunner().run(
+    const result = await new ConcurrentBulkRunner().run(
       models,
       (model) => {
         inFlight++;

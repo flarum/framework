@@ -5,7 +5,7 @@ import ItemList from '../utils/ItemList';
 import type { Field, FieldDescriptor, Filter, FilterDescriptor, FilterResolver, InputResolver } from './types';
 
 /** Strings longer than this get a textarea. */
-export const TEXTAREA_THRESHOLD = 255;
+const TEXTAREA_THRESHOLD = 255;
 
 const empty = (v: unknown): boolean => v === '' || v === null || v === undefined;
 
@@ -39,7 +39,7 @@ function pad(n: number): string {
 /**
  * ISO 8601 → the local `YYYY-MM-DDTHH:mm` a datetime-local input expects.
  */
-export function toLocalDateTime(value: unknown): string | null {
+function toLocalDateTime(value: unknown): string | null {
   if (empty(value)) return null;
 
   const date = new Date(value as string);

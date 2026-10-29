@@ -26,9 +26,8 @@ export interface FieldConstraints {
 }
 
 /**
- * `FlarumField::ui()` hints. The admin consumes `column`, `display`, `widget` and `placeholder`;
- * `group` and `priority` are accepted but currently ignored. The server resolves `label` into the
- * field's `label`, and translates a `placeholder` that is a translation key.
+ * `FlarumField::ui()` hints. The server resolves `label` into the field's `label`, and translates a
+ * `placeholder` that is a translation key.
  */
 export interface FieldUiHints {
   /** `true` shows a column, a number shows one with that priority, `false` hides it. */

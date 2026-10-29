@@ -3,7 +3,7 @@ import type Model from '../Model';
 /**
  * Attributes tried, in order, to name a record in titles and confirmations.
  */
-export const RECORD_LABEL_ATTRIBUTES = ['name', 'title', 'label', 'displayName', 'username', 'slug'];
+const RECORD_LABEL_ATTRIBUTES = ['name', 'title', 'label', 'displayName', 'username', 'slug'];
 
 /**
  * A short human name for a record: the first non-empty string among the usual naming attributes,

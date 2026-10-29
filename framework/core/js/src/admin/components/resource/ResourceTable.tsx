@@ -16,7 +16,7 @@ import ItemList from '../../../common/utils/ItemList';
 import classList from '../../../common/utils/classList';
 import extractText from '../../../common/utils/extractText';
 import type Stream from '../../../common/utils/Stream';
-import { SequentialBulkRunner, type BulkActionContext, type BulkSummary } from '../../../common/resource/BulkRunner';
+import { ConcurrentBulkRunner, type BulkActionContext, type BulkSummary } from '../../../common/resource/BulkRunner';
 import ColumnPreferences from '../../../common/resource/ColumnPreferences';
 import { exportCsv } from '../../../common/resource/csv';
 import { renderColumn } from '../../../common/resource/field';
@@ -319,7 +319,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   bulkContext(): BulkActionContext<M> {
     return {
       list: this.list,
-      runner: new SequentialBulkRunner(),
+      runner: new ConcurrentBulkRunner(),
       showResult: (summary: BulkSummary<M>) => app.modal.show(BulkResultModal, { summary, definition: this.attrs.definition }),
     };
   }
