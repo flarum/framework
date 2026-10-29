@@ -345,46 +345,85 @@ describe('ResourceTable toolbar', () => {
     expect(out).not.toHaveElement('.ResourceTable-filter--owner button[data-value="8"]');
   });
 
-  test('compact mode collapses the filters into one "Filters (n)" dropdown of labelled sections', async () => {
-    window.history.replaceState(null, '', '/admin#/gadgets?filter%5Bstatus%5D=live');
+  describe('at phone width', () => {
+    let listeners: Array<() => void>;
+    let phone: boolean;
 
-    const { out } = await rendered({ compactFilters: true, definition: new KeepActive('gadgets') });
+    beforeEach(() => {
+      listeners = [];
+      phone = true;
+      (window as any).matchMedia = jest.fn(() => ({
+        get matches() {
+          return phone;
+        },
+        addEventListener: (_: string, listener: () => void) => listeners.push(listener),
+        removeEventListener: (_: string, listener: () => void) => listeners.splice(listeners.indexOf(listener), 1),
+      }));
+    });
 
-    expect(out).not.toHaveElement('.ResourceTable-toolbarView .ResourceTable-filter');
-    expect(out).not.toHaveElement('.ResourceTable-moreFilters');
-    expect(out.first('.ResourceTable-filtersMenu .Dropdown-toggle').textContent).toContain('Filters (1)');
-    expect(out.find('.ResourceTable-filtersMenu .ResourceTable-filterGroup')).toHaveLength(5);
-    expect(out.first('.ResourceTable-filterGroup--status .ResourceTable-filterGroupLabel').textContent).toBe('Status');
-    expect(out).toHaveElement('.ResourceTable-subToolbar .ResourceTable-chip--status');
+    afterEach(() => {
+      delete (window as any).matchMedia;
+    });
 
-    // The same choice items as the desktop menus: no native selects, no RelationInput.
-    expect(out).not.toHaveElement('.ResourceTable-toolbar select');
-    expect(out).not.toHaveElement('.ResourceTable-toolbar .ResourceRelationInput');
-    expect(out).toHaveElement('.ResourceTable-filterGroupItem--status.active button[data-value="live"]');
-    expect(out.find('.ResourceTable-filterGroupItem--active button[data-value]').map((b: any) => b.getAttribute('data-value'))).toEqual([
-      '',
-      '1',
-      '0',
-    ]);
-    expect(out).toHaveElement('.ResourceTable-filterGroupItem--color input');
-  });
+    test('a wider viewport turns the compact menu back into the filter dropdowns, and removal stops listening', async () => {
+      const { out, table } = await rendered();
 
-  test('compact mode lists relationship records as choices and sets the filter', async () => {
-    const { out, table } = await rendered({ compactFilters: true });
+      expect(out).toHaveElement('.ResourceTable-filtersMenu');
+      expect(window.matchMedia).toHaveBeenCalledWith('(max-width: 767.98px)');
 
-    await table.bar!.relationOptions('owner', 'owners').loadItems();
-    out.redraw();
+      phone = false;
+      listeners.forEach((listener) => listener());
+      out.redraw();
 
-    expect(out.first('.ResourceTable-filterGroup--owner .ResourceTable-filterGroupLabel').textContent).toBe('Owner');
-    expect(out).toHaveElement('.ResourceTable-filterGroupItem--owner button[data-value=""]');
+      expect(out).not.toHaveElement('.ResourceTable-filtersMenu');
+      expect(out).toHaveElement('.ResourceTable-filter--status');
 
-    expect(out).toHaveElement('.ResourceTable-filterGroupItem--owner button[data-value="7"]');
-    expect(out).toHaveElement('.ResourceTable-filterGroupItem--owner button[data-value="8"]');
+      table.bar!.destroy();
 
-    out.click('.ResourceTable-filterGroupItem--owner button[data-value="8"]');
-    await settle(out);
+      expect(listeners).toHaveLength(0);
+    });
 
-    expect(lastParams().filter).toEqual({ owner: '8' });
-    expect(out.first('.ResourceTable-filtersMenu .Dropdown-toggle').textContent).toContain('Filters (1)');
+    test('compact mode collapses the filters into one "Filters (n)" dropdown of labelled sections', async () => {
+      window.history.replaceState(null, '', '/admin#/gadgets?filter%5Bstatus%5D=live');
+
+      const { out } = await rendered({ definition: new KeepActive('gadgets') });
+
+      expect(out).not.toHaveElement('.ResourceTable-toolbarView .ResourceTable-filter');
+      expect(out).not.toHaveElement('.ResourceTable-moreFilters');
+      expect(out.first('.ResourceTable-filtersMenu .Dropdown-toggle').textContent).toContain('Filters (1)');
+      expect(out.find('.ResourceTable-filtersMenu .ResourceTable-filterGroup')).toHaveLength(5);
+      expect(out.first('.ResourceTable-filterGroup--status .ResourceTable-filterGroupLabel').textContent).toBe('Status');
+      expect(out).toHaveElement('.ResourceTable-subToolbar .ResourceTable-chip--status');
+
+      // The same choice items as the desktop menus: no native selects, no RelationInput.
+      expect(out).not.toHaveElement('.ResourceTable-toolbar select');
+      expect(out).not.toHaveElement('.ResourceTable-toolbar .ResourceRelationInput');
+      expect(out).toHaveElement('.ResourceTable-filterGroupItem--status.active button[data-value="live"]');
+      expect(out.find('.ResourceTable-filterGroupItem--active button[data-value]').map((b: any) => b.getAttribute('data-value'))).toEqual([
+        '',
+        '1',
+        '0',
+      ]);
+      expect(out).toHaveElement('.ResourceTable-filterGroupItem--color input');
+    });
+
+    test('compact mode lists relationship records as choices and sets the filter', async () => {
+      const { out, table } = await rendered();
+
+      await table.bar!.relationOptions('owner', 'owners').loadItems();
+      out.redraw();
+
+      expect(out.first('.ResourceTable-filterGroup--owner .ResourceTable-filterGroupLabel').textContent).toBe('Owner');
+      expect(out).toHaveElement('.ResourceTable-filterGroupItem--owner button[data-value=""]');
+
+      expect(out).toHaveElement('.ResourceTable-filterGroupItem--owner button[data-value="7"]');
+      expect(out).toHaveElement('.ResourceTable-filterGroupItem--owner button[data-value="8"]');
+
+      out.click('.ResourceTable-filterGroupItem--owner button[data-value="8"]');
+      await settle(out);
+
+      expect(lastParams().filter).toEqual({ owner: '8' });
+      expect(out.first('.ResourceTable-filtersMenu .Dropdown-toggle').textContent).toContain('Filters (1)');
+    });
   });
 });

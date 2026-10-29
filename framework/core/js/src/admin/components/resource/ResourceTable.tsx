@@ -25,7 +25,8 @@ import Drafts from './Drafts';
 import floatMenus from './floatMenus';
 import ordered from './ordered';
 import ResourceDeleteModal, { type ResourceDeleteModalAttrs } from './ResourceDeleteModal';
-import ResourceFilterBar from './ResourceFilterBar';
+import CompactFilterBar from './CompactFilterBar';
+import type ResourceFilterBar from './ResourceFilterBar';
 import ResourceFormModal from './ResourceFormModal';
 import type ModalManagerState from '../../../common/states/ModalManagerState';
 
@@ -81,14 +82,7 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
   columns?: ItemList<ColumnData<M>>;
   /** Added to the root element's class. */
   className?: string;
-  /**
-   * Collapse the filters into one "Filters" dropdown. Default: at phone width.
-   */
-  compactFilters?: boolean;
 }
-
-/** Core's `@phone` breakpoint. */
-const PHONE_QUERY = '(max-width: 767.98px)';
 
 /**
  * The admin table for one resource type: columns from the definition's fields (or the `columns`
@@ -114,14 +108,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /** The search typed but not yet sent. */
   protected searchDraft = new Drafts();
-  /** Whether the viewport is phone-sized. */
-  protected phone: boolean = false;
-  protected phoneQuery: MediaQueryList | null = null;
-  protected onPhoneChange = (e: MediaQueryListEvent) => {
-    this.phone = e.matches;
-    m.redraw();
-  };
-
   /** `bulkActionItems()` for the view pass in progress, so the toolbar and the table share one build. */
   protected viewBulkActions: ItemList<Mithril.Children> | null = null;
 
@@ -131,12 +117,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     const { definition, state, syncUrl, pageSize } = this.attrs;
 
     this.list = state ?? new ResourceListState<M>(definition, { syncUrl, pageSize });
-
-    if (typeof window.matchMedia === 'function') {
-      this.phoneQuery = window.matchMedia(PHONE_QUERY);
-      this.phone = this.phoneQuery.matches;
-      this.phoneQuery.addEventListener?.('change', this.onPhoneChange);
-    }
 
     definition
       .load()
@@ -160,7 +140,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
     this.searchDraft.discard();
     this.bar?.destroy();
-    this.phoneQuery?.removeEventListener?.('change', this.onPhoneChange);
     this.exporting?.controller.abort();
   }
 
@@ -296,22 +275,18 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * The filter bar for the loaded filters. The bar's state (drafts, promoted filters, relation
-   * menus) lives as long as the table.
+   * The filter bar for the loaded filters, built once: its state (drafts, promoted filters, relation
+   * menus) lives as long as the table. Default: `CompactFilterBar`, the plain bar that collapses
+   * into one "Filters (n)" dropdown at phone width; return a `ResourceFilterBar` to never collapse.
    */
   filterBar(): ResourceFilterBar<M> {
-    return new ResourceFilterBar<M>({
-      definition: this.attrs.definition,
-      list: this.list,
-      filters: this.attrs.definition.filters(),
-      compact: this.attrs.compactFilters ?? this.phone,
-    });
+    return new CompactFilterBar<M>({ definition: this.attrs.definition, list: this.list, filters: this.attrs.definition.filters() });
   }
 
   /**
    * Search (`search`, when the type is searchable), sort, then the filter bar's items: the first
    * three filters (`filter-{key}`) and "More filters" (`moreFilters`) for the rest, or one
-   * "Filters" dropdown (`filters`) in compact mode.
+   * "Filters" dropdown (`filters`) at phone width.
    */
   viewItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();

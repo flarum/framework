@@ -2,7 +2,6 @@ import app from '../../app';
 import Button from '../../../common/components/Button';
 import Dropdown from '../../../common/components/Dropdown';
 import LoadingIndicator from '../../../common/components/LoadingIndicator';
-import Separator from '../../../common/components/Separator';
 import type IGambit from '../../../common/query/IGambit';
 import type Model from '../../../common/Model';
 import ItemList from '../../../common/utils/ItemList';
@@ -25,8 +24,6 @@ export interface ResourceFilterBarAttrs<M extends Model = Model> {
   list: ResourceListState<M>;
   /** The definition's `filters()`, built once the descriptor is loaded. */
   filters: ItemList<Filter>;
-  /** Collapse the filters into one "Filters (n)" dropdown. */
-  compact?: boolean;
 }
 
 /** How many filters show as toolbar buttons before the rest go under "More filters". */
@@ -72,19 +69,10 @@ export default class ResourceFilterBar<M extends Model = Model> {
 
   /**
    * The toolbar items: the first three filters (`filter-{key}`, 80 down) and "More filters"
-   * (`moreFilters`, 10) for the rest, or one "Filters" dropdown (`filters`, 80) when compact.
+   * (`moreFilters`, 10) for the rest.
    */
   items(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
-
-    if (this.attrs.compact) {
-      const filters = this.toolbarFilters();
-
-      if (filters.length) items.add('filters', this.compactView(filters), 80);
-
-      return items;
-    }
-
     const { inline, more } = this.layout();
 
     inline.forEach(([key, filter], index) => items.add(`filter-${key}`, this.filterView(key, filter), 80 - index));
@@ -177,60 +165,6 @@ export default class ResourceFilterBar<M extends Model = Model> {
     this.drafts.discard();
 
     return this.list.clearFilters().catch(() => {});
-  }
-
-  /**
-   * The compact "Filters (n)" dropdown: one section per filter, a heading with its label over the
-   * same items its dropdown lists (`menuItems`). Flat menu items, so core's phone sheet styling
-   * applies to them.
-   */
-  compactView(filters: [string, Filter][]): Mithril.Children {
-    const count = filters.filter(([key]) => this.list.getFilter(key) !== '').length;
-    const items: Mithril.Children[] = [];
-
-    filters.forEach(([key, filter], index) => {
-      if (index) items.push(<Separator />);
-
-      const heading = (
-        <div className="ResourceTable-filterGroupLabel" onclick={(e: MouseEvent) => e.stopPropagation()}>
-          {filter.label}
-        </div>
-      );
-
-      items.push(
-        Object.assign(heading, { itemClassName: classList('Dropdown-header', 'ResourceTable-filterGroup', `ResourceTable-filterGroup--${key}`) })
-      );
-
-      this.menuItems(key, filter).forEach((item) => items.push(this.inGroup(item, key)));
-    });
-
-    return (
-      <Dropdown
-        className="ResourceTable-filtersMenu"
-        buttonClassName={classList('Button', count && 'is-active')}
-        icon="fas fa-filter"
-        label={app.translator.trans('core.admin.resource.table.filters_button', { count })}
-        accessibleToggleLabel={extractText(app.translator.trans('core.admin.resource.table.filters_button', { count }))}
-        helperText={null}
-        onshow={() => filters.forEach(([key, filter]) => this.loadRelation(key, filter))}
-      >
-        {items}
-      </Dropdown>
-    );
-  }
-
-  /** Mark a menu item's `<li>` as belonging to one filter's section of the compact menu. */
-  protected inGroup(item: Mithril.Children, key: string): Mithril.Children {
-    if (item && typeof item === 'object' && 'tag' in item) {
-      const vnode = item as Mithril.Vnode<{ itemClassName?: string }> & { itemClassName?: string };
-      const groupClass = classList('ResourceTable-filterGroupItem', `ResourceTable-filterGroupItem--${key}`);
-
-      // listItems reads `attrs.itemClassName` first, so join an existing one rather than shadow it.
-      if (vnode.attrs?.itemClassName) vnode.attrs.itemClassName = classList(vnode.attrs.itemClassName, groupClass);
-      else vnode.itemClassName = groupClass;
-    }
-
-    return item;
   }
 
   /**
