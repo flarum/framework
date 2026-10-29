@@ -73,6 +73,30 @@ describe('validateValue', () => {
   });
 });
 
+describe('validateValue requirements', () => {
+  beforeAll(() => bootAdmin());
+
+  test('requiredWhen is evaluated against the given values', () => {
+    const field = fd('a', 'string', { requiredWhen: { create: [{ rule: 'without', fields: ['b'] }] } });
+
+    expect(validateValue(field, '', 'create')).toEqual([t('required')]);
+    expect(validateValue(field, '', 'create', { values: { b: 'x' } })).toEqual([]);
+    expect(validateValue(field, '', 'update')).toEqual([]);
+  });
+
+  test('requiredConditional yields no client-side error', () => {
+    expect(validateValue(fd('a', 'string', { requiredConditional: true }), '', 'create')).toEqual([]);
+  });
+
+  test('filled rejects an empty value only when it is sent', () => {
+    const field = fd('a', 'string', { constraints: { filled: true } });
+
+    expect(validateValue(field, '', 'update')).toEqual([t('required')]);
+    expect(validateValue(field, '', 'update', { sent: false })).toEqual([]);
+    expect(validateValue(field, 'x', 'update')).toEqual([]);
+  });
+});
+
 describe('ResourceFormState validation', () => {
   let thing: Thing;
 
@@ -124,5 +148,84 @@ describe('ResourceFormState validation', () => {
 
     expect(request).toHaveBeenCalledTimes(1);
     expect((request.mock.calls[0] as any)[0].body.data.attributes).toEqual({ slug: 'x' });
+  });
+});
+
+describe('ResourceFormState requiredWhen', () => {
+  beforeAll(() => {
+    bootAdmin();
+    app.store.models.things = Thing;
+  });
+
+  beforeEach(() => {
+    clearDescriptorCache();
+    app.request = jest.fn(() =>
+      Promise.resolve(
+        schemaDocument(
+          descriptor([
+            fd('a', 'string', { requiredWhen: { create: [{ rule: 'without', fields: ['b'] }], update: [{ rule: 'without', fields: ['b'] }] } }),
+            fd('b', 'string'),
+            fd('c', 'string', { requiredConditional: true }),
+            fd('d', 'string', { constraints: { filled: true } }),
+            fd('hidden', 'string', { ui: { widget: 'hidden' } }),
+            fd('e', 'string', { requiredWhen: { create: [{ rule: 'without', fields: ['hidden'] }] } }),
+          ])
+        )
+      )
+    ) as any;
+  });
+
+  test('isRequired() follows the sibling values', async () => {
+    const state = await ResourceFormState.create(new ResourceDefinition<Thing>('things'), null);
+
+    expect(state.isRequired('a')).toBe(true);
+    state.stream('b')('x');
+    expect(state.isRequired('a')).toBe(false);
+    state.stream('b')('');
+    expect(state.isRequired('a')).toBe(true);
+    expect(state.isRequired('c')).toBe(false);
+  });
+
+  test('a field without an input counts as absent', async () => {
+    const state = await ResourceFormState.create(new ResourceDefinition<Thing>('things'), null);
+
+    expect('hidden' in state.values()).toBe(false);
+    expect(state.isRequired('e')).toBe(true);
+  });
+
+  test('on update, the record values of fields without a stream count', async () => {
+    const thing = app.store.pushObject<Thing>({ type: 'things', id: '7', attributes: { a: '', b: 'x', hidden: 'h' } } as any)!;
+    const state = await ResourceFormState.create(new ResourceDefinition<Thing>('things'), thing);
+
+    expect(state.values()).toMatchObject({ b: 'x', hidden: 'h' });
+    expect(state.isRequired('a')).toBe(false);
+  });
+
+  test('validate() checks requiredWhen live; requiredConditional and unsent filled fields are left to the server', async () => {
+    const state = await ResourceFormState.create(new ResourceDefinition<Thing>('things'), null);
+
+    expect(Object.keys(state.validate()).sort()).toEqual(['a', 'e']);
+
+    state.stream('b')('x');
+    expect(Object.keys(state.validate())).toEqual(['e']);
+  });
+
+  test('filled rejects a changed field emptied again only when it is sent', async () => {
+    const thing = app.store.pushObject<Thing>({ type: 'things', id: '8', attributes: { b: 'x', d: 'set' } } as any)!;
+    const state = await ResourceFormState.create(new ResourceDefinition<Thing>('things'), thing);
+
+    state.stream('d')('');
+    expect(state.validate()).toEqual({ d: [t('required')] });
+  });
+
+  test("validateField() clears a sibling's required error once it no longer applies", async () => {
+    const state = await ResourceFormState.create(new ResourceDefinition<Thing>('things'), null);
+
+    await expect(state.save()).rejects.toBeInstanceOf(ValidationError);
+    expect(state.errors.a).toBe(t('required'));
+
+    state.stream('b')('x');
+    state.validateField('b');
+    expect(state.errors.a).toBeUndefined();
   });
 });

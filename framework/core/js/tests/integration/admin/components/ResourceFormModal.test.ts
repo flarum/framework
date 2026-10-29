@@ -112,6 +112,17 @@ describe('ResourceFormModal', () => {
     }
   });
 
+  test('the credentials are required on create because the hidden token counts as absent', async () => {
+    const { modal } = await render<ResourceFormModal<User>>(
+      ResourceFormModal,
+      modalAttrs({ definition: new ResourceDefinition<User>('users'), model: null })
+    );
+    const state = modal.formState!;
+
+    expect(state.isRequired('username')).toBe(true);
+    expect(Object.keys(state.validate())).toEqual(expect.arrayContaining(['username', 'email', 'password']));
+  });
+
   test('fields() is an ItemList that extend() can add to', async () => {
     const original = ResourceFormModal.prototype.fields;
 

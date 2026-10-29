@@ -4,7 +4,7 @@ import type { ResourceDescriptor } from '../../../../src/common/resource/types';
  * `GET /api/resource-schemas/users` as an admin, following `FieldDescriber`'s output (default-valued
  * keys omitted). The PHP side is pinned by `tests/integration/api/resource_schemas/UsersSchemaTest.php`
  * (sorts, search, pagination, capabilities, filters, username constraints, password write-only,
- * credentials required on create, the hidden `token` widget, groups relationship and the `ui`
+ * credentials required on create without a `token`, the hidden `token` widget, groups relationship and the `ui`
  * hints); keep the two in step.
  */
 export function usersDescriptor(): ResourceDescriptor {
@@ -25,7 +25,7 @@ export function usersDescriptor(): ResourceDescriptor {
         kind: 'string',
         label: 'Username',
         writable: { create: true, update: true },
-        required: { create: true },
+        requiredWhen: { create: [{ rule: 'without', fields: ['token'] }] },
         constraints: { minLength: 3, maxLength: 30, pattern: '^(?![0-9]*$)[a-z0-9_-]+$', patternFlags: 'i' },
         sortable: true,
         ui: { column: 90 },
@@ -35,7 +35,7 @@ export function usersDescriptor(): ResourceDescriptor {
         kind: 'string',
         label: 'Email',
         writable: { create: true, update: true },
-        required: { create: true },
+        requiredWhen: { create: [{ rule: 'without', fields: ['token'] }] },
         constraints: { format: 'email' },
       },
       { name: 'isEmailConfirmed', kind: 'boolean', label: 'Is email confirmed', writable: { create: true, update: true } },
@@ -45,7 +45,7 @@ export function usersDescriptor(): ResourceDescriptor {
         label: 'Password',
         visible: false,
         writable: { create: true, update: true },
-        required: { create: true },
+        requiredWhen: { create: [{ rule: 'without', fields: ['token'] }] },
         constraints: { minLength: 8 },
       },
       { name: 'token', kind: 'string', label: 'Token', visible: false, writable: { create: true }, ui: { widget: 'hidden' } },

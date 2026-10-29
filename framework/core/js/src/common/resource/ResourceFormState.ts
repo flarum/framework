@@ -3,7 +3,7 @@ import type Model from '../Model';
 import ItemList from '../utils/ItemList';
 import type RequestError from '../utils/RequestError';
 import Stream from '../utils/Stream';
-import { isWritable } from './descriptor';
+import { isRequired, isWritable } from './descriptor';
 import { mapErrors } from './errors';
 import { fieldSave, fieldValue, mergeSaveData, snapshot } from './field';
 import type ResourceDefinition from './ResourceDefinition';
@@ -107,6 +107,35 @@ export default class ResourceFormState<M extends Model = Model> {
     return (this.sharedStreams[key] ??= Stream(initial));
   }
 
+  /**
+   * The form's current values by field name, as the server's conditional required rules see them:
+   * each input's stream, and on update the record's value of every other field. Fields that are
+   * neither are missing, so they count as absent.
+   */
+  values(): Record<string, unknown> {
+    const values: Record<string, unknown> = {};
+
+    Object.entries(this.fields.toObject()).forEach(([key, item]) => {
+      const field = item.content as Field<M>;
+      const name = field.descriptor?.name ?? key;
+
+      if (key in this.streams) values[name] = this.streams[key]();
+      else if (!this.isCreating()) values[name] = fieldValue(key, field, this.model);
+    });
+
+    return values;
+  }
+
+  /**
+   * Whether a field is currently required: its descriptor's `required` or a `requiredWhen` condition
+   * holding for `values()`. Evaluated on each call, so the hint follows the other inputs.
+   */
+  isRequired(key: string): boolean {
+    const descriptor = this.fields.has(key) ? this.fields.get(key).descriptor : undefined;
+
+    return descriptor ? isRequired(descriptor, this.mode(), this.values()) : false;
+  }
+
   stream<V = unknown>(key: string): Stream<V> {
     return this.streams[key] as Stream<V>;
   }
@@ -145,11 +174,20 @@ export default class ResourceFormState<M extends Model = Model> {
 
   /**
    * Check one changed field, e.g. on blur, and show or clear its client-side error. Never blocks.
+   * Other fields' client-side errors are rechecked too, as a value can make a sibling (not) required.
    */
   validateField(key: string): string[] {
     if (!this.fields.has(key)) return [];
 
     const messages = this.check(key, this.fields.get(key), false);
+
+    this.clientErrorKeys.forEach((other) => {
+      if (other === key || !this.fields.has(other)) return;
+      if (this.check(other, this.fields.get(other), true).length) return;
+
+      delete this.errors[other];
+      this.clientErrorKeys.delete(other);
+    });
 
     if (messages.length) {
       this.errors[key] = messages.join('\n');
@@ -168,7 +206,7 @@ export default class ResourceFormState<M extends Model = Model> {
     if (!descriptor || descriptor.conditional || !(key in this.streams)) return [];
     if (!includeUnchanged && !this.isDirty(key)) return [];
 
-    return validateValue(descriptor, this.streams[key](), this.mode());
+    return validateValue(descriptor, this.streams[key](), this.mode(), { values: this.values(), sent: this.isDirty(key) });
   }
 
   /**

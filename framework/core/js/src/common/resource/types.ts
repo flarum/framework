@@ -23,6 +23,22 @@ export interface FieldConstraints {
   maximum?: number;
   minItems?: number;
   maxItems?: number;
+  /** If sent, the value must not be empty. */
+  filled?: boolean;
+  /** The key must be sent, even empty. Left to the server. */
+  present?: boolean;
+}
+
+/**
+ * One of Laravel's conditional required rules: `with` (any of `fields` present), `withAll` (all
+ * present), `without` (any absent), `withoutAll` (all absent), `if` (`fields[0]` equals one of
+ * `values`), `unless` (equals none), `ifAccepted` / `ifDeclined` (`fields[0]` is accepted / declined).
+ */
+export interface RequiredCondition {
+  rule: 'with' | 'withAll' | 'without' | 'withoutAll' | 'if' | 'unless' | 'ifAccepted' | 'ifDeclined';
+  fields: string[];
+  /** `if` and `unless` only. */
+  values?: string[];
 }
 
 /**
@@ -58,6 +74,13 @@ export interface FieldDescriptor {
   visible?: boolean;
   writable?: { create?: boolean; update?: boolean };
   required?: { create?: boolean; update?: boolean };
+  /** Per mode, the field is required when any condition holds; see `isRequired()`. */
+  requiredWhen?: { create?: RequiredCondition[]; update?: RequiredCondition[] };
+  /**
+   * A required rule the client cannot evaluate (e.g. `Rule::requiredIf(closure)`): only the server
+   * decides, so the client neither marks nor checks it beyond `required` and `requiredWhen`.
+   */
+  requiredConditional?: boolean;
   nullable?: boolean;
   sortable?: boolean;
   /** `writable` or `required` depends on the actual record; the flags are a best guess. */

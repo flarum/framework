@@ -10,7 +10,6 @@ import RequestError from '../utils/RequestError';
 import type Mithril from 'mithril';
 import type InputFactory from './inputs/InputFactory';
 import type ResourceDefinition from './ResourceDefinition';
-import { isRequired } from './descriptor';
 import ResourceFormState from './ResourceFormState';
 import type { Field, FieldContext, InputSpec } from './types';
 import { ValidationError } from './validation';
@@ -74,7 +73,7 @@ export function renderFormField<M extends Model>(
   }
 
   const input = field.input as InputSpec;
-  const required = descriptor ? isRequired(descriptor, state.mode()) : false;
+  const required = state.isRequired(key);
 
   return (
     <div className={className} onfocusout={() => state.validateField(key)}>

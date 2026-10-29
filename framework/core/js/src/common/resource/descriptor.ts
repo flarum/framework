@@ -1,6 +1,7 @@
 import app from '../app';
 import type ResourceSchema from '../models/ResourceSchema';
-import type { FieldDescriptor, FormMode, ResourceDescriptor } from './types';
+import type { FieldDescriptor, FormMode, RequiredCondition, ResourceDescriptor } from './types';
+import { isAbsent } from './validation';
 
 /**
  * The highest descriptor `schemaVersion` this client understands.
@@ -61,6 +62,61 @@ export function isWritable(d: FieldDescriptor, mode: FormMode): boolean {
   return !!d.writable?.[mode];
 }
 
-export function isRequired(d: FieldDescriptor, mode: FormMode): boolean {
-  return !!d.required?.[mode];
+const ACCEPTED = ['yes', 'on', '1', 'true'];
+const DECLINED = ['no', 'off', '0', 'false'];
+
+/**
+ * A value as Laravel compares it in `required_if` / `unless`: booleans match `'1'`/`'true'` and
+ * `'0'`/`'false'`, everything else its string form.
+ */
+function comparable(value: unknown): string[] {
+  if (value === true) return ['1', 'true'];
+  if (value === false) return ['0', 'false'];
+  if (value === null || value === undefined) return [];
+
+  return [String(value)];
+}
+
+/**
+ * Whether one `requiredWhen` condition holds for the given form values, keyed by field name. A
+ * field missing from `values` (hidden, or not in the form) is absent. Presence follows Laravel:
+ * not null, not a blank string, not an empty array.
+ */
+export function conditionHolds(condition: RequiredCondition, values: Record<string, unknown>): boolean {
+  const present = (name: string) => !isAbsent(values[name]);
+  const [first] = condition.fields;
+  const value = comparable(values[first]);
+  const matches = (list: string[]) => value.some((v) => list.includes(v.toLowerCase()));
+
+  switch (condition.rule) {
+    case 'with':
+      return condition.fields.some(present);
+    case 'withAll':
+      return condition.fields.every(present);
+    case 'without':
+      return !condition.fields.every(present);
+    case 'withoutAll':
+      return !condition.fields.some(present);
+    case 'if':
+      return value.some((v) => (condition.values ?? []).includes(v));
+    case 'unless':
+      return !value.some((v) => (condition.values ?? []).includes(v));
+    case 'ifAccepted':
+      return matches(ACCEPTED);
+    case 'ifDeclined':
+      return matches(DECLINED);
+    default:
+      return false;
+  }
+}
+
+/**
+ * Whether the field is required in `mode`: unconditionally (`required`), or because one of its
+ * `requiredWhen` conditions holds for `values` (the form's current values by field name; omitted
+ * means an empty form). `requiredConditional` adds nothing here: the server decides those.
+ */
+export function isRequired(d: FieldDescriptor, mode: FormMode, values: Record<string, unknown> = {}): boolean {
+  if (d.required?.[mode]) return true;
+
+  return (d.requiredWhen?.[mode] ?? []).some((condition) => conditionHolds(condition, values));
 }

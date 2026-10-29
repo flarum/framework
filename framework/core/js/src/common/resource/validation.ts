@@ -24,10 +24,10 @@ function message(key: string, params: Record<string, unknown> = {}): string {
 }
 
 /**
- * Whether a value counts as absent: `null`, `undefined`, a blank string or an empty array. As on
- * the server, only `required` applies to an absent value.
+ * Whether a value counts as absent, as Laravel's `required` sees it: `null`, `undefined`, a blank
+ * string or an empty array. As on the server, only the required rules apply to an absent value.
  */
-function isAbsent(value: unknown): boolean {
+export function isAbsent(value: unknown): boolean {
   return value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (Array.isArray(value) && !value.length);
 }
 
@@ -59,14 +59,24 @@ function isUrl(value: string): boolean {
   }
 }
 
+export interface ValidateOptions {
+  /** The form's current values by field name, for `requiredWhen`. Default: none. */
+  values?: Record<string, unknown>;
+  /** Whether the value is sent, for the `filled` constraint. Default true. */
+  sent?: boolean;
+}
+
 /**
- * Check a value against a field's `required` flag for the mode and its constraints, returning the
- * translated messages (none when valid). Uniqueness and anything else that needs the server is left
- * to it, as are `conditional` fields, which callers skip. A pattern JS cannot compile is skipped.
+ * Check a value against whether the field is required in the mode (see `isRequired()`), its
+ * `filled` constraint and its other constraints, returning the translated messages (none when
+ * valid). Uniqueness, `present`, `requiredConditional` and anything else that needs the server is
+ * left to it, as are `conditional` fields, which callers skip. A pattern JS cannot compile is skipped.
  */
-export function validateValue(field: FieldDescriptor, value: unknown, mode: FormMode): string[] {
+export function validateValue(field: FieldDescriptor, value: unknown, mode: FormMode, options: ValidateOptions = {}): string[] {
   if (isAbsent(value)) {
-    return isRequired(field, mode) ? [message('core.lib.resource.validation.required')] : [];
+    const required = isRequired(field, mode, options.values) || (!!field.constraints?.filled && options.sent !== false);
+
+    return required ? [message('core.lib.resource.validation.required')] : [];
   }
 
   const c = field.constraints ?? {};

@@ -282,6 +282,48 @@ describe('ResourceForm', () => {
     serve(things);
   });
 
+  test('the required hint and error follow a requiredWhen sibling on redraw', async () => {
+    serve(
+      descriptor([
+        fd('a', 'string', { requiredWhen: { create: [{ rule: 'without', fields: ['b'] }] } }),
+        fd('b', 'string'),
+        fd('c', 'string', { requiredConditional: true }),
+      ])
+    );
+
+    let state!: ResourceFormState<Thing>;
+    const out = mq(ResourceForm, {
+      definition: new ResourceDefinition<Thing>('things'),
+      model: null,
+      onstate: (s: ResourceFormState<Thing>) => (state = s),
+    });
+
+    await flush();
+    out.redraw();
+
+    expect(out).toHaveElementAttr('input[name=a]', 'required');
+    expect(out).not.toHaveElementAttr('input[name=c]', 'required');
+
+    await expect(state.save()).rejects.toThrow();
+    out.redraw();
+    expect(out).toHaveElement('.ResourceForm-field--a.has-error');
+    expect(state.errors.c).toBeUndefined();
+
+    state.stream('b')('x');
+    state.validateField('b');
+    out.redraw();
+    expect(out).not.toHaveElementAttr('input[name=a]', 'required');
+    expect(out).not.toHaveElement('.ResourceForm-field--a.has-error');
+
+    state.stream('b')('');
+    out.redraw();
+    expect(out).toHaveElementAttr('input[name=a]', 'required');
+
+    await expect(state.save()).rejects.toThrow();
+    out.redraw();
+    expect(out).toHaveElement('.ResourceForm-field--a.has-error');
+  });
+
   test('shows a loading state, then the fields with their hints', async () => {
     const out = mq(ResourceForm, { definition: new ThingDefinition(), model: null });
 
