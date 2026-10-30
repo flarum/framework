@@ -34,9 +34,9 @@ export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttr
 
     items.add(
       'postUser-name',
-      <h3 className="PostUser-name">
+      <h2 className="PostUser-name">
         <Avatar user={user} className="Post-avatar" /> {username(user)}
-      </h3>,
+      </h2>,
       100
     );
 
@@ -48,9 +48,9 @@ export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttr
 
     items.add(
       'postUser-name',
-      <h3 className="PostUser-name">
+      <h2 className="PostUser-name">
         <Link href={app.route.user(user)}>{this.linkChildren(user).toArray()}</Link>
-      </h3>,
+      </h2>,
       100
     );
 
