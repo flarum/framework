@@ -1,5 +1,6 @@
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import Dropdown from '../../../../src/common/components/Dropdown';
+import SelectDropdown from '../../../../src/common/components/SelectDropdown';
 import Button from '../../../../src/common/components/Button';
 import m from 'mithril';
 import mq from 'mithril-query';
@@ -27,5 +28,44 @@ describe('Dropdown displays as expected', () => {
       )
     );
     expect(dropdown).toContainRaw('click me!');
+  });
+
+  it('puts the visible label first in the accessible name', () => {
+    const dropdown = mq(m(Dropdown, { label: 'Latest', accessibleToggleLabel: 'Change sorting' }, [m(Button, 'one')]));
+
+    expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Latest, Change sorting');
+  });
+
+  it('uses the accessible label alone when there is no visible label', () => {
+    const dropdown = mq(m(Dropdown, { icon: 'fas fa-cog', accessibleToggleLabel: 'Change sorting' }, [m(Button, 'one')]));
+
+    expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Change sorting');
+  });
+
+  it('does not repeat a visible label the accessible label already contains', () => {
+    const dropdown = mq(m(Dropdown, { label: 'Sorting', accessibleToggleLabel: 'Change sorting' }, [m(Button, 'one')]));
+
+    expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Change sorting');
+  });
+
+  it('names a select dropdown after its active option', () => {
+    const dropdown = mq(
+      m(SelectDropdown, { defaultLabel: 'All Discussions', accessibleToggleLabel: 'Toggle navigation dropdown menu' }, [
+        m(Button, { active: false }, 'Following'),
+        m(Button, { active: true }, 'Tags'),
+      ])
+    );
+
+    expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Tags, Toggle navigation dropdown menu');
+  });
+
+  it('names a select dropdown after its default label when no option is active', () => {
+    const dropdown = mq(
+      m(SelectDropdown, { defaultLabel: 'All Discussions', accessibleToggleLabel: 'Toggle navigation dropdown menu' }, [
+        m(Button, { active: false }, 'Following'),
+      ])
+    );
+
+    expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'All Discussions, Toggle navigation dropdown menu');
   });
 });
