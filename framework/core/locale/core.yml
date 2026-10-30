@@ -1251,6 +1251,11 @@ core:
       title: => core.ref.log_in
       too_many_attempts_message: => core.ref.too_many_login_attempts_message
 
+    # Translations in this namespace are displayed on the page shown when the forum can't be reached.
+    offline:
+      text: "{forum} can't be reached. Check your connection: the page will load again as soon as it's back."
+      title: No connection
+
     # Translations in this namespace are displayed by the Reset Password interface.
     reset_password:
       confirm_password_label: Confirm New Password

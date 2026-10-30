@@ -187,6 +187,10 @@ class ForumServiceProvider extends AbstractServiceProvider
             return [];
         });
 
+        $this->container->singleton('flarum.forum.service_worker', function () {
+            return [];
+        });
+
         $this->container->singleton('flarum.forum.logo', function () {
             return [
                 'height' => 90,

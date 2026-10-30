@@ -17,6 +17,7 @@ import GlobalSearchState from './states/GlobalSearchState';
 import DiscussionListState from './states/DiscussionListState';
 import ComposerState from './states/ComposerState';
 import isSafariMobile from './utils/isSafariMobile';
+import registerServiceWorker from './utils/registerServiceWorker';
 import routeInternalLinks from './utils/routeInternalLinks';
 
 import type Notification from './components/Notification';
@@ -150,6 +151,14 @@ export default class ForumApplication extends Application {
       $(() => {
         $('.App').addClass('mobile-safari');
       });
+    }
+
+    registerServiceWorker(this.forum.attribute('basePath'));
+
+    // Only iPhones and iPads set `standalone`, in an app opened from the home
+    // screen, which has no other way to reload.
+    if ((navigator as Navigator & { standalone?: boolean }).standalone) {
+      import('./utils/pullToRefresh').then(({ default: pullToRefresh }) => pullToRefresh());
     }
 
     // Once the app is mounted, warm any registered code-split chunks in the

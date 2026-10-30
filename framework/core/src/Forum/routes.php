@@ -144,4 +144,16 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'splash',
         $route->toController(Controller\SplashScreenController::class)
     );
+
+    $map->get(
+        '/sw',
+        'serviceWorker',
+        $route->toController(Controller\ServiceWorkerController::class)
+    );
+
+    $map->get(
+        '/offline',
+        'offline',
+        $route->toController(Controller\OfflineController::class)
+    );
 };
