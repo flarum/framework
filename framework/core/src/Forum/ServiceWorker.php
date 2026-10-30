@@ -12,18 +12,15 @@ namespace Flarum\Forum;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory;
+use Psr\Log\LoggerInterface;
 
-/**
- * The forum's service worker: core's offline page, followed by what each
- * extension adds with Extend\ServiceWorker. A browser keeps only one worker
- * for the forum, so they all share it.
- */
 class ServiceWorker
 {
     public function __construct(
         protected Container $container,
         protected Factory $view,
-        protected UrlGenerator $url
+        protected UrlGenerator $url,
+        protected LoggerInterface $logger
     ) {
     }
 
@@ -38,16 +35,13 @@ class ServiceWorker
             .'offlinePage('.json_encode($options, JSON_UNESCAPED_SLASHES).");\n";
 
         foreach ($this->container->make('flarum.forum.service_worker') as $part) {
-            $script .= "\n// ".($part['owner'] ?? 'Added without an extension')."\n";
-
             if (! is_file($part['file'])) {
-                $script .= "// {$part['file']} does not exist.\n";
+                $this->logger->warning("Service worker script {$part['file']} does not exist.");
 
                 continue;
             }
 
-            // Each in its own function, so their names don't clash, and each
-            // caught, so one that throws doesn't stop the others.
+            $script .= "\n// ".($part['owner'] ?? 'Added without an extension')."\n";
             $script .= "try {\n(function () {\n"
                 .file_get_contents($part['file'])
                 ."\n})();\n} catch (error) {\nconsole.error(error);\n}\n";
@@ -63,10 +57,6 @@ class ServiceWorker
             ->render();
     }
 
-    /**
-     * Without the forum's domain, so the page is always fetched from the one
-     * the visitor is on. A worker can only store pages from its own.
-     */
     protected function offlinePath(): string
     {
         return (string) parse_url($this->url->to('forum')->route('offline'), PHP_URL_PATH);

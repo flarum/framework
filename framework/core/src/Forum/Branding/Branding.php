@@ -116,18 +116,12 @@ class Branding
         return array_map(fn (string $path) => $this->assets->url($path), $this->files->paths('app_icon_paths'));
     }
 
-    /**
-     * The colour the app icon is drawn on: the one a theme set it on, or the
-     * one set on the Appearance page.
-     */
     public function appIconBackground(): string
     {
         return $this->theme->backgroundOf('app_icon') ?? $this->appIcon->background();
     }
 
     /**
-     * The full-screen splash images a theme set, kept on the assets disk.
-     *
      * @return array<string, string> "portrait", and "landscape" if it gave one => path
      */
     public function splashScreenPaths(): array

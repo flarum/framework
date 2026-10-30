@@ -137,7 +137,6 @@ class ForumResource extends AbstractResource implements Findable
             Schema\Str::make('maskableIconUrl')
                 ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
                 ->get(fn () => $this->branding->appIconUrls()['icon-maskable-512.png'] ?? null),
-            // An iPhone 16's splash screen, for the admin area to preview.
             Schema\Str::make('splashScreenUrl')
                 ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
                 ->get(fn () => $this->splashScreen->url(1179, 2556)),

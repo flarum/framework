@@ -18,12 +18,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-/**
- * Served by Flarum, at an address without a .png extension, so each splash
- * screen can be drawn the first time it is asked for. Some web server
- * configurations, including the nginx one Flarum suggests, would only look for
- * an address with an image extension on disk.
- */
 class SplashScreenController implements RequestHandlerInterface
 {
     public function __construct(
@@ -46,7 +40,6 @@ class SplashScreenController implements RequestHandlerInterface
 
         return new Response($body, 200, [
             'Content-Type' => $this->splashScreen->type(),
-            // An address with the current version always gets the same image.
             'Cache-Control' => Arr::get($query, 'v') === $this->splashScreen->version()
                 ? 'public, max-age=31536000, immutable'
                 : 'public, max-age=3600',

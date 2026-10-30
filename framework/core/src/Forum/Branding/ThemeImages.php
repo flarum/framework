@@ -132,9 +132,6 @@ class ThemeImages
         return ['url' => $this->assets->url($entry['paths']['email'])] + EmailLogo::displaySizeOf($entry['email_size'] ?? null);
     }
 
-    /**
-     * The background colour a theme set an image on, if it gave one.
-     */
     public function backgroundOf(string $image): ?string
     {
         return $this->has($image) ? ($this->config()[$image]['background'] ?? null) : null;

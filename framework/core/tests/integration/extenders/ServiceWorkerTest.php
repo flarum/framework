@@ -67,6 +67,6 @@ class ServiceWorkerTest extends TestCase
     {
         $this->extend((new Extend\ServiceWorker())->js('/nowhere/sw.js'));
 
-        $this->assertStringContainsString("// /nowhere/sw.js does not exist.\n", $this->serviceWorker());
+        $this->assertStringNotContainsString('/nowhere/sw.js', $this->serviceWorker());
     }
 }

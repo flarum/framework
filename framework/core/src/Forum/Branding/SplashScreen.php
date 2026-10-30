@@ -14,31 +14,9 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 
-/**
- * The splash screen phones show while the forum opens from the home screen as
- * an app: the app icon on its background colour, or on iPhones and iPads,
- * images a theme sets. There is one once there is an app icon or a theme's
- * images, unless an admin turns off opening as an app.
- *
- * Android draws it, for a forum that opens as an app, which the web app
- * manifest then asks for. It can't be given an image of its own: it picks one
- * of the app icon's files.
- *
- * iPhones and iPads show only images drawn for the exact size of the screen,
- * in its orientation, so pages link one for every screen, drawn like Android's.
- * Each is drawn the first time it is asked for, which is when someone adds the
- * forum to their home screen, and drawn again once the app icon or its
- * background colour changes.
- *
- * Desktop browsers show none.
- */
 class SplashScreen
 {
     /**
-     * The width and height of each iPhone and iPad screen held upright, in
-     * points, and how many pixels make up a point. Keep the screens of older
-     * devices: without theirs, they show no splash screen.
-     *
      * @var list<array{0: int, 1: int, 2: int}>
      */
     public const SCREENS = [
@@ -67,9 +45,6 @@ class SplashScreen
         [466, 678, 3],
     ];
 
-    /**
-     * Raise to draw every splash screen again, after changing how they are drawn.
-     */
     protected const VERSION = 1;
 
     protected Cloud $assets;
@@ -85,8 +60,6 @@ class SplashScreen
     }
 
     /**
-     * The links for a page's head, one for each screen in each orientation.
-     *
      * @return list<array{href: string, media: string}>
      */
     public function links(): array
@@ -105,7 +78,6 @@ class SplashScreen
             foreach (['portrait' => [$width, $height], 'landscape' => [$height, $width]] as $orientation => [$across, $down]) {
                 $links[] = [
                     'href' => $this->address($version, $across * $ratio, $down * $ratio),
-                    // iOS gives a screen's upright width and height in either orientation.
                     'media' => "(device-width: {$width}px) and (device-height: {$height}px) and (-webkit-device-pixel-ratio: $ratio) and (orientation: $orientation)",
                 ];
             }
@@ -114,10 +86,6 @@ class SplashScreen
         return $links;
     }
 
-    /**
-     * The address of the splash screen for a screen this many pixels across
-     * and down.
-     */
     public function url(int $width, int $height): ?string
     {
         $version = $this->version();
@@ -125,10 +93,6 @@ class SplashScreen
         return $version ? $this->address($version, $width, $height) : null;
     }
 
-    /**
-     * The splash screen for a screen this many pixels across and down, or null
-     * if there is none.
-     */
     public function image(int $width, int $height): ?string
     {
         $source = $this->source();
@@ -168,9 +132,6 @@ class SplashScreen
         return $image;
     }
 
-    /**
-     * Changes whenever the splash screens do, or null when there are none.
-     */
     public function version(): ?string
     {
         $source = $this->source();
@@ -178,10 +139,6 @@ class SplashScreen
         return $source ? substr(md5(json_encode([self::VERSION, $source, $this->background()])), 0, 8) : null;
     }
 
-    /**
-     * The colour that fills the screen: the one set for the splash screen, or
-     * else the one the app icon is drawn on.
-     */
     public function background(): string
     {
         return $this->settings->get('splash_screen_background') ?: $this->branding->appIconBackground();
@@ -193,10 +150,6 @@ class SplashScreen
     }
 
     /**
-     * What the splash screens are drawn from: a theme's full-screen images,
-     * or the maskable app icon, padded with its background colour, which is
-     * the one Android shows.
-     *
      * @return array{theme: bool, paths: array<string, string>}|null
      */
     protected function source(): ?array
@@ -214,10 +167,6 @@ class SplashScreen
         return $icon ? ['theme' => false, 'paths' => ['icon' => $icon]] : null;
     }
 
-    /**
-     * Deletes the splash screens drawn for an earlier app icon or background
-     * colour.
-     */
     protected function forgetOthers(?string $version): void
     {
         $drawn = $this->settings->get('splash_version');

@@ -63,9 +63,6 @@ readonly class Meta
             'theme-color' => Arr::get($forumApiDocument, 'data.attributes.themePrimaryColor')
         ];
 
-        // Older iOS versions only open a forum added to the home screen as an
-        // app, and show its splash screen, when the page asks for it. Chrome
-        // warns about Apple's tag without the standard one.
         if ($opensAsApp) {
             $meta['apple-mobile-web-app-capable'] = 'yes';
             $meta['mobile-web-app-capable'] = 'yes';
