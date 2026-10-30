@@ -60,6 +60,17 @@ declare const m: import('mithril').Static;
 declare const dayjs: typeof import('dayjs');
 
 /**
+ * The JavaScript build of the s9e/TextFormatter parser and renderer, compiled
+ * from the forum's formatter configuration. `Formatter` exports `preview` only.
+ */
+declare const s9e: {
+  TextFormatter: {
+    /** Parses `text` and renders it into `target` the way the server would. */
+    preview(text: string, target: HTMLElement): Node;
+  };
+};
+
+/**
  * From https://github.com/lokesh/color-thief/issues/188
  */
 declare module 'color-thief-browser' {
