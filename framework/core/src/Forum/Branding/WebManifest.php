@@ -15,19 +15,19 @@ use Illuminate\Contracts\Container\Container;
 
 /**
  * The forum's web app manifest, which Android and Chrome read for the name and
- * icons of a shortcut added to the home screen. It opens the forum in the
- * browser: running as an installed app is left to extensions that add what an
- * app needs, such as offline support.
+ * icons of a shortcut added to the home screen. It opens the forum as an app,
+ * in a window of its own with a splash screen, unless an admin turns that off,
+ * and then in the browser.
  */
 class WebManifest
 {
     public function __construct(
         protected SettingsRepositoryInterface $settings,
         protected Branding $branding,
-        protected AppIcon $appIcon,
         protected UrlGenerator $url,
         protected Container $container,
-        protected ShortName $shortName
+        protected ShortName $shortName,
+        protected SplashScreen $splashScreen
     ) {
     }
 
@@ -40,6 +40,15 @@ class WebManifest
         return $this->branding->appIconUrls() !== [] || $this->container->make('flarum.forum.manifest') !== [];
     }
 
+    /**
+     * Whether a forum added to a home screen opens as an app, which is also
+     * when phones show its splash screen.
+     */
+    public function opensAsApp(): bool
+    {
+        return (bool) $this->settings->get('open_as_app');
+    }
+
     public function build(): array
     {
         $base = $this->url->to('forum')->base().'/';
@@ -50,9 +59,10 @@ class WebManifest
             'description' => $this->settings->get('forum_description'),
             'start_url' => $base,
             'scope' => $base,
-            'display' => 'browser',
+            'display' => $this->opensAsApp() ? 'standalone' : 'browser',
             'theme_color' => $this->settings->get('theme_primary_color'),
-            'background_color' => $this->appIcon->background(),
+            // Browsers only use it for the splash screen.
+            'background_color' => $this->splashScreen->background(),
             'icons' => $this->icons(),
         ], fn ($value) => $value !== null && $value !== '' && $value !== []);
 

@@ -73,7 +73,7 @@ class ThemeImages
     protected ?array $state = null;
 
     /**
-     * @var array<string, array{file: string, svg?: string|null, background?: string|null, owner?: string|null}>|null
+     * @var array<string, array{file: string, svg?: string|null, background?: string|null, landscape?: string|null, owner?: string|null}>|null
      */
     protected ?array $config = null;
 
@@ -130,6 +130,14 @@ class ThemeImages
         }
 
         return ['url' => $this->assets->url($entry['paths']['email'])] + EmailLogo::displaySizeOf($entry['email_size'] ?? null);
+    }
+
+    /**
+     * The background colour a theme set an image on, if it gave one.
+     */
+    public function backgroundOf(string $image): ?string
+    {
+        return $this->has($image) ? ($this->config()[$image]['background'] ?? null) : null;
     }
 
     public function assertNotSet(string $image, string $field): void
@@ -298,6 +306,15 @@ class ThemeImages
                 }
 
                 break;
+
+            case 'splash_screen':
+                $files['portrait'] = [$this->container->make(IconSet::class)->screen($data), 'jpg'];
+
+                if ($options['landscape'] ?? null) {
+                    $files['landscape'] = [$this->container->make(IconSet::class)->screen((string) file_get_contents($options['landscape'])), 'jpg'];
+                }
+
+                break;
         }
 
         $prefix = 'theme-'.str_replace('_', '-', $image);
@@ -314,10 +331,14 @@ class ThemeImages
 
     protected function assertDrawable(string $image, array $options): void
     {
-        foreach (array_filter([$options['file'], $options['svg'] ?? null]) as $file) {
-            if (! is_file($file)) {
-                throw new InvalidArgumentException($file === $options['file'] ? 'It does not exist.' : "Its SVG version, $file, does not exist.");
+        foreach (['file' => 'It', 'svg' => 'Its SVG version', 'landscape' => 'Its landscape version'] as $key => $name) {
+            if (isset($options[$key]) && ! is_file($options[$key])) {
+                throw new InvalidArgumentException($key === 'file' ? 'It does not exist.' : "$name, {$options[$key]}, does not exist.");
             }
+        }
+
+        if (isset($options['landscape']) && $this->isSvg($options['landscape'])) {
+            throw new InvalidArgumentException('Its landscape version must be a PNG, JPEG, WebP or GIF file, not an SVG.');
         }
 
         if ($this->isSvg($options['file']) && ! in_array($image, ['logo', 'logo_dark_mode'], true)) {
@@ -360,7 +381,7 @@ class ThemeImages
 
     protected function signature(string $image, array $options): string
     {
-        $files = array_filter([$options['file'], $options['svg'] ?? null]);
+        $files = array_filter([$options['file'], $options['svg'] ?? null, $options['landscape'] ?? null]);
 
         return md5(json_encode([
             self::VERSION,
@@ -444,7 +465,7 @@ class ThemeImages
     /**
      * The images set on this request, with their callables called.
      *
-     * @return array<string, array{file: string, svg?: string|null, background?: string|null, owner?: string|null}>
+     * @return array<string, array{file: string, svg?: string|null, background?: string|null, landscape?: string|null, owner?: string|null}>
      */
     protected function config(): array
     {

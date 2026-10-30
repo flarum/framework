@@ -144,4 +144,10 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'opensearch.search',
         $route->toController(Controller\OpenSearchSearchController::class)
     );
+
+    $map->get(
+        '/splash/{size}',
+        'splash',
+        $route->toController(Controller\SplashScreenController::class)
+    );
 };

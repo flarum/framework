@@ -256,6 +256,31 @@ class Theme implements ExtenderInterface
     }
 
     /**
+     * Sets the splash screen iPhones and iPads show while the forum opens from
+     * the home screen, in place of the one drawn from the app icon. Android
+     * can only show the app icon, so it keeps showing that.
+     *
+     * The image is scaled to cover each screen and cropped from the middle, so
+     * keep what matters near the centre. Screens held sideways get the
+     * landscape image, if one is given. Images at least 1320 by 2868 pixels,
+     * or 2868 by 1320 for landscape, stay sharp on every screen.
+     *
+     * Admins can still turn the splash screen off on the Appearance page.
+     *
+     * @param string|callable $file Absolute path of a PNG, JPEG, WebP or GIF file.
+     * @param string|callable|null $landscape Absolute path of a PNG, JPEG, WebP or GIF file.
+     */
+    public function splashScreen(string|callable $file, string|callable|null $landscape = null): self
+    {
+        $this->images['splash_screen'] = [
+            'file' => $this->imageFile($file, svg: false),
+            'landscape' => $landscape === null ? null : $this->imageFile($landscape, svg: false),
+        ];
+
+        return $this;
+    }
+
+    /**
      * Changes the forum's web app manifest, which phones read when the forum
      * is added to a home screen.
      *
