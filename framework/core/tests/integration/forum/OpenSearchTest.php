@@ -35,7 +35,7 @@ class OpenSearchTest extends TestCase
         $response = $this->send($this->request('GET', '/opensearch'));
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertSame('application/opensearchdescription+xml; charset=utf-8', $response->getHeaderLine('Content-Type'));
+        $this->assertSame('application/xml; charset=utf-8', $response->getHeaderLine('Content-Type'));
 
         $xml = simplexml_load_string((string) $response->getBody());
 
@@ -76,6 +76,20 @@ class OpenSearchTest extends TestCase
         $this->assertSame('http://localhost/?q={searchTerms}', $urls['text/html']['template']);
         $this->assertSame('http://localhost/api/opensearch/suggestions?q={searchTerms}', $urls['application/x-suggestions+json']['template']);
         $this->assertSame(['type' => 'application/opensearchdescription+xml', 'rel' => 'self', 'template' => 'http://localhost/opensearch'], $urls['application/opensearchdescription+xml']);
+        $this->assertSame('http://localhost/', (string) $xml->children('http://www.mozilla.org/2006/browser/search/')->SearchForm);
+        $this->assertSame('flarum discussion forum', (string) $xml->Tags);
+        $this->assertSame(['role' => 'example', 'searchTerms' => 'Acme Forum'], array_map('strval', iterator_to_array($xml->Query->attributes())));
+    }
+
+    #[Test]
+    public function a_forum_with_another_homepage_is_searched_on_its_discussion_list(): void
+    {
+        // The homepage would ignore the query; the discussion list is at /all.
+        $this->setting('default_route', '/tags');
+
+        $xml = $this->description();
+
+        $this->assertSame('http://localhost/all?q={searchTerms}', $this->urls($xml)['text/html']['template']);
         $this->assertSame('http://localhost/', (string) $xml->children('http://www.mozilla.org/2006/browser/search/')->SearchForm);
     }
 
