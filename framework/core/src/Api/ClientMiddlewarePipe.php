@@ -43,6 +43,8 @@ class ClientMiddlewarePipe implements MiddlewarePipeInterface
     public function pipe(MiddlewareInterface $middleware): void
     {
         $this->middlewares->push($middleware);
+
+        unset($this->pipe);
     }
 
     protected function getPipe(): MiddlewarePipeInterface
@@ -68,7 +70,11 @@ class ClientMiddlewarePipe implements MiddlewarePipeInterface
             $this->middlewares = $this->middlewares->prepend($errorHandler);
         } elseif (! $handleErrors && $this->middlewares->contains($errorHandler)) {
             $this->middlewares = $this->middlewares->reject($errorHandler);
+        } else {
+            return $this;
         }
+
+        unset($this->pipe);
 
         return $this;
     }
