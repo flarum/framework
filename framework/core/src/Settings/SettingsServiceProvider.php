@@ -27,6 +27,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
                 'color_scheme' => 'auto',
                 'mail_format' => 'multipart',
                 'app_icon_background' => '#ffffff',
+                'open_as_app' => true,
                 'fontawesome_source' => 'local',
                 'fontawesome_forced_style' => '',
                 'maintenance_mode' => 'none',
