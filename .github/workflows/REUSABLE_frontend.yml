@@ -74,7 +74,7 @@ on:
         description: The main git branch to use for the workflow.
         type: string
         required: false
-        default: main
+        default: 2.x
       node_version:
         description: The node version to use for the workflow.
         type: number

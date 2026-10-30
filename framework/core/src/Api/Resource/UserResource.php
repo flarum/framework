@@ -319,6 +319,14 @@ class UserResource extends AbstractDatabaseResource
                     }
                 })
                 ->save(fn () => null),
+            // The colour scheme a guest chose before signing up. The browser
+            // keeps it for the tab only, so the sign-up form sends it along.
+            Schema\Str::make('colorScheme')
+                ->visible(false)
+                ->writable(fn (User $user, Context $context) => $context->creating())
+                ->regex('/^[a-z0-9-]+$/i')
+                ->maxLength(50)
+                ->set(fn (User $user, string $value) => $user->setPreference('colorScheme', $value)),
             Schema\Str::make('displayName'),
             Schema\Str::make('avatarUrl'),
             Schema\Str::make('avatarSrcset'),

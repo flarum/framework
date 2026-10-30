@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Forum\Branding\ThemeImages;
 use Flarum\Http\RequestUtil;
 use Flarum\Mail\EmailLogo;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -19,19 +20,25 @@ use Psr\Http\Message\ServerRequestInterface;
 class DeleteLogoController extends AbstractDeleteController
 {
     protected string $filePathSettingKey = 'logo_path';
+    protected string $themeImage = 'logo';
     protected Filesystem $uploadDir;
+    protected ThemeImages $themeImages;
 
     public function __construct(
         protected SettingsRepositoryInterface $settings,
         Factory $filesystemFactory,
-        protected EmailLogo $emailLogo
+        protected EmailLogo $emailLogo,
+        ?ThemeImages $themeImages = null
     ) {
         $this->uploadDir = $filesystemFactory->disk('flarum-assets');
+        $this->themeImages = $themeImages ?? resolve(ThemeImages::class);
     }
 
     protected function delete(ServerRequestInterface $request): void
     {
         RequestUtil::getActor($request)->assertAdmin();
+
+        $this->themeImages->assertNotSet($this->themeImage, str_replace('_', '-', $this->themeImage));
 
         $path = $this->settings->get($this->filePathSettingKey);
 
