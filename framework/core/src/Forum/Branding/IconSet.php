@@ -36,17 +36,8 @@ class IconSet
      */
     public const MASKABLE_SAFE_ZONE = 0.8;
 
-    /**
-     * How wide Android draws the icon in the middle of its splash screen, in
-     * points.
-     */
     public const SPLASH_ICON_SIZE = 128;
 
-    /**
-     * The longest side of any iPhone or iPad screen, in pixels, and the JPEG
-     * quality full-screen splash images are kept at: as PNGs, artwork such as
-     * gradients takes megabytes.
-     */
     public const LARGEST_SCREEN = 2868;
 
     public const SCREEN_QUALITY = 90;
@@ -95,11 +86,6 @@ class IconSet
         ];
     }
 
-    /**
-     * A splash screen as Android draws one: the icon, unmasked, in the middle
-     * of a screen-sized background. The screen is so many pixels across and
-     * down, with $ratio pixels to a point.
-     */
     public function splash(string $icon, int $width, int $height, int $ratio, string $background): string
     {
         $size = self::SPLASH_ICON_SIZE * $ratio;
@@ -109,9 +95,6 @@ class IconSet
         return $this->png($this->images->create($width, $height)->fill($background)->place($image, 'center'));
     }
 
-    /**
-     * A full-screen splash image, kept no larger than the largest screen.
-     */
     public function screen(string $source): string
     {
         return (string) $this->images->read($source)->removeAnimation()
@@ -119,10 +102,6 @@ class IconSet
             ->toJpeg(quality: self::SCREEN_QUALITY);
     }
 
-    /**
-     * A splash screen from a full-screen image: scaled to cover the screen, so
-     * many pixels across and down, and cropped from the middle.
-     */
     public function cover(string $image, int $width, int $height): string
     {
         return (string) $this->images->read($image)->cover($width, $height)->toJpeg(quality: self::SCREEN_QUALITY);

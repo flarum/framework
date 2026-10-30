@@ -7,13 +7,12 @@
   <p>{{ $translator->trans('core.views.offline.text', ['forum' => $settings->get('forum_title')]) }}</p>
 
   <script>
-    // Loads the page again once the forum can be reached.
     (function () {
       function retry() {
         if (navigator.onLine === false) return;
 
-        fetch(@json($retryUrl), { cache: 'no-store' }).then(function () {
-          location.reload();
+        fetch(@json($retryUrl), { cache: 'no-store' }).then(function (response) {
+          if (response.ok) location.reload();
         }, function () {});
       }
 

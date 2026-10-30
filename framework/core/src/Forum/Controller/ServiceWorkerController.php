@@ -15,10 +15,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-/**
- * Served at the forum's root, as a browser lets a service worker look after
- * only the addresses under its own.
- */
 class ServiceWorkerController implements RequestHandlerInterface
 {
     public function __construct(

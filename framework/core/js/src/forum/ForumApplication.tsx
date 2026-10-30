@@ -160,8 +160,6 @@ export default class ForumApplication extends Application {
 
     registerServiceWorker(this.forum.attribute('basePath'));
 
-    // Only iPhones and iPads set `standalone`, in an app opened from the home
-    // screen, which has no other way to reload.
     if ((navigator as Navigator & { standalone?: boolean }).standalone) {
       import('./utils/pullToRefresh').then(({ default: pullToRefresh }) => pullToRefresh());
     }

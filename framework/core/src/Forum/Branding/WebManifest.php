@@ -40,10 +40,6 @@ class WebManifest
         return $this->branding->appIconUrls() !== [] || $this->container->make('flarum.forum.manifest') !== [];
     }
 
-    /**
-     * Whether a forum added to a home screen opens as an app, which is also
-     * when phones show its splash screen.
-     */
     public function opensAsApp(): bool
     {
         return (bool) $this->settings->get('open_as_app');
@@ -61,7 +57,6 @@ class WebManifest
             'scope' => $base,
             'display' => $this->opensAsApp() ? 'standalone' : 'browser',
             'theme_color' => $this->settings->get('theme_primary_color'),
-            // Browsers only use it for the splash screen.
             'background_color' => $this->splashScreen->background(),
             'icons' => $this->icons(),
         ], fn ($value) => $value !== null && $value !== '' && $value !== []);

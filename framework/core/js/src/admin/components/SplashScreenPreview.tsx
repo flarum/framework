@@ -3,10 +3,6 @@ import Component from '../../common/Component';
 import classList from '../../common/utils/classList';
 import isDark from '../../common/utils/isDark';
 
-/**
- * The splash screen as phones show it: on iPhones and iPads, the image drawn
- * for them; on Android, the maskable app icon with the forum's name below.
- */
 export default class SplashScreenPreview extends Component {
   view() {
     const splashScreen = app.forum.attribute<string | null>('splashScreenUrl');

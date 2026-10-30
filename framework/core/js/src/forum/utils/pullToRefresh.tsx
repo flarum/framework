@@ -10,12 +10,6 @@ type Gesture = {
   phase: 'tracking' | 'pulling';
 };
 
-/**
- * Reloads the page when it's pulled down from the top, as a browser does.
- *
- * For iPhones and iPads, which give an app opened from the home screen neither
- * a reload button nor pull-to-refresh. Android's keeps Chrome's own.
- */
 export default function pullToRefresh() {
   if (document.querySelector('.PullToRefresh')) return;
 
@@ -133,12 +127,10 @@ export default function pullToRefresh() {
     const deltaY = touch.clientY - gesture.startY;
 
     if (gesture.phase === 'tracking') {
-      // Ignore small movement before deciding which gesture this is.
       if (Math.max(Math.abs(deltaX), Math.abs(deltaY)) < DIRECTION_THRESHOLD) {
         return;
       }
 
-      // Reject clear horizontal/upward movement, but give an ambiguous diagonal start time to turn into a downward pull.
       if (deltaY <= -DIRECTION_THRESHOLD || Math.abs(deltaX) > Math.max(Math.abs(deltaY), DIRECTION_THRESHOLD) * 1.5) {
         reset();
         return;
@@ -181,7 +173,6 @@ export default function pullToRefresh() {
       cancelFrame();
       host.style.setProperty('--pull-distance', String(REFRESH_THRESHOLD));
       host.dataset.state = 'refreshing';
-      // Let the refreshing indicator appear before navigating away.
       window.setTimeout(() => window.location.reload(), 200);
     } else {
       reset();
