@@ -53,7 +53,13 @@ export default class CommentPost extends Post {
     const view = <Avatar user={user} className="Post-avatar" />;
 
     if (user) {
-      return <Link href={app.route.user(user)}>{view}</Link>;
+      // The username link in the post header already names this destination, and
+      // the avatar is hidden on phones, which would leave an empty link in the tab order.
+      return (
+        <Link href={app.route.user(user)} tabindex="-1" aria-hidden="true">
+          {view}
+        </Link>
+      );
     }
 
     return view;
