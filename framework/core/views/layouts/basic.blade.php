@@ -11,7 +11,7 @@
 @endphp
 
 <!DOCTYPE html>
-<html>
+<html{!! isset($actorClass) ? ' class="'.e($actorClass).'"' : '' !!}>
   <head>
     <meta charset="utf-8">
     <title>@hasSection('title') @yield('title') - @endif{{ $settings->get('forum_title') }}</title>
