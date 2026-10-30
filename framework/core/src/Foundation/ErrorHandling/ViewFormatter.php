@@ -9,6 +9,7 @@
 
 namespace Flarum\Foundation\ErrorHandling;
 
+use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory as ViewFactory;
@@ -43,9 +44,25 @@ class ViewFormatter implements HttpFormatter
         $view = $this->view
             ->make($this->determineView($error))
             ->with('error', $error->getException())
-            ->with('message', $this->getMessage($error));
+            ->with('message', $this->getMessage($error))
+            ->with('actorClass', $this->getActorClass($request));
 
         return new HtmlResponse($view->render(), $error->getStatusCode());
+    }
+
+    /**
+     * The same guest-user / logged-in class the forum frontend puts on <html>,
+     * so extensions and custom CSS can tell visitors apart on error pages too.
+     * The error handler wraps the authentication middleware, but the actor
+     * reference it holds is filled in by the time an error is formatted.
+     */
+    private function getActorClass(Request $request): ?string
+    {
+        if (! $request->getAttribute('actorReference')) {
+            return null;
+        }
+
+        return RequestUtil::getActor($request)->isGuest() ? 'guest-user' : 'logged-in';
     }
 
     private function determineView(HandledError $error): string
