@@ -32,11 +32,27 @@ export default function pullToRefresh() {
   let refreshing = false;
   let frame: number | null = null;
   let distance = 0;
+  let listeningToMoves = false;
 
   document.addEventListener('touchstart', onTouchStart, { passive: true });
-  document.addEventListener('touchmove', onTouchMove, { passive: false });
   document.addEventListener('touchend', onTouchEnd, { passive: true });
   document.addEventListener('touchcancel', reset, { passive: true });
+  window.addEventListener('scroll', listenToMovesAtTop, { passive: true });
+  listenToMovesAtTop();
+
+  function listenToMovesAtTop() {
+    const atTop = window.scrollY <= 0;
+
+    if (atTop === listeningToMoves) return;
+
+    listeningToMoves = atTop;
+
+    if (atTop) {
+      document.addEventListener('touchmove', onTouchMove, { passive: false });
+    } else {
+      document.removeEventListener('touchmove', onTouchMove);
+    }
+  }
 
   function cancelFrame() {
     if (frame !== null) cancelAnimationFrame(frame);
@@ -159,16 +175,16 @@ export default function pullToRefresh() {
     const currentGesture = gesture;
     gesture = null;
 
-    const touch = Array.from(event.changedTouches).find((touch) => touch.identifier === currentGesture.id);
+    const touch = Array.from(event.changedTouches).find((changed) => changed.identifier === currentGesture.id);
 
     if (!touch || event.defaultPrevented || event.touches.length !== 0 || currentGesture.phase !== 'pulling' || window.scrollY > 0 || isBusy()) {
       reset();
       return;
     }
 
-    const distance = touch.clientY - currentGesture.startY;
+    const pulled = touch.clientY - currentGesture.startY;
 
-    if (distance >= REFRESH_THRESHOLD) {
+    if (pulled >= REFRESH_THRESHOLD) {
       refreshing = true;
       cancelFrame();
       host.style.setProperty('--pull-distance', String(REFRESH_THRESHOLD));

@@ -69,4 +69,21 @@ class ServiceWorkerTest extends TestCase
 
         $this->assertStringNotContainsString('/nowhere/sw.js', $this->serviceWorker());
     }
+
+    #[Test]
+    public function an_extension_s_script_keeps_the_service_worker_without_opening_as_an_app(): void
+    {
+        $this->setting('open_as_app', false);
+
+        $this->extend((new Extend\ServiceWorker())->js($this->script("const name = 'push';")));
+
+        $script = $this->serviceWorker();
+
+        $this->assertStringContainsString('offlinePage({', $script);
+        $this->assertStringContainsString("const name = 'push';", $script);
+
+        $forum = json_decode((string) $this->send($this->request('GET', '/api'))->getBody(), true);
+
+        $this->assertTrue($forum['data']['attributes']['serviceWorker']);
+    }
 }

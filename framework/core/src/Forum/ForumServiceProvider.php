@@ -13,6 +13,7 @@ use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
 use Flarum\Forum\Branding\Branding;
+use Flarum\Forum\Branding\Listener\ForgetOutdatedSplashScreens;
 use Flarum\Forum\Branding\Listener\RedrawAppIcon;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\ContentNegotiationFormatter;
@@ -250,6 +251,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         );
 
         $events->listen(Saved::class, RedrawAppIcon::class);
+        $events->listen(Saved::class, ForgetOutdatedSplashScreens::class);
 
         $events->listen(
             Saving::class,

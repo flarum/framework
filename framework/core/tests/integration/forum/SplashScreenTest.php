@@ -288,6 +288,61 @@ class SplashScreenTest extends TestCase
     }
 
     #[Test]
+    public function a_splash_screen_background_that_is_not_a_colour_cannot_be_saved(): void
+    {
+        $response = $this->send($this->request('POST', '/api/settings', [
+            'authenticatedAs' => 1,
+            'json' => ['splash_screen_background' => 'not-a-colour'],
+        ]));
+
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
+    }
+
+    #[Test]
+    public function the_splash_screen_background_can_be_cleared(): void
+    {
+        $this->saveSettings(['splash_screen_background' => '#00ff00']);
+        $this->saveSettings(['splash_screen_background' => '']);
+
+        $this->assertEmpty($this->app()->getContainer()->make('flarum.settings')->get('splash_screen_background'));
+    }
+
+    #[Test]
+    public function a_stored_splash_screen_background_that_is_not_a_colour_falls_back_to_the_app_icon_s(): void
+    {
+        $this->setting('app_icon_background', '#0000ff');
+        $this->setting('splash_screen_background', 'not-a-colour');
+
+        $this->uploadAppIcon();
+
+        $link = $this->iPhone16Link();
+
+        $this->assertEquals(200, $this->fetch($link)->getStatusCode());
+        $this->assertPixel([0, 0, 255], $this->image($link), 0, 0);
+
+        $manifest = json_decode((string) $this->send($this->request('GET', '/manifest'))->getBody(), true);
+
+        $this->assertSame('#0000ff', $manifest['background_color']);
+    }
+
+    #[Test]
+    public function showing_a_page_does_not_remove_splash_screens(): void
+    {
+        $this->uploadAppIcon();
+
+        $link = $this->iPhone16Link();
+        $this->image($link);
+
+        $settings = $this->app()->getContainer()->make('flarum.settings');
+        $settings->set('splash_version', 'outdated');
+
+        $this->page();
+
+        $this->assertSame('outdated', $settings->get('splash_version'));
+        $this->assertTrue($this->assets()->exists($this->drawnPath($link)));
+    }
+
+    #[Test]
     public function a_landscape_screen_gets_a_landscape_splash_screen(): void
     {
         $this->uploadAppIcon();
