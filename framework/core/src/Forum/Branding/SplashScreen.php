@@ -45,6 +45,8 @@ class SplashScreen
         [466, 678, 3],
     ];
 
+    public const BACKGROUND_PATTERN = '/^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i';
+
     protected const VERSION = 1;
 
     protected Cloud $assets;
@@ -65,8 +67,6 @@ class SplashScreen
     public function links(): array
     {
         $version = $this->version();
-
-        $this->forgetOthers($version);
 
         if ($version === null) {
             return [];
@@ -103,7 +103,7 @@ class SplashScreen
             return null;
         }
 
-        $this->forgetOthers($version);
+        $this->forgetOutdated();
 
         $path = $this->path($version, "{$width}x$height", $source['theme'] ? 'jpg' : 'png');
 
@@ -141,7 +141,9 @@ class SplashScreen
 
     public function background(): string
     {
-        return $this->settings->get('splash_screen_background') ?: $this->branding->appIconBackground();
+        $background = (string) $this->settings->get('splash_screen_background');
+
+        return preg_match(self::BACKGROUND_PATTERN, $background) ? $background : $this->branding->appIconBackground();
     }
 
     public function type(): string
@@ -167,8 +169,9 @@ class SplashScreen
         return $icon ? ['theme' => false, 'paths' => ['icon' => $icon]] : null;
     }
 
-    protected function forgetOthers(?string $version): void
+    public function forgetOutdated(): void
     {
+        $version = $this->version();
         $drawn = $this->settings->get('splash_version');
 
         if ($drawn === $version) {

@@ -153,7 +153,7 @@ export default class ForumApplication extends Application {
       });
     }
 
-    registerServiceWorker(this.forum.attribute('basePath'));
+    registerServiceWorker(this.forum.attribute('basePath'), this.forum.attribute<boolean>('serviceWorker'));
 
     if ((navigator as Navigator & { standalone?: boolean }).standalone) {
       import('./utils/pullToRefresh').then(({ default: pullToRefresh }) => pullToRefresh());

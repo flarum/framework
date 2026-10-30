@@ -10,6 +10,7 @@
 namespace Flarum\Forum;
 
 use Flarum\Http\UrlGenerator;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory;
 use Psr\Log\LoggerInterface;
@@ -20,12 +21,22 @@ class ServiceWorker
         protected Container $container,
         protected Factory $view,
         protected UrlGenerator $url,
-        protected LoggerInterface $logger
+        protected LoggerInterface $logger,
+        protected SettingsRepositoryInterface $settings
     ) {
+    }
+
+    public function enabled(): bool
+    {
+        return (bool) $this->settings->get('open_as_app') || $this->container->make('flarum.forum.service_worker') !== [];
     }
 
     public function script(): string
     {
+        if (! $this->enabled()) {
+            return (string) file_get_contents(__DIR__.'/../../js/serviceWorker/unregister.js');
+        }
+
         $options = [
             'url' => $this->offlinePath(),
             'version' => substr(md5($this->offlinePage()), 0, 8),

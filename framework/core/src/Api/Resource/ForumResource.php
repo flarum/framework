@@ -15,6 +15,7 @@ use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
 use Flarum\Forum\Branding\Branding;
 use Flarum\Forum\Branding\SplashScreen;
+use Flarum\Forum\ServiceWorker;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Group\Group;
@@ -143,6 +144,8 @@ class ForumResource extends AbstractResource implements Findable
             Schema\Str::make('splashScreenBackground')
                 ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
                 ->get(fn () => $this->splashScreen->background()),
+            Schema\Boolean::make('serviceWorker')
+                ->get(fn () => resolve(ServiceWorker::class)->enabled()),
             Schema\Str::make('headerHtml')
                 ->get(fn () => $this->settings->get('custom_header')),
             Schema\Str::make('footerHtml')

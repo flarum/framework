@@ -64,4 +64,32 @@ class ServiceWorkerTest extends TestCase
         // store the new page.
         $this->assertStringContainsString('"version":"'.substr(md5($page), 0, 8).'"', $script);
     }
+
+    #[Test]
+    public function without_opening_as_an_app_the_service_worker_removes_itself(): void
+    {
+        $this->setting('open_as_app', false);
+
+        $script = (string) $this->send($this->request('GET', '/sw'))->getBody();
+
+        $this->assertSame(file_get_contents(__DIR__.'/../../../js/serviceWorker/unregister.js'), $script);
+    }
+
+    #[Test]
+    public function the_forum_says_whether_to_register_the_service_worker(): void
+    {
+        $forum = json_decode((string) $this->send($this->request('GET', '/api'))->getBody(), true);
+
+        $this->assertTrue($forum['data']['attributes']['serviceWorker']);
+    }
+
+    #[Test]
+    public function without_opening_as_an_app_the_forum_says_not_to_register_the_service_worker(): void
+    {
+        $this->setting('open_as_app', false);
+
+        $forum = json_decode((string) $this->send($this->request('GET', '/api'))->getBody(), true);
+
+        $this->assertFalse($forum['data']['attributes']['serviceWorker']);
+    }
 }
