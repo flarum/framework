@@ -66,12 +66,13 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     public function isAccessTokenRevoked($tokenId): bool
     {
         /** @var AccessToken|null $token */
-        $token = AccessToken::query()->where('id', $tokenId)->first();
+        $token = AccessToken::query()->with('client')->where('id', $tokenId)->first();
 
         if ($token === null) {
             return true;
         }
 
-        return (bool) $token->revoked;
+        // Revoking a client cuts off its outstanding tokens as well.
+        return (bool) $token->revoked || $token->client === null || (bool) $token->client->revoked;
     }
 }
