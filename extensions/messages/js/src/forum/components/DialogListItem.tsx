@@ -21,7 +21,6 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const dialog = this.attrs.dialog;
 
-    const recipient = dialog.recipient();
     const unread = dialog.unreadCount();
     const actions = this.attrs.actions ? this.actionItems().toArray() : [];
 
@@ -39,8 +38,8 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
             active: this.attrs.active,
           })}
         >
-          <div className="DialogListItem-avatar">
-            <Avatar user={recipient} />
+          <div className={classList('DialogListItem-avatar', { 'DialogListItem-avatar--group': dialog.isGroup() })}>
+            {this.avatar()}
             {!!unread && (
               <div className="Bubble Bubble--primary">
                 <span aria-hidden="true">{unread}</span>
@@ -50,7 +49,7 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
           </div>
           <div className="DialogListItem-content">
             <div className="DialogListItem-title">
-              {username(recipient)}
+              {this.name()}
               {humanTime(dialog.lastMessageAt()!)}
             </div>
             <div className="DialogListItem-lastMessage">{this.preview()}</div>
@@ -62,7 +61,31 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
     );
   }
 
-  /** The last message, said to be the member's own when it is. */
+  /** The other member's avatar; in a group, two of the others', one over the other. */
+  avatar(): Mithril.Children {
+    const dialog = this.attrs.dialog;
+
+    if (dialog.isGroup()) {
+      return dialog
+        .recipients()
+        .slice(0, 2)
+        .map((user) => <Avatar user={user} />);
+    }
+
+    return <Avatar user={dialog.recipient()} />;
+  }
+
+  /** The other member; a group goes by its title, which names its members. */
+  name(): Mithril.Children {
+    const dialog = this.attrs.dialog;
+
+    return dialog.isGroup() ? <span className="DialogListItem-name">{dialog.title()}</span> : username(dialog.recipient());
+  }
+
+  /**
+   * The last message, said to be the member's own when it is. In a group,
+   * where it could be from any of the others, who wrote it.
+   */
   preview(): Mithril.Children {
     const lastMessage = this.attrs.dialog.lastMessage();
 
@@ -70,9 +93,18 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
 
     const content = lastMessage.contentPlain()?.slice(0, 80) ?? '';
 
-    return lastMessage.user() === app.session.user
-      ? app.translator.trans('flarum-messages.forum.dialog_list.own_last_message_preview', { content })
-      : content;
+    if (lastMessage.user() === app.session.user) {
+      return app.translator.trans('flarum-messages.forum.dialog_list.own_last_message_preview', { content });
+    }
+
+    if (this.attrs.dialog.isGroup()) {
+      return app.translator.trans('flarum-messages.forum.dialog_list.group_last_message_preview', {
+        username: username(lastMessage.user() || null),
+        content,
+      });
+    }
+
+    return content;
   }
 
   actionItems(): ItemList<Mithril.Children> {

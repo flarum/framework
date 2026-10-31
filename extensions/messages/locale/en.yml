@@ -21,6 +21,7 @@ flarum-messages:
     dialog_list:
       load_more_button: => core.ref.load_more
       mark_as_read_tooltip: Mark as read
+      group_last_message_preview: "{username}: {content}"
       own_last_message_preview: "You: {content}"
       title: Messages
       unread_count_text: "{count} unread"
