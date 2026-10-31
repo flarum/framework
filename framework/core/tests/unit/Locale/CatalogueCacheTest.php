@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\unit\Locale;
 
+use Composer\Autoload\ClassLoader;
 use Flarum\Locale\CatalogueCache;
 use Flarum\Testing\unit\TestCase;
 use PHPUnit\Framework\Attributes\Test;
@@ -33,6 +34,10 @@ class CatalogueCacheTest extends TestCase
 
         is_file($this->root.'/locale') ? unlink($this->root.'/locale') : @rmdir($this->root.'/locale');
         @unlink($this->root.'/en.yml');
+
+        foreach (glob($this->root.'/*.php') ?: [] as $script) {
+            unlink($script);
+        }
         @rmdir($this->root);
 
         parent::tearDown();
@@ -46,17 +51,18 @@ class CatalogueCacheTest extends TestCase
 
         $cache->write('<?php return [];');
 
-        $this->assertFileExists($file);
-        $this->assertSame('<?php return [];', file_get_contents($file));
-        $this->assertTrue($cache->isFresh(), 'The catalogue and its revision were both written');
+        $this->assertSame('<?php return [];', file_get_contents($cache->getPath()));
+        $this->assertTrue($cache->isFresh());
     }
 
     #[Test]
     public function a_catalogue_written_for_another_revision_is_stale()
     {
         $file = $this->root.'/locale/catalogue.en.php';
-        (new CatalogueCache($file, 'rev-1'))->write('<?php return [];');
+        $written = new CatalogueCache($file, 'rev-1');
+        $written->write('<?php return [];');
 
+        $this->assertTrue($written->isFresh(), 'Precondition: the catalogue was written');
         $this->assertFalse((new CatalogueCache($file, 'rev-2'))->isFresh());
     }
 
@@ -69,11 +75,8 @@ class CatalogueCacheTest extends TestCase
         $cache->write('<?php return ["a" => "b"];');
         $cache->write('<?php return ["a" => "c"];');
 
-        $this->assertSame(
-            ['catalogue.en.php', 'catalogue.en.php.revision'],
-            array_map('basename', glob($this->root.'/locale/*'))
-        );
-        $this->assertSame('<?php return ["a" => "c"];', file_get_contents($file));
+        $this->assertSame([$cache->getPath()], glob($this->root.'/locale/*'));
+        $this->assertSame('<?php return ["a" => "c"];', file_get_contents($cache->getPath()));
     }
 
     #[Test]
@@ -91,18 +94,16 @@ class CatalogueCacheTest extends TestCase
     }
 
     #[Test]
-    public function a_catalogue_that_cannot_be_written_is_a_cache_miss_and_gets_no_revision()
+    public function a_catalogue_that_cannot_be_written_is_a_cache_miss()
     {
         // A directory where the catalogue should be: the rename over it fails.
-        $file = $this->root.'/locale/catalogue.en.php';
-        mkdir($file, 0775, true);
+        $cache = new CatalogueCache($this->root.'/locale/catalogue.en.php', 'rev-1');
+        mkdir($cache->getPath(), 0775, true);
 
-        $cache = new CatalogueCache($file, 'rev-1');
         $cache->write('<?php return [];');
 
         $this->assertFalse($cache->isFresh());
-        $this->assertFileDoesNotExist($file.'.revision', 'No revision for a catalogue that was not written');
-        $this->assertSame(['catalogue.en.php'], array_map('basename', glob($this->root.'/locale/*')), 'The temporary file was removed');
+        $this->assertSame([$cache->getPath()], glob($this->root.'/locale/*'), 'The temporary file was removed');
     }
 
     #[Test]
@@ -119,5 +120,85 @@ class CatalogueCacheTest extends TestCase
 
         $this->assertTrue((new CatalogueCache($file, 'rev-1'))->isFresh());
         $this->assertFalse((new CatalogueCache($file, 'rev-1', true))->isFresh(), 'Debug mode does check them');
+    }
+
+    #[Test]
+    public function catalogues_written_for_different_revisions_do_not_replace_each_other()
+    {
+        // Two processes on different revisions rebuilding at once, such as
+        // old and new servers during a rolling deploy: each must keep getting
+        // the catalogue built for its own revision.
+        $file = $this->root.'/locale/catalogue.en.php';
+        $old = new CatalogueCache($file, 'rev-1');
+        $new = new CatalogueCache($file, 'rev-2');
+
+        $old->write('<?php return "built for rev-1";');
+        $new->write('<?php return "built for rev-2";');
+
+        $this->assertTrue($old->isFresh());
+        $this->assertSame('built for rev-1', include $old->getPath());
+        $this->assertTrue($new->isFresh());
+        $this->assertSame('built for rev-2', include $new->getPath());
+    }
+
+    #[Test]
+    public function a_catalogue_rebuilt_by_another_process_is_not_hidden_by_opcache()
+    {
+        if (! extension_loaded('Zend OPcache')) {
+            $this->markTestSkipped('Needs opcache.');
+        }
+
+        mkdir($this->root.'/locale', 0775, true);
+        $autoload = dirname((new \ReflectionClass(ClassLoader::class))->getFileName(), 2).'/autoload.php';
+        $file = $this->root.'/locale/catalogue.en.php';
+
+        // Another process (a queue worker, another server sharing storage):
+        // its opcache_invalidate() cannot reach this one's.
+        file_put_contents($this->root.'/build.php', <<<'PHP'
+            <?php
+            require $argv[1];
+            (new Flarum\Locale\CatalogueCache($argv[2], $argv[3]))->write('<?php return '.var_export($argv[3], true).';');
+            PHP);
+
+        // A long-lived process with an opcache of its own, never told to reset
+        // it, as with opcache.validate_timestamps=0.
+        file_put_contents($this->root.'/server.php', <<<'PHP'
+            <?php
+            [, $autoload, $file, $build] = $argv;
+            require $autoload;
+
+            $rebuild = fn (string $revision) => exec(implode(' ', array_map('escapeshellarg', [
+                PHP_BINARY, '-d', 'opcache.enable_cli=0', $build, $autoload, $file, $revision,
+            ])));
+
+            $rebuild('rev-1');
+            $before = new Flarum\Locale\CatalogueCache($file, 'rev-1');
+            include $before->getPath();
+
+            $rebuild('rev-2');
+            $after = new Flarum\Locale\CatalogueCache($file, 'rev-2');
+
+            echo json_encode([
+                'compiled' => opcache_is_script_cached($before->getPath()),
+                'fresh' => $after->isFresh(),
+                'catalogue' => include $after->getPath(),
+            ]);
+            PHP);
+
+        $output = shell_exec(implode(' ', array_map('escapeshellarg', [
+            PHP_BINARY,
+            '-d', 'opcache.enable_cli=1',
+            '-d', 'opcache.validate_timestamps=0',
+            '-d', 'opcache.file_update_protection=0',
+            $this->root.'/server.php', $autoload, $file, $this->root.'/build.php',
+        ])));
+        $result = json_decode((string) $output, true);
+
+        if (! ($result['compiled'] ?? false)) {
+            $this->markTestSkipped('Opcache did not compile the catalogue: '.$output);
+        }
+
+        $this->assertTrue($result['fresh'], (string) $output);
+        $this->assertSame('rev-2', $result['catalogue'], 'The rebuilt catalogue, not the one this process compiled before');
     }
 }
