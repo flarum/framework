@@ -68,6 +68,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         return [
             Endpoint\Create::make()
                 ->authenticated()
+                ->eagerLoadWhenIncluded(['dialog.users' => ['dialog.users.groups']])
                 ->visible(function (Context $context): bool {
                     $actor = $context->getActor();
 
@@ -93,12 +94,16 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
             // extend.php, only when the extensions that provide them are
             // enabled: naming `mentionsTags` on a forum without Tags makes every
             // bare request for a message fail with "Resource [tags] not found".
+            // A conversation's members, with their groups: what serialising
+            // each of them reads. Otherwise one query per member.
             Endpoint\Show::make()
                 ->authenticated()
-                ->defaultInclude(['user', 'dialog']),
+                ->defaultInclude(['user', 'dialog'])
+                ->eagerLoadWhenIncluded(['dialog.users' => ['dialog.users.groups']]),
             Endpoint\Index::make()
                 ->authenticated()
                 ->defaultInclude(['user', 'dialog'])
+                ->eagerLoadWhenIncluded(['dialog.users' => ['dialog.users.groups']])
                 ->defaultSort('-number')
                 ->eagerLoad(function () {
                     if (! $this->extensions->isEnabled('flarum-mentions')) {

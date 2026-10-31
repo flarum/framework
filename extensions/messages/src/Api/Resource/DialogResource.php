@@ -21,6 +21,7 @@ use Flarum\Messages\Access\MessagingPermission;
 use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\UserDialogState;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -31,6 +32,9 @@ use Tobyz\JsonApiServer\Context as OriginalContext;
  */
 class DialogResource extends Resource\AbstractDatabaseResource
 {
+    /** Members named in a group's title before the rest are counted. */
+    protected const TITLE_NAMES = 3;
+
     public function __construct(
         protected Translator $translator,
         protected Dispatcher $bus,
@@ -106,6 +110,10 @@ class DialogResource extends Resource\AbstractDatabaseResource
 
             Schema\Str::make('title')
                 ->get(function (Dialog $dialog, Context $context) {
+                    if ($dialog->isGroup()) {
+                        return $this->groupTitle($dialog, $context->getActor());
+                    }
+
                     // The other member may have left the forum since.
                     return $this->translator->trans('flarum-messages.lib.dialog.title', [
                         '{username}' => $dialog->recipient($context->getActor())->display_name
@@ -182,6 +190,24 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->type('users')
                 ->includable(),
         ];
+    }
+
+    /**
+     * The other members, up to three by name in alphabetical order, then how
+     * many more: "bob, carol, dave +3".
+     */
+    protected function groupTitle(Dialog $dialog, User $actor): string
+    {
+        $names = $dialog->users
+            ->reject(fn (User $user) => $user->is($actor))
+            ->map(fn (User $user) => $user->display_name)
+            ->sort(fn (string $a, string $b) => strnatcasecmp($a, $b))
+            ->values();
+
+        return $this->translator->trans('flarum-messages.lib.dialog.group_title', [
+            'names' => $names->take(self::TITLE_NAMES)->implode(', '),
+            'others' => max(0, $names->count() - self::TITLE_NAMES),
+        ]);
     }
 
     public function sorts(): array

@@ -32,12 +32,19 @@ class GroupCreateTest extends TestCase
 
         $this->extension('flarum-messages');
 
+        // Not emailed: core queues one job per email, and the sync queue runs
+        // each inside the request, which isn't what is under test here.
+        $quiet = json_encode(['notify_messageReceived_email' => false]);
+
         $this->prepareDatabase([
             User::class => [
-                ['id' => 3, 'username' => 'alice', 'email' => 'alice@machine.local', 'is_email_confirmed' => 1],
-                ['id' => 4, 'username' => 'bob', 'email' => 'bob@machine.local', 'is_email_confirmed' => 1],
-                ['id' => 5, 'username' => 'carol', 'email' => 'carol@machine.local', 'is_email_confirmed' => 1],
-                ['id' => 6, 'username' => 'dave', 'email' => 'dave@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 3, 'username' => 'alice', 'email' => 'alice@machine.local', 'is_email_confirmed' => 1, 'preferences' => $quiet],
+                ['id' => 4, 'username' => 'bob', 'email' => 'bob@machine.local', 'is_email_confirmed' => 1, 'preferences' => $quiet],
+                ['id' => 5, 'username' => 'carol', 'email' => 'carol@machine.local', 'is_email_confirmed' => 1, 'preferences' => $quiet],
+                ['id' => 6, 'username' => 'dave', 'email' => 'dave@machine.local', 'is_email_confirmed' => 1, 'preferences' => $quiet],
+                ['id' => 7, 'username' => 'erin', 'email' => 'erin@machine.local', 'is_email_confirmed' => 1, 'preferences' => $quiet],
+                ['id' => 8, 'username' => 'frank', 'email' => 'frank@machine.local', 'is_email_confirmed' => 1, 'preferences' => $quiet],
+                ['id' => 9, 'username' => 'grace', 'email' => 'grace@machine.local', 'is_email_confirmed' => 1, 'preferences' => $quiet],
             ],
             // These tests send several messages in a row; throttling has its own.
             'group_permission' => [
@@ -77,6 +84,17 @@ class GroupCreateTest extends TestCase
 
         $this->assertEquals('group', $dialog['attributes']['type']);
         $this->assertEqualsCanonicalizing(['3', '4', '5'], collect($dialog['relationships']['users']['data'])->pluck('id')->all());
+    }
+
+    #[Test]
+    public function the_new_group_comes_back_with_every_member(): void
+    {
+        $response = $this->sendTo([4, 5, 6, 7, 8, 9]);
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $dialog = collect(json_decode((string) $response->getBody(), true)['included'])->firstWhere('type', 'dialogs');
+        $this->assertCount(7, $dialog['relationships']['users']['data']);
     }
 
     #[Test]

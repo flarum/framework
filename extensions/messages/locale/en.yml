@@ -116,6 +116,7 @@ flarum-messages:
 
     dialog:
       title: Messaging {username}
+      group_title: "{names}{others, plural, =0 {} other { +#}}"
     no_other_members_message: There is no one else in this conversation.
     recipient_cannot_reply_message: "{username} can't reply to messages."
     recipient_unavailable_message: "{username} can't receive messages."
