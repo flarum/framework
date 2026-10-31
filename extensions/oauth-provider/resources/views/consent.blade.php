@@ -21,11 +21,18 @@
 <body>
 <div class="card">
     <h1>{{ $client->getName() }}</h1>
-    @if ($unverifiedHost)
+    @if ($unverified)
         <p class="muted">
-            {{ $translator->trans('flarum-oauth-provider.forum.consent.from_host', ['host' => $unverifiedHost]) }}
+            @if ($sourceHost)
+                {{ $translator->trans('flarum-oauth-provider.forum.consent.from_host', ['host' => $sourceHost]) }}
+            @endif
             <span class="badge">{{ $translator->trans('flarum-oauth-provider.forum.consent.unverified') }}</span>
         </p>
+        @if ($redirectHost)
+            <p class="muted">
+                {{ $translator->trans('flarum-oauth-provider.forum.consent.redirect_host', ['host' => $redirectHost]) }}
+            </p>
+        @endif
     @endif
     <p class="muted">
         {{ $translator->trans('flarum-oauth-provider.forum.consent.intro', ['username' => $actor->display_name, 'client' => $client->getName()]) }}
