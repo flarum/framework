@@ -367,6 +367,34 @@ class SplashScreenTest extends TestCase
     }
 
     #[Test]
+    #[DataProvider('seeThroughColours')]
+    public function a_see_through_splash_screen_background_cannot_be_saved(string $colour): void
+    {
+        $response = $this->send($this->request('POST', '/api/settings', [
+            'authenticatedAs' => 1,
+            'json' => ['splash_screen_background' => $colour],
+        ]));
+
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
+    }
+
+    public static function seeThroughColours(): array
+    {
+        return [
+            'short with alpha' => ['#0f08'],
+            'long with alpha' => ['#00ff0080'],
+        ];
+    }
+
+    #[Test]
+    public function a_short_splash_screen_background_can_be_saved(): void
+    {
+        $this->saveSettings(['splash_screen_background' => '#0f0']);
+
+        $this->assertSame('#0f0', $this->app()->getContainer()->make('flarum.settings')->get('splash_screen_background'));
+    }
+
+    #[Test]
     public function the_splash_screen_background_can_be_cleared(): void
     {
         $this->saveSettings(['splash_screen_background' => '#00ff00']);

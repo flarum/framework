@@ -45,7 +45,11 @@ class SplashScreen
         [466, 678, 3],
     ];
 
-    public const BACKGROUND_PATTERN = '/^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i';
+    /**
+     * Opaque hex colours only: a see-through background would leave the
+     * splash screen see-through, and phones show that as black.
+     */
+    public const BACKGROUND_PATTERN = '/^#([0-9a-f]{3}|[0-9a-f]{6})$/i';
 
     protected const VERSION = 2;
 
