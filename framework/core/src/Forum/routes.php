@@ -158,6 +158,12 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     );
 
     $map->get(
+        '/sw/{part}',
+        'serviceWorker.part',
+        $route->toController(Controller\ServiceWorkerPartController::class)
+    );
+
+    $map->get(
         '/offline',
         'offline',
         $route->toController(Controller\OfflineController::class)
