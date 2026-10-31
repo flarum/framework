@@ -1,5 +1,5 @@
 import app from 'flarum/admin/app';
-import ExtensionPage from 'flarum/admin/components/ExtensionPage';
+import ExtensionPage, { type ExtensionPageAttrs } from 'flarum/admin/components/ExtensionPage';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import type Mithril from 'mithril';
@@ -13,7 +13,7 @@ export default class OAuthClientsPage extends ExtensionPage {
   clients: OAuthClient[] = [];
   loading = true;
 
-  oninit(vnode: Mithril.Vnode) {
+  oninit(vnode: Mithril.Vnode<ExtensionPageAttrs, this>) {
     super.oninit(vnode);
     this.loadClients();
   }
