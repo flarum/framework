@@ -11,6 +11,7 @@ namespace Flarum\Mcp\Server;
 
 use Flarum\Forum\Branding\Branding;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Http\UrlGenerator;
 use Flarum\Mcp\Capability\CapabilityRegistry;
@@ -32,14 +33,17 @@ use Mcp\Schema\Prompt as PromptDefinition;
 use Mcp\Schema\PromptArgument;
 use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\ResourceTemplate as ResourceTemplateDefinition;
+use Mcp\Schema\ServerCapabilities;
 use Mcp\Schema\Tool as ToolDefinition;
 use Mcp\Schema\ToolAnnotations;
 use Mcp\Server;
 use Mcp\Server\Session\Psr16SessionStore;
+use Mcp\Server\Session\SessionManager;
 use Mcp\Server\Transport\Http\Middleware\CorsMiddleware;
 use Mcp\Server\Transport\Http\Middleware\DnsRebindingProtectionMiddleware;
 use Mcp\Server\Transport\StreamableHttpTransport;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * The only place SDK types meet Flarum's capability classes. A server is built
@@ -82,8 +86,28 @@ class ServerFactory
                 title: $this->settings->get('forum_title') ?: null,
             )
             ->setInstructions($withInstructions ? $this->overview->instructions($context, $capabilities) : null)
+            ->setLogger($this->logger())
+            // Only what the server does: no resource subscriptions or list-change
+            // notifications (no long-lived streams), no logging, no completions.
+            ->setCapabilities(new ServerCapabilities(
+                tools: $capabilities->tools !== [],
+                toolsListChanged: false,
+                resources: $capabilities->resources !== [] || $capabilities->resourceTemplates !== [],
+                resourcesSubscribe: false,
+                resourcesListChanged: false,
+                prompts: $capabilities->prompts !== [],
+                promptsListChanged: false,
+                logging: false,
+                completions: false,
+            ))
             // The PSR-16 store expires its own keys, so there is nothing to collect.
-            ->setSession(new Psr16SessionStore($this->cache, 'mcp-session-', static::SESSION_TTL), gcProbability: 0);
+            // No session lock: the SDK's FileSessionLock leaves its lock files for
+            // FileSessionStore::gc() to remove, and SymfonyLockSessionLock needs
+            // symfony/lock; neither pairs with a PSR-16 store on Flarum's cache.
+            ->setSession(sessionManager: new ActorSessionManager(
+                new SessionManager(new Psr16SessionStore($this->cache, 'mcp-session-', static::SESSION_TTL), $this->logger(), gcProbability: 0),
+                (int) $context->actor->id,
+            ));
 
         // The SDK validates each definition (a tool's name, an object input
         // schema, ...): one an extension got wrong is reported and left out.
@@ -135,6 +159,7 @@ class ServerFactory
             request: $request,
             responseFactory: $responseFactory,
             streamFactory: $streamFactory,
+            logger: $this->logger(),
             middleware: [
                 // Only same-origin pages, non-browser clients and the origins
                 // extensions allow get through; only the forum's host and the
@@ -147,6 +172,14 @@ class ServerFactory
                     streamFactory: $streamFactory,
                 ),
             ],
+        );
+    }
+
+    protected function logger(): LoggerInterface
+    {
+        return new SdkLogger(
+            $this->container->make(LoggerInterface::class),
+            $this->container->make(Config::class)->inDebugMode(),
         );
     }
 
