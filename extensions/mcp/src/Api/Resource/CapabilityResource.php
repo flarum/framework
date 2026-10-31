@@ -11,13 +11,13 @@ namespace Flarum\Mcp\Api\Resource;
 
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\AbstractResource;
+use Flarum\Api\Resource\Contracts\Listable;
 use Flarum\Api\Schema;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Mcp\Capability\CapabilityResolver;
 use Flarum\Mcp\Capability\ResolvedCapabilities;
 use Flarum\Mcp\Overview\ExtensionOwnership;
 use Tobyz\JsonApiServer\Context;
-use Flarum\Api\Resource\Contracts\Listable;
 
 /**
  * What the MCP server offers, for the admin page: every tool, resource,

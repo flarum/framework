@@ -10,8 +10,8 @@
 namespace Flarum\Mcp\Tests\integration\protocol;
 
 use Flarum\Extend\ExtenderInterface;
-use Flarum\Group\Group;
 use Flarum\Extension\Extension;
+use Flarum\Group\Group;
 use Flarum\Mcp\Tests\integration\McpTestCase;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
