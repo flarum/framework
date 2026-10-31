@@ -32,12 +32,20 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Tobyz\JsonApiServer\Context as OriginalContext;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
+use WeakMap;
 
 /**
  * @extends Resource\AbstractDatabaseResource<DialogMessage>
  */
 class DialogMessageResource extends Resource\AbstractDatabaseResource
 {
+    /**
+     * Who each new message is to, from validating it to saving it.
+     *
+     * @var WeakMap<DialogMessage, int[]>|null
+     */
+    protected ?WeakMap $recipients = null;
+
     public function __construct(
         protected Translator $translator,
         protected LogReporter $log,
@@ -270,27 +278,10 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
 
             $this->assertRecipientsCanBeMessaged($actor, $users, group: count($users) > 1);
 
-            // The dialog and its members go in together, or not at all. Core's
-            // create flow has no transaction of its own.
-            $dialog = $this->db->transaction(function () use ($model, $users, $actor) {
-                // One recipient: the conversation the pair already have, if
-                // any. More: a group, new every time, as a group is about
-                // something and the same people may have several.
-                $dialog = count($users) === 1 ? Dialog::for($model, $users) : Dialog::startGroup();
-
-                // Only members not yet in the dialog are added: syncing them all
-                // would reset `joined_at` for the ones already there.
-                $members = $dialog->users()->pluck('users.id')->all();
-                $joining = array_diff([...$users, $actor->id], $members);
-
-                if ($joining) {
-                    $dialog->users()->attach(array_fill_keys($joining, ['joined_at' => Carbon::now()]));
-                }
-
-                return $dialog;
-            });
-
-            $model->dialog()->associate($dialog);
+            // Written with the message, in create(): a message that fails to
+            // save must not leave a conversation with nothing in it behind.
+            $this->recipients ??= new WeakMap();
+            $this->recipients[$model] = $users;
         } elseif ($model->dialog && $model->dialog->users()->where('users.id', '!=', $actor->id)->doesntExist()) {
             // The other member has left; there is no one to send to.
             throw new ValidationException([
@@ -299,6 +290,47 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         }
 
         return parent::creating($model, $context);
+    }
+
+    /**
+     * The conversation a new message starts or continues, its members, and the
+     * message, together or not at all. Core's create flow has no transaction
+     * of its own.
+     *
+     * @inheritDoc
+     */
+    public function create(object $model, OriginalContext $context): object
+    {
+        return $this->db->transaction(function () use ($model, $context) {
+            if ($users = $this->recipients[$model] ?? null) {
+                $model->dialog()->associate($this->dialogFor($model, $users, $context->getActor()));
+            }
+
+            return parent::create($model, $context);
+        });
+    }
+
+    /**
+     * One recipient: the conversation the pair already have, if any. More: a
+     * group, new every time, as a group is about something and the same
+     * people may have several.
+     *
+     * @param int[] $users
+     */
+    protected function dialogFor(DialogMessage $model, array $users, User $actor): Dialog
+    {
+        $dialog = count($users) === 1 ? Dialog::for($model, $users) : Dialog::startGroup();
+
+        // Only members not yet in the dialog are added: syncing them all
+        // would reset `joined_at` for the ones already there.
+        $members = $dialog->users()->pluck('users.id')->all();
+        $joining = array_diff([...$users, $actor->id], $members);
+
+        if ($joining) {
+            $dialog->users()->attach(array_fill_keys($joining, ['joined_at' => Carbon::now()]));
+        }
+
+        return $dialog;
     }
 
     /**

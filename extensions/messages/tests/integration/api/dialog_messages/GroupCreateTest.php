@@ -98,6 +98,18 @@ class GroupCreateTest extends TestCase
     }
 
     #[Test]
+    public function a_message_that_fails_to_save_leaves_no_empty_group_behind(): void
+    {
+        $this->app();
+
+        DialogMessage::saving(fn () => throw new \RuntimeException('The database went away.'));
+
+        $this->assertEquals(500, $this->sendTo([4, 5])->getStatusCode());
+        $this->assertEquals(0, Dialog::query()->count());
+        $this->assertEquals(0, $this->database()->table('dialog_user')->count());
+    }
+
+    #[Test]
     public function the_same_recipients_get_a_new_group_each_time(): void
     {
         $first = $this->dialogIdOf($this->sendTo([4, 5]));
