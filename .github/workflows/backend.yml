@@ -62,6 +62,6 @@ jobs:
     with:
       enable_backend_testing: ${{ needs.changes.outputs.backend == 'true' }}
       backend_directory: .
-      max_parallel: 8
       reduce_drafts: true
+      monorepo_lanes: 2
       monorepo_tests: "framework/core extensions/akismet extensions/approval extensions/audit extensions/flags extensions/likes extensions/mentions extensions/nicknames extensions/package-manager extensions/statistics extensions/sticky extensions/subscriptions extensions/suspend extensions/tags extensions/messages extensions/gdpr extensions/realtime extensions/lock extensions/deck php-packages/testing/tests"

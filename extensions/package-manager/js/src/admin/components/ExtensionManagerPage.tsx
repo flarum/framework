@@ -655,8 +655,9 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
 
   /**
    * How hard to ask, by how old the last check is (ClaudiusH, 2026-10-09):
-   * checked today, a quiet link to check again; within the week, an ordinary
-   * button; older than that, or never, a prompt that says why it matters.
+   * within the week, an ordinary button; older than that, or never, a primary
+   * button and a prompt that says why it matters. Always a button, never a
+   * link: it is the main action on the Installed tab (ClaudiusH, 2026-10-27).
    */
   checkAge(): CheckAge {
     const at = this.updates.checkedAt;
@@ -668,7 +669,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
   }
 
   checkButton(age: CheckAge) {
-    const className = age === 'fresh' ? 'Button Button--link' : age === 'recent' ? 'Button' : 'Button Button--primary';
+    const className = age === 'overdue' ? 'Button Button--primary' : 'Button';
 
     return (
       <Button

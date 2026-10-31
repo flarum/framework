@@ -56,6 +56,7 @@ class OpenSearchDescription
 
         $xml->writeElement('ShortName', $this->shortName->get());
         $xml->writeElement('Description', $this->description());
+        $xml->writeElement('Tags', 'flarum discussion forum');
         $xml->writeElement('InputEncoding', 'UTF-8');
 
         foreach ($this->images() as [$width, $height, $type, $data]) {
@@ -67,16 +68,38 @@ class OpenSearchDescription
             $xml->endElement();
         }
 
-        $this->url($xml, 'text/html', "$forum/?q={searchTerms}");
+        $this->url($xml, 'text/html', $this->searchPage().'?q={searchTerms}');
         $this->url($xml, 'application/x-suggestions+json', $this->url->to('api')->route('opensearch.suggestions').'?q={searchTerms}');
         $this->url($xml, 'application/opensearchdescription+xml', $this->url->to('forum')->route('opensearch'), 'self');
 
+        // The forum's main page, which Firefox opens for a search with no terms.
         $xml->writeElement('moz:SearchForm', "$forum/");
+
+        // A query for clients to check the search works: the forum's name is
+        // the term most likely to have results in any language.
+        $xml->startElement('Query');
+        $xml->writeAttribute('role', 'example');
+        $xml->writeAttribute('searchTerms', (string) $this->settings->get('forum_title'));
+        $xml->endElement();
 
         $xml->endElement();
         $xml->endDocument();
 
         return $xml->outputMemory();
+    }
+
+    /**
+     * The discussion list, where a search runs. The frontend serves it at the
+     * forum's root when it is the homepage, and then has nothing at /all.
+     * Any other homepage ignores the query.
+     */
+    protected function searchPage(): string
+    {
+        if ($this->settings->get('default_route') === '/all') {
+            return $this->url->to('forum')->base().'/';
+        }
+
+        return $this->url->to('forum')->route('index');
     }
 
     protected function url(XMLWriter $xml, string $type, string $template, ?string $rel = null): void
