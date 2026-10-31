@@ -15,8 +15,11 @@ use Flarum\OAuthProvider\Models\Client;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
+use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Client ID Metadata Documents (draft-ietf-oauth-client-id-metadata-document):
@@ -25,6 +28,15 @@ use Psr\Http\Message\ResponseInterface;
  */
 class MetadataDocumentClients
 {
+    /**
+     * Container binding of the Guzzle client used for fetches. It must use the
+     * cURL handler: the DNS pin is a cURL option (see the service provider).
+     */
+    public const string HTTP_CLIENT = 'flarum-oauth-provider.metadata-document.http';
+
+    /**
+     * Wall-clock budget in seconds for one resolution, across every redirect hop.
+     */
     public const int TIMEOUT = 5;
     public const int MAX_REDIRECTS = 5;
     public const int MAX_BODY_BYTES = 65536;
@@ -33,10 +45,35 @@ class MetadataDocumentClients
     public const int MAX_TTL = 86400;
     public const int MAX_CLIENT_ID_LENGTH = 255;
 
+    /**
+     * Fetches (each of which may create a client) allowed per address and window.
+     */
+    public const int RATE_LIMIT = 20;
+    public const int RATE_WINDOW = 3600;
+
+    /**
+     * Seconds a failed client id is refused without fetching it again.
+     */
+    public const int FAILURE_TTL = 60;
+
+    /**
+     * What callers are told whatever went wrong; the reason is only logged.
+     */
+    public const string GENERIC_ERROR = 'The client metadata document could not be retrieved or is invalid.';
+
+    /**
+     * NAT64 prefixes (RFC 6052, RFC 8215): they embed an IPv4 address that a
+     * NAT64 gateway reaches on the caller's behalf, private ones included.
+     */
+    protected const array NAT64_PREFIXES = ['64:ff9b::/96', '64:ff9b:1::/48'];
+
     public function __construct(
         protected Container $container,
         protected HostResolver $resolver,
         protected Config $config,
+        protected Cache $cache,
+        protected RegistrationRateLimiter $limiter,
+        protected LoggerInterface $logger,
     ) {
     }
 
@@ -60,9 +97,12 @@ class MetadataDocumentClients
      * fetching the document when there is none or the cached one expired.
      * Other client ids and revoked clients are left alone.
      *
+     * Every failure surfaces as the same generic exception; the reason is logged.
+     *
+     * @param string $ipAddress The requesting address, for rate limiting.
      * @throws ClientMetadataException
      */
-    public function resolve(string $clientId): void
+    public function resolve(string $clientId, string $ipAddress = ''): void
     {
         if (! self::isMetadataDocumentUrl($clientId)) {
             return;
@@ -79,19 +119,54 @@ class MetadataDocumentClients
             return;
         }
 
-        [$document, $ttl] = $this->fetch($clientId);
-        $attributes = $this->validate($clientId, $document);
+        $failureKey = 'flarum-oauth-provider.cimd.failed.'.sha1($clientId);
 
-        $client ??= new Client(['id' => $clientId, 'revoked' => false, 'created_at' => Carbon::now()]);
-        $client->forceFill([
+        if ($this->cache->has($failureKey)) {
+            throw new ClientMetadataException(self::GENERIC_ERROR, 'invalid_client');
+        }
+
+        if ($this->limiter->tooManyAttempts('cimd', $ipAddress, self::RATE_LIMIT, self::RATE_WINDOW)) {
+            $this->logger->info('[flarum/oauth-provider] Client metadata document fetch rate limit reached.', ['client_id' => $clientId, 'ip' => $ipAddress]);
+
+            throw new ClientMetadataException(self::GENERIC_ERROR, 'invalid_client');
+        }
+
+        try {
+            [$document, $ttl] = $this->fetch($clientId);
+            $attributes = $this->validate($clientId, $document);
+        } catch (ClientMetadataException $e) {
+            $this->cache->put($failureKey, true, self::FAILURE_TTL);
+            $this->logger->info('[flarum/oauth-provider] Client metadata document refused: '.$e->getMessage(), ['client_id' => $clientId]);
+
+            throw new ClientMetadataException(self::GENERIC_ERROR, 'invalid_client');
+        }
+
+        $attributes = [
             ...$attributes,
             'source' => Client::SOURCE_METADATA_DOCUMENT,
             'confidential' => false,
             'secret' => null,
             'metadata_expires_at' => Carbon::now()->addSeconds($ttl),
             'updated_at' => Carbon::now(),
-        ]);
-        $client->save();
+        ];
+
+        if ($client !== null) {
+            $client->forceFill($attributes)->save();
+
+            return;
+        }
+
+        try {
+            (new Client())->forceFill([
+                ...$attributes,
+                'id' => $clientId,
+                'revoked' => false,
+                'created_at' => Carbon::now(),
+            ])->save();
+        } catch (UniqueConstraintViolationException) {
+            // A concurrent first request created the row; theirs is as good as ours.
+            Client::query()->findOrFail($clientId);
+        }
     }
 
     /**
@@ -135,30 +210,60 @@ class MetadataDocumentClients
      */
     protected function fetch(string $url): array
     {
-        $http = $this->container->make(HttpClient::class);
+        if (! defined('CURLOPT_RESOLVE')) {
+            throw new ClientMetadataException('Fetching client metadata documents requires the PHP cURL extension.');
+        }
+
+        /** @var HttpClient $http */
+        $http = $this->container->make(self::HTTP_CLIENT);
+        $deadline = microtime(true) + self::TIMEOUT;
 
         // Redirects are followed by hand so every hop goes through the SSRF guard.
         for ($hop = 0; $hop <= self::MAX_REDIRECTS; $hop++) {
+            $pin = $this->guard($url);
+            $remaining = $deadline - microtime(true);
+
+            if ($remaining <= 0) {
+                throw new ClientMetadataException('Fetching the client metadata document took too long.');
+            }
+
+            $body = new CappedBuffer(self::MAX_BODY_BYTES);
+
             $options = [
                 'allow_redirects' => false,
                 'http_errors' => false,
-                'timeout' => self::TIMEOUT,
-                'connect_timeout' => self::TIMEOUT,
-                'stream' => true,
+                // With the cURL handler, timeout bounds the whole transfer.
+                'timeout' => $remaining,
+                'connect_timeout' => $remaining,
+                // Talk to the vetted address directly, never through a proxy.
+                'proxy' => '',
                 'headers' => ['Accept' => 'application/json'],
+                // Connect to the address that passed the guard (DNS rebinding).
+                'curl' => [CURLOPT_RESOLVE => [$pin]],
+                'sink' => $body,
+                'on_headers' => function (ResponseInterface $response) {
+                    $length = $response->getHeaderLine('Content-Length');
+
+                    if ($length !== '' && (int) $length > self::MAX_BODY_BYTES) {
+                        throw new ClientMetadataException('The client metadata document is larger than 64 KiB.');
+                    }
+                },
             ];
-
-            $pin = $this->guard($url);
-
-            // Pin the connection to the address that passed the guard (DNS rebinding).
-            if (defined('CURLOPT_RESOLVE')) {
-                $options['curl'] = [CURLOPT_RESOLVE => [$pin]];
-            }
 
             try {
                 $response = $http->request('GET', $url, $options);
-            } catch (\Throwable) {
-                throw new ClientMetadataException('The client metadata document could not be fetched.');
+            } catch (\Throwable $e) {
+                $reason = match (true) {
+                    $body->exceeded() => 'it is larger than 64 KiB',
+                    $e->getPrevious() instanceof ClientMetadataException => $e->getPrevious()->getMessage(),
+                    default => $e->getMessage(),
+                };
+
+                throw new ClientMetadataException("The client metadata document could not be fetched: $reason");
+            }
+
+            if ($body->exceeded()) {
+                throw new ClientMetadataException('The client metadata document is larger than 64 KiB.');
             }
 
             $status = $response->getStatusCode();
@@ -173,7 +278,7 @@ class MetadataDocumentClients
                 throw new ClientMetadataException("Fetching the client metadata document returned HTTP $status.");
             }
 
-            return [$this->decode($response), $this->ttl($response)];
+            return [$this->decode($response, (string) $body), $this->ttl($response)];
         }
 
         throw new ClientMetadataException('Too many redirects while fetching the client metadata document.');
@@ -217,6 +322,12 @@ class MetadataDocumentClients
             $ip = $matches[1];
         }
 
+        foreach (self::NAT64_PREFIXES as $prefix) {
+            if (self::inPrefix($ip, $prefix)) {
+                return false;
+            }
+        }
+
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_GLOBAL_RANGE) !== false) {
             return true;
         }
@@ -226,26 +337,43 @@ class MetadataDocumentClients
             && ($ip === '::1' || str_starts_with($ip, '127.'));
     }
 
+    protected static function inPrefix(string $ip, string $cidr): bool
+    {
+        [$network, $bits] = explode('/', $cidr);
+        $ip = @inet_pton($ip);
+        $network = @inet_pton($network);
+
+        if ($ip === false || $network === false || strlen($ip) !== strlen($network)) {
+            return false;
+        }
+
+        $bits = (int) $bits;
+        $bytes = intdiv($bits, 8);
+
+        if (substr($ip, 0, $bytes) !== substr($network, 0, $bytes)) {
+            return false;
+        }
+
+        $rest = $bits % 8;
+
+        if ($rest === 0) {
+            return true;
+        }
+
+        $mask = (0xFF << (8 - $rest)) & 0xFF;
+
+        return (ord($ip[$bytes]) & $mask) === (ord($network[$bytes]) & $mask);
+    }
+
     /**
      * @throws ClientMetadataException
      */
-    protected function decode(ResponseInterface $response): mixed
+    protected function decode(ResponseInterface $response, string $contents): mixed
     {
         $contentType = strtolower(trim(explode(';', $response->getHeaderLine('Content-Type'))[0]));
 
         if ($contentType !== 'application/json') {
             throw new ClientMetadataException('The client metadata document must be served as application/json.');
-        }
-
-        $body = $response->getBody();
-        $contents = '';
-
-        while (! $body->eof() && strlen($contents) <= self::MAX_BODY_BYTES) {
-            $contents .= $body->read(8192);
-        }
-
-        if (strlen($contents) > self::MAX_BODY_BYTES) {
-            throw new ClientMetadataException('The client metadata document is larger than 64 KiB.');
         }
 
         try {

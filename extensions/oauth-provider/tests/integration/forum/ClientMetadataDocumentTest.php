@@ -12,7 +12,9 @@ namespace Flarum\OAuthProvider\Tests\integration\forum;
 use Carbon\Carbon;
 use Flarum\Extend;
 use Flarum\OAuthProvider\ClientRegistration\HostResolver;
+use Flarum\OAuthProvider\ClientRegistration\MetadataDocumentClients;
 use Flarum\OAuthProvider\Models\Client;
+use Flarum\OAuthProvider\Tests\integration\CollectingLogger;
 use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -25,6 +27,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class ClientMetadataDocumentTest extends TestCase
 {
@@ -40,6 +43,15 @@ class ClientMetadataDocumentTest extends TestCase
      */
     protected array $history = [];
 
+    protected CollectingLogger $logger;
+
+    /**
+     * Runs before each mocked request is answered.
+     *
+     * @var list<callable(): void>
+     */
+    protected array $beforeSend = [];
+
     /**
      * @var array<string, list<string>>
      */
@@ -47,6 +59,7 @@ class ClientMetadataDocumentTest extends TestCase
         'client.example.com' => ['93.184.216.34'],
         'internal.example.com' => ['192.168.1.10'],
         'private.example.com' => ['10.0.0.5'],
+        'nat64.example.com' => ['64:ff9b::a9fe:a9fe'],
     ];
 
     public function setUp(): void
@@ -69,9 +82,15 @@ class ClientMetadataDocumentTest extends TestCase
         $this->http = new MockHandler();
         $stack = HandlerStack::create($this->http);
         $stack->push(Middleware::history($this->history));
+        $stack->push(Middleware::tap(function () {
+            if ($callback = array_shift($this->beforeSend)) {
+                $callback();
+            }
+        }));
 
         $container = $this->app()->getContainer();
-        $container->instance(HttpClient::class, new HttpClient(['handler' => $stack]));
+        $container->instance(MetadataDocumentClients::HTTP_CLIENT, new HttpClient(['handler' => $stack]));
+        $container->instance(LoggerInterface::class, $this->logger = new CollectingLogger());
         $container->instance(HostResolver::class, new class($this->dns) extends HostResolver {
             /**
              * @param array<string, list<string>> $dns
@@ -114,6 +133,171 @@ class ClientMetadataDocumentTest extends TestCase
             'code_challenge' => $this->challenge(),
             'code_challenge_method' => 'S256',
         ], $login, $approve);
+    }
+
+    protected function assertGenericFailure(ResponseInterface $response, string $loggedReason): void
+    {
+        $this->assertSame(400, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame([
+            'error' => 'invalid_client',
+            'error_description' => MetadataDocumentClients::GENERIC_ERROR,
+        ], $this->json($response));
+        $this->assertNotEmpty(
+            array_filter($this->logger->messages, fn (string $message) => str_contains($message, $loggedReason)),
+            'Expected a log line containing "'.$loggedReason.'"; got: '.implode(' | ', $this->logger->messages)
+        );
+    }
+
+    #[Test]
+    public function fetch_pins_the_vetted_address_bypasses_proxies_and_caps_the_body(): void
+    {
+        $this->http->append($this->document());
+
+        $this->assertSame(200, $this->authorizeClient()->getStatusCode());
+
+        $options = $this->http->getLastOptions();
+        $this->assertSame([CURLOPT_RESOLVE => ['client.example.com:443:93.184.216.34']], $options['curl']);
+        $this->assertSame('', $options['proxy']);
+        $this->assertArrayNotHasKey('stream', $options);
+        $this->assertInstanceOf(\Psr\Http\Message\StreamInterface::class, $options['sink']);
+        $this->assertIsCallable($options['on_headers']);
+        $this->assertGreaterThan(0, $options['timeout']);
+        $this->assertLessThanOrEqual(MetadataDocumentClients::TIMEOUT, $options['timeout']);
+    }
+
+    #[Test]
+    public function the_production_client_uses_the_curl_handler(): void
+    {
+        $container = $this->app()->getContainer();
+        $container->forgetInstance(MetadataDocumentClients::HTTP_CLIENT);
+
+        /** @var HttpClient $client */
+        $client = $container->make(MetadataDocumentClients::HTTP_CLIENT);
+        $handler = (new \ReflectionProperty(HandlerStack::class, 'handler'))->getValue($client->getConfig('handler'));
+
+        $this->assertInstanceOf(\GuzzleHttp\Handler\CurlHandler::class, $handler);
+    }
+
+    #[Test]
+    public function redirect_hops_share_one_time_budget(): void
+    {
+        $this->beforeSend[] = fn () => usleep(300000);
+        $this->http->append(new Response(302, ['Location' => '/oauth/metadata.json']), $this->document());
+
+        $this->assertSame(200, $this->authorizeClient()->getStatusCode());
+
+        $this->assertCount(2, $this->history);
+        $first = $this->history[0]['options']['timeout'];
+        $second = $this->history[1]['options']['timeout'];
+        $this->assertLessThanOrEqual(MetadataDocumentClients::TIMEOUT - 0.3, $second);
+        $this->assertLessThan($first, $second);
+    }
+
+    #[Test]
+    public function declared_oversized_document_is_refused_from_its_headers(): void
+    {
+        $this->http->append(new Response(200, ['Content-Type' => 'application/json', 'Content-Length' => '1000000'], '{}'));
+
+        $this->assertGenericFailure($this->authorizeClient(), '64 KiB');
+    }
+
+    #[Test]
+    public function failures_are_reported_generically_and_logged(): void
+    {
+        $this->http->append($this->document(['client_id' => 'https://evil.example.com/metadata.json']));
+
+        $this->assertGenericFailure($this->authorizeClient(), 'does not match its URL');
+    }
+
+    #[Test]
+    public function a_failed_client_id_is_not_fetched_again_for_a_while(): void
+    {
+        $this->http->append(new Response(500), $this->document());
+
+        $login = $this->loginNormalUser();
+        $this->assertSame(400, $this->authorizeClient($login)->getStatusCode());
+        $this->assertSame(400, $this->authorizeClient($login)->getStatusCode());
+        $this->assertCount(1, $this->history);
+
+        Carbon::setTestNow(Carbon::now()->addSeconds(MetadataDocumentClients::FAILURE_TTL + 1));
+
+        try {
+            $this->assertSame(200, $this->authorizeClient($login)->getStatusCode());
+            $this->assertCount(2, $this->history);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    #[Test]
+    public function fetches_are_rate_limited_per_address(): void
+    {
+        $login = $this->loginNormalUser();
+
+        for ($i = 0; $i < MetadataDocumentClients::RATE_LIMIT; $i++) {
+            $this->http->append(new Response(404));
+            $this->assertSame(400, $this->authorizeClient($login, clientId: "https://client.example.com/client-$i.json")->getStatusCode());
+        }
+
+        $this->assertCount(MetadataDocumentClients::RATE_LIMIT, $this->history);
+
+        $this->http->append($this->document());
+        $this->assertGenericFailure($this->authorizeClient($login), 'rate limit');
+        $this->assertCount(MetadataDocumentClients::RATE_LIMIT, $this->history);
+        $this->assertNull(Client::query()->find(self::CLIENT_ID));
+    }
+
+    #[Test]
+    public function nat64_address_is_never_fetched(): void
+    {
+        $this->assertGenericFailure($this->authorizeClient(clientId: 'https://nat64.example.com/metadata.json'), 'non-public');
+        $this->assertCount(0, $this->history);
+    }
+
+    #[Test]
+    public function concurrent_first_requests_both_succeed(): void
+    {
+        // Another request creates the row while this one is fetching.
+        $this->beforeSend[] = fn () => $this->database()->table('oauth_provider_clients')->insert(
+            $this->clientRow(self::CLIENT_ID, false, ['http://127.0.0.1/callback'], [
+                'source' => Client::SOURCE_METADATA_DOCUMENT,
+                'metadata_expires_at' => Carbon::now()->addHour()->toDateTimeString(),
+            ])
+        );
+        $this->http->append($this->document());
+
+        $response = $this->authorizeClient();
+
+        $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(1, Client::query()->where('id', self::CLIENT_ID)->count());
+    }
+
+    #[Test]
+    public function client_name_loses_bidi_overrides(): void
+    {
+        $this->http->append($this->document(['client_name' => "Trusted\u{202E}ppA\u{202C} Tool"]));
+
+        $response = $this->authorizeClient();
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('TrustedppA Tool', Client::query()->findOrFail(self::CLIENT_ID)->name);
+        $this->assertStringNotContainsString("\u{202E}", (string) $response->getBody());
+    }
+
+    #[Test]
+    public function consent_screen_cannot_be_framed_and_names_the_redirect_host(): void
+    {
+        $this->http->append($this->document());
+
+        $response = $this->authorizeClient();
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('DENY', $response->getHeaderLine('X-Frame-Options'));
+        $this->assertSame("frame-ancestors 'none'", $response->getHeaderLine('Content-Security-Policy'));
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('unverified, self-registered', $body);
+        $this->assertStringContainsString('from client.example.com', $body);
+        $this->assertStringContainsString('you will be sent to 127.0.0.1', $body);
     }
 
     #[Test]
@@ -226,8 +410,7 @@ class ClientMetadataDocumentTest extends TestCase
     {
         $response = $this->authorizeClient(clientId: 'https://private.example.com/metadata.json');
 
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertStringContainsString('non-public', $this->json($response)['error_description']);
+        $this->assertGenericFailure($response, 'non-public');
         $this->assertCount(0, $this->history);
     }
 
