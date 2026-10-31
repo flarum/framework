@@ -47,6 +47,9 @@ class SendMessageNotificationsJob extends AbstractJob
             })
             ->where('id', '!=', $this->message->user_id)
             ->get()
+            // Not members nobody may write to, such as accounts anonymised by
+            // flarum/gdpr: a group carries on around them.
+            ->filter(fn (User $user) => ! $this->message->user || $this->message->user->can('message', $user))
             ->all();
 
         $notifications->sync(new MessageReceivedBlueprint($this->message), $users);
