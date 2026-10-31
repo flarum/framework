@@ -72,6 +72,26 @@ describe('leaving a group', () => {
     expect(count()).toBe(2);
   });
 
+  it("forgets it, so a late message about it can't bring it back", async () => {
+    leaving();
+    const group = dialog(0);
+
+    await leaveDialog(group);
+
+    expect(app.store.getById('dialogs', group.id()!)).toBeUndefined();
+  });
+
+  // Left in another tab, say: it is gone either way.
+  it('takes a group the member is no longer in off the lists all the same', async () => {
+    jest.spyOn(app, 'request').mockImplementation((() => Promise.reject(Object.assign(new Error('Not found'), { status: 404 }))) as any);
+    const group = dialog(1);
+    listing(app.dialogs, group);
+
+    await leaveDialog(group);
+
+    expect(app.dialogs.getAllItems()).toEqual([]);
+  });
+
   it('changes nothing when the server refuses', async () => {
     jest.spyOn(app, 'request').mockImplementation((() => Promise.reject(new Error('refused'))) as any);
     const group = dialog(1);
