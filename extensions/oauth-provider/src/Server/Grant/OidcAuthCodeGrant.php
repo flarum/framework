@@ -54,7 +54,8 @@ class OidcAuthCodeGrant extends AuthCodeGrant
      * The resource of the auth code being issued; set for the duration of
      * completeAuthorizationRequest().
      */
-    protected ?string $authCodeResource = null;
+    /** The request being completed; carries resource, nonce and auth time onto the code. */
+    protected ?AuthorizationRequest $pendingRequest = null;
 
     public function validateAuthorizationRequest(ServerRequestInterface $request): AuthorizationRequest
     {
@@ -97,14 +98,12 @@ class OidcAuthCodeGrant extends AuthCodeGrant
 
     public function completeAuthorizationRequest(LeagueAuthorizationRequest $authorizationRequest)
     {
-        $this->authCodeResource = $authorizationRequest instanceof AuthorizationRequest
-            ? $authorizationRequest->getResource()
-            : null;
+        $this->pendingRequest = $authorizationRequest instanceof AuthorizationRequest ? $authorizationRequest : null;
 
         try {
             return parent::completeAuthorizationRequest($authorizationRequest);
         } finally {
-            $this->authCodeResource = null;
+            $this->pendingRequest = null;
         }
     }
 
@@ -134,8 +133,10 @@ class OidcAuthCodeGrant extends AuthCodeGrant
             $authCode->addScope($scope);
         }
 
-        if ($authCode instanceof AuthCodeEntity) {
-            $authCode->setResource($this->authCodeResource);
+        if ($authCode instanceof AuthCodeEntity && $this->pendingRequest !== null) {
+            $authCode->setResource($this->pendingRequest->getResource());
+            $authCode->setNonce($this->pendingRequest->getNonce());
+            $authCode->setAuthTime($this->pendingRequest->getAuthTime());
         }
 
         $attempts = self::MAX_RANDOM_TOKEN_GENERATION_ATTEMPTS;

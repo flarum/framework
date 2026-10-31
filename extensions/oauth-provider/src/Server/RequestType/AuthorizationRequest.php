@@ -17,6 +17,8 @@ use League\OAuth2\Server\RequestTypes\AuthorizationRequest as LeagueAuthorizatio
 class AuthorizationRequest extends LeagueAuthorizationRequest
 {
     protected ?string $resource = null;
+    protected ?string $nonce = null;
+    protected ?\DateTimeImmutable $authTime = null;
 
     public static function fromLeague(LeagueAuthorizationRequest $request, ?string $resource): self
     {
@@ -43,5 +45,25 @@ class AuthorizationRequest extends LeagueAuthorizationRequest
     public function getResource(): ?string
     {
         return $this->resource;
+    }
+
+    public function setNonce(?string $nonce): void
+    {
+        $this->nonce = $nonce;
+    }
+
+    public function getNonce(): ?string
+    {
+        return $this->nonce;
+    }
+
+    public function setAuthTime(?\DateTimeImmutable $authTime): void
+    {
+        $this->authTime = $authTime;
+    }
+
+    public function getAuthTime(): ?\DateTimeImmutable
+    {
+        return $this->authTime;
     }
 }
