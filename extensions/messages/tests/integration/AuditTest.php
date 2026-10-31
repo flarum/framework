@@ -44,7 +44,7 @@ class AuditTest extends TestCase
             // alice and carol together.
             Dialog::class => [
                 ['id' => 102, 'type' => 'direct'],
-                ['id' => 103, 'type' => 'direct'],
+                ['id' => 103, 'type' => 'group'],
             ],
             DialogMessage::class => [
                 ['id' => 102, 'dialog_id' => 102, 'user_id' => 3, 'content' => 'Hi', 'number' => 1, 'created_at' => Carbon::now()->subHour()],
@@ -124,6 +124,18 @@ class AuditTest extends TestCase
             ['dialog_id' => 103, 'user_id' => 3],
             ['dialog_id' => 103, 'user_id' => 5],
         ], $this->payloads('dialog.posted'));
+    }
+
+    #[Test]
+    public function starting_a_group_is_logged_once_for_each_recipient(): void
+    {
+        $body = $this->message(['attributes' => ['content' => 'Hello both', 'users' => [['id' => 4], ['id' => 5]]]]);
+        $dialogId = (int) $body['data']['relationships']['dialog']['data']['id'];
+
+        $this->assertEqualsCanonicalizing([
+            ['dialog_id' => $dialogId, 'user_id' => 4],
+            ['dialog_id' => $dialogId, 'user_id' => 5],
+        ], $this->payloads('dialog.started'));
     }
 
     #[Test]

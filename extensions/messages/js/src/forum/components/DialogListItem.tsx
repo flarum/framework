@@ -10,6 +10,7 @@ import ItemList from 'flarum/common/utils/ItemList';
 import Button from 'flarum/common/components/Button';
 import type Dialog from '../../common/models/Dialog';
 import { markRead } from '../utils/readState';
+import describeEvent from '../utils/describeEvent';
 
 export interface IDialogListItemAttrs extends ComponentAttrs {
   dialog: Dialog;
@@ -21,7 +22,6 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const dialog = this.attrs.dialog;
 
-    const recipient = dialog.recipient();
     const unread = dialog.unreadCount();
     const actions = this.attrs.actions ? this.actionItems().toArray() : [];
 
@@ -39,8 +39,8 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
             active: this.attrs.active,
           })}
         >
-          <div className="DialogListItem-avatar">
-            <Avatar user={recipient} />
+          <div className={classList('DialogListItem-avatar', { 'DialogListItem-avatar--group': this.stacksAvatars() })}>
+            {this.avatar()}
             {!!unread && (
               <div className="Bubble Bubble--primary">
                 <span aria-hidden="true">{unread}</span>
@@ -50,7 +50,7 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
           </div>
           <div className="DialogListItem-content">
             <div className="DialogListItem-title">
-              {username(recipient)}
+              {this.name()}
               {humanTime(dialog.lastMessageAt()!)}
             </div>
             <div className="DialogListItem-lastMessage">{this.preview()}</div>
@@ -62,17 +62,59 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
     );
   }
 
-  /** The last message, said to be the member's own when it is. */
+  /** A group with others enough to show two of them; one left on their own is shown as a direct conversation's. */
+  stacksAvatars(): boolean {
+    return this.attrs.dialog.isGroup() && this.attrs.dialog.recipients().length > 1;
+  }
+
+  /** The other member's avatar; in a group, two of the others', one over the other. */
+  avatar(): Mithril.Children {
+    const dialog = this.attrs.dialog;
+
+    if (this.stacksAvatars()) {
+      return dialog
+        .recipients()
+        .slice(0, 2)
+        .map((user) => <Avatar user={user} />);
+    }
+
+    return <Avatar user={dialog.recipients()[0] || null} />;
+  }
+
+  /** The other member; a group goes by its title, which names its members. */
+  name(): Mithril.Children {
+    const dialog = this.attrs.dialog;
+
+    return dialog.isGroup() ? <span className="DialogListItem-name">{dialog.title()}</span> : username(dialog.recipient());
+  }
+
+  /**
+   * The last message, said to be the member's own when it is. In a group,
+   * where it could be from any of the others, who wrote it. A notice says
+   * what happened.
+   */
   preview(): Mithril.Children {
     const lastMessage = this.attrs.dialog.lastMessage();
 
     if (!lastMessage) return '';
 
+    // A notice, such as someone leaving: what happened.
+    if (!lastMessage.isComment()) return describeEvent(lastMessage, true);
+
     const content = lastMessage.contentPlain()?.slice(0, 80) ?? '';
 
-    return lastMessage.user() === app.session.user
-      ? app.translator.trans('flarum-messages.forum.dialog_list.own_last_message_preview', { content })
-      : content;
+    if (lastMessage.user() === app.session.user) {
+      return app.translator.trans('flarum-messages.forum.dialog_list.own_last_message_preview', { content });
+    }
+
+    if (this.attrs.dialog.isGroup()) {
+      return app.translator.trans('flarum-messages.forum.dialog_list.group_last_message_preview', {
+        username: username(lastMessage.user() || null),
+        content,
+      });
+    }
+
+    return content;
   }
 
   actionItems(): ItemList<Mithril.Children> {

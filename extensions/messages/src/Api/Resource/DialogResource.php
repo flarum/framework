@@ -18,11 +18,15 @@ use Flarum\Api\Sort\SortColumn;
 use Flarum\Bus\Dispatcher;
 use Flarum\Locale\Translator;
 use Flarum\Messages\Access\MessagingPermission;
+use Flarum\Messages\Command\LeaveDialog;
 use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
+use Flarum\Messages\DialogEventMessages;
+use Flarum\Messages\DialogMessage;
+use Flarum\Messages\GroupNames;
 use Flarum\Messages\UserDialogState;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Tobyz\JsonApiServer\Context as OriginalContext;
 
@@ -31,9 +35,14 @@ use Tobyz\JsonApiServer\Context as OriginalContext;
  */
 class DialogResource extends Resource\AbstractDatabaseResource
 {
+    /** Members named in a group's title before the rest are counted. */
+    protected const TITLE_NAMES = 3;
+
     public function __construct(
         protected Translator $translator,
         protected Dispatcher $bus,
+        protected GroupNames $names,
+        protected DialogEventMessages $eventMessages,
     ) {
     }
 
@@ -92,6 +101,16 @@ class DialogResource extends Resource\AbstractDatabaseResource
                         ]);
                 })
                 ->response(fn () => new EmptyResponse(204)),
+            Endpoint\Endpoint::make('leave')
+                ->route('POST', '/{id}/leave')
+                ->authenticated()
+                ->can('leave')
+                ->action(function (Context $context) {
+                    $this->bus->dispatch(
+                        new LeaveDialog((int) $context->modelId, $context->getActor())
+                    );
+                })
+                ->response(fn () => new EmptyResponse(204)),
             Endpoint\Index::make()
                 ->authenticated()
                 ->defaultSort('-lastMessageAt')
@@ -106,12 +125,41 @@ class DialogResource extends Resource\AbstractDatabaseResource
 
             Schema\Str::make('title')
                 ->get(function (Dialog $dialog, Context $context) {
+                    if ($dialog->isGroup()) {
+                        return $this->names->of($dialog) ?? $this->groupTitle($dialog, $context->getActor());
+                    }
+
                     // The other member may have left the forum since.
                     return $this->translator->trans('flarum-messages.lib.dialog.title', [
                         '{username}' => $dialog->recipient($context->getActor())->display_name
                             ?? $this->translator->trans('core.lib.username.deleted_text'),
                     ]);
                 }),
+            // What members have named a group, where the forum allows it.
+            Schema\Str::make('name')
+                ->nullable()
+                ->maxLength(GroupNames::MAX_LENGTH)
+                ->get(fn (Dialog $dialog) => $this->names->of($dialog))
+                ->writable(fn (Dialog $dialog, Context $context) => $context->updating() && $this->names->canRename($context->getActor(), $dialog))
+                ->set(function (Dialog $dialog, ?string $value, Context $context) {
+                    $name = trim((string) $value) ?: null;
+
+                    if ($name === $dialog->name) {
+                        return;
+                    }
+
+                    $dialog->name = $name;
+
+                    // The group is told who named it, and what.
+                    $dialog->afterSave(function (Dialog $dialog) use ($name, $context) {
+                        $notice = $this->eventMessages->post($dialog, $context->getActor(), DialogMessage::RENAMED, ['name' => $name]);
+
+                        $this->events->dispatch(new DialogMessage\Event\Created($notice));
+                    });
+                }),
+            Schema\Boolean::make('canRename')
+                ->visible(fn (Dialog $dialog, Context $context) => $context->collection instanceof self)
+                ->get(fn (Dialog $dialog, Context $context) => $this->names->canRename($context->getActor(), $dialog)),
             Schema\Str::make('type')
                 ->minLength(3)
                 ->maxLength(255)
@@ -121,7 +169,9 @@ class DialogResource extends Resource\AbstractDatabaseResource
 
             Schema\Integer::make('unreadCount')
                 ->countRelation('messages', function (Builder $query, Context $context) {
+                    // Only what members wrote: a notice is nothing to read.
                     $query->leftJoin('dialog_user', 'dialog_messages.dialog_id', '=', 'dialog_user.dialog_id')
+                        ->where('dialog_messages.type', DialogMessage::COMMENT)
                         ->where('dialog_user.user_id', $context->getActor()->id)
                         ->whereColumn('dialog_messages.id', '>', 'dialog_user.last_read_message_id')
                         ->groupBy('dialog_messages.dialog_id');
@@ -164,9 +214,9 @@ class DialogResource extends Resource\AbstractDatabaseResource
 
             Schema\Relationship\ToMany::make('messages')
                 ->type('dialog-messages'),
+            // Every member: a group has at most RecipientLimit::CEILING others.
             Schema\Relationship\ToMany::make('users')
                 ->type('users')
-                ->scope(fn (BelongsToMany $query) => $query->limit(5))
                 ->includable(),
             // Linked even when not included: the frontend reads these ids to
             // know where a conversation starts and ends.
@@ -182,6 +232,24 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->type('users')
                 ->includable(),
         ];
+    }
+
+    /**
+     * The other members, up to three by name in alphabetical order, then how
+     * many more: "bob, carol, dave +3".
+     */
+    protected function groupTitle(Dialog $dialog, User $actor): string
+    {
+        $names = $dialog->users
+            ->reject(fn (User $user) => $user->is($actor))
+            ->map(fn (User $user) => $user->display_name)
+            ->sort(fn (string $a, string $b) => strnatcasecmp($a, $b))
+            ->values();
+
+        return $this->translator->trans('flarum-messages.lib.dialog.group_title', [
+            'names' => $names->take(self::TITLE_NAMES)->implode(', '),
+            'others' => max(0, $names->count() - self::TITLE_NAMES),
+        ]);
     }
 
     public function sorts(): array

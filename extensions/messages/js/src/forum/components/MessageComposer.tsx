@@ -27,6 +27,9 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
 
   static focusOnSelector = () => '.TextEditor-editor';
 
+  /** Recipients shown by avatar before the rest are counted, as a large group's would crowd the composer. */
+  static SHOWN_RECIPIENTS = 10;
+
   static initAttrs(attrs: IMessageComposerAttrs) {
     super.initAttrs(attrs);
 
@@ -64,7 +67,8 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
               app.modal.show(UserSelectionModal, {
                 title: app.translator.trans('flarum-messages.forum.recipient_selection_modal.title', {}, true),
                 selected: this.recipients(),
-                maxItems: 1,
+                // More than one starts a group. An older server says nothing: one.
+                maxItems: app.forum.attribute<number>('messagesMaxRecipients') || 1,
                 // Accounts nobody can write to, such as those anonymised by
                 // flarum/gdpr, aren't listed at all.
                 excluded: (user: User) => user === app.session.user || user.canMessage() === false,
@@ -82,13 +86,18 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
           <div className="MessageComposer-recipients-label">{app.translator.trans('flarum-messages.forum.composer.to')}</div>
         )}
         <ul className="MessageComposer-recipients-list">
-          {this.recipients().map((user) => (
-            <li>
-              <Tooltip text={user.username()}>
-                <Avatar user={user} />
-              </Tooltip>
-            </li>
-          ))}
+          {this.recipients()
+            .slice(0, MessageComposer.SHOWN_RECIPIENTS)
+            .map((user) => (
+              <li>
+                <Tooltip text={user.username()}>
+                  <Avatar user={user} />
+                </Tooltip>
+              </li>
+            ))}
+          {this.recipients().length > MessageComposer.SHOWN_RECIPIENTS && (
+            <li className="MessageComposer-recipients-more">+{this.recipients().length - MessageComposer.SHOWN_RECIPIENTS}</li>
+          )}
         </ul>
       </div>,
       100
