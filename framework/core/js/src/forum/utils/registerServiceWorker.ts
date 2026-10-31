@@ -21,7 +21,17 @@ export default function registerServiceWorker(basePath: string, enabled: boolean
 
       const worker = registration.active || registration.waiting || registration.installing;
 
-      if (worker?.scriptURL === ownScript) registration.unregister();
+      if (worker?.scriptURL !== ownScript) return;
+
+      // Unregistered from here, the worker never runs again to clear what it
+      // stored, so clear its offline page too.
+      registration.unregister();
+
+      if (!('caches' in window)) return;
+
+      const prefix = `flarum-offline:${ownScope}:`;
+
+      caches.keys().then((keys) => Promise.all(keys.filter((key) => key.startsWith(prefix)).map((key) => caches.delete(key))));
     });
   };
 
