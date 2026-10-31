@@ -1,0 +1,113 @@
+flarum-ai:
+
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
+  # Translations in this namespace are used by the admin interface.
+  admin:
+
+    # These translations are used by the list of connections on the extension's page.
+    connections:
+      add_button: Add Connection
+      default_help: Features that use AI go through this connection unless they name another one.
+      default_invalid_message: The default connection no longer exists. Choose another one.
+      default_label: Default Connection
+      default_locked_text: "Chosen in config.php: {name}"
+      default_none_option: None
+      driver_invalid_message: "Choose a provider for \"{name}\"."
+      edit_button: => core.ref.edit
+      empty_text: No connections yet. Add one to start using AI on the forum.
+      feature_connection_invalid_message: "The connection chosen for \"{name}\" no longer exists. Choose another one."
+      features_invalid_message: The feature settings could not be read. Reload the page and try again.
+      heading: Connections
+      help: Each connection is an AI provider and the API key to reach it. API keys are never shown again once saved.
+      invalid_message: The connections could not be read. Reload the page and try again.
+      key_new_text: New key, not saved yet
+      key_required_message: "\"{name}\" needs an API key."
+      key_saved_text: Key saved
+      locked_text: Set in config.php
+      model_invalid_message: "The model for \"{name}\" is too long."
+      monthly_tokens_text: "{tokens} tokens a month"
+      name_invalid_message: "\"{name}\" can't be used as a name. Use letters, numbers, dashes and underscores, up to 50 characters."
+      name_locked_message: "\"{name}\" is already set in config.php. Choose another name."
+      no_key_text: No key
+      remove_button: => core.ref.remove
+      tokens_invalid_message: "Token limits are whole numbers above zero, or empty for no limit."
+      url_invalid_message: "The API URL for \"{name}\" must start with http:// or https://."
+      url_required_message: "\"{name}\" needs an API URL."
+
+    # The names of the providers a connection can use.
+    drivers:
+      anthropic: Anthropic
+      deepseek: DeepSeek
+      gemini: Google Gemini
+      groq: Groq
+      mistral: Mistral
+      ollama: Ollama
+      openai: OpenAI
+      openai-compatible: OpenAI-compatible server
+      openrouter: OpenRouter
+      xai: xAI
+
+    # These translations are used by the modal for adding or editing a connection.
+    edit_connection:
+      add_title: Add Connection
+      driver_label: Provider
+      edit_title: "Edit {name}"
+      key_label: API Key
+      key_optional_help: This provider can be used without a key.
+      key_removed_text: The saved key is removed when you save your changes.
+      key_saved_placeholder: Saved. Leave empty to keep it.
+      model_help: The model features use unless they choose another. Leave empty for the provider's default.
+      model_label: Default Model
+      monthly_tokens_help: Calls through this connection stop once it has used this many tokens in a calendar month. Leave empty for no limit.
+      monthly_tokens_label: Tokens per Month
+      name_help: Letters, numbers, dashes and underscores. Features that use AI refer to a connection by its name.
+      name_label: Name
+      name_taken_message: "There's already a connection called \"{name}\"."
+      remove_key_button: Remove the saved key
+      submit_button: => core.ref.okay
+      url_label: API URL
+      url_optional_help: Leave empty to use the provider's own address.
+      url_required_help: The address of the server, for example https://example.com/v1.
+
+    # These translations are used by the list of features extensions have registered.
+    features:
+      connection_default_option: Default connection
+      connection_label: Connection
+      daily_tokens_label: Tokens per Day
+      empty_text: No extension uses AI yet. Features appear here when an extension that uses AI is enabled.
+      enabled_label: "Use AI for {feature}"
+      heading: Features
+      help: It stays off until you turn it on, and members need its permission, on the Permissions tab, to use it.
+      model_label: Model
+      model_placeholder: Connection's default
+
+    # These translations are used by the token limits on the extension's page.
+    limits:
+      heading: Limits
+      help: Limits for each connection are set on the connection, and for each feature on its tab.
+      member_daily_help: Calls made for a member stop once they've used this many tokens today, across every feature. Admins have no limit. Leave empty for no limit.
+      member_daily_label: Tokens per Member per Day
+
+    # The tabs of the extension's page.
+    tabs:
+      connections: Connections
+      features: Features
+      usage: Usage
+
+    # These translations are used by the usage totals on the extension's page.
+    usage:
+      by_connection_heading: By Connection
+      by_feature_heading: By Feature
+      by_member_heading: Top Members
+      calls_column: Calls
+      days_heading: Last 30 Days
+      empty_text: No AI calls this month yet.
+      heading: "Usage in {month}"
+      help: Tokens as the providers count them. Prompts and replies are never stored.
+      load_error_text: The usage totals could not be loaded.
+      name_column: Name
+      no_feature_text: Not from a feature
+      tokens_column: Tokens

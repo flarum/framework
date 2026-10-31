@@ -1,0 +1,117 @@
+.AiPage-connections {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.AiPage-connection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--control-bg);
+
+  &-name {
+    font-weight: bold;
+  }
+
+  &-url,
+  &-key,
+  &-locked {
+    color: var(--muted-color);
+  }
+
+  &-url {
+    word-break: break-all;
+  }
+
+  &-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+}
+
+.AiPage-empty {
+  color: var(--muted-color);
+}
+
+.AiPage-connection-model,
+.AiPage-connection-limit {
+  color: var(--muted-color);
+}
+
+.AiPage-feature {
+  &-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-weight: normal;
+      min-width: 180px;
+    }
+  }
+}
+
+.AiPage-subLabel {
+  font-weight: normal;
+}
+
+.AiPage-tokensInput {
+  max-width: 220px;
+}
+
+.AiPage-days {
+  margin: 16px 0;
+
+  &-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 80px;
+    max-width: 600px;
+  }
+
+  &-bar {
+    flex: 1;
+    min-width: 4px;
+    background: var(--primary-color);
+    border-radius: 2px 2px 0 0;
+    opacity: 0.8;
+  }
+}
+
+.AiPage-usageTables {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.AiPage-table {
+  border-collapse: collapse;
+  min-width: 260px;
+
+  caption {
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  th,
+  td {
+    padding: 4px 12px 4px 0;
+    text-align: left;
+    border-bottom: 1px solid var(--control-bg);
+  }
+
+  td:nth-child(n + 2),
+  th:nth-child(n + 2) {
+    text-align: right;
+  }
+}
