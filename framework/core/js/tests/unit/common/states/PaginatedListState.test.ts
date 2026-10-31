@@ -61,9 +61,10 @@ class DeferredState extends PaginatedListState<Model, TestParams> {
     return Promise.resolve().then(() => undefined);
   }
 
-  /** Settle the oldest outstanding load with `count` items. */
-  public settle(count: number, label = 'x'): Promise<void> {
-    const resolve = this.resolvers.shift()!;
+  /** Settle an outstanding load (the oldest, unless `index` says otherwise) with `count` items. */
+  public settle(count: number, label = 'x', index = 0): Promise<void> {
+    const resolve = this.resolvers.splice(index, 1)[0];
+    this.rejecters.splice(index, 1);
     const items = Array.from({ length: count }, (_, i) => ({ id: `${label}${i}` }));
 
     resolve(Object.assign(items, { payload: { links: {}, meta: {} } }));
@@ -242,6 +243,95 @@ describe('PaginatedListState', () => {
 
       expect(state.itemIds()).toEqual([]);
       expect(state.isEmpty()).toBe(true);
+    });
+  });
+
+  describe('superseded requests', () => {
+    test('a slow response for previous params does not replace the current list', async () => {
+      const state = new DeferredState();
+
+      const first = state.refreshParams({ filter: { tag: 'a' } }, 1);
+      const second = state.refreshParams({ filter: { tag: 'b' } }, 1);
+
+      await state.settle(1, 'b', 1);
+      await second;
+      expect(state.itemIds()).toEqual(['b0']);
+
+      await state.settle(3, 'a');
+      await first;
+
+      expect(state.itemIds()).toEqual(['b0']);
+      expect(state.getParams()).toEqual({ filter: { tag: 'b' } });
+      expect(state.isLoading()).toBe(false);
+    });
+
+    test('a superseded response does not end the loading state of the current request', async () => {
+      const state = new DeferredState();
+
+      const first = state.refreshParams({ filter: { tag: 'a' } }, 1);
+      const second = state.refreshParams({ filter: { tag: 'b' } }, 1);
+
+      await state.settle(3, 'a');
+      await first;
+
+      expect(state.isInitialLoading()).toBe(true);
+      expect(state.itemIds()).toEqual([]);
+
+      await state.settle(1, 'b');
+      await second;
+
+      expect(state.itemIds()).toEqual(['b0']);
+      expect(state.isLoading()).toBe(false);
+    });
+
+    test('a pending "load more" does not append to a refreshed list', async () => {
+      const state = new DeferredState();
+      state.seed(2);
+
+      const more = state.loadNext();
+      const refreshed = state.refresh();
+
+      await state.settle(1, 'fresh', 1);
+      await refreshed;
+
+      await state.settle(2, 'old');
+      await more;
+
+      expect(state.itemIds()).toEqual(['fresh0']);
+      expect(state.isLoadingNext()).toBe(false);
+    });
+
+    test('a pending "load more" does not leave loading stuck after goto()', async () => {
+      const state = new DeferredState();
+      state.seed(2);
+
+      const more = state.loadNext();
+      const jumped = state.goto(1);
+
+      await state.settle(1, 'fresh', 1);
+      await jumped;
+
+      await state.settle(2, 'old');
+      await more;
+
+      expect(state.isLoadingNext()).toBe(false);
+      expect(state.itemIds()).toEqual(['fresh0']);
+    });
+
+    test('a pending revalidation does not replace a refreshed list', async () => {
+      const state = new DeferredState();
+      state.seed(2);
+
+      const revalidated = state.revalidate();
+      const refreshed = state.refreshParams({ filter: { tag: 'b' } }, 1);
+
+      await state.settle(1, 'fresh', 1);
+      await refreshed;
+
+      await state.settle(2, 'old');
+      await revalidated;
+
+      expect(state.itemIds()).toEqual(['fresh0']);
     });
   });
 });
