@@ -9,8 +9,8 @@
 
 namespace Flarum\OAuthProvider\ClientRegistration;
 
-use Flarum\OAuthProvider\Server\RedirectUriMatcher;
 use Flarum\OAuthProvider\Scope\ScopeRegistry;
+use Flarum\OAuthProvider\Server\RedirectUriMatcher;
 
 /**
  * Validation rules shared by metadata-document and dynamically registered clients.
