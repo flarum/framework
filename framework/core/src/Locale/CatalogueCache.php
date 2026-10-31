@@ -60,12 +60,53 @@ class CatalogueCache implements ConfigCacheInterface
 
     public function write(string $content, ?array $metadata = null): void
     {
+        // Symfony's ConfigCache, which this replaces, created the directory,
+        // wrote atomically and invalidated opcache. Without them a missing
+        // storage/locale fails every write (so the catalogue is rebuilt on
+        // every request), a concurrent request can include a half-written
+        // file, and opcache can keep serving the catalogue this just replaced.
+        //
+        // A failed write is a cache miss, not an error: the translator already
+        // holds this catalogue in memory, and the next request writes it again.
+        // A cache clear can delete another request's temporary file between its
+        // write and its rename, so failures do happen on busy forums.
+        $directory = dirname($this->file);
+
+        if (! is_dir($directory) && ! @mkdir($directory, 0775, true) && ! is_dir($directory)) {
+            return;
+        }
+
         // The catalogue first, then its revision: a process that dies between
         // the two leaves a catalogue whose revision does not match, so the next
         // request rebuilds it. Writing the revision first would mark a
-        // catalogue that was never written as current.
-        file_put_contents($this->file, $content);
-        file_put_contents($this->revisionPath(), $this->revision);
+        // catalogue that was never written as current, and so would writing it
+        // after the catalogue failed to write.
+        if (! $this->dump($this->file, $content)) {
+            return;
+        }
+
+        $this->dump($this->revisionPath(), $this->revision);
+
+        if (function_exists('opcache_invalidate') && filter_var(ini_get('opcache.enable'), FILTER_VALIDATE_BOOL)) {
+            @opcache_invalidate($this->file, true);
+        }
+    }
+
+    /**
+     * Written beside the target and renamed over it, so a reader sees the old
+     * file or the new one, never part of one.
+     */
+    private function dump(string $path, string $content): bool
+    {
+        $temporary = $path.'.'.bin2hex(random_bytes(6)).'.tmp';
+
+        if (@file_put_contents($temporary, $content) !== false && @rename($temporary, $path)) {
+            return true;
+        }
+
+        @unlink($temporary);
+
+        return false;
     }
 
     /**
