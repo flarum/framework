@@ -56,7 +56,8 @@ class LocaleServiceProvider extends AbstractServiceProvider
             // Resolved lazily: the manager is built from this translator, and
             // the files are registered on it afterwards.
             $translator->setConfigCacheFactory(new CatalogueCacheFactory(
-                fn () => $container->make(LocaleManager::class)->revision()
+                fn () => $container->make(LocaleManager::class)->revision(),
+                $container['flarum.debug']
             ));
 
             return $translator;

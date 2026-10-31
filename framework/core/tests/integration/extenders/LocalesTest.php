@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
+use Flarum\Locale\LocaleManager;
 use Flarum\Locale\Translator;
 use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Attributes\Test;
@@ -92,5 +93,36 @@ class LocalesTest extends TestCase
         $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->choice('test.party-invitation', 50, $args));
         $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->choice('test.party-invitation', -1000, $args));
         $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->choice('test.party-invitation', null, $args));
+    }
+
+    #[Test]
+    public function in_debug_mode_an_edited_translation_file_is_picked_up_on_the_next_request()
+    {
+        $locales = $this->tmpDir().'/edited-locales';
+        @mkdir($locales);
+        file_put_contents($locales.'/en.yml', "test:\n  edited: alpha\n");
+
+        $this->extend(new Extend\Locales($locales));
+        $container = $this->app()->getContainer();
+
+        try {
+            $container->make('flarum.locales');
+            $this->assertEquals('alpha', $container->make(Translator::class)->trans('test.edited'));
+
+            file_put_contents($locales.'/en.yml', "test:\n  edited: beta\n");
+            // Later than the compiled catalogue, whatever the mtime resolution.
+            touch($locales.'/en.yml', time() + 5);
+            clearstatcache();
+
+            // The next request builds its own translator and manager.
+            $container->forgetInstance('translator');
+            $container->forgetInstance(LocaleManager::class);
+            $container->make(LocaleManager::class);
+
+            $this->assertEquals('beta', $container->make(Translator::class)->trans('test.edited'));
+        } finally {
+            unlink($locales.'/en.yml');
+            rmdir($locales);
+        }
     }
 }
