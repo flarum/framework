@@ -8,7 +8,10 @@ const source = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '..
 type Listener = (event: any) => void;
 
 class FakeRequest {
-  constructor(public url: string, public init: RequestInit = {}) {}
+  constructor(
+    public url: string,
+    public init: RequestInit = {}
+  ) {}
 }
 
 const errorResponse = { type: 'error' };
@@ -50,7 +53,7 @@ function worker({
 
   new Function('self', 'caches', 'fetch', 'Request', 'Response', `${source}\nreturn offlinePage;`)(self, caches, fetch, FakeRequest, {
     error: () => errorResponse,
-  })({ url: '/a/offline', version: 'v2' });
+  })({ url: '/a/offline', version: 'v2', skip: ['/a/admin', '/a/api'] });
 
   function extendable(extra: Record<string, unknown> = {}) {
     const waiting: Promise<unknown>[] = [];
@@ -77,7 +80,7 @@ function worker({
       let responded: Promise<unknown> | undefined;
 
       listeners.fetch({
-        request: { mode: 'navigate', method: 'GET', ...request },
+        request: { mode: 'navigate', method: 'GET', url: 'https://example.com/a/d/1', ...request },
         preloadResponse,
         respondWith: (promise: Promise<unknown>) => (responded = promise),
       });
@@ -134,6 +137,17 @@ describe('the offline page in the service worker', () => {
     expect(sw.navigate({ mode: 'no-cors' })).toBeUndefined();
     expect(sw.navigate({ method: 'POST' })).toBeUndefined();
     expect(sw.fetch).not.toHaveBeenCalled();
+  });
+
+  test('admin and API pages are left to the network', async () => {
+    const sw = worker();
+
+    expect(sw.navigate({ url: 'https://example.com/a/admin' })).toBeUndefined();
+    expect(sw.navigate({ url: 'https://example.com/a/admin/extensions' })).toBeUndefined();
+    expect(sw.navigate({ url: 'https://example.com/a/api/discussions' })).toBeUndefined();
+    expect(sw.fetch).not.toHaveBeenCalled();
+
+    await expect(sw.navigate({ url: 'https://example.com/a/administrators' })).resolves.toMatchObject({ from: 'network' });
   });
 
   test('a page that loads is shown as it is', async () => {

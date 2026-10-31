@@ -33,7 +33,7 @@ class ServiceWorkerTest extends TestCase
 
         $this->assertStringStartsWith(file_get_contents(__DIR__.'/../../../js/serviceWorker/offlinePage.js'), $script);
         // Without the domain, so it's stored from whichever one the visitor is on.
-        $this->assertMatchesRegularExpression('#offlinePage\({"url":"'.preg_quote($this->offlinePath(), '#').'","version":"[0-9a-f]{8}"}\);#', $script);
+        $this->assertMatchesRegularExpression('#offlinePage\({"url":"'.preg_quote($this->offlinePath(), '#').'","version":"[0-9a-f]{8}","skip":\["/admin","/api"\]}\);#', $script);
     }
 
     #[Test]

@@ -11,7 +11,6 @@ namespace Flarum\Frontend\Content;
 
 use Flarum\Forum\Branding\Branding;
 use Flarum\Forum\Branding\ShortName;
-use Flarum\Forum\Branding\SplashScreen;
 use Flarum\Forum\Branding\WebManifest;
 use Flarum\Frontend\Document;
 use Flarum\Http\UrlGenerator;
@@ -25,21 +24,18 @@ readonly class Meta
     private WebManifest $manifest;
     private UrlGenerator $url;
     private ShortName $shortName;
-    private SplashScreen $splashScreen;
 
     public function __construct(
         private LocaleManager $locales,
         ?Branding $branding = null,
         ?WebManifest $manifest = null,
         ?UrlGenerator $url = null,
-        ?ShortName $shortName = null,
-        ?SplashScreen $splashScreen = null
+        ?ShortName $shortName = null
     ) {
         $this->branding = $branding ?? resolve(Branding::class);
         $this->manifest = $manifest ?? resolve(WebManifest::class);
         $this->url = $url ?? resolve(UrlGenerator::class);
         $this->shortName = $shortName ?? resolve(ShortName::class);
-        $this->splashScreen = $splashScreen ?? resolve(SplashScreen::class);
     }
 
     public function __invoke(Document $document, Request $request): void
@@ -47,34 +43,22 @@ readonly class Meta
         $document->language = $this->locales->getLocale();
         $document->direction = $this->locales->getDirection();
 
-        $splashScreens = $this->splashScreen->links();
-
-        $document->meta = array_merge($document->meta, $this->buildMeta($document, $this->manifest->opensAsApp()));
-        $document->head = array_merge($document->head, $this->buildHead($document, $splashScreens));
+        $document->meta = array_merge($document->meta, $this->buildMeta($document));
+        $document->head = array_merge($document->head, $this->buildHead($document));
     }
 
-    private function buildMeta(Document $document, bool $opensAsApp): array
+    private function buildMeta(Document $document): array
     {
         $forumApiDocument = $document->getForumApiDocument();
 
-        $meta = [
+        return [
             'viewport' => 'width=device-width, initial-scale=1',
             'description' => Arr::get($forumApiDocument, 'data.attributes.description'),
             'theme-color' => Arr::get($forumApiDocument, 'data.attributes.themePrimaryColor')
         ];
-
-        if ($opensAsApp) {
-            $meta['apple-mobile-web-app-capable'] = 'yes';
-            $meta['mobile-web-app-capable'] = 'yes';
-        }
-
-        return $meta;
     }
 
-    /**
-     * @param list<array{href: string, media: string}> $splashScreens
-     */
-    private function buildHead(Document $document, array $splashScreens): array
+    private function buildHead(Document $document): array
     {
         $head = [];
 
@@ -90,13 +74,6 @@ readonly class Meta
 
         if ($appleTouchIcon = $this->branding->appIconUrls()['apple-touch-icon.png'] ?? null) {
             $head['apple-touch-icon'] = '<link rel="apple-touch-icon" href="'.e($appleTouchIcon).'">';
-        }
-
-        if ($splashScreens) {
-            $head['apple-touch-startup-image'] = implode("\n", array_map(
-                fn (array $link) => '<link rel="apple-touch-startup-image" href="'.e($link['href']).'" media="'.e($link['media']).'">',
-                $splashScreens
-            ));
         }
 
         $head['opensearch'] = '<link rel="search" type="application/opensearchdescription+xml" title="'.e($this->shortName->get()).'" href="'.e($this->url->to('forum')->route('opensearch')).'">';

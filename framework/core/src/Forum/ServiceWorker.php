@@ -40,6 +40,7 @@ class ServiceWorker
         $options = [
             'url' => $this->offlinePath(),
             'version' => substr(md5($this->offlinePage()), 0, 8),
+            'skip' => $this->skippedPaths(),
         ];
 
         $script = file_get_contents(__DIR__.'/../../js/serviceWorker/offlinePage.js')
@@ -66,6 +67,22 @@ class ServiceWorker
         return $this->view->make('flarum.forum::offline')
             ->with('retryUrl', $this->offlinePath())
             ->render();
+    }
+
+    /**
+     * Where the admin frontend and the API live, if they're inside the forum's
+     * scope: their pages load from the network as if there were no worker.
+     *
+     * @return list<string>
+     */
+    protected function skippedPaths(): array
+    {
+        $paths = array_map(
+            fn (string $frontend) => rtrim((string) parse_url($this->url->to($frontend)->base(), PHP_URL_PATH), '/'),
+            ['admin', 'api']
+        );
+
+        return array_values(array_unique(array_filter($paths)));
     }
 
     protected function offlinePath(): string
