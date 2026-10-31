@@ -6,9 +6,9 @@ import isDark from '../../common/utils/isDark';
 export default class SplashScreenPreview extends Component {
   view() {
     const splashScreen = app.forum.attribute<string | null>('splashScreenUrl');
-    const maskableIcon = app.forum.attribute<string | null>('maskableIconUrl');
+    const icon = app.forum.attribute<string | null>('appIconUrl');
 
-    if (!splashScreen || !maskableIcon) return null;
+    if (!splashScreen || !icon) return null;
 
     const background = app.forum.attribute<string>('splashScreenBackground');
 
@@ -25,7 +25,7 @@ export default class SplashScreenPreview extends Component {
             })}
             style={{ background }}
           >
-            <img className="SplashScreenPreview-icon" src={maskableIcon} alt="" width="28" height="28" />
+            <img className="SplashScreenPreview-icon" src={icon} alt="" width="28" height="28" />
             <span className="SplashScreenPreview-name">{app.forum.attribute<string>('title')}</span>
           </div>
           <figcaption>{app.translator.trans('core.admin.appearance.app_icon_preview_android_label')}</figcaption>

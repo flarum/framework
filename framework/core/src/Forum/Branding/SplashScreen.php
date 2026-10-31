@@ -47,7 +47,7 @@ class SplashScreen
 
     public const BACKGROUND_PATTERN = '/^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i';
 
-    protected const VERSION = 1;
+    protected const VERSION = 2;
 
     protected Cloud $assets;
 
@@ -164,7 +164,9 @@ class SplashScreen
             return ['theme' => true, 'paths' => $images];
         }
 
-        $icon = $this->branding->appIconPaths()['icon-maskable-512.png'] ?? null;
+        // The icon without a background of its own, so the splash screen
+        // background shows through it and around it.
+        $icon = $this->branding->appIconPaths()['icon-512.png'] ?? null;
 
         return $icon ? ['theme' => false, 'paths' => ['icon' => $icon]] : null;
     }
