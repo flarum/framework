@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0",
+        "flarum/core": "^2.1",
         "illuminate/http": "^13.0",
         "laravel/ai": "~1.1.0",
         "symfony/error-handler": "^7.4",
@@ -68,7 +68,9 @@
             "@test:integration"
         ],
         "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:unit:filter": "phpunit -c tests/phpunit.unit.xml --filter",
         "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:integration:filter": "phpunit -c tests/phpunit.integration.xml --filter",
         "test:setup": "@php tests/integration/setup.php"
     },
     "scripts-descriptions": {
@@ -78,7 +80,7 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
-        "flarum/testing": "^2.0.0"
+        "flarum/testing": "^2.1"
     },
     "repositories": [
         {
