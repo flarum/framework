@@ -1,0 +1,22 @@
+flarum-mcp:
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
+  # Translations in this namespace are used by the admin interface.
+  admin:
+    permissions:
+      heading: MCP
+      use_label: Connect AI assistants (MCP)
+
+  # Translations in this namespace are returned to MCP clients and the models behind them.
+  api:
+    forbidden: You do not have permission to do that.
+    forbidden_description: Your account is not allowed to use this forum's MCP server.
+    invalid: The request was not valid.
+    invalid_token: The access token is missing, invalid or expired, or was not issued for this server.
+    not_exposed: "{operation} on {type} is not available through MCP."
+    not_found: Not found.
+    requires_sign_in: This requires signing in. Connect with your forum account and try again.
+    requires_write_scope: This requires write access. Reconnect and grant permission to make changes.
+    throttled: You are doing that too often; wait before trying again.
