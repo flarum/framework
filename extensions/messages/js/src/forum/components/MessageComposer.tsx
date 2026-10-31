@@ -64,7 +64,8 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
               app.modal.show(UserSelectionModal, {
                 title: app.translator.trans('flarum-messages.forum.recipient_selection_modal.title', {}, true),
                 selected: this.recipients(),
-                maxItems: 1,
+                // More than one starts a group. An older server says nothing: one.
+                maxItems: app.forum.attribute<number>('messagesMaxRecipients') || 1,
                 // Accounts nobody can write to, such as those anonymised by
                 // flarum/gdpr, aren't listed at all.
                 excluded: (user: User) => user === app.session.user || user.canMessage() === false,
