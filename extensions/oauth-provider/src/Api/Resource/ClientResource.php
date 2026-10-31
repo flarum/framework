@@ -119,6 +119,16 @@ class ClientResource extends Resource\AbstractDatabaseResource
             Schema\Str::make('plainSecret')
                 ->nullable()
                 ->get(fn (Client $client) => $client->plainSecret),
+            Schema\Str::make('source'),
+            Schema\Str::make('logoUri')
+                ->nullable()
+                ->property('logo_uri'),
+            Schema\Str::make('clientUri')
+                ->nullable()
+                ->property('client_uri'),
+            Schema\DateTime::make('metadataExpiresAt')
+                ->nullable()
+                ->property('metadata_expires_at'),
             Schema\DateTime::make('createdAt'),
             Schema\DateTime::make('updatedAt'),
         ];
@@ -128,6 +138,7 @@ class ClientResource extends Resource\AbstractDatabaseResource
     {
         /** @var Client $model */
         $model->id = Str::random(20);
+        $model->source = Client::SOURCE_ADMIN;
 
         $actor = RequestUtil::getActor($context->request);
         $model->created_by = $actor->id;

@@ -15,11 +15,18 @@
         .btn { flex: 1; padding: 0.75rem 1rem; border-radius: 4px; border: 0; cursor: pointer; font-weight: 500; }
         .btn-primary { background: #4863a6; color: #fff; }
         .btn-secondary { background: #e5e7eb; color: #111827; }
+        .badge { display: inline-block; margin-left: 0.25rem; padding: 0 0.4rem; border-radius: 3px; background: #fef3c7; color: #92400e; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>{{ $client->getName() }}</h1>
+    @if ($unverifiedHost)
+        <p class="muted">
+            {{ $translator->trans('flarum-oauth-provider.forum.consent.from_host', ['host' => $unverifiedHost]) }}
+            <span class="badge">{{ $translator->trans('flarum-oauth-provider.forum.consent.unverified') }}</span>
+        </p>
+    @endif
     <p class="muted">
         {{ $translator->trans('flarum-oauth-provider.forum.consent.intro', ['username' => $actor->display_name, 'client' => $client->getName()]) }}
     </p>

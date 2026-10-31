@@ -44,6 +44,7 @@ class OidcDiscoveryTest extends TestCase
 
         $this->assertContains('code', $body['response_types_supported']);
         $this->assertContains('RS256', $body['id_token_signing_alg_values_supported']);
+        $this->assertSame(['S256'], $body['code_challenge_methods_supported']);
     }
 
     #[Test]

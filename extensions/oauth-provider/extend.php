@@ -27,13 +27,22 @@ return [
         ->post('/oauth/authorize', 'oauthProvider.authorize.post', Http\Controller\AuthorizeController::class)
         ->post('/oauth/token', 'oauthProvider.token', Http\Controller\TokenController::class)
         ->get('/oauth/userinfo', 'oauthProvider.userinfo', Http\Controller\UserInfoController::class)
+        ->post('/oauth/revoke', 'oauthProvider.revoke', Http\Controller\RevokeController::class)
+        ->post('/oauth/register', 'oauthProvider.register', Http\Controller\RegisterClientController::class)
         ->get('/.well-known/openid-configuration', 'oauthProvider.discovery', Http\Controller\OpenIdConfigurationController::class)
+        ->get('/.well-known/oauth-authorization-server', 'oauthProvider.metadata', Http\Controller\AuthorizationServerMetadataController::class)
         ->get('/.well-known/jwks.json', 'oauthProvider.jwks', Http\Controller\JwksController::class),
 
+    // Called by OAuth clients without a session; they authenticate as clients, not users.
     (new Extend\Csrf())
-        ->exemptRoute('oauthProvider.token'),
+        ->exemptRoute('oauthProvider.token')
+        ->exemptRoute('oauthProvider.revoke')
+        ->exemptRoute('oauthProvider.register'),
 
     new Extend\ApiResource(Api\Resource\ClientResource::class),
+
+    (new Extend\Settings())
+        ->default(ClientRegistration\DynamicRegistration::SETTING, true),
 
     (new Extend\View())
         ->namespace('flarum-oauth-provider', __DIR__.'/resources/views'),
