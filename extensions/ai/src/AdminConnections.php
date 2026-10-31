@@ -36,13 +36,15 @@ class AdminConnections
      * The connections as the admin page may see them.
      *
      * @param array<string, array<string, mixed>> $connections
-     * @return array<string, array{driver: string, url?: string, hasKey: bool}>
+     * @return array<string, array{driver: string, url?: string, model?: string, monthly_tokens?: int, hasKey: bool}>
      */
     public function withoutKeys(array $connections): array
     {
         return array_map(fn (array $connection) => array_filter([
             'driver' => $connection['driver'],
             'url' => is_string($connection['url'] ?? null) && $connection['url'] !== '' ? $connection['url'] : null,
+            'model' => is_string($connection['model'] ?? null) && $connection['model'] !== '' ? $connection['model'] : null,
+            'monthly_tokens' => is_int($connection['monthly_tokens'] ?? null) && $connection['monthly_tokens'] > 0 ? $connection['monthly_tokens'] : null,
         ]) + ['hasKey' => is_string($connection['key'] ?? null) && $connection['key'] !== ''], $connections);
     }
 
@@ -106,7 +108,19 @@ class AdminConnections
                 $this->fail('key_required_message', ['name' => $name]);
             }
 
-            $prepared[$name] = array_filter(['driver' => $driver, 'url' => $url, 'key' => $key], fn ($value) => $value !== null && $value !== '');
+            $model = $connection['model'] ?? null;
+            $model = is_string($model) ? trim($model) : null;
+
+            if ($model !== null && mb_strlen($model) > 100) {
+                $this->fail('model_invalid_message', ['name' => $name]);
+            }
+
+            $monthly = $this->tokens($connection['monthly_tokens'] ?? null, $name);
+
+            $prepared[$name] = array_filter(
+                ['driver' => $driver, 'url' => $url, 'model' => $model, 'monthly_tokens' => $monthly, 'key' => $key],
+                fn ($value) => $value !== null && $value !== ''
+            );
         }
 
         return json_encode((object) $prepared, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
@@ -130,6 +144,28 @@ class AdminConnections
         }
     }
 
+    /**
+     * A token limit: a whole number above zero, or nothing for no limit.
+     *
+     * @throws ValidationException
+     */
+    public function tokens(mixed $value, string $name, string $setting = self::SETTING): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_string($value) && ctype_digit(trim($value))) {
+            $value = (int) trim($value);
+        }
+
+        if (! is_int($value) || $value < 1) {
+            $this->fail('tokens_invalid_message', ['name' => $name], $setting);
+        }
+
+        return $value;
+    }
+
     protected function isUrl(string $url): bool
     {
         return filter_var($url, FILTER_VALIDATE_URL) !== false
@@ -141,7 +177,7 @@ class AdminConnections
      *
      * @throws ValidationException
      */
-    protected function fail(string $message, array $parameters = [], string $setting = self::SETTING): never
+    public function fail(string $message, array $parameters = [], string $setting = self::SETTING): never
     {
         throw new ValidationException([
             $setting => $this->translator->trans("flarum-ai.admin.connections.$message", $parameters),

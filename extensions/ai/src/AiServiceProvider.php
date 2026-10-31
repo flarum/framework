@@ -9,7 +9,9 @@
 
 namespace Flarum\Ai;
 
+use Flarum\Ai\Features\FeatureRegistry;
 use Flarum\Ai\Unconfigured\UnconfiguredProvider;
+use Flarum\Ai\Usage\Attribution;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Facade;
@@ -34,6 +36,12 @@ class AiServiceProvider extends LaravelAiServiceProvider
         // earlier app: tests boot one per test.
         Facade::setFacadeApplication($this->app->make(Application::class));
         Facade::clearResolvedInstances();
+
+        // One of each per request: the registry is filled by extenders, and
+        // the attribution is shared between a feature call and the listeners
+        // that meter it.
+        $this->app->singleton(FeatureRegistry::class);
+        $this->app->singleton(Attribution::class);
 
         $this->app->singleton(AiManager::class, fn (Application $app) => (new AiManager($app))->extend(
             AiConfig::UNCONFIGURED,

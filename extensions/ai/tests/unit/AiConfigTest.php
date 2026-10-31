@@ -117,4 +117,16 @@ class AiConfigTest extends TestCase
         ], $config['providers']);
         $this->assertFalse($config['caching']['embeddings']['cache']);
     }
+
+    #[Test]
+    public function flarums_own_connection_settings_stay_out_of_laravel_ais_config(): void
+    {
+        $config = $this->aiConfig(
+            ['flarum-ai.connections' => json_encode(['claude' => ['driver' => 'anthropic', 'key' => 'k', 'model' => 'claude-house', 'monthly_tokens' => 500]])],
+            ['connections' => ['host' => ['driver' => 'openai', 'key' => 'h', 'monthly_tokens' => 9, 'organization' => 'acme']]]
+        )->toArray();
+
+        $this->assertSame(['driver' => 'anthropic', 'key' => 'k', 'models' => ['text' => ['default' => 'claude-house']]], $config['providers']['claude']);
+        $this->assertSame(['driver' => 'openai', 'key' => 'h', 'organization' => 'acme'], $config['providers']['host']);
+    }
 }

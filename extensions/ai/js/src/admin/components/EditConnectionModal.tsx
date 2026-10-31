@@ -24,6 +24,8 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
   name!: Stream<string>;
   driver!: Stream<string>;
   url!: Stream<string>;
+  model!: Stream<string>;
+  monthlyTokens!: Stream<string>;
   key!: Stream<string>;
   removeKey = false;
 
@@ -35,6 +37,8 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
     this.name = Stream(this.attrs.name || '');
     this.driver = Stream(connection?.driver || aiPayload().drivers[0]);
     this.url = Stream(connection?.url || '');
+    this.model = Stream(connection?.model || '');
+    this.monthlyTokens = Stream(connection?.monthly_tokens ? String(connection.monthly_tokens) : '');
     this.key = Stream(connection?.key || '');
   }
 
@@ -107,6 +111,26 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
 
     items.add('key', this.keyField(keyOptional.includes(driver)), 20);
 
+    items.add(
+      'model',
+      <div className="Form-group">
+        <label>{app.translator.trans('flarum-ai.admin.edit_connection.model_label')}</label>
+        <div className="helpText">{app.translator.trans('flarum-ai.admin.edit_connection.model_help')}</div>
+        <input className="FormControl" bidi={this.model} maxlength={100} spellcheck={false} />
+      </div>,
+      10
+    );
+
+    items.add(
+      'monthlyTokens',
+      <div className="Form-group">
+        <label>{app.translator.trans('flarum-ai.admin.edit_connection.monthly_tokens_label')}</label>
+        <div className="helpText">{app.translator.trans('flarum-ai.admin.edit_connection.monthly_tokens_help')}</div>
+        <input className="FormControl" type="number" min="1" step="1" bidi={this.monthlyTokens} />
+      </div>,
+      0
+    );
+
     return items;
   }
 
@@ -167,7 +191,9 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
           ? 'flarum-ai.admin.connections.url_required_message'
           : !key && (this.removeKey || !this.hasSavedKey()) && !keyOptional.includes(driver)
             ? 'flarum-ai.admin.connections.key_required_message'
-            : null;
+            : this.monthlyTokens().trim() !== '' && !(parseInt(this.monthlyTokens(), 10) > 0)
+              ? 'flarum-ai.admin.connections.tokens_invalid_message'
+              : null;
 
     if (problem) {
       this.alertAttrs = { type: 'error', content: app.translator.trans(problem, { name }) };
@@ -176,8 +202,12 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
     }
 
     const connection: Connection = { driver };
+    const model = this.model().trim();
+    const monthlyTokens = parseInt(this.monthlyTokens(), 10);
 
     if (url) connection.url = url;
+    if (model) connection.model = model;
+    if (monthlyTokens > 0) connection.monthly_tokens = monthlyTokens;
 
     // Left without a key, the connection keeps the one saved for it.
     if (key) {

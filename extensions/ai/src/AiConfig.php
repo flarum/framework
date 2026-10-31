@@ -78,7 +78,7 @@ class AiConfig
         return [
             'default' => $this->defaultConnection() ?? self::UNCONFIGURED,
             'providers' => [
-                ...$this->connections(),
+                ...array_map($this->forLaravelAi(...), $this->connections()),
                 self::UNCONFIGURED => ['driver' => self::UNCONFIGURED],
             ],
             'caching' => [
@@ -86,6 +86,26 @@ class AiConfig
                 'embeddings' => ['cache' => false],
             ],
         ];
+    }
+
+    /**
+     * A connection as laravel/ai expects a provider. Its own settings stay
+     * out: laravel/ai passes a provider's extra keys on to the gateway.
+     *
+     * @param array<string, mixed> $connection
+     * @return array<string, mixed>
+     */
+    protected function forLaravelAi(array $connection): array
+    {
+        $model = $connection['model'] ?? null;
+
+        unset($connection['model'], $connection['monthly_tokens']);
+
+        if (is_string($model) && $model !== '') {
+            $connection['models']['text']['default'] = $model;
+        }
+
+        return $connection;
     }
 
     /**
