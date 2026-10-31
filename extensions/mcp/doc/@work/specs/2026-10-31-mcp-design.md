@@ -44,20 +44,27 @@ The work ships in two stacked branches:
   envelope, `Mcp-Method` / `Mcp-Name` headers). The SDK routes each request.
 - The handshake-era session store is `Psr16SessionStore` on Flarum's cache
   (`Illuminate\Contracts\Cache\Repository`, which implements PSR-16), so it works under
-  php-fpm on every cache driver.
+  php-fpm on every cache driver. Each session is bound to the actor that opened it
+  (its ID, 0 for a guest): a session ID presented by anyone else is unknown to them
+  (404). No session lock: the SDK's lock implementations do not pair with a PSR-16
+  store on Flarum's cache.
+- Capabilities are set explicitly: tools, resources and prompts as registered, with no
+  `subscribe`, no `listChanged`, no `logging` and no `completions`, in both eras.
+- The SDK logs through Flarum's PSR-3 logger, warnings and worse outside debug mode.
 - PSR-17 factories are passed explicitly (Laminas Diactoros, which core already ships),
   so the SDK's `php-http/discovery` lookup is never needed at runtime. The monorepo
   root `composer.json` sets `allow-plugins.php-http/discovery: false`.
 - The server is built per request, for the request's actor (see Capability resolution).
   It costs one registry walk per request, with no persistent state.
 - The transport middleware is `CorsMiddleware` and `DnsRebindingProtectionMiddleware`.
-  `allowedHosts` is the forum's host. `allowedOrigins` is empty, so only same-origin
-  browser requests and non-browser clients get through.
+  `allowedHosts` is the forum's host plus any from `Extend\Mcp::allowHosts()`.
+  `allowedOrigins` is empty unless extended with `Extend\Mcp::allowOrigins()`, so by
+  default only same-origin browser requests and non-browser clients get through.
 - Request body cap: the SDK default, 4 MiB.
 - Server info:
   - name `flarum`
   - title: forum title
-  - version: Flarum version
+  - version: the Flarum version for admins, its major version for everyone else
   - description: forum description
   - websiteUrl: forum URL
   - icons: forum favicon / logo when set
@@ -76,6 +83,10 @@ The work ships in two stacked branches:
 - `/mcp` is CSRF-exempt and **never authenticates from the session cookie**. The
   controller discards any session actor and derives the actor only from the
   `Authorization` header. That rules out CSRF, so the exemption is safe.
+- `/mcp` starts no forum session: a middleware just outside `StartSession` drops its
+  cookies and strips the session cookie and `X-CSRF-Token` from the response, and the
+  controller gives the throwaway session a null handler. The locale is the bearer's
+  `locale` preference, or the forum default.
 - Known limitation: forums installed under a sub-path (`example.com/forum`) cannot serve
   the host-root `/.well-known/*` paths. The admin page states the exact rewrite rule
   needed for that case.
@@ -88,7 +99,8 @@ before the transport:
 1. **`Authorization: Bearer <jwt>`**: validated by flarum/oauth-provider's
    `TokenValidator` with resource `{base}/mcp`. That checks the signature, expiry,
    revocation and `aud`. The actor is the token's user and the scopes are the token's
-   scopes.
+   scopes (`mcp:write` implies `mcp:read`). A token with neither gets 403
+   `error="insufficient_scope", scope="mcp:read"`.
 2. **`Authorization: Bearer <developer token>`**: a core `AccessToken` whose `type` is
    `developer` (`DeveloperAccessToken`), checked with `AccessToken::findValid()` plus a
    type check. Session and remember tokens are refused. Scopes are `mcp:read` and
@@ -99,7 +111,9 @@ before the transport:
    identity.
 4. **No Authorization header**: the actor is the guest and the scope is `mcp:read`.
 5. **A malformed or invalid token**: 401 with
-   `WWW-Authenticate: Bearer error="invalid_token", resource_metadata="{base}/.well-known/oauth-protected-resource/mcp", scope="mcp:read mcp:write"`.
+   `WWW-Authenticate: Bearer error="invalid_token", resource_metadata="{base}/.well-known/oauth-protected-resource/mcp", scope="mcp:read"`.
+   Every challenge asks for `mcp:read`, and for `mcp:read mcp:write` only when the
+   request calls a write tool.
 
 Then the permission gate:
 
@@ -356,7 +370,7 @@ is the index query) and `start_discussion` (`$apiQuery` is
 
 `flarum://forum` (JSON), also used for the server `instructions` text, contains:
 
-- `forum`: title, description, url, locale, version.
+- `forum`: title, description, url, locale, and the version for admins.
 - `you`: guest flag, username, display name, groups, and a capability list derived from
   `actor->can()` on the global abilities: `startDiscussion`, `viewForum`,
   `searchUsers`, `viewUserList`, `discussion.reply` (global check), plus any abilities
