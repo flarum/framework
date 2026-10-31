@@ -650,7 +650,7 @@ class UpdateTest extends TestCase
     }
 
     #[Test]
-    public function admins_cant_update_others_preferences()
+    public function admins_can_update_others_preferences()
     {
         $response = $this->send(
             $this->request('PATCH', '/api/users/2', [
@@ -667,7 +667,7 @@ class UpdateTest extends TestCase
                 ],
             ])
         );
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     #[Test]

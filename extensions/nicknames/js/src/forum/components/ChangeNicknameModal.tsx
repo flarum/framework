@@ -1,17 +1,26 @@
 import app from 'flarum/forum/app';
-import FormModal from 'flarum/common/components/FormModal';
+import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
 import Form from 'flarum/common/components/Form';
 
-export default class NicknameModal extends FormModal {
-  oninit(vnode) {
+import type Mithril from 'mithril';
+import type User from 'flarum/common/models/User';
+
+export interface IChangeNicknameModalAttrs extends IFormModalAttrs {
+  user: User;
+}
+
+export default class ChangeNicknameModal<CustomAttrs extends IChangeNicknameModalAttrs = IChangeNicknameModalAttrs> extends FormModal<CustomAttrs> {
+  nickname!: Stream<string>;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
-    this.nickname = Stream(app.session.user.displayName());
+    this.nickname = Stream(this.attrs.user.displayName());
   }
 
   className() {
-    return 'NickameModal Modal--small';
+    return 'ChangeNicknameModal Modal--small';
   }
 
   title() {
@@ -35,17 +44,17 @@ export default class NicknameModal extends FormModal {
     );
   }
 
-  onsubmit(e) {
+  onsubmit(e: Event) {
     e.preventDefault();
 
-    if (this.nickname() === app.session.user.displayName()) {
+    if (this.nickname() === this.attrs.user.displayName()) {
       this.hide();
       return;
     }
 
     this.loading = true;
 
-    app.session.user
+    this.attrs.user
       .save(
         { nickname: this.nickname() },
         {

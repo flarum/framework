@@ -27,16 +27,18 @@ export default function extendUserSettingsPage() {
   override('flarum/forum/components/SettingsPage', 'dataItems', function (): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    items.add(
-      'gdprErasure',
-      <div className="Form-group gdprErasure-container">
-        <p className="helpText">{app.translator.trans('flarum-gdpr.forum.settings.request_erasure_help')}</p>
-        <Button className="Button Button-gdprErasure" icon="fas fa-user-minus" onclick={() => app.modal.show(RequestErasureModal as any)}>
-          {app.translator.trans('flarum-gdpr.forum.settings.request_erasure_button')}
-        </Button>
-      </div>,
-      50
-    );
+    if (this.user === app.session.user) {
+      items.add(
+        'gdprErasure',
+        <div className="Form-group gdprErasure-container">
+          <p className="helpText">{app.translator.trans('flarum-gdpr.forum.settings.request_erasure_help')}</p>
+          <Button className="Button Button-gdprErasure" icon="fas fa-user-minus" onclick={() => app.modal.show(RequestErasureModal as any)}>
+            {app.translator.trans('flarum-gdpr.forum.settings.request_erasure_button')}
+          </Button>
+        </div>,
+        50
+      );
+    }
 
     items.add(
       'gdprExport',
