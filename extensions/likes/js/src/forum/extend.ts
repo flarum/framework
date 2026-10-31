@@ -20,4 +20,7 @@ export default [
     .hasMany<User>('likes')
     .attribute<number>('likesCount')
     .attribute<boolean>('canLike'),
+
+  new Extend.Model(User) //
+    .attribute<number>('likeCount'),
 ];
