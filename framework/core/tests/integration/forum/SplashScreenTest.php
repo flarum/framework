@@ -228,9 +228,9 @@ class SplashScreenTest extends TestCase
 
         $this->assertSame([1179, 2556], [imagesx($image), imagesy($image)]);
 
-        // As on Android, the maskable icon is drawn 128 points, 384 pixels,
-        // across, square, in the middle of the screen. The red fills 80% of
-        // it, about 307 pixels, and the rest is the icon's background.
+        // The icon is drawn 102 points, 306 pixels, across in the middle of
+        // the screen: the size its safe zone has on Android. The background
+        // fills the rest.
         $this->assertPixel([255, 0, 0], $image, 589, 1278);
         $this->assertPixel([255, 0, 0], $image, 589 - 140, 1278 - 140);
         $this->assertPixel([0, 0, 255], $image, 589 - 165, 1278);
@@ -299,6 +299,29 @@ class SplashScreenTest extends TestCase
     }
 
     #[Test]
+    public function the_splash_screen_background_shows_through_the_transparent_parts_of_the_app_icon(): void
+    {
+        $this->setting('app_icon_background', '#0000ff');
+        $this->setting('splash_screen_background', '#00ff00');
+
+        // Red on the left, transparent on the right.
+        $path = tempnam(sys_get_temp_dir(), 'flarum-app-icon-').'.png';
+        $this->tempFiles[] = $path;
+        $icon = imagecreatetruecolor(600, 600);
+        imagesavealpha($icon, true);
+        imagefill($icon, 0, 0, imagecolorallocatealpha($icon, 0, 0, 0, 127));
+        imagefilledrectangle($icon, 0, 0, 299, 599, imagecolorallocate($icon, 255, 0, 0));
+        imagepng($icon, $path);
+
+        $this->extend((new Extend\Theme())->appIcon($path, background: '#0000ff'));
+
+        $image = $this->image($this->iPhone16Link());
+
+        $this->assertPixel([255, 0, 0], $image, 589 - 70, 1278);
+        $this->assertPixel([0, 255, 0], $image, 589 + 70, 1278);
+    }
+
+    #[Test]
     public function the_splash_screen_background_can_be_set_apart_from_the_app_icon_s(): void
     {
         $this->setting('app_icon_background', '#0000ff');
@@ -308,8 +331,11 @@ class SplashScreenTest extends TestCase
 
         $image = $this->image($this->iPhone16Link());
 
+        // No square of the icon's own background around it.
         $this->assertPixel([255, 0, 0], $image, 589, 1278);
-        $this->assertPixel([0, 0, 255], $image, 589 - 165, 1278);
+        $this->assertPixel([255, 0, 0], $image, 589 - 140, 1278 - 140);
+        $this->assertPixel([0, 255, 0], $image, 589 - 165, 1278);
+        $this->assertPixel([0, 255, 0], $image, 589, 1278 + 165);
         $this->assertPixel([0, 255, 0], $image, 0, 0);
 
         $manifest = json_decode((string) $this->send($this->request('GET', '/manifest'))->getBody(), true);

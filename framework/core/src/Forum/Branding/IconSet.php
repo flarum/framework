@@ -36,7 +36,11 @@ class IconSet
      */
     public const MASKABLE_SAFE_ZONE = 0.8;
 
-    public const SPLASH_ICON_SIZE = 128;
+    /**
+     * Points across the app icon on a splash screen: the size the 80% safe
+     * zone of a 128-point maskable icon has on Android.
+     */
+    public const SPLASH_ICON_SIZE = 102;
 
     public const LARGEST_SCREEN = 2868;
 
