@@ -100,6 +100,35 @@ class UserMentionCountTest extends TestCase
         $this->assertSame(0, $this->mentionCountOf(3));
     }
 
+    #[Test]
+    public function the_migration_backfills_the_counts_and_rolls_back()
+    {
+        $this->database()->table('posts')->insert([
+            ['id' => 2, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>two</p></t>', 'is_private' => false],
+            ['id' => 3, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>three</p></t>', 'is_private' => true],
+        ]);
+        $this->database()->table('post_mentions_user')->insert([
+            ['post_id' => 1, 'mentions_user_id' => 3],
+            ['post_id' => 2, 'mentions_user_id' => 3],
+            ['post_id' => 3, 'mentions_user_id' => 3],
+            ['post_id' => 2, 'mentions_user_id' => 2],
+        ]);
+
+        $migration = require __DIR__.'/../../../migrations/2026_10_13_000000_add_mention_count_to_users_table.php';
+        $schema = $this->database()->getSchemaBuilder();
+
+        $migration['down']($schema);
+        $this->assertFalse($schema->hasColumn('users', 'mention_count'));
+
+        $migration['up']($schema);
+        $this->assertTrue($schema->hasColumn('users', 'mention_count'));
+
+        // The private post is not counted.
+        $this->assertSame(2, $this->mentionCountOf(3));
+        $this->assertSame(1, $this->mentionCountOf(2));
+        $this->assertSame(0, $this->mentionCountOf(1));
+    }
+
     protected function reply(string $content): int
     {
         $response = $this->send(
