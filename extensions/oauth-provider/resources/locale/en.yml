@@ -30,6 +30,13 @@ flarum-oauth-provider:
       revoked_label: "Revoked (reject all new auth requests)"
       save_button: "Save"
 
+    settings:
+      heading: "Client registration"
+      allow_dynamic_registration_label: "Allow dynamic client registration"
+      allow_dynamic_registration_help: "Lets applications such as MCP clients register themselves at /oauth/register (RFC 7591). Self-registered clients are always public and must use PKCE. Clients identified by a metadata document URL are accepted either way."
+      source_metadata_document: "Metadata document"
+      source_dynamic: "Self-registered"
+
     secret_modal:
       title: "Client created"
       intro: "Save these credentials now — the secret is not shown again."
@@ -46,3 +53,6 @@ flarum-oauth-provider:
       scopes_heading: "This will allow it to:"
       approve_button: "Authorize"
       deny_button: "Cancel"
+      from_host: "from {host}"
+      unverified: "unverified"
+

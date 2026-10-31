@@ -13,13 +13,18 @@ use Carbon\Carbon;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
+use Flarum\OAuthProvider\ClientRegistration\ClientMetadataException;
+use Flarum\OAuthProvider\ClientRegistration\MetadataDocumentClients;
 use Flarum\OAuthProvider\Models\AuthCode;
+use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Scope\ScopeRegistry;
 use Flarum\OAuthProvider\Server\AuthorizationServerFactory;
+use Flarum\OAuthProvider\Server\AuthorizationServerMetadata;
 use Flarum\OAuthProvider\Server\Entity\UserEntity;
 use Illuminate\Contracts\View\Factory;
 use Laminas\Diactoros\Response\HtmlResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\Response\RedirectResponse;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
@@ -34,17 +39,29 @@ class AuthorizeController implements RequestHandlerInterface
         protected Factory $view,
         protected UrlGenerator $url,
         protected ScopeRegistry $scopes,
+        protected MetadataDocumentClients $metadataDocuments,
+        protected AuthorizationServerMetadata $metadata,
     ) {
     }
 
     public function handle(Request $request): ResponseInterface
     {
+        $clientId = $request->getQueryParams()['client_id'] ?? null;
+
+        if (is_string($clientId)) {
+            try {
+                $this->metadataDocuments->resolve($clientId);
+            } catch (ClientMetadataException $e) {
+                return new JsonResponse(['error' => 'invalid_client', 'error_description' => $e->getMessage()], 400);
+            }
+        }
+
         $server = $this->factory->authorizationServer();
 
         try {
             $authRequest = $server->validateAuthorizationRequest($request);
         } catch (OAuthServerException $exception) {
-            return $exception->generateHttpResponse(new \Laminas\Diactoros\Response());
+            return $this->withIssuer($exception->generateHttpResponse(new \Laminas\Diactoros\Response()));
         }
 
         $actor = RequestUtil::getActor($request);
@@ -108,8 +125,12 @@ class AuthorizeController implements RequestHandlerInterface
 
         $csrfToken = $request->getAttribute('session')?->token();
 
+        /** @var Client|null $clientModel */
+        $clientModel = Client::query()->find($clientId);
+
         $html = $this->view->make('flarum-oauth-provider::consent', [
             'client' => $authRequest->getClient(),
+            'unverifiedHost' => $clientModel?->source === Client::SOURCE_METADATA_DOCUMENT ? $clientModel->sourceHost() : null,
             'scopes' => $scopeDescriptions,
             'actor' => $actor,
             'formAction' => (string) $request->getUri(),
@@ -135,9 +156,9 @@ class AuthorizeController implements RequestHandlerInterface
         $authRequest->setAuthorizationApproved($approved);
 
         try {
-            $response = $server->completeAuthorizationRequest($authRequest, new \Laminas\Diactoros\Response());
+            $response = $this->withIssuer($server->completeAuthorizationRequest($authRequest, new \Laminas\Diactoros\Response()));
         } catch (OAuthServerException $exception) {
-            return $exception->generateHttpResponse(new \Laminas\Diactoros\Response());
+            return $this->withIssuer($exception->generateHttpResponse(new \Laminas\Diactoros\Response()));
         }
 
         // If approved, attach nonce + auth_time to the just-created auth code
@@ -155,6 +176,22 @@ class AuthorizeController implements RequestHandlerInterface
         }
 
         return $response;
+    }
+
+    /**
+     * Adds the RFC 9207 `iss` parameter to a redirect back to the client.
+     */
+    protected function withIssuer(ResponseInterface $response): ResponseInterface
+    {
+        $location = $response->getHeaderLine('Location');
+
+        if ($location === '') {
+            return $response;
+        }
+
+        $separator = str_contains($location, '?') ? '&' : '?';
+
+        return $response->withHeader('Location', $location.$separator.http_build_query(['iss' => $this->metadata->issuer()]));
     }
 
     /**

@@ -57,6 +57,17 @@ export default class OAuthClientsPage extends ExtensionPage {
             </Button>
           </div>
 
+          <div className="Form-group">
+            <h3>{app.translator.trans('flarum-oauth-provider.admin.settings.heading')}</h3>
+            {this.buildSettingComponent({
+              type: 'boolean',
+              setting: 'flarum-oauth-provider.allow_dynamic_registration',
+              label: app.translator.trans('flarum-oauth-provider.admin.settings.allow_dynamic_registration_label'),
+              help: app.translator.trans('flarum-oauth-provider.admin.settings.allow_dynamic_registration_help'),
+            })}
+            {this.submitButton()}
+          </div>
+
           {this.loading ? (
             <LoadingIndicator />
           ) : (
@@ -79,6 +90,11 @@ export default class OAuthClientsPage extends ExtensionPage {
             <div className="OAuthClientsList-main">
               <div className="OAuthClientsList-name">
                 {client.name()}
+                {client.source() && client.source() !== 'admin' ? (
+                  <span className="OAuthClientsList-badge">
+                    {app.translator.trans(`flarum-oauth-provider.admin.settings.source_${client.source()}`)}
+                  </span>
+                ) : null}
                 {client.revoked() ? (
                   <span className="OAuthClientsList-badge OAuthClientsList-badge--revoked">
                     {app.translator.trans('flarum-oauth-provider.admin.clients.status_revoked')}
