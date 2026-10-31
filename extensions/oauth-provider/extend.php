@@ -18,7 +18,8 @@ return [
         ->jsDirectory(__DIR__.'/js/dist/admin'),
 
     (new Extend\Frontend('forum'))
-        ->js(__DIR__.'/js/dist/forum.js'),
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->css(__DIR__.'/resources/less/forum.less'),
 
     new Extend\Locales(__DIR__.'/resources/locale'),
 
@@ -40,6 +41,7 @@ return [
         ->exemptRoute('oauthProvider.register'),
 
     new Extend\ApiResource(Api\Resource\ClientResource::class),
+    new Extend\ApiResource(Api\Resource\ConsentResource::class),
 
     (new Extend\Settings())
         ->default(ClientRegistration\DynamicRegistration::SETTING, true),

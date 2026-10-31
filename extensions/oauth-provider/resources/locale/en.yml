@@ -56,3 +56,12 @@ flarum-oauth-provider:
       from_host: "from {host}"
       unverified: "unverified"
 
+    connected_apps:
+      heading: "Connected applications"
+      empty: "You haven't connected any applications."
+      from_host: "from {host}"
+      granted: "Connected {ago}"
+      last_used: "last used {ago}"
+      never_used: "never used"
+      revoke_button: "Revoke"
+      revoke_confirm: "Revoke access for {client}? It will be signed out and has to ask for permission again."
