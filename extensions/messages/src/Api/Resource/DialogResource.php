@@ -24,7 +24,6 @@ use Flarum\Messages\Dialog;
 use Flarum\Messages\UserDialogState;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Tobyz\JsonApiServer\Context as OriginalContext;
 
@@ -183,9 +182,9 @@ class DialogResource extends Resource\AbstractDatabaseResource
 
             Schema\Relationship\ToMany::make('messages')
                 ->type('dialog-messages'),
+            // Every member: a group has at most RecipientLimit::CEILING others.
             Schema\Relationship\ToMany::make('users')
                 ->type('users')
-                ->scope(fn (BelongsToMany $query) => $query->limit(5))
                 ->includable(),
             // Linked even when not included: the frontend reads these ids to
             // know where a conversation starts and ends.

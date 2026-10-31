@@ -92,6 +92,39 @@ class GroupDisplayTest extends TestCase
     }
 
     #[Test]
+    public function messages_from_many_conversations_load_their_titles_together(): void
+    {
+        $dialogs = $messages = $members = [];
+
+        // Six more groups of alice, bob and carol.
+        foreach (range(100, 105) as $id) {
+            $dialogs[] = ['id' => $id, 'type' => 'group', 'first_message_id' => $id, 'last_message_id' => $id, 'last_message_at' => Carbon::now(), 'created_at' => Carbon::now()];
+            $messages[] = ['id' => $id, 'dialog_id' => $id, 'user_id' => 3, 'content' => "<t><p>Group $id</p></t>", 'number' => 1, 'created_at' => Carbon::now()];
+
+            foreach ([3, 4, 5] as $userId) {
+                $members[] = ['dialog_id' => $id, 'user_id' => $userId, 'joined_at' => Carbon::now()];
+            }
+        }
+
+        $this->prepareDatabase([Dialog::class => $dialogs, DialogMessage::class => $messages, 'dialog_user' => $members]);
+
+        // As the message search asks: each message with its conversation.
+        $response = $this->send($this->request('GET', '/api/dialog-messages', ['authenticatedAs' => 3]));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $titles = collect(json_decode((string) $response->getBody(), true)['included'])->where('type', 'dialogs')->pluck('attributes.title');
+        $this->assertContains('bob, carol', $titles->all());
+    }
+
+    #[Test]
+    public function the_dialog_endpoint_lists_every_member_of_a_group(): void
+    {
+        $response = $this->send($this->request('GET', '/api/dialogs/90', ['authenticatedAs' => 3])->withQueryParams(['include' => 'users']));
+
+        $this->assertCount(7, json_decode((string) $response->getBody(), true)['data']['relationships']['users']['data']);
+    }
+
+    #[Test]
     public function a_group_is_titled_with_up_to_three_other_members_in_alphabetical_order_and_how_many_more(): void
     {
         $this->assertEquals('bob, carol, dave +3', $this->dialogs(3)['90']['attributes']['title']);
