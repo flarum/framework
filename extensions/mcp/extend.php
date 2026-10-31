@@ -11,6 +11,7 @@ namespace Flarum\Mcp;
 
 use Flarum\Extend;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Http\Middleware\StartSession;
 use Flarum\Http\UrlGenerator;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Extend\Mcp;
@@ -37,6 +38,9 @@ return [
         ->get('/.well-known/oauth-protected-resource', 'mcp.resourceMetadata.root', Http\ResourceMetadataController::class),
 
     new Http\OptionsRoute(),
+
+    (new Extend\Middleware('forum'))
+        ->insertBefore(StartSession::class, Http\WithoutSession::class),
 
     // Safe because /mcp never authenticates from the session cookie.
     (new Extend\Csrf())

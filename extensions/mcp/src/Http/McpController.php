@@ -17,8 +17,12 @@ use Flarum\Mcp\Capability\CapabilityResolver;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\ResolvedCapabilities;
 use Flarum\Mcp\Server\ServerFactory;
+use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Guest;
+use Flarum\User\User;
+use Illuminate\Session\NullSessionHandler;
+use Illuminate\Session\Store;
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -40,11 +44,20 @@ class McpController implements RequestHandlerInterface
         protected UrlGenerator $url,
         protected TranslatorInterface $translator,
         protected SettingsRepositoryInterface $settings,
+        protected LocaleManager $locales,
     ) {
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        // StartSession saves the session it started after this returns: with a
+        // null handler there is nothing to save. See WithoutSession.
+        $session = $request->getAttribute('session');
+
+        if ($session instanceof Store) {
+            $session->setHandler(new NullSessionHandler());
+        }
+
         // A CORS preflight is answered by the transport's CORS and host checks
         // alone: no actor, no capabilities, no server.
         if ($request->getMethod() === 'OPTIONS') {
@@ -70,6 +83,21 @@ class McpController implements RequestHandlerInterface
         });
     }
 
+    /**
+     * The forum's SetLocale ran for the discarded session's actor: the bearer's
+     * own locale preference applies instead, or else the forum default.
+     */
+    protected function applyLocale(User $actor): void
+    {
+        foreach ([$actor->isGuest() ? null : $actor->getPreference('locale'), $this->settings->get('default_locale')] as $locale) {
+            if (is_string($locale) && $this->locales->hasLocale($locale)) {
+                $this->locales->setLocale($locale);
+
+                return;
+            }
+        }
+    }
+
     protected function serve(ServerRequestInterface $request): ResponseInterface
     {
         /** @var McpAuthentication $authentication */
@@ -81,6 +109,8 @@ class McpController implements RequestHandlerInterface
         if (! $capabilities instanceof ResolvedCapabilities) {
             $capabilities = $this->resolver->resolve($actor);
         }
+
+        $this->applyLocale($actor);
 
         $context = new McpContext(
             actor: $actor,
