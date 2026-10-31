@@ -78,5 +78,7 @@
 
 .McpCapabilities-write {
   font-weight: bold;
-  color: var(--alert-error-color, var(--control-color));
+  // --alert-error-color is the white text of an error alert, meant for its red
+  // background; on the page itself the error colour is --error-color.
+  color: var(--error-color);
 }
