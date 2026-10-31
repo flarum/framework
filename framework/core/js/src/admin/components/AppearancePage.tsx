@@ -56,7 +56,7 @@ export default class AppearancePage extends AdminPage {
             icon: 'fas fa-image',
             label: app.translator.trans('core.admin.appearance.sections.logos.label'),
             description: app.translator.trans('core.admin.appearance.sections.logos.description'),
-            items: ['logo', 'logo-dark-mode', 'email-logo', 'favicon', 'app-icon', 'app-icon-background'],
+            items: ['logo', 'logo-dark-mode', 'email-logo', 'favicon', 'app-icon', 'app-icon-background', 'splash-screen'],
           },
           {
             id: 'appearance-custom-code',
