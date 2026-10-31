@@ -1,12 +1,42 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
 import FieldSet from 'flarum/common/components/FieldSet';
+import Session from 'flarum/common/Session';
 import type ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
 
 import ConnectedApplications from './components/ConnectedApplications';
 
 export { default as extend } from './extend';
+
+const RETURN_TO = 'flarum-oauth-provider.return_to';
+// Set while a signed-in user is asked to sign in again, and when they do.
+const REAUTH_PENDING = 'flarum-oauth-provider.reauth_pending';
+const SIGNED_IN = 'flarum-oauth-provider.signed_in';
+
+const storage = {
+  get: (key: string): string | null => {
+    try {
+      return sessionStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  set: (key: string, value: string) => {
+    try {
+      sessionStorage.setItem(key, value);
+    } catch {
+      // Storage unavailable; the resume block below will no-op.
+    }
+  },
+  remove: (...keys: string[]) => {
+    try {
+      keys.forEach((key) => sessionStorage.removeItem(key));
+    } catch {
+      // ignore
+    }
+  },
+};
 
 // Same-origin guard: only trust return URLs on this forum.
 const isSafeReturnTo = (url: string | null): url is string => {
@@ -26,6 +56,10 @@ const isLoggedIn = (): boolean => {
 };
 
 app.initializers.add('flarum-oauth-provider', () => {
+  extend(Session.prototype, 'login', function (promise: Promise<unknown>) {
+    promise.then(() => storage.set(SIGNED_IN, '1'));
+  });
+
   extend('flarum/forum/components/SettingsPage', 'settingsItems', function (items: ItemList<Mithril.Children>) {
     items.add(
       'oauthConnectedApplications',
@@ -41,15 +75,15 @@ app.initializers.add('flarum-oauth-provider', () => {
 
   const params = new URLSearchParams(window.location.search);
 
+  // Whether this page load asks the user to sign in; the resume below waits for
+  // the reload that follows a successful login.
+  let askingToSignIn = false;
+
   if (params.get('oauth_login') === '1') {
     const returnTo = params.get('return_to');
 
     if (isSafeReturnTo(returnTo)) {
-      try {
-        sessionStorage.setItem('flarum-oauth-provider.return_to', returnTo);
-      } catch {
-        // Storage unavailable; the resume block below will no-op.
-      }
+      storage.set(RETURN_TO, returnTo);
     }
 
     // Strip the query params so a refresh doesn't keep re-triggering this flow.
@@ -60,9 +94,17 @@ app.initializers.add('flarum-oauth-provider', () => {
       // ignore
     }
 
-    // Only show the login modal if we really are a guest. If the session payload
-    // shows a user, the resume block below will redirect on this same boot.
-    if (!isLoggedIn()) {
+    // A guest signs in. A signed-in user is only asked again when the client
+    // required re-authentication (prompt=login, max_age); otherwise the resume
+    // block below redirects on this same boot.
+    if (!isLoggedIn() || params.get('oauth_reauth') === '1') {
+      askingToSignIn = true;
+
+      if (isLoggedIn()) {
+        storage.set(REAUTH_PENDING, '1');
+        storage.remove(SIGNED_IN);
+      }
+
       app.beforeMount(() => {
         setTimeout(() => {
           app.modal.show(() => import('flarum/forum/components/LogInModal'));
@@ -73,20 +115,18 @@ app.initializers.add('flarum-oauth-provider', () => {
 
   // Resume: after a successful login reload (or any subsequent page load while
   // a return URL is stashed), bounce back to /oauth/authorize.
-  let stashed: string | null = null;
-  try {
-    stashed = sessionStorage.getItem('flarum-oauth-provider.return_to');
-  } catch {
+  const stashed = storage.get(RETURN_TO);
+
+  if (askingToSignIn || !stashed || !isLoggedIn() || !isSafeReturnTo(stashed)) return;
+
+  // A signed-in user asked to sign in again who closed the form instead has
+  // abandoned the authorization: don't send them back on every page load.
+  if (storage.get(REAUTH_PENDING) === '1' && storage.get(SIGNED_IN) !== '1') {
+    storage.remove(RETURN_TO, REAUTH_PENDING);
     return;
   }
 
-  if (!stashed || !isLoggedIn() || !isSafeReturnTo(stashed)) return;
-
-  try {
-    sessionStorage.removeItem('flarum-oauth-provider.return_to');
-  } catch {
-    // ignore
-  }
+  storage.remove(RETURN_TO, REAUTH_PENDING, SIGNED_IN);
 
   window.location.replace(stashed);
 });

@@ -22,6 +22,7 @@ use Flarum\OAuthProvider\Server\AuthorizationServerFactory;
 use Flarum\OAuthProvider\Server\AuthorizationServerMetadata;
 use Flarum\OAuthProvider\Server\Entity\UserEntity;
 use Flarum\OAuthProvider\Server\RequestType\AuthorizationRequest as ResourceAuthorizationRequest;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Contracts\View\Factory;
 use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -35,6 +36,15 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class AuthorizeController implements RequestHandlerInterface
 {
+    /** Session key: re-authentication tickets mapped to the login they were issued under. */
+    protected const string REAUTH_TICKETS = 'flarum-oauth-provider.reauth_tickets';
+
+    /** Query parameter carrying a request's re-authentication ticket back from the login form. */
+    public const string REAUTH_TICKET_PARAM = 'oauth_reauth_ticket';
+
+    /** Seconds a re-authentication ticket stays valid. */
+    protected const int REAUTH_TICKET_LIFETIME = 600;
+
     public function __construct(
         protected AuthorizationServerFactory $factory,
         protected Factory $view,
@@ -87,9 +97,21 @@ class AuthorizeController implements RequestHandlerInterface
         // OIDC max_age: if the user's session is older than max_age seconds (or
         // we can't determine when they last authenticated), force re-auth even
         // if they're currently logged in. prompt=login has the same effect.
+        /** @var Session|null $session */
+        $session = $request->getAttribute('session');
+        $ticket = $queryParams[self::REAUTH_TICKET_PARAM] ?? null;
+        $ticket = is_string($ticket) ? $ticket : null;
+
         $needsReAuth = $actor->isGuest()
             || in_array('login', $prompts, true)
             || ($maxAge !== null && ($authTime === null || (Carbon::now()->getTimestamp() - $authTime->getTimestamp()) >= $maxAge));
+
+        // Re-authentication this very request asked for is satisfied once the
+        // user has signed in again; without this, prompt=login and max_age=0
+        // would ask forever.
+        if ($needsReAuth && ! $actor->isGuest() && $this->reAuthSatisfied($session, $ticket)) {
+            $needsReAuth = false;
+        }
 
         if ($needsReAuth) {
             if ($promptNone) {
@@ -102,12 +124,27 @@ class AuthorizeController implements RequestHandlerInterface
             // the scheme matches (avoids http/https mismatches behind proxies).
             $uri = $request->getUri();
             $returnPath = $uri->getPath();
-            if ($uri->getQuery() !== '') {
-                $returnPath .= '?'.$uri->getQuery();
+            $returnQuery = $uri->getQuery();
+
+            // A signed-in user returns with a ticket tying their next login to
+            // this request, so it neither satisfies nor is satisfied by another.
+            if (! $actor->isGuest()) {
+                if ($session === null) {
+                    return $this->authorizationError($authRequest, 'login_required', 'The user needs to authenticate.');
+                }
+
+                $returnQuery = $this->withQueryParam($returnQuery, self::REAUTH_TICKET_PARAM, $this->reAuthTicket($session, $ticket));
+            }
+
+            if ($returnQuery !== '') {
+                $returnPath .= '?'.$returnQuery;
             }
             $returnTo = urlencode($base.$returnPath);
 
-            return new RedirectResponse($base.'/?oauth_login=1&return_to='.$returnTo);
+            // A signed-in user must be shown the login form anyway.
+            $reAuth = $actor->isGuest() ? '' : '&oauth_reauth=1';
+
+            return new RedirectResponse($base.'/?oauth_login=1'.$reAuth.'&return_to='.$returnTo);
         }
 
         $clientId = $authRequest->getClient()->getIdentifier();
@@ -124,16 +161,22 @@ class AuthorizeController implements RequestHandlerInterface
                 $this->rememberConsent((int) $actor->id, $clientId, $requestedScopes);
             }
 
+            $this->forgetReAuthTicket($session, $ticket);
+
             return $this->completeAuthorization($authRequest, $server, $actor->id, $approved, $nonce, $authTime);
         }
 
         // Previously-granted consent still covers this request — skip the prompt
         // unless the client explicitly asked for re-consent via prompt=consent.
         if (! in_array('consent', $prompts, true) && $this->hasExistingConsent((int) $actor->id, $clientId, $requestedScopes)) {
+            $this->forgetReAuthTicket($session, $ticket);
+
             return $this->completeAuthorization($authRequest, $server, $actor->id, true, $nonce, $authTime);
         }
 
         if ($promptNone) {
+            $this->forgetReAuthTicket($session, $ticket);
+
             return $this->authorizationError($authRequest, 'interaction_required', 'The user needs to grant consent.');
         }
 
@@ -257,6 +300,79 @@ class AuthorizeController implements RequestHandlerInterface
         $token = AccessToken::findValid($tokenValue);
 
         return $token?->created_at;
+    }
+
+    /**
+     * The ticket for a re-authentication request, reusing the request's own
+     * while it is still pending. Only the last few are kept per session.
+     */
+    protected function reAuthTicket(Session $session, ?string $ticket): string
+    {
+        $tickets = (array) $session->get(self::REAUTH_TICKETS, []);
+
+        if ($ticket === null || ! $this->ticketIsCurrent($tickets[$ticket] ?? null)) {
+            $ticket = bin2hex(random_bytes(16));
+            $tickets[$ticket] = ['login' => $this->loginFingerprint($session), 'at' => Carbon::now()->getTimestamp()];
+        }
+
+        $session->put(self::REAUTH_TICKETS, array_slice($tickets, -10, null, true));
+
+        return $ticket;
+    }
+
+    /**
+     * Whether the session has signed in with a different login token since the
+     * ticket was issued. A new login, not a later timestamp: logins can share a second.
+     */
+    protected function reAuthSatisfied(?Session $session, ?string $ticket): bool
+    {
+        $entry = $ticket === null ? null : ($session?->get(self::REAUTH_TICKETS, [])[$ticket] ?? null);
+
+        return $this->ticketIsCurrent($entry) && ! hash_equals($entry['login'], $this->loginFingerprint($session));
+    }
+
+    /**
+     * @phpstan-assert-if-true array{login: string, at: int} $entry
+     */
+    protected function ticketIsCurrent(mixed $entry): bool
+    {
+        return is_array($entry)
+            && is_string($entry['login'] ?? null)
+            && is_int($entry['at'] ?? null)
+            && Carbon::now()->getTimestamp() - $entry['at'] <= self::REAUTH_TICKET_LIFETIME;
+    }
+
+    /**
+     * Sets one parameter on a raw query string, leaving the rest as it was sent.
+     */
+    protected function withQueryParam(string $query, string $name, string $value): string
+    {
+        $pairs = array_filter(
+            $query === '' ? [] : explode('&', $query),
+            fn (string $pair) => urldecode(explode('=', $pair, 2)[0]) !== $name
+        );
+
+        $pairs[] = rawurlencode($name).'='.rawurlencode($value);
+
+        return implode('&', $pairs);
+    }
+
+    protected function forgetReAuthTicket(?Session $session, ?string $ticket): void
+    {
+        if ($session === null || $ticket === null) {
+            return;
+        }
+
+        $tickets = (array) $session->get(self::REAUTH_TICKETS, []);
+        unset($tickets[$ticket]);
+        $session->put(self::REAUTH_TICKETS, $tickets);
+    }
+
+    protected function loginFingerprint(?Session $session): string
+    {
+        $token = $session?->get('access_token');
+
+        return is_string($token) && $token !== '' ? hash('sha256', $token) : '';
     }
 
     protected function hasExistingConsent(int $userId, string $clientId, array $requestedScopes): bool

@@ -64,6 +64,13 @@ class AuthorizeEndpointTest extends TestCase
         ]);
     }
 
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
+    }
+
     protected function loginNormalUser(): ResponseInterface
     {
         $response = $this->send(
@@ -387,6 +394,220 @@ class AuthorizeEndpointTest extends TestCase
         $this->assertEquals(302, $response->getStatusCode());
         $location = $response->getHeaderLine('Location');
         $this->assertStringContainsString('oauth_login=1', $location);
+    }
+
+    protected function loginNormalUserAgain(ResponseInterface $previous): ResponseInterface
+    {
+        $response = $this->send(
+            $this->request('POST', '/login', [
+                'json' => [
+                    'identification' => 'normal',
+                    'password' => 'too-obscure',
+                ],
+                'cookiesFrom' => $previous,
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Failed to log in again');
+
+        return $response;
+    }
+
+    /**
+     * The authorize query the forum returns to after signing in, as the browser
+     * would follow it from the login redirect.
+     *
+     * @return array<string, string>
+     */
+    protected function resumeQuery(ResponseInterface $loginRedirect): array
+    {
+        parse_str((string) parse_url($loginRedirect->getHeaderLine('Location'), PHP_URL_QUERY), $params);
+        parse_str((string) parse_url((string) ($params['return_to'] ?? ''), PHP_URL_QUERY), $query);
+
+        $this->assertNotEmpty($query, 'The login redirect carries the authorize URL to return to');
+
+        return $query;
+    }
+
+    #[Test]
+    public function re_auth_redirect_tells_the_forum_to_show_the_login_form_to_a_signed_in_user(): void
+    {
+        $loginResponse = $this->loginNormalUser();
+
+        $response = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'login'], [
+            'cookiesFrom' => $loginResponse,
+        ]));
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertStringContainsString('oauth_reauth=1', $response->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function prompt_login_is_satisfied_once_the_user_signs_in_again(): void
+    {
+        $loginResponse = $this->loginNormalUser();
+
+        $asked = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'login'], ['cookiesFrom' => $loginResponse]));
+        $this->assertEquals(302, $asked->getStatusCode());
+
+        $reLogin = $this->loginNormalUserAgain($loginResponse);
+
+        $response = $this->send($this->authorizeRequest('GET', $this->resumeQuery($asked), ['cookiesFrom' => $reLogin]));
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Signing in again must lead to the consent screen, not another login redirect');
+    }
+
+    #[Test]
+    public function max_age_zero_is_satisfied_once_the_user_signs_in_again(): void
+    {
+        $loginResponse = $this->loginNormalUser();
+
+        $asked = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'max_age' => '0'], ['cookiesFrom' => $loginResponse]));
+        $this->assertEquals(302, $asked->getStatusCode());
+
+        $reLogin = $this->loginNormalUserAgain($loginResponse);
+
+        $response = $this->send($this->authorizeRequest('GET', $this->resumeQuery($asked), ['cookiesFrom' => $reLogin]));
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Signing in again must lead to the consent screen, not another login redirect');
+    }
+
+    #[Test]
+    public function consent_after_re_auth_completes_the_authorization(): void
+    {
+        $loginResponse = $this->loginNormalUser();
+
+        $asked = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'login'], ['cookiesFrom' => $loginResponse]));
+        Carbon::setTestNow(Carbon::now()->addSeconds(5));
+        $reLogin = $this->loginNormalUserAgain($loginResponse);
+        $resume = $this->resumeQuery($asked);
+
+        $consent = $this->send($this->authorizeRequest('GET', $resume, ['cookiesFrom' => $reLogin]));
+        $this->assertEquals(200, $consent->getStatusCode());
+
+        // The consent form posts back to the same URL, prompt=login included.
+        $approved = $this->send($this->authorizeRequest('POST', $resume, [
+            'cookiesFrom' => $reLogin,
+            'json' => ['oauth_consent_approved' => '1'],
+        ]));
+
+        $this->assertEquals(302, $approved->getStatusCode());
+        $this->assertStringStartsWith('https://testapp.example.com/callback', $approved->getHeaderLine('Location'), 'Approving consent must complete the authorization, not ask to sign in again');
+        $this->assertStringContainsString('code=', $approved->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function an_abandoned_re_auth_does_not_satisfy_a_later_request(): void
+    {
+        $loginResponse = $this->loginNormalUser();
+
+        // Asked to sign in again, but the user walks away.
+        $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'login', 'state' => 'first'], ['cookiesFrom' => $loginResponse]));
+
+        // Later they sign in for some other reason.
+        Carbon::setTestNow(Carbon::now()->addMinutes(5));
+        $reLogin = $this->loginNormalUserAgain($loginResponse);
+
+        // A new request that requires a fresh login must still ask for one.
+        $later = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'login', 'state' => 'second'], ['cookiesFrom' => $reLogin]));
+
+        $this->assertEquals(302, $later->getStatusCode(), 'An unrelated earlier re-auth request must not satisfy this one');
+        $this->assertStringContainsString('oauth_login=1', $later->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function a_login_in_the_same_second_as_the_request_counts(): void
+    {
+        $loginResponse = $this->loginNormalUser();
+
+        $asked = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'login'], ['cookiesFrom' => $loginResponse]));
+        $reLogin = $this->loginNormalUserAgain($loginResponse);
+
+        // Pin both logins and the request to one second.
+        $now = Carbon::now()->startOfSecond();
+        $this->database()->table('access_tokens')->update(['created_at' => $now]);
+        $this->database()->table('access_tokens')->update(['last_activity_at' => $now]);
+
+        $response = $this->send($this->authorizeRequest('GET', $this->resumeQuery($asked), ['cookiesFrom' => $reLogin]));
+
+        $this->assertEquals(200, $response->getStatusCode(), 'A fresh login must count even within the same second');
+    }
+
+    #[Test]
+    public function a_re_auth_ticket_expires(): void
+    {
+        $loginResponse = $this->loginNormalUser();
+
+        $asked = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'login'], ['cookiesFrom' => $loginResponse]));
+        $reLogin = $this->loginNormalUserAgain($loginResponse);
+        $resume = $this->resumeQuery($asked);
+
+        // Satisfied, but the consent page is left open and abandoned.
+        $this->assertEquals(200, $this->send($this->authorizeRequest('GET', $resume, ['cookiesFrom' => $reLogin]))->getStatusCode());
+
+        Carbon::setTestNow(Carbon::now()->addMinutes(30));
+
+        $replayed = $this->send($this->authorizeRequest('GET', $resume, ['cookiesFrom' => $reLogin]));
+
+        $this->assertEquals(302, $replayed->getStatusCode(), 'An old re-auth must not satisfy prompt=login half an hour later');
+        $this->assertStringContainsString('oauth_login=1', $replayed->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function a_forged_re_auth_ticket_is_not_accepted(): void
+    {
+        $loginResponse = $this->loginNormalUser();
+
+        $response = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'login', 'oauth_reauth_ticket' => str_repeat('a', 32)], [
+            'cookiesFrom' => $loginResponse,
+        ]));
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertStringContainsString('oauth_login=1', $response->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function a_completed_re_auth_cannot_be_replayed(): void
+    {
+        $loginResponse = $this->loginNormalUser();
+
+        $asked = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'login'], ['cookiesFrom' => $loginResponse]));
+        $reLogin = $this->loginNormalUserAgain($loginResponse);
+        $resume = $this->resumeQuery($asked);
+
+        $this->send($this->authorizeRequest('POST', $resume, ['cookiesFrom' => $reLogin, 'json' => ['oauth_consent_approved' => '1']]));
+
+        $replayed = $this->send($this->authorizeRequest('GET', $resume, ['cookiesFrom' => $reLogin]));
+
+        $this->assertEquals(302, $replayed->getStatusCode());
+        $this->assertStringContainsString('oauth_login=1', $replayed->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function the_resume_url_keeps_the_original_query_encoding(): void
+    {
+        $loginResponse = $this->loginNormalUser();
+
+        $request = $this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'login', 'state' => 'a b'], ['cookiesFrom' => $loginResponse]);
+        $request = $request->withUri($request->getUri()->withQuery(str_replace('state=a+b', 'state=a%20b', $request->getUri()->getQuery())));
+
+        $asked = $this->send($request);
+        parse_str((string) parse_url($asked->getHeaderLine('Location'), PHP_URL_QUERY), $params);
+
+        $this->assertStringContainsString('state=a%20b', (string) $params['return_to']);
+    }
+
+    #[Test]
+    public function prompt_login_keeps_asking_until_the_user_signs_in_again(): void
+    {
+        $query = [...self::DEFAULT_QUERY, 'prompt' => 'login'];
+        $loginResponse = $this->loginNormalUser();
+
+        $this->send($this->authorizeRequest('GET', $query, ['cookiesFrom' => $loginResponse]));
+        $again = $this->send($this->authorizeRequest('GET', $query, ['cookiesFrom' => $loginResponse]));
+
+        $this->assertEquals(302, $again->getStatusCode());
+        $this->assertStringContainsString('oauth_login=1', $again->getHeaderLine('Location'));
     }
 
     #[Test]
