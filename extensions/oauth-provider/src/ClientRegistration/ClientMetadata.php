@@ -17,6 +17,8 @@ use Flarum\OAuthProvider\Server\RedirectUriMatcher;
 class ClientMetadata
 {
     public const int MAX_URI_LENGTH = 2048;
+    public const int MAX_REDIRECT_URIS = 10;
+    public const int MAX_REDIRECT_URI_LENGTH = 2000;
 
     /**
      * @return list<string>
@@ -26,6 +28,10 @@ class ClientMetadata
     {
         if (! is_array($value) || $value === [] || ! array_is_list($value)) {
             throw new ClientMetadataException('redirect_uris must be a non-empty array.', 'invalid_redirect_uri');
+        }
+
+        if (count($value) > self::MAX_REDIRECT_URIS) {
+            throw new ClientMetadataException('At most '.self::MAX_REDIRECT_URIS.' redirect URIs may be registered.', 'invalid_redirect_uri');
         }
 
         foreach ($value as $uri) {
@@ -39,7 +45,7 @@ class ClientMetadata
 
     public static function isAllowedRedirectUri(string $uri): bool
     {
-        if (strlen($uri) > self::MAX_URI_LENGTH) {
+        if (strlen($uri) > self::MAX_REDIRECT_URI_LENGTH) {
             return false;
         }
 
@@ -72,9 +78,21 @@ class ClientMetadata
             : null;
     }
 
+    /**
+     * A display name with control and format characters (Unicode Cc/Cf, which
+     * include the bidi overrides and isolates) removed, so a client can't
+     * reorder or hide text on the consent screen.
+     */
     public static function name(mixed $value): ?string
     {
         if (! is_string($value)) {
+            return null;
+        }
+
+        $value = preg_replace('/[\p{Cc}\p{Cf}]+/u', '', $value);
+
+        // Null when the value isn't valid UTF-8.
+        if ($value === null) {
             return null;
         }
 

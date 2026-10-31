@@ -62,6 +62,10 @@ class ClientRepository implements ClientRepositoryInterface
         $entity->setRedirectUri((array) $client->redirect_uris);
         $entity->setConfidential((bool) $client->confidential);
 
+        if ($client->source !== Client::SOURCE_ADMIN && $client->scopes !== null) {
+            $entity->setRegisteredScopes(array_values($client->scopes));
+        }
+
         return $entity;
     }
 }

@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider\Server\Repository;
 
 use Flarum\OAuthProvider\Scope\ScopeRegistry;
+use Flarum\OAuthProvider\Server\Entity\ClientEntity;
 use Flarum\OAuthProvider\Server\Entity\ScopeEntity;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
@@ -39,6 +40,16 @@ class ScopeRepository implements ScopeRepositoryInterface
         ClientEntityInterface $clientEntity,
         $userIdentifier = null
     ): array {
-        return $scopes;
+        $registered = $clientEntity instanceof ClientEntity ? $clientEntity->getRegisteredScopes() : null;
+
+        // A self-registered client only ever gets the scopes it registered.
+        if ($registered === null) {
+            return $scopes;
+        }
+
+        return array_values(array_filter(
+            $scopes,
+            fn (ScopeEntityInterface $scope) => in_array($scope->getIdentifier(), $registered, true)
+        ));
     }
 }

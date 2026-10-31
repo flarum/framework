@@ -18,6 +18,13 @@ class ClientEntity implements ClientEntityInterface
     use EntityTrait;
     use ClientTrait;
 
+    /**
+     * Scopes a self-registered client registered; null when unrestricted.
+     *
+     * @var list<string>|null
+     */
+    protected ?array $registeredScopes = null;
+
     public function setName(string $name): void
     {
         $this->name = $name;
@@ -31,5 +38,21 @@ class ClientEntity implements ClientEntityInterface
     public function setConfidential(bool $confidential): void
     {
         $this->isConfidential = $confidential;
+    }
+
+    /**
+     * @param list<string>|null $scopes
+     */
+    public function setRegisteredScopes(?array $scopes): void
+    {
+        $this->registeredScopes = $scopes;
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    public function getRegisteredScopes(): ?array
+    {
+        return $this->registeredScopes;
     }
 }

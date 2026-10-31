@@ -14,9 +14,10 @@ use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\OAuthProvider\ClientRegistration\ClientMetadata;
 use Flarum\OAuthProvider\ClientRegistration\ClientMetadataException;
 use Flarum\OAuthProvider\ClientRegistration\DynamicRegistration;
+use Flarum\OAuthProvider\ClientRegistration\RegistrationRateLimiter;
 use Flarum\OAuthProvider\Models\Client;
+use Flarum\OAuthProvider\Scope\ScopeRegistry;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -39,7 +40,8 @@ class RegisterClientController implements RequestHandlerInterface
 
     public function __construct(
         protected SettingsRepositoryInterface $settings,
-        protected Cache $cache,
+        protected RegistrationRateLimiter $limiter,
+        protected ScopeRegistry $scopes,
     ) {
     }
 
@@ -49,7 +51,7 @@ class RegisterClientController implements RequestHandlerInterface
             throw new RouteNotFoundException();
         }
 
-        if ($this->tooManyAttempts((string) $request->getAttribute('ipAddress'))) {
+        if ($this->limiter->tooManyAttempts('dcr', (string) $request->getAttribute('ipAddress'), self::RATE_LIMIT, self::RATE_WINDOW)) {
             return $this->error('too_many_requests', 'Too many client registrations from this address. Try again later.', 429);
         }
 
@@ -94,16 +96,17 @@ class RegisterClientController implements RequestHandlerInterface
 
         $redirectUris = ClientMetadata::redirectUris($metadata['redirect_uris'] ?? null);
         $clientUri = ClientMetadata::optionalUrl($metadata['client_uri'] ?? null);
-        $scope = $metadata['scope'] ?? null;
+        $scopes = $this->registeredScopes($metadata['scope'] ?? null);
 
         $client = new Client();
         $client->forceFill([
             'id' => Str::random(32),
             'name' => ClientMetadata::name($metadata['client_name'] ?? null)
-                ?? parse_url($clientUri ?? $redirectUris[0], PHP_URL_HOST),
+                ?? ClientMetadata::name(parse_url($clientUri ?? $redirectUris[0], PHP_URL_HOST))
+                ?? 'Unnamed client',
             'secret' => null,
             'redirect_uris' => $redirectUris,
-            'scopes' => is_string($scope) && trim($scope) !== '' ? array_values(array_filter(explode(' ', $scope))) : null,
+            'scopes' => $scopes,
             'confidential' => false,
             'revoked' => false,
             'source' => Client::SOURCE_DYNAMIC,
@@ -134,26 +137,35 @@ class RegisterClientController implements RequestHandlerInterface
         }
     }
 
-    protected function tooManyAttempts(string $ip): bool
+    /**
+     * The scopes a client registers are the only ones it can later be granted.
+     *
+     * @return list<string>|null Null when the client registered none.
+     * @throws ClientMetadataException
+     */
+    protected function registeredScopes(mixed $scope): ?array
     {
-        $key = 'flarum-oauth-provider.dcr.'.sha1($ip);
-        $now = Carbon::now()->getTimestamp();
-
-        /** @var array{count: int, reset: int}|null $window */
-        $window = $this->cache->get($key);
-
-        if (! is_array($window) || $window['reset'] <= $now) {
-            $window = ['count' => 0, 'reset' => $now + self::RATE_WINDOW];
+        if ($scope === null) {
+            return null;
         }
 
-        if ($window['count'] >= self::RATE_LIMIT) {
-            return true;
+        if (! is_string($scope)) {
+            throw new ClientMetadataException('scope must be a space-separated string.');
         }
 
-        $window['count']++;
-        $this->cache->put($key, $window, $window['reset'] - $now);
+        $scopes = array_values(array_unique(array_filter(explode(' ', $scope), fn (string $s) => $s !== '')));
 
-        return false;
+        if ($scopes === []) {
+            return null;
+        }
+
+        $unknown = array_values(array_filter($scopes, fn (string $s) => ! $this->scopes->has($s)));
+
+        if ($unknown !== []) {
+            throw new ClientMetadataException('Unknown scope: '.implode(' ', $unknown).'.');
+        }
+
+        return $scopes;
     }
 
     protected function error(string $error, string $description, int $status = 400): JsonResponse
