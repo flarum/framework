@@ -23,10 +23,15 @@ use Symfony\Component\Config\ResourceCheckerConfigCache;
  * instance leaves every other instance serving a catalogue that predates it,
  * with no mtime, TTL or revision that would ever say otherwise.
  *
- * The revision recorded beside a catalogue is compared against the current one
- * on every request for that locale. It is derived from what the instance can
- * see for itself, so an instance that was never told anything still works out
- * that its catalogue is stale and rebuilds it.
+ * So each revision gets its own catalogue, named after it. The revision is
+ * derived from what the instance can see for itself, so an instance that was
+ * never told anything still looks for a catalogue that does not exist yet, and
+ * builds it. Because the name carries the revision, a catalogue cannot be
+ * paired with a revision it was not built for, instances on different
+ * revisions (old and new servers during a deploy) each keep their own, and no
+ * opcache anywhere holds an older compile under that name. Catalogues of
+ * earlier revisions stay until the cache is cleared, which every change of
+ * revision in core comes with.
  *
  * Freshness is decided per locale, because Symfony compiles catalogues lazily
  * per locale: a request for `de` never touches `en`. A locale nobody asks for
@@ -42,25 +47,27 @@ use Symfony\Component\Config\ResourceCheckerConfigCache;
  */
 class CatalogueCache implements ConfigCacheInterface
 {
+    private readonly string $path;
+
+    /**
+     * @param string $file The path Symfony names the catalogue by.
+     */
     public function __construct(
-        private readonly string $file,
-        private readonly string $revision,
+        string $file,
+        string $revision,
         private readonly bool $debug = false
     ) {
+        $this->path = preg_replace('/\.php$/', '', $file).'.'.hash('xxh128', $revision).'.php';
     }
 
     public function getPath(): string
     {
-        return $this->file;
+        return $this->path;
     }
 
     public function isFresh(): bool
     {
-        if (! is_file($this->file)) {
-            return false;
-        }
-
-        if (@file_get_contents($this->revisionPath()) !== $this->revision) {
+        if (! is_file($this->path)) {
             return false;
         }
 
@@ -69,41 +76,30 @@ class CatalogueCache implements ConfigCacheInterface
 
     public function write(string $content, ?array $metadata = null): void
     {
-        // Symfony's ConfigCache, which this replaces, created the directory,
-        // wrote atomically and invalidated opcache. Without them a missing
-        // storage/locale fails every write (so the catalogue is rebuilt on
-        // every request), a concurrent request can include a half-written
-        // file, and opcache can keep serving the catalogue this just replaced.
-        //
         // A failed write is a cache miss, not an error: the translator already
         // holds this catalogue in memory, and the next request writes it again.
         // A cache clear can delete another request's temporary file between its
         // write and its rename, so failures do happen on busy forums.
-        $directory = dirname($this->file);
+        $directory = dirname($this->path);
 
         if (! is_dir($directory) && ! @mkdir($directory, 0775, true) && ! is_dir($directory)) {
             return;
         }
 
-        // The catalogue first, then its revision: a process that dies between
-        // the two leaves a catalogue whose revision does not match, so the next
-        // request rebuilds it. Writing the revision first would mark a
-        // catalogue that was never written as current, and so would writing it
-        // after the catalogue failed to write.
-        if (! $this->dump($this->file, $content)) {
-            return;
-        }
-
-        // Before the revision, so a matching revision always has the resources
-        // its catalogue was built from beside it.
+        // Before the catalogue, so a catalogue always has the resources it was
+        // built from beside it.
         if ($this->debug && ! $this->dump($this->metaPath(), serialize($metadata ?? []))) {
             return;
         }
 
-        $this->dump($this->revisionPath(), $this->revision);
+        if (! $this->dump($this->path, $content)) {
+            return;
+        }
 
+        // In case this exact catalogue was compiled before: it was cleared and
+        // rebuilt, or a translation file was edited in debug mode.
         if (function_exists('opcache_invalidate') && filter_var(ini_get('opcache.enable'), FILTER_VALIDATE_BOOL)) {
-            @opcache_invalidate($this->file, true);
+            @opcache_invalidate($this->path, true);
         }
     }
 
@@ -128,14 +124,9 @@ class CatalogueCache implements ConfigCacheInterface
      * Beside the catalogue, and swept by the same `storage/locale/*` glob that
      * clears it.
      */
-    private function revisionPath(): string
-    {
-        return $this->file.'.revision';
-    }
-
     private function metaPath(): string
     {
-        return $this->file.'.meta';
+        return $this->path.'.meta';
     }
 
     /**
@@ -144,6 +135,6 @@ class CatalogueCache implements ConfigCacheInterface
      */
     private function resourceCache(): ResourceCheckerConfigCache
     {
-        return new ResourceCheckerConfigCache($this->file, [new SelfCheckingResourceChecker()], $this->metaPath());
+        return new ResourceCheckerConfigCache($this->path, [new SelfCheckingResourceChecker()], $this->metaPath());
     }
 }

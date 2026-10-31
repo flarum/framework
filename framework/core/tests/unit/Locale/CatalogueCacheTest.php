@@ -46,17 +46,18 @@ class CatalogueCacheTest extends TestCase
 
         $cache->write('<?php return [];');
 
-        $this->assertFileExists($file);
-        $this->assertSame('<?php return [];', file_get_contents($file));
-        $this->assertTrue($cache->isFresh(), 'The catalogue and its revision were both written');
+        $this->assertSame('<?php return [];', file_get_contents($cache->getPath()));
+        $this->assertTrue($cache->isFresh());
     }
 
     #[Test]
     public function a_catalogue_written_for_another_revision_is_stale()
     {
         $file = $this->root.'/locale/catalogue.en.php';
-        (new CatalogueCache($file, 'rev-1'))->write('<?php return [];');
+        $written = new CatalogueCache($file, 'rev-1');
+        $written->write('<?php return [];');
 
+        $this->assertTrue($written->isFresh(), 'Precondition: the catalogue was written');
         $this->assertFalse((new CatalogueCache($file, 'rev-2'))->isFresh());
     }
 
@@ -69,11 +70,8 @@ class CatalogueCacheTest extends TestCase
         $cache->write('<?php return ["a" => "b"];');
         $cache->write('<?php return ["a" => "c"];');
 
-        $this->assertSame(
-            ['catalogue.en.php', 'catalogue.en.php.revision'],
-            array_map('basename', glob($this->root.'/locale/*'))
-        );
-        $this->assertSame('<?php return ["a" => "c"];', file_get_contents($file));
+        $this->assertSame([$cache->getPath()], glob($this->root.'/locale/*'));
+        $this->assertSame('<?php return ["a" => "c"];', file_get_contents($cache->getPath()));
     }
 
     #[Test]
@@ -91,18 +89,16 @@ class CatalogueCacheTest extends TestCase
     }
 
     #[Test]
-    public function a_catalogue_that_cannot_be_written_is_a_cache_miss_and_gets_no_revision()
+    public function a_catalogue_that_cannot_be_written_is_a_cache_miss()
     {
         // A directory where the catalogue should be: the rename over it fails.
-        $file = $this->root.'/locale/catalogue.en.php';
-        mkdir($file, 0775, true);
+        $cache = new CatalogueCache($this->root.'/locale/catalogue.en.php', 'rev-1');
+        mkdir($cache->getPath(), 0775, true);
 
-        $cache = new CatalogueCache($file, 'rev-1');
         $cache->write('<?php return [];');
 
         $this->assertFalse($cache->isFresh());
-        $this->assertFileDoesNotExist($file.'.revision', 'No revision for a catalogue that was not written');
-        $this->assertSame(['catalogue.en.php'], array_map('basename', glob($this->root.'/locale/*')), 'The temporary file was removed');
+        $this->assertSame([$cache->getPath()], glob($this->root.'/locale/*'), 'The temporary file was removed');
     }
 
     #[Test]
@@ -119,5 +115,24 @@ class CatalogueCacheTest extends TestCase
 
         $this->assertTrue((new CatalogueCache($file, 'rev-1'))->isFresh());
         $this->assertFalse((new CatalogueCache($file, 'rev-1', true))->isFresh(), 'Debug mode does check them');
+    }
+
+    #[Test]
+    public function catalogues_written_for_different_revisions_do_not_replace_each_other()
+    {
+        // Two processes on different revisions rebuilding at once, such as
+        // old and new servers during a rolling deploy: each must keep getting
+        // the catalogue built for its own revision.
+        $file = $this->root.'/locale/catalogue.en.php';
+        $old = new CatalogueCache($file, 'rev-1');
+        $new = new CatalogueCache($file, 'rev-2');
+
+        $old->write('<?php return "built for rev-1";');
+        $new->write('<?php return "built for rev-2";');
+
+        $this->assertTrue($old->isFresh());
+        $this->assertSame('built for rev-1', include $old->getPath());
+        $this->assertTrue($new->isFresh());
+        $this->assertSame('built for rev-2', include $new->getPath());
     }
 }
