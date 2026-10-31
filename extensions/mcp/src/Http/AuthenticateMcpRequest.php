@@ -19,7 +19,6 @@ use Flarum\Mcp\Capability\ResolvedCapabilities;
 use Flarum\User\Guest;
 use Flarum\User\User;
 use Laminas\Diactoros\Response\JsonResponse;
-use Mcp\Server\Transport\StreamableHttpTransport;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -37,6 +36,7 @@ class AuthenticateMcpRequest implements MiddlewareInterface
 {
     public const string AUTHENTICATION = 'mcp.authentication';
     public const string CAPABILITIES = 'mcp.capabilities';
+    public const string MESSAGES = 'mcp.messages';
 
     public const string PERMISSION = 'mcp.use';
 
@@ -55,17 +55,26 @@ class AuthenticateMcpRequest implements MiddlewareInterface
             return $handler->handle($this->withAuthentication($request, new McpAuthentication(new Guest(), [], McpAuthentication::GUEST)));
         }
 
+        $messages = JsonRpcMessages::fromRequest($request);
+        $request = $request->withAttribute(static::MESSAGES, $messages);
+
         $authentication = $this->authenticate($request);
 
         if (! $authentication) {
-            return $this->unauthorized('invalid_token');
+            return $this->unauthorized('invalid_token', $this->challengeScope($messages, fn () => $this->resolver->resolve(new Guest())));
+        }
+
+        // An OAuth token minted for this resource with only unrelated scopes
+        // (e.g. `openid`) grants nothing here.
+        if (! in_array(McpContext::SCOPE_READ, $authentication->scopes, true)) {
+            return $this->insufficientScope(McpContext::SCOPE_READ);
         }
 
         $actor = $authentication->actor;
 
         if (! $actor->can(static::PERMISSION)) {
             return $actor->isGuest()
-                ? $this->unauthorized()
+                ? $this->unauthorized(null, $this->challengeScope($messages, fn () => $this->resolver->resolve($actor)))
                 : new JsonResponse([
                     'error' => 'forbidden',
                     'error_description' => $this->translator->trans('flarum-mcp.api.forbidden_description'),
@@ -83,10 +92,14 @@ class AuthenticateMcpRequest implements MiddlewareInterface
 
         $capabilities = $this->resolver->resolve($actor);
 
-        if ($this->callsWriteTool($request, $capabilities) && ! in_array(McpContext::SCOPE_WRITE, $authentication->scopes, true)) {
+        // The early, user-facing answer: ApiClient enforces the scope again on
+        // every write, whatever a tool declares.
+        if ($this->callsWriteTool($messages, $capabilities) && ! in_array(McpContext::SCOPE_WRITE, $authentication->scopes, true)) {
+            $scope = McpContext::SCOPE_READ.' '.McpContext::SCOPE_WRITE;
+
             return $actor->isGuest()
-                ? $this->unauthorized()
-                : $this->insufficientScope();
+                ? $this->unauthorized(null, $scope)
+                : $this->insufficientScope($scope);
         }
 
         return $handler->handle(
@@ -116,9 +129,20 @@ class AuthenticateMcpRequest implements MiddlewareInterface
         if (substr_count($credential, '.') === 2) {
             $token = $this->oauth->verify($credential, $this->resourceUri());
 
-            return $token
-                ? new McpAuthentication($token['user'], $token['scopes'], McpAuthentication::OAUTH)
-                : null;
+            if (! $token) {
+                return null;
+            }
+
+            $scopes = $token['scopes'];
+
+            // mcp:write implies mcp:read.
+            if (in_array(McpContext::SCOPE_WRITE, $scopes, true)) {
+                $scopes[] = McpContext::SCOPE_READ;
+            }
+
+            $scopes = array_values(array_intersect([McpContext::SCOPE_READ, McpContext::SCOPE_WRITE], $scopes));
+
+            return new McpAuthentication($token['user'], $scopes, McpAuthentication::OAUTH);
         }
 
         $token = AccessToken::findValid($credential);
@@ -138,38 +162,13 @@ class AuthenticateMcpRequest implements MiddlewareInterface
     }
 
     /**
-     * Peeks at the JSON-RPC body (each message of a batch) for a `tools/call`
-     * of a tool that is not read-only. The body itself is left untouched.
+     * Whether a `tools/call` in the body (each message of a batch) names a
+     * tool that is not read-only.
      */
-    protected function callsWriteTool(ServerRequestInterface $request, ResolvedCapabilities $capabilities): bool
+    protected function callsWriteTool(JsonRpcMessages $messages, ResolvedCapabilities $capabilities): bool
     {
-        if ($request->getMethod() !== 'POST') {
-            return false;
-        }
-
-        $body = $request->getBody();
-        $size = $body->getSize();
-
-        // An oversized body is refused by the transport before anything runs.
-        if ($size !== null && $size > StreamableHttpTransport::DEFAULT_MAX_BODY_BYTES) {
-            return false;
-        }
-
-        $decoded = json_decode((string) $body, true);
-
-        if (! is_array($decoded)) {
-            return false;
-        }
-
-        $messages = array_is_list($decoded) ? $decoded : [$decoded];
-
-        foreach ($messages as $message) {
-            if (! is_array($message) || ($message['method'] ?? null) !== 'tools/call') {
-                continue;
-            }
-
-            $name = $message['params']['name'] ?? null;
-            $tool = is_string($name) ? $capabilities->tool($name) : null;
+        foreach ($messages->toolCalls() as $name) {
+            $tool = $capabilities->tool($name);
 
             if ($tool && ! $tool->readOnly()) {
                 return true;
@@ -179,19 +178,33 @@ class AuthenticateMcpRequest implements MiddlewareInterface
         return false;
     }
 
+    /**
+     * The scope a challenge asks for: write as well only when a write tool was called.
+     *
+     * @param callable(): ResolvedCapabilities $capabilities
+     */
+    protected function challengeScope(JsonRpcMessages $messages, callable $capabilities): string
+    {
+        if ($messages->toolCalls() && $this->callsWriteTool($messages, $capabilities())) {
+            return McpContext::SCOPE_READ.' '.McpContext::SCOPE_WRITE;
+        }
+
+        return McpContext::SCOPE_READ;
+    }
+
     protected function withAuthentication(ServerRequestInterface $request, McpAuthentication $authentication): ServerRequestInterface
     {
         return RequestUtil::withActor($request, $authentication->actor)
             ->withAttribute(static::AUTHENTICATION, $authentication);
     }
 
-    protected function unauthorized(?string $error = null): ResponseInterface
+    protected function unauthorized(?string $error, string $scope): ResponseInterface
     {
         // RFC 6750 §3.1: a request without credentials gets the challenge but no error code.
         $challenge = $this->challenge(array_filter([
             'error' => $error,
             'resource_metadata' => $this->resourceMetadataUri(),
-            'scope' => McpContext::SCOPE_READ.' '.McpContext::SCOPE_WRITE,
+            'scope' => $scope,
         ]));
 
         return new JsonResponse(array_filter([
@@ -200,17 +213,17 @@ class AuthenticateMcpRequest implements MiddlewareInterface
         ]), 401, ['WWW-Authenticate' => $challenge]);
     }
 
-    protected function insufficientScope(): ResponseInterface
+    protected function insufficientScope(string $scope): ResponseInterface
     {
         $challenge = $this->challenge([
             'error' => 'insufficient_scope',
-            'scope' => McpContext::SCOPE_READ.' '.McpContext::SCOPE_WRITE,
+            'scope' => $scope,
             'resource_metadata' => $this->resourceMetadataUri(),
         ]);
 
         return new JsonResponse([
             'error' => 'insufficient_scope',
-            'error_description' => $this->translator->trans('flarum-mcp.api.requires_write_scope'),
+            'error_description' => $this->translator->trans($scope === McpContext::SCOPE_READ ? 'flarum-mcp.api.requires_read_scope' : 'flarum-mcp.api.requires_write_scope'),
         ], 403, ['WWW-Authenticate' => $challenge]);
     }
 

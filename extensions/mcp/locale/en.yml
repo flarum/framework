@@ -53,6 +53,7 @@ flarum-mcp:
     invalid_token: The access token is missing, invalid or expired, or was not issued for this server.
     not_exposed: "{operation} on {type} is not available through MCP."
     not_found: Not found.
+    requires_read_scope: This access token does not grant access to the MCP server. Reconnect and grant read access.
     requires_sign_in: This requires signing in. Connect with your forum account and try again.
     requires_write_scope: This requires write access. Reconnect and grant permission to make changes.
     throttled: You are doing that too often; wait before trying again.

@@ -50,8 +50,13 @@ class AuthenticationTest extends McpTestCase
         $challenge = $response->getHeaderLine('WWW-Authenticate');
         $this->assertStringStartsWith('Bearer ', $challenge);
         $this->assertStringContainsString(self::METADATA, $challenge);
-        $this->assertStringContainsString('scope="mcp:read mcp:write"', $challenge);
+        // A read asks for read access only; write is asked for when a write tool is called.
+        $this->assertStringContainsString('scope="mcp:read"', $challenge);
         $this->assertStringNotContainsString('error=', $challenge);
+
+        $write = $this->callTool('start_discussion', ['title' => 'Hello', 'content' => 'World']);
+        $this->assertSame(401, $write->getStatusCode());
+        $this->assertStringContainsString('scope="mcp:read mcp:write"', $write->getHeaderLine('WWW-Authenticate'));
     }
 
     #[Test]
@@ -149,6 +154,7 @@ class AuthenticationTest extends McpTestCase
 
         $this->assertSame(401, $response->getStatusCode());
         $this->assertStringContainsString('error="invalid_token"', $response->getHeaderLine('WWW-Authenticate'));
+        $this->assertStringContainsString('scope="mcp:read"', $response->getHeaderLine('WWW-Authenticate'));
     }
 
     #[Test]
@@ -261,5 +267,37 @@ class AuthenticationTest extends McpTestCase
         $this->assertStringContainsString('scope="mcp:read mcp:write"', $challenge);
         $this->assertStringContainsString(self::METADATA, $challenge);
         $this->assertSame(0, $this->database()->table('discussions')->count());
+    }
+
+    #[Test]
+    public function oauth_token_without_an_mcp_scope_is_refused(): void
+    {
+        $this->setUpOAuth();
+        $jwt = $this->issueOAuthToken('openid');
+        $this->assertContains('http://localhost/mcp', (array) $this->jwtClaims($jwt)['aud']);
+
+        foreach (['tools/list', 'server/discover'] as $method) {
+            $response = $this->modern($method, [], $this->bearer($jwt));
+
+            $this->assertSame(403, $response->getStatusCode(), $method);
+            $challenge = $response->getHeaderLine('WWW-Authenticate');
+            $this->assertStringContainsString('error="insufficient_scope"', $challenge);
+            $this->assertStringContainsString('scope="mcp:read"', $challenge);
+            $this->assertStringContainsString(self::METADATA, $challenge);
+        }
+
+        $response = $this->callTool('whoami', [], $this->bearer($jwt));
+        $this->assertSame(403, $response->getStatusCode());
+        $this->assertArrayNotHasKey('result', $this->json($response));
+    }
+
+    #[Test]
+    public function write_scope_implies_read_scope(): void
+    {
+        $this->setUpOAuth();
+        $jwt = $this->issueOAuthToken('mcp:write');
+
+        $whoami = $this->toolOutput($this->callTool('whoami', [], $this->bearer($jwt)));
+        $this->assertSame(['mcp:read', 'mcp:write'], $whoami['scopes']);
     }
 }
