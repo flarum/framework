@@ -21,6 +21,7 @@ use Flarum\Messages\Access\MessagingPermission;
 use Flarum\Messages\Command\LeaveDialog;
 use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
+use Flarum\Messages\DialogMessage;
 use Flarum\Messages\UserDialogState;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -139,7 +140,9 @@ class DialogResource extends Resource\AbstractDatabaseResource
 
             Schema\Integer::make('unreadCount')
                 ->countRelation('messages', function (Builder $query, Context $context) {
+                    // Only what members wrote: a notice is nothing to read.
                     $query->leftJoin('dialog_user', 'dialog_messages.dialog_id', '=', 'dialog_user.dialog_id')
+                        ->where('dialog_messages.type', DialogMessage::COMMENT)
                         ->where('dialog_user.user_id', $context->getActor()->id)
                         ->whereColumn('dialog_messages.id', '>', 'dialog_user.last_read_message_id')
                         ->groupBy('dialog_messages.dialog_id');

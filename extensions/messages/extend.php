@@ -126,6 +126,6 @@ return [
         ->whenExtensionEnabled('flarum-statistics', fn () => [
             (new StatisticsExtend())
                 ->entity('dialogs', fn () => Dialog::query(), 'created_at')
-                ->entity('dialog_replies', fn () => DialogMessage::query()->where('number', '>', 1), 'created_at'),
+                ->entity('dialog_replies', fn () => DialogMessage::query()->where('number', '>', 1)->where('type', DialogMessage::COMMENT), 'created_at'),
         ]),
 ];

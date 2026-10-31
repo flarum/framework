@@ -54,7 +54,9 @@ class DialogMessageThrottler
             return false;
         }
 
+        // Leaving a group is no message of theirs to pause after.
         if (DialogMessage::where('user_id', $actor->id)
+            ->where('type', '!=', DialogMessage::USER_LEFT)
             ->where('created_at', '>=', Carbon::now()->subSeconds(self::$timeout))
             ->exists()) {
             return true;

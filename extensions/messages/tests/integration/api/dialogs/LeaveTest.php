@@ -14,6 +14,7 @@ use Flarum\Extend;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\Dialog\Event\UserLeft;
 use Flarum\Messages\DialogMessage;
+use Flarum\Messages\Tests\integration\CapturesSentMail;
 use Flarum\Messages\UserDialogState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -29,6 +30,7 @@ use Psr\Http\Message\ResponseInterface;
 class LeaveTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use CapturesSentMail;
 
     /** @var UserLeft[] */
     public static array $left = [];
@@ -130,6 +132,47 @@ class LeaveTest extends TestCase
         $this->assertCount(1, self::$left);
         $this->assertEquals(90, self::$left[0]->dialog->id);
         $this->assertEquals(3, self::$left[0]->user->id);
+    }
+
+    #[Test]
+    public function the_others_are_told_in_the_conversation_who_left(): void
+    {
+        $this->leave(90, 3);
+
+        $response = $this->send(
+            $this->request('GET', '/api/dialog-messages', ['authenticatedAs' => 5])->withQueryParams(['filter' => ['dialog' => '90']])
+        );
+
+        $messages = collect(json_decode((string) $response->getBody(), true)['data'])->sortBy('attributes.number')->values();
+        $notice = $messages->last();
+
+        $this->assertCount(3, $messages);
+        $this->assertEquals('comment', $messages->first()['attributes']['type']);
+        $this->assertEquals('userLeft', $notice['attributes']['type']);
+        $this->assertEquals('3', $notice['relationships']['user']['data']['id']);
+        $this->assertNull($notice['attributes']['contentHtml'] ?? null);
+
+        // The end of the conversation, where its stream stops.
+        $this->assertEquals($notice['id'], (string) Dialog::query()->findOrFail(90)->last_message_id);
+    }
+
+    #[Test]
+    public function someone_leaving_is_nothing_new_to_read(): void
+    {
+        $this->captureSentMail();
+
+        $this->leave(90, 3);
+
+        // Carol had read everything: she still has.
+        $carol = $this->send($this->request('GET', '/api/users/5', ['authenticatedAs' => 5]));
+        $this->assertSame(0, json_decode((string) $carol->getBody(), true)['data']['attributes']['unreadDialogCount']);
+
+        // Bob hadn't read carol's message: that is still all he has to read.
+        $bob = $this->send($this->request('GET', '/api/dialogs/90', ['authenticatedAs' => 4]));
+        $this->assertSame(1, json_decode((string) $bob->getBody(), true)['data']['attributes']['unreadCount']);
+
+        $this->assertEquals(0, $this->emailsTo('carol@machine.local'));
+        $this->assertEquals(0, $this->emailsTo('bob@machine.local'));
     }
 
     #[Test]

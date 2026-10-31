@@ -167,6 +167,11 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         return [
 
             Schema\Number::make('number'),
+            // A member's message, or a notice such as someone leaving.
+            Schema\Str::make('type'),
+            Schema\Arr::make('eventData')
+                ->visible(fn (DialogMessage $message) => ! $message->isComment())
+                ->get(fn (DialogMessage $message) => $message->eventData()),
             Schema\Str::make('content')
                 ->requiredOnCreate()
                 ->writableOnCreate()
@@ -177,6 +182,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                     $post->setContentAttribute($value, $context->getActor());
                 }),
             Schema\Str::make('contentHtml')
+                ->visible(fn (DialogMessage $message) => $message->isComment())
                 ->get(function (DialogMessage $post, Context $context) {
                     try {
                         $rendered = $post->formatContent($context->request);

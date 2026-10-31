@@ -88,6 +88,19 @@ class ThrottleTest extends TestCase
     }
 
     #[Test]
+    public function leaving_a_group_does_not_hold_up_the_next_message(): void
+    {
+        $this->prepareDatabase([
+            Dialog::class => [['id' => 110, 'type' => 'group']],
+            DialogMessage::class => [
+                ['id' => 110, 'dialog_id' => 110, 'user_id' => 3, 'type' => 'userLeft', 'content' => '{}', 'number' => 1, 'created_at' => Carbon::now()],
+            ],
+        ]);
+
+        $this->assertEquals(201, $this->post(3, ['content' => 'Hi bob'], 102)->getStatusCode());
+    }
+
+    #[Test]
     public function opening_too_many_conversations_in_an_hour_is_throttled_but_replying_is_not(): void
     {
         // Carol has started the hour's allowance of conversations already, each

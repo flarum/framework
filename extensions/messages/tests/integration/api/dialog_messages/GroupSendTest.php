@@ -13,17 +13,14 @@ use Carbon\Carbon;
 use Flarum\Extend;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
+use Flarum\Messages\Tests\integration\CapturesSentMail;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\Mailer\Envelope;
-use Symfony\Component\Mailer\SentMessage;
-use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Mime\RawMessage;
 
 /**
  * Sending in a group needs only the sender's own right to send. A member who
@@ -33,8 +30,7 @@ use Symfony\Component\Mime\RawMessage;
 class GroupSendTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
-
-    protected \ArrayObject $sent;
+    use CapturesSentMail;
 
     protected function setUp(): void
     {
@@ -161,41 +157,6 @@ class GroupSendTest extends TestCase
         $subjects = array_map(fn (Email $email) => $email->getSubject(), array_values(array_filter($this->sent->getArrayCopy(), fn ($message) => $message instanceof Email)));
 
         $this->assertEquals(['alice sent you a message'], $subjects);
-    }
-
-    protected function captureSentMail(): void
-    {
-        $this->sent = $sent = new \ArrayObject();
-
-        $transport = new class($sent) implements TransportInterface {
-            public function __construct(private \ArrayObject $sent)
-            {
-            }
-
-            public function send(RawMessage $message, ?Envelope $envelope = null): ?SentMessage
-            {
-                $this->sent[] = $message;
-
-                return new SentMessage($message, $envelope ?? Envelope::create($message));
-            }
-
-            public function __toString(): string
-            {
-                return 'capture';
-            }
-        };
-
-        $container = $this->app()->getContainer();
-        $container->instance('symfony.mailer.transport', $transport);
-        $container->forgetInstance('mailer');
-    }
-
-    protected function emailsTo(string $address): int
-    {
-        return count(array_filter(
-            $this->sent->getArrayCopy(),
-            fn ($message) => $message instanceof Email && in_array($address, array_map(fn ($to) => $to->getAddress(), $message->getTo()), true)
-        ));
     }
 }
 
