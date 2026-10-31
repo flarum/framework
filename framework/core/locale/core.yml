@@ -158,7 +158,7 @@ core:
       email_logo_heading: Email logo
       email_logo_text: "Upload an image to be displayed at the top of emails. It's saved in a format every email client can show. If you don't upload one, emails use a copy of your logo. If your emails show the forum title instead of your logo, upload your logo again."
       enter_hex_message: Please enter a hexadecimal color code.
-      app_icon_background_help: "Fills the transparent parts of the app icon on iPhones and iPads, and the space around it on Android."
+      app_icon_background_help: "Fills the transparent parts of the app icon on iPhones and iPads, the space around it on Android, and the splash screen."
       app_icon_background_label: App Icon Background
       app_icon_heading: App Icon
       app_icon_preview_android_label: Android
@@ -170,6 +170,8 @@ core:
       logo_text: Upload an image to be displayed in place of the forum title.
       logo_dark_mode_heading: Dark mode logo
       logo_dark_mode_text: Upload an alternate logo to be displayed when dark mode is enabled.
+      open_as_app_help: "Phones open the forum from their home screen in a window of its own, without the browser's toolbar, and show a splash screen while it loads: the app icon on the splash screen background, the same on iPhones, iPads and Android. It needs an app icon."
+      open_as_app_label: Open as an app from the home screen
       sections:
         custom_code:
           description: Add your own HTML and CSS to every page of the forum.
@@ -179,6 +181,8 @@ core:
           label: Logos & Icons
       show_theme_selector_help: Let users switch between the available color schemes from a control in the header.
       show_theme_selector_label: Show theme selector
+      splash_screen_background_help: "Fills the screen around the app icon, the same on iPhones, iPads and Android. Leave it empty to use the colour behind the app icon."
+      splash_screen_background_label: Splash Screen Background
       title: Appearance
       color_scheme_label: Color Scheme (default)
       color_schemes:
@@ -1246,6 +1250,11 @@ core:
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
       too_many_attempts_message: => core.ref.too_many_login_attempts_message
+
+    # Translations in this namespace are displayed on the page shown when the forum can't be reached.
+    offline:
+      text: "{forum} can't be reached. Check your connection: the page will load again as soon as it's back."
+      title: No connection
 
     # Translations in this namespace are displayed by the Reset Password interface.
     reset_password:

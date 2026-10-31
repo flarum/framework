@@ -12,6 +12,7 @@ import SettingsSection from './SettingsSection';
 import ThemeMode from '../../common/components/ThemeMode';
 import AppIconPreview from './AppIconPreview';
 import FaviconPreview from './FaviconPreview';
+import SplashScreenPreview from './SplashScreenPreview';
 
 export default class AppearancePage extends AdminPage {
   headerInfo() {
@@ -55,7 +56,7 @@ export default class AppearancePage extends AdminPage {
             icon: 'fas fa-image',
             label: app.translator.trans('core.admin.appearance.sections.logos.label'),
             description: app.translator.trans('core.admin.appearance.sections.logos.description'),
-            items: ['logo', 'logo-dark-mode', 'email-logo', 'favicon', 'app-icon', 'app-icon-background'],
+            items: ['logo', 'logo-dark-mode', 'email-logo', 'favicon', 'app-icon', 'app-icon-background', 'splash-screen'],
           },
           {
             id: 'appearance-custom-code',
@@ -172,6 +173,28 @@ export default class AppearancePage extends AdminPage {
         84
       );
     }
+
+    items.add(
+      'splash-screen',
+      <div className="AppearancePage-splashScreen">
+        {this.buildSettingComponent({
+          type: 'switch',
+          setting: 'open_as_app',
+          label: app.translator.trans('core.admin.appearance.open_as_app_label'),
+          help: app.translator.trans('core.admin.appearance.open_as_app_help'),
+        })}
+        {this.buildSettingComponent({
+          type: 'color-preview',
+          setting: 'splash_screen_background',
+          label: app.translator.trans('core.admin.appearance.splash_screen_background_label'),
+          help: app.translator.trans('core.admin.appearance.splash_screen_background_help'),
+          placeholder: app.forum.attribute<string>('splashScreenBackground'),
+        })}
+        <SplashScreenPreview />
+        <div className="Form-group">{this.submitButton()}</div>
+      </div>,
+      83
+    );
 
     items.add(
       'custom-header',
@@ -354,6 +377,11 @@ export default class AppearancePage extends AdminPage {
         id: 'app_icon_heading',
         label: app.translator.trans('core.admin.appearance.app_icon_heading', {}, true),
         help: app.translator.trans('core.admin.appearance.app_icon_text', {}, true),
+      },
+      {
+        id: 'open_as_app',
+        label: app.translator.trans('core.admin.appearance.open_as_app_label', {}, true),
+        help: app.translator.trans('core.admin.appearance.open_as_app_help', {}, true),
       },
       {
         id: 'custom_header_heading',

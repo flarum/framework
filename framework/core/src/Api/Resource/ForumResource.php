@@ -14,6 +14,8 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
 use Flarum\Forum\Branding\Branding;
+use Flarum\Forum\Branding\SplashScreen;
+use Flarum\Forum\ServiceWorker;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Group\Group;
@@ -36,15 +38,19 @@ class ForumResource extends AbstractResource implements Findable
 
     protected Branding $branding;
 
+    protected SplashScreen $splashScreen;
+
     public function __construct(
         protected UrlGenerator $url,
         protected SettingsRepositoryInterface $settings,
         protected Config $config,
         Factory $filesystemFactory,
-        ?Branding $branding = null
+        ?Branding $branding = null,
+        ?SplashScreen $splashScreen = null
     ) {
         $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
         $this->branding = $branding ?? resolve(Branding::class);
+        $this->splashScreen = $splashScreen ?? resolve(SplashScreen::class);
     }
 
     public function type(): string
@@ -132,6 +138,14 @@ class ForumResource extends AbstractResource implements Findable
             Schema\Str::make('maskableIconUrl')
                 ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
                 ->get(fn () => $this->branding->appIconUrls()['icon-maskable-512.png'] ?? null),
+            Schema\Str::make('splashScreenUrl')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->splashScreen->url(1179, 2556)),
+            Schema\Str::make('splashScreenBackground')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->splashScreen->background()),
+            Schema\Boolean::make('serviceWorker')
+                ->get(fn () => resolve(ServiceWorker::class)->enabled()),
             Schema\Str::make('headerHtml')
                 ->get(fn () => $this->settings->get('custom_header')),
             Schema\Str::make('footerHtml')
