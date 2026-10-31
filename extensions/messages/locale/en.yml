@@ -8,6 +8,9 @@ flarum-messages:
       delete_own_messages_label: Delete own messages
       send_without_throttle_label: Send messages without throttling
       view_ips_label: View IP addresses of messages
+    settings:
+      max_recipients_help: How many members one message can be sent to. More than one starts a group conversation, so 1 turns group conversations off. At most 50.
+      max_recipients_label: Recipients per message
 
   # Translations in this namespace are used by the forum user interface.
   forum:

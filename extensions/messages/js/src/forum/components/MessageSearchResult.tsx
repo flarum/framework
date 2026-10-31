@@ -36,7 +36,7 @@ export default class MessageSearchResult<CustomAttrs extends IMessageSearchResul
     const message = this.attrs.message;
     const dialog = message.dialog();
     // A group by its title, which names its members.
-    const withWhom = dialog?.isGroup() ? dialog.title() : username(dialog?.recipient() || null);
+    const withWhom = dialog && dialog.isGroup() ? dialog.title() : username((dialog && dialog.recipient()) || null);
 
     items.add('avatar', <Avatar user={message.user() || null} />, 100);
 

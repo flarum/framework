@@ -7,6 +7,15 @@ export default [
   ...commonExtend,
 
   new Extend.Admin()
+    // Its default is registered in extend.php, where the server clamps it to 1–50 too.
+    .setting(() => ({
+      setting: 'flarum-messages.max_recipients',
+      type: 'number',
+      min: 1,
+      max: 50,
+      label: app.translator.trans('flarum-messages.admin.settings.max_recipients_label'),
+      help: app.translator.trans('flarum-messages.admin.settings.max_recipients_help'),
+    }))
     .permission(
       () => ({
         icon: 'fas fa-envelope-open-text',
