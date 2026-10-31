@@ -27,10 +27,10 @@ class CatalogueCacheTest extends TestCase
     protected function tearDown(): void
     {
         foreach (glob($this->root.'/locale/*') ?: [] as $file) {
-            unlink($file);
+            is_dir($file) ? rmdir($file) : unlink($file);
         }
 
-        @rmdir($this->root.'/locale');
+        is_file($this->root.'/locale') ? unlink($this->root.'/locale') : @rmdir($this->root.'/locale');
         @rmdir($this->root);
 
         parent::tearDown();
@@ -72,5 +72,34 @@ class CatalogueCacheTest extends TestCase
             array_map('basename', glob($this->root.'/locale/*'))
         );
         $this->assertSame('<?php return ["a" => "c"];', file_get_contents($file));
+    }
+
+    #[Test]
+    public function a_directory_that_cannot_be_created_is_a_cache_miss_not_an_error()
+    {
+        // A file where the directory should be: mkdir fails even for root,
+        // which a read-only directory would not stop.
+        mkdir($this->root);
+        touch($this->root.'/locale');
+
+        $cache = new CatalogueCache($this->root.'/locale/catalogue.en.php', 'rev-1');
+        $cache->write('<?php return [];');
+
+        $this->assertFalse($cache->isFresh());
+    }
+
+    #[Test]
+    public function a_catalogue_that_cannot_be_written_is_a_cache_miss_and_gets_no_revision()
+    {
+        // A directory where the catalogue should be: the rename over it fails.
+        $file = $this->root.'/locale/catalogue.en.php';
+        mkdir($file, 0775, true);
+
+        $cache = new CatalogueCache($file, 'rev-1');
+        $cache->write('<?php return [];');
+
+        $this->assertFalse($cache->isFresh());
+        $this->assertFileDoesNotExist($file.'.revision', 'No revision for a catalogue that was not written');
+        $this->assertSame(['catalogue.en.php'], array_map('basename', glob($this->root.'/locale/*')), 'The temporary file was removed');
     }
 }

@@ -9,7 +9,6 @@
 
 namespace Flarum\Locale;
 
-use RuntimeException;
 use Symfony\Component\Config\ConfigCacheInterface;
 
 /**
@@ -66,17 +65,26 @@ class CatalogueCache implements ConfigCacheInterface
         // storage/locale fails every write (so the catalogue is rebuilt on
         // every request), a concurrent request can include a half-written
         // file, and opcache can keep serving the catalogue this just replaced.
+        //
+        // A failed write is a cache miss, not an error: the translator already
+        // holds this catalogue in memory, and the next request writes it again.
+        // A cache clear can delete another request's temporary file between its
+        // write and its rename, so failures do happen on busy forums.
         $directory = dirname($this->file);
 
         if (! is_dir($directory) && ! @mkdir($directory, 0775, true) && ! is_dir($directory)) {
-            throw new RuntimeException("Unable to create the translation cache directory $directory.");
+            return;
         }
 
         // The catalogue first, then its revision: a process that dies between
         // the two leaves a catalogue whose revision does not match, so the next
         // request rebuilds it. Writing the revision first would mark a
-        // catalogue that was never written as current.
-        $this->dump($this->file, $content);
+        // catalogue that was never written as current, and so would writing it
+        // after the catalogue failed to write.
+        if (! $this->dump($this->file, $content)) {
+            return;
+        }
+
         $this->dump($this->revisionPath(), $this->revision);
 
         if (function_exists('opcache_invalidate') && filter_var(ini_get('opcache.enable'), FILTER_VALIDATE_BOOL)) {
@@ -88,15 +96,17 @@ class CatalogueCache implements ConfigCacheInterface
      * Written beside the target and renamed over it, so a reader sees the old
      * file or the new one, never part of one.
      */
-    private function dump(string $path, string $content): void
+    private function dump(string $path, string $content): bool
     {
         $temporary = $path.'.'.bin2hex(random_bytes(6)).'.tmp';
 
-        if (file_put_contents($temporary, $content) === false || ! @rename($temporary, $path)) {
-            @unlink($temporary);
-
-            throw new RuntimeException("Unable to write the translation cache file $path.");
+        if (@file_put_contents($temporary, $content) !== false && @rename($temporary, $path)) {
+            return true;
         }
+
+        @unlink($temporary);
+
+        return false;
     }
 
     /**
