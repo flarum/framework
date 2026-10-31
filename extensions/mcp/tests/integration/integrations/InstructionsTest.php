@@ -34,17 +34,22 @@ class InstructionsTest extends McpTestCase
     {
         $admin = $this->instructions(1);
 
-        $this->assertStringContainsString('{"isLocked": true}', $admin);
-        $this->assertStringContainsString('{"isSticky": true}', $admin);
-        $this->assertStringContainsString('@"Display Name"#p456', $admin);
-        $this->assertStringContainsString('suspendedUntil', $admin);
-        $this->assertStringContainsString('{"isApproved": true}', $admin);
+        // Each integration's notes are attributed to the extension it integrates.
+        $this->assertStringContainsString('{"isLocked": true}', $admin['flarum-lock']);
+        $this->assertStringContainsString('{"isSticky": true}', $admin['flarum-sticky']);
+        $this->assertStringContainsString('@"Display Name"#p456', $admin['flarum-mentions']);
+        $this->assertStringContainsString('suspendedUntil', $admin['flarum-suspend']);
+        $this->assertStringContainsString('{"isApproved": true}', $admin['flarum-approval']);
+        $this->assertNull($admin['flarum-mcp']);
 
         // Members cannot suspend, so they are not told how.
-        $this->assertStringNotContainsString('suspendedUntil', $this->instructions(2));
+        $this->assertStringNotContainsString('suspendedUntil', (string) $this->instructions(2)['flarum-suspend']);
     }
 
-    protected function instructions(int $userId): string
+    /**
+     * @return array<string, ?string> extension ID => instructions
+     */
+    protected function instructions(int $userId): array
     {
         $overview = json_decode($this->rpcResult($this->modern(
             'resources/read',
@@ -53,6 +58,6 @@ class InstructionsTest extends McpTestCase
             'flarum://forum'
         ))['contents'][0]['text'], true);
 
-        return (string) array_column($overview['extensions'], 'instructions', 'id')['flarum-mcp'];
+        return array_column($overview['extensions'], 'instructions', 'id');
     }
 }

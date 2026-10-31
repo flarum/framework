@@ -9,13 +9,7 @@
 
 namespace Flarum\Mcp\Tests\integration;
 
-use Flarum\Extend\ExtenderInterface;
-use Flarum\Extension\Extension;
-use Flarum\Extension\ExtensionManager;
-use Flarum\Mcp\Extend\Mcp;
-use Flarum\Mcp\Tests\integration\extend\Fixtures\EchoTool;
 use Flarum\User\User;
-use Illuminate\Contracts\Container\Container;
 use PHPUnit\Framework\Attributes\Test;
 
 class OverviewTest extends McpTestCase
@@ -24,18 +18,9 @@ class OverviewTest extends McpTestCase
     {
         parent::setUp();
 
-        $this->extension('flarum-tags');
-
-        // Registered the way flarum/tags' own extend.php would, so the tool is attributed to it.
-        $this->extend(new class implements ExtenderInterface {
-            public function extend(Container $container, ?Extension $extension = null): void
-            {
-                (new Mcp())
-                    ->tool(EchoTool::class)
-                    ->instructions('Tags group discussions.')
-                    ->extend($container, $container->make(ExtensionManager::class)->getExtension('flarum-tags'));
-            }
-        });
+        // The bundled integrations come from flarum/mcp's own extend.php, through
+        // Extend\Conditional, exactly as in production.
+        $this->extension('flarum-tags', 'flarum-lock');
 
         $this->prepareDatabase([
             User::class => [$this->normalUser()],
@@ -60,11 +45,13 @@ class OverviewTest extends McpTestCase
         $this->assertArrayHasKey('flarum-tags', $extensions);
         $this->assertArrayHasKey('flarum-mcp', $extensions);
 
-        $this->assertSame(['echo'], $extensions['flarum-tags']['tools']);
+        $this->assertSame(['list_tags'], $extensions['flarum-tags']['tools']);
         $this->assertContains('tags', $extensions['flarum-tags']['types']);
-        $this->assertSame('Tags group discussions.', $extensions['flarum-tags']['instructions']);
+        $this->assertStringContainsString('{"isLocked": true}', (string) $extensions['flarum-lock']['instructions']);
 
         $this->assertContains('search_discussions', $extensions['flarum-mcp']['tools']);
+        $this->assertNotContains('list_tags', $extensions['flarum-mcp']['tools']);
+        $this->assertNull($extensions['flarum-mcp']['instructions']);
         $this->assertContains('flarum://forum', $extensions['flarum-mcp']['resources']);
         $this->assertContains('summarize_discussion', $extensions['flarum-mcp']['prompts']);
 
@@ -81,7 +68,7 @@ class OverviewTest extends McpTestCase
         $this->assertStringContainsString('You are connected as', $instructions);
         $this->assertStringContainsString('(@normal)', $instructions);
         $this->assertStringContainsString('Enabled extensions:', $instructions);
-        $this->assertStringContainsString('Tags group discussions.', $instructions);
+        $this->assertStringContainsString('- Lock: ', $instructions);
         $this->assertLessThanOrEqual(2000, mb_strlen($instructions));
     }
 

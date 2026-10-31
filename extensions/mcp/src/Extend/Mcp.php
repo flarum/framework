@@ -26,6 +26,10 @@ use Illuminate\Contracts\Container\Container;
  * Wrap it in `(new Extend\Conditional())->whenExtensionEnabled('flarum-mcp', ...)`
  * so flarum/mcp stays an optional dependency. Removing something twice, or
  * extending a tool that does not exist, is a no-op.
+ *
+ * What it registers is attributed to the extension whose extend.php applies
+ * it, unless an owner is given: `new Mcp('flarum-tags')` registers on behalf
+ * of flarum/tags, for an integration that lives in another extension.
  */
 class Mcp implements ExtenderInterface
 {
@@ -33,6 +37,14 @@ class Mcp implements ExtenderInterface
      * @var list<callable(CapabilityRegistry, ?string): void>
      */
     protected array $operations = [];
+
+    /**
+     * @param string|null $extensionId the extension the registrations belong to, instead of the one applying the extender
+     */
+    public function __construct(
+        protected ?string $extensionId = null,
+    ) {
+    }
 
     /**
      * @param class-string<Tool> $class
@@ -198,7 +210,7 @@ class Mcp implements ExtenderInterface
         // extension's extender works whichever order the extensions boot in.
         $container->singletonIf(CapabilityRegistry::class);
 
-        $extensionId = $extension?->getId();
+        $extensionId = $this->extensionId ?? $extension?->getId();
 
         $container->extend(CapabilityRegistry::class, function (CapabilityRegistry $registry) use ($extensionId) {
             foreach ($this->operations as $operation) {

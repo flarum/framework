@@ -90,34 +90,35 @@ return [
         ->describe('groups', 'User groups, which carry permissions and badges.')
         ->describe('notifications', 'Your notifications. Set isRead to true to mark one as read.'),
 
-    // Bundled integrations, through the same extender third parties use.
+    // Bundled integrations, through the same extender third parties use, each
+    // registered on behalf of the extension it integrates.
     (new Extend\Conditional())
         ->whenExtensionEnabled('flarum-tags', fn () => [
-            (new Mcp())
+            (new Mcp('flarum-tags'))
                 ->tool(Integration\Tags\ListTagsTool::class)
                 ->extendTool('search_discussions', schema: Integration\Tags\TagArguments::searchSchema(...), handler: Integration\Tags\TagArguments::searchHandler(...))
                 ->extendTool('start_discussion', schema: Integration\Tags\TagArguments::startSchema(...), handler: Integration\Tags\TagArguments::startHandler(...))
                 ->describe('tags', 'Tags that discussions are filed under. Primary tags are ordered and can have child tags; secondary tags are not. list_tags shows the tree.'),
         ])
         ->whenExtensionEnabled('flarum-likes', fn () => [
-            (new Mcp())
+            (new Mcp('flarum-likes'))
                 ->tool(Integration\Likes\LikePostTool::class)
                 ->tool(Integration\Likes\UnlikePostTool::class),
         ])
         ->whenExtensionEnabled('flarum-subscriptions', fn () => [
-            (new Mcp())
+            (new Mcp('flarum-subscriptions'))
                 ->tool(Integration\Subscriptions\FollowDiscussionTool::class),
         ])
         ->whenExtensionEnabled('flarum-lock', fn () => [
-            (new Mcp())
+            (new Mcp('flarum-lock'))
                 ->instructions(new Integration\Lock\LockInstructions()),
         ])
         ->whenExtensionEnabled('flarum-sticky', fn () => [
-            (new Mcp())
+            (new Mcp('flarum-sticky'))
                 ->instructions(new Integration\Sticky\StickyInstructions()),
         ])
         ->whenExtensionEnabled('flarum-messages', fn () => [
-            (new Mcp())
+            (new Mcp('flarum-messages'))
                 ->tool(Integration\Messages\ListConversationsTool::class)
                 ->tool(Integration\Messages\ReadConversationTool::class)
                 ->tool(Integration\Messages\SendMessageTool::class)
@@ -125,21 +126,21 @@ return [
                 ->describe('dialog-messages', 'Messages in private conversations. send_message sends one.'),
         ])
         ->whenExtensionEnabled('flarum-mentions', fn () => [
-            (new Mcp())
+            (new Mcp('flarum-mentions'))
                 ->instructions(new Integration\Mentions\MentionInstructions()),
         ])
         ->when(fn (ExtensionManager $extensions) => $extensions->isEnabled('flarum-mentions') && $extensions->isEnabled('flarum-tags'), fn () => [
-            (new Mcp())
+            (new Mcp('flarum-mentions'))
                 ->instructions('#tag-slug links a tag.'),
         ])
         ->whenExtensionEnabled('flarum-suspend', fn () => [
             // Core already allows these; the fields' own gates decide.
-            (new Mcp())
+            (new Mcp('flarum-suspend'))
                 ->allowWrites('users', ['update'])
                 ->instructions(new Integration\Suspend\SuspendInstructions()),
         ])
         ->whenExtensionEnabled('flarum-approval', fn () => [
-            (new Mcp())
+            (new Mcp('flarum-approval'))
                 ->allowWrites('posts', ['update'])
                 ->instructions(new Integration\Approval\ApprovalInstructions()),
         ]),

@@ -40,6 +40,9 @@ class CapabilitiesTest extends McpTestCase
         $this->assertSame('flarum-mcp', $capabilities['tool:search_discussions']['extension']);
         $this->assertSame('MCP', $capabilities['tool:search_discussions']['extensionTitle']);
 
+        // Registered by flarum/mcp's extend.php, on behalf of flarum/likes.
+        $this->assertSame('flarum-likes', $capabilities['tool:like_post']['extension']);
+        $this->assertSame('Likes', $capabilities['tool:like_post']['extensionTitle']);
         $this->assertFalse($capabilities['tool:like_post']['readOnly']);
         $this->assertFalse($capabilities['tool:like_post']['destructive']);
         $this->assertTrue($capabilities['tool:delete_resource']['destructive']);
