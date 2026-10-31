@@ -35,7 +35,8 @@ export default class MessageSearchResult<CustomAttrs extends IMessageSearchResul
     const items = new ItemList<Mithril.Children>();
     const message = this.attrs.message;
     const dialog = message.dialog();
-    const recipient = dialog ? dialog.recipient() : null;
+    // A group by its title, which names its members.
+    const withWhom = dialog?.isGroup() ? dialog.title() : username(dialog?.recipient() || null);
 
     items.add('avatar', <Avatar user={message.user() || null} />, 100);
 
@@ -45,7 +46,7 @@ export default class MessageSearchResult<CustomAttrs extends IMessageSearchResul
         <div className="MessageSearchResult-title">
           {/* One element, so the title and the time are the row's only two parts. */}
           <span className="MessageSearchResult-conversation">
-            {app.translator.trans('flarum-messages.forum.search_source.conversation_with', { username: username(recipient || null) })}
+            {app.translator.trans('flarum-messages.forum.search_source.conversation_with', { username: withWhom })}
           </span>
           {humanTime(message.createdAt())}
         </div>
