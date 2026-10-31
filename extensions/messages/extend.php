@@ -39,6 +39,7 @@ return [
 
     (new Extend\Settings())
         ->default(RecipientLimit::SETTING, RecipientLimit::DEFAULT)
+        ->default(GroupNames::SETTING, false)
         ->serializeToForum('messagesMaxRecipients', RecipientLimit::SETTING, RecipientLimit::clamp(...)),
 
     (new Extend\Model(User::class))

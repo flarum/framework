@@ -16,7 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Rate limits sending, the way core's PostCreationThrottler limits posting.
- * A pause between messages, and caps on how many conversations one member can
+ * A pause between messages (and group renames, which post a notice), and caps on how many conversations one member can
  * open in an hour and how many people those reach, as a group reaches several
  * at once. The caps are what stop a fresh account working through the member
  * list, each message going out as an email from the forum's own address.
@@ -44,7 +44,14 @@ class DialogMessageThrottler
 
     public function __invoke(ServerRequestInterface $request): ?bool
     {
-        if ($request->getAttribute('routeName') !== 'dialog-messages.create') {
+        $body = (array) $request->getParsedBody();
+        $route = $request->getAttribute('routeName');
+
+        // Naming a group posts a notice everyone in it sees, so it waits as a
+        // message does. Not marking it read, through the same endpoint.
+        $renaming = $route === 'dialogs.update' && Arr::has($body, 'data.attributes.name');
+
+        if ($route !== 'dialog-messages.create' && ! $renaming) {
             return null;
         }
 
@@ -62,9 +69,12 @@ class DialogMessageThrottler
             return true;
         }
 
+        if ($renaming) {
+            return null;
+        }
+
         // A message with no dialog opens one, unless the pair already talk
         // directly. A group always opens one.
-        $body = (array) $request->getParsedBody();
         $reaching = Arr::get($body, 'data.relationships.dialog.data.id') ? 0 : $this->recipientsOfNewDialog($actor->id, $body);
 
         if ($reaching) {

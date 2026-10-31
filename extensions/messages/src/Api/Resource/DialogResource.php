@@ -21,7 +21,9 @@ use Flarum\Messages\Access\MessagingPermission;
 use Flarum\Messages\Command\LeaveDialog;
 use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
+use Flarum\Messages\DialogEventMessages;
 use Flarum\Messages\DialogMessage;
+use Flarum\Messages\GroupNames;
 use Flarum\Messages\UserDialogState;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,6 +41,8 @@ class DialogResource extends Resource\AbstractDatabaseResource
     public function __construct(
         protected Translator $translator,
         protected Dispatcher $bus,
+        protected GroupNames $names,
+        protected DialogEventMessages $eventMessages,
     ) {
     }
 
@@ -122,7 +126,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
             Schema\Str::make('title')
                 ->get(function (Dialog $dialog, Context $context) {
                     if ($dialog->isGroup()) {
-                        return $this->groupTitle($dialog, $context->getActor());
+                        return $this->names->of($dialog) ?? $this->groupTitle($dialog, $context->getActor());
                     }
 
                     // The other member may have left the forum since.
@@ -131,6 +135,31 @@ class DialogResource extends Resource\AbstractDatabaseResource
                             ?? $this->translator->trans('core.lib.username.deleted_text'),
                     ]);
                 }),
+            // What members have named a group, where the forum allows it.
+            Schema\Str::make('name')
+                ->nullable()
+                ->maxLength(GroupNames::MAX_LENGTH)
+                ->get(fn (Dialog $dialog) => $this->names->of($dialog))
+                ->writable(fn (Dialog $dialog, Context $context) => $context->updating() && $this->names->canRename($context->getActor(), $dialog))
+                ->set(function (Dialog $dialog, ?string $value, Context $context) {
+                    $name = trim((string) $value) ?: null;
+
+                    if ($name === $dialog->name) {
+                        return;
+                    }
+
+                    $dialog->name = $name;
+
+                    // The group is told who named it, and what.
+                    $dialog->afterSave(function (Dialog $dialog) use ($name, $context) {
+                        $notice = $this->eventMessages->post($dialog, $context->getActor(), DialogMessage::RENAMED, ['name' => $name]);
+
+                        $this->events->dispatch(new DialogMessage\Event\Created($notice));
+                    });
+                }),
+            Schema\Boolean::make('canRename')
+                ->visible(fn (Dialog $dialog, Context $context) => $context->collection instanceof self)
+                ->get(fn (Dialog $dialog, Context $context) => $this->names->canRename($context->getActor(), $dialog)),
             Schema\Str::make('type')
                 ->minLength(3)
                 ->maxLength(255)

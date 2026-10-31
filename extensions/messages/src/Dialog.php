@@ -26,6 +26,7 @@ use InvalidArgumentException;
  * @property \Carbon\Carbon|null $last_message_at
  * @property int|null $last_message_user_id
  * @property string $type
+ * @property string|null $name
  * @property bool $anyone_can_reply
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
