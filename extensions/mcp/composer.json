@@ -101,6 +101,14 @@
     },
     "require-dev": {
         "flarum/testing": "^2.1",
+        "flarum/approval": "*",
+        "flarum/likes": "*",
+        "flarum/lock": "*",
+        "flarum/mentions": "*",
+        "flarum/messages": "*",
+        "flarum/sticky": "*",
+        "flarum/subscriptions": "*",
+        "flarum/suspend": "*",
         "flarum/tags": "*"
     }
 }

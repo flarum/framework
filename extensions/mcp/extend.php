@@ -10,6 +10,7 @@
 namespace Flarum\Mcp;
 
 use Flarum\Extend;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Extend\Mcp;
@@ -81,4 +82,58 @@ return [
         ->describe('users', 'Members of the forum, with their public profile.')
         ->describe('groups', 'User groups, which carry permissions and badges.')
         ->describe('notifications', 'Your notifications. Set isRead to true to mark one as read.'),
+
+    // Bundled integrations, through the same extender third parties use.
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-tags', fn () => [
+            (new Mcp())
+                ->tool(Integration\Tags\ListTagsTool::class)
+                ->extendTool('search_discussions', schema: Integration\Tags\TagArguments::searchSchema(...), handler: Integration\Tags\TagArguments::searchHandler(...))
+                ->extendTool('start_discussion', schema: Integration\Tags\TagArguments::startSchema(...), handler: Integration\Tags\TagArguments::startHandler(...))
+                ->describe('tags', 'Tags that discussions are filed under. Primary tags are ordered and can have child tags; secondary tags are not. list_tags shows the tree.'),
+        ])
+        ->whenExtensionEnabled('flarum-likes', fn () => [
+            (new Mcp())
+                ->tool(Integration\Likes\LikePostTool::class)
+                ->tool(Integration\Likes\UnlikePostTool::class),
+        ])
+        ->whenExtensionEnabled('flarum-subscriptions', fn () => [
+            (new Mcp())
+                ->tool(Integration\Subscriptions\FollowDiscussionTool::class),
+        ])
+        ->whenExtensionEnabled('flarum-lock', fn () => [
+            (new Mcp())
+                ->instructions(new Integration\Lock\LockInstructions()),
+        ])
+        ->whenExtensionEnabled('flarum-sticky', fn () => [
+            (new Mcp())
+                ->instructions(new Integration\Sticky\StickyInstructions()),
+        ])
+        ->whenExtensionEnabled('flarum-messages', fn () => [
+            (new Mcp())
+                ->tool(Integration\Messages\ListConversationsTool::class)
+                ->tool(Integration\Messages\ReadConversationTool::class)
+                ->tool(Integration\Messages\SendMessageTool::class)
+                ->describe('dialogs', 'Your private conversations (dialogs) with other members. list_conversations and read_conversation read them.')
+                ->describe('dialog-messages', 'Messages in private conversations. send_message sends one.'),
+        ])
+        ->whenExtensionEnabled('flarum-mentions', fn () => [
+            (new Mcp())
+                ->instructions(new Integration\Mentions\MentionInstructions()),
+        ])
+        ->when(fn (ExtensionManager $extensions) => $extensions->isEnabled('flarum-mentions') && $extensions->isEnabled('flarum-tags'), fn () => [
+            (new Mcp())
+                ->instructions('#tag-slug links a tag.'),
+        ])
+        ->whenExtensionEnabled('flarum-suspend', fn () => [
+            // Core already allows these; the fields' own gates decide.
+            (new Mcp())
+                ->allowWrites('users', ['update'])
+                ->instructions(new Integration\Suspend\SuspendInstructions()),
+        ])
+        ->whenExtensionEnabled('flarum-approval', fn () => [
+            (new Mcp())
+                ->allowWrites('posts', ['update'])
+                ->instructions(new Integration\Approval\ApprovalInstructions()),
+        ]),
 ];
