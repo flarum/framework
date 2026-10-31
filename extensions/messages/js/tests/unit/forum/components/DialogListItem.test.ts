@@ -69,6 +69,14 @@ describe('a group in the conversation list', () => {
     item.should.have(2, '.DialogListItem-avatar--group .Avatar');
   });
 
+  // Everyone else has left: one avatar, full size, not half a stack.
+  it('shows a group down to one other member with their avatar alone', () => {
+    const item = mq(DialogListItem, { dialog: conversation('group', ['35'], '35', 'user35') });
+
+    item.should.not.have('.DialogListItem-avatar--group');
+    item.should.have(1, '.DialogListItem-avatar .Avatar');
+  });
+
   it('says who wrote the last message', () => {
     const item = mq(DialogListItem, { dialog: conversation('group', ['31', '32'], '32', 'user31, user32') });
 

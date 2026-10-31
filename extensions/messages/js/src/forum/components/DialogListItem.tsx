@@ -38,7 +38,7 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
             active: this.attrs.active,
           })}
         >
-          <div className={classList('DialogListItem-avatar', { 'DialogListItem-avatar--group': dialog.isGroup() })}>
+          <div className={classList('DialogListItem-avatar', { 'DialogListItem-avatar--group': this.stacksAvatars() })}>
             {this.avatar()}
             {!!unread && (
               <div className="Bubble Bubble--primary">
@@ -61,18 +61,23 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
     );
   }
 
+  /** A group with others enough to show two of them; one left on their own is shown as a direct conversation's. */
+  stacksAvatars(): boolean {
+    return this.attrs.dialog.isGroup() && this.attrs.dialog.recipients().length > 1;
+  }
+
   /** The other member's avatar; in a group, two of the others', one over the other. */
   avatar(): Mithril.Children {
     const dialog = this.attrs.dialog;
 
-    if (dialog.isGroup()) {
+    if (this.stacksAvatars()) {
       return dialog
         .recipients()
         .slice(0, 2)
         .map((user) => <Avatar user={user} />);
     }
 
-    return <Avatar user={dialog.recipient()} />;
+    return <Avatar user={dialog.recipients()[0] || null} />;
   }
 
   /** The other member; a group goes by its title, which names its members. */
