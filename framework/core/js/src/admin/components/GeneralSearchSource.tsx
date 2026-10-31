@@ -123,7 +123,7 @@ export default class GeneralSearchSource implements GlobalSearchSource {
                 app.translator.trans('core.admin.' + corePage + '.title', {}, true),
               group?.icon || extensions[extensionId]?.icon || { name: 'fas fa-cog' },
               'tree' in setting && setting.tree ? [...setting.tree.map(extractText), label] : [label],
-              group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId })),
+              ('link' in setting && setting.link) || group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId })),
               help
             )
           );
@@ -157,7 +157,9 @@ export default class GeneralSearchSource implements GlobalSearchSource {
                   extractText(permissionItems.get(permissionType)?.label) || permissionType,
                   label,
                 ],
-                group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId }))
+                ('link' in permission && permission.link) ||
+                  group?.link ||
+                  (corePage ? app.route(corePage) : app.route('extension', { id: extensionId }))
               )
             );
           }

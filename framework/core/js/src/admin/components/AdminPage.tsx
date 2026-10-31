@@ -27,6 +27,11 @@ export type SettingsComponentOptions = FieldComponentOptions & {
   setting: string;
   json?: boolean;
   refreshAfterSaving?: boolean;
+  /**
+   * Optional: The URL to navigate to when this setting appears in admin search.
+   * The default is the group link, then the page or extension route.
+   */
+  link?: string;
 };
 
 /**
@@ -133,8 +138,8 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
   /**
    * `buildSettingComponent` takes a settings object and turns it into a component.
    * Depending on the type of input, you can set the type to 'bool', 'select', or
-   * any standard <input> type. Any values inside the 'extra' object will be added
-   * to the component as an attribute.
+   * any standard <input> type. Field attributes are forwarded to the `FormGroup`; the
+   * search-only `link` option is not.
    *
    * Alternatively, you can pass a callback that will be executed in ExtensionPage's
    * context to include custom JSX elements.
@@ -173,7 +178,8 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
       return entry.call(this);
     }
 
-    const { setting, json, refreshAfterSaving, ...attrs } = entry;
+    // Search-only; strip before forwarding.
+    const { setting, json, refreshAfterSaving, link: _link, ...attrs } = entry;
 
     const originalBidi: (value?: string) => any = this.setting(setting, (entry as any).default ?? '');
     let bidi: (value?: string) => any;
