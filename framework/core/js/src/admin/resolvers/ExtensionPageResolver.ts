@@ -12,6 +12,15 @@ export default class ExtensionPageResolver<
 > extends DefaultResolver<Attrs, ExtensionPage<Attrs>, RouteArgs> {
   static extension: string | null = null;
 
+  /**
+   * Switching tabs (`?tab=`) keeps the page, and any unsaved changes on it.
+   */
+  makeKey(): string {
+    const { tab, ...params } = m.route.param();
+
+    return this.routeName + JSON.stringify(params);
+  }
+
   onmatch(args: Attrs & RouteArgs, requestedPath: string, route: string) {
     const extensionPage = app.registry.getPage<Attrs>(args.id);
 
