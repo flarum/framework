@@ -68,19 +68,13 @@ class McpController implements RequestHandlerInterface
         // Authorization header identifies an MCP client.
         $request = RequestUtil::withActor($request->withoutAttribute('session'), new Guest());
 
-        return $this->authenticate->process($request, new class(fn (ServerRequestInterface $request) => $this->serve($request)) implements RequestHandlerInterface {
-            /**
-             * @param \Closure(ServerRequestInterface): ResponseInterface $serve
-             */
-            public function __construct(protected \Closure $serve)
-            {
-            }
-
-            public function handle(ServerRequestInterface $request): ResponseInterface
-            {
-                return ($this->serve)($request);
-            }
-        });
+        // CORS wraps authentication as well, so a browser client can read the
+        // 401/403 challenge it needs to sign in or step up.
+        return $this->servers->cors()->process($request, new CallbackHandler(
+            fn (ServerRequestInterface $request) => $this->authenticate->process($request, new CallbackHandler(
+                fn (ServerRequestInterface $request) => $this->serve($request)
+            ))
+        ));
     }
 
     /**

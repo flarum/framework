@@ -164,7 +164,7 @@ class ServerFactory
                 // Only same-origin pages, non-browser clients and the origins
                 // extensions allow get through; only the forum's host and the
                 // hosts extensions allow are answered.
-                new CorsMiddleware(allowedOrigins: $origins),
+                $this->cors(),
                 new DnsRebindingProtectionMiddleware(
                     allowedHosts: array_values(array_unique([$host, ...$registry->allowedHosts()])),
                     allowedOrigins: $origins,
@@ -173,6 +173,15 @@ class ServerFactory
                 ),
             ],
         );
+    }
+
+    /**
+     * The CORS policy for /mcp. The controller applies it to authentication
+     * challenges too, which never reach the transport.
+     */
+    public function cors(): CorsMiddleware
+    {
+        return new CorsMiddleware(allowedOrigins: $this->container->make(CapabilityRegistry::class)->allowedOrigins());
     }
 
     protected function logger(): LoggerInterface
