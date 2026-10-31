@@ -170,7 +170,7 @@ core:
       logo_text: Upload an image to be displayed in place of the forum title.
       logo_dark_mode_heading: Dark mode logo
       logo_dark_mode_text: Upload an alternate logo to be displayed when dark mode is enabled.
-      open_as_app_help: "Phones open the forum from their home screen in a window of its own, without the browser's toolbar, and show a splash screen while it loads: the app icon on the splash screen background, the same on iPhones, iPads and Android. The splash screen needs an app icon."
+      open_as_app_help: "Phones open the forum from their home screen in a window of its own, without the browser's toolbar, and show a splash screen while it loads: the app icon on the splash screen background, the same on iPhones, iPads and Android. It needs an app icon."
       open_as_app_label: Open as an app from the home screen
       sections:
         custom_code:

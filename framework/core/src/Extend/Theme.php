@@ -265,7 +265,9 @@ class Theme implements ExtenderInterface
      * landscape image, if one is given. Images at least 1320 by 2868 pixels,
      * or 2868 by 1320 for landscape, stay sharp on every screen.
      *
-     * Admins can still turn the splash screen off on the Appearance page.
+     * It's only shown with an app icon, set by an admin or with appIcon(), as
+     * the forum only opens as an app with one. Admins can still turn the
+     * splash screen off on the Appearance page.
      *
      * @param string|callable $file Absolute path of a PNG, JPEG, WebP or GIF file.
      * @param string|callable|null $landscape Absolute path of a PNG, JPEG, WebP or GIF file.
