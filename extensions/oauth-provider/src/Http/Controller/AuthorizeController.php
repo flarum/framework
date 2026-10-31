@@ -26,6 +26,7 @@ use Illuminate\Contracts\View\Factory;
 use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\Response\RedirectResponse;
+use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Psr\Http\Message\ResponseInterface;
@@ -46,13 +47,22 @@ class AuthorizeController implements RequestHandlerInterface
 
     public function handle(Request $request): ResponseInterface
     {
+        // The consent screen must never be framed (clickjacking); the headers
+        // go on every response so no branch can forget them.
+        return $this->authorize($request)
+            ->withHeader('X-Frame-Options', 'DENY')
+            ->withHeader('Content-Security-Policy', "frame-ancestors 'none'");
+    }
+
+    protected function authorize(Request $request): ResponseInterface
+    {
         $clientId = $request->getQueryParams()['client_id'] ?? null;
 
         if (is_string($clientId)) {
             try {
-                $this->metadataDocuments->resolve($clientId);
+                $this->metadataDocuments->resolve($clientId, (string) $request->getAttribute('ipAddress'));
             } catch (ClientMetadataException $e) {
-                return new JsonResponse(['error' => 'invalid_client', 'error_description' => $e->getMessage()], 400);
+                return new JsonResponse(['error' => $e->error, 'error_description' => $e->getMessage()], 400);
             }
         }
 
@@ -128,9 +138,16 @@ class AuthorizeController implements RequestHandlerInterface
         /** @var Client|null $clientModel */
         $clientModel = Client::query()->find($clientId);
 
+        // Self-described clients (metadata document, dynamic registration)
+        // choose their own name, so they are marked unverified and the user
+        // is shown where they would be sent back to.
+        $selfDescribed = $clientModel !== null && $clientModel->source !== Client::SOURCE_ADMIN;
+
         $html = $this->view->make('flarum-oauth-provider::consent', [
             'client' => $authRequest->getClient(),
-            'unverifiedHost' => $clientModel?->source === Client::SOURCE_METADATA_DOCUMENT ? $clientModel->sourceHost() : null,
+            'unverified' => $selfDescribed,
+            'sourceHost' => $selfDescribed ? $clientModel->sourceHost() : null,
+            'redirectHost' => $selfDescribed ? $this->redirectHost($authRequest) : null,
             'scopes' => $scopeDescriptions,
             'actor' => $actor,
             'formAction' => (string) $request->getUri(),
@@ -143,7 +160,7 @@ class AuthorizeController implements RequestHandlerInterface
 
     protected function completeAuthorization(
         AuthorizationRequest $authRequest,
-        $server,
+        AuthorizationServer $server,
         int $userId,
         bool $approved,
         ?string $nonce = null,
@@ -176,6 +193,15 @@ class AuthorizeController implements RequestHandlerInterface
         }
 
         return $response;
+    }
+
+    protected function redirectHost(AuthorizationRequest $authRequest): ?string
+    {
+        $redirectUri = $authRequest->getRedirectUri() ?? (array) $authRequest->getClient()->getRedirectUri();
+        $redirectUri = is_array($redirectUri) ? (string) reset($redirectUri) : $redirectUri;
+        $host = parse_url($redirectUri, PHP_URL_HOST);
+
+        return is_string($host) && $host !== '' ? $host : null;
     }
 
     /**

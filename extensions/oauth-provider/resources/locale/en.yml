@@ -54,7 +54,8 @@ flarum-oauth-provider:
       approve_button: "Authorize"
       deny_button: "Cancel"
       from_host: "from {host}"
-      unverified: "unverified"
+      unverified: "unverified, self-registered"
+      redirect_host: "After you decide, you will be sent to {host}."
 
     connected_apps:
       heading: "Connected applications"
