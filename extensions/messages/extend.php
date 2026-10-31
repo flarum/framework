@@ -37,6 +37,10 @@ return [
 
     (new Extend\View())->namespace('flarum-messages', __DIR__.'/views'),
 
+    (new Extend\Settings())
+        ->default(RecipientLimit::SETTING, RecipientLimit::DEFAULT)
+        ->serializeToForum('messagesMaxRecipients', RecipientLimit::SETTING, RecipientLimit::clamp(...)),
+
     (new Extend\Model(User::class))
         ->belongsToMany('dialogs', Dialog::class, 'dialog_user')
         ->hasMany('dialogMessages', DialogMessage::class, 'user_id'),

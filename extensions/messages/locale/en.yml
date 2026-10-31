@@ -119,6 +119,7 @@ flarum-messages:
     no_other_members_message: There is no one else in this conversation.
     recipient_cannot_reply_message: "{username} can't reply to messages."
     recipient_unavailable_message: "{username} can't receive messages."
+    too_many_recipients_message: "{count, plural, one {A message can only go to one member.} other {A message can go to at most # members.}}"
 
 # Shown by flarum/gdpr when describing what it does with a member's messages.
 flarum-gdpr:

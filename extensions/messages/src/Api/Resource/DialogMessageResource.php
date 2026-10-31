@@ -24,6 +24,7 @@ use Flarum\Messages\Access\MessagingPermission;
 use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
+use Flarum\Messages\RecipientLimit;
 use Flarum\User\User;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,6 +44,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         protected Dispatcher $bus,
         protected ExtensionManager $extensions,
         protected ConnectionInterface $db,
+        protected RecipientLimit $recipientLimit,
     ) {
     }
 
@@ -243,6 +245,14 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 'intval',
                 array_filter(Arr::pluck($data['attributes']['users'] ?? [], 'id'), fn (mixed $id) => $id && (int) $id !== $actor->id)
             )));
+
+            // Before anything is looked up: a message can't reach more members
+            // than the forum allows.
+            if (count($users) > ($limit = $this->recipientLimit->get())) {
+                throw new ValidationException([
+                    'users' => $this->translator->trans('flarum-messages.lib.too_many_recipients_message', ['count' => $limit]),
+                ]);
+            }
 
             // Checked before anything is written: a recipient who doesn't exist
             // used to reach the database, fail on the foreign key, and leave a
