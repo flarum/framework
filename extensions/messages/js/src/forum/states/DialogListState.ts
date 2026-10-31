@@ -79,6 +79,13 @@ export default class DialogListState<P extends DialogListParams = DialogListPara
     if (limit && this.pages[0].items.length > limit) this.pages[0].items.length = limit;
   }
 
+  /** Takes a dialog off the list, as leaving it does, without reloading. */
+  remove(dialog: Dialog): void {
+    this.pages.forEach((page) => {
+      page.items = page.items.filter((item) => item !== dialog);
+    });
+  }
+
   markAllAsRead() {
     return app
       .request({
