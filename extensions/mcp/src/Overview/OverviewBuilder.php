@@ -13,6 +13,7 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Mcp\Api\ResourceExposure;
 use Flarum\Mcp\Capability\CapabilityRegistry;
+use Flarum\Mcp\Capability\FailureReporter;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\ResolvedCapabilities;
 use Flarum\User\User;
@@ -48,6 +49,7 @@ class OverviewBuilder
         protected CapabilityRegistry $registry,
         protected ResourceExposure $exposure,
         protected ExtensionOwnership $ownership,
+        protected FailureReporter $failures,
     ) {
     }
 
@@ -161,7 +163,7 @@ class OverviewBuilder
             // `discussion.reply` is checked globally: tags may still restrict it per tag.
             $allowed = $ability === 'discussion.reply'
                 ? $actor->hasPermission($ability)
-                : $actor->can($ability);
+                : $this->failures->attempt(fn () => $actor->can($ability), false);
 
             if ($allowed) {
                 $can[] = ['ability' => $ability, 'label' => $label];
@@ -189,7 +191,7 @@ class OverviewBuilder
 
             // A string is never called, even when it happens to name a function.
             if (! is_string($text)) {
-                $text = $text($context);
+                $text = $this->failures->attempt(fn () => $text($context));
             }
 
             if (! is_string($text) || trim($text) === '') {

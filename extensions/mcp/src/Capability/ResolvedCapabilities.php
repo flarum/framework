@@ -20,6 +20,7 @@ class ResolvedCapabilities
      * @param array<string, ResourceTemplate> $resourceTemplates keyed by URI template
      * @param array<string, Prompt> $prompts keyed by name
      * @param array<string, ?string> $provenance keyed by "tool:name", "resource:uri", "template:uri" or "prompt:name"; the value is the contributing extension's ID
+     * @param array<string, bool> $readOnly each tool's readOnly(), as read when it was resolved
      */
     public function __construct(
         public readonly array $tools,
@@ -27,12 +28,21 @@ class ResolvedCapabilities
         public readonly array $resourceTemplates,
         public readonly array $prompts,
         public readonly array $provenance,
+        protected readonly array $readOnly = [],
     ) {
     }
 
     public function tool(string $name): ?Tool
     {
         return $this->tools[$name] ?? null;
+    }
+
+    /**
+     * False for an unknown tool.
+     */
+    public function isReadOnly(string $name): bool
+    {
+        return $this->readOnly[$name] ?? false;
     }
 
     /**

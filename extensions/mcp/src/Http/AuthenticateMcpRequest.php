@@ -168,9 +168,7 @@ class AuthenticateMcpRequest implements MiddlewareInterface
     protected function callsWriteTool(JsonRpcMessages $messages, ResolvedCapabilities $capabilities): bool
     {
         foreach ($messages->toolCalls() as $name) {
-            $tool = $capabilities->tool($name);
-
-            if ($tool && ! $tool->readOnly()) {
+            if ($capabilities->tool($name) && ! $capabilities->isReadOnly($name)) {
                 return true;
             }
         }

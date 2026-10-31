@@ -85,8 +85,8 @@ class CapabilityResource extends AbstractResource implements Listable
 
         foreach ($capabilities->tools as $name => $tool) {
             $rows[] = $this->row($capabilities, 'tool', 'tool:'.$name, $name, $tool->title(), $tool->description(), [
-                'readOnly' => $tool->readOnly(),
-                'destructive' => ! $tool->readOnly() && $tool->destructive(),
+                'readOnly' => $capabilities->isReadOnly($name),
+                'destructive' => ! $capabilities->isReadOnly($name) && $tool->destructive(),
             ]);
         }
 

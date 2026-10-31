@@ -9,41 +9,44 @@
 
 namespace Flarum\Mcp\Capability;
 
-use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Mcp\Tool\Generic\EndpointTool;
 use Flarum\Mcp\Tool\Generic\GenericTool;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
-use Throwable;
 
 /**
- * Builds the capability instances an actor sees. Runs once per MCP request;
- * a capability that fails to build is reported and left out, so one broken
- * extension cannot take the endpoint down.
+ * Builds the capability instances an actor sees. Runs once per MCP request.
+ *
+ * Every call into extension code here is guarded: a capability that fails to
+ * build, or whose metadata (name, title, description, schemas, flags) throws,
+ * is reported and left out, so one broken extension cannot take the endpoint
+ * down. Metadata is read once here; the rest of the request reads what passed.
  */
 class CapabilityResolver
 {
     public function __construct(
         protected Container $container,
         protected CapabilityRegistry $registry,
+        protected FailureReporter $failures,
     ) {
     }
 
     public function resolve(User $actor): ResolvedCapabilities
     {
         $provenance = [];
+        $readOnly = [];
 
         $tools = [];
         foreach ($this->registry->tools() as $entry) {
-            $tool = $this->build(fn () => $this->container->make($entry['class']));
+            $tool = $this->failures->attempt(fn () => $this->container->make($entry['class']));
 
             if ($tool instanceof Tool) {
-                $this->addTool($tools, $provenance, $tool, $entry['extension'], $actor);
+                $this->addTool($tools, $provenance, $readOnly, $tool, $entry['extension'], $actor);
             }
         }
 
         foreach ($this->registry->endpointTools() as $entry) {
-            $tool = $this->build(fn () => $this->container->make(EndpointTool::class, [
+            $tool = $this->failures->attempt(fn () => $this->container->make(EndpointTool::class, [
                 'type' => $entry['type'],
                 'endpoint' => $entry['endpoint'],
                 'toolName' => $entry['name'],
@@ -52,16 +55,19 @@ class CapabilityResolver
             ]));
 
             if ($tool instanceof Tool) {
-                $this->addTool($tools, $provenance, $tool, $entry['extension'], $actor);
+                $this->addTool($tools, $provenance, $readOnly, $tool, $entry['extension'], $actor);
             }
         }
 
         $resources = [];
         foreach ($this->registry->resources() as $entry) {
-            $resource = $this->build(fn () => $this->container->make($entry['class']));
+            $resource = $this->failures->attempt(fn () => $this->container->make($entry['class']));
 
-            if (! $resource instanceof Resource
-                || $this->registry->isResourceRemoved($resource->name())
+            if (! $resource instanceof Resource || ! $this->probe(fn () => [$resource->uri(), $resource->name(), $resource->title(), $resource->description(), $resource->mimeType()])) {
+                continue;
+            }
+
+            if ($this->registry->isResourceRemoved($resource->name())
                 || $this->registry->isResourceRemoved($resource->uri())
                 || ! $this->check(fn () => $resource->isAvailableFor($actor))) {
                 continue;
@@ -73,10 +79,13 @@ class CapabilityResolver
 
         $templates = [];
         foreach ($this->registry->resourceTemplates() as $entry) {
-            $template = $this->build(fn () => $this->container->make($entry['class']));
+            $template = $this->failures->attempt(fn () => $this->container->make($entry['class']));
 
-            if (! $template instanceof ResourceTemplate
-                || $this->registry->isResourceRemoved($template->name())
+            if (! $template instanceof ResourceTemplate || ! $this->probe(fn () => [$template->uriTemplate(), $template->name(), $template->title(), $template->description(), $template->mimeType()])) {
+                continue;
+            }
+
+            if ($this->registry->isResourceRemoved($template->name())
                 || $this->registry->isResourceRemoved($template->uriTemplate())
                 || ! $this->check(fn () => $template->isAvailableFor($actor))) {
                 continue;
@@ -88,10 +97,13 @@ class CapabilityResolver
 
         $prompts = [];
         foreach ($this->registry->prompts() as $entry) {
-            $prompt = $this->build(fn () => $this->container->make($entry['class']));
+            $prompt = $this->failures->attempt(fn () => $this->container->make($entry['class']));
 
-            if (! $prompt instanceof Prompt
-                || $this->registry->isPromptRemoved($prompt->name())
+            if (! $prompt instanceof Prompt || ! $this->probe(fn () => [$prompt->name(), $prompt->title(), $prompt->description(), $prompt->arguments()])) {
+                continue;
+            }
+
+            if ($this->registry->isPromptRemoved($prompt->name())
                 || ! $this->check(fn () => $prompt->isAvailableFor($actor))) {
                 continue;
             }
@@ -100,18 +112,19 @@ class CapabilityResolver
             $provenance['prompt:'.$prompt->name()] = $entry['extension'];
         }
 
-        return new ResolvedCapabilities($tools, $resources, $templates, $prompts, $provenance);
+        return new ResolvedCapabilities($tools, $resources, $templates, $prompts, $provenance, $readOnly);
     }
 
     /**
      * @param array<string, Tool> $tools
      * @param array<string, ?string> $provenance
+     * @param array<string, bool> $readOnly
      */
-    protected function addTool(array &$tools, array &$provenance, Tool $tool, ?string $extension, User $actor): void
+    protected function addTool(array &$tools, array &$provenance, array &$readOnly, Tool $tool, ?string $extension, User $actor): void
     {
-        $name = $tool->name();
+        $name = $this->failures->attempt(fn () => $tool->name());
 
-        if ($this->registry->isToolRemoved($name)) {
+        if (! is_string($name) || $this->registry->isToolRemoved($name)) {
             return;
         }
 
@@ -123,30 +136,65 @@ class CapabilityResolver
             return;
         }
 
-        foreach ($this->registry->toolExtensions($name) as $extensionHooks) {
-            if ($extensionHooks['schema']) {
-                $tool->extendSchema($extensionHooks['schema']);
+        $schema = $this->failures->attempt(fn () => $tool->inputSchema());
+
+        if (! is_array($schema)) {
+            return;
+        }
+
+        // A schema extender that throws is dropped with its handler, which
+        // expects the argument it adds; the tool itself stays.
+        foreach ($this->registry->toolExtensions($name) as $hooks) {
+            if ($hooks['schema']) {
+                $extended = $this->failures->attempt(fn () => ($hooks['schema'])($schema));
+
+                if (! is_array($extended)) {
+                    continue;
+                }
+
+                $schema = $extended;
+                $tool->extendSchema($hooks['schema']);
             }
 
-            if ($extensionHooks['handler']) {
-                $tool->extendHandler($extensionHooks['handler']);
+            if ($hooks['handler']) {
+                $tool->extendHandler($hooks['handler']);
             }
+        }
+
+        $flags = $this->failures->attempt(function () use ($tool) {
+            $tool->title();
+            $tool->description();
+            $tool->resolveInputSchema();
+            $tool->outputSchema();
+            $tool->destructive();
+            $tool->idempotent();
+            $tool->openWorld();
+
+            return ['readOnly' => $tool->readOnly()];
+        });
+
+        if (! is_array($flags)) {
+            return;
         }
 
         // A later registration of the same name replaces the earlier one.
         $tools[$name] = $tool;
         $provenance['tool:'.$name] = $extension;
+        $readOnly[$name] = $flags['readOnly'];
     }
 
-    protected function build(callable $factory): mixed
+    /**
+     * Reads a capability's metadata once; false (reported) when it throws.
+     *
+     * @param callable(): mixed $read
+     */
+    protected function probe(callable $read): bool
     {
-        try {
-            return $factory();
-        } catch (Throwable $e) {
-            $this->report($e);
+        return $this->failures->attempt(function () use ($read) {
+            $read();
 
-            return null;
-        }
+            return true;
+        }, false);
     }
 
     /**
@@ -154,20 +202,6 @@ class CapabilityResolver
      */
     protected function check(callable $check): bool
     {
-        try {
-            return $check();
-        } catch (Throwable $e) {
-            $this->report($e);
-
-            return false;
-        }
-    }
-
-    protected function report(Throwable $e): void
-    {
-        foreach ($this->container->tagged(Reporter::class) as $reporter) {
-            /** @var Reporter $reporter */
-            $reporter->report($e);
-        }
+        return $this->failures->attempt($check, false);
     }
 }

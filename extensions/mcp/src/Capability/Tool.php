@@ -29,6 +29,11 @@ abstract class Tool
     protected array $handlerExtenders = [];
 
     /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $resolvedInputSchema = null;
+
+    /**
      * snake_case, at most 64 characters of [a-z0-9_].
      */
     abstract public function name(): string;
@@ -104,6 +109,7 @@ abstract class Tool
     public function extendSchema(callable $callback): static
     {
         $this->schemaExtenders[] = $callback;
+        $this->resolvedInputSchema = null;
 
         return $this;
     }
@@ -122,18 +128,23 @@ abstract class Tool
 
     /**
      * The input schema with every {@see extendSchema()} callback applied.
+     * Computed once per tool instance, that is once per request.
      *
      * @return array<string, mixed>
      */
     public function resolveInputSchema(): array
     {
+        if ($this->resolvedInputSchema !== null) {
+            return $this->resolvedInputSchema;
+        }
+
         $schema = $this->inputSchema();
 
         foreach ($this->schemaExtenders as $extender) {
             $schema = $extender($schema);
         }
 
-        return $schema;
+        return $this->resolvedInputSchema = $schema;
     }
 
     /**

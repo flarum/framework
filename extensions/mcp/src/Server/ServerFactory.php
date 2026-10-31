@@ -13,6 +13,7 @@ use Flarum\Forum\Branding\Branding;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Http\UrlGenerator;
+use Flarum\Mcp\Capability\FailureReporter;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Prompt;
 use Flarum\Mcp\Capability\ResolvedCapabilities;
@@ -67,6 +68,7 @@ class ServerFactory
     public function make(McpContext $context, ResolvedCapabilities $capabilities): Server
     {
         $invoker = new Invoker($this->errors, $this->container->tagged(Reporter::class));
+        $failures = $this->container->make(FailureReporter::class);
 
         $builder = Server::builder()
             ->setServerInfo(
@@ -81,20 +83,38 @@ class ServerFactory
             // The PSR-16 store expires its own keys, so there is nothing to collect.
             ->setSession(new Psr16SessionStore($this->cache, 'mcp-session-', static::SESSION_TTL), gcProbability: 0);
 
-        foreach ($capabilities->tools as $tool) {
-            $builder->add($this->toolDefinition($tool, $context), new ToolHandler($tool, $context, $invoker));
+        // The SDK validates each definition (a tool's name, an object input
+        // schema, ...): one an extension got wrong is reported and left out.
+        foreach ($capabilities->tools as $name => $tool) {
+            $definition = $failures->attempt(fn () => $this->toolDefinition($tool, $capabilities->isReadOnly($name), $context));
+
+            if ($definition) {
+                $builder->add($definition, new ToolHandler($tool, $context, $invoker));
+            }
         }
 
         foreach ($capabilities->resources as $resource) {
-            $builder->add($this->resourceDefinition($resource), new ResourceHandler($resource, $context, $invoker));
+            $definition = $failures->attempt(fn () => $this->resourceDefinition($resource));
+
+            if ($definition) {
+                $builder->add($definition, new ResourceHandler($resource, $context, $invoker));
+            }
         }
 
         foreach ($capabilities->resourceTemplates as $template) {
-            $builder->add($this->templateDefinition($template), new ResourceTemplateHandler($template, $context, $invoker));
+            $definition = $failures->attempt(fn () => $this->templateDefinition($template));
+
+            if ($definition) {
+                $builder->add($definition, new ResourceTemplateHandler($template, $context, $invoker));
+            }
         }
 
         foreach ($capabilities->prompts as $prompt) {
-            $builder->add($this->promptDefinition($prompt), new PromptHandler($prompt, $context, $invoker));
+            $definition = $failures->attempt(fn () => $this->promptDefinition($prompt));
+
+            if ($definition) {
+                $builder->add($definition, new PromptHandler($prompt, $context, $invoker));
+            }
         }
 
         return $builder->build();
@@ -125,9 +145,8 @@ class ServerFactory
         );
     }
 
-    protected function toolDefinition(Tool $tool, McpContext $context): ToolDefinition
+    protected function toolDefinition(Tool $tool, bool $readOnly, McpContext $context): ToolDefinition
     {
-        $readOnly = $tool->readOnly();
         $description = $tool->description();
 
         if (! $readOnly) {
