@@ -1,6 +1,6 @@
 import app from 'flarum/admin/app';
 import extractText from 'flarum/common/utils/extractText';
-import { aiPayload } from './connections';
+import { aiPayload } from './utils/settings';
 
 export { default as extend } from './extend';
 
@@ -13,7 +13,7 @@ app.initializers.add('flarum-ai', () => {
     registry.registerPermission(
       {
         icon: 'fas fa-wand-magic-sparkles',
-        label: extractText(app.translator.trans(feature.label)),
+        label: extractText(app.translator.trans('flarum-ai.admin.permissions.use_feature_label', { feature: app.translator.trans(feature.label) })),
         permission: feature.permission,
       },
       'reply'

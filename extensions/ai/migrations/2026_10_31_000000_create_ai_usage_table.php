@@ -17,8 +17,11 @@ return Migration::createTable(
     function (Blueprint $table) {
         $table->increments('id');
         $table->string('feature', 100)->nullable();
+        // Who the call was made for: "member", "guest" or "system". Null when
+        // it was made outside a feature.
+        $table->string('actor', 10)->nullable();
         $table->unsignedInteger('user_id')->nullable();
-        $table->string('connection', 50);
+        $table->string('connection', 100);
         $table->string('driver', 50);
         $table->string('model', 100)->nullable();
         $table->string('kind', 20);
@@ -31,6 +34,7 @@ return Migration::createTable(
         $table->index(['connection', 'created_at']);
         $table->index(['feature', 'created_at']);
         $table->index(['user_id', 'created_at']);
+        $table->index(['actor', 'created_at']);
         $table->index('created_at');
     }
 );

@@ -11,6 +11,7 @@ namespace Flarum\Ai\Listener;
 
 use Flarum\Ai\AdminConnections;
 use Flarum\Ai\AiConfig;
+use Flarum\Ai\ConnectionKeys;
 use Flarum\Ai\Features\FeatureRegistry;
 use Flarum\Ai\Features\FeatureSettings;
 use Flarum\Ai\Usage\Limits;
@@ -18,13 +19,18 @@ use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
 
 /**
- * Validates the AI settings in a save. Runs before any setting in the save is
- * written, so a rejected value leaves every setting as it was.
+ * Validates the AI settings in a save before any setting in it is written, so
+ * a rejected value leaves every setting as it was. API keys are taken out of
+ * the connections here, and written by {@see CommitConnectionKeys} once the
+ * save has gone through.
+ *
+ * @internal
  */
 class PrepareSettings
 {
     public function __construct(
         protected AdminConnections $connections,
+        protected ConnectionKeys $keys,
         protected AiConfig $config,
         protected FeatureRegistry $features,
         protected FeatureSettings $featureSettings,
@@ -35,12 +41,15 @@ class PrepareSettings
     public function handle(Saving $event): void
     {
         if (array_key_exists(AdminConnections::SETTING, $event->settings)) {
-            $event->settings[AdminConnections::SETTING] = $this->connections->prepare(
+            [$json, $keyChanges] = $this->connections->prepare(
                 $event->settings[AdminConnections::SETTING],
                 $this->settings->get(AdminConnections::SETTING)
             );
 
-            $adminNames = array_keys(json_decode($event->settings[AdminConnections::SETTING], true));
+            $event->settings[AdminConnections::SETTING] = $json;
+            $this->keys->stage($keyChanges);
+
+            $adminNames = array_keys(json_decode($json, true));
         } else {
             $adminNames = array_keys($this->config->adminConnections());
         }
@@ -55,12 +64,10 @@ class PrepareSettings
             $event->settings[FeatureSettings::SETTING] = $this->prepareFeatures($event->settings[FeatureSettings::SETTING], $names);
         }
 
-        if (array_key_exists(Limits::MEMBER_DAILY_SETTING, $event->settings)) {
-            $event->settings[Limits::MEMBER_DAILY_SETTING] = (string) $this->connections->tokens(
-                $event->settings[Limits::MEMBER_DAILY_SETTING],
-                '',
-                Limits::MEMBER_DAILY_SETTING
-            );
+        foreach ([Limits::MEMBER_DAILY_SETTING, Limits::GUEST_DAILY_SETTING] as $setting) {
+            if (array_key_exists($setting, $event->settings)) {
+                $event->settings[$setting] = (string) $this->connections->tokens($event->settings[$setting], '', $setting);
+            }
         }
     }
 
@@ -75,16 +82,16 @@ class PrepareSettings
             $this->connections->fail('features_invalid_message', [], FeatureSettings::SETTING);
         }
 
-        // Kept as they were: features of extensions that are turned off, which
-        // the admin page doesn't list.
-        $prepared = array_diff_key($this->featureSettings->all(), $this->features->all());
+        // Start from what's stored: a feature the save leaves out, registered or
+        // not (its extension may be off), keeps its settings.
+        $prepared = $this->featureSettings->all();
 
         foreach ($this->features->all() as $key => $feature) {
-            $settings = $features[$key] ?? null;
-
-            if ($settings === null) {
+            if (! array_key_exists($key, $features)) {
                 continue;
             }
+
+            $settings = $features[$key];
 
             if (! is_array($settings) || ! is_bool($settings['enabled'] ?? false)) {
                 $this->connections->fail('features_invalid_message', [], FeatureSettings::SETTING);
@@ -98,7 +105,7 @@ class PrepareSettings
 
             $model = is_string($settings['model'] ?? null) ? trim($settings['model']) : null;
 
-            if ($model !== null && mb_strlen($model) > 100) {
+            if ($model !== null && mb_strlen($model) > AdminConnections::MODEL_MAX_LENGTH) {
                 $this->connections->fail('model_invalid_message', ['name' => $key], FeatureSettings::SETTING);
             }
 

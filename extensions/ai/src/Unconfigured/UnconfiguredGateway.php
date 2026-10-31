@@ -9,7 +9,7 @@
 
 namespace Flarum\Ai\Unconfigured;
 
-use Flarum\Ai\NotConfiguredException;
+use Flarum\Ai\Exception\NotConfiguredException;
 use Generator;
 use Laravel\Ai\Contracts\Gateway\EmbeddingGateway;
 use Laravel\Ai\Contracts\Gateway\StepTextGateway;
@@ -20,6 +20,9 @@ use Laravel\Ai\Gateway\StepResponse;
 use Laravel\Ai\Gateway\TextGenerationOptions;
 use Laravel\Ai\Responses\EmbeddingsResponse;
 
+/**
+ * @internal
+ */
 class UnconfiguredGateway implements StepTextGateway, EmbeddingGateway
 {
     public function generateTextStep(

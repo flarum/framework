@@ -12,6 +12,9 @@ namespace Flarum\Ai\Listener;
 use Flarum\Ai\ConfigureAi;
 use Flarum\Settings\Event\Saved;
 
+/**
+ * @internal
+ */
 class ReconfigureAi
 {
     public function __construct(

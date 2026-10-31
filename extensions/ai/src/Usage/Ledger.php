@@ -17,6 +17,8 @@ use Illuminate\Database\Query\Builder;
 /**
  * Every AI call's token usage, one row per call, in `ai_usage`. Only the
  * numbers and what they were for: never the prompt or the reply.
+ *
+ * @internal
  */
 class Ledger
 {
@@ -31,8 +33,7 @@ class Ledger
     }
 
     public function record(
-        ?string $feature,
-        ?int $userId,
+        ?Context $context,
         string $connection,
         string $driver,
         ?string $model,
@@ -41,9 +42,10 @@ class Ledger
         int $outputTokens
     ): void {
         $this->table()->insert([
-            'feature' => $feature,
-            'user_id' => $userId,
-            'connection' => mb_substr($connection, 0, 50),
+            'feature' => $context?->feature,
+            'actor' => $context?->actorKind(),
+            'user_id' => $context?->userId(),
+            'connection' => mb_substr($connection, 0, 100),
             'driver' => mb_substr($driver, 0, 50),
             'model' => $model === null ? null : mb_substr($model, 0, 100),
             'kind' => $kind,

@@ -18,6 +18,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * The usage totals the AI admin page shows.
+ *
+ * @internal
  */
 class ShowUsageController implements RequestHandlerInterface
 {

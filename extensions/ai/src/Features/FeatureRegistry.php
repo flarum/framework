@@ -11,6 +11,11 @@ namespace Flarum\Ai\Features;
 
 use InvalidArgumentException;
 
+/**
+ * The features extensions have registered.
+ *
+ * @internal
+ */
 class FeatureRegistry
 {
     /**
@@ -18,10 +23,16 @@ class FeatureRegistry
      */
     protected array $features = [];
 
+    /**
+     * @throws InvalidArgumentException when another extension registered the same key
+     */
     public function add(Feature $feature): void
     {
-        if (! preg_match('/^[a-z0-9][a-z0-9_-]*(\.[a-z0-9_-]+)+$/', $feature->key) || strlen($feature->key) > 100) {
-            throw new InvalidArgumentException("\"$feature->key\" is not a valid AI feature key. Use your extension's ID and a name, like \"acme-tldr.summaries\".");
+        if (isset($this->features[$feature->key])) {
+            $first = $this->features[$feature->key]->extension ?? 'an unknown extension';
+            $second = $feature->extension ?? 'an unknown extension';
+
+            throw new InvalidArgumentException("The AI feature \"$feature->key\" is registered twice: by $first and by $second.");
         }
 
         $this->features[$feature->key] = $feature;

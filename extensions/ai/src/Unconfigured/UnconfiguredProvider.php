@@ -20,6 +20,8 @@ use Laravel\Ai\Providers\OllamaProvider;
  * swap in their own gateway, so tests that fake agents need no connection.
  *
  * Ollama's provider is the base only because it needs no key.
+ *
+ * @internal
  */
 class UnconfiguredProvider extends OllamaProvider
 {

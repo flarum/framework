@@ -12,6 +12,9 @@ namespace Flarum\Ai\Console;
 use Flarum\Ai\Usage\Ledger;
 use Flarum\Console\AbstractCommand;
 
+/**
+ * @internal
+ */
 class PruneUsageCommand extends AbstractCommand
 {
     public function __construct(

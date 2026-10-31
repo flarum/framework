@@ -22,12 +22,14 @@ import {
   FEATURES_SETTING,
   type FeatureSettings,
   formatTokens,
+  GUEST_DAILY_SETTING,
   MEMBER_DAILY_SETTING,
   parseConnections,
   parseObject,
+  parseTokens,
   serializeConnections,
   withoutKeys,
-} from '../connections';
+} from '../utils/settings';
 
 interface UsageRow {
   name: string | null;
@@ -44,13 +46,14 @@ interface Usage {
 }
 
 /**
- * The tab each of the page's settings is on, for the unsaved-changes dot.
+ * The tab each of the page's settings is on.
  */
 const TAB_OF_SETTING: Record<string, string> = {
   [CONNECTIONS_SETTING]: 'connections',
   [DEFAULT_SETTING]: 'connections',
   [FEATURES_SETTING]: 'features',
   [MEMBER_DAILY_SETTING]: 'usage',
+  [GUEST_DAILY_SETTING]: 'usage',
 };
 
 /**
@@ -60,8 +63,10 @@ const TAB_OF_SETTING: Record<string, string> = {
 export default class AiPage extends ExtensionPage {
   connections!: Connections;
   features!: Record<string, FeatureSettings>;
+  /** Features whose daily limit field holds something that isn't a limit. */
+  invalidFeatureLimits = new Set<string>();
   usage: Usage | null = null;
-  usageState: 'idle' | 'loading' | 'failed' = 'idle';
+  usageState: 'idle' | 'loading' | 'loaded' | 'failed' = 'idle';
 
   oninit(vnode: Mithril.Vnode<ExtensionPageAttrs, this>) {
     super.oninit(vnode);
@@ -72,6 +77,7 @@ export default class AiPage extends ExtensionPage {
     // Registered up front, so a change on one tab still counts once another is open.
     this.setting(DEFAULT_SETTING);
     this.setting(MEMBER_DAILY_SETTING);
+    this.setting(GUEST_DAILY_SETTING);
   }
 
   className() {
@@ -80,7 +86,7 @@ export default class AiPage extends ExtensionPage {
 
   pageTabItems(): ItemList<TabItem> {
     const items = super.pageTabItems();
-    const unsaved = new Set(Object.keys(this.dirty()).map((key) => TAB_OF_SETTING[key]));
+    const unsaved = this.unsavedTabs();
     const indicatorLabel = extractText(app.translator.trans('core.admin.extension.unsaved_changes'));
 
     const tab = (id: string, icon: string, priority: number) =>
@@ -103,6 +109,18 @@ export default class AiPage extends ExtensionPage {
     return items;
   }
 
+  /**
+   * The page's own tabs with unsaved changes. Its settings aren't in the
+   * settings registry, so core can't work this out from it.
+   */
+  unsavedTabs(): Set<string> {
+    const tabs = super.unsavedTabs();
+
+    Object.keys(this.dirty()).forEach((key) => TAB_OF_SETTING[key] && tabs.add(TAB_OF_SETTING[key]));
+
+    return tabs;
+  }
+
   pageTabContent(tab: string, vnode: Mithril.VnodeDOM<ExtensionPageAttrs, this>): Mithril.Children {
     switch (tab) {
       case 'connections':
@@ -110,6 +128,7 @@ export default class AiPage extends ExtensionPage {
       case 'features':
         return this.form(this.featureSections());
       case 'usage':
+        // Once, the first time the tab is shown, not on every redraw.
         if (this.usageState === 'idle') this.loadUsage();
 
         return this.form([this.limitsSection(), this.usageSection()]);
@@ -216,7 +235,12 @@ export default class AiPage extends ExtensionPage {
         {lockedDefault ? (
           <p className="helpText">{app.translator.trans('flarum-ai.admin.connections.default_locked_text', { name: lockedDefault })}</p>
         ) : (
-          <Select options={options} value={value in options ? value : ''} onchange={this.setting(DEFAULT_SETTING)} />
+          <Select
+            options={options}
+            value={value in options ? value : ''}
+            onchange={this.setting(DEFAULT_SETTING)}
+            aria-label={extractText(app.translator.trans('flarum-ai.admin.connections.default_label'))}
+          />
         )}
       </SettingsSection>
     );
@@ -239,6 +263,9 @@ export default class AiPage extends ExtensionPage {
   featureSection(feature: FeatureInfo): Mithril.Children {
     const settings = this.features[feature.key] || {};
     const label = app.translator.trans(feature.label);
+    const idBase = 'flarum-ai-feature-' + feature.key.replace(/[^a-z0-9_-]/gi, '-');
+    const extension = feature.extension ? app.data.extensions[feature.extension]?.extra['flarum-extension']?.title : null;
+    const invalidLimit = this.invalidFeatureLimits.has(feature.key);
 
     const connections: Record<string, Mithril.Children> = { '': app.translator.trans('flarum-ai.admin.features.connection_default_option') };
     this.connectionNames().forEach((name) => (connections[name] = name));
@@ -248,11 +275,12 @@ export default class AiPage extends ExtensionPage {
     return (
       <SettingsSection
         key={feature.key}
-        id={'flarum-ai-feature-' + feature.key.replace(/[^a-z0-9_-]/gi, '-')}
+        id={idBase}
         className="AiPage-feature"
         label={label}
         description={[
           feature.description ? <span>{app.translator.trans(feature.description)} </span> : null,
+          extension ? <span>{app.translator.trans('flarum-ai.admin.features.extension_text', { extension })} </span> : null,
           app.translator.trans('flarum-ai.admin.features.help'),
         ]}
         icon="fas fa-wand-magic-sparkles"
@@ -262,33 +290,43 @@ export default class AiPage extends ExtensionPage {
         </Switch>
 
         <div className="AiPage-feature-options">
-          <label>
+          <label for={idBase + '-connection'}>
             {app.translator.trans('flarum-ai.admin.features.connection_label')}
-            <Select options={connections} value={connection} onchange={(value: string) => this.updateFeature(feature.key, { connection: value })} />
+            <Select
+              id={idBase + '-connection'}
+              options={connections}
+              value={connection}
+              onchange={(value: string) => this.updateFeature(feature.key, { connection: value })}
+            />
           </label>
-          <label>
+          <label for={idBase + '-model'}>
             {app.translator.trans('flarum-ai.admin.features.model_label')}
             <input
+              id={idBase + '-model'}
               className="FormControl"
               value={settings.model || ''}
               placeholder={app.translator.trans('flarum-ai.admin.features.model_placeholder')}
-              maxlength={100}
+              maxlength={aiPayload().rules.modelMaxLength}
               spellcheck={false}
               oninput={(e: InputEvent) => this.updateFeature(feature.key, { model: (e.target as HTMLInputElement).value })}
             />
           </label>
-          <label>
+          <label for={idBase + '-daily'}>
             {app.translator.trans('flarum-ai.admin.features.daily_tokens_label')}
             <input
+              id={idBase + '-daily'}
               className="FormControl"
               type="number"
               min="1"
               step="1"
+              inputmode="numeric"
+              aria-invalid={invalidLimit ? 'true' : undefined}
               value={settings.daily_tokens || ''}
-              oninput={(e: InputEvent) =>
-                this.updateFeature(feature.key, { daily_tokens: parseInt((e.target as HTMLInputElement).value, 10) || undefined })
-              }
+              oninput={(e: InputEvent) => this.updateFeatureLimit(feature.key, (e.target as HTMLInputElement).value)}
             />
+            {invalidLimit && (
+              <span className="helpText AiPage-invalid">{app.translator.trans('flarum-ai.admin.connections.tokens_invalid_message')}</span>
+            )}
           </label>
         </div>
       </SettingsSection>
@@ -296,6 +334,14 @@ export default class AiPage extends ExtensionPage {
   }
 
   limitsSection(): Mithril.Children {
+    const field = (id: string, setting: string, label: string, help: string) => (
+      <div className="Form-group">
+        <label for={id}>{app.translator.trans(label)}</label>
+        <div className="helpText">{app.translator.trans(help)}</div>
+        <input id={id} className="FormControl AiPage-tokensInput" type="number" min="1" step="1" inputmode="numeric" bidi={this.setting(setting)} />
+      </div>
+    );
+
     return (
       <SettingsSection
         id="flarum-ai-limits"
@@ -303,18 +349,13 @@ export default class AiPage extends ExtensionPage {
         description={app.translator.trans('flarum-ai.admin.limits.help')}
         icon="fas fa-gauge-high"
       >
-        <div className="Form-group">
-          <label for="flarum-ai-member-daily">{app.translator.trans('flarum-ai.admin.limits.member_daily_label')}</label>
-          <div className="helpText">{app.translator.trans('flarum-ai.admin.limits.member_daily_help')}</div>
-          <input
-            id="flarum-ai-member-daily"
-            className="FormControl AiPage-tokensInput"
-            type="number"
-            min="1"
-            step="1"
-            bidi={this.setting(MEMBER_DAILY_SETTING)}
-          />
-        </div>
+        {field(
+          'flarum-ai-member-daily',
+          MEMBER_DAILY_SETTING,
+          'flarum-ai.admin.limits.member_daily_label',
+          'flarum-ai.admin.limits.member_daily_help'
+        )}
+        {field('flarum-ai-guest-daily', GUEST_DAILY_SETTING, 'flarum-ai.admin.limits.guest_daily_label', 'flarum-ai.admin.limits.guest_daily_help')}
       </SettingsSection>
     );
   }
@@ -328,7 +369,14 @@ export default class AiPage extends ExtensionPage {
     let body: Mithril.Children;
 
     if (this.usageState === 'failed') {
-      body = <p className="AiPage-empty">{app.translator.trans('flarum-ai.admin.usage.load_error_text')}</p>;
+      body = (
+        <p className="AiPage-empty">
+          {app.translator.trans('flarum-ai.admin.usage.load_error_text')}{' '}
+          <Button className="Button Button--link" onclick={() => this.loadUsage()}>
+            {app.translator.trans('flarum-ai.admin.usage.retry_button')}
+          </Button>
+        </p>
+      );
     } else if (!usage) {
       body = <LoadingIndicator display="inline" />;
     } else if (!usage.connections.length) {
@@ -379,15 +427,26 @@ export default class AiPage extends ExtensionPage {
 
   daysChart(days: Usage['days']): Mithril.Children {
     const max = Math.max(1, ...days.map((day) => day.tokens));
+    const total = days.reduce((sum, day) => sum + day.tokens, 0);
+    const peak = days.reduce((top, day) => (day.tokens > top.tokens ? day : top), days[0]);
+
+    const summary = extractText(
+      app.translator.trans('flarum-ai.admin.usage.chart_label', {
+        total: formatTokens(total),
+        peakDate: dayjs(peak.date).format('ll'),
+        peak: formatTokens(peak.tokens),
+      })
+    );
 
     return (
       <div className="AiPage-days">
         <h4>{app.translator.trans('flarum-ai.admin.usage.days_heading')}</h4>
-        <div className="AiPage-days-bars">
+        <div className="AiPage-days-bars" role="img" aria-label={summary}>
           {days.map((day) => (
             <span
               key={day.date}
               className="AiPage-days-bar"
+              aria-hidden="true"
               style={{ height: Math.max(2, Math.round((day.tokens / max) * 100)) + '%' }}
               title={`${dayjs(day.date).format('ll')}: ${formatTokens(day.tokens)}`}
             />
@@ -403,9 +462,9 @@ export default class AiPage extends ExtensionPage {
         <caption>{app.translator.trans(heading)}</caption>
         <thead>
           <tr>
-            <th>{app.translator.trans('flarum-ai.admin.usage.name_column')}</th>
-            <th>{app.translator.trans('flarum-ai.admin.usage.calls_column')}</th>
-            <th>{app.translator.trans('flarum-ai.admin.usage.tokens_column')}</th>
+            <th scope="col">{app.translator.trans('flarum-ai.admin.usage.name_column')}</th>
+            <th scope="col">{app.translator.trans('flarum-ai.admin.usage.calls_column')}</th>
+            <th scope="col">{app.translator.trans('flarum-ai.admin.usage.tokens_column')}</th>
           </tr>
         </thead>
         <tbody>
@@ -424,7 +483,7 @@ export default class AiPage extends ExtensionPage {
   loadUsage() {
     this.usageState = 'loading';
 
-    app
+    return app
       .request<Usage>({
         method: 'GET',
         url: app.forum.attribute('apiUrl') + '/ai/usage',
@@ -433,7 +492,7 @@ export default class AiPage extends ExtensionPage {
       })
       .then((usage) => {
         this.usage = usage;
-        this.usageState = 'idle';
+        this.usageState = 'loaded';
       })
       .catch(() => {
         this.usageState = 'failed';
@@ -472,6 +531,19 @@ export default class AiPage extends ExtensionPage {
     this.sync();
   }
 
+  updateFeatureLimit(key: string, value: string) {
+    const tokens = parseTokens(value);
+
+    if (tokens === false) {
+      this.invalidFeatureLimits.add(key);
+
+      return;
+    }
+
+    this.invalidFeatureLimits.delete(key);
+    this.updateFeature(key, { daily_tokens: tokens ?? undefined });
+  }
+
   updateFeature(key: string, changes: Partial<FeatureSettings>) {
     const settings: FeatureSettings = { ...this.features[key], ...changes };
 
@@ -498,9 +570,10 @@ export default class AiPage extends ExtensionPage {
     // Keep only whether each connection has a key, as the server would send.
     this.connections = withoutKeys(this.connections);
 
-    const saved = JSON.stringify(this.connections);
+    const saved = serializeConnections(this.connections);
 
     app.data.settings[CONNECTIONS_SETTING] = saved;
     this.setting(CONNECTIONS_SETTING)(saved);
+    aiPayload().connectionsWithKeys = Object.keys(this.connections).filter((name) => this.connections[name].hasKey);
   }
 }

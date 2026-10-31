@@ -14,6 +14,8 @@ use Flarum\Settings\SettingsRepositoryInterface;
 /**
  * How the admin set each feature up, stored as JSON in `flarum-ai.features`.
  * A feature the admin hasn't turned on is off: it costs money.
+ *
+ * @internal
  */
 class FeatureSettings
 {

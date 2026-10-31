@@ -9,7 +9,8 @@
 
 namespace Flarum\Ai\Tests\integration;
 
-use Flarum\Ai\NotConfiguredException;
+use Flarum\Ai\Exception\NotConfiguredException;
+use Flarum\Ai\Testing\InteractsWithAi;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Facades\Http;
 use Laravel\Ai\AnonymousAgent;
@@ -24,6 +25,8 @@ use function Laravel\Ai\agent;
  */
 class ConnectionsTest extends TestCase
 {
+    use InteractsWithAi;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,8 +41,7 @@ class ConnectionsTest extends TestCase
 
     protected function useAdminConnection(string $key): void
     {
-        $this->setting('flarum-ai.connections', json_encode(['claude' => $this->anthropic($key)]));
-        $this->setting('flarum-ai.default_connection', 'claude');
+        $this->aiConnection('claude', ['driver' => 'anthropic', 'url' => 'https://api.anthropic.test/v1'], $key);
     }
 
     protected function fakeAnthropic(): void

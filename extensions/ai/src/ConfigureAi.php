@@ -16,6 +16,8 @@ use Laravel\Ai\AiManager;
 /**
  * Writes the current connections into laravel/ai's config. It runs when the
  * app boots, and again when the admin changes AI settings.
+ *
+ * @internal
  */
 class ConfigureAi
 {

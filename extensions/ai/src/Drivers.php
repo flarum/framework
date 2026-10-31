@@ -13,6 +13,8 @@ namespace Flarum\Ai;
  * The providers an admin can connect from the admin page. The others laravel/ai
  * supports (Azure, Bedrock, and the embedding, audio and reranking services)
  * need settings that page doesn't ask for, so they go in config.php.
+ *
+ * @internal
  */
 class Drivers
 {

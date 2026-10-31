@@ -23,8 +23,8 @@ use Illuminate\Contracts\Container\Container;
  *
  * Each feature appears on the AI admin page, where the admin turns it on
  * (features start off), picks its connection and model, sets a daily token
- * limit, and grants the permission to use it. Make calls with
- * {@see \Flarum\Ai\Ai::feature()}.
+ * limit, and grants the permission to use it, `ai.feature.{key}`, which no
+ * group has to begin with. Make calls with {@see \Flarum\Ai\Ai::feature()}.
  */
 class Ai implements ExtenderInterface
 {
@@ -34,12 +34,16 @@ class Ai implements ExtenderInterface
     protected array $features = [];
 
     /**
-     * @param string $key Your extension's ID and a name, like "acme-tldr.summaries".
+     * @param string $key Your extension's ID and a name, in lower case, like "acme-tldr.summaries". At most 89 characters.
      * @param string $label A translation key for the feature's name.
      * @param string|null $description A translation key for a sentence on what it does.
+     *
+     * @throws \InvalidArgumentException when the key isn't valid
      */
     public function feature(string $key, string $label, ?string $description = null): self
     {
+        Feature::assertValidKey($key);
+
         $this->features[] = compact('key', 'label', 'description');
 
         return $this;

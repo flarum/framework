@@ -31,6 +31,11 @@
             "Flarum\\Ai\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Flarum\\Ai\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "branch-alias": {
             "dev-main": "2.x-dev"

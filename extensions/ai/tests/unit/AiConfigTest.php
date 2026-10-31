@@ -126,7 +126,26 @@ class AiConfigTest extends TestCase
             ['connections' => ['host' => ['driver' => 'openai', 'key' => 'h', 'monthly_tokens' => 9, 'organization' => 'acme']]]
         )->toArray();
 
-        $this->assertSame(['driver' => 'anthropic', 'key' => 'k', 'models' => ['text' => ['default' => 'claude-house']]], $config['providers']['claude']);
+        $this->assertSame(['driver' => 'anthropic', 'models' => ['text' => ['default' => 'claude-house']]], $config['providers']['claude']);
         $this->assertSame(['driver' => 'openai', 'key' => 'h', 'organization' => 'acme'], $config['providers']['host']);
+    }
+
+    #[Test]
+    public function a_key_in_the_admins_settings_is_never_used(): void
+    {
+        // Keys come only from their own table, added when a provider is built.
+        $config = $this->aiConfig(['flarum-ai.connections' => json_encode(['claude' => ['driver' => 'anthropic', 'key' => 'leaked']])]);
+
+        $this->assertSame(['claude' => ['driver' => 'anthropic']], $config->adminConnections());
+        $this->assertArrayNotHasKey('key', $config->toArray()['providers']['claude']);
+        $this->assertTrue($config->isAdminConnection('claude'));
+    }
+
+    #[Test]
+    public function config_php_names_longer_than_the_ledger_holds_are_ignored(): void
+    {
+        $config = $this->aiConfig([], ['connections' => [str_repeat('n', 101) => ['driver' => 'openai'], 'ok' => ['driver' => 'openai']]]);
+
+        $this->assertSame(['ok'], array_keys($config->lockedConnections()));
     }
 }

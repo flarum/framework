@@ -15,7 +15,7 @@ use Flarum\Ai\Usage\Attribution;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Facade;
-use Laravel\Ai\AiManager;
+use Laravel\Ai\AiManager as BaseAiManager;
 use Laravel\Ai\AiServiceProvider as LaravelAiServiceProvider;
 
 /**
@@ -26,6 +26,8 @@ use Laravel\Ai\AiServiceProvider as LaravelAiServiceProvider;
  *
  * Its conversation store isn't bound. Its tables need a Flarum migration,
  * which comes with conversation support.
+ *
+ * @internal
  */
 class AiServiceProvider extends LaravelAiServiceProvider
 {
@@ -37,13 +39,15 @@ class AiServiceProvider extends LaravelAiServiceProvider
         Facade::setFacadeApplication($this->app->make(Application::class));
         Facade::clearResolvedInstances();
 
-        // One of each per request: the registry is filled by extenders, and
-        // the attribution is shared between a feature call and the listeners
-        // that meter it.
+        // One of each per request: the registry is filled by extenders, the
+        // attribution is shared between a feature call and the listeners that
+        // meter it, and the keys hold changes between a save's two events.
         $this->app->singleton(FeatureRegistry::class);
         $this->app->singleton(Attribution::class);
+        $this->app->singleton(ConnectionKeys::class);
 
-        $this->app->singleton(AiManager::class, fn (Application $app) => (new AiManager($app))->extend(
+        // Bound under laravel/ai's own name, so its facades and helpers use it too.
+        $this->app->singleton(BaseAiManager::class, fn (Application $app) => (new AiManager($app))->extend(
             AiConfig::UNCONFIGURED,
             fn (Application $app, array $config) => new UnconfiguredProvider($config, $app->make(Dispatcher::class))
         ));

@@ -1,10 +1,7 @@
 flarum-ai:
 
-  ##
-  # UNIQUE KEYS - The following keys are used in only one location each.
-  ##
-
-  # Translations in this namespace are used by the admin interface.
+  # Translations in this namespace are used by the admin interface. The
+  # *_message keys are also shown when a save is rejected on the server.
   admin:
 
     # These translations are used by the list of connections on the extension's page.
@@ -29,7 +26,7 @@ flarum-ai:
       locked_text: Set in config.php
       model_invalid_message: "The model for \"{name}\" is too long."
       monthly_tokens_text: "{tokens} tokens a month"
-      name_invalid_message: "\"{name}\" can't be used as a name. Use letters, numbers, dashes and underscores, up to 50 characters."
+      name_invalid_message: "\"{name}\" can't be used as a name. Start with a letter, then use letters, numbers, dashes and underscores, up to 50 characters."
       name_locked_message: "\"{name}\" is already set in config.php. Choose another name."
       no_key_text: No key
       remove_button: => core.ref.remove
@@ -55,6 +52,7 @@ flarum-ai:
       add_title: Add Connection
       driver_label: Provider
       edit_title: "Edit {name}"
+      key_dropped_text: A saved key is only used with the provider and API URL it was saved for. Enter it again to use it here.
       key_label: API Key
       key_optional_help: This provider can be used without a key.
       key_removed_text: The saved key is removed when you save your changes.
@@ -63,7 +61,7 @@ flarum-ai:
       model_label: Default Model
       monthly_tokens_help: Calls through this connection stop once it has used this many tokens in a calendar month. Leave empty for no limit.
       monthly_tokens_label: Tokens per Month
-      name_help: Letters, numbers, dashes and underscores. Features that use AI refer to a connection by its name.
+      name_help: Starts with a letter, then letters, numbers, dashes and underscores. Features that use AI refer to a connection by its name.
       name_label: Name
       name_taken_message: "There's already a connection called \"{name}\"."
       remove_key_button: Remove the saved key
@@ -79,6 +77,7 @@ flarum-ai:
       daily_tokens_label: Tokens per Day
       empty_text: No extension uses AI yet. Features appear here when an extension that uses AI is enabled.
       enabled_label: "Use AI for {feature}"
+      extension_text: "From {extension}."
       heading: Features
       help: It stays off until you turn it on, and members need its permission, on the Permissions tab, to use it.
       model_label: Model
@@ -86,10 +85,16 @@ flarum-ai:
 
     # These translations are used by the token limits on the extension's page.
     limits:
+      guest_daily_help: Calls made for guests stop once guests together have used this many tokens today, across every feature. Leave empty for no limit.
+      guest_daily_label: Tokens per Day for All Guests
       heading: Limits
-      help: Limits for each connection are set on the connection, and for each feature on its tab.
+      help: Limits for each connection are set on the connection, and for each feature on the Features tab. Days and months are in UTC. Calls already running when a limit is used up still finish, so a limit can be passed by a little.
       member_daily_help: Calls made for a member stop once they've used this many tokens today, across every feature. Admins have no limit. Leave empty for no limit.
       member_daily_label: Tokens per Member per Day
+
+    # These translations are used on the Permissions tab.
+    permissions:
+      use_feature_label: "Use AI: {feature}"
 
     # The tabs of the extension's page.
     tabs:
@@ -103,6 +108,7 @@ flarum-ai:
       by_feature_heading: By Feature
       by_member_heading: Top Members
       calls_column: Calls
+      chart_label: "Tokens per day over the last 30 days: {total} in all, most on {peakDate} with {peak}."
       days_heading: Last 30 Days
       empty_text: No AI calls this month yet.
       heading: "Usage in {month}"
@@ -110,4 +116,5 @@ flarum-ai:
       load_error_text: The usage totals could not be loaded.
       name_column: Name
       no_feature_text: Not from a feature
+      retry_button: Try Again
       tokens_column: Tokens
