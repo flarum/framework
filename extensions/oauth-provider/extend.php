@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider;
 
 use Flarum\Extend;
+use Illuminate\Console\Scheduling\Event;
 
 return [
     (new Extend\Frontend('admin'))
@@ -51,4 +52,10 @@ return [
 
     (new Extend\ServiceProvider())
         ->register(Provider\OAuthProviderServiceProvider::class),
+
+    (new Extend\Console())
+        ->command(Console\PruneClientsCommand::class)
+        ->schedule(Console\PruneClientsCommand::class, function (Event $event): void {
+            $event->daily();
+        }),
 ];
