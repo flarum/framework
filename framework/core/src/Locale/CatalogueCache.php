@@ -10,6 +10,8 @@
 namespace Flarum\Locale;
 
 use Symfony\Component\Config\ConfigCacheInterface;
+use Symfony\Component\Config\Resource\SelfCheckingResourceChecker;
+use Symfony\Component\Config\ResourceCheckerConfigCache;
 
 /**
  * Decides whether a compiled catalogue still reflects the translations this
@@ -31,16 +33,19 @@ use Symfony\Component\Config\ConfigCacheInterface;
  * therefore costs nothing, and rebuilds the moment it is first requested —
  * where previously it would have stayed stale indefinitely.
  *
- * Registered resources are never asked whether they are fresh. Doing so would
- * run third-party {@see \Symfony\Component\Config\Resource\SelfCheckingResourceInterface}
+ * Outside debug mode, registered resources are never asked whether they are
+ * fresh. Doing so would run third-party {@see \Symfony\Component\Config\Resource\SelfCheckingResourceInterface}
  * implementations that have never executed outside debug mode, some of which
- * resolve services and query the database on every request.
+ * resolve services and query the database on every request. In debug mode they
+ * are asked, as Symfony's own cache did, so an edited translation file shows
+ * on the next request.
  */
 class CatalogueCache implements ConfigCacheInterface
 {
     public function __construct(
         private readonly string $file,
-        private readonly string $revision
+        private readonly string $revision,
+        private readonly bool $debug = false
     ) {
     }
 
@@ -55,7 +60,11 @@ class CatalogueCache implements ConfigCacheInterface
             return false;
         }
 
-        return @file_get_contents($this->revisionPath()) === $this->revision;
+        if (@file_get_contents($this->revisionPath()) !== $this->revision) {
+            return false;
+        }
+
+        return ! $this->debug || $this->resourceCache()->isFresh();
     }
 
     public function write(string $content, ?array $metadata = null): void
@@ -82,6 +91,12 @@ class CatalogueCache implements ConfigCacheInterface
         // catalogue that was never written as current, and so would writing it
         // after the catalogue failed to write.
         if (! $this->dump($this->file, $content)) {
+            return;
+        }
+
+        // Before the revision, so a matching revision always has the resources
+        // its catalogue was built from beside it.
+        if ($this->debug && ! $this->dump($this->metaPath(), serialize($metadata ?? []))) {
             return;
         }
 
@@ -116,5 +131,19 @@ class CatalogueCache implements ConfigCacheInterface
     private function revisionPath(): string
     {
         return $this->file.'.revision';
+    }
+
+    private function metaPath(): string
+    {
+        return $this->file.'.meta';
+    }
+
+    /**
+     * Symfony's check of the resources recorded beside the catalogue against
+     * its modification time.
+     */
+    private function resourceCache(): ResourceCheckerConfigCache
+    {
+        return new ResourceCheckerConfigCache($this->file, [new SelfCheckingResourceChecker()], $this->metaPath());
     }
 }

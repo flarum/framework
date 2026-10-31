@@ -66,7 +66,8 @@ class LocaleManager
      * of it resolving services and querying the database on every request. A
      * file edited in place, with nothing added or removed and no stamp bumped,
      * is the one change this does not see; clearing the cache covers it, which
-     * a deployment does anyway.
+     * a deployment does anyway. In debug mode the catalogue cache checks the
+     * resources as well (see {@see CatalogueCache}).
      */
     public function revision(): string
     {

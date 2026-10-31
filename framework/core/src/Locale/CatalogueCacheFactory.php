@@ -27,13 +27,14 @@ class CatalogueCacheFactory implements ConfigCacheFactoryInterface
      * @param \Closure(): string $revision
      */
     public function __construct(
-        private readonly \Closure $revision
+        private readonly \Closure $revision,
+        private readonly bool $debug = false
     ) {
     }
 
     public function cache(string $file, callable $callback): ConfigCacheInterface
     {
-        $cache = new CatalogueCache($file, ($this->revision)());
+        $cache = new CatalogueCache($file, ($this->revision)(), $this->debug);
 
         if (! $cache->isFresh()) {
             $callback($cache);

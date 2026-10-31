@@ -12,6 +12,7 @@ namespace Flarum\Tests\unit\Locale;
 use Flarum\Locale\CatalogueCache;
 use Flarum\Testing\unit\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\Config\Resource\FileResource;
 
 class CatalogueCacheTest extends TestCase
 {
@@ -31,6 +32,7 @@ class CatalogueCacheTest extends TestCase
         }
 
         is_file($this->root.'/locale') ? unlink($this->root.'/locale') : @rmdir($this->root.'/locale');
+        @unlink($this->root.'/en.yml');
         @rmdir($this->root);
 
         parent::tearDown();
@@ -101,5 +103,21 @@ class CatalogueCacheTest extends TestCase
         $this->assertFalse($cache->isFresh());
         $this->assertFileDoesNotExist($file.'.revision', 'No revision for a catalogue that was not written');
         $this->assertSame(['catalogue.en.php'], array_map('basename', glob($this->root.'/locale/*')), 'The temporary file was removed');
+    }
+
+    #[Test]
+    public function outside_debug_mode_the_resources_behind_a_catalogue_are_never_checked()
+    {
+        $file = $this->root.'/locale/catalogue.en.php';
+        $translations = $this->root.'/en.yml';
+        mkdir($this->root, 0775, true);
+        touch($translations);
+
+        (new CatalogueCache($file, 'rev-1'))->write('<?php return [];', [new FileResource($translations)]);
+        touch($translations, time() + 5);
+        clearstatcache();
+
+        $this->assertTrue((new CatalogueCache($file, 'rev-1'))->isFresh());
+        $this->assertFalse((new CatalogueCache($file, 'rev-1', true))->isFresh(), 'Debug mode does check them');
     }
 }
