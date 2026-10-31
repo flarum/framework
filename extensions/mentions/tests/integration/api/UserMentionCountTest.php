@@ -117,16 +117,22 @@ class UserMentionCountTest extends TestCase
         $migration = require __DIR__.'/../../../migrations/2026_10_13_000000_add_mention_count_to_users_table.php';
         $schema = $this->database()->getSchemaBuilder();
 
-        $migration['down']($schema);
-        $this->assertFalse($schema->hasColumn('users', 'mention_count'));
+        try {
+            $migration['down']($schema);
+            $this->assertFalse($schema->hasColumn('users', 'mention_count'));
 
-        $migration['up']($schema);
-        $this->assertTrue($schema->hasColumn('users', 'mention_count'));
+            $migration['up']($schema);
+            $this->assertTrue($schema->hasColumn('users', 'mention_count'));
 
-        // The private post is not counted.
-        $this->assertSame(2, $this->mentionCountOf(3));
-        $this->assertSame(1, $this->mentionCountOf(2));
-        $this->assertSame(0, $this->mentionCountOf(1));
+            // The private post is not counted.
+            $this->assertSame(2, $this->mentionCountOf(3));
+            $this->assertSame(1, $this->mentionCountOf(2));
+            $this->assertSame(0, $this->mentionCountOf(1));
+        } finally {
+            // DDL commits implicitly on MySQL/MariaDB, so the rows can't be rolled back.
+            $this->database()->table('post_mentions_user')->delete();
+            $this->database()->table('posts')->whereIn('id', [2, 3])->delete();
+        }
     }
 
     protected function reply(string $content): int
