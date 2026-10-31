@@ -53,9 +53,19 @@ class AiConfig
         return $this->valid($this->config['ai.connections']);
     }
 
+    /**
+     * The default connection chosen in config.php, which the admin can't change.
+     */
+    public function lockedDefaultConnection(): ?string
+    {
+        $name = $this->config['ai.default_connection'] ?? null;
+
+        return is_string($name) && $name !== '' ? $name : null;
+    }
+
     public function defaultConnection(): ?string
     {
-        $name = $this->config['ai.default_connection'] ?? $this->settings->get('flarum-ai.default_connection');
+        $name = $this->lockedDefaultConnection() ?? $this->settings->get('flarum-ai.default_connection');
 
         return is_string($name) && isset($this->connections()[$name]) ? $name : null;
     }
@@ -79,9 +89,11 @@ class AiConfig
     }
 
     /**
+     * Connections the admin set up on the admin page.
+     *
      * @return array<string, array<string, mixed>>
      */
-    protected function adminConnections(): array
+    public function adminConnections(): array
     {
         return $this->valid(json_decode((string) $this->settings->get('flarum-ai.connections'), true));
     }

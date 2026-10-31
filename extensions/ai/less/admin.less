@@ -1,0 +1,38 @@
+.AiPage-connections {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.AiPage-connection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--control-bg);
+
+  &-name {
+    font-weight: bold;
+  }
+
+  &-url,
+  &-key,
+  &-locked {
+    color: var(--muted-color);
+  }
+
+  &-url {
+    word-break: break-all;
+  }
+
+  &-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+}
+
+.AiPage-empty {
+  color: var(--muted-color);
+}
