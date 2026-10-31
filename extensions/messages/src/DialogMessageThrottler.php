@@ -47,7 +47,8 @@ class DialogMessageThrottler
             return true;
         }
 
-        // A message with no dialog opens one, unless the pair already talk.
+        // A message with no dialog opens one, unless the pair already talk
+        // directly. A group always opens one.
         $body = (array) $request->getParsedBody();
 
         if (! Arr::get($body, 'data.relationships.dialog.data.id') && $this->opensDialog($actor->id, $body)) {
@@ -65,16 +66,23 @@ class DialogMessageThrottler
 
     private function opensDialog(int $actorId, array $body): bool
     {
-        $recipients = array_filter(
+        $recipients = array_unique(array_map('intval', array_filter(
             Arr::pluck(Arr::get($body, 'data.attributes.users', []), 'id'),
             fn (mixed $id) => $id && (int) $id !== $actorId
-        );
+        )));
 
         if (! $recipients) {
             return false;
         }
 
-        return ! Dialog::whereRelation('users', 'user_id', $actorId)
+        // More than one recipient is a group, and a group is always new.
+        if (count($recipients) > 1) {
+            return true;
+        }
+
+        return ! Dialog::query()
+            ->where('type', Dialog::DIRECT)
+            ->whereRelation('users', 'user_id', $actorId)
             ->whereRelation('users', 'user_id', (int) array_values($recipients)[0])
             ->exists();
     }

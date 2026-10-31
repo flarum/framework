@@ -113,6 +113,28 @@ class ThrottleTest extends TestCase
     }
 
     #[Test]
+    public function a_group_counts_as_a_new_conversation_even_with_someone_already_talked_to(): void
+    {
+        $dialogs = [];
+        $messages = [];
+        $members = [];
+
+        // Carol's hour's allowance, every one of them with bob.
+        for ($i = 0; $i < DialogMessageThrottler::$newDialogsPerHour; $i++) {
+            $id = 200 + $i;
+            $dialogs[] = ['id' => $id, 'type' => 'direct', 'created_at' => Carbon::now()->subMinutes(30)];
+            $messages[] = ['id' => $id, 'dialog_id' => $id, 'user_id' => 5, 'content' => "Hello $i", 'number' => 1, 'created_at' => Carbon::now()->subMinutes(30)];
+            $members[] = ['dialog_id' => $id, 'user_id' => 5, 'joined_at' => Carbon::now()->subMinutes(30)];
+            $members[] = ['dialog_id' => $id, 'user_id' => 4, 'joined_at' => Carbon::now()->subMinutes(30)];
+        }
+
+        $this->prepareDatabase([Dialog::class => $dialogs, DialogMessage::class => $messages, 'dialog_user' => $members]);
+
+        // Bob first: the pair already talk, but a group is new all the same.
+        $this->assertEquals(429, $this->post(5, ['content' => 'Hi both', 'users' => [['id' => 4], ['id' => 3]]])->getStatusCode());
+    }
+
+    #[Test]
     public function a_member_allowed_to_send_without_throttling_is_not_throttled(): void
     {
         $this->prepareDatabase([
