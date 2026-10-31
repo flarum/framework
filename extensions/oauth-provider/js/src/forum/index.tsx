@@ -1,4 +1,12 @@
 import app from 'flarum/forum/app';
+import { extend } from 'flarum/common/extend';
+import FieldSet from 'flarum/common/components/FieldSet';
+import type ItemList from 'flarum/common/utils/ItemList';
+import type Mithril from 'mithril';
+
+import ConnectedApplications from './components/ConnectedApplications';
+
+export { default as extend } from './extend';
 
 // Same-origin guard: only trust return URLs on this forum.
 const isSafeReturnTo = (url: string | null): url is string => {
@@ -18,6 +26,19 @@ const isLoggedIn = (): boolean => {
 };
 
 app.initializers.add('flarum-oauth-provider', () => {
+  extend('flarum/forum/components/SettingsPage', 'settingsItems', function (items: ItemList<Mithril.Children>) {
+    items.add(
+      'oauthConnectedApplications',
+      <FieldSet
+        className="Settings-connectedApplications FieldSet--col"
+        label={app.translator.trans('flarum-oauth-provider.forum.connected_apps.heading')}
+      >
+        <ConnectedApplications />
+      </FieldSet>,
+      5
+    );
+  });
+
   const params = new URLSearchParams(window.location.search);
 
   if (params.get('oauth_login') === '1') {
