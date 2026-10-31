@@ -20,7 +20,7 @@
         & > li > a {
           color: var(--sidenav-color, var(--muted-color));
           gap: 15px;
-          padding-left: 0;
+          padding-inline-start: 0;
 
           &:hover {
             background: none;
@@ -85,8 +85,8 @@
   &:after {
     content: " ";
     position: absolute;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     margin-top: 15px;
     border-bottom: 1px solid var(--control-bg);
   }

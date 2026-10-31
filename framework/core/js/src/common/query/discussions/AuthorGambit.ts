@@ -6,6 +6,10 @@ export default class AuthorGambit extends KeyValueGambit {
     return app.translator.trans('core.lib.gambits.discussions.author.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'author';
+  }
+
   hint(): string {
     return app.translator.trans('core.lib.gambits.discussions.author.hint', {}, true);
   }

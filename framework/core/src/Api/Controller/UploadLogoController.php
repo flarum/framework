@@ -21,6 +21,7 @@ class UploadLogoController extends UploadImageController
     protected string $filenamePrefix = 'logo';
     private string $resolvedExtension = 'webp';
     protected ?string $validator = LogoValidator::class;
+    protected ?string $themeImage = 'logo';
 
     /**
      * Whether to also store an email-safe copy of the logo, which emails fall
@@ -30,8 +31,10 @@ class UploadLogoController extends UploadImageController
 
     protected function makeImage(UploadedFileInterface $file): EncodedImageInterface
     {
+        $logo = $this->container->make('flarum.forum.logo');
+
         $image = $this->imageManager->read($file->getStream()->getMetadata('uri'))
-            ->scale(height: 60);
+            ->scale(height: $logo['height']);
 
         if ($image->isAnimated()) {
             $this->resolvedExtension = 'gif';
@@ -41,7 +44,7 @@ class UploadLogoController extends UploadImageController
 
         $this->resolvedExtension = 'webp';
 
-        return $image->toWebp();
+        return $image->toWebp(quality: $logo['quality']);
     }
 
     protected function afterStore(ServerRequestInterface $request, UploadedFileInterface $file): void

@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component from '../../common/Component';
 import { AnnouncementData } from './AnnouncementItem';
 export interface IAnnouncementListAttrs {

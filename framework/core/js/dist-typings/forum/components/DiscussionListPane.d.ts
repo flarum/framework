@@ -19,4 +19,4 @@ export default class DiscussionListPane extends Component<import("../../common/C
      */
     enoughSpace(): boolean;
 }
-import Component from "../../common/Component";
+import Component from '../../common/Component';

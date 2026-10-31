@@ -1,7 +1,7 @@
 import UserPage, { IUserPageAttrs } from './UserPage';
 import type Mithril from 'mithril';
 import type User from '../../common/models/User';
-import PostListState from '../states/PostListState';
+import PostListState, { type PostListParams } from '../states/PostListState';
 /**
  * The `PostsUserPage` component shows a user's activity feed inside of their
  * profile.
@@ -22,9 +22,5 @@ export default class PostsUserPage extends UserPage {
      * activity feed.
      */
     show(user: User): void;
-    params(user: User): {
-        filter: {
-            author: string;
-        };
-    };
+    params(user: User): PostListParams;
 }

@@ -9,8 +9,8 @@
 }
 .UserCard-controls {
   .Dropdown-menu {
-    left: auto;
-    right: 0;
+    inset-inline-start: auto;
+    inset-inline-end: 0;
   }
 }
 .UserCard--popover {
@@ -32,7 +32,7 @@
   display: grid;
   grid-template-columns: 104px 1fr;
   gap: 26px;
-  text-align: left;
+  text-align: inline-start;
   padding-right: 20px;
 
   @media @phone {
@@ -70,7 +70,7 @@
 
   &, > li {
     display: inline-block;
-    margin-right: 5px
+    margin-inline-end: 5px
   }
 }
 .UserCard-info {
@@ -81,7 +81,7 @@
 
   > li {
     display: inline-block;
-    margin-right: 15px;
+    margin-inline-end: 15px;
   }
 }
 .UserCard-lastSeen {

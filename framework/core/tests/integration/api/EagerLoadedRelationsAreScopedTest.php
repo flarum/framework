@@ -215,6 +215,40 @@ class EagerLoadedRelationsAreScopedTest extends TestCase
     }
 
     /**
+     * A relationship eager loaded without its resource scope, because other
+     * code needs all of it (see withoutRelatedScope()), reaches the client in
+     * full unless its getter leaves out what the actor may not see.
+     */
+    #[Test]
+    public function every_relationship_loaded_in_full_has_a_getter_to_filter_it()
+    {
+        $api = $this->app()->getContainer()->make(JsonApi::class);
+
+        $unfiltered = [];
+
+        foreach ($api->resources as $type => $resource) {
+            if (! $resource instanceof AbstractDatabaseResource) {
+                continue;
+            }
+
+            foreach ($this->fieldsOf($api, $resource) as $field) {
+                if (($field instanceof ToOne || $field instanceof ToMany)
+                    && ! $field->relatedScope
+                    && ! (new ReflectionProperty($field, 'getter'))->getValue($field)) {
+                    $unfiltered[] = "$type: {$field->name}";
+                }
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $unfiltered,
+            "These relationships are loaded without a visibility scope and serialized as loaded:\n\n  "
+            .implode("\n  ", $unfiltered)
+        );
+    }
+
+    /**
      * @return array<object>
      */
     private function fieldsOf(JsonApi $api, AbstractDatabaseResource $resource): array

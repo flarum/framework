@@ -25,6 +25,8 @@ class LocaleManager
     protected array $locales = [];
     protected array $js = [];
     protected array $css = [];
+    protected array $directions = [];
+    protected array $languagePacks = [];
 
     /**
      * Every translation file registered on this instance, as
@@ -102,6 +104,31 @@ class LocaleManager
     public function hasLocale(string $locale): bool
     {
         return isset($this->locales[$locale]);
+    }
+
+    public function setLanguagePackId(string $locale, string $extensionId): void
+    {
+        $this->languagePacks[$locale] = $extensionId;
+    }
+
+    /**
+     * The ID of the extension whose language pack registered this locale.
+     */
+    public function getLanguagePackId(?string $locale): ?string
+    {
+        return $locale === null ? null : $this->languagePacks[$locale] ?? null;
+    }
+
+    public function setDirection(string $locale, string $direction): void
+    {
+        $this->directions[$locale] = $direction;
+    }
+
+    public function getDirection(?string $locale = null): string
+    {
+        $locale ??= $this->getLocale();
+
+        return $this->directions[$locale] ?? $this->directions[explode('-', $locale)[0]] ?? 'ltr';
     }
 
     public function addTranslations(string $locale, string $file, ?string $module = null): void

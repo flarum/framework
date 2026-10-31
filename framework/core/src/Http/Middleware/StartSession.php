@@ -11,6 +11,7 @@ namespace Flarum\Http\Middleware;
 
 use Dflydev\FigCookies\FigResponseCookies;
 use Flarum\Http\CookieFactory;
+use Flarum\Http\SessionConfig;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Session\Store;
@@ -28,7 +29,8 @@ class StartSession implements Middleware
     public function __construct(
         protected SessionHandlerInterface $handler,
         protected CookieFactory $cookie,
-        ConfigRepository $config
+        ConfigRepository $config,
+        protected SessionConfig $sessionConfig
     ) {
         $this->config = (array) $config->get('session');
     }
@@ -65,14 +67,21 @@ class StartSession implements Middleware
 
     private function withSessionCookie(Response $response, Session $session): Response
     {
+        // A cookie with no lifetime at all is what a browser discards when it
+        // closes. The session itself is unaffected — it stays valid server-side
+        // for its usual span; the browser simply stops offering it.
+        $maxAge = $this->sessionConfig->cookieExpiresOnClose()
+            ? null
+            : $this->getSessionLifetimeInSeconds();
+
         return FigResponseCookies::set(
             $response,
-            $this->cookie->make($session->getName(), $session->getId(), $this->getSessionLifetimeInSeconds())
+            $this->cookie->make($session->getName(), $session->getId(), $maxAge)
         );
     }
 
     private function getSessionLifetimeInSeconds(): int
     {
-        return $this->config['lifetime'] * 60;
+        return $this->sessionConfig->lifetime() * 60;
     }
 }

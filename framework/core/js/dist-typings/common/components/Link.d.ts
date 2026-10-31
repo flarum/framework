@@ -10,4 +10,4 @@ export default class Link extends Component<import("../Component").ComponentAttr
     constructor();
     view(vnode: any): JSX.Element;
 }
-import Component from "../Component";
+import Component from '../Component';

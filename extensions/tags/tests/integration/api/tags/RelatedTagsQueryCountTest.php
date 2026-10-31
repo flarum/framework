@@ -78,6 +78,19 @@ class RelatedTagsQueryCountTest extends TestCase
         $this->assertSame([], $this->tagLookups($queries), 'Tags looked up one at a time.');
     }
 
+    /**
+     * The tags page loads the actor's state for each set of tags it shows: the
+     * listed tags, their parents and children, and the last posted discussions'
+     * tags and their parents. Each set takes one query, however many tags are
+     * in it; folding their id lists, the detector reads them as one repeated.
+     */
+    protected function allowedRepeatedQueries(): array
+    {
+        $grammar = $this->database()->getQueryGrammar();
+
+        return ['from '.$grammar->wrapTable('tag_user').' where '.$grammar->wrap('tag_user.tag_id').' in (?)'];
+    }
+
     /** @return string[] */
     protected function queriesFor(string $path, array $query): array
     {

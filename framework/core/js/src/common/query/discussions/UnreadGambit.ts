@@ -6,6 +6,10 @@ export default class UnreadGambit extends BooleanGambit {
     return app.translator.trans('core.lib.gambits.discussions.unread.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'unread';
+  }
+
   filterKey(): string {
     return 'unread';
   }

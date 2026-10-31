@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component, { ComponentAttrs } from '../Component';
 export interface LoadingIndicatorAttrs extends ComponentAttrs {
     /**

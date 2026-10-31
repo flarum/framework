@@ -8,6 +8,13 @@ export default interface IGambit<Type extends GambitType = GambitType> {
      */
     pattern(): string;
     /**
+     * The canonical English pattern for this gambit, used as an alias so that
+     * English always works regardless of the active locale.
+     * Implementations should derive this from canonicalKey() rather than key().
+     * Optional, so gambits that implement this interface directly keep working.
+     */
+    canonicalPattern?(): string;
+    /**
      * This is the method to transform a gambit into a filter format.
      */
     toFilter(matches: string[], negate: boolean): Record<string, any>;
@@ -67,9 +74,17 @@ export declare abstract class BooleanGambit implements IGambit<GambitType.Groupe
     predicates: boolean;
     abstract key(): string | string[];
     abstract filterKey(): string;
+    /**
+     * The hardcoded English keyword(s) for this gambit, used as a canonical
+     * alias so that English always works regardless of the active locale.
+     * Defaults to key(), which is correct when the gambit is not translated.
+     * Override this in subclasses that translate key() via the translator.
+     */
+    canonicalKey(): string | string[];
     booleanKey(): 'is' | 'has' | 'allows';
     groupKey(): string;
     pattern(): string;
+    canonicalPattern(): string;
     toFilter(_matches: string[], negate: boolean): Record<string, any>;
     fromFilter(value: string, negate: boolean): string;
     suggestion(): {
@@ -84,10 +99,18 @@ export declare abstract class KeyValueGambit implements IGambit<GambitType.KeyVa
     abstract key(): string;
     abstract hint(): string;
     abstract filterKey(): string;
+    /**
+     * The hardcoded English keyword for this gambit, used as a canonical
+     * alias so that English always works regardless of the active locale.
+     * Defaults to key(), which is correct when the gambit is not translated.
+     * Override this in subclasses that translate key() via the translator.
+     */
+    canonicalKey(): string;
     valuePattern(): string;
     gambitValueToFilterValue(value: string): string | number | boolean | Array<any>;
     filterValueToGambitValue(value: any): string;
     pattern(): string;
+    canonicalPattern(): string;
     toFilter(matches: string[], negate: boolean): Record<string, any>;
     fromFilter(value: any, negate: boolean): string;
     suggestion(): {
