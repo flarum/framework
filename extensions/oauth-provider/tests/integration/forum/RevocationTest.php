@@ -94,9 +94,49 @@ class RevocationTest extends TestCase
         $this->assertTrue(RefreshToken::query()->where('access_token_id', $row->id)->firstOrFail()->revoked);
 
         $refresh = $this->token(['grant_type' => 'refresh_token', 'client_id' => 'public-client', 'refresh_token' => $tokens['refresh_token']]);
-        // league reports a revoked refresh token as invalid_request.
-        $this->assertSame(401, $refresh->getStatusCode());
-        $this->assertSame('invalid_request', $this->json($refresh)['error']);
+        $this->assertSame(400, $refresh->getStatusCode());
+        $this->assertSame('invalid_grant', $this->json($refresh)['error']);
+    }
+
+    #[Test]
+    public function reusing_a_rotated_refresh_token_revokes_the_whole_grant(): void
+    {
+        $first = $this->publicClientTokens('public-client');
+        $unrelated = $this->publicClientTokens('other-client');
+
+        $rotated = $this->token(['grant_type' => 'refresh_token', 'client_id' => 'public-client', 'refresh_token' => $first['refresh_token']]);
+        $this->assertSame(200, $rotated->getStatusCode(), (string) $rotated->getBody());
+        $current = $this->json($rotated);
+        $this->assertFalse($this->tokenRow($current['access_token'])->revoked);
+
+        // The old refresh token shows up again: someone kept a copy.
+        $reuse = $this->token(['grant_type' => 'refresh_token', 'client_id' => 'public-client', 'refresh_token' => $first['refresh_token']]);
+        $this->assertSame(400, $reuse->getStatusCode());
+        $this->assertSame('invalid_grant', $this->json($reuse)['error']);
+
+        $row = $this->tokenRow($current['access_token']);
+        $this->assertTrue($row->revoked);
+        $this->assertTrue(RefreshToken::query()->where('access_token_id', $row->id)->firstOrFail()->revoked);
+        $this->assertSame(0, AccessToken::query()->where('client_id', 'public-client')->where('revoked', false)->count());
+
+        $refresh = $this->token(['grant_type' => 'refresh_token', 'client_id' => 'public-client', 'refresh_token' => $current['refresh_token']]);
+        $this->assertSame(400, $refresh->getStatusCode());
+
+        // Another client's grant for the same user is untouched.
+        $this->assertFalse($this->tokenRow($unrelated['access_token'])->revoked);
+    }
+
+    #[Test]
+    public function a_revoked_refresh_token_of_another_client_revokes_nothing(): void
+    {
+        $tokens = $this->publicClientTokens('public-client');
+        $this->revoke(['token' => $tokens['refresh_token'], 'client_id' => 'public-client']);
+        $other = $this->publicClientTokens('other-client');
+
+        $response = $this->token(['grant_type' => 'refresh_token', 'client_id' => 'other-client', 'refresh_token' => $tokens['refresh_token']]);
+
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertFalse($this->tokenRow($other['access_token'])->revoked);
     }
 
     #[Test]

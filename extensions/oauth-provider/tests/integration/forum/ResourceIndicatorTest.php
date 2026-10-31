@@ -172,4 +172,19 @@ class ResourceIndicatorTest extends TestCase
 
         $this->assertSame('invalid_target', $this->json($response)['error']);
     }
+
+    #[Test]
+    public function userinfo_refuses_resource_bound_tokens(): void
+    {
+        $bound = $this->publicClientTokens('public-client', ['scope' => 'openid mcp:read', 'resource' => self::RESOURCE]);
+        $oidc = $this->publicClientTokens('public-client');
+
+        $refused = $this->send($this->request('GET', '/oauth/userinfo')->withHeader('Authorization', 'Bearer '.$bound['access_token']));
+        $this->assertSame(401, $refused->getStatusCode());
+        $this->assertSame('access_denied', $this->json($refused)['error']);
+
+        $allowed = $this->send($this->request('GET', '/oauth/userinfo')->withHeader('Authorization', 'Bearer '.$oidc['access_token']));
+        $this->assertSame(200, $allowed->getStatusCode());
+        $this->assertSame('2', $this->json($allowed)['sub']);
+    }
 }
