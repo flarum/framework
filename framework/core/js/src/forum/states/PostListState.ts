@@ -52,7 +52,7 @@ export default class PostListState<P extends PostListParams = PostListParams> ex
 
     if (preloadedPosts) {
       this.initialLoading = false;
-      this.pageSize = preloadedPosts.payload.meta?.perPage || PostListState.DEFAULT_PAGE_SIZE;
+      this.pageSize = preloadedPosts.payload.meta?.page?.limit || preloadedPosts.payload.meta?.perPage || PostListState.DEFAULT_PAGE_SIZE;
 
       return Promise.resolve(preloadedPosts);
     }
