@@ -71,13 +71,17 @@ class OverviewBuilder
 
         $instructions = $this->extensionInstructions($context);
 
+        // Versions tell an attacker which known vulnerabilities apply: admins only,
+        // as for the forum resource's own `version` field.
+        $versions = $actor->isAdmin();
+
         $extensions = [];
         foreach ($this->extensions->getEnabledExtensions() as $id => $extension) {
             $extensions[] = [
                 'id' => $id,
                 'title' => $extension->getTitle(),
                 'description' => (string) $extension->composerJsonAttribute('description'),
-                'version' => $extension->getVersion(),
+                ...($versions ? ['version' => $extension->getVersion()] : []),
                 ...$capabilities->contributedBy((string) $id),
                 'types' => $types[$id] ?? [],
                 'instructions' => $instructions[$id] ?? null,
@@ -90,7 +94,7 @@ class OverviewBuilder
                 'description' => (string) $context->settings->get('forum_description'),
                 'url' => $context->forumUrl(),
                 'locale' => $context->translator->getLocale(),
-                'version' => Application::VERSION,
+                ...($versions ? ['version' => Application::VERSION] : []),
             ],
             'you' => $this->you($actor),
             'core' => array_filter([

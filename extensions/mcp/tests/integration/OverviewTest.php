@@ -9,6 +9,7 @@
 
 namespace Flarum\Mcp\Tests\integration;
 
+use Flarum\Foundation\Application;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -55,9 +56,48 @@ class OverviewTest extends McpTestCase
         $this->assertContains('flarum://forum', $extensions['flarum-mcp']['resources']);
         $this->assertContains('summarize_discussion', $extensions['flarum-mcp']['prompts']);
 
+        // Versions are for admins only.
+        $this->assertArrayNotHasKey('version', $overview['forum']);
+        $this->assertArrayNotHasKey('version', $extensions['flarum-tags']);
+
         $this->assertContains('discussions', $overview['core']['types']);
         $this->assertNotContains('tags', $overview['core']['types']);
         $this->assertNotEmpty($overview['guidance']);
+    }
+
+    #[Test]
+    public function admins_see_versions(): void
+    {
+        $auth = $this->bearer($this->developerToken(1));
+
+        $overview = json_decode($this->rpcResult($this->modern('resources/read', ['uri' => 'flarum://forum'], $auth, 'flarum://forum'))['contents'][0]['text'], true);
+        $this->assertSame(Application::VERSION, $overview['forum']['version']);
+        $this->assertArrayHasKey('version', array_column($overview['extensions'], null, 'id')['flarum-tags']);
+
+        $this->assertSame(Application::VERSION, $this->serverVersion($auth));
+
+        $member = $this->serverVersion($this->bearer($this->developerToken(2)));
+        $this->assertNotSame(Application::VERSION, $member);
+        $this->assertStringNotContainsString('.', $member);
+    }
+
+    /**
+     * @param array<string, string> $auth
+     */
+    protected function serverVersion(array $auth): string
+    {
+        $initialize = $this->rpcResult($this->send($this->mcpRequest([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => self::HANDSHAKE,
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'flarum-tests', 'version' => '1.0.0'],
+            ],
+        ], $auth)));
+
+        return $initialize['serverInfo']['version'];
     }
 
     #[Test]

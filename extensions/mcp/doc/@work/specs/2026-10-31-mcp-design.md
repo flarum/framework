@@ -362,7 +362,7 @@ is the index query) and `start_discussion` (`$apiQuery` is
   `searchUsers`, `viewUserList`, `discussion.reply` (global check), plus any abilities
   extensions add through `Extend\Mcp::ability($ability, $label)`.
 - `extensions`: every **enabled** extension with:
-  - id, title, description, version (from `ExtensionManager`)
+  - id, title, description (from `ExtensionManager`); the version for admins only
   - the MCP tools / resources / prompts it contributes (from extender registration
     provenance)
   - the API resource types it owns
@@ -399,7 +399,8 @@ one-line descriptions, then the guidance.
 - Extensions use it wrapped in `Extend\Conditional::whenExtensionEnabled('flarum-mcp', ...)`
   so that flarum/mcp stays an optional dependency for them.
 - The extender records the calling `Extension` (the second argument of `extend()`) for
-  overview provenance.
+  overview provenance. `new Mcp('flarum-tags')` overrides it: flarum/mcp registers its
+  bundled integrations that way, on behalf of the extension each one integrates.
 - Field descriptions use the existing json-api-server API: `->description('...')` on a
   field definition, or on someone else's field through
   `(new Extend\ApiResource(X::class))->field('name', fn ($f) => $f->description('...'))`.

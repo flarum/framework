@@ -73,7 +73,8 @@ class ServerFactory
         $builder = Server::builder()
             ->setServerInfo(
                 name: 'flarum',
-                version: Application::VERSION,
+                // The full version is for admins only, as in the forum resource.
+                version: $context->actor->isAdmin() ? Application::VERSION : explode('.', Application::VERSION)[0],
                 description: $this->settings->get('forum_description') ?: null,
                 icons: $this->icons() ?: null,
                 websiteUrl: $this->url->to('forum')->base(),
