@@ -13,7 +13,7 @@
 
 .Header-controls {
   > li {
-    margin-left: 10px;
+    margin-inline-start: 10px;
   }
 }
 
@@ -36,7 +36,7 @@
 
   .ExtensionNavButton {
     .Button-label {
-      margin-left: 30px;
+      margin-inline-start: 30px;
     }
     .ExtensionIcon {
       margin: 0 0 0 -4px !important;
@@ -91,7 +91,7 @@
     }
   }
   .App-content .sideNavOffset {
-    margin-left: var(--admin-pane-width);
+    margin-inline-start: var(--admin-pane-width);
   }
   .App-nav .AdminNav {
     --extension-icon-size: 25px;
@@ -174,7 +174,7 @@
 
 .AdminLinkButton-description {
   white-space: normal;
-  padding-left: 5px;
+  padding-inline-start: 5px;
 }
 
 .ExtensionListTitle {
@@ -188,7 +188,7 @@
   width: 10px;
   border-radius: 50%;
   display: inline-block;
-  right: 13px;
+  inset-inline-end: 13px;
   margin: 6px 5px;
   position: absolute;
 }
@@ -216,10 +216,12 @@
 
 .ExtensionNavButton {
   .Badge {
-    margin-left: 5px;
     .Badge--size(16px);
     font-size: 10px;
     font-weight: bold;
+    position: absolute;
+    inset-inline-end: 33px;
+    margin: 3px 0;
 
     &.Badge--danger {
       --badge-bg: @error-color;

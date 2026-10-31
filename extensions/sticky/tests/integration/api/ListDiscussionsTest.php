@@ -193,4 +193,97 @@ class ListDiscussionsTest extends TestCase
 
         $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
+
+    #[Test]
+    public function list_discussions_does_not_pin_sticky_on_all_when_pin_setting_disabled_as_guest()
+    {
+        $this->setting('flarum-sticky.pin_sticky_on_all_discussions', false);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $data = json_decode($body, true);
+
+        $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
+    public function list_discussions_pin_setting_disabled_overrides_only_unread_setting_on_all()
+    {
+        // pin_sticky_on_all_discussions is the master gate for /all and must
+        // override only_sticky_unread_discussions when both are flipped.
+        $this->setting('flarum-sticky.pin_sticky_on_all_discussions', false);
+        $this->setting('flarum-sticky.only_sticky_unread_discussions', false);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', [
+                'authenticatedAs' => 2
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $data = json_decode($body, true);
+
+        $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
+    public function list_discussions_pin_setting_disabled_does_not_affect_tag_pages()
+    {
+        $this->setting('flarum-sticky.pin_sticky_on_all_discussions', false);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', [
+                'authenticatedAs' => 3
+            ])->withQueryParams([
+                'filter' => [
+                    'tag' => 'general'
+                ]
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $data = json_decode($body, true);
+
+        $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
+    public function list_discussions_only_unread_off_does_not_pin_sticky_on_a_non_tag_filter()
+    {
+        // With only_sticky_unread_discussions off, pinning applies to the
+        // All Discussions page and to a single-tag page — but NOT to other
+        // filtered listings (e.g. a by-author search). Previously the
+        // "pin all when only_unread is off" branch ran ahead of the filter
+        // check, so it pinned sticky on any filtered listing; pinning is now
+        // scoped to /all and single-tag pages, which is the intended behaviour.
+        $this->setting('flarum-sticky.only_sticky_unread_discussions', false);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', [
+                'authenticatedAs' => 1,
+            ])->withQueryParams([
+                'filter' => [
+                    'author' => 'Muralf',
+                ],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $data = json_decode($body, true);
+
+        // Natural last_posted_at order — no sticky pinning on a non-tag filter.
+        // The sticky discussions (1 and 3) sit last, in their natural position,
+        // rather than floating to the top. (5 is also sticky and appears here
+        // because the author filter isn't tag-scoped and the actor is an admin;
+        // it leads only because it is the most recently posted, not because it
+        // is stickied.)
+        $this->assertEquals([5, 2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+    }
 }

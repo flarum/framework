@@ -26,6 +26,7 @@ use InvalidArgumentException;
  * @property \Carbon\Carbon|null $last_message_at
  * @property int|null $last_message_user_id
  * @property string $type
+ * @property bool $anyone_can_reply
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, DialogMessage> $messages
@@ -43,7 +44,10 @@ class Dialog extends AbstractModel
     protected $table = 'dialogs';
 
     protected $casts = [
-        'last_message_at' => 'datetime'
+        'first_message_id' => 'integer',
+        'last_message_id' => 'integer',
+        'last_message_at' => 'datetime',
+        'anyone_can_reply' => 'boolean',
     ];
 
     public $timestamps = true;
@@ -127,8 +131,13 @@ class Dialog extends AbstractModel
         return $this->users->first(fn (User $user) => $user->id !== $actor?->id);
     }
 
-    public static function setStateUser(User $user): void
+    public static function setStateUser(?User $user): void
     {
         static::$stateUser = $user;
+    }
+
+    public static function stateUser(): ?User
+    {
+        return static::$stateUser;
     }
 }

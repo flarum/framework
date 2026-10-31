@@ -90,8 +90,16 @@ export default class Translator {
     const autoProvidedTags = this.autoProvidedTags();
 
     for (const tag of tags) {
-      if (!parameters[tag] && autoProvidedTags.includes(tag)) {
+      if (parameters[tag]) continue;
+
+      if (autoProvidedTags.includes(tag)) {
         parameters[tag] = ({ children }: any) => m(tag, children);
+      } else {
+        const provided = autoProvidedTags.join(', ');
+
+        fireDebugWarning(
+          `The <${tag}> tag in this translation has no "${tag}" parameter and isn't auto-provided (${provided}), so it renders as {undefined}.\nCaught in translation: \n\n"""\n${translation}\n"""`
+        );
       }
     }
 
@@ -186,6 +194,6 @@ export default class Translator {
   }
 
   autoProvidedTags(): string[] {
-    return ['strong', 'code', 'i', 's', 'em', 'sup', 'sub'];
+    return ['strong', 'b', 'code', 'i', 's', 'u', 'em', 'sup', 'sub'];
   }
 }

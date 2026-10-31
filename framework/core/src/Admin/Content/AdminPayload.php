@@ -9,14 +9,18 @@
 
 namespace Flarum\Admin\Content;
 
+use Flarum\Api\Resource\AbstractResource;
 use Flarum\Database\AbstractModel;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Forum\Branding\ThemeImages;
 use Flarum\Foundation\ApplicationInfoProvider;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\FontAwesome;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Frontend\Document;
 use Flarum\Group\Permission;
+use Flarum\Http\AccessToken;
+use Flarum\Http\SessionConfig;
 use Flarum\Search\AbstractDriver;
 use Flarum\Search\SearcherInterface;
 use Flarum\Settings\Event\Deserializing;
@@ -30,6 +34,60 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AdminPayload
 {
+    /**
+     * The names of the queues currently paused on the active connection —
+     * powers the dashboard warning and the Advanced page toggle, regardless
+     * of the queue backend in use.
+     *
+     * @return string[]
+     */
+    protected function pausedQueues(): array
+    {
+        /** @var \Flarum\Queue\QueueFactory $factory */
+        $factory = $this->container->make(\Illuminate\Contracts\Queue\Factory::class);
+
+        /** @var \Illuminate\Contracts\Queue\Queue $queue */
+        $queue = $this->container->make(\Illuminate\Contracts\Queue\Queue::class);
+
+        return $factory->pausedQueues((string) $queue->getConnectionName());
+    }
+
+    /**
+     * The sort options each resource offers, keyed by resource type.
+     *
+     * The forum already receives this, as it is what the sort dropdown is built
+     * from and how `?sort=newest` in a URL becomes `-createdAt` for the API. The
+     * admin side needs the same list wherever it offers sorting as a setting,
+     * and assembling one in JavaScript would mean a second copy that silently
+     * omits whatever sorts extensions have added.
+     *
+     * Only aliased sorts appear: a sort without one is perfectly usable through
+     * the API, but has no name to put in front of an administrator. Resources
+     * with nothing to offer are left out rather than published empty.
+     *
+     * @return array<string, array<string, string>>
+     */
+    protected function sortMaps(): array
+    {
+        $maps = [];
+
+        foreach ($this->container->make('flarum.api.resources') as $resourceClass) {
+            $resource = $this->container->make($resourceClass);
+
+            // Sorting is a listing concern, so anything that cannot be listed —
+            // the forum resource, for one — has no sorts to offer.
+            if (! $resource instanceof AbstractResource) {
+                continue;
+            }
+
+            if ($map = $resource->sortMap()) {
+                $maps[$resource->type()] = $map;
+            }
+        }
+
+        return $maps;
+    }
+
     public function __construct(
         protected Container $container,
         protected SettingsRepositoryInterface $settings,
@@ -39,8 +97,36 @@ class AdminPayload
         protected Config $config,
         protected ApplicationInfoProvider $appInfo,
         protected MaintenanceMode $maintenance,
-        protected FontAwesome $fontAwesome
+        protected FontAwesome $fontAwesome,
+        protected SessionConfig $sessionConfig
     ) {
+    }
+
+    /**
+     * The token types whose lifetime an administrator may change, with the
+     * lifetime each currently has.
+     *
+     * Built from the registry rather than a fixed list, so a type added by an
+     * extension is offered alongside the ones core ships.
+     *
+     * @return array<array{type: string, lifetime: int}>
+     */
+    protected function accessTokenLifetimes(): array
+    {
+        $types = [];
+
+        foreach (AccessToken::getModels() as $type => $model) {
+            if (! $model::hasConfigurableLifetime()) {
+                continue;
+            }
+
+            $types[] = [
+                'type' => $type,
+                'lifetime' => $model::lifetime(),
+            ];
+        }
+
+        return $types;
     }
 
     public function __invoke(Document $document, Request $request): void
@@ -53,6 +139,7 @@ class AdminPayload
 
         $document->payload['settings'] = $settings;
         $document->payload['permissions'] = Permission::map();
+        $document->payload['themeImages'] = (object) $this->container->make(ThemeImages::class)->owners();
         $extensions = $this->extensions->getExtensions()->toArray();
 
         // Allow a stored override (e.g. written by a future scheduled Packagist check) to supplement
@@ -73,15 +160,20 @@ class AdminPayload
         $document->payload['avatarDrivers'] = array_keys($this->container->make('flarum.user.avatar.supported_drivers'));
         $document->payload['slugDrivers'] = array_map(array_keys(...), $this->container->make('flarum.http.slugDrivers'));
         $document->payload['searchDrivers'] = $this->getSearchDrivers();
+        $document->payload['sortMaps'] = $this->sortMaps();
 
         $document->payload['phpVersion'] = $this->appInfo->identifyPHPVersion();
         $document->payload['dbDriver'] = $this->appInfo->identifyDatabaseDriver();
         $document->payload['dbVersion'] = $this->appInfo->identifyDatabaseVersion();
+        $document->payload['dbDriverMismatch'] = $this->appInfo->identifyDatabaseDriverMismatch();
+        $document->payload['dbVersionStatus'] = $this->appInfo->identifyDatabaseVersionStatus();
         $document->payload['dbOptions'] = $this->appInfo->identifyDatabaseOptions();
         $document->payload['debugEnabled'] = Arr::get($this->config, 'debug');
 
         $document->payload['schedulerStatus'] = $this->appInfo->getSchedulerStatus();
         $document->payload['queueDriver'] = $this->appInfo->identifyQueueDriver();
+        $document->payload['pausedQueues'] = $this->pausedQueues();
+        $document->payload['knownQueues'] = $this->container->make('flarum.queue.queues');
         $document->payload['sessionDriver'] = $this->appInfo->identifySessionDriver(true);
 
         /**
@@ -102,6 +194,11 @@ class AdminPayload
         $document->payload['safeModeExtensionsConfig'] = $this->config->safeModeExtensions();
 
         $document->payload['announcementsDisabled'] = (bool) $this->config['flarum_announcements.disabled'];
+
+        $document->payload['sessionByConfig'] = $this->sessionConfig->configOverride();
+        $document->payload['sessionLifetime'] = $this->sessionConfig->lifetime();
+        $document->payload['sessionCookieExpiresOnClose'] = $this->sessionConfig->cookieExpiresOnClose();
+        $document->payload['accessTokenLifetimes'] = $this->accessTokenLifetimes();
 
         $document->payload['fontawesomeByConfig'] = $this->fontAwesome->configOverride();
 

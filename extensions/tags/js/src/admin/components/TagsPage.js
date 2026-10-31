@@ -1,5 +1,3 @@
-import sortable from 'sortablejs';
-
 import app from 'flarum/admin/app';
 import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 import Button from 'flarum/common/components/Button';
@@ -49,7 +47,12 @@ export default class TagsPage extends ExtensionPage {
 
     this.loading = true;
 
-    app.tagList.load(['parent']).then(() => {
+    // Lazy-load sortablejs (~120KB) so it only ships when this page is opened, but
+    // resolve it up front (alongside the tag load) so onListOnCreate can attach it
+    // synchronously once the list renders — keeping the original drag behaviour.
+    // We reuse core's loadSortable chunk rather than bundling our own copy.
+    Promise.all([app.tagList.load(['parent']), import('flarum/admin/utils/loadSortable')]).then(([, sortableModule]) => {
+      this.sortable = sortableModule.default;
       this.loading = false;
 
       m.redraw();
@@ -148,7 +151,7 @@ export default class TagsPage extends ExtensionPage {
     this.$('.TagList')
       .get()
       .map((e) => {
-        sortable.create(e, {
+        this.sortable.create(e, {
           group: 'tags',
           delay: 50,
           delayOnTouchOnly: true,

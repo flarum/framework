@@ -29,6 +29,7 @@ class IndexJob extends AbstractJob
          */
         protected string $operation,
     ) {
+        parent::__construct();
     }
 
     public function handle(Container $container): void

@@ -9,6 +9,7 @@
 
 namespace Flarum\Extend;
 
+use Closure;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Extension;
@@ -23,6 +24,7 @@ use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Locale\LocaleManager;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -184,7 +186,10 @@ class Frontend implements ExtenderInterface
      * @example ['data-test' => 'value']
      * @example ['data-test' => function (ServerRequestInterface $request) { return 'value'; }]
      *
-     * @param array<string, string|callable> $attributes
+     * Only a Closure is called for its value. Any other value, including a
+     * string that names a function or an invokable class, is used as given.
+     *
+     * @param array<string, string|Closure> $attributes
      */
     public function extraDocumentAttributes(array $attributes): self
     {
@@ -196,13 +201,14 @@ class Frontend implements ExtenderInterface
     /**
      * Adds document root classes.
      *
-     * Can either be a string or an array of strings.
+     * Can be a string, an array, or a Closure that returns either.
      *
      * An array can be of a format acceptable by the @class blade directive.
      *
      * @example ['class1', 'class2' => true, 'class3' => false]
+     * @example function (ServerRequestInterface $request) { return 'class1'; }
      */
-    public function extraDocumentClasses(string|array|callable $classes): self
+    public function extraDocumentClasses(string|array|Closure $classes): self
     {
         return $this->extraDocumentAttributes(['class' => $classes]);
     }
@@ -268,9 +274,11 @@ class Frontend implements ExtenderInterface
                 function () use ($container, $abstract) {
                     $recompile = new RecompileFrontendAssets(
                         $container->make($abstract),
-                        $container->make(LocaleManager::class)
+                        $container->make(LocaleManager::class),
+                        $container->make('events'),
+                        $container->make(SettingsRepositoryInterface::class)
                     );
-                    $recompile->flush();
+                    $recompile->markDirty();
                 }
             );
         }
@@ -360,11 +368,18 @@ class Frontend implements ExtenderInterface
 
         $container->resolving(
             "flarum.frontend.$this->frontend",
-            function (ActualFrontend $frontend, Container $container) {
-                $frontend->content(function (Document $document) use ($container) {
-                    foreach ($this->extraDocumentAttributes as $classes) {
-                        $classes = is_callable($classes) ? ContainerUtil::wrapCallback($classes, $container) : $classes;
-                        $document->extraAttributes[] = $classes;
+            function (ActualFrontend $frontend) {
+                $frontend->content(function (Document $document) {
+                    foreach ($this->extraDocumentAttributes as $attributes) {
+                        foreach ($attributes as $key => $value) {
+                            // Classes accumulate; the document holds them as a
+                            // list so that several extensions can each add one.
+                            if ($key === 'class') {
+                                $document->extraAttributes['class'][] = $value;
+                            } else {
+                                $document->extraAttributes[$key] = $value;
+                            }
+                        }
                     }
                 }, 111);
             }

@@ -29,7 +29,6 @@
 
   input {
     display: inline;
-    outline: none;
     margin-top: -2px;
     border: 0 !important;
     padding: 0;
@@ -37,6 +36,11 @@
     min-width: 1ch;
     margin-right: -100%;
     background: transparent !important;
+
+    // The field around it shows the focus.
+    &, &:focus {
+      outline: none;
+    }
   }
 }
 .TagsInput-tag {

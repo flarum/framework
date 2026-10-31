@@ -1,5 +1,5 @@
 <x-mail::html.information>
-    <x-slot:content>
+    <x-slot:body>
         <p>{{ $translator->trans('core.email.abandoned_extensions.body_intro') }}</p>
         <ul>
             @foreach ($extensionLines as $line)
@@ -7,5 +7,5 @@
             @endforeach
         </ul>
         <p>{{ $translator->trans('core.email.abandoned_extensions.body_outro') }}</p>
-    </x-slot:content>
+    </x-slot:body>
 </x-mail::html.information>

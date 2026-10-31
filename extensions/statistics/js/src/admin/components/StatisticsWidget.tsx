@@ -11,6 +11,7 @@ import classList from 'flarum/common/utils/classList';
 
 import DashboardWidget, { IDashboardWidgetAttrs } from 'flarum/admin/components/DashboardWidget';
 
+import statisticsEntities from '../utils/statisticsEntities';
 import StatisticsWidgetDateSelectionModal, { IDateSelection, IStatisticsWidgetDateSelectionModalAttrs } from './StatisticsWidgetDateSelectionModal';
 
 import type Mithril from 'mithril';
@@ -31,7 +32,7 @@ interface IPeriodDeclaration {
 }
 
 export default class StatisticsWidget extends DashboardWidget {
-  entities = ['users', 'discussions', 'posts'];
+  entities = statisticsEntities();
   periods: undefined | Record<string, IPeriodDeclaration>;
 
   chart: any;
@@ -45,16 +46,22 @@ export default class StatisticsWidget extends DashboardWidget {
   noData: boolean = false;
 
   loadingLifetime = true;
-  loadingTimed: Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'> = this.entities.reduce((acc, curr) => {
-    acc[curr] = 'unloaded';
-    return acc;
-  }, {} as Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>);
-  loadingCustom: Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'> = this.entities.reduce((acc, curr) => {
-    acc[curr] = 'unloaded';
-    return acc;
-  }, {} as Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>);
+  loadingTimed: Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'> = this.entities.reduce(
+    (acc, curr) => {
+      acc[curr] = 'unloaded';
+      return acc;
+    },
+    {} as Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>
+  );
+  loadingCustom: Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'> = this.entities.reduce(
+    (acc, curr) => {
+      acc[curr] = 'unloaded';
+      return acc;
+    },
+    {} as Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>
+  );
 
-  selectedEntity = 'users';
+  selectedEntity = this.entities[0];
   selectedPeriod: undefined | string;
 
   chartEntity?: string;
@@ -178,17 +185,19 @@ export default class StatisticsWidget extends DashboardWidget {
     const thisPeriod = loadingSelectedEntity
       ? null
       : this.selectedPeriod === 'custom'
-      ? {
-          start: this.customPeriod?.end!,
-          end: this.customPeriod?.end!,
-          step: 86400,
-        }
-      : this.periods![this.selectedPeriod!];
+        ? {
+            start: this.customPeriod?.start!,
+            end: this.customPeriod?.end!,
+            step: 86400,
+          }
+        : this.periods![this.selectedPeriod!];
 
     if (this.selectedPeriod === 'custom') {
-      if (!this.customPeriodData[this.selectedEntity] && this.loadingCustom[this.selectedEntity] === 'unloaded') {
-        this.loadCustomRangeData(this.selectedEntity);
-      }
+      this.entities.forEach((entity) => {
+        if (!this.customPeriodData[entity] && this.loadingCustom[entity] === 'unloaded') {
+          this.loadCustomRangeData(entity);
+        }
+      });
     } else {
       if (!this.timedData[this.selectedEntity] && this.loadingTimed[this.selectedEntity] === 'unloaded') {
         this.loadTimedData(this.selectedEntity);
@@ -260,47 +269,51 @@ export default class StatisticsWidget extends DashboardWidget {
             </div>
           </div>
 
-          {this.entities.map((entity) => {
-            const totalCount = this.loadingLifetime ? app.translator.trans('flarum-statistics.admin.statistics.loading') : this.getTotalCount(entity);
-            const thisPeriodCount = loadingSelectedEntity
-              ? app.translator.trans('flarum-statistics.admin.statistics.loading')
-              : this.getPeriodCount(entity, thisPeriod!);
-            const lastPeriodCount =
-              this.selectedPeriod === 'custom'
-                ? null
-                : loadingSelectedEntity
+          <div className="StatisticsWidget-entityList">
+            {this.entities.map((entity) => {
+              const totalCount = this.loadingLifetime
                 ? app.translator.trans('flarum-statistics.admin.statistics.loading')
-                : this.getPeriodCount(entity, this.getLastPeriod(thisPeriod!));
-            const periodChange =
-              loadingSelectedEntity || lastPeriodCount === 0 || lastPeriodCount === null
-                ? 0
-                : (((thisPeriodCount as number) - (lastPeriodCount as number)) / (lastPeriodCount as number)) * 100;
+                : this.getTotalCount(entity);
+              const thisPeriodCount = loadingSelectedEntity
+                ? app.translator.trans('flarum-statistics.admin.statistics.loading')
+                : this.getPeriodCount(entity, thisPeriod!);
+              const lastPeriodCount =
+                this.selectedPeriod === 'custom'
+                  ? null
+                  : loadingSelectedEntity
+                    ? app.translator.trans('flarum-statistics.admin.statistics.loading')
+                    : this.getPeriodCount(entity, this.getLastPeriod(thisPeriod!));
+              const periodChange =
+                loadingSelectedEntity || lastPeriodCount === 0 || lastPeriodCount === null
+                  ? 0
+                  : (((thisPeriodCount as number) - (lastPeriodCount as number)) / (lastPeriodCount as number)) * 100;
 
-            return (
-              <button
-                className={classList('Button--ua-reset StatisticsWidget-entity', { active: this.selectedEntity === entity })}
-                type="button"
-                onclick={this.changeEntity.bind(this, entity)}
-              >
-                <h3 className="StatisticsWidget-heading">{app.translator.trans('flarum-statistics.admin.statistics.' + entity + '_heading')}</h3>
-                <div className="StatisticsWidget-total" title={totalCount}>
-                  {this.loadingLifetime ? <LoadingIndicator display="inline" /> : abbreviateNumber(totalCount as number)}
-                </div>
-                <div className="StatisticsWidget-period" title={thisPeriodCount}>
-                  {loadingSelectedEntity ? <LoadingIndicator display="inline" /> : abbreviateNumber(thisPeriodCount as number)}
-                  {periodChange !== 0 && (
-                    <>
-                      {' '}
-                      <span className={'StatisticsWidget-change StatisticsWidget-change--' + (periodChange > 0 ? 'up' : 'down')}>
-                        <Icon name={'fas fa-arrow-' + (periodChange > 0 ? 'up' : 'down')} />
-                        {Math.abs(periodChange).toFixed(1)}%
-                      </span>
-                    </>
-                  )}
-                </div>
-              </button>
-            );
-          })}
+              return (
+                <button
+                  className={classList('Button--ua-reset StatisticsWidget-entity', { active: this.selectedEntity === entity })}
+                  type="button"
+                  onclick={this.changeEntity.bind(this, entity)}
+                >
+                  <h3 className="StatisticsWidget-heading">{app.translator.trans('flarum-statistics.admin.statistics.' + entity + '_heading')}</h3>
+                  <div className="StatisticsWidget-total" title={totalCount}>
+                    {this.loadingLifetime ? <LoadingIndicator display="inline" /> : abbreviateNumber(totalCount as number)}
+                  </div>
+                  <div className="StatisticsWidget-period" title={thisPeriodCount}>
+                    {loadingSelectedEntity ? <LoadingIndicator display="inline" /> : abbreviateNumber(thisPeriodCount as number)}
+                    {periodChange !== 0 && (
+                      <>
+                        {' '}
+                        <span className={'StatisticsWidget-change StatisticsWidget-change--' + (periodChange > 0 ? 'up' : 'down')}>
+                          <Icon name={'fas fa-arrow-' + (periodChange > 0 ? 'up' : 'down')} />
+                          {Math.abs(periodChange).toFixed(1)}%
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <>
@@ -375,7 +388,7 @@ export default class StatisticsWidget extends DashboardWidget {
       labels.push(label);
 
       thisPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i, end: i + period.step }));
-      lastPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i - periodLength, end: i - periodLength }));
+      lastPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i - periodLength, end: i - periodLength + period.step }));
     }
 
     if (thisPeriod.length === 0) {
@@ -442,6 +455,11 @@ export default class StatisticsWidget extends DashboardWidget {
 
   getPeriodCount(entity: string, period: { start: number; end: number }) {
     const timed: Record<string, number> = (this.selectedPeriod === 'custom' ? this.customPeriodData : this.timedData)[entity];
+
+    if (!timed) {
+      return 0;
+    }
+
     let count = 0;
 
     for (const t in timed) {

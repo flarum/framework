@@ -14,13 +14,35 @@ import type Tag from '../common/models/Tag';
 
 const findTag = (slug: string) => app.store.all<Tag>('tags').find((tag) => tag.slug().localeCompare(slug, undefined, { sensitivity: 'base' }) === 0);
 
+/**
+ * The sort a tag's page opens with, if it names one that still exists. An
+ * unrecognised sort is ignored, since the extension that provided it may
+ * simply be disabled for now, and passing it on would have the API reject
+ * the request.
+ */
+const tagDefaultSort = (slug: string | undefined): string | undefined => {
+  const defaultSort = slug ? findTag(slug)?.defaultSort() : null;
+
+  return defaultSort && defaultSort in app.discussions.sortMap() ? defaultSort : undefined;
+};
+
 export default function addTagFilter() {
   app.currentTag = function (reload?: boolean) {
+    const slug = this.search.state.params().tags;
+
+    // The cache is only valid for the tag the current route actually points
+    // at. Without this check, the cached tag from a previously visited tag
+    // page leaks into any route that doesn't call currentTag(true) — e.g. a
+    // custom homepage — preselecting composer tags and mis-styling the
+    // "Start a Discussion" button there.
     if (this.currentActiveTag && !reload) {
-      return this.currentActiveTag;
+      if (!slug) {
+        this.currentActiveTag = undefined;
+      } else if (this.currentActiveTag.slug().localeCompare(slug, undefined, { sensitivity: 'base' }) === 0) {
+        return this.currentActiveTag;
+      }
     }
 
-    const slug = this.search.state.params().tags;
     let tag = null;
 
     if (slug) {
@@ -87,6 +109,16 @@ export default function addTagFilter() {
     }
   });
 
+  // Name the current tag in the index title control. The nav dropdown only falls
+  // back to this label when none of its items is active, so it surfaces exactly
+  // when the current tag has no item in the sidebar nav, which is the case for
+  // any secondary tag outside the 3 most discussed ones.
+  extend(IndexPage.prototype, 'view', function () {
+    const tag = app.currentTag();
+
+    if (tag) app.current.set('titleControlLabel', tag.name());
+  });
+
   // If currently viewing a tag, restyle the 'new discussion' button to use
   // the tag's color, and disable if the user isn't allowed to edit.
   extend(IndexSidebar.prototype, 'items', function (items) {
@@ -113,6 +145,25 @@ export default function addTagFilter() {
   // DiscussionListState that will let us filter discussions by tag.
   extend(GlobalSearchState.prototype, 'params', function (params) {
     params.tags = m.route.param('tags');
+
+    // A tag can name the order its page opens with. The server already applies
+    // it when rendering the page, but the first client-side request is built
+    // from the URL alone — so without this the list is fetched again in the
+    // default order and replaces the one the reader arrived to.
+    //
+    // Only when nothing was asked for: a sort in the URL is the reader's own
+    // choice and outranks the tag's default.
+    if (!params.sort) {
+      const defaultSort = tagDefaultSort(params.tags);
+
+      if (defaultSort) params.sort = defaultSort;
+    }
+  });
+
+  // That order is the page's own, so the sort dropdown leaves it out of the URL
+  // and names any other, the forum's default included.
+  override(GlobalSearchState.prototype, 'defaultSort', function (original) {
+    return tagDefaultSort(m.route.param('tags')) ?? original();
   });
 
   // Translate that parameter into a gambit appended to the search query.
@@ -125,7 +176,7 @@ export default function addTagFilter() {
 
     if (this.params.tags) {
       params.filter ||= {};
-      params.filter.tag = this.params.tags;
+      (params.filter as Record<string, any>).tag = this.params.tags;
     }
   });
 }

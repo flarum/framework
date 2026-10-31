@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-rc.1"
+        "flarum/core": "^2.1"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +34,8 @@
             "title": "Lock",
             "category": "feature",
             "optional-dependencies": [
-                "flarum/realtime"
+                "flarum/realtime",
+                "flarum/audit"
             ],
             "icon": {
                 "name": "fas fa-lock",
@@ -54,7 +55,7 @@
                 "prettier": true,
                 "typescript": false,
                 "bundlewatch": false,
-                "backendTesting": false,
+                "backendTesting": true,
                 "editorConfig": true,
                 "styleci": true
             }
@@ -67,5 +68,33 @@
         }
     ],
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "autoload-dev": {
+        "psr-4": {
+            "Flarum\\Lock\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:unit:filter": "phpunit -c tests/phpunit.unit.xml --filter",
+        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:integration:filter": "phpunit -c tests/phpunit.integration.xml --filter",
+        "test:setup": "@php tests/integration/setup.php"
+    },
+    "scripts-descriptions": {
+        "test": "Runs all tests.",
+        "test:unit": "Runs all unit tests.",
+        "test:unit:filter": "Runs unit tests whose name matches: composer test:unit:filter -- ClassName",
+        "test:integration": "Runs all integration tests.",
+        "test:integration:filter": "Runs integration tests whose name matches: composer test:integration:filter -- ClassName",
+        "test:setup": "Sets up a database for use with integration tests. Execute this only once."
+    },
+    "require-dev": {
+        "flarum/testing": "^2.1",
+        "flarum/audit": "*"
+    }
 }

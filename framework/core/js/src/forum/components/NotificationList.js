@@ -6,6 +6,7 @@ import Link from '../../common/components/Link';
 import Discussion from '../../common/models/Discussion';
 import ItemList from '../../common/utils/ItemList';
 import Tooltip from '../../common/components/Tooltip';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
 import HeaderList from './HeaderList';
 import HeaderListGroup from './HeaderListGroup';
 import NotificationType from './NotificationType';
@@ -24,7 +25,7 @@ export default class NotificationList extends Component {
         title={app.translator.trans('core.forum.notifications.title')}
         controls={this.controlItems()}
         hasItems={state.hasItems()}
-        loading={state.isLoading()}
+        loading={state.isLoading() && !state.hasItems()}
         emptyText={app.translator.trans('core.forum.notifications.empty_text')}
         loadMore={() => state.hasNext() && !state.isLoadingNext() && state.loadNext()}
       >
@@ -71,8 +72,8 @@ export default class NotificationList extends Component {
   }
 
   content(state) {
-    if (!state.isLoading() && state.hasItems()) {
-      return state.getPages().map((page) => {
+    if (state.hasItems()) {
+      const pages = state.getPages().map((page) => {
         const groups = [];
         const discussions = {};
 
@@ -120,6 +121,10 @@ export default class NotificationList extends Component {
           );
         });
       });
+
+      // Keep the loaded pages on screen while the next one loads, so the reader
+      // doesn't lose their place.
+      return [pages, state.isLoadingNext() && <LoadingIndicator className="LoadingIndicator--block" />];
     }
 
     return null;

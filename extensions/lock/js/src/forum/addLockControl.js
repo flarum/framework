@@ -19,10 +19,13 @@ export default function addLockControl() {
   DiscussionControls.lockAction = function () {
     this.save({ isLocked: !this.isLocked() }).then(() => {
       if (app.current.matches(DiscussionPage)) {
-        app.current.get('stream').update();
+        app.current
+          .get('stream')
+          .update()
+          .then(() => m.redraw());
+      } else {
+        m.redraw();
       }
-
-      m.redraw();
     });
   };
 }

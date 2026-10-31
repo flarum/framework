@@ -16,4 +16,4 @@ export default class ExtensionsWidget extends DashboardWidget<import("./Dashboar
     }[];
     disabledExtensions(): import("../AdminApplication").Extension[];
 }
-import DashboardWidget from "./DashboardWidget";
+import DashboardWidget from './DashboardWidget';

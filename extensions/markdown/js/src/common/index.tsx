@@ -48,6 +48,34 @@ function makeShortcut(id: string, key: string, editorDriver: BasicEditorDriver) 
   };
 }
 
+const listItemRegex = /^(\s*)(?:(\d+)([.)])|([-*+]))(\s+)(.*)$/;
+
+function continueList(editorDriver: BasicEditorDriver) {
+  return function (e: KeyboardEvent) {
+    if (e.key !== 'Enter' || e.shiftKey || e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
+
+    const textarea = editorDriver.el;
+    if (textarea.selectionStart !== textarea.selectionEnd) return;
+
+    const cursor = textarea.selectionStart;
+    const lineStart = textarea.value.lastIndexOf('\n', cursor - 1) + 1;
+    const match = textarea.value.slice(lineStart, cursor).match(listItemRegex);
+    if (!match) return;
+
+    const [, indent, number, delimiter, bullet, spacing, content] = match;
+    e.preventDefault();
+
+    // Pressing Enter on an empty item ends the list.
+    if (content.trim() === '') {
+      editorDriver.insertBetween(lineStart, cursor, '');
+      return;
+    }
+
+    const marker = number !== undefined ? `${parseInt(number, 10) + 1}${delimiter}${spacing}` : `${bullet}${spacing}`;
+    editorDriver.insertAtCursor(`\n${indent}${marker}`);
+  };
+}
+
 let shortcutHandler: ((e: KeyboardEvent) => void) | undefined;
 
 function markdownToolbarItems(this: any, oldFunc: (() => ItemList<unknown>) | undefined) {
@@ -96,6 +124,7 @@ export function initialize() {
   (extend as any)(BasicEditorDriver.prototype, 'keyHandlers', function (this: BasicEditorDriver, items: ItemList<(e: KeyboardEvent) => void>) {
     items.add('bold', makeShortcut('bold', 'b', this));
     items.add('italic', makeShortcut('italic', 'i', this));
+    items.add('continueList', continueList(this));
   });
 
   override('flarum/common/components/TextEditor', 'markdownToolbarItems', markdownToolbarItems);

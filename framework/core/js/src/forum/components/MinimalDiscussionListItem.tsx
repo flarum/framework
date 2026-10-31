@@ -6,6 +6,8 @@ import app from '../app';
 import highlight from '../../common/helpers/highlight';
 import listItems from '../../common/helpers/listItems';
 import classList from '../../common/utils/classList';
+import humanTime from '../../common/utils/humanTime';
+import type User from '../../common/models/User';
 
 export default class MinimalDiscussionListItem extends DiscussionListItem<IDiscussionListItemAttrs> {
   elementAttrs() {
@@ -26,6 +28,19 @@ export default class MinimalDiscussionListItem extends DiscussionListItem<IDiscu
 
   authorItems(): ItemList<Mithril.Children> {
     return super.authorItems().remove('badges');
+  }
+
+  authorTooltipText(user: User | null | false): Mithril.Children {
+    const post = this.attrs.post;
+
+    if (!post) {
+      return super.authorTooltipText(user);
+    }
+
+    return app.translator.trans('core.forum.discussion_list.replied_text', {
+      user,
+      ago: humanTime(post.createdAt()),
+    });
   }
 
   mainView(): Mithril.Children {

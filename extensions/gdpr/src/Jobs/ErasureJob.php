@@ -22,6 +22,7 @@ use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Mail\Mailer;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Mail\Message;
@@ -37,6 +38,7 @@ class ErasureJob extends GdprJob
 
     public function __construct(private ErasureRequest $erasureRequest)
     {
+        parent::__construct();
     }
 
     public function handle(
@@ -48,6 +50,7 @@ class ErasureJob extends GdprJob
         Factory $filesystemFactory,
         SettingsRepositoryInterface $settings,
         UrlGenerator $url,
+        ViewFactory $view,
     ): void {
         $this->translator = $translator;
         $this->filesystemFactory = $filesystemFactory;
@@ -84,15 +87,21 @@ class ErasureJob extends GdprJob
             $this->erasureRequest
         ));
 
+        // Capture the user's locale on the shared translator before
+        // anonymization wipes their preferences. The completion email below
+        // re-uses the same translator instance, so this carries through.
+        $translator->setLocale($user->getPreference('locale') ?? $this->settings->get('default_locale'));
+
         $this->{$mode}($user, $processor);
 
-        $this->sendUserConfirmation($mode, $username, $email, $mailer, $translator);
+        $this->sendUserConfirmation($mode, $username, $email, $mailer, $translator, $view);
 
         $events->dispatch(new Erased(
             $username,
             $email,
             $mode,
-            $user
+            $user,
+            $this->erasureRequest
         ));
     }
 
@@ -110,9 +119,24 @@ class ErasureJob extends GdprJob
         }
     }
 
-    private function sendUserConfirmation(string $mode, string $username, string $email, Mailer $mailer, TranslatorInterface $translator): void
+    private function sendUserConfirmation(string $mode, string $username, string $email, Mailer $mailer, TranslatorInterface $translator, ViewFactory $view): void
     {
         $blueprint = new ErasureCompletedBlueprint($this->erasureRequest, $username, $mode);
+
+        // The completion email is rendered through the shared email layout and
+        // components, which read these values from the shared view scope (data
+        // passed to the view does not propagate into nested Blade components).
+        // Mirror what NotificationMailer / the core informational-email jobs
+        // share, otherwise the layout renders with undefined $username /
+        // $userEmail. See flarum/framework#4774. An explicit title also avoids
+        // inheriting a stale title from an earlier email on the shared view
+        // factory (see flarum/framework#4767).
+        $view->share([
+            'forumTitle' => $this->settings->get('forum_title'),
+            'userEmail' => $email,
+            'username' => $username,
+            'title' => $blueprint->getEmailSubject($translator),
+        ]);
 
         $mailer->send(
             $blueprint->getEmailViews(),

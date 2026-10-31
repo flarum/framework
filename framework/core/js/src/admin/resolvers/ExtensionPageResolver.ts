@@ -8,7 +8,7 @@ import ExtensionPage, { ExtensionPageAttrs } from '../components/ExtensionPage';
  */
 export default class ExtensionPageResolver<
   Attrs extends ExtensionPageAttrs = ExtensionPageAttrs,
-  RouteArgs extends Record<string, unknown> = {}
+  RouteArgs extends Record<string, unknown> = {},
 > extends DefaultResolver<Attrs, ExtensionPage<Attrs>, RouteArgs> {
   static extension: string | null = null;
 

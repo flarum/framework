@@ -95,8 +95,10 @@ class CreateTest extends TestCase
         $this->assertEquals('#123456', Arr::get($data, 'data.attributes.color'));
         $this->assertNull(Arr::get($data, 'data.attributes.icon'));
 
-        // Verify database entry
-        $tag = Tag::all()->last();
+        // Verify database entry. Fetched by slug rather than as the last row of an
+        // unordered query, which leaves it to the database which row that is.
+        $tag = Tag::firstWhere('slug', 'dev-blog');
+        $this->assertNotNull($tag);
         $this->assertEquals('Dev Blog', $tag->name);
         $this->assertEquals('dev-blog', $tag->slug);
         $this->assertEquals('Follow Flarum development!', $tag->description);

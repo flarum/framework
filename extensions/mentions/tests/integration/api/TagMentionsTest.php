@@ -40,7 +40,7 @@ class TagMentionsTest extends TestCase
             ],
             Post::class => [
                 ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><TAGMENTION id="1" slug="test_old_slug" tagname="TestOldName">#test_old_slug</TAGMENTION></r>'],
-                ['id' => 7, 'number' => 5, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2021, 'type' => 'comment', 'content' => '<r><TAGMENTION id="3" slug="support" tagname="Support">#deleted_relation</TAGMENTION></r>'],
+                ['id' => 7, 'number' => 5, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2021, 'type' => 'comment', 'content' => '<r><TAGMENTION id="999" slug="support" tagname="Support">#deleted_relation</TAGMENTION></r>'],
                 ['id' => 8, 'number' => 6, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><TAGMENTION id="2020" slug="i_am_a_deleted_tag" tagname="i_am_a_deleted_tag">#i_am_a_deleted_tag</TAGMENTION></r>'],
                 ['id' => 10, 'number' => 11, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><TAGMENTION id="5" slug="laravel">#laravel</TAGMENTION></r>'],
             ],

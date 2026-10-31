@@ -16,6 +16,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Mockery as m;
@@ -32,16 +33,22 @@ class AnnouncementsFetcherTest extends TestCase
         $this->appInfo->shouldReceive('identifyDatabaseVersion')->andReturn('8.0.32');
     }
 
-    private function makeFetcher(array $responses): AnnouncementsFetcher
+    /**
+     * @param array $history Populated with the requests actually sent, so a test
+     *                       can assert what was asked for and not only what came
+     *                       back.
+     */
+    private function makeFetcher(array $responses, array &$history = []): AnnouncementsFetcher
     {
-        $mock = new MockHandler($responses);
-        $client = new Client(['handler' => HandlerStack::create($mock)]);
+        $stack = HandlerStack::create(new MockHandler($responses));
+        $stack->push(Middleware::history($history));
+
+        $client = new Client(['handler' => $stack]);
 
         $fetcher = new AnnouncementsFetcher($this->appInfo);
 
         // Inject the mock client via reflection
         $ref = new \ReflectionProperty($fetcher, 'client');
-        $ref->setAccessible(true);
         $ref->setValue($fetcher, $client);
 
         return $fetcher;
@@ -69,6 +76,71 @@ class AnnouncementsFetcherTest extends TestCase
             ], $attrs),
             'relationships' => $relationships,
         ];
+    }
+
+    /**
+     * Build the `tags` relationship + matching `included` resources for a set of
+     * tag slugs, so a discussion can be tagged in a test.
+     *
+     * @param string[] $slugs
+     * @return array{0: array<string, mixed>, 1: array<int, array<string, mixed>>}
+     */
+    private function tags(array $slugs): array
+    {
+        $relationship = ['tags' => ['data' => []]];
+        $included = [];
+
+        foreach ($slugs as $slug) {
+            $relationship['tags']['data'][] = ['type' => 'tags', 'id' => $slug];
+            $included[] = ['type' => 'tags', 'id' => $slug, 'attributes' => ['slug' => $slug]];
+        }
+
+        return [$relationship, $included];
+    }
+
+    public function test_excludes_old_line_only_news(): void
+    {
+        [$rel, $included] = $this->tags(['blog', 'version-1x']);
+
+        $fetcher = $this->makeFetcher([
+            $this->makeApiResponse(
+                [$this->makeDiscussion(['id' => '1', 'title' => '1.x patch', 'slug' => 'onex'], $rel)],
+                $included
+            ),
+        ]);
+
+        $this->assertCount(0, $fetcher->fetch(), 'A 1.x-only post must be dropped from a 2.x forum feed.');
+    }
+
+    public function test_keeps_dual_tagged_news(): void
+    {
+        [$rel, $included] = $this->tags(['blog', 'version-1x', 'version-2x']);
+
+        $fetcher = $this->makeFetcher([
+            $this->makeApiResponse(
+                [$this->makeDiscussion(['id' => '1', 'title' => 'Applies to both', 'slug' => 'both'], $rel)],
+                $included
+            ),
+        ]);
+
+        $result = $fetcher->fetch();
+
+        $this->assertCount(1, $result, 'A post tagged for both lines must survive the exclusion.');
+        $this->assertEquals('Applies to both', $result[0]['title']);
+    }
+
+    public function test_keeps_version_neutral_news(): void
+    {
+        [$rel, $included] = $this->tags(['blog', 'meta']);
+
+        $fetcher = $this->makeFetcher([
+            $this->makeApiResponse(
+                [$this->makeDiscussion(['id' => '1', 'title' => 'Community update', 'slug' => 'cu'], $rel)],
+                $included
+            ),
+        ]);
+
+        $this->assertCount(1, $fetcher->fetch(), 'A post with no version tag must always be kept.');
     }
 
     public function test_transforms_discussion_to_expected_shape(): void
@@ -187,6 +259,87 @@ class AnnouncementsFetcherTest extends TestCase
 
         $this->assertCount(1, $result);
         $this->assertEquals('Valid', $result[0]['title']);
+    }
+
+    /**
+     * The excerpt and author are read out of `included`, which only arrives if
+     * the request asks for those relationships. Every other test here hands the
+     * transform a well-formed `included` array, so none of them would notice the
+     * request losing its `include`.
+     */
+    public function test_requests_the_relationships_the_excerpt_and_author_need(): void
+    {
+        $history = [];
+        $fetcher = $this->makeFetcher([$this->makeApiResponse([$this->makeDiscussion()])], $history);
+
+        $fetcher->fetch();
+
+        $this->assertCount(1, $history);
+
+        $query = [];
+        parse_str($history[0]['request']->getUri()->getQuery(), $query);
+
+        $this->assertArrayHasKey('include', $query, 'The request did not ask for any relationships.');
+
+        $includes = array_map('trim', explode(',', $query['include']));
+
+        $this->assertContains('firstPost', $includes, 'Without firstPost there is no content to excerpt.');
+        $this->assertContains('user', $includes, 'Without user there is no author name or avatar.');
+        $this->assertContains('tags', $includes, 'Without tags the version-exclusion filter has nothing to read.');
+    }
+
+    /**
+     * A well-formed response whose `included` is empty, because the relationship
+     * was not serialized — which is what discuss.flarum.org returned while
+     * fof/gamification narrowed the `firstPost` eager load, leaving every
+     * announcement card in every forum's admin panel blank.
+     *
+     * "The excerpt never arrived" and "the post has no text" are different
+     * things, and collapsing both to an empty string is why that went unnoticed.
+     * Only the absence of an excerpt is reportable, so absence is what it says.
+     */
+    public function test_excerpt_is_null_when_the_first_post_was_not_included(): void
+    {
+        $fetcher = $this->makeFetcher([
+            $this->makeApiResponse(
+                [$this->makeDiscussion([], [
+                    'firstPost' => ['data' => ['type' => 'posts', 'id' => '10']],
+                ])],
+                // Declared on the discussion, absent from `included`.
+                []
+            ),
+        ]);
+
+        $result = $fetcher->fetch();
+
+        $this->assertNull(
+            $result[0]['excerpt'],
+            'A missing include produced an empty-string excerpt, indistinguishable from a post with no content.'
+        );
+    }
+
+    /**
+     * A post that genuinely has no text still reports an empty excerpt rather
+     * than null, so the two cases stay distinguishable in both directions.
+     */
+    public function test_excerpt_is_empty_when_the_first_post_has_no_content(): void
+    {
+        $fetcher = $this->makeFetcher([
+            $this->makeApiResponse(
+                [$this->makeDiscussion([], [
+                    'firstPost' => ['data' => ['type' => 'posts', 'id' => '10']],
+                ])],
+                [[
+                    'type' => 'posts',
+                    'id' => '10',
+                    'attributes' => ['contentHtml' => ''],
+                ]]
+            ),
+        ]);
+
+        $result = $fetcher->fetch();
+
+        $this->assertSame('', $result[0]['excerpt']);
     }
 
     public function test_throws_on_network_failure(): void

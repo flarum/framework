@@ -9,12 +9,14 @@
 
 namespace Flarum\Tests\integration\api\users;
 
+use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\ResponseInterface;
 
 class CreateTest extends TestCase
 {
@@ -434,5 +436,122 @@ class CreateTest extends TestCase
             $this->assertEquals($regToken->user_attributes['username'], $user->username);
             $this->assertEquals($regToken->user_attributes['email'], $user->email);
         }
+    }
+
+    #[Test]
+    public function registering_records_the_locale_the_visitor_chose()
+    {
+        $this->app()->getContainer()->make(LocaleManager::class)->addLocale('de', 'Deutsch');
+
+        $response = $this->send(
+            $this->request('POST', '/api/users', [
+                'json' => ['data' => [
+                    'type' => 'users',
+                    'attributes' => [
+                        'username' => 'wilhelm',
+                        'password' => 'too-obscure',
+                        'email' => 'wilhelm@machine.local',
+                    ],
+                ]],
+            ])->withCookieParams(['locale' => 'de'])
+                ->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $user = User::where('username', 'wilhelm')->firstOrFail();
+
+        $this->assertEquals('de', $user->getPreference('locale'));
+    }
+
+    #[Test]
+    public function registering_ignores_a_locale_the_forum_does_not_have()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/users', [
+                'json' => ['data' => [
+                    'type' => 'users',
+                    'attributes' => [
+                        'username' => 'ronald',
+                        'password' => 'too-obscure',
+                        'email' => 'ronald@machine.local',
+                    ],
+                ]],
+            ])->withCookieParams(['locale' => 'not-a-locale'])
+                ->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $user = User::where('username', 'ronald')->firstOrFail();
+
+        $this->assertNull($user->getPreference('locale'));
+    }
+
+    private function register(string $username, array $attributes = []): ResponseInterface
+    {
+        return $this->send(
+            $this->request('POST', '/api/users', [
+                'json' => ['data' => [
+                    'type' => 'users',
+                    'attributes' => [
+                        'username' => $username,
+                        'password' => 'too-obscure',
+                        'email' => "$username@machine.local",
+                    ] + $attributes,
+                ]],
+            ])->withAttribute('bypassCsrfToken', true)
+        );
+    }
+
+    #[Test]
+    public function registering_records_the_colour_scheme_the_visitor_chose()
+    {
+        $response = $this->register('clara', ['colorScheme' => 'light-hc']);
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $user = User::where('username', 'clara')->firstOrFail();
+
+        $this->assertEquals('light-hc', $user->getPreference('colorScheme'));
+        $this->assertArrayNotHasKey('colorScheme', json_decode($response->getBody(), true)['data']['attributes']);
+    }
+
+    #[Test]
+    public function registering_without_a_colour_scheme_keeps_the_default()
+    {
+        $this->register('dora');
+
+        $this->assertEquals('auto', User::where('username', 'dora')->firstOrFail()->getPreference('colorScheme'));
+    }
+
+    #[Test]
+    public function registering_rejects_a_colour_scheme_that_is_not_a_scheme_name()
+    {
+        $response = $this->register('eric', ['colorScheme' => '"><script>alert(1)</script>']);
+
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertNull(User::where('username', 'eric')->first());
+    }
+
+    #[Test]
+    public function the_colour_scheme_cannot_be_changed_this_way_after_sign_up()
+    {
+        $this->register('fiona', ['colorScheme' => 'light']);
+
+        $user = User::where('username', 'fiona')->firstOrFail();
+
+        $this->send(
+            $this->request('PATCH', "/api/users/$user->id", [
+                'authenticatedAs' => 1,
+                'json' => ['data' => [
+                    'type' => 'users',
+                    'id' => (string) $user->id,
+                    'attributes' => ['colorScheme' => 'dark'],
+                ]],
+            ])
+        );
+
+        $this->assertEquals('light', $user->fresh()->getPreference('colorScheme'));
     }
 }

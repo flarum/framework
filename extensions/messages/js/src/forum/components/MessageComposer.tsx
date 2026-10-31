@@ -65,7 +65,10 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
                 title: app.translator.trans('flarum-messages.forum.recipient_selection_modal.title', {}, true),
                 selected: this.recipients(),
                 maxItems: 1,
-                excluded: [app.session.user!.id()!],
+                // Accounts nobody can write to, such as those anonymised by
+                // flarum/gdpr, aren't listed at all.
+                excluded: (user: User) => user === app.session.user || user.canMessage() === false,
+                unavailable: (user: User) => this.recipientUnavailable(user),
                 onsubmit: (users: User[]) => {
                   this.recipients(users);
                 },
@@ -92,6 +95,18 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
     );
 
     return items;
+  }
+
+  /**
+   * Why someone can't be picked as a recipient, if they can't: they couldn't
+   * reply. The server still has the final say when the message is sent.
+   */
+  recipientUnavailable(user: User): Mithril.Children {
+    if (app.session.user!.canMessageUsersWithoutPermission() || user.canSendAnyMessage() !== false) {
+      return null;
+    }
+
+    return app.translator.trans('flarum-messages.forum.recipient_selection_modal.cannot_reply_text');
   }
 
   /**
@@ -134,8 +149,13 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
       })
       .then((message) => {
         this.composer.hide();
+
         // @ts-ignore
-        m.route.set(app.route('dialog', { id: message.data.relationships!.dialog.data.id }));
+        const dialogId: string = message.data.relationships!.dialog.data.id;
+
+        // Already in this conversation, the route change would rebuild the page under the reader.
+        if (m.route.param('id') !== dialogId) m.route.set(app.route('dialog', { id: dialogId }));
+
         this.attrs.onsubmit?.(message);
       }, this.loaded.bind(this));
   }

@@ -1,4 +1,4 @@
-import Model from 'flarum/common/Model';
+import Model, { type ModelIdentifier } from 'flarum/common/Model';
 import User from 'flarum/common/models/User';
 import DialogMessage from './DialogMessage';
 import app from 'flarum/common/app';
@@ -27,6 +27,17 @@ export default class Dialog extends Model {
     return Model.hasOne<DialogMessage>('lastMessage').call(this);
   }
 
+  /**
+   * The id of this dialog's first or last message, when it has one.
+   *
+   * A dialog can be left without either, for instance when the message one of
+   * them pointed at was deleted, so every caller has to cope with the
+   * relationship being absent rather than reading straight through it.
+   */
+  messageRelationshipId(name: 'firstMessage' | 'lastMessage'): string | undefined {
+    return (this.data.relationships?.[name]?.data as ModelIdentifier | undefined)?.id;
+  }
+
   unreadCount() {
     return Model.attribute<number>('unreadCount').call(this);
   }
@@ -38,6 +49,14 @@ export default class Dialog extends Model {
   }
   lastReadAt() {
     return Model.attribute<Date, string>('lastReadAt', Model.transformDate).call(this);
+  }
+
+  /** Everyone in it can reply: someone allowed to message users without messaging permission has. */
+  anyoneCanReply() {
+    return Model.attribute<boolean>('anyoneCanReply').call(this);
+  }
+  canSendMessage() {
+    return Model.attribute<boolean>('canSendMessage').call(this);
   }
 
   recipient() {

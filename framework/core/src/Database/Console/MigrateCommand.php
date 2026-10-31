@@ -15,12 +15,13 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Console\Isolatable;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Builder;
 use Symfony\Component\Console\Command\Command;
 
-class MigrateCommand extends AbstractCommand
+class MigrateCommand extends AbstractCommand implements Isolatable
 {
     public function __construct(
         protected Container $container,

@@ -30,12 +30,12 @@ export default class ReplyPlaceholder<CustomAttrs extends IReplyPlaceholderAttrs
           <div className="Post-container">
             <div className="Post-side">
               <Avatar user={app.session.user} className="Post-avatar" />
-              <ul className="PostUser-badges badges badges--packed">{listItems(app.session.user!.badges().toArray())}</ul>
             </div>
             <div className="Post-main">
               <header className="Post-header">
                 <div className="PostUser">
                   <h3 className="PostUser-name">{username(app.session.user)}</h3>
+                  <ul className="PostUser-badges badges badges--packed">{listItems(app.session.user!.badges().toArray())}</ul>
                 </div>
               </header>
               <div className="Post-body">

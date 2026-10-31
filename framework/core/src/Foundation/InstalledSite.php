@@ -159,7 +159,16 @@ class InstalledSite implements SiteInterface
                 'lifetime' => 120,
                 'files' => $this->paths->storage.'/sessions',
                 'cookie' => 'session'
-            ]
+            ],
+            // Flarum uses a single queue connection bound as 'flarum.queue.connection'
+            // rather than Laravel's named connections. The queue worker command falls
+            // back to config('queue.default') when no connection argument is given, so
+            // we provide a name here. Without it the name is null, which since
+            // illuminate/queue 13.15.0 throws a TypeError from WorkerIdle's typed
+            // string $connectionName in the worker loop.
+            'queue' => [
+                'default' => 'flarum',
+            ],
         ]);
     }
 

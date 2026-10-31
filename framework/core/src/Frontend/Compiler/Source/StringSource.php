@@ -27,9 +27,4 @@ class StringSource implements SourceInterface
     {
         return $this->content ??= call_user_func($this->callback);
     }
-
-    public function getCacheDifferentiator(): string
-    {
-        return $this->getContent();
-    }
 }

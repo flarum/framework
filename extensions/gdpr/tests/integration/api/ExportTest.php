@@ -9,6 +9,7 @@
 
 namespace Flarum\Gdpr\tests\integration\api;
 
+use Carbon\Carbon;
 use Flarum\Database\Eloquent\Collection;
 use Flarum\Gdpr\Models\Export;
 use Flarum\Notification\Notification;
@@ -261,6 +262,134 @@ class ExportTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $data = $response->getBody()->getContents();
         $this->assertNotEmpty($data);
+    }
+
+    #[Test]
+    public function download_records_audit_metadata()
+    {
+        $response = $this->makeExportRequest(2);
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $export = $this->getExportRecordFor(2);
+        $this->assertNull($export->downloaded_at);
+        $this->assertNull($export->downloaded_ip);
+        $this->assertNull($export->downloaded_user_agent);
+
+        $response = $this->send(
+            $this->request(
+                'GET',
+                '/gdpr/export/'.$export->file,
+                ['authenticatedAs' => 2]
+            )->withHeader('User-Agent', 'TestAgent/1.0')->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $export->refresh();
+
+        $this->assertNotNull($export->downloaded_at);
+        $this->assertNotNull($export->downloaded_ip);
+        $this->assertEquals('TestAgent/1.0', $export->downloaded_user_agent);
+    }
+
+    #[Test]
+    public function download_is_single_use()
+    {
+        $response = $this->makeExportRequest(2);
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $export = $this->getExportRecordFor(2);
+        $fileName = $export->file;
+
+        $first = $this->send(
+            $this->request(
+                'GET',
+                '/gdpr/export/'.$fileName,
+                ['authenticatedAs' => 2]
+            )->withAttribute('bypassCsrfToken', true)
+        );
+        $this->assertEquals(200, $first->getStatusCode());
+
+        // ZIP still in storage (cron has not run); the row's downloaded_at filter
+        // is what must reject the second request.
+        $this->assertTrue($this->getStorageFilesystem()->exists("export-{$export->id}.zip"));
+
+        $second = $this->send(
+            $this->request(
+                'GET',
+                '/gdpr/export/'.$fileName,
+                ['authenticatedAs' => 2]
+            )->withAttribute('bypassCsrfToken', true)
+        );
+        $this->assertEquals(404, $second->getStatusCode());
+    }
+
+    #[Test]
+    public function expired_export_cannot_be_downloaded_even_if_zip_still_exists()
+    {
+        $response = $this->makeExportRequest(2);
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $export = $this->getExportRecordFor(2);
+
+        // Simulate cron not having run yet — ZIP is on disk but the logical
+        // expiry has passed.
+        $export->destroys_at = Carbon::now()->subMinute();
+        $export->save();
+        $this->assertTrue($this->getStorageFilesystem()->exists("export-{$export->id}.zip"));
+
+        $response = $this->send(
+            $this->request(
+                'GET',
+                '/gdpr/export/'.$export->file,
+                ['authenticatedAs' => 2]
+            )->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(404, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function download_with_empty_file_token_is_rejected()
+    {
+        // Create a row whose file has been nulled by the cleanup job. A request
+        // with an empty/missing token must not match it.
+        $this->makeExportRequest(2);
+        $export = $this->getExportRecordFor(2);
+        $export->file = null;
+        $export->save();
+
+        $response = $this->send(
+            $this->request(
+                'GET',
+                '/gdpr/export/',
+                ['authenticatedAs' => 2]
+            )->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertNotEquals(200, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function long_user_agent_is_truncated_to_column_length()
+    {
+        $response = $this->makeExportRequest(2);
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $export = $this->getExportRecordFor(2);
+
+        $response = $this->send(
+            $this->request(
+                'GET',
+                '/gdpr/export/'.$export->file,
+                ['authenticatedAs' => 2]
+            )->withHeader('User-Agent', str_repeat('A', 500))->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $export->refresh();
+        $this->assertEquals(255, mb_strlen($export->downloaded_user_agent));
     }
 
     #[Test]

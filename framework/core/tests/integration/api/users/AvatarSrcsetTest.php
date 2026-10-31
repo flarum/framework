@@ -41,6 +41,26 @@ class AvatarSrcsetTest extends TestCase
                     'is_email_confirmed' => 1,
                     'avatar_url' => 'https://example.com/avatar.png',
                 ],
+                [
+                    'id' => 5,
+                    'username' => 'hidpi_avatar_user',
+                    'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim',
+                    'email' => 'hidpiavatar@machine.local',
+                    'is_email_confirmed' => 1,
+                    'avatar_url' => 'XYZxyz12345.webp',
+                    'has_avatar_2x' => 1,
+                    'has_avatar_3x' => 1,
+                ],
+                [
+                    'id' => 6,
+                    'username' => 'two_x_only_user',
+                    'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim',
+                    'email' => 'twoxonly@machine.local',
+                    'is_email_confirmed' => 1,
+                    'avatar_url' => 'PQRpqr67890.webp',
+                    'has_avatar_2x' => 1,
+                    'has_avatar_3x' => 0,
+                ],
             ],
         ]);
     }
@@ -95,6 +115,50 @@ class AvatarSrcsetTest extends TestCase
         $data = json_decode((string) $response->getBody(), true);
         $this->assertArrayHasKey('avatarSrcset', $data['data']['attributes']);
         $this->assertNull($data['data']['attributes']['avatarSrcset']);
+    }
+
+    #[Test]
+    public function user_with_hidpi_variant_flags_returns_full_srcset(): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/users/5', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $data = json_decode((string) $response->getBody(), true);
+        $srcset = $data['data']['attributes']['avatarSrcset'] ?? null;
+
+        $this->assertNotNull($srcset, 'Expected non-null srcset for user with both variant flags set.');
+        $this->assertStringContainsString('1x', $srcset);
+        $this->assertStringContainsString('2x', $srcset);
+        $this->assertStringContainsString('3x', $srcset);
+        $this->assertStringContainsString('XYZxyz12345.webp', $srcset);
+        $this->assertStringContainsString('XYZxyz12345@2x.webp', $srcset);
+        $this->assertStringContainsString('XYZxyz12345@3x.webp', $srcset);
+    }
+
+    #[Test]
+    public function user_with_only_2x_variant_flag_omits_3x_from_srcset(): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/users/6', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $data = json_decode((string) $response->getBody(), true);
+        $srcset = $data['data']['attributes']['avatarSrcset'] ?? null;
+
+        $this->assertNotNull($srcset);
+        $this->assertStringContainsString('1x', $srcset);
+        $this->assertStringContainsString('2x', $srcset);
+        $this->assertStringNotContainsString('3x', $srcset);
+        $this->assertStringNotContainsString('PQRpqr67890@3x.webp', $srcset);
     }
 
     #[Test]

@@ -6,6 +6,10 @@ export default class HiddenGambit extends BooleanGambit {
     return app.translator.trans('core.lib.gambits.discussions.hidden.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'hidden';
+  }
+
   filterKey(): string {
     return 'hidden';
   }

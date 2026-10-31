@@ -29,6 +29,17 @@
     display: flex;
     align-items: flex-end;
     margin: 0 20px;
+
+    & > :not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+
+  &-entityList {
+    display: flex;
+    align-items: flex-end;
+    flex: 1;
+    min-width: 0;
     overflow: auto;
 
     & > :not(:last-child) {

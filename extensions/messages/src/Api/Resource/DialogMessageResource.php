@@ -20,9 +20,12 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Foundation\ValidationException;
 use Flarum\Locale\Translator;
+use Flarum\Messages\Access\MessagingPermission;
 use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
+use Flarum\User\User;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -39,6 +42,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         protected LogReporter $log,
         protected Dispatcher $bus,
         protected ExtensionManager $extensions,
+        protected ConnectionInterface $db,
     ) {
     }
 
@@ -83,32 +87,29 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ->visible(function (DialogMessage $message, Context $context): bool {
                     return $context->getActor()->can('delete', $message);
                 }),
+            // The mention relationships are added to these defaults from
+            // extend.php, only when the extensions that provide them are
+            // enabled: naming `mentionsTags` on a forum without Tags makes every
+            // bare request for a message fail with "Resource [tags] not found".
             Endpoint\Show::make()
                 ->authenticated()
-                ->defaultInclude([
-                    'user',
-                    'dialog',
-                    'mentionsUsers',
-                    'mentionsPosts',
-                    'mentionsGroups',
-                    'mentionsTags',
-                ]),
+                ->defaultInclude(['user', 'dialog']),
             Endpoint\Index::make()
                 ->authenticated()
-                ->defaultInclude([
-                    'user',
-                    'mentionsUsers',
-                    'mentionsPosts',
-                    'mentionsGroups',
-                    'mentionsTags',
-                ])
+                ->defaultInclude(['user', 'dialog'])
                 ->defaultSort('-number')
                 ->eagerLoad(function () {
-                    if ($this->extensions->isEnabled('flarum-mentions')) {
-                        return ['mentionsUsers', 'mentionsPosts', 'mentionsGroups', 'mentionsTags'];
+                    if (! $this->extensions->isEnabled('flarum-mentions')) {
+                        return [];
                     }
 
-                    return [];
+                    $relations = ['mentionsUsers', 'mentionsPosts', 'mentionsGroups'];
+
+                    if ($this->extensions->isEnabled('flarum-tags')) {
+                        $relations[] = 'mentionsTags';
+                    }
+
+                    return $relations;
                 })
                 ->extractOffset(function (Context $context, array $defaultExtracts): int {
                     $queryParams = $context->request->getQueryParams();
@@ -119,7 +120,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                         $filter = $defaultExtracts['filter'];
                         $dialogId = $filter['dialog'] ?? null;
 
-                        if (count($filter) > 1 || ! $dialogId || ($sort && $sort !== ['number' => 'desc'])) {
+                        if (count($filter) > 1 || ! $dialogId || is_array($dialogId) || ($sort && $sort !== ['number' => 'desc'])) {
                             throw new BadRequestException(
                                 'You can only use page[near] with filter[dialog] and the default sort order'
                             );
@@ -134,7 +135,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                             ->whereVisibleTo($context->getActor())
                             ->count();
 
-                        return max(0, $index - $limit / 2);
+                        return max(0, $index - intdiv($limit, 2));
                     }
 
                     return $defaultExtracts['offset'];
@@ -172,6 +173,8 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 }),
             Schema\Boolean::make('renderFailed'),
             Schema\DateTime::make('createdAt'),
+            Schema\Str::make('ipAddress')
+                ->visible(fn (DialogMessage $message, Context $context) => $context->getActor()->can('dialog.viewIps')),
 
             // Write-only.
             Schema\Arr::make('users')
@@ -223,7 +226,10 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
      */
     public function creating(object $model, OriginalContext $context): ?object
     {
-        $model->user_id = $context->getActor()->id;
+        $actor = $context->getActor();
+
+        $model->user_id = $actor->id;
+        $model->ip_address = $context->request->getAttribute('ipAddress');
         $data = $context->body()['data'] ?? [];
 
         $this->events->dispatch(
@@ -231,24 +237,46 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         );
 
         if (! $model->dialog_id) {
-            $context->getActor()->assertCan('sendAnyMessage');
+            $actor->assertCan('sendAnyMessage');
 
-            $users = array_filter(Arr::pluck($data['attributes']['users'] ?? [], 'id'), fn (mixed $id) => $id && $id != $model->user_id);
+            $users = array_values(array_unique(array_map(
+                'intval',
+                array_filter(Arr::pluck($data['attributes']['users'] ?? [], 'id'), fn (mixed $id) => $id && (int) $id !== $actor->id)
+            )));
 
-            if (empty($users)) {
+            // Checked before anything is written: a recipient who doesn't exist
+            // used to reach the database, fail on the foreign key, and leave a
+            // dialog with no messages behind.
+            if (empty($users) || User::whereVisibleTo($actor)->whereIn('id', $users)->count() !== count($users)) {
                 throw new ValidationException([
-                    'users' => str_replace(':attribute', 'users', $this->translator->trans('validation.required')),
+                    'users' => str_replace(':attribute', 'users', $this->translator->trans('validation.exists')),
                 ]);
             }
 
-            $dialog = Dialog::for($model, $users);
+            $this->assertRecipientsCanBeMessaged($actor, $users);
+
+            // The dialog and its members go in together, or not at all. Core's
+            // create flow has no transaction of its own.
+            $dialog = $this->db->transaction(function () use ($model, $users, $actor) {
+                $dialog = Dialog::for($model, $users);
+
+                // Only members not yet in the dialog are added: syncing them all
+                // would reset `joined_at` for the ones already there.
+                $members = $dialog->users()->pluck('users.id')->all();
+                $joining = array_diff([...$users, $actor->id], $members);
+
+                if ($joining) {
+                    $dialog->users()->attach(array_fill_keys($joining, ['joined_at' => Carbon::now()]));
+                }
+
+                return $dialog;
+            });
 
             $model->dialog()->associate($dialog);
-
-            $users[] = $model->user_id;
-
-            $dialog->users()->syncWithPivotValues(array_unique($users), [
-                'joined_at' => Carbon::now(),
+        } elseif ($model->dialog && $model->dialog->users()->where('users.id', '!=', $actor->id)->doesntExist()) {
+            // The other member has left; there is no one to send to.
+            throw new ValidationException([
+                'dialog' => $this->translator->trans('flarum-messages.lib.no_other_members_message'),
             ]);
         }
 
@@ -271,7 +299,16 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         }
 
         if (! $model->dialog->first_message_id) {
-            $model->dialog->setFirstMessage($model);
+            // Normally this is the first message of a new dialog. It can also be
+            // a dialog whose first message pointer went missing, though, and
+            // that one starts at its oldest surviving message, not at this one.
+            $model->dialog->setFirstMessage($model->dialog->messages()->oldest('id')->first() ?? $model);
+        }
+
+        // Someone allowed to message users without messaging permission has
+        // spoken here, so whoever they're talking to can answer.
+        if (! $model->dialog->anyone_can_reply && MessagingPermission::canMessageUsersWithoutPermission($context->getActor())) {
+            $model->dialog->anyone_can_reply = true;
         }
 
         $model->dialog->isDirty() && $model->dialog->save();
@@ -285,6 +322,43 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         );
 
         return parent::created($model, $context);
+    }
+
+    /**
+     * Nobody can message someone another extension rules out: flarum/gdpr does
+     * for anonymised accounts. And a new dialog's recipients must be able to
+     * reply, unless the actor may message users without messaging permission
+     * or the dialog they already share has been opened to replies.
+     *
+     * @param int[] $userIds
+     */
+    protected function assertRecipientsCanBeMessaged(User $actor, array $userIds): void
+    {
+        $canMessageUsersWithoutPermission = MessagingPermission::canMessageUsersWithoutPermission($actor);
+
+        foreach (User::query()->whereIn('id', $userIds)->get() as $recipient) {
+            if ($actor->cannot('message', $recipient)) {
+                throw new ValidationException([
+                    'users' => $this->translator->trans('flarum-messages.lib.recipient_unavailable_message', ['username' => $recipient->display_name]),
+                ]);
+            }
+
+            if ($canMessageUsersWithoutPermission || MessagingPermission::canReply($recipient)) {
+                continue;
+            }
+
+            $opened = Dialog::query()
+                ->where('anyone_can_reply', true)
+                ->whereRelation('users', 'user_id', $actor->id)
+                ->whereRelation('users', 'user_id', $recipient->id)
+                ->exists();
+
+            if (! $opened) {
+                throw new ValidationException([
+                    'users' => $this->translator->trans('flarum-messages.lib.recipient_cannot_reply_message', ['username' => $recipient->display_name]),
+                ]);
+            }
+        }
     }
 
     /**

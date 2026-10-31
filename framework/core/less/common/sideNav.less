@@ -20,7 +20,7 @@
         & > li > a {
           color: var(--sidenav-color, var(--muted-color));
           gap: 15px;
-          padding-left: 0;
+          padding-inline-start: 0;
 
           &:hover {
             background: none;
@@ -58,8 +58,11 @@
   .sideNav {
     flex-shrink: 0;
 
+    // Fill the sidebar column so the nav never overflows into the gap between it
+    // and the content. Falls back to the base width outside the Page layout,
+    // where the column variable isn't defined.
     &, > ul {
-      width: 190px;
+      width: var(--sidebar-width, 190px);
     }
     > ul {
       &.affix {
@@ -82,8 +85,8 @@
   &:after {
     content: " ";
     position: absolute;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     margin-top: 15px;
     border-bottom: 1px solid var(--control-bg);
   }

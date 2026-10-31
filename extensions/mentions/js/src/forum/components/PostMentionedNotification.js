@@ -11,8 +11,17 @@ export default class PostMentionedNotification extends Notification {
     const notification = this.attrs.notification;
     const post = notification.subject();
     const content = notification.content();
+    const near = content?.replyNumber;
 
-    return app.route.discussion(post.discussion(), content && content.replyNumber);
+    if (content?.discussionId) {
+      return app.route(near && near !== 1 ? 'discussion.near' : 'discussion', {
+        id: content.discussionId,
+        near: near && near !== 1 ? near : undefined,
+      });
+    }
+
+    // Fallback for notifications created before discussionId was added to the payload.
+    return app.route.discussion(post.discussion(), near);
   }
 
   content() {

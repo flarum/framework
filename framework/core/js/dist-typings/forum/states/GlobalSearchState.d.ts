@@ -31,6 +31,11 @@ export default class GlobalSearchState extends SearchState {
      */
     params(): SearchParams;
     /**
+     * The sort the current page lists discussions in when none is asked for.
+     * It is left out of the URL when chosen.
+     */
+    defaultSort(): string;
+    /**
      * Redirect to the index page using the given sort parameter.
      */
     changeSort(sort: string): void;

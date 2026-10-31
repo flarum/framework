@@ -150,6 +150,13 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
       })
       .registerSetting({
         type: 'text',
+        setting: 'forum_short_name',
+        label: app.translator.trans('core.admin.basics.forum_short_name_heading'),
+        help: app.translator.trans('core.admin.basics.forum_short_name_text'),
+        maxlength: 16,
+      })
+      .registerSetting({
+        type: 'text',
         setting: 'forum_description',
         label: app.translator.trans('core.admin.basics.forum_description_heading'),
         help: app.translator.trans('core.admin.basics.forum_description_text'),

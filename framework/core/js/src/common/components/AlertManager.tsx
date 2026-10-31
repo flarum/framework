@@ -28,9 +28,20 @@ export default class AlertManager<CustomAttrs extends IAlertManagerAttrs = IAler
             const alert = activeAlerts[key];
             const urgent = alert.attrs.type === 'error';
 
+            // Dismissing has to remove the alert from the list, which is the
+            // manager's bookkeeping and not the caller's to replace. Whatever
+            // the caller passed runs as well: an extension may need to know its
+            // alert was dismissed — to remember the reader declined, say — and
+            // overwriting `ondismiss` outright is why it never heard about it.
+            const ondismiss = (...args: unknown[]) => {
+              (alert.attrs.ondismiss as ((...args: unknown[]) => void) | undefined)?.(...args);
+
+              this.state.dismiss(key);
+            };
+
             return (
               <div className="AlertManager-alert" role="alert" aria-live={urgent ? 'assertive' : 'polite'}>
-                <alert.componentClass {...alert.attrs} ondismiss={this.state.dismiss.bind(this.state, key)}>
+                <alert.componentClass {...alert.attrs} ondismiss={ondismiss}>
                   {alert.children}
                 </alert.componentClass>
               </div>

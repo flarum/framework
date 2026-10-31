@@ -38,6 +38,13 @@ class EmailToken extends AbstractModel
 
     protected $primaryKey = 'token';
 
+    /**
+     * The token is a random string, not a number. Without this Eloquent binds
+     * a lookup as an integer, and on MySQL/MariaDB a lookup for `0` matches any
+     * token beginning with a letter (GHSA-55f2-h36g-96c3).
+     */
+    protected $keyType = 'string';
+
     public static function generate(string $email, int $userId): static
     {
         $token = new static;

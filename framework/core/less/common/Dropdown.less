@@ -4,7 +4,7 @@
 .Dropdown-menu {
   position: absolute;
   top: 100%;
-  left: 0;
+  inset-inline-start: 0;
   z-index: var(--zindex-dropdown);
   display: none;
   min-width: 160px;
@@ -14,7 +14,7 @@
   border-radius: var(--border-radius);
   box-shadow: 0 2px 6px var(--shadow-color);
   list-style: none;
-  text-align: left;
+  text-align: start;
   color: var(--text-color);
   font-size: 13px;
   line-height: 1.5;
@@ -38,7 +38,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       box-shadow: none;
-      text-align: left;
+      text-align: start;
       font-size: 13px;
       font-weight: normal;
       text-decoration: none;
@@ -54,6 +54,17 @@
 
       &.hasSubContent {
         align-items: flex-start;
+      }
+
+      // Gambit rows document the query syntax rather than naming a command, and
+      // the value of `is:` is every boolean gambit joined together — it grows
+      // with each extension that registers one, so there is no width at which
+      // ellipsising it stays useful. Declared here to override the single-line
+      // defaults above at equal specificity.
+      &.GambitsAutocomplete-gambit {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
       }
 
       &.disabled {
@@ -78,8 +89,8 @@
   bottom: 100%;
 }
 .Dropdown-menu--right {
-  left: auto;
-  right: 0;
+  inset-inline-start: auto;
+  inset-inline-end: 0;
 }
 .Dropdown-menu--inline {
   position: relative;
@@ -110,8 +121,8 @@
 
 .dropdown-backdrop {
   position: fixed;
-  left: 0;
-  right: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   bottom: 0;
   top: 0;
   z-index: calc(~"var(--zindex-dropdown) - 10");
@@ -119,6 +130,10 @@
 
 
 .Dropdown--split {
+  .SplitDropdown-button {
+    min-width: 0;
+    flex-shrink: 1;
+  }
   .Dropdown-toggle .Button-icon {
     display: none;
   }
@@ -171,8 +186,8 @@
   .Dropdown .Dropdown-menu {
     margin: 0;
     position: fixed;
-    left: 0 !important;
-    right: 0 !important;
+    inset-inline-start: 0 !important;
+    inset-inline-end: 0 !important;
     width: auto !important;
     bottom: 0;
     top: auto;
@@ -195,11 +210,11 @@
         padding: 15px 20px;
 
         &.hasIcon {
-          padding-left: 50px;
+          padding-inline-start: 50px;
         }
         .Button-icon {
           font-size: 16px;
-          margin-left: -30px;
+          margin-inline-start: -30px;
         }
         &:hover {
           background: var(--control-bg);
@@ -243,22 +258,37 @@
 .GambitsAutocomplete {
   &-gambit {
     display: flex;
-    align-items: center;
+    // A wrapped value makes the row taller than one line, so the actions align
+    // to the first line rather than to the middle of the whole row.
+    align-items: flex-start;
 
     > button {
       flex-grow: 1;
+      // Without this the button refuses to shrink below the intrinsic width of
+      // its text, so a long value pushes the row out of the dropdown instead of
+      // wrapping inside it.
+      min-width: 0;
       cursor: pointer;
       gap: 4px;
       display: flex;
-      align-items: center;
+      flex-wrap: wrap;
+      align-items: baseline;
+      text-align: start;
       padding: 8px 15px;
       margin: -8px 0 -8px -15px;
     }
     &-key {
       font-weight: bold;
+      // The key is the label the row is identified by, so it keeps its line
+      // and the value wraps around it.
+      flex-shrink: 0;
     }
     &-value {
       color: var(--control-color);
+      // See the note above: wrap rather than overflow, and break a single
+      // over-long token rather than let it escape the panel.
+      min-width: 0;
+      overflow-wrap: break-word;
     }
     &-actions {
       flex-shrink: 0;

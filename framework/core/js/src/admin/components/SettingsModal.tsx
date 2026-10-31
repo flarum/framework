@@ -38,7 +38,12 @@ export default abstract class SettingsModal<CustomAttrs extends ISettingsModalAt
   }
 
   setting(key: string, fallback: string = ''): Stream<SettingValue> {
-    this.settings[key] = this.settings[key] || Stream(app.data.settings[key] || fallback);
+    // `??`, not `||`: settings live in a string column, so a saved `false`
+    // arrives as an empty string. Falling back on falsiness discarded it and
+    // reseeded the default, which meant a setting whose default is truthy could
+    // never be switched off — it came back on with every reload. Only the
+    // absence of a saved value should reach for the fallback.
+    this.settings[key] = this.settings[key] || Stream(app.data.settings[key] ?? fallback);
 
     return this.settings[key];
   }

@@ -22,6 +22,7 @@ class ExportJob extends GdprJob
 {
     public function __construct(private User $user, private User $actor)
     {
+        parent::__construct();
     }
 
     public function handle(Exporter $exporter, NotificationSyncer $notifications, Dispatcher $events): void

@@ -52,9 +52,17 @@ return [
         ),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
+        // Only default-include post likes where the post is actually displayed
+        // (Show/Create render the post stream). The discussion list (Index) never
+        // renders firstPost/lastPost likes, and default-including them there forces
+        // a full serialization of two posts per discussion — content rendering,
+        // per-post permission attributes and the likers — for data the list UI
+        // does not read. The relationships remain includable (see
+        // eagerLoadWhenIncluded below) for clients that explicitly request them.
+        // See flarum/framework#4788.
         ->endpoint(
-            [Endpoint\Show::class, Endpoint\Index::class, Endpoint\Create::class],
-            function (Endpoint\Show|Endpoint\Index|Endpoint\Create $endpoint): Endpoint\Endpoint {
+            [Endpoint\Show::class, Endpoint\Create::class],
+            function (Endpoint\Show|Endpoint\Create $endpoint): Endpoint\Endpoint {
                 return $endpoint->addDefaultInclude(['firstPost.likes', 'lastPost.likes']);
             }
         )
@@ -67,22 +75,6 @@ return [
                 ]);
             }
         ),
-
-    // When tags is enabled, also pre-load the back-reference to discussion and its tags,
-    // needed to avoid N+1s in DiscussionPolicy::can() which accesses $discussion->tags.
-    (new Extend\Conditional())
-        ->whenExtensionEnabled('flarum-tags', fn () => [
-            (new Extend\ApiResource(Resource\DiscussionResource::class))
-                ->endpoint(
-                    Endpoint\Index::class,
-                    function (Endpoint\Index $endpoint): Endpoint\Index {
-                        return $endpoint->eagerLoadWhenIncluded([
-                            'firstPost' => ['firstPost.discussion', 'firstPost.discussion.tags'],
-                            'lastPost' => ['lastPost.discussion', 'lastPost.discussion.tags'],
-                        ]);
-                    }
-                ),
-        ]),
 
     (new Extend\Event())
         ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)

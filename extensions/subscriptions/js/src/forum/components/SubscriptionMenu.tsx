@@ -4,6 +4,7 @@ import Button from 'flarum/common/components/Button';
 import extractText from 'flarum/common/utils/extractText';
 import DetailedDropdownItem from 'flarum/common/components/DetailedDropdownItem';
 import SplitDropdown from 'flarum/common/components/SplitDropdown';
+import Icon from 'flarum/common/components/Icon';
 import type Discussion from 'flarum/common/models/Discussion';
 
 export interface ISubscriptionMenuAttrs extends IDropdownAttrs {
@@ -14,13 +15,13 @@ export default class SubscriptionMenu<CustomAttrs extends ISubscriptionMenuAttrs
   private options: any[] = [
     {
       subscription: null,
-      icon: 'far fa-star',
+      icon: <Icon name="fa-regular fa-star" className="Button-icon" noStyleOverride />,
       label: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_button'),
       description: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_text'),
     },
     {
       subscription: 'follow',
-      icon: 'fas fa-star',
+      icon: <Icon name="fa-solid fa-star" className="Button-icon" noStyleOverride />,
       label: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button'),
       description: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_text'),
     },
@@ -34,11 +35,11 @@ export default class SubscriptionMenu<CustomAttrs extends ISubscriptionMenuAttrs
 
   private possibleButtonAttrs: any = {
     null: {
-      icon: 'far fa-star',
+      icon: <Icon name="fa-regular fa-star" className="Button-icon" noStyleOverride />,
       label: app.translator.trans('flarum-subscriptions.forum.sub_controls.follow_button'),
     },
     follow: {
-      icon: 'fas fa-star',
+      icon: <Icon name="fa-solid fa-star" className="Button-icon" noStyleOverride />,
       label: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button'),
     },
     ignore: {

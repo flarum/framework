@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Group\Permission;
+use Flarum\Group\PermissionCache;
 use Flarum\Http\RequestUtil;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -19,6 +20,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class SetPermissionController implements RequestHandlerInterface
 {
+    public function __construct(
+        protected PermissionCache $permissionCache
+    ) {
+    }
+
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
@@ -35,6 +41,10 @@ class SetPermissionController implements RequestHandlerInterface
                 'group_id' => $groupId
             ];
         }, $groupIds));
+
+        // These writes go through the query builder, so no model events fire —
+        // reset the shared permission cache explicitly.
+        $this->permissionCache->flush();
 
         return new EmptyResponse(204);
     }

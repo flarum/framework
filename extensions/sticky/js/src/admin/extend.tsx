@@ -17,11 +17,23 @@ export default [
     )
     .setting(
       () => ({
+        setting: 'flarum-sticky.pin_sticky_on_all_discussions',
+        name: 'pinStickyOnAllDiscussions',
+        type: 'boolean',
+        label: app.translator.trans('flarum-sticky.admin.settings.pin_sticky_on_all_discussions_label'),
+        help: app.translator.trans('flarum-sticky.admin.settings.pin_sticky_on_all_discussions_help'),
+      }),
+      95
+    )
+    .setting(
+      () => ({
         setting: 'flarum-sticky.only_sticky_unread_discussions',
         name: 'onlyStickyUnreadDiscussions',
         type: 'boolean',
         label: app.translator.trans('flarum-sticky.admin.settings.only_sticky_unread_discussions_label'),
         help: app.translator.trans('flarum-sticky.admin.settings.only_sticky_unread_discussions_help'),
+        // Only meaningful when sticky pinning is enabled on the All Discussions page.
+        disabled: app.data.settings['flarum-sticky.pin_sticky_on_all_discussions'] === '0',
       }),
       90
     )

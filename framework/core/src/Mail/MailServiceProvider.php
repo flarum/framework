@@ -9,15 +9,20 @@
 
 namespace Flarum\Mail;
 
+use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Arr;
+use Illuminate\View\View;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
 use Symfony\Component\Mailer\Transport\TransportFactoryInterface;
@@ -99,8 +104,67 @@ class MailServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Dispatcher $events): void
-    {
+    public function boot(
+        Container $container,
+        Dispatcher $events,
+        ViewFactory $views,
+        FilesystemFactory $filesystemFactory,
+        SettingsRepositoryInterface $settings,
+    ): void {
         $events->listen(MessageSending::class, MutateEmail::class);
+
+        // Resolve the logo URL via the flarum-assets disk so it stays correct on
+        // installs whose assets are served from a remote bucket / CDN — same path
+        // ForumResource::getLogoUrl() uses for the frontend. Mail views get
+        // their own email-safe logo instead; see below.
+        $logoPath = $settings->get('logo_path');
+        $views->share('logoUrl', $logoPath ? $filesystemFactory->disk('flarum-assets')->url($logoPath) : null);
+
+        // Email bodies are translation strings containing markup — a markdown
+        // link whose text is a discussion title, say — rendered by the
+        // formatter once their parameters have been substituted in. That order
+        // puts the values in front of the parser, so a title can close the link
+        // and choose its own destination, or add an image that loads when the
+        // mail is opened.
+        //
+        // Email views are therefore given a translator that holds parameter
+        // values back and a formatter that puts them in, escaped, after
+        // rendering. Doing it here means no template has to change — including
+        // the ones in extensions that will never be updated.
+        //
+        // Core's own mail views live in the `mail::` namespace; extensions
+        // conventionally keep theirs under an `email`/`emails` path. Both are
+        // covered so that core notifications are protected too, not only
+        // extension mail. The values are put back on the finished message by
+        // {@see MutateEmail}, so a template that never calls the formatter is
+        // still safe — the marker just survives until then.
+        $views->composer('*', function (View $view) use ($container) {
+            if (! $this->isMailView($view->name())) {
+                return;
+            }
+
+            // The forum logo is WebP, which many mail clients can't display,
+            // so mail views get the email logo in its place. It's resolved as
+            // each view renders rather than once at boot, so a long-running
+            // queue worker doesn't keep the logo it started with.
+            $logo = $container->make(EmailLogo::class)->resolve();
+
+            $view->with([
+                'translator' => new MailTranslator($container->make(TranslatorInterface::class)),
+                'formatter' => new MailFormatter($container->make(Formatter::class)),
+                'logoUrl' => $logo['url'] ?? null,
+                'logoWidth' => $logo['width'] ?? null,
+                'logoHeight' => $logo['height'] ?? null,
+            ]);
+        });
+    }
+
+    /**
+     * Whether a view name belongs to an email — core's `mail::` namespace, or
+     * an extension view kept under an `email`/`emails` path by convention.
+     */
+    private function isMailView(string $name): bool
+    {
+        return str_starts_with($name, 'mail::') || str_contains($name, 'email');
     }
 }

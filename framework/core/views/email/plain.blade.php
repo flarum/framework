@@ -1,14 +1,14 @@
-{{ strip_tags($header ?? '') }}
+{!! $formatter->htmlToPlain($header ?? '') !!}
 
 @if(!isset($greeting) || $greeting !== false)
-{{ $translator->trans('core.email.greeting', ['displayName' => $username]) }}
+{!! $translator->trans('core.email.greeting', ['displayName' => $username]) !!}
 @endif
 
-{{ strip_tags($content ?? '') }}
+{!! $formatter->htmlToPlain($content ?? '') !!}
 
 @if(!isset($signoff) || $signoff !== false)
-- {{ $translator->trans('core.email.signoff', ['forumTitle' => $settings->get('forum_title')]) }} -
+- {!! $translator->trans('core.email.signoff', ['forumTitle' => $settings->get('forum_title')]) !!} -
 @endif
 
 
-{{ strip_tags($footer ?? '') }}
+{!! $formatter->htmlToPlain($footer ?? '') !!}

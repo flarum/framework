@@ -32,6 +32,15 @@ class PasswordToken extends AbstractModel
     protected $primaryKey = 'token';
 
     /**
+     * The token is a 40-character random string, not a number. Without this,
+     * Eloquent defaults the key type to `int` and binds a lookup as an integer;
+     * on MySQL/MariaDB a lookup for `0` then matches any token beginning with a
+     * letter — about 84% of them — which was an unauthenticated account
+     * takeover (GHSA-55f2-h36g-96c3).
+     */
+    protected $keyType = 'string';
+
+    /**
      * Generate a password token for the specified user.
      */
     public static function generate(int $userId): static

@@ -134,7 +134,12 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
           this.focusTrap!.activate?.();
 
           if (this.activeDialogManagerElement) {
-            disableBodyScroll(this.activeDialogManagerElement, { reserveScrollBarGap: true });
+            // Hiding the scrollbar widens the page. Where the browser keeps its
+            // space with `scrollbar-gutter` (see scaffolding.less), nothing moves,
+            // fixed elements included; padding the body as well would double the gap.
+            const reserveScrollBarGap = !(typeof CSS !== 'undefined' && CSS.supports?.('scrollbar-gutter', 'stable'));
+
+            disableBodyScroll(this.activeDialogManagerElement, { reserveScrollBarGap });
           }
         }
 

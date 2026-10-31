@@ -19,7 +19,8 @@ use Flarum\Settings\Event\Saving;
 class WhenSavingSettings
 {
     /**
-     * Settings that should trigger JS cache clear when saved.
+     * Settings whose value changes what the compiled JS contains, so saving
+     * one must flag the bundles for a rebuild.
      *
      * @var string[]
      */
@@ -62,7 +63,16 @@ class WhenSavingSettings
             return;
         }
 
-        $this->assets->flushJs();
+        // Flag rather than delete. Deleting leaves already-served pages
+        // pointing at files that no longer exist, and nulls the revisions, so
+        // whichever request arrives first recompiles from its own container —
+        // which for these settings is one booted before the save.
+        //
+        // Entering safe mode is flagged like anything else, and the reduced
+        // bundle it then builds is what safe mode is for. Leaving it saves
+        // maintenance_mode again, which flags the sets again, so the next
+        // request outside safe mode restores the full bundle.
+        $this->assets->markDirty();
     }
 
     public function resetJsCacheFor(string|array $setting): void

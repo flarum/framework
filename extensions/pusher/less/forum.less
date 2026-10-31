@@ -1,6 +1,13 @@
 .DiscussionList-update {
+  .Button--block();
   .Button--color(@alert-color, @alert-bg);
   margin-bottom: 5px;
+
+  @media @phone {
+    height: auto;
+    max-width: 100%;
+    white-space: pre-wrap;
+  }
 
   .DiscussionPage & {
     border-radius: 0;

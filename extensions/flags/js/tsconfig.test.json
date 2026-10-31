@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.json",
+    "include": ["src/**/*", "../../../*/*/js/dist-typings/@types/**/*", "@types/**/*", "../../realtime/js/dist-typings/@types/**/*", "../../deck/js/dist-typings/@types/**/*", "tests/**/*"],
+    "files": ["../../../node_modules/@flarum/jest-config/shims.d.ts"],
+    "compilerOptions": {
+        "strict": false,
+        "noImplicitReturns": false,
+        "noImplicitAny": false
+    }
+}

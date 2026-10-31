@@ -29,7 +29,6 @@ class ConfirmErasureTest extends TestCase
         $this->extend(
             (new Extend\Csrf())
                 ->exemptRoute('login')
-                ->exemptRoute('gdpr.erasure.confirm')
         );
 
         $this->setting('mail_driver', 'log');
@@ -67,15 +66,69 @@ class ConfirmErasureTest extends TestCase
         return $response;
     }
 
+    /**
+     * Submit the form on the page the emailed link opens.
+     */
+    protected function confirm(string $token, ?ResponseInterface $loginResponse = null): ResponseInterface
+    {
+        if ($loginResponse) {
+            return $this->send(
+                $this->request('POST', "/gdpr/erasure/confirm/$token", ['cookiesFrom' => $loginResponse])
+                    ->withAttribute('bypassCsrfToken', true)
+            );
+        }
+
+        return $this->send(
+            $this->requestWithCsrfToken($this->request('POST', "/gdpr/erasure/confirm/$token"))
+        );
+    }
+
+    #[Test]
+    public function opening_the_link_asks_for_confirmation_without_confirming()
+    {
+        // Mail security scanners open links in incoming mail, so opening
+        // the link must not be what confirms the request.
+        $response = $this->send(
+            $this->request('GET', '/gdpr/erasure/confirm/abc123')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $body = $response->getBody()->getContents();
+        $this->assertStringContainsString('method="POST"', $body);
+        $this->assertStringContainsString('name="csrfToken"', $body);
+
+        $erasureRequest = ErasureRequest::query()->find(1);
+        $this->assertEquals('awaiting_user_confirmation', $erasureRequest->status);
+        $this->assertNull($erasureRequest->user_confirmed_at);
+        $this->assertEquals('abc123', $erasureRequest->verification_token);
+    }
+
+    #[Test]
+    public function link_with_incorrect_token_is_not_found()
+    {
+        $response = $this->send(
+            $this->request('GET', '/gdpr/erasure/confirm/wrong-token')
+        );
+
+        $this->assertEquals(404, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function confirming_requires_a_csrf_token()
+    {
+        $response = $this->send(
+            $this->request('POST', '/gdpr/erasure/confirm/abc123')
+        );
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertEquals('awaiting_user_confirmation', ErasureRequest::query()->find(1)->status);
+    }
+
     #[Test]
     public function guest_cannot_confirm_erasure_without_correct_token()
     {
-        $response = $this->send(
-            $this->request(
-                'GET',
-                '/gdpr/erasure/confirm/wrong-token'
-            )->withAttribute('bypassCsrfToken', true)
-        );
+        $response = $this->confirm('wrong-token');
 
         $this->assertEquals(404, $response->getStatusCode());
     }
@@ -83,12 +136,7 @@ class ConfirmErasureTest extends TestCase
     #[Test]
     public function guest_can_confirm_erasure_with_correct_token()
     {
-        $response = $this->send(
-            $this->request(
-                'GET',
-                '/gdpr/erasure/confirm/abc123'
-            )->withAttribute('bypassCsrfToken', true)
-        );
+        $response = $this->confirm('abc123');
 
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('http://localhost?erasureRequestConfirmed=1', $response->getHeaderLine('Location'));
@@ -103,17 +151,7 @@ class ConfirmErasureTest extends TestCase
     #[Test]
     public function user_cannot_confirm_erasure_with_incorrect_token()
     {
-        $loginResponse = $this->loginUser();
-
-        $response = $this->send(
-            $this->request(
-                'GET',
-                '/gdpr/erasure/confirm/wrong-token',
-                [
-                    'cookiesFrom' => $loginResponse,
-                ]
-            )->withAttribute('bypassCsrfToken', true)
-        );
+        $response = $this->confirm('wrong-token', $this->loginUser());
 
         $this->assertEquals(404, $response->getStatusCode());
     }
@@ -121,17 +159,7 @@ class ConfirmErasureTest extends TestCase
     #[Test]
     public function user_can_confirm_erasure_with_correct_token()
     {
-        $loginResponse = $this->loginUser();
-
-        $response = $this->send(
-            $this->request(
-                'GET',
-                '/gdpr/erasure/confirm/abc123',
-                [
-                    'cookiesFrom' => $loginResponse,
-                ]
-            )->withAttribute('bypassCsrfToken', true)
-        );
+        $response = $this->confirm('abc123', $this->loginUser());
 
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('http://localhost?erasureRequestConfirmed=1', $response->getHeaderLine('Location'));
@@ -146,12 +174,7 @@ class ConfirmErasureTest extends TestCase
     #[Test]
     public function confirmation_ip_is_stored()
     {
-        $response = $this->send(
-            $this->request(
-                'GET',
-                '/gdpr/erasure/confirm/abc123'
-            )->withAttribute('bypassCsrfToken', true)
-        );
+        $response = $this->confirm('abc123');
 
         $this->assertEquals(302, $response->getStatusCode());
 
@@ -162,43 +185,21 @@ class ConfirmErasureTest extends TestCase
     #[Test]
     public function processed_request_returns_422()
     {
-        $response = $this->send(
-            $this->request(
-                'GET',
-                '/gdpr/erasure/confirm/processed-token'
-            )->withAttribute('bypassCsrfToken', true)
-        );
-
-        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals(422, $this->send($this->request('GET', '/gdpr/erasure/confirm/processed-token'))->getStatusCode());
+        $this->assertEquals(422, $this->confirm('processed-token')->getStatusCode());
     }
 
     #[Test]
     public function manual_request_returns_422()
     {
-        $response = $this->send(
-            $this->request(
-                'GET',
-                '/gdpr/erasure/confirm/manual-token'
-            )->withAttribute('bypassCsrfToken', true)
-        );
-
-        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals(422, $this->send($this->request('GET', '/gdpr/erasure/confirm/manual-token'))->getStatusCode());
+        $this->assertEquals(422, $this->confirm('manual-token')->getStatusCode());
     }
 
     #[Test]
     public function different_user_cannot_confirm_erasure_for_user()
     {
-        $loginResponse = $this->loginUser('moderator');
-
-        $response = $this->send(
-            $this->request(
-                'GET',
-                '/gdpr/erasure/confirm/abc123',
-                [
-                    'cookiesFrom' => $loginResponse,
-                ]
-            )->withAttribute('bypassCsrfToken', true)
-        );
+        $response = $this->confirm('abc123', $this->loginUser('moderator'));
 
         $this->assertEquals(422, $response->getStatusCode());
     }

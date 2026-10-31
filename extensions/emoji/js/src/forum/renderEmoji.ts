@@ -27,8 +27,6 @@ function parseHTML(str: string): HTMLBodyElement {
   return tmp.body as HTMLBodyElement;
 }
 
-declare const s9e: { TextFormatter: any };
-
 export default function renderEmoji(): void {
   (override as any)(Post.prototype, 'contentHtml', function (this: any, original: () => string) {
     const contentHtml = original();

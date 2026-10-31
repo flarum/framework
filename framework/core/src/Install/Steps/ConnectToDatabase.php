@@ -10,6 +10,7 @@
 namespace Flarum\Install\Steps;
 
 use Closure;
+use Flarum\Database\DatabaseRequirements;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Step;
 use Illuminate\Database\Connectors\MariaDbConnector;
@@ -55,15 +56,19 @@ readonly class ConnectToDatabase implements Step
     {
         $pdo = (new MySqlConnector)->connect($config);
 
-        $version = $pdo->query('SELECT VERSION()')->fetchColumn();
+        $raw = $pdo->query('SELECT VERSION()')->fetchColumn();
 
-        if (Str::contains($version, 'MariaDB')) {
-            if (version_compare($version, '10.3.0', '<')) {
-                throw new RangeException("MariaDB version ($version) too low. You need at least MariaDB 10.3");
+        if (DatabaseRequirements::isMariaDb($raw)) {
+            $version = DatabaseRequirements::normaliseVersion($raw, true) ?? $raw;
+
+            if (version_compare($version, DatabaseRequirements::MARIADB_MINIMUM, '<')) {
+                throw new RangeException("MariaDB version ($version) too low. You need at least MariaDB ".DatabaseRequirements::MARIADB_MINIMUM);
             }
         } else {
-            if (version_compare($version, '5.7.0', '<')) {
-                throw new RangeException("MySQL version ($version) too low. You need at least MySQL 5.7");
+            $version = DatabaseRequirements::normaliseVersion($raw, false) ?? $raw;
+
+            if (version_compare($version, DatabaseRequirements::MYSQL_MINIMUM, '<')) {
+                throw new RangeException("MySQL version ($version) too low. You need at least MySQL ".DatabaseRequirements::MYSQL_MINIMUM);
             }
         }
 
@@ -81,10 +86,11 @@ readonly class ConnectToDatabase implements Step
     {
         $pdo = (new MariaDbConnector())->connect($config);
 
-        $version = $pdo->query('SELECT VERSION()')->fetchColumn();
+        $raw = $pdo->query('SELECT VERSION()')->fetchColumn();
+        $version = DatabaseRequirements::normaliseVersion($raw, true) ?? $raw;
 
-        if (version_compare($version, '10.3.0', '<')) {
-            throw new RangeException("MariaDB version ($version) too low. You need at least MariaDB 10.3");
+        if (version_compare($version, DatabaseRequirements::MARIADB_MINIMUM, '<')) {
+            throw new RangeException("MariaDB version ($version) too low. You need at least MariaDB ".DatabaseRequirements::MARIADB_MINIMUM);
         }
 
         ($this->store)(
@@ -104,7 +110,7 @@ readonly class ConnectToDatabase implements Step
         $version = $pdo->query('SHOW server_version')->fetchColumn();
         $version = Str::before($version, ' ');
 
-        if (version_compare($version, '10.0.0', '<')) {
+        if (version_compare($version, DatabaseRequirements::PGSQL_MINIMUM, '<')) {
             throw new RangeException("PostgreSQL version ($version) too low. You need at least PostgreSQL 10");
         }
 
@@ -128,8 +134,8 @@ readonly class ConnectToDatabase implements Step
 
         $version = $pdo->query('SELECT sqlite_version()')->fetchColumn();
 
-        if (version_compare($version, '3.35.0', '<')) {
-            throw new RangeException("SQLite version ($version) too low. You need at least SQLite 3.35.0");
+        if (version_compare($version, DatabaseRequirements::SQLITE_MINIMUM, '<')) {
+            throw new RangeException("SQLite version ($version) too low. You need at least SQLite ".DatabaseRequirements::SQLITE_MINIMUM);
         }
 
         ($this->store)(

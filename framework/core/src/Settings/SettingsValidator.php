@@ -9,6 +9,7 @@
 
 namespace Flarum\Settings;
 
+use Flarum\Forum\Branding\ShortName;
 use Flarum\Foundation\AbstractValidator;
 use Illuminate\Validation\Validator;
 
@@ -22,6 +23,10 @@ class SettingsValidator extends AbstractValidator
      */
     protected array $globalRules = [
         'max:65000',
+    ];
+
+    protected array $rules = [
+        'forum_short_name' => ['max:'.ShortName::MAX_LENGTH],
     ];
 
     protected function makeValidator(array $attributes): Validator

@@ -9,7 +9,8 @@
     "support": {
         "issues": "https://github.com/flarum/framework/issues",
         "source": "https://github.com/flarum/bbcode",
-        "forum": "https://discuss.flarum.org"
+        "forum": "https://discuss.flarum.org",
+        "docs": "https://docs.flarum.org/extensions/bbcode"
     },
     "homepage": "https://flarum.org",
     "funding": [
@@ -19,7 +20,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-rc.1"
+        "flarum/core": "^2.1"
     },
     "autoload": {
         "psr-4": {

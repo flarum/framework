@@ -5,7 +5,7 @@
 <x-mail::plain.notification>
 <x-slot:body>
 {!! $translator->trans('flarum-messages.email.message_received.plain.body', [
-'{user_display_name}' => $blueprint->message->user->display_name,
+'{user_display_name}' => $blueprint->message->user->display_name ?? $translator->trans('core.lib.username.deleted_text'),
 '{url}' => $url->to('forum')->route('messages.dialog', ['id' => $blueprint->message->dialog_id, 'near' => $blueprint->message->id]),
 '{content}' => $blueprint->message->content
 ]) !!}

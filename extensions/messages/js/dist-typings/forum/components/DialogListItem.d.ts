@@ -9,5 +9,7 @@ export interface IDialogListItemAttrs extends ComponentAttrs {
 }
 export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = IDialogListItemAttrs> extends Component<CustomAttrs> {
     view(vnode: Mithril.Vnode<CustomAttrs, this>): JSX.Element;
+    /** The last message, said to be the member's own when it is. */
+    preview(): Mithril.Children;
     actionItems(): ItemList<Mithril.Children>;
 }

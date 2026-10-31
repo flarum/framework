@@ -38,8 +38,7 @@ class NotificationRepository
             ->whereSubjectVisibleTo($user)
             ->groupBy('type', 'subject_id')
             ->orderByRaw('MAX(created_at) DESC')
-            ->skip($offset)
-            ->take($limit);
+            ->when($limit, fn (Builder $query) => $query->skip($offset)->take($limit));
 
         return Notification::query()
             ->select('notifications.*', 'p.unread_count')
