@@ -32,11 +32,14 @@ flarum-messages:
       cannot_reply_text: This user cannot reply
       controls:
         details_button: Details
+        leave_button: Leave conversation
       controls_toggle_label: Dialog control actions
       details_modal:
         created_at: Creation date
         recipients: Participants
         title: Conversation details
+      leave_confirmation: Leave this conversation? You won't see it, or be told about new messages in it, again. What you wrote stays for the others.
+      members_button: "{count, plural, one {# member} other {# members}}"
 
     header:
       dropdown_tooltip: Messages
