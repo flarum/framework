@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\unit\Locale;
 
+use Composer\Autoload\ClassLoader;
 use Flarum\Locale\CatalogueCache;
 use Flarum\Testing\unit\TestCase;
 use PHPUnit\Framework\Attributes\Test;
@@ -33,6 +34,10 @@ class CatalogueCacheTest extends TestCase
 
         is_file($this->root.'/locale') ? unlink($this->root.'/locale') : @rmdir($this->root.'/locale');
         @unlink($this->root.'/en.yml');
+
+        foreach (glob($this->root.'/*.php') ?: [] as $script) {
+            unlink($script);
+        }
         @rmdir($this->root);
 
         parent::tearDown();
@@ -134,5 +139,66 @@ class CatalogueCacheTest extends TestCase
         $this->assertSame('built for rev-1', include $old->getPath());
         $this->assertTrue($new->isFresh());
         $this->assertSame('built for rev-2', include $new->getPath());
+    }
+
+    #[Test]
+    public function a_catalogue_rebuilt_by_another_process_is_not_hidden_by_opcache()
+    {
+        if (! extension_loaded('Zend OPcache')) {
+            $this->markTestSkipped('Needs opcache.');
+        }
+
+        mkdir($this->root.'/locale', 0775, true);
+        $autoload = dirname((new \ReflectionClass(ClassLoader::class))->getFileName(), 2).'/autoload.php';
+        $file = $this->root.'/locale/catalogue.en.php';
+
+        // Another process (a queue worker, another server sharing storage):
+        // its opcache_invalidate() cannot reach this one's.
+        file_put_contents($this->root.'/build.php', <<<'PHP'
+            <?php
+            require $argv[1];
+            (new Flarum\Locale\CatalogueCache($argv[2], $argv[3]))->write('<?php return '.var_export($argv[3], true).';');
+            PHP);
+
+        // A long-lived process with an opcache of its own, never told to reset
+        // it, as with opcache.validate_timestamps=0.
+        file_put_contents($this->root.'/server.php', <<<'PHP'
+            <?php
+            [, $autoload, $file, $build] = $argv;
+            require $autoload;
+
+            $rebuild = fn (string $revision) => exec(implode(' ', array_map('escapeshellarg', [
+                PHP_BINARY, '-d', 'opcache.enable_cli=0', $build, $autoload, $file, $revision,
+            ])));
+
+            $rebuild('rev-1');
+            $before = new Flarum\Locale\CatalogueCache($file, 'rev-1');
+            include $before->getPath();
+
+            $rebuild('rev-2');
+            $after = new Flarum\Locale\CatalogueCache($file, 'rev-2');
+
+            echo json_encode([
+                'compiled' => opcache_is_script_cached($before->getPath()),
+                'fresh' => $after->isFresh(),
+                'catalogue' => include $after->getPath(),
+            ]);
+            PHP);
+
+        $output = shell_exec(implode(' ', array_map('escapeshellarg', [
+            PHP_BINARY,
+            '-d', 'opcache.enable_cli=1',
+            '-d', 'opcache.validate_timestamps=0',
+            '-d', 'opcache.file_update_protection=0',
+            $this->root.'/server.php', $autoload, $file, $this->root.'/build.php',
+        ])));
+        $result = json_decode((string) $output, true);
+
+        if (! ($result['compiled'] ?? false)) {
+            $this->markTestSkipped('Opcache did not compile the catalogue: '.$output);
+        }
+
+        $this->assertTrue($result['fresh'], (string) $output);
+        $this->assertSame('rev-2', $result['catalogue'], 'The rebuilt catalogue, not the one this process compiled before');
     }
 }
