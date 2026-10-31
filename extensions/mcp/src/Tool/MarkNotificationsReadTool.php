@@ -11,11 +11,19 @@ namespace Flarum\Mcp\Tool;
 
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Tool;
+use Flarum\Mcp\Exception\ToolError;
+use Flarum\Mcp\Server\ErrorTranslator;
 use Flarum\Notification\Command\ReadAllNotifications;
+use Throwable;
 
 class MarkNotificationsReadTool extends Tool
 {
     public const int MAX_IDS = 50;
+
+    public function __construct(
+        protected ErrorTranslator $errors,
+    ) {
+    }
 
     public function name(): string
     {
@@ -29,7 +37,7 @@ class MarkNotificationsReadTool extends Tool
 
     public function description(): string
     {
-        return 'Mark the given notifications as read, or all of them when no IDs are given.';
+        return 'Mark the given notifications as read, or all of them when no IDs are given. IDs that cannot be marked are listed under "failed"; the others are still marked.';
     }
 
     public function readOnly(): bool
@@ -65,10 +73,31 @@ class MarkNotificationsReadTool extends Tool
             return ['marked' => 'all'];
         }
 
+        // One bad ID (gone, or someone else's) does not stop the rest.
+        $marked = [];
+        $failed = [];
+
         foreach ($ids as $id) {
-            $context->api->update('notifications', $id, ['isRead' => true]);
+            try {
+                $context->api->update('notifications', $id, ['isRead' => true]);
+                $marked[] = $id;
+            } catch (Throwable $e) {
+                // A refused write (no write scope, a guest) refuses every ID alike;
+                // an unknown error is a defect, reported by the invoker.
+                $message = $e instanceof ToolError ? null : $this->errors->translate($e);
+
+                if ($message === null) {
+                    throw $e;
+                }
+
+                $failed[] = ['id' => $id, 'error' => $message];
+            }
         }
 
-        return ['marked' => $ids];
+        if (! $marked) {
+            throw new ToolError(implode("\n", array_map(fn (array $failure) => "{$failure['id']}: {$failure['error']}", $failed)));
+        }
+
+        return array_filter(['marked' => $marked, 'failed' => $failed]);
     }
 }

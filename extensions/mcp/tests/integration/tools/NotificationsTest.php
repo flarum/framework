@@ -57,7 +57,14 @@ class NotificationsTest extends McpTestCase
         $this->assertNull($this->database()->table('notifications')->where('id', 3)->value('read_at'));
 
         $other = $this->toolOutput($this->callTool('mark_notifications_read', ['ids' => ['4']], $auth), expectError: true);
-        $this->assertSame('Not found.', $other['error']);
+        $this->assertSame('4: Not found.', $other['error']);
+
+        // A bad ID among good ones does not stop the rest.
+        $mixed = $this->toolOutput($this->callTool('mark_notifications_read', ['ids' => ['4', '999', '3']], $auth));
+        $this->assertSame(['3'], $mixed['marked']);
+        $this->assertSame([['id' => '4', 'error' => 'Not found.'], ['id' => '999', 'error' => 'Not found.']], $mixed['failed']);
+        $this->assertNotNull($this->database()->table('notifications')->where('id', 3)->value('read_at'));
+        $this->assertNull($this->database()->table('notifications')->where('id', 4)->value('read_at'));
 
         $this->assertSame(['marked' => 'all'], $this->toolOutput($this->callTool('mark_notifications_read', [], $auth)));
         $this->assertSame(0, $this->database()->table('notifications')->where('user_id', 2)->whereNull('read_at')->count());
