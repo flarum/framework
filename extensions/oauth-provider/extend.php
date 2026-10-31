@@ -1,0 +1,61 @@
+<?php
+
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
+namespace Flarum\OAuthProvider;
+
+use Flarum\Extend;
+use Illuminate\Console\Scheduling\Event;
+
+return [
+    (new Extend\Frontend('admin'))
+        ->js(__DIR__.'/js/dist/admin.js')
+        ->css(__DIR__.'/resources/less/admin.less')
+        ->jsDirectory(__DIR__.'/js/dist/admin'),
+
+    (new Extend\Frontend('forum'))
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->css(__DIR__.'/resources/less/forum.less'),
+
+    new Extend\Locales(__DIR__.'/resources/locale'),
+
+    (new Extend\Routes('forum'))
+        ->get('/oauth/authorize', 'oauthProvider.authorize', Http\Controller\AuthorizeController::class)
+        ->post('/oauth/authorize', 'oauthProvider.authorize.post', Http\Controller\AuthorizeController::class)
+        ->post('/oauth/token', 'oauthProvider.token', Http\Controller\TokenController::class)
+        ->get('/oauth/userinfo', 'oauthProvider.userinfo', Http\Controller\UserInfoController::class)
+        ->post('/oauth/revoke', 'oauthProvider.revoke', Http\Controller\RevokeController::class)
+        ->post('/oauth/register', 'oauthProvider.register', Http\Controller\RegisterClientController::class)
+        ->get('/.well-known/openid-configuration', 'oauthProvider.discovery', Http\Controller\OpenIdConfigurationController::class)
+        ->get('/.well-known/oauth-authorization-server', 'oauthProvider.metadata', Http\Controller\AuthorizationServerMetadataController::class)
+        ->get('/.well-known/jwks.json', 'oauthProvider.jwks', Http\Controller\JwksController::class),
+
+    // Called by OAuth clients without a session; they authenticate as clients, not users.
+    (new Extend\Csrf())
+        ->exemptRoute('oauthProvider.token')
+        ->exemptRoute('oauthProvider.revoke')
+        ->exemptRoute('oauthProvider.register'),
+
+    new Extend\ApiResource(Api\Resource\ClientResource::class),
+    new Extend\ApiResource(Api\Resource\ConsentResource::class),
+
+    (new Extend\Settings())
+        ->default(ClientRegistration\DynamicRegistration::SETTING, true),
+
+    (new Extend\View())
+        ->namespace('flarum-oauth-provider', __DIR__.'/resources/views'),
+
+    (new Extend\ServiceProvider())
+        ->register(Provider\OAuthProviderServiceProvider::class),
+
+    (new Extend\Console())
+        ->command(Console\PruneClientsCommand::class)
+        ->schedule(Console\PruneClientsCommand::class, function (Event $event): void {
+            $event->daily();
+        }),
+];
