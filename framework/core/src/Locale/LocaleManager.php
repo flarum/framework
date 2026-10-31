@@ -194,7 +194,9 @@ class LocaleManager
     public function clearCache(): void
     {
         if ($this->cacheDir) {
-            array_map('unlink', glob($this->cacheDir.'/*'));
+            // Another process may delete a listed file first: a concurrent
+            // clear, or a catalogue write renaming its temporary file.
+            array_map(fn (string $file) => @unlink($file), glob($this->cacheDir.'/*') ?: []);
         }
     }
 }
