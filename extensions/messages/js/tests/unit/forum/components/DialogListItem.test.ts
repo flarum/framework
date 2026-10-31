@@ -90,6 +90,15 @@ describe('a group in the conversation list', () => {
   });
 });
 
+describe('a notice as the last thing in a group', () => {
+  it('is what the preview says happened', () => {
+    const dialog = conversation('group', ['36', '37'], '36', 'user36, user37');
+    dialog.lastMessage()!.pushAttributes({ type: 'userLeft', eventData: {}, contentHtml: null });
+
+    mq(DialogListItem, { dialog }).should.contain('user36 left the conversation');
+  });
+});
+
 describe('a direct conversation in the list', () => {
   it("is named by the other member, with their avatar, and the preview isn't prefixed", () => {
     const item = mq(DialogListItem, { dialog: conversation('direct', ['34'], '34', 'Messaging user34') });

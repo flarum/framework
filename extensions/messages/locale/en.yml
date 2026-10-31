@@ -71,7 +71,10 @@ flarum-messages:
       stream:
         load_previous_button: Load previous messages
         load_next_button: Load next messages
+        name_removed_text: "{username} removed the conversation's name"
+        renamed_text: "{username} named the conversation “{name}”"
         start_of_the_conversation: Start of the conversation
+        user_left_text: "{username} left the conversation"
         time_lapsed_text: => core.forum.post_stream.time_lapsed_text
       title: Messages
 

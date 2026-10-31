@@ -10,6 +10,7 @@ import ItemList from 'flarum/common/utils/ItemList';
 import Button from 'flarum/common/components/Button';
 import type Dialog from '../../common/models/Dialog';
 import { markRead } from '../utils/readState';
+import describeEvent from '../utils/describeEvent';
 
 export interface IDialogListItemAttrs extends ComponentAttrs {
   dialog: Dialog;
@@ -89,12 +90,16 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
 
   /**
    * The last message, said to be the member's own when it is. In a group,
-   * where it could be from any of the others, who wrote it.
+   * where it could be from any of the others, who wrote it. A notice says
+   * what happened.
    */
   preview(): Mithril.Children {
     const lastMessage = this.attrs.dialog.lastMessage();
 
     if (!lastMessage) return '';
+
+    // A notice, such as someone leaving: what happened.
+    if (!lastMessage.isComment()) return describeEvent(lastMessage, true);
 
     const content = lastMessage.contentPlain()?.slice(0, 80) ?? '';
 
