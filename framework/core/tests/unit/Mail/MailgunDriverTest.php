@@ -9,7 +9,9 @@
 
 namespace Flarum\Tests\unit\Mail;
 
+use Flarum\Mail\HandlesWebhooks;
 use Flarum\Mail\MailgunDriver;
+use Flarum\Mail\ProvisionsWebhooks;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\unit\TestCase;
 use Illuminate\Translation\ArrayLoader;
@@ -18,6 +20,7 @@ use Illuminate\Validation\Factory as ValidatorFactory;
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Mailer\Bridge\Mailgun\Transport\MailgunApiTransport;
+use Symfony\Component\Mailer\Bridge\Mailgun\Webhook\MailgunRequestParser;
 
 class MailgunDriverTest extends TestCase
 {
@@ -154,5 +157,53 @@ class MailgunDriverTest extends TestCase
         $transport = $this->driver->buildTransport($this->settings($this->validSettings()));
 
         $this->assertInstanceOf(MailgunApiTransport::class, $transport);
+    }
+
+    // -------------------------------------------------------------------------
+    // Webhook capability
+    // -------------------------------------------------------------------------
+
+    #[Test]
+    public function driver_supports_webhook_capabilities(): void
+    {
+        $this->assertInstanceOf(HandlesWebhooks::class, $this->driver);
+        $this->assertInstanceOf(ProvisionsWebhooks::class, $this->driver);
+    }
+
+    #[Test]
+    public function available_settings_includes_webhook_signing_key(): void
+    {
+        $this->assertArrayHasKey('mail_mailgun_webhook_signing_key', $this->driver->availableSettings());
+    }
+
+    #[Test]
+    public function webhook_request_parser_is_the_mailgun_parser(): void
+    {
+        $parser = $this->driver->getWebhookRequestParser($this->settings($this->validSettings()));
+
+        $this->assertInstanceOf(MailgunRequestParser::class, $parser);
+    }
+
+    #[Test]
+    public function signing_secret_reads_the_dedicated_setting(): void
+    {
+        $settings = array_merge($this->validSettings(), ['mail_mailgun_webhook_signing_key' => 'sign-xyz']);
+
+        $this->assertSame('sign-xyz', $this->driver->getWebhookSigningSecret($this->settings($settings)));
+    }
+
+    #[Test]
+    public function signing_secret_is_null_when_unset(): void
+    {
+        $this->assertNull($this->driver->getWebhookSigningSecret($this->settings($this->validSettings())));
+    }
+
+    #[Test]
+    public function webhook_configured_requires_a_signing_key(): void
+    {
+        $this->assertFalse($this->driver->webhookConfigured($this->settings($this->validSettings())));
+
+        $withKey = array_merge($this->validSettings(), ['mail_mailgun_webhook_signing_key' => 'sign-xyz']);
+        $this->assertTrue($this->driver->webhookConfigured($this->settings($withKey)));
     }
 }

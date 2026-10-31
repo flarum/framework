@@ -171,4 +171,57 @@ class DeleteUserTest extends TestCase
         $this->assertEquals('/data/attributes/mode', $data['errors'][0]['source']['pointer']);
         $this->assertStringContainsString('invalid-mode', $data['errors'][0]['detail']);
     }
+
+    #[Test]
+    public function anonymization_scrubs_email_from_bounce_events_but_keeps_the_row()
+    {
+        $this->database()->table('email_bounce_events')->insert([
+            'email' => 'normal@machine.local',
+            'user_id' => 2,
+            'type' => 'bounce',
+            'reason' => 'Mailbox does not exist',
+            'created_at' => \Carbon\Carbon::now(),
+        ]);
+
+        $response = $this->send(
+            $this->request('DELETE', '/api/users/2', [
+                'authenticatedAs' => 1,
+                'json' => ['gdprMode' => ErasureRequest::MODE_ANONYMIZATION],
+            ])
+        );
+
+        $this->assertEquals(204, $response->getStatusCode());
+
+        $event = \Flarum\Mail\EmailBounceEvent::where('user_id', 2)->first();
+
+        // Row is retained (for statistics) but the PII email is scrubbed.
+        $this->assertNotNull($event, 'The bounce event row should be kept.');
+        $this->assertSame('', $event->email);
+        $this->assertNull($event->reason);
+        $this->assertEquals(2, $event->user_id);
+    }
+
+    #[Test]
+    public function deletion_removes_bounce_events()
+    {
+        $this->setting('flarum-gdpr.allow-deletion', true);
+
+        $this->database()->table('email_bounce_events')->insert([
+            'email' => 'normal@machine.local',
+            'user_id' => 2,
+            'type' => 'bounce',
+            'reason' => 'Mailbox does not exist',
+            'created_at' => \Carbon\Carbon::now(),
+        ]);
+
+        $response = $this->send(
+            $this->request('DELETE', '/api/users/2', [
+                'authenticatedAs' => 1,
+                'json' => ['gdprMode' => ErasureRequest::MODE_DELETION],
+            ])
+        );
+
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals(0, \Flarum\Mail\EmailBounceEvent::where('user_id', 2)->count());
+    }
 }

@@ -18,6 +18,7 @@ use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
+use Flarum\Mail\MailWebhooks;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
@@ -40,6 +41,7 @@ class ForumResource extends AbstractResource implements Findable
         protected UrlGenerator $url,
         protected SettingsRepositoryInterface $settings,
         protected Config $config,
+        protected MailWebhooks $webhooks,
         Factory $filesystemFactory,
         ?Branding $branding = null
     ) {
@@ -163,6 +165,9 @@ class ForumResource extends AbstractResource implements Findable
             Schema\Str::make('version')
                 ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
                 ->get(fn () => Application::VERSION),
+            Schema\Boolean::make('mailDriverSupportsBounceReporting')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->webhooks->driver() !== null),
 
             Schema\Relationship\ToMany::make('groups')
                 ->includable()

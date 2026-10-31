@@ -10,6 +10,8 @@ import type Mithril from 'mithril';
 import type { SaveSubmitEvent } from './AdminPage';
 import Form from '../../common/components/Form';
 import ItemList from '../../common/utils/ItemList';
+import FormGroup from '../../common/components/FormGroup';
+import Stream from '../../common/utils/Stream';
 
 export interface MailSettings {
   data: {
@@ -17,15 +19,19 @@ export interface MailSettings {
       fields: Record<string, any>;
       sending: boolean;
       errors: any[];
+      canReceiveWebhooks: boolean;
+      canProvisionWebhooks: boolean;
+      webhookUrl: string | null;
     };
   };
 }
 
 export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
   sendingTest = false;
-  status?: { sending: boolean; errors: any };
+  status?: { sending: boolean; errors: any; canReceiveWebhooks: boolean; canProvisionWebhooks: boolean; webhookUrl: string | null };
   driverFields?: Record<string, any>;
   testEmailSuccessAlert?: AlertIdentifier;
+  provisioningWebhook = false;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -45,7 +51,7 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
   refresh() {
     this.loading = true;
 
-    this.status = { sending: false, errors: {} };
+    this.status = { sending: false, errors: {}, canReceiveWebhooks: false, canProvisionWebhooks: false, webhookUrl: null };
 
     app
       .request<MailSettings>({
@@ -56,6 +62,9 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
         this.driverFields = response.data.attributes.fields;
         this.status!.sending = response.data.attributes.sending;
         this.status!.errors = response.data.attributes.errors;
+        this.status!.canReceiveWebhooks = response.data.attributes.canReceiveWebhooks;
+        this.status!.canProvisionWebhooks = response.data.attributes.canProvisionWebhooks;
+        this.status!.webhookUrl = response.data.attributes.webhookUrl;
 
         this.loading = false;
         m.redraw();
@@ -86,7 +95,59 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
             </Button>
           </FieldSet>
         </Form>
+        {this.status!.canReceiveWebhooks && this.bounceHandlingForm()}
       </>
+    );
+  }
+
+  bounceHandlingForm(): Mithril.Children {
+    return (
+      <Form>
+        <FieldSet
+          label={app.translator.trans('core.admin.email.bounce_handling_heading')}
+          className="FieldSet--col MailPage-MailSettings"
+          description={app.translator.trans('core.admin.email.bounce_handling_text')}
+        >
+          {this.buildSettingComponent({
+            type: 'bool',
+            setting: 'mail_suppress_bounced',
+            label: app.translator.trans('core.admin.email.suppress_bounced_label'),
+            help: app.translator.trans('core.admin.email.suppress_bounced_help'),
+          })}
+          {this.buildSettingComponent({
+            type: 'text',
+            setting: 'mail_webhook_username',
+            label: app.translator.trans('core.admin.email.webhook_username_label'),
+            help: app.translator.trans('core.admin.email.webhook_username_help'),
+          })}
+          {this.buildSettingComponent({
+            type: 'password',
+            setting: 'mail_webhook_password',
+            label: app.translator.trans('core.admin.email.webhook_password_label'),
+          })}
+          {this.status!.webhookUrl && (
+            <FormGroup
+              type="text"
+              label={app.translator.trans('core.admin.email.webhook_url_label')}
+              help={app.translator.trans(
+                this.status!.canProvisionWebhooks ? 'core.admin.email.webhook_url_provision_help' : 'core.admin.email.webhook_url_help'
+              )}
+              stream={Stream(this.status!.webhookUrl)}
+              readonly
+            />
+          )}
+          {this.status!.canProvisionWebhooks && (
+            <div className="ButtonGroup">
+              <Button className="Button" disabled={this.provisioningWebhook || this.isChanged()} onclick={() => this.provisionWebhook(false)}>
+                {app.translator.trans('core.admin.email.register_webhook_button')}
+              </Button>
+              <Button className="Button" disabled={this.provisioningWebhook || this.isChanged()} onclick={() => this.provisionWebhook(true)}>
+                {app.translator.trans('core.admin.email.unregister_webhook_button')}
+              </Button>
+            </div>
+          )}
+        </FieldSet>
+      </Form>
     );
   }
 
@@ -225,6 +286,32 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
       })
       .catch((error) => {
         this.sendingTest = false;
+        m.redraw();
+        throw error;
+      });
+  }
+
+  provisionWebhook(unregister: boolean) {
+    if (this.provisioningWebhook) return;
+
+    this.provisioningWebhook = true;
+
+    app
+      .request({
+        method: 'POST',
+        url: app.forum.attribute('apiUrl') + '/mail/webhook/provision',
+        body: { unregister },
+      })
+      .then(() => {
+        this.provisioningWebhook = false;
+        app.alerts.show(
+          { type: 'success' },
+          app.translator.trans(unregister ? 'core.admin.email.unregister_webhook_success' : 'core.admin.email.register_webhook_success')
+        );
+        m.redraw();
+      })
+      .catch((error) => {
+        this.provisioningWebhook = false;
         m.redraw();
         throw error;
       });

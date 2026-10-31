@@ -9,7 +9,9 @@
 
 namespace Flarum\Tests\unit\Mail;
 
+use Flarum\Mail\HandlesWebhooks;
 use Flarum\Mail\PostmarkDriver;
+use Flarum\Mail\ProvisionsWebhooks;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\unit\TestCase;
 use Illuminate\Translation\ArrayLoader;
@@ -18,6 +20,7 @@ use Illuminate\Validation\Factory as ValidatorFactory;
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Mailer\Bridge\Postmark\Transport\PostmarkApiTransport;
+use Symfony\Component\Mailer\Bridge\Postmark\Webhook\PostmarkRequestParser;
 
 class PostmarkDriverTest extends TestCase
 {
@@ -156,5 +159,33 @@ class PostmarkDriverTest extends TestCase
 
         $this->assertInstanceOf(PostmarkApiTransport::class, $transport);
         $this->assertStringContainsString('outbound', (string) $transport);
+    }
+
+    // -------------------------------------------------------------------------
+    // Webhook capability
+    // -------------------------------------------------------------------------
+
+    #[Test]
+    public function driver_handles_webhooks_but_does_not_provision_them(): void
+    {
+        $this->assertInstanceOf(HandlesWebhooks::class, $this->driver);
+        // Postmark webhooks are registered manually in its dashboard.
+        $this->assertNotInstanceOf(ProvisionsWebhooks::class, $this->driver);
+    }
+
+    #[Test]
+    public function webhook_request_parser_is_the_postmark_parser(): void
+    {
+        $parser = $this->driver->getWebhookRequestParser($this->settings($this->validSettings()));
+
+        $this->assertInstanceOf(PostmarkRequestParser::class, $parser);
+    }
+
+    #[Test]
+    public function has_no_signing_secret_and_is_configured_by_default(): void
+    {
+        // Postmark verifies by IP, not a secret — so no secret, yet ready.
+        $this->assertNull($this->driver->getWebhookSigningSecret($this->settings($this->validSettings())));
+        $this->assertTrue($this->driver->webhookConfigured($this->settings($this->validSettings())));
     }
 }

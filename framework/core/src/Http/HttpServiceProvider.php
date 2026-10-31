@@ -27,7 +27,9 @@ class HttpServiceProvider extends AbstractServiceProvider
     public function register(): void
     {
         $this->container->singleton('flarum.http.csrfExemptPaths', function () {
-            return ['token', 'registration-token'];
+            // 'mailWebhook' is authenticated by the provider's request signature,
+            // not a session, so it cannot supply a CSRF token.
+            return ['token', 'registration-token', 'mailWebhook'];
         });
 
         $this->container->bind(Middleware\CheckCsrfToken::class, function (Container $container) {
