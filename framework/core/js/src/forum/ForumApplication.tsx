@@ -156,7 +156,9 @@ export default class ForumApplication extends Application {
     registerServiceWorker(this.forum.attribute('basePath'), this.forum.attribute<boolean>('serviceWorker'));
 
     if ((navigator as Navigator & { standalone?: boolean }).standalone) {
-      import('./utils/pullToRefresh').then(({ default: pullToRefresh }) => pullToRefresh());
+      import('./utils/pullToRefresh')
+        .then(({ default: pullToRefresh }) => pullToRefresh())
+        .catch((error) => console.error('Could not load pull-to-refresh:', error));
     }
 
     // Once the app is mounted, warm any registered code-split chunks in the

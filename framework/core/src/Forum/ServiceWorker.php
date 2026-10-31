@@ -74,20 +74,26 @@ class ServiceWorker
     }
 
     /**
-     * @return array<string, array{file: string, owner: string|null}> key => script
+     * @return array<string, array{file: string, owner: string|null}> key, like "acme-push-0" => script
      */
     protected function parts(): array
     {
         $parts = [];
+        $counts = [];
 
         foreach ($this->container->make('flarum.forum.service_worker') as $part) {
+            // From who added it and in what order, not from where the file
+            // is, so every server behind a load balancer agrees on the key.
+            $owner = $part['owner'] ?? 'site';
+            $key = $owner.'-'.($counts[$owner] = ($counts[$owner] ?? -1) + 1);
+
             if (! is_file($part['file'])) {
                 $this->logger->warning("Service worker script {$part['file']} does not exist.");
 
                 continue;
             }
 
-            $parts[substr(md5($part['file']), 0, 12)] = $part;
+            $parts[$key] = $part;
         }
 
         return $parts;

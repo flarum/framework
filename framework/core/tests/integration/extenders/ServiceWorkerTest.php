@@ -69,8 +69,10 @@ class ServiceWorkerTest extends TestCase
 
         $this->assertCount(2, $imports);
         $this->assertLessThan(strpos($script, 'importScripts('), strpos($script, 'offlinePage({'));
-        // Without the domain or the file's path on the server.
-        $this->assertMatchesRegularExpression('#^/sw/[0-9a-f]{12}\?v=[0-9a-f]{8}$#', $imports[0]);
+        // Without the domain or the file's path on the server: who added it,
+        // and in what order, so every server gives the same address.
+        $this->assertMatchesRegularExpression('#^/sw/site-0\?v=[0-9a-f]{8}$#', $imports[0]);
+        $this->assertMatchesRegularExpression('#^/sw/site-1\?v=[0-9a-f]{8}$#', $imports[1]);
         $this->assertStringNotContainsString(basename($first), $script);
 
         foreach ([$imports[0] => 'first', $imports[1] => 'second'] as $url => $name) {
@@ -99,15 +101,22 @@ class ServiceWorkerTest extends TestCase
     #[Test]
     public function a_script_that_is_not_added_is_not_found(): void
     {
-        $this->assertEquals(404, $this->send($this->request('GET', '/sw/0123456789ab'))->getStatusCode());
+        $this->assertEquals(404, $this->send($this->request('GET', '/sw/site-0'))->getStatusCode());
     }
 
     #[Test]
     public function a_script_that_does_not_exist_is_left_out(): void
     {
-        $this->extend((new Extend\ServiceWorker())->js('/nowhere/sw.js'));
+        $this->extend((new Extend\ServiceWorker())->js('/nowhere/sw.js')->js($this->script("const name = 'there';")));
 
-        $this->assertStringNotContainsString('/nowhere/sw.js', $this->serviceWorker());
+        $script = $this->serviceWorker();
+        $imports = $this->imports($script);
+
+        $this->assertStringNotContainsString('/nowhere/sw.js', $script);
+        $this->assertCount(1, $imports);
+        // The missing one keeps its place, so the next one's address is the
+        // same as on a server that has both.
+        $this->assertStringStartsWith('/sw/site-1?v=', $imports[0]);
     }
 
     #[Test]
