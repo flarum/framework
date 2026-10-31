@@ -26,6 +26,7 @@ class UserResourceFields
             // would tell them who is suspended, and cost a permissions lookup
             // for every user in every response.
             Schema\Boolean::make('canSendAnyMessage')
+                ->description('Whether the user can send private messages.')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->is($user) || $context->getActor()->can('sendAnyMessage'))
                 ->get(fn (User $user, Context $context) => $user->can('sendAnyMessage')),
             // Whether the actor may write to this member at all; another
@@ -33,6 +34,7 @@ class UserResourceFields
             // accounts). Only on user lists and profiles: the recipient picker
             // and the profile's button are what need it.
             Schema\Boolean::make('canMessage')
+                ->description('Whether you can send this user a private message.')
                 ->visible(fn (User $user, Context $context) => $context->collection instanceof UserResource && $context->getActor()->can('sendAnyMessage'))
                 ->get(fn (User $user, Context $context) => $context->getActor()->can('message', $user)),
             Schema\Boolean::make('canMessageUsersWithoutPermission')
@@ -44,6 +46,7 @@ class UserResourceFields
             // visibility means, so there is nothing to add by scoping dialogs
             // separately.
             Schema\Integer::make('unreadDialogCount')
+                ->description('Number of your dialogs with unread messages. Only on your own user.')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->is($user))
                 ->get(function (object $model, Context $context) {
                     return UserDialogState::query()

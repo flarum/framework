@@ -124,6 +124,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
         return [
 
             Schema\Str::make('title')
+                ->description('Generated from the other member\'s display name.')
                 ->get(function (Dialog $dialog, Context $context) {
                     if ($dialog->isGroup()) {
                         return $this->names->of($dialog) ?? $this->groupTitle($dialog, $context->getActor());
@@ -161,6 +162,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->visible(fn (Dialog $dialog, Context $context) => $context->collection instanceof self)
                 ->get(fn (Dialog $dialog, Context $context) => $this->names->canRename($context->getActor(), $dialog)),
             Schema\Str::make('type')
+                ->description('The dialog type. direct is a conversation between members.')
                 ->minLength(3)
                 ->maxLength(255)
                 ->in(Dialog::$types),
@@ -168,6 +170,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
             Schema\DateTime::make('createdAt'),
 
             Schema\Integer::make('unreadCount')
+                ->description('Number of messages you have not read.')
                 ->countRelation('messages', function (Builder $query, Context $context) {
                     // Only what members wrote: a notice is nothing to read.
                     $query->leftJoin('dialog_user', 'dialog_messages.dialog_id', '=', 'dialog_user.dialog_id')
@@ -183,15 +186,18 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 }),
             Schema\Integer::make('lastMessageId'),
             Schema\Boolean::make('anyoneCanReply')
+                ->description('Whether members without messaging permission may reply.')
                 ->get(fn (Dialog $dialog) => (bool) $dialog->anyone_can_reply),
             // Without the policy's own visibility query: a dialog serialised to
             // the actor is already one of theirs. Only where dialogs are what
             // was asked for, whose endpoints load the members' groups; a dialog
             // included with each of its messages would look them up every time.
             Schema\Boolean::make('canSendMessage')
+                ->description('Whether you can send a message in this dialog.')
                 ->visible(fn (Dialog $dialog, Context $context) => $context->collection instanceof self)
                 ->get(fn (Dialog $dialog, Context $context) => MessagingPermission::canSendIn($context->getActor(), $dialog)),
             Schema\Integer::make('lastReadMessageId')
+                ->description('ID of the last message you have read. Set it to mark the dialog as read up to that message.')
                 ->visible(fn (Dialog $dialog) => $dialog->state !== null)
                 ->get(function (Dialog $dialog) {
                     return $dialog->state?->last_read_message_id;
@@ -216,6 +222,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->type('dialog-messages'),
             // Every member: a group has at most RecipientLimit::CEILING others.
             Schema\Relationship\ToMany::make('users')
+                ->description('Members of the dialog (at most five).')
                 ->type('users')
                 ->includable(),
             // Linked even when not included: the frontend reads these ids to
@@ -229,6 +236,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->withLinkage()
                 ->includable(),
             Schema\Relationship\ToOne::make('lastMessageUser')
+                ->description('The author of the latest message.')
                 ->type('users')
                 ->includable(),
         ];

@@ -166,13 +166,17 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
     {
         return [
 
-            Schema\Number::make('number'),
+            Schema\Number::make('number')
+                ->description('Position of the message in its dialog, from 1.'),
             // A member's message, or a notice such as someone leaving.
-            Schema\Str::make('type'),
+            Schema\Str::make('type')
+                ->description('"comment" for a member\'s message, or a notice: "userLeft" or "renamed".'),
             Schema\Arr::make('eventData')
+                ->description('Details of a notice, such as who left or the new name. Absent on comments.')
                 ->visible(fn (DialogMessage $message) => ! $message->isComment())
                 ->get(fn (DialogMessage $message) => $message->eventData()),
             Schema\Str::make('content')
+                ->description('Write-only: the message, in the forum\'s input format (Markdown or BBCode, as enabled).')
                 ->requiredOnCreate()
                 ->writableOnCreate()
                 ->hidden()
@@ -182,6 +186,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                     $post->setContentAttribute($value, $context->getActor());
                 }),
             Schema\Str::make('contentHtml')
+                ->description('The message rendered as HTML.')
                 ->visible(fn (DialogMessage $message) => $message->isComment())
                 ->get(function (DialogMessage $post, Context $context) {
                     try {
@@ -198,10 +203,12 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
             Schema\Boolean::make('renderFailed'),
             Schema\DateTime::make('createdAt'),
             Schema\Str::make('ipAddress')
+                ->description('The IP address the message was sent from. Only visible to those allowed to view IP addresses.')
                 ->visible(fn (DialogMessage $message, Context $context) => $context->getActor()->can('dialog.viewIps')),
 
             // Write-only.
             Schema\Arr::make('users')
+                ->description('Write-only, to start a new dialog: the recipients, as a list of {id} objects. Give this or the dialog relationship.')
                 ->requiredOnCreateWithout(['relationships.dialog'])
                 ->writableOnCreate()
                 ->hidden()
@@ -218,6 +225,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ->type('users')
                 ->includable(),
             Schema\Relationship\ToOne::make('dialog')
+                ->description('The dialog the message is in. When sending, give this or the users attribute.')
                 ->type('dialogs')
                 ->includable()
                 ->writableOnCreate()
