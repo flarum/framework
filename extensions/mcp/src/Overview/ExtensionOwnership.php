@@ -19,6 +19,11 @@ class ExtensionOwnership
 {
     public const string CORE = 'core';
 
+    /**
+     * @var array<string, string>|null
+     */
+    protected ?array $namespaces = null;
+
     public function __construct(
         protected ExtensionManager $extensions,
     ) {
@@ -45,6 +50,14 @@ class ExtensionOwnership
      * @return array<string, string> namespace prefix => extension ID
      */
     protected function namespaces(): array
+    {
+        return $this->namespaces ??= $this->buildNamespaces();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function buildNamespaces(): array
     {
         $namespaces = [];
 

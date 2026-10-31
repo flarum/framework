@@ -50,11 +50,6 @@ class AuthenticateMcpRequest implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        // A CORS preflight carries no credentials and runs nothing.
-        if ($request->getMethod() === 'OPTIONS') {
-            return $handler->handle($this->withAuthentication($request, new McpAuthentication(new Guest(), [], McpAuthentication::GUEST)));
-        }
-
         $messages = JsonRpcMessages::fromRequest($request);
         $request = $request->withAttribute(static::MESSAGES, $messages);
 

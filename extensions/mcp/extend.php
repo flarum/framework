@@ -24,6 +24,9 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\ServiceProvider())
+        ->register(McpServiceProvider::class),
+
     new Extend\ApiResource(Api\Resource\CapabilityResource::class),
 
     (new Extend\Routes('forum'))

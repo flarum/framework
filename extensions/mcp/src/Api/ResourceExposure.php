@@ -20,6 +20,7 @@ use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use Laminas\Diactoros\ServerRequest;
 use Throwable;
+use WeakMap;
 
 /**
  * Which JSON:API types and CRUD operations the generic tools may reach.
@@ -45,10 +46,19 @@ class ResourceExposure
         'delete' => Endpoint\Delete::class,
     ];
 
+    /**
+     * What each actor is offered, kept as long as the actor object, that is
+     * for the request. The tools, describe_api and the overview all ask.
+     *
+     * @var WeakMap<User, array<string, array<string, Endpoint\Endpoint>>>
+     */
+    protected WeakMap $exposed;
+
     public function __construct(
         protected JsonApi $api,
         protected CapabilityRegistry $registry,
     ) {
+        $this->exposed = new WeakMap();
     }
 
     /**
@@ -125,6 +135,14 @@ class ResourceExposure
      */
     public function exposed(User $actor): array
     {
+        return $this->exposed[$actor] ??= $this->expose($actor);
+    }
+
+    /**
+     * @return array<string, array<string, Endpoint\Endpoint>>
+     */
+    protected function expose(User $actor): array
+    {
         $exposed = [];
 
         foreach ($this->resources() as $type => $resource) {
@@ -154,9 +172,7 @@ class ResourceExposure
 
     public function endpoint(string $type, string $operation, User $actor): ?Endpoint\Endpoint
     {
-        $resource = $this->resource($type);
-
-        return $resource ? ($this->operations($resource, $actor)[$operation] ?? null) : null;
+        return $this->exposed($actor)[$type][$operation] ?? null;
     }
 
     /**

@@ -45,6 +45,12 @@ class McpController implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        // A CORS preflight is answered by the transport's CORS and host checks
+        // alone: no actor, no capabilities, no server.
+        if ($request->getMethod() === 'OPTIONS') {
+            return $this->servers->transport($request)->listen();
+        }
+
         // Whatever the forum's session middleware found is discarded: only the
         // Authorization header identifies an MCP client.
         $request = RequestUtil::withActor($request->withoutAttribute('session'), new Guest());
@@ -86,8 +92,14 @@ class McpController implements RequestHandlerInterface
             request: $request,
         );
 
+        // Only the handshake and discovery answers carry the instructions, which
+        // build the whole forum overview.
+        $messages = $request->getAttribute(AuthenticateMcpRequest::MESSAGES);
+        $withInstructions = $messages instanceof JsonRpcMessages
+            && ($messages->has('initialize') || $messages->has('server/discover'));
+
         return $this->servers
-            ->make($context, $capabilities)
+            ->make($context, $capabilities, $withInstructions)
             ->run($this->servers->transport($request));
     }
 }

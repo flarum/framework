@@ -65,7 +65,7 @@ class ServerFactory
     ) {
     }
 
-    public function make(McpContext $context, ResolvedCapabilities $capabilities): Server
+    public function make(McpContext $context, ResolvedCapabilities $capabilities, bool $withInstructions = true): Server
     {
         $invoker = new Invoker($this->errors, $this->container->tagged(Reporter::class));
         $failures = $this->container->make(FailureReporter::class);
@@ -79,7 +79,7 @@ class ServerFactory
                 websiteUrl: $this->url->to('forum')->base(),
                 title: $this->settings->get('forum_title') ?: null,
             )
-            ->setInstructions($this->overview->instructions($context, $capabilities))
+            ->setInstructions($withInstructions ? $this->overview->instructions($context, $capabilities) : null)
             // The PSR-16 store expires its own keys, so there is nothing to collect.
             ->setSession(new Psr16SessionStore($this->cache, 'mcp-session-', static::SESSION_TTL), gcProbability: 0);
 
