@@ -21,6 +21,8 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Link from 'flarum/common/components/Link';
 import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
+import ItemList from 'flarum/common/utils/ItemList';
+import type { TabItem } from 'flarum/common/components/Tabs';
 import type Mithril from 'mithril';
 import { confirmAction } from './ConfirmModal';
 import HostPanel from './HostPanel';
@@ -41,7 +43,6 @@ function extensionId(name: string): string {
   return (at < 0 ? name : name.slice(0, at)) + '-' + pkg.replace(/flarum-ext-|flarum-/g, '');
 }
 
-type Tab = 'installed' | 'history' | 'discover' | 'sources' | 'host';
 type CheckAge = 'fresh' | 'recent' | 'overdue';
 
 export interface ExtensionManagerPageAttrs extends ExtensionPageAttrs {
@@ -68,11 +69,6 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
   installed: Installed[] = [];
   updates: Updates = { available: {}, checkedAt: null, stale: true, uncheckable: [], tracking: [] };
   checking = false;
-  /*
-   * Finding extensions is what most people open this page for (ClaudiusH,
-   * 2026-10-09). The dashboard's update banner links here with ?tab=installed.
-   */
-  tab: Tab = 'discover';
   history: HistoryEntry[] = [];
   run: Run | null = null;
   driver: string | null = null;
@@ -116,8 +112,6 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
 
   oninit(vnode: Mithril.Vnode<ExtensionManagerPageAttrs, this>) {
     super.oninit(vnode);
-
-    if (vnode.attrs.tab === 'installed') this.tab = 'installed';
 
     this.attemptLoad();
   }
@@ -223,7 +217,14 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
       });
   }
 
-  content() {
+  /**
+   * The page around the tabs: the first load, a load that failed, and the run
+   * panel. While a run is live the panel is the ONLY thing on screen and the
+   * tab bar goes away. A grid of Update buttons beside a running update
+   * invites somebody to start a second one, and the honest answer to the
+   * second press is a refusal — better not to offer it.
+   */
+  pageTabs(vnode: Mithril.VnodeDOM<ExtensionManagerPageAttrs, this>, tabs: TabItem[]): Mithril.Children {
     if (this.firstLoad) {
       return (
         <div className="ExtensionPage-settings">
@@ -251,70 +252,73 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
       );
     }
 
-    return (
-      <div className="ExtensionPage-settings">
-        <div className="container">
-          {/*
-           * While a run is live the panel is the ONLY thing on screen, and
-           * the tabs go away. A grid of Update buttons beside a running update
-           * invites somebody to start a second one, and the honest answer to
-           * the second press is a refusal — better not to offer it.
-           */}
-          {this.showingRun() ? this.runPanel() : null}
-
-          {this.hidesPage() ? null : (
-            <div className="Tabs ExtensionManager-tabs">
-              <div className="Tabs-nav" role="tablist">
-                {this.tabItems().map((tab) => (
-                  <Button
-                    key={tab.id}
-                    className="Button Button--link"
-                    role="tab"
-                    active={this.tab === tab.id}
-                    aria-selected={this.tab === tab.id ? 'true' : 'false'}
-                    onclick={() => (this.tab = tab.id)}
-                  >
-                    {tab.label}
-                    {tab.badge > 0 ? <span className="ExtensionManager-count">{tab.badge}</span> : null}
-                  </Button>
-                ))}
-              </div>
-              <hr className="Tabs-divider" />
-            </div>
-          )}
-
-          {this.hidesPage() ? null : this.tab === 'host' ? (
-            <div>
-              <HostPanel host={this.host} onchange={() => this.load()} />
-              <TrashPanel />
-            </div>
-          ) : this.tab === 'sources' ? (
-            <SourcesTab />
-          ) : this.tab === 'history' ? (
-            <HistoryTab history={this.history} installed={this.installed} />
-          ) : this.tab === 'discover' ? (
-            <DiscoverTab starting={this.starting} oninstall={(name: string) => this.start([name], 'install')} />
-          ) : (
-            this.installedTab()
-          )}
+    return [
+      this.showingRun() ? (
+        <div className="ExtensionPage-settings ExtensionManager-runContainer">
+          <div className="container">{this.runPanel()}</div>
         </div>
-      </div>
-    );
+      ) : null,
+      this.hidesPage() ? null : super.pageTabs(vnode, tabs),
+    ];
   }
 
-  /** The page's tabs, in order, with the number of updates waiting on Installed. */
-  tabItems(): { id: Tab; label: Mithril.Children; badge: number }[] {
-    return [
-      { id: 'discover', label: app.translator.trans('flarum-extension-manager.admin.sections.discover.title'), badge: 0 },
+  /**
+   * The page's tabs, with the number of updates waiting on Installed.
+   *
+   * Finding extensions is what most people open this page for (ClaudiusH,
+   * 2026-10-09), so Discover comes first and is shown by default. The
+   * dashboard's update banner links here with ?tab=installed.
+   */
+  pageTabItems(): ItemList<TabItem> {
+    const items = super.pageTabItems();
+    const updates = this.updateCount();
+
+    items.add('discover', { id: 'discover', label: app.translator.trans('flarum-extension-manager.admin.sections.discover.title') }, 50);
+    items.add(
+      'installed',
       {
         id: 'installed',
         label: app.translator.trans('flarum-extension-manager.admin.sections.installed.title', { count: this.installed.length }),
-        badge: this.updateCount(),
+        badge: updates || undefined,
       },
-      { id: 'history', label: app.translator.trans('flarum-extension-manager.admin.sections.queue.title'), badge: 0 },
-      { id: 'sources', label: app.translator.trans('flarum-extension-manager.admin.composer.title'), badge: 0 },
-      { id: 'host', label: app.translator.trans('flarum-extension-manager.admin.host.title'), badge: 0 },
-    ];
+      40
+    );
+    items.add('history', { id: 'history', label: app.translator.trans('flarum-extension-manager.admin.sections.queue.title') }, 30);
+    items.add('sources', { id: 'sources', label: app.translator.trans('flarum-extension-manager.admin.composer.title') }, 20);
+    items.add('host', { id: 'host', label: app.translator.trans('flarum-extension-manager.admin.host.title') }, 10);
+
+    return items;
+  }
+
+  pageTabContent(tab: string, vnode: Mithril.VnodeDOM<ExtensionManagerPageAttrs, this>): Mithril.Children {
+    let content: Mithril.Children;
+
+    switch (tab) {
+      case 'discover':
+        content = <DiscoverTab starting={this.starting} oninstall={(name: string) => this.start([name], 'install')} />;
+        break;
+      case 'installed':
+        content = this.installedTab();
+        break;
+      case 'history':
+        content = <HistoryTab history={this.history} installed={this.installed} />;
+        break;
+      case 'sources':
+        content = <SourcesTab />;
+        break;
+      case 'host':
+        content = (
+          <div>
+            <HostPanel host={this.host} onchange={() => this.load()} />
+            <TrashPanel />
+          </div>
+        );
+        break;
+      default:
+        return super.pageTabContent(tab, vnode);
+    }
+
+    return <div className={'ExtensionPage-settings ExtensionManager-tab ExtensionManager-tab--' + tab}>{content}</div>;
   }
 
   /**

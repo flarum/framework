@@ -12,6 +12,8 @@ flarum-audit:
             requiresExtension: Requires extension {extension}
         settings:
             limitedIpAddress: View IP Address
+        tabs:
+            log: Log
 
     forum:
         link:

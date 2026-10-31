@@ -114,6 +114,8 @@ export default class GeneralSearchSource implements GlobalSearchSource {
 
         if (this.itemHasQuery(label, query) || this.itemHasQuery(help, query)) {
           const id = extensionId + '-' + ('setting' in setting ? setting : 'id' in setting ? setting.id : '');
+          const location = 'setting' in setting || 'section' in setting ? app.registry.getSettingLocation(extensionId, setting) : {};
+          const locationTree = [location.tab?.label, location.section?.label].filter(Boolean).map(extractText);
 
           results.push(
             new GeneralSearchResult(
@@ -122,8 +124,8 @@ export default class GeneralSearchSource implements GlobalSearchSource {
                 extensions[extensionId]?.extra['flarum-extension'].title ||
                 app.translator.trans('core.admin.' + corePage + '.title', {}, true),
               group?.icon || extensions[extensionId]?.icon || { name: 'fas fa-cog' },
-              'tree' in setting && setting.tree ? [...setting.tree.map(extractText), label] : [label],
-              group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId })),
+              'tree' in setting && setting.tree ? [...setting.tree.map(extractText), label] : [...locationTree, label],
+              group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId, tab: location.tab?.id })),
               help
             )
           );
@@ -157,7 +159,7 @@ export default class GeneralSearchSource implements GlobalSearchSource {
                   extractText(permissionItems.get(permissionType)?.label) || permissionType,
                   label,
                 ],
-                group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId }))
+                group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId, tab: 'permissions' }))
               )
             );
           }

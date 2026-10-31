@@ -3,9 +3,19 @@ import app from 'flarum/admin/app';
 
 export default [
   new Extend.Admin()
+    .section(
+      () => ({
+        id: 'columns',
+        icon: 'fas fa-table-columns',
+        label: app.translator.trans('flarum-deck.admin.sections.columns.label'),
+        description: app.translator.trans('flarum-deck.admin.sections.columns.description'),
+      }),
+      10
+    )
     .setting(
       () => ({
         setting: 'flarum-deck.max_columns',
+        section: 'columns',
         type: 'number',
         min: 1,
         max: 12,
@@ -17,6 +27,7 @@ export default [
     .setting(
       () => ({
         setting: 'flarum-deck.poll_interval',
+        section: 'columns',
         type: 'number',
         min: 0,
         label: app.translator.trans('flarum-deck.admin.settings.poll_interval_label'),

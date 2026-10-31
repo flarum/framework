@@ -51,7 +51,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     }
 
     return [
-      <Form className="AdvancedPage-container">
+      <Form className="AdminPage-settingsForm--sectioned AdvancedPage-container">
         <FormSectionGroup>{this.sectionItems().toArray()}</FormSectionGroup>
         <div className="Form-group Form-controls">{this.submitButton()}</div>
       </Form>,
@@ -87,7 +87,11 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
   }
 
   sessions() {
-    return <FormSection label={app.translator.trans('core.admin.advanced.sessions.section_label')}>{this.sessionItems().toArray()}</FormSection>;
+    return (
+      <FormSection icon="fas fa-user-clock" label={app.translator.trans('core.admin.advanced.sessions.section_label')}>
+        {this.sessionItems().toArray()}
+      </FormSection>
+    );
   }
 
   sessionItems() {
@@ -246,7 +250,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     const cjkCapableDriver = app.data.dbDriver === DatabaseDriver.MySQL || app.data.dbDriver === DatabaseDriver.MariaDB;
 
     return (
-      <FormSection label={app.translator.trans('core.admin.advanced.search.section_label')}>
+      <FormSection icon="fas fa-search" label={app.translator.trans('core.admin.advanced.search.section_label')}>
         {hasOtherDrivers ? (
           <Form>
             {Object.keys(this.searchDriverOptions).map((model) => {
@@ -287,7 +291,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
 
   maintenance() {
     return (
-      <FormSection label={app.translator.trans('core.admin.advanced.maintenance.section_label')}>
+      <FormSection icon="fas fa-tools" label={app.translator.trans('core.admin.advanced.maintenance.section_label')}>
         <Form>
           {this.buildSettingComponent({
             type: 'select',
@@ -370,7 +374,11 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
   }
 
   queue() {
-    return <FormSection label={app.translator.trans('core.admin.advanced.queue.section_label')}>{this.queueItems().toArray()}</FormSection>;
+    return (
+      <FormSection icon="fas fa-layer-group" label={app.translator.trans('core.admin.advanced.queue.section_label')}>
+        {this.queueItems().toArray()}
+      </FormSection>
+    );
   }
 
   queueItems() {
@@ -529,7 +537,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
 
   pgsqlSettings() {
     return (
-      <FormSection label={DatabaseDriver.PostgreSQL}>
+      <FormSection icon="fas fa-database" label={DatabaseDriver.PostgreSQL}>
         <Form>
           {this.buildSettingComponent({
             type: 'select',
@@ -551,7 +559,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     const configKitUrl = app.data.fontawesomeConfig?.kit_url || this.setting('fontawesome_kit_url')();
 
     return (
-      <FormSection label={app.translator.trans('core.admin.advanced.fontawesome.section_label')}>
+      <FormSection icon="fas fa-icons" label={app.translator.trans('core.admin.advanced.fontawesome.section_label')}>
         {app.data.fontawesomeByConfig ? (
           <div className="Form-group">
             <label>{app.translator.trans('core.admin.advanced.fontawesome.config_override.label')}</label>

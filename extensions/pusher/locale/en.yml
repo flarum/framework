@@ -21,6 +21,15 @@ flarum-pusher:
       server_hostname_help: Optional. Override the host the client connects to, for a self-hosted Pusher-compatible server (for example soketi). Leave blank to use Pusher's hosted service with the cluster above.
       title: Pusher Settings
 
+    # These translations are used for the section headings on the Settings page.
+    sections:
+      connection:
+        description: The keys from the App Keys page of your Pusher app.
+        label: Connection
+      server:
+        description: Only needed when you run your own Pusher-compatible server instead of Pusher.
+        label: Custom server
+
   # Translations in this namespace are used by the admin interface.
   forum:
 

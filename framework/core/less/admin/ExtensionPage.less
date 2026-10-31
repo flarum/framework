@@ -171,3 +171,37 @@
      max-width: 100%;
    }
  }
+
+// Sectioned and tabbed settings pages (Extend.Admin().section() / .tab()).
+.ExtensionPage-tabs {
+  margin-top: 20px;
+
+  .Tabs-nav {
+    padding: 0;
+    overflow-x: auto;
+
+    > .Button {
+      white-space: nowrap;
+    }
+  }
+
+  .Tabs-content {
+    padding-top: 8px;
+  }
+
+  .ExtensionPage-settings {
+    margin-top: 0;
+
+    // content() brings its own container; the tab already sits in one.
+    > .container {
+      width: auto;
+      padding: 0;
+      margin: 0;
+    }
+  }
+
+  .ExtensionPage-permissions {
+    overflow-x: auto;
+    padding: 20px 0 25vh;
+  }
+}
