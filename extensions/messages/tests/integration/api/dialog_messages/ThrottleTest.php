@@ -135,6 +135,57 @@ class ThrottleTest extends TestCase
     }
 
     #[Test]
+    public function being_added_to_conversations_others_opened_uses_none_of_the_allowance(): void
+    {
+        $dialogs = $messages = $members = [];
+
+        // Bob has opened the hour's allowance of conversations, all with carol.
+        for ($i = 0; $i < DialogMessageThrottler::$newDialogsPerHour; $i++) {
+            $id = 200 + $i;
+            $dialogs[] = ['id' => $id, 'type' => 'group', 'created_at' => Carbon::now()->subMinutes(30)];
+            $messages[] = ['id' => $id, 'dialog_id' => $id, 'user_id' => 4, 'content' => "Hello $i", 'number' => 1, 'created_at' => Carbon::now()->subMinutes(30)];
+            $members[] = ['dialog_id' => $id, 'user_id' => 4, 'joined_at' => Carbon::now()->subMinutes(30)];
+            $members[] = ['dialog_id' => $id, 'user_id' => 5, 'joined_at' => Carbon::now()->subMinutes(30)];
+        }
+
+        $this->prepareDatabase([Dialog::class => $dialogs, DialogMessage::class => $messages, 'dialog_user' => $members]);
+
+        $this->assertEquals(201, $this->post(5, ['content' => 'Hi alice', 'users' => [['id' => 3]]])->getStatusCode());
+    }
+
+    #[Test]
+    public function reaching_too_many_new_people_in_an_hour_is_throttled_however_few_the_conversations(): void
+    {
+        $users = $members = [];
+
+        // Two groups carol opened half an hour ago, reaching the hour's
+        // allowance of people between them.
+        foreach (range(1, DialogMessageThrottler::$newRecipientsPerHour) as $i) {
+            $users[] = ['id' => 100 + $i, 'username' => "member$i"];
+            $members[] = ['dialog_id' => $i % 2 ? 300 : 301, 'user_id' => 100 + $i, 'joined_at' => Carbon::now()->subMinutes(30)];
+        }
+
+        foreach ([300, 301] as $id) {
+            $members[] = ['dialog_id' => $id, 'user_id' => 5, 'joined_at' => Carbon::now()->subMinutes(30)];
+        }
+
+        $this->prepareDatabase([
+            User::class => $users,
+            Dialog::class => [
+                ['id' => 300, 'type' => 'group', 'created_at' => Carbon::now()->subMinutes(30)],
+                ['id' => 301, 'type' => 'group', 'created_at' => Carbon::now()->subMinutes(30)],
+            ],
+            DialogMessage::class => [
+                ['id' => 300, 'dialog_id' => 300, 'user_id' => 5, 'content' => 'Hi all', 'number' => 1, 'created_at' => Carbon::now()->subMinutes(30)],
+                ['id' => 301, 'dialog_id' => 301, 'user_id' => 5, 'content' => 'Hi all', 'number' => 1, 'created_at' => Carbon::now()->subMinutes(30)],
+            ],
+            'dialog_user' => $members,
+        ]);
+
+        $this->assertEquals(429, $this->post(5, ['content' => 'Hi both', 'users' => [['id' => 3], ['id' => 4]]])->getStatusCode());
+    }
+
+    #[Test]
     public function a_member_allowed_to_send_without_throttling_is_not_throttled(): void
     {
         $this->prepareDatabase([
