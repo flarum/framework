@@ -31,9 +31,16 @@ class DialogMessageThrottler
 
     /**
      * People one member may reach in an hour through conversations they open.
-     * A group reaches several at once.
+     * A group reaches several at once. Never fewer than one message may go
+     * to (RecipientLimit), so the largest group the forum allows can be
+     * started.
      */
     public static int $newRecipientsPerHour = 20;
+
+    public function __construct(
+        protected RecipientLimit $recipientLimit
+    ) {
+    }
 
     public function __invoke(ServerRequestInterface $request): ?bool
     {
@@ -76,7 +83,11 @@ class DialogMessageThrottler
                 ->where('user_id', '!=', $actor->id)
                 ->count();
 
-            if ($reached + $reaching > self::$newRecipientsPerHour) {
+            // A message to more than the limit is refused anyway, saying so,
+            // rather than throttled.
+            $limit = $this->recipientLimit->get();
+
+            if ($reached + min($reaching, $limit) > max(self::$newRecipientsPerHour, $limit)) {
                 return true;
             }
         }

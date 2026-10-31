@@ -99,6 +99,20 @@ class MaxRecipientsTest extends TestCase
         $this->assertEquals(422, $this->sendTo(51)->getStatusCode());
     }
 
+    /**
+     * A member can always send one message as large as the forum allows,
+     * however few people the hourly allowance would otherwise let them reach.
+     */
+    #[Test]
+    public function fifty_recipients_are_allowed_when_the_limit_is_fifty(): void
+    {
+        $this->setting('flarum-messages.max_recipients', '50');
+
+        $response = $this->sendTo(50);
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+    }
+
     #[Test]
     public function a_limit_of_one_turns_group_conversations_off_but_leaves_direct_ones(): void
     {
