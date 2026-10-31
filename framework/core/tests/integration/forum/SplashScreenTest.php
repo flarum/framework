@@ -15,6 +15,7 @@ use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Laminas\Diactoros\Stream;
 use Laminas\Diactoros\UploadedFile;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
 
@@ -187,14 +188,27 @@ class SplashScreenTest extends TestCase
         $this->assertStringContainsString('<meta name="mobile-web-app-capable" content="yes">', $page);
     }
 
-    #[Test]
-    public function the_admin_frontend_opens_in_the_browser_without_splash_screens(): void
+    public static function adminPaths(): array
     {
+        return [
+            'the default path' => [null],
+            'a path config.php gives' => ['manage'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('adminPaths')]
+    public function the_admin_frontend_opens_in_the_browser_without_splash_screens(?string $adminPath): void
+    {
+        if ($adminPath) {
+            $this->config('paths', ['api' => 'api', 'admin' => $adminPath]);
+        }
+
         $this->uploadAppIcon();
 
         $this->assertNotEmpty($this->links());
 
-        $response = $this->send($this->request('GET', '/admin', ['authenticatedAs' => 1]));
+        $response = $this->send($this->request('GET', '/'.($adminPath ?? 'admin'), ['authenticatedAs' => 1]));
         $page = (string) $response->getBody();
 
         $this->assertEquals(200, $response->getStatusCode());

@@ -20,6 +20,18 @@ class ServiceWorkerTest extends TestCase
         return parse_url($this->app()->getContainer()->make(UrlGenerator::class)->to('forum')->route('offline'), PHP_URL_PATH);
     }
 
+    /**
+     * Where frontends live, read from the URL generator so they follow config.php.
+     *
+     * @return list<string>
+     */
+    private function paths(string ...$frontends): array
+    {
+        $url = $this->app()->getContainer()->make(UrlGenerator::class);
+
+        return array_map(fn (string $frontend) => parse_url($url->to($frontend)->base(), PHP_URL_PATH), $frontends);
+    }
+
     #[Test]
     public function the_service_worker_shows_the_offline_page_when_a_page_cant_be_loaded(): void
     {
@@ -33,7 +45,27 @@ class ServiceWorkerTest extends TestCase
 
         $this->assertStringStartsWith(file_get_contents(__DIR__.'/../../../js/serviceWorker/offlinePage.js'), $script);
         // Without the domain, so it's stored from whichever one the visitor is on.
-        $this->assertMatchesRegularExpression('#offlinePage\({"url":"'.preg_quote($this->offlinePath(), '#').'","version":"[0-9a-f]{8}","skip":\["/admin","/api"\]}\);#', $script);
+        $this->assertMatchesRegularExpression('#offlinePage\({"url":"'.preg_quote($this->offlinePath(), '#').'","version":"[0-9a-f]{8}","skip":'.preg_quote(json_encode($this->paths('admin', 'api'), JSON_UNESCAPED_SLASHES), '#').'}\);#', $script);
+    }
+
+    #[Test]
+    public function the_service_worker_leaves_admin_and_api_pages_alone_at_the_paths_config_php_gives(): void
+    {
+        $this->config('paths', ['api' => 'backend/api', 'admin' => 'manage']);
+
+        $script = (string) $this->send($this->request('GET', '/sw'))->getBody();
+
+        $this->assertStringContainsString('"skip":["/manage","/backend/api"]', $script);
+    }
+
+    #[Test]
+    public function the_skipped_paths_include_the_forum_s_own_subdirectory(): void
+    {
+        $this->config('url', 'http://localhost/forum');
+
+        $script = (string) $this->send($this->request('GET', '/forum/sw'))->getBody();
+
+        $this->assertStringContainsString('"skip":["/forum/admin","/forum/api"]', $script);
     }
 
     #[Test]
