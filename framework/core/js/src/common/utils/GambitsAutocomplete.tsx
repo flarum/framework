@@ -55,7 +55,7 @@ export default class GambitsAutocomplete {
 
     const autocompleteReader = new AutocompleteReader(null);
 
-    const cursorPosition = this.jqueryInput()?.prop('selectionStart') ?? query.length;
+    const cursorPosition = this.jqueryInput().prop('selectionStart') ?? query.length;
     const lastChunk = query.slice(0, cursorPosition);
     const autocomplete = autocompleteReader.check(lastChunk, cursorPosition, /\S+$/);
 
@@ -182,8 +182,7 @@ export default class GambitsAutocomplete {
     const $input = this.jqueryInput();
 
     const query = this.query;
-    const rest = query.slice(start);
-    const tokenMatch = rest.match(/^\S+/);
+    const tokenMatch = fromTyped ? query.slice(start).match(/^\S+/) : null;
     const replaceLength = tokenMatch && tokenMatch[0].toLowerCase().startsWith(fromTyped.toLowerCase()) ? tokenMatch[0].length : fromTyped.length;
     const replaced = query.slice(0, start) + text + query.slice(start + replaceLength);
 
@@ -192,9 +191,7 @@ export default class GambitsAutocomplete {
       $input[0].focus();
       setTimeout(() => {
         if ($input[0]) {
-          try {
-            $input[0].setSelectionRange(start + text.length, start + text.length);
-          } catch (e) {}
+          $input[0].setSelectionRange(start + text.length, start + text.length);
           m.redraw();
         }
       }, 50);

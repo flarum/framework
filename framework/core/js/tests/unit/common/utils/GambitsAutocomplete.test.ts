@@ -271,4 +271,33 @@ describe('GambitsAutocomplete', () => {
     expect(changedValue).toBe('is:unread extra');
     expect(afterSuggestValue).toBe('is:unread extra');
   });
+
+  it('does not delete following word when selecting suggestion with empty fromTyped (e.g. hello ⎸world)', () => {
+    const query = 'hello world';
+    selectionStart = 6; // Cursor right after 'hello '
+    const ac = createAutocomplete();
+    const suggestions = extractSuggestions(ac.suggestions(query));
+
+    expect(suggestions).toHaveLength(2);
+    expect(suggestions[0].key).toBe('is:');
+    suggestions[0].click();
+
+    expect(changedValue).toBe('hello is:world');
+    expect(afterSuggestValue).toBe('hello is:world');
+  });
+
+  it('does not delete word when selecting suggestion at position 0 with empty fromTyped (e.g. ⎸hello)', () => {
+    const query = 'hello';
+    selectionStart = 0; // Cursor at start of input before 'hello'
+    const ac = createAutocomplete();
+    const suggestions = extractSuggestions(ac.suggestions(query));
+
+    expect(suggestions).toHaveLength(2);
+    expect(suggestions[0].key).toBe('is:');
+    suggestions[0].click();
+
+    expect(changedValue).toBe('is:hello');
+    expect(afterSuggestValue).toBe('is:hello');
+  });
 });
+
