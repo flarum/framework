@@ -70,8 +70,8 @@ class ServiceWorker
     }
 
     /**
-     * Where the admin frontend and the API live, if they're inside the forum's
-     * scope: their pages load from the network as if there were no worker.
+     * Where the admin frontend and the API live, from the paths in config.php.
+     * Their pages load from the network as if there were no worker.
      *
      * @return list<string>
      */
