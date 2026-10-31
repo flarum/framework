@@ -5,6 +5,13 @@ flarum-nicknames:
         nickname: Nickname
     permissions:
       edit_own_nickname_label: Edit own nickname
+    sections:
+      registration:
+        description: What new members are asked for when they sign up.
+        label: Registration
+      validation:
+        description: Rules every nickname has to follow.
+        label: Validation
     settings:
       max_label: Maximum nickname length
       min_label: Minimum nickname length

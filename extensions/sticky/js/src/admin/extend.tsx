@@ -15,9 +15,28 @@ export default [
       'moderate',
       95
     )
+    .section(
+      () => ({
+        id: 'pinning',
+        icon: 'fas fa-thumbtack',
+        label: app.translator.trans('flarum-sticky.admin.sections.pinning.label'),
+        description: app.translator.trans('flarum-sticky.admin.sections.pinning.description'),
+      }),
+      20
+    )
+    .section(
+      () => ({
+        id: 'excerpts',
+        icon: 'fas fa-align-left',
+        label: app.translator.trans('flarum-sticky.admin.sections.excerpts.label'),
+        description: app.translator.trans('flarum-sticky.admin.sections.excerpts.description'),
+      }),
+      10
+    )
     .setting(
       () => ({
         setting: 'flarum-sticky.pin_sticky_on_all_discussions',
+        section: 'pinning',
         name: 'pinStickyOnAllDiscussions',
         type: 'boolean',
         label: app.translator.trans('flarum-sticky.admin.settings.pin_sticky_on_all_discussions_label'),
@@ -28,6 +47,7 @@ export default [
     .setting(
       () => ({
         setting: 'flarum-sticky.only_sticky_unread_discussions',
+        section: 'pinning',
         name: 'onlyStickyUnreadDiscussions',
         type: 'boolean',
         label: app.translator.trans('flarum-sticky.admin.settings.only_sticky_unread_discussions_label'),
@@ -41,6 +61,7 @@ export default [
       () => ({
         type: 'switch',
         setting: 'flarum-sticky.enable_display_excerpt',
+        section: 'excerpts',
         label: app.translator.trans('flarum-sticky.admin.settings.enable_display_excerpt'),
       }),
       100
