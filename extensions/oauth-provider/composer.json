@@ -23,9 +23,9 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-rc.1",
+        "flarum/core": "^2.1",
         "league/oauth2-server": "^8.5",
-        "lcobucci/jwt": "^4.3 || ^5.0"
+        "lcobucci/jwt": "^5.0"
     },
     "autoload": {
         "psr-4": {

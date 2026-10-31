@@ -22,8 +22,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property array|null  $scopes
  * @property string|null $nonce
  * @property Carbon|null $auth_time
+ * @property string|null $resource
  * @property bool        $revoked
  * @property Carbon      $expires_at
+ * @property Carbon|null $last_used_at
  * @property Carbon|null $created_at
  * @property Client      $client
  * @property User        $user
@@ -41,6 +43,7 @@ class AccessToken extends AbstractModel
         'scopes' => 'array',
         'revoked' => 'boolean',
         'expires_at' => 'datetime',
+        'last_used_at' => 'datetime',
         'created_at' => 'datetime',
         'auth_time' => 'datetime',
     ];

@@ -1,0 +1,136 @@
+<?php
+
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
+namespace Flarum\OAuthProvider\Server\Grant;
+
+use DateInterval;
+use DateTimeImmutable;
+use Flarum\OAuthProvider\ResourceServer\ResourceRegistry;
+use Flarum\OAuthProvider\Server\Entity\AccessTokenEntity;
+use Flarum\OAuthProvider\Server\RedirectUriMatcher;
+use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
+use League\OAuth2\Server\Exception\OAuthServerException;
+use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
+use League\OAuth2\Server\RequestEvent;
+use Psr\Http\Message\ServerRequestInterface;
+
+/**
+ * Shared by the auth code and refresh token grants: binds new access tokens to
+ * an RFC 8707 resource and applies Flarum's redirect URI rules.
+ */
+trait IssuesResourceBoundTokens
+{
+    protected ResourceRegistry $resources;
+
+    /**
+     * The resource the next access token is bound to; set by the grant once
+     * the request has been validated.
+     */
+    protected ?string $tokenResource = null;
+
+    public function setResourceRegistry(ResourceRegistry $resources): void
+    {
+        $this->resources = $resources;
+    }
+
+    /**
+     * Mirrors AbstractGrant::issueAccessToken(), setting the resource before
+     * the token is persisted.
+     *
+     * @param ScopeEntityInterface[] $scopes
+     */
+    protected function issueAccessToken(
+        DateInterval $accessTokenTTL,
+        ClientEntityInterface $client,
+        $userIdentifier,
+        array $scopes = []
+    ): AccessTokenEntityInterface {
+        $accessToken = $this->accessTokenRepository->getNewToken($client, $scopes, $userIdentifier);
+        $accessToken->setExpiryDateTime((new DateTimeImmutable())->add($accessTokenTTL));
+        $accessToken->setPrivateKey($this->privateKey);
+
+        if ($accessToken instanceof AccessTokenEntity) {
+            $accessToken->setResource($this->tokenResource);
+        }
+
+        $attempts = self::MAX_RANDOM_TOKEN_GENERATION_ATTEMPTS;
+
+        while (true) {
+            $accessToken->setIdentifier($this->generateUniqueIdentifier());
+
+            try {
+                $this->accessTokenRepository->persistNewAccessToken($accessToken);
+
+                return $accessToken;
+            } catch (UniqueTokenIdentifierConstraintViolationException $e) {
+                if (--$attempts === 0) {
+                    throw $e;
+                }
+            }
+        }
+    }
+
+    protected function validateRedirectUri(
+        string $redirectUri,
+        ClientEntityInterface $client,
+        ServerRequestInterface $request
+    ): void {
+        $registered = array_values((array) $client->getRedirectUri());
+
+        if (! (new RedirectUriMatcher())->matches($redirectUri, $registered, ! $client->isConfidential())) {
+            $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+
+            throw OAuthServerException::invalidClient($request);
+        }
+    }
+
+    /**
+     * The resource a token request ends up bound to: the one already granted,
+     * or a newly requested one when nothing was granted. A request for a
+     * different resource than the one granted is refused.
+     *
+     * @param list<string> $scopes
+     */
+    protected function resolveTokenResource(ServerRequestInterface $request, ?string $granted, array $scopes): ?string
+    {
+        $requested = $this->getRequestParameter('resource', $request);
+
+        if ($requested === null) {
+            return $granted;
+        }
+
+        if (! is_string($requested)) {
+            throw static::invalidTarget();
+        }
+
+        if ($granted !== null) {
+            return $requested === $granted ? $granted : throw static::invalidTarget();
+        }
+
+        if (! $this->resources->has($requested) || ! $this->resources->allowsScopes($requested, $scopes)) {
+            throw static::invalidTarget();
+        }
+
+        return $requested;
+    }
+
+    public static function invalidTarget(?string $redirectUri = null): OAuthServerException
+    {
+        return new OAuthServerException(
+            'The requested resource is invalid, unknown, or not allowed for this request.',
+            3,
+            'invalid_target',
+            400,
+            null,
+            $redirectUri,
+        );
+    }
+}
