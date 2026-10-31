@@ -124,7 +124,7 @@ class SplashScreenTest extends TestCase
     {
         preg_match('#/splash/(\d+x\d+)\?v=([0-9a-f]{8})$#', $url, $matches);
 
-        return "splash-$matches[2]-$matches[1].png";
+        return "splash/$matches[2]/$matches[1].png";
     }
 
     private function fetch(string $url): ResponseInterface
@@ -159,13 +159,14 @@ class SplashScreenTest extends TestCase
     }
 
     #[Test]
-    public function there_are_no_splash_screens_without_an_app_icon(): void
+    public function without_an_app_icon_there_are_no_splash_screens_and_the_forum_opens_in_the_browser(): void
     {
         $page = $this->page();
 
         $this->assertStringNotContainsString('apple-touch-startup-image', $page);
-        // The forum still opens as an app.
-        $this->assertStringContainsString('<meta name="apple-mobile-web-app-capable" content="yes">', $page);
+        // Nor does the forum open as an app: the home screen would get a
+        // screenshot of the page for an icon.
+        $this->assertStringNotContainsString('web-app-capable', $page);
         $this->assertEquals(404, $this->send($this->request('GET', '/splash/1179x2556'))->getStatusCode());
     }
 
@@ -259,7 +260,7 @@ class SplashScreenTest extends TestCase
     #[Test]
     public function a_theme_s_splash_image_is_cropped_to_cover_each_screen(): void
     {
-        $this->extend((new Extend\Theme())->splashScreen($this->screenPng(1320, 2868)));
+        $this->extend((new Extend\Theme())->appIcon($this->redPng())->splashScreen($this->screenPng(1320, 2868)));
 
         $this->assertCount(count(SplashScreen::SCREENS) * 2, $this->links());
 
@@ -280,12 +281,23 @@ class SplashScreenTest extends TestCase
     #[Test]
     public function a_theme_s_landscape_image_is_shown_on_screens_held_sideways(): void
     {
-        $this->extend((new Extend\Theme())->splashScreen($this->screenPng(1320, 2868), landscape: $this->screenPng(2868, 1320, blue: true)));
+        $this->extend((new Extend\Theme())->appIcon($this->redPng())->splashScreen($this->screenPng(1320, 2868), landscape: $this->screenPng(2868, 1320, blue: true)));
 
         $links = $this->links();
 
         $this->assertPixel([255, 0, 0], $this->image($this->iPhone16Link(), 'image/jpeg'), 100, 1278, 12);
         $this->assertPixel([0, 0, 255], $this->image($links['(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)'], 'image/jpeg'), 1278, 589, 12);
+    }
+
+    #[Test]
+    public function a_theme_s_splash_screen_needs_an_app_icon_too(): void
+    {
+        $this->extend((new Extend\Theme())->splashScreen($this->screenPng(1320, 2868)));
+
+        $page = $this->page();
+
+        $this->assertStringNotContainsString('apple-touch-startup-image', $page);
+        $this->assertStringNotContainsString('web-app-capable', $page);
     }
 
     #[Test]
@@ -442,6 +454,26 @@ class SplashScreenTest extends TestCase
         $this->assertNotSame($before, $after);
         $this->assertFalse($this->assets()->exists($this->drawnPath($before)), 'The splash screens drawn on the old background are kept.');
         $this->assertPixel([0, 255, 0], $this->image($after), 0, 0);
+    }
+
+    #[Test]
+    public function splash_screens_left_from_any_older_version_are_removed_and_the_current_ones_kept(): void
+    {
+        // As an earlier release of the drawing would have left them.
+        $this->assets()->put('splash/0ld0ld00/1179x2556.png', 'old');
+
+        $this->uploadAppIcon();
+
+        $link = $this->iPhone16Link();
+        $this->image($link);
+
+        $this->assertFalse($this->assets()->exists('splash/0ld0ld00/1179x2556.png'));
+        $this->assertTrue($this->assets()->exists($this->drawnPath($link)));
+
+        // Saving settings that leave the version as it is keeps what's drawn.
+        $this->saveSettings(['splash_screen_background' => '']);
+
+        $this->assertTrue($this->assets()->exists($this->drawnPath($link)));
     }
 
     #[Test]

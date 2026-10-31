@@ -49,6 +49,8 @@ class SplashScreen
 
     protected const VERSION = 2;
 
+    protected const DIRECTORY = 'splash';
+
     protected Cloud $assets;
 
     public function __construct(
@@ -180,9 +182,12 @@ class SplashScreen
             return;
         }
 
-        if ($drawn) {
-            foreach (['png', 'jpg'] as $extension) {
-                $this->assets->delete(array_map(fn (string $size) => $this->path($drawn, $size, $extension), array_keys($this->sizes())));
+        // Each version is drawn into a directory of its own, so the outdated
+        // ones go with one listing and a delete each, however many screens
+        // they hold, even on a remote disk.
+        foreach ($this->assets->directories(self::DIRECTORY) as $directory) {
+            if (basename($directory) !== $version) {
+                $this->assets->deleteDirectory($directory);
             }
         }
 
@@ -211,6 +216,6 @@ class SplashScreen
 
     protected function path(string $version, string $size, string $extension): string
     {
-        return "splash-$version-$size.$extension";
+        return self::DIRECTORY."/$version/$size.$extension";
     }
 }
