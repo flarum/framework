@@ -46,6 +46,40 @@ class ServiceWorker
         $script = file_get_contents(__DIR__.'/../../js/serviceWorker/offlinePage.js')
             .'offlinePage('.json_encode($options, JSON_UNESCAPED_SLASHES).");\n";
 
+        // Each script is a file of its own, so one that doesn't parse throws
+        // here, where it's caught, rather than stopping the whole worker.
+        foreach ($this->parts() as $key => $part) {
+            $url = (string) parse_url($this->url->to('forum')->route('serviceWorker.part', ['part' => $key]), PHP_URL_PATH);
+
+            $script .= "\n// ".($part['owner'] ?? 'Added without an extension')."\n";
+            $script .= "try {\n  importScripts(".json_encode($url.'?v='.substr(md5_file($part['file']), 0, 8), JSON_UNESCAPED_SLASHES).");\n"
+                ."} catch (error) {\n  console.error(error);\n}\n";
+        }
+
+        return $script;
+    }
+
+    /**
+     * An extension's script, in a function of its own.
+     */
+    public function part(string $key): ?string
+    {
+        $part = $this->parts()[$key] ?? null;
+
+        if ($part === null) {
+            return null;
+        }
+
+        return "(function () {\n".file_get_contents($part['file'])."\n})();\n";
+    }
+
+    /**
+     * @return array<string, array{file: string, owner: string|null}> key => script
+     */
+    protected function parts(): array
+    {
+        $parts = [];
+
         foreach ($this->container->make('flarum.forum.service_worker') as $part) {
             if (! is_file($part['file'])) {
                 $this->logger->warning("Service worker script {$part['file']} does not exist.");
@@ -53,13 +87,10 @@ class ServiceWorker
                 continue;
             }
 
-            $script .= "\n// ".($part['owner'] ?? 'Added without an extension')."\n";
-            $script .= "try {\n(function () {\n"
-                .file_get_contents($part['file'])
-                ."\n})();\n} catch (error) {\nconsole.error(error);\n}\n";
+            $parts[substr(md5($part['file']), 0, 12)] = $part;
         }
 
-        return $script;
+        return $parts;
     }
 
     public function offlinePage(): string

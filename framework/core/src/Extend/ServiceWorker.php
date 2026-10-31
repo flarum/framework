@@ -24,7 +24,9 @@ class ServiceWorker implements ExtenderInterface
      * core's is on, so it should add its script here instead.
      *
      * The script runs after core's, in a function of its own, so it can't be a
-     * module. Core's answers page loads, to show an offline page when they
+     * module. It's loaded with importScripts(), so a script that throws or
+     * doesn't parse only stops itself: core's and other extensions' keep
+     * running. Core's answers page loads, to show an offline page when they
      * fail, so a script shouldn't answer them too.
      *
      * ```php
