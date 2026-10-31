@@ -86,7 +86,7 @@ return [
         ->allowWrites('notifications', ['update'])
 
         // json-api-server has no resource-level description, so core's live here.
-        ->describe('forum', 'The forum itself: its title, description, settings visible to you, and your global permissions. There is one, with ID 1.')
+        ->describe('forums', 'The forum itself: its title, description, settings visible to you, and your global permissions. There is one, with ID 1.')
         ->describe('discussions', 'Discussions (topics). Each has a title, a first post and replies, and counts of comments and participants.')
         ->describe('posts', 'Posts in discussions. Comment posts hold user content; other types record events such as a rename.')
         ->describe('users', 'Members of the forum, with their public profile.')
