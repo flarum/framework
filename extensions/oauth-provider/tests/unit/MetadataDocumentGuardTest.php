@@ -54,6 +54,9 @@ class MetadataDocumentGuardTest extends TestCase
             'NAT64 local-use' => ['64:ff9b:1::a00:1', false],
             'NAT64 local-use, end of /48' => ['64:ff9b:1:ffff:ffff:ffff:ffff:ffff', false],
             'next to NAT64 local-use' => ['64:ff9b:2::1', true],
+            'IPv4-compatible, private IPv4' => ['::a00:1', false],
+            'IPv4-compatible, public IPv4' => ['::5db8:d822', false],
+            'unspecified' => ['::', false],
         ];
     }
 
@@ -73,6 +76,7 @@ class MetadataDocumentGuardTest extends TestCase
         $this->assertTrue($guard->isPublic('::1'));
         $this->assertFalse($guard->isPublic('10.0.0.5'));
         $this->assertFalse($guard->isPublic('64:ff9b::7f00:1'));
+        $this->assertFalse($guard->isPublic('::a00:1'));
     }
 
     #[Test]

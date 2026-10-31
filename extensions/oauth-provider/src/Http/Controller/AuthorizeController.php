@@ -15,7 +15,6 @@ use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\OAuthProvider\ClientRegistration\ClientMetadataException;
 use Flarum\OAuthProvider\ClientRegistration\MetadataDocumentClients;
-use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Scope\ScopeRegistry;
@@ -29,6 +28,7 @@ use Laminas\Diactoros\Response\RedirectResponse;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
+use Flarum\OAuthProvider\Server\RequestType\AuthorizationRequest as ResourceAuthorizationRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -172,24 +172,15 @@ class AuthorizeController implements RequestHandlerInterface
         $authRequest->setUser($userEntity);
         $authRequest->setAuthorizationApproved($approved);
 
+        if ($authRequest instanceof ResourceAuthorizationRequest) {
+            $authRequest->setNonce($nonce);
+            $authRequest->setAuthTime(($authTime ?? Carbon::now())->toDateTimeImmutable());
+        }
+
         try {
             $response = $this->withIssuer($server->completeAuthorizationRequest($authRequest, new \Laminas\Diactoros\Response()));
         } catch (OAuthServerException $exception) {
             return $this->withIssuer($exception->generateHttpResponse(new \Laminas\Diactoros\Response()));
-        }
-
-        // If approved, attach nonce + auth_time to the just-created auth code
-        // so they survive through to ID token issuance at the token endpoint.
-        if ($approved) {
-            AuthCode::query()
-                ->where('user_id', $userId)
-                ->where('client_id', $authRequest->getClient()->getIdentifier())
-                ->orderByDesc('created_at')
-                ->limit(1)
-                ->update([
-                    'nonce' => $nonce,
-                    'auth_time' => $authTime ?? Carbon::now(),
-                ]);
         }
 
         return $response;

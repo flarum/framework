@@ -62,10 +62,11 @@ class MetadataDocumentClients
     public const string GENERIC_ERROR = 'The client metadata document could not be retrieved or is invalid.';
 
     /**
-     * NAT64 prefixes (RFC 6052, RFC 8215): they embed an IPv4 address that a
-     * NAT64 gateway reaches on the caller's behalf, private ones included.
+     * Prefixes that embed an IPv4 address: NAT64 (RFC 6052, RFC 8215), which a
+     * gateway reaches on the caller's behalf, and the deprecated IPv4-compatible
+     * form ::/96 (RFC 4291). PHP's global-range filter lets all of them through.
      */
-    protected const array NAT64_PREFIXES = ['64:ff9b::/96', '64:ff9b:1::/48'];
+    protected const array NAT64_PREFIXES = ['64:ff9b::/96', '64:ff9b:1::/48', '::/96'];
 
     public function __construct(
         protected Container $container,
@@ -322,6 +323,11 @@ class MetadataDocumentClients
             $ip = $matches[1];
         }
 
+        // Debug mode lets a developer serve a document from their own machine.
+        if ($this->config->inDebugMode() && ($ip === '::1' || str_starts_with($ip, '127.'))) {
+            return true;
+        }
+
         foreach (self::NAT64_PREFIXES as $prefix) {
             if (self::inPrefix($ip, $prefix)) {
                 return false;
@@ -332,9 +338,7 @@ class MetadataDocumentClients
             return true;
         }
 
-        // Debug mode lets a developer serve a document from their own machine.
-        return $this->config->inDebugMode()
-            && ($ip === '::1' || str_starts_with($ip, '127.'));
+        return false;
     }
 
     protected static function inPrefix(string $ip, string $cidr): bool

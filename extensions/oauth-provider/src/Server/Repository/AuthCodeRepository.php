@@ -37,6 +37,10 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
             'user_id' => (int) $authCodeEntity->getUserIdentifier(),
             'scopes' => $scopes,
             'resource' => $authCodeEntity instanceof AuthCodeEntity ? $authCodeEntity->getResource() : null,
+            'nonce' => $authCodeEntity instanceof AuthCodeEntity ? $authCodeEntity->getNonce() : null,
+            'auth_time' => $authCodeEntity instanceof AuthCodeEntity && $authCodeEntity->getAuthTime() !== null
+                ? Carbon::instance($authCodeEntity->getAuthTime())
+                : null,
             'revoked' => false,
             'expires_at' => Carbon::instance($authCodeEntity->getExpiryDateTime()),
             'created_at' => Carbon::now(),
