@@ -9,18 +9,25 @@
 
 namespace Flarum\Mcp\Api;
 
+use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\JsonApi;
 use Flarum\Api\Resource\AbstractResource;
+use Flarum\Http\RequestUtil;
 use Flarum\Mcp\Capability\CapabilityRegistry;
+use Flarum\User\Exception\NotAuthenticatedException;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
+use Laminas\Diactoros\ServerRequest;
+use Throwable;
 
 /**
  * Which JSON:API types and CRUD operations the generic tools may reach.
  *
  * Reads are exposed for every visible type; writes only where allow-listed.
- * This decides what is *offered*; every call still runs the endpoint's own
- * `authenticated()` / `can()` / `admin()` gates through `JsonApi::handle()`.
+ * This decides what is *offered*, leaving out what the endpoint's own gates
+ * already refuse the actor; every call still runs those gates through
+ * `JsonApi::handle()`.
  */
 class ResourceExposure
 {
@@ -103,6 +110,10 @@ class ResourceExposure
                 continue;
             }
 
+            if (! $this->isAuthorized($resource, $endpoint, $actor)) {
+                continue;
+            }
+
             $operations[$operation] = $endpoint;
         }
 
@@ -146,6 +157,32 @@ class ResourceExposure
         $resource = $this->resource($type);
 
         return $resource ? ($this->operations($resource, $actor)[$operation] ?? null) : null;
+    }
+
+    /**
+     * The endpoint's own `authenticated()` / `can()` / `visible()` gates, where
+     * they can be decided without a model: in full for index and create, which
+     * act on no model; for the others only a plain `authenticated()`. A gate
+     * that needs a model to decide (it throws here) is left to the call itself.
+     */
+    protected function isAuthorized(AbstractResource $resource, Endpoint\Endpoint $endpoint, User $actor): bool
+    {
+        $context = (new Context($this->api, RequestUtil::withActor(new ServerRequest(), $actor)))
+            ->withCollection($resource)
+            ->withResource($resource)
+            ->withEndpoint($endpoint);
+
+        try {
+            if ($endpoint instanceof Endpoint\Index || $endpoint instanceof Endpoint\Create) {
+                return $endpoint->isVisible($context);
+            }
+
+            return ! ($actor->isGuest() && $endpoint->getAuthenticated($context));
+        } catch (NotAuthenticatedException|PermissionDeniedException) {
+            return false;
+        } catch (Throwable) {
+            return true;
+        }
     }
 
     /**

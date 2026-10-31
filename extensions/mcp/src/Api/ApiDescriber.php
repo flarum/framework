@@ -24,6 +24,7 @@ use Flarum\Search\SearchManager;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\ServerRequest;
+use stdClass;
 use Throwable;
 use Tobyz\JsonApiServer\Resource\Listable;
 use Tobyz\JsonApiServer\Schema\Field\Attribute;
@@ -49,15 +50,15 @@ class ApiDescriber
      * @param array<string, Endpoint\Endpoint> $operations
      * @return array<string, mixed>
      */
-    public function summary(AbstractResource $resource, array $operations): array
+    public function summary(AbstractResource $resource, array $operations, User $actor): array
     {
         $attributes = [];
         $relationships = [];
 
-        foreach ($resource->resolveFields() as $field) {
+        foreach ($this->visibleFields($resource, $actor) as $field) {
             if ($field instanceof Relationship) {
                 $relationships[] = $field->name;
-            } elseif ($field instanceof Field) {
+            } else {
                 $attributes[] = $field->name;
             }
         }
@@ -70,7 +71,7 @@ class ApiDescriber
             'attributes' => $attributes,
             'relationships' => $relationships,
             'filters' => isset($operations['index']) ? $this->filters($resource) : [],
-            'sorts' => isset($operations['index']) ? $this->sorts($resource) : [],
+            'sorts' => isset($operations['index']) ? $this->sorts($resource, $actor) : [],
         ], fn ($value) => $value !== null && $value !== []);
     }
 
@@ -86,7 +87,7 @@ class ApiDescriber
         $attributes = [];
         $relationships = [];
 
-        foreach ($resource->resolveFields() as $field) {
+        foreach ($this->visibleFields($resource, $actor) as $field) {
             if ($field instanceof Relationship) {
                 $relationships[] = array_filter([
                     'name' => $field->name,
@@ -96,7 +97,7 @@ class ApiDescriber
                     'description' => $field->description,
                     'writable' => $this->writable($field, $create, $update),
                 ], fn ($value) => $value !== null);
-            } elseif ($field instanceof Field) {
+            } else {
                 $schema = $field instanceof Attribute && $field->type ? $field->type->schema() : [];
                 $schema = array_filter([...$schema, ...$field->getSchema()], fn ($value) => $value !== null);
                 unset($schema['description'], $schema['nullable']);
@@ -112,7 +113,7 @@ class ApiDescriber
         }
 
         $description = [
-            ...$this->summary($resource, $operations),
+            ...$this->summary($resource, $operations, $actor),
             'attributes' => $attributes,
             'relationships' => $relationships,
         ];
@@ -125,6 +126,52 @@ class ApiDescriber
         }
 
         return $description;
+    }
+
+    /**
+     * The fields the actor can see.
+     *
+     * Visibility is evaluated for the actor without a real model: against a
+     * blank one (a new, unsaved instance, or an empty object for a resource
+     * with no database model). So a field shows when its visibility is
+     * unconditional or depends only on the actor (`isAdmin()`, a global
+     * permission); a rule about a particular model (its author, whether it is
+     * hidden) does not pass on a blank model, or throws, and hides the field.
+     * That errs towards not advertising a field the actor may never see.
+     *
+     * @return list<Field>
+     */
+    protected function visibleFields(AbstractResource $resource, User $actor): array
+    {
+        $context = $this->actorContext($resource, $actor);
+        $fields = [];
+
+        foreach ($resource->resolveFields() as $field) {
+            if (! $field instanceof Field) {
+                continue;
+            }
+
+            try {
+                $visible = $field->isVisible($context->withField($field));
+            } catch (Throwable) {
+                $visible = false;
+            }
+
+            if ($visible) {
+                $fields[] = $field;
+            }
+        }
+
+        return $fields;
+    }
+
+    protected function actorContext(AbstractResource $resource, User $actor): Context
+    {
+        $context = (new Context($this->api, RequestUtil::withActor(new ServerRequest(), $actor)))
+            ->withCollection($resource)
+            ->withResource($resource);
+
+        return $context->withModel($resource instanceof AbstractDatabaseResource ? $resource->newModel($context) : new stdClass());
     }
 
     /**
@@ -182,11 +229,20 @@ class ApiDescriber
      *
      * @return list<string>
      */
-    public function sorts(AbstractResource $resource): array
+    public function sorts(AbstractResource $resource, User $actor): array
     {
+        $context = $this->actorContext($resource, $actor)->withModel(null);
         $sorts = [];
 
         foreach ($resource->resolveSorts() as $sort) {
+            try {
+                if (! $sort->isVisible($context)) {
+                    continue;
+                }
+            } catch (Throwable) {
+                continue;
+            }
+
             $sorts[] = $sort->name;
             $sorts[] = '-'.$sort->name;
 

@@ -83,7 +83,7 @@ class DescribeApiTool extends GenericTool
                 $resource = $this->exposure->resource($exposedType);
 
                 if ($resource) {
-                    $types[] = $this->describer->summary($resource, $operations);
+                    $types[] = $this->describer->summary($resource, $operations, $context->actor);
                 }
             }
 
