@@ -18,6 +18,7 @@ use Flarum\Api\Sort\SortColumn;
 use Flarum\Bus\Dispatcher;
 use Flarum\Locale\Translator;
 use Flarum\Messages\Access\MessagingPermission;
+use Flarum\Messages\Command\LeaveDialog;
 use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\UserDialogState;
@@ -94,6 +95,16 @@ class DialogResource extends Resource\AbstractDatabaseResource
                             ).'), 0)'),
                             'last_read_at' => Carbon::now(),
                         ]);
+                })
+                ->response(fn () => new EmptyResponse(204)),
+            Endpoint\Endpoint::make('leave')
+                ->route('POST', '/{id}/leave')
+                ->authenticated()
+                ->can('leave')
+                ->action(function (Context $context) {
+                    $this->bus->dispatch(
+                        new LeaveDialog((int) $context->modelId, $context->getActor())
+                    );
                 })
                 ->response(fn () => new EmptyResponse(204)),
             Endpoint\Index::make()
