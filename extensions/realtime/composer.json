@@ -90,6 +90,7 @@
         "flarum/likes": "^2.1",
         "flarum/flags": "^2.1",
         "flarum/tags": "^2.1",
+        "flarum/approval": "*",
         "fof/reactions": "^2.0.0",
         "flarum/phpstan": "^2.1",
         "flarum/testing": "^2.1",
