@@ -43,6 +43,25 @@ describe('registering the service worker', () => {
     expect(unregister).toHaveBeenCalled();
   });
 
+  test("removing its own worker clears the worker's offline page, and no one else's", async () => {
+    const keys = [`flarum-offline:${url('/a/')}:v1`, `flarum-offline:${url('/b/')}:v1`, 'some-extension'];
+    const deleted: string[] = [];
+    Object.defineProperty(window, 'caches', {
+      value: { keys: () => Promise.resolve(keys), delete: (key: string) => Promise.resolve(deleted.push(key) > 0) },
+      configurable: true,
+    });
+    const { unregister } = fakeServiceWorker(url('/a/'));
+
+    registerServiceWorker('/a', false);
+    await settle();
+    await settle();
+
+    expect(unregister).toHaveBeenCalled();
+    expect(deleted).toEqual([`flarum-offline:${url('/a/')}:v1`]);
+
+    delete (window as any).caches;
+  });
+
   test("another forum's worker on the same site is left alone", async () => {
     const { unregister } = fakeServiceWorker(url('/'), url('/sw'));
 
