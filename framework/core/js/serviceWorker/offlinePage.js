@@ -3,6 +3,12 @@ function offlinePage(options) {
   var prefix = 'flarum-offline:' + self.registration.scope + ':';
   var cacheName = prefix + options.version;
 
+  function isSkipped(path) {
+    return (options.skip || []).some(function (skipped) {
+      return path === skipped || path.indexOf(skipped + '/') === 0;
+    });
+  }
+
   self.addEventListener('install', function (event) {
     event.waitUntil(
       caches
@@ -38,7 +44,7 @@ function offlinePage(options) {
   self.addEventListener('fetch', function (event) {
     var request = event.request;
 
-    if (request.mode !== 'navigate' || request.method !== 'GET') {
+    if (request.mode !== 'navigate' || request.method !== 'GET' || isSkipped(new URL(request.url, self.registration.scope).pathname)) {
       return;
     }
 

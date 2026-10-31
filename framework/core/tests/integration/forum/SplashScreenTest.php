@@ -188,6 +188,22 @@ class SplashScreenTest extends TestCase
     }
 
     #[Test]
+    public function the_admin_frontend_opens_in_the_browser_without_splash_screens(): void
+    {
+        $this->uploadAppIcon();
+
+        $this->assertNotEmpty($this->links());
+
+        $response = $this->send($this->request('GET', '/admin', ['authenticatedAs' => 1]));
+        $page = (string) $response->getBody();
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringNotContainsString('apple-touch-startup-image', $page);
+        $this->assertStringNotContainsString('apple-mobile-web-app-capable', $page);
+        $this->assertStringNotContainsString('name="mobile-web-app-capable"', $page);
+    }
+
+    #[Test]
     public function a_splash_screen_is_the_padded_app_icon_in_the_middle_of_its_background(): void
     {
         $this->setting('app_icon_background', '#0000ff');

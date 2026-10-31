@@ -161,6 +161,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->container->bind('flarum.frontend.forum', function (Container $container, array $parameters = []) {
             /** @var Frontend $frontend */
             $frontend = $container->make('flarum.frontend.factory')('forum');
+            $frontend->content($container->make(Content\HomeScreenApp::class), 165);
 
             if (isset($parameters['content'])) {
                 $frontend->content(is_callable($parameters['content']) ? $parameters['content'] : $container->make($parameters['content']), 100);
