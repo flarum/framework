@@ -31,6 +31,7 @@ class UserLikeCountTest extends TestCase
             User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'acme', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 4, 'username' => 'liker4', 'email' => 'liker4@machine.local', 'is_email_confirmed' => 1],
             ],
             Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 1, 'comment_count' => 3, 'last_post_number' => 3],
@@ -93,6 +94,53 @@ class UserLikeCountTest extends TestCase
 
         $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
         $this->assertSame(0, $this->likeCountOf(2));
+    }
+
+    #[Test]
+    public function deleting_a_post_recounts_every_liker_and_leaves_other_likes_alone()
+    {
+        $this->database()->table('post_likes')->insert([
+            ['post_id' => 1, 'user_id' => 2],
+            ['post_id' => 2, 'user_id' => 2],
+            ['post_id' => 2, 'user_id' => 4],
+            ['post_id' => 1, 'user_id' => 3],
+        ]);
+        $this->database()->table('users')->whereIn('id', [2, 3, 4])->update(['like_count' => 99]);
+
+        $response = $this->send(
+            $this->request('DELETE', '/api/posts/2', ['authenticatedAs' => 1])
+        );
+
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(1, $this->likeCountOf(2));
+        $this->assertSame(0, $this->likeCountOf(4));
+        // Not a liker of the deleted post, so not recounted.
+        $this->assertSame(99, $this->likeCountOf(3));
+    }
+
+    #[Test]
+    public function the_migration_backfills_the_counts_and_rolls_back()
+    {
+        $this->database()->table('post_likes')->insert([
+            ['post_id' => 1, 'user_id' => 2],
+            ['post_id' => 2, 'user_id' => 2],
+            ['post_id' => 3, 'user_id' => 2],
+            ['post_id' => 2, 'user_id' => 3],
+        ]);
+
+        $migration = require __DIR__.'/../../../migrations/2026_10_13_000000_add_like_count_to_users_table.php';
+        $schema = $this->database()->getSchemaBuilder();
+
+        $migration['down']($schema);
+        $this->assertFalse($schema->hasColumn('users', 'like_count'));
+
+        $migration['up']($schema);
+        $this->assertTrue($schema->hasColumn('users', 'like_count'));
+
+        // The like of the private post is not counted.
+        $this->assertSame(2, $this->likeCountOf(2));
+        $this->assertSame(1, $this->likeCountOf(3));
+        $this->assertSame(0, $this->likeCountOf(1));
     }
 
     protected function like(int $postId, int $userId, bool $liked = true): void

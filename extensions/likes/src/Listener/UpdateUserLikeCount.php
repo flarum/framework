@@ -24,6 +24,11 @@ use Illuminate\Contracts\Events\Dispatcher;
  */
 class UpdateUserLikeCount
 {
+    /**
+     * @var array<int, int[]> Liker ids of posts being deleted, by post object.
+     */
+    protected array $likers = [];
+
     public function subscribe(Dispatcher $events): void
     {
         $events->listen(PostWasLiked::class, $this->whenPostWasLiked(...));
@@ -34,47 +39,50 @@ class UpdateUserLikeCount
 
     public function whenPostWasLiked(PostWasLiked $event): void
     {
-        $this->refresh($event->user);
+        $this->refresh([$event->user->id]);
     }
 
     public function whenPostWasUnliked(PostWasUnliked $event): void
     {
-        $this->refresh($event->user);
+        $this->refresh([$event->user->id]);
     }
 
     public function whenPostIsBeingDeleted(Deleting $event): void
     {
         // The likes go with the post (post_likes cascades on delete), so note
-        // who liked it while the rows are still there.
-        $event->post->loadMissing('likes');
+        // who liked it while the rows are still there. Only the ids are kept,
+        // as a post can have many thousands of likers.
+        $this->likers[spl_object_id($event->post)] = $event->post->likes()->pluck('users.id')->all();
     }
 
     public function whenPostWasDeleted(Deleted $event): void
     {
-        $likers = $event->post->likes;
+        $key = spl_object_id($event->post);
+        $likers = $this->likers[$key] ?? [];
 
-        $event->post->likes()->detach();
+        unset($this->likers[$key]);
 
-        foreach ($likers as $user) {
-            $this->refresh($user);
-        }
+        $this->refresh($likers);
     }
 
-    protected function refresh(User $user): void
+    /**
+     * Recount the given users in one UPDATE per batch, without loading or
+     * saving models. Nothing listens for like_count changes.
+     *
+     * @param int[] $userIds
+     */
+    protected function refresh(array $userIds): void
     {
-        if (! $user->exists) {
-            return;
+        $likeCount = Post::query()->getConnection()->table('post_likes')
+            ->join('posts', 'posts.id', '=', 'post_likes.post_id')
+            ->whereColumn('post_likes.user_id', 'users.id')
+            ->where('posts.is_private', false)
+            ->selectRaw('COUNT(*)');
+
+        foreach (array_chunk(array_values(array_unique($userIds)), 1000) as $chunk) {
+            User::query()->getConnection()->table('users')
+                ->whereIn('id', $chunk)
+                ->update(['like_count' => $likeCount]);
         }
-
-        $user->like_count = Post::query()
-            ->whereIn('id', function ($query) use ($user) {
-                $query->select('post_id')
-                    ->from('post_likes')
-                    ->where('user_id', $user->id);
-            })
-            ->where('is_private', false)
-            ->count();
-
-        $user->save();
     }
 }
