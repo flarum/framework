@@ -3,11 +3,7 @@ export default class TagsPage extends ExtensionPage<import("flarum/admin/compone
     oninit(vnode: any): void;
     forcedRefreshKey: number | undefined;
     sortable: typeof import("sortablejs") | undefined;
-    /**
-     * The Tags tab (the tag tree) first, then the tag settings, then core's Permissions tab.
-     */
-    pageTabItems(): any;
-    pageTabContent(tab: any, vnode: any): any;
+    pageTabContent(tab: any, vnode: any): import("mithril").Children | JSX.Element;
     /**
      * The tag tree: primary and secondary tags, each with a create button.
      */
