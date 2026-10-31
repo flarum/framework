@@ -148,6 +148,7 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->minLength(3)
                 ->maxLength(80),
             Schema\Str::make('content')
+                ->description('Write-only: the first post, in the forum\'s input format (Markdown or BBCode, as enabled). Required when creating.')
                 ->writableOnCreate()
                 ->requiredOnCreate()
                 ->visible(false)
@@ -155,14 +156,19 @@ class DiscussionResource extends AbstractDatabaseResource
                 // set nothing...
                 ->set(fn () => null),
             Schema\Str::make('slug')
+                ->description('The slug used in the discussion\'s forum URL.')
                 ->get(function (Discussion $discussion) {
                     return $this->slugManager->forResource(Discussion::class)->toSlug($discussion);
                 }),
-            Schema\Integer::make('commentCount'),
-            Schema\Integer::make('participantCount'),
+            Schema\Integer::make('commentCount')
+                ->description('Number of visible comment posts, including the first post.'),
+            Schema\Integer::make('participantCount')
+                ->description('Number of distinct users who have posted a comment.'),
             Schema\DateTime::make('createdAt'),
-            Schema\DateTime::make('lastPostedAt'),
-            Schema\Integer::make('lastPostNumber'),
+            Schema\DateTime::make('lastPostedAt')
+                ->description('When the latest post was made.'),
+            Schema\Integer::make('lastPostNumber')
+                ->description('Number of the latest post. Post numbers increase within a discussion and can have gaps.'),
             Schema\Boolean::make('canReply')
                 ->get(function (Discussion $discussion, Context $context) {
                     return $context->getActor()->can('reply', $discussion);
@@ -180,6 +186,7 @@ class DiscussionResource extends AbstractDatabaseResource
                     return $context->getActor()->can('hide', $discussion);
                 }),
             Schema\Boolean::make('isHidden')
+                ->description('Whether the discussion is hidden (soft-deleted). Set to true to hide it, false to restore it.')
                 ->visible(fn (Discussion $discussion) => $discussion->hidden_at !== null)
                 ->writable(function (Discussion $discussion, Context $context) {
                     return $context->updating()
@@ -195,11 +202,13 @@ class DiscussionResource extends AbstractDatabaseResource
             Schema\DateTime::make('hiddenAt')
                 ->visible(fn (Discussion $discussion) => $discussion->hidden_at !== null),
             Schema\DateTime::make('lastReadAt')
+                ->description('When you last read the discussion. Only present for signed-in users.')
                 ->visible(fn (Discussion $discussion) => $discussion->state !== null)
                 ->get(function (Discussion $discussion) {
                     return $discussion->state->last_read_at;
                 }),
             Schema\Integer::make('lastReadPostNumber')
+                ->description('Number of the last post you have read. Set it to mark the discussion as read up to that post.')
                 ->visible(fn (Discussion $discussion) => $discussion->state !== null)
                 ->get(function (Discussion $discussion) {
                     return $discussion->state?->last_read_post_number;
@@ -218,6 +227,7 @@ class DiscussionResource extends AbstractDatabaseResource
                 }),
 
             Schema\Relationship\ToOne::make('user')
+                ->description('The user who started the discussion.')
                 ->writableOnCreate()
                 ->includable(),
             Schema\Relationship\ToOne::make('firstPost')
@@ -225,6 +235,7 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->inverse('discussion')
                 ->type('posts'),
             Schema\Relationship\ToOne::make('lastPostedUser')
+                ->description('The author of the latest post.')
                 ->includable()
                 ->type('users'),
             Schema\Relationship\ToOne::make('lastPost')
@@ -232,6 +243,7 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->inverse('discussion')
                 ->type('posts'),
             Schema\Relationship\ToMany::make('posts')
+                ->description('IDs of the posts you can see, linked only on a single discussion. Read the posts themselves through the posts type with filter[discussion].')
                 ->withLinkage(function (Context $context) {
                     return $context->showing(self::class)
                         || $context->creating(self::class)
@@ -268,11 +280,13 @@ class DiscussionResource extends AbstractDatabaseResource
                         ->all();
                 }),
             Schema\Relationship\ToOne::make('mostRelevantPost')
+                ->description('The post that best matches the search query. Only present when listing.')
                 ->visible(fn (Discussion $model, Context $context) => $context->listing())
                 ->includable()
                 ->inverse('discussion')
                 ->type('posts'),
             Schema\Relationship\ToOne::make('hideUser')
+                ->description('The user who hid the discussion.')
                 ->type('users'),
         ];
     }

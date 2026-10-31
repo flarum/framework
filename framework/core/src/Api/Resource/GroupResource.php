@@ -66,6 +66,7 @@ class GroupResource extends AbstractDatabaseResource
     {
         return [
             Schema\Str::make('nameSingular')
+                ->description('Name for one member, such as Moderator.')
                 ->requiredOnCreate()
                 ->get(function (Group $group) {
                     return $this->translateGroupName($group->name_singular);
@@ -76,6 +77,7 @@ class GroupResource extends AbstractDatabaseResource
                 ->writable()
                 ->required(),
             Schema\Str::make('namePlural')
+                ->description('Name for several members, such as Moderators.')
                 ->requiredOnCreate()
                 ->get(function (Group $group) {
                     return $this->translateGroupName($group->name_plural);
@@ -86,12 +88,15 @@ class GroupResource extends AbstractDatabaseResource
                 ->writable()
                 ->required(),
             Schema\Str::make('color')
+                ->description('Badge color as a hex code, or null.')
                 ->nullable()
                 ->writable(),
             Schema\Str::make('icon')
+                ->description('Font Awesome icon classes for the badge, such as fas fa-bolt, or null.')
                 ->nullable()
                 ->writable(),
             Schema\Boolean::make('isHidden')
+                ->description('Whether the group is hidden from user profiles and lists.')
                 ->writable(),
             Schema\Integer::make('position')
                 ->nullable(),
