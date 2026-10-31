@@ -49,8 +49,8 @@ class UpdateUserLikeCount
 
     public function whenPostIsBeingDeleted(Deleting $event): void
     {
-        // The likes go with the post (post_likes cascades on delete), so note
-        // who liked it while the rows are still there. Only the ids are kept,
+        // The likes are removed with the post, so note who liked it while
+        // the rows are still there. Only the ids are kept,
         // as a post can have many thousands of likers.
         $this->likers[spl_object_id($event->post)] = $event->post->likes()->pluck('users.id')->all();
     }
@@ -61,6 +61,8 @@ class UpdateUserLikeCount
         $likers = $this->likers[$key] ?? [];
 
         unset($this->likers[$key]);
+
+        $event->post->likes()->detach();
 
         $this->refresh($likers);
     }
