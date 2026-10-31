@@ -92,6 +92,7 @@ flarum-messages:
     # These translations are used in emails sent when a member is sent a message
     message_received:
       subject: "{user_display_name} sent you a message"
+      group_subject: "{user_display_name} sent a message to you and {count, plural, one {# other} other {# others}}"
       plain:
         body: |
           {user_display_name} sent you a new message.

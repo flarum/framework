@@ -48,6 +48,17 @@ class MessageReceivedBlueprint implements BlueprintInterface, MailableInterface
 
     public function getEmailSubject(TranslatorInterface $translator): string
     {
+        $dialog = $this->message->dialog;
+
+        // Everyone but the sender and the recipient: one query, in the job
+        // that sends this one email.
+        if ($dialog?->isGroup()) {
+            return $translator->trans('flarum-messages.email.message_received.group_subject', [
+                'user_display_name' => $this->message->user->display_name ?? $translator->trans('core.lib.username.deleted_text'),
+                'count' => max(0, $dialog->users()->count() - 2),
+            ]);
+        }
+
         return $translator->trans('flarum-messages.email.message_received.subject', [
             '{user_display_name}' => $this->message->user->display_name ?? $translator->trans('core.lib.username.deleted_text'),
         ]);

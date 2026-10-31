@@ -132,6 +132,22 @@ class GroupSendTest extends TestCase
         $this->assertEquals(0, $this->emailsTo('alice@machine.local'));
     }
 
+    #[Test]
+    public function the_email_says_the_message_went_to_a_group(): void
+    {
+        $this->captureSentMail();
+
+        $this->reply(3);
+
+        $subjects = array_map(
+            fn (Email $email) => $email->getSubject(),
+            array_values(array_filter($this->sent->getArrayCopy(), fn ($message) => $message instanceof Email && $message->getTo()[0]->getAddress() === 'bob@machine.local'))
+        );
+
+        // Bob, carol and dave: bob and two others.
+        $this->assertEquals(['alice sent a message to you and 2 others'], $subjects);
+    }
+
     protected function captureSentMail(): void
     {
         $this->sent = $sent = new \ArrayObject();
