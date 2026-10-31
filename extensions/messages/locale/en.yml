@@ -8,6 +8,11 @@ flarum-messages:
       delete_own_messages_label: Delete own messages
       send_without_throttle_label: Send messages without throttling
       view_ips_label: View IP addresses of messages
+    sections:
+      groups:
+        description: Conversations started with several members at once.
+        label: Group conversations
+
     settings:
       allow_group_names_help: Members who can write in a group conversation can give it a name, which everyone in it sees instead of the list of members. Turning this off hides names already given.
       allow_group_names_label: Let members name group conversations
