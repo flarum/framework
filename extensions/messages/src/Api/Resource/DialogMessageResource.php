@@ -263,7 +263,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ]);
             }
 
-            $this->assertRecipientsCanBeMessaged($actor, $users);
+            $this->assertRecipientsCanBeMessaged($actor, $users, group: count($users) > 1);
 
             // The dialog and its members go in together, or not at all. Core's
             // create flow has no transaction of its own.
@@ -341,11 +341,12 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
      * Nobody can message someone another extension rules out: flarum/gdpr does
      * for anonymised accounts. And a new dialog's recipients must be able to
      * reply, unless the actor may message users without messaging permission
-     * or the dialog they already share has been opened to replies.
+     * or, for a direct message, the dialog the pair already share has been
+     * opened to replies. A new group is opened by nobody yet.
      *
      * @param int[] $userIds
      */
-    protected function assertRecipientsCanBeMessaged(User $actor, array $userIds): void
+    protected function assertRecipientsCanBeMessaged(User $actor, array $userIds, bool $group = false): void
     {
         $canMessageUsersWithoutPermission = MessagingPermission::canMessageUsersWithoutPermission($actor);
 
@@ -361,7 +362,8 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 continue;
             }
 
-            $opened = Dialog::query()
+            $opened = ! $group && Dialog::query()
+                ->where('type', Dialog::DIRECT)
                 ->where('anyone_can_reply', true)
                 ->whereRelation('users', 'user_id', $actor->id)
                 ->whereRelation('users', 'user_id', $recipient->id)
