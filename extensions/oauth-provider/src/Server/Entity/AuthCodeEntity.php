@@ -22,6 +22,17 @@ class AuthCodeEntity implements AuthCodeEntityInterface
 
     protected ?string $nonce = null;
     protected ?\DateTimeImmutable $authTime = null;
+    protected ?string $resource = null;
+
+    public function setResource(?string $resource): void
+    {
+        $this->resource = $resource;
+    }
+
+    public function getResource(): ?string
+    {
+        return $this->resource;
+    }
 
     public function setNonce(?string $nonce): void
     {

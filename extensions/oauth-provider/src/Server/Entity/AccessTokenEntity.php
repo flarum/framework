@@ -9,6 +9,8 @@
 
 namespace Flarum\OAuthProvider\Server\Entity;
 
+use DateTimeImmutable;
+use Lcobucci\JWT\Token;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Entities\Traits\EntityTrait;
@@ -22,6 +24,36 @@ class AccessTokenEntity implements AccessTokenEntityInterface
 
     protected ?string $nonce = null;
     protected ?\DateTimeImmutable $authTime = null;
+    protected ?string $resource = null;
+
+    public function setResource(?string $resource): void
+    {
+        $this->resource = $resource;
+    }
+
+    public function getResource(): ?string
+    {
+        return $this->resource;
+    }
+
+    /**
+     * Shadows AccessTokenTrait::convertToJWT() so `aud` is the RFC 8707
+     * resource when the token is bound to one, else the client id.
+     */
+    private function convertToJWT(): Token
+    {
+        $this->initJwtConfiguration();
+
+        return $this->jwtConfiguration->builder()
+            ->permittedFor($this->resource ?? $this->getClient()->getIdentifier())
+            ->identifiedBy($this->getIdentifier())
+            ->issuedAt(new DateTimeImmutable())
+            ->canOnlyBeUsedAfter(new DateTimeImmutable())
+            ->expiresAt($this->getExpiryDateTime())
+            ->relatedTo((string) $this->getUserIdentifier())
+            ->withClaim('scopes', $this->getScopes())
+            ->getToken($this->jwtConfiguration->signer(), $this->jwtConfiguration->signingKey());
+    }
 
     public function setNonce(?string $nonce): void
     {

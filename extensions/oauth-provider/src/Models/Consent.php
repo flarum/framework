@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool        $revoked
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property string|null $last_used_at Selected by ConsentResource, not a column.
  * @property User        $user
  * @property Client      $client
  */

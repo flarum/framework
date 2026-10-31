@@ -11,7 +11,9 @@ namespace Flarum\OAuthProvider\Server;
 
 use DateInterval;
 use Flarum\OAuthProvider\KeyManager;
+use Flarum\OAuthProvider\ResourceServer\ResourceRegistry;
 use Flarum\OAuthProvider\Server\Grant\OidcAuthCodeGrant;
+use Flarum\OAuthProvider\Server\Grant\ResourceRefreshTokenGrant;
 use Flarum\OAuthProvider\Server\Repository\AccessTokenRepository;
 use Flarum\OAuthProvider\Server\Repository\AuthCodeRepository;
 use Flarum\OAuthProvider\Server\Repository\ClientRepository;
@@ -19,7 +21,6 @@ use Flarum\OAuthProvider\Server\Repository\RefreshTokenRepository;
 use Flarum\OAuthProvider\Server\Repository\ScopeRepository;
 use Flarum\OAuthProvider\Server\ResponseType\IdTokenResponse;
 use League\OAuth2\Server\AuthorizationServer;
-use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\ResourceServer;
 
 class AuthorizationServerFactory
@@ -32,6 +33,7 @@ class AuthorizationServerFactory
         protected AuthCodeRepository $authCodes,
         protected ScopeRepository $scopes,
         protected IdTokenBuilder $idTokenBuilder,
+        protected ResourceRegistry $resources,
     ) {
     }
 
@@ -52,11 +54,13 @@ class AuthorizationServerFactory
             new DateInterval('PT10M')
         );
         $authCodeGrant->setRefreshTokenTTL(new DateInterval('P1M'));
+        $authCodeGrant->setResourceRegistry($this->resources);
 
         $server->enableGrantType($authCodeGrant, new DateInterval('PT1H'));
 
-        $refreshGrant = new RefreshTokenGrant($this->refreshTokens);
+        $refreshGrant = new ResourceRefreshTokenGrant($this->refreshTokens);
         $refreshGrant->setRefreshTokenTTL(new DateInterval('P1M'));
+        $refreshGrant->setResourceRegistry($this->resources);
 
         $server->enableGrantType($refreshGrant, new DateInterval('PT1H'));
 

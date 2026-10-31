@@ -51,6 +51,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
             'client_id' => $accessTokenEntity->getClient()->getIdentifier(),
             'user_id' => (int) $accessTokenEntity->getUserIdentifier(),
             'scopes' => $scopes,
+            'resource' => $accessTokenEntity instanceof AccessTokenEntity ? $accessTokenEntity->getResource() : null,
             'revoked' => false,
             'expires_at' => Carbon::instance($accessTokenEntity->getExpiryDateTime()),
             'created_at' => Carbon::now(),

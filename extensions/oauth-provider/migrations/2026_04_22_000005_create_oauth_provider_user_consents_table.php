@@ -13,7 +13,7 @@ use Illuminate\Database\Schema\Blueprint;
 return Migration::createTable('oauth_provider_user_consents', function (Blueprint $table) {
     $table->increments('id');
     $table->integer('user_id')->unsigned();
-    $table->string('client_id', 80);
+    $table->string('client_id', 255);
     $table->string('scopes', 1000)->nullable();
     $table->boolean('revoked')->default(false);
     $table->dateTime('created_at')->nullable();

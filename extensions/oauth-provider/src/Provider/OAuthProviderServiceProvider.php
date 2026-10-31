@@ -10,6 +10,8 @@
 namespace Flarum\OAuthProvider\Provider;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\OAuthProvider\ResourceServer\ResourceRegistry;
+use Flarum\OAuthProvider\ResourceServer\TokenValidator;
 use Flarum\OAuthProvider\Scope\ScopeRegistry;
 
 class OAuthProviderServiceProvider extends AbstractServiceProvider
@@ -25,5 +27,8 @@ class OAuthProviderServiceProvider extends AbstractServiceProvider
 
             return $registry;
         });
+
+        $this->container->singleton(ResourceRegistry::class);
+        $this->container->singleton(TokenValidator::class);
     }
 }

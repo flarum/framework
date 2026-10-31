@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array|null  $scopes
  * @property string|null $nonce
  * @property Carbon|null $auth_time
+ * @property string|null $resource
  * @property bool        $revoked
  * @property Carbon      $expires_at
  * @property Carbon|null $created_at
