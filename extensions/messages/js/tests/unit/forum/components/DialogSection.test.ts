@@ -151,6 +151,18 @@ describe('a group conversation', () => {
   });
 });
 
+describe('renaming a group', () => {
+  it('is offered where the server allows it', () => {
+    const dialog = group([{ canSendAnyMessage: true }, { canSendAnyMessage: true }]);
+
+    dialog.pushAttributes({ canRename: true });
+    expect(section(dialog).controlItems().has('rename')).toBe(true);
+
+    dialog.pushAttributes({ canRename: false });
+    expect(section(dialog).controlItems().has('rename')).toBe(false);
+  });
+});
+
 describe('a direct conversation', () => {
   it("can't be left: there would be nobody in it", () => {
     expect(section(conversation({ canSendAnyMessage: true }, { canSendMessage: true, anyoneCanReply: false })).controlItems().has('leave')).toBe(false);

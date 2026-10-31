@@ -10,6 +10,13 @@ export default class Dialog extends Model {
   type() {
     return Model.attribute<string>('type').call(this);
   }
+  /** What members have named a group, where the forum allows it; the title already uses it. */
+  name() {
+    return Model.attribute<string | null | undefined>('name').call(this);
+  }
+  canRename() {
+    return Model.attribute<boolean | undefined>('canRename').call(this);
+  }
   lastMessageAt() {
     return Model.attribute<Date, string>('lastMessageAt', Model.transformDate).call(this);
   }

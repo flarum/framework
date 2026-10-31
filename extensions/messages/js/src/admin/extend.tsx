@@ -16,6 +16,13 @@ export default [
       label: app.translator.trans('flarum-messages.admin.settings.max_recipients_label'),
       help: app.translator.trans('flarum-messages.admin.settings.max_recipients_help'),
     }))
+    // Off by default; registered in extend.php.
+    .setting(() => ({
+      setting: 'flarum-messages.allow_group_names',
+      type: 'boolean',
+      label: app.translator.trans('flarum-messages.admin.settings.allow_group_names_label'),
+      help: app.translator.trans('flarum-messages.admin.settings.allow_group_names_help'),
+    }))
     .permission(
       () => ({
         icon: 'fas fa-envelope-open-text',

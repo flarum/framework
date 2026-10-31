@@ -11,6 +11,7 @@ import ItemList from 'flarum/common/utils/ItemList';
 import Button from 'flarum/common/components/Button';
 import Dropdown from 'flarum/common/components/Dropdown';
 import DetailsModal from './DetailsModal';
+import RenameDialogModal from './RenameDialogModal';
 import listItems from 'flarum/common/helpers/listItems';
 import classList from 'flarum/common/utils/classList';
 import extractText from 'flarum/common/utils/extractText';
@@ -168,6 +169,26 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
         {app.translator.trans('flarum-messages.forum.dialog_section.controls.details_button')}
       </Button>
     );
+
+    // Where the forum lets members name groups, and this one may.
+    if (this.attrs.dialog.canRename()) {
+      items.add(
+        'rename',
+        <Button
+          icon="fas fa-pencil-alt"
+          onclick={() =>
+            app.modal.show(RenameDialogModal, {
+              dialog: this.attrs.dialog,
+              // The group is told who named it: bring that notice in.
+              onsave: () => this.messages.catchUp().then(() => m.redraw()),
+            })
+          }
+        >
+          {app.translator.trans('flarum-messages.forum.dialog_section.controls.rename_button')}
+        </Button>,
+        50
+      );
+    }
 
     // Only a group: leaving a direct conversation would leave nobody in it.
     if (this.attrs.dialog.isGroup()) {

@@ -9,6 +9,8 @@ flarum-messages:
       send_without_throttle_label: Send messages without throttling
       view_ips_label: View IP addresses of messages
     settings:
+      allow_group_names_help: Members who can write in a group conversation can give it a name, which everyone in it sees instead of the list of members. Turning this off hides names already given.
+      allow_group_names_label: Let members name group conversations
       max_recipients_help: How many members one message can be sent to. More than one starts a group conversation, so 1 turns group conversations off. At most 50.
       max_recipients_label: Recipients per message
 
@@ -36,6 +38,7 @@ flarum-messages:
       controls:
         details_button: Details
         leave_button: Leave conversation
+        rename_button: Rename conversation
       controls_toggle_label: Dialog control actions
       details_modal:
         created_at: Creation date
@@ -77,6 +80,12 @@ flarum-messages:
         user_left_text: "{username} left the conversation"
         time_lapsed_text: => core.forum.post_stream.time_lapsed_text
       title: Messages
+
+    rename_dialog_modal:
+      help_text: Everyone in the conversation sees this name. Leave it empty to show who is in it instead.
+      name_label: Name
+      submit_button: Save
+      title: Rename conversation
 
     recipient_selection_modal:
       cannot_reply_text: Can't reply to messages

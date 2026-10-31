@@ -287,6 +287,34 @@
   color: var(--control-color);
 }
 
+// A notice in the stream, such as someone leaving: a muted line in the
+// message column, its icon where a message's avatar would be.
+.EventMessage {
+  display: flex;
+  align-items: center;
+  padding: 4px 0 12px;
+  color: var(--muted-color);
+  font-size: 0.9rem;
+
+  &-icon {
+    flex-shrink: 0;
+    width: 40px;
+    margin-inline-end: 16px;
+    text-align: center;
+    color: var(--muted-more-color);
+  }
+
+  &-info a {
+    color: inherit;
+    font-weight: bold;
+  }
+
+  &-time {
+    color: var(--muted-more-color);
+    font-size: 0.85em;
+  }
+}
+
 .DialogSection-header-actions {
   display: flex;
   gap: 6px;
