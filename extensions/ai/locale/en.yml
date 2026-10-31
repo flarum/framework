@@ -80,15 +80,22 @@ flarum-ai:
       empty_text: No extension uses AI yet. Features appear here when an extension that uses AI is enabled.
       enabled_label: "Use AI for {feature}"
       heading: Features
-      help: What extensions use AI for. Each feature stays off until you turn it on, and members need its permission, below, to use it.
+      help: It stays off until you turn it on, and members need its permission, on the Permissions tab, to use it.
       model_label: Model
       model_placeholder: Connection's default
 
     # These translations are used by the token limits on the extension's page.
     limits:
       heading: Limits
+      help: Limits for each connection are set on the connection, and for each feature on its tab.
       member_daily_help: Calls made for a member stop once they've used this many tokens today, across every feature. Admins have no limit. Leave empty for no limit.
       member_daily_label: Tokens per Member per Day
+
+    # The tabs of the extension's page.
+    tabs:
+      connections: Connections
+      features: Features
+      usage: Usage
 
     # These translations are used by the usage totals on the extension's page.
     usage:

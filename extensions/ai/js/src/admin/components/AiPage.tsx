@@ -1,10 +1,14 @@
 import app from 'flarum/admin/app';
-import ExtensionPage from 'flarum/admin/components/ExtensionPage';
+import ExtensionPage, { type ExtensionPageAttrs } from 'flarum/admin/components/ExtensionPage';
+import SettingsSection from 'flarum/admin/components/SettingsSection';
 import Button from 'flarum/common/components/Button';
 import Form from 'flarum/common/components/Form';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Select from 'flarum/common/components/Select';
 import Switch from 'flarum/common/components/Switch';
+import type { TabItem } from 'flarum/common/components/Tabs';
+import extractText from 'flarum/common/utils/extractText';
+import type ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
 import EditConnectionModal from './EditConnectionModal';
 import {
@@ -39,55 +43,104 @@ interface Usage {
   days: { date: string; tokens: number }[];
 }
 
+/**
+ * The tab each of the page's settings is on, for the unsaved-changes dot.
+ */
+const TAB_OF_SETTING: Record<string, string> = {
+  [CONNECTIONS_SETTING]: 'connections',
+  [DEFAULT_SETTING]: 'connections',
+  [FEATURES_SETTING]: 'features',
+  [MEMBER_DAILY_SETTING]: 'usage',
+};
+
+/**
+ * The AI page: Connections, Features and Usage tabs, then core's Permissions
+ * tab, which lists each feature's permission. One save covers every tab.
+ */
 export default class AiPage extends ExtensionPage {
   connections!: Connections;
   features!: Record<string, FeatureSettings>;
   usage: Usage | null = null;
-  usageFailed = false;
+  usageState: 'idle' | 'loading' | 'failed' = 'idle';
 
-  oninit(vnode: Mithril.Vnode<any, this>) {
+  oninit(vnode: Mithril.Vnode<ExtensionPageAttrs, this>) {
     super.oninit(vnode);
 
     this.connections = parseConnections(this.setting(CONNECTIONS_SETTING)());
     this.features = parseObject<FeatureSettings>(this.setting(FEATURES_SETTING)());
 
-    // Registered so the page counts it as changed.
+    // Registered up front, so a change on one tab still counts once another is open.
+    this.setting(DEFAULT_SETTING);
     this.setting(MEMBER_DAILY_SETTING);
-
-    this.loadUsage();
   }
 
   className() {
-    return 'AiPage';
+    return super.className() + ' AiPage';
   }
 
-  content() {
+  pageTabItems(): ItemList<TabItem> {
+    const items = super.pageTabItems();
+    const unsaved = new Set(Object.keys(this.dirty()).map((key) => TAB_OF_SETTING[key]));
+    const indicatorLabel = extractText(app.translator.trans('core.admin.extension.unsaved_changes'));
+
+    const tab = (id: string, icon: string, priority: number) =>
+      items.add(
+        id,
+        {
+          id,
+          label: app.translator.trans(`flarum-ai.admin.tabs.${id}`),
+          icon,
+          indicator: unsaved.has(id),
+          indicatorLabel: unsaved.has(id) ? indicatorLabel : undefined,
+        },
+        priority
+      );
+
+    tab('connections', 'fas fa-plug', 100);
+    tab('features', 'fas fa-wand-magic-sparkles', 90);
+    tab('usage', 'fas fa-chart-bar', 80);
+
+    return items;
+  }
+
+  pageTabContent(tab: string, vnode: Mithril.VnodeDOM<ExtensionPageAttrs, this>): Mithril.Children {
+    switch (tab) {
+      case 'connections':
+        return this.form([this.connectionsSection(), this.defaultSection()]);
+      case 'features':
+        return this.form(this.featureSections());
+      case 'usage':
+        if (this.usageState === 'idle') this.loadUsage();
+
+        return this.form([this.limitsSection(), this.usageSection()]);
+      default:
+        return super.pageTabContent(tab, vnode);
+    }
+  }
+
+  form(sections: Mithril.Children): Mithril.Children {
     return (
       <div className="ExtensionPage-settings">
-        <div className="container">
-          <Form>
-            {this.connectionsField()}
-            {this.defaultField()}
-            {this.featuresField()}
-            {this.limitsField()}
-            <div className="Form-group Form-controls">{this.submitButton()}</div>
-          </Form>
-          {this.usageSection()}
-        </div>
+        <Form className="AdminPage-settingsForm AdminPage-settingsForm--sectioned AiPage-form">
+          {sections}
+          <div className="Form-group Form-controls">{this.submitButton()}</div>
+        </Form>
       </div>
     );
   }
 
-  connectionsField(): Mithril.Children {
+  connectionsSection(): Mithril.Children {
     const locked = aiPayload().lockedConnections;
     const names = Object.keys(this.connections);
     const lockedNames = Object.keys(locked);
 
     return (
-      <div className="Form-group">
-        <label>{app.translator.trans('flarum-ai.admin.connections.heading')}</label>
-        <div className="helpText">{app.translator.trans('flarum-ai.admin.connections.help')}</div>
-
+      <SettingsSection
+        id="flarum-ai-connections"
+        label={app.translator.trans('flarum-ai.admin.connections.heading')}
+        description={app.translator.trans('flarum-ai.admin.connections.help')}
+        icon="fas fa-plug"
+      >
         {names.length || lockedNames.length ? (
           <ul className="AiPage-connections">
             {lockedNames.map((name) => this.connectionItem(name, locked[name], true))}
@@ -97,10 +150,12 @@ export default class AiPage extends ExtensionPage {
           <p className="AiPage-empty">{app.translator.trans('flarum-ai.admin.connections.empty_text')}</p>
         )}
 
-        <Button className="Button" icon="fas fa-plus" onclick={() => this.edit()}>
-          {app.translator.trans('flarum-ai.admin.connections.add_button')}
-        </Button>
-      </div>
+        <div>
+          <Button className="Button" icon="fas fa-plus" onclick={() => this.edit()}>
+            {app.translator.trans('flarum-ai.admin.connections.add_button')}
+          </Button>
+        </div>
+      </SettingsSection>
     );
   }
 
@@ -143,50 +198,45 @@ export default class AiPage extends ExtensionPage {
     );
   }
 
-  defaultField(): Mithril.Children {
+  defaultSection(): Mithril.Children {
     const { lockedDefault } = aiPayload();
-
-    if (lockedDefault) {
-      return (
-        <div className="Form-group AiPage-default">
-          <label>{app.translator.trans('flarum-ai.admin.connections.default_label')}</label>
-          <div className="helpText">{app.translator.trans('flarum-ai.admin.connections.default_locked_text', { name: lockedDefault })}</div>
-        </div>
-      );
-    }
+    const value = this.setting(DEFAULT_SETTING)();
 
     const options: Record<string, Mithril.Children> = { '': app.translator.trans('flarum-ai.admin.connections.default_none_option') };
     this.connectionNames().forEach((name) => (options[name] = name));
 
-    const value = this.setting(DEFAULT_SETTING)();
-
     return (
-      <div className="Form-group AiPage-default">
-        <label>{app.translator.trans('flarum-ai.admin.connections.default_label')}</label>
-        <div className="helpText">{app.translator.trans('flarum-ai.admin.connections.default_help')}</div>
-        <Select options={options} value={value in options ? value : ''} onchange={this.setting(DEFAULT_SETTING)} />
-      </div>
+      <SettingsSection
+        id="flarum-ai-default"
+        className="AiPage-default"
+        label={app.translator.trans('flarum-ai.admin.connections.default_label')}
+        description={app.translator.trans('flarum-ai.admin.connections.default_help')}
+        icon="fas fa-star"
+      >
+        {lockedDefault ? (
+          <p className="helpText">{app.translator.trans('flarum-ai.admin.connections.default_locked_text', { name: lockedDefault })}</p>
+        ) : (
+          <Select options={options} value={value in options ? value : ''} onchange={this.setting(DEFAULT_SETTING)} />
+        )}
+      </SettingsSection>
     );
   }
 
-  featuresField(): Mithril.Children {
+  featureSections(): Mithril.Children {
     const features = aiPayload().features;
 
-    return (
-      <div className="Form-group">
-        <label>{app.translator.trans('flarum-ai.admin.features.heading')}</label>
-        <div className="helpText">{app.translator.trans('flarum-ai.admin.features.help')}</div>
-
-        {features.length ? (
-          <ul className="AiPage-features">{features.map((feature) => this.featureItem(feature))}</ul>
-        ) : (
+    if (!features.length) {
+      return (
+        <SettingsSection label={app.translator.trans('flarum-ai.admin.features.heading')} icon="fas fa-wand-magic-sparkles">
           <p className="AiPage-empty">{app.translator.trans('flarum-ai.admin.features.empty_text')}</p>
-        )}
-      </div>
-    );
+        </SettingsSection>
+      );
+    }
+
+    return features.map((feature) => this.featureSection(feature));
   }
 
-  featureItem(feature: FeatureInfo): Mithril.Children {
+  featureSection(feature: FeatureInfo): Mithril.Children {
     const settings = this.features[feature.key] || {};
     const label = app.translator.trans(feature.label);
 
@@ -196,11 +246,20 @@ export default class AiPage extends ExtensionPage {
     const connection = settings.connection && settings.connection in connections ? settings.connection : '';
 
     return (
-      <li key={feature.key} className="AiPage-feature">
+      <SettingsSection
+        key={feature.key}
+        id={'flarum-ai-feature-' + feature.key.replace(/[^a-z0-9_-]/gi, '-')}
+        className="AiPage-feature"
+        label={label}
+        description={[
+          feature.description ? <span>{app.translator.trans(feature.description)} </span> : null,
+          app.translator.trans('flarum-ai.admin.features.help'),
+        ]}
+        icon="fas fa-wand-magic-sparkles"
+      >
         <Switch state={!!settings.enabled} onchange={(enabled: boolean) => this.updateFeature(feature.key, { enabled })}>
           {app.translator.trans('flarum-ai.admin.features.enabled_label', { feature: label })}
         </Switch>
-        {!!feature.description && <div className="helpText">{app.translator.trans(feature.description)}</div>}
 
         <div className="AiPage-feature-options">
           <label>
@@ -232,30 +291,46 @@ export default class AiPage extends ExtensionPage {
             />
           </label>
         </div>
-      </li>
+      </SettingsSection>
     );
   }
 
-  limitsField(): Mithril.Children {
+  limitsSection(): Mithril.Children {
     return (
-      <div className="Form-group">
-        <label>{app.translator.trans('flarum-ai.admin.limits.heading')}</label>
-        <label className="AiPage-subLabel">{app.translator.trans('flarum-ai.admin.limits.member_daily_label')}</label>
-        <div className="helpText">{app.translator.trans('flarum-ai.admin.limits.member_daily_help')}</div>
-        <input className="FormControl AiPage-tokensInput" type="number" min="1" step="1" bidi={this.setting(MEMBER_DAILY_SETTING)} />
-      </div>
+      <SettingsSection
+        id="flarum-ai-limits"
+        label={app.translator.trans('flarum-ai.admin.limits.heading')}
+        description={app.translator.trans('flarum-ai.admin.limits.help')}
+        icon="fas fa-gauge-high"
+      >
+        <div className="Form-group">
+          <label for="flarum-ai-member-daily">{app.translator.trans('flarum-ai.admin.limits.member_daily_label')}</label>
+          <div className="helpText">{app.translator.trans('flarum-ai.admin.limits.member_daily_help')}</div>
+          <input
+            id="flarum-ai-member-daily"
+            className="FormControl AiPage-tokensInput"
+            type="number"
+            min="1"
+            step="1"
+            bidi={this.setting(MEMBER_DAILY_SETTING)}
+          />
+        </div>
+      </SettingsSection>
     );
   }
 
   usageSection(): Mithril.Children {
     const usage = this.usage;
+    const label = usage
+      ? app.translator.trans('flarum-ai.admin.usage.heading', { month: dayjs(usage.month + '-01').format('MMMM YYYY') })
+      : app.translator.trans('flarum-ai.admin.tabs.usage');
 
     let body: Mithril.Children;
 
-    if (this.usageFailed) {
+    if (this.usageState === 'failed') {
       body = <p className="AiPage-empty">{app.translator.trans('flarum-ai.admin.usage.load_error_text')}</p>;
     } else if (!usage) {
-      body = <LoadingIndicator />;
+      body = <LoadingIndicator display="inline" />;
     } else if (!usage.connections.length) {
       body = <p className="AiPage-empty">{app.translator.trans('flarum-ai.admin.usage.empty_text')}</p>;
     } else {
@@ -290,11 +365,15 @@ export default class AiPage extends ExtensionPage {
     }
 
     return (
-      <div className="AiPage-usage">
-        <h3>{app.translator.trans('flarum-ai.admin.usage.heading', { month: usage ? dayjs(usage.month + '-01').format('MMMM YYYY') : '' })}</h3>
-        <div className="helpText">{app.translator.trans('flarum-ai.admin.usage.help')}</div>
+      <SettingsSection
+        id="flarum-ai-usage"
+        className="AiPage-usage"
+        label={label}
+        description={app.translator.trans('flarum-ai.admin.usage.help')}
+        icon="fas fa-chart-bar"
+      >
         {body}
-      </div>
+      </SettingsSection>
     );
   }
 
@@ -343,13 +422,21 @@ export default class AiPage extends ExtensionPage {
   }
 
   loadUsage() {
+    this.usageState = 'loading';
+
     app
-      .request<Usage>({ method: 'GET', url: app.forum.attribute('apiUrl') + '/ai/usage' })
+      .request<Usage>({
+        method: 'GET',
+        url: app.forum.attribute('apiUrl') + '/ai/usage',
+        // The page says the totals couldn't load; no alert or modal on top of that.
+        errorHandler: (error) => console.error(error),
+      })
       .then((usage) => {
         this.usage = usage;
+        this.usageState = 'idle';
       })
       .catch(() => {
-        this.usageFailed = true;
+        this.usageState = 'failed';
       })
       .finally(() => m.redraw());
   }
