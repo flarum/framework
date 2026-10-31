@@ -1,0 +1,249 @@
+<?php
+
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
+namespace Flarum\Mcp\Api;
+
+use Flarum\Api\Context;
+use Flarum\Api\Endpoint;
+use Flarum\Api\JsonApi;
+use Flarum\Api\Resource\AbstractDatabaseResource;
+use Flarum\Api\Resource\AbstractResource;
+use Flarum\Api\Sort\SortColumn;
+use Flarum\Http\RequestUtil;
+use Flarum\Mcp\Capability\CapabilityRegistry;
+use Flarum\Mcp\Overview\ExtensionOwnership;
+use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\Search\Filter\FilterInterface;
+use Flarum\Search\SearchManager;
+use Flarum\User\User;
+use Illuminate\Contracts\Container\Container;
+use Laminas\Diactoros\ServerRequest;
+use Throwable;
+use Tobyz\JsonApiServer\Resource\Listable;
+use Tobyz\JsonApiServer\Schema\Field\Attribute;
+use Tobyz\JsonApiServer\Schema\Field\Field;
+use Tobyz\JsonApiServer\Schema\Field\Relationship;
+use Tobyz\JsonApiServer\Schema\Field\ToMany;
+
+/**
+ * Describes JSON:API types for `describe_api`: fields with their JSON Schema,
+ * filters from the type's searcher, and sorts.
+ */
+class ApiDescriber
+{
+    public function __construct(
+        protected Container $container,
+        protected JsonApi $api,
+        protected CapabilityRegistry $registry,
+        protected ExtensionOwnership $ownership,
+    ) {
+    }
+
+    /**
+     * @param array<string, Endpoint\Endpoint> $operations
+     * @return array<string, mixed>
+     */
+    public function summary(AbstractResource $resource, array $operations): array
+    {
+        $attributes = [];
+        $relationships = [];
+
+        foreach ($resource->resolveFields() as $field) {
+            if ($field instanceof Relationship) {
+                $relationships[] = $field->name;
+            } elseif ($field instanceof Field) {
+                $attributes[] = $field->name;
+            }
+        }
+
+        return array_filter([
+            'type' => $resource->type(),
+            'extension' => $this->ownership->owner($resource),
+            'description' => $this->registry->description($resource->type()),
+            'operations' => array_keys($operations),
+            'attributes' => $attributes,
+            'relationships' => $relationships,
+            'filters' => isset($operations['index']) ? $this->filters($resource) : [],
+            'sorts' => isset($operations['index']) ? $this->sorts($resource) : [],
+        ], fn ($value) => $value !== null && $value !== []);
+    }
+
+    /**
+     * @param array<string, Endpoint\Endpoint> $operations
+     * @return array<string, mixed>
+     */
+    public function describe(AbstractResource $resource, array $operations, User $actor): array
+    {
+        $create = $this->writeContext($resource, $operations['create'] ?? null, $actor);
+        $update = $this->writeContext($resource, $operations['update'] ?? null, $actor);
+
+        $attributes = [];
+        $relationships = [];
+
+        foreach ($resource->resolveFields() as $field) {
+            if ($field instanceof Relationship) {
+                $relationships[] = array_filter([
+                    'name' => $field->name,
+                    'types' => array_values($field->collections ?? []),
+                    'kind' => $field instanceof ToMany ? 'to-many' : 'to-one',
+                    'includable' => $field->includable,
+                    'description' => $field->description,
+                    'writable' => $this->writable($field, $create, $update),
+                ], fn ($value) => $value !== null);
+            } elseif ($field instanceof Field) {
+                $schema = $field instanceof Attribute && $field->type ? $field->type->schema() : [];
+                $schema = array_filter([...$schema, ...$field->getSchema()], fn ($value) => $value !== null);
+                unset($schema['description'], $schema['nullable']);
+
+                $attributes[] = array_filter([
+                    'name' => $field->name,
+                    'schema' => $schema ?: null,
+                    'description' => $field->description,
+                    'nullable' => $field->nullable,
+                    'writable' => $this->writable($field, $create, $update),
+                ], fn ($value) => $value !== null);
+            }
+        }
+
+        $description = [
+            ...$this->summary($resource, $operations),
+            'attributes' => $attributes,
+            'relationships' => $relationships,
+        ];
+
+        $index = $operations['index'] ?? null;
+
+        if ($index instanceof Endpoint\Index) {
+            $description['defaultSort'] = $index->defaultSort;
+            $description['pageLimit'] = ['default' => $index->limit, 'max' => $index->maxLimit];
+        }
+
+        return $description;
+    }
+
+    /**
+     * Filter keys for an index: those of the type's searcher, plus `q` when
+     * its search driver does full text.
+     *
+     * @return list<string>
+     */
+    public function filters(AbstractResource $resource): array
+    {
+        if (! $resource instanceof AbstractDatabaseResource) {
+            return $resource instanceof Listable
+                ? array_values(array_map(fn ($filter) => $filter->name, $resource->filters()))
+                : [];
+        }
+
+        /** @var SearchManager $search */
+        $search = $this->container->make(SearchManager::class);
+        $model = $resource->model();
+
+        if (! $search->searchable($model)) {
+            return [];
+        }
+
+        $default = $search->driver(DatabaseSearchDriver::name());
+        $searcher = $default->getSearchers()[$model] ?? null;
+        $keys = [];
+
+        foreach ((array) ($this->container->make('flarum.search.filters')[$searcher] ?? []) as $filterClass) {
+            try {
+                $filter = $this->container->make($filterClass);
+
+                if ($filter instanceof FilterInterface) {
+                    $keys[] = $filter->getFilterKey();
+                }
+            } catch (Throwable) {
+                // A filter that cannot be built is not one the model can use.
+            }
+        }
+
+        $driver = $search->driverFor($model);
+        $fulltext = $driver::name() === DatabaseSearchDriver::name()
+            ? isset($this->container->make('flarum.search.fulltext')[$searcher])
+            : $driver->supports($model);
+
+        if ($fulltext) {
+            array_unshift($keys, 'q');
+        }
+
+        return array_values(array_unique($keys));
+    }
+
+    /**
+     * Sort names, `-` for descending, plus the aliases a sort defines.
+     *
+     * @return list<string>
+     */
+    public function sorts(AbstractResource $resource): array
+    {
+        $sorts = [];
+
+        foreach ($resource->resolveSorts() as $sort) {
+            $sorts[] = $sort->name;
+            $sorts[] = '-'.$sort->name;
+
+            if ($sort instanceof SortColumn) {
+                foreach (array_keys($sort->sortMap()) as $alias) {
+                    $sorts[] = (string) $alias;
+                }
+            }
+        }
+
+        return array_values(array_unique($sorts));
+    }
+
+    protected function writeContext(AbstractResource $resource, ?Endpoint\Endpoint $endpoint, User $actor): ?Context
+    {
+        if (! $endpoint) {
+            return null;
+        }
+
+        $request = RequestUtil::withActor(new ServerRequest(), $actor);
+
+        $context = (new Context($this->api, $request))
+            ->withCollection($resource)
+            ->withResource($resource)
+            ->withEndpoint($endpoint);
+
+        if ($resource instanceof AbstractDatabaseResource) {
+            $context = $context->withModel($resource->newModel($context));
+        }
+
+        return $context;
+    }
+
+    /**
+     * Best effort for this actor: a rule that needs a real model to decide
+     * is reported as writable, and the field's own gate decides on the call.
+     *
+     * @return array{create: bool, update: bool}|null
+     */
+    protected function writable(Field $field, ?Context $create, ?Context $update): ?array
+    {
+        if (! $field->writable || (! $create && ! $update)) {
+            return null;
+        }
+
+        $check = function (?Context $context) use ($field): bool {
+            if (! $context) {
+                return false;
+            }
+
+            try {
+                return $field->isWritable($context->withField($field));
+            } catch (Throwable) {
+                return true;
+            }
+        };
+
+        return ['create' => $check($create), 'update' => $check($update)];
+    }
+}
