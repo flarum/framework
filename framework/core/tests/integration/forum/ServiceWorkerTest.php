@@ -82,8 +82,11 @@ class ServiceWorkerTest extends TestCase
 
         $this->assertStringContainsString('No connection - Acme Community</title>', $page);
         $this->assertStringContainsString('Acme Community can&#039;t be reached.', $page);
-        // It checks the forum can be reached again before loading the page.
-        $this->assertStringContainsString('fetch('.json_encode($this->offlinePath()), $page);
+        // It checks the forum can be reached again before loading the page,
+        // except at its own address, where that would load it forever.
+        $this->assertStringContainsString('var retryUrl = '.json_encode($this->offlinePath()).';', $page);
+        $this->assertStringContainsString('if (location.pathname === retryUrl) return;', $page);
+        $this->assertStringContainsString('fetch(retryUrl', $page);
     }
 
     #[Test]

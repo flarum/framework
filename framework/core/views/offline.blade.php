@@ -8,10 +8,16 @@
 
   <script>
     (function () {
+      var retryUrl = @json($retryUrl);
+
+      // Opened at its own address, the retry would succeed and load this
+      // page again, forever: it only retries in place of another page.
+      if (location.pathname === retryUrl) return;
+
       function retry() {
         if (navigator.onLine === false) return;
 
-        fetch(@json($retryUrl), { cache: 'no-store' }).then(function (response) {
+        fetch(retryUrl, { cache: 'no-store' }).then(function (response) {
           if (response.ok) location.reload();
         }, function () {});
       }
