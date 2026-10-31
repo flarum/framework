@@ -52,7 +52,11 @@ class Dialog extends AbstractModel
 
     public $timestamps = true;
 
-    public static array $types = ['direct'];
+    public const DIRECT = 'direct';
+
+    public const GROUP = 'group';
+
+    public static array $types = [self::DIRECT, self::GROUP];
 
     protected $guarded = [];
 
@@ -122,8 +126,21 @@ class Dialog extends AbstractModel
             ->whereRelation('users', 'user_id', $model->user_id)
             ->whereRelation('users', 'user_id', $otherUserId)
             ->firstOrCreate([
-                'type' => 'direct',
+                'type' => self::DIRECT,
             ]);
+    }
+
+    /**
+     * A new group conversation, with no members yet.
+     */
+    public static function startGroup(): self
+    {
+        return self::query()->create(['type' => self::GROUP]);
+    }
+
+    public function isGroup(): bool
+    {
+        return $this->type === self::GROUP;
     }
 
     public function recipient(?User $actor): ?User

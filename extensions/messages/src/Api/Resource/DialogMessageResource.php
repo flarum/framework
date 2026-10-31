@@ -181,7 +181,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ->requiredOnCreateWithout(['relationships.dialog'])
                 ->writableOnCreate()
                 ->hidden()
-                ->items(1)
+                ->rule('min:1')
                 ->set(fn () => null),
 
             // Read-only.
@@ -258,7 +258,10 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
             // The dialog and its members go in together, or not at all. Core's
             // create flow has no transaction of its own.
             $dialog = $this->db->transaction(function () use ($model, $users, $actor) {
-                $dialog = Dialog::for($model, $users);
+                // One recipient: the conversation the pair already have, if
+                // any. More: a group, new every time, as a group is about
+                // something and the same people may have several.
+                $dialog = count($users) === 1 ? Dialog::for($model, $users) : Dialog::startGroup();
 
                 // Only members not yet in the dialog are added: syncing them all
                 // would reset `joined_at` for the ones already there.
@@ -336,7 +339,8 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
     {
         $canMessageUsersWithoutPermission = MessagingPermission::canMessageUsersWithoutPermission($actor);
 
-        foreach (User::query()->whereIn('id', $userIds)->get() as $recipient) {
+        // With their groups: whether each can reply is read off them.
+        foreach (User::query()->with('groups')->whereIn('id', $userIds)->get() as $recipient) {
             if ($actor->cannot('message', $recipient)) {
                 throw new ValidationException([
                     'users' => $this->translator->trans('flarum-messages.lib.recipient_unavailable_message', ['username' => $recipient->display_name]),
