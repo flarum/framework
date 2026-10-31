@@ -123,3 +123,22 @@ describe('sending a new message', () => {
     expect(composer.data().users).toEqual([{ id: '2' }, { id: '3' }]);
   });
 });
+
+describe('the recipients shown above a message', () => {
+  it('stop at ten, then say how many more', () => {
+    const many = Array.from({ length: 12 }, (_, i) => {
+      app.store.pushPayload({ data: { type: 'users', id: String(900 + i), attributes: { username: 'member' + i } } } as any);
+
+      return user(String(900 + i));
+    });
+
+    const composer = new (MessageComposer as any)();
+    composer.attrs = { composer: app.composer, replyingTo: {} };
+    composer.recipients = Stream(many);
+
+    const header = mq(m('ul', composer.headerItems().toArray()));
+
+    header.should.have(10, '.MessageComposer-recipients-list .Avatar');
+    header.should.contain('+2');
+  });
+});

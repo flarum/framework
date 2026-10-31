@@ -59,7 +59,7 @@ export default class Dialog extends Model {
     return Model.attribute<boolean>('canSendMessage').call(this);
   }
 
-  /** More than two members: started with several recipients at once. */
+  /** Started with several recipients at once. Still a group once members have left, however few remain. */
   isGroup(): boolean {
     return this.type() === 'group';
   }

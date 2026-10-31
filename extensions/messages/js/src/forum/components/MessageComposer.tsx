@@ -27,6 +27,9 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
 
   static focusOnSelector = () => '.TextEditor-editor';
 
+  /** Recipients shown by avatar before the rest are counted, as a large group's would crowd the composer. */
+  static SHOWN_RECIPIENTS = 10;
+
   static initAttrs(attrs: IMessageComposerAttrs) {
     super.initAttrs(attrs);
 
@@ -83,13 +86,18 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
           <div className="MessageComposer-recipients-label">{app.translator.trans('flarum-messages.forum.composer.to')}</div>
         )}
         <ul className="MessageComposer-recipients-list">
-          {this.recipients().map((user) => (
-            <li>
-              <Tooltip text={user.username()}>
-                <Avatar user={user} />
-              </Tooltip>
-            </li>
-          ))}
+          {this.recipients()
+            .slice(0, MessageComposer.SHOWN_RECIPIENTS)
+            .map((user) => (
+              <li>
+                <Tooltip text={user.username()}>
+                  <Avatar user={user} />
+                </Tooltip>
+              </li>
+            ))}
+          {this.recipients().length > MessageComposer.SHOWN_RECIPIENTS && (
+            <li className="MessageComposer-recipients-more">+{this.recipients().length - MessageComposer.SHOWN_RECIPIENTS}</li>
+          )}
         </ul>
       </div>,
       100
