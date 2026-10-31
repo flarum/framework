@@ -120,6 +120,18 @@ class TransportTest extends McpTestCase
     }
 
     #[Test]
+    public function a_host_other_than_the_forum_is_refused(): void
+    {
+        $response = $this->send($this->mcpRequest(
+            ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'ping'],
+            [...$this->bearer($this->developerToken(2)), 'Host' => 'attacker.example']
+        ));
+
+        $this->assertSame(403, $response->getStatusCode());
+        $this->assertStringContainsString('Invalid Host', (string) $response->getBody());
+    }
+
+    #[Test]
     public function a_same_origin_browser_request_is_allowed(): void
     {
         $response = $this->send($this->mcpRequest(

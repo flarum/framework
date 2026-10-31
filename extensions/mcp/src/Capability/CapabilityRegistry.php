@@ -94,6 +94,16 @@ class CapabilityRegistry
     protected array $instructions = [];
 
     /**
+     * @var list<string>
+     */
+    protected array $allowedHosts = [];
+
+    /**
+     * @var list<string>
+     */
+    protected array $allowedOrigins = [];
+
+    /**
      * @param class-string<Tool> $class
      */
     public function addTool(string $class, ?string $extension): void
@@ -176,6 +186,38 @@ class CapabilityRegistry
     public function addAbility(string $ability, string $label): void
     {
         $this->abilities[$ability] = $label;
+    }
+
+    /**
+     * @param list<string> $hosts
+     */
+    public function allowHosts(array $hosts): void
+    {
+        $this->allowedHosts = array_values(array_unique([...$this->allowedHosts, ...$hosts]));
+    }
+
+    /**
+     * @param list<string> $origins
+     */
+    public function allowOrigins(array $origins): void
+    {
+        $this->allowedOrigins = array_values(array_unique([...$this->allowedOrigins, ...$origins]));
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function allowedHosts(): array
+    {
+        return $this->allowedHosts;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function allowedOrigins(): array
+    {
+        return $this->allowedOrigins;
     }
 
     public function addInstructions(string|callable $instructions, ?string $extension): void

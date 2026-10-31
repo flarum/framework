@@ -13,6 +13,7 @@ use Flarum\Forum\Branding\Branding;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Http\UrlGenerator;
+use Flarum\Mcp\Capability\CapabilityRegistry;
 use Flarum\Mcp\Capability\FailureReporter;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Prompt;
@@ -126,19 +127,22 @@ class ServerFactory
         $responseFactory = new ResponseFactory();
         $streamFactory = new StreamFactory();
 
+        $registry = $this->container->make(CapabilityRegistry::class);
         $host = parse_url($this->url->to('forum')->base(), PHP_URL_HOST) ?: 'localhost';
+        $origins = $registry->allowedOrigins();
 
         return new StreamableHttpTransport(
             request: $request,
             responseFactory: $responseFactory,
             streamFactory: $streamFactory,
             middleware: [
-                // No cross-origin browser client is trusted: only same-origin
-                // pages and non-browser clients get through.
-                new CorsMiddleware(allowedOrigins: []),
+                // Only same-origin pages, non-browser clients and the origins
+                // extensions allow get through; only the forum's host and the
+                // hosts extensions allow are answered.
+                new CorsMiddleware(allowedOrigins: $origins),
                 new DnsRebindingProtectionMiddleware(
-                    allowedHosts: [$host],
-                    allowedOrigins: [],
+                    allowedHosts: array_values(array_unique([$host, ...$registry->allowedHosts()])),
+                    allowedOrigins: $origins,
                     responseFactory: $responseFactory,
                     streamFactory: $streamFactory,
                 ),

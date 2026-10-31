@@ -204,6 +204,33 @@ class Mcp implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Accept /mcp requests whose `Host` header names one of these host names,
+     * besides the forum's own (for a forum reached under several names).
+     * Anything else is refused, against DNS rebinding.
+     *
+     * @param list<string> $hosts host names without port, e.g. `['forum.example.org']`
+     */
+    public function allowHosts(array $hosts): self
+    {
+        $this->operations[] = fn (CapabilityRegistry $registry) => $registry->allowHosts($hosts);
+
+        return $this;
+    }
+
+    /**
+     * Let browser pages on these origins call /mcp (CORS). By default only
+     * same-origin pages and non-browser clients can.
+     *
+     * @param list<string> $origins e.g. `['https://app.example.com']`
+     */
+    public function allowOrigins(array $origins): self
+    {
+        $this->operations[] = fn (CapabilityRegistry $registry) => $registry->allowOrigins($origins);
+
+        return $this;
+    }
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
         // The registry is bound here rather than in a service provider, so an

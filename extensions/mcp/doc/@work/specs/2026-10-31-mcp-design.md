@@ -393,7 +393,9 @@ one-line descriptions, then the guidance.
     ->hideEndpoint('polls', 'delete')
     ->endpointTool('polls', 'close', name: 'close_poll', title: 'Close a poll', description: '...')   // read-only iff the endpoint is a GET
     ->ability('polls.start', 'Start polls')
-    ->instructions('Use close_poll to end a poll early.');   // string or callable(McpContext): ?string
+    ->instructions('Use close_poll to end a poll early.')    // string or callable(McpContext): ?string
+    ->allowHosts(['forum.example.org'])         // Host names accepted besides the forum's own
+    ->allowOrigins(['https://app.example.com']); // browser origins allowed by CORS; default none
 ```
 
 - Extensions use it wrapped in `Extend\Conditional::whenExtensionEnabled('flarum-mcp', ...)`
