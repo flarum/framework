@@ -10,20 +10,11 @@
   }
 }
 
-.McpPage-url {
-  margin-bottom: 12px;
-
-  label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 4px;
-  }
-}
-
 .McpPage-urlRow {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
 
   code {
     flex: 1;
@@ -37,7 +28,6 @@
 
 .McpPage-subPath {
   display: block;
-  margin-top: 12px;
 
   pre {
     background: transparent;
@@ -46,14 +36,25 @@
 }
 
 .McpPage-clients {
+  margin: 0;
+
   dt {
     font-weight: bold;
     margin-top: 12px;
+
+    &:first-child {
+      margin-top: 0;
+    }
   }
 
   dd {
     margin: 4px 0 0;
   }
+}
+
+// The table needs more room than a column of fields.
+.SettingsSection.McpPage-capabilities {
+  --settings-section-body-max-width: none;
 }
 
 .McpCapabilities {

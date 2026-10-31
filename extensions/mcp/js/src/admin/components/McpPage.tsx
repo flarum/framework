@@ -1,9 +1,13 @@
 import app from 'flarum/admin/app';
 import ExtensionPage, { type ExtensionPageAttrs } from 'flarum/admin/components/ExtensionPage';
+import SettingsSection from 'flarum/admin/components/SettingsSection';
 import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
+import Form from 'flarum/common/components/Form';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Link from 'flarum/common/components/Link';
+import type { TabItem } from 'flarum/common/components/Tabs';
+import type ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
 
 export interface McpCapability {
@@ -61,14 +65,40 @@ export default class McpPage extends ExtensionPage {
     return this.baseUrl() + '/.well-known/oauth-protected-resource/mcp';
   }
 
-  content() {
+  className() {
+    return super.className() + ' McpPage';
+  }
+
+  /**
+   * Connecting first, then what the server offers, then core's Permissions tab.
+   */
+  pageTabItems(): ItemList<TabItem> {
+    const items = super.pageTabItems();
+
+    items.add('connect', { id: 'connect', label: app.translator.trans('flarum-mcp.admin.tabs.connect'), icon: 'fas fa-plug' }, 100);
+    items.add('capabilities', { id: 'capabilities', label: app.translator.trans('flarum-mcp.admin.tabs.capabilities'), icon: 'fas fa-toolbox' }, 90);
+
+    return items;
+  }
+
+  pageTabContent(tab: string, vnode: Mithril.VnodeDOM<ExtensionPageAttrs, this>): Mithril.Children {
+    switch (tab) {
+      case 'connect':
+        return this.sectionList([this.serverSection(), this.connectSection()]);
+      case 'capabilities':
+        return this.sectionList(this.capabilitiesSection());
+      default:
+        return super.pageTabContent(tab, vnode);
+    }
+  }
+
+  /**
+   * Lays sections out like a sectioned settings form, without save controls.
+   */
+  sectionList(sections: Mithril.Children): Mithril.Children {
     return (
-      <div className="ExtensionPage-settings McpPage">
-        <div className="container">
-          {this.serverSection()}
-          {this.connectSection()}
-          {this.capabilitiesSection()}
-        </div>
+      <div className="ExtensionPage-settings">
+        <Form className="AdminPage-settingsForm AdminPage-settingsForm--sectioned">{sections}</Form>
       </div>
     );
   }
@@ -77,21 +107,23 @@ export default class McpPage extends ExtensionPage {
     const basePath = app.forum.attribute<string>('basePath');
 
     return (
-      <div className="Form-group">
-        <h3>{app.translator.trans('flarum-mcp.admin.page.server_heading')}</h3>
-        <p className="helpText">{app.translator.trans('flarum-mcp.admin.page.server_help')}</p>
-
+      <SettingsSection
+        id="flarum-mcp-section-server"
+        icon="fas fa-server"
+        label={app.translator.trans('flarum-mcp.admin.sections.server.label')}
+        description={app.translator.trans('flarum-mcp.admin.sections.server.description')}
+      >
         {this.urlField(app.translator.trans('flarum-mcp.admin.page.server_url_label'), this.serverUrl())}
         {this.urlField(app.translator.trans('flarum-mcp.admin.page.metadata_url_label'), this.metadataUrl())}
 
         {basePath ? this.subPathWarning(basePath) : null}
-      </div>
+      </SettingsSection>
     );
   }
 
   urlField(label: Mithril.Children, url: string): Mithril.Children {
     return (
-      <div className="McpPage-url">
+      <div className="Form-group">
         <label>{label}</label>
         <div className="McpPage-urlRow">
           <code>{url}</code>
@@ -149,10 +181,12 @@ export default class McpPage extends ExtensionPage {
     );
 
     return (
-      <div className="Form-group">
-        <h3>{app.translator.trans('flarum-mcp.admin.page.connect_heading')}</h3>
-        <p className="helpText">{app.translator.trans('flarum-mcp.admin.page.connect_help')}</p>
-
+      <SettingsSection
+        id="flarum-mcp-section-connect"
+        icon="fas fa-robot"
+        label={app.translator.trans('flarum-mcp.admin.sections.connect.label')}
+        description={app.translator.trans('flarum-mcp.admin.sections.connect.description')}
+      >
         <dl className="McpPage-clients">
           <dt>{app.translator.trans('flarum-mcp.admin.page.claude_title')}</dt>
           <dd>{app.translator.trans('flarum-mcp.admin.page.claude_steps')}</dd>
@@ -175,7 +209,7 @@ export default class McpPage extends ExtensionPage {
             <pre>{token}</pre>
           </dd>
         </dl>
-      </div>
+      </SettingsSection>
     );
   }
 
@@ -203,11 +237,15 @@ export default class McpPage extends ExtensionPage {
     }
 
     return (
-      <div className="Form-group">
-        <h3>{app.translator.trans('flarum-mcp.admin.page.capabilities_heading')}</h3>
-        <p className="helpText">{app.translator.trans('flarum-mcp.admin.page.capabilities_help')}</p>
+      <SettingsSection
+        id="flarum-mcp-section-capabilities"
+        className="McpPage-capabilities"
+        icon="fas fa-toolbox"
+        label={app.translator.trans('flarum-mcp.admin.sections.capabilities.label')}
+        description={app.translator.trans('flarum-mcp.admin.sections.capabilities.description')}
+      >
         {body}
-      </div>
+      </SettingsSection>
     );
   }
 
