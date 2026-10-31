@@ -47,6 +47,11 @@ class DescribeApiTool extends GenericTool
             .'With "type": the full description of that type (attribute schemas, writability, relationships, filters, sorts, paging).';
     }
 
+    public function readOnly(): bool
+    {
+        return true;
+    }
+
     public function isAvailableFor(User $actor): bool
     {
         return true;

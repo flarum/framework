@@ -36,6 +36,11 @@ class ListResourcesTool extends GenericTool
             .'Call describe_api first to learn the filters and sorts a type supports.';
     }
 
+    public function readOnly(): bool
+    {
+        return true;
+    }
+
     public function inputSchema(): array
     {
         return [

@@ -12,16 +12,10 @@ namespace Flarum\Mcp\Tool;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Tool;
 use Flarum\Notification\Command\ReadAllNotifications;
-use Illuminate\Contracts\Bus\Dispatcher;
 
 class MarkNotificationsReadTool extends Tool
 {
     public const int MAX_IDS = 50;
-
-    public function __construct(
-        protected Dispatcher $bus,
-    ) {
-    }
 
     public function name(): string
     {
@@ -63,10 +57,10 @@ class MarkNotificationsReadTool extends Tool
         $ids = array_map('strval', (array) ($arguments['ids'] ?? []));
 
         if (! $ids) {
-            $context->actor->assertRegistered();
-
-            // "Read all" is a plain controller, not a JSON:API endpoint; this is the command it runs.
-            $this->bus->dispatch(new ReadAllNotifications($context->actor));
+            // "Read all" is a plain controller (POST /api/notifications/read), not a
+            // JSON:API endpoint; this is the command it runs, through the API client
+            // so the write rule applies.
+            $context->api->dispatch(new ReadAllNotifications($context->actor));
 
             return ['marked' => 'all'];
         }

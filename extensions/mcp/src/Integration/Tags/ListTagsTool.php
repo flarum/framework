@@ -37,6 +37,11 @@ class ListTagsTool extends Tool
             .'and whether you can start discussions in it.';
     }
 
+    public function readOnly(): bool
+    {
+        return true;
+    }
+
     public function inputSchema(): array
     {
         return ['type' => 'object', 'properties' => new \stdClass()];

@@ -88,6 +88,24 @@ class WritesTest extends McpTestCase
     }
 
     #[Test]
+    public function the_generic_create_resource_tool_is_throttled_too(): void
+    {
+        $auth = $this->bearer($this->developerToken(2));
+        $reply = fn (string $content) => $this->callTool('create_resource', [
+            'type' => 'posts',
+            'attributes' => ['content' => $content],
+            'relationships' => ['discussion' => '1'],
+        ], $auth);
+
+        $this->assertSame('One', strip_tags((string) $this->toolOutput($reply('One'))['data']['contentHtml']));
+
+        $error = $this->toolOutput($reply('Two'), expectError: true);
+
+        $this->assertSame('You are doing that too often; wait before trying again.', $error['error']);
+        $this->assertSame(2, $this->database()->table('posts')->count());
+    }
+
+    #[Test]
     public function replying_to_an_invisible_discussion_does_not_reveal_it(): void
     {
         $error = $this->toolOutput($this->callTool('reply_to_discussion', ['discussionId' => '999', 'content' => 'Hello'], $this->bearer($this->developerToken(2))), expectError: true);

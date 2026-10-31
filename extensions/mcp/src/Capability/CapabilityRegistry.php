@@ -79,7 +79,7 @@ class CapabilityRegistry
     protected array $hiddenEndpoints = [];
 
     /**
-     * @var list<array{type: string, endpoint: string, name: string, title: string, description: string, readOnly: bool, extension: ?string}>
+     * @var list<array{type: string, endpoint: string, name: string, title: string, description: string, extension: ?string}>
      */
     protected array $endpointTools = [];
 
@@ -168,9 +168,9 @@ class CapabilityRegistry
         $this->hiddenEndpoints[$type][$endpoint] = true;
     }
 
-    public function addEndpointTool(string $type, string $endpoint, string $name, string $title, string $description, bool $readOnly, ?string $extension): void
+    public function addEndpointTool(string $type, string $endpoint, string $name, string $title, string $description, ?string $extension): void
     {
-        $this->endpointTools[] = compact('type', 'endpoint', 'name', 'title', 'description', 'readOnly', 'extension');
+        $this->endpointTools[] = compact('type', 'endpoint', 'name', 'title', 'description', 'extension');
     }
 
     public function addAbility(string $ability, string $label): void
@@ -259,7 +259,7 @@ class CapabilityRegistry
     }
 
     /**
-     * @return list<array{type: string, endpoint: string, name: string, title: string, description: string, readOnly: bool, extension: ?string}>
+     * @return list<array{type: string, endpoint: string, name: string, title: string, description: string, extension: ?string}>
      */
     public function endpointTools(): array
     {

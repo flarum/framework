@@ -122,6 +122,9 @@ Scope enforcement:
     Write tools always need a registered user.
   - For a token without `mcp:write`, it answers HTTP 403
     `WWW-Authenticate: Bearer error="insufficient_scope", scope="mcp:read mcp:write", resource_metadata=...`.
+- `ApiClient` enforces it again at the data layer, whatever a tool declares: every
+  non-GET call (and every command it dispatches) needs `mcp:write` and a registered
+  actor, or it raises a `ToolError`. The middleware check is the user-facing answer.
 - This check happens in the middleware: it peeks at the JSON-RPC body (`method` /
   `params.name`; a batch is checked per message) before handing the unchanged body to
   the transport. The SDK's `ScopePolicy` is not used, because it requires a token for
@@ -143,7 +146,7 @@ abstract class Tool
     abstract public function description(): string;
     abstract public function inputSchema(): array;       // JSON Schema object
     public function outputSchema(): ?array { return null; }
-    public function readOnly(): bool { return true; }
+    public function readOnly(): bool { return false; }   // read tools declare true
     public function destructive(): bool { return false; } // ignored when readOnly
     public function idempotent(): bool { return $this->readOnly(); }
     public function openWorld(): bool { return false; }
@@ -388,7 +391,7 @@ one-line descriptions, then the guidance.
     ->allowWrites('polls', ['create', 'update', 'delete'])
     ->hide('poll-votes')                        // hide a type from the generic tools
     ->hideEndpoint('polls', 'delete')
-    ->endpointTool('polls', 'close', name: 'close_poll', title: 'Close a poll', description: '...', readOnly: false)
+    ->endpointTool('polls', 'close', name: 'close_poll', title: 'Close a poll', description: '...')   // read-only iff the endpoint is a GET
     ->ability('polls.start', 'Start polls')
     ->instructions('Use close_poll to end a poll early.');   // string or callable(McpContext): ?string
 ```

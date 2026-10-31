@@ -49,7 +49,6 @@ class CapabilityResolver
                 'toolName' => $entry['name'],
                 'toolTitle' => $entry['title'],
                 'toolDescription' => $entry['description'],
-                'isReadOnly' => $entry['readOnly'],
             ]));
 
             if ($tool instanceof Tool) {

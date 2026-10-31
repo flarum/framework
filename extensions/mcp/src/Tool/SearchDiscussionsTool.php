@@ -47,6 +47,11 @@ class SearchDiscussionsTool extends Tool
             .'Returns each discussion\'s ID, title, URL, author, dates, reply count and, when available, an excerpt. Use read_discussion to read one.';
     }
 
+    public function readOnly(): bool
+    {
+        return true;
+    }
+
     public function inputSchema(): array
     {
         return [

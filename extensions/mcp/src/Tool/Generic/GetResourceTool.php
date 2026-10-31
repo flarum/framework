@@ -33,6 +33,11 @@ class GetResourceTool extends GenericTool
         return 'Fetch one resource of a JSON:API type by ID, optionally with included relationships.';
     }
 
+    public function readOnly(): bool
+    {
+        return true;
+    }
+
     public function inputSchema(): array
     {
         return [

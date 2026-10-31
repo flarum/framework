@@ -33,6 +33,11 @@ class ListNotificationsTool extends Tool
         return 'Your recent notifications, unread first: what happened, who did it, and what it is about.';
     }
 
+    public function readOnly(): bool
+    {
+        return true;
+    }
+
     public function isAvailableFor(User $actor): bool
     {
         return ! $actor->isGuest();

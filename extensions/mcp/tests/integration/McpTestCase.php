@@ -105,6 +105,47 @@ abstract class McpTestCase extends TestCase
     }
 
     /**
+     * Runs the handshake-era `initialize` and returns the session ID.
+     *
+     * @param array<string, string> $headers
+     */
+    protected function initializeSession(array $headers = []): string
+    {
+        $response = $this->send($this->mcpRequest([
+            'jsonrpc' => '2.0',
+            'id' => $this->nextId++,
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => self::HANDSHAKE,
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'flarum-tests', 'version' => '1.0.0'],
+            ],
+        ], $headers));
+
+        $this->rpcResult($response);
+        $session = $response->getHeaderLine('Mcp-Session-Id');
+        $this->assertNotSame('', $session);
+
+        return $session;
+    }
+
+    /**
+     * A handshake-era request inside a session.
+     *
+     * @param array<string, mixed> $params
+     * @param array<string, string> $headers
+     */
+    protected function inSession(string $session, string $method, array $params = [], array $headers = []): ResponseInterface
+    {
+        return $this->send($this->mcpRequest([
+            'jsonrpc' => '2.0',
+            'id' => $this->nextId++,
+            'method' => $method,
+            'params' => $params ?: new \stdClass(),
+        ], [...$headers, 'Mcp-Session-Id' => $session, 'MCP-Protocol-Version' => self::HANDSHAKE]));
+    }
+
+    /**
      * The `result` of a successful JSON-RPC response.
      *
      * @return array<string, mixed>

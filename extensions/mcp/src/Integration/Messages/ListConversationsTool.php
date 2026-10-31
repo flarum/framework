@@ -34,6 +34,11 @@ class ListConversationsTool extends Tool
         return 'Your private conversations, latest activity first: who they are with, unread count and the latest message. Use read_conversation to read one.';
     }
 
+    public function readOnly(): bool
+    {
+        return true;
+    }
+
     public function isAvailableFor(User $actor): bool
     {
         return ! $actor->isGuest();

@@ -153,9 +153,10 @@ class Mcp implements ExtenderInterface
     }
 
     /**
-     * Expose a custom (non-CRUD) JSON:API endpoint as a tool.
+     * Expose a custom (non-CRUD) JSON:API endpoint as a tool. It is read-only
+     * when the endpoint is a GET, and a write otherwise.
      */
-    public function endpointTool(string $type, string $endpoint, string $name, string $title, string $description, bool $readOnly = false): self
+    public function endpointTool(string $type, string $endpoint, string $name, string $title, string $description): self
     {
         $this->operations[] = fn (CapabilityRegistry $registry, ?string $extension) => $registry->addEndpointTool(
             $type,
@@ -163,7 +164,6 @@ class Mcp implements ExtenderInterface
             $name,
             $title,
             $description,
-            $readOnly,
             $extension
         );
 

@@ -19,7 +19,8 @@ use Tobyz\JsonApiServer\Exception\ResourceNotFoundException;
 
 /**
  * A tool over one custom JSON:API endpoint, registered with
- * `Extend\Mcp::endpointTool()`.
+ * `Extend\Mcp::endpointTool()`. Whether it writes follows the endpoint's
+ * HTTP method.
  */
 class EndpointTool extends Tool
 {
@@ -30,7 +31,6 @@ class EndpointTool extends Tool
         protected string $toolName,
         protected string $toolTitle,
         protected string $toolDescription,
-        protected bool $isReadOnly,
     ) {
     }
 
@@ -49,9 +49,13 @@ class EndpointTool extends Tool
         return $this->toolDescription;
     }
 
+    /**
+     * Taken from the endpoint itself: only a GET reads. An endpoint that is
+     * gone counts as a write, so it is never offered to a read-only token.
+     */
     public function readOnly(): bool
     {
-        return $this->isReadOnly;
+        return strtoupper($this->definition()->method ?? '') === 'GET';
     }
 
     public function inputSchema(): array

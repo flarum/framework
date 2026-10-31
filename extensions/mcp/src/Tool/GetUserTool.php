@@ -36,6 +36,11 @@ class GetUserTool extends Tool
         return 'Look up a member by username or ID: display name, groups, join date, activity counts and any other profile fields you may see.';
     }
 
+    public function readOnly(): bool
+    {
+        return true;
+    }
+
     public function inputSchema(): array
     {
         return [

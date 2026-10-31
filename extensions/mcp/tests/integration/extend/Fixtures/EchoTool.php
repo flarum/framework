@@ -30,6 +30,11 @@ class EchoTool extends Tool
         return 'Repeats what you say.';
     }
 
+    public function readOnly(): bool
+    {
+        return true;
+    }
+
     public function inputSchema(): array
     {
         return ['type' => 'object', 'properties' => ['text' => ['type' => 'string']], 'required' => ['text']];

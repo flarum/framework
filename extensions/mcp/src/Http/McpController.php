@@ -79,7 +79,7 @@ class McpController implements RequestHandlerInterface
         $context = new McpContext(
             actor: $actor,
             scopes: $authentication->scopes,
-            api: new ApiClient($this->api, $this->container, $actor, $request),
+            api: new ApiClient($this->api, $this->container, $actor, $authentication->scopes, $request),
             url: $this->url,
             translator: $this->translator,
             settings: $this->settings,

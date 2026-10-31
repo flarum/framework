@@ -55,9 +55,15 @@ abstract class Tool
         return null;
     }
 
+    /**
+     * Whether the tool only reads. False unless a tool says otherwise, so a tool
+     * that forgets to declare it is challenged for write access. This is only
+     * the advertised behaviour: {@see \Flarum\Mcp\Api\ApiClient} refuses every
+     * write without the `mcp:write` scope whatever the tool declares.
+     */
     public function readOnly(): bool
     {
-        return true;
+        return false;
     }
 
     /**

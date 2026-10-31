@@ -14,14 +14,17 @@ use Flarum\Api\JsonApi;
 use Flarum\Api\Middleware\ThrottleApi;
 use Flarum\Api\Resource\AbstractResource;
 use Flarum\Http\RequestUtil;
+use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Exception\ToolError;
 use Flarum\Post\Exception\FloodingException;
 use Flarum\User\User;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tobyz\JsonApiServer\Exception\ResourceNotFoundException;
 
 /**
@@ -32,6 +35,9 @@ use Tobyz\JsonApiServer\Exception\ResourceNotFoundException;
  * visibility scope, validation and events all run exactly as they do over
  * HTTP. `process()` is never used: it skips the gates and the lookup. Every
  * `flarum.api.throttlers` entry runs first, and throttling is never bypassed.
+ *
+ * It is also where the `mcp:write` scope is enforced: whatever a tool declares
+ * about itself, no write reaches the forum without it.
  */
 class ApiClient
 {
@@ -40,12 +46,41 @@ class ApiClient
      */
     public const array QUERY_KEYS = ['filter', 'sort', 'page', 'include', 'fields'];
 
+    /**
+     * @param list<string> $scopes the MCP scopes of the request
+     */
     public function __construct(
         protected JsonApi $api,
         protected Container $container,
         protected User $actor,
+        protected array $scopes,
         protected ?ServerRequestInterface $parent = null,
     ) {
+    }
+
+    /**
+     * Run a command bus command that changes the forum, for the rare write
+     * that has no JSON:API endpoint. The same write rule applies.
+     */
+    public function dispatch(object $command): mixed
+    {
+        $this->assertCanWrite();
+
+        return $this->container->make(Dispatcher::class)->dispatch($command);
+    }
+
+    /**
+     * @throws ToolError unless the request may change the forum
+     */
+    public function assertCanWrite(): void
+    {
+        if ($this->actor->isGuest()) {
+            throw new ToolError($this->container->make(TranslatorInterface::class)->trans('flarum-mcp.api.requires_sign_in'));
+        }
+
+        if (! in_array(McpContext::SCOPE_WRITE, $this->scopes, true)) {
+            throw new ToolError($this->container->make(TranslatorInterface::class)->trans('flarum-mcp.api.requires_write_scope'));
+        }
     }
 
     /**
@@ -134,6 +169,10 @@ class ApiClient
 
         if ($reserved) {
             throw new InvalidArgumentException('Unsupported JSON:API query parameter(s): '.implode(', ', $reserved));
+        }
+
+        if (strtoupper($method) !== 'GET') {
+            $this->assertCanWrite();
         }
 
         $routeName = $resource->type().'.'.$endpoint->name;

@@ -39,6 +39,11 @@ class ReadConversationTool extends Tool
             .'use the offset from paging.older to go further back.';
     }
 
+    public function readOnly(): bool
+    {
+        return true;
+    }
+
     public function isAvailableFor(User $actor): bool
     {
         return ! $actor->isGuest();

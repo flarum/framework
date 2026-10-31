@@ -35,6 +35,11 @@ class WhoamiTool extends Tool
         return 'Who you are acting as on this forum: username, display name, groups, what you are allowed to do, and whether you may make changes.';
     }
 
+    public function readOnly(): bool
+    {
+        return true;
+    }
+
     public function inputSchema(): array
     {
         return ['type' => 'object', 'properties' => new \stdClass()];

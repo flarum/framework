@@ -36,6 +36,11 @@ class ReadDiscussionTool extends Tool
             .'Use "near" with a post number to jump, and the paging hints in the result to continue.';
     }
 
+    public function readOnly(): bool
+    {
+        return true;
+    }
+
     public function inputSchema(): array
     {
         return [
