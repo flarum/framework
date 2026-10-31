@@ -19,7 +19,9 @@ class ServiceWorker implements ExtenderInterface
     /**
      * Adds a script to the forum's service worker, for example to show push
      * notifications. A browser keeps only one service worker for the forum,
-     * so core and every extension share it.
+     * so core and every extension share it. An extension that registers a
+     * worker of its own at the forum's scope is replaced by core's whenever
+     * core's is on, so it should add its script here instead.
      *
      * The script runs after core's, in a function of its own, so it can't be a
      * module. Core's answers page loads, to show an offline page when they
