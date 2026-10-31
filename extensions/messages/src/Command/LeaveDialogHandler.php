@@ -34,6 +34,10 @@ class LeaveDialogHandler
         // What they wrote stays for the others. A group nobody is left in
         // goes, with its messages: there is no one left to read them.
         $this->db->transaction(function () use ($dialog, $actor) {
+            // Locked first: two members leaving at once would otherwise each
+            // still see the other, and neither take the emptied group away.
+            Dialog::query()->whereKey($dialog->id)->lockForUpdate()->first();
+
             $dialog->users()->detach($actor->id);
 
             if ($dialog->users()->doesntExist()) {

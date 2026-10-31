@@ -52,6 +52,9 @@ class SendMessageNotificationsJob extends AbstractJob
             ->filter(fn (User $user) => ! $this->message->user || $this->message->user->can('message', $user))
             ->all();
 
-        $notifications->sync(new MessageReceivedBlueprint($this->message), $users);
+        $notifications->sync(
+            new MessageReceivedBlueprint($this->message, MessageReceivedBlueprint::countAlsoSentTo($this->message)),
+            $users
+        );
     }
 }

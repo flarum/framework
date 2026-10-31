@@ -148,6 +148,21 @@ class GroupSendTest extends TestCase
         $this->assertEquals(['alice sent a message to you and 2 others'], $subjects);
     }
 
+    #[Test]
+    public function the_email_reads_as_a_direct_one_once_a_group_is_down_to_two(): void
+    {
+        // Carol and dave have left.
+        $this->database()->table('dialog_user')->where('dialog_id', 80)->whereIn('user_id', [5, 6])->delete();
+
+        $this->captureSentMail();
+
+        $this->reply(3);
+
+        $subjects = array_map(fn (Email $email) => $email->getSubject(), array_values(array_filter($this->sent->getArrayCopy(), fn ($message) => $message instanceof Email)));
+
+        $this->assertEquals(['alice sent you a message'], $subjects);
+    }
+
     protected function captureSentMail(): void
     {
         $this->sent = $sent = new \ArrayObject();
