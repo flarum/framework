@@ -10,7 +10,7 @@ type Gesture = {
   phase: 'tracking' | 'pulling';
 };
 
-export default function pullToRefresh() {
+export default function pullToRefresh(reload: () => void = () => window.location.reload()) {
   if (document.querySelector('.PullToRefresh')) return;
 
   const host = document.createElement('div');
@@ -189,7 +189,7 @@ export default function pullToRefresh() {
       cancelFrame();
       host.style.setProperty('--pull-distance', String(REFRESH_THRESHOLD));
       host.dataset.state = 'refreshing';
-      window.setTimeout(() => window.location.reload(), 200);
+      window.setTimeout(reload, 200);
     } else {
       reset();
     }
