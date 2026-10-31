@@ -59,9 +59,20 @@ export default class Dialog extends Model {
     return Model.attribute<boolean>('canSendMessage').call(this);
   }
 
+  /** More than two members: started with several recipients at once. */
+  isGroup(): boolean {
+    return this.type() === 'group';
+  }
+
+  /** In a direct conversation, the other member. In a group, the first of them; see recipients(). */
   recipient() {
     let users = this.users();
 
     return !users ? null : users.find((user) => user && user.id() !== app.session.user!.id());
+  }
+
+  /** Every member but the viewer, once the members are known. */
+  recipients(): User[] {
+    return (this.users() || []).filter((user) => user && user.id() !== app.session.user?.id()) as User[];
   }
 }
