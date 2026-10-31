@@ -246,4 +246,26 @@ class IdTokenTest extends TestCase
         $this->assertArrayHasKey('iat', $claims);
         $this->assertGreaterThanOrEqual($beforeLogin - 2, $claims['iat']);
     }
+
+    #[Test]
+    public function nonce_lands_on_the_token_just_issued_not_the_newest_one(): void
+    {
+        $code = $this->getAuthCode('openid', 'n-0S6_WzA2Mj');
+
+        // Another token of the same user and client that sorts as newer.
+        $this->database()->table('oauth_provider_access_tokens')->insert([
+            'id' => 'other-token',
+            'client_id' => 'test-client',
+            'user_id' => 2,
+            'scopes' => json_encode(['openid']),
+            'revoked' => 0,
+            'expires_at' => Carbon::now()->addHours(2)->toDateTimeString(),
+            'created_at' => Carbon::now()->addHour()->toDateTimeString(),
+        ]);
+
+        $tokens = $this->exchange($code);
+
+        $this->assertSame('n-0S6_WzA2Mj', $this->decodeJwtPayload($tokens['id_token'])['nonce'] ?? null);
+        $this->assertNull($this->database()->table('oauth_provider_access_tokens')->where('id', 'other-token')->value('nonce'));
+    }
 }

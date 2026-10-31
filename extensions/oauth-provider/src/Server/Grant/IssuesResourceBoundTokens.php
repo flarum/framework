@@ -36,6 +36,11 @@ trait IssuesResourceBoundTokens
      */
     protected ?string $tokenResource = null;
 
+    /**
+     * Identifier of the access token this grant persisted most recently.
+     */
+    protected ?string $issuedAccessTokenId = null;
+
     public function setResourceRegistry(ResourceRegistry $resources): void
     {
         $this->resources = $resources;
@@ -68,6 +73,7 @@ trait IssuesResourceBoundTokens
 
             try {
                 $this->accessTokenRepository->persistNewAccessToken($accessToken);
+                $this->issuedAccessTokenId = $accessToken->getIdentifier();
 
                 return $accessToken;
             } catch (UniqueTokenIdentifierConstraintViolationException $e) {

@@ -9,6 +9,7 @@
 
 namespace Flarum\OAuthProvider\Server\Grant;
 
+use Carbon\Carbon;
 use DateInterval;
 use DateTimeImmutable;
 use Flarum\OAuthProvider\Models\AccessToken as AccessTokenModel;
@@ -37,8 +38,8 @@ use Psr\Http\Message\ServerRequestInterface;
  * - Authorize: the controller reads `nonce` from the query and stores it on
  *   the auth code row *after* the parent grant has created the row.
  * - Token exchange: the parent grant creates a new access token; we then copy
- *   nonce + auth_time from the auth code row onto the access token row, keyed
- *   by the auth_code_id we extract from the decrypted code payload.
+ *   nonce + auth_time from the auth code row (found by the auth_code_id in the
+ *   decrypted code payload) onto the row of the token that was just issued.
  * - ID token: the response type reads nonce + auth_time from the access token
  *   row when building claims.
  *
@@ -175,31 +176,24 @@ class OidcAuthCodeGrant extends AuthCodeGrant
 
         try {
             $response = parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
+            $issuedId = $this->issuedAccessTokenId;
         } finally {
             $this->tokenResource = null;
+            $this->issuedAccessTokenId = null;
         }
 
         // After the parent has successfully minted an access token, copy
-        // nonce + auth_time from the exchanged auth code onto it.
-        if ($authCode === null) {
+        // nonce + auth_time from the exchanged auth code onto exactly that token.
+        if ($authCode === null || $issuedId === null) {
             return $response;
         }
 
-        // The access token that was just persisted. There should be exactly
-        // one non-revoked access token freshly issued for this user/client in
-        // the last moment — find the newest one.
-        /** @var AccessTokenModel|null $accessToken */
-        $accessToken = AccessTokenModel::query()
-            ->where('user_id', $authCode->user_id)
-            ->where('client_id', $authCode->client_id)
-            ->orderByDesc('created_at')
-            ->first();
-
-        if ($accessToken !== null) {
-            $accessToken->nonce = $authCode->nonce;
-            $accessToken->auth_time = $authCode->auth_time ?? new DateTimeImmutable();
-            $accessToken->save();
-        }
+        AccessTokenModel::query()
+            ->whereKey($issuedId)
+            ->update([
+                'nonce' => $authCode->nonce,
+                'auth_time' => $authCode->auth_time ?? Carbon::now(),
+            ]);
 
         return $response;
     }

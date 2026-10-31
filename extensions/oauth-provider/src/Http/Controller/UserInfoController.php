@@ -9,6 +9,7 @@
 
 namespace Flarum\OAuthProvider\Http\Controller;
 
+use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Server\AuthorizationServerFactory;
 use Flarum\User\UserRepository;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -31,6 +32,14 @@ class UserInfoController implements RequestHandlerInterface
 
         try {
             $request = $resourceServer->validateAuthenticatedRequest($request);
+
+            // UserInfo is part of OpenID Connect: tokens issued for another
+            // resource (RFC 8707) are not meant for it.
+            $resource = AccessToken::query()->whereKey($request->getAttribute('oauth_access_token_id'))->value('resource');
+
+            if ($resource !== null) {
+                throw OAuthServerException::accessDenied('This access token is bound to another resource.');
+            }
         } catch (OAuthServerException $exception) {
             return $exception->generateHttpResponse(new \Laminas\Diactoros\Response());
         }
