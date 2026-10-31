@@ -30,12 +30,20 @@ flarum-oauth-provider:
       revoked_label: "Revoked (reject all new auth requests)"
       save_button: "Save"
 
+    sections:
+      registration:
+        label: "Client registration"
+        description: "Lets applications connect without being added by hand. With Dynamic Client Registration (RFC 7591) they register themselves; with a Client ID Metadata Document they identify themselves by a URL that describes them. MCP clients such as Claude and ChatGPT rely on these to connect."
+
     settings:
-      heading: "Client registration"
       allow_dynamic_registration_label: "Allow dynamic client registration"
-      allow_dynamic_registration_help: "Lets applications such as MCP clients register themselves at /oauth/register (RFC 7591). Self-registered clients are always public and must use PKCE. Clients identified by a metadata document URL are accepted either way."
+      allow_dynamic_registration_help: "Lets applications register themselves at /oauth/register. Self-registered clients are always public and must use PKCE. Clients identified by a metadata document URL are accepted either way."
       source_metadata_document: "Metadata document"
       source_dynamic: "Self-registered"
+
+    tabs:
+      clients: "Clients"
+      settings: "Settings"
 
     secret_modal:
       title: "Client created"

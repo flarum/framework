@@ -2,6 +2,8 @@ import app from 'flarum/admin/app';
 import ExtensionPage, { type ExtensionPageAttrs } from 'flarum/admin/components/ExtensionPage';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import type { TabItem } from 'flarum/common/components/Tabs';
+import type ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
 
 import OAuthClient from '../models/OAuthClient';
@@ -36,44 +38,51 @@ export default class OAuthClientsPage extends ExtensionPage {
       });
   }
 
+  /**
+   * The Clients tab first, then the registered Settings tab, then core's Permissions tab.
+   */
+  pageTabItems(): ItemList<TabItem> {
+    const items = super.pageTabItems();
+
+    items.add('clients', { id: 'clients', label: app.translator.trans('flarum-oauth-provider.admin.tabs.clients'), icon: 'fas fa-plug' }, 100);
+
+    return items;
+  }
+
+  pageTabContent(tab: string, vnode: Mithril.VnodeDOM<ExtensionPageAttrs, this>): Mithril.Children {
+    if (tab === 'clients') return this.content();
+
+    return super.pageTabContent(tab, vnode);
+  }
+
+  /**
+   * The registered clients and the button to add one, shown on the Clients tab.
+   */
   content() {
     return (
-      <div className="ExtensionPage-settings">
-        <div className="container">
-          <div className="Form-group">
-            <h3>{app.translator.trans('flarum-oauth-provider.admin.clients.heading')}</h3>
-            <p className="helpText">{app.translator.trans('flarum-oauth-provider.admin.clients.help')}</p>
+      <div className="OAuthClientsPage-clients">
+        <div className="Form-group">
+          <h3>{app.translator.trans('flarum-oauth-provider.admin.clients.heading')}</h3>
+          <p className="helpText">{app.translator.trans('flarum-oauth-provider.admin.clients.help')}</p>
 
-            <Button
-              className="Button Button--primary"
-              icon="fas fa-plus"
-              onclick={() => {
-                app.modal.show(loadClientFormModal, {
-                  onSaved: (client: OAuthClient, plainSecret: string | null) => this.onCreated(client, plainSecret),
-                });
-              }}
-            >
-              {app.translator.trans('flarum-oauth-provider.admin.clients.new_button')}
-            </Button>
-          </div>
-
-          <div className="Form-group">
-            <h3>{app.translator.trans('flarum-oauth-provider.admin.settings.heading')}</h3>
-            {this.buildSettingComponent({
-              type: 'boolean',
-              setting: 'flarum-oauth-provider.allow_dynamic_registration',
-              label: app.translator.trans('flarum-oauth-provider.admin.settings.allow_dynamic_registration_label'),
-              help: app.translator.trans('flarum-oauth-provider.admin.settings.allow_dynamic_registration_help'),
-            })}
-            {this.submitButton()}
-          </div>
-
-          {this.loading ? (
-            <LoadingIndicator />
-          ) : (
-            <div className="Form-group">{this.clients.length === 0 ? this.emptyState() : this.clientsTable()}</div>
-          )}
+          <Button
+            className="Button Button--primary"
+            icon="fas fa-plus"
+            onclick={() => {
+              app.modal.show(loadClientFormModal, {
+                onSaved: (client: OAuthClient, plainSecret: string | null) => this.onCreated(client, plainSecret),
+              });
+            }}
+          >
+            {app.translator.trans('flarum-oauth-provider.admin.clients.new_button')}
+          </Button>
         </div>
+
+        {this.loading ? (
+          <LoadingIndicator />
+        ) : (
+          <div className="Form-group">{this.clients.length === 0 ? this.emptyState() : this.clientsTable()}</div>
+        )}
       </div>
     );
   }
