@@ -298,6 +298,31 @@ class AuthorizeEndpointTest extends TestCase
     }
 
     #[Test]
+    public function prompt_none_returns_login_required_without_redirecting_to_login(): void
+    {
+        $response = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'none']));
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertStringStartsWith('https://testapp.example.com/callback', $response->getHeaderLine('Location'));
+        $this->assertStringContainsString('error=login_required', $response->getHeaderLine('Location'));
+        $this->assertStringNotContainsString('oauth_login=1', $response->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function prompt_none_returns_interaction_required_when_consent_is_needed(): void
+    {
+        $loginResponse = $this->loginNormalUser();
+
+        $response = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'none'], [
+            'cookiesFrom' => $loginResponse,
+        ]));
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertStringStartsWith('https://testapp.example.com/callback', $response->getHeaderLine('Location'));
+        $this->assertStringContainsString('error=interaction_required', $response->getHeaderLine('Location'));
+    }
+
+    #[Test]
     public function second_approval_merges_scopes_into_existing_consent(): void
     {
         $loginResponse = $this->loginNormalUser();

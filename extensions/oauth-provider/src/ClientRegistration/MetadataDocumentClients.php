@@ -12,6 +12,7 @@ namespace Flarum\OAuthProvider\ClientRegistration;
 use Carbon\Carbon;
 use Flarum\Foundation\Config;
 use Flarum\OAuthProvider\Models\Client;
+use Flarum\OAuthProvider\Scope\ScopeRegistry;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
@@ -74,6 +75,7 @@ class MetadataDocumentClients
         protected Config $config,
         protected Cache $cache,
         protected RegistrationRateLimiter $limiter,
+        protected ScopeRegistry $scopes,
         protected LoggerInterface $logger,
     ) {
     }
@@ -200,6 +202,7 @@ class MetadataDocumentClients
         return [
             'name' => $name,
             'redirect_uris' => ClientMetadata::redirectUris($document['redirect_uris'] ?? null),
+            'scopes' => ClientMetadata::scopes($document['scope'] ?? null, $this->scopes),
             'logo_uri' => ClientMetadata::optionalUrl($document['logo_uri'] ?? null),
             'client_uri' => ClientMetadata::optionalUrl($document['client_uri'] ?? null),
         ];

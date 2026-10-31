@@ -342,6 +342,18 @@ class ClientMetadataDocumentTest extends TestCase
     }
 
     #[Test]
+    public function metadata_document_client_is_limited_to_its_registered_scopes(): void
+    {
+        $this->http->append($this->document(['scope' => 'openid']));
+
+        $this->assertSame(200, $this->authorizeClient()->getStatusCode());
+
+        /** @var Client $client */
+        $client = Client::query()->findOrFail(self::CLIENT_ID);
+        $this->assertSame(['openid'], $client->scopes);
+    }
+
+    #[Test]
     public function expired_metadata_is_refetched(): void
     {
         $this->http->append($this->document(), $this->document(['client_name' => 'Renamed Client']));

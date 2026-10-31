@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider\ClientRegistration;
 
 use Flarum\OAuthProvider\Server\RedirectUriMatcher;
+use Flarum\OAuthProvider\Scope\ScopeRegistry;
 
 /**
  * Validation rules shared by metadata-document and dynamically registered clients.
@@ -76,6 +77,35 @@ class ClientMetadata
         return $parts !== false && strtolower($parts['scheme'] ?? '') === 'https' && ! empty($parts['host'])
             ? $value
             : null;
+    }
+
+    /**
+     * @return list<string>|null Null when the client registered no restriction.
+     * @throws ClientMetadataException
+     */
+    public static function scopes(mixed $value, ScopeRegistry $registry): ?array
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (! is_string($value)) {
+            throw new ClientMetadataException('scope must be a space-separated string.');
+        }
+
+        $scopes = array_values(array_unique(array_filter(explode(' ', $value), fn (string $scope) => $scope !== '')));
+
+        if ($scopes === []) {
+            return null;
+        }
+
+        $unknown = array_values(array_filter($scopes, fn (string $scope) => ! $registry->has($scope)));
+
+        if ($unknown !== []) {
+            throw new ClientMetadataException('Unknown scope: '.implode(' ', $unknown).'.');
+        }
+
+        return $scopes;
     }
 
     /**

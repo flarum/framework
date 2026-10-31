@@ -79,6 +79,8 @@ class AuthorizeController implements RequestHandlerInterface
         $prompt = $queryParams['prompt'] ?? null;
         $nonce = $queryParams['nonce'] ?? null;
         $maxAge = isset($queryParams['max_age']) ? (int) $queryParams['max_age'] : null;
+        $prompts = is_string($prompt) ? preg_split('/\s+/', trim($prompt), -1, PREG_SPLIT_NO_EMPTY) : [];
+        $promptNone = in_array('none', $prompts, true);
 
         $authTime = $this->sessionAuthTime($request);
 
@@ -86,10 +88,14 @@ class AuthorizeController implements RequestHandlerInterface
         // we can't determine when they last authenticated), force re-auth even
         // if they're currently logged in. prompt=login has the same effect.
         $needsReAuth = $actor->isGuest()
-            || $prompt === 'login'
+            || in_array('login', $prompts, true)
             || ($maxAge !== null && ($authTime === null || (Carbon::now()->getTimestamp() - $authTime->getTimestamp()) >= $maxAge));
 
         if ($needsReAuth) {
+            if ($promptNone) {
+                return $this->authorizationError($authRequest, 'login_required', 'The user needs to authenticate.');
+            }
+
             $base = $this->url->to('forum')->base();
 
             // Build the return-to as a path+query on the configured forum URL so
@@ -123,8 +129,12 @@ class AuthorizeController implements RequestHandlerInterface
 
         // Previously-granted consent still covers this request — skip the prompt
         // unless the client explicitly asked for re-consent via prompt=consent.
-        if ($prompt !== 'consent' && $this->hasExistingConsent((int) $actor->id, $clientId, $requestedScopes)) {
+        if (! in_array('consent', $prompts, true) && $this->hasExistingConsent((int) $actor->id, $clientId, $requestedScopes)) {
             return $this->completeAuthorization($authRequest, $server, $actor->id, true, $nonce, $authTime);
+        }
+
+        if ($promptNone) {
+            return $this->authorizationError($authRequest, 'interaction_required', 'The user needs to grant consent.');
         }
 
         $scopeDescriptions = [];
@@ -193,6 +203,22 @@ class AuthorizeController implements RequestHandlerInterface
         $host = parse_url($redirectUri, PHP_URL_HOST);
 
         return is_string($host) && $host !== '' ? $host : null;
+    }
+
+    /**
+     * Returns an OIDC interaction error to a previously validated redirect URI.
+     */
+    protected function authorizationError(AuthorizationRequest $authRequest, string $error, string $description): ResponseInterface
+    {
+        $redirectUri = $authRequest->getRedirectUri() ?? (array) $authRequest->getClient()->getRedirectUri();
+        $redirectUri = is_array($redirectUri) ? (string) reset($redirectUri) : $redirectUri;
+        $params = ['error' => $error, 'error_description' => $description];
+
+        if ($authRequest->getState() !== null) {
+            $params['state'] = $authRequest->getState();
+        }
+
+        return $this->withIssuer(new RedirectResponse($redirectUri.(str_contains($redirectUri, '?') ? '&' : '?').http_build_query($params)));
     }
 
     /**

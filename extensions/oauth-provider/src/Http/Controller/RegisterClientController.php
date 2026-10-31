@@ -96,7 +96,7 @@ class RegisterClientController implements RequestHandlerInterface
 
         $redirectUris = ClientMetadata::redirectUris($metadata['redirect_uris'] ?? null);
         $clientUri = ClientMetadata::optionalUrl($metadata['client_uri'] ?? null);
-        $scopes = $this->registeredScopes($metadata['scope'] ?? null);
+        $scopes = ClientMetadata::scopes($metadata['scope'] ?? null, $this->scopes);
 
         $client = new Client();
         $client->forceFill([
@@ -135,37 +135,6 @@ class RegisterClientController implements RequestHandlerInterface
         if (! is_array($value) || array_diff(Arr::flatten($value), $supported) !== []) {
             throw new ClientMetadataException("Unsupported $key; supported values: ".implode(', ', $supported).'.');
         }
-    }
-
-    /**
-     * The scopes a client registers are the only ones it can later be granted.
-     *
-     * @return list<string>|null Null when the client registered none.
-     * @throws ClientMetadataException
-     */
-    protected function registeredScopes(mixed $scope): ?array
-    {
-        if ($scope === null) {
-            return null;
-        }
-
-        if (! is_string($scope)) {
-            throw new ClientMetadataException('scope must be a space-separated string.');
-        }
-
-        $scopes = array_values(array_unique(array_filter(explode(' ', $scope), fn (string $s) => $s !== '')));
-
-        if ($scopes === []) {
-            return null;
-        }
-
-        $unknown = array_values(array_filter($scopes, fn (string $s) => ! $this->scopes->has($s)));
-
-        if ($unknown !== []) {
-            throw new ClientMetadataException('Unknown scope: '.implode(' ', $unknown).'.');
-        }
-
-        return $scopes;
     }
 
     protected function error(string $error, string $description, int $status = 400): JsonResponse
