@@ -11,3 +11,7 @@ tests/.phpunit.result.cache
 .idea/*
 .vscode
 js/coverage-ts
+
+# Built in CI; never committed from a branch.
+js/dist
+js/dist-typings

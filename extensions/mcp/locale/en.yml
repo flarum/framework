@@ -5,6 +5,42 @@ flarum-mcp:
 
   # Translations in this namespace are used by the admin interface.
   admin:
+    page:
+      access_destructive: Write, destructive
+      access_read: Read
+      access_write: Write
+      capabilities_failed: The list could not be loaded.
+      capabilities_heading: What assistants can use
+      capabilities_help: "Everything the server offers, as an administrator sees it. Each member sees only what they are allowed to use, and every action runs with their own permissions."
+      chatgpt_steps: "In ChatGPT's settings, open Connectors (developer mode must be on), create a connector, paste the server URL and choose OAuth. ChatGPT then asks you to sign in to the forum."
+      chatgpt_title: ChatGPT
+      claude_steps: "In Claude, open Settings > Connectors, choose Add custom connector and paste the server URL. Claude then asks you to sign in to the forum."
+      claude_title: Claude
+      column_access: Access
+      column_kind: Kind
+      column_name: Name
+      column_source: Added by
+      connect_heading: Connecting an assistant
+      connect_help: "Members connect their own assistants. Each one signs in with the member's forum account and acts with exactly that member's permissions."
+      copied: Copied to the clipboard.
+      copy_button: Copy
+      copy_failed: Could not copy to the clipboard.
+      kind_prompt: Prompt
+      kind_resource: Resource
+      kind_template: Resource template
+      kind_tool: Tool
+      metadata_url_label: Resource metadata URL
+      server_heading: MCP server
+      server_help: "Assistants that support the Model Context Protocol (MCP) connect to this URL. Who may connect is set by the Connect AI assistants permission below: grant it to Guests to allow access without signing in."
+      server_url_label: Server URL
+      sub_path_apache: "With Apache, in the .htaccess file at the root of the website:"
+      sub_path_nginx: "With nginx, in the server block:"
+      sub_path_warning: "This forum is installed under {path}, so it cannot answer at the root of {origin}, where assistants look for the documents that tell them how to sign in. Forward these two addresses to the forum:"
+      token_steps: "Other clients, such as Cursor or your own scripts, can use a developer token instead of signing in. Create one on your <a>Security page</a> and send it in the {header} header."
+      token_title: Cursor and other clients
+      vscode_steps: "Add the server to {file} in your project (or to your user configuration). VS Code asks you to sign in to the forum when it first connects."
+      vscode_title: VS Code
+
     permissions:
       heading: MCP
       use_label: Connect AI assistants (MCP)

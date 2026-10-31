@@ -1,0 +1,82 @@
+.McpPage {
+  pre {
+    background: var(--control-bg);
+    border-radius: var(--border-radius);
+    padding: 10px 15px;
+    margin: 8px 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 12px;
+  }
+}
+
+.McpPage-url {
+  margin-bottom: 12px;
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+}
+
+.McpPage-urlRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  code {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    background: var(--control-bg);
+    border-radius: var(--border-radius);
+    word-break: break-all;
+  }
+}
+
+.McpPage-subPath {
+  display: block;
+  margin-top: 12px;
+
+  pre {
+    background: transparent;
+    padding: 0;
+  }
+}
+
+.McpPage-clients {
+  dt {
+    font-weight: bold;
+    margin-top: 12px;
+  }
+
+  dd {
+    margin: 4px 0 0;
+  }
+}
+
+.McpCapabilities {
+  .Table();
+  width: 100%;
+
+  thead th {
+    text-align: start;
+    padding: 10px 15px;
+  }
+
+  td {
+    vertical-align: top;
+  }
+}
+
+.McpCapabilities-title {
+  color: var(--muted-color);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.McpCapabilities-write {
+  font-weight: bold;
+  color: var(--alert-error-color, var(--control-color));
+}

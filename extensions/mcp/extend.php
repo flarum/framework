@@ -18,7 +18,13 @@ use Flarum\OAuthProvider\Extend\Resource as OAuthResource;
 use Flarum\OAuthProvider\Extend\Scope;
 
 return [
+    (new Extend\Frontend('admin'))
+        ->js(__DIR__.'/js/dist/admin.js')
+        ->css(__DIR__.'/less/admin.less'),
+
     new Extend\Locales(__DIR__.'/locale'),
+
+    new Extend\ApiResource(Api\Resource\CapabilityResource::class),
 
     (new Extend\Routes('forum'))
         ->post('/mcp', 'mcp', Http\McpController::class)
@@ -68,6 +74,7 @@ return [
         ->hide('mail-settings')
         ->hide('extension-readmes')
         ->hide('system-info')
+        ->hide('mcp-capabilities')
 
         ->allowWrites('discussions', ['create', 'update', 'delete'])
         ->allowWrites('posts', ['create', 'update', 'delete'])
