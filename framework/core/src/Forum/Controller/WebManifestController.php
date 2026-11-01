@@ -30,7 +30,8 @@ class WebManifestController implements RequestHandlerInterface
     {
         return new JsonResponse($this->manifest->build(), 200, [
             'Content-Type' => 'application/manifest+json',
-            'Cache-Control' => 'public, max-age=3600',
+            // Not public: the forum adds the visitor's session cookie.
+            'Cache-Control' => 'private, max-age=3600',
         ], JsonResponse::DEFAULT_JSON_FLAGS | JSON_UNESCAPED_SLASHES);
     }
 }
