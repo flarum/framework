@@ -305,7 +305,8 @@ Exposure rules:
   by default (core): `access-tokens`, `mail-settings`, `extension-readmes`,
   `system-info`, plus anything the extender hides.
 - Read operations (`index`, `show`) are exposed for every exposed type that has the
-  endpoint.
+  endpoint, except the `notifications` index: it marks the actor's notifications seen,
+  so it is hidden (`hideEndpoint`) and `list_notifications` reads them instead.
 - Write operations (`create`, `update`, `delete`) are exposed only when allow-listed:
   - Core allows `discussions`, `posts`, `users` (update only), `groups` and
     `notifications` (update only).
@@ -331,7 +332,7 @@ Exposure rules:
 | `read_discussion` | tool | yes | `id`, `near` (post number), `limit` ≤ 50. Returns discussion metadata plus comment posts (number, id, author, createdAt, editedAt, plain-text content, url) and paging hints. Event posts are rendered as one-line summaries. |
 | `get_user` | tool | yes | `username` or `id`. Profile fields visible to the actor. |
 | `whoami` | tool | yes | The actor's username, display name, groups, and a list of what they can do (see the overview). |
-| `list_notifications` | tool | yes | Requires sign-in. Unread first, limit ≤ 50. |
+| `list_notifications` | tool | yes | Requires sign-in. Unread first, limit ≤ 50. Reads through core's `NotificationRepository` (the grouping and subject visibility of the Index endpoint), not the Index endpoint, which marks the actor's notifications seen; listing changes nothing. |
 | `start_discussion` | tool | no | `title`, `content` (Markdown / BBCode as the forum supports), plus integration args (`tags`). |
 | `reply_to_discussion` | tool | no | `discussionId`, `content`. |
 | `edit_post` | tool | no | `postId`, `content`. |

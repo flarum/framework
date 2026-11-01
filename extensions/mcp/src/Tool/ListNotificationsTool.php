@@ -9,14 +9,30 @@
 
 namespace Flarum\Mcp\Tool;
 
+use DateTimeInterface;
+use Flarum\Api\JsonApi;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Tool;
-use Flarum\Mcp\Tool\Support\Document;
+use Flarum\Notification\NotificationRepository;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
+/**
+ * Reads notifications without marking them seen. The `notifications` Index
+ * endpoint cannot be used: it sets the actor's `read_notifications_at` (the
+ * forum's "seen" badge) before listing, so this reads through the repository
+ * that endpoint's searcher uses, with the same grouping and subject visibility,
+ * and shapes each notification as the API serialises it.
+ */
 class ListNotificationsTool extends Tool
 {
     public const int MAX_LIMIT = 50;
+
+    public function __construct(
+        protected NotificationRepository $notifications,
+        protected JsonApi $api,
+    ) {
+    }
 
     public function name(): string
     {
@@ -55,25 +71,30 @@ class ListNotificationsTool extends Tool
 
     public function handle(array $arguments, McpContext $context): mixed
     {
-        $document = Document::from($context->api->index('notifications', [
-            'page' => ['limit' => max(1, min(static::MAX_LIMIT, (int) ($arguments['limit'] ?? 20)))],
-            'include' => 'fromUser',
-        ]));
+        $actor = $context->actor;
+        $limit = max(1, min(static::MAX_LIMIT, (int) ($arguments['limit'] ?? 20)));
+
+        $models = $this->notifications->findByUser($actor, $limit);
+
+        // As the API's eager load does, only senders the actor may see.
+        $models->load(['fromUser' => fn (Relation $query) => $query->whereVisibleTo($actor)]);
 
         $notifications = [];
-        foreach ($document->many() as $notification) {
+        foreach ($models as $notification) {
+            $subjectType = $notification->subjectModel ? $this->api->typeForModel($notification->subjectModel) : null;
+
             $notifications[] = array_filter([
-                'id' => (string) $notification['id'],
-                'type' => Document::attribute($notification, 'contentType'),
-                'isRead' => (bool) Document::attribute($notification, 'isRead'),
-                'createdAt' => Document::attribute($notification, 'createdAt'),
-                'from' => $document->username($notification, 'fromUser'),
-                'subject' => Document::related($notification, 'subject'),
-                'content' => Document::attribute($notification, 'content'),
+                'id' => (string) $notification->id,
+                'type' => $notification->type,
+                'isRead' => (bool) $notification->read_at,
+                'createdAt' => $notification->created_at?->format(DateTimeInterface::RFC3339),
+                'from' => $notification->fromUser?->username,
+                'subject' => $subjectType && $notification->subject_id ? ['type' => $subjectType, 'id' => (string) $notification->subject_id] : null,
+                'content' => $notification->data,
             ], fn ($value) => $value !== null);
         }
 
-        // Stable: within each group the API's newest-first order is kept.
+        // Stable: within each group the newest-first order is kept.
         usort($notifications, fn (array $a, array $b) => $a['isRead'] <=> $b['isRead']);
 
         return ['data' => $notifications];

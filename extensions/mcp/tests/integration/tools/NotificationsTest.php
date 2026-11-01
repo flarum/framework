@@ -11,12 +11,15 @@ namespace Flarum\Mcp\Tests\integration\tools;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Mcp\Tests\integration\IssuesOAuthTokens;
 use Flarum\Mcp\Tests\integration\McpTestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
 class NotificationsTest extends McpTestCase
 {
+    use IssuesOAuthTokens;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -69,5 +72,71 @@ class NotificationsTest extends McpTestCase
         $this->assertSame(['marked' => 'all'], $this->toolOutput($this->callTool('mark_notifications_read', [], $auth)));
         $this->assertSame(0, $this->database()->table('notifications')->where('user_id', 2)->whereNull('read_at')->count());
         $this->assertNull($this->database()->table('notifications')->where('id', 4)->value('read_at'));
+    }
+
+    #[Test]
+    public function listing_notifications_marks_nothing_seen_or_read(): void
+    {
+        $this->setUpOAuth();
+        $auth = $this->bearer($this->issueOAuthToken('mcp:read'));
+
+        $this->assertSame(2, $this->counts()['new']);
+
+        $list = $this->toolOutput($this->callTool('list_notifications', [], $auth));
+        $this->assertSame(['3', '1', '2'], array_column($list['data'], 'id'));
+
+        $this->assertNotificationsUntouched();
+    }
+
+    #[Test]
+    public function notifications_about_what_the_actor_cannot_see_are_left_out(): void
+    {
+        $this->prepareDatabase([
+            Discussion::class => [
+                ['id' => 4, 'title' => 'Hidden', 'user_id' => 1, 'comment_count' => 1, 'hidden_at' => Carbon::now()],
+            ],
+            'notifications' => [
+                ['id' => 5, 'user_id' => 2, 'type' => 'discussionRenamed', 'subject_id' => 4, 'from_user_id' => 1, 'read_at' => null, 'created_at' => Carbon::now()],
+            ],
+        ]);
+
+        $list = $this->toolOutput($this->callTool('list_notifications', [], $this->bearer($this->developerToken(2))));
+
+        $this->assertSame(['3', '1', '2'], array_column($list['data'], 'id'));
+    }
+
+    #[Test]
+    public function the_generic_tools_cannot_list_notifications(): void
+    {
+        $this->setUpOAuth();
+        $auth = $this->bearer($this->issueOAuthToken('mcp:read'));
+
+        $tools = array_column($this->rpcResult($this->modern('tools/list', [], $auth))['tools'], null, 'name');
+        $this->assertNotContains('notifications', $tools['list_resources']['inputSchema']['properties']['type']['enum']);
+
+        $response = $this->json($this->callTool('list_resources', ['type' => 'notifications'], $auth));
+        $this->assertArrayNotHasKey('result', $response, (string) json_encode($response));
+
+        // Reading one still works: Show has no side effect.
+        $this->assertSame('1', $this->toolOutput($this->callTool('get_resource', ['type' => 'notifications', 'id' => '1'], $auth))['data']['id']);
+
+        $this->assertNotificationsUntouched();
+    }
+
+    protected function assertNotificationsUntouched(): void
+    {
+        $this->assertNull($this->database()->table('users')->where('id', 2)->value('read_notifications_at'));
+        $this->assertSame(['new' => 2, 'unread' => 2], $this->counts());
+        $this->assertSame(2, $this->database()->table('notifications')->where('user_id', 2)->whereNull('read_at')->count());
+    }
+
+    /**
+     * @return array{new: int, unread: int}
+     */
+    protected function counts(): array
+    {
+        $user = User::query()->findOrFail(2);
+
+        return ['new' => $user->getNewNotificationCount(), 'unread' => $user->getUnreadNotificationCount()];
     }
 }
