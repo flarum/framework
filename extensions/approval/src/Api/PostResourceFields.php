@@ -19,6 +19,7 @@ class PostResourceFields
     {
         return [
             Schema\Boolean::make('isApproved')
+                ->description('Whether the post has been approved. Set to true to approve it, if you may approve posts.')
                 ->writable(fn (Post $post, Context $context) => $context->getActor()->can('approve', $post))
                 // set by the ApproveContent listener.
                 ->set(fn () => null),

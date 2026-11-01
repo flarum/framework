@@ -45,9 +45,20 @@ flarum-tags:
       restrict_by_tag_heading: Restrict by Tag
       tag_discussions_label: Tag discussions
 
+    # These translations are used for the sections on the Tags page's Settings tab.
+    sections:
+      requirements:
+        label: Tag requirements
+        description: How many tags each new discussion needs. Members with the Bypass tag requirements permission can post with any number.
+
     # These translations are used in the Tags custom settings component.
     settings:
       button_text: => flarum-tags.ref.choose_tags
+
+    # These translations are used for the tabs on the Tags page.
+    tabs:
+      settings: => flarum-tags.admin.tags.settings_heading
+      tags: => flarum-tags.ref.tags
 
     # These translations are used in the Tag Settings modal dialog.
     tag_settings:

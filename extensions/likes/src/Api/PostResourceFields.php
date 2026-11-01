@@ -25,6 +25,7 @@ class PostResourceFields
     {
         return [
             Schema\Boolean::make('isLiked')
+                ->description('Write-only: set to true to like the post as you, false to unlike it.')
                 ->visible(false)
                 ->writable(fn (Post $post, Context $context) => $context->getActor()->can('like', $post))
                 ->set(function (Post $post, bool $liked, Context $context) {
@@ -46,9 +47,11 @@ class PostResourceFields
             Schema\Boolean::make('canLike')
                 ->get(fn (Post $post, Context $context) => $context->getActor()->can('like', $post)),
             Schema\Integer::make('likesCount')
+                ->description('Number of users who liked the post.')
                 ->countRelation('likes'),
 
             Schema\Relationship\ToMany::make('likes')
+                ->description('Some of the users who liked the post, you first when you did.')
                 ->type('users')
                 ->includable()
                 ->scope(function (BelongsToMany $query, Context $context) {

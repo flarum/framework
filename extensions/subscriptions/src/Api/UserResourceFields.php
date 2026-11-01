@@ -19,6 +19,7 @@ class UserResourceFields
     {
         return [
             Schema\Str::make('subscription')
+                ->description('Your subscription: follow (notified of replies), ignore (hidden from lists, no notifications) or null. Writable on update.')
                 ->writable(fn (Discussion $discussion, Context $context) => $context->updating())
                 ->nullable()
                 ->get(fn (Discussion $discussion) => $discussion->state?->subscription)

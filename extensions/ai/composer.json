@@ -1,0 +1,98 @@
+{
+    "name": "flarum/ai",
+    "description": "The foundation other extensions build AI features on: provider connections, guardrails and the Laravel AI SDK.",
+    "type": "flarum-extension",
+    "keywords": [
+        "ai"
+    ],
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/flarum/framework/issues",
+        "source": "https://github.com/flarum/ai",
+        "forum": "https://discuss.flarum.org",
+        "docs": "https://docs.flarum.org/extensions/ai"
+    },
+    "homepage": "https://flarum.org",
+    "funding": [
+        {
+            "type": "website",
+            "url": "https://flarum.org/donate/"
+        }
+    ],
+    "require": {
+        "flarum/core": "^2.1",
+        "illuminate/http": "^13.0",
+        "laravel/ai": "~1.1.0",
+        "symfony/uid": "^7.4 || ^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Ai\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Flarum\\Ai\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "2.x-dev"
+        },
+        "flarum-extension": {
+            "title": "AI",
+            "category": "feature",
+            "icon": {
+                "image": "icon.svg",
+                "backgroundSize": "cover",
+                "backgroundColor": "#0b0820",
+                "boxShadow": "0 0 0 1px rgba(167, 139, 250, .55), 0 0 14px rgba(139, 92, 246, .6)"
+            }
+        },
+        "flarum-cli": {
+            "modules": {
+                "admin": true,
+                "forum": false,
+                "js": true,
+                "jsCommon": false,
+                "css": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": true,
+                "bundlewatch": false,
+                "backendTesting": true,
+                "editorConfig": true,
+                "styleci": true
+            }
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:unit:filter": "phpunit -c tests/phpunit.unit.xml --filter",
+        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:integration:filter": "phpunit -c tests/phpunit.integration.xml --filter",
+        "test:setup": "@php tests/integration/setup.php"
+    },
+    "scripts-descriptions": {
+        "test": "Runs all tests.",
+        "test:unit": "Runs all unit tests.",
+        "test:integration": "Runs all integration tests.",
+        "test:setup": "Sets up a database for use with integration tests. Execute this only once."
+    },
+    "require-dev": {
+        "flarum/testing": "^2.1"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../*/*"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

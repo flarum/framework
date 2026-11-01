@@ -170,6 +170,13 @@ core:
       logo_text: Upload an image to be displayed in place of the forum title.
       logo_dark_mode_heading: Dark mode logo
       logo_dark_mode_text: Upload an alternate logo to be displayed when dark mode is enabled.
+      sections:
+        custom_code:
+          description: Add your own HTML and CSS to every page of the forum.
+          label: Custom Code
+        logos:
+          description: The images that identify your forum in the header, browser tabs, emails and home screens.
+          label: Logos & Icons
       show_theme_selector_help: Let users switch between the available color schemes from a control in the header.
       show_theme_selector_label: Show theme selector
       title: Appearance
@@ -201,6 +208,25 @@ core:
       forum_title_heading: Forum Title
       home_page_heading: Home Page
       home_page_text: Choose the page which users will first see when they visit your forum.
+      sections:
+        extensions:
+          description: Keep track of extensions their authors no longer maintain.
+          label: Extensions
+        forum:
+          description: How your forum is named and described to visitors and search engines.
+          label: Forum
+        home:
+          description: What visitors see when they first arrive.
+          label: Home Page
+        language:
+          description: The language your forum is shown in.
+          label: Language
+        members:
+          description: How members are named and pictured across the forum.
+          label: Members
+        urls:
+          description: How links to discussions and profiles are written.
+          label: Links
       show_language_selector_label: Show language selector
       slug_driver_options:
         discussions:
@@ -406,6 +432,10 @@ core:
       postmark_heading: Postmark Settings
       postmark_description: "Send email via Postmark's HTTP API. Optionally specify a message stream to use a non-default stream."
       not_sending_message: Flarum currently does not send emails. This can be due to the selected driver, or errors in its configuration.
+      sections:
+        sending:
+          description: Who your forum's emails come from, and how they are sent.
+          label: Sending
       send_test_mail_button: Send
       send_test_mail_heading: Send Test Mail
       send_test_mail_success: "Test mail sent successfully!"
@@ -425,6 +455,7 @@ core:
       disabled: Disabled
       enable_to_see: Enable the extension to view and change settings.
       enabled: Enabled
+      general_tab: General
       info_links:
         discuss: Discuss
         documentation: Documentation
@@ -434,6 +465,7 @@ core:
         website: Website
       no_permissions: This extension has no permissions.
       no_settings: This extension has no settings.
+      no_settings_or_permissions: This extension has no settings or permissions.
       open_modal: Open Settings
       permissions_title: Permissions
       purge_button: Purge
@@ -450,6 +482,7 @@ core:
         title: Reset Settings
         title_extension: "Reset {extensionTitle} Settings"
       safe_mode_warning: Safe mode is currently enabled. Extensions are not booted and their settings are therefore inaccessible.
+      unsaved_changes: Unsaved changes
 
     # These translations are used in the secondary header.
     header:

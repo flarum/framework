@@ -16,6 +16,10 @@ flarum-akismet:
       delete_blatant_spam_help: If Akismet has determined that the comment is blatant spam, instead of flagging, automatically delete post
     permissions:
       bypass_akismet: Bypass Akismet
+    sections:
+      spam_filtering:
+        description: Connect your Akismet account and choose what happens to posts it marks as spam.
+        label: Spam filtering
 
   # Translations in this namespace are used by the forum user interface.
   forum:

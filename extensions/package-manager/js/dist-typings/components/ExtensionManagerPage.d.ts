@@ -1,7 +1,8 @@
 import type { Installed, HistoryEntry, HostReport, Run, RunMode, Updates } from '../types';
 import ExtensionPage, { type ExtensionPageAttrs } from 'flarum/admin/components/ExtensionPage';
+import ItemList from 'flarum/common/utils/ItemList';
+import type { TabItem } from 'flarum/common/components/Tabs';
 import type Mithril from 'mithril';
-type Tab = 'installed' | 'history' | 'discover' | 'sources' | 'host';
 type CheckAge = 'fresh' | 'recent' | 'overdue';
 export interface ExtensionManagerPageAttrs extends ExtensionPageAttrs {
     /** The dashboard's update banner links here with ?tab=installed. */
@@ -19,7 +20,6 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     installed: Installed[];
     updates: Updates;
     checking: boolean;
-    tab: Tab;
     history: HistoryEntry[];
     run: Run | null;
     driver: string | null;
@@ -54,13 +54,23 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     /** A timer that outlives its page fires into whatever the admin opened next. */
     onremove(vnode: Mithril.VnodeDOM<ExtensionManagerPageAttrs, this>): void;
     load(): void;
-    content(): JSX.Element;
-    /** The page's tabs, in order, with the number of updates waiting on Installed. */
-    tabItems(): {
-        id: Tab;
-        label: Mithril.Children;
-        badge: number;
-    }[];
+    /**
+     * The page around the tabs: the first load, a load that failed, and the run
+     * panel. While a run is live the panel is the ONLY thing on screen and the
+     * tab bar goes away. A grid of Update buttons beside a running update
+     * invites somebody to start a second one, and the honest answer to the
+     * second press is a refusal — better not to offer it.
+     */
+    pageTabs(vnode: Mithril.VnodeDOM<ExtensionManagerPageAttrs, this>, tabs: TabItem[]): Mithril.Children;
+    /**
+     * The page's tabs, with the number of updates waiting on Installed.
+     *
+     * Finding extensions is what most people open this page for (ClaudiusH,
+     * 2026-10-09), so Discover comes first and is shown by default. The
+     * dashboard's update banner links here with ?tab=installed.
+     */
+    pageTabItems(): ItemList<TabItem>;
+    pageTabContent(tab: string, vnode: Mithril.VnodeDOM<ExtensionManagerPageAttrs, this>): Mithril.Children;
     /**
      * A FINISHED run keeps its panel until somebody dismisses it. The screen
      * returning to normal on its own would throw away the log at the exact moment

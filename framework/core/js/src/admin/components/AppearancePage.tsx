@@ -8,7 +8,7 @@ import AdminPage from './AdminPage';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';
 import Form from '../../common/components/Form';
-import FieldSet from '../../common/components/FieldSet';
+import SettingsSection from './SettingsSection';
 import ThemeMode from '../../common/components/ThemeMode';
 import AppIconPreview from './AppIconPreview';
 import FaviconPreview from './FaviconPreview';
@@ -32,19 +32,42 @@ export default class AppearancePage extends AdminPage {
 
     items.add(
       'colors',
-      <Form>
-        <FieldSet
+      <Form className="AdminPage-settingsForm--sectioned">
+        <SettingsSection
           className="AppearancePage-colors"
+          id="appearance-colors"
+          icon="fas fa-palette"
           label={app.translator.trans('core.admin.appearance.colors_heading')}
           description={app.translator.trans('core.admin.appearance.colors_text')}
         >
           {this.colorItems().toArray()}
-        </FieldSet>
+        </SettingsSection>
       </Form>,
       100
     );
 
-    items.add('branding', <Form>{this.brandingItems().toArray()}</Form>, 90);
+    items.add(
+      'branding',
+      <Form className="AdminPage-settingsForm--sectioned">
+        {this.itemSections(this.brandingItems(), [
+          {
+            id: 'appearance-logos',
+            icon: 'fas fa-image',
+            label: app.translator.trans('core.admin.appearance.sections.logos.label'),
+            description: app.translator.trans('core.admin.appearance.sections.logos.description'),
+            items: ['logo', 'logo-dark-mode', 'email-logo', 'favicon', 'app-icon', 'app-icon-background'],
+          },
+          {
+            id: 'appearance-custom-code',
+            icon: 'fas fa-code',
+            label: app.translator.trans('core.admin.appearance.sections.custom_code.label'),
+            description: app.translator.trans('core.admin.appearance.sections.custom_code.description'),
+            items: ['custom-header', 'custom-footer', 'custom-css'],
+          },
+        ]).toArray()}
+      </Form>,
+      90
+    );
 
     return items;
   }

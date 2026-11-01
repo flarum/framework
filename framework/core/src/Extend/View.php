@@ -80,7 +80,7 @@ class View implements ExtenderInterface, LifecycleInterface
     public function onEnable(Container $container, Extension $extension): void
     {
         $storagePath = $container->make(Paths::class)->storage;
-        array_map('unlink', glob($storagePath.'/views/*'));
+        array_map(fn (string $file) => @unlink($file), glob($storagePath.'/views/*') ?: []);
     }
 
     /**
@@ -89,6 +89,6 @@ class View implements ExtenderInterface, LifecycleInterface
     public function onDisable(Container $container, Extension $extension): void
     {
         $storagePath = $container->make(Paths::class)->storage;
-        array_map('unlink', glob($storagePath.'/views/*'));
+        array_map(fn (string $file) => @unlink($file), glob($storagePath.'/views/*') ?: []);
     }
 }

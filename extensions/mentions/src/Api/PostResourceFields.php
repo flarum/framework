@@ -23,11 +23,13 @@ class PostResourceFields
     {
         return [
             Schema\Integer::make('mentionedByCount')
+                ->description('Number of posts you can see that reply to (mention) this post.')
                 ->countRelation('mentionedBy', function (Builder $query, Context $context) {
                     $query->whereVisibleTo($context->getActor());
                 }),
 
             Schema\Relationship\ToMany::make('mentionedBy')
+                ->description('Some of the posts that reply to (mention) this post; mentionedByCount has the total.')
                 ->type('posts')
                 ->includable()
                 // Serializing these posts checks whether the actor can see each
