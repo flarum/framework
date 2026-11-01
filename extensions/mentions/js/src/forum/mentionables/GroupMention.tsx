@@ -44,7 +44,14 @@ export default class GroupMention extends MentionableModel<Group, AtMentionForma
 
     return (
       <>
-        <Badge className={`Avatar Badge Badge--group--${model.id()} Badge-icon`} color={model.color()} type="group" icon={model.icon()} />
+        <Badge
+          className={`Avatar Badge Badge--group--${model.id()} Badge-icon`}
+          color={model.color()}
+          type="group"
+          icon={model.icon()}
+          image={model.iconImageUrl()}
+          imageSrcset={model.iconImageSrcset()}
+        />
         <span className="username">{groupName}</span>
       </>
     );

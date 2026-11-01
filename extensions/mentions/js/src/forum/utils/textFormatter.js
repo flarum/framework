@@ -60,6 +60,8 @@ export function postFilterGroupMentions(tag) {
 
     tag.setAttribute('color', group.color() || '');
     tag.setAttribute('icon', group.icon() || '');
+    tag.setAttribute('iconimage', group.iconImageUrl() || '');
+    tag.setAttribute('iconsrcset', group.iconImageSrcset() || '');
     tag.setAttribute('deleted', false);
   }
 }
@@ -84,6 +86,8 @@ export function postFilterTagMentions(tag) {
     const model = app.store.getBy('tags', 'slug', tag.getAttribute('slug'));
 
     tag.setAttribute('icon', model.icon() || '');
+    tag.setAttribute('iconimage', model.iconImageUrl() || '');
+    tag.setAttribute('iconsrcset', model.iconImageSrcset() || '');
     tag.setAttribute('color', model.color() || '');
     tag.setAttribute('deleted', false);
   }

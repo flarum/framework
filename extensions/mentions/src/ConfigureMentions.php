@@ -31,6 +31,24 @@ class ConfigureMentions
     public const GROUP_MENTION_WITH_NAME_REGEX = '/\B@["“](?<groupname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/';
     public const TAG_MENTION_WITH_SLUG_REGEX = '/(?:[^“"]|^)\B#(?<slug>[-_\p{L}\p{N}\p{M}]+)\b/ui';
 
+    /**
+     * A group's or tag's icon: its uploaded image if it has one, otherwise its
+     * Font Awesome icon. The attributes are filled in when the post renders.
+     */
+    private const ICON_TEMPLATE = '
+        <xsl:choose>
+            <xsl:when test="string(@iconimage) != \'\'">
+                <img class="icon IconImage" src="{@iconimage}" alt="">
+                    <xsl:if test="string(@iconsrcset) != \'\'">
+                        <xsl:attribute name="srcset"><xsl:value-of select="@iconsrcset"/></xsl:attribute>
+                    </xsl:if>
+                </img>
+            </xsl:when>
+            <xsl:when test="string(@icon) != \'\'">
+                <i class="icon {@icon}"></i>
+            </xsl:when>
+        </xsl:choose>';
+
     public function __construct(
         protected UrlGenerator $url,
         protected ExtensionManager $extensions
@@ -217,17 +235,13 @@ class ConfigureMentions
                         <xsl:when test="string(@color) != \'\'">
                             <span class="GroupMention GroupMention--colored" style="--color:{@color};">
                                 <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
-                                <xsl:if test="string(@icon) != \'\'">
-                                    <i class="icon {@icon}"></i>
-                                </xsl:if>
+                                '.self::ICON_TEMPLATE.'
                             </span>
                         </xsl:when>
                         <xsl:otherwise>
                             <span class="GroupMention">
                                 <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
-                                <xsl:if test="string(@icon) != \'\'">
-                                    <i class="icon {@icon}"></i>
-                                </xsl:if>
+                                '.self::ICON_TEMPLATE.'
                             </span>
                         </xsl:otherwise>
                     </xsl:choose>
@@ -235,9 +249,7 @@ class ConfigureMentions
                 <xsl:otherwise>
                     <span class="GroupMention GroupMention--deleted">
                         <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
-                        <xsl:if test="string(@icon) != \'\'">
-                            <i class="icon {@icon}"></i>
-                        </xsl:if>
+                        '.self::ICON_TEMPLATE.'
                     </span>
                 </xsl:otherwise>
             </xsl:choose>';
@@ -323,9 +335,7 @@ class ConfigureMentions
                             </xsl:choose>
                         </xsl:attribute>
                         <span class="TagMention-text">
-                            <xsl:if test="@icon != \'\'">
-                                <i class="icon {@icon}"></i>
-                            </xsl:if>
+                            '.self::ICON_TEMPLATE.'
                             <xsl:value-of select="@tagname"/>
                         </span>
                     </a>
