@@ -155,7 +155,8 @@ class ExtenderTest extends McpTestCase
         $this->assertContains('test.wave', array_column($overview['you']['can'], 'ability'));
 
         // Extenders applied outside an extension are attributed to core.
-        $this->assertSame('Echo is for testing. You are signed in.', $overview['core']['instructions']);
+        // After core's own instructions.
+        $this->assertStringEndsWith(' Echo is for testing. You are signed in.', $overview['core']['instructions']);
 
         $discover = $this->rpcResult($this->modern('server/discover', [], $auth));
         $this->assertLessThanOrEqual(2000, mb_strlen($discover['instructions']));
