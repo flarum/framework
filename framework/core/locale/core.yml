@@ -603,6 +603,7 @@ core:
     users:
       create_user_button: New User
       description: A paginated list of all users on your forum.
+      filters_label: "Filter by:"
 
       grid:
         columns:
