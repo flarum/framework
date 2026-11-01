@@ -169,6 +169,12 @@ flarum-extension-manager:
         running: "This forum runs Flarum {version}."
         current: No newer Flarum has been published since the last check.
         update_to: "Update Flarum to {version}"
+        # Asked before a core update, like the nightly build below.
+        confirm: >-
+          Update Flarum from {from} to {to}?{count, plural, =0 {} one { # extension listed below is updated with it, because its current version does not support the new Flarum.} other { # extensions listed below are updated with it, because their current versions do not support the new Flarum.}}
+          If the site does not work afterwards, everything is put back.
+        # Shown until the pre-flight answers; the Update button waits for it.
+        preflight: "Checking which of your extensions work with Flarum {version}…"
         failed: >-
           The Extension Manager could not work out what upgrading Flarum would involve. Nothing
           has changed.
@@ -277,6 +283,8 @@ flarum-extension-manager:
         This screen cannot reach the server to drive the update — usually a
         session that has expired while the page sat open. The update itself is
         unaffected and is being carried on in the background. Reload the page.{watching, select, yes { Showing progress read-only.} other {}}
+      # One alert for a run of failed polls; the panel's notice below says more.
+      cannot_reach_short: This page could not reach the forum. The update itself is unaffected, and the page will keep trying.
       cannot_reach: >-
         This page has failed to reach the forum {count} times in a row. The update
         itself is unaffected — it keeps its place on disk — and this will keep

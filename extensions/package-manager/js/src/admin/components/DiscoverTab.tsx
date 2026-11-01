@@ -1,5 +1,6 @@
 import app from 'flarum/admin/app';
 import apiUrl from '../apiUrl';
+import { radioAttrs } from '../radioGroup';
 import { liveSearchPlan, submittedSearchPlan } from '../searchPolicy';
 import type { CompatPayload, DiscoverPayload, Found, Verdict } from '../types';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
@@ -70,6 +71,13 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
   protected seq = 0;
   /** The query whose results are on screen, so a keystroke can tell if anything changed. */
   protected lastSearched: string | null = null;
+  /**
+   * The query and category the results on screen belong to, which "Show more"
+   * pages through. Not the search box: what is typed there may not have been
+   * searched yet, and its second page appended under the first page of
+   * something else.
+   */
+  protected shown = { query: '', category: '' };
   /** The pending debounce, so a new keystroke replaces it rather than adding to it. */
   protected typing: ReturnType<typeof setTimeout> | null = null;
 
@@ -94,6 +102,7 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
           <input
             className="FormControl"
             type="search"
+            aria-label={app.translator.trans('flarum-extension-manager.admin.sections.discover.search', {}, true)}
             placeholder={app.translator.trans('flarum-extension-manager.admin.sections.discover.search', {}, true)}
             value={this.query}
             oninput={(e: InputEvent) => {
@@ -123,17 +132,16 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
           role="radiogroup"
           aria-label={app.translator.trans('flarum-extension-manager.admin.sections.discover.tabs.label', {}, true)}
         >
-          {CATEGORIES.map((c) => (
+          {CATEGORIES.map((c, i) => (
             <Button
-              role="radio"
-              aria-checked={this.category === c.id ? 'true' : 'false'}
+              {...radioAttrs(
+                i,
+                CATEGORIES.findIndex((other) => other.id === this.category),
+                CATEGORIES.length,
+                (to) => this.pickCategory(CATEGORIES[to].id)
+              )}
               className={'ExtensionManager-chip' + (this.category === c.id ? ' is-on' : '')}
-              onclick={() => {
-                if (this.category === c.id) return;
-                this.category = c.id;
-                this.stopTyping();
-                this.search();
-              }}
+              onclick={() => this.pickCategory(c.id)}
             >
               {app.translator.trans(c.label)}
             </Button>
@@ -175,6 +183,13 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
         ) : null}
       </div>
     );
+  }
+
+  pickCategory(id: string) {
+    if (this.category === id) return;
+    this.category = id;
+    this.stopTyping();
+    this.search();
   }
 
   /**
@@ -450,8 +465,15 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
      * identical request.
      */
     this.lastSearched = q;
+    this.shown = { query: q, category: this.category };
 
     this.page = 1;
+    /*
+     * A "Show more" still on its way belongs to the old results, and its reply
+     * is dropped by the number check, so nothing else would ever turn its
+     * "Loading…" back into a button.
+     */
+    this.loadingMore = false;
     this.searching = true;
     this.searched = true;
     this.error = null;
@@ -514,9 +536,9 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
           '/extension-manager/discover?page=' +
           (this.page + 1) +
           '&q=' +
-          encodeURIComponent(this.query.trim()) +
+          encodeURIComponent(this.shown.query) +
           '&category=' +
-          this.category,
+          encodeURIComponent(this.shown.category),
       })
       .then((data) => {
         if (mine !== this.seq) return;
