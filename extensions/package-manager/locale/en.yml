@@ -618,6 +618,7 @@ flarum-extension-manager:
       permissions_ok: "Every file this update changes is writable"
       pin_raised: "{package} required at {version} instead of {current}"
       pinned_to: "{package} is pinned to {constraint}"
+      plan_unwritable: "Could not save the plan to {path}. Check the disk is not full and that the directory is writable. Nothing was changed."
       registered: "Composer now knows about the change"
       reread_done: "The web server has re-read the new files."
       resolve_failed: "Composer could not work out an update:"

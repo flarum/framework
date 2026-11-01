@@ -114,6 +114,33 @@ class ComposerSteps implements Steps
 
     public function doItem(string $phase, string $item, Run $run): ?string
     {
+        if (! in_array($phase, SavedManifests::BEFORE_LOCK_STAYS, true)) {
+            return $this->item($phase, $item, $run);
+        }
+
+        try {
+            return $this->item($phase, $item, $run);
+        } catch (NotYet|Reverted $e) {
+            // Not a failure, or one that has already put everything back.
+            throw $e;
+        } catch (\Throwable $e) {
+            /*
+             * Until the apply phase is over, the manifests the plan wrote
+             * describe a site that does not exist yet, so a run that stops
+             * here puts the old ones back. Left in place, the next run would
+             * save the new lock as its starting point and plan nothing, and the
+             * update check would read it and call the site up to date. The
+             * rollback still finds the saved copies, for the files it has to
+             * move back.
+             */
+            SavedManifests::putBack($this->workDir, $this->installPath);
+
+            throw $e;
+        }
+    }
+
+    protected function item(string $phase, string $item, Run $run): ?string
+    {
         return match ($phase) {
             'plan' => match ($item) {
                 'check the site' => $this->baseline(),
@@ -239,11 +266,21 @@ class ComposerSteps implements Steps
         $sources = (new LockDiff())->sources($after);
         $reasons = (new LockDiff())->reasons($changes, $after, $this->requested);
 
-        file_put_contents($this->workDir.'/plan.json', json_encode([
+        $plan = (string) json_encode([
             'changes' => array_map(fn (Change $c) => $c->toArray(), $changes),
             'sources' => $sources,
             'reasons' => $reasons,
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        /*
+         * Checked, because on a full disk a short write leaves a plan.json
+         * that reads as no plan at all, and a run with no plan applies nothing
+         * and finishes "done". Failing here fails the plan phase, which puts
+         * the manifests back (see doItem).
+         */
+        if (@file_put_contents($this->workDir.'/plan.json', $plan) !== strlen($plan)) {
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.plan_unwritable', ['path' => $this->workDir.'/plan.json']));
+        }
 
         if ($changes === []) {
             return match ($this->mode) {
@@ -1202,15 +1239,8 @@ class ComposerSteps implements Steps
         $blocked = $permissions->blocked($this->plan());
 
         if ($blocked !== []) {
-            // The resolve has already rewritten these; put them back so the
-            // refusal's "Nothing was changed" is true and no rollback is owed.
-            foreach (['composer.lock', 'composer.json'] as $file) {
-                $saved = $this->workDir.'/'.$file.'.before';
-                if (is_file($saved)) {
-                    @copy($saved, $this->installPath.'/'.$file);
-                }
-            }
-
+            // The resolve has already rewritten these. doItem() puts them back
+            // on the way out, so the refusal's "Nothing was changed" is true.
             throw new RuntimeException($permissions->explain($blocked));
         }
 

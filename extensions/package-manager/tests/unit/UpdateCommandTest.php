@@ -10,8 +10,10 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Console\UpdateCommand;
+use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
+use Flarum\ExtensionManager\Run\StartLock;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\Steps;
 use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
@@ -96,6 +98,51 @@ class UpdateCommandTest extends TestCase
         $this->assertSame(1, $tester->getStatusCode());
         $this->assertStringContainsString('r-already-going', $tester->getDisplay());
         $this->assertStringContainsString('--resume', $tester->getDisplay());
+    }
+
+    /**
+     * The screen and this command can be pressed at the same moment. The
+     * command creates its run under the same start lock, so whichever comes
+     * second is refused rather than writing a second run beside the first.
+     */
+    public function test_it_refuses_while_another_start_holds_the_start_lock(): void
+    {
+        $this->site(require: ['a/thing' => '^1.0'], installed: ['a/thing' => '1.0.0']);
+
+        $other = new StartLock(StorageDir::of($this->dir).'/locks');
+        $this->assertTrue($other->acquire());
+
+        try {
+            $tester = $this->runCommand(['packages' => ['a/thing']], ['plan' => ['work out the change']]);
+        } finally {
+            $other->release();
+        }
+
+        $this->assertSame(1, $tester->getStatusCode());
+        $this->assertStringContainsString('Another update is starting right now', $tester->getDisplay());
+        $this->assertNull($this->store()->latest(), 'Nothing may be started.');
+    }
+
+    /**
+     * A run that failed before its new lock was meant to stay, without putting
+     * the old one back itself (a worker that was killed), hands the next run
+     * the old lock to start from, not the new one.
+     */
+    public function test_a_new_run_starts_from_the_lock_a_failed_run_left_behind_not_its_new_one(): void
+    {
+        $this->site(require: ['a/thing' => '^1.0'], installed: ['a/thing' => '1.0.0']);
+        $old = (string) file_get_contents($this->dir.'/composer.lock');
+
+        $failed = (new WorkDir(EnglishTranslator::make(), $this->dir, 'r-failed'))->create();
+        file_put_contents($failed->root().'/composer.lock.before', $old);
+        file_put_contents($this->dir.'/composer.lock', '{"packages":[{"name":"a/thing","version":"1.1.0"}]}');
+        touch($this->dir.'/composer.lock', time() - 60);
+        $this->store()->save(Run::start('r-failed', time() - 120)->enteredPhase('apply', time() - 30)->failed('the worker stopped', 'queue worker', time() - 30, 'failed'));
+
+        $tester = $this->runCommand(['packages' => ['a/thing']], ['plan' => ['work out the change']]);
+
+        $this->assertSame(0, $tester->getStatusCode());
+        $this->assertSame($old, file_get_contents($this->dir.'/composer.lock'));
     }
 
     /**

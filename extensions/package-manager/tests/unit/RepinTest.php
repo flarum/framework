@@ -214,7 +214,8 @@ class RepinTest extends TestCase
 
         $this->assertIsString($source);
         // Nightly targets come from Plan\Nightly; every other run still asks repinFor().
-        $this->assertMatchesRegularExpression('/remember\(\$packages, .*\$mode, \$nightly \?\? \$this->repinFor\(/', (string) $source);
+        $this->assertMatchesRegularExpression('/begin\(\$packages, .*\$mode, \$nightly \?\? \$this->repinFor\(/', (string) $source);
+        $this->assertStringContainsString('->remember($packages, $mode, $repin)', (string) $source);
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
