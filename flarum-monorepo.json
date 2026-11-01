@@ -2,6 +2,11 @@
   "packages": {
     "extensions": [
       {
+        "name": "ai",
+        "gitRemote": "git@github.com:flarum/ai.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "akismet",
         "gitRemote": "git@github.com:flarum/akismet.git",
         "mainBranch": "2.x"
