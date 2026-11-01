@@ -84,6 +84,8 @@ return [
         ->hide('extension-readmes')
         ->hide('system-info')
         ->hide('mcp-capabilities')
+        // Client configuration is managed in the admin panel; an assistant has no use for it.
+        ->hide('oauth-provider-clients')
         // Listing marks the actor's notifications seen; list_notifications reads without that.
         ->hideEndpoint('notifications', 'index')
 

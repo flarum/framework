@@ -103,6 +103,7 @@
     "require-dev": {
         "flarum/testing": "^2.1",
         "flarum/approval": "*",
+        "flarum/gdpr": "*",
         "flarum/likes": "*",
         "flarum/lock": "*",
         "flarum/mentions": "*",

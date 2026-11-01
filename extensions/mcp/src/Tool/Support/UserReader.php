@@ -11,6 +11,7 @@ namespace Flarum\Mcp\Tool\Support;
 
 use Flarum\Mcp\Api\ApiResult;
 use Flarum\Mcp\Capability\McpContext;
+use Flarum\User\UserRepository;
 
 /**
  * The output of `get_user` and `flarum://users/{username}`: the profile
@@ -25,14 +26,23 @@ class UserReader
      */
     protected const array OMIT = ['avatarSrcset', 'preferences', 'markedAllAsReadAt', 'unreadNotificationCount', 'newNotificationCount', 'colorScheme'];
 
+    public function __construct(protected UserRepository $users)
+    {
+    }
+
     /**
      * @return array<string, mixed>
      */
     public function read(McpContext $context, ?string $id = null, ?string $username = null): array
     {
-        $result = $username !== null
-            // `bySlug` resolves through the forum's user slug driver (username by default).
-            ? $context->api->show('users', $username, ['include' => 'groups', 'bySlug' => '1'])
+        // A username is matched exactly, whatever the forum's user slug driver;
+        // anything else is tried as a slug, such as one taken from a profile URL.
+        if ($username !== null) {
+            $id = $this->users->getIdForUsername($username, $context->actor);
+        }
+
+        $result = $id === null
+            ? $context->api->show('users', (string) $username, ['include' => 'groups', 'bySlug' => '1'])
             : $context->api->show('users', (string) $id, ['include' => 'groups']);
 
         $document = Document::from($result);
