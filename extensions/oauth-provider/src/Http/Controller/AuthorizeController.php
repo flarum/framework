@@ -102,9 +102,9 @@ class AuthorizeController implements RequestHandlerInterface
         $ticket = $queryParams[self::REAUTH_TICKET_PARAM] ?? null;
         $ticket = is_string($ticket) ? $ticket : null;
 
-        $needsReAuth = $actor->isGuest()
-            || in_array('login', $prompts, true)
+        $forcesReAuth = in_array('login', $prompts, true)
             || ($maxAge !== null && ($authTime === null || (Carbon::now()->getTimestamp() - $authTime->getTimestamp()) >= $maxAge));
+        $needsReAuth = $actor->isGuest() || $forcesReAuth;
 
         // Re-authentication this very request asked for is satisfied once the
         // user has signed in again; without this, prompt=login and max_age=0
@@ -126,14 +126,13 @@ class AuthorizeController implements RequestHandlerInterface
             $returnPath = $uri->getPath();
             $returnQuery = $uri->getQuery();
 
-            // A signed-in user returns with a ticket tying their next login to
-            // this request, so it neither satisfies nor is satisfied by another.
-            if (! $actor->isGuest()) {
-                if ($session === null) {
-                    return $this->authorizationError($authRequest, 'login_required', 'The user needs to authenticate.');
-                }
-
+            // A request that demands a fresh login returns with a ticket tying
+            // the next login to it, so it neither satisfies nor is satisfied by
+            // another. A guest has no login yet, so any login satisfies theirs.
+            if ($forcesReAuth && $session !== null) {
                 $returnQuery = $this->withQueryParam($returnQuery, self::REAUTH_TICKET_PARAM, $this->reAuthTicket($session, $ticket));
+            } elseif (! $actor->isGuest()) {
+                return $this->authorizationError($authRequest, 'login_required', 'The user needs to authenticate.');
             }
 
             if ($returnQuery !== '') {
@@ -206,7 +205,9 @@ class AuthorizeController implements RequestHandlerInterface
             'actor' => $actor,
             'formAction' => (string) $request->getUri(),
             'csrfToken' => $csrfToken,
-            'queryParams' => $queryParams,
+            // Replayed as hidden fields; only plain string parameters belong
+            // to an authorization request.
+            'queryParams' => array_filter($queryParams, is_string(...)),
         ])->render();
 
         return new HtmlResponse($html);
@@ -282,10 +283,10 @@ class AuthorizeController implements RequestHandlerInterface
     }
 
     /**
-     * Best-effort "when did the current session authenticate" timestamp. Uses
-     * the session's access token creation time — Flarum reissues a fresh access
-     * token each time a remember-me cookie restores a session, so this is the
-     * most accurate "this session started" signal we have.
+     * When the current session's user authenticated: the creation time of the
+     * session's access token. Restoring a session from a remember-me cookie
+     * reuses the remember token the user got when they signed in, so this is
+     * the time of that sign-in (OIDC auth_time), not of the restore.
      *
      * Returns null for guests or if the session is orphaned.
      */

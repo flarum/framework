@@ -603,6 +603,45 @@ class AuthorizeEndpointTest extends TestCase
     }
 
     #[Test]
+    public function a_guest_signs_in_once_for_prompt_login(): void
+    {
+        $asked = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'prompt' => 'login']));
+        $this->assertEquals(302, $asked->getStatusCode());
+        $this->assertStringNotContainsString('oauth_reauth=1', $asked->getHeaderLine('Location'), 'A guest is shown the login form anyway');
+
+        $login = $this->loginNormalUserAgain($asked);
+
+        $response = $this->send($this->authorizeRequest('GET', $this->resumeQuery($asked), ['cookiesFrom' => $login]));
+
+        $this->assertEquals(200, $response->getStatusCode(), 'A guest who just signed in must not be asked to sign in again: '.$response->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function a_guest_signs_in_once_for_max_age_zero(): void
+    {
+        $asked = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'max_age' => '0']));
+        $this->assertEquals(302, $asked->getStatusCode());
+
+        $login = $this->loginNormalUserAgain($asked);
+
+        $response = $this->send($this->authorizeRequest('GET', $this->resumeQuery($asked), ['cookiesFrom' => $login]));
+
+        $this->assertEquals(200, $response->getStatusCode(), 'A guest who just signed in must not be asked to sign in again: '.$response->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function consent_screen_ignores_array_query_parameters(): void
+    {
+        $response = $this->send($this->authorizeRequest('GET', [...self::DEFAULT_QUERY, 'extra' => ['a', 'b']], [
+            'cookiesFrom' => $this->loginNormalUser(),
+        ]));
+
+        $this->assertEquals(200, $response->getStatusCode(), 'An array parameter must not break the consent screen');
+        $this->assertStringNotContainsString('name="extra', (string) $response->getBody());
+        $this->assertStringContainsString('name="state" value="xyz"', (string) $response->getBody());
+    }
+
+    #[Test]
     public function prompt_login_keeps_asking_until_the_user_signs_in_again(): void
     {
         $query = [...self::DEFAULT_QUERY, 'prompt' => 'login'];
