@@ -110,8 +110,20 @@ class MigrationLedger
      *
      * @return bool whether a reversal is now pending
      */
-    public function prepare(SettingsRepositoryInterface $settings, Migrator $migrator, ExtensionManager $extensions, string $vendorPath): bool
+    public function prepare(SettingsRepositoryInterface $settings, Migrator $migrator, ExtensionManager $extensions, string $vendorPath, ?ConnectionInterface $db = null): bool
     {
+        /*
+         * migrations.json is written only once a migrate succeeds. A migrate
+         * that stopped at migration k of n left 1 to k-1 applied with no record
+         * of them, and so did core's migrations run in the same request as its
+         * swap when a later step failed. Whenever the state before is known,
+         * what ran is worked out again from the table, now, while the new code
+         * (and so each migration's down()) is still in place to be copied.
+         */
+        if ($db !== null && is_file($this->workDir.'/migrations.before.json')) {
+            $this->after($db, $extensions, $vendorPath);
+        }
+
         if ($this->ran() === []) {
             $this->restoreVersion($settings);
 
@@ -143,8 +155,23 @@ class MigrationLedger
         }
 
         $done = [];
+        $stillRan = [];
 
         foreach ($this->downs($migrator, $extensions, $vendorPath) as [$m, $down]) {
+            /*
+             * Reversed by an earlier attempt that stopped further on. Running
+             * its down() again would fail on what it already removed, and
+             * every retry would stop at the same place.
+             */
+            $key = $m['extension'] ?? '';
+            $stillRan[$key] ??= array_flip($migrator->getRepository()->getRan($m['extension']));
+
+            if (! isset($stillRan[$key][$m['migration']])) {
+                $done[] = $m['migration'];
+
+                continue;
+            }
+
             try {
                 call_user_func($down, $db->getSchemaBuilder());
             } catch (Throwable $e) {
