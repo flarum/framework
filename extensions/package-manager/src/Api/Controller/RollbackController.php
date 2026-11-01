@@ -12,6 +12,8 @@ namespace Flarum\ExtensionManager\Api\Controller;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Restore;
 use Flarum\ExtensionManager\Exception\RefusedException;
+use Flarum\ExtensionManager\Host\StorageDir;
+use Flarum\ExtensionManager\Run\RunLock;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Work\ComposerRunner;
 use Flarum\ExtensionManager\Work\WorkDir;
@@ -102,16 +104,39 @@ class RollbackController implements RequestHandlerInterface
             $this->paths->storage
         );
 
-        // A refusal (a database change that cannot be reversed) changes nothing
-        // and reaches the admin as a RefusedException.
-        $result = $restore->run();
+        /*
+         * The run's own lock, the one the step driver holds while it works. The
+         * page calls a run stale after two minutes, but a step can take ten, so
+         * without it an admin could roll back while a queue worker was still
+         * applying the same run (and a double click gave two restores at once).
+         * The worker would then save "running" over "rolled back" and carry on.
+         * Under the lock that cannot happen: the step driver re-reads the run
+         * once it holds the lock and stops at one that is rolled back.
+         */
+        $lock = new RunLock($this->translator, StorageDir::of($this->paths->storage).'/locks');
+        $held = $lock->acquire($run->id);
 
-        $undone = $result['undone'];
-        $note = $result['note'];
+        if ($held === null) {
+            throw new RefusedException($this->translator->trans('flarum-extension-manager.api.rollback.busy'), 'run_busy', 409);
+        }
 
-        $this->runs->save($run->rolledBack(time(), $this->translator->trans('flarum-extension-manager.api.run.rolled_back', [
-            'undone' => implode(', ', $undone) ?: $this->translator->trans('flarum-extension-manager.api.run.nothing_to_undo'),
-        ])));
+        try {
+            // A refusal (a database change that cannot be reversed) changes nothing
+            // and reaches the admin as a RefusedException.
+            $result = $restore->run();
+
+            $undone = $result['undone'];
+            $note = $result['note'];
+
+            // Re-read: the copy loaded before the lock may be older than the run.
+            $run = $this->runs->load($run->id) ?? $run;
+
+            $this->runs->save($run->rolledBack(time(), $this->translator->trans('flarum-extension-manager.api.run.rolled_back', [
+                'undone' => implode(', ', $undone) ?: $this->translator->trans('flarum-extension-manager.api.run.nothing_to_undo'),
+            ])));
+        } finally {
+            $lock->release($held);
+        }
 
         return new JsonResponse([
             'undone' => $undone,
