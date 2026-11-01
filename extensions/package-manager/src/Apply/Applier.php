@@ -104,10 +104,38 @@ class Applier
 
         $this->ensureDir($this->trashDir);
 
-        $seq = $this->journal->begin([
-            'change' => $change->toArray(),
-            'trash' => $change->trashName(),
-        ]);
+        /*
+         * The step driver saves its progress after this returns, and after the
+         * work that follows it in the same request (pruning autoload files,
+         * bringing core's database up to date, which can take minutes). A
+         * process killed in that window asks for the same change again, so
+         * this must be safe to repeat. Repeating it blindly was not: the new
+         * version was in vendor/, the stash code took it for the old one, and
+         * the only copy of the old version was deleted to make room for it.
+         */
+        $previous = $this->journal->lastFor($change->toArray());
+
+        if ($previous !== null && Journal::isDone($previous)) {
+            return $change->describe($this->translator);
+        }
+
+        if ($previous !== null) {
+            // Resuming the change that was in flight: carry on under its own
+            // record rather than starting a second one for the same move.
+            $seq = (int) $previous['seq'];
+
+            if ($this->alreadyInPlace($change)) {
+                $this->journal->complete($seq);
+                $this->observe('completed', $change);
+
+                return $change->describe($this->translator);
+            }
+        } else {
+            $seq = $this->journal->begin([
+                'change' => $change->toArray(),
+                'trash' => $change->trashName(),
+            ]);
+        }
 
         $this->observe('journalled', $change);
 
@@ -122,6 +150,24 @@ class Applier
         $this->observe('completed', $change);
 
         return $change->describe($this->translator);
+    }
+
+    /**
+     * Whether an interrupted change got as far as moving the new version in.
+     *
+     * Staging is emptied by that very rename, so nothing staged and a live
+     * copy present can only mean the install happened and only its record is
+     * missing. A removal is never "in place" this way; repeating it is
+     * already harmless, because there is nothing left to stash.
+     */
+    protected function alreadyInPlace(Change $change): bool
+    {
+        if ($change->op === Change::REMOVE) {
+            return false;
+        }
+
+        return ! is_dir($this->path($this->stagingDir, $change->relativePath()))
+            && is_dir($this->path($this->vendorDir, $change->relativePath()));
     }
 
     /**
@@ -220,9 +266,16 @@ class Applier
         }
 
         if (is_dir($target)) {
-            // Left by an earlier attempt at this same change. The live copy is
-            // the newer truth, so the stale stash goes.
-            Tree::delete($target);
+            /*
+             * Something already holds the stash name. It may be the only copy
+             * of the old version, so it is moved out of the way, never deleted:
+             * a wrong guess here costs a package's last good copy.
+             */
+            $aside = $target.'.earlier-'.bin2hex(random_bytes(4));
+
+            if (! Tree::move($target, $aside)) {
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.apply.move_aside_failed', ['from' => $target, 'to' => $aside]));
+            }
         }
 
         $this->ensureDir(dirname($target));
