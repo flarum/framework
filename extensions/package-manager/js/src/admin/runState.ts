@@ -209,3 +209,25 @@ export function cardOffers(card: CardLike) {
 export function sortForGrid<T extends CardLike>(cards: T[]): T[] {
   return [...cards].sort((a, b) => Number(!!b.update) - Number(!!a.update));
 }
+
+/**
+ * Numbers requests so only the newest one's reply is used.
+ *
+ * The page reads `/state` after a check, after a run ends, after a rollback
+ * and on a 409, and the replies can land in any order. Without this a slow
+ * reply that left before Update was pressed arrived after it, set the run back
+ * to the old one or to none, and the panel for the update that had just
+ * started went away. `invalidate()` is for a change made some other way, such
+ * as starting a run, that a reply already on its way must not undo.
+ */
+export function requestSequence() {
+  let current = 0;
+
+  return {
+    next: (): number => ++current,
+    isCurrent: (ticket: number): boolean => ticket === current,
+    invalidate: (): void => {
+      current++;
+    },
+  };
+}

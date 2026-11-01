@@ -3,7 +3,7 @@ import type RequestError from 'flarum/common/utils/RequestError';
 import apiUrl from '../apiUrl';
 import { alertError, errorPayload, serverMessage } from '../errors';
 import { confirmRollback, requestRollback } from '../rollback';
-import { cardOffers, dismissalApplies, hidesPage, runIsLive, showingRun, sortForGrid } from '../runState';
+import { cardOffers, dismissalApplies, hidesPage, requestSequence, runIsLive, showingRun, sortForGrid } from '../runState';
 import type {
   CheckPayload,
   Installed,
@@ -80,6 +80,9 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
   dismissed = false;
   /** An undo started from the History tab, while the run panel is dismissed. */
   rollingBack = false;
+
+  /** Only the newest `/state` reply is used; see runState.requestSequence. */
+  protected loads = requestSequence();
 
   /**
    * Dismissal is remembered against WHICH run, and it has to be remembered
@@ -187,10 +190,13 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
   load() {
     this.loadError = null;
     this.loadErrorDetail = null;
+    const ticket = this.loads.next();
 
     app
       .request<StatePayload>({ method: 'GET', url: apiUrl() + '/extension-manager/state' })
       .then((data) => {
+        if (!this.loads.isCurrent(ticket)) return;
+
         this.host = data.host;
         this.installed = data.installed || [];
         this.history = data.history || [];
@@ -217,6 +223,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
         m.redraw();
       })
       .catch((e) => {
+        if (!this.loads.isCurrent(ticket)) return;
+
         /*
          * The reason, on screen. Swallowing it and rendering an empty page
          * is how somebody ends up staring at a screen that looks broken with
@@ -604,6 +612,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
          * was told "idle", and stopped — in the same second the new run began.
          */
         this.dismissed = false;
+        // A /state reply already on its way predates this run, and would put the old one back.
+        this.loads.invalidate();
         this.run = data.run;
         this.driver = data.driver || null;
         m.redraw();
