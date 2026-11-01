@@ -114,7 +114,7 @@ class DynamicRegistrationTest extends TestCase
     #[Test]
     public function registration_returns_404_when_disabled(): void
     {
-        $this->setting('flarum-oauth-provider.allow_dynamic_registration', '0');
+        $this->setting('flarum-oauth-provider.allow_self_registered_clients', '0');
 
         $response = $this->register(['redirect_uris' => ['https://app.example.com/cb']]);
 

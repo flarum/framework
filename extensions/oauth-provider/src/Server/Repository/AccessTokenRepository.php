@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider\Server\Repository;
 
 use Carbon\Carbon;
+use Flarum\OAuthProvider\ClientRegistration\AllowedClients;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Server\Entity\AccessTokenEntity;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
@@ -19,6 +20,11 @@ use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
+    public function __construct(
+        protected AllowedClients $allowed,
+    ) {
+    }
+
     public function getNewToken(
         ClientEntityInterface $clientEntity,
         array $scopes,
@@ -73,7 +79,11 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
             return true;
         }
 
-        // Revoking a client cuts off its outstanding tokens as well.
-        return (bool) $token->revoked || $token->client === null || (bool) $token->client->revoked;
+        // Revoking a client, or switching off its kind, cuts off its
+        // outstanding tokens as well.
+        return (bool) $token->revoked
+            || $token->client === null
+            || (bool) $token->client->revoked
+            || ! $this->allowed->allows($token->client);
     }
 }

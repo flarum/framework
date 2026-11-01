@@ -30,6 +30,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property User|null   $creator
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property int|string|null $connection_count Selected by ClientResource, not a column.
+ * @property string|null $last_used_at Selected by ClientResource, not a column.
  */
 class Client extends AbstractModel
 {

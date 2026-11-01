@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider\ResourceServer;
 
 use Carbon\Carbon;
+use Flarum\OAuthProvider\ClientRegistration\AllowedClients;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Server\AccessTokenVerifier;
 use Flarum\User\User;
@@ -28,8 +29,10 @@ class TokenValidator
      */
     public const int TOUCH_INTERVAL = 60;
 
-    public function __construct(protected AccessTokenVerifier $verifier)
-    {
+    public function __construct(
+        protected AccessTokenVerifier $verifier,
+        protected AllowedClients $allowed,
+    ) {
     }
 
     /**
@@ -60,7 +63,7 @@ class TokenValidator
             ->where('id', $tokenId)
             ->where('revoked', false)
             ->where('expires_at', '>', Carbon::now())
-            ->whereHas('client', fn (Builder $query) => $query->where('revoked', false))
+            ->whereHas('client', fn (Builder $query) => $this->allowed->scope($query)->where('revoked', false))
             ->first();
 
         // The row is authoritative: the JWT's aud must agree with what was granted.

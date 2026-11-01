@@ -1,10 +1,21 @@
 flarum-oauth-provider:
   admin:
     clients:
-      heading: "OAuth clients"
-      help: "Register third-party applications that can log users in via this forum."
+      applications:
+        heading: "Applications"
+        help: "Applications you add by hand, such as another site that lets members log in with their account here. Each gets a client ID, and a secret if it can keep one."
+        empty: "No applications added yet."
+        off: "Applications added by an admin are switched off in Settings: they can't log members in or use the access members gave them."
+      self_registered:
+        heading: "Self-registered applications"
+        help: "Applications that connected on their own, such as AI assistants using MCP (Claude, ChatGPT, Codex). They register themselves, or identify themselves by the URL of a metadata document."
+        empty: "No application has registered itself yet."
+        off: "Self-registered applications are switched off in Settings: new ones can't connect, and these can't log members in or use the access members gave them."
       new_button: "Add client"
-      empty: "No clients registered yet."
+      connections: "{count, plural, one {# member} other {# members}}"
+      connections_none: "No members"
+      last_used: "Last used {ago}"
+      never_used: "Never used"
       name_column: "Name"
       id_column: "Client ID"
       redirects_column: "Redirect URIs"
@@ -32,17 +43,20 @@ flarum-oauth-provider:
 
     sections:
       registration:
-        label: "Client registration"
-        description: "Lets applications connect without being added by hand. With Dynamic Client Registration (RFC 7591) they register themselves; with a Client ID Metadata Document they identify themselves by a URL that describes them. MCP clients such as Claude and ChatGPT rely on these to connect."
+        label: "Allowed applications"
+        description: "Which applications may log members in. Switching a kind off stops its applications working, without deleting them, until it is switched back on."
 
     settings:
-      allow_dynamic_registration_label: "Allow dynamic client registration"
-      allow_dynamic_registration_help: "Lets applications register themselves at /oauth/register. Self-registered clients are always public and must use PKCE. Clients identified by a metadata document URL are accepted either way."
+      allow_self_registered_clients_label: "Allow self-registered applications"
+      allow_self_registered_clients_help: "Lets applications such as MCP clients (Claude, ChatGPT) connect on their own: with Dynamic Client Registration (RFC 7591) they register themselves at /oauth/register, and with a Client ID Metadata Document they identify themselves by a URL that describes them. They are always public clients and must use PKCE."
+      allow_admin_clients_label: "Allow applications added by an admin"
+      allow_admin_clients_help: "Lets the applications on the Applications tab log members in. Switched off, Add client is hidden as well."
       source_metadata_document: "Metadata document"
       source_dynamic: "Self-registered"
 
     tabs:
-      clients: "Clients"
+      applications: "Applications"
+      self_registered: "Self-registered"
       settings: "Settings"
 
     secret_modal:
@@ -53,6 +67,13 @@ flarum-oauth-provider:
       client_id_label: "Client ID"
       client_secret_label: "Client secret"
       close_button: "I've saved these"
+
+  lib:
+    gambits:
+      users:
+        connected:
+          key: connected
+          hint: client ID
 
   api:
     scopes_empty_message: "Allowed scopes can't be an empty list. Leave the field empty to allow every scope, or revoke the client to block it."

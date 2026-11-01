@@ -10,6 +10,8 @@
 namespace Flarum\OAuthProvider;
 
 use Flarum\Extend;
+use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\User\Search\UserSearcher;
 use Illuminate\Console\Scheduling\Event;
 
 return [
@@ -44,8 +46,12 @@ return [
     new Extend\ApiResource(Api\Resource\ClientResource::class),
     new Extend\ApiResource(Api\Resource\ConsentResource::class),
 
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(UserSearcher::class, Search\ConnectedClientFilter::class),
+
     (new Extend\Settings())
-        ->default(ClientRegistration\DynamicRegistration::SETTING, true),
+        ->default(ClientRegistration\AllowedClients::SELF_REGISTERED_SETTING, true)
+        ->default(ClientRegistration\AllowedClients::ADMIN_SETTING, true),
 
     (new Extend\View())
         ->namespace('flarum-oauth-provider', __DIR__.'/resources/views'),

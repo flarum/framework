@@ -10,9 +10,8 @@
 namespace Flarum\OAuthProvider\Server;
 
 use Flarum\Http\UrlGenerator;
-use Flarum\OAuthProvider\ClientRegistration\DynamicRegistration;
+use Flarum\OAuthProvider\ClientRegistration\AllowedClients;
 use Flarum\OAuthProvider\Scope\ScopeRegistry;
-use Flarum\Settings\SettingsRepositoryInterface;
 
 /**
  * The documents served at /.well-known/oauth-authorization-server (RFC 8414)
@@ -23,7 +22,7 @@ class AuthorizationServerMetadata
     public function __construct(
         protected UrlGenerator $url,
         protected ScopeRegistry $scopes,
-        protected SettingsRepositoryInterface $settings,
+        protected AllowedClients $allowed,
     ) {
     }
 
@@ -45,7 +44,7 @@ class AuthorizationServerMetadata
             'authorization_endpoint' => $route('oauthProvider.authorize'),
             'token_endpoint' => $route('oauthProvider.token'),
             'jwks_uri' => $route('oauthProvider.jwks'),
-            'registration_endpoint' => DynamicRegistration::enabled($this->settings) ? $route('oauthProvider.register') : null,
+            'registration_endpoint' => $this->allowed->selfRegistered() ? $route('oauthProvider.register') : null,
             'revocation_endpoint' => $route('oauthProvider.revoke'),
             'scopes_supported' => array_keys($this->scopes->all()),
             'response_types_supported' => ['code'],
@@ -55,7 +54,7 @@ class AuthorizationServerMetadata
             'revocation_endpoint_auth_methods_supported' => $authMethods,
             'code_challenge_methods_supported' => ['S256'],
             'authorization_response_iss_parameter_supported' => true,
-            'client_id_metadata_document_supported' => true,
+            'client_id_metadata_document_supported' => $this->allowed->selfRegistered() ?: null,
         ], fn ($value) => $value !== null);
     }
 

@@ -22,8 +22,10 @@ use Flarum\OAuthProvider\ClientRegistration\ClientMetadataException;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\Client;
+use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\Scope\ScopeRegistry;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Tobyz\JsonApiServer\Context as OriginalContext;
 
@@ -51,6 +53,27 @@ class ClientResource extends Resource\AbstractDatabaseResource
     public function model(): string
     {
         return Client::class;
+    }
+
+    /**
+     * Each client with how many members have connected it and when it was last
+     * used: subqueries, so a long list costs no query per client.
+     */
+    public function scope(Builder $query, OriginalContext $context): void
+    {
+        $clients = $query->getModel()->getTable();
+
+        $query
+            ->select("$clients.*")
+            ->addSelect(['connection_count' => Consent::query()
+                ->selectRaw('count(*)')
+                ->whereColumn('client_id', "$clients.id")
+                ->where('revoked', false),
+            ])
+            ->addSelect(['last_used_at' => AccessToken::query()
+                ->selectRaw('max(last_used_at)')
+                ->whereColumn('client_id', "$clients.id"),
+            ]);
     }
 
     public function endpoints(): array
@@ -143,6 +166,13 @@ class ClientResource extends Resource\AbstractDatabaseResource
                 ->property('metadata_expires_at'),
             Schema\DateTime::make('createdAt'),
             Schema\DateTime::make('updatedAt'),
+            Schema\Integer::make('connectionCount')
+                ->description('How many members have connected the client.')
+                ->get(fn (Client $client) => (int) $client->connection_count),
+            Schema\DateTime::make('lastUsedAt')
+                ->description('When any member last used the client, or null if nobody has.')
+                ->nullable()
+                ->get(fn (Client $client) => $client->last_used_at ? Carbon::parse($client->last_used_at) : null),
         ];
     }
 
