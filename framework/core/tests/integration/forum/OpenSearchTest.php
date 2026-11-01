@@ -292,4 +292,40 @@ class OpenSearchTest extends TestCase
         $this->assertNotEmpty($response->getHeaderLine('Set-Cookie'));
         $this->assertStringContainsString('private', $response->getHeaderLine('Cache-Control'));
     }
+
+    private function uploadFavicon(int $red, int $green, int $blue): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'flarum-favicon-').'.png';
+        $image = imagecreatetruecolor(64, 64);
+        imagefill($image, 0, 0, imagecolorallocate($image, $red, $green, $blue));
+        imagepng($image, $path);
+
+        $this->send(
+            $this->request('POST', '/api/favicon', ['authenticatedAs' => 1])
+                ->withUploadedFiles(['favicon' => new UploadedFile(new Stream($path), filesize($path), UPLOAD_ERR_OK, 'favicon.png', 'image/png')])
+        );
+        @unlink($path);
+    }
+
+    private function embeddedPng(): string
+    {
+        foreach ($this->description()->Image as $element) {
+            if ((string) $element['type'] === 'image/png') {
+                return (string) $element;
+            }
+        }
+
+        $this->fail('The favicon is not embedded as a PNG.');
+    }
+
+    #[Test]
+    public function a_new_favicon_replaces_the_embedded_one(): void
+    {
+        $this->uploadFavicon(255, 0, 0);
+        $red = $this->embeddedPng();
+
+        $this->uploadFavicon(0, 0, 255);
+
+        $this->assertNotSame($red, $this->embeddedPng());
+    }
 }

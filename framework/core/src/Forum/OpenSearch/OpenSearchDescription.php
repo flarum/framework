@@ -14,6 +14,7 @@ use Flarum\Forum\Branding\IconSet;
 use Flarum\Forum\Branding\ShortName;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 use DOMDocument;
@@ -47,6 +48,7 @@ class OpenSearchDescription
         protected Branding $branding,
         protected IconSet $icons,
         protected UrlGenerator $url,
+        protected Cache $cache,
         Factory $filesystemFactory
     ) {
         $this->assets = $filesystemFactory->disk('flarum-assets');
@@ -158,13 +160,28 @@ class OpenSearchDescription
     }
 
     /**
+     * Kept for a day by where the favicon is stored, which changes when it is
+     * replaced, so it isn't read and resized on every request.
+     *
      * @return list<array{0: int, 1: int, 2: string, 3: string}> width, height, type and data
      */
     protected function favicons(): array
     {
         $path = $this->branding->faviconPath();
 
-        if (! $path || ! $this->assets->exists($path)) {
+        if (! $path) {
+            return [];
+        }
+
+        return $this->cache->remember('flarum.opensearch.favicon.'.md5($path), 86400, fn () => $this->favicon($path));
+    }
+
+    /**
+     * @return list<array{0: int, 1: int, 2: string, 3: string}> width, height, type and data
+     */
+    protected function favicon(string $path): array
+    {
+        if (! $this->assets->exists($path)) {
             return [];
         }
 
