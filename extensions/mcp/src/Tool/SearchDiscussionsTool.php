@@ -86,9 +86,15 @@ class SearchDiscussionsTool extends Tool
             $filter['q'] = $searchQuery;
         }
         if (! empty($arguments['author'])) {
-            // Core's author filter takes slugs; an unknown author is left for it to match nothing.
             $author = $this->members->find((string) $arguments['author'], $context->actor);
-            $filter['author'] = $author ? $this->members->slug($author) : (string) $arguments['author'];
+
+            // Nobody by that name: core's author filter would try it as a slug.
+            if ($author === null) {
+                return ['data' => [], 'meta' => ['total' => 0]];
+            }
+
+            // Core's author filter takes slugs.
+            $filter['author'] = $this->members->slug($author);
         }
 
         $query = [

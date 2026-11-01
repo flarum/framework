@@ -13,6 +13,7 @@ use Flarum\Http\SlugManager;
 use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 
 /**
  * Finds the member a tool argument names. Tools take usernames, but the API
@@ -40,9 +41,14 @@ class Members
             return $this->users->findOrFail($id, $actor);
         }
 
+        // A driver may read the slug as something it is not, such as a
+        // username as a numeric ID, which PostgreSQL refuses outright. The
+        // savepoint keeps that failure from aborting the request's transaction.
         try {
-            return $this->slugs->forResource(User::class)->fromSlug($usernameOrSlug, $actor);
-        } catch (ModelNotFoundException) {
+            return $this->users->query()->getConnection()->transaction(
+                fn () => $this->slugs->forResource(User::class)->fromSlug($usernameOrSlug, $actor)
+            );
+        } catch (ModelNotFoundException|QueryException) {
             return null;
         }
     }
