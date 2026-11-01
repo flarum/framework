@@ -69,6 +69,7 @@
         "laminas/laminas-httphandlerrunner": "^2.6.1",
         "laminas/laminas-stratigility": "^3.10",
         "league/flysystem": "^3.15",
+        "league/flysystem-local": "^3.15",
         "league/flysystem-memory": "^3.15",
         "matthiasmullie/minify": "^1.3.70",
         "middlewares/base-path": "^2.1.0",

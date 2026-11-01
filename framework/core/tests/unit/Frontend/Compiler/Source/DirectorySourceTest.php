@@ -25,4 +25,22 @@ class DirectorySourceTest extends TestCase
         $this->assertSame([], $source->getFilesystem()->allFiles());
         $this->assertDirectoryDoesNotExist($path);
     }
+
+    #[Test]
+    public function it_lists_files_in_an_existing_directory()
+    {
+        $path = sys_get_temp_dir().'/flarum-directory-source-'.uniqid();
+        mkdir($path.'/components', 0777, true);
+        file_put_contents($path.'/components/Chunk.js', '');
+
+        try {
+            $source = new DirectorySource($path, 'acme-chunks');
+
+            $this->assertSame(['components/Chunk.js'], $source->getFilesystem()->allFiles());
+        } finally {
+            unlink($path.'/components/Chunk.js');
+            rmdir($path.'/components');
+            rmdir($path);
+        }
+    }
 }
