@@ -67,6 +67,7 @@ class MigrationLedgerUndoTest extends TestCase
 
     public function test_migrations_that_ran_before_a_migrate_stopped_are_reversed(): void
     {
+        $this->plan('flarum/core');
         $ledger = $this->ledger();
         $ledger->before($this->db);
 
@@ -104,6 +105,50 @@ class MigrationLedgerUndoTest extends TestCase
         $this->assertFalse($this->db->getSchemaBuilder()->hasTable('first'));
         $this->assertFalse($this->db->getSchemaBuilder()->hasTable('second'));
         $this->assertFalse($ledger->pending());
+    }
+
+    public function test_a_finished_record_is_kept_and_later_migrations_are_left_alone(): void
+    {
+        $this->plan('flarum/core');
+        $ledger = $this->ledger();
+        $ledger->before($this->db);
+        $this->up('2026_01_01_000001_create_first');
+        $ledger->after($this->db, $this->createStub(ExtensionManager::class), $this->dir.'/vendor');
+
+        // After the update, an admin enables another extension, which migrates.
+        $this->migrator->getRepository()->log('2026_02_01_000000_create_other', 'acme-other');
+
+        $this->assertTrue($this->prepare($ledger));
+        $this->assertSame([['migration' => '2026_01_01_000001_create_first', 'extension' => null]], $ledger->ran());
+    }
+
+    public function test_a_stopped_migrate_is_worked_out_only_for_what_the_update_changed(): void
+    {
+        $this->plan('flarum/core', 'acme/flarum-ext-tags');
+        $ledger = $this->ledger();
+        $ledger->before($this->db);
+        $this->up('2026_01_01_000001_create_first');
+        $this->migrator->getRepository()->log('2026_01_15_000000_add_column', 'acme-tags');
+        // The migrate stopped; then another extension was enabled and migrated.
+        $this->migrator->getRepository()->log('2026_02_01_000000_create_other', 'acme-other');
+
+        try {
+            $this->prepare($ledger);
+        } catch (\Flarum\ExtensionManager\Exception\RefusedException) {
+            // acme-tags has no migration file here: refused, as it should be.
+        }
+
+        $this->assertSame([
+            ['migration' => '2026_01_01_000001_create_first', 'extension' => null],
+            ['migration' => '2026_01_15_000000_add_column', 'extension' => 'acme-tags'],
+        ], $ledger->ran());
+    }
+
+    private function plan(string ...$packages): void
+    {
+        file_put_contents($this->dir.'/work/plan.json', json_encode([
+            'changes' => array_map(fn ($p) => ['op' => 'replace', 'package' => $p, 'from' => '1.0.0', 'to' => '1.1.0'], $packages),
+        ]));
     }
 
     private function ledger(): MigrationLedger

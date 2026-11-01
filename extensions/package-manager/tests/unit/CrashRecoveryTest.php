@@ -11,6 +11,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Rollback;
+use Flarum\ExtensionManager\Apply\Tree;
 use Flarum\ExtensionManager\Plan\Change;
 use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -160,6 +161,32 @@ class CrashRecoveryTest extends TestCase
         $this->assertCount(1, $kept);
         $this->assertSame('something already here', trim((string) file_get_contents($kept[0].'/file.txt')));
         $this->assertSame('OLD widget v1', $this->read('trash/acme+widget@1.0.0/file.txt'));
+    }
+
+    public function test_a_cross_device_install_killed_while_deleting_its_source_is_finished_on_resume(): void
+    {
+        // flarum/framework#5357 review: the whole copy, marker inside, was in
+        // vendor/ but staging was half deleted. The resume stashed the NEW
+        // version under the old one's stash name, and rollback restored it.
+        $this->seedVendor(['acme/widget' => 'NEW widget v2']);
+        touch($this->dir('vendor').'/acme/widget/'.Tree::COPIED);
+        $this->seedStaging(['acme/widget' => 'NEW widget v2']);
+        unlink($this->dir('staging').'/acme/widget/file.txt');
+        $this->writeTree($this->dir('trash').'/acme+widget@1.0.0', 'OLD widget v1');
+        $change = new Change(Change::REPLACE, 'acme/widget', '1.0.0', '2.0.0');
+        $this->journal()->begin(['change' => $change->toArray(), 'trash' => $change->trashName()]);
+
+        $this->assertSame(0, $this->runApply([$change->toArray()], 'never', mode: 'steps'));
+
+        $this->assertSame('NEW widget v2', $this->read('vendor/acme/widget/file.txt'));
+        $this->assertFileDoesNotExist($this->dir('vendor').'/acme/widget/'.Tree::COPIED);
+        $this->assertDirectoryDoesNotExist($this->dir('staging').'/acme/widget');
+        $this->assertSame('OLD widget v1', $this->read('trash/acme+widget@1.0.0/file.txt'));
+        $this->assertTrue($this->journal()->isComplete());
+
+        (new Rollback(EnglishTranslator::make(), $this->dir('vendor'), $this->dir('trash'), $this->journal()))->run();
+
+        $this->assertSame('OLD widget v1', $this->read('vendor/acme/widget/file.txt'));
     }
 
     public function test_a_completed_apply_actually_changed_the_tree(): void

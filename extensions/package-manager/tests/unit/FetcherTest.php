@@ -259,18 +259,29 @@ class FetcherTest extends TestCase
         $this->fetchLocal($this->zip('i.zip', ['pkg/composer.json' => '{"name":"a/b"}', 'pkg/src/A.php' => '<?php']), 'a/b');
 
         $this->assertFileExists($this->dir.'/staging/a/b/src/A.php');
-        $this->assertDirectoryDoesNotExist($this->dir.'/staging/a/b.partial');
+        $this->assertDirectoryDoesNotExist($this->dir.'/staging/a/.b.partial');
     }
 
     public function test_a_partial_unzip_left_by_a_kill_is_cleared_and_redone(): void
     {
-        mkdir($this->dir.'/staging/a/b.partial', 0775, true);
-        file_put_contents($this->dir.'/staging/a/b.partial/composer.json', '{"name":"a/b"}');
+        mkdir($this->dir.'/staging/a/.b.partial', 0775, true);
+        file_put_contents($this->dir.'/staging/a/.b.partial/composer.json', '{"name":"a/b"}');
 
         $this->fetchLocal($this->zip('j.zip', ['pkg/composer.json' => '{"name":"a/b"}', 'pkg/src/A.php' => '<?php']), 'a/b');
 
         $this->assertFileExists($this->dir.'/staging/a/b/src/A.php');
-        $this->assertDirectoryDoesNotExist($this->dir.'/staging/a/b.partial');
+        $this->assertDirectoryDoesNotExist($this->dir.'/staging/a/.b.partial');
+    }
+
+    public function test_a_package_whose_name_ends_in_partial_is_not_another_packages_scratch_space(): void
+    {
+        // Composer names may contain dots, so a/b.partial is a real package
+        // name. Unpacking a/b used to clear it as a/b's leftover.
+        $this->fetchLocal($this->zip('l.zip', ['pkg/composer.json' => '{"name":"a/b.partial"}']), 'a/b.partial');
+        $this->fetchLocal($this->zip('m.zip', ['pkg/composer.json' => '{"name":"a/b"}']), 'a/b');
+
+        $this->assertSame('{"name":"a/b.partial"}', file_get_contents($this->dir.'/staging/a/b.partial/composer.json'));
+        $this->assertSame('{"name":"a/b"}', file_get_contents($this->dir.'/staging/a/b/composer.json'));
     }
 
     public function test_a_file_name_with_two_dots_inside_it_is_not_an_escape(): void

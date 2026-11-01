@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Work;
 
+use Flarum\ExtensionManager\Apply\Tree;
 use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\Locale\TranslatorInterface;
 use GuzzleHttp\ClientInterface;
@@ -175,7 +176,7 @@ class Fetcher
          * that looked staged (composer.json is usually among the first entries)
          * and was applied with files missing.
          */
-        $partial = $target.'.partial';
+        $partial = Tree::partial($target);
         $this->deleteTree($partial);
 
         if (! mkdir($partial, 0775, true) && ! is_dir($partial)) {

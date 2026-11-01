@@ -124,7 +124,7 @@ class Applier
             // record rather than starting a second one for the same move.
             $seq = (int) $previous['seq'];
 
-            if ($this->alreadyInPlace($change)) {
+            if ($this->finishInstall($change) || $this->alreadyInPlace($change)) {
                 $this->journal->complete($seq);
                 $this->observe('completed', $change);
 
@@ -150,6 +150,22 @@ class Applier
         $this->observe('completed', $change);
 
         return $change->describe($this->translator);
+    }
+
+    /**
+     * An install copied across filesystems and killed while deleting its
+     * staged source. The live copy is whole (it carries the COPIED marker),
+     * but staging is still there, so alreadyInPlace() says no — and running
+     * the change again stashed the NEW version over the old one's stash name,
+     * which rollback then restored. Finished here instead, before anything
+     * else moves.
+     */
+    protected function finishInstall(Change $change): bool
+    {
+        return $change->op !== Change::REMOVE && Tree::finishMove(
+            $this->path($this->stagingDir, $change->relativePath()),
+            $this->path($this->vendorDir, $change->relativePath())
+        );
     }
 
     /**

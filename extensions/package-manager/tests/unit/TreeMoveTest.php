@@ -80,7 +80,7 @@ class TreeMoveTest extends TestCase
         $this->assertSame('old', file_get_contents($this->dir.'/trash/src/A.php'));
         $this->assertDirectoryDoesNotExist($this->dir.'/vendor/acme/widget');
         $this->assertFileDoesNotExist($this->dir.'/trash/'.Tree::COPIED);
-        $this->assertDirectoryDoesNotExist($this->dir.'/trash.partial');
+        $this->assertDirectoryDoesNotExist($this->dir.'/.trash.partial');
     }
 
     public function test_a_copy_that_fails_partway_leaves_no_target_and_the_source_whole(): void
@@ -97,7 +97,7 @@ class TreeMoveTest extends TestCase
         }
 
         $this->assertFileDoesNotExist($this->dir.'/trash');
-        $this->assertDirectoryDoesNotExist($this->dir.'/trash.partial');
+        $this->assertDirectoryDoesNotExist($this->dir.'/.trash.partial');
         $this->assertSame('old', file_get_contents($this->dir.'/vendor/acme/widget/src/A.php'));
     }
 
@@ -108,6 +108,6 @@ class TreeMoveTest extends TestCase
 
         $this->assertTrue(Tree::copyMove($this->dir.'/vendor/acme/widget', $this->dir.'/trash'));
         $this->assertSame('old', file_get_contents($this->dir.'/trash/src/A.php'));
-        $this->assertDirectoryDoesNotExist($this->dir.'/trash.partial');
+        $this->assertDirectoryDoesNotExist($this->dir.'/.trash.partial');
     }
 }
