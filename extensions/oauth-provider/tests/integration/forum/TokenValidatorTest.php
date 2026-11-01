@@ -154,10 +154,9 @@ class TokenValidatorTest extends TestCase
     public function token_of_a_deleted_user_is_refused(): void
     {
         $jwt = $this->accessToken();
-        $tokenId = $this->jwtClaims($jwt)['jti'];
 
-        // Keep the token row; only the user lookup should fail.
-        AccessToken::query()->where('id', $tokenId)->update(['user_id' => 999]);
+        // The token's signature and claims stay valid; only its user is gone.
+        User::query()->whereKey(2)->delete();
 
         $this->assertNull($this->validator()->validate($jwt, self::RESOURCE));
     }
