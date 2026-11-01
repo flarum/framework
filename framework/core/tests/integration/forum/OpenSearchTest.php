@@ -14,6 +14,7 @@ use Flarum\Testing\integration\TestCase;
 use Laminas\Diactoros\Stream;
 use Laminas\Diactoros\UploadedFile;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\ResponseInterface;
 use SimpleXMLElement;
 
 class OpenSearchTest extends TestCase
@@ -73,7 +74,7 @@ class OpenSearchTest extends TestCase
         $this->assertSame('Acme Forum', (string) $xml->ShortName);
         $this->assertSame('Talk about rockets & more.', (string) $xml->Description);
         $this->assertSame('UTF-8', (string) $xml->InputEncoding);
-        $this->assertSame('http://localhost/?q={searchTerms}', $urls['text/html']['template']);
+        $this->assertSame('http://localhost/opensearch/search?q={searchTerms}', $urls['text/html']['template']);
         $this->assertSame('http://localhost/api/opensearch/suggestions?q={searchTerms}', $urls['application/x-suggestions+json']['template']);
         $this->assertSame(['type' => 'application/opensearchdescription+xml', 'rel' => 'self', 'template' => 'http://localhost/opensearch'], $urls['application/opensearchdescription+xml']);
         $this->assertSame('http://localhost/', (string) $xml->children('http://www.mozilla.org/2006/browser/search/')->SearchForm);
@@ -81,16 +82,38 @@ class OpenSearchTest extends TestCase
         $this->assertSame(['role' => 'example', 'searchTerms' => 'Acme Forum'], array_map('strval', iterator_to_array($xml->Query->attributes())));
     }
 
+    private function search(array $query): ResponseInterface
+    {
+        return $this->send($this->request('GET', '/opensearch/search')->withQueryParams($query));
+    }
+
     #[Test]
-    public function a_forum_with_another_homepage_is_searched_on_its_discussion_list(): void
+    public function a_search_goes_to_the_discussion_list_at_the_root_when_it_is_the_homepage(): void
+    {
+        $response = $this->search(['q' => 'hello world']);
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertSame('http://localhost/?q=hello%20world', $response->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function a_search_goes_to_the_discussion_list_on_a_forum_with_another_homepage(): void
     {
         // The homepage would ignore the query; the discussion list is at /all.
+        // Browsers keep the address they were given, so it can't depend on this.
         $this->setting('default_route', '/tags');
 
-        $xml = $this->description();
+        $this->assertSame('http://localhost/all?q=hello%20world', $this->search(['q' => 'hello world'])->getHeaderLine('Location'));
+        $this->assertSame('http://localhost/opensearch/search?q={searchTerms}', $this->urls($this->description())['text/html']['template']);
+    }
 
-        $this->assertSame('http://localhost/all?q={searchTerms}', $this->urls($xml)['text/html']['template']);
-        $this->assertSame('http://localhost/', (string) $xml->children('http://www.mozilla.org/2006/browser/search/')->SearchForm);
+    #[Test]
+    public function a_search_for_nothing_goes_to_the_discussion_list(): void
+    {
+        $this->setting('default_route', '/tags');
+
+        $this->assertSame('http://localhost/all', $this->search(['q' => ' '])->getHeaderLine('Location'));
+        $this->assertSame('http://localhost/all', $this->search(['q' => ['x']])->getHeaderLine('Location'));
     }
 
     #[Test]
@@ -188,5 +211,121 @@ class OpenSearchTest extends TestCase
         );
 
         $this->assertEquals(422, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function control_characters_pasted_into_settings_are_left_out(): void
+    {
+        // XML can't contain them at all, so browsers would refuse the document.
+        $this->setting('forum_title', "Acme\x01 Forum");
+        $this->setting('forum_description', "Rockets\x0B and more.");
+
+        $xml = $this->description();
+
+        $this->assertSame('Acme Forum', (string) $xml->ShortName);
+        $this->assertSame('Rockets and more.', (string) $xml->Description);
+    }
+
+    /**
+     * An .ico of PNGs at the given sizes, filled with noise so they don't compress.
+     */
+    private function ico(array $sizes): string
+    {
+        mt_srand(1);
+        $pngs = [];
+
+        foreach ($sizes as $size) {
+            $image = imagecreatetruecolor($size, $size);
+
+            for ($y = 0; $y < $size; $y++) {
+                for ($x = 0; $x < $size; $x++) {
+                    imagesetpixel($image, $x, $y, mt_rand(0, 0xFFFFFF));
+                }
+            }
+
+            ob_start();
+            imagepng($image);
+            $pngs[$size] = (string) ob_get_clean();
+        }
+
+        $directory = $data = '';
+        $offset = 6 + 16 * count($pngs);
+
+        foreach ($pngs as $size => $png) {
+            $directory .= pack('CCCCvvVV', $size % 256, $size % 256, 0, 0, 1, 32, strlen($png), $offset + strlen($data));
+            $data .= $png;
+        }
+
+        return pack('vvv', 0, 1, count($pngs)).$directory.$data;
+    }
+
+    #[Test]
+    public function a_large_ico_favicon_does_not_make_the_description_too_big_for_chrome(): void
+    {
+        // Chrome ignores a description over 50,000 bytes, and with it the forum.
+        $this->setting('favicon_path', 'favicon-big.ico');
+        $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->put('favicon-big.ico', $this->ico([16, 32, 48, 128]));
+
+        $response = $this->send($this->request('GET', '/opensearch'));
+
+        $this->assertLessThan(50000, strlen((string) $response->getBody()));
+        $this->assertNotFalse(simplexml_load_string((string) $response->getBody()));
+    }
+
+    #[Test]
+    public function an_ico_favicon_is_embedded_with_its_size(): void
+    {
+        $this->setting('favicon_path', 'favicon-small.ico');
+        $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->put('favicon-small.ico', $this->ico([32]));
+
+        $image = $this->description()->Image;
+
+        $this->assertSame(['32', '32', 'image/x-icon'], [(string) $image['width'], (string) $image['height'], (string) $image['type']]);
+    }
+
+    #[Test]
+    public function shared_caches_may_not_store_the_description_with_a_session_cookie(): void
+    {
+        // A cache that stored it would hand one visitor's session to others.
+        $response = $this->send($this->request('GET', '/opensearch'));
+
+        $this->assertNotEmpty($response->getHeaderLine('Set-Cookie'));
+        $this->assertStringContainsString('private', $response->getHeaderLine('Cache-Control'));
+    }
+
+    private function uploadFavicon(int $red, int $green, int $blue): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'flarum-favicon-').'.png';
+        $image = imagecreatetruecolor(64, 64);
+        imagefill($image, 0, 0, imagecolorallocate($image, $red, $green, $blue));
+        imagepng($image, $path);
+
+        $this->send(
+            $this->request('POST', '/api/favicon', ['authenticatedAs' => 1])
+                ->withUploadedFiles(['favicon' => new UploadedFile(new Stream($path), filesize($path), UPLOAD_ERR_OK, 'favicon.png', 'image/png')])
+        );
+        @unlink($path);
+    }
+
+    private function embeddedPng(): string
+    {
+        foreach ($this->description()->Image as $element) {
+            if ((string) $element['type'] === 'image/png') {
+                return (string) $element;
+            }
+        }
+
+        $this->fail('The favicon is not embedded as a PNG.');
+    }
+
+    #[Test]
+    public function a_new_favicon_replaces_the_embedded_one(): void
+    {
+        $this->uploadFavicon(255, 0, 0);
+        $red = $this->embeddedPng();
+
+        $this->uploadFavicon(0, 0, 255);
+
+        $this->assertNotSame($red, $this->embeddedPng());
     }
 }

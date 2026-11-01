@@ -138,4 +138,10 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'opensearch',
         $route->toController(Controller\OpenSearchController::class)
     );
+
+    $map->get(
+        '/opensearch/search',
+        'opensearch.search',
+        $route->toController(Controller\OpenSearchSearchController::class)
+    );
 };

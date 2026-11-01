@@ -9,14 +9,16 @@
 
 namespace Flarum\Forum\OpenSearch;
 
+use DOMDocument;
+use DOMElement;
 use Flarum\Forum\Branding\Branding;
 use Flarum\Forum\Branding\IconSet;
 use Flarum\Forum\Branding\ShortName;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
-use XMLWriter;
 
 /**
  * The OpenSearch description, which lets browsers add the forum as a search
@@ -28,6 +30,16 @@ class OpenSearchDescription
 {
     public const MAX_DESCRIPTION_LENGTH = 1024;
 
+    /**
+     * The room embedded images may take: Chrome ignores a description over
+     * 50,000 bytes, and the rest of it takes a few thousand at most.
+     */
+    public const MAX_IMAGE_BYTES = 40000;
+
+    protected const NS = 'http://a9.com/-/spec/opensearch/1.1/';
+
+    protected const MOZ_NS = 'http://www.mozilla.org/2006/browser/search/';
+
     protected Cloud $assets;
 
     public function __construct(
@@ -36,6 +48,7 @@ class OpenSearchDescription
         protected Branding $branding,
         protected IconSet $icons,
         protected UrlGenerator $url,
+        protected Cache $cache,
         Factory $filesystemFactory
     ) {
         $this->assets = $filesystemFactory->disk('flarum-assets');
@@ -45,47 +58,49 @@ class OpenSearchDescription
     {
         $forum = $this->url->to('forum')->base();
 
-        $xml = new XMLWriter();
-        $xml->openMemory();
-        $xml->setIndent(true);
-        $xml->startDocument('1.0', 'UTF-8');
+        $document = new DOMDocument('1.0', 'UTF-8');
+        $document->formatOutput = true;
 
-        $xml->startElement('OpenSearchDescription');
-        $xml->writeAttribute('xmlns', 'http://a9.com/-/spec/opensearch/1.1/');
-        $xml->writeAttribute('xmlns:moz', 'http://www.mozilla.org/2006/browser/search/');
+        $root = $document->appendChild($document->createElementNS(self::NS, 'OpenSearchDescription'));
+        $root->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:moz', self::MOZ_NS);
 
-        $xml->writeElement('ShortName', $this->shortName->get());
-        $xml->writeElement('Description', $this->description());
-        $xml->writeElement('Tags', 'flarum discussion forum');
-        $xml->writeElement('InputEncoding', 'UTF-8');
+        $this->element($root, 'ShortName', [], $this->shortName->get());
+        $this->element($root, 'Description', [], $this->description());
+        $this->element($root, 'Tags', [], 'flarum discussion forum');
+        $this->element($root, 'InputEncoding', [], 'UTF-8');
 
-        foreach ($this->images() as [$width, $height, $type, $data]) {
-            $xml->startElement('Image');
-            $xml->writeAttribute('width', (string) $width);
-            $xml->writeAttribute('height', (string) $height);
-            $xml->writeAttribute('type', $type);
-            $xml->text("data:$type;base64,".base64_encode($data));
-            $xml->endElement();
+        foreach ($this->images() as [$width, $height, $type, $uri]) {
+            $this->element($root, 'Image', ['width' => (string) $width, 'height' => (string) $height, 'type' => $type], $uri);
         }
 
-        $this->url($xml, 'text/html', $this->searchPage().'?q={searchTerms}');
-        $this->url($xml, 'application/x-suggestions+json', $this->url->to('api')->route('opensearch.suggestions').'?q={searchTerms}');
-        $this->url($xml, 'application/opensearchdescription+xml', $this->url->to('forum')->route('opensearch'), 'self');
+        $this->element($root, 'Url', ['type' => 'text/html', 'template' => $this->url->to('forum')->route('opensearch.search').'?q={searchTerms}']);
+        $this->element($root, 'Url', ['type' => 'application/x-suggestions+json', 'template' => $this->url->to('api')->route('opensearch.suggestions').'?q={searchTerms}']);
+        $this->element($root, 'Url', ['type' => 'application/opensearchdescription+xml', 'rel' => 'self', 'template' => $this->url->to('forum')->route('opensearch')]);
 
         // The forum's main page, which Firefox opens for a search with no terms.
-        $xml->writeElement('moz:SearchForm', "$forum/");
+        $root->appendChild($document->createElementNS(self::MOZ_NS, 'moz:SearchForm'))->textContent = "$forum/";
 
         // A query for clients to check the search works: the forum's name is
         // the term most likely to have results in any language.
-        $xml->startElement('Query');
-        $xml->writeAttribute('role', 'example');
-        $xml->writeAttribute('searchTerms', (string) $this->settings->get('forum_title'));
-        $xml->endElement();
+        $this->element($root, 'Query', ['role' => 'example', 'searchTerms' => (string) $this->settings->get('forum_title')]);
 
-        $xml->endElement();
-        $xml->endDocument();
+        return (string) $document->saveXML();
+    }
 
-        return $xml->outputMemory();
+    /**
+     * @param array<string, string> $attributes
+     */
+    protected function element(DOMElement $parent, string $name, array $attributes = [], ?string $text = null): void
+    {
+        $element = $parent->appendChild($parent->ownerDocument->createElementNS(self::NS, $name));
+
+        foreach ($attributes as $attribute => $value) {
+            $element->setAttribute($attribute, $this->xmlText($value));
+        }
+
+        if ($text !== null) {
+            $element->textContent = $this->xmlText($text);
+        }
     }
 
     /**
@@ -93,7 +108,7 @@ class OpenSearchDescription
      * forum's root when it is the homepage, and then has nothing at /all.
      * Any other homepage ignores the query.
      */
-    protected function searchPage(): string
+    public function searchPage(): string
     {
         if ($this->settings->get('default_route') === '/all') {
             return $this->url->to('forum')->base().'/';
@@ -102,17 +117,13 @@ class OpenSearchDescription
         return $this->url->to('forum')->route('index');
     }
 
-    protected function url(XMLWriter $xml, string $type, string $template, ?string $rel = null): void
+    /**
+     * Text without the control characters XML can't contain, which a setting
+     * pasted from elsewhere may have.
+     */
+    protected function xmlText(string $text): string
     {
-        $xml->startElement('Url');
-        $xml->writeAttribute('type', $type);
-
-        if ($rel) {
-            $xml->writeAttribute('rel', $rel);
-        }
-
-        $xml->writeAttribute('template', $template);
-        $xml->endElement();
+        return (string) preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $text);
     }
 
     protected function description(): string
@@ -126,13 +137,45 @@ class OpenSearchDescription
      * The favicon, embedded rather than linked: Firefox refuses linked icons
      * over 10KB, and an embedded one doesn't depend on where assets are served.
      *
-     * @return list<array{0: int, 1: int, 2: string, 3: string}> width, height, type and data
+     * Images that would make the document too big for Chrome are left out,
+     * and Chrome then shows the forum's /favicon.ico.
+     *
+     * Kept for a day by where the favicon is stored, which changes when it is
+     * replaced, so it isn't read and resized on every request.
+     *
+     * @return list<array{0: int, 1: int, 2: string, 3: string}> width, height, type and data: URI
      */
     protected function images(): array
     {
         $path = $this->branding->faviconPath();
 
-        if (! $path || ! $this->assets->exists($path)) {
+        if (! $path) {
+            return [];
+        }
+
+        return $this->cache->remember('flarum.opensearch.favicon.'.md5($path), 86400, function () use ($path) {
+            $budget = self::MAX_IMAGE_BYTES;
+            $images = [];
+
+            foreach ($this->favicon($path) as [$width, $height, $type, $data]) {
+                $uri = "data:$type;base64,".base64_encode($data);
+
+                if (strlen($uri) <= $budget) {
+                    $budget -= strlen($uri);
+                    $images[] = [$width, $height, $type, $uri];
+                }
+            }
+
+            return $images;
+        });
+    }
+
+    /**
+     * @return list<array{0: int, 1: int, 2: string, 3: string}> width, height, type and data
+     */
+    protected function favicon(string $path): array
+    {
+        if (! $this->assets->exists($path)) {
             return [];
         }
 
@@ -144,15 +187,16 @@ class OpenSearchDescription
         }
 
         if ($size[2] === IMAGETYPE_ICO) {
-            return [[16, 16, 'image/x-icon', $data]];
+            // The size of its largest icon, which PHP reports.
+            return [[$size[0], $size[1], 'image/x-icon', $data]];
         }
 
         $favicon = $this->icons->favicon($data);
-        $png = getimagesizefromstring($favicon['png']);
+        $png = @getimagesizefromstring($favicon['png']);
 
-        return [
+        return array_values(array_filter([
             [16, 16, 'image/x-icon', $favicon['ico']],
-            [$png[0], $png[1], 'image/png', $favicon['png']],
-        ];
+            $png ? [$png[0], $png[1], 'image/png', $favicon['png']] : null,
+        ]));
     }
 }
