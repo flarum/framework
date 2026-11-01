@@ -19,4 +19,18 @@ describe('PostUser', () => {
 
     expect(mq(PostUser, { post })).toHaveElement('h2.PostUser-name');
   });
+
+  test('asks for a third level heading below a heading of its own', () => {
+    app.store.pushPayload({ data: { type: 'users', id: '1', attributes: { username: 'alice', displayName: 'alice' } } });
+    const post = { user: () => app.store.getById('users', '1') } as any;
+
+    expect(mq(PostUser, { post, headingLevel: 3 })).toHaveElement('h3.PostUser-name a');
+    expect(mq(PostUser, { post, headingLevel: 3 })).not.toHaveElement('h2.PostUser-name');
+  });
+
+  test('a deleted user follows the requested level too', () => {
+    const post = { user: () => false } as any;
+
+    expect(mq(PostUser, { post, headingLevel: 3 })).toHaveElement('h3.PostUser-name');
+  });
 });
