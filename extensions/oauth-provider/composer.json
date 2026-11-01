@@ -13,7 +13,8 @@
     "support": {
         "issues": "https://github.com/flarum/framework/issues",
         "source": "https://github.com/flarum/oauth-provider",
-        "forum": "https://discuss.flarum.org"
+        "forum": "https://discuss.flarum.org",
+        "docs": "https://docs.flarum.org/extensions/oauth-provider"
     },
     "homepage": "https://flarum.org",
     "funding": [

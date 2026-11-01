@@ -11,7 +11,8 @@
     "support": {
         "issues": "https://github.com/flarum/framework/issues",
         "source": "https://github.com/flarum/mcp",
-        "forum": "https://discuss.flarum.org"
+        "forum": "https://discuss.flarum.org",
+        "docs": "https://docs.flarum.org/extensions/mcp"
     },
     "homepage": "https://flarum.org",
     "funding": [
@@ -22,7 +23,7 @@
     ],
     "require": {
         "flarum/core": "^2.1",
-        "flarum/oauth-provider": "*@dev",
+        "flarum/oauth-provider": "^2.1",
         "mcp/sdk": "~0.9.0",
         "ext-json": "*"
     },
