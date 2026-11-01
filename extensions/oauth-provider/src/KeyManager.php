@@ -160,7 +160,10 @@ class KeyManager
 
             $temporary = tempnam($directory, '.'.$file.'.');
 
-            if ($temporary === false || dirname($temporary) !== $directory) {
+            // tempnam() falls back to the system temporary directory when it
+            // can't write here. It returns a canonical path, so compare
+            // canonical paths: storage may sit behind `..` or a symlink.
+            if ($temporary === false || realpath(dirname($temporary)) !== realpath($directory)) {
                 throw new RuntimeException("Could not write to the key directory $directory.");
             }
 
