@@ -73,19 +73,31 @@ class Client extends AbstractModel
     }
 
     /**
-     * The host a self-described client comes from: the client_id host for a
-     * metadata document, the client_uri host otherwise. Admin clients have none.
+     * The host a self-described client is known by, as far as the server can
+     * vouch for it: the client_id host for a metadata document, and for a
+     * self-registered client the host its redirect URIs share (null when they
+     * span several). A registrant's client_uri is its own unchecked claim, so
+     * it is never used. Admin clients have none.
      */
     public function sourceHost(): ?string
     {
-        $url = match ($this->source) {
-            self::SOURCE_METADATA_DOCUMENT => $this->id,
-            self::SOURCE_DYNAMIC => $this->client_uri,
-            default => null,
-        };
+        if ($this->source === self::SOURCE_METADATA_DOCUMENT) {
+            return self::hostOf($this->id);
+        }
 
-        $host = $url === null ? null : parse_url($url, PHP_URL_HOST);
+        if ($this->source === self::SOURCE_DYNAMIC) {
+            $hosts = array_unique(array_map(self::hostOf(...), array_filter((array) $this->redirect_uris, is_string(...))));
 
-        return is_string($host) ? $host : null;
+            return count($hosts) === 1 ? reset($hosts) : null;
+        }
+
+        return null;
+    }
+
+    public static function hostOf(string $url): ?string
+    {
+        $host = parse_url($url, PHP_URL_HOST);
+
+        return is_string($host) && $host !== '' ? $host : null;
     }
 }

@@ -96,6 +96,28 @@ class ConsentResourceTest extends TestCase
     }
 
     #[Test]
+    public function a_self_registered_client_is_listed_under_its_redirect_host_not_its_client_uri(): void
+    {
+        $this->prepareDatabase([
+            'oauth_provider_clients' => [
+                $this->clientRow('dcr-client', false, ['https://collector.example.net/a', 'https://collector.example.net/b'], [
+                    'source' => 'dynamic',
+                    'client_uri' => 'https://trusted.example',
+                ]),
+            ],
+            'oauth_provider_user_consents' => [
+                ['id' => 5, 'user_id' => 3, 'client_id' => 'dcr-client', 'scopes' => '["openid"]', 'revoked' => 0, 'created_at' => Carbon::now()->toDateTimeString()],
+            ],
+        ]);
+
+        $response = $this->send($this->request('GET', '/api/oauth-consents', ['authenticatedAs' => 3]));
+
+        $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
+        $hosts = array_column(array_column($this->json($response)['data'], 'attributes'), 'clientSourceHost', 'clientId');
+        $this->assertSame('collector.example.net', $hosts['dcr-client']);
+    }
+
+    #[Test]
     public function admin_sees_only_their_own_consents(): void
     {
         $response = $this->send($this->request('GET', '/api/oauth-consents', ['authenticatedAs' => 1]));

@@ -195,12 +195,22 @@ class AuthorizeController implements RequestHandlerInterface
         // choose their own name, so they are marked unverified and the user
         // is shown where they would be sent back to.
         $selfDescribed = $clientModel !== null && $clientModel->source !== Client::SOURCE_ADMIN;
+        $redirectHost = $selfDescribed ? $this->redirectHost($authRequest) : null;
+
+        // Only a host the server has checked names the client: the metadata
+        // document's own URL, or for a self-registered client the redirect URI
+        // this request will send the code to (never its self-chosen client_uri).
+        $sourceHost = match ($clientModel?->source) {
+            Client::SOURCE_METADATA_DOCUMENT => $clientModel->sourceHost(),
+            Client::SOURCE_DYNAMIC => $redirectHost,
+            default => null,
+        };
 
         $html = $this->view->make('flarum-oauth-provider::consent', [
             'client' => $authRequest->getClient(),
             'unverified' => $selfDescribed,
-            'sourceHost' => $selfDescribed ? $clientModel->sourceHost() : null,
-            'redirectHost' => $selfDescribed ? $this->redirectHost($authRequest) : null,
+            'sourceHost' => $sourceHost,
+            'redirectHost' => $redirectHost,
             'scopes' => $scopeDescriptions,
             'actor' => $actor,
             'formAction' => (string) $request->getUri(),
@@ -245,9 +255,8 @@ class AuthorizeController implements RequestHandlerInterface
     {
         $redirectUri = $authRequest->getRedirectUri() ?? (array) $authRequest->getClient()->getRedirectUri();
         $redirectUri = is_array($redirectUri) ? (string) reset($redirectUri) : $redirectUri;
-        $host = parse_url($redirectUri, PHP_URL_HOST);
 
-        return is_string($host) && $host !== '' ? $host : null;
+        return Client::hostOf($redirectUri);
     }
 
     /**
