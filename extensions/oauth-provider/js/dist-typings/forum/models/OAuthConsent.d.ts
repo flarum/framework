@@ -8,4 +8,5 @@ export default class OAuthConsent extends Model {
     scopes: () => string[];
     createdAt: () => Date | null;
     lastUsedAt: () => Date | null;
+    lastIpAddress: () => string | null;
 }
