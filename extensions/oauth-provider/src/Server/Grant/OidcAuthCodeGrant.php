@@ -187,6 +187,7 @@ class OidcAuthCodeGrant extends AuthCodeGrant
         try {
             $response = parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
             $issuedId = $this->issuedAccessTokenId;
+            $this->assertFamilyNotRevoked($this->tokenGrantId);
         } catch (OAuthServerException $e) {
             throw $this->detectReplay($e, $request, $authCode) ?? $e;
         } finally {

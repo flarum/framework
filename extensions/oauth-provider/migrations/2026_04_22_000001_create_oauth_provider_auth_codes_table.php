@@ -17,6 +17,8 @@ return Migration::createTable('oauth_provider_auth_codes', function (Blueprint $
     $table->string('scopes', 1000)->nullable();
     $table->string('resource', 2048)->nullable();
     $table->boolean('revoked')->default(false);
+    // Set when the tokens descending from this code are revoked for a replay.
+    $table->boolean('family_revoked')->default(false);
     $table->dateTime('expires_at');
     $table->dateTime('created_at')->nullable();
 

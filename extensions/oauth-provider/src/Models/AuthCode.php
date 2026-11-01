@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Carbon|null $auth_time
  * @property string|null $resource
  * @property bool        $revoked
+ * @property bool        $family_revoked
  * @property Carbon      $expires_at
  * @property Carbon|null $created_at
  * @property Client      $client
@@ -39,6 +40,7 @@ class AuthCode extends AbstractModel
     protected $casts = [
         'scopes' => 'array',
         'revoked' => 'boolean',
+        'family_revoked' => 'boolean',
         'expires_at' => 'datetime',
         'created_at' => 'datetime',
         'auth_time' => 'datetime',

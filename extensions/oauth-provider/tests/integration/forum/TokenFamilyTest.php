@@ -142,6 +142,71 @@ class TokenFamilyTest extends TestCase
     }
 
     #[Test]
+    public function a_code_replayed_while_its_tokens_are_being_issued_still_revokes_them(): void
+    {
+        $code = $this->publicClientCode('public-client');
+        $replay = null;
+
+        // B presents the code after A used it up but before A stored its tokens.
+        $this->app()->getContainer()->instance(AuthCodeRepository::class, new class(function () use ($code, &$replay) {
+            $replay = $this->exchangeCode('public-client', $code);
+        }) extends AuthCodeRepository {
+            public function __construct(protected ?\Closure $afterConsume)
+            {
+            }
+
+            public function consumeAuthCode(string $codeId): bool
+            {
+                $consumed = parent::consumeAuthCode($codeId);
+                $hook = $this->afterConsume;
+                $this->afterConsume = null;
+                $hook && $hook();
+
+                return $consumed;
+            }
+        });
+
+        $first = $this->exchangeCode('public-client', $code);
+
+        $this->assertSame(400, $replay?->getStatusCode());
+        $this->assertSame(0, AccessToken::query()->where('revoked', false)->count(), 'No token issued from a replayed code may stay valid: '.$first->getBody());
+        $this->assertSame(0, RefreshToken::query()->where('revoked', false)->count());
+        $this->assertSame(400, $first->getStatusCode());
+    }
+
+    #[Test]
+    public function a_refresh_token_reused_while_its_successor_is_being_issued_still_revokes_it(): void
+    {
+        $tokens = $this->publicClientTokens('public-client');
+        $reuse = null;
+
+        $this->app()->getContainer()->instance(RefreshTokenRepository::class, new class(function () use ($tokens, &$reuse) {
+            $reuse = $this->refresh('public-client', $tokens['refresh_token']);
+        }) extends RefreshTokenRepository {
+            public function __construct(protected ?\Closure $afterConsume)
+            {
+            }
+
+            public function consumeRefreshToken(string $tokenId): bool
+            {
+                $consumed = parent::consumeRefreshToken($tokenId);
+                $hook = $this->afterConsume;
+                $this->afterConsume = null;
+                $hook && $hook();
+
+                return $consumed;
+            }
+        });
+
+        $first = $this->refresh('public-client', $tokens['refresh_token']);
+
+        $this->assertSame(400, $reuse?->getStatusCode());
+        $this->assertSame(0, AccessToken::query()->where('revoked', false)->count(), 'No token of a reused grant may stay valid: '.$first->getBody());
+        $this->assertSame(0, RefreshToken::query()->where('revoked', false)->count());
+        $this->assertSame(400, $first->getStatusCode());
+    }
+
+    #[Test]
     public function refresh_token_reuse_only_revokes_its_own_grant(): void
     {
         $reused = $this->publicClientTokens('public-client');

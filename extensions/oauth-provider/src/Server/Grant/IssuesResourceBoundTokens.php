@@ -12,6 +12,7 @@ namespace Flarum\OAuthProvider\Server\Grant;
 use DateInterval;
 use DateTimeImmutable;
 use Flarum\OAuthProvider\Models\AccessToken;
+use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\ResourceServer\ResourceRegistry;
 use Flarum\OAuthProvider\Server\Entity\AccessTokenEntity;
@@ -140,11 +141,34 @@ trait IssuesResourceBoundTokens
     /**
      * Revokes every access and refresh token descending from one
      * authorization code; other grants of the same user and client stay valid.
+     *
+     * The family is marked revoked first: a request still issuing tokens into
+     * it checks the mark once they are stored (see assertFamilyNotRevoked()),
+     * so tokens stored after these updates are revoked as well.
      */
     protected function revokeTokenFamily(string $grantId): void
     {
+        AuthCode::query()->whereKey($grantId)->update(['family_revoked' => true]);
         AccessToken::query()->where('grant_id', $grantId)->update(['revoked' => true]);
         RefreshToken::query()->where('grant_id', $grantId)->update(['revoked' => true]);
+    }
+
+    /**
+     * Runs once the new tokens are stored: when the family was revoked in the
+     * meantime, by a request that presented the same code or refresh token,
+     * revokes them too and fails.
+     *
+     * @throws OAuthServerException
+     */
+    protected function assertFamilyNotRevoked(?string $grantId): void
+    {
+        if ($grantId === null || ! AuthCode::query()->whereKey($grantId)->where('family_revoked', true)->exists()) {
+            return;
+        }
+
+        $this->revokeTokenFamily($grantId);
+
+        throw OAuthServerException::invalidGrant('This grant has been revoked because its code or refresh token was used more than once.');
     }
 
     public static function invalidTarget(?string $redirectUri = null): OAuthServerException

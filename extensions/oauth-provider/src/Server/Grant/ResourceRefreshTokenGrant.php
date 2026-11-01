@@ -45,7 +45,10 @@ class ResourceRefreshTokenGrant extends RefreshTokenGrant
             $response = parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
             $issuedId = $this->issuedAccessTokenId;
             $authTime = $this->previousAuthTime;
+            $this->assertFamilyNotRevoked($this->tokenGrantId);
         } finally {
+            $this->tokenResource = null;
+            $this->tokenGrantId = null;
             $this->issuedAccessTokenId = null;
             $this->previousAuthTime = null;
         }
