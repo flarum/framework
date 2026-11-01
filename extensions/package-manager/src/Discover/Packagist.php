@@ -148,9 +148,10 @@ class Packagist
          * site used to run for a day after an upgrade, which is exactly when
          * somebody goes looking for extensions that now work.
          */
-        // "v3": verdicts cached before untagged packages were read from their
-        // ~dev file say "could not check" for every one of them.
-        $scope = 'compat:v3:'.$compat->coreVersion().':';
+        // "v4": verdicts cached before then call `2.0.0-b2` stable, call an
+        // extension that declares no Flarum version incompatible, and may be
+        // an unreadable answer kept as "unknown", for up to a day.
+        $scope = 'compat:v4:'.$compat->coreVersion().':';
 
         foreach ($names as $name) {
             $out[$name] = $this->one($name, $compat, $scope);
