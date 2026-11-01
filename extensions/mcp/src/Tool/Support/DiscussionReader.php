@@ -26,9 +26,14 @@ class DiscussionReader
     public const int MAX_LIMIT = 50;
 
     /**
+     * Pages are offsets into the posts the actor can see, in number order, so
+     * following the paging hints visits each post once. `near` (a post number)
+     * is only an entry point: the API centres the page on it, and the hints
+     * then continue by offset from where that page starts.
+     *
      * @return array<string, mixed>
      */
-    public function read(McpContext $context, string $id, ?int $near = null, int $limit = 20): array
+    public function read(McpContext $context, string $id, ?int $near = null, int $limit = 20, ?int $offset = null): array
     {
         $limit = max(1, min(static::MAX_LIMIT, $limit));
 
@@ -38,15 +43,21 @@ class DiscussionReader
         $url = $context->url->to('forum')->route('discussion', ['id' => $slug]);
 
         $page = ['limit' => $limit];
-        if ($near && $near > 1) {
+        if ($offset !== null) {
+            $page['offset'] = max(0, $offset);
+        } elseif ($near && $near > 1) {
             $page['near'] = $near;
         }
 
-        $postsDocument = Document::from($context->api->index('posts', [
+        $postsResult = $context->api->index('posts', [
             'filter' => ['discussion' => (string) $discussion['id']],
             'page' => $page,
             'include' => 'user',
-        ]));
+        ]);
+        $postsDocument = Document::from($postsResult);
+
+        // Where the page starts: the API works it out for `near`.
+        $start = (int) ($postsResult->meta()['page']['offset'] ?? $page['offset'] ?? 0);
 
         $posts = array_map(fn (array $post) => $this->post($postsDocument, $post, $url), $postsDocument->many());
 
@@ -78,12 +89,15 @@ class DiscussionReader
         $truncated = (bool) ($output['meta']['truncated'] ?? false);
         unset($output['meta']);
 
+        $previousStart = max(0, $start - $limit);
+
         $output['paging'] = [
             'truncated' => $truncated,
             'from' => $first,
             'to' => $last,
-            'previous' => $first && $first > 1 ? ['near' => max(1, $first - $limit)] : null,
-            'next' => $last && $last < $lastPostNumber ? ['near' => $last + 1] : null,
+            'previous' => $start > 0 ? ['offset' => $previousStart, 'limit' => $start - $previousStart] : null,
+            // A cut page continues right after the last post shown.
+            'next' => $shown && ($truncated || isset($postsResult->links()['next'])) ? ['offset' => $start + count($shown)] : null,
         ];
 
         return $output;

@@ -337,7 +337,7 @@ Exposure rules:
 | Name | Kind | Read-only | Notes |
 |---|---|---|---|
 | `search_discussions` | tool | yes | Arguments: `query?`, `author?` (username), `sort` (`latest` \| `top` \| `newest` \| `oldest`), `limit` ≤ 50, `offset`, plus integration arguments (for example `tag`). Returns id, title, url, author, createdAt, lastPostedAt, commentCount, and the first post excerpt (300 chars, only when it was included in the search result). |
-| `read_discussion` | tool | yes | `id`, `near` (post number), `limit` ≤ 50. Returns discussion metadata plus comment posts (number, id, author, createdAt, editedAt, plain-text content, url) and paging hints. Event posts are rendered as one-line summaries. |
+| `read_discussion` | tool | yes | `id`, `offset`, `near` (post number), `limit` ≤ 50. Returns discussion metadata plus comment posts (number, id, author, createdAt, editedAt, plain-text content, url) and paging hints. Event posts are rendered as one-line summaries. Pages are offsets into the posts the actor can see (`page[offset]` with `filter[discussion]` and the default number order); `near` is only an entry point, as the API centres that page on the post. The hints `previous` / `next` are arguments (`offset`, and `limit` for `previous`) that continue from the posts actually shown, so following them visits each post once. |
 | `get_user` | tool | yes | `username` or `id`. Profile fields visible to the actor. |
 | `whoami` | tool | yes | The actor's username, display name, groups, and a list of what they can do (see the overview). |
 | `list_notifications` | tool | yes | Requires sign-in. Unread first, limit ≤ 50. Reads through core's `NotificationRepository` (the grouping and subject visibility of the Index endpoint), not the Index endpoint, which marks the actor's notifications seen; listing changes nothing. |
@@ -346,7 +346,7 @@ Exposure rules:
 | `edit_post` | tool | no | `postId`, `content`. |
 | `mark_notifications_read` | tool | no | `ids?` (all when omitted). |
 | `flarum://forum` | resource | n/a | The forum overview (below). |
-| `flarum://discussions/{id}` | template | n/a | Same output as `read_discussion` (first 20 posts). |
+| `flarum://discussions/{id}` | template | n/a | Same output as `read_discussion` (first 20 posts); its paging hints are `read_discussion` arguments, as the SDK's templates only take `{var}` path segments. |
 | `flarum://users/{username}` | template | n/a | Same output as `get_user`. |
 | `summarize_discussion` | prompt | n/a | Argument `id`. Asks the model to read the discussion via `read_discussion` and summarise it. |
 | `draft_reply` | prompt | n/a | Arguments `id` and `intent`. Asks the model to read the discussion and draft a reply for the user to review before posting. |
