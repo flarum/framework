@@ -55,7 +55,7 @@ export default class GambitsAutocomplete {
 
     const autocompleteReader = new AutocompleteReader(null);
 
-    const cursorPosition = this.jqueryInput().prop('selectionStart') ?? query.length;
+    const cursorPosition = this.jqueryInput().prop('selectionEnd') ?? query.length;
     const lastChunk = query.slice(0, cursorPosition);
     const autocomplete = autocompleteReader.check(lastChunk, cursorPosition, /\S+$/);
 
@@ -106,10 +106,10 @@ export default class GambitsAutocomplete {
 
         return this.gambitSuggestion(key, hint, (negated: boolean | undefined) => {
           const isNeg = typeof negated === 'boolean' ? negated : negative;
-          const fromTyped = autocomplete?.typed ?? (negative ? '-' : '') + typed;
           const start = autocomplete?.relativeStart ?? cursorPosition;
+          const keyPart = autocomplete ? this.query.slice(start).match(/^[^\s:]*:?/)![0] : '';
 
-          this.suggest((isNeg ? '-' : '') + key + ':', fromTyped, start);
+          this.suggest((isNeg ? '-' : '') + key + ':', keyPart, start);
         });
       });
   }
@@ -139,7 +139,9 @@ export default class GambitsAutocomplete {
       }
 
       return matchingKeys.map((gambit) =>
-        this.gambitSuggestion(gambit, null, () => this.suggest(prefix + gambit, autocomplete.typed, autocomplete.relativeStart))
+        this.gambitSuggestion(gambit, null, () =>
+          this.suggest(prefix + gambit, this.query.slice(autocomplete.relativeStart).match(/^\S*/)![0], autocomplete.relativeStart)
+        )
       );
     }
 
@@ -182,20 +184,14 @@ export default class GambitsAutocomplete {
     const $input = this.jqueryInput();
 
     const query = this.query;
-    const tokenMatch = fromTyped ? query.slice(start).match(/^\S+/) : null;
-    const replaceLength = tokenMatch && tokenMatch[0].toLowerCase().startsWith(fromTyped.toLowerCase()) ? tokenMatch[0].length : fromTyped.length;
-    const replaced = query.slice(0, start) + text + query.slice(start + replaceLength);
+    const replaced = query.slice(0, start) + text + query.slice(start + fromTyped.length);
 
     this.onchange(replaced);
-    if ($input && $input[0]) {
-      $input[0].focus();
-      setTimeout(() => {
-        if ($input[0]) {
-          $input[0].setSelectionRange(start + text.length, start + text.length);
-          m.redraw();
-        }
-      }, 50);
-    }
+    $input[0].focus();
+    setTimeout(() => {
+      $input[0].setSelectionRange(start + text.length, start + text.length);
+      m.redraw();
+    }, 50);
 
     this.afterSuggest(replaced);
   }
