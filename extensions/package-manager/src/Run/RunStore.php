@@ -49,10 +49,18 @@ class RunStore
             throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.run.state_write_failed', ['path' => $temp]));
         }
 
-        fwrite($handle, $json);
+        // A full disk truncates the write; renaming that into place would
+        // replace a good state with half of one.
+        $written = fwrite($handle, (string) $json);
         fflush($handle);
         fsync($handle);
         fclose($handle);
+
+        if ($json === false || $written !== strlen($json)) {
+            @unlink($temp);
+
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.run.state_write_failed', ['path' => $temp]));
+        }
 
         // rename() is atomic, so a concurrent reader sees either the whole
         // previous state or the whole new one, and never a half-written file.

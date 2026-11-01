@@ -61,6 +61,12 @@ class ChangeTest extends TestCase
         $this->assertStringNotContainsString('/', $a->trashName());
     }
 
+    public function test_a_branch_version_with_a_slash_stays_one_entry_in_the_trash(): void
+    {
+        // flarum/framework#5357: dev-feature/x made a nested trash path.
+        $this->assertSame('acme+widget@dev-feature+x', (new Change(Change::REPLACE, 'acme/widget', 'dev-feature/x', 'dev-main'))->trashName());
+    }
+
     public function test_a_change_missing_the_versions_its_operation_needs_is_refused(): void
     {
         // Caught at construction so the applier can trust the object, rather
