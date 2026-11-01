@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider;
 
 use Flarum\Extend;
+use Flarum\Gdpr\Extend\UserData as GdprUserData;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\User\Search\UserSearcher;
 use Illuminate\Console\Scheduling\Event;
@@ -52,6 +53,14 @@ return [
     (new Extend\Settings())
         ->default(ClientRegistration\AllowedClients::SELF_REGISTERED_SETTING, true)
         ->default(ClientRegistration\AllowedClients::ADMIN_SETTING, true),
+
+    (new Extend\Conditional())
+        // The applications a member connected are personal data: exported
+        // with the member, disconnected when they are anonymised or erased.
+        ->whenExtensionEnabled('flarum-gdpr', fn () => [
+            (new GdprUserData())
+                ->addType(Data\ConnectedApplications::class),
+        ]),
 
     (new Extend\View())
         ->namespace('flarum-oauth-provider', __DIR__.'/resources/views'),

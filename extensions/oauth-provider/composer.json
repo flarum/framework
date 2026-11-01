@@ -40,6 +40,9 @@
         "flarum-extension": {
             "title": "OAuth Provider",
             "category": "authentication",
+            "optional-dependencies": [
+                "flarum/gdpr"
+            ],
             "icon": {
                 "name": "fas fa-key",
                 "backgroundColor": "#3B4252",
@@ -77,7 +80,9 @@
     },
     "require-dev": {
         "flarum/testing": "^2.0",
-        "flarum/core": "2.x-dev"
+        "flarum/core": "2.x-dev",
+        "flarum/gdpr": "*",
+        "flarum/suspend": "*"
     },
     "scripts-descriptions": {
         "test": "Runs all tests.",

@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider\Server\Repository;
 
 use Carbon\Carbon;
+use Flarum\OAuthProvider\Access\MemberAccess;
 use Flarum\OAuthProvider\ClientRegistration\AllowedClients;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Server\Entity\AccessTokenEntity;
@@ -22,6 +23,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
     public function __construct(
         protected AllowedClients $allowed,
+        protected MemberAccess $access,
     ) {
     }
 
@@ -80,10 +82,12 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         }
 
         // Revoking a client, or switching off its kind, cuts off its
-        // outstanding tokens as well.
+        // outstanding tokens as well, and so does its member losing the
+        // permission to use applications.
         return (bool) $token->revoked
             || $token->client === null
             || (bool) $token->client->revoked
-            || ! $this->allowed->allows($token->client);
+            || ! $this->allowed->allows($token->client)
+            || ! $this->access->allowsUserId($token->user_id);
     }
 }

@@ -59,6 +59,9 @@ flarum-oauth-provider:
       self_registered: "Self-registered"
       settings: "Settings"
 
+    permissions:
+      connect_label: "Connect applications to their account"
+
     secret_modal:
       title: "Client created"
       intro: "Save these credentials now — the secret is not shown again."
@@ -99,3 +102,12 @@ flarum-oauth-provider:
       never_used: "never used"
       revoke_button: "Revoke"
       revoke_confirm: "Revoke access for {client}? It will be signed out and has to ask for permission again."
+
+# Shown by flarum/gdpr when describing what it does with a member's connected applications.
+flarum-gdpr:
+  lib:
+    data:
+      connectedapplications:
+        export_description: The applications you connected to your account, with what you allowed them and when.
+        anonymize_description: => flarum-gdpr.lib.data.connectedapplications.delete_description
+        delete_description: The applications you connected are disconnected, and their access to your account is removed.

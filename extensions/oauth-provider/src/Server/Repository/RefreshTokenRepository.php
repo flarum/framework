@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider\Server\Repository;
 
 use Carbon\Carbon;
+use Flarum\OAuthProvider\Access\MemberAccess;
 use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\Server\Entity\AccessTokenEntity;
 use Flarum\OAuthProvider\Server\Entity\RefreshTokenEntity;
@@ -19,6 +20,11 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 
 class RefreshTokenRepository implements RefreshTokenRepositoryInterface
 {
+    public function __construct(
+        protected MemberAccess $access,
+    ) {
+    }
+
     public function getNewRefreshToken(): ?RefreshTokenEntityInterface
     {
         return new RefreshTokenEntity();
@@ -60,12 +66,14 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     public function isRefreshTokenRevoked($tokenId): bool
     {
         /** @var RefreshToken|null $token */
-        $token = RefreshToken::query()->where('id', $tokenId)->first();
+        $token = RefreshToken::query()->with('accessToken')->where('id', $tokenId)->first();
 
         if ($token === null) {
             return true;
         }
 
-        return (bool) $token->revoked;
+        // While its member may not use applications, the token waits: it
+        // works again once they may.
+        return (bool) $token->revoked || ! $this->access->allowsUserId($token->accessToken?->user_id);
     }
 }
