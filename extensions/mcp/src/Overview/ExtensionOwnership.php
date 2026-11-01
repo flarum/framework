@@ -33,6 +33,12 @@ class ExtensionOwnership
     {
         $class = ltrim(is_object($class) ? $class::class : $class, '\\');
 
+        // An extension may replace a class with a subclass of its own, bound in
+        // the container; what it replaces still belongs to whoever defined it.
+        while (($parent = get_parent_class($class)) && ! (new \ReflectionClass($parent))->isAbstract()) {
+            $class = $parent;
+        }
+
         $owner = static::CORE;
         $longest = 0;
 

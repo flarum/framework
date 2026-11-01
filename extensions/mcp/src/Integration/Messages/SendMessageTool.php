@@ -13,6 +13,7 @@ use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Tool;
 use Flarum\Mcp\Exception\ToolError;
 use Flarum\Mcp\Tool\Support\Document;
+use Flarum\Mcp\Tool\Support\Members;
 
 /**
  * Sends a private message, in an existing conversation or to a member. Who
@@ -20,6 +21,11 @@ use Flarum\Mcp\Tool\Support\Document;
  */
 class SendMessageTool extends Tool
 {
+    public function __construct(
+        protected Members $members,
+    ) {
+    }
+
     public function name(): string
     {
         return 'send_message';
@@ -75,9 +81,8 @@ class SendMessageTool extends Tool
         if ($conversationId !== '') {
             $relationships['dialog'] = ['data' => ['type' => 'dialogs', 'id' => $conversationId]];
         } else {
-            // `bySlug` resolves through the forum's user slug driver (username by default).
-            $recipient = Document::from($context->api->show('users', $to, ['bySlug' => '1']))->one();
-            $attributes['users'] = [['id' => (string) $recipient['id']]];
+            $recipient = $this->members->find($to, $context->actor) ?? throw new ToolError('Not found.');
+            $attributes['users'] = [['id' => (string) $recipient->id]];
         }
 
         $message = Document::from($context->api->create('dialog-messages', $attributes, $relationships))->one();
