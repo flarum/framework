@@ -148,6 +148,22 @@ class Mcp implements ExtenderInterface
     }
 
     /**
+     * Refuse fields of a type to the generic create and update tools, whatever
+     * the actor's own gates allow, for fields an assistant must never change
+     * (credentials, privileges). A call naming one is refused before it
+     * reaches the API, and `describe_api` reports the field as not writable.
+     *
+     * @param list<string> $attributes
+     * @param list<string> $relationships
+     */
+    public function denyWriteFields(string $type, array $attributes, array $relationships = []): self
+    {
+        $this->operations[] = fn (CapabilityRegistry $registry) => $registry->denyWriteFields($type, $attributes, $relationships);
+
+        return $this;
+    }
+
+    /**
      * Hide a type from the generic tools and `describe_api`.
      */
     public function hide(string $type): self

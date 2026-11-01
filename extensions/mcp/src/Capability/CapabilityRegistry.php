@@ -69,6 +69,13 @@ class CapabilityRegistry
     protected array $writes = [];
 
     /**
+     * Fields the generic tools refuse to write, by type.
+     *
+     * @var array<string, array{attributes: array<string, true>, relationships: array<string, true>}>
+     */
+    protected array $deniedWriteFields = [];
+
+    /**
      * @var array<string, true>
      */
     protected array $hiddenTypes = [];
@@ -166,6 +173,20 @@ class CapabilityRegistry
     public function allowWrites(string $type, array $operations): void
     {
         $this->writes[$type] = array_values(array_unique([...($this->writes[$type] ?? []), ...$operations]));
+    }
+
+    /**
+     * @param list<string> $attributes
+     * @param list<string> $relationships
+     */
+    public function denyWriteFields(string $type, array $attributes, array $relationships = []): void
+    {
+        $denied = $this->deniedWriteFields[$type] ?? ['attributes' => [], 'relationships' => []];
+
+        $denied['attributes'] += array_fill_keys($attributes, true);
+        $denied['relationships'] += array_fill_keys($relationships, true);
+
+        $this->deniedWriteFields[$type] = $denied;
     }
 
     public function hide(string $type): void
@@ -288,6 +309,16 @@ class CapabilityRegistry
     public function writesAllowed(string $type, string $operation): bool
     {
         return in_array($operation, $this->writes[$type] ?? [], true);
+    }
+
+    public function isAttributeWriteDenied(string $type, string $attribute): bool
+    {
+        return isset($this->deniedWriteFields[$type]['attributes'][$attribute]);
+    }
+
+    public function isRelationshipWriteDenied(string $type, string $relationship): bool
+    {
+        return isset($this->deniedWriteFields[$type]['relationships'][$relationship]);
     }
 
     public function isHidden(string $type): bool

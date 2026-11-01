@@ -58,11 +58,15 @@ class CreateResourceTool extends GenericTool
     {
         $type = (string) $arguments['type'];
         $resource = $this->exposedResource($type, $context);
+        $attributes = (array) ($arguments['attributes'] ?? []);
+        $relationships = (array) ($arguments['relationships'] ?? []);
+
+        $this->assertFieldsWritable($type, $attributes, $relationships);
 
         return $context->api->create(
             $type,
-            (array) ($arguments['attributes'] ?? []),
-            $this->relationships($resource, (array) ($arguments['relationships'] ?? [])),
+            $attributes,
+            $this->relationships($resource, $relationships),
         )->simplify();
     }
 }

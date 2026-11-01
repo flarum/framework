@@ -64,12 +64,16 @@ class UpdateResourceTool extends GenericTool
     {
         $type = (string) $arguments['type'];
         $resource = $this->exposedResource($type, $context);
+        $attributes = (array) ($arguments['attributes'] ?? []);
+        $relationships = (array) ($arguments['relationships'] ?? []);
+
+        $this->assertFieldsWritable($type, $attributes, $relationships);
 
         return $context->api->update(
             $type,
             (string) $arguments['id'],
-            (array) ($arguments['attributes'] ?? []),
-            $this->relationships($resource, (array) ($arguments['relationships'] ?? [])),
+            $attributes,
+            $this->relationships($resource, $relationships),
         )->simplify();
     }
 }

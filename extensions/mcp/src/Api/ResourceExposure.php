@@ -176,6 +176,16 @@ class ResourceExposure
     }
 
     /**
+     * Whether the generic tools refuse to write this field (attribute or
+     * relationship) of the type, whatever the actor's gates allow.
+     */
+    public function isWriteDenied(string $type, string $field): bool
+    {
+        return $this->registry->isAttributeWriteDenied($type, $field)
+            || $this->registry->isRelationshipWriteDenied($type, $field);
+    }
+
+    /**
      * The endpoint's own `authenticated()` / `can()` / `visible()` gates, where
      * they can be decided without a model: in full for index and create, which
      * act on no model; for the others only a plain `authenticated()`. A gate

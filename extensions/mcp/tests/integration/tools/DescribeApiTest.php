@@ -91,13 +91,17 @@ class DescribeApiTest extends McpTestCase
             'type'
         );
 
-        // can('createGroup') is decided without a model.
-        $this->assertContains('create', $operations(1)['groups']);
-        $this->assertNotContains('create', $operations(2)['groups']);
+        $this->database()->table('group_permission')
+            ->where('permission', 'startDiscussion')
+            ->where('group_id', Group::MEMBER_ID)
+            ->delete();
 
-        // can('edit') needs the group: left to the call.
-        $this->assertContains('update', $operations(2)['groups']);
-        $this->assertContains('create', $operations(2)['discussions']);
+        // can('startDiscussion') is decided without a model.
+        $this->assertContains('create', $operations(1)['discussions']);
+        $this->assertNotContains('create', $operations(2)['discussions']);
+
+        // can('delete') needs the discussion: left to the call.
+        $this->assertContains('delete', $operations(2)['discussions']);
     }
 
     #[Test]

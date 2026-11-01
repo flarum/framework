@@ -88,8 +88,11 @@ return [
         ->allowWrites('discussions', ['create', 'update', 'delete'])
         ->allowWrites('posts', ['create', 'update', 'delete'])
         ->allowWrites('users', ['update'])
-        ->allowWrites('groups', ['create', 'update', 'delete'])
         ->allowWrites('notifications', ['update'])
+        // Credentials and privileges stay out of an assistant's reach, whatever
+        // the actor may do: content it reads could ask it to change them.
+        // Groups (and their permissions) are not writable at all.
+        ->denyWriteFields('users', ['password', 'email', 'isEmailConfirmed'], ['groups'])
 
         // json-api-server has no resource-level description, so core's live here.
         ->describe('forums', 'The forum itself: its title, description, settings visible to you, and your global permissions. There is one, with ID 1.')

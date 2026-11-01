@@ -88,6 +88,34 @@ abstract class GenericTool extends Tool
     }
 
     /**
+     * Refuse a write naming a field the generic tools may not write, before
+     * anything reaches the API. A name is checked under both keys, so a
+     * relationship given as an attribute is refused too.
+     *
+     * @param array<string, mixed> $attributes
+     * @param array<string, mixed> $relationships
+     */
+    protected function assertFieldsWritable(string $type, array $attributes, array $relationships): void
+    {
+        $denied = [];
+
+        foreach (array_unique([...array_keys($attributes), ...array_keys($relationships)]) as $name) {
+            $name = (string) $name;
+
+            if ($this->exposure->isWriteDenied($type, $name)) {
+                $denied[] = "`$name`";
+            }
+        }
+
+        if ($denied) {
+            throw new ToolError($this->translator->trans('flarum-mcp.api.fields_not_writable', [
+                'fields' => implode(', ', $denied),
+                'type' => $type,
+            ]));
+        }
+    }
+
+    /**
      * @param array<string, mixed> $arguments
      * @return array<string, mixed>
      */

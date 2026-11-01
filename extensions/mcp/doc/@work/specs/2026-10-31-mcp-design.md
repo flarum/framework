@@ -308,10 +308,18 @@ Exposure rules:
   endpoint, except the `notifications` index: it marks the actor's notifications seen,
   so it is hidden (`hideEndpoint`) and `list_notifications` reads them instead.
 - Write operations (`create`, `update`, `delete`) are exposed only when allow-listed:
-  - Core allows `discussions`, `posts`, `users` (update only), `groups` and
-    `notifications` (update only).
+  - Core allows `discussions`, `posts`, `users` (update only) and `notifications`
+    (update only). `groups` are not writable: an assistant reads forum content that
+    could tell it to grant itself a group.
   - Bundled integrations allow their own types; see below.
   - Third parties opt in through `Extend\Mcp::allowWrites()`.
+- Some fields are never writable through the generic tools, whatever the actor's own
+  gates allow: `Extend\Mcp::denyWriteFields(type, attributes, relationships)`. Core
+  denies the credentials and privileges of `users`: `password`, `email`,
+  `isEmailConfirmed` and the `groups` relationship. A create or update naming one is
+  refused with a `ToolError` before it reaches the API, and `describe_api` reports
+  the field as not writable. Other user fields (a nickname, a suspension) stay
+  writable where the actor's gates allow.
 - Calling an operation that is not exposed gives `ToolError("... is not available
   through MCP")`.
 - `describe_api` and the `type` enum in the generic tools' `inputSchema` list only the
@@ -406,6 +414,7 @@ one-line descriptions, then the guidance.
     ->allowWrites('polls', ['create', 'update', 'delete'])
     ->hide('poll-votes')                        // hide a type from the generic tools
     ->hideEndpoint('polls', 'delete')
+    ->denyWriteFields('polls', ['isApproved'], ['owner'])  // never writable through the generic tools
     ->endpointTool('polls', 'close', name: 'close_poll', title: 'Close a poll', description: '...')   // read-only iff the endpoint is a GET
     ->ability('polls.start', 'Start polls')
     ->instructions('Use close_poll to end a poll early.')    // string or callable(McpContext): ?string

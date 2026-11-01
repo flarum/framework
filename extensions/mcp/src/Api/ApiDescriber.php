@@ -95,7 +95,7 @@ class ApiDescriber
                     'kind' => $field instanceof ToMany ? 'to-many' : 'to-one',
                     'includable' => $field->includable,
                     'description' => $field->description,
-                    'writable' => $this->writable($field, $create, $update),
+                    'writable' => $this->writable($field, $create, $update, $this->registry->isRelationshipWriteDenied($resource->type(), $field->name)),
                 ], fn ($value) => $value !== null);
             } else {
                 $schema = $field instanceof Attribute && $field->type ? $field->type->schema() : [];
@@ -107,7 +107,7 @@ class ApiDescriber
                     'schema' => $schema ?: null,
                     'description' => $field->description,
                     'nullable' => $field->nullable,
-                    'writable' => $this->writable($field, $create, $update),
+                    'writable' => $this->writable($field, $create, $update, $this->registry->isAttributeWriteDenied($resource->type(), $field->name)),
                 ], fn ($value) => $value !== null);
             }
         }
@@ -279,13 +279,18 @@ class ApiDescriber
     /**
      * Best effort for this actor: a rule that needs a real model to decide
      * is reported as writable, and the field's own gate decides on the call.
+     * A field the generic tools refuse to write is never writable.
      *
      * @return array{create: bool, update: bool}|null
      */
-    protected function writable(Field $field, ?Context $create, ?Context $update): ?array
+    protected function writable(Field $field, ?Context $create, ?Context $update, bool $denied = false): ?array
     {
         if (! $field->writable || (! $create && ! $update)) {
             return null;
+        }
+
+        if ($denied) {
+            return ['create' => false, 'update' => false];
         }
 
         $check = function (?Context $context) use ($field): bool {

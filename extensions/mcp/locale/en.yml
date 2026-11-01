@@ -56,6 +56,7 @@ flarum-mcp:
 
   # Translations in this namespace are returned to MCP clients and the models behind them.
   api:
+    fields_not_writable: "{fields} of {type} cannot be changed through MCP."
     forbidden: You do not have permission to do that.
     forbidden_description: Your account is not allowed to use this forum's MCP server.
     invalid: The request was not valid.
