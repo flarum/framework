@@ -16,6 +16,7 @@ use Flarum\Http\UrlGenerator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
+use Normalizer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -95,17 +96,27 @@ class ShowOpenSearchSuggestionsController implements RequestHandlerInterface
     }
 
     /**
+     * Whether every word starts a word of the title, ignoring case and accents
+     * as MySQL, MariaDB and PostgreSQL do when finding the titles.
+     *
      * @param string[] $words
      */
     protected function startsWords(string $title, array $words): bool
     {
+        $title = $this->withoutAccents($title);
+
         foreach ($words as $word) {
-            if (! preg_match('/(?<![\p{L}\p{N}\p{M}])'.preg_quote($word, '/').'/iu', $title)) {
+            if (! preg_match('/(?<![\p{L}\p{N}\p{M}])'.preg_quote($this->withoutAccents($word), '/').'/iu', $title)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    protected function withoutAccents(string $text): string
+    {
+        return (string) preg_replace('/\p{Mn}+/u', '', (string) Normalizer::normalize($text, Normalizer::FORM_D));
     }
 
     /**
