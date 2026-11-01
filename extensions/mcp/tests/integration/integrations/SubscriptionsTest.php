@@ -50,6 +50,20 @@ class SubscriptionsTest extends McpTestCase
         $this->assertNull($this->subscription());
     }
 
+    #[Test]
+    public function discussions_report_the_actors_own_subscription(): void
+    {
+        $auth = $this->bearer($this->developerToken(2));
+
+        $this->callTool('follow_discussion', ['discussionId' => '1'], $auth);
+
+        $discussion = $this->toolOutput($this->callTool('get_resource', ['type' => 'discussions', 'id' => '1'], $auth));
+        $this->assertSame('follow', $discussion['data']['subscription']);
+
+        $list = $this->toolOutput($this->callTool('list_resources', ['type' => 'discussions'], $auth));
+        $this->assertSame(['follow'], array_column($list['data'], 'subscription'));
+    }
+
     protected function subscription(): ?string
     {
         return $this->database()->table('discussion_user')->where(['discussion_id' => 1, 'user_id' => 2])->value('subscription');

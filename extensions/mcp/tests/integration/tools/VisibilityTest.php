@@ -22,7 +22,8 @@ class VisibilityTest extends McpTestCase
     {
         parent::setUp();
 
-        $this->extension('flarum-tags');
+        // GDPR's data types are admin-only.
+        $this->extension('flarum-tags', 'flarum-gdpr');
 
         $this->prepareDatabase([
             User::class => [$this->normalUser()],
@@ -107,7 +108,10 @@ class VisibilityTest extends McpTestCase
         $this->assertNotContains('access-tokens', $adminTypes);
         $this->assertNotContains('system-info', $adminTypes);
 
+        $this->assertNotContains('oauth-provider-clients', $adminTypes);
+        $this->assertContains('oauth-consents', $memberTypes);
+
         $adminOnly = array_values(array_diff($adminTypes, $memberTypes));
-        $this->assertContains('oauth-provider-clients', $adminOnly);
+        $this->assertContains('gdpr-datatypes', $adminOnly);
     }
 }

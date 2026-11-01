@@ -9,6 +9,7 @@
 
 namespace Flarum\Mcp\Http;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Http\AccessToken;
 use Flarum\Http\DeveloperAccessToken;
 use Flarum\Http\RequestUtil;
@@ -187,6 +188,10 @@ class AuthenticateMcpRequest implements MiddlewareInterface
 
     protected function withAuthentication(ServerRequestInterface $request, McpAuthentication $authentication): ServerRequestInterface
     {
+        // Core sets this in PopulateWithActor, before the token is known; without
+        // it, discussions report the guest's read and follow state.
+        Discussion::setStateUser($authentication->actor);
+
         return RequestUtil::withActor($request, $authentication->actor)
             ->withAttribute(static::AUTHENTICATION, $authentication);
     }

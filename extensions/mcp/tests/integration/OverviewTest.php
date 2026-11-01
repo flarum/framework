@@ -128,4 +128,23 @@ class OverviewTest extends McpTestCase
         $missing = $this->toolOutput($this->callTool('get_user', ['username' => 'nobody'], $auth), expectError: true);
         $this->assertSame('Not found.', $missing['error']);
     }
+
+    #[Test]
+    public function members_are_found_by_username_whatever_the_slug_driver(): void
+    {
+        $this->setting('slug_driver_'.User::class, 'id_with_display_name');
+
+        $auth = $this->bearer($this->developerToken(2));
+
+        $user = $this->toolOutput($this->callTool('get_user', ['username' => 'normal'], $auth));
+        $this->assertSame('2', $user['id']);
+        $this->assertSame('http://localhost/u/2-normal', $user['url']);
+
+        // The slug from a profile URL works too.
+        $bySlug = $this->toolOutput($this->callTool('get_user', ['username' => '2-normal'], $auth));
+        $this->assertSame('2', $bySlug['id']);
+
+        $template = $this->rpcResult($this->modern('resources/read', ['uri' => 'flarum://users/admin'], $auth, 'flarum://users/admin'));
+        $this->assertSame('admin', json_decode($template['contents'][0]['text'], true)['username']);
+    }
 }
