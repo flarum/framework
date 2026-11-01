@@ -17,6 +17,8 @@ use Flarum\Api\Schema;
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\OAuthProvider\ClientRegistration\ClientMetadata;
+use Flarum\OAuthProvider\ClientRegistration\ClientMetadataException;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\Client;
@@ -116,6 +118,7 @@ class ClientResource extends Resource\AbstractDatabaseResource
             Schema\Arr::make('redirectUris')
                 ->writable()
                 ->requiredOnCreate()
+                ->rule(fn () => $this->validateRedirectUris(...))
                 ->property('redirect_uris'),
             Schema\Arr::make('scopes')
                 ->writable()
@@ -141,6 +144,18 @@ class ClientResource extends Resource\AbstractDatabaseResource
             Schema\DateTime::make('createdAt'),
             Schema\DateTime::make('updatedAt'),
         ];
+    }
+
+    /**
+     * The same rules self-registered clients are held to.
+     */
+    protected function validateRedirectUris(string $attribute, mixed $value, \Closure $fail): void
+    {
+        try {
+            ClientMetadata::redirectUris($value);
+        } catch (ClientMetadataException $e) {
+            $fail($e->getMessage());
+        }
     }
 
     /**

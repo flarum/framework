@@ -14,6 +14,7 @@ use Flarum\OAuthProvider\Models\Client;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 class ClientCrudTest extends TestCase
@@ -354,6 +355,66 @@ class ClientCrudTest extends TestCase
 
         $this->assertEquals(422, $response->getStatusCode());
         $this->assertNull(Client::query()->where('name', 'No Scopes')->first());
+    }
+
+    /**
+     * @return array<string, array{0: mixed}>
+     */
+    public static function invalidRedirectUris(): array
+    {
+        return [
+            'empty list' => [[]],
+            'not a list of strings' => [[['https://app.example.com/cb']]],
+            'javascript scheme' => [['javascript:alert(1)']],
+            'relative' => [['/callback']],
+            'fragment' => [['https://app.example.com/cb#frag']],
+            'plain http on a public host' => [['http://app.example.com/cb']],
+            'custom scheme without host' => [['myapp:/callback']],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('invalidRedirectUris')]
+    public function admin_cannot_update_a_client_with_an_invalid_redirect_uri(mixed $redirectUris): void
+    {
+        $response = $this->updateClient('client-to-update', ['redirectUris' => $redirectUris]);
+
+        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals(['https://example.com/cb'], Client::query()->find('client-to-update')->redirect_uris);
+    }
+
+    #[Test]
+    #[DataProvider('invalidRedirectUris')]
+    public function admin_cannot_create_a_client_with_an_invalid_redirect_uri(mixed $redirectUris): void
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/oauth-provider-clients', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'oauth-provider-clients',
+                        'attributes' => [
+                            'name' => 'Bad Redirect',
+                            'redirectUris' => $redirectUris,
+                        ],
+                    ],
+                ],
+            ])->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertNull(Client::query()->where('name', 'Bad Redirect')->first());
+    }
+
+    #[Test]
+    public function admin_can_set_https_and_loopback_redirect_uris(): void
+    {
+        $uris = ['https://app.example.com/cb', 'http://127.0.0.1:8080/cb', 'http://localhost/cb'];
+
+        $response = $this->updateClient('client-to-update', ['redirectUris' => $uris]);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals($uris, Client::query()->find('client-to-update')->redirect_uris);
     }
 
     /**
