@@ -16,7 +16,8 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
-use XMLWriter;
+use DOMDocument;
+use DOMElement;
 
 /**
  * The OpenSearch description, which lets browsers add the forum as a search
@@ -27,6 +28,10 @@ use XMLWriter;
 class OpenSearchDescription
 {
     public const MAX_DESCRIPTION_LENGTH = 1024;
+
+    protected const NS = 'http://a9.com/-/spec/opensearch/1.1/';
+
+    protected const MOZ_NS = 'http://www.mozilla.org/2006/browser/search/';
 
     protected Cloud $assets;
 
@@ -45,47 +50,49 @@ class OpenSearchDescription
     {
         $forum = $this->url->to('forum')->base();
 
-        $xml = new XMLWriter();
-        $xml->openMemory();
-        $xml->setIndent(true);
-        $xml->startDocument('1.0', 'UTF-8');
+        $document = new DOMDocument('1.0', 'UTF-8');
+        $document->formatOutput = true;
 
-        $xml->startElement('OpenSearchDescription');
-        $xml->writeAttribute('xmlns', 'http://a9.com/-/spec/opensearch/1.1/');
-        $xml->writeAttribute('xmlns:moz', 'http://www.mozilla.org/2006/browser/search/');
+        $root = $document->appendChild($document->createElementNS(self::NS, 'OpenSearchDescription'));
+        $root->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:moz', self::MOZ_NS);
 
-        $xml->writeElement('ShortName', $this->xmlText($this->shortName->get()));
-        $xml->writeElement('Description', $this->xmlText($this->description()));
-        $xml->writeElement('Tags', 'flarum discussion forum');
-        $xml->writeElement('InputEncoding', 'UTF-8');
+        $this->element($root, 'ShortName', [], $this->shortName->get());
+        $this->element($root, 'Description', [], $this->description());
+        $this->element($root, 'Tags', [], 'flarum discussion forum');
+        $this->element($root, 'InputEncoding', [], 'UTF-8');
 
         foreach ($this->images() as [$width, $height, $type, $data]) {
-            $xml->startElement('Image');
-            $xml->writeAttribute('width', (string) $width);
-            $xml->writeAttribute('height', (string) $height);
-            $xml->writeAttribute('type', $type);
-            $xml->text("data:$type;base64,".base64_encode($data));
-            $xml->endElement();
+            $this->element($root, 'Image', ['width' => (string) $width, 'height' => (string) $height, 'type' => $type], "data:$type;base64,".base64_encode($data));
         }
 
-        $this->url($xml, 'text/html', $this->searchPage().'?q={searchTerms}');
-        $this->url($xml, 'application/x-suggestions+json', $this->url->to('api')->route('opensearch.suggestions').'?q={searchTerms}');
-        $this->url($xml, 'application/opensearchdescription+xml', $this->url->to('forum')->route('opensearch'), 'self');
+        $this->element($root, 'Url', ['type' => 'text/html', 'template' => $this->searchPage().'?q={searchTerms}']);
+        $this->element($root, 'Url', ['type' => 'application/x-suggestions+json', 'template' => $this->url->to('api')->route('opensearch.suggestions').'?q={searchTerms}']);
+        $this->element($root, 'Url', ['type' => 'application/opensearchdescription+xml', 'rel' => 'self', 'template' => $this->url->to('forum')->route('opensearch')]);
 
         // The forum's main page, which Firefox opens for a search with no terms.
-        $xml->writeElement('moz:SearchForm', "$forum/");
+        $root->appendChild($document->createElementNS(self::MOZ_NS, 'moz:SearchForm'))->textContent = "$forum/";
 
         // A query for clients to check the search works: the forum's name is
         // the term most likely to have results in any language.
-        $xml->startElement('Query');
-        $xml->writeAttribute('role', 'example');
-        $xml->writeAttribute('searchTerms', $this->xmlText((string) $this->settings->get('forum_title')));
-        $xml->endElement();
+        $this->element($root, 'Query', ['role' => 'example', 'searchTerms' => (string) $this->settings->get('forum_title')]);
 
-        $xml->endElement();
-        $xml->endDocument();
+        return (string) $document->saveXML();
+    }
 
-        return $xml->outputMemory();
+    /**
+     * @param array<string, string> $attributes
+     */
+    protected function element(DOMElement $parent, string $name, array $attributes = [], ?string $text = null): void
+    {
+        $element = $parent->appendChild($parent->ownerDocument->createElementNS(self::NS, $name));
+
+        foreach ($attributes as $attribute => $value) {
+            $element->setAttribute($attribute, $this->xmlText($value));
+        }
+
+        if ($text !== null) {
+            $element->textContent = $this->xmlText($text);
+        }
     }
 
     /**
@@ -100,19 +107,6 @@ class OpenSearchDescription
         }
 
         return $this->url->to('forum')->route('index');
-    }
-
-    protected function url(XMLWriter $xml, string $type, string $template, ?string $rel = null): void
-    {
-        $xml->startElement('Url');
-        $xml->writeAttribute('type', $type);
-
-        if ($rel) {
-            $xml->writeAttribute('rel', $rel);
-        }
-
-        $xml->writeAttribute('template', $template);
-        $xml->endElement();
     }
 
     /**
