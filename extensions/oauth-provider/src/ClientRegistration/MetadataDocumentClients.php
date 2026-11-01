@@ -77,6 +77,7 @@ class MetadataDocumentClients
         protected RegistrationRateLimiter $limiter,
         protected ScopeRegistry $scopes,
         protected LoggerInterface $logger,
+        protected AllowedClients $allowed,
     ) {
     }
 
@@ -98,7 +99,8 @@ class MetadataDocumentClients
     /**
      * Makes sure a usable row exists for a metadata-document client id,
      * fetching the document when there is none or the cached one expired.
-     * Other client ids and revoked clients are left alone.
+     * Other client ids, revoked clients, and every metadata document while
+     * self-registered clients are switched off, are left alone.
      *
      * Every failure surfaces as the same generic exception; the reason is logged.
      *
@@ -107,7 +109,7 @@ class MetadataDocumentClients
      */
     public function resolve(string $clientId, string $ipAddress = ''): void
     {
-        if (! self::isMetadataDocumentUrl($clientId)) {
+        if (! self::isMetadataDocumentUrl($clientId) || ! $this->allowed->selfRegistered()) {
             return;
         }
 

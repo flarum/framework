@@ -12,12 +12,14 @@ namespace Flarum\OAuthProvider\Tests\integration\forum;
 use Carbon\Carbon;
 use Flarum\Extend;
 use Flarum\Http\UrlGenerator;
+use Flarum\OAuthProvider\ClientRegistration\AllowedClients;
 use Flarum\OAuthProvider\Extend\Resource;
 use Flarum\OAuthProvider\Extend\Scope;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\ResourceServer\TokenValidator;
 use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -132,6 +134,16 @@ class TokenValidatorTest extends TestCase
         $jwt = $this->accessToken();
 
         Client::query()->where('id', 'public-client')->update(['revoked' => true]);
+
+        $this->assertNull($this->validator()->validate($jwt, self::RESOURCE));
+    }
+
+    #[Test]
+    public function token_of_a_client_whose_kind_is_switched_off_is_refused(): void
+    {
+        $jwt = $this->accessToken();
+
+        $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set(AllowedClients::ADMIN_SETTING, '0');
 
         $this->assertNull($this->validator()->validate($jwt, self::RESOURCE));
     }

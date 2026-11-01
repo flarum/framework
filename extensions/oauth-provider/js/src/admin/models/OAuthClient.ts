@@ -8,6 +8,8 @@ export default class OAuthClient extends Model {
   revoked = Model.attribute<boolean>('revoked');
   source = Model.attribute<'admin' | 'metadata_document' | 'dynamic'>('source');
   plainSecret = Model.attribute<string | null>('plainSecret');
+  connectionCount = Model.attribute<number>('connectionCount');
+  lastUsedAt = Model.attribute<Date | null, string | null>('lastUsedAt', Model.transformDate);
   createdAt = Model.attribute<Date, string>('createdAt', Model.transformDate);
   updatedAt = Model.attribute<Date | null, string | null>('updatedAt', Model.transformDate);
 }

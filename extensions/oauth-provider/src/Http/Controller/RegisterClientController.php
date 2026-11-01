@@ -11,13 +11,12 @@ namespace Flarum\OAuthProvider\Http\Controller;
 
 use Carbon\Carbon;
 use Flarum\Http\Exception\RouteNotFoundException;
+use Flarum\OAuthProvider\ClientRegistration\AllowedClients;
 use Flarum\OAuthProvider\ClientRegistration\ClientMetadata;
 use Flarum\OAuthProvider\ClientRegistration\ClientMetadataException;
-use Flarum\OAuthProvider\ClientRegistration\DynamicRegistration;
 use Flarum\OAuthProvider\ClientRegistration\RegistrationRateLimiter;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\Scope\ScopeRegistry;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -39,7 +38,7 @@ class RegisterClientController implements RequestHandlerInterface
     protected const array RESPONSE_TYPES = ['code'];
 
     public function __construct(
-        protected SettingsRepositoryInterface $settings,
+        protected AllowedClients $allowed,
         protected RegistrationRateLimiter $limiter,
         protected ScopeRegistry $scopes,
     ) {
@@ -47,7 +46,7 @@ class RegisterClientController implements RequestHandlerInterface
 
     public function handle(Request $request): ResponseInterface
     {
-        if (! DynamicRegistration::enabled($this->settings)) {
+        if (! $this->allowed->selfRegistered()) {
             throw new RouteNotFoundException();
         }
 

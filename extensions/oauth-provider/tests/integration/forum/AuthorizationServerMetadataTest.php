@@ -69,7 +69,7 @@ class AuthorizationServerMetadataTest extends TestCase
     #[Test]
     public function registration_endpoint_is_omitted_when_dynamic_registration_is_off(): void
     {
-        $this->setting('flarum-oauth-provider.allow_dynamic_registration', '0');
+        $this->setting('flarum-oauth-provider.allow_self_registered_clients', '0');
 
         $this->assertArrayNotHasKey('registration_endpoint', $this->document('/.well-known/oauth-authorization-server'));
         $this->assertArrayNotHasKey('registration_endpoint', $this->document('/.well-known/openid-configuration'));
