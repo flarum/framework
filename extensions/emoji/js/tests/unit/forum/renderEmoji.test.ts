@@ -22,14 +22,16 @@ beforeAll(() => {
   renderEmoji();
 });
 
+let nextPostId = 1;
+
 function contentHtml(html: string): string {
+  const id = String(nextPostId++);
+
   app.store.pushPayload({
-    data: { type: 'posts', id: String(Math.random()), attributes: { contentHtml: html } },
+    data: { type: 'posts', id, attributes: { contentHtml: html } },
   } as any);
 
-  const post = app.store.all<Post>('posts').pop()!;
-
-  return post.contentHtml();
+  return app.store.getById<Post>('posts', id)!.contentHtml();
 }
 
 function preview(html: string): string {

@@ -34,11 +34,14 @@ function parseHTML(str: string): HTMLBodyElement {
  * emojified like everything else and then put back as the text it was,
  * so that it is displayed and copied as typed.
  */
-function emojify<T extends Node>(root: T): T {
-  twemoji.parse(root as any, options());
+function emojify<T extends HTMLElement>(root: T): T {
+  twemoji.parse(root, options());
 
-  (root as unknown as ParentNode).querySelectorAll('pre img.emoji, code img.emoji').forEach((img) => {
-    img.replaceWith(document.createTextNode((img as HTMLImageElement).alt));
+  root.querySelectorAll<HTMLImageElement>('pre img.emoji, code img.emoji').forEach((img) => {
+    const parent = img.parentNode!;
+
+    img.replaceWith(document.createTextNode(img.alt));
+    parent.normalize();
   });
 
   return root;
