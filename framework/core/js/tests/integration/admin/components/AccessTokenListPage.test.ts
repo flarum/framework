@@ -174,7 +174,9 @@ describe('AccessTokenListPage', () => {
 
     expect(out).toHaveElement('.AccessTokenList-current');
     expect(out.find('tr .ResourceTable-revoke').length).toBe(2);
-    expect(out.find('.AccessTokenList-currentLock').length).toBe(1);
+    // The current session's row has no actions: an empty cell and a disabled checkbox.
+    expect(out.find('tr[data-id="1"] .ResourceTable-rowMenu').length).toBe(0);
+    expect(out).toHaveElement('tr[data-id="1"] input.ResourceTable-select[disabled]');
     // The generic delete button is replaced by "Revoke".
     expect(out).not.toHaveElement('.ResourceTable-delete');
   });
@@ -199,12 +201,12 @@ describe('AccessTokenListPage', () => {
     expect(tokenCalls().length).toBe(before + 1);
   });
 
-  test('bulk revoke confirms in ResourceActionModal, skips the current session and revokes the rest', async () => {
+  test('bulk revoke confirms in ResourceActionModal and revokes every token but the current session', async () => {
     const out = await rendered();
 
     out.first('.ResourceTable-selectAll').checked = true;
     out.trigger('.ResourceTable-selectAll', 'change');
-    out.click('.ResourceTable-bulk .ResourceTable-bulkRevoke');
+    out.click('.ResourceTable-batchBar .ResourceTable-bulkRevoke');
 
     const [modal, attrs] = (app.modal.show as jest.Mock<any>).mock.calls.at(-1) as [unknown, any];
 
@@ -229,7 +231,7 @@ describe('AccessTokenListPage', () => {
 
     const [result, resultAttrs] = (app.modal.show as jest.Mock<any>).mock.calls.at(-1) as [unknown, any];
     expect(result).toBe(BulkResultModal);
-    expect(resultAttrs.summary.skipped.map((t: AccessToken) => t.id())).toEqual(['1']);
+    expect(resultAttrs.summary.skipped).toEqual([]);
   });
 
   test('the revoke modal says revoke and names the token and its user', () => {
@@ -257,8 +259,8 @@ describe('AccessTokenListPage', () => {
   test('filters come from the descriptor, with readable type labels', async () => {
     const out = await rendered();
 
-    expect(out).toHaveElement('.ResourceTable-filter--user');
-    expect(out).toHaveElement('.ResourceTable-filter--type');
+    expect(out).toHaveElement('.ResourceTable-filterGroup--user');
+    expect(out).toHaveElement('.ResourceTable-filterGroup--type');
     const definition = new AccessTokenDefinition();
     await definition.load();
     const type = definition.filters().get('type');

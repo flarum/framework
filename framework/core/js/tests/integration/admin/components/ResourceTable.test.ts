@@ -3,7 +3,6 @@ import m from 'mithril';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
 import ResourceTable, { type ColumnData } from '../../../../src/admin/components/resource/ResourceTable';
-import ExportCsvButton from '../../../../src/admin/components/resource/ExportCsvButton';
 import ResourceFormModal from '../../../../src/admin/components/resource/ResourceFormModal';
 import BulkResultModal from '../../../../src/admin/components/resource/BulkResultModal';
 import ResourceActionModal from '../../../../src/admin/components/resource/ResourceActionModal';
@@ -272,54 +271,59 @@ describe('ResourceTable', () => {
       expect(find.mock.calls.length).toBe(calls);
     });
 
-    /** An `ExportCsvButton` over the table's list and visible columns. */
-    async function exportButton() {
+    test('removing the table aborts a running export', async () => {
       const { table } = await instance();
-      const oninit = jest.spyOn(ExportCsvButton.prototype, 'oninit');
-      const out = mq(ExportCsvButton, { list: table.list, columns: () => table.visibleColumns() });
-      const button = oninit.mock.contexts[0] as ExportCsvButton<Thing>;
-      oninit.mockRestore();
-
-      return { out, button };
-    }
-
-    test('removing the export button aborts a running export', async () => {
-      const { button } = await exportButton();
 
       find.mockImplementation(() => new Promise(() => {}));
-      button.export();
+      table.exportCsv();
 
-      const controller = button.exporting!.controller;
+      const controller = table.csv.running!.controller;
 
-      button.onremove({} as any);
+      table.onremove({} as any);
 
       expect(controller.signal.aborted).toBe(true);
     });
 
-    test('a failed export shows the export_error alert and clears exporting', async () => {
-      const { out, button } = await exportButton();
+    test('a running export shows its progress in the toolbar and cancels from there', async () => {
+      const { out, table } = await instance();
+
+      find.mockImplementation(() => new Promise(() => {}));
+      table.exportCsv();
+      out.redraw();
+
+      expect(out).toHaveElement('.ResourceTable-toolbarActions .ResourceTable-exportProgress');
+      expect(out).toHaveElement('.ResourceTable-export[disabled]');
+
+      const controller = table.csv.running!.controller;
+      out.click('.ResourceTable-exportProgress');
+
+      expect(controller.signal.aborted).toBe(true);
+    });
+
+    test('a failed export shows the export_error alert and clears the progress', async () => {
+      const { out, table } = await instance();
       const show = jest.spyOn(app.alerts, 'show').mockImplementation(() => 0 as any);
       jest.spyOn(console, 'error').mockImplementation(() => {});
 
       find.mockImplementation(() => Promise.reject(new Error('500')));
-      const pending = button.export();
+      const pending = table.exportCsv();
       out.redraw();
 
-      expect(out).toHaveElement('.ResourceTable-export--running');
+      expect(out).toHaveElement('.ResourceTable-exportProgress');
 
       await pending;
       out.redraw();
 
       expect(show).toHaveBeenCalledWith({ type: 'error' }, expect.anything());
       expect(show.mock.calls.at(-1)![1]).toEqual(app.translator.trans('core.admin.resource.table.export_error'));
-      expect(button.exporting).toBeNull();
-      expect(out).not.toHaveElement('.ResourceTable-export--running');
+      expect(table.csv.running).toBeNull();
+      expect(out).not.toHaveElement('.ResourceTable-exportProgress');
     });
   });
 
   describe('column toggles', () => {
     function toggle(out: any, key: string, visible: boolean) {
-      const selector = `.ResourceTable-columns input[name="${key}"]`;
+      const selector = `.ResourceTable-columnToggle input[name="${key}"]`;
       out.first(selector).checked = visible;
       out.trigger(selector, 'change');
     }
@@ -336,14 +340,14 @@ describe('ResourceTable', () => {
     test('toggling a column off hides its header and cells and persists the choice', async () => {
       const out = await rendered();
 
-      expect(out).toHaveElement('.ResourceTable-columns input[name="price"]:checked');
+      expect(out).toHaveElement('.ResourceTable-columnToggle input[name="price"]:checked');
 
       toggle(out, 'price', false);
 
       expect(out).not.toHaveElement('th[data-column-name=price]');
       expect(out).not.toHaveElement('td[data-column-name=price]');
       expect(out).toHaveElement('td[data-column-name=name]');
-      expect(out).not.toHaveElement('.ResourceTable-columns input[name="price"]:checked');
+      expect(out).not.toHaveElement('.ResourceTable-columnToggle input[name="price"]:checked');
       expect(JSON.parse(window.localStorage.getItem('flarum.resourceTable.things.columns')!)).toEqual({ price: false });
 
       toggle(out, 'price', true);
@@ -356,8 +360,8 @@ describe('ResourceTable', () => {
       const out = await rendered({ columns: customColumns() });
 
       expect(out).toHaveElement('th[data-column-name=label]');
-      expect(out).not.toHaveElement('.ResourceTable-columns input[name="label"]');
-      expect(out).toHaveElement('.ResourceTable-columns input[name="name"]');
+      expect(out).not.toHaveElement('.ResourceTable-columnToggle input[name="label"]');
+      expect(out).toHaveElement('.ResourceTable-columnToggle input[name="name"]');
     });
 
     test('a hidden:true column starts hidden', async () => {
@@ -365,8 +369,8 @@ describe('ResourceTable', () => {
 
       expect(out).not.toHaveElement('th[data-column-name=price]');
       expect(out).not.toHaveElement('td[data-column-name=price]');
-      expect(out).toHaveElement('.ResourceTable-columns input[name="price"]');
-      expect(out).not.toHaveElement('.ResourceTable-columns input[name="price"]:checked');
+      expect(out).toHaveElement('.ResourceTable-columnToggle input[name="price"]');
+      expect(out).not.toHaveElement('.ResourceTable-columnToggle input[name="price"]:checked');
 
       toggle(out, 'price', true);
 
@@ -383,7 +387,7 @@ describe('ResourceTable', () => {
       expect(out).not.toHaveElement('th[data-column-name=name]');
       expect(out).not.toHaveElement('th[data-column-name=price]');
       expect(out).toHaveElement('th[data-column-name=label]');
-      expect(out).not.toHaveElement('.ResourceTable-columns input[name="price"]:checked');
+      expect(out).not.toHaveElement('.ResourceTable-columnToggle input[name="price"]:checked');
     });
 
     test('a stored key for a removed column is ignored', async () => {
@@ -445,7 +449,7 @@ describe('ResourceTable', () => {
 
     expect(out).toHaveElement('th.ResourceTable-actions[data-column-name=actions] .visually-hidden');
     expect(out).toHaveElement('tr[data-id="1"] td.ResourceTable-actions[data-column-name=actions] .ResourceTable-edit');
-    expect(out).not.toHaveElement('.ResourceTable-columns input[name="actions"]');
+    expect(out).not.toHaveElement('.ResourceTable-columnToggle input[name="actions"]');
   });
 
   describe('export', () => {
@@ -506,7 +510,7 @@ describe('ResourceTable', () => {
 
       expect(out).not.toHaveElement('.ResourceTable-selectAll');
       expect(out).not.toHaveElement('.ResourceTable-select');
-      expect(out).not.toHaveElement('.ResourceTable-bulk');
+      expect(out).not.toHaveElement('.ResourceTable-batchBar');
     });
 
     test('with one bulk action there is a checkbox per row', async () => {
@@ -515,7 +519,7 @@ describe('ResourceTable', () => {
       expect(out).toHaveElement('th .ResourceTable-selectAll');
       expect(out).toHaveElement('tr[data-id="1"] input.ResourceTable-select');
       expect(out).toHaveElement('tr[data-id="2"] input.ResourceTable-select');
-      expect(out).toHaveElement('.ResourceTable-bulk .Things-archive');
+      expect(out).not.toHaveElement('.ResourceTable-batchBar');
     });
 
     test('select-all selects the current page only', async () => {
@@ -589,7 +593,7 @@ describe('ResourceTable', () => {
       out.redraw();
 
       check(out, 'tr[data-id="1"] input.ResourceTable-select', true);
-      out.click('.ResourceTable-bulk .Things-archive');
+      out.click('.ResourceTable-batchBar .Things-archive');
       await flush();
 
       expect(runner.run).toHaveBeenCalledTimes(1);
@@ -606,7 +610,7 @@ describe('ResourceTable', () => {
         find.mockImplementation(() => Promise.reject(new Error('500')));
 
         check(out, 'tr[data-id="1"] input.ResourceTable-select', true);
-        out.click('.ResourceTable-bulk .ResourceTable-bulkDelete');
+        out.click('.ResourceTable-batchBar .ResourceTable-bulkDelete');
         await confirmAction();
         await flush();
         await new Promise((r) => setTimeout(r, 10));
@@ -618,7 +622,7 @@ describe('ResourceTable', () => {
       }
     });
 
-    test('a bulk delete deletes the deletable selected rows and reports the skipped one', async () => {
+    test('select-all picks the deletable rows only, and a bulk delete deletes them', async () => {
       find.mockImplementation(() =>
         Promise.resolve(results([thing('1', { canDelete: true }), thing('2', { canDelete: false }), thing('3', { canDelete: true, name: 'Third' })]))
       );
@@ -629,7 +633,12 @@ describe('ResourceTable', () => {
       const confirm = jest.spyOn(window, 'confirm');
 
       check(out, '.ResourceTable-selectAll', true);
-      out.click('.ResourceTable-bulk .ResourceTable-bulkDelete');
+
+      expect(out).toHaveElement('tr[data-id="2"] input.ResourceTable-select[disabled]');
+      expect(out).not.toHaveElement('tr[data-id="2"] input.ResourceTable-select:checked');
+      expect(out).toHaveElement('.ResourceTable-selectAll:checked');
+
+      out.click('.ResourceTable-batchBar .ResourceTable-bulkDelete');
 
       // The confirmation is a modal counting the deletable rows, never the native dialog.
       const dialog = await confirmAction();
@@ -645,19 +654,130 @@ describe('ResourceTable', () => {
       const summary = (app.modal.show as jest.Mock).mock.calls.at(-1)![1] as { summary: BulkSummary<Thing> };
       expect(summary.summary.ok.map((m) => m.id())).toEqual(['1', '3']);
       expect(summary.summary.failed).toEqual([]);
-      expect(summary.summary.skipped.map((m) => m.id())).toEqual(['2']);
+      expect(summary.summary.skipped).toEqual([]);
 
       const modal = mq(BulkResultModal, { state: {}, animateShow: (cb: () => void) => cb(), animateHide: jest.fn(), ...summary });
 
       expect(modal).toHaveElementAttr('.BulkResultModal-deleted', 'data-count', '2');
-      expect(modal).toHaveElementAttr('.BulkResultModal-skipped', 'data-count', '1');
-      expect(modal).toContainRaw('Thing 2');
+      expect(modal).not.toHaveElement('.BulkResultModal-skipped');
       expect(modal).not.toHaveElement('.BulkResultModal-failed');
 
       // The list was refreshed afterwards.
       expect(find.mock.calls.length).toBeGreaterThan(1);
     });
   });
+  describe('layout', () => {
+    class ArchiveDefinition extends ResourceDefinition<Thing> {
+      resourceActions() {
+        return super
+          .resourceActions()
+          .add('archive', { key: 'archive', label: 'Archive', icon: 'fas fa-archive', scope: 'bulk', run: () => Promise.resolve() });
+      }
+    }
+
+    function check(out: any, selector: string, checked: boolean) {
+      out.first(selector).checked = checked;
+      out.trigger(selector, 'change');
+    }
+
+    test('selecting rows replaces the toolbar with the batch bar in place; Cancel brings the toolbar back', async () => {
+      const out = await rendered({ definition: new ArchiveDefinition('things') });
+
+      expect(out.find('.ResourceTable-toolbar')).toHaveLength(1);
+      expect(out).not.toHaveElement('.ResourceTable-batchBar');
+      expect(out.first('.ResourceTable-status[aria-live=polite]').textContent).toBe('');
+
+      check(out, 'tr[data-id="1"] input.ResourceTable-select', true);
+      check(out, 'tr[data-id="2"] input.ResourceTable-select', true);
+
+      expect(out.find('.ResourceTable-toolbar')).toHaveLength(1);
+      expect(out).toHaveElement('.ResourceTable-toolbar.ResourceTable-batchBar[role=group]');
+      expect(out).not.toHaveElement('.ResourceTable-toolbarView');
+      expect(out.first('.ResourceTable-batchCount').textContent).toBe('2 items selected');
+      expect(out.first('.ResourceTable-status').textContent).toBe('2 items selected');
+      expect(out).toHaveElement('.ResourceTable-batchActions .ResourceTable-bulkArchive.ResourceTable-batchButton');
+      expect(out).toHaveElement('.ResourceTable-batchActions .ResourceTable-batchDivider + .ResourceTable-batchCancel');
+
+      out.click('.ResourceTable-batchCancel');
+
+      expect(out).not.toHaveElement('.ResourceTable-batchBar');
+      expect(out).toHaveElement('.ResourceTable-toolbarView');
+      expect(out).not.toHaveElement('input.ResourceTable-select:checked');
+    });
+
+    test('every row has one labelled overflow menu: edit first, then a separator and the destructive delete', async () => {
+      const out = await rendered();
+
+      expect(out.find('tr[data-id="1"] .ResourceTable-rowMenu')).toHaveLength(1);
+      expect(out).toHaveElementAttr('tr[data-id="1"] .ResourceTable-rowMenu .Dropdown-toggle', 'aria-label', 'Actions for Thing 1');
+      expect(out).toHaveElement('tr[data-id="1"] .ResourceTable-rowMenu .Dropdown-toggle .fa-ellipsis-h');
+      expect(out.find('tr[data-id="1"] .ResourceTable-rowMenu .Dropdown-menu > li').map((li: any) => li.className)).toEqual([
+        'item-edit',
+        'Dropdown-separator',
+        'item-delete',
+      ]);
+      expect(out).toHaveElement('tr[data-id="1"] .ResourceTable-delete.ResourceTable-menuAction--danger');
+      // Row 2 may only be edited: no separator left over.
+      expect(out).not.toHaveElement('tr[data-id="2"] .Dropdown-separator');
+    });
+
+    test('a row with no applicable action has an empty actions cell', async () => {
+      find.mockImplementation(() => Promise.resolve(results([thing('1', { canEdit: false, canDelete: false })])));
+
+      const out = await rendered();
+
+      expect(out).toHaveElement('tr[data-id="1"] td[data-column-name=actions]');
+      expect(out).not.toHaveElement('tr[data-id="1"] .ResourceTable-rowMenu');
+    });
+
+    test('the footer shows the range, a page size select and page navigation', async () => {
+      find.mockImplementation(() => Promise.resolve(results([thing('1'), thing('2')], { page: { total: 45 } })));
+      window.history.replaceState(null, '', '/admin#/things?page=2');
+
+      const definition = new ResourceDefinition<Thing>('things');
+      await definition.load();
+      definition.descriptor!.pagination = { defaultLimit: 20, maxLimit: 50 };
+      const state = new ResourceListState<Thing>(definition, { pageSize: 20 });
+      const out = await rendered({ definition, state });
+
+      expect(out.first('.ResourceTable-pageRange').textContent).toBe('21–22 of 45 items');
+      expect(out.find('.ResourceTable-pageSize option').map((o: any) => o.value)).toEqual(['10', '20', '50']);
+      expect(out.find('.ResourceTable-pageSelect option')).toHaveLength(3);
+      expect(out.first('.ResourceTable-pageCount').textContent).toBe('of 3 pages');
+      expect(out).not.toHaveElement('.ResourceTable-prev[disabled]');
+      expect(out).not.toHaveElement('.ResourceTable-next[disabled]');
+
+      expect(out).toHaveElementAttr('.ResourceTable-pageSize select', 'value', '20');
+
+      await state.setPageSize(50);
+
+      expect(lastParams(find)).toMatchObject({ page: { offset: 0, limit: 50 } });
+    });
+
+    test('the empty state offers create; with a search it offers "Clear filters", which clears the search', async () => {
+      find.mockImplementation(() => Promise.resolve(results([], { page: { total: 0 } })));
+
+      const empty = await rendered();
+
+      expect(empty).toHaveElement('.ResourceTable-emptyState');
+      expect(empty).toContainRaw('Nothing here yet');
+      expect(empty).toHaveElement('.ResourceTable-emptyState .ResourceTable-emptyCreate');
+      expect(empty).not.toHaveElement('.ResourceTable-pagination');
+
+      window.history.replaceState(null, '', '/admin#/things?q=nothing');
+      const filtered = await rendered();
+
+      expect(filtered).toContainRaw('No results');
+      expect(filtered).not.toHaveElement('.ResourceTable-emptyCreate');
+
+      filtered.click('.ResourceTable-emptyClear');
+      await flush();
+      await flush();
+
+      expect(lastParams(find).filter ?? {}).not.toHaveProperty('q');
+    });
+  });
+
   describe('declarative actions', () => {
     const abilities = descriptor([fd('name', 'string'), fd('price', 'number')], { rowAbilities: { edit: 'mayEdit', delete: 'mayDelete' } });
 
@@ -785,27 +905,38 @@ describe('ResourceTable', () => {
       expect(out).not.toHaveElement('tr[data-id="2"] .ResourceTable-edit');
       expect(out).not.toHaveElement('tr[data-id="2"] .ResourceTable-delete');
       expect(out).toHaveElement('th .ResourceTable-selectAll');
-      expect(out).toHaveElement('.ResourceTable-bulk .ResourceTable-bulkDelete');
+      // No bulk action applies to row 2, so its checkbox is disabled.
+      expect(out).toHaveElement('tr[data-id="2"] input.ResourceTable-select[disabled]');
+      expect(out).toHaveElementAttr(
+        'tr[data-id="2"] input.ResourceTable-select',
+        'title',
+        app.translator.trans('core.admin.resource.table.not_selectable', { name: 'Thing 2' }, true)
+      );
+
+      selectAll(out);
+
+      expect(out).toHaveElement('.ResourceTable-batchBar .ResourceTable-bulkDelete');
     });
 
-    test('a row delete opens the delete modal; a bulk delete confirms in ResourceActionModal and skips the other row', async () => {
+    test('a row delete opens the delete modal; a bulk delete confirms in ResourceActionModal; select-all leaves the other row out', async () => {
       const out = await withAbilities();
 
       out.click('tr[data-id="1"] .ResourceTable-delete');
       expect(lastModal()[0]).toBe(ResourceDeleteModal);
 
       selectAll(out);
-      out.click('.ResourceTable-bulk .ResourceTable-bulkDelete');
+      out.click('.ResourceTable-batchBar .ResourceTable-bulkDelete');
 
       const [modal, attrs] = lastModal();
       expect(modal).toBe(ResourceActionModal);
 
       const dialog = mq(ResourceActionModal, { state: {}, animateShow: () => {}, animateHide: jest.fn(), ...attrs });
       expect(dialog).toContainRaw('Delete 1 entry?');
-      expect(dialog).toHaveElement('.ResourceActionModal-skipped');
+      expect(attrs.models.map((m: Thing) => m.id())).toEqual(['1']);
+      expect(dialog).not.toHaveElement('.ResourceActionModal-skipped');
     });
 
-    test("a custom action's fields are collected in the modal and passed to run(); non-applicable rows are skipped", async () => {
+    test("a custom action's fields are collected in the modal and passed to run()", async () => {
       const run = jest.fn((_model: Thing, _values: Record<string, unknown>) => Promise.resolve());
       let tagStream: ((value?: unknown) => unknown) | null = null;
 
@@ -836,7 +967,7 @@ describe('ResourceTable', () => {
       expect(out).not.toHaveElement('tr[data-id="2"] .ResourceTable-tag');
 
       selectAll(out);
-      out.click('.ResourceTable-bulk .ResourceTable-bulkTag');
+      out.click('.ResourceTable-batchBar .ResourceTable-bulkTag');
 
       const [, attrs] = lastModal();
       const done = jest.fn();
@@ -857,7 +988,7 @@ describe('ResourceTable', () => {
       const [result, resultAttrs] = lastModal();
       expect(result).toBe(BulkResultModal);
       expect(resultAttrs.action.key).toBe('tag');
-      expect(resultAttrs.summary.skipped.map((m: Thing) => m.id())).toEqual(['2']);
+      expect(resultAttrs.summary.skipped).toEqual([]);
       expect(done).toHaveBeenCalledWith(resultAttrs.summary);
     });
 
@@ -875,7 +1006,7 @@ describe('ResourceTable', () => {
       expect(out).not.toHaveElement('tr .ResourceTable-touch');
 
       selectAll(out);
-      out.click('.ResourceTable-bulk .ResourceTable-bulkTouch');
+      out.click('.ResourceTable-batchBar .ResourceTable-bulkTouch');
       await flush();
 
       expect(run).toHaveBeenCalledTimes(2);

@@ -184,26 +184,11 @@ describe('UserListPage', () => {
       const { page } = await rendered();
       const u = user('2');
 
-      for (const method of [
-        'headerItems',
-        'actionItems',
-        'columns',
-        'userActionItems',
-        'headerInfo',
-        'loadPage',
-        'goToPage',
-        'createModal',
-        'editModal',
-      ]) {
+      for (const method of ['actionItems', 'columns', 'userActionItems', 'headerInfo', 'loadPage', 'goToPage', 'createModal', 'editModal']) {
         expect(typeof (UserListPage.prototype as any)[method]).toBe('function');
       }
 
-      expect(entries(page.headerItems())).toEqual([
-        ['search', 100],
-        ['totalUsers', 90],
-        ['actions', 80],
-      ]);
-      expect(entries(page.actionItems())).toEqual([['createUser', 100]]);
+      expect(entries(page.actionItems())).toEqual([['createUser', -100]]);
       expect(entries(page.columns())).toEqual([
         ['id', 100],
         ['username', 90],
@@ -214,10 +199,11 @@ describe('UserListPage', () => {
         ['userActions', -90],
       ]);
       expect(entries(page.userActionItems(u))).toEqual([
-        ['editUser', 0],
-        ['delete', -100],
+        ['edit', 1100],
+        ['destructiveSeparator', -5000],
+        ['delete', -9999.91],
       ]);
-      expect(entries(page.userActionItems(user('3', { canDelete: false })))).toEqual([['editUser', 0]]);
+      expect(entries(page.userActionItems(user('3', { canDelete: false }))).map(([key]) => key)).toEqual(['edit', 'destructiveSeparator']);
       expect(page.headerInfo()).toMatchObject({ className: 'UserListPage', icon: 'fas fa-users' });
       expect((page as any).numPerPage).toBe(50);
     });
@@ -239,33 +225,36 @@ describe('UserListPage', () => {
     test('rows keep the UserListPage classes and data attributes, with exactly one actions column', async () => {
       const { out } = await rendered();
 
-      // The header items render in the table's toolbar: totalUsers in the count slot, actions beside it.
-      expect(out).toHaveElement('.ResourceTable-toolbarActions.UserListPage-header .ResourceTable-count[role=status] .UserListPage-totalUsers');
-      expect(out).toHaveElement('.ResourceTable-toolbarActions.UserListPage-header .UserListPage-actions .UserListPage-createUserBtn');
+      // The shared toolbar: the table's search, filters, refresh and settings, then the page's "New User".
+      expect(out).toHaveElement('.ResourceTable-toolbarActions .ResourceTable-refresh');
+      expect(out).toHaveElement('.ResourceTable-toolbarActions .ResourceTable-settings');
+      expect(out).toHaveElement('.ResourceTable-toolbarActions .UserListPage-createUserBtn.Button--primary');
+      expect(out).not.toHaveElement('.ResourceTable-create');
+      expect(out).not.toHaveElement('.UserListPage-totalUsers');
+      expect(out).not.toHaveElement('.ResourceTable-sortDropdown');
+      expect(out).toHaveElement(
+        '.ResourceTable-toolbarView .ResourceTable-searchGroup .AutocompleteDropdown input.ResourceTable-search[type=search]'
+      );
+      expect(out.find('input[type=search]')).toHaveLength(1);
       // `UserListPage-grid` is the table container only.
       expect(out).toHaveElement('.ResourceTable.UserListPage-table');
       expect(out).not.toHaveElement('.ResourceTable.UserListPage-grid');
       expect(out).toHaveElement('.UserListPage-table > .ResourceTable-container.UserListPage-grid > table');
       expect(out).not.toHaveElement('.UserListPage-grid .ResourceTable-toolbar');
-      expect(out).not.toHaveElement('.UserListPage-grid .ResourceTable-pagination');
       expect(out).toHaveElement('.UserListPage-grid.UserListPage-grid--loaded');
       expect(out).toHaveElement('th.UserListPage-grid-header[data-column-name=username]');
       expect(out).toHaveElement('td.UserListPage-grid-rowItem[data-user-id="2"][data-column-name=emailAddress] .UserList-email');
-      expect(out).toHaveElement('tr[data-user-id="3"] td.UserListPage-grid-rowItem--shaded');
+      expect(out).not.toHaveElement('.UserListPage-grid-rowItem--shaded');
       expect(out).toHaveElement('.UserList-joinDate');
 
-      // One actions column: the page's own `userActions`, not the table's.
+      // One actions column: the page's own `userActions`, with the shared overflow menu.
       expect(out).toHaveElement('th[data-column-name=userActions]');
-      expect(out).not.toHaveElement('.ResourceTable-actions');
-      expect(out.find('tr[data-user-id="2"] .UserList-userActions')).toHaveLength(1);
+      expect(out).not.toHaveElement('th[data-column-name=actions]');
+      expect(out.find('tr[data-user-id="2"] .ResourceTable-rowMenu')).toHaveLength(1);
+      expect(out).toHaveElementAttr('tr[data-user-id="2"] .ResourceTable-rowMenu .Dropdown-toggle', 'aria-label', 'Actions for User 2');
 
-      // The page's search and create replace the table's own.
-      expect(out).toHaveElement('.ResourceTable-toolbarView .ResourceTable-searchGroup input[type=search]');
-      expect(out.find('input[type=search]')).toHaveLength(1);
-      expect(out).not.toHaveElement('.ResourceTable-search');
-      expect(out).not.toHaveElement('.ResourceTable-create');
-      expect(out).not.toHaveElement('.ResourceTable-refresh');
-      expect(out).not.toHaveElement('.ResourceTable-sortDropdown');
+      // The pagination footer replaces the user count.
+      expect(out.first('.ResourceTable-pageRange').textContent).toBe('1–2 of 3 items');
     });
 
     test("the descriptor's gambit-backed filters are left to the search; gambits stay in filter[q]", async () => {
@@ -277,8 +266,8 @@ describe('UserListPage', () => {
         out.redraw();
 
         // `email:` and `group:` are users gambits, so the search box covers both filters.
-        expect(out).not.toHaveElement('.ResourceTable-toolbar .ResourceTable-filter--email');
-        expect(out).not.toHaveElement('.ResourceTable-toolbar .ResourceTable-filter--group');
+        expect(out).not.toHaveElement('.ResourceTable-toolbar .ResourceTable-filterGroup--email');
+        expect(out).not.toHaveElement('.ResourceTable-toolbar .ResourceTable-filterGroup--group');
 
         out.setValue('.ResourceTable-toolbarView .ResourceTable-searchGroup input[type=search]', 'email:a@b.c');
         await jest.runAllTimersAsync();
@@ -314,19 +303,15 @@ describe('UserListPage', () => {
     expect(out).toContainRaw('plain-user2');
   });
 
-  test('a headerItems item between search (100) and totalUsers (90) renders right after the search', async () => {
-    patch(UserListPage.prototype, 'headerItems');
-    extend(UserListPage.prototype, 'headerItems', (items) => {
-      items.add('between', m('span', { className: 'ExtBetween' }, 'between'), 95);
-      items.add('low', m('span', { className: 'ExtLow' }, 'low'), 85);
+  test('an actionItems item from an extension renders in the toolbar before "New User"', async () => {
+    patch(UserListPage.prototype, 'actionItems');
+    extend(UserListPage.prototype, 'actionItems', (items) => {
+      items.add('extra', m('span', { className: 'ExtExtra' }, 'Extra'));
     });
 
     const { out } = await rendered();
 
-    expect(out).toHaveElement('.ResourceTable-toolbarView .ResourceTable-searchGroup + .ExtBetween');
-    expect(out).not.toHaveElement('.UserListPage-header .ExtBetween');
-    expect(out).toHaveElement('.UserListPage-header .ExtLow');
-    expect(out).not.toHaveElement('.ResourceTable-toolbarView .ExtLow');
+    expect(out).toHaveElement('.ResourceTable-toolbarActions .ExtExtra + .UserListPage-createUserBtn');
   });
 
   test('an extension userActionItems item (as gdpr adds export-data) renders in the row dropdown', async () => {
@@ -337,7 +322,7 @@ describe('UserListPage', () => {
 
     const { out } = await rendered();
 
-    expect(out).toHaveElement('tr[data-user-id="2"] [data-column-name=userActions] .UserList-userActions .GdprExportButton');
+    expect(out).toHaveElement('tr[data-user-id="2"] [data-column-name=userActions] .ResourceTable-rowMenu .GdprExportButton');
   });
 
   describe('definition registry', () => {
@@ -356,7 +341,7 @@ describe('UserListPage', () => {
       expect(out).not.toHaveElement('.ResourceTable-export');
     });
 
-    test("an extension's row action shows in the actions menu after the page's items and runs through the table", async () => {
+    test("an extension's row action shows in the row menu between edit and delete and runs through the table", async () => {
       const run = jest.fn((_user: User) => Promise.resolve());
 
       patch(UserResourceDefinition.prototype, 'resourceActions');
@@ -367,15 +352,13 @@ describe('UserListPage', () => {
 
       const { out, page } = await rendered();
 
-      expect(out).toHaveElement('tr[data-user-id="2"] .UserList-userActions .UserList-suspend');
-      expect(out).not.toHaveElement('tr[data-user-id="3"] .UserList-suspend');
-      expect(out).not.toHaveElement('.UserList-poke');
-      // The built-in edit and delete are not repeated.
-      expect(out.find('tr[data-user-id="2"] .UserList-deleteUser').length).toBe(1);
-      expect(out).not.toHaveElement('tr[data-user-id="2"] .UserList-userActions .UserList-edit');
-      expect(entries(page.userActionItems(user('2'))).map(([key]) => key)).toEqual(['editUser', 'delete', 'suspend']);
+      expect(out).toHaveElement('tr[data-user-id="2"] .ResourceTable-rowMenu .ResourceTable-suspend');
+      expect(out).not.toHaveElement('tr[data-user-id="3"] .ResourceTable-suspend');
+      expect(out).not.toHaveElement('.ResourceTable-rowMenu .ResourceTable-poke');
+      expect(out.find('tr[data-user-id="2"] .ResourceTable-delete').length).toBe(1);
+      expect(entries(page.userActionItems(user('2'))).map(([key]) => key)).toEqual(['edit', 'suspend', 'destructiveSeparator', 'delete']);
 
-      out.click('tr[data-user-id="2"] .UserList-suspend');
+      out.click('tr[data-user-id="2"] .ResourceTable-suspend');
       await flush();
 
       expect(run).toHaveBeenCalledTimes(1);
@@ -383,7 +366,7 @@ describe('UserListPage', () => {
       expect(app.modal.show).toHaveBeenLastCalledWith(BulkResultModal, expect.objectContaining({ summary: expect.anything() }));
     });
 
-    test('extension row actions keep their own order in the menu, offset from -200; a destructive one is marked', async () => {
+    test('row menu order: edit first, then the others by priority, then the destructive ones in danger style', async () => {
       patch(UserResourceDefinition.prototype, 'resourceActions');
       extend(UserResourceDefinition.prototype, 'resourceActions', function (items) {
         items.add('low', { key: 'low', label: 'Low', scope: 'row', run: () => Promise.resolve() }, 10);
@@ -393,10 +376,11 @@ describe('UserListPage', () => {
       const { out, page } = await rendered();
       const menu = page.userActionItems(user('2'));
 
-      expect(entries(menu).map(([key]) => key)).toEqual(['editUser', 'delete', 'high', 'low']);
-      expect([menu.getPriority('high'), menu.getPriority('low')]).toEqual([-140, -190]);
-      expect(out).toHaveElement('tr[data-user-id="2"] .UserList-high.UserList-action--danger');
-      expect(out).not.toHaveElement('tr[data-user-id="2"] .UserList-low.UserList-action--danger');
+      expect(entries(menu).map(([key]) => key)).toEqual(['edit', 'low', 'destructiveSeparator', 'delete', 'high']);
+      expect(out).toHaveElement('tr[data-user-id="2"] .ResourceTable-high.ResourceTable-menuAction--danger');
+      expect(out).toHaveElement('tr[data-user-id="2"] .ResourceTable-delete.ResourceTable-menuAction--danger');
+      expect(out).not.toHaveElement('tr[data-user-id="2"] .ResourceTable-low.ResourceTable-menuAction--danger');
+      expect(out).toHaveElement('tr[data-user-id="2"] .ResourceTable-rowMenu li.Dropdown-separator');
     });
 
     test('a row action shows loading in the menu while it runs for that user', async () => {
@@ -409,11 +393,11 @@ describe('UserListPage', () => {
 
       const { out } = await rendered();
 
-      out.click('tr[data-user-id="2"] .UserList-ping');
+      out.click('tr[data-user-id="2"] .ResourceTable-ping');
       out.redraw();
 
-      expect(out).toHaveElement('tr[data-user-id="2"] .UserList-ping.loading');
-      expect(out).not.toHaveElement('tr[data-user-id="3"] .UserList-ping.loading');
+      expect(out).toHaveElement('tr[data-user-id="2"] .ResourceTable-ping.loading');
+      expect(out).not.toHaveElement('tr[data-user-id="3"] .ResourceTable-ping.loading');
 
       finish();
       await flush();
@@ -427,7 +411,7 @@ describe('UserListPage', () => {
 
       const { out } = await rendered();
 
-      out.click('tr[data-user-id="2"] .UserList-wipe');
+      out.click('tr[data-user-id="2"] .ResourceTable-wipe');
 
       expect(app.modal.show).toHaveBeenLastCalledWith(ResourceActionModal, expect.objectContaining({ models: [app.store.getById('users', '2')] }));
     });
@@ -510,7 +494,6 @@ describe('UserListPage', () => {
     try {
       const oninit = jest.spyOn(UserListPage.prototype, 'oninit');
       const out = mq(UserListPage);
-      const page = oninit.mock.contexts[0] as UserListPage;
       oninit.mockRestore();
       await jest.runAllTimersAsync();
       out.redraw();
@@ -518,7 +501,8 @@ describe('UserListPage', () => {
       const calls = find.mock.calls.length;
 
       out.setValue('.ResourceTable-toolbarView .ResourceTable-searchGroup input[type=search]', 'user3');
-      page.onremove({ dom: document.createElement('div') } as any);
+      // Unmounting the page removes the table, which drops its pending search.
+      m.render(out.rootEl, null);
       await jest.advanceTimersByTimeAsync(1000);
 
       expect(find.mock.calls.length).toBe(calls);
@@ -546,7 +530,7 @@ describe('UserListPage', () => {
     await flush();
 
     expect(lastParams()).toMatchObject({ sort: 'username' });
-    expect((page as any).query).toBe('');
+    expect((page as any).list.getQuery()).toBe('');
   });
 
   describe('modal seams', () => {
@@ -566,7 +550,7 @@ describe('UserListPage', () => {
       out.click('.UserListPage-createUserBtn');
       expect(app.modal.show).toHaveBeenLastCalledWith(CreateUserModal, expect.objectContaining({ onCreated: expect.any(Function) }));
 
-      out.click('tr[data-user-id="2"] .UserList-userActions .Dropdown-menu button');
+      out.click('tr[data-user-id="2"] .ResourceTable-rowMenu .ResourceTable-edit');
       expect(app.modal.show).toHaveBeenLastCalledWith(editModal, expect.objectContaining({ user: u, onsaved: expect.any(Function) }));
     });
 
@@ -586,7 +570,7 @@ describe('UserListPage', () => {
       expect(modal).toHaveElement('.CreateUserModal-extra');
     });
 
-    test('override: the stub modals open, and onCreated still bumps the user total', async () => {
+    test('override: the stub modals open, and onCreated reloads the list', async () => {
       patch(UserListPage.prototype, 'createModal');
       patch(UserListPage.prototype, 'editModal');
       override(UserListPage.prototype, 'createModal', () => StubModal);
@@ -599,23 +583,23 @@ describe('UserListPage', () => {
       expect(app.modal.show).toHaveBeenLastCalledWith(StubModal, expect.objectContaining({ onCreated: expect.any(Function) }));
 
       const { onCreated } = (app.modal.show as jest.Mock).mock.calls.at(-1)![1] as { onCreated: (u: User) => void };
+      const calls = find.mock.calls.length;
       onCreated(user('9'));
-      out.redraw();
+      await flush();
 
-      expect(app.data.modelStatistics.users.total).toBe(4);
-      expect(out).toContainRaw('Total users: 4');
+      expect(find.mock.calls.length).toBe(calls + 1);
 
-      out.click('tr[data-user-id="2"] .UserList-userActions .Dropdown-menu button');
+      out.click('tr[data-user-id="2"] .ResourceTable-rowMenu .ResourceTable-edit');
       expect(app.modal.show).toHaveBeenLastCalledWith(StubModal, expect.objectContaining({ user: u, onsaved: expect.any(Function) }));
     });
   });
 
-  test('delete opens ResourceDeleteModal for deletable users and lowers the total', async () => {
+  test('delete opens ResourceDeleteModal for deletable users and reloads the list', async () => {
     const { out } = await rendered();
 
-    expect(out).not.toHaveElement('tr[data-user-id="3"] .UserList-deleteUser');
+    expect(out).not.toHaveElement('tr[data-user-id="3"] .ResourceTable-delete');
 
-    out.click('tr[data-user-id="2"] .UserList-deleteUser');
+    out.click('tr[data-user-id="2"] .ResourceTable-delete');
 
     expect(app.modal.show).toHaveBeenLastCalledWith(
       ResourceDeleteModal,
@@ -623,15 +607,14 @@ describe('UserListPage', () => {
     );
 
     const calls = find.mock.calls.length;
-    const { ondeleted } = (app.modal.show as jest.Mock).mock.calls.at(-1)![1] as { ondeleted: () => void };
-    ondeleted();
+    const { ondeleted } = (app.modal.show as jest.Mock).mock.calls.at(-1)![1] as { ondeleted: (u: User) => void };
+    ondeleted(app.store.getById('users', '2')!);
     await flush();
 
-    expect(app.data.modelStatistics.users.total).toBe(2);
     expect(find.mock.calls.length).toBe(calls + 1);
   });
 
-  test('a bulk delete where one row fails deletes the others, names the failed row and lowers the total by 2', async () => {
+  test('a bulk delete where one row fails deletes the others and names the failed row', async () => {
     patch(UserResourceDefinition.prototype, 'resourceActions');
     extend(UserResourceDefinition.prototype, 'resourceActions', function (items) {
       items.setContent('delete', { ...items.get('delete'), scope: 'both' });
@@ -648,7 +631,7 @@ describe('UserListPage', () => {
     const check = out.first('.ResourceTable-selectAll');
     check.checked = true;
     out.trigger('.ResourceTable-selectAll', 'change');
-    out.click('.ResourceTable-bulk .ResourceTable-bulkDelete');
+    out.click('.ResourceTable-batchBar .ResourceTable-bulkDelete');
 
     const [confirmModal, confirmAttrs] = (app.modal.show as jest.Mock).mock.calls.at(-1) as [any, any];
     expect(confirmModal).toBe(ResourceActionModal);
@@ -668,9 +651,6 @@ describe('UserListPage', () => {
     const modal = mq(BulkResultModal, { state: {}, animateShow: (cb: () => void) => cb(), animateHide: jest.fn(), ...attrs });
     expect(modal).toHaveElement('.BulkResultModal-failed');
     expect(modal).toContainRaw('Refused');
-
-    expect(app.data.modelStatistics.users.total).toBe(1);
-    expect(out).toContainRaw('Total users: 1');
   });
 
   test('CSV export guards formula-like usernames and display names', async () => {
@@ -685,7 +665,7 @@ describe('UserListPage', () => {
 
     const { out } = await rendered();
 
-    out.click('.ResourceTable-export');
+    out.click('.ResourceTable-settings .ResourceTable-export');
     await flush();
     await flush();
 
@@ -712,7 +692,12 @@ describe('UserListPage', () => {
 
       expect(out).toHaveElement('th .ResourceTable-selectAll');
       expect(out).toHaveElement('tr[data-user-id="2"] input.ResourceTable-select');
-      expect(out).toHaveElement('.ResourceTable-bulk .BulkX');
+
+      out.first('tr[data-user-id="2"] input.ResourceTable-select').checked = true;
+      out.trigger('tr[data-user-id="2"] input.ResourceTable-select', 'change');
+
+      expect(out).toHaveElement('.ResourceTable-batchBar .BulkX');
+      expect(out).not.toHaveElement('.ResourceTable-toolbarView');
     });
 
     test('an admin sees "Export CSV"; a user with only searchUsers does not', async () => {
@@ -725,14 +710,14 @@ describe('UserListPage', () => {
       expect(out).not.toHaveElement('.ResourceTable-export');
     });
 
-    test('the Columns dropdown has no checkbox for id, username or userActions', async () => {
+    test('the settings menu has no column checkbox for id, username or userActions', async () => {
       const { out } = await rendered();
 
-      expect(out).toHaveElement('.ResourceTable-columns input[name="displayName"]');
-      expect(out).toHaveElement('.ResourceTable-columns input[name="emailAddress"]');
-      expect(out).not.toHaveElement('.ResourceTable-columns input[name="id"]');
-      expect(out).not.toHaveElement('.ResourceTable-columns input[name="username"]');
-      expect(out).not.toHaveElement('.ResourceTable-columns input[name="userActions"]');
+      expect(out).toHaveElement('.ResourceTable-columnToggle input[name="displayName"]');
+      expect(out).toHaveElement('.ResourceTable-columnToggle input[name="emailAddress"]');
+      expect(out).not.toHaveElement('.ResourceTable-columnToggle input[name="id"]');
+      expect(out).not.toHaveElement('.ResourceTable-columnToggle input[name="username"]');
+      expect(out).not.toHaveElement('.ResourceTable-columnToggle input[name="userActions"]');
     });
 
     test('a CSV row holds the username, email and ;-joined group names', async () => {
@@ -761,48 +746,21 @@ describe('UserListPage', () => {
     });
   });
 
-  test('header items render in the toolbar, an extension item included', async () => {
-    patch(UserListPage.prototype, 'headerItems');
-    extend(UserListPage.prototype, 'headerItems', (items) => {
-      items.add('extra', m('span', { className: 'HeaderExtra' }, 'Extra'), 85);
-    });
-
-    const { out } = await rendered();
-
-    expect(out).toHaveElement('.ResourceTable-toolbarView .AutocompleteDropdown input[type=search]');
-    expect(out).toHaveElement('.ResourceTable-toolbarActions .ResourceTable-count .UserListPage-totalUsers');
-    expect(out).toHaveElement('.ResourceTable-toolbarActions .HeaderExtra');
-    expect(out).toHaveElement('.ResourceTable-toolbarActions .UserListPage-actions');
-  });
-
   test('a group filter with a gambit of the same key in the search is marked overridden', async () => {
     window.history.replaceState(null, '', '/admin#/users?filter%5Bgroup%5D=4&q=group%3AHelper');
 
     const { out } = await rendered();
 
     expect(lastParams().filter).toMatchObject({ group: '4' });
-    expect(out).toHaveElement('.ResourceTable-subToolbar .ResourceTable-chip--group.ResourceTable-chip--overridden');
+    expect(out).toHaveElement('.ResourceTable-filterTags .ResourceTable-chip--group.ResourceTable-chip--overridden');
     expect(out).toContainRaw('Overridden by the search');
-  });
-
-  test('the count is the forum total, or the matching total while a filter narrows the list', async () => {
-    const { out } = await rendered();
-
-    expect(out).toContainRaw('Total users: 3');
-
-    window.history.replaceState(null, '', '/admin#/users?filter%5Bgroup%5D=4');
-    respond(() => Promise.resolve(results([user('2', {}, ['4'])], 1)));
-    const narrowed = await rendered();
-
-    expect(lastParams().filter).toMatchObject({ group: '4' });
-    expect(narrowed.out).toContainRaw('1 matching user of 3');
   });
 
   test('filters a gambit covers are left to the search box', async () => {
     const { out } = await rendered();
 
-    expect(out).not.toHaveElement('.ResourceTable-filter--group');
-    expect(out).not.toHaveElement('.ResourceTable-filter--email');
+    expect(out).not.toHaveElement('.ResourceTable-filterGroup--group');
+    expect(out).not.toHaveElement('.ResourceTable-filterGroup--email');
   });
 
   test('a search-covered group filter from the URL has no dropdown but a removable chip', async () => {
@@ -811,8 +769,8 @@ describe('UserListPage', () => {
     const { out } = await rendered();
 
     expect(lastParams().filter).toMatchObject({ group: '4' });
-    expect(out).not.toHaveElement('.ResourceTable-filter--group');
-    expect(out).toHaveElement('.ResourceTable-subToolbar .ResourceTable-chip--group');
+    expect(out).not.toHaveElement('.ResourceTable-filterGroup--group');
+    expect(out).toHaveElement('.ResourceTable-filterTags .ResourceTable-chip--group');
 
     out.click('.ResourceTable-chip--group button');
     await flush();

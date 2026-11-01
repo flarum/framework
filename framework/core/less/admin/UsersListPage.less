@@ -2,62 +2,22 @@
   // Pad bottom of page to make nav area look less squashed
   padding-bottom: 24px;
 
-  // `-header` is the table's toolbar actions group (see
-  // ResourceTable.less), which does the layout.
-
-  &-totalUsers {
-    margin: 0;
-  }
-
-  &-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    * + * {
-      margin-inline-start: 8px;
-    }
-  }
-
   // The list is a `ResourceTable` (`-table`, see ResourceTable.less): the grid classes stay on the
   // table container (`-grid`, with `--loading`/`--loadingPage`/`--loaded`), its header cells
   // (`-grid-header`) and its body cells (`-grid-rowItem`) for extension styles; the table itself
-  // does the layout, striping and loading overlay.
+  // does the layout and loading overlay.
   &-grid {
     width: 100%;
-
-    &-rowItem {
-      &[data-column-name="userActions"] {
-        width: 1%;
-        padding: 0;
-        position: relative;
-      }
-    }
   }
 }
 
 // Handles styling of default UserList columns
 .UserList {
   &-joinDate {
+    white-space: nowrap;
     cursor: help;
     text-decoration: underline;
     text-decoration-style: dotted;
-  }
-
-  &-userActions {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  &-userActionsBtn {
-    width: 100%;
-    height: 100%;
-
-    border-radius: 0;
-    padding: 0;
   }
 
   &-email {
@@ -85,18 +45,5 @@
         text-decoration: none;
       }
     }
-  }
-}
-
-// A destructive extension action in a user's actions menu, coloured like `Button--danger`.
-.Dropdown-menu .UserList-action--danger {
-  &,
-  .Button-icon {
-    color: var(--control-danger-color);
-  }
-
-  &:hover,
-  &:focus {
-    background: var(--control-danger-bg);
   }
 }

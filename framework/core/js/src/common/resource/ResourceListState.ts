@@ -380,6 +380,15 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
     return this.goto(removed >= this.getItems().length && page > 1 ? page - 1 : page);
   }
 
+  /** Show `size` records per page, from the first page. A no-op for an unpaginated type. */
+  setPageSize(size: number): Promise<void> {
+    if (!this.isPaginated() || size === this.pageSize) return Promise.resolve();
+
+    this.pageSize = size;
+
+    return this.goto(1);
+  }
+
   hasTotal(): boolean {
     return this.totalItems !== null;
   }
@@ -408,13 +417,22 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
     else this.selection.ids.delete(id);
   }
 
-  setPageSelected(selected: boolean): void {
-    this.selection = { ids: new Set(selected ? this.getItems().map((model) => model.id()!) : []) };
+  /** Select every record of the page that `selectable` accepts (default: all), or none. */
+  setPageSelected(selected: boolean, selectable: (model: M) => boolean = () => true): void {
+    this.selection = {
+      ids: new Set(
+        selected
+          ? this.getItems()
+              .filter(selectable)
+              .map((model) => model.id()!)
+          : []
+      ),
+    };
   }
 
-  /** Whether the page has records and all of them are selected. */
-  isPageSelected(): boolean {
-    const items = this.getItems();
+  /** Whether the page has records `selectable` accepts (default: all) and all of them are selected. */
+  isPageSelected(selectable: (model: M) => boolean = () => true): boolean {
+    const items = this.getItems().filter(selectable);
 
     return items.length > 0 && items.every((model) => this.isSelected(model.id()!));
   }

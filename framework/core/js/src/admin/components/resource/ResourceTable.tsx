@@ -7,7 +7,8 @@ import GambitsAutocompleteDropdown from '../../../common/components/GambitsAutoc
 import Icon from '../../../common/components/Icon';
 import Input from '../../../common/components/Input';
 import LoadingIndicator from '../../../common/components/LoadingIndicator';
-import Pagination from '../../../common/components/Pagination';
+import Select from '../../../common/components/Select';
+import Separator from '../../../common/components/Separator';
 import type Model from '../../../common/Model';
 import ItemList from '../../../common/utils/ItemList';
 import classList from '../../../common/utils/classList';
@@ -31,20 +32,24 @@ import ResourceListState from '../../../common/resource/ResourceListState';
 import type { Field } from '../../../common/resource/types';
 import type Mithril from 'mithril';
 import BulkResultModal from './BulkResultModal';
-import ColumnsDropdown from './ColumnsDropdown';
+import CsvExport from './CsvExport';
 import Drafts from './Drafts';
-import ExportCsvButton from './ExportCsvButton';
 import floatMenus from './floatMenus';
 import ordered from './ordered';
 import ResourceActionModal from './ResourceActionModal';
 import ResourceDeleteModal, { type ResourceDeleteModalAttrs } from './ResourceDeleteModal';
-import CompactFilterBar, { ALWAYS_QUERY, PHONE_QUERY } from './CompactFilterBar';
 import ResourceFilterBar from './ResourceFilterBar';
 import ResourceFormModal from './ResourceFormModal';
 import type ModalManagerState from '../../../common/states/ModalManagerState';
 
 /** What `app.modal.show()` takes: a modal class or a loader of one. */
 type ModalClass = Parameters<ModalManagerState['show']>[0];
+
+/** The page sizes offered in the footer, capped at the descriptor's `pagination.maxLimit`. */
+export const PAGE_SIZES = [10, 20, 50, 100];
+
+/** Row menu items of destructive actions sit below this priority, after a separator. */
+const DESTRUCTIVE_BAND = -10000;
 
 /**
  * One table column. `{name, content}` is the shape of `UserListPage.columns()`; the rest is
@@ -61,7 +66,7 @@ export interface ColumnData<M extends Model = Model> {
   className?: string;
   /** Extra attributes for one record's cell, e.g. `data-*` or `aria-*`. */
   attrs?: (model: M) => Record<string, unknown>;
-  /** Listed in the "Columns" dropdown, so the user can hide it. Default true. */
+  /** Listed under "Columns" in the table settings, so the user can hide it. Default true. */
   toggleable?: boolean;
   /** Hidden until the user shows it. A stored choice for this column wins. */
   hidden?: boolean;
@@ -95,27 +100,24 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
   columns?: ItemList<ColumnData<M>>;
   /** Added to the root element's class. */
   className?: string;
-  /**
-   * The filters as one "Filters (n)" dropdown: `true` always, `false` never, unset at phone width.
-   * Read by `filterBar()`.
-   */
-  compactFilters?: boolean;
 }
 
 /**
- * The admin table for one resource type: columns from the definition's fields (or the `columns`
- * attr), header and dropdown sorting over the descriptor's sorts, debounced search, the filter bar
- * (`filterBar()`), numbered (core `Pagination`) or prev/next pagination, create gated by
- * `canCreate()`, and the definition's `resourceActions()` on rows and on the selection. Every region
- * is an `ItemList` for extensions.
+ * The admin table for one resource type, laid out after Carbon's data table: one toolbar row
+ * (search, "Filter" panel, refresh, table settings, create) that a batch action bar replaces while
+ * rows are selected, the active filter tags, the table (sortable headers, one overflow menu of row
+ * actions per row) and a pagination footer. Columns come from the definition's fields (or the
+ * `columns` attr), actions from `resourceActions()`. Every region is an `ItemList` for extensions.
  */
 export default class ResourceTable<M extends Model = Model, Attrs extends ResourceTableAttrs<M> = ResourceTableAttrs<M>> extends Component<Attrs> {
   list!: ResourceListState<M>;
   /** Null until the descriptor is loaded. */
   fields: ItemList<Field<M>> | null = null;
-  /** The filters' toolbar items and chips (`filterBar()`); null until the descriptor is loaded. */
+  /** The filters' panel and tags (`filterBar()`); null until the descriptor is loaded. */
   bar: ResourceFilterBar<M> | null = null;
   loadError: boolean = false;
+  /** The CSV export, which outlives the settings menu it is started from. */
+  csv!: CsvExport<M>;
   /** Removes the row menus' fixed positioning listeners (`floatMenus`). */
   protected unfloatMenus: (() => void) | null = null;
 
@@ -124,8 +126,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /** The search typed but not yet sent. */
   protected searchDraft = new Drafts();
-  /** `bulkActionItems()` for the view pass in progress, so the toolbar and the table share one build. */
-  protected viewBulkActions: ItemList<Mithril.Children> | null = null;
   /** `definition.resourceActions()` for the view pass in progress, shared by every row. */
   protected viewResourceActions: ItemList<ResourceAction<M>> | null = null;
 
@@ -135,6 +135,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     const { definition, state, syncUrl, pageSize } = this.attrs;
 
     this.list = state ?? new ResourceListState<M>(definition, { syncUrl, pageSize });
+    this.csv = new CsvExport<M>(this.list);
 
     definition
       .load()
@@ -160,6 +161,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
     this.searchDraft.discard();
     this.bar?.destroy();
+    this.csv.cancel();
   }
 
   view(): Mithril.Children {
@@ -184,12 +186,10 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     }
 
     this.viewResourceActions = this.attrs.definition.resourceActions();
-    this.viewBulkActions = this.bulkActionItems();
 
     try {
       return <div className={className}>{this.items().toArray()}</div>;
     } finally {
-      this.viewBulkActions = null;
       this.viewResourceActions = null;
     }
   }
@@ -199,25 +199,42 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     return this.viewResourceActions ?? this.attrs.definition.resourceActions();
   }
 
-  /** The bulk actions of the current view pass, else a fresh `bulkActionItems()`. */
-  protected currentBulkActions(): ItemList<Mithril.Children> {
-    return this.viewBulkActions ?? this.bulkActionItems();
-  }
-
   /**
-   * The table's regions: `toolbar`, `subToolbar` (active filter chips, "Columns", "Export CSV"),
-   * `table`, `pagination`.
+   * The table's regions: `toolbar` (the batch bar while rows are selected), `status` (a polite live
+   * region announcing the selection), `filterTags` (only while a filter is set), `table`,
+   * `pagination`.
    */
   items(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
+    const count = this.list.selectedModels().length;
 
-    items.add('toolbar', <div className="ResourceTable-toolbar">{this.toolbarItems().toArray()}</div>, 100);
+    items.add(
+      'toolbar',
+      count ? (
+        <div
+          className="ResourceTable-toolbar ResourceTable-batchBar"
+          role="group"
+          aria-label={app.translator.trans('core.admin.resource.table.bulk_label', {}, true)}
+        >
+          {this.batchItems().toArray()}
+        </div>
+      ) : (
+        <div className="ResourceTable-toolbar">{this.toolbarItems().toArray()}</div>
+      ),
+      100
+    );
 
-    const sub = this.subToolbarItems();
+    items.add(
+      'status',
+      <div className="ResourceTable-status visually-hidden" role="status" aria-live="polite">
+        {count ? app.translator.trans('core.admin.resource.table.selected', { count }) : null}
+      </div>,
+      90
+    );
 
-    if (!sub.isEmpty()) {
-      items.add('subToolbar', <div className="ResourceTable-subToolbar">{sub.toArray()}</div>, 75);
-    }
+    const tags = this.bar?.chips();
+
+    if (tags) items.add('filterTags', <div className="ResourceTable-filterTags">{tags}</div>, 75);
 
     items.add('table', this.tableView(), 50);
     items.add('pagination', this.paginationView(), 0);
@@ -225,62 +242,58 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     return items;
   }
 
-  /**
-   * `view` (search, sort, filters), `actions` (the total, then `actionItems()`) and, when the
-   * definition has bulk actions, `bulk`.
-   */
+  /** `view` (search and the "Filter" panel) on the left, `actions` (`actionItems()`) on the right. */
   toolbarItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
     items.add('view', <div className="ResourceTable-toolbarView">{this.viewItems().toArray()}</div>, 100);
-    items.add(
-      'actions',
-      <div className="ResourceTable-toolbarActions">
-        {this.countView(this.list.hasTotal() ? app.translator.trans('core.admin.resource.table.total', { count: this.list.totalItems }) : null)}
-        {this.actionItems().toArray()}
-      </div>,
-      50
-    );
-
-    const bulk = this.currentBulkActions();
-
-    if (!bulk.isEmpty()) {
-      items.add('bulk', this.bulkView(bulk), 25);
-    }
+    items.add('actions', <div className="ResourceTable-toolbarActions">{this.actionItems().toArray()}</div>, 50);
 
     return items;
   }
 
   /**
-   * The count slot: a polite live region, so assistive technology hears the new total after a
-   * search or filter change.
+   * The batch bar's items: `count` ("{count} items selected"), then `actions` (the bulk action
+   * buttons, a divider and "Cancel").
    */
-  countView(content: Mithril.Children): Mithril.Children {
-    return (
-      <div className="ResourceTable-count" role="status" aria-live="polite">
-        {content && <div className="ResourceTable-total">{content}</div>}
-      </div>
-    );
-  }
-
-  /** The bulk toolbar: the selected count, then the bulk actions. */
-  bulkView(actions: ItemList<Mithril.Children>): Mithril.Children {
+  batchItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
     const count = this.list.selectedModels().length;
 
-    return (
-      <div className="ResourceTable-bulk" role="group" aria-label={app.translator.trans('core.admin.resource.table.bulk_label', {}, true)}>
-        <span className="ResourceTable-selectedCount" aria-live="polite">
-          {app.translator.trans('core.admin.resource.table.selected', { count })}
-        </span>
-        {actions.toArray()}
-      </div>
+    items.add(
+      'count',
+      <span className="ResourceTable-batchCount">{app.translator.trans('core.admin.resource.table.selected', { count })}</span>,
+      100
     );
+
+    items.add(
+      'actions',
+      <div className="ResourceTable-batchActions">
+        {this.bulkActionItems().toArray()}
+        <span className="ResourceTable-batchDivider" aria-hidden="true" />
+        <Button className="Button ResourceTable-batchButton ResourceTable-batchCancel" onclick={() => this.list.clearSelection()}>
+          {app.translator.trans('core.admin.resource.table.cancel_selection_button')}
+        </Button>
+      </div>,
+      50
+    );
+
+    return items;
   }
 
-  /**
-   * A button per bulk-scoped `resourceActions()` entry. While empty, the table has no checkbox
-   * column.
-   */
+  /** The bulk-scoped `resourceActions()` entries. While empty, the table has no checkbox column. */
+  bulkActions(): ResourceAction<M>[] {
+    return ordered(this.currentResourceActions())
+      .map(([, action]) => action)
+      .filter((action) => isBulkAction(action));
+  }
+
+  /** Whether any bulk action `applies()` to the record, so its checkbox is enabled. */
+  isSelectable(model: M): boolean {
+    return this.bulkActions().some((action) => !action.applies || action.applies(model));
+  }
+
+  /** A batch bar button per bulk-scoped `resourceActions()` entry. */
   bulkActionItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
@@ -293,20 +306,14 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     return items;
   }
 
-  /** The toolbar button of a bulk action, labelled for the selection's size. */
+  /** The batch bar button of a bulk action, labelled for the selection's size. */
   bulkActionButton(action: ResourceAction<M>): Mithril.Children {
     const count = this.list.selectedModels().length;
     const key = action.key.charAt(0).toUpperCase() + action.key.slice(1);
 
     return (
       <Button
-        className={classList(
-          'Button',
-          action.destructive && 'Button--danger',
-          'ResourceTable-bulkAction',
-          `ResourceTable-bulk${key}`,
-          action.className
-        )}
+        className={classList('Button', 'ResourceTable-batchButton', 'ResourceTable-bulkAction', `ResourceTable-bulk${key}`, action.className)}
         icon={action.icon}
         disabled={!count}
         loading={isActionRunning(this.list, action.key)}
@@ -364,23 +371,14 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * The filter bar for the loaded filters, built once: its state (drafts, promoted filters, relation
-   * menus) lives as long as the table. Follows the `compactFilters` attr: a plain
-   * `ResourceFilterBar` for `false`, an always compact `CompactFilterBar` for `true`, and unset the
-   * `CompactFilterBar` that collapses into one "Filters (n)" dropdown at phone width.
+   * The filter bar for the loaded filters, built once: its state (drafts, relation menus) lives as
+   * long as the table. Override it to use a subclass.
    */
   filterBar(): ResourceFilterBar<M> {
-    const attrs = { definition: this.attrs.definition, list: this.list };
-    const compact = this.attrs.compactFilters;
-
-    if (compact === false) return new ResourceFilterBar<M>(attrs);
-
-    return new CompactFilterBar<M>(attrs, compact ? ALWAYS_QUERY : PHONE_QUERY);
+    return new ResourceFilterBar<M>({ definition: this.attrs.definition, list: this.list });
   }
 
-  /**
-   * Search (`search`, when the type is searchable), sort, then the filter bar's `items()`.
-   */
+  /** Search (`search`, when the type is searchable), then the filter bar's `items()` ("Filter"). */
   viewItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
@@ -388,63 +386,28 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       items.add('search', this.searchView(), 100);
     }
 
-    if (this.list.sorts().length) {
-      items.add('sort', this.sortDropdown(), 90);
-    }
-
     return this.bar ? items.merge(this.bar.items()) : items;
   }
 
   /**
-   * The row under the toolbar: the active filter chips and "Clear all" (`filters`), then `display`
-   * ("Columns" and "Export CSV").
-   */
-  subToolbarItems(): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
-    const chips = this.bar?.chips();
-
-    if (chips) items.add('filters', chips, 100);
-
-    const display = this.displayItems();
-
-    if (!display.isEmpty()) {
-      items.add('display', <div className="ResourceTable-display">{display.toArray()}</div>, 50);
-    }
-
-    return items;
-  }
-
-  /**
-   * The "Columns" dropdown (when a column is toggleable) and the CSV export (when
-   * `definition.canExport()`).
-   */
-  displayItems(): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
-    const toggleable = ordered(this.columns()).filter(([, column]) => column.toggleable !== false);
-
-    if (toggleable.length) {
-      items.add(
-        'columns',
-        <ColumnsDropdown
-          columns={toggleable.map(([key, column]) => ({ key, name: column.name, visible: this.isColumnVisible(key, column) }))}
-          onchange={(key: string, visible: boolean) => this.toggleColumn(key, visible)}
-        />,
-        20
-      );
-    }
-
-    if (this.attrs.definition.canExport()) {
-      items.add('export', <ExportCsvButton list={this.list} columns={() => this.visibleColumns()} />, 10);
-    }
-
-    return items;
-  }
-
-  /**
-   * Refresh, create (when `canCreate()`), then the definition's toolbar items.
+   * The right of the toolbar: the running export's progress (`export`), `refresh`, the table
+   * `settings` menu, the definition's `toolbar(list)` items, and `create` (when `canCreate()`) last.
    */
   actionItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
+    const exporting = this.csv.running;
+
+    if (exporting) {
+      items.add(
+        'export',
+        <Button className="Button ResourceTable-exportProgress" icon="fas fa-times" onclick={() => this.csv.cancel()}>
+          {exporting.total
+            ? app.translator.trans('core.admin.resource.table.export_progress_total', { count: exporting.rows, total: exporting.total })
+            : app.translator.trans('core.admin.resource.table.export_progress', { count: exporting.rows })}
+        </Button>,
+        110
+      );
+    }
 
     items.add(
       'refresh',
@@ -459,17 +422,133 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       100
     );
 
+    const settings = this.settingsItems();
+
+    if (!settings.isEmpty()) items.add('settings', this.settingsView(settings), 90);
+
+    items.merge(this.attrs.definition.toolbar(this.list));
+
     if (this.attrs.definition.canCreate()) {
       items.add(
         'create',
         <Button className="Button Button--primary ResourceTable-create" icon="fas fa-plus" onclick={() => this.create()}>
           {app.translator.trans('core.admin.resource.table.create_button')}
         </Button>,
-        90
+        -100
       );
     }
 
-    return items.merge(this.attrs.definition.toolbar(this.list));
+    return items;
+  }
+
+  /** The table settings menu: an icon button over `settingsItems()`. */
+  settingsView(items: ItemList<Mithril.Children>): Mithril.Children {
+    return (
+      <Dropdown
+        className="ResourceTable-settings"
+        buttonClassName="Button Button--icon ResourceTable-settingsToggle"
+        menuClassName="Dropdown-menu--right"
+        icon="fas fa-sliders-h"
+        caretIcon=""
+        label=""
+        buttonAttrs={{ title: app.translator.trans('core.admin.resource.table.settings_label', {}, true) }}
+        accessibleToggleLabel={app.translator.trans('core.admin.resource.table.settings_label', {}, true)}
+        helperText={null}
+      >
+        {items.toArray()}
+      </Dropdown>
+    );
+  }
+
+  /**
+   * The table settings: the `columns` toggles (when a column is toggleable), `export` ("Export
+   * CSV", when `definition.canExport()`) and `sort` (a sort select, shown at phone width only, where
+   * the sortable headers may be scrolled away). Flat menu items, so core's phone sheet styling applies.
+   */
+  settingsItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+    const toggleable = ordered(this.columns()).filter(([, column]) => column.toggleable !== false);
+
+    if (toggleable.length) {
+      items.add('columnsSeparator', <Separator />, 51);
+      items.add(
+        'columnsHeader',
+        Object.assign(<div className="ResourceTable-settingsHeading">{app.translator.trans('core.admin.resource.table.columns_heading')}</div>, {
+          itemClassName: 'Dropdown-header',
+        }),
+        50
+      );
+
+      toggleable.forEach(([key, column], index) => {
+        const visible = this.isColumnVisible(key, column);
+
+        items.add(
+          `column-${key}`,
+          <label className="checkbox ResourceTable-columnToggle" onclick={(e: MouseEvent) => e.stopPropagation()}>
+            <input
+              type="checkbox"
+              name={key}
+              checked={visible}
+              onchange={(e: Event) => this.toggleColumn(key, (e.target as HTMLInputElement).checked)}
+            />
+            {column.name}
+          </label>,
+          49 - index / 100
+        );
+      });
+    }
+
+    if (this.attrs.definition.canExport()) {
+      items.add('exportSeparator', <Separator />, 11);
+      items.add(
+        'export',
+        <Button className="ResourceTable-export" icon="fas fa-file-csv" disabled={!!this.csv.running} onclick={() => this.exportCsv()}>
+          {app.translator.trans('core.admin.resource.table.export_button')}
+        </Button>,
+        10
+      );
+    }
+
+    if (this.list.sorts().length) {
+      items.add('sortSeparator', <Separator />, 1);
+      items.add('sort', this.sortSelect(), 0);
+    }
+
+    return items;
+  }
+
+  /** Download the visible columns of every matching record; see `CsvExport`. */
+  exportCsv(): Promise<void> {
+    return this.csv.start(this.visibleColumns());
+  }
+
+  /** The sort select of the settings menu, for phones: the default order, then each sort both ways. */
+  sortSelect(): Mithril.Children {
+    const options: Record<string, string> = { '': extractText(app.translator.trans('core.admin.resource.table.sort_default')) };
+
+    this.list.sorts().forEach((sort) => {
+      const label = extractText(this.sortLabel(sort));
+      options[sort] = extractText(app.translator.trans('core.admin.resource.table.sort_ascending', { label }));
+      options[`-${sort}`] = extractText(app.translator.trans('core.admin.resource.table.sort_descending', { label }));
+    });
+
+    const id = `ResourceTable-sort-${this.attrs.definition.type}`;
+
+    return Object.assign(
+      <div className="ResourceTable-sortSelect" onclick={(e: MouseEvent) => e.stopPropagation()}>
+        <label className="ResourceTable-settingsHeading" for={id}>
+          {app.translator.trans('core.admin.resource.table.sort_label')}
+        </label>
+        <Select
+          id={id}
+          className="FormControl"
+          options={options}
+          value={this.list.getSort()}
+          onchange={(value: string) => this.list.setSort(value)}
+        />
+      </div>,
+      { itemClassName: 'ResourceTable-sortItem' }
+    );
   }
 
   /** Whether the descriptor offers `filter[q]`. */
@@ -515,36 +594,6 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     );
   }
 
-  /** The sort dropdown: the default order, then each descriptor sort ascending and descending. */
-  sortDropdown(): Mithril.Children {
-    const current = this.list.getSort();
-    const options: [string, Mithril.Children][] = [['', app.translator.trans('core.admin.resource.table.sort_default')]];
-
-    this.list.sorts().forEach((sort) => {
-      const label = this.sortLabel(sort);
-      options.push([sort, app.translator.trans('core.admin.resource.table.sort_ascending', { label })]);
-      options.push([`-${sort}`, app.translator.trans('core.admin.resource.table.sort_descending', { label })]);
-    });
-
-    const active = options.find(([value]) => value === current) ?? options[0];
-
-    return (
-      <Dropdown
-        className="ResourceTable-sortDropdown"
-        buttonClassName="Button"
-        label={active[1]}
-        accessibleToggleLabel={app.translator.trans('core.admin.resource.table.sort_label', {}, true)}
-        helperText={null}
-      >
-        {options.map(([value, label]) => (
-          <Button icon={value === current ? 'fas fa-check' : true} active={value === current} onclick={() => this.list.setSort(value)}>
-            {label}
-          </Button>
-        ))}
-      </Dropdown>
-    );
-  }
-
   /** The label of a sort: its same-named field, else a column sorting by it, else the humanized key. */
   sortLabel(sort: string): Mithril.Children {
     const fields = this.fields!;
@@ -563,7 +612,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /**
    * The columns: the `columns` attr, else one per field with a column, by the column's priority,
-   * then `actions` (`rowActions()`).
+   * then `actions` (`rowActionsMenu()`).
    */
   columns(): ItemList<ColumnData<M>> {
     if (this.attrs.columns) return this.attrs.columns;
@@ -586,7 +635,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       'actions',
       {
         name: <span className="visually-hidden">{app.translator.trans('core.admin.resource.table.actions_label')}</span>,
-        content: (model) => this.rowActions(model).toArray(),
+        content: (model) => this.rowActionsMenu(model),
         className: 'ResourceTable-actions',
         toggleable: false,
       },
@@ -641,7 +690,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     const models = this.list.getItems();
     const loading = this.list.isLoading();
     const initial = this.list.isInitialLoading() && !models.length;
-    const selectable = !this.currentBulkActions().isEmpty();
+    const selectable = this.bulkActions().length > 0;
 
     return (
       <div
@@ -671,8 +720,11 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     );
   }
 
+  /** The header checkbox: selects every selectable record of the page. */
   selectAllView(): Mithril.Children {
-    const models = this.list.getItems();
+    const selectable = (model: M) => this.isSelectable(model);
+    const any = this.list.getItems().some(selectable);
+    const all = this.list.isPageSelected(selectable);
 
     return (
       <th scope="col" className="ResourceTable-selectHeader">
@@ -680,25 +732,30 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
           type="checkbox"
           className="ResourceTable-selectAll"
           aria-label={app.translator.trans('core.admin.resource.table.select_all_label', {}, true)}
-          checked={this.list.isPageSelected()}
-          indeterminate={!this.list.isPageSelected() && this.list.selectedModels().length > 0}
-          disabled={!models.length}
-          onchange={(e: Event) => this.list.setPageSelected((e.target as HTMLInputElement).checked)}
+          checked={all}
+          indeterminate={!all && this.list.selectedModels().length > 0}
+          disabled={!any}
+          onchange={(e: Event) => this.list.setPageSelected((e.target as HTMLInputElement).checked, selectable)}
         />
       </th>
     );
   }
 
+  /** A record's checkbox; disabled, with the reason as its title, when no bulk action applies to it. */
   selectView(model: M): Mithril.Children {
     const id = model.id()!;
+    const name = this.attrs.definition.recordLabel(model);
+    const enabled = this.isSelectable(model);
 
     return (
       <td className="ResourceTable-selectCell">
         <input
           type="checkbox"
           className="ResourceTable-select"
-          aria-label={app.translator.trans('core.admin.resource.table.select_label', { name: this.attrs.definition.recordLabel(model) }, true)}
-          checked={this.list.isSelected(id)}
+          aria-label={app.translator.trans('core.admin.resource.table.select_label', { name }, true)}
+          title={enabled ? undefined : app.translator.trans('core.admin.resource.table.not_selectable', { name }, true)}
+          checked={enabled && this.list.isSelected(id)}
+          disabled={!enabled}
           onchange={(e: Event) => this.list.setSelected(id, (e.target as HTMLInputElement).checked)}
         />
       </td>
@@ -718,7 +775,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
     const current = this.list.getSort();
     const direction = current === sort ? 'ascending' : current === `-${sort}` ? 'descending' : 'none';
-    const icon = { ascending: 'fas fa-sort-up', descending: 'fas fa-sort-down', none: 'fas fa-sort' }[direction];
+    const icon = { ascending: 'fas fa-arrow-up', descending: 'fas fa-arrow-down', none: 'fas fa-arrows-alt-v' }[direction];
 
     return (
       <th
@@ -771,21 +828,57 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * A button per row-scoped `resourceActions()` entry that applies to the record (the built-in
-   * `edit` and `delete` included).
+   * The items of a record's overflow menu: a menu button per row-scoped `resourceActions()` entry
+   * that applies to the record. `edit` comes first, then the others by priority, then a separator
+   * and the destructive ones (their priorities offset into a band below -10000). An item an
+   * extension adds at an ordinary priority lands among the non-destructive ones.
    */
-  rowActions(model: M): ItemList<Mithril.Children> {
+  rowActionItems(model: M): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
     Object.entries(this.currentResourceActions().toObject()).forEach(([key, item]) => {
       const action = item.content as ResourceAction<M>;
 
-      if (isRowAction(action) && (!action.applies || action.applies(model))) {
-        items.add(key, this.rowActionButton(action, model), item.priority);
-      }
+      if (!isRowAction(action) || (action.applies && !action.applies(model))) return;
+
+      const priority = action.destructive ? DESTRUCTIVE_BAND + item.priority / 1000 : key === 'edit' ? 1000 + item.priority : item.priority;
+
+      items.add(key, this.rowActionButton(action, model), priority);
     });
 
+    // listItems() drops a separator that ends up first or last.
+    items.add('destructiveSeparator', <Separator />, DESTRUCTIVE_BAND / 2);
+
     return items;
+  }
+
+  /**
+   * The overflow menu ("⋯") of a record's actions, `rowActionItems()` unless `items` are given;
+   * nothing when there are none.
+   */
+  rowActionsMenu(model: M, items: ItemList<Mithril.Children> = this.rowActionItems(model)): Mithril.Children {
+    const entries = items.toArray().filter((item) => !(item && typeof item === 'object' && 'tag' in item && item.tag === Separator));
+
+    if (!entries.length) return null;
+
+    return (
+      <Dropdown
+        className="ResourceTable-rowMenu"
+        buttonClassName="Button Button--icon Button--flat ResourceTable-rowMenuToggle"
+        menuClassName="Dropdown-menu--right"
+        icon="fas fa-ellipsis-h"
+        caretIcon=""
+        label=""
+        accessibleToggleLabel={app.translator.trans(
+          'core.admin.resource.table.row_actions_label',
+          { name: this.attrs.definition.recordLabel(model) },
+          true
+        )}
+        helperText={null}
+      >
+        {items.toArray()}
+      </Dropdown>
+    );
   }
 
   /** What clicking a row action does: its `open()` when it has one, else `runAction()` for the record. */
@@ -794,70 +887,171 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     else this.runAction(action, [model]).catch(() => {});
   }
 
-  /** The icon button of a row action, see `triggerAction()`; loading while it runs for the record. */
+  /** The menu button of a row action, see `triggerAction()`; loading while it runs for the record. */
   rowActionButton(action: ResourceAction<M>, model: M): Mithril.Children {
-    const label = extractText(actionLabel(action, 1));
-
     return (
       <Button
-        className={classList('Button Button--icon', action.destructive && 'Button--danger', `ResourceTable-${action.key}`, action.className)}
-        icon={`${action.icon ?? 'fas fa-bolt'} fa-fw`}
-        title={label}
-        aria-label={label}
+        className={classList(`ResourceTable-${action.key}`, action.destructive && 'ResourceTable-menuAction--danger', action.className)}
+        icon={action.icon ?? 'fas fa-bolt'}
         loading={isActionRunning(this.list, action.key, model)}
         onclick={() => this.triggerAction(action, model)}
-      />
+      >
+        {actionLabel(action, 1)}
+      </Button>
     );
   }
 
-  /** The row shown when the page has no records. */
-  emptyView(colspan: number): Mithril.Children {
+  /** Whether a search or a filter narrows the list. */
+  isFiltered(): boolean {
     const params = this.list.getParams();
-    const filtered = !!params.q || !!Object.keys(params.filter ?? {}).length;
+
+    return !!params.q || !!Object.keys(params.filter ?? {}).length;
+  }
+
+  /**
+   * The row shown when the page has no records: a centred empty state, "No results" with "Clear
+   * filters" while a search or filter narrows the list, else "Nothing here yet" with create.
+   */
+  emptyView(colspan: number): Mithril.Children {
+    const filtered = this.isFiltered();
 
     return (
-      <tr>
+      <tr className="ResourceTable-emptyRow">
         <td colSpan={colspan} className="ResourceTable-empty">
-          {filtered ? app.translator.trans('core.admin.resource.table.no_results') : app.translator.trans('core.admin.resource.table.empty')}
+          <div className="ResourceTable-emptyState">
+            <Icon name={filtered ? 'fas fa-search' : 'far fa-folder-open'} className="ResourceTable-emptyIcon" />
+            <h3 className="ResourceTable-emptyTitle">
+              {filtered
+                ? app.translator.trans('core.admin.resource.table.no_results_title')
+                : app.translator.trans('core.admin.resource.table.empty_title')}
+            </h3>
+            <p className="ResourceTable-emptyDescription">
+              {filtered
+                ? app.translator.trans('core.admin.resource.table.no_results_description')
+                : app.translator.trans('core.admin.resource.table.empty_description', { label: this.attrs.definition.label(2) })}
+            </p>
+            {filtered ? (
+              <Button className="Button ResourceTable-emptyClear" onclick={() => this.clearSearchAndFilters()}>
+                {app.translator.trans('core.admin.resource.table.clear_filters_button')}
+              </Button>
+            ) : (
+              this.attrs.definition.canCreate() && (
+                <Button className="Button Button--primary ResourceTable-emptyCreate" icon="fas fa-plus" onclick={() => this.create()}>
+                  {app.translator.trans('core.admin.resource.table.create_button')}
+                </Button>
+              )
+            )}
+          </div>
         </td>
       </tr>
     );
   }
 
-  /** Core's `Pagination` when the API sends a total (the toolbar shows it), else previous/next. */
+  /** Clear the search and every filter that is not required. */
+  clearSearchAndFilters(): Promise<void> {
+    this.searchDraft.discard();
+    this.bar?.drafts.discard();
+
+    const q = this.list.getQuery();
+
+    return this.list
+      .clearFilters()
+      .then(() => (q ? this.list.setQuery('') : undefined))
+      .catch(() => {});
+  }
+
+  /** The page sizes the footer offers, or none when the list's size cannot change. */
+  pageSizes(): number[] {
+    const pagination = this.attrs.definition.descriptor?.pagination;
+
+    if (!pagination || !this.list.isPaginated()) return [];
+
+    const sizes = PAGE_SIZES.filter((size) => size <= pagination.maxLimit);
+    const current = this.list.pageSize;
+
+    if (current && !sizes.includes(current)) sizes.push(current);
+
+    return sizes.sort((a, b) => a - b);
+  }
+
+  /**
+   * The pagination footer: "Items per page" (`pageSizes()`), the range ("1–50 of 120 items", a polite
+   * live region), the page select ("Page 1 of 3", when the total is known) and previous/next.
+   */
   paginationView(): Mithril.Children {
     const list = this.list;
+    const models = list.getItems();
     const page = list.currentPage();
+
+    if (!models.length && page <= 1) return null;
+
     const pages = list.pageCount();
-
-    if (pages !== null) {
-      return pages > 1 ? (
-        <div className="ResourceTable-pagination">
-          <Pagination total={list.totalItems!} perPage={list.pageSize!} currentPage={page} onChange={(p: number) => list.goto(p)} />
-        </div>
-      ) : null;
-    }
-
-    if (!list.hasPrev() && !list.hasNext() && page <= 1) return null;
+    const paginated = list.isPaginated();
+    const size = list.pageSize || models.length;
+    const from = paginated ? (page - 1) * size + 1 : 1;
+    const to = from + models.length - 1;
+    const total = paginated ? list.totalItems : models.length;
+    const sizes = this.pageSizes();
+    const sizeId = `ResourceTable-pageSize-${this.attrs.definition.type}`;
+    const pageId = `ResourceTable-page-${this.attrs.definition.type}`;
+    const hasNext = pages !== null ? page < pages : list.hasNext();
 
     return (
-      <nav
-        className="ResourceTable-pagination ResourceTable-prevNext"
-        aria-label={app.translator.trans('core.admin.resource.table.pagination_label', {}, true)}
-      >
-        <Button
-          className="Button ResourceTable-prev"
-          icon="fas fa-chevron-left"
-          disabled={page <= 1 || list.isLoading()}
-          onclick={() => list.goto(page - 1)}
-        >
-          {app.translator.trans('core.admin.resource.table.previous_button')}
-        </Button>
-        <span className="ResourceTable-page">{app.translator.trans('core.admin.resource.table.page', { page })}</span>
-        <Button className="Button ResourceTable-next" disabled={!list.hasNext() || list.isLoading()} onclick={() => list.goto(page + 1)}>
-          {app.translator.trans('core.admin.resource.table.next_button')}
-          <Icon name="fas fa-chevron-right" className="Button-icon ResourceTable-nextIcon" />
-        </Button>
+      <nav className="ResourceTable-pagination" aria-label={app.translator.trans('core.admin.resource.table.pagination_label', {}, true)}>
+        {sizes.length > 0 && (
+          <div className="ResourceTable-pageSize">
+            <label for={sizeId}>{app.translator.trans('core.admin.resource.table.page_size_label')}</label>
+            <Select
+              id={sizeId}
+              className="FormControl"
+              options={Object.fromEntries(sizes.map((n) => [String(n), String(n)]))}
+              value={String(list.pageSize)}
+              disabled={list.isLoading()}
+              onchange={(value: string) => list.setPageSize(parseInt(value, 10))}
+            />
+          </div>
+        )}
+        <span className="ResourceTable-pageRange" role="status" aria-live="polite">
+          {total !== null
+            ? app.translator.trans('core.admin.resource.table.range_total', { from, to, total })
+            : app.translator.trans('core.admin.resource.table.range', { from, to })}
+        </span>
+        {paginated && (
+          <div className="ResourceTable-pageNav">
+            {pages !== null && pages > 1 && (
+              <div className="ResourceTable-pageSelect">
+                <label className="visually-hidden" for={pageId}>
+                  {app.translator.trans('core.admin.resource.table.page_label')}
+                </label>
+                <Select
+                  id={pageId}
+                  className="FormControl"
+                  options={Object.fromEntries(Array.from({ length: pages }, (_, i) => [String(i + 1), String(i + 1)]))}
+                  value={String(page)}
+                  disabled={list.isLoading()}
+                  onchange={(value: string) => list.goto(parseInt(value, 10))}
+                />
+                <span className="ResourceTable-pageCount">{app.translator.trans('core.admin.resource.table.page_count', { pages })}</span>
+              </div>
+            )}
+            <Button
+              className="Button Button--icon ResourceTable-prev"
+              icon="fas fa-chevron-left"
+              title={app.translator.trans('core.admin.resource.table.previous_button', {}, true)}
+              aria-label={app.translator.trans('core.admin.resource.table.previous_button', {}, true)}
+              disabled={page <= 1 || list.isLoading()}
+              onclick={() => list.goto(page - 1)}
+            />
+            <Button
+              className="Button Button--icon ResourceTable-next"
+              icon="fas fa-chevron-right"
+              title={app.translator.trans('core.admin.resource.table.next_button', {}, true)}
+              aria-label={app.translator.trans('core.admin.resource.table.next_button', {}, true)}
+              disabled={!hasNext || list.isLoading()}
+              onclick={() => list.goto(page + 1)}
+            />
+          </div>
+        )}
       </nav>
     );
   }

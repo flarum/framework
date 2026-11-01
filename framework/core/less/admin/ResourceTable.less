@@ -1,5 +1,7 @@
 // Generic resource admin: ResourceTable, ResourceFormModal, ResourceDeleteModal, BulkResultModal.
 
+// Laid out after Carbon's data table: one toolbar row that the batch bar replaces while rows are
+// selected, the filter tags, the table and the pagination footer.
 .ResourceTable {
   padding-bottom: 24px;
 
@@ -7,63 +9,101 @@
     display: block;
   }
 
-  // Row 1: search and filters on the left, the total and the actions on the right.
-  &-toolbar,
-  &-subToolbar {
+  // The toolbar and the batch bar share one box, so selecting rows does not move the table.
+  &-toolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 8px 16px;
-  }
-
-  &-toolbar {
-    margin-bottom: 8px;
-  }
-
-  // Row 2: active filter chips on the left, "Columns" and "Export CSV" on the right.
-  &-subToolbar {
-    margin-bottom: 12px;
+    min-height: 48px;
+    padding: 6px 0;
+    margin-bottom: 4px;
   }
 
   &-toolbarView,
-  &-toolbarActions,
-  &-display {
+  &-toolbarActions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     min-width: 0;
   }
 
-  &-toolbarActions,
-  &-display {
+  &-toolbarView {
+    flex: 1 1 auto;
+  }
+
+  &-toolbarActions {
     flex: none;
     margin-inline-start: auto;
   }
 
-  &-toolbarActions {
-    gap: 10px;
+  &-batchBar {
+    padding: 6px 6px 6px 16px;
+    border-radius: var(--border-radius);
+    color: var(--button-primary-color);
+    background: var(--button-primary-bg);
   }
 
-  &-count {
-    color: var(--muted-color);
-    white-space: nowrap;
+  &-batchCount {
+    font-weight: bold;
+  }
+
+  &-batchActions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-inline-start: auto;
+  }
+
+  // Ghost buttons on the primary background.
+  &-batchButton.Button {
+    --button-color: var(--button-primary-color);
+    --button-bg: transparent;
+    --button-bg-hover: rgba(0, 0, 0, 0.12);
+    --button-bg-active: rgba(0, 0, 0, 0.2);
+    --button-bg-disabled: transparent;
+  }
+
+  &-batchDivider {
+    align-self: stretch;
+    width: 1px;
+    margin: 4px 4px;
+    background: currentColor;
+    opacity: 0.4;
+  }
+
+  &-filterTags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
   }
 
   &-searchGroup {
+    flex: 0 1 320px;
+    min-width: 0;
+
     .Input,
     .AutocompleteDropdown {
-      width: 260px;
-      max-width: 100%;
+      width: 100%;
     }
   }
 
-  &-columns .Dropdown-menu {
-    max-height: 60vh;
+  &-settings .Dropdown-menu {
+    min-width: 220px;
+    max-height: 70vh;
     overflow-y: auto;
   }
 
-  &-columnToggle {
+  &-settingsHeading {
+    display: block;
+    font-weight: bold;
+  }
+
+  &-columnToggle.checkbox {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -71,27 +111,54 @@
     padding: 6px 15px;
     white-space: nowrap;
     cursor: pointer;
+
+    input {
+      position: static;
+      margin: 0;
+    }
+  }
+
+  // The sort select of the settings menu is for phones, where the headers may be scrolled away.
+  &-sortItem,
+  li.Dropdown-separator:has(+ &-sortItem) {
+    display: none;
+  }
+
+  &-sortSelect {
+    padding: 6px 15px;
+
+    .Select {
+      display: block;
+      margin-top: 6px;
+    }
+
+    .FormControl {
+      width: 100%;
+    }
+  }
+
+  &-exportProgress {
+    white-space: nowrap;
   }
 
   @media @phone {
-    &-toolbarView,
+    // Search on a line of its own, then "Filter" and the actions on the next.
+    &-toolbarView {
+      display: contents;
+    }
+
     &-searchGroup {
       flex: 1 1 100%;
     }
 
-    &-searchGroup .Input,
-    &-searchGroup .AutocompleteDropdown {
-      width: 100%;
+    &-sortItem,
+    li.Dropdown-separator:has(+ &-sortItem) {
+      display: list-item;
     }
 
-    // The total on the left, the actions on the right, on their own line.
-    &-toolbarActions {
-      flex: 1 1 100%;
-      margin-inline-start: 0;
-    }
-
-    &-count {
-      margin-inline-end: auto;
+    &-sortSelect,
+    &-columnToggle {
+      padding-inline: 20px;
     }
   }
 
@@ -108,6 +175,10 @@
 
     &-table tbody tr td {
       border-block-end: 1px solid CanvasText;
+    }
+
+    &-batchBar {
+      border: 1px solid CanvasText;
     }
   }
 
@@ -134,11 +205,11 @@
   &-table {
     width: 100%;
     border-collapse: collapse;
-    padding-bottom: 4px;
 
     th,
     td {
-      padding: 8px 16px;
+      height: 48px;
+      padding: 6px 16px;
       text-align: start;
       vertical-align: middle;
     }
@@ -146,11 +217,15 @@
     thead th {
       font-weight: bold;
       white-space: nowrap;
+      color: var(--heading-color);
       background: var(--control-bg);
-      border-bottom: 1px solid var(--muted-more-color);
     }
 
-    tbody tr:nth-child(even) td {
+    tbody td {
+      border-bottom: 1px solid var(--control-bg);
+    }
+
+    tbody tr.ResourceTable-row:hover td {
       background: var(--body-bg-shaded);
 
       [data-theme^="dark"] & {
@@ -162,7 +237,7 @@
   &-sort {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     padding: 0;
     border: 0;
     background: none;
@@ -177,23 +252,20 @@
   }
 
   &-sortIcon {
-    color: var(--muted-more-color);
+    font-size: 0.85em;
+    color: var(--muted-color);
+    opacity: 0;
+    transition: opacity 0.1s;
+
+    .ResourceTable-sort:hover &,
+    .ResourceTable-sort:focus-visible &,
+    .is-sorted & {
+      opacity: 1;
+    }
 
     .is-sorted & {
       color: var(--primary-color);
     }
-  }
-
-  &-bulk {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-    flex-basis: 100%;
-  }
-
-  &-selectedCount {
-    color: var(--muted-color);
   }
 
   &-selectHeader,
@@ -204,6 +276,11 @@
     input {
       margin: 0;
       cursor: pointer;
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.4;
+      }
     }
   }
 
@@ -215,17 +292,40 @@
     width: 1%;
     white-space: nowrap;
     text-align: end !important;
+    padding-block: 0 !important;
   }
 
-  &-actions {
-    > * + * {
-      margin-inline-start: 5px;
-    }
+  &-rowMenuToggle {
+    width: 36px;
+    height: 36px;
   }
 
   &-empty {
-    padding: 24px 16px !important;
-    text-align: center !important;
+    padding: 48px 16px !important;
+    height: auto !important;
+  }
+
+  &-emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+
+  &-emptyIcon {
+    font-size: 28px;
+    color: var(--muted-more-color);
+  }
+
+  &-emptyTitle {
+    margin: 4px 0 0;
+    font-size: 16px;
+    color: var(--heading-color);
+  }
+
+  &-emptyDescription {
+    margin: 0 0 8px;
     color: var(--muted-color);
   }
 
@@ -233,20 +333,50 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px 20px;
-    margin-top: 16px;
-  }
-
-  &-prevNext {
-    justify-content: center;
-  }
-
-  &-page {
+    gap: 8px 24px;
+    min-height: 48px;
+    padding: 6px 0 6px 16px;
+    border-top: 1px solid var(--control-bg);
     color: var(--muted-color);
+
+    .FormControl {
+      width: auto;
+    }
   }
 
-  &-nextIcon {
-    margin-inline: 7px 0;
+  &-pageSize,
+  &-pageSelect,
+  &-pageNav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &-pageSize label {
+    margin: 0;
+    font-weight: normal;
+    white-space: nowrap;
+  }
+
+  &-pageNav {
+    margin-inline-start: auto;
+  }
+
+  &-pageCount {
+    white-space: nowrap;
+  }
+}
+
+// A destructive action in a row's overflow menu: below a separator, in the danger colour.
+.Dropdown-menu .ResourceTable-menuAction--danger {
+  &,
+  .Button-icon {
+    color: var(--control-danger-color);
+  }
+
+  &:hover,
+  &:focus {
+    background: var(--control-danger-bg);
   }
 }
 

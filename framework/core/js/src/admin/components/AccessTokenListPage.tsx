@@ -1,17 +1,12 @@
-import type Mithril from 'mithril';
-
 import app from '../../admin/app';
 
-import Icon from '../../common/components/Icon';
 import IPAddress from '../../common/components/IPAddress';
-import Tooltip from '../../common/components/Tooltip';
 import humanTime from '../../common/helpers/humanTime';
 import type AccessToken from '../../common/models/AccessToken';
 import type User from '../../common/models/User';
 import ResourceListState from '../../common/resource/ResourceListState';
 import type { SavedView } from '../../common/resource/ViewPreferences';
 import ItemList from '../../common/utils/ItemList';
-import extractText from '../../common/utils/extractText';
 import ResourceListPage from './ResourceListPage';
 import AccessTokenRevokeModal, { accessTokenTypeLabel } from './AccessTokenRevokeModal';
 import AccessTokensDefinition from '../resource/definitions/AccessTokensDefinition';
@@ -86,27 +81,6 @@ export class AccessTokenTable extends ResourceTable<AccessToken> {
     });
 
     return columns;
-  }
-
-  /** The current session gets a lock in place of "Revoke". */
-  rowActions(token: AccessToken): ItemList<Mithril.Children> {
-    const items = super.rowActions(token);
-
-    if (token.isCurrent()) {
-      const label = extractText(app.translator.trans('core.admin.access_tokens.cannot_revoke_current'));
-
-      items.add(
-        'current',
-        <Tooltip text={label}>
-          <span className="AccessTokenList-currentLock" tabindex="0" aria-label={label}>
-            <Icon name="fas fa-lock" />
-          </span>
-        </Tooltip>,
-        90
-      );
-    }
-
-    return items;
   }
 
   /** Revoking replaces deleting: `AccessTokenRevokeModal`, then a notice. */

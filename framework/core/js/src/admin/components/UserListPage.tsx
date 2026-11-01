@@ -3,7 +3,6 @@ import Mithril from 'mithril';
 import app from '../../admin/app';
 
 import Button from '../../common/components/Button';
-import Dropdown from '../../common/components/Dropdown';
 
 import listItems from '../../common/helpers/listItems';
 
@@ -15,20 +14,14 @@ import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
 import AdminPage from './AdminPage';
-import { debounce } from '../../common/utils/throttleDebounce';
 import CreateUserModal from './CreateUserModal';
 import Icon from '../../common/components/Icon';
-import Input from '../../common/components/Input';
-import GambitsAutocompleteDropdown from '../../common/components/GambitsAutocompleteDropdown';
-import { actionLabel, isActionRunning, isRowAction, type ResourceAction } from '../../common/resource/actions';
-import type { BulkActionContext, BulkSummary } from '../../common/resource/BulkRunner';
 import { renderColumn } from '../../common/resource/field';
 import RelationInput from '../../common/resource/inputs/RelationInput';
 import ResourceDefinition from '../../common/resource/ResourceDefinition';
 import ResourceListState from '../../common/resource/ResourceListState';
 import type { Field } from '../../common/resource/types';
 import ResourceTable, { type ColumnData as ResourceColumnData, type ResourceTableAttrs } from './resource/ResourceTable';
-import ResourceDeleteModal from './resource/ResourceDeleteModal';
 
 /**
  * One user list column. `{name, content}` is all an extension needs; the other keys (`sort`,
@@ -63,123 +56,32 @@ interface UserListTableAttrs extends ResourceTableAttrs<User> {
   createUser: () => void;
   /** Opens the page's edit modal. */
   editUser: (user: User) => void;
-  /** Called with the number of users a bulk action deleted, before its summary shows. */
-  onBulkDeleted: (count: number) => void;
-  /** The page's `headerItems()`, rendered into the table's toolbar. */
-  headerItems: () => ItemList<Mithril.Children>;
-  /** Called with the table once it is created, so the page's actions menu can run actions through it. */
+  /** The page's `actionItems()`, which replace the table's create button. */
+  actionItems: () => ItemList<Mithril.Children>;
+  /** Called with the table once it is created, so the page's row menus can be built from it. */
   ontable?: (table: UserListTable) => void;
 }
 
 /**
- * The user list's table. The page's `headerItems()` render in the table's toolbar, in priority
- * order, split at `totalUsers` (priority 90 unless an extension moves it):
- *
- * - `search` (the gambit search) replaces the table's search in the left view group;
- * - every other item ranked above `totalUsers` renders in the view group too, at its own priority
- *   (`header-{key}`): an item between `search` (100) and `totalUsers` (90) right after the search,
- *   an item above `search` before it. The table's filters (priority 80 and below) follow;
- * - `totalUsers` fills the count slot of the right actions group;
- * - the items ranked at or below `totalUsers` (`actions`: "New User", and any an extension adds)
- *   follow the count there, replacing the table's refresh/create.
- *
- * The sort is the column headers, and the `userActions` column is the actions column (the page's
- * columns replace the table's, its own actions column included). The table container keeps the
- * `UserListPage-grid` classes, the rows and cells `data-user-id`, the cells the
- * `UserListPage-grid-*` classes. Create and edit open the page's modals. A bulk action's deleted
- * users lower the user total.
+ * The user list's table. The page's `actionItems()` ("New User") replace the table's create button
+ * at the right of the toolbar, and its `columns()` replace the table's columns, the `userActions`
+ * column (`userActionItems()`) included. The table container keeps the `UserListPage-grid`
+ * classes, the rows and cells `data-user-id`, the cells the `UserListPage-grid-*` classes. Create
+ * and edit open the page's modals.
  */
 class UserListTable extends ResourceTable<User, UserListTableAttrs> {
-  /** `headerItems()` of the toolbar pass in progress, so it is built once per redraw. */
-  protected header: ItemList<Mithril.Children> | null = null;
-
   oninit(vnode: Mithril.Vnode<UserListTableAttrs, this>) {
     super.oninit(vnode);
 
     this.attrs.ontable?.(this);
   }
 
-  /**
-   * A dropdown button per row-scoped `resourceActions()` entry that applies to the user, but for the
-   * built-in `edit` and `delete` (the page's own menu items), in the actions' priority order. A
-   * button runs `triggerAction()` and is loading while the action runs for the user.
-   */
-  menuActionItems(user: User): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
+  actionItems(): ItemList<Mithril.Children> {
+    const items = super.actionItems();
 
-    Object.entries(this.currentResourceActions().toObject()).forEach(([key, item]) => {
-      const action = item.content as ResourceAction<User>;
+    if (items.has('create')) items.remove('create');
 
-      if (key === 'edit' || key === 'delete' || !isRowAction(action) || (action.applies && !action.applies(user))) return;
-
-      items.add(
-        key,
-        <Button
-          icon={action.icon ?? 'fas fa-bolt'}
-          className={classList(`UserList-${action.key}`, action.destructive && 'UserList-action--danger', action.className)}
-          loading={isActionRunning(this.list, action.key, user)}
-          onclick={() => this.triggerAction(action, user)}
-        >
-          {actionLabel(action, 1)}
-        </Button>,
-        item.priority
-      );
-    });
-
-    return items;
-  }
-
-  /** The priority splitting the header between the view group and the actions group. */
-  protected headerSplit(header: ItemList<Mithril.Children>): number {
-    return header.has('totalUsers') ? header.getPriority('totalUsers') : 90;
-  }
-
-  toolbarItems(): ItemList<Mithril.Children> {
-    const header = (this.header = this.attrs.headerItems());
-
-    try {
-      const items = super.toolbarItems();
-      const total = header.has('totalUsers') ? header.get('totalUsers') : null;
-      const split = this.headerSplit(header);
-      const rest = new ItemList<Mithril.Children>();
-
-      Object.entries(header.toObject()).forEach(([key, item]) => {
-        if (key !== 'search' && key !== 'totalUsers' && item.priority <= split) rest.add(key, item.content as Mithril.Children, item.priority);
-      });
-
-      items.setContent(
-        'actions',
-        <div className="ResourceTable-toolbarActions UserListPage-header">
-          {total !== null && this.countView(total)}
-          {rest.toArray()}
-        </div>
-      );
-
-      return items;
-    } finally {
-      this.header = null;
-    }
-  }
-
-  viewItems(): ItemList<Mithril.Children> {
-    const items = super.viewItems();
-    const header = this.header ?? this.attrs.headerItems();
-    const split = this.headerSplit(header);
-
-    if (items.has('search')) items.remove('search');
-    if (items.has('sort')) items.remove('sort');
-
-    Object.entries(header.toObject()).forEach(([key, item]) => {
-      if (key === 'totalUsers' || (key !== 'search' && item.priority <= split)) return;
-
-      if (key === 'search') {
-        items.add('search', <div className="ResourceTable-searchGroup">{item.content as Mithril.Children}</div>, item.priority);
-      } else {
-        items.add(`header-${key}`, item.content as Mithril.Children, item.priority);
-      }
-    });
-
-    return items;
+    return items.merge(this.attrs.actionItems());
   }
 
   create(): void {
@@ -188,23 +90,6 @@ class UserListTable extends ResourceTable<User, UserListTableAttrs> {
 
   edit(user: User): void {
     this.attrs.editUser(user);
-  }
-
-  bulkContext(): BulkActionContext<User> {
-    const context = super.bulkContext();
-    const showResult = context.showResult;
-
-    return {
-      ...context,
-      showResult: (summary: BulkSummary<User>, action?: ResourceAction<User>) => {
-        // `ok` holds every record the action succeeded for; only deleted ones leave the total.
-        const deleted = summary.ok.filter((user) => !user.exists).length;
-
-        if (deleted) this.attrs.onBulkDeleted(deleted);
-
-        showResult(summary, action);
-      },
-    };
   }
 
   containerClassName(): string {
@@ -218,14 +103,13 @@ class UserListTable extends ResourceTable<User, UserListTableAttrs> {
   }
 
   rowView(user: User, columns: [string, ColumnData][], selectable: boolean = false): Mithril.Children {
-    const shaded = this.list.getItems().indexOf(user) % 2 > 0;
     return super.rowView(
       user,
       columns.map(([key, column]) => [
         key,
         {
           ...column,
-          className: classList(column.className, 'UserListPage-grid-rowItem', shaded && 'UserListPage-grid-rowItem--shaded'),
+          className: classList(column.className, 'UserListPage-grid-rowItem'),
           attrs: (model: User) => ({ ...(column.attrs?.(model) ?? {}), 'data-user-id': model.id() }),
         },
       ]),
@@ -239,11 +123,12 @@ class UserListTable extends ResourceTable<User, UserListTableAttrs> {
 }
 
 /**
- * Admin page which displays a paginated list of all users on the forum.
+ * Admin page which displays a paginated list of all users on the forum, in the shared
+ * `ResourceTable` layout.
  */
 export default class UserListPage extends AdminPage {
   /**
-   * The users resource; its descriptor drives the sorts, the filter row and extension columns.
+   * The users resource; its descriptor drives the sorts, the filters and extension columns.
    */
   protected definition!: ResourceDefinition<User>;
 
@@ -252,46 +137,11 @@ export default class UserListPage extends AdminPage {
    */
   protected list!: ResourceListState<User>;
 
-  /**
-   * Search text typed but not yet sent.
-   */
-  protected searchDraft: string | null = null;
-
-  /** The table, once created; the actions menu runs the definition's row actions through it. */
+  /** The table, once created; the row menus are built from its row actions. */
   protected table: UserListTable | null = null;
 
   /** `definition.fields()`, built once the descriptor is loaded. */
   private descriptorFields: ItemList<Field<User>> | null = null;
-
-  private throttledSearch = debounce(250, () => {
-    const query = this.searchDraft ?? '';
-
-    this.list
-      .setQuery(query)
-      .catch(() => {
-        // The request has already shown its error.
-      })
-      .finally(() => {
-        if (this.searchDraft === query) this.searchDraft = null;
-        m.redraw();
-      });
-  });
-
-  /**
-   * Total number of forum users.
-   *
-   * Fetched from the active `AdminApplication` (`app`), with
-   * data provided by `AdminPayload.php`, or `flarum/statistics`
-   * if installed.
-   */
-  private userCount: number = app.data.modelStatistics.users.total;
-
-  /**
-   * The current search query, including text not yet sent.
-   */
-  protected get query(): string {
-    return this.searchDraft ?? this.list.getQuery();
-  }
 
   /**
    * This page's array of users.
@@ -317,12 +167,6 @@ export default class UserListPage extends AdminPage {
     this.list = new ResourceListState<User>(this.definition, { pageSize: 50 });
   }
 
-  onremove(vnode: Mithril.VnodeDOM<IPageAttrs, this>) {
-    super.onremove(vnode);
-
-    this.throttledSearch.cancel();
-  }
-
   /**
    * Component to render.
    */
@@ -333,71 +177,24 @@ export default class UserListPage extends AdminPage {
         state={this.list}
         className="UserListPage-table"
         columns={this.tableColumns()}
-        onBulkDeleted={(count: number) => this.setUserCount(this.userCount - count)}
         createUser={() => this.showCreateModal()}
         editUser={(user: User) => this.showEditModal(user)}
-        headerItems={() => this.headerItems()}
+        actionItems={() => this.actionItems()}
         ontable={(table: UserListTable) => (this.table = table)}
       />,
     ];
   }
 
-  /**
-   * The forum's user count, or, while a search or filter narrows the list, the matching count out
-   * of it. The matching count is the total the API sends for the current query.
-   */
-  protected totalUsersLabel(): Mithril.Children {
-    const filter = this.list.listParams().filter;
-    const narrowed = !!filter && Object.keys(filter).length > 0;
-
-    if (narrowed && this.list.hasTotal()) {
-      return app.translator.trans('core.admin.users.matching_users', { count: this.list.totalItems, total: this.userCount });
-    }
-
-    return app.translator.trans('core.admin.users.total_users', { count: this.userCount });
-  }
-
-  headerItems(): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
-
-    const onchange = (value: string) => {
-      this.searchDraft = value;
-      this.throttledSearch();
-    };
-
-    items.add(
-      'search',
-      <GambitsAutocompleteDropdown resource="users" query={this.query} onchange={onchange}>
-        <Input
-          type="search"
-          placeholder={app.translator.trans('core.admin.users.search_placeholder')}
-          ariaLabel={extractText(app.translator.trans('core.admin.users.search_placeholder'))}
-          prefixIcon="fas fa-search"
-          clearable={true}
-          loading={this.searchDraft !== null || this.list.isLoading()}
-          value={this.query}
-          onchange={onchange}
-        />
-      </GambitsAutocompleteDropdown>,
-      100
-    );
-
-    items.add('totalUsers', <p class="UserListPage-totalUsers">{this.totalUsersLabel()}</p>, 90);
-
-    items.add('actions', <div className="UserListPage-actions">{this.actionItems().toArray()}</div>, 80);
-
-    return items;
-  }
-
+  /** The page's toolbar items, at the right of the table's toolbar: `createUser` ("New User"). */
   actionItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
     items.add(
       'createUser',
-      <Button className="Button UserListPage-createUserBtn" icon="fas fa-user-plus" onclick={() => this.showCreateModal()}>
+      <Button className="Button Button--primary UserListPage-createUserBtn" icon="fas fa-user-plus" onclick={() => this.showCreateModal()}>
         {app.translator.trans('core.admin.users.create_user_button')}
       </Button>,
-      100
+      -100
     );
 
     return items;
@@ -586,17 +383,9 @@ export default class UserListPage extends AdminPage {
     columns.add(
       'userActions',
       {
-        name: app.translator.trans('core.admin.users.grid.columns.user_actions.title'),
-        content: (user: User) => (
-          <Dropdown
-            className="UserList-userActions"
-            buttonClassName="Button UserList-userActionsBtn Button--icon Button--flat"
-            menuClassName="Dropdown-menu--right"
-            icon="fas fa-ellipsis-h"
-          >
-            {this.userActionItems(user).toArray()}
-          </Dropdown>
-        ),
+        name: <span className="visually-hidden">{app.translator.trans('core.admin.users.grid.columns.user_actions.title')}</span>,
+        content: (user: User) => this.table?.rowActionsMenu(user, this.userActionItems(user)) ?? null,
+        className: 'ResourceTable-actions',
         toggleable: false,
       },
       -90
@@ -605,52 +394,13 @@ export default class UserListPage extends AdminPage {
     return columns;
   }
 
+  /**
+   * A user's overflow menu: the table's `rowActionItems()` (`edit`, the other row actions, then
+   * `delete` after a separator). Add an item at an ordinary priority to place it among the
+   * non-destructive ones.
+   */
   userActionItems(user: User): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
-
-    items.add(
-      'editUser',
-      <Button
-        icon="fas fa-pencil-alt"
-        title={app.translator.trans('core.admin.users.grid.columns.user_actions.edit_user.tooltip', { username: user.displayName() }, true)}
-        onclick={() => this.showEditModal(user)}
-      >
-        {app.translator.trans('core.admin.users.grid.columns.user_actions.edit_user.button')}
-      </Button>
-    );
-
-    // The definition's `delete` decides which users may be deleted (`rowAbilities`).
-    const actions = this.definition.resourceActions();
-    const remove = actions.has('delete') ? actions.get('delete') : null;
-
-    if (remove && (!remove.applies || remove.applies(user))) {
-      items.add(
-        'delete',
-        <Button
-          icon="fas fa-trash-alt"
-          className="UserList-deleteUser"
-          onclick={() =>
-            app.modal.show(ResourceDeleteModal, {
-              definition: this.definition,
-              model: user,
-              ondeleted: () => this.userDeleted(),
-            })
-          }
-        >
-          {app.translator.trans('core.admin.resource.table.delete_button')}
-        </Button>,
-        -100
-      );
-    }
-
-    // The definition's other row actions (an extension's), their priorities offset by -200.
-    if (this.table) {
-      Object.entries(this.table.menuActionItems(user).toObject()).forEach(([key, item]) => {
-        if (!items.has(key)) items.add(key, item.content as Mithril.Children, -200 + item.priority);
-      });
-    }
-
-    return items;
+    return this.table?.rowActionItems(user) ?? new ItemList<Mithril.Children>();
   }
 
   headerInfo() {
@@ -690,10 +440,7 @@ export default class UserListPage extends AdminPage {
 
   private showCreateModal(): void {
     app.modal.show(this.createModal(), {
-      onCreated: () => {
-        this.setUserCount(this.userCount + 1);
-        this.loadPage(this.list.currentPage() - 1);
-      },
+      onCreated: () => this.loadPage(this.list.currentPage() - 1),
     });
   }
 
@@ -702,24 +449,6 @@ export default class UserListPage extends AdminPage {
       user,
       onsaved: () => m.redraw(),
     });
-  }
-
-  private userDeleted(): void {
-    this.setUserCount(this.userCount - 1);
-    this.list
-      .gotoAfterRemoval()
-      .catch(() => {
-        // The request has already shown its error.
-      })
-      .finally(() => m.redraw());
-  }
-
-  private setUserCount(count: number): void {
-    this.userCount = count;
-
-    if (app.data?.modelStatistics?.users) {
-      app.data.modelStatistics.users.total = count;
-    }
   }
 
   /**

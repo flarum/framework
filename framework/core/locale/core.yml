@@ -9,7 +9,6 @@ core:
 
     # These translations are used in the Access Tokens page.
     access_tokens:
-      cannot_revoke_current: Your current session. Log out to end it.
       columns:
         created_at: Created
         device: Device
@@ -629,44 +628,48 @@ core:
       table:
         actions_label: Actions
         bulk_label: Selected entries
-        clear_filters_button: Clear all
-        columns_button: Columns
-        columns_label: Show or hide columns
+        cancel_selection_button: Cancel
+        clear_filters_button: Clear filters
+        columns_heading: Columns
         conflicts_with_search: Conflicts with the search
         create_button: Create
-        delete_button: => core.ref.delete
-        edit_button: => core.ref.edit
-        empty: There is nothing here yet.
+        empty_description: "There are no {label} to show yet."
+        empty_title: Nothing here yet
         export_button: Export CSV
         export_error: The export failed.
         export_progress: "Exporting… {count} (cancel)"
         export_progress_total: "Exporting… {count} of {total} (cancel)"
         export_truncated: "{count, plural, one {Only the first # row was exported.} other {Only the first # rows were exported.}}"
+        filter_button: Filter
         filter_label: "{label}: {value}"
-        filter_toggle_label: "{label}: {value}, change filter"
-        filters_button: "{count, plural, =0 {Filters} other {Filters (#)}}"
-        filters_label: Filters
+        filter_toggle_label: "{count, plural, =0 {Filter} one {Filter, # active} other {Filter, # active}}"
+        filters_label: Active filters
         load_error: This list could not be loaded. You may not have permission to manage it.
-        more_filters_button: More filters
-        more_filters_label: More filters, show another filter
-        next_button: Next
-        no_results: Nothing matches your search or filters.
+        next_button: Next page
+        no_results_description: Nothing matches your search or filters. Try changing or clearing them.
+        no_results_title: No results
+        not_selectable: "{name} can't be changed here."
         overridden_by_search: Overridden by the search
-        page: "Page {page}"
+        page_count: "{pages, plural, one {of # page} other {of # pages}}"
+        page_label: Page
+        page_size_label: "Items per page:"
         pagination_label: Pagination
-        previous_button: Previous
+        previous_button: Previous page
+        range: "{from}–{to} items"
+        range_total: "{from}–{to} of {total, plural, one {# item} other {# items}}"
         refresh_button: => core.ref.refresh
         remove_filter_label: "Remove filter {label}"
+        row_actions_label: "Actions for {name}"
         search_label: Search
         search_placeholder: "Search {label}…"
         select_all_label: Select all entries on this page
         select_label: "Select {name}"
-        selected: "{count, plural, one {# selected} other {# selected}}"
+        selected: "{count, plural, one {# item selected} other {# items selected}}"
+        settings_label: Table settings
         sort_ascending: "{label} (ascending)"
         sort_default: Default order
         sort_descending: "{label} (descending)"
-        sort_label: Change sort order
-        total: "{count, plural, one {# entry} other {# entries}}"
+        sort_label: Sort by
       users:
         filters:
           email: Email
@@ -718,9 +721,6 @@ core:
 
           user_actions:
             title: Actions
-            edit_user:
-              button: => core.ref.edit
-              tooltip: Edit {username}
 
           user_id:
             title: ID
@@ -732,10 +732,7 @@ core:
         invalid_column_content: Invalid
 
       label: "{count, plural, one {User} other {Users}}"
-      matching_users: "{count, plural, one {# matching user} other {# matching users}} of {total}"
-      search_placeholder: => core.ref.search_users
       title: => core.ref.users
-      total_users: "Total users: {count}"
 
   # Translations in this namespace are used by the forum user interface.
   forum:

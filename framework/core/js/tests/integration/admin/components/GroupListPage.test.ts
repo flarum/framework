@@ -140,12 +140,14 @@ describe('GroupListPage', () => {
     expect(out).toHaveElement('tbody .Badge.Badge--group--1');
     expect(out).toContainRaw('Admins');
 
-    // Unpaginated: no page parameters, no pager, no search, no export.
+    // Unpaginated: no page parameters, a footer with the count but no page controls, no search, no export.
     expect(listRequests()[0].params?.page).toBeUndefined();
-    expect(out).not.toHaveElement('.ResourceTable-pagination');
+    expect(out.first('.ResourceTable-pageRange').textContent).toBe('1–5 of 5 items');
+    expect(out).not.toHaveElement('.ResourceTable-pageSize');
+    expect(out).not.toHaveElement('.ResourceTable-next');
     expect(out).not.toHaveElement('.ResourceTable-search');
     expect(out).not.toHaveElement('.ResourceTable-export');
-    expect(out).toHaveElement('.ResourceTable-filter--hidden');
+    expect(out).toHaveElement('.ResourceTable-filterGroup--hidden');
   });
 
   test('it is a ResourceListPage: the header and the table in the padded wrapper', async () => {
@@ -163,21 +165,23 @@ describe('GroupListPage', () => {
     expect(out.find('.ResourceTable-delete').length).toBe(2);
   });
 
-  test('rowAbilities.delete offers a bulk delete that confirms in ResourceActionModal, built-in groups skipped', async () => {
+  test('rowAbilities.delete offers a bulk delete that confirms in ResourceActionModal; built-in groups cannot be selected', async () => {
     const out = await rendered();
 
     expect(out).toHaveElement('th .ResourceTable-selectAll');
+    expect(out.find('tbody input.ResourceTable-select[disabled]').length).toBe(3);
 
     out.first('.ResourceTable-selectAll').checked = true;
     out.trigger('.ResourceTable-selectAll', 'change');
-    out.click('.ResourceTable-bulk .ResourceTable-bulkDelete');
+    expect(out.first('.ResourceTable-batchCount').textContent).toBe('2 items selected');
+    out.click('.ResourceTable-batchBar .ResourceTable-bulkDelete');
 
     const [modal, attrs] = (app.modal.show as jest.Mock<any>).mock.calls.at(-1) as [unknown, any];
     const { out: dialog } = await render(ResourceActionModal, modalAttrs(attrs));
 
     expect(modal).toBe(ResourceActionModal);
     expect(dialog).toContainRaw('Delete 2 entries?');
-    expect(dialog).toHaveElement('.ResourceActionModal-skipped');
+    expect(dialog).not.toHaveElement('.ResourceActionModal-skipped');
   });
 
   test('the page takes its definition from app.resources: the registered subclass, else a plain one', async () => {

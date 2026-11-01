@@ -2,6 +2,7 @@ import app from '../../app';
 import Button from '../../../common/components/Button';
 import Dropdown from '../../../common/components/Dropdown';
 import LoadingIndicator from '../../../common/components/LoadingIndicator';
+import Separator from '../../../common/components/Separator';
 import type IGambit from '../../../common/query/IGambit';
 import type Model from '../../../common/Model';
 import ItemList from '../../../common/utils/ItemList';
@@ -26,15 +27,13 @@ export interface ResourceFilterBarAttrs<M extends Model = Model> {
   list: ResourceListState<M>;
 }
 
-const INLINE_FILTERS = 3;
-
 const anyLabel = () => app.translator.trans('core.lib.resource.filter.any', {}, true);
 
 /**
- * The structured filters of a `ResourceTable`: one dropdown per filter (choices, relation records
- * or the filter's control), "More filters" for the rest, and the active filter chips. Not a
- * component: the table places `items()` into its `viewItems()` and `chips()` into its
- * `subToolbarItems()`, and swaps the bar through `ResourceTable.filterBar()`.
+ * The structured filters of a `ResourceTable`: one "Filter" button whose panel has a labelled
+ * section per filter (choices, relation records or the filter's control), and the active filter
+ * chips. Not a component: the table places `items()` into its `viewItems()` and `chips()` under its
+ * toolbar, and swaps the bar through `ResourceTable.filterBar()`.
  */
 export default class ResourceFilterBar<M extends Model = Model> {
   readonly definition: ResourceDefinition<M>;
@@ -43,14 +42,8 @@ export default class ResourceFilterBar<M extends Model = Model> {
   /** Text filters typed but not yet committed, keyed by filter. */
   readonly drafts = new Drafts();
 
-  /** Filters the user added from "More filters" or set from the toolbar. */
-  protected promoted: Set<string> = new Set();
-  /** A filter promoted from "More filters" whose toggle takes focus once drawn. */
-  protected pendingFocus: string | null = null;
   /** The record menus of relationship filters, by filter key. */
   protected relations: Record<string, RelationOptions> = {};
-  /** Each filter dropdown's element, by filter key. */
-  protected doms: Record<string, Element> = {};
 
   constructor(readonly attrs: ResourceFilterBarAttrs<M>) {
     this.definition = attrs.definition;
@@ -69,17 +62,12 @@ export default class ResourceFilterBar<M extends Model = Model> {
     Object.values(this.relations).forEach((options) => options.cancel());
   }
 
-  /**
-   * The toolbar items: the first `inlineFilters()` filters (`filter-{key}`, 80 down) and "More
-   * filters" (`moreFilters`, 10) for the rest.
-   */
+  /** The "Filter" button and its panel (`filters`, 80), while the toolbar offers a filter. */
   items(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
-    const { inline, more } = this.layout();
+    const filters = this.toolbarFilters();
 
-    inline.forEach(([key, filter], index) => items.add(`filter-${key}`, this.filterView(key, filter), 80 - index));
-
-    if (more.length) items.add('moreFilters', this.moreView(more), 10);
+    if (filters.length) items.add('filters', this.panelView(filters), 80);
 
     return items;
   }
@@ -111,59 +99,71 @@ export default class ResourceFilterBar<M extends Model = Model> {
     return ordered(this.filters).filter(([key, filter]) => !(gambitKeys.has(key) && filter.hideWhenSearchable !== false));
   }
 
-  /** How many filters show as toolbar buttons before the rest go under "More filters". */
-  inlineFilters(): number {
-    return INLINE_FILTERS;
-  }
-
   /**
-   * The toolbar filters split into those shown as buttons (the first `inlineFilters()`, the
-   * promoted, required ones and every filter with a value) and the rest.
+   * The "Filter" button, with a badge counting the set filters, and its panel: one section per
+   * filter, a heading with its label over its items (`menuItems()`). Flat menu items, so core's
+   * phone sheet styling applies to them.
    */
-  layout(): { inline: [string, Filter][]; more: [string, Filter][] } {
-    const inline: [string, Filter][] = [];
-    const more: [string, Filter][] = [];
+  panelView(filters: [string, Filter][]): Mithril.Children {
+    const count = filters.filter(([key]) => this.list.getFilter(key) !== '').length;
+    const items: Mithril.Children[] = [];
 
-    this.toolbarFilters().forEach((entry, index) => {
-      const [key] = entry;
+    filters.forEach(([key, filter], index) => {
+      if (index) items.push(<Separator />);
 
-      if (index < this.inlineFilters() || this.promoted.has(key) || entry[1].required || this.list.getFilter(key) !== '') inline.push(entry);
-      else more.push(entry);
+      const heading = (
+        <div className="ResourceTable-filterGroupLabel" onclick={(e: MouseEvent) => e.stopPropagation()}>
+          {filter.label}
+        </div>
+      );
+
+      items.push(
+        Object.assign(heading, { itemClassName: classList('Dropdown-header', 'ResourceTable-filterGroup', `ResourceTable-filterGroup--${key}`) })
+      );
+
+      this.menuItems(key, filter).forEach((item) => items.push(this.inGroup(item, key)));
     });
 
-    return { inline, more };
-  }
-
-  /** "More filters": one item per filter not on the toolbar; picking one adds its button. */
-  moreView(filters: [string, Filter][]): Mithril.Children {
     return (
       <Dropdown
-        className="ResourceTable-moreFilters"
-        buttonClassName="Button"
+        className="ResourceTable-filterPanel"
+        buttonClassName={classList('Button', count && 'is-active')}
         icon="fas fa-filter"
-        label={app.translator.trans('core.admin.resource.table.more_filters_button')}
-        accessibleToggleLabel={app.translator.trans('core.admin.resource.table.more_filters_label', {}, true)}
+        label={
+          <span className="ResourceTable-filterButtonLabel">
+            {app.translator.trans('core.admin.resource.table.filter_button')}
+            {count > 0 && (
+              <span className="ResourceTable-filterCount" aria-hidden="true">
+                {count}
+              </span>
+            )}
+          </span>
+        }
+        accessibleToggleLabel={app.translator.trans('core.admin.resource.table.filter_toggle_label', { count }, true)}
         helperText={null}
+        onshow={() => filters.forEach(([key, filter]) => this.loadRelation(key, filter))}
       >
-        {filters.map(([key, filter]) => (
-          <Button className="ResourceTable-moreFilter" data-filter={key} onclick={() => this.promote(key)}>
-            {filter.label}
-          </Button>
-        ))}
+        {items}
       </Dropdown>
     );
   }
 
-  /** Show a filter from "More filters" as a button; its toggle takes focus once drawn. */
-  promote(key: string): void {
-    this.promoted.add(key);
-    this.pendingFocus = key;
+  /** Mark a panel item's `<li>` as belonging to one filter's section. */
+  inGroup(item: Mithril.Children, key: string): Mithril.Children {
+    if (item && typeof item === 'object' && 'tag' in item) {
+      const vnode = item as Mithril.Vnode<{ itemClassName?: string }> & { itemClassName?: string };
+      const groupClass = classList('ResourceTable-filterGroupItem', `ResourceTable-filterGroupItem--${key}`);
+
+      // listItems reads `attrs.itemClassName` first, so join an existing one rather than shadow it.
+      if (vnode.attrs?.itemClassName) vnode.attrs.itemClassName = classList(vnode.attrs.itemClassName, groupClass);
+      else vnode.itemClassName = groupClass;
+    }
+
+    return item;
   }
 
-  /** Set a filter, keeping its button inline for the session even when set back to Any. */
+  /** Set a filter. */
   setFilter(key: string, value: string): Promise<void> {
-    this.promoted.add(key);
-
     return this.list.setFilter(key, value);
   }
 
@@ -172,60 +172,6 @@ export default class ResourceFilterBar<M extends Model = Model> {
     this.drafts.discard();
 
     return this.list.clearFilters().catch(() => {});
-  }
-
-  /**
-   * One filter as a dropdown button labelled "{label}: {value}". Choice filters (yes/no, enum)
-   * list their values, relationship filters the related records; other filters (text, an
-   * extension's custom control) render their control inside the menu.
-   */
-  filterView(key: string, filter: Filter): Mithril.Children {
-    const value = this.list.getFilter(key);
-    const valueLabel = value === '' ? anyLabel() : this.valueLabel(key, filter, value);
-    const drawn = (vnode: Mithril.VnodeDOM) => {
-      this.doms[key] = vnode.dom;
-      this.focusPending(key);
-    };
-
-    return (
-      <Dropdown
-        className={classList('ResourceTable-filter', `ResourceTable-filter--${key}`, value !== '' && 'is-active')}
-        buttonClassName="Button"
-        label={
-          <span>
-            <span className="ResourceTable-filterName">{filter.label}:</span> <span className="ResourceTable-filterValue">{valueLabel}</span>
-          </span>
-        }
-        accessibleToggleLabel={app.translator.trans(
-          'core.admin.resource.table.filter_toggle_label',
-          { label: extractText(filter.label), value: extractText(valueLabel) },
-          true
-        )}
-        helperText={null}
-        oncreate={drawn}
-        onupdate={drawn}
-        onshow={() => {
-          this.promoted.add(key);
-          this.loadRelation(key, filter);
-          // Focus the first text box of the menu (a text filter, a relationship search).
-          (this.doms[key]?.querySelector('.Dropdown-menu input') as HTMLElement | null)?.focus();
-        }}
-      >
-        {this.menuItems(key, filter)}
-      </Dropdown>
-    );
-  }
-
-  /** Focus a promoted filter's toggle after the redraw that created it. */
-  focusPending(key: string): void {
-    if (this.pendingFocus !== key) return;
-
-    const toggle = this.doms[key]?.querySelector('.Dropdown-toggle') as HTMLElement | null;
-
-    if (toggle) {
-      this.pendingFocus = null;
-      toggle.focus();
-    }
   }
 
   /**
