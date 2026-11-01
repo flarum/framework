@@ -9,7 +9,10 @@ export default function homepageAddress(
   basePath: string,
   defaultRoute: string
 ): string | null {
-  if (defaultRoute === '/' || location.pathname !== basePath + defaultRoute) return null;
+  // A trailing slash would only be stripped after this, as the router does.
+  const pathname = location.pathname.replace(/(.)\/+$/, '$1');
+
+  if (defaultRoute === '/' || pathname !== basePath + defaultRoute) return null;
 
   return basePath + '/' + location.search + location.hash;
 }

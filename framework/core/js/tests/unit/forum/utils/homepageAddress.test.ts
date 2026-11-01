@@ -11,6 +11,10 @@ describe('homepageAddress', () => {
     expect(homepageAddress({ pathname: '/all', search: '?q=hello%20world', hash: '' }, '', '/all')).toBe('/?q=hello%20world');
   });
 
+  test('a trailing slash makes no difference', () => {
+    expect(homepageAddress({ pathname: '/all/', search: '?q=x', hash: '' }, '', '/all')).toBe('/?q=x');
+  });
+
   test('a subfolder install keeps its base path', () => {
     expect(homepageAddress({ pathname: '/forum/tags', search: '', hash: '#top' }, '/forum', '/tags')).toBe('/forum/#top');
   });
