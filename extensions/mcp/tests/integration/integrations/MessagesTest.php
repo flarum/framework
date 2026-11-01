@@ -207,7 +207,32 @@ class MessagesTest extends McpTestCase
         $this->assertEqualsCanonicalizing([2, 4], DialogMessage::query()->findOrFail($new['messageId'])->dialog->users()->pluck('users.id')->all());
 
         $unknown = $this->toolOutput($this->callTool('send_message', ['to' => 'nobody', 'content' => 'Hello?'], $auth), expectError: true);
-        $this->assertSame('Not found.', $unknown['error']);
+        $this->assertSame('Not found: nobody.', $unknown['error']);
+    }
+
+    #[Test]
+    public function send_message_to_several_members_starts_a_group_conversation(): void
+    {
+        $auth = $this->bearer($this->developerToken(2));
+
+        // Refused before anything is sent.
+        $unknown = $this->toolOutput($this->callTool('send_message', ['to' => ['bob', 'nobody'], 'content' => 'Hello?'], $auth), expectError: true);
+        $this->assertSame('Not found: nobody.', $unknown['error']);
+
+        $group = $this->toolOutput($this->callTool('send_message', ['to' => ['bob', 'carol'], 'content' => 'Hello both'], $auth));
+
+        $dialog = DialogMessage::query()->findOrFail($group['messageId'])->dialog;
+        $this->assertNotSame('1', $group['conversationId']);
+        $this->assertTrue($dialog->isGroup());
+        $this->assertEqualsCanonicalizing([2, 3, 4], $dialog->users()->pluck('users.id')->all());
+    }
+
+    #[Test]
+    public function send_message_to_a_list_of_one_continues_the_conversation(): void
+    {
+        $direct = $this->toolOutput($this->callTool('send_message', ['to' => ['bob'], 'content' => 'Just you'], $this->bearer($this->developerToken(2))));
+
+        $this->assertSame('1', $direct['conversationId']);
     }
 
     #[Test]
