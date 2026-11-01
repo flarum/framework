@@ -252,13 +252,24 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
   }
 
   /**
-   * Mark all discussions as read.
+   * Mark the discussions the list is showing as read.
+   *
+   * A filtered list — a search, a tag page — marks only the discussions it
+   * matches, so the button does what the reader sees it pointing at. The
+   * confirmation says which of the two is about to happen, since "all
+   * discussions" would be a lie for the filtered one.
    */
   markAllAsRead() {
-    const confirmation = confirm(extractText(app.translator.trans('core.forum.index.mark_all_as_read_confirmation')));
+    const filtered = !!Object.keys(app.discussions.activeFilters()).length;
+
+    const confirmation = confirm(
+      extractText(
+        app.translator.trans(filtered ? 'core.forum.index.mark_filtered_as_read_confirmation' : 'core.forum.index.mark_all_as_read_confirmation')
+      )
+    );
 
     if (confirmation) {
-      app.session.user?.save({ markedAllAsReadAt: new Date() });
+      app.discussions.markAllAsRead();
     }
   }
 }

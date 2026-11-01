@@ -16,15 +16,18 @@ use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Bus\Dispatcher;
 use Flarum\Discussion\Command\ReadDiscussion;
+use Flarum\Discussion\Command\ReadDiscussions;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Deleting;
 use Flarum\Discussion\Event\Saving;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
 use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Laminas\Diactoros\Response\EmptyResponse;
 
 /**
  * @extends AbstractDatabaseResource<Discussion>
@@ -122,6 +125,22 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->defaultSort('-lastPostedAt')
                 ->eagerLoad(['state', 'user.groups', 'lastPostedUser.groups', 'mostRelevantPost.user.groups'])
                 ->paginate(),
+            // Marks as read whichever discussions the `filter` parameter
+            // matches, the same way the index endpoint reads it — so "mark all
+            // as read" means what the list in front of the reader shows, and
+            // not the whole forum, whenever that list is a filtered one.
+            Endpoint\Endpoint::make('read')
+                ->route('POST', '/read')
+                ->authenticated()
+                ->action(function (Context $context) {
+                    $this->bus->dispatch(
+                        new ReadDiscussions(
+                            $context->getActor(),
+                            RequestUtil::extractFilter($context->request)
+                        )
+                    );
+                })
+                ->response(fn () => new EmptyResponse(204)),
         ];
     }
 
