@@ -294,6 +294,7 @@ class ClientCrudTest extends TestCase
         $this->assertEquals(204, $response->getStatusCode());
         $this->assertNull(Client::query()->find('client-to-delete'));
     }
+
     #[Test]
     public function admin_cannot_set_an_empty_allowed_scope_list(): void
     {
