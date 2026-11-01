@@ -70,6 +70,13 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
   protected seq = 0;
   /** The query whose results are on screen, so a keystroke can tell if anything changed. */
   protected lastSearched: string | null = null;
+  /**
+   * The query and category the results on screen belong to, which "Show more"
+   * pages through. Not the search box: what is typed there may not have been
+   * searched yet, and its second page appended under the first page of
+   * something else.
+   */
+  protected shown = { query: '', category: '' };
   /** The pending debounce, so a new keystroke replaces it rather than adding to it. */
   protected typing: ReturnType<typeof setTimeout> | null = null;
 
@@ -450,8 +457,15 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
      * identical request.
      */
     this.lastSearched = q;
+    this.shown = { query: q, category: this.category };
 
     this.page = 1;
+    /*
+     * A "Show more" still on its way belongs to the old results, and its reply
+     * is dropped by the number check, so nothing else would ever turn its
+     * "Loading…" back into a button.
+     */
+    this.loadingMore = false;
     this.searching = true;
     this.searched = true;
     this.error = null;
@@ -514,9 +528,9 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
           '/extension-manager/discover?page=' +
           (this.page + 1) +
           '&q=' +
-          encodeURIComponent(this.query.trim()) +
+          encodeURIComponent(this.shown.query) +
           '&category=' +
-          this.category,
+          encodeURIComponent(this.shown.category),
       })
       .then((data) => {
         if (mine !== this.seq) return;
