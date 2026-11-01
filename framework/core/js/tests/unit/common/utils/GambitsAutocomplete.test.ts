@@ -337,4 +337,132 @@ describe('GambitsAutocomplete', () => {
     expect(changedValue).toBe('author:john');
     expect(afterSuggestValue).toBe('author:john');
   });
+
+  describe('extensible KeyValueGambit suggestions', () => {
+    beforeEach(() => {
+      app.search.gambits.for = jest.fn().mockImplementation((resource: string) => {
+        if (resource !== 'discussions') return [];
+        return [
+          {
+            type: GambitType.Grouped,
+            suggestion: () => ({ group: 'is', key: ['unread', 'hidden'] }),
+            enabled: () => true,
+          },
+          {
+            type: GambitType.KeyValue,
+            suggestion: () => ({ key: 'author', hint: 'username' }),
+            enabled: () => true,
+          },
+          {
+            type: GambitType.KeyValue,
+            suggestion: () => ({
+              key: 'priority',
+              hint: 'level',
+              values: ['low', 'normal', 'urgent'],
+            }),
+            predicates: false,
+            enabled: () => true,
+          },
+          {
+            type: GambitType.KeyValue,
+            suggestion: () => ({
+              key: 'tag',
+              hint: 'slug',
+              values: () => [
+                { value: 'announcements', label: 'Announcements' },
+                { value: 'general', label: 'General' },
+                { value: 'help', label: 'Help' },
+              ],
+            }),
+            predicates: true,
+            enabled: () => true,
+          },
+        ];
+      });
+    });
+
+    it('suggests values for KeyValueGambit with static array values', () => {
+      selectionStart = 9;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('priority:'));
+
+      expect(suggestions).toHaveLength(3);
+      expect(suggestions.map((s) => s.key)).toEqual(['low', 'normal', 'urgent']);
+      expect(suggestions.map((s) => s.value)).toEqual([null, null, null]);
+
+      suggestions[2].click();
+      expect(changedValue).toBe('priority:urgent');
+      expect(afterSuggestValue).toBe('priority:urgent');
+    });
+
+    it('filters KeyValueGambit suggestions by typed prefix after colon', () => {
+      selectionStart = 10;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('priority:u'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('urgent');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('priority:urgent');
+    });
+
+    it('suggests values with labels and supports negation for KeyValueGambit', () => {
+      selectionStart = 5;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('-tag:'));
+
+      expect(suggestions).toHaveLength(3);
+      expect(suggestions[0].key).toBe('announcements');
+      expect(suggestions[0].value).toBe('Announcements');
+      expect(suggestions[1].key).toBe('general');
+      expect(suggestions[1].value).toBe('General');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('-tag:announcements');
+    });
+
+    it('supports comma-separated predicates for KeyValueGambit', () => {
+      selectionStart = 20; // 'tag:announcements,ge'
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:announcements,ge'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('general');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:announcements,general');
+      expect(afterSuggestValue).toBe('tag:announcements,general');
+    });
+
+    it('supports comma-separated predicates with negative prefix', () => {
+      selectionStart = 21; // '-tag:announcements,he'
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('-tag:announcements,he'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('help');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('-tag:announcements,help');
+      expect(afterSuggestValue).toBe('-tag:announcements,help');
+    });
+
+    it('dismisses autocomplete when KeyValueGambit value is fully and uniquely typed', () => {
+      selectionStart = 17; // 'tag:announcements'
+      const ac = createAutocomplete();
+      const suggestions = ac.suggestions('tag:announcements');
+
+      expect(suggestions).toHaveLength(0);
+    });
+
+    it('filters KeyValueGambit by label as well as value', () => {
+      selectionStart = 8; // 'tag:Gene'
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:Gene'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('general');
+    });
+  });
 });

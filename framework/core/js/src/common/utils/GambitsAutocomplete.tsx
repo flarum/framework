@@ -1,5 +1,5 @@
 import app from '../app';
-import { GambitType, type GroupedGambitSuggestion, type KeyValueGambitSuggestion } from '../query/IGambit';
+import { GambitType, type GroupedGambitSuggestion, type KeyValueGambitSuggestion, type GambitValueOption } from '../query/IGambit';
 import type IGambit from '../query/IGambit';
 import AutocompleteReader, { type AutocompleteCheck } from '../utils/AutocompleteReader';
 import Button from '../components/Button';
@@ -74,7 +74,15 @@ export default class GambitsAutocomplete {
       const gambitKey = typed.slice(0, colonIndex).toLowerCase();
       const gambitQuery = typed.slice(colonIndex + 1).toLowerCase();
 
-      const specificGambitSuggestions = this.specificGambitSuggestions(gambitKey, gambitQuery, uniqueGroups, groupedGambits, autocomplete!, negative);
+      const specificGambitSuggestions = this.specificGambitSuggestions(
+        gambitKey,
+        gambitQuery,
+        uniqueGroups,
+        groupedGambits,
+        keyValueGambits,
+        autocomplete!,
+        negative
+      );
 
       if (specificGambitSuggestions) {
         return specificGambitSuggestions;
@@ -119,6 +127,7 @@ export default class GambitsAutocomplete {
     gambitQuery: string,
     uniqueGroups: string[],
     groupedGambits: IGambit<GambitType.Grouped>[],
+    keyValueGambits: IGambit<GambitType.KeyValue>[],
     autocomplete: AutocompleteCheck,
     negative: boolean = false
   ): JSX.Element[] | null {
@@ -145,21 +154,72 @@ export default class GambitsAutocomplete {
       );
     }
 
+    const matchingKeyValueGambit = keyValueGambits.find((gambit) => {
+      const suggestion = gambit.suggestion();
+      const key = typeof suggestion.key === 'string' ? suggestion.key : '';
+      return key.toLowerCase() === gambitKey;
+    });
+
+    if (matchingKeyValueGambit) {
+      const suggestion = matchingKeyValueGambit.suggestion();
+      const rawValues =
+        typeof suggestion.values === 'function'
+          ? (suggestion.values as () => (string | GambitValueOption)[])()
+          : suggestion.values ?? (typeof (matchingKeyValueGambit as any).values === 'function' ? (matchingKeyValueGambit as any).values() : []);
+
+      if (Array.isArray(rawValues) && rawValues.length > 0) {
+        const options: GambitValueOption[] = rawValues.map((opt) => (typeof opt === 'string' ? { value: opt } : opt));
+
+        let prefixValues = '';
+        let activeTerm = gambitQuery;
+
+        if (matchingKeyValueGambit.predicates && gambitQuery.includes(',')) {
+          const lastCommaIndex = gambitQuery.lastIndexOf(',');
+          prefixValues = gambitQuery.slice(0, lastCommaIndex + 1);
+          activeTerm = gambitQuery.slice(lastCommaIndex + 1);
+        }
+
+        const matchingOptions = options.filter(
+          (opt) => !activeTerm || opt.value.toLowerCase().startsWith(activeTerm) || (opt.label && opt.label.toLowerCase().includes(activeTerm))
+        );
+
+        if (matchingOptions.length === 1 && matchingOptions[0].value.toLowerCase() === activeTerm) {
+          return [];
+        }
+
+        const prefix = (negative ? '-' : '') + (suggestion.key as string) + ':' + prefixValues;
+
+        return matchingOptions.map((opt) =>
+          this.gambitSuggestion(
+            opt.value,
+            opt.label ?? null,
+            () =>
+              this.suggest(
+                prefix + opt.value,
+                this.query.slice(autocomplete.relativeStart).match(/^\S*/)![0],
+                autocomplete.relativeStart
+              ),
+            false
+          )
+        );
+      }
+    }
+
     return null;
   }
 
-  gambitSuggestion(key: string, value: string | null, suggest: (negated?: boolean) => void): JSX.Element {
+  gambitSuggestion(key: string, value: string | null, suggest: (negated?: boolean) => void, showColon: boolean = true): JSX.Element {
     return (
       <li>
         <span className="Dropdown-item GambitsAutocomplete-gambit">
           <button type="button" className="Button--ua-reset" onclick={() => suggest()}>
             <span className="GambitsAutocomplete-gambit-key">
               {key}
-              {!!value && ':'}
+              {!!value && showColon && ':'}
             </span>
             {!!value && <span className="GambitsAutocomplete-gambit-value">{value}</span>}
           </button>
-          {!!value && (
+          {!!value && showColon && (
             <span className="GambitsAutocomplete-gambit-actions">
               <Button
                 class="Button Button--icon"
