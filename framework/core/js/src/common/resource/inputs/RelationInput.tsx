@@ -6,6 +6,7 @@ import Switch from '../../components/Switch';
 import type Model from '../../Model';
 import type Stream from '../../utils/Stream';
 import type Mithril from 'mithril';
+import { relatedRecordLabel } from '../resolvers';
 
 export interface RelationOption {
   value: string;
@@ -17,8 +18,8 @@ export interface RelationInputAttrs extends ComponentAttrs {
   /** The related resource type, e.g. `groups`. */
   type: string;
   multiple: boolean;
-  /** The attribute shown as the option label. */
-  display: string;
+  /** The attribute shown as the option label; `relatedRecordLabel()` falls back from it. */
+  display?: string;
   stream: Stream<Model | Model[] | null>;
   name?: string;
   placeholder?: string;
@@ -167,7 +168,7 @@ export default class RelationInput<Attrs extends RelationInputAttrs = RelationIn
   }
 
   itemLabel(item: Model): string {
-    return String(item.attribute(this.attrs.display) ?? item.id());
+    return relatedRecordLabel(item, this.attrs.display);
   }
 
   selected(): Model[] {

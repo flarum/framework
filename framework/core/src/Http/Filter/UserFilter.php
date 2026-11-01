@@ -42,7 +42,7 @@ class UserFilter implements FilterInterface, DescribesFilter
             return null;
         }
 
-        return ['kind' => 'relationship', 'related' => 'users'];
+        return ['kind' => 'relationship', 'related' => 'users', 'negatable' => true];
     }
 
     public function filter(SearchState $state, string|array $value, bool $negate): void

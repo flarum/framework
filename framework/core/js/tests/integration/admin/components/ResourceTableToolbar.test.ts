@@ -10,6 +10,7 @@ import Model from '../../../../src/common/Model';
 import EmailGambit from '../../../../src/common/query/users/EmailGambit';
 import { BooleanGambit } from '../../../../src/common/query/IGambit';
 import ColumnPreferences from '../../../../src/common/resource/ColumnPreferences';
+import ViewPreferences from '../../../../src/common/resource/ViewPreferences';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
 import { patchFilter } from '../../../../src/common/resource/fieldsFromDescriptor';
@@ -94,6 +95,7 @@ describe('ResourceTable toolbar', () => {
     find = jest.fn((type: string) => Promise.resolve(type === 'owners' ? results(owners) : results([gadget], { page: { total: 1 } })));
     jest.spyOn(app.store, 'find').mockImplementation(find as any);
     ColumnPreferences.clear();
+    ViewPreferences.clear();
     window.localStorage.clear();
     (app.search.gambits.gambits as any).gadgets = [EmailGambit, ActiveGambit];
     // mithril-query's DOM (domino) has no layout.
@@ -391,6 +393,97 @@ describe('ResourceTable toolbar', () => {
 
     expect(out.find('.ResourceTable-filter--owner .Dropdown-menu button[data-value]')).toHaveLength(2);
     expect(out).not.toHaveElement('.ResourceTable-filter--owner button[data-value="8"]');
+  });
+
+  describe('described filter options', () => {
+    const widgets = descriptor(
+      [
+        fd('name', 'string', { sortable: true }),
+        fd('secret', 'string', { sortable: true, ui: { hidden: true } }),
+        fd('status', 'string', { constraints: { enum: ['draft', 'live'] }, enumLabels: { draft: 'Draft', live: 'Live' } }),
+      ],
+      {
+        endpoint: '/widgets',
+        sorts: ['name', 'secret'],
+        filters: [
+          { key: 'status', kind: 'enum', enum: ['draft', 'live'], multiple: true },
+          { key: 'scope', kind: 'enum', enum: ['mine', 'all'], label: 'Scope', required: true, default: 'mine' },
+          { key: 'joined', kind: 'date', range: true, label: 'Joined' },
+          { key: 'posts', kind: 'number', range: true },
+        ],
+      }
+    );
+
+    async function widgetTable() {
+      app.store.models.widgets = Gadget;
+      clearDescriptorCache('widgets');
+      find.mockImplementation(((type: string) =>
+        Promise.resolve(type === 'resource-schemas' ? { payload: schemaDocument(widgets, 'widgets') } : results([], { page: { total: 0 } }))) as any);
+
+      return rendered({ definition: new ResourceDefinition<Gadget>('widgets') });
+    }
+
+    const widgetParams = () => lastParams('widgets');
+
+    test('a multiple filter toggles values into a comma list, one chip per value with its label', async () => {
+      const { out } = await widgetTable();
+
+      out.click('.ResourceTable-filter--status button[data-value=draft]');
+      await settle(out);
+      out.click('.ResourceTable-filter--status button[data-value=live]');
+      await settle(out);
+
+      expect(widgetParams().filter).toMatchObject({ status: 'draft,live' });
+      expect(out.first('.ResourceTable-filter--status .Dropdown-toggle').textContent).toContain('Status: Draft, Live');
+      expect(out.find('.ResourceTable-chip--status')).toHaveLength(2);
+      expect(out).toContainRaw('Status: Draft');
+
+      out.click('.ResourceTable-chip--status button');
+      await settle(out);
+
+      expect(widgetParams().filter).toMatchObject({ status: 'live' });
+    });
+
+    test('a required filter has its default, no "Any", no remove button, and survives "Clear all"', async () => {
+      const { out } = await widgetTable();
+
+      expect(widgetParams().filter).toEqual({ scope: 'mine' });
+      expect(out).toHaveElement('.ResourceTable-toolbarView .ResourceTable-filter--scope');
+      expect(out).not.toHaveElement('.ResourceTable-filter--scope button[data-value=""]');
+      expect(out).toHaveElement('.ResourceTable-chip--scope.ResourceTable-chip--required');
+      expect(out).not.toHaveElement('.ResourceTable-chip--scope button');
+      expect(out).not.toHaveElement('.ResourceTable-clearFilters');
+
+      out.click('.ResourceTable-filter--status button[data-value=draft]');
+      await settle(out);
+      out.click('.ResourceTable-clearFilters');
+      await settle(out);
+
+      expect(widgetParams().filter).toEqual({ scope: 'mine' });
+    });
+
+    test('a range filter reads "from – …" on its chip and is sent as from..to', async () => {
+      window.history.replaceState(null, '', '/admin#/widgets?filter%5Bjoined%5D=2024-01-01..&filter%5Bposts%5D=..10');
+
+      const { out } = await widgetTable();
+
+      expect(widgetParams().filter).toEqual({ scope: 'mine', joined: '2024-01-01..', posts: '..10' });
+      expect(out).toContainRaw('Joined: 2024-01-01 – …');
+      expect(out).toContainRaw('Posts: … – 10');
+    });
+
+    test('a ui.hidden column starts hidden until the user shows it', async () => {
+      const { out, table } = await widgetTable();
+
+      expect(out).not.toHaveElement('th[data-column-name=secret]');
+      expect(out).toHaveElement('.ResourceTable-columns input[name=secret]:not([checked])');
+
+      table.toggleColumn('secret', true);
+      out.redraw();
+
+      expect(out).toHaveElement('th[data-column-name=secret]');
+      expect(ColumnPreferences.load('widgets').get('secret')).toBe(true);
+    });
   });
 
   describe('at phone width', () => {

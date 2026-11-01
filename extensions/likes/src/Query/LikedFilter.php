@@ -40,7 +40,7 @@ class LikedFilter implements FilterInterface, DescribesFilter
      */
     public function describe(User $actor): ?array
     {
-        return ['kind' => 'relationship', 'related' => 'posts'];
+        return ['kind' => 'relationship', 'related' => 'posts', 'negatable' => true];
     }
 
     public function filter(SearchState $state, string|array $value, bool $negate): void

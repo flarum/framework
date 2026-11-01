@@ -2,7 +2,9 @@ import app from '../app';
 import Model from '../Model';
 import type Mithril from 'mithril';
 import type { ModelIdentifier } from '../Model';
-import type { Field, FieldDescriptor, SaveData } from './types';
+import type ItemList from '../utils/ItemList';
+import { relatedRecordLabel } from './resolvers';
+import type { Field, FieldDescriptor, InputSpec, SaveData } from './types';
 
 export function isRelation(d: FieldDescriptor | undefined): boolean {
   return d?.kind === 'toOne' || d?.kind === 'toMany';
@@ -58,15 +60,42 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Model) && !(value instanceof Date);
 }
 
-function deepMerge(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
+/** Merges `source` into a copy of `target`, recursing where both sides pass `mergeable`. */
+function deepMerge(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+  mergeable: (value: unknown) => value is Record<string, unknown> = isPlainObject
+): Record<string, unknown> {
   const out: Record<string, unknown> = { ...target };
 
   for (const key of Object.keys(source)) {
     const value = source[key];
-    out[key] = isPlainObject(out[key]) && isPlainObject(value) ? deepMerge(out[key] as Record<string, unknown>, value) : value;
+    out[key] = mergeable(out[key]) && mergeable(value) ? deepMerge(out[key] as Record<string, unknown>, value, mergeable) : value;
   }
 
   return out;
+}
+
+/** Whether `patchInput()` merges into a value rather than replacing it: plain objects, not vnodes. */
+function isMergeable(value: unknown): value is Record<string, unknown> {
+  return isPlainObject(value) && !('tag' in value && 'attrs' in value);
+}
+
+/**
+ * Patch the field at `key`: deep-merged into its input when that is an input spec (e.g.
+ * `{ help: … }`, `{ type: 'textarea' }`), else shallow-merged into the field itself. Vnodes, models
+ * and arrays are replaced, not merged. No-op if the key is absent.
+ */
+export function patchInput<M extends Model>(fields: ItemList<Field<M>>, key: string, patch: Partial<InputSpec> | Partial<Field<M>>): void {
+  if (!fields.has(key)) return;
+
+  const field = fields.get(key);
+
+  if (field.input && typeof field.input === 'object') {
+    fields.setContent(key, { ...field, input: deepMerge(field.input, patch as Record<string, unknown>, isMergeable) as InputSpec });
+  } else {
+    fields.setContent(key, { ...field, ...(patch as Partial<Field<M>>) });
+  }
 }
 
 /**
@@ -91,7 +120,7 @@ export function snapshot(value: unknown): string {
 
 /**
  * Render a column cell: the column's renderer, else the value as text (relations by their
- * `ui.display` attribute, `name` by default).
+ * `ui.display` attribute, else `relatedRecordLabel()`'s fallbacks).
  */
 export function renderColumn<M extends Model>(key: string, f: Field<M>, m: M): Mithril.Children {
   if (f.column && f.column.render) {
@@ -99,9 +128,9 @@ export function renderColumn<M extends Model>(key: string, f: Field<M>, m: M): M
   }
 
   const value = fieldValue(key, f, m);
-  const display = f.descriptor?.ui?.display ?? 'name';
+  const display = f.descriptor?.ui?.display;
   const text = (v: unknown): string => {
-    if (v instanceof Model) return String(v.attribute(display) ?? v.id());
+    if (v instanceof Model) return relatedRecordLabel(v, display);
     if (v === null || v === undefined) return '';
     if (typeof v === 'object') return JSON.stringify(v);
 

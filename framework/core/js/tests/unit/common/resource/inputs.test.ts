@@ -9,6 +9,16 @@ import InputFactory from '../../../../src/common/resource/inputs/InputFactory';
 import RelationInput from '../../../../src/common/resource/inputs/RelationInput';
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
 import ResourceForm from '../../../../src/common/resource/ResourceForm';
+import { rangeLabel } from '../../../../src/common/resource/rangeFilterInput';
+import {
+  defaultFilterResolvers,
+  defaultInputResolvers,
+  formatRange,
+  parseRange,
+  relatedRecordLabel,
+  resolveFilterInput,
+  resolveInput,
+} from '../../../../src/common/resource/resolvers';
 import ItemList from '../../../../src/common/utils/ItemList';
 import type { FieldDescriptor, InputContext, InputResolver, InputSpec } from '../../../../src/common/resource/types';
 import { bootAdmin, descriptor, fd, schemaDocument } from './fixtures';
@@ -322,5 +332,104 @@ describe('RelationInput', () => {
     input.search('dri');
 
     expect(input.hasMore).toBe(false);
+  });
+});
+
+describe('filter and field resolvers', () => {
+  beforeAll(() => bootAdmin());
+
+  const filterInput = (filter: Parameters<typeof resolveFilterInput>[0], d: FieldDescriptor | null = null) =>
+    resolveFilterInput(filter, d, defaultFilterResolvers()) as InputSpec;
+
+  test('enum choices are labelled by enumLabels, raw values otherwise', () => {
+    const field = fd('status', 'string', { constraints: { enum: ['draft', 'live'] }, enumLabels: { draft: 'Draft' } });
+
+    expect((resolveInput(field, defaultInputResolvers()).input as InputSpec).choices).toEqual([
+      ['draft', 'Draft'],
+      ['live', 'live'],
+    ]);
+    expect(filterInput({ key: 'status', kind: 'enum', enum: ['draft', 'live'], enumLabels: { live: 'Live' } }, field).choices).toEqual([
+      ['draft', 'draft'],
+      ['live', 'Live'],
+    ]);
+    // Without its own labels a filter takes its same-named field's.
+    expect(filterInput({ key: 'status', kind: 'enum', enum: ['draft', 'live'] }, field).choices).toEqual([
+      ['draft', 'Draft'],
+      ['live', 'live'],
+    ]);
+  });
+
+  test('a multiple enum or relationship filter is marked multiple', () => {
+    expect(filterInput({ key: 'status', kind: 'enum', enum: ['a'], multiple: true })).toMatchObject({ type: 'enum', multiple: true });
+    expect(filterInput({ key: 'group', kind: 'relationship', related: 'groups', multiple: true })).toEqual({
+      type: 'relation',
+      related: 'groups',
+      multiple: true,
+    });
+  });
+
+  test('date and number filters get their input, a range filter the range input', () => {
+    expect(filterInput({ key: 'joined', kind: 'date' })).toEqual({ type: 'date' });
+    expect(filterInput({ key: 'posts', kind: 'number' })).toEqual({ type: 'number' });
+    expect(filterInput({ key: 'joined', kind: 'date', range: true })).toEqual({ type: 'range', kind: 'date' });
+    expect(filterInput({ key: 'posts', kind: 'number', range: true })).toEqual({ type: 'range', kind: 'number', debounce: true });
+  });
+
+  test('relation inputs leave display unset without ui.display', () => {
+    const plain = fd('category', 'toOne', { relationship: { types: ['categories'] } });
+    const named = fd('category', 'toOne', { relationship: { types: ['categories'] }, ui: { display: 'title' } });
+
+    expect(resolveInput(plain, defaultInputResolvers()).input).not.toHaveProperty('display');
+    expect(resolveInput(named, defaultInputResolvers()).input).toMatchObject({ display: 'title' });
+  });
+
+  test('ui.hidden starts a column hidden, unless the resolver dropped it', () => {
+    expect(resolveInput(fd('secret', 'string', { ui: { hidden: true } }), defaultInputResolvers()).column).toEqual({ hidden: true });
+    expect(resolveInput(fd('secret', 'string'), defaultInputResolvers()).column).toBeUndefined();
+
+    const resolvers = new ItemList<InputResolver>().add('none', () => ({ column: false }));
+    expect(resolveInput(fd('secret', 'string', { ui: { hidden: true } }), resolvers).column).toBe(false);
+  });
+
+  test('a related record reads as its display attribute, else a common name, else its id', () => {
+    app.store.models.labelled = Thing;
+    let id = 0;
+    const record = (attributes: Record<string, unknown>) => app.store.pushObject({ type: 'labelled', id: String(++id), attributes } as any)!;
+
+    expect(relatedRecordLabel(record({ code: 'X1', name: 'Named' }), 'code')).toBe('X1');
+    expect(relatedRecordLabel(record({ code: '', title: 'Titled' }), 'code')).toBe('Titled');
+    expect(relatedRecordLabel(record({ title: '', username: 'jo' }))).toBe('jo');
+    expect(relatedRecordLabel(record({ title: '', username: '' }))).toBe('4');
+  });
+
+  test('range values parse and format as from..to, either end empty', () => {
+    expect(parseRange('2024-01-01..2024-12-31')).toEqual(['2024-01-01', '2024-12-31']);
+    expect(parseRange('..10')).toEqual(['', '10']);
+    expect(parseRange('5')).toEqual(['5', '5']);
+    expect(parseRange('')).toEqual(['', '']);
+    expect(formatRange('2024-01-01', '')).toBe('2024-01-01..');
+    expect(formatRange('', '')).toBe('');
+    expect(rangeLabel('2024-01-01..')).toContain('2024-01-01');
+  });
+
+  test('the range input writes from..to to the stream', () => {
+    const stream = Stream('');
+    const inputs = new ResourceDefinition('things').filterInputs();
+    const out = mq({ view: () => inputs.render({ type: 'range', kind: 'date' }, { name: 'joined', label: 'Joined', stream }) });
+
+    expect(out).toHaveElement('input[name="joined[from]"][type=date]');
+    out.setValue('input[name="joined[from]"]', '2024-01-01');
+    expect(stream()).toBe('2024-01-01..');
+
+    out.redraw();
+    out.setValue('input[name="joined[to]"]', '2024-02-01');
+    expect(stream()).toBe('2024-01-01..2024-02-01');
+
+    const numbers = Stream('..10');
+    const range = mq({ view: () => inputs.render({ type: 'range', kind: 'number' }, { name: 'posts', stream: numbers }) });
+
+    expect(range).toHaveElementAttr('input[name="posts[to]"]', 'value', '10');
+    range.setValue('input[name="posts[to]"]', '');
+    expect(numbers()).toBe('');
   });
 });

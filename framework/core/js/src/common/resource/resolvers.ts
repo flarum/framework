@@ -1,6 +1,7 @@
 import Icon from '../components/Icon';
 import humanTime from '../helpers/humanTime';
 import type Model from '../Model';
+import { RECORD_LABEL_ATTRIBUTES } from './recordLabel';
 import ItemList from '../utils/ItemList';
 import type { Field, FieldDescriptor, Filter, FilterDescriptor, FilterResolver, InputResolver } from './types';
 
@@ -28,8 +29,29 @@ export function serializer(d: FieldDescriptor, convert: (v: any) => unknown = (v
   };
 }
 
-function choices(values: string[]): [string, string][] {
-  return values.map((value) => [value, value]);
+/**
+ * `[value, label]` pairs in the given order, each labelled by `labels[value]` (the descriptor's
+ * server-translated `enumLabels`), else by the raw value.
+ */
+export function choices(values: string[], labels: Record<string, string> = {}): [string, string][] {
+  return values.map((value) => [value, labels[value] ?? value]);
+}
+
+/**
+ * How a related record reads in pickers, filters and chips: its `display` attribute when given and
+ * set, else the first non-empty string among `RECORD_LABEL_ATTRIBUTES`, else its id.
+ */
+export function relatedRecordLabel(model: Model, display?: string): string {
+  const keys = display ? [display, ...RECORD_LABEL_ATTRIBUTES] : RECORD_LABEL_ATTRIBUTES;
+
+  for (const key of keys) {
+    const value = model.attribute<unknown>(key);
+
+    if (typeof value === 'string' && value.trim() !== '') return value;
+    if (key === display && typeof value === 'number') return String(value);
+  }
+
+  return String(model.id());
 }
 
 function pad(n: number): string {
@@ -101,12 +123,13 @@ export function defaultInputResolvers(): ItemList<InputResolver> {
 
       if (!type) return { input: false };
 
+      // Without `ui.display` the picker labels records by `relatedRecordLabel()`.
       return {
         input: {
           type: 'relation',
           related: type,
           multiple: d.kind === 'toMany',
-          display: d.ui?.display ?? 'name',
+          ...(d.ui?.display ? { display: d.ui.display } : {}),
           nullable: !!d.nullable,
         },
       };
@@ -119,7 +142,10 @@ export function defaultInputResolvers(): ItemList<InputResolver> {
     (d) => {
       if (d.kind !== 'string' || !d.constraints?.enum) return null;
 
-      return { input: { type: 'enum', choices: choices(d.constraints.enum), nullable: !!d.nullable }, serialize: serializer(d, (v) => v, '') };
+      return {
+        input: { type: 'enum', choices: choices(d.constraints.enum, d.enumLabels), nullable: !!d.nullable },
+        serialize: serializer(d, (v) => v, ''),
+      };
     },
     40
   );
@@ -199,7 +225,7 @@ export function defaultInputResolvers(): ItemList<InputResolver> {
       if (d.kind !== 'string') return null;
 
       const format = d.constraints?.format;
-      const type = format === 'email' || format === 'url' ? format : 'text';
+      const type = format === 'email' ? 'email' : format === 'uri' ? 'url' : 'text';
 
       return { input: { type, ...stringAttrs(d) }, serialize: serializer(d, (v) => v, '') };
     },
@@ -213,13 +239,14 @@ export function defaultInputResolvers(): ItemList<InputResolver> {
 }
 
 /**
- * The first non-null resolver result by priority.
+ * The first non-null resolver result by priority. A field with `ui.hidden` gets a column that
+ * starts hidden (unless the resolver dropped the column).
  */
 export function resolveInput(d: FieldDescriptor, resolvers: ItemList<InputResolver>): Partial<Field<any>> {
   for (const resolver of resolvers.toArray()) {
     const resolved = resolver(d);
 
-    if (resolved) return resolved;
+    if (resolved) return d.ui?.hidden && resolved.column !== false ? { ...resolved, column: { ...(resolved.column || {}), hidden: true } } : resolved;
   }
 
   return { input: false };
@@ -227,19 +254,21 @@ export function resolveInput(d: FieldDescriptor, resolvers: ItemList<InputResolv
 
 /**
  * The default filter resolvers. The described filter's kind decides (`enum` → `enum`, `boolean` →
- * `tri-state`, `relationship` → `relation`); a filter that says less falls back to its same-named
- * field, then to `text`. Add your own with a higher priority; a resolver returning `null` falls
- * through.
+ * `tri-state`, `relationship` → `relation`, `date` / `number` → that input, or `range` with
+ * `range: true`); a filter that says less falls back to its same-named field, then to `text`. A
+ * `multiple` enum or relationship filter gets `multiple: true`: its value is a comma list. Add your
+ * own with a higher priority; a resolver returning `null` falls through.
  */
 export function defaultFilterResolvers(): ItemList<FilterResolver> {
   const resolvers = new ItemList<FilterResolver>();
+  const multiple = (filter: FilterDescriptor) => (filter.multiple ? { multiple: true } : {});
 
   resolvers.add(
     'enum',
     (filter, d) => {
       const values = filter.kind === 'enum' && filter.enum ? filter.enum : d?.kind === 'string' ? d.constraints?.enum : undefined;
 
-      return values ? { type: 'enum', choices: choices(values) } : null;
+      return values ? { type: 'enum', choices: choices(values, filter.enumLabels ?? d?.enumLabels), ...multiple(filter) } : null;
     },
     40
   );
@@ -251,14 +280,59 @@ export function defaultFilterResolvers(): ItemList<FilterResolver> {
     (filter, d) => {
       const related = filter.kind === 'relationship' && filter.related ? filter.related : isRelationKind(d) ? d!.relationship?.types[0] : undefined;
 
-      return related ? { type: 'relation', related, display: d?.ui?.display ?? 'name' } : null;
+      if (!related) return null;
+
+      return { type: 'relation', related, ...(d?.ui?.display ? { display: d.ui.display } : {}), ...multiple(filter) };
     },
     30
+  );
+
+  resolvers.add(
+    'range',
+    (filter) => {
+      if (filter.kind !== 'date' && filter.kind !== 'number') return null;
+
+      const kind = filter.kind;
+
+      if (filter.range) return { type: 'range', kind, ...(kind === 'number' ? { debounce: true } : {}) };
+
+      return { type: kind };
+    },
+    20
   );
 
   resolvers.add('fallback', () => ({ type: 'text' }), -100);
 
   return resolvers;
+}
+
+/**
+ * A range filter value `from..to` as its two ends; either may be empty. A value without `..` is
+ * an exact value: both ends.
+ */
+export function parseRange(value: string): [string, string] {
+  if (!value) return ['', ''];
+
+  const at = value.indexOf('..');
+
+  return at === -1 ? [value, value] : [value.slice(0, at), value.slice(at + 2)];
+}
+
+/**
+ * Two range ends as the wire value `from..to`; `''` when both are empty.
+ */
+export function formatRange(from: string, to: string): string {
+  return from === '' && to === '' ? '' : `${from}..${to}`;
+}
+
+/**
+ * A comma-list filter value as its items, empty ones dropped.
+ */
+export function splitList(value: string): string[] {
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item !== '');
 }
 
 /**

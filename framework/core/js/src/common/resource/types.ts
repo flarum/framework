@@ -9,20 +9,43 @@ export type FieldKind = 'string' | 'integer' | 'number' | 'boolean' | 'date' | '
 export type FormMode = 'create' | 'update';
 
 /**
- * Hints the client can check before sending. The server stays authoritative.
+ * Hints the client can check before sending. The server stays authoritative: a check the client
+ * cannot do exactly is skipped rather than made stricter.
  */
 export interface FieldConstraints {
+  /** Server-translated custom messages, keyed by the constraint they belong to (`pattern`, `maxLength`, `required`, …). */
+  messages?: Record<string, string>;
   minLength?: number;
   maxLength?: number;
-  /** A JS `RegExp` source, compiled with `patternFlags`. */
+  /**
+   * A JS `RegExp` source, compiled with `patternFlags` plus `u`. Skipped when it does not compile.
+   * JS `\s` matches Unicode whitespace (e.g. U+00A0) where PCRE without `/u` matches ASCII only, so
+   * the server may still reject a value that passes here.
+   */
   pattern?: string;
   patternFlags?: string;
+  /** Sent instead of `pattern` when there are several; the value must match all of them. */
+  patterns?: { pattern: string; flags?: string }[];
   enum?: string[];
-  format?: 'email' | 'url' | string;
+  not?: { enum: string[] };
+  /** Unknown formats are not checked. */
+  format?: 'email' | 'uri' | 'uuid' | 'ulid' | 'ip' | 'ipv4' | 'ipv6' | 'hex-color' | (string & {});
   minimum?: number;
   maximum?: number;
+  /** The value must be greater than this. */
+  exclusiveMinimum?: number;
+  /** The value must be less than this. */
+  exclusiveMaximum?: number;
+  multipleOf?: number;
   minItems?: number;
   maxItems?: number;
+  uniqueItems?: boolean;
+  /** Each array item must be one of `enum`. */
+  items?: { enum?: string[] };
+  /** The value must be one of `true`, `'yes'`, `'on'`, `1`, `'1'`, `'true'`. */
+  accepted?: boolean;
+  /** The value must be one of `false`, `'no'`, `'off'`, `0`, `'0'`, `'false'`. */
+  declined?: boolean;
   /** If sent, the value must not be empty. */
   filled?: boolean;
   /** The key must be sent, even empty. Left to the server. */
@@ -32,13 +55,13 @@ export interface FieldConstraints {
 /**
  * One of Laravel's conditional required rules: `with` (any of `fields` present), `withAll` (all
  * present), `without` (any absent), `withoutAll` (all absent), `if` (`fields[0]` equals one of
- * `values`), `unless` (equals none), `ifAccepted` / `ifDeclined` (`fields[0]` is accepted / declined).
+ * `values`, where `null` matches an absent value), `unless` (equals none), `ifAccepted` / `ifDeclined` (`fields[0]` is accepted / declined).
  */
 export interface RequiredCondition {
   rule: 'with' | 'withAll' | 'without' | 'withoutAll' | 'if' | 'unless' | 'ifAccepted' | 'ifDeclined';
   fields: string[];
   /** `if` and `unless` only. */
-  values?: string[];
+  values?: Array<string | null>;
 }
 
 /**
@@ -58,6 +81,20 @@ export interface FieldUiHints {
   widget?: 'hidden' | 'color' | 'icon' | (string & {});
   /** The input's placeholder. */
   placeholder?: string;
+  /** Server-translated help text under the input. */
+  help?: string;
+  /** The column exists but starts hidden; the columns menu can show it. */
+  hidden?: boolean;
+  /** The input is shown only while any condition holds against the live form values. */
+  visibleWhen?: RequiredCondition[];
+  /** Show the required mark without checking it client-side, for `requiredConditional` fields. */
+  markRequired?: boolean;
+  /** Server-translated fieldset legend; fields of one group render together, in first-appearance order. */
+  group?: string;
+  /** Orders the field in its registry, higher first; descriptor order by default. */
+  priority?: number;
+  /** Rules the client cannot evaluate: the form validates the field on blur through a validate-only request. */
+  liveValidate?: boolean;
   [key: string]: unknown;
 }
 
@@ -86,6 +123,10 @@ export interface FieldDescriptor {
   /** `writable` or `required` depends on the actual record; the flags are a best guess. */
   conditional?: boolean;
   constraints?: FieldConstraints;
+  /** When present, replaces `constraints` in update mode; read both through `constraintsFor()`. */
+  constraintsOnUpdate?: FieldConstraints;
+  /** Server-translated label per enum value; values without one show as-is. */
+  enumLabels?: Record<string, string>;
   /** Relationships only. */
   relationship?: { types: string[] };
   /** What the Create endpoint fills in when the field is absent; scalar kinds only. */
@@ -95,10 +136,25 @@ export interface FieldDescriptor {
 
 export interface FilterDescriptor {
   key: string;
-  kind: 'string' | 'boolean' | 'enum' | 'relationship';
+  /** Server-translated: the same-named field's label, else the filter's own translation. */
+  label?: string;
+  kind: 'string' | 'boolean' | 'enum' | 'relationship' | 'date' | 'number';
+  /** A JSON Schema fragment for one value. */
+  schema?: Record<string, unknown>;
   enum?: string[];
+  enumLabels?: Record<string, string>;
   /** The related type of a `relationship` filter. */
   related?: string;
+  /** The value is a comma-separated list. */
+  multiple?: boolean;
+  /** `date` / `number`: the value is `from..to`, either side may be empty; dates as `YYYY-MM-DD`. */
+  range?: boolean;
+  /** Always shown, never cleared. */
+  required?: boolean;
+  /** The value when the URL and the saved view have none. */
+  default?: string;
+  /** Whether `filter[-key]` negates it. */
+  negatable?: boolean;
 }
 
 /**
@@ -107,6 +163,10 @@ export interface FilterDescriptor {
 export interface ResourceDescriptor {
   schemaVersion: number;
   endpoint: string;
+  /** Server-translated name of one record and of several. */
+  label?: { one: string; other: string };
+  /** The attributes that say whether the actor may edit / delete a record; absent means no such row action. */
+  rowAbilities?: { edit?: string; delete?: string };
   capabilities: { list: boolean; create: boolean; delete?: boolean };
   pagination?: { defaultLimit: number; maxLimit: number };
   defaultSort?: string;
@@ -147,6 +207,8 @@ export interface InputContext<V = unknown> {
   help?: Mithril.Children;
   required?: boolean;
   error?: string;
+  /** The id of the field's error message; point the control at it while `error` is set. */
+  errorId?: string;
   descriptor?: FieldDescriptor;
   model?: Model | null;
   form?: ResourceFormState<any>;
@@ -159,6 +221,8 @@ export interface FieldColumn<M extends Model> {
   sort?: string;
   /** From a numeric `ui.column`; the field's own priority otherwise. */
   priority?: number;
+  /** Starts hidden until the user shows it, from `ui.hidden`. */
+  hidden?: boolean;
 }
 
 /**
@@ -172,7 +236,11 @@ export interface Field<M extends Model, V = unknown> {
   value?(m: M | null): V;
   /** `initial` is the value the form started with, for serializers that diff below field level. */
   serialize?(v: V, initial?: V): SaveData;
-  when?(m: M | null): boolean;
+  /**
+   * `values` are the form's current input values (`ResourceFormState.liveValues()`), absent outside
+   * forms and while the form builds its streams; return true then if the field depends only on them.
+   */
+  when?(m: M | null, values?: Record<string, unknown>): boolean;
   errorKeys?: string[];
   /**
    * Called with every JSON:API error of a failed save (422/403), after they were mapped onto
@@ -212,6 +280,10 @@ export interface Filter {
    * `ResourceListState.isNegatable()` reads it.
    */
   negatable?: boolean;
+  /** Always shown and never cleared; the list falls back to `default` while it has no value. */
+  required?: boolean;
+  /** The value when neither the URL nor the saved view has one. */
+  default?: string;
   /**
    * Leaves records out of a relationship filter's menu, e.g. a group no user can be in.
    */

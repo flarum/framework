@@ -1,6 +1,7 @@
 import bootstrapAdmin from '@flarum/jest-config/src/bootstrap/admin';
 import { makeUser } from '@flarum/jest-config/factory';
 import { app } from '../../../../src/admin';
+import { SCHEMA_VERSION } from '../../../../src/common/resource/descriptor';
 import type { FieldDescriptor, ResourceDescriptor } from '../../../../src/common/resource/types';
 
 /**
@@ -20,7 +21,7 @@ export function fd(name: string, kind: FieldDescriptor['kind'], extra: Partial<F
 
 export function descriptor(fields: FieldDescriptor[], extra: Partial<ResourceDescriptor> = {}): ResourceDescriptor {
   return {
-    schemaVersion: 1,
+    schemaVersion: SCHEMA_VERSION,
     endpoint: '/things',
     capabilities: { list: true, create: true },
     pagination: { defaultLimit: 20, maxLimit: 50 },

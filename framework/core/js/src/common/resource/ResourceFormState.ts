@@ -3,17 +3,18 @@ import type Model from '../Model';
 import ItemList from '../utils/ItemList';
 import type RequestError from '../utils/RequestError';
 import Stream from '../utils/Stream';
-import { isRequired, isWritable } from './descriptor';
+import generateElementId from '../utils/generateElementId';
+import { conditionHolds, isRequired, isWritable } from './descriptor';
 import { mapErrors } from './errors';
 import { fieldSave, fieldValue, mergeSaveData, snapshot } from './field';
+import LiveValidator from './liveValidation';
 import type ResourceDefinition from './ResourceDefinition';
 import type { Field, FormMode, JsonApiError, SaveData } from './types';
 import { ValidationError, validateValue } from './validation';
 
 /**
- * The editing state of one record: a stream per visible field, the values it started with and
- * the field errors. Only changed fields are sent, because the server answers 403 for
- * any non-writable field present in the payload.
+ * The editing state of one record. Only changed fields are sent: the server answers 403 for any
+ * non-writable field in the payload.
  */
 export default class ResourceFormState<M extends Model = Model> {
   /** The record being edited; null while creating. Replaced by the saved record. */
@@ -26,10 +27,11 @@ export default class ResourceFormState<M extends Model = Model> {
   /** Keys whose entry in `errors` came from client-side validation, not the server. */
   protected clientErrorKeys = new Set<string>();
   protected sharedStreams: Record<string, Stream<any>> = {};
+  /** A page-unique prefix for the ids of the form's elements, e.g. its error messages. */
+  readonly domId: string = generateElementId();
+  /** Server-side checks of the `ui.liveValidate` fields. */
+  readonly live: LiveValidator = new LiveValidator(this);
 
-  /**
-   * Await the definition's descriptor, then build the state.
-   */
   static async create<M extends Model>(definition: ResourceDefinition<M>, model: M | null = null): Promise<ResourceFormState<M>> {
     await definition.load();
 
@@ -54,10 +56,11 @@ export default class ResourceFormState<M extends Model = Model> {
   }
 
   /**
-   * Fields with an input, passing `when()`, and (when inferred) writable in the current mode.
+   * Fields with an input, passing `when(model)`, and (when inferred) writable in the current mode:
+   * the fields that get a stream. `when()` gets no form values here.
    */
-  visibleFields(): ItemList<Field<M>> {
-    const visible = new ItemList<Field<M>>();
+  inputFields(): ItemList<Field<M>> {
+    const fields = new ItemList<Field<M>>();
     const mode = this.mode();
 
     Object.entries(this.fields.toObject()).forEach(([key, item]) => {
@@ -67,26 +70,93 @@ export default class ResourceFormState<M extends Model = Model> {
       if (field.when && !field.when(this.model)) return;
       if (field.descriptor && !isWritable(field.descriptor, mode)) return;
 
-      visible.add(key, field, item.priority);
+      fields.add(key, field, item.priority);
+    });
+
+    return fields;
+  }
+
+  /**
+   * The input fields whose `when()` and `ui.visibleWhen` hold against `liveValues()`. A hidden field
+   * is neither validated nor sent.
+   */
+  visibleFields(): ItemList<Field<M>> {
+    const visible = new ItemList<Field<M>>();
+    const inputs = this.inputFields();
+    const shown = this.shownKeys();
+
+    Object.entries(inputs.toObject()).forEach(([key, item]) => {
+      if (shown.has(key)) visible.add(key, item.content as Field<M>, item.priority);
     });
 
     return visible;
   }
 
+  isVisible(key: string): boolean {
+    return this.shownKeys().has(key);
+  }
+
+  isShown(field: Field<M>, values: Record<string, unknown>): boolean {
+    if (field.when && !field.when(this.model, values)) return false;
+
+    const conditions = field.descriptor?.ui?.visibleWhen;
+
+    return !conditions?.length || conditions.some((condition) => conditionHolds(condition, values));
+  }
+
   /**
-   * (Re)initialize the streams and snapshots from the current model. A new record's empty field
-   * starts from the descriptor default, unless the field has its own `value()`. Being the initial
-   * value, an unchanged default is not sent; the Create endpoint fills in the same.
+   * The keys of the shown fields. A hidden field counts as absent for the others, so hiding one can
+   * hide (or show) a field that depends on it: iterated until nothing changes, at most once per
+   * field.
+   */
+  protected shownKeys(): Set<string> {
+    const keys = Object.keys(this.streams).filter((key) => this.fields.has(key));
+    let shown = new Set(keys);
+
+    for (let pass = 0; pass <= keys.length; pass++) {
+      const values = this.valuesOf(shown);
+      const next = new Set(keys.filter((key) => this.isShown(this.fields.get(key), values)));
+
+      if (next.size === shown.size && [...next].every((key) => shown.has(key))) break;
+
+      shown = next;
+    }
+
+    return shown;
+  }
+
+  /**
+   * Every shown input's value by field name; unlike `values()`, unchanged ones included while
+   * updating.
+   */
+  liveValues(): Record<string, unknown> {
+    return this.valuesOf(this.shownKeys());
+  }
+
+  protected valuesOf(keys: Set<string>): Record<string, unknown> {
+    const values: Record<string, unknown> = {};
+
+    keys.forEach((key) => {
+      values[this.fields.get(key).descriptor?.name ?? key] = this.streams[key]();
+    });
+
+    return values;
+  }
+
+  /**
+   * A new record's empty field starts from the descriptor default unless the field has its own
+   * `value()`; being the initial value, it is not sent (the Create endpoint fills in the same).
    */
   reset(): void {
     this.streams = {};
     this.initial = {};
     this.errors = {};
     this.clientErrorKeys.clear();
+    this.live.cancel();
 
     const creating = this.isCreating();
 
-    Object.entries(this.visibleFields().toObject()).forEach(([key, item]) => {
+    Object.entries(this.inputFields().toObject()).forEach(([key, item]) => {
       const field = item.content as Field<M>;
       let value = fieldValue(key, field, this.model);
 
@@ -96,6 +166,8 @@ export default class ResourceFormState<M extends Model = Model> {
 
       this.initial[key] = value;
       this.streams[key] = Stream(value);
+      // Runs once right away, while the field is untouched.
+      this.streams[key].map(() => this.live.changed(key));
     });
   }
 
@@ -108,28 +180,24 @@ export default class ResourceFormState<M extends Model = Model> {
   }
 
   /**
-   * The form's current values by field name, as the server's conditional required rules see them:
-   * each input's stream, and on update the record's value of every other field. Fields that are
-   * neither are missing, so they count as absent.
+   * The values the server's conditional required rules see, i.e. what `save()` sends: every shown
+   * input while creating, the changed shown ones while updating. The rest count as absent.
    */
   values(): Record<string, unknown> {
     const values: Record<string, unknown> = {};
+    const creating = this.isCreating();
+    const visible = this.visibleFields();
 
-    Object.entries(this.fields.toObject()).forEach(([key, item]) => {
-      const field = item.content as Field<M>;
-      const name = field.descriptor?.name ?? key;
+    Object.keys(this.streams).forEach((key) => {
+      if (!visible.has(key) || (!creating && !this.isDirty(key))) return;
 
-      if (key in this.streams) values[name] = this.streams[key]();
-      else if (!this.isCreating()) values[name] = fieldValue(key, field, this.model);
+      values[this.fields.get(key).descriptor?.name ?? key] = this.streams[key]();
     });
 
     return values;
   }
 
-  /**
-   * Whether a field is currently required: its descriptor's `required` or a `requiredWhen` condition
-   * holding for `values()`. Evaluated on each call, so the hint follows the other inputs.
-   */
+  /** Its descriptor's `required`, or a `requiredWhen` condition holding for `values()`. */
   isRequired(key: string): boolean {
     const descriptor = this.fields.has(key) ? this.fields.get(key).descriptor : undefined;
 
@@ -144,21 +212,22 @@ export default class ResourceFormState<M extends Model = Model> {
     return key in this.streams && snapshot(this.streams[key]()) !== snapshot(this.initial[key]);
   }
 
+  /**
+   * The changed fields that are shown; a hidden field's change is kept but not sent.
+   */
   dirtyKeys(): string[] {
-    return Object.keys(this.streams).filter((key) => this.isDirty(key));
+    const visible = this.visibleFields();
+
+    return Object.keys(this.streams).filter((key) => visible.has(key) && this.isDirty(key));
   }
 
-  /**
-   * The changed fields' save data, deep-merged.
-   */
   buildSaveData(): SaveData {
     return mergeSaveData(...this.dirtyKeys().map((key) => fieldSave(key, this.fields.get(key), this.streams[key](), this.initial[key])));
   }
 
   /**
-   * Check the visible fields against their descriptors: every field while creating, the changed
-   * ones while updating (only those are sent). Fields without a descriptor and `conditional` ones
-   * are left to the server.
+   * Every shown field while creating, the changed ones while updating. Fields without a descriptor
+   * and `conditional` ones are left to the server.
    */
   validate(): Record<string, string[]> {
     const errors: Record<string, string[]> = {};
@@ -173,8 +242,9 @@ export default class ResourceFormState<M extends Model = Model> {
   }
 
   /**
-   * Check one changed field, e.g. on blur, and show or clear its client-side error. Never blocks.
-   * Other fields' client-side errors are rechecked too, as a value can make a sibling (not) required.
+   * Show or clear one field's client-side error, e.g. on blur. Other client-side errors are
+   * rechecked, as a value can make a sibling (not) required; a passing `ui.liveValidate` field then
+   * goes to `LiveValidator`.
    */
   validateField(key: string): string[] {
     if (!this.fields.has(key)) return [];
@@ -183,7 +253,7 @@ export default class ResourceFormState<M extends Model = Model> {
 
     this.clientErrorKeys.forEach((other) => {
       if (other === key || !this.fields.has(other)) return;
-      if (this.check(other, this.fields.get(other), true).length) return;
+      if (this.check(other, this.fields.get(other), this.isCreating()).length) return;
 
       delete this.errors[other];
       this.clientErrorKeys.delete(other);
@@ -197,27 +267,40 @@ export default class ResourceFormState<M extends Model = Model> {
       this.clientErrorKeys.delete(key);
     }
 
+    if (!messages.length && this.isVisible(key)) this.live.validate(key);
+
     return messages;
+  }
+
+  /**
+   * Show (or, with null, clear) a server error on one field, unless it has a client-side error.
+   */
+  setServerError(key: string, error: string | null): void {
+    if (this.clientErrorKeys.has(key)) return;
+
+    if (error) this.errors[key] = error;
+    else delete this.errors[key];
   }
 
   protected check(key: string, field: Field<M>, includeUnchanged: boolean): string[] {
     const descriptor = field.descriptor;
 
-    if (!descriptor || descriptor.conditional || !(key in this.streams)) return [];
+    if (!descriptor || descriptor.conditional || !this.isVisible(key)) return [];
     if (!includeUnchanged && !this.isDirty(key)) return [];
 
     return validateValue(descriptor, this.streams[key](), this.mode(), { values: this.values(), sent: this.isDirty(key) });
   }
 
   /**
-   * Validate, then save `data` (default: the changed fields, `buildSaveData()`). Invalid fields
-   * reject with a `ValidationError` and no request; their messages land in `errors` like the server's. 422/403 field errors land in
-   * `errors` (keyed by field, `'*'` for the rest) instead of the global alert; the promise still
-   * rejects.
+   * Validate, then save `data` (default: `buildSaveData()`). Invalid fields reject with a
+   * `ValidationError` and no request. 422/403 field errors land in `errors` (`'*'` for unmatched
+   * ones) instead of the global alert; the promise still rejects.
    */
   async save(data?: SaveData): Promise<M> {
     const invalid = this.validate();
 
+    // The save validates every sent field; a late live answer must not overwrite its errors.
+    this.live.cancel();
     this.errors = {};
     this.clientErrorKeys.clear();
 

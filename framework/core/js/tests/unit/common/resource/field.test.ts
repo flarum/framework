@@ -1,6 +1,9 @@
 import { app } from '../../../../src/admin';
 import Model from '../../../../src/common/Model';
-import { fieldSave, fieldValue, mergeSaveData } from '../../../../src/common/resource/field';
+import m from 'mithril';
+import ItemList from '../../../../src/common/utils/ItemList';
+import { fieldSave, fieldValue, mergeSaveData, patchInput } from '../../../../src/common/resource/field';
+import type { Field } from '../../../../src/common/resource/types';
 import { bootAdmin, fd } from './fixtures';
 
 class Thing extends Model {}
@@ -76,5 +79,47 @@ describe('field defaults', () => {
     mergeSaveData(first, { translations: { de: { url: 'u' } } });
 
     expect(first).toEqual({ translations: { de: { name: 'A' } } });
+  });
+});
+
+describe('patchInput', () => {
+  function fields(): ItemList<Field<any>> {
+    const list = new ItemList<Field<any>>();
+
+    list.add('title', { label: 'Title', input: { type: 'text', maxlength: 10, options: { a: 'A' } } }, 20);
+    list.add('custom', { label: 'Custom', input: () => null }, 10);
+
+    return list;
+  }
+
+  test('deep-merges into an input spec, keeping the priority', () => {
+    const list = fields();
+    const help = m('a', 'docs');
+
+    patchInput(list, 'title', { help, options: { b: 'B' } });
+
+    expect(list.get('title').input).toEqual({ type: 'text', maxlength: 10, help, options: { a: 'A', b: 'B' } });
+    expect(list.getPriority('title')).toBe(20);
+  });
+
+  test('a vnode replaces a vnode instead of merging into it', () => {
+    const list = fields();
+    const second = m('b', 'two');
+
+    patchInput(list, 'title', { help: m('a', 'one') });
+    patchInput(list, 'title', { help: second });
+
+    expect((list.get('title').input as any).help).toBe(second);
+  });
+
+  test('merges into the field when the input is not a spec; no-op for a missing key', () => {
+    const list = fields();
+    const when = () => false;
+
+    patchInput(list, 'custom', { when });
+    patchInput(list, 'missing', { help: 'x' });
+
+    expect(list.get('custom').when).toBe(when);
+    expect(list.has('missing')).toBe(false);
   });
 });

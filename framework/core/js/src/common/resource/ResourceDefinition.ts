@@ -1,15 +1,14 @@
 import type Mithril from 'mithril';
 import type Model from '../Model';
 import ItemList from '../utils/ItemList';
-import type { BulkActionContext, BulkSummary } from './BulkRunner';
-import { bulkDeleteAction, runBulkDelete } from './bulkDelete';
+import { deleteAction, editAction, type ResourceAction } from './actions';
 import { loadDescriptor } from './descriptor';
 import recordLabel from './recordLabel';
 import { fieldsFromDescriptor } from './fieldsFromDescriptor';
 import { bareFilterInput, defaultFilterInputs, defaultFormInputs } from './inputs/defaults';
 import InputFactory from './inputs/InputFactory';
+import { rangeFilterInput } from './rangeFilterInput';
 import { defaultFilterResolvers, defaultInputResolvers, resolveFilterInput, resolveInput } from './resolvers';
-import type { ResourceSelection } from './ResourceListState';
 import type ResourceListState from './ResourceListState';
 import type { Field, FieldDescriptor, Filter, FilterDescriptor, FilterResolver, InputResolver, ResourceDescriptor } from './types';
 
@@ -67,10 +66,10 @@ export default class ResourceDefinition<M extends Model = Model> {
   }
 
   /**
-   * The input factory the filter bar renders with.
+   * The input factory the filter bar renders with: the default filter inputs plus `range`.
    */
   filterInputs(): InputFactory {
-    return new InputFactory(defaultFilterInputs(), bareFilterInput);
+    return new InputFactory(defaultFilterInputs(), bareFilterInput).register('range', rangeFilterInput);
   }
 
   fields(): ItemList<Field<M>> {
@@ -99,7 +98,8 @@ export default class ResourceDefinition<M extends Model = Model> {
 
   /**
    * One filter per described filter, its input from `filterInput()`, rendered by `filterInputs()`.
-   * Labelled by the same-named field, else the humanized key.
+   * Labelled by the server's `label`, else the same-named field's, else the humanized key. Negatable
+   * as the descriptor says, else when it is a boolean filter or named after a boolean field.
    */
   filters(): ItemList<Filter> {
     const filters = new ItemList<Filter>();
@@ -115,10 +115,12 @@ export default class ResourceDefinition<M extends Model = Model> {
       filters.add(
         filter.key,
         {
-          label: field?.label ?? humanize(filter.key),
+          label: filter.label ?? field?.label ?? humanize(filter.key),
           input: this.filterInput(filter, field?.descriptor ?? null),
           kind: filter.kind,
-          negatable: filter.kind === 'boolean' || field?.descriptor?.kind === 'boolean',
+          negatable: filter.negatable ?? (filter.kind === 'boolean' || field?.descriptor?.kind === 'boolean'),
+          ...(filter.required ? { required: true } : {}),
+          ...(filter.default !== undefined ? { default: filter.default } : {}),
         },
         (described.length - index) * 10
       );
@@ -127,37 +129,24 @@ export default class ResourceDefinition<M extends Model = Model> {
     return filters;
   }
 
-  actions(_m: M): ItemList<Mithril.Children> {
-    return new ItemList<Mithril.Children>();
+  /**
+   * The operations offered on rows and on the selection, see `ResourceAction`. Built in, rows only:
+   * `edit` and the destructive `delete`, each for the records whose descriptor `rowAbilities`
+   * attribute is truthy; neither without `rowAbilities`. Set the `delete`'s `scope` to `'both'` to
+   * offer it on the selection too.
+   */
+  resourceActions(): ItemList<ResourceAction<M>> {
+    const items = new ItemList<ResourceAction<M>>();
+    const abilities = this.descriptor?.rowAbilities;
+
+    if (abilities?.edit) items.add('edit', editAction<M>(abilities.edit), 100);
+    if (abilities?.delete) items.add('delete', deleteAction<M>(abilities.delete), 90);
+
+    return items;
   }
 
   toolbar(_s: ResourceListState<M>): ItemList<Mithril.Children> {
     return new ItemList<Mithril.Children>();
-  }
-
-  /**
-   * The actions offered for the selected records. Empty by default; a table renders its checkbox
-   * column only when this has items. Add `this.bulkDelete(context)` for the built-in
-   * delete.
-   */
-  bulkActions(_selection: ResourceSelection, _context: BulkActionContext<M>): ItemList<Mithril.Children> {
-    return new ItemList<Mithril.Children>();
-  }
-
-  /**
-   * The built-in "Delete selected" button, for `bulkActions()`: `bulkDeleteAction()` running
-   * `this.runBulkDelete()`.
-   */
-  bulkDelete(context: BulkActionContext<M>): Mithril.Children {
-    return bulkDeleteAction(context, (c) => this.runBulkDelete(c));
-  }
-
-  /**
-   * The work behind `bulkDelete()`, see `runBulkDelete()` in `./bulkDelete`. Override it to delete
-   * differently and keep the button.
-   */
-  runBulkDelete(context: BulkActionContext<M>): Promise<BulkSummary<M> | null> {
-    return runBulkDelete(context);
   }
 
   /**
@@ -193,10 +182,14 @@ export default class ResourceDefinition<M extends Model = Model> {
 
   /**
    * The name of `count` records of this type, e.g. "Group" for 1 ("Create Group") and "Groups" for
-   * more (the search placeholder, the table caption). Defaults to the humanized type for any count;
-   * override it with an ICU plural translation.
+   * more (the search placeholder, the table caption): the descriptor's server-translated `label`
+   * (`one` for 1, else `other`), else the humanized type for any count.
    */
-  label(_count: number): string {
+  label(count: number): string {
+    const label = this.descriptor?.label;
+
+    if (label) return count === 1 ? label.one : label.other;
+
     return humanize(this.type);
   }
 }

@@ -2,46 +2,22 @@ import { jest } from '@jest/globals';
 import dayjs from 'dayjs';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
-import AccessTokenListPage, { AccessTokenDefinition, DEFAULT_ACCESS_TOKEN_SORT } from '../../../../src/admin/components/AccessTokenListPage';
+import AccessTokenListPage, { DEFAULT_ACCESS_TOKEN_SORT } from '../../../../src/admin/components/AccessTokenListPage';
+import AccessTokenDefinition from '../../../../src/admin/resource/definitions/AccessTokensDefinition';
 import AccessTokenRevokeModal from '../../../../src/admin/components/AccessTokenRevokeModal';
 import AdminNav from '../../../../src/admin/components/AdminNav';
+import BulkResultModal from '../../../../src/admin/components/resource/BulkResultModal';
+import ResourceActionModal from '../../../../src/admin/components/resource/ResourceActionModal';
 import type AccessToken from '../../../../src/common/models/AccessToken';
 import ColumnPreferences from '../../../../src/common/resource/ColumnPreferences';
+import ViewPreferences from '../../../../src/common/resource/ViewPreferences';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
-import type { ResourceDescriptor } from '../../../../src/common/resource/types';
 import { bootAdmin, schemaDocument } from '../../../unit/common/resource/fixtures';
+import { accessTokensDescriptor } from '../fixtures/accessTokensDescriptor';
 
 (globalThis as any).dayjs ??= dayjs;
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
-
-/** The admin's descriptor, as `AccessTokensSchemaTest` pins it on the server. */
-function tokensDescriptor(): ResourceDescriptor {
-  return {
-    schemaVersion: 1,
-    endpoint: '/access-tokens',
-    capabilities: { list: true, create: true, delete: true },
-    pagination: { defaultLimit: 20, maxLimit: 50 },
-    sorts: ['createdAt', 'lastActivityAt'],
-    filters: [
-      { key: 'user', kind: 'relationship', related: 'users' },
-      { key: 'type', kind: 'enum', enum: ['session', 'session_remember', 'developer'] },
-    ],
-    fields: [
-      { name: 'userId', kind: 'integer', label: 'User id' },
-      { name: 'user', kind: 'toOne', label: 'User', relationship: { types: ['users'] }, ui: { column: 90, display: 'username' } },
-      { name: 'type', kind: 'string', label: 'Type', ui: { column: 80 } },
-      { name: 'createdAt', kind: 'datetime', label: 'Created', sortable: true, ui: { column: 50 } },
-      { name: 'lastActivityAt', kind: 'datetime', label: 'Last active', sortable: true, ui: { column: 40 } },
-      { name: 'isCurrent', kind: 'boolean', label: 'Is current' },
-      { name: 'isSessionToken', kind: 'boolean', label: 'Is session token' },
-      { name: 'canDelete', kind: 'boolean', label: 'Can delete' },
-      { name: 'title', kind: 'string', label: 'Title', writable: { create: true }, required: { create: true }, ui: { column: 75 } },
-      { name: 'lastIpAddress', kind: 'string', label: 'IP address', ui: { column: 60 } },
-      { name: 'device', kind: 'string', label: 'Device', ui: { column: 70 } },
-    ],
-  };
-}
 
 function results(models: unknown[], total: number = models.length) {
   return Object.assign([...models], { payload: { data: [], meta: { page: { total } }, links: {} } });
@@ -108,11 +84,12 @@ describe('AccessTokenListPage', () => {
   beforeEach(() => {
     clearDescriptorCache();
     ColumnPreferences.clear();
+    ViewPreferences.clear();
     window.localStorage.clear();
     window.history.replaceState(null, '', '/admin#/access-tokens');
 
     app.session.user!.pushAttributes({ isAdmin: true });
-    app.request = jest.fn(() => Promise.resolve(schemaDocument(tokensDescriptor(), 'access-tokens'))) as any;
+    app.request = jest.fn(() => Promise.resolve(schemaDocument(accessTokensDescriptor(), 'access-tokens'))) as any;
 
     realFind = app.store.find.bind(app.store) as any;
     find = jest.fn((type: string, ...args: any[]) => (type === 'access-tokens' ? Promise.resolve(results(tokens())) : realFind(type, ...args)));
@@ -151,6 +128,22 @@ describe('AccessTokenListPage', () => {
     expect(window.location.hash).toContain('sort=-lastActivityAt');
   });
 
+  test('without a sort in the URL, the saved view still applies, with the default sort', async () => {
+    ViewPreferences.save('access-tokens', { filter: { type: 'developer' } });
+
+    await rendered();
+
+    expect(tokenCalls()[0]).toMatchObject({ sort: DEFAULT_ACCESS_TOKEN_SORT, filter: { type: 'developer' } });
+  });
+
+  test('a saved sort wins over the default', async () => {
+    ViewPreferences.save('access-tokens', { sort: 'createdAt' });
+
+    await rendered();
+
+    expect(tokenCalls()[0].sort).toBe('createdAt');
+  });
+
   test('a sort in the URL wins over the default', async () => {
     window.history.replaceState(null, '', '/admin#/access-tokens?sort=createdAt');
 
@@ -180,7 +173,7 @@ describe('AccessTokenListPage', () => {
     const out = await rendered();
 
     expect(out).toHaveElement('.AccessTokenList-current');
-    expect(out.find('.AccessTokenList-revoke').length).toBe(2);
+    expect(out.find('tr .ResourceTable-revoke').length).toBe(2);
     expect(out.find('.AccessTokenList-currentLock').length).toBe(1);
     // The generic delete button is replaced by "Revoke".
     expect(out).not.toHaveElement('.ResourceTable-delete');
@@ -190,7 +183,7 @@ describe('AccessTokenListPage', () => {
     const out = await rendered();
     const before = tokenCalls().length;
 
-    out.click('.AccessTokenList-revoke');
+    out.click('tr .ResourceTable-revoke');
 
     expect(app.modal.show).toHaveBeenCalledTimes(1);
 
@@ -204,6 +197,39 @@ describe('AccessTokenListPage', () => {
 
     expect(app.alerts.show).toHaveBeenCalled();
     expect(tokenCalls().length).toBe(before + 1);
+  });
+
+  test('bulk revoke confirms in ResourceActionModal, skips the current session and revokes the rest', async () => {
+    const out = await rendered();
+
+    out.first('.ResourceTable-selectAll').checked = true;
+    out.trigger('.ResourceTable-selectAll', 'change');
+    out.click('.ResourceTable-bulk .ResourceTable-bulkRevoke');
+
+    const [modal, attrs] = (app.modal.show as jest.Mock<any>).mock.calls.at(-1) as [unknown, any];
+
+    expect(modal).toBe(ResourceActionModal);
+    expect(attrs.action.key).toBe('revoke');
+
+    const request = jest.fn((_options: any) => Promise.resolve());
+    app.request = request as any;
+
+    const dialog = mq(ResourceActionModal, { state: {}, animateShow: () => {}, animateHide: () => {}, ...attrs });
+
+    expect(dialog).toContainRaw('Revoke 2 access tokens?');
+    dialog.trigger('form', 'submit', {} as Event);
+    await flush();
+    await flush();
+
+    const deletes = request.mock.calls.map(([options]) => options).filter((options: any) => options.method === 'DELETE');
+    expect(deletes.map((options: any) => options.url).sort()).toEqual([
+      'https://example.test/api/access-tokens/2',
+      'https://example.test/api/access-tokens/3',
+    ]);
+
+    const [result, resultAttrs] = (app.modal.show as jest.Mock<any>).mock.calls.at(-1) as [unknown, any];
+    expect(result).toBe(BulkResultModal);
+    expect(resultAttrs.summary.skipped.map((t: AccessToken) => t.id())).toEqual(['1']);
   });
 
   test('the revoke modal says revoke and names the token and its user', () => {
@@ -224,6 +250,10 @@ describe('AccessTokenListPage', () => {
     expect(new AccessTokenDefinition().recordLabel(tokens()[2])).toBe('Remembered session (Chrome on Mac)');
   });
 
+  test('the definition comes from app.resources', () => {
+    expect(app.resources.get('access-tokens')).toBeInstanceOf(AccessTokenDefinition);
+  });
+
   test('filters come from the descriptor, with readable type labels', async () => {
     const out = await rendered();
 
@@ -234,9 +264,9 @@ describe('AccessTokenListPage', () => {
     const type = definition.filters().get('type');
 
     expect((type.input as any).choices).toEqual([
-      ['session', 'Session'],
-      ['session_remember', 'Remembered session'],
       ['developer', 'Developer token'],
+      ['session_remember', 'Remembered session'],
+      ['session', 'Session'],
     ]);
     expect(definition.filters().get('user').input).toMatchObject({ type: 'relation', related: 'users' });
   });

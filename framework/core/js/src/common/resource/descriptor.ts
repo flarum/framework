@@ -1,6 +1,6 @@
 import app from '../app';
 import type ResourceSchema from '../models/ResourceSchema';
-import type { FieldDescriptor, FormMode, RequiredCondition, ResourceDescriptor } from './types';
+import type { FieldConstraints, FieldDescriptor, FormMode, RequiredCondition, ResourceDescriptor } from './types';
 import { isAbsent } from './validation';
 
 /**
@@ -63,6 +63,13 @@ export function isWritable(d: FieldDescriptor, mode: FormMode): boolean {
   return !!d.writable?.[mode];
 }
 
+/**
+ * The field's constraints in `mode`: `constraintsOnUpdate` replaces `constraints` on update.
+ */
+export function constraintsFor(d: FieldDescriptor, mode: FormMode): FieldConstraints {
+  return (mode === 'update' ? d.constraintsOnUpdate : undefined) ?? d.constraints ?? {};
+}
+
 const ACCEPTED = ['yes', 'on', '1', 'true'];
 const DECLINED = ['no', 'off', '0', 'false'];
 
@@ -81,13 +88,19 @@ function comparable(value: unknown): string[] {
 /**
  * Whether one `requiredWhen` condition holds for the given form values, keyed by field name. A
  * field missing from `values` (hidden, or not in the form) is absent. Presence follows Laravel:
- * not null, not a blank string, not an empty array.
+ * not null, not a blank string, not an empty array. A `null` in the `values` of `if` / `unless`
+ * matches a null or missing value.
  */
 export function conditionHolds(condition: RequiredCondition, values: Record<string, unknown>): boolean {
   const present = (name: string) => !isAbsent(values[name]);
   const [first] = condition.fields;
   const value = comparable(values[first]);
   const matches = (list: string[]) => value.some((v) => list.includes(v.toLowerCase()));
+  const equals = () => {
+    const list = condition.values ?? [];
+
+    return value.some((v) => list.includes(v)) || (list.includes(null) && (values[first] === null || values[first] === undefined));
+  };
 
   switch (condition.rule) {
     case 'with':
@@ -99,9 +112,9 @@ export function conditionHolds(condition: RequiredCondition, values: Record<stri
     case 'withoutAll':
       return !condition.fields.some(present);
     case 'if':
-      return value.some((v) => (condition.values ?? []).includes(v));
+      return equals();
     case 'unless':
-      return !value.some((v) => (condition.values ?? []).includes(v));
+      return !equals();
     case 'ifAccepted':
       return matches(ACCEPTED);
     case 'ifDeclined':

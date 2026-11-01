@@ -273,4 +273,46 @@
   &-failed li {
     color: var(--control-danger-color);
   }
+
+  // One group: "N not processed: reason", expanding to the records' labels.
+  &-group {
+    margin-bottom: 8px;
+
+    > summary {
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    > ul {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  }
+
+  &-failed > .BulkResultModal-group > summary {
+    color: var(--control-danger-color);
+  }
+
+  &-skipped > .BulkResultModal-group > summary {
+    color: var(--muted-color);
+  }
+}
+
+.ResourceActionModal {
+  &-confirmation {
+    margin-bottom: 0;
+  }
+
+  &-skipped {
+    margin-top: 8px;
+  }
+
+  &-progress {
+    margin: 8px 0 0;
+    color: var(--muted-color);
+  }
+
+  &-field {
+    margin-top: 16px;
+  }
 }

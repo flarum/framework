@@ -1,0 +1,294 @@
+{
+    "schemaVersion": 1,
+    "endpoint": "/users",
+    "label": {
+        "one": "User",
+        "other": "Users"
+    },
+    "capabilities": {
+        "list": true,
+        "create": true,
+        "delete": true
+    },
+    "rowAbilities": {
+        "edit": "canEdit",
+        "delete": "canDelete"
+    },
+    "pagination": {
+        "defaultLimit": 20,
+        "maxLimit": 50
+    },
+    "search": true,
+    "sorts": [
+        "username",
+        "commentCount",
+        "discussionCount",
+        "lastSeenAt",
+        "joinedAt"
+    ],
+    "filters": [
+        {
+            "key": "email",
+            "kind": "string",
+            "negatable": true,
+            "label": "Email"
+        },
+        {
+            "key": "group",
+            "kind": "relationship",
+            "related": "groups",
+            "negatable": true,
+            "label": "Group"
+        },
+        {
+            "key": "joinedAt",
+            "kind": "date",
+            "range": true,
+            "negatable": true,
+            "schema": {
+                "type": "string",
+                "format": "date"
+            },
+            "label": "Joined"
+        },
+        {
+            "key": "lastSeenAt",
+            "kind": "date",
+            "range": true,
+            "negatable": true,
+            "schema": {
+                "type": "string",
+                "format": "date"
+            },
+            "label": "Last seen"
+        }
+    ],
+    "fields": [
+        {
+            "name": "username",
+            "kind": "string",
+            "label": "Username",
+            "requiredWhen": {
+                "create": [
+                    {
+                        "rule": "without",
+                        "fields": [
+                            "token"
+                        ]
+                    }
+                ]
+            },
+            "writable": {
+                "create": true,
+                "update": true
+            },
+            "constraints": {
+                "minLength": 3,
+                "maxLength": 30,
+                "pattern": "^(?![0-9]*$)[a-z0-9_-]+$",
+                "patternFlags": "i",
+                "messages": {
+                    "pattern": "The username may only contain letters, numbers, and dashes. With at least one letter.",
+                    "required": "The username field is required."
+                }
+            },
+            "constraintsOnUpdate": {
+                "minLength": 3,
+                "maxLength": 30,
+                "pattern": "^(?![0-9]*$)[a-z0-9_-]+$",
+                "patternFlags": "i",
+                "messages": {
+                    "pattern": "The username may only contain letters, numbers, and dashes. With at least one letter."
+                }
+            },
+            "sortable": true,
+            "ui": {
+                "column": 90,
+                "liveValidate": true
+            }
+        },
+        {
+            "name": "email",
+            "kind": "string",
+            "label": "Email",
+            "requiredWhen": {
+                "create": [
+                    {
+                        "rule": "without",
+                        "fields": [
+                            "token"
+                        ]
+                    }
+                ]
+            },
+            "writable": {
+                "create": true,
+                "update": true
+            },
+            "constraints": {
+                "format": "email",
+                "messages": {
+                    "required": "The email field is required."
+                }
+            },
+            "constraintsOnUpdate": {
+                "format": "email"
+            },
+            "ui": {
+                "liveValidate": true
+            }
+        },
+        {
+            "name": "isEmailConfirmed",
+            "kind": "boolean",
+            "label": "Is email confirmed",
+            "writable": {
+                "create": true,
+                "update": true
+            }
+        },
+        {
+            "name": "password",
+            "kind": "string",
+            "label": "Password",
+            "visible": false,
+            "requiredWhen": {
+                "create": [
+                    {
+                        "rule": "without",
+                        "fields": [
+                            "token"
+                        ]
+                    }
+                ]
+            },
+            "writable": {
+                "create": true,
+                "update": true
+            },
+            "constraints": {
+                "minLength": 8,
+                "messages": {
+                    "required": "The password field is required."
+                }
+            },
+            "constraintsOnUpdate": {
+                "minLength": 8
+            }
+        },
+        {
+            "name": "token",
+            "kind": "string",
+            "label": "Token",
+            "visible": false,
+            "writable": {
+                "create": true
+            },
+            "ui": {
+                "widget": "hidden"
+            }
+        },
+        {
+            "name": "displayName",
+            "kind": "string",
+            "label": "Display name",
+            "ui": {
+                "column": 85
+            }
+        },
+        {
+            "name": "avatarUrl",
+            "kind": "string",
+            "label": "Avatar url"
+        },
+        {
+            "name": "avatarSrcset",
+            "kind": "string",
+            "label": "Avatar srcset"
+        },
+        {
+            "name": "hasUploadedAvatar",
+            "kind": "boolean",
+            "label": "Has uploaded avatar"
+        },
+        {
+            "name": "slug",
+            "kind": "string",
+            "label": "Slug"
+        },
+        {
+            "name": "joinTime",
+            "kind": "datetime",
+            "label": "Joined",
+            "constraints": {
+                "format": "date-time"
+            },
+            "ui": {
+                "column": 80
+            }
+        },
+        {
+            "name": "discussionCount",
+            "kind": "integer",
+            "label": "Discussion count",
+            "sortable": true
+        },
+        {
+            "name": "commentCount",
+            "kind": "integer",
+            "label": "Comment count",
+            "sortable": true
+        },
+        {
+            "name": "lastSeenAt",
+            "kind": "datetime",
+            "label": "Last seen",
+            "constraints": {
+                "format": "date-time"
+            },
+            "sortable": true
+        },
+        {
+            "name": "canEdit",
+            "kind": "boolean",
+            "label": "Can edit"
+        },
+        {
+            "name": "canEditAvatar",
+            "kind": "boolean",
+            "label": "Can edit avatar"
+        },
+        {
+            "name": "canEditCredentials",
+            "kind": "boolean",
+            "label": "Can edit credentials"
+        },
+        {
+            "name": "canEditGroups",
+            "kind": "boolean",
+            "label": "Can edit groups"
+        },
+        {
+            "name": "canDelete",
+            "kind": "boolean",
+            "label": "Can delete"
+        },
+        {
+            "name": "groups",
+            "kind": "toMany",
+            "label": "Groups",
+            "writable": {
+                "update": true
+            },
+            "relationship": {
+                "types": [
+                    "groups"
+                ]
+            },
+            "ui": {
+                "column": 70,
+                "display": "nameSingular"
+            }
+        }
+    ]
+}

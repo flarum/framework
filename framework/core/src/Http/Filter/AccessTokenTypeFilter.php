@@ -37,7 +37,7 @@ class AccessTokenTypeFilter implements FilterInterface, DescribesFilter
      */
     public function describe(User $actor): ?array
     {
-        return ['kind' => 'enum', 'enum' => array_map('strval', array_keys(AccessToken::getModels()))];
+        return ['kind' => 'enum', 'enum' => array_map('strval', array_keys(AccessToken::getModels())), 'negatable' => true];
     }
 
     public function filter(SearchState $state, array|string $filterValue, bool $negate): void

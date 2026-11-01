@@ -20,15 +20,13 @@ import CreateUserModal from './CreateUserModal';
 import Icon from '../../common/components/Icon';
 import Input from '../../common/components/Input';
 import GambitsAutocompleteDropdown from '../../common/components/GambitsAutocompleteDropdown';
+import { actionLabel, isActionRunning, isRowAction, type ResourceAction } from '../../common/resource/actions';
 import type { BulkActionContext, BulkSummary } from '../../common/resource/BulkRunner';
 import { renderColumn } from '../../common/resource/field';
-import { patchFilter } from '../../common/resource/fieldsFromDescriptor';
 import RelationInput from '../../common/resource/inputs/RelationInput';
 import ResourceDefinition from '../../common/resource/ResourceDefinition';
-import Group from '../../common/models/Group';
-import type Model from '../../common/Model';
 import ResourceListState from '../../common/resource/ResourceListState';
-import type { Field, FieldDescriptor, FilterDescriptor } from '../../common/resource/types';
+import type { Field } from '../../common/resource/types';
 import ResourceTable, { type ColumnData as ResourceColumnData, type ResourceTableAttrs } from './resource/ResourceTable';
 import ResourceDeleteModal from './resource/ResourceDeleteModal';
 
@@ -69,6 +67,8 @@ interface UserListTableAttrs extends ResourceTableAttrs<User> {
   onBulkDeleted: (count: number) => void;
   /** The page's `headerItems()`, rendered into the table's toolbar. */
   headerItems: () => ItemList<Mithril.Children>;
+  /** Called with the table once it is created, so the page's actions menu can run actions through it. */
+  ontable?: (table: UserListTable) => void;
 }
 
 /**
@@ -92,6 +92,42 @@ interface UserListTableAttrs extends ResourceTableAttrs<User> {
 class UserListTable extends ResourceTable<User, UserListTableAttrs> {
   /** `headerItems()` of the toolbar pass in progress, so it is built once per redraw. */
   protected header: ItemList<Mithril.Children> | null = null;
+
+  oninit(vnode: Mithril.Vnode<UserListTableAttrs, this>) {
+    super.oninit(vnode);
+
+    this.attrs.ontable?.(this);
+  }
+
+  /**
+   * A dropdown button per row-scoped `resourceActions()` entry that applies to the user, but for the
+   * built-in `edit` and `delete` (the page's own menu items), in the actions' priority order. A
+   * button runs `triggerAction()` and is loading while the action runs for the user.
+   */
+  menuActionItems(user: User): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    Object.entries(this.currentResourceActions().toObject()).forEach(([key, item]) => {
+      const action = item.content as ResourceAction<User>;
+
+      if (key === 'edit' || key === 'delete' || !isRowAction(action) || (action.applies && !action.applies(user))) return;
+
+      items.add(
+        key,
+        <Button
+          icon={action.icon ?? 'fas fa-bolt'}
+          className={classList(`UserList-${action.key}`, action.destructive && 'UserList-action--danger', action.className)}
+          loading={isActionRunning(this.list, action.key, user)}
+          onclick={() => this.triggerAction(action, user)}
+        >
+          {actionLabel(action, 1)}
+        </Button>,
+        item.priority
+      );
+    });
+
+    return items;
+  }
 
   /** The priority splitting the header between the view group and the actions group. */
   protected headerSplit(header: ItemList<Mithril.Children>): number {
@@ -160,13 +196,13 @@ class UserListTable extends ResourceTable<User, UserListTableAttrs> {
 
     return {
       ...context,
-      showResult: (summary: BulkSummary<User>) => {
+      showResult: (summary: BulkSummary<User>, action?: ResourceAction<User>) => {
         // `ok` holds every record the action succeeded for; only deleted ones leave the total.
         const deleted = summary.ok.filter((user) => !user.exists).length;
 
         if (deleted) this.attrs.onBulkDeleted(deleted);
 
-        showResult(summary);
+        showResult(summary, action);
       },
     };
   }
@@ -221,6 +257,9 @@ export default class UserListPage extends AdminPage {
    */
   protected searchDraft: string | null = null;
 
+  /** The table, once created; the actions menu runs the definition's row actions through it. */
+  protected table: UserListTable | null = null;
+
   /** `definition.fields()`, built once the descriptor is loaded. */
   private descriptorFields: ItemList<Field<User>> | null = null;
 
@@ -273,7 +312,7 @@ export default class UserListPage extends AdminPage {
   oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
     super.oninit(vnode);
 
-    this.definition = new UserResourceDefinition('users');
+    this.definition = app.resources.get<User>('users');
     // The table loads the list, reading the 1-based `?page=` (and sort, search, filters) from the URL.
     this.list = new ResourceListState<User>(this.definition, { pageSize: 50 });
   }
@@ -298,6 +337,7 @@ export default class UserListPage extends AdminPage {
         createUser={() => this.showCreateModal()}
         editUser={(user: User) => this.showEditModal(user)}
         headerItems={() => this.headerItems()}
+        ontable={(table: UserListTable) => (this.table = table)}
       />,
     ];
   }
@@ -579,7 +619,11 @@ export default class UserListPage extends AdminPage {
       </Button>
     );
 
-    if (user.canDelete()) {
+    // The definition's `delete` decides which users may be deleted (`rowAbilities`).
+    const actions = this.definition.resourceActions();
+    const remove = actions.has('delete') ? actions.get('delete') : null;
+
+    if (remove && (!remove.applies || remove.applies(user))) {
       items.add(
         'delete',
         <Button
@@ -597,6 +641,13 @@ export default class UserListPage extends AdminPage {
         </Button>,
         -100
       );
+    }
+
+    // The definition's other row actions (an extension's), their priorities offset by -200.
+    if (this.table) {
+      Object.entries(this.table.menuActionItems(user).toObject()).forEach(([key, item]) => {
+        if (!items.has(key)) items.add(key, item.content as Mithril.Children, -200 + item.priority);
+      });
     }
 
     return items;
@@ -706,39 +757,5 @@ export default class UserListPage extends AdminPage {
     });
 
     return columns;
-  }
-}
-
-/**
- * The users definition. Its `bulkActions()` are the list's bulk actions: empty, so the list has no
- * checkbox column until an extension adds one (`bulkDeleteAction(context)` is a ready-made item).
- * The group filter labels groups like the `groups` field does, and leaves out the guest group,
- * which no user is a member of.
- */
-export class UserResourceDefinition extends ResourceDefinition<User> {
-  label(count: number): string {
-    return extractText(app.translator.trans('core.admin.users.label', { count }));
-  }
-
-  /**
-   * Administrators only: the export holds email addresses.
-   */
-  canExport(): boolean {
-    return !!app.session.user?.isAdmin() && super.canExport();
-  }
-
-  filterInput(filter: FilterDescriptor, d: FieldDescriptor | null) {
-    // Named apart from the `groups` relationship, so it takes that field's display hint.
-    if (filter.key === 'group') d = this.descriptor?.fields.find((field) => field.name === 'groups') ?? d;
-
-    return super.filterInput(filter, d);
-  }
-
-  filters() {
-    const filters = super.filters();
-
-    patchFilter(filters, 'group', { exclude: (model: Model) => model.id() === Group.GUEST_ID });
-
-    return filters;
   }
 }

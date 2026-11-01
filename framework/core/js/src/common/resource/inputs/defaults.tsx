@@ -25,6 +25,13 @@ export function inputId(ctx: InputContext): string {
 }
 
 /**
+ * The ARIA attributes tying a control to its field's error while it has one.
+ */
+export function errorAttrs(ctx: InputContext): Record<string, string> {
+  return ctx.error && ctx.errorId ? { 'aria-invalid': 'true', 'aria-describedby': ctx.errorId } : {};
+}
+
+/**
  * Wrap a control the way `FormGroup` does: label, help, control. For form input renderers; pass
  * `id` when the control carries `inputId(ctx)`, so clicking the label focuses it.
  */
@@ -90,6 +97,7 @@ export function defaultFormInputs(): ItemList<InputRenderer> {
         id,
         required: ctx.required,
         'data-placeholder': placeholder,
+        ...errorAttrs(ctx),
       }),
       id
     );
@@ -101,7 +109,7 @@ export function defaultFormInputs(): ItemList<InputRenderer> {
       <RelationInput
         type={spec.related}
         multiple={!!spec.multiple}
-        display={spec.display ?? 'name'}
+        display={spec.display}
         stream={ctx.stream as Stream<Model | Model[] | null>}
         name={ctx.name}
         nullable={spec.nullable}
@@ -222,7 +230,7 @@ export function defaultFilterInputs(): ItemList<InputRenderer> {
         multiple={false}
         nullable={true}
         placeholder={spec.placeholder ?? any()}
-        display={spec.display ?? 'name'}
+        display={spec.display}
         stream={bridge as unknown as Stream<Model | Model[] | null>}
         name={ctx.name}
         search={spec.search}

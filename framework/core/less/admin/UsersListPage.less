@@ -87,3 +87,16 @@
     }
   }
 }
+
+// A destructive extension action in a user's actions menu, coloured like `Button--danger`.
+.Dropdown-menu .UserList-action--danger {
+  &,
+  .Button-icon {
+    color: var(--control-danger-color);
+  }
+
+  &:hover,
+  &:focus {
+    background: var(--control-danger-bg);
+  }
+}

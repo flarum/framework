@@ -20,11 +20,14 @@ use Flarum\User\User;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
 
+require_once __DIR__.'/PinsDescriptorFixture.php';
+
 /**
  * The access tokens descriptor, which core describes by default, and the admin list it drives.
  */
 class AccessTokensSchemaTest extends TestCase
 {
+    use PinsDescriptorFixture;
     use RetrievesAuthorizedUsers;
 
     protected function setUp(): void
@@ -147,7 +150,7 @@ class AccessTokensSchemaTest extends TestCase
         foreach ([1, 3] as $actorId) {
             $filters = $this->filtersByKey($this->describe($actorId));
 
-            $this->assertSame(['key' => 'user', 'kind' => 'relationship', 'related' => 'users'], $filters['user'], "actor $actorId");
+            $this->assertSame(['key' => 'user', 'kind' => 'relationship', 'related' => 'users', 'negatable' => true, 'label' => 'User'], $filters['user'], "actor $actorId");
             $this->assertSame('enum', $filters['type']['kind']);
             $this->assertEqualsCanonicalizing(['session', 'session_remember', 'developer'], $filters['type']['enum']);
         }
@@ -181,7 +184,7 @@ class AccessTokensSchemaTest extends TestCase
         $admin = User::find(1);
         $member = User::find(2);
 
-        $this->assertSame(['kind' => 'relationship', 'related' => 'users'], (new UserFilter())->describe($admin));
+        $this->assertSame(['kind' => 'relationship', 'related' => 'users', 'negatable' => true], (new UserFilter())->describe($admin));
         $this->assertNull((new UserFilter())->describe($member));
 
         $type = (new AccessTokenTypeFilter())->describe($member);
@@ -244,5 +247,28 @@ class AccessTokensSchemaTest extends TestCase
             $this->assertSame(2, $token['attributes']['userId']);
             $this->assertSame(! $token['attributes']['isCurrent'], $token['attributes']['canDelete']);
         }
+    }
+
+    #[Test]
+    public function the_type_label_row_abilities_and_type_labels_are_described()
+    {
+        $descriptor = $this->describe(1);
+        $type = $this->filtersByKey($descriptor)['type'];
+
+        $this->assertSame(['one' => 'Access token', 'other' => 'Access tokens'], $descriptor['label']);
+        $this->assertSame(['delete' => 'canDelete'], $descriptor['rowAbilities']);
+        $this->assertSame('Type', $type['label']);
+        $this->assertSame('Session', $type['enumLabels']['session']);
+        $this->assertSame('Remembered session', $type['enumLabels']['session_remember']);
+        $this->assertSame('Developer token', $type['enumLabels']['developer']);
+    }
+
+    /**
+     * The admin's descriptor is what `js/tests/fixtures/descriptors/access-tokens.json` holds for the JS tests.
+     */
+    #[Test]
+    public function descriptor_matches_the_js_fixture()
+    {
+        $this->assertDescriptorFixture('access-tokens');
     }
 }

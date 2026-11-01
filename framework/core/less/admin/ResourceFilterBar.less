@@ -92,6 +92,30 @@
     text-underline-offset: 3px;
   }
 
+  // A filter that cannot be removed: no delete button, shown in the alternate pill colours.
+  &-chip--required {
+    --pill-bg: var(--pill-bg-alt);
+    --pill-color: var(--pill-color-alt);
+  }
+
+  // The range filter input: "from – to" side by side in the filter dropdown.
+  &-range {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .FormControl {
+      flex: 1 1 0;
+      min-width: 0;
+      width: auto;
+    }
+  }
+
+  &-rangeSeparator {
+    flex: none;
+    color: var(--muted-color);
+  }
+
   &-clearFilters {
     padding-inline: 4px;
   }

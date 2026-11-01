@@ -62,6 +62,16 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
+        /**
+         * Per-resource overrides of the abilities that decide a row's edit/delete affordances,
+         * keyed by resource class. Extensions add entries through `Extend\ApiResource::rowAbilities()`.
+         *
+         * @internal Not part of the extension API; use the extenders.
+         */
+        $this->container->singleton('flarum.api.resource_row_abilities', function () {
+            return [];
+        });
+
         $this->container->singleton('flarum.api.resource_handler', function (Container $container) {
             $resources = $this->container->make('flarum.api.resources');
 
@@ -96,8 +106,16 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
+        // Precognitive requests skip the throttlers above and are limited by this one instead.
+        $this->container->singleton('flarum.api.precognition_throttler', function (Container $container) {
+            return $container->make(PrecognitionThrottler::class);
+        });
+
         $this->container->bind(Middleware\ThrottleApi::class, function (Container $container) {
-            return new Middleware\ThrottleApi($container->make('flarum.api.throttlers'));
+            return new Middleware\ThrottleApi(
+                $container->make('flarum.api.throttlers'),
+                $container->make('flarum.api.precognition_throttler')
+            );
         });
 
         $this->container->singleton('flarum.api.middleware', function () {
@@ -115,6 +133,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 'flarum.api.route_resolver',
                 'flarum.api.check_for_maintenance',
                 HttpMiddleware\CheckCsrfToken::class,
+                Middleware\HandlePrecognitiveRequests::class,
                 Middleware\ThrottleApi::class,
                 Middleware\RecordFailedLogins::class,
                 HttpMiddleware\PopulateWithActor::class,
@@ -171,6 +190,8 @@ class ApiServiceProvider extends AbstractServiceProvider
                 // would do it inside a long-running queue worker, from the
                 // sources it booted with (see RecompileFrontendAssets::markDirty()).
                 Middleware\AddAssetsRevisionHeader::class,
+                // Internal calls never carry the browser's `Precognition` header.
+                Middleware\HandlePrecognitiveRequests::class,
             ];
         });
 

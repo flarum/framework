@@ -83,16 +83,28 @@ describe('ResourceFormModal', () => {
       ResourceFormModal,
       modalAttrs({ definition: new ResourceDefinition<User>('users'), model: user })
     );
-    const { modal: legacy } = await render<EditUserModal>(EditUserModal, modalAttrs({ user }));
+    const { modal: editUser } = await render<EditUserModal>(EditUserModal, modalAttrs({ user }));
 
     // The reference: what EditUserModal offers.
-    expect(fieldKeys(legacy.fields())).toEqual(EDIT_USER_MODAL_CORE_FIELDS);
+    expect(fieldKeys(editUser.fields())).toEqual(EDIT_USER_MODAL_CORE_FIELDS);
 
     const keys = fieldKeys(resource.fields());
 
     expect(keys).toEqual(expect.arrayContaining(EDIT_USER_MODAL_CORE_FIELDS));
     // EditUserModal sets isEmailConfirmed through the "Activate" button inside its email item.
     expect(keys.filter((key) => !EDIT_USER_MODAL_CORE_FIELDS.includes(key))).toEqual(['isEmailConfirmed']);
+  });
+
+  test('removing the modal cancels its live checks', async () => {
+    const { modal } = await render<ResourceFormModal<User>>(
+      ResourceFormModal,
+      modalAttrs({ definition: new ResourceDefinition<User>('users'), model: user })
+    );
+    const cancel = jest.spyOn(modal.formState!.live, 'cancel');
+
+    modal.onremove({} as any);
+
+    expect(cancel).toHaveBeenCalledTimes(1);
   });
 
   test('the create form has no token input (ui.widget hidden) and requires the credentials', async () => {
@@ -182,5 +194,71 @@ describe('ResourceFormModal', () => {
     expect(onsaved).toHaveBeenCalledWith(user);
     expect(user.username()).toBe('renamed');
     expect(attrs.animateHide).toHaveBeenCalled();
+  });
+
+  describe('with ui hints', () => {
+    /** The users descriptor with help, groups, a priority, markRequired and a visibleWhen field. */
+    function hinted() {
+      const d = usersDescriptor();
+      const field = (name: string) => d.fields.find((f) => f.name === name)!;
+
+      field('email').ui = { ...field('email').ui, help: 'Used for notifications.', group: 'Account', priority: 5 };
+      field('password').ui = { ...field('password').ui, group: 'Account', markRequired: true };
+      field('username').constraints = { ...field('username').constraints, messages: { required: 'Every user needs a name.' } };
+      field('isEmailConfirmed').ui = { ...field('isEmailConfirmed').ui, visibleWhen: [{ rule: 'with', fields: ['email'] }] };
+
+      return d;
+    }
+
+    beforeEach(() => {
+      const fallback = request.getMockImplementation()!;
+
+      request.mockImplementation((options: any) =>
+        options.url.includes('/resource-schemas/') ? Promise.resolve(schemaDocument(hinted(), 'users')) : fallback(options)
+      );
+    });
+
+    test('renders help, the group fieldset after the other fields, priority and the required mark; the form is novalidate', async () => {
+      const { out } = await render<ResourceFormModal<User>>(
+        ResourceFormModal,
+        modalAttrs({ definition: new ResourceDefinition<User>('users'), model: null })
+      );
+      const root = out.rootEl as HTMLElement;
+
+      expect(root.querySelector('form')!.hasAttribute('novalidate')).toBe(true);
+      expect(out).toContainRaw('Used for notifications.');
+      expect(root.querySelector('fieldset.ResourceForm-group legend')!.textContent).toBe('Account');
+      expect([...root.querySelectorAll('fieldset.ResourceForm-group input')].map((el) => (el as HTMLInputElement).name)).toEqual([
+        'email',
+        'password',
+      ]);
+      expect(root.querySelector('.ResourceForm-field--password')!.classList.contains('ResourceForm-field--required')).toBe(true);
+
+      const inputs = [...root.querySelectorAll('.Modal-body input[name]')].map((el) => (el as HTMLInputElement).name);
+      expect(inputs.indexOf('username')).toBeLessThan(inputs.indexOf('email'));
+    });
+
+    test('a visibleWhen field is hidden, not validated and not sent until its condition holds; custom messages show', async () => {
+      const { modal } = await render<ResourceFormModal<User>>(
+        ResourceFormModal,
+        modalAttrs({ definition: new ResourceDefinition<User>('users'), model: user })
+      );
+      const state = modal.formState!;
+
+      expect(state.visibleFields().has('isEmailConfirmed')).toBe(true);
+
+      state.stream('email')('');
+      state.stream('isEmailConfirmed')(false);
+
+      expect(state.visibleFields().has('isEmailConfirmed')).toBe(false);
+      expect(state.buildSaveData()).toEqual({ email: '' });
+
+      const creating = await render<ResourceFormModal<User>>(
+        ResourceFormModal,
+        modalAttrs({ definition: new ResourceDefinition<User>('users'), model: null })
+      );
+
+      expect(creating.modal.formState!.validate().username).toEqual(['Every user needs a name.']);
+    });
   });
 });

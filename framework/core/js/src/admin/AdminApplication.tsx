@@ -1,6 +1,9 @@
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
 import routes, { AdminRoutes } from './routes';
+import registerResources from './resources';
+import ResourceDefinition from '../common/resource/ResourceDefinition';
+import ResourceRegistry from '../common/resource/ResourceRegistry';
 import Application, { ApplicationData } from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
@@ -165,12 +168,18 @@ export default class AdminApplication extends Application {
 
   data!: AdminApplicationData;
 
+  /**
+   * The resource definition class of each resource type; `app.resources.get(type)` builds one.
+   */
+  resources: ResourceRegistry = new ResourceRegistry(ResourceDefinition);
+
   route: typeof Application.prototype.route & AdminRoutes;
 
   constructor() {
     super();
 
     routes(this);
+    registerResources(this);
 
     this.route = (Object.getPrototypeOf(Object.getPrototypeOf(this)) as Application).route.bind(this);
   }

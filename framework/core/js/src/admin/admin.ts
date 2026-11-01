@@ -39,5 +39,9 @@ import './components/AnnouncementsWidget';
 import './components/AnnouncementList';
 import './components/AnnouncementItem';
 
+import './resource/definitions/UsersDefinition';
+import './resource/definitions/GroupsDefinition';
+import './resource/definitions/AccessTokensDefinition';
+import './resources';
 import './routes';
 import './AdminApplication';

@@ -9,7 +9,7 @@ import RequestError from '../../../common/utils/RequestError';
 import classList from '../../../common/utils/classList';
 import type InputFactory from '../../../common/resource/inputs/InputFactory';
 import type ResourceDefinition from '../../../common/resource/ResourceDefinition';
-import { focusFirstControl, renderFieldError, renderFormField } from '../../../common/resource/ResourceForm';
+import { focusFirstControl, groupFormItems, renderFieldError, renderFormField } from '../../../common/resource/ResourceForm';
 import ResourceFormState from '../../../common/resource/ResourceFormState';
 import type { Field, SaveData } from '../../../common/resource/types';
 import { ValidationError } from '../../../common/resource/validation';
@@ -33,7 +33,7 @@ export interface ResourceFormModalAttrs<M extends Model = Model> extends IFormMo
  * `submit`), `data()` the save data and `submitData()` what is sent. Only changed fields are sent (see
  * `ResourceFormState`). Fields are
  * validated against the descriptor before the request; 422/403 field errors show under their
- * field.
+ * field. Fields with a `ui.group` render in a fieldset per group (see `groupFormItems()`).
  */
 export default class ResourceFormModal<
   M extends Model = Model,
@@ -68,6 +68,13 @@ export default class ResourceFormModal<
     );
   }
 
+  onremove(vnode: Mithril.VnodeDOM<Attrs, this>) {
+    super.onremove(vnode);
+
+    // A pending or running live check must not outlive the modal.
+    this.formState?.live.cancel();
+  }
+
   onupdate(vnode: Mithril.VnodeDOM<Attrs, this>) {
     super.onupdate(vnode);
 
@@ -76,6 +83,19 @@ export default class ResourceFormModal<
       this.focused = true;
       focusFirstControl(vnode.dom.querySelector?.('.ResourceForm'));
     }
+  }
+
+  /**
+   * The modal's form, `novalidate`: native attributes such as `required` or `maxlength` guide the
+   * user, while validation is the form state's (and the server's), so the browser never blocks a
+   * submit the server would accept.
+   */
+  wrapper(children: Mithril.Children): Mithril.Children {
+    return (
+      <form novalidate onsubmit={this.onsubmit.bind(this)}>
+        {children}
+      </form>
+    );
   }
 
   className(): string {
@@ -105,7 +125,7 @@ export default class ResourceFormModal<
 
     return (
       <div className={classList('ResourceForm', `ResourceForm--${this.attrs.definition.type}`)}>
-        <Form>{this.fields().toArray()}</Form>
+        <Form>{groupFormItems(this.formState, this.fields())}</Form>
       </div>
     );
   }

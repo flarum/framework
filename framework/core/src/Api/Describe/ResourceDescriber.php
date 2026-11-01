@@ -17,6 +17,7 @@ use Flarum\Http\RequestUtil;
 use Flarum\Search\SearchManager;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
@@ -26,6 +27,35 @@ use Tobyz\JsonApiServer\Resource\Resource;
  * Builds a client-facing descriptor of a JSON:API resource for a given actor,
  * inferred from the resource's fields, endpoints, sorts and search filters.
  * Only resources opted in through `Extend\ApiResource::describable()` qualify.
+ *
+ * @phpstan-import-type FieldDescription from FieldDescriber
+ * @phpstan-type FilterDescription array{
+ *     key: string,
+ *     kind: 'string'|'boolean'|'enum'|'relationship'|'date'|'number',
+ *     label: string,
+ *     schema?: array<string, mixed>,
+ *     enum?: list<string>,
+ *     enumLabels?: array<string, string>,
+ *     related?: string,
+ *     multiple?: bool,
+ *     range?: bool,
+ *     required?: bool,
+ *     default?: string,
+ *     negatable?: bool
+ * }
+ * @phpstan-type Descriptor array{
+ *     schemaVersion: int,
+ *     endpoint: string,
+ *     label: array{one: string, other: string},
+ *     capabilities: array{list: bool, create: bool, delete?: true},
+ *     rowAbilities?: array<string, string>,
+ *     pagination?: array{defaultLimit: int, maxLimit: int},
+ *     defaultSort?: string,
+ *     search?: true,
+ *     sorts?: list<string>,
+ *     filters?: list<FilterDescription>,
+ *     fields: list<FieldDescription>
+ * }
  */
 class ResourceDescriber
 {
@@ -33,12 +63,14 @@ class ResourceDescriber
 
     /**
      * Every top-level descriptor key, in emission order. Only `schemaVersion`,
-     * `endpoint`, `capabilities` and `fields` are always present.
+     * `endpoint`, `label`, `capabilities` and `fields` are always present.
      */
     public const array KEYS = [
         'schemaVersion',
         'endpoint',
+        'label',
         'capabilities',
+        'rowAbilities',
         'pagination',
         'defaultSort',
         'search',
@@ -90,6 +122,9 @@ class ResourceDescriber
             || $this->canCreate($resource, $request, $endpoints['create'] ?? null);
     }
 
+    /**
+     * @return Descriptor
+     */
     public function describe(Resource $resource, User $actor, ServerRequestInterface $request): array
     {
         if (! $this->isDescribable($resource)) {
@@ -119,6 +154,7 @@ class ResourceDescriber
         $descriptor = [
             'schemaVersion' => self::SCHEMA_VERSION,
             'endpoint' => '/'.$resource->type(),
+            'label' => $this->label($resource->type()),
             'capabilities' => [
                 'list' => $this->canList($resource, $request, $index),
                 'create' => $canCreate,
@@ -127,6 +163,10 @@ class ResourceDescriber
 
         if ($this->canDelete($request, $endpoints['delete'] ?? null, $contexts['update'])) {
             $descriptor['capabilities']['delete'] = true;
+        }
+
+        if ($rowAbilities = $this->rowAbilities($resource, $fields)) {
+            $descriptor['rowAbilities'] = $rowAbilities;
         }
 
         if ($index instanceof Endpoint\Index) {
@@ -149,7 +189,7 @@ class ResourceDescriber
             $descriptor['sorts'] = $sorts;
         }
 
-        if ($filters = $this->filters($search['filters'])) {
+        if ($filters = $this->filters($resource->type(), $search['filters'], $fields)) {
             $descriptor['filters'] = $filters;
         }
 
@@ -162,14 +202,21 @@ class ResourceDescriber
      * @param array{create: DescribeContext, update: DescribeContext, show: DescribeContext, index: DescribeContext} $contexts
      * @param array<string, true> $sortable
      * @param list<'create'|'update'> $writeModes
-     * @return list<array<string, mixed>>
+     * @return list<FieldDescription>
      */
     protected function describeFields(AbstractDatabaseResource $resource, array $contexts, array $sortable, array $writeModes): array
     {
         $fields = [];
 
         foreach ($resource->resolveFields() as $field) {
-            $description = $this->fields->describe($field, $resource, $contexts, $sortable, $writeModes);
+            try {
+                $description = $this->fields->describe($field, $resource, $contexts, $sortable, $writeModes);
+            } catch (Throwable $e) {
+                // A field that cannot be described at all is left out rather than failing the whole descriptor.
+                $this->fields->report($e, $field, $resource->type());
+
+                continue;
+            }
 
             if ($description !== null) {
                 $fields[] = $description;
@@ -334,14 +381,103 @@ class ResourceDescriber
     }
 
     /**
-     * @param array<string, array<string, mixed>> $descriptions keyed by filter key, already scoped to the actor
-     * @return list<array<string, mixed>>
+     * The type's name, singular and plural: `core.admin.resource.{type}.label_one`
+     * and `label_other` when they exist, otherwise the humanised type.
+     *
+     * @return array{one: string, other: string}
      */
-    protected function filters(array $descriptions): array
+    protected function label(string $type): array
     {
+        $humanised = ucfirst(str_replace(['-', '_'], ' ', $type));
+
+        return [
+            'one' => $this->fields->translate("core.admin.resource.$type.label_one") ?? Str::singular($humanised),
+            'other' => $this->fields->translate("core.admin.resource.$type.label_other") ?? $humanised,
+        ];
+    }
+
+    /**
+     * The attributes that carry each row's edit and delete permission: `canEdit`
+     * and `canDelete` when the actor can see them, overridden through
+     * `Extend\ApiResource::rowAbilities()` (a null removes the action).
+     *
+     * @param list<FieldDescription> $fields
+     * @return array<string, string>
+     */
+    protected function rowAbilities(AbstractDatabaseResource $resource, array $fields): array
+    {
+        $visible = [];
+
+        foreach ($fields as $field) {
+            if (($field['visible'] ?? true) && ! isset($field['relationship'])) {
+                $visible[$field['name']] = true;
+            }
+        }
+
+        $abilities = array_filter(
+            ['edit' => 'canEdit', 'delete' => 'canDelete'],
+            fn (string $attribute) => isset($visible[$attribute])
+        );
+
+        $overrides = $this->container->make('flarum.api.resource_row_abilities');
+
+        foreach ($overrides as $class => $override) {
+            if ($resource instanceof $class) {
+                $abilities = array_merge($abilities, $override);
+            }
+        }
+
+        // An overridden attribute the actor cannot see would hide the action on every row.
+        return array_filter($abilities, fn ($attribute) => is_string($attribute) && isset($visible[$attribute]));
+    }
+
+    /**
+     * Completes each filter's description with a translated `label` (the filter's
+     * own, else the same-named field's, else `core.admin.resource.{type}.filters.{snake_key}`,
+     * else the humanised key) and `enumLabels` for its enum values.
+     *
+     * @param array<string, array<string, mixed>> $descriptions keyed by filter key, already scoped to the actor
+     * @param list<FieldDescription> $fields
+     * @return list<FilterDescription>
+     */
+    protected function filters(string $type, array $descriptions, array $fields = []): array
+    {
+        $fieldsByName = array_column($fields, null, 'name');
         $described = [];
 
         foreach ($descriptions as $key => $description) {
+            $key = (string) $key;
+            $field = $fieldsByName[$key] ?? null;
+            $snake = Str::snake($key);
+
+            $label = $description['label'] ?? null;
+            $description['label'] = is_string($label) && $label !== ''
+                ? ($this->fields->translate($label) ?? $label)
+                : ($field['label']
+                    ?? $this->fields->translate("core.admin.resource.$type.filters.$snake")
+                    ?? ucfirst(str_replace('_', ' ', $snake)));
+
+            $enum = array_map('strval', $description['enum'] ?? []);
+
+            if ($enum) {
+                $labels = [];
+
+                foreach ((array) ($description['enumLabels'] ?? []) as $value => $enumLabel) {
+                    if (is_string($enumLabel)) {
+                        $labels[(string) $value] = $this->fields->translate($enumLabel) ?? $enumLabel;
+                    }
+                }
+
+                $labels += $this->fields->enumLabels($type, $key, $enum, 'filters.')
+                    + array_intersect_key($field['enumLabels'] ?? [], array_flip($enum));
+
+                if ($labels) {
+                    $description['enumLabels'] = $labels;
+                } else {
+                    unset($description['enumLabels']);
+                }
+            }
+
             $described[] = ['key' => $key] + $description;
         }
 

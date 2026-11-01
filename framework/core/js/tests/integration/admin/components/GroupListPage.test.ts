@@ -2,7 +2,10 @@ import { jest } from '@jest/globals';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
 import AdminNav from '../../../../src/admin/components/AdminNav';
-import GroupListPage, { GroupDefinition } from '../../../../src/admin/components/GroupListPage';
+import GroupListPage from '../../../../src/admin/components/GroupListPage';
+import GroupDefinition from '../../../../src/admin/resource/definitions/GroupsDefinition';
+import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
+import ResourceActionModal from '../../../../src/admin/components/resource/ResourceActionModal';
 import ResourceDeleteModal from '../../../../src/admin/components/resource/ResourceDeleteModal';
 import ResourceFormModal from '../../../../src/admin/components/resource/ResourceFormModal';
 import type Group from '../../../../src/common/models/Group';
@@ -158,6 +161,47 @@ describe('GroupListPage', () => {
     expect(out.find('.ResourceTable-edit').length).toBe(5);
     // Mod and Ninja only (the first delete is Mod's, see below).
     expect(out.find('.ResourceTable-delete').length).toBe(2);
+  });
+
+  test('rowAbilities.delete offers a bulk delete that confirms in ResourceActionModal, built-in groups skipped', async () => {
+    const out = await rendered();
+
+    expect(out).toHaveElement('th .ResourceTable-selectAll');
+
+    out.first('.ResourceTable-selectAll').checked = true;
+    out.trigger('.ResourceTable-selectAll', 'change');
+    out.click('.ResourceTable-bulk .ResourceTable-bulkDelete');
+
+    const [modal, attrs] = (app.modal.show as jest.Mock<any>).mock.calls.at(-1) as [unknown, any];
+    const { out: dialog } = await render(ResourceActionModal, modalAttrs(attrs));
+
+    expect(modal).toBe(ResourceActionModal);
+    expect(dialog).toContainRaw('Delete 2 entries?');
+    expect(dialog).toHaveElement('.ResourceActionModal-skipped');
+  });
+
+  test('the page takes its definition from app.resources: the registered subclass, else a plain one', async () => {
+    class CustomGroups extends GroupDefinition {
+      label() {
+        return 'Teams';
+      }
+    }
+
+    app.resources.register('groups', CustomGroups);
+
+    try {
+      expect(app.resources.get('groups')).toBeInstanceOf(CustomGroups);
+
+      const out = await rendered();
+      out.click('.ResourceTable-create');
+
+      expect((app.modal.show as jest.Mock<any>).mock.calls[0][1].definition).toBeInstanceOf(CustomGroups);
+    } finally {
+      app.resources.register('groups', GroupDefinition);
+    }
+
+    expect(app.resources.get('groups')).toBeInstanceOf(GroupDefinition);
+    expect(app.resources.get('widgets').constructor).toBe(ResourceDefinition);
   });
 
   test('create opens the form modal; delete opens the delete modal naming the group', async () => {

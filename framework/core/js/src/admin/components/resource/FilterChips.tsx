@@ -15,7 +15,8 @@ export interface FilterChipsAttrs<M extends Model = Model> extends ComponentAttr
 }
 
 /**
- * One chip per set filter of a `ResourceFilterBar`, and "Clear all".
+ * One chip per set filter of a `ResourceFilterBar` (per value of a multiple filter), and "Clear
+ * all" while a filter that can be cleared is set.
  */
 export default class FilterChips<
   M extends Model = Model,
@@ -25,17 +26,27 @@ export default class FilterChips<
     return (
       <div className="ResourceTable-chips" role="group" aria-label={app.translator.trans('core.admin.resource.table.filters_label', {}, true)}>
         <div className="Pill-list">{this.chipItems().toArray()}</div>
-        <Button className="Button Button--link ResourceTable-clearFilters" onclick={() => this.attrs.bar.clear()}>
-          {app.translator.trans('core.admin.resource.table.clear_filters_button')}
-        </Button>
+        {this.clearable() && (
+          <Button className="Button Button--link ResourceTable-clearFilters" onclick={() => this.attrs.bar.clear()}>
+            {app.translator.trans('core.admin.resource.table.clear_filters_button')}
+          </Button>
+        )}
       </div>
     );
   }
 
+  /** Whether a set filter is not required, so "Clear all" has something to clear. */
+  clearable(): boolean {
+    const bar = this.attrs.bar;
+
+    return ordered(bar.filters).some(([key, filter]) => !filter.required && bar.list.getFilter(key) !== '');
+  }
+
   /**
-   * "{label}: {value}" and a remove button per set filter. A chip whose filter key a gambit in the
-   * search also sends is marked overridden, since the gambit wins; one the search sends with the
-   * opposite sign (`-suspended` vs `suspended`) is marked as conflicting.
+   * "{label}: {value}" and a remove button per set filter; a multiple filter gets one chip per
+   * value, a required one no remove button. A chip whose filter key a gambit in the search also
+   * sends is marked overridden, since the gambit wins; one the search sends with the opposite sign
+   * (`-suspended` vs `suspended`) is marked as conflicting.
    */
   chipItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
@@ -56,26 +67,34 @@ export default class FilterChips<
             : null;
       const label = extractText(filter.label);
 
-      items.add(
-        key,
-        <Pill
-          className={classList(
-            'ResourceTable-chip',
-            `ResourceTable-chip--${key}`,
-            relation === 'overridden' && 'ResourceTable-chip--overridden',
-            relation === 'conflict' && 'ResourceTable-chip--conflict'
-          )}
-          deletable={true}
-          deleteLabel={app.translator.trans('core.admin.resource.table.remove_filter_label', { label }, true)}
-          ondelete={() => bar.list.setFilter(key, '')}
-        >
-          <span className="ResourceTable-chipText" title={note ?? undefined}>
-            {app.translator.trans('core.admin.resource.table.filter_label', { label, value: bar.valueLabel(key, filter, value) })}
-          </span>
-          {note && <span className="visually-hidden">({note})</span>}
-        </Pill>,
-        100 - index
-      );
+      const multiple = bar.isMultiple(filter);
+
+      bar.values(filter, value).forEach((item, position) => {
+        items.add(
+          multiple ? `${key}:${item}` : key,
+          <Pill
+            className={classList(
+              'ResourceTable-chip',
+              `ResourceTable-chip--${key}`,
+              filter.required && 'ResourceTable-chip--required',
+              relation === 'overridden' && 'ResourceTable-chip--overridden',
+              relation === 'conflict' && 'ResourceTable-chip--conflict'
+            )}
+            deletable={!filter.required}
+            deleteLabel={app.translator.trans('core.admin.resource.table.remove_filter_label', { label }, true)}
+            ondelete={() => bar.list.setFilter(key, bar.without(filter, value, item))}
+          >
+            <span className="ResourceTable-chipText" title={note ?? undefined}>
+              {app.translator.trans('core.admin.resource.table.filter_label', {
+                label,
+                value: multiple ? bar.itemLabel(key, filter, item) : bar.valueLabel(key, filter, item),
+              })}
+            </span>
+            {note && <span className="visually-hidden">({note})</span>}
+          </Pill>,
+          100 - index - position / 100
+        );
+      });
     });
 
     return items;

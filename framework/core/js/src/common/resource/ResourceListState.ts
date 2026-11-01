@@ -4,6 +4,7 @@ import type { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
 import ItemList from '../utils/ItemList';
 import type ResourceDefinition from './ResourceDefinition';
 import type { Filter, ResourceDescriptor } from './types';
+import ViewPreferences, { type SavedView } from './ViewPreferences';
 
 export interface ResourceListParams {
   sort?: string;
@@ -14,6 +15,8 @@ export interface ResourceListParams {
 export interface ResourceListOptions {
   /** Read and write `sort`, `q`, `filter[key]` and `page` in the URL query. Default true. */
   syncUrl?: boolean;
+  /** Save the filters and sort per type (`ViewPreferences`) and open with them. Default `syncUrl`. */
+  persist?: boolean;
   pageSize?: number;
 }
 
@@ -51,17 +54,27 @@ export interface ResourceSelection {
 const FILTER_PARAM = /^filter\[(.+)\]$/;
 
 /**
- * A paginated list of one resource type. Sorts and filters come from the definition's descriptor:
- * unknown sorts are ignored, empty filters are omitted. Pagination adapts — `hasTotal()` when the API
- * sends `meta.page.total` (numbered pages), else `hasPrev()`/`hasNext()` from the links.
+ * A paginated list of one resource type; sorts and filters come from the definition's descriptor.
+ *
+ * The list opens with the URL's filters and sort when it names any, else with the saved view
+ * (`ViewPreferences`). A filter absent from both takes its `default`; a cleared one is kept as `''`
+ * in the URL and the saved view, so its default does not come back. Opening a link does not
+ * overwrite the saved view until the user changes something. The search and the page come from the
+ * URL only.
  */
 export default class ResourceListState<M extends Model = Model> extends PaginatedListState<M, ResourceListParams> {
   public readonly definition: ResourceDefinition<M>;
   protected syncUrl: boolean;
+  protected persist: boolean;
 
   /** `definition.filters()` and the descriptor it was built for. */
   protected filterItems: ItemList<Filter> | null = null;
   protected filtersDescriptor: ResourceDescriptor | null = null;
+
+  /** Bumped by each `goto()`; a response to an older one is dropped. */
+  protected sequence = 0;
+  /** The page size and total of the latest applied response. */
+  protected applied: { pageSize: number | null; totalItems: number | null } = { pageSize: null, totalItems: null };
 
   /** Page-scoped: any page, sort, filter or search change (and a reload) clears it. */
   public selection: ResourceSelection = { ids: new Set() };
@@ -71,42 +84,145 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
 
     this.definition = definition;
     this.syncUrl = options.syncUrl ?? true;
+    this.persist = options.persist ?? this.syncUrl;
   }
 
   get type(): string {
     return this.definition.type;
   }
 
-  /** Load the descriptor, adopt the URL's params (validated against it) and load the page. */
+  /** Adopts the initial view (see the class), then loads the URL's page. */
   async load(): Promise<void> {
     await this.definition.load();
 
-    let page = 1;
+    const query = this.syncUrl ? readQuery() : new URLSearchParams();
+    const url = this.urlView(query);
+    const saved = this.savedView();
+    const view = url ?? saved ?? {};
+    const defaults = this.defaultView();
+    const filter = { ...view.filter };
+    const page = Math.max(1, parseInt(query.get('page') ?? '1', 10) || 1);
 
-    if (this.syncUrl) {
-      const query = readQuery();
-      const filters = this.filterKeys();
-      const filter: Record<string, string> = {};
+    Object.entries(defaults.filter ?? {}).forEach(([key, value]) => {
+      if (!(key in (url?.filter ?? {})) && !(key in (saved?.filter ?? {}))) filter[key] = value;
+    });
 
-      query.forEach((value, key) => {
-        const match = key.match(FILTER_PARAM);
+    const sort = view.sort || defaults.sort;
 
-        if (!match || value === '') return;
-
-        if (filters.includes(match[1])) {
-          filter[match[1]] = value;
-        } else if (match[1].startsWith('-') && this.isNegatable(match[1].slice(1)) && value === '1') {
-          filter[match[1].slice(1)] = '0';
-        }
-      });
-
-      const sort = query.get('sort') ?? '';
-
-      this.params = this.clean({ sort: this.isSortable(sort) ? sort : '', q: query.get('q') ?? '', filter });
-      page = Math.max(1, parseInt(query.get('page') ?? '1', 10) || 1);
-    }
+    this.params = this.clean({
+      sort: sort && this.isSortable(sort) ? sort : '',
+      q: query.get('q') ?? '',
+      filter: this.withRequired(filter),
+    });
 
     await this.refresh(page);
+  }
+
+  /** The URL's filters (`''` for a cleared one) and sort, null when it names neither. */
+  urlView(query: URLSearchParams): SavedView | null {
+    const filters = this.filterKeys();
+    const filter: Record<string, string> = {};
+    let explicit = query.has('sort');
+
+    query.forEach((value, key) => {
+      const match = key.match(FILTER_PARAM);
+
+      if (!match) return;
+
+      explicit = true;
+
+      if (filters.includes(match[1])) {
+        filter[match[1]] ??= value;
+      } else if (match[1].startsWith('-') && this.isNegatable(match[1].slice(1))) {
+        filter[match[1].slice(1)] = value === '1' ? '0' : '';
+      }
+    });
+
+    return explicit ? { sort: query.get('sort') ?? '', filter } : null;
+  }
+
+  /**
+   * The saved view, without unknown filters and enum values the descriptor no longer offers; null
+   * when there is none or it is not used.
+   */
+  savedView(): SavedView | null {
+    const saved = this.persist ? ViewPreferences.load(this.type) : null;
+
+    if (!saved) return null;
+
+    const filters = this.filterKeys();
+    const filter: Record<string, string> = {};
+
+    Object.entries(saved.filter ?? {}).forEach(([key, value]) => {
+      if (!filters.includes(key)) return;
+
+      const allowed = this.definition.descriptor?.filters?.find((f) => f.key === key)?.enum;
+
+      if (allowed && value !== '') {
+        value = value
+          .split(',')
+          .filter((part) => allowed.includes(part))
+          .join(',');
+
+        if (value === '') return;
+      }
+
+      filter[key] = value;
+    });
+
+    return { sort: saved.sort, filter };
+  }
+
+  /** The filters' `default`s; a subclass may add a default `sort`. */
+  defaultView(): SavedView {
+    const filter: Record<string, string> = {};
+
+    Object.entries(this.filters().toObject()).forEach(([key, item]) => {
+      if (item.content.default) filter[key] = item.content.default;
+    });
+
+    return { filter };
+  }
+
+  /** `filter` plus `''` for each filter with a default that it leaves out, so clearing one sticks. */
+  protected withClearedDefaults(filter: Record<string, string> = {}): Record<string, string> {
+    const out = { ...filter };
+
+    Object.entries(this.filters().toObject()).forEach(([key, item]) => {
+      if (item.content.default && !out[key]) out[key] = '';
+    });
+
+    return out;
+  }
+
+  /** The definition's `Filter.required`. */
+  isRequired(key: string): boolean {
+    const filters = this.filters();
+
+    return filters.has(key) && !!filters.get(key).required;
+  }
+
+  /**
+   * `filter` with every empty required filter set back: to `previous`'s value, else the saved
+   * view's, else its default.
+   */
+  protected withRequired(filter: Record<string, string>, previous: Record<string, string> = {}): Record<string, string> {
+    const out = { ...filter };
+    let saved: SavedView | null | undefined;
+
+    Object.entries(this.filters().toObject()).forEach(([key, item]) => {
+      if (!item.content.required || (out[key] ?? '') !== '') return;
+
+      if (previous[key]) {
+        out[key] = previous[key];
+        return;
+      }
+
+      saved ??= this.persist ? ViewPreferences.load(this.type) : null;
+      out[key] = saved?.filter?.[key] || item.content.default || '';
+    });
+
+    return out;
   }
 
   sorts(): string[] {
@@ -151,7 +267,7 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
   }
 
   /**
-   * Remove every structured filter (the search stays).
+   * Remove every structured filter but the required ones (the search stays).
    */
   clearFilters(): Promise<void> {
     return this.update({ ...this.params, filter: {} });
@@ -218,24 +334,39 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
 
   /**
    * An empty page past the last one (e.g. a stale `?page=99`) goes to the last page when the total
-   * is known.
+   * is known. Only the latest call's response is applied; an earlier one resolving later is dropped.
    */
   public goto(page: number): Promise<void> {
     if (!this.isPaginated()) page = 1;
 
+    const sequence = ++this.sequence;
+
     this.clearSelection();
     this.writeUrl(page);
+    this.location = { page };
+
+    if (!this.initialLoading) this.loadingPage = true;
 
     return this.errorShownByRequest(
-      super.goto(page).then(() => {
-        const last = this.pageCount();
+      this.loadPage(page)
+        .then((results) => {
+          if (sequence !== this.sequence) return undefined;
 
-        if (page > 1 && last !== null && page > last && this.location.page === page && !this.getItems().length) {
-          return this.goto(last);
-        }
+          this.pages = [];
+          this.parseResults(page, results);
 
-        return undefined;
-      })
+          const last = this.pageCount();
+
+          if (page > 1 && last !== null && page > last && !this.getItems().length) return this.goto(last);
+
+          return undefined;
+        })
+        .finally(() => {
+          if (sequence !== this.sequence) return;
+
+          this.initialLoading = false;
+          this.loadingPage = false;
+        })
     );
   }
 
@@ -264,7 +395,6 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
     return this.location.page;
   }
 
-  /** The models of the current page. */
   getItems(): M[] {
     return this.getAllItems();
   }
@@ -308,14 +438,24 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
   }
 
   /**
-   * The total is the response's `meta.page.total` (0 included), or null without one. The base class
-   * keeps an earlier total when the new one is 0 or missing.
+   * The total is the response's `meta.page.total` (0 included), or null without one. A response
+   * superseded by a later `goto()` puts back the page size and total the base class took from it.
    */
   protected loadPage(page: number = 1): Promise<ApiResponsePlural<M>> {
+    const sequence = this.sequence;
+
     return super.loadPage(page).then((results) => {
+      if (sequence !== this.sequence) {
+        this.pageSize = this.applied.pageSize;
+        this.totalItems = this.applied.totalItems;
+
+        return results;
+      }
+
       const total = results.payload?.meta?.page?.total;
 
       this.totalItems = typeof total === 'number' ? total : null;
+      this.applied = { pageSize: this.pageSize, totalItems: this.totalItems };
 
       return results;
     });
@@ -352,14 +492,17 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
     return params;
   }
 
+  /** Adopt changed params, save the view and reload from page 1. Required filters stay set. */
   protected update(params: ResourceListParams): Promise<void> {
-    const next = this.clean(params);
+    const next = this.clean({ ...params, filter: this.withRequired(params.filter ?? {}, this.params.filter) });
 
     if (JSON.stringify(next) === JSON.stringify(this.params)) {
       return Promise.resolve();
     }
 
     this.params = next;
+
+    if (this.persist) ViewPreferences.save(this.type, { sort: next.sort, filter: this.withClearedDefaults(next.filter) });
 
     return this.refresh(1);
   }
@@ -385,8 +528,8 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
 
     if (this.params.sort) query.set('sort', this.params.sort);
     if (this.params.q) query.set('q', this.params.q);
-    Object.entries(this.params.filter ?? {}).forEach(([key, value]) => {
-      const [param, sent] = this.filterParam(key, value);
+    Object.entries(this.withClearedDefaults(this.params.filter)).forEach(([key, value]) => {
+      const [param, sent] = value === '' ? [key, ''] : this.filterParam(key, value);
       query.set(`filter[${param}]`, sent);
     });
     if (page > 1) query.set('page', String(page));

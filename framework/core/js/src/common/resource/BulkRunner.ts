@@ -1,4 +1,5 @@
 import type Model from '../Model';
+import type { ResourceAction } from './actions';
 import type ResourceListState from './ResourceListState';
 
 /**
@@ -11,7 +12,7 @@ export interface BulkResult<M> {
 }
 
 /**
- * A bulk result plus the selected records the action left out (e.g. no `canDelete`).
+ * A bulk result plus the selected records the action left out (the action does not apply to them).
  */
 export interface BulkSummary<M> extends BulkResult<M> {
   skipped: M[];
@@ -41,7 +42,12 @@ export interface BulkActionContext<M extends Model = Model> {
   list: ResourceListState<M>;
   runner: BulkRunner;
   /** Show the outcome of an action; the admin `ResourceTable` opens `BulkResultModal`. */
-  showResult(summary: BulkSummary<M>): void;
+  showResult(summary: BulkSummary<M>, action?: ResourceAction<M>): void;
+  /**
+   * Confirm (when the action asks to) and run an action over `models`, see
+   * `ResourceTable.runAction()`. Resolves to the summary, or null when cancelled.
+   */
+  runAction(action: ResourceAction<M>, models: M[]): Promise<BulkSummary<M> | null>;
 }
 
 /**

@@ -5,6 +5,7 @@ import {
   SCHEMA_VERSION,
   clearDescriptorCache,
   conditionHolds,
+  constraintsFor,
   isRequired,
   isWritable,
   loadDescriptor,
@@ -32,7 +33,7 @@ describe('loadDescriptor', () => {
     expect(second).toBe(first);
     expect(request).toHaveBeenCalledTimes(1);
     expect((request.mock.calls[0] as any)[0]).toMatchObject({ method: 'GET', url: 'https://example.test/api/resource-schemas/things' });
-    expect(app.store.getById<ResourceSchema>('resource-schemas', 'things')?.schemaVersion()).toBe(1);
+    expect(app.store.getById<ResourceSchema>('resource-schemas', 'things')?.schemaVersion()).toBe(SCHEMA_VERSION);
   });
 
   test('rejects on 403 without memoizing, and retries on the next call', async () => {
@@ -43,7 +44,7 @@ describe('loadDescriptor', () => {
     app.request = request as any;
 
     await expect(loadDescriptor('things')).rejects.toEqual({ status: 403 });
-    await expect(loadDescriptor('things')).resolves.toMatchObject({ schemaVersion: 1 });
+    await expect(loadDescriptor('things')).resolves.toMatchObject({ schemaVersion: SCHEMA_VERSION });
     expect(request).toHaveBeenCalledTimes(2);
   });
 
@@ -143,6 +144,27 @@ describe('requiredWhen', () => {
     expect(holds('unless', ['type'], { type: 'admin' }, ['admin'])).toBe(false);
     expect(holds('unless', ['type'], { type: 'member' }, ['admin'])).toBe(true);
     expect(holds('unless', ['type'], {}, ['admin'])).toBe(true);
+  });
+
+  test('a null in if / unless values matches a null or missing value', () => {
+    const condition = (rule: 'if' | 'unless') => ({ rule, fields: ['b'], values: [null, 'x'] });
+
+    expect(conditionHolds(condition('if'), {})).toBe(true);
+    expect(conditionHolds(condition('if'), { b: null })).toBe(true);
+    expect(conditionHolds(condition('if'), { b: 'x' })).toBe(true);
+    expect(conditionHolds(condition('if'), { b: 'y' })).toBe(false);
+    expect(conditionHolds(condition('unless'), { b: null })).toBe(false);
+    expect(conditionHolds(condition('unless'), { b: 'y' })).toBe(true);
+    expect(conditionHolds({ rule: 'if', fields: ['b'], values: ['x'] }, {})).toBe(false);
+  });
+
+  test('constraintsFor() uses constraintsOnUpdate on update only', () => {
+    const d = fd('a', 'string', { constraints: { minLength: 1 }, constraintsOnUpdate: { maxLength: 2 } });
+
+    expect(constraintsFor(d, 'create')).toEqual({ minLength: 1 });
+    expect(constraintsFor(d, 'update')).toEqual({ maxLength: 2 });
+    expect(constraintsFor(fd('b', 'string', { constraints: { minLength: 1 } }), 'update')).toEqual({ minLength: 1 });
+    expect(constraintsFor(fd('c', 'string'), 'create')).toEqual({});
   });
 
   test('ifAccepted / ifDeclined accept the string and boolean forms', () => {

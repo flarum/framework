@@ -87,6 +87,8 @@ class SearchServiceProvider extends AbstractServiceProvider
                 UserSearcher::class => [
                     UserFilter\EmailFilter::class,
                     UserFilter\GroupFilter::class,
+                    UserFilter\JoinedAtFilter::class,
+                    UserFilter\LastSeenAtFilter::class,
                 ],
                 GroupSearcher::class => [
                     GroupFilter\HiddenFilter::class,

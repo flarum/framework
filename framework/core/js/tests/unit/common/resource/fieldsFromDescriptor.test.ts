@@ -62,8 +62,8 @@ describe('fieldsFromDescriptor', () => {
     expect(set.find('option').map((o: any) => o.getAttribute('value'))).toEqual(['draft', 'live']);
   });
 
-  test('url and email formats → typed inputs', () => {
-    expect(inputOf(single(fd('homepage', 'string', { constraints: { format: 'url' } }))).type).toBe('url');
+  test('uri and email formats → typed inputs', () => {
+    expect(inputOf(single(fd('homepage', 'string', { constraints: { format: 'uri' } }))).type).toBe('url');
     expect(inputOf(single(fd('contact', 'string', { constraints: { format: 'email' } }))).type).toBe('email');
   });
 
@@ -105,15 +105,16 @@ describe('fieldsFromDescriptor', () => {
     expect(single(fd('meta', 'array')).input).toBe(false);
   });
 
-  test('toOne → single relation picker over relationship.types[0], labelled by name', () => {
+  test('toOne → single relation picker over relationship.types[0], no display unless ui.display', () => {
     const input = inputOf(single(fd('category', 'toOne', { relationship: { types: ['categories'] } })));
 
-    expect(input).toMatchObject({ type: 'relation', related: 'categories', multiple: false, display: 'name' });
+    expect(input).toMatchObject({ type: 'relation', related: 'categories', multiple: false });
+    expect(input).not.toHaveProperty('display');
 
     const group = new InputFactory(defaultFormInputs()).render(input, { name: 'category', stream: Stream(null) }) as any;
     const vnode = group.children.find((child: any) => child?.tag === RelationInput);
 
-    expect(vnode.attrs).toMatchObject({ type: 'categories', multiple: false, display: 'name' });
+    expect(vnode.attrs).toMatchObject({ type: 'categories', multiple: false, display: undefined });
   });
 
   test('toMany → multiple relation picker, display from ui.display', () => {
@@ -220,13 +221,33 @@ describe('fieldsFromDescriptor', () => {
     expect(WIDGET_ALIASES).toEqual({ color: 'color-preview' });
   });
 
-  test('declaration order; ui.priority is ignored', () => {
+  test('declaration order by default; ui.priority puts higher first, keeping the order among equals', () => {
+    const plain = fieldsFromDescriptor(descriptor([fd('a', 'string'), fd('b', 'string'), fd('c', 'string')]), defaultInputResolvers());
+
+    expect(plain.toArray().map((f) => f.descriptor!.name)).toEqual(['a', 'b', 'c']);
+
     const fields = fieldsFromDescriptor(
-      descriptor([fd('a', 'string'), fd('b', 'string'), fd('c', 'string', { ui: { priority: 10000 } })]),
+      descriptor([
+        fd('a', 'string'),
+        fd('b', 'string', { ui: { priority: -1 } }),
+        fd('c', 'string', { ui: { priority: 10 } }),
+        fd('d', 'string'),
+        fd('e', 'string', { ui: { priority: 10 } }),
+      ]),
       defaultInputResolvers()
     );
 
-    expect(fields.toArray().map((f) => f.descriptor!.name)).toEqual(['a', 'b', 'c']);
+    expect(fields.toArray().map((f) => f.descriptor!.name)).toEqual(['c', 'e', 'a', 'd', 'b']);
+  });
+
+  test('ui.hidden starts the column hidden', () => {
+    const fields = fieldsFromDescriptor(
+      descriptor([fd('a', 'string', { ui: { column: true, hidden: true } }), fd('b', 'string', { ui: { column: true } })]),
+      defaultInputResolvers()
+    );
+
+    expect((fields.get('a').column as any).hidden).toBe(true);
+    expect((fields.get('b').column as any).hidden).toBeUndefined();
   });
 });
 

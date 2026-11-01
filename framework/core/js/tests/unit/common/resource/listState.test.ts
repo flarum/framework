@@ -5,6 +5,7 @@ import type ItemList from '../../../../src/common/utils/ItemList';
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
 import ResourceListState from '../../../../src/common/resource/ResourceListState';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
+import ViewPreferences from '../../../../src/common/resource/ViewPreferences';
 import type { FieldDescriptor, Filter, FilterDescriptor, FilterResolver } from '../../../../src/common/resource/types';
 import { bootAdmin, descriptor, fd, schemaDocument } from './fixtures';
 
@@ -56,6 +57,8 @@ describe('ResourceListState', () => {
     find = jest.fn(() => Promise.resolve(results()));
     jest.spyOn(app.store, 'find').mockImplementation(find as any);
     setUrl('');
+    ViewPreferences.clear();
+    window.localStorage.clear();
   });
 
   afterEach(() => jest.restoreAllMocks());
@@ -237,6 +240,29 @@ describe('ResourceListState', () => {
 
     expect(urlQuery().get('page')).toBe('4');
     expect(find).toHaveBeenLastCalledWith('things', expect.objectContaining({ page: { offset: 60, limit: 20 } }));
+  });
+
+  test('a slower earlier goto cannot overwrite a newer one', async () => {
+    const state = await loaded();
+    const page = (n: number, total: number) =>
+      Object.assign([new Thing()] as Model[], { payload: { data: [], meta: { page: { total } }, links: {} }, n });
+    const deferred: ((value: unknown) => void)[] = [];
+
+    find.mockImplementation(() => new Promise((resolve) => deferred.push(resolve)));
+
+    const first = state.goto(2);
+    const second = state.goto(3);
+
+    deferred[1](page(3, 300));
+    await second;
+    deferred[0](page(2, 200));
+    await first;
+
+    expect(state.currentPage()).toBe(3);
+    expect((state.getItems() as any).length).toBe(1);
+    expect((state.getPages()[0].items as any).n).toBe(3);
+    expect(state.totalItems).toBe(300);
+    expect(state.isLoading()).toBe(false);
   });
 
   test('gotoAfterRemoval goes back a page only when the removed rows emptied it', async () => {
@@ -442,5 +468,211 @@ describe('ResourceDefinition.filters', () => {
 
     expect(filters.get('brand').input).toEqual({ type: 'search', debounce: false });
     expect(filters.get('active').input).toEqual({ type: 'tri-state' });
+  });
+});
+
+describe('ResourceListState initial view', () => {
+  const VIEW = 'flarum.resourceTable.views.view';
+  const views = descriptor([fd('name', 'string', { sortable: true }), fd('active', 'boolean')], {
+    sorts: ['name'],
+    filters: [
+      { key: 'status', kind: 'enum', enum: ['draft', 'live'], default: 'live' },
+      { key: 'active', kind: 'boolean' },
+      { key: 'scope', kind: 'enum', enum: ['mine', 'all'], required: true, default: 'mine' },
+    ],
+  });
+  let find: jest.Mock<any>;
+
+  beforeAll(() => {
+    bootAdmin();
+    app.store.models.views = Thing;
+  });
+
+  beforeEach(async () => {
+    clearDescriptorCache();
+    app.request = jest.fn(() => Promise.resolve(schemaDocument(views, 'views'))) as any;
+    await new ResourceDefinition('views').load();
+    find = jest.fn(() => Promise.resolve(results()));
+    jest.spyOn(app.store, 'find').mockImplementation(find as any);
+    setUrl('');
+    ViewPreferences.clear();
+    window.localStorage.clear();
+  });
+
+  afterEach(() => jest.restoreAllMocks());
+
+  async function loaded(options = {}) {
+    const state = new ResourceListState(new ResourceDefinition<Thing>('views'), options);
+    await state.load();
+
+    return state;
+  }
+
+  const sentFilter = () => (find.mock.calls.at(-1) as any)[1].filter;
+
+  test('without URL params or a saved view, the filter defaults apply', async () => {
+    await loaded();
+
+    expect(sentFilter()).toEqual({ status: 'live', scope: 'mine' });
+  });
+
+  test('a saved view is used; unknown filters and sorts are dropped; a filter it never named takes its default', async () => {
+    window.localStorage.setItem(VIEW, JSON.stringify({ sort: '-bogus', filter: { active: '0', gone: 'x' } }));
+
+    const state = await loaded();
+
+    expect(sentFilter()).toEqual({ '-active': '1', scope: 'mine', status: 'live' });
+    expect(state.getFilter('status')).toBe('live');
+    expect((find.mock.calls.at(-1) as any)[1].sort).toBeUndefined();
+  });
+
+  test('a saved enum value the descriptor no longer offers is dropped, so the default applies', async () => {
+    window.localStorage.setItem(VIEW, JSON.stringify({ filter: { status: 'archived', scope: 'nowhere' } }));
+
+    const state = await loaded();
+
+    expect(state.savedView()).toEqual({ sort: undefined, filter: {} });
+    expect(sentFilter()).toEqual({ status: 'live', scope: 'mine' });
+  });
+
+  test('a saved view with a cleared defaulted filter keeps it cleared', async () => {
+    window.localStorage.setItem(VIEW, JSON.stringify({ filter: { status: '' } }));
+
+    await loaded();
+
+    expect(sentFilter()).toEqual({ scope: 'mine' });
+  });
+
+  test('a cleared defaulted filter is written to the URL empty and stays cleared on reload', async () => {
+    const state = await loaded();
+
+    await state.setFilter('status', '');
+    expect(urlQuery().get('filter[status]')).toBe('');
+
+    ViewPreferences.clear();
+    window.localStorage.clear();
+    await loaded();
+
+    expect(sentFilter()).toEqual({ scope: 'mine' });
+  });
+
+  test('a URL naming some filters leaves the others to their defaults unless the saved view names them', async () => {
+    window.localStorage.setItem(VIEW, JSON.stringify({ filter: { active: '1' } }));
+    setUrl('filter[active]=0');
+
+    await loaded();
+
+    expect(sentFilter()).toEqual({ '-active': '1', scope: 'mine', status: 'live' });
+
+    window.localStorage.setItem(VIEW, JSON.stringify({ filter: { status: 'draft' } }));
+    ViewPreferences.clear();
+    setUrl('filter[active]=0');
+    await loaded();
+
+    expect(sentFilter()).toEqual({ '-active': '1', scope: 'mine' });
+  });
+
+  test('URL params win over the saved view, which loading a link does not overwrite', async () => {
+    window.localStorage.setItem(VIEW, JSON.stringify({ sort: 'name', filter: { status: 'draft' } }));
+    setUrl('filter[active]=1&q=x');
+
+    const state = await loaded();
+
+    expect(sentFilter()).toEqual({ active: '1', scope: 'mine', q: 'x' });
+    expect(state.params.sort).toBeUndefined();
+    expect(JSON.parse(window.localStorage.getItem(VIEW)!)).toEqual({ sort: 'name', filter: { status: 'draft' } });
+  });
+
+  test('a URL with only search or page params still opens the saved view', async () => {
+    window.localStorage.setItem(VIEW, JSON.stringify({ sort: 'name', filter: { status: 'draft' } }));
+    setUrl('q=x&page=2');
+
+    const state = await loaded();
+
+    expect(state.params).toEqual({ sort: 'name', q: 'x', filter: { status: 'draft', scope: 'mine' } });
+  });
+
+  test('changes save the filters and sort, not the search; an emptied view stays empty', async () => {
+    const state = await loaded();
+
+    await state.setSort('-name');
+    await state.setQuery('ab');
+    await state.setFilter('status', '');
+
+    expect(JSON.parse(window.localStorage.getItem(VIEW)!)).toEqual({ sort: '-name', filter: { scope: 'mine', status: '' } });
+
+    setUrl('');
+    await loaded();
+
+    // The user cleared `status`; its default does not come back.
+    expect(sentFilter()).toEqual({ scope: 'mine' });
+  });
+
+  test('a required filter cannot be cleared, by setFilter or clearFilters', async () => {
+    const state = await loaded();
+
+    await state.setFilter('scope', 'all');
+    await state.setFilter('scope', '');
+    expect(state.getFilter('scope')).toBe('all');
+
+    await state.clearFilters();
+    expect(state.params.filter).toEqual({ scope: 'all' });
+    expect(state.isRequired('scope')).toBe(true);
+    expect(state.isRequired('status')).toBe(false);
+  });
+
+  test('throwing storage reads as no saved view and keeps the view in memory', async () => {
+    jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('denied');
+    });
+    jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('denied');
+    });
+
+    const state = await loaded();
+
+    expect(sentFilter()).toEqual({ status: 'live', scope: 'mine' });
+
+    await state.setFilter('status', 'draft');
+    setUrl('');
+    await loaded();
+
+    expect(sentFilter()).toEqual({ status: 'draft', scope: 'mine' });
+  });
+
+  test('persist: false neither reads nor writes the saved view', async () => {
+    window.localStorage.setItem(VIEW, JSON.stringify({ filter: { status: 'draft' } }));
+
+    const state = await loaded({ persist: false });
+
+    expect(sentFilter()).toEqual({ status: 'live', scope: 'mine' });
+
+    await state.setFilter('active', '1');
+    expect(JSON.parse(window.localStorage.getItem(VIEW)!)).toEqual({ filter: { status: 'draft' } });
+  });
+
+  test('filter labels and negatable come from the descriptor when it says', async () => {
+    jest.restoreAllMocks();
+    clearDescriptorCache();
+    app.request = jest.fn(() =>
+      Promise.resolve(
+        schemaDocument(
+          descriptor([fd('active', 'boolean'), fd('status', 'string')], {
+            filters: [
+              { key: 'active', kind: 'boolean', label: 'Is active', negatable: false },
+              { key: 'status', kind: 'string' },
+              { key: 'lastSeen', kind: 'date', negatable: true },
+            ],
+          }),
+          'views'
+        )
+      )
+    ) as any;
+
+    const filters = (await new ResourceDefinition('views').load()).filters();
+
+    expect(filters.get('active')).toMatchObject({ label: 'Is active', negatable: false });
+    expect(filters.get('status')).toMatchObject({ label: 'Status', negatable: false });
+    expect(filters.get('lastSeen')).toMatchObject({ label: 'Last seen', negatable: true });
   });
 });

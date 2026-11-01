@@ -41,7 +41,7 @@ class SuspendedFilter implements FilterInterface, DescribesFilter
             return null;
         }
 
-        return ['kind' => 'boolean'];
+        return ['kind' => 'boolean', 'negatable' => true];
     }
 
     public function filter(SearchState $state, string|array $value, bool $negate): void

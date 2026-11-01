@@ -35,6 +35,7 @@ class ApiResource implements ExtenderInterface
     private array $removeSorts = [];
     private array $sort = [];
     private bool $describable = false;
+    private array $rowAbilities = [];
 
     public function __construct(
         /**
@@ -243,8 +244,36 @@ class ApiResource implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Name the attributes that carry each record's permission for the generic
+     * admin resource components' row actions, in the resource's descriptor.
+     *
+     * By default, `edit` is `canEdit` and `delete` is `canDelete`, when the
+     * resource has those attributes. Pass a null to remove a row action.
+     *
+     * ```php
+     * (new Extend\ApiResource(UserResource::class))->rowAbilities(['edit' => 'canModerate']);
+     * ```
+     *
+     * @param array<'edit'|'delete', string|null> $abilities
+     */
+    public function rowAbilities(array $abilities): self
+    {
+        $this->rowAbilities = array_merge($this->rowAbilities, $abilities);
+
+        return $this;
+    }
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
+        if ($this->rowAbilities) {
+            $container->extend('flarum.api.resource_row_abilities', function (array $abilities) {
+                $abilities[$this->resourceClass] = array_merge($abilities[$this->resourceClass] ?? [], $this->rowAbilities);
+
+                return $abilities;
+            });
+        }
+
         if ($this->describable) {
             $container->extend('flarum.api.describable_resources', function (array $resources) {
                 if (! in_array($this->resourceClass, $resources, true)) {

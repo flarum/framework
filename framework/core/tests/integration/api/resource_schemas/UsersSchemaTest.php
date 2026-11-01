@@ -16,11 +16,14 @@ use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
+require_once __DIR__.'/PinsDescriptorFixture.php';
+
 /**
  * The users descriptor, which core describes by default (no extender opt-in).
  */
 class UsersSchemaTest extends TestCase
 {
+    use PinsDescriptorFixture;
     use RetrievesAuthorizedUsers;
 
     protected function setUp(): void
@@ -209,7 +212,8 @@ class UsersSchemaTest extends TestCase
         // `lastSeenAt` needs `user.viewLastSeenAt` (moderators by default).
         $this->assertSame(['username', 'commentCount', 'discussionCount', 'joinedAt'], $descriptor['sorts']);
         // The email filter needs `user.editCredentials`, like `EmailFilter::filter()`.
-        $this->assertSame([['key' => 'group', 'kind' => 'relationship', 'related' => 'groups']], $descriptor['filters']);
+        // The last seen filter needs `user.viewLastSeenAt`, like the sort.
+        $this->assertSame(['group', 'joinedAt'], array_column($descriptor['filters'], 'key'));
 
         $this->assertSame([
             'username', 'email', 'password', 'token', 'displayName', 'avatarUrl', 'avatarSrcset',
@@ -224,5 +228,56 @@ class UsersSchemaTest extends TestCase
         $this->assertSame(['create' => true], $fields['email']['writable']);
         $this->assertSame(['create' => true], $fields['username']['writable']);
         $this->assertArrayNotHasKey('writable', $fields['groups']);
+    }
+
+    #[Test]
+    public function the_type_label_and_row_abilities_are_described()
+    {
+        $descriptor = $this->describe(1);
+
+        $this->assertSame(['one' => 'User', 'other' => 'Users'], $descriptor['label']);
+        $this->assertSame(['edit' => 'canEdit', 'delete' => 'canDelete'], $descriptor['rowAbilities']);
+    }
+
+    #[Test]
+    public function admin_gets_the_date_range_filters_with_labels()
+    {
+        $filters = array_column($this->describe(1)['filters'], null, 'key');
+
+        foreach (['joinedAt' => 'Joined', 'lastSeenAt' => 'Last seen'] as $key => $label) {
+            $this->assertSame([
+                'key' => $key,
+                'kind' => 'date',
+                'range' => true,
+                'negatable' => true,
+                'schema' => ['type' => 'string', 'format' => 'date'],
+                'label' => $label,
+            ], $filters[$key]);
+        }
+
+        $this->assertSame('Email', $filters['email']['label']);
+        $this->assertSame('Group', $filters['group']['label']);
+    }
+
+    #[Test]
+    public function username_sends_its_custom_messages_and_asks_for_live_validation()
+    {
+        $username = $this->fieldsByName($this->describe(1))['username'];
+
+        $this->assertSame([
+            'pattern' => 'The username may only contain letters, numbers, and dashes. With at least one letter.',
+            'required' => 'The username field is required.',
+        ], $username['constraints']['messages']);
+        // `unique` is checked by the server only.
+        $this->assertTrue($username['ui']['liveValidate']);
+    }
+
+    /**
+     * The admin's descriptor is what `js/tests/fixtures/descriptors/users.json` holds for the JS tests.
+     */
+    #[Test]
+    public function descriptor_matches_the_js_fixture()
+    {
+        $this->assertDescriptorFixture('users');
     }
 }

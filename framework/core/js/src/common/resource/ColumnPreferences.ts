@@ -1,16 +1,16 @@
+import GuardedStorage from './guardedStorage';
+
 /**
  * The columns of a resource table the user has explicitly shown or hidden, per resource type.
  *
  * Only explicit choices are stored, as `{columnKey: visible}`. A column the user never toggled
  * follows its `hidden` default, so a default-hidden column added later still starts hidden.
  *
- * The choices are kept in `localStorage` under `flarum.resourceTable.{type}.columns` (a JSON
- * object). When storage is unavailable or full (private mode, quota, a sandboxed frame), they live
- * in memory for the session. The in-memory value wins over storage, so a write that failed is
- * still read back.
+ * The choices are kept under `flarum.resourceTable.{type}.columns` (a JSON object), see
+ * `GuardedStorage`.
  */
 export default class ColumnPreferences {
-  protected static memory = new Map<string, Record<string, boolean>>();
+  protected static storage = new GuardedStorage();
 
   /**
    * The storage key of a type's column preferences.
@@ -24,34 +24,14 @@ export default class ColumnPreferences {
    * name columns that no longer exist; callers ignore those.
    */
   static load(type: string): Map<string, boolean> {
-    const remembered = this.memory.get(type);
-
-    if (remembered) return new Map(Object.entries(remembered));
-
-    try {
-      const raw = window.localStorage.getItem(this.key(type));
-
-      return this.parse(raw === null ? null : JSON.parse(raw));
-    } catch {
-      // Unavailable storage or a corrupt value: no choices.
-    }
-
-    return new Map();
+    return this.parse(this.storage.read(this.key(type)) ?? null);
   }
 
   /**
    * Store the explicit choices, column key to visible. Never throws.
    */
   static save(type: string, choices: Map<string, boolean>): void {
-    const value = Object.fromEntries(choices);
-
-    this.memory.set(type, value);
-
-    try {
-      window.localStorage.setItem(this.key(type), JSON.stringify(value));
-    } catch {
-      // Unavailable or full storage: the in-memory value lasts for the session.
-    }
+    this.storage.write(this.key(type), Object.fromEntries(choices));
   }
 
   /**
@@ -60,7 +40,7 @@ export default class ColumnPreferences {
    * @internal
    */
   static clear(): void {
-    this.memory.clear();
+    this.storage.clear();
   }
 
   protected static parse(value: unknown): Map<string, boolean> {

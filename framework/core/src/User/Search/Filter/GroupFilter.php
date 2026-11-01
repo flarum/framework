@@ -35,7 +35,7 @@ class GroupFilter implements FilterInterface, DescribesFilter
      */
     public function describe(User $actor): ?array
     {
-        return ['kind' => 'relationship', 'related' => 'groups'];
+        return ['kind' => 'relationship', 'related' => 'groups', 'negatable' => true];
     }
 
     public function filter(SearchState $state, string|array $value, bool $negate): void

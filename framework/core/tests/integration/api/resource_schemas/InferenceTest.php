@@ -9,8 +9,10 @@
 
 namespace Flarum\Tests\integration\api\resource_schemas;
 
+use Closure;
 use Flarum\Api\Context;
 use Flarum\Api\Describe\DescribeContext;
+use Flarum\Api\Describe\FieldDescriber;
 use Flarum\Api\Describe\ResourceDescriber;
 use Flarum\Api\Endpoint;
 use Flarum\Api\JsonApi;
@@ -24,6 +26,7 @@ use Flarum\Locale\LocaleManager;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Guest;
 use Flarum\User\User;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 use InvalidArgumentException;
 use Laminas\Diactoros\ServerRequest;
@@ -232,9 +235,99 @@ class InferenceTest extends TestCase
     }
 
     #[Test]
-    public function the_url_rule_is_reported_as_the_url_format()
+    public function a_custom_rule_with_a_protected_condition_is_described()
     {
-        $this->assertSame(['format' => 'url'], $this->field($this->describe(), 'website')['constraints']);
+        $field = $this->field($this->describe(), 'customCondition');
+
+        $this->assertSame(['maxLength' => 20], $field['constraints']);
+        $this->assertTrue($field['ui']['liveValidate']);
+    }
+
+    #[Test]
+    public function a_field_whose_rules_cannot_be_inspected_fails_closed()
+    {
+        $this->app()->getContainer()->bind(FieldDescriber::class, ScratchThrowingFieldDescriber::class);
+
+        $descriptor = $this->describe();
+        $field = $this->field($descriptor, 'mandatory');
+
+        $this->assertNotNull($field);
+        $this->assertTrue($field['requiredConditional']);
+        $this->assertArrayNotHasKey('required', $field);
+        $this->assertArrayNotHasKey('constraints', $field);
+        $this->assertTrue($field['ui']['liveValidate']);
+        $this->assertSame(['create' => true, 'update' => true], $field['writable']);
+
+        // Other fields are unaffected.
+        $this->assertSame(['format' => 'uri'], $this->field($descriptor, 'website')['constraints']);
+    }
+
+    #[Test]
+    public function the_url_rule_is_reported_as_the_uri_format()
+    {
+        $this->assertSame(['format' => 'uri'], $this->field($this->describe(), 'website')['constraints']);
+    }
+
+    #[Test]
+    public function a_rule_whose_condition_fails_for_the_actor_is_not_reported()
+    {
+        $this->assertSame(['maxLength' => 50], $this->field($this->describe(), 'actorConditional')['constraints']);
+    }
+
+    #[Test]
+    public function closure_built_and_object_rules_are_reported()
+    {
+        $descriptor = $this->describe();
+
+        $this->assertSame(['enum' => ['r', 'g']], $this->field($descriptor, 'enumByClosure')['constraints']);
+        $this->assertSame(['enum' => ['x', 'y']], $this->field($descriptor, 'inObject')['constraints']);
+        $this->assertSame(['not' => ['enum' => ['z']]], $this->field($descriptor, 'notInObject')['constraints']);
+    }
+
+    #[Test]
+    public function constraints_that_differ_on_update_are_reported_separately()
+    {
+        $field = $this->field($this->describe(), 'perModeConstraint');
+
+        $this->assertSame(['maxLength' => 10], $field['constraints']);
+        $this->assertSame(['maxLength' => 20], $field['constraintsOnUpdate']);
+        $this->assertArrayNotHasKey('constraintsOnUpdate', $this->field($this->describe(), 'rank'));
+    }
+
+    #[Test]
+    public function an_update_only_field_reports_its_update_constraints_as_constraints()
+    {
+        $field = $this->field($this->describe(), 'updateOnlyConstraint');
+
+        $this->assertSame(['maxLength' => 20], $field['constraints']);
+        $this->assertArrayNotHasKey('constraintsOnUpdate', $field);
+    }
+
+    #[Test]
+    public function boolean_exclusive_type_bounds_are_reported_as_numbers()
+    {
+        $this->assertEquals(
+            ['exclusiveMinimum' => 0, 'exclusiveMaximum' => 1, 'multipleOf' => 0.25],
+            $this->field($this->describe(), 'ratio')['constraints']
+        );
+    }
+
+    #[Test]
+    public function prefixed_field_references_are_reported_by_name()
+    {
+        $this->assertSame(
+            ['create' => [['rule' => 'with', 'fields' => ['flavour', 'untyped']]], 'update' => [['rule' => 'with', 'fields' => ['flavour', 'untyped']]]],
+            $this->field($this->describe(), 'prefixedReference')['requiredWhen'] ?? null
+        );
+    }
+
+    #[Test]
+    public function sometimes_with_required_is_filled_rather_than_required()
+    {
+        $field = $this->field($this->describe(), 'sometimesRequired');
+
+        $this->assertArrayNotHasKey('required', $field);
+        $this->assertSame(['filled' => true], $field['constraints'] ?? null);
     }
 
     #[Test]
@@ -500,6 +593,27 @@ class InferenceTest extends TestCase
     }
 }
 
+class ScratchProtectedConditionRule implements ValidationRule
+{
+    protected $condition = 'not a closure';
+
+    public function validate(string $attribute, mixed $value, Closure $fail): void
+    {
+    }
+}
+
+class ScratchThrowingFieldDescriber extends FieldDescriber
+{
+    protected function constraints(array $type, array $rules, string $kind): array
+    {
+        if (in_array('required', $rules, true)) {
+            throw new RuntimeException('cannot inspect');
+        }
+
+        return parent::constraints($type, $rules, $kind);
+    }
+}
+
 /**
  * @extends AbstractDatabaseResource<Group>
  */
@@ -569,6 +683,10 @@ class ScratchGroupResource extends AbstractDatabaseResource
             Schema\Str::make('mandatory')
                 ->requiredOnCreate()
                 ->writable(),
+            Schema\Str::make('customCondition')
+                ->rule(fn () => new ScratchProtectedConditionRule)
+                ->maxLength(20)
+                ->writable(),
             Schema\Str::make('mandatoryOnUpdate')
                 ->requiredOnUpdate()
                 ->writable(),
@@ -594,6 +712,38 @@ class ScratchGroupResource extends AbstractDatabaseResource
                 ->rule('nullable')
                 ->rule('filled')
                 ->writable(),
+            Schema\Str::make('actorConditional')
+                ->rule('max:50')
+                ->rule('max:5', fn (Context $context) => $context->getActor()->id !== 1)
+                ->rule('regex:/^a/', fn (Context $context) => $context->getActor()->id !== 1)
+                ->writable(),
+            Schema\Str::make('enumByClosure')
+                ->rule(fn () => Rule::enum(InferenceColour::class)->except(InferenceColour::Blue))
+                ->writable(),
+            Schema\Str::make('inObject')
+                ->rules([Rule::in(['x', 'y'])], true, false)
+                ->writable(),
+            Schema\Str::make('notInObject')
+                ->rules([Rule::notIn(['z'])], true, false)
+                ->writable(),
+            Schema\Str::make('perModeConstraint')
+                ->rule('max:10', fn (Context $context) => $context->creating())
+                ->rule('max:20', fn (Context $context) => $context->updating())
+                ->writable(),
+            Schema\Str::make('updateOnlyConstraint')
+                ->rule('max:10', fn (Context $context) => $context->creating())
+                ->rule('max:20', fn (Context $context) => $context->updating())
+                ->writableOnUpdate(),
+            Schema\Number::make('ratio')
+                ->type(\Tobyz\JsonApiServer\Schema\Type\Number::make()->minimum(0, true)->maximum(1, true)->multipleOf(0.25))
+                ->writable(),
+            Schema\Str::make('prefixedReference')
+                ->rule('required_with:attributes.flavour,relationships.untyped')
+                ->writable(),
+            Schema\Str::make('sometimesRequired')
+                ->rule('sometimes')
+                ->required()
+                ->writable(),
             UntypedRelationship::make('untyped'),
             Schema\Str::make('labelKey')
                 ->ui(['label' => 'core.admin.users.grid.columns.join_time.title', 'column' => true]),
@@ -606,6 +756,13 @@ class ScratchGroupResource extends AbstractDatabaseResource
             Schema\DateTime::make('joinTime'),
         ];
     }
+}
+
+enum InferenceColour: string
+{
+    case Red = 'r';
+    case Green = 'g';
+    case Blue = 'b';
 }
 
 /**
@@ -658,7 +815,7 @@ class ScratchRecordingGroupResource extends ScratchGroupResource
 }
 
 /**
- * Produces every optional top-level key: pagination, defaultSort, search, sorts, filters and delete.
+ * Produces every optional top-level key: pagination, defaultSort, search, sorts, filters, delete and rowAbilities.
  *
  * @extends AbstractDatabaseResource<User>
  */
@@ -690,6 +847,8 @@ class ScratchFullUserResource extends AbstractDatabaseResource
     {
         return [
             Schema\Str::make('username'),
+            Schema\Boolean::make('canEdit')
+                ->get(fn () => true),
         ];
     }
 

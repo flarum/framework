@@ -36,7 +36,7 @@ class EmailFilter implements FilterInterface, DescribesFilter
             return null;
         }
 
-        return ['kind' => 'string'];
+        return ['kind' => 'string', 'negatable' => true];
     }
 
     public function filter(SearchState $state, string|array $value, bool $negate): void

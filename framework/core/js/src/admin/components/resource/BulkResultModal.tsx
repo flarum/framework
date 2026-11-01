@@ -4,6 +4,7 @@ import Modal, { type IInternalModalAttrs } from '../../../common/components/Moda
 import type Model from '../../../common/Model';
 import ItemList from '../../../common/utils/ItemList';
 import RequestError from '../../../common/utils/RequestError';
+import { actionLabel, type ResourceAction } from '../../../common/resource/actions';
 import type { BulkSummary } from '../../../common/resource/BulkRunner';
 import type Mithril from 'mithril';
 import type ResourceDefinition from '../../../common/resource/ResourceDefinition';
@@ -13,18 +14,38 @@ export interface BulkResultModalAttrs<M extends Model = Model> extends IInternal
   summary: BulkSummary<M>;
   /** Names the records through `definition.recordLabel()`; without it, the default label. */
   definition?: ResourceDefinition<M>;
+  /** The action that ran; without it (or for the built-in `delete`), the summary speaks of deleting. */
+  action?: ResourceAction<M>;
 }
 
 /**
- * The outcome of a bulk delete (`bulkDeleteAction()`): how many records were deleted,
- * each failed record with its reason, and the selected records it left out.
+ * One line of failures: the records that failed for the same reason.
+ */
+export interface FailureGroup<M> {
+  /** The JSON:API error `code`, else its `detail`, else `unknown`. */
+  key: string;
+  reason: Mithril.Children;
+  models: M[];
+}
+
+/**
+ * The outcome of a `ResourceAction` over several records: how many it processed, the failed ones
+ * grouped by reason ("N not processed: reason", each with the list of records) and the records it
+ * left out.
  */
 export default class BulkResultModal<M extends Model = Model, Attrs extends BulkResultModalAttrs<M> = BulkResultModalAttrs<M>> extends Modal<Attrs> {
   className(): string {
     return 'BulkResultModal Modal--small';
   }
 
+  /** Whether the summary is of a delete (no action, or the built-in `delete`). */
+  isDelete(): boolean {
+    return !this.attrs.action || this.attrs.action.key === 'delete';
+  }
+
   title(): Mithril.Children {
+    if (!this.isDelete()) return actionLabel(this.attrs.action!, this.attrs.summary.ok.length);
+
     return app.translator.trans('core.admin.resource.bulk.result_title');
   }
 
@@ -44,16 +65,20 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
   }
 
   /**
-   * `deleted`, then `failed` and `skipped` when they have records.
+   * `deleted` (the processed count), then `failed` (one line per `failureGroups()` entry) and
+   * `skipped` when they have records.
    */
   bodyItems(): ItemList<Mithril.Children> {
     const { ok, failed, skipped } = this.attrs.summary;
     const items = new ItemList<Mithril.Children>();
+    const remove = this.isDelete();
 
     items.add(
       'deleted',
       <p className="BulkResultModal-deleted" data-count={ok.length}>
-        {app.translator.trans('core.admin.resource.bulk.result_deleted', { count: ok.length })}
+        {remove
+          ? app.translator.trans('core.admin.resource.bulk.result_deleted', { count: ok.length })
+          : app.translator.trans('core.lib.resource.bulk.result_processed', { count: ok.length })}
       </p>,
       100
     );
@@ -62,14 +87,13 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
       items.add(
         'failed',
         <div className="BulkResultModal-failed" data-count={failed.length}>
-          <p>{app.translator.trans('core.admin.resource.bulk.result_failed', { count: failed.length })}</p>
-          <ul>
-            {failed.map(({ model, error }) => (
-              <li data-id={model.id()}>
-                <strong>{this.label(model)}</strong>: {this.reason(error)}
-              </li>
-            ))}
-          </ul>
+          {this.failureGroups().map((group) =>
+            this.groupView(
+              group.models,
+              app.translator.trans('core.lib.resource.bulk.result_failed_group', { count: group.models.length, reason: group.reason }),
+              { 'data-key': group.key }
+            )
+          )}
         </div>,
         90
       );
@@ -79,12 +103,12 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
       items.add(
         'skipped',
         <div className="BulkResultModal-skipped" data-count={skipped.length}>
-          <p>{app.translator.trans('core.admin.resource.bulk.result_skipped', { count: skipped.length })}</p>
-          <ul>
-            {skipped.map((model) => (
-              <li data-id={model.id()}>{this.label(model)}</li>
-            ))}
-          </ul>
+          {this.groupView(
+            skipped,
+            remove
+              ? app.translator.trans('core.admin.resource.bulk.result_skipped', { count: skipped.length })
+              : app.translator.trans('core.lib.resource.bulk.result_skipped', { count: skipped.length })
+          )}
         </div>,
         80
       );
@@ -93,13 +117,49 @@ export default class BulkResultModal<M extends Model = Model, Attrs extends Bulk
     return items;
   }
 
+  /** One group: its line, expanding to the records' labels. */
+  groupView(models: M[], summary: Mithril.Children, attrs: Record<string, unknown> = {}): Mithril.Children {
+    return (
+      <details className="BulkResultModal-group" data-count={models.length} {...attrs}>
+        <summary>{summary}</summary>
+        <ul>
+          {models.map((model) => (
+            <li data-id={model.id()}>{this.label(model)}</li>
+          ))}
+        </ul>
+      </details>
+    );
+  }
+
   /**
-   * Why one record failed: the message core's error alert would have shown for the request (the
-   * validation details for a 422), else a generic message.
+   * The failed records grouped by the first JSON:API error's `code`, else its `detail`, else
+   * `unknown`, in order of first appearance.
+   */
+  failureGroups(): FailureGroup<M>[] {
+    const groups = new Map<string, FailureGroup<M>>();
+
+    this.attrs.summary.failed.forEach(({ model, error }) => {
+      const first = error instanceof RequestError ? error.response?.errors?.[0] : undefined;
+      const key = first?.code || first?.detail || 'unknown';
+      const group = groups.get(key);
+
+      if (group) group.models.push(model);
+      else groups.set(key, { key, reason: this.reason(error), models: [model] });
+    });
+
+    return [...groups.values()];
+  }
+
+  /**
+   * Why a record failed: the first JSON:API error's `detail`, else the message core's error alert
+   * would have shown for the request, else a generic message.
    */
   reason(error: unknown): Mithril.Children {
-    if (error instanceof RequestError && error.alert?.content) {
-      return error.alert.content as Mithril.Children;
+    if (error instanceof RequestError) {
+      const detail = error.response?.errors?.[0]?.detail;
+
+      if (detail) return detail;
+      if (error.alert?.content) return error.alert.content as Mithril.Children;
     }
 
     return app.translator.trans('core.admin.resource.bulk.result_unknown_error');

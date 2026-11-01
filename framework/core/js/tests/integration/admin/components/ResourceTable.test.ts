@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import { bulkDeleteAction } from '../../../../src/common/resource/bulkDelete';
 import m from 'mithril';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
@@ -7,14 +6,16 @@ import ResourceTable, { type ColumnData } from '../../../../src/admin/components
 import ExportCsvButton from '../../../../src/admin/components/resource/ExportCsvButton';
 import ResourceFormModal from '../../../../src/admin/components/resource/ResourceFormModal';
 import BulkResultModal from '../../../../src/admin/components/resource/BulkResultModal';
-import Button from '../../../../src/common/components/Button';
+import ResourceActionModal from '../../../../src/admin/components/resource/ResourceActionModal';
+import ResourceDeleteModal from '../../../../src/admin/components/resource/ResourceDeleteModal';
+import RequestError from '../../../../src/common/utils/RequestError';
 import Model from '../../../../src/common/Model';
 import ItemList from '../../../../src/common/utils/ItemList';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
 import ColumnPreferences from '../../../../src/common/resource/ColumnPreferences';
-import type { BulkActionContext, BulkRunner, BulkSummary } from '../../../../src/common/resource/BulkRunner';
-import ResourceListState, { type ResourceSelection } from '../../../../src/common/resource/ResourceListState';
+import type { BulkRunner, BulkSummary } from '../../../../src/common/resource/BulkRunner';
+import ResourceListState from '../../../../src/common/resource/ResourceListState';
 import { bootAdmin, descriptor, fd, schemaDocument } from '../../../unit/common/resource/fixtures';
 
 class Thing extends Model {}
@@ -23,6 +24,7 @@ class Thing extends Model {}
 const things = descriptor([fd('name', 'string', { sortable: true }), fd('price', 'number', { sortable: true }), fd('notes', 'string')], {
   sorts: ['name', 'price'],
   filters: [{ key: 'status', kind: 'enum', enum: ['draft', 'live'] }],
+  rowAbilities: { edit: 'canEdit', delete: 'canDelete' },
 });
 
 /** ResourceTable's search debounce, in ms. */
@@ -462,24 +464,41 @@ describe('ResourceTable', () => {
 
   describe('bulk select', () => {
     class BulkDefinition extends ResourceDefinition<Thing> {
-      bulkActions(selection: ResourceSelection, context: BulkActionContext<Thing>) {
-        const items = super.bulkActions(selection, context);
-
-        items.add('archive', m(Button, { className: 'Button Things-archive' }, 'Archive'));
-
-        return items;
+      resourceActions() {
+        return super
+          .resourceActions()
+          .add('archive', { key: 'archive', label: 'Archive', className: 'Things-archive', scope: 'bulk', run: () => Promise.resolve() });
       }
     }
 
+    /** Offers the built-in delete on the selection too. */
     class DeleteDefinition extends ResourceDefinition<Thing> {
-      bulkActions(selection: ResourceSelection, context: BulkActionContext<Thing>) {
-        return super.bulkActions(selection, context).add('delete', bulkDeleteAction(context));
+      resourceActions() {
+        const items = super.resourceActions();
+
+        items.setContent('delete', { ...items.get('delete'), scope: 'both' });
+
+        return items;
       }
     }
 
     function check(out: any, selector: string, checked: boolean) {
       out.first(selector).checked = checked;
       out.trigger(selector, 'change');
+    }
+
+    /** Render the last `ResourceActionModal` shown and submit it. */
+    async function confirmAction() {
+      const [modal, attrs] = (app.modal.show as jest.Mock).mock.calls.at(-1) as [any, any];
+
+      expect(modal).toBe(ResourceActionModal);
+
+      const out = mq(ResourceActionModal, { state: {}, animateShow: () => {}, animateHide: jest.fn(), ...attrs });
+      out.trigger('form', 'submit', {} as Event);
+      await flush();
+      await flush();
+
+      return out;
     }
 
     test('with no bulk actions there is no checkbox column', async () => {
@@ -546,18 +565,17 @@ describe('ResourceTable', () => {
 
     test('the bulk actions are built once per redraw', async () => {
       const definition = new BulkDefinition('things');
-      const bulkActions = jest.spyOn(definition, 'bulkActions');
+      const resourceActions = jest.spyOn(definition, 'resourceActions');
       const out = await rendered({ definition });
 
-      bulkActions.mockClear();
+      resourceActions.mockClear();
       out.redraw();
 
-      expect(bulkActions).toHaveBeenCalledTimes(1);
+      expect(resourceActions).toHaveBeenCalledTimes(1);
     });
 
-    test("the table's bulkRunner() is the runner its bulk actions get", async () => {
-      const runner: BulkRunner = { run: jest.fn() as any };
-      const contexts: BulkActionContext<Thing>[] = [];
+    test("the table's bulkRunner() runs its bulk actions", async () => {
+      const runner: BulkRunner = { run: jest.fn(() => Promise.resolve({ ok: [], failed: [] })) as any };
 
       class RunnerTable extends ResourceTable<Thing> {
         bulkRunner(): BulkRunner {
@@ -565,42 +583,16 @@ describe('ResourceTable', () => {
         }
       }
 
-      class SpyDefinition extends BulkDefinition {
-        bulkActions(selection: ResourceSelection, context: BulkActionContext<Thing>) {
-          contexts.push(context);
-
-          return super.bulkActions(selection, context);
-        }
-      }
-
-      const out = mq(RunnerTable, { definition: new SpyDefinition('things') });
+      const out = mq(RunnerTable, { definition: new BulkDefinition('things') });
       await flush();
       await flush();
       out.redraw();
 
-      expect(contexts.at(-1)!.runner).toBe(runner);
-    });
-
-    test("the definition's bulkDelete() button runs its runBulkDelete()", async () => {
-      const run = jest.fn(() => Promise.resolve(null));
-
-      class OwnDeleteDefinition extends ResourceDefinition<Thing> {
-        bulkActions(selection: ResourceSelection, context: BulkActionContext<Thing>) {
-          return super.bulkActions(selection, context).add('delete', this.bulkDelete(context));
-        }
-
-        runBulkDelete(context: BulkActionContext<Thing>) {
-          return run(context);
-        }
-      }
-
-      const out = await rendered({ definition: new OwnDeleteDefinition('things') });
-
       check(out, 'tr[data-id="1"] input.ResourceTable-select', true);
-      out.click('.ResourceTable-bulk .ResourceTable-bulkDelete');
+      out.click('.ResourceTable-bulk .Things-archive');
       await flush();
 
-      expect(run).toHaveBeenCalledTimes(1);
+      expect(runner.run).toHaveBeenCalledTimes(1);
     });
 
     test('a bulk delete whose reload fails leaves no unhandled rejection', async () => {
@@ -611,12 +603,11 @@ describe('ResourceTable', () => {
       try {
         const out = await rendered({ definition: new DeleteDefinition('things') });
         app.request = jest.fn(() => Promise.resolve()) as any;
-        jest.spyOn(window, 'confirm').mockImplementation(() => true);
         find.mockImplementation(() => Promise.reject(new Error('500')));
 
         check(out, 'tr[data-id="1"] input.ResourceTable-select', true);
         out.click('.ResourceTable-bulk .ResourceTable-bulkDelete');
-        await flush();
+        await confirmAction();
         await flush();
         await new Promise((r) => setTimeout(r, 10));
 
@@ -627,7 +618,7 @@ describe('ResourceTable', () => {
       }
     });
 
-    test('bulkDelete deletes the deletable selected rows and reports the skipped one', async () => {
+    test('a bulk delete deletes the deletable selected rows and reports the skipped one', async () => {
       find.mockImplementation(() =>
         Promise.resolve(results([thing('1', { canDelete: true }), thing('2', { canDelete: false }), thing('3', { canDelete: true, name: 'Third' })]))
       );
@@ -635,14 +626,16 @@ describe('ResourceTable', () => {
       const out = await rendered({ definition: new DeleteDefinition('things') });
       const request = jest.fn((_options: any) => Promise.resolve());
       app.request = request as any;
-      const confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true);
+      const confirm = jest.spyOn(window, 'confirm');
 
       check(out, '.ResourceTable-selectAll', true);
       out.click('.ResourceTable-bulk .ResourceTable-bulkDelete');
-      await flush();
-      await flush();
 
-      expect(confirm).toHaveBeenCalledTimes(1);
+      // The confirmation is a modal counting the deletable rows, never the native dialog.
+      const dialog = await confirmAction();
+
+      expect(dialog).toContainRaw('Delete 2 entries?');
+      expect(confirm).not.toHaveBeenCalled();
 
       const deletes = request.mock.calls.map(([options]) => options).filter((options) => options.method === 'DELETE');
       expect(deletes.map((options) => options.url).sort()).toEqual(['https://example.test/api/things/1', 'https://example.test/api/things/3']);
@@ -663,6 +656,260 @@ describe('ResourceTable', () => {
 
       // The list was refreshed afterwards.
       expect(find.mock.calls.length).toBeGreaterThan(1);
+    });
+  });
+  describe('declarative actions', () => {
+    const abilities = descriptor([fd('name', 'string'), fd('price', 'number')], { rowAbilities: { edit: 'mayEdit', delete: 'mayDelete' } });
+
+    /** Offers the built-in delete on the selection too. */
+    class BulkDeleteDefinition extends ResourceDefinition<Thing> {
+      resourceActions() {
+        const items = super.resourceActions();
+
+        items.setContent('delete', { ...items.get('delete'), scope: 'both' });
+
+        return items;
+      }
+    }
+
+    async function withAbilities(definition: ResourceDefinition<Thing> = new BulkDeleteDefinition('things')) {
+      clearDescriptorCache();
+      app.request = jest.fn(() => Promise.resolve(schemaDocument(abilities))) as any;
+      // The descriptor loads through the real store.
+      (app.store.find as any).mockRestore();
+      await new ResourceDefinition('things').load();
+      jest.spyOn(app.store, 'find').mockImplementation(find as any);
+      find.mockImplementation(() =>
+        Promise.resolve(
+          results([
+            thing('1', { mayEdit: true, mayDelete: true, canEdit: false, canDelete: false }),
+            thing('2', { mayEdit: false, mayDelete: false, canEdit: true, canDelete: true }),
+          ])
+        )
+      );
+
+      return rendered({ definition });
+    }
+
+    function lastModal(): [any, any] {
+      return (app.modal.show as jest.Mock).mock.calls.at(-1) as [any, any];
+    }
+
+    function selectAll(out: any) {
+      out.first('.ResourceTable-selectAll').checked = true;
+      out.trigger('.ResourceTable-selectAll', 'change');
+    }
+
+    test('the built-in delete is on rows only by default: no checkbox column', async () => {
+      const out = await withAbilities(new ResourceDefinition<Thing>('things'));
+
+      expect(out).toHaveElement('tr[data-id="1"] .ResourceTable-delete');
+      expect(out).not.toHaveElement('th .ResourceTable-selectAll');
+      expect(out).not.toHaveElement('.ResourceTable-bulkDelete');
+    });
+
+    test('a row action running for a record shows loading on that row only and ignores a second click', async () => {
+      let finish: () => void = () => {};
+      const run = jest.fn(() => new Promise<void>((resolve) => (finish = resolve)));
+
+      class PingDefinition extends ResourceDefinition<Thing> {
+        resourceActions() {
+          return super.resourceActions().add('ping', { key: 'ping', label: 'Ping', scope: 'row', run });
+        }
+      }
+
+      const out = await withAbilities(new PingDefinition('things'));
+
+      out.click('tr[data-id="1"] .ResourceTable-ping');
+      out.redraw();
+
+      expect(out).toHaveElement('tr[data-id="1"] .ResourceTable-ping.loading');
+      expect(out).not.toHaveElement('tr[data-id="2"] .ResourceTable-ping.loading');
+
+      out.click('tr[data-id="1"] .ResourceTable-ping');
+      expect(run).toHaveBeenCalledTimes(1);
+
+      finish();
+      await flush();
+      out.redraw();
+
+      expect(out).not.toHaveElement('tr[data-id="1"] .ResourceTable-ping.loading');
+    });
+
+    test('ResourceActionModal builds the form inputs once, not per redraw', () => {
+      const definition = new ResourceDefinition<Thing>('things');
+      const formInputs = jest.spyOn(definition, 'formInputs');
+      const action = {
+        key: 'tag',
+        label: 'Tag',
+        fields: () => new ItemList<any>().add('note', { label: 'Note', input: { type: 'text' } }),
+        run: () => Promise.resolve(),
+      };
+      const dialog = mq(ResourceActionModal, {
+        state: {},
+        animateShow: () => {},
+        animateHide: jest.fn(),
+        definition,
+        action,
+        models: [thing('1', {})],
+        context: { list: {}, runner: {}, showResult: () => {} },
+      });
+
+      dialog.redraw();
+      dialog.redraw();
+
+      expect(dialog).toHaveElement('input[name=note]');
+      expect(formInputs).toHaveBeenCalledTimes(1);
+    });
+
+    test('without rowAbilities there is no edit or delete action', async () => {
+      clearDescriptorCache();
+      app.request = jest.fn(() => Promise.resolve(schemaDocument(descriptor([fd('name', 'string')])))) as any;
+      (app.store.find as any).mockRestore();
+      await new ResourceDefinition('things').load();
+      jest.spyOn(app.store, 'find').mockImplementation(find as any);
+
+      const out = await rendered({ definition: new ResourceDefinition<Thing>('things') });
+
+      expect(out).toHaveElement('tr[data-id="1"]');
+      expect(out).not.toHaveElement('.ResourceTable-edit');
+      expect(out).not.toHaveElement('.ResourceTable-delete');
+      expect(out).not.toHaveElement('th .ResourceTable-selectAll');
+    });
+
+    test('edit and delete follow rowAbilities, not canEdit/canDelete; a bulk delete adds the checkbox column', async () => {
+      const out = await withAbilities();
+
+      expect(out).toHaveElement('tr[data-id="1"] .ResourceTable-edit');
+      expect(out).toHaveElement('tr[data-id="1"] .ResourceTable-delete');
+      expect(out).not.toHaveElement('tr[data-id="2"] .ResourceTable-edit');
+      expect(out).not.toHaveElement('tr[data-id="2"] .ResourceTable-delete');
+      expect(out).toHaveElement('th .ResourceTable-selectAll');
+      expect(out).toHaveElement('.ResourceTable-bulk .ResourceTable-bulkDelete');
+    });
+
+    test('a row delete opens the delete modal; a bulk delete confirms in ResourceActionModal and skips the other row', async () => {
+      const out = await withAbilities();
+
+      out.click('tr[data-id="1"] .ResourceTable-delete');
+      expect(lastModal()[0]).toBe(ResourceDeleteModal);
+
+      selectAll(out);
+      out.click('.ResourceTable-bulk .ResourceTable-bulkDelete');
+
+      const [modal, attrs] = lastModal();
+      expect(modal).toBe(ResourceActionModal);
+
+      const dialog = mq(ResourceActionModal, { state: {}, animateShow: () => {}, animateHide: jest.fn(), ...attrs });
+      expect(dialog).toContainRaw('Delete 1 entry?');
+      expect(dialog).toHaveElement('.ResourceActionModal-skipped');
+    });
+
+    test("a custom action's fields are collected in the modal and passed to run(); non-applicable rows are skipped", async () => {
+      const run = jest.fn((_model: Thing, _values: Record<string, unknown>) => Promise.resolve());
+      let tagStream: ((value?: unknown) => unknown) | null = null;
+
+      class TagDefinition extends ResourceDefinition<Thing> {
+        resourceActions() {
+          const items = super.resourceActions();
+
+          items.add('tag', {
+            key: 'tag',
+            label: 'Tag',
+            icon: 'fas fa-tag',
+            applies: (model: Thing) => model.id() === '1',
+            fields: () =>
+              new ItemList<any>()
+                .add('note', { label: 'Note', input: { type: 'text' }, value: () => 'none' })
+                .add('tag', { label: 'Tag name', input: (ctx: any) => ((tagStream = ctx.stream), m('span.TagInput')) }),
+            run,
+          });
+
+          return items;
+        }
+      }
+
+      const out = await withAbilities(new TagDefinition('things'));
+
+      // A both-scoped action without open() runs through the modal from a row too.
+      expect(out).toHaveElement('tr[data-id="1"] .ResourceTable-tag');
+      expect(out).not.toHaveElement('tr[data-id="2"] .ResourceTable-tag');
+
+      selectAll(out);
+      out.click('.ResourceTable-bulk .ResourceTable-bulkTag');
+
+      const [, attrs] = lastModal();
+      const done = jest.fn();
+      const dialog = mq(ResourceActionModal, { state: {}, animateShow: () => {}, animateHide: jest.fn(), ...attrs, ondone: done });
+
+      // The spec input renders through the definition's form inputs; the function input gets its stream.
+      expect(dialog).toHaveElement('.ResourceActionModal-field--note input');
+      expect(dialog).toHaveElement('.ResourceActionModal-field--tag .TagInput');
+      tagStream!('red');
+      dialog.trigger('form', 'submit', {} as Event);
+      await flush();
+      await flush();
+
+      expect(run).toHaveBeenCalledTimes(1);
+      expect(run.mock.calls[0][0].id()).toBe('1');
+      expect(run.mock.calls[0][1]).toEqual({ note: 'none', tag: 'red' });
+
+      const [result, resultAttrs] = lastModal();
+      expect(result).toBe(BulkResultModal);
+      expect(resultAttrs.action.key).toBe('tag');
+      expect(resultAttrs.summary.skipped.map((m: Thing) => m.id())).toEqual(['2']);
+      expect(done).toHaveBeenCalledWith(resultAttrs.summary);
+    });
+
+    test('a non-destructive action without confirm or fields runs without a modal', async () => {
+      const run = jest.fn(() => Promise.resolve());
+
+      class TouchDefinition extends ResourceDefinition<Thing> {
+        resourceActions() {
+          return super.resourceActions().add('touch', { key: 'touch', label: 'Touch', scope: 'bulk' as const, run });
+        }
+      }
+
+      const out = await withAbilities(new TouchDefinition('things'));
+
+      expect(out).not.toHaveElement('tr .ResourceTable-touch');
+
+      selectAll(out);
+      out.click('.ResourceTable-bulk .ResourceTable-bulkTouch');
+      await flush();
+
+      expect(run).toHaveBeenCalledTimes(2);
+      expect(lastModal()[0]).toBe(BulkResultModal);
+    });
+
+    test('BulkResultModal groups failures by error code, then detail, one line each with the records', () => {
+      const error = (errors: unknown[]) => new RequestError(422, JSON.stringify({ errors }), {} as any, {} as any);
+      const [a, b, c, d] = ['11', '12', '13', '14'].map((id) => thing(id, { name: `Thing ${id}` }));
+      const summary = {
+        ok: [],
+        skipped: [],
+        failed: [
+          { model: a, error: error([{ code: 'permission_denied', detail: 'You may not.' }]) },
+          { model: b, error: error([{ code: 'permission_denied', detail: 'You may not.' }]) },
+          { model: c, error: error([{ detail: 'Locked.' }]) },
+          { model: d, error: new Error('network') },
+        ],
+      };
+
+      const modal = mq(BulkResultModal, {
+        state: {},
+        animateShow: () => {},
+        animateHide: jest.fn(),
+        summary,
+        action: { key: 'tag', label: 'Tag', run: async () => {} },
+      });
+
+      expect(modal.find('.BulkResultModal-failed details').length).toBe(3);
+      expect(modal).toHaveElementAttr('details[data-key=permission_denied]', 'data-count', '2');
+      expect(modal).toContainRaw('2 entries not processed: You may not.');
+      expect(modal).toContainRaw('1 entry not processed: Locked.');
+      expect(modal).toHaveElement('details[data-key=unknown] li[data-id="14"]');
+      expect(modal).toContainRaw('Thing 12');
     });
   });
 });

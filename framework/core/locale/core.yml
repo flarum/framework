@@ -23,6 +23,7 @@ core:
       label: "{count, plural, one {Access token} other {Access tokens}}"
       never: Never
       revoke:
+        bulk_confirmation: "{count, plural, one {Revoke # access token? Whatever is signed in with it is logged out at once.} other {Revoke # access tokens? Whatever is signed in with them is logged out at once.}}"
         confirmation: "Revoke {name} of {username}? Whatever is signed in with it is logged out at once."
         submit_button: Revoke
         title: Revoke Access Token
@@ -595,6 +596,16 @@ core:
 
     # These translations are used by the generic resource table and its modals.
     resource:
+      access-tokens:
+        filters:
+          type: Type
+          type_enum:
+            developer: Developer token
+            session: Session
+            session_remember: Remembered session
+          user: User
+        label_one: Access token
+        label_other: Access tokens
       bulk:
         close_button: => core.ref.okay
         result_deleted: "{count, plural, one {# entry deleted.} other {# entries deleted.}}"
@@ -610,6 +621,11 @@ core:
       form:
         create_title: "Create {label}"
         edit_title: "Edit {name}"
+      groups:
+        filters:
+          hidden: Hidden
+        label_one: Group
+        label_other: Groups
       table:
         actions_label: Actions
         bulk_label: Selected entries
@@ -651,6 +667,14 @@ core:
         sort_descending: "{label} (descending)"
         sort_label: Change sort order
         total: "{count, plural, one {# entry} other {# entries}}"
+      users:
+        filters:
+          email: Email
+          group: Group
+          joined_at: Joined
+        label_one: User
+        label_other: Users
+        last_seen_at: Last seen
 
     # These translations are used by the admin-specific search sources.
     search_source:
@@ -1199,11 +1223,23 @@ core:
     # These translations are used by the generic resource forms and filters.
     resource:
       bulk:
-        delete_button: "{count, plural, =0 {Delete selected} other {Delete # selected}}"
+        cancel_button: Cancel
+        confirmation: "{count, plural, one {{label}: apply to # entry?} other {{label}: apply to # entries?}}"
+        confirmation_skipped: "{count, plural, one {# selected entry is left out because the action does not apply to it.} other {# selected entries are left out because the action does not apply to them.}}"
         delete_confirmation: "{count, plural, one {Delete # entry? This cannot be undone.} other {Delete # entries? This cannot be undone.}}"
+        delete_label: => core.ref.delete
+        edit_label: => core.ref.edit
+        progress: "Processing… {done} of {total}"
+        result_failed_group: "{count, plural, one {# entry not processed: {reason}} other {# entries not processed: {reason}}}"
+        result_processed: "{count, plural, one {# entry processed.} other {# entries processed.}}"
+        result_skipped: "{count, plural, one {# entry was skipped because the action does not apply to it.} other {# entries were skipped because the action does not apply to them.}}"
       filter:
         any: Any
         "no": "No"
+        range_from_label: "{label} from"
+        range_open: …
+        range_to_label: "{label} to"
+        range_value: "{from} – {to}"
         "yes": "Yes"
       form:
         load_error: This form could not be loaded.
@@ -1213,15 +1249,32 @@ core:
         load_more: Load more
         retry_button: Retry
       validation:
+        accepted: This must be accepted.
+        declined: This must be declined.
         email: Enter a valid email address.
         enum: Choose one of the listed values.
+        exclusive_maximum: "Enter a value less than {max}."
+        exclusive_minimum: "Enter a value greater than {min}."
+        hex_color: Enter a valid hexadecimal color.
+        integer: Enter a whole number.
+        ip: Enter a valid IP address.
+        ipv4: Enter a valid IPv4 address.
+        ipv6: Enter a valid IPv6 address.
+        items_enum: Choose only listed values.
+        max_items: "Choose at most {count, plural, one {# item} other {# items}}."
         max_length: "Enter at most {count, plural, one {# character} other {# characters}}."
         maximum: "Enter a value of at most {max}."
+        min_items: "Choose at least {count, plural, one {# item} other {# items}}."
         min_length: "Enter at least {count, plural, one {# character} other {# characters}}."
         minimum: "Enter a value of at least {min}."
+        multiple_of: "Enter a multiple of {value}."
+        not_in: This value is not allowed.
         pattern: This value has an invalid format.
         required: This field is required.
+        ulid: Enter a valid ULID.
+        unique_items: Each value may only be chosen once.
         url: Enter a valid URL.
+        uuid: Enter a valid UUID.
 
     # These translations are used by the abstract search component and search modal.
     search:
@@ -1372,6 +1425,7 @@ core:
     invalid_username_message: "The username may only contain letters, numbers, and dashes. With at least one letter."
     invalid_filter_type:
       must_be_numeric_message: "The {filter} filter must be numeric."
+      must_be_range_message: "The {filter} filter must be a range like 2024-01-01..2024-12-31; either side may be left empty."
       must_not_be_array_message: "The {filter} filter must not be an array."
       must_not_be_multidimensional_array_message: "The {filter} filter must not be a multidimensional array."
 

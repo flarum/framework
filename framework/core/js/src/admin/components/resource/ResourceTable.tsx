@@ -11,6 +11,18 @@ import Pagination from '../../../common/components/Pagination';
 import type Model from '../../../common/Model';
 import ItemList from '../../../common/utils/ItemList';
 import classList from '../../../common/utils/classList';
+import extractText from '../../../common/utils/extractText';
+import {
+  actionLabel,
+  isActionRunning,
+  isBulkAction,
+  isRowAction,
+  needsConfirmation,
+  executeAction,
+  partitionByAction,
+  type ResourceAction,
+  type ResourceActionContext,
+} from '../../../common/resource/actions';
 import { ConcurrentBulkRunner, type BulkActionContext, type BulkRunner, type BulkSummary } from '../../../common/resource/BulkRunner';
 import ColumnPreferences from '../../../common/resource/ColumnPreferences';
 import { renderColumn } from '../../../common/resource/field';
@@ -24,6 +36,7 @@ import Drafts from './Drafts';
 import ExportCsvButton from './ExportCsvButton';
 import floatMenus from './floatMenus';
 import ordered from './ordered';
+import ResourceActionModal from './ResourceActionModal';
 import ResourceDeleteModal, { type ResourceDeleteModalAttrs } from './ResourceDeleteModal';
 import CompactFilterBar, { ALWAYS_QUERY, PHONE_QUERY } from './CompactFilterBar';
 import ResourceFilterBar from './ResourceFilterBar';
@@ -92,9 +105,9 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
 /**
  * The admin table for one resource type: columns from the definition's fields (or the `columns`
  * attr), header and dropdown sorting over the descriptor's sorts, debounced search, the filter bar
- * (`filterBar()`), numbered (core `Pagination`) or prev/next pagination, and create/edit/delete
- * gated by `canCreate()` and the rows' `canEdit`/`canDelete` attributes. Every region is an
- * `ItemList` for extensions.
+ * (`filterBar()`), numbered (core `Pagination`) or prev/next pagination, create gated by
+ * `canCreate()`, and the definition's `resourceActions()` on rows and on the selection. Every region
+ * is an `ItemList` for extensions.
  */
 export default class ResourceTable<M extends Model = Model, Attrs extends ResourceTableAttrs<M> = ResourceTableAttrs<M>> extends Component<Attrs> {
   list!: ResourceListState<M>;
@@ -113,6 +126,8 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   protected searchDraft = new Drafts();
   /** `bulkActionItems()` for the view pass in progress, so the toolbar and the table share one build. */
   protected viewBulkActions: ItemList<Mithril.Children> | null = null;
+  /** `definition.resourceActions()` for the view pass in progress, shared by every row. */
+  protected viewResourceActions: ItemList<ResourceAction<M>> | null = null;
 
   oninit(vnode: Mithril.Vnode<Attrs, this>) {
     super.oninit(vnode);
@@ -168,13 +183,20 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       );
     }
 
+    this.viewResourceActions = this.attrs.definition.resourceActions();
     this.viewBulkActions = this.bulkActionItems();
 
     try {
       return <div className={className}>{this.items().toArray()}</div>;
     } finally {
       this.viewBulkActions = null;
+      this.viewResourceActions = null;
     }
+  }
+
+  /** The definition's actions of the current view pass, else a fresh `resourceActions()`. */
+  protected currentResourceActions(): ItemList<ResourceAction<M>> {
+    return this.viewResourceActions ?? this.attrs.definition.resourceActions();
   }
 
   /** The bulk actions of the current view pass, else a fresh `bulkActionItems()`. */
@@ -256,11 +278,43 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * The definition's bulk actions for the current selection. While empty, the table has no checkbox
+   * A button per bulk-scoped `resourceActions()` entry. While empty, the table has no checkbox
    * column.
    */
   bulkActionItems(): ItemList<Mithril.Children> {
-    return this.attrs.definition.bulkActions(this.list.selection, this.bulkContext());
+    const items = new ItemList<Mithril.Children>();
+
+    Object.entries(this.currentResourceActions().toObject()).forEach(([key, item]) => {
+      const action = item.content as ResourceAction<M>;
+
+      if (isBulkAction(action)) items.add(key, this.bulkActionButton(action), item.priority);
+    });
+
+    return items;
+  }
+
+  /** The toolbar button of a bulk action, labelled for the selection's size. */
+  bulkActionButton(action: ResourceAction<M>): Mithril.Children {
+    const count = this.list.selectedModels().length;
+    const key = action.key.charAt(0).toUpperCase() + action.key.slice(1);
+
+    return (
+      <Button
+        className={classList(
+          'Button',
+          action.destructive && 'Button--danger',
+          'ResourceTable-bulkAction',
+          `ResourceTable-bulk${key}`,
+          action.className
+        )}
+        icon={action.icon}
+        disabled={!count}
+        loading={isActionRunning(this.list, action.key)}
+        onclick={() => this.runAction(action, this.list.selectedModels()).catch(() => {})}
+      >
+        {actionLabel(action, count)}
+      </Button>
+    );
   }
 
   /**
@@ -278,8 +332,35 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     return {
       list: this.list,
       runner: this.bulkRunner(),
-      showResult: (summary: BulkSummary<M>) => app.modal.show(BulkResultModal, { summary, definition: this.attrs.definition }),
+      showResult: (summary: BulkSummary<M>, action?: ResourceAction<M>) =>
+        app.modal.show(BulkResultModal, { summary, definition: this.attrs.definition, action }),
+      runAction: (action: ResourceAction<M>, models: M[]) => this.runAction(action, models),
     };
+  }
+
+  /** `bulkContext()` plus this table's `edit()` and `delete()`, for the actions' `open()`. */
+  actionContext(): ResourceActionContext<M> {
+    return { ...this.bulkContext(), edit: (model: M) => this.edit(model), delete: (model: M) => this.delete(model) };
+  }
+
+  /**
+   * Run an action over `models`: in `ResourceActionModal` when it asks first (destructive, a
+   * `confirm` or `fields`) and applies to any of them, else straight away. Resolves to the summary
+   * (also shown in `BulkResultModal`), or null when cancelled or there was nothing to run for.
+   */
+  runAction(action: ResourceAction<M>, models: M[]): Promise<BulkSummary<M> | null> {
+    if (!models.length || !action.run) return Promise.resolve(null);
+
+    const context = this.bulkContext();
+    const { applicable, skipped } = partitionByAction(action, models);
+
+    if (!applicable.length || !needsConfirmation(action)) {
+      return executeAction(action, applicable, skipped, {}, context);
+    }
+
+    return new Promise((resolve) => {
+      app.modal.show(ResourceActionModal, { definition: this.attrs.definition, action, models, context, ondone: resolve });
+    });
   }
 
   /**
@@ -496,7 +577,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
       columns.add(
         key,
-        { name: field.label, content: (model) => renderColumn(key, field, model), sort: field.column.sort },
+        { name: field.label, content: (model) => renderColumn(key, field, model), sort: field.column.sort, hidden: field.column.hidden },
         field.column.priority ?? item.priority
       );
     });
@@ -690,40 +771,43 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   }
 
   /**
-   * Edit (`canEdit`), delete (`canDelete`), then the definition's row actions.
+   * A button per row-scoped `resourceActions()` entry that applies to the record (the built-in
+   * `edit` and `delete` included).
    */
   rowActions(model: M): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    if (model.attribute('canEdit')) {
-      items.add(
-        'edit',
-        <Button
-          className="Button Button--icon ResourceTable-edit"
-          icon="fas fa-pencil-alt fa-fw"
-          title={app.translator.trans('core.admin.resource.table.edit_button', {}, true)}
-          aria-label={app.translator.trans('core.admin.resource.table.edit_button', {}, true)}
-          onclick={() => this.edit(model)}
-        />,
-        100
-      );
-    }
+    Object.entries(this.currentResourceActions().toObject()).forEach(([key, item]) => {
+      const action = item.content as ResourceAction<M>;
 
-    if (model.attribute('canDelete')) {
-      items.add(
-        'delete',
-        <Button
-          className="Button Button--icon Button--danger ResourceTable-delete"
-          icon="fas fa-trash-alt fa-fw"
-          title={app.translator.trans('core.admin.resource.table.delete_button', {}, true)}
-          aria-label={app.translator.trans('core.admin.resource.table.delete_button', {}, true)}
-          onclick={() => this.delete(model)}
-        />,
-        90
-      );
-    }
+      if (isRowAction(action) && (!action.applies || action.applies(model))) {
+        items.add(key, this.rowActionButton(action, model), item.priority);
+      }
+    });
 
-    return items.merge(this.attrs.definition.actions(model));
+    return items;
+  }
+
+  /** What clicking a row action does: its `open()` when it has one, else `runAction()` for the record. */
+  triggerAction(action: ResourceAction<M>, model: M): void {
+    if (action.open) action.open(model, this.actionContext());
+    else this.runAction(action, [model]).catch(() => {});
+  }
+
+  /** The icon button of a row action, see `triggerAction()`; loading while it runs for the record. */
+  rowActionButton(action: ResourceAction<M>, model: M): Mithril.Children {
+    const label = extractText(actionLabel(action, 1));
+
+    return (
+      <Button
+        className={classList('Button Button--icon', action.destructive && 'Button--danger', `ResourceTable-${action.key}`, action.className)}
+        icon={`${action.icon ?? 'fas fa-bolt'} fa-fw`}
+        title={label}
+        aria-label={label}
+        loading={isActionRunning(this.list, action.key, model)}
+        onclick={() => this.triggerAction(action, model)}
+      />
+    );
   }
 
   /** The row shown when the page has no records. */

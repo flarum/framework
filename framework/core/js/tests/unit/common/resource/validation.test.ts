@@ -56,15 +56,135 @@ describe('validateValue', () => {
     expect(warn).toHaveBeenCalledTimes(1);
   });
 
-  test('format email and url', () => {
+  test('format email and uri', () => {
     const email = fd('email', 'string', { constraints: { format: 'email' } });
-    const url = fd('homepage', 'string', { constraints: { format: 'url' } });
+    const url = fd('homepage', 'string', { constraints: { format: 'uri' } });
 
     expect(validateValue(email, 'a@b', 'create')).toEqual([]);
     expect(validateValue(email, 'nope', 'create')).toEqual([t('email')]);
     expect(validateValue(url, 'https://x.y', 'create')).toEqual([]);
     expect(validateValue(url, 'x.y', 'create')).toEqual([t('url')]);
     expect(validateValue(url, 'nope', 'create')).toEqual([t('url')]);
+  });
+
+  test('patterns compile in unicode mode, deduping the u flag', () => {
+    const letters = fd('name', 'string', { constraints: { pattern: '^\\p{L}+$' } });
+    const flagged = fd('name', 'string', { constraints: { pattern: '^\\p{Lu}+$', patternFlags: 'iu' } });
+
+    expect(validateValue(letters, 'Zoë', 'create')).toEqual([]);
+    expect(validateValue(letters, 'a1', 'create')).toEqual([t('pattern')]);
+    expect(validateValue(flagged, 'ÄB', 'create')).toEqual([]);
+    expect(validateValue(fd('e', 'string', { constraints: { pattern: '^.$' } }), '😀', 'create')).toEqual([]);
+  });
+
+  test('a pattern invalid in unicode mode is skipped', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const field = fd('code', 'string', { constraints: { pattern: '^\\-x$' } });
+
+    expect(validateValue(field, 'anything', 'create')).toEqual([]);
+    expect(warn).toHaveBeenCalledTimes(1);
+  });
+
+  test('every one of several patterns must match; an uncompilable one is skipped', () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const field = fd('code', 'string', { constraints: { patterns: [{ pattern: '^[a-z]+$' }, { pattern: 'X', flags: 'i' }, { pattern: '(' }] } });
+
+    expect(validateValue(field, 'abxc', 'create')).toEqual([]);
+    expect(validateValue(field, 'abc', 'create')).toEqual([t('pattern')]);
+    expect(validateValue(field, 'Abx', 'create')).toEqual([t('pattern')]);
+  });
+
+  test('formats: uri, uuid, ulid, ip, ipv4, ipv6, hex-color; unknown formats pass', () => {
+    const check = (format: string, value: string) => validateValue(fd('f', 'string', { constraints: { format } }), value, 'create');
+
+    expect(check('uri', 'https://x.y')).toEqual([]);
+    expect(check('uri', 'x.y')).toEqual([t('url')]);
+    // `new URL()` rejects an out-of-range IPv4-looking host; Laravel's rule does not.
+    expect(check('uri', 'http://999.1.1.1/path')).toEqual([]);
+    expect(check('uri', 'http://exa mple.com')).toEqual([t('url')]);
+    expect(check('uuid', '123E4567-e89b-12d3-a456-426614174000')).toEqual([]);
+    expect(check('uuid', '123e4567-e89b-12d3-a456')).toEqual([t('uuid')]);
+    expect(check('ulid', '01ARZ3NDEKTSV4RRFFQ69G5FAV')).toEqual([]);
+    expect(check('ulid', '81ARZ3NDEKTSV4RRFFQ69G5FAV')).toEqual([t('ulid')]);
+    expect(check('ulid', '01ARZ3NDEKTSV4RRFFQ69G5FAU')).toEqual([t('ulid')]);
+    expect(check('ipv4', '192.168.0.255')).toEqual([]);
+    expect(check('ipv4', '256.1.1.1')).toEqual([t('ipv4')]);
+    expect(check('ipv4', '::1')).toEqual([t('ipv4')]);
+    expect(check('ipv6', '2001:db8::ff00:42:8329')).toEqual([]);
+    expect(check('ipv6', '::ffff:192.0.2.1')).toEqual([]);
+    expect(check('ipv6', '2001:db8:::1')).toEqual([t('ipv6')]);
+    expect(check('ipv6', '1.2.3.4')).toEqual([t('ipv6')]);
+    expect(check('ip', '1.2.3.4')).toEqual([]);
+    expect(check('ip', '::1')).toEqual([]);
+    expect(check('ip', 'localhost')).toEqual([t('ip')]);
+
+    for (const value of ['#abc', '#AABBCC', '#abcd', '#aabbccdd']) expect(check('hex-color', value)).toEqual([]);
+    for (const value of ['abc', '#ab', '#abcde', '#gggggg']) expect(check('hex-color', value)).toEqual([t('hex_color')]);
+
+    expect(check('mac_address', 'nope')).toEqual([]);
+  });
+
+  test('exclusive bounds and multipleOf', () => {
+    const field = fd('n', 'number', { constraints: { exclusiveMinimum: 0, exclusiveMaximum: 1, multipleOf: 0.1 } });
+
+    expect(validateValue(field, 0.3, 'create')).toEqual([]);
+    expect(validateValue(field, '0.7', 'create')).toEqual([]);
+    expect(validateValue(field, 0, 'create')).toEqual([t('exclusive_minimum', { min: 0 })]);
+    expect(validateValue(field, 1, 'create')).toEqual([t('exclusive_maximum', { max: 1 })]);
+    expect(validateValue(field, 0.35, 'create')).toEqual([t('multiple_of', { value: 0.1 })]);
+    expect(validateValue(fd('n', 'integer', { constraints: { multipleOf: 5 } }), 15, 'create')).toEqual([]);
+    expect(validateValue(fd('n', 'integer', { constraints: { multipleOf: 5 } }), 12, 'create')).toEqual([t('multiple_of', { value: 5 })]);
+  });
+
+  test('not.enum, accepted and declined', () => {
+    expect(validateValue(fd('s', 'string', { constraints: { not: { enum: ['admin'] } } }), 'admin', 'create')).toEqual([t('not_in')]);
+    expect(validateValue(fd('s', 'string', { constraints: { not: { enum: ['admin'] } } }), 'mod', 'create')).toEqual([]);
+
+    const accepted = fd('terms', 'boolean', { constraints: { accepted: true } });
+    const declined = fd('spam', 'boolean', { constraints: { declined: true } });
+
+    for (const value of [true, 'yes', 'on', 1, '1', 'true']) expect(validateValue(accepted, value, 'create')).toEqual([]);
+    for (const value of [false, 'no', 0, 'nah']) expect(validateValue(accepted, value, 'create')).toEqual([t('accepted')]);
+    for (const value of [false, 'no', 'off', 0, '0', 'false']) expect(validateValue(declined, value, 'create')).toEqual([]);
+    for (const value of [true, 'yes', 1]) expect(validateValue(declined, value, 'create')).toEqual([t('declined')]);
+  });
+
+  test('minItems, maxItems, uniqueItems and items.enum', () => {
+    const field = fd('tags', 'array', { constraints: { minItems: 2, maxItems: 3, uniqueItems: true, items: { enum: ['a', 'b', 'c', 'd'] } } });
+
+    expect(validateValue(field, ['a', 'b'], 'create')).toEqual([]);
+    expect(validateValue(field, ['a'], 'create')).toEqual([t('min_items', { count: 2 })]);
+    expect(validateValue(field, ['a', 'b', 'c', 'd'], 'create')).toEqual([t('max_items', { count: 3 })]);
+    expect(validateValue(field, ['a', 'a'], 'create')).toEqual([t('unique_items')]);
+    expect(validateValue(field, ['a', 'x'], 'create')).toEqual([t('items_enum')]);
+  });
+
+  test('uniqueItems compares models by identity, not their serialized data', () => {
+    const field = fd('owners', 'array', { constraints: { uniqueItems: true } });
+    app.store.models.things = Thing;
+    const a = app.store.pushObject<Thing>({ type: 'things', id: '41', attributes: { name: 'A' } } as any)!;
+    const b = app.store.pushObject<Thing>({ type: 'things', id: '42', attributes: { name: 'A' } } as any)!;
+
+    expect(validateValue(field, [a, b], 'create')).toEqual([]);
+    expect(validateValue(field, [a, a], 'create')).toEqual([t('unique_items')]);
+  });
+
+  test('an integer field holds an integer; numeric strings count', () => {
+    const field = fd('rank', 'integer');
+
+    for (const value of [3, -2, '42', ' 7 ', '+1']) expect(validateValue(field, value, 'create')).toEqual([]);
+    for (const value of [1.5, '1.5', 'abc', '1e3']) expect(validateValue(field, value, 'create')).toEqual([t('integer')]);
+    expect(validateValue(fd('ratio', 'number'), 1.5, 'create')).toEqual([]);
+  });
+
+  test('constraintsOnUpdate replaces constraints in update mode', () => {
+    const field = fd('title', 'string', { constraints: { minLength: 5, filled: true }, constraintsOnUpdate: { maxLength: 3 } });
+
+    expect(validateValue(field, 'abcd', 'create')).toEqual([t('min_length', { count: 5 })]);
+    expect(validateValue(field, 'abcd', 'update')).toEqual([t('max_length', { count: 3 })]);
+    expect(validateValue(field, 'ab', 'update')).toEqual([]);
+    expect(validateValue(field, '', 'update')).toEqual([]);
+    expect(validateValue(field, '', 'create')).toEqual([t('required')]);
   });
 
   test('enum and minimum', () => {
@@ -193,12 +313,23 @@ describe('ResourceFormState requiredWhen', () => {
     expect(state.isRequired('e')).toBe(true);
   });
 
-  test('on update, the record values of fields without a stream count', async () => {
-    const thing = app.store.pushObject<Thing>({ type: 'things', id: '7', attributes: { a: '', b: 'x', hidden: 'h' } } as any)!;
+  test('on update, only the changed fields count, as only those are sent', async () => {
+    const thing = app.store.pushObject<Thing>({ type: 'things', id: '7', attributes: { a: 'set', b: 'x', hidden: 'h' } } as any)!;
     const state = await ResourceFormState.create(new ResourceDefinition<Thing>('things'), thing);
 
-    expect(state.values()).toMatchObject({ b: 'x', hidden: 'h' });
-    expect(state.isRequired('a')).toBe(false);
+    expect(state.values()).toEqual({});
+    expect(state.isRequired('a')).toBe(true);
+
+    state.stream('a')('y');
+    expect(state.values()).toEqual({ a: 'y' });
+    expect(state.validate()).toEqual({});
+
+    state.stream('a')('');
+    expect(state.validate()).toEqual({ a: [t('required')] });
+
+    state.stream('b')('z');
+    expect(state.values()).toEqual({ a: '', b: 'z' });
+    expect(state.validate()).toEqual({});
   });
 
   test('validate() checks requiredWhen live; requiredConditional and unsent filled fields are left to the server', async () => {
@@ -227,5 +358,40 @@ describe('ResourceFormState requiredWhen', () => {
     state.stream('b')('x');
     state.validateField('b');
     expect(state.errors.a).toBeUndefined();
+  });
+});
+
+describe('validateValue custom messages', () => {
+  beforeAll(() => bootAdmin());
+
+  test('a constraint with a server message uses it; the others keep the generic one', () => {
+    const field = fd('username', 'string', {
+      required: { create: true },
+      constraints: { minLength: 3, maxLength: 5, pattern: '^[a-z]+$', messages: { pattern: 'Lowercase letters only.', required: 'Pick a name.' } },
+    });
+
+    expect(validateValue(field, '', 'create')).toEqual(['Pick a name.']);
+    expect(validateValue(field, 'A1', 'create')).toEqual([t('min_length', { count: 3 }), 'Lowercase letters only.']);
+  });
+
+  test('constraintsOnUpdate brings its own messages on update', () => {
+    const field = fd('age', 'integer', {
+      constraints: { minimum: 18, messages: { minimum: 'Adults only.' } },
+      constraintsOnUpdate: { minimum: 21 },
+    });
+
+    expect(validateValue(field, 10, 'create')).toEqual(['Adults only.']);
+    expect(validateValue(field, 10, 'update')).toEqual([t('minimum', { min: 21 })]);
+  });
+
+  test('format, enum and filled messages', () => {
+    const field = fd('email', 'string', {
+      constraints: { format: 'email', filled: true, messages: { format: 'Not an email.', filled: 'Do not clear it.' } },
+    });
+    const kind = fd('kind', 'string', { constraints: { enum: ['a'], messages: { enum: 'Pick a or nothing.' } } });
+
+    expect(validateValue(field, 'nope', 'create')).toEqual(['Not an email.']);
+    expect(validateValue(field, '', 'create')).toEqual(['Do not clear it.']);
+    expect(validateValue(kind, 'b', 'create')).toEqual(['Pick a or nothing.']);
   });
 });

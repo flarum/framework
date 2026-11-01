@@ -85,8 +85,8 @@ class SearchManagerMetadataTest extends TestCase
     #[Test]
     public function filters_describe_themselves()
     {
-        $this->assertSame(['kind' => 'string'], (new EmailFilter)->describe($this->admin()));
-        $this->assertSame(['kind' => 'relationship', 'related' => 'groups'], (new GroupFilter)->describe($this->admin()));
+        $this->assertSame(['kind' => 'string', 'negatable' => true], (new EmailFilter)->describe($this->admin()));
+        $this->assertSame(['kind' => 'relationship', 'related' => 'groups', 'negatable' => true], (new GroupFilter)->describe($this->admin()));
     }
 
     #[Test]
@@ -94,7 +94,7 @@ class SearchManagerMetadataTest extends TestCase
     {
         // Mirrors `EmailFilter::filter()`, which ignores the value without `user.editCredentials`.
         $this->assertNull((new EmailFilter)->describe($this->member()));
-        $this->assertSame(['kind' => 'relationship', 'related' => 'groups'], (new GroupFilter)->describe($this->member()));
+        $this->assertSame(['kind' => 'relationship', 'related' => 'groups', 'negatable' => true], (new GroupFilter)->describe($this->member()));
     }
 
     #[Test]
@@ -151,8 +151,8 @@ class SearchManagerMetadataTest extends TestCase
     {
         $described = $this->describedFilters($this->admin());
 
-        $this->assertSame(['kind' => 'string'], $described['email']);
-        $this->assertSame(['kind' => 'relationship', 'related' => 'groups'], $described['group']);
+        $this->assertSame(['kind' => 'string', 'negatable' => true], $described['email']);
+        $this->assertSame(['kind' => 'relationship', 'related' => 'groups', 'negatable' => true], $described['group']);
     }
 
     #[Test]

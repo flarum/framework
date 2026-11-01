@@ -17,11 +17,14 @@ use Flarum\User\User;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
 
+require_once __DIR__.'/PinsDescriptorFixture.php';
+
 /**
  * The groups descriptor, which core describes by default, and the admin page it drives.
  */
 class GroupsSchemaTest extends TestCase
 {
+    use PinsDescriptorFixture;
     use RetrievesAuthorizedUsers;
 
     protected function setUp(): void
@@ -138,7 +141,7 @@ class GroupsSchemaTest extends TestCase
     {
         $descriptor = $this->describe(1);
 
-        $this->assertSame([['key' => 'hidden', 'kind' => 'boolean']], $descriptor['filters']);
+        $this->assertSame([['key' => 'hidden', 'kind' => 'boolean', 'negatable' => true, 'label' => 'Hidden']], $descriptor['filters']);
     }
 
     #[Test]
@@ -159,7 +162,7 @@ class GroupsSchemaTest extends TestCase
     {
         $this->app();
 
-        $this->assertSame(['kind' => 'boolean'], (new HiddenFilter())->describe(User::find(2)));
+        $this->assertSame(['kind' => 'boolean', 'negatable' => true], (new HiddenFilter())->describe(User::find(2)));
     }
 
     #[Test]
@@ -211,5 +214,23 @@ class GroupsSchemaTest extends TestCase
         }
 
         $this->assertContains('100', Arr::pluck($body['data'], 'id'));
+    }
+
+    #[Test]
+    public function the_type_label_and_row_abilities_are_described()
+    {
+        $descriptor = $this->describe(1);
+
+        $this->assertSame(['one' => 'Group', 'other' => 'Groups'], $descriptor['label']);
+        $this->assertSame(['edit' => 'canEdit', 'delete' => 'canDelete'], $descriptor['rowAbilities']);
+    }
+
+    /**
+     * The admin's descriptor is what `js/tests/fixtures/descriptors/groups.json` holds for the JS tests.
+     */
+    #[Test]
+    public function descriptor_matches_the_js_fixture()
+    {
+        $this->assertDescriptorFixture('groups');
     }
 }

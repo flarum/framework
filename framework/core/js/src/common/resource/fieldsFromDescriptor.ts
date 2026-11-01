@@ -14,17 +14,19 @@ function column<M extends Model>(d: FieldDescriptor, resolved: Partial<Field<M>>
 
   if (d.sortable) col.sort = d.name;
   if (typeof hint === 'number') col.priority = hint;
+  if (d.ui?.hidden) col.hidden = true;
 
   return col;
 }
 
 /**
- * Turn a descriptor into the keyed field registry, in declaration order. The input comes from the
+ * Turn a descriptor into the keyed field registry. The input comes from the
  * first matching resolver (or the given function, e.g. `definition.fieldInput()`) and is kept when
  * the field is writable on create or update and its `ui.widget` is not `'hidden'`; another `ui.widget` value names the input type (see the `widget`
  * resolver) and `ui.placeholder` becomes the input's placeholder. A column is shown for a visible
  * field that is sortable (sorting by its name) or has `ui.column`; a numeric `ui.column` is the
- * column's priority, `false` hides it.
+ * column's priority, `false` hides it, and `ui.hidden` starts it hidden. Fields are ordered by
+ * `ui.priority` (higher first; absent counts as 0), then in declaration order.
  */
 export function fieldsFromDescriptor<M extends Model>(
   d: ResourceDescriptor,
@@ -32,8 +34,10 @@ export function fieldsFromDescriptor<M extends Model>(
 ): ItemList<Field<M>> {
   const fields = new ItemList<Field<M>>();
   const count = d.fields.length;
+  // A stable sort, so equal priorities keep the declaration order.
+  const ordered = [...d.fields].sort((a, b) => (b.ui?.priority ?? 0) - (a.ui?.priority ?? 0));
 
-  d.fields.forEach((descriptor, index) => {
+  ordered.forEach((descriptor, index) => {
     const resolved = (typeof resolvers === 'function' ? resolvers(descriptor) : resolveInput(descriptor, resolvers)) ?? { input: false };
     // `ui.widget: 'hidden'` (e.g. users' `token`): no form input.
     const editable = descriptor.ui?.widget !== 'hidden' && (isWritable(descriptor, 'create') || isWritable(descriptor, 'update'));

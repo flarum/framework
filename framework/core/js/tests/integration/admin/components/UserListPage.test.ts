@@ -1,13 +1,14 @@
 import { jest } from '@jest/globals';
-import { bulkDeleteAction } from '../../../../src/common/resource/bulkDelete';
 import dayjs from 'dayjs';
 import m from 'mithril';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
-import UserListPage, { UserResourceDefinition } from '../../../../src/admin/components/UserListPage';
+import UserListPage from '../../../../src/admin/components/UserListPage';
+import UserResourceDefinition from '../../../../src/admin/resource/definitions/UsersDefinition';
 import CreateUserModal from '../../../../src/admin/components/CreateUserModal';
 import ResourceDeleteModal from '../../../../src/admin/components/resource/ResourceDeleteModal';
 import BulkResultModal from '../../../../src/admin/components/resource/BulkResultModal';
+import ResourceActionModal from '../../../../src/admin/components/resource/ResourceActionModal';
 import AutocompleteDropdown from '../../../../src/common/components/AutocompleteDropdown';
 import Button from '../../../../src/common/components/Button';
 import EditUserModal from '../../../../src/common/components/EditUserModal';
@@ -300,17 +301,17 @@ describe('UserListPage', () => {
     });
   });
 
-  test('an old-shape {name, content} column from an extension renders', async () => {
+  test('a plain {name, content} column from an extension renders', async () => {
     patch(UserListPage.prototype, 'columns');
     extend(UserListPage.prototype, 'columns', (items) => {
-      items.add('legacy', { name: 'L', content: (u: User) => `legacy-${u.username()}` });
+      items.add('plain', { name: 'L', content: (u: User) => `plain-${u.username()}` });
     });
 
     const { out } = await rendered();
 
-    expect(out).toHaveElement('th[data-column-name=legacy]');
-    expect(out).not.toHaveElement('th[data-column-name=legacy] button');
-    expect(out).toContainRaw('legacy-user2');
+    expect(out).toHaveElement('th[data-column-name=plain]');
+    expect(out).not.toHaveElement('th[data-column-name=plain] button');
+    expect(out).toContainRaw('plain-user2');
   });
 
   test('a headerItems item between search (100) and totalUsers (90) renders right after the search', async () => {
@@ -337,6 +338,99 @@ describe('UserListPage', () => {
     const { out } = await rendered();
 
     expect(out).toHaveElement('tr[data-user-id="2"] [data-column-name=userActions] .UserList-userActions .GdprExportButton');
+  });
+
+  describe('definition registry', () => {
+    test('the page takes the registered users definition', async () => {
+      const { page } = await rendered();
+
+      expect((page as any).definition).toBeInstanceOf(UserResourceDefinition);
+    });
+
+    test('extend() on the definition prototype affects the page', async () => {
+      patch(UserResourceDefinition.prototype, 'canExport');
+      override(UserResourceDefinition.prototype, 'canExport', () => false);
+
+      const { out } = await rendered();
+
+      expect(out).not.toHaveElement('.ResourceTable-export');
+    });
+
+    test("an extension's row action shows in the actions menu after the page's items and runs through the table", async () => {
+      const run = jest.fn((_user: User) => Promise.resolve());
+
+      patch(UserResourceDefinition.prototype, 'resourceActions');
+      extend(UserResourceDefinition.prototype, 'resourceActions', function (items) {
+        items.add('suspend', { key: 'suspend', label: 'Suspend', icon: 'fas fa-ban', scope: 'row', applies: (u: User) => u.id() === '2', run }, 50);
+        items.add('poke', { key: 'poke', label: 'Poke', scope: 'bulk', run }, 40);
+      });
+
+      const { out, page } = await rendered();
+
+      expect(out).toHaveElement('tr[data-user-id="2"] .UserList-userActions .UserList-suspend');
+      expect(out).not.toHaveElement('tr[data-user-id="3"] .UserList-suspend');
+      expect(out).not.toHaveElement('.UserList-poke');
+      // The built-in edit and delete are not repeated.
+      expect(out.find('tr[data-user-id="2"] .UserList-deleteUser').length).toBe(1);
+      expect(out).not.toHaveElement('tr[data-user-id="2"] .UserList-userActions .UserList-edit');
+      expect(entries(page.userActionItems(user('2'))).map(([key]) => key)).toEqual(['editUser', 'delete', 'suspend']);
+
+      out.click('tr[data-user-id="2"] .UserList-suspend');
+      await flush();
+
+      expect(run).toHaveBeenCalledTimes(1);
+      expect(run.mock.calls[0][0].id()).toBe('2');
+      expect(app.modal.show).toHaveBeenLastCalledWith(BulkResultModal, expect.objectContaining({ summary: expect.anything() }));
+    });
+
+    test('extension row actions keep their own order in the menu, offset from -200; a destructive one is marked', async () => {
+      patch(UserResourceDefinition.prototype, 'resourceActions');
+      extend(UserResourceDefinition.prototype, 'resourceActions', function (items) {
+        items.add('low', { key: 'low', label: 'Low', scope: 'row', run: () => Promise.resolve() }, 10);
+        items.add('high', { key: 'high', label: 'High', destructive: true, scope: 'row', run: () => Promise.resolve() }, 60);
+      });
+
+      const { out, page } = await rendered();
+      const menu = page.userActionItems(user('2'));
+
+      expect(entries(menu).map(([key]) => key)).toEqual(['editUser', 'delete', 'high', 'low']);
+      expect([menu.getPriority('high'), menu.getPriority('low')]).toEqual([-140, -190]);
+      expect(out).toHaveElement('tr[data-user-id="2"] .UserList-high.UserList-action--danger');
+      expect(out).not.toHaveElement('tr[data-user-id="2"] .UserList-low.UserList-action--danger');
+    });
+
+    test('a row action shows loading in the menu while it runs for that user', async () => {
+      let finish: () => void = () => {};
+
+      patch(UserResourceDefinition.prototype, 'resourceActions');
+      extend(UserResourceDefinition.prototype, 'resourceActions', function (items) {
+        items.add('ping', { key: 'ping', label: 'Ping', scope: 'row', run: () => new Promise<void>((resolve) => (finish = resolve)) });
+      });
+
+      const { out } = await rendered();
+
+      out.click('tr[data-user-id="2"] .UserList-ping');
+      out.redraw();
+
+      expect(out).toHaveElement('tr[data-user-id="2"] .UserList-ping.loading');
+      expect(out).not.toHaveElement('tr[data-user-id="3"] .UserList-ping.loading');
+
+      finish();
+      await flush();
+    });
+
+    test('a confirming row action opens ResourceActionModal', async () => {
+      patch(UserResourceDefinition.prototype, 'resourceActions');
+      extend(UserResourceDefinition.prototype, 'resourceActions', function (items) {
+        items.add('wipe', { key: 'wipe', label: 'Wipe', destructive: true, scope: 'row', run: () => Promise.resolve() });
+      });
+
+      const { out } = await rendered();
+
+      out.click('tr[data-user-id="2"] .UserList-wipe');
+
+      expect(app.modal.show).toHaveBeenLastCalledWith(ResourceActionModal, expect.objectContaining({ models: [app.store.getById('users', '2')] }));
+    });
   });
 
   test('?page=2 loads with offset 50', async () => {
@@ -538,9 +632,9 @@ describe('UserListPage', () => {
   });
 
   test('a bulk delete where one row fails deletes the others, names the failed row and lowers the total by 2', async () => {
-    patch(UserResourceDefinition.prototype, 'bulkActions');
-    extend(UserResourceDefinition.prototype, 'bulkActions', function (items, _selection, context) {
-      items.add('delete', bulkDeleteAction(context));
+    patch(UserResourceDefinition.prototype, 'resourceActions');
+    extend(UserResourceDefinition.prototype, 'resourceActions', function (items) {
+      items.setContent('delete', { ...items.get('delete'), scope: 'both' });
     });
     respond(() => Promise.resolve(results([user('2'), user('3'), user('4', { displayName: 'Refused' })], 3)));
 
@@ -549,13 +643,16 @@ describe('UserListPage', () => {
       options.url.endsWith('/users/4') ? Promise.reject(Object.assign(new Error('403'), { status: 403 })) : Promise.resolve()
     );
     app.request = request as any;
-    jest.spyOn(window, 'confirm').mockImplementation(() => true);
     respond(() => Promise.resolve(results([user('4', { displayName: 'Refused' })], 1)));
 
     const check = out.first('.ResourceTable-selectAll');
     check.checked = true;
     out.trigger('.ResourceTable-selectAll', 'change');
     out.click('.ResourceTable-bulk .ResourceTable-bulkDelete');
+
+    const [confirmModal, confirmAttrs] = (app.modal.show as jest.Mock).mock.calls.at(-1) as [any, any];
+    expect(confirmModal).toBe(ResourceActionModal);
+    mq(ResourceActionModal, { state: {}, animateShow: () => {}, animateHide: jest.fn(), ...confirmAttrs }).trigger('form', 'submit', {} as Event);
     await flush();
     await flush();
     out.redraw();
@@ -605,10 +702,10 @@ describe('UserListPage', () => {
       expect(out).not.toHaveElement('.ResourceTable-select');
     });
 
-    test('a bulkActions item adds the checkbox column', async () => {
-      patch(UserResourceDefinition.prototype, 'bulkActions');
-      extend(UserResourceDefinition.prototype, 'bulkActions', (items) => {
-        items.add('x', m(Button, { className: 'Button BulkX' }, 'X'));
+    test('a bulk-scoped action adds the checkbox column', async () => {
+      patch(UserResourceDefinition.prototype, 'resourceActions');
+      extend(UserResourceDefinition.prototype, 'resourceActions', (items) => {
+        items.add('x', { key: 'x', label: 'X', className: 'BulkX', scope: 'bulk', run: () => Promise.resolve() });
       });
 
       const { out } = await rendered();

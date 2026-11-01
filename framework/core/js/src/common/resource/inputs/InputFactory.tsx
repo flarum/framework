@@ -2,6 +2,7 @@ import FormGroup from '../../components/FormGroup';
 import ItemList from '../../utils/ItemList';
 import type Mithril from 'mithril';
 import type { InputContext, InputRenderer, InputSpec } from '../types';
+import { errorAttrs } from './defaults';
 
 /**
  * Turns input specs into vnodes: through the renderer registered for `spec.type`, else through
@@ -50,6 +51,7 @@ export default class InputFactory {
         name={ctx.name}
         {...(ctx.required ? { required: true } : {})}
         {...spec}
+        {...errorAttrs(ctx)}
         label={ctx.label ?? spec.label}
         help={ctx.help ?? spec.help}
         stream={ctx.stream}

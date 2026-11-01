@@ -364,6 +364,9 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
     }
 
     /**
+     * Adjusts the data the validator sees, e.g. to normalise a value before it is
+     * checked. Affects validation only: the setters and the save get the unmutated data.
+     *
      * @param FlarumContext $context
      */
     public function mutateDataBeforeValidation(Context $context, array $data): array

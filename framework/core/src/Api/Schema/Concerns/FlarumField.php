@@ -25,9 +25,6 @@ trait FlarumField
      */
     protected array $ui = [];
 
-    /**
-     * Allow this field to be written to when creating a new model.
-     */
     public function writableOnCreate(): static
     {
         $this->writable = fn ($model, Context $context) => $context->creating();
@@ -35,9 +32,6 @@ trait FlarumField
         return $this;
     }
 
-    /**
-     * Allow this field to be written to when updating a model.
-     */
     public function writableOnUpdate(): static
     {
         $this->writable = fn ($model, Context $context) => $context->updating();
@@ -60,9 +54,16 @@ trait FlarumField
      * - `display`: the attribute used to label a related record;
      * - `label`: translation key or literal;
      * - `placeholder`: translation key or literal, for the form input;
-     * - `widget`: the form input to use; `hidden` means the field is never offered in a form.
+     * - `widget`: the form input to use; `hidden` means the field is never offered in a form;
+     * - `help`: translation key or literal, shown under the form input;
+     * - `hidden`: the column exists but is hidden until the user shows it;
+     * - `group`: translation key or literal; fields of a group share a fieldset;
+     * - `priority`: int, the field's position in the form, higher first;
+     * - `visibleWhen`: conditions (as `requiredWhen`) under which the form input is shown;
+     * - `markRequired`: show the field as required without enforcing it on the client.
      *
-     * Other keys, such as `group` and `priority`, are passed through but not read.
+     * The typed methods below (`column()`, `widget()`, ...) write the same hints.
+     * Other keys are passed through, and logged in debug mode.
      *
      * @param array<string, mixed> $hints
      */
@@ -71,6 +72,92 @@ trait FlarumField
         $this->ui = array_merge($this->ui, $hints);
 
         return $this;
+    }
+
+    /**
+     * An int is the column's priority, higher first.
+     */
+    public function column(bool|int $column = true): static
+    {
+        return $this->ui(['column' => $column]);
+    }
+
+    /**
+     * Offer the field as a column that is hidden until the user shows it.
+     */
+    public function columnHidden(bool|int $column = true): static
+    {
+        return $this->ui(['column' => $column, 'hidden' => true]);
+    }
+
+    /**
+     * The form input to use; `hidden` keeps the field out of forms.
+     */
+    public function widget(string $widget): static
+    {
+        return $this->ui(['widget' => $widget]);
+    }
+
+    /**
+     * @param string $placeholder translation key or literal
+     */
+    public function placeholder(string $placeholder): static
+    {
+        return $this->ui(['placeholder' => $placeholder]);
+    }
+
+    /**
+     * @param string $help translation key or literal, shown under the form input
+     */
+    public function help(string $help): static
+    {
+        return $this->ui(['help' => $help]);
+    }
+
+    /**
+     * @param string $group translation key or literal; fields of a group share a fieldset
+     */
+    public function group(string $group): static
+    {
+        return $this->ui(['group' => $group]);
+    }
+
+    /**
+     * The field's position in the form, higher first.
+     */
+    public function priority(int $priority): static
+    {
+        return $this->ui(['priority' => $priority]);
+    }
+
+    /**
+     * The attribute of a related record that labels it.
+     */
+    public function display(string $attribute): static
+    {
+        return $this->ui(['display' => $attribute]);
+    }
+
+    /**
+     * Show the form input only when any of the conditions holds against the form's values.
+     *
+     * Conditions take the `requiredWhen` shape (`['rule' => 'if', 'fields' => ['type'], 'values' => ['developer']]`),
+     * or a Laravel-style shorthand: `'if:type,developer'`, `'with:email'`, `'without_all:a,b'`.
+     *
+     * @param string|array<mixed> $conditions
+     */
+    public function visibleWhen(string|array $conditions): static
+    {
+        return $this->ui(['visibleWhen' => $conditions]);
+    }
+
+    /**
+     * Mark the field required in forms without enforcing it on the client,
+     * for requirements only the server can decide.
+     */
+    public function markRequired(bool $markRequired = true): static
+    {
+        return $this->ui(['markRequired' => $markRequired]);
     }
 
     /**

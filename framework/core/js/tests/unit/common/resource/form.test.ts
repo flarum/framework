@@ -324,6 +324,42 @@ describe('ResourceForm', () => {
     expect(out).toHaveElement('.ResourceForm-field--a.has-error');
   });
 
+  test('a field error is an alert the invalid control points at', async () => {
+    serve(
+      descriptor([
+        fd('name', 'string', { required: { create: true, update: true } }),
+        fd('kind', 'string', { required: { create: true, update: true }, constraints: { enum: ['a', 'b'] } }),
+      ])
+    );
+
+    let state!: ResourceFormState<Thing>;
+    const out = mq(ResourceForm, {
+      definition: new ResourceDefinition<Thing>('things'),
+      model: null,
+      onstate: (s: ResourceFormState<Thing>) => (state = s),
+    });
+
+    await flush();
+    out.redraw();
+
+    expect(out).not.toHaveElement('input[name=name][aria-invalid]');
+
+    await expect(state.save()).rejects.toThrow();
+    out.redraw();
+
+    for (const [key, control] of [
+      ['name', 'input'],
+      ['kind', 'select'],
+    ]) {
+      const error = out.first(`.ResourceForm-field--${key} .ResourceForm-error`);
+
+      expect(error.getAttribute('role')).toBe('alert');
+      expect(error.id).toBe(`${state.domId}-${key}-error`);
+      expect(out.first(`${control}[name=${key}]`).getAttribute('aria-invalid')).toBe('true');
+      expect(out.first(`${control}[name=${key}]`).getAttribute('aria-describedby')).toBe(error.id);
+    }
+  });
+
   test('shows a loading state, then the fields with their hints', async () => {
     const out = mq(ResourceForm, { definition: new ThingDefinition(), model: null });
 
@@ -407,5 +443,222 @@ describe('ResourceForm', () => {
 
     expect(out).toHaveElement('.ResourceForm--error');
     expect(out).not.toContainRaw('core.lib.resource');
+  });
+});
+
+describe('ResourceFormState visibility', () => {
+  beforeAll(() => {
+    bootAdmin();
+    app.store.models.things = Thing;
+  });
+
+  beforeEach(() => clearDescriptorCache());
+
+  const conditional = () =>
+    descriptor([
+      fd('kind', 'string', { constraints: { enum: ['plain', 'link'] } }),
+      fd('url', 'string', {
+        required: { create: true, update: true },
+        constraints: { format: 'uri' },
+        ui: { visibleWhen: [{ rule: 'if', fields: ['kind'], values: ['link'] }] },
+      }),
+    ]);
+
+  test('a ui.visibleWhen field shows while a condition holds; hidden, it is neither validated nor sent', async () => {
+    serve(conditional());
+
+    const state = await ResourceFormState.create(new ResourceDefinition<Thing>('things'), null);
+
+    expect(state.visibleFields().has('url')).toBe(false);
+    expect(state.streams.url).toBeDefined();
+    expect(state.validate()).toEqual({});
+
+    state.stream('url')('not a url');
+    state.stream('kind')('plain');
+
+    expect(state.validateField('url')).toEqual([]);
+    expect(state.buildSaveData()).toEqual({ kind: 'plain' });
+    expect(state.values()).toEqual({ kind: 'plain' });
+
+    state.stream('kind')('link');
+
+    expect(state.visibleFields().has('url')).toBe(true);
+    expect(Object.keys(state.validate())).toEqual(['url']);
+    expect(state.buildSaveData()).toEqual({ kind: 'link', url: 'not a url' });
+  });
+
+  test('a hidden field counts as absent for the others: a visibleWhen chain A → B → C hides together', async () => {
+    serve(
+      descriptor([
+        fd('a', 'string'),
+        fd('b', 'string', { ui: { visibleWhen: [{ rule: 'if', fields: ['a'], values: ['yes'] }] } }),
+        fd('c', 'string', { ui: { visibleWhen: [{ rule: 'with', fields: ['b'] }] } }),
+      ])
+    );
+
+    const state = await ResourceFormState.create(new ResourceDefinition<Thing>('things'), null);
+
+    state.stream('a')('yes');
+    state.stream('b')('filled');
+
+    expect(Object.keys(state.visibleFields().toObject())).toEqual(['a', 'b', 'c']);
+    expect(state.liveValues()).toEqual({ a: 'yes', b: 'filled', c: null });
+
+    // `b` keeps its value but is hidden, so `c` loses its condition too.
+    state.stream('a')('no');
+
+    expect(Object.keys(state.visibleFields().toObject())).toEqual(['a']);
+    expect(state.isVisible('c')).toBe(false);
+    expect(state.liveValues()).toEqual({ a: 'no' });
+    expect(state.buildSaveData()).toEqual({ a: 'no' });
+  });
+
+  test('while updating, a sibling recheck clears the error of a field reverted to its unchanged value', async () => {
+    serve(descriptor([fd('name', 'string', { constraints: { minLength: 3 } }), fd('bio', 'string')]));
+
+    const thing = app.store.pushObject<Thing>({ type: 'things', id: '6', attributes: { name: 'ab', bio: '' } } as any)!;
+    const state = await ResourceFormState.create(new ResourceDefinition<Thing>('things'), thing);
+
+    state.stream('name')('x');
+    state.validateField('name');
+    expect(state.errors.name).toBeDefined();
+
+    // Back to the stored value: not sent, so not the client's to reject.
+    state.stream('name')('ab');
+    state.stream('bio')('hi');
+    state.validateField('bio');
+
+    expect(state.errors.name).toBeUndefined();
+  });
+
+  test('ui.visibleWhen follows unchanged values while updating', async () => {
+    serve(conditional());
+
+    const thing = app.store.pushObject<Thing>({ type: 'things', id: '5', attributes: { kind: 'link', url: 'https://a.b' } } as any)!;
+    const state = await ResourceFormState.create(new ResourceDefinition<Thing>('things'), thing);
+
+    expect(state.visibleFields().has('url')).toBe(true);
+    expect(state.dirtyKeys()).toEqual([]);
+  });
+
+  test('when() gets the live values; a one-argument when() keeps working', async () => {
+    serve(descriptor([fd('a', 'string'), fd('b', 'string'), fd('c', 'string')]));
+
+    const seen: Array<Record<string, unknown> | undefined> = [];
+
+    class Definition extends ResourceDefinition<Thing> {
+      fields(): ItemList<Field<Thing>> {
+        const fields = super.fields();
+
+        patchField(fields, 'b', {
+          when: (_m, values) => {
+            seen.push(values);
+
+            return !values || values.a === 'show';
+          },
+        });
+        patchField(fields, 'c', { when: (m) => m === null });
+
+        return fields;
+      }
+    }
+
+    const state = await ResourceFormState.create(new Definition('things'), null);
+
+    expect(Object.keys(state.streams)).toEqual(['a', 'b', 'c']);
+    expect(seen[0]).toBeUndefined();
+    expect(Object.keys(state.visibleFields().toObject())).toEqual(['a', 'c']);
+
+    state.stream('a')('show');
+
+    expect(Object.keys(state.visibleFields().toObject())).toEqual(['a', 'b', 'c']);
+    expect(seen[seen.length - 1]).toEqual({ a: 'show', b: null, c: null });
+  });
+});
+
+describe('ResourceForm rendering hints', () => {
+  beforeAll(() => {
+    bootAdmin();
+    app.store.models.things = Thing;
+  });
+
+  beforeEach(() => clearDescriptorCache());
+
+  async function renderForm(d: ResourceDescriptor, model: Thing | null = null) {
+    serve(d);
+
+    let state!: ResourceFormState<Thing>;
+    const out = mq(ResourceForm, {
+      definition: new ResourceDefinition<Thing>('things'),
+      model,
+      onstate: (s: ResourceFormState<Thing>) => (state = s),
+    });
+
+    await flush();
+    out.redraw();
+
+    return { out, state };
+  }
+
+  test('the form is novalidate; ui.help shows as the help text; ui.markRequired marks without enforcing', async () => {
+    const { out, state } = await renderForm(
+      descriptor([
+        fd('title', 'string', { ui: { help: 'Shown in lists.' } }),
+        fd('code', 'string', { requiredConditional: true, ui: { markRequired: true } }),
+      ])
+    );
+
+    expect((out.rootEl as HTMLElement).querySelector('form.ResourceForm')!.hasAttribute('novalidate')).toBe(true);
+    expect(out).toContainRaw('Shown in lists.');
+    expect(out).toHaveElementAttr('input[name=code]', 'required');
+    expect(out).toHaveElement('.ResourceForm-field--code.ResourceForm-field--required');
+    expect(state.validate()).toEqual({});
+  });
+
+  test('native attributes follow the constraints of the mode', async () => {
+    const d = descriptor([
+      fd('title', 'string', { constraints: { minLength: 2, maxLength: 10 }, constraintsOnUpdate: { maxLength: 20 } }),
+      fd('count', 'integer', { constraints: { minimum: 1, maximum: 9 } }),
+      fd('price', 'number', { constraints: { multipleOf: 0.5 } }),
+      fd('ratio', 'number'),
+    ]);
+
+    const { out } = await renderForm(d);
+
+    expect(out).toHaveElementAttr('input[name=title]', 'minlength', '2');
+    expect(out).toHaveElementAttr('input[name=title]', 'maxlength', '10');
+    expect(out).toHaveElementAttr('input[name=count]', 'min', '1');
+    expect(out).toHaveElementAttr('input[name=count]', 'max', '9');
+    expect(out).toHaveElementAttr('input[name=count]', 'step', '1');
+    expect(out).toHaveElementAttr('input[name=price]', 'step', '0.5');
+    expect(out).toHaveElementAttr('input[name=ratio]', 'step', 'any');
+    expect(out).not.toHaveElementAttr('input[name=title]', 'required');
+
+    clearDescriptorCache();
+    const thing = app.store.pushObject<Thing>({ type: 'things', id: '7', attributes: { title: 'x' } } as any)!;
+    const editing = await renderForm(d, thing);
+
+    expect(editing.out).toHaveElementAttr('input[name=title]', 'maxlength', '20');
+  });
+
+  test('ui.group renders fieldsets after the ungrouped fields, in first-appearance order', async () => {
+    const { out } = await renderForm(
+      descriptor([
+        fd('a', 'string', { ui: { group: 'Second' } }),
+        fd('b', 'string'),
+        fd('c', 'string', { ui: { group: 'Third' } }),
+        fd('d', 'string', { ui: { group: 'Second' } }),
+        fd('e', 'string'),
+      ])
+    );
+
+    const form = out.rootEl as HTMLElement;
+    const order = [...form.querySelectorAll('legend, input')].map((el) => (el.tagName === 'LEGEND' ? el.textContent : (el as HTMLInputElement).name));
+
+    expect(order).toEqual(['b', 'e', 'Second', 'a', 'd', 'Third', 'c']);
+    expect(form.querySelectorAll('fieldset.ResourceForm-group')).toHaveLength(2);
+    expect(form.querySelector('.ResourceForm-submit')!.compareDocumentPosition(form.querySelector('fieldset')!)).toBe(
+      Node.DOCUMENT_POSITION_PRECEDING
+    );
   });
 });
