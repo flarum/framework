@@ -10,6 +10,8 @@ import Mithril from 'mithril';
 import extractText from '../../common/utils/extractText';
 import ColorPreviewInput from '../../common/components/ColorPreviewInput';
 import IconInput from '../../common/components/IconInput';
+import IconImageInput from '../../common/components/IconImageInput';
+import IconImageState from '../../common/states/IconImageState';
 import Form from '../../common/components/Form';
 
 export interface IEditGroupModalAttrs extends IFormModalAttrs {
@@ -27,6 +29,7 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
   icon!: Stream<string>;
   color!: Stream<string>;
   isHidden!: Stream<boolean>;
+  iconImage!: IconImageState;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -38,6 +41,13 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
     this.icon = Stream(this.group.icon() || '');
     this.color = Stream(this.group.color() || '');
     this.isHidden = Stream(this.group.isHidden() || false);
+    this.iconImage = new IconImageState(this.group);
+  }
+
+  onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
+    super.onremove(vnode);
+
+    this.iconImage.dispose();
   }
 
   className() {
@@ -47,7 +57,9 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
   title() {
     return (
       <>
-        {!!(this.color() || this.icon()) && <Badge icon={this.icon()} color={this.color()} />}{' '}
+        {!!(this.color() || this.icon() || this.iconImage.url()) && (
+          <Badge icon={this.icon()} image={this.iconImage.url()} imageSrcset={this.iconImage.srcset()} color={this.color()} />
+        )}{' '}
         {this.namePlural() || app.translator.trans('core.admin.edit_group.title')}
       </>
     );
@@ -98,6 +110,16 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
     );
 
     items.add(
+      'iconImage',
+      <div className="Form-group">
+        <label>{app.translator.trans('core.admin.edit_group.icon_image_label')}</label>
+        <div className="helpText">{app.translator.trans('core.admin.edit_group.icon_image_text')}</div>
+        <IconImageInput state={this.iconImage} />
+      </div>,
+      10
+    );
+
+    items.add(
       'hidden',
       <div className="Form-group">
         <Switch state={this.isHidden()} onchange={this.isHidden}>
@@ -141,8 +163,17 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
 
     this.loading = true;
 
+    const errorHandler = this.onerror.bind(this);
+
     this.group
-      .save(this.submitData(), { errorHandler: this.onerror.bind(this) })
+      .save(this.submitData(), { errorHandler })
+      .then((group) => {
+        // A new group's save resolves to another instance. Keep it, so that
+        // saving again after a failed upload doesn't create a second group.
+        this.group = group;
+
+        return this.iconImage.save(group, { errorHandler });
+      })
       .then(this.hide.bind(this))
       .catch(() => {
         this.loading = false;

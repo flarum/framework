@@ -115,7 +115,8 @@
         color: var(--muted-color);
         font-size: 14px;
       }
-      .SelectTagListItem-tagIcon::before {
+      .SelectTagListItem-tagIcon::before,
+      .SelectTagListItem-tagIcon.IconImage {
         visibility: hidden;
       }
       &.colored .TagIcon + .SelectTagListItem-checkIcon {
@@ -132,6 +133,13 @@
   margin-left: 0;
   height: 16px;
   width: 16px;
+
+  // An uploaded image fills the square, as a glyph does.
+  .IconImage {
+    width: 100%;
+    height: 100%;
+    vertical-align: 0;
+  }
 }
 .SelectTagListItem-name {
   display: inline-block;

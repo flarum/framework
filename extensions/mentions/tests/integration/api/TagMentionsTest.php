@@ -68,6 +68,26 @@ class TagMentionsTest extends TestCase
     }
 
     #[Test]
+    public function a_tag_mention_shows_the_tags_icon_image()
+    {
+        $this->database()->table('tags')->where('id', 1)->update(['icon' => 'fas fa-star', 'icon_image_path' => 'crest.webp', 'icon_image_scales' => 1]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/posts/4')
+        );
+
+        $contents = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $contents);
+
+        $html = json_decode($contents, true)['data']['attributes']['contentHtml'];
+
+        // A single scale has no srcset.
+        $this->assertMatchesRegularExpression('#<img class="icon IconImage" src="[^"]*/assets/icons/crest\.webp" alt="">#', $html);
+        $this->assertStringNotContainsString('fa-star', $html);
+    }
+
+    #[Test]
     public function mentioning_a_valid_tag_with_valid_format_works()
     {
         $response = $this->send(

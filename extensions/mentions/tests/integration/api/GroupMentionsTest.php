@@ -83,6 +83,38 @@ class GroupMentionsTest extends TestCase
     }
 
     #[Test]
+    public function a_group_mention_shows_the_groups_icon_image_instead_of_its_icon()
+    {
+        $this->database()->table('groups')->where('id', 11)->update(['icon_image_path' => 'crest.webp', 'icon_image_scales' => 2]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/posts/7')
+        );
+
+        $contents = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $contents);
+
+        $html = json_decode($contents, true)['data']['attributes']['contentHtml'];
+
+        $this->assertMatchesRegularExpression('#<img class="icon IconImage" src="[^"]*/assets/icons/crest\.webp" alt="" srcset="[^"]*/assets/icons/crest\.webp 1x, [^"]*/assets/icons/crest@2x\.webp 2x">#', $html);
+        $this->assertStringNotContainsString('fa-users', $html);
+    }
+
+    #[Test]
+    public function a_group_mention_without_an_icon_image_shows_its_icon()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/posts/7')
+        );
+
+        $html = json_decode($response->getBody()->getContents(), true)['data']['attributes']['contentHtml'];
+
+        $this->assertStringContainsString('<i class="icon fas fa-users"></i>', $html);
+        $this->assertStringNotContainsString('<img', $html);
+    }
+
+    #[Test]
     public function mentioning_an_invalid_group_doesnt_work()
     {
         $response = $this->send(

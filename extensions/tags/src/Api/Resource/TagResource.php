@@ -13,6 +13,7 @@ use Flarum\Api\Context as FlarumContext;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Schema;
+use Flarum\Foundation\IconImage\IconImageApi;
 use Flarum\Http\SlugManager;
 use Flarum\Tags\Event\Creating;
 use Flarum\Tags\Event\Deleting;
@@ -89,6 +90,7 @@ class TagResource extends AbstractDatabaseResource
                 ->eagerLoadWhere('state', function (Builder|Relation $query, FlarumContext $context) {
                     $query->where('user_id', $context->getActor()->id);
                 }),
+            ...IconImageApi::endpoints(),
         ];
     }
 
@@ -137,6 +139,7 @@ class TagResource extends AbstractDatabaseResource
                 ->description('Font Awesome icon classes, or null.')
                 ->writable()
                 ->nullable(),
+            ...IconImageApi::fields(),
             Schema\Boolean::make('isHidden')
                 ->description('Whether discussions with this tag are left out of the All Discussions list.')
                 ->writable(),

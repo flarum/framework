@@ -1,0 +1,13 @@
+// An uploaded image in place of a Font Awesome icon. It takes the box of a
+// fixed-width glyph (1.25em wide, 1em tall, sitting where FA's SVG icons sit)
+// and shows the whole image inside it. A theme, or a component with a tighter
+// or roomier slot, can set --icon-image-size to change the height.
+.IconImage {
+  display: inline-block;
+  width: calc(~"var(--icon-image-size, 1em) * 1.25");
+  height: var(--icon-image-size, 1em);
+  object-fit: contain;
+  // Centre it where a glyph's centre is, 0.375em above the baseline: -0.125em
+  // at the default size, like FA's SVG icons.
+  vertical-align: calc(~"0.375em - var(--icon-image-size, 1em) / 2");
+}

@@ -11,6 +11,8 @@ export default class GroupBadge<CustomAttrs extends IGroupAttrs = IGroupAttrs> e
 
     if (attrs.group) {
       attrs.icon = attrs.group.icon() || '';
+      attrs.image = attrs.group.iconImageUrl();
+      attrs.imageSrcset = attrs.group.iconImageSrcset();
       attrs.color = attrs.group.color() || '';
       attrs.label = typeof attrs.label === 'undefined' ? attrs.group.nameSingular() : attrs.label;
       attrs.type = 'group--' + attrs.group.id();

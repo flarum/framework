@@ -18,6 +18,12 @@ export default class Group extends Model {
   icon() {
     return Model.attribute<string | null>('icon').call(this);
   }
+  iconImageUrl() {
+    return Model.attribute<string | null>('iconImageUrl').call(this);
+  }
+  iconImageSrcset() {
+    return Model.attribute<string | null>('iconImageSrcset').call(this);
+  }
 
   isHidden() {
     return Model.attribute<boolean>('isHidden').call(this);

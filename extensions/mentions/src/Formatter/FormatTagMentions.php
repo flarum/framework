@@ -32,6 +32,8 @@ class FormatTagMentions
                 $attributes['slug'] = $tag->slug;
                 $attributes['color'] = $tag->color ?? '';
                 $attributes['icon'] = $tag->icon ?? '';
+                $attributes['iconimage'] = $tag->icon_image_url ?? '';
+                $attributes['iconsrcset'] = $tag->icon_image_srcset ?? '';
             } else {
                 $attributes['deleted'] = true;
             }
