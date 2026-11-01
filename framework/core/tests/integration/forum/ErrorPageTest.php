@@ -11,7 +11,11 @@ namespace Flarum\Tests\integration\forum;
 
 use Flarum\Foundation\ErrorHandling\HandledError;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
+use Flarum\Http\RequestUtil;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\Guest;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Laminas\Diactoros\ServerRequest;
 use PHPUnit\Framework\Attributes\Test;
@@ -26,6 +30,8 @@ use PHPUnit\Framework\Attributes\Test;
  */
 class ErrorPageTest extends TestCase
 {
+    use RetrievesAuthorizedUsers;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -33,14 +39,14 @@ class ErrorPageTest extends TestCase
         $this->setting('theme_secondary_color', '#536F90');
     }
 
-    private function render(): string
+    private function render(?ServerRequest $request = null): string
     {
         /** @var ViewFormatter $formatter */
         $formatter = $this->app()->getContainer()->make(ViewFormatter::class);
 
         $error = new HandledError((new ModelNotFoundException())->setModel('Test'), 'not_found', 404);
 
-        return (string) $formatter->format($error, new ServerRequest())->getBody();
+        return (string) $formatter->format($error, $request ?? new ServerRequest())->getBody();
     }
 
     #[Test]
@@ -103,5 +109,142 @@ class ErrorPageTest extends TestCase
     public function error_page_has_no_favicon_when_the_forum_has_none(): void
     {
         $this->assertStringNotContainsString('rel="shortcut icon"', $this->render());
+    }
+
+    #[Test]
+    public function error_page_is_marked_as_guest_for_a_guest(): void
+    {
+        $request = RequestUtil::withActor(new ServerRequest(), new Guest());
+
+        $this->assertStringContainsString('<html class="guest-user">', $this->render($request));
+    }
+
+    #[Test]
+    public function error_page_is_marked_as_logged_in_for_a_user(): void
+    {
+        $this->prepareDatabase([
+            'users' => [$this->normalUser()],
+        ]);
+
+        $this->app();
+
+        $request = RequestUtil::withActor(new ServerRequest(), User::findOrFail(2));
+
+        $this->assertStringContainsString('<html class="logged-in">', $this->render($request));
+    }
+
+    #[Test]
+    public function error_page_has_no_actor_class_without_an_actor(): void
+    {
+        $this->assertStringContainsString('<html>', $this->render());
+    }
+
+    #[Test]
+    public function error_page_is_private_and_not_reusable(): void
+    {
+        $formatter = $this->app()->getContainer()->make(ViewFormatter::class);
+        $error = new HandledError((new ModelNotFoundException())->setModel('Test'), 'not_found', 404);
+
+        $response = $formatter->format($error, new ServerRequest());
+
+        $this->assertEquals('private, no-cache', $response->getHeaderLine('Cache-Control'));
+    }
+
+    private function htmlRequest(string $method, string $path, array $options = [])
+    {
+        return $this->request($method, $path, $options)->withHeader('Accept', 'text/html');
+    }
+
+    private function useProductionErrorPages(): void
+    {
+        // In debug mode the forum shows Whoops instead of the view formatter.
+        $this->config('debug', false);
+    }
+
+    #[Test]
+    public function not_found_page_is_marked_as_logged_in_through_the_middleware_pipeline(): void
+    {
+        $this->useProductionErrorPages();
+        $this->prepareDatabase(['users' => [$this->normalUser()]]);
+
+        $response = $this->send($this->htmlRequest('GET', '/does-not-exist', ['authenticatedAs' => 2]));
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertStringContainsString('<html class="logged-in">', (string) $response->getBody());
+        $this->assertEquals('private, no-cache', $response->getHeaderLine('Cache-Control'));
+    }
+
+    #[Test]
+    public function not_found_page_is_marked_as_guest_through_the_middleware_pipeline(): void
+    {
+        $this->useProductionErrorPages();
+
+        $response = $this->send($this->htmlRequest('GET', '/does-not-exist'));
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertStringContainsString('<html class="guest-user">', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function csrf_mismatch_page_is_marked_with_the_actor(): void
+    {
+        $this->useProductionErrorPages();
+        $this->prepareDatabase(['users' => [$this->normalUser()]]);
+
+        // A session login, so the request is cookie-authenticated and CSRF-checked.
+        $login = $this->send($this->requestWithCsrfToken(
+            $this->request('POST', '/login', ['json' => ['identification' => 'normal', 'password' => 'too-obscure']])
+        ));
+        $this->assertEquals(200, $login->getStatusCode());
+
+        $response = $this->send($this->htmlRequest('POST', '/logout', ['cookiesFrom' => $login]));
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertStringContainsString('<html class="logged-in">', (string) $response->getBody());
+
+        $response = $this->send($this->htmlRequest('POST', '/logout'));
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertStringContainsString('<html class="guest-user">', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function maintenance_page_is_marked_with_the_actor(): void
+    {
+        $this->useProductionErrorPages();
+        $this->setting('maintenance_mode', 'low');
+        $this->prepareDatabase(['users' => [$this->normalUser()]]);
+
+        $response = $this->send($this->htmlRequest('GET', '/', ['authenticatedAs' => 2]));
+
+        $this->assertEquals(503, $response->getStatusCode());
+        $this->assertStringContainsString('<html class="logged-in">', (string) $response->getBody());
+
+        $response = $this->send($this->htmlRequest('GET', '/'));
+
+        $this->assertEquals(503, $response->getStatusCode());
+        $this->assertStringContainsString('<html class="guest-user">', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function log_out_page_is_marked_as_logged_in(): void
+    {
+        $this->prepareDatabase(['users' => [$this->normalUser()]]);
+
+        $response = $this->send($this->htmlRequest('GET', '/logout', ['authenticatedAs' => 2]));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('<html class="logged-in">', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function maintenance_log_in_page_is_marked_as_guest(): void
+    {
+        $this->setting('maintenance_mode', 'low');
+
+        $response = $this->send($this->htmlRequest('GET', '/maintenance/login'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('<html class="guest-user">', (string) $response->getBody());
     }
 }

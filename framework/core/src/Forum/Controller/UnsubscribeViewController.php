@@ -10,6 +10,7 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Http\Controller\AbstractHtmlController;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\UnsubscribeToken;
@@ -65,6 +66,7 @@ class UnsubscribeViewController extends AbstractHtmlController
             ->with('message', $message)
             ->with('userId', $userId)
             ->with('token', $token)
-            ->with('csrfToken', $request->getAttribute('session')->token());
+            ->with('csrfToken', $request->getAttribute('session')->token())
+            ->with('actorClass', RequestUtil::getActorClass($request));
     }
 }

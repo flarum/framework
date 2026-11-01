@@ -48,7 +48,8 @@ class LogOutViewController implements RequestHandlerInterface
 
         $view = $this->view->make('flarum.forum::log-out')
             ->with('url', $postUrl)
-            ->with('csrfToken', $session->token());
+            ->with('csrfToken', $session->token())
+            ->with('actorClass', RequestUtil::getActorClass($request));
 
         return new HtmlResponse($view->render());
     }

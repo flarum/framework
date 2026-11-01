@@ -9,6 +9,7 @@
 
 namespace Flarum\Foundation\ErrorHandling;
 
+use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory as ViewFactory;
@@ -43,9 +44,14 @@ class ViewFormatter implements HttpFormatter
         $view = $this->view
             ->make($this->determineView($error))
             ->with('error', $error->getException())
-            ->with('message', $this->getMessage($error));
+            ->with('message', $this->getMessage($error))
+            ->with('actorClass', RequestUtil::getActorClass($request));
 
-        return new HtmlResponse($view->render(), $error->getStatusCode());
+        // The page differs between guests and signed-in users, and an error
+        // response carries no session cookie, so keep it out of shared caches and
+        // stop the browser reusing a guest copy after the visitor logs in.
+        return (new HtmlResponse($view->render(), $error->getStatusCode()))
+            ->withHeader('Cache-Control', 'private, no-cache');
     }
 
     private function determineView(HandledError $error): string

@@ -10,6 +10,7 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Http\Controller\AbstractHtmlController;
+use Flarum\Http\RequestUtil;
 use Flarum\User\EmailToken;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -31,6 +32,7 @@ class ConfirmEmailViewController extends AbstractHtmlController
 
         return $this->view
             ->make('flarum.forum::confirm-email')
-            ->with('csrfToken', $request->getAttribute('session')->token());
+            ->with('csrfToken', $request->getAttribute('session')->token())
+            ->with('actorClass', RequestUtil::getActorClass($request));
     }
 }
