@@ -90,7 +90,8 @@ class KeyManager
 
     /**
      * The key in the given file, creating the file on first use from the
-     * first legacy setting or, failing that, a newly generated key.
+     * first legacy setting or, failing that, a newly generated key. Legacy
+     * settings are removed once the file exists.
      *
      * @param list<string> $legacySettings
      * @param callable(): string $generate
@@ -99,15 +100,15 @@ class KeyManager
     {
         $key = $this->read($file);
 
-        if ($key !== null) {
-            return $key;
+        if ($key === null) {
+            $legacy = $this->settings->get($legacySettings[0]);
+            $key = $this->write($file, is_string($legacy) && $legacy !== '' ? $legacy : $generate());
         }
 
-        $legacy = $this->settings->get($legacySettings[0]);
-        $key = $this->write($file, is_string($legacy) && $legacy !== '' ? $legacy : $generate());
-
         foreach ($legacySettings as $setting) {
-            $this->settings->delete($setting);
+            if ($this->settings->get($setting) !== null) {
+                $this->settings->delete($setting);
+            }
         }
 
         return $key;

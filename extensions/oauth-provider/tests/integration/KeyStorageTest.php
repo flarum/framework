@@ -126,6 +126,21 @@ class KeyStorageTest extends TestCase
         $this->assertSame(0, $this->database()->table('settings')->where('key', 'like', 'flarum-oauth-provider.%_key')->count(), 'The keys are gone from the settings');
     }
 
+    #[Test]
+    public function a_key_left_in_the_settings_is_removed_once_the_file_exists(): void
+    {
+        $directory = $this->keyDirectory();
+        $this->keyManager($directory)->privateKey();
+
+        // A request stored the file but died before clearing the setting.
+        $settings = $this->app()->getContainer()->make(SettingsRepositoryInterface::class);
+        $settings->set(KeyManager::PRIVATE_KEY_SETTING, file_get_contents($directory.'/'.KeyManager::PRIVATE_KEY_FILE));
+
+        $this->keyManager($directory)->privateKey();
+
+        $this->assertSame(0, $this->database()->table('settings')->where('key', KeyManager::PRIVATE_KEY_SETTING)->count(), 'The key must not stay in the settings');
+    }
+
     protected function keyDirectory(): string
     {
         return $this->keyDirectories[] = sys_get_temp_dir().'/oauth-provider-keys-'.bin2hex(random_bytes(6));
