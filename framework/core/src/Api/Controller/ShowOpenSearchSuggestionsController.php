@@ -43,7 +43,8 @@ class ShowOpenSearchSuggestionsController implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $query = trim((string) Arr::get($request->getQueryParams(), 'q', ''));
+        $q = Arr::get($request->getQueryParams(), 'q');
+        $query = is_string($q) ? $q : '';
         $words = preg_split('/[^\p{L}\p{N}\p{M}]+/u', $query, -1, PREG_SPLIT_NO_EMPTY) ?: [];
         $titles = $descriptions = $urls = [];
 

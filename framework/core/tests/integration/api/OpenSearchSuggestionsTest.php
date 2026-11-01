@@ -96,4 +96,23 @@ class OpenSearchSuggestionsTest extends TestCase
     {
         $this->assertSame(['l', [], [], []], $this->suggest('l'));
     }
+
+    #[Test]
+    public function the_query_is_echoed_exactly_as_typed(): void
+    {
+        // Browsers drop suggestions whose query differs from what is typed.
+        [$query, $titles] = $this->suggest('lightsail tu ');
+
+        $this->assertSame('lightsail tu ', $query);
+        $this->assertSame(['Lightsail tuning'], $titles);
+    }
+
+    #[Test]
+    public function a_query_that_is_not_text_suggests_nothing(): void
+    {
+        $response = $this->send($this->request('GET', '/api/opensearch/suggestions')->withQueryParams(['q' => ['lightsail']]));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame(['', [], [], []], json_decode((string) $response->getBody(), true));
+    }
 }
