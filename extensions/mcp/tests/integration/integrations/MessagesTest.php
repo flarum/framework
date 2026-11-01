@@ -376,6 +376,25 @@ class MessagesTest extends McpTestCase
     }
 
     #[Test]
+    public function whoami_says_the_member_may_send_messages(): void
+    {
+        $can = array_column($this->toolOutput($this->callTool('whoami', [], $this->bearer($this->developerToken(2))))['can'], 'label', 'ability');
+
+        $this->assertSame('Send private messages', $can['dialog.sendMessage']);
+    }
+
+    #[Test]
+    public function whoami_leaves_it_out_where_members_may_not(): void
+    {
+        // Taken away from members, as a forum may.
+        $this->database()->table('group_permission')->where('permission', 'dialog.sendMessage')->delete();
+
+        $can = array_column($this->toolOutput($this->callTool('whoami', [], $this->bearer($this->developerToken(2))))['can'], 'label', 'ability');
+
+        $this->assertArrayNotHasKey('dialog.sendMessage', $can);
+    }
+
+    #[Test]
     public function messaging_tools_are_not_offered_to_guests(): void
     {
         $this->prepareDatabase(['group_permission' => [['group_id' => 2, 'permission' => 'mcp.use']]]);
