@@ -106,7 +106,7 @@ export default class TagsPage<CustomAttrs extends ITagsPageAttrs = ITagsPageAttr
       <li className={classList('TagTile', { colored: tag.color() }, textContrastClass(tag.color()))} style={{ '--tag-bg': tag.color() }}>
         <Link className="TagTile-info" href={app.route.tag(tag)}>
           <div className="TagTile-heading">
-            {tag.icon() && tagIcon(tag, {}, { useColor: false })}
+            {(tag.icon() || tag.iconImageUrl()) && tagIcon(tag, {}, { useColor: false })}
             <h3 className="TagTile-name">{tag.name()}</h3>
           </div>
           <p className="TagTile-description">{tag.description()}</p>
