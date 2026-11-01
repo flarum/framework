@@ -35,6 +35,12 @@ class ShowOpenSearchSuggestionsController implements RequestHandlerInterface
 
     public const LIMIT = 8;
 
+    /**
+     * Words of the query that are matched; the rest are ignored, so a long
+     * query can't build an unbounded number of conditions.
+     */
+    public const MAX_WORDS = 8;
+
     public function __construct(
         protected SlugManager $slugs,
         protected UrlGenerator $url
@@ -46,6 +52,7 @@ class ShowOpenSearchSuggestionsController implements RequestHandlerInterface
         $q = Arr::get($request->getQueryParams(), 'q');
         $query = is_string($q) ? $q : '';
         $words = preg_split('/[^\p{L}\p{N}\p{M}]+/u', $query, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $words = array_slice($words, 0, self::MAX_WORDS);
         $titles = $descriptions = $urls = [];
 
         if (mb_strlen(implode('', $words)) >= self::MIN_LENGTH) {

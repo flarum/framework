@@ -115,4 +115,16 @@ class OpenSearchSuggestionsTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertSame(['', [], [], []], json_decode((string) $response->getBody(), true));
     }
+
+    #[Test]
+    public function a_very_long_query_is_answered_from_its_first_words(): void
+    {
+        $words = array_map(fn (int $i) => "filler$i", range(1, 1500));
+
+        // The first eight words match; the 1500 after them are ignored.
+        [$query, $titles] = $this->suggest('lightsail tun'.str_repeat(' lightsail', 6).' '.implode(' ', $words));
+
+        $this->assertStringEndsWith(' filler1500', $query);
+        $this->assertSame(['Lightsail tuning'], $titles);
+    }
 }
