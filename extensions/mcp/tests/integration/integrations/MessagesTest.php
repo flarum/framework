@@ -197,6 +197,94 @@ class MessagesTest extends McpTestCase
     }
 
     #[Test]
+    public function mark_conversations_read_marks_given_or_all_conversations(): void
+    {
+        $this->prepareDatabase([
+            DialogMessage::class => [
+                ['id' => 3, 'dialog_id' => 1, 'user_id' => 3, 'content' => '<t><p>Still there?</p></t>', 'number' => 3, 'created_at' => Carbon::now()],
+            ],
+        ]);
+
+        $auth = $this->bearer($this->developerToken(2));
+        $this->database()->table('dialogs')->where('id', 1)->update(['last_message_id' => 3]);
+
+        $list = $this->toolOutput($this->callTool('list_conversations', [], $auth));
+        $this->assertSame(1, $list['data'][0]['unreadCount']);
+
+        // Reading leaves it unread.
+        $this->callTool('read_conversation', ['id' => '1'], $auth);
+        $this->assertSame(2, $this->lastRead(1, 2));
+
+        $marked = $this->toolOutput($this->callTool('mark_conversations_read', ['ids' => ['1', '999']], $auth));
+        $this->assertSame(['1'], $marked['marked']);
+        $this->assertSame('999', $marked['failed'][0]['id']);
+        $this->assertSame(3, $this->lastRead(1, 2));
+
+        $this->database()->table('dialog_user')->where(['dialog_id' => 1, 'user_id' => 2])->update(['last_read_message_id' => 1]);
+
+        $this->assertSame(['marked' => 'all'], $this->toolOutput($this->callTool('mark_conversations_read', [], $auth)));
+        $this->assertSame(3, $this->lastRead(1, 2));
+    }
+
+    #[Test]
+    public function delete_message_is_refused_unless_the_forum_allows_it(): void
+    {
+        $auth = $this->bearer($this->developerToken(2));
+
+        $this->toolOutput($this->callTool('delete_message', ['messageId' => '2'], $auth), expectError: true);
+        $this->assertTrue(DialogMessage::query()->whereKey(2)->exists());
+    }
+
+    #[Test]
+    public function delete_message_deletes_own_messages_when_the_forum_allows_it(): void
+    {
+        $this->setting('flarum-messages.allow_delete_own_messages', '-1');
+
+        $auth = $this->bearer($this->developerToken(2));
+
+        $this->assertSame(['deleted' => true, 'messageId' => '2'], $this->toolOutput($this->callTool('delete_message', ['messageId' => '2'], $auth)));
+        $this->assertFalse(DialogMessage::query()->whereKey(2)->exists());
+
+        // Someone else's message stays.
+        $this->toolOutput($this->callTool('delete_message', ['messageId' => '1'], $auth), expectError: true);
+        $this->assertTrue(DialogMessage::query()->whereKey(1)->exists());
+    }
+
+    #[Test]
+    public function leave_conversation_leaves_a_group_but_not_a_one_to_one_conversation(): void
+    {
+        $this->prepareDatabase([
+            Dialog::class => [
+                ['id' => 2, 'type' => 'group', 'first_message_id' => 4, 'last_message_id' => 4, 'last_message_at' => Carbon::now()],
+            ],
+            DialogMessage::class => [
+                ['id' => 4, 'dialog_id' => 2, 'user_id' => 3, 'content' => '<t><p>Hi all</p></t>', 'number' => 1, 'created_at' => Carbon::now()],
+            ],
+            'dialog_user' => [
+                ['dialog_id' => 2, 'user_id' => 2, 'joined_at' => Carbon::now(), 'last_read_message_id' => 4],
+                ['dialog_id' => 2, 'user_id' => 3, 'joined_at' => Carbon::now(), 'last_read_message_id' => 4],
+                ['dialog_id' => 2, 'user_id' => 4, 'joined_at' => Carbon::now(), 'last_read_message_id' => 4],
+            ],
+        ]);
+
+        $auth = $this->bearer($this->developerToken(2));
+
+        $this->toolOutput($this->callTool('leave_conversation', ['conversationId' => '1'], $auth), expectError: true);
+        $this->assertNotNull($this->lastRead(1, 2));
+
+        $this->assertSame(['left' => true, 'conversationId' => '2'], $this->toolOutput($this->callTool('leave_conversation', ['conversationId' => '2'], $auth)));
+        $this->assertNull($this->lastRead(2, 2));
+        $this->assertEqualsCanonicalizing([3, 4], Dialog::query()->findOrFail(2)->users()->pluck('users.id')->all());
+    }
+
+    protected function lastRead(int $dialogId, int $userId): ?int
+    {
+        $value = $this->database()->table('dialog_user')->where(['dialog_id' => $dialogId, 'user_id' => $userId])->value('last_read_message_id');
+
+        return $value === null ? null : (int) $value;
+    }
+
+    #[Test]
     public function messaging_tools_are_not_offered_to_guests(): void
     {
         $this->prepareDatabase(['group_permission' => [['group_id' => 2, 'permission' => 'mcp.use']]]);
