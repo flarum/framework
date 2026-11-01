@@ -145,6 +145,25 @@ class CoreUpgradeTest extends TestCase
         $this->assertSame(['acme/a'], array_column($r['verdicts'], 'package'));
     }
 
+    /**
+     * Asked about, and Packagist's releases never say either. That used to
+     * come back "incompatible" and block the core upgrade.
+     */
+    public function test_an_extension_whose_releases_never_declare_a_core_does_not_block_the_upgrade(): void
+    {
+        $core = new CoreUpgrade();
+        $r = $core->preflight([$this->ext('acme/loose', '1.0.0', null)], '2.1.0');
+
+        $verdict = (new \Flarum\ExtensionManager\Discover\Compatibility('2.1.0'))->verdict('acme/loose', ['packages' => ['acme/loose' => [
+            ['version' => '1.1.0', 'require' => ['php' => '^8.2']],
+            ['version' => '1.0.0'],
+        ]]]);
+        $merged = $core->merge($r['verdicts'], ['acme/loose' => $verdict]);
+
+        $this->assertSame('unknown', $merged['verdicts'][0]['state']);
+        $this->assertSame(0, $merged['blocked']);
+    }
+
     public function test_an_extension_declaring_no_core_constraint_is_asked_about(): void
     {
         // Rare, and the honest response is to ask rather than to assume either way.
