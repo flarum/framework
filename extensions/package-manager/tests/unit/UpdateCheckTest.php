@@ -9,6 +9,8 @@
 
 namespace Flarum\ExtensionManager\Tests\Unit;
 
+use Flarum\ExtensionManager\Tests\unit\FakeHttp;
+use Flarum\ExtensionManager\Work\PrivateIndex;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 use PHPUnit\Framework\TestCase;
 
@@ -283,7 +285,12 @@ class UpdateCheckTest extends TestCase
         $updates = $this->check()->current($lock)['updates'];
         @unlink($lock);
 
-        $this->assertSame(['fof/upload', 'acme/gone'], array_keys($updates));
+        /*
+         * acme/gone is no longer installed, so it is not offered either. It
+         * used to be kept, and `update --all` then refused the whole run
+         * because one of the packages it was handed was not installed.
+         */
+        $this->assertSame(['fof/upload'], array_keys($updates));
         // Part of the way there: still offered, from where it really is now.
         $this->assertSame(['from' => '2.0.0', 'to' => '2.0.2'], $updates['fof/upload']);
     }
@@ -350,5 +357,148 @@ class UpdateCheckTest extends TestCase
         );
 
         $this->assertSame('https://github.com/acme/paid/releases/tag/1.1.0', $result['updates']['acme/paid']['notes']);
+    }
+
+    // ── when Packagist does not answer (issue 5357, item 11) ────────────────
+
+    /**
+     * An outage used to save `updates: []` with a fresh time, so every badge
+     * vanished until the next check, hours later.
+     */
+    public function test_a_package_that_could_not_be_asked_keeps_what_the_last_check_found(): void
+    {
+        $check = $this->check();
+        $check->refresh(['a/b' => '1.0.0', 'c/d' => '1.0.0'], $this->feed(['a/b' => ['1.1.0'], 'c/d' => ['1.2.0']]));
+
+        $result = $check->refresh(['a/b' => '1.0.0', 'c/d' => '1.0.0'], fn (string $name) => $name === 'a/b' ? false : ['1.0.0']);
+
+        $this->assertSame(['from' => '1.0.0', 'to' => '1.1.0'], $result['updates']['a/b'] ?? null);
+        $this->assertArrayNotHasKey('c/d', $result['updates'], 'answered: up to date now, so dropped');
+        $this->assertSame(['a/b'], $result['unreachable']);
+        $this->assertSame([], $result['uncheckable'], 'not "no repository lists it": it could not be asked');
+        $this->assertSame($result['updates'], $check->cached()['updates']);
+    }
+
+    /** A package Packagist does not know (a 404) is still answered: nothing to offer. */
+    public function test_a_package_no_source_knows_drops_what_the_last_check_found(): void
+    {
+        $check = $this->check();
+        $check->refresh(['a/b' => '1.0.0'], $this->feed(['a/b' => ['1.1.0']]));
+
+        $result = $check->refresh(['a/b' => '1.0.0'], fn () => null);
+
+        $this->assertSame([], $result['updates']);
+        $this->assertSame(['a/b'], $result['uncheckable']);
+    }
+
+    /** What the last check found for a package since removed is not carried over. */
+    public function test_a_package_no_longer_installed_is_not_carried_over(): void
+    {
+        $check = $this->check();
+        $check->refresh(['a/b' => '1.0.0', 'gone/pkg' => '1.0.0'], $this->feed(['a/b' => ['1.1.0'], 'gone/pkg' => ['2.0.0']]));
+
+        $result = $check->refresh(['a/b' => '1.0.0'], fn () => false);
+
+        $this->assertSame(['a/b'], array_keys($result['updates']));
+    }
+
+    /** A package now on a branch has no version to compare, so its old entry goes. */
+    public function test_a_package_moved_to_a_branch_drops_what_the_last_check_found(): void
+    {
+        $check = $this->check();
+        $check->refresh(['a/b' => '1.0.0'], $this->feed(['a/b' => ['1.1.0']]));
+
+        $result = $check->refresh(['a/b' => 'dev-main'], fn () => false);
+
+        $this->assertSame([], $result['updates']);
+        $this->assertSame(['a/b'], $result['tracking']);
+    }
+
+    /**
+     * Packagist down does not stop a protected repository from answering for
+     * its own package, and a package neither knows is "could not ask" while
+     * Packagist could not be asked.
+     */
+    public function test_a_protected_repository_still_answers_while_packagist_is_down(): void
+    {
+        $protected = new class extends PrivateIndex {
+            public function __construct()
+            {
+            }
+
+            public function versionsFor(string $package): ?array
+            {
+                return $package === 'acme/paid' ? ['1.0.0', '1.1.0'] : null;
+            }
+
+            public function releaseNotesFor(string $package): array
+            {
+                return [];
+            }
+        };
+
+        $check = new UpdateCheck($this->cache, FakeHttp::client(fn () => null));
+        $result = $check->refreshWith(['acme/paid' => '1.0.0', 'acme/public' => '1.0.0'], $protected);
+
+        $this->assertSame(['from' => '1.0.0', 'to' => '1.1.0'], $result['updates']['acme/paid']);
+        $this->assertSame(['acme/public'], $result['unreachable']);
+    }
+
+    /**
+     * "Check now" is a web request. Out of time, it stops asking, and what it
+     * did not ask keeps the last check's answer.
+     */
+    public function test_a_check_out_of_time_stops_asking_and_keeps_the_rest(): void
+    {
+        $check = $this->check();
+        $check->refresh(['a/b' => '1.0.0', 'c/d' => '1.0.0'], $this->feed(['a/b' => ['1.1.0'], 'c/d' => ['1.2.0']]));
+        $asked = [];
+
+        $result = $check->refresh(['a/b' => '1.0.0', 'c/d' => '1.0.0'], function (string $name) use (&$asked) {
+            $asked[] = $name;
+
+            return ['1.0.0'];
+        }, budget: 0);
+
+        $this->assertSame([], $asked);
+        $this->assertSame(['a/b', 'c/d'], $result['unreachable']);
+        $this->assertSame(['a/b', 'c/d'], array_keys($result['updates']));
+    }
+
+    /**
+     * And it is saved as it goes, so a PHP or gateway timeout part of the way
+     * through keeps every answer so far rather than losing them all.
+     */
+    public function test_each_answer_is_saved_before_the_next_package_is_asked(): void
+    {
+        $check = $this->check();
+        $seen = null;
+
+        $check->refresh(['a/b' => '1.0.0', 'c/d' => '1.0.0'], function (string $name) use (&$seen) {
+            if ($name === 'c/d') {
+                $seen = UpdateCheck::cachedIn($this->cache)['updates'] ?? null;
+            }
+
+            return ['1.0.0', '1.1.0'];
+        });
+
+        $this->assertSame(['a/b' => ['from' => '1.0.0', 'to' => '1.1.0']], $seen);
+    }
+
+    /** The per-request timeout never outlasts the budget either. */
+    public function test_a_slow_packagist_is_given_no_longer_than_the_budget_has_left(): void
+    {
+        $timeouts = [];
+        $http = new \GuzzleHttp\Client(['handler' => function ($request, array $options) use (&$timeouts) {
+            $timeouts[] = $options['timeout'];
+
+            return \GuzzleHttp\Promise\Create::promiseFor(new \GuzzleHttp\Psr7\Response(200, [], '{"packages":{"a/b":[{"version":"1.0.0"}]}}'));
+        }]);
+
+        (new UpdateCheck($this->cache, $http))->refresh(['a/b' => '1.0.0'], budget: 5);
+        (new UpdateCheck($this->cache, $http))->refresh(['a/b' => '1.0.0']);
+
+        $this->assertLessThanOrEqual(5, $timeouts[0]);
+        $this->assertSame(15, $timeouts[1]);
     }
 }

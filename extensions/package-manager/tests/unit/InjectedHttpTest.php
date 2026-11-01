@@ -68,13 +68,33 @@ class InjectedHttpTest extends TestCase
         $this->assertSame('the Extension Manager', $this->sent[0]['request']->getHeaderLine('User-Agent'));
     }
 
-    public function test_the_update_check_reads_an_error_or_no_answer_as_unknown(): void
+    /**
+     * A 404 is Packagist saying it does not know the package. Everything else
+     * that is not a readable list is Packagist not answering, which must not
+     * read as "nothing newer": the check keeps what it knew for those.
+     */
+    public function test_the_update_check_tells_an_unknown_package_from_no_answer(): void
     {
         $request = new Request('GET', 'https://repo.packagist.org/');
-        $check = new UpdateCheck($this->dir.'/updates.json', $this->client(new Response(404), new ConnectException('down', $request)));
+        $check = new UpdateCheck($this->dir.'/updates.json', $this->client(
+            new Response(404),
+            new Response(410),
+            new ConnectException('down', $request),
+            new Response(500),
+            new Response(503),
+            new Response(429),
+            new Response(200, [], '<html>Bad gateway</html>'),
+            new Response(200, [], '{"packages":{}}'),
+        ));
 
-        $this->assertNull($check->fromPackagist('acme/widget'));
-        $this->assertNull($check->fromPackagist('acme/widget'));
+        $this->assertNull($check->fromPackagist('acme/widget'), '404: not on Packagist');
+        $this->assertNull($check->fromPackagist('acme/widget'), '410: not on Packagist');
+        $this->assertFalse($check->fromPackagist('acme/widget'), 'no connection');
+        $this->assertFalse($check->fromPackagist('acme/widget'), '500');
+        $this->assertFalse($check->fromPackagist('acme/widget'), '503');
+        $this->assertFalse($check->fromPackagist('acme/widget'), 'rate limited');
+        $this->assertFalse($check->fromPackagist('acme/widget'), 'a body that is not JSON');
+        $this->assertFalse($check->fromPackagist('acme/widget'), 'JSON without the package');
     }
 
     public function test_the_nightly_branch_is_asked_of_packagist_through_the_client(): void

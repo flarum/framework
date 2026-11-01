@@ -47,6 +47,9 @@ class UpdateCheck
      */
     protected array $releaseNotes = [];
 
+    /** When the check in progress has to stop asking, if it has a budget. */
+    protected ?float $deadline = null;
+
     public function __construct(
         protected string $cachePath,
         protected ClientInterface $http,
@@ -116,19 +119,37 @@ class UpdateCheck
 
     /**
      * @param array<string,string> $installed package => installed version
-     * @param callable(string):?array $fetch  overridable so this is testable
-     *                                        without a network
+     * @param callable(string):(array|false|null) $fetch overridable so this
+     *        is testable without a network: the versions, null when no source
+     *        knows the package, false when a source could not be asked
      * @param callable(string):array<string,string>|null $notesFor release links
      *        for packages Packagist does not know, version => URL
+     * @param int|null $budget seconds the whole check may take; what is left
+     *        unasked when they run out keeps what the last check found
      * @return array<string,mixed>
      */
-    public function refresh(array $installed, ?callable $fetch = null, ?callable $notesFor = null): array
+    public function refresh(array $installed, ?callable $fetch = null, ?callable $notesFor = null, ?int $budget = null): array
     {
         $fetch ??= fn (string $name) => $this->fromPackagist($name);
+        $this->deadline = $budget === null ? null : microtime(true) + $budget;
 
-        $found = [];
-        $unknown = [];
-        $tracking = [];
+        /*
+         * What the last check knew, for every package this one cannot answer
+         * for. A Packagist outage, a timeout or a check cut short used to save
+         * `updates: []` with a fresh time, so every badge vanished until the
+         * next check. Not being able to ask is not the same as there being
+         * nothing newer. Entries for packages no longer installed are not
+         * carried over: a stale one made `update --all` refuse the whole run.
+         */
+        $previous = array_intersect_key((array) ($this->cached()['updates'] ?? []), $installed);
+
+        $result = [
+            'checkedAt' => time(),
+            'updates' => $previous,
+            'uncheckable' => [],
+            'tracking' => [],
+            'unreachable' => [],
+        ];
 
         foreach ($installed as $name => $version) {
             /*
@@ -146,11 +167,21 @@ class UpdateCheck
              * staying cheap.
              */
             if (self::tracksABranch($version)) {
-                $tracking[] = $name;
+                unset($result['updates'][$name]);
+                $result['tracking'][] = $name;
                 continue;
             }
 
-            $versions = $fetch($name);
+            $versions = $this->outOfTime() ? false : $fetch($name);
+
+            if ($versions === false) {
+                // Asked and not answered, or not asked in time: the last
+                // check's entry for it stands.
+                $result['unreachable'][] = $name;
+                continue;
+            }
+
+            unset($result['updates'][$name]);
 
             if ($versions === null) {
                 /*
@@ -159,14 +190,9 @@ class UpdateCheck
                  * is a true and useful thing to say — whereas leaving it out
                  * implies it is up to date, which is a guess presented as a fact.
                  */
-                $unknown[] = $name;
-                continue;
-            }
-
-            $newest = $this->newestComparable($versions, $version);
-
-            if ($newest !== null && $this->isNewer($newest, $version)) {
-                $found[$name] = ['from' => $version, 'to' => $newest];
+                $result['uncheckable'][] = $name;
+            } elseif (($newest = $this->newestComparable($versions, $version)) !== null && $this->isNewer($newest, $version)) {
+                $result['updates'][$name] = ['from' => $version, 'to' => $newest];
 
                 // "What does this update give me?" (ClaudiusH, 2026-10-09). A
                 // link to the release, never a guess: absent when the package
@@ -175,18 +201,37 @@ class UpdateCheck
                     ?? ($notesFor ? ($notesFor($name)[$newest] ?? null) : null);
 
                 if ($notes !== null) {
-                    $found[$name]['notes'] = $notes;
+                    $result['updates'][$name]['notes'] = $notes;
                 }
             }
+
+            /*
+             * Saved as it goes. "Check now" runs inside a web request, and a
+             * PHP or gateway timeout part of the way through used to lose
+             * every answer. Each save is complete on its own: what has been
+             * asked, and the last check's answer for what has not.
+             */
+            $this->save($result);
         }
 
-        $result = [
-            'checkedAt' => time(),
-            'updates' => $found,
-            'uncheckable' => $unknown,
-            'tracking' => $tracking,
-        ];
+        $this->save($result);
 
+        return $result;
+    }
+
+    protected function outOfTime(): bool
+    {
+        return $this->deadline !== null && microtime(true) >= $this->deadline;
+    }
+
+    /**
+     * Written whole and then renamed into place, so a state poll reading it
+     * part of the way through a check never sees half a file.
+     *
+     * @param array<string,mixed> $result
+     */
+    protected function save(array $result): void
+    {
         /*
          * The directory is made here, not assumed. Nothing else creates
          * storage/extension-manager until the first update run, so on a fresh install
@@ -201,9 +246,11 @@ class UpdateCheck
             @mkdir($dir, 0775, true);
         }
 
-        @file_put_contents($this->cachePath, json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        $tmp = $this->cachePath.'.'.bin2hex(random_bytes(4));
 
-        return $result;
+        if (@file_put_contents($tmp, json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) === false || ! @rename($tmp, $this->cachePath)) {
+            @unlink($tmp);
+        }
     }
 
     /**
@@ -217,12 +264,20 @@ class UpdateCheck
      * @param array<string,string> $installed
      * @return array<string,mixed>
      */
-    public function refreshWith(array $installed, PrivateIndex $protected): array
+    public function refreshWith(array $installed, PrivateIndex $protected, ?int $budget = null): array
     {
         return $this->refresh(
             $installed,
-            fn (string $name) => $this->fromPackagist($name) ?? $protected->versionsFor($name),
+            function (string $name) use ($protected) {
+                $public = $this->fromPackagist($name);
+
+                // Still asked when Packagist is down: a protected package's
+                // answer does not depend on it. Unknown to both, the package
+                // is "could not ask" if Packagist could not be asked.
+                return is_array($public) ? $public : ($protected->versionsFor($name) ?? $public);
+            },
             fn (string $name) => $protected->releaseNotesFor($name),
+            $budget,
         );
     }
 
@@ -234,9 +289,11 @@ class UpdateCheck
      * One place for "Check now", extension-manager:check and the re-check
      * extension-manager:update makes before giving up on a pin.
      *
+     * @param int|null $budget seconds the check may take, for a caller inside
+     *                         a web request; null to ask everything
      * @return array<string,mixed>|null
      */
-    public function refreshSite(TranslatorInterface $translator, string $base): ?array
+    public function refreshSite(TranslatorInterface $translator, string $base, ?int $budget = null): ?array
     {
         $lock = (array) json_decode((string) @file_get_contents($base.'/composer.lock'), true);
         $packages = array_merge(array_values((array) ($lock['packages'] ?? [])), array_values((array) ($lock['packages-dev'] ?? [])));
@@ -249,7 +306,7 @@ class UpdateCheck
             new Repositories($translator, new JsonFile($translator, $base.'/composer.json')),
             new AuthTokens($translator, new JsonFile($translator, $base.'/auth.json')),
             $this->http,
-        ));
+        ), $budget);
     }
 
     /** @return array<string,mixed> */
@@ -282,6 +339,9 @@ class UpdateCheck
      * composer.lock says now: dropped once reached, and its "from" kept true
      * when only part of the way.
      *
+     * Dropped too when the package is no longer installed: Update cannot
+     * deliver it, and `update --all` refused the whole run over it.
+     *
      * @return array<string,mixed>
      */
     public function current(string $lockPath): array
@@ -298,7 +358,11 @@ class UpdateCheck
         foreach ((array) ($cached['updates'] ?? []) as $name => $update) {
             $installed = $now[$name] ?? null;
 
-            if ($installed === null || self::tracksABranch($installed)) {
+            if ($installed === null) {
+                continue;
+            }
+
+            if (self::tracksABranch($installed)) {
                 $updates[$name] = $update;
             } elseif ($this->isNewer((string) ($update['to'] ?? ''), $installed)) {
                 $updates[$name] = ['from' => $installed] + $update;
@@ -315,6 +379,12 @@ class UpdateCheck
         return $at === null || (time() - (int) $at) > $this->freshFor;
     }
 
+    /** A branch install: `dev-main`, `1.x-dev`. */
+    public static function tracksABranch(string $version): bool
+    {
+        return str_starts_with($version, 'dev-') || str_contains($version, '-dev');
+    }
+
     /**
      * The newest version worth comparing against what is installed.
      *
@@ -325,12 +395,6 @@ class UpdateCheck
      *
      * @param list<string> $versions
      */
-    /** A branch install: `dev-main`, `1.x-dev`. */
-    public static function tracksABranch(string $version): bool
-    {
-        return str_starts_with($version, 'dev-') || str_contains($version, '-dev');
-    }
-
     protected function newestComparable(array $versions, string $installed): ?string
     {
         $installedIsDev = self::tracksABranch($installed);
@@ -368,27 +432,45 @@ class UpdateCheck
         return ltrim($version, 'v');
     }
 
-    /** @return list<string>|null */
     /**
      * Public so a caller can compose it — Packagist first, then whatever
      * protected repositories the site has — without reimplementing it.
+     *
+     * Three answers, because two of them used to be one. A 404 is Packagist
+     * saying it does not know the package: null, "uncheckable". Anything else
+     * that is not a readable list — a 5xx, a 429, a timeout, a body that does
+     * not parse — is Packagist not answering: false, so the check keeps what
+     * it knew instead of deciding there is nothing newer.
+     *
+     * @return list<string>|false|null
      */
-    public function fromPackagist(string $name): ?array
+    public function fromPackagist(string $name): array|false|null
     {
+        // Never longer than the check has left, so a budget is kept even
+        // when Packagist is slow rather than down.
+        $timeout = $this->deadline === null ? 15 : max(1, min(15, $this->deadline - microtime(true)));
+
         try {
-            $body = (string) $this->http->request('GET', 'https://repo.packagist.org/p2/'.$name.'.json', [
-                'timeout' => 15,
+            $response = $this->http->request('GET', 'https://repo.packagist.org/p2/'.$name.'.json', [
+                'timeout' => $timeout,
+                'http_errors' => false,
                 'headers' => ['User-Agent' => 'the Extension Manager'],
-            ])->getBody();
+            ]);
         } catch (GuzzleException) {
+            return false;
+        }
+
+        $status = $response->getStatusCode();
+
+        if ($status === 404 || $status === 410) {
             return null;
         }
 
-        $data = json_decode($body, true);
-        $versions = $data['packages'][$name] ?? null;
+        $data = $status === 200 ? json_decode((string) $response->getBody(), true) : null;
+        $versions = is_array($data) ? ($data['packages'][$name] ?? null) : null;
 
         if (! is_array($versions)) {
-            return null;
+            return false;
         }
 
         [$list, $notes] = self::readP2($versions);
