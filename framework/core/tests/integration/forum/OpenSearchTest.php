@@ -189,4 +189,17 @@ class OpenSearchTest extends TestCase
 
         $this->assertEquals(422, $response->getStatusCode());
     }
+
+    #[Test]
+    public function control_characters_pasted_into_settings_are_left_out(): void
+    {
+        // XML can't contain them at all, so browsers would refuse the document.
+        $this->setting('forum_title', "Acme\x01 Forum");
+        $this->setting('forum_description', "Rockets\x0B and more.");
+
+        $xml = $this->description();
+
+        $this->assertSame('Acme Forum', (string) $xml->ShortName);
+        $this->assertSame('Rockets and more.', (string) $xml->Description);
+    }
 }

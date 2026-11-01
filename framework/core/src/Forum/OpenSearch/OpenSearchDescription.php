@@ -54,8 +54,8 @@ class OpenSearchDescription
         $xml->writeAttribute('xmlns', 'http://a9.com/-/spec/opensearch/1.1/');
         $xml->writeAttribute('xmlns:moz', 'http://www.mozilla.org/2006/browser/search/');
 
-        $xml->writeElement('ShortName', $this->shortName->get());
-        $xml->writeElement('Description', $this->description());
+        $xml->writeElement('ShortName', $this->xmlText($this->shortName->get()));
+        $xml->writeElement('Description', $this->xmlText($this->description()));
         $xml->writeElement('Tags', 'flarum discussion forum');
         $xml->writeElement('InputEncoding', 'UTF-8');
 
@@ -79,7 +79,7 @@ class OpenSearchDescription
         // the term most likely to have results in any language.
         $xml->startElement('Query');
         $xml->writeAttribute('role', 'example');
-        $xml->writeAttribute('searchTerms', (string) $this->settings->get('forum_title'));
+        $xml->writeAttribute('searchTerms', $this->xmlText((string) $this->settings->get('forum_title')));
         $xml->endElement();
 
         $xml->endElement();
@@ -113,6 +113,15 @@ class OpenSearchDescription
 
         $xml->writeAttribute('template', $template);
         $xml->endElement();
+    }
+
+    /**
+     * Text without the control characters XML can't contain, which a setting
+     * pasted from elsewhere may have.
+     */
+    protected function xmlText(string $text): string
+    {
+        return (string) preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $text);
     }
 
     protected function description(): string
