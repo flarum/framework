@@ -79,6 +79,19 @@ class ConnectionsTest extends TestCase
     }
 
     #[Test]
+    public function setting_up_a_connection_again_replaces_its_key(): void
+    {
+        $this->useAdminConnection('first-key');
+        $this->useAdminConnection('second-key');
+        $this->app();
+        $this->fakeAnthropic();
+
+        $this->prompt();
+
+        $this->assertSame('second-key', $this->keySentToProvider());
+    }
+
+    #[Test]
     public function config_php_overrides_the_admins_connection(): void
     {
         $this->useAdminConnection('admin-key');

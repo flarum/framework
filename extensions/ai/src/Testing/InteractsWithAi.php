@@ -29,7 +29,8 @@ use Flarum\Ai\Features\FeatureSettings;
 trait InteractsWithAi
 {
     /**
-     * Adds a connection and makes it the default.
+     * Adds a connection and makes it the default. Calling it again with the
+     * same name replaces that connection, key included.
      *
      * @param array{driver?: string, url?: string, model?: string, monthly_tokens?: int} $connection
      */
@@ -40,6 +41,13 @@ trait InteractsWithAi
 
         $this->setting(AdminConnections::SETTING, json_encode($connections));
         $this->setting(AdminConnections::DEFAULT_SETTING, $name);
+
+        // The table has no model, so the test case would insert a second row for
+        // the connection, not update the first, and break its primary key.
+        $this->databaseContent['ai_connection_keys'] = array_values(array_filter(
+            $this->databaseContent['ai_connection_keys'] ?? [],
+            fn (array $row) => $row['connection'] !== $name
+        ));
 
         if ($key !== null) {
             $this->prepareDatabase(['ai_connection_keys' => [['connection' => $name, 'key' => $key, 'updated_at' => date('Y-m-d H:i:s')]]]);
