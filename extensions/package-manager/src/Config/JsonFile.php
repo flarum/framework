@@ -96,14 +96,11 @@ class JsonFile
         $backup ? $this->backup($mode) : $this->removeBackups();
 
         $tmp = $this->path.'.extension-manager-'.bin2hex(random_bytes(4));
-        $handle = @fopen($tmp, 'x');
+        $handle = $this->create($tmp, $mode);
 
         if ($handle === false) {
             throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.config.json_write_failed', ['path' => $this->path]));
         }
-
-        // Before anything is written, so a secret is never in a file others can read.
-        @chmod($tmp, $mode);
 
         try {
             fwrite($handle, $json."\n");
@@ -119,6 +116,27 @@ class JsonFile
             @unlink($tmp);
 
             throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.config.json_replace_failed', ['path' => $this->path]));
+        }
+    }
+
+    /**
+     * A new file, created with $mode from the start.
+     *
+     * Not created and then chmodded: in between, a file made with the umask's
+     * permissions (often world-readable) can be opened by another user, and an
+     * open handle keeps reading whatever is written later, auth.json secrets
+     * included. The umask is restored before anything else runs.
+     *
+     * @return resource|false
+     */
+    protected function create(string $path, int $mode)
+    {
+        $umask = umask(0777 & ~$mode);
+
+        try {
+            return @fopen($path, 'x');
+        } finally {
+            umask($umask);
         }
     }
 
@@ -139,13 +157,12 @@ class JsonFile
 
         $to = $this->path.'.extension-manager-backup';
         $tmp = $to.'.'.bin2hex(random_bytes(4));
-        $handle = @fopen($tmp, 'x');
+        $handle = $this->create($tmp, $mode);
 
         if ($handle === false) {
             return;
         }
 
-        @chmod($tmp, $mode);
         fwrite($handle, (string) @file_get_contents($this->path));
         fclose($handle);
 
