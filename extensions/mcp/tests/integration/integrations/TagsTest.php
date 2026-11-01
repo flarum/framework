@@ -95,4 +95,26 @@ class TagsTest extends McpTestCase
 
         $this->assertStringContainsString('Unknown tag(s): nope', $unknown['error']);
     }
+
+    #[Test]
+    public function the_slugs_list_tags_gives_work_whatever_the_slug_driver(): void
+    {
+        $this->setting('slug_driver_'.Tag::class, 'id_with_slug');
+
+        $auth = $this->bearer($this->developerToken(2));
+
+        $tags = $this->toolOutput($this->callTool('list_tags', [], $auth));
+        $this->assertSame(['1-general', '2-support'], array_column($tags['primary'], 'slug'));
+        $this->assertSame('http://localhost/t/1-general', $tags['primary'][0]['url']);
+
+        $found = $this->toolOutput($this->callTool('search_discussions', ['tag' => '2-support'], $auth));
+        $this->assertSame(['2'], array_column($found['data'], 'id'));
+
+        $created = $this->toolOutput($this->callTool('start_discussion', [
+            'title' => 'Tagged over MCP',
+            'content' => 'Hello',
+            'tags' => ['1-general'],
+        ], $auth));
+        $this->assertSame([1], Discussion::query()->findOrFail($created['id'])->tags()->pluck('tags.id')->all());
+    }
 }

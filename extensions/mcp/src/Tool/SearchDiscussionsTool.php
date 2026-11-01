@@ -14,6 +14,7 @@ use Flarum\Mcp\Api\HtmlToText;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Tool;
 use Flarum\Mcp\Tool\Support\Document;
+use Flarum\Mcp\Tool\Support\Members;
 
 /**
  * Extensions add arguments through `Extend\Mcp::extendTool('search_discussions')`;
@@ -30,6 +31,11 @@ class SearchDiscussionsTool extends Tool
         'newest' => '-createdAt',
         'oldest' => 'createdAt',
     ];
+
+    public function __construct(
+        protected Members $members,
+    ) {
+    }
 
     public function name(): string
     {
@@ -80,7 +86,15 @@ class SearchDiscussionsTool extends Tool
             $filter['q'] = $searchQuery;
         }
         if (! empty($arguments['author'])) {
-            $filter['author'] = (string) $arguments['author'];
+            $author = $this->members->find((string) $arguments['author'], $context->actor);
+
+            // Nobody by that name: core's author filter would try it as a slug.
+            if ($author === null) {
+                return ['data' => [], 'meta' => ['total' => 0]];
+            }
+
+            // Core's author filter takes slugs.
+            $filter['author'] = $this->members->slug($author);
         }
 
         $query = [

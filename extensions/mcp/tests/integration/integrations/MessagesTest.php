@@ -197,6 +197,20 @@ class MessagesTest extends McpTestCase
     }
 
     #[Test]
+    public function send_message_finds_the_member_by_username_whatever_the_slug_driver(): void
+    {
+        $this->setting('slug_driver_'.User::class, 'id_with_display_name');
+
+        $auth = $this->bearer($this->developerToken(2));
+
+        $new = $this->toolOutput($this->callTool('send_message', ['to' => 'carol', 'content' => 'Hello Carol'], $auth));
+        $this->assertEqualsCanonicalizing([2, 4], DialogMessage::query()->findOrFail($new['messageId'])->dialog->users()->pluck('users.id')->all());
+
+        $unknown = $this->toolOutput($this->callTool('send_message', ['to' => 'nobody', 'content' => 'Hello?'], $auth), expectError: true);
+        $this->assertSame('Not found.', $unknown['error']);
+    }
+
+    #[Test]
     public function messaging_tools_are_not_offered_to_guests(): void
     {
         $this->prepareDatabase(['group_permission' => [['group_id' => 2, 'permission' => 'mcp.use']]]);
