@@ -19,7 +19,7 @@ class ClientEntity implements ClientEntityInterface
     use ClientTrait;
 
     /**
-     * Scopes a self-registered client registered; null when unrestricted.
+     * The scopes the client may be granted; null when unrestricted.
      *
      * @var list<string>|null
      */

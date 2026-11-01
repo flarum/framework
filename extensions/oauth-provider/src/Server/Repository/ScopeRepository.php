@@ -42,7 +42,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     ): array {
         $registered = $clientEntity instanceof ClientEntity ? $clientEntity->getRegisteredScopes() : null;
 
-        // A self-registered client only ever gets the scopes it registered.
+        // A client with allowed scopes only ever gets those.
         if ($registered === null) {
             return $scopes;
         }

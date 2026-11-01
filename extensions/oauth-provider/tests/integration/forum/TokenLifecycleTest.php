@@ -37,8 +37,27 @@ class TokenLifecycleTest extends TestCase
 
         $this->prepareDatabase([
             User::class => [$this->normalUser()],
-            'oauth_provider_clients' => [$this->clientRow('public-client', false)],
+            'oauth_provider_clients' => [
+                $this->clientRow('public-client', false),
+                $this->clientRow('restricted-client', false, extra: ['scopes' => json_encode(['openid'])]),
+            ],
         ]);
+    }
+
+    #[Test]
+    public function an_admin_client_only_gets_its_allowed_scopes(): void
+    {
+        $tokens = $this->publicClientTokens('restricted-client', ['scope' => 'openid profile email']);
+
+        $this->assertSame(['openid'], $this->jwtClaims($tokens['access_token'])['scopes'] ?? null, 'Scopes the admin did not allow must not be granted');
+    }
+
+    #[Test]
+    public function an_admin_client_without_allowed_scopes_is_unrestricted(): void
+    {
+        $tokens = $this->publicClientTokens('public-client', ['scope' => 'openid profile email']);
+
+        $this->assertSame(['openid', 'profile', 'email'], $this->jwtClaims($tokens['access_token'])['scopes'] ?? null);
     }
 
     #[Test]

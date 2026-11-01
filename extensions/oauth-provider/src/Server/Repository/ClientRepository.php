@@ -62,7 +62,9 @@ class ClientRepository implements ClientRepositoryInterface
         $entity->setRedirectUri((array) $client->redirect_uris);
         $entity->setConfidential((bool) $client->confidential);
 
-        if ($client->source !== Client::SOURCE_ADMIN && $client->scopes !== null) {
+        // Null leaves the client unrestricted; any list, the admin's
+        // "Allowed scopes" included, is the most it can be granted.
+        if ($client->scopes !== null) {
             $entity->setRegisteredScopes(array_values($client->scopes));
         }
 
