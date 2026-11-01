@@ -113,7 +113,7 @@ export default class GeneralSearchSource implements GlobalSearchSource {
         const group = app.generalIndex.getGroup(extensionId);
 
         if (this.itemHasQuery(label, query) || this.itemHasQuery(help, query)) {
-          const id = extensionId + '-' + ('setting' in setting ? setting : 'id' in setting ? setting.id : '');
+          const id = extensionId + '-' + ('setting' in setting ? setting.setting : 'id' in setting ? setting.id : '');
           const location = 'setting' in setting || 'section' in setting ? app.registry.getSettingLocation(extensionId, setting) : {};
           const locationTree = [location.tab?.label, location.section?.label].filter(Boolean).map(extractText);
 
