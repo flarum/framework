@@ -73,6 +73,8 @@ return [
         ->tool(Tool\MarkNotificationsReadTool::class)
         ->resource(Resource\ForumOverviewResource::class)
         ->resourceTemplate(Resource\DiscussionTemplate::class)
+        ->resourceTemplate(Resource\DiscussionPostsTemplate::class)
+        ->resourceTemplate(Resource\DiscussionPostsBeforeTemplate::class)
         ->resourceTemplate(Resource\UserTemplate::class)
         ->prompt(Prompt\SummarizeDiscussionPrompt::class)
         ->prompt(Prompt\DraftReplyPrompt::class)

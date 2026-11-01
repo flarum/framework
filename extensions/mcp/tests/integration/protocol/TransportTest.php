@@ -89,7 +89,7 @@ class TransportTest extends McpTestCase
 
         $templates = $this->rpcResult($this->modern('resources/templates/list', [], $this->bearer($token)));
         $this->assertEqualsCanonicalizing(
-            ['flarum://discussions/{id}', 'flarum://users/{username}'],
+            ['flarum://discussions/{id}', 'flarum://discussions/{id}/posts/{offset}', 'flarum://discussions/{id}/posts/before/{before}', 'flarum://users/{username}'],
             array_column($templates['resourceTemplates'], 'uriTemplate')
         );
 

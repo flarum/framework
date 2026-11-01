@@ -90,6 +90,40 @@ class ReadDiscussionTest extends McpTestCase
     public function walking_previous_over_pages_cut_to_size_visits_every_post_once(): void
     {
         $count = 60;
+        $this->longDiscussion($count);
+
+        $auth = $this->bearer($this->developerToken(2));
+
+        [$forwards, $last] = $this->walk($auth, ['limit' => 50], 'next', '2');
+        $this->assertGreaterThan(2, count($forwards), 'pages are cut to size');
+        $this->assertSame(range(1, $count), array_merge(...$forwards));
+
+        [$backwards] = $this->walk($auth, $last, 'previous', '2');
+        $this->assertSame(range(1, $count), array_merge(...$backwards));
+    }
+
+    #[Test]
+    public function the_discussion_resource_is_read_in_full_by_following_its_paging_uris(): void
+    {
+        $count = 60;
+        $this->longDiscussion($count);
+
+        $auth = $this->bearer($this->developerToken(2));
+
+        [$forwards, $last] = $this->walkResource($auth, 'flarum://discussions/2', 'next');
+        $this->assertGreaterThan(1, count($forwards));
+        $this->assertSame(range(1, $count), array_merge(...$forwards));
+
+        [$backwards] = $this->walkResource($auth, $last, 'previous');
+        $this->assertSame(range(1, $count), array_merge(...array_reverse($backwards)));
+    }
+
+    /**
+     * Discussion 2, with posts of about 3,900 characters each: 25 of them
+     * exceed the payload cap.
+     */
+    protected function longDiscussion(int $count): void
+    {
         $posts = [];
         for ($number = 1; $number <= $count; $number++) {
             $posts[] = [
@@ -98,7 +132,6 @@ class ReadDiscussionTest extends McpTestCase
                 'number' => $number,
                 'user_id' => 2,
                 'type' => 'comment',
-                // Each about 3,900 characters: 50 of them exceed the payload cap.
                 'content' => '<t><p>'.$number.' '.str_repeat('lorem ', 650).'</p></t>',
                 'created_at' => Carbon::now()->subMinutes(100 - $number),
             ];
@@ -110,15 +143,34 @@ class ReadDiscussionTest extends McpTestCase
             ],
             Post::class => $posts,
         ]);
+    }
 
-        $auth = $this->bearer($this->developerToken(2));
+    /**
+     * Reads a resource and follows one paging URI until there is none.
+     *
+     * @param array<string, string> $auth
+     * @return array{list<list<int>>, string} the pages' post numbers in the order read, and the URI of the last page
+     */
+    protected function walkResource(array $auth, string $uri, string $direction): array
+    {
+        $pages = [];
 
-        [$forwards, $last] = $this->walk($auth, ['limit' => 50], 'next', '2');
-        $this->assertGreaterThan(2, count($forwards), 'pages are cut to size');
-        $this->assertSame(range(1, $count), array_merge(...$forwards));
+        for ($i = 0; $i < 20; $i++) {
+            $read = $this->rpcResult($this->modern('resources/read', ['uri' => $uri], $auth, $uri));
+            $this->assertSame($uri, $read['contents'][0]['uri']);
+            $output = json_decode($read['contents'][0]['text'], true);
+            $pages[] = array_column($output['posts'], 'number');
 
-        [$backwards] = $this->walk($auth, $last, 'previous', '2');
-        $this->assertSame(range(1, $count), array_merge(...$backwards));
+            $hint = $output['paging'][$direction] ?? null;
+            if (! $hint) {
+                break;
+            }
+
+            $this->assertIsString($hint['uri'] ?? null, "paging.$direction gives the URI to read: ".json_encode($hint));
+            $uri = $hint['uri'];
+        }
+
+        return [$pages, $uri];
     }
 
     /**

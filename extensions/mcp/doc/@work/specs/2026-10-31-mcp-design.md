@@ -347,7 +347,9 @@ Exposure rules:
 | `edit_post` | tool | no | `postId`, `content`. |
 | `mark_notifications_read` | tool | no | `ids?` (all when omitted). |
 | `flarum://forum` | resource | n/a | The forum overview (below). |
-| `flarum://discussions/{id}` | template | n/a | Same output as `read_discussion` (first 20 posts); its paging hints are `read_discussion` arguments, as the SDK's templates only take `{var}` path segments. |
+| `flarum://discussions/{id}` | template | n/a | Same output as `read_discussion` (first 20 posts), except that the paging hints are the URIs of the neighbouring pages: `paging.next.uri` and `paging.previous.uri`. |
+| `flarum://discussions/{id}/posts/{offset}` | template | n/a | The page of 20 posts from `offset`, as `read_discussion` with `offset`; paging hints as URIs. |
+| `flarum://discussions/{id}/posts/before/{before}` | template | n/a | The page of up to 20 posts just before `before`, as `read_discussion` with `before`; paging hints as URIs. The SDK (0.9) matches templates with any number of `{var}` path segments, each `[^/]+`, but not RFC 6570 operators such as `{?offset}`, so a page is a path. |
 | `flarum://users/{username}` | template | n/a | Same output as `get_user`. |
 | `summarize_discussion` | prompt | n/a | Argument `id`. Asks the model to read the discussion via `read_discussion` and summarise it. |
 | `draft_reply` | prompt | n/a | Arguments `id` and `intent`. Asks the model to read the discussion and draft a reply for the user to review before posting. |
