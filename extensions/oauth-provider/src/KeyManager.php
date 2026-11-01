@@ -21,8 +21,9 @@ use RuntimeException;
  *
  * The keys are files in `storage/oauth-provider`, readable by the owner only.
  * They are never settings: every setting is sent to admins' browsers. Keys
- * are generated on first use; when concurrent first requests race, the first
- * key written wins and the others use it. Keys from older installs, kept in
+ * are generated on first use; writers hold a lock on the directory, so when
+ * concurrent first requests race, the first key written wins and the others
+ * use it. Keys from older installs, kept in
  * settings, are moved to the files on first use.
  *
  * Call rotate() to regenerate them — existing tokens will be invalidated.
@@ -127,8 +128,9 @@ class KeyManager
 
     /**
      * Writes a complete key file in one step, readable by the owner only, and
-     * returns the key now stored. Unless replacing, an existing file is kept:
-     * a request that loses a race uses the key that won.
+     * returns the key now stored. Writers take turns; unless replacing, a key
+     * already stored is kept, so a request that loses a race uses the key that
+     * won. An empty file counts as no key.
      */
     protected function write(string $file, string $key, bool $replace = false): string
     {
@@ -139,28 +141,43 @@ class KeyManager
         }
 
         $path = $directory.'/'.$file;
-        $temporary = tempnam($directory, '.'.$file.'.');
+        $lock = @fopen($directory.'/.lock', 'c');
 
-        if ($temporary === false) {
-            throw new RuntimeException("Could not write to the key directory $directory.");
+        // Without a lock two first requests could each store their own key.
+        if ($lock === false || ! flock($lock, LOCK_EX)) {
+            throw new RuntimeException("Could not lock the key directory $directory.");
         }
 
+        $temporary = false;
+
         try {
+            $stored = $replace ? null : $this->read($file);
+
+            if ($stored !== null) {
+                return $stored;
+            }
+
+            $temporary = tempnam($directory, '.'.$file.'.');
+
+            if ($temporary === false || dirname($temporary) !== $directory) {
+                throw new RuntimeException("Could not write to the key directory $directory.");
+            }
+
             if (! chmod($temporary, 0600) || file_put_contents($temporary, $key) !== strlen($key)) {
                 throw new RuntimeException("Could not write the key file $path.");
             }
 
-            if ($replace) {
-                rename($temporary, $path);
-            } elseif (! @link($temporary, $path) && ! file_exists($path)) {
-                // link() never replaces a file. Without hard link support,
-                // fall back to a rename, which still never exposes half a key.
-                rename($temporary, $path);
+            // Readers never see half a key.
+            if (! rename($temporary, $path)) {
+                throw new RuntimeException("Could not write the key file $path.");
             }
         } finally {
-            if (file_exists($temporary)) {
+            if ($temporary !== false && file_exists($temporary)) {
                 unlink($temporary);
             }
+
+            flock($lock, LOCK_UN);
+            fclose($lock);
         }
 
         return $this->read($file) ?? throw new RuntimeException("Could not read the key file $path.");

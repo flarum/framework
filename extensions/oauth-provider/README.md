@@ -16,3 +16,5 @@ Never trust the header from any address: clients could then choose their own add
 ## Keys
 
 The RSA key that signs access and ID tokens, and the key that encrypts authorization codes and refresh tokens, are generated on first use and stored in `storage/oauth-provider/`, readable by the web server user only. Include that directory in backups: losing it invalidates every issued token. Keep it out of anything served publicly.
+
+When several servers or containers serve one forum, `storage/oauth-provider/` must be shared between them and persist across deployments. Otherwise each one generates its own keys, and tokens issued by one are rejected by the others.

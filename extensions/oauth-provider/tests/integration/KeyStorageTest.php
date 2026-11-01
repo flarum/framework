@@ -90,7 +90,20 @@ class KeyStorageTest extends TestCase
         $this->assertSame(0700, fileperms($directory) & 0777);
         $this->assertSame(0600, fileperms($directory.'/'.KeyManager::PRIVATE_KEY_FILE) & 0777);
         $this->assertSame(0600, fileperms($directory.'/'.KeyManager::ENCRYPTION_KEY_FILE) & 0777);
-        $this->assertSame([KeyManager::ENCRYPTION_KEY_FILE, KeyManager::PRIVATE_KEY_FILE], array_values(array_diff(scandir($directory), ['.', '..'])), 'No temporary files are left behind');
+        $this->assertSame(['.lock', KeyManager::ENCRYPTION_KEY_FILE, KeyManager::PRIVATE_KEY_FILE], array_values(array_diff(scandir($directory), ['.', '..'])), 'No temporary files are left behind');
+    }
+
+    #[Test]
+    public function an_empty_key_file_is_replaced(): void
+    {
+        $directory = $this->keyDirectory();
+        mkdir($directory, 0700);
+        touch($directory.'/'.KeyManager::PRIVATE_KEY_FILE);
+
+        $key = $this->keyManager($directory)->privateKey()->getKeyContents();
+
+        $this->assertStringContainsString('PRIVATE KEY', $key);
+        $this->assertSame($key, file_get_contents($directory.'/'.KeyManager::PRIVATE_KEY_FILE));
     }
 
     #[Test]
