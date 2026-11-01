@@ -7,6 +7,8 @@ export default class OAuthClient extends Model {
     revoked: () => boolean;
     source: () => "admin" | "metadata_document" | "dynamic";
     plainSecret: () => string | null;
+    connectionCount: () => number;
+    lastUsedAt: () => Date | null;
     createdAt: () => Date;
     updatedAt: () => Date | null;
 }
