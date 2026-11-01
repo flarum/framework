@@ -822,6 +822,7 @@ flarum-extension-manager:
       nothing_selected: "Nothing was selected, so nothing was started."
       replaced: "{name} has been replaced by another package, so it was not installed. Its Packagist page or repository names the one to use now."
       replaced_by: "{name} has been replaced by {replacement}. Install {replacement} instead; installing the old name gives you the new extension under the wrong id."
+      replaced_unchecked: "Packagist could not be reached to check whether {name} has been replaced by another package, so it was not installed. Try again in a minute."
       still_enabled: "{package} is still enabled. Turn it off on the Extensions page first, check the forum is happy without it, and then remove it."
     updater:
       answered: "Flarum's updater did not update the database (it answered {status}: {body})."

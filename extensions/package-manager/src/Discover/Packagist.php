@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Discover;
 
+use Flarum\ExtensionManager\Exception\RefusedException;
 use Flarum\Locale\TranslatorInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
@@ -188,15 +189,7 @@ class Packagist
             return $cached;
         }
 
-        $body = $this->fetch('https://repo.packagist.org/p2/'.$name.'.json');
-
-        if ($body === null) {
-            // Not cached: a package that could not be reached today may be
-            // reachable in a minute, and caching "unknown" would hide it.
-            return ['compatible' => null, 'version' => null, 'requires' => null, 'stability' => null, 'replaced' => false, 'replacedBy' => null];
-        }
-
-        $p2 = (array) json_decode($body, true);
+        $p2 = $this->p2($name, '', $status);
 
         /*
          * Packagist keeps branches in a second file. A package that has never
@@ -205,9 +198,22 @@ class Packagist
          * a forum on Dev stability installs fine. One more request, and only for
          * packages with no releases at all.
          */
-        if (($p2['packages'][$name] ?? null) === []) {
-            $dev = $this->fetch('https://repo.packagist.org/p2/'.$name.'~dev.json');
-            $p2 = $dev === null ? $p2 : (array) json_decode($dev, true);
+        if ($p2 !== null && $p2['packages'][$name] === []) {
+            $dev = $this->p2($name, '~dev', $status);
+            $p2 = $dev ?? ($status === 404 ? $p2 : null);
+        }
+
+        if ($p2 === null) {
+            /*
+             * Not cached: a package that could not be reached today may be
+             * reachable in a minute, and caching "unknown" would hide it. That
+             * includes an answer that does not parse, which used to be cached
+             * as "unknown" for a day. Anything but a 404 is Packagist not
+             * answering, which the install guard needs to tell from Packagist
+             * not knowing the package.
+             */
+            return ['compatible' => null, 'version' => null, 'requires' => null, 'stability' => null, 'replaced' => false, 'replacedBy' => null,
+                'unreachable' => $status !== 404 && $status !== 410];
         }
 
         $verdict = $compat->verdict($name, $p2);
@@ -220,6 +226,52 @@ class Packagist
         $this->cache->put($scope.$name, $verdict);
 
         return $verdict;
+    }
+
+    /**
+     * A package's p2 file, decoded, or null when there is no readable one.
+     *
+     * @param int|null $status set to the response's status, 0 for none
+     * @return array<string,mixed>|null
+     */
+    protected function p2(string $name, string $suffix, ?int &$status): ?array
+    {
+        $data = json_decode((string) $this->fetch('https://repo.packagist.org/p2/'.$name.$suffix.'.json', $status), true);
+
+        return is_array($data) && is_array($data['packages'][$name] ?? null) ? $data : null;
+    }
+
+    /**
+     * Refuse to install a package under a name another package has taken
+     * over: installing v17development/flarum-seo gave forums FoF SEO under the
+     * wrong id, which then refused to enable (discuss.flarum.org d/40012).
+     *
+     * Every package is checked, not the first five. And when Packagist cannot
+     * be asked, the install is refused too: the guard cannot vouch for the
+     * name, and a resolve against an unreachable Packagist would fail anyway,
+     * so "try again in a minute" costs nothing that was going to work. A
+     * package Packagist does not know (a protected one) is not refused.
+     *
+     * @param list<string> $names
+     * @throws RefusedException
+     */
+    public function refuseReplaced(array $names, Compatibility $compat): void
+    {
+        $verdicts = $this->verdicts($names, $compat);
+
+        foreach ($verdicts as $name => $verdict) {
+            if (! empty($verdict['replaced'])) {
+                throw new RefusedException($verdict['replacedBy']
+                    ? $this->translator->trans('flarum-extension-manager.api.start.replaced_by', ['name' => $name, 'replacement' => $verdict['replacedBy']])
+                    : $this->translator->trans('flarum-extension-manager.api.start.replaced', ['name' => $name]), 'package_replaced');
+            }
+        }
+
+        foreach ($verdicts as $name => $verdict) {
+            if (! empty($verdict['unreachable'])) {
+                throw new RefusedException($this->translator->trans('flarum-extension-manager.api.start.replaced_unchecked', ['name' => $name]), 'packagist_unreachable', 503);
+            }
+        }
     }
 
     /**
@@ -253,9 +305,15 @@ class Packagist
             : null;
     }
 
-    /** The body, or null when the request failed or was answered with an error. */
-    protected function fetch(string $url): ?string
+    /**
+     * The body, or null when the request failed or was answered with an error.
+     *
+     * @param int|null $status set to the response's status, 0 for none
+     */
+    protected function fetch(string $url, ?int &$status = null): ?string
     {
+        $status = 0;
+
         try {
             $response = $this->http->request('GET', $url, [
                 'timeout' => 15,
@@ -266,6 +324,8 @@ class Packagist
             return null;
         }
 
-        return $response->getStatusCode() < 300 ? (string) $response->getBody() : null;
+        $status = $response->getStatusCode();
+
+        return $status < 300 ? (string) $response->getBody() : null;
     }
 }
