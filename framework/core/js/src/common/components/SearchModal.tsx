@@ -161,7 +161,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     const results = this.activeSource()?.view(this.query());
     const customGrouping = this.activeSource().customGrouping();
 
-    if (shouldShowResults && fullPageLink) {
+    if (this.query() && fullPageLink) {
       items.add(
         'fullPageLink',
         <div className="SearchModal-section">
