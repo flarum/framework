@@ -1,5 +1,6 @@
 import app from 'flarum/admin/app';
 import apiUrl from '../apiUrl';
+import { alertOnce } from '../errors';
 import { confirmRollback, requestRollback } from '../rollback';
 import { pollOutcome, runIsOver, shouldPoll } from '../runState';
 import type { RollbackPayload, Run, StatePayload, StepPayload } from '../types';
@@ -89,6 +90,9 @@ export default class RunPanel extends Component<RunPanelAttrs> {
   /** What the last failure means and what to do next — see runState.pollOutcome. */
   protected outcome = pollOutcome(null, 0);
 
+  /** One alert for a run of failed polls, not one per poll. */
+  protected pollAlert = alertOnce();
+
   /** The run the loop is following, so a new one starts with a clean slate. */
   protected following: string | null = null;
 
@@ -118,6 +122,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
       this.watching = false;
       this.lastStatus = null;
       this.outcome = pollOutcome(null, 0);
+      this.pollAlert.clear();
     }
 
     if (!this.rollingBack && shouldPoll(run, this.polling)) {
@@ -128,6 +133,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
   onremove() {
     // Stops the loop rescheduling itself once the page is gone.
     this.polling = false;
+    this.pollAlert.clear();
   }
 
   /** Which extensions this run is for: the names, or the first few and a count. */
@@ -393,9 +399,10 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     if (!this.polling) return;
 
     app
-      .request<StepPayload>({ method: 'POST', url: apiUrl() + '/extension-manager/step' })
+      .request<StepPayload>({ method: 'POST', url: apiUrl() + '/extension-manager/step', errorHandler: this.pollAlert.handler })
       .then((data) => {
         this.misses = 0;
+        this.pollAlert.clear();
         this.attrs.onprogress(data);
 
         if (data.idle) {
@@ -447,7 +454,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
    */
   protected watch() {
     app
-      .request<StatePayload>({ method: 'GET', url: apiUrl() + '/extension-manager/state' })
+      .request<StatePayload>({ method: 'GET', url: apiUrl() + '/extension-manager/state', errorHandler: this.pollAlert.handler })
       .then((data) => {
         this.watching = true;
 
@@ -456,6 +463,8 @@ export default class RunPanel extends Component<RunPanelAttrs> {
 
           if (runIsOver(data.run)) {
             this.polling = false;
+            // The run's outcome is on screen now, which says more than the alert.
+            this.pollAlert.clear();
             this.attrs.ondone(data.run);
             m.redraw();
 

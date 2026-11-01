@@ -283,6 +283,8 @@ flarum-extension-manager:
         This screen cannot reach the server to drive the update — usually a
         session that has expired while the page sat open. The update itself is
         unaffected and is being carried on in the background. Reload the page.{watching, select, yes { Showing progress read-only.} other {}}
+      # One alert for a run of failed polls; the panel's notice below says more.
+      cannot_reach_short: This page could not reach the forum. The update itself is unaffected, and the page will keep trying.
       cannot_reach: >-
         This page has failed to reach the forum {count} times in a row. The update
         itself is unaffected — it keeps its place on disk — and this will keep
