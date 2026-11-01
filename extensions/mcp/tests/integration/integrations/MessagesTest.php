@@ -319,6 +319,12 @@ class MessagesTest extends McpTestCase
         $renamed = $this->toolOutput($this->callTool('rename_conversation', ['conversationId' => '2', 'name' => 'Trip planning'], $auth));
         $this->assertSame(['conversationId' => '2', 'name' => 'Trip planning', 'title' => 'Trip planning'], $renamed);
         $this->assertSame('Trip planning', Dialog::query()->findOrFail(2)->name);
+
+        // The notice it posts reads as an event, not as an empty message.
+        $read = $this->toolOutput($this->callTool('read_conversation', ['id' => '2'], $auth));
+        $notice = end($read['messages']);
+        $this->assertSame('normal renamed: {"name":"Trip planning"}', $notice['event']);
+        $this->assertArrayNotHasKey('content', $notice);
     }
 
     #[Test]

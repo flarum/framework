@@ -12,6 +12,7 @@ namespace Flarum\Mcp\Integration\Messages;
 use Flarum\Mcp\Api\ApiResult;
 use Flarum\Mcp\Api\HtmlToText;
 use Flarum\Mcp\Capability\McpContext;
+use Flarum\Mcp\Server\Json;
 use Flarum\Mcp\Tool\Support\Document;
 
 /**
@@ -60,6 +61,21 @@ class Conversations
      */
     public static function message(Document $document, array $message, ?int $excerpt = null): array
     {
+        $type = (string) (Document::attribute($message, 'type') ?? 'comment');
+
+        // Notices (a member left, the group was renamed) have no text; they are
+        // described the way read_discussion describes event posts.
+        if ($type !== 'comment') {
+            $data = Document::attribute($message, 'eventData');
+
+            return array_filter([
+                'number' => Document::attribute($message, 'number'),
+                'id' => (string) $message['id'],
+                'event' => trim(($document->username($message) ?? 'Someone').' '.$type.(is_array($data) && $data ? ': '.Json::encode($data) : '')),
+                'createdAt' => Document::attribute($message, 'createdAt'),
+            ], fn ($value) => $value !== null);
+        }
+
         $html = Document::attribute($message, 'contentHtml');
         $text = is_string($html) ? HtmlToText::convert($html) : '';
 
