@@ -11,6 +11,7 @@ namespace Flarum\ExtensionManager\Work;
 
 use Flarum\ExtensionManager\Apply\Tree;
 use Flarum\ExtensionManager\Config\AuthTokens;
+use Flarum\ExtensionManager\Config\Repositories;
 use Flarum\Locale\TranslatorInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
@@ -125,7 +126,12 @@ class Fetcher
                 ? ' '.$this->translator->trans('flarum-extension-manager.api.fetch.private_hint')
                 : '';
 
-            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fetch.download_failed', ['url' => $url, 'code' => (string) $code]).$hint.($err ? " $err" : ''));
+            // The URL can carry a repository token, and this message is kept in
+            // the run's log and history, so every URL in it is redacted. Guzzle's
+            // own error text quotes the URL too.
+            throw new RuntimeException(Repositories::redactUrls(
+                $this->translator->trans('flarum-extension-manager.api.fetch.download_failed', ['url' => $url, 'code' => (string) $code]).$hint.($err ? " $err" : '')
+            ));
         }
 
         return $tmp;
