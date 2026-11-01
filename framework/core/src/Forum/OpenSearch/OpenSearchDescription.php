@@ -69,8 +69,8 @@ class OpenSearchDescription
         $this->element($root, 'Tags', [], 'flarum discussion forum');
         $this->element($root, 'InputEncoding', [], 'UTF-8');
 
-        foreach ($this->images() as [$width, $height, $type, $data]) {
-            $this->element($root, 'Image', ['width' => (string) $width, 'height' => (string) $height, 'type' => $type], "data:$type;base64,".base64_encode($data));
+        foreach ($this->images() as [$width, $height, $type, $uri]) {
+            $this->element($root, 'Image', ['width' => (string) $width, 'height' => (string) $height, 'type' => $type], $uri);
         }
 
         $this->element($root, 'Url', ['type' => 'text/html', 'template' => $this->url->to('forum')->route('opensearch.search').'?q={searchTerms}']);
@@ -140,32 +140,12 @@ class OpenSearchDescription
      * Images that would make the document too big for Chrome are left out,
      * and Chrome then shows the forum's /favicon.ico.
      *
-     * @return list<array{0: int, 1: int, 2: string, 3: string}> width, height, type and data
-     */
-    protected function images(): array
-    {
-        $budget = self::MAX_IMAGE_BYTES;
-
-        return array_values(array_filter($this->favicons(), function (array $image) use (&$budget) {
-            $bytes = strlen("data:$image[2];base64,") + (int) ceil(strlen($image[3]) / 3) * 4;
-
-            if ($bytes > $budget) {
-                return false;
-            }
-
-            $budget -= $bytes;
-
-            return true;
-        }));
-    }
-
-    /**
      * Kept for a day by where the favicon is stored, which changes when it is
      * replaced, so it isn't read and resized on every request.
      *
-     * @return list<array{0: int, 1: int, 2: string, 3: string}> width, height, type and data
+     * @return list<array{0: int, 1: int, 2: string, 3: string}> width, height, type and data: URI
      */
-    protected function favicons(): array
+    protected function images(): array
     {
         $path = $this->branding->faviconPath();
 
@@ -173,7 +153,21 @@ class OpenSearchDescription
             return [];
         }
 
-        return $this->cache->remember('flarum.opensearch.favicon.'.md5($path), 86400, fn () => $this->favicon($path));
+        return $this->cache->remember('flarum.opensearch.favicon.'.md5($path), 86400, function () use ($path) {
+            $budget = self::MAX_IMAGE_BYTES;
+            $images = [];
+
+            foreach ($this->favicon($path) as [$width, $height, $type, $data]) {
+                $uri = "data:$type;base64,".base64_encode($data);
+
+                if (strlen($uri) <= $budget) {
+                    $budget -= strlen($uri);
+                    $images[] = [$width, $height, $type, $uri];
+                }
+            }
+
+            return $images;
+        });
     }
 
     /**
