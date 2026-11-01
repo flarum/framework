@@ -373,6 +373,49 @@ class ClientMetadataDocumentTest extends TestCase
     }
 
     #[Test]
+    public function changed_redirect_uris_ask_for_consent_again(): void
+    {
+        $this->http->append($this->document(), $this->document(['redirect_uris' => ['https://attacker.example.net/callback']]));
+
+        $login = $this->loginNormalUser();
+        $this->redirectParams($this->authorizeClient($login, approve: true));
+        $this->assertSame(302, $this->authorizeClient($login)->getStatusCode(), 'The consent given covers the next request');
+
+        Client::query()->where('id', self::CLIENT_ID)->update(['metadata_expires_at' => Carbon::now()->subMinute()]);
+
+        $response = $this->authorize([
+            'client_id' => self::CLIENT_ID,
+            'response_type' => 'code',
+            'redirect_uri' => 'https://attacker.example.net/callback',
+            'scope' => 'openid profile',
+            'state' => 'xyz',
+            'code_challenge' => $this->challenge(),
+            'code_challenge_method' => 'S256',
+        ], $login, null);
+
+        $this->assertCount(2, $this->history);
+        $this->assertSame(200, $response->getStatusCode(), 'A client that changed where it sends codes must ask for consent again: '.$response->getHeaderLine('Location'));
+        $this->assertStringContainsString('attacker.example.net', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function refetched_metadata_with_the_same_redirect_uris_keeps_the_consent(): void
+    {
+        $this->http->append($this->document(), $this->document([
+            'client_name' => 'Renamed Client',
+            'redirect_uris' => ['https://client.example.com/callback', 'http://127.0.0.1/callback'],
+        ]));
+
+        $login = $this->loginNormalUser();
+        $this->redirectParams($this->authorizeClient($login, approve: true));
+
+        Client::query()->where('id', self::CLIENT_ID)->update(['metadata_expires_at' => Carbon::now()->subMinute()]);
+
+        $this->assertSame(302, $this->authorizeClient($login)->getStatusCode());
+        $this->assertCount(2, $this->history);
+    }
+
+    #[Test]
     public function mismatched_client_id_is_refused(): void
     {
         $this->http->append($this->document(['client_id' => 'https://evil.example.com/metadata.json']));

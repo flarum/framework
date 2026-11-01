@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int         $user_id
  * @property string      $client_id
  * @property array|null  $scopes
+ * @property string|null $redirect_uris_hash
  * @property bool        $revoked
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -47,6 +48,30 @@ class Consent extends AbstractModel
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    /**
+     * Identifies a set of redirect URIs regardless of order: consent given to
+     * a client only stands while it sends users back to the same places.
+     *
+     * @param array<string> $redirectUris
+     */
+    public static function hashRedirectUris(array $redirectUris): string
+    {
+        $redirectUris = array_values(array_unique($redirectUris));
+        sort($redirectUris);
+
+        return hash('sha256', (string) json_encode($redirectUris));
+    }
+
+    /**
+     * Whether consent was given while the client had these redirect URIs.
+     *
+     * @param array<string> $redirectUris
+     */
+    public function coversRedirectUris(array $redirectUris): bool
+    {
+        return $this->redirect_uris_hash !== null && hash_equals($this->redirect_uris_hash, self::hashRedirectUris($redirectUris));
     }
 
     /**

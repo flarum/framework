@@ -223,6 +223,7 @@ class AuthorizeEndpointTest extends TestCase
         Consent::query()->create([
             'user_id' => 2,
             'client_id' => 'test-client',
+            'redirect_uris_hash' => Consent::hashRedirectUris(['https://testapp.example.com/callback']),
             'scopes' => ['openid', 'profile'],
             'revoked' => false,
             'created_at' => Carbon::now(),
@@ -247,6 +248,7 @@ class AuthorizeEndpointTest extends TestCase
         Consent::query()->create([
             'user_id' => 2,
             'client_id' => 'test-client',
+            'redirect_uris_hash' => Consent::hashRedirectUris(['https://testapp.example.com/callback']),
             'scopes' => ['openid'],
             'revoked' => false,
             'created_at' => Carbon::now(),
@@ -269,6 +271,7 @@ class AuthorizeEndpointTest extends TestCase
         Consent::query()->create([
             'user_id' => 2,
             'client_id' => 'test-client',
+            'redirect_uris_hash' => Consent::hashRedirectUris(['https://testapp.example.com/callback']),
             'scopes' => ['openid', 'profile'],
             'revoked' => true,
             'created_at' => Carbon::now(),
@@ -290,6 +293,7 @@ class AuthorizeEndpointTest extends TestCase
         Consent::query()->create([
             'user_id' => 2,
             'client_id' => 'test-client',
+            'redirect_uris_hash' => Consent::hashRedirectUris(['https://testapp.example.com/callback']),
             'scopes' => ['openid', 'profile'],
             'revoked' => false,
             'created_at' => Carbon::now(),
@@ -337,6 +341,7 @@ class AuthorizeEndpointTest extends TestCase
         Consent::query()->create([
             'user_id' => 2,
             'client_id' => 'test-client',
+            'redirect_uris_hash' => Consent::hashRedirectUris(['https://testapp.example.com/callback']),
             'scopes' => ['openid'],
             'revoked' => false,
             'created_at' => Carbon::now(),

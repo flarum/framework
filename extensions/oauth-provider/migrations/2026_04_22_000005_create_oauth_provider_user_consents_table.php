@@ -15,6 +15,8 @@ return Migration::createTable('oauth_provider_user_consents', function (Blueprin
     $table->integer('user_id')->unsigned();
     $table->string('client_id', 255);
     $table->string('scopes', 1000)->nullable();
+    // The client's redirect URIs when consent was given; consent lapses when they change.
+    $table->string('redirect_uris_hash', 64)->nullable();
     $table->boolean('revoked')->default(false);
     $table->dateTime('created_at')->nullable();
     $table->dateTime('updated_at')->nullable();

@@ -148,6 +148,7 @@ class AuthorizeController implements RequestHandlerInterface
         }
 
         $clientId = $authRequest->getClient()->getIdentifier();
+        $redirectUris = array_values((array) $authRequest->getClient()->getRedirectUri());
         $requestedScopes = array_map(fn ($scope) => $scope->getIdentifier(), $authRequest->getScopes());
 
         $params = $request->getParsedBody() ?? [];
@@ -158,7 +159,7 @@ class AuthorizeController implements RequestHandlerInterface
             $approved = $params['oauth_consent_approved'] === '1';
 
             if ($approved) {
-                $this->rememberConsent((int) $actor->id, $clientId, $requestedScopes);
+                $this->rememberConsent((int) $actor->id, $clientId, $requestedScopes, $redirectUris);
             }
 
             $this->forgetReAuthTicket($session, $ticket);
@@ -168,7 +169,7 @@ class AuthorizeController implements RequestHandlerInterface
 
         // Previously-granted consent still covers this request — skip the prompt
         // unless the client explicitly asked for re-consent via prompt=consent.
-        if (! in_array('consent', $prompts, true) && $this->hasExistingConsent((int) $actor->id, $clientId, $requestedScopes)) {
+        if (! in_array('consent', $prompts, true) && $this->hasExistingConsent((int) $actor->id, $clientId, $requestedScopes, $redirectUris)) {
             $this->forgetReAuthTicket($session, $ticket);
 
             return $this->completeAuthorization($authRequest, $server, $actor->id, true, $nonce, $authTime);
@@ -375,7 +376,10 @@ class AuthorizeController implements RequestHandlerInterface
         return is_string($token) && $token !== '' ? hash('sha256', $token) : '';
     }
 
-    protected function hasExistingConsent(int $userId, string $clientId, array $requestedScopes): bool
+    /**
+     * @param list<string> $redirectUris The client's current redirect URIs.
+     */
+    protected function hasExistingConsent(int $userId, string $clientId, array $requestedScopes, array $redirectUris): bool
     {
         /** @var Consent|null $consent */
         $consent = Consent::query()
@@ -384,11 +388,18 @@ class AuthorizeController implements RequestHandlerInterface
             ->where('revoked', false)
             ->first();
 
-        return $consent !== null && $consent->covers($requestedScopes);
+        // A client that changed where it sends codes (a refetched metadata
+        // document, say) has to ask again.
+        return $consent !== null && $consent->covers($requestedScopes) && $consent->coversRedirectUris($redirectUris);
     }
 
-    protected function rememberConsent(int $userId, string $clientId, array $requestedScopes): void
+    /**
+     * @param list<string> $redirectUris The client's current redirect URIs.
+     */
+    protected function rememberConsent(int $userId, string $clientId, array $requestedScopes, array $redirectUris): void
     {
+        $redirectUrisHash = Consent::hashRedirectUris($redirectUris);
+
         /** @var Consent|null $existing */
         $existing = Consent::query()
             ->where('user_id', $userId)
@@ -400,6 +411,7 @@ class AuthorizeController implements RequestHandlerInterface
                 'user_id' => $userId,
                 'client_id' => $clientId,
                 'scopes' => $requestedScopes,
+                'redirect_uris_hash' => $redirectUrisHash,
                 'revoked' => false,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
@@ -409,10 +421,12 @@ class AuthorizeController implements RequestHandlerInterface
         }
 
         // Merge newly-approved scopes into the existing grant and re-activate it
-        // if it was previously revoked.
-        $merged = array_values(array_unique(array_merge($existing->scopes ?? [], $requestedScopes)));
+        // if it was previously revoked. Scopes approved while the client had
+        // other redirect URIs are dropped.
+        $previous = $existing->coversRedirectUris($redirectUris) ? ($existing->scopes ?? []) : [];
 
-        $existing->scopes = $merged;
+        $existing->scopes = array_values(array_unique(array_merge($previous, $requestedScopes)));
+        $existing->redirect_uris_hash = $redirectUrisHash;
         $existing->revoked = false;
         $existing->updated_at = Carbon::now();
         $existing->save();
