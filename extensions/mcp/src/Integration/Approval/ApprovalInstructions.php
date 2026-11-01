@@ -23,7 +23,7 @@ class ApprovalInstructions
             return null;
         }
 
-        return 'New posts may await approval (isApproved false) and are then only visible to their author and moderators. '
-            .'To approve a post, if you may, call update_resource on posts with {"isApproved": true}.';
+        return 'New discussions and posts may await approval (isApproved false) and are then only visible to their author and moderators. '
+            .'To approve a post, if you may, call update_resource on posts with {"isApproved": true}; approving a discussion\'s first post approves the discussion.';
     }
 }

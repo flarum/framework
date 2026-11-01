@@ -67,3 +67,4 @@ flarum-mcp:
     requires_sign_in: This requires signing in. Connect with your forum account and try again.
     requires_write_scope: This requires write access. Reconnect and grant permission to make changes.
     throttled: You are doing that too often; wait before trying again.
+    unknown_filters: "{type} cannot be filtered by {filters}. describe_api lists the filters it takes."

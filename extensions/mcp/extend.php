@@ -106,6 +106,10 @@ return [
         ->describe('groups', 'User groups, which carry permissions and badges.')
         ->describe('notifications', 'Your notifications. Set isRead to true to mark one as read.'),
 
+    // What core can do through the generic tools, told as core's own.
+    (new Mcp(Overview\ExtensionOwnership::CORE))
+        ->instructions(new Overview\CoreInstructions()),
+
     // Bundled integrations, through the same extender third parties use, each
     // registered on behalf of the extension it integrates.
     (new Extend\Conditional())
@@ -114,6 +118,7 @@ return [
                 ->tool(Integration\Tags\ListTagsTool::class)
                 ->extendTool('search_discussions', schema: Integration\Tags\TagArguments::searchSchema(...), handler: Integration\Tags\TagArguments::searchHandler(...))
                 ->extendTool('start_discussion', schema: Integration\Tags\TagArguments::startSchema(...), handler: Integration\Tags\TagArguments::startHandler(...))
+                ->instructions(new Integration\Tags\TagsInstructions())
                 ->describe('tags', 'Tags that discussions are filed under. Primary tags are ordered and can have child tags; secondary tags are not. list_tags shows the tree.'),
         ])
         ->whenExtensionEnabled('flarum-likes', fn () => [
@@ -163,5 +168,19 @@ return [
             (new Mcp('flarum-approval'))
                 ->allowWrites('posts', ['update'])
                 ->instructions(new Integration\Approval\ApprovalInstructions()),
+        ])
+        ->whenExtensionEnabled('flarum-flags', fn () => [
+            (new Mcp('flarum-flags'))
+                ->tool(Integration\Flags\FlagPostTool::class)
+                ->tool(Integration\Flags\DismissFlagsTool::class)
+                ->describe('flags', 'Flags members raised on posts for the moderators, with the reason. flag_post raises one; dismiss_flags clears a post\'s.'),
+        ])
+        ->whenExtensionEnabled('flarum-gdpr', fn () => [
+            (new Mcp('flarum-gdpr'))
+                ->tool(Integration\Gdpr\RequestDataExportTool::class),
+        ])
+        ->whenExtensionEnabled('flarum-nicknames', fn () => [
+            (new Mcp('flarum-nicknames'))
+                ->instructions(new Integration\Nicknames\NicknameInstructions()),
         ]),
 ];
