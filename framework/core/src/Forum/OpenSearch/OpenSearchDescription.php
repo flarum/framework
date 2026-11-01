@@ -9,6 +9,8 @@
 
 namespace Flarum\Forum\OpenSearch;
 
+use DOMDocument;
+use DOMElement;
 use Flarum\Forum\Branding\Branding;
 use Flarum\Forum\Branding\IconSet;
 use Flarum\Forum\Branding\ShortName;
@@ -17,8 +19,6 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
-use DOMDocument;
-use DOMElement;
 
 /**
  * The OpenSearch description, which lets browsers add the forum as a search
