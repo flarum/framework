@@ -5,6 +5,11 @@ flarum-deck:
     permissions:
       use_deck_label: Use Deck
 
+    sections:
+      columns:
+        description: How many columns members can add to their deck and how often those columns refresh.
+        label: Columns
+
     settings:
       max_columns_help: Every column is a separate request each time it refreshes. Between 1 and 12.
       max_columns_label: Maximum columns per member

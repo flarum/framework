@@ -57,6 +57,16 @@ on:
         type: string
         required: false
 
+      monorepo_lanes:
+        description: >-
+          How many of the `monorepo_tests` directories to test at once, each against a database
+          of its own. The first directory gets a lane to itself, since a framework's own suite is
+          usually the longest, and the rest are dealt round the other lanes. With 1, they are
+          tested one after another.
+        type: number
+        required: false
+        default: 1
+
       php_versions:
         description: Versions of PHP to test with. Should be array of strings encoded as JSON array
         type: string
@@ -65,7 +75,9 @@ on:
         default: '["8.3", "8.4", "8.5"]'
 
       latest_php:
-        description: The latest PHP version to test with. DB-specific jobs run only on this version. Keep in sync with the last entry of php_versions.
+        description: >-
+          The newest PHP version, which carries the prefixed runs. Used only when it is one of
+          `php_versions`; otherwise the newest entry of `php_versions` is used.
         type: string
         required: false
         default: '8.5'
@@ -79,8 +91,9 @@ on:
       db_versions:
         description: >-
           Versions of databases to test with. Should be array of strings encoded as JSON array.
-          Each entry runs on `latest_php`; older PHP versions are covered separately against a
-          single reference database. Images are pinned so a run is reproducible. The default
+          Each entry runs once, paired with one of `php_versions` (oldest with oldest), so every
+          PHP version and every database is covered without running the full cross-product.
+          Images are pinned so a run is reproducible. The default
           covers, per driver, the version Flarum declares as its minimum, the version it
           recommends, and the newest long-term release — see Flarum\Database\DatabaseRequirements.
         type: string
@@ -121,6 +134,24 @@ on:
         required: false
         default: 'ubuntu-latest'
 
+      max_parallel:
+        description: >-
+          The most test jobs of one run to execute at once. Lower it to stop a single run from
+          taking every runner available to the account.
+        type: number
+        required: false
+        default: 256
+
+      reduce_drafts:
+        description: >-
+          For draft pull requests, run only the newest PHP against the newest version of each
+          database driver, prefixed, and the full matrix once they are marked ready for review.
+          Callers that turn this on should add `ready_for_review` to their `pull_request` trigger
+          types.
+        type: boolean
+        required: false
+        default: false
+
     secrets:
       composer_auth:
         description: The Composer auth tokens to use for private packages. Defaults to authenticating GitHub downloads with the workflow's token.
@@ -138,98 +169,113 @@ env:
   DB_PASSWORD: password
 
 jobs:
+  # Works out the test matrix from the inputs, so a caller that lists fewer PHP versions or
+  # databases gets exactly those, with no other changes on its side.
+  #
+  # Rather than running every PHP version against every database, each PHP version is paired
+  # with a version of every engine: the oldest PHP with the oldest database of each driver,
+  # through to the newest PHP with the newest. The newest version of each driver also carries
+  # the prefixed run (identifier limits and the prefix handling are per driver), and a driver
+  # with a single version gets both a plain and a prefixed run. Every PHP version listed runs
+  # at least once. With the defaults this is 11 jobs, one per database plus a prefixed SQLite.
+  plan:
+    name: Plan the test matrix
+    runs-on: ${{ inputs.runner_type }}
+
+    if: >-
+      inputs.enable_backend_testing &&
+      ((github.event_name == 'pull_request' && (github.event.pull_request.head.repo.full_name != github.repository || github.event.action == 'ready_for_review')) || github.event_name != 'pull_request')
+
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+
+    steps:
+      - name: Plan
+        id: plan
+        env:
+          PHP_VERSIONS: ${{ inputs.php_versions }}
+          DB_VERSIONS: ${{ inputs.db_versions }}
+          LATEST_PHP: ${{ inputs.latest_php }}
+          REDIS_CLIENTS: ${{ inputs.redis_clients }}
+          DB_PREFIX: ${{ inputs.db_prefix }}
+          DB_PREFIX_PGSQL: ${{ inputs.db_prefix_pgsql }}
+          REDUCE_DRAFTS: ${{ inputs.reduce_drafts }}
+          PR_DRAFT: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # A draft gets one job per database driver, when the caller asks for that. Pushes to a
+          # branch with an open draft pull request in this repository count as drafts too.
+          draft=false
+          if [ "$REDUCE_DRAFTS" = "true" ]; then
+            if [ "$PR_DRAFT" = "true" ]; then
+              draft=true
+            elif [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF" != "refs/heads/${{ github.event.repository.default_branch }}" ]; then
+              open=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&head=$GITHUB_REPOSITORY_OWNER:$GITHUB_REF_NAME" --jq '.[0].draft' 2>/dev/null || true)
+              [ "$open" = "true" ] && draft=true
+            fi
+          fi
+
+          matrix=$(jq -n -c \
+            --argjson php "$PHP_VERSIONS" \
+            --argjson dbs "$DB_VERSIONS" \
+            --arg latest "$LATEST_PHP" \
+            --argjson redis "$REDIS_CLIENTS" \
+            --arg prefix "$DB_PREFIX" \
+            --arg prefixPgsql "$DB_PREFIX_PGSQL" \
+            --argjson draft "$draft" '
+            def vkey: [splits("[.:-]") | tonumber? // 0];
+            def driver: (split(":")[0]) as $i
+              | if $i == "postgres" then "pgsql" elif $i == "sqlite" then "sqlite" elif $i == "mariadb" then "mariadb" else "mysql" end;
+            def dbname: (split(":")) as $p
+              | ({mysql: "MySQL", mariadb: "MariaDB", postgres: "PostgreSQL", sqlite: "SQLite"}[$p[0]] // $p[0]) as $n
+              | if $p[0] == "sqlite" then $n else "\($n) \($p[1] // "")" end;
+            def job($php; $service; $pre):
+              {php: $php, service: $service, db: ($service | dbname), driver: ($service | driver),
+               prefix: (if $pre then (if ($service | driver) == "pgsql" then $prefixPgsql else $prefix end) else "" end),
+               prefixStr: (if $pre then "(prefix)" else "" end)};
+
+            ($php | sort_by(vkey)) as $phps
+            | (if ($phps | index($latest)) then $latest else $phps[-1] end) as $newest
+            | ($phps[0]) as $oldest
+            | (if ($dbs | length) == 0 then ["sqlite:3"] else $dbs end) as $dbs
+            | ($dbs | map(select(driver == "sqlite")) | first) as $sqlite
+            | ([$dbs[] | {d: driver, s: .}] | group_by(.d) | map(map(.s) | sort_by(vkey))) as $groups
+            | (if $draft then
+                # The newest PHP on the newest version of each driver, prefixed: a prefixed run
+                # covers everything a plain one does, plus the prefix handling.
+                [ $groups[] | job($newest; last; true) ]
+              else
+                [ $groups[] as $g
+                    | ($g | length) as $n
+                    | if $n == 1 then
+                        job($oldest; $g[0]; false), job($newest; $g[0]; true)
+                      else
+                        range(0; $n) as $i
+                        | job($phps[((($i * (($phps | length) - 1)) / ($n - 1)) | round)]; $g[$i]; $i == $n - 1)
+                      end ]
+                | . as $jobs
+                | ($jobs | map(.php)) as $covered
+                | $jobs + [ $phps[] | select(. as $v | $covered | index($v) | not)
+                            | job(.; ($sqlite // $dbs[0]); false) ]
+              end)
+            | [ .[] as $j | $redis[] as $r | $j + {redis_client: $r} ]
+            | {include: .}')
+
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "$matrix" | jq -r '.include[] | "PHP \(.php) / \(.db) \(.prefixStr)"'
+
   test:
+    needs: plan
     runs-on: ${{ inputs.runner_type }}
 
     strategy:
       # One database failing should not hide the state of the others.
       fail-fast: false
 
-      matrix:
-        # Every database in `db_versions` runs on the latest PHP. Older PHP versions are
-        # added below against one reference database: a PHP-version bug is not specific to
-        # a database engine, so a full cross-product buys coverage that cannot fail alone.
-        php: ['${{ inputs.latest_php }}']
-        service: ${{ fromJSON(inputs.db_versions) }}
-        prefix: ['']
+      # Lets a caller keep one run from taking every runner it has.
+      max-parallel: ${{ inputs.max_parallel }}
 
-        # Redis client library to exercise. Defaults to a single empty entry
-        # (no extra dimension); repos that enable_redis can opt into testing
-        # both 'phpredis' and 'predis' via the `redis_clients` input.
-        redis_client: ${{ fromJSON(inputs.redis_clients) }}
-
-        include:
-          # Human-readable names and the driver each image speaks. These match on `service`,
-          # so they annotate the combinations above rather than adding any.
-          - service: 'mysql:5.7'
-            db: MySQL 5.7
-            driver: mysql
-          - service: 'mysql:8.4'
-            db: MySQL 8.4
-            driver: mysql
-          - service: 'mysql:9.7'
-            db: MySQL 9.7
-            driver: mysql
-          - service: 'mariadb:10.3'
-            db: MariaDB 10.3
-            driver: mariadb
-          - service: 'mariadb:11.8'
-            db: MariaDB 11.8
-            driver: mariadb
-          - service: 'mariadb:12.3'
-            db: MariaDB 12.3
-            driver: mariadb
-          - service: 'postgres:10'
-            db: PostgreSQL 10
-            driver: pgsql
-          - service: 'postgres:15'
-            db: PostgreSQL 15
-            driver: pgsql
-          - service: 'postgres:18'
-            db: PostgreSQL 18
-            driver: pgsql
-          - service: 'sqlite:3'
-            db: SQLite
-            driver: sqlite
-
-          # PHP coverage, against the recommended MySQL rather than the newest, since that
-          # is the version most installations are expected to be on.
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'mysql:8.4'
-            db: MySQL 8.4
-            driver: mysql
-          - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'mysql:8.4'
-            db: MySQL 8.4
-            driver: mysql
-
-          # One prefixed run per driver. Identifier limits differ (64 characters on
-          # MySQL/MariaDB, 63 bytes on PostgreSQL, which truncates silently), and each
-          # driver applies the prefix through its own schema code.
-          - php: ${{ inputs.latest_php }}
-            service: 'mysql:9.7'
-            db: MySQL 9.7
-            driver: mysql
-            prefix: ${{ inputs.db_prefix }}
-            prefixStr: (prefix)
-          - php: ${{ inputs.latest_php }}
-            service: 'mariadb:12.3'
-            db: MariaDB 12.3
-            driver: mariadb
-            prefix: ${{ inputs.db_prefix }}
-            prefixStr: (prefix)
-          - php: ${{ inputs.latest_php }}
-            service: 'postgres:18'
-            db: PostgreSQL 18
-            driver: pgsql
-            prefix: ${{ inputs.db_prefix_pgsql }}
-            prefixStr: (prefix)
-          - php: ${{ inputs.latest_php }}
-            service: 'sqlite:3'
-            db: SQLite
-            driver: sqlite
-            prefix: ${{ inputs.db_prefix }}
-            prefixStr: (prefix)
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
 
     services:
       mysql:
@@ -279,7 +325,7 @@ jobs:
 
     if: >-
       inputs.enable_backend_testing &&
-      ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
+      ((github.event_name == 'pull_request' && (github.event.pull_request.head.repo.full_name != github.repository || github.event.action == 'ready_for_review')) || github.event_name != 'pull_request')
 
     steps:
       - name: Checkout
@@ -366,21 +412,106 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ steps.composer-cache.outputs.key }}-${{ steps.composer-cache.outputs.date }}
 
-      # If we have a `inputs.monorepo_tests`, we will run tests for each item of the provided array in a ::group::item
-      # If we don't have a `inputs.monorepo_tests`, we will run tests for the current repository
-      # We also have to run the `composer test:setup` script first before running each test
+      # Without `inputs.monorepo_tests`, the repository is tested as one package. With it, each
+      # listed directory is set up and tested in turn, in a ::group:: of its own. With more than
+      # one of `inputs.monorepo_lanes`, the lanes run side by side, each against its own
+      # database, and each directory's output is printed once every lane has finished.
       - name: Run tests
         run: |
           if [ -z "${{ inputs.monorepo_tests }}" ]; then
             composer test:setup
             composer test
-          else
+          elif [ "$MONOREPO_LANES" -le 1 ]; then
             for test in ${{ inputs.monorepo_tests }}; do
               echo "::group::Running tests for $test"
               composer test:setup --working-dir=$test
               composer test --working-dir=$test
               echo "::endgroup::"
             done
+          else
+            tests=(${{ inputs.monorepo_tests }})
+            lanes=$MONOREPO_LANES
+            logs="${{ runner.temp }}/monorepo-tests"
+            mkdir -p "$logs"
+
+            # The first directory gets a lane of its own; the rest are dealt round the others.
+            lane=()
+            for i in "${!tests[@]}"; do
+              lane[i]=$(( i == 0 ? 0 : 1 + (i - 1) % (lanes - 1) ))
+            done
+
+            # The service creates the first lane's database; the others get theirs next to it.
+            # SQLite needs none, as each directory keeps its database file in its own tmp dir.
+            create_database() {
+              # shellcheck disable=SC2016 # PHP, not shell, expands these.
+              php -r '
+                [, $name] = $argv;
+                $port = getenv("DB_PORT");
+                if (getenv("DB_DRIVER") === "pgsql") {
+                    $pdo = new PDO("pgsql:host=127.0.0.1;port=$port;dbname=".getenv("DB_DATABASE"), getenv("DB_USERNAME"), getenv("DB_PASSWORD"));
+                    $pdo->exec("CREATE DATABASE \"$name\"");
+                } else {
+                    $pdo = new PDO("mysql:host=127.0.0.1;port=$port", "root", "root");
+                    $pdo->exec("CREATE DATABASE `$name`");
+                    $pdo->exec("GRANT ALL ON `$name`.* TO \"".getenv("DB_USERNAME")."\"@\"%\"");
+                }
+              ' "$1"
+            }
+
+            # Runs in a subshell of its own, so its database only applies to this lane.
+            run_lane() {
+              local n=$1
+
+              if [ "$n" -gt 0 ]; then
+                if [ "$DB_DRIVER" != sqlite ]; then
+                  create_database "${DB_DATABASE}_$n" > "$logs/lane-$n.log" 2>&1 || return 1
+                fi
+                export DB_DATABASE="${DB_DATABASE}_$n"
+              fi
+
+              for i in "${!tests[@]}"; do
+                [ "${lane[$i]}" -eq "$n" ] || continue
+                start=$SECONDS
+                if ! { composer test:setup --working-dir="${tests[$i]}" && composer test --working-dir="${tests[$i]}"; } > "$logs/$i.log" 2>&1; then
+                  echo "$(( SECONDS - start ))s, failed" > "$logs/$i.result"
+                  return 1
+                fi
+                echo "$(( SECONDS - start ))s" > "$logs/$i.result"
+              done
+            }
+
+            echo "Testing ${#tests[@]} directories in $lanes lanes"
+
+            pids=()
+            for n in $(seq 0 $(( lanes - 1 ))); do
+              run_lane "$n" &
+              pids+=($!)
+            done
+
+            failed=0
+            for pid in "${pids[@]}"; do
+              wait "$pid" || failed=1
+            done
+
+            for i in "${!tests[@]}"; do
+              if [ -f "$logs/$i.log" ]; then
+                echo "::group::Running tests for ${tests[$i]} (lane ${lane[$i]}, $(cat "$logs/$i.result" 2>/dev/null || echo 'did not finish'))"
+                cat "$logs/$i.log"
+                echo "::endgroup::"
+              fi
+              if grep -qs failed "$logs/$i.result"; then
+                echo "::error::Tests failed in ${tests[$i]}"
+              fi
+            done
+
+            for n in $(seq 1 $(( lanes - 1 ))); do
+              if [ -s "$logs/lane-$n.log" ]; then
+                echo "::error::Could not create the database for lane $n"
+                cat "$logs/lane-$n.log"
+              fi
+            done
+
+            exit $failed
           fi
         working-directory: ${{ inputs.backend_directory }}
         env:
@@ -390,6 +521,7 @@ jobs:
           DB_PREFIX: ${{ matrix.prefix }}
           DB_DRIVER: ${{ matrix.driver }}
           COMPOSER_PROCESS_TIMEOUT: 600
+          MONOREPO_LANES: ${{ inputs.monorepo_lanes }}
 
       # Surface the query findings on the pull request itself. A developer who
       # only ever looks at the checks page would otherwise never see the

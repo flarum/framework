@@ -19,12 +19,21 @@ use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
+/**
+ * Declaring a language pack's code, title and direction in composer.json as
+ * "extra.flarum-locale" is deprecated since 2.1 and will be removed in 3.0:
+ * use code(), title() and direction() instead.
+ */
 class LanguagePack implements ExtenderInterface, LifecycleInterface
 {
     private const CORE_LOCALE_FILES = [
         'core',
         'validation',
     ];
+
+    private ?string $code = null;
+    private ?string $title = null;
+    private ?string $direction = null;
 
     /**
      * LanguagePack constructor.
@@ -36,6 +45,49 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
     ) {
     }
 
+    /**
+     * The locale code, such as "en" or "pt-BR".
+     */
+    public function code(string $code): self
+    {
+        $this->code = $code;
+
+        return $this;
+    }
+
+    /**
+     * The language's name, written in that language.
+     */
+    public function title(string $title): self
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * The direction the language is written in.
+     *
+     * @param string $direction: "ltr" or "rtl". Defaults to "ltr" when not set.
+     */
+    public function direction(string $direction): self
+    {
+        $this->assertValidDirection($direction);
+
+        $this->direction = $direction;
+
+        return $this;
+    }
+
+    private function assertValidDirection(mixed $direction): void
+    {
+        if (! in_array($direction, ['ltr', 'rtl'], true)) {
+            throw new InvalidArgumentException(
+                'A language pack\'s direction must be "ltr" or "rtl", '.json_encode($direction).' given.'
+            );
+        }
+    }
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
         if (is_null($extension)) {
@@ -44,26 +96,36 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
             );
         }
 
-        $locale = $extension->composerJsonAttribute('extra.flarum-locale.code');
-        $title = $extension->composerJsonAttribute('extra.flarum-locale.title');
+        $locale = $this->code ?? $extension->composerJsonAttribute('extra.flarum-locale.code');
+        $title = $this->title ?? $extension->composerJsonAttribute('extra.flarum-locale.title');
+        $direction = $this->direction ?? $extension->composerJsonAttribute('extra.flarum-locale.direction');
+
+        if ($direction !== null) {
+            $this->assertValidDirection($direction);
+        }
 
         if (! isset($locale, $title)) {
             throw new RuntimeException(
-                'Language packs must define "extra.flarum-locale.code" and "extra.flarum-locale.title" in composer.json.'
+                'Language packs must set a code and title with LanguagePack::code() and LanguagePack::title(), or define the deprecated "extra.flarum-locale.code" and "extra.flarum-locale.title" in composer.json.'
             );
         }
 
         $container->resolving(
             LocaleManager::class,
-            function (LocaleManager $locales, Container $container) use ($extension, $locale, $title) {
-                $this->registerLocale($container, $locales, $extension, $locale, $title);
+            function (LocaleManager $locales, Container $container) use ($extension, $locale, $title, $direction) {
+                $this->registerLocale($container, $locales, $extension, $locale, $title, $direction);
             }
         );
     }
 
-    private function registerLocale(Container $container, LocaleManager $locales, Extension $extension, string $locale, string $title): void
+    private function registerLocale(Container $container, LocaleManager $locales, Extension $extension, string $locale, string $title, ?string $direction): void
     {
         $locales->addLocale($locale, $title);
+        $locales->setLanguagePackId($locale, $extension->getId());
+
+        if ($direction !== null) {
+            $locales->setDirection($locale, $direction);
+        }
 
         $directory = $extension->getPath().$this->path;
 

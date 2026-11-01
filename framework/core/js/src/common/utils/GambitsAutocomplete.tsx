@@ -55,7 +55,7 @@ export default class GambitsAutocomplete {
 
     const autocompleteReader = new AutocompleteReader(null);
 
-    const cursorPosition = this.jqueryInput()?.prop('selectionStart') ?? query.length;
+    const cursorPosition = this.jqueryInput().prop('selectionEnd') ?? query.length;
     const lastChunk = query.slice(0, cursorPosition);
     const autocomplete = autocompleteReader.check(lastChunk, cursorPosition, /\S+$/);
 
@@ -114,10 +114,10 @@ export default class GambitsAutocomplete {
 
         return this.gambitSuggestion(key, hint, (negated: boolean | undefined) => {
           const isNeg = typeof negated === 'boolean' ? negated : negative;
-          const fromTyped = autocomplete?.typed ?? (negative ? '-' : '') + typed;
           const start = autocomplete?.relativeStart ?? cursorPosition;
+          const keyPart = autocomplete ? this.query.slice(start).match(/^[^\s:]*:?/)![0] : '';
 
-          this.suggest((isNeg ? '-' : '') + key + ':', fromTyped, start);
+          this.suggest((isNeg ? '-' : '') + key + ':', keyPart, start);
         });
       });
   }
@@ -148,7 +148,9 @@ export default class GambitsAutocomplete {
       }
 
       return matchingKeys.map((gambit) =>
-        this.gambitSuggestion(gambit, null, () => this.suggest(prefix + gambit, autocomplete.typed, autocomplete.relativeStart))
+        this.gambitSuggestion(gambit, null, () =>
+          this.suggest(prefix + gambit, this.query.slice(autocomplete.relativeStart).match(/^\S*/)![0], autocomplete.relativeStart)
+        )
       );
     }
 
@@ -191,7 +193,12 @@ export default class GambitsAutocomplete {
           this.gambitSuggestion(
             opt.value,
             opt.label ?? null,
-            () => this.suggest(prefix + opt.value, autocomplete.typed, autocomplete.relativeStart),
+            () =>
+              this.suggest(
+                prefix + opt.value,
+                this.query.slice(autocomplete.relativeStart).match(/^\S*/)![0],
+                autocomplete.relativeStart
+              ),
             false
           )
         );

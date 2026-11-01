@@ -42,6 +42,7 @@ return [
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         ->fields(fn () => [
             Schema\Boolean::make('isLocked')
+                ->description('Whether the discussion is locked, so only those allowed to reply to locked discussions can reply.')
                 ->writable(fn (Discussion $discussion, Context $context) => $context->getActor()->can('lock', $discussion))
                 ->set(function (Discussion $discussion, bool $isLocked, Context $context) {
                     $actor = $context->getActor();

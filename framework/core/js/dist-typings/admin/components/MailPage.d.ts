@@ -30,6 +30,10 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
     };
     refresh(): void;
     content(): JSX.Element;
+    /**
+     * The description of a driver's settings, if it has one.
+     */
+    driverDescription(driver: string): Mithril.Children;
     mailSettingItems(): ItemList<Mithril.Children>;
     sendTestEmail(): void;
     saveSettings(e: SaveSubmitEvent): Promise<void>;

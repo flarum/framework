@@ -18,4 +18,4 @@ export default class PostQuoteButton extends Fragment {
     showTouch(firstRect: DOMRect, lastRect: DOMRect): void;
     hide(): void;
 }
-import Fragment from "flarum/common/Fragment";
+import Fragment from 'flarum/common/Fragment';

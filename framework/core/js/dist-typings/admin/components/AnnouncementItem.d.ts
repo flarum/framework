@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component from '../../common/Component';
 export interface AnnouncementData {
     id: string;

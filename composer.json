@@ -38,6 +38,7 @@
     "autoload": {
         "psr-4": {
             "Flarum\\": "framework/core/src",
+            "Flarum\\Ai\\": "extensions/ai/src",
             "Flarum\\Akismet\\": "extensions/akismet/src",
             "Flarum\\Approval\\": "extensions/approval/src",
             "Flarum\\Audit\\": "extensions/audit/src",
@@ -47,9 +48,11 @@
             "Flarum\\Gdpr\\": "extensions/gdpr/src",
             "Flarum\\Likes\\": "extensions/likes/src",
             "Flarum\\Lock\\": "extensions/lock/src",
+            "Flarum\\Mcp\\": "extensions/mcp/src",
             "Flarum\\Mentions\\": "extensions/mentions/src",
             "Flarum\\Nicknames\\": "extensions/nicknames/src",
             "Flarum\\ExtensionManager\\": "extensions/package-manager/src",
+            "Flarum\\OAuthProvider\\": "extensions/oauth-provider/src",
             "Flarum\\Pusher\\": "extensions/pusher/src",
             "Flarum\\Realtime\\": "extensions/realtime/src",
             "Flarum\\Statistics\\": "extensions/statistics/src",
@@ -62,12 +65,14 @@
             "Flarum\\Testing\\": "php-packages/testing/src"
         },
         "files": [
-            "framework/core/src/helpers.php"
+            "framework/core/src/helpers.php",
+            "extensions/package-manager/bootstrap/web-reset.php"
         ]
     },
     "autoload-dev": {
         "psr-4": {
             "Flarum\\Tests\\": "tests",
+            "Flarum\\Ai\\Tests\\": "extensions/ai/tests",
             "Flarum\\Akismet\\Tests\\": "extensions/akismet/tests",
             "Flarum\\Deck\\Tests\\": "extensions/deck/tests",
             "Flarum\\Approval\\Tests\\": "extensions/approval/tests",
@@ -76,9 +81,11 @@
             "Flarum\\Gdpr\\Tests\\": "extensions/gdpr/tests",
             "Flarum\\Likes\\Tests\\": "extensions/likes/tests",
             "Flarum\\Lock\\Tests\\": "extensions/lock/tests",
+            "Flarum\\Mcp\\Tests\\": "extensions/mcp/tests",
             "Flarum\\Mentions\\Tests\\": "extensions/mentions/tests",
             "Flarum\\Nicknames\\Tests\\": "extensions/nicknames/tests",
             "Flarum\\ExtensionManager\\Tests\\": "extensions/package-manager/tests",
+            "Flarum\\OAuthProvider\\Tests\\": "extensions/oauth-provider/tests",
             "Flarum\\Pusher\\Tests\\": "extensions/pusher/tests",
             "Flarum\\Realtime\\Tests\\": "extensions/realtime/tests",
             "Flarum\\Statistics\\Tests\\": "extensions/statistics/tests",
@@ -92,6 +99,7 @@
     },
     "replace": {
         "flarum/core": "self.version",
+        "flarum/ai": "self.version",
         "flarum/akismet": "self.version",
         "flarum/approval": "self.version",
         "flarum/audit": "self.version",
@@ -105,9 +113,11 @@
         "flarum/likes": "self.version",
         "flarum/lock": "self.version",
         "flarum/markdown": "self.version",
+        "flarum/mcp": "self.version",
         "flarum/mentions": "self.version",
         "flarum/nicknames": "self.version",
         "flarum/extension-manager": "self.version",
+        "flarum/oauth-provider": "self.version",
         "flarum/pusher": "self.version",
         "flarum/realtime": "self.version",
         "flarum/statistics": "self.version",
@@ -143,6 +153,7 @@
         "illuminate/events": "^13.0",
         "illuminate/filesystem": "^13.0",
         "illuminate/hashing": "^13.0",
+        "illuminate/http": "^13.0",
         "illuminate/mail": "^13.0",
         "illuminate/queue": "^13.11",
         "illuminate/session": "^13.0",
@@ -154,9 +165,13 @@
         "laminas/laminas-diactoros": "^3.0",
         "laminas/laminas-httphandlerrunner": "^2.6",
         "laminas/laminas-stratigility": "^3.10",
+        "laravel/ai": "~1.1.0",
+        "lcobucci/jwt": "^5.0",
         "league/flysystem": "^3.15",
         "league/flysystem-memory": "^3.15",
+        "league/oauth2-server": "^8.5",
         "matthiasmullie/minify": "^1.3",
+        "mcp/sdk": "~0.9.0",
         "middlewares/base-path": "^v2.1",
         "middlewares/base-path-router": "^2.0.1",
         "middlewares/request-handler": "^2.0.2",
@@ -180,6 +195,7 @@
         "symfony/polyfill-intl-messageformatter": "^1.27",
         "symfony/postmark-mailer": "^7.4",
         "symfony/translation": "^7.4",
+        "symfony/uid": "^7.4 || ^8.0",
         "symfony/yaml": "^7.4",
         "wikimedia/less.php": "^5.3"
     },
@@ -192,12 +208,16 @@
         "symfony/var-dumper": "^7.4"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "extra": {
         "flarum-subextensions": [
+            "extensions/ai",
             "extensions/akismet",
             "extensions/approval",
             "extensions/audit",
@@ -211,9 +231,11 @@
             "extensions/likes",
             "extensions/lock",
             "extensions/markdown",
+            "extensions/mcp",
             "extensions/mentions",
             "extensions/nicknames",
             "extensions/package-manager",
+            "extensions/oauth-provider",
             "extensions/pusher",
             "extensions/realtime",
             "extensions/statistics",

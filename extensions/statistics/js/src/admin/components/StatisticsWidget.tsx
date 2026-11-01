@@ -46,14 +46,20 @@ export default class StatisticsWidget extends DashboardWidget {
   noData: boolean = false;
 
   loadingLifetime = true;
-  loadingTimed: Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'> = this.entities.reduce((acc, curr) => {
-    acc[curr] = 'unloaded';
-    return acc;
-  }, {} as Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>);
-  loadingCustom: Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'> = this.entities.reduce((acc, curr) => {
-    acc[curr] = 'unloaded';
-    return acc;
-  }, {} as Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>);
+  loadingTimed: Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'> = this.entities.reduce(
+    (acc, curr) => {
+      acc[curr] = 'unloaded';
+      return acc;
+    },
+    {} as Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>
+  );
+  loadingCustom: Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'> = this.entities.reduce(
+    (acc, curr) => {
+      acc[curr] = 'unloaded';
+      return acc;
+    },
+    {} as Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>
+  );
 
   selectedEntity = this.entities[0];
   selectedPeriod: undefined | string;
@@ -179,12 +185,12 @@ export default class StatisticsWidget extends DashboardWidget {
     const thisPeriod = loadingSelectedEntity
       ? null
       : this.selectedPeriod === 'custom'
-      ? {
-          start: this.customPeriod?.start!,
-          end: this.customPeriod?.end!,
-          step: 86400,
-        }
-      : this.periods![this.selectedPeriod!];
+        ? {
+            start: this.customPeriod?.start!,
+            end: this.customPeriod?.end!,
+            step: 86400,
+          }
+        : this.periods![this.selectedPeriod!];
 
     if (this.selectedPeriod === 'custom') {
       this.entities.forEach((entity) => {
@@ -275,8 +281,8 @@ export default class StatisticsWidget extends DashboardWidget {
                 this.selectedPeriod === 'custom'
                   ? null
                   : loadingSelectedEntity
-                  ? app.translator.trans('flarum-statistics.admin.statistics.loading')
-                  : this.getPeriodCount(entity, this.getLastPeriod(thisPeriod!));
+                    ? app.translator.trans('flarum-statistics.admin.statistics.loading')
+                    : this.getPeriodCount(entity, this.getLastPeriod(thisPeriod!));
               const periodChange =
                 loadingSelectedEntity || lastPeriodCount === 0 || lastPeriodCount === null
                   ? 0

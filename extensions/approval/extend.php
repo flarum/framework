@@ -39,7 +39,8 @@ return [
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         ->fields(fn () => [
-            Schema\Boolean::make('isApproved'),
+            Schema\Boolean::make('isApproved')
+                ->description('Whether the discussion has been approved. Unapproved discussions are only visible to their author and moderators.'),
         ]),
 
     (new Extend\ApiResource(Resource\PostResource::class))

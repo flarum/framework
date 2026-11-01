@@ -5,6 +5,7 @@ import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
+import { ColorScheme } from '../../common/components/ThemeMode';
 import type Mithril from 'mithril';
 
 export interface ISignupModalAttrs extends IFormModalAttrs {
@@ -18,6 +19,7 @@ export interface ISignupModalAttrs extends IFormModalAttrs {
 export type SignupBody = {
   username: string;
   email: string;
+  colorScheme?: string;
 } & ({ token: string } | { password: string });
 
 export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignupModalAttrs> extends FormModal<CustomAttrs> {
@@ -191,11 +193,17 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
   submitData(): SignupBody {
     const authData = this.attrs.token ? { token: this.attrs.token } : { password: this.password() };
 
-    const data = {
+    const data: SignupBody = {
       username: this.username(),
       email: this.email(),
       ...authData,
     };
+
+    // A guest's colour scheme is only kept for the tab, so the account would
+    // otherwise start on the forum default after the reload below.
+    if (app.allowUserColorScheme && app.colorScheme && app.colorScheme !== ColorScheme.Auto) {
+      data.colorScheme = app.colorScheme;
+    }
 
     return data;
   }

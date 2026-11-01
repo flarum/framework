@@ -66,7 +66,7 @@ export default class DeckPickerModal<CustomAttrs extends IDeckPickerModalAttrs =
 
         if (!model || !picker.attrs.isAdded!(model)) return result;
 
-        const children = result.text != null ? [result.text] : result.children ?? [];
+        const children = result.text != null ? [result.text] : (result.children ?? []);
 
         return m(result.tag, { ...result.attrs, key: result.key, className: classList(result.attrs.className, 'DeckPickerModal-result--added') }, [
           ...children,

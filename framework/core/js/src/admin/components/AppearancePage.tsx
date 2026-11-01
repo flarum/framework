@@ -8,8 +8,10 @@ import AdminPage from './AdminPage';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';
 import Form from '../../common/components/Form';
-import FieldSet from '../../common/components/FieldSet';
+import SettingsSection from './SettingsSection';
 import ThemeMode from '../../common/components/ThemeMode';
+import AppIconPreview from './AppIconPreview';
+import FaviconPreview from './FaviconPreview';
 
 export default class AppearancePage extends AdminPage {
   headerInfo() {
@@ -30,19 +32,42 @@ export default class AppearancePage extends AdminPage {
 
     items.add(
       'colors',
-      <Form>
-        <FieldSet
+      <Form className="AdminPage-settingsForm--sectioned">
+        <SettingsSection
           className="AppearancePage-colors"
+          id="appearance-colors"
+          icon="fas fa-palette"
           label={app.translator.trans('core.admin.appearance.colors_heading')}
           description={app.translator.trans('core.admin.appearance.colors_text')}
         >
           {this.colorItems().toArray()}
-        </FieldSet>
+        </SettingsSection>
       </Form>,
       100
     );
 
-    items.add('branding', <Form>{this.brandingItems().toArray()}</Form>, 90);
+    items.add(
+      'branding',
+      <Form className="AdminPage-settingsForm--sectioned">
+        {this.itemSections(this.brandingItems(), [
+          {
+            id: 'appearance-logos',
+            icon: 'fas fa-image',
+            label: app.translator.trans('core.admin.appearance.sections.logos.label'),
+            description: app.translator.trans('core.admin.appearance.sections.logos.description'),
+            items: ['logo', 'logo-dark-mode', 'email-logo', 'favicon', 'app-icon', 'app-icon-background'],
+          },
+          {
+            id: 'appearance-custom-code',
+            icon: 'fas fa-code',
+            label: app.translator.trans('core.admin.appearance.sections.custom_code.label'),
+            description: app.translator.trans('core.admin.appearance.sections.custom_code.description'),
+            items: ['custom-header', 'custom-footer', 'custom-css'],
+          },
+        ]).toArray()}
+      </Form>,
+      90
+    );
 
     return items;
   }
@@ -55,7 +80,13 @@ export default class AppearancePage extends AdminPage {
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.appearance.logo_heading')}</label>
         <div className="helpText">{app.translator.trans('core.admin.appearance.logo_text')}</div>
-        <UploadImageButton name="logo" routePath="logo" value={app.data.settings.logo_path} url={app.forum.attribute('logoUrl')} />
+        <UploadImageButton
+          name="logo"
+          routePath="logo"
+          value={app.data.settings.logo_path}
+          url={app.forum.attribute('logoUrl')}
+          {...this.themeImage('logo')}
+        />
       </div>,
       100
     );
@@ -70,6 +101,7 @@ export default class AppearancePage extends AdminPage {
           routePath="logo-dark-mode"
           value={app.data.settings.logo_dark_mode_path}
           url={app.forum.attribute('logoDarkModeUrl')}
+          {...this.themeImage('logo_dark_mode')}
         />
       </div>,
       99
@@ -85,6 +117,7 @@ export default class AppearancePage extends AdminPage {
           routePath="email-logo"
           value={app.data.settings.email_logo_path}
           url={app.forum.attribute('emailLogoUrl')}
+          {...this.themeImage('email_logo')}
         />
       </div>,
       95
@@ -95,10 +128,50 @@ export default class AppearancePage extends AdminPage {
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.appearance.favicon_heading')}</label>
         <div className="helpText">{app.translator.trans('core.admin.appearance.favicon_text')}</div>
-        <UploadImageButton name="favicon" routePath="favicon" value={app.data.settings.favicon_path} url={app.forum.attribute('faviconUrl')} />
+        <UploadImageButton
+          name="favicon"
+          routePath="favicon"
+          value={app.data.settings.favicon_path}
+          url={app.forum.attribute('faviconUrl')}
+          {...this.themeImage('favicon')}
+        />
+        <FaviconPreview />
       </div>,
       90
     );
+
+    items.add(
+      'app-icon',
+      <div className="Form-group">
+        <label>{app.translator.trans('core.admin.appearance.app_icon_heading')}</label>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.app_icon_text')}</div>
+        <UploadImageButton
+          name="app-icon"
+          routePath="app-icon"
+          value={app.data.settings.app_icon_path}
+          url={app.forum.attribute('appIconUrl')}
+          {...this.themeImage('app_icon')}
+        />
+        <AppIconPreview />
+      </div>,
+      85
+    );
+
+    if (!('app_icon' in this.themeImages())) {
+      items.add(
+        'app-icon-background',
+        <div className="AppearancePage-appIconBackground">
+          {this.buildSettingComponent({
+            type: 'color-preview',
+            setting: 'app_icon_background',
+            label: app.translator.trans('core.admin.appearance.app_icon_background_label'),
+            help: app.translator.trans('core.admin.appearance.app_icon_background_help'),
+          })}
+          <div className="Form-group">{this.submitButton()}</div>
+        </div>,
+        84
+      );
+    }
 
     items.add(
       'custom-header',
@@ -137,6 +210,20 @@ export default class AppearancePage extends AdminPage {
     );
 
     return items;
+  }
+
+  /**
+   * The images a theme sets with the Theme extender, with the title of the
+   * extension that set each one.
+   */
+  themeImages(): Record<string, string | null> {
+    return (app.data.themeImages as Record<string, string | null> | undefined) ?? {};
+  }
+
+  themeImage(name: string): { lockedBy?: string | null } {
+    const themeImages = this.themeImages();
+
+    return name in themeImages ? { lockedBy: themeImages[name] } : {};
   }
 
   colorItems() {
@@ -262,6 +349,11 @@ export default class AppearancePage extends AdminPage {
         id: 'favicon_heading',
         label: app.translator.trans('core.admin.appearance.favicon_heading', {}, true),
         help: app.translator.trans('core.admin.appearance.favicon_text', {}, true),
+      },
+      {
+        id: 'app_icon_heading',
+        label: app.translator.trans('core.admin.appearance.app_icon_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.app_icon_text', {}, true),
       },
       {
         id: 'custom_header_heading',

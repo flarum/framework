@@ -13,19 +13,26 @@ describe('GambitsAutocomplete', () => {
   let changedValue = '';
   let afterSuggestValue = '';
   let selectionStart = 0;
+  let selectionEnd: number | null = null;
 
   function createAutocomplete(resource = 'discussions') {
     changedValue = '';
     afterSuggestValue = '';
 
+    const effectiveSelectionEnd = selectionEnd !== null ? selectionEnd : selectionStart;
     const $input = {
-      prop: (name: string) => (name === 'selectionStart' ? selectionStart : undefined),
+      prop: (name: string) => {
+        if (name === 'selectionStart') return selectionStart;
+        if (name === 'selectionEnd') return effectiveSelectionEnd;
+        return undefined;
+      },
       focus: jest.fn(),
       setSelectionRange: jest.fn(),
       0: {
         focus: jest.fn(),
         setSelectionRange: jest.fn(),
         selectionStart: selectionStart,
+        selectionEnd: effectiveSelectionEnd,
       },
     };
 
@@ -89,12 +96,20 @@ describe('GambitsAutocomplete', () => {
   }
 
   beforeEach(() => {
+    selectionStart = 0;
+    selectionEnd = null;
+
     app.search.gambits.for = jest.fn().mockImplementation((resource: string) => {
       if (resource !== 'discussions') return [];
       return [
         {
           type: GambitType.Grouped,
-          suggestion: () => ({ group: 'is', key: ['unread', 'hidden', 'locked', 'sticky'] }),
+          suggestion: () => ({ group: 'is', key: 'unread' }),
+          enabled: () => true,
+        },
+        {
+          type: GambitType.Grouped,
+          suggestion: () => ({ group: 'is', key: ['hidden', 'locked', 'sticky'] }),
           enabled: () => true,
         },
         {
@@ -270,6 +285,57 @@ describe('GambitsAutocomplete', () => {
 
     expect(changedValue).toBe('is:unread extra');
     expect(afterSuggestValue).toBe('is:unread extra');
+  });
+
+  it('does not delete following word when selecting suggestion with empty fromTyped (e.g. hello ⎸world)', () => {
+    const query = 'hello world';
+    selectionStart = 6; // Cursor right after 'hello '
+    const ac = createAutocomplete();
+    const suggestions = extractSuggestions(ac.suggestions(query));
+
+    expect(suggestions).toHaveLength(2);
+    expect(suggestions[0].key).toBe('is:');
+    suggestions[0].click();
+
+    expect(changedValue).toBe('hello is:world');
+    expect(afterSuggestValue).toBe('hello is:world');
+  });
+
+  it('does not delete word when selecting suggestion at position 0 with empty fromTyped (e.g. ⎸hello)', () => {
+    const query = 'hello';
+    selectionStart = 0; // Cursor at start of input before 'hello'
+    const ac = createAutocomplete();
+    const suggestions = extractSuggestions(ac.suggestions(query));
+
+    expect(suggestions).toHaveLength(2);
+    expect(suggestions[0].key).toBe('is:');
+    suggestions[0].click();
+
+    expect(changedValue).toBe('is:hello');
+    expect(afterSuggestValue).toBe('is:hello');
+  });
+
+  it('shows no suggestions when query text is fully selected upon focus (selectionStart 0, selectionEnd length)', () => {
+    selectionStart = 0;
+    selectionEnd = 3;
+    const ac = createAutocomplete();
+    const suggestions = ac.suggestions('adm');
+
+    expect(suggestions).toHaveLength(0);
+  });
+
+  it('preserves filter value when picking filter name with cursor inside the key (e.g. aut⎸hor:john)', () => {
+    const query = 'author:john';
+    selectionStart = 3;
+    const ac = createAutocomplete();
+    const suggestions = extractSuggestions(ac.suggestions(query));
+
+    expect(suggestions).toHaveLength(1);
+    expect(suggestions[0].key).toBe('author:');
+    suggestions[0].click();
+
+    expect(changedValue).toBe('author:john');
+    expect(afterSuggestValue).toBe('author:john');
   });
 
   describe('extensible KeyValueGambit suggestions', () => {

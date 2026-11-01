@@ -1,32 +1,15 @@
+// FormSectionGroup stacks FormSections, which render as SettingsSections
+// (see SettingsSection.less).
 .FormSectionGroup {
   display: flex;
-  column-gap: 30px;
-  flex-wrap: wrap;
-}
+  flex-direction: column;
 
-.FormSectionGroup:not(:first-child) {
-  margin-top: 1.2rem;
-}
-
-.FormSection {
-  --gap: 24px;
-  display: inline-grid;
-  padding: 10px 20px 20px;
-  min-height: 20vh;
-  min-width: 300px;
-  max-width: 400px;
-  grid-template-rows: min-content;
-  border: 1px solid var(--control-bg);
-  border-radius: var(--border-radius);
-  flex: 1 1 160px;
-  gap: var(--gap);
-
-  &-body {
-    min-width: 0;
+  > .SettingsSection:first-child {
+    border-top: 0;
+    padding-top: 0;
   }
 }
 
-.FormSection > label {
-  font-weight: bold;
-  color: var(--muted-color);
+.FormSection .SettingsSection-body > .Form {
+  margin-bottom: 0;
 }

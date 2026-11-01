@@ -1,0 +1,38 @@
+.ConnectedApplications {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ConnectedApplications-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+
+  & + & {
+    border-top: 1px solid var(--control-bg);
+  }
+}
+
+.ConnectedApplications-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--border-radius);
+  object-fit: contain;
+}
+
+.ConnectedApplications-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ConnectedApplications-host {
+  margin-left: 6px;
+  color: var(--muted-color);
+}
+
+.ConnectedApplications-scopes code {
+  margin-right: 4px;
+  font-size: 0.85em;
+}

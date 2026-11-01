@@ -82,12 +82,22 @@ export interface AdminApplicationData extends ApplicationData {
     knownQueues: string[];
     schedulerStatus: string;
     sessionDriver: string;
+    sessionByConfig: boolean;
+    sessionLifetime: number;
+    sessionCookieExpiresOnClose: boolean;
+    accessTokenLifetimes: AccessTokenLifetime[];
     /**
      * The sort options each resource offers, keyed by resource type, and within
      * that by the alias that appears in a URL. Mirrors what the forum receives,
      * so admin UI can offer sorting without keeping its own copy of the list.
      */
     sortMaps: Record<string, Record<string, string>>;
+}
+export interface AccessTokenLifetime {
+    /** The type the token class declares, e.g. `session` or `session_remember`. */
+    type: string;
+    /** How long tokens of this type last, in seconds. Zero means they never expire. */
+    lifetime: number;
 }
 export default class AdminApplication extends Application {
     /**

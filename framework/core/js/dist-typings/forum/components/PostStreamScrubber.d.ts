@@ -65,5 +65,5 @@ export default class PostStreamScrubber extends Component<import("../../common/C
         visible: number;
     };
 }
-import Component from "../../common/Component";
-import ScrollListener from "../../common/utils/ScrollListener";
+import Component from '../../common/Component';
+import ScrollListener from '../../common/utils/ScrollListener';

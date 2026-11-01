@@ -14,6 +14,8 @@ import Switch from '../../common/components/Switch';
 import classList from '../../common/utils/classList';
 import ExtensionBisect from './ExtensionBisect';
 import { DatabaseDriver } from '../AdminApplication';
+import type { AccessTokenLifetime } from '../AdminApplication';
+import { DURATION_UNITS, toDuration, toSeconds, type DurationUnit } from '../../common/utils/duration';
 
 export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
   searchDriverOptions: Record<string, Record<string, string>> = {};
@@ -49,7 +51,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     }
 
     return [
-      <Form className="AdvancedPage-container">
+      <Form className="AdminPage-settingsForm--sectioned AdvancedPage-container">
         <FormSectionGroup>{this.sectionItems().toArray()}</FormSectionGroup>
         <div className="Form-group Form-controls">{this.submitButton()}</div>
       </Form>,
@@ -79,7 +81,167 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
 
     items.add('queue', this.queue(), 70);
 
+    items.add('sessions', this.sessions(), 60);
+
     return items;
+  }
+
+  sessions() {
+    return (
+      <FormSection icon="fas fa-user-clock" label={app.translator.trans('core.admin.advanced.sessions.section_label')}>
+        {this.sessionItems().toArray()}
+      </FormSection>
+    );
+  }
+
+  sessionItems() {
+    const items = new ItemList<Mithril.Children>();
+
+    // Pinned in config.php, so an administrator can be shown what the lengths
+    // are without being able to loosen them from here.
+    if (app.data.sessionByConfig) {
+      items.add('content', this.sessionConfigOverride(), 100);
+
+      return items;
+    }
+
+    items.add('lifetime', this.sessionLifetime(), 100);
+
+    const tokens = this.sessionTokenLifetimes();
+    if (tokens) items.add('tokens', tokens, 90);
+
+    items.add('cookie', this.sessionCookieControl(), 80);
+
+    return items;
+  }
+
+  sessionConfigOverride() {
+    const tokens = app.data.accessTokenLifetimes || [];
+
+    return (
+      <div className="Form-group">
+        <label>{app.translator.trans('core.admin.advanced.sessions.config_override.label')}</label>
+        <p className="helpText">{app.translator.trans('core.admin.advanced.sessions.config_override.help')}</p>
+        <ul className="SessionLifetimes-summary">
+          <li>
+            <strong>{app.translator.trans('core.admin.advanced.sessions.lifetime_label')}</strong>{' '}
+            {this.durationLabel((app.data.sessionLifetime || 0) * 60)}
+          </li>
+          {tokens.map((token) => (
+            <li key={token.type}>
+              <strong>{this.tokenTypeLabel(token.type)}</strong> {this.durationLabel(token.lifetime)}
+            </li>
+          ))}
+          <li>
+            <strong>{app.translator.trans('core.admin.advanced.sessions.cookie_expires_on_close_label')}</strong>{' '}
+            {app.translator.trans(`core.admin.advanced.sessions.${app.data.sessionCookieExpiresOnClose ? 'enabled' : 'disabled'}`)}
+          </li>
+        </ul>
+      </div>
+    );
+  }
+
+  sessionLifetime() {
+    return (
+      <Form>
+        {this.buildSettingComponent({
+          type: 'number',
+          setting: 'session.lifetime',
+          label: app.translator.trans('core.admin.advanced.sessions.lifetime_label'),
+          help: app.translator.trans('core.admin.advanced.sessions.lifetime_help'),
+          placeholder: '120',
+          min: 1,
+        })}
+      </Form>
+    );
+  }
+
+  /**
+   * One control per registered token type, so a type added by an extension is
+   * configured here alongside the ones core ships.
+   */
+  sessionTokenLifetimes() {
+    const tokens = app.data.accessTokenLifetimes || [];
+
+    if (!tokens.length) return null;
+
+    return <Form>{tokens.map((token) => this.tokenLifetimeControl(token))}</Form>;
+  }
+
+  tokenLifetimeControl(token: AccessTokenLifetime) {
+    const setting = this.setting(`session.tokens.${token.type}`, String(token.lifetime));
+    const current = toDuration(Number(setting()) || token.lifetime);
+
+    const update = (value: number, unit: DurationUnit) => setting(String(toSeconds(value, unit)));
+
+    return (
+      <div className="Form-group SessionLifetime" key={token.type}>
+        <label>{this.tokenTypeLabel(token.type)}</label>
+        <p className="helpText">{this.tokenTypeHelp(token.type)}</p>
+        <div className="SessionLifetime-input">
+          <input
+            className="FormControl SessionLifetime-value"
+            type="number"
+            min="0"
+            value={current.value}
+            aria-label={app.translator.trans('core.admin.advanced.sessions.duration_value_label')}
+            oninput={(e: InputEvent) => update(Number((e.target as HTMLInputElement).value), current.unit)}
+          />
+          <select
+            className="FormControl SessionLifetime-unit"
+            value={current.unit}
+            aria-label={app.translator.trans('core.admin.advanced.sessions.duration_unit_label')}
+            onchange={(e: InputEvent) => update(current.value, (e.target as HTMLSelectElement).value as DurationUnit)}
+          >
+            {DURATION_UNITS.map(({ unit }) => (
+              <option key={unit} value={unit}>
+                {app.translator.trans(`core.admin.advanced.sessions.units.${unit}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
+  sessionCookieControl() {
+    return (
+      <Form>
+        {this.buildSettingComponent({
+          type: 'switch',
+          setting: 'session.cookie_expires_on_close',
+          label: app.translator.trans('core.admin.advanced.sessions.cookie_expires_on_close_label'),
+          help: app.translator.trans('core.admin.advanced.sessions.cookie_expires_on_close_help'),
+        })}
+      </Form>
+    );
+  }
+
+  /**
+   * A name for a token type. Types core knows about are named properly; one
+   * added by an extension falls back to its own identifier rather than going
+   * unlabelled.
+   */
+  tokenTypeLabel(type: string): string {
+    const key = `core.admin.advanced.sessions.token_types.${type}.label`;
+    const translated = extractText(app.translator.trans(key));
+
+    return translated === key ? type : translated;
+  }
+
+  tokenTypeHelp(type: string): Mithril.Children {
+    const key = `core.admin.advanced.sessions.token_types.${type}.help`;
+    const translated = extractText(app.translator.trans(key));
+
+    return translated === key ? null : translated;
+  }
+
+  durationLabel(seconds: number): string {
+    const { value, unit } = toDuration(seconds);
+
+    if (!seconds) return extractText(app.translator.trans('core.admin.advanced.sessions.never_expires'));
+
+    return `${value} ${extractText(app.translator.trans(`core.admin.advanced.sessions.units.${unit}`))}`;
   }
 
   searchDrivers() {
@@ -88,7 +250,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     const cjkCapableDriver = app.data.dbDriver === DatabaseDriver.MySQL || app.data.dbDriver === DatabaseDriver.MariaDB;
 
     return (
-      <FormSection label={app.translator.trans('core.admin.advanced.search.section_label')}>
+      <FormSection icon="fas fa-search" label={app.translator.trans('core.admin.advanced.search.section_label')}>
         {hasOtherDrivers ? (
           <Form>
             {Object.keys(this.searchDriverOptions).map((model) => {
@@ -129,7 +291,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
 
   maintenance() {
     return (
-      <FormSection label={app.translator.trans('core.admin.advanced.maintenance.section_label')}>
+      <FormSection icon="fas fa-tools" label={app.translator.trans('core.admin.advanced.maintenance.section_label')}>
         <Form>
           {this.buildSettingComponent({
             type: 'select',
@@ -212,7 +374,11 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
   }
 
   queue() {
-    return <FormSection label={app.translator.trans('core.admin.advanced.queue.section_label')}>{this.queueItems().toArray()}</FormSection>;
+    return (
+      <FormSection icon="fas fa-layer-group" label={app.translator.trans('core.admin.advanced.queue.section_label')}>
+        {this.queueItems().toArray()}
+      </FormSection>
+    );
   }
 
   queueItems() {
@@ -371,7 +537,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
 
   pgsqlSettings() {
     return (
-      <FormSection label={DatabaseDriver.PostgreSQL}>
+      <FormSection icon="fas fa-database" label={DatabaseDriver.PostgreSQL}>
         <Form>
           {this.buildSettingComponent({
             type: 'select',
@@ -393,7 +559,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     const configKitUrl = app.data.fontawesomeConfig?.kit_url || this.setting('fontawesome_kit_url')();
 
     return (
-      <FormSection label={app.translator.trans('core.admin.advanced.fontawesome.section_label')}>
+      <FormSection icon="fas fa-icons" label={app.translator.trans('core.admin.advanced.fontawesome.section_label')}>
         {app.data.fontawesomeByConfig ? (
           <div className="Form-group">
             <label>{app.translator.trans('core.admin.advanced.fontawesome.config_override.label')}</label>

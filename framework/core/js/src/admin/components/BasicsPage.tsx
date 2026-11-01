@@ -4,7 +4,6 @@ import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
-import Form from '../../common/components/Form';
 import extractText from '../../common/utils/extractText';
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
@@ -31,14 +30,11 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
   }
 
   content() {
-    const settings = app.registry.getSettings('core-basics');
+    return [this.settingsForm()];
+  }
 
-    return [
-      <Form>
-        {settings?.map(this.buildSettingComponent.bind(this))}
-        <div className="Form-group Form-controls">{this.submitButton()}</div>
-      </Form>,
-    ];
+  settingsRegistryKey() {
+    return 'core-basics';
   }
 
   /**
@@ -143,14 +139,80 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
     app.registry.for('core-basics');
 
     app.registry
+      .registerSection(
+        {
+          id: 'forum',
+          icon: 'fas fa-comments',
+          label: app.translator.trans('core.admin.basics.sections.forum.label'),
+          description: app.translator.trans('core.admin.basics.sections.forum.description'),
+        },
+        100
+      )
+      .registerSection(
+        {
+          id: 'language',
+          icon: 'fas fa-language',
+          label: app.translator.trans('core.admin.basics.sections.language.label'),
+          description: app.translator.trans('core.admin.basics.sections.language.description'),
+        },
+        90
+      )
+      .registerSection(
+        {
+          id: 'home',
+          icon: 'fas fa-home',
+          label: app.translator.trans('core.admin.basics.sections.home.label'),
+          description: app.translator.trans('core.admin.basics.sections.home.description'),
+        },
+        80
+      )
+      .registerSection(
+        {
+          id: 'members',
+          icon: 'fas fa-user',
+          label: app.translator.trans('core.admin.basics.sections.members.label'),
+          description: app.translator.trans('core.admin.basics.sections.members.description'),
+        },
+        70
+      )
+      .registerSection(
+        {
+          id: 'urls',
+          icon: 'fas fa-link',
+          label: app.translator.trans('core.admin.basics.sections.urls.label'),
+          description: app.translator.trans('core.admin.basics.sections.urls.description'),
+        },
+        60
+      )
+      .registerSection(
+        {
+          id: 'extensions',
+          icon: 'fas fa-puzzle-piece',
+          label: app.translator.trans('core.admin.basics.sections.extensions.label'),
+          description: app.translator.trans('core.admin.basics.sections.extensions.description'),
+        },
+        50
+      );
+
+    app.registry
       .registerSetting({
         type: 'text',
         setting: 'forum_title',
+        section: 'forum',
         label: app.translator.trans('core.admin.basics.forum_title_heading'),
       })
       .registerSetting({
         type: 'text',
+        setting: 'forum_short_name',
+        section: 'forum',
+        label: app.translator.trans('core.admin.basics.forum_short_name_heading'),
+        help: app.translator.trans('core.admin.basics.forum_short_name_text'),
+        maxlength: 16,
+      })
+      .registerSetting({
+        type: 'text',
         setting: 'forum_description',
+        section: 'forum',
         label: app.translator.trans('core.admin.basics.forum_description_heading'),
         help: app.translator.trans('core.admin.basics.forum_description_text'),
       });
@@ -160,12 +222,14 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
         .registerSetting({
           type: 'select',
           setting: 'default_locale',
+          section: 'language',
           options: localeOptions,
           label: app.translator.trans('core.admin.basics.default_language_heading'),
         })
         .registerSetting({
           type: 'switch',
           setting: 'show_language_selector',
+          section: 'language',
           label: app.translator.trans('core.admin.basics.show_language_selector_label'),
         });
     }
@@ -174,6 +238,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
       .registerSetting({
         type: 'radio',
         setting: 'default_route',
+        section: 'home',
         name: 'homePage',
         options: BasicsPage.homePageItems()
           .toArray()
@@ -188,6 +253,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
       .registerSetting({
         type: 'stacked-text',
         setting: 'welcome_title',
+        section: 'home',
         textArea: {
           setting: 'welcome_message',
           cols: 80,
@@ -202,6 +268,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
       app.registry.registerSetting({
         type: 'select',
         setting: 'display_name_driver',
+        section: 'members',
         options: displayNameOptions,
         label: app.translator.trans('core.admin.basics.display_name_heading'),
         help: app.translator.trans('core.admin.basics.display_name_text'),
@@ -212,6 +279,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
       app.registry.registerSetting({
         type: 'select',
         setting: 'avatar_driver',
+        section: 'members',
         default: 'default',
         options: avatarDriverOptions,
         label: app.translator.trans('core.admin.basics.avatar_driver_heading'),
@@ -227,6 +295,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
         app.registry.registerSetting({
           type: 'select',
           setting: `slug_driver_${model}`,
+          section: 'urls',
           options,
           label: app.translator.trans('core.admin.basics.slug_driver_heading', { model: modelLocale }),
           help: app.translator.trans('core.admin.basics.slug_driver_text', { model: modelLocale }),
@@ -235,30 +304,33 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
     });
 
     app.registry.registerSetting(
-      function (this: AdminPage) {
-        return (
-          <div className="Form-group">
-            <label>{app.translator.trans('core.admin.basics.abandoned_extensions_heading')}</label>
-            <div className="helpText">
-              {app.translator.trans('core.admin.basics.abandoned_extensions_text', {
-                a: <Link href="https://github.com/flarum/abandoned-extensions" target="_blank" external={true} />,
+      Object.assign(
+        function (this: AdminPage) {
+          return (
+            <div className="Form-group">
+              <label>{app.translator.trans('core.admin.basics.abandoned_extensions_heading')}</label>
+              <div className="helpText">
+                {app.translator.trans('core.admin.basics.abandoned_extensions_text', {
+                  a: <Link href="https://github.com/flarum/abandoned-extensions" target="_blank" external={true} />,
+                })}
+              </div>
+              <div className="Form-row">
+                <Button className="Button" onclick={syncAbandoned} loading={abandonedSyncing} disabled={abandonedSyncing}>
+                  {app.translator.trans('core.admin.basics.abandoned_extensions_sync_button')}
+                </Button>
+                {abandonedSyncMessage && <span className="helpText BasicsPage-abandonedSyncMessage">{abandonedSyncMessage}</span>}
+              </div>
+              <br />
+              {this.buildSettingComponent({
+                type: 'switch',
+                setting: 'flarum-core.notify_admins_on_abandoned',
+                label: app.translator.trans('core.admin.basics.abandoned_extensions_notify_admins_label'),
               })}
             </div>
-            <div className="Form-row">
-              <Button className="Button" onclick={syncAbandoned} loading={abandonedSyncing} disabled={abandonedSyncing}>
-                {app.translator.trans('core.admin.basics.abandoned_extensions_sync_button')}
-              </Button>
-              {abandonedSyncMessage && <span className="helpText BasicsPage-abandonedSyncMessage">{abandonedSyncMessage}</span>}
-            </div>
-            <br />
-            {this.buildSettingComponent({
-              type: 'switch',
-              setting: 'flarum-core.notify_admins_on_abandoned',
-              label: app.translator.trans('core.admin.basics.abandoned_extensions_notify_admins_label'),
-            })}
-          </div>
-        );
-      },
+          );
+        },
+        { section: 'extensions' }
+      ),
       -10,
       'abandoned-extensions'
     );

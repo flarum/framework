@@ -10,4 +10,4 @@ export default class DiscussionTaggedPost extends EventPost {
         tagsRemoved: any[];
     };
 }
-import EventPost from "flarum/forum/components/EventPost";
+import EventPost from 'flarum/forum/components/EventPost';

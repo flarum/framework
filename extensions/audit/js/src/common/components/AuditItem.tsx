@@ -169,6 +169,11 @@ export default class AuditItem implements ClassComponent<AuditItemAttrs> {
     // we'd fall back to raw JSON). Treat any present entry as "a message exists".
     if (app.translator.translations[translationKeyForPayload]) {
       const parameters = {
+        // Any plain value in the payload is available as a placeholder of the same
+        // name, so an extension's own actions can use their own keys. Lists and
+        // objects only show in the raw view, and the placeholders below win.
+        ...Object.fromEntries(Object.entries(payload).filter(([, value]) => ['string', 'number', 'boolean'].includes(typeof value))),
+
         // We can't call this translation parameter {user} because it's reserved by Flarum
         username: (
           <Link external href={user ? routes().user(user) : '#'}>

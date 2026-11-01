@@ -11,7 +11,7 @@ import DiscussionPage, { IDiscussionPageAttrs } from '../components/DiscussionPa
  */
 export default class DiscussionPageResolver<
   Attrs extends IDiscussionPageAttrs = IDiscussionPageAttrs,
-  RouteArgs extends Record<string, unknown> = {}
+  RouteArgs extends Record<string, unknown> = {},
 > extends DefaultResolver<Attrs, DiscussionPage<Attrs>, RouteArgs> {
   static scrollToPostNumber: number | null = null;
 

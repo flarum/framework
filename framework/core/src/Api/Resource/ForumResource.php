@@ -13,11 +13,11 @@ use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
+use Flarum\Forum\Branding\Branding;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
-use Flarum\Mail\EmailLogo;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
@@ -34,13 +34,17 @@ class ForumResource extends AbstractResource implements Findable
      */
     protected Filesystem $assetsFilesystem;
 
+    protected Branding $branding;
+
     public function __construct(
         protected UrlGenerator $url,
         protected SettingsRepositoryInterface $settings,
         protected Config $config,
-        Factory $filesystemFactory
+        Factory $filesystemFactory,
+        ?Branding $branding = null
     ) {
         $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
+        $this->branding = $branding ?? resolve(Branding::class);
     }
 
     public function type(): string
@@ -99,12 +103,14 @@ class ForumResource extends AbstractResource implements Findable
             Schema\Str::make('welcomeTitle')
                 ->get(fn () => $this->settings->get('welcome_title')),
             Schema\Str::make('welcomeMessage')
+                ->description('The welcome banner text, as HTML.')
                 ->get(fn () => $this->settings->get('welcome_message')),
             Schema\Str::make('themePrimaryColor')
                 ->get(fn () => $this->settings->get('theme_primary_color')),
             Schema\Str::make('themeSecondaryColor')
                 ->get(fn () => $this->settings->get('theme_secondary_color')),
             Schema\Str::make('colorScheme')
+                ->description('The default color scheme, such as auto, light or dark.')
                 ->get(fn () => $this->settings->get('color_scheme')),
             Schema\Str::make('fontAwesomeForcedStyle')
                 ->get(fn () => $this->settings->get('fontawesome_forced_style'))
@@ -119,13 +125,25 @@ class ForumResource extends AbstractResource implements Findable
             Schema\Str::make('emailLogoUrl')
                 ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
                 ->get(fn () => $this->getEmailLogoUrl()),
+            Schema\Str::make('appIconUrl')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->branding->appIconUrls()['icon-512.png'] ?? null),
+            Schema\Str::make('appleTouchIconUrl')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->branding->appIconUrls()['apple-touch-icon.png'] ?? null),
+            Schema\Str::make('maskableIconUrl')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->branding->appIconUrls()['icon-maskable-512.png'] ?? null),
             Schema\Str::make('headerHtml')
+                ->description('Custom HTML added to every page header.')
                 ->get(fn () => $this->settings->get('custom_header')),
             Schema\Str::make('footerHtml')
+                ->description('Custom HTML added to every page footer.')
                 ->get(fn () => $this->settings->get('custom_footer')),
             Schema\Boolean::make('allowSignUp')
                 ->get(fn () => $this->settings->get('allow_sign_up')),
             Schema\Str::make('defaultRoute')
+                ->description('The path of the forum home page, such as /all.')
                 ->get(fn () => $this->settings->get('default_route')),
             Schema\Boolean::make('canViewForum')
                 ->get(fn ($model, Context $context) => $context->getActor()->can('viewForum')),
@@ -152,9 +170,11 @@ class ForumResource extends AbstractResource implements Findable
                 ->get(fn () => Application::VERSION),
 
             Schema\Relationship\ToMany::make('groups')
+                ->description('Every group you can see.')
                 ->includable()
                 ->get(fn ($model, Context $context) => Group::whereVisibleTo($context->getActor())->get()->all()),
             Schema\Relationship\ToOne::make('actor')
+                ->description('You, when signed in; null for guests.')
                 ->type('users')
                 ->includable()
                 ->get(fn ($model, Context $context) => $context->getActor()->isGuest() ? null : $context->getActor()),
@@ -163,30 +183,22 @@ class ForumResource extends AbstractResource implements Findable
 
     protected function getLogoUrl(): ?string
     {
-        $logoPath = $this->settings->get('logo_path');
-
-        return $logoPath ? $this->getAssetUrl($logoPath) : null;
+        return $this->branding->logoUrl();
     }
 
     protected function getLogoDarkModeUrl(): ?string
     {
-        $logoPath = $this->settings->get('logo_dark_mode_path');
-
-        return $logoPath ? $this->getAssetUrl($logoPath) : null;
+        return $this->branding->logoDarkModeUrl();
     }
 
     protected function getEmailLogoUrl(): ?string
     {
-        $emailLogoPath = $this->settings->get(EmailLogo::PATH_KEY);
-
-        return $emailLogoPath ? $this->getAssetUrl($emailLogoPath) : null;
+        return $this->branding->emailLogoUrl();
     }
 
     protected function getFaviconUrl(): ?string
     {
-        $faviconPath = $this->settings->get('favicon_path');
-
-        return $faviconPath ? $this->getAssetUrl($faviconPath) : null;
+        return $this->branding->faviconUrl();
     }
 
     public function getAssetUrl(string $assetPath): string
