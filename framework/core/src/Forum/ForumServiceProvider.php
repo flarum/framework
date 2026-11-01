@@ -13,6 +13,7 @@ use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
 use Flarum\Forum\Branding\Branding;
+use Flarum\Forum\Branding\Listener\ForgetOutdatedSplashScreens;
 use Flarum\Forum\Branding\Listener\RedrawAppIcon;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\ContentNegotiationFormatter;
@@ -160,6 +161,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->container->bind('flarum.frontend.forum', function (Container $container, array $parameters = []) {
             /** @var Frontend $frontend */
             $frontend = $container->make('flarum.frontend.factory')('forum');
+            $frontend->content($container->make(Content\HomeScreenApp::class), 165);
 
             if (isset($parameters['content'])) {
                 $frontend->content(is_callable($parameters['content']) ? $parameters['content'] : $container->make($parameters['content']), 100);
@@ -184,6 +186,10 @@ class ForumServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('flarum.theme.images', function () {
+            return [];
+        });
+
+        $this->container->singleton('flarum.forum.service_worker', function () {
             return [];
         });
 
@@ -246,6 +252,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         );
 
         $events->listen(Saved::class, RedrawAppIcon::class);
+        $events->listen(Saved::class, ForgetOutdatedSplashScreens::class);
 
         $events->listen(
             Saving::class,
