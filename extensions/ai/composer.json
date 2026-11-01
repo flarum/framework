@@ -44,9 +44,10 @@
             "title": "AI",
             "category": "feature",
             "icon": {
-                "name": "fas fa-wand-magic-sparkles",
-                "backgroundColor": "#2c3e50",
-                "color": "#fff"
+                "image": "icon.svg",
+                "backgroundSize": "cover",
+                "backgroundColor": "#0b0820",
+                "boxShadow": "0 0 0 1px rgba(167, 139, 250, .55), 0 0 14px rgba(139, 92, 246, .6)"
             }
         },
         "flarum-cli": {
