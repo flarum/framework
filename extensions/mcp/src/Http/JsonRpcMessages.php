@@ -36,17 +36,43 @@ class JsonRpcMessages
 
         $body = $request->getBody();
         $size = $body->getSize();
+        $max = StreamableHttpTransport::DEFAULT_MAX_BODY_BYTES;
 
         // An oversized body is refused by the transport before anything runs.
-        if ($size !== null && $size > StreamableHttpTransport::DEFAULT_MAX_BODY_BYTES) {
+        if ($size !== null && $size > $max) {
             return new self([]);
         }
 
-        $decoded = json_decode((string) $body, true);
+        if ($size !== null) {
+            $contents = (string) $body;
+        } else {
+            // Of a body that does not know its size, read one byte past the
+            // limit at most: enough to tell that it is oversized.
+            if ($body->isSeekable()) {
+                $body->rewind();
+            }
+
+            $contents = '';
+            while (strlen($contents) <= $max && ! $body->eof()) {
+                $chunk = $body->read($max + 1 - strlen($contents));
+
+                if ($chunk === '') {
+                    break;
+                }
+
+                $contents .= $chunk;
+            }
+        }
 
         if ($body->isSeekable()) {
             $body->rewind();
         }
+
+        if (strlen($contents) > $max) {
+            return new self([]);
+        }
+
+        $decoded = json_decode($contents, true);
 
         if (! is_array($decoded)) {
             return new self([]);
