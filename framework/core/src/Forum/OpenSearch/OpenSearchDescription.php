@@ -71,7 +71,7 @@ class OpenSearchDescription
             $this->element($root, 'Image', ['width' => (string) $width, 'height' => (string) $height, 'type' => $type], "data:$type;base64,".base64_encode($data));
         }
 
-        $this->element($root, 'Url', ['type' => 'text/html', 'template' => $this->searchPage().'?q={searchTerms}']);
+        $this->element($root, 'Url', ['type' => 'text/html', 'template' => $this->url->to('forum')->route('opensearch.search').'?q={searchTerms}']);
         $this->element($root, 'Url', ['type' => 'application/x-suggestions+json', 'template' => $this->url->to('api')->route('opensearch.suggestions').'?q={searchTerms}']);
         $this->element($root, 'Url', ['type' => 'application/opensearchdescription+xml', 'rel' => 'self', 'template' => $this->url->to('forum')->route('opensearch')]);
 
@@ -106,7 +106,7 @@ class OpenSearchDescription
      * forum's root when it is the homepage, and then has nothing at /all.
      * Any other homepage ignores the query.
      */
-    protected function searchPage(): string
+    public function searchPage(): string
     {
         if ($this->settings->get('default_route') === '/all') {
             return $this->url->to('forum')->base().'/';

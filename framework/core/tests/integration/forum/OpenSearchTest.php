@@ -14,6 +14,7 @@ use Flarum\Testing\integration\TestCase;
 use Laminas\Diactoros\Stream;
 use Laminas\Diactoros\UploadedFile;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\ResponseInterface;
 use SimpleXMLElement;
 
 class OpenSearchTest extends TestCase
@@ -73,7 +74,7 @@ class OpenSearchTest extends TestCase
         $this->assertSame('Acme Forum', (string) $xml->ShortName);
         $this->assertSame('Talk about rockets & more.', (string) $xml->Description);
         $this->assertSame('UTF-8', (string) $xml->InputEncoding);
-        $this->assertSame('http://localhost/?q={searchTerms}', $urls['text/html']['template']);
+        $this->assertSame('http://localhost/opensearch/search?q={searchTerms}', $urls['text/html']['template']);
         $this->assertSame('http://localhost/api/opensearch/suggestions?q={searchTerms}', $urls['application/x-suggestions+json']['template']);
         $this->assertSame(['type' => 'application/opensearchdescription+xml', 'rel' => 'self', 'template' => 'http://localhost/opensearch'], $urls['application/opensearchdescription+xml']);
         $this->assertSame('http://localhost/', (string) $xml->children('http://www.mozilla.org/2006/browser/search/')->SearchForm);
@@ -81,16 +82,38 @@ class OpenSearchTest extends TestCase
         $this->assertSame(['role' => 'example', 'searchTerms' => 'Acme Forum'], array_map('strval', iterator_to_array($xml->Query->attributes())));
     }
 
+    private function search(array $query): ResponseInterface
+    {
+        return $this->send($this->request('GET', '/opensearch/search')->withQueryParams($query));
+    }
+
     #[Test]
-    public function a_forum_with_another_homepage_is_searched_on_its_discussion_list(): void
+    public function a_search_goes_to_the_discussion_list_at_the_root_when_it_is_the_homepage(): void
+    {
+        $response = $this->search(['q' => 'hello world']);
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertSame('http://localhost/?q=hello%20world', $response->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function a_search_goes_to_the_discussion_list_on_a_forum_with_another_homepage(): void
     {
         // The homepage would ignore the query; the discussion list is at /all.
+        // Browsers keep the address they were given, so it can't depend on this.
         $this->setting('default_route', '/tags');
 
-        $xml = $this->description();
+        $this->assertSame('http://localhost/all?q=hello%20world', $this->search(['q' => 'hello world'])->getHeaderLine('Location'));
+        $this->assertSame('http://localhost/opensearch/search?q={searchTerms}', $this->urls($this->description())['text/html']['template']);
+    }
 
-        $this->assertSame('http://localhost/all?q={searchTerms}', $this->urls($xml)['text/html']['template']);
-        $this->assertSame('http://localhost/', (string) $xml->children('http://www.mozilla.org/2006/browser/search/')->SearchForm);
+    #[Test]
+    public function a_search_for_nothing_goes_to_the_discussion_list(): void
+    {
+        $this->setting('default_route', '/tags');
+
+        $this->assertSame('http://localhost/all', $this->search(['q' => ' '])->getHeaderLine('Location'));
+        $this->assertSame('http://localhost/all', $this->search(['q' => ['x']])->getHeaderLine('Location'));
     }
 
     #[Test]
