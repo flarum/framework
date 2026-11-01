@@ -52,6 +52,15 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
         AuthCode::query()->where('id', $codeId)->update(['revoked' => true]);
     }
 
+    /**
+     * Uses up an authorization code: of any number of concurrent calls for
+     * one code, exactly one returns true.
+     */
+    public function consumeAuthCode(string $codeId): bool
+    {
+        return AuthCode::query()->whereKey($codeId)->where('revoked', false)->update(['revoked' => true]) === 1;
+    }
+
     public function isAuthCodeRevoked($codeId): bool
     {
         /** @var AuthCode|null $code */

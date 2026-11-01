@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string|null $nonce
  * @property Carbon|null $auth_time
  * @property string|null $resource
+ * @property string|null $grant_id
  * @property bool        $revoked
  * @property Carbon      $expires_at
  * @property Carbon|null $last_used_at

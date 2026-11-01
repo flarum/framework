@@ -11,6 +11,8 @@ namespace Flarum\OAuthProvider\Server\Grant;
 
 use DateInterval;
 use DateTimeImmutable;
+use Flarum\OAuthProvider\Models\AccessToken;
+use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\ResourceServer\ResourceRegistry;
 use Flarum\OAuthProvider\Server\Entity\AccessTokenEntity;
 use Flarum\OAuthProvider\Server\RedirectUriMatcher;
@@ -35,6 +37,12 @@ trait IssuesResourceBoundTokens
      * the request has been validated.
      */
     protected ?string $tokenResource = null;
+
+    /**
+     * The token family the next access token joins: the authorization code it
+     * descends from. Set by the grant once the request has been validated.
+     */
+    protected ?string $tokenGrantId = null;
 
     /**
      * Identifier of the access token this grant persisted most recently.
@@ -64,6 +72,7 @@ trait IssuesResourceBoundTokens
 
         if ($accessToken instanceof AccessTokenEntity) {
             $accessToken->setResource($this->tokenResource);
+            $accessToken->setGrantId($this->tokenGrantId);
         }
 
         $attempts = self::MAX_RANDOM_TOKEN_GENERATION_ATTEMPTS;
@@ -126,6 +135,16 @@ trait IssuesResourceBoundTokens
         }
 
         return $requested;
+    }
+
+    /**
+     * Revokes every access and refresh token descending from one
+     * authorization code; other grants of the same user and client stay valid.
+     */
+    protected function revokeTokenFamily(string $grantId): void
+    {
+        AccessToken::query()->where('grant_id', $grantId)->update(['revoked' => true]);
+        RefreshToken::query()->where('grant_id', $grantId)->update(['revoked' => true]);
     }
 
     public static function invalidTarget(?string $redirectUri = null): OAuthServerException

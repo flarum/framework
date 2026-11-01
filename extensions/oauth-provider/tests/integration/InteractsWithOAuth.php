@@ -124,18 +124,38 @@ trait InteractsWithOAuth
     {
         $redirectUri = $query['redirect_uri'] ?? 'https://testapp.example.com/callback';
 
-        $code = $this->redirectParams($this->authorize([
+        $response = $this->exchangeCode($clientId, $this->publicClientCode($clientId, $query), $redirectUri, $tokenParams);
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        return $this->json($response);
+    }
+
+    /**
+     * An authorization code for a public client using S256 PKCE.
+     *
+     * @param array<string, string> $query Extra authorize parameters.
+     */
+    protected function publicClientCode(string $clientId, array $query = []): string
+    {
+        return $this->redirectParams($this->authorize([
             'client_id' => $clientId,
             'response_type' => 'code',
-            'redirect_uri' => $redirectUri,
+            'redirect_uri' => 'https://testapp.example.com/callback',
             'scope' => 'openid',
             'state' => 'xyz',
             'code_challenge' => $this->challenge(),
             'code_challenge_method' => 'S256',
             ...$query,
         ]))['code'];
+    }
 
-        $response = $this->token([
+    /**
+     * @param array<string, string> $tokenParams Extra token request parameters.
+     */
+    protected function exchangeCode(string $clientId, string $code, string $redirectUri = 'https://testapp.example.com/callback', array $tokenParams = []): ResponseInterface
+    {
+        return $this->token([
             'grant_type' => 'authorization_code',
             'client_id' => $clientId,
             'redirect_uri' => $redirectUri,
@@ -143,10 +163,11 @@ trait InteractsWithOAuth
             'code_verifier' => self::VERIFIER,
             ...$tokenParams,
         ]);
+    }
 
-        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
-
-        return $this->json($response);
+    protected function refresh(string $clientId, string $refreshToken): ResponseInterface
+    {
+        return $this->token(['grant_type' => 'refresh_token', 'client_id' => $clientId, 'refresh_token' => $refreshToken]);
     }
 
     /**

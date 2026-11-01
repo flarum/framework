@@ -13,6 +13,9 @@ use Illuminate\Database\Schema\Blueprint;
 return Migration::createTable('oauth_provider_refresh_tokens', function (Blueprint $table) {
     $table->string('id', 100)->primary();
     $table->string('access_token_id', 100);
+    // The authorization code the token descends from, and the resource it grants.
+    $table->string('grant_id', 100)->nullable();
+    $table->string('resource', 2048)->nullable();
     $table->boolean('revoked')->default(false);
     $table->dateTime('expires_at');
     $table->dateTime('created_at')->nullable();
@@ -22,4 +25,5 @@ return Migration::createTable('oauth_provider_refresh_tokens', function (Bluepri
         ->on('oauth_provider_access_tokens')
         ->onDelete('cascade');
     $table->index('expires_at');
+    $table->index('grant_id');
 });

@@ -14,6 +14,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\OAuthProvider\Extend\Resource;
 use Flarum\OAuthProvider\Extend\Scope;
 use Flarum\OAuthProvider\Models\AccessToken;
+use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -156,6 +157,26 @@ class ResourceIndicatorTest extends TestCase
         $this->assertSame([self::RESOURCE], (array) $claims['aud']);
         $this->assertSame(['mcp:read'], $claims['scopes']);
         $this->assertSame(self::RESOURCE, AccessToken::query()->find($claims['jti'])->resource);
+    }
+
+    #[Test]
+    public function refresh_keeps_the_granted_resource_without_the_previous_access_token_row(): void
+    {
+        $tokens = $this->publicClientTokens('public-client', ['scope' => 'mcp:read', 'resource' => self::RESOURCE]);
+
+        // The refresh token outlives the row of the access token it came with.
+        $previous = AccessToken::query()->findOrFail($this->jwtClaims($tokens['access_token'])['jti']);
+        $standIn = $previous->replicate();
+        $standIn->id = 'stand-in';
+        $standIn->save();
+        RefreshToken::query()->where('access_token_id', $previous->id)->update(['access_token_id' => 'stand-in']);
+        $previous->delete();
+
+        $response = $this->refresh('public-client', $tokens['refresh_token']);
+
+        $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
+        $claims = $this->jwtClaims($this->json($response)['access_token']);
+        $this->assertSame([self::RESOURCE], (array) $claims['aud'], 'The refreshed token must stay bound to the granted resource');
     }
 
     #[Test]

@@ -26,6 +26,19 @@ class AccessTokenEntity implements AccessTokenEntityInterface
     protected ?\DateTimeImmutable $authTime = null;
     protected ?string $resource = null;
 
+    /** The authorization code this token descends from, through every refresh. */
+    protected ?string $grantId = null;
+
+    public function setGrantId(?string $grantId): void
+    {
+        $this->grantId = $grantId;
+    }
+
+    public function getGrantId(): ?string
+    {
+        return $this->grantId;
+    }
+
     public function setResource(?string $resource): void
     {
         $this->resource = $resource;

@@ -16,6 +16,8 @@ return Migration::createTable('oauth_provider_access_tokens', function (Blueprin
     $table->integer('user_id')->unsigned();
     $table->string('scopes', 1000)->nullable();
     $table->string('resource', 2048)->nullable();
+    // The authorization code the token descends from, through every refresh.
+    $table->string('grant_id', 100)->nullable();
     $table->boolean('revoked')->default(false);
     $table->dateTime('expires_at');
     $table->dateTime('last_used_at')->nullable();
@@ -24,4 +26,5 @@ return Migration::createTable('oauth_provider_access_tokens', function (Blueprin
     $table->foreign('client_id')->references('id')->on('oauth_provider_clients')->onDelete('cascade');
     $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
     $table->index('expires_at');
+    $table->index('grant_id');
 });

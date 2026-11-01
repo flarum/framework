@@ -15,7 +15,9 @@ use DateTimeImmutable;
 use Flarum\OAuthProvider\Models\AccessToken as AccessTokenModel;
 use Flarum\OAuthProvider\Models\AuthCode as AuthCodeModel;
 use Flarum\OAuthProvider\Server\Entity\AuthCodeEntity;
+use Flarum\OAuthProvider\Server\Repository\AuthCodeRepository;
 use Flarum\OAuthProvider\Server\RequestType\AuthorizationRequest;
+use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\AuthCodeEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
@@ -45,10 +47,16 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * It also only accepts S256 PKCE, and carries the RFC 8707 `resource` from the
  * authorization request through the auth code row onto the access token.
+ *
+ * A code is used up atomically right before tokens are issued, so of two
+ * concurrent exchanges only one succeeds. A code presented again after it was
+ * used revokes every token issued from it (OAuth 2.1 §4.1.3).
  */
 class OidcAuthCodeGrant extends AuthCodeGrant
 {
-    use IssuesResourceBoundTokens;
+    use IssuesResourceBoundTokens {
+        issueAccessToken as issueResourceBoundAccessToken;
+    }
 
     /**
      * The resource of the auth code being issued; set for the duration of
@@ -174,12 +182,16 @@ class OidcAuthCodeGrant extends AuthCodeGrant
         $authCode = $this->findAuthCode($request);
 
         $this->tokenResource = $this->resolveTokenResource($request, $authCode?->resource, $authCode->scopes ?? []);
+        $this->tokenGrantId = $authCode?->id;
 
         try {
             $response = parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
             $issuedId = $this->issuedAccessTokenId;
+        } catch (OAuthServerException $e) {
+            throw $this->detectReplay($e, $request, $authCode) ?? $e;
         } finally {
             $this->tokenResource = null;
+            $this->tokenGrantId = null;
             $this->issuedAccessTokenId = null;
         }
 
@@ -197,6 +209,51 @@ class OidcAuthCodeGrant extends AuthCodeGrant
             ]);
 
         return $response;
+    }
+
+    /**
+     * Runs once every check of the exchange has passed: uses the code up
+     * before any token is issued from it.
+     *
+     * @param ScopeEntityInterface[] $scopes
+     */
+    protected function issueAccessToken(
+        DateInterval $accessTokenTTL,
+        ClientEntityInterface $client,
+        $userIdentifier,
+        array $scopes = []
+    ): AccessTokenEntityInterface {
+        $consumed = $this->tokenGrantId !== null
+            && $this->authCodeRepository instanceof AuthCodeRepository
+            && $this->authCodeRepository->consumeAuthCode($this->tokenGrantId);
+
+        if (! $consumed) {
+            throw OAuthServerException::invalidGrant('The authorization code has already been used.');
+        }
+
+        return $this->issueResourceBoundAccessToken($accessTokenTTL, $client, $userIdentifier, $scopes);
+    }
+
+    /**
+     * When the exchange failed because its code was already used, revokes the
+     * tokens issued from that code and returns the error to answer with.
+     * Requires the code's own client, so another client can't revoke them.
+     */
+    protected function detectReplay(OAuthServerException $e, ServerRequestInterface $request, ?AuthCodeModel $authCode): ?OAuthServerException
+    {
+        if ($authCode === null || $e->getErrorType() === 'invalid_client') {
+            return null;
+        }
+
+        $clientId = $this->getRequestParameter('client_id', $request, $this->getBasicAuthCredentials($request)[0]);
+
+        if ($clientId !== $authCode->client_id || ! AuthCodeModel::query()->whereKey($authCode->id)->value('revoked')) {
+            return null;
+        }
+
+        $this->revokeTokenFamily($authCode->id);
+
+        return OAuthServerException::invalidGrant('The authorization code has already been used; the tokens issued from it have been revoked.');
     }
 
     protected function findAuthCode(ServerRequestInterface $request): ?AuthCodeModel

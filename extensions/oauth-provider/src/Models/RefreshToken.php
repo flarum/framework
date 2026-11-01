@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property string      $id
  * @property string      $access_token_id
+ * @property string|null $grant_id
+ * @property string|null $resource
  * @property bool        $revoked
  * @property Carbon      $expires_at
  * @property Carbon|null $created_at
