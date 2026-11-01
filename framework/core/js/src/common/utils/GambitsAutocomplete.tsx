@@ -244,23 +244,14 @@ export default class GambitsAutocomplete {
     const $input = this.jqueryInput();
 
     const query = this.query;
-    const rest = query.slice(start);
-    const tokenMatch = rest.match(/^\S+/);
-    const replaceLength = tokenMatch && tokenMatch[0].toLowerCase().startsWith(fromTyped.toLowerCase()) ? tokenMatch[0].length : fromTyped.length;
-    const replaced = query.slice(0, start) + text + query.slice(start + replaceLength);
+    const replaced = query.slice(0, start) + text + query.slice(start + fromTyped.length);
 
     this.onchange(replaced);
-    if ($input && $input[0]) {
-      $input[0].focus();
-      setTimeout(() => {
-        if ($input[0]) {
-          try {
-            $input[0].setSelectionRange(start + text.length, start + text.length);
-          } catch (e) {}
-          m.redraw();
-        }
-      }, 50);
-    }
+    $input[0].focus();
+    setTimeout(() => {
+      $input[0].setSelectionRange(start + text.length, start + text.length);
+      m.redraw();
+    }, 50);
 
     this.afterSuggest(replaced);
   }
