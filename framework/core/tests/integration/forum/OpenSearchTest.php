@@ -202,4 +202,50 @@ class OpenSearchTest extends TestCase
         $this->assertSame('Acme Forum', (string) $xml->ShortName);
         $this->assertSame('Rockets and more.', (string) $xml->Description);
     }
+
+    /**
+     * An .ico of PNGs at the given sizes, filled with noise so they don't compress.
+     */
+    private function ico(array $sizes): string
+    {
+        mt_srand(1);
+        $pngs = [];
+
+        foreach ($sizes as $size) {
+            $image = imagecreatetruecolor($size, $size);
+
+            for ($y = 0; $y < $size; $y++) {
+                for ($x = 0; $x < $size; $x++) {
+                    imagesetpixel($image, $x, $y, mt_rand(0, 0xFFFFFF));
+                }
+            }
+
+            ob_start();
+            imagepng($image);
+            $pngs[$size] = (string) ob_get_clean();
+        }
+
+        $directory = $data = '';
+        $offset = 6 + 16 * count($pngs);
+
+        foreach ($pngs as $size => $png) {
+            $directory .= pack('CCCCvvVV', $size % 256, $size % 256, 0, 0, 1, 32, strlen($png), $offset + strlen($data));
+            $data .= $png;
+        }
+
+        return pack('vvv', 0, 1, count($pngs)).$directory.$data;
+    }
+
+    #[Test]
+    public function a_large_ico_favicon_does_not_make_the_description_too_big_for_chrome(): void
+    {
+        // Chrome ignores a description over 50,000 bytes, and with it the forum.
+        $this->setting('favicon_path', 'favicon-big.ico');
+        $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->put('favicon-big.ico', $this->ico([16, 32, 48, 128]));
+
+        $response = $this->send($this->request('GET', '/opensearch'));
+
+        $this->assertLessThan(50000, strlen((string) $response->getBody()));
+        $this->assertNotFalse(simplexml_load_string((string) $response->getBody()));
+    }
 }

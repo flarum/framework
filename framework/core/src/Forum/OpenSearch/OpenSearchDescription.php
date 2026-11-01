@@ -29,6 +29,12 @@ class OpenSearchDescription
 {
     public const MAX_DESCRIPTION_LENGTH = 1024;
 
+    /**
+     * The room embedded images may take: Chrome ignores a description over
+     * 50,000 bytes, and the rest of it takes a few thousand at most.
+     */
+    public const MAX_IMAGE_BYTES = 40000;
+
     protected const NS = 'http://a9.com/-/spec/opensearch/1.1/';
 
     protected const MOZ_NS = 'http://www.mozilla.org/2006/browser/search/';
@@ -129,9 +135,32 @@ class OpenSearchDescription
      * The favicon, embedded rather than linked: Firefox refuses linked icons
      * over 10KB, and an embedded one doesn't depend on where assets are served.
      *
+     * Images that would make the document too big for Chrome are left out,
+     * and Chrome then shows the forum's /favicon.ico.
+     *
      * @return list<array{0: int, 1: int, 2: string, 3: string}> width, height, type and data
      */
     protected function images(): array
+    {
+        $budget = self::MAX_IMAGE_BYTES;
+
+        return array_values(array_filter($this->favicons(), function (array $image) use (&$budget) {
+            $bytes = strlen("data:$image[2];base64,") + (int) ceil(strlen($image[3]) / 3) * 4;
+
+            if ($bytes > $budget) {
+                return false;
+            }
+
+            $budget -= $bytes;
+
+            return true;
+        }));
+    }
+
+    /**
+     * @return list<array{0: int, 1: int, 2: string, 3: string}> width, height, type and data
+     */
+    protected function favicons(): array
     {
         $path = $this->branding->faviconPath();
 
