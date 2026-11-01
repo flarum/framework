@@ -16,6 +16,10 @@ use Flarum\Database\AbstractModel;
  * model's table needs a nullable `icon_image_path` string and an unsigned tiny
  * integer `icon_image_scales` defaulting to 1.
  *
+ * The image's files are deleted with the model. A query that deletes rows
+ * directly bypasses model events, so it leaves their files behind: delete such
+ * models one by one, or delete their files with the uploader.
+ *
  * @property string|null $icon_image_path
  * @property int $icon_image_scales
  * @property-read string|null $icon_image_url
@@ -27,11 +31,11 @@ trait HasIconImage
 {
     public static function bootHasIconImage(): void
     {
-        static::deleted(function (AbstractModel $model) {
+        static::deleted(function (self $model) {
             $path = $model->getRawOriginal('icon_image_path');
 
             if ($path) {
-                resolve(IconImageUploader::class)->deleteAllVariants($path);
+                $model->iconImageUploader()->deleteAllVariantsAfterCommit($model, $path);
             }
         });
     }
@@ -41,13 +45,22 @@ trait HasIconImage
         $this->mergeCasts(['icon_image_scales' => 'integer']);
     }
 
+    /**
+     * The uploader that stores this model's image. Override it to return a
+     * subclass with another box size, scales or disk.
+     */
+    public function iconImageUploader(): IconImageUploader
+    {
+        return resolve(IconImageUploader::class);
+    }
+
     public function getIconImageUrlAttribute(): ?string
     {
-        return resolve(IconImageUploader::class)->url($this);
+        return $this->iconImageUploader()->url($this);
     }
 
     public function getIconImageSrcsetAttribute(): ?string
     {
-        return resolve(IconImageUploader::class)->srcset($this);
+        return $this->iconImageUploader()->srcset($this);
     }
 }

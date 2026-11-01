@@ -14,11 +14,12 @@ use Flarum\User\User;
 use Intervention\Image\Interfaces\ImageInterface;
 
 /**
- * Dispatched before a model's icon image is stored or removed, through the
+ * Dispatched before a model's icon image is stored or removed through the
  * icon image endpoints, which don't run the resource's own saving hooks. A
- * listener can throw to stop the change.
+ * listener can throw to stop the change, or alter the image before it is
+ * stored. Check `$model` to act on one kind of model only.
  */
-class Saving
+class IconImageSaving
 {
     public function __construct(
         public AbstractModel $model,

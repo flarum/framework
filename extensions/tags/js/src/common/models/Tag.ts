@@ -28,6 +28,10 @@ export default class Tag extends Model {
   iconImageSrcset() {
     return Model.attribute<string | null>('iconImageSrcset').call(this);
   }
+  /** Whether the tag has an icon to show: a Font Awesome icon or an uploaded image. */
+  hasIcon(): boolean {
+    return !!(this.icon() || this.iconImageUrl());
+  }
 
   position() {
     return Model.attribute<number | null>('position').call(this);

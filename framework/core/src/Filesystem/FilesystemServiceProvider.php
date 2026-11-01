@@ -10,6 +10,7 @@
 namespace Flarum\Filesystem;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\IconImage\IconImageUploader;
 use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\Container\Container;
@@ -65,5 +66,8 @@ class FilesystemServiceProvider extends AbstractServiceProvider
                 $container->make('flarum.filesystem.resolved_drivers')
             );
         });
+
+        // Every icon image URL a serialized group or tag carries goes through it.
+        $this->container->singleton(IconImageUploader::class);
     }
 }

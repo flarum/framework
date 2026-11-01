@@ -10,18 +10,23 @@
 namespace Flarum\Tests\integration\api\groups;
 
 use Flarum\Extend;
-use Flarum\Foundation\IconImage\Event\Saving;
+use Flarum\Foundation\IconImage\Event\IconImageChanged;
+use Flarum\Foundation\IconImage\Event\IconImageSaving;
+use Flarum\Foundation\IconImage\IconImageUploader;
 use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
+use Illuminate\Contracts\Filesystem\Cloud;
+use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Intervention\Image\ImageManager;
 use Laminas\Diactoros\Stream;
 use Laminas\Diactoros\UploadedFile;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class IconImageTest extends TestCase
@@ -102,6 +107,35 @@ class IconImageTest extends TestCase
     private function storedPath(int $groupId = 10): ?string
     {
         return $this->database()->table('groups')->where('id', $groupId)->value('icon_image_path');
+    }
+
+    /**
+     * Have the uploader store files through a disk whose put() and delete()
+     * can fail, delegating to the real disk otherwise.
+     *
+     * @param callable(string, int): ?bool $put Return a result to fake one, null to write.
+     * @param callable(string): ?bool $delete Throw or return false to fail a delete, null to delete.
+     */
+    private function useFailingDisk(callable $put, ?callable $delete = null, ?LoggerInterface $logger = null): void
+    {
+        $real = $this->disk();
+        $puts = 0;
+
+        $disk = $this->createStub(Cloud::class);
+        $disk->method('put')->willReturnCallback(function ($path, $contents, $options = []) use ($real, $put, &$puts) {
+            return $put($path, ++$puts) ?? $real->put($path, $contents, $options);
+        });
+        $disk->method('exists')->willReturnCallback(fn ($path) => $real->exists($path));
+        $disk->method('delete')->willReturnCallback(function ($path) use ($real, $delete) {
+            return ($delete ? $delete($path) : null) ?? $real->delete($path);
+        });
+        $disk->method('url')->willReturnCallback(fn ($path) => $real->url($path));
+
+        $factory = $this->createStub(Factory::class);
+        $factory->method('disk')->willReturn($disk);
+
+        $container = $this->app()->getContainer();
+        $container->instance(IconImageUploader::class, new IconImageUploader($factory, $logger ?? $container->make(LoggerInterface::class)));
     }
 
     private function variant(string $path, string $suffix): string
@@ -290,7 +324,7 @@ class IconImageTest extends TestCase
     public function a_saving_listener_can_stop_the_change(): void
     {
         $this->extend(
-            (new Extend\Event())->listen(Saving::class, function (Saving $event) {
+            (new Extend\Event())->listen(IconImageSaving::class, function (IconImageSaving $event) {
                 throw new PermissionDeniedException();
             })
         );
@@ -308,7 +342,7 @@ class IconImageTest extends TestCase
         $events = [];
 
         $this->extend(
-            (new Extend\Event())->listen(Saving::class, function (Saving $event) use (&$events) {
+            (new Extend\Event())->listen(IconImageSaving::class, function (IconImageSaving $event) use (&$events) {
                 $events[] = [$event->model->id, $event->actor->id, $event->image?->width()];
             })
         );
@@ -362,5 +396,126 @@ class IconImageTest extends TestCase
         $this->assertArrayHasKey('iconImageUrl', $attributes);
         $this->assertNull($attributes['iconImageUrl']);
         $this->assertNull($attributes['iconImageSrcset']);
+    }
+
+    #[Test]
+    public function a_failed_variant_write_stores_nothing_and_keeps_the_previous_image(): void
+    {
+        $this->upload($this->pngFile(400, 400));
+        $previousPath = $this->storedPath();
+
+        // The 1x file is written, then the disk reports the 2x write failed.
+        $this->useFailingDisk(fn (string $path, int $count) => $count === 2 ? false : null);
+
+        $response = $this->upload($this->pngFile(400, 400));
+
+        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals($previousPath, $this->storedPath());
+        $this->assertEqualsCanonicalizing(
+            [$previousPath, $this->variant($previousPath, '@2x'), $this->variant($previousPath, '@3x')],
+            $this->disk()->allFiles()
+        );
+    }
+
+    #[Test]
+    public function the_new_image_is_kept_when_a_listener_throws_after_the_row_was_written(): void
+    {
+        $this->upload($this->pngFile(400, 400));
+        $previousPath = $this->storedPath();
+
+        Group::saved(function () {
+            throw new RuntimeException('A listener failed.');
+        });
+
+        $response = $this->upload($this->pngFile(400, 400));
+        $path = $this->storedPath();
+
+        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertNotEquals($previousPath, $path);
+        $this->assertTrue($this->disk()->exists($path));
+        $this->assertFalse($this->disk()->exists($previousPath));
+    }
+
+    #[Test]
+    public function a_failure_to_delete_the_previous_image_does_not_fail_the_upload(): void
+    {
+        $this->upload($this->pngFile(400, 400));
+        $previousPath = $this->storedPath();
+
+        $this->useFailingDisk(fn () => null, function () {
+            throw new RuntimeException('The disk is unavailable.');
+        });
+
+        $response = $this->upload($this->pngFile(400, 400));
+        $path = $this->storedPath();
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertNotEquals($previousPath, $path);
+        $this->assertTrue($this->disk()->exists($path));
+        $this->assertTrue($this->disk()->exists($previousPath));
+    }
+
+    #[Test]
+    public function the_changed_event_follows_an_upload_and_a_removal(): void
+    {
+        $events = [];
+
+        $this->extend(
+            (new Extend\Event())->listen(IconImageChanged::class, function (IconImageChanged $event) use (&$events) {
+                $events[] = [$event->model->id, $event->actor->id, $event->model->icon_image_path !== null];
+            })
+        );
+
+        $this->upload($this->pngFile(400, 400));
+        $this->send($this->request('DELETE', '/api/groups/10/icon-image', ['authenticatedAs' => 1]));
+
+        $this->assertEquals([[10, 1, true], [10, 1, false]], $events);
+    }
+
+    #[Test]
+    public function an_uploader_subclass_can_change_the_box_size(): void
+    {
+        $container = $this->app()->getContainer();
+
+        $container->instance(IconImageUploader::class, new class($container->make(Factory::class), $container->make(LoggerInterface::class)) extends IconImageUploader {
+            protected int $baseSize = 32;
+        });
+
+        $this->upload($this->pngFile(400, 400));
+        $path = $this->storedPath();
+
+        $this->assertEquals([32, 32], $this->dimensions($path));
+        $this->assertEquals([96, 96], $this->dimensions($this->variant($path, '@3x')));
+    }
+
+    #[Test]
+    public function a_save_cancelled_by_a_listener_stores_nothing(): void
+    {
+        $this->app();
+
+        Group::saving(fn () => false);
+
+        $response = $this->upload($this->pngFile(400, 400));
+
+        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertNull($this->storedPath());
+        $this->assertEmpty($this->disk()->allFiles());
+    }
+
+    #[Test]
+    public function a_delete_the_disk_refuses_is_logged(): void
+    {
+        $this->upload($this->pngFile(400, 400));
+        $previousPath = $this->storedPath();
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error')->with($this->stringContains($previousPath));
+
+        $this->useFailingDisk(fn () => null, fn () => false, $logger);
+
+        $response = $this->upload($this->pngFile(400, 400));
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertTrue($this->disk()->exists($previousPath));
     }
 }
