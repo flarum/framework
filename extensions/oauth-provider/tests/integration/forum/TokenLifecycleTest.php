@@ -53,6 +53,19 @@ class TokenLifecycleTest extends TestCase
     }
 
     #[Test]
+    public function a_refresh_only_keeps_the_scopes_the_client_is_still_allowed(): void
+    {
+        $tokens = $this->publicClientTokens('public-client', ['scope' => 'openid profile email']);
+
+        Client::query()->whereKey('public-client')->update(['scopes' => json_encode(['openid', 'email'])]);
+
+        $refreshed = $this->refresh('public-client', $tokens['refresh_token']);
+        $this->assertSame(200, $refreshed->getStatusCode(), (string) $refreshed->getBody());
+
+        $this->assertSame(['openid', 'email'], $this->jwtClaims($this->json($refreshed)['access_token'])['scopes'] ?? null, 'A scope the admin since withdrew must not be granted again');
+    }
+
+    #[Test]
     public function an_admin_client_without_allowed_scopes_is_unrestricted(): void
     {
         $tokens = $this->publicClientTokens('public-client', ['scope' => 'openid profile email']);

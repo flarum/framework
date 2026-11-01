@@ -14,6 +14,9 @@ use DateInterval;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\Server\Repository\RefreshTokenRepository;
+use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
@@ -31,7 +34,9 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class ResourceRefreshTokenGrant extends RefreshTokenGrant
 {
-    use IssuesResourceBoundTokens;
+    use IssuesResourceBoundTokens {
+        issueAccessToken as issueResourceBoundAccessToken;
+    }
 
     /** When the user originally authenticated; refreshed ID tokens keep it (OIDC Core §12.2). */
     protected ?Carbon $previousAuthTime = null;
@@ -104,6 +109,23 @@ class ResourceRefreshTokenGrant extends RefreshTokenGrant
         $this->previousAuthTime = $previous?->auth_time;
 
         return $data;
+    }
+
+    /**
+     * Applies the client's current allowed scopes, which an admin may have
+     * narrowed since the grant; the parent grant never finalizes scopes.
+     *
+     * @param ScopeEntityInterface[] $scopes
+     */
+    protected function issueAccessToken(
+        DateInterval $accessTokenTTL,
+        ClientEntityInterface $client,
+        $userIdentifier,
+        array $scopes = []
+    ): AccessTokenEntityInterface {
+        $scopes = $this->scopeRepository->finalizeScopes($scopes, $this->getIdentifier(), $client, $userIdentifier);
+
+        return $this->issueResourceBoundAccessToken($accessTokenTTL, $client, $userIdentifier, $scopes);
     }
 
     /**
