@@ -147,12 +147,13 @@ class ClientResource extends Resource\AbstractDatabaseResource
     }
 
     /**
-     * The same rules self-registered clients are held to.
+     * The rules self-registered clients are held to, plus native app schemes,
+     * which only an admin may vouch for.
      */
     protected function validateRedirectUris(string $attribute, mixed $value, \Closure $fail): void
     {
         try {
-            ClientMetadata::redirectUris($value);
+            ClientMetadata::redirectUris($value, allowPrivateUseSchemes: true);
         } catch (ClientMetadataException $e) {
             $fail($e->getMessage());
         }

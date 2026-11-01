@@ -22,10 +22,15 @@ class ClientMetadata
     public const int MAX_REDIRECT_URI_LENGTH = 2000;
 
     /**
+     * Schemes that run code or read local data in the browser; never a redirect target.
+     */
+    protected const array DANGEROUS_SCHEMES = ['javascript', 'data', 'vbscript', 'file', 'about', 'blob', 'filesystem'];
+
+    /**
      * @return list<string>
      * @throws ClientMetadataException
      */
-    public static function redirectUris(mixed $value): array
+    public static function redirectUris(mixed $value, bool $allowPrivateUseSchemes = false): array
     {
         if (! is_array($value) || $value === [] || ! array_is_list($value)) {
             throw new ClientMetadataException('redirect_uris must be a non-empty array.', 'invalid_redirect_uri');
@@ -36,15 +41,22 @@ class ClientMetadata
         }
 
         foreach ($value as $uri) {
-            if (! is_string($uri) || ! self::isAllowedRedirectUri($uri)) {
-                throw new ClientMetadataException('Redirect URIs must be https:// URLs or loopback http:// URLs.', 'invalid_redirect_uri');
+            if (! is_string($uri) || ! self::isAllowedRedirectUri($uri, $allowPrivateUseSchemes)) {
+                throw new ClientMetadataException($allowPrivateUseSchemes
+                    ? 'Redirect URIs must be https:// URLs, loopback http:// URLs or native app URIs without a fragment.'
+                    : 'Redirect URIs must be https:// URLs or loopback http:// URLs.', 'invalid_redirect_uri');
             }
         }
 
         return array_values(array_unique($value));
     }
 
-    public static function isAllowedRedirectUri(string $uri): bool
+    /**
+     * Private-use schemes (RFC 8252 §7.1, e.g. `com.example.app:/callback`)
+     * are only for clients an admin registered: any app can claim a scheme,
+     * so a self-registered client could use one to impersonate another app.
+     */
+    public static function isAllowedRedirectUri(string $uri, bool $allowPrivateUseSchemes = false): bool
     {
         if (strlen($uri) > self::MAX_REDIRECT_URI_LENGTH) {
             return false;
@@ -52,15 +64,20 @@ class ClientMetadata
 
         $parts = parse_url($uri);
 
-        if ($parts === false || empty($parts['host']) || isset($parts['fragment']) || isset($parts['user'])) {
+        if ($parts === false || isset($parts['fragment']) || isset($parts['user'])) {
             return false;
         }
 
-        return match (strtolower($parts['scheme'] ?? '')) {
-            'https' => true,
-            'http' => RedirectUriMatcher::isLoopback($uri),
-            default => false,
-        };
+        $scheme = strtolower($parts['scheme'] ?? '');
+
+        if ($scheme === 'https' || $scheme === 'http') {
+            return ! empty($parts['host']) && ($scheme === 'https' || RedirectUriMatcher::isLoopback($uri));
+        }
+
+        return $allowPrivateUseSchemes
+            && preg_match('/^[a-z][a-z0-9+.-]*$/', $scheme) === 1
+            && ! in_array($scheme, self::DANGEROUS_SCHEMES, true)
+            && (! empty($parts['host']) || ! empty($parts['path']));
     }
 
     /**

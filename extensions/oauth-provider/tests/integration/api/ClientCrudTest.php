@@ -369,7 +369,9 @@ class ClientCrudTest extends TestCase
             'relative' => [['/callback']],
             'fragment' => [['https://app.example.com/cb#frag']],
             'plain http on a public host' => [['http://app.example.com/cb']],
-            'custom scheme without host' => [['myapp:/callback']],
+            'data scheme' => [['data:text/html,<script>alert(1)</script>']],
+            'vbscript scheme' => [['vbscript:msgbox(1)']],
+            'file scheme' => [['file:///etc/passwd']],
         ];
     }
 
@@ -414,6 +416,18 @@ class ClientCrudTest extends TestCase
         $response = $this->updateClient('client-to-update', ['redirectUris' => $uris]);
 
         $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals($uris, Client::query()->find('client-to-update')->redirect_uris);
+    }
+
+    #[Test]
+    public function admin_can_set_private_use_scheme_redirect_uris_for_native_apps(): void
+    {
+        // RFC 8252 §7.1: native apps registered by an admin may use their own scheme.
+        $uris = ['com.example.app:/oauth/callback', 'myapp://callback'];
+
+        $response = $this->updateClient('client-to-update', ['redirectUris' => $uris]);
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
         $this->assertEquals($uris, Client::query()->find('client-to-update')->redirect_uris);
     }
 
