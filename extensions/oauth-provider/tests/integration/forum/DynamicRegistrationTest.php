@@ -262,6 +262,7 @@ class DynamicRegistrationTest extends TestCase
         $this->assertStringContainsString('unverified, self-registered', $body);
         $this->assertStringContainsString('you will be sent to collector.example.net', $body);
     }
+
     #[Test]
     public function consent_screen_names_the_redirect_host_not_the_self_chosen_client_uri(): void
     {
@@ -283,7 +284,30 @@ class DynamicRegistrationTest extends TestCase
         $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
         $body = (string) $response->getBody();
         $this->assertStringNotContainsString('trusted.example', $body);
-        $this->assertStringContainsString('from second.example.org', $body);
+        $this->assertStringContainsString('you will be sent to second.example.org', $body);
         $this->assertStringNotContainsString('collector.example.net', $body);
+    }
+
+    #[Test]
+    public function consent_screen_names_a_self_registered_clients_host_only_once(): void
+    {
+        $clientId = $this->registeredClientId([
+            'client_name' => 'Some App',
+            'redirect_uris' => ['https://app.example.net/callback'],
+        ]);
+
+        $response = $this->authorize([
+            'client_id' => $clientId,
+            'response_type' => 'code',
+            'redirect_uri' => 'https://app.example.net/callback',
+            'scope' => 'openid',
+            'code_challenge' => $this->challenge(),
+            'code_challenge_method' => 'S256',
+        ], approve: null);
+
+        $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('you will be sent to app.example.net', $body);
+        $this->assertStringNotContainsString('from app.example.net', $body, 'A "from" line would only repeat the redirect host');
     }
 }

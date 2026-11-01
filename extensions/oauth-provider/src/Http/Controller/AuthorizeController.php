@@ -198,13 +198,11 @@ class AuthorizeController implements RequestHandlerInterface
         $redirectHost = $selfDescribed ? $this->redirectHost($authRequest) : null;
 
         // Only a host the server has checked names the client: the metadata
-        // document's own URL, or for a self-registered client the redirect URI
-        // this request will send the code to (never its self-chosen client_uri).
-        $sourceHost = match ($clientModel?->source) {
-            Client::SOURCE_METADATA_DOCUMENT => $clientModel->sourceHost(),
-            Client::SOURCE_DYNAMIC => $redirectHost,
-            default => null,
-        };
+        // document's own URL. A self-registered client's client_uri is its own
+        // claim, so it is named only by the redirect host shown below.
+        $sourceHost = $clientModel?->source === Client::SOURCE_METADATA_DOCUMENT
+            ? $clientModel->sourceHost()
+            : null;
 
         $html = $this->view->make('flarum-oauth-provider::consent', [
             'client' => $authRequest->getClient(),
