@@ -107,8 +107,9 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     super.onbeforeupdate(vnode);
 
     // A link to another tab of this page, such as a search result, updates the page instead of recreating it.
-    if (vnode.attrs.tab && vnode.attrs.tab !== this.requestedTab) {
-      this.activePageTab = vnode.attrs.tab;
+    // A link without a tab opens the first one.
+    if (vnode.attrs.tab !== this.requestedTab) {
+      this.activePageTab = vnode.attrs.tab || null;
     }
 
     this.requestedTab = vnode.attrs.tab;
@@ -387,11 +388,10 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
   changePageTab(tab: string) {
     this.activePageTab = tab;
 
-    // Keep the tab in the URL so reloads and shared links open it, without a route change.
-    // app.route() leaves out a non-empty route prefix (the admin's `#`), which Mithril adds when it navigates.
-    const path = app.route('extension', { id: this.extension.id, tab });
-
-    window.history.replaceState(window.history.state, '', m.route.prefix === '' ? path : m.route.prefix + path);
+    // Keep the tab in the URL so reloads and shared links open it. Going through the router keeps its
+    // `tab` in step with the one shown, so a later link to another tab is noticed. The resolver's key
+    // leaves out `tab`, so the page and its unsaved changes are kept; `replace` adds no history entry.
+    m.route.set(app.route('extension', { id: this.extension.id, tab }), undefined, { replace: true });
   }
 
   /**

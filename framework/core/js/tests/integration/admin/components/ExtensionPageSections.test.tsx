@@ -1,5 +1,7 @@
+import { jest } from '@jest/globals';
 import bootstrapAdmin from '@flarum/jest-config/src/bootstrap/admin';
 import ExtensionPage from '../../../../src/admin/components/ExtensionPage';
+import ExtensionPageResolver from '../../../../src/admin/resolvers/ExtensionPageResolver';
 import GeneralSearchSource from '../../../../src/admin/components/GeneralSearchSource';
 import Admin from '../../../../src/common/extenders/Admin';
 import { app } from '../../../../src/admin';
@@ -350,5 +352,70 @@ describe('ExtensionPage settings layout', () => {
 
     expect(result!.tree).toEqual(['Advanced', 'Tuning', 'Tuned setting']);
     expect(result!.link).toContain('tab=advanced');
+  });
+
+  describe('following links to a tab of the open page', () => {
+    // Stands in for Mithril's router: the page's tab attribute is whatever the
+    // route last set, and a link (such as a search result) sets the route.
+    let routeTab: string | undefined;
+    const Host = { view: () => m(ExtensionPage, { id: 'acme-tabs', tab: routeTab }) };
+    const selected = (page: any) => page.first('[role=tab][aria-selected=true]').getAttribute('data-tab');
+    const follow = (page: any, tab: string | undefined) => {
+      routeTab = tab;
+      page.redraw();
+    };
+
+    beforeEach(() => {
+      jest.spyOn(m.route, 'set').mockImplementation(((path: string) => {
+        routeTab = new URL(path, 'http://forum.test').searchParams.get('tab') ?? undefined;
+      }) as typeof m.route.set);
+    });
+
+    afterEach(() => jest.restoreAllMocks());
+
+    test('a link back to the tab the page was opened on switches to it after clicking another tab', () => {
+      routeTab = 'advanced';
+      const page = mq(Host);
+
+      page.click('[role=tab][data-tab=general]');
+      expect(selected(page)).toBe('general');
+
+      follow(page, 'advanced');
+      expect(selected(page)).toBe('advanced');
+    });
+
+    test('a link without a tab switches to the first tab', () => {
+      routeTab = undefined;
+      const page = mq(Host);
+
+      page.click('[role=tab][data-tab=advanced]');
+      expect(selected(page)).toBe('advanced');
+
+      follow(page, undefined);
+      expect(selected(page)).toBe('general');
+    });
+
+    test('a tab change through the router keeps the page: its key leaves out the tab', () => {
+      const resolver = new ExtensionPageResolver(ExtensionPage, 'extension');
+      const keyFor = (params: Record<string, string>) => {
+        jest.spyOn(m.route, 'param').mockReturnValue(params as any);
+        return resolver.makeKey();
+      };
+
+      expect(keyFor({ id: 'acme-tabs', tab: 'general' })).toBe(keyFor({ id: 'acme-tabs', tab: 'advanced' }));
+      expect(keyFor({ id: 'acme-tabs' })).toBe(keyFor({ id: 'acme-tabs', tab: 'advanced' }));
+      expect(keyFor({ id: 'acme-tabs' })).not.toBe(keyFor({ id: 'acme-both' }));
+    });
+
+    test('a clicked tab stays selected across redraws and replaces the route', () => {
+      routeTab = undefined;
+      const page = mq(Host);
+
+      page.click('[role=tab][data-tab=advanced]');
+      page.redraw();
+
+      expect(selected(page)).toBe('advanced');
+      expect(m.route.set).toHaveBeenCalledWith(app.route('extension', { id: 'acme-tabs', tab: 'advanced' }), undefined, { replace: true });
+    });
   });
 });
