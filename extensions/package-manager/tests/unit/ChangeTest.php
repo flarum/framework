@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Plan\Change;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -88,5 +89,51 @@ class ChangeTest extends TestCase
         $this->assertSame($original->from, $restored->from);
         $this->assertSame($original->to, $restored->to);
         $this->assertSame($original->trashName(), $restored->trashName());
+    }
+
+    /**
+     * Two nightlies in a row both replace 2.x-dev. Named by version alone,
+     * the second one's rollback copy would land in the first one's slot.
+     */
+    public function test_the_trash_name_cannot_collide_across_commits_of_one_branch(): void
+    {
+        $first = new Change(Change::REPLACE, 'flarum/core', '2.x-dev', '2.x-dev', 'aaaaaaaaaaaaaaaa', 'bbbbbbbbbbbbbbbb');
+        $second = new Change(Change::REPLACE, 'flarum/core', '2.x-dev', '2.x-dev', 'bbbbbbbbbbbbbbbb', 'cccccccccccccccc');
+
+        $this->assertNotSame($first->trashName(), $second->trashName());
+        $this->assertSame('flarum+core@2.x-dev#aaaaaaaaaaaa', $first->trashName());
+    }
+
+    /** Copies already in the trash keep their names, so a rollback still finds them. */
+    public function test_a_change_without_a_commit_keeps_the_name_it_always_had(): void
+    {
+        $this->assertSame('fof+pwa@2.0.0', (new Change(Change::REPLACE, 'fof/pwa', '2.0.0', '2.1.0'))->trashName());
+    }
+
+    /** A reference is only ever part of a name, so nothing in it can reach the path. */
+    public function test_a_hostile_reference_never_reaches_the_trash_name(): void
+    {
+        $change = new Change(Change::REPLACE, 'a/b', 'dev-main', 'dev-main', '../../etc/passwd', 'x');
+
+        $this->assertStringNotContainsString('/', $change->trashName());
+        $this->assertStringNotContainsString('..', $change->trashName());
+    }
+
+    public function test_the_commits_survive_a_round_trip_through_the_journal(): void
+    {
+        $original = new Change(Change::REPLACE, 'flarum/core', '2.x-dev', '2.x-dev', 'aaaaaaa', 'bbbbbbb');
+        $restored = Change::fromArray($original->toArray());
+
+        $this->assertSame('aaaaaaa', $restored->fromRef);
+        $this->assertSame('bbbbbbb', $restored->toRef);
+        $this->assertSame($original->trashName(), $restored->trashName());
+    }
+
+    /** "2.x-dev → 2.x-dev" says nothing; the commits say what moved. */
+    public function test_a_move_along_a_branch_names_the_commits(): void
+    {
+        $change = new Change(Change::REPLACE, 'flarum/core', '2.x-dev', '2.x-dev', 'aaaaaaa1111', 'bbbbbbb2222');
+
+        $this->assertSame('flarum/core 2.x-dev (aaaaaaa → bbbbbbb)', $change->describe(EnglishTranslator::make()));
     }
 }
