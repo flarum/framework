@@ -9,6 +9,8 @@
 
 namespace Flarum\ExtensionManager\Tests\Unit;
 
+use Flarum\ExtensionManager\Config\StabilityRule;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\ExtensionManager\Tests\unit\FakeHttp;
 use Flarum\ExtensionManager\Work\PrivateIndex;
 use Flarum\ExtensionManager\Work\UpdateCheck;
@@ -34,6 +36,9 @@ class UpdateCheckTest extends TestCase
     protected function tearDown(): void
     {
         @unlink($this->cache);
+        @unlink($this->cache.'.site/composer.json');
+        @unlink($this->cache.'.site/composer.lock');
+        @rmdir($this->cache.'.site');
     }
 
     private function check(): UpdateCheck
@@ -359,6 +364,120 @@ class UpdateCheckTest extends TestCase
         $this->assertSame('https://github.com/acme/paid/releases/tag/1.1.0', $result['updates']['acme/paid']['notes']);
     }
 
+    // ── what the forum allows (issue 5357, item 10) ─────────────────────────
+
+    /**
+     * A release candidate on a stable forum is a badge Update can never clear:
+     * Composer answers "Nothing to modify in lock file", and the badge stays.
+     */
+    public function test_a_release_candidate_is_not_offered_to_a_stable_forum(): void
+    {
+        $result = $this->check()->refresh(
+            ['a/b' => '1.0.0'],
+            $this->feed(['a/b' => ['1.0.0', '1.1.0-RC1', '1.1.0-beta.2']]),
+            rule: new StabilityRule()
+        );
+
+        $this->assertSame([], $result['updates']);
+    }
+
+    public function test_a_stable_forum_is_still_offered_a_newer_stable_release_over_a_newer_candidate(): void
+    {
+        $result = $this->check()->refresh(
+            ['a/b' => '1.0.0'],
+            $this->feed(['a/b' => ['1.0.0', '1.1.0', '1.2.0-RC1']]),
+            rule: new StabilityRule()
+        );
+
+        $this->assertSame('1.1.0', $result['updates']['a/b']['to']);
+    }
+
+    /** `2.0.0-b2` is a beta, though it never spells the word out. */
+    public function test_a_short_beta_suffix_is_still_a_beta(): void
+    {
+        $result = $this->check()->refresh(['a/b' => '1.0.0'], $this->feed(['a/b' => ['1.0.0', '2.0.0-b2']]), rule: new StabilityRule());
+
+        $this->assertSame([], $result['updates']);
+    }
+
+    public function test_a_forum_that_allows_betas_is_offered_one(): void
+    {
+        $rule = $this->rule(['minimum-stability' => 'beta']);
+
+        $result = $this->check()->refresh(['a/b' => '1.0.0'], $this->feed(['a/b' => ['1.0.0', '1.1.0-beta.1']]), rule: $rule);
+
+        $this->assertSame('1.1.0-beta.1', $result['updates']['a/b']['to']);
+    }
+
+    /**
+     * prefer-stable does not forbid a beta, but Composer picks the most
+     * stable release there is, so a newer beta never beats a stable one, and
+     * a stable release beats a newer beta of the next version.
+     */
+    public function test_under_prefer_stable_only_the_most_stable_releases_compete(): void
+    {
+        $rule = $this->rule(['minimum-stability' => 'beta', 'prefer-stable' => true]);
+
+        $result = $this->check()->refresh(
+            ['a/b' => '1.0.0', 'c/d' => '2.0.0-beta.3'],
+            $this->feed(['a/b' => ['1.0.0', '1.1.0', '1.2.0-beta.1'], 'c/d' => ['2.0.0-beta.3', '2.0.0-beta.4']]),
+            rule: $rule
+        );
+
+        $this->assertSame('1.1.0', $result['updates']['a/b']['to']);
+        // Nothing stable exists for c/d, so its newest beta is what Composer would pick.
+        $this->assertSame('2.0.0-beta.4', $result['updates']['c/d']['to']);
+    }
+
+    /**
+     * A requirement that names a beta (`^2.0.0-beta.3`) or carries a flag
+     * (`^2.0@beta`) lets that package, and only that one, be a beta.
+     */
+    public function test_a_packages_own_requirement_can_allow_a_beta_of_it_alone(): void
+    {
+        $rule = $this->rule(['require' => ['fof/pwa' => '^2.0.0-beta.3', 'fof/upload' => '^2.0@beta', 'acme/other' => '^1.0']]);
+
+        $result = $this->check()->refresh(
+            ['fof/pwa' => '2.0.0-beta.3', 'fof/upload' => '2.0.0', 'acme/other' => '1.0.0'],
+            $this->feed([
+                'fof/pwa' => ['2.0.0-beta.3', '2.0.0-beta.4'],
+                'fof/upload' => ['2.0.0', '2.1.0-beta.1'],
+                'acme/other' => ['1.0.0', '1.1.0-beta.1'],
+            ]),
+            rule: $rule
+        );
+
+        $this->assertSame(['fof/pwa', 'fof/upload'], array_keys($result['updates']));
+    }
+
+    /** The whole check, as "Check now" runs it, reads the rule from composer.json. */
+    public function test_the_site_check_reads_minimum_stability_from_composer_json(): void
+    {
+        $base = $this->site(['require' => ['flarum/core' => '^2.0', 'acme/thing' => '^1.0']], ['acme/thing' => '1.0.0']);
+
+        $check = new UpdateCheck($this->cache, FakeHttp::client(fn (string $url) => str_contains($url, 'acme/thing')
+            ? json_encode(['packages' => ['acme/thing' => [['version' => '1.1.0-RC1'], ['version' => '1.0.0']]]])
+            : null));
+
+        $result = $check->refreshSite(EnglishTranslator::make(), $base);
+
+        $this->assertSame([], $result['updates']);
+    }
+
+    /** A check saved before the rule, or before minimum-stability was raised, stops offering it. */
+    public function test_a_saved_release_candidate_is_no_longer_offered_to_a_stable_forum(): void
+    {
+        $base = $this->site(['require' => ['acme/thing' => '^1.0', 'acme/beta' => '^1.0@beta']], ['acme/thing' => '1.0.0', 'acme/beta' => '1.0.0']);
+        file_put_contents($this->cache, json_encode(['checkedAt' => time(), 'updates' => [
+            'acme/thing' => ['from' => '1.0.0', 'to' => '1.1.0-RC1'],
+            'acme/beta' => ['from' => '1.0.0', 'to' => '1.1.0-beta.1'],
+        ]]));
+
+        $updates = $this->check()->current($base.'/composer.lock')['updates'];
+
+        $this->assertSame(['acme/beta'], array_keys($updates));
+    }
+
     // ── when Packagist does not answer (issue 5357, item 11) ────────────────
 
     /**
@@ -500,5 +619,34 @@ class UpdateCheckTest extends TestCase
 
         $this->assertLessThanOrEqual(5, $timeouts[0]);
         $this->assertSame(15, $timeouts[1]);
+    }
+
+    /** @param array<string,mixed> $composerJson */
+    private function rule(array $composerJson): StabilityRule
+    {
+        $base = $this->site($composerJson, []);
+
+        return StabilityRule::fromComposerJson($base.'/composer.json');
+    }
+
+    /**
+     * A forum directory: composer.json as given, composer.lock with these
+     * extensions installed. Removed in tearDown.
+     *
+     * @param array<string,mixed> $composerJson
+     * @param array<string,string> $installed
+     */
+    private function site(array $composerJson, array $installed): string
+    {
+        $base = $this->cache.'.site';
+        @mkdir($base);
+        file_put_contents($base.'/composer.json', json_encode($composerJson));
+        file_put_contents($base.'/composer.lock', json_encode(['packages' => array_map(
+            fn (string $name, string $version) => ['name' => $name, 'version' => $version, 'type' => 'flarum-extension'],
+            array_keys($installed),
+            array_values($installed)
+        )]));
+
+        return $base;
     }
 }

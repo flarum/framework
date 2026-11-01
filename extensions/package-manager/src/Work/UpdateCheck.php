@@ -12,6 +12,7 @@ namespace Flarum\ExtensionManager\Work;
 use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\ExtensionManager\Config\JsonFile;
 use Flarum\ExtensionManager\Config\Repositories;
+use Flarum\ExtensionManager\Config\StabilityRule;
 use Flarum\Locale\TranslatorInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
@@ -124,11 +125,13 @@ class UpdateCheck
      *        knows the package, false when a source could not be asked
      * @param callable(string):array<string,string>|null $notesFor release links
      *        for packages Packagist does not know, version => URL
+     * @param StabilityRule|null $rule what the forum lets Composer install;
+     *        null offers every release
      * @param int|null $budget seconds the whole check may take; what is left
      *        unasked when they run out keeps what the last check found
      * @return array<string,mixed>
      */
-    public function refresh(array $installed, ?callable $fetch = null, ?callable $notesFor = null, ?int $budget = null): array
+    public function refresh(array $installed, ?callable $fetch = null, ?callable $notesFor = null, ?StabilityRule $rule = null, ?int $budget = null): array
     {
         $fetch ??= fn (string $name) => $this->fromPackagist($name);
         $this->deadline = $budget === null ? null : microtime(true) + $budget;
@@ -191,7 +194,7 @@ class UpdateCheck
                  * implies it is up to date, which is a guess presented as a fact.
                  */
                 $result['uncheckable'][] = $name;
-            } elseif (($newest = $this->newestComparable($versions, $version)) !== null && $this->isNewer($newest, $version)) {
+            } elseif (($newest = $this->newestComparable($versions, $version, $name, $rule)) !== null && $this->isNewer($newest, $version)) {
                 $result['updates'][$name] = ['from' => $version, 'to' => $newest];
 
                 // "What does this update give me?" (ClaudiusH, 2026-10-09). A
@@ -264,7 +267,7 @@ class UpdateCheck
      * @param array<string,string> $installed
      * @return array<string,mixed>
      */
-    public function refreshWith(array $installed, PrivateIndex $protected, ?int $budget = null): array
+    public function refreshWith(array $installed, PrivateIndex $protected, ?StabilityRule $rule = null, ?int $budget = null): array
     {
         return $this->refresh(
             $installed,
@@ -277,6 +280,7 @@ class UpdateCheck
                 return is_array($public) ? $public : ($protected->versionsFor($name) ?? $public);
             },
             fn (string $name) => $protected->releaseNotesFor($name),
+            $rule,
             $budget,
         );
     }
@@ -306,7 +310,7 @@ class UpdateCheck
             new Repositories($translator, new JsonFile($translator, $base.'/composer.json')),
             new AuthTokens($translator, new JsonFile($translator, $base.'/auth.json')),
             $this->http,
-        ), $budget);
+        ), StabilityRule::fromComposerJson($base.'/composer.json'), $budget);
     }
 
     /** @return array<string,mixed> */
@@ -339,8 +343,9 @@ class UpdateCheck
      * composer.lock says now: dropped once reached, and its "from" kept true
      * when only part of the way.
      *
-     * Dropped too when the package is no longer installed: Update cannot
-     * deliver it, and `update --all` refused the whole run over it.
+     * Dropped too when the package is no longer installed, or the forum no
+     * longer allows a release that unfinished: either way Update cannot
+     * deliver it, and `update --all` refused the whole run over the first.
      *
      * @return array<string,mixed>
      */
@@ -352,13 +357,14 @@ class UpdateCheck
             array_merge((array) ($lock['packages'] ?? []), (array) ($lock['packages-dev'] ?? [])),
             self::directRequires(dirname($lockPath).'/composer.json')
         );
+        $rule = StabilityRule::fromComposerJson(dirname($lockPath).'/composer.json');
 
         $updates = [];
 
         foreach ((array) ($cached['updates'] ?? []) as $name => $update) {
             $installed = $now[$name] ?? null;
 
-            if ($installed === null) {
+            if ($installed === null || ! $rule->allows($name, (string) ($update['to'] ?? ''))) {
                 continue;
             }
 
@@ -393,18 +399,28 @@ class UpdateCheck
      * available: dev-main" on a forum deliberately pinned to 2.0.0, which is
      * noise that trains people to ignore the badge.
      *
+     * And only releases the forum lets Composer install. A release candidate
+     * offered to a stable forum is a badge Update can never clear. Under
+     * prefer-stable, Composer picks the most stable release there is, so only
+     * the most stable ones are compared.
+     *
      * @param list<string> $versions
      */
-    protected function newestComparable(array $versions, string $installed): ?string
+    protected function newestComparable(array $versions, string $installed, string $name = '', ?StabilityRule $rule = null): ?string
     {
         $installedIsDev = self::tracksABranch($installed);
 
-        $candidates = array_values(array_filter($versions, function (string $v) use ($installedIsDev) {
-            return self::tracksABranch($v) === $installedIsDev;
+        $candidates = array_values(array_filter($versions, function (string $v) use ($installedIsDev, $name, $rule) {
+            return self::tracksABranch($v) === $installedIsDev && ($rule === null || $rule->allows($name, $v));
         }));
 
         if ($candidates === []) {
             return null;
+        }
+
+        if ($rule !== null && $rule->prefersStable()) {
+            $best = min(array_map(StabilityRule::rank(...), $candidates));
+            $candidates = array_values(array_filter($candidates, fn (string $v) => StabilityRule::rank($v) === $best));
         }
 
         usort($candidates, fn (string $a, string $b) => version_compare(

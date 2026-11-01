@@ -66,6 +66,47 @@ class RepinTest extends TestCase
         $this->assertSame(['ernestdefoe/page-builder' => '3.6.0'], $out);
     }
 
+    /**
+     * A pin that names a release candidate is itself permission to install
+     * one, so raising `1.0.0` to `1.1.0-RC1` would move a stable forum onto
+     * a release candidate. A check saved before the update check filtered by
+     * stability can still name one.
+     */
+    public function test_a_pin_is_never_raised_to_a_release_less_finished_than_the_forum_allows(): void
+    {
+        $out = $this->repinFor(
+            ['a/stable', 'a/beta-forum'],
+            ['repin' => true],
+            ['a/stable' => '1.0.0', 'a/beta-forum' => '1.0.0'],
+            ['a/stable' => ['from' => '1.0.0', 'to' => '1.1.0-RC1'], 'a/beta-forum' => ['from' => '1.0.0', 'to' => '1.1.0-RC1']],
+        );
+
+        $this->assertSame([], $out);
+
+        $out = $this->repinFor(
+            ['a/thing'],
+            ['repin' => true],
+            ['a/thing' => '1.0.0'],
+            ['a/thing' => ['from' => '1.0.0', 'to' => '1.1.0-RC1']],
+            ['minimum-stability' => 'RC'],
+        );
+
+        $this->assertSame(['a/thing' => '1.1.0-RC1'], $out, 'a forum that allows release candidates may be raised to one');
+    }
+
+    /** A pin that already names a beta allows the next beta of that package. */
+    public function test_a_pin_on_a_beta_may_be_raised_to_the_next_beta(): void
+    {
+        $out = $this->repinFor(
+            ['fof/pwa'],
+            ['repin' => true],
+            ['fof/pwa' => '2.0.0-beta.3'],
+            ['fof/pwa' => ['from' => '2.0.0-beta.3', 'to' => '2.0.0-beta.4']],
+        );
+
+        $this->assertSame(['fof/pwa' => '2.0.0-beta.4'], $out);
+    }
+
     public function test_nothing_is_raised_unless_it_was_asked_for(): void
     {
         $out = $this->repinFor(
@@ -220,9 +261,10 @@ class RepinTest extends TestCase
     // ── helpers ──────────────────────────────────────────────────────────────
 
     /** @return array<string,string> */
-    private function repinFor(array $packages, array $body, array $require, array $updates): array
+    /** @param array<string,mixed> $composerJson the rest of composer.json */
+    private function repinFor(array $packages, array $body, array $require, array $updates, array $composerJson = []): array
     {
-        file_put_contents($this->dir.'/composer.json', json_encode(['require' => $require]));
+        file_put_contents($this->dir.'/composer.json', json_encode(['require' => $require] + $composerJson));
         file_put_contents($this->dir.'/extension-manager/updates.json', json_encode([
             'checkedAt' => time(), 'updates' => $updates, 'uncheckable' => [], 'tracking' => [],
         ]));
