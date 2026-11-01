@@ -99,6 +99,12 @@ abstract class Tool
     }
 
     /**
+     * Exception messages reach the client, and the model behind it, verbatim
+     * when the exception is a ToolError, a validation error, a Flarum
+     * `KnownError` or a json-api-server `ErrorProvider`, from this extension's
+     * code or anything it calls: keep secrets and internals out of them. Any
+     * other exception is reported and answered with a generic error.
+     *
      * @param array<string, mixed> $arguments
      */
     abstract public function handle(array $arguments, McpContext $context): mixed;

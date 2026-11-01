@@ -30,6 +30,11 @@ use Illuminate\Contracts\Container\Container;
  * What it registers is attributed to the extension whose extend.php applies
  * it, unless an owner is given: `new Mcp('flarum-tags')` registers on behalf
  * of flarum/tags, for an integration that lives in another extension.
+ *
+ * The messages of exceptions thrown by a registered tool, resource or prompt
+ * are shown to the client verbatim when they are a ToolError, a validation
+ * error, a Flarum `KnownError` or a json-api-server `ErrorProvider`; see
+ * {@see Tool::handle()}.
  */
 class Mcp implements ExtenderInterface
 {
