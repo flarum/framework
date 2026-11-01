@@ -116,3 +116,19 @@ flarum-gdpr:
         export_description: The applications you connected to your account, with what you allowed them and when.
         anonymize_description: => flarum-gdpr.lib.data.connectedapplications.delete_description
         delete_description: The applications you connected are disconnected, and their access to your account is removed.
+
+# Labels for the audit log entries this extension produces, rendered by the (optional)
+# flarum/audit browser. Under the flarum-audit namespace so its frontend resolves them.
+flarum-audit:
+  lib:
+    browser:
+      user:
+        oauth_connected: "Connected {client} to {username}'s account"
+        oauth_signed_in: "Signed in to {client} with {username}'s account"
+        oauth_disconnected: "Disconnected {client} from {username}'s account"
+        oauth_disconnected_all: "Disconnected every application from {username}'s account"
+      oauth_client:
+        created: "Added OAuth client {client}"
+        updated: "Edited OAuth client {client}"
+        deleted: "Deleted OAuth client {client}"
+        secret_rotated: "Rotated the secret of OAuth client {client}"

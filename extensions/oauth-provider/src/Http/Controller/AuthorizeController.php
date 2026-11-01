@@ -16,6 +16,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\OAuthProvider\Access\MemberAccess;
 use Flarum\OAuthProvider\ClientRegistration\ClientMetadataException;
 use Flarum\OAuthProvider\ClientRegistration\MetadataDocumentClients;
+use Flarum\OAuthProvider\Event\Authorized;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Scope\ScopeRegistry;
@@ -23,6 +24,8 @@ use Flarum\OAuthProvider\Server\AuthorizationServerFactory;
 use Flarum\OAuthProvider\Server\AuthorizationServerMetadata;
 use Flarum\OAuthProvider\Server\Entity\UserEntity;
 use Flarum\OAuthProvider\Server\RequestType\AuthorizationRequest as ResourceAuthorizationRequest;
+use Flarum\User\User;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Contracts\View\Factory;
 use Laminas\Diactoros\Response\HtmlResponse;
@@ -54,6 +57,7 @@ class AuthorizeController implements RequestHandlerInterface
         protected MetadataDocumentClients $metadataDocuments,
         protected AuthorizationServerMetadata $metadata,
         protected MemberAccess $access,
+        protected Dispatcher $events,
     ) {
     }
 
@@ -172,7 +176,7 @@ class AuthorizeController implements RequestHandlerInterface
 
             $this->forgetReAuthTicket($session, $ticket);
 
-            return $this->completeAuthorization($authRequest, $server, $actor->id, $approved, $nonce, $authTime);
+            return $this->completeAuthorization($authRequest, $server, $actor, $approved, $nonce, $authTime, consented: $approved);
         }
 
         // Previously-granted consent still covers this request — skip the prompt
@@ -180,7 +184,7 @@ class AuthorizeController implements RequestHandlerInterface
         if (! in_array('consent', $prompts, true) && $this->hasExistingConsent((int) $actor->id, $clientId, $requestedScopes, $redirectUris)) {
             $this->forgetReAuthTicket($session, $ticket);
 
-            return $this->completeAuthorization($authRequest, $server, $actor->id, true, $nonce, $authTime);
+            return $this->completeAuthorization($authRequest, $server, $actor, true, $nonce, $authTime, consented: false);
         }
 
         if ($promptNone) {
@@ -230,16 +234,21 @@ class AuthorizeController implements RequestHandlerInterface
         return new HtmlResponse($html);
     }
 
+    /**
+     * @param bool $consented Whether the member approved the client just now,
+     *                        rather than an earlier approval covering it.
+     */
     protected function completeAuthorization(
         AuthorizationRequest $authRequest,
         AuthorizationServer $server,
-        int $userId,
+        User $actor,
         bool $approved,
         ?string $nonce = null,
         ?Carbon $authTime = null,
+        bool $consented = false,
     ): ResponseInterface {
         $userEntity = new UserEntity();
-        $userEntity->setIdentifier((string) $userId);
+        $userEntity->setIdentifier((string) $actor->id);
 
         $authRequest->setUser($userEntity);
         $authRequest->setAuthorizationApproved($approved);
@@ -253,6 +262,13 @@ class AuthorizeController implements RequestHandlerInterface
             $response = $this->withIssuer($server->completeAuthorizationRequest($authRequest, new \Laminas\Diactoros\Response()));
         } catch (OAuthServerException $exception) {
             return $this->withIssuer($exception->generateHttpResponse(new \Laminas\Diactoros\Response()));
+        }
+
+        /** @var Client|null $client */
+        $client = $approved ? Client::query()->find($authRequest->getClient()->getIdentifier()) : null;
+
+        if ($client !== null) {
+            $this->events->dispatch(new Authorized($actor, $client, $consented));
         }
 
         return $response;
