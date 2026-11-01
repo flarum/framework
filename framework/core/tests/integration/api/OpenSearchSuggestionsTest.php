@@ -30,6 +30,7 @@ class OpenSearchSuggestionsTest extends TestCase
                 ['id' => 3, 'title' => 'Something else', 'slug' => 'something-else', 'user_id' => 1],
                 ['id' => 4, 'title' => 'Lightsail secrets', 'slug' => 'lightsail-secrets', 'user_id' => 1, 'is_private' => true],
                 ['id' => 5, 'title' => 'Boat insurance claims', 'slug' => 'boat-insurance-claims', 'user_id' => 1],
+                ['id' => 6, 'title' => '[Solved] Carbon-fibre mast', 'slug' => 'solved-carbon-fibre-mast', 'user_id' => 1],
             ],
             Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'content' => '<t><p>How to rig it.</p></t>'],
@@ -37,6 +38,7 @@ class OpenSearchSuggestionsTest extends TestCase
                 ['id' => 3, 'discussion_id' => 3, 'user_id' => 1, 'content' => '<t><p>Nothing to see.</p></t>'],
                 ['id' => 4, 'discussion_id' => 4, 'user_id' => 1, 'content' => '<t><p>Private.</p></t>'],
                 ['id' => 5, 'discussion_id' => 5, 'user_id' => 1, 'content' => '<t><p>Who covers what.</p></t>'],
+                ['id' => 6, 'discussion_id' => 6, 'user_id' => 1, 'content' => '<t><p>Fixed.</p></t>'],
             ],
         ]);
     }
@@ -126,5 +128,13 @@ class OpenSearchSuggestionsTest extends TestCase
 
         $this->assertStringEndsWith(' filler1500', $query);
         $this->assertSame(['Lightsail tuning'], $titles);
+    }
+
+    #[Test]
+    public function a_word_after_punctuation_is_completed(): void
+    {
+        $this->assertSame(['[Solved] Carbon-fibre mast'], $this->suggest('solv')[1]);
+        $this->assertSame(['[Solved] Carbon-fibre mast'], $this->suggest('fib')[1]);
+        $this->assertSame(['[Solved] Carbon-fibre mast'], $this->suggest('carbon-fibre')[1]);
     }
 }

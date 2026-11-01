@@ -26,7 +26,9 @@ use Psr\Http\Server\RequestHandlerInterface;
  * addresses. Only discussions the visitor can see are suggested.
  *
  * Titles are matched on the start of their words, so a word is completed as
- * it is typed. The forum's search matches whole words on MySQL, MariaDB and
+ * it is typed. A word starts after anything that isn't a letter or digit, as
+ * in "[Solved]" or "carbon-fibre", which LIKE can't express: the database
+ * finds titles that contain the words, and the starts are checked here. The forum's search matches whole words on MySQL, MariaDB and
  * PostgreSQL, so it can't suggest anything until a word is finished.
  */
 class ShowOpenSearchSuggestionsController implements RequestHandlerInterface
@@ -40,6 +42,13 @@ class ShowOpenSearchSuggestionsController implements RequestHandlerInterface
      * query can't build an unbounded number of conditions.
      */
     public const MAX_WORDS = 8;
+
+    /**
+     * Recently active titles containing the words that are checked for words
+     * starting with them. Older matches are missed when this many titles only
+     * contain the words inside other words.
+     */
+    public const CANDIDATES = 100;
 
     public function __construct(
         protected SlugManager $slugs,
@@ -59,14 +68,14 @@ class ShowOpenSearchSuggestionsController implements RequestHandlerInterface
             $discussions = Discussion::whereVisibleTo(RequestUtil::getActor($request))
                 ->where(function (Builder $titles) use ($words) {
                     foreach ($words as $word) {
-                        $titles->where(fn (Builder $title) => $title
-                            ->whereLike('discussions.title', "$word%")
-                            ->orWhereLike('discussions.title', "% $word%"));
+                        $titles->whereLike('discussions.title', "%$word%");
                     }
                 })
                 ->orderByDesc('discussions.last_posted_at')
-                ->limit(self::LIMIT)
-                ->get();
+                ->limit(self::CANDIDATES)
+                ->get()
+                ->filter(fn (Discussion $discussion) => $this->startsWords($discussion->title, $words))
+                ->take(self::LIMIT);
 
             foreach ($discussions as $discussion) {
                 $titles[] = $discussion->title;
@@ -79,5 +88,19 @@ class ShowOpenSearchSuggestionsController implements RequestHandlerInterface
             'Content-Type' => 'application/x-suggestions+json',
             'Cache-Control' => 'private, max-age=60',
         ], JsonResponse::DEFAULT_JSON_FLAGS | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @param string[] $words
+     */
+    protected function startsWords(string $title, array $words): bool
+    {
+        foreach ($words as $word) {
+            if (! preg_match('/(?<![\p{L}\p{N}\p{M}])'.preg_quote($word, '/').'/iu', $title)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
