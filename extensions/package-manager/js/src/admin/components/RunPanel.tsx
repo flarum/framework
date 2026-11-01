@@ -159,6 +159,15 @@ export default class RunPanel extends Component<RunPanelAttrs> {
 
     return (
       <div className={'ExtensionManager-run' + (failed ? ' ExtensionManager-run--failed' : '')}>
+        {/*
+         * What a screen reader hears, in one place. The visible text changes
+         * all over the panel, and marking each piece live would read some of it
+         * twice. Progress and the end of a run are polite; a failure is said
+         * once, by the alert role on where it stopped.
+         */}
+        <div className="visually-hidden" role="status" aria-live="polite">
+          {this.announcement(run)}
+        </div>
         <div className="ExtensionManager-runHead">
           <div>
             <h3>
@@ -182,7 +191,9 @@ export default class RunPanel extends Component<RunPanelAttrs> {
 
         {failed ? (
           <div className="ExtensionManager-error">
-            <div className="ExtensionManager-errorWhere">{failedAt(run)}</div>
+            <div className="ExtensionManager-errorWhere" role="alert">
+              {failedAt(run)}
+            </div>
             <pre className="ExtensionManager-errorText">{run.error}</pre>
             {/*
              * Offered on a FAILURE, not just on a finished run. The journal
@@ -311,6 +322,23 @@ export default class RunPanel extends Component<RunPanelAttrs> {
           </ol>
         </details>
       </div>
+    );
+  }
+
+  /** The live region's sentence: progress while running, the outcome once it ends, nothing for a failure (the alert says it). */
+  announcement(run: Run): string {
+    if (run.state === 'done') return app.translator.trans('flarum-extension-manager.admin.run.done', {}, true);
+    if (run.state === 'rolled-back') return app.translator.trans('flarum-extension-manager.admin.run.rolled_back', {}, true);
+    if (run.state === 'failed') return '';
+
+    const total = (run.items || []).length;
+
+    if (!total) return run.phase === 'plan' ? app.translator.trans('flarum-extension-manager.admin.run.working_out', {}, true) : '';
+
+    return app.translator.trans(
+      'flarum-extension-manager.admin.run.working_on',
+      { item: stepLabel(run.items[Math.min(run.index, total - 1)]), index: Math.min(run.index + 1, total), total },
+      true
     );
   }
 

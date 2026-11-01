@@ -7,6 +7,7 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import type Mithril from 'mithril';
 import apiUrl from '../apiUrl';
 import { alertError, serverMessage } from '../errors';
+import { radioAttrs } from '../radioGroup';
 import type { ConfigPayload, Repository as Repo, StoredCredential as Stored } from '../types';
 
 /**
@@ -349,10 +350,9 @@ export default class SourcesTab extends Component {
           role="radiogroup"
           aria-label={app.translator.trans('flarum-extension-manager.admin.composer.add_repository_label', {}, true)}
         >
-          {types.map((ty) => (
+          {types.map((ty, i) => (
             <Button
-              role="radio"
-              aria-checked={this.repoType === ty ? 'true' : 'false'}
+              {...radioAttrs(i, types.indexOf(this.repoType), types.length, (to) => (this.repoType = types[to]))}
               className={'ExtensionManager-src-choice' + (this.repoType === ty ? ' is-on' : '')}
               icon={(TYPES[ty] || TYPES.vcs).icon}
               helperText={app.translator.trans('flarum-extension-manager.admin.composer.repositories.type_help.' + ty)}
@@ -432,8 +432,7 @@ export default class SourcesTab extends Component {
 
               return (
                 <Button
-                  role="radio"
-                  aria-checked={on ? 'true' : 'false'}
+                  {...radioAttrs(i, levels.indexOf(current), levels.length)}
                   title={means(l)}
                   disabled={this.saving}
                   className={'ExtensionManager-src-step' + (on ? ' is-on' : accepted ? ' is-accepted' : '')}
@@ -446,7 +445,9 @@ export default class SourcesTab extends Component {
                       app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.short.' + l.toLowerCase())
                     )
                   }
-                  onclick={() => !on && this.send({ action: 'set-stability', minimumStability: l, preferStable: st.preferStable })}
+                  onclick={() => {
+                    if (!on) this.send({ action: 'set-stability', minimumStability: l, preferStable: st.preferStable });
+                  }}
                 >
                   {app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.options.' + l.toLowerCase())}
                 </Button>
@@ -615,6 +616,13 @@ export default class SourcesTab extends Component {
     return null;
   }
 
+  pickKind(k: string) {
+    const was = KINDS[this.authKind]?.host || '';
+    this.authKind = k;
+    // Fill the obvious host, but never overwrite one somebody typed.
+    if (!this.authHost.trim() || this.authHost === was) this.authHost = KINDS[k]?.host || '';
+  }
+
   addAuth(kinds: string[]) {
     const basic = this.authKind === 'http-basic';
     const link = this.tokenLink();
@@ -640,19 +648,13 @@ export default class SourcesTab extends Component {
           role="radiogroup"
           aria-label={app.translator.trans('flarum-extension-manager.admin.auth_config.add_label', {}, true)}
         >
-          {kinds.map((k) => (
+          {kinds.map((k, i) => (
             <Button
-              role="radio"
-              aria-checked={this.authKind === k ? 'true' : 'false'}
+              {...radioAttrs(i, kinds.indexOf(this.authKind), kinds.length, (to) => this.pickKind(kinds[to]))}
               className={'ExtensionManager-src-choice' + (this.authKind === k ? ' is-on' : '')}
               icon={(KINDS[k] || KINDS.bearer).icon}
               helperText={app.translator.trans('flarum-extension-manager.admin.auth_config.type_help.' + k)}
-              onclick={() => {
-                const was = KINDS[this.authKind]?.host || '';
-                this.authKind = k;
-                // Fill the obvious host, but never overwrite one somebody typed.
-                if (!this.authHost.trim() || this.authHost === was) this.authHost = KINDS[k]?.host || '';
-              }}
+              onclick={() => this.pickKind(k)}
             >
               {app.translator.trans('flarum-extension-manager.admin.auth_config.types.' + k)}
             </Button>
