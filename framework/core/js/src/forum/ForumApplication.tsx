@@ -29,6 +29,7 @@ import drainPrefetchQueue from '../common/utils/drainPrefetchQueue';
 import Notices from './components/Notices';
 import Footer from './components/Footer';
 import SearchManager from '../common/SearchManager';
+import homepageAddress from './utils/homepageAddress';
 
 export interface ForumApplicationData extends ApplicationData {}
 
@@ -100,7 +101,7 @@ export default class ForumApplication extends Application {
     // Push the homepage as the first route, so that the user will always be
     // able to click on the 'back' button to go home, regardless of which page
     // they started on.
-    const defaultRoute = this.forum.attribute('defaultRoute');
+    const defaultRoute = this.forum.attribute<string>('defaultRoute');
     let defaultAction = 'index';
 
     for (const i in this.routes) {
@@ -113,6 +114,10 @@ export default class ForumApplication extends Application {
     this.pane = new Pane(document.getElementById('app'));
 
     m.route.prefix = '';
+
+    const homepage = homepageAddress(window.location, this.forum.attribute('basePath'), defaultRoute);
+    if (homepage) window.history.replaceState(window.history.state, '', homepage);
+
     super.mount(this.forum.attribute('basePath'));
 
     // We mount navigation and header components after the page, so components
