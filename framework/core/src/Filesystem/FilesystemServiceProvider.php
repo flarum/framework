@@ -39,6 +39,12 @@ class FilesystemServiceProvider extends AbstractServiceProvider
                         'url' => $url->to('forum')->path('assets/avatars')
                     ];
                 },
+                'flarum-icons' => function (Paths $paths, UrlGenerator $url) {
+                    return [
+                        'root' => "$paths->public/assets/icons",
+                        'url' => $url->to('forum')->path('assets/icons')
+                    ];
+                },
             ];
         });
 

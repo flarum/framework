@@ -12,6 +12,7 @@ namespace Flarum\Group;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Foundation\EventGeneratorTrait;
+use Flarum\Foundation\IconImage\HasIconImage;
 use Flarum\Group\Event\Created;
 use Flarum\Group\Event\Deleted;
 use Flarum\Group\Event\Renamed;
@@ -26,6 +27,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name_plural
  * @property string|null $color
  * @property string|null $icon
+ * @property string|null $icon_image_path
+ * @property int $icon_image_scales
+ * @property-read string|null $icon_image_url
+ * @property-read string|null $icon_image_srcset
  * @property bool $is_hidden
  * @property int|null $position
  * @property-read \Illuminate\Database\Eloquent\Collection $users
@@ -36,6 +41,7 @@ class Group extends AbstractModel
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
     use HasFactory;
+    use HasIconImage;
 
     public const ADMINISTRATOR_ID = 1;
     public const GUEST_ID = 2;

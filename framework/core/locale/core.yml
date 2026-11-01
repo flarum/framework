@@ -387,6 +387,8 @@ core:
       delete_confirmation: "Are you sure you want to delete this group? The group members will NOT be deleted."
       hide_label: Hide on forum
       icon_label: => core.ref.icon
+      icon_image_label: => core.ref.icon_image
+      icon_image_text: => core.ref.icon_image_text
       icon_text: => core.ref.icon_text
       name_label: Name
       plural_placeholder: Plural (e.g. Mods)
@@ -1035,6 +1037,12 @@ core:
     group_selector:
       placeholder: Choose a group
 
+    # These translations are used by the input that uploads an image in place of an icon.
+    icon_image_input:
+      remove_button: Remove
+      replace_button: Replace image
+      upload_button: Upload image
+
     # These translations are used by the icon picker and the icon input that opens it.
     icon_picker:
       count_text: "{count, plural, one {# icon} other {# icons}}"
@@ -1378,6 +1386,8 @@ core:
     generic_confirmation_message: "Are you sure you want to proceed? This action cannot be undone."
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the prefix (e.g. <code>fas fa-flag</code> or <code>fa-solid fa-flag</code>)."
+    icon_image: Icon image
+    icon_image_text: "An image to show instead of the icon. The icon is still used where an image can't be shown. PNG, JPEG, GIF, WebP or BMP; animated images keep their first frame."
     invalid_login_message: Your login details were incorrect.
     light_hc_mode_label: Light High Contrast Mode
     light_mode_label: Light Mode

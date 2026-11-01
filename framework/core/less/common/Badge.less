@@ -23,6 +23,18 @@
   }
 }
 
+// An image fills the badge and is cropped to its shape.
+.Badge--image {
+  overflow: hidden;
+
+  .Badge-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
 .Badge--size(@size) {
   --size: @size;
 }

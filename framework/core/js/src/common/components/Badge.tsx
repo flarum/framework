@@ -1,11 +1,17 @@
+import type Mithril from 'mithril';
 import Tooltip from './Tooltip';
 import Component, { ComponentAttrs } from '../Component';
 import classList from '../utils/classList';
 import textContrastClass from '../helpers/textContrastClass';
 import Icon from './Icon';
+import IconImage from './IconImage';
 
 export interface IBadgeAttrs extends ComponentAttrs {
   icon: string;
+  /** An image to show instead of the icon, filling the badge. */
+  image?: string | null;
+  /** The image's HiDPI variants. */
+  imageSrcset?: string | null;
   type?: string;
   label?: string;
   color?: string;
@@ -20,17 +26,25 @@ export interface IBadgeAttrs extends ComponentAttrs {
  * - `type` The type of badge this is. This will be used to give the badge a
  *   class name of `Badge--{type}`.
  * - `icon` The name of an icon to show inside the badge.
+ * - `image` The URL of an image to show instead of the icon, with
+ *   `imageSrcset` for its HiDPI variants.
  * - `label`
  *
  * All other attrs will be assigned as attributes on the badge element.
  */
 export default class Badge<CustomAttrs extends IBadgeAttrs = IBadgeAttrs> extends Component<CustomAttrs> {
   view() {
-    const { type, icon: iconName, label, color, style = {}, ...attrs } = this.attrs;
+    const { type, icon: iconName, image, imageSrcset, label, color, style = {}, ...attrs } = this.attrs;
 
-    const className = classList('Badge', [type && `Badge--${type}`], attrs.className, textContrastClass(color));
+    const className = classList('Badge', [type && `Badge--${type}`], image && 'Badge--image', attrs.className, textContrastClass(color));
 
-    const iconChild = iconName ? <Icon name={iconName} className="Badge-icon" /> : m.trust('&nbsp;');
+    let iconChild: Mithril.Children = m.trust('&nbsp;');
+
+    if (image) {
+      iconChild = <IconImage src={image} srcset={imageSrcset} className="Badge-image" />;
+    } else if (iconName) {
+      iconChild = <Icon name={iconName} className="Badge-icon" />;
+    }
 
     const newStyle = { ...style };
 
