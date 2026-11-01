@@ -36,7 +36,7 @@ class ReadConversationTool extends Tool
     public function description(): string
     {
         return 'The messages of one of your private conversations, oldest first. By default the latest messages; '
-            .'use the offset from paging.older to go further back.';
+            .'use the offset from paging.older to go further back. Reading does not mark the conversation read; mark_conversations_read does.';
     }
 
     public function readOnly(): bool

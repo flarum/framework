@@ -38,8 +38,9 @@ class SendMessageTool extends Tool
 
     public function description(): string
     {
-        return 'Send a private message as you, either in an existing conversation (conversationId) or to a member (to, their username), '
-            .'which continues your conversation with them if there is one. Confirm the recipient and content with the user first. '
+        return 'Send a private message as you, either in an existing conversation (conversationId) or to members (to, their usernames). '
+            .'To one member, it continues your conversation with them if there is one; to several, it starts a new group conversation. '
+            .'Confirm the recipients and content with the user first. '
             .'Content uses the forum\'s formatting (Markdown or BBCode, as enabled).';
     }
 
@@ -59,7 +60,11 @@ class SendMessageTool extends Tool
             'type' => 'object',
             'properties' => [
                 'conversationId' => ['type' => ['string', 'integer'], 'description' => 'Reply in this conversation.'],
-                'to' => ['type' => 'string', 'description' => 'Or: the username of the member to write to.'],
+                'to' => [
+                    'type' => ['string', 'array'],
+                    'items' => ['type' => 'string'],
+                    'description' => 'Or: the username of the member to write to, or a list of usernames to start a group conversation with.',
+                ],
                 'content' => ['type' => 'string', 'minLength' => 1],
             ],
             'required' => ['content'],
@@ -69,9 +74,12 @@ class SendMessageTool extends Tool
     public function handle(array $arguments, McpContext $context): mixed
     {
         $conversationId = trim((string) ($arguments['conversationId'] ?? ''));
-        $to = trim((string) ($arguments['to'] ?? ''));
+        $to = array_values(array_unique(array_filter(
+            array_map(fn ($username) => trim((string) $username), (array) ($arguments['to'] ?? [])),
+            fn (string $username) => $username !== ''
+        )));
 
-        if (($conversationId === '') === ($to === '')) {
+        if (($conversationId === '') === ($to === [])) {
             throw new ToolError('Give exactly one of conversationId (to reply in a conversation) or to (to write to a member).');
         }
 
@@ -81,8 +89,12 @@ class SendMessageTool extends Tool
         if ($conversationId !== '') {
             $relationships['dialog'] = ['data' => ['type' => 'dialogs', 'id' => $conversationId]];
         } else {
-            $recipient = $this->members->find($to, $context->actor) ?? throw new ToolError('Not found.');
-            $attributes['users'] = [['id' => (string) $recipient->id]];
+            // One recipient continues the conversation with them; several start a group.
+            $attributes['users'] = array_map(function (string $username) use ($context) {
+                $recipient = $this->members->find($username, $context->actor) ?? throw new ToolError("Not found: $username.");
+
+                return ['id' => (string) $recipient->id];
+            }, $to);
         }
 
         $message = Document::from($context->api->create('dialog-messages', $attributes, $relationships))->one();
