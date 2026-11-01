@@ -1,11 +1,8 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import FieldSet from 'flarum/common/components/FieldSet';
 import Session from 'flarum/common/Session';
-import type ItemList from 'flarum/common/utils/ItemList';
-import type Mithril from 'mithril';
 
-import ConnectedApplications from './components/ConnectedApplications';
+import addToSecurityPage from './addToSecurityPage';
 
 export { default as extend } from './extend';
 
@@ -60,18 +57,7 @@ app.initializers.add('flarum-oauth-provider', () => {
     promise.then(() => storage.set(SIGNED_IN, '1'));
   });
 
-  extend('flarum/forum/components/SettingsPage', 'settingsItems', function (items: ItemList<Mithril.Children>) {
-    items.add(
-      'oauthConnectedApplications',
-      <FieldSet
-        className="Settings-connectedApplications FieldSet--col"
-        label={app.translator.trans('flarum-oauth-provider.forum.connected_apps.heading')}
-      >
-        <ConnectedApplications />
-      </FieldSet>,
-      5
-    );
-  });
+  extend('flarum/forum/components/UserSecurityPage', 'settingsItems', addToSecurityPage);
 
   const params = new URLSearchParams(window.location.search);
 

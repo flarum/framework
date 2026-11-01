@@ -43,7 +43,9 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
   }
 
   /**
-   * Build an item list for the user's settings controls.
+   * Build an item list for the user's settings controls. Developer tokens
+   * (30), sessions (20) and logging out everywhere (10) come in that order,
+   * so an extension can place a section between them.
    */
   settingsItems() {
     const items = new ItemList<Mithril.Children>();
@@ -57,17 +59,19 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
         'developerTokens',
         <FieldSet className="UserSecurityPage-developerTokens" label={app.translator.trans(`core.forum.security.developer_tokens_heading`)}>
           {this.developerTokensItems().toArray()}
-        </FieldSet>
+        </FieldSet>,
+        30
       );
     } else if (!this.state.hasLoadedTokens()) {
-      items.add('developerTokens', <LoadingIndicator />);
+      items.add('developerTokens', <LoadingIndicator />, 30);
     }
 
     items.add(
       'sessions',
       <FieldSet className="UserSecurityPage-sessions" label={app.translator.trans(`core.forum.security.sessions_heading`)}>
         {this.sessionsItems().toArray()}
-      </FieldSet>
+      </FieldSet>,
+      20
     );
 
     if (this.user!.id() === app.session.user!.id()) {
@@ -87,7 +91,8 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
           >
             {app.translator.trans('core.forum.security.global_logout.log_out_button')}
           </Button>
-        </FieldSet>
+        </FieldSet>,
+        10
       );
     }
 

@@ -54,8 +54,8 @@ class ConsentResourceTest extends TestCase
                 ['id' => 4, 'user_id' => 1, 'client_id' => 'admin-client', 'scopes' => '["openid"]', 'revoked' => 0, 'created_at' => $now->toDateTimeString()],
             ],
             'oauth_provider_access_tokens' => [
-                ['id' => 'at-2-cimd-1', 'client_id' => 'https://client.example.com/metadata.json', 'user_id' => 2, 'revoked' => 0, 'expires_at' => $later, 'last_used_at' => $now->copy()->subDay()->toDateTimeString()],
-                ['id' => 'at-2-cimd-2', 'client_id' => 'https://client.example.com/metadata.json', 'user_id' => 2, 'revoked' => 0, 'expires_at' => $later, 'last_used_at' => $now->copy()->subMinute()->toDateTimeString()],
+                ['id' => 'at-2-cimd-1', 'client_id' => 'https://client.example.com/metadata.json', 'user_id' => 2, 'revoked' => 0, 'expires_at' => $later, 'last_used_at' => $now->copy()->subDay()->toDateTimeString(), 'last_ip_address' => '198.51.100.1'],
+                ['id' => 'at-2-cimd-2', 'client_id' => 'https://client.example.com/metadata.json', 'user_id' => 2, 'revoked' => 0, 'expires_at' => $later, 'last_used_at' => $now->copy()->subMinute()->toDateTimeString(), 'last_ip_address' => '203.0.113.7'],
                 ['id' => 'at-3-cimd', 'client_id' => 'https://client.example.com/metadata.json', 'user_id' => 3, 'revoked' => 0, 'expires_at' => $later],
                 ['id' => 'at-3-admin', 'client_id' => 'admin-client', 'user_id' => 3, 'revoked' => 0, 'expires_at' => $later],
             ],
@@ -93,6 +93,8 @@ class ConsentResourceTest extends TestCase
         $this->assertSame(['mcp:read'], $attributes['scopes']);
         $this->assertNotNull($attributes['createdAt']);
         $this->assertEqualsWithDelta(Carbon::now()->subMinute()->getTimestamp(), Carbon::parse($attributes['lastUsedAt'])->getTimestamp(), 5);
+        // From the most recently used of its tokens.
+        $this->assertSame('203.0.113.7', $attributes['lastIpAddress']);
     }
 
     #[Test]
@@ -159,6 +161,37 @@ class ConsentResourceTest extends TestCase
         $this->assertTrue(AuthCode::query()->findOrFail('ac-2-cimd')->revoked);
 
         // Another user's grant to the same client is untouched.
+        $this->assertFalse(AccessToken::query()->findOrFail('at-3-cimd')->revoked);
+        $this->assertFalse(RefreshToken::query()->findOrFail('rt-3-cimd')->revoked);
+    }
+
+    #[Test]
+    public function guest_cannot_revoke_all_consents(): void
+    {
+        $response = $this->send($this->request('DELETE', '/api/oauth-consents')->withAttribute('bypassCsrfToken', true));
+        $this->assertSame(401, $response->getStatusCode(), (string) $response->getBody());
+    }
+
+    #[Test]
+    public function a_user_revokes_all_their_consents_at_once(): void
+    {
+        $this->prepareDatabase([
+            'oauth_provider_clients' => [$this->clientRow('other-client', false)],
+            'oauth_provider_user_consents' => [
+                ['id' => 5, 'user_id' => 2, 'client_id' => 'other-client', 'scopes' => '["openid"]', 'revoked' => 0, 'created_at' => Carbon::now()->toDateTimeString()],
+            ],
+        ]);
+
+        $response = $this->send($this->request('DELETE', '/api/oauth-consents', ['authenticatedAs' => 2]));
+
+        $this->assertSame(204, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(0, Consent::query()->where('user_id', 2)->count());
+        $this->assertTrue(AccessToken::query()->findOrFail('at-2-cimd-2')->revoked);
+        $this->assertTrue(RefreshToken::query()->findOrFail('rt-2-cimd')->revoked);
+        $this->assertTrue(AuthCode::query()->findOrFail('ac-2-cimd')->revoked);
+
+        // Everyone else's are untouched.
+        $this->assertNotNull(Consent::query()->find(3));
         $this->assertFalse(AccessToken::query()->findOrFail('at-3-cimd')->revoked);
         $this->assertFalse(RefreshToken::query()->findOrFail('rt-3-cimd')->revoked);
     }

@@ -95,13 +95,18 @@ flarum-oauth-provider:
 
     connected_apps:
       heading: "Connected applications"
+      help_text: "Applications you allowed to use your account, such as AI assistants. Revoking one signs it out. Logging out everywhere disconnects them all."
       empty: "You haven't connected any applications."
       from_host: "from {host}"
-      granted: "Connected {ago}"
-      last_used: "last used {ago}"
-      never_used: "never used"
+      connected: "Connected"
+      last_used: "Last used"
+      never_used: "Never"
       revoke_button: "Revoke"
       revoke_confirm: "Revoke access for {client}? It will be signed out and has to ask for permission again."
+      revoked: "{client} no longer has access to your account."
+      revoke_all_button: "Revoke all"
+      revoke_all_confirm: "Revoke access for every connected application? Each will be signed out and has to ask for permission again."
+      revoked_all: "No application has access to your account any more."
 
 # Shown by flarum/gdpr when describing what it does with a member's connected applications.
 flarum-gdpr:
