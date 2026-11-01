@@ -38,6 +38,24 @@ export default class CorePanel extends Component<CoreAttrs> {
     oninit(vnode: Mithril.Vnode<CoreAttrs, this>): void;
     onupdate(): void;
     view(): JSX.Element;
+    /**
+     * Whether the pre-flight has answered, and nothing it found blocks the update.
+     *
+     * Not just "nothing is blocked". Until the check comes back nothing is
+     * blocked because nothing has been checked, so the button was live from the
+     * moment the panel drew, and pressing it then sent core alone: no extension
+     * that needed to move with it, and no warning about the ones that could not.
+     * A pre-flight that failed to load counts as not answered. A batch of
+     * extensions that could not be checked does not: those rows say so, and an
+     * unknown is not a refusal.
+     */
+    ready(): boolean;
+    /**
+     * Asked, like the nightly build. Updating Flarum is the change whose blast
+     * radius is the whole forum, and it was the one button here that started
+     * on a single press.
+     */
+    confirmUpdate(): void;
     confirmNightly(): void;
     summary(): JSX.Element | null;
     rows(): JSX.Element | null;

@@ -55,6 +55,7 @@ export default class SourcesTab extends Component {
         href: string;
         label: string;
     } | null;
+    pickKind(k: string): void;
     addAuth(kinds: string[]): JSX.Element;
     revealLabel(): string;
     load(): void;

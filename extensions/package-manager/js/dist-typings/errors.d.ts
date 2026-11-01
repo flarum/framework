@@ -17,3 +17,18 @@ export declare function serverMessage(e: unknown): string | null;
  * second one beside it.
  */
 export declare function alertError(fallbackKey: string): (e: RequestError) => void;
+/**
+ * An `errorHandler` for a request that repeats on a timer, such as the run
+ * panel's polling: core's alert for the first failure, and nothing more until
+ * `clear()` says the requests are getting through again.
+ *
+ * Core's own handler fires on every failed request, so an expired session or a
+ * proxy answering 502 added one alert per poll, and in debug mode opened its
+ * error modal over the page each time. Core's alert is reused as it is, so the
+ * message and, in debug mode, the button that opens the details stay core's.
+ * Dismissing it does not bring it back during the same run of failures.
+ */
+export declare function alertOnce(): {
+    handler: (e: RequestError) => void;
+    clear: () => void;
+};

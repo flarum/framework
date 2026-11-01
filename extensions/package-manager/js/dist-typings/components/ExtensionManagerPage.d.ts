@@ -1,4 +1,4 @@
-import type { Installed, HistoryEntry, HostReport, Run, RunMode, Updates } from '../types';
+import type { Installed, HistoryEntry, HostReport, RollbackPayload, Run, RunMode, Updates } from '../types';
 import ExtensionPage, { type ExtensionPageAttrs } from 'flarum/admin/components/ExtensionPage';
 import ItemList from 'flarum/common/utils/ItemList';
 import type { TabItem } from 'flarum/common/components/Tabs';
@@ -28,6 +28,14 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     starting: boolean;
     rollbackNote: string | null;
     dismissed: boolean;
+    /** An undo started from the History tab, while the run panel is dismissed. */
+    rollingBack: boolean;
+    /** Only the newest `/state` reply is used; see runState.requestSequence. */
+    protected loads: {
+        next: () => number;
+        isCurrent: (ticket: number) => boolean;
+        invalidate: () => void;
+    };
     /**
      * Dismissal is remembered against WHICH run, and it has to be remembered
      * at all.
@@ -42,6 +50,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     protected static DISMISS_KEY: string;
     protected storedDismissal(): string | null;
     protected rememberDismissed(id: string | null): void;
+    protected forgetDismissed(): void;
     oninit(vnode: Mithril.Vnode<ExtensionManagerPageAttrs, this>): void;
     /** The first load, and each "Try again": guarded by the timeout, and never allowed to throw. */
     attemptLoad(): void;
@@ -97,6 +106,19 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
      */
     protected reloadIfSelf(run: Run | null): void;
     runPanel(): JSX.Element;
+    rolledBack(data: RollbackPayload): void;
+    /**
+     * The run History may offer to undo: the latest one, when it finished or
+     * failed and its panel has been dismissed.
+     *
+     * Dismissing a failed run is remembered, and the panel held the only Roll
+     * back button, so a dismissed failure could no longer be undone from this
+     * page at all. Only the latest run, because that is the one the rollback
+     * endpoint undoes, and only while the panel is away, so there is never a
+     * second button for the same undo on screen.
+     */
+    undoableFromHistory(): string | null;
+    rollBackFromHistory(): void;
     /**
      * Every package with a newer version, in one press.
      *
