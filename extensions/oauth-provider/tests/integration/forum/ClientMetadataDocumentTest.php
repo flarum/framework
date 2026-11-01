@@ -24,6 +24,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -60,6 +61,7 @@ class ClientMetadataDocumentTest extends TestCase
         'internal.example.com' => ['192.168.1.10'],
         'private.example.com' => ['10.0.0.5'],
         'nat64.example.com' => ['64:ff9b::a9fe:a9fe'],
+        'mapped.example.com' => ['93.184.216.34', '::ffff:a00:1'],
     ];
 
     public function setUp(): void
@@ -101,7 +103,10 @@ class ClientMetadataDocumentTest extends TestCase
 
             public function resolve(string $host): array
             {
-                return $this->dns[$host] ?? [];
+                // IP literals never reach DNS.
+                return filter_var(trim($host, '[]'), FILTER_VALIDATE_IP) !== false
+                    ? parent::resolve($host)
+                    : $this->dns[$host] ?? [];
             }
         });
     }
@@ -473,6 +478,34 @@ class ClientMetadataDocumentTest extends TestCase
     public function literal_private_ip_is_never_fetched(): void
     {
         $this->assertSame(400, $this->authorizeClient(clientId: 'https://169.254.169.254/latest/meta-data')->getStatusCode());
+        $this->assertCount(0, $this->history);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function ipv4MappedLiterals(): array
+    {
+        return [
+            'hex private' => ['https://[::ffff:a00:1]/metadata.json'],
+            'hex link-local' => ['https://[::ffff:a9fe:a9fe]/metadata.json'],
+            'expanded hex private' => ['https://[0:0:0:0:0:ffff:a00:1]/metadata.json'],
+            'dotted private' => ['https://[::ffff:10.0.0.1]/metadata.json'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('ipv4MappedLiterals')]
+    public function ipv4_mapped_literal_of_a_private_address_is_never_fetched(string $clientId): void
+    {
+        $this->assertGenericFailure($this->authorizeClient(clientId: $clientId), 'non-public');
+        $this->assertCount(0, $this->history);
+    }
+
+    #[Test]
+    public function host_resolving_to_an_ipv4_mapped_private_address_is_never_fetched(): void
+    {
+        $this->assertGenericFailure($this->authorizeClient(clientId: 'https://mapped.example.com/metadata.json'), 'non-public');
         $this->assertCount(0, $this->history);
     }
 

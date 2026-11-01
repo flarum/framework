@@ -57,6 +57,14 @@ class MetadataDocumentGuardTest extends TestCase
             'IPv4-compatible, private IPv4' => ['::a00:1', false],
             'IPv4-compatible, public IPv4' => ['::5db8:d822', false],
             'unspecified' => ['::', false],
+            'IPv4-mapped hex, private IPv4' => ['::ffff:a00:1', false],
+            'IPv4-mapped hex, loopback IPv4' => ['::ffff:7f00:1', false],
+            'IPv4-mapped hex, link-local IPv4' => ['::ffff:a9fe:a9fe', false],
+            'IPv4-mapped hex, uppercase' => ['::FFFF:A00:1', false],
+            'IPv4-mapped, fully expanded' => ['0:0:0:0:0:ffff:a00:1', false],
+            'IPv4-mapped, expanded dotted' => ['0:0:0:0:0:ffff:10.0.0.1', false],
+            'IPv4-mapped hex, public IPv4' => ['::ffff:5db8:d822', true],
+            'IPv4-mapped dotted, public IPv4' => ['::ffff:93.184.216.34', true],
         ];
     }
 
@@ -77,6 +85,8 @@ class MetadataDocumentGuardTest extends TestCase
         $this->assertFalse($guard->isPublic('10.0.0.5'));
         $this->assertFalse($guard->isPublic('64:ff9b::7f00:1'));
         $this->assertFalse($guard->isPublic('::a00:1'));
+        $this->assertTrue($guard->isPublic('::ffff:7f00:1'));
+        $this->assertFalse($guard->isPublic('::ffff:a00:1'));
     }
 
     #[Test]

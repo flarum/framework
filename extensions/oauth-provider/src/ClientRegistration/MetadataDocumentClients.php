@@ -321,10 +321,9 @@ class MetadataDocumentClients
 
     protected function isPublicAddress(string $ip): bool
     {
-        // IPv4-mapped IPv6 (::ffff:10.0.0.1) is judged by its IPv4 part.
-        if (preg_match('/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i', $ip, $matches)) {
-            $ip = $matches[1];
-        }
+        // IPv4-mapped IPv6 (::ffff:0:0/96) is judged by its IPv4 part,
+        // whichever way it is written (::ffff:10.0.0.1, ::ffff:a00:1, ...).
+        $ip = self::unmapIpv4($ip);
 
         // Debug mode lets a developer serve a document from their own machine.
         if ($this->config->inDebugMode() && ($ip === '::1' || str_starts_with($ip, '127.'))) {
@@ -342,6 +341,21 @@ class MetadataDocumentClients
         }
 
         return false;
+    }
+
+    /**
+     * The embedded IPv4 address of an IPv4-mapped IPv6 address; any other
+     * address is returned as it is.
+     */
+    protected static function unmapIpv4(string $ip): string
+    {
+        $packed = @inet_pton($ip);
+
+        if (is_string($packed) && strlen($packed) === 16 && str_starts_with($packed, str_repeat("\0", 10)."\xff\xff")) {
+            return (string) inet_ntop(substr($packed, 12));
+        }
+
+        return $ip;
     }
 
     protected static function inPrefix(string $ip, string $cidr): bool
