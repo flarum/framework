@@ -61,6 +61,18 @@ class TokenLifecycleTest extends TestCase
     }
 
     #[Test]
+    public function userinfo_requires_the_openid_scope(): void
+    {
+        $tokens = $this->publicClientTokens('public-client', ['scope' => 'profile email']);
+
+        $response = $this->send($this->request('GET', '/oauth/userinfo')->withHeader('Authorization', 'Bearer '.$tokens['access_token']));
+
+        $this->assertSame(403, $response->getStatusCode(), 'UserInfo is for OpenID Connect tokens only: '.$response->getBody());
+        $this->assertStringContainsString('error="insufficient_scope"', $response->getHeaderLine('WWW-Authenticate'));
+        $this->assertStringStartsWith('Bearer', $response->getHeaderLine('WWW-Authenticate'));
+    }
+
+    #[Test]
     public function userinfo_refuses_tokens_of_a_revoked_client(): void
     {
         $tokens = $this->publicClientTokens('public-client', ['scope' => 'openid profile']);

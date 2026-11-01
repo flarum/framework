@@ -47,6 +47,15 @@ class UserInfoController implements RequestHandlerInterface
         $userId = (int) $request->getAttribute('oauth_user_id');
         $scopes = (array) $request->getAttribute('oauth_scopes', []);
 
+        // OpenID Connect Core §5.3: UserInfo answers OpenID Connect tokens only.
+        if (! in_array('openid', $scopes, true)) {
+            return new JsonResponse(
+                ['error' => 'insufficient_scope', 'error_description' => 'The access token does not have the openid scope.'],
+                403,
+                ['WWW-Authenticate' => 'Bearer error="insufficient_scope", scope="openid"'],
+            );
+        }
+
         $user = $this->users->findOrFail($userId);
 
         $payload = [
