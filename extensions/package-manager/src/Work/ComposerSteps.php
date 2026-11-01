@@ -13,6 +13,7 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Restore;
+use Flarum\ExtensionManager\Config\JsonFile;
 use Flarum\ExtensionManager\Host\CoreVersion;
 use Flarum\ExtensionManager\Host\ErrorLog;
 use Flarum\ExtensionManager\Host\FlarumUpdater;
@@ -517,8 +518,15 @@ class ComposerSteps implements Steps
             return [];
         }
 
-        $path = $this->installPath.'/composer.json';
-        $json = $this->readJson($path);
+        /*
+         * Through JsonFile, like every other edit to composer.json: it keeps an
+         * empty `{}` an object (decoded as a PHP array it came back as `[]`,
+         * and an empty `config` or `extra` written as a list is no longer the
+         * same file to Composer), and it writes beside and renames, so a run
+         * killed mid-write cannot leave half a composer.json behind.
+         */
+        $file = new JsonFile($this->translator, $this->installPath.'/composer.json');
+        $json = $file->read();
         $raised = [];
 
         foreach ($this->repin as $package => $version) {
@@ -542,7 +550,7 @@ class ComposerSteps implements Steps
             return [];
         }
 
-        file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+        $file->write($json);
 
         return $raised;
     }

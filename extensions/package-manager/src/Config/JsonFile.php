@@ -28,6 +28,28 @@ use RuntimeException;
  */
 class JsonFile
 {
+    /**
+     * Keys Composer's schema says are objects. Written as `{}` when empty
+     * even if this file never had them, since a list there is not the same
+     * thing: an empty `config` written as `[]` is a different file to Composer.
+     */
+    public const OBJECT_KEYS = [
+        'require', 'require-dev', 'conflict', 'replace', 'provide', 'suggest',
+        'autoload', 'autoload-dev', 'config', 'extra', 'scripts', 'scripts-descriptions',
+        'scripts-aliases', 'support', 'archive', 'php-ext',
+    ];
+
+    /**
+     * Where the file as read had a JSON object, as key paths.
+     *
+     * Decoded into PHP arrays, `{}` and `[]` are both an empty array, and
+     * writing one back gave `[]`. Remembering which was which lets a
+     * read-modify-write change only what it meant to.
+     *
+     * @var array<string,true>
+     */
+    protected array $objects = [];
+
     public function __construct(
         protected TranslatorInterface $translator,
         protected string $path,
@@ -66,7 +88,46 @@ class JsonFile
             );
         }
 
+        $this->objects = [];
+        $this->rememberObjects(json_decode($raw), '');
+
         return $data;
+    }
+
+    protected function rememberObjects(mixed $node, string $path): void
+    {
+        if ($node instanceof \stdClass) {
+            $this->objects[$path] = true;
+        }
+
+        if (is_array($node) || $node instanceof \stdClass) {
+            foreach ((array) $node as $key => $child) {
+                $this->rememberObjects($child, $path."\0".$key);
+            }
+        }
+    }
+
+    /**
+     * The data with every array that was an object when read, or that the
+     * schema says is one, turned back into an object for encoding.
+     */
+    protected function withObjects(mixed $node, string $path): mixed
+    {
+        if (! is_array($node)) {
+            return $node;
+        }
+
+        $out = [];
+
+        foreach ($node as $key => $child) {
+            $out[$key] = $this->withObjects($child, $path."\0".$key);
+        }
+
+        $known = isset($this->objects[$path])
+            || $path === ''
+            || (substr_count($path, "\0") === 1 && in_array(substr($path, 1), self::OBJECT_KEYS, true));
+
+        return $known && array_is_list($out) ? (object) $out : $out;
     }
 
     /**
@@ -78,7 +139,7 @@ class JsonFile
      */
     public function write(array $data, int $mode = 0664, bool $backup = true): void
     {
-        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $json = json_encode($this->withObjects($data, ''), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         if ($json === false) {
             throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.config.json_encode_failed', ['file' => basename($this->path), 'error' => json_last_error_msg()]));
@@ -120,6 +181,10 @@ class JsonFile
 
             throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.config.json_replace_failed', ['path' => $this->path]));
         }
+
+        // What was written is what a further write from this instance edits.
+        $this->objects = [];
+        $this->rememberObjects(json_decode($json), '');
     }
 
     /**
