@@ -149,6 +149,7 @@ return [
         ])
         ->whenExtensionEnabled('flarum-messages', fn () => [
             (new Mcp('flarum-messages'))
+                ->ability('dialog.sendMessage', 'Send private messages')
                 ->tool(Integration\Messages\ListConversationsTool::class)
                 ->tool(Integration\Messages\ReadConversationTool::class)
                 ->tool(Integration\Messages\SendMessageTool::class)
