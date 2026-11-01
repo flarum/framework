@@ -31,6 +31,7 @@ class OpenSearchSuggestionsTest extends TestCase
                 ['id' => 4, 'title' => 'Lightsail secrets', 'slug' => 'lightsail-secrets', 'user_id' => 1, 'is_private' => true],
                 ['id' => 5, 'title' => 'Boat insurance claims', 'slug' => 'boat-insurance-claims', 'user_id' => 1],
                 ['id' => 6, 'title' => '[Solved] Carbon-fibre mast', 'slug' => 'solved-carbon-fibre-mast', 'user_id' => 1],
+                ['id' => 7, 'title' => 'Überführung nach Kiel', 'slug' => 'uberfuhrung-nach-kiel', 'user_id' => 1],
             ],
             Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'content' => '<t><p>How to rig it.</p></t>'],
@@ -39,6 +40,7 @@ class OpenSearchSuggestionsTest extends TestCase
                 ['id' => 4, 'discussion_id' => 4, 'user_id' => 1, 'content' => '<t><p>Private.</p></t>'],
                 ['id' => 5, 'discussion_id' => 5, 'user_id' => 1, 'content' => '<t><p>Who covers what.</p></t>'],
                 ['id' => 6, 'discussion_id' => 6, 'user_id' => 1, 'content' => '<t><p>Fixed.</p></t>'],
+                ['id' => 7, 'discussion_id' => 7, 'user_id' => 1, 'content' => '<t><p>Ahoi.</p></t>'],
             ],
         ]);
     }
@@ -136,5 +138,12 @@ class OpenSearchSuggestionsTest extends TestCase
         $this->assertSame(['[Solved] Carbon-fibre mast'], $this->suggest('solv')[1]);
         $this->assertSame(['[Solved] Carbon-fibre mast'], $this->suggest('fib')[1]);
         $this->assertSame(['[Solved] Carbon-fibre mast'], $this->suggest('carbon-fibre')[1]);
+    }
+
+    #[Test]
+    public function a_word_with_accented_letters_matches_in_any_case(): void
+    {
+        $this->assertSame(['Überführung nach Kiel'], $this->suggest('überf')[1]);
+        $this->assertSame(['Überführung nach Kiel'], $this->suggest('ÜBERFÜHRUNG')[1]);
     }
 }

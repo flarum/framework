@@ -68,7 +68,11 @@ class ShowOpenSearchSuggestionsController implements RequestHandlerInterface
             $discussions = Discussion::whereVisibleTo(RequestUtil::getActor($request))
                 ->where(function (Builder $titles) use ($words) {
                     foreach ($words as $word) {
-                        $titles->whereLike('discussions.title', "%$word%");
+                        $titles->where(function (Builder $title) use ($word) {
+                            foreach ($this->cases($word) as $case) {
+                                $title->orWhereLike('discussions.title', "%$case%");
+                            }
+                        });
                     }
                 })
                 ->orderByDesc('discussions.last_posted_at')
@@ -102,5 +106,26 @@ class ShowOpenSearchSuggestionsController implements RequestHandlerInterface
         }
 
         return true;
+    }
+
+    /**
+     * The word as typed and, when it has letters beyond ASCII, as it would be
+     * written in lower, upper and title case: SQLite's LIKE ignores the case
+     * of ASCII letters only.
+     *
+     * @return string[]
+     */
+    protected function cases(string $word): array
+    {
+        if (! preg_match('/[^\x00-\x7F]/', $word)) {
+            return [$word];
+        }
+
+        return array_values(array_unique([
+            $word,
+            mb_strtolower($word),
+            mb_strtoupper($word),
+            mb_convert_case($word, MB_CASE_TITLE),
+        ]));
     }
 }
