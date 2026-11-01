@@ -27,6 +27,26 @@ function parseHTML(str: string): HTMLBodyElement {
   return tmp.body as HTMLBodyElement;
 }
 
+/**
+ * Parses emoji inside `root` into Twemoji images, except within code.
+ *
+ * Twemoji's list of elements to skip is not configurable, so code is
+ * emojified like everything else and then put back as the text it was,
+ * so that it is displayed and copied as typed.
+ */
+function emojify<T extends HTMLElement>(root: T): T {
+  twemoji.parse(root, options());
+
+  root.querySelectorAll<HTMLImageElement>('pre img.emoji, code img.emoji').forEach((img) => {
+    const parent = img.parentNode!;
+
+    img.replaceWith(document.createTextNode(img.alt));
+    parent.normalize();
+  });
+
+  return root;
+}
+
 export default function renderEmoji(): void {
   (override as any)(Post.prototype, 'contentHtml', function (this: any, original: () => string) {
     const contentHtml = original();
@@ -42,7 +62,7 @@ export default function renderEmoji(): void {
       // element. This gets stripped below.
       //
       // See https://github.com/flarum/core/issues/2958
-      const emojifiedDom = twemoji.parse(parseHTML(contentHtml), options());
+      const emojifiedDom = emojify(parseHTML(contentHtml));
 
       // Steal the HTML string inside the emojified DOM `<body>` tag.
       this.emojifiedContentHtml = emojifiedDom.innerHTML;
@@ -56,6 +76,6 @@ export default function renderEmoji(): void {
   (override as any)(s9e.TextFormatter, 'preview', (original: (text: string, element: HTMLElement) => void, text: string, element: HTMLElement) => {
     original(text, element);
 
-    (twemoji as any).parse(element, options());
+    emojify(element);
   });
 }
