@@ -293,4 +293,85 @@ class ClientCrudTest extends TestCase
         $this->assertEquals(204, $response->getStatusCode());
         $this->assertNull(Client::query()->find('client-to-delete'));
     }
+    #[Test]
+    public function admin_cannot_set_an_empty_allowed_scope_list(): void
+    {
+        $response = $this->updateClient('client-to-update', ['scopes' => []]);
+
+        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertStringContainsString('revoke', $response->getBody()->getContents());
+        $this->assertNull(Client::query()->find('client-to-update')->scopes);
+    }
+
+    #[Test]
+    public function admin_cannot_set_an_unregistered_scope(): void
+    {
+        $response = $this->updateClient('client-to-update', ['scopes' => ['openid', 'not-a-scope']]);
+
+        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertStringContainsString('not-a-scope', $response->getBody()->getContents());
+        $this->assertNull(Client::query()->find('client-to-update')->scopes);
+    }
+
+    #[Test]
+    public function admin_cannot_set_a_non_string_scope(): void
+    {
+        $response = $this->updateClient('client-to-update', ['scopes' => ['openid', ['nested']]]);
+
+        $this->assertEquals(422, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function admin_can_set_and_clear_registered_scopes(): void
+    {
+        $response = $this->updateClient('client-to-update', ['scopes' => ['openid', 'profile']]);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(['openid', 'profile'], Client::query()->find('client-to-update')->scopes);
+
+        $response = $this->updateClient('client-to-update', ['scopes' => null]);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertNull(Client::query()->find('client-to-update')->scopes);
+    }
+
+    #[Test]
+    public function admin_cannot_create_a_client_with_an_empty_allowed_scope_list(): void
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/oauth-provider-clients', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'oauth-provider-clients',
+                        'attributes' => [
+                            'name' => 'No Scopes',
+                            'redirectUris' => ['https://app.example.com/callback'],
+                            'scopes' => [],
+                        ],
+                    ],
+                ],
+            ])->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertNull(Client::query()->where('name', 'No Scopes')->first());
+    }
+
+    /**
+     * @param array<string, mixed> $attributes
+     */
+    private function updateClient(string $id, array $attributes): \Psr\Http\Message\ResponseInterface
+    {
+        return $this->send(
+            $this->request('PATCH', "/api/oauth-provider-clients/$id", [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'oauth-provider-clients',
+                        'id' => $id,
+                        'attributes' => $attributes,
+                    ],
+                ],
+            ])->withAttribute('bypassCsrfToken', true)
+        );
+    }
 }

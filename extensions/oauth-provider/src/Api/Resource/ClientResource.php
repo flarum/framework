@@ -16,10 +16,12 @@ use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\Models\RefreshToken;
+use Flarum\OAuthProvider\Scope\ScopeRegistry;
 use Illuminate\Support\Str;
 use Tobyz\JsonApiServer\Context as OriginalContext;
 
@@ -28,6 +30,12 @@ use Tobyz\JsonApiServer\Context as OriginalContext;
  */
 class ClientResource extends Resource\AbstractDatabaseResource
 {
+    public function __construct(
+        protected ScopeRegistry $scopes,
+        protected TranslatorInterface $translator,
+    ) {
+    }
+
     public function routeNamePrefix(): ?string
     {
         return 'oauthProvider';
@@ -111,7 +119,8 @@ class ClientResource extends Resource\AbstractDatabaseResource
                 ->property('redirect_uris'),
             Schema\Arr::make('scopes')
                 ->writable()
-                ->nullable(),
+                ->nullable()
+                ->rule(fn () => $this->validateScopes(...)),
             Schema\Boolean::make('confidential')
                 ->writable(),
             Schema\Boolean::make('revoked')
@@ -132,6 +141,29 @@ class ClientResource extends Resource\AbstractDatabaseResource
             Schema\DateTime::make('createdAt'),
             Schema\DateTime::make('updatedAt'),
         ];
+    }
+
+    /**
+     * Null leaves the client unrestricted. An empty list would allow nothing,
+     * which only duplicates revoking the client, so it is rejected.
+     */
+    protected function validateScopes(string $attribute, mixed $value, \Closure $fail): void
+    {
+        if ($value === []) {
+            $fail($this->translator->trans('flarum-oauth-provider.api.scopes_empty_message'));
+
+            return;
+        }
+
+        foreach ((array) $value as $scope) {
+            if (! is_string($scope) || ! $this->scopes->has($scope)) {
+                $fail($this->translator->trans('flarum-oauth-provider.api.scope_unknown_message', [
+                    'scope' => is_string($scope) ? $scope : json_encode($scope),
+                ]));
+
+                return;
+            }
+        }
     }
 
     public function creating(object $model, OriginalContext $context): ?object

@@ -54,6 +54,10 @@ flarum-oauth-provider:
       client_secret_label: "Client secret"
       close_button: "I've saved these"
 
+  api:
+    scopes_empty_message: "Allowed scopes can't be an empty list. Leave the field empty to allow every scope, or revoke the client to block it."
+    scope_unknown_message: "Unknown scope: {scope}."
+
   forum:
     consent:
       title: "Authorize application"
