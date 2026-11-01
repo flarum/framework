@@ -35,10 +35,13 @@ class ActorSessionManager implements SessionManagerInterface
 
     /**
      * A signed-in actor owns a session by ID. Guests all share ID 0, so a
-     * guest's session is also bound to a hash of the client's IP address: a
+     * guest's session is also bound to a hash of the client's IP address as
+     * the forum sees it (the request's `ipAddress`, from `REMOTE_ADDR`): a
      * guest elsewhere cannot use it, though a guest whose address changes
      * (a mobile network, a rotating proxy) must start a new session, and
-     * guests behind one address are told apart only by the session ID.
+     * guests behind one address (including every guest, behind a reverse
+     * proxy that does not pass the client's address on) are told apart only
+     * by the session ID.
      */
     public static function ownerOf(User $actor, ?string $ipAddress): string
     {
