@@ -282,4 +282,14 @@ class OpenSearchTest extends TestCase
 
         $this->assertSame(['32', '32', 'image/x-icon'], [(string) $image['width'], (string) $image['height'], (string) $image['type']]);
     }
+
+    #[Test]
+    public function shared_caches_may_not_store_the_description_with_a_session_cookie(): void
+    {
+        // A cache that stored it would hand one visitor's session to others.
+        $response = $this->send($this->request('GET', '/opensearch'));
+
+        $this->assertNotEmpty($response->getHeaderLine('Set-Cookie'));
+        $this->assertStringContainsString('private', $response->getHeaderLine('Cache-Control'));
+    }
 }
