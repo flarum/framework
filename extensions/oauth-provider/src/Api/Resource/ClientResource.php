@@ -19,12 +19,14 @@ use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\OAuthProvider\ClientRegistration\ClientMetadata;
 use Flarum\OAuthProvider\ClientRegistration\ClientMetadataException;
+use Flarum\OAuthProvider\Event;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\Scope\ScopeRegistry;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Tobyz\JsonApiServer\Context as OriginalContext;
@@ -37,6 +39,7 @@ class ClientResource extends Resource\AbstractDatabaseResource
     public function __construct(
         protected ScopeRegistry $scopes,
         protected TranslatorInterface $translator,
+        protected Dispatcher $events,
     ) {
     }
 
@@ -125,6 +128,8 @@ class ClientResource extends Resource\AbstractDatabaseResource
                         ->update(['revoked' => true]);
 
                     $client->plainSecret = $plainSecret;
+
+                    $this->events->dispatch(new Event\ClientSecretRotated($client, $context->getActor()));
 
                     return $client;
                 }),
@@ -242,5 +247,27 @@ class ClientResource extends Resource\AbstractDatabaseResource
         $model->updated_at = Carbon::now();
 
         return $model;
+    }
+
+    public function created(object $model, OriginalContext $context): ?object
+    {
+        /** @var Client $model */
+        $this->events->dispatch(new Event\ClientCreated($model, RequestUtil::getActor($context->request)));
+
+        return $model;
+    }
+
+    public function updated(object $model, OriginalContext $context): ?object
+    {
+        /** @var Client $model */
+        $this->events->dispatch(new Event\ClientUpdated($model, RequestUtil::getActor($context->request)));
+
+        return $model;
+    }
+
+    public function deleted(object $model, OriginalContext $context): void
+    {
+        /** @var Client $model */
+        $this->events->dispatch(new Event\ClientDeleted($model, RequestUtil::getActor($context->request)));
     }
 }

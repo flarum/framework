@@ -15,8 +15,12 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
+use Flarum\Http\RequestUtil;
+use Flarum\OAuthProvider\Event\Disconnected;
+use Flarum\OAuthProvider\Event\DisconnectedAll;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\Consent;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Tobyz\JsonApiServer\Context;
@@ -29,6 +33,11 @@ use Tobyz\JsonApiServer\Context;
  */
 class ConsentResource extends Resource\AbstractDatabaseResource
 {
+    public function __construct(
+        protected Dispatcher $events,
+    ) {
+    }
+
     public function routeNamePrefix(): ?string
     {
         return 'oauthProvider';
@@ -83,7 +92,13 @@ class ConsentResource extends Resource\AbstractDatabaseResource
             Endpoint\Endpoint::make('revokeAll')
                 ->route('DELETE', '/')
                 ->authenticated()
-                ->action(fn (FlarumContext $context) => Consent::revokeAllFor((int) $context->getActor()->id))
+                ->action(function (FlarumContext $context): void {
+                    $actor = $context->getActor();
+
+                    Consent::revokeAllFor((int) $actor->id);
+
+                    $this->events->dispatch(new DisconnectedAll($actor));
+                })
                 ->response(fn () => new EmptyResponse(204)),
         ];
     }
@@ -130,5 +145,13 @@ class ConsentResource extends Resource\AbstractDatabaseResource
     {
         /** @var Consent $model */
         $model->revokeAccess();
+    }
+
+    public function deleted(object $model, Context $context): void
+    {
+        /** @var Consent $model */
+        if ($model->client !== null) {
+            $this->events->dispatch(new Disconnected(RequestUtil::getActor($context->request), $model->client));
+        }
     }
 }

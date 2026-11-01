@@ -122,6 +122,7 @@ flarum-audit:
                 logged_in: Logged in {username} account
                 logged_in_with_provider: Logged in {username} account using {provider}
                 logged_out: Logged out {username} account
+                logged_out_everywhere: Logged out {username} account everywhere
                 password_changed: Changed {username}'s password
                 password_change_requested: Requested to change {username}'s password
                 password_reset_attempted: Requested a password reset for {username}

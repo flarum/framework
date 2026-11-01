@@ -9,6 +9,7 @@
 
 namespace Flarum\OAuthProvider;
 
+use Flarum\Audit\Extend\Audit;
 use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData as GdprUserData;
 use Flarum\Search\Database\DatabaseSearchDriver;
@@ -61,6 +62,11 @@ return [
         ->whenExtensionEnabled('flarum-gdpr', fn () => [
             (new GdprUserData())
                 ->addType(Data\ConnectedApplications::class),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new Audit())
+                ->group('flarum-oauth-provider')
+                ->using(new AuditIntegration()),
         ]),
 
     (new Extend\Event())

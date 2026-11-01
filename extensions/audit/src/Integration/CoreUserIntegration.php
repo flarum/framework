@@ -44,6 +44,7 @@ class CoreUserIntegration
         'user.logged_in',
         'user.logged_in_with_provider',
         'user.logged_out',
+        'user.logged_out_everywhere',
         'user.password_changed',
         'user.password_change_requested',
         'user.provider_connected',
@@ -182,7 +183,9 @@ class CoreUserIntegration
 
     public function loggedOut(Event\LoggedOut $event): void
     {
-        $this->log($event->user, 'logged_out');
+        // Logging out everywhere also ends every session and revokes tokens:
+        // worth telling apart from logging out of one browser.
+        $this->log($event->user, $event->isGlobal ? 'logged_out_everywhere' : 'logged_out');
     }
 
     public function passwordChanged(Event\PasswordChanged $event): void

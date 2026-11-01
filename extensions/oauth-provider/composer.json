@@ -41,6 +41,7 @@
             "title": "OAuth Provider",
             "category": "authentication",
             "optional-dependencies": [
+                "flarum/audit",
                 "flarum/gdpr"
             ],
             "icon": {
@@ -81,6 +82,7 @@
     "require-dev": {
         "flarum/testing": "^2.0",
         "flarum/core": "2.x-dev",
+        "flarum/audit": "*",
         "flarum/gdpr": "*",
         "flarum/suspend": "*"
     },
