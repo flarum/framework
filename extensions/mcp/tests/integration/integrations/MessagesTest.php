@@ -67,6 +67,56 @@ class MessagesTest extends McpTestCase
     }
 
     #[Test]
+    public function a_conversation_too_long_for_one_page_is_read_in_full_by_paging_older(): void
+    {
+        $count = 40;
+        $messages = [];
+        for ($number = 1; $number <= $count; $number++) {
+            $messages[] = [
+                'id' => 100 + $number,
+                'dialog_id' => 2,
+                'user_id' => $number % 2 ? 2 : 3,
+                // Each about 3,900 characters: 40 of them exceed the payload cap.
+                'content' => '<t><p>'.$number.' '.str_repeat('lorem ', 650).'</p></t>',
+                'number' => $number,
+                'created_at' => Carbon::now()->subMinutes(100 - $number),
+            ];
+        }
+
+        $this->prepareDatabase([
+            Dialog::class => [
+                ['id' => 2, 'type' => 'direct', 'first_message_id' => 101, 'last_message_id' => 100 + $count, 'last_message_at' => Carbon::now()],
+            ],
+            DialogMessage::class => $messages,
+            'dialog_user' => [
+                ['dialog_id' => 2, 'user_id' => 2, 'joined_at' => Carbon::now(), 'last_read_message_id' => 100 + $count],
+                ['dialog_id' => 2, 'user_id' => 3, 'joined_at' => Carbon::now(), 'last_read_message_id' => 100 + $count],
+            ],
+        ]);
+
+        $auth = $this->bearer($this->developerToken(2));
+        $pages = [];
+        $arguments = ['id' => '2', 'limit' => $count];
+
+        for ($i = 0; $i < 10; $i++) {
+            $read = $this->toolOutput($this->callTool('read_conversation', $arguments, $auth));
+            $pages[] = array_column($read['messages'], 'number');
+
+            if (! $read['paging']['older']) {
+                break;
+            }
+
+            $arguments = ['id' => '2', 'limit' => $count, ...$read['paging']['older']];
+        }
+
+        // The first page is cut, and keeps the latest messages.
+        $this->assertGreaterThan(1, count($pages));
+        $this->assertSame($count, $pages[0][count($pages[0]) - 1]);
+
+        $this->assertSame(range(1, $count), array_merge(...array_reverse($pages)));
+    }
+
+    #[Test]
     public function send_message_replies_in_a_conversation(): void
     {
         $reply = $this->toolOutput($this->callTool('send_message', ['conversationId' => '1', 'content' => 'Still there?'], $this->bearer($this->developerToken(2))));

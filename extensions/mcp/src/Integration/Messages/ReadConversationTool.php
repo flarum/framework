@@ -78,10 +78,12 @@ class ReadConversationTool extends Tool
             'include' => 'user',
         ]));
 
-        $messages = array_reverse(array_map(
+        // Still newest first: a page too large is cut from the end, so what
+        // is dropped are its oldest messages, and the latest stay contiguous.
+        $messages = array_map(
             fn (array $message) => Conversations::message($messagesDocument, $message),
             $messagesDocument->many()
-        ));
+        );
 
         $output = ApiResult::fit([
             'conversation' => Conversations::conversation($dialogDocument, $dialog, $context),
@@ -91,10 +93,15 @@ class ReadConversationTool extends Tool
         $truncated = (bool) ($output['meta']['truncated'] ?? false);
         unset($output['meta']);
 
+        $shown = count($output['messages']);
+        $output['messages'] = array_reverse($output['messages']);
+        $newerOffset = max(0, $offset - $limit);
+
         $output['paging'] = [
             'truncated' => $truncated,
-            'older' => isset($result->links()['next']) ? ['offset' => $offset + count($messages)] : null,
-            'newer' => $offset > 0 ? ['offset' => max(0, $offset - $limit)] : null,
+            // Continues right after the messages shown, including any the cut dropped.
+            'older' => $shown && ($truncated || isset($result->links()['next'])) ? ['offset' => $offset + $shown] : null,
+            'newer' => $offset > 0 ? ['offset' => $newerOffset, 'limit' => $offset - $newerOffset] : null,
         ];
 
         return $output;
