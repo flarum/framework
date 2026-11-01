@@ -1,6 +1,6 @@
 import app from 'flarum/admin/app';
 import apiUrl from '../apiUrl';
-import { alertError } from '../errors';
+import { confirmRollback, requestRollback } from '../rollback';
 import { pollOutcome, runIsOver, shouldPoll } from '../runState';
 import type { RollbackPayload, Run, StatePayload, StepPayload } from '../types';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
@@ -8,7 +8,6 @@ import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
 import type RequestError from 'flarum/common/utils/RequestError';
 import type Mithril from 'mithril';
-import { confirmAction } from './ConfirmModal';
 
 const PHASES = ['plan', 'fetch', 'apply', 'finalise'];
 
@@ -185,7 +184,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
              * exactly as reversible as a complete one — and this is the moment
              * somebody most needs to know that.
              */}
-            <Button className="Button" disabled={this.rollingBack} onclick={() => this.rollback()}>
+            <Button className="Button" disabled={this.rollingBack} onclick={() => this.confirmRollback(run)}>
               {this.rollingBack
                 ? app.translator.trans('flarum-extension-manager.admin.run.rolling_back')
                 : app.translator.trans('flarum-extension-manager.admin.run.roll_back')}
@@ -474,19 +473,9 @@ export default class RunPanel extends Component<RunPanelAttrs> {
       });
   }
 
-  /** Undoing a run that worked is asked for, and says whether the database goes back too. */
+  /** Undoing a run is asked for, finished or failed, and says whether the database goes back too. */
   confirmRollback(run: Run) {
-    const count = run.migrations?.length || 0;
-
-    confirmAction({
-      title: app.translator.trans('flarum-extension-manager.admin.run.roll_back'),
-      message: count
-        ? app.translator.trans('flarum-extension-manager.admin.run.roll_back_confirm_db', { count })
-        : app.translator.trans('flarum-extension-manager.admin.run.roll_back_confirm'),
-      confirmText: app.translator.trans('flarum-extension-manager.admin.run.roll_back'),
-      danger: true,
-      onconfirm: () => this.rollback(),
-    });
+    confirmRollback(run, () => this.rollback());
   }
 
   rollback() {
@@ -494,12 +483,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     this.polling = false;
     m.redraw();
 
-    app
-      .request<RollbackPayload>({
-        method: 'POST',
-        url: apiUrl() + '/extension-manager/rollback',
-        errorHandler: alertError('flarum-extension-manager.admin.run.rollback_failed'),
-      })
+    requestRollback()
       .then((data) => {
         this.rollingBack = false;
         this.attrs.onrollback(data);
