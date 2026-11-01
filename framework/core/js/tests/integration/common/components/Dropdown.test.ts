@@ -82,4 +82,24 @@ describe('Dropdown displays as expected', () => {
 
     expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Tags, Toggle navigation dropdown menu');
   });
+
+  it('ignores absent children in a conditional label', () => {
+    for (const absent of [false, null, undefined, true]) {
+      const dropdown = mq(m(Dropdown, { label: m('span', ['Tags', absent]), accessibleToggleLabel: 'Choose a category' }, [m(Button, 'one')]));
+
+      expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Tags, Choose a category');
+    }
+  });
+
+  it('ignores absent children in a select dropdown option with conditional children', () => {
+    for (const absent of [false, null, undefined]) {
+      const dropdown = mq(
+        m(SelectDropdown, { defaultLabel: 'All Discussions', accessibleToggleLabel: 'Choose a category' }, [
+          m(Button, { active: true }, ['Tags', absent]),
+        ])
+      );
+
+      expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Tags, Choose a category');
+    }
+  });
 });
