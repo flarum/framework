@@ -49,7 +49,7 @@ class ReadDiscussionTool extends Tool
                 'id' => ['type' => ['string', 'integer'], 'description' => 'The discussion ID.'],
                 'near' => ['type' => 'integer', 'minimum' => 1, 'description' => 'Start around this post number.'],
                 'offset' => ['type' => 'integer', 'minimum' => 0, 'description' => 'Start after this many posts; the paging hints give it. Takes precedence over "near".'],
-                'before' => ['type' => 'integer', 'minimum' => 0, 'description' => 'Read the posts just before this offset; the paging hint "previous" gives it. Takes precedence over "offset" and "near".'],
+                'before' => ['type' => 'integer', 'minimum' => 1, 'description' => 'Read the posts just before this offset; the paging hint "previous" gives it. Takes precedence over "offset" and "near".'],
                 'limit' => ['type' => 'integer', 'minimum' => 1, 'maximum' => DiscussionReader::MAX_LIMIT, 'default' => 20],
             ],
             'required' => ['id'],

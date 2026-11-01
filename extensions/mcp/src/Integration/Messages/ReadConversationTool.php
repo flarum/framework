@@ -57,7 +57,7 @@ class ReadConversationTool extends Tool
                 'id' => ['type' => ['string', 'integer'], 'description' => 'The conversation ID (list_conversations lists them).'],
                 'limit' => ['type' => 'integer', 'minimum' => 1, 'maximum' => static::MAX_LIMIT, 'default' => 20],
                 'offset' => ['type' => 'integer', 'minimum' => 0, 'default' => 0, 'description' => 'How many of the latest messages to skip; paging.older gives it.'],
-                'before' => ['type' => 'integer', 'minimum' => 0, 'description' => 'Read the messages just newer than this offset; paging.newer gives it. Takes precedence over "offset".'],
+                'before' => ['type' => 'integer', 'minimum' => 1, 'description' => 'Read the messages just newer than this offset; paging.newer gives it. Takes precedence over "offset".'],
             ],
             'required' => ['id'],
         ];
