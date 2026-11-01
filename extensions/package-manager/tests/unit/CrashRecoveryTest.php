@@ -11,6 +11,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Rollback;
+use Flarum\ExtensionManager\Apply\Tree;
 use Flarum\ExtensionManager\Plan\Change;
 use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -102,6 +103,92 @@ class CrashRecoveryTest extends TestCase
         );
     }
 
+    #[DataProvider('killPoints')]
+    public function test_a_replacement_killed_at_any_step_resumes_forward_and_can_still_be_rolled_back(string $killAt): void
+    {
+        // flarum/framework#5357: resuming after the swap took the new version
+        // for the old one, deleted the only copy of the old one, and then
+        // failed with "Nothing staged". For flarum/core that is a dead site.
+        // The kill at 'completed' is the window that matters most: the change
+        // is recorded, but the step driver has not saved its progress, which
+        // is where autoload pruning and core's database update happen.
+        $this->seedVendor(['acme/widget' => 'OLD widget v1', 'acme/gadget' => 'gadget v1']);
+        $this->seedStaging(['acme/widget' => 'NEW widget v2']);
+        $before = $this->snapshot($this->dir('vendor'));
+        $changes = [(new Change(Change::REPLACE, 'acme/widget', '1.0.0', '2.0.0'))->toArray()];
+
+        $this->assertNotSame(0, $this->runApply($changes, $killAt, mode: 'steps'), 'the harness was supposed to be killed');
+        $this->assertSame(0, $this->runApply($changes, 'never', mode: 'steps'), "the resume after a kill at '$killAt' failed");
+
+        $this->assertSame('NEW widget v2', $this->read('vendor/acme/widget/file.txt'));
+        $this->assertSame('OLD widget v1', $this->read('trash/acme+widget@1.0.0/file.txt'), 'the old version is no longer kept');
+        $this->assertTrue($this->journal()->isComplete());
+        $this->assertCount(1, $this->journal()->entries(), 'the resume recorded the same change twice');
+
+        (new Rollback(EnglishTranslator::make(), $this->dir('vendor'), $this->dir('trash'), $this->journal()))->run();
+
+        $this->assertSame($before, $this->snapshot($this->dir('vendor')));
+    }
+
+    #[DataProvider('killPoints')]
+    public function test_an_added_package_killed_at_any_step_resumes_forward(string $killAt): void
+    {
+        $this->seedVendor(['acme/gadget' => 'gadget v1']);
+        $this->seedStaging(['acme/newthing' => 'brand new']);
+        $before = $this->snapshot($this->dir('vendor'));
+        $changes = [(new Change(Change::ADD, 'acme/newthing', null, '1.0.0'))->toArray()];
+
+        $this->runApply($changes, $killAt, mode: 'steps');
+        $this->assertSame(0, $this->runApply($changes, 'never', mode: 'steps'), "the resume after a kill at '$killAt' failed");
+
+        $this->assertSame('brand new', $this->read('vendor/acme/newthing/file.txt'));
+        $this->assertTrue($this->journal()->isComplete());
+
+        (new Rollback(EnglishTranslator::make(), $this->dir('vendor'), $this->dir('trash'), $this->journal()))->run();
+
+        $this->assertSame($before, $this->snapshot($this->dir('vendor')));
+    }
+
+    public function test_a_stash_already_holding_the_name_is_moved_aside_never_deleted(): void
+    {
+        $this->seedVendor(['acme/widget' => 'OLD widget v1']);
+        $this->seedStaging(['acme/widget' => 'NEW widget v2']);
+        $this->writeTree($this->dir('trash').'/acme+widget@1.0.0', 'something already here');
+
+        $this->assertSame(0, $this->runApply([(new Change(Change::REPLACE, 'acme/widget', '1.0.0', '2.0.0'))->toArray()], 'never', mode: 'steps'));
+
+        $kept = glob($this->dir('trash').'/acme+widget@1.0.0.earlier-*') ?: [];
+        $this->assertCount(1, $kept);
+        $this->assertSame('something already here', trim((string) file_get_contents($kept[0].'/file.txt')));
+        $this->assertSame('OLD widget v1', $this->read('trash/acme+widget@1.0.0/file.txt'));
+    }
+
+    public function test_a_cross_device_install_killed_while_deleting_its_source_is_finished_on_resume(): void
+    {
+        // flarum/framework#5357 review: the whole copy, marker inside, was in
+        // vendor/ but staging was half deleted. The resume stashed the NEW
+        // version under the old one's stash name, and rollback restored it.
+        $this->seedVendor(['acme/widget' => 'NEW widget v2']);
+        touch($this->dir('vendor').'/acme/widget/'.Tree::COPIED);
+        $this->seedStaging(['acme/widget' => 'NEW widget v2']);
+        unlink($this->dir('staging').'/acme/widget/file.txt');
+        $this->writeTree($this->dir('trash').'/acme+widget@1.0.0', 'OLD widget v1');
+        $change = new Change(Change::REPLACE, 'acme/widget', '1.0.0', '2.0.0');
+        $this->journal()->begin(['change' => $change->toArray(), 'trash' => $change->trashName()]);
+
+        $this->assertSame(0, $this->runApply([$change->toArray()], 'never', mode: 'steps'));
+
+        $this->assertSame('NEW widget v2', $this->read('vendor/acme/widget/file.txt'));
+        $this->assertFileDoesNotExist($this->dir('vendor').'/acme/widget/'.Tree::COPIED);
+        $this->assertDirectoryDoesNotExist($this->dir('staging').'/acme/widget');
+        $this->assertSame('OLD widget v1', $this->read('trash/acme+widget@1.0.0/file.txt'));
+        $this->assertTrue($this->journal()->isComplete());
+
+        (new Rollback(EnglishTranslator::make(), $this->dir('vendor'), $this->dir('trash'), $this->journal()))->run();
+
+        $this->assertSame('OLD widget v1', $this->read('vendor/acme/widget/file.txt'));
+    }
+
     public function test_a_completed_apply_actually_changed_the_tree(): void
     {
         // The counterpart to the tests above: prove the thing does its job when
@@ -167,7 +254,7 @@ class CrashRecoveryTest extends TestCase
 
     // ── helpers ──────────────────────────────────────────────────────────
 
-    private function runApply(array $changes, string $killAt, ?string $killOnPackage = null): int
+    private function runApply(array $changes, string $killAt, ?string $killOnPackage = null, string $mode = 'apply'): int
     {
         $harness = __DIR__.'/../fixtures/crash-apply.php';
 
@@ -175,7 +262,7 @@ class CrashRecoveryTest extends TestCase
         // it — otherwise it reports every SIGKILL as "Killed: 9" on the test
         // runner's stderr and buries real failures in noise.
         $cmd = sprintf(
-            'exec php %s %s %s %s %s %s %s %s 2>/dev/null',
+            'exec php %s %s %s %s %s %s %s %s %s 2>/dev/null',
             escapeshellarg($harness),
             escapeshellarg($this->dir('vendor')),
             escapeshellarg($this->dir('staging')),
@@ -183,7 +270,8 @@ class CrashRecoveryTest extends TestCase
             escapeshellarg($this->dir('journal.jsonl')),
             escapeshellarg(json_encode($changes)),
             escapeshellarg($killAt),
-            escapeshellarg((string) $killOnPackage)
+            escapeshellarg((string) $killOnPackage),
+            escapeshellarg($mode)
         );
 
         exec($cmd, $out, $exit);

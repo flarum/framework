@@ -76,7 +76,9 @@ class Change
     /** A stable, filesystem-safe name for this package's slot in the trash. */
     public function trashName(): string
     {
-        return str_replace('/', '+', $this->package).'@'.($this->from ?? 'absent');
+        // A branch version can hold a slash too (dev-feature/x), and the name
+        // has to stay one entry directly inside the trash.
+        return str_replace('/', '+', $this->package.'@'.($this->from ?? 'absent'));
     }
 
     public function describe(TranslatorInterface $translator): string

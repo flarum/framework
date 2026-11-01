@@ -237,6 +237,60 @@ class FetcherTest extends TestCase
         $this->assertFileExists($this->dir.'/staging/a/b/marker', 'it re-downloaded something already staged');
     }
 
+    public function test_an_unzip_that_stops_partway_leaves_nothing_that_looks_staged(): void
+    {
+        // flarum/framework#5357: unzipping straight into the staging directory
+        // left composer.json behind on a failure or a kill, and the next attempt
+        // took the half package for a whole one and applied it.
+        $broken = $this->zip('h.zip', [
+            'pkg/composer.json' => '{"name":"a/b"}',
+            'pkg/blocker' => 'a file where a directory has to go',
+            'pkg/blocker/src/A.php' => '<?php',
+        ]);
+
+        try {
+            $this->fetchLocal($broken, 'a/b');
+            $this->fail('the unzip was supposed to stop partway');
+        } catch (RuntimeException) {
+        }
+
+        $this->assertDirectoryDoesNotExist($this->dir.'/staging/a/b');
+
+        $this->fetchLocal($this->zip('i.zip', ['pkg/composer.json' => '{"name":"a/b"}', 'pkg/src/A.php' => '<?php']), 'a/b');
+
+        $this->assertFileExists($this->dir.'/staging/a/b/src/A.php');
+        $this->assertDirectoryDoesNotExist($this->dir.'/staging/a/.b.partial');
+    }
+
+    public function test_a_partial_unzip_left_by_a_kill_is_cleared_and_redone(): void
+    {
+        mkdir($this->dir.'/staging/a/.b.partial', 0775, true);
+        file_put_contents($this->dir.'/staging/a/.b.partial/composer.json', '{"name":"a/b"}');
+
+        $this->fetchLocal($this->zip('j.zip', ['pkg/composer.json' => '{"name":"a/b"}', 'pkg/src/A.php' => '<?php']), 'a/b');
+
+        $this->assertFileExists($this->dir.'/staging/a/b/src/A.php');
+        $this->assertDirectoryDoesNotExist($this->dir.'/staging/a/.b.partial');
+    }
+
+    public function test_a_package_whose_name_ends_in_partial_is_not_another_packages_scratch_space(): void
+    {
+        // Composer names may contain dots, so a/b.partial is a real package
+        // name. Unpacking a/b used to clear it as a/b's leftover.
+        $this->fetchLocal($this->zip('l.zip', ['pkg/composer.json' => '{"name":"a/b.partial"}']), 'a/b.partial');
+        $this->fetchLocal($this->zip('m.zip', ['pkg/composer.json' => '{"name":"a/b"}']), 'a/b');
+
+        $this->assertSame('{"name":"a/b.partial"}', file_get_contents($this->dir.'/staging/a/b.partial/composer.json'));
+        $this->assertSame('{"name":"a/b"}', file_get_contents($this->dir.'/staging/a/b/composer.json'));
+    }
+
+    public function test_a_file_name_with_two_dots_inside_it_is_not_an_escape(): void
+    {
+        $this->fetchLocal($this->zip('k.zip', ['pkg/composer.json' => '{}', 'pkg/dist/a..b.js' => '//']), 'a/b');
+
+        $this->assertFileExists($this->dir.'/staging/a/b/dist/a..b.js');
+    }
+
     private function rmrf(string $dir): void
     {
         if (! is_dir($dir)) {

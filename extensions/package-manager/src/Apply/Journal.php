@@ -149,6 +149,35 @@ class Journal
         ));
     }
 
+    /**
+     * The last entry recorded for exactly this change, or null.
+     *
+     * The step driver saves its progress after the work, so a process killed
+     * in between hands the same change to the applier again. This is how the
+     * applier tells "never started" from "started" and "already done".
+     *
+     * @param array<string,mixed> $change
+     * @return array<string,mixed>|null
+     */
+    public function lastFor(array $change): ?array
+    {
+        $found = null;
+
+        foreach ($this->entries() as $entry) {
+            if (($entry['change'] ?? null) == $change) {
+                $found = $entry;
+            }
+        }
+
+        return $found;
+    }
+
+    /** @param array<string,mixed> $entry */
+    public static function isDone(array $entry): bool
+    {
+        return ($entry['state'] ?? null) === self::STATE_DONE;
+    }
+
     public function isComplete(): bool
     {
         return $this->entries() !== [] && $this->interrupted() === [];
@@ -193,7 +222,19 @@ class Journal
 
         $line = json_encode($row, JSON_UNESCAPED_SLASHES)."\n";
 
-        if (fwrite($handle, $line) === false) {
+        /*
+         * A process killed mid-write leaves a last line with no newline.
+         * Appended straight after it, this record would share that line and be
+         * discarded with the fragment when read, while the change it describes
+         * still happens, so a rollback would skip it. Ending the fragment first
+         * keeps the two apart.
+         */
+        if ($this->endsMidLine()) {
+            $line = "\n".$line;
+        }
+
+        // A short write is as torn as a killed one.
+        if (fwrite($handle, $line) !== strlen($line)) {
             fclose($handle);
 
             throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.journal.append_failed', ['path' => $this->path]));
@@ -202,5 +243,28 @@ class Journal
         fflush($handle);
         fsync($handle);
         fclose($handle);
+    }
+
+    /** Whether the file's last byte is anything but a newline. */
+    protected function endsMidLine(): bool
+    {
+        clearstatcache(true, $this->path);
+        $size = @filesize($this->path);
+
+        if (! $size) {
+            return false;
+        }
+
+        $handle = fopen($this->path, 'rb');
+
+        if ($handle === false) {
+            return false;
+        }
+
+        fseek($handle, -1, SEEK_END);
+        $last = fread($handle, 1);
+        fclose($handle);
+
+        return $last !== "\n";
     }
 }

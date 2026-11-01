@@ -77,12 +77,7 @@ class Tree
      * created at runtime renames normally, so only the first move of an
      * image's package ever takes this path.
      *
-     * Not atomic, so it is made resumable instead. The copy goes in under the
-     * target name and the COPIED marker is written LAST, then the source is
-     * deleted, then the marker. Killed mid-copy: no marker, so the target is
-     * a stale partial that the caller already deletes and redoes. Killed
-     * mid-delete: the marker says the copy is whole, and finishMove()
-     * completes it instead of trusting the half-deleted source.
+     * Not atomic, so it is made resumable instead; see copyMove().
      */
     public static function move(string $from, string $to): bool
     {
@@ -90,14 +85,45 @@ class Tree
             return true;
         }
 
-        $error = error_get_last()['message'] ?? '';
-
-        if (! str_contains($error, 'Cross-device') || ! is_dir($from) || is_link($from) || file_exists($to)) {
+        if (! self::crossDevice(error_get_last()['message'] ?? '')) {
             return false;
         }
 
-        if (! self::copy($from, $to) || @file_put_contents($to.'/'.self::COPIED, '') === false) {
-            self::delete($to);
+        return self::copyMove($from, $to);
+    }
+
+    /**
+     * Whether a failed rename() failed because source and target are on
+     * different filesystems (EXDEV). glibc says "Invalid cross-device link"
+     * and musl "Cross-device link", so the match ignores case.
+     */
+    public static function crossDevice(string $error): bool
+    {
+        return stripos($error, 'cross-device') !== false;
+    }
+
+    /**
+     * The copy half of move(), for a rename the filesystem refused.
+     *
+     * The copy is built under partial() and renamed into place only
+     * once it is whole, with the COPIED marker already inside it, so a target
+     * that exists is always complete. Then the source is deleted, then the
+     * marker. Killed mid-copy: there is no target, only a partial that the
+     * next attempt clears, and the source is untouched. Killed mid-delete: the
+     * marker says the copy is whole, and finishMove() completes it instead of
+     * trusting the half-deleted source.
+     */
+    public static function copyMove(string $from, string $to): bool
+    {
+        if (! is_dir($from) || is_link($from) || file_exists($to)) {
+            return false;
+        }
+
+        $partial = self::partial($to);
+        self::delete($partial);
+
+        if (! self::copy($from, $partial) || @file_put_contents($partial.'/'.self::COPIED, '') === false || ! @rename($partial, $to)) {
+            self::delete($partial);
 
             return false;
         }
@@ -106,6 +132,18 @@ class Tree
         @unlink($to.'/'.self::COPIED);
 
         return ! file_exists($from);
+    }
+
+    /**
+     * Where a directory is built before it is whole: beside its target, under
+     * a name no package can have. `<target>.partial` could: Composer allows
+     * dots, so the scratch copy of acme/foo was the real home of a package
+     * named acme/foo.partial, and clearing one deleted the other. A package
+     * name starts with a letter or digit, never a dot.
+     */
+    public static function partial(string $to): string
+    {
+        return dirname($to).DIRECTORY_SEPARATOR.'.'.basename($to).'.partial';
     }
 
     /**
