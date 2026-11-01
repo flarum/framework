@@ -108,7 +108,14 @@ return [
 
     // What core can do through the generic tools, told as core's own.
     (new Mcp(Overview\ExtensionOwnership::CORE))
-        ->instructions(new Overview\CoreInstructions()),
+        ->instructions(new Overview\CoreInstructions())
+        // Moderation, for whoami and the overview: listed only for those who have it.
+        ->ability('discussion.hide', 'Hide discussions')
+        ->ability('discussion.delete', 'Delete discussions')
+        ->ability('discussion.editPosts', 'Edit others\' posts')
+        ->ability('discussion.hidePosts', 'Hide others\' posts')
+        ->ability('discussion.deletePosts', 'Delete others\' posts')
+        ->ability('user.edit', 'Edit members'),
 
     // Bundled integrations, through the same extender third parties use, each
     // registered on behalf of the extension it integrates.
@@ -132,14 +139,17 @@ return [
         ])
         ->whenExtensionEnabled('flarum-lock', fn () => [
             (new Mcp('flarum-lock'))
+                ->ability('discussion.lock', 'Lock discussions')
                 ->instructions(new Integration\Lock\LockInstructions()),
         ])
         ->whenExtensionEnabled('flarum-sticky', fn () => [
             (new Mcp('flarum-sticky'))
+                ->ability('discussion.sticky', 'Sticky discussions')
                 ->instructions(new Integration\Sticky\StickyInstructions()),
         ])
         ->whenExtensionEnabled('flarum-messages', fn () => [
             (new Mcp('flarum-messages'))
+                ->ability('dialog.sendMessage', 'Send private messages')
                 ->tool(Integration\Messages\ListConversationsTool::class)
                 ->tool(Integration\Messages\ReadConversationTool::class)
                 ->tool(Integration\Messages\SendMessageTool::class)
@@ -162,15 +172,19 @@ return [
             // Core already allows these; the fields' own gates decide.
             (new Mcp('flarum-suspend'))
                 ->allowWrites('users', ['update'])
+                ->ability('user.suspend', 'Suspend members')
                 ->instructions(new Integration\Suspend\SuspendInstructions()),
         ])
         ->whenExtensionEnabled('flarum-approval', fn () => [
             (new Mcp('flarum-approval'))
                 ->allowWrites('posts', ['update'])
+                ->ability('discussion.approvePosts', 'Approve posts')
                 ->instructions(new Integration\Approval\ApprovalInstructions()),
         ])
         ->whenExtensionEnabled('flarum-flags', fn () => [
             (new Mcp('flarum-flags'))
+                ->ability('discussion.viewFlags', 'See flagged posts')
+                ->tool(Integration\Flags\ListFlagsTool::class)
                 ->tool(Integration\Flags\FlagPostTool::class)
                 ->tool(Integration\Flags\DismissFlagsTool::class)
                 ->describe('flags', 'Flags members raised on posts for the moderators, with the reason. flag_post raises one; dismiss_flags clears a post\'s.'),

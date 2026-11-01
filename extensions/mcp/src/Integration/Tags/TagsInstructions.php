@@ -19,6 +19,6 @@ class TagsInstructions
             return null;
         }
 
-        return 'To change a discussion\'s tags, if you may, call update_resource on discussions with relationships {"tags": [tag IDs]} (list_tags gives the IDs), listing every tag it should keep.';
+        return 'Re-tag, where the discussion\'s canTag allows: update_resource on discussions with relationships {"tags": [tag IDs]} (from list_tags), listing every tag to keep.';
     }
 }

@@ -22,8 +22,7 @@ class CoreInstructions
             return null;
         }
 
-        return 'To hide or restore a discussion or post, if you may, call update_resource with {"isHidden": true} or false; delete_resource deletes it for good. '
-            .'To mark a discussion read up to a post, call update_resource on discussions with {"lastReadPostNumber": n}; '
-            .'to mark everything read, on your own user with {"markedAllAsReadAt": "<an ISO 8601 date>"}.';
+        return 'Hide or restore a discussion or post, where its canHide allows: update_resource with {"isHidden": true} or false (delete_resource deletes it for good). '
+            .'Mark read: update_resource on discussions with {"lastReadPostNumber": n}, or on your user with {"markedAllAsReadAt": "<ISO 8601 date>"}.';
     }
 }

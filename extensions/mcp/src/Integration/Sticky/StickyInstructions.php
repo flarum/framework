@@ -23,6 +23,13 @@ class StickyInstructions
             return null;
         }
 
-        return 'Sticky discussions stay at the top of lists. To sticky or unsticky one, if you may, call update_resource on discussions with {"isSticky": true} or false.';
+        $text = 'Sticky discussions stay at the top of lists.';
+
+        // Anywhere: the permission may be granted for some tags only.
+        if ($context->actor->hasPermissionLike('discussion.sticky')) {
+            $text .= ' Sticky: update_resource on discussions with {"isSticky": true} or false.';
+        }
+
+        return $text;
     }
 }

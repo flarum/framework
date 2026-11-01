@@ -23,7 +23,13 @@ class ApprovalInstructions
             return null;
         }
 
-        return 'New discussions and posts may await approval (isApproved false) and are then only visible to their author and moderators. '
-            .'To approve a post, if you may, call update_resource on posts with {"isApproved": true}; approving a discussion\'s first post approves the discussion.';
+        $text = 'New content may await approval (isApproved false), visible only to its author and moderators.';
+
+        // Anywhere: the permission may be granted for some tags only.
+        if ($context->actor->hasPermissionLike('discussion.approvePosts')) {
+            $text .= ' Approve: update_resource on posts with {"isApproved": true}; approving a discussion\'s first post approves the discussion. list_flags lists the queue.';
+        }
+
+        return $text;
     }
 }
