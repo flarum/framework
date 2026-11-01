@@ -203,7 +203,8 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
    * saying what they see on it.
    */
   getAccessibleLabel(children: Mithril.ChildArray): string | undefined {
-    const description = this.attrs.accessibleToggleLabel;
+    // Callers pass `app.translator.trans()` results, which are arrays, not strings.
+    const description = this.attrs.accessibleToggleLabel ? extractText(this.attrs.accessibleToggleLabel).trim() : undefined;
     const visible = this.getVisibleLabel(children);
 
     if (!visible) return description;

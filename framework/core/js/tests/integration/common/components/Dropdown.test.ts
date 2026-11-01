@@ -5,6 +5,7 @@ import Button from '../../../../src/common/components/Button';
 import m from 'mithril';
 import mq from 'mithril-query';
 import { jest } from '@jest/globals';
+import app from '../../../../src/forum/app';
 
 beforeAll(() => bootstrapForum());
 
@@ -67,5 +68,18 @@ describe('Dropdown displays as expected', () => {
     );
 
     expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'All Discussions, Toggle navigation dropdown menu');
+  });
+
+  it('accepts a translated accessible label, which the translator returns as an array', () => {
+    app.translator.addTranslations({ 'core.forum.index.toggle_sidenav_dropdown_accessible_label': 'Toggle navigation dropdown menu' });
+
+    const label = app.translator.trans('core.forum.index.toggle_sidenav_dropdown_accessible_label');
+    expect(Array.isArray(label)).toBe(true);
+
+    const dropdown = mq(
+      m(SelectDropdown, { defaultLabel: 'All Discussions', accessibleToggleLabel: label as any }, [m(Button, { active: true }, 'Tags')])
+    );
+
+    expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Tags, Toggle navigation dropdown menu');
   });
 });
