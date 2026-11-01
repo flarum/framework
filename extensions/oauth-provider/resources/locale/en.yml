@@ -24,7 +24,7 @@ flarum-oauth-provider:
       redirect_uris_label: "Redirect URIs"
       redirect_uris_help: "One URI per line. The client must send one of these as redirect_uri on the authorization request."
       scopes_label: "Allowed scopes"
-      scopes_help: "Space-separated list of scopes this client may request."
+      scopes_help: "Space-separated list of scopes this client may request. Leave empty to allow every scope."
       confidential_label: "Confidential client (backend can keep a secret)"
       confidential_help: "Uncheck for public clients (SPA, mobile) that must use PKCE. This cannot be changed after creation."
       revoked_label: "Revoked (reject all new auth requests)"

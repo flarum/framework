@@ -26,7 +26,9 @@ export default class ClientFormModal extends FormModal<ClientFormModalAttrs> {
 
     this.name = Stream(client?.name() ?? '');
     this.redirectUris = Stream((client?.redirectUris() ?? []).join('\n'));
-    this.scopes = Stream((client?.scopes() ?? ['openid', 'profile', 'email']).join(' '));
+    // An empty field leaves the client unrestricted (null), so an existing
+    // unrestricted client must show as empty rather than as the defaults.
+    this.scopes = Stream((client ? client.scopes() ?? [] : ['openid', 'profile', 'email']).join(' '));
     this.confidential = Stream(client?.confidential() ?? true);
     this.revoked = Stream(client?.revoked() ?? false);
   }
@@ -103,7 +105,7 @@ export default class ClientFormModal extends FormModal<ClientFormModalAttrs> {
     const attrs = {
       name: this.name(),
       redirectUris,
-      scopes,
+      scopes: scopes.length > 0 ? scopes : null,
       confidential: this.confidential(),
       revoked: this.revoked(),
     };
