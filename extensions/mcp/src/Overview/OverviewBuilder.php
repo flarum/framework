@@ -162,7 +162,7 @@ class OverviewBuilder
         // many extensions the list gives way: names only, then cut short.
         // Whole notes only: one cut mid-sentence could tell the model the wrong thing.
         $available = static::INSTRUCTIONS_LENGTH - mb_strlen($head) - mb_strlen($tail) - static::LIST_RESERVE;
-        $more = "- More in flarum://forum.";
+        $more = '- More in flarum://forum.';
 
         while ($notes && mb_strlen("\nNotes:\n".implode("\n", $notes)."\n") > $available) {
             array_pop($notes);
