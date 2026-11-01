@@ -19,6 +19,6 @@ class NicknameInstructions
             return null;
         }
 
-        return 'Members are shown by their nickname, where they have one. To set yours, if you may, call update_resource on your own user with {"nickname": "..."}.';
+        return 'Members show by nickname where they have one. Set yours: update_resource on your user with {"nickname": "..."}.';
     }
 }

@@ -23,7 +23,6 @@ class SuspendInstructions
             return null;
         }
 
-        return 'To suspend a user, call update_resource on users with suspendedUntil (an ISO 8601 date), suspendReason (for moderators) '
-            .'and suspendMessage (shown to the user). Set suspendedUntil to null to lift a suspension.';
+        return 'Suspend: update_resource on users with suspendedUntil (ISO 8601 date; null lifts it), suspendReason (for moderators) and suspendMessage (shown to them).';
     }
 }

@@ -11,6 +11,7 @@ namespace Flarum\Mcp\Overview;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
+use Flarum\Mcp\Api\ApiResult;
 use Flarum\Mcp\Api\ResourceExposure;
 use Flarum\Mcp\Capability\CapabilityRegistry;
 use Flarum\Mcp\Capability\FailureReporter;
@@ -25,6 +26,16 @@ use Flarum\User\User;
 class OverviewBuilder
 {
     public const int INSTRUCTIONS_LENGTH = 2000;
+
+    /**
+     * The most of the forum description the instructions carry; flarum://forum has it all.
+     */
+    public const int DESCRIPTION_LENGTH = 300;
+
+    /**
+     * Room always left for at least a short extension list after the notes.
+     */
+    protected const int LIST_RESERVE = 80;
 
     /**
      * Global abilities every overview reports on, with their labels.
@@ -117,7 +128,8 @@ class OverviewBuilder
 
         $head = "# {$forum['title']}\n";
         if ($forum['description'] !== '') {
-            $head .= "{$forum['description']}\n";
+            // Capped, so a long description cannot crowd out the notes.
+            $head .= ApiResult::truncate($forum['description'], static::DESCRIPTION_LENGTH)."\n";
         }
 
         $head .= $you['guest']
@@ -127,6 +139,7 @@ class OverviewBuilder
         $tail = "\n".static::GUIDANCE."\nThe flarum://forum resource has the full overview.";
 
         $lines = [];
+        $titles = [];
         $notes = [];
         foreach ($overview['extensions'] as $extension) {
             $line = "- {$extension['title']}";
@@ -134,6 +147,7 @@ class OverviewBuilder
                 $line .= ": {$extension['description']}";
             }
             $lines[] = $line;
+            $titles[] = $extension['title'];
 
             if ($extension['instructions']) {
                 $notes[] = "- {$extension['title']}: {$extension['instructions']}";
@@ -144,17 +158,69 @@ class OverviewBuilder
             array_unshift($notes, "- {$overview['core']['instructions']}");
         }
 
-        $body = $lines ? "\nEnabled extensions:\n".implode("\n", $lines)."\n" : '';
-        if ($notes) {
-            $body .= "\nNotes:\n".implode("\n", $notes)."\n";
+        // The notes say how to do things, so they come first; on a forum with
+        // many extensions the list gives way: names only, then cut short.
+        // Whole notes only: one cut mid-sentence could tell the model the wrong thing.
+        $available = static::INSTRUCTIONS_LENGTH - mb_strlen($head) - mb_strlen($tail) - static::LIST_RESERVE;
+        $more = "- More in flarum://forum.";
+
+        while ($notes && mb_strlen("\nNotes:\n".implode("\n", $notes)."\n") > $available) {
+            array_pop($notes);
+            $available = static::INSTRUCTIONS_LENGTH - mb_strlen($head) - mb_strlen($tail) - static::LIST_RESERVE - mb_strlen($more) - 1;
+            $cut = true;
         }
 
-        $room = static::INSTRUCTIONS_LENGTH - mb_strlen($head) - mb_strlen($tail);
-        if (mb_strlen($body) > $room) {
-            $body = rtrim(mb_substr($body, 0, max(0, $room - 2)))."\n…\n";
+        if (! empty($cut)) {
+            $notes[] = $more;
+        }
+
+        $body = $notes ? "\nNotes:\n".implode("\n", $notes)."\n" : '';
+        $room = static::INSTRUCTIONS_LENGTH - mb_strlen($head) - mb_strlen($tail) - mb_strlen($body);
+
+        if ($lines) {
+            $list = "\nEnabled extensions:\n".implode("\n", $lines)."\n";
+
+            if (mb_strlen($list) > $room) {
+                $list = "\nEnabled extensions: ".implode(', ', $titles).".\n";
+            }
+
+            if (mb_strlen($list) > $room) {
+                $list = $this->shortList($titles, $room);
+            }
+
+            $body .= $list;
+        }
+
+        if (mb_strlen($body) > static::INSTRUCTIONS_LENGTH - mb_strlen($head) - mb_strlen($tail)) {
+            $body = rtrim(mb_substr($body, 0, max(0, static::INSTRUCTIONS_LENGTH - mb_strlen($head) - mb_strlen($tail) - 2)))."\n…\n";
         }
 
         return mb_substr($head.$body.$tail, 0, static::INSTRUCTIONS_LENGTH);
+    }
+
+    /**
+     * As many extension names as fit, then how many more there are.
+     *
+     * @param list<string> $titles
+     */
+    protected function shortList(array $titles, int $room): string
+    {
+        $shown = [];
+
+        foreach ($titles as $i => $title) {
+            $more = count($titles) - $i - 1;
+            $candidate = "\nEnabled extensions: ".implode(', ', [...$shown, $title]).($more ? ", and $more more (see flarum://forum)" : '').".\n";
+
+            if (mb_strlen($candidate) > $room) {
+                break;
+            }
+
+            $shown[] = $title;
+        }
+
+        $more = count($titles) - count($shown);
+
+        return "\nEnabled extensions: ".implode(', ', $shown).($more ? ($shown ? ', and ' : '')."$more more (see flarum://forum)" : '').".\n";
     }
 
     /**
@@ -171,6 +237,9 @@ class OverviewBuilder
 
             if ($allowed) {
                 $can[] = ['ability' => $ability, 'label' => $label];
+            } elseif ($actor->hasPermissionLike('.'.$ability)) {
+                // Granted for some tags only, as moderation often is.
+                $can[] = ['ability' => $ability, 'label' => $label.' (in some tags)'];
             }
         }
 
