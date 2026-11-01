@@ -2,7 +2,7 @@ import ExtensionPage, { type ExtensionPageAttrs } from 'flarum/admin/components/
 import type { TabItem } from 'flarum/common/components/Tabs';
 import type ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
-import { type Connection, type Connections, type FeatureInfo, type FeatureSettings } from '../connections';
+import { type Connection, type Connections, type FeatureInfo, type FeatureSettings } from '../utils/settings';
 interface UsageRow {
     name: string | null;
     calls: number;
@@ -30,11 +30,18 @@ interface Usage {
 export default class AiPage extends ExtensionPage {
     connections: Connections;
     features: Record<string, FeatureSettings>;
+    /** Features whose daily limit field holds something that isn't a limit. */
+    invalidFeatureLimits: Set<string>;
     usage: Usage | null;
-    usageState: 'idle' | 'loading' | 'failed';
+    usageState: 'idle' | 'loading' | 'loaded' | 'failed';
     oninit(vnode: Mithril.Vnode<ExtensionPageAttrs, this>): void;
     className(): string;
     pageTabItems(): ItemList<TabItem>;
+    /**
+     * The page's own tabs with unsaved changes. Its settings aren't in the
+     * settings registry, so core can't work this out from it.
+     */
+    unsavedTabs(): Set<string>;
     pageTabContent(tab: string, vnode: Mithril.VnodeDOM<ExtensionPageAttrs, this>): Mithril.Children;
     form(sections: Mithril.Children): Mithril.Children;
     connectionsSection(): Mithril.Children;
@@ -46,10 +53,11 @@ export default class AiPage extends ExtensionPage {
     usageSection(): Mithril.Children;
     daysChart(days: Usage['days']): Mithril.Children;
     usageTable(heading: string, rows: [Mithril.Children, number, number][]): Mithril.Children;
-    loadUsage(): void;
+    loadUsage(): Promise<void>;
     connectionNames(): string[];
     edit(name?: string): void;
     remove(name: string): void;
+    updateFeatureLimit(key: string, value: string): void;
     updateFeature(key: string, changes: Partial<FeatureSettings>): void;
     sync(): void;
     onsaved(): void;
