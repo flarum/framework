@@ -30,19 +30,47 @@ class VisibilityTest extends McpTestCase
                 ['id' => 1, 'name' => 'General', 'slug' => 'general', 'position' => 0],
                 ['id' => 2, 'name' => 'Staff', 'slug' => 'staff', 'position' => 1, 'is_restricted' => true],
             ],
-            Discussion::class => [
-                ['id' => 1, 'title' => 'Public plans', 'slug' => 'public-plans', 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'last_post_number' => 1],
-                ['id' => 2, 'title' => 'Secret plans', 'slug' => 'secret-plans', 'user_id' => 1, 'first_post_id' => 2, 'comment_count' => 1, 'last_post_number' => 1],
-            ],
-            Post::class => [
-                ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Everyone can read the plans</p></t>'],
-                ['id' => 2, 'discussion_id' => 2, 'number' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Only staff can read the plans</p></t>'],
-            ],
+        ]);
+
+        $this->database()->rollBack();
+
+        // Discussions and posts go in outside the test's transaction: MySQL
+        // and MariaDB leave uncommitted rows out of FULLTEXT search. They are
+        // deleted again in tearDown().
+        $this->database()->table('discussions')->insert($this->rowsThroughFactory(Discussion::class, [
+            ['id' => 1, 'title' => 'Public plans', 'slug' => 'public-plans', 'user_id' => 1, 'comment_count' => 1, 'last_post_number' => 1],
+            ['id' => 2, 'title' => 'Secret plans', 'slug' => 'secret-plans', 'user_id' => 1, 'comment_count' => 1, 'last_post_number' => 1],
+        ]));
+
+        $this->database()->table('posts')->insert($this->rowsThroughFactory(Post::class, [
+            ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Everyone can read the plans</p></t>'],
+            ['id' => 2, 'discussion_id' => 2, 'number' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Only staff can read the plans</p></t>'],
+        ]));
+
+        // Each table points at the other, so first posts are set afterwards.
+        foreach ([1, 2] as $id) {
+            $this->database()->table('discussions')->where('id', $id)->update(['first_post_id' => $id]);
+        }
+
+        // The rollback also undid the rows populated when the app booted.
+        $this->database()->beginTransaction();
+
+        $this->prepareDatabase([
             'discussion_tag' => [
                 ['discussion_id' => 1, 'tag_id' => 1],
                 ['discussion_id' => 2, 'tag_id' => 2],
             ],
         ]);
+
+        $this->populateDatabase();
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->database()->table('posts')->whereIn('id', [1, 2])->delete();
+        $this->database()->table('discussions')->whereIn('id', [1, 2])->delete();
     }
 
     #[Test]

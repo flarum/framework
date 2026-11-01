@@ -141,6 +141,22 @@ class KeyStorageTest extends TestCase
         $this->assertSame(0, $this->database()->table('settings')->where('key', KeyManager::PRIVATE_KEY_SETTING)->count(), 'The key must not stay in the settings');
     }
 
+    #[Test]
+    public function keys_are_written_when_the_storage_path_is_not_canonical(): void
+    {
+        // Paths such as public/../storage, or a symlinked storage directory,
+        // differ from the canonical path tempnam() returns.
+        $base = $this->keyDirectory();
+        mkdir($base.'/public', 0700, true);
+        $this->keyDirectories[] = $base.'/public';
+        $this->keyDirectories[] = $directory = $base.'/public/../keys';
+
+        $privateKey = $this->keyManager($directory)->privateKey()->getKeyContents();
+
+        $this->assertStringContainsString('PRIVATE KEY', $privateKey);
+        $this->assertSame($privateKey, file_get_contents($base.'/keys/'.KeyManager::PRIVATE_KEY_FILE));
+    }
+
     protected function keyDirectory(): string
     {
         return $this->keyDirectories[] = sys_get_temp_dir().'/oauth-provider-keys-'.bin2hex(random_bytes(6));
@@ -179,7 +195,8 @@ class KeyStorageTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach ($this->keyDirectories as $directory) {
+        // Innermost first, so each directory is empty when it is removed.
+        foreach (array_reverse($this->keyDirectories) as $directory) {
             array_map('unlink', glob($directory.'/{,.}*[!.]*', GLOB_BRACE) ?: []);
             @rmdir($directory);
         }

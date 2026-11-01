@@ -159,13 +159,18 @@ class MetadataDocumentClients
             return;
         }
 
+        $client = (new Client())->forceFill([
+            ...$attributes,
+            'id' => $clientId,
+            'revoked' => false,
+            'created_at' => Carbon::now(),
+        ]);
+
         try {
-            (new Client())->forceFill([
-                ...$attributes,
-                'id' => $clientId,
-                'revoked' => false,
-                'created_at' => Carbon::now(),
-            ])->save();
+            // In its own transaction, a savepoint when one is already open: on
+            // PostgreSQL a failed insert would otherwise abort the outer
+            // transaction, and the lookup below with it.
+            $client->getConnection()->transaction(fn () => $client->save());
         } catch (UniqueConstraintViolationException) {
             // A concurrent first request created the row; theirs is as good as ours.
             Client::query()->findOrFail($clientId);
