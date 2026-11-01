@@ -106,7 +106,7 @@ class ServerFactory
             // symfony/lock; neither pairs with a PSR-16 store on Flarum's cache.
             ->setSession(sessionManager: new ActorSessionManager(
                 new SessionManager(new Psr16SessionStore($this->cache, 'mcp-session-', static::SESSION_TTL), $this->logger(), gcProbability: 0),
-                (int) $context->actor->id,
+                ActorSessionManager::ownerOf($context->actor, $context->request->getAttribute('ipAddress')),
             ));
 
         // The SDK validates each definition (a tool's name, an object input

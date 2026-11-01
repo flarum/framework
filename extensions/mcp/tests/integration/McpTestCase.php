@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Str;
+use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\StreamFactory;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -28,6 +29,12 @@ abstract class McpTestCase extends TestCase
     public const string HANDSHAKE = '2025-11-25';
 
     protected int $nextId = 1;
+
+    /**
+     * The client address of the requests mcpRequest() builds (REMOTE_ADDR),
+     * when not the default.
+     */
+    protected ?string $remoteAddress = null;
 
     protected function setUp(): void
     {
@@ -57,6 +64,17 @@ abstract class McpTestCase extends TestCase
 
         foreach ($headers as $name => $value) {
             $request = $request->withHeader($name, $value);
+        }
+
+        if ($this->remoteAddress !== null) {
+            $request = new ServerRequest(
+                ['REMOTE_ADDR' => $this->remoteAddress],
+                [],
+                $request->getUri(),
+                $request->getMethod(),
+                $request->getBody(),
+                $request->getHeaders(),
+            );
         }
 
         return $request;

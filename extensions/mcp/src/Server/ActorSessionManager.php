@@ -9,32 +9,48 @@
 
 namespace Flarum\Mcp\Server;
 
+use Flarum\User\User;
 use Mcp\Server\Session\SessionInterface;
 use Mcp\Server\Session\SessionManagerInterface;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Binds each handshake-era session to the actor that opened it: the actor's ID
- * (0 for a guest) is stored on `initialize`, and a session ID presented by
- * anyone else does not exist for them. The SDK then answers as it does for an
- * unknown session (HTTP 404), and a DELETE by someone else destroys nothing.
+ * Binds each handshake-era session to the client that opened it: an owner key
+ * (see {@see self::ownerOf()}) is stored on `initialize`, and a session ID
+ * presented by anyone else does not exist for them. The SDK then answers as it
+ * does for an unknown session (HTTP 404), and a DELETE by someone else
+ * destroys nothing.
  *
  * @internal
  */
 class ActorSessionManager implements SessionManagerInterface
 {
-    public const string ACTOR_KEY = 'flarum_actor_id';
+    public const string ACTOR_KEY = 'flarum_session_owner';
 
     public function __construct(
         protected SessionManagerInterface $sessions,
-        protected int $actorId,
+        protected string $owner,
     ) {
+    }
+
+    /**
+     * A signed-in actor owns a session by ID. Guests all share ID 0, so a
+     * guest's session is also bound to a hash of the client's IP address: a
+     * guest elsewhere cannot use it, though a guest whose address changes
+     * (a mobile network, a rotating proxy) must start a new session, and
+     * guests behind one address are told apart only by the session ID.
+     */
+    public static function ownerOf(User $actor, ?string $ipAddress): string
+    {
+        return $actor->isGuest()
+            ? 'guest:'.hash('sha256', (string) $ipAddress)
+            : 'user:'.$actor->id;
     }
 
     public function create(): SessionInterface
     {
         $session = $this->sessions->create();
-        $session->set(static::ACTOR_KEY, $this->actorId);
+        $session->set(static::ACTOR_KEY, $this->owner);
 
         return $session;
     }
@@ -47,7 +63,7 @@ class ActorSessionManager implements SessionManagerInterface
     public function exists(Uuid $id): bool
     {
         return $this->sessions->exists($id)
-            && $this->sessions->createWithId($id)->get(static::ACTOR_KEY) === $this->actorId;
+            && $this->sessions->createWithId($id)->get(static::ACTOR_KEY) === $this->owner;
     }
 
     public function destroy(Uuid $id): bool

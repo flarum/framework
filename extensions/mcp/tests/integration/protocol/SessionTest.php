@@ -112,6 +112,26 @@ class SessionTest extends McpTestCase
     }
 
     #[Test]
+    public function a_guest_session_belongs_to_the_address_that_opened_it(): void
+    {
+        $this->database()->table('group_permission')->insert(['group_id' => Group::GUEST_ID, 'permission' => 'mcp.use']);
+
+        $this->remoteAddress = '198.51.100.7';
+        $session = $this->initializeSession();
+
+        // Another guest, elsewhere, presenting the same session ID.
+        $this->remoteAddress = '203.0.113.9';
+        $hijack = $this->inSession($session, 'tools/list');
+        $this->assertSame(404, $hijack->getStatusCode());
+        $this->assertArrayNotHasKey('result', $this->json($hijack));
+
+        $this->delete($session, []);
+
+        $this->remoteAddress = '198.51.100.7';
+        $this->assertSame(200, $this->inSession($session, 'tools/list')->getStatusCode());
+    }
+
+    #[Test]
     public function the_sdk_logs_through_flarum(): void
     {
         $this->rpcResult($this->modern('tools/list', [], $this->bearer($this->developerToken(2))));

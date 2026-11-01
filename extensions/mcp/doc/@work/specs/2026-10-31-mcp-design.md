@@ -45,8 +45,9 @@ The work ships in two stacked branches:
 - The handshake-era session store is `Psr16SessionStore` on Flarum's cache
   (`Illuminate\Contracts\Cache\Repository`, which implements PSR-16), so it works under
   php-fpm on every cache driver. Each session is bound to the actor that opened it
-  (its ID, 0 for a guest): a session ID presented by anyone else is unknown to them
-  (404). No session lock: the SDK's lock implementations do not pair with a PSR-16
+  (its ID; for a guest, who all share ID 0, a hash of the client's IP address): a
+  session ID presented by anyone else is unknown to them (404). A guest whose address
+  changes must start a new session. No session lock: the SDK's lock implementations do not pair with a PSR-16
   store on Flarum's cache.
 - Capabilities are set explicitly: tools, resources and prompts as registered, with no
   `subscribe`, no `listChanged`, no `logging` and no `completions`, in both eras.
