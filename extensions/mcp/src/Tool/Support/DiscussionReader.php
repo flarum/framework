@@ -31,9 +31,14 @@ class DiscussionReader
      * is only an entry point: the API centres the page on it, and the hints
      * then continue by offset from where that page starts.
      *
+     * A page too large for the output is cut at the end away from the reader:
+     * reading forward (`offset`) keeps its first posts, reading backward
+     * (`before`, the posts just before an offset) keeps its last, so the next
+     * hint in either direction starts right where the shown posts stop.
+     *
      * @return array<string, mixed>
      */
-    public function read(McpContext $context, string $id, ?int $near = null, int $limit = 20, ?int $offset = null): array
+    public function read(McpContext $context, string $id, ?int $near = null, int $limit = 20, ?int $offset = null, ?int $before = null): array
     {
         $limit = max(1, min(static::MAX_LIMIT, $limit));
 
@@ -43,8 +48,12 @@ class DiscussionReader
         $url = $context->url->to('forum')->route('discussion', ['id' => $slug]);
 
         $page = ['limit' => $limit];
-        if ($offset !== null) {
-            $page['offset'] = max(0, $offset);
+        $backward = $before !== null && $before > 0;
+        if ($backward) {
+            $page['offset'] = max(0, $before - $limit);
+            $page['limit'] = $before - $page['offset'];
+        } elseif ($offset !== null || $before !== null) {
+            $page['offset'] = max(0, (int) $offset);
         } elseif ($near && $near > 1) {
             $page['near'] = $near;
         }
@@ -80,8 +89,13 @@ class DiscussionReader
             'posts' => $posts,
         ];
 
+        if ($backward) {
+            $output['posts'] = array_reverse($output['posts']);
+        }
+
         $output = ApiResult::fit($output, listKey: 'posts');
-        $shown = $output['posts'];
+        $shown = $backward ? array_reverse($output['posts']) : $output['posts'];
+        $output['posts'] = $shown;
 
         $first = $shown ? (int) $shown[0]['number'] : null;
         $last = $shown ? (int) $shown[count($shown) - 1]['number'] : null;
@@ -89,15 +103,17 @@ class DiscussionReader
         $truncated = (bool) ($output['meta']['truncated'] ?? false);
         unset($output['meta']);
 
-        $previousStart = max(0, $start - $limit);
+        // Offsets of the first post shown and of the one right after the last.
+        $from = $start + ($backward ? count($posts) - count($shown) : 0);
+        $to = $from + count($shown);
+        $more = $to < $start + count($posts) || isset($postsResult->links()['next']);
 
         $output['paging'] = [
             'truncated' => $truncated,
             'from' => $first,
             'to' => $last,
-            'previous' => $start > 0 ? ['offset' => $previousStart, 'limit' => $start - $previousStart] : null,
-            // A cut page continues right after the last post shown.
-            'next' => $shown && ($truncated || isset($postsResult->links()['next'])) ? ['offset' => $start + count($shown)] : null,
+            'previous' => $from > 0 ? ['before' => $from] : null,
+            'next' => $shown && $more ? ['offset' => $to] : null,
         ];
 
         return $output;

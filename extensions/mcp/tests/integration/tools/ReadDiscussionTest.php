@@ -86,6 +86,41 @@ class ReadDiscussionTest extends McpTestCase
         $this->assertSame(static::NUMBERS, array_merge(...array_slice($backwards, 0, -1), ...$forwards));
     }
 
+    #[Test]
+    public function walking_previous_over_pages_cut_to_size_visits_every_post_once(): void
+    {
+        $count = 60;
+        $posts = [];
+        for ($number = 1; $number <= $count; $number++) {
+            $posts[] = [
+                'id' => 100 + $number,
+                'discussion_id' => 2,
+                'number' => $number,
+                'user_id' => 2,
+                'type' => 'comment',
+                // Each about 3,900 characters: 50 of them exceed the payload cap.
+                'content' => '<t><p>'.$number.' '.str_repeat('lorem ', 650).'</p></t>',
+                'created_at' => Carbon::now()->subMinutes(100 - $number),
+            ];
+        }
+
+        $this->prepareDatabase([
+            Discussion::class => [
+                ['id' => 2, 'title' => 'Longer', 'slug' => 'longer', 'user_id' => 2, 'first_post_id' => 101, 'comment_count' => $count, 'last_post_number' => $count, 'created_at' => Carbon::now()->subDay()],
+            ],
+            Post::class => $posts,
+        ]);
+
+        $auth = $this->bearer($this->developerToken(2));
+
+        [$forwards, $last] = $this->walk($auth, ['limit' => 50], 'next', '2');
+        $this->assertGreaterThan(2, count($forwards), 'pages are cut to size');
+        $this->assertSame(range(1, $count), array_merge(...$forwards));
+
+        [$backwards] = $this->walk($auth, $last, 'previous', '2');
+        $this->assertSame(range(1, $count), array_merge(...$backwards));
+    }
+
     /**
      * Follows one paging hint until there is none.
      *
@@ -93,13 +128,13 @@ class ReadDiscussionTest extends McpTestCase
      * @param array<string, mixed> $arguments
      * @return array{list<list<int>>, array<string, mixed>} the pages' post numbers in reading order, and the arguments of the page the walk ended on
      */
-    protected function walk(array $auth, array $arguments, string $direction): array
+    protected function walk(array $auth, array $arguments, string $direction, string $id = '1'): array
     {
         $pages = [];
         $limit = $arguments['limit'];
 
         for ($i = 0; $i < 20; $i++) {
-            $output = $this->toolOutput($this->callTool('read_discussion', ['id' => '1', ...$arguments], $auth));
+            $output = $this->toolOutput($this->callTool('read_discussion', ['id' => $id, ...$arguments], $auth));
             $pages[] = array_column($output['posts'], 'number');
 
             $hint = $output['paging'][$direction] ?? null;

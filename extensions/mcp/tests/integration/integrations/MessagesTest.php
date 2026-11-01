@@ -70,29 +70,7 @@ class MessagesTest extends McpTestCase
     public function a_conversation_too_long_for_one_page_is_read_in_full_by_paging_older(): void
     {
         $count = 40;
-        $messages = [];
-        for ($number = 1; $number <= $count; $number++) {
-            $messages[] = [
-                'id' => 100 + $number,
-                'dialog_id' => 2,
-                'user_id' => $number % 2 ? 2 : 3,
-                // Each about 3,900 characters: 40 of them exceed the payload cap.
-                'content' => '<t><p>'.$number.' '.str_repeat('lorem ', 650).'</p></t>',
-                'number' => $number,
-                'created_at' => Carbon::now()->subMinutes(100 - $number),
-            ];
-        }
-
-        $this->prepareDatabase([
-            Dialog::class => [
-                ['id' => 2, 'type' => 'direct', 'first_message_id' => 101, 'last_message_id' => 100 + $count, 'last_message_at' => Carbon::now()],
-            ],
-            DialogMessage::class => $messages,
-            'dialog_user' => [
-                ['dialog_id' => 2, 'user_id' => 2, 'joined_at' => Carbon::now(), 'last_read_message_id' => 100 + $count],
-                ['dialog_id' => 2, 'user_id' => 3, 'joined_at' => Carbon::now(), 'last_read_message_id' => 100 + $count],
-            ],
-        ]);
+        $this->longConversation($count);
 
         $auth = $this->bearer($this->developerToken(2));
         $pages = [];
@@ -114,6 +92,80 @@ class MessagesTest extends McpTestCase
         $this->assertSame($count, $pages[0][count($pages[0]) - 1]);
 
         $this->assertSame(range(1, $count), array_merge(...array_reverse($pages)));
+    }
+
+    #[Test]
+    public function walking_newer_over_pages_cut_to_size_visits_every_message_once(): void
+    {
+        $count = 60;
+        $this->longConversation($count);
+
+        $auth = $this->bearer($this->developerToken(2));
+
+        // Start at the oldest page, reached by paging older.
+        $older = $this->walkConversation($auth, ['limit' => 50], 'older');
+        $this->assertGreaterThan(2, count($older['pages']), 'pages are cut to size');
+        $this->assertSame(range(1, $count), array_merge(...array_reverse($older['pages'])));
+
+        $newer = $this->walkConversation($auth, $older['last'], 'newer');
+        $this->assertSame(range(1, $count), array_merge(...$newer['pages']));
+    }
+
+    /**
+     * Messages of about 3,900 characters each in conversation 2: 25 of them
+     * exceed the payload cap.
+     */
+    protected function longConversation(int $count): void
+    {
+        $messages = [];
+        for ($number = 1; $number <= $count; $number++) {
+            $messages[] = [
+                'id' => 100 + $number,
+                'dialog_id' => 2,
+                'user_id' => $number % 2 ? 2 : 3,
+                'content' => '<t><p>'.$number.' '.str_repeat('lorem ', 650).'</p></t>',
+                'number' => $number,
+                'created_at' => Carbon::now()->subMinutes(100 - $number),
+            ];
+        }
+
+        $this->prepareDatabase([
+            Dialog::class => [
+                ['id' => 2, 'type' => 'direct', 'first_message_id' => 101, 'last_message_id' => 100 + $count, 'last_message_at' => Carbon::now()],
+            ],
+            DialogMessage::class => $messages,
+            'dialog_user' => [
+                ['dialog_id' => 2, 'user_id' => 2, 'joined_at' => Carbon::now(), 'last_read_message_id' => 100 + $count],
+                ['dialog_id' => 2, 'user_id' => 3, 'joined_at' => Carbon::now(), 'last_read_message_id' => 100 + $count],
+            ],
+        ]);
+    }
+
+    /**
+     * Follows one paging hint of conversation 2 until there is none.
+     *
+     * @param array<string, string> $auth
+     * @param array<string, mixed> $arguments
+     * @return array{pages: list<list<int>>, last: array<string, mixed>} the pages' message numbers in the order visited, and the arguments of the last page
+     */
+    protected function walkConversation(array $auth, array $arguments, string $direction): array
+    {
+        $pages = [];
+        $limit = $arguments['limit'];
+
+        for ($i = 0; $i < 20; $i++) {
+            $read = $this->toolOutput($this->callTool('read_conversation', ['id' => '2', ...$arguments], $auth));
+            $pages[] = array_column($read['messages'], 'number');
+
+            $hint = $read['paging'][$direction] ?? null;
+            if (! $hint) {
+                break;
+            }
+
+            $arguments = ['limit' => $limit, ...$hint];
+        }
+
+        return ['pages' => $pages, 'last' => $arguments];
     }
 
     #[Test]
