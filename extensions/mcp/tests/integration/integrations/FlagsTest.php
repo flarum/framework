@@ -79,4 +79,27 @@ class FlagsTest extends McpTestCase
         $this->assertSame(0, Flag::query()->count());
         $this->assertTrue(Post::query()->whereKey(1)->exists());
     }
+
+    #[Test]
+    public function list_resources_refuses_filters_a_type_does_not_take(): void
+    {
+        $this->prepareDatabase([
+            'flags' => [
+                ['id' => 1, 'post_id' => 1, 'user_id' => 2, 'type' => 'user', 'reason' => 'spam', 'created_at' => '2026-01-01 00:00:00'],
+            ],
+        ]);
+
+        $admin = $this->bearer($this->developerToken(1));
+
+        $this->assertSame(['1'], array_column($this->toolOutput($this->callTool('list_resources', ['type' => 'flags'], $admin))['data'], 'id'));
+
+        // Flags have no searcher: core throws on any filter.
+        $filtered = $this->toolOutput($this->callTool('list_resources', ['type' => 'flags', 'filter' => ['post' => '1']], $admin), expectError: true);
+        $this->assertSame('flags cannot be filtered by post. describe_api lists the filters it takes.', $filtered['error']);
+
+        $unknown = $this->toolOutput($this->callTool('list_resources', ['type' => 'discussions', 'filter' => ['nope' => 'x', '-author' => 'admin']], $admin), expectError: true);
+        $this->assertSame('discussions cannot be filtered by nope. describe_api lists the filters it takes.', $unknown['error']);
+
+        $this->toolOutput($this->callTool('list_resources', ['type' => 'discussions', 'filter' => ['-author' => 'admin']], $admin));
+    }
 }

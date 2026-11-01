@@ -9,11 +9,23 @@
 
 namespace Flarum\Mcp\Tool\Generic;
 
+use Flarum\Mcp\Api\ApiDescriber;
+use Flarum\Mcp\Api\ResourceExposure;
 use Flarum\Mcp\Capability\McpContext;
+use Flarum\Mcp\Exception\ToolError;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ListResourcesTool extends GenericTool
 {
     public const int MAX_LIMIT = 50;
+
+    public function __construct(
+        ResourceExposure $exposure,
+        TranslatorInterface $translator,
+        protected ApiDescriber $describer,
+    ) {
+        parent::__construct($exposure, $translator);
+    }
 
     protected function operation(): string
     {
@@ -64,12 +76,25 @@ class ListResourcesTool extends GenericTool
     public function handle(array $arguments, McpContext $context): mixed
     {
         $type = (string) $arguments['type'];
-        $this->exposedResource($type, $context);
+        $resource = $this->exposedResource($type, $context);
 
         $query = $this->query($arguments);
 
         if (! empty($arguments['filter'])) {
-            $query['filter'] = array_map('strval', (array) $arguments['filter']);
+            $filter = array_map('strval', (array) $arguments['filter']);
+
+            // A type without a searcher takes no filters at all, and core
+            // throws on any; describe_api lists what each type takes.
+            $unknown = array_diff(array_map(fn ($key) => ltrim((string) $key, '-'), array_keys($filter)), $this->describer->filters($resource));
+
+            if ($unknown) {
+                throw new ToolError($this->translator->trans('flarum-mcp.api.unknown_filters', [
+                    'filters' => implode(', ', $unknown),
+                    'type' => $type,
+                ]));
+            }
+
+            $query['filter'] = $filter;
         }
 
         if (! empty($arguments['sort'])) {
