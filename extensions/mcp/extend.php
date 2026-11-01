@@ -141,6 +141,7 @@ return [
                 ->tool(Integration\Messages\MarkConversationsReadTool::class)
                 ->tool(Integration\Messages\DeleteMessageTool::class)
                 ->tool(Integration\Messages\LeaveConversationTool::class)
+                ->tool(Integration\Messages\RenameConversationTool::class)
                 ->describe('dialogs', 'Your private conversations (dialogs) with other members. list_conversations and read_conversation read them.')
                 ->describe('dialog-messages', 'Messages in private conversations. send_message sends one.'),
         ])

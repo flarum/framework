@@ -253,9 +253,64 @@ class MessagesTest extends McpTestCase
     #[Test]
     public function leave_conversation_leaves_a_group_but_not_a_one_to_one_conversation(): void
     {
+        $this->prepareGroup();
+
+        $auth = $this->bearer($this->developerToken(2));
+
+        $this->toolOutput($this->callTool('leave_conversation', ['conversationId' => '1'], $auth), expectError: true);
+        $this->assertNotNull($this->lastRead(1, 2));
+
+        $this->assertSame(['left' => true, 'conversationId' => '2'], $this->toolOutput($this->callTool('leave_conversation', ['conversationId' => '2'], $auth)));
+        $this->assertNull($this->lastRead(2, 2));
+        $this->assertEqualsCanonicalizing([3, 4], Dialog::query()->findOrFail(2)->users()->pluck('users.id')->all());
+    }
+
+    #[Test]
+    public function rename_conversation_names_a_group_where_the_forum_allows_it(): void
+    {
+        $this->setting('flarum-messages.allow_group_names', '1');
+        $this->prepareGroup();
+
+        $auth = $this->bearer($this->developerToken(2));
+
+        // A one-to-one conversation has no name.
+        $this->toolOutput($this->callTool('rename_conversation', ['conversationId' => '1', 'name' => 'Us'], $auth), expectError: true);
+        $this->assertNull(Dialog::query()->findOrFail(1)->name);
+
+        $renamed = $this->toolOutput($this->callTool('rename_conversation', ['conversationId' => '2', 'name' => 'Trip planning'], $auth));
+        $this->assertSame(['conversationId' => '2', 'name' => 'Trip planning', 'title' => 'Trip planning'], $renamed);
+        $this->assertSame('Trip planning', Dialog::query()->findOrFail(2)->name);
+    }
+
+    #[Test]
+    public function rename_conversation_removes_a_name_given_an_empty_one(): void
+    {
+        $this->setting('flarum-messages.allow_group_names', '1');
+        $this->prepareGroup(name: 'Trip planning');
+
+        $cleared = $this->toolOutput($this->callTool('rename_conversation', ['conversationId' => '2', 'name' => ''], $this->bearer($this->developerToken(2))));
+
+        $this->assertNull($cleared['name']);
+        $this->assertNull(Dialog::query()->findOrFail(2)->name);
+    }
+
+    #[Test]
+    public function rename_conversation_is_refused_where_the_forum_does_not_allow_names(): void
+    {
+        $this->prepareGroup();
+
+        $this->toolOutput($this->callTool('rename_conversation', ['conversationId' => '2', 'name' => 'Trip planning'], $this->bearer($this->developerToken(2))), expectError: true);
+        $this->assertNull(Dialog::query()->findOrFail(2)->name);
+    }
+
+    /**
+     * Group conversation 2, between normal, bob and carol.
+     */
+    protected function prepareGroup(?string $name = null): void
+    {
         $this->prepareDatabase([
             Dialog::class => [
-                ['id' => 2, 'type' => 'group', 'first_message_id' => 4, 'last_message_id' => 4, 'last_message_at' => Carbon::now()],
+                ['id' => 2, 'type' => 'group', 'name' => $name, 'first_message_id' => 4, 'last_message_id' => 4, 'last_message_at' => Carbon::now()],
             ],
             DialogMessage::class => [
                 ['id' => 4, 'dialog_id' => 2, 'user_id' => 3, 'content' => '<t><p>Hi all</p></t>', 'number' => 1, 'created_at' => Carbon::now()],
@@ -266,15 +321,6 @@ class MessagesTest extends McpTestCase
                 ['dialog_id' => 2, 'user_id' => 4, 'joined_at' => Carbon::now(), 'last_read_message_id' => 4],
             ],
         ]);
-
-        $auth = $this->bearer($this->developerToken(2));
-
-        $this->toolOutput($this->callTool('leave_conversation', ['conversationId' => '1'], $auth), expectError: true);
-        $this->assertNotNull($this->lastRead(1, 2));
-
-        $this->assertSame(['left' => true, 'conversationId' => '2'], $this->toolOutput($this->callTool('leave_conversation', ['conversationId' => '2'], $auth)));
-        $this->assertNull($this->lastRead(2, 2));
-        $this->assertEqualsCanonicalizing([3, 4], Dialog::query()->findOrFail(2)->users()->pluck('users.id')->all());
     }
 
     protected function lastRead(int $dialogId, int $userId): ?int
