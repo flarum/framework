@@ -176,15 +176,16 @@ class OpenSearchDescription
         }
 
         if ($size[2] === IMAGETYPE_ICO) {
-            return [[16, 16, 'image/x-icon', $data]];
+            // The size of its largest icon, which PHP reports.
+            return [[$size[0], $size[1], 'image/x-icon', $data]];
         }
 
         $favicon = $this->icons->favicon($data);
-        $png = getimagesizefromstring($favicon['png']);
+        $png = @getimagesizefromstring($favicon['png']);
 
-        return [
+        return array_values(array_filter([
             [16, 16, 'image/x-icon', $favicon['ico']],
-            [$png[0], $png[1], 'image/png', $favicon['png']],
-        ];
+            $png ? [$png[0], $png[1], 'image/png', $favicon['png']] : null,
+        ]));
     }
 }

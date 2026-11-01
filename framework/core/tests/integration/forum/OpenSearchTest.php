@@ -248,4 +248,15 @@ class OpenSearchTest extends TestCase
         $this->assertLessThan(50000, strlen((string) $response->getBody()));
         $this->assertNotFalse(simplexml_load_string((string) $response->getBody()));
     }
+
+    #[Test]
+    public function an_ico_favicon_is_embedded_with_its_size(): void
+    {
+        $this->setting('favicon_path', 'favicon-small.ico');
+        $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->put('favicon-small.ico', $this->ico([32]));
+
+        $image = $this->description()->Image;
+
+        $this->assertSame(['32', '32', 'image/x-icon'], [(string) $image['width'], (string) $image['height'], (string) $image['type']]);
+    }
 }
