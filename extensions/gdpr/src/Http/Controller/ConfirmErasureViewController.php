@@ -12,6 +12,7 @@ namespace Flarum\Gdpr\Http\Controller;
 use Flarum\Foundation\ValidationException;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Http\Controller\AbstractHtmlController;
+use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
@@ -44,6 +45,7 @@ class ConfirmErasureViewController extends AbstractHtmlController
 
         return $this->view
             ->make('flarum-gdpr::confirm-erasure')
-            ->with('csrfToken', $request->getAttribute('session')->token());
+            ->with('csrfToken', $request->getAttribute('session')->token())
+            ->with('actorClass', RequestUtil::getActorClass($request));
     }
 }

@@ -93,6 +93,28 @@ class RequestUtil
         return $request->getAttribute('actorReference')->getActor();
     }
 
+    /**
+     * The class the forum puts on `<html>` to tell guests from signed-in users:
+     * `guest-user` or `logged-in`. Standalone pages that use `layouts/basic` pass
+     * it to the view as `actorClass`, so a theme can rely on it across them.
+     *
+     * It reflects the actor as far as the request got. The reference is shared and
+     * filled in by the authentication middleware, so an error thrown before that
+     * has run (in `StartSession`, `RememberFromCookie` or the session lookup
+     * itself) still sees the `Guest` that `InjectActorReference` set first, and a
+     * signed-in visitor gets `guest-user`. That errs on the safe side.
+     *
+     * Returns null when the request has no actor reference at all.
+     */
+    public static function getActorClass(Request $request): ?string
+    {
+        if (! $request->getAttribute('actorReference')) {
+            return null;
+        }
+
+        return self::getActor($request)->isGuest() ? 'guest-user' : 'logged-in';
+    }
+
     public static function withActor(Request $request, User $actor): Request
     {
         $actorReference = $request->getAttribute('actorReference');

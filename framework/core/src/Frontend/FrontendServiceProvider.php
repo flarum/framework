@@ -207,7 +207,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         .'#flarum-loading{text-align:center;padding:50px 0;font-size:18px;color:#aaa}';
                     $document->extraAttributes['data-colored-header'] = $settings->get('theme_colored_header') ? 'true' : 'false';
                     $document->extraAttributes['class'][] = function (ServerRequestInterface $request) {
-                        return RequestUtil::getActor($request)->isGuest() ? 'guest-user' : 'logged-in';
+                        return RequestUtil::getActorClass($request);
                     };
                 }, 160);
 

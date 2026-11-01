@@ -11,6 +11,7 @@ namespace Flarum\Forum\Controller;
 
 use DateTime;
 use Flarum\Http\Controller\AbstractHtmlController;
+use Flarum\Http\RequestUtil;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
 use Flarum\User\PasswordToken;
 use Illuminate\Contracts\View\Factory;
@@ -38,6 +39,7 @@ class ResetPasswordController extends AbstractHtmlController
         return $this->view
             ->make('flarum.forum::reset-password')
             ->with('passwordToken', $token->token)
-            ->with('csrfToken', $request->getAttribute('session')->token());
+            ->with('csrfToken', $request->getAttribute('session')->token())
+            ->with('actorClass', RequestUtil::getActorClass($request));
     }
 }

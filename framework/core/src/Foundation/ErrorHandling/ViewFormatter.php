@@ -45,24 +45,13 @@ class ViewFormatter implements HttpFormatter
             ->make($this->determineView($error))
             ->with('error', $error->getException())
             ->with('message', $this->getMessage($error))
-            ->with('actorClass', $this->getActorClass($request));
+            ->with('actorClass', RequestUtil::getActorClass($request));
 
-        return new HtmlResponse($view->render(), $error->getStatusCode());
-    }
-
-    /**
-     * The same guest-user / logged-in class the forum frontend puts on <html>,
-     * so extensions and custom CSS can tell visitors apart on error pages too.
-     * The error handler wraps the authentication middleware, but the actor
-     * reference it holds is filled in by the time an error is formatted.
-     */
-    private function getActorClass(Request $request): ?string
-    {
-        if (! $request->getAttribute('actorReference')) {
-            return null;
-        }
-
-        return RequestUtil::getActor($request)->isGuest() ? 'guest-user' : 'logged-in';
+        // The page differs between guests and signed-in users, and an error
+        // response carries no session cookie, so keep it out of shared caches and
+        // stop the browser reusing a guest copy after the visitor logs in.
+        return (new HtmlResponse($view->render(), $error->getStatusCode()))
+            ->withHeader('Cache-Control', 'private, no-cache');
     }
 
     private function determineView(HandledError $error): string
