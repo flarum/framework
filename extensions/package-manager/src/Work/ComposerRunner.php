@@ -39,6 +39,12 @@ use RuntimeException;
  */
 class ComposerRunner
 {
+    /** Proxy and certificate settings a subprocess keeps, in both spellings where Composer reads both. */
+    protected const NETWORK_ENV = [
+        'HTTP_PROXY', 'http_proxy', 'HTTPS_PROXY', 'https_proxy', 'NO_PROXY', 'no_proxy', 'CGI_HTTP_PROXY',
+        'SSL_CERT_FILE', 'SSL_CERT_DIR', 'CURL_CA_BUNDLE', 'COMPOSER_CAFILE', 'COMPOSER_CAPATH',
+    ];
+
     protected PhpBinary $php;
 
     public function __construct(
@@ -109,7 +115,27 @@ class ComposerRunner
             ['--no-interaction', '--working-dir='.$this->installPath]
         );
 
-        return Process::run($this->translator, $cmd, $this->installPath, [
+        return Process::run($this->translator, $cmd, $this->installPath, $this->subprocessEnv(), $timeout);
+    }
+
+    /**
+     * The subprocess's whole environment: replaced, not inherited, so what
+     * Composer does depends on this list and not on whatever the web server
+     * happened to set.
+     *
+     * Except the network settings a host relies on. A host that reaches the
+     * internet through a proxy, or trusts its own certificate authority, says
+     * so in these, and without them every resolve failed to reach Packagist
+     * on exactly the hosts that set them. Read from the process's own
+     * environment only (getenv's local_only): under FastCGI a request's
+     * Proxy header arrives as HTTP_PROXY ("httpoxy"), and that is somebody
+     * else's setting, not the host's.
+     *
+     * @return array<string,string>
+     */
+    protected function subprocessEnv(): array
+    {
+        $env = [
             'PATH' => getenv('PATH') ?: '/usr/bin:/bin',
             /*
              * -1, set explicitly. Composer raises its own limit to 1.5G on
@@ -120,7 +146,17 @@ class ComposerRunner
             'COMPOSER_MEMORY_LIMIT' => '-1',
             'COMPOSER_HOME' => $this->composerHome(),
             'HOME' => getenv('HOME') ?: $this->installPath,
-        ], $timeout);
+        ];
+
+        foreach (static::NETWORK_ENV as $name) {
+            $value = getenv($name, true);
+
+            if (is_string($value) && $value !== '') {
+                $env[$name] = $value;
+            }
+        }
+
+        return $env;
     }
 
     /**
