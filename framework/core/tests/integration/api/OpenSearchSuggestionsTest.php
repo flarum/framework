@@ -156,4 +156,22 @@ class OpenSearchSuggestionsTest extends TestCase
         // check for where words start. Here "Hafencafe" lets SQLite find it too.
         $this->assertSame(['Hafencafe oder Café am Kai'], $this->suggest('cafe')[1]);
     }
+
+    #[Test]
+    public function a_word_start_is_found_among_many_newer_titles_with_the_word_inside_others(): void
+    {
+        $discussions = $posts = [];
+
+        foreach (range(100, 219) as $id) {
+            $discussions[] = ['id' => $id, 'title' => "Smart rigging $id", 'slug' => "smart-rigging-$id", 'user_id' => 1, 'last_posted_at' => '2026-10-20 10:00:00'];
+            $posts[] = ['id' => $id, 'discussion_id' => $id, 'user_id' => 1, 'content' => '<t><p>Rig.</p></t>'];
+        }
+
+        $discussions[] = ['id' => 300, 'title' => 'Artful knots', 'slug' => 'artful-knots', 'user_id' => 1, 'last_posted_at' => '2020-01-01 10:00:00'];
+        $posts[] = ['id' => 300, 'discussion_id' => 300, 'user_id' => 1, 'content' => '<t><p>Knots.</p></t>'];
+
+        $this->prepareDatabase([Discussion::class => $discussions, Post::class => $posts]);
+
+        $this->assertSame(['Artful knots'], $this->suggest('art')[1]);
+    }
 }
