@@ -34,7 +34,8 @@ class DismissFlagsTool extends Tool
     public function description(): string
     {
         return 'Dismiss every flag on a post, once it has been dealt with or needs no action. The post itself is not changed. '
-            .'list_resources on flags lists flagged posts. Confirm with the user first.';
+            .'list_flags lists flagged posts. A post awaiting approval stays hidden when its flag is dismissed: approve it instead. '
+            .'Confirm with the user first.';
     }
 
     public function readOnly(): bool
@@ -54,7 +55,9 @@ class DismissFlagsTool extends Tool
 
     public function isAvailableFor(User $actor): bool
     {
-        return $actor->hasPermission('discussion.viewFlags');
+        // Anywhere: seeing flags may be granted for some tags only. DeleteFlags
+        // still checks the post's own discussion.
+        return $actor->hasPermissionLike('discussion.viewFlags');
     }
 
     public function inputSchema(): array

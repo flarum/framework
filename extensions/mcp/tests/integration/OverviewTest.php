@@ -48,7 +48,8 @@ class OverviewTest extends McpTestCase
 
         $this->assertSame(['list_tags'], $extensions['flarum-tags']['tools']);
         $this->assertContains('tags', $extensions['flarum-tags']['types']);
-        $this->assertStringContainsString('{"isLocked": true}', (string) $extensions['flarum-lock']['instructions']);
+        // A member is told what a lock means, not how to lock: that is for moderators.
+        $this->assertSame('Locked discussions take no new replies.', $extensions['flarum-lock']['instructions']);
 
         $this->assertContains('search_discussions', $extensions['flarum-mcp']['tools']);
         $this->assertNotContains('list_tags', $extensions['flarum-mcp']['tools']);

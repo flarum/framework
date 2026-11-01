@@ -23,6 +23,13 @@ class LockInstructions
             return null;
         }
 
-        return 'Locked discussions take no new replies. To lock or unlock one, if you may, call update_resource on discussions with {"isLocked": true} or false.';
+        $text = 'Locked discussions take no new replies.';
+
+        // Anywhere: the permission may be granted for some tags only.
+        if ($context->actor->hasPermissionLike('discussion.lock')) {
+            $text .= ' Lock: update_resource on discussions with {"isLocked": true} or false.';
+        }
+
+        return $text;
     }
 }
