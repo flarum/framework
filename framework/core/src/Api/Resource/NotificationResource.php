@@ -157,11 +157,14 @@ class NotificationResource extends AbstractDatabaseResource
     {
         return [
             Schema\Str::make('contentType')
+                ->description('The notification type, such as discussionRenamed or postLiked.')
                 ->property('type'),
             Schema\Arr::make('content')
+                ->description('Type-specific data; its shape depends on contentType.')
                 ->property('data'),
             Schema\DateTime::make('createdAt'),
             Schema\Boolean::make('isRead')
+                ->description('Set to true to mark the notification as read.')
                 ->writable()
                 ->get(fn (Notification $notification) => (bool) $notification->read_at)
                 ->set(function (Notification $notification, bool $_value, Context $context) {
@@ -173,11 +176,14 @@ class NotificationResource extends AbstractDatabaseResource
                 }),
 
             Schema\Relationship\ToOne::make('user')
+                ->description('The recipient.')
                 ->includable(),
             Schema\Relationship\ToOne::make('fromUser')
+                ->description('The user whose action caused the notification.')
                 ->type('users')
                 ->includable(),
             Schema\Relationship\ToOne::make('subject')
+                ->description('What the notification is about, such as a post or discussion.')
                 ->collection($this->subjectTypes())
                 ->includable(),
         ];

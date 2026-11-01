@@ -35,6 +35,7 @@ class DiscussionResourceFields
             Schema\Boolean::make('canTag')
                 ->get(fn (Discussion $discussion, Context $context) => $context->getActor()->can('tag', $discussion)),
             Schema\Relationship\ToMany::make('tags')
+                ->description('The discussion\'s tags. Creating a discussion may require a number of primary and secondary tags.')
                 ->includable()
                 ->writable()
                 ->required(fn (Context $context, Discussion $discussion) => $context->creating() && ! $context->getActor()->hasPermission('bypassTagCounts'))

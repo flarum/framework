@@ -72,6 +72,11 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "mcp",
+        "gitRemote": "git@github.com:flarum/mcp.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "mentions",
         "gitRemote": "git@github.com:flarum/mentions.git",
         "mainBranch": "2.x"

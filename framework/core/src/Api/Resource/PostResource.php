@@ -160,7 +160,8 @@ class PostResource extends AbstractDatabaseResource
     public function fields(): array
     {
         return [
-            Schema\Integer::make('number'),
+            Schema\Integer::make('number')
+                ->description('Position of the post in its discussion, from 1. Numbers can have gaps.'),
             Schema\DateTime::make('createdAt')
                 ->writable(function (Post $post, Context $context) {
                     return $context->creating()
@@ -168,9 +169,11 @@ class PostResource extends AbstractDatabaseResource
                 })
                 ->default(fn () => Carbon::now()),
             Schema\Str::make('contentType')
+                ->description('The post type: comment for user content, or an event type such as discussionRenamed.')
                 ->property('type'),
 
             Schema\Str::make('content')
+                ->description('For comments, the source in the forum\'s input format (Markdown or BBCode, as enabled), shown only to those who can edit the post. For event posts, the event data.')
                 ->requiredOnCreate()
                 ->writable(function (Post $post, Context $context) {
                     return $context->creating() || (
@@ -204,6 +207,7 @@ class PostResource extends AbstractDatabaseResource
                     return $value;
                 }),
             Schema\Str::make('contentHtml')
+                ->description('The comment rendered as HTML.')
                 ->visible(function (Post $post) {
                     return $post instanceof CommentPost;
                 })
@@ -220,17 +224,21 @@ class PostResource extends AbstractDatabaseResource
                     return $rendered;
                 }),
             Schema\Boolean::make('renderFailed')
+                ->description('Whether rendering the comment failed; contentHtml then holds an error message.')
                 ->visible(function (Post $post) {
                     return $post instanceof CommentPost;
                 }),
 
             Schema\Str::make('ipAddress')
+                ->description('The IP address the post was made from. Only visible to those allowed to view IP addresses.')
                 ->visible(function (Post $post, Context $context) {
                     return $post instanceof CommentPost
                         && $context->getActor()->can('viewIps', $post);
                 }),
-            Schema\DateTime::make('editedAt'),
+            Schema\DateTime::make('editedAt')
+                ->description('When the post was last edited, or null if it never was.'),
             Schema\Boolean::make('isHidden')
+                ->description('Whether the post is hidden (soft-deleted). Set to true to hide it, false to restore it.')
                 ->visible(fn (Post $post) => $post->hidden_at !== null)
                 ->writable(function (Post $post, Context $context) {
                     return $context->updating()
@@ -258,12 +266,15 @@ class PostResource extends AbstractDatabaseResource
             Schema\Relationship\ToOne::make('user')
                 ->includable(),
             Schema\Relationship\ToOne::make('discussion')
+                ->description('The discussion the post is in. Required when creating a post (a reply).')
                 ->includable()
                 ->writableOnCreate(),
             Schema\Relationship\ToOne::make('editedUser')
+                ->description('The user who last edited the post.')
                 ->type('users')
                 ->includable(),
             Schema\Relationship\ToOne::make('hiddenUser')
+                ->description('The user who hid the post.')
                 ->type('users')
                 ->includable(),
         ];

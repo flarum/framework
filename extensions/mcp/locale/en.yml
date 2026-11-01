@@ -1,0 +1,69 @@
+flarum-mcp:
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
+  # Translations in this namespace are used by the admin interface.
+  admin:
+    page:
+      access_destructive: Write, destructive
+      access_read: Read
+      access_write: Write
+      capabilities_failed: The list could not be loaded.
+      chatgpt_steps: "In ChatGPT's settings, open Connectors (developer mode must be on), create a connector, paste the server URL and choose OAuth. ChatGPT then asks you to sign in to the forum."
+      chatgpt_title: ChatGPT
+      claude_steps: "In Claude, open Settings > Connectors, choose Add custom connector and paste the server URL. Claude then asks you to sign in to the forum."
+      claude_title: Claude
+      column_access: Access
+      column_kind: Kind
+      column_name: Name
+      column_source: Added by
+      copied: Copied to the clipboard.
+      copy_button: Copy
+      copy_failed: Could not copy to the clipboard.
+      kind_prompt: Prompt
+      kind_resource: Resource
+      kind_template: Resource template
+      kind_tool: Tool
+      metadata_url_label: Resource metadata URL
+      server_url_label: Server URL
+      sub_path_apache: "With Apache, in the .htaccess file at the root of the website:"
+      sub_path_nginx: "With nginx, in the server block:"
+      sub_path_warning: "This forum is installed under {path}, so it cannot answer at the root of {origin}, where assistants look for the documents that tell them how to sign in. Forward these two addresses to the forum:"
+      token_steps: "Other clients, such as Cursor or your own scripts, can use a developer token instead of signing in. Create one on your <a>Security page</a> and send it in the {header} header."
+      token_title: Cursor and other clients
+      vscode_steps: "Add the server to {file} in your project (or to your user configuration). VS Code asks you to sign in to the forum when it first connects."
+      vscode_title: VS Code
+
+    permissions:
+      heading: MCP
+      use_label: Connect AI assistants (MCP)
+
+    sections:
+      capabilities:
+        description: "Everything the server offers, as an administrator sees it. Each member sees only what they are allowed to use, and every action runs with their own permissions."
+        label: What assistants can use
+      connect:
+        description: "Members connect their own assistants. Each one signs in with the member's forum account and acts with exactly that member's permissions."
+        label: Connecting an assistant
+      server:
+        description: "Assistants that support the Model Context Protocol (MCP) connect to this URL. Who may connect is set by the Connect AI assistants permission on the Permissions tab: grant it to Guests to allow access without signing in."
+        label: Server
+
+    tabs:
+      capabilities: Capabilities
+      connect: Connect
+
+  # Translations in this namespace are returned to MCP clients and the models behind them.
+  api:
+    fields_not_writable: "{fields} of {type} cannot be changed through MCP."
+    forbidden: You do not have permission to do that.
+    forbidden_description: Your account is not allowed to use this forum's MCP server.
+    invalid: The request was not valid.
+    invalid_token: The access token is missing, invalid or expired, or was not issued for this server.
+    not_exposed: "{operation} on {type} is not available through MCP."
+    not_found: Not found.
+    requires_read_scope: This access token does not grant access to the MCP server. Reconnect and grant read access.
+    requires_sign_in: This requires signing in. Connect with your forum account and try again.
+    requires_write_scope: This requires write access. Reconnect and grant permission to make changes.
+    throttled: You are doing that too often; wait before trying again.
