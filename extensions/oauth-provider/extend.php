@@ -12,6 +12,7 @@ namespace Flarum\OAuthProvider;
 use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData as GdprUserData;
 use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\User\Event\LoggedOut;
 use Flarum\User\Search\UserSearcher;
 use Illuminate\Console\Scheduling\Event;
 
@@ -61,6 +62,9 @@ return [
             (new GdprUserData())
                 ->addType(Data\ConnectedApplications::class),
         ]),
+
+    (new Extend\Event())
+        ->listen(LoggedOut::class, Listener\DisconnectApplicationsOnGlobalLogout::class),
 
     (new Extend\View())
         ->namespace('flarum-oauth-provider', __DIR__.'/resources/views'),

@@ -9,4 +9,5 @@ export default class OAuthConsent extends Model {
   scopes = Model.attribute<string[]>('scopes');
   createdAt = Model.attribute<Date | null, string | null>('createdAt', Model.transformDate);
   lastUsedAt = Model.attribute<Date | null, string | null>('lastUsedAt', Model.transformDate);
+  lastIpAddress = Model.attribute<string | null>('lastIpAddress');
 }

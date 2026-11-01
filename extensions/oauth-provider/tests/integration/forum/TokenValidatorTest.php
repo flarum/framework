@@ -194,4 +194,25 @@ class TokenValidatorTest extends TestCase
         $this->validator()->validate($jwt, self::RESOURCE);
         $this->assertEquals($first->copy()->addSeconds(61), AccessToken::query()->find($tokenId)->last_used_at);
     }
+
+    #[Test]
+    public function the_address_a_token_was_last_used_from_is_recorded_with_its_use(): void
+    {
+        $jwt = $this->accessToken();
+        $tokenId = $this->jwtClaims($jwt)['jti'];
+
+        $first = Carbon::now()->addSecond()->startOfSecond();
+        Carbon::setTestNow($first);
+        $this->assertNotNull($this->validator()->validate($jwt, self::RESOURCE, '203.0.113.7'));
+        $this->assertSame('203.0.113.7', AccessToken::query()->find($tokenId)->last_ip_address);
+
+        // Within the minute, as last_used_at is, the address is left alone.
+        Carbon::setTestNow($first->copy()->addSeconds(30));
+        $this->validator()->validate($jwt, self::RESOURCE, '198.51.100.1');
+        $this->assertSame('203.0.113.7', AccessToken::query()->find($tokenId)->last_ip_address);
+
+        Carbon::setTestNow($first->copy()->addSeconds(61));
+        $this->validator()->validate($jwt, self::RESOURCE, '198.51.100.1');
+        $this->assertSame('198.51.100.1', AccessToken::query()->find($tokenId)->last_ip_address);
+    }
 }

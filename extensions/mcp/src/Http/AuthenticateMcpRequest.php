@@ -123,7 +123,7 @@ class AuthenticateMcpRequest implements MiddlewareInterface
         $credential = $matches[1];
 
         if (substr_count($credential, '.') === 2) {
-            $token = $this->oauth->verify($credential, $this->resourceUri());
+            $token = $this->oauth->verify($credential, $this->resourceUri(), $request->getAttribute('ipAddress'));
 
             if (! $token) {
                 return null;

@@ -10,15 +10,15 @@
 namespace Flarum\OAuthProvider\Api\Resource;
 
 use Carbon\Carbon;
+use Flarum\Api\Context as FlarumContext;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\OAuthProvider\Models\AccessToken;
-use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\Consent;
-use Flarum\OAuthProvider\Models\RefreshToken;
 use Illuminate\Database\Eloquent\Builder;
+use Laminas\Diactoros\Response\EmptyResponse;
 use Tobyz\JsonApiServer\Context;
 
 /**
@@ -58,6 +58,15 @@ class ConsentResource extends Resource\AbstractDatabaseResource
                 ->selectRaw('max(last_used_at)')
                 ->whereColumn("$tokens.client_id", "$consents.client_id")
                 ->whereColumn("$tokens.user_id", "$consents.user_id"),
+            ])
+            // Where the most recently used of its tokens was used from.
+            ->addSelect(['last_ip_address' => AccessToken::query()
+                ->select('last_ip_address')
+                ->whereColumn("$tokens.client_id", "$consents.client_id")
+                ->whereColumn("$tokens.user_id", "$consents.user_id")
+                ->whereNotNull('last_used_at')
+                ->orderByDesc('last_used_at')
+                ->limit(1),
             ]);
     }
 
@@ -70,6 +79,12 @@ class ConsentResource extends Resource\AbstractDatabaseResource
                 ->paginate(50),
             Endpoint\Delete::make()
                 ->authenticated(),
+            // Disconnects every application the actor connected.
+            Endpoint\Endpoint::make('revokeAll')
+                ->route('DELETE', '/')
+                ->authenticated()
+                ->action(fn (FlarumContext $context) => Consent::revokeAllFor((int) $context->getActor()->id))
+                ->response(fn () => new EmptyResponse(204)),
         ];
     }
 
@@ -94,6 +109,9 @@ class ConsentResource extends Resource\AbstractDatabaseResource
             Schema\DateTime::make('lastUsedAt')
                 ->nullable()
                 ->get(fn (Consent $consent) => $consent->last_used_at ? Carbon::parse($consent->last_used_at) : null),
+            Schema\Str::make('lastIpAddress')
+                ->nullable()
+                ->get(fn (Consent $consent) => $consent->last_ip_address),
         ];
     }
 
@@ -110,15 +128,7 @@ class ConsentResource extends Resource\AbstractDatabaseResource
      */
     public function delete(object $model, Context $context): void
     {
-        $tokenIds = AccessToken::query()
-            ->select('id')
-            ->where('user_id', $model->user_id)
-            ->where('client_id', $model->client_id);
-
-        RefreshToken::query()->whereIn('access_token_id', $tokenIds)->update(['revoked' => true]);
-        AccessToken::query()->where('user_id', $model->user_id)->where('client_id', $model->client_id)->update(['revoked' => true]);
-        AuthCode::query()->where('user_id', $model->user_id)->where('client_id', $model->client_id)->update(['revoked' => true]);
-
-        $model->delete();
+        /** @var Consent $model */
+        $model->revokeAccess();
     }
 }

@@ -242,6 +242,21 @@ class AuthenticationTest extends McpTestCase
     }
 
     #[Test]
+    public function an_oauth_token_records_the_address_it_was_used_from(): void
+    {
+        $this->setUpOAuth();
+        $jwt = $this->issueOAuthToken('mcp:read');
+        $this->remoteAddress = '203.0.113.7';
+
+        $this->assertSame(200, $this->modern('tools/list', [], $this->bearer($jwt))->getStatusCode());
+
+        $this->assertSame(
+            '203.0.113.7',
+            $this->database()->table('oauth_provider_access_tokens')->where('id', $this->jwtClaims($jwt)['jti'])->value('last_ip_address')
+        );
+    }
+
+    #[Test]
     public function a_forged_jwt_is_refused(): void
     {
         $response = $this->modern('tools/list', [], $this->bearer('eyJhbGciOiJub25lIn0.eyJhdWQiOiJodHRwOi8vbG9jYWxob3N0L21jcCJ9.'));

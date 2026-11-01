@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property bool        $revoked
  * @property Carbon      $expires_at
  * @property Carbon|null $last_used_at
+ * @property string|null $last_ip_address
  * @property Carbon|null $created_at
  * @property Client      $client
  * @property User        $user

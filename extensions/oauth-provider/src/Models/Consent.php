@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $last_used_at Selected by ConsentResource, not a column.
+ * @property string|null $last_ip_address Selected by ConsentResource, not a column.
  * @property User        $user
  * @property Client      $client
  */
@@ -48,6 +49,36 @@ class Consent extends AbstractModel
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    /**
+     * Withdraws this approval and everything the member granted the client
+     * with it: their codes, access tokens and refresh tokens. The client must
+     * ask for consent again.
+     */
+    public function revokeAccess(): void
+    {
+        static::revoke($this->user_id, $this->client_id);
+    }
+
+    /**
+     * Disconnects every application a member connected.
+     */
+    public static function revokeAllFor(int $userId): void
+    {
+        static::revoke($userId);
+    }
+
+    protected static function revoke(int $userId, ?string $clientId = null): void
+    {
+        $forClient = fn ($query) => $clientId === null ? $query : $query->where('client_id', $clientId);
+
+        $tokenIds = $forClient(AccessToken::query()->select('id')->where('user_id', $userId));
+
+        RefreshToken::query()->whereIn('access_token_id', $tokenIds)->update(['revoked' => true]);
+        $forClient(AccessToken::query()->where('user_id', $userId))->update(['revoked' => true]);
+        $forClient(AuthCode::query()->where('user_id', $userId))->update(['revoked' => true]);
+        $forClient(static::query()->where('user_id', $userId))->delete();
     }
 
     /**

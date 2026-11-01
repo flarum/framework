@@ -41,17 +41,20 @@ class TokenValidator
      * Returns null on any failure: bad signature, expired, revoked, issued
      * for another resource, or a user that no longer exists or may no longer
      * use applications (see MemberAccess).
+     *
+     * @param string|null $ipAddress Where the request came from, recorded as
+     *                               where the token was last used.
      */
-    public function validate(#[\SensitiveParameter] string $jwt, string $resource): ?ValidatedToken
+    public function validate(#[\SensitiveParameter] string $jwt, string $resource, ?string $ipAddress = null): ?ValidatedToken
     {
         try {
-            return $this->doValidate($jwt, $resource);
+            return $this->doValidate($jwt, $resource, $ipAddress);
         } catch (\Throwable) {
             return null;
         }
     }
 
-    protected function doValidate(string $jwt, string $resource): ?ValidatedToken
+    protected function doValidate(string $jwt, string $resource, ?string $ipAddress = null): ?ValidatedToken
     {
         $token = $this->verifier->verify($jwt, new PermittedFor($resource), new StrictValidAt($this->verifier->clock()));
 
@@ -81,7 +84,7 @@ class TokenValidator
             return null;
         }
 
-        $this->touch($row);
+        $this->touch($row, $ipAddress);
 
         return new ValidatedToken(
             user: $user,
@@ -92,7 +95,7 @@ class TokenValidator
         );
     }
 
-    protected function touch(AccessToken $row): void
+    protected function touch(AccessToken $row, ?string $ipAddress = null): void
     {
         $now = Carbon::now();
 
@@ -100,6 +103,11 @@ class TokenValidator
             return;
         }
 
-        AccessToken::query()->where('id', $row->id)->update(['last_used_at' => $now]);
+        // A caller that doesn't say where it was called from leaves the last
+        // known address in place.
+        AccessToken::query()->where('id', $row->id)->update(array_filter([
+            'last_used_at' => $now,
+            'last_ip_address' => $ipAddress,
+        ], fn ($value) => $value !== null));
     }
 }
