@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider\Tests\integration\forum;
 
 use Flarum\Extend;
+use Flarum\OAuthProvider\Access\MemberAccess;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\Server\Repository\AuthCodeRepository;
@@ -68,7 +69,7 @@ class TokenFamilyTest extends TestCase
      */
     protected function codeChecksAreStale(): void
     {
-        $this->app()->getContainer()->instance(AuthCodeRepository::class, new class extends AuthCodeRepository {
+        $this->app()->getContainer()->instance(AuthCodeRepository::class, new class($this->access()) extends AuthCodeRepository {
             public function isAuthCodeRevoked($codeId): bool
             {
                 return false;
@@ -81,12 +82,17 @@ class TokenFamilyTest extends TestCase
      */
     protected function refreshChecksAreStale(): void
     {
-        $this->app()->getContainer()->instance(RefreshTokenRepository::class, new class extends RefreshTokenRepository {
+        $this->app()->getContainer()->instance(RefreshTokenRepository::class, new class($this->access()) extends RefreshTokenRepository {
             public function isRefreshTokenRevoked($tokenId): bool
             {
                 return false;
             }
         });
+    }
+
+    protected function access(): MemberAccess
+    {
+        return $this->app()->getContainer()->make(MemberAccess::class);
     }
 
     #[Test]
@@ -150,9 +156,10 @@ class TokenFamilyTest extends TestCase
         // B presents the code after A used it up but before A stored its tokens.
         $this->app()->getContainer()->instance(AuthCodeRepository::class, new class(function () use ($code, &$replay) {
             $replay = $this->exchangeCode('public-client', $code);
-        }) extends AuthCodeRepository {
-            public function __construct(protected ?\Closure $afterConsume)
+        }, $this->access()) extends AuthCodeRepository {
+            public function __construct(protected ?\Closure $afterConsume, MemberAccess $access)
             {
+                parent::__construct($access);
             }
 
             public function consumeAuthCode(string $codeId): bool
@@ -182,9 +189,10 @@ class TokenFamilyTest extends TestCase
 
         $this->app()->getContainer()->instance(RefreshTokenRepository::class, new class(function () use ($tokens, &$reuse) {
             $reuse = $this->refresh('public-client', $tokens['refresh_token']);
-        }) extends RefreshTokenRepository {
-            public function __construct(protected ?\Closure $afterConsume)
+        }, $this->access()) extends RefreshTokenRepository {
+            public function __construct(protected ?\Closure $afterConsume, MemberAccess $access)
             {
+                parent::__construct($access);
             }
 
             public function consumeRefreshToken(string $tokenId): bool

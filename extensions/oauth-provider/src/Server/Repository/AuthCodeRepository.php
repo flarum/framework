@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider\Server\Repository;
 
 use Carbon\Carbon;
+use Flarum\OAuthProvider\Access\MemberAccess;
 use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Server\Entity\AuthCodeEntity;
 use League\OAuth2\Server\Entities\AuthCodeEntityInterface;
@@ -18,6 +19,11 @@ use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
 
 class AuthCodeRepository implements AuthCodeRepositoryInterface
 {
+    public function __construct(
+        protected MemberAccess $access,
+    ) {
+    }
+
     public function getNewAuthCode(): AuthCodeEntityInterface
     {
         return new AuthCodeEntity();
@@ -70,6 +76,6 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
             return true;
         }
 
-        return (bool) $code->revoked;
+        return (bool) $code->revoked || ! $this->access->allowsUserId($code->user_id);
     }
 }

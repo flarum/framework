@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider\ResourceServer;
 
 use Carbon\Carbon;
+use Flarum\OAuthProvider\Access\MemberAccess;
 use Flarum\OAuthProvider\ClientRegistration\AllowedClients;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Server\AccessTokenVerifier;
@@ -32,12 +33,14 @@ class TokenValidator
     public function __construct(
         protected AccessTokenVerifier $verifier,
         protected AllowedClients $allowed,
+        protected MemberAccess $access,
     ) {
     }
 
     /**
      * Returns null on any failure: bad signature, expired, revoked, issued
-     * for another resource, or a user that no longer exists.
+     * for another resource, or a user that no longer exists or may no longer
+     * use applications (see MemberAccess).
      */
     public function validate(#[\SensitiveParameter] string $jwt, string $resource): ?ValidatedToken
     {
@@ -74,7 +77,7 @@ class TokenValidator
         /** @var User|null $user */
         $user = User::query()->find($row->user_id);
 
-        if ($user === null) {
+        if (! $this->access->allows($user)) {
             return null;
         }
 

@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
+use Flarum\OAuthProvider\Access\MemberAccess;
 use Flarum\OAuthProvider\ClientRegistration\ClientMetadataException;
 use Flarum\OAuthProvider\ClientRegistration\MetadataDocumentClients;
 use Flarum\OAuthProvider\Models\Client;
@@ -52,6 +53,7 @@ class AuthorizeController implements RequestHandlerInterface
         protected ScopeRegistry $scopes,
         protected MetadataDocumentClients $metadataDocuments,
         protected AuthorizationServerMetadata $metadata,
+        protected MemberAccess $access,
     ) {
     }
 
@@ -144,6 +146,13 @@ class AuthorizeController implements RequestHandlerInterface
             $reAuth = $actor->isGuest() ? '' : '&oauth_reauth=1';
 
             return new RedirectResponse($base.'/?oauth_login=1'.$reAuth.'&return_to='.$returnTo);
+        }
+
+        // Suspended and anonymised members, among others, may not connect.
+        if (! $this->access->allows($actor)) {
+            $this->forgetReAuthTicket($session, $ticket);
+
+            return $this->authorizationError($authRequest, 'access_denied', 'This account may not connect applications.');
         }
 
         $clientId = $authRequest->getClient()->getIdentifier();

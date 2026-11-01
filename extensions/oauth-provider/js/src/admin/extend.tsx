@@ -14,6 +14,14 @@ export default [
 
   new Extend.Admin() //
     .page(OAuthClientsPage)
+    .permission(
+      () => ({
+        icon: 'fas fa-plug',
+        label: app.translator.trans('flarum-oauth-provider.admin.permissions.connect_label'),
+        permission: 'oauthProvider.connect',
+      }),
+      'view'
+    )
     .tab(() => ({
       id: 'settings',
       icon: 'fas fa-sliders-h',
