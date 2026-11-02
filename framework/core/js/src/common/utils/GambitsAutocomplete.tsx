@@ -154,18 +154,24 @@ export default class GambitsAutocomplete {
       );
     }
 
-    const matchingKeyValueGambit = keyValueGambits.find((gambit) => {
+    let matchingKeyValueGambit: IGambit<GambitType.KeyValue> | undefined;
+    let matchingSuggestion: KeyValueGambitSuggestion | undefined;
+
+    for (const gambit of keyValueGambits) {
       const suggestion = gambit.suggestion();
       const key = typeof suggestion.key === 'string' ? suggestion.key : '';
-      return key.toLowerCase() === gambitKey;
-    });
+      if (key.toLowerCase() === gambitKey) {
+        matchingKeyValueGambit = gambit;
+        matchingSuggestion = suggestion;
+        break;
+      }
+    }
 
-    if (matchingKeyValueGambit) {
-      const suggestion = matchingKeyValueGambit.suggestion();
+    if (matchingKeyValueGambit && matchingSuggestion) {
       const rawValues =
-        typeof suggestion.values === 'function'
-          ? (suggestion.values as () => (string | GambitValueOption)[])()
-          : suggestion.values ?? (typeof (matchingKeyValueGambit as any).values === 'function' ? (matchingKeyValueGambit as any).values() : []);
+        typeof matchingSuggestion.values === 'function'
+          ? (matchingSuggestion.values as () => (string | GambitValueOption)[])()
+          : matchingSuggestion.values;
 
       if (Array.isArray(rawValues) && rawValues.length > 0) {
         const options: GambitValueOption[] = rawValues.map((opt) => (typeof opt === 'string' ? { value: opt } : opt));
@@ -187,7 +193,7 @@ export default class GambitsAutocomplete {
           return [];
         }
 
-        const prefix = (negative ? '-' : '') + (suggestion.key as string) + ':' + prefixValues;
+        const prefix = (negative ? '-' : '') + (matchingSuggestion.key as string) + ':' + prefixValues;
 
         return matchingOptions.map((opt) =>
           this.gambitSuggestion(
