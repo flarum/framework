@@ -6,14 +6,18 @@
  * built on it is dead on a phone. The ghost is positioned inline, because
  * it is a clone of the card and would otherwise match the card's own rules
  * and sit in the layout instead of under the pointer.
+ *
+ * A mouse can pick a card up anywhere on it. A finger or pen picks it up only
+ * by its handle: the handle has `touch-action: none`, so the browser never
+ * turns that drag into a scroll and cancels it, while a swipe anywhere else on
+ * the card scrolls the board as usual.
  */
 
 const COLUMN = '[data-ideation-column]';
 const CARD = '[data-ideation-idea]';
+const HANDLE = '[data-ideation-handle]';
 
-/** Touch needs a deliberate hold, or scrolling the board picks up a card. */
-const HOLD_MS = 180;
-/** A mouse needs a deliberate movement, or every click reads as a drag. */
+/** A deliberate movement, or every click or tap reads as a drag. */
 const SLOP_PX = 5;
 
 export default class BoardDrag {
@@ -26,7 +30,6 @@ export default class BoardDrag {
   protected offsetY = 0;
   protected armed = false;
   protected dragging = false;
-  protected holdTimer: number | null = null;
   protected over: string | null = null;
 
   constructor(
@@ -55,6 +58,7 @@ export default class BoardDrag {
     // and a moderator whose permission is scoped to some tags moves only
     // the ideas in them.
     if (!card || !card.hasAttribute('data-ideation-movable') || target.closest('a, button, input')) return;
+    if (e.pointerType !== 'mouse' && !target.closest(HANDLE)) return;
 
     this.source = card;
     this.id = card.getAttribute('data-ideation-idea') || '';
@@ -69,10 +73,6 @@ export default class BoardDrag {
     window.addEventListener('pointermove', this.move, { passive: false });
     window.addEventListener('pointerup', this.up);
     window.addEventListener('pointercancel', this.up);
-
-    if (e.pointerType !== 'mouse') {
-      this.holdTimer = window.setTimeout(() => this.begin(e.clientX, e.clientY), HOLD_MS);
-    }
   }
 
   protected begin(x: number, y: number) {
@@ -107,15 +107,7 @@ export default class BoardDrag {
     if (!this.armed) return;
 
     if (!this.dragging) {
-      const far = Math.abs(e.clientX - this.startX) > SLOP_PX || Math.abs(e.clientY - this.startY) > SLOP_PX;
-
-      if (e.pointerType !== 'mouse') {
-        // Moved before the hold elapsed: that was a scroll, not a pick-up.
-        if (far) this.cleanup();
-        return;
-      }
-
-      if (!far) return;
+      if (Math.abs(e.clientX - this.startX) <= SLOP_PX && Math.abs(e.clientY - this.startY) <= SLOP_PX) return;
       this.begin(e.clientX, e.clientY);
     }
 
@@ -152,9 +144,6 @@ export default class BoardDrag {
   }
 
   protected cleanup() {
-    if (this.holdTimer) window.clearTimeout(this.holdTimer);
-    this.holdTimer = null;
-
     window.removeEventListener('pointermove', this.move);
     window.removeEventListener('pointerup', this.up);
     window.removeEventListener('pointercancel', this.up);

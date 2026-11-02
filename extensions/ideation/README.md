@@ -10,8 +10,9 @@ idea ships.
   nothing is reinvented. A moderator can put any existing discussion on the
   roadmap.
 - **A board and a list.** The board has a column per status, most-voted first
-  (Shipped shows the most recent first), with drag and drop for moderators,
-  by mouse or by finger. The list shows every idea with its status, filtered
+  (Shipped shows the most recent first), with drag and drop for moderators:
+  a mouse drags the whole card, a finger drags its handle, so the board still
+  scrolls on a phone. The list shows every idea with its status, filtered
   by status and sorted by votes, newest or recent activity. Both are drawn by
   Ideation itself, so a theme that restyles discussion lists cannot hide them.
 - **Votes on every list.** An idea shows its vote button next to its reply

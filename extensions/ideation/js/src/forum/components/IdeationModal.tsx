@@ -6,6 +6,7 @@ import type Discussion from 'flarum/common/models/Discussion';
 import type PostStreamState from 'flarum/forum/states/PostStreamState';
 import { ICONS, OPEN, SETTABLE, statusLabel } from '../status';
 import GithubLinks, { type GithubLink } from './GithubLinks';
+import findDiscussions from '../findDiscussions';
 
 export interface IdeationModalAttrs extends IInternalModalAttrs {
   discussion: Discussion;
@@ -182,12 +183,14 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
     this.timer = window.setTimeout(() => {
       // Only open ideas can take a merge, and only ones this moderator can
       // moderate; the server checks both again.
-      app.store.find<Discussion[]>('discussions', { filter: { q: query, ideation: OPEN.join(',') }, page: { limit: 6 } }).then((results) => {
-        if (request !== this.searchRequest) return;
+      findDiscussions({ filter: { q: query, ideation: OPEN.join(',') }, page: { limit: 6 } }, () => request === this.searchRequest).then(
+        (results) => {
+          if (!results) return;
 
-        this.results = results.filter((d) => d !== this.attrs.discussion && d.canIdeationModerate());
-        m.redraw();
-      });
+          this.results = results.filter((d) => d !== this.attrs.discussion && d.canIdeationModerate());
+          m.redraw();
+        }
+      );
     }, 250);
   }
 

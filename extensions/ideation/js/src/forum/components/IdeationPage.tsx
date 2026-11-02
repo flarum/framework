@@ -14,6 +14,7 @@ import type Mithril from 'mithril';
 import VoteButton from './VoteButton';
 import GithubLinks from './GithubLinks';
 import BoardDrag from '../drag';
+import findDiscussions from '../findDiscussions';
 import { COLUMNS, ICONS, SETTABLE, statusLabel } from '../status';
 
 const PAGE = 10;
@@ -182,9 +183,10 @@ export default class IdeationPage extends Page {
             placeholder={app.translator.trans('flarum-ideation.forum.search_placeholder', {}, true)}
             aria-label={app.translator.trans('flarum-ideation.forum.search_placeholder', {}, true)}
             oninput={(e: InputEvent) => {
-              const q = (e.target as HTMLInputElement).value;
+              // The field shows what was typed at once; only the search waits.
+              this.q = (e.target as HTMLInputElement).value;
               window.clearTimeout(this.searchTimer);
-              this.searchTimer = window.setTimeout(() => this.change({ q }), 300);
+              this.searchTimer = window.setTimeout(() => this.change({ q: this.q }), 300);
             }}
           />
         </li>
@@ -319,6 +321,19 @@ export default class IdeationPage extends Page {
             </span>
           </div>
         </div>
+        {!withStatus && discussion.canIdeationModerate() ? (
+          // On a touch screen a card moves only by this handle, so the rest
+          // of the card still scrolls the stacked board.
+          <span
+            className="IdeationCard-handle"
+            data-ideation-handle=""
+            role="img"
+            aria-label={app.translator.trans('flarum-ideation.forum.move_handle', {}, true)}
+            title={app.translator.trans('flarum-ideation.forum.move_handle', {}, true)}
+          >
+            <Icon name="fas fa-grip-vertical" />
+          </span>
+        ) : null}
       </article>
     );
   }
@@ -351,17 +366,20 @@ export default class IdeationPage extends Page {
     const filter: Record<string, string> = { ideation: list ? this.status : key };
     if (this.q) filter.q = this.q;
 
-    app.store
-      .find<Discussion[]>('discussions', {
+    // The search or filter changed while this was on its way: a newer
+    // request is filling the column, and this answer, for the old one, never
+    // reaches the store or the column.
+    findDiscussions(
+      {
         filter,
         sort: list ? SORTS[this.sort] : key === 'shipped' ? '-ideationStatusChangedAt' : '-ideationVotes',
         page: { offset: more ? column.items.length : 0, limit: list ? PAGE * 2 : PAGE },
         include: app.initializers.has('flarum-tags') ? 'user,tags' : 'user',
-      })
+      },
+      () => request === column.request
+    )
       .then((results) => {
-        // The search or filter changed while this was on its way: a newer
-        // request is filling the column, and this answer is for the old one.
-        if (request !== column.request) return;
+        if (!results) return;
 
         column.items = more ? [...column.items, ...results] : results;
         column.more = !!results.payload?.links?.next;

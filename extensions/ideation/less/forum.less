@@ -232,10 +232,37 @@
 }
 
 // Only the ideas this moderator can move, which a tag-scoped permission
-// may limit.
+// may limit. A mouse drags the whole card; a finger drags the handle, which
+// the browser leaves alone, so a swipe anywhere else on the card scrolls.
 .IdeationBoard--draggable .IdeationCard[data-ideation-movable] {
   cursor: grab;
-  touch-action: pan-y;
+}
+
+.IdeationCard-handle {
+  display: none;
+  flex-shrink: 0;
+  align-self: stretch;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  margin: -10px -10px -10px 0;
+  border-start-end-radius: var(--border-radius);
+  border-end-end-radius: var(--border-radius);
+  color: var(--muted-color);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+
+  .IdeationBoard--draggable & {
+    display: flex;
+  }
+
+  &:hover {
+    background: var(--control-bg);
+    color: var(--control-color);
+  }
 }
 
 .IdeationCard--dragging {
@@ -249,6 +276,7 @@
 }
 
 .IdeationCard-body {
+  flex: 1;
   min-width: 0;
 }
 

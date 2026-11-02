@@ -3,6 +3,8 @@ import Extend from 'flarum/common/extenders';
 import Button from 'flarum/common/components/Button';
 import FormGroup from 'flarum/common/components/FormGroup';
 import type AdminPage from 'flarum/admin/components/AdminPage';
+import ExtensionPage from 'flarum/admin/components/ExtensionPage';
+import { extend } from 'flarum/common/extend';
 import saveSettings from 'flarum/admin/utils/saveSettings';
 
 const key = (k: string) => 'flarum-ideation.github.' + k;
@@ -56,6 +58,32 @@ function secretSetting(name: 'token' | 'secret') {
       </div>
     );
   };
+}
+
+/**
+ * Once the page's own Save has gone through, a new token or secret typed in
+ * is saved: say so, as the server would on the next visit, and clear it out
+ * of the page. Only a successful save gets here; a failed one keeps the field
+ * as typed.
+ */
+export function rememberSavedSecrets() {
+  extend(ExtensionPage.prototype, 'onsaved', function () {
+    for (const name of ['token', 'secret'] as const) {
+      const value = app.data.settings[key(name)];
+
+      if (!this.settings[key(name)] || !value) continue;
+
+      // Only spaces keep the saved one, as an empty field does.
+      if (value.trim()) {
+        ((app.data.ideationGithubSecrets as Record<string, boolean> | undefined) ??= {})[name] = true;
+      }
+
+      app.data.settings[key(name)] = '';
+      this.settings[key(name)]('');
+    }
+
+    m.redraw();
+  });
 }
 
 export default [

@@ -29,6 +29,7 @@ flarum-ideation:
     empty_column: Nothing here yet.
     empty_list: No ideas match.
     load_more: Load more
+    move_handle: Drag to move this idea to another column
     replies: "{count, plural, one {# reply} other {# replies}}"
     votes: "{count, plural, one {# vote} other {# votes}}"
 
