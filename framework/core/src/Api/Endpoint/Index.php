@@ -331,6 +331,11 @@ class Index extends Endpoint
         // link back to offset 0 would ask for the whole list instead of a page.
         $request = $context->request;
         $query = $request->getQueryParams();
+
+        if (! is_array($query['page'] ?? null)) {
+            $query['page'] = [];
+        }
+
         $query['page']['limit'] ??= (string) $limit;
 
         return new OffsetPagination(
