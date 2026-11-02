@@ -73,6 +73,13 @@ class PrivateChannelExtenderAuthTest extends TestCase
     }
 
     #[Test]
+    public function another_spelling_of_the_same_id_is_denied(): void
+    {
+        $this->assertSame(403, $this->authorize('private-scratchpad=02', 2));
+        $this->assertSame(403, $this->authorize("private-scratchpad=2\n", 2));
+    }
+
+    #[Test]
     public function an_unregistered_subject_is_still_denied(): void
     {
         $this->assertSame(403, $this->authorize('private-somethingElse=2', 1));
@@ -83,5 +90,6 @@ class PrivateChannelExtenderAuthTest extends TestCase
     {
         $this->assertSame(200, $this->authorize('private-user=2', 2));
         $this->assertSame(403, $this->authorize('private-user=1', 2));
+        $this->assertSame(403, $this->authorize("private-user=2\n", 2));
     }
 }
