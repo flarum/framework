@@ -184,9 +184,12 @@ class Repositories
         }
 
         // A list stays a list; a keyed map keeps every other key as it was.
-        $wasList = array_is_list($repos);
-        unset($repos[$matches[0]]);
-        $data['repositories'] = $wasList ? array_values($repos) : $repos;
+        if (array_is_list($repos)) {
+            $data = $this->file->withoutListEntry($data, 'repositories', (int) $matches[0]);
+        } else {
+            unset($repos[$matches[0]]);
+            $data['repositories'] = $repos;
+        }
 
         $this->file->write($data);
     }

@@ -146,6 +146,52 @@ class ComposerJsonMeaningTest extends TestCase
         $this->assertComposerAccepts();
     }
 
+    /**
+     * The objects are remembered by where they sit, and in a list that is the
+     * entry's index. Removing the first entry moved every later one up, and an
+     * empty `options` that moved was written back as `[]`.
+     */
+    public function test_removing_the_first_of_a_list_keeps_later_empty_objects(): void
+    {
+        $this->write('{"name": "a/site", "repositories": ['
+            .'{"type": "vcs", "url": "https://git.example.test/a.git", "options": {"ssl": {}}},'
+            .'{"type": "composer", "url": "https://repo.example.test", "options": {}},'
+            .'{"type": "vcs", "url": "https://git.example.test/b.git", "transport-options": {}},'
+            .'{"type": "vcs", "url": "https://git.example.test/c.git", "options": []}'
+            .']}');
+
+        $this->repositories()->remove('https://git.example.test/a.git');
+
+        $raw = (string) file_get_contents($this->dir.'/composer.json');
+        $repos = json_decode($raw)->repositories;
+
+        $this->assertIsArray($repos, $raw);
+        $this->assertCount(3, $repos);
+        $this->assertSame('https://repo.example.test', $repos[0]->url);
+        $this->assertInstanceOf(\stdClass::class, $repos[0]->options, $raw);
+        $this->assertInstanceOf(\stdClass::class, $repos[1]->{'transport-options'}, $raw);
+        $this->assertSame([], $repos[2]->options, 'What was a list stays a list, even where an object used to sit at that index.');
+        $this->assertComposerAccepts();
+    }
+
+    /** A removal from the middle leaves the entries before it as they were. */
+    public function test_removing_from_the_middle_of_a_list_keeps_empty_objects_on_both_sides(): void
+    {
+        $this->write('{"name": "a/site", "repositories": ['
+            .'{"type": "composer", "url": "https://one.example.test", "options": {}},'
+            .'{"type": "vcs", "url": "https://git.example.test/a.git"},'
+            .'{"type": "composer", "url": "https://two.example.test", "options": {}}'
+            .']}');
+
+        $this->repositories()->remove('https://git.example.test/a.git');
+
+        $repos = json_decode((string) file_get_contents($this->dir.'/composer.json'))->repositories;
+
+        $this->assertInstanceOf(\stdClass::class, $repos[0]->options);
+        $this->assertInstanceOf(\stdClass::class, $repos[1]->options);
+        $this->assertComposerAccepts();
+    }
+
     // ── removing removes ONE ─────────────────────────────────────────────────
 
     /**
