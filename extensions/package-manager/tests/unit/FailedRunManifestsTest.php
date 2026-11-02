@@ -12,6 +12,8 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 use Flarum\ExtensionManager\Api\Controller\StartController;
 use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
+use Flarum\ExtensionManager\Config\JsonFile;
+use Flarum\ExtensionManager\Config\Repositories;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StepRunner;
@@ -222,6 +224,94 @@ class FailedRunManifestsTest extends TestCase
         $this->assertSame('OLD-LOCK', file_get_contents($this->dir.'/composer.lock'));
     }
 
+    // ── and it is done once, never over a later edit ─────────────────────────
+
+    /**
+     * The run puts the manifests back itself, then a repository is added on
+     * the configuration screen, which writes composer.json and leaves the
+     * lock alone. The next start used to look only at the lock, find it
+     * untouched, and copy the saved composer.json back over the edit.
+     */
+    public function test_a_composer_json_edit_after_a_caught_failure_survives_the_next_start(): void
+    {
+        [$oldJson, $oldLock] = $this->manifestsAsJson();
+
+        $this->expectFailure(fn () => $this->steps()->doItem('fetch', 'acme/widget', Run::start('r1', time())));
+        $this->assertSame($oldJson, file_get_contents($this->dir.'/composer.json'));
+
+        $this->repositories()->add('composer', 'https://repo.example.test');
+        $edited = (string) file_get_contents($this->dir.'/composer.json');
+        $this->assertNotSame($oldJson, $edited);
+
+        // Stopped "later" than the edit, so the files' times alone could not tell.
+        (new RunStore(EnglishTranslator::make(), $this->dir.'/storage/extension-manager/runs'))->save($this->failedIn('fetch'));
+        $this->beginIn($this->dir);
+
+        $this->assertSame($edited, file_get_contents($this->dir.'/composer.json'), 'The repository added after the failure was lost.');
+        $this->assertSame($oldLock, file_get_contents($this->dir.'/composer.lock'));
+    }
+
+    /**
+     * A worker killed mid-run could not put anything back. The lock still
+     * goes back on the next start, but a composer.json written since the run
+     * stopped is somebody's edit and stays.
+     */
+    public function test_a_killed_run_puts_the_lock_back_but_keeps_a_later_composer_json_edit(): void
+    {
+        [, $oldLock] = $this->manifestsAsJson();
+        $run = $this->failedIn('fetch', time() - 600);
+        touch($this->dir.'/composer.lock', time() - 700);
+        touch($this->dir.'/composer.json', time() - 700);
+
+        $this->repositories()->add('composer', 'https://repo.example.test');
+        $edited = (string) file_get_contents($this->dir.'/composer.json');
+
+        $this->assertSame(['composer.lock'], SavedManifests::afterFailedRun($run, $this->work, $this->dir));
+        $this->assertSame($oldLock, file_get_contents($this->dir.'/composer.lock'));
+        $this->assertSame($edited, file_get_contents($this->dir.'/composer.json'));
+    }
+
+    /** Once put back, a later start never puts back again over an edit, however its time reads. */
+    public function test_a_killed_run_is_put_back_once(): void
+    {
+        $run = $this->failedIn('fetch');
+
+        $this->assertSame(['composer.lock', 'composer.json'], SavedManifests::afterFailedRun($run, $this->work, $this->dir));
+
+        file_put_contents($this->dir.'/composer.json', 'HAND-EDIT');
+        touch($this->dir.'/composer.json', time() - 700);
+
+        $this->assertSame([], SavedManifests::afterFailedRun($run, $this->work, $this->dir));
+        $this->assertSame('HAND-EDIT', file_get_contents($this->dir.'/composer.json'));
+        $this->assertSame('OLD-LOCK', file_get_contents($this->dir.'/composer.lock'));
+    }
+
+    /**
+     * A restore the run tried but could not write leaves the files exactly
+     * as the failure did, so the next start still puts them back.
+     */
+    public function test_a_restore_that_could_not_write_is_finished_by_the_next_start(): void
+    {
+        if (function_exists('posix_getuid') && posix_getuid() === 0) {
+            $this->markTestSkipped('root can write anywhere');
+        }
+
+        chmod($this->dir, 0555);
+
+        try {
+            $this->assertSame([], SavedManifests::restore($this->work, $this->dir));
+        } finally {
+            chmod($this->dir, 0775);
+        }
+
+        $this->assertSame('NEW-LOCK', file_get_contents($this->dir.'/composer.lock'));
+        $this->assertFileExists($this->work.'/'.SavedManifests::RESTORED);
+
+        $this->assertSame(['composer.lock', 'composer.json'], SavedManifests::afterFailedRun($this->failedIn('fetch'), $this->work, $this->dir));
+        $this->assertSame('OLD-LOCK', file_get_contents($this->dir.'/composer.lock'));
+        $this->assertSame('OLD-JSON', file_get_contents($this->dir.'/composer.json'));
+    }
+
     // ── helpers ──────────────────────────────────────────────────────────────
 
     private function failedIn(string $phase, ?int $at = null): Run
@@ -229,6 +319,31 @@ class FailedRunManifestsTest extends TestCase
         $at ??= time() + 60;
 
         return Run::start('r1', $at - 60)->enteredPhase($phase, $at - 30)->failed('it stopped', $phase, $at, 'failed');
+    }
+
+    /**
+     * Real JSON in place of the placeholders, for the configuration screen to
+     * edit: the saved copies are the old manifests, the live files the new
+     * ones the plan wrote.
+     *
+     * @return array{string,string} the old composer.json and composer.lock
+     */
+    private function manifestsAsJson(): array
+    {
+        $oldJson = (string) json_encode(['name' => 'a/site', 'require' => ['acme/widget' => '^1.0']], JSON_PRETTY_PRINT);
+        $oldLock = (string) json_encode(['packages' => [['name' => 'acme/widget', 'version' => '1.0.0']]]);
+
+        file_put_contents($this->work.'/composer.json.before', $oldJson);
+        file_put_contents($this->work.'/composer.lock.before', $oldLock);
+        file_put_contents($this->dir.'/composer.json', json_encode(['name' => 'a/site', 'require' => ['acme/widget' => '^2.0']], JSON_PRETTY_PRINT));
+        file_put_contents($this->dir.'/composer.lock', json_encode(['packages' => [['name' => 'acme/widget', 'version' => '2.0.0']]]));
+
+        return [$oldJson, $oldLock];
+    }
+
+    private function repositories(): Repositories
+    {
+        return new Repositories(EnglishTranslator::make(), new JsonFile(EnglishTranslator::make(), $this->dir.'/composer.json'));
     }
 
     private function expectFailure(callable $step): void

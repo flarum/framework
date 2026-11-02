@@ -17,6 +17,7 @@ use Flarum\ExtensionManager\Run\StartLock;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\Steps;
 use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Work\SavedManifests;
 use Flarum\ExtensionManager\Work\WorkDir;
 use Flarum\Foundation\Paths;
 use PHPUnit\Framework\TestCase;
@@ -143,6 +144,30 @@ class UpdateCommandTest extends TestCase
 
         $this->assertSame(0, $tester->getStatusCode());
         $this->assertSame($old, file_get_contents($this->dir.'/composer.lock'));
+    }
+
+    /**
+     * A failure the run caught has put the manifests back already. A
+     * composer.json edited after that (a repository added, which leaves the
+     * lock alone) is not put back over again when this command starts.
+     */
+    public function test_a_composer_json_edited_after_a_failed_run_keeps_the_edit(): void
+    {
+        $this->site(require: ['a/thing' => '^1.0'], installed: ['a/thing' => '1.0.0']);
+
+        $failed = (new WorkDir(EnglishTranslator::make(), $this->dir, 'r-failed'))->create();
+        copy($this->dir.'/composer.json', $failed->root().'/composer.json.before');
+        copy($this->dir.'/composer.lock', $failed->root().'/composer.lock.before');
+        SavedManifests::restore($failed->root(), $this->dir);
+
+        file_put_contents($this->dir.'/composer.json', json_encode(['require' => ['a/thing' => '^1.0'], 'repositories' => [['type' => 'composer', 'url' => 'https://repo.example.test']]]));
+        $edited = (string) file_get_contents($this->dir.'/composer.json');
+        $this->store()->save(Run::start('r-failed', time())->enteredPhase('fetch', time())->failed('it stopped', 'fetch', time() + 60, 'failed'));
+
+        $tester = $this->runCommand(['packages' => ['a/thing']], ['plan' => ['work out the change']]);
+
+        $this->assertSame(0, $tester->getStatusCode());
+        $this->assertSame($edited, file_get_contents($this->dir.'/composer.json'));
     }
 
     /**

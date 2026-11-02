@@ -134,7 +134,7 @@ class ComposerSteps implements Steps
              * rollback still finds the saved copies, for the files it has to
              * move back.
              */
-            SavedManifests::putBack($this->workDir, $this->installPath);
+            SavedManifests::restore($this->workDir, $this->installPath);
 
             throw $e;
         }
