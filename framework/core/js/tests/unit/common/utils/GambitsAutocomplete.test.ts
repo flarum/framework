@@ -474,7 +474,7 @@ describe('GambitsAutocomplete', () => {
     });
 
     it('excludes already selected values from comma-separated predicate suggestions', () => {
-      selectionStart = 17; // 'tag:announcements,'
+      selectionStart = 18; // 'tag:announcements,'
       const ac = createAutocomplete();
       const suggestions = extractSuggestions(ac.suggestions('tag:announcements,'));
 
