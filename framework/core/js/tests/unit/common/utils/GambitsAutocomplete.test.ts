@@ -553,6 +553,29 @@ describe('GambitsAutocomplete', () => {
       expect(suggestions).not.toBeNull();
       expect(suggestions).toHaveLength(1);
     });
+
+    it('derives gambit colon and value offset from original token when lowercase changes length', () => {
+      const turkishGambit = {
+        type: GambitType.KeyValue,
+        predicates: false,
+        enabled: () => true,
+        suggestion: () => ({
+          key: 'İ',
+          values: () => ['ab', 'cd'],
+        }),
+      } as unknown as IGambit<GambitType.KeyValue>;
+
+      app.search.gambits.for = jest.fn().mockReturnValue([turkishGambit]);
+
+      // 'İ:a' - In Turkish Unicode lowercasing, 'İ'.toLowerCase() has length 2 ('i\u0307')
+      selectionStart = 3;
+      selectionEnd = 3;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('İ:a'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('ab');
+    });
   });
 
   describe('GroupGambit integration', () => {

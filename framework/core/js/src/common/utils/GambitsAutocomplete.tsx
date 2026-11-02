@@ -67,13 +67,13 @@ export default class GambitsAutocomplete {
       typed = typed.slice(1);
     }
 
-    const colonIndex = typed.indexOf(':');
+    const rawToken = autocomplete ? lastChunk.slice(autocomplete.relativeStart) : '';
+    const rawTyped = negative ? rawToken.slice(1) : rawToken;
+    const colonIndex = rawTyped.indexOf(':');
 
     // If the query contains a colon, we are typing or exploring specific values from that group.
     if (colonIndex !== -1) {
-      const gambitKey = typed.slice(0, colonIndex).toLowerCase();
-      const rawToken = autocomplete ? lastChunk.slice(autocomplete.relativeStart) : '';
-      const rawTyped = negative ? rawToken.slice(1) : rawToken;
+      const gambitKey = rawTyped.slice(0, colonIndex).toLowerCase();
       const gambitQuery = rawTyped.slice(colonIndex + 1);
 
       const specificGambitSuggestions = this.specificGambitSuggestions(
