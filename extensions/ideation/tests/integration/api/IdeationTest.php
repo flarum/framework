@@ -11,10 +11,10 @@ namespace Flarum\Ideation\Tests\integration\api;
 
 use Carbon\Carbon;
 use Flarum\Extend;
-use Flarum\User\User;
-use Illuminate\Mail\Events\MessageSent;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use Illuminate\Mail\Events\MessageSent;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
