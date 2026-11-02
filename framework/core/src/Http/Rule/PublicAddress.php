@@ -14,11 +14,9 @@ use Flarum\Http\OutboundAddressResolver;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 /**
- * The host of the URL under validation must resolve to an address Flarum may
- * send a server-side request to (see OutboundAddressResolver: public or
- * private LAN, never loopback, link-local or reserved).
- *
- * Combine it with the `url` rule: a value without a host fails here too.
+ * The URL's host must resolve to an address OutboundAddressResolver allows,
+ * which includes private LAN ranges. A value without a host fails too, so run
+ * the `url` rule first to report malformed input separately.
  */
 class PublicAddress implements ValidationRule
 {

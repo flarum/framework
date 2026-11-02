@@ -10,19 +10,15 @@
 namespace Flarum\Http;
 
 /**
- * Decides whether Flarum may issue a server-side request to a host.
- *
- * Link-local, loopback and other reserved addresses (e.g. the cloud metadata
- * endpoint 169.254.169.254) are rejected. Private LAN ranges (RFC1918) are
- * intentionally allowed, so Flarum keeps working behind Docker networks,
- * reverse proxies and internal CDNs.
+ * Loopback, link-local and reserved addresses (such as the cloud metadata
+ * endpoint 169.254.169.254) are blocked. Private LAN ranges stay allowed so
+ * Flarum keeps working behind Docker networks, reverse proxies and internal CDNs.
  */
 class OutboundAddressResolver
 {
     /**
-     * Resolve a hostname (or accept a literal IP, bracketed or not) and return
-     * the first address that is safe to connect to, or null if the host is
-     * unresolvable or only resolves to blocked addresses.
+     * The first allowed address of a hostname or (optionally bracketed) IP
+     * literal, or null if there is none.
      */
     public function resolve(string $host): ?string
     {

@@ -573,8 +573,7 @@ class UserResource extends AbstractDatabaseResource
     {
         $scheme = parse_url($url, PHP_URL_SCHEME);
 
-        // retrieveAvatarFromUrl() repeats the address check and pins the
-        // connection to it, in case the record changes before the fetch.
+        // Resolved from the container because the constructor is public API.
         $validator = $this->validation->make(['avatar_url' => $url], [
             'avatar_url' => [
                 'bail',
@@ -614,9 +613,8 @@ class UserResource extends AbstractDatabaseResource
             return null;
         }
 
-        // Defence in depth: assertValidAvatarUrl() already checked the address,
-        // but the 2x/3x companion URLs are not validated, and the record may
-        // have changed since. The address resolved here is pinned below.
+        // Checked again: the 2x/3x URLs are never validated, and DNS may have
+        // changed since validation. The address is pinned below.
         $ip = $this->api->getContainer()->make(OutboundAddressResolver::class)->resolve($host);
 
         if ($ip === null) {

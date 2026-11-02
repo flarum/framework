@@ -309,8 +309,7 @@ class CreateTest extends TestCase
             'hostname resolving to loopback' => ['https://localhost/image.png', $notPublic],
             // RFC 6761: the .invalid TLD never resolves.
             'unresolvable hostname' => ['https://i-do-not-exist.invalid/image.png', $notPublic],
-            // An internationalised domain name is a well-formed URL: it gets past
-            // the format check and fails only because .invalid never resolves.
+            // Passes the url rule and fails only on resolution.
             'unresolvable internationalised hostname' => ['https://bücher.invalid/image.png', $notPublic],
         ];
     }
