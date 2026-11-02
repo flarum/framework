@@ -1,0 +1,129 @@
+flarum-ideation:
+  admin:
+    github:
+      enabled: Link ideas to GitHub
+      enabled_help: Moderators can link an idea to GitHub issues, pull requests and milestones, and everyone sees their state on the idea. Pages never call GitHub; the links are kept up to date by the webhook below and an hourly refresh.
+      repos: Repositories
+      repos_help: "One per line: owner/repo, or owner/* for all of an owner's repositories. Only these can be linked, and taking one off the list stops its links from showing, refreshing or moving ideas. A link shows its title to everyone who can see the idea, so list only repositories that are fine to show."
+      token: GitHub token (optional)
+      token_help: "Needed only for private repositories, and it raises GitHub's limit from 60 to 5,000 requests an hour. <a>Create a fine-grained token</a> with read-only access to Issues, Pull requests and Metadata."
+      secret: Webhook secret
+      secret_help: "Keeps links current the moment they change. In each repository's settings, <a>add a webhook</a> with payload URL {url}, content type application/json, this secret, and the Issues, Pull requests and Milestones events. Without a secret the webhook is refused, and links refresh hourly instead."
+      saved_placeholder: Saved. Leave empty to keep it.
+      remove_saved: Remove the saved value
+      auto_progress: Move ideas to In progress when a linked pull request opens
+      auto_progress_help: Only from Under review or Planned. Never moves an idea backwards.
+      auto_ship: Ship ideas when everything linked is done
+      auto_ship_help: When every linked issue is closed as completed, every pull request merged and every milestone closed, the idea moves to Shipped and its voters are told. Items closed as not planned, or closed without merging, don't count either way.
+    permissions:
+      post_ideas: Post ideas to the roadmap
+      vote: Vote for ideas
+      moderate: Move, merge and decline ideas
+
+  forum:
+    title: Roadmap
+    subtitle: Ideas from the community, and where each one is. Vote for the ones you want most.
+    post_idea: Post an idea
+    cannot_post_idea: Can't post ideas
+    search_placeholder: Search ideas
+    empty_column: Nothing here yet.
+    empty_list: No ideas match.
+    load_more: Load more
+    replies: "{count, plural, one {# reply} other {# replies}}"
+    votes: "{count, plural, one {# vote} other {# votes}}"
+
+    status:
+      under_review: Under review
+      planned: Planned
+      in_progress: In progress
+      shipped: Shipped
+      declined: Declined
+      merged: Merged
+
+    view:
+      label: View
+      board: Board
+      list: List
+
+    filter:
+      all: All ideas
+
+    sort:
+      relevance: Relevance
+      votes: Most votes
+      newest: Newest
+      latest: Recent activity
+
+    vote:
+      vote: Vote
+      voted: Voted
+      add: "Vote for this idea ({count, plural, one {# vote} other {# votes}})"
+      remove: "Remove your vote ({count, plural, one {# vote} other {# votes}})"
+      closed: Voting is closed for this idea
+
+    composer:
+      title_placeholder: Your idea, in a few words
+      body_placeholder: What would you like, and what would it let you do?
+      submit: Post idea
+
+    controls:
+      add: Add to roadmap
+      manage: Roadmap status
+
+    panel:
+      go_to_merged: Open the idea it joined
+
+    github:
+      remove: Unlink
+      state:
+        issue:
+          open: Open
+          completed: Closed
+          not_planned: Not planned
+        pull:
+          open: Open
+          merged: Merged
+          closed: Closed without merging
+        milestone:
+          open: Open
+          closed: Closed
+
+    modal:
+      github_label: GitHub
+      github_placeholder: Paste an issue, pull request or milestone link
+      github_link: Link
+      title: Roadmap
+      status_label: Status
+      remove: Take this off the roadmap
+      merge_label: Merge into another idea
+      merge_help: Its votes move to the other idea. Someone who voted for both keeps one vote.
+      merge_placeholder: Search for the idea to keep
+      merge_button: Merge
+      merge_into: "Merge into “{title}”"
+
+    post_stream:
+      added_text: "{username} added this to the roadmap as {status}."
+      moved_text: "{username} moved this to {status}."
+      removed_text: "{username} took this off the roadmap."
+      merged_text: "{username} merged this idea into {target}."
+      another_idea: another idea
+      github_text: "This moved to {status} automatically from GitHub ({via})."
+
+    notifications:
+      shipped_text: "An idea you voted for has shipped: {title}"
+      shipped_setting: An idea I voted for ships
+
+  api:
+    unknown_status: That is not a roadmap status.
+    merge_target: Choose another open idea on the roadmap to merge this one into.
+    github:
+      not_a_link: "Paste a GitHub issue, pull request or milestone link, or owner/repo#123."
+      repo_not_allowed: "{repo} is not on this forum's list of GitHub repositories."
+      unavailable: GitHub could not be reached. Try again in a minute.
+      not_found: "GitHub has no {ref}, or it is private."
+
+  email:
+    shipped:
+      subject: "Shipped: {title}"
+      body: "Hey {recipient_display_name}, an idea you voted for has shipped: {title}"
+      view_link: See what shipped

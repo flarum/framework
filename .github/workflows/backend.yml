@@ -64,4 +64,4 @@ jobs:
       backend_directory: .
       reduce_drafts: true
       monorepo_lanes: 2
-      monorepo_tests: "framework/core extensions/ai extensions/akismet extensions/approval extensions/audit extensions/flags extensions/likes extensions/mentions extensions/nicknames extensions/package-manager extensions/statistics extensions/sticky extensions/subscriptions extensions/suspend extensions/tags extensions/messages extensions/gdpr extensions/realtime extensions/lock extensions/deck extensions/oauth-provider extensions/mcp php-packages/testing/tests"
+      monorepo_tests: "framework/core extensions/ai extensions/akismet extensions/approval extensions/audit extensions/flags extensions/likes extensions/mentions extensions/nicknames extensions/package-manager extensions/statistics extensions/sticky extensions/subscriptions extensions/suspend extensions/tags extensions/messages extensions/gdpr extensions/ideation extensions/realtime extensions/lock extensions/deck extensions/oauth-provider extensions/mcp php-packages/testing/tests"
