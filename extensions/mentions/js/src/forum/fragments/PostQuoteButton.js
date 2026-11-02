@@ -17,6 +17,17 @@ const VIEWPORT_MARGIN = 10;
  */
 const TOUCH_GAP = 70;
 
+/**
+ * The bottom edge of the header that stays fixed over the top of the page
+ * (on a phone, the navigation bar), or 0 when there is none.
+ */
+function fixedHeaderBottom() {
+  return $('#header, #app-navigation')
+    .toArray()
+    .filter((header) => getComputedStyle(header).position === 'fixed')
+    .reduce((bottom, header) => Math.max(bottom, header.getBoundingClientRect().bottom), 0);
+}
+
 export default class PostQuoteButton extends Fragment {
   constructor(post) {
     super();
@@ -72,9 +83,13 @@ export default class PostQuoteButton extends Fragment {
 
   /**
    * Show the button for a selection made by touch: well below its end, or
-   * well above its start when there is no room below. A selection taller
-   * than the screen leaves room for neither, so the button is kept inside
-   * the visible part of the page either way.
+   * well above its start when there is no room below.
+   *
+   * A long selection, which can run past the edges of the screen, leaves
+   * room for neither. The button then goes in the middle of the screen,
+   * away from the handles and text menu at the selection's ends. Pinning
+   * it to the top of the screen put it under the header, where a tap
+   * landed on the header instead.
    *
    * @param {DOMRect} firstRect The client rect of the selection's first line.
    * @param {DOMRect} lastRect The client rect of the selection's last line.
@@ -85,15 +100,21 @@ export default class PostQuoteButton extends Fragment {
     const viewport = window.visualViewport;
     const viewportTop = viewport ? viewport.offsetTop : 0;
     const viewportBottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+    const minTop = Math.max(viewportTop, fixedHeaderBottom()) + VIEWPORT_MARGIN;
     const maxTop = viewportBottom - height - VIEWPORT_MARGIN;
+    const fits = (top) => top >= minTop && top <= maxTop;
 
-    let top = lastRect.bottom + TOUCH_GAP;
+    const below = lastRect.bottom + TOUCH_GAP;
+    const above = firstRect.top - TOUCH_GAP - height;
+    let top;
 
-    if (top > maxTop) {
-      top = firstRect.top - TOUCH_GAP - height;
+    if (fits(below)) {
+      top = below;
+    } else if (fits(above)) {
+      top = above;
+    } else {
+      top = Math.max(minTop, (minTop + maxTop) / 2);
     }
-
-    top = Math.max(viewportTop + VIEWPORT_MARGIN, Math.min(top, maxTop));
 
     this.show(lastRect.right - $this.outerWidth(), $(window).scrollTop() + top);
   }

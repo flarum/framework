@@ -2,7 +2,8 @@ import app from 'flarum/admin/app';
 import type RequestError from 'flarum/common/utils/RequestError';
 import apiUrl from '../apiUrl';
 import { alertError, errorPayload, serverMessage } from '../errors';
-import { cardOffers, dismissalApplies, hidesPage, runIsLive, showingRun, sortForGrid } from '../runState';
+import { confirmRollback, requestRollback } from '../rollback';
+import { cardOffers, dismissalApplies, hidesPage, requestSequence, runIsLive, showingRun, sortForGrid } from '../runState';
 import type {
   CheckPayload,
   Installed,
@@ -77,6 +78,11 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
   starting = false;
   rollbackNote: string | null = null;
   dismissed = false;
+  /** An undo started from the History tab, while the run panel is dismissed. */
+  rollingBack = false;
+
+  /** Only the newest `/state` reply is used; see runState.requestSequence. */
+  protected loads = requestSequence();
 
   /**
    * Dismissal is remembered against WHICH run, and it has to be remembered
@@ -107,6 +113,14 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
       localStorage.setItem(ExtensionManagerPage.DISMISS_KEY, id);
     } catch {
       // Private browsing: it reappears next load, which is the safe way round.
+    }
+  }
+
+  protected forgetDismissed() {
+    try {
+      localStorage.removeItem(ExtensionManagerPage.DISMISS_KEY);
+    } catch {
+      // Private browsing: nothing was stored.
     }
   }
 
@@ -176,10 +190,13 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
   load() {
     this.loadError = null;
     this.loadErrorDetail = null;
+    const ticket = this.loads.next();
 
     app
       .request<StatePayload>({ method: 'GET', url: apiUrl() + '/extension-manager/state' })
       .then((data) => {
+        if (!this.loads.isCurrent(ticket)) return;
+
         this.host = data.host;
         this.installed = data.installed || [];
         this.history = data.history || [];
@@ -206,6 +223,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
         m.redraw();
       })
       .catch((e) => {
+        if (!this.loads.isCurrent(ticket)) return;
+
         /*
          * The reason, on screen. Swallowing it and rendering an empty page
          * is how somebody ends up staring at a screen that looks broken with
@@ -301,7 +320,15 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
         content = this.installedTab();
         break;
       case 'history':
-        content = <HistoryTab history={this.history} installed={this.installed} />;
+        content = (
+          <HistoryTab
+            history={this.history}
+            installed={this.installed}
+            undoable={this.undoableFromHistory()}
+            rollingBack={this.rollingBack}
+            onundo={() => this.rollBackFromHistory()}
+          />
+        );
         break;
       case 'sources':
         content = <SourcesTab />;
@@ -413,14 +440,60 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
           this.load();
           this.reloadIfSelf(run);
         }}
-        onrollback={(data: RollbackPayload) => {
-          this.run = data.run;
-          this.rollbackNote = data.next || null;
-          this.load();
-          this.reloadIfSelf(data.run);
-        }}
+        onrollback={(data: RollbackPayload) => this.rolledBack(data)}
       />
     );
+  }
+
+  rolledBack(data: RollbackPayload) {
+    this.run = data.run;
+    this.rollbackNote = data.next || null;
+    this.load();
+    this.reloadIfSelf(data.run);
+  }
+
+  /**
+   * The run History may offer to undo: the latest one, when it finished or
+   * failed and its panel has been dismissed.
+   *
+   * Dismissing a failed run is remembered, and the panel held the only Roll
+   * back button, so a dismissed failure could no longer be undone from this
+   * page at all. Only the latest run, because that is the one the rollback
+   * endpoint undoes, and only while the panel is away, so there is never a
+   * second button for the same undo on screen.
+   */
+  undoableFromHistory(): string | null {
+    const run = this.run;
+
+    return run && !this.showingRun() && (run.state === 'failed' || run.state === 'done') ? run.id : null;
+  }
+
+  rollBackFromHistory() {
+    const run = this.run;
+    if (!run || this.rollingBack) return;
+
+    confirmRollback(run, () => {
+      this.rollingBack = true;
+      m.redraw();
+
+      requestRollback()
+        .then((data) => {
+          this.rollingBack = false;
+          /*
+           * The panel comes back with the outcome. The stored dismissal is for
+           * this same run, so it is forgotten as well, or the load below would
+           * read it and hide the panel again.
+           */
+          this.dismissed = false;
+          this.forgetDismissed();
+          this.rolledBack(data);
+          m.redraw();
+        })
+        .catch(() => {
+          this.rollingBack = false;
+          m.redraw();
+        });
+    });
   }
 
   /**
@@ -539,6 +612,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
          * was told "idle", and stopped — in the same second the new run began.
          */
         this.dismissed = false;
+        // A /state reply already on its way predates this run, and would put the old one back.
+        this.loads.invalidate();
         this.run = data.run;
         this.driver = data.driver || null;
         m.redraw();

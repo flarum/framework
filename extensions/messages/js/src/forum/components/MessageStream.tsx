@@ -165,6 +165,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
         <div className="MessageStream-item" key="reply">
           <ReplyPlaceholder
             discussion={this.attrs.dialog}
+            headingLevel={3}
             onclick={() => {
               import('flarum/forum/components/ComposerBody').then(() => {
                 app.composer

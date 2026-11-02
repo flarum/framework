@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Plan;
 
+use Flarum\ExtensionManager\Config\StabilityRule;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 
 /**
@@ -28,6 +29,11 @@ use Flarum\ExtensionManager\Work\UpdateCheck;
  *     nobody chose.
  *   - **Only where the constraint is an exact pin.** Raising a range would be
  *     rewriting a decision nobody asked to change.
+ *   - **Never to a release less finished than the forum allows.** A pin
+ *     that names a release candidate is itself permission to install one, so
+ *     raising `1.2.0` to `1.3.0-RC1` would quietly move a stable forum onto a
+ *     release candidate. The stability is judged against composer.json as it
+ *     is now, before anything is raised.
  *   - **The site's own spelling is kept.** A forum that writes `v0.3.1` gets
  *     `v0.3.2`, not `0.3.2`: a constraint that changes shape reads as something
  *     nobody did on purpose.
@@ -55,6 +61,7 @@ class Repin
     public function pins(array $packages): array
     {
         $available = (array) $this->cachedUpdates();
+        $rule = StabilityRule::fromComposerJson($this->composerJsonPath);
         $out = [];
 
         foreach ($this->pinned($packages) as $package => $constraint) {
@@ -67,6 +74,12 @@ class Repin
              * v1.21.3 and the run moved nothing (live box, 2026-10-13).
              */
             if (! is_string($to) || version_compare(ltrim($to, 'v'), ltrim($constraint, 'v'), '<=')) {
+                continue;
+            }
+
+            // A check saved before this rule existed, or before the forum's
+            // minimum-stability was raised, can still name one.
+            if (! $rule->allows($package, $to)) {
                 continue;
             }
 

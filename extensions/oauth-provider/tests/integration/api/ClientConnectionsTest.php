@@ -63,7 +63,8 @@ class ClientConnectionsTest extends TestCase
                 ['id' => 'at-2-cimd', 'client_id' => self::CIMD, 'user_id' => 2, 'revoked' => 0, 'expires_at' => $later, 'last_used_at' => $now->copy()->subHour()->toDateTimeString()],
                 ['id' => 'at-3-cimd-old', 'client_id' => self::CIMD, 'user_id' => 3, 'revoked' => 0, 'expires_at' => $later, 'last_used_at' => $now->copy()->subDays(3)->toDateTimeString()],
                 ['id' => 'at-3-cimd', 'client_id' => self::CIMD, 'user_id' => 3, 'revoked' => 0, 'expires_at' => $later, 'last_used_at' => $now->copy()->subMinute()->toDateTimeString()],
-                ['id' => 'at-2-admin', 'client_id' => 'admin-client', 'user_id' => 2, 'revoked' => 0, 'expires_at' => $later],
+                // Issued when the member signed in, and never presented to a resource since.
+                ['id' => 'at-2-admin', 'client_id' => 'admin-client', 'user_id' => 2, 'revoked' => 0, 'expires_at' => $later, 'created_at' => $now->copy()->subMinutes(30)->toDateTimeString()],
             ],
         ]);
     }
@@ -98,7 +99,8 @@ class ClientConnectionsTest extends TestCase
         $this->assertEqualsWithDelta(Carbon::now()->subMinute()->getTimestamp(), Carbon::parse($clients[self::CIMD]['lastUsedAt'])->getTimestamp(), 5);
 
         $this->assertSame(1, $clients['admin-client']['connectionCount']);
-        $this->assertNull($clients['admin-client']['lastUsedAt']);
+        // A sign-in is a use, even when the client never calls a resource.
+        $this->assertEqualsWithDelta(Carbon::now()->subMinutes(30)->getTimestamp(), Carbon::parse($clients['admin-client']['lastUsedAt'])->getTimestamp(), 5);
     }
 
     #[Test]
