@@ -21,10 +21,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * A precognitive request is refused (401/403/404) before validation runs
- * whenever the same normal request would be refused, so the 422-or-204 answer
- * says nothing about records or endpoints the actor can't reach. Each case
- * sends a body that would fail validation.
+ * A precognitive request is refused before validation whenever the normal one
+ * would be, so a 422 or 204 leaks nothing about what the actor can't reach.
+ * Each case sends an invalid body.
  */
 class AuthorizationOrderTest extends TestCase
 {

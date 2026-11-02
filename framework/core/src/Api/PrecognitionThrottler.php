@@ -14,12 +14,8 @@ use Illuminate\Contracts\Cache\Repository as Cache;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
- * Limits precognitive requests, which skip the endpoints' own (write-oriented)
- * throttlers: at most `$limit` per `$window` seconds per user, or per IP
- * address for guests, so validation (e.g. `unique` rules) cannot be used
- * to enumerate taken usernames or emails at an unbounded rate.
- *
- * Bound as `flarum.api.precognition_throttler`; rebind it to change the limit.
+ * Allows `$limit` precognitive requests per `$window` seconds per user, or per
+ * IP address for guests. Rebind `flarum.api.precognition_throttler` to change it.
  */
 class PrecognitionThrottler
 {
@@ -41,7 +37,7 @@ class PrecognitionThrottler
             ? 'ip.'.sha1((string) $request->getAttribute('ipAddress'))
             : 'user.'.$actor->id);
 
-        // Starts the window on the first request; later ones only count.
+        // Fixed window: only the first request sets the TTL.
         $this->cache->add($key, 0, $this->window);
 
         return (int) $this->cache->increment($key) > $this->limit;

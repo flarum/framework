@@ -47,10 +47,6 @@ class SideEffectsTest extends TestCase
         ]);
     }
 
-    /**
-     * Valid precognitive creates and updates on core resources answer 204 and
-     * change nothing: no rows, no domain or model write events.
-     */
     #[Test]
     public function valid_precognitive_writes_change_nothing()
     {
@@ -86,8 +82,7 @@ class SideEffectsTest extends TestCase
 
         $this->assertEquals($before, $this->snapshot());
 
-        // Authenticating a request touches the access token and the user's last_seen_at
-        // (both model saves); the snapshot above covers the user columns that matter.
+        // Authenticating saves the access token and the user's last_seen_at.
         $writes = array_values(array_unique(array_filter($events, fn (string $name) => (
             (bool) preg_match('/^eloquent\.(creat|sav|updat|delet|restor)/', $name)
             && ! str_contains($name, 'AccessToken') && ! str_ends_with($name, 'Flarum\User\User')

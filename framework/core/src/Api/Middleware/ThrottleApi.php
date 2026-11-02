@@ -20,7 +20,7 @@ class ThrottleApi implements Middleware
 {
     /**
      * @param array<string, callable> $throttlers
-     * @param (callable(Request): bool)|null $precognitionThrottler applies to precognitive requests instead of $throttlers
+     * @param (callable(Request): bool)|null $precognitionThrottler
      */
     public function __construct(
         protected array $throttlers,
@@ -39,11 +39,9 @@ class ThrottleApi implements Middleware
 
     public function throttle(Request $request): bool
     {
-        // A precognitive request never saves, so the endpoint's write-oriented
-        // throttlers (flood control, email timeouts, ...) neither count it nor
-        // deny it. It has its own limit instead, for guests too: validation
-        // runs `unique` rules, which could otherwise enumerate taken usernames
-        // and emails at an unbounded rate.
+        // A precognitive request never saves, so the write-oriented throttlers
+        // don't apply. It gets its own limit instead, guests included: `unique`
+        // rules would otherwise let anyone enumerate taken usernames and emails.
         if (Precognition::active($request)) {
             if ($request->getAttribute('bypassThrottling') || $this->precognitionThrottler === null) {
                 return false;

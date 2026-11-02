@@ -88,12 +88,6 @@ class Create extends Endpoint
             });
     }
 
-    /**
-     * Precognitive create: the action's steps up to validation, minus the
-     * before hook. Nothing is set on the model, nothing is saved, and no
-     * authorization inside before hooks, resource creating/saving hooks or
-     * field setters runs: passing does not mean the create would succeed.
-     */
     protected function validatePrecognitive(Context $context): void
     {
         $collection = $context->collection;

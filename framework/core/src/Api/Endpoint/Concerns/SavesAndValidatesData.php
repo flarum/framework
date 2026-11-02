@@ -32,9 +32,8 @@ trait SavesAndValidatesData
      * Assert that the field values within a data object pass validation.
      *
      * @param \Flarum\Api\Context $context
-     * @param string[]|null $only Validate only the rules of these field names (attributes or
-     *                            relationships); unknown names are ignored. Null, or a list naming
-     *                            no field of the resource, validates every field: never a false pass.
+     * @param string[]|null $only field names to limit validation to; null, or a list naming
+     *                            no field of the resource, validates every field
      * @throws UnprocessableEntityException
      */
     protected function assertDataValid(Context $context, array $data, ?array $only = null): void
@@ -103,8 +102,7 @@ trait SavesAndValidatesData
     }
 
     /**
-     * Keep the rules that belong to the given field names. A rule key belongs to the field
-     * named by its first segment, so `groups.*` stays with `groups`.
+     * A rule key belongs to the field named by its first segment: `groups.*` stays with `groups`.
      *
      * @param array<string, mixed> $rules
      * @param string[] $only

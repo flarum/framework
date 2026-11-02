@@ -86,10 +86,6 @@ class HeaderAndRouteTest extends TestCase
         ];
     }
 
-    /**
-     * Any other non-empty value signals validate-only intent that can't be
-     * honoured: the request fails closed and the endpoint never runs.
-     */
     #[Test]
     #[DataProvider('malformedValues')]
     public function other_values_are_rejected_without_writing(string $value)

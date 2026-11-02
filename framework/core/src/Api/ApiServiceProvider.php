@@ -80,7 +80,6 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        // Precognitive requests skip the throttlers above and are limited by this one instead.
         $this->container->singleton('flarum.api.precognition_throttler', function (Container $container) {
             return $container->make(PrecognitionThrottler::class);
         });

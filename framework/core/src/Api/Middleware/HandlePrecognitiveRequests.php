@@ -23,13 +23,9 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
 use Throwable;
 
 /**
- * Marks a `Precognition: true` request as precognitive when its route is a
- * create or update endpoint of an API resource, and stamps the response
- * (success or error) with `Precognition: true` and `Vary: Precognition`.
- *
- * A `Precognition` request to any other route, or with any header value other
- * than `true`, fails closed with a 400 and is not run: executing it normally
- * would perform the very write the client only meant to validate.
+ * A `Precognition` request to anything but a resource's create or update
+ * endpoint, or with a value other than `true`, fails with a 400: running it
+ * normally would perform the write the client only meant to validate.
  */
 class HandlePrecognitiveRequests implements Middleware
 {
@@ -55,9 +51,7 @@ class HandlePrecognitiveRequests implements Middleware
             };
         }
 
-        // Render errors here (rather than in the outer error handler) so the
-        // 422/403/400 responses carry the precognition headers too. This nested
-        // handler reports to the same reporters, so the outer one never sees these errors.
+        // Render errors here so error responses carry the precognition headers too.
         $response = $this->container->make('flarum.api.error_handler')->process($request, $handler);
 
         return $response

@@ -27,9 +27,6 @@ trait PrecognitionTestHelpers
         return $only === null ? $request : $request->withHeader('Precognition-Validate-Only', $only);
     }
 
-    /**
-     * A JSON:API request as an actor or as a guest, optionally from a given REMOTE_ADDR.
-     */
     protected function jsonRequest(string $method, string $path, ?array $json = null, ?int $as = null, ?string $ip = null): ServerRequestInterface
     {
         if ($ip === null) {

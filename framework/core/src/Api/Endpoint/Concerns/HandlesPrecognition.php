@@ -18,27 +18,19 @@ use Tobyz\JsonApiServer\Exception\ForbiddenException;
 use Tobyz\JsonApiServer\Exception\MethodNotAllowedException;
 
 /**
- * Answers precognitive (validate-only) requests for a saving endpoint.
- *
- * The endpoint's action closure is never invoked for such a request, so
- * neither its before/after hooks, the field setters, the resource's
- * creating/updating/saving/saved hooks, the save itself nor the event
- * dispatch can run, even when an extension replaced the action.
- *
- * A `204` therefore means the fields passed validation and the endpoint is
- * visible to the actor, not that the write would succeed: authorization that
- * lives in those hooks and setters (e.g. GDPR's password check, the messages
- * extension's `sendAnyMessage`, `UserResource`'s `editCredentials` check on
- * the email setter) is not run.
+ * The endpoint's action is never invoked for a precognitive request, so its
+ * hooks, the field setters, the resource's saving hooks and events never run,
+ * even when an extension replaced the action. A `204` means the fields are
+ * valid and the endpoint is visible to the actor, not that the write would
+ * succeed: authorization that lives in hooks or setters (e.g. the
+ * `editCredentials` check on `UserResource`'s email setter) is skipped.
  *
  * @see Precognition
  */
 trait HandlesPrecognition
 {
     /**
-     * Run authorization and validation only, without side effects.
-     *
-     * @throws \Throwable on authorization or validation failure.
+     * Must not have side effects.
      */
     abstract protected function validatePrecognitive(Context $context): void;
 
@@ -51,9 +43,7 @@ trait HandlesPrecognition
             return parent::handle($context);
         }
 
-        // Same request preparation as Endpoint::handle(): resolve the model
-        // (404 when missing or invisible) and check the endpoint's own
-        // authorization (authenticated/admin/can/visible → 401/403).
+        // Mirrors Endpoint::handle() up to the action call.
         if (strtolower($context->method()) !== strtolower($this->method)) {
             throw new MethodNotAllowedException();
         }
@@ -77,8 +67,6 @@ trait HandlesPrecognition
     }
 
     /**
-     * The field names the client limited validation to, or null for all.
-     *
      * @return string[]|null
      */
     protected function precognitiveFields(Context $context): ?array

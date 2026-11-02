@@ -72,12 +72,6 @@ class Update extends Endpoint
             });
     }
 
-    /**
-     * Precognitive update: the action's steps up to validation, minus the
-     * before hook. Nothing is set on the model, nothing is saved, and no
-     * authorization inside before hooks, resource updating/saving hooks or
-     * field setters runs: passing does not mean the update would succeed.
-     */
     protected function validatePrecognitive(Context $context): void
     {
         /** @var AbstractResource $resource */
