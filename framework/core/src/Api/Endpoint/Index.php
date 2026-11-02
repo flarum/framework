@@ -31,6 +31,7 @@ use Tobyz\JsonApiServer\Exception\BadRequestException;
 use Tobyz\JsonApiServer\Exception\Sourceable;
 use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 use Tobyz\JsonApiServer\Pagination\Pagination;
+use Tobyz\JsonApiServer\Resource\Paginatable;
 use Tobyz\JsonApiServer\Schema\Concerns\HasMeta;
 
 use function Tobyz\JsonApiServer\json_api_response;
@@ -120,7 +121,7 @@ class Index extends Endpoint
 
                 $query = $collection->query($context);
 
-                $pagination = ($this->paginationResolver)($context);
+                $pagination = ($this->paginationResolver)($context) ?? $this->paginationOnRequest($context);
 
                 $extracts = $this->defaultExtracts($context);
 
@@ -316,6 +317,22 @@ class Index extends Endpoint
         $total = $context->queryParam('page')['total'] ?? null;
 
         return ! in_array($total, ['0', 'false', 0, false], true);
+    }
+
+    /**
+     * An endpoint that isn't paginated returns the whole list, unless the client
+     * asks for a page: then it paginates, so the client gets the links to the
+     * rest rather than a list cut off without notice.
+     */
+    protected function paginationOnRequest(Context $context): ?OffsetPagination
+    {
+        $page = $context->queryParam('page');
+
+        if (! is_array($page) || ! isset($page['limit']) || ! $context->collection instanceof Paginatable) {
+            return null;
+        }
+
+        return new OffsetPagination($context, $this->maxLimit, $this->maxLimit);
     }
 
     public function paginate(int $defaultLimit = 20, int $maxLimit = 50): static

@@ -156,6 +156,37 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function links_to_the_next_page_when_a_limit_is_requested()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams([
+                'page' => ['limit' => '2'],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals(['1', '2'], Arr::pluck($data['data'], 'id'));
+        $this->assertStringContainsString('page%5Boffset%5D=2', $data['links']['next'] ?? '');
+    }
+
+    #[Test]
+    public function returns_every_group_without_pagination_links_when_no_page_is_requested()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));
+        $this->assertArrayNotHasKey('next', $data['links'] ?? []);
+    }
+
+    #[Test]
     public function paginates_groups_with_filter()
     {
         $response = $this->send(
