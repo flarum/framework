@@ -21,9 +21,12 @@ use Illuminate\Support\Collection;
  * the rows are locked in one statement, in ascending id order, before any
  * vote row is written, and a transaction never comes back for more
  * discussion rows than it locked first (a merge locks the ideas already
- * folded into its source with the source and the target). GitHub's link
- * rows are written without holding a discussion's lock, and a member's
- * deletion lowers the counts of what they voted for in one statement.
+ * folded into its source with the source and the target). A member's
+ * deletion locks the ideas they voted for before their vote rows go
+ * (ForgetDeletedUserVotes). Nothing waits on GitHub while holding a lock:
+ * a link is looked up before a merge in the same request takes its locks,
+ * and a webhook or the refresh writes a link row in its own statement,
+ * never holding one while it waits for a discussion.
  *
  * Call it inside a transaction; outside one the lock ends with the
  * statement. SQLite has no row locks and serializes every write instead.

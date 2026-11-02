@@ -12,9 +12,14 @@ namespace Flarum\Ideation\Tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
+use Flarum\Extend\ExtenderInterface;
+use Flarum\Extension\Extension;
+use Flarum\Ideation\Service\IdeaLock;
+use Flarum\Ideation\Tests\integration\RecordingIdeaLock;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Mail\Events\MessageSent;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
@@ -552,6 +557,32 @@ class IdeationTest extends TestCase
 
         $this->assertSame(0, $this->votes(1));
         $this->assertSame(1, $this->votes(2));
+    }
+
+    #[Test]
+    public function deleting_a_member_locks_their_ideas_before_their_votes_go()
+    {
+        $this->extend(new class implements ExtenderInterface {
+            public function extend(Container $container, ?Extension $extension = null): void
+            {
+                $container->instance(IdeaLock::class, new RecordingIdeaLock());
+            }
+        });
+
+        $this->patch(2, self::OTHER, ['ideationVoted' => true]);
+        $this->patch(1, self::OTHER, ['ideationVoted' => true]);
+
+        RecordingIdeaLock::$log = [];
+        RecordingIdeaLock::$note = fn () => $this->database()->table('ideation_votes')->where('user_id', self::OTHER)->count();
+
+        User::query()->findOrFail(self::OTHER)->delete();
+
+        // Both steps go through IdeaLock, in ascending id order, and the
+        // first holds the ideas while their vote rows still exist.
+        $this->assertCount(2, RecordingIdeaLock::$log);
+        $this->assertSame(['lock', [1, 2], 2], RecordingIdeaLock::$log[0]);
+        $this->assertSame([1, 2], RecordingIdeaLock::$log[1][1]);
+        $this->assertSame([0, 0], [$this->votes(1), $this->votes(2)]);
     }
 
     #[Test]

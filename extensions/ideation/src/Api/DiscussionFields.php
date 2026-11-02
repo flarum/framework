@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Api\Context;
 use Flarum\Api\Schema;
 use Flarum\Discussion\Discussion;
+use Flarum\Discussion\Event\Saving;
 use Flarum\Foundation\ValidationException;
 use Flarum\Ideation\Event\StatusChanged;
 use Flarum\Ideation\GitHub\Config as GitHubConfig;
@@ -22,6 +23,7 @@ use Flarum\Ideation\Service\Votes;
 use Flarum\Ideation\Status;
 use Flarum\Locale\TranslatorInterface;
 use Illuminate\Support\Arr;
+use WeakMap;
 
 /**
  * Everything Ideation adds to a discussion.
@@ -33,6 +35,9 @@ use Illuminate\Support\Arr;
  */
 class DiscussionFields
 {
+    /** @var WeakMap<Discussion, int>|null merges set on a discussion, waiting for its save */
+    protected static ?WeakMap $pendingMerges = null;
+
     public function __construct(
         protected Votes $votes,
         protected TranslatorInterface $translator,
@@ -208,12 +213,17 @@ class DiscussionFields
             $this->refuseMerge();
         }
 
-        // Checked again with both ideas locked, before anything in the
-        // request is saved. A PATCH that merges runs in one transaction
-        // (MergeInOneTransaction), so the locks hold until it ends: another
-        // merge of either idea, a ship or a decline waits for this one, and
-        // a refusal here leaves the request's other changes unsaved too.
-        $this->lockForMerge($source->id, $target->id);
+        // Checked again with both ideas locked just before the discussion is
+        // saved (lockPendingMerge, on core's Saving event): after every field
+        // of the request is set, so a GitHub link in the same request is
+        // looked up before any lock is taken, and before the source's own
+        // row is written, so the locks are taken in IdeaLock's order. A PATCH
+        // that merges runs in one transaction (MergeInOneTransaction), so the
+        // locks hold until it ends: another merge of either idea, a ship or a
+        // decline waits for this one, and a refusal leaves the request's
+        // other changes unsaved too.
+        self::$pendingMerges ??= new WeakMap();
+        self::$pendingMerges[$source] = $target->id;
 
         // The merge itself is written after the save, under the same locks:
         // the source is read again there, so of two merges of one idea into
@@ -250,6 +260,17 @@ class DiscussionFields
             // Dispatched once the discussion is saved, after the votes have moved.
             $source->raise(new StatusChanged($source, $actor, $old, Status::MERGED, $target));
         });
+    }
+
+    /** Core's Saving event: take a pending merge's locks and check it, before the save. */
+    public function lockPendingMerge(Saving $event): void
+    {
+        $targetId = self::$pendingMerges[$event->discussion] ?? null;
+
+        if ($targetId !== null) {
+            unset(self::$pendingMerges[$event->discussion]);
+            $this->lockForMerge($event->discussion->id, $targetId);
+        }
     }
 
     /**

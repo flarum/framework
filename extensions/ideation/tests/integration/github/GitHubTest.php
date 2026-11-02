@@ -16,7 +16,9 @@ use Flarum\Http\RequestUtil;
 use Flarum\Ideation\GitHub\Client;
 use Flarum\Ideation\GitHub\Link;
 use Flarum\Ideation\GitHub\Links;
+use Flarum\Ideation\Service\IdeaLock;
 use Flarum\Ideation\Tests\integration\FakeGitHub;
+use Flarum\Ideation\Tests\integration\RecordingIdeaLock;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -411,6 +413,25 @@ class GitHubTest extends TestCase
         $response = $this->patch(2, self::MOD, ['ideationGithubLink' => 'fof/moved#2']);
         $this->assertSame(422, $response->getStatusCode());
         $this->assertStringContainsString('has moved', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function a_merge_with_a_link_asks_github_before_taking_any_lock()
+    {
+        $this->boot();
+        $this->app()->getContainer()->instance(IdeaLock::class, new RecordingIdeaLock());
+        $this->database()->table('discussions')->where('id', 2)->update(['ideation_status' => 'planned']);
+
+        RecordingIdeaLock::$log = [];
+        RecordingIdeaLock::$note = fn () => [count($this->github->asked), $this->database()->table('discussions')->where('id', 1)->value('title')];
+
+        $response = $this->patch(1, self::MOD, ['title' => 'Renamed', 'ideationGithubLink' => 'flarum/framework#4000', 'ideationMergedIntoId' => 2]);
+        $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
+
+        // GitHub was asked before the first lock, and that lock came before
+        // the merged idea's own row was written.
+        $this->assertSame(['lock', [1, 2], [1, 'Idea']], RecordingIdeaLock::$log[0]);
+        $this->assertSame('merged', $this->database()->table('discussions')->where('id', 1)->value('ideation_status'));
     }
 
     #[Test]

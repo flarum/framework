@@ -10,6 +10,7 @@
 namespace Flarum\Ideation\Listener;
 
 use Flarum\Discussion\Discussion;
+use Flarum\Ideation\Service\IdeaLock;
 use Flarum\Ideation\Vote;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -26,14 +27,22 @@ use WeakMap;
  * Deleted: those come only from the API's delete, and flarum/gdpr erases a
  * member with a plain `$user->delete()`. Every delete of a User model fires
  * these, once each.
+ *
+ * Both steps lock the ideas through IdeaLock (one statement, ascending id)
+ * before any vote row or count changes, the order every vote, move and
+ * merge uses. A delete run inside a transaction (an erasure that removes
+ * several things at once) therefore holds the ideas' locks before the
+ * foreign key removes their vote rows, and never waits on a merge or a vote
+ * in the opposite order. Outside a transaction each statement stands alone.
  */
 class ForgetDeletedUserVotes
 {
     /** @var WeakMap<User, int[]> */
     protected WeakMap $votedFor;
 
-    public function __construct()
-    {
+    public function __construct(
+        protected IdeaLock $lock
+    ) {
         $this->votedFor = new WeakMap();
     }
 
@@ -46,7 +55,12 @@ class ForgetDeletedUserVotes
     /** Returns nothing: a `false` from a `deleting` listener would cancel the delete. */
     public function remember(User $user): void
     {
-        $this->votedFor[$user] = Vote::query()->where('user_id', $user->id)->pluck('discussion_id')->map(intval(...))->all();
+        $ids = Vote::query()->where('user_id', $user->id)->pluck('discussion_id')->map(intval(...))->all();
+        $this->votedFor[$user] = $ids;
+
+        if ($ids) {
+            $this->lock->lock(...$ids);
+        }
     }
 
     public function forget(User $user): void
@@ -55,7 +69,11 @@ class ForgetDeletedUserVotes
         unset($this->votedFor[$user]);
 
         if ($ids) {
-            Discussion::query()->whereIn('id', $ids)->where('ideation_votes', '>', 0)->decrement('ideation_votes');
+            $user->getConnection()->transaction(function () use ($ids) {
+                $this->lock->lock(...$ids);
+
+                Discussion::query()->whereIn('id', $ids)->where('ideation_votes', '>', 0)->decrement('ideation_votes');
+            });
         }
     }
 }

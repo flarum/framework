@@ -13,6 +13,7 @@ use Flarum\Api\Resource\ForumResource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Discussion\Discussion;
+use Flarum\Discussion\Event\Saving as DiscussionSaving;
 use Flarum\Discussion\Event\Started;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
@@ -134,6 +135,7 @@ return [
     (new Extend\Event())
         ->listen(StatusChanged::class, Listener\RecordStatusChange::class)
         ->listen(Started::class, Listener\VoteForOwnIdea::class)
+        ->listen(DiscussionSaving::class, [DiscussionFields::class, 'lockPendingMerge'])
         ->listen(Saving::class, [GitHub\Secrets::class, 'saving'])
         ->listen(Deserializing::class, [GitHub\Secrets::class, 'deserializing'])
         ->subscribe(Listener\ForgetDeletedUserVotes::class),
