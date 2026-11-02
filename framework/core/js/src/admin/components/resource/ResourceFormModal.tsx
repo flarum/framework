@@ -68,13 +68,6 @@ export default class ResourceFormModal<
     );
   }
 
-  onremove(vnode: Mithril.VnodeDOM<Attrs, this>) {
-    super.onremove(vnode);
-
-    // A pending or running live check must not outlive the modal.
-    this.formState?.live.cancel();
-  }
-
   onupdate(vnode: Mithril.VnodeDOM<Attrs, this>) {
     super.onupdate(vnode);
 

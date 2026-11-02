@@ -38,8 +38,8 @@ use Throwable;
 class RuleHints
 {
     /**
-     * Stands in for a rule only the server may check: it is never described,
-     * and it makes the field live-validated. See {@see self::isValueList()}.
+     * Stands in for a rule only the server may check: it is never described.
+     * See {@see self::isValueList()}.
      */
     public const string SERVER_ONLY = 'flarum_server_only';
 
@@ -116,17 +116,6 @@ class RuleHints
      * predict whether a required rule next to them applies.
      */
     protected const string EXCLUDE_PREFIX = 'exclude';
-
-    /**
-     * Rules the descriptor fully expresses (or that only describe the type), so
-     * the client can evaluate them without asking the server.
-     */
-    protected const array CLIENT_RULES = [
-        'required', 'nullable', 'filled', 'present', 'accepted', 'declined', 'sometimes', 'bail',
-        'string', 'integer', 'numeric', 'boolean', 'array',
-        'distinct', 'multiple_of', 'min', 'gte', 'max', 'lte', 'gt', 'lt', 'size', 'between',
-        'digits', 'digits_between', 'in', 'regex',
-    ];
 
     /**
      * @see \Flarum\Api\Endpoint\Concerns\SavesAndValidatesData::assertDataValid()
@@ -479,37 +468,6 @@ class RuleHints
             if (in_array(strtolower(explode(':', $part, 2)[0]), ['in', 'not_in', 'enum'], true)) {
                 return true;
             }
-        }
-
-        return false;
-    }
-
-    /**
-     * Whether the rules hold anything the client cannot evaluate from the
-     * descriptor: rule objects and closures that have no string form (`Password`,
-     * `Rule::requiredIf(fn)`, custom rules), and string rules the descriptor does
-     * not express (`unique`, `exists`, `confirmed`, `date`, ...).
-     *
-     * @param iterable<mixed>|string $rules evaluated rules for one mode
-     */
-    public static function needsServer(iterable|string $rules): bool
-    {
-        foreach (static::normalize($rules) as $rule) {
-            if (! is_string($rule)) {
-                return true;
-            }
-
-            $name = explode(':', $rule, 2)[0];
-
-            if (in_array($name, self::CLIENT_RULES, true) || isset(self::FORMATS[$name])) {
-                continue;
-            }
-
-            if (isset(self::REQUIRED_CONDITIONS[$name])) {
-                continue;
-            }
-
-            return true;
         }
 
         return false;

@@ -95,18 +95,6 @@ describe('ResourceFormModal', () => {
     expect(keys.filter((key) => !EDIT_USER_MODAL_CORE_FIELDS.includes(key))).toEqual(['isEmailConfirmed']);
   });
 
-  test('removing the modal cancels its live checks', async () => {
-    const { modal } = await render<ResourceFormModal<User>>(
-      ResourceFormModal,
-      modalAttrs({ definition: new ResourceDefinition<User>('users'), model: user })
-    );
-    const cancel = jest.spyOn(modal.formState!.live, 'cancel');
-
-    modal.onremove({} as any);
-
-    expect(cancel).toHaveBeenCalledTimes(1);
-  });
-
   test('the create form has no token or colorScheme input (ui.widget hidden) and requires the credentials', async () => {
     const { out, modal } = await render<ResourceFormModal<User>>(
       ResourceFormModal,

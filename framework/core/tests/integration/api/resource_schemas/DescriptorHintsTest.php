@@ -24,7 +24,6 @@ use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
-use Illuminate\Validation\Rule;
 use Laminas\Diactoros\ServerRequest;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -150,19 +149,6 @@ class DescriptorHintsTest extends TestCase
     }
 
     #[Test]
-    public function rules_only_the_server_can_check_ask_for_live_validation()
-    {
-        $descriptor = $this->describe();
-
-        $this->assertTrue($this->field($descriptor, 'uniqueName')['ui']['liveValidate']);
-        $this->assertTrue($this->field($descriptor, 'requiredByClosure')['ui']['liveValidate']);
-        $this->assertTrue($this->field($descriptor, 'customRule')['ui']['liveValidate']);
-        $this->assertArrayNotHasKey('ui', $this->field($descriptor, 'plainWritable'));
-        // Rules of a field the actor cannot write are never evaluated for them.
-        $this->assertArrayNotHasKey('ui', $this->field($descriptor, 'readOnlyUnique'));
-    }
-
-    #[Test]
     public function typed_ui_hints_are_described()
     {
         $hinted = $this->field($this->describe(), 'hinted');
@@ -283,21 +269,6 @@ class ScratchHintedResource extends AbstractDatabaseResource
             Schema\Str::make('unusedMessage')
                 ->validationMessages(['unusedMessage.regex' => 'Never applies'])
                 ->writable(),
-            Schema\Str::make('uniqueName')
-                ->unique('groups', 'name_singular')
-                ->writable(),
-            Schema\Str::make('requiredByClosure')
-                ->rule(fn () => Rule::requiredIf(fn () => true))
-                ->writable(),
-            Schema\Str::make('customRule')
-                ->rule(fn () => function (string $attribute, mixed $value, \Closure $fail) {
-                })
-                ->writable(),
-            Schema\Str::make('plainWritable')
-                ->rule('max:3')
-                ->writable(),
-            Schema\Str::make('readOnlyUnique')
-                ->unique('groups', 'name_singular'),
             Schema\Str::make('hinted')
                 ->columnHidden(70)
                 ->widget('textarea')

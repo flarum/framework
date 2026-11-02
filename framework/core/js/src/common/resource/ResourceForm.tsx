@@ -244,13 +244,6 @@ export default class ResourceForm<M extends Model = Model, Attrs extends Resourc
     }
   }
 
-  onremove(vnode: Mithril.VnodeDOM<Attrs, this>) {
-    super.onremove(vnode);
-
-    // A pending or running live check must not outlive the form.
-    this.formState?.live.cancel();
-  }
-
   /**
    * Focus the form's first control; override to focus another one.
    */

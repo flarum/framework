@@ -240,7 +240,6 @@ class InferenceTest extends TestCase
         $field = $this->field($this->describe(), 'customCondition');
 
         $this->assertSame(['maxLength' => 20], $field['constraints']);
-        $this->assertTrue($field['ui']['liveValidate']);
     }
 
     #[Test]
@@ -255,7 +254,6 @@ class InferenceTest extends TestCase
         $this->assertTrue($field['requiredConditional']);
         $this->assertArrayNotHasKey('required', $field);
         $this->assertArrayNotHasKey('constraints', $field);
-        $this->assertTrue($field['ui']['liveValidate']);
         $this->assertSame(['create' => true, 'update' => true], $field['writable']);
 
         // Other fields are unaffected.
@@ -282,14 +280,12 @@ class InferenceTest extends TestCase
         // A closure may build its list from data the actor cannot see.
         $enumByClosure = $this->field($descriptor, 'enumByClosure');
         $this->assertArrayNotHasKey('constraints', $enumByClosure);
-        $this->assertTrue($enumByClosure['ui']['liveValidate']);
 
         $this->assertSame(['enum' => ['x', 'y']], $this->field($descriptor, 'inObject')['constraints']);
 
         // A deny-list is never published.
         $notInObject = $this->field($descriptor, 'notInObject');
         $this->assertArrayNotHasKey('constraints', $notInObject);
-        $this->assertTrue($notInObject['ui']['liveValidate']);
     }
 
     #[Test]

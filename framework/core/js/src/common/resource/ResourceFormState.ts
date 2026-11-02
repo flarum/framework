@@ -7,7 +7,6 @@ import generateElementId from '../utils/generateElementId';
 import { conditionHolds, isRequired, isWritable } from './descriptor';
 import { mapErrors } from './errors';
 import { fieldSave, fieldValue, mergeSaveData, snapshot } from './field';
-import LiveValidator from './liveValidation';
 import type ResourceDefinition from './ResourceDefinition';
 import type { Field, FormMode, JsonApiError, SaveData } from './types';
 import { ValidationError, validateValue } from './validation';
@@ -29,8 +28,6 @@ export default class ResourceFormState<M extends Model = Model> {
   protected sharedStreams: Record<string, Stream<any>> = {};
   /** A page-unique prefix for the ids of the form's elements, e.g. its error messages. */
   readonly domId: string = generateElementId();
-  /** Server-side checks of the `ui.liveValidate` fields. */
-  readonly live: LiveValidator = new LiveValidator(this);
 
   static async create<M extends Model>(definition: ResourceDefinition<M>, model: M | null = null): Promise<ResourceFormState<M>> {
     await definition.load();
@@ -152,7 +149,6 @@ export default class ResourceFormState<M extends Model = Model> {
     this.initial = {};
     this.errors = {};
     this.clientErrorKeys.clear();
-    this.live.cancel();
 
     const creating = this.isCreating();
 
@@ -166,8 +162,6 @@ export default class ResourceFormState<M extends Model = Model> {
 
       this.initial[key] = value;
       this.streams[key] = Stream(value);
-      // Runs once right away, while the field is untouched.
-      this.streams[key].map(() => this.live.changed(key));
     });
   }
 
@@ -243,8 +237,7 @@ export default class ResourceFormState<M extends Model = Model> {
 
   /**
    * Show or clear one field's client-side error, e.g. on blur. Other client-side errors are
-   * rechecked, as a value can make a sibling (not) required; a passing `ui.liveValidate` field then
-   * goes to `LiveValidator`.
+   * rechecked, as a value can make a sibling (not) required.
    */
   validateField(key: string): string[] {
     if (!this.fields.has(key)) return [];
@@ -267,19 +260,7 @@ export default class ResourceFormState<M extends Model = Model> {
       this.clientErrorKeys.delete(key);
     }
 
-    if (!messages.length && this.isVisible(key)) this.live.validate(key);
-
     return messages;
-  }
-
-  /**
-   * Show (or, with null, clear) a server error on one field, unless it has a client-side error.
-   */
-  setServerError(key: string, error: string | null): void {
-    if (this.clientErrorKeys.has(key)) return;
-
-    if (error) this.errors[key] = error;
-    else delete this.errors[key];
   }
 
   protected check(key: string, field: Field<M>, includeUnchanged: boolean): string[] {
@@ -299,8 +280,6 @@ export default class ResourceFormState<M extends Model = Model> {
   async save(data?: SaveData): Promise<M> {
     const invalid = this.validate();
 
-    // The save validates every sent field; a late live answer must not overwrite its errors.
-    this.live.cancel();
     this.errors = {};
     this.clientErrorKeys.clear();
 

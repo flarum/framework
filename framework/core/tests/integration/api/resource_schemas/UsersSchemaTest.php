@@ -270,7 +270,7 @@ class UsersSchemaTest extends TestCase
     }
 
     #[Test]
-    public function username_sends_its_custom_messages_and_asks_for_live_validation()
+    public function username_sends_its_custom_messages()
     {
         $username = $this->fieldsByName($this->describe(1))['username'];
 
@@ -278,8 +278,6 @@ class UsersSchemaTest extends TestCase
             'pattern' => 'The username may only contain letters, numbers, and dashes. With at least one letter.',
             'required' => 'The username field is required.',
         ], $username['constraints']['messages']);
-        // `unique` is checked by the server only.
-        $this->assertTrue($username['ui']['liveValidate']);
     }
 
     /**

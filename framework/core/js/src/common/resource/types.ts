@@ -92,8 +92,6 @@ export interface FieldUiHints {
   group?: string;
   /** Orders the field in its registry, higher first; descriptor order by default. */
   priority?: number;
-  /** Rules the client cannot evaluate: the form validates the field on blur through a validate-only request. */
-  liveValidate?: boolean;
   [key: string]: unknown;
 }
 

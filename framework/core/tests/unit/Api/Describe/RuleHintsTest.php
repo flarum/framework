@@ -324,14 +324,12 @@ class RuleHintsTest extends TestCase
     {
         $this->assertSame([], RuleHints::parse(['not_in:a,b']));
         $this->assertSame([], RuleHints::parse([Rule::notIn(['x'])]));
-        $this->assertTrue(RuleHints::needsServer(['not_in:a,b']));
     }
 
     #[Test]
-    public function the_server_only_marker_is_never_described_and_needs_the_server()
+    public function the_server_only_marker_is_never_described()
     {
         $this->assertSame([], RuleHints::parse([RuleHints::SERVER_ONLY]));
-        $this->assertTrue(RuleHints::needsServer([RuleHints::SERVER_ONLY]));
         $this->assertSame(['always' => false, 'when' => [], 'undescribable' => false], RuleHints::requirements([RuleHints::SERVER_ONLY]));
     }
 
@@ -577,7 +575,6 @@ enum RuleHintsSuit
 
         $this->assertSame(['maxLength' => 5], RuleHints::parse([$rule, 'max:5']));
         $this->assertSame(['always' => true, 'when' => [], 'undescribable' => false], RuleHints::requirements([$rule, 'required']));
-        $this->assertTrue(RuleHints::needsServer([$rule]));
     }
 
     #[Test]

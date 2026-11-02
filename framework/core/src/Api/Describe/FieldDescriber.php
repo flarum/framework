@@ -56,7 +56,7 @@ use Tobyz\JsonApiServer\Schema\Type\Str;
  * @phpstan-type UiHints array{
  *     column?: bool|int, display?: string, placeholder?: string, widget?: string, help?: string,
  *     hidden?: bool, group?: string, priority?: int, visibleWhen?: list<Condition>,
- *     markRequired?: bool, liveValidate?: bool,
+ *     markRequired?: bool,
  *     ...<string, mixed>
  * }
  * @phpstan-type FieldDescription array{
@@ -93,7 +93,7 @@ class FieldDescriber
      */
     public const array UI_KEYS = [
         'column', 'display', 'label', 'placeholder', 'widget', 'help', 'hidden',
-        'group', 'priority', 'visibleWhen', 'markRequired', 'liveValidate',
+        'group', 'priority', 'visibleWhen', 'markRequired',
     ];
 
     /**
@@ -242,11 +242,6 @@ class FieldDescriber
 
         $ui = $this->ui($ui, $field, $resource->type());
 
-        // The server must validate what the client cannot: it does so on blur.
-        if ($writable && ! isset($ui['liveValidate']) && ($requiredConditional || $this->needsServer($rules))) {
-            $ui['liveValidate'] = true;
-        }
-
         if ($ui) {
             $description['ui'] = $ui;
         }
@@ -341,20 +336,6 @@ class FieldDescriber
         }
 
         return $conditions;
-    }
-
-    /**
-     * @param array<string, list<mixed>|null> $rules evaluated rules by write mode
-     */
-    protected function needsServer(array $rules): bool
-    {
-        foreach ($rules as $modeRules) {
-            if ($modeRules === null || RuleHints::needsServer($modeRules)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

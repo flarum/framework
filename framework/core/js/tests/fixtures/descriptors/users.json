@@ -103,8 +103,7 @@
             },
             "sortable": true,
             "ui": {
-                "column": 90,
-                "liveValidate": true
+                "column": 90
             }
         },
         {
@@ -133,9 +132,6 @@
             },
             "constraintsOnUpdate": {
                 "format": "email"
-            },
-            "ui": {
-                "liveValidate": true
             }
         },
         {
