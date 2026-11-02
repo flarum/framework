@@ -189,7 +189,7 @@ export default class GambitsAutocomplete {
           (opt) => !activeTerm || opt.value.toLowerCase().startsWith(activeTerm) || (opt.label && opt.label.toLowerCase().includes(activeTerm))
         );
 
-        if (matchingOptions.length === 1 && matchingOptions[0].value.toLowerCase() === activeTerm) {
+        if (activeTerm && matchingOptions.some((opt) => opt.value.toLowerCase() === activeTerm)) {
           return [];
         }
 
