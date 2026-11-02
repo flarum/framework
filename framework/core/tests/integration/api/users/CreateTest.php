@@ -314,7 +314,7 @@ class CreateTest extends TestCase
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' => 'https://i-do-not-exist.invalid/image.png'
+            'avatar_url' => 'https://i_do_not_exist.flarum.org/image.png'
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '1', [
