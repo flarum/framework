@@ -291,6 +291,18 @@ class FetcherTest extends TestCase
         $this->assertFileExists($this->dir.'/staging/a/b/dist/a..b.js');
     }
 
+    public function test_a_failed_download_never_shows_the_token_in_its_url(): void
+    {
+        // flarum/framework#5357: the raw URL went into the run's error, log and history.
+        try {
+            $this->fetcher([new Response(403)])->fetch('a/b', $this->source('https://repo.example.test/dist/a-b.zip?token=s3cr3t-value'));
+            $this->fail('the download was supposed to fail');
+        } catch (RuntimeException $e) {
+            $this->assertStringNotContainsString('s3cr3t-value', $e->getMessage());
+            $this->assertStringContainsString('repo.example.test', $e->getMessage());
+        }
+    }
+
     private function rmrf(string $dir): void
     {
         if (! is_dir($dir)) {

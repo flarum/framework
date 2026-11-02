@@ -9,6 +9,10 @@
 
 namespace Flarum\ExtensionManager\Tests\Unit;
 
+use Flarum\ExtensionManager\Config\StabilityRule;
+use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Tests\unit\FakeHttp;
+use Flarum\ExtensionManager\Work\PrivateIndex;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 use PHPUnit\Framework\TestCase;
 
@@ -32,6 +36,9 @@ class UpdateCheckTest extends TestCase
     protected function tearDown(): void
     {
         @unlink($this->cache);
+        @unlink($this->cache.'.site/composer.json');
+        @unlink($this->cache.'.site/composer.lock');
+        @rmdir($this->cache.'.site');
     }
 
     private function check(): UpdateCheck
@@ -283,7 +290,12 @@ class UpdateCheckTest extends TestCase
         $updates = $this->check()->current($lock)['updates'];
         @unlink($lock);
 
-        $this->assertSame(['fof/upload', 'acme/gone'], array_keys($updates));
+        /*
+         * acme/gone is no longer installed, so it is not offered either. It
+         * used to be kept, and `update --all` then refused the whole run
+         * because one of the packages it was handed was not installed.
+         */
+        $this->assertSame(['fof/upload'], array_keys($updates));
         // Part of the way there: still offered, from where it really is now.
         $this->assertSame(['from' => '2.0.0', 'to' => '2.0.2'], $updates['fof/upload']);
     }
@@ -350,5 +362,291 @@ class UpdateCheckTest extends TestCase
         );
 
         $this->assertSame('https://github.com/acme/paid/releases/tag/1.1.0', $result['updates']['acme/paid']['notes']);
+    }
+
+    // ── what the forum allows (issue 5357, item 10) ─────────────────────────
+
+    /**
+     * A release candidate on a stable forum is a badge Update can never clear:
+     * Composer answers "Nothing to modify in lock file", and the badge stays.
+     */
+    public function test_a_release_candidate_is_not_offered_to_a_stable_forum(): void
+    {
+        $result = $this->check()->refresh(
+            ['a/b' => '1.0.0'],
+            $this->feed(['a/b' => ['1.0.0', '1.1.0-RC1', '1.1.0-beta.2']]),
+            rule: new StabilityRule()
+        );
+
+        $this->assertSame([], $result['updates']);
+    }
+
+    public function test_a_stable_forum_is_still_offered_a_newer_stable_release_over_a_newer_candidate(): void
+    {
+        $result = $this->check()->refresh(
+            ['a/b' => '1.0.0'],
+            $this->feed(['a/b' => ['1.0.0', '1.1.0', '1.2.0-RC1']]),
+            rule: new StabilityRule()
+        );
+
+        $this->assertSame('1.1.0', $result['updates']['a/b']['to']);
+    }
+
+    /** `2.0.0-b2` is a beta, though it never spells the word out. */
+    public function test_a_short_beta_suffix_is_still_a_beta(): void
+    {
+        $result = $this->check()->refresh(['a/b' => '1.0.0'], $this->feed(['a/b' => ['1.0.0', '2.0.0-b2']]), rule: new StabilityRule());
+
+        $this->assertSame([], $result['updates']);
+    }
+
+    public function test_a_forum_that_allows_betas_is_offered_one(): void
+    {
+        $rule = $this->rule(['minimum-stability' => 'beta']);
+
+        $result = $this->check()->refresh(['a/b' => '1.0.0'], $this->feed(['a/b' => ['1.0.0', '1.1.0-beta.1']]), rule: $rule);
+
+        $this->assertSame('1.1.0-beta.1', $result['updates']['a/b']['to']);
+    }
+
+    /**
+     * prefer-stable does not forbid a beta, but Composer picks the most
+     * stable release there is, so a newer beta never beats a stable one, and
+     * a stable release beats a newer beta of the next version.
+     */
+    public function test_under_prefer_stable_only_the_most_stable_releases_compete(): void
+    {
+        $rule = $this->rule(['minimum-stability' => 'beta', 'prefer-stable' => true]);
+
+        $result = $this->check()->refresh(
+            ['a/b' => '1.0.0', 'c/d' => '2.0.0-beta.3'],
+            $this->feed(['a/b' => ['1.0.0', '1.1.0', '1.2.0-beta.1'], 'c/d' => ['2.0.0-beta.3', '2.0.0-beta.4']]),
+            rule: $rule
+        );
+
+        $this->assertSame('1.1.0', $result['updates']['a/b']['to']);
+        // Nothing stable exists for c/d, so its newest beta is what Composer would pick.
+        $this->assertSame('2.0.0-beta.4', $result['updates']['c/d']['to']);
+    }
+
+    /**
+     * A requirement that names a beta (`^2.0.0-beta.3`) or carries a flag
+     * (`^2.0@beta`) lets that package, and only that one, be a beta.
+     */
+    public function test_a_packages_own_requirement_can_allow_a_beta_of_it_alone(): void
+    {
+        $rule = $this->rule(['require' => ['fof/pwa' => '^2.0.0-beta.3', 'fof/upload' => '^2.0@beta', 'acme/other' => '^1.0']]);
+
+        $result = $this->check()->refresh(
+            ['fof/pwa' => '2.0.0-beta.3', 'fof/upload' => '2.0.0', 'acme/other' => '1.0.0'],
+            $this->feed([
+                'fof/pwa' => ['2.0.0-beta.3', '2.0.0-beta.4'],
+                'fof/upload' => ['2.0.0', '2.1.0-beta.1'],
+                'acme/other' => ['1.0.0', '1.1.0-beta.1'],
+            ]),
+            rule: $rule
+        );
+
+        $this->assertSame(['fof/pwa', 'fof/upload'], array_keys($result['updates']));
+    }
+
+    /** The whole check, as "Check now" runs it, reads the rule from composer.json. */
+    public function test_the_site_check_reads_minimum_stability_from_composer_json(): void
+    {
+        $base = $this->site(['require' => ['flarum/core' => '^2.0', 'acme/thing' => '^1.0']], ['acme/thing' => '1.0.0']);
+
+        $check = new UpdateCheck($this->cache, FakeHttp::client(fn (string $url) => str_contains($url, 'acme/thing')
+            ? json_encode(['packages' => ['acme/thing' => [['version' => '1.1.0-RC1'], ['version' => '1.0.0']]]])
+            : null));
+
+        $result = $check->refreshSite(EnglishTranslator::make(), $base);
+
+        $this->assertSame([], $result['updates']);
+    }
+
+    /** A check saved before the rule, or before minimum-stability was raised, stops offering it. */
+    public function test_a_saved_release_candidate_is_no_longer_offered_to_a_stable_forum(): void
+    {
+        $base = $this->site(['require' => ['acme/thing' => '^1.0', 'acme/beta' => '^1.0@beta']], ['acme/thing' => '1.0.0', 'acme/beta' => '1.0.0']);
+        file_put_contents($this->cache, json_encode(['checkedAt' => time(), 'updates' => [
+            'acme/thing' => ['from' => '1.0.0', 'to' => '1.1.0-RC1'],
+            'acme/beta' => ['from' => '1.0.0', 'to' => '1.1.0-beta.1'],
+        ]]));
+
+        $updates = $this->check()->current($base.'/composer.lock')['updates'];
+
+        $this->assertSame(['acme/beta'], array_keys($updates));
+    }
+
+    // ── when Packagist does not answer (issue 5357, item 11) ────────────────
+
+    /**
+     * An outage used to save `updates: []` with a fresh time, so every badge
+     * vanished until the next check, hours later.
+     */
+    public function test_a_package_that_could_not_be_asked_keeps_what_the_last_check_found(): void
+    {
+        $check = $this->check();
+        $check->refresh(['a/b' => '1.0.0', 'c/d' => '1.0.0'], $this->feed(['a/b' => ['1.1.0'], 'c/d' => ['1.2.0']]));
+
+        $result = $check->refresh(['a/b' => '1.0.0', 'c/d' => '1.0.0'], fn (string $name) => $name === 'a/b' ? false : ['1.0.0']);
+
+        $this->assertSame(['from' => '1.0.0', 'to' => '1.1.0'], $result['updates']['a/b'] ?? null);
+        $this->assertArrayNotHasKey('c/d', $result['updates'], 'answered: up to date now, so dropped');
+        $this->assertSame(['a/b'], $result['unreachable']);
+        $this->assertSame([], $result['uncheckable'], 'not "no repository lists it": it could not be asked');
+        $this->assertSame($result['updates'], $check->cached()['updates']);
+    }
+
+    /** A package Packagist does not know (a 404) is still answered: nothing to offer. */
+    public function test_a_package_no_source_knows_drops_what_the_last_check_found(): void
+    {
+        $check = $this->check();
+        $check->refresh(['a/b' => '1.0.0'], $this->feed(['a/b' => ['1.1.0']]));
+
+        $result = $check->refresh(['a/b' => '1.0.0'], fn () => null);
+
+        $this->assertSame([], $result['updates']);
+        $this->assertSame(['a/b'], $result['uncheckable']);
+    }
+
+    /** What the last check found for a package since removed is not carried over. */
+    public function test_a_package_no_longer_installed_is_not_carried_over(): void
+    {
+        $check = $this->check();
+        $check->refresh(['a/b' => '1.0.0', 'gone/pkg' => '1.0.0'], $this->feed(['a/b' => ['1.1.0'], 'gone/pkg' => ['2.0.0']]));
+
+        $result = $check->refresh(['a/b' => '1.0.0'], fn () => false);
+
+        $this->assertSame(['a/b'], array_keys($result['updates']));
+    }
+
+    /** A package now on a branch has no version to compare, so its old entry goes. */
+    public function test_a_package_moved_to_a_branch_drops_what_the_last_check_found(): void
+    {
+        $check = $this->check();
+        $check->refresh(['a/b' => '1.0.0'], $this->feed(['a/b' => ['1.1.0']]));
+
+        $result = $check->refresh(['a/b' => 'dev-main'], fn () => false);
+
+        $this->assertSame([], $result['updates']);
+        $this->assertSame(['a/b'], $result['tracking']);
+    }
+
+    /**
+     * Packagist down does not stop a protected repository from answering for
+     * its own package, and a package neither knows is "could not ask" while
+     * Packagist could not be asked.
+     */
+    public function test_a_protected_repository_still_answers_while_packagist_is_down(): void
+    {
+        $protected = new class extends PrivateIndex {
+            public function __construct()
+            {
+            }
+
+            public function versionsFor(string $package): ?array
+            {
+                return $package === 'acme/paid' ? ['1.0.0', '1.1.0'] : null;
+            }
+
+            public function releaseNotesFor(string $package): array
+            {
+                return [];
+            }
+        };
+
+        $check = new UpdateCheck($this->cache, FakeHttp::client(fn () => null));
+        $result = $check->refreshWith(['acme/paid' => '1.0.0', 'acme/public' => '1.0.0'], $protected);
+
+        $this->assertSame(['from' => '1.0.0', 'to' => '1.1.0'], $result['updates']['acme/paid']);
+        $this->assertSame(['acme/public'], $result['unreachable']);
+    }
+
+    /**
+     * "Check now" is a web request. Out of time, it stops asking, and what it
+     * did not ask keeps the last check's answer.
+     */
+    public function test_a_check_out_of_time_stops_asking_and_keeps_the_rest(): void
+    {
+        $check = $this->check();
+        $check->refresh(['a/b' => '1.0.0', 'c/d' => '1.0.0'], $this->feed(['a/b' => ['1.1.0'], 'c/d' => ['1.2.0']]));
+        $asked = [];
+
+        $result = $check->refresh(['a/b' => '1.0.0', 'c/d' => '1.0.0'], function (string $name) use (&$asked) {
+            $asked[] = $name;
+
+            return ['1.0.0'];
+        }, budget: 0);
+
+        $this->assertSame([], $asked);
+        $this->assertSame(['a/b', 'c/d'], $result['unreachable']);
+        $this->assertSame(['a/b', 'c/d'], array_keys($result['updates']));
+    }
+
+    /**
+     * And it is saved as it goes, so a PHP or gateway timeout part of the way
+     * through keeps every answer so far rather than losing them all.
+     */
+    public function test_each_answer_is_saved_before_the_next_package_is_asked(): void
+    {
+        $check = $this->check();
+        $seen = null;
+
+        $check->refresh(['a/b' => '1.0.0', 'c/d' => '1.0.0'], function (string $name) use (&$seen) {
+            if ($name === 'c/d') {
+                $seen = UpdateCheck::cachedIn($this->cache)['updates'] ?? null;
+            }
+
+            return ['1.0.0', '1.1.0'];
+        });
+
+        $this->assertSame(['a/b' => ['from' => '1.0.0', 'to' => '1.1.0']], $seen);
+    }
+
+    /** The per-request timeout never outlasts the budget either. */
+    public function test_a_slow_packagist_is_given_no_longer_than_the_budget_has_left(): void
+    {
+        $timeouts = [];
+        $http = new \GuzzleHttp\Client(['handler' => function ($request, array $options) use (&$timeouts) {
+            $timeouts[] = $options['timeout'];
+
+            return \GuzzleHttp\Promise\Create::promiseFor(new \GuzzleHttp\Psr7\Response(200, [], '{"packages":{"a/b":[{"version":"1.0.0"}]}}'));
+        }]);
+
+        (new UpdateCheck($this->cache, $http))->refresh(['a/b' => '1.0.0'], budget: 5);
+        (new UpdateCheck($this->cache, $http))->refresh(['a/b' => '1.0.0']);
+
+        $this->assertLessThanOrEqual(5, $timeouts[0]);
+        $this->assertSame(15, $timeouts[1]);
+    }
+
+    /** @param array<string,mixed> $composerJson */
+    private function rule(array $composerJson): StabilityRule
+    {
+        $base = $this->site($composerJson, []);
+
+        return StabilityRule::fromComposerJson($base.'/composer.json');
+    }
+
+    /**
+     * A forum directory: composer.json as given, composer.lock with these
+     * extensions installed. Removed in tearDown.
+     *
+     * @param array<string,mixed> $composerJson
+     * @param array<string,string> $installed
+     */
+    private function site(array $composerJson, array $installed): string
+    {
+        $base = $this->cache.'.site';
+        @mkdir($base);
+        file_put_contents($base.'/composer.json', json_encode($composerJson));
+        file_put_contents($base.'/composer.lock', json_encode(['packages' => array_map(
+            fn (string $name, string $version) => ['name' => $name, 'version' => $version, 'type' => 'flarum-extension'],
+            array_keys($installed),
+            array_values($installed)
+        )]));
+
+        return $base;
     }
 }

@@ -58,28 +58,17 @@ class StartController implements RequestHandlerInterface
 
     /**
      * A replaced package is never installed under its old name, whatever
-     * the screen showed. Installing v17development/flarum-seo gave forums
-     * FoF SEO under the wrong id, which then refused to enable
-     * (discuss.flarum.org d/40012). Asked here, on the server, so a stale tab
-     * or a hand-made request cannot get round it; the verdict is the cached one
+     * the screen showed. Asked here, on the server, so a stale tab or a
+     * hand-made request cannot get round it; the verdict is the cached one
      * the Find tab already fetched, so this costs nothing in the usual case.
+     * The rules are in Packagist::refuseReplaced().
      *
      * @param list<string> $packages
      */
-    protected function replaced(array $packages): ?string
+    protected function refuseReplaced(array $packages): void
     {
-        $packagist = new Packagist($this->translator, new Cache(StorageDir::of($this->paths->storage).'/packagist'), $this->http);
-        $verdicts = $packagist->verdicts(array_slice($packages, 0, 5), new Compatibility(ltrim($this->app->version(), 'v')));
-
-        foreach ($verdicts as $name => $verdict) {
-            if (! empty($verdict['replaced'])) {
-                return $verdict['replacedBy']
-                    ? $this->translator->trans('flarum-extension-manager.api.start.replaced_by', ['name' => $name, 'replacement' => $verdict['replacedBy']])
-                    : $this->translator->trans('flarum-extension-manager.api.start.replaced', ['name' => $name]);
-            }
-        }
-
-        return null;
+        (new Packagist($this->translator, new Cache(StorageDir::of($this->paths->storage).'/packagist'), $this->http))
+            ->refuseReplaced($packages, new Compatibility(ltrim($this->app->version(), 'v')));
     }
 
     /**
@@ -167,8 +156,8 @@ class StartController implements RequestHandlerInterface
             throw new ValidationException(['packages' => $this->translator->trans('flarum-extension-manager.api.start.nothing_selected')]);
         }
 
-        if ($mode === 'install' && ($refusal = $this->replaced($packages)) !== null) {
-            throw new RefusedException($refusal, 'package_replaced');
+        if ($mode === 'install') {
+            $this->refuseReplaced($packages);
         }
 
         if ($mode === 'remove' && ($refusal = $this->cannotRemove($packages)) !== null) {

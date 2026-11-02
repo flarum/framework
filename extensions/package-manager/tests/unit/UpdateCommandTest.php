@@ -396,6 +396,50 @@ class UpdateCommandTest extends TestCase
         $this->assertStringContainsString('already up to date', $tester->getDisplay());
     }
 
+    /**
+     * `update --all --repin` must never move a stable forum onto a release
+     * candidate, even from a check saved before candidates were filtered out.
+     */
+    public function test_all_with_repin_never_raises_a_pin_to_a_release_candidate(): void
+    {
+        $this->site(
+            require: ['a/thing' => '1.0.0'],
+            installed: ['a/thing' => '1.0.0'],
+            updates: ['a/thing' => ['from' => '1.0.0', 'to' => '1.1.0-RC1']]
+        );
+
+        $tester = $this->runCommand(['--all' => true, '--repin' => true]);
+
+        $this->assertStringNotContainsString('Raising', $tester->getDisplay());
+        $this->assertNull($this->store()->latest(), 'nothing was started');
+
+        // Asking again finds the same candidate, which is still refused.
+        $tester = $this->runCommand(['packages' => ['a/thing'], '--repin' => true], recheck: fn () => null);
+
+        $this->assertSame(1, $tester->getStatusCode());
+        $this->assertStringContainsString('a/thing is pinned at 1.0.0 and no newer version was found', $tester->getDisplay());
+        $this->assertNull($this->store()->latest());
+    }
+
+    /**
+     * A check saved before a package was removed still named it, and `--all`
+     * handed it to the run, which then refused everything because one of the
+     * packages was not installed.
+     */
+    public function test_all_ignores_an_update_for_a_package_no_longer_installed(): void
+    {
+        $this->site(
+            require: ['a/thing' => '^1.0'],
+            installed: ['a/thing' => '1.0.0'],
+            updates: ['a/thing' => ['from' => '1.0.0', 'to' => '1.1.0'], 'gone/pkg' => ['from' => '1.0.0', 'to' => '2.0.0']]
+        );
+
+        $tester = $this->runCommand(['--all' => true]);
+
+        $this->assertSame(0, $tester->getStatusCode(), $tester->getDisplay());
+        $this->assertSame(['a/thing'], (new WorkDir(EnglishTranslator::make(), $this->dir, $this->store()->latest()?->id ?? ''))->requested());
+    }
+
     public function test_naming_packages_and_asking_for_all_is_refused(): void
     {
         $this->site(require: ['a/thing' => '^1.0'], installed: ['a/thing' => '1.0.0']);

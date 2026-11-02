@@ -106,6 +106,65 @@ class CompatibilityTest extends TestCase
         $this->assertFalse($v['compatible']);
     }
 
+    /**
+     * `2.0.0-b2` is a beta, though it does not spell the word out. Read as
+     * stable, it beat an older stable release and was offered as one.
+     */
+    public function test_a_short_pre_release_suffix_is_not_mistaken_for_a_stable_release(): void
+    {
+        $v = (new Compatibility('2.0.0'))->verdict('acme/w', $this->p2('acme/w', [
+            ['version' => '2.1.0-b2', 'require' => ['flarum/core' => '^2.0']],
+            ['version' => '2.0.0', 'require' => ['flarum/core' => '^2.0']],
+        ]));
+
+        $this->assertSame('2.0.0', $v['version']);
+        $this->assertSame('stable', $v['stability']);
+
+        $only = (new Compatibility('2.0.0'))->verdict('acme/w', $this->p2('acme/w', [
+            ['version' => '2.1.0-b2', 'require' => ['flarum/core' => '^2.0']],
+            ['version' => '2.1.0-RC1', 'require' => ['flarum/core' => '^2.0']],
+        ]));
+
+        $this->assertSame('2.1.0-b2', $only['version']);
+        $this->assertSame('beta', $only['stability']);
+    }
+
+    public function test_a_release_candidate_is_labelled_rc(): void
+    {
+        $v = (new Compatibility('2.0.0'))->verdict('acme/w', $this->p2('acme/w', [
+            ['version' => 'v2.0.0-RC.1', 'require' => ['flarum/core' => '^2.0']],
+        ]));
+
+        $this->assertSame('rc', $v['stability']);
+    }
+
+    /**
+     * No release says which Flarum it is for. Nothing was claimed either way,
+     * so it is unknown, not incompatible.
+     */
+    public function test_a_package_that_never_declares_a_core_requirement_is_unknown(): void
+    {
+        $v = (new Compatibility('2.0.0'))->verdict('acme/w', $this->p2('acme/w', [
+            ['version' => '1.1.0', 'require' => ['php' => '^8.2']],
+            ['version' => '1.0.0'],
+        ]));
+
+        $this->assertNull($v['compatible']);
+        $this->assertNull($v['requires']);
+    }
+
+    /** One release that declares a core it does not fit is still a "no". */
+    public function test_a_package_whose_only_declared_core_does_not_fit_is_still_incompatible(): void
+    {
+        $v = (new Compatibility('2.0.0'))->verdict('acme/w', $this->p2('acme/w', [
+            ['version' => '1.1.0'],
+            ['version' => '1.0.0', 'require' => ['flarum/core' => '^1.8']],
+        ]));
+
+        $this->assertFalse($v['compatible']);
+        $this->assertSame('^1.8', $v['requires']);
+    }
+
     public function test_nothing_published_is_unknown_rather_than_incompatible(): void
     {
         $v = (new Compatibility('2.0.0'))->verdict('acme/w', ['packages' => []]);

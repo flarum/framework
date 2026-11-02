@@ -23,6 +23,12 @@ use Flarum\Locale\TranslatorInterface;
  */
 class Repositories
 {
+    /** A path segment that is a token by its shape: GitHub, GitLab, Bitbucket and Private Packagist prefixes. */
+    protected const TOKEN = '#^(?:gh[opsur]_|github_pat_|gl[a-z]{2,4}-|ATBB|ATCTT|packagist_[a-z]{3}_)[A-Za-z0-9_-]{8,}$#';
+
+    /** A path segment whose name says the next one is a secret. */
+    protected const NAMES_A_SECRET = '#^(?:token|access[_-]?token|auth[_-]?token|api[_-]?key|apikey|key|secret|password|auth)$#i';
+
     /** The kinds worth offering. Anything else is a footgun in a web form. */
     public const TYPES = ['vcs', 'composer', 'path'];
 
@@ -174,17 +180,60 @@ class Repositories
     }
 
     /**
-     * A URL with any credential written into it (`https://user:token@host`,
-     * or a token alone as the user) replaced by ***, for showing to anybody.
-     * scp-style `git@host:path` names an account, not a secret, and is left.
+     * A URL with any credential written into it replaced by ***, for showing
+     * to anybody: the user part (`https://user:token@host`, or a token alone
+     * as the user), every query value (`?token=`, `?access_token=`, and any
+     * other, since a query is where hosts put a token when it is not in the
+     * user part), and a path segment that is recognizably a token (a GitHub,
+     * GitLab, Bitbucket or Private Packagist token, or whatever follows a
+     * segment named token, key, secret or similar). scp-style `git@host:path`
+     * names an account, not a secret, and is left.
+     *
+     * Composer's own Url::sanitize() is not enough on its own: it masks only
+     * `access_token` in a query and keeps the first three characters of a
+     * long user name.
      */
     public static function redact(string $url): string
     {
-        return (string) preg_replace_callback(
-            // Up to the LAST @ before the path, as parse_url() and Composer read it.
-            '#^([a-z][a-z0-9+.-]*://)([^/?\#]*)@#i',
-            fn (array $m) => preg_match('#^https?://$#i', $m[1]) || str_contains($m[2], ':') ? $m[1].'***@' : $m[0],
-            $url
-        );
+        if (! preg_match('#^([a-z][a-z0-9+.-]*://)([^/?\#]*)([^?\#]*)(\?[^\#]*)?(\#.*)?$#is', $url, $m)) {
+            return $url;
+        }
+
+        [, $scheme, $authority, $path] = $m;
+        $query = $m[4] ?? '';
+
+        // Up to the LAST @ before the path, as parse_url() and Composer read it.
+        $at = strrpos($authority, '@');
+
+        if ($at !== false && (preg_match('#^https?://$#i', $scheme) || str_contains(substr($authority, 0, $at), ':'))) {
+            $authority = '***'.substr($authority, $at);
+        }
+
+        $segments = explode('/', $path);
+
+        foreach ($segments as $i => $segment) {
+            if (preg_match(self::TOKEN, $segment) || ($i > 0 && $segment !== '' && preg_match(self::NAMES_A_SECRET, $segments[$i - 1]))) {
+                $segments[$i] = '***';
+            }
+        }
+
+        if ($query !== '') {
+            $query = '?'.implode('&', array_map(
+                fn (string $pair) => $pair === '' ? '' : (str_contains($pair, '=') ? strstr($pair, '=', true).'=***' : '***'),
+                explode('&', substr($query, 1))
+            ));
+        }
+
+        return $scheme.$authority.implode('/', $segments).$query.($m[5] ?? '');
+    }
+
+    /**
+     * Every URL in a piece of text redacted as {@see redact()} does: for an
+     * error message or a log line that quotes a URL, such as a failed
+     * download.
+     */
+    public static function redactUrls(string $text): string
+    {
+        return (string) preg_replace_callback('#[a-z][a-z0-9+.-]*://[^\s"\'<>]+#i', fn (array $m) => self::redact($m[0]), $text);
     }
 }
