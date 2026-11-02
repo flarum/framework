@@ -1,6 +1,6 @@
 import app from '../../app';
 import { KeyValueGambit, type GambitValueOption } from '../IGambit';
-import type Group from '../../models/Group';
+import Group from '../../models/Group';
 
 export default class GroupGambit extends KeyValueGambit {
   key(): string {
@@ -21,6 +21,7 @@ export default class GroupGambit extends KeyValueGambit {
 
   values(): (string | GambitValueOption)[] {
     return (app.store.all<Group>('groups') || [])
+      .filter((group) => ![Group.GUEST_ID, Group.MEMBER_ID].includes(group.id()!))
       .map((group) => {
         const name = group.nameSingular() || group.namePlural() || '';
         return {
