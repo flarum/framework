@@ -240,12 +240,54 @@ export interface Field<M extends Model, V = unknown> {
   when?(m: M | null, values?: Record<string, unknown>): boolean;
   errorKeys?: string[];
   /**
+   * The client-side errors of the field's form value, in place of the descriptor check. For a form
+   * value that is not the attribute's value: a locale map, a composite input. Return no messages
+   * when valid; several are joined into the field's `form.errors` entry, one line each.
+   *
+   * Called for every shown field, unless its descriptor is `conditional`, whether or not the value
+   * changed: one unchanged value can turn invalid by another (a new locale row needs a name). Mind
+   * `ctx.includeUnchanged` and `ctx.dirty` as the descriptor check does: while updating, only what
+   * is sent should be checked.
+   */
+  validate?(value: V, ctx: FieldValidationContext<M, V>): string[];
+  /**
    * Called with every JSON:API error of a failed save (422/403), after they were mapped onto
    * `form.errors`. For fields whose state spans more than one input.
    */
   onerrors?(errors: JsonApiError[], form: ResourceFormState<any>): void;
+  /**
+   * Called when `save()` stops at client-side validation, after the messages landed on
+   * `form.errors`: `errors` holds them by field key, as `ValidationError.errors`. For fields whose
+   * state spans more than one input, e.g. to bring an erroring part into view.
+   */
+  onclienterrors?(errors: Record<string, string[]>, form: ResourceFormState<any>): void;
   /** Present when the field was inferred. */
   descriptor?: FieldDescriptor;
+}
+
+/**
+ * What `Field.validate()` gets besides the form value.
+ */
+export interface FieldValidationContext<M extends Model, V = unknown> {
+  /** The field's key in the form. */
+  key: string;
+  form: ResourceFormState<M>;
+  /** Absent for a field that was not inferred. */
+  descriptor?: FieldDescriptor;
+  mode: FormMode;
+  /** The value the form started with. */
+  initial: V;
+  /** `form.values()`: what the server's conditional required rules see. */
+  values: Record<string, unknown>;
+  /** Whether unchanged values are checked too: on save while creating. */
+  includeUnchanged: boolean;
+  /** Whether the field's value changed, i.e. is sent. */
+  dirty: boolean;
+  /**
+   * Core's check of one value, by default against the field's descriptor (none without one) and
+   * with `values`; `sent` (for `filled`) defaults to true.
+   */
+  check(value: unknown, descriptor?: FieldDescriptor, options?: { values?: Record<string, unknown>; sent?: boolean }): string[];
 }
 
 export type InputResolver = (d: FieldDescriptor) => Partial<Field<any>> | null;

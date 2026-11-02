@@ -13,7 +13,9 @@ import { ValidationError, validateValue } from './validation';
 
 /**
  * The editing state of one record. Only changed fields are sent: the server answers 403 for any
- * non-writable field in the payload.
+ * non-writable field in the payload. Client-side validation checks each value against its
+ * descriptor; a field whose form value is not the attribute's value brings its own
+ * `Field.validate()`.
  */
 export default class ResourceFormState<M extends Model = Model> {
   /** The record being edited; null while creating. Replaced by the saved record. */
@@ -263,18 +265,43 @@ export default class ResourceFormState<M extends Model = Model> {
     return messages;
   }
 
+  /**
+   * One field's client-side errors: none for a hidden or `conditional` field, else `field.validate()`
+   * when it has one (called whether or not the value changed, see there), else the descriptor check
+   * of a changed value, or of any while `includeUnchanged`. Fields without either are left to the
+   * server. Not an extension point: give the field a `validate()` instead.
+   */
   protected check(key: string, field: Field<M>, includeUnchanged: boolean): string[] {
     const descriptor = field.descriptor;
 
-    if (!descriptor || descriptor.conditional || !this.isVisible(key)) return [];
-    if (!includeUnchanged && !this.isDirty(key)) return [];
+    if (descriptor?.conditional || !this.isVisible(key)) return [];
 
-    return validateValue(descriptor, this.streams[key](), this.mode(), { values: this.values(), sent: this.isDirty(key) });
+    const mode = this.mode();
+    const values = this.values();
+    const dirty = this.isDirty(key);
+
+    if (field.validate) {
+      return field.validate(this.streams[key](), {
+        key,
+        form: this,
+        descriptor,
+        mode,
+        initial: this.initial[key],
+        values,
+        includeUnchanged,
+        dirty,
+        check: (value, d = descriptor, options = {}) => (d ? validateValue(d, value, mode, { values, ...options }) : []),
+      });
+    }
+
+    if (!descriptor || (!includeUnchanged && !dirty)) return [];
+
+    return validateValue(descriptor, this.streams[key](), mode, { values, sent: dirty });
   }
 
   /**
    * Validate, then save `data` (default: `buildSaveData()`). Invalid fields reject with a
-   * `ValidationError` and no request. 422/403 field errors land in `errors` (`'*'` for unmatched
+   * `ValidationError` and no request, after every visible field's `onclienterrors()`. 422/403 field errors land in `errors` (`'*'` for unmatched
    * ones) instead of the global alert; the promise still rejects.
    */
   async save(data?: SaveData): Promise<M> {
@@ -288,6 +315,9 @@ export default class ResourceFormState<M extends Model = Model> {
         this.errors[key] = messages.join('\n');
         this.clientErrorKeys.add(key);
       });
+      this.visibleFields()
+        .toArray()
+        .forEach((field) => field.onclienterrors?.(invalid, this));
       m.redraw();
 
       throw new ValidationError(invalid);

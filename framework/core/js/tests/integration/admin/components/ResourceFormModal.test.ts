@@ -9,6 +9,7 @@ import type User from '../../../../src/common/models/User';
 import type ItemList from '../../../../src/common/utils/ItemList';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
+import type { Field } from '../../../../src/common/resource/types';
 import { bootAdmin, schemaDocument } from '../../../unit/common/resource/fixtures';
 import { usersDescriptor } from '../fixtures/usersDescriptor';
 
@@ -184,6 +185,47 @@ describe('ResourceFormModal', () => {
     expect(onsaved).toHaveBeenCalledWith(user);
     expect(user.username()).toBe('renamed');
     expect(attrs.animateHide).toHaveBeenCalled();
+  });
+
+  test("a locale-map field's validate() error shows on it, and fields hear of it through onclienterrors", async () => {
+    const heard: Record<string, string[]>[] = [];
+
+    class LocalizedUsers extends ResourceDefinition<User> {
+      fields() {
+        const fields = super.fields();
+        const username = fields.get('username') as Field<User, Record<string, string>>;
+
+        fields.setContent('username', {
+          ...username,
+          value: (model) => ({ '*': model?.username() ?? '' }),
+          input: (ctx) => m('div.LocaleInput', JSON.stringify(ctx.stream())),
+          // The base row as core checks it; `de` by the same constraints, its messages naming it.
+          validate: (value, ctx) => [...ctx.check(value['*']), ...(value.de ? ctx.check(value.de).map((message) => `de: ${message}`) : [])],
+        } as Field<User, any>);
+        fields.add('switcher', { label: 'Locale', input: () => null, onclienterrors: (errors) => heard.push(errors) });
+
+        return fields;
+      }
+    }
+
+    const { out, modal } = await render<ResourceFormModal<User>>(
+      ResourceFormModal,
+      modalAttrs({ definition: new LocalizedUsers('users'), model: user })
+    );
+
+    modal.formState!.stream('username')({ '*': '', de: 'x' });
+    out.redraw();
+    out.trigger('form', 'submit', {} as Event);
+    await flush();
+    out.redraw();
+
+    // The empty base row is not required on update; the `de` value is too short.
+    const tooShort = `de: ${app.translator.trans('core.lib.resource.validation.min_length', { count: 3 }, true)}`;
+
+    expect(out).toHaveElement('.ResourceForm-field--username.has-error');
+    expect(out).toContainRaw(tooShort);
+    expect(heard).toEqual([{ username: [tooShort] }]);
+    expect(request.mock.calls.some((call: any) => call[0].method === 'PATCH')).toBe(false);
   });
 
   describe('with ui hints', () => {
