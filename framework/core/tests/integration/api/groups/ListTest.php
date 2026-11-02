@@ -192,6 +192,23 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function links_back_to_pages_of_the_same_size_when_paging_from_an_offset()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams([
+                'page' => ['offset' => '2'],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        // Without the limit, the first page would be the whole, unpaginated list.
+        $this->assertStringContainsString('page%5Blimit%5D=50', $data['links']['first'] ?? '');
+    }
+
+    #[Test]
     public function pages_by_number_without_a_limit()
     {
         $response = $this->send(

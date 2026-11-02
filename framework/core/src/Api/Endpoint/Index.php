@@ -324,13 +324,23 @@ class Index extends Endpoint
      * asks for a page: then it paginates, so the client gets the links to the
      * rest rather than a list cut off without notice.
      */
-    protected function paginationOnRequest(Context $context): ?OffsetPagination
+    protected function paginationOnRequest(\Tobyz\JsonApiServer\Context $context): ?OffsetPagination
     {
         if (! $this->pageRequested($context)) {
             return null;
         }
 
-        return new OffsetPagination($context, $this->maxLimit, $this->maxLimit);
+        // The links are built from the request. Without a page[limit] in them, a
+        // link back to offset 0 would ask for the whole list instead of a page.
+        $request = $context->request;
+        $query = $request->getQueryParams();
+        $query['page']['limit'] ??= (string) $this->maxLimit;
+
+        return new OffsetPagination(
+            $context->withRequest($request->withQueryParams($query)),
+            $this->maxLimit,
+            $this->maxLimit,
+        );
     }
 
     /**
