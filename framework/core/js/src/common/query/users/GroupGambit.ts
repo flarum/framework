@@ -22,9 +22,12 @@ export default class GroupGambit extends KeyValueGambit {
   values(): (string | GambitValueOption)[] {
     return (app.store.all<Group>('groups') || [])
       .map((group) => {
-        const name = group.nameSingular() || group.namePlural() || group.id()!;
-        return name ? { value: name } : null;
+        const name = group.nameSingular() || group.namePlural() || '';
+        return {
+          value: group.id()!,
+          label: name,
+        };
       })
-      .filter((opt): opt is GambitValueOption => !!opt);
+      .filter((opt): opt is GambitValueOption => !!opt.value);
   }
 }
