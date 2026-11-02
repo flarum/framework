@@ -81,9 +81,9 @@ export default class GambitsAutocomplete {
         gambitQuery,
         uniqueGroups,
         groupedGambits,
-        keyValueGambits,
         autocomplete!,
-        negative
+        negative,
+        keyValueGambits
       );
 
       if (specificGambitSuggestions) {
@@ -129,10 +129,13 @@ export default class GambitsAutocomplete {
     gambitQuery: string,
     uniqueGroups: string[],
     groupedGambits: IGambit<GambitType.Grouped>[],
-    keyValueGambits: IGambit<GambitType.KeyValue>[],
     autocomplete: AutocompleteCheck,
-    negative: boolean = false
+    negative: boolean = false,
+    keyValueGambits?: IGambit<GambitType.KeyValue>[]
   ): JSX.Element[] | null {
+    keyValueGambits ??= app.search.gambits
+      .for(this.resource)
+      .filter((gambit) => gambit.type !== GambitType.Grouped && gambit.enabled()) as IGambit<GambitType.KeyValue>[];
     const matchingGroup = uniqueGroups.find((g) => g.toLowerCase() === gambitKey.toLowerCase());
 
     if (matchingGroup) {
