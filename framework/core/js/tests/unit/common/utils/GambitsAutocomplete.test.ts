@@ -489,6 +489,70 @@ describe('GambitsAutocomplete', () => {
       expect(suggestions).toHaveLength(1);
       expect(suggestions[0].key).toBe('general');
     });
+
+    it('preserves subsequent comma-separated values when autocompleting an earlier value', () => {
+      selectionStart = 7; // 'tag:ann,help'
+      selectionEnd = 7;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:ann,help'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('announcements');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:announcements,help');
+      expect(afterSuggestValue).toBe('tag:announcements,help');
+    });
+
+    it('preserves surrounding terms and later values when completing inside a list', () => {
+      selectionStart = 10; // 'tag:ge,help is:unread'
+      selectionEnd = 10;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:ge,help is:unread'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('general');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:general,help is:unread');
+    });
+
+    it('matches canonical English aliases for key-value gambit value suggestions', () => {
+      const localizedGambit = {
+        type: GambitType.KeyValue,
+        predicates: false,
+        enabled: () => true,
+        canonicalKey: () => 'tag',
+        suggestion: () => ({
+          key: 'etiket',
+          hint: 'etiket ara',
+          values: () => ['announcements', 'general'],
+        }),
+      } as unknown as IGambit<GambitType.KeyValue>;
+
+      app.search.gambits.for = jest.fn().mockReturnValue([localizedGambit]);
+
+      selectionStart = 4; // 'tag:'
+      selectionEnd = 4;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:'));
+
+      expect(suggestions).toHaveLength(2);
+      expect(suggestions[0].key).toBe('announcements');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:announcements');
+    });
+
+    it('supports calling specificGambitSuggestions with 6 arguments', () => {
+      const ac = createAutocomplete();
+      const autocompleteCheck = { relativeStart: 0, typed: 'tag:ann' };
+
+      const suggestions = ac.specificGambitSuggestions('tag', 'ann', [], [], autocompleteCheck, false);
+
+      expect(suggestions).not.toBeNull();
+      expect(suggestions).toHaveLength(1);
+    });
   });
 
   describe('GroupGambit integration', () => {
