@@ -74,7 +74,7 @@ class ClientResource extends Resource\AbstractDatabaseResource
                 ->where('revoked', false),
             ])
             ->addSelect(['last_used_at' => AccessToken::query()
-                ->selectRaw('max(last_used_at)')
+                ->selectRaw('max(coalesce(last_used_at, created_at))')
                 ->whereColumn('client_id', "$clients.id"),
             ]);
     }
