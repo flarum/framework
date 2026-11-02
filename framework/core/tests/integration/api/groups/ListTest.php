@@ -173,6 +173,25 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function pages_from_an_offset_without_a_limit()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams([
+                'page' => ['offset' => '2'],
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
+
+        $this->assertEquals(['3', '4'], Arr::pluck($data['data'], 'id'));
+        $this->assertStringContainsString('page%5Blimit%5D=2', $data['links']['prev'] ?? '');
+    }
+
+    #[Test]
     public function returns_every_group_without_pagination_links_when_no_page_is_requested()
     {
         $response = $this->send(

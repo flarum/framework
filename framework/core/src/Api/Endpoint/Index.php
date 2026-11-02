@@ -326,13 +326,29 @@ class Index extends Endpoint
      */
     protected function paginationOnRequest(Context $context): ?OffsetPagination
     {
-        $page = $context->queryParam('page');
-
-        if (! is_array($page) || ! isset($page['limit']) || ! $context->collection instanceof Paginatable) {
+        if (! $this->pageRequested($context)) {
             return null;
         }
 
         return new OffsetPagination($context, $this->maxLimit, $this->maxLimit);
+    }
+
+    /**
+     * A page requested from an endpoint that isn't paginated is as large as the
+     * endpoint allows.
+     */
+    protected function defaultLimit(\Tobyz\JsonApiServer\Context $context): ?int
+    {
+        return $this->limit ?? ($this->pageRequested($context) ? $this->maxLimit : null);
+    }
+
+    private function pageRequested(\Tobyz\JsonApiServer\Context $context): bool
+    {
+        $page = $context->queryParam('page');
+
+        return is_array($page)
+            && (isset($page['limit']) || isset($page['offset']))
+            && $context->collection instanceof Paginatable;
     }
 
     public function paginate(int $defaultLimit = 20, int $maxLimit = 50): static
