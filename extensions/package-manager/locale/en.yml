@@ -817,6 +817,7 @@ flarum-extension-manager:
     start:
       in_progress: "An update is already in progress."
       in_progress_stale: "An update is already in progress, though nothing has moved for {minutes} minutes."
+      lock_unwritable: "Could not create the update lock in {path}. Make sure the web server can write to that folder, then try again. Nothing was started."
       no_nightly: "There is no nightly build to move to: Packagist has no development branch for this Flarum, or could not be reached. Nothing was started."
       not_a_package: "That is not a package name: {package}"
       not_direct: "{package} is not something this site requires directly — it was installed because another extension depends on it. Removing that extension will take this one with it."

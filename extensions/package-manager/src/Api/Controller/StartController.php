@@ -22,6 +22,7 @@ use Flarum\ExtensionManager\Run\Drivers;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StartLock;
+use Flarum\ExtensionManager\Run\StartLockUnwritable;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Work\SavedManifests;
 use Flarum\ExtensionManager\Work\WorkDir;
@@ -208,7 +209,13 @@ class StartController implements RequestHandlerInterface
     {
         $lock = new StartLock(StorageDir::of($this->paths->storage).'/locks');
 
-        if (! $lock->acquire()) {
+        try {
+            $held = ! $lock->acquire();
+        } catch (StartLockUnwritable $e) {
+            throw new RefusedException($this->translator->trans('flarum-extension-manager.api.start.lock_unwritable', ['path' => $e->path]), 'start_lock_unwritable', 500);
+        }
+
+        if ($held) {
             throw new RefusedException($this->translator->trans('flarum-extension-manager.api.start.in_progress'), 'run_in_progress', 409);
         }
 

@@ -17,6 +17,7 @@ use Flarum\ExtensionManager\Plan\Repin;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StartLock;
+use Flarum\ExtensionManager\Run\StartLockUnwritable;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Work\SavedManifests;
 use Flarum\ExtensionManager\Work\UpdateCheck;
@@ -263,7 +264,15 @@ class UpdateCommand extends AbstractCommand
     {
         $lock = new StartLock(StorageDir::of($this->paths->storage).'/locks');
 
-        if (! $lock->acquire()) {
+        try {
+            $held = ! $lock->acquire();
+        } catch (StartLockUnwritable $e) {
+            $this->error("Could not create the update lock in {$e->path}. Make sure the user running this command can write to that folder. Nothing was started.");
+
+            return null;
+        }
+
+        if ($held) {
             $this->error('Another update is starting right now. Nothing was started.');
 
             return null;

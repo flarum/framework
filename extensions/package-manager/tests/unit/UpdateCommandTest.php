@@ -124,6 +124,29 @@ class UpdateCommandTest extends TestCase
         $this->assertNull($this->store()->latest(), 'Nothing may be started.');
     }
 
+    /** A lock folder that cannot be written is said to be that, not another update. */
+    public function test_it_says_when_the_start_lock_cannot_be_made(): void
+    {
+        if (function_exists('posix_getuid') && posix_getuid() === 0) {
+            $this->markTestSkipped('root can write anywhere');
+        }
+
+        $this->site(require: ['a/thing' => '^1.0'], installed: ['a/thing' => '1.0.0']);
+        mkdir($this->dir.'/extension-manager/runs', 0775, true);
+        chmod($this->dir.'/extension-manager', 0555);
+
+        try {
+            $tester = $this->runCommand(['packages' => ['a/thing']], ['plan' => ['work out the change']]);
+        } finally {
+            chmod($this->dir.'/extension-manager', 0775);
+        }
+
+        $this->assertSame(1, $tester->getStatusCode());
+        $this->assertStringContainsString('Could not create the update lock in '.StorageDir::of($this->dir).'/locks', $tester->getDisplay());
+        $this->assertStringNotContainsString('Another update', $tester->getDisplay());
+        $this->assertNull($this->store()->latest(), 'Nothing may be started.');
+    }
+
     /**
      * A run that failed before its new lock was meant to stay, without putting
      * the old one back itself (a worker that was killed), hands the next run

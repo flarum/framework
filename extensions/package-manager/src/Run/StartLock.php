@@ -34,12 +34,13 @@ class StartLock
     }
 
     /**
-     * True when this process now holds the lock.
+     * True when this process now holds the lock, false when somebody else
+     * does.
      *
-     * False when somebody else holds it, and also when the lock file cannot
-     * be made at all. Starting without the lock is exactly the race this class
-     * exists to stop, so a directory that cannot be written refuses the start
-     * rather than going ahead unguarded.
+     * @throws StartLockUnwritable when the lock file cannot be made at all.
+     *   Starting without the lock is exactly the race this class exists to
+     *   stop, so that refuses the start too, but says why: unlike a lock that
+     *   is held, it will not go away by itself.
      */
     public function acquire(): bool
     {
@@ -48,14 +49,14 @@ class StartLock
         }
 
         if (! is_dir($this->lockDir) && ! @mkdir($this->lockDir, 0775, true) && ! is_dir($this->lockDir)) {
-            return false;
+            throw new StartLockUnwritable($this->lockDir);
         }
 
         // Not a run id, so it can never share a file with a run's own lock.
         $handle = @fopen($this->lockDir.'/start.lock', 'c');
 
         if ($handle === false) {
-            return false;
+            throw new StartLockUnwritable($this->lockDir);
         }
 
         if (! flock($handle, LOCK_EX | LOCK_NB)) {

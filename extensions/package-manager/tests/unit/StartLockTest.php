@@ -14,6 +14,7 @@ use Flarum\ExtensionManager\Exception\RefusedException;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StartLock;
+use Flarum\ExtensionManager\Run\StartLockUnwritable;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\Steps;
 use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
@@ -98,17 +99,38 @@ class StartLockTest extends TestCase
 
     /**
      * A lock that cannot be made refuses, rather than starting unguarded: that
-     * would be exactly the race this exists to stop.
+     * would be exactly the race this exists to stop. But it says so, rather
+     * than passing for a lock somebody else holds, which goes away by itself.
      */
-    public function test_a_lock_directory_that_cannot_be_made_refuses_the_start(): void
+    public function test_a_lock_directory_that_cannot_be_made_is_told_apart_from_a_held_lock(): void
     {
-        if (function_exists('posix_getuid') && posix_getuid() === 0) {
-            $this->markTestSkipped('root can write anywhere');
+        $this->unwritable();
+
+        try {
+            (new StartLock($this->dir.'/extension-manager/locks'))->acquire();
+            $this->fail('A lock that could not be made was reported as held.');
+        } catch (StartLockUnwritable $e) {
+            $this->assertSame($this->dir.'/extension-manager/locks', $e->path);
+        }
+    }
+
+    /** The screen gets its own error, naming the folder, and no run is started. */
+    public function test_the_screen_is_told_the_lock_folder_cannot_be_written(): void
+    {
+        $this->unwritable();
+
+        try {
+            $this->begin();
+            $this->fail('A start went ahead without its lock.');
+        } catch (RefusedException $e) {
+            $this->assertSame(500, $e->getStatus());
+            $this->assertSame('start_lock_unwritable', $e->getType());
+            $this->assertStringContainsString($this->dir.'/extension-manager/locks', $e->getMessage());
+            $this->assertStringNotContainsString('already in progress', $e->getMessage());
         }
 
-        chmod($this->dir.'/extension-manager', 0555);
-
-        $this->assertFalse((new StartLock($this->dir.'/extension-manager/locks'))->acquire());
+        chmod($this->dir.'/extension-manager', 0775);
+        $this->assertNull($this->store()->latest(), 'Nothing may be started.');
     }
 
     public function test_the_same_holder_can_ask_twice_and_release_twice(): void
@@ -151,6 +173,15 @@ class StartLockTest extends TestCase
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
+
+    private function unwritable(): void
+    {
+        if (function_exists('posix_getuid') && posix_getuid() === 0) {
+            $this->markTestSkipped('root can write anywhere');
+        }
+
+        chmod($this->dir.'/extension-manager', 0555);
+    }
 
     private function store(): RunStore
     {
