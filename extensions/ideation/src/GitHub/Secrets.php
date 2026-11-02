@@ -10,15 +10,17 @@
 namespace Flarum\Ideation\GitHub;
 
 use Flarum\Frontend\Document;
+use Flarum\Settings\Event\Deserializing;
 use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
 
 /**
  * Keeps the GitHub token and webhook secret on the server.
  *
- * The admin page gets every setting, so these two are blanked there and the
- * page is told only whether each is saved. Saving the form with the field
- * left empty keeps what is stored; the page's "Remove" sends null instead.
+ * The admin page gets every setting, so these two are blanked as core
+ * prepares them for it, and the page is told only whether each is saved.
+ * Saving the form with the field left empty keeps what is stored; the
+ * page's "Remove" sends null instead.
  */
 class Secrets
 {
@@ -29,24 +31,25 @@ class Secrets
     ) {
     }
 
-    /** Admin frontend content, after core's payload has added the settings. */
-    public function __invoke(Document $document): void
+    /** Core's settings for the admin page, before they are sent. */
+    public function deserializing(Deserializing $event): void
     {
-        $saved = [];
-
         foreach (self::KEYS as $name) {
-            $key = Config::PREFIX.$name;
-            $saved[$name] = (string) $this->settings->get($key) !== '';
-
-            if (isset($document->payload['settings'][$key])) {
-                $document->payload['settings'][$key] = '';
+            if (isset($event->settings[Config::PREFIX.$name])) {
+                $event->settings[Config::PREFIX.$name] = '';
             }
         }
-
-        $document->payload['ideationGithubSecrets'] = $saved;
     }
 
-    public function handle(Saving $event): void
+    /** Admin frontend content: whether each one is saved, and nothing more. */
+    public function __invoke(Document $document): void
+    {
+        foreach (self::KEYS as $name) {
+            $document->payload['ideationGithubSecrets'][$name] = (string) $this->settings->get(Config::PREFIX.$name) !== '';
+        }
+    }
+
+    public function saving(Saving $event): void
     {
         foreach (self::KEYS as $name) {
             $key = Config::PREFIX.$name;

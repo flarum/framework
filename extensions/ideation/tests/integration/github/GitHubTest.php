@@ -10,20 +10,23 @@
 namespace Flarum\Ideation\Tests\integration\github;
 
 use Carbon\Carbon;
-use Flarum\Admin\Content\AdminPayload;
-use Flarum\Frontend\Document;
+use Flarum\Frontend\Content\Assets;
+use Flarum\Frontend\Frontend;
+use Flarum\Http\RequestUtil;
 use Flarum\Ideation\GitHub\Client;
 use Flarum\Ideation\GitHub\Links;
-use Flarum\Ideation\GitHub\Secrets;
 use Flarum\Ideation\Tests\integration\FakeGitHub;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use Illuminate\Session\ArraySessionHandler;
+use Illuminate\Session\Store;
 use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\StreamFactory;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
-use ReflectionClass;
+use ReflectionProperty;
 
 class GitHubTest extends TestCase
 {
@@ -287,10 +290,11 @@ class GitHubTest extends TestCase
     }
 
     #[Test]
-    public function removing_the_last_open_item_ships_the_idea()
+    public function removing_the_last_open_item_ships_the_idea_as_the_moderators_own_move()
     {
         $this->boot(['auto_ship' => '1']);
         $this->github->items['flarum/framework#5034']['state'] = 'merged';
+        $this->database()->table('ideation_votes')->insert(['discussion_id' => 1, 'user_id' => self::MOD, 'created_at' => Carbon::now()]);
 
         $this->patch(1, self::MOD, ['ideationGithubLink' => 'flarum/framework#4000']);
         $this->patch(1, self::MOD, ['ideationGithubLink' => 'flarum/framework#5034']);
@@ -300,6 +304,13 @@ class GitHubTest extends TestCase
         $this->assertSame(200, $this->patch(1, self::MOD, ['ideationGithubUnlink' => $issue])->getStatusCode());
 
         $this->assertSame('shipped', $this->show(1)['ideationStatus']);
+
+        // The moderator's click shipped it, not GitHub: the post is a plain
+        // move by them, and, as with any manual ship, their own vote is not
+        // told about it.
+        $post = $this->database()->table('posts')->where('discussion_id', 1)->where('type', 'ideationStatus')->orderByDesc('id')->first();
+        $this->assertSame(['planned', 'shipped', null], json_decode($post->content, true));
+        $this->assertSame(self::MOD, (int) $post->user_id);
         $this->assertSame([self::MEMBER], $this->database()->table('notifications')->where('type', 'ideationShipped')->pluck('user_id')->map(fn ($id) => (int) $id)->all());
     }
 
@@ -351,28 +362,47 @@ class GitHubTest extends TestCase
         $this->assertSame(0, $this->database()->table('posts')->where('type', 'ideationStatus')->count());
     }
 
+    /**
+     * The admin page's payload, built by every piece of content the admin
+     * frontend has, core's and this extension's, in their real order. Only
+     * asset compilation is left out: a GET /admin compiles js/dist, which
+     * the backend CI run does not build.
+     */
+    protected function adminPayload(): array
+    {
+        $frontend = $this->app()->getContainer()->make('flarum.frontend.admin');
+
+        $content = new ReflectionProperty(Frontend::class, 'content');
+        $content->setValue($frontend, array_values(array_filter(
+            $content->getValue($frontend),
+            fn (array $item) => ! $item['callback'] instanceof Assets
+        )));
+
+        $request = RequestUtil::withActor($this->request('GET', '/admin'), User::query()->findOrFail(1))
+            ->withAttribute('session', new Store('flarum', new ArraySessionHandler(1)));
+
+        return $frontend->document($request)->payload;
+    }
+
     #[Test]
     public function the_token_and_secret_never_reach_the_admin_page()
     {
         $this->setting('flarum-ideation.github.token', 'github_pat_secret_value');
         $this->boot();
-        $container = $this->app()->getContainer();
 
-        // The admin page's payload as core builds it, then as this extension
-        // leaves it. (Not a GET /admin: that compiles js/dist, which CI's
-        // backend run does not build.)
-        $document = (new ReflectionClass(Document::class))->newInstanceWithoutConstructor();
-        $container->make(AdminPayload::class)($document, $this->request('GET', '/admin'));
-        $this->assertSame('github_pat_secret_value', $document->payload['settings']['flarum-ideation.github.token'], 'core sends every setting');
+        $payload = $this->adminPayload();
 
-        $container->make(Secrets::class)($document);
-
-        $json = json_encode($document->payload);
+        $json = json_encode($payload);
         $this->assertStringNotContainsString('github_pat_secret_value', $json);
         $this->assertStringNotContainsString(self::SECRET, $json);
-        $this->assertSame(['token' => true, 'secret' => true], $document->payload['ideationGithubSecrets']);
-        $this->assertSame('', $document->payload['settings']['flarum-ideation.github.token']);
-        $this->assertSame('', $document->payload['settings']['flarum-ideation.github.secret']);
+        $this->assertSame(['token' => true, 'secret' => true], $payload['ideationGithubSecrets']);
+        $this->assertSame('', $payload['settings']['flarum-ideation.github.token']);
+        $this->assertSame('', $payload['settings']['flarum-ideation.github.secret']);
+        // Every other setting still arrives as it is.
+        $this->assertSame("flarum/framework\nfof/*", $payload['settings']['flarum-ideation.github.repos']);
+
+        $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('flarum-ideation.github.token', '');
+        $this->assertSame(['token' => false, 'secret' => true], $this->adminPayload()['ideationGithubSecrets']);
     }
 
     #[Test]

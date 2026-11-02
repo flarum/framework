@@ -25,6 +25,7 @@ use Flarum\Ideation\Notification\IdeaShippedBlueprint;
 use Flarum\Ideation\Post\IdeationStatusPost;
 use Flarum\Ideation\Search\IdeationFilter;
 use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\Settings\Event\Deserializing;
 use Flarum\Settings\Event\Saving;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Contracts\Container\Container;
@@ -126,6 +127,7 @@ return [
 
     (new Extend\Event())
         ->listen(StatusChanged::class, Listener\RecordStatusChange::class)
-        ->listen(Saving::class, GitHub\Secrets::class)
+        ->listen(Saving::class, [GitHub\Secrets::class, 'saving'])
+        ->listen(Deserializing::class, [GitHub\Secrets::class, 'deserializing'])
         ->subscribe(Listener\ForgetDeletedUserVotes::class),
 ];

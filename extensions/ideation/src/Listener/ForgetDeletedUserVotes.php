@@ -11,8 +11,6 @@ namespace Flarum\Ideation\Listener;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Ideation\Vote;
-use Flarum\User\Event\Deleted;
-use Flarum\User\Event\Deleting;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use WeakMap;
@@ -23,6 +21,11 @@ use WeakMap;
  * The foreign key removes the vote rows with the user, so which ideas they
  * voted for is read while the user is being deleted, and the counts are only
  * lowered once the delete has happened: a delete that fails changes nothing.
+ *
+ * Eloquent's own model events rather than core's User\Event\Deleting and
+ * Deleted: those come only from the API's delete, and flarum/gdpr erases a
+ * member with a plain `$user->delete()`. Every delete of a User model fires
+ * these, once each.
  */
 class ForgetDeletedUserVotes
 {
@@ -36,19 +39,20 @@ class ForgetDeletedUserVotes
 
     public function subscribe(Dispatcher $events): void
     {
-        $events->listen(Deleting::class, $this->remember(...));
-        $events->listen(Deleted::class, $this->forget(...));
+        $events->listen('eloquent.deleting: '.User::class, $this->remember(...));
+        $events->listen('eloquent.deleted: '.User::class, $this->forget(...));
     }
 
-    public function remember(Deleting $event): void
+    /** Returns nothing: a `false` from a `deleting` listener would cancel the delete. */
+    public function remember(User $user): void
     {
-        $this->votedFor[$event->user] = Vote::query()->where('user_id', $event->user->id)->pluck('discussion_id')->map(intval(...))->all();
+        $this->votedFor[$user] = Vote::query()->where('user_id', $user->id)->pluck('discussion_id')->map(intval(...))->all();
     }
 
-    public function forget(Deleted $event): void
+    public function forget(User $user): void
     {
-        $ids = $this->votedFor[$event->user] ?? [];
-        unset($this->votedFor[$event->user]);
+        $ids = $this->votedFor[$user] ?? [];
+        unset($this->votedFor[$user]);
 
         if ($ids) {
             Discussion::query()->whereIn('id', $ids)->where('ideation_votes', '>', 0)->decrement('ideation_votes');

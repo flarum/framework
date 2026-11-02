@@ -179,18 +179,40 @@ class DiscussionFields
 
         $old = $source->ideation_status;
 
-        $source->ideation_status = Status::MERGED;
-        $source->ideation_merged_into_id = $target->id;
-        $source->ideation_status_changed_at = Carbon::now();
-
+        // The merge is written after the save, in one transaction with the
+        // target's row locked: if a moderator or GitHub ships or declines the
+        // target between the check above and now, the merge is refused and
+        // nothing changes, instead of voters landing on an idea whose
+        // shipped notification has already gone out.
         $source->afterSave(function () use ($source, $target) {
-            // Ideas already folded into this one follow it to the target, so
-            // nothing ever points at a merged idea.
-            Discussion::query()
-                ->where('ideation_merged_into_id', $source->id)
-                ->update(['ideation_merged_into_id' => $target->id]);
+            $now = Carbon::now();
 
-            $this->votes->move($source, $target);
+            $source->getConnection()->transaction(function () use ($source, $target, $now) {
+                $status = Discussion::query()->whereKey($target->id)->lockForUpdate()->value('ideation_status');
+
+                if (! Status::isOpen($status)) {
+                    throw new ValidationException(['ideationMergedIntoId' => $this->translator->trans('flarum-ideation.api.merge_target')]);
+                }
+
+                Discussion::query()->whereKey($source->id)->update([
+                    'ideation_status' => Status::MERGED,
+                    'ideation_merged_into_id' => $target->id,
+                    'ideation_status_changed_at' => $now,
+                ]);
+
+                // Ideas already folded into this one follow it to the target,
+                // so nothing ever points at a merged idea.
+                Discussion::query()
+                    ->where('ideation_merged_into_id', $source->id)
+                    ->update(['ideation_merged_into_id' => $target->id]);
+
+                $this->votes->move($source, $target);
+            });
+
+            $source->ideation_status = Status::MERGED;
+            $source->ideation_merged_into_id = $target->id;
+            $source->ideation_status_changed_at = $now;
+            $source->syncOriginalAttributes(['ideation_status', 'ideation_merged_into_id', 'ideation_status_changed_at']);
         });
 
         // Dispatched once the discussion is saved, after the votes have moved.

@@ -10,6 +10,7 @@
 namespace Flarum\Ideation\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -382,6 +383,47 @@ class IdeationTest extends TestCase
 
         $this->database()->table('discussions')->where('id', 2)->update(['ideation_status' => 'planned']);
         $this->assertSame(200, $this->patch(1, self::MOD, ['ideationMergedIntoId' => 2])->getStatusCode());
+    }
+
+    #[Test]
+    public function a_merge_is_refused_when_the_target_closes_before_the_votes_move()
+    {
+        $this->patch(1, self::OTHER, ['ideationVoted' => true]);
+        $this->patch(2, self::MEMBER, ['ideationVoted' => true]);
+
+        // Another moderator ships the target after this merge has checked
+        // it, while the merged idea is being saved.
+        Discussion::saving(function (Discussion $discussion) {
+            if ($discussion->id === 1) {
+                $this->database()->table('discussions')->where('id', 2)->update(['ideation_status' => 'shipped']);
+            }
+        });
+
+        $this->assertSame(422, $this->patch(1, self::MOD, ['ideationMergedIntoId' => 2])->getStatusCode());
+
+        $source = $this->database()->table('discussions')->where('id', 1)->first();
+        $this->assertSame('under_review', $source->ideation_status);
+        $this->assertNull($source->ideation_merged_into_id);
+        $this->assertSame([self::OTHER], $this->voteRows(1));
+        $this->assertSame(1, $this->votes(1));
+        $this->assertSame([self::MEMBER], $this->voteRows(2));
+        $this->assertSame(1, $this->votes(2));
+        $this->assertSame(0, $this->database()->table('posts')->where('discussion_id', 1)->where('type', 'ideationStatus')->count());
+    }
+
+    #[Test]
+    public function deleting_a_member_outside_the_api_takes_their_votes_off_the_counts_once()
+    {
+        $this->patch(1, self::OTHER, ['ideationVoted' => true]);
+        $this->patch(2, self::OTHER, ['ideationVoted' => true]);
+        $this->patch(2, self::MEMBER, ['ideationVoted' => true]);
+
+        // As flarum/gdpr erases a member: a plain model delete, with none of
+        // core's User\Event\Deleting or Deleted.
+        User::query()->findOrFail(self::OTHER)->delete();
+
+        $this->assertSame(0, $this->votes(1));
+        $this->assertSame(1, $this->votes(2));
     }
 
     #[Test]

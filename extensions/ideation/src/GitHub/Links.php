@@ -94,6 +94,7 @@ class Links
     {
         if (Link::query()->where('discussion_id', $discussion->id)->whereKey($linkId)->delete()) {
             // Removing the last open item can leave everything else done.
+            // The moderator's click caused that move, so it is theirs.
             $this->settle($discussion, null, $actor);
         }
     }
@@ -187,6 +188,10 @@ class Links
      *  - a linked pull request is open → In progress (from Under review or Planned)
      *  - every linked item that still counts is done → Shipped
      * Neither ever moves an idea backwards, and neither touches a closed one.
+     *
+     * With `$by`, a moderator's own action (removing a link) caused the move,
+     * so it is recorded as their manual move: the post names them rather
+     * than GitHub, and they are not told about their own ship.
      */
     protected function settle(Discussion $discussion, ?Link $cause, ?User $by = null): void
     {
@@ -215,8 +220,9 @@ class Links
         }
 
         $actor = $by ?? ($cause?->user_id ? (User::query()->find($cause->user_id) ?? new Guest()) : new Guest());
+        $via = $by ? null : ($cause?->reference() ?? 'GitHub');
 
-        $discussion->raise(new StatusChanged($discussion, $actor, $discussion->ideation_status, $next, null, $cause?->reference() ?? 'GitHub'));
+        $discussion->raise(new StatusChanged($discussion, $actor, $discussion->ideation_status, $next, null, $via));
 
         $discussion->ideation_status = $next;
         $discussion->ideation_status_changed_at = Carbon::now();
