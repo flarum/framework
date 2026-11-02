@@ -1,44 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Added
-
-- (core) a `GET /api/resource-schemas/{type}` endpoint that describes a resource's fields, sorts and filters to the current actor, with `Extend\ApiResource::describable()`, `->ui()` field hints, `DescribesFilter` and `Extend\SearchDriver::describeFilter()`; the descriptor shape is versioned by `schemaVersion`. It carries a translated type `label` (`{one, other}`, from `core.admin.resource.{type}.label_one`/`label_other`), `rowAbilities` (`canEdit`/`canDelete` by default, overridable with `Extend\ApiResource::rowAbilities(['edit' => 'canModerate'])`, a null removes the action), field `enumLabels` (`core.admin.resource.{type}.{snake_name}.{value}` or `…{snake_name}_enum.{value}`), `constraints.messages` with a field's custom `validationMessages()` keyed by constraint, and `ui.liveValidate` on writable fields whose rules only the server can check
-- (core) field labels in the descriptor come from `ui.label`, else the translation `core.admin.resource.{type}.{snake_name}`, else the humanised field name
-- (core) the descriptor describes Laravel's conditional required rules (`required_with*`, `required_without*`, `required_if`, `required_unless`, `required_if_accepted`, `required_if_declined`) as `requiredWhen`, which resource forms evaluate live against the other inputs; `requiredConditional` marks required rules only the server can decide, and `filled` and `present` are sent as constraints
-- (core) `AbstractSearcher::getFilterManager()`, `FilterManager::all()` and `SearchManager::describeSearch()`
-- (core) generic admin `ResourceTable` and `ResourceDeleteModal` components in a data-table layout: one toolbar row (search, a "Filter" panel from `ResourceFilterBar`, refresh, a table settings menu with column toggles, CSV export (`CsvExport`, gated by `ResourceDefinition.canExport()`) and a phone sort select, create) that a batch action bar replaces while rows are selected, active filter tags (`FilterChips`), sortable headers, one overflow menu of row actions per row, a pagination footer with page size, range and page navigation, and an empty state; declarative row and bulk actions (`ResourceDefinition.resourceActions()`, `ResourceAction`, `ResourceActionModal`, `BulkResultModal`, `BulkRunner`), where rows no bulk action applies to cannot be selected; `ResourceListState.setPageSize()`; `ResourceListPage` for an admin page that is one table
-- (core) `createModal()` and `editModal()` seams on `UserListPage`
-- (core) a `deleteLabel` attribute on `Pill`
-- (core) generic form components as public API: `ResourceFormModal`, `ResourceForm`, `ResourceFormState`, client-side validation from the descriptor, field error mapping, `InputFactory` and the default inputs, `RelationInput` and `RelationOptions`
-- (core) an admin Access Tokens page to list and revoke users' sessions, remembered sessions and developer tokens; the current session can't be revoked there
-- (core) `access-tokens` is describable, with `createdAt`/`lastActivityAt` sorts, an includable `user` relationship, and `type` and `canDelete` attributes
-- (core) an admin Groups page (`/admin#/groups`) to list, create, edit and delete groups with their colour and icon, built on the generic resource form
-- (core) `groups` is describable, group API responses include `canEdit` and `canDelete`, and the groups `hidden` filter is described as a boolean filter
-- (core) resource schema `ui()` hints: `widget` accepts `'color'`, `'icon'` or any input type an extension registers, and `placeholder` sets the input's placeholder (translated when it is a translation key)
-- (core) `ResourceDefinition.recordLabel()` names a record in modal titles and confirmations, and `ResourceDefinition.label(count)` names the type, so the create modal reads "Create Group"; `ResourceListState.isPaginated()`, and a type whose list is not paginated is requested whole instead of 20 at a time
-- (likes, suspend) describe the `liked` and `suspended` user filters, and show `suspendedUntil` as a user list column
-- (core) filter descriptions carry a translated `label` (`core.admin.resource.{type}.filters.{snake_key}`) and can describe `kind` `date`/`number`, `range`, `multiple`, `required`, `default`, `negatable`, `schema`, `enum` and `enumLabels`; `RangeValue` and the `FiltersByRange` trait parse and apply `from..to` range values
-- (core) `joinedAt` and `lastSeenAt` date range filters on `/api/users` (`filter[joinedAt]=2024-01-01..2024-06-30`); `lastSeenAt` only applies with the `user.viewLastSeenAt` permission, like the sort
-- (core) typed `ui` hint methods on API resource fields: `column()`, `columnHidden()`, `widget()`, `placeholder()`, `help()`, `group()`, `priority()`, `display()`, `visibleWhen()` and `markRequired()`; `help` and `group` are translated like `placeholder`, and unknown `ui` keys are logged in debug mode
-- (core) Precognition-style validate-only requests on every `Create`/`Update` endpoint: send `Precognition: true` (optionally `Precognition-Validate-Only: name,email` to validate only those fields; an empty header, or one naming no field of the resource, validates every field) and the endpoint runs its visibility checks and field-level validation but never saves, answering `204` with `Precognition-Success: true`, or the normal 422/403 error; responses carry `Precognition: true` and `Vary: Precognition`. A `204` means validation passed, not that the write would succeed: endpoint `before`/`after` hooks, field setters and resource `creating`/`saving`/… hooks, where some authorization lives, are not run. A `Precognition: true` request to any other route answers `400` (`precognition_not_supported`) without running it. Precognitive requests skip the endpoint's write throttlers but have their own limit (bound as `flarum.api.precognition_throttler`, 60 per minute per user, per IP for guests)
-- (core) `app.resources` (`ResourceRegistry`): `register(type, DefinitionClass)`, `get(type)` (a new definition each call, a plain `ResourceDefinition` for an unregistered type) and `has(type)`. Core's admin definitions, `flarum/admin/resource/definitions/UsersDefinition` (the user list's actions, export audience and filters), `GroupsDefinition` and `AccessTokensDefinition`, are registered at admin boot; the pages get theirs from `app.resources`, so an extension can `extend()` the prototypes or register a subclass
-- (core) the user list's row menu is the shared resource table menu (`UserListPage.userActionItems()` starts from `ResourceTable.rowActionItems()`): edit, the users definition's other row-scoped `resourceActions()`, then delete
-
-### Changed
-
-- (core) build the admin user list on `ResourceTable`, in its shared layout: sortable headers, filter tags, row delete, column toggles and an admin-only CSV export; the user count is replaced by the table's pagination footer; filters a gambit covers (group, suspended, email) are typed in the search, and only filters without a gambit get a dropdown (`Filter.hideWhenSearchable: false` keeps one)
-- (core) render the admin user list as a native `<table>`; class names and `data-*` attributes are kept, but CSS that relies on `display: grid` or the `--columns` style breaks
-- (core) **Breaking:** the admin, guest and member groups (ids 1–3) can no longer be deleted through the API, by anyone including administrators (`DELETE /api/groups/{1,2,3}` returns 403), because core depends on them; the moderator group and custom groups can still be deleted
-- (core) **Breaking:** `UserListPage.headerItems()` is removed with the page's own search and user count; `UserListPage.actionItems()` ("New User", now at priority -100) adds to the right of the table's toolbar
-
-### Fixed
-
-- (core) `requiredOnUpdate()` on API resource fields was inverted (required on create, never on update); it now requires the field on update. GDPR erasure processing no longer accepts an empty `processedMode` and fails with a 500
-- (core) updating a group required sending both names; a `PATCH /api/groups/{id}` with only `color` now works, and the names still may not be emptied
-- (core) `mutateDataBeforeValidation()` now applies to validation and to what is saved: the setters and the save receive the mutated data, so a value is stored exactly as it was validated (also in precognitive requests)
-
 ## [v2.0.2](https://github.com/flarum/framework/compare/v2.0.1...v2.0.2)
 
 ### Added
