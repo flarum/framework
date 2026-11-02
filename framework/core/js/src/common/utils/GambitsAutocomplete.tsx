@@ -105,8 +105,10 @@ export default class GambitsAutocomplete {
         const key = (
           gambit.type === GambitType.Grouped ? (gambit.suggestion() as GroupedGambitSuggestion).group : (gambit.suggestion().key as string)
         ).toLowerCase();
+        const canonicalKey =
+          'canonicalKey' in gambit && typeof (gambit as any).canonicalKey === 'function' ? (gambit as any).canonicalKey().toLowerCase() : '';
 
-        return key.includes(normalizedTyped);
+        return key.includes(normalizedTyped) || (canonicalKey && canonicalKey.includes(normalizedTyped));
       })
       .map((gambit) => {
         const suggestion = gambit.suggestion();
@@ -166,7 +168,9 @@ export default class GambitsAutocomplete {
     for (const gambit of keyValueGambits) {
       const suggestion = gambit.suggestion();
       const key = typeof suggestion.key === 'string' ? suggestion.key : '';
-      if (key.toLowerCase() === gambitKey) {
+      const canonicalKey = 'canonicalKey' in gambit && typeof (gambit as any).canonicalKey === 'function' ? (gambit as any).canonicalKey() : '';
+
+      if (key.toLowerCase() === gambitKey || (canonicalKey && canonicalKey.toLowerCase() === gambitKey)) {
         matchingKeyValueGambit = gambit;
         matchingSuggestion = suggestion;
         break;
@@ -213,7 +217,8 @@ export default class GambitsAutocomplete {
           return [];
         }
 
-        const prefix = (negative ? '-' : '') + (matchingSuggestion.key as string) + ':' + prefixValues;
+        const keyToUse = (matchingSuggestion.key as string).toLowerCase() === gambitKey ? (matchingSuggestion.key as string) : gambitKey;
+        const prefix = (negative ? '-' : '') + keyToUse + ':' + prefixValues;
 
         return matchingOptions.map((opt) =>
           this.gambitSuggestion(
