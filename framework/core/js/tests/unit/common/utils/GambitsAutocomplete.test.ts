@@ -3,6 +3,8 @@ import { jest } from '@jest/globals';
 import app from '../../../../src/forum/app';
 import GambitsAutocomplete from '../../../../src/common/utils/GambitsAutocomplete';
 import { GambitType } from '../../../../src/common/query/IGambit';
+import GroupGambit from '../../../../src/common/query/users/GroupGambit';
+import Group from '../../../../src/common/models/Group';
 
 beforeAll(() => {
   bootstrapForum();
@@ -372,6 +374,7 @@ describe('GambitsAutocomplete', () => {
                 { value: 'announcements', label: 'Announcements' },
                 { value: 'general', label: 'General' },
                 { value: 'help', label: 'Help' },
+                { value: 'helpdesk', label: 'Helpdesk' },
               ],
             }),
             predicates: true,
@@ -412,7 +415,7 @@ describe('GambitsAutocomplete', () => {
       const ac = createAutocomplete();
       const suggestions = extractSuggestions(ac.suggestions('-tag:'));
 
-      expect(suggestions).toHaveLength(3);
+      expect(suggestions).toHaveLength(4);
       expect(suggestions[0].key).toBe('announcements');
       expect(suggestions[0].value).toBe('Announcements');
       expect(suggestions[1].key).toBe('general');
@@ -440,20 +443,42 @@ describe('GambitsAutocomplete', () => {
       const ac = createAutocomplete();
       const suggestions = extractSuggestions(ac.suggestions('-tag:announcements,he'));
 
-      expect(suggestions).toHaveLength(1);
+      expect(suggestions).toHaveLength(2);
       expect(suggestions[0].key).toBe('help');
+      expect(suggestions[1].key).toBe('helpdesk');
 
       suggestions[0].click();
       expect(changedValue).toBe('-tag:announcements,help');
       expect(afterSuggestValue).toBe('-tag:announcements,help');
     });
 
-    it('dismisses autocomplete when KeyValueGambit value is fully and uniquely typed', () => {
-      selectionStart = 17; // 'tag:announcements'
+    it('dismisses autocomplete when KeyValueGambit value is fully typed even with shared prefix options', () => {
+      selectionStart = 8; // 'tag:help'
       const ac = createAutocomplete();
-      const suggestions = ac.suggestions('tag:announcements');
+      const suggestions = ac.suggestions('tag:help');
 
       expect(suggestions).toHaveLength(0);
+    });
+
+    it('preserves casing of previously typed comma-separated values', () => {
+      selectionStart = 20; // 'tag:Announcements,ge'
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:Announcements,ge'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('general');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:Announcements,general');
+      expect(afterSuggestValue).toBe('tag:Announcements,general');
+    });
+
+    it('excludes already selected values from comma-separated predicate suggestions', () => {
+      selectionStart = 17; // 'tag:announcements,'
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:announcements,'));
+
+      expect(suggestions.map((s) => s.key)).toEqual(['general', 'help', 'helpdesk']);
     });
 
     it('filters KeyValueGambit by label as well as value', () => {
@@ -463,6 +488,73 @@ describe('GambitsAutocomplete', () => {
 
       expect(suggestions).toHaveLength(1);
       expect(suggestions[0].key).toBe('general');
+    });
+  });
+
+  describe('GroupGambit integration', () => {
+    beforeEach(() => {
+      const mockGroup = (id: string, singular: string, plural: string) =>
+        ({
+          id: () => id,
+          nameSingular: () => singular,
+          namePlural: () => plural,
+        } as unknown as Group);
+
+      app.store.all = jest.fn().mockImplementation((type: string) => {
+        if (type === 'groups') {
+          return [
+            mockGroup('1', 'Admin', 'Admins'),
+            mockGroup('2', 'Guest', 'Guests'),
+            mockGroup('3', 'Member', 'Members'),
+            mockGroup('4', 'Community Manager', 'Community Managers'),
+          ];
+        }
+        return [];
+      });
+
+      app.search.gambits.for = jest.fn().mockImplementation((resource: string) => {
+        if (resource !== 'users') return [];
+        return [new GroupGambit()];
+      });
+    });
+
+    it('suggests group id as value and excludes guest and member virtual groups', () => {
+      selectionStart = 6;
+      const ac = createAutocomplete('users');
+      const suggestions = extractSuggestions(ac.suggestions('group:'));
+
+      expect(suggestions).toHaveLength(2);
+      expect(suggestions[0].key).toBe('1');
+      expect(suggestions[0].value).toBe('Admin');
+      expect(suggestions[1].key).toBe('4');
+      expect(suggestions[1].value).toBe('Community Manager');
+    });
+
+    it('matches groups with spaces by label and inserts group id', () => {
+      selectionStart = 10;
+      const ac = createAutocomplete('users');
+      const suggestions = extractSuggestions(ac.suggestions('group:Comm'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('4');
+      expect(suggestions[0].value).toBe('Community Manager');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('group:4');
+      expect(afterSuggestValue).toBe('group:4');
+    });
+
+    it('matches group by mixed case label and inserts group id', () => {
+      selectionStart = 11;
+      const ac = createAutocomplete('users');
+      const suggestions = extractSuggestions(ac.suggestions('group:admin'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('1');
+      expect(suggestions[0].value).toBe('Admin');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('group:1');
     });
   });
 });
