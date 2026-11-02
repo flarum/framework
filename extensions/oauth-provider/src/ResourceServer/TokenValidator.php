@@ -28,12 +28,13 @@ class TokenValidator
     /**
      * last_used_at is written at most once per this many seconds per token.
      */
-    public const int TOUCH_INTERVAL = 60;
+    public const int TOUCH_INTERVAL = TokenUsage::INTERVAL;
 
     public function __construct(
         protected AccessTokenVerifier $verifier,
         protected AllowedClients $allowed,
         protected MemberAccess $access,
+        protected TokenUsage $usage,
     ) {
     }
 
@@ -97,17 +98,6 @@ class TokenValidator
 
     protected function touch(AccessToken $row, ?string $ipAddress = null): void
     {
-        $now = Carbon::now();
-
-        if ($row->last_used_at !== null && $row->last_used_at->diffInSeconds($now, true) < self::TOUCH_INTERVAL) {
-            return;
-        }
-
-        // A caller that doesn't say where it was called from leaves the last
-        // known address in place.
-        AccessToken::query()->where('id', $row->id)->update(array_filter([
-            'last_used_at' => $now,
-            'last_ip_address' => $ipAddress,
-        ], fn ($value) => $value !== null));
+        $this->usage->record($row, $ipAddress);
     }
 }
