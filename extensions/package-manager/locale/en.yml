@@ -618,6 +618,7 @@ flarum-extension-manager:
       permissions_ok: "Every file this update changes is writable"
       pin_raised: "{package} required at {version} instead of {current}"
       pinned_to: "{package} is pinned to {constraint}"
+      plan_unwritable: "Could not save the plan to {path}. Check the disk is not full and that the directory is writable. Nothing was changed."
       registered: "Composer now knows about the change"
       reread_done: "The web server has re-read the new files."
       resolve_failed: "Composer could not work out an update:"
@@ -651,6 +652,7 @@ flarum-extension-manager:
       json_write_failed: "Could not write next to {path}. Check the directory is writable."
       no_credential: "There is no credential stored for that host."
       not_a_hostname: "That is not a hostname. Use github.com, not https://github.com/…."
+      repo_ambiguous: "More than one repository has that address, differing only in the credentials written into it. Remove the one you mean from composer.json by hand."
       repo_bad_url: "That does not look like a repository URL. Use https://, git@ or ssh://."
       repo_exists: "That repository is already configured."
       repo_insecure: "Composer will not use a repository over plain http:// or git:// while its secure-http setting is on, and credentials would travel unencrypted. Use https:// or ssh://."
@@ -815,6 +817,7 @@ flarum-extension-manager:
     start:
       in_progress: "An update is already in progress."
       in_progress_stale: "An update is already in progress, though nothing has moved for {minutes} minutes."
+      lock_unwritable: "Could not create the update lock in {path}. Make sure the web server can write to that folder, then try again. Nothing was started."
       no_nightly: "There is no nightly build to move to: Packagist has no development branch for this Flarum, or could not be reached. Nothing was started."
       not_a_package: "That is not a package name: {package}"
       not_direct: "{package} is not something this site requires directly — it was installed because another extension depends on it. Removing that extension will take this one with it."

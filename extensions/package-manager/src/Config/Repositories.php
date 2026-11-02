@@ -123,40 +123,74 @@ class Repositories
             $entry['name'] = trim($name);
         }
 
-        // Appended, keeping the existing shape: Composer resolves repositories in
-        // order, so a new entry going last cannot change how anything already
-        // installed is found.
+        /*
+         * Appended, keeping the existing shape: Composer resolves repositories
+         * in order, so a new entry going last cannot change how anything
+         * already installed is found.
+         *
+         * And keeping the existing KEYS. In the keyed form the key is part of
+         * the entry: `"packagist.org": false` is what turns Packagist off, and
+         * renumbering the map turned it into a bare `false` in a list, which
+         * Composer does not read as anything. Packagist came back on.
+         */
         $repos[] = $entry;
-        $data['repositories'] = array_values($repos);
+        $data['repositories'] = $repos;
 
         $this->file->write($data);
     }
 
     /**
-     * Remove by URL, which is the only field guaranteed to be there. The admin
-     * screen only ever has the redacted form, so that is what is compared.
+     * Remove ONE entry, by URL, which is the only field guaranteed to be there.
+     *
+     * The real URL is compared first, so a caller that has it (the command
+     * line, an API client) always removes exactly the entry it named. The
+     * admin screen only ever has the redacted form, so that is accepted too,
+     * but only when it names a single entry: two entries that differ only in
+     * their credentials look the same redacted, and removing either one, or
+     * both as this used to, would be a guess about whose access to take away.
      */
     public function remove(string $url): void
     {
         $data = $this->file->read();
         $repos = (array) ($data['repositories'] ?? []);
-        $keep = [];
-        $found = false;
+        $url = rtrim(trim($url), '/');
+        $real = [];
+        $shown = [];
 
-        foreach ($repos as $repo) {
-            if (is_array($repo) && rtrim(self::redact((string) ($repo['url'] ?? '')), '/') === rtrim(self::redact(trim($url)), '/')) {
-                $found = true;
+        foreach ($repos as $key => $repo) {
+            if (! is_array($repo)) {
                 continue;
             }
 
-            $keep[] = $repo;
+            $own = rtrim((string) ($repo['url'] ?? ''), '/');
+
+            if ($own === $url) {
+                $real[] = $key;
+            }
+
+            if (rtrim(self::redact($own), '/') === $url) {
+                $shown[] = $key;
+            }
         }
 
-        if (! $found) {
+        $matches = $real !== [] ? $real : $shown;
+
+        if ($matches === []) {
             throw new RefusedException($this->translator->trans('flarum-extension-manager.api.config.repo_missing'));
         }
 
-        $data['repositories'] = $keep;
+        if (count($matches) > 1 && $real === []) {
+            throw new RefusedException($this->translator->trans('flarum-extension-manager.api.config.repo_ambiguous'));
+        }
+
+        // A list stays a list; a keyed map keeps every other key as it was.
+        if (array_is_list($repos)) {
+            $data = $this->file->withoutListEntry($data, 'repositories', (int) $matches[0]);
+        } else {
+            unset($repos[$matches[0]]);
+            $data['repositories'] = $repos;
+        }
+
         $this->file->write($data);
     }
 
