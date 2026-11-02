@@ -17,6 +17,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Event\Saving as UserSaving;
 use Flarum\User\User;
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Events\Dispatcher;
 use PHPUnit\Framework\Attributes\Test;
@@ -219,7 +220,7 @@ class PrecognitionTest extends TestCase
     public function precognition_limiter_trips_with_429_per_actor()
     {
         $this->app()->getContainer()->singleton('flarum.api.precognition_throttler', function ($container) {
-            return new PrecognitionThrottler($container->make(Cache::class), 2, 60);
+            return new PrecognitionThrottler(new RateLimiter($container->make(Cache::class)), 2, 60);
         });
 
         $attributes = ['nameSingular' => 'flarumite', 'namePlural' => 'flarumites'];

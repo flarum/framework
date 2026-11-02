@@ -11,9 +11,14 @@ namespace Flarum\Tests\integration\api\precognition;
 
 require_once __DIR__.'/PrecognitionTestHelpers.php';
 
+use Carbon\Carbon;
+use Flarum\Api\PrecognitionThrottler;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Cache\ArrayStore;
+use Illuminate\Cache\RateLimiter;
+use Illuminate\Cache\Repository;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -92,5 +97,47 @@ class PrecognitionLimiterTest extends TestCase
 
         // A guest from the same address as the user's requests has a separate budget.
         $this->assertEquals(422, $this->send($this->guestRegistration('10.1.0.0'))->getStatusCode());
+    }
+
+    #[Test]
+    public function a_counter_expiring_mid_request_still_expires()
+    {
+        $store = new ExpiresBeforeIncrementStore();
+
+        $this->app()->getContainer()->singleton('flarum.api.precognition_throttler', function () use ($store) {
+            return new PrecognitionThrottler(new RateLimiter(new Repository($store)), 1, 60);
+        });
+
+        $this->assertEquals(422, $this->send($this->guestRegistration('10.0.0.1'))->getStatusCode());
+
+        $store->expireBeforeNextIncrement = true;
+        $this->assertEquals(422, $this->send($this->guestRegistration('10.0.0.1'))->getStatusCode());
+        $this->assertEquals(429, $this->send($this->guestRegistration('10.0.0.1'))->getStatusCode());
+
+        Carbon::setTestNow(Carbon::now()->addSeconds(61));
+
+        try {
+            $this->assertEquals(422, $this->send($this->guestRegistration('10.0.0.1'))->getStatusCode());
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+}
+
+/**
+ * Lets an existing counter expire between the limiter's add() and increment().
+ */
+class ExpiresBeforeIncrementStore extends ArrayStore
+{
+    public bool $expireBeforeNextIncrement = false;
+
+    public function increment($key, $value = 1)
+    {
+        if ($this->expireBeforeNextIncrement) {
+            $this->expireBeforeNextIncrement = false;
+            $this->forget($key);
+        }
+
+        return parent::increment($key, $value);
     }
 }

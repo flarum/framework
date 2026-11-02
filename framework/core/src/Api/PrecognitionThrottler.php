@@ -10,7 +10,7 @@
 namespace Flarum\Api;
 
 use Flarum\Http\RequestUtil;
-use Illuminate\Contracts\Cache\Repository as Cache;
+use Illuminate\Cache\RateLimiter;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
@@ -20,7 +20,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class PrecognitionThrottler
 {
     public function __construct(
-        protected Cache $cache,
+        protected RateLimiter $limiter,
         protected int $limit = 60,
         protected int $window = 60
     ) {
@@ -37,9 +37,6 @@ class PrecognitionThrottler
             ? 'ip.'.sha1((string) $request->getAttribute('ipAddress'))
             : 'user.'.$actor->id);
 
-        // Fixed window: only the first request sets the TTL.
-        $this->cache->add($key, 0, $this->window);
-
-        return (int) $this->cache->increment($key) > $this->limit;
+        return $this->limiter->hit($key, $this->window) > $this->limit;
     }
 }

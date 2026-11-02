@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\api\precognition;
 
 use Flarum\Api\PrecognitionThrottler;
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
@@ -52,7 +53,7 @@ trait PrecognitionTestHelpers
     protected function limitPrecognition(int $limit): void
     {
         $this->app()->getContainer()->singleton('flarum.api.precognition_throttler', function ($container) use ($limit) {
-            return new PrecognitionThrottler($container->make(Cache::class), $limit, 60);
+            return new PrecognitionThrottler(new RateLimiter($container->make(Cache::class)), $limit, 60);
         });
     }
 
