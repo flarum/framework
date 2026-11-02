@@ -72,7 +72,7 @@ export default class GambitsAutocomplete {
     // If the query contains a colon, we are typing or exploring specific values from that group.
     if (colonIndex !== -1) {
       const gambitKey = typed.slice(0, colonIndex).toLowerCase();
-      const gambitQuery = typed.slice(colonIndex + 1).toLowerCase();
+      const gambitQuery = typed.slice(colonIndex + 1);
 
       const specificGambitSuggestions = this.specificGambitSuggestions(
         gambitKey,
@@ -135,15 +135,16 @@ export default class GambitsAutocomplete {
 
     if (matchingGroup) {
       const prefix = (negative ? '-' : '') + matchingGroup + ':';
+      const normalizedQuery = gambitQuery.toLowerCase();
 
       const matchingKeys = groupedGambits
         .filter((gambit) => gambit.suggestion().group.toLowerCase() === matchingGroup.toLowerCase())
         .flatMap((gambit): string[] =>
           gambit.suggestion().key instanceof Array ? (gambit.suggestion().key as string[]) : [gambit.suggestion().key as string]
         )
-        .filter((key) => !gambitQuery || key.toLowerCase().startsWith(gambitQuery));
+        .filter((key) => !normalizedQuery || key.toLowerCase().startsWith(normalizedQuery));
 
-      if (matchingKeys.length === 1 && matchingKeys[0].toLowerCase() === gambitQuery.toLowerCase()) {
+      if (matchingKeys.length === 1 && matchingKeys[0].toLowerCase() === normalizedQuery) {
         return [];
       }
 
@@ -185,11 +186,16 @@ export default class GambitsAutocomplete {
           activeTerm = gambitQuery.slice(lastCommaIndex + 1);
         }
 
+        const normalizedActiveTerm = activeTerm.toLowerCase();
+
         const matchingOptions = options.filter(
-          (opt) => !activeTerm || opt.value.toLowerCase().startsWith(activeTerm) || (opt.label && opt.label.toLowerCase().includes(activeTerm))
+          (opt) =>
+            !normalizedActiveTerm ||
+            opt.value.toLowerCase().startsWith(normalizedActiveTerm) ||
+            (opt.label && opt.label.toLowerCase().includes(normalizedActiveTerm))
         );
 
-        if (activeTerm && matchingOptions.some((opt) => opt.value.toLowerCase() === activeTerm)) {
+        if (normalizedActiveTerm && matchingOptions.some((opt) => opt.value.toLowerCase() === normalizedActiveTerm)) {
           return [];
         }
 
