@@ -95,7 +95,7 @@ class CacheClearCommand extends AbstractCommand
 
         $report->cleared('cache store');
 
-        foreach (['formatter', 'locale', 'views'] as $dir) {
+        foreach (['formatter', 'less', 'locale', 'views'] as $dir) {
             $files = glob($this->paths->storage.'/'.$dir.'/*') ?: [];
 
             // Another process may delete a listed file first: a concurrent

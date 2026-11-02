@@ -11,9 +11,9 @@ namespace Flarum\Frontend\Compiler;
 
 use Flarum\Frontend\Compiler\Source\FileSource;
 use Illuminate\Support\Collection;
-use Less_Cache;
 use Less_Exception_Parser;
 use Less_Parser;
+use Less_Tree;
 
 /**
  * @internal
@@ -165,19 +165,15 @@ class LessCompiler extends RevisionCompiler
             $parser = new Less_Parser([
                 'compress' => true,
                 'strictMath' => false,
-                'cache_dir' => $this->cacheDir,
                 // Resolve every `@import` ourselves, so one cannot reach a file
                 // outside the directories below. See containImports().
                 'import_dirs' => [$this->containImports(...)],
-                // less.php's built-in `serialize` cache writes each per-import
-                // cache file non-atomically and reads it back with an unguarded
-                // unserialize(). Concurrent compiles racing on the same file
-                // leave trailing bytes, and the next reader then fatals on
-                // "unserialize(): Extra data". Take over both sides of the cache
-                // so reads treat corruption as a miss and writes are atomic.
-                'cache_method' => 'callback',
-                'cache_callback_get' => $this->readCache(...),
-                'cache_callback_set' => $this->writeCache(...),
+                // No `cache_dir`: less.php's per-import parse cache costs more
+                // than it saves. A cached tree unserializes with a private copy
+                // of `currentFileInfo` on every node, around five times the
+                // memory of the tree the parser builds, and reading it back is
+                // slower than parsing the file again. Compiled output is cached
+                // as an asset already, so a parse only happens on a rebuild.
             ]);
 
             if ($this->fileSourceOverrides) {
@@ -230,121 +226,13 @@ class LessCompiler extends RevisionCompiler
                 throw $e;
             }
         } finally {
+            // less.php keeps the last parser, with its whole tree, in a static,
+            // so one compile's memory is still held when the next one begins.
+            // An empty parser in its place lets the tree go.
+            Less_Tree::$parse = new Less_Parser();
+
             if ($maxNestingLevel !== false) {
                 ini_set('xdebug.max_nesting_level', $maxNestingLevel);
-            }
-        }
-    }
-
-    /**
-     * Read a cached parse result for less.php. Returns the cached rules, or
-     * null to signal a miss so less.php reparses the file.
-     *
-     * A corrupt or unreadable cache file (e.g. a partial write from a raced
-     * compile) is treated as a miss rather than allowed to fatal on
-     * unserialize()'s "Extra data" warning, which Flarum's error handler would
-     * otherwise escalate to an uncaught exception.
-     */
-    protected function readCache(Less_Parser $parser, string $filePath, string $cacheFile): mixed
-    {
-        if (! is_file($cacheFile)) {
-            return null;
-        }
-
-        $contents = @file_get_contents($cacheFile);
-
-        if ($contents === false || $contents === '') {
-            return null;
-        }
-
-        // A partial write leaves trailing bytes, so unserialize() emits an
-        // "Extra data" warning. `@` alone is not enough: a custom error handler
-        // (Sentry's, in production) runs regardless of suppression and would
-        // escalate it to an uncaught exception — the very failure being fixed.
-        // Swallow warnings for just this call so a corrupt file is a clean miss.
-        set_error_handler(fn () => true);
-
-        try {
-            $cache = unserialize($contents);
-        } catch (\Throwable) {
-            $cache = false;
-        } finally {
-            restore_error_handler();
-        }
-
-        // A genuine `false` payload never occurs (rules are always an array),
-        // so treat any falsy/failed result as a corrupt-or-empty miss.
-        return $cache ?: null;
-    }
-
-    /**
-     * Persist a parse result for less.php, writing atomically so a concurrent
-     * reader never observes a half-written cache file: serialize to a temporary
-     * file in the same directory, then rename() it into place (atomic on the
-     * same filesystem).
-     */
-    protected function writeCache(Less_Parser $parser, string $filePath, string $cacheFile, mixed $rules): void
-    {
-        $dir = dirname($cacheFile);
-        $tmp = @tempnam($dir, 'lesscache_');
-
-        if ($tmp === false) {
-            // Couldn't create a temp file (e.g. unwritable dir); skip caching
-            // rather than risk a partial write. The next compile reparses.
-            return;
-        }
-
-        if (@file_put_contents($tmp, serialize($rules)) === false) {
-            @unlink($tmp);
-
-            return;
-        }
-
-        if (! @rename($tmp, $cacheFile)) {
-            @unlink($tmp);
-        }
-
-        $this->pruneCacheOnce();
-    }
-
-    /**
-     * Prune expired cache files at most once per request. less.php's own GC
-     * (Less_Cache::CleanCache) only runs from its high-level Less_Cache::Get()
-     * API, which Flarum doesn't use — the direct Less_Parser path GC'd inline on
-     * every serialize write instead. In callback mode neither fires, so without
-     * this the directory would grow unbounded.
-     *
-     * We prune here rather than call CleanCache() because that method is
-     * deprecated-internal, and hand-rolling the sweep lets us tolerate the
-     * scandir/unlink race (a concurrent sweep removing the same aged file) by
-     * simply suppressing the "No such file" and moving on. Files are removed by
-     * mtime, matching less.php's own policy; a cache hit re-reads and is not
-     * touched, so anything past the lifetime is genuinely stale.
-     */
-    protected function pruneCacheOnce(): void
-    {
-        static $pruned = [];
-
-        if (isset($pruned[$this->cacheDir])) {
-            return;
-        }
-
-        $pruned[$this->cacheDir] = true;
-
-        $files = @glob($this->cacheDir.'/'.Less_Cache::$prefix.'*.lesscache');
-
-        if (! $files) {
-            return;
-        }
-
-        $cutoff = time() - Less_Cache::$gc_lifetime;
-
-        foreach ($files as $file) {
-            $mtime = @filemtime($file);
-
-            if ($mtime !== false && $mtime < $cutoff) {
-                // Tolerate a concurrent sweep having already removed it.
-                @unlink($file);
             }
         }
     }
