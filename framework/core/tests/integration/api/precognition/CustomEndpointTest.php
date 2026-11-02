@@ -32,6 +32,7 @@ class CustomEndpointTest extends TestCase
         $this->extend(
             (new Extend\ApiResource(GroupResource::class))
                 ->endpoints(fn () => [
+                    Update::make('profile.update')->route('PATCH', '/{id}/profile')->admin(),
                     UpdateWithValidationOverride::make('override')->route('PATCH', '/{id}/override')->admin(),
                 ])
         );
@@ -40,6 +41,17 @@ class CustomEndpointTest extends TestCase
     protected function rename(string $name): array
     {
         return ['data' => ['type' => 'groups', 'id' => '4', 'attributes' => ['nameSingular' => $name, 'namePlural' => 'Renamed']]];
+    }
+
+    #[Test]
+    public function endpoints_with_dotted_names_support_precognition()
+    {
+        $invalid = $this->send($this->precognitive($this->jsonRequest('PATCH', '/api/groups/4/profile', $this->rename(''), 1)));
+        $valid = $this->send($this->precognitive($this->jsonRequest('PATCH', '/api/groups/4/profile', $this->rename('Renamed'), 1)));
+
+        $this->assertEquals(422, $invalid->getStatusCode(), (string) $invalid->getBody());
+        $this->assertEquals(204, $valid->getStatusCode(), (string) $valid->getBody());
+        $this->assertEquals('Mod', Group::findOrFail(4)->name_singular);
     }
 
     #[Test]

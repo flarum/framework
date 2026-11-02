@@ -20,7 +20,6 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
-use Throwable;
 
 /**
  * A `Precognition` request to anything but a resource's create or update
@@ -67,34 +66,26 @@ class HandlePrecognitiveRequests implements Middleware
 
         $routeName = $request->getAttribute('routeName');
 
-        if (! is_string($routeName) || ! str_contains($routeName, '.')) {
+        if (! is_string($routeName)) {
             return false;
         }
 
-        // Resource routes are named `[prefix.]{type}.{endpoint}`.
-        $segments = explode('.', $routeName);
-        $endpointName = array_pop($segments);
-        $type = array_pop($segments);
+        // Resource routes are named `[prefix.]{type}.{endpoint}`, and endpoint names may contain dots.
+        foreach ($this->container->make(JsonApi::class)->resources as $resource) {
+            if (! $resource instanceof AbstractResource) {
+                continue;
+            }
 
-        try {
-            $resource = $this->container->make(JsonApi::class)->getResource($type);
-        } catch (Throwable) {
-            return false;
-        }
+            $resourceName = implode('.', array_filter([$resource->routeNamePrefix(), $resource->type()]));
 
-        if (! $resource instanceof AbstractResource) {
-            return false;
-        }
+            if (! str_starts_with($routeName, "$resourceName.")) {
+                continue;
+            }
 
-        $expectedName = implode('.', array_filter([$resource->routeNamePrefix(), $resource->type(), $endpointName]));
-
-        if ($expectedName !== $routeName) {
-            return false;
-        }
-
-        foreach ($resource->resolveEndpoints() as $endpoint) {
-            if ($endpoint->name === $endpointName) {
-                return $endpoint instanceof Create || $endpoint instanceof Update;
+            foreach ($resource->resolveEndpoints() as $endpoint) {
+                if ("$resourceName.$endpoint->name" === $routeName) {
+                    return $endpoint instanceof Create || $endpoint instanceof Update;
+                }
             }
         }
 
