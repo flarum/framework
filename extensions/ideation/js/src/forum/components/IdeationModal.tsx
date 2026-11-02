@@ -183,7 +183,7 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
     this.timer = window.setTimeout(() => {
       // Only open ideas can take a merge, and only ones this moderator can
       // moderate; the server checks both again.
-      findDiscussions({ filter: { q: query, ideation: OPEN.join(',') }, page: { limit: 6 } }, () => request === this.searchRequest).then(
+      findDiscussions({ filter: { q: query, ideation: OPEN.join(',') }, page: { limit: 6, total: 0 } }, () => request === this.searchRequest).then(
         (results) => {
           if (!results) return;
 

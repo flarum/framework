@@ -2,11 +2,14 @@ import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import app from 'flarum/forum/app';
 import type Discussion from 'flarum/common/models/Discussion';
 import { jest } from '@jest/globals';
+import extend from '../../../src/forum/extend';
 import IdeationPage from '../../../src/forum/components/IdeationPage';
 
 beforeAll(() => {
   bootstrapForum();
   app.boot();
+  // The attributes this extension adds to discussions.
+  extend.forEach((extender) => extender.extend(app, { name: 'flarum-ideation', exports: {} } as any));
 });
 
 afterEach(() => {
@@ -129,5 +132,105 @@ describe('the roadmap search', () => {
     expect(change).toHaveBeenCalledWith({ q: 'dark mode' });
 
     m.mount(root, null);
+  });
+});
+
+describe('the roadmap views', () => {
+  it('can drag on the board after switching to it from the list', () => {
+    app.forum.pushAttributes({ ideationCanModerate: true });
+    jest.spyOn(app, 'request').mockImplementation((() => new Promise(() => {})) as any);
+
+    const page = Object.create(IdeationPage.prototype) as IdeationPage;
+    Object.assign(page, { mode: 'list', status: 'all', sort: 'votes', q: '', columns: {}, drag: null });
+    page.load();
+
+    const root = document.createElement('div');
+    m.mount(root, { view: () => page.view() });
+    expect(root.querySelector('.IdeationList')).not.toBeNull();
+    expect(page.drag).toBeNull();
+
+    page.mode = 'board';
+    page.load();
+    m.redraw.sync();
+
+    expect(root.querySelector('.IdeationBoard')).not.toBeNull();
+    expect(page.drag).not.toBeNull();
+
+    // And back: the board's element goes, and its dragging with it.
+    page.mode = 'list';
+    m.redraw.sync();
+    expect(page.drag).toBeNull();
+
+    m.mount(root, null);
+  });
+
+  it('cancels a search still waiting when the page goes', () => {
+    jest.useFakeTimers();
+
+    const page = Object.create(IdeationPage.prototype) as IdeationPage;
+    Object.assign(page, { mode: 'list', status: 'all', sort: 'votes', q: '', columns: {} });
+    const change = jest.spyOn(page, 'change').mockImplementation(() => {});
+
+    const root = document.createElement('div');
+    m.mount(root, { view: () => page.toolbar() });
+    const input = root.querySelector('.IdeationPage-search') as HTMLInputElement;
+    input.value = 'dark';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    m.mount(root, null);
+
+    page.onremove({ dom: root } as any);
+    jest.advanceTimersByTime(1000);
+
+    expect(change).not.toHaveBeenCalled();
+  });
+});
+
+describe('the board', () => {
+  it('reloads the cards shown in a column sorted by votes after a drop, without totals', async () => {
+    const moved = app.store.pushPayload<Discussion>({
+      data: { type: 'discussions', id: '201', attributes: { title: 'Idea 201', ideationStatus: 'under_review', ideationVotes: 1 } },
+    } as any);
+    const others = Array.from({ length: 12 }, (_, i) => ({ id: () => String(300 + i) }) as unknown as Discussion);
+
+    const page = Object.create(IdeationPage.prototype) as IdeationPage;
+    Object.assign(page, { mode: 'board', status: 'all', sort: 'votes', q: '', columns: {} });
+    for (const key of ['under_review', 'planned', 'in_progress', 'shipped'])
+      page.columns[key] = { items: [], loading: false, more: false, request: 0 };
+    page.columns.under_review.items = [moved];
+    page.columns.planned.items = [...others];
+
+    jest.spyOn(moved, 'save').mockImplementation(() => Promise.resolve(moved) as any);
+    const request = jest.spyOn(app, 'request').mockImplementation((() => new Promise(() => {})) as any);
+
+    page.move('201', 'planned');
+    expect(page.columns.planned.items[0]).toBe(moved);
+    await tick();
+
+    // All 13 cards shown are fetched again, from the top, in the server's order.
+    expect(request).toHaveBeenCalledTimes(1);
+    const params = (request.mock.calls[0][0] as any).params;
+    expect(params.filter.ideation).toBe('planned');
+    expect(params.page).toEqual({ offset: 0, limit: 13, total: 0 });
+  });
+
+  it('leaves the Shipped column as it is after a drop, as it is sorted by when ideas moved', async () => {
+    const moved = app.store.pushPayload<Discussion>({
+      data: { type: 'discussions', id: '202', attributes: { title: 'Idea 202', ideationStatus: 'in_progress', ideationVotes: 1 } },
+    } as any);
+
+    const page = Object.create(IdeationPage.prototype) as IdeationPage;
+    Object.assign(page, { mode: 'board', status: 'all', sort: 'votes', q: '', columns: {} });
+    for (const key of ['under_review', 'planned', 'in_progress', 'shipped'])
+      page.columns[key] = { items: [], loading: false, more: false, request: 0 };
+    page.columns.in_progress.items = [moved];
+
+    jest.spyOn(moved, 'save').mockImplementation(() => Promise.resolve(moved) as any);
+    const request = jest.spyOn(app, 'request');
+
+    page.move('202', 'shipped');
+    await tick();
+
+    expect(page.columns.shipped.items).toEqual([moved]);
+    expect(request).not.toHaveBeenCalled();
   });
 });

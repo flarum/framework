@@ -19,6 +19,9 @@ import { COLUMNS, ICONS, SETTABLE, statusLabel } from '../status';
 
 const PAGE = 10;
 
+/** The most the API lists in one request. */
+const MAX_LIMIT = 50;
+
 /** `request` counts the column's requests, so only the latest one's answer is used. */
 type Column = { items: Discussion[]; loading: boolean; more: boolean; request: number };
 
@@ -100,13 +103,16 @@ export default class IdeationPage extends Page {
   onremove(vnode: Mithril.VnodeDOM<IPageAttrs, this>) {
     super.onremove(vnode);
     this.drag?.destroy();
+    // A search still waiting would rewrite the next page's URL.
+    window.clearTimeout(this.searchTimer);
   }
 
   view() {
     return (
       <PageStructure className="IndexPage IdeationPage" hero={() => this.hero()} sidebar={() => <IdeationSidebar />}>
         <div className="IdeationPage-toolbar">{this.toolbar()}</div>
-        {this.mode === 'board' ? this.board() : this.listView()}
+        {/* Keyed, so switching views makes a new element and the board's oncreate (dragging) runs. */}
+        {[this.mode === 'board' ? this.board() : this.listView()]}
       </PageStructure>
     );
   }
@@ -199,6 +205,7 @@ export default class IdeationPage extends Page {
 
     return (
       <div
+        key="board"
         className={classList('IdeationBoard', moderating && 'IdeationBoard--draggable')}
         oncreate={(vnode: Mithril.VnodeDOM) => {
           if (moderating) {
@@ -261,7 +268,7 @@ export default class IdeationPage extends Page {
     const list = this.columns.list;
 
     return (
-      <div className="IdeationList">
+      <div key="list" className="IdeationList">
         {list.items.map((discussion) => this.card(discussion, true))}
         {!list.loading && !list.items.length ? (
           <p className="IdeationColumn-empty">{app.translator.trans('flarum-ideation.forum.empty_list')}</p>
@@ -356,8 +363,11 @@ export default class IdeationPage extends Page {
     (this.mode === 'list' ? ['list'] : COLUMNS).forEach((key) => this.loadColumn(key));
   }
 
-  /** One board column, or (key `list`) the list view. */
-  loadColumn(key: string, more = false) {
+  /**
+   * One board column, or (key `list`) the list view. `limit` reloads more
+   * than a page at once, to keep the cards already shown.
+   */
+  loadColumn(key: string, more = false, limit = key === 'list' ? PAGE * 2 : PAGE) {
     const column = (this.columns[key] ??= { items: [], loading: false, more: false, request: 0 });
     const list = key === 'list';
     const request = ++column.request;
@@ -373,7 +383,9 @@ export default class IdeationPage extends Page {
       {
         filter,
         sort: list ? SORTS[this.sort] : key === 'shipped' ? '-ideationStatusChangedAt' : '-ideationVotes',
-        page: { offset: more ? column.items.length : 0, limit: list ? PAGE * 2 : PAGE },
+        // No total: only `links.next` is used, and counting every match
+        // again for each column would cost the database for nothing.
+        page: { offset: more ? column.items.length : 0, limit, total: 0 },
         include: app.initializers.has('flarum-tags') ? 'user,tags' : 'user',
       },
       () => request === column.request
@@ -403,9 +415,18 @@ export default class IdeationPage extends Page {
     this.columns[status].items = [discussion, ...this.columns[status].items];
     m.redraw();
 
-    discussion.save({ ideationStatus: status }).catch(() => {
-      this.loadColumn(from);
-      this.loadColumn(status);
-    });
+    discussion.save({ ideationStatus: status }).then(
+      () => {
+        // The card went on top, but a column sorted by votes has it further
+        // down: reload the cards shown, so the next "Load more" neither skips
+        // an idea nor shows this one twice. Shipped is sorted by when an idea
+        // moved, so the card is already where the server has it.
+        if (status !== 'shipped') this.loadColumn(status, false, Math.min(MAX_LIMIT, Math.max(PAGE, this.columns[status].items.length)));
+      },
+      () => {
+        this.loadColumn(from);
+        this.loadColumn(status);
+      }
+    );
   }
 }
