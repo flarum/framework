@@ -12,7 +12,7 @@ import type AccessToken from '../../../../src/common/models/AccessToken';
 import ColumnPreferences from '../../../../src/common/resource/ColumnPreferences';
 import ViewPreferences from '../../../../src/common/resource/ViewPreferences';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
-import { bootAdmin, schemaDocument } from '../../../unit/common/resource/fixtures';
+import { awaitTables, bootAdmin, modalClass, schemaDocument } from '../../../unit/common/resource/fixtures';
 import { accessTokensDescriptor } from '../fixtures/accessTokensDescriptor';
 
 (globalThis as any).dayjs ??= dayjs;
@@ -66,6 +66,7 @@ describe('AccessTokenListPage', () => {
 
   async function rendered(): Promise<any> {
     const out = mq(AccessTokenListPage);
+    await awaitTables(out);
 
     await flush();
     await flush();
@@ -210,7 +211,7 @@ describe('AccessTokenListPage', () => {
 
     const [modal, attrs] = (app.modal.show as jest.Mock<any>).mock.calls.at(-1) as [unknown, any];
 
-    expect(modal).toBe(ResourceActionModal);
+    expect(await modalClass(modal)).toBe(ResourceActionModal);
     expect(attrs.action.key).toBe('revoke');
 
     const request = jest.fn((_options: any) => Promise.resolve());
@@ -230,7 +231,7 @@ describe('AccessTokenListPage', () => {
     ]);
 
     const [result, resultAttrs] = (app.modal.show as jest.Mock<any>).mock.calls.at(-1) as [unknown, any];
-    expect(result).toBe(BulkResultModal);
+    expect(await modalClass(result)).toBe(BulkResultModal);
     expect(resultAttrs.summary.skipped).toEqual([]);
   });
 

@@ -21,7 +21,9 @@ import RelationInput from '../../common/resource/inputs/RelationInput';
 import ResourceDefinition from '../../common/resource/ResourceDefinition';
 import ResourceListState from '../../common/resource/ResourceListState';
 import type { Field } from '../../common/resource/types';
-import ResourceTable, { type ColumnData as ResourceColumnData, type ResourceTableAttrs } from './resource/ResourceTable';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
+import type { ColumnData as ResourceColumnData } from './resource/ResourceTable';
+import type UserListTable from './UserListTable';
 
 /**
  * One user list column. `{name, content}` is all an extension needs; the other keys (`sort`,
@@ -51,77 +53,6 @@ const FIELD_COLUMNS: Record<string, string> = {
 
 const loadEditUserModal = () => import('../../common/components/EditUserModal');
 
-interface UserListTableAttrs extends ResourceTableAttrs<User> {
-  /** Opens the page's create modal. */
-  createUser: () => void;
-  /** Opens the page's edit modal. */
-  editUser: (user: User) => void;
-  /** The page's `actionItems()`, which replace the table's create button. */
-  actionItems: () => ItemList<Mithril.Children>;
-  /** Called with the table once it is created, so the page's row menus can be built from it. */
-  ontable?: (table: UserListTable) => void;
-}
-
-/**
- * The user list's table. The page's `actionItems()` ("New User") replace the table's create button
- * at the right of the toolbar, and its `columns()` replace the table's columns, the `userActions`
- * column (`userActionItems()`) included. The table container keeps the `UserListPage-grid`
- * classes, the rows and cells `data-user-id`, the cells the `UserListPage-grid-*` classes. Create
- * and edit open the page's modals.
- */
-class UserListTable extends ResourceTable<User, UserListTableAttrs> {
-  oninit(vnode: Mithril.Vnode<UserListTableAttrs, this>) {
-    super.oninit(vnode);
-
-    this.attrs.ontable?.(this);
-  }
-
-  actionItems(): ItemList<Mithril.Children> {
-    const items = super.actionItems();
-
-    if (items.has('create')) items.remove('create');
-
-    return items.merge(this.attrs.actionItems());
-  }
-
-  create(): void {
-    this.attrs.createUser();
-  }
-
-  edit(user: User): void {
-    this.attrs.editUser(user);
-  }
-
-  containerClassName(): string {
-    const state = !this.list.getPages().length ? 'loading' : this.list.isLoading() ? 'loadingPage' : 'loaded';
-
-    return classList(super.containerClassName(), 'UserListPage-grid', `UserListPage-grid--${state}`);
-  }
-
-  headerView(key: string, column: ColumnData): Mithril.Children {
-    return super.headerView(key, { ...column, className: classList(column.className, 'UserListPage-grid-header') });
-  }
-
-  rowView(user: User, columns: [string, ColumnData][], selectable: boolean = false): Mithril.Children {
-    return super.rowView(
-      user,
-      columns.map(([key, column]) => [
-        key,
-        {
-          ...column,
-          className: classList(column.className, 'UserListPage-grid-rowItem'),
-          attrs: (model: User) => ({ ...(column.attrs?.(model) ?? {}), 'data-user-id': model.id() }),
-        },
-      ]),
-      selectable
-    );
-  }
-
-  rowAttrs(user: User): Record<string, unknown> {
-    return { ...super.rowAttrs(user), 'data-user-id': user.id() };
-  }
-}
-
 /**
  * Admin page which displays a paginated list of all users on the forum, in the shared
  * `ResourceTable` layout.
@@ -139,6 +70,9 @@ export default class UserListPage extends AdminPage {
 
   /** The table, once created; the row menus are built from its row actions. */
   protected table: UserListTable | null = null;
+
+  /** The table class, once its chunk (`./resource/tables`) has loaded. */
+  protected Table: typeof UserListTable | null = null;
 
   /** `definition.fields()`, built once the descriptor is loaded. */
   private descriptorFields: ItemList<Field<User>> | null = null;
@@ -168,12 +102,21 @@ export default class UserListPage extends AdminPage {
     this.definition = app.resources.get<User>('users');
     // The table loads the list, reading the 1-based `?page=` (and sort, search, filters) from the URL.
     this.list = new ResourceListState<User>(this.definition, { pageSize: 50 });
+
+    import('./resource/tables').then(({ UserListTable }) => {
+      this.Table = UserListTable;
+      m.redraw();
+    });
   }
 
   /**
    * Component to render.
    */
   content() {
+    const UserListTable = this.Table;
+
+    if (!UserListTable) return <LoadingIndicator />;
+
     return [
       <UserListTable
         definition={this.definition}

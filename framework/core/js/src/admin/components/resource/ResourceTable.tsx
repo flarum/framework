@@ -31,15 +31,12 @@ import type ResourceDefinition from '../../../common/resource/ResourceDefinition
 import ResourceListState from '../../../common/resource/ResourceListState';
 import type { Field } from '../../../common/resource/types';
 import type Mithril from 'mithril';
-import BulkResultModal from './BulkResultModal';
 import CsvExport from './CsvExport';
 import Drafts from './Drafts';
 import floatMenus from './floatMenus';
 import ordered from './ordered';
-import ResourceActionModal from './ResourceActionModal';
 import ResourceDeleteModal, { type ResourceDeleteModalAttrs } from './ResourceDeleteModal';
 import ResourceFilterBar from './ResourceFilterBar';
-import ResourceFormModal from './ResourceFormModal';
 import type ModalManagerState from '../../../common/states/ModalManagerState';
 
 /** What `app.modal.show()` takes: a modal class or a loader of one. */
@@ -342,7 +339,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       list: this.list,
       runner: this.bulkRunner(),
       showResult: (summary: BulkSummary<M>, action?: ResourceAction<M>) =>
-        app.modal.show(BulkResultModal, { summary, definition: this.attrs.definition, action }),
+        app.modal.show(() => import('./BulkResultModal'), { summary, definition: this.attrs.definition, action }),
       runAction: (action: ResourceAction<M>, models: M[]) => this.runAction(action, models),
     };
   }
@@ -368,7 +365,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
     }
 
     return new Promise((resolve) => {
-      app.modal.show(ResourceActionModal, { definition: this.attrs.definition, action, models, context, ondone: resolve });
+      app.modal.show(() => import('./ResourceActionModal'), { definition: this.attrs.definition, action, models, context, ondone: resolve });
     });
   }
 
@@ -1099,12 +1096,12 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /** `ResourceFormModal` for a new record. */
   create(): void {
-    app.modal.show(ResourceFormModal, { definition: this.attrs.definition, model: null, onsaved: () => this.reload() });
+    app.modal.show(() => import('./ResourceFormModal'), { definition: this.attrs.definition, model: null, onsaved: () => this.reload() });
   }
 
   /** `ResourceFormModal` for the record. */
   edit(model: M): void {
-    app.modal.show(ResourceFormModal, { definition: this.attrs.definition, model, onsaved: () => this.reload() });
+    app.modal.show(() => import('./ResourceFormModal'), { definition: this.attrs.definition, model, onsaved: () => this.reload() });
   }
 
   /**

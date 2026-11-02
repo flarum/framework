@@ -12,7 +12,7 @@ import type Group from '../../../../src/common/models/Group';
 import extractText from '../../../../src/common/utils/extractText';
 import ColumnPreferences from '../../../../src/common/resource/ColumnPreferences';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
-import { bootAdmin, schemaDocument } from '../../../unit/common/resource/fixtures';
+import { awaitTables, bootAdmin, modalClass, schemaDocument } from '../../../unit/common/resource/fixtures';
 import { groupsDescriptor } from '../fixtures/groupsDescriptor';
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -77,6 +77,7 @@ describe('GroupListPage', () => {
 
   async function rendered(): Promise<any> {
     const out = mq(GroupListPage);
+    await awaitTables(out);
 
     await flush();
     await flush();
@@ -179,7 +180,7 @@ describe('GroupListPage', () => {
     const [modal, attrs] = (app.modal.show as jest.Mock<any>).mock.calls.at(-1) as [unknown, any];
     const { out: dialog } = await render(ResourceActionModal, modalAttrs(attrs));
 
-    expect(modal).toBe(ResourceActionModal);
+    expect(await modalClass(modal)).toBe(ResourceActionModal);
     expect(dialog).toContainRaw('Delete 2 entries?');
     expect(dialog).not.toHaveElement('.ResourceActionModal-skipped');
   });
@@ -215,7 +216,7 @@ describe('GroupListPage', () => {
 
     const [modal, attrs] = (app.modal.show as jest.Mock<any>).mock.calls[0] as [unknown, any];
 
-    expect(modal).toBe(ResourceFormModal);
+    expect(await modalClass(modal)).toBe(ResourceFormModal);
     expect(attrs.model).toBeNull();
     expect(attrs.definition).toBeInstanceOf(GroupDefinition);
 

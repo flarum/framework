@@ -21,7 +21,7 @@ import ViewPreferences from '../../src/common/resource/ViewPreferences';
 import LiveValidator, { resetLiveValidation } from '../../src/common/resource/liveValidation';
 import { csvCell, exportCsv, toCsv } from '../../src/common/resource/csv';
 import { deleteAction, executeAction, needsConfirmation } from '../../src/common/resource/actions';
-import { bootAdmin, descriptor, fd, schemaDocument } from '../unit/common/resource/fixtures';
+import { bootAdmin, descriptor, fd, modalClass, schemaDocument } from '../unit/common/resource/fixtures';
 
 class Thing extends Model {}
 
@@ -425,7 +425,8 @@ describe('resource UI security', () => {
       out.click('.ResourceTable-batchBar .ResourceTable-bulkDelete');
       await flush();
 
-      expect(app.modal.show).toHaveBeenCalledWith(ResourceActionModal, expect.anything());
+      expect(await modalClass((app.modal.show as jest.Mock<any>).mock.calls.at(-1)![0])).toBe(ResourceActionModal);
+      expect(app.modal.show).toHaveBeenCalledWith(expect.any(Function), expect.anything());
       expect(request).not.toHaveBeenCalled();
     });
 

@@ -1,6 +1,6 @@
 import app from '../../app';
 import type Model from '../../../common/Model';
-import { exportCsv, type ExportColumn } from '../../../common/resource/csv';
+import type { ExportColumn } from '../../../common/resource/csv';
 import type ResourceListState from '../../../common/resource/ResourceListState';
 
 /**
@@ -26,15 +26,18 @@ export default class CsvExport<M extends Model = Model> {
     this.running = { controller, rows: 0, total: null };
     m.redraw();
 
-    return exportCsv(this.list, {
-      columns,
-      maxRows: this.maxRows,
-      signal: controller.signal,
-      onProgress: (rows, total) => {
-        if (this.running) Object.assign(this.running, { rows, total });
-        m.redraw();
-      },
-    })
+    return import('../../../common/resource/csv')
+      .then(({ exportCsv }) =>
+        exportCsv(this.list, {
+          columns,
+          maxRows: this.maxRows,
+          signal: controller.signal,
+          onProgress: (rows, total) => {
+            if (this.running) Object.assign(this.running, { rows, total });
+            m.redraw();
+          },
+        })
+      )
       .then(({ rows, truncated }) => {
         if (truncated) app.alerts.show({ type: 'warning' }, app.translator.trans('core.admin.resource.table.export_truncated', { count: rows }));
       })

@@ -15,7 +15,7 @@ import ResourceDefinition from '../../../../src/common/resource/ResourceDefiniti
 import ColumnPreferences from '../../../../src/common/resource/ColumnPreferences';
 import type { BulkRunner, BulkSummary } from '../../../../src/common/resource/BulkRunner';
 import ResourceListState from '../../../../src/common/resource/ResourceListState';
-import { bootAdmin, descriptor, fd, schemaDocument } from '../../../unit/common/resource/fixtures';
+import { bootAdmin, descriptor, fd, modalClass, schemaDocument } from '../../../unit/common/resource/fixtures';
 
 class Thing extends Model {}
 
@@ -191,10 +191,12 @@ describe('ResourceTable', () => {
     const out = await rendered({ definition: new CreatableDefinition('things') });
 
     out.click('.ResourceTable-create');
-    expect(app.modal.show).toHaveBeenLastCalledWith(ResourceFormModal, expect.objectContaining({ model: null }));
+    expect(await modalClass((app.modal.show as jest.Mock<any>).mock.calls.at(-1)![0])).toBe(ResourceFormModal);
+    expect(app.modal.show).toHaveBeenLastCalledWith(expect.any(Function), expect.objectContaining({ model: null }));
 
     out.click('tr[data-id="2"] .ResourceTable-edit');
-    expect(app.modal.show).toHaveBeenLastCalledWith(ResourceFormModal, expect.objectContaining({ model: app.store.getById('things', '2') }));
+    expect(await modalClass((app.modal.show as jest.Mock<any>).mock.calls.at(-1)![0])).toBe(ResourceFormModal);
+    expect(app.modal.show).toHaveBeenLastCalledWith(expect.any(Function), expect.objectContaining({ model: app.store.getById('things', '2') }));
   });
 
   describe('loading', () => {
@@ -505,7 +507,7 @@ describe('ResourceTable', () => {
     async function confirmAction() {
       const [modal, attrs] = (app.modal.show as jest.Mock).mock.calls.at(-1) as [any, any];
 
-      expect(modal).toBe(ResourceActionModal);
+      expect(await modalClass(modal)).toBe(ResourceActionModal);
 
       const out = mq(ResourceActionModal, { state: {}, animateShow: () => {}, animateHide: jest.fn(), ...attrs });
       out.trigger('form', 'submit', {} as Event);
@@ -625,7 +627,8 @@ describe('ResourceTable', () => {
         await flush();
         await new Promise((r) => setTimeout(r, 10));
 
-        expect(app.modal.show).toHaveBeenCalledWith(BulkResultModal, expect.anything());
+        expect(await modalClass((app.modal.show as jest.Mock<any>).mock.calls.at(-1)![0])).toBe(BulkResultModal);
+        expect(app.modal.show).toHaveBeenCalledWith(expect.any(Function), expect.anything());
         expect(rejections).toEqual([]);
       } finally {
         process.off('unhandledRejection', onRejection);
@@ -659,7 +662,8 @@ describe('ResourceTable', () => {
       const deletes = request.mock.calls.map(([options]) => options).filter((options) => options.method === 'DELETE');
       expect(deletes.map((options) => options.url).sort()).toEqual(['https://example.test/api/things/1', 'https://example.test/api/things/3']);
 
-      expect(app.modal.show).toHaveBeenCalledWith(BulkResultModal, expect.objectContaining({ summary: expect.anything() }));
+      expect(await modalClass((app.modal.show as jest.Mock<any>).mock.calls.at(-1)![0])).toBe(BulkResultModal);
+      expect(app.modal.show).toHaveBeenCalledWith(expect.any(Function), expect.objectContaining({ summary: expect.anything() }));
 
       const summary = (app.modal.show as jest.Mock).mock.calls.at(-1)![1] as { summary: BulkSummary<Thing> };
       expect(summary.summary.ok.map((m) => m.id())).toEqual(['1', '3']);
@@ -938,7 +942,7 @@ describe('ResourceTable', () => {
       out.click('.ResourceTable-batchBar .ResourceTable-bulkDelete');
 
       const [modal, attrs] = lastModal();
-      expect(modal).toBe(ResourceActionModal);
+      expect(await modalClass(modal)).toBe(ResourceActionModal);
 
       const dialog = mq(ResourceActionModal, { state: {}, animateShow: () => {}, animateHide: jest.fn(), ...attrs });
       expect(dialog).toContainRaw('Delete 1 entry?');
@@ -996,7 +1000,7 @@ describe('ResourceTable', () => {
       expect(run.mock.calls[0][1]).toEqual({ note: 'none', tag: 'red' });
 
       const [result, resultAttrs] = lastModal();
-      expect(result).toBe(BulkResultModal);
+      expect(await modalClass(result)).toBe(BulkResultModal);
       expect(resultAttrs.action.key).toBe('tag');
       expect(resultAttrs.summary.skipped).toEqual([]);
       expect(done).toHaveBeenCalledWith(resultAttrs.summary);
@@ -1020,7 +1024,7 @@ describe('ResourceTable', () => {
       await flush();
 
       expect(run).toHaveBeenCalledTimes(2);
-      expect(lastModal()[0]).toBe(BulkResultModal);
+      expect(await modalClass(lastModal()[0])).toBe(BulkResultModal);
     });
 
     test('BulkResultModal groups failures by error code, then detail, one line each with the records', () => {

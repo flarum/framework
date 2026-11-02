@@ -48,3 +48,27 @@ export function bootAdmin(forum: Record<string, unknown> = {}): void {
   });
   app.boot();
 }
+
+/**
+ * Wait for a mounted list page's table, an async chunk (`admin/components/resource/tables`), and
+ * redraw so the table is in the tree. Microtasks only, so it works under fake timers too.
+ */
+export async function awaitTables(out: { redraw: () => void }): Promise<void> {
+  await import('../../../../src/admin/components/resource/tables');
+
+  for (let i = 0; i < 20; i++) await Promise.resolve();
+
+  out.redraw();
+}
+
+/**
+ * The modal class an `app.modal.show()` call got: the class itself, or the default export of the
+ * loader it was given for an async modal.
+ */
+export async function modalClass(modal: unknown): Promise<unknown> {
+  if (typeof modal === 'function' && !('prototype' in modal && (modal as any).prototype?.view)) {
+    return ((await (modal as () => Promise<{ default: unknown }>)()) as { default: unknown }).default;
+  }
+
+  return modal;
+}

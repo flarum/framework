@@ -23,7 +23,7 @@ import RelationInput from '../../../../src/common/resource/inputs/RelationInput'
 import type ItemList from '../../../../src/common/utils/ItemList';
 import Stream from '../../../../src/common/utils/Stream';
 import type { ResourceDescriptor } from '../../../../src/common/resource/types';
-import { bootAdmin, schemaDocument } from '../../../unit/common/resource/fixtures';
+import { awaitTables, bootAdmin, modalClass, schemaDocument } from '../../../unit/common/resource/fixtures';
 import { usersDescriptor } from '../fixtures/usersDescriptor';
 
 // Core's bundle exposes dayjs as a global (the join date column uses it); the jest setup doesn't.
@@ -130,6 +130,7 @@ describe('UserListPage', () => {
   async function rendered(): Promise<{ out: any; page: UserListPage }> {
     const oninit = jest.spyOn(UserListPage.prototype, 'oninit');
     const out = mq(UserListPage);
+    await awaitTables(out);
     const page = oninit.mock.contexts[0] as UserListPage;
     oninit.mockRestore();
 
@@ -276,6 +277,7 @@ describe('UserListPage', () => {
 
       try {
         const out = mq(UserListPage);
+        await awaitTables(out);
         await jest.runAllTimersAsync();
         out.redraw();
 
@@ -377,7 +379,8 @@ describe('UserListPage', () => {
 
       expect(run).toHaveBeenCalledTimes(1);
       expect(run.mock.calls[0][0].id()).toBe('2');
-      expect(app.modal.show).toHaveBeenLastCalledWith(BulkResultModal, expect.objectContaining({ summary: expect.anything() }));
+      expect(await modalClass((app.modal.show as jest.Mock<any>).mock.calls.at(-1)![0])).toBe(BulkResultModal);
+      expect(app.modal.show).toHaveBeenLastCalledWith(expect.any(Function), expect.objectContaining({ summary: expect.anything() }));
     });
 
     test('row menu order: edit first, then the others by priority, then the destructive ones in danger style', async () => {
@@ -427,7 +430,8 @@ describe('UserListPage', () => {
 
       out.click('tr[data-user-id="2"] .ResourceTable-wipe');
 
-      expect(app.modal.show).toHaveBeenLastCalledWith(ResourceActionModal, expect.objectContaining({ models: [app.store.getById('users', '2')] }));
+      expect(await modalClass((app.modal.show as jest.Mock<any>).mock.calls.at(-1)![0])).toBe(ResourceActionModal);
+      expect(app.modal.show).toHaveBeenLastCalledWith(expect.any(Function), expect.objectContaining({ models: [app.store.getById('users', '2')] }));
     });
   });
 
@@ -470,6 +474,7 @@ describe('UserListPage', () => {
 
     try {
       const out = mq(UserListPage);
+      await awaitTables(out);
       await jest.advanceTimersByTimeAsync(0);
       out.redraw();
 
@@ -508,6 +513,7 @@ describe('UserListPage', () => {
     try {
       const oninit = jest.spyOn(UserListPage.prototype, 'oninit');
       const out = mq(UserListPage);
+      await awaitTables(out);
       oninit.mockRestore();
       await jest.runAllTimersAsync();
       out.redraw();
@@ -648,7 +654,7 @@ describe('UserListPage', () => {
     out.click('.ResourceTable-batchBar .ResourceTable-bulkDelete');
 
     const [confirmModal, confirmAttrs] = (app.modal.show as jest.Mock).mock.calls.at(-1) as [any, any];
-    expect(confirmModal).toBe(ResourceActionModal);
+    expect(await modalClass(confirmModal)).toBe(ResourceActionModal);
     mq(ResourceActionModal, { state: {}, animateShow: () => {}, animateHide: jest.fn(), ...confirmAttrs }).trigger('form', 'submit', {} as Event);
     await flush();
     await flush();
@@ -658,7 +664,7 @@ describe('UserListPage', () => {
     expect(deletes).toHaveLength(3);
 
     const [component, attrs] = (app.modal.show as jest.Mock).mock.calls.at(-1) as [any, any];
-    expect(component).toBe(BulkResultModal);
+    expect(await modalClass(component)).toBe(BulkResultModal);
     expect(attrs.summary.ok.map((u: User) => u.id())).toEqual(['2', '3']);
     expect(attrs.summary.failed.map((f: any) => f.model.id())).toEqual(['4']);
 
