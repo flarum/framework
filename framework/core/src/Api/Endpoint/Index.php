@@ -347,7 +347,7 @@ class Index extends Endpoint
         $page = $context->queryParam('page');
 
         return is_array($page)
-            && (isset($page['limit']) || isset($page['offset']))
+            && (isset($page['limit']) || isset($page['offset']) || isset($page['number']))
             && $context->collection instanceof Paginatable;
     }
 

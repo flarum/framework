@@ -192,6 +192,25 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function pages_by_number_without_a_limit()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams([
+                'page' => ['number' => '1'],
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
+
+        $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));
+        $this->assertEquals(50, $data['meta']['page']['limit'] ?? null);
+    }
+
+    #[Test]
     public function returns_every_group_without_pagination_links_when_no_page_is_requested()
     {
         $response = $this->send(
