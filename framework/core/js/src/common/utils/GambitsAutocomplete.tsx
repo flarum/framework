@@ -216,12 +216,7 @@ export default class GambitsAutocomplete {
           this.gambitSuggestion(
             opt.value,
             opt.label ?? null,
-            () =>
-              this.suggest(
-                prefix + opt.value,
-                this.query.slice(autocomplete.relativeStart).match(/^\S*/)![0],
-                autocomplete.relativeStart
-              ),
+            () => this.suggest(prefix + opt.value, this.query.slice(autocomplete.relativeStart).match(/^\S*/)![0], autocomplete.relativeStart),
             false
           )
         );
