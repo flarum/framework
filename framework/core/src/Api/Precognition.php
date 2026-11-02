@@ -35,9 +35,30 @@ final class Precognition
 
     public const string ATTRIBUTE = 'precognitive';
 
+    /**
+     * Whether the request carries a non-empty `Precognition` header at all.
+     * Any such header signals validate-only intent, so it must never fall
+     * through to a normal (writing) request; see {@see self::wellFormed()}.
+     */
     public static function requested(Request $request): bool
     {
-        return strtolower(trim($request->getHeaderLine(self::HEADER))) === 'true';
+        return trim($request->getHeaderLine(self::HEADER)) !== '';
+    }
+
+    /**
+     * Whether every value of the `Precognition` header is `true` (trimmed,
+     * case-insensitive). `true, true` from a duplicated header is accepted;
+     * any other value (`1`, `yes`, `true, false`) is not.
+     */
+    public static function wellFormed(Request $request): bool
+    {
+        foreach (explode(',', $request->getHeaderLine(self::HEADER)) as $value) {
+            if (strtolower(trim($value)) !== 'true') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static function active(Request $request): bool

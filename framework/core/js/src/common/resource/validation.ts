@@ -195,7 +195,6 @@ export function validateValue(field: FieldDescriptor, value: unknown, mode: Form
   }
 
   if (c.enum && scalar && !c.enum.includes(String(value))) errors.push(ruleMessage(c, 'enum', 'enum'));
-  if (c.not?.enum && scalar && c.not.enum.includes(String(value))) errors.push(ruleMessage(c, 'not', 'not_in'));
 
   if (field.kind === 'integer' && ((typeof value === 'number' && !Number.isInteger(value)) || (typeof value === 'string' && !INTEGER.test(value)))) {
     errors.push(ruleMessage(c, 'integer', 'integer'));

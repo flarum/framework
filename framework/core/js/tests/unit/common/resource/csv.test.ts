@@ -10,43 +10,47 @@ import { bootAdmin, descriptor, fd, schemaDocument } from './fixtures';
 class Thing extends Model {}
 
 describe('toCsv', () => {
-  test('quotes per RFC 4180, ends lines with CRLF and guards every formula-like cell', () => {
-    const csv = toCsv([['a,b', 'he said "x"', 'line\nbreak', '=1+1', '@x', '-5']], ['A', 'B', 'C', 'D', 'E', 'F']);
+  test('quotes every cell per RFC 4180, ends lines with CRLF and guards every formula-like cell', () => {
+    const csv = toCsv([['a,b', 'he said "x"', 'line\nbreak', '=1+1', '@x', '-5', 'x;=1+1']], ['A', 'B', 'C', 'D', 'E', 'F', 'G']);
 
-    expect(csv).toBe('A,B,C,D,E,F\r\n' + `"a,b","he said ""x""","line\nbreak",'=1+1,'@x,'-5\r\n`);
+    expect(csv).toBe('"A","B","C","D","E","F","G"\r\n' + `"a,b","he said ""x""","line\nbreak","'=1+1","'@x","'-5","x;=1+1"\r\n`);
   });
 
-  test('guards = + - @ tab and CR, numbers included', () => {
-    expect(['=HYPERLINK("x")', '+1', '-x', '@me', '\tx', '\rx', -5, 5, 'a=b'].map(csvCell)).toEqual([
+  test('guards = + - @ tab and CR, also after leading whitespace, numbers included', () => {
+    expect(['=HYPERLINK("x")', '+1', '-x', '@me', '\tx', '\rx', ' =1', '\n=1', '  @x', -5, 5, 'a=b', ' x'].map(csvCell)).toEqual([
       `"'=HYPERLINK(""x"")"`,
-      "'+1",
-      "'-x",
-      "'@me",
-      "'\tx",
+      `"'+1"`,
+      `"'-x"`,
+      `"'@me"`,
+      `"'\tx"`,
       `"'\rx"`,
-      "'-5",
-      '5',
-      'a=b',
+      `"' =1"`,
+      `"'\n=1"`,
+      `"'  @x"`,
+      `"'-5"`,
+      '"5"',
+      '"a=b"',
+      '" x"',
     ]);
   });
 
-  test('null and undefined are empty cells; the header is escaped too', () => {
-    expect(toCsv([[null, undefined, 0, false]], ['a,b', '=x', 'c', 'd'])).toBe(`"a,b",'=x,c,d\r\n,,0,false\r\n`);
+  test('null and undefined are empty cells; the header is quoted and guarded too', () => {
+    expect(toCsv([[null, undefined, 0, false]], ['a,b', '=x', 'c', 'd'])).toBe(`"a,b","'=x","c","d"\r\n"","","0","false"\r\n`);
   });
 });
 
 describe('csvCell robustness', () => {
   test('a vnode-like object becomes an empty cell, never its JSON', () => {
-    expect(csvCell({ tag: 'a', attrs: { href: '/u/x' }, children: ['x'] })).toBe('');
-    expect(csvCell({ tag: 'div', attrs: {}, children: [] })).toBe('');
+    expect(csvCell({ tag: 'a', attrs: { href: '/u/x' }, children: ['x'] })).toBe('""');
+    expect(csvCell({ tag: 'div', attrs: {}, children: [] })).toBe('""');
   });
 
   test('a value JSON.stringify cannot handle becomes an empty cell', () => {
     const circular: Record<string, unknown> = {};
     circular.self = circular;
 
-    expect(csvCell(circular)).toBe('');
-    expect(csvCell({ n: BigInt(1) })).toBe('');
+    expect(csvCell(circular)).toBe('""');
+    expect(csvCell({ n: BigInt(1) })).toBe('""');
   });
 
   test('plain objects and arrays are still exported as JSON', () => {
@@ -151,7 +155,9 @@ describe('exportCsv', () => {
 
     const bytes = await text(blobs[0]);
     expect([...bytes.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
-    expect(new TextDecoder('utf-8', { ignoreBOM: true }).decode(bytes)).toBe("﻿Name,Label\r\n'=Thing 1,#1\r\n'=Thing 2,#2\r\n'=Thing 3,#3\r\n");
+    expect(new TextDecoder('utf-8', { ignoreBOM: true }).decode(bytes)).toBe(
+      `﻿"Name","Label"\r\n"'=Thing 1","#1"\r\n"'=Thing 2","#2"\r\n"'=Thing 3","#3"\r\n`
+    );
   });
 
   test('stops at maxRows and reports truncation', async () => {
@@ -161,7 +167,7 @@ describe('exportCsv', () => {
 
     expect(result).toEqual({ rows: 1, truncated: true });
     expect(find).toHaveBeenCalledTimes(1);
-    expect(new TextDecoder().decode(await text(blobs[0]))).toBe("Name,Label\r\n'=Thing 1,#1\r\n");
+    expect(new TextDecoder().decode(await text(blobs[0]))).toBe(`"Name","Label"\r\n"'=Thing 1","#1"\r\n`);
   });
 
   test('an abort stops after the current page and downloads nothing', async () => {

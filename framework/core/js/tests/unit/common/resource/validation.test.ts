@@ -136,10 +136,7 @@ describe('validateValue', () => {
     expect(validateValue(fd('n', 'integer', { constraints: { multipleOf: 5 } }), 12, 'create')).toEqual([t('multiple_of', { value: 5 })]);
   });
 
-  test('not.enum, accepted and declined', () => {
-    expect(validateValue(fd('s', 'string', { constraints: { not: { enum: ['admin'] } } }), 'admin', 'create')).toEqual([t('not_in')]);
-    expect(validateValue(fd('s', 'string', { constraints: { not: { enum: ['admin'] } } }), 'mod', 'create')).toEqual([]);
-
+  test('accepted and declined', () => {
     const accepted = fd('terms', 'boolean', { constraints: { accepted: true } });
     const declined = fd('spam', 'boolean', { constraints: { declined: true } });
 

@@ -30,6 +30,7 @@ trait SavesAndValidatesData
 
     /**
      * Assert that the field values within a data object pass validation.
+     * Callers pass the data already run through {@see self::mutateDataBeforeValidation()}.
      *
      * @param \Flarum\Api\Context $context
      * @param string[]|null $only Validate only the rules of these field names (attributes or
@@ -39,8 +40,6 @@ trait SavesAndValidatesData
      */
     protected function assertDataValid(Context $context, array $data, ?array $only = null): void
     {
-        $data = $this->mutateDataBeforeValidation($context, $data);
-
         $collection = $context->collection;
 
         $rules = [
@@ -139,8 +138,8 @@ trait SavesAndValidatesData
     }
 
     /**
-     * Adjusts the data the validator sees. The result is used for validation only:
-     * the values that are set and saved are the unmutated ones.
+     * Adjusts the data before it is validated. The result replaces the request data:
+     * it is what is validated and what the setters and the save receive.
      */
     protected function mutateDataBeforeValidation(Context $context, array $data): array
     {

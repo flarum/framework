@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Schema\Concerns;
 
+use Closure;
 use Flarum\Api\Context;
 
 trait FlarumField
@@ -24,6 +25,32 @@ trait FlarumField
      * @var array<string, mixed>
      */
     protected array $ui = [];
+
+    /**
+     * The value passed to `default()` when it was not a closure; json-api-server wraps
+     * every default in a closure, so this is the only record that it was static.
+     */
+    protected mixed $staticDefault = null;
+
+    protected bool $hasStaticDefault = false;
+
+    public function default(mixed $default): static
+    {
+        $this->hasStaticDefault = ! $default instanceof Closure;
+        $this->staticDefault = $this->hasStaticDefault ? $default : null;
+
+        return parent::default($default);
+    }
+
+    public function hasStaticDefault(): bool
+    {
+        return $this->hasStaticDefault;
+    }
+
+    public function getStaticDefault(): mixed
+    {
+        return $this->staticDefault;
+    }
 
     public function writableOnCreate(): static
     {

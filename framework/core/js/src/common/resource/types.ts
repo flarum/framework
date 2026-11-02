@@ -27,7 +27,6 @@ export interface FieldConstraints {
   /** Sent instead of `pattern` when there are several; the value must match all of them. */
   patterns?: { pattern: string; flags?: string }[];
   enum?: string[];
-  not?: { enum: string[] };
   /** Unknown formats are not checked. */
   format?: 'email' | 'uri' | 'uuid' | 'ulid' | 'ip' | 'ipv4' | 'ipv6' | 'hex-color' | (string & {});
   minimum?: number;

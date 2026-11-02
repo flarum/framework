@@ -16,6 +16,8 @@ use Illuminate\Validation\ConditionalRules;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\ExcludeIf;
 use Illuminate\Validation\Rules\ExcludeUnless;
+use Illuminate\Validation\Rules\In;
+use Illuminate\Validation\Rules\NotIn;
 use Illuminate\Validation\Rules\ProhibitedIf;
 use Illuminate\Validation\Rules\ProhibitedUnless;
 use Illuminate\Validation\Rules\RequiredIf;
@@ -35,6 +37,12 @@ use Throwable;
  */
 class RuleHints
 {
+    /**
+     * Stands in for a rule only the server may check: it is never described,
+     * and it makes the field live-validated. See {@see self::isValueList()}.
+     */
+    public const string SERVER_ONLY = 'flarum_server_only';
+
     /**
      * PCRE modifiers that mean the same thing as a JS `RegExp` flag of the same letter.
      */
@@ -117,7 +125,7 @@ class RuleHints
         'required', 'nullable', 'filled', 'present', 'accepted', 'declined', 'sometimes', 'bail',
         'string', 'integer', 'numeric', 'boolean', 'array',
         'distinct', 'multiple_of', 'min', 'gte', 'max', 'lte', 'gt', 'lt', 'size', 'between',
-        'digits', 'digits_between', 'in', 'not_in', 'regex',
+        'digits', 'digits_between', 'in', 'regex',
     ];
 
     /**
@@ -133,7 +141,7 @@ class RuleHints
      *
      * @param iterable<mixed>|string $rules
      * @param string $kind the descriptor field kind
-     * @return array{required?: true, nullable?: true, filled?: true, present?: true, accepted?: true, declined?: true, format?: string, minLength?: int, maxLength?: int, minimum?: int|float, maximum?: int|float, exclusiveMinimum?: int|float, exclusiveMaximum?: int|float, multipleOf?: int|float, minItems?: int, maxItems?: int, uniqueItems?: true, items?: array{enum: list<string>}, enum?: list<string>, not?: array{enum: list<string>}, pattern?: string, patternFlags?: string, patterns?: list<array{pattern: string, flags?: string}>}
+     * @return array{required?: true, nullable?: true, filled?: true, present?: true, accepted?: true, declined?: true, format?: string, minLength?: int, maxLength?: int, minimum?: int|float, maximum?: int|float, exclusiveMinimum?: int|float, exclusiveMaximum?: int|float, multipleOf?: int|float, minItems?: int, maxItems?: int, uniqueItems?: true, items?: array{enum: list<string>}, enum?: list<string>, pattern?: string, patternFlags?: string, patterns?: list<array{pattern: string, flags?: string}>}
      */
     public static function parse(iterable|string $rules, string $kind = 'string'): array
     {
@@ -227,11 +235,6 @@ class RuleHints
                     }
                     break;
 
-                case 'not_in':
-                    if ($parameters && $kind !== 'array') {
-                        $hints['not'] = ['enum' => array_map('strval', $parameters)];
-                    }
-                    break;
 
                 case 'regex':
                     $pattern = static::pattern((string) $arguments);
@@ -450,12 +453,36 @@ class RuleHints
             'lt' => ['maxLength', 'exclusiveMaximum', 'maxItems'],
             'size', 'between' => [...$lower, ...$upper],
             'in', 'enum' => ['enum', 'items'],
-            'not_in' => ['not'],
             'multiple_of' => ['multipleOf'],
             'distinct' => ['uniqueItems'],
             'accepted', 'declined', 'filled' => [$rule],
             default => isset(self::FORMATS[$rule]) ? ['format'] : [],
         };
+    }
+
+    /**
+     * Whether a rule is a list of allowed or forbidden values (`in`, `not_in`,
+     * `enum`). A closure building such a list may read data the actor cannot see
+     * (`Rule::in(Group::pluck(...))`), so the describer replaces it with
+     * {@see self::SERVER_ONLY} rather than publishing the list.
+     */
+    public static function isValueList(mixed $rule): bool
+    {
+        if ($rule instanceof In || $rule instanceof NotIn || $rule instanceof Enum) {
+            return true;
+        }
+
+        if (! is_string($rule)) {
+            return false;
+        }
+
+        foreach (explode('|', $rule) as $part) {
+            if (in_array(strtolower(explode(':', $part, 2)[0]), ['in', 'not_in', 'enum'], true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

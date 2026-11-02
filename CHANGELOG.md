@@ -37,7 +37,7 @@
 
 - (core) `requiredOnUpdate()` on API resource fields was inverted (required on create, never on update); it now requires the field on update. GDPR erasure processing no longer accepts an empty `processedMode` and fails with a 500
 - (core) updating a group required sending both names; a `PATCH /api/groups/{id}` with only `color` now works, and the names still may not be emptied
-- (core) `mutateDataBeforeValidation()` is documented as affecting validation only: the setters and the save get the unmutated data
+- (core) `mutateDataBeforeValidation()` now applies to validation and to what is saved: the setters and the save receive the mutated data, so a value is stored exactly as it was validated (also in precognitive requests)
 
 ## [v2.0.2](https://github.com/flarum/framework/compare/v2.0.1...v2.0.2)
 

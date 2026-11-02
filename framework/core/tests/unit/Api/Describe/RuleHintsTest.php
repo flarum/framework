@@ -320,10 +320,31 @@ class RuleHintsTest extends TestCase
     }
 
     #[Test]
-    public function not_in_maps_to_not_enum()
+    public function not_in_is_never_described_and_is_left_to_the_server()
     {
-        $this->assertSame(['not' => ['enum' => ['a', 'b']]], RuleHints::parse(['not_in:a,b']));
-        $this->assertSame(['not' => ['enum' => ['x']]], RuleHints::parse([Rule::notIn(['x'])]));
+        $this->assertSame([], RuleHints::parse(['not_in:a,b']));
+        $this->assertSame([], RuleHints::parse([Rule::notIn(['x'])]));
+        $this->assertTrue(RuleHints::needsServer(['not_in:a,b']));
+    }
+
+    #[Test]
+    public function the_server_only_marker_is_never_described_and_needs_the_server()
+    {
+        $this->assertSame([], RuleHints::parse([RuleHints::SERVER_ONLY]));
+        $this->assertTrue(RuleHints::needsServer([RuleHints::SERVER_ONLY]));
+        $this->assertSame(['always' => false, 'when' => [], 'undescribable' => false], RuleHints::requirements([RuleHints::SERVER_ONLY]));
+    }
+
+    #[Test]
+    public function value_lists_are_recognised_in_every_form()
+    {
+        foreach (['in:a,b', 'required|not_in:x', 'enum:'.\stdClass::class, Rule::in(['a']), Rule::notIn(['a'])] as $rule) {
+            $this->assertTrue(RuleHints::isValueList($rule), is_string($rule) ? $rule : get_class($rule));
+        }
+
+        foreach (['max:5', 'required', 'regex:/in:a/', fn () => 'in:a', null] as $rule) {
+            $this->assertFalse(RuleHints::isValueList($rule));
+        }
     }
 
     #[Test]

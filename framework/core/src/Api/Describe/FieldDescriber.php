@@ -49,7 +49,7 @@ use Tobyz\JsonApiServer\Schema\Type\Str;
  *     minLength?: int, maxLength?: int, minimum?: int|float, maximum?: int|float,
  *     exclusiveMinimum?: int|float, exclusiveMaximum?: int|float, multipleOf?: int|float,
  *     minItems?: int, maxItems?: int, uniqueItems?: true, items?: array{enum: list<string>},
- *     enum?: list<string>, not?: array{enum: list<string>},
+ *     enum?: list<string>,
  *     pattern?: string, patternFlags?: string, patterns?: list<array{pattern: string, flags?: string}>,
  *     messages?: array<string, string>
  * }
@@ -228,7 +228,7 @@ class FieldDescriber
 
             // A default only fills a create form.
             $default = in_array('create', $writeModes, true)
-                ? $this->defaultValue($field, $kind, $contexts['create'])
+                ? $this->defaultValue($field, $kind)
                 : null;
 
             if ($default !== null) {
@@ -446,12 +446,16 @@ class FieldDescriber
      */
     protected function rules(Field $field, Context $context): ?array
     {
-        if (! method_exists($field, 'getValidationRules')) {
+        if (! method_exists($field, 'getEvaluatedRules')) {
             return [];
         }
 
         try {
-            return array_values($field->getValidationRules($context->withField($field))[$field->name] ?? []);
+            // A value list built by a closure may hold data the actor cannot see: never published.
+            return array_map(
+                fn (array $entry) => $entry['computed'] && RuleHints::isValueList($entry['rule']) ? RuleHints::SERVER_ONLY : $entry['rule'],
+                $field->getEvaluatedRules($context->withField($field))
+            );
         } catch (Throwable) {
             return null;
         }
@@ -767,7 +771,7 @@ class FieldDescriber
             'digits' => [':digits' => $first],
             'between', 'digits_between' => [':min' => $first, ':max' => $parameters[1] ?? null],
             'gt', 'lt', 'gte', 'lte', 'multiple_of' => [':value' => is_numeric($first) ? $first : null],
-            'in', 'not_in' => [':values' => $parameters ? implode(', ', $parameters) : null],
+            'in' => [':values' => $parameters ? implode(', ', $parameters) : null],
             'required_if', 'required_unless' => [
                 ':other' => $first === null ? null : $other($first),
                 ':value' => $parameters[1] ?? null,
@@ -781,17 +785,19 @@ class FieldDescriber
         };
     }
 
-    protected function defaultValue(Field $field, string $kind, Context $context): mixed
+    /**
+     * Only a static default (`->default('x')`) is published. A closure default is computed
+     * server-side and may read data the actor cannot see, so it is never evaluated here.
+     */
+    protected function defaultValue(Field $field, string $kind): mixed
     {
-        if (! in_array($kind, ['string', 'boolean', 'integer', 'number'], true) || ! $field->default) {
+        if (! in_array($kind, ['string', 'boolean', 'integer', 'number'], true)
+            || ! method_exists($field, 'hasStaticDefault') || ! method_exists($field, 'getStaticDefault')
+            || ! $field->hasStaticDefault()) {
             return null;
         }
 
-        try {
-            $value = ($field->default)($context->withField($field));
-        } catch (Throwable) {
-            return null;
-        }
+        $value = $field->getStaticDefault();
 
         return is_scalar($value) ? $value : null;
     }

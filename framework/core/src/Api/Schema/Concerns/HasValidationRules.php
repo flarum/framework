@@ -72,17 +72,34 @@ trait HasValidationRules
 
     public function getValidationRules(Context $context): array
     {
-        $rules = array_map(
-            fn ($rule) => $this->evaluate($context, $rule['rule']),
-            array_filter(
-                $this->rules,
-                fn ($rule) => $this->evaluate($context, $rule['condition'])
-            )
-        );
-
         return [
-            $this->name => $rules
+            $this->name => array_column($this->getEvaluatedRules($context), 'rule'),
         ];
+    }
+
+    /**
+     * The rules that apply in this context, each marked `computed` when a closure
+     * produced it (`->rule(fn () => ...)`, `->unique()`) rather than being registered
+     * as a literal string or rule object.
+     *
+     * @return list<array{rule: mixed, computed: bool}>
+     */
+    public function getEvaluatedRules(Context $context): array
+    {
+        $evaluated = [];
+
+        foreach ($this->rules as $rule) {
+            if (! $this->evaluate($context, $rule['condition'])) {
+                continue;
+            }
+
+            $evaluated[] = [
+                'rule' => $this->evaluate($context, $rule['rule']),
+                'computed' => ! is_string($rule['rule']) && is_callable($rule['rule']),
+            ];
+        }
+
+        return $evaluated;
     }
 
     public function getValidationMessages(Context $context): array

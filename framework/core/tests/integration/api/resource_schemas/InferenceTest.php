@@ -275,13 +275,21 @@ class InferenceTest extends TestCase
     }
 
     #[Test]
-    public function closure_built_and_object_rules_are_reported()
+    public function rule_objects_are_reported_but_closure_built_value_lists_are_left_to_the_server()
     {
         $descriptor = $this->describe();
 
-        $this->assertSame(['enum' => ['r', 'g']], $this->field($descriptor, 'enumByClosure')['constraints']);
+        // A closure may build its list from data the actor cannot see.
+        $enumByClosure = $this->field($descriptor, 'enumByClosure');
+        $this->assertArrayNotHasKey('constraints', $enumByClosure);
+        $this->assertTrue($enumByClosure['ui']['liveValidate']);
+
         $this->assertSame(['enum' => ['x', 'y']], $this->field($descriptor, 'inObject')['constraints']);
-        $this->assertSame(['not' => ['enum' => ['z']]], $this->field($descriptor, 'notInObject')['constraints']);
+
+        // A deny-list is never published.
+        $notInObject = $this->field($descriptor, 'notInObject');
+        $this->assertArrayNotHasKey('constraints', $notInObject);
+        $this->assertTrue($notInObject['ui']['liveValidate']);
     }
 
     #[Test]

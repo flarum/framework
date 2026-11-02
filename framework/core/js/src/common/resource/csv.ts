@@ -34,9 +34,11 @@ export interface ExportCsvResult {
   truncated: boolean;
 }
 
-/** A leading character that makes a spreadsheet read the cell as a formula. */
-const FORMULA_START = /^[=+\-@\t\r]/;
-const NEEDS_QUOTES = /[",\r\n]/;
+/**
+ * A start that makes a spreadsheet read the cell as a formula: `= + - @`, also after leading
+ * whitespace or a newline (which spreadsheets trim), or a leading tab or carriage return.
+ */
+const FORMULA_START = /^(?:\s*[=+\-@]|[\t\r])/;
 
 /** An object cell as JSON; a vnode (rendered content, never exported) or an unserializable value is empty. */
 function jsonCell(value: object): string {
@@ -50,8 +52,12 @@ function jsonCell(value: object): string {
 }
 
 /**
- * One CSV cell: RFC 4180 quoting, plus a formula-injection guard that prefixes `'` to any value
- * starting with `= + - @`, a tab or a carriage return.
+ * One CSV cell: always quoted (RFC 4180), plus a formula-injection guard that prefixes `'` to any
+ * value starting with `= + - @` (also after leading whitespace), a tab or a carriage return.
+ *
+ * Every non-empty cell is quoted, not only those holding `",\r\n`: a spreadsheet whose list
+ * separator is `;` (or that splits on tabs) splits an unquoted cell, so `x;=1+1` would become a
+ * second cell starting with `=`. Inside quotes no separator splits the cell.
  *
  * The guard is uniform, so it also changes harmless values: `-5` is exported as `'-5`, and a
  * spreadsheet reads it as text. Telling a negative number from `-2+3+cmd|...` is the judgement such
@@ -59,17 +65,18 @@ function jsonCell(value: object): string {
  * value `JSON.stringify` rejects becomes an empty cell.
  */
 export function csvCell(value: unknown): string {
-  if (value === null || value === undefined) return '';
+  if (value === null || value === undefined) return '""';
 
   let text = value instanceof Date ? value.toISOString() : typeof value === 'object' ? jsonCell(value) : String(value);
 
   if (FORMULA_START.test(text)) text = `'${text}`;
 
-  return NEEDS_QUOTES.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  return `"${text.replace(/"/g, '""')}"`;
 }
 
 /**
- * A CSV document: the header, then one record per row, each line ending with CRLF.
+ * A CSV document: the header, then one record per row, each line ending with CRLF. Header cells
+ * are quoted and guarded like any other.
  */
 export function toCsv(rows: unknown[][], header: string[]): string {
   return [header, ...rows].map((row) => row.map(csvCell).join(',') + '\r\n').join('');

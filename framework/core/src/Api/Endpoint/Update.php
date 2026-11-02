@@ -58,6 +58,7 @@ class Update extends Endpoint
 
                 $this->assertFieldsValid($context, $data);
                 $this->deserializeValues($context, $data);
+                $data = $this->mutateDataBeforeValidation($context, $data);
                 $this->assertDataValid($context, $data);
                 $this->setValues($context, $data);
 
@@ -95,6 +96,7 @@ class Update extends Endpoint
 
         $this->assertFieldsValid($context, $data);
         $this->deserializeValues($context, $data);
+        $data = $this->mutateDataBeforeValidation($context, $data);
         $this->assertDataValid($context, $data, $this->precognitiveFields($context));
     }
 }

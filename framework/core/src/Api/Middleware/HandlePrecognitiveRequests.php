@@ -27,9 +27,9 @@ use Throwable;
  * create or update endpoint of an API resource, and stamps the response
  * (success or error) with `Precognition: true` and `Vary: Precognition`.
  *
- * A `Precognition: true` request to any other route fails closed with a 400
- * and is not run: executing it normally would perform the very write the
- * client only meant to validate.
+ * A `Precognition` request to any other route, or with any header value other
+ * than `true`, fails closed with a 400 and is not run: executing it normally
+ * would perform the very write the client only meant to validate.
  */
 class HandlePrecognitiveRequests implements Middleware
 {
@@ -44,7 +44,7 @@ class HandlePrecognitiveRequests implements Middleware
             return $handler->handle($request);
         }
 
-        if ($this->supportsPrecognition($request)) {
+        if (Precognition::wellFormed($request) && $this->supportsPrecognition($request)) {
             $request = $request->withAttribute(Precognition::ATTRIBUTE, true);
         } else {
             $handler = new class implements Handler {

@@ -236,6 +236,13 @@ class ApiResource implements ExtenderInterface
      * the generic admin resource components read.
      *
      * Any extension can opt in any resource, including one it does not own.
+     *
+     * The descriptor publishes, to every actor who can write a field, its
+     * static default (`->default('x')`) and the value lists of literal rules
+     * (`in:a,b`, `->in([...])`, `Rule::in()` passed directly). A closure
+     * default is never evaluated, and a value list built by a closure
+     * (`->rule(fn () => Rule::in(...))`) or any `not_in` is left to the server,
+     * which checks the field on blur: put data the actor must not see in closures.
      */
     public function describable(): self
     {

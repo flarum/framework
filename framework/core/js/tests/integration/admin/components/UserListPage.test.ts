@@ -685,7 +685,7 @@ describe('UserListPage', () => {
 
     const lines = (await readBlob(blobs[0])).replace(/^﻿/, '').split('\r\n');
 
-    expect(lines[1]).toBe(`'@evil,"'=HYPERLINK(""x"")",2021-01-01T00:00:00.000Z,,e@machine.local`);
+    expect(lines[1]).toBe(`"'@evil","'=HYPERLINK(""x"")","2021-01-01T00:00:00.000Z","","e@machine.local"`);
   });
 
   describe('D11 defaults', () => {
@@ -753,10 +753,10 @@ describe('UserListPage', () => {
 
       const lines = (await readBlob(blobs[0])).replace(/^﻿/, '').split('\r\n');
 
-      expect(lines[0].split(',').slice(1, 4)).toEqual(['Display name', 'Joined', 'Groups']);
+      expect(lines[0].split(',').slice(1, 4)).toEqual(['"Display name"', '"Joined"', '"Groups"']);
       expect(lines[0].split(',')).toHaveLength(5);
-      expect(lines[1]).toBe('user2,User 2,2021-01-01T00:00:00.000Z,Mod; Helper,user2@machine.local');
-      expect(lines[2]).toBe('user3,User 3,2021-01-01T00:00:00.000Z,,three@machine.local');
+      expect(lines[1]).toBe('"user2","User 2","2021-01-01T00:00:00.000Z","Mod; Helper","user2@machine.local"');
+      expect(lines[2]).toBe('"user3","User 3","2021-01-01T00:00:00.000Z","","three@machine.local"');
     });
   });
 

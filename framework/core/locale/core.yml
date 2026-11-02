@@ -1299,7 +1299,6 @@ core:
         min_length: "Enter at least {count, plural, one {# character} other {# characters}}."
         minimum: "Enter a value of at least {min}."
         multiple_of: "Enter a multiple of {value}."
-        not_in: This value is not allowed.
         pattern: This value has an invalid format.
         required: This field is required.
         ulid: Enter a valid ULID.
