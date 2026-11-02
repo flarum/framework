@@ -72,6 +72,8 @@ class AccessTokenResource extends AbstractDatabaseResource
                 ->authenticated(),
             Endpoint\Index::make()
                 ->authenticated()
+                // Serializing an included owner checks `editCredentials`, which reads their groups.
+                ->eagerLoadWhenIncluded(['user' => ['user.groups']])
                 ->paginate(),
         ];
     }

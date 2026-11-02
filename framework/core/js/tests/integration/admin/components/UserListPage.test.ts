@@ -246,6 +246,19 @@ describe('UserListPage', () => {
       expect(out).toHaveElement('th.UserListPage-grid-header[data-column-name=username]');
       expect(out).toHaveElement('td.UserListPage-grid-rowItem[data-user-id="2"][data-column-name=emailAddress] .UserList-email');
       expect(out).not.toHaveElement('.UserListPage-grid-rowItem--shaded');
+
+      // The email toggle reveals and hides one row's address.
+      const email = '[data-user-id="2"][data-column-name=emailAddress] .UserList-email';
+      expect(out).toHaveElementAttr(email, 'data-email-shown', 'false');
+      expect(out).toHaveElementAttr(`${email} .UserList-emailAddress`, 'aria-hidden', 'true');
+      out.click(`${email} .UserList-emailIconBtn`);
+      expect(out).toHaveElementAttr(email, 'data-email-shown', 'true');
+      expect(out).not.toHaveElementAttr(`${email} .UserList-emailAddress`, 'aria-hidden');
+      expect(out).toHaveElement(`${email} .UserList-emailIconBtn .fa-eye`);
+      expect(out).toHaveElementAttr('[data-user-id="3"][data-column-name=emailAddress] .UserList-email', 'data-email-shown', 'false');
+      out.click(`${email} .UserList-emailIconBtn`);
+      expect(out).toHaveElementAttr(email, 'data-email-shown', 'false');
+      expect(out).toHaveElement(`${email} .UserList-emailIconBtn .fa-eye-slash`);
       expect(out).toHaveElement('.UserList-joinDate');
 
       // One actions column: the page's own `userActions`, with the shared overflow menu.

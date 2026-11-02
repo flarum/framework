@@ -143,6 +143,9 @@ export default class UserListPage extends AdminPage {
   /** `definition.fields()`, built once the descriptor is loaded. */
   private descriptorFields: ItemList<Field<User>> | null = null;
 
+  /** The users whose email address is revealed in the list. */
+  protected shownEmails = new Set<string>();
+
   /**
    * This page's array of users.
    *
@@ -318,59 +321,28 @@ export default class UserListPage extends AdminPage {
       {
         name: app.translator.trans('core.admin.users.grid.columns.email.title'),
         content: (user: User) => {
-          function setEmailVisibility(visible: boolean) {
-            // Get needed jQuery element refs
-            const emailContainer = $(`[data-column-name=emailAddress][data-user-id=${user.id()}] .UserList-email`);
-            const emailAddress = emailContainer.find('.UserList-emailAddress');
-            const emailToggleButton = emailContainer.find('.UserList-emailIconBtn');
-            const emailToggleButtonIcon = emailToggleButton.find('.icon');
-
-            emailToggleButton.attr(
-              'title',
-              extractText(
-                visible
-                  ? app.translator.trans('core.admin.users.grid.columns.email.visibility_hide')
-                  : app.translator.trans('core.admin.users.grid.columns.email.visibility_show')
-              )
-            );
-
-            emailAddress.attr('aria-hidden', visible ? null : 'true');
-
-            if (visible) {
-              emailToggleButtonIcon.addClass('fa-eye');
-              emailToggleButtonIcon.removeClass('fa-eye-slash');
-            } else {
-              emailToggleButtonIcon.removeClass('fa-eye');
-              emailToggleButtonIcon.addClass('fa-eye-slash');
-            }
-
-            // Need the string interpolation to prevent TS error.
-            emailContainer.attr('data-email-shown', `${visible}`);
-          }
-
-          function toggleEmailVisibility() {
-            const emailContainer = $(`[data-column-name=emailAddress][data-user-id=${user.id()}] .UserList-email`);
-            const emailShown = emailContainer.attr('data-email-shown') === 'true';
-
-            if (emailShown) {
-              setEmailVisibility(false);
-            } else {
-              setEmailVisibility(true);
-            }
-          }
+          const shown = this.shownEmails.has(user.id()!);
+          const setEmailVisibility = (visible: boolean) => {
+            if (visible) this.shownEmails.add(user.id()!);
+            else this.shownEmails.delete(user.id()!);
+          };
 
           return (
-            <div className="UserList-email" key={user.id()} data-email-shown="false">
-              <span className="UserList-emailAddress" aria-hidden="true" onclick={() => setEmailVisibility(true)}>
+            <div className="UserList-email" key={user.id()} data-email-shown={`${shown}`}>
+              <span className="UserList-emailAddress" aria-hidden={shown ? undefined : 'true'} onclick={() => setEmailVisibility(true)}>
                 {user.email()}
               </span>
               <button
-                onclick={toggleEmailVisibility}
+                onclick={() => setEmailVisibility(!shown)}
                 className="Button Button--text UserList-emailIconBtn"
                 type="button"
-                title={app.translator.trans('core.admin.users.grid.columns.email.visibility_show')}
+                title={extractText(
+                  app.translator.trans(
+                    shown ? 'core.admin.users.grid.columns.email.visibility_hide' : 'core.admin.users.grid.columns.email.visibility_show'
+                  )
+                )}
               >
-                <Icon name="far fa-eye-slash fa-fw" className="icon" />
+                <Icon name={shown ? 'far fa-eye fa-fw' : 'far fa-eye-slash fa-fw'} className="icon" />
               </button>
             </div>
           );

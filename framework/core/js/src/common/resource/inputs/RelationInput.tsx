@@ -7,6 +7,7 @@ import type Model from '../../Model';
 import type Stream from '../../utils/Stream';
 import type Mithril from 'mithril';
 import { relatedRecordLabel } from '../resolvers';
+import { isPaginatedType } from '../descriptor';
 
 export interface RelationOption {
   value: string;
@@ -243,14 +244,33 @@ export default class RelationInput<Attrs extends RelationInputAttrs = RelationIn
    * One page of rows from `offset`, and whether the API has more (a `next` link).
    */
   fetchPage(offset: number): Promise<{ items: Model[]; hasMore: boolean }> {
-    const params: Record<string, unknown> = { page: { offset, limit: this.attrs.pageSize ?? RelationInput.PAGE_SIZE } };
+    return RelationInput.fetchPage(this.attrs.type, { offset, limit: this.attrs.pageSize ?? RelationInput.PAGE_SIZE, query: this.query });
+  }
 
-    if (this.query) params.filter = { q: this.query };
+  /**
+   * Whether `type`'s list endpoint is paginated, see `isPaginatedType()`.
+   */
+  static isPaginated(type: string): Promise<boolean> {
+    return isPaginatedType(type);
+  }
 
-    return app.store.find<Model[]>(this.attrs.type, params).then((results) => ({
-      items: [...results],
-      hasMore: !!results.payload?.links?.next,
-    }));
+  /**
+   * The records of `type` from `offset`, and whether the API has more (a `next` link). An
+   * unpaginated type is requested whole, without page parameters: its endpoint would otherwise
+   * still cut the list at `page[limit]` without a `next` link.
+   */
+  static async fetchPage(
+    type: string,
+    { offset, limit, query = '' }: { offset: number; limit: number; query?: string }
+  ): Promise<{ items: Model[]; hasMore: boolean }> {
+    const paginated = await RelationInput.isPaginated(type);
+    const params: Record<string, unknown> = paginated ? { page: { offset, limit } } : {};
+
+    if (query) params.filter = { q: query };
+
+    const results = await app.store.find<Model[]>(type, params);
+
+    return { items: [...results], hasMore: paginated && !!results.payload?.links?.next };
   }
 
   /** The first page for the current query, replacing what was loaded. */

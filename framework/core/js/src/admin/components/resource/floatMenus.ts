@@ -4,11 +4,11 @@
  * short table. An open menu is positioned `fixed` at its toggle instead, and kept there on scroll
  * and resize. Menus that are already fixed (core's phone sheets) are left alone.
  *
- * Returns a function that removes the listeners.
+ * Returns a function that removes the observer and listeners.
  */
 export default function floatMenus(container: HTMLElement): () => void {
   const properties = ['position', 'margin', 'top', 'bottom', 'left', 'right'];
-  let open: { toggle: HTMLElement; menu: HTMLElement } | null = null;
+  let open: { dropdown: HTMLElement; toggle: HTMLElement; menu: HTMLElement } | null = null;
 
   const place = () => {
     if (!open) return;
@@ -37,11 +37,7 @@ export default function floatMenus(container: HTMLElement): () => void {
     open = null;
   };
 
-  // Core's Dropdown triggers these as jQuery events, which native listeners don't receive.
-  const $container = $(container);
-
-  $container.on('shown.bs.dropdown.floatMenus', (e) => {
-    const dropdown = e.target as HTMLElement;
+  const show = (dropdown: HTMLElement) => {
     const menu = dropdown.querySelector<HTMLElement>(':scope > .Dropdown-menu');
     const toggle = dropdown.querySelector<HTMLElement>(':scope > .Dropdown-toggle');
 
@@ -49,18 +45,39 @@ export default function floatMenus(container: HTMLElement): () => void {
 
     if (!menu || !toggle || getComputedStyle(menu).position === 'fixed') return;
 
-    open = { toggle, menu };
+    open = { dropdown, toggle, menu };
     place();
+  };
+
+  // A dropdown is open while it has the `open` class. The observer's callback runs after the
+  // `shown.bs.dropdown` handlers, so core's Dropdown has already picked the menu's direction.
+  const isOpen = (className: string | null) => /(^|\s)open(\s|$)/.test(className ?? '');
+
+  const observer = new MutationObserver((records) => {
+    records.forEach((record) => {
+      const dropdown = record.target as HTMLElement;
+
+      if (!dropdown.classList.contains('Dropdown')) return;
+
+      const was = isOpen(record.oldValue);
+      const is = dropdown.classList.contains('open');
+
+      if (!was && is) show(dropdown);
+      else if (was && !is && open?.dropdown === dropdown) reset();
+    });
   });
 
-  $container.on('hidden.bs.dropdown.floatMenus', reset);
+  // A container outside the page's DOM (a test renderer's, such as mithril-query's domino) can't be observed.
+  if (container instanceof Node) {
+    observer.observe(container, { subtree: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+  }
 
   window.addEventListener('scroll', place, true);
   window.addEventListener('resize', place);
 
   return () => {
     reset();
-    $container.off('.floatMenus');
+    observer.disconnect();
     window.removeEventListener('scroll', place, true);
     window.removeEventListener('resize', place);
   };

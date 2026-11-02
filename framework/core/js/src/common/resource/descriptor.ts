@@ -54,8 +54,34 @@ export function loadDescriptor(type: string): Promise<ResourceDescriptor> {
  * Forget memoized descriptors (all, or one type).
  */
 export function clearDescriptorCache(type?: string): void {
-  if (type === undefined) cache.clear();
-  else cache.delete(type);
+  if (type === undefined) {
+    cache.clear();
+    paginated.clear();
+  } else {
+    cache.delete(type);
+    paginated.delete(type);
+  }
+}
+
+const paginated = new Map<string, Promise<boolean>>();
+
+/**
+ * Whether `type`'s list endpoint is paginated, memoized per session. A type whose descriptor
+ * cannot be loaded counts as paginated, and that answer is kept too, so callers don't request
+ * the failing descriptor again on every page.
+ */
+export function isPaginatedType(type: string): Promise<boolean> {
+  let answer = paginated.get(type);
+
+  if (!answer) {
+    answer = loadDescriptor(type).then(
+      (descriptor) => !!descriptor.pagination,
+      () => true
+    );
+    paginated.set(type, answer);
+  }
+
+  return answer;
 }
 
 export function isWritable(d: FieldDescriptor, mode: FormMode): boolean {

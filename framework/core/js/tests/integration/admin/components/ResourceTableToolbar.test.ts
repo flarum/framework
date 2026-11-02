@@ -301,8 +301,10 @@ describe('ResourceTable toolbar', () => {
     const { out, table } = await rendered();
     const options = table.bar!.relationOptions('owner', 'owners');
 
-    find.mockImplementationOnce(() => Promise.reject(new Error('nope')));
+    const served = find.getMockImplementation()!;
+    find.mockImplementation((type: string, ...rest: unknown[]) => (type === 'owners' ? Promise.reject(new Error('nope')) : served(type, ...rest)));
     await options.loadItems().catch(() => {});
+    find.mockImplementation(served);
     out.redraw();
 
     expect(options.failed).toBe(true);

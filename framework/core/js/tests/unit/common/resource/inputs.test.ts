@@ -250,7 +250,10 @@ describe('RelationInput', () => {
       0: Object.assign([model('1'), model('2')], { payload: { links: { next: '…' } } }),
       2: Object.assign([model('2'), model('3')], { payload: { links: {} } }),
     };
-    const find = jest.fn((_type: string, params: any) => Promise.resolve(pages[params.page.offset]));
+    // No descriptor for the type: the picker pages, as it does for a paginated type.
+    const find = jest.fn((type: string, params: any) =>
+      type === 'resource-schemas' ? Promise.reject({ status: 404 }) : Promise.resolve(pages[params.page.offset])
+    );
     jest.spyOn(app.store, 'find').mockImplementation(find as any);
 
     const out = mq(RelationInput, { type: 'categories', multiple: true, display: 'name', stream: Stream([]), pageSize: 2 });

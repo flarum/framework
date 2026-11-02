@@ -1,4 +1,3 @@
-import app from '../../app';
 import type Model from '../../Model';
 import RelationInput from './RelationInput';
 
@@ -52,14 +51,7 @@ export default class RelationOptions {
   }
 
   fetchPage(offset: number): Promise<{ items: Model[]; hasMore: boolean }> {
-    const params: Record<string, unknown> = { page: { offset, limit: this.pageSize } };
-
-    if (this.query) params.filter = { q: this.query };
-
-    return app.store.find<Model[]>(this.type, params).then((results) => ({
-      items: [...results],
-      hasMore: !!results.payload?.links?.next,
-    }));
+    return RelationInput.fetchPage(this.type, { offset, limit: this.pageSize, query: this.query });
   }
 
   /** Loads again after a failure: the next page when items are shown, else the first. */
