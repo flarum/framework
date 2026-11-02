@@ -9,6 +9,9 @@
 
 namespace Flarum\Tests\integration\api\groups;
 
+use Flarum\Api\Endpoint\Index;
+use Flarum\Api\Resource\GroupResource;
+use Flarum\Extend;
 use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -206,6 +209,31 @@ class ListTest extends TestCase
 
         // Without the limit, the first page would be the whole, unpaginated list.
         $this->assertStringContainsString('page%5Blimit%5D=50', $data['links']['first'] ?? '');
+    }
+
+    #[Test]
+    public function returns_every_group_when_the_endpoint_extracts_no_limit()
+    {
+        $this->extend(
+            (new Extend\ApiResource(GroupResource::class))
+                ->endpoint(Index::class, function (Index $endpoint): Index {
+                    return $endpoint->extractLimit(fn () => null);
+                })
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams([
+                'page' => ['limit' => '2'],
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
+
+        $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));
     }
 
     #[Test]

@@ -121,7 +121,7 @@ class Index extends Endpoint
 
                 $query = $collection->query($context);
 
-                $pagination = ($this->paginationResolver)($context) ?? $this->paginationOnRequest($context);
+                $pagination = ($this->paginationResolver)($context);
 
                 $extracts = $this->defaultExtracts($context);
 
@@ -129,6 +129,11 @@ class Index extends Endpoint
                 $sort = $this->extractSortValue($context, $extracts);
                 $limit = $this->extractLimitValue($context, $extracts);
                 $offset = $this->extractOffsetValue($context, $extracts);
+
+                // An endpoint that extracts no limit returns the whole list: there is no page.
+                if (! $pagination && $limit !== null) {
+                    $pagination = $this->paginationOnRequest($context);
+                }
 
                 if ($pagination instanceof OffsetPagination) {
                     $pagination->offset = $offset;
