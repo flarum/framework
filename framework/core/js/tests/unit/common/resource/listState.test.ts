@@ -410,6 +410,57 @@ describe('ResourceListState', () => {
     expect(state.hasNext()).toBe(true);
     expect(state.hasPrev()).toBe(false);
   });
+  test('a crafted URL adds no request parameters, unknown filters or foreign sorts, and pollutes no prototype', async () => {
+    setUrl(
+      [
+        'sort=-password',
+        'include=groups,tokens',
+        'fields[things]=password',
+        'filter[include]=groups',
+        'filter[email]=admin@x',
+        'filter[__proto__][polluted]=1',
+        'filter[constructor]=1',
+        'filter[-__proto__]=1',
+        'filter[-constructor]=1',
+        'filter[toString]=1',
+        'filter[status]=draft',
+        'page=-9',
+        'q=hello',
+      ].join('&')
+    );
+
+    await loaded();
+
+    const params = (find.mock.calls.at(-1) as any)[1];
+    expect(params.sort).toBeUndefined();
+    expect(params.include).toBeUndefined();
+    expect(params.fields).toBeUndefined();
+    expect(Object.keys(params.filter).sort()).toEqual(['q', 'status']);
+    expect(params.page.offset).toBe(0);
+    expect(({} as any).polluted).toBeUndefined();
+  });
+
+  test.each([
+    ['{'],
+    ['null'],
+    ['[]'],
+    ['"str"'],
+    ['42'],
+    ['{"sort":{"x":1},"filter":[1,2]}'],
+    ['{"sort":"-password","filter":{"__proto__":{"polluted":"1"},"constructor":"x","include":"groups","status":"draft,evil"}}'],
+  ])('a malformed saved view %s is ignored without throwing', async (raw) => {
+    window.localStorage.setItem('flarum.resourceTable.things.view', raw);
+
+    await loaded();
+
+    const params = (find.mock.calls.at(-1) as any)[1];
+    expect(params.sort).toBeUndefined();
+    expect(params.include).toBeUndefined();
+    Object.keys(params.filter ?? {}).forEach((key) => expect(['status']).toContain(key));
+    if (params.filter?.status) expect(params.filter.status).toBe('draft');
+    expect(({} as any).polluted).toBeUndefined();
+  });
+
 });
 
 describe('ResourceDefinition.filters', () => {

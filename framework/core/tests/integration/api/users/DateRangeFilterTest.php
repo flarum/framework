@@ -141,7 +141,61 @@ class DateRangeFilterTest extends TestCase
     #[Test]
     public function last_seen_at_is_ignored_without_the_permission()
     {
-        // User 3 hides their last seen time: a member must not learn it by filtering.
-        $this->assertSame([3, 4, 5], $this->ids(['lastSeenAt' => '2024-05-01..2024-12-31'], 2));
+        // User 3 hides their last seen time: a member must not learn it by narrowing ranges.
+        foreach (['2024-06-01', '..2024-06-01', '2024-06-02..', '2024-05-01..2024-12-31'] as $range) {
+            $this->assertSame([3, 4, 5], $this->ids(['lastSeenAt' => $range], 2), $range);
+            $this->assertSame([3, 4, 5], $this->ids(['lastSeenAt' => $range], 2, true), '-'.$range);
+        }
+    }
+
+    #[Test]
+    public function edge_values_are_either_valid_or_a_validation_error_and_reach_sql_only_as_bindings()
+    {
+        $marker = 'zz_marker';
+        $values = [
+            '..9999-12-31' => 200,
+            '9999-12-31..9999-12-31' => 200,
+            '0001-01-01..' => 200,
+            '2024-12-31..2024-01-01' => 200,
+            "2024-01-01\n.." => 200,
+            '0000-01-01..' => 422,
+            '2023-02-29..' => 422,
+            '2024-01-01..2024-02-01..2024-03-01' => 422,
+            '２０２４-01-01..' => 422,
+            '2024-01-01T00:00:00Z..' => 422,
+            "2024-01-01' OR '1'='1.." => 422,
+            "2024-01-01'; DROP TABLE users; -- $marker" => 422,
+            str_repeat('2024-01-01', 2000) => 422,
+        ];
+
+        $this->app();
+        $db = $this->database();
+
+        foreach ($values as $value => $status) {
+            foreach (['joinedAt', '-lastSeenAt'] as $key) {
+                $db->flushQueryLog();
+                $db->enableQueryLog();
+
+                $response = $this->send(
+                    $this->request('GET', '/api/users', ['authenticatedAs' => 1])->withQueryParams(['filter' => [$key => (string) $value]])
+                );
+
+                $log = $db->getQueryLog();
+                $db->disableQueryLog();
+
+                $this->assertSame($status, $response->getStatusCode(), "$key=$value: ".substr((string) $response->getBody(), 0, 500));
+
+                foreach ($log as $query) {
+                    $this->assertStringNotContainsString($marker, $query['query']);
+                    $this->assertStringNotContainsString("'1'='1", $query['query']);
+                }
+            }
+        }
+
+        $array = $this->send(
+            $this->request('GET', '/api/users', ['authenticatedAs' => 1])->withQueryParams(['filter' => ['joinedAt' => ['2024-01-01', '..']]])
+        );
+
+        $this->assertLessThan(500, $array->getStatusCode());
     }
 }

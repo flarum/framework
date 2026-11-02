@@ -34,6 +34,13 @@ describe('ColumnPreferences', () => {
     expect(ColumnPreferences.load('others')).toEqual(new Map());
   });
 
+  test('__proto__ and non-boolean entries are dropped', () => {
+    window.localStorage.setItem(KEY, '{"__proto__":{"hidden":true},"name":"yes","notes":false}');
+
+    expect([...ColumnPreferences.load('things').entries()]).toEqual([['notes', false]]);
+    expect(({} as any).hidden).toBeUndefined();
+  });
+
   test('a stored array reads as no choices', () => {
     window.localStorage.setItem(KEY, JSON.stringify(['price', 'notes']));
 

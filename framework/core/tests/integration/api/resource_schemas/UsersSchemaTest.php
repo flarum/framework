@@ -146,7 +146,7 @@ class UsersSchemaTest extends TestCase
         $fields = $this->fieldsByName($this->describe(1));
 
         foreach (['unreadNotificationCount', 'newNotificationCount', 'preferences', 'markedAllAsReadAt', 'isAdmin'] as $name) {
-            $this->assertArrayNotHasKey($name, $fields, "Self-only field [$name] leaked into the descriptor.");
+            $this->assertArrayNotHasKey($name, $fields, "Self-only field [$name] is described.");
         }
     }
 
