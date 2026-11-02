@@ -77,9 +77,15 @@ describe('resource UI with markup in data and descriptor strings', () => {
     await new ResourceDefinition('things').load();
     find = jest.fn(() =>
       Promise.resolve(
-        Object.assign([thing('1', { name: MARKUP, status: 'draft', canEdit: true, canDelete: true }), thing('2', { name: 'ok', canEdit: true, canDelete: false })], {
-          payload: { data: [], meta: {}, links: {} },
-        })
+        Object.assign(
+          [
+            thing('1', { name: MARKUP, status: 'draft', canEdit: true, canDelete: true }),
+            thing('2', { name: 'ok', canEdit: true, canDelete: false }),
+          ],
+          {
+            payload: { data: [], meta: {}, links: {} },
+          }
+        )
       )
     );
     jest.spyOn(app.store, 'find').mockImplementation(find as any);
@@ -106,7 +112,10 @@ describe('resource UI with markup in data and descriptor strings', () => {
   test('BulkResultModal renders error details and record labels as text', () => {
     const error = new RequestError(422, '', {}, {} as any);
     error.response = { errors: [{ status: '422', detail: MARKUP }] } as any;
-    const out = mq(BulkResultModal, modalAttrs({ summary: { ok: [], failed: [{ model: thing('9', { name: MARKUP }), error }], skipped: [thing('8', { name: MARKUP })] } }));
+    const out = mq(
+      BulkResultModal,
+      modalAttrs({ summary: { ok: [], failed: [{ model: thing('9', { name: MARKUP }), error }], skipped: [thing('8', { name: MARKUP })] } })
+    );
 
     expect((out.rootEl as Element).textContent).toContain('<img src=x onerror=');
     expectTextOnly(out);

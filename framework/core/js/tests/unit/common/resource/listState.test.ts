@@ -460,7 +460,6 @@ describe('ResourceListState', () => {
     if (params.filter?.status) expect(params.filter.status).toBe('draft');
     expect(({} as any).polluted).toBeUndefined();
   });
-
 });
 
 describe('ResourceDefinition.filters', () => {
