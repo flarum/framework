@@ -35,6 +35,10 @@ use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\CurlHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\FnStream;
+use GuzzleHttp\Psr7\Utils;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -601,6 +605,11 @@ class UserResource extends AbstractDatabaseResource
 
     private function retrieveAvatarFromUrl(string $url): ?string
     {
+        // Without cURL we cannot pin the connection to the checked address.
+        if (! defined('CURLOPT_RESOLVE') || ! function_exists('curl_init') || ! function_exists('curl_exec')) {
+            return null;
+        }
+
         $host = parse_url($url, PHP_URL_HOST);
 
         if (! is_string($host) || $host === '') {
@@ -618,23 +627,36 @@ class UserResource extends AbstractDatabaseResource
             return null;
         }
 
-        $scheme = parse_url($url, PHP_URL_SCHEME);
+        $scheme = strtolower(parse_url($url, PHP_URL_SCHEME) ?? '');
         $port = parse_url($url, PHP_URL_PORT) ?: ($scheme === 'https' ? 443 : 80);
 
         $maxSizeBytes = $this->imageValidator->getMaxSize() * 1024;
 
+        $sink = Utils::streamFor('');
+
         $options = [
+            'handler' => HandlerStack::create(new CurlHandler()),
             'allow_redirects' => false,
             'timeout' => 5,
-            'stream' => true,
+            // A proxy would resolve the hostname itself, bypassing the pin.
+            'proxy' => '',
+            // cURL buffers the response before returning it. Cap each write so
+            // oversized bodies are aborted during the transfer, not afterwards.
+            'sink' => FnStream::decorate($sink, [
+                'write' => function (string $data) use ($sink, $maxSizeBytes): int {
+                    if ($sink->tell() + strlen($data) > $maxSizeBytes) {
+                        return 0;
+                    }
+
+                    return $sink->write($data);
+                },
+            ]),
         ];
 
-        // Pin the connection to the address we just validated, so a rebinding
-        // DNS record cannot swap in a blocked address between the check above
-        // and the actual connection. Requires the cURL handler; harmless if
-        // it is unavailable.
-        if (defined('CURLOPT_RESOLVE')) {
-            $options['curl'] = [CURLOPT_RESOLVE => ["$host:$port:$ip"]];
+        // Literal IPs need no DNS override; older cURL versions cannot parse
+        // IPv6 literals in the host component of a CURLOPT_RESOLVE entry.
+        if (! filter_var(trim($host, '[]'), FILTER_VALIDATE_IP)) {
+            $options['curl'] = [CURLOPT_RESOLVE => ["$host:$port:".(str_contains($ip, ':') ? "[$ip]" : $ip)]];
         }
 
         $client = new Client($options);
@@ -649,21 +671,7 @@ class UserResource extends AbstractDatabaseResource
             return null;
         }
 
-        // Read the body incrementally and abort once it exceeds the maximum
-        // size, rather than trusting the (optional, spoofable) Content-Length
-        // header after the entire response has already been buffered.
-        $body = $response->getBody();
-        $contents = '';
-
-        while (! $body->eof()) {
-            $contents .= $body->read(8192);
-
-            if (strlen($contents) > $maxSizeBytes) {
-                return null;
-            }
-        }
-
-        return $contents;
+        return (string) $response->getBody();
     }
 
     /**
@@ -671,7 +679,7 @@ class UserResource extends AbstractDatabaseResource
      * that is safe to connect to, or null if the host is unresolvable or only
      * resolves to blocked (link-local / loopback / reserved) addresses.
      */
-    private function resolveToAllowedIp(string $host): ?string
+    protected function resolveToAllowedIp(string $host): ?string
     {
         $literal = trim($host, '[]');
 
