@@ -13,11 +13,13 @@ use Flarum\Api\Resource\ForumResource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Discussion\Discussion;
+use Flarum\Discussion\Event\Started;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Extension\Extension;
 use Flarum\Ideation\Access\DiscussionPolicy;
 use Flarum\Ideation\Api\DiscussionFields;
+use Flarum\Ideation\Api\MergeInOneTransaction;
 use Flarum\Ideation\Event\StatusChanged;
 use Flarum\Ideation\GitHub;
 use Flarum\Ideation\Listener;
@@ -86,6 +88,10 @@ return [
                 ->column('discussions.ideation_status_changed_at'),
         ]),
 
+    // A merge and everything else in its PATCH succeed or fail together.
+    (new Extend\Middleware('api'))
+        ->add(MergeInOneTransaction::class),
+
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, IdeationFilter::class),
 
@@ -127,6 +133,7 @@ return [
 
     (new Extend\Event())
         ->listen(StatusChanged::class, Listener\RecordStatusChange::class)
+        ->listen(Started::class, Listener\VoteForOwnIdea::class)
         ->listen(Saving::class, [GitHub\Secrets::class, 'saving'])
         ->listen(Deserializing::class, [GitHub\Secrets::class, 'deserializing'])
         ->subscribe(Listener\ForgetDeletedUserVotes::class),

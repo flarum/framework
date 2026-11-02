@@ -186,6 +186,34 @@ class TagScopedPermissionsTest extends TestCase
     }
 
     #[Test]
+    public function posting_an_idea_votes_for_it_only_where_its_author_may_vote()
+    {
+        $this->database()->table('group_permission')->insert(['group_id' => Group::MEMBER_ID, 'permission' => 'tag1.startDiscussion']);
+
+        $post = function (int $actor, string $title): array {
+            $response = $this->send($this->request('POST', '/api/discussions', [
+                'authenticatedAs' => $actor,
+                'json' => ['data' => [
+                    'type' => 'discussions',
+                    'attributes' => ['title' => $title, 'content' => 'Please', 'ideationStatus' => 'under_review'],
+                    'relationships' => ['tags' => ['data' => [['type' => 'tags', 'id' => '1']]]],
+                ]],
+            ]));
+            $this->assertSame(201, $response->getStatusCode(), (string) $response->getBody());
+
+            return json_decode((string) $response->getBody(), true)['data']['attributes'];
+        };
+
+        // MEMBER may post in the restricted tag but not vote there.
+        $idea = $post(self::MEMBER, 'No vote');
+        $this->assertSame([0, false], [$idea['ideationVotes'], $idea['ideationVoted']]);
+
+        $idea = $post(self::VOTER, 'With a vote');
+        $this->assertSame([1, true], [$idea['ideationVotes'], $idea['ideationVoted']]);
+        $this->assertSame([self::VOTER], $this->database()->table('ideation_votes')->pluck('user_id')->map(fn ($id) => (int) $id)->all());
+    }
+
+    #[Test]
     public function members_and_moderators_get_the_tag_scopable_permissions_by_default()
     {
         $permissions = fn (int $group) => $this->database()->table('group_permission')->where('group_id', $group)->pluck('permission')->all();

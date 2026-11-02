@@ -11,7 +11,9 @@ namespace Flarum\Ideation\Service;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Ideation\Status;
 use Flarum\Ideation\Vote;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Query\Builder;
@@ -22,17 +24,29 @@ use Illuminate\Database\Query\Builder;
  * written, so the count cannot drift from the table: a repeated vote inserts
  * nothing and adds nothing, a repeated unvote deletes nothing and takes
  * nothing away.
+ *
+ * A vote locks its idea first (IdeaLock) and reads the status again under
+ * the lock, so it lands either before a ship, decline or merge, and is
+ * counted, moved or notified with the rest, or after it, and is refused.
  */
 class Votes
 {
     public function __construct(
-        protected ConnectionInterface $db
+        protected ConnectionInterface $db,
+        protected IdeaLock $lock
     ) {
     }
 
     public function set(Discussion $discussion, User $user, bool $voted): void
     {
         $this->db->transaction(function () use ($discussion, $user, $voted) {
+            // Checked when the request came in, but the idea may have shipped
+            // or been merged since: a closed idea's count is frozen, so this
+            // is the same refusal as voting on one that was already closed.
+            if (! Status::isOpen($this->lock->status($discussion->id))) {
+                throw new PermissionDeniedException();
+            }
+
             if ($voted) {
                 $changed = Vote::query()->insertOrIgnore([
                     'discussion_id' => $discussion->id,
@@ -58,7 +72,8 @@ class Votes
     /**
      * Carry every vote on $source over to $target. A member who voted for
      * both keeps one vote, on the target: the merge never counts a person
-     * twice. Returns how many votes the target gained.
+     * twice. Returns how many votes the target gained. The caller holds the
+     * lock on both ideas.
      */
     public function move(Discussion $source, Discussion $target): int
     {

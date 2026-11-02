@@ -17,9 +17,11 @@ use Flarum\Foundation\ValidationException;
 use Flarum\Ideation\Event\StatusChanged;
 use Flarum\Ideation\GitHub\Config as GitHubConfig;
 use Flarum\Ideation\GitHub\Links;
+use Flarum\Ideation\Service\IdeaLock;
 use Flarum\Ideation\Service\Votes;
 use Flarum\Ideation\Status;
 use Flarum\Locale\TranslatorInterface;
+use Illuminate\Support\Arr;
 
 /**
  * Everything Ideation adds to a discussion.
@@ -35,7 +37,8 @@ class DiscussionFields
         protected Votes $votes,
         protected TranslatorInterface $translator,
         protected GitHubConfig $github,
-        protected Links $links
+        protected Links $links,
+        protected IdeaLock $lock
     ) {
     }
 
@@ -48,9 +51,11 @@ class DiscussionFields
             && $context->getActor()->can('ideationModerate', $d);
 
         return [
+            // Always sent, null for a discussion that is not an idea: the store
+            // keeps an attribute a response leaves out, so a reader would go
+            // on seeing an idea someone else took off the roadmap.
             Schema\Str::make('ideationStatus')
                 ->nullable()
-                ->visible($isIdea)
                 ->get(fn (Discussion $d) => $d->ideation_status)
                 ->writable(function (Discussion $d, Context $context) {
                     return $context->creating()
@@ -84,9 +89,10 @@ class DiscussionFields
                 ->visible($isIdea)
                 ->get(fn (Discussion $d) => $d->ideation_status_changed_at),
 
+            // Always sent too, for the same reason: an idea taken back out of a
+            // merge clears it.
             Schema\Integer::make('ideationMergedIntoId')
                 ->nullable()
-                ->visible(fn (Discussion $d) => $d->ideation_merged_into_id !== null)
                 ->get(fn (Discussion $d) => $d->ideation_merged_into_id)
                 ->writable(fn (Discussion $d, Context $context) => $context->updating() && $context->getActor()->can('ideationModerate', $d))
                 ->set(fn (Discussion $d, ?int $value, Context $context) => $this->merge($d, $value, $context)),
@@ -104,8 +110,8 @@ class DiscussionFields
                 ->writable($canLink)
                 ->maxLength(300)
                 ->set(function (Discussion $d, string $value, Context $context) {
-                    [$ref, $item] = $this->links->resolve($value);
                     $actor = $context->getActor();
+                    [$ref, $item] = $this->links->resolve($value, $actor);
                     $d->afterSave(fn () => $this->links->link($d, $actor, $ref, $item));
                 }),
             Schema\Integer::make('ideationGithubUnlink')
@@ -121,13 +127,10 @@ class DiscussionFields
     protected function setStatus(Discussion $d, ?string $value, Context $context): void
     {
         // Posting an idea always starts it under review; only a moderator
-        // decides where it goes from there.
+        // decides where it goes from there. The author's own vote is cast
+        // once the discussion and its tags are saved (VoteForOwnIdea).
         if ($context->creating()) {
             $d->ideation_status = $value === null ? null : Status::UNDER_REVIEW;
-
-            if ($value !== null) {
-                $d->afterSave(fn () => $this->votes->set($d, $context->getActor(), true));
-            }
 
             return;
         }
@@ -136,22 +139,44 @@ class DiscussionFields
             throw new ValidationException(['ideationStatus' => $this->translator->trans('flarum-ideation.api.unknown_status')]);
         }
 
-        $old = $d->ideation_status;
+        $actor = $context->getActor();
 
-        if ($old === $value) {
-            return;
-        }
+        // Written after the save, under the idea's lock and from the status
+        // read there: a vote on its way lands wholly before the move or is
+        // refused after it, and the event post says what the idea really
+        // moved from, even if someone else moved it a moment ago.
+        $d->afterSave(function () use ($d, $value, $actor) {
+            $now = Carbon::now();
 
-        $d->ideation_status = $value;
-        $d->ideation_status_changed_at = Carbon::now();
+            $old = $d->getConnection()->transaction(function () use ($d, $value, $now) {
+                $old = $this->lock->status($d->id);
 
-        // Taking an idea back out of a merge un-merges it; its votes stay
-        // with the idea they were carried to.
-        if ($old === Status::MERGED) {
-            $d->ideation_merged_into_id = null;
-        }
+                if ($old !== $value) {
+                    Discussion::query()->whereKey($d->id)->update(array_merge(
+                        ['ideation_status' => $value, 'ideation_status_changed_at' => $now],
+                        // Taking an idea back out of a merge un-merges it;
+                        // its votes stay with the idea they were carried to.
+                        $old === Status::MERGED ? ['ideation_merged_into_id' => null] : []
+                    ));
+                }
 
-        $d->raise(new StatusChanged($d, $context->getActor(), $old, $value));
+                return $old;
+            });
+
+            if ($old === $value) {
+                return;
+            }
+
+            $d->ideation_status = $value;
+            $d->ideation_status_changed_at = $now;
+
+            if ($old === Status::MERGED) {
+                $d->ideation_merged_into_id = null;
+            }
+
+            $d->syncOriginalAttributes(['ideation_status', 'ideation_status_changed_at', 'ideation_merged_into_id']);
+            $d->raise(new StatusChanged($d, $actor, $old, $value));
+        });
     }
 
     protected function merge(Discussion $source, ?int $targetId, Context $context): void
@@ -170,29 +195,35 @@ class DiscussionFields
             || $source->ideation_status === Status::MERGED
             || ! $target
             || $target->id === $source->id) {
-            throw new ValidationException(['ideationMergedIntoId' => $this->translator->trans('flarum-ideation.api.merge_target')]);
+            $this->refuseMerge();
         }
 
         // The merge changes the target's count and who hears when it ships,
         // so moderating the source is not enough.
         $actor->assertCan('ideationModerate', $target);
 
-        $old = $source->ideation_status;
+        // A merge sets the status itself; a second status in the same
+        // request would leave the idea neither merged nor moved.
+        if (array_key_exists('ideationStatus', (array) Arr::get($context->body(), 'data.attributes'))) {
+            $this->refuseMerge();
+        }
 
-        // The merge is written after the save, in one transaction with the
-        // target's row locked: if a moderator or GitHub ships or declines the
-        // target between the check above and now, the merge is refused and
-        // nothing changes, instead of voters landing on an idea whose
-        // shipped notification has already gone out.
-        $source->afterSave(function () use ($source, $target) {
+        // Checked again with both ideas locked, before anything in the
+        // request is saved. A PATCH that merges runs in one transaction
+        // (MergeInOneTransaction), so the locks hold until it ends: another
+        // merge of either idea, a ship or a decline waits for this one, and
+        // a refusal here leaves the request's other changes unsaved too.
+        $this->lockForMerge($source->id, $target->id);
+
+        // The merge itself is written after the save, under the same locks:
+        // the source is read again there, so of two merges of one idea into
+        // two others the second is refused instead of pointing the idea at
+        // one target while its votes sit on the other.
+        $source->afterSave(function () use ($source, $target, $actor) {
             $now = Carbon::now();
 
-            $source->getConnection()->transaction(function () use ($source, $target, $now) {
-                $status = Discussion::query()->whereKey($target->id)->lockForUpdate()->value('ideation_status');
-
-                if (! Status::isOpen($status)) {
-                    throw new ValidationException(['ideationMergedIntoId' => $this->translator->trans('flarum-ideation.api.merge_target')]);
-                }
+            $old = $source->getConnection()->transaction(function () use ($source, $target, $now) {
+                $old = $this->lockForMerge($source->id, $target->id);
 
                 Discussion::query()->whereKey($source->id)->update([
                     'ideation_status' => Status::MERGED,
@@ -207,15 +238,43 @@ class DiscussionFields
                     ->update(['ideation_merged_into_id' => $target->id]);
 
                 $this->votes->move($source, $target);
+
+                return $old;
             });
 
             $source->ideation_status = Status::MERGED;
             $source->ideation_merged_into_id = $target->id;
             $source->ideation_status_changed_at = $now;
             $source->syncOriginalAttributes(['ideation_status', 'ideation_merged_into_id', 'ideation_status_changed_at']);
-        });
 
-        // Dispatched once the discussion is saved, after the votes have moved.
-        $source->raise(new StatusChanged($source, $actor, $old, Status::MERGED, $target));
+            // Dispatched once the discussion is saved, after the votes have moved.
+            $source->raise(new StatusChanged($source, $actor, $old, Status::MERGED, $target));
+        });
+    }
+
+    /**
+     * Lock the source, the target and the ideas already merged into the
+     * source (IdeaLock's order), and refuse the merge
+     * unless the source is still an unmerged idea and the target still open.
+     * Returns the source's status.
+     */
+    protected function lockForMerge(int $sourceId, int $targetId): string
+    {
+        // The ideas already folded into the source are rewritten too, so
+        // they are locked in the same statement, in the same order.
+        $followers = Discussion::query()->where('ideation_merged_into_id', $sourceId)->pluck('id')->map(intval(...))->all();
+        $ideas = $this->lock->lock($sourceId, $targetId, ...$followers);
+        $from = $ideas->get($sourceId)?->ideation_status;
+
+        if ($from === null || $from === Status::MERGED || ! Status::isOpen($ideas->get($targetId)?->ideation_status)) {
+            $this->refuseMerge();
+        }
+
+        return $from;
+    }
+
+    protected function refuseMerge(): never
+    {
+        throw new ValidationException(['ideationMergedIntoId' => $this->translator->trans('flarum-ideation.api.merge_target')]);
     }
 }

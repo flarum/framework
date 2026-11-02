@@ -412,6 +412,134 @@ class IdeationTest extends TestCase
     }
 
     #[Test]
+    public function a_merge_is_refused_when_its_source_was_merged_elsewhere_meanwhile()
+    {
+        $this->patch(1, self::OTHER, ['ideationVoted' => true]);
+
+        // Another moderator merges 1 into 3 after this merge of 1 into 2 has
+        // checked it, while 1 is being saved.
+        Discussion::saving(function (Discussion $discussion) {
+            if ($discussion->id === 1) {
+                $this->database()->table('discussions')->where('id', 1)->update(['ideation_status' => 'merged', 'ideation_merged_into_id' => 3]);
+            }
+        });
+
+        $this->assertSame(422, $this->patch(1, self::MOD, ['ideationMergedIntoId' => 2])->getStatusCode());
+
+        // Nothing moved to 2: no idea points at one target with its votes on another.
+        $this->assertSame([], $this->voteRows(2));
+        $this->assertSame(0, $this->votes(2));
+        $this->assertSame(0, $this->database()->table('posts')->where('type', 'ideationStatus')->count());
+    }
+
+    #[Test]
+    public function a_refused_merge_saves_none_of_the_requests_other_changes()
+    {
+        // Booted first: a model listener added before boot is lost.
+        $this->app();
+
+        Discussion::saving(function (Discussion $discussion) {
+            if ($discussion->id === 1 && $discussion->title === 'Renamed') {
+                $this->database()->table('discussions')->where('id', 2)->update(['ideation_status' => 'shipped']);
+            }
+        });
+
+        $this->assertSame(422, $this->patch(1, self::MOD, ['title' => 'Renamed', 'ideationMergedIntoId' => 2])->getStatusCode());
+
+        $source = $this->database()->table('discussions')->where('id', 1)->first();
+        $this->assertSame('Idea 1', $source->title, 'the new title went with the refused merge');
+        $this->assertSame('under_review', $source->ideation_status);
+
+        // Into an idea that stays open, both are saved.
+        $response = $this->patch(1, self::MOD, ['title' => 'Also renamed', 'ideationMergedIntoId' => 3]);
+        $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(['Also renamed', 'merged'], [$this->attrs($response)['title'], $this->attrs($response)['ideationStatus']]);
+    }
+
+    #[Test]
+    public function a_merge_cannot_also_set_a_status()
+    {
+        $this->assertSame(422, $this->patch(1, self::MOD, ['ideationMergedIntoId' => 2, 'ideationStatus' => 'planned'])->getStatusCode());
+        $this->assertSame('under_review', $this->database()->table('discussions')->where('id', 1)->value('ideation_status'));
+    }
+
+    #[Test]
+    public function a_vote_that_arrives_after_the_idea_ships_is_refused()
+    {
+        // Booted first: a model listener added before boot is lost.
+        $this->app();
+
+        // The idea ships after the vote was checked, while it is being saved.
+        Discussion::saving(function (Discussion $discussion) {
+            if ($discussion->id === 1) {
+                $this->database()->table('discussions')->where('id', 1)->update(['ideation_status' => 'shipped']);
+            }
+        });
+
+        $this->assertSame(403, $this->patch(1, self::OTHER, ['ideationVoted' => true])->getStatusCode());
+        $this->assertSame([], $this->voteRows(1));
+        $this->assertSame(0, $this->votes(1));
+    }
+
+    #[Test]
+    public function a_move_records_the_status_the_idea_really_had()
+    {
+        // Booted first: a model listener added before boot is lost.
+        $this->app();
+
+        // Someone else moved it to In progress after this request loaded it.
+        Discussion::saving(function (Discussion $discussion) {
+            if ($discussion->id === 1) {
+                $this->database()->table('discussions')->where('id', 1)->update(['ideation_status' => 'in_progress']);
+            }
+        });
+
+        $this->assertSame(200, $this->patch(1, self::MOD, ['ideationStatus' => 'planned'])->getStatusCode());
+
+        $post = $this->database()->table('posts')->where('discussion_id', 1)->where('type', 'ideationStatus')->value('content');
+        $this->assertSame(['in_progress', 'planned', null], json_decode($post, true));
+    }
+
+    #[Test]
+    public function a_member_who_cannot_vote_posts_an_idea_without_a_vote()
+    {
+        $this->database()->table('group_permission')->where('permission', 'discussion.ideationVote')->delete();
+
+        $response = $this->send($this->request('POST', '/api/discussions', [
+            'authenticatedAs' => self::MEMBER,
+            'json' => ['data' => ['type' => 'discussions', 'attributes' => [
+                'title' => 'Dark mode', 'content' => 'Please', 'ideationStatus' => 'under_review',
+            ]]],
+        ]));
+
+        $this->assertSame(201, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(0, $this->attrs($response)['ideationVotes']);
+        $this->assertFalse($this->attrs($response)['ideationVoted']);
+        $this->assertSame(0, $this->database()->table('ideation_votes')->count());
+    }
+
+    #[Test]
+    public function a_discussion_taken_off_the_roadmap_says_so_explicitly()
+    {
+        $this->database()->table('discussions')->where('id', 2)->update(['ideation_status' => 'merged', 'ideation_merged_into_id' => 3]);
+
+        $response = $this->patch(1, self::MOD, ['ideationStatus' => null]);
+        $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertArrayHasKey('ideationStatus', $this->attrs($response));
+        $this->assertNull($this->attrs($response)['ideationStatus']);
+
+        // Another reader's copy is cleared by the next response that carries it.
+        $show = fn (int $id) => json_decode((string) $this->send($this->request('GET', "/api/discussions/$id", ['authenticatedAs' => self::OTHER]))->getBody(), true)['data']['attributes'];
+        $this->assertArrayHasKey('ideationStatus', $show(1));
+        $this->assertNull($show(1)['ideationStatus']);
+
+        // So is a merge taken back.
+        $this->patch(2, self::MOD, ['ideationStatus' => 'planned']);
+        $this->assertArrayHasKey('ideationMergedIntoId', $show(2));
+        $this->assertNull($show(2)['ideationMergedIntoId']);
+    }
+
+    #[Test]
     public function deleting_a_member_outside_the_api_takes_their_votes_off_the_counts_once()
     {
         $this->patch(1, self::OTHER, ['ideationVoted' => true]);

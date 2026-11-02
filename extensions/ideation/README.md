@@ -24,6 +24,7 @@ idea ships.
   this to Planned"), merged the way core merges renames.
 - **Merge duplicates.** Votes move to the idea you keep; someone who voted for
   both keeps one vote. Only into an open idea the moderator can also moderate.
+  A merge and the rest of its request are saved together or not at all.
 - **Permissions:** *Post ideas*, *Vote* and *Move, merge and decline ideas*,
   in the permission grid. Members can post and vote, moderators can move.
   With flarum/tags, voting and moving can be granted per restricted tag, like
@@ -71,6 +72,10 @@ Off until an administrator switches it on (Extensions → Ideation).
   batches every idea on the page.
 - The count changes only by atomic increments, next to the vote row, by the
   number of rows actually written. A repeated vote cannot count twice.
+- A vote, a move (by a moderator or by GitHub) and a merge lock the idea's row
+  and read its status again before writing, so a vote on its way when an idea
+  ships or is merged either counts before the move or is refused after it.
+  Rows are always locked in id order, in one statement.
 - Shipped notifications run in the queue.
 - The board and the list are the core discussions endpoint
   (`filter[ideation]=planned&sort=-ideationVotes`), so tag permissions, private
@@ -93,7 +98,7 @@ Off until an administrator switches it on (Extensions → Ideation).
 | `PATCH /api/discussions/{id}` `ideationVoted: true/false` | vote or take it back |
 | `PATCH /api/discussions/{id}` `ideationStatus: "planned"` | move (moderators); `null` takes it off the roadmap |
 | `PATCH /api/discussions/{id}` `ideationMergedIntoId: 12` | merge into idea 12 (moderators) |
-| `POST /api/discussions` with `ideationStatus` | post an idea (it always starts Under review) |
+| `POST /api/discussions` with `ideationStatus` | post an idea (it always starts Under review, with its author's vote if they can vote on it) |
 | `PATCH /api/discussions/{id}` `ideationGithubLink: "owner/repo#12"` | link a GitHub issue, PR or milestone (moderators; also takes a URL) |
 | `PATCH /api/discussions/{id}` `ideationGithubUnlink: 3` | remove link 3 (moderators) |
 | `POST /api/ideation/github/webhook` | GitHub's webhook (signed) |
