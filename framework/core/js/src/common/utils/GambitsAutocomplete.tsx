@@ -203,6 +203,25 @@ export default class GambitsAutocomplete {
           );
         }
 
+        const cursorPosition = this.jqueryInput().prop('selectionEnd') ?? this.query.length;
+        const tokenRemainderMatch = this.query.slice(cursorPosition).match(/^[^\s]*/);
+        const tokenRemainder = tokenRemainderMatch ? tokenRemainderMatch[0] : '';
+        let suffixValues = '';
+
+        if (matchingKeyValueGambit.predicates && tokenRemainder) {
+          const commaIdx = tokenRemainder.indexOf(',');
+          if (commaIdx !== -1) {
+            suffixValues = tokenRemainder.slice(commaIdx);
+            chosenValues.push(
+              ...suffixValues
+                .slice(1)
+                .split(',')
+                .map((v) => v.trim().toLowerCase())
+                .filter(Boolean)
+            );
+          }
+        }
+
         const normalizedActiveTerm = activeTerm.toLowerCase();
 
         const matchingOptions = options.filter(
@@ -219,12 +238,14 @@ export default class GambitsAutocomplete {
 
         const keyToUse = (matchingSuggestion.key as string).toLowerCase() === gambitKey ? (matchingSuggestion.key as string) : gambitKey;
         const prefix = (negative ? '-' : '') + keyToUse + ':' + prefixValues;
+        const replaceLength = cursorPosition - autocomplete.relativeStart + tokenRemainder.length;
+        const fromTyped = this.query.slice(autocomplete.relativeStart, autocomplete.relativeStart + replaceLength);
 
         return matchingOptions.map((opt) =>
           this.gambitSuggestion(
             opt.value,
             opt.label ?? null,
-            () => this.suggest(prefix + opt.value, this.query.slice(autocomplete.relativeStart).match(/^\S*/)![0], autocomplete.relativeStart),
+            () => this.suggest(prefix + opt.value + suffixValues, fromTyped, autocomplete.relativeStart, (prefix + opt.value).length),
             false
           )
         );
@@ -266,7 +287,7 @@ export default class GambitsAutocomplete {
     );
   }
 
-  suggest(text: string, fromTyped: string, start: number) {
+  suggest(text: string, fromTyped: string, start: number, cursorOffset?: number) {
     const $input = this.jqueryInput();
 
     const query = this.query;
@@ -275,7 +296,8 @@ export default class GambitsAutocomplete {
     this.onchange(replaced);
     $input[0].focus();
     setTimeout(() => {
-      $input[0].setSelectionRange(start + text.length, start + text.length);
+      const selectionPos = start + (cursorOffset !== undefined ? cursorOffset : text.length);
+      $input[0].setSelectionRange(selectionPos, selectionPos);
       m.redraw();
     }, 50);
 
