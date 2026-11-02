@@ -494,6 +494,33 @@ describe('ResourceDefinition.filters', () => {
     expect(filters.get('group').label).toBe('Group');
   });
 
+  test('filters() builds the resolver list once per pass and never builds fields()', async () => {
+    const definition = await new ResourceDefinition('things').load();
+    const resolvers = jest.spyOn(definition, 'filterResolvers');
+    const fields = jest.spyOn(definition, 'fields');
+
+    expect(definition.filters().toArray().length).toBe(4);
+    expect(resolvers).toHaveBeenCalledTimes(1);
+    expect(fields).not.toHaveBeenCalled();
+  });
+
+  test('a filter takes the same-named field descriptor for its input and negatable', async () => {
+    const definition = await new ResourceDefinition('things').load();
+    const seen: Record<string, string | null> = {};
+    const original = definition.filterInput.bind(definition);
+    definition.filterInput = (filter, d, resolvers) => {
+      seen[filter.key] = d?.name ?? null;
+
+      return original(filter, d, resolvers);
+    };
+
+    const filters = definition.filters();
+
+    expect(seen).toEqual({ status: 'status', active: 'active', group: null, brand: null });
+    expect(filters.get('active').negatable).toBe(true);
+    expect(filters.get('status').negatable).toBe(false);
+  });
+
   test('a higher-priority filter resolver wins; null falls through', async () => {
     class BrandDefinition extends ResourceDefinition {
       filterResolvers(): ItemList<FilterResolver> {
@@ -509,8 +536,8 @@ describe('ResourceDefinition.filters', () => {
 
   test('filterInput() can decide a filter outright and defer the rest to the resolvers', async () => {
     class BrandDefinition extends ResourceDefinition {
-      filterInput(filter: FilterDescriptor, d: FieldDescriptor | null): Filter['input'] {
-        return filter.key === 'brand' ? { type: 'search', debounce: false } : super.filterInput(filter, d);
+      filterInput(filter: FilterDescriptor, d: FieldDescriptor | null, resolvers?: ItemList<FilterResolver>): Filter['input'] {
+        return filter.key === 'brand' ? { type: 'search', debounce: false } : super.filterInput(filter, d, resolvers);
       }
     }
 

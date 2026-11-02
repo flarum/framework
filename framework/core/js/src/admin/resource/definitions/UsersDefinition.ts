@@ -4,7 +4,8 @@ import type Model from '../../../common/Model';
 import type User from '../../../common/models/User';
 import { patchFilter } from '../../../common/resource/fieldsFromDescriptor';
 import ResourceDefinition from '../../../common/resource/ResourceDefinition';
-import type { FieldDescriptor, FilterDescriptor } from '../../../common/resource/types';
+import type { FieldDescriptor, FilterDescriptor, FilterResolver } from '../../../common/resource/types';
+import type ItemList from '../../../common/utils/ItemList';
 import extractText from '../../../common/utils/extractText';
 
 /**
@@ -30,11 +31,11 @@ export default class UsersDefinition extends ResourceDefinition<User> {
     return !!app.session.user?.isAdmin() && super.canExport();
   }
 
-  filterInput(filter: FilterDescriptor, d: FieldDescriptor | null) {
+  filterInput(filter: FilterDescriptor, d: FieldDescriptor | null, resolvers?: ItemList<FilterResolver>) {
     // Named apart from the `groups` relationship, so it takes that field's display hint.
     if (filter.key === 'group') d = this.descriptor?.fields.find((field) => field.name === 'groups') ?? d;
 
-    return super.filterInput(filter, d);
+    return super.filterInput(filter, d, resolvers);
   }
 
   filters() {

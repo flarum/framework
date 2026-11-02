@@ -176,6 +176,17 @@ describe('form input factories', () => {
     expect(out).toHaveElement('input[name=title]');
   });
 
+  test('fields() builds the resolver list once per pass, whatever the field count', async () => {
+    const definition = await new ThingDefinition().load();
+    const resolvers = jest.spyOn(definition, 'inputResolvers');
+
+    const fields = definition.fields();
+
+    expect(resolvers).toHaveBeenCalledTimes(1);
+    expect(fields.get('color').input).toEqual({ type: 'swatch' });
+    expect(fields.get('title').input).toMatchObject({ type: 'text' });
+  });
+
   test('fieldInput() can decide a field outright and defer the rest to the resolvers', async () => {
     class OverrideDefinition extends ResourceDefinition<Thing> {
       fieldInput(d: FieldDescriptor) {

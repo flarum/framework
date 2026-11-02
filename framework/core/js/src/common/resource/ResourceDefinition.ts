@@ -42,7 +42,9 @@ export default class ResourceDefinition<M extends Model = Model> {
 
   /**
    * Maps described fields to inputs, see `defaultInputResolvers()`. Add a keyed resolver with a
-   * higher priority to handle your fields; `fieldInput()` consults the list.
+   * higher priority to handle your fields; `fieldInput()` consults the list. A fresh list on every
+   * call, so `extend()`-ing it never mutates another definition's; `fields()` builds it once per
+   * pass and hands it to `fieldInput()`.
    */
   inputResolvers(): ItemList<InputResolver> {
     return defaultInputResolvers();
@@ -50,11 +52,12 @@ export default class ResourceDefinition<M extends Model = Model> {
 
   /**
    * A described field's input and the value/serialize/column overrides that go with it, null for
-   * none: the first matching `inputResolvers()` entry. Override it to decide one field outright and
-   * return `super.fieldInput(d)` for the rest.
+   * none: the first matching `resolvers` entry (`fields()` passes its one `inputResolvers()` build;
+   * omitted, the list is built for this call). Override it to decide one field outright and return
+   * `super.fieldInput(d, resolvers)` for the rest.
    */
-  fieldInput(d: FieldDescriptor): Partial<Field<M>> | null {
-    return (resolveInput(d, this.inputResolvers()) as Partial<Field<M>>) ?? null;
+  fieldInput(d: FieldDescriptor, resolvers: ItemList<InputResolver> = this.inputResolvers()): Partial<Field<M>> | null {
+    return (resolveInput(d, resolvers) as Partial<Field<M>>) ?? null;
   }
 
   /**
@@ -72,16 +75,24 @@ export default class ResourceDefinition<M extends Model = Model> {
     return new InputFactory(defaultFilterInputs(), bareFilterInput).register('range', rangeFilterInput);
   }
 
+  /**
+   * The keyed field registry built from the descriptor, each input from `fieldInput()` with one
+   * `inputResolvers()` build shared by all fields.
+   */
   fields(): ItemList<Field<M>> {
     if (!this.descriptor) {
       throw new Error(`ResourceDefinition(${this.type}): call load() before fields().`);
     }
 
-    return fieldsFromDescriptor<M>(this.descriptor, (d) => this.fieldInput(d));
+    const resolvers = this.inputResolvers();
+
+    return fieldsFromDescriptor<M>(this.descriptor, (d) => this.fieldInput(d, resolvers));
   }
 
   /**
-   * Maps described filters to input specs, see `defaultFilterResolvers()`.
+   * Maps described filters to input specs, see `defaultFilterResolvers()`. A fresh list on every
+   * call, so `extend()`-ing it never mutates another definition's; `filters()` builds it once per
+   * pass and hands it to `filterInput()`.
    */
   filterResolvers(): ItemList<FilterResolver> {
     return defaultFilterResolvers();
@@ -89,17 +100,21 @@ export default class ResourceDefinition<M extends Model = Model> {
 
   /**
    * A described filter's input; `d` is the same-named field's descriptor, null when there is none.
-   * The first matching `filterResolvers()` entry. Override it to decide one filter outright and
-   * return `super.filterInput(filter, d)` for the rest.
+   * The first matching `resolvers` entry (`filters()` passes its one `filterResolvers()` build;
+   * omitted, the list is built for this call). Override it to decide one filter outright and return
+   * `super.filterInput(filter, d, resolvers)` for the rest.
    */
-  filterInput(filter: FilterDescriptor, d: FieldDescriptor | null): Filter['input'] {
-    return resolveFilterInput(filter, d, this.filterResolvers());
+  filterInput(filter: FilterDescriptor, d: FieldDescriptor | null, resolvers: ItemList<FilterResolver> = this.filterResolvers()): Filter['input'] {
+    return resolveFilterInput(filter, d, resolvers);
   }
 
   /**
    * One filter per described filter, its input from `filterInput()`, rendered by `filterInputs()`.
-   * Labelled by the server's `label`, else the same-named field's, else the humanized key. Negatable
-   * as the descriptor says, else when it is a boolean filter or named after a boolean field.
+   * Labelled by the server's `label`, else the same-named field descriptor's (server-translated)
+   * label, else the humanized key. Negatable as the descriptor says, else when it is a boolean filter
+   * or named after a boolean field. Reads the field descriptors directly rather than building
+   * `fields()`, so a label changed in a `fields()` override does not reach the filter; set the
+   * filter's label with `patchFilter()` instead.
    */
   filters(): ItemList<Filter> {
     const filters = new ItemList<Filter>();
@@ -107,18 +122,19 @@ export default class ResourceDefinition<M extends Model = Model> {
 
     if (!described.length) return filters;
 
-    const fields = this.fields();
+    const resolvers = this.filterResolvers();
+    const fieldDescriptors = this.descriptor?.fields ?? [];
 
     described.forEach((filter, index) => {
-      const field = fields.has(filter.key) ? fields.get(filter.key) : null;
+      const field = fieldDescriptors.find((f) => f.name === filter.key) ?? null;
 
       filters.add(
         filter.key,
         {
           label: filter.label ?? field?.label ?? humanize(filter.key),
-          input: this.filterInput(filter, field?.descriptor ?? null),
+          input: this.filterInput(filter, field, resolvers),
           kind: filter.kind,
-          negatable: filter.negatable ?? (filter.kind === 'boolean' || field?.descriptor?.kind === 'boolean'),
+          negatable: filter.negatable ?? (filter.kind === 'boolean' || field?.kind === 'boolean'),
           ...(filter.required ? { required: true } : {}),
           ...(filter.default !== undefined ? { default: filter.default } : {}),
         },
