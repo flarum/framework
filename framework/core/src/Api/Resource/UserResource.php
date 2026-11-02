@@ -578,6 +578,16 @@ class UserResource extends AbstractDatabaseResource
      */
     private function assertValidAvatarUrl(string $url): void
     {
+        // An IP literal is judged without DNS: `active_url` resolves the host, and some resolvers
+        // answer for an address, so a loopback or reserved address must be rejected here.
+        $literal = trim((string) parse_url($url, PHP_URL_HOST), '[]');
+
+        if (filter_var($literal, FILTER_VALIDATE_IP) && ! self::isAllowedIp($literal)) {
+            throw new ValidationException([
+                'avatar_url' => 'Provided avatar URL must be a valid URI.',
+            ]);
+        }
+
         $urlValidator = $this->validation->make(compact('url'), [
             'url' => 'required|active_url',
         ]);
