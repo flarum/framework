@@ -209,6 +209,16 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     });
   }
 
+  /**
+   * Animates the current modal out, then closes it.
+   *
+   * `closedCallback` runs when the hide animation ends. If the modal is closed
+   * some other way before then, such as by a page change (Page closes any open
+   * modal) or by a non-stacked modal replacing it, its dialog is removed, the
+   * animation never ends and `closedCallback` does not run. It is not run in
+   * that case because whatever closed the modal may already have moved on: a
+   * callback that changes the route, for example, would close the new modal too.
+   */
   animateHide(closedCallback: () => void = () => {}): void {
     if (this.modalClosing) return;
     this.modalClosing = true;
@@ -216,10 +226,12 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     const closingKey = (this.closingModalKey = this.attrs.state.modal?.key);
 
     const afterModalClosedCallback = () => {
-      this.modalClosing = false;
+      // A newer modal may be closing by now; leave its flag alone.
+      if (this.closingModalKey === closingKey) this.modalClosing = false;
 
-      // Close the dialog, unless it was already closed some other way
-      if (this.attrs.state.modal?.key === closingKey) this.attrs.state.close();
+      // Remove the dialog that was hidden, and only that one. A modal stacked
+      // on top of it while it was animating out stays open.
+      if (closingKey !== undefined) this.attrs.state.remove(closingKey);
 
       closedCallback();
     };
