@@ -97,7 +97,7 @@ class GroupMentionsTest extends TestCase
 
         $html = json_decode($contents, true)['data']['attributes']['contentHtml'];
 
-        $this->assertMatchesRegularExpression('#<img class="icon IconImage" src="[^"]*/assets/icons/crest\.webp" alt="" srcset="[^"]*/assets/icons/crest\.webp 1x, [^"]*/assets/icons/crest@2x\.webp 2x">#', $html);
+        $this->assertMatchesRegularExpression('#<img class="icon IconImage" src="[^"]*/assets/icons/crest\.webp" alt="" style="height:auto;width:auto;max-height:1em;max-width:1.25em;vertical-align:-0.125em" srcset="[^"]*/assets/icons/crest\.webp 1x, [^"]*/assets/icons/crest@2x\.webp 2x">#', $html);
         $this->assertStringNotContainsString('fa-users', $html);
     }
 

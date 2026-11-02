@@ -34,11 +34,12 @@ class ConfigureMentions
     /**
      * A group's or tag's icon: its uploaded image if it has one, otherwise its
      * Font Awesome icon. The attributes are filled in when the post renders.
+     * Inline sizing also applies in notification emails, without forum CSS.
      */
     private const ICON_TEMPLATE = '
         <xsl:choose>
             <xsl:when test="string(@iconimage) != \'\'">
-                <img class="icon IconImage" src="{@iconimage}" alt="">
+                <img class="icon IconImage" src="{@iconimage}" alt="" style="height:auto;width:auto;max-height:1em;max-width:1.25em;vertical-align:-0.125em">
                     <xsl:if test="string(@iconsrcset) != \'\'">
                         <xsl:attribute name="srcset"><xsl:value-of select="@iconsrcset"/></xsl:attribute>
                     </xsl:if>

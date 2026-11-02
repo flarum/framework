@@ -83,7 +83,7 @@ class TagMentionsTest extends TestCase
         $html = json_decode($contents, true)['data']['attributes']['contentHtml'];
 
         // A single scale has no srcset.
-        $this->assertMatchesRegularExpression('#<img class="icon IconImage" src="[^"]*/assets/icons/crest\.webp" alt="">#', $html);
+        $this->assertMatchesRegularExpression('#<img class="icon IconImage" src="[^"]*/assets/icons/crest\.webp" alt="" style="height:auto;width:auto;max-height:1em;max-width:1.25em;vertical-align:-0.125em">#', $html);
         $this->assertStringNotContainsString('fa-star', $html);
     }
 

@@ -12,6 +12,12 @@
   }
 }
 
+// SVG-based Font Awesome Kits replace the glyph with paths rather than
+// pseudo-elements. Keep the SVG's box and background, but hide its artwork.
+svg.IconImage > * {
+  visibility: hidden;
+}
+
 // Without an icon there's no glyph to give the box its size and baseline, so
 // a space stands in, in a fixed-width glyph's box. The box stays weaker than
 // a component's icon slot; the space beats a forced Font Awesome style's
@@ -26,11 +32,12 @@
   content: "\00a0";
 }
 
-// An image rendered on the server, such as in a mention: sized and aligned
-// like Font Awesome's SVG icons.
+// An image rendered on the server, such as in a mention: keep its proportions
+// within an icon-sized box, without relying on object-fit in email clients.
 img.IconImage {
-  width: 1.25em;
-  height: 1em;
-  object-fit: contain;
+  width: auto;
+  height: auto;
+  max-width: 1.25em;
+  max-height: 1em;
   vertical-align: -0.125em;
 }

@@ -146,8 +146,14 @@ class IconImageApi
      *
      *     Schema\Str::make('icon')->deserialize(IconImageApi::withoutImageClasses(...))
      */
-    public static function withoutImageClasses(string $icon): string
+    public static function withoutImageClasses(mixed $icon): mixed
     {
+        // Deserialization precedes validation. Preserve invalid types so the
+        // field validator rejects them instead of throwing or coercing them.
+        if (! is_string($icon)) {
+            return $icon;
+        }
+
         $classes = preg_split('/\s+/', $icon, -1, PREG_SPLIT_NO_EMPTY) ?: [];
 
         $classes = array_filter($classes, fn (string $class) => ! preg_match('/^IconImage(--.*)?$/', $class));

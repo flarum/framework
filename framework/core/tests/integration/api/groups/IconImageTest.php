@@ -24,6 +24,7 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 use Intervention\Image\ImageManager;
 use Laminas\Diactoros\Stream;
 use Laminas\Diactoros\UploadedFile;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -616,5 +617,29 @@ class IconImageTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
         $this->assertTrue($this->disk()->exists($previousPath));
+    }
+
+    public static function invalidIcons(): iterable
+    {
+        foreach (['array' => ['x'], 'object' => (object) ['a' => 1], 'integer' => 42, 'boolean' => true] as $type => $icon) {
+            yield "create $type" => ['POST', '/api/groups', $icon];
+            yield "update $type" => ['PATCH', '/api/groups/10', $icon];
+        }
+    }
+
+    #[Test]
+    #[DataProvider('invalidIcons')]
+    public function a_non_string_icon_is_a_validation_error(string $method, string $url, mixed $icon): void
+    {
+        $response = $this->send(
+            $this->request($method, $url, [
+                'authenticatedAs' => 1,
+                'json' => ['data' => ['attributes' => ['nameSingular' => 'Fan', 'namePlural' => 'Fans', 'icon' => $icon]]],
+            ])
+        );
+
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
+        $errors = json_decode((string) $response->getBody(), true)['errors'];
+        $this->assertEquals('/data/attributes/icon', $errors[0]['source']['pointer']);
     }
 }

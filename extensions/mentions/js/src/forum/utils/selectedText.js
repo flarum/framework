@@ -25,6 +25,9 @@ export default function selectedText(body) {
         return this.alt;
       });
 
+      // Mention icons decorate the name; they are not images in the post.
+      clone.find('img.IconImage').remove();
+
       // Replace all other images with a Markdown image
       clone.find('img').replaceWith(function () {
         return `![](${this.src})`;
