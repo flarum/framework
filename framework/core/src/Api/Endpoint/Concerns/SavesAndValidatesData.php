@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Endpoint\Concerns;
 
+use Flarum\Api\Precognition;
 use Flarum\Api\Schema\Concerns\HasValidationRules;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Translation\ArrayLoader;
@@ -32,11 +33,9 @@ trait SavesAndValidatesData
      * Assert that the field values within a data object pass validation.
      *
      * @param \Flarum\Api\Context $context
-     * @param string[]|null $only field names to limit validation to; null, or a list naming
-     *                            no field of the resource, validates every field
      * @throws UnprocessableEntityException
      */
-    protected function assertDataValid(Context $context, array $data, ?array $only = null): void
+    protected function assertDataValid(Context $context, array $data): void
     {
         $this->mutateDataBeforeValidation($context, $data);
 
@@ -70,6 +69,8 @@ trait SavesAndValidatesData
             $attributes = array_merge($attributes, $field->getValidationAttributes($context));
         }
 
+        $only = $this->precognitiveFields($context);
+
         if ($only !== null && ! array_intersect($only, $fieldNames)) {
             $only = null;
         }
@@ -99,6 +100,18 @@ trait SavesAndValidatesData
 
         $this->validate('attributes', $attributeValidator);
         $this->validate('relationships', $relationshipValidator);
+    }
+
+    /**
+     * The fields a precognitive request limits validation to; null, or a list
+     * naming no field of the resource, validates every field.
+     *
+     * @param \Flarum\Api\Context $context
+     * @return string[]|null
+     */
+    protected function precognitiveFields(Context $context): ?array
+    {
+        return Precognition::active($context->request) ? Precognition::validateOnly($context->request) : null;
     }
 
     /**

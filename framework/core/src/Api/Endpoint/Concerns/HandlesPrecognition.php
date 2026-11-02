@@ -65,12 +65,4 @@ trait HandlesPrecognition
 
         return new EmptyResponse(204, [Precognition::SUCCESS_HEADER => 'true']);
     }
-
-    /**
-     * @return string[]|null
-     */
-    protected function precognitiveFields(Context $context): ?array
-    {
-        return Precognition::validateOnly($context->request);
-    }
 }

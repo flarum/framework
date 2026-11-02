@@ -110,7 +110,7 @@ class Create extends Endpoint
         $this->assertFieldsValid($context, $data);
         $this->fillDefaultValues($context, $data);
         $this->deserializeValues($context, $data);
-        $this->assertDataValid($context, $data, $this->precognitiveFields($context));
+        $this->assertDataValid($context, $data);
     }
 
     final protected function fillDefaultValues(Context $context, array &$data): void
