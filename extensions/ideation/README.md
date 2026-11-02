@@ -58,7 +58,12 @@ Off until an administrator switches it on (Extensions → Ideation).
   refused. A delivery older than what is stored is ignored.
 - **Hourly refresh:** `php flarum ideation:github-sync` (scheduled) re-reads up
   to 50 links (20 without a token) the webhook has not confirmed in six hours,
-  and stops for the hour the moment GitHub rate-limits it.
+  and stops for the hour the moment GitHub rate-limits it or is down. A link
+  whose repository was renamed or transferred is skipped (redirects are never
+  followed) and the rest of the refresh goes on.
+- **Linking:** each moderator can ask GitHub about 10 new items a minute, and
+  GitHub's answer for an item, "no such item" included, is reused for a
+  minute, so linking cannot use up the forum's GitHub limit.
 - **No page ever calls GitHub.** Links are read from the database, all of an
   idea list's links in one query.
 

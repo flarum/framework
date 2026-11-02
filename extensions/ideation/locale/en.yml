@@ -122,6 +122,8 @@ flarum-ideation:
       repo_not_allowed: "{repo} is not on this forum's list of GitHub repositories."
       unavailable: GitHub could not be reached. Try again in a minute.
       not_found: "GitHub has no {ref}, or it is private."
+      moved: "GitHub says {ref} has moved or is blocked. Paste its current link instead."
+      too_many_lookups: You have looked up too many GitHub links in the last minute. Wait a minute and try again.
 
   email:
     shipped:

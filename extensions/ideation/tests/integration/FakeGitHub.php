@@ -10,13 +10,14 @@
 namespace Flarum\Ideation\Tests\integration;
 
 use Flarum\Ideation\GitHub\Client;
+use Flarum\Ideation\GitHub\Gone;
 use Flarum\Ideation\GitHub\Reference;
 use Flarum\Ideation\GitHub\Unavailable;
 
 /** GitHub, as the tests want it to answer. Records every request. */
 class FakeGitHub implements Client
 {
-    /** @var array<string, array|null|'down'> keyed "repo#number" or "repo/milestone/number" */
+    /** @var array<string, array|null|'down'|'gone'> keyed "repo#number" or "repo/milestone/number" */
     public array $items = [];
 
     /** @var string[] */
@@ -30,6 +31,10 @@ class FakeGitHub implements Client
 
         if ($item === 'down') {
             throw new Unavailable('down');
+        }
+
+        if ($item === 'gone') {
+            throw new Gone('gone');
         }
 
         return $item;

@@ -14,7 +14,8 @@ namespace Flarum\Ideation\GitHub;
  *
  * Returns the item in the shape Links stores, or null when GitHub says it
  * does not exist (or the token cannot see it). Throws Unavailable when GitHub
- * cannot be asked: no answer, rate limited, or a server error.
+ * cannot be asked: no answer, rate limited, or a server error. Throws Gone
+ * when only this item cannot be had: it moved, or it is blocked.
  */
 interface Client
 {

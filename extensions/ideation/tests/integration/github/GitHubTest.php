@@ -14,6 +14,7 @@ use Flarum\Frontend\Content\Assets;
 use Flarum\Frontend\Frontend;
 use Flarum\Http\RequestUtil;
 use Flarum\Ideation\GitHub\Client;
+use Flarum\Ideation\GitHub\Link;
 use Flarum\Ideation\GitHub\Links;
 use Flarum\Ideation\Tests\integration\FakeGitHub;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -360,6 +361,79 @@ class GitHubTest extends TestCase
         $this->assertSame('merged', $this->show(1)['ideationGithub'][0]['state']);
         $this->assertSame('planned', $this->show(1)['ideationStatus']);
         $this->assertSame(0, $this->database()->table('posts')->where('type', 'ideationStatus')->count());
+    }
+
+    #[Test]
+    public function a_delivery_that_overlaps_a_newer_one_never_overwrites_it()
+    {
+        $this->boot();
+        $this->patch(1, self::MOD, ['ideationGithubLink' => 'flarum/framework#4000']);
+
+        // A newer delivery lands just after this older one has read the link.
+        $landed = false;
+        Link::retrieved(function () use (&$landed) {
+            if (! $landed) {
+                $landed = true;
+                $this->database()->table('ideation_github_links')->update(['state' => 'completed', 'source_updated_at' => '2026-10-18 12:00:00']);
+            }
+        });
+
+        $older = ['repository' => ['full_name' => 'flarum/framework'], 'issue' => ['number' => 4000, 'title' => 'Dark mode', 'state' => 'open', 'updated_at' => '2026-10-18T11:00:00Z']];
+        $this->assertSame(200, $this->webhook('issues', $older)->getStatusCode());
+
+        $link = $this->database()->table('ideation_github_links')->first();
+        $this->assertSame(['completed', '2026-10-18 12:00:00'], [$link->state, Carbon::parse($link->source_updated_at)->format('Y-m-d H:i:s')]);
+    }
+
+    #[Test]
+    public function a_moved_repository_is_skipped_and_the_rest_of_the_sync_goes_on()
+    {
+        $this->boot();
+        $this->github->items['fof/moved#1'] = ['type' => 'issue', 'title' => 'Old home', 'state' => 'open', 'open_issues' => null, 'closed_issues' => null, 'updated_at' => '2026-10-18T10:00:00Z'];
+        $this->patch(1, self::MOD, ['ideationGithubLink' => 'fof/moved#1']);
+        $this->patch(1, self::MOD, ['ideationGithubLink' => 'flarum/framework#4000']);
+
+        // The repository is renamed: GitHub now answers with a redirect.
+        $this->github->items['fof/moved#1'] = 'gone';
+        $this->github->items['flarum/framework#4000']['state'] = 'completed';
+        $this->database()->table('ideation_github_links')->where('repo', 'fof/moved')->update(['synced_at' => Carbon::now()->subDays(2)]);
+        $this->database()->table('ideation_github_links')->where('repo', 'flarum/framework')->update(['synced_at' => Carbon::now()->subDay()]);
+
+        $this->assertSame(1, $this->app()->getContainer()->make(Links::class)->sync());
+
+        $links = $this->database()->table('ideation_github_links')->get()->keyBy('repo');
+        $this->assertSame('completed', $links['flarum/framework']->state, 'the batch went on past the moved repository');
+        $this->assertTrue(Carbon::parse($links['fof/moved']->synced_at)->gt(Carbon::now()->subMinute()), 'the moved one waits its turn again');
+        $this->assertSame('open', $links['fof/moved']->state);
+
+        // Linking an item there says it moved.
+        $this->github->items['fof/moved#2'] = 'gone';
+        $response = $this->patch(2, self::MOD, ['ideationGithubLink' => 'fof/moved#2']);
+        $this->assertSame(422, $response->getStatusCode());
+        $this->assertStringContainsString('has moved', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function linking_asks_github_only_so_often()
+    {
+        $this->boot();
+
+        foreach (range(1, Links::LOOKUPS_PER_MINUTE) as $number) {
+            $this->assertSame(422, $this->patch(1, self::MOD, ['ideationGithubLink' => "flarum/framework#$number"])->getStatusCode());
+        }
+
+        $this->assertCount(Links::LOOKUPS_PER_MINUTE, $this->github->asked);
+
+        // An answer already had, "no such item" included, is reused.
+        $this->patch(1, self::MOD, ['ideationGithubLink' => 'flarum/framework#1']);
+        $this->assertCount(Links::LOOKUPS_PER_MINUTE, $this->github->asked);
+
+        // A new one is refused without asking GitHub.
+        $response = $this->patch(1, self::MOD, ['ideationGithubLink' => 'flarum/framework#4000']);
+        $this->assertSame(422, $response->getStatusCode());
+        $this->assertStringContainsString('too many GitHub links', (string) $response->getBody());
+        $this->assertCount(Links::LOOKUPS_PER_MINUTE, $this->github->asked);
+        $this->assertSame(0, $this->database()->table('ideation_github_links')->count());
     }
 
     /**

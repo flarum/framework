@@ -14,10 +14,12 @@ use Flarum\Discussion\Discussion;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Foundation\ValidationException;
 use Flarum\Ideation\Event\StatusChanged;
+use Flarum\Ideation\Service\IdeaLock;
 use Flarum\Ideation\Status;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\User\Guest;
 use Flarum\User\User;
+use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Events\Dispatcher;
 
 /**
@@ -28,11 +30,19 @@ class Links
 {
     use DispatchEventsTrait;
 
+    /** GitHub lookups one moderator may make in a minute, linking. */
+    public const LOOKUPS_PER_MINUTE = 10;
+
+    /** How long GitHub's answer to a lookup, "no such item" included, is reused (seconds). */
+    public const LOOKUP_TTL = 60;
+
     public function __construct(
         protected Config $config,
         protected Client $client,
         protected Dispatcher $events,
-        protected TranslatorInterface $translator
+        protected TranslatorInterface $translator,
+        protected Cache $cache,
+        protected IdeaLock $lock
     ) {
     }
 
@@ -40,9 +50,14 @@ class Links
      * Resolve what a moderator pasted into an item GitHub vouches for.
      * Runs before the discussion is saved, so a bad link saves nothing.
      *
+     * The forum's token (or its server's address, without one) has one
+     * GitHub budget for everyone, the sync included. So an answer is reused
+     * for a minute, a missing item as much as a found one, and each
+     * moderator may ask GitHub only so often.
+     *
      * @return array{0: Reference, 1: array}
      */
-    public function resolve(string $input): array
+    public function resolve(string $input, User $actor): array
     {
         $ref = Reference::parse($input);
 
@@ -54,10 +69,23 @@ class Links
             $this->fail('repo_not_allowed', ['repo' => $ref->repo]);
         }
 
-        try {
-            $item = $this->client->fetch($ref);
-        } catch (Unavailable) {
-            $this->fail('unavailable');
+        $key = 'flarum-ideation.github.lookup.'.sha1($ref->repo.'/'.($ref->type === 'milestone' ? 'milestone' : 'issue').'/'.$ref->number);
+        $cached = $this->cache->get($key);
+
+        if (is_array($cached) && array_key_exists('item', $cached)) {
+            $item = $cached['item'];
+        } else {
+            $this->throttle($actor);
+
+            try {
+                $item = $this->client->fetch($ref);
+            } catch (Unavailable) {
+                $this->fail('unavailable');
+            } catch (Gone) {
+                $this->fail('moved', ['ref' => $input]);
+            }
+
+            $this->cache->put($key, ['item' => $item], self::LOOKUP_TTL);
         }
 
         if (! $item) {
@@ -65,6 +93,20 @@ class Links
         }
 
         return [$ref, $item];
+    }
+
+    /** Counts a lookup against the moderator's minute, refusing it once the minute is used up. */
+    protected function throttle(User $actor): void
+    {
+        $key = 'flarum-ideation.github.lookups.'.$actor->id;
+
+        // add() only writes when the key is absent, so the minute starts
+        // once and increment() never resets it.
+        $this->cache->add($key, 0, 60);
+
+        if ((int) $this->cache->increment($key) > self::LOOKUPS_PER_MINUTE) {
+            $this->fail('too_many_lookups');
+        }
     }
 
     public function link(Discussion $discussion, User $actor, Reference $ref, array $item): Link
@@ -82,8 +124,12 @@ class Links
             $link->created_at = Carbon::now();
         }
 
-        $this->fill($link, $item);
-        $link->save();
+        // Linked again with an answer from the lookup cache that is older
+        // than what a webhook has brought since: keep the newer picture.
+        if (! $link->exists || ! $item['updated_at'] || ! $link->source_updated_at || ! Carbon::parse($item['updated_at'])->lt($link->source_updated_at)) {
+            $this->fill($link, $item);
+            $link->save();
+        }
 
         $this->settle($discussion, $link);
 
@@ -120,15 +166,25 @@ class Links
             ->whereIn('type', $types)
             ->get();
 
+        $values = $this->values($item);
+        $updatedAt = $values['source_updated_at'] ?? null;
+
         foreach ($links as $link) {
             // Webhooks can arrive late, twice or out of order; an older
-            // picture of the item never replaces a newer one.
-            if ($item['updated_at'] && $link->source_updated_at && Carbon::parse($item['updated_at'])->lt($link->source_updated_at)) {
-                continue;
-            }
+            // picture of the item never replaces a newer one. The check is
+            // part of the UPDATE, so two deliveries at once cannot both pass
+            // it and then save in the wrong order.
+            $updated = Link::query()
+                ->whereKey($link->id)
+                ->when($updatedAt, fn ($query) => $query->where(
+                    fn ($query) => $query->whereNull('source_updated_at')->orWhere('source_updated_at', '<=', $updatedAt)
+                ))
+                ->update($values);
 
-            $this->fill($link, $item);
-            $link->save();
+            if ($updated) {
+                $this->fill($link, $item);
+                $link->syncOriginal();
+            }
         }
 
         Discussion::query()
@@ -169,6 +225,12 @@ class Links
                 $link->synced_at = Carbon::now();
                 $link->save();
                 break;
+            } catch (Gone) {
+                // This one item moved (a renamed or transferred repository)
+                // or is blocked. Marked as tried, so it waits its turn again,
+                // and the rest of the batch goes on.
+                Link::query()->whereKey($link->id)->update(['synced_at' => Carbon::now()]);
+                continue;
             }
 
             if ($item) {
@@ -195,7 +257,7 @@ class Links
      */
     protected function settle(Discussion $discussion, ?Link $cause, ?User $by = null): void
     {
-        if (! Status::isOpen($discussion->ideation_status) || ! ($this->config->autoShip() || $this->config->autoProgress())) {
+        if (! $this->config->autoShip() && ! $this->config->autoProgress()) {
             return;
         }
 
@@ -204,16 +266,33 @@ class Links
             ->get()
             ->filter(fn (Link $l) => $this->config->allows($l->repo));
         $counted = $links->map(fn (Link $l) => Item::done($l->type, $l->state))->filter(fn ($d) => $d !== null);
+        $now = Carbon::now();
 
-        $next = null;
+        // Decided and written under the idea's lock, from its status read
+        // there: a vote on its way lands before the move or is refused, and
+        // an idea a moderator closed or merged a moment ago is left alone.
+        [$old, $next] = $discussion->getConnection()->transaction(function () use ($discussion, $links, $counted, $now) {
+            $old = $this->lock->status($discussion->id);
+            $next = null;
 
-        if ($this->config->autoShip() && $counted->isNotEmpty() && $counted->every(fn ($d) => $d === true)) {
-            $next = Status::SHIPPED;
-        } elseif ($this->config->autoProgress()
-            && $discussion->ideation_status !== Status::IN_PROGRESS
-            && $links->contains(fn (Link $l) => $l->type === 'pull' && $l->state === 'open')) {
-            $next = Status::IN_PROGRESS;
-        }
+            if (! Status::isOpen($old)) {
+                return [$old, null];
+            }
+
+            if ($this->config->autoShip() && $counted->isNotEmpty() && $counted->every(fn ($d) => $d === true)) {
+                $next = Status::SHIPPED;
+            } elseif ($this->config->autoProgress()
+                && $old !== Status::IN_PROGRESS
+                && $links->contains(fn (Link $l) => $l->type === 'pull' && $l->state === 'open')) {
+                $next = Status::IN_PROGRESS;
+            }
+
+            if ($next) {
+                Discussion::query()->whereKey($discussion->id)->update(['ideation_status' => $next, 'ideation_status_changed_at' => $now]);
+            }
+
+            return [$old, $next];
+        });
 
         if (! $next) {
             return;
@@ -222,24 +301,37 @@ class Links
         $actor = $by ?? ($cause?->user_id ? (User::query()->find($cause->user_id) ?? new Guest()) : new Guest());
         $via = $by ? null : ($cause?->reference() ?? 'GitHub');
 
-        $discussion->raise(new StatusChanged($discussion, $actor, $discussion->ideation_status, $next, null, $via));
-
         $discussion->ideation_status = $next;
-        $discussion->ideation_status_changed_at = Carbon::now();
-        $discussion->save();
+        $discussion->ideation_status_changed_at = $now;
+        $discussion->syncOriginalAttributes(['ideation_status', 'ideation_status_changed_at']);
 
+        $discussion->raise(new StatusChanged($discussion, $actor, $old, $next, null, $via));
         $this->dispatchEventsFor($discussion, $actor);
     }
 
     protected function fill(Link $link, array $item): void
     {
-        $link->type = $item['type'];
-        $link->title = $item['title'];
-        $link->state = $item['state'];
-        $link->open_issues = $item['open_issues'];
-        $link->closed_issues = $item['closed_issues'];
-        $link->source_updated_at = $item['updated_at'] ? Carbon::parse($item['updated_at']) : $link->source_updated_at;
-        $link->synced_at = Carbon::now();
+        $link->forceFill($this->values($item));
+    }
+
+    /** The columns GitHub's picture of an item sets. */
+    protected function values(array $item): array
+    {
+        $values = [
+            'type' => $item['type'],
+            'title' => $item['title'],
+            'state' => $item['state'],
+            'open_issues' => $item['open_issues'],
+            'closed_issues' => $item['closed_issues'],
+            'synced_at' => Carbon::now(),
+        ];
+
+        // An answer without a time keeps the time already known.
+        if ($item['updated_at']) {
+            $values['source_updated_at'] = Carbon::parse($item['updated_at']);
+        }
+
+        return $values;
     }
 
     protected function fail(string $key, array $params = []): never
