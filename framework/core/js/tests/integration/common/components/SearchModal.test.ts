@@ -205,6 +205,25 @@ describe('SearchModal.activeTabItems', () => {
     expect(items.getPriority('fullPageLink')).toBe(80);
   });
 
+  it('retains fullPageLink at the same priority once results have loaded', () => {
+    const modal = new SearchModal();
+    (modal as any).query = Stream('test');
+    (modal as any).loadingSources = [];
+    const fakeSource = {
+      resource: 'discussions',
+      fullPage: () => m('li', 'Search all discussions for "test"'),
+      view: () => [m('li', 'Result 1')],
+      customGrouping: () => false,
+    };
+    (modal as any).activeSource = Stream(fakeSource);
+    (modal as any).gambits = () => [];
+
+    const items = modal.activeTabItems();
+
+    expect(items.has('fullPageLink')).toBe(true);
+    expect(items.getPriority('fullPageLink')).toBe(80);
+  });
+
   it('does not include fullPageLink when query is empty', () => {
     const modal = new SearchModal();
     (modal as any).query = Stream('');
@@ -223,4 +242,3 @@ describe('SearchModal.activeTabItems', () => {
     expect(items.has('fullPageLink')).toBe(false);
   });
 });
-
