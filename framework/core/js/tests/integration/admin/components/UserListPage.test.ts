@@ -268,8 +268,8 @@ describe('UserListPage', () => {
       expect(out.find('tr[data-user-id="2"] .ResourceTable-rowMenu')).toHaveLength(1);
       expect(out).toHaveElementAttr('tr[data-user-id="2"] .ResourceTable-rowMenu .Dropdown-toggle', 'aria-label', 'Actions for User 2');
 
-      // The pagination footer replaces the user count.
-      expect(out.first('.ResourceTable-pageRange').textContent).toBe('1–2 of 3 items');
+      // Three users fit on one page: no pagination.
+      expect(out).not.toHaveElement('.ResourceTable-pagination');
     });
 
     test("the descriptor's gambit-backed filters are left to the search; gambits stay in filter[q]", async () => {

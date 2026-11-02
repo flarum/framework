@@ -1,7 +1,7 @@
 // Generic resource admin: ResourceTable, ResourceFormModal, ResourceDeleteModal, BulkResultModal.
 
 // Laid out after Carbon's data table: one toolbar row that the batch bar replaces while rows are
-// selected, the filter tags, the table and the pagination footer.
+// selected, the filter tags, the table and core's Pagination.
 .ResourceTable {
   padding-bottom: 24px;
 
@@ -329,41 +329,23 @@
     color: var(--muted-color);
   }
 
-  &-pagination {
+  // Core's `.Pagination` (2.x's admin user list) brings its own layout; this is the previous/next
+  // row of a list without a total.
+  &-prevNext {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px 24px;
-    min-height: 48px;
-    padding: 6px 0 6px 16px;
-    border-top: 1px solid var(--control-bg);
+    justify-content: center;
+    gap: 10px 20px;
+    margin-top: 16px;
+  }
+
+  &-page {
     color: var(--muted-color);
-
-    .FormControl {
-      width: auto;
-    }
   }
 
-  &-pageSize,
-  &-pageSelect,
-  &-pageNav {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  &-pageSize label {
-    margin: 0;
-    font-weight: normal;
-    white-space: nowrap;
-  }
-
-  &-pageNav {
-    margin-inline-start: auto;
-  }
-
-  &-pageCount {
-    white-space: nowrap;
+  &-nextIcon {
+    margin-inline: 7px 0;
   }
 }
 

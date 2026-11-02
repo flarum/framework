@@ -142,11 +142,9 @@ describe('GroupListPage', () => {
     expect(out).toHaveElement('tbody .Badge.Badge--group--1');
     expect(out).toContainRaw('Admins');
 
-    // Unpaginated: no page parameters, a footer with the count but no page controls, no search, no export.
+    // Unpaginated: no page parameters, no pagination, no search, no export.
     expect(listRequests()[0].params?.page).toBeUndefined();
-    expect(out.first('.ResourceTable-pageRange').textContent).toBe('1–5 of 5 items');
-    expect(out).not.toHaveElement('.ResourceTable-pageSize');
-    expect(out).not.toHaveElement('.ResourceTable-next');
+    expect(out).not.toHaveElement('.ResourceTable-pagination');
     expect(out).not.toHaveElement('.ResourceTable-search');
     expect(out).not.toHaveElement('.ResourceTable-export');
     expect(out).toHaveElement('.ResourceTable-filterGroup--hidden');

@@ -678,18 +678,14 @@ core:
         filter_toggle_label: "{count, plural, =0 {Filter} one {Filter, # active} other {Filter, # active}}"
         filters_label: Active filters
         load_error: This list could not be loaded. You may not have permission to manage it.
-        next_button: Next page
+        next_button: Next
         no_results_description: Nothing matches your search or filters. Try changing or clearing them.
         no_results_title: No results
         not_selectable: "{name} can't be changed here."
         overridden_by_search: Overridden by the search
-        page_count: "{pages, plural, one {of # page} other {of # pages}}"
-        page_label: Page
-        page_size_label: "Items per page:"
+        page: "Page {page}"
         pagination_label: Pagination
-        previous_button: Previous page
-        range: "{from}–{to} items"
-        range_total: "{from}–{to} of {total, plural, one {# item} other {# items}}"
+        previous_button: Previous
         refresh_button: => core.ref.refresh
         remove_filter_label: "Remove filter {label}"
         row_actions_label: "Actions for {name}"

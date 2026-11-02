@@ -380,15 +380,6 @@ export default class ResourceListState<M extends Model = Model> extends Paginate
     return this.goto(removed >= this.getItems().length && page > 1 ? page - 1 : page);
   }
 
-  /** Show `size` records per page, from the first page. A no-op for an unpaginated type. */
-  setPageSize(size: number): Promise<void> {
-    if (!this.isPaginated() || size === this.pageSize) return Promise.resolve();
-
-    this.pageSize = size;
-
-    return this.goto(1);
-  }
-
   hasTotal(): boolean {
     return this.totalItems !== null;
   }

@@ -7,6 +7,7 @@ import GambitsAutocompleteDropdown from '../../../common/components/GambitsAutoc
 import Icon from '../../../common/components/Icon';
 import Input from '../../../common/components/Input';
 import LoadingIndicator from '../../../common/components/LoadingIndicator';
+import Pagination from '../../../common/components/Pagination';
 import Select from '../../../common/components/Select';
 import Separator from '../../../common/components/Separator';
 import type Model from '../../../common/Model';
@@ -41,9 +42,6 @@ import type ModalManagerState from '../../../common/states/ModalManagerState';
 
 /** What `app.modal.show()` takes: a modal class or a loader of one. */
 type ModalClass = Parameters<ModalManagerState['show']>[0];
-
-/** The page sizes offered in the footer, capped at the descriptor's `pagination.maxLimit`. */
-export const PAGE_SIZES = [10, 20, 50, 100];
 
 /** Row menu items of destructive actions sit below this priority, after a separator. */
 const DESTRUCTIVE_BAND = -10000;
@@ -103,7 +101,7 @@ export interface ResourceTableAttrs<M extends Model = Model> extends ComponentAt
  * The admin table for one resource type, laid out after Carbon's data table: one toolbar row
  * (search, "Filter" panel, refresh, table settings, create) that a batch action bar replaces while
  * rows are selected, the active filter tags, the table (sortable headers, one overflow menu of row
- * actions per row) and a pagination footer. Columns come from the definition's fields (or the
+ * actions per row) and core's `Pagination` below it (previous/next when the list has no total). Columns come from the definition's fields (or the
  * `columns` attr), actions from `resourceActions()`. Every region is an `ItemList` for extensions.
  */
 export default class ResourceTable<M extends Model = Model, Attrs extends ResourceTableAttrs<M> = ResourceTableAttrs<M>> extends Component<Attrs> {
@@ -993,98 +991,43 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
       .catch(() => {});
   }
 
-  /** The page sizes the footer offers, or none when the list's size cannot change. */
-  pageSizes(): number[] {
-    const pagination = this.attrs.definition.descriptor?.pagination;
-
-    if (!pagination || !this.list.isPaginated()) return [];
-
-    const sizes = PAGE_SIZES.filter((size) => size <= pagination.maxLimit);
-    const current = this.list.pageSize;
-
-    if (current && !sizes.includes(current)) sizes.push(current);
-
-    return sizes.sort((a, b) => a - b);
-  }
-
   /**
-   * The pagination footer: "Items per page" (`pageSizes()`), the range ("1–50 of 120 items", a polite
-   * live region), the page select ("Page 1 of 3", when the total is known) and previous/next.
+   * Core's `Pagination` when the list knows its total and has more than one page; previous/next for
+   * a list without a total; nothing for a single page.
    */
   paginationView(): Mithril.Children {
     const list = this.list;
-    const models = list.getItems();
     const page = list.currentPage();
-
-    if (!models.length && page <= 1) return null;
-
     const pages = list.pageCount();
-    const paginated = list.isPaginated();
-    const size = list.pageSize || models.length;
-    const from = paginated ? (page - 1) * size + 1 : 1;
-    const to = from + models.length - 1;
-    const total = paginated ? list.totalItems : models.length;
-    const sizes = this.pageSizes();
-    const sizeId = `ResourceTable-pageSize-${this.attrs.definition.type}`;
-    const pageId = `ResourceTable-page-${this.attrs.definition.type}`;
-    const hasNext = pages !== null ? page < pages : list.hasNext();
+
+    if (pages !== null) {
+      return pages > 1 ? (
+        <div className="ResourceTable-pagination">
+          <Pagination total={list.totalItems!} perPage={list.pageSize!} currentPage={page} onChange={(p: number) => list.goto(p)} />
+        </div>
+      ) : null;
+    }
+
+    if (!list.hasPrev() && !list.hasNext() && page <= 1) return null;
 
     return (
-      <nav className="ResourceTable-pagination" aria-label={app.translator.trans('core.admin.resource.table.pagination_label', {}, true)}>
-        {sizes.length > 0 && (
-          <div className="ResourceTable-pageSize">
-            <label for={sizeId}>{app.translator.trans('core.admin.resource.table.page_size_label')}</label>
-            <Select
-              id={sizeId}
-              className="FormControl"
-              options={Object.fromEntries(sizes.map((n) => [String(n), String(n)]))}
-              value={String(list.pageSize)}
-              disabled={list.isLoading()}
-              onchange={(value: string) => list.setPageSize(parseInt(value, 10))}
-            />
-          </div>
-        )}
-        <span className="ResourceTable-pageRange" role="status" aria-live="polite">
-          {total !== null
-            ? app.translator.trans('core.admin.resource.table.range_total', { from, to, total })
-            : app.translator.trans('core.admin.resource.table.range', { from, to })}
-        </span>
-        {paginated && (
-          <div className="ResourceTable-pageNav">
-            {pages !== null && pages > 1 && (
-              <div className="ResourceTable-pageSelect">
-                <label className="visually-hidden" for={pageId}>
-                  {app.translator.trans('core.admin.resource.table.page_label')}
-                </label>
-                <Select
-                  id={pageId}
-                  className="FormControl"
-                  options={Object.fromEntries(Array.from({ length: pages }, (_, i) => [String(i + 1), String(i + 1)]))}
-                  value={String(page)}
-                  disabled={list.isLoading()}
-                  onchange={(value: string) => list.goto(parseInt(value, 10))}
-                />
-                <span className="ResourceTable-pageCount">{app.translator.trans('core.admin.resource.table.page_count', { pages })}</span>
-              </div>
-            )}
-            <Button
-              className="Button Button--icon ResourceTable-prev"
-              icon="fas fa-chevron-left"
-              title={app.translator.trans('core.admin.resource.table.previous_button', {}, true)}
-              aria-label={app.translator.trans('core.admin.resource.table.previous_button', {}, true)}
-              disabled={page <= 1 || list.isLoading()}
-              onclick={() => list.goto(page - 1)}
-            />
-            <Button
-              className="Button Button--icon ResourceTable-next"
-              icon="fas fa-chevron-right"
-              title={app.translator.trans('core.admin.resource.table.next_button', {}, true)}
-              aria-label={app.translator.trans('core.admin.resource.table.next_button', {}, true)}
-              disabled={!hasNext || list.isLoading()}
-              onclick={() => list.goto(page + 1)}
-            />
-          </div>
-        )}
+      <nav
+        className="ResourceTable-pagination ResourceTable-prevNext"
+        aria-label={app.translator.trans('core.admin.resource.table.pagination_label', {}, true)}
+      >
+        <Button
+          className="Button ResourceTable-prev"
+          icon="fas fa-chevron-left"
+          disabled={page <= 1 || list.isLoading()}
+          onclick={() => list.goto(page - 1)}
+        >
+          {app.translator.trans('core.admin.resource.table.previous_button')}
+        </Button>
+        <span className="ResourceTable-page">{app.translator.trans('core.admin.resource.table.page', { page })}</span>
+        <Button className="Button ResourceTable-next" disabled={!list.hasNext() || list.isLoading()} onclick={() => list.goto(page + 1)}>
+          {app.translator.trans('core.admin.resource.table.next_button')}
+          <Icon name="fas fa-chevron-right" className="Button-icon ResourceTable-nextIcon" />
+        </Button>
       </nav>
     );
   }

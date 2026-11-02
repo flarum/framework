@@ -744,28 +744,47 @@ describe('ResourceTable', () => {
       expect(out).not.toHaveElement('tr[data-id="1"] .ResourceTable-rowMenu');
     });
 
-    test('the footer shows the range, a page size select and page navigation', async () => {
+    test("a list with a total of several pages shows core's Pagination, which navigates", async () => {
       find.mockImplementation(() => Promise.resolve(results([thing('1'), thing('2')], { page: { total: 45 } })));
       window.history.replaceState(null, '', '/admin#/things?page=2');
 
       const definition = new ResourceDefinition<Thing>('things');
-      await definition.load();
-      definition.descriptor!.pagination = { defaultLimit: 20, maxLimit: 50 };
       const state = new ResourceListState<Thing>(definition, { pageSize: 20 });
       const out = await rendered({ definition, state });
 
-      expect(out.first('.ResourceTable-pageRange').textContent).toBe('21–22 of 45 items');
-      expect(out.find('.ResourceTable-pageSize option').map((o: any) => o.value)).toEqual(['10', '20', '50']);
-      expect(out.find('.ResourceTable-pageSelect option')).toHaveLength(3);
-      expect(out.first('.ResourceTable-pageCount').textContent).toBe('of 3 pages');
-      expect(out).not.toHaveElement('.ResourceTable-prev[disabled]');
+      expect(out).toHaveElement('.ResourceTable-pagination .Pagination');
+      expect(out).not.toHaveElement('.ResourceTable-prevNext');
+      expect(out).toHaveElementAttr('.Pagination-input', 'value', '2');
+      expect(out.first('.Pagination-pageNumber').textContent).toContain('of 3');
+
+      out.click('.Pagination-next');
+      await flush();
+
+      expect(state.currentPage()).toBe(3);
+      expect(lastParams(find)).toMatchObject({ page: { offset: 40, limit: 20 } });
+    });
+
+    test('a list without a total shows previous/next', async () => {
+      find.mockImplementation(() =>
+        Promise.resolve(Object.assign([thing('1'), thing('2')], { payload: { data: [], meta: {}, links: { next: 'https://example.test/next' } } }))
+      );
+
+      const out = await rendered();
+
+      expect(out).toHaveElement('.ResourceTable-pagination.ResourceTable-prevNext');
+      expect(out).not.toHaveElement('.Pagination');
+      expect(out).toHaveElement('.ResourceTable-prev[disabled]');
       expect(out).not.toHaveElement('.ResourceTable-next[disabled]');
+      expect(out.first('.ResourceTable-page').textContent).toBe('Page 1');
+    });
 
-      expect(out).toHaveElementAttr('.ResourceTable-pageSize select', 'value', '20');
+    test('a single page shows no pagination', async () => {
+      find.mockImplementation(() => Promise.resolve(results([thing('1'), thing('2')], { page: { total: 2 } })));
 
-      await state.setPageSize(50);
+      const out = await rendered();
 
-      expect(lastParams(find)).toMatchObject({ page: { offset: 0, limit: 50 } });
+      expect(out).toHaveElement('tr[data-id="1"]');
+      expect(out).not.toHaveElement('.ResourceTable-pagination');
     });
 
     test('the empty state offers create; with a search it offers "Clear filters", which clears the search', async () => {
