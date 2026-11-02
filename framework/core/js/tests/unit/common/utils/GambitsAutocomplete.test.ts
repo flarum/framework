@@ -576,6 +576,21 @@ describe('GambitsAutocomplete', () => {
       expect(suggestions).toHaveLength(1);
       expect(suggestions[0].key).toBe('ab');
     });
+
+    it('does not dismiss suggestions when cursor is inside an uncompleted active value', () => {
+      // In 'tag:helpold,general' with caret right after 'help', 'help' is an existing tag,
+      // but the full active term being edited is 'helpold'. Suggestions should remain open.
+      selectionStart = 8; // 'tag:help|old,general'
+      selectionEnd = 8;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:helpold,general'));
+
+      expect(suggestions).toHaveLength(2);
+      expect(suggestions.map((s) => s.key)).toEqual(['help', 'helpdesk']);
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:help,general');
+    });
   });
 
   describe('GroupGambit integration', () => {
