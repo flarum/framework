@@ -82,19 +82,6 @@ class MutateDataBeforeValidationTest extends TestCase
         $this->assertSame(422, $response->getStatusCode(), (string) $response->getBody());
         $this->assertSame(1, Group::query()->where('name_singular', 'modgroup')->count());
     }
-
-    #[Test]
-    public function precognition_validates_the_mutated_value()
-    {
-        $this->assertSame(201, $this->createLowercased('ModGroup', 'nameSingular', 'lowercasing-groups')->getStatusCode());
-
-        $response = $this->send($this->request('POST', '/api/lowercasing-groups', [
-            'authenticatedAs' => 1,
-            'json' => ['data' => ['type' => 'lowercasing-groups', 'attributes' => ['nameSingular' => 'MODGROUP', 'namePlural' => 'x']]],
-        ])->withHeader('Precognition', 'true'));
-
-        $this->assertSame(422, $response->getStatusCode(), (string) $response->getBody());
-    }
 }
 
 /**

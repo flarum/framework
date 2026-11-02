@@ -26,7 +26,6 @@ class ErrorServiceProvider extends AbstractServiceProvider
                 // 400 Bad Request
                 'csrf_token_mismatch' => 400,
                 'invalid_parameter' => 400,
-                'precognition_not_supported' => 400,
 
                 // 401 Unauthorized
                 'invalid_access_token' => 401,

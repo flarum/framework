@@ -33,12 +33,9 @@ trait SavesAndValidatesData
      * Callers pass the data already run through {@see self::mutateDataBeforeValidation()}.
      *
      * @param \Flarum\Api\Context $context
-     * @param string[]|null $only Validate only the rules of these field names (attributes or
-     *                            relationships); unknown names are ignored. Null, or a list naming
-     *                            no field of the resource, validates every field: never a false pass.
      * @throws UnprocessableEntityException
      */
-    protected function assertDataValid(Context $context, array $data, ?array $only = null): void
+    protected function assertDataValid(Context $context, array $data): void
     {
         $collection = $context->collection;
 
@@ -50,10 +47,7 @@ trait SavesAndValidatesData
         $messages = [];
         $attributes = [];
 
-        $fieldNames = [];
-
         foreach ($context->fields($context->resource) as $field) {
-            $fieldNames[] = $field->name;
             $writable = $field->isWritable($context->withField($field));
 
             if (! $writable || ! in_array(HasValidationRules::class, class_uses_recursive($field))) {
@@ -68,14 +62,6 @@ trait SavesAndValidatesData
             $messages = array_merge($messages, $field->getValidationMessages($context));
             // @phpstan-ignore-next-line
             $attributes = array_merge($attributes, $field->getValidationAttributes($context));
-        }
-
-        if ($only !== null && ! array_intersect($only, $fieldNames)) {
-            $only = null;
-        }
-
-        if ($only !== null) {
-            $rules = array_map(fn (array $typeRules) => $this->onlyRulesFor($typeRules, $only), $rules);
         }
 
         if (method_exists($collection, 'validationFactory')) {
@@ -99,23 +85,6 @@ trait SavesAndValidatesData
 
         $this->validate('attributes', $attributeValidator);
         $this->validate('relationships', $relationshipValidator);
-    }
-
-    /**
-     * Keep the rules that belong to the given field names. A rule key belongs to the field
-     * named by its first segment, so `groups.*` stays with `groups`.
-     *
-     * @param array<string, mixed> $rules
-     * @param string[] $only
-     * @return array<string, mixed>
-     */
-    protected function onlyRulesFor(array $rules, array $only): array
-    {
-        return array_filter(
-            $rules,
-            fn (string $key) => in_array(explode('.', $key, 2)[0], $only, true),
-            ARRAY_FILTER_USE_KEY
-        );
     }
 
     /**
