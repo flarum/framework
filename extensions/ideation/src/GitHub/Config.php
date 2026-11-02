@@ -13,7 +13,8 @@ use Flarum\Settings\SettingsRepositoryInterface;
 
 /**
  * The GitHub integration's settings. All of it is off until an administrator
- * switches it on, and the token and secret never leave the server.
+ * switches it on, and the token and secret never leave the server (the
+ * admin page only learns whether each is saved, see Secrets).
  */
 class Config
 {
@@ -50,10 +51,11 @@ class Config
     }
 
     /**
-     * Only repositories on the list can be linked. With a token, the
-     * forum can read private repositories, and a link shows its title to
-     * everyone who can read the idea; the list is what keeps a moderator
-     * from pointing the owner's token at something private.
+     * Only repositories on the list are linked, shown, refreshed or allowed
+     * to move an idea. With a token, the forum can read private
+     * repositories, and a link shows its title to everyone who can read the
+     * idea; the list is what keeps a moderator from pointing the owner's
+     * token at something private.
      *
      * Entries are `owner/repo` or `owner/*`, separated by commas, spaces or
      * new lines.

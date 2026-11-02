@@ -19,7 +19,6 @@ use Flarum\Locale\TranslatorInterface;
 use Flarum\User\Guest;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\Collection;
 
 /**
  * The one door to `ideation_github_links`: linking, unlinking, the
@@ -91,9 +90,12 @@ class Links
         return $link;
     }
 
-    public function unlink(Discussion $discussion, int $linkId): void
+    public function unlink(Discussion $discussion, User $actor, int $linkId): void
     {
-        Link::query()->where('discussion_id', $discussion->id)->whereKey($linkId)->delete();
+        if (Link::query()->where('discussion_id', $discussion->id)->whereKey($linkId)->delete()) {
+            // Removing the last open item can leave everything else done.
+            $this->settle($discussion, null, $actor);
+        }
     }
 
     /**
@@ -103,6 +105,12 @@ class Links
      */
     public function apply(string $repo, int $number, array $item): int
     {
+        // A repository taken off the list is no longer followed, by webhook
+        // or by sync, and its links never move an idea.
+        if (! $this->config->allows($repo)) {
+            return 0;
+        }
+
         $types = $item['type'] === 'milestone' ? ['milestone'] : ['issue', 'pull'];
 
         $links = Link::query()
@@ -139,7 +147,13 @@ class Links
     {
         $done = 0;
 
+        // Only repositories still on the list: the token is never spent on
+        // one that was taken off it. Few distinct repositories, so this is
+        // a short list, and it keeps unlisted links out of the cap.
+        $repos = Link::query()->distinct()->pluck('repo')->filter(fn (string $repo) => $this->config->allows($repo));
+
         $stale = Link::query()
+            ->whereIn('repo', $repos->all())
             ->where(fn ($q) => $q->whereNull('synced_at')->orWhere('synced_at', '<', Carbon::now()->subHours(6)))
             ->orderBy('synced_at')
             ->limit($limit)
@@ -167,12 +181,6 @@ class Links
         return $done;
     }
 
-    /** @param Collection<int, Link>|null $links */
-    public function linksOf(Discussion $discussion, ?Collection $links = null): Collection
-    {
-        return $links ?? Link::query()->where('discussion_id', $discussion->id)->get();
-    }
-
     /**
      * The two optional rules, applied after anything about an idea's links
      * changes:
@@ -180,13 +188,16 @@ class Links
      *  - every linked item that still counts is done → Shipped
      * Neither ever moves an idea backwards, and neither touches a closed one.
      */
-    protected function settle(Discussion $discussion, ?Link $cause): void
+    protected function settle(Discussion $discussion, ?Link $cause, ?User $by = null): void
     {
         if (! Status::isOpen($discussion->ideation_status) || ! ($this->config->autoShip() || $this->config->autoProgress())) {
             return;
         }
 
-        $links = Link::query()->where('discussion_id', $discussion->id)->get();
+        $links = Link::query()
+            ->where('discussion_id', $discussion->id)
+            ->get()
+            ->filter(fn (Link $l) => $this->config->allows($l->repo));
         $counted = $links->map(fn (Link $l) => Item::done($l->type, $l->state))->filter(fn ($d) => $d !== null);
 
         $next = null;
@@ -203,7 +214,7 @@ class Links
             return;
         }
 
-        $actor = $cause?->user_id ? (User::query()->find($cause->user_id) ?? new Guest()) : new Guest();
+        $actor = $by ?? ($cause?->user_id ? (User::query()->find($cause->user_id) ?? new Guest()) : new Guest());
 
         $discussion->raise(new StatusChanged($discussion, $actor, $discussion->ideation_status, $next, null, $cause?->reference() ?? 'GitHub'));
 

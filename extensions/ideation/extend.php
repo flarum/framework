@@ -25,7 +25,7 @@ use Flarum\Ideation\Notification\IdeaShippedBlueprint;
 use Flarum\Ideation\Post\IdeationStatusPost;
 use Flarum\Ideation\Search\IdeationFilter;
 use Flarum\Search\Database\DatabaseSearchDriver;
-use Flarum\User\Event\Deleting;
+use Flarum\Settings\Event\Saving;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Contracts\Container\Container;
 use Tobyz\JsonApiServer\Schema\CustomSort;
@@ -38,7 +38,8 @@ return [
         ->route('/roadmap', 'ideation'),
 
     (new Extend\Frontend('admin'))
-        ->js(__DIR__.'/js/dist/admin.js'),
+        ->js(__DIR__.'/js/dist/admin.js')
+        ->content(GitHub\Secrets::class),
 
     new Extend\Locales(__DIR__.'/locale'),
 
@@ -64,8 +65,9 @@ return [
             // each discussion's `canIdeationModerate` says where.
             Schema\Boolean::make('ideationCanModerate')
                 ->get(fn ($forum, Context $context) => $context->getActor()->hasPermissionLike('discussion.ideationModerate')),
-            // Whether ideas show GitHub links at all; the token, secret and
-            // repository list never leave the server.
+            // Whether ideas show GitHub links at all; the forum never sees the
+            // token, secret or repository list, and the admin page sees only
+            // whether a token and secret are saved (GitHub\Secrets).
             Schema\Boolean::make('ideationGithub')
                 ->get(fn () => resolve(GitHub\Config::class)->enabled()),
         ]),
@@ -124,5 +126,6 @@ return [
 
     (new Extend\Event())
         ->listen(StatusChanged::class, Listener\RecordStatusChange::class)
-        ->listen(Deleting::class, Listener\ForgetDeletedUserVotes::class),
+        ->listen(Saving::class, GitHub\Secrets::class)
+        ->subscribe(Listener\ForgetDeletedUserVotes::class),
 ];

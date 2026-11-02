@@ -96,19 +96,6 @@ class Votes
         return $moved;
     }
 
-    /**
-     * Before a user row is deleted (the foreign key then removes their
-     * votes), take their vote off every idea they voted for. One statement
-     * however many ideas that is.
-     */
-    public function forgetUser(User $user): void
-    {
-        Discussion::query()
-            ->whereIn('id', Vote::query()->select('discussion_id')->where('user_id', $user->id))
-            ->where('ideation_votes', '>', 0)
-            ->decrement('ideation_votes');
-    }
-
     protected function adjust(int $discussionId, int $by): void
     {
         if ($by === 0) {

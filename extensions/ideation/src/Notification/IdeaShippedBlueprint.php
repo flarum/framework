@@ -20,14 +20,18 @@ use Flarum\User\User;
 class IdeaShippedBlueprint implements BlueprintInterface, AlertableInterface, MailableInterface
 {
     public function __construct(
-        public Discussion $discussion,
-        public ?User $from
+        public Discussion $discussion
     ) {
     }
 
+    /*
+     * Nobody: the idea shipped, whoever moved it. Core matches notifications
+     * on their sender too, so a sender would make a ship by one moderator and
+     * a retraction, or a second ship by another, miss each other.
+     */
     public function getFromUser(): ?User
     {
-        return $this->from;
+        return null;
     }
 
     public function getSubject(): ?AbstractModel

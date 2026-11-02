@@ -10,14 +10,20 @@
 namespace Flarum\Ideation\Tests\integration\github;
 
 use Carbon\Carbon;
+use Flarum\Admin\Content\AdminPayload;
+use Flarum\Frontend\Document;
 use Flarum\Ideation\GitHub\Client;
+use Flarum\Ideation\GitHub\Links;
+use Flarum\Ideation\GitHub\Secrets;
 use Flarum\Ideation\Tests\integration\FakeGitHub;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\StreamFactory;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
+use ReflectionClass;
 
 class GitHubTest extends TestCase
 {
@@ -210,7 +216,7 @@ class GitHubTest extends TestCase
 
         $this->github->items['flarum/framework/milestone/12'] = ['type' => 'milestone', 'title' => '2.1', 'state' => 'closed', 'open_issues' => 0, 'closed_issues' => 10, 'updated_at' => '2026-10-18T13:00:00Z'];
 
-        $this->assertSame(1, $this->app()->getContainer()->make(\Flarum\Ideation\GitHub\Links::class)->sync());
+        $this->assertSame(1, $this->app()->getContainer()->make(Links::class)->sync());
         $link = $this->show(1)['ideationGithub'][0];
         $this->assertSame(['closed', 10], [$link['state'], $link['closedIssues']]);
     }
@@ -230,5 +236,164 @@ class GitHubTest extends TestCase
 
         $this->assertCount(1, $queries);
         $this->assertSame([1, 1], array_map(fn ($d) => count($d['attributes']['ideationGithub']), $body['data']));
+    }
+
+    #[Test]
+    public function a_repository_taken_off_the_list_is_no_longer_followed()
+    {
+        $this->boot(['auto_progress' => '1', 'auto_ship' => '1']);
+        $this->patch(1, self::MOD, ['ideationGithubLink' => 'flarum/framework#4000']);
+        $this->assertCount(1, $this->show(1)['ideationGithub']);
+
+        $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('flarum-ideation.github.repos', 'fof/*');
+        $this->github->asked = [];
+
+        // The webhook is ignored, so the link is not updated and the idea
+        // does not ship.
+        $closed = ['repository' => ['full_name' => 'flarum/framework'], 'issue' => ['number' => 4000, 'title' => 'Dark mode', 'state' => 'closed', 'state_reason' => 'completed', 'updated_at' => '2026-10-18T12:00:00Z']];
+        $response = $this->webhook('issues', $closed);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame(0, json_decode((string) $response->getBody(), true)['updated']);
+        $this->assertSame('open', $this->database()->table('ideation_github_links')->value('state'));
+        $this->assertSame('planned', $this->show(1)['ideationStatus']);
+
+        // The sync never asks GitHub about it.
+        $this->database()->table('ideation_github_links')->update(['synced_at' => Carbon::now()->subDay()]);
+        $this->assertSame(0, $this->app()->getContainer()->make(Links::class)->sync());
+        $this->assertSame([], $this->github->asked);
+
+        // And it no longer shows, though it is kept in case the repository
+        // goes back on the list.
+        $this->assertSame([], $this->show(1)['ideationGithub']);
+        $this->assertSame(1, $this->database()->table('ideation_github_links')->count());
+    }
+
+    #[Test]
+    public function an_unlisted_link_never_holds_back_or_drives_an_automatic_move()
+    {
+        $this->boot(['auto_ship' => '1']);
+        $this->github->items['flarum/framework#5034']['state'] = 'merged';
+        $this->github->items['fof/upload#8'] = ['type' => 'issue', 'title' => 'Uploads', 'state' => 'open', 'open_issues' => null, 'closed_issues' => null, 'updated_at' => '2026-10-18T10:00:00Z'];
+
+        $this->patch(1, self::MOD, ['ideationGithubLink' => 'fof/upload#8']);
+        $this->patch(1, self::MOD, ['ideationGithubLink' => 'flarum/framework#5034']);
+        $this->assertSame('planned', $this->show(1)['ideationStatus'], 'the open fof/upload issue holds it back');
+
+        // Taking fof off the list leaves only the merged pull request to count.
+        $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('flarum-ideation.github.repos', 'flarum/framework');
+        $this->webhook('pull_request', ['repository' => ['full_name' => 'flarum/framework'], 'pull_request' => ['number' => 5034, 'title' => 'Replace the Extension Manager', 'state' => 'closed', 'merged' => true, 'updated_at' => '2026-10-18T12:00:00Z']]);
+
+        $this->assertSame('shipped', $this->show(1)['ideationStatus']);
+    }
+
+    #[Test]
+    public function removing_the_last_open_item_ships_the_idea()
+    {
+        $this->boot(['auto_ship' => '1']);
+        $this->github->items['flarum/framework#5034']['state'] = 'merged';
+
+        $this->patch(1, self::MOD, ['ideationGithubLink' => 'flarum/framework#4000']);
+        $this->patch(1, self::MOD, ['ideationGithubLink' => 'flarum/framework#5034']);
+        $this->assertSame('planned', $this->show(1)['ideationStatus']);
+
+        $issue = (int) $this->database()->table('ideation_github_links')->where('number', 4000)->value('id');
+        $this->assertSame(200, $this->patch(1, self::MOD, ['ideationGithubUnlink' => $issue])->getStatusCode());
+
+        $this->assertSame('shipped', $this->show(1)['ideationStatus']);
+        $this->assertSame([self::MEMBER], $this->database()->table('notifications')->where('type', 'ideationShipped')->pluck('user_id')->map(fn ($id) => (int) $id)->all());
+    }
+
+    #[Test]
+    public function an_automatic_ship_tells_every_voter_including_whoever_linked_the_item()
+    {
+        $this->boot(['auto_ship' => '1']);
+        $this->database()->table('ideation_votes')->insert(['discussion_id' => 1, 'user_id' => self::MOD, 'created_at' => Carbon::now()]);
+
+        $this->patch(1, self::MOD, ['ideationGithubLink' => 'flarum/framework#4000']);
+        $this->assertSame('planned', $this->show(1)['ideationStatus']);
+
+        $this->webhook('issues', ['repository' => ['full_name' => 'flarum/framework'], 'issue' => ['number' => 4000, 'title' => 'Dark mode', 'state' => 'closed', 'state_reason' => 'completed', 'updated_at' => '2026-10-18T12:00:00Z']]);
+        $this->assertSame('shipped', $this->show(1)['ideationStatus']);
+
+        // The move went through settle() with the moderator who linked the
+        // issue as its cause, but nobody clicked: NotifyVoters ran with actor
+        // 0, so that moderator's vote is told too.
+        $notified = $this->database()->table('notifications')->where('type', 'ideationShipped')->orderBy('user_id')->pluck('user_id')->map(fn ($id) => (int) $id)->all();
+        $this->assertSame([self::MEMBER, self::MOD], $notified);
+
+        $post = $this->database()->table('posts')->where('discussion_id', 1)->where('type', 'ideationStatus')->orderByDesc('id')->first();
+        $this->assertSame(['planned', 'shipped', null, 'flarum/framework#4000'], json_decode($post->content, true));
+    }
+
+    #[Test]
+    public function a_late_or_repeated_webhook_never_rolls_a_link_back_or_moves_an_idea()
+    {
+        $this->boot(['auto_progress' => '1']);
+        // GitHub says the pull request is already merged when it is linked.
+        $this->github->items['flarum/framework#5034'] = ['type' => 'pull', 'title' => 'Replace the Extension Manager', 'state' => 'merged', 'open_issues' => null, 'closed_issues' => null, 'updated_at' => '2026-10-18T12:00:00Z'];
+
+        $this->patch(1, self::MOD, ['ideationGithubLink' => 'flarum/framework#5034']);
+        $this->assertSame('planned', $this->show(1)['ideationStatus'], 'a merged pull request is not work in progress');
+
+        // The "opened" delivery arrives after the merge.
+        $opened = ['repository' => ['full_name' => 'flarum/framework'], 'pull_request' => ['number' => 5034, 'title' => 'Replace the Extension Manager', 'state' => 'open', 'merged' => false, 'updated_at' => '2026-10-18T09:00:00Z']];
+        $this->assertSame(200, $this->webhook('pull_request', $opened)->getStatusCode());
+
+        $this->assertSame('merged', $this->show(1)['ideationGithub'][0]['state']);
+        $this->assertSame('planned', $this->show(1)['ideationStatus']);
+
+        // A redelivery of the newest picture changes nothing either.
+        $merged = ['repository' => ['full_name' => 'flarum/framework'], 'pull_request' => ['number' => 5034, 'title' => 'Replace the Extension Manager', 'state' => 'closed', 'merged' => true, 'updated_at' => '2026-10-18T12:00:00Z']];
+        $this->webhook('pull_request', $merged);
+        $this->webhook('pull_request', $merged);
+        $this->assertSame('merged', $this->show(1)['ideationGithub'][0]['state']);
+        $this->assertSame('planned', $this->show(1)['ideationStatus']);
+        $this->assertSame(0, $this->database()->table('posts')->where('type', 'ideationStatus')->count());
+    }
+
+    #[Test]
+    public function the_token_and_secret_never_reach_the_admin_page()
+    {
+        $this->setting('flarum-ideation.github.token', 'github_pat_secret_value');
+        $this->boot();
+        $container = $this->app()->getContainer();
+
+        // The admin page's payload as core builds it, then as this extension
+        // leaves it. (Not a GET /admin: that compiles js/dist, which CI's
+        // backend run does not build.)
+        $document = (new ReflectionClass(Document::class))->newInstanceWithoutConstructor();
+        $container->make(AdminPayload::class)($document, $this->request('GET', '/admin'));
+        $this->assertSame('github_pat_secret_value', $document->payload['settings']['flarum-ideation.github.token'], 'core sends every setting');
+
+        $container->make(Secrets::class)($document);
+
+        $json = json_encode($document->payload);
+        $this->assertStringNotContainsString('github_pat_secret_value', $json);
+        $this->assertStringNotContainsString(self::SECRET, $json);
+        $this->assertSame(['token' => true, 'secret' => true], $document->payload['ideationGithubSecrets']);
+        $this->assertSame('', $document->payload['settings']['flarum-ideation.github.token']);
+        $this->assertSame('', $document->payload['settings']['flarum-ideation.github.secret']);
+    }
+
+    #[Test]
+    public function saving_an_empty_token_keeps_the_saved_one_and_null_removes_it()
+    {
+        $this->setting('flarum-ideation.github.token', 'github_pat_secret_value');
+        $this->boot();
+
+        $save = fn (array $settings) => $this->send($this->request('POST', '/api/settings', ['authenticatedAs' => 1, 'json' => $settings]));
+        $stored = fn (string $key) => $this->database()->table('settings')->where('key', "flarum-ideation.github.$key")->value('value');
+
+        $this->assertSame(204, $save(['flarum-ideation.github.token' => '', 'flarum-ideation.github.secret' => ' ', 'flarum-ideation.github.auto_ship' => '1'])->getStatusCode());
+        $this->assertSame('github_pat_secret_value', $stored('token'));
+        $this->assertSame(self::SECRET, $stored('secret'));
+        $this->assertSame('1', $stored('auto_ship'));
+
+        $save(['flarum-ideation.github.token' => 'github_pat_new_value']);
+        $this->assertSame('github_pat_new_value', $stored('token'));
+
+        $save(['flarum-ideation.github.token' => null]);
+        $this->assertSame('', (string) $stored('token'));
+        $this->assertSame(self::SECRET, $stored('secret'));
     }
 }

@@ -22,7 +22,7 @@ idea ships.
 - **History in the discussion.** Each move is an event post ("Ernest moved
   this to Planned"), merged the way core merges renames.
 - **Merge duplicates.** Votes move to the idea you keep; someone who voted for
-  both keeps one vote.
+  both keeps one vote. Only into an open idea the moderator can also moderate.
 - **Permissions:** *Post ideas*, *Vote* and *Move, merge and decline ideas*,
   in the permission grid. Members can post and vote, moderators can move.
   With flarum/tags, voting and moving can be granted per restricted tag, like
@@ -40,10 +40,14 @@ Off until an administrator switches it on (Extensions → Ideation).
 - **Repositories:** only the ones listed (`owner/repo` or `owner/*`) can be
   linked. A link shows its title to everyone who can see the idea, and with a
   token the forum can read private repositories, so the list is what keeps a
-  moderator from showing something private.
+  moderator from showing something private. Taking a repository off the list
+  hides its links and stops the webhook, the refresh and the automatic moves
+  from using them; putting it back brings them back.
 - **Token (optional):** for private repositories, and to raise GitHub's limit
   from 60 to 5,000 requests an hour. A fine-grained token with read-only Issues,
-  Pull requests and Metadata is enough. It never leaves the server.
+  Pull requests and Metadata is enough. The token and the webhook secret never
+  leave the server: the admin page only learns whether each is saved, and
+  saving with the field left empty keeps the saved one.
 - **Webhook:** add one in each repository with payload URL
   `https://your-forum/api/ideation/github/webhook`, content type
   `application/json`, the secret from the settings, and the *Issues*,

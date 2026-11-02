@@ -47,7 +47,7 @@ class RecordStatusChange
         } elseif ($event->old === Status::SHIPPED) {
             // Moved back out of Shipped (a slip of the mouse, usually): take
             // the alert back. An email already sent cannot be.
-            $this->notifications->delete(new IdeaShippedBlueprint($discussion, null));
+            $this->notifications->delete(new IdeaShippedBlueprint($discussion));
         }
     }
 }

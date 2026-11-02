@@ -166,31 +166,31 @@ class TagScopedPermissionsTest extends TestCase
     }
 
     #[Test]
-    public function the_rename_migration_carries_existing_grants_over_and_back()
+    public function a_merge_needs_the_moderate_permission_on_the_target_as_well()
     {
-        $migration = include __DIR__.'/../../../migrations/2026_10_19_000000_rename_ideation_permissions.php';
-        $schema = $this->database()->getSchemaBuilder();
-        $permissions = fn (int $group) => $this->database()->table('group_permission')->where('group_id', $group)->orderBy('permission')->pluck('permission')->all();
-
-        // A forum from before the rename; the tag-mod group holds both names.
-        $this->database()->table('group_permission')->insert([
-            ['group_id' => self::VOTERS_GROUP, 'permission' => 'ideation.vote'],
-            ['group_id' => self::TAG_MODS_GROUP, 'permission' => 'ideation.moderate'],
-            ['group_id' => self::TAG_MODS_GROUP, 'permission' => 'discussion.ideationModerate'],
+        $this->database()->table('ideation_votes')->insert([
+            ['discussion_id' => self::RESTRICTED, 'user_id' => self::VOTER, 'created_at' => Carbon::now()],
         ]);
+        $this->database()->table('discussions')->where('id', self::RESTRICTED)->update(['ideation_votes' => 1]);
 
-        $migration['up']($schema);
+        // The tag moderator can see the untagged idea but not moderate it.
+        $this->assertSame(403, $this->patch(self::RESTRICTED, self::TAG_MOD, ['ideationMergedIntoId' => self::UNTAGGED])->getStatusCode());
+        // And the global moderator cannot reach into the restricted tag.
+        $this->assertSame(403, $this->patch(self::UNTAGGED, self::GLOBAL_MOD, ['ideationMergedIntoId' => self::RESTRICTED])->getStatusCode());
 
-        $this->assertSame(['discussion.ideationVote', 'tag1.discussion.ideationVote'], $permissions(self::VOTERS_GROUP));
-        $this->assertSame(['discussion.ideationModerate', 'tag1.discussion.ideationModerate'], $permissions(self::TAG_MODS_GROUP));
+        $this->assertSame('under_review', $this->ideationStatus(self::RESTRICTED));
+        $this->assertSame('under_review', $this->ideationStatus(self::UNTAGGED));
+        $this->assertSame(1, (int) $this->database()->table('discussions')->where('id', self::RESTRICTED)->value('ideation_votes'));
+        $this->assertSame(0, (int) $this->database()->table('discussions')->where('id', self::UNTAGGED)->value('ideation_votes'));
+        $this->assertSame(0, $this->database()->table('posts')->where('type', 'ideationStatus')->count());
+    }
+
+    #[Test]
+    public function members_and_moderators_get_the_tag_scopable_permissions_by_default()
+    {
+        $permissions = fn (int $group) => $this->database()->table('group_permission')->where('group_id', $group)->pluck('permission')->all();
+
         $this->assertContains('discussion.ideationVote', $permissions(Group::MEMBER_ID));
         $this->assertContains('discussion.ideationModerate', $permissions(Group::MODERATOR_ID));
-        $this->assertSame(0, $this->database()->table('group_permission')->whereIn('permission', ['ideation.vote', 'ideation.moderate'])->count());
-
-        $migration['down']($schema);
-
-        $this->assertSame(['ideation.vote', 'tag1.discussion.ideationVote'], $permissions(self::VOTERS_GROUP));
-        $this->assertSame(['ideation.moderate', 'tag1.discussion.ideationModerate'], $permissions(self::TAG_MODS_GROUP));
-        $this->assertContains('ideation.vote', $permissions(Group::MEMBER_ID));
     }
 }

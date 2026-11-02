@@ -12,6 +12,6 @@ use Flarum\Group\Group;
 
 return Migration::addPermissions([
     'ideation.postIdeas' => Group::MEMBER_ID,
-    'ideation.vote' => Group::MEMBER_ID,
-    'ideation.moderate' => Group::MODERATOR_ID,
+    'discussion.ideationVote' => Group::MEMBER_ID,
+    'discussion.ideationModerate' => Group::MODERATOR_ID,
 ]);

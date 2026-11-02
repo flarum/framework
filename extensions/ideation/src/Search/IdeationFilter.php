@@ -42,6 +42,17 @@ class IdeationFilter implements FilterInterface
             ? Status::SETTABLE
             : array_values(array_intersect(Status::SETTABLE, $wanted));
 
-        $state->getQuery()->whereIn('discussions.ideation_status', $statuses, 'and', $negate);
+        if (! $negate) {
+            $state->getQuery()->whereIn('discussions.ideation_status', $statuses);
+
+            return;
+        }
+
+        // NOT IN never matches NULL, and a discussion that is not an idea
+        // is not in any of these statuses either.
+        $state->getQuery()->where(function ($query) use ($statuses) {
+            $query->whereNotIn('discussions.ideation_status', $statuses)
+                ->orWhereNull('discussions.ideation_status');
+        });
     }
 }

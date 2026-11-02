@@ -68,9 +68,9 @@ class NotifyVoters extends AbstractJob
                 }
             });
 
-        $notifications->sync(
-            new IdeaShippedBlueprint($discussion, User::query()->find($this->actorId)),
-            $voters
-        );
+        // Sent before, then taken back by a move out of Shipped? The sync
+        // restores that alert instead of making a new one, so nobody gets a
+        // second alert or email for the same idea.
+        $notifications->sync(new IdeaShippedBlueprint($discussion), $voters);
     }
 }

@@ -111,8 +111,9 @@ class DiscussionFields
             Schema\Integer::make('ideationGithubUnlink')
                 ->visible(false)
                 ->writable($canLink)
-                ->set(function (Discussion $d, int $value) {
-                    $d->afterSave(fn () => $this->links->unlink($d, $value));
+                ->set(function (Discussion $d, int $value, Context $context) {
+                    $actor = $context->getActor();
+                    $d->afterSave(fn () => $this->links->unlink($d, $actor, $value));
                 }),
         ];
     }
@@ -157,11 +158,12 @@ class DiscussionFields
     {
         $actor = $context->getActor();
 
+        // Only into an open idea: a shipped or declined idea's count is
+        // frozen, and the voters moved onto a shipped one would never be told.
         /** @var Discussion|null $target */
         $target = $targetId === null ? null : Discussion::query()
             ->whereVisibleTo($actor)
-            ->whereNotNull('ideation_status')
-            ->where('ideation_status', '!=', Status::MERGED)
+            ->whereIn('ideation_status', Status::OPEN)
             ->find($targetId);
 
         if ($source->ideation_status === null
@@ -170,6 +172,10 @@ class DiscussionFields
             || $target->id === $source->id) {
             throw new ValidationException(['ideationMergedIntoId' => $this->translator->trans('flarum-ideation.api.merge_target')]);
         }
+
+        // The merge changes the target's count and who hears when it ships,
+        // so moderating the source is not enough.
+        $actor->assertCan('ideationModerate', $target);
 
         $old = $source->ideation_status;
 

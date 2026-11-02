@@ -10,10 +10,14 @@
 namespace Flarum\Ideation\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Extend;
+use Flarum\User\User;
+use Illuminate\Mail\Events\MessageSent;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
 class IdeationTest extends TestCase
 {
@@ -322,5 +326,100 @@ class IdeationTest extends TestCase
 
         $this->assertSame(0, $this->votes(1));
         $this->assertSame(1, $this->votes(2));
+    }
+
+    #[Test]
+    public function shipping_again_after_a_move_back_never_alerts_or_emails_a_voter_twice()
+    {
+        $emails = [];
+        $this->extend((new Extend\Event())->listen(MessageSent::class, function (MessageSent $event) use (&$emails) {
+            foreach ($event->message->getTo() as $address) {
+                $emails[] = $address->getAddress();
+            }
+        }));
+
+        $this->prepareDatabase([
+            'users' => [['id' => 6, 'username' => 'moddy2', 'email' => 'moddy2@machine.local', 'password' => 'too-obscure', 'is_email_confirmed' => 1]],
+            'group_user' => [['user_id' => 6, 'group_id' => 4]],
+        ]);
+
+        foreach ([self::MEMBER, self::OTHER] as $voter) {
+            $this->patch(1, $voter, ['ideationVoted' => true]);
+        }
+
+        $alerts = fn () => $this->database()->table('notifications')->where('type', 'ideationShipped')->orderBy('user_id')->get(['user_id', 'is_deleted'])
+            ->map(fn ($n) => [(int) $n->user_id, (bool) $n->is_deleted])->all();
+
+        // One moderator ships it.
+        $this->assertSame(200, $this->patch(1, self::MOD, ['ideationStatus' => 'shipped'])->getStatusCode());
+        $this->assertSame([[self::MEMBER, false], [self::OTHER, false]], $alerts());
+
+        // Moved back: the alert is taken back.
+        $this->assertSame(200, $this->patch(1, self::MOD, ['ideationStatus' => 'in_progress'])->getStatusCode());
+        $this->assertSame([[self::MEMBER, true], [self::OTHER, true]], $alerts());
+
+        // Another moderator ships it again: the same alerts come back, and
+        // nobody gets a second one or a second email.
+        $this->assertSame(200, $this->patch(1, 6, ['ideationStatus' => 'shipped'])->getStatusCode());
+        $this->assertSame([[self::MEMBER, false], [self::OTHER, false]], $alerts());
+
+        sort($emails);
+        $this->assertSame(['normal@machine.local', 'other@machine.local'], $emails);
+    }
+
+    #[Test]
+    public function an_idea_can_only_be_merged_into_an_open_one()
+    {
+        $this->patch(2, self::OTHER, ['ideationVoted' => true]);
+
+        foreach (['shipped', 'declined'] as $closed) {
+            $this->database()->table('discussions')->where('id', 2)->update(['ideation_status' => $closed]);
+
+            $this->assertSame(422, $this->patch(1, self::MOD, ['ideationMergedIntoId' => 2])->getStatusCode());
+            $this->assertSame('under_review', $this->database()->table('discussions')->where('id', 1)->value('ideation_status'));
+            $this->assertSame(1, $this->votes(2));
+        }
+
+        $this->database()->table('discussions')->where('id', 2)->update(['ideation_status' => 'planned']);
+        $this->assertSame(200, $this->patch(1, self::MOD, ['ideationMergedIntoId' => 2])->getStatusCode());
+    }
+
+    #[Test]
+    public function a_negated_status_filter_keeps_discussions_that_are_not_ideas()
+    {
+        $this->database()->table('discussions')->where('id', 2)->update(['ideation_status' => 'planned']);
+
+        $ids = function (array $filter) {
+            $response = $this->send($this->request('GET', '/api/discussions', ['authenticatedAs' => self::MEMBER])->withQueryParams(['filter' => $filter]));
+            $ids = array_map(fn ($d) => (int) $d['id'], json_decode((string) $response->getBody(), true)['data']);
+            sort($ids);
+
+            return $ids;
+        };
+
+        $this->assertSame([2], $ids(['ideation' => 'planned']));
+        $this->assertSame([1, 3, 4], $ids(['-ideation' => 'planned']));
+        $this->assertSame([4], $ids(['-ideation' => 'all']));
+    }
+
+    #[Test]
+    public function a_member_delete_that_fails_leaves_the_counts_alone()
+    {
+        $this->patch(1, self::OTHER, ['ideationVoted' => true]);
+        $this->patch(2, self::OTHER, ['ideationVoted' => true]);
+
+        // The row delete fails after the API's Deleting event has gone out.
+        User::deleting(function (User $user) {
+            if ($user->id === self::OTHER) {
+                throw new RuntimeException('The database went away.');
+            }
+        });
+
+        $response = $this->send($this->request('DELETE', '/api/users/'.self::OTHER, ['authenticatedAs' => 1]));
+        $this->assertSame(500, $response->getStatusCode());
+
+        $this->assertSame(1, $this->votes(1));
+        $this->assertSame(1, $this->votes(2));
+        $this->assertSame([self::OTHER], $this->voteRows(1));
     }
 }
