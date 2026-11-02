@@ -283,6 +283,31 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function returns_every_group_from_an_offset_when_the_endpoint_extracts_no_limit()
+    {
+        $this->extend(
+            (new Extend\ApiResource(GroupResource::class))
+                ->endpoint(Index::class, function (Index $endpoint): Index {
+                    return $endpoint->extractLimit(fn () => null);
+                })
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams([
+                'page' => ['offset' => '2'],
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
+
+        $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
     public function pages_by_number_without_a_limit()
     {
         $response = $this->send(
