@@ -179,20 +179,29 @@ export default class GambitsAutocomplete {
 
         let prefixValues = '';
         let activeTerm = gambitQuery;
+        const chosenValues: string[] = [];
 
         if (matchingKeyValueGambit.predicates && gambitQuery.includes(',')) {
           const lastCommaIndex = gambitQuery.lastIndexOf(',');
           prefixValues = gambitQuery.slice(0, lastCommaIndex + 1);
           activeTerm = gambitQuery.slice(lastCommaIndex + 1);
+          chosenValues.push(
+            ...prefixValues
+              .slice(0, -1)
+              .split(',')
+              .map((v) => v.trim().toLowerCase())
+              .filter(Boolean)
+          );
         }
 
         const normalizedActiveTerm = activeTerm.toLowerCase();
 
         const matchingOptions = options.filter(
           (opt) =>
-            !normalizedActiveTerm ||
-            opt.value.toLowerCase().startsWith(normalizedActiveTerm) ||
-            (opt.label && opt.label.toLowerCase().includes(normalizedActiveTerm))
+            !chosenValues.includes(opt.value.toLowerCase()) &&
+            (!normalizedActiveTerm ||
+              opt.value.toLowerCase().startsWith(normalizedActiveTerm) ||
+              (opt.label && opt.label.toLowerCase().includes(normalizedActiveTerm)))
         );
 
         if (normalizedActiveTerm && matchingOptions.some((opt) => opt.value.toLowerCase() === normalizedActiveTerm)) {
