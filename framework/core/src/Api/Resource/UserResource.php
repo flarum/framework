@@ -569,11 +569,9 @@ class UserResource extends AbstractDatabaseResource
      */
     private function assertValidAvatarUrl(string $url): void
     {
-        $urlValidator = $this->validation->make(compact('url'), [
-            'url' => 'required|active_url',
-        ]);
+        $host = parse_url($url, PHP_URL_HOST);
 
-        if ($urlValidator->fails()) {
+        if (filter_var($url, FILTER_VALIDATE_URL) === false || ! is_string($host) || $host === '') {
             throw new ValidationException([
                 'avatar_url' => 'Provided avatar URL must be a valid URI.',
             ]);
@@ -584,6 +582,14 @@ class UserResource extends AbstractDatabaseResource
         if (! in_array($scheme, ['http', 'https'])) {
             throw new ValidationException([
                 'avatar_url' => "Provided avatar URL must have scheme http or https. Scheme provided was $scheme.",
+            ]);
+        }
+
+        // retrieveAvatarFromUrl() repeats this check and pins the connection
+        // to the address, in case the record changes between now and the fetch.
+        if ($this->resolveToAllowedIp($host) === null) {
+            throw new ValidationException([
+                'avatar_url' => 'Provided avatar URL must point at a public address.',
             ]);
         }
     }
