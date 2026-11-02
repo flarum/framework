@@ -200,13 +200,10 @@ export default class ResourceFilterBar<M extends Model = Model> {
         buttonClassName={classList('Button', count && 'is-active')}
         icon="fas fa-filter"
         label={
-          <span className="ResourceTable-filterButtonLabel">
+          // The count is drawn from `data-count` in CSS, so the label's text stays "Filter" and the
+          // toggle's accessible name ("Filter, 1 active") still contains what the button shows.
+          <span className="ResourceTable-filterButtonLabel" data-count={count > 0 ? count : undefined}>
             {app.translator.trans('core.admin.resource.table.filter_button')}
-            {count > 0 && (
-              <span className="ResourceTable-filterCount" aria-hidden="true">
-                {count}
-              </span>
-            )}
           </span>
         }
         accessibleToggleLabel={app.translator.trans('core.admin.resource.table.filter_toggle_label', { count }, true)}

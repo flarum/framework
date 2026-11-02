@@ -87,7 +87,8 @@
   }
 
   // The number of set filters on the "Filter" button.
-  &-filterCount {
+  &-filterButtonLabel[data-count]::after {
+    content: attr(data-count);
     display: inline-flex;
     align-items: center;
     justify-content: center;

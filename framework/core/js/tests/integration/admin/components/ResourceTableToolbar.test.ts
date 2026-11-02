@@ -154,7 +154,7 @@ describe('ResourceTable toolbar', () => {
 
     expect(out.find('.ResourceTable-toolbarView .ResourceTable-filterPanel')).toHaveLength(1);
     expect(out.first('.ResourceTable-filterPanel .Dropdown-toggle').textContent).toContain('Filter');
-    expect(out).not.toHaveElement('.ResourceTable-filterCount');
+    expect(out).not.toHaveElement('.ResourceTable-filterButtonLabel[data-count]');
     expect(out).toHaveElementAttr('.ResourceTable-filterPanel .Dropdown-toggle', 'aria-label', 'Filter');
     // Five described filters, then the gadgets' gambits as search filter chips.
     expect(out.find('.ResourceTable-filterPanel .ResourceTable-filterGroup')).toHaveLength(6);
@@ -174,7 +174,7 @@ describe('ResourceTable toolbar', () => {
 
     expect(lastParams()).toMatchObject({ filter: { status: 'live' }, page: { offset: 0 } });
     expect(out).toHaveElement('.ResourceTable-filterPanel .Dropdown-toggle.is-active');
-    expect(out.first('.ResourceTable-filterCount').textContent).toBe('1');
+    expect(out).toHaveElementAttr('.ResourceTable-filterButtonLabel', 'data-count', '1');
     expect(out).toHaveElementAttr('.ResourceTable-filterPanel .Dropdown-toggle', 'aria-label', 'Filter, 1 active');
     expect(out).toHaveElement('.ResourceTable-filterGroupItem--status.active button[data-value=live]');
   });
