@@ -33,6 +33,15 @@ class Change
         public readonly string $package,
         public readonly ?string $from = null,
         public readonly ?string $to = null,
+        /*
+         * The commit each side points at, for a development version only
+         * (`2.x-dev`, `dev-main`). A branch that moves keeps its version string,
+         * so without these an update along a branch would be a change from
+         * `2.x-dev` to `2.x-dev`: invisible to the plan, and two rollback copies
+         * fighting over one name in the trash.
+         */
+        public readonly ?string $fromRef = null,
+        public readonly ?string $toRef = null,
     ) {
         if (! in_array($op, [self::REPLACE, self::ADD, self::REMOVE], true)) {
             throw new InvalidArgumentException("Unknown change operation: $op");
@@ -78,13 +87,34 @@ class Change
     {
         // A branch version can hold a slash too (dev-feature/x), and the name
         // has to stay one entry directly inside the trash.
-        return str_replace('/', '+', $this->package.'@'.($this->from ?? 'absent'));
+        return str_replace('/', '+', $this->package.'@'.($this->from ?? 'absent')).$this->refSuffix();
+    }
+
+    /**
+     * Which commit of a development version was set aside, so the copy kept
+     * from one nightly is never mistaken for, or replaced by, the next one's.
+     * Empty for everything else, so trash names written before this existed
+     * still match.
+     */
+    protected function refSuffix(): string
+    {
+        $ref = preg_replace('/[^A-Za-z0-9]/', '', (string) $this->fromRef);
+
+        return $ref === '' ? '' : '#'.substr($ref, 0, 12);
+    }
+
+    /** A version Composer takes from a branch rather than a tag. */
+    public static function isDev(string $version): bool
+    {
+        return str_starts_with($version, 'dev-') || str_ends_with($version, '-dev');
     }
 
     public function describe(TranslatorInterface $translator): string
     {
         return match ($this->op) {
-            self::REPLACE => "{$this->package} {$this->from} → {$this->to}",
+            self::REPLACE => $this->from === $this->to && $this->fromRef !== null && $this->toRef !== null
+                ? "{$this->package} {$this->from} (".substr($this->fromRef, 0, 7).' → '.substr($this->toRef, 0, 7).')'
+                : "{$this->package} {$this->from} → {$this->to}",
             self::ADD => $translator->trans('flarum-extension-manager.api.change.added', ['package' => $this->package, 'version' => $this->to]),
             self::REMOVE => $translator->trans('flarum-extension-manager.api.change.removed', ['package' => $this->package, 'version' => $this->from]),
             default => $this->package,
@@ -99,6 +129,8 @@ class Change
             'package' => $this->package,
             'from' => $this->from,
             'to' => $this->to,
+            'fromRef' => $this->fromRef,
+            'toRef' => $this->toRef,
         ], fn ($v) => $v !== null);
     }
 
@@ -110,6 +142,8 @@ class Change
             (string) ($row['package'] ?? ''),
             isset($row['from']) ? (string) $row['from'] : null,
             isset($row['to']) ? (string) $row['to'] : null,
+            isset($row['fromRef']) ? (string) $row['fromRef'] : null,
+            isset($row['toRef']) ? (string) $row['toRef'] : null,
         );
     }
 }
