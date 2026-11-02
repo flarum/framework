@@ -3,6 +3,7 @@ import m from 'mithril';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
 import ResourceFormModal from '../../../../src/admin/components/resource/ResourceFormModal';
+import RequestError from '../../../../src/common/utils/RequestError';
 import EditUserModal from '../../../../src/common/components/EditUserModal';
 import { extend } from '../../../../src/common/extend';
 import type User from '../../../../src/common/models/User';
@@ -229,6 +230,35 @@ describe('ResourceFormModal', () => {
     expect(out).toContainRaw(tooShort);
     expect(heard).toEqual([{ username: [{ message: tooShort, path: 'de' }] }]);
     expect(request.mock.calls.some((call: any) => call[0].method === 'PATCH')).toBe(false);
+  });
+
+  test('a 422 pointing below a field shows on that field, the rest of the pointer as path', async () => {
+    const errors = [{ status: '422', detail: 'German name taken', source: { pointer: '/data/attributes/username/de' } }];
+
+    request.mockImplementation(async (options: any) => {
+      if (options.url.includes('/resource-schemas/')) return schemaDocument(usersDescriptor(), 'users');
+      if (options.url.endsWith('/groups')) return { data: [], links: {} };
+
+      const error = new RequestError(422, JSON.stringify({ errors }), options, {} as XMLHttpRequest);
+      await options.errorHandler?.(error);
+      throw error;
+    });
+
+    const { out, modal } = await render<ResourceFormModal<User>>(
+      ResourceFormModal,
+      modalAttrs({ definition: new ResourceDefinition<User>('users'), model: user })
+    );
+
+    modal.formState!.stream('username')('renamed');
+    out.redraw();
+    out.trigger('form', 'submit', {} as Event);
+    await flush();
+    await flush();
+    out.redraw();
+
+    expect(out).toHaveElement('.ResourceForm-field--username.has-error');
+    expect(out).toContainRaw('German name taken');
+    expect(modal.formState!.fieldErrors('username')).toEqual([expect.objectContaining({ message: 'German name taken', path: 'de' })]);
   });
 
   describe('with ui hints', () => {

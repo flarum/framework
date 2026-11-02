@@ -238,6 +238,14 @@ export interface Field<M extends Model, V = unknown> {
    * forms and while the form builds its streams; return true then if the field depends only on them.
    */
   when?(m: M | null, values?: Record<string, unknown>): boolean;
+  /**
+   * More paths the field claims server errors for, besides its key (and its snake_case key): each
+   * a path below `/data/attributes` (or `/data/relationships`), `/`-separated, a `/` or `~` inside
+   * a segment escaped as in a JSON pointer (`~1`, `~0`). A claim takes the errors pointing at it
+   * and below it, on whole segments, e.g. `translationMap/de` takes `/translationMap/de` and
+   * `/translationMap/de/name`; the longest claim of all fields wins. A segment is literal: `*`
+   * claims a segment named `*`, not the unmatched errors. See `mapErrors()`.
+   */
   errorKeys?: string[];
   /**
    * The client-side errors of the field's form value, in place of the descriptor check. For a form
@@ -254,10 +262,12 @@ export interface Field<M extends Model, V = unknown> {
    */
   validate?(value: V, ctx: FieldValidationContext<M, V>): Array<string | FieldError>;
   /**
-   * Called with every JSON:API error of a failed save (422/403), after they were mapped onto
-   * `form.errors`. For fields whose state spans more than one input.
+   * Called when the server rejects a save (422/403), after the messages landed on `form.errors`:
+   * `errors` holds every error resolved onto a field key (`'*'` for unmatched ones), as
+   * `onclienterrors()` gets the client-side ones, with `path` the part below the claim and the raw
+   * `error`. For fields whose state spans more than one input.
    */
-  onerrors?(errors: JsonApiError[], form: ResourceFormState<any>): void;
+  onerrors?(errors: Record<string, ResolvedError[]>, form: ResourceFormState<any>): void;
   /**
    * Called when `save()` stops at client-side validation, after the messages landed on
    * `form.errors`: `errors` holds every invalid field's errors by key, plain messages (from
@@ -269,12 +279,22 @@ export interface Field<M extends Model, V = unknown> {
   descriptor?: FieldDescriptor;
 }
 
-/** One client-side error of a field. */
+/** One error of a field, client-side or (as `ResolvedError`) from the server. */
 export interface FieldError {
   /** Shown as is, see `Field.validate()`. */
   message: string;
-  /** The part of the form value the message is about, e.g. a locale code; absent for the whole value. */
+  /**
+   * The part of the form value the message is about, e.g. a locale code; absent for the whole
+   * value. For a server error, the decoded pointer below the field's claim, `/`-joined.
+   */
   path?: string;
+}
+
+/** A JSON:API error of a failed save, resolved onto a field by `mapErrors()`. */
+export interface ResolvedError extends FieldError {
+  /** The error's `source.pointer`, as sent; see `pointerPath()` for its segments. */
+  pointer?: string;
+  error: JsonApiError;
 }
 
 /**

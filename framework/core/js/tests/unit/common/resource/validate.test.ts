@@ -301,7 +301,7 @@ describe('Field.onclienterrors', () => {
     expect(state.fieldErrors('name')).toEqual([{ message: 'whole' }, { message: 'German (de): too long', path: 'de' }]);
   });
 
-  test('fieldErrors() follows validateField() and is empty for server errors', async () => {
+  test('fieldErrors() follows validateField()', async () => {
     const state = await ResourceFormState.create(
       new ThingDefinition((fields) => patchField(fields, 'name', { validate: (v) => (v === 'bad' ? [{ message: 'Bad', path: 'fr' }] : []) })),
       null
@@ -330,27 +330,63 @@ describe('Field.onclienterrors', () => {
     expect(hook).not.toHaveBeenCalled();
   });
 
-  test('server errors still reach onerrors only', async () => {
+  test('server errors reach onerrors only, resolved by key with their path', async () => {
     const client = jest.fn();
     const server = jest.fn();
     const state = await ResourceFormState.create(
-      new ThingDefinition((fields) => patchField(fields, 'name', { onclienterrors: client, onerrors: server })),
+      new ThingDefinition((fields) => patchField(fields, 'name', { onclienterrors: client, onerrors: server, errorKeys: ['names'] })),
       null
     );
-    const errors = [{ detail: 'Taken', source: { pointer: '/data/attributes/name' } }];
+    const errors = [
+      { detail: 'Taken', source: { pointer: '/data/attributes/name' } },
+      { detail: 'Too long', source: { pointer: '/data/attributes/names/de' } },
+    ];
 
-    app.request = jest.fn(async (options: any) => {
-      const error = new RequestError(422, JSON.stringify({ errors }), options, {} as XMLHttpRequest);
-      await options.errorHandler?.(error);
-      throw error;
-    }) as any;
+    reject(errors);
     state.stream('name')('Fork');
     state.stream('kind')('plain');
 
     await expect(state.save()).rejects.toBeInstanceOf(RequestError);
 
+    const resolved = [
+      { message: 'Taken', pointer: '/data/attributes/name', error: errors[0] },
+      { message: 'Too long', path: 'de', pointer: '/data/attributes/names/de', error: errors[1] },
+    ];
+
     expect(client).not.toHaveBeenCalled();
-    expect(server).toHaveBeenCalledWith(errors, state);
+    expect(server).toHaveBeenCalledWith({ name: resolved }, state);
+    expect(state.errors).toEqual({ name: 'Taken\nToo long' });
+    expect(state.fieldErrors('name')).toEqual(resolved);
+  });
+
+  test('a server error is kept by validateField() until a client error replaces it, and cleared by the next save', async () => {
+    const state = await ResourceFormState.create(new ThingDefinition(), null);
+
+    reject([{ detail: 'Taken', source: { pointer: '/data/attributes/name' } }]);
+    state.stream('name')('Fork');
+    state.stream('kind')('plain');
+    await expect(state.save()).rejects.toBeInstanceOf(RequestError);
+
+    state.validateField('name');
+    state.validateField('kind');
     expect(state.errors).toEqual({ name: 'Taken' });
+    expect(state.fieldErrors('name')).toEqual([expect.objectContaining({ message: 'Taken' })]);
+
+    state.stream('name')('far too long');
+    state.validateField('name');
+    expect(state.fieldErrors('name')).toEqual([{ message: t('max_length', { count: 5 }) }]);
+
+    state.stream('name')('Fork');
+    state.validateField('name');
+    expect(state.errors).toEqual({});
+    expect(state.fieldErrors('name')).toEqual([]);
   });
 });
+
+function reject(errors: unknown[]): void {
+  app.request = jest.fn(async (options: any) => {
+    const error = new RequestError(422, JSON.stringify({ errors }), options, {} as XMLHttpRequest);
+    await options.errorHandler?.(error);
+    throw error;
+  }) as any;
+}

@@ -215,13 +215,13 @@ describe('ResourceFormState', () => {
     expect(state.errors).toEqual({ createdAt: 'Field [createdAt] is not writable' });
   });
 
-  test('every visible field with onerrors sees all raw errors after mapping', async () => {
+  test('every visible field with onerrors sees all resolved errors by key after mapping', async () => {
     const seen: unknown[] = [];
 
     class HookDefinition extends ThingDefinition {
       fields(): ItemList<Field<Thing>> {
         const fields = super.fields();
-        patchField(fields, 'title', { onerrors: (errors, form) => seen.push([errors.length, { ...form.errors }]) });
+        patchField(fields, 'title', { onerrors: (errors, form) => seen.push([errors, { ...form.errors }]) });
         patchField(fields, 'secret', { onerrors: () => seen.push('hidden') });
 
         return fields;
@@ -243,7 +243,15 @@ describe('ResourceFormState', () => {
     state.stream('title')('xyz');
     await expect(state.save()).rejects.toBeInstanceOf(RequestError);
 
-    expect(seen).toEqual([[2, { title: 'Too short', '*': 'Bad' }]]);
+    expect(seen).toEqual([
+      [
+        {
+          title: [{ message: 'Too short', pointer: '/data/attributes/title', error: errors[0] }],
+          '*': [{ message: 'Bad', pointer: '/data/attributes/translations/de', error: errors[1] }],
+        },
+        { title: 'Too short', '*': 'Bad' },
+      ],
+    ]);
   });
 
   test('422 errors are mapped and suppress the global alert; others fall back to it', async () => {

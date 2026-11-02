@@ -8,7 +8,7 @@ import { conditionHolds, isRequired, isWritable } from './descriptor';
 import { mapErrors } from './errors';
 import { fieldSave, fieldValue, mergeSaveData, snapshot } from './field';
 import type ResourceDefinition from './ResourceDefinition';
-import type { Field, FieldError, FormMode, JsonApiError, SaveData } from './types';
+import type { Field, FieldError, FormMode, JsonApiError, ResolvedError, SaveData } from './types';
 import { ValidationError, validateValue } from './validation';
 
 /**
@@ -25,8 +25,8 @@ export default class ResourceFormState<M extends Model = Model> {
   initial: Record<string, unknown> = {};
   errors: Record<string, string> = {};
   saving: boolean = false;
-  /** The client-side errors behind entries in `errors`, by key; server errors are not in here. */
-  protected clientErrors = new Map<string, FieldError[]>();
+  /** The errors behind entries in `errors`, by key: client-side ones, or `ResolvedError`s from the server. */
+  protected errorsByKey = new Map<string, FieldError[]>();
   protected sharedStreams: Record<string, Stream<any>> = {};
   /** A page-unique prefix for the ids of the form's elements, e.g. its error messages. */
   readonly domId: string = generateElementId();
@@ -150,7 +150,7 @@ export default class ResourceFormState<M extends Model = Model> {
     this.streams = {};
     this.initial = {};
     this.errors = {};
-    this.clientErrors.clear();
+    this.errorsByKey.clear();
 
     const creating = this.isCreating();
 
@@ -243,11 +243,17 @@ export default class ResourceFormState<M extends Model = Model> {
   }
 
   /**
-   * The client-side errors shown for a field, as `validate()`/`save()`/`validateField()` left
-   * them: `{ message, path? }`. Empty when it has none or its error came from the server.
+   * The errors shown for a field (`'*'`: the unmatched server errors), as `save()` or
+   * `validateField()` left them: client-side ones as `{ message, path? }`, the server's as
+   * `ResolvedError`s (see `isServerError()`).
    */
   fieldErrors(key: string): FieldError[] {
-    return this.clientErrors.get(key) ?? [];
+    return this.errorsByKey.get(key) ?? [];
+  }
+
+  /** Whether the field's errors came from the server; they stay until a save or a client error replaces them. */
+  protected hasClientErrors(key: string): boolean {
+    return !!this.errorsByKey.get(key)?.some((error) => !isServerError(error));
   }
 
   /**
@@ -259,19 +265,19 @@ export default class ResourceFormState<M extends Model = Model> {
 
     const fieldErrors = this.check(key, this.fields.get(key), false);
 
-    this.clientErrors.forEach((_, other) => {
-      if (other === key || !this.fields.has(other)) return;
+    this.errorsByKey.forEach((_, other) => {
+      if (other === key || !this.fields.has(other) || !this.hasClientErrors(other)) return;
       if (this.check(other, this.fields.get(other), this.isCreating()).length) return;
 
       delete this.errors[other];
-      this.clientErrors.delete(other);
+      this.errorsByKey.delete(other);
     });
 
     if (fieldErrors.length) {
-      this.setClientErrors(key, fieldErrors);
-    } else if (this.clientErrors.has(key)) {
+      this.setErrors(key, fieldErrors);
+    } else if (this.hasClientErrors(key)) {
       delete this.errors[key];
-      this.clientErrors.delete(key);
+      this.errorsByKey.delete(key);
     }
 
     return fieldErrors.map((error) => error.message);
@@ -313,25 +319,27 @@ export default class ResourceFormState<M extends Model = Model> {
     return validateValue(descriptor, this.streams[key](), mode, { values, sent: dirty }).map((message) => ({ message }));
   }
 
-  protected setClientErrors(key: string, errors: FieldError[]): void {
+  protected setErrors(key: string, errors: FieldError[]): void {
     this.errors[key] = errors.map((error) => error.message).join('\n');
-    this.clientErrors.set(key, errors);
+    this.errorsByKey.set(key, errors);
   }
 
   /**
    * Validate, then save `data` (default: `buildSaveData()`). Invalid fields reject with a
    * `ValidationError` (messages by key, as `validate()`) and no request, after every visible
-   * field's `onclienterrors()` (the structured errors, as `validateErrors()`). 422/403 field errors land in `errors` (`'*'` for unmatched
-   * ones) instead of the global alert; the promise still rejects.
+   * field's `onclienterrors()` (the structured errors, as `validateErrors()`). 422/403 errors are
+   * resolved onto fields by `mapErrors()` and land in `errors` and `fieldErrors()` (`'*'` for
+   * unmatched ones) instead of the global alert, then reach every visible field's `onerrors()`; the
+   * promise still rejects.
    */
   async save(data?: SaveData): Promise<M> {
     const invalid = this.validateErrors();
 
     this.errors = {};
-    this.clientErrors.clear();
+    this.errorsByKey.clear();
 
     if (Object.keys(invalid).length) {
-      Object.entries(invalid).forEach(([key, errors]) => this.setClientErrors(key, errors));
+      Object.entries(invalid).forEach(([key, errors]) => this.setErrors(key, errors));
       this.visibleFields()
         .toArray()
         .forEach((field) => field.onclienterrors?.(invalid, this));
@@ -364,14 +372,21 @@ export default class ResourceFormState<M extends Model = Model> {
     if ((error.status === 422 || error.status === 403) && errors?.length) {
       const visible = this.visibleFields();
 
-      this.errors = mapErrors(errors, visible);
-      visible.toArray().forEach((field) => field.onerrors?.(errors, this));
+      const resolved = mapErrors(errors, visible);
+
+      Object.entries(resolved).forEach(([key, keyErrors]) => this.setErrors(key, keyErrors));
+      visible.toArray().forEach((field) => field.onerrors?.(resolved, this));
 
       return;
     }
 
     return false;
   }
+}
+
+/** Whether a form error came from the server (`mapErrors()`), not from client-side validation. */
+export function isServerError(error: FieldError): error is ResolvedError {
+  return 'error' in error;
 }
 
 function messagesOf(errors: Record<string, FieldError[]>): Record<string, string[]> {

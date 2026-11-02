@@ -1,19 +1,23 @@
 import { camelCaseToSnakeCase } from '../utils/string';
 import type ItemList from '../utils/ItemList';
-import type { Field, JsonApiError } from './types';
+import type { Field, JsonApiError, ResolvedError } from './types';
+
+/** One JSON pointer token, unescaped (`~1` → `/`, `~0` → `~`). */
+function decodeToken(token: string): string {
+  return token.replace(/~1/g, '/').replace(/~0/g, '~');
+}
 
 /**
- * Candidate field names for a JSON pointer, most specific first: the full path below
- * `/data/attributes` or `/data/relationships`, its first segment, its last segment.
+ * The decoded segments of a JSON:API `source.pointer` below `/data/attributes` or
+ * `/data/relationships`; for a relationship, its `/data…` tail is dropped. Null for any other
+ * pointer.
  *
- * `/data/attributes/translations/de/name` → `translations/de/name`, `translations`, `name`.
+ * `/data/attributes/translationMap/a~1b/name` → `['translationMap', 'a/b', 'name']`.
  */
-function candidates(pointer: string): string[] {
-  const match = pointer.match(/^\/data\/(attributes|relationships)\/(.+)$/);
+export function pointerPath(pointer: string | undefined): string[] | null {
+  const match = (pointer ?? '').match(/^\/data\/(attributes|relationships)\/(.+)$/);
 
-  if (!match) {
-    return [];
-  }
+  if (!match) return null;
 
   let path = match[2];
 
@@ -21,42 +25,55 @@ function candidates(pointer: string): string[] {
     path = path.replace(/\/data(\/.*)?$/, '');
   }
 
-  const segments = path.split('/');
-
-  return [...new Set([path, segments[0], segments[segments.length - 1]])];
+  return path.split('/').map(decodeToken);
 }
 
-function matches(key: string, field: Field<any>, name: string): boolean {
-  return key === name || camelCaseToSnakeCase(key) === name || !!field.errorKeys?.includes(name);
+/** The paths a field claims, as decoded segments: its key, its snake_case key, its `errorKeys`. */
+function claims(key: string, field: Field<any>): string[][] {
+  const paths = new Set([key, camelCaseToSnakeCase(key)]);
+
+  return [...[...paths].map((path) => [path]), ...(field.errorKeys ?? []).map((path) => path.split('/').map(decodeToken))];
+}
+
+function startsWith(segments: string[], prefix: string[]): boolean {
+  return prefix.length <= segments.length && prefix.every((segment, i) => segment === segments[i]);
 }
 
 /**
- * Map JSON:API 422/403 errors onto field keys through their `source.pointer`. A pointer matches a
- * field by key, by `snake_case(key)` (rules added by `Extend\Validator`), or by `errorKeys`. Unmatched
- * errors land on `'*'`. Several errors for one key are joined by newlines.
+ * Map JSON:API 422/403 errors onto field keys through their `source.pointer`, as structured
+ * errors. Rules, on the pointer's decoded segments below `/data/attributes` or
+ * `/data/relationships` (`~1`/`~0` unescaped; a relationship's `/data…` tail dropped):
  *
- * Pass only the fields that have an input. A field that merely holds a container other fields
- * write into (e.g. `translations`) must be `input: false`: otherwise it matches every pointer below
- * it by its first segment and takes the errors of the fields inside.
+ * - A field claims its key, its `snake_case` key (`Extend\Validator` rules answer with column
+ *   names) and each of its `errorKeys`.
+ * - A claim matches a pointer equal to it or below it, on whole segments.
+ * - The longest matching claim across all fields wins (ties: the first field).
+ * - `path` is the rest of the pointer below the claim, `/`-joined; absent when the pointer is the
+ *   claim itself. No segment of a longer pointer is ever matched on its own.
+ * - Unmatched and pointer-less errors land on `'*'`.
+ *
+ * Pass only the fields that have an input.
  */
-export function mapErrors(errors: JsonApiError[], fields: ItemList<Field<any>>): Record<string, string> {
-  const entries = Object.entries(fields.toObject()).map(([key, item]) => [key, item.content as Field<any>] as const);
-  const mapped: Record<string, string> = {};
+export function mapErrors(errors: JsonApiError[], fields: ItemList<Field<any>>): Record<string, ResolvedError[]> {
+  const claimed = Object.entries(fields.toObject()).flatMap(([key, item]) => claims(key, item.content as Field<any>).map((path) => ({ key, path })));
+  const mapped: Record<string, ResolvedError[]> = {};
 
   for (const error of errors) {
-    const message = error.detail ?? error.title ?? '';
-    let target = '*';
+    const pointer = error.source?.pointer;
+    const segments = pointerPath(pointer);
+    let best: { key: string; path: string[] } | null = null;
 
-    for (const name of candidates(error.source?.pointer ?? '')) {
-      const found = entries.find(([key, field]) => matches(key, field, name));
-
-      if (found) {
-        target = found[0];
-        break;
-      }
+    for (const claim of segments ? claimed : []) {
+      if (startsWith(segments!, claim.path) && (!best || claim.path.length > best.path.length)) best = claim;
     }
 
-    mapped[target] = mapped[target] ? `${mapped[target]}\n${message}` : message;
+    const resolved: ResolvedError = { message: error.detail ?? error.title ?? '', error };
+    const rest = best ? segments!.slice(best.path.length) : [];
+
+    if (rest.length) resolved.path = rest.join('/');
+    if (pointer !== undefined) resolved.pointer = pointer;
+
+    (mapped[best?.key ?? '*'] ??= []).push(resolved);
   }
 
   return mapped;
