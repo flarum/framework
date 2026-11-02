@@ -505,8 +505,8 @@ describe('GambitsAutocomplete', () => {
     });
 
     it('preserves surrounding terms and later values when completing inside a list', () => {
-      selectionStart = 10; // 'tag:ge,help is:unread'
-      selectionEnd = 10;
+      selectionStart = 6; // 'tag:ge' in 'tag:ge,help is:unread'
+      selectionEnd = 6;
       const ac = createAutocomplete();
       const suggestions = extractSuggestions(ac.suggestions('tag:ge,help is:unread'));
 
