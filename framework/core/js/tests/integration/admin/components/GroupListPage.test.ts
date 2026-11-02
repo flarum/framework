@@ -35,7 +35,8 @@ async function render<T>(component: any, attrs: Record<string, unknown>): Promis
 }
 
 function groupDoc(id: string, attributes: Record<string, unknown> = {}) {
-  const builtIn = ['1', '2', '3'].includes(id);
+  // The fixture server reports the first three groups as not deletable.
+  const deletable = !['1', '2', '3'].includes(id);
 
   return {
     type: 'groups',
@@ -48,7 +49,7 @@ function groupDoc(id: string, attributes: Record<string, unknown> = {}) {
       isHidden: false,
       position: null,
       canEdit: true,
-      canDelete: !builtIn,
+      canDelete: deletable,
       ...attributes,
     },
   };
@@ -158,7 +159,7 @@ describe('GroupListPage', () => {
     expect(out).toHaveElement('.ResourceListPage .ResourceTable.GroupListPage-table');
   });
 
-  test('built-in groups have edit but no delete; other groups have both', async () => {
+  test('rows follow canEdit/canDelete from the server: edit on all, delete only where canDelete', async () => {
     const out = await rendered();
 
     expect(out.find('.ResourceTable-edit').length).toBe(5);
@@ -166,7 +167,7 @@ describe('GroupListPage', () => {
     expect(out.find('.ResourceTable-delete').length).toBe(2);
   });
 
-  test('rowAbilities.delete offers a bulk delete that confirms in ResourceActionModal; built-in groups cannot be selected', async () => {
+  test('rowAbilities.delete offers a bulk delete that confirms in ResourceActionModal; rows without canDelete cannot be selected', async () => {
     const out = await rendered();
 
     expect(out).toHaveElement('th .ResourceTable-selectAll');

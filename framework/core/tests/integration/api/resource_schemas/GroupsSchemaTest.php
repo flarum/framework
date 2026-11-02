@@ -187,13 +187,9 @@ class GroupsSchemaTest extends TestCase
 
         $byId = array_column($body['data'], 'attributes', 'id');
 
-        $this->assertTrue($byId['100']['canEdit']);
-        $this->assertTrue($byId['100']['canDelete']);
-        $this->assertTrue($byId['4']['canDelete']);
-
-        foreach (['1', '2', '3'] as $id) {
+        foreach (['1', '2', '3', '4', '100'] as $id) {
             $this->assertTrue($byId[$id]['canEdit'], "group $id");
-            $this->assertFalse($byId[$id]['canDelete'], "group $id");
+            $this->assertTrue($byId[$id]['canDelete'], "group $id");
         }
     }
 

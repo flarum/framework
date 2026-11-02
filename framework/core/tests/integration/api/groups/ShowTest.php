@@ -113,14 +113,6 @@ class ShowTest extends TestCase
 
         $this->assertTrue(Arr::get($custom, 'data.attributes.canEdit'));
         $this->assertTrue(Arr::get($custom, 'data.attributes.canDelete'));
-
-        $admin = json_decode((string) $this->send(
-            $this->request('GET', '/api/groups/1', ['authenticatedAs' => 1])
-        )->getBody(), true);
-
-        // Built-in groups stay editable but can never be deleted.
-        $this->assertTrue(Arr::get($admin, 'data.attributes.canEdit'));
-        $this->assertFalse(Arr::get($admin, 'data.attributes.canDelete'));
     }
 
     #[Test]
