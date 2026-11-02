@@ -4,7 +4,7 @@ import Button from 'flarum/common/components/Button';
 import classList from 'flarum/common/utils/classList';
 import type Discussion from 'flarum/common/models/Discussion';
 import type PostStreamState from 'flarum/forum/states/PostStreamState';
-import { ICONS, SETTABLE, statusLabel } from '../status';
+import { ICONS, OPEN, SETTABLE, statusLabel } from '../status';
 import GithubLinks, { type GithubLink } from './GithubLinks';
 
 export interface IdeationModalAttrs extends IInternalModalAttrs {
@@ -18,6 +18,8 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
   target: Discussion | null = null;
   searching = false;
   timer: number | undefined;
+  /** Counts searches, so an older search's answer never replaces a newer one's. */
+  searchRequest = 0;
   githubRef = '';
   linking = false;
 
@@ -170,13 +172,20 @@ export default class IdeationModal extends Modal<IdeationModalAttrs> {
     window.clearTimeout(this.timer);
 
     if (query.trim().length < 2) {
+      this.searchRequest++;
       this.results = [];
       return;
     }
 
+    const request = ++this.searchRequest;
+
     this.timer = window.setTimeout(() => {
-      app.store.find<Discussion[]>('discussions', { filter: { q: query, ideation: 'all' }, page: { limit: 6 } }).then((results) => {
-        this.results = results.filter((d) => d !== this.attrs.discussion);
+      // Only open ideas can take a merge, and only ones this moderator can
+      // moderate; the server checks both again.
+      app.store.find<Discussion[]>('discussions', { filter: { q: query, ideation: OPEN.join(',') }, page: { limit: 6 } }).then((results) => {
+        if (request !== this.searchRequest) return;
+
+        this.results = results.filter((d) => d !== this.attrs.discussion && d.canIdeationModerate());
         m.redraw();
       });
     }, 250);

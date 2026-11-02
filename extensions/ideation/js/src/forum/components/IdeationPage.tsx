@@ -8,7 +8,6 @@ import Icon from 'flarum/common/components/Icon';
 import Link from 'flarum/common/components/Link';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import classList from 'flarum/common/utils/classList';
-import extractText from 'flarum/common/utils/extractText';
 import type Discussion from 'flarum/common/models/Discussion';
 import type Mithril from 'mithril';
 
@@ -19,7 +18,8 @@ import { COLUMNS, ICONS, SETTABLE, statusLabel } from '../status';
 
 const PAGE = 10;
 
-type Column = { items: Discussion[]; loading: boolean; more: boolean };
+/** `request` counts the column's requests, so only the latest one's answer is used. */
+type Column = { items: Discussion[]; loading: boolean; more: boolean; request: number };
 
 type TagLike = { name(): string; color(): string | null };
 
@@ -124,8 +124,8 @@ export default class IdeationPage extends Page {
   }
 
   toolbar() {
-    const menu = (label: Mithril.Children, values: string[], current: string, labelOf: (v: string) => Mithril.Children, set: (v: string) => void) => (
-      <Dropdown buttonClassName="Button" label={label} accessibleToggleLabel={extractText(label)}>
+    const menu = (label: string, values: string[], current: string, labelOf: (v: string) => Mithril.Children, set: (v: string) => void) => (
+      <Dropdown buttonClassName="Button" label={label} accessibleToggleLabel={label}>
         {values.map((v) => (
           <Button icon={current === v ? 'fas fa-check' : true} active={current === v} onclick={() => set(v)}>
             {labelOf(v)}
@@ -153,7 +153,7 @@ export default class IdeationPage extends Page {
         {this.mode === 'list' ? (
           <li>
             {menu(
-              this.status === 'all' ? app.translator.trans('flarum-ideation.forum.filter.all') : statusLabel(this.status),
+              this.status === 'all' ? app.translator.trans('flarum-ideation.forum.filter.all', {}, true) : statusLabel(this.status, true),
               ['all', ...SETTABLE],
               this.status,
               (v) => (v === 'all' ? app.translator.trans('flarum-ideation.forum.filter.all') : statusLabel(v)),
@@ -164,7 +164,7 @@ export default class IdeationPage extends Page {
         {this.mode === 'list' ? (
           <li>
             {menu(
-              app.translator.trans('flarum-ideation.forum.sort.' + this.sort),
+              app.translator.trans('flarum-ideation.forum.sort.' + this.sort, {}, true),
               ['votes', 'newest', 'latest'],
               this.sort,
               (v) => app.translator.trans('flarum-ideation.forum.sort.' + v),
@@ -343,8 +343,9 @@ export default class IdeationPage extends Page {
 
   /** One board column, or (key `list`) the list view. */
   loadColumn(key: string, more = false) {
-    const column = (this.columns[key] ??= { items: [], loading: false, more: false });
+    const column = (this.columns[key] ??= { items: [], loading: false, more: false, request: 0 });
     const list = key === 'list';
+    const request = ++column.request;
     column.loading = true;
 
     const filter: Record<string, string> = { ideation: list ? this.status : key };
@@ -358,10 +359,16 @@ export default class IdeationPage extends Page {
         include: app.initializers.has('flarum-tags') ? 'user,tags' : 'user',
       })
       .then((results) => {
+        // The search or filter changed while this was on its way: a newer
+        // request is filling the column, and this answer is for the old one.
+        if (request !== column.request) return;
+
         column.items = more ? [...column.items, ...results] : results;
         column.more = !!results.payload?.links?.next;
       })
       .finally(() => {
+        if (request !== column.request) return;
+
         column.loading = false;
         m.redraw();
       });

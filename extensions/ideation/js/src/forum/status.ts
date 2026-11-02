@@ -1,5 +1,6 @@
 import app from 'flarum/forum/app';
 import type Discussion from 'flarum/common/models/Discussion';
+import type Mithril from 'mithril';
 
 /** The board's columns, in order. Declined ideas are listed, not columned. */
 export const COLUMNS = ['under_review', 'planned', 'in_progress', 'shipped'];
@@ -16,9 +17,18 @@ export const ICONS: Record<string, string> = {
   merged: 'fas fa-code-merge',
 };
 
-export const statusLabel = (status: string) => app.translator.trans('flarum-ideation.forum.status.' + status);
+export function statusLabel(status: string): Mithril.Children;
+export function statusLabel(status: string, text: true): string;
+export function statusLabel(status: string, text = false): Mithril.Children {
+  const key = 'flarum-ideation.forum.status.' + status;
 
-export const isOpen = (status: string | null | undefined) => status === 'under_review' || status === 'planned' || status === 'in_progress';
+  return text ? app.translator.trans(key, {}, true) : app.translator.trans(key);
+}
+
+/** Voting is open, and merges can land, in these. Matches Status::OPEN on the server. */
+export const OPEN = ['under_review', 'planned', 'in_progress'];
+
+export const isOpen = (status: string | null | undefined) => !!status && OPEN.includes(status);
 
 /**
  * Vote or take a vote back. The count moves at once and is put back if the
