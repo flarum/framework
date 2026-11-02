@@ -123,7 +123,7 @@ class HeaderAndRouteTest extends TestCase
     }
 
     /**
-     * [method, path, actor, body, uploadedFiles?]
+     * [method, path, actor, body, uploadedFiles?].
      */
     public static function unsupportedRoutes(): array
     {

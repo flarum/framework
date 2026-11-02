@@ -26,7 +26,6 @@ require_once __DIR__.'/AbstractDescriptorSecurityTestCase.php';
  * Security: fields an extension adds to a describable resource. The describer
  * evaluates their closures (visibility, writability, rules, messages, default)
  * at describe time, for every actor who can describe the type.
- *
  */
 class ExtensionFieldProbeTest extends AbstractDescriptorSecurityTestCase
 {
@@ -160,9 +159,7 @@ class ExtensionFieldProbeTest extends AbstractDescriptorSecurityTestCase
         $writes = array_filter(
             array_column($db->getQueryLog(), 'query'),
             fn (string $sql) => preg_match('/^\s*(insert|update|delete|replace|alter|create|drop|truncate)\b/i', $sql)
-                && ! str_starts_with($sql, 'update "access_tokens" set "last_ip_address"')
-                // The per-request "last seen" bump of the actor.
-                && ! str_starts_with($sql, 'update "users" set "last_seen_at"')
+                && ! $this->isRequestBookkeeping($sql)
         );
 
         $this->assertSame(0, self::$setterCalls);
@@ -214,5 +211,16 @@ class ExtensionFieldProbeTest extends AbstractDescriptorSecurityTestCase
         $this->assertStringNotContainsString('victim-secret@leak.test', json_encode($field));
         $this->assertArrayNotHasKey('constraints', $field);
         $this->assertTrue($field['ui']['liveValidate'] ?? false);
+    }
+
+    /**
+     * The per-request token activity update and the actor's "last seen" bump, in any SQL dialect
+     * and with any table prefix.
+     */
+    private function isRequestBookkeeping(string $sql): bool
+    {
+        $prefix = preg_quote($this->database()->getTablePrefix(), '/');
+
+        return (bool) preg_match('/^\s*update\s+[`"]?'.$prefix.'(access_tokens[`"]?\s+set\s+[`"]?last_ip_address|users[`"]?\s+set\s+[`"]?last_seen_at)\b/i', $sql);
     }
 }

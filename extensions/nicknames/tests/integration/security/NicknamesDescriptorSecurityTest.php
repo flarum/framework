@@ -84,9 +84,7 @@ class NicknamesDescriptorSecurityTest extends TestCase
         $writes = array_filter(
             array_column($db->getQueryLog(), 'query'),
             fn (string $sql) => preg_match('/^\s*(insert|update|delete)\b/i', $sql)
-                && ! str_starts_with($sql, 'update "access_tokens" set "last_ip_address"')
-                // The per-request "last seen" bump of the actor.
-                && ! str_starts_with($sql, 'update "users" set "last_seen_at"')
+                && ! $this->isRequestBookkeeping($sql)
         );
 
         $this->assertSame([], array_values($writes));
@@ -95,5 +93,16 @@ class NicknamesDescriptorSecurityTest extends TestCase
         // Documents the behaviour: a freshly generated username is evaluated per describe.
         $default = $fields['username']['default'] ?? null;
         $this->assertTrue($default === null || ! User::query()->where('username', $default)->exists());
+    }
+
+    /**
+     * The per-request token activity update and the actor's "last seen" bump, in any SQL dialect
+     * and with any table prefix.
+     */
+    private function isRequestBookkeeping(string $sql): bool
+    {
+        $prefix = preg_quote($this->database()->getTablePrefix(), '/');
+
+        return (bool) preg_match('/^\s*update\s+[`"]?'.$prefix.'(access_tokens[`"]?\s+set\s+[`"]?last_ip_address|users[`"]?\s+set\s+[`"]?last_seen_at)\b/i', $sql);
     }
 }

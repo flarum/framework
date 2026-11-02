@@ -77,7 +77,16 @@ trait PrecognitionTestHelpers
         $db = $this->database();
         $fingerprint = [];
 
-        $tables = array_map(fn ($row) => $row->name, $db->select("select name from sqlite_master where type = 'table' and name not like 'sqlite_%'"));
+        $prefix = $db->getTablePrefix();
+
+        // Every table of this install, unprefixed, on any supported database.
+        $tables = [];
+
+        foreach ($db->getSchemaBuilder()->getTables() as $table) {
+            if ($prefix === '' || str_starts_with($table['name'], $prefix)) {
+                $tables[] = substr($table['name'], strlen($prefix));
+            }
+        }
 
         foreach ($tables as $table) {
             if (in_array($table, ['access_tokens', 'migrations'], true)) {
@@ -85,17 +94,20 @@ trait PrecognitionTestHelpers
                 continue;
             }
 
-            $rows = array_map(function ($row) use ($table) {
+            $rows = $db->table($table)->get()->map(function ($row) use ($table) {
                 $row = (array) $row;
 
                 if ($table === 'users') {
                     unset($row['last_seen_at']);
                 }
 
-                return $row;
-            }, $db->select("select * from \"$table\" order by rowid"));
+                return json_encode($row);
+            })->all();
 
-            $fingerprint[$table] = md5(json_encode($rows));
+            // Row order is not guaranteed without a key every table shares.
+            sort($rows);
+
+            $fingerprint[$table] = md5(implode("\n", $rows));
         }
 
         return $fingerprint;

@@ -142,7 +142,6 @@ class ListingInputAbuseTest extends TestCase
         $this->assertSafe(['page' => $page], [200, 400, 422], $path, $path);
     }
 
-
     #[Test]
     public function sort_injection_is_rejected()
     {

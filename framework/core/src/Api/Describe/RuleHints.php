@@ -235,7 +235,6 @@ class RuleHints
                     }
                     break;
 
-
                 case 'regex':
                     $pattern = static::pattern((string) $arguments);
 
@@ -753,7 +752,7 @@ class RuleHints
             'lt' => (int) ceil($value) - 1,
         };
 
-        $hints[($space === 'items' ? ($lower ? 'minItems' : 'maxItems') : ($lower ? 'minLength' : 'maxLength'))] = $count;
+        $hints[$space === 'items' ? ($lower ? 'minItems' : 'maxItems') : ($lower ? 'minLength' : 'maxLength')] = $count;
     }
 
     public static function fieldName(string $field): string
