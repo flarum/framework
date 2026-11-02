@@ -165,6 +165,23 @@ describe('GroupListPage', () => {
     expect(out.find('.ResourceTable-delete').length).toBe(2);
   });
 
+  test('the Admin group is never offered for deletion, even when the server allows it', async () => {
+    request.mockImplementation((options: any) => {
+      if (options.url.includes('/resource-schemas/')) return Promise.resolve(schemaDocument(groupsDescriptor(), 'groups'));
+
+      return Promise.resolve({ data: groupDocs().map((doc) => ({ ...doc, attributes: { ...doc.attributes, canDelete: true } })), links: {} });
+    });
+
+    const out = await rendered();
+    const adminRow = out.find('tbody tr')[0];
+
+    expect(adminRow.textContent).toContain('Admin');
+    expect(adminRow.querySelector('.ResourceTable-delete')).toBeFalsy();
+    expect(adminRow.querySelector('input.ResourceTable-select').disabled).toBe(true);
+    // Every other group can be deleted.
+    expect(out.find('.ResourceTable-delete').length).toBe(4);
+  });
+
   test('rowAbilities.delete offers a bulk delete that confirms in ResourceActionModal; rows without canDelete cannot be selected', async () => {
     const out = await rendered();
 

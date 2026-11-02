@@ -1,6 +1,6 @@
 import app from '../../app';
 import GroupBadge from '../../../common/components/GroupBadge';
-import type Group from '../../../common/models/Group';
+import Group from '../../../common/models/Group';
 import type { ResourceAction } from '../../../common/resource/actions';
 import ResourceDefinition from '../../../common/resource/ResourceDefinition';
 import { patchInput } from '../../../common/resource/field';
@@ -36,11 +36,22 @@ export default class GroupsDefinition extends ResourceDefinition<Group> {
     return fields;
   }
 
-  /** Delete on the selection too. */
+  /**
+   * Delete on the selection too, never for the Admin group: deleting it would leave the forum
+   * without administrators, so it is not offered, as in core's group modal.
+   */
   resourceActions(): ItemList<ResourceAction<Group>> {
     const items = super.resourceActions();
 
-    if (items.has('delete')) items.setContent('delete', { ...items.get('delete'), scope: 'both' });
+    if (items.has('delete')) {
+      const action = items.get('delete');
+
+      items.setContent('delete', {
+        ...action,
+        scope: 'both',
+        applies: (group: Group) => group.id() !== Group.ADMINISTRATOR_ID && (!action.applies || action.applies(group)),
+      });
+    }
 
     return items;
   }
