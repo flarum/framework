@@ -241,15 +241,18 @@ export interface Field<M extends Model, V = unknown> {
   errorKeys?: string[];
   /**
    * The client-side errors of the field's form value, in place of the descriptor check. For a form
-   * value that is not the attribute's value: a locale map, a composite input. Return no messages
-   * when valid; several are joined into the field's `form.errors` entry, one line each.
+   * value that is not the attribute's value: a locale map, a composite input. Return no errors when
+   * valid. A plain string is a message about the value as a whole; a `FieldError` with a `path`
+   * names the part it is about (e.g. a locale code), for `onclienterrors()` and
+   * `form.fieldErrors()`. Only messages are shown: they are joined into the field's `form.errors`
+   * entry, one line each, so a message about a part should name it itself.
    *
    * Called for every shown field, unless its descriptor is `conditional`, whether or not the value
    * changed: one unchanged value can turn invalid by another (a new locale row needs a name). Mind
    * `ctx.includeUnchanged` and `ctx.dirty` as the descriptor check does: while updating, only what
    * is sent should be checked.
    */
-  validate?(value: V, ctx: FieldValidationContext<M, V>): string[];
+  validate?(value: V, ctx: FieldValidationContext<M, V>): Array<string | FieldError>;
   /**
    * Called with every JSON:API error of a failed save (422/403), after they were mapped onto
    * `form.errors`. For fields whose state spans more than one input.
@@ -257,12 +260,21 @@ export interface Field<M extends Model, V = unknown> {
   onerrors?(errors: JsonApiError[], form: ResourceFormState<any>): void;
   /**
    * Called when `save()` stops at client-side validation, after the messages landed on
-   * `form.errors`: `errors` holds them by field key, as `ValidationError.errors`. For fields whose
-   * state spans more than one input, e.g. to bring an erroring part into view.
+   * `form.errors`: `errors` holds every invalid field's errors by key, plain messages (from
+   * `validate()` or core's descriptor check) as `{ message }`. For fields whose state spans more
+   * than one input, e.g. to bring an erroring part (`path`) into view.
    */
-  onclienterrors?(errors: Record<string, string[]>, form: ResourceFormState<any>): void;
+  onclienterrors?(errors: Record<string, FieldError[]>, form: ResourceFormState<any>): void;
   /** Present when the field was inferred. */
   descriptor?: FieldDescriptor;
+}
+
+/** One client-side error of a field. */
+export interface FieldError {
+  /** Shown as is, see `Field.validate()`. */
+  message: string;
+  /** The part of the form value the message is about, e.g. a locale code; absent for the whole value. */
+  path?: string;
 }
 
 /**

@@ -8,7 +8,7 @@ import { conditionHolds, isRequired, isWritable } from './descriptor';
 import { mapErrors } from './errors';
 import { fieldSave, fieldValue, mergeSaveData, snapshot } from './field';
 import type ResourceDefinition from './ResourceDefinition';
-import type { Field, FormMode, JsonApiError, SaveData } from './types';
+import type { Field, FieldError, FormMode, JsonApiError, SaveData } from './types';
 import { ValidationError, validateValue } from './validation';
 
 /**
@@ -25,8 +25,8 @@ export default class ResourceFormState<M extends Model = Model> {
   initial: Record<string, unknown> = {};
   errors: Record<string, string> = {};
   saving: boolean = false;
-  /** Keys whose entry in `errors` came from client-side validation, not the server. */
-  protected clientErrorKeys = new Set<string>();
+  /** The client-side errors behind entries in `errors`, by key; server errors are not in here. */
+  protected clientErrors = new Map<string, FieldError[]>();
   protected sharedStreams: Record<string, Stream<any>> = {};
   /** A page-unique prefix for the ids of the form's elements, e.g. its error messages. */
   readonly domId: string = generateElementId();
@@ -150,7 +150,7 @@ export default class ResourceFormState<M extends Model = Model> {
     this.streams = {};
     this.initial = {};
     this.errors = {};
-    this.clientErrorKeys.clear();
+    this.clientErrors.clear();
 
     const creating = this.isCreating();
 
@@ -222,47 +222,59 @@ export default class ResourceFormState<M extends Model = Model> {
   }
 
   /**
-   * Every shown field while creating, the changed ones while updating. Fields without a descriptor
-   * and `conditional` ones are left to the server.
+   * Every shown field while creating, the changed ones while updating, by key: their messages.
+   * Fields without a descriptor and `conditional` ones are left to the server.
    */
   validate(): Record<string, string[]> {
-    const errors: Record<string, string[]> = {};
+    return messagesOf(this.validateErrors());
+  }
+
+  /** `validate()` with the errors as `Field.validate()` gave them, plain messages as `{ message }`. */
+  validateErrors(): Record<string, FieldError[]> {
+    const errors: Record<string, FieldError[]> = {};
 
     Object.entries(this.visibleFields().toObject()).forEach(([key, item]) => {
-      const messages = this.check(key, item.content as Field<M>, this.isCreating());
+      const fieldErrors = this.check(key, item.content as Field<M>, this.isCreating());
 
-      if (messages.length) errors[key] = messages;
+      if (fieldErrors.length) errors[key] = fieldErrors;
     });
 
     return errors;
   }
 
   /**
-   * Show or clear one field's client-side error, e.g. on blur. Other client-side errors are
-   * rechecked, as a value can make a sibling (not) required.
+   * The client-side errors shown for a field, as `validate()`/`save()`/`validateField()` left
+   * them: `{ message, path? }`. Empty when it has none or its error came from the server.
+   */
+  fieldErrors(key: string): FieldError[] {
+    return this.clientErrors.get(key) ?? [];
+  }
+
+  /**
+   * Show or clear one field's client-side error, e.g. on blur, and return its messages. Other
+   * client-side errors are rechecked, as a value can make a sibling (not) required.
    */
   validateField(key: string): string[] {
     if (!this.fields.has(key)) return [];
 
-    const messages = this.check(key, this.fields.get(key), false);
+    const fieldErrors = this.check(key, this.fields.get(key), false);
 
-    this.clientErrorKeys.forEach((other) => {
+    this.clientErrors.forEach((_, other) => {
       if (other === key || !this.fields.has(other)) return;
       if (this.check(other, this.fields.get(other), this.isCreating()).length) return;
 
       delete this.errors[other];
-      this.clientErrorKeys.delete(other);
+      this.clientErrors.delete(other);
     });
 
-    if (messages.length) {
-      this.errors[key] = messages.join('\n');
-      this.clientErrorKeys.add(key);
-    } else if (this.clientErrorKeys.has(key)) {
+    if (fieldErrors.length) {
+      this.setClientErrors(key, fieldErrors);
+    } else if (this.clientErrors.has(key)) {
       delete this.errors[key];
-      this.clientErrorKeys.delete(key);
+      this.clientErrors.delete(key);
     }
 
-    return messages;
+    return fieldErrors.map((error) => error.message);
   }
 
   /**
@@ -271,7 +283,7 @@ export default class ResourceFormState<M extends Model = Model> {
    * of a changed value, or of any while `includeUnchanged`. Fields without either are left to the
    * server. Not an extension point: give the field a `validate()` instead.
    */
-  protected check(key: string, field: Field<M>, includeUnchanged: boolean): string[] {
+  protected check(key: string, field: Field<M>, includeUnchanged: boolean): FieldError[] {
     const descriptor = field.descriptor;
 
     if (descriptor?.conditional || !this.isVisible(key)) return [];
@@ -281,7 +293,7 @@ export default class ResourceFormState<M extends Model = Model> {
     const dirty = this.isDirty(key);
 
     if (field.validate) {
-      return field.validate(this.streams[key](), {
+      const errors = field.validate(this.streams[key](), {
         key,
         form: this,
         descriptor,
@@ -292,35 +304,40 @@ export default class ResourceFormState<M extends Model = Model> {
         dirty,
         check: (value, d = descriptor, options = {}) => (d ? validateValue(d, value, mode, { values, ...options }) : []),
       });
+
+      return errors.map((error) => (typeof error === 'string' ? { message: error } : error));
     }
 
     if (!descriptor || (!includeUnchanged && !dirty)) return [];
 
-    return validateValue(descriptor, this.streams[key](), mode, { values, sent: dirty });
+    return validateValue(descriptor, this.streams[key](), mode, { values, sent: dirty }).map((message) => ({ message }));
+  }
+
+  protected setClientErrors(key: string, errors: FieldError[]): void {
+    this.errors[key] = errors.map((error) => error.message).join('\n');
+    this.clientErrors.set(key, errors);
   }
 
   /**
    * Validate, then save `data` (default: `buildSaveData()`). Invalid fields reject with a
-   * `ValidationError` and no request, after every visible field's `onclienterrors()`. 422/403 field errors land in `errors` (`'*'` for unmatched
+   * `ValidationError` (messages by key, as `validate()`) and no request, after every visible
+   * field's `onclienterrors()` (the structured errors, as `validateErrors()`). 422/403 field errors land in `errors` (`'*'` for unmatched
    * ones) instead of the global alert; the promise still rejects.
    */
   async save(data?: SaveData): Promise<M> {
-    const invalid = this.validate();
+    const invalid = this.validateErrors();
 
     this.errors = {};
-    this.clientErrorKeys.clear();
+    this.clientErrors.clear();
 
     if (Object.keys(invalid).length) {
-      Object.entries(invalid).forEach(([key, messages]) => {
-        this.errors[key] = messages.join('\n');
-        this.clientErrorKeys.add(key);
-      });
+      Object.entries(invalid).forEach(([key, errors]) => this.setClientErrors(key, errors));
       this.visibleFields()
         .toArray()
         .forEach((field) => field.onclienterrors?.(invalid, this));
       m.redraw();
 
-      throw new ValidationError(invalid);
+      throw new ValidationError(messagesOf(invalid));
     }
 
     const record = this.model ?? app.store.createRecord<M>(this.definition.type);
@@ -355,4 +372,8 @@ export default class ResourceFormState<M extends Model = Model> {
 
     return false;
   }
+}
+
+function messagesOf(errors: Record<string, FieldError[]>): Record<string, string[]> {
+  return Object.fromEntries(Object.entries(errors).map(([key, fieldErrors]) => [key, fieldErrors.map((error) => error.message)]));
 }

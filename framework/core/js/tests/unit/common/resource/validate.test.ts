@@ -8,7 +8,7 @@ import { patchField } from '../../../../src/common/resource/fieldsFromDescriptor
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
 import ResourceFormState from '../../../../src/common/resource/ResourceFormState';
 import { ValidationError } from '../../../../src/common/resource/validation';
-import type { Field, FieldValidationContext } from '../../../../src/common/resource/types';
+import type { Field, FieldError, FieldValidationContext } from '../../../../src/common/resource/types';
 import { bootAdmin, descriptor, fd, schemaDocument } from './fixtures';
 
 class Thing extends Model {}
@@ -271,9 +271,50 @@ describe('Field.onclienterrors', () => {
 
     await expect(state.save()).rejects.toBeInstanceOf(ValidationError);
 
-    const errors = { name: [t('required')], description: [t('max_length', { count: 5 })], kind: [t('required')] };
+    const errors = {
+      name: [{ message: t('required') }],
+      description: [{ message: t('max_length', { count: 5 }) }],
+      kind: [{ message: t('required') }],
+    };
 
     expect(seen).toEqual([['description', errors, { name: t('required'), description: t('max_length', { count: 5 }), kind: t('required') }]]);
+  });
+
+  test('a validate() error with a path keeps it for the hook, while form.errors shows its message', async () => {
+    const seen: Record<string, FieldError[]>[] = [];
+    const state = await ResourceFormState.create(
+      new ThingDefinition((fields) =>
+        patchField(fields, 'name', {
+          validate: () => ['whole', { message: 'German (de): too long', path: 'de' }],
+          onclienterrors: (errors) => seen.push(errors),
+        })
+      ),
+      null
+    );
+
+    state.stream('kind')('plain');
+
+    await expect(state.save()).rejects.toBeInstanceOf(ValidationError);
+
+    expect(state.errors).toEqual({ name: 'whole\nGerman (de): too long' });
+    expect(seen).toEqual([{ name: [{ message: 'whole' }, { message: 'German (de): too long', path: 'de' }] }]);
+    expect(state.fieldErrors('name')).toEqual([{ message: 'whole' }, { message: 'German (de): too long', path: 'de' }]);
+  });
+
+  test('fieldErrors() follows validateField() and is empty for server errors', async () => {
+    const state = await ResourceFormState.create(
+      new ThingDefinition((fields) => patchField(fields, 'name', { validate: (v) => (v === 'bad' ? [{ message: 'Bad', path: 'fr' }] : []) })),
+      null
+    );
+
+    state.stream('name')('bad');
+    state.validateField('name');
+    expect(state.fieldErrors('name')).toEqual([{ message: 'Bad', path: 'fr' }]);
+
+    state.stream('name')('good');
+    state.validateField('name');
+    expect(state.fieldErrors('name')).toEqual([]);
+    expect(state.fieldErrors('kind')).toEqual([]);
   });
 
   test('is not called when the form is valid', async () => {

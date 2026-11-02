@@ -9,7 +9,7 @@ import type User from '../../../../src/common/models/User';
 import type ItemList from '../../../../src/common/utils/ItemList';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
-import type { Field } from '../../../../src/common/resource/types';
+import type { Field, FieldError } from '../../../../src/common/resource/types';
 import { bootAdmin, schemaDocument } from '../../../unit/common/resource/fixtures';
 import { usersDescriptor } from '../fixtures/usersDescriptor';
 
@@ -188,7 +188,7 @@ describe('ResourceFormModal', () => {
   });
 
   test("a locale-map field's validate() error shows on it, and fields hear of it through onclienterrors", async () => {
-    const heard: Record<string, string[]>[] = [];
+    const heard: Record<string, FieldError[]>[] = [];
 
     class LocalizedUsers extends ResourceDefinition<User> {
       fields() {
@@ -200,7 +200,10 @@ describe('ResourceFormModal', () => {
           value: (model) => ({ '*': model?.username() ?? '' }),
           input: (ctx) => m('div.LocaleInput', JSON.stringify(ctx.stream())),
           // The base row as core checks it; `de` by the same constraints, its messages naming it.
-          validate: (value, ctx) => [...ctx.check(value['*']), ...(value.de ? ctx.check(value.de).map((message) => `de: ${message}`) : [])],
+          validate: (value, ctx) => [
+            ...ctx.check(value['*']),
+            ...(value.de ? ctx.check(value.de).map((message) => ({ message: `de: ${message}`, path: 'de' })) : []),
+          ],
         } as Field<User, any>);
         fields.add('switcher', { label: 'Locale', input: () => null, onclienterrors: (errors) => heard.push(errors) });
 
@@ -224,7 +227,7 @@ describe('ResourceFormModal', () => {
 
     expect(out).toHaveElement('.ResourceForm-field--username.has-error');
     expect(out).toContainRaw(tooShort);
-    expect(heard).toEqual([{ username: [tooShort] }]);
+    expect(heard).toEqual([{ username: [{ message: tooShort, path: 'de' }] }]);
     expect(request.mock.calls.some((call: any) => call[0].method === 'PATCH')).toBe(false);
   });
 
