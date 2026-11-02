@@ -241,7 +241,7 @@ export interface Field<M extends Model, V = unknown> {
   /**
    * More paths the field claims server errors for, besides its key (and its snake_case key): each
    * a path below `/data/attributes` (or `/data/relationships`), `/`-separated, a `/` or `~` inside
-   * a segment escaped as in a JSON pointer (`~1`, `~0`). A claim takes the errors pointing at it
+   * a segment escaped as in a JSON pointer (`~1`, `~0`; `errorKey()` builds one). A claim takes the errors pointing at it
    * and below it, on whole segments, e.g. `translationMap/de` takes `/translationMap/de` and
    * `/translationMap/de/name`; the longest claim of all fields wins. A segment is literal: `*`
    * claims a segment named `*`, not the unmatched errors. See `mapErrors()`.

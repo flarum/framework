@@ -28,6 +28,16 @@ export function pointerPath(pointer: string | undefined): string[] | null {
   return path.split('/').map(decodeToken);
 }
 
+/**
+ * An `errorKeys` entry from plain segments, each escaped as a JSON pointer token (`~` → `~0`,
+ * `/` → `~1`): the counterpart of `pointerPath()`.
+ *
+ * `errorKey('translationMap', 'a/b', 'name')` → `'translationMap/a~1b/name'`.
+ */
+export function errorKey(...segments: string[]): string {
+  return segments.map((segment) => segment.replace(/~/g, '~0').replace(/\//g, '~1')).join('/');
+}
+
 /** The paths a field claims, as decoded segments: its key, its snake_case key, its `errorKeys`. */
 function claims(key: string, field: Field<any>): string[][] {
   const paths = new Set([key, camelCaseToSnakeCase(key)]);

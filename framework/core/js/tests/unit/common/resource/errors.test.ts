@@ -1,5 +1,5 @@
 import ItemList from '../../../../src/common/utils/ItemList';
-import { mapErrors, pointerPath } from '../../../../src/common/resource/errors';
+import { errorKey, mapErrors, pointerPath } from '../../../../src/common/resource/errors';
 import type { Field, JsonApiError } from '../../../../src/common/resource/types';
 
 function fields(entries: Record<string, Partial<Field<any>>>) {
@@ -148,5 +148,15 @@ describe('pointerPath', () => {
     expect(pointerPath('/data/relationships/category/data/0')).toEqual(['category']);
     expect(pointerPath('/meta/x')).toBeNull();
     expect(pointerPath(undefined)).toBeNull();
+  });
+});
+
+describe('errorKey', () => {
+  test('escapes each segment as a JSON pointer token and joins them', () => {
+    expect(errorKey('translationMap', 'a/b', 'x~y')).toBe('translationMap/a~1b/x~0y');
+  });
+
+  test('round-trips through pointerPath', () => {
+    expect(pointerPath(`/data/attributes/${errorKey('translationMap', 'a/b', '~1')}`)).toEqual(['translationMap', 'a/b', '~1']);
   });
 });
