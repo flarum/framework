@@ -74,6 +74,34 @@ class IconImageTest extends TestCase
         return $path;
     }
 
+    /**
+     * A PNG with a red rectangle, if any, on a background: transparent, or a
+     * colour.
+     *
+     * @param array{0: int, 1: int, 2: int, 3: int}|null $rectangle x1, y1, x2, y2.
+     * @param array{0: int, 1: int, 2: int}|null $background
+     */
+    private function pngWithRectangle(int $width, int $height, ?array $rectangle, ?array $background = null): string
+    {
+        $path = tempnam(sys_get_temp_dir(), 'flarum-icon-image-').'.png';
+        $this->tempFiles[] = $path;
+
+        $image = imagecreatetruecolor($width, $height);
+        imagealphablending($image, false);
+        imagesavealpha($image, true);
+        imagefill($image, 0, 0, $background
+            ? imagecolorallocate($image, ...$background)
+            : imagecolorallocatealpha($image, 0, 0, 0, 127));
+
+        if ($rectangle) {
+            imagefilledrectangle($image, ...[...$rectangle, imagecolorallocate($image, 255, 0, 0)]);
+        }
+
+        imagepng($image, $path);
+
+        return $path;
+    }
+
     private function animatedGifFile(): string
     {
         $path = tempnam(sys_get_temp_dir(), 'flarum-icon-image-').'.gif';
@@ -189,8 +217,9 @@ class IconImageTest extends TestCase
         $path = $this->storedPath();
 
         $this->assertEquals(2, $this->database()->table('groups')->where('id', 10)->value('icon_image_scales'));
-        $this->assertStringContainsString('2x', $attributes['iconImageSrcset']);
-        $this->assertStringNotContainsString('3x', $attributes['iconImageSrcset']);
+        // With the space: a random file name can contain "3x".
+        $this->assertStringContainsString(' 2x', $attributes['iconImageSrcset']);
+        $this->assertStringNotContainsString(' 3x', $attributes['iconImageSrcset']);
         $this->assertTrue($this->disk()->exists($this->variant($path, '@2x')));
         $this->assertFalse($this->disk()->exists($this->variant($path, '@3x')));
     }
@@ -500,6 +529,76 @@ class IconImageTest extends TestCase
         $this->assertEquals(500, $response->getStatusCode());
         $this->assertNull($this->storedPath());
         $this->assertEmpty($this->disk()->allFiles());
+    }
+
+    #[Test]
+    public function a_transparent_border_is_trimmed_so_the_artwork_fills_the_box(): void
+    {
+        // A 100x200 rectangle in the middle of a 400x400 transparent image.
+        $response = $this->upload($this->pngWithRectangle(400, 400, [150, 100, 249, 299]));
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        // Without the border, the rectangle is scaled to fit the 64px box.
+        // The trim is found on a smaller copy and keeps a pixel or two more.
+        [$width, $height] = $this->dimensions($this->storedPath());
+
+        $this->assertEquals(64, $height);
+        $this->assertEqualsWithDelta(32, $width, 2);
+    }
+
+    #[Test]
+    public function a_solid_background_is_not_trimmed(): void
+    {
+        $response = $this->upload($this->pngWithRectangle(400, 200, [150, 50, 249, 149], [255, 255, 255]));
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertEquals([64, 32], $this->dimensions($this->storedPath()));
+    }
+
+    #[Test]
+    public function an_entirely_transparent_image_is_stored_untrimmed(): void
+    {
+        $response = $this->upload($this->pngWithRectangle(400, 200, null));
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertEquals([64, 32], $this->dimensions($this->storedPath()));
+    }
+
+    #[Test]
+    public function the_directory_created_for_the_images_is_readable_by_the_web_server(): void
+    {
+        $root = rtrim($this->disk()->path(''), '/');
+
+        // A directory left by an earlier run would hide how it is created.
+        if (is_dir($root) && count(scandir($root)) === 2) {
+            rmdir($root);
+        }
+
+        $response = $this->upload($this->pngFile(100, 100));
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertEquals('755', substr(sprintf('%o', fileperms($root)), -3));
+    }
+
+    #[Test]
+    public function saving_an_icon_drops_the_classes_the_frontend_adds_for_the_image(): void
+    {
+        $save = fn (string $icon) => $this->send(
+            $this->request('PATCH', '/api/groups/10', [
+                'authenticatedAs' => 1,
+                'json' => ['data' => ['attributes' => ['nameSingular' => 'Fan', 'namePlural' => 'Fans', 'icon' => $icon]]],
+            ])
+        );
+
+        $response = $save('fas fa-bolt IconImage IconImage--3');
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertEquals('fas fa-bolt', $this->database()->table('groups')->where('id', 10)->value('icon'));
+
+        $save('IconImage IconImage--3 IconImage--only');
+
+        $this->assertEquals('', $this->database()->table('groups')->where('id', 10)->value('icon'));
     }
 
     #[Test]

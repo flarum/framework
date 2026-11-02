@@ -43,7 +43,11 @@ class FilesystemServiceProvider extends AbstractServiceProvider
                 'flarum-icons' => function (Paths $paths, UrlGenerator $url) {
                     return [
                         'root' => "$paths->public/assets/icons",
-                        'url' => $url->to('forum')->path('assets/icons')
+                        'url' => $url->to('forum')->path('assets/icons'),
+                        // The disk creates its directory on the first upload,
+                        // which would otherwise be private (0700): unreadable
+                        // by a web server running as another user.
+                        'visibility' => Visibility::PUBLIC
                     ];
                 },
             ];

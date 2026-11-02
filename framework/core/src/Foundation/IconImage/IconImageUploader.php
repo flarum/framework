@@ -24,9 +24,10 @@ use Throwable;
  * tag's, for example). The model needs the `icon_image_path` and
  * `icon_image_scales` columns; see the HasIconImage concern.
  *
- * Each upload is stored as a static WebP, scaled to fit a square box at 1x, 2x
- * and 3x without cropping, so that an image can be shown whole next to a label
- * or cropped to a badge's shape by the browser.
+ * Each upload is stored as a static WebP, its transparent border trimmed, and
+ * scaled to fit a square box at 1x, 2x and 3x without cropping, so that an
+ * image can be shown whole next to a label or cropped to a badge's shape by
+ * the browser.
  *
  * A model can use a subclass, with another box size, scales or disk, by
  * overriding HasIconImage::iconImageUploader().
@@ -71,6 +72,8 @@ class IconImageUploader
         if ($image->isAnimated()) {
             $image->removeAnimation(0);
         }
+
+        $this->trimTransparentBorder($image);
 
         $sourceWidth = $image->width();
         $sourceHeight = $image->height();
@@ -265,6 +268,87 @@ class IconImageUploader
             // row pointing at deleted ones.
             return true;
         }
+    }
+
+    /**
+     * Crop away a fully transparent border, so that the artwork, not the
+     * empty space around it, fills the glyph-sized box it is shown in. Only
+     * transparency is trimmed: a solid background is part of the design.
+     *
+     * The border is found on a small copy, which is quick whatever the
+     * source's size, and the crop errs on the side of keeping pixels.
+     */
+    protected function trimTransparentBorder(ImageInterface $image): void
+    {
+        $width = $image->width();
+        $height = $image->height();
+
+        $sample = (clone $image)->scaleDown(128, 128);
+        $sampleWidth = $sample->width();
+        $sampleHeight = $sample->height();
+
+        $isOpaque = fn (int $x, int $y) => ! $sample->pickColor($x, $y)->isClear();
+        $rowIsEmpty = function (int $y) use ($isOpaque, $sampleWidth) {
+            for ($x = 0; $x < $sampleWidth; $x++) {
+                if ($isOpaque($x, $y)) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+        $columnIsEmpty = function (int $x, int $top, int $bottom) use ($isOpaque) {
+            for ($y = $top; $y <= $bottom; $y++) {
+                if ($isOpaque($x, $y)) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        $top = 0;
+
+        while ($top < $sampleHeight && $rowIsEmpty($top)) {
+            $top++;
+        }
+
+        // Nothing but transparency: leave it for the browser to show as is.
+        if ($top === $sampleHeight) {
+            return;
+        }
+
+        // Each scan stops at the artwork, which the top row scan proved exists.
+        $bottom = $sampleHeight - 1;
+
+        while ($rowIsEmpty($bottom)) {
+            $bottom--;
+        }
+
+        $left = 0;
+
+        while ($columnIsEmpty($left, $top, $bottom)) {
+            $left++;
+        }
+
+        $right = $sampleWidth - 1;
+
+        while ($columnIsEmpty($right, $top, $bottom)) {
+            $right--;
+        }
+
+        if ($top === 0 && $left === 0 && $bottom === $sampleHeight - 1 && $right === $sampleWidth - 1) {
+            return;
+        }
+
+        // Each sample pixel stands for a block of source pixels: keep every
+        // block the artwork touches.
+        $x = (int) floor($left * $width / $sampleWidth);
+        $y = (int) floor($top * $height / $sampleHeight);
+        $cropRight = (int) min($width, ceil(($right + 1) * $width / $sampleWidth));
+        $cropBottom = (int) min($height, ceil(($bottom + 1) * $height / $sampleHeight));
+
+        $image->crop($cropRight - $x, $cropBottom - $y, $x, $y);
     }
 
     /**

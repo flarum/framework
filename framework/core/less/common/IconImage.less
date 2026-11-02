@@ -1,13 +1,36 @@
-// An uploaded image in place of a Font Awesome icon. It takes the box of a
-// fixed-width glyph (1.25em wide, 1em tall, sitting where FA's SVG icons sit)
-// and shows the whole image inside it. A theme, or a component with a tighter
-// or roomier slot, can set --icon-image-size to change the height.
+// An uploaded image in place of a Font Awesome icon. A model's icon classes
+// gain `IconImage IconImage--<n>` when it has an image, and the rule for
+// `IconImage--<n>` sets --icon-image (see common/utils/withIconImage). So
+// any element given the classes shows the image in the glyph's place,
+// whatever rendered it. The glyph is kept, unseen, for its box and baseline.
 .IconImage {
+  background: var(--icon-image) center / contain no-repeat;
+
+  &::before,
+  &::after {
+    visibility: hidden;
+  }
+}
+
+// Without an icon there's no glyph to give the box its size and baseline, so
+// a space stands in, in a fixed-width glyph's box. The box stays weaker than
+// a component's icon slot; the space beats a forced Font Awesome style's
+// empty glyph.
+:where(.IconImage--only) {
   display: inline-block;
-  width: calc(~"var(--icon-image-size, 1em) * 1.25");
-  height: var(--icon-image-size, 1em);
+  width: 1.25em;
+  line-height: 1;
+}
+
+.IconImage.IconImage--only::before {
+  content: "\00a0";
+}
+
+// An image rendered on the server, such as in a mention: sized and aligned
+// like Font Awesome's SVG icons.
+img.IconImage {
+  width: 1.25em;
+  height: 1em;
   object-fit: contain;
-  // Centre it where a glyph's centre is, 0.375em above the baseline: -0.125em
-  // at the default size, like FA's SVG icons.
-  vertical-align: calc(~"0.375em - var(--icon-image-size, 1em) / 2");
+  vertical-align: -0.125em;
 }

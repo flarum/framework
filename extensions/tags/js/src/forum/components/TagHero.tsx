@@ -44,7 +44,7 @@ export default class TagHero<CustomAttrs extends ITagHeroAttrs = ITagHeroAttrs> 
     items.add(
       'tag-title',
       <h1 className="Hero-title">
-        {tag.hasIcon() && tagIcon(tag, {}, { useColor: false })} {tag.name()}
+        {tag.icon() && tagIcon(tag, {}, { useColor: false })} {tag.name()}
       </h1>,
       100
     );

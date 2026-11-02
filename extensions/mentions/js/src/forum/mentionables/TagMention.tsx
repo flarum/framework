@@ -49,14 +49,7 @@ export default class TagMention extends MentionableModel<Tag, HashMentionFormat>
 
     return (
       <>
-        <Badge
-          className="Avatar"
-          icon={model.icon()}
-          image={model.iconImageUrl()}
-          imageSrcset={model.iconImageSrcset()}
-          color={model.color()}
-          type="tag"
-        />
+        <Badge className="Avatar" icon={model.icon()} color={model.color()} type="tag" />
         <span className="username">{tagName}</span>
       </>
     );

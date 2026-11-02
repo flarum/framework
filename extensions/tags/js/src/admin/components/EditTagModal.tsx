@@ -47,7 +47,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     this.slug = Stream(this.tag.storedSlug() || '');
     this.description = Stream(this.tag.description() || '');
     this.color = Stream(this.tag.color() || '');
-    this.icon = Stream(this.tag.icon() || '');
+    this.icon = Stream(this.tag.attribute<string | null>('icon') || '');
     this.iconImage = new IconImageState(this.tag);
     this.isHidden = Stream(this.tag.isHidden() || false);
     this.isPrimary = Stream(this.attrs.primary || false);

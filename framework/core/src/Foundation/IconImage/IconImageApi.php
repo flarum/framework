@@ -139,6 +139,23 @@ class IconImageApi
     }
 
     /**
+     * Remove the classes the frontend adds to an icon to show its image
+     * (`IconImage`, `IconImage--<n>`), so a form that saves back the icon it
+     * was given stores only the Font Awesome classes. For the resource's
+     * icon field:
+     *
+     *     Schema\Str::make('icon')->deserialize(IconImageApi::withoutImageClasses(...))
+     */
+    public static function withoutImageClasses(string $icon): string
+    {
+        $classes = preg_split('/\s+/', $icon, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        $classes = array_filter($classes, fn (string $class) => ! preg_match('/^IconImage(--.*)?$/', $class));
+
+        return implode(' ', $classes);
+    }
+
+    /**
      * @return Schema\Str[]
      */
     public static function fields(): array

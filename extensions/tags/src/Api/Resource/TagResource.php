@@ -138,7 +138,8 @@ class TagResource extends AbstractDatabaseResource
             Schema\Str::make('icon')
                 ->description('Font Awesome icon classes, or null.')
                 ->writable()
-                ->nullable(),
+                ->nullable()
+                ->deserialize(IconImageApi::withoutImageClasses(...)),
             ...IconImageApi::fields(),
             Schema\Boolean::make('isHidden')
                 ->description('Whether discussions with this tag are left out of the All Discussions list.')

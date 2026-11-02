@@ -96,7 +96,8 @@ class GroupResource extends AbstractDatabaseResource
             Schema\Str::make('icon')
                 ->description('Font Awesome icon classes for the badge, such as fas fa-bolt, or null.')
                 ->nullable()
-                ->writable(),
+                ->writable()
+                ->deserialize(IconImageApi::withoutImageClasses(...)),
             ...IconImageApi::fields(),
             Schema\Boolean::make('isHidden')
                 ->description('Whether the group is hidden from user profiles and lists.')

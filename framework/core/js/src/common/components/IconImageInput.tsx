@@ -1,7 +1,6 @@
 import app from '../app';
 import Component, { ComponentAttrs } from '../Component';
 import Button from './Button';
-import IconImage from './IconImage';
 import classList from '../utils/classList';
 import type IconImageState from '../states/IconImageState';
 import type Mithril from 'mithril';
@@ -24,11 +23,7 @@ export default class IconImageInput<CustomAttrs extends IIconImageInputAttrs = I
 
     return (
       <div className={classList('IconImageInput', className)}>
-        {url && (
-          <div className="IconImageInput-preview">
-            <IconImage src={url} srcset={state.srcset()} />
-          </div>
-        )}
+        {url && <img className="IconImageInput-preview" src={url} srcset={state.srcset() || undefined} alt="" />}
         <input
           type="file"
           id={id}

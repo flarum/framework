@@ -88,7 +88,7 @@ class IconImageTest extends TestCase
         $path = $this->storedPath();
 
         $this->assertStringEndsWith('/assets/icons/'.$path, $attributes['iconImageUrl']);
-        $this->assertStringContainsString('3x', $attributes['iconImageSrcset']);
+        $this->assertStringContainsString(' 3x', $attributes['iconImageSrcset']);
         $this->assertEquals('fas fa-futbol', $attributes['icon']);
         $this->assertTrue($this->disk()->exists($path));
     }
@@ -146,5 +146,19 @@ class IconImageTest extends TestCase
         $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
         $this->assertFalse($this->disk()->exists($path));
         $this->assertFalse($this->disk()->exists(str_replace('.webp', '@3x.webp', $path)));
+    }
+
+    #[Test]
+    public function saving_an_icon_drops_the_classes_the_frontend_adds_for_the_image(): void
+    {
+        $response = $this->send(
+            $this->request('PATCH', '/api/tags/1', [
+                'authenticatedAs' => 1,
+                'json' => ['data' => ['attributes' => ['name' => 'Lions', 'slug' => 'lions', 'icon' => 'fas fa-bolt IconImage IconImage--3']]],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertEquals('fas fa-bolt', $this->database()->table('tags')->where('id', 1)->value('icon'));
     }
 }

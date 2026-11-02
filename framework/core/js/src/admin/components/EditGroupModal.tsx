@@ -12,6 +12,7 @@ import ColorPreviewInput from '../../common/components/ColorPreviewInput';
 import IconInput from '../../common/components/IconInput';
 import IconImageInput from '../../common/components/IconImageInput';
 import IconImageState from '../../common/states/IconImageState';
+import withIconImage from '../../common/utils/withIconImage';
 import Form from '../../common/components/Form';
 
 export interface IEditGroupModalAttrs extends IFormModalAttrs {
@@ -38,7 +39,7 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
 
     this.nameSingular = Stream(this.group.nameSingular() || '');
     this.namePlural = Stream(this.group.namePlural() || '');
-    this.icon = Stream(this.group.icon() || '');
+    this.icon = Stream(this.group.attribute<string | null>('icon') || '');
     this.color = Stream(this.group.color() || '');
     this.isHidden = Stream(this.group.isHidden() || false);
     this.iconImage = new IconImageState(this.group);
@@ -58,7 +59,7 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
     return (
       <>
         {!!(this.color() || this.icon() || this.iconImage.url()) && (
-          <Badge icon={this.icon()} image={this.iconImage.url()} imageSrcset={this.iconImage.srcset()} color={this.color()} />
+          <Badge icon={withIconImage(this.icon(), this.iconImage.url(), this.iconImage.srcset())} color={this.color()} />
         )}{' '}
         {this.namePlural() || app.translator.trans('core.admin.edit_group.title')}
       </>
