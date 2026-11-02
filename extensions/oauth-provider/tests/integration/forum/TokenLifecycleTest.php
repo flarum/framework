@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider\Tests\integration\forum;
 
 use Flarum\Extend;
+use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -83,6 +84,22 @@ class TokenLifecycleTest extends TestCase
         $this->assertSame(403, $response->getStatusCode(), 'UserInfo is for OpenID Connect tokens only: '.$response->getBody());
         $this->assertStringContainsString('error="insufficient_scope"', $response->getHeaderLine('WWW-Authenticate'));
         $this->assertStringStartsWith('Bearer', $response->getHeaderLine('WWW-Authenticate'));
+    }
+
+    #[Test]
+    public function userinfo_records_when_and_where_a_token_was_used(): void
+    {
+        $tokens = $this->publicClientTokens('public-client', ['scope' => 'openid profile']);
+        $tokenId = $this->jwtClaims($tokens['access_token'])['jti'];
+
+        $this->assertNull(AccessToken::query()->findOrFail($tokenId)->last_used_at);
+
+        $response = $this->send($this->request('GET', '/oauth/userinfo')->withHeader('Authorization', 'Bearer '.$tokens['access_token']));
+        $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
+
+        $token = AccessToken::query()->findOrFail($tokenId);
+        $this->assertNotNull($token->last_used_at);
+        $this->assertSame('127.0.0.1', $token->last_ip_address);
     }
 
     #[Test]
