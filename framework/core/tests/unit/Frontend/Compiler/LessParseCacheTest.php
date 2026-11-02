@@ -39,6 +39,9 @@ class LessParseCacheTest extends TestCase
     /** @var array<string, string|null> */
     private array $manifest = [];
 
+    /** @var array<string, mixed> */
+    private array $savedSettings = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -68,7 +71,7 @@ class LessParseCacheTest extends TestCase
      * Compile a small stylesheet that imports another file, the path less.php
      * would cache, and return the compiled CSS.
      */
-    private function compile(array $customFunctions = []): string
+    private function compile(array $customFunctions = [], ?string $customLess = null): string
     {
         // A file that @imports another goes through less.php's parseFile(),
         // which is where its per-import cache is read and written.
@@ -88,8 +91,12 @@ class LessParseCacheTest extends TestCase
         $compiler->setCacheDir($this->cacheDir);
         $compiler->setImportDirs([$this->tmpDir => '']);
         $compiler->setCustomFunctions($customFunctions);
-        $compiler->addSources(function (SourceCollector $sources) use ($source) {
+        $compiler->addSources(function (SourceCollector $sources) use ($source, $customLess) {
             $sources->addFile($source);
+
+            if ($customLess !== null) {
+                $sources->addString(fn () => $customLess, 'custom_less');
+            }
         });
         $compiler->commit(true);
 
@@ -147,11 +154,42 @@ class LessParseCacheTest extends TestCase
         $this->assertNull($parser->get(), 'The parser must not outlive its compile.');
     }
 
+    #[Test]
+    public function every_parser_is_released_when_bad_custom_less_makes_the_compile_retry(): void
+    {
+        // Custom LESS that fails to compile sends compile() into itself without
+        // it, with a second parser. Neither attempt's parser may outlive the
+        // compile.
+        $parsers = [];
+
+        $css = $this->compile(['probe' => function () use (&$parsers) {
+            $parsers[spl_object_id(\Less_Tree::$parse)] = \WeakReference::create(\Less_Tree::$parse);
+
+            return new \Less_Tree_Dimension(1, 'px');
+        }], '.custom { color: @undefined-variable; }');
+
+        gc_collect_cycles();
+
+        $this->assertStringContainsString('.imported', $css);
+        $this->assertStringNotContainsString('.custom', $css);
+        $this->assertArrayHasKey('custom_less_error', $this->savedSettings, 'The retry path should have run.');
+        $this->assertCount(2, $parsers, 'The probe function should have run with a parser for each attempt.');
+
+        foreach ($parsers as $parser) {
+            $this->assertNull($parser->get(), 'No attempt\'s parser may outlive the compile.');
+        }
+    }
+
     private function settings(): SettingsRepositoryInterface
     {
         $settings = m::mock(SettingsRepositoryInterface::class);
-        $settings->shouldReceive('get')->andReturn(null);
-        $settings->shouldReceive('delete')->andReturnNull();
+        $settings->shouldReceive('get')->andReturnUsing(fn ($key) => $this->savedSettings[$key] ?? null);
+        $settings->shouldReceive('set')->andReturnUsing(function ($key, $value) {
+            $this->savedSettings[$key] = $value;
+        });
+        $settings->shouldReceive('delete')->andReturnUsing(function ($key) {
+            unset($this->savedSettings[$key]);
+        });
 
         return $settings;
     }
