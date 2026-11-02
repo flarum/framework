@@ -64,7 +64,7 @@ class ConsentResource extends Resource\AbstractDatabaseResource
             ->with('client')
             ->select("$consents.*")
             ->addSelect(['last_used_at' => AccessToken::query()
-                ->selectRaw('max(last_used_at)')
+                ->selectRaw('max(coalesce(last_used_at, created_at))')
                 ->whereColumn("$tokens.client_id", "$consents.client_id")
                 ->whereColumn("$tokens.user_id", "$consents.user_id"),
             ])
