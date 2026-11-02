@@ -517,7 +517,7 @@ class FieldDescriber
     /**
      * The `constraints` and `constraintsOnUpdate` keys. A field that is not
      * writable for the actor only reports its type's constraints, so rules that
-     * would not apply to the actor never leak.
+     * would not apply to the actor are never described.
      *
      * Each mode's constraints carry `messages`: the field's custom validation
      * messages for that mode, keyed by the constraint they explain.

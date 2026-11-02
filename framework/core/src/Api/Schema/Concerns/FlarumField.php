@@ -20,7 +20,7 @@ trait FlarumField
      * UI hints for the generic admin resource components.
      *
      * Kept apart from `$schema` so that `->schema([...])` cannot wipe them and
-     * they never leak into the JSON:API schema output.
+     * they never reach the JSON:API schema output.
      *
      * @var array<string, mixed>
      */

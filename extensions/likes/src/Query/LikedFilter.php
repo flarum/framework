@@ -51,7 +51,7 @@ class LikedFilter implements FilterInterface, DescribesFilter
 
         // A post the actor cannot see behaves exactly like a nonexistent one
         // (no likers; `-liked` keeps everyone), so neither its likers nor its
-        // existence leak.
+        // existence show.
         $state
             ->getQuery()
             ->whereIn('id', function ($query) use ($likedId, $actor) {
