@@ -52,6 +52,34 @@
     }
   }
 
+  // The panel's search filter chips: the gambits the search takes, as pills.
+  &-searchFilters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 12px 10px;
+    white-space: normal;
+  }
+
+  &-searchFilter {
+    height: auto;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    line-height: 1.4;
+
+    code {
+      padding: 0;
+      background: none;
+      color: inherit;
+    }
+  }
+
+  &-searchFilterHint {
+    margin-inline-start: 4px;
+    color: var(--muted-color);
+  }
+
   &-filterButtonLabel {
     display: inline-flex;
     align-items: center;
@@ -119,7 +147,8 @@
     }
 
     &-filterPanel .ResourceTable-filterControl,
-    &-filterPanel .ResourceTable-filterSearch {
+    &-filterPanel .ResourceTable-filterSearch,
+    &-filterPanel .ResourceTable-searchFilters {
       padding-inline: 20px;
     }
   }

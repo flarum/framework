@@ -23,6 +23,16 @@ flarum-realtime:
         permission:
             view-all-typing: See who is typing anywhere on the forum
             view-who-types: View who is typing
+        sections:
+            discussion-list:
+                description: How new activity reaches the discussion list while it is open.
+                label: Discussion list
+            notifications:
+                description: How realtime notifications are shown.
+                label: Notifications
+            typing:
+                description: Show members when someone else is writing a reply.
+                label: Typing indicators
         settings:
             release-discussion-updates: DiscussionList updates
             release-discussion-updates-help: When enabled, new discussions will be pushed into the <code>DiscussionList</code> at the defined interval below.

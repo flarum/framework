@@ -161,29 +161,7 @@ class StepRunner
     /** @return resource|null */
     protected function acquire(string $id)
     {
-        $dir = $this->lockDir;
-
-        if ($dir === null) {
-            return fopen('php://memory', 'r+') ?: null;   // no lock configured
-        }
-
-        if (! is_dir($dir) && ! mkdir($dir, 0775, true) && ! is_dir($dir)) {
-            return fopen('php://memory', 'r+') ?: null;
-        }
-
-        $handle = fopen($dir.'/'.preg_replace('/[^A-Za-z0-9_-]/', '', $id).'.lock', 'c');
-
-        if ($handle === false) {
-            return null;
-        }
-
-        if (! flock($handle, LOCK_EX | LOCK_NB)) {
-            fclose($handle);
-
-            return null;
-        }
-
-        return $handle;
+        return (new RunLock($this->translator, $this->lockDir))->acquire($id);
     }
 
     protected function work(Run $run): Run

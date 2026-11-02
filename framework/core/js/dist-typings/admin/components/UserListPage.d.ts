@@ -56,6 +56,16 @@ export default class UserListPage extends AdminPage {
      */
     content(): JSX.Element[];
     headerItems(): ItemList<Mithril.Children>;
+    /**
+     * Every enabled user filter, as chips that add it to the search.
+     */
+    filters(): Mithril.Children;
+    filterChip(filter: string, hint?: string): Mithril.Children;
+    /**
+     * Add a filter to the search. A complete one (`is:suspended`) searches at
+     * once; a key (`group:`) waits in the input for its value.
+     */
+    addFilter(filter: string): void;
     actionItems(): ItemList<Mithril.Children>;
     /**
      * Build an item list of columns to show for each user.
@@ -89,6 +99,6 @@ export default class UserListPage extends AdminPage {
      * @param page The **1-based** page number
      */
     goToPage(page: number): void;
-    private setPageNumberInUrl;
+    private setUrlParams;
 }
 export {};

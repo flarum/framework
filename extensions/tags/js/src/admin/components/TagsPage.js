@@ -6,6 +6,9 @@ import withAttr from 'flarum/common/utils/withAttr';
 import Form from 'flarum/common/components/Form';
 import FormSectionGroup from 'flarum/admin/components/FormSectionGroup';
 import FormSection from 'flarum/admin/components/FormSection';
+import SettingsSection from 'flarum/admin/components/SettingsSection';
+import ItemList from 'flarum/common/utils/ItemList';
+import extractText from 'flarum/common/utils/extractText';
 
 import EditTagModal from './EditTagModal';
 import tagIcon from '../../common/helpers/tagIcon';
@@ -59,10 +62,99 @@ export default class TagsPage extends ExtensionPage {
     });
   }
 
+  /**
+   * The Tags tab (the tag tree) first, then the tag settings, then core's Permissions tab.
+   */
+  pageTabItems() {
+    const items = super.pageTabItems();
+    const unsaved = this.isChanged() > 0;
+
+    items.add('tags', { id: 'tags', label: app.translator.trans('flarum-tags.admin.tabs.tags'), icon: 'fas fa-tags' }, 100);
+    items.add(
+      'settings',
+      {
+        id: 'settings',
+        label: app.translator.trans('flarum-tags.admin.tabs.settings'),
+        icon: 'fas fa-sliders-h',
+        indicator: unsaved,
+        indicatorLabel: unsaved ? extractText(app.translator.trans('core.admin.extension.unsaved_changes')) : undefined,
+      },
+      50
+    );
+
+    return items;
+  }
+
+  pageTabContent(tab, vnode) {
+    if (tab === 'tags') return this.content(vnode);
+    if (tab === 'settings') return this.settingsContent();
+
+    return super.pageTabContent(tab, vnode);
+  }
+
+  /**
+   * The tag tree: primary and secondary tags, each with a create button.
+   */
   content() {
     if (this.loading) {
       return <LoadingIndicator />;
     }
+
+    const tags = sortTags(app.store.all('tags').filter((tag) => !tag.parent()));
+
+    return (
+      <div className="TagsContent">
+        <div className="TagsContent-list" key={this.forcedRefreshKey} oncreate={this.onListOnCreate.bind(this)}>
+          <FormSectionGroup>
+            <FormSection className="TagGroup" label={app.translator.trans('flarum-tags.admin.tags.primary_heading')}>
+              <ol className="TagList TagList--primary">{tags.filter((tag) => tag.position() !== null && !tag.isChild()).map(tagItem)}</ol>
+              <Button className="Button TagList-button" icon="fas fa-plus" onclick={() => app.modal.show(EditTagModal, { primary: true })}>
+                {app.translator.trans('flarum-tags.admin.tags.create_primary_tag_button')}
+              </Button>
+            </FormSection>
+
+            <FormSection className="TagGroup TagGroup--secondary" label={app.translator.trans('flarum-tags.admin.tags.secondary_heading')}>
+              <ul className="TagList">
+                {tags
+                  .filter((tag) => tag.position() === null)
+                  .sort((a, b) => a.name().localeCompare(b.name()))
+                  .map(tagItem)}
+              </ul>
+              <Button className="Button TagList-button" icon="fas fa-plus" onclick={() => app.modal.show(EditTagModal, { primary: false })}>
+                {app.translator.trans('flarum-tags.admin.tags.create_secondary_tag_button')}
+              </Button>
+            </FormSection>
+          </FormSectionGroup>
+          <div className="TagsContent-footer">
+            <p>{app.translator.trans('flarum-tags.admin.tags.about_tags_text')}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /**
+   * The tag settings, saved with the page's own settings streams.
+   */
+  settingsContent() {
+    return (
+      <div className="ExtensionPage-settings TagSettings">
+        <Form className="AdminPage-settingsForm AdminPage-settingsForm--sectioned">
+          {this.settingsItems().toArray()}
+          <div className="Form-group Form-controls">
+            {this.submitButton()}
+            {this.resetButton()}
+          </div>
+        </Form>
+      </div>
+    );
+  }
+
+  /**
+   * The sections on the Settings tab.
+   */
+  settingsItems() {
+    const items = new ItemList();
 
     const primaryLabel = app.translator.trans('flarum-tags.admin.tag_settings.required_primary_heading');
     const secondaryLabel = app.translator.trans('flarum-tags.admin.tag_settings.required_secondary_heading');
@@ -73,78 +165,49 @@ export default class TagsPage extends ExtensionPage {
     const minSecondaryTags = this.setting('flarum-tags.min_secondary_tags', 0, secondaryLabel);
     const maxSecondaryTags = this.setting('flarum-tags.max_secondary_tags', 0, secondaryLabel);
 
-    const tags = sortTags(app.store.all('tags').filter((tag) => !tag.parent()));
-
-    return (
-      <div className="TagsContent">
-        <div className="TagsContent-list">
-          <div className="container" key={this.forcedRefreshKey} oncreate={this.onListOnCreate.bind(this)}>
-            <FormSectionGroup>
-              <FormSection className="TagGroup" label={app.translator.trans('flarum-tags.admin.tags.primary_heading')}>
-                <ol className="TagList TagList--primary">{tags.filter((tag) => tag.position() !== null && !tag.isChild()).map(tagItem)}</ol>
-                <Button className="Button TagList-button" icon="fas fa-plus" onclick={() => app.modal.show(EditTagModal, { primary: true })}>
-                  {app.translator.trans('flarum-tags.admin.tags.create_primary_tag_button')}
-                </Button>
-              </FormSection>
-
-              <FormSection className="TagGroup TagGroup--secondary" label={app.translator.trans('flarum-tags.admin.tags.secondary_heading')}>
-                <ul className="TagList">
-                  {tags
-                    .filter((tag) => tag.position() === null)
-                    .sort((a, b) => a.name().localeCompare(b.name()))
-                    .map(tagItem)}
-                </ul>
-                <Button className="Button TagList-button" icon="fas fa-plus" onclick={() => app.modal.show(EditTagModal, { primary: false })}>
-                  {app.translator.trans('flarum-tags.admin.tags.create_secondary_tag_button')}
-                </Button>
-              </FormSection>
-
-              <FormSection label={app.translator.trans('flarum-tags.admin.tags.settings_heading')}>
-                <Form>
-                  <div className="Form-group">
-                    <label>{app.translator.trans('flarum-tags.admin.tag_settings.required_primary_heading')}</label>
-                    <div className="helpText">{app.translator.trans('flarum-tags.admin.tag_settings.required_primary_text')}</div>
-                    <div className="TagSettings-rangeInput">
-                      <input
-                        className="FormControl"
-                        type="number"
-                        min="0"
-                        value={minPrimaryTags()}
-                        oninput={withAttr('value', this.setMinTags.bind(this, minPrimaryTags, maxPrimaryTags))}
-                      />
-                      {app.translator.trans('flarum-tags.admin.tag_settings.range_separator_text')}
-                      <input className="FormControl" type="number" min={minPrimaryTags()} bidi={maxPrimaryTags} />
-                    </div>
-                  </div>
-                  <div className="Form-group">
-                    <label>{app.translator.trans('flarum-tags.admin.tag_settings.required_secondary_heading')}</label>
-                    <div className="helpText">{app.translator.trans('flarum-tags.admin.tag_settings.required_secondary_text')}</div>
-                    <div className="TagSettings-rangeInput">
-                      <input
-                        className="FormControl"
-                        type="number"
-                        min="0"
-                        value={minSecondaryTags()}
-                        oninput={withAttr('value', this.setMinTags.bind(this, minSecondaryTags, maxSecondaryTags))}
-                      />
-                      {app.translator.trans('flarum-tags.admin.tag_settings.range_separator_text')}
-                      <input className="FormControl" type="number" min={minSecondaryTags()} bidi={maxSecondaryTags} />
-                    </div>
-                  </div>
-                  <div className="Form-group Form-controls">
-                    {this.submitButton()}
-                    {this.resetButton()}
-                  </div>
-                </Form>
-              </FormSection>
-            </FormSectionGroup>
-            <div className="TagsContent-footer">
-              <p>{app.translator.trans('flarum-tags.admin.tags.about_tags_text')}</p>
-            </div>
+    items.add(
+      'requirements',
+      <SettingsSection
+        id="flarum-tags-section-requirements"
+        icon="fas fa-tasks"
+        label={app.translator.trans('flarum-tags.admin.sections.requirements.label')}
+        description={app.translator.trans('flarum-tags.admin.sections.requirements.description')}
+      >
+        <div className="Form-group">
+          <label>{primaryLabel}</label>
+          <div className="helpText">{app.translator.trans('flarum-tags.admin.tag_settings.required_primary_text')}</div>
+          <div className="TagSettings-rangeInput">
+            <input
+              className="FormControl"
+              type="number"
+              min="0"
+              value={minPrimaryTags()}
+              oninput={withAttr('value', this.setMinTags.bind(this, minPrimaryTags, maxPrimaryTags))}
+            />
+            {app.translator.trans('flarum-tags.admin.tag_settings.range_separator_text')}
+            <input className="FormControl" type="number" min={minPrimaryTags()} bidi={maxPrimaryTags} />
           </div>
         </div>
-      </div>
+        <div className="Form-group">
+          <label>{secondaryLabel}</label>
+          <div className="helpText">{app.translator.trans('flarum-tags.admin.tag_settings.required_secondary_text')}</div>
+          <div className="TagSettings-rangeInput">
+            <input
+              className="FormControl"
+              type="number"
+              min="0"
+              value={minSecondaryTags()}
+              oninput={withAttr('value', this.setMinTags.bind(this, minSecondaryTags, maxSecondaryTags))}
+            />
+            {app.translator.trans('flarum-tags.admin.tag_settings.range_separator_text')}
+            <input className="FormControl" type="number" min={minSecondaryTags()} bidi={maxSecondaryTags} />
+          </div>
+        </div>
+      </SettingsSection>,
+      100
     );
+
+    return items;
   }
 
   onListOnCreate(vnode) {

@@ -188,6 +188,26 @@ class Document implements Renderable
         return $this->makeView()->render();
     }
 
+    /**
+     * Preload a JavaScript chunk the page imports as soon as it boots, so it
+     * downloads alongside the main bundle rather than after it.
+     *
+     * @param string $namespace `core`, or the ID of the extension the chunk belongs to.
+     * @param string $path The chunk's path in its JS, such as `forum/components/PostStream`.
+     */
+    public function preloadChunk(string $namespace, string $path): void
+    {
+        // The address the frontend loads it from: see ExportRegistry's versionedChunkUrl.
+        $file = "js/$namespace/$path.js";
+        $url = rtrim($this->filesystem->disk('flarum-assets')->url('js'), '/')."/$namespace/$path.js";
+
+        if ($revision = $this->versioner->getRevision($file)) {
+            $url .= "?v=$revision";
+        }
+
+        $this->preloads[] = ['href' => $url, 'as' => 'script'];
+    }
+
     protected function makeView(): View
     {
         return $this->view->make($this->appView)->with([

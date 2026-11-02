@@ -1,7 +1,8 @@
-import type { Installed, HistoryEntry, HostReport, Run, RunMode, Updates } from '../types';
+import type { Installed, HistoryEntry, HostReport, RollbackPayload, Run, RunMode, Updates } from '../types';
 import ExtensionPage, { type ExtensionPageAttrs } from 'flarum/admin/components/ExtensionPage';
+import ItemList from 'flarum/common/utils/ItemList';
+import type { TabItem } from 'flarum/common/components/Tabs';
 import type Mithril from 'mithril';
-type Tab = 'installed' | 'history' | 'discover' | 'sources' | 'host';
 type CheckAge = 'fresh' | 'recent' | 'overdue';
 export interface ExtensionManagerPageAttrs extends ExtensionPageAttrs {
     /** The dashboard's update banner links here with ?tab=installed. */
@@ -19,7 +20,6 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     installed: Installed[];
     updates: Updates;
     checking: boolean;
-    tab: Tab;
     history: HistoryEntry[];
     run: Run | null;
     driver: string | null;
@@ -28,6 +28,14 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     starting: boolean;
     rollbackNote: string | null;
     dismissed: boolean;
+    /** An undo started from the History tab, while the run panel is dismissed. */
+    rollingBack: boolean;
+    /** Only the newest `/state` reply is used; see runState.requestSequence. */
+    protected loads: {
+        next: () => number;
+        isCurrent: (ticket: number) => boolean;
+        invalidate: () => void;
+    };
     /**
      * Dismissal is remembered against WHICH run, and it has to be remembered
      * at all.
@@ -42,6 +50,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     protected static DISMISS_KEY: string;
     protected storedDismissal(): string | null;
     protected rememberDismissed(id: string | null): void;
+    protected forgetDismissed(): void;
     oninit(vnode: Mithril.Vnode<ExtensionManagerPageAttrs, this>): void;
     /** The first load, and each "Try again": guarded by the timeout, and never allowed to throw. */
     attemptLoad(): void;
@@ -54,13 +63,23 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     /** A timer that outlives its page fires into whatever the admin opened next. */
     onremove(vnode: Mithril.VnodeDOM<ExtensionManagerPageAttrs, this>): void;
     load(): void;
-    content(): JSX.Element;
-    /** The page's tabs, in order, with the number of updates waiting on Installed. */
-    tabItems(): {
-        id: Tab;
-        label: Mithril.Children;
-        badge: number;
-    }[];
+    /**
+     * The page around the tabs: the first load, a load that failed, and the run
+     * panel. While a run is live the panel is the ONLY thing on screen and the
+     * tab bar goes away. A grid of Update buttons beside a running update
+     * invites somebody to start a second one, and the honest answer to the
+     * second press is a refusal — better not to offer it.
+     */
+    pageTabs(vnode: Mithril.VnodeDOM<ExtensionManagerPageAttrs, this>, tabs: TabItem[]): Mithril.Children;
+    /**
+     * The page's tabs, with the number of updates waiting on Installed.
+     *
+     * Finding extensions is what most people open this page for (ClaudiusH,
+     * 2026-10-09), so Discover comes first and is shown by default. The
+     * dashboard's update banner links here with ?tab=installed.
+     */
+    pageTabItems(): ItemList<TabItem>;
+    pageTabContent(tab: string, vnode: Mithril.VnodeDOM<ExtensionManagerPageAttrs, this>): Mithril.Children;
     /**
      * A FINISHED run keeps its panel until somebody dismisses it. The screen
      * returning to normal on its own would throw away the log at the exact moment
@@ -87,6 +106,19 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
      */
     protected reloadIfSelf(run: Run | null): void;
     runPanel(): JSX.Element;
+    rolledBack(data: RollbackPayload): void;
+    /**
+     * The run History may offer to undo: the latest one, when it finished or
+     * failed and its panel has been dismissed.
+     *
+     * Dismissing a failed run is remembered, and the panel held the only Roll
+     * back button, so a dismissed failure could no longer be undone from this
+     * page at all. Only the latest run, because that is the one the rollback
+     * endpoint undoes, and only while the panel is away, so there is never a
+     * second button for the same undo on screen.
+     */
+    undoableFromHistory(): string | null;
+    rollBackFromHistory(): void;
     /**
      * Every package with a newer version, in one press.
      *
@@ -157,8 +189,9 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     checkSummary(n: number): string;
     /**
      * How hard to ask, by how old the last check is (ClaudiusH, 2026-10-09):
-     * checked today, a quiet link to check again; within the week, an ordinary
-     * button; older than that, or never, a prompt that says why it matters.
+     * within the week, an ordinary button; older than that, or never, a primary
+     * button and a prompt that says why it matters. Always a button, never a
+     * link: it is the main action on the Installed tab (ClaudiusH, 2026-10-27).
      */
     checkAge(): CheckAge;
     checkButton(age: CheckAge): JSX.Element;

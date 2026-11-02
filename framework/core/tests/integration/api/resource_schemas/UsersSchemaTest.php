@@ -195,6 +195,16 @@ class UsersSchemaTest extends TestCase
     }
 
     #[Test]
+    public function the_sign_up_color_scheme_is_a_hidden_widget()
+    {
+        $colorScheme = $this->fieldsByName($this->describe(1))['colorScheme'];
+
+        $this->assertSame(['widget' => 'hidden'], $colorScheme['ui']);
+        $this->assertFalse($colorScheme['visible']);
+        $this->assertSame(['create' => true], $colorScheme['writable']);
+    }
+
+    #[Test]
     public function a_member_with_the_delete_permission_gets_the_delete_capability()
     {
         $this->assertTrue($this->describe(4)['capabilities']['delete'] ?? false);
@@ -216,7 +226,7 @@ class UsersSchemaTest extends TestCase
         $this->assertSame(['group', 'joinedAt'], array_column($descriptor['filters'], 'key'));
 
         $this->assertSame([
-            'username', 'email', 'password', 'token', 'displayName', 'avatarUrl', 'avatarSrcset',
+            'username', 'email', 'password', 'token', 'colorScheme', 'displayName', 'avatarUrl', 'avatarSrcset',
             'hasUploadedAvatar', 'slug', 'joinTime', 'discussionCount', 'commentCount', 'lastSeenAt',
             'canEdit', 'canEditAvatar', 'canEditCredentials', 'canEditGroups', 'canDelete', 'groups',
         ], array_keys($fields));

@@ -37,6 +37,11 @@ return [
 
     (new Extend\View())->namespace('flarum-messages', __DIR__.'/views'),
 
+    (new Extend\Settings())
+        ->default(RecipientLimit::SETTING, RecipientLimit::DEFAULT)
+        ->default(GroupNames::SETTING, false)
+        ->serializeToForum('messagesMaxRecipients', RecipientLimit::SETTING, RecipientLimit::clamp(...)),
+
     (new Extend\Model(User::class))
         ->belongsToMany('dialogs', Dialog::class, 'dialog_user')
         ->hasMany('dialogMessages', DialogMessage::class, 'user_id'),
@@ -122,6 +127,6 @@ return [
         ->whenExtensionEnabled('flarum-statistics', fn () => [
             (new StatisticsExtend())
                 ->entity('dialogs', fn () => Dialog::query(), 'created_at')
-                ->entity('dialog_replies', fn () => DialogMessage::query()->where('number', '>', 1), 'created_at'),
+                ->entity('dialog_replies', fn () => DialogMessage::query()->where('number', '>', 1)->where('type', DialogMessage::COMMENT), 'created_at'),
         ]),
 ];

@@ -9,7 +9,7 @@ export default class GambitsAutocomplete {
     protected query: string;
     constructor(resource: string, jqueryInput: () => JQuery<HTMLInputElement>, onchange: (value: string) => void, afterSuggest: (value: string) => void);
     suggestions(query: string): JSX.Element[];
-    specificGambitSuggestions(gambitKey: string, gambitQuery: string, uniqueGroups: string[], groupedGambits: IGambit<GambitType.Grouped>[], autocomplete: AutocompleteCheck): JSX.Element[] | null;
+    specificGambitSuggestions(gambitKey: string, gambitQuery: string, uniqueGroups: string[], groupedGambits: IGambit<GambitType.Grouped>[], autocomplete: AutocompleteCheck, negative?: boolean): JSX.Element[] | null;
     gambitSuggestion(key: string, value: string | null, suggest: (negated?: boolean) => void): JSX.Element;
     suggest(text: string, fromTyped: string, start: number): void;
 }

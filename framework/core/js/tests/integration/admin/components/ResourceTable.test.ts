@@ -118,6 +118,16 @@ describe('ResourceTable', () => {
     }
   });
 
+  test('a searchable type without gambits has no search filters section in the "Filter" panel', async () => {
+    const out = await rendered();
+
+    expect(app.search.gambits.for('things')).toHaveLength(0);
+    expect(out).toHaveElement('input.ResourceTable-search');
+    expect(out).toHaveElement('.ResourceTable-filterPanel .ResourceTable-filterGroup--status');
+    expect(out).not.toHaveElement('.ResourceTable-filterGroup--search');
+    expect(out).not.toHaveElement('.ResourceTable-searchFilter');
+  });
+
   test('a row with canDelete:false has no delete action', async () => {
     const out = await rendered();
 

@@ -35,6 +35,9 @@ class FaviconController implements RequestHandlerInterface
             return new EmptyResponse(404);
         }
 
-        return new RedirectResponse($url, 302, ['Cache-Control' => 'public, max-age=86400']);
+        return new RedirectResponse($url, 302, [
+            // Not public: the forum adds the visitor's session cookie.
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 }

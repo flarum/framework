@@ -71,6 +71,7 @@ class GroupResource extends AbstractDatabaseResource
 
         return [
             Schema\Str::make('nameSingular')
+                ->description('Name for one member, such as Moderator.')
                 ->requiredOnCreate()
                 ->get(function (Group $group) {
                     return $this->translateGroupName($group->name_singular);
@@ -83,6 +84,7 @@ class GroupResource extends AbstractDatabaseResource
                 ->rule('filled')
                 ->ui(['column' => 90, 'label' => 'core.admin.groups.fields.name_singular', 'placeholder' => 'core.admin.edit_group.singular_placeholder']),
             Schema\Str::make('namePlural')
+                ->description('Name for several members, such as Moderators.')
                 ->requiredOnCreate()
                 ->get(function (Group $group) {
                     return $this->translateGroupName($group->name_plural);
@@ -95,14 +97,17 @@ class GroupResource extends AbstractDatabaseResource
                 ->rule('filled')
                 ->ui(['column' => 85, 'label' => 'core.admin.groups.fields.name_plural', 'placeholder' => 'core.admin.edit_group.plural_placeholder']),
             Schema\Str::make('color')
+                ->description('Badge color as a hex code, or null.')
                 ->nullable()
                 ->writable($writable)
                 ->ui(['widget' => 'color', 'label' => 'core.admin.groups.fields.color', 'placeholder' => '#aaaaaa']),
             Schema\Str::make('icon')
+                ->description('Font Awesome icon classes for the badge, such as fas fa-bolt, or null.')
                 ->nullable()
                 ->writable($writable)
                 ->ui(['widget' => 'icon', 'label' => 'core.admin.groups.fields.icon', 'placeholder' => 'fas fa-bolt']),
             Schema\Boolean::make('isHidden')
+                ->description('Whether the group is hidden from user profiles and lists.')
                 ->writable($writable)
                 ->ui(['column' => 60, 'label' => 'core.admin.groups.fields.is_hidden']),
             Schema\Integer::make('position')

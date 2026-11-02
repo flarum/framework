@@ -3,6 +3,7 @@ import Button from '../../../common/components/Button';
 import Dropdown from '../../../common/components/Dropdown';
 import LoadingIndicator from '../../../common/components/LoadingIndicator';
 import Separator from '../../../common/components/Separator';
+import { GambitType } from '../../../common/query/IGambit';
 import type IGambit from '../../../common/query/IGambit';
 import type Model from '../../../common/Model';
 import ItemList from '../../../common/utils/ItemList';
@@ -25,6 +26,17 @@ import ordered from './ordered';
 export interface ResourceFilterBarAttrs<M extends Model = Model> {
   definition: ResourceDefinition<M>;
   list: ResourceListState<M>;
+  /**
+   * Add a gambit (`is:suspended`, or a key awaiting its value, `group:`) to the search; the panel's
+   * search filter chips call it. Without it the chips are not shown.
+   */
+  addToSearch?: (filter: string) => void;
+}
+
+/** A search filter chip of the panel: the gambit text it adds, and the hint for a key's value. */
+export interface SearchFilterChip {
+  filter: string;
+  hint?: string;
 }
 
 const anyLabel = () => app.translator.trans('core.lib.resource.filter.any', {}, true);
@@ -62,12 +74,12 @@ export default class ResourceFilterBar<M extends Model = Model> {
     Object.values(this.relations).forEach((options) => options.cancel());
   }
 
-  /** The "Filter" button and its panel (`filters`, 80), while the toolbar offers a filter. */
+  /** The "Filter" button and its panel (`filters`, 80), while the toolbar offers a filter or a search filter. */
   items(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
     const filters = this.toolbarFilters();
 
-    if (filters.length) items.add('filters', this.panelView(filters), 80);
+    if (filters.length || this.searchFilterChips().length) items.add('filters', this.panelView(filters), 80);
 
     return items;
   }
@@ -90,6 +102,58 @@ export default class ResourceFilterBar<M extends Model = Model> {
   }
 
   /**
+   * The type's enabled gambits as chips, as the search would take them: one per value of a grouped
+   * gambit (`is:suspended`), a key with its value hint for the others (`group:`). Empty without an
+   * `addToSearch` attr.
+   */
+  searchFilterChips(): SearchFilterChip[] {
+    if (!this.attrs.addToSearch) return [];
+
+    return this.gambits().flatMap((gambit): SearchFilterChip[] => {
+      if (gambit.type === GambitType.Grouped) {
+        const { group, key } = (gambit as IGambit<GambitType.Grouped>).suggestion();
+
+        return (key instanceof Array ? key : [key]).map((value) => ({ filter: `${group}:${value}` }));
+      }
+
+      const { key, hint } = (gambit as IGambit<GambitType.KeyValue>).suggestion();
+
+      return [{ filter: `${key}:`, hint }];
+    });
+  }
+
+  /**
+   * The panel's "Search filters" section: a heading over one item holding every chip. A chip click
+   * closes the panel and adds the chip to the search (`addToSearch`).
+   */
+  searchFilterItems(): Mithril.Children[] {
+    const chips = this.searchFilterChips();
+
+    if (!chips.length) return [];
+
+    const heading = (
+      <div className="ResourceTable-filterGroupLabel" onclick={(e: MouseEvent) => e.stopPropagation()}>
+        {app.translator.trans('core.admin.resource.table.search_filters_heading')}
+      </div>
+    );
+
+    return [
+      Object.assign(heading, { itemClassName: classList('Dropdown-header', 'ResourceTable-filterGroup', 'ResourceTable-filterGroup--search') }),
+      this.inGroup(
+        <div className="ResourceTable-searchFilters">
+          {chips.map(({ filter, hint }) => (
+            <Button className="Button ResourceTable-searchFilter" data-filter={filter} onclick={() => this.attrs.addToSearch!(filter)}>
+              <code>{filter}</code>
+              {!!hint && <span className="ResourceTable-searchFilterHint">{hint}</span>}
+            </Button>
+          ))}
+        </div>,
+        'search'
+      ),
+    ];
+  }
+
+  /**
    * The filters the toolbar offers, by priority. A filter that a gambit of the same key covers is
    * left to the search box unless its `hideWhenSearchable` is false.
    */
@@ -101,10 +165,11 @@ export default class ResourceFilterBar<M extends Model = Model> {
 
   /**
    * The "Filter" button, with a badge counting the set filters, and its panel: one section per
-   * filter, a heading with its label over its items (`menuItems()`). Flat menu items, so core's
-   * phone sheet styling applies to them.
+   * filter, a heading with its label over its items (`menuItems()`), then the search filter chips
+   * (`searchFilterItems()`). Flat menu items, so core's phone sheet styling applies to them.
    */
   panelView(filters: [string, Filter][]): Mithril.Children {
+    // Only described filters count: gambits typed into the search are visible in the search box.
     const count = filters.filter(([key]) => this.list.getFilter(key) !== '').length;
     const items: Mithril.Children[] = [];
 
@@ -123,6 +188,11 @@ export default class ResourceFilterBar<M extends Model = Model> {
 
       this.menuItems(key, filter).forEach((item) => items.push(this.inGroup(item, key)));
     });
+
+    const searchFilters = this.searchFilterItems();
+
+    if (searchFilters.length && items.length) items.push(<Separator />);
+    items.push(...searchFilters);
 
     return (
       <Dropdown

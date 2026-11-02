@@ -36,7 +36,8 @@ class AuditIntegration
         $message = $event->message;
         $dialog = $message->dialog;
 
-        if (! $dialog) {
+        // What members wrote to whom, not the conversation's own notices.
+        if (! $dialog || ! $message->isComment()) {
             return;
         }
 

@@ -88,6 +88,19 @@ class ThrottleTest extends TestCase
     }
 
     #[Test]
+    public function leaving_a_group_does_not_hold_up_the_next_message(): void
+    {
+        $this->prepareDatabase([
+            Dialog::class => [['id' => 110, 'type' => 'group']],
+            DialogMessage::class => [
+                ['id' => 110, 'dialog_id' => 110, 'user_id' => 3, 'type' => 'userLeft', 'content' => '{}', 'number' => 1, 'created_at' => Carbon::now()],
+            ],
+        ]);
+
+        $this->assertEquals(201, $this->post(3, ['content' => 'Hi bob'], 102)->getStatusCode());
+    }
+
+    #[Test]
     public function opening_too_many_conversations_in_an_hour_is_throttled_but_replying_is_not(): void
     {
         // Carol has started the hour's allowance of conversations already, each
@@ -110,6 +123,79 @@ class ThrottleTest extends TestCase
 
         // The limit is on new conversations, not on talking in existing ones.
         $this->assertEquals(201, $this->post(5, ['content' => 'Still here'], 200)->getStatusCode());
+    }
+
+    #[Test]
+    public function a_group_counts_as_a_new_conversation_even_with_someone_already_talked_to(): void
+    {
+        $dialogs = [];
+        $messages = [];
+        $members = [];
+
+        // Carol's hour's allowance, every one of them with bob.
+        for ($i = 0; $i < DialogMessageThrottler::$newDialogsPerHour; $i++) {
+            $id = 200 + $i;
+            $dialogs[] = ['id' => $id, 'type' => 'direct', 'created_at' => Carbon::now()->subMinutes(30)];
+            $messages[] = ['id' => $id, 'dialog_id' => $id, 'user_id' => 5, 'content' => "Hello $i", 'number' => 1, 'created_at' => Carbon::now()->subMinutes(30)];
+            $members[] = ['dialog_id' => $id, 'user_id' => 5, 'joined_at' => Carbon::now()->subMinutes(30)];
+            $members[] = ['dialog_id' => $id, 'user_id' => 4, 'joined_at' => Carbon::now()->subMinutes(30)];
+        }
+
+        $this->prepareDatabase([Dialog::class => $dialogs, DialogMessage::class => $messages, 'dialog_user' => $members]);
+
+        // Bob first: the pair already talk, but a group is new all the same.
+        $this->assertEquals(429, $this->post(5, ['content' => 'Hi both', 'users' => [['id' => 4], ['id' => 3]]])->getStatusCode());
+    }
+
+    #[Test]
+    public function being_added_to_conversations_others_opened_uses_none_of_the_allowance(): void
+    {
+        $dialogs = $messages = $members = [];
+
+        // Bob has opened the hour's allowance of conversations, all with carol.
+        for ($i = 0; $i < DialogMessageThrottler::$newDialogsPerHour; $i++) {
+            $id = 200 + $i;
+            $dialogs[] = ['id' => $id, 'type' => 'group', 'created_at' => Carbon::now()->subMinutes(30)];
+            $messages[] = ['id' => $id, 'dialog_id' => $id, 'user_id' => 4, 'content' => "Hello $i", 'number' => 1, 'created_at' => Carbon::now()->subMinutes(30)];
+            $members[] = ['dialog_id' => $id, 'user_id' => 4, 'joined_at' => Carbon::now()->subMinutes(30)];
+            $members[] = ['dialog_id' => $id, 'user_id' => 5, 'joined_at' => Carbon::now()->subMinutes(30)];
+        }
+
+        $this->prepareDatabase([Dialog::class => $dialogs, DialogMessage::class => $messages, 'dialog_user' => $members]);
+
+        $this->assertEquals(201, $this->post(5, ['content' => 'Hi alice', 'users' => [['id' => 3]]])->getStatusCode());
+    }
+
+    #[Test]
+    public function reaching_too_many_new_people_in_an_hour_is_throttled_however_few_the_conversations(): void
+    {
+        $users = $members = [];
+
+        // Two groups carol opened half an hour ago, reaching the hour's
+        // allowance of people between them.
+        foreach (range(1, DialogMessageThrottler::$newRecipientsPerHour) as $i) {
+            $users[] = ['id' => 100 + $i, 'username' => "member$i"];
+            $members[] = ['dialog_id' => $i % 2 ? 300 : 301, 'user_id' => 100 + $i, 'joined_at' => Carbon::now()->subMinutes(30)];
+        }
+
+        foreach ([300, 301] as $id) {
+            $members[] = ['dialog_id' => $id, 'user_id' => 5, 'joined_at' => Carbon::now()->subMinutes(30)];
+        }
+
+        $this->prepareDatabase([
+            User::class => $users,
+            Dialog::class => [
+                ['id' => 300, 'type' => 'group', 'created_at' => Carbon::now()->subMinutes(30)],
+                ['id' => 301, 'type' => 'group', 'created_at' => Carbon::now()->subMinutes(30)],
+            ],
+            DialogMessage::class => [
+                ['id' => 300, 'dialog_id' => 300, 'user_id' => 5, 'content' => 'Hi all', 'number' => 1, 'created_at' => Carbon::now()->subMinutes(30)],
+                ['id' => 301, 'dialog_id' => 301, 'user_id' => 5, 'content' => 'Hi all', 'number' => 1, 'created_at' => Carbon::now()->subMinutes(30)],
+            ],
+            'dialog_user' => $members,
+        ]);
+
+        $this->assertEquals(429, $this->post(5, ['content' => 'Hi both', 'users' => [['id' => 3], ['id' => 4]]])->getStatusCode());
     }
 
     #[Test]

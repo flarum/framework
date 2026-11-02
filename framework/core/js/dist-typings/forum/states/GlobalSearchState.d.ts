@@ -27,6 +27,12 @@ export default class GlobalSearchState extends SearchState {
      */
     stickyParams(): SearchParams;
     /**
+     * The search in the address. Mithril keeps a "+" that a browser's address
+     * bar sends for a space, and turns "true" and "false" into booleans, so
+     * the address itself is read the way browsers write it.
+     */
+    protected routeSearch(): string;
+    /**
      * Get parameters to be used in the current page.
      */
     params(): SearchParams;

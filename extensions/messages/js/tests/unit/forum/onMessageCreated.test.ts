@@ -198,3 +198,20 @@ describe('a new message', () => {
     expect(unreadDialogCount()).toBe(0);
   });
 });
+
+describe('a notice arriving live', () => {
+  // Someone leaving, say: news in the conversation, but nothing to read.
+  it('moves its group up the list, but not into the unread dropdown', () => {
+    listed(app.dialogs, dialogData('71'), dialogData('72'));
+    listed(app.dropdownDialogs);
+
+    const payload = created('72', THEM, 0);
+    (payload.data.attributes as any) = { type: 'userLeft', eventData: {} };
+
+    onMessageCreated(payload);
+
+    expect(ids(app.dialogs)).toEqual(['72', '71']);
+    expect(ids(app.dropdownDialogs)).toEqual([]);
+    expect(unreadDialogCount()).toBe(0);
+  });
+});

@@ -257,6 +257,13 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         if ($this->database()->getDriverName() === 'pgsql') {
             // PgSQL doesn't auto-increment the sequence when inserting the IDs manually.
             foreach ($tables as $table => $id) {
+                // Tables with text IDs have no sequence.
+                $sequence = $this->database()->selectOne('SELECT pg_get_serial_sequence(?, ?) AS name', [$this->database()->getTablePrefix().$table, $id]);
+
+                if ($sequence?->name === null) {
+                    continue;
+                }
+
                 $wrappedTable = $this->database()->getSchemaGrammar()->wrapTable($table);
                 $seq = $this->database()->getSchemaGrammar()->wrapTable($table.'_'.$id.'_seq');
                 $this->database()->statement("SELECT setval('$seq', (SELECT MAX($id) FROM $wrappedTable))");

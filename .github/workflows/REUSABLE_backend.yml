@@ -57,6 +57,16 @@ on:
         type: string
         required: false
 
+      monorepo_lanes:
+        description: >-
+          How many of the `monorepo_tests` directories to test at once, each against a database
+          of its own. The first directory gets a lane to itself, since a framework's own suite is
+          usually the longest, and the rest are dealt round the other lanes. With 1, they are
+          tested one after another.
+        type: number
+        required: false
+        default: 1
+
       php_versions:
         description: Versions of PHP to test with. Should be array of strings encoded as JSON array
         type: string
@@ -402,21 +412,106 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ steps.composer-cache.outputs.key }}-${{ steps.composer-cache.outputs.date }}
 
-      # If we have a `inputs.monorepo_tests`, we will run tests for each item of the provided array in a ::group::item
-      # If we don't have a `inputs.monorepo_tests`, we will run tests for the current repository
-      # We also have to run the `composer test:setup` script first before running each test
+      # Without `inputs.monorepo_tests`, the repository is tested as one package. With it, each
+      # listed directory is set up and tested in turn, in a ::group:: of its own. With more than
+      # one of `inputs.monorepo_lanes`, the lanes run side by side, each against its own
+      # database, and each directory's output is printed once every lane has finished.
       - name: Run tests
         run: |
           if [ -z "${{ inputs.monorepo_tests }}" ]; then
             composer test:setup
             composer test
-          else
+          elif [ "$MONOREPO_LANES" -le 1 ]; then
             for test in ${{ inputs.monorepo_tests }}; do
               echo "::group::Running tests for $test"
               composer test:setup --working-dir=$test
               composer test --working-dir=$test
               echo "::endgroup::"
             done
+          else
+            tests=(${{ inputs.monorepo_tests }})
+            lanes=$MONOREPO_LANES
+            logs="${{ runner.temp }}/monorepo-tests"
+            mkdir -p "$logs"
+
+            # The first directory gets a lane of its own; the rest are dealt round the others.
+            lane=()
+            for i in "${!tests[@]}"; do
+              lane[i]=$(( i == 0 ? 0 : 1 + (i - 1) % (lanes - 1) ))
+            done
+
+            # The service creates the first lane's database; the others get theirs next to it.
+            # SQLite needs none, as each directory keeps its database file in its own tmp dir.
+            create_database() {
+              # shellcheck disable=SC2016 # PHP, not shell, expands these.
+              php -r '
+                [, $name] = $argv;
+                $port = getenv("DB_PORT");
+                if (getenv("DB_DRIVER") === "pgsql") {
+                    $pdo = new PDO("pgsql:host=127.0.0.1;port=$port;dbname=".getenv("DB_DATABASE"), getenv("DB_USERNAME"), getenv("DB_PASSWORD"));
+                    $pdo->exec("CREATE DATABASE \"$name\"");
+                } else {
+                    $pdo = new PDO("mysql:host=127.0.0.1;port=$port", "root", "root");
+                    $pdo->exec("CREATE DATABASE `$name`");
+                    $pdo->exec("GRANT ALL ON `$name`.* TO \"".getenv("DB_USERNAME")."\"@\"%\"");
+                }
+              ' "$1"
+            }
+
+            # Runs in a subshell of its own, so its database only applies to this lane.
+            run_lane() {
+              local n=$1
+
+              if [ "$n" -gt 0 ]; then
+                if [ "$DB_DRIVER" != sqlite ]; then
+                  create_database "${DB_DATABASE}_$n" > "$logs/lane-$n.log" 2>&1 || return 1
+                fi
+                export DB_DATABASE="${DB_DATABASE}_$n"
+              fi
+
+              for i in "${!tests[@]}"; do
+                [ "${lane[$i]}" -eq "$n" ] || continue
+                start=$SECONDS
+                if ! { composer test:setup --working-dir="${tests[$i]}" && composer test --working-dir="${tests[$i]}"; } > "$logs/$i.log" 2>&1; then
+                  echo "$(( SECONDS - start ))s, failed" > "$logs/$i.result"
+                  return 1
+                fi
+                echo "$(( SECONDS - start ))s" > "$logs/$i.result"
+              done
+            }
+
+            echo "Testing ${#tests[@]} directories in $lanes lanes"
+
+            pids=()
+            for n in $(seq 0 $(( lanes - 1 ))); do
+              run_lane "$n" &
+              pids+=($!)
+            done
+
+            failed=0
+            for pid in "${pids[@]}"; do
+              wait "$pid" || failed=1
+            done
+
+            for i in "${!tests[@]}"; do
+              if [ -f "$logs/$i.log" ]; then
+                echo "::group::Running tests for ${tests[$i]} (lane ${lane[$i]}, $(cat "$logs/$i.result" 2>/dev/null || echo 'did not finish'))"
+                cat "$logs/$i.log"
+                echo "::endgroup::"
+              fi
+              if grep -qs failed "$logs/$i.result"; then
+                echo "::error::Tests failed in ${tests[$i]}"
+              fi
+            done
+
+            for n in $(seq 1 $(( lanes - 1 ))); do
+              if [ -s "$logs/lane-$n.log" ]; then
+                echo "::error::Could not create the database for lane $n"
+                cat "$logs/lane-$n.log"
+              fi
+            done
+
+            exit $failed
           fi
         working-directory: ${{ inputs.backend_directory }}
         env:
@@ -426,6 +521,7 @@ jobs:
           DB_PREFIX: ${{ matrix.prefix }}
           DB_DRIVER: ${{ matrix.driver }}
           COMPOSER_PROCESS_TIMEOUT: 600
+          MONOREPO_LANES: ${{ inputs.monorepo_lanes }}
 
       # Surface the query findings on the pull request itself. A developer who
       # only ever looks at the checks page would otherwise never see the

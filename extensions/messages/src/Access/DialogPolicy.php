@@ -20,6 +20,14 @@ class DialogPolicy extends AbstractPolicy
         return Dialog::whereVisibleTo($actor)->where('id', $dialog->id)->exists();
     }
 
+    /**
+     * Only a group: leaving a direct conversation would leave nobody in it.
+     */
+    public function leave(User $actor, Dialog $dialog): bool
+    {
+        return $dialog->isGroup() && $this->view($actor, $dialog);
+    }
+
     public function sendMessage(User $actor, Dialog $dialog): bool
     {
         return $this->view($actor, $dialog) && MessagingPermission::canSendIn($actor, $dialog);

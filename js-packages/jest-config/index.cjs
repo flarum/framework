@@ -65,9 +65,14 @@ function resolveCoreDir(cwd) {
   }
 }
 
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 module.exports = (options = {}) => {
   const cwd = process.cwd();
   const coreDir = resolveCoreDir(cwd);
+  const isCore = fs.realpathSync(coreDir) === fs.realpathSync(cwd);
 
   return {
     testEnvironment: 'jsdom',
@@ -98,6 +103,9 @@ module.exports = (options = {}) => {
     // it, core's source too — otherwise its TypeScript is loaded untransformed
     // and fails on the first type annotation.
     roots: ['<rootDir>', coreDir],
+    // Jest also collects tests from every root, so an extension's run would
+    // run all of core's tests as well. Leave those to core's own run.
+    testPathIgnorePatterns: ['/node_modules/', ...(isCore ? [] : ['^' + escapeRegExp(fs.realpathSync(coreDir) + path.sep)])],
     // Core's source imports its runtime deps by bare name (`mithril`, …). When
     // core is vendored, those files resolve modules from core's own ancestry,
     // not the extension's node_modules where a single `yarn install` puts them,

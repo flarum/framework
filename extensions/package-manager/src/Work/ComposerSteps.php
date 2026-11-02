@@ -1424,7 +1424,17 @@ class ComposerSteps implements Steps
             return [];
         }
 
-        return (array) json_decode((string) file_get_contents($path), true);
+        /*
+         * Truncated by a full disk, an unreadable plan used to read as an empty
+         * one, and the run then finished "done" with nothing applied.
+         */
+        $plan = json_decode((string) file_get_contents($path), true);
+
+        if (! is_array($plan)) {
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.plan_unreadable', ['path' => $path]));
+        }
+
+        return $plan;
     }
 
     /** @return array<string,mixed> */

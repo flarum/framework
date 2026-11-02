@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Work;
 
 use Flarum\Database\Migrator;
+use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Exception\RefusedException;
 use Flarum\Locale\TranslatorInterface;
@@ -72,13 +73,14 @@ class MigrationLedger
      * After it: what this update added, in the order it ran, with a copy of
      * each migration file so undo can still reach its down step later.
      */
-    public function after(ConnectionInterface $db, ExtensionManager $extensions, string $vendorPath): array
+    public function after(ConnectionInterface $db, ExtensionManager $extensions, string $vendorPath, ?array $scope = null): array
     {
         $before = $this->beforeState();
         $seen = array_flip(array_map(fn ($m) => $m['extension'].'|'.$m['migration'], $before['migrations']));
         $added = array_values(array_filter(
             $this->current($db),
             fn ($m) => ! isset($seen[$m['extension'].'|'.$m['migration']])
+                && ($scope === null || isset($scope[$m['extension'] ?? '']))
         ));
         // Flarum runs them in filename order, which starts with a timestamp.
         usort($added, fn ($a, $b) => strcmp($a['migration'], $b['migration']));
@@ -110,8 +112,25 @@ class MigrationLedger
      *
      * @return bool whether a reversal is now pending
      */
-    public function prepare(SettingsRepositoryInterface $settings, Migrator $migrator, ExtensionManager $extensions, string $vendorPath): bool
+    public function prepare(SettingsRepositoryInterface $settings, Migrator $migrator, ExtensionManager $extensions, string $vendorPath, ?ConnectionInterface $db = null): bool
     {
+        /*
+         * migrations.json is written only once a migrate succeeds. A migrate
+         * that stopped at migration k of n left 1 to k-1 applied with no record
+         * of them, and so did core's migrations run in the same request as its
+         * swap when a later step failed. Then what ran is worked out again from
+         * the table, now, while the new code (and so each migration's down())
+         * is still in place to be copied.
+         *
+         * Only then, and only for what this update changed. The table also
+         * holds whatever ran since: an extension enabled after the update
+         * migrates too, and undoing the update must not reverse it. A record
+         * from a migrate that finished is kept as it is.
+         */
+        if ($db !== null && ! is_file($this->workDir.'/migrations.json') && is_file($this->workDir.'/migrations.before.json')) {
+            $this->after($db, $extensions, $vendorPath, $this->scope());
+        }
+
         if ($this->ran() === []) {
             $this->restoreVersion($settings);
 
@@ -143,8 +162,23 @@ class MigrationLedger
         }
 
         $done = [];
+        $stillRan = [];
 
         foreach ($this->downs($migrator, $extensions, $vendorPath) as [$m, $down]) {
+            /*
+             * Reversed by an earlier attempt that stopped further on. Running
+             * its down() again would fail on what it already removed, and
+             * every retry would stop at the same place.
+             */
+            $key = $m['extension'] ?? '';
+            $stillRan[$key] ??= array_flip($migrator->getRepository()->getRan($m['extension']));
+
+            if (! isset($stillRan[$key][$m['migration']])) {
+                $done[] = $m['migration'];
+
+                continue;
+            }
+
             try {
                 call_user_func($down, $db->getSchemaBuilder());
             } catch (Throwable $e) {
@@ -220,6 +254,25 @@ class MigrationLedger
         return array_is_list($raw)
             ? ['migrations' => $raw, 'version' => null]
             : ['migrations' => (array) ($raw['migrations'] ?? []), 'version' => $raw['version'] ?? null];
+    }
+
+    /**
+     * The extensions (and core, as '') whose packages this update changed,
+     * from its plan. Extension ids as Flarum keys them in the migrations table.
+     *
+     * @return array<string, true>
+     */
+    protected function scope(): array
+    {
+        $plan = (array) json_decode((string) @file_get_contents($this->workDir.'/plan.json'), true);
+        $scope = [];
+
+        foreach ((array) ($plan['changes'] ?? []) as $change) {
+            $package = (string) ($change['package'] ?? '');
+            $scope[$package === 'flarum/core' ? '' : Extension::nameToId($package)] = true;
+        }
+
+        return $scope;
     }
 
     protected function liveDir(?string $extension, ExtensionManager $extensions, string $vendorPath): string

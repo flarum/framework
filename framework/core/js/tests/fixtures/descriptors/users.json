@@ -189,6 +189,23 @@
             }
         },
         {
+            "name": "colorScheme",
+            "kind": "string",
+            "label": "Color scheme",
+            "visible": false,
+            "writable": {
+                "create": true
+            },
+            "constraints": {
+                "maxLength": 50,
+                "pattern": "^[a-z0-9-]+$",
+                "patternFlags": "i"
+            },
+            "ui": {
+                "widget": "hidden"
+            }
+        },
+        {
             "name": "displayName",
             "kind": "string",
             "label": "Display name",

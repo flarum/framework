@@ -1,0 +1,110 @@
+<?php
+
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
+namespace Flarum\Mcp\Integration\Messages;
+
+use Flarum\Mcp\Capability\McpContext;
+use Flarum\Mcp\Capability\Tool;
+use Flarum\Mcp\Exception\ToolError;
+use Flarum\Mcp\Tool\Support\Document;
+use Flarum\Mcp\Tool\Support\Members;
+
+/**
+ * Sends a private message, in an existing conversation or to a member. Who
+ * may message whom is decided by flarum/messages' own endpoint and policies.
+ */
+class SendMessageTool extends Tool
+{
+    public function __construct(
+        protected Members $members,
+    ) {
+    }
+
+    public function name(): string
+    {
+        return 'send_message';
+    }
+
+    public function title(): string
+    {
+        return 'Send a private message';
+    }
+
+    public function description(): string
+    {
+        return 'Send a private message as you, either in an existing conversation (conversationId) or to members (to, their usernames). '
+            .'To one member, it continues your conversation with them if there is one; to several, it starts a new group conversation. '
+            .'Confirm the recipients and content with the user first. '
+            .'Content uses the forum\'s formatting (Markdown or BBCode, as enabled).';
+    }
+
+    public function readOnly(): bool
+    {
+        return false;
+    }
+
+    public function idempotent(): bool
+    {
+        return false;
+    }
+
+    public function inputSchema(): array
+    {
+        return [
+            'type' => 'object',
+            'properties' => [
+                'conversationId' => ['type' => ['string', 'integer'], 'description' => 'Reply in this conversation.'],
+                'to' => [
+                    'type' => ['string', 'array'],
+                    'items' => ['type' => 'string'],
+                    'description' => 'Or: the username of the member to write to, or a list of usernames to start a group conversation with.',
+                ],
+                'content' => ['type' => 'string', 'minLength' => 1],
+            ],
+            'required' => ['content'],
+        ];
+    }
+
+    public function handle(array $arguments, McpContext $context): mixed
+    {
+        $conversationId = trim((string) ($arguments['conversationId'] ?? ''));
+        $to = array_values(array_unique(array_filter(
+            array_map(fn ($username) => trim((string) $username), (array) ($arguments['to'] ?? [])),
+            fn (string $username) => $username !== ''
+        )));
+
+        if (($conversationId === '') === ($to === [])) {
+            throw new ToolError('Give exactly one of conversationId (to reply in a conversation) or to (to write to a member).');
+        }
+
+        $attributes = ['content' => (string) $arguments['content']];
+        $relationships = [];
+
+        if ($conversationId !== '') {
+            $relationships['dialog'] = ['data' => ['type' => 'dialogs', 'id' => $conversationId]];
+        } else {
+            // One recipient continues the conversation with them; several start a group.
+            $attributes['users'] = array_map(function (string $username) use ($context) {
+                $recipient = $this->members->find($username, $context->actor) ?? throw new ToolError("Not found: $username.");
+
+                return ['id' => (string) $recipient->id];
+            }, $to);
+        }
+
+        $message = Document::from($context->api->create('dialog-messages', $attributes, $relationships))->one();
+        $dialog = Document::related($message, 'dialog');
+
+        return array_filter([
+            'conversationId' => $dialog['id'] ?? null,
+            'messageId' => (string) $message['id'],
+            'number' => Document::attribute($message, 'number'),
+            'url' => $dialog ? Conversations::url($context, $dialog['id']) : null,
+        ], fn ($value) => $value !== null);
+    }
+}

@@ -19,5 +19,7 @@ export default class DialogListState<P extends DialogListParams = DialogListPara
      * @param limit Keep the first page to this many dialogs, for short lists like the dropdown's.
      */
     moveToTop(dialog: Dialog, limit?: number): void;
+    /** Takes a dialog off the list, as leaving it does, without reloading. */
+    remove(dialog: Dialog): void;
     markAllAsRead(): Promise<void>;
 }

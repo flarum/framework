@@ -126,6 +126,8 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
 
   /** The search typed but not yet sent. */
   protected searchDraft = new Drafts();
+  /** Search text shown but not sent until the user goes on typing: a gambit key awaiting its value (`group:`). */
+  protected heldSearch: string | null = null;
   /** `definition.resourceActions()` for the view pass in progress, shared by every row. */
   protected viewResourceActions: ItemList<ResourceAction<M>> | null = null;
 
@@ -375,7 +377,37 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
    * long as the table. Override it to use a subclass.
    */
   filterBar(): ResourceFilterBar<M> {
-    return new ResourceFilterBar<M>({ definition: this.attrs.definition, list: this.list });
+    return new ResourceFilterBar<M>({ definition: this.attrs.definition, list: this.list, addToSearch: (filter) => this.addToSearch(filter) });
+  }
+
+  /** The text of the search box: typed, held or sent. */
+  searchText(): string {
+    return this.searchDraft.get('q', () => this.heldSearch ?? this.list.getQuery());
+  }
+
+  /**
+   * Append a gambit to the search. A complete one (`is:suspended`) searches, debounced like typing;
+   * a key (`group:`) waits in the focused search box, caret at the end, for its value.
+   */
+  addToSearch(filter: string): void {
+    const current = this.searchText().trim();
+    const q = current ? `${current} ${filter}` : filter;
+
+    if (!filter.endsWith(':')) {
+      this.heldSearch = null;
+      this.searchDraft.set('q', q, (value) => this.list.setQuery(value));
+
+      return;
+    }
+
+    this.searchDraft.discard();
+    this.heldSearch = q;
+    m.redraw.sync();
+
+    const input = this.element?.querySelector<HTMLInputElement>(`#ResourceTable-search-${this.attrs.definition.type}`);
+
+    input?.focus();
+    input?.setSelectionRange(q.length, q.length);
   }
 
   /** Search (`search`, when the type is searchable), then the filter bar's `items()` ("Filter"). */
@@ -560,8 +592,11 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   searchView(): Mithril.Children {
     const type = this.attrs.definition.type;
     const id = `ResourceTable-search-${type}`;
-    const value = this.searchDraft.get('q', () => this.list.getQuery());
-    const onchange = (v: string) => this.searchDraft.set('q', v, (q) => this.list.setQuery(q));
+    const value = this.searchText();
+    const onchange = (v: string) => {
+      this.heldSearch = null;
+      this.searchDraft.set('q', v, (q) => this.list.setQuery(q));
+    };
 
     const input = (
       <Input
@@ -950,6 +985,7 @@ export default class ResourceTable<M extends Model = Model, Attrs extends Resour
   /** Clear the search and every filter that is not required. */
   clearSearchAndFilters(): Promise<void> {
     this.searchDraft.discard();
+    this.heldSearch = null;
     this.bar?.drafts.discard();
 
     const q = this.list.getQuery();

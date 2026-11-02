@@ -188,15 +188,15 @@ class FrontendServiceProvider extends AbstractServiceProvider
                             : $settings->get('color_scheme');
                     };
 
-                    // Inline script that sets data-theme on <html> before first paint so that
+                    // Inline script that settles data-theme on <html> before first paint so that
                     // the critical CSS block can apply the correct background colour without a
-                    // flash in dark mode. Goes into $preHead so it executes before the main
-                    // stylesheet link is processed. Uses the forum-level default; per-user
-                    // preference is applied by JS after boot (acceptable tradeoff).
+                    // flash. Goes into $preHead so it executes before the main stylesheet link
+                    // is processed. It starts from the data-theme above, so a user's own scheme
+                    // holds from the first paint rather than once the app has booted.
                     $forumColorScheme = $settings->get('color_scheme') ?? 'auto';
-                    $document->preHead[] = '<script>(function(){var s='.json_encode($forumColorScheme).';'
-                        .'if(s==="auto")s=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";'
-                        .'document.documentElement.setAttribute("data-theme",s)})()</script>';
+                    $document->preHead[] = '<script>(function(){'
+                        .file_get_contents(__DIR__.'/../../js/preboot/colorScheme.js')
+                        .'applyColorScheme('.json_encode($forumColorScheme).')})()</script>';
 
                     // Build critical CSS with the theme-accurate dark body background.
                     // Formula mirrors the LESS: hsl(@secondary-hue, min(20%, @secondary-sat), 10%).

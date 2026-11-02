@@ -22,6 +22,11 @@ class SendNotificationWhenMessageSent
 
     public function handle(DialogMessage\Event\Created $event): void
     {
+        // A notice, such as someone leaving, is nobody's to be told about.
+        if (! $event->message->isComment()) {
+            return;
+        }
+
         $this->queue->push(new Job\SendMessageNotificationsJob($event->message));
     }
 }

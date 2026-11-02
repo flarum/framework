@@ -2,7 +2,23 @@ import bootstrapAdmin from '@flarum/jest-config/src/bootstrap/admin';
 import GeneralSearchSource from '../../../../src/admin/components/GeneralSearchSource';
 import { app } from '../../../../src/admin';
 
-beforeAll(() => bootstrapAdmin());
+beforeAll(() =>
+  bootstrapAdmin({
+    extensions: {
+      'acme-search': {
+        id: 'acme-search',
+        version: '1.0.0',
+        description: '',
+        icon: { name: 'fas fa-cog' },
+        links: {},
+        extra: { 'flarum-extension': { title: 'Acme Search' } },
+      },
+    },
+    settings: {
+      extensions_enabled: JSON.stringify(['acme-search']),
+    },
+  })
+);
 
 describe('GeneralSearchSource', () => {
   beforeAll(() => {
@@ -83,6 +99,25 @@ describe('GeneralSearchSource', () => {
       expect(result).toBeDefined();
       expect(Array.isArray(result!.tree)).toBe(true);
       expect(result!.tree).toEqual(['Upload limit']);
+    });
+  });
+
+  describe('extension registered settings', () => {
+    beforeAll(() => {
+      app.registry
+        .for('acme-search')
+        .registerSetting({ setting: 'acme-search.first_limit', type: 'text', label: 'First quota limit' })
+        .registerSetting({ setting: 'acme-search.second_limit', type: 'text', label: 'Second quota limit' });
+    });
+
+    it('builds each result id from the setting key', async () => {
+      const source = new GeneralSearchSource();
+      await source.search('quota limit', 10);
+
+      const ids = (source['results'].get('quota limit') ?? []).map((r) => r.id);
+
+      expect(ids).toEqual(expect.arrayContaining(['acme-search-acme-search.first_limit', 'acme-search-acme-search.second_limit']));
+      expect(new Set(ids).size).toBe(ids.length);
     });
   });
 });

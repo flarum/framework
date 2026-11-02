@@ -5,6 +5,8 @@ parameters:
 	level: 6
 	paths:
 	  - framework/core/src
+	  - extensions/ai/src
+	  - extensions/ai/extend.php
 	  - extensions/akismet/src
 	  - extensions/akismet/extend.php
 	  - extensions/approval/src
@@ -47,4 +49,9 @@ parameters:
 	  - php-packages/phpstan/tests/fixtures/conditional-model-cast/check.php
 	excludePaths:
 		- *.blade.php
+	ignoreErrors:
+		# For other extensions' tests, which this doesn't analyse.
+		-
+			identifier: trait.unused
+			path: extensions/ai/src/Testing/InteractsWithAi.php
 	databaseMigrationsPath: ['framework/core/migrations']

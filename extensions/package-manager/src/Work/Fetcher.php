@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Work;
 
+use Flarum\ExtensionManager\Apply\Tree;
 use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\Locale\TranslatorInterface;
 use GuzzleHttp\ClientInterface;
@@ -45,10 +46,11 @@ class Fetcher
     {
         $target = $this->stagingDir.'/'.$this->safePath($package);
 
-        if (is_dir($target) && is_file($target.'/composer.json')) {
+        if (is_dir($target)) {
             // Already staged by an earlier attempt. Fetch is idempotent because
             // the driver saves progress AFTER the work, so a process killed in
-            // between will ask for this package again.
+            // between will ask for this package again. unzip() only ever puts a
+            // whole package under this name, so being there means being complete.
             return;
         }
 
@@ -166,9 +168,18 @@ class Fetcher
         }
 
         $root = $this->commonRoot($zip);
-        $this->deleteTree($target);
 
-        if (! mkdir($target, 0775, true) && ! is_dir($target)) {
+        /*
+         * Unpacked beside the target and renamed into place when complete. A
+         * process killed mid-unzip leaves only the partial, which the next
+         * attempt clears; unpacking straight into the target left a package
+         * that looked staged (composer.json is usually among the first entries)
+         * and was applied with files missing.
+         */
+        $partial = Tree::partial($target);
+        $this->deleteTree($partial);
+
+        if (! mkdir($partial, 0775, true) && ! is_dir($partial)) {
             throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fetch.staging_failed', ['package' => $package]));
         }
 
@@ -181,14 +192,15 @@ class Fetcher
             }
 
             // An archive is untrusted input, and "../" inside an entry name is
-            // the oldest way out of a target directory there is.
-            if (str_contains($rel, '..')) {
+            // the oldest way out of a target directory there is. Checked per
+            // segment, so a file such as `a..b.js` is still allowed.
+            if (in_array('..', preg_split('#[/\\\\]#', $rel) ?: [], true)) {
                 throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fetch.path_escapes', ['package' => $package]));
             }
 
-            $to = $target.'/'.$rel;
+            $to = $partial.'/'.$rel;
 
-            if (! is_dir(dirname($to)) && ! mkdir(dirname($to), 0775, true) && ! is_dir(dirname($to))) {
+            if (! is_dir(dirname($to)) && ! @mkdir(dirname($to), 0775, true) && ! is_dir(dirname($to))) {
                 throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fs.create_failed', ['path' => dirname($to)]));
             }
 
@@ -198,11 +210,21 @@ class Fetcher
                 throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fetch.read_entry_failed', ['name' => $name, 'package' => $package]));
             }
 
-            file_put_contents($to, $stream);
+            $written = file_put_contents($to, $stream);
             fclose($stream);
+
+            if ($written === false) {
+                throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fetch.staging_failed', ['package' => $package]));
+            }
         }
 
         $zip->close();
+
+        $this->deleteTree($target);
+
+        if (! @rename($partial, $target)) {
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.fetch.staging_failed', ['package' => $package]));
+        }
     }
 
     /** The single wrapping directory, if every entry shares one. */

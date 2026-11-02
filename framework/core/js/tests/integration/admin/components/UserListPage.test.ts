@@ -14,6 +14,7 @@ import Button from '../../../../src/common/components/Button';
 import EditUserModal from '../../../../src/common/components/EditUserModal';
 import Modal from '../../../../src/common/components/Modal';
 import { extend, override } from '../../../../src/common/extend';
+import { BooleanGambit } from '../../../../src/common/query/IGambit';
 import type Model from '../../../../src/common/Model';
 import type User from '../../../../src/common/models/User';
 import ColumnPreferences from '../../../../src/common/resource/ColumnPreferences';
@@ -797,6 +798,104 @@ describe('UserListPage', () => {
     const { page } = await rendered();
 
     expect(page.columns().get('displayName').csv!(user('9', { displayName: 'a.\u200Bb' }))).toBe('a.b');
+  });
+
+  describe('search filters', () => {
+    const userGambits = () => app.search.gambits.for('users').filter((gambit) => gambit.enabled());
+    const searchInput = (out: any) => out.find('.ResourceTable-toolbarView .ResourceTable-searchGroup input[type=search]')[0] as HTMLInputElement;
+
+    test('it searches for the query in the URL, so other pages can link to a filtered list', async () => {
+      window.history.replaceState(null, '', '/admin#/users?q=group%3AMods');
+
+      const { out } = await rendered();
+
+      expect(find.mock.calls.filter(([type]) => type === 'users')[0][1].filter).toEqual({ q: 'group:Mods' });
+      expect(searchInput(out).value).toBe('group:Mods');
+    });
+
+    test('it keeps the query in the URL', async () => {
+      const { out } = await rendered();
+
+      out.setValue('.ResourceTable-toolbarView .ResourceTable-searchGroup input[type=search]', 'group:Mods');
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      await flush();
+
+      expect(new URLSearchParams(window.location.hash.split('?')[1]).get('q')).toBe('group:Mods');
+    });
+
+    test('it shows every user filter as a chip', async () => {
+      const { out } = await rendered();
+      const expected = userGambits().reduce((count, gambit: any) => {
+        const key = gambit.suggestion().key;
+
+        return count + (gambit.type === 'grouped' && key instanceof Array ? key.length : 1);
+      }, 0);
+
+      expect(userGambits().length).toBeGreaterThan(0);
+      expect(out).toHaveElement('.ResourceTable-filterPanel .ResourceTable-filterGroup--search');
+      expect(out.find('.ResourceTable-filterPanel .ResourceTable-searchFilter')).toHaveLength(expected);
+    });
+
+    test('a filter chip starts that filter in the search', async () => {
+      const { out } = await rendered();
+      const calls = find.mock.calls.length;
+      const key = userGambits()[0].suggestion().key;
+      // domino has no text selection.
+      const setSelectionRange = ((searchInput(out) as any).setSelectionRange = jest.fn());
+
+      out.click('.ResourceTable-filterPanel .ResourceTable-searchFilter');
+      out.redraw();
+
+      expect(searchInput(out).value).toBe(key + ':');
+      expect(setSelectionRange).toHaveBeenCalledWith(key.length + 1, key.length + 1);
+
+      // A key waits for its value: nothing is sent.
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      expect(find.mock.calls.length).toBe(calls);
+    });
+
+    test('a complete filter chip searches for it, after the text already in the search', async () => {
+      class SuspendedGambit extends BooleanGambit {
+        key() {
+          return 'suspended';
+        }
+
+        filterKey() {
+          return 'suspended';
+        }
+      }
+
+      const registered = app.search.gambits.gambits.users;
+      app.search.gambits.gambits.users = [...registered, SuspendedGambit];
+      restore.push(() => (app.search.gambits.gambits.users = registered));
+
+      const { group } = new SuspendedGambit().suggestion();
+      const chip = `${group}:suspended`;
+
+      window.history.replaceState(null, '', '/admin#/users?q=user');
+
+      const { out } = await rendered();
+
+      out.click(`.ResourceTable-filterPanel .ResourceTable-searchFilter[data-filter="${chip}"]`);
+      out.redraw();
+
+      expect(searchInput(out).value).toBe(`user ${chip}`);
+
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      await flush();
+
+      expect(lastParams().filter).toEqual({ q: `user ${chip}` });
+      expect(new URLSearchParams(window.location.hash.split('?')[1]).get('q')).toBe(`user ${chip}`);
+    });
+
+    test('the "Filter" panel opens for the search filters alone', async () => {
+      descriptor.filters = [];
+
+      const { out } = await rendered();
+
+      expect(out).not.toHaveElement('.ResourceTable-filterGroup--group');
+      expect(out).toHaveElement('.ResourceTable-filterPanel .ResourceTable-filterGroup--search');
+    });
   });
 
   test('groups pickers have no search box (core groups have no searcher)', () => {

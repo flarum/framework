@@ -148,4 +148,26 @@ class WebManifestTest extends TestCase
     {
         $this->assertEquals(404, $this->send($this->request('GET', '/favicon.ico'))->getStatusCode());
     }
+
+    #[Test]
+    public function shared_caches_may_not_store_the_manifest_with_a_session_cookie(): void
+    {
+        // A cache that stored it would hand one visitor's session to others.
+        $response = $this->send($this->request('GET', '/manifest'));
+
+        $this->assertNotEmpty($response->getHeaderLine('Set-Cookie'));
+        $this->assertStringContainsString('private', $response->getHeaderLine('Cache-Control'));
+    }
+
+    #[Test]
+    public function shared_caches_may_not_store_the_favicon_redirect_with_a_session_cookie(): void
+    {
+        $this->uploadAppIcon();
+
+        $response = $this->send($this->request('GET', '/favicon.ico'));
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertNotEmpty($response->getHeaderLine('Set-Cookie'));
+        $this->assertStringContainsString('private', $response->getHeaderLine('Cache-Control'));
+    }
 }

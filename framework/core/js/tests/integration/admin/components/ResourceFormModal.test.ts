@@ -107,7 +107,7 @@ describe('ResourceFormModal', () => {
     expect(cancel).toHaveBeenCalledTimes(1);
   });
 
-  test('the create form has no token input (ui.widget hidden) and requires the credentials', async () => {
+  test('the create form has no token or colorScheme input (ui.widget hidden) and requires the credentials', async () => {
     const { out, modal } = await render<ResourceFormModal<User>>(
       ResourceFormModal,
       modalAttrs({ definition: new ResourceDefinition<User>('users'), model: null })
@@ -116,8 +116,10 @@ describe('ResourceFormModal', () => {
     const keys = fieldKeys(modal.fields());
 
     expect(keys).not.toContain('token');
+    expect(keys).not.toContain('colorScheme');
     expect(keys).toEqual(expect.arrayContaining(['username', 'email', 'password']));
     expect(out).not.toHaveElement('.Modal-body [name=token]');
+    expect(out).not.toHaveElement('.Modal-body [name=colorScheme]');
 
     for (const name of ['username', 'email', 'password']) {
       expect(out).toHaveElement(`.Modal-body input[name=${name}][required]`);

@@ -16,6 +16,13 @@ flarum-sticky:
     # These translations are used in the Permissions page of the admin interface.
     permissions:
       sticky_discussions_label: Sticky discussions
+    sections:
+      excerpts:
+        description: Extra detail shown for unread sticky discussions in the discussion list.
+        label: Excerpts
+      pinning:
+        description: Where sticky discussions appear on the All Discussions page.
+        label: Pinning
 
   # Translations in this namespace are used by the forum user interface.
   forum:

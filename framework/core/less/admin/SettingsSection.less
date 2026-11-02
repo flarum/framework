@@ -1,0 +1,67 @@
+// A titled group of settings: heading and description beside the fields on
+// wide screens, stacked above them on narrow ones.
+.SettingsSection {
+  --settings-section-aside: 260px;
+  // Keeps fields at a readable width; a section holding a wide grid or table can raise it.
+  --settings-section-body-max-width: 640px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px 40px;
+  padding: 24px 0;
+  border-top: 1px solid var(--control-bg);
+
+
+  &-header {
+    min-width: 0;
+
+  }
+
+  &-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--heading-color, var(--text-color));
+  }
+
+  &-icon {
+    color: var(--muted-color);
+    width: 1.25em;
+    text-align: center;
+  }
+
+  &-description {
+    margin: 6px 0 0;
+  }
+
+  &-body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    min-width: 0;
+    max-width: var(--settings-section-body-max-width);
+
+    > * {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Two columns on admin pages only: a section in a modal or narrow panel stays stacked.
+@media @desktop-up {
+  .AdminPage,
+  .ExtensionPage {
+    .SettingsSection {
+      grid-template-columns: var(--settings-section-aside) minmax(0, 1fr);
+    }
+
+    .SettingsSection-header {
+      position: sticky;
+      top: calc(var(--header-height, 52px) + 16px);
+      align-self: start;
+    }
+  }
+}

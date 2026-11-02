@@ -41,6 +41,7 @@ class UserResourceFields
 
         return [
             Schema\Str::make('nickname')
+                ->description('Write-only: the name to show instead of the username; null resets it.')
                 ->visible(false)
                 ->writable(function (User $user, Context $context) {
                     return $context->getActor()->can('editNickname', $user);

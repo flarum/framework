@@ -156,7 +156,9 @@ describe('ResourceTable toolbar', () => {
     expect(out.first('.ResourceTable-filterPanel .Dropdown-toggle').textContent).toContain('Filter');
     expect(out).not.toHaveElement('.ResourceTable-filterCount');
     expect(out).toHaveElementAttr('.ResourceTable-filterPanel .Dropdown-toggle', 'aria-label', 'Filter');
-    expect(out.find('.ResourceTable-filterPanel .ResourceTable-filterGroup')).toHaveLength(5);
+    // Five described filters, then the gadgets' gambits as search filter chips.
+    expect(out.find('.ResourceTable-filterPanel .ResourceTable-filterGroup')).toHaveLength(6);
+    expect(out.find('.ResourceTable-filterPanel .ResourceTable-filterGroup').at(-1).className).toContain('ResourceTable-filterGroup--search');
     expect(out.first('.ResourceTable-filterGroup--status .ResourceTable-filterGroupLabel').textContent).toBe('Status');
     expect(out.find('.ResourceTable-filterGroupItem--status button')).toHaveLength(3);
     expect(out).toHaveElement('.ResourceTable-filterGroupItem--status.active button[data-value=""]');

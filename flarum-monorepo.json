@@ -2,6 +2,11 @@
   "packages": {
     "extensions": [
       {
+        "name": "ai",
+        "gitRemote": "git@github.com:flarum/ai.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "akismet",
         "gitRemote": "git@github.com:flarum/akismet.git",
         "mainBranch": "2.x"
@@ -67,6 +72,11 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "mcp",
+        "gitRemote": "git@github.com:flarum/mcp.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "mentions",
         "gitRemote": "git@github.com:flarum/mentions.git",
         "mainBranch": "2.x"
@@ -79,6 +89,11 @@
       {
         "name": "nicknames",
         "gitRemote": "git@github.com:flarum/nicknames.git",
+        "mainBranch": "2.x"
+      },
+      {
+        "name": "oauth-provider",
+        "gitRemote": "git@github.com:flarum/oauth-provider.git",
         "mainBranch": "2.x"
       },
       {

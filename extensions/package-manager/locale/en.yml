@@ -169,6 +169,12 @@ flarum-extension-manager:
         running: "This forum runs Flarum {version}."
         current: No newer Flarum has been published since the last check.
         update_to: "Update Flarum to {version}"
+        # Asked before a core update, like the nightly build below.
+        confirm: >-
+          Update Flarum from {from} to {to}?{count, plural, =0 {} one { # extension listed below is updated with it, because its current version does not support the new Flarum.} other { # extensions listed below are updated with it, because their current versions do not support the new Flarum.}}
+          If the site does not work afterwards, everything is put back.
+        # Shown until the pre-flight answers; the Update button waits for it.
+        preflight: "Checking which of your extensions work with Flarum {version}…"
         failed: >-
           The Extension Manager could not work out what upgrading Flarum would involve. Nothing
           has changed.
@@ -277,6 +283,8 @@ flarum-extension-manager:
         This screen cannot reach the server to drive the update — usually a
         session that has expired while the page sat open. The update itself is
         unaffected and is being carried on in the background. Reload the page.{watching, select, yes { Showing progress read-only.} other {}}
+      # One alert for a run of failed polls; the panel's notice below says more.
+      cannot_reach_short: This page could not reach the forum. The update itself is unaffected, and the page will keep trying.
       cannot_reach: >-
         This page has failed to reach the forum {count} times in a row. The update
         itself is unaffected — it keeps its place on disk — and this will keep
@@ -606,6 +614,7 @@ flarum-extension-manager:
       nothing_to_do: "nothing to do"
       nothing_to_update: "Nothing to update — everything is already at the newest version it can be."
       permissions_not_checked: "File permissions not checked on this host"
+      plan_unreadable: "The plan for this update at {path} could not be read, so the update stopped there. The disk may be full: free some space, then roll back and start again."
       permissions_ok: "Every file this update changes is writable"
       pin_raised: "{package} required at {version} instead of {current}"
       pinned_to: "{package} is pinned to {constraint}"
@@ -773,6 +782,7 @@ flarum-extension-manager:
       record_failed: "The files are back, but Composer could not update its own record. Run `composer install` to finish putting things back."
       record_put_back: "Composer's record put back"
     rollback:
+      busy: "This update is still working on a step, so it can't be rolled back yet. Try again in a minute."
       move_aside_failed: "Could not move {path} aside during rollback"
       nothing: "There is nothing to roll back."
       nothing_changed: "That update never got as far as changing anything, so there is nothing to undo."
@@ -788,6 +798,8 @@ flarum-extension-manager:
       failed_network: "A download or request did not get through: {error}"
       finished: "Finished"
       finished_phase: "Finished {phase}"
+      lock_dir_failed: "Cannot create the lock directory at {path}, so this update cannot make sure it is the only thing changing the site."
+      lock_failed: "Cannot open the lock file at {path}. If the command line was run as another user, that user may own the file: give it to the web server's user, or delete it."
       no_worker: "There is no background worker on this forum, so keep this page open until it finishes. It will pick up where it left off if you do close it."
       nothing_to_undo: "nothing to undo"
       put_back: "Put back automatically: {undone}"
