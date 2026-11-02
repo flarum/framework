@@ -237,6 +237,27 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function links_to_the_next_page_when_the_endpoint_has_a_default_limit()
+    {
+        $this->extend(
+            (new Extend\ApiResource(GroupResource::class))
+                ->endpoint(Index::class, function (Index $endpoint): Index {
+                    return $endpoint->limit(2);
+                })
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals(['1', '2'], Arr::pluck($data['data'], 'id'));
+        $this->assertStringContainsString('page%5Boffset%5D=2', $data['links']['next'] ?? '');
+    }
+
+    #[Test]
     public function pages_by_number_without_a_limit()
     {
         $response = $this->send(

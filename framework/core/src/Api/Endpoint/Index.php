@@ -130,9 +130,10 @@ class Index extends Endpoint
                 $limit = $this->extractLimitValue($context, $extracts);
                 $offset = $this->extractOffsetValue($context, $extracts);
 
-                // An endpoint that extracts no limit returns the whole list: there is no page.
-                if (! $pagination && $limit !== null) {
-                    $pagination = $this->paginationOnRequest($context);
+                // An endpoint that isn't paginated returns the whole list. If a limit applies
+                // all the same, the response is a page, and it links to the rest.
+                if (! $pagination && $limit !== null && $context->collection instanceof Paginatable) {
+                    $pagination = $this->paginationOfSize($context, $limit);
                 }
 
                 if ($pagination instanceof OffsetPagination) {
@@ -324,26 +325,17 @@ class Index extends Endpoint
         return ! in_array($total, ['0', 'false', 0, false], true);
     }
 
-    /**
-     * An endpoint that isn't paginated returns the whole list, unless the client
-     * asks for a page: then it paginates, so the client gets the links to the
-     * rest rather than a list cut off without notice.
-     */
-    protected function paginationOnRequest(\Tobyz\JsonApiServer\Context $context): ?OffsetPagination
+    protected function paginationOfSize(\Tobyz\JsonApiServer\Context $context, int $limit): OffsetPagination
     {
-        if (! $this->pageRequested($context)) {
-            return null;
-        }
-
         // The links are built from the request. Without a page[limit] in them, a
         // link back to offset 0 would ask for the whole list instead of a page.
         $request = $context->request;
         $query = $request->getQueryParams();
-        $query['page']['limit'] ??= (string) $this->maxLimit;
+        $query['page']['limit'] ??= (string) $limit;
 
         return new OffsetPagination(
             $context->withRequest($request->withQueryParams($query)),
-            $this->maxLimit,
+            $limit,
             $this->maxLimit,
         );
     }
