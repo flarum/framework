@@ -59,7 +59,9 @@ export function postFilterGroupMentions(tag) {
     const group = app.store.getById('groups', tag.getAttribute('id'));
 
     tag.setAttribute('color', group.color() || '');
-    tag.setAttribute('icon', group.icon() || '');
+    tag.setAttribute('icon', group.attribute('icon') || '');
+    tag.setAttribute('iconimage', group.iconImageUrl() || '');
+    tag.setAttribute('iconsrcset', group.iconImageSrcset() || '');
     tag.setAttribute('deleted', false);
   }
 }
@@ -83,7 +85,9 @@ export function postFilterTagMentions(tag) {
   if ('flarum-tags' in flarum.extensions) {
     const model = app.store.getBy('tags', 'slug', tag.getAttribute('slug'));
 
-    tag.setAttribute('icon', model.icon() || '');
+    tag.setAttribute('icon', model.attribute('icon') || '');
+    tag.setAttribute('iconimage', model.iconImageUrl() || '');
+    tag.setAttribute('iconsrcset', model.iconImageSrcset() || '');
     tag.setAttribute('color', model.color() || '');
     tag.setAttribute('deleted', false);
   }

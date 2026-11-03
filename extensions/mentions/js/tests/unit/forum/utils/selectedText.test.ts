@@ -89,6 +89,27 @@ describe('selectedText', () => {
     });
   });
 
+  describe('mention icons are decorative', () => {
+    const crest = '<img class="icon IconImage" src="https://example.com/crest.webp" alt="">';
+
+    test('a group mention keeps its name without quoting its icon as an image', () => {
+      expect(quote(`<p>Hello <span class="GroupMention"><span class="GroupMention-name">@Fans</span>${crest}</span></p>`)).toBe('Hello @Fans');
+    });
+
+    test('a selection entirely inside a mention also omits its icon', () => {
+      const $body = postBody(`<p><span class="GroupMention"><span class="GroupMention-name">@Fans</span>${crest}</span></p>`);
+      select((range) => range.selectNodeContents($body.find('.GroupMention')[0]));
+
+      expect(selectedText($body)).toBe('@Fans');
+    });
+
+    test('a tag mention keeps its link without quoting its icon as an image', () => {
+      expect(
+        quote(`<p>See <a href="https://example.com/t/lions" class="TagMention"><span class="TagMention-text">${crest}Lions</span></a></p>`)
+      ).toBe('See [Lions](https://example.com/t/lions)');
+    });
+  });
+
   describe('anything else is quoted as before', () => {
     test('an internal link with words of its own stays a Markdown link', () => {
       expect(quote(`<p><a href="${URL}" class="UrlLink UrlLink--internal">the move posts thread</a></p>`)).toBe(`[the move posts thread](${URL})`);
