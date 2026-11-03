@@ -150,7 +150,10 @@
         ],
         "test:unit": "phpunit -c tests/phpunit.unit.xml",
         "test:unit:filter": "phpunit -c tests/phpunit.unit.xml --filter",
-        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:integration": [
+            "Composer\\Config::disableProcessTimeout",
+            "phpunit -c tests/phpunit.integration.xml"
+        ],
         "test:integration:filter": "phpunit -c tests/phpunit.integration.xml --filter",
         "test:setup": "@php tests/integration/setup.php"
     },
