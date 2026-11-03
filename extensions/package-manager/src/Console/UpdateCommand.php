@@ -16,7 +16,10 @@ use Flarum\ExtensionManager\Plan\Nightly;
 use Flarum\ExtensionManager\Plan\Repin;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
+use Flarum\ExtensionManager\Run\StartLock;
+use Flarum\ExtensionManager\Run\StartLockUnwritable;
 use Flarum\ExtensionManager\Run\StepRunner;
+use Flarum\ExtensionManager\Work\SavedManifests;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 use Flarum\ExtensionManager\Work\WorkDir;
 use Flarum\Foundation\Paths;
@@ -238,13 +241,64 @@ class UpdateCommand extends AbstractCommand
             }
         }
 
-        $id = 'r'.date('Ymd-His').'-'.bin2hex(random_bytes(3));
+        $run = $this->start($named, $repin);
 
-        (new WorkDir($this->translator, $this->paths->storage, $id))->create()->remember($named, 'update', $repin);
+        if ($run === null) {
+            return 1;
+        }
 
         $this->info('Updating '.implode(', ', $named));
 
-        return $this->pump($this->runner->begin($id));
+        return $this->pump($run);
+    }
+
+    /**
+     * Create the run under the installation-wide start lock, checking again
+     * inside it that nothing else started meanwhile: the screen and this
+     * command can be pressed at the same moment. See Run\StartLock.
+     *
+     * @param list<string> $packages
+     * @param array<string,string> $repin
+     */
+    protected function start(array $packages, array $repin): ?Run
+    {
+        $lock = new StartLock(StorageDir::of($this->paths->storage).'/locks');
+
+        try {
+            $held = ! $lock->acquire();
+        } catch (StartLockUnwritable $e) {
+            $this->error("Could not create the update lock in {$e->path}. Make sure the user running this command can write to that folder. Nothing was started.");
+
+            return null;
+        }
+
+        if ($held) {
+            $this->error('Another update is starting right now. Nothing was started.');
+
+            return null;
+        }
+
+        try {
+            $existing = $this->runs->latest();
+
+            if ($existing !== null && ! $existing->isFinished()) {
+                $this->error('An update is already in progress. Drive it with --resume, or abandon it on the Extension Manager screen. Nothing was started.');
+
+                return null;
+            }
+
+            // What a failed run could not put back itself; see SavedManifests.
+            if ($existing !== null) {
+                SavedManifests::afterFailedRun($existing, (new WorkDir($this->translator, $this->paths->storage, $existing->id))->root(), $this->paths->base);
+            }
+
+            $id = 'r'.date('Ymd-His').'-'.bin2hex(random_bytes(3));
+            (new WorkDir($this->translator, $this->paths->storage, $id))->create()->remember($packages, 'update', $repin);
+
+            return $this->runner->begin($id);
+        } finally {
+            $lock->release();
+        }
     }
 
     /**
@@ -470,12 +524,15 @@ class UpdateCommand extends AbstractCommand
             return 1;
         }
 
-        $id = 'r'.date('Ymd-His').'-'.bin2hex(random_bytes(3));
-        (new WorkDir($this->translator, $this->paths->storage, $id))->create()->remember(array_keys($targets), 'update', $targets);
+        $run = $this->start(array_keys($targets), $targets);
+
+        if ($run === null) {
+            return 1;
+        }
 
         $this->info('Moving '.count($targets).' Flarum package(s) to '.reset($targets).': '.implode(', ', array_keys($targets)));
 
-        return $this->pump($this->runner->begin($id));
+        return $this->pump($run);
     }
 
     /** An update whose plan was worked out and came to nothing. */

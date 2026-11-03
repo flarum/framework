@@ -155,4 +155,92 @@ class LockDiffTest extends TestCase
 
         $this->assertSame('pulled in by this update', $reasons['a/mystery']);
     }
+    // ── development versions: the branch moves, the version string does not ──
+
+    /** @param array<string,array{0:string,1:string}> $packages name => [version, dist reference] */
+    private function lockWithRefs(array $packages, string $where = 'dist'): array
+    {
+        return ['packages' => array_map(
+            fn (string $name, array $p) => ['name' => $name, 'version' => $p[0], $where => ['type' => 'zip', 'url' => "https://example.test/$name.zip", 'reference' => $p[1]]],
+            array_keys($packages),
+            array_values($packages)
+        )];
+    }
+
+    /**
+     * Yesterday's 2.x-dev and today's are different code. Compared on the
+     * version string alone, every nightly after the first planned nothing and
+     * finished "nothing to update".
+     */
+    public function test_a_branch_that_moved_to_a_newer_commit_is_a_replacement(): void
+    {
+        $changes = (new LockDiff())->between(
+            $this->lockWithRefs(['flarum/core' => ['2.x-dev', 'aaaaaaa1111111'], 'a/main' => ['dev-main', 'ccc']]),
+            $this->lockWithRefs(['flarum/core' => ['2.x-dev', 'bbbbbbb2222222'], 'a/main' => ['dev-main', 'ddd']])
+        );
+
+        $this->assertCount(2, $changes);
+        $this->assertSame(['a/main', 'flarum/core'], array_map(fn (Change $c) => $c->package, $changes));
+        $this->assertSame(Change::REPLACE, $changes[1]->op);
+        $this->assertSame('2.x-dev', $changes[1]->from);
+        $this->assertSame('2.x-dev', $changes[1]->to);
+        $this->assertSame('aaaaaaa1111111', $changes[1]->fromRef);
+        $this->assertSame('bbbbbbb2222222', $changes[1]->toRef);
+    }
+
+    public function test_a_source_only_development_package_is_compared_on_its_source_commit(): void
+    {
+        $changes = (new LockDiff())->between(
+            $this->lockWithRefs(['a/thing' => ['dev-main', 'one']], 'source'),
+            $this->lockWithRefs(['a/thing' => ['dev-main', 'two']], 'source')
+        );
+
+        $this->assertCount(1, $changes);
+        $this->assertSame('two', $changes[0]->toRef);
+    }
+
+    public function test_a_branch_on_the_same_commit_is_not_a_change(): void
+    {
+        $lock = $this->lockWithRefs(['flarum/core' => ['2.x-dev', 'aaaaaaa']]);
+
+        $this->assertSame([], (new LockDiff())->between($lock, $lock));
+    }
+
+    /**
+     * Only development versions. A tag whose commit changed was moved by its
+     * author, and that is not something an update should act on quietly.
+     */
+    public function test_a_tagged_release_is_still_compared_on_its_version_alone(): void
+    {
+        $changes = (new LockDiff())->between(
+            $this->lockWithRefs(['a/thing' => ['1.0.0', 'one']]),
+            $this->lockWithRefs(['a/thing' => ['1.0.0', 'two']])
+        );
+
+        $this->assertSame([], $changes);
+    }
+
+    /** A lock with no reference recorded on one side cannot say the branch moved, so it does not guess. */
+    public function test_a_missing_reference_is_not_read_as_a_move(): void
+    {
+        $changes = (new LockDiff())->between(
+            $this->lock(['a/thing' => '2.x-dev']),
+            $this->lockWithRefs(['a/thing' => ['2.x-dev', 'two']])
+        );
+
+        $this->assertSame([], $changes);
+    }
+
+    /** From a branch to a release is a version change, carrying the commit it left. */
+    public function test_leaving_a_branch_for_a_release_keeps_the_commit_it_left(): void
+    {
+        $changes = (new LockDiff())->between(
+            $this->lockWithRefs(['a/thing' => ['2.x-dev', 'one']]),
+            $this->lockWithRefs(['a/thing' => ['2.0.0', 'two']])
+        );
+
+        $this->assertCount(1, $changes);
+        $this->assertSame('one', $changes[0]->fromRef);
+        $this->assertNull($changes[0]->toRef, 'A release is named by its version.');
+    }
 }

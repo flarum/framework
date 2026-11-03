@@ -12,9 +12,14 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
+use Flarum\ExtensionManager\Exception\RefusedException;
 use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 use Flarum\ExtensionManager\Tests\unit\FakeHttp;
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise\Create;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 
 /**
  * discuss.flarum.org d/40012: an extension list featured and installed
@@ -29,6 +34,33 @@ class ReplacedPackageTest extends TestCase
     protected function setUp(): void
     {
         $this->dir = sys_get_temp_dir().'/mw-replaced-'.bin2hex(random_bytes(4));
+    }
+
+    protected function tearDown(): void
+    {
+        exec('rm -rf '.escapeshellarg($this->dir));
+    }
+
+    /**
+     * Packagist answering with these statuses and bodies, url => [status, body];
+     * anything not listed is a 404.
+     *
+     * @param array<string,array{0:int,1:string}> $responses
+     * @param list<string> $asked
+     */
+    private function answering(array $responses, array &$asked = []): Packagist
+    {
+        return new Packagist(EnglishTranslator::make(), new Cache($this->dir), new Client(['handler' => function (RequestInterface $request) use ($responses, &$asked) {
+            $asked[] = $url = (string) $request->getUri();
+            [$status, $body] = $responses[$url] ?? [404, ''];
+
+            return Create::promiseFor(new Response($status, [], $body));
+        }]));
+    }
+
+    private function p2(string $name, array $release = []): string
+    {
+        return (string) json_encode(['packages' => [$name => [['version' => '1.0.0', 'require' => ['flarum/core' => '^2.0']] + $release]]]);
     }
 
     private function packagist(array $responses, array &$asked = []): Packagist
@@ -150,5 +182,121 @@ class ReplacedPackageTest extends TestCase
 
         $this->assertTrue($v['replaced']);
         $this->assertLessThanOrEqual(3, count($asked));
+    }
+
+    // ── the install guard ───────────────────────────────────────────────────
+
+    /** It used to look at the first five packages only. */
+    public function test_the_install_guard_checks_every_package(): void
+    {
+        $responses = [];
+
+        foreach (range(1, 6) as $i) {
+            $responses["https://repo.packagist.org/p2/acme/p$i.json"] = [200, $this->p2("acme/p$i", $i === 6 ? ['abandoned' => 'acme/new'] : [])];
+        }
+
+        $this->expectException(RefusedException::class);
+        $this->expectExceptionMessage('acme/p6 has been replaced by acme/new');
+
+        $this->answering($responses)->refuseReplaced(array_map(fn ($i) => "acme/p$i", range(1, 6)), new Compatibility('2.0.0'));
+    }
+
+    public function test_the_install_guard_lets_ordinary_and_unknown_packages_through(): void
+    {
+        $this->answering([
+            'https://repo.packagist.org/p2/acme/fine.json' => [200, $this->p2('acme/fine')],
+        ])->refuseReplaced(['acme/fine', 'acme/protected'], new Compatibility('2.0.0'));
+
+        // A protected package is a 404 on Packagist: unknown, never refused.
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * It used to pass silently when Packagist could not be asked. It cannot
+     * vouch for the name then, and the install's own resolve would fail
+     * against an unreachable Packagist anyway, so it says try again.
+     */
+    public function test_the_install_guard_refuses_when_packagist_cannot_be_asked(): void
+    {
+        foreach ([[503, ''], [500, ''], [429, ''], [200, '<html>Bad gateway</html>']] as [$status, $body]) {
+            try {
+                $this->answering(['https://repo.packagist.org/p2/acme/w.json' => [$status, $body]])
+                    ->refuseReplaced(['acme/w'], new Compatibility('2.0.0'));
+                $this->fail("$status was let through");
+            } catch (RefusedException $e) {
+                $this->assertSame('packagist_unreachable', $e->getType());
+                $this->assertSame(503, $e->getStatus());
+                $this->assertStringContainsString('Packagist could not be reached to check whether acme/w has been replaced', $e->getMessage());
+            }
+        }
+
+        $this->expectException(RefusedException::class);
+
+        (new Packagist(EnglishTranslator::make(), new Cache($this->dir), FakeHttp::client(fn () => null)))
+            ->refuseReplaced(['acme/w'], new Compatibility('2.0.0'));
+    }
+
+    /** A replacement is named before an unreachable package, whatever the order. */
+    public function test_a_replaced_package_is_reported_before_one_that_could_not_be_asked(): void
+    {
+        $this->expectExceptionMessage('acme/old has been replaced by acme/new');
+
+        $this->answering([
+            'https://repo.packagist.org/p2/acme/down.json' => [503, ''],
+            'https://repo.packagist.org/p2/acme/old.json' => [200, $this->p2('acme/old', ['abandoned' => 'acme/new'])],
+        ])->refuseReplaced(['acme/down', 'acme/old'], new Compatibility('2.0.0'));
+    }
+
+    // ── what is cached ──────────────────────────────────────────────────────
+
+    /**
+     * A 200 whose body does not parse (a proxy's error page, a truncated
+     * answer) used to be cached as "unknown" for a day.
+     */
+    public function test_an_answer_that_does_not_parse_is_not_cached(): void
+    {
+        $asked = [];
+        $packagist = $this->answering(['https://repo.packagist.org/p2/acme/w.json' => [200, '<html>Bad gateway</html>']], $asked);
+
+        $packagist->verdicts(['acme/w'], new Compatibility('2.0.0'));
+        $packagist->verdicts(['acme/w'], new Compatibility('2.0.0'));
+        $this->assertCount(2, $asked);
+
+        $working = $this->answering(['https://repo.packagist.org/p2/acme/w.json' => [200, $this->p2('acme/w')]], $asked);
+
+        $this->assertTrue($working->verdicts(['acme/w'], new Compatibility('2.0.0'))['acme/w']['compatible']);
+    }
+
+    /** The same for an untagged package whose branch file could not be read. */
+    public function test_an_untagged_package_whose_branches_could_not_be_read_is_not_cached(): void
+    {
+        $asked = [];
+        $packagist = $this->answering([
+            'https://repo.packagist.org/p2/acme/w.json' => [200, (string) json_encode(['packages' => ['acme/w' => []]])],
+            'https://repo.packagist.org/p2/acme/w~dev.json' => [502, ''],
+        ], $asked);
+
+        $verdict = $packagist->verdicts(['acme/w'], new Compatibility('2.0.0'))['acme/w'];
+        $packagist->verdicts(['acme/w'], new Compatibility('2.0.0'));
+
+        $this->assertNull($verdict['compatible']);
+        $this->assertTrue($verdict['unreachable']);
+        $this->assertCount(4, $asked, 'asked again the second time');
+    }
+
+    /** An untagged package with no branches either is a real "unknown", and cached. */
+    public function test_a_package_with_nothing_published_is_cached_as_unknown(): void
+    {
+        $asked = [];
+        $packagist = $this->answering([
+            'https://repo.packagist.org/p2/acme/w.json' => [200, (string) json_encode(['packages' => ['acme/w' => []]])],
+        ], $asked);
+
+        $verdict = $packagist->verdicts(['acme/w'], new Compatibility('2.0.0'))['acme/w'];
+        $packagist->verdicts(['acme/w'], new Compatibility('2.0.0'));
+
+        $this->assertNull($verdict['compatible']);
+        $this->assertArrayNotHasKey('unreachable', $verdict);
+        $this->assertCount(2, $asked, 'the main file and the branch file, once');
     }
 }

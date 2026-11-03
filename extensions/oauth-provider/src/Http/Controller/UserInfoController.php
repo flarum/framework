@@ -10,6 +10,7 @@
 namespace Flarum\OAuthProvider\Http\Controller;
 
 use Flarum\OAuthProvider\Models\AccessToken;
+use Flarum\OAuthProvider\ResourceServer\TokenUsage;
 use Flarum\OAuthProvider\Server\AuthorizationServerFactory;
 use Flarum\User\UserRepository;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -23,6 +24,7 @@ class UserInfoController implements RequestHandlerInterface
     public function __construct(
         protected AuthorizationServerFactory $factory,
         protected UserRepository $users,
+        protected TokenUsage $usage,
     ) {
     }
 
@@ -33,15 +35,21 @@ class UserInfoController implements RequestHandlerInterface
         try {
             $request = $resourceServer->validateAuthenticatedRequest($request);
 
+            /** @var AccessToken|null $token */
+            $token = AccessToken::query()->find($request->getAttribute('oauth_access_token_id'));
+
             // UserInfo is part of OpenID Connect: tokens issued for another
             // resource (RFC 8707) are not meant for it.
-            $resource = AccessToken::query()->whereKey($request->getAttribute('oauth_access_token_id'))->value('resource');
-
-            if ($resource !== null) {
+            if ($token?->resource !== null) {
                 throw OAuthServerException::accessDenied('This access token is bound to another resource.');
             }
         } catch (OAuthServerException $exception) {
             return $exception->generateHttpResponse(new \Laminas\Diactoros\Response());
+        }
+
+        // A site that signs members in fetches their profile here: that's a use.
+        if ($token !== null) {
+            $this->usage->record($token, $request->getAttribute('ipAddress'));
         }
 
         $userId = (int) $request->getAttribute('oauth_user_id');

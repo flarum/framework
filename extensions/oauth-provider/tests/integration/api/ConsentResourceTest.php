@@ -57,7 +57,7 @@ class ConsentResourceTest extends TestCase
                 ['id' => 'at-2-cimd-1', 'client_id' => 'https://client.example.com/metadata.json', 'user_id' => 2, 'revoked' => 0, 'expires_at' => $later, 'last_used_at' => $now->copy()->subDay()->toDateTimeString(), 'last_ip_address' => '198.51.100.1'],
                 ['id' => 'at-2-cimd-2', 'client_id' => 'https://client.example.com/metadata.json', 'user_id' => 2, 'revoked' => 0, 'expires_at' => $later, 'last_used_at' => $now->copy()->subMinute()->toDateTimeString(), 'last_ip_address' => '203.0.113.7'],
                 ['id' => 'at-3-cimd', 'client_id' => 'https://client.example.com/metadata.json', 'user_id' => 3, 'revoked' => 0, 'expires_at' => $later],
-                ['id' => 'at-3-admin', 'client_id' => 'admin-client', 'user_id' => 3, 'revoked' => 0, 'expires_at' => $later],
+                ['id' => 'at-3-admin', 'client_id' => 'admin-client', 'user_id' => 3, 'revoked' => 0, 'expires_at' => $later, 'created_at' => $now->copy()->subMinutes(30)->toDateTimeString()],
             ],
             'oauth_provider_refresh_tokens' => [
                 ['id' => 'rt-2-cimd', 'access_token_id' => 'at-2-cimd-2', 'revoked' => 0, 'expires_at' => $later],
@@ -194,5 +194,18 @@ class ConsentResourceTest extends TestCase
         $this->assertNotNull(Consent::query()->find(3));
         $this->assertFalse(AccessToken::query()->findOrFail('at-3-cimd')->revoked);
         $this->assertFalse(RefreshToken::query()->findOrFail('rt-3-cimd')->revoked);
+    }
+
+    #[Test]
+    public function signing_in_counts_as_using_an_application(): void
+    {
+        // Member 3 signed in to admin-client half an hour ago; the token was
+        // never presented to a resource after that.
+        $response = $this->send($this->request('GET', '/api/oauth-consents', ['authenticatedAs' => 3]));
+
+        $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
+        $attributes = array_column(array_column($this->json($response)['data'], 'attributes'), null, 'clientId')['admin-client'];
+
+        $this->assertEqualsWithDelta(Carbon::now()->subMinutes(30)->getTimestamp(), Carbon::parse($attributes['lastUsedAt'])->getTimestamp(), 5);
     }
 }

@@ -39,9 +39,20 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
     protected seq: number;
     /** The query whose results are on screen, so a keystroke can tell if anything changed. */
     protected lastSearched: string | null;
+    /**
+     * The query and category the results on screen belong to, which "Show more"
+     * pages through. Not the search box: what is typed there may not have been
+     * searched yet, and its second page appended under the first page of
+     * something else.
+     */
+    protected shown: {
+        query: string;
+        category: string;
+    };
     /** The pending debounce, so a new keystroke replaces it rather than adding to it. */
     protected typing: ReturnType<typeof setTimeout> | null;
     view(): JSX.Element;
+    pickCategory(id: string): void;
     /**
      * A keystroke, considered.
      *
