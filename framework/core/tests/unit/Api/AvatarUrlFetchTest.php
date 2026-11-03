@@ -25,8 +25,11 @@ class AvatarUrlFetchTest extends TestCase
         return [
             'uppercase host' => ['200 OK', 'avatar', 'avatar', 'AVATAR-FETCH.INVALID'],
             'proxy bypass' => ['200 OK', 'avatar', 'direct', 'avatar-fetch.invalid', true, true],
+            'lowercase proxy bypass' => ['200 OK', 'avatar', 'direct', 'avatar-fetch.invalid', true, true, true],
+            'lowercase configured proxy' => ['200 OK', 'avatar', 'proxied', 'avatar-fetch.invalid', true, false, true],
             'configured proxy' => ['200 OK', 'avatar', 'proxied', 'avatar-fetch.invalid', true],
             'IPv4 literal' => ['200 OK', 'avatar', 'avatar', '127.0.0.1'],
+            'hostname resolving to IPv6' => ['200 OK', 'avatar', 'avatar', 'avatar-fetch.invalid', false, false, false, '::1'],
             'IPv6 literal' => ['200 OK', 'avatar', 'avatar', '[::1]'],
             'trailing dot host' => ['200 OK', 'avatar', 'avatar', 'avatar-fetch.invalid.'],
             'small body' => ['200 OK', 'avatar', 'avatar'],
@@ -38,16 +41,16 @@ class AvatarUrlFetchTest extends TestCase
 
     #[Test]
     #[DataProvider('responses')]
-    public function it_pins_direct_connections_and_honors_configured_proxies(string $status, string $body, ?string $expected, string $host = 'avatar-fetch.invalid', bool $proxy = false, bool $bypassProxy = false): void
+    public function it_pins_direct_connections_and_honors_configured_proxies(string $status, string $body, ?string $expected, string $host = 'avatar-fetch.invalid', bool $proxy = false, bool $bypassProxy = false, bool $lowercaseProxy = false, string $resolvedIp = '127.0.0.1'): void
     {
         if (! extension_loaded('curl') || ! function_exists('pcntl_fork') || ! function_exists('posix_kill')) {
             $this->markTestSkipped('Requires cURL, pcntl and posix for a local HTTP server.');
         }
 
-        $listen = $host === '[::1]' ? '[::1]' : '127.0.0.1';
+        $listen = $host === '[::1]' || $resolvedIp === '::1' ? '[::1]' : '127.0.0.1';
         $server = @stream_socket_server("tcp://$listen:0", $errno, $error);
 
-        if ($server === false && $host === '[::1]') {
+        if ($server === false && $listen === '[::1]') {
             $this->markTestSkipped('IPv6 loopback is unavailable: '.$error);
         }
 
@@ -100,15 +103,21 @@ class AvatarUrlFetchTest extends TestCase
         }
 
         if ($proxy) {
-            putenv("HTTP_PROXY=http://127.0.0.1:$port");
             putenv("http_proxy=http://127.0.0.1:$port");
-            $_SERVER['HTTP_PROXY'] = $_SERVER['http_proxy'] = "http://127.0.0.1:$port";
+
+            if (! $lowercaseProxy) {
+                putenv("HTTP_PROXY=http://127.0.0.1:$port");
+                $_SERVER['HTTP_PROXY'] = $_SERVER['http_proxy'] = "http://127.0.0.1:$port";
+            }
         }
 
         if ($bypassProxy) {
-            putenv('NO_PROXY='.$host);
             putenv('no_proxy='.$host);
-            $_SERVER['NO_PROXY'] = $_SERVER['no_proxy'] = $host;
+
+            if (! $lowercaseProxy) {
+                putenv('NO_PROXY='.$host);
+                $_SERVER['NO_PROXY'] = $_SERVER['no_proxy'] = $host;
+            }
         }
 
         try {
@@ -116,6 +125,7 @@ class AvatarUrlFetchTest extends TestCase
             // Direct connections need CURLOPT_RESOLVE; proxied requests must
             // use the configured proxy instead.
             $resource = (new ReflectionClass(PinnedAvatarResource::class))->newInstanceWithoutConstructor();
+            $resource->resolvedIp = $resolvedIp;
             $validator = $this->createStub(AvatarValidator::class);
             $validator->method('getMaxSize')->willReturn(1);
             (new ReflectionProperty(UserResource::class, 'imageValidator'))->setValue($resource, $validator);
@@ -143,8 +153,10 @@ class AvatarUrlFetchTest extends TestCase
 
 class PinnedAvatarResource extends UserResource
 {
+    public string $resolvedIp = '127.0.0.1';
+
     protected function resolveToAllowedIp(string $host): ?string
     {
-        return '127.0.0.1';
+        return $this->resolvedIp;
     }
 }

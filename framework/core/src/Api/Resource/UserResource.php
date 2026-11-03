@@ -659,7 +659,8 @@ class UserResource extends AbstractDatabaseResource
         // Literal IPs need no DNS override; older cURL versions cannot parse
         // IPv6 literals in the host component of a CURLOPT_RESOLVE entry.
         if (! filter_var(trim($host, '[]'), FILTER_VALIDATE_IP)) {
-            $options['curl'] = [CURLOPT_RESOLVE => ["$host:$port:".(str_contains($ip, ':') ? "[$ip]" : $ip)]];
+            // Unbracketed IPv6 addresses also work with libcurl before 7.57.
+            $options['curl'] = [CURLOPT_RESOLVE => ["$host:$port:$ip"]];
         }
 
         $client = new Client($options);
