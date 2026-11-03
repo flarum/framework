@@ -26,6 +26,8 @@ flarum-tags:
       description_label: Description
       hide_label: Hide from All Discussions
       icon_label: => core.ref.icon
+      icon_image_label: => core.ref.icon_image
+      icon_image_text: => core.ref.icon_image_text
       icon_text: => core.ref.icon_text
       name_label: => flarum-tags.ref.name
       name_placeholder: => flarum-tags.ref.name

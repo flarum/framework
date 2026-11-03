@@ -10,11 +10,14 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Console\UpdateCommand;
+use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
+use Flarum\ExtensionManager\Run\StartLock;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\Steps;
 use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Work\SavedManifests;
 use Flarum\ExtensionManager\Work\WorkDir;
 use Flarum\Foundation\Paths;
 use PHPUnit\Framework\TestCase;
@@ -96,6 +99,98 @@ class UpdateCommandTest extends TestCase
         $this->assertSame(1, $tester->getStatusCode());
         $this->assertStringContainsString('r-already-going', $tester->getDisplay());
         $this->assertStringContainsString('--resume', $tester->getDisplay());
+    }
+
+    /**
+     * The screen and this command can be pressed at the same moment. The
+     * command creates its run under the same start lock, so whichever comes
+     * second is refused rather than writing a second run beside the first.
+     */
+    public function test_it_refuses_while_another_start_holds_the_start_lock(): void
+    {
+        $this->site(require: ['a/thing' => '^1.0'], installed: ['a/thing' => '1.0.0']);
+
+        $other = new StartLock(StorageDir::of($this->dir).'/locks');
+        $this->assertTrue($other->acquire());
+
+        try {
+            $tester = $this->runCommand(['packages' => ['a/thing']], ['plan' => ['work out the change']]);
+        } finally {
+            $other->release();
+        }
+
+        $this->assertSame(1, $tester->getStatusCode());
+        $this->assertStringContainsString('Another update is starting right now', $tester->getDisplay());
+        $this->assertNull($this->store()->latest(), 'Nothing may be started.');
+    }
+
+    /** A lock folder that cannot be written is said to be that, not another update. */
+    public function test_it_says_when_the_start_lock_cannot_be_made(): void
+    {
+        if (function_exists('posix_getuid') && posix_getuid() === 0) {
+            $this->markTestSkipped('root can write anywhere');
+        }
+
+        $this->site(require: ['a/thing' => '^1.0'], installed: ['a/thing' => '1.0.0']);
+        mkdir($this->dir.'/extension-manager/runs', 0775, true);
+        chmod($this->dir.'/extension-manager', 0555);
+
+        try {
+            $tester = $this->runCommand(['packages' => ['a/thing']], ['plan' => ['work out the change']]);
+        } finally {
+            chmod($this->dir.'/extension-manager', 0775);
+        }
+
+        $this->assertSame(1, $tester->getStatusCode());
+        $this->assertStringContainsString('Could not create the update lock in '.StorageDir::of($this->dir).'/locks', $tester->getDisplay());
+        $this->assertStringNotContainsString('Another update', $tester->getDisplay());
+        $this->assertNull($this->store()->latest(), 'Nothing may be started.');
+    }
+
+    /**
+     * A run that failed before its new lock was meant to stay, without putting
+     * the old one back itself (a worker that was killed), hands the next run
+     * the old lock to start from, not the new one.
+     */
+    public function test_a_new_run_starts_from_the_lock_a_failed_run_left_behind_not_its_new_one(): void
+    {
+        $this->site(require: ['a/thing' => '^1.0'], installed: ['a/thing' => '1.0.0']);
+        $old = (string) file_get_contents($this->dir.'/composer.lock');
+
+        $failed = (new WorkDir(EnglishTranslator::make(), $this->dir, 'r-failed'))->create();
+        file_put_contents($failed->root().'/composer.lock.before', $old);
+        file_put_contents($this->dir.'/composer.lock', '{"packages":[{"name":"a/thing","version":"1.1.0"}]}');
+        touch($this->dir.'/composer.lock', time() - 60);
+        $this->store()->save(Run::start('r-failed', time() - 120)->enteredPhase('apply', time() - 30)->failed('the worker stopped', 'queue worker', time() - 30, 'failed'));
+
+        $tester = $this->runCommand(['packages' => ['a/thing']], ['plan' => ['work out the change']]);
+
+        $this->assertSame(0, $tester->getStatusCode());
+        $this->assertSame($old, file_get_contents($this->dir.'/composer.lock'));
+    }
+
+    /**
+     * A failure the run caught has put the manifests back already. A
+     * composer.json edited after that (a repository added, which leaves the
+     * lock alone) is not put back over again when this command starts.
+     */
+    public function test_a_composer_json_edited_after_a_failed_run_keeps_the_edit(): void
+    {
+        $this->site(require: ['a/thing' => '^1.0'], installed: ['a/thing' => '1.0.0']);
+
+        $failed = (new WorkDir(EnglishTranslator::make(), $this->dir, 'r-failed'))->create();
+        copy($this->dir.'/composer.json', $failed->root().'/composer.json.before');
+        copy($this->dir.'/composer.lock', $failed->root().'/composer.lock.before');
+        SavedManifests::restore($failed->root(), $this->dir);
+
+        file_put_contents($this->dir.'/composer.json', json_encode(['require' => ['a/thing' => '^1.0'], 'repositories' => [['type' => 'composer', 'url' => 'https://repo.example.test']]]));
+        $edited = (string) file_get_contents($this->dir.'/composer.json');
+        $this->store()->save(Run::start('r-failed', time())->enteredPhase('fetch', time())->failed('it stopped', 'fetch', time() + 60, 'failed'));
+
+        $tester = $this->runCommand(['packages' => ['a/thing']], ['plan' => ['work out the change']]);
+
+        $this->assertSame(0, $tester->getStatusCode());
+        $this->assertSame($edited, file_get_contents($this->dir.'/composer.json'));
     }
 
     /**
