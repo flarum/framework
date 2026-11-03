@@ -616,6 +616,9 @@ class UserResource extends AbstractDatabaseResource
             return null;
         }
 
+        // Match Guzzle's normalized hostname when constructing the DNS pin.
+        $host = strtolower($host);
+
         // Resolve the host and reject it if it points at a link-local, loopback
         // or otherwise reserved address (e.g. the cloud metadata endpoint
         // 169.254.169.254). Private LAN ranges (RFC1918) are intentionally left
@@ -638,8 +641,6 @@ class UserResource extends AbstractDatabaseResource
             'handler' => HandlerStack::create(new CurlHandler()),
             'allow_redirects' => false,
             'timeout' => 5,
-            // A proxy would resolve the hostname itself, bypassing the pin.
-            'proxy' => '',
             // cURL buffers the response before returning it. Cap each write so
             // oversized bodies are aborted during the transfer, not afterwards.
             'sink' => FnStream::decorate($sink, [
@@ -653,6 +654,8 @@ class UserResource extends AbstractDatabaseResource
             ]),
         ];
 
+        // This pins direct connections. Configured proxies are still honored
+        // and are responsible for resolving and enforcing their destinations.
         // Literal IPs need no DNS override; older cURL versions cannot parse
         // IPv6 literals in the host component of a CURLOPT_RESOLVE entry.
         if (! filter_var(trim($host, '[]'), FILTER_VALIDATE_IP)) {

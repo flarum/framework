@@ -23,6 +23,9 @@ class AvatarUrlFetchTest extends TestCase
     public static function responses(): array
     {
         return [
+            'uppercase host' => ['200 OK', 'avatar', 'avatar', 'AVATAR-FETCH.INVALID'],
+            'proxy bypass' => ['200 OK', 'avatar', 'direct', 'avatar-fetch.invalid', true, true],
+            'configured proxy' => ['200 OK', 'avatar', 'proxied', 'avatar-fetch.invalid', true],
             'IPv4 literal' => ['200 OK', 'avatar', 'avatar', '127.0.0.1'],
             'IPv6 literal' => ['200 OK', 'avatar', 'avatar', '[::1]'],
             'trailing dot host' => ['200 OK', 'avatar', 'avatar', 'avatar-fetch.invalid.'],
@@ -35,14 +38,19 @@ class AvatarUrlFetchTest extends TestCase
 
     #[Test]
     #[DataProvider('responses')]
-    public function it_fetches_only_from_the_resolved_address(string $status, string $body, ?string $expected, string $host = 'avatar-fetch.invalid'): void
+    public function it_pins_direct_connections_and_honors_configured_proxies(string $status, string $body, ?string $expected, string $host = 'avatar-fetch.invalid', bool $proxy = false, bool $bypassProxy = false): void
     {
         if (! extension_loaded('curl') || ! function_exists('pcntl_fork') || ! function_exists('posix_kill')) {
             $this->markTestSkipped('Requires cURL, pcntl and posix for a local HTTP server.');
         }
 
         $listen = $host === '[::1]' ? '[::1]' : '127.0.0.1';
-        $server = stream_socket_server("tcp://$listen:0", $errno, $error);
+        $server = @stream_socket_server("tcp://$listen:0", $errno, $error);
+
+        if ($server === false && $host === '[::1]') {
+            $this->markTestSkipped('IPv6 loopback is unavailable: '.$error);
+        }
+
         $this->assertIsResource($server, $error);
         $address = stream_socket_get_name($server, false);
         $port = substr($address, strrpos($address, ':') + 1);
@@ -53,6 +61,12 @@ class AvatarUrlFetchTest extends TestCase
             $connection = stream_socket_accept($server, 10);
 
             if ($connection) {
+                $requestLine = fgets($connection);
+
+                if ($proxy) {
+                    $body = str_starts_with($requestLine, 'GET http://avatar-fetch.invalid:') ? 'proxied' : 'direct';
+                }
+
                 while (($line = fgets($connection)) !== false && trim($line) !== '') {
                     // Consume the request headers.
                 }
@@ -76,15 +90,31 @@ class AvatarUrlFetchTest extends TestCase
         }
 
         $proxies = [];
+        $proxyNames = ['HTTP_PROXY', 'http_proxy', 'HTTPS_PROXY', 'https_proxy', 'ALL_PROXY', 'all_proxy', 'NO_PROXY', 'no_proxy'];
+        $serverProxies = array_intersect_key($_SERVER, array_flip($proxyNames));
 
-        foreach (['HTTP_PROXY', 'http_proxy', 'HTTPS_PROXY', 'https_proxy', 'ALL_PROXY'] as $name) {
+        foreach ($proxyNames as $name) {
             $proxies[$name] = getenv($name);
-            putenv($name.'=http://127.0.0.1:1');
+            putenv($name);
+            unset($_SERVER[$name]);
+        }
+
+        if ($proxy) {
+            putenv("HTTP_PROXY=http://127.0.0.1:$port");
+            putenv("http_proxy=http://127.0.0.1:$port");
+            $_SERVER['HTTP_PROXY'] = $_SERVER['http_proxy'] = "http://127.0.0.1:$port";
+        }
+
+        if ($bypassProxy) {
+            putenv('NO_PROXY='.$host);
+            putenv('no_proxy='.$host);
+            $_SERVER['NO_PROXY'] = $_SERVER['no_proxy'] = $host;
         }
 
         try {
             // Simulate a checked DNS answer without depending on external DNS.
-            // Only CURLOPT_RESOLVE can reach the server using this hostname.
+            // Direct connections need CURLOPT_RESOLVE; proxied requests must
+            // use the configured proxy instead.
             $resource = (new ReflectionClass(PinnedAvatarResource::class))->newInstanceWithoutConstructor();
             $validator = $this->createStub(AvatarValidator::class);
             $validator->method('getMaxSize')->willReturn(1);
@@ -97,6 +127,11 @@ class AvatarUrlFetchTest extends TestCase
         } finally {
             foreach ($proxies as $name => $value) {
                 putenv($value === false ? $name : $name.'='.$value);
+                unset($_SERVER[$name]);
+
+                if (array_key_exists($name, $serverProxies)) {
+                    $_SERVER[$name] = $serverProxies[$name];
+                }
             }
 
             fclose($server);
