@@ -6,7 +6,14 @@ export default class Tag extends Model {
     storedSlug(): string;
     description(): string | null;
     color(): string | null;
+    /**
+     * The Font Awesome icon classes, with the classes that show the uploaded
+     * image in their place when the tag has one. The stored classes alone are
+     * `attribute('icon')`.
+     */
     icon(): string | null;
+    iconImageUrl(): string | null;
+    iconImageSrcset(): string | null;
     position(): number | null;
     parent(): false | Tag | null;
     children(): false | (Tag | undefined)[];
