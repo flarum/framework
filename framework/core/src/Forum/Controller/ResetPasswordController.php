@@ -40,6 +40,6 @@ class ResetPasswordController extends AbstractHtmlController
             ->make('flarum.forum::reset-password')
             ->with('passwordToken', $token->token)
             ->with('csrfToken', $request->getAttribute('session')->token())
-            ->with('actorClass', RequestUtil::getActorClass($request));
+            ->with('actorClass', RequestUtil::getActorHtmlClass($request));
     }
 }

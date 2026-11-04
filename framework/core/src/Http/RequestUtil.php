@@ -100,13 +100,14 @@ class RequestUtil
      *
      * It reflects the actor as far as the request got. The reference is shared and
      * filled in by the authentication middleware, so an error thrown before that
-     * has run (in `StartSession`, `RememberFromCookie` or the session lookup
-     * itself) still sees the `Guest` that `InjectActorReference` set first, and a
-     * signed-in visitor gets `guest-user`. That errs on the safe side.
+     * has run (for example in `StartSession`, `RememberFromCookie`, `CollectGarbage`
+     * or an extension's middleware) still sees the `Guest` that
+     * `InjectActorReference` set first, and a signed-in visitor gets `guest-user`.
+     * That errs on the safe side.
      *
      * Returns null when the request has no actor reference at all.
      */
-    public static function getActorClass(Request $request): ?string
+    public static function getActorHtmlClass(Request $request): ?string
     {
         if (! $request->getAttribute('actorReference')) {
             return null;

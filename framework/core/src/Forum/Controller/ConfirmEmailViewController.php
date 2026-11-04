@@ -33,6 +33,6 @@ class ConfirmEmailViewController extends AbstractHtmlController
         return $this->view
             ->make('flarum.forum::confirm-email')
             ->with('csrfToken', $request->getAttribute('session')->token())
-            ->with('actorClass', RequestUtil::getActorClass($request));
+            ->with('actorClass', RequestUtil::getActorHtmlClass($request));
     }
 }

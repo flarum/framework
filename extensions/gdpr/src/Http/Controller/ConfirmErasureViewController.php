@@ -46,6 +46,6 @@ class ConfirmErasureViewController extends AbstractHtmlController
         return $this->view
             ->make('flarum-gdpr::confirm-erasure')
             ->with('csrfToken', $request->getAttribute('session')->token())
-            ->with('actorClass', RequestUtil::getActorClass($request));
+            ->with('actorClass', RequestUtil::getActorHtmlClass($request));
     }
 }

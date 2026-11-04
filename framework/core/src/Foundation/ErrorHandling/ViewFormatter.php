@@ -35,7 +35,8 @@ class ViewFormatter implements HttpFormatter
     public function __construct(
         protected ViewFactory $view,
         protected TranslatorInterface $translator,
-        protected SettingsRepositoryInterface $settings
+        protected SettingsRepositoryInterface $settings,
+        protected string $cacheControl = 'private, no-cache'
     ) {
     }
 
@@ -45,13 +46,13 @@ class ViewFormatter implements HttpFormatter
             ->make($this->determineView($error))
             ->with('error', $error->getException())
             ->with('message', $this->getMessage($error))
-            ->with('actorClass', RequestUtil::getActorClass($request));
+            ->with('actorClass', RequestUtil::getActorHtmlClass($request));
 
         // The page differs between guests and signed-in users, and an error
         // response carries no session cookie, so keep it out of shared caches and
         // stop the browser reusing a guest copy after the visitor logs in.
         return (new HtmlResponse($view->render(), $error->getStatusCode()))
-            ->withHeader('Cache-Control', 'private, no-cache');
+            ->withHeader('Cache-Control', $this->cacheControl);
     }
 
     private function determineView(HandledError $error): string

@@ -47,6 +47,6 @@ class LogInViewController extends AbstractHtmlController
         return $this->view
             ->make('flarum.forum::log-in')
             ->with('csrfToken', $request->getAttribute('session')->token())
-            ->with('actorClass', RequestUtil::getActorClass($request));
+            ->with('actorClass', RequestUtil::getActorHtmlClass($request));
     }
 }

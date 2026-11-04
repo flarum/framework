@@ -67,6 +67,6 @@ class UnsubscribeViewController extends AbstractHtmlController
             ->with('userId', $userId)
             ->with('token', $token)
             ->with('csrfToken', $request->getAttribute('session')->token())
-            ->with('actorClass', RequestUtil::getActorClass($request));
+            ->with('actorClass', RequestUtil::getActorHtmlClass($request));
     }
 }
