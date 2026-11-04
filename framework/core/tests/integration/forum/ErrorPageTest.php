@@ -182,7 +182,6 @@ class ErrorPageTest extends TestCase
     #[Test]
     public function not_found_page_is_marked_as_guest_through_the_middleware_pipeline(): void
     {
-
         $response = $this->send($this->htmlRequest('GET', '/does-not-exist'));
 
         $this->assertEquals(404, $response->getStatusCode());
