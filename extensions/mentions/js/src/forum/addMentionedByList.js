@@ -8,6 +8,7 @@ import username from 'flarum/common/helpers/username';
 import Icon from 'flarum/common/components/Icon';
 import Button from 'flarum/common/components/Button';
 import MentionedByModal from './components/MentionedByModal';
+import mentionedByTranslationKey from './utils/mentionedByTranslationKey';
 
 export default function addMentionedByList() {
   function hidePreview() {
@@ -148,7 +149,7 @@ export default function addMentionedByList() {
         <div className="Post-mentionedBy">
           <span className="Post-mentionedBy-summary">
             <Icon name={'fas fa-reply'} />
-            {app.translator.trans(`flarum-mentions.forum.post.mentioned_by${repliers[0].user() === app.session.user ? '_self' : ''}_text`, {
+            {app.translator.trans(mentionedByTranslationKey(repliers[0].user() === app.session.user, names.length), {
               count: names.length,
               users: punctuateSeries(names),
             })}
