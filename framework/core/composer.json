@@ -101,7 +101,7 @@
         "symfony/var-dumper": "^7.4"
     },
     "conflict": {
-        "fof/pwa": "<2.0.0-beta.7"
+        "fof/pwa": "<2.1.0"
     },
     "autoload": {
         "psr-4": {
