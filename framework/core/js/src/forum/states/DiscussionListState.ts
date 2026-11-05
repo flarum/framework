@@ -187,10 +187,13 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
    * discussion is recognisable as one however it was arrived at.
    */
   public activeFilters(): Record<string, any> {
-    const filter = { ...((this.requestParams().filter ?? {}) as Record<string, any>) };
+    let filter = { ...((this.requestParams().filter ?? {}) as Record<string, any>) };
 
+    // The whole filter goes through, as in `Store.find()`, not `q` alone: a
+    // gambit with `predicates` (flarum/tags' `tag:`) appends to a filter key
+    // already set, such as the tag of a tag page, rather than replacing it.
     if (filter.q) {
-      Object.assign(filter, app.search.gambits.apply(this.type, { q: filter.q }));
+      filter = app.search.gambits.apply(this.type, filter);
     }
 
     return Object.fromEntries(Object.entries(filter).filter(([, value]) => value !== undefined && value !== null && value !== ''));

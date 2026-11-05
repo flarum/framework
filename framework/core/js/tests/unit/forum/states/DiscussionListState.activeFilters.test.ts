@@ -1,6 +1,7 @@
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import app from 'flarum/forum/app';
 import DiscussionListState from '../../../../src/forum/states/DiscussionListState';
+import { KeyValueGambit } from '../../../../src/common/query/IGambit';
 
 beforeAll(() => {
   bootstrapForum();
@@ -45,6 +46,39 @@ describe('DiscussionListState.activeFilters', () => {
     const state = new DiscussionListState({ filter: { tag: 'foo' } } as any);
 
     expect(state.activeFilters()).toEqual({ tag: 'foo' });
+  });
+
+  test('a predicate gambit in q adds to a filter the list already sets, as Store.find() does', () => {
+    // Stands in for flarum/tags' TagGambit, which core doesn't ship.
+    class PredicateTagGambit extends KeyValueGambit {
+      predicates = true;
+      key() {
+        return 'tag';
+      }
+      hint() {
+        return 'tag';
+      }
+      filterKey() {
+        return 'tag';
+      }
+      gambitValueToFilterValue(value: string) {
+        return [value];
+      }
+    }
+
+    const original = app.search.gambits.gambits.discussions;
+    app.search.gambits.gambits.discussions = [...original, PredicateTagGambit];
+
+    try {
+      // A tag page (filter.tag set directly) with `tag:other` typed in search.
+      const state = new DiscussionListState({ filter: { tag: ['foo'] }, q: 'tag:other' } as any);
+      const expected = app.search.gambits.apply('discussions', { tag: ['foo'], q: 'tag:other' });
+
+      expect(state.activeFilters()).toEqual({ tag: ['foo', 'other'] });
+      expect(state.activeFilters()).toEqual(Object.fromEntries(Object.entries(expected).filter(([, v]) => v !== '')));
+    } finally {
+      app.search.gambits.gambits.discussions = original;
+    }
   });
 
   test('an unfiltered list reports no active filters', () => {
