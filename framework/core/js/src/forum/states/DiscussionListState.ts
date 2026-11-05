@@ -172,15 +172,26 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
 
   /**
    * The filters the list is currently showing results for, as the API takes
-   * them: `q` folded into `filter`, and whatever extensions add — the tag of a
-   * tag page, say — already in place, since this is the same thing
-   * `requestParams()` asks the API for.
+   * them: `q` run through the gambits and folded into `filter` — the same
+   * parsing `Store.find()` does before a `GET` — and whatever extensions add
+   * — the tag of a tag page, say — already in place, since this is the same
+   * thing `requestParams()` asks the API for.
+   *
+   * Gambits like `tag:x` or `is:unread` only take effect for a `GET` today,
+   * applied client-side on the way out in `Store.find()`; the server never
+   * parses `q`. Anything sent `q` as-is — `markAllAsRead()`'s `POST`, and the
+   * confirmation text this feeds `IndexPage` — would otherwise run a fulltext
+   * search for the literal gambit text instead of the filter it stands for.
    *
    * Filters that single nothing out are left off, so a list showing every
    * discussion is recognisable as one however it was arrived at.
    */
   public activeFilters(): Record<string, any> {
-    const filter = (this.requestParams().filter ?? {}) as Record<string, any>;
+    const filter = { ...((this.requestParams().filter ?? {}) as Record<string, any>) };
+
+    if (filter.q) {
+      Object.assign(filter, app.search.gambits.apply(this.type, { q: filter.q }));
+    }
 
     return Object.fromEntries(Object.entries(filter).filter(([, value]) => value !== undefined && value !== null && value !== ''));
   }
@@ -197,6 +208,13 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     const filter = this.activeFilters();
     const everything = !Object.keys(filter).length;
 
+    // Captured before the request is sent, not re-read from `this` once it
+    // resolves: this state object is shared across navigation (switching
+    // tags, say), so by the time the response comes back `this.getAllItems()`
+    // may already belong to a different list than the one the request's
+    // filter actually matched on the server.
+    const items = this.getAllItems();
+
     return app
       .request({
         method: 'POST',
@@ -208,7 +226,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
           app.session.user?.pushAttributes({ markedAllAsReadAt: new Date().toISOString() });
         }
 
-        this.getAllItems().forEach((discussion) => {
+        items.forEach((discussion) => {
           const lastPostNumber = discussion.lastPostNumber();
 
           // Nothing to have read up to, in a discussion whose posts are all

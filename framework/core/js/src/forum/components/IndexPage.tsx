@@ -269,7 +269,9 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     );
 
     if (confirmation) {
-      app.discussions.markAllAsRead();
+      // Core already shows an error alert for a failed request; this is only
+      // here so a rejection doesn't surface as an uncaught promise rejection.
+      app.discussions.markAllAsRead().catch(() => {});
     }
   }
 }
