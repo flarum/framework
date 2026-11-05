@@ -3,6 +3,7 @@ import type Model from '../Model';
 import type Stream from '../utils/Stream';
 import type { CommonFieldOptions } from '../components/FormGroup';
 import type ResourceFormState from './ResourceFormState';
+import type RequestError from '../utils/RequestError';
 
 export type FieldKind = 'string' | 'integer' | 'number' | 'boolean' | 'date' | 'datetime' | 'array' | 'toOne' | 'toMany';
 
@@ -275,6 +276,20 @@ export interface Field<M extends Model, V = unknown> {
    * than one input, e.g. to bring an erroring part (`path`) into view.
    */
   onclienterrors?(errors: Record<string, FieldError[]>, form: ResourceFormState<any>): void;
+  /**
+   * Whether the form value is a change from `initial`, in place of comparing their snapshots: for
+   * a form value that is not plain data, such as an `IconImageState` holding a chosen file.
+   */
+  isChanged?(value: V, initial: V): boolean;
+  /**
+   * Save what the record's own request does not carry, e.g. an upload to its own endpoint (give
+   * the field a `serialize()` that returns `{}`). Called for a changed shown field once the record
+   * is saved, with the stored record (a new one has its id by then) and the value before the form
+   * reset; pass `errorHandler` to the request, so its 422/403 errors land on the form's fields. A
+   * rejection rejects `save()`, keeping the value as a change, so saving again retries it (against
+   * the now existing record).
+   */
+  afterSave?(model: M, value: V, ctx: { form: ResourceFormState<M>; errorHandler: (error: RequestError) => void | false }): Promise<unknown> | void;
   /** Present when the field was inferred. */
   descriptor?: FieldDescriptor;
 }

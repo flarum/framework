@@ -154,6 +154,113 @@ describe('ResourceFormState', () => {
     expect(state.dirtyKeys()).toEqual([]);
   });
 
+  describe('a field saved through its own request', () => {
+    /** A pending upload: not plain data, compared by `isChanged()`, sent by `afterSave()`. */
+    class Pending {
+      /** A file to upload, null to remove the current one, undefined to leave it. */
+      constructor(public change?: string | null) {}
+    }
+
+    function uploadDefinition(afterSave: Field<Thing, Pending>['afterSave']) {
+      return new (class extends ThingDefinition {
+        fields() {
+          const fields = super.fields();
+
+          fields.add('upload', {
+            label: 'Upload',
+            input: () => null,
+            value: () => new Pending(),
+            serialize: () => ({}),
+            isChanged: (value: Pending) => value.change !== undefined,
+            afterSave,
+          } as Field<Thing, Pending> as Field<Thing>);
+
+          return fields;
+        }
+      })();
+    }
+
+    test('isChanged() decides whether the value is a change, in place of comparing snapshots', async () => {
+      const state = await ResourceFormState.create(uploadDefinition(undefined), thing);
+
+      state.stream('upload')(new Pending());
+      expect(state.dirtyKeys()).toEqual([]);
+
+      // Removing snapshots like leaving it (undefined and null both become null).
+      state.stream('upload')(new Pending(null));
+      expect(state.dirtyKeys()).toEqual(['upload']);
+    });
+
+    test('afterSave() runs once a new record exists, with the stored record and the value before the reset', async () => {
+      const afterSave = jest.fn(async () => {});
+      const state = await ResourceFormState.create(uploadDefinition(afterSave), null);
+      app.request = jest.fn((options: any) =>
+        Promise.resolve({ data: { type: 'things', id: '2', attributes: options.body.data.attributes } })
+      ) as any;
+
+      state.stream('title')('New');
+      const pending = new Pending('a.png');
+      state.stream('upload')(pending);
+      const saved = await state.save();
+
+      expect(afterSave).toHaveBeenCalledTimes(1);
+      expect((afterSave.mock.calls[0] as any[])[0]).toBe(saved);
+      expect((afterSave.mock.calls[0] as any[])[1]).toBe(pending);
+      expect(state.dirtyKeys()).toEqual([]);
+    });
+
+    test('afterSave() is not called for an unchanged value', async () => {
+      const afterSave = jest.fn(async () => {});
+      const state = await ResourceFormState.create(uploadDefinition(afterSave), thing);
+      app.request = jest.fn((options: any) =>
+        Promise.resolve({ data: { type: 'things', id: '1', attributes: options.body.data.attributes } })
+      ) as any;
+
+      state.stream('title')('Renamed');
+      await state.save();
+
+      expect(afterSave).not.toHaveBeenCalled();
+    });
+
+    test('a failed afterSave() rejects the save, keeps the change and the created record, and maps its 422 onto the field', async () => {
+      const request = jest.fn(async (options: any) => {
+        if (options.url.endsWith('/upload')) {
+          const error = new RequestError(
+            422,
+            JSON.stringify({ errors: [{ detail: 'Not an image', source: { pointer: '/data/attributes/upload' } }] }),
+            options,
+            {} as XMLHttpRequest
+          );
+          await options.errorHandler?.(error);
+          throw error;
+        }
+
+        return { data: { type: 'things', id: '2', attributes: options.body?.data?.attributes ?? {} } };
+      });
+      const state = await ResourceFormState.create(
+        uploadDefinition(
+          (model, _value, { errorHandler }) => app.request({ method: 'POST', url: `/things/${model.id()}/upload`, errorHandler }) as any
+        ),
+        null
+      );
+      app.request = request as any;
+
+      state.stream('title')('New');
+      const pending = new Pending('a.png');
+      state.stream('upload')(pending);
+
+      await expect(state.save()).rejects.toBeInstanceOf(RequestError);
+      expect(state.errors).toEqual({ upload: 'Not an image' });
+      expect(state.isCreating()).toBe(false);
+      expect(state.stream('upload')()).toBe(pending);
+      expect(state.dirtyKeys()).toEqual(['upload']);
+
+      // The retry updates the created record rather than creating another one.
+      await expect(state.save()).rejects.toBeInstanceOf(RequestError);
+      expect(request.mock.calls.map((call: any) => call[0].method ?? 'GET')).toEqual(['POST', 'POST', 'PATCH', 'POST']);
+    });
+  });
+
   test('a new record starts from the descriptor defaults, which are sent only once changed', async () => {
     serve(
       descriptor([

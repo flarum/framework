@@ -204,8 +204,15 @@ export default class ResourceFormState<M extends Model = Model> {
     return this.streams[key] as Stream<V>;
   }
 
+  /** Its field's `isChanged()`, else whether the value's snapshot differs from the initial one. */
   isDirty(key: string): boolean {
-    return key in this.streams && snapshot(this.streams[key]()) !== snapshot(this.initial[key]);
+    if (!(key in this.streams)) return false;
+
+    const isChanged = this.fields.get(key).isChanged;
+
+    if (isChanged) return isChanged(this.streams[key](), this.initial[key]);
+
+    return snapshot(this.streams[key]()) !== snapshot(this.initial[key]);
   }
 
   /**
@@ -330,7 +337,8 @@ export default class ResourceFormState<M extends Model = Model> {
    * field's `onclienterrors()` (the structured errors, as `validateErrors()`). 422/403 errors are
    * resolved onto fields by `mapErrors()` and land in `errors` and `fieldErrors()` (`'*'` for
    * unmatched ones) instead of the global alert, then reach every visible field's `onerrors()`; the
-   * promise still rejects.
+   * promise still rejects. Once the record is saved, the changed fields' `afterSave()` run in turn;
+   * the first failure rejects, after the others ran.
    */
   async save(data?: SaveData): Promise<M> {
     const invalid = this.validateErrors();
@@ -349,15 +357,34 @@ export default class ResourceFormState<M extends Model = Model> {
     }
 
     const record = this.model ?? app.store.createRecord<M>(this.definition.type);
+    const errorHandler = this.onerror.bind(this);
+    // The changes saved by their own request, taken before the reset.
+    const after = this.dirtyKeys()
+      .filter((key) => this.fields.get(key).afterSave)
+      .map((key) => ({ key, field: this.fields.get(key), value: this.streams[key]() }));
 
     this.saving = true;
 
     try {
       // A new record resolves to the instance the store now holds, not the one that was saved.
-      const saved = (await record.save(data ?? this.buildSaveData(), { errorHandler: this.onerror.bind(this) })) as unknown as M;
+      const saved = (await record.save(data ?? this.buildSaveData(), { errorHandler })) as unknown as M;
 
       this.model = saved;
       this.reset();
+
+      const failures: unknown[] = [];
+
+      for (const { key, field, value } of after) {
+        try {
+          await field.afterSave!(saved, value, { form: this, errorHandler });
+        } catch (error) {
+          // Still a change: saving again retries it.
+          this.streams[key]?.(value);
+          failures.push(error);
+        }
+      }
+
+      if (failures.length) throw failures[0];
 
       return saved;
     } finally {
