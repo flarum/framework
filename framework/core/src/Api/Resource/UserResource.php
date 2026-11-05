@@ -16,6 +16,8 @@ use Flarum\Api\Sort\SortColumn;
 use Flarum\Bus\Dispatcher;
 use Flarum\Foundation\ValidationException;
 use Flarum\Group\Group;
+use Flarum\Http\OutboundAddressResolver;
+use Flarum\Http\Rule\PublicAddress;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\LocaleManager;
 use Flarum\Locale\TranslatorInterface;
@@ -569,22 +571,26 @@ class UserResource extends AbstractDatabaseResource
      */
     private function assertValidAvatarUrl(string $url): void
     {
-        $urlValidator = $this->validation->make(compact('url'), [
-            'url' => 'required|active_url',
-        ]);
-
-        if ($urlValidator->fails()) {
-            throw new ValidationException([
-                'avatar_url' => 'Provided avatar URL must be a valid URI.',
-            ]);
-        }
-
         $scheme = parse_url($url, PHP_URL_SCHEME);
 
-        if (! in_array($scheme, ['http', 'https'])) {
-            throw new ValidationException([
-                'avatar_url' => "Provided avatar URL must have scheme http or https. Scheme provided was $scheme.",
-            ]);
+        // Resolved from the container because the constructor is public API.
+        $validator = $this->validation->make(['avatar_url' => $url], [
+            'avatar_url' => [
+                'bail',
+                'required',
+                'url',
+                'starts_with:http://,https://',
+                $this->api->getContainer()->make(PublicAddress::class),
+            ],
+        ], [
+            'avatar_url.required' => 'Provided avatar URL must be a valid URI.',
+            'avatar_url.url' => 'Provided avatar URL must be a valid URI.',
+            'avatar_url.starts_with' => "Provided avatar URL must have scheme http or https. Scheme provided was $scheme.",
+            'avatar_url.'.PublicAddress::class => 'Provided avatar URL must point at a public address.',
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException(['avatar_url' => $validator->errors()->first('avatar_url')]);
         }
     }
 
@@ -607,12 +613,9 @@ class UserResource extends AbstractDatabaseResource
             return null;
         }
 
-        // Resolve the host and reject it if it points at a link-local, loopback
-        // or otherwise reserved address (e.g. the cloud metadata endpoint
-        // 169.254.169.254). Private LAN ranges (RFC1918) are intentionally left
-        // reachable so Flarum keeps working behind Docker networks, reverse
-        // proxies and internal CDNs.
-        $ip = $this->resolveToAllowedIp($host);
+        // Checked again: the 2x/3x URLs are never validated, and DNS may have
+        // changed since validation. The address is pinned below.
+        $ip = $this->api->getContainer()->make(OutboundAddressResolver::class)->resolve($host);
 
         if ($ip === null) {
             return null;
@@ -664,44 +667,6 @@ class UserResource extends AbstractDatabaseResource
         }
 
         return $contents;
-    }
-
-    /**
-     * Resolve a hostname (or accept a literal IP) and return the first address
-     * that is safe to connect to, or null if the host is unresolvable or only
-     * resolves to blocked (link-local / loopback / reserved) addresses.
-     */
-    private function resolveToAllowedIp(string $host): ?string
-    {
-        $literal = trim($host, '[]');
-
-        if (filter_var($literal, FILTER_VALIDATE_IP)) {
-            return self::isAllowedIp($literal) ? $literal : null;
-        }
-
-        $ips = array_merge(
-            gethostbynamel($host) ?: [],
-            array_column(@dns_get_record($host, DNS_AAAA) ?: [], 'ipv6')
-        );
-
-        foreach ($ips as $ip) {
-            if (self::isAllowedIp($ip)) {
-                return $ip;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Whether an IP address is safe for Flarum to issue a server-side request
-     * to. Link-local, loopback and other reserved ranges are rejected; private
-     * LAN ranges (RFC1918) are intentionally allowed so internal and Docker
-     * hosts keep working.
-     */
-    private static function isAllowedIp(string $ip): bool
-    {
-        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE) !== false;
     }
 
     /**
