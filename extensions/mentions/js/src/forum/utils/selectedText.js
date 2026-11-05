@@ -20,6 +20,14 @@ export default function selectedText(body) {
         return document.createTextNode(this.getAttribute('href'));
       });
 
+      // A spoiler would otherwise come out of clone.text() as plain text.
+      clone.find('span.spoiler').replaceWith(function () {
+        return document.createTextNode(`>!${this.textContent}!<`);
+      });
+      clone.find('details.spoiler').replaceWith(function () {
+        return document.createTextNode(`>! ${this.textContent.trim().replace(/\n/g, '\n>! ')}\n`);
+      });
+
       // Replace emoji images with their shortcode (found in alt attribute)
       clone.find('img.emoji').replaceWith(function () {
         return this.alt;

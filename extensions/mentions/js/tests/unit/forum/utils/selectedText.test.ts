@@ -128,3 +128,13 @@ describe('selectedText', () => {
     });
   });
 });
+
+describe('spoilers', () => {
+  test('an inline spoiler stays a spoiler', () => {
+    expect(quote('<p>before <span class="spoiler">secret</span> after</p>')).toBe('before >!secret!< after');
+  });
+
+  test('a block spoiler stays a spoiler', () => {
+    expect(quote('<details class="spoiler">one\ntwo</details>')).toBe('>! one\n>! two\n');
+  });
+});
