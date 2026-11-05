@@ -189,7 +189,9 @@ class GroupsSchemaTest extends TestCase
 
         foreach (['1', '2', '3', '4', '100'] as $id) {
             $this->assertTrue($byId[$id]['canEdit'], "group $id");
-            $this->assertTrue($byId[$id]['canDelete'], "group $id");
+            // The admin, guest and member groups are built in: the groups page offers deletion by
+            // canDelete alone.
+            $this->assertSame(! in_array($id, ['1', '2', '3'], true), $byId[$id]['canDelete'], "group $id");
         }
     }
 

@@ -255,9 +255,13 @@ describe('ResourceFormState', () => {
       expect(state.stream('upload')()).toBe(pending);
       expect(state.dirtyKeys()).toEqual(['upload']);
 
-      // The retry updates the created record rather than creating another one.
+      // The retry uploads to the created record, which has nothing else to send, rather than creating another one.
       await expect(state.save()).rejects.toBeInstanceOf(RequestError);
-      expect(request.mock.calls.map((call: any) => call[0].method ?? 'GET')).toEqual(['POST', 'POST', 'PATCH', 'POST']);
+      expect(request.mock.calls.map((call: any) => [call[0].method, call[0].url])).toEqual([
+        ['POST', 'https://example.test/api/things'],
+        ['POST', '/things/2/upload'],
+        ['POST', '/things/2/upload'],
+      ]);
     });
   });
 

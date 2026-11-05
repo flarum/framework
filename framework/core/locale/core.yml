@@ -520,9 +520,11 @@ core:
       fields:
         color: => core.ref.color
         icon: => core.ref.icon
+        icon_image: => core.ref.icon_image
         is_hidden: => core.admin.edit_group.hide_label
         name_plural: Name (plural)
         name_singular: Name (singular)
+      icon_image_text: => core.ref.icon_image_text
       icon_text: => core.ref.icon_text
       label: "{count, plural, one {Group} other {Groups}}"
       title: Groups

@@ -97,6 +97,18 @@
             }
         },
         {
+            "name": "iconImageUrl",
+            "kind": "string",
+            "label": "Icon image url",
+            "nullable": true
+        },
+        {
+            "name": "iconImageSrcset",
+            "kind": "string",
+            "label": "Icon image srcset",
+            "nullable": true
+        },
+        {
             "name": "isHidden",
             "kind": "boolean",
             "label": "Hide on forum",

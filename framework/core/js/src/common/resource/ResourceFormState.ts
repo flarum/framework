@@ -366,8 +366,11 @@ export default class ResourceFormState<M extends Model = Model> {
     this.saving = true;
 
     try {
-      // A new record resolves to the instance the store now holds, not the one that was saved.
-      const saved = (await record.save(data ?? this.buildSaveData(), { errorHandler })) as unknown as M;
+      const payload = data ?? this.buildSaveData();
+      // A record with nothing to send (only `afterSave()` changes) is not saved again. A new record
+      // resolves to the instance the store now holds, not the one that was saved.
+      const saved =
+        this.model?.exists && !Object.keys(payload).length ? this.model : ((await record.save(payload, { errorHandler })) as unknown as M);
 
       this.model = saved;
       this.reset();

@@ -10,6 +10,7 @@ import ResourceDeleteModal from '../../../../src/admin/components/resource/Resou
 import ResourceFormModal from '../../../../src/admin/components/resource/ResourceFormModal';
 import type Group from '../../../../src/common/models/Group';
 import extractText from '../../../../src/common/utils/extractText';
+import RequestError from '../../../../src/common/utils/RequestError';
 import ColumnPreferences from '../../../../src/common/resource/ColumnPreferences';
 import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
 import { awaitTables, bootAdmin, modalClass, schemaDocument } from '../../../unit/common/resource/fixtures';
@@ -100,6 +101,19 @@ describe('GroupListPage', () => {
     request = jest.fn((options: any) => {
       if (options.url.includes('/resource-schemas/')) return Promise.resolve(schemaDocument(groupsDescriptor(), 'groups'));
 
+      if (options.url.endsWith('/icon-image')) {
+        const id = options.url.split('/').at(-2);
+        const uploaded = options.method === 'POST';
+
+        return Promise.resolve({
+          data: {
+            type: 'groups',
+            id,
+            attributes: { iconImageUrl: uploaded ? `https://example.test/icons/${id}.webp` : null, iconImageSrcset: null },
+          },
+        });
+      }
+
       if (options.method === 'POST') {
         return Promise.resolve({ data: groupDoc('20', { canDelete: true, ...options.body.data.attributes }) });
       }
@@ -115,6 +129,8 @@ describe('GroupListPage', () => {
     });
     app.request = request as any;
     app.modal.show = jest.fn() as any;
+    URL.createObjectURL = jest.fn(() => 'blob:preview') as any;
+    URL.revokeObjectURL = jest.fn() as any;
   });
 
   afterEach(() => jest.restoreAllMocks());
@@ -163,23 +179,6 @@ describe('GroupListPage', () => {
     expect(out.find('.ResourceTable-edit').length).toBe(5);
     // Mod and Ninja only (the first delete is Mod's, see below).
     expect(out.find('.ResourceTable-delete').length).toBe(2);
-  });
-
-  test('the Admin group is never offered for deletion, even when the server allows it', async () => {
-    request.mockImplementation((options: any) => {
-      if (options.url.includes('/resource-schemas/')) return Promise.resolve(schemaDocument(groupsDescriptor(), 'groups'));
-
-      return Promise.resolve({ data: groupDocs().map((doc) => ({ ...doc, attributes: { ...doc.attributes, canDelete: true } })), links: {} });
-    });
-
-    const out = await rendered();
-    const adminRow = out.find('tbody tr')[0];
-
-    expect(adminRow.textContent).toContain('Admin');
-    expect(adminRow.querySelector('.ResourceTable-delete')).toBeFalsy();
-    expect(adminRow.querySelector('input.ResourceTable-select').disabled).toBe(true);
-    // Every other group can be deleted.
-    expect(out.find('.ResourceTable-delete').length).toBe(4);
   });
 
   test('rowAbilities.delete offers a bulk delete that confirms in ResourceActionModal; rows without canDelete cannot be selected', async () => {
@@ -311,6 +310,161 @@ describe('GroupListPage', () => {
     await flush();
 
     expect(requests('PATCH')[0].body.data.attributes).toEqual({ color: null });
+  });
+
+  describe('icon images', () => {
+    const file = () => new File(['x'], 'crest.png', { type: 'image/png' });
+
+    function choose(out: any, chosen: File) {
+      const input = out.first('.ResourceForm-field--iconImage input[type=file]');
+
+      Object.defineProperty(input, 'files', { value: [chosen], configurable: true });
+      out.trigger('.ResourceForm-field--iconImage input[type=file]', 'change');
+      out.redraw();
+    }
+
+    async function submit(out: any) {
+      out.trigger('form', 'submit', {} as Event);
+      await flush();
+      await flush();
+      await flush();
+      out.redraw();
+    }
+
+    function iconImageRequests(): any[] {
+      return request.mock.calls.map((call: any) => call[0]).filter((options: any) => options.url.endsWith('/icon-image'));
+    }
+
+    test("the badge column shows a group's icon image in its badge", async () => {
+      request.mockImplementation((options: any) => {
+        if (options.url.includes('/resource-schemas/')) return Promise.resolve(schemaDocument(groupsDescriptor(), 'groups'));
+
+        return Promise.resolve({ data: [groupDoc('4', { icon: 'fas fa-bolt', iconImageUrl: 'https://example.test/icons/4.webp' })], links: {} });
+      });
+
+      const out = await rendered();
+
+      expect(out).toHaveElement('tbody .Badge.Badge--group--4 .IconImage');
+    });
+
+    test('the image URL and srcset are neither inputs nor columns', async () => {
+      const out = await rendered();
+      const headers = out.find('th[data-column-name]').map((th: any) => th.getAttribute('data-column-name'));
+
+      expect(headers).not.toContain('iconImageUrl');
+      expect(headers).not.toContain('iconImageSrcset');
+
+      const { out: form } = await render<ResourceFormModal<Group>>(ResourceFormModal, modalAttrs({ definition: new GroupDefinition(), model: null }));
+
+      expect(form).not.toHaveElement('.ResourceForm-field--iconImageUrl');
+      expect(form).not.toHaveElement('.ResourceForm-field--iconImageSrcset');
+    });
+
+    test('the edit form previews the current image after the icon, and removing it deletes it alone', async () => {
+      request.mockImplementation((options: any) => {
+        if (options.url.includes('/resource-schemas/')) return Promise.resolve(schemaDocument(groupsDescriptor(), 'groups'));
+        if (options.url.endsWith('/icon-image')) return Promise.resolve({ data: { type: 'groups', id: '4', attributes: { iconImageUrl: null } } });
+
+        return Promise.resolve({ data: [groupDoc('4', { iconImageUrl: 'https://example.test/icons/4.webp' })], links: {} });
+      });
+      await rendered();
+
+      const mod = app.store.getById<Group>('groups', '4')!;
+      const { out } = await render<ResourceFormModal<Group>>(ResourceFormModal, modalAttrs({ definition: new GroupDefinition(), model: mod }));
+
+      const keys = out.find('.ResourceForm-field').map((el: any) => el.className.match(/ResourceForm-field--(\w+)/)[1]);
+
+      expect(keys.indexOf('iconImage')).toBe(keys.indexOf('icon') + 1);
+      expect(out.first('.ResourceForm-field--iconImage .IconImageInput-preview').getAttribute('src')).toBe('https://example.test/icons/4.webp');
+      expect(out.first('.Form-controls .Button--primary').disabled).toBe(true);
+
+      out.click('.ResourceForm-field--iconImage .Button--danger');
+      out.redraw();
+      expect(out).not.toHaveElement('.ResourceForm-field--iconImage .IconImageInput-preview');
+      expect(out.first('.Form-controls .Button--primary').disabled).toBe(false);
+
+      await submit(out);
+
+      // Nothing else changed: no PATCH, just the DELETE.
+      expect(requests('PATCH')).toEqual([]);
+      expect(iconImageRequests().map((options) => [options.method, options.url])).toEqual([
+        ['DELETE', 'https://example.test/api/groups/4/icon-image'],
+      ]);
+      expect(mod.iconImageUrl()).toBeNull();
+    });
+
+    test('creating a group uploads the chosen image to the new group once it exists', async () => {
+      const onsaved = jest.fn();
+      const { out, modal } = await render<ResourceFormModal<Group>>(
+        ResourceFormModal,
+        modalAttrs({ definition: new GroupDefinition(), model: null, onsaved })
+      );
+      const chosen = file();
+
+      expect(out).toHaveElement('.ResourceForm-field--iconImage .IconImageInput');
+
+      modal.formState!.stream('nameSingular')('Tester');
+      modal.formState!.stream('namePlural')('Testers');
+      choose(out, chosen);
+
+      expect(out.first('.ResourceForm-field--iconImage .IconImageInput-preview').getAttribute('src')).toBe('blob:preview');
+
+      await submit(out);
+
+      const [create, upload] = requests('POST');
+
+      expect(create.url).toMatch(/\/groups$/);
+      expect(create.body.data.attributes).toEqual({ nameSingular: 'Tester', namePlural: 'Testers' });
+      expect(upload.url).toBe('https://example.test/api/groups/20/icon-image');
+      expect((upload.body as FormData).get('iconImage')).toBe(chosen);
+      expect(onsaved).toHaveBeenCalled();
+      expect(app.store.getById<Group>('groups', '20')!.iconImageUrl()).toBe('https://example.test/icons/20.webp');
+    });
+
+    test('a rejected upload shows under the field and keeps the form open; saving again uploads to the created group', async () => {
+      let reject = true;
+      const fallback = request.getMockImplementation()!;
+
+      request.mockImplementation(async (options: any) => {
+        if (options.url.endsWith('/icon-image') && reject) {
+          reject = false;
+          const error = new RequestError(
+            422,
+            JSON.stringify({ errors: [{ detail: 'The icon image must be an image.', source: { pointer: '/data/attributes/iconImage' } }] }),
+            options,
+            {} as XMLHttpRequest
+          );
+          await options.errorHandler?.(error);
+          throw error;
+        }
+
+        return fallback(options);
+      });
+
+      const onsaved = jest.fn();
+      const { out, modal } = await render<ResourceFormModal<Group>>(
+        ResourceFormModal,
+        modalAttrs({ definition: new GroupDefinition(), model: null, onsaved })
+      );
+
+      modal.formState!.stream('nameSingular')('Tester');
+      modal.formState!.stream('namePlural')('Testers');
+      choose(out, file());
+      await submit(out);
+
+      expect(onsaved).not.toHaveBeenCalled();
+      expect(out.first('.ResourceForm-field--iconImage .ResourceForm-error').textContent).toBe('The icon image must be an image.');
+      expect(out.first('.ResourceForm-field--iconImage .IconImageInput-preview').getAttribute('src')).toBe('blob:preview');
+
+      await submit(out);
+
+      expect(requests('POST').map((options) => options.url)).toEqual([
+        'https://example.test/api/groups',
+        'https://example.test/api/groups/20/icon-image',
+        'https://example.test/api/groups/20/icon-image',
+      ]);
+      expect(onsaved).toHaveBeenCalledTimes(1);
+    });
   });
 
   test('deleting a group removes it from the store', async () => {

@@ -1,6 +1,8 @@
 import app from '../../app';
 import GroupBadge from '../../../common/components/GroupBadge';
-import Group from '../../../common/models/Group';
+import IconImageInput from '../../../common/components/IconImageInput';
+import IconImageState from '../../../common/states/IconImageState';
+import type Group from '../../../common/models/Group';
 import type { ResourceAction } from '../../../common/resource/actions';
 import ResourceDefinition from '../../../common/resource/ResourceDefinition';
 import { patchInput } from '../../../common/resource/field';
@@ -10,8 +12,8 @@ import extractText from '../../../common/utils/extractText';
 
 /**
  * The groups definition (`app.resources.get('groups')`): a badge column in front of the names, help
- * for the icon, and a group named by its singular name. The colour and icon inputs come from the
- * descriptor's `ui.widget`.
+ * for the icon, an icon image after it, and a group named by its singular name. The colour and icon
+ * inputs come from the descriptor's `ui.widget`.
  */
 export default class GroupsDefinition extends ResourceDefinition<Group> {
   constructor(type: string = 'groups') {
@@ -33,24 +35,44 @@ export default class GroupsDefinition extends ResourceDefinition<Group> {
 
     patchInput(fields, 'icon', { help: app.translator.trans('core.admin.groups.icon_text', { a: <a href={app.refs.fontawesome} tabindex="-1" /> }) });
 
+    if (fields.has('icon')) {
+      fields.add('iconImage', this.iconImageField() as Field<Group>, fields.getPriority('icon') - 1);
+    }
+
     return fields;
   }
 
   /**
-   * Delete on the selection too, never for the Admin group: deleting it would leave the forum
-   * without administrators, so it is not offered, as in core's group modal.
+   * An image shown instead of the icon. It has its own endpoint, so it is uploaded (or removed)
+   * once the group is saved, a new group once it has an id, as in core's group modal. Not offered
+   * on a group the actor may not edit (`canEdit`), as its endpoint asks for that ability.
+   */
+  iconImageField(): Field<Group, IconImageState> {
+    return {
+      label: app.translator.trans('core.admin.groups.fields.icon_image'),
+      value: (group) => new IconImageState(group ?? app.store.createRecord<Group>(this.type)),
+      serialize: () => ({}),
+      isChanged: (state) => state.isDirty(),
+      afterSave: (group, state, { errorHandler }) => state.save(group, { errorHandler }),
+      input: ({ stream }) => (
+        <div onremove={() => stream().dispose()}>
+          <div className="helpText">{app.translator.trans('core.admin.groups.icon_image_text')}</div>
+          <IconImageInput state={stream()} />
+        </div>
+      ),
+      when: (group) => !group?.exists || group.attribute<boolean>('canEdit') !== false,
+    };
+  }
+
+  /**
+   * Delete on the selection too. Which groups it applies to is the server's `canDelete`: the
+   * policy never lets anyone delete the admin, guest and member groups.
    */
   resourceActions(): ItemList<ResourceAction<Group>> {
     const items = super.resourceActions();
 
     if (items.has('delete')) {
-      const action = items.get('delete');
-
-      items.setContent('delete', {
-        ...action,
-        scope: 'both',
-        applies: (group: Group) => group.id() !== Group.ADMINISTRATOR_ID && (!action.applies || action.applies(group)),
-      });
+      items.setContent('delete', { ...items.get('delete'), scope: 'both' });
     }
 
     return items;
