@@ -63,7 +63,7 @@
         "illuminate/support": "^13.0",
         "illuminate/validation": "^13.0",
         "illuminate/view": "^13.0",
-        "intervention/image": "^3.2",
+        "intervention/image": "^3.11",
         "jenssegers/agent": "^2.6.4",
         "laminas/laminas-diactoros": "^3.0",
         "laminas/laminas-httphandlerrunner": "^2.6.1",
@@ -150,7 +150,10 @@
         ],
         "test:unit": "phpunit -c tests/phpunit.unit.xml",
         "test:unit:filter": "phpunit -c tests/phpunit.unit.xml --filter",
-        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:integration": [
+            "Composer\\Config::disableProcessTimeout",
+            "phpunit -c tests/phpunit.integration.xml"
+        ],
         "test:integration:filter": "phpunit -c tests/phpunit.integration.xml --filter",
         "test:setup": "@php tests/integration/setup.php"
     },

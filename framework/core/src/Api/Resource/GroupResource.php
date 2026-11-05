@@ -13,6 +13,7 @@ use Flarum\Api\Context as FlarumContext;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
+use Flarum\Foundation\IconImage\IconImageApi;
 use Flarum\Group\Event\Deleting;
 use Flarum\Group\Event\Saving;
 use Flarum\Group\Group;
@@ -60,6 +61,7 @@ class GroupResource extends AbstractDatabaseResource
                 ->can('delete'),
             Endpoint\Show::make(),
             Endpoint\Index::make(),
+            ...IconImageApi::endpoints(),
         ];
     }
 
@@ -105,7 +107,9 @@ class GroupResource extends AbstractDatabaseResource
                 ->description('Font Awesome icon classes for the badge, such as fas fa-bolt, or null.')
                 ->nullable()
                 ->writable($writable)
+                ->deserialize(IconImageApi::withoutImageClasses(...))
                 ->ui(['widget' => 'icon', 'label' => 'core.admin.groups.fields.icon', 'placeholder' => 'fas fa-bolt']),
+            ...IconImageApi::fields(),
             Schema\Boolean::make('isHidden')
                 ->description('Whether the group is hidden from user profiles and lists.')
                 ->writable($writable)

@@ -30,6 +30,9 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class CheckController implements RequestHandlerInterface
 {
+    /** Seconds "Check now" may spend asking, well inside a 30-second limit. */
+    protected const BUDGET = 20;
+
     public function __construct(
         protected TranslatorInterface $translator,
         protected Paths $paths,
@@ -44,8 +47,11 @@ class CheckController implements RequestHandlerInterface
         $check = new UpdateCheck(StorageDir::of($this->paths->storage).'/updates.json', $this->http);
 
         // The same check as the console command, protected repositories
-        // included: see UpdateCheck::refreshSite().
-        $result = $check->refreshSite($this->translator, $this->paths->base);
+        // included: see UpdateCheck::refreshSite(). Within a budget, because
+        // this is a web request: sixty extensions take about ten seconds when
+        // Packagist is well, and a slow Packagist used to run the request
+        // into a PHP or gateway timeout and lose every answer.
+        $result = $check->refreshSite($this->translator, $this->paths->base, static::BUDGET);
 
         if ($result === null) {
             throw new RefusedException($this->translator->trans('flarum-extension-manager.api.check.no_lock'), 'missing_lock_file', 500);

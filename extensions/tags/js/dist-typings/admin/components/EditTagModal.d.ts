@@ -1,4 +1,5 @@
 import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
+import IconImageState from 'flarum/common/states/IconImageState';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 import type Mithril from 'mithril';
@@ -18,10 +19,12 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     description: Stream<string>;
     color: Stream<string>;
     icon: Stream<string>;
+    iconImage: IconImageState;
     isHidden: Stream<boolean>;
     isPrimary: Stream<boolean>;
     defaultSort: Stream<string>;
     oninit(vnode: Mithril.Vnode<EditTagModalAttrs, this>): void;
+    onremove(vnode: Mithril.VnodeDOM<EditTagModalAttrs, this>): void;
     className(): string;
     title(): string | any[] | Mithril.Vnode<import("flarum/common/Component").ComponentAttrs, any>;
     content(): JSX.Element;

@@ -444,7 +444,7 @@ class ExtensionManager
      * @return array{valid: Extension[], missingDependencies: array<string, string[]>, circularDependencies: string[]}
      *      'valid' points to an ordered array of \Flarum\Extension\Extension
      *      'missingDependencies' points to an associative array of extensions that could not be resolved due
-     *          to missing dependencies, in the format extension id => array of missing dependency IDs.
+     *          to missing dependencies, in the format extension id => array of missing or rejected required dependency IDs.
      *      'circularDependencies' points to an array of extensions ids of extensions
      *          that cannot be processed due to circular dependencies
      *
@@ -452,7 +452,7 @@ class ExtensionManager
      */
     public static function resolveExtensionOrder(array $extensionList): array
     {
-        $extensionIdMapping = []; // Used for caching so we don't rerun ->getExtensions every time.
+        $extensionIdMapping = [];
 
         // This is an implementation of Kahn's Algorithm (https://dl.acm.org/doi/10.1145/368996.369025)
         $extensionGraph = [];
@@ -472,8 +472,32 @@ class ExtensionManager
             $extensionIdMapping[$extension->getId()] = $extension;
         }
 
+        // Remove invalid extensions before sorting, including their required dependents.
+        do {
+            $previousCount = count($extensionIdMapping);
+
+            foreach ($extensionIdMapping as $id => $extension) {
+                foreach ($extension->getExtensionDependencyIds() as $dependency) {
+                    if (! array_key_exists($dependency, $extensionIdMapping)) {
+                        unset($extensionIdMapping[$id]);
+                        break;
+                    }
+                }
+            }
+        } while (count($extensionIdMapping) !== $previousCount);
+
         /** @var Extension $extension */
         foreach ($extensionList as $extension) {
+            foreach ($extension->getExtensionDependencyIds() as $dependency) {
+                if (! array_key_exists($dependency, $extensionIdMapping)) {
+                    $missingDependencies[$extension->getId()][] = $dependency;
+                }
+            }
+
+            if (array_key_exists($extension->getId(), $missingDependencies)) {
+                continue;
+            }
+
             $optionalDependencies = array_filter($extension->getOptionalDependencyIds(), function ($id) use ($extensionIdMapping) {
                 return array_key_exists($id, $extensionIdMapping);
             });
@@ -484,7 +508,7 @@ class ExtensionManager
             }
         }
 
-        foreach ($extensionList as $extension) {
+        foreach ($extensionIdMapping as $extension) {
             if (! array_key_exists($extension->getId(), $inDegreeCount)) {
                 $inDegreeCount[$extension->getId()] = 0;
                 $pendingQueue[] = $extension->getId();
@@ -499,26 +523,14 @@ class ExtensionManager
                 $inDegreeCount[$dependency] -= 1;
 
                 if ($inDegreeCount[$dependency] === 0) {
-                    if (! array_key_exists($dependency, $extensionGraph)) {
-                        // Missing Dependency
-                        $missingDependencies[$activeNode] = array_merge(
-                            Arr::get($missingDependencies, $activeNode, []),
-                            [$dependency]
-                        );
-                    } else {
-                        $pendingQueue[] = $dependency;
-                    }
+                    $pendingQueue[] = $dependency;
                 }
             }
         }
 
-        $validOutput = array_filter($output, function ($extension) use ($missingDependencies) {
-            return ! array_key_exists($extension, $missingDependencies);
-        });
-
         $validExtensions = array_reverse(array_map(function ($extensionId) use ($extensionIdMapping) {
             return $extensionIdMapping[$extensionId];
-        }, $validOutput)); // Reversed as required by Kahn's algorithm.
+        }, $output)); // Reversed as required by Kahn's algorithm.
 
         foreach ($inDegreeCount as $id => $count) {
             if ($count !== 0) {
