@@ -3,6 +3,7 @@ import Group from '../../common/models/Group';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
+import IconImageState from '../../common/states/IconImageState';
 export interface IEditGroupModalAttrs extends IFormModalAttrs {
     group?: Group;
 }
@@ -17,7 +18,9 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
     icon: Stream<string>;
     color: Stream<string>;
     isHidden: Stream<boolean>;
+    iconImage: IconImageState;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
+    onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     className(): string;
     title(): JSX.Element;
     content(): JSX.Element;
