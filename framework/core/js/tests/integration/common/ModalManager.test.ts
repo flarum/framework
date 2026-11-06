@@ -3,11 +3,48 @@ import { app } from '../../../src/forum';
 import mq from 'mithril-query';
 import ModalManager from '../../../src/common/components/ModalManager';
 import Modal from '../../../src/common/components/Modal';
+import ModalManagerState from '../../../src/common/states/ModalManagerState';
+import AlertManager from '../../../src/common/components/AlertManager';
 
 beforeAll(() => bootstrapForum());
 
 describe('ModalManager', () => {
   beforeAll(() => app.boot());
+
+  test('a failed lazy modal removes the loading backdrop and shows an error', async () => {
+    const state = new ModalManagerState();
+    const manager = mq(ModalManager, { state });
+    app.alerts.clear();
+    const alerts = mq(AlertManager, { state: app.alerts });
+    const error = new Error('ChunkLoadError');
+    let rejectImport!: (reason: Error) => void;
+    const pending = state.show(
+      () =>
+        new Promise((resolve, reject) => {
+          rejectImport = reject;
+        })
+    );
+
+    manager.redraw();
+    expect(manager).toHaveElement('.Modal-backdrop .LoadingIndicator');
+
+    const rejection = expect(pending).rejects.toBe(error);
+    rejectImport(error);
+    await rejection;
+    manager.redraw();
+    alerts.redraw();
+
+    expect(manager).not.toHaveElement('.Modal-backdrop');
+    expect(manager).not.toHaveElement('.Modal');
+    expect(alerts).toHaveElement('.Alert--error');
+    expect(alerts).toContainRaw('Oops! Something went wrong. Please reload the page and try again.');
+
+    await state.show(MyModal);
+    manager.redraw();
+    expect(manager).toContainRaw('Hello, world!');
+    state.close();
+    app.alerts.clear();
+  });
 
   test('can show and close a modal', () => {
     const manager = mq(ModalManager, { state: app.modal });
