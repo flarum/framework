@@ -69,7 +69,15 @@ class FeatureGateway implements StepTextGateway
         $options = $this->options($options);
 
         return $this->withFallback($model, fn (string $model) => $this->gateway->generateTextStep(
-            $provider, $model, $instructions, $messages, $tools, $schema, $options, $timeout, $stepContext
+            $provider,
+            $model,
+            $instructions,
+            $messages,
+            $tools,
+            $schema,
+            $options,
+            $timeout,
+            $stepContext
         ));
     }
 

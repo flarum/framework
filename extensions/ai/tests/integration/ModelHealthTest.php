@@ -358,9 +358,9 @@ class ModelHealthTest extends ConsoleTestCase
         $this->enableAiFeature(self::SUMMARIES, ['connection' => 'claude', 'model' => 'claude-alias']);
         $health = $this->health();
 
-        $this->answer = fn (Request $request) => (str_contains($request->url(), 'ollama.test')
+        $this->answer = fn (Request $request) => str_contains($request->url(), 'ollama.test')
             ? Http::response(['models' => [['name' => 'llama3.2:latest']]])
-            : Http::response(['data' => [['id' => 'claude-alias-20261001', 'deprecated_at' => null, 'retires_at' => null]], 'has_more' => false]));
+            : Http::response(['data' => [['id' => 'claude-alias-20261001', 'deprecated_at' => null, 'retires_at' => null]], 'has_more' => false]);
 
         $this->assertSame([], $health->check()['issues']);
     }

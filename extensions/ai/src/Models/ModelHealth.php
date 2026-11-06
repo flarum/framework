@@ -202,7 +202,7 @@ class ModelHealth
     public function recordFailure(string $connection, string $model): void
     {
         // Every call to a model that's gone fails: only the first needs the lock.
-        if ((($this->decode($this->settings->get(self::SETTING)))[$connection][$model]['status'] ?? null) === 'failed') {
+        if (($this->decode($this->settings->get(self::SETTING))[$connection][$model]['status'] ?? null) === 'failed') {
             return;
         }
 
