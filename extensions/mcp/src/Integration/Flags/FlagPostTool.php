@@ -41,11 +41,6 @@ class FlagPostTool extends Tool
             .'Moderators see who flagged it. Confirm the post and the reason with the user first.';
     }
 
-    public function destructive(): bool
-    {
-        return false;
-    }
-
     public function readOnly(): bool
     {
         return false;

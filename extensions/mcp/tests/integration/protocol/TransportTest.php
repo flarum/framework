@@ -153,11 +153,11 @@ class TransportTest extends McpTestCase
 
         $tools = array_column($this->rpcResult($this->modern('tools/list', [], $this->bearer($this->developerToken(2))))['tools'], null, 'name');
 
-        foreach (['edit_post', 'update_resource', 'unlike_post', 'rename_conversation'] as $name) {
+        foreach (['edit_post', 'update_resource', 'unlike_post', 'rename_conversation', 'create_resource', 'flag_post'] as $name) {
             $this->assertTrue($tools[$name]['annotations']['destructiveHint'], $name);
         }
 
-        foreach (['start_discussion', 'reply_to_discussion', 'create_resource', 'search_discussions', 'like_post', 'send_message', 'flag_post'] as $name) {
+        foreach (['start_discussion', 'reply_to_discussion', 'search_discussions', 'like_post', 'send_message'] as $name) {
             $this->assertFalse($tools[$name]['annotations']['destructiveHint'], $name);
         }
     }
