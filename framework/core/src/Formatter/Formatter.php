@@ -9,6 +9,8 @@
 
 namespace Flarum\Formatter;
 
+use Flarum\Discussion\Discussion;
+use Flarum\Http\RequestUtil;
 use Flarum\Forum\Branding\Branding;
 use Flarum\Foundation\Config;
 use Flarum\User\User;
@@ -126,6 +128,7 @@ class Formatter
             $xml = $callback($renderer, $context, $xml, $request);
         }
 
+        $xml = $this->configureDiscussionTitles($xml, $request);
         $xml = $this->configureDefaultsOnLinks($xml);
 
         return $renderer->render($xml);
@@ -246,6 +249,7 @@ class Formatter
         // Only set when the URL turned out to be a discussion on this forum,
         // which is decided per render rather than when the post was written.
         $tag->attributes->add('discussionid')->required = false;
+        $tag->attributes->add('discussiontitle')->required = false;
         $tag->attributes->add('postnumber')->required = false;
         $tag->attributes->add('faviconurl')->required = false;
 
@@ -279,7 +283,12 @@ class Formatter
                 // only repeat it.
                 .'<img src="{@faviconurl}" class="UrlLink-favicon" alt="" aria-hidden="true"/>'
             .'</xsl:if>'
-            .'<span class="UrlLink-discussion">#<xsl:value-of select="@discussionid"/></span>'
+            .'<span class="UrlLink-discussion">'
+                .'<xsl:choose>'
+                    .'<xsl:when test="@discussiontitle"><xsl:attribute name="title"><xsl:value-of select="@discussiontitle"/></xsl:attribute><xsl:value-of select="@discussiontitle"/></xsl:when>'
+                    .'<xsl:otherwise>#<xsl:value-of select="@discussionid"/></xsl:otherwise>'
+                .'</xsl:choose>'
+            .'</span>'
             .'<xsl:if test="@postnumber">'
                 .'<span class="UrlLink-post">'
                     .'<i class="icon fas fa-comment UrlLink-postIcon" aria-hidden="true"></i>'
@@ -335,6 +344,44 @@ class Formatter
     public function getJs(): string
     {
         return $this->getComponent('js');
+    }
+
+    /**
+     * Resolve titles per render: the formatter can outlive the viewing actor.
+     * Requestless renders, including email views, may only expose public titles.
+     */
+    protected function configureDiscussionTitles(string $xml, ?ServerRequestInterface $request): string
+    {
+        $ids = [];
+
+        Utils::replaceAttributes($xml, 'URL', function (array $attributes) use (&$ids) {
+            $url = $attributes['url'] ?? '';
+
+            if ($this->isInternalUrl($url) && ($discussion = $this->parseDiscussionUrl($url))) {
+                $ids[] = $discussion['id'];
+            }
+
+            return $attributes;
+        });
+
+        if (! $ids) {
+            return $xml;
+        }
+
+        $actor = $request ? RequestUtil::getActor($request) : new \Flarum\User\Guest;
+        $titles = Discussion::whereVisibleTo($actor)->whereIn('id', array_unique($ids))->pluck('title', 'id');
+
+        return Utils::replaceAttributes($xml, 'URL', function (array $attributes) use ($titles) {
+            $url = $attributes['url'] ?? '';
+
+            if ($this->isInternalUrl($url) && ($discussion = $this->parseDiscussionUrl($url))) {
+                if (isset($titles[$discussion['id']])) {
+                    $attributes['discussiontitle'] ??= $titles[$discussion['id']];
+                }
+            }
+
+            return $attributes;
+        });
     }
 
     /**

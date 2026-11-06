@@ -49,6 +49,19 @@ class InternalLinksTest extends TestCase
     }
 
     #[Test]
+    public function a_visible_discussion_link_shows_its_title_without_a_request()
+    {
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => 'A title & more', 'slug' => 'a-title', 'created_at' => '2026-01-01 00:00:00'],
+        ]]);
+
+        $html = $this->render('http://flarum.localhost/d/123-a-title/4');
+
+        $this->assertStringContainsString('>A title &amp; more</span>', $html);
+        $this->assertStringContainsString('>4<', $html);
+    }
+
+    #[Test]
     public function a_link_to_another_site_is_not_followed()
     {
         $html = $this->render('https://example.com/some-page');
