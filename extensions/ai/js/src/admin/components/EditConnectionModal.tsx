@@ -270,8 +270,8 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
       !!this.attrs.listedAs &&
       !!saved &&
       this.driver() === saved.driver &&
-      normaliseUrl(this.url()) === normaliseUrl(saved.url) &&
-      this.region().trim() === (saved.region || '') &&
+      // Only the field the provider uses counts, whatever was typed in the other.
+      (this.byRegion() ? this.region().trim() === (saved.region || '') : normaliseUrl(this.url()) === normaliseUrl(saved.url)) &&
       !this.key().trim() &&
       !this.removeKey
     );

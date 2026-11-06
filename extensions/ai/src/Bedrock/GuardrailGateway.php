@@ -24,8 +24,8 @@ use Laravel\Ai\Gateway\TextGenerationOptions;
  * policy, not the agent's. Embeddings, images and reranking aren't guarded:
  * Bedrock applies guardrails to Converse calls.
  *
- * The trace is turned on, so Bedrock says why it stepped in.
- * {@see \Flarum\Ai\ContentFilter} tells whether it did.
+ * {@see \Flarum\Ai\ContentFilter} tells whether it stepped in. Why it did is
+ * in Bedrock's trace, which laravel/ai doesn't keep, so it isn't asked for.
  *
  * @internal
  */
@@ -78,7 +78,6 @@ class GuardrailGateway implements StepTextGateway
                 'guardrailConfig' => [
                     'guardrailIdentifier' => $this->guardrail,
                     'guardrailVersion' => $this->version,
-                    'trace' => 'enabled',
                 ],
             ],
         ]);

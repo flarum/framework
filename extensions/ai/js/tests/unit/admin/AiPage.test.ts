@@ -193,19 +193,34 @@ describe('the Features tab', () => {
   });
 
   it("says when a feature's temperature is left out, as its model refuses one", () => {
-    (app.data as any)['flarum-ai'].temperatureIgnored = [{ connection: 'claude', model: 'claude-new' }];
+    (app.data as any)['flarum-ai'].temperatureIgnored = [{ feature: 'acme.thing', connection: 'claude', model: 'claude-new' }];
+    (app.data as any)['flarum-ai'].defaultModels = { claude: 'claude-new' };
 
     const ai = page();
     ai.setting('flarum-ai.default_connection')('claude');
 
-    expect(ai.temperatureIgnored({ model: 'claude-new', temperature: 0.3 })).toBe(true);
-    expect(ai.temperatureIgnored({ model: 'claude-other', temperature: 0.3 })).toBe(false);
-    expect(ai.temperatureIgnored({ model: 'claude-new' })).toBe(false);
+    expect(ai.temperatureIgnored('acme.thing', { model: 'claude-new', temperature: 0.3 })).toBe(true);
+    expect(ai.temperatureIgnored('acme.thing', { model: 'claude-other', temperature: 0.3 })).toBe(false);
+    expect(ai.temperatureIgnored('acme.thing', { model: 'claude-new' })).toBe(false);
+    expect(ai.temperatureIgnored('acme.other', { model: 'claude-new', temperature: 0.3 })).toBe(false);
+    // The connection's default, when the feature names no model.
+    expect(ai.temperatureIgnored('acme.thing', { temperature: 0.3 })).toBe(true);
+  });
+
+  it('offers a connection changed on the page only once it is saved, region and all', () => {
+    app.data.settings['flarum-ai.connections'] = '{"aws":{"driver":"bedrock","region":"eu-central-1"}}';
+
+    const ai = page();
+
+    expect(ai.savedConnection('aws')).toBe('aws');
+
+    ai.connections.aws = { driver: 'bedrock', region: 'us-east-1' };
+    expect(ai.savedConnection('aws')).toBeNull();
   });
 
   it("shows the note on the feature's temperature field", () => {
     (app.data as any)['flarum-ai'].features = [feature];
-    (app.data as any)['flarum-ai'].temperatureIgnored = [{ connection: 'claude', model: 'claude-new' }];
+    (app.data as any)['flarum-ai'].temperatureIgnored = [{ feature: 'acme.thing', connection: 'claude', model: 'claude-new' }];
 
     const ai = page();
     ai.setting('flarum-ai.default_connection')('claude');

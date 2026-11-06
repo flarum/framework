@@ -132,6 +132,18 @@ describe('a Bedrock connection', () => {
     expect(saved).toEqual(['aws', { driver: 'bedrock', region: 'eu-central-1', guardrail_id: 'gr1', key: 'ABSKkey' }]);
   });
 
+  it('keeps listing its models after a look at another provider and back', () => {
+    const form = modal({ name: 'aws', listedAs: 'aws', lists: {}, connection: { driver: 'bedrock', region: 'eu-central-1', hasKey: true } });
+
+    expect(form.listsSavedModels()).toBe(true);
+
+    form.driver('anthropic');
+    form.url('https://typed.test');
+    form.driver('bedrock');
+
+    expect(form.listsSavedModels()).toBe(true);
+  });
+
   it('only counts a saved key while the region is the same', () => {
     const form = modal({ name: 'aws', connection: { driver: 'bedrock', region: 'eu-central-1', hasKey: true } });
 

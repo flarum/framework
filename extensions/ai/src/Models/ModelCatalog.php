@@ -51,7 +51,12 @@ class ModelCatalog
             return ['models' => null, 'checkedAt' => CarbonImmutable::now('UTC')->toIso8601String()];
         }
 
-        $provider = $this->provider($connection);
+        try {
+            $provider = $this->provider($connection);
+        } catch (Throwable $e) {
+            throw new ModelsUnavailableException($connection, $e);
+        }
+
         $cacheKey = $this->cacheKey($connection, $provider);
 
         if (! $refresh && is_array($cached = $this->cache->get($cacheKey))) {

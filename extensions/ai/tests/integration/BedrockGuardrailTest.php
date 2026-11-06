@@ -46,6 +46,8 @@ class BedrockGuardrailTest extends TestCase
 
         $this->extension('flarum-ai');
         $this->extend((new AiExtender())->feature('test-ext.writer', 'test-ext.writer_label'));
+        // Keyless connections, which never reach AWS here.
+        $this->config('ai.bedrock_server_credentials', true);
 
         $this->setting('flarum-ai.connections', json_encode([
             'aws' => ['driver' => 'bedrock', 'region' => 'eu-central-1', 'guardrail_id' => 'gr-abc', 'guardrail_version' => '3'],
@@ -71,7 +73,7 @@ class BedrockGuardrailTest extends TestCase
         return $this->gateway->options;
     }
 
-    protected const GUARDRAIL = ['guardrailIdentifier' => 'gr-abc', 'guardrailVersion' => '3', 'trace' => 'enabled'];
+    protected const GUARDRAIL = ['guardrailIdentifier' => 'gr-abc', 'guardrailVersion' => '3'];
 
     #[Test]
     public function every_call_through_the_connection_is_guarded(): void

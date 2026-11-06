@@ -53,7 +53,11 @@ export function findModel(models: ProviderModel[], id: string): ProviderModel | 
  * loaded, or the provider can't be asked.
  */
 export function modelStatus(models: ProviderModel[] | null | undefined, id: string): ModelStatus {
-  if (!models) return 'unknown';
+  // Bedrock takes ARNs for things it doesn't list: application inference
+  // profiles, provisioned throughput and custom or imported models.
+  const unlisted = id.startsWith('arn:') && !/^arn:aws[a-z-]*:bedrock:[^:]*:[^:]*:(?:foundation-model|inference-profile)\//.test(id);
+
+  if (!models || unlisted) return 'unknown';
 
   const model = findModel(models, id);
 

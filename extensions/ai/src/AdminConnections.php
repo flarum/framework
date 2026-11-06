@@ -78,7 +78,8 @@ class AdminConnections
                 'model' => is_string($connection['model'] ?? null) && $connection['model'] !== '' ? $connection['model'] : null,
                 'monthly_tokens' => is_int($connection['monthly_tokens'] ?? null) && $connection['monthly_tokens'] > 0 ? $connection['monthly_tokens'] : null,
                 'guardrail_id' => is_string($connection['guardrail_id'] ?? null) && $connection['guardrail_id'] !== '' ? $connection['guardrail_id'] : null,
-                'guardrail_version' => is_string($connection['guardrail_version'] ?? null) && $connection['guardrail_version'] !== '' ? $connection['guardrail_version'] : null,
+                // config.php may give the version as a number.
+                'guardrail_version' => (is_string($connection['guardrail_version'] ?? null) && $connection['guardrail_version'] !== '') || is_int($connection['guardrail_version'] ?? null) ? (string) $connection['guardrail_version'] : null,
             ]) + ['hasKey' => $withKeys === null
                 ? is_string($connection['key'] ?? null) && $connection['key'] !== ''
                 : in_array($name, $withKeys, true)];
@@ -159,6 +160,8 @@ class AdminConnections
 
             if (array_key_exists('key', $connection)) {
                 $key = is_string($connection['key']) ? trim($connection['key']) : '';
+                // laravel/ai drops a key PHP thinks is empty, so it's no key.
+                $key = $key === '0' ? '' : $key;
                 $keyChanges[$name] = $key === '' ? null : $key;
                 $hasKey = $key !== '';
             } elseif ($this->sameTarget($previous[$name] ?? null, $driver, $url, $region)) {

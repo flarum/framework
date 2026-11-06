@@ -161,6 +161,10 @@ class ModelHealth
             }
 
             foreach (array_keys($models) as $model) {
+                if (! self::checkable((string) $model)) {
+                    continue;
+                }
+
                 $match = self::match($listed, (string) $model);
 
                 $found[$connection][(string) $model] = match (true) {
@@ -300,9 +304,9 @@ class ModelHealth
      *
      * - over HTTP, a 404 that names it, as a whole name, not part of a longer
      *   one. A 404 that doesn't, such as from a wrong API URL, isn't;
-     * - from Bedrock, a ResourceNotFoundException or ValidationException about
-     *   the model: one that names it, calls its identifier invalid, or says
-     *   it reached the end of its life. Bedrock uses the same errors for
+     * - from Bedrock, a ResourceNotFoundException that names the model, or one
+     *   or a ValidationException that calls its identifier invalid or says it
+     *   reached the end of its life. Bedrock uses the same errors for
      *   other things, such as a guardrail that doesn't exist, and doesn't
      *   document what a retired model's says, so a retired model it words
      *   otherwise is left to the daily check, which reads Bedrock's lifecycle.
@@ -317,12 +321,28 @@ class ModelHealth
             if ($e instanceof AwsException) {
                 $message = $e->getAwsErrorMessage() ?? $e->getMessage();
 
-                return in_array($e->getAwsErrorCode(), ['ResourceNotFoundException', 'ValidationException'], true)
-                    && (self::names($message, $model) || preg_match('/model identifier|end of (its )?life/i', $message));
+                return match ($e->getAwsErrorCode()) {
+                    'ResourceNotFoundException' => self::names($message, $model) || (bool) preg_match('/model identifier|end of (its )?life/i', $message),
+                    // Also used for a model called the wrong way, such as
+                    // without the inference profile it needs, which names it.
+                    'ValidationException' => (bool) preg_match('/model identifier|end of (its )?life/i', $message),
+                    default => false,
+                };
             }
         }
 
         return false;
+    }
+
+    /**
+     * Whether a model can be checked against its provider's list. Bedrock
+     * takes ARNs for things it doesn't list: application inference profiles,
+     * provisioned throughput and custom or imported models.
+     */
+    public static function checkable(string $model): bool
+    {
+        return ! str_starts_with($model, 'arn:')
+            || (bool) preg_match('#^arn:aws[a-z-]*:bedrock:[^:]*:[^:]*:(?:foundation-model|inference-profile)/#', $model);
     }
 
     /**

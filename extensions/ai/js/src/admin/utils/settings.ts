@@ -58,7 +58,9 @@ export interface AiPayload {
   /** Whether the AWS SDK Bedrock needs is installed. */
   awsSdk: boolean;
   /** Models a feature's temperature is left out for, as they refuse one. */
-  temperatureIgnored: { connection: string; model: string }[];
+  temperatureIgnored: { feature: string; connection: string; model: string }[];
+  /** The model each connection uses when a feature names none. */
+  defaultModels: Record<string, string>;
   lockedConnections: Connections;
   lockedDefault: string | null;
   features: FeatureInfo[];

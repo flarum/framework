@@ -199,7 +199,25 @@ class FeatureOptionsTest extends TestCase
         $this->assertSame([true, false, false], Http::recorded()->map(fn ($pair) => array_key_exists('temperature', $pair[0]->data()))->all());
 
         $page = (string) $this->send($this->request('GET', '/admin', ['authenticatedAs' => 1]))->getBody();
-        $this->assertStringContainsString('"temperatureIgnored":[{"connection":"claude","model":"claude-new"}]', $page);
+        $this->assertStringContainsString('"temperatureIgnored":[{"feature":"test-ext.writer","connection":"claude","model":"claude-new"}]', $page);
+    }
+
+    #[Test]
+    public function a_refusal_is_remembered_for_the_feature_it_came_from(): void
+    {
+        // A model can refuse a temperature only for some calls, such as ones
+        // that think first, so another feature's calls still send theirs.
+        $this->extend((new AiExtender())->feature('test-ext.other', 'test-ext.other_label'));
+        $this->enableAiFeature(self::FEATURE, ['model' => 'claude-new', 'temperature' => 0.3]);
+        $this->enableAiFeature('test-ext.other', ['model' => 'claude-new', 'temperature' => 0.5]);
+        $ai = $this->app()->getContainer()->make(Ai::class);
+        $this->fakeModelWithoutTemperature();
+
+        $ai->feature(self::FEATURE)->asSystem()->prompt(agent('Be brief'), 'Hello');
+        $ai->feature('test-ext.other')->asSystem()->prompt(agent('Be brief'), 'Hello');
+
+        // The other feature sends its temperature, and learns for itself.
+        $this->assertSame([true, false, true, false], Http::recorded()->map(fn ($pair) => array_key_exists('temperature', $pair[0]->data()))->all());
     }
 
     #[Test]

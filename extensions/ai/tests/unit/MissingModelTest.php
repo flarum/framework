@@ -49,6 +49,18 @@ class MissingModelTest extends TestCase
         $this->assertFalse(ModelHealth::isMissingModel($this->bedrockError('ResourceNotFoundException', 404, 'Model use case details have not been submitted for this account.'), 'eu.anthropic.claude-x'));
         $this->assertFalse(ModelHealth::isMissingModel($this->bedrockError('ResourceNotFoundException', 404, 'The guardrail gr1 was not found.'), 'eu.anthropic.claude-x'));
         $this->assertFalse(ModelHealth::isMissingModel($this->bedrockError('ResourceNotFoundException', 404, 'The specified resource ARN was not found.'), 'eu.anthropic.claude-x'));
+        $this->assertFalse(ModelHealth::isMissingModel($this->bedrockError('ValidationException', 400, "Invocation of model ID anthropic.claude-x with on-demand throughput isn't supported. Retry your request with the ID or ARN of an inference profile that contains this model."), 'anthropic.claude-x'));
+    }
+
+    #[Test]
+    public function only_models_bedrock_lists_can_be_checked(): void
+    {
+        $this->assertTrue(ModelHealth::checkable('eu.anthropic.claude-x'));
+        $this->assertTrue(ModelHealth::checkable('arn:aws:bedrock:eu-central-1::foundation-model/anthropic.claude-x-v1:0'));
+        $this->assertTrue(ModelHealth::checkable('arn:aws:bedrock:eu-central-1:123456789012:inference-profile/eu.anthropic.claude-x-v1:0'));
+        $this->assertFalse(ModelHealth::checkable('arn:aws:bedrock:eu-central-1:123456789012:application-inference-profile/abc123'));
+        $this->assertFalse(ModelHealth::checkable('arn:aws:bedrock:eu-central-1:123456789012:provisioned-model/abc123'));
+        $this->assertFalse(ModelHealth::checkable('arn:aws:bedrock:eu-central-1:123456789012:custom-model/abc123'));
     }
 
     #[Test]

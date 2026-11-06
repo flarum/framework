@@ -57,7 +57,8 @@ class FeatureGateway implements StepTextGateway
         protected Closure $onMissingModel,
         protected Closure $onStep,
         protected string $connection,
-        protected TemperatureSupport $temperatures
+        protected TemperatureSupport $temperatures,
+        protected string $feature
     ) {
     }
 
@@ -169,7 +170,7 @@ class FeatureGateway implements StepTextGateway
      */
     protected function withTemperature(string $model, ?TextGenerationOptions $options, Closure $send): mixed
     {
-        $known = $this->temperatures->refused($this->connection, $model);
+        $known = $this->temperatures->refused($this->feature, $this->connection, $model);
         $sent = $this->options($options, $known);
 
         try {
@@ -181,7 +182,7 @@ class FeatureGateway implements StepTextGateway
                 throw $e;
             }
 
-            $this->quietly(fn () => $this->temperatures->remember($this->connection, $model), $model);
+            $this->quietly(fn () => $this->temperatures->remember($this->feature, $this->connection, $model), $model);
 
             return $send($this->options($options, true));
         }

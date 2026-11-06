@@ -9,6 +9,7 @@
 
 namespace Flarum\Ai\Tests\integration;
 
+use Flarum\Ai\Exception\NotConfiguredException;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Laravel\Ai\AiManager;
@@ -96,12 +97,55 @@ class BedrockConnectionsTest extends TestCase
     }
 
     #[Test]
-    public function a_connection_saved_without_a_key_doesnt_use_them_unless_config_php_says(): void
+    public function a_connection_saved_without_a_key_isnt_built_unless_config_php_says(): void
+    {
+        // The AWS SDK looks for the server's credentials, and its Bedrock API
+        // key in AWS_BEARER_TOKEN_BEDROCK, whenever it's given none.
+        $this->setting('flarum-ai.connections', json_encode(['aws' => ['driver' => 'bedrock', 'region' => 'us-east-1']]));
+
+        $this->expectException(NotConfiguredException::class);
+
+        $this->app()->getContainer()->make(AiManager::class)->instance('aws');
+    }
+
+    #[Test]
+    public function a_key_laravel_ai_would_drop_counts_as_none(): void
+    {
+        $this->assertSame(422, $this->save(['aws' => ['driver' => 'bedrock', 'region' => 'us-east-1', 'key' => '0']]));
+    }
+
+    #[Test]
+    public function a_stored_key_laravel_ai_would_drop_counts_as_none(): void
     {
         $this->setting('flarum-ai.connections', json_encode(['aws' => ['driver' => 'bedrock', 'region' => 'us-east-1']]));
+        $this->prepareDatabase(['ai_connection_keys' => [['connection' => 'aws', 'key' => '0', 'updated_at' => date('Y-m-d H:i:s')]]]);
+
+        $this->expectException(NotConfiguredException::class);
+
+        $this->app()->getContainer()->make(AiManager::class)->instance('aws');
+    }
+
+    #[Test]
+    public function with_a_key_the_servers_credentials_are_never_reached_for(): void
+    {
+        $this->setting('flarum-ai.connections', json_encode(['aws' => ['driver' => 'bedrock', 'region' => 'us-east-1']]));
+        $this->prepareDatabase(['ai_connection_keys' => [['connection' => 'aws', 'key' => self::KEY, 'updated_at' => date('Y-m-d H:i:s')]]]);
+
         $provider = $this->app()->getContainer()->make(AiManager::class)->instance('aws');
 
         $this->assertFalse($provider->additionalConfiguration()['use_default_credential_provider']);
+    }
+
+    #[Test]
+    public function a_config_php_guardrail_version_given_as_a_number_is_shown(): void
+    {
+        $this->config('ai.connections.host', ['driver' => 'bedrock', 'region' => 'us-east-1', 'guardrail_id' => 'gr1', 'guardrail_version' => 3]);
+
+        $page = (string) $this->send($this->request('GET', '/admin', ['authenticatedAs' => 1]))->getBody();
+        preg_match('/<script id="flarum-json-payload" type="application\/json">(.+?)<\/script>/s', $page, $matches);
+        $payload = json_decode(html_entity_decode($matches[1]), true)['flarum-ai'];
+
+        $this->assertSame('3', $payload['lockedConnections']['host']['guardrail_version']);
     }
 
     #[Test]
@@ -173,5 +217,6 @@ class BedrockConnectionsTest extends TestCase
         $this->assertNotContains('bedrock', $payload['keyOptional']);
         $this->assertSame(['bedrock'], $payload['regionRequired']);
         $this->assertTrue($payload['awsSdk']);
+        $this->assertSame([], $payload['defaultModels']);
     }
 }

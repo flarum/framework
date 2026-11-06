@@ -26,7 +26,7 @@
         "symfony/uid": "^7.4 || ^8.0"
     },
     "suggest": {
-        "aws/aws-sdk-php": "Required to use Amazon Bedrock connections (^3.356)."
+        "aws/aws-sdk-php": "Required to use Amazon Bedrock connections (^3.369.1)."
     },
     "autoload": {
         "psr-4": {
@@ -89,7 +89,7 @@
     },
     "require-dev": {
         "flarum/testing": "^2.1",
-        "aws/aws-sdk-php": "^3.356"
+        "aws/aws-sdk-php": "^3.369.1"
     },
     "repositories": [
         {

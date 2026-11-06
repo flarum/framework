@@ -10,6 +10,7 @@
 namespace Flarum\Ai;
 
 use Flarum\Ai\Bedrock\GuardrailGateway;
+use Flarum\Ai\Exception\NotConfiguredException;
 use Flarum\Ai\Features\FeatureGateway;
 use Flarum\Ai\Features\FeatureSettings;
 use Flarum\Ai\Models\ModelHealth;
@@ -47,9 +48,15 @@ class AiManager extends BaseAiManager
             // still read it.
             $config['key'] = $this->app->make(ConnectionKeys::class)->get((string) $name);
 
-            // Without one, Bedrock would use the server's own AWS credentials,
-            // which only config.php can lend to the admin's connections.
-            if (($config['driver'] ?? null) === 'bedrock' && $config['key'] === null && ! $aiConfig->bedrockServerCredentials()) {
+            // Given no usable key, the AWS SDK reaches for the server's own
+            // credentials, and its Bedrock API key in AWS_BEARER_TOKEN_BEDROCK,
+            // which only config.php can lend to the admin's connections. A key
+            // laravel/ai would drop, such as "0", is no key.
+            if (($config['driver'] ?? null) === 'bedrock' && ! $aiConfig->bedrockServerCredentials()) {
+                if (empty($config['key'])) {
+                    throw NotConfiguredException::bedrockKey((string) $name);
+                }
+
                 $config['use_default_credential_provider'] = false;
             }
         }
@@ -95,7 +102,8 @@ class AiManager extends BaseAiManager
             fn (string $model) => $health->recordFailure($provider->name(), $model),
             fn (string $model) => $health->observe($context->feature, $provider->name(), $model, $defaultModel()),
             $provider->name(),
-            $this->app->make(TemperatureSupport::class)
+            $this->app->make(TemperatureSupport::class),
+            $context->feature
         ));
     }
 

@@ -15,6 +15,7 @@ use Flarum\Ai\ConnectionKeys;
 use Flarum\Ai\Drivers;
 use Flarum\Ai\Features\Feature;
 use Flarum\Ai\Features\FeatureRegistry;
+use Flarum\Ai\Models\ModelCatalog;
 use Flarum\Ai\Models\ModelHealth;
 use Flarum\Ai\Models\TemperatureSupport;
 use Flarum\Frontend\Document;
@@ -36,7 +37,8 @@ class AdminPayload
         protected AiConfig $config,
         protected FeatureRegistry $features,
         protected ModelHealth $health,
-        protected TemperatureSupport $temperatures
+        protected TemperatureSupport $temperatures,
+        protected ModelCatalog $catalog
     ) {
     }
 
@@ -63,6 +65,11 @@ class AdminPayload
             'modelIssues' => $this->health->forAdmin(),
             // Models a feature's temperature is left out for, as they refuse one.
             'temperatureIgnored' => $this->temperatures->all(),
+            // The model each connection uses when a feature names none.
+            'defaultModels' => array_filter(array_map(
+                fn (string $name) => $this->catalog->defaultModel($name),
+                array_combine($names = array_keys($this->config->connections()), $names)
+            )),
             'rules' => [
                 'namePattern' => AdminConnections::NAME_PATTERN,
                 'modelMaxLength' => AdminConnections::MODEL_MAX_LENGTH,

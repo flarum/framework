@@ -15,9 +15,10 @@ use Illuminate\Http\Client\RequestException;
 use Throwable;
 
 /**
- * The models that refuse a temperature, as current Claude models do, learnt
- * from the first call that sent one. A feature's temperature is then left out
- * of its calls to them. Kept in the cache: if it's cleared, the next such
+ * The models that refuse a feature's temperature, as current Claude models
+ * do, learnt from the first of its calls that sent one. Its temperature is
+ * then left out of its calls to them. Kept for each feature: a model can
+ * refuse one only for some calls, such as ones that think first. Kept in the cache: if it's cleared, the next such
  * call learns it again, at the cost of one refused request.
  *
  * @internal
@@ -31,26 +32,26 @@ class TemperatureSupport
     ) {
     }
 
-    public function refused(string $connection, string $model): bool
+    public function refused(string $feature, string $connection, string $model): bool
     {
-        return in_array(['connection' => $connection, 'model' => $model], $this->all(), true);
+        return in_array(['feature' => $feature, 'connection' => $connection, 'model' => $model], $this->all(), true);
     }
 
-    public function remember(string $connection, string $model): void
+    public function remember(string $feature, string $connection, string $model): void
     {
-        if (! $this->refused($connection, $model)) {
-            $this->cache->forever(self::CACHE_KEY, [...$this->all(), ['connection' => $connection, 'model' => $model]]);
+        if (! $this->refused($feature, $connection, $model)) {
+            $this->cache->forever(self::CACHE_KEY, [...$this->all(), ['feature' => $feature, 'connection' => $connection, 'model' => $model]]);
         }
     }
 
     /**
-     * @return list<array{connection: string, model: string}>
+     * @return list<array{feature: string, connection: string, model: string}>
      */
     public function all(): array
     {
         $models = $this->cache->get(self::CACHE_KEY);
 
-        return is_array($models) ? array_values(array_filter($models, fn ($entry) => is_array($entry) && isset($entry['connection'], $entry['model']))) : [];
+        return is_array($models) ? array_values(array_filter($models, fn ($entry) => is_array($entry) && isset($entry['feature'], $entry['connection'], $entry['model']))) : [];
     }
 
     /**

@@ -366,15 +366,15 @@ export default class AiPage extends ExtensionPage {
    * Whether the admin's temperature for a feature is left out of its calls,
    * as its model refuses one. Known once a call has been refused.
    */
-  temperatureIgnored(settings: FeatureSettings): boolean {
+  temperatureIgnored(key: string, settings: FeatureSettings): boolean {
     const connection = this.featureConnection(settings);
-    const model = settings.model || (connection ? this.connectionModel(connection) : null);
+    const model = settings.model || (connection ? this.connectionModel(connection) || aiPayload().defaultModels?.[connection] : null);
 
     return (
       settings.temperature !== undefined &&
       !!connection &&
       !!model &&
-      (aiPayload().temperatureIgnored || []).some((entry) => entry.connection === connection && entry.model === model)
+      (aiPayload().temperatureIgnored || []).some((entry) => entry.feature === key && entry.connection === connection && entry.model === model)
     );
   }
 
@@ -455,7 +455,13 @@ export default class AiPage extends ExtensionPage {
 
     if (name in aiPayload().lockedConnections) return name;
 
-    return saved[name] && current && saved[name].driver === current.driver && (saved[name].url || '') === (current.url || '') ? name : null;
+    return saved[name] &&
+      current &&
+      saved[name].driver === current.driver &&
+      (saved[name].url || '') === (current.url || '') &&
+      (saved[name].region || '') === (current.region || '')
+      ? name
+      : null;
   }
 
   /**
@@ -552,7 +558,7 @@ export default class AiPage extends ExtensionPage {
               inputmode: 'decimal',
               placeholder: 'flarum-ai.admin.features.agent_default_placeholder',
               message: 'flarum-ai.admin.features.temperature_invalid_message',
-              note: this.temperatureIgnored(settings) ? 'flarum-ai.admin.features.temperature_ignored_text' : undefined,
+              note: this.temperatureIgnored(feature.key, settings) ? 'flarum-ai.admin.features.temperature_ignored_text' : undefined,
             }
           )}
           {this.featureNumberField(
