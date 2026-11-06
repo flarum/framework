@@ -33,6 +33,10 @@ export type ModelStatus = 'offered' | 'deprecated' | 'missing' | 'unknown';
  * releases an alias could mean, one still offered wins.
  */
 export function findModel(models: ProviderModel[], id: string): ProviderModel | undefined {
+  // Bedrock takes a model's or inference profile's ARN as well as its ID.
+  const arn = /^arn:aws[a-z-]*:bedrock:[^:]*:[^:]*:(?:foundation-model|inference-profile)\/(.+)$/.exec(id);
+  if (arn) id = arn[1];
+
   const exact = models.find((model) => model.id === id);
 
   if (exact) return exact;

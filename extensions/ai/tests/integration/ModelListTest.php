@@ -271,4 +271,44 @@ class ModelListTest extends TestCase
         $this->assertSame('page2', $requests[2][1]['nextToken']);
         $this->assertSame('Bearer ABSKsecret', $requests[0][2]);
     }
+
+    protected function bedrockLister(array &$requests): ModelLister
+    {
+        return new ModelLister(function (CommandInterface $command, RequestInterface $request) use (&$requests) {
+            $requests[] = [$command->getName(), $request->getHeaderLine('X-Proxy-Token'), $request->getUri()->getHost()];
+
+            return new Result($command->getName() === 'ListFoundationModels' ? ['modelSummaries' => []] : ['inferenceProfileSummaries' => []]);
+        });
+    }
+
+    #[Test]
+    public function bedrocks_list_is_asked_with_the_connections_headers(): void
+    {
+        $this->config('ai.connections.host', ['driver' => 'bedrock', 'region' => 'eu-west-1', 'key' => 'ABSKsecret', 'headers' => ['X-Proxy-Token' => 'abc']]);
+        $requests = [];
+        $this->app()->getContainer()->instance(ModelLister::class, $this->bedrockLister($requests));
+
+        $this->assertSame(200, $this->models('host')[0]);
+        $this->assertSame('abc', $requests[0][1]);
+    }
+
+    #[Test]
+    public function a_bedrock_list_is_asked_again_once_the_region_changes(): void
+    {
+        $this->config('ai.bedrock_server_credentials', true);
+        $this->setting('flarum-ai.connections', json_encode(['aws' => ['driver' => 'bedrock', 'region' => 'eu-central-1']]));
+        $this->prepareDatabase(['ai_connection_keys' => [['connection' => 'aws', 'key' => 'ABSKsecret', 'updated_at' => date('Y-m-d H:i:s')]]]);
+        $requests = [];
+        $this->app()->getContainer()->instance(ModelLister::class, $this->bedrockLister($requests));
+
+        $this->models('aws');
+
+        $this->send($this->request('POST', '/api/settings', ['authenticatedAs' => 1, 'json' => [
+            'flarum-ai.connections' => json_encode(['aws' => ['driver' => 'bedrock', 'region' => 'us-east-1', 'key' => 'ABSKsecret']]),
+        ]]));
+
+        $this->models('aws');
+
+        $this->assertSame(['bedrock.eu-central-1.amazonaws.com', 'bedrock.us-east-1.amazonaws.com'], array_values(array_unique(array_column($requests, 2))));
+    }
 }

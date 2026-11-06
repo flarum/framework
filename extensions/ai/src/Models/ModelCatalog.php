@@ -20,7 +20,8 @@ use Throwable;
 
 /**
  * The models each connection offers, asked of its provider and kept for a
- * day. A connection whose provider, address or key changes is asked again.
+ * day. A connection whose provider, address, region or credentials change is
+ * asked again.
  *
  * @internal
  */
@@ -110,14 +111,17 @@ class ModelCatalog
     }
 
     /**
-     * Changes with whatever the list depends on: the provider, its address and
-     * the key, which is hashed so it's never stored.
+     * Changes with whatever the list depends on: the provider, its address or
+     * region and the rest of its settings, and its credentials, which are
+     * hashed so they're never stored.
      */
     protected function cacheKey(string $connection, Provider $provider): string
     {
-        $config = $provider->additionalConfiguration();
-        $key = $provider->providerCredentials()['key'] ?? '';
-
-        return 'flarum-ai.models.'.hash('sha256', json_encode([$connection, $provider->driver(), $config['url'] ?? null, $config['headers'] ?? null, hash('sha256', (string) $key)]));
+        return 'flarum-ai.models.'.hash('sha256', json_encode([
+            $connection,
+            $provider->driver(),
+            $provider->additionalConfiguration(),
+            hash('sha256', (string) json_encode($provider->providerCredentials())),
+        ]));
     }
 }

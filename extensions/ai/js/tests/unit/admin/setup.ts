@@ -11,7 +11,7 @@ const coreJsDir = resolve(testDir, '../../../../../../framework/core/js');
 export const payload = {
   connectionsWithKeys: ['claude'],
   drivers: ['anthropic', 'bedrock', 'ollama', 'openai-compatible'],
-  keyOptional: ['bedrock', 'ollama', 'openai-compatible'],
+  keyOptional: ['ollama', 'openai-compatible'],
   urlRequired: ['openai-compatible'],
   regionRequired: ['bedrock'],
   awsSdk: true,

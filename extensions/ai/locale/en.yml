@@ -60,11 +60,11 @@ flarum-ai:
       aws_sdk_text: "Amazon Bedrock can be added once the AWS SDK is installed: composer require aws/aws-sdk-php"
       driver_label: Provider
       edit_title: "Edit {name}"
-      guardrail_help: A Bedrock guardrail checked on every call through this connection. Leave empty for none. The version is a number, or empty for the working draft.
+      guardrail_help: A Bedrock guardrail checked on every reply an agent writes through this connection, not on embeddings or images. Leave empty for none. The version is a number, or empty for the working draft.
       guardrail_id_placeholder: Guardrail ID or ARN
       guardrail_label: Guardrail
       guardrail_version_label: Guardrail version
-      key_bedrock_help: A Bedrock API key. Leave empty to use the server's own AWS credentials, such as an EC2 or ECS role. Access keys and roles to assume are set in config.php.
+      key_bedrock_help: A Bedrock API key. Access keys and roles to assume are set in config.php, which can also let connections use the server's own AWS credentials when the key is left empty.
       key_dropped_text: A saved key is only used with the provider and API URL it was saved for. Enter it again to use it here.
       key_label: API Key
       key_optional_help: This provider can be used without a key.

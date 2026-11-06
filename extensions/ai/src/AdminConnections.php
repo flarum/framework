@@ -125,7 +125,7 @@ class AdminConnections
 
             $driver = is_array($connection) ? ($connection['driver'] ?? null) : null;
 
-            if (! in_array($driver, Drivers::admin(), true)) {
+            if (! is_string($driver) || ! Drivers::allowed($driver, is_string($previous[$name]['driver'] ?? null) ? $previous[$name]['driver'] : null)) {
                 $this->fail('driver_invalid_message', ['name' => $name]);
             }
 
@@ -168,7 +168,7 @@ class AdminConnections
                 $hasKey = false;
             }
 
-            if (! $hasKey && ! in_array($driver, Drivers::KEY_OPTIONAL, true)) {
+            if (! $hasKey && ! in_array($driver, Drivers::keyOptional($this->config->bedrockServerCredentials()), true)) {
                 $this->fail('key_required_message', ['name' => $name]);
             }
 

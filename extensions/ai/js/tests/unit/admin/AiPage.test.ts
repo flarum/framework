@@ -203,6 +203,21 @@ describe('the Features tab', () => {
     expect(ai.temperatureIgnored({ model: 'claude-new' })).toBe(false);
   });
 
+  it("shows the note on the feature's temperature field", () => {
+    (app.data as any)['flarum-ai'].features = [feature];
+    (app.data as any)['flarum-ai'].temperatureIgnored = [{ connection: 'claude', model: 'claude-new' }];
+
+    const ai = page();
+    ai.setting('flarum-ai.default_connection')('claude');
+    ai.features['acme.thing'] = { model: 'claude-new', temperature: 0.3 };
+
+    expect(JSON.stringify(ai.featureSection(feature as any))).toContain('flarum-ai.admin.features.temperature_ignored_text');
+
+    ai.features['acme.thing'] = { model: 'claude-other', temperature: 0.3 };
+
+    expect(JSON.stringify(ai.featureSection(feature as any))).not.toContain('flarum-ai.admin.features.temperature_ignored_text');
+  });
+
   it('warns when guests can use a feature with no daily limit of their own', () => {
     (app.data as any)['flarum-ai'].features = [feature];
     app.data.permissions = { [feature.permission]: ['2'] } as any;

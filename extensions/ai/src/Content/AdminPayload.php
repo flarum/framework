@@ -45,7 +45,7 @@ class AdminPayload
         $document->payload['flarum-ai'] = [
             'connectionsWithKeys' => $this->keys->names(),
             'drivers' => Drivers::admin(),
-            'keyOptional' => Drivers::KEY_OPTIONAL,
+            'keyOptional' => Drivers::keyOptional($this->config->bedrockServerCredentials()),
             'urlRequired' => Drivers::URL_REQUIRED,
             'regionRequired' => Drivers::REGION_REQUIRED,
             // Whether Bedrock can be offered, or the page says what to install.

@@ -129,8 +129,8 @@ class ModelHealth
      * models in use are deprecated or missing. A connection that can't be
      * asked keeps what was found before, and is listed as unchecked.
      *
-     * Connections whose providers can't list their models, such as Azure and
-     * Bedrock, are listed as unlisted.
+     * Connections whose providers can't list their models, such as Azure,
+     * are listed as unlisted.
      *
      * @return array{issues: list<array{connection: string, model: string, status: string, since: string, retiresAt: string|null, features: string[]}>, unchecked: string[], unlisted: string[]}
      */
@@ -259,7 +259,8 @@ class ModelHealth
      *
      * - Ollama serves `llama3.2` as `llama3.2:latest`;
      * - an alias for a dated release, such as Anthropic's `claude-x` for
-     *   `claude-x-20261001`.
+     *   `claude-x-20261001`;
+     * - a Bedrock model's or inference profile's ARN.
      *
      * Of several releases an alias could mean, one still offered wins.
      *
@@ -267,6 +268,11 @@ class ModelHealth
      */
     public static function match(array $listed, string $model): ?ProviderModel
     {
+        // Bedrock takes a model's or inference profile's ARN as well as its ID.
+        if (preg_match('#^arn:aws[a-z-]*:bedrock:[^:]*:[^:]*:(?:foundation-model|inference-profile)/(.+)$#', $model, $arn)) {
+            $model = $arn[1];
+        }
+
         $alias = '/^'.preg_quote($model, '/').'-(\d{8}|\d{4}-\d{2}-\d{2}|\d{3})$/';
         $matches = [];
 
@@ -294,23 +300,37 @@ class ModelHealth
      *
      * - over HTTP, a 404 that names it, as a whole name, not part of a longer
      *   one. A 404 that doesn't, such as from a wrong API URL, isn't;
-     * - from Bedrock, which is reached by region so has no wrong address, a
-     *   ResourceNotFoundException, or a model identifier it calls invalid.
+     * - from Bedrock, a ResourceNotFoundException or ValidationException about
+     *   the model: one that names it, calls its identifier invalid, or says
+     *   it reached the end of its life. Bedrock uses the same errors for
+     *   other things, such as a guardrail that doesn't exist, and doesn't
+     *   document what a retired model's says, so a retired model it words
+     *   otherwise is left to the daily check, which reads Bedrock's lifecycle.
      */
     public static function isMissingModel(Throwable $e, string $model): bool
     {
         for (; $e !== null; $e = $e->getPrevious()) {
             if ($e instanceof RequestException && $e->response->status() === 404) {
-                return (bool) preg_match('/(?<![A-Za-z0-9._:-])'.preg_quote($model, '/').'(?![A-Za-z0-9._:\/-])/', $e->response->body());
+                return self::names($e->response->body(), $model);
             }
 
             if ($e instanceof AwsException) {
-                return $e->getAwsErrorCode() === 'ResourceNotFoundException'
-                    || ($e->getAwsErrorCode() === 'ValidationException' && str_contains(strtolower($e->getAwsErrorMessage() ?? $e->getMessage()), 'model identifier'));
+                $message = $e->getAwsErrorMessage() ?? $e->getMessage();
+
+                return in_array($e->getAwsErrorCode(), ['ResourceNotFoundException', 'ValidationException'], true)
+                    && (self::names($message, $model) || preg_match('/model identifier|end of (its )?life/i', $message));
             }
         }
 
         return false;
+    }
+
+    /**
+     * Whether a message names a model, as a whole name, not part of a longer one.
+     */
+    protected static function names(string $message, string $model): bool
+    {
+        return (bool) preg_match('/(?<![A-Za-z0-9._:-])'.preg_quote($model, '/').'(?![A-Za-z0-9._:\/-])/', $message);
     }
 
     /**

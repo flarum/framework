@@ -12,6 +12,8 @@ namespace Flarum\Ai\Tests\unit;
 use Aws\BedrockRuntime\Exception\BedrockRuntimeException;
 use Aws\Command;
 use Flarum\Ai\Models\ModelHealth;
+use Flarum\Ai\Models\ProviderModel;
+use Flarum\Ai\Models\TemperatureSupport;
 use GuzzleHttp\Psr7\Response;
 use Laravel\Ai\Exceptions\AiException;
 use PHPUnit\Framework\Attributes\Test;
@@ -34,8 +36,36 @@ class MissingModelTest extends TestCase
     #[Test]
     public function a_bedrock_model_that_isnt_found_is_missing(): void
     {
-        $this->assertTrue(ModelHealth::isMissingModel($this->bedrockError('ResourceNotFoundException', 404, 'The specified resource ARN was not found.'), 'eu.anthropic.claude-x'));
+        $this->assertTrue(ModelHealth::isMissingModel($this->bedrockError('ResourceNotFoundException', 404, 'Model eu.anthropic.claude-x was not found.'), 'eu.anthropic.claude-x'));
+        $this->assertTrue(ModelHealth::isMissingModel($this->bedrockError('ResourceNotFoundException', 404, 'This model version has reached the end of its life.'), 'eu.anthropic.claude-x'));
         $this->assertTrue(ModelHealth::isMissingModel($this->bedrockError('ValidationException', 400, 'The provided model identifier is invalid.'), 'eu.anthropic.claude-x'));
+    }
+
+    #[Test]
+    public function a_bedrock_resource_that_isnt_the_model_is_not(): void
+    {
+        // AWS doesn't document what a retired model's error says, so only one
+        // that's about the model counts: the daily check catches the rest.
+        $this->assertFalse(ModelHealth::isMissingModel($this->bedrockError('ResourceNotFoundException', 404, 'Model use case details have not been submitted for this account.'), 'eu.anthropic.claude-x'));
+        $this->assertFalse(ModelHealth::isMissingModel($this->bedrockError('ResourceNotFoundException', 404, 'The guardrail gr1 was not found.'), 'eu.anthropic.claude-x'));
+        $this->assertFalse(ModelHealth::isMissingModel($this->bedrockError('ResourceNotFoundException', 404, 'The specified resource ARN was not found.'), 'eu.anthropic.claude-x'));
+    }
+
+    #[Test]
+    public function a_bedrock_refusal_of_a_temperature_is_recognised(): void
+    {
+        $this->assertTrue(TemperatureSupport::isRefusal($this->bedrockError('ValidationException', 400, 'temperature is not supported for this model.')));
+        $this->assertFalse(TemperatureSupport::isRefusal($this->bedrockError('ValidationException', 400, 'messages: field required')));
+    }
+
+    #[Test]
+    public function a_model_arn_matches_the_model_it_names(): void
+    {
+        $listed = [new ProviderModel('anthropic.claude-x-v1:0'), new ProviderModel('eu.anthropic.claude-y-v1:0')];
+
+        $this->assertSame('anthropic.claude-x-v1:0', ModelHealth::match($listed, 'arn:aws:bedrock:eu-central-1::foundation-model/anthropic.claude-x-v1:0')?->id);
+        $this->assertSame('eu.anthropic.claude-y-v1:0', ModelHealth::match($listed, 'arn:aws:bedrock:eu-central-1:123456789012:inference-profile/eu.anthropic.claude-y-v1:0')?->id);
+        $this->assertNull(ModelHealth::match($listed, 'arn:aws:bedrock:eu-central-1::foundation-model/anthropic.claude-z-v1:0'));
     }
 
     #[Test]

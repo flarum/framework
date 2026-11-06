@@ -203,6 +203,37 @@ class FeatureOptionsTest extends TestCase
     }
 
     #[Test]
+    public function a_temperature_out_of_the_models_range_is_not_taken_for_one_it_refuses(): void
+    {
+        $this->enableAiFeature(self::FEATURE, ['model' => 'claude-new', 'temperature' => 1.5]);
+        $ai = $this->app()->getContainer()->make(Ai::class);
+        $this->fakeModelWithoutTemperature();
+
+        try {
+            $ai->feature(self::FEATURE)->asSystem()->prompt(agent('Be brief'), 'Hello');
+            $this->fail('The call should have failed.');
+        } catch (RequestException $e) {
+            $this->assertSame(400, $e->response->status());
+        }
+
+        Http::assertSentCount(1);
+
+        $page = (string) $this->send($this->request('GET', '/admin', ['authenticatedAs' => 1]))->getBody();
+        $this->assertStringContainsString('"temperatureIgnored":[]', $page);
+    }
+
+    #[Test]
+    public function an_agents_own_temperature_is_left_out_for_a_model_that_refuses_one(): void
+    {
+        $this->enableAiFeature(self::FEATURE, ['model' => 'claude-new']);
+        $ai = $this->app()->getContainer()->make(Ai::class);
+        $this->fakeModelWithoutTemperature();
+
+        $this->assertSame('Hi', $ai->feature(self::FEATURE)->asSystem()->prompt(new TunedAgent(), 'Hello')->text);
+        $this->assertSame([true, false], Http::recorded()->map(fn ($pair) => array_key_exists('temperature', $pair[0]->data()))->all());
+    }
+
+    #[Test]
     public function other_bad_requests_are_not_taken_for_a_temperature_the_model_refuses(): void
     {
         $this->enableAiFeature(self::FEATURE, ['temperature' => 0.3]);

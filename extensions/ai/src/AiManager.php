@@ -40,10 +40,18 @@ class AiManager extends BaseAiManager
     {
         $config = parent::getInstanceConfig($name);
 
-        if (! isset($config['key']) && $this->app->make(AiConfig::class)->isAdminConnection((string) $name)) {
+        $aiConfig = $this->app->make(AiConfig::class);
+
+        if (! isset($config['key']) && $aiConfig->isAdminConnection((string) $name)) {
             // Set even when there's none: providers that work without a key
             // still read it.
             $config['key'] = $this->app->make(ConnectionKeys::class)->get((string) $name);
+
+            // Without one, Bedrock would use the server's own AWS credentials,
+            // which only config.php can lend to the admin's connections.
+            if (($config['driver'] ?? null) === 'bedrock' && $config['key'] === null && ! $aiConfig->bedrockServerCredentials()) {
+                $config['use_default_credential_provider'] = false;
+            }
         }
 
         return $config;

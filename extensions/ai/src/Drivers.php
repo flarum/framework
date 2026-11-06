@@ -38,10 +38,9 @@ class Drivers
     public const AWS = ['bedrock'];
 
     /**
-     * Local models, compatible servers that may not ask for one, and Bedrock,
-     * which uses the server's own AWS credentials without one.
+     * Local models, and compatible servers that may not ask for one.
      */
-    public const KEY_OPTIONAL = ['bedrock', 'ollama', 'openai-compatible'];
+    public const KEY_OPTIONAL = ['ollama', 'openai-compatible'];
 
     /**
      * Providers reached by region, not address.
@@ -60,6 +59,29 @@ class Drivers
         sort($drivers);
 
         return $drivers;
+    }
+
+    /**
+     * Whether a connection can be saved with a provider: one the page offers
+     * now, or one it was saved with before the AWS SDK was taken away, so it
+     * can still be changed or removed.
+     */
+    public static function allowed(string $driver, ?string $stored, ?bool $awsSdk = null): bool
+    {
+        return in_array($driver, self::admin($awsSdk), true)
+            || (in_array($driver, self::AWS, true) && $stored === $driver);
+    }
+
+    /**
+     * The providers that can be set up without a key. Bedrock can when
+     * config.php lets it use the server's own AWS credentials: forum admins
+     * aren't always who runs the server, and its credentials can reach further.
+     *
+     * @return string[]
+     */
+    public static function keyOptional(bool $serverCredentials): array
+    {
+        return $serverCredentials ? [...self::KEY_OPTIONAL, ...self::AWS] : self::KEY_OPTIONAL;
     }
 
     public static function awsSdkInstalled(): bool

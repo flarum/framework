@@ -159,8 +159,9 @@ class FeatureGateway implements StepTextGateway
     }
 
     /**
-     * Sends the step with the admin's temperature, unless the model is known
-     * to refuse one, and again without it if the model refuses it now.
+     * Sends the step with its temperature, the admin's or the agent's, unless
+     * the model is known to refuse one, and again without it if it refuses
+     * it now.
      *
      * @template T
      * @param Closure(TextGenerationOptions $options): T $send
@@ -168,12 +169,15 @@ class FeatureGateway implements StepTextGateway
      */
     protected function withTemperature(string $model, ?TextGenerationOptions $options, Closure $send): mixed
     {
-        $refused = $this->temperature !== null && $this->temperatures->refused($this->connection, $model);
+        $known = $this->temperatures->refused($this->connection, $model);
+        $sent = $this->options($options, $known);
 
         try {
-            return $send($this->options($options, $refused));
+            return $send($sent);
         } catch (Throwable $e) {
-            if ($refused || $this->temperature === null || ! TemperatureSupport::isRefusal($e)) {
+            // Every provider that takes a temperature takes one up to 1: a
+            // higher one refused may only be out of the model's range.
+            if ($known || $sent->temperature === null || $sent->temperature > 1 || ! TemperatureSupport::isRefusal($e)) {
                 throw $e;
             }
 

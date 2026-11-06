@@ -28,6 +28,13 @@ describe('modelStatus', () => {
     expect(modelStatus(listed, 'claude')).toBe('missing');
   });
 
+  it("matches a Bedrock model's ARN with the model it names", () => {
+    const listed = [{ id: 'anthropic.claude-x-v1:0', name: null, deprecatedAt: null, retiresAt: null }];
+
+    expect(modelStatus(listed, 'arn:aws:bedrock:eu-central-1::foundation-model/anthropic.claude-x-v1:0')).toBe('offered');
+    expect(modelStatus(listed, 'arn:aws:bedrock:eu-central-1::foundation-model/anthropic.claude-z-v1:0')).toBe('missing');
+  });
+
   it("doesn't know when the list hasn't been loaded or can't be", () => {
     expect(modelStatus(undefined, 'claude-new')).toBe('unknown');
     expect(modelStatus(null, 'claude-new')).toBe('unknown');

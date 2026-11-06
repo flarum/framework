@@ -87,7 +87,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
 
   fields(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
-    const { drivers, keyOptional, urlRequired, rules, awsSdk } = aiPayload();
+    const { keyOptional, urlRequired, rules, awsSdk } = aiPayload();
     const driver = this.driver();
     const byRegion = this.byRegion();
 
@@ -103,8 +103,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
       60
     );
 
-    const options: Record<string, string> = {};
-    drivers.forEach((name) => (options[name] = driverLabel(name)));
+    const options = this.driverOptions();
 
     items.add(
       'driver',
@@ -221,6 +220,21 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
     }
 
     return items;
+  }
+
+  /**
+   * The providers to choose from: those the page offers, and the one the
+   * connection was saved with, so a Bedrock connection can still be changed
+   * or removed after the AWS SDK it needs is taken away.
+   */
+  driverOptions(): Record<string, string> {
+    const options: Record<string, string> = {};
+    const saved = this.attrs.connection?.driver;
+
+    aiPayload().drivers.forEach((name) => (options[name] = driverLabel(name)));
+    if (saved && !(saved in options)) options[saved] = driverLabel(saved);
+
+    return options;
   }
 
   /**

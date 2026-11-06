@@ -84,6 +84,19 @@ class BedrockGuardrailTest extends TestCase
     }
 
     #[Test]
+    public function streams_are_guarded_too(): void
+    {
+        $this->record('aws');
+
+        $options = $this->sent(function () {
+            foreach (agent('Be brief')->stream('Hello', provider: 'aws') as $event) {
+            }
+        });
+
+        $this->assertSame(self::GUARDRAIL, $options->providerOptions(Lab::Bedrock)['guardrailConfig']);
+    }
+
+    #[Test]
     public function feature_calls_are_guarded_too_alongside_their_own_settings(): void
     {
         $this->enableAiFeature('test-ext.writer', ['temperature' => 0.2]);
@@ -112,8 +125,11 @@ class BedrockGuardrailTest extends TestCase
     {
         $this->record('plain');
 
+        $unreached = $this->gateway->options = new TextGenerationOptions();
+
         $options = $this->sent(fn () => agent('Be brief')->prompt('Hello', provider: 'plain'));
 
+        $this->assertNotSame($unreached, $options, 'The call never reached the gateway.');
         $this->assertArrayNotHasKey('guardrailConfig', $options?->providerOptions(Lab::Bedrock) ?? []);
     }
 }

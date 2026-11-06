@@ -85,7 +85,7 @@ describe('a Bedrock connection', () => {
     expect(form.fields().has('url')).toBe(true);
   });
 
-  it('needs a region, but no key: the server can use its own AWS credentials', () => {
+  it('needs a region, and a key unless config.php lends the server its AWS credentials', () => {
     const form = modal();
 
     form.name('aws');
@@ -96,6 +96,9 @@ describe('a Bedrock connection', () => {
     expect(form.validate()?.message).toBe('flarum-ai.admin.connections.region_invalid_message');
 
     form.region('eu-central-1');
+    expect(form.validate()?.field).toBe('key');
+
+    (app.data as any)['flarum-ai'].keyOptional = ['bedrock'];
     expect(form.validate()).toBeNull();
 
     form.guardrailId('gr1');
@@ -104,6 +107,13 @@ describe('a Bedrock connection', () => {
 
     form.guardrailVersion('');
     expect(form.validate()).toBeNull();
+  });
+
+  it('keeps offering its provider once the AWS SDK is gone, so it can still be changed', () => {
+    (app.data as any)['flarum-ai'].drivers = ['anthropic'];
+
+    expect(modal({ name: 'aws', connection: { driver: 'bedrock', region: 'eu-central-1', hasKey: true } }).driverOptions()).toHaveProperty('bedrock');
+    expect(modal().driverOptions()).not.toHaveProperty('bedrock');
   });
 
   it('is saved with its region and guardrail', () => {
@@ -116,9 +126,10 @@ describe('a Bedrock connection', () => {
     form.url('https://ignored.test');
     form.region(' eu-central-1 ');
     form.guardrailId(' gr1 ');
+    form.key('ABSKkey');
     form.onsubmit({ preventDefault() {} } as any);
 
-    expect(saved).toEqual(['aws', { driver: 'bedrock', region: 'eu-central-1', guardrail_id: 'gr1', hasKey: false }]);
+    expect(saved).toEqual(['aws', { driver: 'bedrock', region: 'eu-central-1', guardrail_id: 'gr1', key: 'ABSKkey' }]);
   });
 
   it('only counts a saved key while the region is the same', () => {

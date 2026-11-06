@@ -55,7 +55,8 @@ class TemperatureSupport
 
     /**
      * Whether a provider refused a call for its temperature: a 400 that says
-     * so. No provider documents its wording, so any 400 naming it counts.
+     * so. No provider documents its wording, so any 400 naming it counts;
+     * the caller only asks for a temperature every such provider would take.
      */
     public static function isRefusal(Throwable $e): bool
     {

@@ -552,6 +552,7 @@ export default class AiPage extends ExtensionPage {
               inputmode: 'decimal',
               placeholder: 'flarum-ai.admin.features.agent_default_placeholder',
               message: 'flarum-ai.admin.features.temperature_invalid_message',
+              note: this.temperatureIgnored(settings) ? 'flarum-ai.admin.features.temperature_ignored_text' : undefined,
             }
           )}
           {this.featureNumberField(

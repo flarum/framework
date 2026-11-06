@@ -72,8 +72,10 @@ class BedrockConnectionsTest extends TestCase
     }
 
     #[Test]
-    public function without_a_key_it_uses_the_servers_aws_credentials(): void
+    public function without_a_key_it_uses_the_servers_aws_credentials_where_config_php_allows(): void
     {
+        $this->config('ai.bedrock_server_credentials', true);
+
         $this->assertSame(204, $this->save(['aws' => ['driver' => 'bedrock', 'region' => 'us-east-1']]));
 
         $this->assertSame([], $this->storedKeys());
@@ -83,6 +85,32 @@ class BedrockConnectionsTest extends TestCase
 
         $this->assertSame([], $provider->providerCredentials());
         $this->assertSame('us-east-1', $provider->additionalConfiguration()['region']);
+        $this->assertTrue($provider->additionalConfiguration()['use_default_credential_provider']);
+    }
+
+    #[Test]
+    public function the_servers_aws_credentials_are_not_the_admins_to_use_unless_config_php_says(): void
+    {
+        // Forum admins aren't always who runs the server, and its credentials can reach further.
+        $this->assertSame(422, $this->save(['aws' => ['driver' => 'bedrock', 'region' => 'us-east-1']]));
+    }
+
+    #[Test]
+    public function a_connection_saved_without_a_key_doesnt_use_them_unless_config_php_says(): void
+    {
+        $this->setting('flarum-ai.connections', json_encode(['aws' => ['driver' => 'bedrock', 'region' => 'us-east-1']]));
+        $provider = $this->app()->getContainer()->make(AiManager::class)->instance('aws');
+
+        $this->assertFalse($provider->additionalConfiguration()['use_default_credential_provider']);
+    }
+
+    #[Test]
+    public function config_php_connections_choose_their_own_credentials(): void
+    {
+        $this->config('ai.connections.host', ['driver' => 'bedrock', 'region' => 'us-east-1']);
+
+        $provider = $this->app()->getContainer()->make(AiManager::class)->instance('host');
+
         $this->assertTrue($provider->additionalConfiguration()['use_default_credential_provider']);
     }
 
@@ -101,6 +129,8 @@ class BedrockConnectionsTest extends TestCase
     #[Test]
     public function region_and_guardrail_version_are_checked(): void
     {
+        $this->config('ai.bedrock_server_credentials', true);
+
         $this->assertSame(422, $this->save(['aws' => ['driver' => 'bedrock']]));
         $this->assertSame(422, $this->save(['aws' => ['driver' => 'bedrock', 'region' => 'Frankfurt']]));
         $this->assertSame(422, $this->save(['aws' => ['driver' => 'bedrock', 'region' => 'eu-central-1', 'guardrail_id' => 'gr1', 'guardrail_version' => 'latest']]));
@@ -112,6 +142,8 @@ class BedrockConnectionsTest extends TestCase
     #[Test]
     public function an_address_means_nothing_to_bedrock_and_isnt_kept(): void
     {
+        $this->config('ai.bedrock_server_credentials', true);
+
         $this->assertSame(204, $this->save(['aws' => ['driver' => 'bedrock', 'region' => 'eu-central-1', 'url' => 'https://example.test']]));
 
         $this->assertSame(['aws' => ['driver' => 'bedrock', 'region' => 'eu-central-1']], $this->stored());
@@ -125,8 +157,9 @@ class BedrockConnectionsTest extends TestCase
         $this->assertSame(204, $this->save(['aws' => ['driver' => 'bedrock', 'region' => 'eu-central-1', 'model' => 'x']]));
         $this->assertSame(['aws' => self::KEY], $this->storedKeys());
 
-        $this->assertSame(204, $this->save(['aws' => ['driver' => 'bedrock', 'region' => 'us-east-1']]));
-        $this->assertSame([], $this->storedKeys());
+        $this->assertSame(422, $this->save(['aws' => ['driver' => 'bedrock', 'region' => 'us-east-1']]));
+        $this->assertSame(204, $this->save(['aws' => ['driver' => 'bedrock', 'region' => 'us-east-1', 'key' => 'ABSKother']]));
+        $this->assertSame(['aws' => 'ABSKother'], $this->storedKeys());
     }
 
     #[Test]
@@ -137,7 +170,7 @@ class BedrockConnectionsTest extends TestCase
         $payload = json_decode(html_entity_decode($matches[1]), true)['flarum-ai'];
 
         $this->assertContains('bedrock', $payload['drivers']);
-        $this->assertContains('bedrock', $payload['keyOptional']);
+        $this->assertNotContains('bedrock', $payload['keyOptional']);
         $this->assertSame(['bedrock'], $payload['regionRequired']);
         $this->assertTrue($payload['awsSdk']);
     }

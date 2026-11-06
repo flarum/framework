@@ -10,11 +10,13 @@
 namespace Flarum\Ai\Models;
 
 use Aws\Bedrock\BedrockClient;
+use Aws\Middleware;
 use Carbon\CarbonImmutable;
 use Closure;
 use DateTimeInterface;
 use Laravel\Ai\Gateway\Bedrock\Concerns\CreatesBedrockClient;
 use Laravel\Ai\Providers\Provider;
+use Psr\Http\Message\RequestInterface;
 use Throwable;
 
 /**
@@ -127,12 +129,25 @@ class BedrockModels
     {
         $config = $provider->additionalConfiguration();
 
-        return new BedrockClient(array_filter([
+        $client = new BedrockClient(array_filter([
             'region' => $this->bedrockRegion($config),
             'version' => '2023-04-20',
             'http' => ['timeout' => 15],
             'handler' => $this->handler,
             ...$this->resolveAuthConfig($provider->providerCredentials(), $config, 15),
         ], fn ($value) => $value !== null));
+
+        // As laravel/ai sends them with every call, for a proxy that needs them.
+        if ($headers = $config['headers'] ?? []) {
+            $client->getHandlerList()->appendBuild(Middleware::mapRequest(function (RequestInterface $request) use ($headers): RequestInterface {
+                foreach ($headers as $name => $value) {
+                    $request = $request->withHeader($name, $value);
+                }
+
+                return $request;
+            }), 'flarum-ai.headers');
+        }
+
+        return $client;
     }
 }

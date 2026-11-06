@@ -18,9 +18,11 @@ use Laravel\Ai\Gateway\TextGenerationOptions;
 
 /**
  * A Bedrock connection's text gateway, with the guardrail the admin set up for
- * the connection on every call through it. laravel/ai passes Bedrock's own
- * options straight into the Converse request, so the guardrail goes there,
- * in place of any the agent asks for: it's the forum's policy, not the agent's.
+ * the connection on every reply an agent generates through it. laravel/ai
+ * passes Bedrock's own options straight into the Converse request, so the
+ * guardrail goes there, in place of any the agent asks for: it's the forum's
+ * policy, not the agent's. Embeddings, images and reranking aren't guarded:
+ * Bedrock applies guardrails to Converse calls.
  *
  * The trace is turned on, so Bedrock says why it stepped in.
  * {@see \Flarum\Ai\ContentFilter} tells whether it did.
