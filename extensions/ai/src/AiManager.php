@@ -9,13 +9,21 @@
 
 namespace Flarum\Ai;
 
+use Flarum\Ai\Features\FeatureOptionsGateway;
+use Flarum\Ai\Features\FeatureSettings;
+use Flarum\Ai\Usage\Attribution;
 use Laravel\Ai\AiManager as BaseAiManager;
+use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\Providers\TextProvider;
 
 /**
  * laravel/ai's manager, given the API key of a connection set up on the admin
  * page only when that connection's provider is first used. The rest of the
  * time the key stays in its table: it isn't in the config built on every
  * request.
+ *
+ * An agent prompted as a feature gets a provider that sends the temperature
+ * and longest reply the admin set for that feature.
  *
  * @internal
  */
@@ -32,5 +40,26 @@ class AiManager extends BaseAiManager
         }
 
         return $config;
+    }
+
+    public function textProviderFor(Agent $agent, ?string $name = null): TextProvider
+    {
+        $provider = parent::textProviderFor($agent, $name);
+        $context = $this->app->make(Attribution::class)->for($agent);
+
+        if ($context === null) {
+            return $provider;
+        }
+
+        $settings = $this->app->make(FeatureSettings::class)->get($context->feature);
+
+        if ($settings['temperature'] === null && $settings['max_tokens'] === null) {
+            return $provider;
+        }
+
+        // A copy, so the provider other calls share keeps its own gateway.
+        return (clone $provider)->useTextGateway(
+            new FeatureOptionsGateway($provider->textGateway(), $settings['temperature'], $settings['max_tokens'])
+        );
     }
 }

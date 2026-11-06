@@ -1,5 +1,5 @@
 import { bootAdmin } from './setup';
-import { nameIsValid, parseConnections, parseTokens, serializeConnections, withoutKeys } from '../../../src/admin/utils/settings';
+import { nameIsValid, parseConnections, parseTemperature, parseTokens, serializeConnections, withoutKeys } from '../../../src/admin/utils/settings';
 
 beforeAll(() => bootAdmin());
 
@@ -19,6 +19,26 @@ describe('parseTokens', () => {
   it("refuses what isn't a limit, rather than reading part of it", () => {
     for (const value of ['1e3', '12abc', '0', '-5', '1.5', 'lots']) {
       expect(parseTokens(value)).toBe(false);
+    }
+  });
+});
+
+describe('parseTemperature', () => {
+  it('reads a number from 0 to 2', () => {
+    expect(parseTemperature('0')).toBe(0);
+    expect(parseTemperature(' 0.7 ')).toBe(0.7);
+    expect(parseTemperature('2')).toBe(2);
+    expect(parseTemperature(1.5)).toBe(1.5);
+  });
+
+  it("reads nothing as the extension's own", () => {
+    expect(parseTemperature('')).toBeNull();
+    expect(parseTemperature(undefined)).toBeNull();
+  });
+
+  it('refuses anything else', () => {
+    for (const value of ['2.1', '-0.1', 'warm', '1e0x', '0.5.5', 'Infinity']) {
+      expect(parseTemperature(value)).toBe(false);
     }
   });
 });

@@ -24,12 +24,14 @@ flarum-ai:
       key_required_message: "\"{name}\" needs an API key."
       key_saved_text: Key saved
       locked_text: Set in config.php
+      max_tokens_invalid_message: "The longest reply for \"{name}\" is a whole number of tokens above zero, or empty for the extension's own."
       model_invalid_message: "The model for \"{name}\" is too long."
       monthly_tokens_text: "{tokens} tokens a month"
       name_invalid_message: "\"{name}\" can't be used as a name. Start with a letter, then use letters, numbers, dashes and underscores, up to 50 characters."
       name_locked_message: "\"{name}\" is already set in config.php. Choose another name."
       no_key_text: No key
       remove_button: => core.ref.remove
+      temperature_invalid_message: "The temperature for \"{name}\" is a number from 0 to 2, or empty for the extension's own."
       tokens_invalid_message: "Token limits are whole numbers above zero, or empty for no limit."
       url_invalid_message: "The API URL for \"{name}\" must start with http:// or https://."
       url_required_message: "\"{name}\" needs an API URL."
@@ -72,6 +74,7 @@ flarum-ai:
 
     # These translations are used by the list of features extensions have registered.
     features:
+      agent_default_placeholder: Extension's default
       connection_default_option: Default connection
       connection_label: Connection
       daily_tokens_label: Tokens per Day
@@ -79,9 +82,13 @@ flarum-ai:
       enabled_label: "Use AI for {feature}"
       extension_text: "From {extension}."
       heading: Features
-      help: It stays off until you turn it on, and members need its permission, on the Permissions tab, to use it.
+      help: It stays off until you turn it on, and members and guests need its permission, on the Permissions tab, to use it.
+      max_tokens_invalid_message: The longest reply is a whole number of tokens above zero, or empty for the extension's own.
+      max_tokens_label: Longest Reply (Tokens)
       model_label: Model
       model_placeholder: Connection's default
+      temperature_invalid_message: The temperature is a number from 0 to 2, or empty for the extension's own. Some providers accept at most 1.
+      temperature_label: Temperature
 
     # These translations are used by the token limits on the extension's page.
     limits:

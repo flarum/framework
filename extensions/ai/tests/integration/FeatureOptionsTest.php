@@ -1,0 +1,181 @@
+<?php
+
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
+namespace Flarum\Ai\Tests\integration;
+
+use Flarum\Ai\Ai;
+use Flarum\Ai\Extend\Ai as AiExtender;
+use Flarum\Ai\Testing\InteractsWithAi;
+use Flarum\Group\Group;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use Illuminate\Support\Facades\Http;
+use Laravel\Ai\Attributes\MaxTokens;
+use Laravel\Ai\Attributes\Temperature;
+use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Promptable;
+use PHPUnit\Framework\Attributes\Test;
+
+use function Laravel\Ai\agent;
+
+/**
+ * The temperature and longest reply the admin sets for a feature, sent with
+ * every call it makes, whatever agent the extension uses.
+ */
+class FeatureOptionsTest extends TestCase
+{
+    use InteractsWithAi;
+    use RetrievesAuthorizedUsers;
+
+    protected const FEATURE = 'test-ext.writer';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->extension('flarum-ai');
+        $this->extend((new AiExtender())->feature(self::FEATURE, 'test-ext.writer_label'));
+
+        $this->prepareDatabase(['users' => [$this->normalUser()]]);
+
+        $this->aiConnection('claude', ['driver' => 'anthropic', 'url' => 'https://api.anthropic.test/v1']);
+        $this->grantAiFeature(self::FEATURE, Group::MEMBER_ID);
+    }
+
+    protected function ai(): Ai
+    {
+        $ai = $this->app()->getContainer()->make(Ai::class);
+
+        Http::fake(['*.test/*' => Http::response([
+            'id' => 'msg_1',
+            'type' => 'message',
+            'role' => 'assistant',
+            'model' => 'claude-test',
+            'content' => [['type' => 'text', 'text' => 'Hi']],
+            'stop_reason' => 'end_turn',
+            'usage' => ['input_tokens' => 12, 'output_tokens' => 5],
+        ])]);
+
+        return $ai;
+    }
+
+    /**
+     * @return array{temperature: mixed, max_tokens: mixed}
+     */
+    protected function sentOptions(): array
+    {
+        $data = Http::recorded()->last()[0]->data();
+
+        return ['temperature' => $data['temperature'] ?? null, 'max_tokens' => $data['max_tokens'] ?? null];
+    }
+
+    protected function save(array $settings): int
+    {
+        return $this->send($this->request('POST', '/api/settings', ['authenticatedAs' => 1, 'json' => $settings]))->getStatusCode();
+    }
+
+    protected function storedFeature(): array
+    {
+        return (json_decode((string) $this->database()->table('settings')->where('key', 'flarum-ai.features')->value('value'), true) ?? [])[self::FEATURE] ?? [];
+    }
+
+    #[Test]
+    public function a_features_temperature_and_max_tokens_are_sent_with_its_calls(): void
+    {
+        $this->enableAiFeature(self::FEATURE, ['temperature' => 0.3, 'max_tokens' => 256]);
+
+        $this->ai()->feature(self::FEATURE)->as(User::query()->find(2))->prompt(agent('Be brief'), 'Hello');
+
+        $this->assertSame(['temperature' => 0.3, 'max_tokens' => 256], $this->sentOptions());
+    }
+
+    #[Test]
+    public function the_admins_settings_win_over_the_agents_own(): void
+    {
+        $this->enableAiFeature(self::FEATURE, ['temperature' => 0.3]);
+
+        $this->ai()->feature(self::FEATURE)->asSystem()->prompt(new TunedAgent(), 'Hello');
+
+        // The agent's own max tokens still apply where the admin set none.
+        $this->assertSame(['temperature' => 0.3, 'max_tokens' => 100], $this->sentOptions());
+    }
+
+    #[Test]
+    public function without_settings_the_agents_own_are_used(): void
+    {
+        $this->enableAiFeature(self::FEATURE);
+
+        $this->ai()->feature(self::FEATURE)->asSystem()->prompt(new TunedAgent(), 'Hello');
+
+        $this->assertSame(['temperature' => 0.9, 'max_tokens' => 100], $this->sentOptions());
+    }
+
+    #[Test]
+    public function streams_use_them_too(): void
+    {
+        $this->enableAiFeature(self::FEATURE, ['temperature' => 0.3, 'max_tokens' => 256]);
+
+        $ai = $this->ai();
+        Http::fake(['*.test/*' => Http::response(
+            "event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_1\",\"model\":\"claude-test\",\"usage\":{\"input_tokens\":12,\"output_tokens\":0}}}\n\n"
+            ."event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+        )]);
+
+        $stream = $ai->feature(self::FEATURE)->asSystem()->stream(agent('Be brief'), 'Hello');
+        foreach ($stream as $event) {
+        }
+
+        $this->assertSame(['temperature' => 0.3, 'max_tokens' => 256], $this->sentOptions());
+    }
+
+    #[Test]
+    public function calls_outside_a_feature_are_left_alone(): void
+    {
+        $this->enableAiFeature(self::FEATURE, ['temperature' => 0.3, 'max_tokens' => 256]);
+        $this->ai();
+
+        (new TunedAgent())->prompt('Hello');
+
+        $this->assertSame(['temperature' => 0.9, 'max_tokens' => 100], $this->sentOptions());
+    }
+
+    #[Test]
+    public function they_are_validated_when_saved(): void
+    {
+        $save = fn (array $settings) => $this->save(['flarum-ai.features' => json_encode([self::FEATURE => ['enabled' => true] + $settings])]);
+
+        $this->assertSame(204, $save(['temperature' => '0.7', 'max_tokens' => '2048']));
+        $this->assertSame(['enabled' => true, 'temperature' => 0.7, 'max_tokens' => 2048], $this->storedFeature());
+
+        $this->assertSame(204, $save(['temperature' => 0, 'max_tokens' => '']));
+        $this->assertSame(['enabled' => true, 'temperature' => 0.0], $this->storedFeature());
+
+        $this->assertSame(204, $save(['temperature' => '']));
+        $this->assertSame(['enabled' => true], $this->storedFeature());
+
+        $this->assertSame(422, $save(['temperature' => 2.5]));
+        $this->assertSame(422, $save(['temperature' => -0.1]));
+        $this->assertSame(422, $save(['temperature' => 'warm']));
+        $this->assertSame(422, $save(['max_tokens' => 0]));
+        $this->assertSame(422, $save(['max_tokens' => 1.5]));
+    }
+}
+
+#[Temperature(0.9)]
+#[MaxTokens(100)]
+class TunedAgent implements Agent
+{
+    use Promptable;
+
+    public function instructions(): string
+    {
+        return 'Be brief';
+    }
+}

@@ -183,7 +183,7 @@ class AdminConnections
      *
      * @throws ValidationException
      */
-    public function tokens(mixed $value, string $name, string $setting = self::SETTING): ?int
+    public function tokens(mixed $value, string $name, string $setting = self::SETTING, string $message = 'tokens_invalid_message'): ?int
     {
         if ($value === null || $value === '') {
             return null;
@@ -194,7 +194,7 @@ class AdminConnections
         }
 
         if (! is_int($value) || $value < 1) {
-            $this->fail('tokens_invalid_message', ['name' => $name], $setting);
+            $this->fail($message, ['name' => $name], $setting);
         }
 
         return $value;

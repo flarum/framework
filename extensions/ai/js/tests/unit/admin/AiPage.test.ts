@@ -76,7 +76,7 @@ describe('saving', () => {
 
     expect(ai.unsavedTabs().size).toBe(0);
 
-    ai.updateFeatureLimit('acme.thing', '500');
+    ai.updateFeatureNumber('acme.thing', 'daily_tokens', '500');
     ai.setting('flarum-ai.member_daily_tokens')('10');
 
     expect([...ai.unsavedTabs()].sort()).toEqual(['usage']);
@@ -85,9 +85,37 @@ describe('saving', () => {
   it("doesn't take a feature limit that isn't a whole number", () => {
     const ai = page();
 
-    ai.updateFeatureLimit('acme.thing', '1e3');
+    ai.updateFeatureNumber('acme.thing', 'daily_tokens', '1e3');
 
-    expect(ai.invalidFeatureLimits.has('acme.thing')).toBe(true);
+    expect(ai.isInvalid('acme.thing', 'daily_tokens')).toBe(true);
     expect(ai.features['acme.thing']).toBeUndefined();
+  });
+
+  it("takes a feature's temperature and longest reply", () => {
+    const ai = page();
+
+    ai.updateFeatureNumber('acme.thing', 'temperature', '0.4');
+    ai.updateFeatureNumber('acme.thing', 'max_tokens', '2048');
+
+    expect(ai.features['acme.thing']).toEqual({ temperature: 0.4, max_tokens: 2048 });
+
+    ai.updateFeatureNumber('acme.thing', 'temperature', '');
+
+    expect(ai.features['acme.thing']).toEqual({ max_tokens: 2048 });
+  });
+
+  it("doesn't take a temperature or longest reply that isn't one", () => {
+    const ai = page();
+
+    ai.updateFeatureNumber('acme.thing', 'temperature', '3');
+    ai.updateFeatureNumber('acme.thing', 'max_tokens', '1.5');
+
+    expect(ai.isInvalid('acme.thing', 'temperature')).toBe(true);
+    expect(ai.isInvalid('acme.thing', 'max_tokens')).toBe(true);
+    expect(ai.features['acme.thing']).toBeUndefined();
+
+    ai.updateFeatureNumber('acme.thing', 'temperature', '1');
+
+    expect(ai.isInvalid('acme.thing', 'temperature')).toBe(false);
   });
 });

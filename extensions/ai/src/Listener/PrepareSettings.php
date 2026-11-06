@@ -114,9 +114,35 @@ class PrepareSettings
                 'connection' => $connection,
                 'model' => $model,
                 'daily_tokens' => $this->connections->tokens($settings['daily_tokens'] ?? null, $key, FeatureSettings::SETTING),
+                'temperature' => $this->temperature($settings['temperature'] ?? null, $key),
+                'max_tokens' => $this->connections->tokens($settings['max_tokens'] ?? null, $key, FeatureSettings::SETTING, 'max_tokens_invalid_message'),
             ], fn ($value) => $value !== null && $value !== '');
         }
 
-        return json_encode((object) $prepared, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        return json_encode((object) $prepared, JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * A temperature: a number in the range providers accept, or nothing for
+     * the agent's own.
+     */
+    protected function temperature(mixed $value, string $key): ?float
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_string($value) && is_numeric(trim($value))) {
+            $value = (float) trim($value);
+        }
+
+        if (! is_int($value) && ! is_float($value)
+            || ! is_finite((float) $value)
+            || $value < FeatureSettings::TEMPERATURE_MIN
+            || $value > FeatureSettings::TEMPERATURE_MAX) {
+            $this->connections->fail('temperature_invalid_message', ['name' => $key], FeatureSettings::SETTING);
+        }
+
+        return (float) $value;
     }
 }

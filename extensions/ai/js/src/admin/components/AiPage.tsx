@@ -26,6 +26,7 @@ import {
   MEMBER_DAILY_SETTING,
   parseConnections,
   parseObject,
+  parseTemperature,
   parseTokens,
   serializeConnections,
   withoutKeys,
@@ -46,6 +47,11 @@ interface Usage {
 }
 
 /**
+ * A feature's settings typed in as numbers.
+ */
+type NumberField = 'daily_tokens' | 'temperature' | 'max_tokens';
+
+/**
  * The tab each of the page's settings is on.
  */
 const TAB_OF_SETTING: Record<string, string> = {
@@ -63,8 +69,8 @@ const TAB_OF_SETTING: Record<string, string> = {
 export default class AiPage extends ExtensionPage {
   connections!: Connections;
   features!: Record<string, FeatureSettings>;
-  /** Features whose daily limit field holds something that isn't a limit. */
-  invalidFeatureLimits = new Set<string>();
+  /** Feature fields holding something that isn't a valid value, as `key field`. */
+  invalidFeatureFields = new Set<string>();
   usage: Usage | null = null;
   usageState: 'idle' | 'loading' | 'loaded' | 'failed' = 'idle';
 
@@ -265,7 +271,6 @@ export default class AiPage extends ExtensionPage {
     const label = app.translator.trans(feature.label);
     const idBase = 'flarum-ai-feature-' + feature.key.replace(/[^a-z0-9_-]/gi, '-');
     const extension = feature.extension ? app.data.extensions[feature.extension]?.extra['flarum-extension']?.title : null;
-    const invalidLimit = this.invalidFeatureLimits.has(feature.key);
 
     const connections: Record<string, Mithril.Children> = { '': app.translator.trans('flarum-ai.admin.features.connection_default_option') };
     this.connectionNames().forEach((name) => (connections[name] = name));
@@ -311,25 +316,60 @@ export default class AiPage extends ExtensionPage {
               oninput={(e: InputEvent) => this.updateFeature(feature.key, { model: (e.target as HTMLInputElement).value })}
             />
           </label>
-          <label for={idBase + '-daily'}>
-            {app.translator.trans('flarum-ai.admin.features.daily_tokens_label')}
-            <input
-              id={idBase + '-daily'}
-              className="FormControl"
-              type="number"
-              min="1"
-              step="1"
-              inputmode="numeric"
-              aria-invalid={invalidLimit ? 'true' : undefined}
-              value={settings.daily_tokens || ''}
-              oninput={(e: InputEvent) => this.updateFeatureLimit(feature.key, (e.target as HTMLInputElement).value)}
-            />
-            {invalidLimit && (
-              <span className="helpText AiPage-invalid">{app.translator.trans('flarum-ai.admin.connections.tokens_invalid_message')}</span>
-            )}
-          </label>
+          {this.featureNumberField(feature.key, 'daily_tokens', idBase + '-daily', 'flarum-ai.admin.features.daily_tokens_label', settings.daily_tokens, {
+            min: '1',
+            step: '1',
+            inputmode: 'numeric',
+            message: 'flarum-ai.admin.connections.tokens_invalid_message',
+          })}
+          {this.featureNumberField(feature.key, 'temperature', idBase + '-temperature', 'flarum-ai.admin.features.temperature_label', settings.temperature, {
+            min: '0',
+            max: '2',
+            step: '0.1',
+            inputmode: 'decimal',
+            placeholder: 'flarum-ai.admin.features.agent_default_placeholder',
+            message: 'flarum-ai.admin.features.temperature_invalid_message',
+          })}
+          {this.featureNumberField(feature.key, 'max_tokens', idBase + '-max-tokens', 'flarum-ai.admin.features.max_tokens_label', settings.max_tokens, {
+            min: '1',
+            step: '1',
+            inputmode: 'numeric',
+            placeholder: 'flarum-ai.admin.features.agent_default_placeholder',
+            message: 'flarum-ai.admin.features.max_tokens_invalid_message',
+          })}
         </div>
       </SettingsSection>
+    );
+  }
+
+  featureNumberField(
+    key: string,
+    field: NumberField,
+    id: string,
+    label: string,
+    value: number | undefined,
+    options: { min: string; max?: string; step: string; inputmode: string; placeholder?: string; message: string }
+  ): Mithril.Children {
+    const invalid = this.isInvalid(key, field);
+
+    return (
+      <label for={id}>
+        {app.translator.trans(label)}
+        <input
+          id={id}
+          className="FormControl"
+          type="number"
+          min={options.min}
+          max={options.max}
+          step={options.step}
+          inputmode={options.inputmode}
+          placeholder={options.placeholder ? extractText(app.translator.trans(options.placeholder)) : undefined}
+          aria-invalid={invalid ? 'true' : undefined}
+          value={value ?? ''}
+          oninput={(e: InputEvent) => this.updateFeatureNumber(key, field, (e.target as HTMLInputElement).value)}
+        />
+        {invalid && <span className="helpText AiPage-invalid">{app.translator.trans(options.message)}</span>}
+      </label>
     );
   }
 
@@ -531,17 +571,21 @@ export default class AiPage extends ExtensionPage {
     this.sync();
   }
 
-  updateFeatureLimit(key: string, value: string) {
-    const tokens = parseTokens(value);
+  isInvalid(key: string, field: NumberField): boolean {
+    return this.invalidFeatureFields.has(`${key} ${field}`);
+  }
 
-    if (tokens === false) {
-      this.invalidFeatureLimits.add(key);
+  updateFeatureNumber(key: string, field: NumberField, value: string) {
+    const parsed = field === 'temperature' ? parseTemperature(value) : parseTokens(value);
+
+    if (parsed === false) {
+      this.invalidFeatureFields.add(`${key} ${field}`);
 
       return;
     }
 
-    this.invalidFeatureLimits.delete(key);
-    this.updateFeature(key, { daily_tokens: tokens ?? undefined });
+    this.invalidFeatureFields.delete(`${key} ${field}`);
+    this.updateFeature(key, { [field]: parsed ?? undefined });
   }
 
   updateFeature(key: string, changes: Partial<FeatureSettings>) {

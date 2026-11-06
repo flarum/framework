@@ -39,6 +39,8 @@ export interface FeatureSettings {
   connection?: string;
   model?: string;
   daily_tokens?: number;
+  temperature?: number;
+  max_tokens?: number;
 }
 
 export interface AiPayload {
@@ -119,6 +121,20 @@ export function parseTokens(value: string | number | undefined | null): number |
   const tokens = Number(text);
 
   return /^\d+$/.test(text) && Number.isInteger(tokens) && tokens > 0 ? tokens : false;
+}
+
+/**
+ * A temperature typed into a field: a number from 0 to 2, nothing for the
+ * extension's own, or `false` when it's neither.
+ */
+export function parseTemperature(value: string | number | undefined | null): number | null | false {
+  const text = String(value ?? '').trim();
+
+  if (text === '') return null;
+
+  const temperature = Number(text);
+
+  return /^\d*\.?\d+$/.test(text) && temperature >= 0 && temperature <= 2 ? temperature : false;
 }
 
 export function nameIsValid(name: string): boolean {
