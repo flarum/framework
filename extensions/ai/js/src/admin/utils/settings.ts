@@ -16,6 +16,11 @@ export const GUEST_DAILY_SETTING = 'flarum-ai.guest_daily_tokens';
 export interface Connection {
   driver: string;
   url?: string;
+  /** For providers reached by region, such as Bedrock. */
+  region?: string;
+  /** A Bedrock connection's guardrail ID or ARN, and the version it uses. */
+  guardrail_id?: string;
+  guardrail_version?: string;
   model?: string;
   monthly_tokens?: number;
   hasKey?: boolean;
@@ -49,13 +54,18 @@ export interface AiPayload {
   drivers: string[];
   keyOptional: string[];
   urlRequired: string[];
+  regionRequired: string[];
+  /** Whether the AWS SDK Bedrock needs is installed. */
+  awsSdk: boolean;
+  /** Models a feature's temperature is left out for, as they refuse one. */
+  temperatureIgnored: { connection: string; model: string }[];
   lockedConnections: Connections;
   lockedDefault: string | null;
   features: FeatureInfo[];
   /** The models features use that are deprecated or gone. */
   modelIssues: ModelIssue[];
   /** The checks the server makes on save, so forms can make them first. */
-  rules: { namePattern: string; modelMaxLength: number };
+  rules: { namePattern: string; modelMaxLength: number; regionPattern: string; guardrailPattern: string; guardrailVersionPattern: string };
 }
 
 export function aiPayload(): AiPayload {

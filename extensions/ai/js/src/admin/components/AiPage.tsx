@@ -209,6 +209,15 @@ export default class AiPage extends ExtensionPage {
         <span className="AiPage-connection-driver">{driverLabel(connection.driver)}</span>
         {!!connection.model && <code className="AiPage-connection-model">{connection.model}</code>}
         {!!connection.url && <code className="AiPage-connection-url">{connection.url}</code>}
+        {!!connection.region && <code className="AiPage-connection-url">{connection.region}</code>}
+        {!!connection.guardrail_id && (
+          <span className="AiPage-connection-guardrail">
+            {app.translator.trans('flarum-ai.admin.connections.guardrail_text', {
+              guardrail: connection.guardrail_id,
+              version: connection.guardrail_version || 'DRAFT',
+            })}
+          </span>
+        )}
         <span className="AiPage-connection-key">{app.translator.trans(keyText)}</span>
         {!!connection.monthly_tokens && (
           <span className="AiPage-connection-limit">
@@ -350,6 +359,22 @@ export default class AiPage extends ExtensionPage {
       <Alert type={issue.status === 'deprecated' ? 'warning' : 'error'} dismissible={false}>
         {app.translator.trans(text, params)}
       </Alert>
+    );
+  }
+
+  /**
+   * Whether the admin's temperature for a feature is left out of its calls,
+   * as its model refuses one. Known once a call has been refused.
+   */
+  temperatureIgnored(settings: FeatureSettings): boolean {
+    const connection = this.featureConnection(settings);
+    const model = settings.model || (connection ? this.connectionModel(connection) : null);
+
+    return (
+      settings.temperature !== undefined &&
+      !!connection &&
+      !!model &&
+      (aiPayload().temperatureIgnored || []).some((entry) => entry.connection === connection && entry.model === model)
     );
   }
 
@@ -554,7 +579,7 @@ export default class AiPage extends ExtensionPage {
     id: string,
     label: string,
     value: number | undefined,
-    options: { min: string; max?: string; step: string; inputmode: string; placeholder?: string; message: string }
+    options: { min: string; max?: string; step: string; inputmode: string; placeholder?: string; message: string; note?: string }
   ): Mithril.Children {
     const invalid = this.isInvalid(key, field);
 
@@ -575,6 +600,7 @@ export default class AiPage extends ExtensionPage {
           oninput={(e: InputEvent) => this.updateFeatureNumber(key, field, (e.target as HTMLInputElement).value)}
         />
         {invalid && <span className="helpText AiPage-invalid">{app.translator.trans(options.message)}</span>}
+        {!invalid && !!options.note && <span className="helpText AiPage-note">{app.translator.trans(options.note)}</span>}
       </label>
     );
   }

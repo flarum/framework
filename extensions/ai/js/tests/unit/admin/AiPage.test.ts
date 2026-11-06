@@ -192,6 +192,17 @@ describe('the Features tab', () => {
     expect(keyed.length === 0 || keyed.length === children.length).toBe(true);
   });
 
+  it("says when a feature's temperature is left out, as its model refuses one", () => {
+    (app.data as any)['flarum-ai'].temperatureIgnored = [{ connection: 'claude', model: 'claude-new' }];
+
+    const ai = page();
+    ai.setting('flarum-ai.default_connection')('claude');
+
+    expect(ai.temperatureIgnored({ model: 'claude-new', temperature: 0.3 })).toBe(true);
+    expect(ai.temperatureIgnored({ model: 'claude-other', temperature: 0.3 })).toBe(false);
+    expect(ai.temperatureIgnored({ model: 'claude-new' })).toBe(false);
+  });
+
   it('warns when guests can use a feature with no daily limit of their own', () => {
     (app.data as any)['flarum-ai'].features = [feature];
     app.data.permissions = { [feature.permission]: ['2'] } as any;

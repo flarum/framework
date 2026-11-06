@@ -10,14 +10,23 @@ const coreJsDir = resolve(testDir, '../../../../../../framework/core/js');
 
 export const payload = {
   connectionsWithKeys: ['claude'],
-  drivers: ['anthropic', 'ollama', 'openai-compatible'],
-  keyOptional: ['ollama', 'openai-compatible'],
+  drivers: ['anthropic', 'bedrock', 'ollama', 'openai-compatible'],
+  keyOptional: ['bedrock', 'ollama', 'openai-compatible'],
   urlRequired: ['openai-compatible'],
+  regionRequired: ['bedrock'],
+  awsSdk: true,
+  temperatureIgnored: [] as { connection: string; model: string }[],
   lockedConnections: {},
   lockedDefault: null,
   features: [],
   modelIssues: [],
-  rules: { namePattern: '^[a-z][a-z0-9_-]{0,49}$', modelMaxLength: 100 },
+  rules: {
+    namePattern: '^[a-z][a-z0-9_-]{0,49}$',
+    modelMaxLength: 100,
+    regionPattern: '^[a-z]{2}(-gov|-iso[a-z]?)?-[a-z]+-\\d{1,2}$',
+    guardrailPattern: '^[A-Za-z0-9:\\/._-]{1,2048}$',
+    guardrailVersionPattern: '^(DRAFT|[1-9][0-9]{0,7})$',
+  },
 };
 
 // Core puts dayjs on the window in the browser.
