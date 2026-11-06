@@ -169,4 +169,77 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
 
     return pages;
   }
+
+  /**
+   * The filters the list is currently showing results for, as the API takes
+   * them: `q` run through the gambits and folded into `filter` — the same
+   * parsing `Store.find()` does before a `GET` — and whatever extensions add
+   * — the tag of a tag page, say — already in place, since this is the same
+   * thing `requestParams()` asks the API for.
+   *
+   * Gambits like `tag:x` or `is:unread` only take effect for a `GET` today,
+   * applied client-side on the way out in `Store.find()`; the server never
+   * parses `q`. Anything sent `q` as-is — `markAllAsRead()`'s `POST`, and the
+   * confirmation text this feeds `IndexPage` — would otherwise run a fulltext
+   * search for the literal gambit text instead of the filter it stands for.
+   *
+   * Filters that single nothing out are left off, so a list showing every
+   * discussion is recognisable as one however it was arrived at.
+   */
+  public activeFilters(): Record<string, any> {
+    let filter = { ...((this.requestParams().filter ?? {}) as Record<string, any>) };
+
+    // The whole filter goes through, as in `Store.find()`, not `q` alone: a
+    // gambit with `predicates` (flarum/tags' `tag:`) appends to a filter key
+    // already set, such as the tag of a tag page, rather than replacing it.
+    if (filter.q) {
+      filter = app.search.gambits.apply(this.type, filter);
+    }
+
+    return Object.fromEntries(Object.entries(filter).filter(([, value]) => value !== undefined && value !== null && value !== ''));
+  }
+
+  /**
+   * Mark the discussions in this list as read.
+   *
+   * The API is given the filters the list was fetched with, so a filtered list
+   * only marks its own discussions read rather than the whole forum. With no
+   * filters it is every discussion, which the server still records as one
+   * timestamp on the user instead of a row per discussion.
+   */
+  public markAllAsRead(): Promise<void> {
+    const filter = this.activeFilters();
+    const everything = !Object.keys(filter).length;
+
+    // Captured before the request is sent, not re-read from `this` once it
+    // resolves: this state object is shared across navigation (switching
+    // tags, say), so by the time the response comes back `this.getAllItems()`
+    // may already belong to a different list than the one the request's
+    // filter actually matched on the server.
+    const items = this.getAllItems();
+
+    return app
+      .request({
+        method: 'POST',
+        url: app.forum.attribute('apiUrl') + '/discussions/read',
+        params: { filter },
+      })
+      .then(() => {
+        if (everything) {
+          app.session.user?.pushAttributes({ markedAllAsReadAt: new Date().toISOString() });
+        }
+
+        items.forEach((discussion) => {
+          const lastPostNumber = discussion.lastPostNumber();
+
+          // Nothing to have read up to, in a discussion whose posts are all
+          // gone. Writing null here would read as never having read it.
+          if (lastPostNumber != null) {
+            discussion.pushAttributes({ lastReadPostNumber: lastPostNumber });
+          }
+        });
+
+        m.redraw();
+      });
+  }
 }
