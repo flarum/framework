@@ -71,6 +71,20 @@ class AllowListTest extends McpTestCase
     }
 
     #[Test]
+    public function an_allowed_browser_can_fetch_resource_metadata(): void
+    {
+        foreach (['/.well-known/oauth-protected-resource/mcp', '/.well-known/oauth-protected-resource'] as $path) {
+            $allowed = $this->send($this->request('GET', $path)->withHeader('Origin', 'https://app.example.com'));
+            $this->assertSame(200, $allowed->getStatusCode());
+            $this->assertSame('https://app.example.com', $allowed->getHeaderLine('Access-Control-Allow-Origin'));
+            $this->assertStringContainsString('Origin', $allowed->getHeaderLine('Vary'));
+
+            $foreign = $this->send($this->request('GET', $path)->withHeader('Origin', 'https://evil.example'));
+            $this->assertSame('', $foreign->getHeaderLine('Access-Control-Allow-Origin'));
+        }
+    }
+
+    #[Test]
     public function an_allowed_origin_can_read_the_sign_in_challenge(): void
     {
         $response = $this->send($this->mcpRequest(
@@ -107,6 +121,8 @@ class AllowListTest extends McpTestCase
             ['MCP-Protocol-Version' => self::HANDSHAKE, 'Origin' => 'https://evil.example']
         ));
 
+        $this->assertSame(403, $response->getStatusCode());
+        $this->assertSame('', $response->getHeaderLine('WWW-Authenticate'));
         $this->assertSame('', $response->getHeaderLine('Access-Control-Allow-Origin'));
     }
 

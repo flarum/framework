@@ -50,8 +50,9 @@ abstract class Tool
     abstract public function inputSchema(): array;
 
     /**
-     * An object schema here makes the result's array value travel as
-     * `structuredContent` as well as JSON text.
+     * An optional schema for the result. The SDK extracts and validates
+     * structured content for the negotiated protocol revision; handshake-era
+     * clients accept only JSON objects as structured content.
      *
      * @return array<string, mixed>|null
      */
@@ -72,11 +73,12 @@ abstract class Tool
     }
 
     /**
+     * Conservative for writes: false means only additive updates.
      * Ignored when the tool is read-only.
      */
     public function destructive(): bool
     {
-        return false;
+        return true;
     }
 
     public function idempotent(): bool

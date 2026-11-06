@@ -11,6 +11,7 @@ namespace Flarum\Mcp\Tests\integration\integrations;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Flags\Flag;
+use Flarum\Mcp\Tests\integration\IssuesOAuthTokens;
 use Flarum\Mcp\Tests\integration\McpTestCase;
 use Flarum\Post\Post;
 use Flarum\User\User;
@@ -18,6 +19,8 @@ use PHPUnit\Framework\Attributes\Test;
 
 class FlagsTest extends McpTestCase
 {
+    use IssuesOAuthTokens;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -33,6 +36,25 @@ class FlagsTest extends McpTestCase
                 ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Buy now</p></t>'],
             ],
         ]);
+    }
+
+    #[Test]
+    public function read_only_clients_cannot_mark_flags_seen_through_generic_reads(): void
+    {
+        $this->setUpOAuth();
+        $this->prepareDatabase([
+            'group_user' => [['user_id' => 2, 'group_id' => 1]],
+            'flags' => [['id' => 1, 'post_id' => 1, 'user_id' => 2, 'type' => 'user', 'reason' => 'spam', 'created_at' => '2026-01-01 00:00:00']],
+        ]);
+
+        $auth = $this->bearer($this->issueOAuthToken('mcp:read'));
+        $response = $this->callTool('list_resources', ['type' => 'flags'], $auth);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame(-32602, $this->json($response)['error']['code']);
+        $this->assertNull(User::findOrFail(2)->read_flags_at);
+        $this->assertSame('1', $this->toolOutput($this->callTool('list_flags', [], $auth))['data'][0]['postId']);
+        $this->assertNull(User::findOrFail(2)->read_flags_at);
     }
 
     #[Test]
@@ -90,12 +112,6 @@ class FlagsTest extends McpTestCase
         ]);
 
         $admin = $this->bearer($this->developerToken(1));
-
-        $this->assertSame(['1'], array_column($this->toolOutput($this->callTool('list_resources', ['type' => 'flags'], $admin))['data'], 'id'));
-
-        // Flags have no searcher: core throws on any filter.
-        $filtered = $this->toolOutput($this->callTool('list_resources', ['type' => 'flags', 'filter' => ['post' => '1']], $admin), expectError: true);
-        $this->assertSame('flags cannot be filtered by post. describe_api lists the filters it takes.', $filtered['error']);
 
         $unknown = $this->toolOutput($this->callTool('list_resources', ['type' => 'discussions', 'filter' => ['nope' => 'x', '-author' => 'admin']], $admin), expectError: true);
         $this->assertSame('discussions cannot be filtered by nope. describe_api lists the filters it takes.', $unknown['error']);
