@@ -379,7 +379,7 @@ class Formatter
             return $xml;
         }
 
-        $actor = $request ? RequestUtil::getActor($request) : new \Flarum\User\Guest;
+        $actor = $request?->getAttribute('actorReference')?->getActor() ?? new Guest;
         $titles = Discussion::whereVisibleTo($actor)->whereIn('id', array_unique($ids))->pluck('title', 'id');
 
         return Utils::replaceAttributes($xml, 'URL', function (array $attributes) use ($titles) {

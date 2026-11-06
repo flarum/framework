@@ -49,6 +49,15 @@ class InternalLinksTest extends TestCase
     }
 
     #[Test]
+    public function a_request_without_an_actor_uses_guest_visibility()
+    {
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $html = $formatter->render($formatter->parse('http://flarum.localhost/d/123'), null, new \Laminas\Diactoros\ServerRequest());
+
+        $this->assertStringContainsString('#123', $html);
+    }
+
+    #[Test]
     public function an_author_cannot_supply_a_discussion_title_attribute()
     {
         $this->extension('flarum-bbcode');
