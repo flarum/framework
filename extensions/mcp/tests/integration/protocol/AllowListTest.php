@@ -121,6 +121,8 @@ class AllowListTest extends McpTestCase
             ['MCP-Protocol-Version' => self::HANDSHAKE, 'Origin' => 'https://evil.example']
         ));
 
+        $this->assertSame(403, $response->getStatusCode());
+        $this->assertSame('', $response->getHeaderLine('WWW-Authenticate'));
         $this->assertSame('', $response->getHeaderLine('Access-Control-Allow-Origin'));
     }
 

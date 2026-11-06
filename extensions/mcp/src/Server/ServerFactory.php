@@ -151,10 +151,6 @@ class ServerFactory
         $responseFactory = new ResponseFactory();
         $streamFactory = new StreamFactory();
 
-        $registry = $this->container->make(CapabilityRegistry::class);
-        $host = parse_url($this->url->to('forum')->base(), PHP_URL_HOST) ?: 'localhost';
-        $origins = $registry->allowedOrigins();
-
         return new StreamableHttpTransport(
             request: $request,
             responseFactory: $responseFactory,
@@ -165,13 +161,21 @@ class ServerFactory
                 // extensions allow get through; only the forum's host and the
                 // hosts extensions allow are answered.
                 $this->cors(),
-                new DnsRebindingProtectionMiddleware(
-                    allowedHosts: array_values(array_unique([$host, ...$registry->allowedHosts()])),
-                    allowedOrigins: $origins,
-                    responseFactory: $responseFactory,
-                    streamFactory: $streamFactory,
-                ),
+                $this->originAndHostChecks(),
             ],
+        );
+    }
+
+    public function originAndHostChecks(): DnsRebindingProtectionMiddleware
+    {
+        $registry = $this->container->make(CapabilityRegistry::class);
+        $host = parse_url($this->url->to('forum')->base(), PHP_URL_HOST) ?: 'localhost';
+
+        return new DnsRebindingProtectionMiddleware(
+            allowedHosts: array_values(array_unique([$host, ...$registry->allowedHosts()])),
+            allowedOrigins: $registry->allowedOrigins(),
+            responseFactory: new ResponseFactory(),
+            streamFactory: new StreamFactory(),
         );
     }
 
