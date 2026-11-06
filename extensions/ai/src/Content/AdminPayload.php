@@ -15,14 +15,15 @@ use Flarum\Ai\ConnectionKeys;
 use Flarum\Ai\Drivers;
 use Flarum\Ai\Features\Feature;
 use Flarum\Ai\Features\FeatureRegistry;
+use Flarum\Ai\Models\ModelHealth;
 use Flarum\Frontend\Document;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
  * What the admin page needs beyond the settings: which connections have a
  * key, the providers it can set up, what config.php fixes (shown, not
- * editable), the features extensions have registered, and the rules its
- * forms check before saving.
+ * editable), the features extensions have registered, the models in use that
+ * are deprecated or gone, and the rules its forms check before saving.
  *
  * @internal
  */
@@ -32,7 +33,8 @@ class AdminPayload
         protected AdminConnections $connections,
         protected ConnectionKeys $keys,
         protected AiConfig $config,
-        protected FeatureRegistry $features
+        protected FeatureRegistry $features,
+        protected ModelHealth $health
     ) {
     }
 
@@ -52,6 +54,8 @@ class AdminPayload
                 'extension' => $feature->extension,
                 'permission' => $feature->permission(),
             ], $this->features->all())),
+            // On every admin page, so the dashboard can warn too.
+            'modelIssues' => $this->health->forAdmin(),
             'rules' => [
                 'namePattern' => AdminConnections::NAME_PATTERN,
                 'modelMaxLength' => AdminConnections::MODEL_MAX_LENGTH,

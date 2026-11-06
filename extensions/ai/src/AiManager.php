@@ -9,8 +9,9 @@
 
 namespace Flarum\Ai;
 
-use Flarum\Ai\Features\FeatureOptionsGateway;
+use Flarum\Ai\Features\FeatureGateway;
 use Flarum\Ai\Features\FeatureSettings;
+use Flarum\Ai\Models\ModelHealth;
 use Flarum\Ai\Usage\Attribution;
 use Laravel\Ai\AiManager as BaseAiManager;
 use Laravel\Ai\Contracts\Agent;
@@ -23,7 +24,8 @@ use Laravel\Ai\Contracts\Providers\TextProvider;
  * request.
  *
  * An agent prompted as a feature gets a provider that sends the temperature
- * and longest reply the admin set for that feature.
+ * and longest reply the admin set for that feature, and falls back to the
+ * connection's default model if the one chosen for the feature is gone.
  *
  * @internal
  */
@@ -53,13 +55,20 @@ class AiManager extends BaseAiManager
 
         $settings = $this->app->make(FeatureSettings::class)->get($context->feature);
 
-        if ($settings['temperature'] === null && $settings['max_tokens'] === null) {
+        if ($settings['temperature'] === null && $settings['max_tokens'] === null && $settings['model'] === null) {
             return $provider;
         }
 
+        $health = $this->app->make(ModelHealth::class);
+
         // A copy, so the provider other calls share keeps its own gateway.
-        return (clone $provider)->useTextGateway(
-            new FeatureOptionsGateway($provider->textGateway(), $settings['temperature'], $settings['max_tokens'])
-        );
+        return (clone $provider)->useTextGateway(new FeatureGateway(
+            $provider->textGateway(),
+            $settings['temperature'],
+            $settings['max_tokens'],
+            $settings['model'],
+            fn () => $provider->defaultTextModel(),
+            fn (string $model) => $health->recordFailure($provider->name(), $model)
+        ));
     }
 }

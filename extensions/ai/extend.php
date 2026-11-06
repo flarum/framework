@@ -8,9 +8,11 @@
  */
 
 use Flarum\Ai\AiServiceProvider;
+use Flarum\Ai\Api\Controller\CheckModelsController;
 use Flarum\Ai\Api\Controller\ListModelsController;
 use Flarum\Ai\Api\Controller\ShowUsageController;
 use Flarum\Ai\Api\ForumResourceFields;
+use Flarum\Ai\Console\CheckModelsCommand;
 use Flarum\Ai\Console\PruneUsageCommand;
 use Flarum\Ai\Content;
 use Flarum\Ai\Exception\LimitReachedException;
@@ -45,7 +47,8 @@ return [
 
     (new Extend\Routes('api'))
         ->get('/ai/usage', 'ai.usage', ShowUsageController::class)
-        ->get('/ai/connections/{connection}/models', 'ai.models', ListModelsController::class),
+        ->get('/ai/connections/{connection}/models', 'ai.models', ListModelsController::class)
+        ->post('/ai/models/check', 'ai.models.check', CheckModelsController::class),
 
     (new Extend\ApiResource(ForumResource::class))
         ->fields(ForumResourceFields::class),
@@ -53,6 +56,10 @@ return [
     (new Extend\Console())
         ->command(PruneUsageCommand::class)
         ->schedule(PruneUsageCommand::class, function (ScheduledEvent $event): void {
+            $event->daily();
+        })
+        ->command(CheckModelsCommand::class)
+        ->schedule(CheckModelsCommand::class, function (ScheduledEvent $event): void {
             $event->daily();
         }),
 
@@ -67,6 +74,7 @@ return [
         // Keys first, so the connections are rebuilt with them.
         ->listen(Saved::class, Listener\CommitConnectionKeys::class)
         ->listen(Saved::class, Listener\ReconfigureAi::class)
+        ->listen(Saved::class, Listener\PruneModelIssues::class)
         // Every laravel/ai call, of every kind, from any extension: limits
         // before it, the ledger after it. Listeners only hear the class they're
         // registered for, not its subclasses, so streams have their own.
@@ -84,5 +92,7 @@ return [
         ->listen(Events\AudioGenerated::class, Listener\RecordUsage::class)
         ->listen(Events\TranscriptionGenerated::class, Listener\RecordUsage::class)
         ->listen(Events\Reranked::class, Listener\RecordUsage::class)
-        ->listen(Events\Classified::class, Listener\RecordUsage::class),
+        ->listen(Events\Classified::class, Listener\RecordUsage::class)
+        // Every failed call, so a model that's gone is reported whoever called it.
+        ->listen(Events\AgentFailed::class, Listener\RecordMissingModel::class),
 ];
