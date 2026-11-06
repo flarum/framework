@@ -88,6 +88,8 @@ return [
         ->hide('oauth-provider-clients')
         // Listing marks the actor's notifications seen; list_notifications reads without that.
         ->hideEndpoint('notifications', 'index')
+        // Listing marks flags seen; list_flags reads without that side effect.
+        ->hideEndpoint('flags', 'index')
 
         ->allowWrites('discussions', ['create', 'update', 'delete'])
         ->allowWrites('posts', ['create', 'update', 'delete'])
