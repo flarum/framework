@@ -10,8 +10,7 @@ export interface ISettingsSectionAttrs extends ComponentAttrs {
 /**
  * A titled group of settings on an admin page.
  *
- * On wide screens the heading and description sit in a column beside the
- * fields; on narrow screens they stack above them.
+ * The heading and description sit above the fields at every screen size.
  *
  * @example
  * <SettingsSection label="Notifications" description="When we email your members." icon="fas fa-bell">
