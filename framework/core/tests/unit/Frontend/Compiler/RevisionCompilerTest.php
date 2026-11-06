@@ -11,6 +11,10 @@ namespace Flarum\Tests\unit\Frontend\Compiler;
 
 use Flarum\Frontend\Compiler\FileVersioner;
 use Flarum\Frontend\Compiler\JsCompiler;
+use Flarum\Frontend\Compiler\JsDirectoryCompiler;
+use Flarum\Frontend\Compiler\Source\DirectorySource;
+use Flarum\Frontend\Compiler\VersionerInterface;
+use Illuminate\Container\Container;
 use Flarum\Frontend\Compiler\RevisionCompiler;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\unit\TestCase;
@@ -18,6 +22,7 @@ use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestWith;
 
 /**
  * The revision is a hash of the compiled OUTPUT, so it changes if and only if
@@ -123,6 +128,68 @@ class RevisionCompilerTest extends TestCase
     private function makeJsCompiler(): JsCompiler
     {
         return new JsCompiler($this->assetsDir(), 'chunk.js', m::mock(SettingsRepositoryInterface::class), $this->versioner());
+    }
+
+    #[Test]
+    #[TestWith(['js/{ext}/forum'])]
+    #[TestWith(['js\\{ext}\\forum'])]
+    public function rebuilding_a_lazy_chunk_preserves_the_bytes_at_its_previous_url(string $destination)
+    {
+        $path = $this->sourceFile('chunk.js', 'console.log("old build");');
+        $mapPath = $this->sourceFile('chunk.js.map', json_encode([
+            'version' => 3, 'sources' => ['old.ts'], 'sourcesContent' => ['old build'],
+            'names' => [], 'mappings' => 'AAAA',
+        ]));
+        $previousContainer = Container::getInstance();
+        $container = new Container();
+        $container->instance(SettingsRepositoryInterface::class, m::mock(SettingsRepositoryInterface::class));
+        $container->instance(VersionerInterface::class, $this->versioner());
+        Container::setInstance($container);
+
+        try {
+            $compiler = new class($this->assetsDir(), $destination, $this->versioner()) extends JsDirectoryCompiler {
+                public function chunkUrl(DirectorySource $source): string
+                {
+                    return $this->compilerFor($source, $source->getFilesystem(), 'chunk.js')->getUrl();
+                }
+            };
+            $compiler->addSources(fn ($sources) => $sources->addDirectory($this->tmpDir));
+            $source = new DirectorySource($this->tmpDir);
+            $this->manifest['js/core/forum/chunk.js'] = '12345678';
+            $this->manifest['js\\core\\forum/chunk.js'] = '87654321';
+            $this->written['js/core/forum/chunk.js'] = 'console.log("legacy build");';
+            $compiler->getUrl();
+            $this->assertArrayNotHasKey('js\\core\\forum/chunk.js', $this->manifest);
+            $this->assertMatchesRegularExpression('/^[a-f0-9]{32}$/', $this->manifest['js/core/forum/chunk.js']);
+            $oldUrl = $compiler->chunkUrl($source);
+            $oldFile = substr(parse_url($oldUrl, PHP_URL_PATH), strlen('/assets/'));
+            $this->assertStringStartsWith('/assets/js/core/forum/chunk.', $oldUrl);
+            $this->assertArrayHasKey($oldFile, $this->written, 'A legacy manifest must be republished before emitting revisioned URLs.');
+            $oldContent = $this->written[$oldFile];
+            $this->assertArrayHasKey('js/core/forum/chunk.js', $this->manifest);
+            preg_match('~sourceMappingURL=/assets/(.+)$~', $oldContent, $mapUrl);
+            $oldMap = $this->written[$mapUrl[1]];
+
+            file_put_contents($path, 'console.log("new build");');
+            file_put_contents($mapPath, json_encode([
+                'version' => 3, 'sources' => ['new.ts'], 'sourcesContent' => ['new build'],
+                'names' => [], 'mappings' => 'AAAA',
+            ]));
+            clearstatcache(true, $path);
+            $compiler->commit();
+            $newUrl = $compiler->chunkUrl($source);
+            $newFile = substr(parse_url($newUrl, PHP_URL_PATH), strlen('/assets/'));
+            preg_match('~sourceMappingURL=/assets/(.+)$~', $this->written[$newFile], $newMapUrl);
+            $this->assertNotSame($mapUrl[1], $newMapUrl[1]);
+            $this->assertArrayHasKey($newMapUrl[1], $this->written);
+            $this->assertNotSame($oldMap, $this->written[$newMapUrl[1]]);
+            $this->assertSame($oldMap, $this->written[$mapUrl[1]]);
+        } finally {
+            Container::setInstance($previousContainer);
+        }
+
+        $this->assertNotSame($oldUrl, $newUrl);
+        $this->assertSame($oldContent, $this->written[$oldFile], 'An open tab must still receive its original chunk from its original URL.');
     }
 
     #[Test]
@@ -261,7 +328,7 @@ class RevisionCompilerTest extends TestCase
 
     /**
      * Extension JS is compiled per-file by JsCompiler (JsDirectoryCompiler
-     * expands a DirectorySource into one JsCompiler per file), which inherits
+     * expands a DirectorySource into one JsChunkCompiler per file), which inherits
      * the same content-based revision — and its hash covers the written bundle
      * including the sourcemap comment, since that is what clients download.
      */

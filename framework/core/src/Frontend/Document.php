@@ -202,7 +202,7 @@ class Document implements Renderable
         $url = rtrim($this->filesystem->disk('flarum-assets')->url('js'), '/')."/$namespace/$path.js";
 
         if ($revision = $this->versioner->getRevision($file)) {
-            $url .= "?v=$revision";
+            $url = substr($url, 0, -3).".$revision.js";
         }
 
         $this->preloads[] = ['href' => $url, 'as' => 'script'];

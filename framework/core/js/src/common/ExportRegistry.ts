@@ -314,7 +314,7 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     const key = path.replace(assetsPath, '').replace(/^\//, '');
     const revision = this._revisions[key];
 
-    return revision ? `${path}?v=${revision}` : path;
+    return revision ? `${path.slice(0, -3)}.${revision}.js` : path;
   }
 
   async asyncModuleImport(path: string): Promise<any> {
