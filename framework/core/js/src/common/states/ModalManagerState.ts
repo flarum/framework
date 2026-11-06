@@ -141,6 +141,23 @@ export default class ModalManagerState {
   }
 
   /**
+   * Removes the modal with the given key, wherever it is in the stack. If it
+   * is the topmost one, this is the same as `close()`.
+   *
+   * @internal
+   */
+  remove(key: number): void {
+    if (this.modal?.key === key) return this.close();
+
+    const index = this.modalList.findIndex((modal) => modal.key === key);
+    if (index === -1) return;
+
+    this.modalList.splice(index, 1);
+
+    m.redraw();
+  }
+
+  /**
    * Checks if a modal is currently open.
    *
    * @return `true` if a modal dialog is currently open, otherwise `false`.
