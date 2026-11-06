@@ -26,6 +26,7 @@ class Branding
         protected SettingsRepositoryInterface $settings,
         protected StoredFiles $files,
         protected ThemeImages $theme,
+        protected AppIcon $appIcon,
         Factory $filesystemFactory
     ) {
         $this->assets = $filesystemFactory->disk('flarum-assets');
@@ -95,9 +96,7 @@ class Branding
             return $path;
         }
 
-        $appIcon = $this->theme->has('app_icon') ? $this->theme->paths('app_icon') : $this->files->paths('app_icon_paths');
-
-        return $appIcon['favicon.png'] ?? null;
+        return $this->appIconPaths()['favicon.png'] ?? null;
     }
 
     public function faviconSvgUrl(): ?string
@@ -115,6 +114,27 @@ class Branding
         }
 
         return array_map(fn (string $path) => $this->assets->url($path), $this->files->paths('app_icon_paths'));
+    }
+
+    public function appIconBackground(): string
+    {
+        return $this->theme->backgroundOf('app_icon') ?? $this->appIcon->background();
+    }
+
+    /**
+     * @return array<string, string> "portrait", and "landscape" if it gave one => path
+     */
+    public function splashScreenPaths(): array
+    {
+        return $this->theme->has('splash_screen') ? $this->theme->paths('splash_screen') : [];
+    }
+
+    /**
+     * @return array<string, string> file name => path on the assets disk
+     */
+    public function appIconPaths(): array
+    {
+        return $this->theme->has('app_icon') ? $this->theme->paths('app_icon') : $this->files->paths('app_icon_paths');
     }
 
     protected function image(string $themeImage, string $settingKey): ?string

@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Admin\AppIconValidator;
 use Flarum\Forum\Branding\AppIcon;
+use Flarum\Forum\Branding\SplashScreen;
 use Intervention\Image\Interfaces\EncodedImageInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -34,5 +35,6 @@ class UploadAppIconController extends UploadImageController
     protected function afterStore(ServerRequestInterface $request, UploadedFileInterface $file): void
     {
         $this->container->make(AppIcon::class)->draw();
+        $this->container->make(SplashScreen::class)->forgetOutdated();
     }
 }
