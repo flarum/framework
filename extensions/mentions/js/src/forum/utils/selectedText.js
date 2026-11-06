@@ -20,14 +20,6 @@ export default function selectedText(body) {
         return document.createTextNode(this.getAttribute('href'));
       });
 
-      // A spoiler would otherwise come out of clone.text() as plain text.
-      clone.find('span.spoiler').replaceWith(function () {
-        return document.createTextNode(`>!${this.textContent}!<`);
-      });
-      clone.find('details.spoiler').replaceWith(function () {
-        return document.createTextNode(`>! ${this.textContent.trim().replace(/\n/g, '\n>! ')}\n`);
-      });
-
       // Replace emoji images with their shortcode (found in alt attribute)
       clone.find('img.emoji').replaceWith(function () {
         return this.alt;
@@ -44,6 +36,20 @@ export default function selectedText(body) {
       // Replace all links with a Markdown link
       clone.find('a').replaceWith(function () {
         return `[${this.innerText}](${this.href})`;
+      });
+
+      // A spoiler would otherwise come out of clone.text() as plain text. This
+      // runs after the conversions above so that images, emoji and links in
+      // it are kept. A revealed inline spoiler has lost its class, so it is
+      // found by data-spoiler (see the markdown extension's template). A
+      // literal "!<" in it is escaped, or it would close the spoiler early.
+      const escape = (text) => text.replace(/!</g, '!\\<');
+
+      clone.find('details.spoiler').replaceWith(function () {
+        return document.createTextNode(`>! ${escape(this.textContent.trim()).replace(/\n/g, '\n>! ')}\n`);
+      });
+      clone.find('span.spoiler, span[data-spoiler]').replaceWith(function () {
+        return document.createTextNode(`>!${escape(this.textContent)}!<`);
       });
 
       return clone.text();
