@@ -10,6 +10,7 @@
 namespace Flarum\Ai\Models;
 
 use Carbon\CarbonImmutable;
+use Aws\Exception\AwsException;
 use Flarum\Ai\AiConfig;
 use Flarum\Ai\Exception\ModelsUnavailableException;
 use Flarum\Ai\Features\FeatureRegistry;
@@ -289,15 +290,23 @@ class ModelHealth
     }
 
     /**
-     * Whether a provider's answer to a call means the model is gone: a 404
-     * that names it, as a whole name, not part of a longer one. A 404 that
-     * doesn't, such as from a wrong API URL, isn't.
+     * Whether a provider's answer to a call means the model is gone:
+     *
+     * - over HTTP, a 404 that names it, as a whole name, not part of a longer
+     *   one. A 404 that doesn't, such as from a wrong API URL, isn't;
+     * - from Bedrock, which is reached by region so has no wrong address, a
+     *   ResourceNotFoundException, or a model identifier it calls invalid.
      */
     public static function isMissingModel(Throwable $e, string $model): bool
     {
         for (; $e !== null; $e = $e->getPrevious()) {
             if ($e instanceof RequestException && $e->response->status() === 404) {
                 return (bool) preg_match('/(?<![A-Za-z0-9._:-])'.preg_quote($model, '/').'(?![A-Za-z0-9._:\/-])/', $e->response->body());
+            }
+
+            if ($e instanceof AwsException) {
+                return $e->getAwsErrorCode() === 'ResourceNotFoundException'
+                    || ($e->getAwsErrorCode() === 'ValidationException' && str_contains(strtolower($e->getAwsErrorMessage() ?? $e->getMessage()), 'model identifier'));
             }
         }
 

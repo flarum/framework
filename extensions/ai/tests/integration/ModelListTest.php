@@ -9,6 +9,10 @@
 
 namespace Flarum\Ai\Tests\integration;
 
+use Aws\CommandInterface;
+use Aws\MockHandler;
+use Aws\Result;
+use Flarum\Ai\Models\ModelLister;
 use Flarum\Ai\Testing\InteractsWithAi;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -16,6 +20,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\RequestInterface;
 
 /**
  * The models each connection's provider offers, which the admin page lists to
@@ -207,5 +212,63 @@ class ModelListTest extends TestCase
         $this->assertSame(403, $this->models('claude', [], 2)[0]);
         $this->assertSame(404, $this->models('missing')[0]);
         Http::assertNothingSent();
+    }
+
+    #[Test]
+    public function bedrocks_models_and_inference_profiles_are_listed_with_their_lifecycle(): void
+    {
+        $this->setting('flarum-ai.connections', json_encode(['aws' => ['driver' => 'bedrock', 'region' => 'eu-central-1']]));
+        $this->prepareDatabase(['ai_connection_keys' => [['connection' => 'aws', 'key' => 'ABSKsecret', 'updated_at' => date('Y-m-d H:i:s')]]]);
+
+        $requests = [];
+        $aws = new MockHandler([
+            new Result(['modelSummaries' => [
+                [
+                    'modelId' => 'anthropic.claude-old-v1:0', 'modelName' => 'Claude Old', 'inferenceTypesSupported' => ['ON_DEMAND'],
+                    'modelLifecycle' => ['status' => 'LEGACY', 'legacyTime' => '2026-09-01T00:00:00Z', 'endOfLifeTime' => '2027-03-01T00:00:00Z'],
+                ],
+                [
+                    'modelId' => 'anthropic.claude-new-v1:0', 'modelName' => 'Claude New', 'inferenceTypesSupported' => ['INFERENCE_PROFILE'],
+                    'modelLifecycle' => ['status' => 'ACTIVE'],
+                ],
+                [
+                    'modelId' => 'amazon.nova-pro-v1:0', 'modelName' => 'Nova Pro', 'inferenceTypesSupported' => ['ON_DEMAND', 'INFERENCE_PROFILE'],
+                    'modelLifecycle' => ['status' => 'ACTIVE'],
+                ],
+            ]]),
+            new Result([
+                'inferenceProfileSummaries' => [[
+                    'inferenceProfileId' => 'eu.anthropic.claude-new-v1:0', 'inferenceProfileName' => 'EU Claude New', 'status' => 'ACTIVE',
+                    'models' => [['modelArn' => 'arn:aws:bedrock:eu-central-1::foundation-model/anthropic.claude-new-v1:0']],
+                ]],
+                'nextToken' => 'page2',
+            ]),
+            new Result(['inferenceProfileSummaries' => [[
+                'inferenceProfileId' => 'eu.anthropic.claude-old-v1:0', 'inferenceProfileName' => 'EU Claude Old', 'status' => 'ACTIVE',
+                'models' => [['modelArn' => 'arn:aws:bedrock:eu-central-1::foundation-model/anthropic.claude-old-v1:0']],
+            ]]]),
+        ], function () {}, function () {});
+
+        $this->app()->getContainer()->instance(ModelLister::class, new ModelLister(function (CommandInterface $command, RequestInterface $request) use ($aws, &$requests) {
+            $requests[] = [$command->getName(), $command->toArray(), $request->getHeaderLine('Authorization')];
+
+            return $aws($command, $request);
+        }));
+
+        [$status, $body] = $this->models('aws');
+
+        $this->assertSame(200, $status, json_encode($body));
+        $this->assertSame([
+            ['id' => 'amazon.nova-pro-v1:0', 'name' => 'Nova Pro', 'deprecatedAt' => null, 'retiresAt' => null],
+            ['id' => 'anthropic.claude-old-v1:0', 'name' => 'Claude Old', 'deprecatedAt' => '2026-09-01T00:00:00+00:00', 'retiresAt' => '2027-03-01T00:00:00+00:00'],
+            ['id' => 'eu.anthropic.claude-new-v1:0', 'name' => 'EU Claude New', 'deprecatedAt' => null, 'retiresAt' => null],
+            ['id' => 'eu.anthropic.claude-old-v1:0', 'name' => 'EU Claude Old', 'deprecatedAt' => '2026-09-01T00:00:00+00:00', 'retiresAt' => '2027-03-01T00:00:00+00:00'],
+        ], $body['models']);
+
+        $this->assertSame(['ListFoundationModels', 'ListInferenceProfiles', 'ListInferenceProfiles'], array_column($requests, 0));
+        $this->assertSame('TEXT', $requests[0][1]['byOutputModality']);
+        $this->assertSame('SYSTEM_DEFINED', $requests[1][1]['typeEquals']);
+        $this->assertSame('page2', $requests[2][1]['nextToken']);
+        $this->assertSame('Bearer ABSKsecret', $requests[0][2]);
     }
 }

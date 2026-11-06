@@ -10,6 +10,8 @@
 namespace Flarum\Ai\Models;
 
 use Carbon\CarbonImmutable;
+use Closure;
+use Flarum\Ai\Drivers;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Laravel\Ai\Providers\Provider;
@@ -19,7 +21,7 @@ use UnexpectedValueException;
 /**
  * Asks a provider's API which models it offers, with the connection's own
  * address and key. Every provider the admin page can set up can be asked;
- * ones only config.php can set up, such as Azure and Bedrock, can't.
+ * Azure, which only config.php can set up, can't.
  *
  * @internal
  */
@@ -51,9 +53,17 @@ class ModelLister
      */
     protected const MAX_PAGES = 20;
 
+    public function __construct(
+        /** Sends Bedrock's requests in place of the network, in tests. */
+        protected ?Closure $awsHandler = null
+    ) {
+    }
+
     public function canList(string $driver): bool
     {
-        return isset(self::DEFAULT_URLS[$driver]) || in_array($driver, self::OPENAI_SHAPED, true);
+        return isset(self::DEFAULT_URLS[$driver])
+            || in_array($driver, self::OPENAI_SHAPED, true)
+            || ($driver === 'bedrock' && Drivers::awsSdkInstalled());
     }
 
     /**
@@ -63,6 +73,13 @@ class ModelLister
      */
     public function list(string $driver, Provider $provider): array
     {
+        if ($driver === 'bedrock') {
+            $models = (new BedrockModels($this->awsHandler))->list($provider);
+            usort($models, fn (ProviderModel $a, ProviderModel $b) => strcmp($a->id, $b->id));
+
+            return $models;
+        }
+
         $config = $provider->additionalConfiguration();
         $key = $provider->providerCredentials()['key'] ?? null;
         $url = rtrim(is_string($config['url'] ?? null) && $config['url'] !== '' ? $config['url'] : (self::DEFAULT_URLS[$driver] ?? ''), '/');
