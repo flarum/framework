@@ -3,6 +3,8 @@ import { jest } from '@jest/globals';
 import app from '../../../../src/forum/app';
 import GambitsAutocomplete from '../../../../src/common/utils/GambitsAutocomplete';
 import { GambitType } from '../../../../src/common/query/IGambit';
+import GroupGambit from '../../../../src/common/query/users/GroupGambit';
+import Group from '../../../../src/common/models/Group';
 
 beforeAll(() => {
   bootstrapForum();
@@ -336,5 +338,325 @@ describe('GambitsAutocomplete', () => {
 
     expect(changedValue).toBe('author:john');
     expect(afterSuggestValue).toBe('author:john');
+  });
+
+  describe('extensible KeyValueGambit suggestions', () => {
+    beforeEach(() => {
+      app.search.gambits.for = jest.fn().mockImplementation((resource: string) => {
+        if (resource !== 'discussions') return [];
+        return [
+          {
+            type: GambitType.Grouped,
+            suggestion: () => ({ group: 'is', key: ['unread', 'hidden'] }),
+            enabled: () => true,
+          },
+          {
+            type: GambitType.KeyValue,
+            suggestion: () => ({ key: 'author', hint: 'username' }),
+            enabled: () => true,
+          },
+          {
+            type: GambitType.KeyValue,
+            suggestion: () => ({
+              key: 'priority',
+              hint: 'level',
+              values: ['low', 'normal', 'urgent'],
+            }),
+            predicates: false,
+            enabled: () => true,
+          },
+          {
+            type: GambitType.KeyValue,
+            suggestion: () => ({
+              key: 'tag',
+              hint: 'slug',
+              values: () => [
+                { value: 'announcements', label: 'Announcements' },
+                { value: 'general', label: 'General' },
+                { value: 'help', label: 'Help' },
+                { value: 'helpdesk', label: 'Helpdesk' },
+              ],
+            }),
+            predicates: true,
+            enabled: () => true,
+          },
+        ];
+      });
+    });
+
+    it('suggests values for KeyValueGambit with static array values', () => {
+      selectionStart = 9;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('priority:'));
+
+      expect(suggestions).toHaveLength(3);
+      expect(suggestions.map((s) => s.key)).toEqual(['low', 'normal', 'urgent']);
+      expect(suggestions.map((s) => s.value)).toEqual([null, null, null]);
+
+      suggestions[2].click();
+      expect(changedValue).toBe('priority:urgent');
+      expect(afterSuggestValue).toBe('priority:urgent');
+    });
+
+    it('filters KeyValueGambit suggestions by typed prefix after colon', () => {
+      selectionStart = 10;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('priority:u'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('urgent');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('priority:urgent');
+    });
+
+    it('suggests values with labels and supports negation for KeyValueGambit', () => {
+      selectionStart = 5;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('-tag:'));
+
+      expect(suggestions).toHaveLength(4);
+      expect(suggestions[0].key).toBe('announcements');
+      expect(suggestions[0].value).toBe('Announcements');
+      expect(suggestions[1].key).toBe('general');
+      expect(suggestions[1].value).toBe('General');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('-tag:announcements');
+    });
+
+    it('supports comma-separated predicates for KeyValueGambit', () => {
+      selectionStart = 20; // 'tag:announcements,ge'
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:announcements,ge'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('general');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:announcements,general');
+      expect(afterSuggestValue).toBe('tag:announcements,general');
+    });
+
+    it('supports comma-separated predicates with negative prefix', () => {
+      selectionStart = 21; // '-tag:announcements,he'
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('-tag:announcements,he'));
+
+      expect(suggestions).toHaveLength(2);
+      expect(suggestions[0].key).toBe('help');
+      expect(suggestions[1].key).toBe('helpdesk');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('-tag:announcements,help');
+      expect(afterSuggestValue).toBe('-tag:announcements,help');
+    });
+
+    it('dismisses autocomplete when KeyValueGambit value is fully typed even with shared prefix options', () => {
+      selectionStart = 8; // 'tag:help'
+      const ac = createAutocomplete();
+      const suggestions = ac.suggestions('tag:help');
+
+      expect(suggestions).toHaveLength(0);
+    });
+
+    it('preserves casing of previously typed comma-separated values', () => {
+      selectionStart = 20; // 'tag:Announcements,ge'
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:Announcements,ge'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('general');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:Announcements,general');
+      expect(afterSuggestValue).toBe('tag:Announcements,general');
+    });
+
+    it('excludes already selected values from comma-separated predicate suggestions', () => {
+      selectionStart = 18; // 'tag:announcements,'
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:announcements,'));
+
+      expect(suggestions.map((s) => s.key)).toEqual(['general', 'help', 'helpdesk']);
+    });
+
+    it('filters KeyValueGambit by label as well as value', () => {
+      selectionStart = 8; // 'tag:Gene'
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:Gene'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('general');
+    });
+
+    it('preserves subsequent comma-separated values when autocompleting an earlier value', () => {
+      selectionStart = 7; // 'tag:ann,help'
+      selectionEnd = 7;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:ann,help'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('announcements');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:announcements,help');
+      expect(afterSuggestValue).toBe('tag:announcements,help');
+    });
+
+    it('preserves surrounding terms and later values when completing inside a list', () => {
+      selectionStart = 6; // 'tag:ge' in 'tag:ge,help is:unread'
+      selectionEnd = 6;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:ge,help is:unread'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('general');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:general,help is:unread');
+    });
+
+    it('matches canonical English aliases for key-value gambit value suggestions', () => {
+      const localizedGambit = {
+        type: GambitType.KeyValue,
+        predicates: false,
+        enabled: () => true,
+        canonicalKey: () => 'tag',
+        suggestion: () => ({
+          key: 'etiket',
+          hint: 'etiket ara',
+          values: () => ['announcements', 'general'],
+        }),
+      } as unknown as IGambit<GambitType.KeyValue>;
+
+      app.search.gambits.for = jest.fn().mockReturnValue([localizedGambit]);
+
+      selectionStart = 4; // 'tag:'
+      selectionEnd = 4;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:'));
+
+      expect(suggestions).toHaveLength(2);
+      expect(suggestions[0].key).toBe('announcements');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:announcements');
+    });
+
+    it('supports calling specificGambitSuggestions with 6 arguments', () => {
+      const ac = createAutocomplete();
+      const autocompleteCheck = { relativeStart: 0, typed: 'tag:ann' };
+
+      const suggestions = ac.specificGambitSuggestions('tag', 'ann', [], [], autocompleteCheck, false);
+
+      expect(suggestions).not.toBeNull();
+      expect(suggestions).toHaveLength(1);
+    });
+
+    it('derives gambit colon and value offset from original token when lowercase changes length', () => {
+      const turkishGambit = {
+        type: GambitType.KeyValue,
+        predicates: false,
+        enabled: () => true,
+        suggestion: () => ({
+          key: 'İ',
+          values: () => ['ab', 'cd'],
+        }),
+      } as unknown as IGambit<GambitType.KeyValue>;
+
+      app.search.gambits.for = jest.fn().mockReturnValue([turkishGambit]);
+
+      // 'İ:a' - In Turkish Unicode lowercasing, 'İ'.toLowerCase() has length 2 ('i\u0307')
+      selectionStart = 3;
+      selectionEnd = 3;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('İ:a'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('ab');
+    });
+
+    it('does not dismiss suggestions when cursor is inside an uncompleted active value', () => {
+      // In 'tag:helpold,general' with caret right after 'help', 'help' is an existing tag,
+      // but the full active term being edited is 'helpold'. Suggestions should remain open.
+      selectionStart = 8; // 'tag:help|old,general'
+      selectionEnd = 8;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:helpold,general'));
+
+      expect(suggestions).toHaveLength(2);
+      expect(suggestions.map((s) => s.key)).toEqual(['help', 'helpdesk']);
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:help,general');
+    });
+  });
+
+  describe('GroupGambit integration', () => {
+    beforeEach(() => {
+      const mockGroup = (id: string, singular: string, plural: string) =>
+        ({
+          id: () => id,
+          nameSingular: () => singular,
+          namePlural: () => plural,
+        } as unknown as Group);
+
+      app.store.all = jest.fn().mockImplementation((type: string) => {
+        if (type === 'groups') {
+          return [
+            mockGroup('1', 'Admin', 'Admins'),
+            mockGroup('2', 'Guest', 'Guests'),
+            mockGroup('3', 'Member', 'Members'),
+            mockGroup('4', 'Community Manager', 'Community Managers'),
+          ];
+        }
+        return [];
+      });
+
+      app.search.gambits.for = jest.fn().mockImplementation((resource: string) => {
+        if (resource !== 'users') return [];
+        return [new GroupGambit()];
+      });
+    });
+
+    it('suggests group id as value and excludes guest and member virtual groups', () => {
+      selectionStart = 6;
+      const ac = createAutocomplete('users');
+      const suggestions = extractSuggestions(ac.suggestions('group:'));
+
+      expect(suggestions).toHaveLength(2);
+      expect(suggestions[0].key).toBe('1');
+      expect(suggestions[0].value).toBe('Admin');
+      expect(suggestions[1].key).toBe('4');
+      expect(suggestions[1].value).toBe('Community Manager');
+    });
+
+    it('matches groups with spaces by label and inserts group id', () => {
+      selectionStart = 10;
+      const ac = createAutocomplete('users');
+      const suggestions = extractSuggestions(ac.suggestions('group:Comm'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('4');
+      expect(suggestions[0].value).toBe('Community Manager');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('group:4');
+      expect(afterSuggestValue).toBe('group:4');
+    });
+
+    it('matches group by mixed case label and inserts group id', () => {
+      selectionStart = 11;
+      const ac = createAutocomplete('users');
+      const suggestions = extractSuggestions(ac.suggestions('group:admin'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('1');
+      expect(suggestions[0].value).toBe('Admin');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('group:1');
+    });
   });
 });
