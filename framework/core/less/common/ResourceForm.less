@@ -1,0 +1,31 @@
+// Generic resource forms (ResourceForm, ResourceFormModal).
+
+.ResourceForm {
+  // Required mark after the field's label, whether the field renders its own Form-group or wraps one.
+  // Hidden from assistive technology (empty alternative text): the control's `required` says it.
+  &-field--required.Form-group > label,
+  &-field--required > .Form-group > label {
+    &::after {
+      content: " *";
+      content: ~'" *" / ""';
+      color: var(--control-danger-color);
+    }
+  }
+
+  // A fieldset of grouped fields: legend over its items, spaced like sibling Form-groups.
+  &-group {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+
+    > .FieldSet-label {
+      padding: 0;
+      margin-bottom: 0;
+    }
+
+    > .FieldSet-items {
+      gap: 24px;
+    }
+  }
+}

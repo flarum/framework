@@ -30,14 +30,13 @@ trait SavesAndValidatesData
 
     /**
      * Assert that the field values within a data object pass validation.
+     * Callers pass the data already run through {@see self::mutateDataBeforeValidation()}.
      *
      * @param \Flarum\Api\Context $context
      * @throws UnprocessableEntityException
      */
     protected function assertDataValid(Context $context, array $data): void
     {
-        $this->mutateDataBeforeValidation($context, $data);
-
         $collection = $context->collection;
 
         $rules = [
@@ -107,6 +106,10 @@ trait SavesAndValidatesData
         }
     }
 
+    /**
+     * Adjusts the data before it is validated. The result replaces the request data:
+     * it is what is validated and what the setters and the save receive.
+     */
     protected function mutateDataBeforeValidation(Context $context, array $data): array
     {
         if (method_exists($context->resource, 'mutateDataBeforeValidation')) {

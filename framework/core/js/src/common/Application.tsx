@@ -37,6 +37,7 @@ import fireApplicationError from './helpers/fireApplicationError';
 import IHistory from './IHistory';
 import IExtender from './extenders/IExtender';
 import AccessToken from './models/AccessToken';
+import ResourceSchema from './models/ResourceSchema';
 import SearchManager from './SearchManager';
 import { ColorScheme } from './components/ThemeMode';
 import { prepareSkipLinks } from './utils/a11y';
@@ -220,6 +221,7 @@ export default class Application {
     posts: Post,
     groups: Group,
     notifications: Notification,
+    'resource-schemas': ResourceSchema,
   });
 
   search!: SearchManager;

@@ -87,6 +87,8 @@ class SearchServiceProvider extends AbstractServiceProvider
                 UserSearcher::class => [
                     UserFilter\EmailFilter::class,
                     UserFilter\GroupFilter::class,
+                    UserFilter\JoinedAtFilter::class,
+                    UserFilter\LastSeenAtFilter::class,
                 ],
                 GroupSearcher::class => [
                     GroupFilter\HiddenFilter::class,
@@ -102,6 +104,16 @@ class SearchServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('flarum.search.mutators', function () {
+            return [];
+        });
+
+        /**
+         * Filter descriptions for the `resource-schemas` endpoint, keyed by
+         * searcher class and filter key. See `Extend\SearchDriver::describeFilter()`.
+         *
+         * @internal Not part of the extension API; use the extenders.
+         */
+        $this->container->singleton('flarum.search.filter_descriptions', function () {
             return [];
         });
 

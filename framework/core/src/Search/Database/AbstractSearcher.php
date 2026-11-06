@@ -26,6 +26,11 @@ abstract class AbstractSearcher implements SearcherInterface
     ) {
     }
 
+    public function getFilterManager(): FilterManager
+    {
+        return $this->filters;
+    }
+
     public function search(SearchCriteria $criteria): SearchResults
     {
         $actor = $criteria->actor;

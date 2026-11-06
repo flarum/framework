@@ -128,6 +128,29 @@ class ProcessErasureTest extends TestCase
     }
 
     #[Test]
+    public function processing_requires_a_mode()
+    {
+        $this->setting('flarum-gdpr.allow-deletion', true);
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/user-erasure-requests/2', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'processorComment' => 'I have processed this request',
+                            'processedMode' => '',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertNotNull(User::find(5));
+    }
+
+    #[Test]
     public function authorized_user_can_process_confirmed_erasure_request_in_deletion_mode()
     {
         $this->setting('flarum-gdpr.allow-deletion', true);
