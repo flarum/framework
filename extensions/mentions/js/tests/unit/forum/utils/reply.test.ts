@@ -29,4 +29,13 @@ describe('insertMention', () => {
   test('starts a quote that opens with a block spoiler on its own line', async () => {
     expect(await inserted('>! one\n>! two\n')).toBe('> @"User"#p12 \n> >! one\n> >! two\n\n');
   });
+
+  test('starts a quote that opens with a block spoiler with an escaped !< on its own line', async () => {
+    expect(await inserted('>! a !\\< b\n')).toBe('> @"User"#p12 \n> >! a !\\< b\n\n');
+  });
+
+  test('keeps a quote that opens with an inline spoiler on the mention line', async () => {
+    expect(await inserted('>!secret!< public')).toBe('> @"User"#p12 >!secret!< public\n\n');
+    expect(await inserted('>!2 \\> 1!< public')).toBe('> @"User"#p12 >!2 \\> 1!< public\n\n');
+  });
 });
