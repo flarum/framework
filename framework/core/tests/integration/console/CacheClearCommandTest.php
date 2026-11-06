@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\console;
 
 use Flarum\Formatter\Formatter;
+use Flarum\Foundation\Paths;
 use Flarum\Frontend\AssetManager;
 use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Locale\LocaleManager;
@@ -44,6 +45,24 @@ class CacheClearCommandTest extends ConsoleTestCase
         $result = $this->runCacheClear();
 
         $this->assertEquals(Command::SUCCESS, $result['status'], $result['output']);
+    }
+
+    /**
+     * The compiler no longer writes a less.php parse cache, and the files an
+     * older version left are never read again: one generation per vendor
+     * update, often hundreds of megabytes.
+     */
+    #[Test]
+    public function it_empties_the_old_less_parse_cache()
+    {
+        $dir = $this->app()->getContainer()->make(Paths::class)->storage.'/less';
+        @mkdir($dir, 0777, true);
+        file_put_contents($file = $dir.'/lessphp_old.lesscache', serialize(['x']));
+
+        $result = $this->runCacheClear();
+
+        $this->assertEquals(Command::SUCCESS, $result['status'], $result['output']);
+        $this->assertFileDoesNotExist($file);
     }
 
     #[Test]
