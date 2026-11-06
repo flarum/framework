@@ -1,5 +1,6 @@
 import app from 'flarum/admin/app';
 import ExtensionPage, { type ExtensionPageAttrs } from 'flarum/admin/components/ExtensionPage';
+import Alert from 'flarum/common/components/Alert';
 import SettingsSection from 'flarum/admin/components/SettingsSection';
 import Button from 'flarum/common/components/Button';
 import Form from 'flarum/common/components/Form';
@@ -11,6 +12,8 @@ import extractText from 'flarum/common/utils/extractText';
 import type ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
 import EditConnectionModal from './EditConnectionModal';
+import ModelInput from './ModelInput';
+import { type ModelIssue, ModelLists } from '../utils/models';
 import {
   aiPayload,
   CONNECTIONS_SETTING,
@@ -72,6 +75,8 @@ export default class AiPage extends ExtensionPage {
   /** Feature fields holding something that isn't a valid value, as `key field`. */
   invalidFeatureFields = new Set<string>();
   usage: Usage | null = null;
+  modelLists = new ModelLists();
+  checkingModels = false;
   usageState: 'idle' | 'loading' | 'loaded' | 'failed' = 'idle';
 
   oninit(vnode: Mithril.Vnode<ExtensionPageAttrs, this>) {
@@ -263,7 +268,117 @@ export default class AiPage extends ExtensionPage {
       );
     }
 
-    return features.map((feature) => this.featureSection(feature));
+    return [this.modelIssuesSection(), ...features.map((feature) => this.featureSection(feature))];
+  }
+
+  /**
+   * The models features use that are deprecated or gone, and a way to check
+   * them now rather than at the daily check.
+   */
+  modelIssuesSection(): Mithril.Children {
+    const issues = aiPayload().modelIssues;
+
+    return (
+      <SettingsSection
+        id="flarum-ai-models"
+        className="AiPage-models"
+        label={app.translator.trans('flarum-ai.admin.models.heading')}
+        description={app.translator.trans('flarum-ai.admin.models.help')}
+        icon="fas fa-heart-pulse"
+      >
+        {issues.length ? (
+          <ul className="AiPage-modelIssues">
+            {issues.map((issue) => (
+              <li key={issue.connection + '/' + issue.model}>{this.issueAlert(issue)}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className="AiPage-empty">{app.translator.trans('flarum-ai.admin.models.no_issues_text')}</p>
+        )}
+        <div>
+          <Button className="Button" icon="fas fa-stethoscope" loading={this.checkingModels} onclick={() => this.checkModels()}>
+            {app.translator.trans('flarum-ai.admin.models.check_button')}
+          </Button>
+        </div>
+      </SettingsSection>
+    );
+  }
+
+  issueAlert(issue: ModelIssue): Mithril.Children {
+    const labels = Object.fromEntries(aiPayload().features.map((feature) => [feature.key, extractText(app.translator.trans(feature.label))]));
+    const features = issue.features.map((key) => labels[key] || key).join(', ');
+    const params = {
+      model: issue.model,
+      connection: issue.connection,
+      features: features || extractText(app.translator.trans('flarum-ai.admin.models.no_features_text')),
+      since: dayjs(issue.since).format('ll'),
+      date: issue.retiresAt ? dayjs(issue.retiresAt).format('ll') : '',
+    };
+
+    const text =
+      issue.status === 'deprecated'
+        ? issue.retiresAt
+          ? 'flarum-ai.admin.models.issue_retiring_text'
+          : 'flarum-ai.admin.models.issue_deprecated_text'
+        : issue.status === 'missing'
+          ? 'flarum-ai.admin.models.issue_missing_text'
+          : 'flarum-ai.admin.models.issue_failed_text';
+
+    return (
+      <Alert type={issue.status === 'deprecated' ? 'warning' : 'error'} dismissible={false}>
+        {app.translator.trans(text, params)}
+      </Alert>
+    );
+  }
+
+  featureIssues(key: string): ModelIssue[] {
+    return aiPayload().modelIssues.filter((issue) => issue.features.includes(key));
+  }
+
+  checkModels() {
+    this.checkingModels = true;
+
+    return app
+      .request<{ issues: ModelIssue[] }>({
+        method: 'POST',
+        url: app.forum.attribute('apiUrl') + '/ai/models/check',
+      })
+      .then(({ issues }) => {
+        aiPayload().modelIssues = issues;
+      })
+      .catch(() => {})
+      .finally(() => {
+        this.checkingModels = false;
+        m.redraw();
+      });
+  }
+
+  /**
+   * The connections saved on the server, whose models can be listed. One
+   * added or changed on the page is listed once it's saved.
+   */
+  savedConnection(name: string | null): string | null {
+    if (!name) return null;
+
+    const saved = parseObject<Connection>(app.data.settings[CONNECTIONS_SETTING]);
+    const current = this.connections[name];
+
+    if (name in aiPayload().lockedConnections) return name;
+
+    return saved[name] && current && saved[name].driver === current.driver && (saved[name].url || '') === (current.url || '') ? name : null;
+  }
+
+  /**
+   * The connection a feature's calls go through: its own, or the default.
+   */
+  featureConnection(settings: FeatureSettings): string | null {
+    const names = this.connectionNames();
+
+    if (settings.connection && names.includes(settings.connection)) return settings.connection;
+
+    const fallback = aiPayload().lockedDefault || this.setting(DEFAULT_SETTING)();
+
+    return fallback && names.includes(fallback) ? fallback : null;
   }
 
   featureSection(feature: FeatureInfo): Mithril.Children {
@@ -276,6 +391,8 @@ export default class AiPage extends ExtensionPage {
     this.connectionNames().forEach((name) => (connections[name] = name));
 
     const connection = settings.connection && settings.connection in connections ? settings.connection : '';
+    const effectiveConnection = this.featureConnection(settings);
+    const issues = this.featureIssues(feature.key);
 
     return (
       <SettingsSection
@@ -290,6 +407,8 @@ export default class AiPage extends ExtensionPage {
         ]}
         icon="fas fa-wand-magic-sparkles"
       >
+        {issues.map((issue) => this.issueAlert(issue))}
+
         <Switch state={!!settings.enabled} onchange={(enabled: boolean) => this.updateFeature(feature.key, { enabled })}>
           {app.translator.trans('flarum-ai.admin.features.enabled_label', { feature: label })}
         </Switch>
@@ -306,37 +425,59 @@ export default class AiPage extends ExtensionPage {
           </label>
           <label for={idBase + '-model'}>
             {app.translator.trans('flarum-ai.admin.features.model_label')}
-            <input
+            <ModelInput
               id={idBase + '-model'}
-              className="FormControl"
               value={settings.model || ''}
-              placeholder={app.translator.trans('flarum-ai.admin.features.model_placeholder')}
+              placeholder={extractText(app.translator.trans('flarum-ai.admin.features.model_placeholder'))}
               maxlength={aiPayload().rules.modelMaxLength}
-              spellcheck={false}
-              oninput={(e: InputEvent) => this.updateFeature(feature.key, { model: (e.target as HTMLInputElement).value })}
+              connection={this.savedConnection(effectiveConnection)}
+              defaultModel={effectiveConnection ? this.connectionModel(effectiveConnection) : null}
+              lists={this.modelLists}
+              oninput={(model: string) => this.updateFeature(feature.key, { model })}
             />
           </label>
-          {this.featureNumberField(feature.key, 'daily_tokens', idBase + '-daily', 'flarum-ai.admin.features.daily_tokens_label', settings.daily_tokens, {
-            min: '1',
-            step: '1',
-            inputmode: 'numeric',
-            message: 'flarum-ai.admin.connections.tokens_invalid_message',
-          })}
-          {this.featureNumberField(feature.key, 'temperature', idBase + '-temperature', 'flarum-ai.admin.features.temperature_label', settings.temperature, {
-            min: '0',
-            max: '2',
-            step: '0.1',
-            inputmode: 'decimal',
-            placeholder: 'flarum-ai.admin.features.agent_default_placeholder',
-            message: 'flarum-ai.admin.features.temperature_invalid_message',
-          })}
-          {this.featureNumberField(feature.key, 'max_tokens', idBase + '-max-tokens', 'flarum-ai.admin.features.max_tokens_label', settings.max_tokens, {
-            min: '1',
-            step: '1',
-            inputmode: 'numeric',
-            placeholder: 'flarum-ai.admin.features.agent_default_placeholder',
-            message: 'flarum-ai.admin.features.max_tokens_invalid_message',
-          })}
+          {this.featureNumberField(
+            feature.key,
+            'daily_tokens',
+            idBase + '-daily',
+            'flarum-ai.admin.features.daily_tokens_label',
+            settings.daily_tokens,
+            {
+              min: '1',
+              step: '1',
+              inputmode: 'numeric',
+              message: 'flarum-ai.admin.connections.tokens_invalid_message',
+            }
+          )}
+          {this.featureNumberField(
+            feature.key,
+            'temperature',
+            idBase + '-temperature',
+            'flarum-ai.admin.features.temperature_label',
+            settings.temperature,
+            {
+              min: '0',
+              max: '2',
+              step: '0.1',
+              inputmode: 'decimal',
+              placeholder: 'flarum-ai.admin.features.agent_default_placeholder',
+              message: 'flarum-ai.admin.features.temperature_invalid_message',
+            }
+          )}
+          {this.featureNumberField(
+            feature.key,
+            'max_tokens',
+            idBase + '-max-tokens',
+            'flarum-ai.admin.features.max_tokens_label',
+            settings.max_tokens,
+            {
+              min: '1',
+              step: '1',
+              inputmode: 'numeric',
+              placeholder: 'flarum-ai.admin.features.agent_default_placeholder',
+              message: 'flarum-ai.admin.features.max_tokens_invalid_message',
+            }
+          )}
         </div>
       </SettingsSection>
     );
@@ -540,6 +681,13 @@ export default class AiPage extends ExtensionPage {
       .finally(() => m.redraw());
   }
 
+  /**
+   * The model a connection uses when a feature names none, if the admin set one.
+   */
+  connectionModel(name: string): string | null {
+    return (aiPayload().lockedConnections[name] || this.connections[name])?.model || null;
+  }
+
   connectionNames(): string[] {
     return [...Object.keys(aiPayload().lockedConnections), ...Object.keys(this.connections)];
   }
@@ -549,6 +697,8 @@ export default class AiPage extends ExtensionPage {
       name,
       connection: name ? this.connections[name] : undefined,
       takenNames: this.connectionNames().filter((other) => other !== name),
+      listedAs: this.savedConnection(name ?? null),
+      lists: this.modelLists,
       onsave: (newName: string, connection: Connection) => {
         this.connections[newName] = connection;
         this.sync();

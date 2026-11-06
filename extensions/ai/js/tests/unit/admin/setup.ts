@@ -16,6 +16,7 @@ export const payload = {
   lockedConnections: {},
   lockedDefault: null,
   features: [],
+  modelIssues: [],
   rules: { namePattern: '^[a-z][a-z0-9_-]{0,49}$', modelMaxLength: 100 },
 };
 

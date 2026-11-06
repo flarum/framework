@@ -1,5 +1,6 @@
 import app from 'flarum/admin/app';
 import extractText from 'flarum/common/utils/extractText';
+import type { ModelIssue } from './models';
 
 export const CONNECTIONS_SETTING = 'flarum-ai.connections';
 export const DEFAULT_SETTING = 'flarum-ai.default_connection';
@@ -51,6 +52,8 @@ export interface AiPayload {
   lockedConnections: Connections;
   lockedDefault: string | null;
   features: FeatureInfo[];
+  /** The models features use that are deprecated or gone. */
+  modelIssues: ModelIssue[];
   /** The checks the server makes on save, so forms can make them first. */
   rules: { namePattern: string; modelMaxLength: number };
 }

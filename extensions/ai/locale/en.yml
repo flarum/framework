@@ -90,6 +90,26 @@ flarum-ai:
       temperature_invalid_message: The temperature is a number from 0 to 2, or empty for the extension's own. Some providers accept at most 1.
       temperature_label: Temperature
 
+    # These translations are used by the checks on the models features use.
+    models:
+      check_button: Check Now
+      dashboard_broken_text: "{count, plural, one {# AI model in use is gone, or about to go.} other {# AI models in use are gone, or about to go.}}"
+      dashboard_button: Choose Other Models
+      dashboard_deprecated_text: "{count, plural, one {# AI model in use is deprecated.} other {# AI models in use are deprecated.}}"
+      deprecated_text: "{model} is deprecated."
+      heading: Models
+      help: Providers retire their models. The models features use are checked every day. When a feature's own model is gone, its calls use the connection's default model until you choose another.
+      issue_deprecated_text: "{connection} has deprecated {model}, used by {features}. Choose another model before it's removed."
+      issue_failed_text: "Since {since}, {connection} has answered calls to {model}, used by {features}, saying it doesn't have it. Choose another model."
+      issue_missing_text: "{connection} no longer offers {model}, used by {features}. Choose another model."
+      issue_retiring_text: "{connection} retires {model}, used by {features}, on {date}. Choose another model before then."
+      load_error_text: The list of models could not be loaded.
+      no_features_text: no feature
+      no_issues_text: Every model in use was offered by its provider at the last check.
+      not_offered_text: "{connection} doesn't offer {model}."
+      refresh_button: Load the list of models again
+      retires_text: "{model} is deprecated, and retires on {date}."
+
     # These translations are used by the token limits on the extension's page.
     limits:
       guest_daily_help: Calls made for guests stop once guests together have used this many tokens today, across every feature. Leave empty for no limit.

@@ -7,12 +7,17 @@ import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 import type Mithril from 'mithril';
 import { aiPayload, type Connection, driverLabel, nameIsValid, parseTokens } from '../utils/settings';
+import type { ModelLists } from '../utils/models';
+import ModelInput from './ModelInput';
 
 export interface EditConnectionModalAttrs extends IFormModalAttrs {
   /** Set when editing; a new connection has none yet. */
   name?: string;
   connection?: Connection;
   takenNames: string[];
+  /** The saved connection whose models can be listed, if this is one. */
+  listedAs?: string | null;
+  lists?: ModelLists;
   onsave: (name: string, connection: Connection) => void;
 }
 
@@ -124,7 +129,18 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
         'model',
         'flarum-ai.admin.edit_connection.model_label',
         'flarum-ai.admin.edit_connection.model_help',
-        <input className="FormControl" bidi={this.model} maxlength={rules.modelMaxLength} spellcheck={false} {...this.fieldAttrs('model')} />
+        this.attrs.lists && this.listsSavedModels() ? (
+          <ModelInput
+            id={id('model')}
+            value={this.model()}
+            maxlength={rules.modelMaxLength}
+            connection={this.attrs.listedAs ?? null}
+            lists={this.attrs.lists}
+            oninput={this.model}
+          />
+        ) : (
+          <input className="FormControl" bidi={this.model} maxlength={rules.modelMaxLength} spellcheck={false} {...this.fieldAttrs('model')} />
+        )
       ),
       20
     );
@@ -163,6 +179,23 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
         {control}
         {extra}
       </div>
+    );
+  }
+
+  /**
+   * Whether the models listed for the saved connection are this one's: it
+   * still has the provider, address and key it was saved with.
+   */
+  listsSavedModels(): boolean {
+    const saved = this.attrs.connection;
+
+    return (
+      !!this.attrs.listedAs &&
+      !!saved &&
+      this.driver() === saved.driver &&
+      normaliseUrl(this.url()) === normaliseUrl(saved.url) &&
+      !this.key().trim() &&
+      !this.removeKey
     );
   }
 

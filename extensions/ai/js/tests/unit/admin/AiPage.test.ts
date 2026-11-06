@@ -119,3 +119,35 @@ describe('saving', () => {
     expect(ai.isInvalid('acme.thing', 'temperature')).toBe(false);
   });
 });
+
+describe('model issues', () => {
+  const issue = {
+    connection: 'claude',
+    model: 'claude-x',
+    status: 'missing',
+    since: '2026-11-06T12:00:00+00:00',
+    retiresAt: null,
+    features: ['acme.thing'],
+  };
+
+  it("are listed for the features they're about", () => {
+    (app.data as any)['flarum-ai'].modelIssues = [issue];
+
+    const ai = page();
+
+    expect(ai.featureIssues('acme.thing')).toEqual([issue]);
+    expect(ai.featureIssues('acme.other')).toEqual([]);
+  });
+
+  it('are checked again when the admin asks', async () => {
+    const request = jest.fn(() => Promise.resolve({ issues: [issue] }));
+    app.request = request as any;
+
+    const ai = page();
+    await ai.checkModels();
+
+    expect((request.mock.calls[0] as any)[0]).toMatchObject({ method: 'POST', url: app.forum.attribute('apiUrl') + '/ai/models/check' });
+    expect((app.data as any)['flarum-ai'].modelIssues).toEqual([issue]);
+    expect(ai.checkingModels).toBe(false);
+  });
+});
