@@ -1,12 +1,18 @@
 import app from 'flarum/forum/app';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 
-// A quote that starts with a spoiler goes on the line after the mention: ">!"
-// only starts a block spoiler at the start of a line.
+// ">!" at the start of a line opens a block spoiler unless an inline spoiler
+// closes on that line with no ">" before it (an escaped character such as "\>"
+// or "\<" does not count). This is Litedown's own rule.
+const BLOCK_SPOILER_START = /^>!(?!(?:\\[^\n]|[^\\\n>])*?!<)/;
+
+// A quote that starts with a block spoiler goes on the line after the mention:
+// ">!" only starts a block spoiler at the start of a line. An inline spoiler
+// stays on the mention line.
 function quoteBody(quote) {
   const body = quote.trim().replace(/\n/g, '\n> ');
 
-  return body.startsWith('>!') ? '\n> ' + body : body;
+  return BLOCK_SPOILER_START.test(body) ? '\n> ' + body : body;
 }
 
 export async function insertMention(post, composer, quote) {
