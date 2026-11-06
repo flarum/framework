@@ -8,6 +8,6 @@
  * a label once the post is saved.
  *
  * This mirrors the decision made in `Formatter::configureDefaultsOnLinks()`.
- * The two have to agree, so that what the writer sees is what they get.
+ * Loaded titles are available immediately; unloaded discussions keep their numeric label.
  */
 export default function labelDiscussionLinks(element: HTMLElement): void;
