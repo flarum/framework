@@ -287,7 +287,7 @@ class Formatter
             .'</xsl:if>'
             .'<span class="UrlLink-discussion">'
                 .'<xsl:choose>'
-                    .'<xsl:when test="@discussiontitle"><xsl:attribute name="title"><xsl:value-of select="@discussiontitle"/></xsl:attribute><xsl:value-of select="@discussiontitle"/></xsl:when>'
+                    .'<xsl:when test="string-length(@discussiontitle) > 0"><xsl:attribute name="title"><xsl:value-of select="@discussiontitle"/></xsl:attribute><xsl:value-of select="@discussiontitle"/></xsl:when>'
                     .'<xsl:otherwise>#<xsl:value-of select="@discussionid"/></xsl:otherwise>'
                 .'</xsl:choose>'
             .'</span>'

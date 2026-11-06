@@ -49,6 +49,16 @@ class InternalLinksTest extends TestCase
     }
 
     #[Test]
+    public function an_empty_discussion_title_keeps_the_numeric_label()
+    {
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => '', 'slug' => 'empty', 'created_at' => '2026-01-01 00:00:00'],
+        ]]);
+
+        $this->assertStringContainsString('#123', $this->render('http://flarum.localhost/d/123'));
+    }
+
+    #[Test]
     public function a_request_without_an_actor_uses_guest_visibility()
     {
         $formatter = $this->app()->getContainer()->make(Formatter::class);
