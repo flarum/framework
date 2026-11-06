@@ -72,11 +72,12 @@ abstract class Tool
     }
 
     /**
+     * Conservative for writes: false means only additive updates.
      * Ignored when the tool is read-only.
      */
     public function destructive(): bool
     {
-        return false;
+        return true;
     }
 
     public function idempotent(): bool

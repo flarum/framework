@@ -33,6 +33,11 @@ class CreateResourceTool extends GenericTool
         return 'Create a resource of a JSON:API type. This changes the forum. describe_api lists the writable attributes and relationships.';
     }
 
+    public function destructive(): bool
+    {
+        return false;
+    }
+
     public function readOnly(): bool
     {
         return false;
