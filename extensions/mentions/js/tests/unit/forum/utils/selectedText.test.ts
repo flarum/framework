@@ -110,6 +110,31 @@ describe('selectedText', () => {
     });
   });
 
+  describe('text from the post is quoted as text, never parsed as HTML', () => {
+    // What the server renders for `[<img src=x onerror=…>](https://example.com)`:
+    // the link text is escaped.
+    const markup = '&lt;img src=x onerror=&quot;window.quoted = 1&quot;&gt;';
+    const tag = '<img src=x onerror="window.quoted = 1">';
+
+    test('a link whose text looks like a tag', () => {
+      expect(quote(`<p>Interesting link: <a href="https://example.com/" class="UrlLink">${markup}</a> worth a read.</p>`)).toBe(
+        `Interesting link: [${tag}](https://example.com/) worth a read.`
+      );
+    });
+
+    test('a link whose text looks like an entity', () => {
+      expect(quote('<p><a href="https://example.com/" class="UrlLink">AT&amp;amp;T</a></p>')).toBe('[AT&amp;T](https://example.com/)');
+    });
+
+    test('an image whose address looks like it holds an entity', () => {
+      expect(quote('<p><img src="https://example.com/a.png?x=1&amp;copy;y"></p>')).toBe('![](https://example.com/a.png?x=1&copy;y)');
+    });
+
+    test('an emoji whose shortcode looks like a tag', () => {
+      expect(quote(`<p>Nice <img class="emoji" alt="${markup}" src="https://example.com/tada.png"></p>`)).toBe(`Nice ${tag}`);
+    });
+  });
+
   describe('anything else is quoted as before', () => {
     test('an internal link with words of its own stays a Markdown link', () => {
       expect(quote(`<p><a href="${URL}" class="UrlLink UrlLink--internal">the move posts thread</a></p>`)).toBe(`[the move posts thread](${URL})`);
