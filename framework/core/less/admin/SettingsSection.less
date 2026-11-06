@@ -1,19 +1,16 @@
-// A titled group of settings: heading and description beside the fields on
-// wide screens, stacked above them on narrow ones.
+// A titled group of settings, with the heading and help above the fields.
 .SettingsSection {
-  --settings-section-aside: 260px;
   // Keeps fields at a readable width; a section holding a wide grid or table can raise it.
   --settings-section-body-max-width: 640px;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px 40px;
+  gap: 12px;
   padding: 24px 0;
   border-top: 1px solid var(--control-bg);
 
-
   &-header {
     min-width: 0;
-
+    max-width: 640px;
   }
 
   &-title {
@@ -46,22 +43,6 @@
 
     > * {
       margin-bottom: 0;
-    }
-  }
-}
-
-// Two columns on admin pages only: a section in a modal or narrow panel stays stacked.
-@media @desktop-up {
-  .AdminPage,
-  .ExtensionPage {
-    .SettingsSection {
-      grid-template-columns: var(--settings-section-aside) minmax(0, 1fr);
-    }
-
-    .SettingsSection-header {
-      position: sticky;
-      top: calc(var(--header-height, 52px) + 16px);
-      align-self: start;
     }
   }
 }
