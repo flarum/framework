@@ -9,9 +9,11 @@
 
 namespace Flarum\Ai;
 
+use Flarum\Ai\Bedrock\GuardrailGateway;
 use Flarum\Ai\Features\FeatureGateway;
 use Flarum\Ai\Features\FeatureSettings;
 use Flarum\Ai\Models\ModelHealth;
+use Flarum\Ai\Models\TemperatureSupport;
 use Flarum\Ai\Usage\Attribution;
 use Laravel\Ai\AiManager as BaseAiManager;
 use Laravel\Ai\Contracts\Agent;
@@ -27,7 +29,8 @@ use Throwable;
  * An agent prompted as a feature gets a provider that sends the temperature
  * and longest reply the admin set for that feature, falls back to the
  * connection's default model if the one chosen for the feature is gone, and
- * notes the model the feature used ({@see FeatureGateway}).
+ * notes the model the feature used ({@see FeatureGateway}). Every call through
+ * a Bedrock connection with a guardrail is guarded by it.
  *
  * @internal
  */
@@ -48,7 +51,7 @@ class AiManager extends BaseAiManager
 
     public function textProviderFor(Agent $agent, ?string $name = null): TextProvider
     {
-        $provider = parent::textProviderFor($agent, $name);
+        $provider = $this->guarded(parent::textProviderFor($agent, $name));
         $context = $this->app->make(Attribution::class)->for($agent);
 
         if ($context === null) {
@@ -82,7 +85,31 @@ class AiManager extends BaseAiManager
             $settings['model'],
             $defaultModel,
             fn (string $model) => $health->recordFailure($provider->name(), $model),
-            fn (string $model) => $health->observe($context->feature, $provider->name(), $model, $defaultModel())
+            fn (string $model) => $health->observe($context->feature, $provider->name(), $model, $defaultModel()),
+            $provider->name(),
+            $this->app->make(TemperatureSupport::class)
+        ));
+    }
+
+    /**
+     * A Bedrock connection's provider with the connection's guardrail on every
+     * call, if it has one ({@see GuardrailGateway}).
+     */
+    protected function guarded(TextProvider $provider): TextProvider
+    {
+        $connection = $this->app->make(AiConfig::class)->connections()[$provider->name()] ?? null;
+        $guardrail = $connection['guardrail_id'] ?? null;
+
+        if (($connection['driver'] ?? null) !== 'bedrock' || ! is_string($guardrail) || $guardrail === '' || ! method_exists($provider, 'textGateway')) {
+            return $provider;
+        }
+
+        $version = $connection['guardrail_version'] ?? 'DRAFT';
+
+        return (clone $provider)->useTextGateway(new GuardrailGateway(
+            $provider->textGateway(),
+            $guardrail,
+            is_string($version) || is_int($version) ? (string) $version : 'DRAFT'
         ));
     }
 }

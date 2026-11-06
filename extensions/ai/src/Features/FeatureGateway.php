@@ -11,6 +11,7 @@ namespace Flarum\Ai\Features;
 
 use Closure;
 use Flarum\Ai\Models\ModelHealth;
+use Flarum\Ai\Models\TemperatureSupport;
 use Generator;
 use Laravel\Ai\Contracts\Gateway\StepTextGateway;
 use Laravel\Ai\Contracts\Providers\TextProvider;
@@ -33,6 +34,9 @@ use Throwable;
  *   anything.
  * - The model each step uses is noted, so the daily check knows which model
  *   the feature uses when the admin chose none.
+ * - A model that refuses the admin's temperature, as current Claude models
+ *   do, is asked again without one, and from then on asked without one
+ *   ({@see TemperatureSupport}).
  *
  * @internal
  */
@@ -51,7 +55,9 @@ class FeatureGateway implements StepTextGateway
         protected ?string $model,
         protected Closure $fallbackModel,
         protected Closure $onMissingModel,
-        protected Closure $onStep
+        protected Closure $onStep,
+        protected string $connection,
+        protected TemperatureSupport $temperatures
     ) {
     }
 
@@ -66,18 +72,10 @@ class FeatureGateway implements StepTextGateway
         ?int $timeout,
         StepContext $stepContext,
     ): StepResponse {
-        $options = $this->options($options);
-
-        return $this->withFallback($model, fn (string $model) => $this->gateway->generateTextStep(
-            $provider,
+        return $this->withFallback($model, fn (string $model) => $this->withTemperature(
             $model,
-            $instructions,
-            $messages,
-            $tools,
-            $schema,
             $options,
-            $timeout,
-            $stepContext
+            fn (TextGenerationOptions $options) => $this->gateway->generateTextStep($provider, $model, $instructions, $messages, $tools, $schema, $options, $timeout, $stepContext)
         ));
     }
 
@@ -93,14 +91,14 @@ class FeatureGateway implements StepTextGateway
         ?int $timeout,
         StepContext $stepContext,
     ): Generator {
-        $options = $this->options($options);
-
         // Started here, so a request that fails fails before anything is sent on.
-        $stream = $this->withFallback($model, function (string $model) use ($invocationId, $provider, $instructions, $messages, $tools, $schema, $options, $timeout, $stepContext) {
-            $stream = $this->gateway->generateStreamStep($invocationId, $provider, $model, $instructions, $messages, $tools, $schema, $options, $timeout, $stepContext);
-            $stream->current();
+        $stream = $this->withFallback($model, function (string $model) use ($invocationId, $provider, $instructions, $messages, $tools, $schema, $options, $timeout, $stepContext): Generator {
+            return $this->withTemperature($model, $options, function (TextGenerationOptions $options) use ($invocationId, $provider, $model, $instructions, $messages, $tools, $schema, $timeout, $stepContext): Generator {
+                $stream = $this->gateway->generateStreamStep($invocationId, $provider, $model, $instructions, $messages, $tools, $schema, $options, $timeout, $stepContext);
+                $stream->current();
 
-            return $stream;
+                return $stream;
+            });
         });
 
         // PHP can't `yield from` a generator that finished while starting.
@@ -160,13 +158,41 @@ class FeatureGateway implements StepTextGateway
         }
     }
 
-    protected function options(?TextGenerationOptions $options): TextGenerationOptions
+    /**
+     * Sends the step with the admin's temperature, unless the model is known
+     * to refuse one, and again without it if the model refuses it now.
+     *
+     * @template T
+     * @param Closure(TextGenerationOptions $options): T $send
+     * @return T
+     */
+    protected function withTemperature(string $model, ?TextGenerationOptions $options, Closure $send): mixed
+    {
+        $refused = $this->temperature !== null && $this->temperatures->refused($this->connection, $model);
+
+        try {
+            return $send($this->options($options, $refused));
+        } catch (Throwable $e) {
+            if ($refused || $this->temperature === null || ! TemperatureSupport::isRefusal($e)) {
+                throw $e;
+            }
+
+            $this->quietly(fn () => $this->temperatures->remember($this->connection, $model), $model);
+
+            return $send($this->options($options, true));
+        }
+    }
+
+    /**
+     * @param bool $withoutTemperature For a model that refuses one: the agent's own too.
+     */
+    protected function options(?TextGenerationOptions $options, bool $withoutTemperature = false): TextGenerationOptions
     {
         $values = $options ? get_object_vars($options) : [];
 
         return new TextGenerationOptions(...[
             ...$values,
-            'temperature' => $this->temperature ?? $values['temperature'] ?? null,
+            'temperature' => $withoutTemperature ? null : $this->temperature ?? $values['temperature'] ?? null,
             'maxTokens' => $this->maxTokens ?? $values['maxTokens'] ?? null,
         ]);
     }

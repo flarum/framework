@@ -16,6 +16,8 @@ use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Http\Client\Request;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Laravel\Ai\Attributes\MaxTokens;
 use Laravel\Ai\Attributes\Temperature;
@@ -166,6 +168,55 @@ class FeatureOptionsTest extends TestCase
         $this->assertSame(422, $save(['temperature' => 'warm']));
         $this->assertSame(422, $save(['max_tokens' => 0]));
         $this->assertSame(422, $save(['max_tokens' => 1.5]));
+    }
+
+    /**
+     * A provider whose model takes no temperature, as current Claude models
+     * don't: Anthropic documents a 400, though not its exact wording.
+     */
+    protected function fakeModelWithoutTemperature(): void
+    {
+        Http::fake(fn (Request $request) => array_key_exists('temperature', $request->data())
+            ? Http::response(['type' => 'error', 'error' => ['type' => 'invalid_request_error', 'message' => 'temperature: This model does not support setting temperature.']], 400)
+            : Http::response([
+                'id' => 'msg_1', 'type' => 'message', 'role' => 'assistant', 'model' => 'claude-test',
+                'content' => [['type' => 'text', 'text' => 'Hi']], 'stop_reason' => 'end_turn',
+                'usage' => ['input_tokens' => 12, 'output_tokens' => 5],
+            ]));
+    }
+
+    #[Test]
+    public function a_model_that_takes_no_temperature_is_called_without_one_from_then_on(): void
+    {
+        $this->enableAiFeature(self::FEATURE, ['model' => 'claude-new', 'temperature' => 0.3]);
+        $ai = $this->app()->getContainer()->make(Ai::class);
+        $this->fakeModelWithoutTemperature();
+
+        $this->assertSame('Hi', $ai->feature(self::FEATURE)->asSystem()->prompt(agent('Be brief'), 'Hello')->text);
+        $this->assertSame([true, false], Http::recorded()->map(fn ($pair) => array_key_exists('temperature', $pair[0]->data()))->all());
+
+        $ai->feature(self::FEATURE)->asSystem()->prompt(agent('Be brief'), 'Hello again');
+        $this->assertSame([true, false, false], Http::recorded()->map(fn ($pair) => array_key_exists('temperature', $pair[0]->data()))->all());
+
+        $page = (string) $this->send($this->request('GET', '/admin', ['authenticatedAs' => 1]))->getBody();
+        $this->assertStringContainsString('"temperatureIgnored":[{"connection":"claude","model":"claude-new"}]', $page);
+    }
+
+    #[Test]
+    public function other_bad_requests_are_not_taken_for_a_temperature_the_model_refuses(): void
+    {
+        $this->enableAiFeature(self::FEATURE, ['temperature' => 0.3]);
+        $ai = $this->app()->getContainer()->make(Ai::class);
+        Http::fake(['*' => Http::response(['type' => 'error', 'error' => ['type' => 'invalid_request_error', 'message' => 'messages: field required']], 400)]);
+
+        try {
+            $ai->feature(self::FEATURE)->asSystem()->prompt(agent('Be brief'), 'Hello');
+            $this->fail('The call should have failed.');
+        } catch (RequestException $e) {
+            $this->assertSame(400, $e->response->status());
+        }
+
+        Http::assertSentCount(1);
     }
 }
 

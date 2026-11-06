@@ -16,6 +16,7 @@ use Flarum\Ai\Drivers;
 use Flarum\Ai\Features\Feature;
 use Flarum\Ai\Features\FeatureRegistry;
 use Flarum\Ai\Models\ModelHealth;
+use Flarum\Ai\Models\TemperatureSupport;
 use Flarum\Frontend\Document;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -34,7 +35,8 @@ class AdminPayload
         protected ConnectionKeys $keys,
         protected AiConfig $config,
         protected FeatureRegistry $features,
-        protected ModelHealth $health
+        protected ModelHealth $health,
+        protected TemperatureSupport $temperatures
     ) {
     }
 
@@ -59,6 +61,8 @@ class AdminPayload
             ], $this->features->all())),
             // On every admin page, so the dashboard can warn too.
             'modelIssues' => $this->health->forAdmin(),
+            // Models a feature's temperature is left out for, as they refuse one.
+            'temperatureIgnored' => $this->temperatures->all(),
             'rules' => [
                 'namePattern' => AdminConnections::NAME_PATTERN,
                 'modelMaxLength' => AdminConnections::MODEL_MAX_LENGTH,
