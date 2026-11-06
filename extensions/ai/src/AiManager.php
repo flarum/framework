@@ -55,7 +55,10 @@ class AiManager extends BaseAiManager
 
         $settings = $this->app->make(FeatureSettings::class)->get($context->feature);
 
-        if ($settings['temperature'] === null && $settings['max_tokens'] === null && $settings['model'] === null) {
+        // Every laravel/ai provider has a text gateway to wrap, but the contract
+        // doesn't say so: one from elsewhere without it is used as it is.
+        if (($settings['temperature'] === null && $settings['max_tokens'] === null && $settings['model'] === null)
+            || ! method_exists($provider, 'textGateway')) {
             return $provider;
         }
 
