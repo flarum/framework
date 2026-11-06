@@ -57,6 +57,11 @@ class ModelListTest extends TestCase
 
         return [
             'OpenAI' => [['driver' => 'openai', 'url' => 'https://api.openai.test/v1'], ['api.openai.test/v1/models' => $openAiShaped], $listed],
+            'OpenAI, with a shutdown date' => [
+                ['driver' => 'openai', 'url' => 'https://api.openai.test/v1'],
+                ['api.openai.test/v1/models' => ['data' => [['id' => 'gpt-old', 'shutdown_date' => '2027-02-01']]]],
+                [['id' => 'gpt-old', 'name' => null, 'deprecatedAt' => null, 'retiresAt' => '2027-02-01T00:00:00+00:00']],
+            ],
             'DeepSeek' => [['driver' => 'deepseek', 'url' => 'https://api.deepseek.test/v1'], ['api.deepseek.test/v1/models' => $openAiShaped], $listed],
             'Groq' => [['driver' => 'groq', 'url' => 'https://api.groq.test/openai/v1'], ['api.groq.test/openai/v1/models' => $openAiShaped], $listed],
             'Mistral' => [['driver' => 'mistral', 'url' => 'https://api.mistral.test/v1'], ['api.mistral.test/v1/models' => $openAiShaped], $listed],

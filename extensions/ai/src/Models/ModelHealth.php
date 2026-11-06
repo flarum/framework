@@ -15,7 +15,6 @@ use Flarum\Ai\Exception\ModelsUnavailableException;
 use Flarum\Ai\Features\FeatureRegistry;
 use Flarum\Ai\Features\FeatureSettings;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Http\Client\RequestException;
 use Psr\Log\LoggerInterface;
@@ -35,8 +34,9 @@ use Throwable;
  *
  * A feature uses the model the admin chose for it. Without one, it uses the
  * model its agent chooses, if it does, or the connection's default: which
- * one is only known once the feature has made a call, so each feature call
- * notes the model it used ({@see observe()}).
+ * one is only known once the feature has made a call, so each such call
+ * notes the model it used ({@see observe()}), and under which default. A
+ * model seen under another default than the connection's now isn't trusted.
  *
  * @internal
  */
@@ -44,7 +44,12 @@ class ModelHealth
 {
     public const SETTING = 'flarum-ai.model_issues';
 
-    protected const OBSERVED_CACHE_KEY = 'flarum-ai.models.observed';
+    /**
+     * The model each feature without one of its own was last seen using,
+     * kept as a setting so a cleared cache doesn't lose it. Only ever
+     * written here.
+     */
+    public const OBSERVED_SETTING = 'flarum-ai.observed_models';
 
     public function __construct(
         protected FeatureRegistry $features,
@@ -53,7 +58,6 @@ class ModelHealth
         protected ModelCatalog $catalog,
         protected SettingsRepositoryInterface $settings,
         protected ConnectionInterface $db,
-        protected Cache $cache,
         protected LoggerInterface $log
     ) {
     }
@@ -85,9 +89,12 @@ class ModelHealth
                 continue;
             }
 
+            $default = $this->catalog->defaultModel($connection);
+            $seen = $observed[$key] ?? null;
+
             $model = $settings['model']
-                ?? (($observed[$key]['connection'] ?? null) === $connection ? $observed[$key]['model'] : null)
-                ?? $this->catalog->defaultModel($connection);
+                ?? ($seen !== null && $seen['connection'] === $connection && ($seen['default'] ?? null) === $default ? $seen['model'] : null)
+                ?? $default;
 
             if ($model !== null) {
                 $inUse[$connection][$model][] = $key;
@@ -98,19 +105,22 @@ class ModelHealth
     }
 
     /**
-     * Notes the model a feature's call used, when it's not the one last noted.
+     * Notes the model a call for a feature without a model of its own used,
+     * and the connection's default at the time.
      */
-    public function observe(string $feature, string $connection, string $model): void
+    public function observe(string $feature, string $connection, string $model, ?string $default): void
     {
-        $observed = $this->observed();
+        $entry = ['connection' => $connection, 'model' => $model, 'default' => $default];
 
-        if (($observed[$feature] ?? null) === ['connection' => $connection, 'model' => $model]) {
+        if (($this->observed()[$feature] ?? null) === $entry) {
             return;
         }
 
-        $observed[$feature] = ['connection' => $connection, 'model' => $model];
+        $this->update(self::OBSERVED_SETTING, function (array $observed) use ($feature, $entry) {
+            $observed[$feature] = $entry;
 
-        $this->cache->forever(self::OBSERVED_CACHE_KEY, $observed);
+            return $observed;
+        });
     }
 
     /**
@@ -118,13 +128,18 @@ class ModelHealth
      * models in use are deprecated or missing. A connection that can't be
      * asked keeps what was found before, and is listed as unchecked.
      *
-     * @return array{issues: list<array{connection: string, model: string, status: string, since: string, retiresAt: string|null, features: string[]}>, unchecked: string[]}
+     * Connections whose providers can't list their models, such as Azure and
+     * Bedrock, are listed as unlisted.
+     *
+     * @return array{issues: list<array{connection: string, model: string, status: string, since: string, retiresAt: string|null, features: string[]}>, unchecked: string[], unlisted: string[]}
      */
     public function check(): array
     {
+        $startedAt = CarbonImmutable::now('UTC');
         $inUse = $this->inUse();
         $found = [];
         $unchecked = [];
+        $unlisted = [];
 
         foreach ($inUse as $connection => $models) {
             $connection = (string) $connection;
@@ -139,6 +154,8 @@ class ModelHealth
             }
 
             if ($listed === null) {
+                $unlisted[] = $connection;
+
                 continue;
             }
 
@@ -154,14 +171,21 @@ class ModelHealth
         }
 
         // Applied to what's stored now, not what was read before asking the
-        // providers, so a failure recorded meanwhile is kept.
-        $this->update(function (array $issues) use ($found, $inUse) {
+        // providers, so a failure recorded meanwhile is kept: one for a model
+        // checked here too, since the call that found it is newer news.
+        $this->update(self::SETTING, function (array $issues) use ($found, $inUse, $startedAt) {
             foreach ($found as $connection => $models) {
                 foreach ($models as $model => $result) {
+                    $current = $issues[$connection][$model] ?? null;
+
+                    if (($current['status'] ?? null) === 'failed' && CarbonImmutable::parse($current['since'])->gte($startedAt)) {
+                        continue;
+                    }
+
                     if ($result === null) {
                         unset($issues[$connection][$model]);
                     } else {
-                        $issues[$connection][$model] = $this->issue($issues[$connection][$model] ?? null, ...$result);
+                        $issues[$connection][$model] = $this->issue($current, ...$result);
                     }
                 }
             }
@@ -169,7 +193,7 @@ class ModelHealth
             return $this->onlyInUse($issues, $inUse);
         });
 
-        return ['issues' => $this->forAdmin(), 'unchecked' => $unchecked];
+        return ['issues' => $this->forAdmin(), 'unchecked' => $unchecked, 'unlisted' => $unlisted];
     }
 
     /**
@@ -177,7 +201,12 @@ class ModelHealth
      */
     public function recordFailure(string $connection, string $model): void
     {
-        $this->update(function (array $issues) use ($connection, $model) {
+        // Every call to a model that's gone fails: only the first needs the lock.
+        if ((($this->decode($this->settings->get(self::SETTING)))[$connection][$model]['status'] ?? null) === 'failed') {
+            return;
+        }
+
+        $this->update(self::SETTING, function (array $issues) use ($connection, $model) {
             if (($issues[$connection][$model]['status'] ?? null) !== 'failed') {
                 $this->log->warning("[flarum/ai] The AI connection \"$connection\" no longer has the model \"$model\". Choose another one in the AI settings.");
 
@@ -195,7 +224,7 @@ class ModelHealth
     {
         $inUse = $this->inUse();
 
-        $this->update(fn (array $issues) => $this->onlyInUse($issues, $inUse));
+        $this->update(self::SETTING, fn (array $issues) => $this->onlyInUse($issues, $inUse));
     }
 
     /**
@@ -261,13 +290,14 @@ class ModelHealth
 
     /**
      * Whether a provider's answer to a call means the model is gone: a 404
-     * that names it. A 404 that doesn't, such as from a wrong API URL, isn't.
+     * that names it, as a whole name, not part of a longer one. A 404 that
+     * doesn't, such as from a wrong API URL, isn't.
      */
     public static function isMissingModel(Throwable $e, string $model): bool
     {
         for (; $e !== null; $e = $e->getPrevious()) {
             if ($e instanceof RequestException && $e->response->status() === 404) {
-                return str_contains($e->response->body(), $model);
+                return (bool) preg_match('/(?<![A-Za-z0-9._:-])'.preg_quote($model, '/').'(?![A-Za-z0-9._:\/-])/', $e->response->body());
             }
         }
 
@@ -307,21 +337,26 @@ class ModelHealth
     }
 
     /**
-     * Changes the stored issues as they are in the database now, not as this
-     * request first read them: calls in other requests record failures too.
+     * Changes a setting as it is in the database now, not as this request
+     * first read it: calls in other requests write it too. The row is made
+     * first, so there's always one to lock.
      *
-     * @param callable(array<string, array<string, array<string, mixed>>>): array<string, array<string, array<string, mixed>>> $change
+     * @param callable(array<string, mixed>): array<string, mixed> $change
      */
-    protected function update(callable $change): void
+    protected function update(string $key, callable $change): void
     {
-        $this->db->transaction(function () use ($change) {
-            $stored = $this->db->table('settings')->where('key', self::SETTING)->lockForUpdate()->value('value');
-            $issues = $this->decode($stored);
-            $changed = $change($issues);
+        $this->db->table('settings')->insertOrIgnore(['key' => $key, 'value' => '{}']);
 
-            if ($changed !== $issues) {
-                $this->settings->set(self::SETTING, json_encode(
-                    (object) array_map(fn ($models) => (object) $models, $changed),
+        $this->db->transaction(function () use ($key, $change) {
+            $stored = $this->db->table('settings')->where('key', $key)->lockForUpdate()->value('value');
+            $current = json_decode((string) $stored, true);
+            $current = $key === self::SETTING ? $this->decode($stored) : (is_array($current) ? $current : []);
+            $changed = $change($current);
+
+            if ($changed !== $current || $stored !== $this->settings->get($key)) {
+                // Through the repository, so this request reads it afterwards too.
+                $this->settings->set($key, json_encode(
+                    $key === self::SETTING ? (object) array_map(fn ($models) => (object) $models, $changed) : (object) $changed,
                     JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
                 ));
             }
@@ -346,12 +381,15 @@ class ModelHealth
     }
 
     /**
-     * @return array<string, array{connection: string, model: string}>
+     * @return array<string, array{connection: string, model: string, default: string|null}>
      */
     protected function observed(): array
     {
-        $observed = $this->cache->get(self::OBSERVED_CACHE_KEY);
+        $observed = json_decode((string) $this->settings->get(self::OBSERVED_SETTING), true);
 
-        return is_array($observed) ? $observed : [];
+        return is_array($observed) ? array_filter(
+            $observed,
+            fn ($entry) => is_array($entry) && is_string($entry['connection'] ?? null) && is_string($entry['model'] ?? null)
+        ) : [];
     }
 }

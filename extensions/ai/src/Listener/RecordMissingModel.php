@@ -10,25 +10,29 @@
 namespace Flarum\Ai\Listener;
 
 use Flarum\Ai\Models\ModelHealth;
+use Flarum\Ai\Usage\Attribution;
 use Laravel\Ai\Events\AgentFailed;
 use Throwable;
 
 /**
- * Records a model a call found gone, from any extension or none, so the admin
- * is told. Calls that fell back to another model have already recorded it.
+ * Records a model a feature's call found gone, so the admin is told. Calls
+ * that fell back to another model have already recorded it. A call made
+ * outside any feature isn't recorded: the admin can't choose its model.
  *
  * @internal
  */
 class RecordMissingModel
 {
     public function __construct(
-        protected ModelHealth $health
+        protected ModelHealth $health,
+        protected Attribution $attribution
     ) {
     }
 
     public function handle(AgentFailed $event): void
     {
-        if (! ModelHealth::isMissingModel($event->exception, $event->prompt->model)) {
+        if ($this->attribution->for($event->prompt->agent) === null
+            || ! ModelHealth::isMissingModel($event->exception, $event->prompt->model)) {
             return;
         }
 

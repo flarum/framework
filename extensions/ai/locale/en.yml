@@ -110,6 +110,7 @@ flarum-ai:
       refresh_button: Load the list of models again
       retires_text: "{model} is deprecated, and retires on {date}."
       unchecked_text: "The models of {connection} could not be checked: its provider could not be asked for them. Check its API key and address."
+      unlisted_text: "The models of {connection} can't be checked: its provider doesn't list them."
 
     # These translations are used by the token limits on the extension's page.
     limits:

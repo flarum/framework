@@ -96,8 +96,8 @@ class ModelLister
             $model['id'],
             null,
             null,
-            // Mistral says when it retires a model.
-            $this->date($model['deprecation'] ?? null)
+            // OpenAI and Mistral say when they retire a model, each its own way.
+            $this->date($model['shutdown_date'] ?? $model['deprecation'] ?? null)
         ), $this->items($data, 'id'));
     }
 
@@ -224,6 +224,10 @@ class ModelLister
 
     protected function date(mixed $value): ?string
     {
+        if (is_int($value) && $value > 0) {
+            return CarbonImmutable::createFromTimestampUTC($value)->toIso8601String();
+        }
+
         if (! is_string($value) || $value === '') {
             return null;
         }

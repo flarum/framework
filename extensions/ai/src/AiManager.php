@@ -65,22 +65,24 @@ class AiManager extends BaseAiManager
 
         $health = $this->app->make(ModelHealth::class);
 
+        $defaultModel = function () use ($provider): ?string {
+            try {
+                return $provider->defaultTextModel();
+            } catch (Throwable) {
+                // Some providers have no default unless one is set.
+                return null;
+            }
+        };
+
         // A copy, so the provider other calls share keeps its own gateway.
         return (clone $provider)->useTextGateway(new FeatureGateway(
             $provider->textGateway(),
             $settings['temperature'],
             $settings['max_tokens'],
             $settings['model'],
-            function () use ($provider): ?string {
-                try {
-                    return $provider->defaultTextModel();
-                } catch (Throwable) {
-                    // Some providers have no default unless one is set.
-                    return null;
-                }
-            },
+            $defaultModel,
             fn (string $model) => $health->recordFailure($provider->name(), $model),
-            fn (string $model) => $health->observe($context->feature, $provider->name(), $model)
+            fn (string $model) => $health->observe($context->feature, $provider->name(), $model, $defaultModel())
         ));
     }
 }

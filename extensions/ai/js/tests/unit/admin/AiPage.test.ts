@@ -140,7 +140,7 @@ describe('model issues', () => {
   });
 
   it('are checked again when the admin asks', async () => {
-    const request = jest.fn(() => Promise.resolve({ issues: [issue], unchecked: ['local'] }));
+    const request = jest.fn(() => Promise.resolve({ issues: [issue], unchecked: ['local'], unlisted: ['azure'] }));
     app.request = request as any;
 
     const ai = page();
@@ -149,6 +149,7 @@ describe('model issues', () => {
     expect((request.mock.calls[0] as any)[0]).toMatchObject({ method: 'POST', url: app.forum.attribute('apiUrl') + '/ai/models/check' });
     expect((app.data as any)['flarum-ai'].modelIssues).toEqual([issue]);
     expect(ai.uncheckedConnections).toEqual(['local']);
+    expect(ai.unlistedConnections).toEqual(['azure']);
     expect(ai.checkingModels).toBe(false);
   });
 
@@ -178,6 +179,17 @@ describe('the Features tab', () => {
 
     expect(sections.length).toBe(2);
     expect(sections.every((section) => section.key != null)).toBe(true);
+  });
+
+  it("keys the Usage tab's limits alike when warning about guests, as Mithril needs", () => {
+    (app.data as any)['flarum-ai'].features = [feature];
+    app.data.permissions = { [feature.permission]: ['2'] } as any;
+
+    const children = (page().limitsSection() as any).children.flat(Infinity).filter((child: any) => child && typeof child === 'object');
+    const keyed = children.filter((child: any) => child.key != null);
+
+    expect(children.length).toBeGreaterThan(1);
+    expect(keyed.length === 0 || keyed.length === children.length).toBe(true);
   });
 
   it('warns when guests can use a feature with no daily limit of their own', () => {

@@ -449,10 +449,12 @@ class ModelHealthTest extends ConsoleTestCase
             return Http::response(['data' => [['id' => 'claude-x']], 'has_more' => false]);
         };
 
-        $health->check();
+        $result = $health->check();
 
         $stored = json_decode((string) $this->database()->table('settings')->where('key', 'flarum-ai.model_issues')->value('value'), true);
         $this->assertSame('failed', $stored['azure']['azure-x']['status'] ?? null);
+        // And the admin is shown it straight away.
+        $this->assertSame(['azure/azure-x'], array_map(fn ($issue) => $issue['connection'].'/'.$issue['model'], $result['issues']));
     }
 
     #[Test]
@@ -462,8 +464,119 @@ class ModelHealthTest extends ConsoleTestCase
         $health = $this->health();
         $this->answer = fn () => Http::response('Down', 500);
 
-        $this->assertSame(['issues' => [], 'unchecked' => ['claude']], $health->check());
+        $this->assertSame(['issues' => [], 'unchecked' => ['claude'], 'unlisted' => []], $health->check());
         $this->assertStringContainsString('could not be checked', $this->runCommand(['command' => 'ai:check-models']));
+    }
+
+    #[Test]
+    public function a_model_failure_outside_any_feature_is_not_recorded(): void
+    {
+        $this->gone = ['claude-default'];
+        $this->ai();
+
+        try {
+            agent('Be brief')->prompt('Hello');
+        } catch (RequestException) {
+        }
+
+        $this->assertSame([], $this->issues());
+    }
+
+    #[Test]
+    public function a_failure_to_record_a_missing_model_doesnt_stop_the_fallback(): void
+    {
+        $this->enableAiFeature(self::WRITER, ['model' => 'claude-x']);
+        $this->gone = ['claude-x'];
+        $ai = $this->ai();
+
+        $health = $this->createStub(ModelHealth::class);
+        $health->method('recordFailure')->willThrowException(new \RuntimeException('Database is locked'));
+        $this->app()->getContainer()->instance(ModelHealth::class, $health);
+
+        $response = $ai->feature(self::WRITER)->asSystem()->prompt(agent('Be brief'), 'Hello');
+
+        $this->assertSame('Hi from claude-default', $response->text);
+    }
+
+    #[Test]
+    public function the_model_an_agent_chose_is_remembered_when_the_cache_is_cleared(): void
+    {
+        $this->enableAiFeature(self::WRITER);
+        $this->offered = ['claude-default' => null];
+
+        $this->ai()->feature(self::WRITER)->asSystem()->prompt(new OwnModelAgent(), 'Hello');
+        $this->app()->getContainer()->make(\Illuminate\Contracts\Cache\Repository::class)->flush();
+        $this->health()->check();
+
+        $this->assertSame(['claude/claude-own'], array_keys($this->issues()));
+    }
+
+    #[Test]
+    public function a_model_seen_under_another_default_is_not_taken_for_the_one_in_use(): void
+    {
+        $this->enableAiFeature(self::WRITER);
+        $this->offered = ['claude-new-default' => null];
+
+        // Seen while the connection's default was claude-default.
+        $this->ai()->feature(self::WRITER)->asSystem()->prompt(agent('Be brief'), 'Hello');
+
+        $this->send($this->request('POST', '/api/settings', ['authenticatedAs' => 1, 'json' => [
+            'flarum-ai.connections' => json_encode(['claude' => ['driver' => 'anthropic', 'url' => 'https://api.anthropic.test/v1', 'model' => 'claude-new-default']]),
+        ]]));
+
+        $this->assertSame([], $this->health()->check()['issues']);
+    }
+
+    #[Test]
+    public function a_404_naming_a_longer_model_is_not_taken_for_this_one(): void
+    {
+        $this->enableAiFeature(self::WRITER, ['model' => 'claude-x']);
+        $ai = $this->ai();
+        $this->answer = fn () => Http::response(['type' => 'error', 'error' => ['type' => 'not_found_error', 'message' => 'model: claude-xl']], 404);
+
+        try {
+            $ai->feature(self::WRITER)->asSystem()->prompt(agent('Be brief'), 'Hello');
+        } catch (RequestException) {
+        }
+
+        Http::assertSentCount(1);
+        $this->assertSame([], $this->issues());
+    }
+
+    #[Test]
+    public function a_failure_recorded_for_a_model_while_it_is_checked_is_kept(): void
+    {
+        $this->enableAiFeature(self::WRITER, ['model' => 'claude-x']);
+        $health = $this->health();
+        $health->forAdmin();
+
+        // A call finds the model gone while the provider still lists it.
+        $this->answer = function () {
+            $this->database()->table('settings')->updateOrInsert(
+                ['key' => 'flarum-ai.model_issues'],
+                ['value' => json_encode(['claude' => ['claude-x' => ['status' => 'failed', 'since' => '2026-11-06T12:00:00+00:00', 'retiresAt' => null]]])]
+            );
+
+            return Http::response(['data' => [['id' => 'claude-x']], 'has_more' => false]);
+        };
+
+        $result = $health->check();
+
+        $this->assertSame('failed', $result['issues'][0]['status'] ?? null);
+    }
+
+    #[Test]
+    public function connections_whose_models_cant_be_listed_are_reported(): void
+    {
+        $this->config('ai.connections.azure', ['driver' => 'azure', 'key' => 'k', 'url' => 'https://azure.test']);
+        $this->enableAiFeature(self::WRITER, ['connection' => 'azure', 'model' => 'azure-x']);
+
+        $result = $this->health()->check();
+
+        $this->assertSame(['issues' => [], 'unchecked' => [], 'unlisted' => ['azure']], $result);
+        $output = $this->runCommand(['command' => 'ai:check-models']);
+        $this->assertStringContainsString('azure', $output);
+        $this->assertStringNotContainsString('Every model in use is offered', $output);
     }
 }
 

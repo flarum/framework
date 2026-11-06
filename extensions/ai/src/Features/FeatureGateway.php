@@ -42,7 +42,7 @@ class FeatureGateway implements StepTextGateway
      * @param string|null $model The model the admin chose for the feature.
      * @param Closure(): ?string $fallbackModel The connection's default model, if it has one.
      * @param Closure(string $model): void $onMissingModel
-     * @param Closure(string $model): void $onStep
+     * @param Closure(string $model): void $onStep Told the model of each step of a feature without a model of its own.
      */
     public function __construct(
         protected StepTextGateway $gateway,
@@ -110,7 +110,9 @@ class FeatureGateway implements StepTextGateway
      */
     protected function withFallback(string $model, Closure $step): mixed
     {
-        ($this->onStep)($model);
+        if ($this->model === null) {
+            $this->quietly($this->onStep, $model);
+        }
 
         try {
             return $step($model);
@@ -119,7 +121,7 @@ class FeatureGateway implements StepTextGateway
                 throw $e;
             }
 
-            ($this->onMissingModel)($model);
+            $this->quietly($this->onMissingModel, $model);
 
             $fallback = ($this->fallbackModel)();
 
@@ -131,11 +133,22 @@ class FeatureGateway implements StepTextGateway
                 return $step($fallback);
             } catch (Throwable $e) {
                 if (ModelHealth::isMissingModel($e, $fallback)) {
-                    ($this->onMissingModel)($fallback);
+                    $this->quietly($this->onMissingModel, $fallback);
                 }
 
                 throw $e;
             }
+        }
+    }
+
+    /**
+     * Keeping track of models is never worth failing a call for.
+     */
+    protected function quietly(Closure $callback, string $model): void
+    {
+        try {
+            $callback($model);
+        } catch (Throwable) {
         }
     }
 

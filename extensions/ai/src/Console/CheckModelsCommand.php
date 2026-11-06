@@ -37,10 +37,14 @@ class CheckModelsCommand extends AbstractCommand
 
     protected function fire(): int
     {
-        ['issues' => $issues, 'unchecked' => $unchecked] = $this->container->make(ModelHealth::class)->check();
+        ['issues' => $issues, 'unchecked' => $unchecked, 'unlisted' => $unlisted] = $this->container->make(ModelHealth::class)->check();
 
         foreach ($issues as $issue) {
             $this->info("{$issue['connection']}/{$issue['model']}: {$issue['status']}".($issue['retiresAt'] ? ", retires {$issue['retiresAt']}" : ''));
+        }
+
+        foreach ($unlisted as $connection) {
+            $this->info("The models of the connection \"$connection\" can't be checked: its provider doesn't list them.");
         }
 
         foreach ($unchecked as $connection) {
@@ -52,7 +56,7 @@ class CheckModelsCommand extends AbstractCommand
         }
 
         if ($issues === []) {
-            $this->info('Every model in use is offered.');
+            $this->info($unlisted === [] ? 'Every model in use is offered.' : 'Every model in use that could be checked is offered.');
         }
 
         return 0;

@@ -80,6 +80,8 @@ export default class AiPage extends ExtensionPage {
   checkingModels = false;
   /** Connections the last check couldn't ask for their models. */
   uncheckedConnections: string[] = [];
+  /** Connections whose providers don't list their models, so they can't be checked. */
+  unlistedConnections: string[] = [];
   usageState: 'idle' | 'loading' | 'loaded' | 'failed' = 'idle';
 
   oninit(vnode: Mithril.Vnode<ExtensionPageAttrs, this>) {
@@ -273,7 +275,11 @@ export default class AiPage extends ExtensionPage {
 
     // Every item keyed, as Mithril needs of a list where any is: the alert
     // only when it's shown.
-    return [this.guestsUnlimitedAlert(), this.modelIssuesSection(), ...features.map((feature) => this.featureSection(feature))].filter(Boolean);
+    return [
+      this.guestsUnlimitedAlert('guests-unlimited'),
+      this.modelIssuesSection(),
+      ...features.map((feature) => this.featureSection(feature)),
+    ].filter(Boolean);
   }
 
   /**
@@ -292,6 +298,11 @@ export default class AiPage extends ExtensionPage {
         description={app.translator.trans('flarum-ai.admin.models.help')}
         icon="fas fa-heart-pulse"
       >
+        {this.unlistedConnections.map((connection) => (
+          <Alert key={'unlisted:' + connection} type="info" dismissible={false}>
+            {app.translator.trans('flarum-ai.admin.models.unlisted_text', { connection })}
+          </Alert>
+        ))}
         {this.uncheckedConnections.map((connection) => (
           <Alert key={'unchecked:' + connection} type="warning" dismissible={false}>
             {app.translator.trans('flarum-ai.admin.models.unchecked_text', { connection })}
@@ -350,13 +361,14 @@ export default class AiPage extends ExtensionPage {
     this.checkingModels = true;
 
     return app
-      .request<{ issues: ModelIssue[]; unchecked: string[] }>({
+      .request<{ issues: ModelIssue[]; unchecked: string[]; unlisted: string[] }>({
         method: 'POST',
         url: app.forum.attribute('apiUrl') + '/ai/models/check',
       })
-      .then(({ issues, unchecked }) => {
+      .then(({ issues, unchecked, unlisted }) => {
         aiPayload().modelIssues = issues;
         this.uncheckedConnections = unchecked || [];
+        this.unlistedConnections = unlisted || [];
       })
       .catch(() => {})
       .finally(() => {
@@ -392,11 +404,15 @@ export default class AiPage extends ExtensionPage {
     return aiPayload().features.some((feature) => (app.data.permissions[feature.permission] || []).includes(Group.GUEST_ID));
   }
 
-  guestsUnlimitedAlert(): Mithril.Children {
+  /**
+   * @param key Set where the alert's siblings are keyed, as Mithril needs all
+   *            or none of a list's items to be.
+   */
+  guestsUnlimitedAlert(key?: string): Mithril.Children {
     if (!this.guestsUnlimited()) return null;
 
     return (
-      <Alert key="guests-unlimited" className="AiPage-guestsUnlimited" type="warning" dismissible={false}>
+      <Alert key={key} className="AiPage-guestsUnlimited" type="warning" dismissible={false}>
         {app.translator.trans('flarum-ai.admin.limits.guests_unlimited_text')}
       </Alert>
     );
