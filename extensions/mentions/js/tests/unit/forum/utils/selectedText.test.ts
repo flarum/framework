@@ -153,3 +153,31 @@ describe('selectedText', () => {
     });
   });
 });
+
+describe('spoilers', () => {
+  test('an inline spoiler stays a spoiler', () => {
+    expect(quote('<p>before <span class="spoiler" data-spoiler="">secret</span> after</p>')).toBe('before >!secret!< after');
+  });
+
+  test('a revealed inline spoiler stays a spoiler', () => {
+    expect(quote('<p>before <span data-spoiler="">secret</span> after</p>')).toBe('before >!secret!< after');
+  });
+
+  test('a block spoiler stays a spoiler', () => {
+    expect(quote('<details class="spoiler">one\ntwo</details>')).toBe('>! one\n>! two\n');
+  });
+
+  test('a literal !< does not close the spoiler', () => {
+    expect(quote('<p><span class="spoiler" data-spoiler="">a !&lt; b</span></p>')).toBe('>!a !\\< b!<');
+    expect(quote('<details class="spoiler">a !&lt; b</details>')).toBe('>! a !\\< b\n');
+  });
+
+  test('keeps images, emoji and links', () => {
+    expect(
+      quote(
+        '<p><span class="spoiler" data-spoiler=""><img src="https://example.com/a.png"> <img class="emoji" alt="😀" src="e.png"> <a href="https://example.com/">site</a></span></p>'
+      )
+    ).toBe('>!![](https://example.com/a.png) 😀 [site](https://example.com/)!<');
+    expect(quote('<details class="spoiler"><img src="https://example.com/a.png"></details>')).toBe('>! ![](https://example.com/a.png)\n');
+  });
+});

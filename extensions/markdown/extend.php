@@ -25,7 +25,7 @@ return [
 
             // Overwrite the default inline spoiler so that it is compatible
             // with more styling for children in an external stylesheet.
-            $config->tags['ispoiler']->template = '<span class="spoiler" data-s9e-livepreview-ignore-attrs="class" onclick="removeAttribute(\'class\')"><xsl:apply-templates/></span>';
+            $config->tags['ispoiler']->template = '<span class="spoiler" data-spoiler="" data-s9e-livepreview-ignore-attrs="class" onclick="removeAttribute(\'class\')"><xsl:apply-templates/></span>';
         }),
 
     new Extend\Locales(__DIR__.'/locale'),
