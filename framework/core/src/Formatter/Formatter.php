@@ -237,7 +237,7 @@ class Formatter
      *
      * A pasted address says nothing useful in the middle of a sentence, so
      * where the writer pasted one bare — leaving the address as the link's own
-     * text — it is shown as `#123` instead, with the post number alongside it
+     * text — it is shown as the title (or `#123`), with the post number alongside it
      * when the link points at a particular reply.
      *
      * When the writer chose their own words for the link, those words are what
@@ -283,7 +283,7 @@ class Formatter
                 // Decorative: the text beside it already says where the link
                 // goes, so a screen reader announcing the icon as well would
                 // only repeat it.
-                .'<img src="{@faviconurl}" class="UrlLink-favicon" alt="" aria-hidden="true"/>'
+                .'<img src="{@faviconurl}" class="UrlLink-favicon" width="16" height="16" alt="" aria-hidden="true"/>'
             .'</xsl:if>'
             .'<span class="UrlLink-discussion">'
                 .'<xsl:choose>'
@@ -292,7 +292,7 @@ class Formatter
                 .'</xsl:choose>'
             .'</span>'
             .'<xsl:if test="@postnumber">'
-                .'<span class="UrlLink-post">'
+                .'<span class="UrlLink-post"><span class="UrlLink-postSeparator"> / </span>'
                     .'<i class="icon fas fa-comment UrlLink-postIcon" aria-hidden="true"></i>'
                     .'<xsl:value-of select="@postnumber"/>'
                 .'</span>'

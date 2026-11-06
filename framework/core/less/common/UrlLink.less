@@ -1,10 +1,12 @@
 // A link to a discussion on this forum, shown as the discussion it points at
 // rather than as the address that was pasted.
 //
-// It reads as one object — icon, number, and post number together — so it is
+// It reads as one object — icon, title, and post number together — so it is
 // laid out as a unit rather than as a run of separate words.
 .UrlLink--discussion {
   display: inline-flex;
+  max-width: 100%;
+  vertical-align: bottom;
   align-items: baseline;
   gap: 5px;
   padding: 0 6px;
@@ -49,12 +51,16 @@
 }
 
 .UrlLink-discussion {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 // The reply this link points at, when it names one.
 .UrlLink-post {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -71,4 +77,9 @@
 .UrlLink-postIcon {
   font-size: 90%;
   opacity: 0.8;
+}
+
+// Email and unstyled renders need a textual separator instead of the icon.
+.UrlLink-postSeparator {
+  display: none;
 }

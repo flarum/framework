@@ -128,7 +128,8 @@ class InternalLinksTest extends TestCase
         $this->prepareDatabase(['discussions' => [
             ['id' => 123, 'title' => 'Email discussion', 'slug' => 'email', 'created_at' => '2026-01-01 00:00:00'],
         ]]);
-        $preview = $this->app()->getContainer()->make(\Flarum\Mail\MailFormatter::class)->convert('http://flarum.localhost/d/123');
+        $this->setting('favicon_path', 'favicon.png');
+        $preview = $this->app()->getContainer()->make(\Flarum\Mail\MailFormatter::class)->convert('http://flarum.localhost/d/123/4');
         $view = $this->app()->getContainer()->make(\Illuminate\Contracts\View\Factory::class);
         $view->share(['username' => 'Recipient']);
         $html = $view->make('mail::html.notification', [
@@ -141,7 +142,9 @@ class InternalLinksTest extends TestCase
         ])->render();
 
         $this->assertStringContainsString('>Email discussion</span>', $html);
-        $this->assertStringContainsString('href="http://flarum.localhost/d/123"', $html);
+        $this->assertStringContainsString('Email discussion / 4', strip_tags($preview));
+        $this->assertStringContainsString('width="16" height="16"', $preview);
+        $this->assertStringContainsString('href="http://flarum.localhost/d/123/4"', $html);
     }
 
     #[Test]
