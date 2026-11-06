@@ -8,13 +8,15 @@ app.initializers.add('flarum-ai', () => {
   const registry = app.registry.for('flarum-ai');
 
   // Each feature an extension registers has its own permission, listed with
-  // the others a member uses to take part.
+  // the others a member uses to take part. Features can be called for guests,
+  // who share their own daily limit, so guests can be granted it too.
   aiPayload().features.forEach((feature) => {
     registry.registerPermission(
       {
         icon: 'fas fa-wand-magic-sparkles',
         label: extractText(app.translator.trans('flarum-ai.admin.permissions.use_feature_label', { feature: app.translator.trans(feature.label) })),
         permission: feature.permission,
+        allowGuest: true,
       },
       'reply'
     );
