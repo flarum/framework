@@ -74,6 +74,16 @@ class AiConfig
         return is_string($name) && $name !== '' ? $name : null;
     }
 
+    /**
+     * Whether config.php lets Bedrock connections set up on the admin page use
+     * the server's own AWS credentials, rather than a Bedrock API key:
+     * `'ai' => ['bedrock_server_credentials' => true]`.
+     */
+    public function bedrockServerCredentials(): bool
+    {
+        return ($this->config['ai.bedrock_server_credentials'] ?? false) === true;
+    }
+
     public function defaultConnection(): ?string
     {
         $name = $this->lockedDefaultConnection() ?? $this->settings->get('flarum-ai.default_connection');
@@ -137,7 +147,7 @@ class AiConfig
     {
         $model = $connection['model'] ?? null;
 
-        unset($connection['model'], $connection['monthly_tokens']);
+        unset($connection['model'], $connection['monthly_tokens'], $connection['guardrail_id'], $connection['guardrail_version']);
 
         if (is_string($model) && $model !== '') {
             $connection['models']['text']['default'] = $model;

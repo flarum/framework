@@ -17,6 +17,8 @@ flarum-ai:
       empty_text: No connections yet. Add one to start using AI on the forum.
       feature_connection_invalid_message: "The connection chosen for \"{name}\" no longer exists. Choose another one."
       features_invalid_message: The feature settings could not be read. Reload the page and try again.
+      guardrail_invalid_message: "The guardrail for \"{name}\" is a guardrail ID or ARN, and a version number or DRAFT."
+      guardrail_text: "Guardrail {guardrail}, version {version}"
       heading: Connections
       help: Each connection is an AI provider and the API key to reach it. API keys are never shown again once saved.
       invalid_message: The connections could not be read. Reload the page and try again.
@@ -24,12 +26,16 @@ flarum-ai:
       key_required_message: "\"{name}\" needs an API key."
       key_saved_text: Key saved
       locked_text: Set in config.php
+      max_tokens_invalid_message: "The longest reply for \"{name}\" is a whole number of tokens above zero, or empty for the extension's own."
       model_invalid_message: "The model for \"{name}\" is too long."
       monthly_tokens_text: "{tokens} tokens a month"
       name_invalid_message: "\"{name}\" can't be used as a name. Start with a letter, then use letters, numbers, dashes and underscores, up to 50 characters."
       name_locked_message: "\"{name}\" is already set in config.php. Choose another name."
       no_key_text: No key
+      region_invalid_message: "\"{name}\" needs an AWS region, such as eu-central-1."
+      region_required_message: "\"{name}\" needs an AWS region."
       remove_button: => core.ref.remove
+      temperature_invalid_message: "The temperature for \"{name}\" is a number from 0 to 2, or empty for the extension's own."
       tokens_invalid_message: "Token limits are whole numbers above zero, or empty for no limit."
       url_invalid_message: "The API URL for \"{name}\" must start with http:// or https://."
       url_required_message: "\"{name}\" needs an API URL."
@@ -37,6 +43,7 @@ flarum-ai:
     # The names of the providers a connection can use.
     drivers:
       anthropic: Anthropic
+      bedrock: Amazon Bedrock
       deepseek: DeepSeek
       gemini: Google Gemini
       groq: Groq
@@ -50,8 +57,14 @@ flarum-ai:
     # These translations are used by the modal for adding or editing a connection.
     edit_connection:
       add_title: Add Connection
+      aws_sdk_text: "Amazon Bedrock can be added once the AWS SDK is installed: composer require aws/aws-sdk-php"
       driver_label: Provider
       edit_title: "Edit {name}"
+      guardrail_help: A Bedrock guardrail checked on every reply an agent writes through this connection, not on embeddings or images. Leave empty for none. The version is a number, or empty for the working draft.
+      guardrail_id_placeholder: Guardrail ID or ARN
+      guardrail_label: Guardrail
+      guardrail_version_label: Guardrail version
+      key_bedrock_help: A Bedrock API key. Access keys and roles to assume are set in config.php, which can also let connections use the server's own AWS credentials when the key is left empty.
       key_dropped_text: A saved key is only used with the provider and API URL it was saved for. Enter it again to use it here.
       key_label: API Key
       key_optional_help: This provider can be used without a key.
@@ -64,6 +77,8 @@ flarum-ai:
       name_help: Starts with a letter, then letters, numbers, dashes and underscores. Features that use AI refer to a connection by its name.
       name_label: Name
       name_taken_message: "There's already a connection called \"{name}\"."
+      region_help: The AWS region to call Bedrock in, such as eu-central-1.
+      region_label: AWS Region
       remove_key_button: Remove the saved key
       submit_button: => core.ref.okay
       url_label: API URL
@@ -72,6 +87,7 @@ flarum-ai:
 
     # These translations are used by the list of features extensions have registered.
     features:
+      agent_default_placeholder: Extension's default
       connection_default_option: Default connection
       connection_label: Connection
       daily_tokens_label: Tokens per Day
@@ -79,14 +95,42 @@ flarum-ai:
       enabled_label: "Use AI for {feature}"
       extension_text: "From {extension}."
       heading: Features
-      help: It stays off until you turn it on, and members need its permission, on the Permissions tab, to use it.
+      help: It stays off until you turn it on, and members and guests need its permission, on the Permissions tab, to use it.
+      max_tokens_invalid_message: The longest reply is a whole number of tokens above zero, or empty for the extension's own.
+      max_tokens_label: Longest Reply (Tokens)
       model_label: Model
       model_placeholder: Connection's default
+      temperature_invalid_message: The temperature is a number from 0 to 2, or empty for the extension's own. Some providers accept at most 1.
+      temperature_label: Temperature
+      temperature_ignored_text: The model refused a temperature, so it's left out of this feature's calls to it.
+
+    # These translations are used by the checks on the models features use.
+    models:
+      check_button: Check Now
+      dashboard_broken_text: "{count, plural, one {# AI model in use is gone, or about to go.} other {# AI models in use are gone, or about to go.}}"
+      dashboard_button: Choose Other Models
+      dashboard_deprecated_text: "{count, plural, one {# AI model in use is deprecated.} other {# AI models in use are deprecated.}}"
+      deprecated_text: "{model} is deprecated."
+      heading: Models
+      help: Providers retire their models. The models features use are checked every day. When a feature's own model is gone, its calls use the connection's default model until you choose another.
+      issue_deprecated_text: "{connection} has deprecated {model}, used by {features}. Choose another model before it's removed."
+      issue_failed_text: "Since {since}, {connection} has answered calls to {model}, used by {features}, saying it doesn't have it. Choose another model."
+      issue_missing_text: "{connection} no longer offers {model}, used by {features}. Choose another model."
+      issue_retiring_text: "{connection} retires {model}, used by {features}, on {date}. Choose another model before then."
+      load_error_text: The list of models could not be loaded.
+      no_features_text: no feature
+      no_issues_text: Every model in use was offered by its provider at the last check.
+      not_offered_text: "{connection} doesn't offer {model}."
+      refresh_button: Load the list of models again
+      retires_text: "{model} is deprecated, and retires on {date}."
+      unchecked_text: "The models of {connection} could not be checked: its provider could not be asked for them. Check its API key and address."
+      unlisted_text: "The models of {connection} can't be checked: its provider doesn't list them."
 
     # These translations are used by the token limits on the extension's page.
     limits:
       guest_daily_help: Calls made for guests stop once guests together have used this many tokens today, across every feature. Leave empty for no limit.
       guest_daily_label: Tokens per Day for All Guests
+      guests_unlimited_text: "Guests can use an AI feature, and have no daily limit: any visitor could spend the forum's tokens without end. Set the guests' daily limit on the Usage tab."
       heading: Limits
       help: Limits for each connection are set on the connection, and for each feature on the Features tab. Days and months are in UTC. Calls already running when a limit is used up still finish, so a limit can be passed by a little.
       member_daily_help: Calls made for a member stop once they've used this many tokens today, across every feature. Admins have no limit. Leave empty for no limit.

@@ -115,3 +115,62 @@
 .AiPage-invalid {
   color: var(--validation-error-color);
 }
+
+.AiPage-modelIssues {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+
+  li + li {
+    margin-top: 8px;
+  }
+}
+
+.AiPage-feature .Alert {
+  margin-bottom: 12px;
+}
+
+.AiModelInput {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &-field {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .FormControl {
+      flex: 1;
+    }
+  }
+
+  &-status--deprecated {
+    color: var(--alert-warning-color, var(--muted-color));
+  }
+
+  &-status--missing {
+    color: var(--validation-error-color);
+  }
+}
+
+.AiPage-connection-guardrail {
+  color: var(--muted-color);
+}
+
+.AiPage-note {
+  color: var(--muted-color);
+}
+
+.EditConnectionModal-guardrail {
+  display: flex;
+  gap: 8px;
+
+  .FormControl:first-child {
+    flex: 3;
+  }
+
+  .FormControl:last-child {
+    flex: 1;
+  }
+}
