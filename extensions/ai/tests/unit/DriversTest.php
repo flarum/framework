@@ -10,8 +10,8 @@
 namespace Flarum\Ai\Tests\unit;
 
 use Flarum\Ai\Drivers;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 class DriversTest extends TestCase
 {

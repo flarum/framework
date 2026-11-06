@@ -9,8 +9,8 @@
 
 namespace Flarum\Ai\Models;
 
-use Carbon\CarbonImmutable;
 use Aws\Exception\AwsException;
+use Carbon\CarbonImmutable;
 use Flarum\Ai\AiConfig;
 use Flarum\Ai\Exception\ModelsUnavailableException;
 use Flarum\Ai\Features\FeatureRegistry;
