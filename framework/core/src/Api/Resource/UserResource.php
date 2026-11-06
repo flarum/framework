@@ -35,12 +35,17 @@ use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\CurlHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\FnStream;
+use GuzzleHttp\Psr7\Utils;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use InvalidArgumentException;
 use Psr\Http\Message\UploadedFileInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * @extends AbstractDatabaseResource<User>
@@ -601,11 +606,23 @@ class UserResource extends AbstractDatabaseResource
 
     private function retrieveAvatarFromUrl(string $url): ?string
     {
+        // Without cURL we cannot pin the connection to the checked address.
+        if (! $this->canPinConnections()) {
+            $this->api->getContainer()->make(LoggerInterface::class)->warning(
+                'Skipped downloading an avatar from a URL: PHP\'s cURL extension (with curl_exec enabled) is needed to download it safely, and is not available.'
+            );
+
+            return null;
+        }
+
         $host = parse_url($url, PHP_URL_HOST);
 
         if (! is_string($host) || $host === '') {
             return null;
         }
+
+        // Match Guzzle's normalized hostname when constructing the DNS pin.
+        $host = strtolower($host);
 
         // Resolve the host and reject it if it points at a link-local, loopback
         // or otherwise reserved address (e.g. the cloud metadata endpoint
@@ -618,22 +635,36 @@ class UserResource extends AbstractDatabaseResource
             return null;
         }
 
-        $scheme = parse_url($url, PHP_URL_SCHEME);
+        $scheme = strtolower(parse_url($url, PHP_URL_SCHEME) ?? '');
         $port = parse_url($url, PHP_URL_PORT) ?: ($scheme === 'https' ? 443 : 80);
 
         $maxSizeBytes = $this->imageValidator->getMaxSize() * 1024;
 
+        $sink = Utils::streamFor('');
+
         $options = [
+            'handler' => HandlerStack::create(new CurlHandler()),
             'allow_redirects' => false,
             'timeout' => 5,
-            'stream' => true,
+            // cURL buffers the response before returning it. Cap each write so
+            // oversized bodies are aborted during the transfer, not afterwards.
+            'sink' => FnStream::decorate($sink, [
+                'write' => function (string $data) use ($sink, $maxSizeBytes): int {
+                    if ($sink->tell() + strlen($data) > $maxSizeBytes) {
+                        return 0;
+                    }
+
+                    return $sink->write($data);
+                },
+            ]),
         ];
 
-        // Pin the connection to the address we just validated, so a rebinding
-        // DNS record cannot swap in a blocked address between the check above
-        // and the actual connection. Requires the cURL handler; harmless if
-        // it is unavailable.
-        if (defined('CURLOPT_RESOLVE')) {
+        // This pins direct connections. Configured proxies are still honored
+        // and are responsible for resolving and enforcing their destinations.
+        // Literal IPs need no DNS override; older cURL versions cannot parse
+        // IPv6 literals in the host component of a CURLOPT_RESOLVE entry.
+        if (! filter_var(trim($host, '[]'), FILTER_VALIDATE_IP)) {
+            // Unbracketed IPv6 addresses also work with libcurl before 7.57.
             $options['curl'] = [CURLOPT_RESOLVE => ["$host:$port:$ip"]];
         }
 
@@ -649,29 +680,25 @@ class UserResource extends AbstractDatabaseResource
             return null;
         }
 
-        // Read the body incrementally and abort once it exceeds the maximum
-        // size, rather than trusting the (optional, spoofable) Content-Length
-        // header after the entire response has already been buffered.
-        $body = $response->getBody();
-        $contents = '';
+        return (string) $response->getBody();
+    }
 
-        while (! $body->eof()) {
-            $contents .= $body->read(8192);
-
-            if (strlen($contents) > $maxSizeBytes) {
-                return null;
-            }
-        }
-
-        return $contents;
+    /**
+     * @internal
+     */
+    protected function canPinConnections(): bool
+    {
+        return defined('CURLOPT_RESOLVE') && function_exists('curl_init') && function_exists('curl_exec');
     }
 
     /**
      * Resolve a hostname (or accept a literal IP) and return the first address
      * that is safe to connect to, or null if the host is unresolvable or only
      * resolves to blocked (link-local / loopback / reserved) addresses.
+     *
+     * @internal
      */
-    private function resolveToAllowedIp(string $host): ?string
+    protected function resolveToAllowedIp(string $host): ?string
     {
         $literal = trim($host, '[]');
 

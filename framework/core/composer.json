@@ -46,7 +46,7 @@
         "flarum/font-awesome": "^7.0",
         "flarum/json-api-server": "^0.1.0",
         "franzl/whoops-middleware": "2.0",
-        "guzzlehttp/guzzle": "^7.7",
+        "guzzlehttp/guzzle": "^7.15.2",
         "illuminate/bus": "^13.0",
         "illuminate/cache": "^13.0",
         "illuminate/config": "^13.0",
