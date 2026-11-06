@@ -17,6 +17,7 @@ flarum-ai:
       empty_text: No connections yet. Add one to start using AI on the forum.
       feature_connection_invalid_message: "The connection chosen for \"{name}\" no longer exists. Choose another one."
       features_invalid_message: The feature settings could not be read. Reload the page and try again.
+      guardrail_invalid_message: "The guardrail for \"{name}\" is a guardrail ID or ARN, and a version number or DRAFT."
       heading: Connections
       help: Each connection is an AI provider and the API key to reach it. API keys are never shown again once saved.
       invalid_message: The connections could not be read. Reload the page and try again.
@@ -30,6 +31,8 @@ flarum-ai:
       name_invalid_message: "\"{name}\" can't be used as a name. Start with a letter, then use letters, numbers, dashes and underscores, up to 50 characters."
       name_locked_message: "\"{name}\" is already set in config.php. Choose another name."
       no_key_text: No key
+      region_invalid_message: "\"{name}\" needs an AWS region, such as eu-central-1."
+      region_required_message: "\"{name}\" needs an AWS region."
       remove_button: => core.ref.remove
       temperature_invalid_message: "The temperature for \"{name}\" is a number from 0 to 2, or empty for the extension's own."
       tokens_invalid_message: "Token limits are whole numbers above zero, or empty for no limit."

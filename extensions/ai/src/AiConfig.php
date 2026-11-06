@@ -137,7 +137,7 @@ class AiConfig
     {
         $model = $connection['model'] ?? null;
 
-        unset($connection['model'], $connection['monthly_tokens']);
+        unset($connection['model'], $connection['monthly_tokens'], $connection['guardrail_id'], $connection['guardrail_version']);
 
         if (is_string($model) && $model !== '') {
             $connection['models']['text']['default'] = $model;

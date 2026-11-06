@@ -42,9 +42,12 @@ class AdminPayload
     {
         $document->payload['flarum-ai'] = [
             'connectionsWithKeys' => $this->keys->names(),
-            'drivers' => Drivers::ADMIN,
+            'drivers' => Drivers::admin(),
             'keyOptional' => Drivers::KEY_OPTIONAL,
             'urlRequired' => Drivers::URL_REQUIRED,
+            'regionRequired' => Drivers::REGION_REQUIRED,
+            // Whether Bedrock can be offered, or the page says what to install.
+            'awsSdk' => Drivers::awsSdkInstalled(),
             'lockedConnections' => (object) $this->connections->forAdmin($this->config->lockedConnections()),
             'lockedDefault' => $this->config->lockedDefaultConnection(),
             'features' => array_values(array_map(fn (Feature $feature) => [
@@ -59,6 +62,9 @@ class AdminPayload
             'rules' => [
                 'namePattern' => AdminConnections::NAME_PATTERN,
                 'modelMaxLength' => AdminConnections::MODEL_MAX_LENGTH,
+                'regionPattern' => AdminConnections::REGION_PATTERN,
+                'guardrailPattern' => AdminConnections::GUARDRAIL_PATTERN,
+                'guardrailVersionPattern' => AdminConnections::GUARDRAIL_VERSION_PATTERN,
             ],
         ];
     }
