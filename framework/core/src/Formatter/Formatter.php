@@ -369,7 +369,10 @@ class Formatter
             $url = $attributes['url'] ?? '';
 
             if ($this->isInternalUrl($url) && ($discussion = $this->parseDiscussionUrl($url))) {
-                $ids[] = $discussion['id'];
+                // PostgreSQL's serial discussion IDs are signed 32-bit integers.
+                if (filter_var($discussion['id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 2147483647]]) !== false) {
+                    $ids[] = $discussion['id'];
+                }
             }
 
             return $attributes;

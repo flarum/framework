@@ -49,6 +49,20 @@ class InternalLinksTest extends TestCase
     }
 
     #[Test]
+    public function oversized_discussion_ids_are_not_sent_to_the_database()
+    {
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $xml = $formatter->parse('http://flarum.localhost/d/999999999999999999999999999999');
+        $db = $this->app()->getContainer()->make('db')->connection();
+        $db->enableQueryLog();
+        $db->flushQueryLog();
+        $html = $formatter->render($xml);
+
+        $this->assertStringContainsString('#999999999999999999999999999999', $html);
+        $this->assertSame([], $db->getQueryLog());
+    }
+
+    #[Test]
     public function an_empty_discussion_title_keeps_the_numeric_label()
     {
         $this->prepareDatabase(['discussions' => [
