@@ -20,19 +20,22 @@ export default function selectedText(body) {
         return document.createTextNode(this.getAttribute('href'));
       });
 
+      // The replacements below are text nodes: a string returned to
+      // replaceWith() is parsed as HTML, and the post's text must stay text.
+
       // Replace emoji images with their shortcode (found in alt attribute)
       clone.find('img.emoji').replaceWith(function () {
-        return this.alt;
+        return document.createTextNode(this.alt);
       });
 
       // Replace all other images with a Markdown image
       clone.find('img').replaceWith(function () {
-        return `![](${this.src})`;
+        return document.createTextNode(`![](${this.src})`);
       });
 
       // Replace all links with a Markdown link
       clone.find('a').replaceWith(function () {
-        return `[${this.innerText}](${this.href})`;
+        return document.createTextNode(`[${this.innerText}](${this.href})`);
       });
 
       return clone.text();
