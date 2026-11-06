@@ -8,6 +8,7 @@
  */
 
 use Flarum\Ai\AiServiceProvider;
+use Flarum\Ai\Api\Controller\ListModelsController;
 use Flarum\Ai\Api\Controller\ShowUsageController;
 use Flarum\Ai\Api\ForumResourceFields;
 use Flarum\Ai\Console\PruneUsageCommand;
@@ -43,7 +44,8 @@ return [
         ->register(AiServiceProvider::class),
 
     (new Extend\Routes('api'))
-        ->get('/ai/usage', 'ai.usage', ShowUsageController::class),
+        ->get('/ai/usage', 'ai.usage', ShowUsageController::class)
+        ->get('/ai/connections/{connection}/models', 'ai.models', ListModelsController::class),
 
     (new Extend\ApiResource(ForumResource::class))
         ->fields(ForumResourceFields::class),
@@ -57,6 +59,7 @@ return [
     (new Extend\ErrorHandling())
         ->status('ai_feature_disabled', 403)
         ->status('ai_not_configured', 503)
+        ->status('ai_models_unavailable', 502)
         ->handler(LimitReachedException::class, LimitReachedExceptionHandler::class),
 
     (new Extend\Event())
