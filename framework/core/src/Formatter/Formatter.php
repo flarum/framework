@@ -10,9 +10,9 @@
 namespace Flarum\Formatter;
 
 use Flarum\Discussion\Discussion;
-use Flarum\Http\RequestUtil;
 use Flarum\Forum\Branding\Branding;
 use Flarum\Foundation\Config;
+use Flarum\User\Guest;
 use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository;
 use Psr\Http\Message\ServerRequestInterface;
@@ -122,6 +122,7 @@ class Formatter
 
     public function render(string $xml, mixed $context = null, ?ServerRequestInterface $request = null): string
     {
+        $xml = $this->removeStoredDiscussionTitles($xml);
         $renderer = $this->getRenderer();
 
         foreach ($this->renderingCallbacks as $callback) {
@@ -250,6 +251,7 @@ class Formatter
         // which is decided per render rather than when the post was written.
         $tag->attributes->add('discussionid')->required = false;
         $tag->attributes->add('discussiontitle')->required = false;
+        $tag->attributes['discussiontitle']->filterChain->append('#false');
         $tag->attributes->add('postnumber')->required = false;
         $tag->attributes->add('faviconurl')->required = false;
 
@@ -344,6 +346,15 @@ class Formatter
     public function getJs(): string
     {
         return $this->getComponent('js');
+    }
+
+    protected function removeStoredDiscussionTitles(string $xml): string
+    {
+        return Utils::replaceAttributes($xml, 'URL', function (array $attributes) {
+            unset($attributes['discussiontitle']);
+
+            return $attributes;
+        });
     }
 
     /**
@@ -565,7 +576,7 @@ class Formatter
             return '';
         }
 
-        $xml = $this->configureDiscussionTitles($this->getParser()->parse($content), null);
+        $xml = $this->configureDiscussionTitles($this->removeStoredDiscussionTitles($this->getParser()->parse($content)), null);
 
         return $this->getRenderer()->render($this->configureDefaultsOnLinks($xml));
     }

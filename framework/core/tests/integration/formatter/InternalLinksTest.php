@@ -49,6 +49,16 @@ class InternalLinksTest extends TestCase
     }
 
     #[Test]
+    public function an_author_cannot_supply_a_discussion_title_attribute()
+    {
+        $this->extension('flarum-bbcode');
+        $html = $this->render('[url=http://flarum.localhost/d/123 discussiontitle="Forged title"]http://flarum.localhost/d/123[/url]');
+
+        $this->assertStringNotContainsString('Forged title', $html);
+        $this->assertStringContainsString('#123', $html);
+    }
+
+    #[Test]
     public function titles_follow_the_viewer_and_are_not_retained_for_requestless_renders()
     {
         $this->prepareDatabase(['discussions' => [
