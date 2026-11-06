@@ -49,6 +49,59 @@ class InternalLinksTest extends TestCase
     }
 
     #[Test]
+    public function titles_follow_the_viewer_and_are_not_retained_for_requestless_renders()
+    {
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => 'Restricted title', 'slug' => 'restricted', 'created_at' => '2026-01-01 00:00:00', 'hidden_at' => '2026-01-01 00:00:00'],
+        ]]);
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $xml = $formatter->parse('http://flarum.localhost/d/123');
+        $request = \Flarum\Http\RequestUtil::withActor(new \Laminas\Diactoros\ServerRequest(), \Flarum\User\User::findOrFail(1));
+
+        $this->assertStringContainsString('>Restricted title</span>', $formatter->render($xml, null, $request));
+        $html = $formatter->render($xml);
+        $this->assertStringNotContainsString('Restricted title', $html);
+        $this->assertStringContainsString('#123', $html);
+    }
+
+    #[Test]
+    public function a_quoted_discussion_link_keeps_its_title_and_address()
+    {
+        $this->extension('flarum-markdown');
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => 'Quoted discussion', 'slug' => 'quoted', 'created_at' => '2026-01-01 00:00:00'],
+        ]]);
+
+        $html = $this->render('> http://flarum.localhost/d/123');
+
+        $this->assertStringContainsString('<blockquote>', $html);
+        $this->assertStringContainsString('>Quoted discussion</span>', $html);
+        $this->assertStringContainsString('href="http://flarum.localhost/d/123"', $html);
+    }
+
+    #[Test]
+    public function an_html_email_template_can_render_a_public_discussion_title()
+    {
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => 'Email discussion', 'slug' => 'email', 'created_at' => '2026-01-01 00:00:00'],
+        ]]);
+        $preview = $this->app()->getContainer()->make(\Flarum\Mail\MailFormatter::class)->convert('http://flarum.localhost/d/123');
+        $view = $this->app()->getContainer()->make(\Illuminate\Contracts\View\Factory::class);
+        $view->share(['username' => 'Recipient']);
+        $html = $view->make('mail::html.notification', [
+            'preview' => $preview,
+            'user' => (object) ['email' => 'recipient@example.com'],
+            'unsubscribeLink' => 'http://flarum.localhost/unsubscribe',
+            'settingsLink' => 'http://flarum.localhost/settings',
+            'type' => 'test', 'forumTitle' => 'Forum', 'username' => 'Recipient',
+            'userEmail' => 'recipient@example.com', 'title' => 'Notification',
+        ])->render();
+
+        $this->assertStringContainsString('>Email discussion</span>', $html);
+        $this->assertStringContainsString('href="http://flarum.localhost/d/123"', $html);
+    }
+
+    #[Test]
     public function a_visible_discussion_link_shows_its_title_without_a_request()
     {
         $this->prepareDatabase(['discussions' => [

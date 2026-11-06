@@ -565,6 +565,8 @@ class Formatter
             return '';
         }
 
-        return $this->getRenderer()->render($this->getParser()->parse($content));
+        $xml = $this->configureDiscussionTitles($this->getParser()->parse($content), null);
+
+        return $this->getRenderer()->render($this->configureDefaultsOnLinks($xml));
     }
 }
