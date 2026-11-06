@@ -45,6 +45,7 @@ use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use InvalidArgumentException;
 use Psr\Http\Message\UploadedFileInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * @extends AbstractDatabaseResource<User>
@@ -606,7 +607,11 @@ class UserResource extends AbstractDatabaseResource
     private function retrieveAvatarFromUrl(string $url): ?string
     {
         // Without cURL we cannot pin the connection to the checked address.
-        if (! defined('CURLOPT_RESOLVE') || ! function_exists('curl_init') || ! function_exists('curl_exec')) {
+        if (! $this->canPinConnections()) {
+            $this->api->getContainer()->make(LoggerInterface::class)->warning(
+                'Skipped downloading an avatar from a URL: PHP\'s cURL extension (with curl_exec enabled) is needed to download it safely, and is not available.'
+            );
+
             return null;
         }
 
@@ -679,9 +684,19 @@ class UserResource extends AbstractDatabaseResource
     }
 
     /**
+     * @internal
+     */
+    protected function canPinConnections(): bool
+    {
+        return defined('CURLOPT_RESOLVE') && function_exists('curl_init') && function_exists('curl_exec');
+    }
+
+    /**
      * Resolve a hostname (or accept a literal IP) and return the first address
      * that is safe to connect to, or null if the host is unresolvable or only
      * resolves to blocked (link-local / loopback / reserved) addresses.
+     *
+     * @internal
      */
     protected function resolveToAllowedIp(string $host): ?string
     {

@@ -9,11 +9,14 @@
 
 namespace Flarum\Tests\unit\Api;
 
+use Flarum\Api\JsonApi;
 use Flarum\Api\Resource\UserResource;
 use Flarum\Testing\unit\TestCase;
 use Flarum\User\AvatarValidator;
+use Illuminate\Container\Container;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -148,6 +151,36 @@ class AvatarUrlFetchTest extends TestCase
             posix_kill($pid, SIGTERM);
             pcntl_waitpid($pid, $status);
         }
+    }
+
+    #[Test]
+    public function it_logs_why_it_skips_the_download_without_curl(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with($this->stringContains('cURL'));
+
+        $container = new Container();
+        $container->instance(LoggerInterface::class, $logger);
+        $api = $this->createStub(JsonApi::class);
+        $api->method('getContainer')->willReturn($container);
+
+        $resource = (new ReflectionClass(CurlUnavailableAvatarResource::class))->newInstanceWithoutConstructor();
+        (new ReflectionProperty(UserResource::class, 'api'))->setValue($resource, $api);
+
+        $result = (new ReflectionMethod(UserResource::class, 'retrieveAvatarFromUrl'))
+            ->invoke($resource, 'https://avatar-fetch.invalid/avatar');
+
+        $this->assertNull($result);
+    }
+}
+
+class CurlUnavailableAvatarResource extends UserResource
+{
+    protected function canPinConnections(): bool
+    {
+        return false;
     }
 }
 

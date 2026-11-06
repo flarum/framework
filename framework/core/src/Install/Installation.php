@@ -102,6 +102,7 @@ class Installation
         return new Prerequisite\Composite(
             new Prerequisite\PhpVersion('8.3.0'),
             new Prerequisite\PhpExtensions([
+                'curl',
                 'dom',
                 'fileinfo',
                 'gd',
