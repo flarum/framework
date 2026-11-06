@@ -49,6 +49,47 @@ class InternalLinksTest extends TestCase
     }
 
     #[Test]
+    public function several_links_share_one_title_lookup_and_keep_author_text()
+    {
+        $this->extension('flarum-markdown');
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => 'First discussion', 'slug' => 'first', 'created_at' => '2026-01-01 00:00:00'],
+            ['id' => 124, 'title' => 'Second discussion', 'slug' => 'second', 'created_at' => '2026-01-01 00:00:00'],
+        ]]);
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $xml = $formatter->parse('http://flarum.localhost/d/123 http://flarum.localhost/d/124 [my words](http://flarum.localhost/d/123)');
+        $db = $this->app()->getContainer()->make('db')->connection();
+        $db->enableQueryLog();
+        $db->flushQueryLog();
+        $html = $formatter->render($xml);
+        $table = $db->getQueryGrammar()->wrapTable('discussions');
+        $lookups = array_filter($db->getQueryLog(), fn (array $query) => str_contains($query['query'], 'from '.$table));
+
+        $this->assertCount(1, $lookups);
+        $this->assertStringContainsString('>First discussion</span>', $html);
+        $this->assertStringContainsString('>Second discussion</span>', $html);
+        $this->assertStringContainsString('>my words</a>', $html);
+    }
+
+    #[Test]
+    public function an_extension_can_set_a_title_after_stored_titles_are_removed()
+    {
+        $this->extend((new \Flarum\Extend\Formatter())->render(function ($renderer, $context, string $xml) {
+            return \s9e\TextFormatter\Utils::replaceAttributes($xml, 'URL', function (array $attributes) {
+                $attributes['discussiontitle'] = 'Extension title';
+
+                return $attributes;
+            });
+        }));
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $xml = '<r><URL url="http://flarum.localhost/d/123" discussiontitle="Stored title">http://flarum.localhost/d/123</URL></r>';
+        $html = $formatter->render($xml);
+
+        $this->assertStringContainsString('>Extension title</span>', $html);
+        $this->assertStringNotContainsString('Stored title', $html);
+    }
+
+    #[Test]
     public function oversized_discussion_ids_are_not_sent_to_the_database()
     {
         $formatter = $this->app()->getContainer()->make(Formatter::class);
@@ -75,17 +116,26 @@ class InternalLinksTest extends TestCase
     #[Test]
     public function a_request_without_an_actor_uses_guest_visibility()
     {
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => 'Hidden title', 'slug' => 'hidden', 'created_at' => '2026-01-01 00:00:00', 'hidden_at' => '2026-01-01 00:00:00'],
+            ['id' => 124, 'title' => 'Public title', 'slug' => 'public', 'created_at' => '2026-01-01 00:00:00', 'hidden_at' => null],
+        ]]);
         $formatter = $this->app()->getContainer()->make(Formatter::class);
-        $html = $formatter->render($formatter->parse('http://flarum.localhost/d/123'), null, new \Laminas\Diactoros\ServerRequest());
+        $html = $formatter->render($formatter->parse('http://flarum.localhost/d/123 http://flarum.localhost/d/124'), null, new \Laminas\Diactoros\ServerRequest());
 
         $this->assertStringContainsString('#123', $html);
+        $this->assertStringNotContainsString('Hidden title', $html);
+        $this->assertStringContainsString('>Public title</span>', $html);
     }
 
     #[Test]
     public function an_author_cannot_supply_a_discussion_title_attribute()
     {
         $this->extension('flarum-bbcode');
-        $html = $this->render('[url=http://flarum.localhost/d/123 discussiontitle="Forged title"]http://flarum.localhost/d/123[/url]');
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $xml = $formatter->parse('[url=http://flarum.localhost/d/123 discussiontitle="Forged title"]http://flarum.localhost/d/123[/url]');
+        $this->assertCount(0, simplexml_load_string($xml)->xpath('//URL/@discussiontitle'));
+        $html = $formatter->render($xml);
 
         $this->assertStringNotContainsString('Forged title', $html);
         $this->assertStringContainsString('#123', $html);
@@ -129,7 +179,12 @@ class InternalLinksTest extends TestCase
             ['id' => 123, 'title' => 'Email discussion', 'slug' => 'email', 'created_at' => '2026-01-01 00:00:00'],
         ]]);
         $this->setting('favicon_path', 'favicon.png');
-        $preview = $this->app()->getContainer()->make(\Flarum\Mail\MailFormatter::class)->convert('http://flarum.localhost/d/123/4');
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $converted = $this->app()->getContainer()->make(\Flarum\Mail\MailFormatter::class)->convert('http://flarum.localhost/d/123/4');
+        $post = new \Flarum\Post\CommentPost;
+        $post->parsed_content = $formatter->parse('http://flarum.localhost/d/123/4');
+        $preview = $post->formatContent();
+        $this->assertSame($converted, $preview);
         $view = $this->app()->getContainer()->make(\Illuminate\Contracts\View\Factory::class);
         $view->share(['username' => 'Recipient']);
         $html = $view->make('mail::html.notification', [

@@ -12,7 +12,7 @@ export default function selectedText(body) {
       const clone = $('<div>').append(range.cloneContents());
 
       // A link to a discussion on this forum is shown as a label (a favicon,
-      // "#38941" and the post number) standing in for the address the writer
+      // a title or "#38941", and the post number) standing in for the address the writer
       // pasted, which is the link's href. Quote that address rather than the
       // pieces of the label. Keep in step with Formatter::getDiscussionLinkTemplate().
       clone.find('a.UrlLink--discussion').replaceWith(function () {
