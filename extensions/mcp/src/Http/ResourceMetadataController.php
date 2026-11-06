@@ -13,6 +13,8 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Server\ServerFactory;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Session\NullSessionHandler;
+use Illuminate\Session\Store;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -32,6 +34,12 @@ class ResourceMetadataController implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        $session = $request->getAttribute('session');
+
+        if ($session instanceof Store) {
+            $session->setHandler(new NullSessionHandler());
+        }
+
         $forum = $this->url->to('forum');
 
         return $this->servers->cors()->process($request, new CallbackHandler(fn () => new JsonResponse([
