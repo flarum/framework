@@ -27,13 +27,31 @@ export interface ModelIssue {
 export type ModelStatus = 'offered' | 'deprecated' | 'missing' | 'unknown';
 
 /**
+ * The model a provider's list offers under a name, as the server matches it:
+ * Ollama serves `llama3.2` as `llama3.2:latest`, and an alias such as
+ * `claude-x` names a dated release such as `claude-x-20261001`. Of several
+ * releases an alias could mean, one still offered wins.
+ */
+export function findModel(models: ProviderModel[], id: string): ProviderModel | undefined {
+  const exact = models.find((model) => model.id === id);
+
+  if (exact) return exact;
+
+  const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const alias = new RegExp(`^${escaped}-(\\d{8}|\\d{4}-\\d{2}-\\d{2}|\\d{3})$`);
+  const matches = models.filter((model) => model.id === `${id}:latest` || alias.test(model.id));
+
+  return matches.find((model) => !model.deprecatedAt && !model.retiresAt) || matches[0];
+}
+
+/**
  * Whether a provider's list offers a model. `unknown` when the list hasn't
  * loaded, or the provider can't be asked.
  */
 export function modelStatus(models: ProviderModel[] | null | undefined, id: string): ModelStatus {
   if (!models) return 'unknown';
 
-  const model = models.find((model) => model.id === id);
+  const model = findModel(models, id);
 
   if (!model) return 'missing';
 
@@ -44,6 +62,16 @@ export interface ModelList {
   status: 'loading' | 'loaded' | 'failed';
   /** Null when the connection's provider can't be asked for its models. */
   models: ProviderModel[] | null;
+}
+
+/**
+ * Whether a connection's list can be loaded again: not while it's loading,
+ * nor when its provider can't be asked for one.
+ */
+export function canReload(list: ModelList | undefined): boolean {
+  if (!list) return true;
+
+  return list.status === 'failed' || (list.status === 'loaded' && list.models !== null);
 }
 
 /**

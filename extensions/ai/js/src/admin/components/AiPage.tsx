@@ -1,6 +1,7 @@
 import app from 'flarum/admin/app';
 import ExtensionPage, { type ExtensionPageAttrs } from 'flarum/admin/components/ExtensionPage';
 import Alert from 'flarum/common/components/Alert';
+import Group from 'flarum/common/models/Group';
 import SettingsSection from 'flarum/admin/components/SettingsSection';
 import Button from 'flarum/common/components/Button';
 import Form from 'flarum/common/components/Form';
@@ -77,6 +78,8 @@ export default class AiPage extends ExtensionPage {
   usage: Usage | null = null;
   modelLists = new ModelLists();
   checkingModels = false;
+  /** Connections the last check couldn't ask for their models. */
+  uncheckedConnections: string[] = [];
   usageState: 'idle' | 'loading' | 'loaded' | 'failed' = 'idle';
 
   oninit(vnode: Mithril.Vnode<ExtensionPageAttrs, this>) {
@@ -268,7 +271,9 @@ export default class AiPage extends ExtensionPage {
       );
     }
 
-    return [this.modelIssuesSection(), ...features.map((feature) => this.featureSection(feature))];
+    // Every item keyed, as Mithril needs of a list where any is: the alert
+    // only when it's shown.
+    return [this.guestsUnlimitedAlert(), this.modelIssuesSection(), ...features.map((feature) => this.featureSection(feature))].filter(Boolean);
   }
 
   /**
@@ -280,12 +285,18 @@ export default class AiPage extends ExtensionPage {
 
     return (
       <SettingsSection
+        key="flarum-ai-models"
         id="flarum-ai-models"
         className="AiPage-models"
         label={app.translator.trans('flarum-ai.admin.models.heading')}
         description={app.translator.trans('flarum-ai.admin.models.help')}
         icon="fas fa-heart-pulse"
       >
+        {this.uncheckedConnections.map((connection) => (
+          <Alert key={'unchecked:' + connection} type="warning" dismissible={false}>
+            {app.translator.trans('flarum-ai.admin.models.unchecked_text', { connection })}
+          </Alert>
+        ))}
         {issues.length ? (
           <ul className="AiPage-modelIssues">
             {issues.map((issue) => (
@@ -339,18 +350,56 @@ export default class AiPage extends ExtensionPage {
     this.checkingModels = true;
 
     return app
-      .request<{ issues: ModelIssue[] }>({
+      .request<{ issues: ModelIssue[]; unchecked: string[] }>({
         method: 'POST',
         url: app.forum.attribute('apiUrl') + '/ai/models/check',
       })
-      .then(({ issues }) => {
+      .then(({ issues, unchecked }) => {
         aiPayload().modelIssues = issues;
+        this.uncheckedConnections = unchecked || [];
       })
       .catch(() => {})
       .finally(() => {
         this.checkingModels = false;
         m.redraw();
       });
+  }
+
+  /**
+   * The issues as they are once a save has changed which models are in use.
+   */
+  reloadModelIssues() {
+    return app
+      .request<{ issues: ModelIssue[] }>({
+        method: 'GET',
+        url: app.forum.attribute('apiUrl') + '/ai/models/issues',
+        errorHandler: (error) => console.error(error),
+      })
+      .then(({ issues }) => {
+        aiPayload().modelIssues = issues;
+      })
+      .catch(() => {})
+      .finally(() => m.redraw());
+  }
+
+  /**
+   * Whether guests can use a feature while they have no daily limit: any
+   * guest could then spend the forum's tokens without end.
+   */
+  guestsUnlimited(): boolean {
+    if (this.setting(GUEST_DAILY_SETTING)()) return false;
+
+    return aiPayload().features.some((feature) => (app.data.permissions[feature.permission] || []).includes(Group.GUEST_ID));
+  }
+
+  guestsUnlimitedAlert(): Mithril.Children {
+    if (!this.guestsUnlimited()) return null;
+
+    return (
+      <Alert key="guests-unlimited" className="AiPage-guestsUnlimited" type="warning" dismissible={false}>
+        {app.translator.trans('flarum-ai.admin.limits.guests_unlimited_text')}
+      </Alert>
+    );
   }
 
   /**
@@ -530,6 +579,7 @@ export default class AiPage extends ExtensionPage {
         description={app.translator.trans('flarum-ai.admin.limits.help')}
         icon="fas fa-gauge-high"
       >
+        {this.guestsUnlimitedAlert()}
         {field(
           'flarum-ai-member-daily',
           MEMBER_DAILY_SETTING,
@@ -769,5 +819,10 @@ export default class AiPage extends ExtensionPage {
     app.data.settings[CONNECTIONS_SETTING] = saved;
     this.setting(CONNECTIONS_SETTING)(saved);
     aiPayload().connectionsWithKeys = Object.keys(this.connections).filter((name) => this.connections[name].hasKey);
+
+    // A connection's provider, address or key may have changed, and with
+    // them its models and which of them are in use.
+    this.modelLists = new ModelLists();
+    this.reloadModelIssues();
   }
 }

@@ -140,7 +140,7 @@ describe('model issues', () => {
   });
 
   it('are checked again when the admin asks', async () => {
-    const request = jest.fn(() => Promise.resolve({ issues: [issue] }));
+    const request = jest.fn(() => Promise.resolve({ issues: [issue], unchecked: ['local'] }));
     app.request = request as any;
 
     const ai = page();
@@ -148,6 +148,53 @@ describe('model issues', () => {
 
     expect((request.mock.calls[0] as any)[0]).toMatchObject({ method: 'POST', url: app.forum.attribute('apiUrl') + '/ai/models/check' });
     expect((app.data as any)['flarum-ai'].modelIssues).toEqual([issue]);
+    expect(ai.uncheckedConnections).toEqual(['local']);
     expect(ai.checkingModels).toBe(false);
+  });
+
+  it('are loaded again once saved, and so are the model lists', async () => {
+    const request = jest.fn(() => Promise.resolve({ issues: [] }));
+    app.request = request as any;
+    (app.data as any)['flarum-ai'].modelIssues = [issue];
+
+    const ai = page();
+    const lists = ai.modelLists;
+    ai.onsaved();
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect((request.mock.calls[0] as any)[0]).toMatchObject({ method: 'GET', url: app.forum.attribute('apiUrl') + '/ai/models/issues' });
+    expect((app.data as any)['flarum-ai'].modelIssues).toEqual([]);
+    expect(ai.modelLists).not.toBe(lists);
+  });
+});
+
+describe('the Features tab', () => {
+  const feature = { key: 'acme.thing', label: 'acme.thing_label', description: null, extension: null, permission: 'ai.feature.acme.thing' };
+
+  it('keys every section, as Mithril needs of a list where any is keyed', () => {
+    (app.data as any)['flarum-ai'].features = [feature];
+
+    const sections = page().featureSections() as any[];
+
+    expect(sections.length).toBe(2);
+    expect(sections.every((section) => section.key != null)).toBe(true);
+  });
+
+  it('warns when guests can use a feature with no daily limit of their own', () => {
+    (app.data as any)['flarum-ai'].features = [feature];
+    app.data.permissions = { [feature.permission]: ['2'] } as any;
+
+    const ai = page();
+
+    expect(ai.guestsUnlimited()).toBe(true);
+
+    ai.setting('flarum-ai.guest_daily_tokens')('5000');
+
+    expect(ai.guestsUnlimited()).toBe(false);
+
+    ai.setting('flarum-ai.guest_daily_tokens')('');
+    app.data.permissions = { [feature.permission]: ['3'] } as any;
+
+    expect(ai.guestsUnlimited()).toBe(false);
   });
 });

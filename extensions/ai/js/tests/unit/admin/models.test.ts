@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import app from 'flarum/admin/app';
-import { ModelLists, modelStatus } from '../../../src/admin/utils/models';
+import { canReload, ModelLists, modelStatus } from '../../../src/admin/utils/models';
 import { bootAdmin } from './setup';
 
 const offered = [
@@ -15,6 +15,17 @@ describe('modelStatus', () => {
     expect(modelStatus(offered, 'claude-new')).toBe('offered');
     expect(modelStatus(offered, 'claude-old')).toBe('deprecated');
     expect(modelStatus(offered, 'claude-gone')).toBe('missing');
+  });
+
+  it("matches names the provider takes but doesn't list", () => {
+    const listed = [
+      { id: 'llama3.2:latest', name: null, deprecatedAt: null, retiresAt: null },
+      { id: 'claude-alias-20261001', name: null, deprecatedAt: null, retiresAt: null },
+    ];
+
+    expect(modelStatus(listed, 'llama3.2')).toBe('offered');
+    expect(modelStatus(listed, 'claude-alias')).toBe('offered');
+    expect(modelStatus(listed, 'claude')).toBe('missing');
   });
 
   it("doesn't know when the list hasn't been loaded or can't be", () => {
@@ -55,5 +66,15 @@ describe('ModelLists', () => {
     await lists.load('azure');
 
     expect(lists.get('azure')).toEqual({ status: 'loaded', models: null });
+  });
+});
+
+describe('canReload', () => {
+  it('offers to load a list again, unless the provider has none', () => {
+    expect(canReload(undefined)).toBe(true);
+    expect(canReload({ status: 'failed', models: null })).toBe(true);
+    expect(canReload({ status: 'loaded', models: offered })).toBe(true);
+    expect(canReload({ status: 'loaded', models: null })).toBe(false);
+    expect(canReload({ status: 'loading', models: null })).toBe(false);
   });
 });

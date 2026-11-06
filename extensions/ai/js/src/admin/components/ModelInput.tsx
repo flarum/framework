@@ -3,7 +3,7 @@ import Component, { type ComponentAttrs } from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import type Mithril from 'mithril';
-import { type ModelLists, modelStatus } from '../utils/models';
+import { canReload, findModel, type ModelLists, modelStatus } from '../utils/models';
 
 export interface ModelInputAttrs extends ComponentAttrs {
   id: string;
@@ -49,7 +49,7 @@ export default class ModelInput extends Component<ModelInputAttrs> {
     const listId = id + '-models';
     const checked = value.trim() || defaultModel || '';
     const status = checked && list?.status === 'loaded' ? modelStatus(list.models, checked) : 'unknown';
-    const retiresAt = status === 'deprecated' ? models.find((model) => model.id === checked)?.retiresAt : null;
+    const retiresAt = status === 'deprecated' ? findModel(models, checked)?.retiresAt : null;
 
     return (
       <span className="AiModelInput">
@@ -69,7 +69,7 @@ export default class ModelInput extends Component<ModelInputAttrs> {
             (list?.status === 'loading' ? (
               <LoadingIndicator display="inline" size="small" />
             ) : (
-              list?.models !== null && (
+              canReload(list) && (
                 <Button
                   className="Button Button--icon Button--link"
                   icon="fas fa-rotate"

@@ -109,11 +109,13 @@ flarum-ai:
       not_offered_text: "{connection} doesn't offer {model}."
       refresh_button: Load the list of models again
       retires_text: "{model} is deprecated, and retires on {date}."
+      unchecked_text: "The models of {connection} could not be checked: its provider could not be asked for them. Check its API key and address."
 
     # These translations are used by the token limits on the extension's page.
     limits:
       guest_daily_help: Calls made for guests stop once guests together have used this many tokens today, across every feature. Leave empty for no limit.
       guest_daily_label: Tokens per Day for All Guests
+      guests_unlimited_text: "Guests can use an AI feature, and have no daily limit: any visitor could spend the forum's tokens without end. Set the guests' daily limit on the Usage tab."
       heading: Limits
       help: Limits for each connection are set on the connection, and for each feature on the Features tab. Days and months are in UTC. Calls already running when a limit is used up still finish, so a limit can be passed by a little.
       member_daily_help: Calls made for a member stop once they've used this many tokens today, across every feature. Admins have no limit. Leave empty for no limit.

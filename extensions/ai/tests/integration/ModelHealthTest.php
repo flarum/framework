@@ -244,6 +244,21 @@ class ModelHealthTest extends ConsoleTestCase
     }
 
     #[Test]
+    public function the_admin_page_can_load_the_issues_again_and_no_one_else_can(): void
+    {
+        $this->enableAiFeature(self::WRITER, ['model' => 'claude-x']);
+        $this->health()->check();
+
+        $issues = fn (int $as) => $this->send($this->request('GET', '/api/ai/models/issues', ['authenticatedAs' => $as]));
+
+        $this->assertSame(403, $issues(2)->getStatusCode());
+
+        $response = $issues(1);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('claude-x', json_decode((string) $response->getBody(), true)['issues'][0]['model']);
+    }
+
+    #[Test]
     public function the_admin_is_told_on_every_admin_page(): void
     {
         $this->enableAiFeature(self::WRITER, ['model' => 'claude-x']);
