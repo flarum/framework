@@ -17,7 +17,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * Checks the models in use now, rather than at the daily check.
+ * Checks the models in use now, rather than at the daily check. Says which
+ * connections couldn't be asked, so a failed check doesn't look like a clean one.
  *
  * @internal
  */
@@ -32,6 +33,6 @@ class CheckModelsController implements RequestHandlerInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        return new JsonResponse(['issues' => $this->health->check()]);
+        return new JsonResponse($this->health->check());
     }
 }

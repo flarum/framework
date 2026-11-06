@@ -28,7 +28,7 @@ class RecordMissingModel
 
     public function handle(AgentFailed $event): void
     {
-        if (! ModelHealth::isMissingModel($event->exception)) {
+        if (! ModelHealth::isMissingModel($event->exception, $event->prompt->model)) {
             return;
         }
 

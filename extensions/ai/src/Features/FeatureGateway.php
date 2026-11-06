@@ -27,17 +27,22 @@ use Throwable;
  *   class, which belongs to the extension, so they're applied here, to each
  *   step, on their way to the provider.
  * - When the model the admin chose for the feature is gone (the provider
- *   answers 404), the step is made again with the connection's default
- *   model, and the missing model is recorded for the admin to see. A stream
- *   is only made again if it failed before sending anything.
+ *   answers with a 404 that names it), the step is made again with the
+ *   connection's default model, and the missing model is recorded for the
+ *   admin to see. A stream is only made again if it failed before sending
+ *   anything.
+ * - The model each step uses is noted, so the daily check knows which model
+ *   the feature uses when the admin chose none.
  *
  * @internal
  */
 class FeatureGateway implements StepTextGateway
 {
     /**
-     * @param Closure(): ?string $fallbackModel The connection's default model.
+     * @param string|null $model The model the admin chose for the feature.
+     * @param Closure(): ?string $fallbackModel The connection's default model, if it has one.
      * @param Closure(string $model): void $onMissingModel
+     * @param Closure(string $model): void $onStep
      */
     public function __construct(
         protected StepTextGateway $gateway,
@@ -45,7 +50,8 @@ class FeatureGateway implements StepTextGateway
         protected ?int $maxTokens,
         protected ?string $model,
         protected Closure $fallbackModel,
-        protected Closure $onMissingModel
+        protected Closure $onMissingModel,
+        protected Closure $onStep
     ) {
     }
 
@@ -104,10 +110,12 @@ class FeatureGateway implements StepTextGateway
      */
     protected function withFallback(string $model, Closure $step): mixed
     {
+        ($this->onStep)($model);
+
         try {
             return $step($model);
         } catch (Throwable $e) {
-            if ($model !== $this->model || ! ModelHealth::isMissingModel($e)) {
+            if ($model !== $this->model || ! ModelHealth::isMissingModel($e, $model)) {
                 throw $e;
             }
 
@@ -122,7 +130,7 @@ class FeatureGateway implements StepTextGateway
             try {
                 return $step($fallback);
             } catch (Throwable $e) {
-                if (ModelHealth::isMissingModel($e)) {
+                if (ModelHealth::isMissingModel($e, $fallback)) {
                     ($this->onMissingModel)($fallback);
                 }
 

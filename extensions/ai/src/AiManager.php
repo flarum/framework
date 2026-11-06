@@ -16,6 +16,7 @@ use Flarum\Ai\Usage\Attribution;
 use Laravel\Ai\AiManager as BaseAiManager;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Providers\TextProvider;
+use Throwable;
 
 /**
  * laravel/ai's manager, given the API key of a connection set up on the admin
@@ -24,8 +25,9 @@ use Laravel\Ai\Contracts\Providers\TextProvider;
  * request.
  *
  * An agent prompted as a feature gets a provider that sends the temperature
- * and longest reply the admin set for that feature, and falls back to the
- * connection's default model if the one chosen for the feature is gone.
+ * and longest reply the admin set for that feature, falls back to the
+ * connection's default model if the one chosen for the feature is gone, and
+ * notes the model the feature used ({@see FeatureGateway}).
  *
  * @internal
  */
@@ -57,8 +59,7 @@ class AiManager extends BaseAiManager
 
         // Every laravel/ai provider has a text gateway to wrap, but the contract
         // doesn't say so: one from elsewhere without it is used as it is.
-        if (($settings['temperature'] === null && $settings['max_tokens'] === null && $settings['model'] === null)
-            || ! method_exists($provider, 'textGateway')) {
+        if (! method_exists($provider, 'textGateway')) {
             return $provider;
         }
 
@@ -70,8 +71,16 @@ class AiManager extends BaseAiManager
             $settings['temperature'],
             $settings['max_tokens'],
             $settings['model'],
-            fn () => $provider->defaultTextModel(),
-            fn (string $model) => $health->recordFailure($provider->name(), $model)
+            function () use ($provider): ?string {
+                try {
+                    return $provider->defaultTextModel();
+                } catch (Throwable) {
+                    // Some providers have no default unless one is set.
+                    return null;
+                }
+            },
+            fn (string $model) => $health->recordFailure($provider->name(), $model),
+            fn (string $model) => $health->observe($context->feature, $provider->name(), $model)
         ));
     }
 }

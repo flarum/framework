@@ -19,6 +19,9 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use Laravel\Ai\Attributes\Model;
+use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Promptable;
 use PHPUnit\Framework\Attributes\Test;
 
 use function Laravel\Ai\agent;
@@ -51,6 +54,12 @@ class ModelHealthTest extends ConsoleTestCase
      */
     protected array $gone = [];
 
+    /**
+     * Answers every request in place of the faked provider, when set. Faking
+     * HTTP again doesn't replace the first fake: the first that matches answers.
+     */
+    protected ?\Closure $answer = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -77,6 +86,10 @@ class ModelHealthTest extends ConsoleTestCase
     protected function fakeProvider(): void
     {
         Http::fake(function (Request $request) {
+            if ($this->answer) {
+                return ($this->answer)($request);
+            }
+
             if (str_contains($request->url(), '/models')) {
                 return Http::response(['data' => array_map(
                     fn ($id, $retires) => ['id' => $id, 'display_name' => $id, 'deprecated_at' => $retires ? '2026-10-01T00:00:00Z' : null, 'retires_at' => $retires],
@@ -193,7 +206,7 @@ class ModelHealthTest extends ConsoleTestCase
         $health = $this->health();
         $health->check();
 
-        Http::fake(['*' => Http::response('Down', 500)]);
+        $this->answer = fn () => Http::response('Down', 500);
         $health->check();
 
         $this->assertSame('missing', $this->issues()['claude/claude-x']['status']);
@@ -311,7 +324,7 @@ class ModelHealthTest extends ConsoleTestCase
     {
         $this->enableAiFeature(self::WRITER, ['model' => 'claude-x']);
         $ai = $this->ai();
-        Http::fake(['*' => Http::response(['error' => ['message' => 'Bad request']], 400)]);
+        $this->answer = fn () => Http::response(['error' => ['message' => 'Bad request']], 400);
 
         try {
             $ai->feature(self::WRITER)->asSystem()->prompt(agent('Be brief'), 'Hello');
@@ -320,5 +333,132 @@ class ModelHealthTest extends ConsoleTestCase
 
         Http::assertSentCount(1);
         $this->assertSame([], $this->issues());
+    }
+
+    #[Test]
+    public function untagged_and_alias_names_match_what_the_provider_lists(): void
+    {
+        $this->aiConnection('ollama', ['driver' => 'ollama', 'url' => 'http://ollama.test'], null);
+        $this->enableAiFeature(self::WRITER, ['connection' => 'ollama', 'model' => 'llama3.2']);
+        $this->enableAiFeature(self::SUMMARIES, ['connection' => 'claude', 'model' => 'claude-alias']);
+        $health = $this->health();
+
+        $this->answer = fn (Request $request) => (str_contains($request->url(), 'ollama.test')
+            ? Http::response(['models' => [['name' => 'llama3.2:latest']]])
+            : Http::response(['data' => [['id' => 'claude-alias-20261001', 'deprecated_at' => null, 'retires_at' => null]], 'has_more' => false]));
+
+        $this->assertSame([], $health->check()['issues']);
+    }
+
+    #[Test]
+    public function the_model_an_agent_chooses_itself_is_the_one_checked(): void
+    {
+        $this->enableAiFeature(self::WRITER);
+        $this->offered = ['claude-default' => null];
+
+        $this->ai()->feature(self::WRITER)->asSystem()->prompt(new OwnModelAgent(), 'Hello');
+        $this->health()->check();
+
+        $this->assertSame(['claude/claude-own'], array_keys($this->issues()));
+        $this->assertSame([self::WRITER], $this->issues()['claude/claude-own']['features']);
+    }
+
+    #[Test]
+    public function an_agents_own_model_that_is_gone_stays_flagged_after_settings_are_saved(): void
+    {
+        $this->enableAiFeature(self::WRITER);
+        $this->gone = ['claude-own'];
+
+        try {
+            $this->ai()->feature(self::WRITER)->asSystem()->prompt(new OwnModelAgent(), 'Hello');
+        } catch (RequestException) {
+        }
+
+        $this->send($this->request('POST', '/api/settings', ['authenticatedAs' => 1, 'json' => ['flarum-ai.member_daily_tokens' => '1000']]));
+
+        $this->assertSame('failed', $this->issues()['claude/claude-own']['status'] ?? null);
+    }
+
+    #[Test]
+    public function a_connection_without_a_default_to_fall_back_to_fails_with_the_providers_error(): void
+    {
+        $this->aiConnection('local', ['driver' => 'openai-compatible', 'url' => 'https://llm.test/v1'], null);
+        $this->enableAiFeature(self::WRITER, ['connection' => 'local', 'model' => 'local-x']);
+        $ai = $this->ai();
+        $this->answer = fn () => Http::response(['error' => ['message' => 'The model `local-x` does not exist', 'code' => 'model_not_found']], 404);
+
+        try {
+            $ai->feature(self::WRITER)->asSystem()->prompt(agent('Be brief'), 'Hello');
+            $this->fail('The call should have failed.');
+        } catch (RequestException $e) {
+            $this->assertSame(404, $e->response->status());
+        }
+
+        $this->assertSame('failed', $this->issues()['local/local-x']['status']);
+    }
+
+    #[Test]
+    public function a_404_that_doesnt_name_the_model_is_not_taken_for_a_missing_one(): void
+    {
+        $this->enableAiFeature(self::WRITER, ['model' => 'claude-x']);
+        $ai = $this->ai();
+        $this->answer = fn () => Http::response('<html>Not Found</html>', 404);
+
+        try {
+            $ai->feature(self::WRITER)->asSystem()->prompt(agent('Be brief'), 'Hello');
+        } catch (RequestException) {
+        }
+
+        Http::assertSentCount(1);
+        $this->assertSame([], $this->issues());
+    }
+
+    #[Test]
+    public function a_failure_recorded_while_the_check_runs_is_kept(): void
+    {
+        // A connection whose models can't be listed, so the check leaves its models be.
+        $this->config('ai.connections.azure', ['driver' => 'azure', 'key' => 'k', 'url' => 'https://azure.test']);
+        $this->enableAiFeature(self::WRITER, ['model' => 'claude-x']);
+        $this->enableAiFeature(self::SUMMARIES, ['connection' => 'azure', 'model' => 'azure-x']);
+        $this->offered = ['claude-x' => null];
+        $health = $this->health();
+        $health->forAdmin();
+
+        // Another request records a failure while this one is asking the provider.
+        $this->answer = function () {
+            $this->database()->table('settings')->updateOrInsert(
+                ['key' => 'flarum-ai.model_issues'],
+                ['value' => json_encode(['azure' => ['azure-x' => ['status' => 'failed', 'since' => '2026-11-06T11:00:00+00:00', 'retiresAt' => null]]])]
+            );
+
+            return Http::response(['data' => [['id' => 'claude-x']], 'has_more' => false]);
+        };
+
+        $health->check();
+
+        $stored = json_decode((string) $this->database()->table('settings')->where('key', 'flarum-ai.model_issues')->value('value'), true);
+        $this->assertSame('failed', $stored['azure']['azure-x']['status'] ?? null);
+    }
+
+    #[Test]
+    public function a_check_that_couldnt_ask_a_provider_says_so(): void
+    {
+        $this->enableAiFeature(self::WRITER, ['model' => 'claude-x']);
+        $health = $this->health();
+        $this->answer = fn () => Http::response('Down', 500);
+
+        $this->assertSame(['issues' => [], 'unchecked' => ['claude']], $health->check());
+        $this->assertStringContainsString('could not be checked', $this->runCommand(['command' => 'ai:check-models']));
+    }
+}
+
+#[Model('claude-own')]
+class OwnModelAgent implements Agent
+{
+    use Promptable;
+
+    public function instructions(): string
+    {
+        return 'Be brief';
     }
 }

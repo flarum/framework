@@ -122,7 +122,8 @@ class FeatureOptionsTest extends TestCase
     {
         $this->enableAiFeature(self::FEATURE, ['temperature' => 0.3, 'max_tokens' => 256]);
 
-        $ai = $this->ai();
+        // Faked here, not in ai(): the first HTTP fake that matches answers.
+        $ai = $this->app()->getContainer()->make(Ai::class);
         Http::fake(['*.test/*' => Http::response(
             "event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_1\",\"model\":\"claude-test\",\"usage\":{\"input_tokens\":12,\"output_tokens\":0}}}\n\n"
             ."event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
