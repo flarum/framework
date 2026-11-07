@@ -16,8 +16,7 @@ module.exports = {
     privateFieldsAsProperties: true,
   },
   targets: {
-    // `not android > 0` means the build-in Android browser used up to Android 4.4 KitKat.
-    browsers: '>0.2%, not dead, not android > 0, not operamini all',
+    browsers: '>0.5%, last 2 versions, not dead, not operamini all',
   },
   presets: [
     require.resolve('@babel/preset-react'),
