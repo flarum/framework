@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Endpoint\Concerns;
 
+use Flarum\Api\Precognition;
 use Flarum\Api\Schema\Concerns\HasValidationRules;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Translation\ArrayLoader;
@@ -48,7 +49,10 @@ trait SavesAndValidatesData
         $messages = [];
         $attributes = [];
 
+        $fieldNames = [];
+
         foreach ($context->fields($context->resource) as $field) {
+            $fieldNames[] = $field->name;
             $writable = $field->isWritable($context->withField($field));
 
             if (! $writable || ! in_array(HasValidationRules::class, class_uses_recursive($field))) {
@@ -63,6 +67,16 @@ trait SavesAndValidatesData
             $messages = array_merge($messages, $field->getValidationMessages($context));
             // @phpstan-ignore-next-line
             $attributes = array_merge($attributes, $field->getValidationAttributes($context));
+        }
+
+        $only = $this->precognitiveFields($context);
+
+        if ($only !== null && ! array_intersect($only, $fieldNames)) {
+            $only = null;
+        }
+
+        if ($only !== null) {
+            $rules = array_map(fn (array $typeRules) => $this->onlyRulesFor($typeRules, $only), $rules);
         }
 
         if (method_exists($collection, 'validationFactory')) {
@@ -86,6 +100,34 @@ trait SavesAndValidatesData
 
         $this->validate('attributes', $attributeValidator);
         $this->validate('relationships', $relationshipValidator);
+    }
+
+    /**
+     * The fields a precognitive request limits validation to; null, or a list
+     * naming no field of the resource, validates every field.
+     *
+     * @param \Flarum\Api\Context $context
+     * @return string[]|null
+     */
+    protected function precognitiveFields(Context $context): ?array
+    {
+        return Precognition::active($context->request) ? Precognition::validateOnly($context->request) : null;
+    }
+
+    /**
+     * A rule key belongs to the field named by its first segment: `groups.*` stays with `groups`.
+     *
+     * @param array<string, mixed> $rules
+     * @param string[] $only
+     * @return array<string, mixed>
+     */
+    protected function onlyRulesFor(array $rules, array $only): array
+    {
+        return array_filter(
+            $rules,
+            fn (string $key) => in_array(explode('.', $key, 2)[0], $only, true),
+            ARRAY_FILTER_USE_KEY
+        );
     }
 
     /**
