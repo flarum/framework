@@ -15,6 +15,11 @@ export interface PermissionConfig {
   id?: string;
   setting?: () => Mithril.Children;
   allowGuest?: boolean;
+  /**
+   * Optional: The URL to navigate to when this permission appears in admin search.
+   * The default is the group link, then the page or extension route.
+   */
+  link?: string;
 }
 
 export interface PermissionSetting {
