@@ -195,10 +195,27 @@ class InfoCommand extends AbstractCommand
     }
 
     /**
+     * PHP-FPM binaries that may serve the site, in priority order.
+     *
+     * @return string[]
+     */
+    protected function webServerPhpBinaries(): array
+    {
+        $phpVersion = PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;
+
+        return [
+            "/usr/bin/php-fpm{$phpVersion}",
+            "/usr/sbin/php-fpm{$phpVersion}",
+            // Official Docker PHP-FPM image
+            '/usr/local/sbin/php-fpm',
+        ];
+    }
+
+    /**
      * Try to detect the web server's PHP version.
      * This is a best-effort attempt and may not work in all environments.
      */
-    private function detectWebServerPhpVersion(): ?string
+    protected function detectWebServerPhpVersion(): ?string
     {
         // `exec` may be listed in the host's `disable_functions` (common on
         // shared hosting). Calling it would fatal, so degrade to "unable to
@@ -208,15 +225,7 @@ class InfoCommand extends AbstractCommand
             return null;
         }
 
-        // Try common PHP binary paths for web servers
-        $possiblePhpBinaries = [
-            '/usr/bin/php-fpm'.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
-            '/usr/sbin/php-fpm'.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
-            '/usr/local/bin/php',
-            '/usr/bin/php',
-        ];
-
-        foreach ($possiblePhpBinaries as $phpBinary) {
+        foreach ($this->webServerPhpBinaries() as $phpBinary) {
             if (file_exists($phpBinary) && is_executable($phpBinary)) {
                 $output = [];
                 $status = null;
