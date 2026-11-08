@@ -25,7 +25,8 @@ use PHPUnit\Framework\Attributes\Test;
  * transaction's commit. The integration harness wraps each test in a
  * transaction that is rolled back and never committed, so without special
  * handling those listeners never run — making after-commit behaviour
- * impossible to test. The testing harness runs these callbacks inline instead.
+ * impossible to test. The testing harness runs these callbacks inline instead,
+ * unless the code under test opens its own transaction (flarum/framework#5022).
  */
 class AfterCommitListenerTest extends TestCase
 {
