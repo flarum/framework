@@ -2,6 +2,7 @@ import ComposerBody, { IComposerBodyAttrs } from 'flarum/forum/components/Compos
 import Stream from 'flarum/common/utils/Stream';
 import type User from 'flarum/common/models/User';
 import type Mithril from 'mithril';
+import type Group from 'flarum/common/models/Group';
 import DialogMessage from '../../common/models/DialogMessage';
 import type Dialog from '../../common/models/Dialog';
 export interface IMessageComposerAttrs extends IComposerBodyAttrs {
@@ -16,6 +17,7 @@ export interface IMessageComposerAttrs extends IComposerBodyAttrs {
  */
 export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs = IMessageComposerAttrs> extends ComposerBody<CustomAttrs> {
     protected recipients: Stream<User[]>;
+    protected recipientGroups: Stream<Group[]>;
     static focusOnSelector: () => string;
     /** Recipients shown by avatar before the rest are counted, as a large group's would crowd the composer. */
     static SHOWN_RECIPIENTS: number;
