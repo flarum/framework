@@ -39,7 +39,7 @@ flarum-audit:
                 user: The user the action affected, by username.
                 action: The type of action, e.g. action:post.created.
                 client: How the request was made.
-                ip: The IP address the action came from.
+                ip: 'The IP address the action came from. Also accepts partial addresses and ranges, e.g. ip:192.168, ip:10.0.0.0/8 or ip:2a02:390:9e5c:beef::/64.'
                 discussion: Actions affecting a specific discussion, by ID.
             help:
                 toggle: Search help
