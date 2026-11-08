@@ -159,6 +159,6 @@ class AuditTest extends TestCase
         $this->assertEqualsCanonicalizing([
             ['dialog_id' => $id, 'user_id' => 3],
         ], $this->payloads('dialog.started'));
-        $this->assertSame([['dialog_id' => $id, 'group_id' => 4]], $this->payloads('dialog.group_started'));
+        $this->assertEqualsCanonicalizing([['dialog_id' => $id, 'group_id' => 4]], $this->payloads('dialog.group_started'));
     }
 }

@@ -24,7 +24,7 @@ class DialogAudience
             ->join('group_user', 'group_user.group_id', '=', 'dialog_group.group_id')
             ->where('group_user.user_id', $userId);
 
-        $query->whereIn('dialogs.id', $individual->union($groups))
+        $query->whereIn('dialogs.id', $connection->query()->fromSub($individual->union($groups), 'dialog_audience')->select('dialog_audience.dialog_id'))
             ->whereNotIn('dialogs.id', $connection->table('dialog_user')->select('dialog_id')
                 ->where('user_id', $userId)->whereNotNull('left_at'));
     }
@@ -39,7 +39,7 @@ class DialogAudience
             ->join('dialog_group', 'dialog_group.group_id', '=', 'group_user.group_id')
             ->where('dialog_group.dialog_id', $dialog->id);
 
-        return User::query()->whereIn('users.id', $individual->union($groups))
+        return User::query()->whereIn('users.id', $connection->query()->fromSub($individual->union($groups), 'user_audience')->select('user_audience.user_id'))
             ->whereNotIn('users.id', $connection->table('dialog_user')->select('user_id')
                 ->where('dialog_id', $dialog->id)->whereNotNull('left_at'));
     }
