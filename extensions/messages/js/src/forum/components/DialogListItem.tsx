@@ -4,6 +4,7 @@ import classList from 'flarum/common/utils/classList';
 import Link from 'flarum/common/components/Link';
 import app from 'flarum/forum/app';
 import Avatar from 'flarum/common/components/Avatar';
+import GroupBadge from 'flarum/common/components/GroupBadge';
 import username from 'flarum/common/helpers/username';
 import humanTime from 'flarum/common/helpers/humanTime';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -64,12 +65,15 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
 
   /** A group with others enough to show two of them; one left on their own is shown as a direct conversation's. */
   stacksAvatars(): boolean {
-    return this.attrs.dialog.isGroup() && this.attrs.dialog.recipients().length > 1;
+    return !(this.attrs.dialog.groups() || []).length && this.attrs.dialog.isGroup() && this.attrs.dialog.recipients().length > 1;
   }
 
   /** The other member's avatar; in a group, two of the others', one over the other. */
   avatar(): Mithril.Children {
     const dialog = this.attrs.dialog;
+
+    const group = (dialog.groups() || []).find(Boolean);
+    if (group) return <GroupBadge group={group} />;
 
     if (this.stacksAvatars()) {
       return dialog

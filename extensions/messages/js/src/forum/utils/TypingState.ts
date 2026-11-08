@@ -8,26 +8,16 @@ export interface TypingSignal {
   userId: string;
 }
 
-/**
- * Who is typing in a conversation, from the signals its other members send.
- *
- * The realtime server relays a client event to a channel's other subscribers
- * as it is, and only the conversation's members can subscribe to its channel.
- * So the channel says who may be sending, and the signal names only the
- * sender's id, checked against the members here; nothing in it is taken on
- * trust. Names come from the store. Every member knows the others already,
- * so a member's online-status preference has no bearing: a one-to-one
- * conversation can't be anonymous.
- *
- * Expiry is judged on this clock, not the sender's.
- */
+/** Tracks server-authorized typing signals, expiring them on this clock. */
 export default class TypingState {
   /** Member id => when they were last heard from, on this clock. */
   protected lastHeard = new Map<string, number>();
+  protected resolved = new Map<string, User>();
 
   constructor(
     protected participants: () => User[],
-    protected self: () => string | null | undefined
+    protected self: () => string | null | undefined,
+    protected resolveParticipant?: (id: string) => User | undefined
   ) {}
 
   static signal(userId: string): TypingSignal {
@@ -40,7 +30,11 @@ export default class TypingState {
 
     if (!userId || userId === this.self()) return false;
 
-    if (!this.participants().some((user) => user.id() === userId)) return false;
+    if (!this.participants().some((user) => user.id() === userId)) {
+      const user = this.resolveParticipant?.(userId);
+      if (!user) return false;
+      this.resolved.set(userId, user);
+    }
 
     this.lastHeard.set(userId, now);
 
@@ -53,7 +47,9 @@ export default class TypingState {
 
     const participants = this.participants();
 
-    return [...this.lastHeard.keys()].map((id) => participants.find((user) => user.id() === id)).filter((user): user is User => !!user);
+    return [...this.lastHeard.keys()]
+      .map((id) => participants.find((user) => user.id() === id) || this.resolved.get(id))
+      .filter((user): user is User => !!user);
   }
 
   /** How long until the first member stops counting as typing, or null when nobody is. */
@@ -67,7 +63,10 @@ export default class TypingState {
 
   protected forgetSilent(now: number): void {
     for (const [id, heard] of this.lastHeard) {
-      if (now - heard >= TYPING_TIMEOUT_MS) this.lastHeard.delete(id);
+      if (now - heard >= TYPING_TIMEOUT_MS) {
+        this.lastHeard.delete(id);
+        this.resolved.delete(id);
+      }
     }
   }
 

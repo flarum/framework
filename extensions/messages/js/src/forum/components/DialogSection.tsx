@@ -5,6 +5,7 @@ import MessageStream from './MessageStream';
 import username from 'flarum/common/helpers/username';
 import MessageStreamState from '../states/MessageStreamState';
 import Avatar from 'flarum/common/components/Avatar';
+import GroupBadge from 'flarum/common/components/GroupBadge';
 import Link from 'flarum/common/components/Link';
 import app from 'flarum/forum/app';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -76,6 +77,10 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
     if (dialog.isGroup()) {
       return (
         <div className="DialogSection-header-avatars">
+          {(dialog.groups() || [])
+            .filter(Boolean)
+            .slice(0, 3)
+            .map((group) => group && <GroupBadge group={group} />)}
           {dialog
             .recipients()
             .slice(0, 3)
@@ -100,7 +105,9 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
       return [
         <h2 className="DialogSection-header-info-title">{dialog.title()}</h2>,
         <Button className="Button Button--link DialogSection-members" onclick={() => app.modal.show(DetailsModal, { dialog })}>
-          {app.translator.trans('flarum-messages.forum.dialog_section.members_button', { count: (dialog.users() || []).length })}
+          {(dialog.groups() || []).length
+            ? app.translator.trans('flarum-messages.forum.dialog_section.details_modal.recipients')
+            : app.translator.trans('flarum-messages.forum.dialog_section.members_button', { count: (dialog.users() || []).length })}
         </Button>,
       ];
     }

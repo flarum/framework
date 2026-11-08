@@ -47,7 +47,7 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
 
   dialogRequestParams() {
     return {
-      include: 'users.groups',
+      include: 'users.groups,groups',
     };
   }
 

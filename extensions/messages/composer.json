@@ -15,6 +15,9 @@
     "require": {
         "flarum/core": "^2.1"
     },
+    "conflict": {
+        "flarum/realtime": "<2.1"
+    },
     "authors": [
         {
             "name": "Flarum",
@@ -98,6 +101,7 @@
         "flarum/audit": "*",
         "flarum/gdpr": "*",
         "flarum/mentions": "*",
+        "flarum/realtime": "*",
         "flarum/statistics": "*",
         "flarum/tags": "*"
     }
