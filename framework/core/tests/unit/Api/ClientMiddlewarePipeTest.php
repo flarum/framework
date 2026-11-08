@@ -75,4 +75,88 @@ class ClientMiddlewarePipeTest extends TestCase
 
         $pipe->errorHandling(false)->handle(new ServerRequest());
     }
+
+    #[Test]
+    public function middleware_instances_can_be_piped_after_the_pipe_was_built()
+    {
+        $container = new Container();
+
+        $container->bind('flarum.api.error_handler', fn () => new class implements MiddlewareInterface {
+            public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+            {
+                try {
+                    return $handler->handle($request);
+                } catch (\Throwable) {
+                    return new EmptyResponse(500);
+                }
+            }
+        });
+
+        $container->bind('passthrough', fn () => new class implements MiddlewareInterface {
+            public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+            {
+                return $handler->handle($request);
+            }
+        });
+
+        $pipe = (new ClientMiddlewarePipe($container, ['passthrough']))->errorHandling(true);
+
+        // Nothing handles the request yet, so the pipe is built and the error handler answers.
+        $this->assertEquals(500, $pipe->handle(new ServerRequest())->getStatusCode());
+
+        $pipe->pipe(new class implements MiddlewareInterface {
+            public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+            {
+                return new EmptyResponse(204);
+            }
+        });
+
+        $this->assertEquals(204, $pipe->handle(new ServerRequest())->getStatusCode());
+    }
+
+    #[Test]
+    public function re_enabled_error_handling_keeps_the_configured_middleware_order()
+    {
+        $container = new Container();
+
+        $container->bind('flarum.api.error_handler', fn () => new class implements MiddlewareInterface {
+            public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+            {
+                try {
+                    return $handler->handle($request);
+                } catch (\Throwable) {
+                    return new EmptyResponse(500);
+                }
+            }
+        });
+
+        // Configured outside the error handler, so it sees the error response.
+        $container->bind('outer', fn () => new class implements MiddlewareInterface {
+            public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+            {
+                return $handler->handle($request)->withHeader('X-Outer', 'seen');
+            }
+        });
+
+        $container->bind('route', fn () => new class implements MiddlewareInterface {
+            public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+            {
+                throw new \RuntimeException('boom');
+            }
+        });
+
+        $pipe = new ClientMiddlewarePipe($container, ['outer', 'flarum.api.error_handler', 'route']);
+
+        try {
+            $pipe->errorHandling(false)->handle(new ServerRequest());
+            $this->fail('The exception should not have been handled.');
+        } catch (\RuntimeException) {
+            // Expected.
+        }
+
+        $response = $pipe->errorHandling(true)->handle(new ServerRequest());
+
+        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals('seen', $response->getHeaderLine('X-Outer'));
+    }
 }
