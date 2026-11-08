@@ -16,6 +16,7 @@ use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Bus\Dispatcher;
+use Flarum\Group\Group;
 use Flarum\Locale\Translator;
 use Flarum\Messages\Access\MessagingPermission;
 use Flarum\Messages\Command\LeaveDialog;
@@ -27,6 +28,7 @@ use Flarum\Messages\GroupNames;
 use Flarum\Messages\UserDialogState;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Grammars\PostgresGrammar;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Tobyz\JsonApiServer\Context as OriginalContext;
 
@@ -66,14 +68,25 @@ class DialogResource extends Resource\AbstractDatabaseResource
         return [
             Endpoint\Show::make()
                 ->authenticated()
-                ->eagerLoad(['state', 'users.groups']),
+                ->eagerLoad(['state', 'users.groups', 'groups']),
             Endpoint\Update::make()
                 ->authenticated()
-                ->eagerLoad('state'),
+                ->eagerLoad(['state', 'users.groups', 'groups']),
             Endpoint\Endpoint::make('read')
                 ->route('POST', '/read')
                 ->authenticated()
                 ->action(function (Context $context) {
+                    $actor = $context->getActor();
+                    $select = UserDialogState::query()->getGrammar() instanceof PostgresGrammar
+                        ? 'CAST(? AS INTEGER) as user_id, CAST(? AS TIMESTAMP) as joined_at, CAST(? AS BOOLEAN) as is_recipient'
+                        : '? as user_id, ? as joined_at, ? as is_recipient';
+                    $missing = Dialog::whereVisibleTo($actor)->unread($actor)
+                        ->whereDoesntHave('states', fn (Builder $states) => $states->where('user_id', $actor->id))
+                        ->select('dialogs.id')->selectRaw($select, [$actor->id, Carbon::now()->toDateTimeString(), false]);
+                    UserDialogState::query()->getConnection()->table('dialog_user')->insertOrIgnoreUsing(
+                        ['dialog_id', 'user_id', 'joined_at', 'is_recipient'], $missing->toBase()
+                    );
+
                     $connection = UserDialogState::query()->getConnection();
                     $grammar = UserDialogState::query()->getGrammar();
 
@@ -83,6 +96,10 @@ class DialogResource extends Resource\AbstractDatabaseResource
                     // which fails the whole statement on MySQL.
                     UserDialogState::query()
                         ->where('dialog_user.user_id', $context->getActor()->id)
+                        // DISTINCT prevents MySQL merging a subquery that reads this update's target table.
+                        ->whereIn('dialog_id', $connection->query()->fromSub(
+                            Dialog::whereVisibleTo($actor)->select('dialogs.id')->distinct()->toBase(), 'visible_dialogs'
+                        )->select('visible_dialogs.id'))
                         ->whereExists(function ($query) {
                             $query->selectRaw('1')
                                 ->from('dialogs')
@@ -115,7 +132,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->authenticated()
                 ->defaultSort('-lastMessageAt')
                 ->paginate()
-                ->eagerLoad(['users.groups', 'state']),
+                ->eagerLoad(['users.groups', 'state', 'groups']),
         ];
     }
 
@@ -173,11 +190,14 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->description('Number of messages you have not read.')
                 ->countRelation('messages', function (Builder $query, Context $context) {
                     // Only what members wrote: a notice is nothing to read.
-                    $query->leftJoin('dialog_user', 'dialog_messages.dialog_id', '=', 'dialog_user.dialog_id')
-                        ->where('dialog_messages.type', DialogMessage::COMMENT)
-                        ->where('dialog_user.user_id', $context->getActor()->id)
-                        ->whereColumn('dialog_messages.id', '>', 'dialog_user.last_read_message_id')
-                        ->groupBy('dialog_messages.dialog_id');
+                    $query->leftJoin('dialog_user', function ($join) use ($context) {
+                        $join->on('dialog_messages.dialog_id', '=', 'dialog_user.dialog_id')
+                            ->where('dialog_user.user_id', $context->getActor()->id);
+                    })->where('dialog_messages.type', DialogMessage::COMMENT)
+                        ->where(function ($query) {
+                            $query->whereNull('dialog_user.id')
+                                ->orWhereColumn('dialog_messages.id', '>', 'dialog_user.last_read_message_id');
+                        });
                 }),
             Schema\DateTime::make('lastReadAt')
                 ->visible(fn (Dialog $dialog) => $dialog->state !== null)
@@ -198,9 +218,8 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->get(fn (Dialog $dialog, Context $context) => MessagingPermission::canSendIn($context->getActor(), $dialog)),
             Schema\Integer::make('lastReadMessageId')
                 ->description('ID of the last message you have read. Set it to mark the dialog as read up to that message.')
-                ->visible(fn (Dialog $dialog) => $dialog->state !== null)
                 ->get(function (Dialog $dialog) {
-                    return $dialog->state?->last_read_message_id;
+                    return $dialog->state->last_read_message_id ?? 0;
                 })
                 ->writableOnUpdate()
                 ->set(function (Dialog $dialog, int $value, Context $context) {
@@ -220,9 +239,15 @@ class DialogResource extends Resource\AbstractDatabaseResource
 
             Schema\Relationship\ToMany::make('messages')
                 ->type('dialog-messages'),
-            // Every member: a group has at most RecipientLimit::CEILING others.
+            Schema\Relationship\ToMany::make('groups')
+                ->type('groups')
+                ->get(fn (Dialog $dialog, Context $context) => $dialog->groups
+                    ->filter(fn ($group) => ! $group->is_hidden || $context->getActor()->can('viewHiddenGroups'))->values()->all())
+                ->withLinkage()
+                ->includable(),
+            // Individually addressed members, not the members of recipient Groups.
             Schema\Relationship\ToMany::make('users')
-                ->description('Members of the dialog (at most five).')
+                ->description('Individually addressed participants.')
                 ->type('users')
                 ->includable(),
             // Linked even when not included: the frontend reads these ids to
@@ -251,8 +276,19 @@ class DialogResource extends Resource\AbstractDatabaseResource
         $names = $dialog->users
             ->reject(fn (User $user) => $user->is($actor))
             ->map(fn (User $user) => $user->display_name)
+            ->concat($dialog->groups->filter(fn (Group $group) => ! $group->is_hidden || $actor->can('viewHiddenGroups'))
+                ->map(function (Group $group): string {
+                    $key = 'core.group.'.strtolower($group->name_plural);
+                    $name = $this->translator->trans($key);
+
+                    return $name === $key ? $group->name_plural : $name;
+                }))
             ->sort(fn (string $a, string $b) => strnatcasecmp($a, $b))
             ->values();
+
+        if ($names->isEmpty()) {
+            return $this->translator->trans('flarum-messages.lib.dialog.private_group_title');
+        }
 
         return $this->translator->trans('flarum-messages.lib.dialog.group_title', [
             'names' => $names->take(self::TITLE_NAMES)->implode(', '),

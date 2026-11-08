@@ -148,4 +148,17 @@ class AuditTest extends TestCase
             $this->assertEqualsCanonicalizing(['dialog_id', 'user_id'], array_keys($payload));
         }
     }
+    #[Test]
+    public function group_recipients_are_audited_as_groups_without_expanding_their_members(): void
+    {
+        $this->setting('flarum-messages.recipient_groups', '[4]');
+        $this->prepareDatabase(['group_user' => [['user_id' => 3, 'group_id' => 4], ['user_id' => 4, 'group_id' => 4]]]);
+        $body = $this->message(['attributes' => ['content' => 'Private team content', 'groups' => [['id' => 4]], 'users' => [['id' => 3]]]]);
+        $id = (int) $body['data']['relationships']['dialog']['data']['id'];
+        $this->assertEqualsCanonicalizing([
+            ['dialog_id' => $id, 'user_id' => 3],
+        ], $this->payloads('dialog.started'));
+        $this->assertSame([['dialog_id' => $id, 'group_id' => 4]], $this->payloads('dialog.group_started'));
+    }
+
 }

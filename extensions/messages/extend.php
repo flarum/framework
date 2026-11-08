@@ -20,6 +20,7 @@ use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Statistics\Extend\Statistics as StatisticsExtend;
 use Flarum\User\User;
+use Illuminate\Mail\Events\MessageSending;
 
 return [
     (new Extend\Frontend('forum'))
@@ -40,6 +41,7 @@ return [
     (new Extend\Settings())
         ->default(RecipientLimit::SETTING, RecipientLimit::DEFAULT)
         ->default(GroupNames::SETTING, false)
+        ->default(RecipientGroups::SETTING, '[]')
         ->serializeToForum('messagesMaxRecipients', RecipientLimit::SETTING, RecipientLimit::clamp(...)),
 
     (new Extend\Model(User::class))
@@ -61,6 +63,9 @@ return [
     new Extend\ApiResource(Api\Resource\DialogResource::class),
 
     new Extend\ApiResource(Api\Resource\DialogMessageResource::class),
+
+    (new Extend\ApiResource(Resource\GroupResource::class))
+        ->fields(Api\GroupResourceFields::class),
 
     (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(Api\UserResourceFields::class),
@@ -85,6 +90,7 @@ return [
         ->type(Notification\MessageReceivedBlueprint::class, ['email']),
 
     (new Extend\Event())
+        ->listen(MessageSending::class, Listener\CheckMessageEmailAccess::class)
         ->listen(DialogMessage\Event\Created::class, Listener\SendNotificationWhenMessageSent::class)
         ->listen(DialogMessage\Event\Created::class, Listener\UpdateMentionsMetadataWhenVisible::class)
         ->listen(DialogMessage\Event\Updated::class, Listener\UpdateMentionsMetadataWhenVisible::class),
