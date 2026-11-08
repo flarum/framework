@@ -5,6 +5,9 @@ import type Tag from '../../models/Tag';
 export default class TagGambit extends KeyValueGambit {
   predicates = true;
 
+  static loadingTags = false;
+  static loadedTags = false;
+
   key(): string {
     return app.translator.trans('flarum-tags.lib.gambits.discussions.tag.key', {}, true);
   }
@@ -22,6 +25,22 @@ export default class TagGambit extends KeyValueGambit {
   }
 
   values() {
+    if (app.tagList && !TagGambit.loadedTags && !TagGambit.loadingTags) {
+      TagGambit.loadingTags = true;
+
+      app.tagList
+        .load(['parent', 'children'])
+        .then(() => {
+          TagGambit.loadedTags = true;
+          if (typeof m !== 'undefined') {
+            m.redraw();
+          }
+        })
+        .finally(() => {
+          TagGambit.loadingTags = false;
+        });
+    }
+
     return (app.store.all<Tag>('tags') || [])
       .map((tag) => ({
         value: tag.slug(),
