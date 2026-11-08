@@ -1,9 +1,14 @@
-import Component from '../../common/Component';
-import type { ComponentAttrs } from '../../common/Component';
-import Mithril from 'mithril';
-export interface IFormSectionAttrs extends ComponentAttrs {
-    label: any;
+import SettingsSection from './SettingsSection';
+import type { ISettingsSectionAttrs } from './SettingsSection';
+export interface IFormSectionAttrs extends ISettingsSectionAttrs {
 }
-export default class FormSection<CustomAttrs extends IFormSectionAttrs = IFormSectionAttrs> extends Component<CustomAttrs> {
-    view(vnode: Mithril.Vnode<CustomAttrs, this>): JSX.Element;
+/**
+ * A titled group of settings.
+ *
+ * Renders as a `SettingsSection`, keeping the `FormSection` class for existing styles.
+ * New code can use `SettingsSection` directly.
+ */
+export default class FormSection<CustomAttrs extends IFormSectionAttrs = IFormSectionAttrs> extends SettingsSection<CustomAttrs> {
+    classNames(): string;
+    bodyClassNames(): string;
 }

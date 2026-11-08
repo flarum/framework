@@ -1,0 +1,85 @@
+.McpPage {
+  pre {
+    background: var(--control-bg);
+    border-radius: var(--border-radius);
+    padding: 10px 15px;
+    margin: 8px 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 12px;
+  }
+}
+
+.McpPage-urlRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+
+  code {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    background: var(--control-bg);
+    border-radius: var(--border-radius);
+    word-break: break-all;
+  }
+}
+
+.McpPage-subPath {
+  display: block;
+
+  pre {
+    background: transparent;
+    padding: 0;
+  }
+}
+
+.McpPage-clients {
+  margin: 0;
+
+  dt {
+    font-weight: bold;
+    margin-top: 12px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  dd {
+    margin: 4px 0 0;
+  }
+}
+
+// The table needs more room than a column of fields.
+.SettingsSection.McpPage-capabilities {
+  --settings-section-body-max-width: none;
+}
+
+.McpCapabilities {
+  .Table();
+  width: 100%;
+
+  thead th {
+    text-align: start;
+    padding: 10px 15px;
+  }
+
+  td {
+    vertical-align: top;
+  }
+}
+
+.McpCapabilities-title {
+  color: var(--muted-color);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.McpCapabilities-write {
+  font-weight: bold;
+  // --alert-error-color is the white text of an error alert, meant for its red
+  // background; on the page itself the error colour is --error-color.
+  color: var(--error-color);
+}

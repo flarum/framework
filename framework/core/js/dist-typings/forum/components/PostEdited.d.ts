@@ -1,15 +1,12 @@
+import Component, { ComponentAttrs } from '../../common/Component';
+import type Post from '../../common/models/Post';
+export interface IPostEditedAttrs extends ComponentAttrs {
+    post: Post;
+}
 /**
  * The `PostEdited` component displays information about when and by whom a post
  * was edited.
- *
- * ### Attrs
- *
- * - `post`
  */
-export default class PostEdited extends Component<import("../../common/Component").ComponentAttrs, undefined> {
-    constructor();
-    oninit(vnode: any): void;
+export default class PostEdited<CustomAttrs extends IPostEditedAttrs = IPostEditedAttrs> extends Component<CustomAttrs> {
     view(): JSX.Element;
-    oncreate(vnode: any): void;
 }
-import Component from '../../common/Component';

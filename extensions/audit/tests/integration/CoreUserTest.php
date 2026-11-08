@@ -256,6 +256,21 @@ class CoreUserTest extends TestCase
     }
 
     #[Test]
+    public function loggedOutEverywhere()
+    {
+        $response = $this->send(
+            $this->request('POST', '/global-logout', ['authenticatedAs' => 3])->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(204, $response->getStatusCode(), 'Asserting global logout status code');
+
+        $this->assertLogExists('user.logged_out_everywhere', [
+            'user_id' => 3,
+        ], 3);
+        $this->assertLogDoesntExist('user.logged_out');
+    }
+
+    #[Test]
     public function passwordChangedAdmin()
     {
         $this->sendSuccessfulRequest('PATCH', '/api/users/3', [

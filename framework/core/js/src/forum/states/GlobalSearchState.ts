@@ -77,11 +77,25 @@ export default class GlobalSearchState extends SearchState {
   stickyParams(): SearchParams {
     return {
       sort: m.route.param('sort'),
-      q: m.route.param('q'),
+      q: this.routeSearch(),
       // Objects must be copied, otherwise they are passed by reference.
       // Which could end up undesirably modifying the mithril route params.
       filter: Object.assign({}, m.route.param('filter')),
     };
+  }
+
+  /**
+   * The search in the address. Mithril keeps a "+" that a browser's address
+   * bar sends for a space, and turns "true" and "false" into booleans, so
+   * the address itself is read the way browsers write it.
+   */
+  protected routeSearch(): string {
+    const q = m.route.param('q');
+
+    // No search: left as the router has it, like the other parameters.
+    if (q === undefined) return q;
+
+    return new URLSearchParams(window.location.search).get('q') ?? String(q);
   }
 
   /**

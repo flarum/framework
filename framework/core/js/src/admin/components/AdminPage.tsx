@@ -10,6 +10,11 @@ import AdminHeader from './AdminHeader';
 import FormGroup, { FieldComponentOptions } from '../../common/components/FormGroup';
 import extractText from '../../common/utils/extractText';
 import LoadingModal from './LoadingModal';
+import Form from '../../common/components/Form';
+import ItemList from '../../common/utils/ItemList';
+import SettingsSection from './SettingsSection';
+import groupBySection from '../utils/groupBySection';
+import type { SettingConfigInternal, SettingsSectionConfig } from '../utils/AdminRegistry';
 
 export interface AdminHeaderOptions {
   title: Mithril.Children;
@@ -25,6 +30,8 @@ export interface AdminHeaderOptions {
 
 export type SettingsComponentOptions = FieldComponentOptions & {
   setting: string;
+  /** The id of the settings section to show this setting in. */
+  section?: string;
   json?: boolean;
   refreshAfterSaving?: boolean;
 };
@@ -40,6 +47,11 @@ export type MutableSettings = Record<string, Stream<SettingValue>>;
 export type SaveSubmitEvent = SubmitEvent & { redraw: boolean };
 
 export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
+  /**
+   * The id of the tab that holds the settings when a page registers no tabs of its own.
+   */
+  static DEFAULT_TAB = 'general';
+
   settings: MutableSettings = {};
   settingLabels: Record<string, Mithril.Children> = {};
   refreshAfterSaving: string[] = [];
@@ -173,7 +185,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
       return entry.call(this);
     }
 
-    const { setting, json, refreshAfterSaving, ...attrs } = entry;
+    const { setting, section, json, refreshAfterSaving, ...attrs } = entry;
 
     const originalBidi: (value?: string) => any = this.setting(setting, (entry as any).default ?? '');
     let bidi: (value?: string) => any;
@@ -201,6 +213,162 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
     }
 
     return <FormGroup stream={bidi} getSetting={this.setting.bind(this)} {...attrs} />;
+  }
+
+  /**
+   * The AdminRegistry key whose registered settings this page shows: an
+   * extension id, or a core page's key such as `core-basics`. `null` when the
+   * page builds its settings itself.
+   */
+  settingsRegistryKey(): string | null {
+    return null;
+  }
+
+  /**
+   * The registered settings, grouped into their sections, followed by the save controls.
+   *
+   * @param tab Only show the settings on this tab; `null` shows them all.
+   */
+  settingsForm(tab: string | null = null): Mithril.Children {
+    const key = this.settingsRegistryKey();
+    const groups = this.settingsGroups(tab);
+
+    if (!key || !groups.length) return this.noSettingsMessage();
+
+    const sectioned = app.registry.getSections(key).length > 0;
+
+    return (
+      <Form className={classList('AdminPage-settingsForm', sectioned && 'AdminPage-settingsForm--sectioned')}>
+        {sectioned ? this.settingsSections(tab).toArray() : groups.flatMap((group) => group.settings).map(this.buildSettingComponent.bind(this))}
+        <div className="Form-group Form-controls">{this.settingsFormControls().toArray()}</div>
+      </Form>
+    );
+  }
+
+  /**
+   * The buttons under the settings form.
+   */
+  settingsFormControls(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('submit', this.submitButton(), 100);
+
+    return items;
+  }
+
+  /**
+   * Shown by `settingsForm()` when there are no settings to show.
+   */
+  noSettingsMessage(): Mithril.Children {
+    return null;
+  }
+
+  /**
+   * The registered settings on a tab, grouped into their sections, as one
+   * `SettingsSection` each. Settings before the first section come first, without a heading.
+   */
+  settingsSections(tab: string | null = null): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+    const groups = this.settingsGroups(tab);
+
+    groups.forEach(({ section, settings }, index) => {
+      if (!section) {
+        items.add('ungrouped', <div className="AdminPage-ungrouped">{settings.map(this.buildSettingComponent.bind(this))}</div>, 1000);
+
+        return;
+      }
+
+      items.add(
+        section.id,
+        <SettingsSection
+          id={`${this.settingsRegistryKey()}-section-${section.id}`}
+          label={section.label}
+          description={section.description}
+          icon={section.icon}
+        >
+          {settings.map(this.buildSettingComponent.bind(this))}
+        </SettingsSection>,
+        groups.length - index
+      );
+    });
+
+    return items;
+  }
+
+  /**
+   * The registered settings on a tab, in display order, split into their sections.
+   *
+   * @param tab `null` for every tab.
+   */
+  settingsGroups(tab: string | null = null): { section: SettingsSectionConfig | null; settings: SettingConfigInternal[] }[] {
+    const key = this.settingsRegistryKey();
+
+    if (!key) return [];
+
+    const sections = app.registry.getSections(key);
+    const tabs = app.registry.getTabs(key);
+    const firstTab = tabs[0]?.id ?? AdminPage.DEFAULT_TAB;
+    const tabOf = (section: SettingsSectionConfig | null) => (section?.tab && tabs.some((t) => t.id === section.tab) ? section.tab : firstTab);
+
+    return app.registry
+      .getSettingGroups(key)
+      .map((group) => ({ section: sections.find((s) => s.id === group.section) ?? null, settings: group.entries }))
+      .filter((group) => tab === null || tabOf(group.section) === tab);
+  }
+
+  /**
+   * Renders an ItemList as titled sections, keeping the list's keys and priorities.
+   *
+   * Each section names the item keys it holds. An item it doesn't name, such as
+   * one another extension added, joins the section of the item before it, so it
+   * stays where it was shown before. Items before the first named one are shown
+   * without a heading.
+   *
+   * @example
+   * this.itemSections(this.brandingItems(), [
+   *   { id: 'logos', label: app.translator.trans('acme.admin.logos'), items: ['logo', 'favicon'] },
+   *   { id: 'code', label: app.translator.trans('acme.admin.code'), items: ['custom-css'] },
+   * ]).toArray()
+   */
+  itemSections(items: ItemList<Mithril.Children>, sections: (SettingsSectionConfig & { items: string[] })[]): ItemList<Mithril.Children> {
+    const result = new ItemList<Mithril.Children>();
+    const entries = Object.values(items.toObject()).sort((a, b) => b.priority - a.priority);
+    const groups = groupBySection(
+      entries,
+      (entry) => sections.find((section) => section.items.includes(entry.itemName))?.id,
+      sections.map((section) => section.id)
+    );
+
+    groups.forEach(({ section: id, entries }, index) => {
+      const content = entries.map((entry) => entry.content as Mithril.Children);
+      const section = sections.find((s) => s.id === id);
+      const priority = groups.length - index;
+
+      if (!section) {
+        result.add('ungrouped', <div className="AdminPage-ungrouped">{content}</div>, priority);
+
+        return;
+      }
+
+      result.add(
+        section.id,
+        <SettingsSection id={section.id} label={section.label} description={section.description} icon={section.icon}>
+          {content}
+        </SettingsSection>,
+        priority
+      );
+    });
+
+    return result;
+  }
+
+  /**
+   * The id of the tab a registered setting is shown on.
+   */
+  settingsTabOf(setting: SettingConfigInternal): string {
+    const key = this.settingsRegistryKey();
+
+    return (key && app.registry.getSettingLocation(key, setting).tab?.id) || AdminPage.DEFAULT_TAB;
   }
 
   /**

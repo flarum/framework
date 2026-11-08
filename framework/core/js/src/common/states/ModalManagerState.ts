@@ -1,3 +1,4 @@
+import app from '../app';
 import type Component from '../Component';
 import Modal, { IDismissibleOptions } from '../components/Modal';
 
@@ -85,9 +86,15 @@ export default class ModalManagerState {
       m.redraw.sync();
 
       componentClass = componentClass as AsyncModalClass;
-      componentClass = (await componentClass()).default;
-
-      this.loadingModal = false;
+      try {
+        componentClass = (await componentClass()).default;
+      } catch (error) {
+        app.alerts.show({ type: 'error' }, app.translator.trans('core.lib.error.generic_message'));
+        m.redraw();
+        throw error;
+      } finally {
+        this.loadingModal = false;
+      }
     }
 
     this.backdropShown = true;

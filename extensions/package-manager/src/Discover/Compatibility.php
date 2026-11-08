@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager\Discover;
 
 use Composer\Semver\Semver;
+use Composer\Semver\VersionParser;
 
 /**
  * Whether a package has a release that says it works with this Flarum.
@@ -137,9 +138,11 @@ class Compatibility
     protected function judge(string $name, array $versions): array
     {
         $best = null;
+        $declared = false;
 
         foreach ($versions as $release) {
             $constraint = $release['require']['flarum/core'] ?? null;
+            $declared = $declared || is_string($constraint);
 
             if (! is_string($constraint) || ! $this->admits($constraint)) {
                 continue;
@@ -162,6 +165,15 @@ class Compatibility
             if ($best === null || ($best['stability'] !== 'stable' && $candidate['stability'] === 'stable')) {
                 $best = $candidate;
             }
+        }
+
+        /*
+         * No release says which Flarum it is for. That is not a "no": nothing
+         * was claimed either way, and calling it incompatible blocked the core
+         * upgrade over an extension that may work perfectly well.
+         */
+        if ($best === null && ! $declared) {
+            return ['compatible' => null, 'version' => null, 'requires' => null, 'stability' => null];
         }
 
         if ($best === null) {
@@ -230,16 +242,13 @@ class Compatibility
         return null;
     }
 
+    /**
+     * Composer's own reading of the version. Looking for words in it called
+     * `2.0.0-b2` stable, because a beta does not have to spell "beta" out.
+     * Lowercase, as the screen expects (`rc`, not Composer's `RC`).
+     */
     protected function stability(string $version): string
     {
-        $v = strtolower($version);
-
-        foreach (['dev' => 'dev', 'alpha' => 'alpha', 'beta' => 'beta', 'rc' => 'rc'] as $needle => $label) {
-            if (str_contains($v, $needle)) {
-                return $label;
-            }
-        }
-
-        return 'stable';
+        return strtolower(VersionParser::parseStability($version));
     }
 }

@@ -53,6 +53,8 @@ class StatisticsTest extends TestCase
                 ['id' => 101, 'dialog_id' => 101, 'user_id' => 2, 'content' => 'Hi', 'number' => 1, 'created_at' => $this->tenDaysAgo],
                 ['id' => 102, 'dialog_id' => 101, 'user_id' => 3, 'content' => 'Hello', 'number' => 2, 'created_at' => $this->nineDaysAgo],
                 ['id' => 103, 'dialog_id' => 101, 'user_id' => 2, 'content' => 'How are you?', 'number' => 3, 'created_at' => $this->nineDaysAgo],
+                // Not a reply: the conversation saying someone left.
+                ['id' => 105, 'dialog_id' => 101, 'user_id' => 3, 'type' => 'userLeft', 'content' => '{}', 'number' => 4, 'created_at' => $this->nineDaysAgo],
                 // Started three days ago, no reply yet.
                 ['id' => 104, 'dialog_id' => 102, 'user_id' => 3, 'content' => 'Hey', 'number' => 1, 'created_at' => $this->threeDaysAgo],
             ],

@@ -28,10 +28,6 @@
                 "backgroundPosition": "center"
             }
         },
-        "flarum-locale": {
-            "code": "en",
-            "title": "English"
-        },
         "flarum-cli": {
             "modules": {
                 "admin": false,

@@ -81,11 +81,7 @@ export default class CorePanel extends Component<CoreAttrs> {
             </div>
           </div>
           {this.newest ? (
-            <Button
-              className="Button Button--primary"
-              disabled={this.attrs.starting || this.blocked() > 0}
-              onclick={() => this.attrs.onbegin(this.packagesToUpdate())}
-            >
+            <Button className="Button Button--primary" disabled={this.attrs.starting || !this.ready()} onclick={() => this.confirmUpdate()}>
               {app.translator.trans('flarum-extension-manager.admin.updater.core.update_to', { version: this.newest.to })}
             </Button>
           ) : null}
@@ -132,6 +128,56 @@ export default class CorePanel extends Component<CoreAttrs> {
     );
   }
 
+  /**
+   * Whether the pre-flight has answered, and nothing it found blocks the update.
+   *
+   * Not just "nothing is blocked". Until the check comes back nothing is
+   * blocked because nothing has been checked, so the button was live from the
+   * moment the panel drew, and pressing it then sent core alone: no extension
+   * that needed to move with it, and no warning about the ones that could not.
+   * A pre-flight that failed to load counts as not answered. A batch of
+   * extensions that could not be checked does not: those rows say so, and an
+   * unknown is not a refusal.
+   */
+  ready(): boolean {
+    const p = this.preflight;
+
+    return !!p && !this.failed && !this.checking && (p.pending || []).length === 0 && this.blocked() === 0;
+  }
+
+  /**
+   * Asked, like the nightly build. Updating Flarum is the change whose blast
+   * radius is the whole forum, and it was the one button here that started
+   * on a single press.
+   */
+  confirmUpdate() {
+    const newest = this.newest;
+    if (!newest) return;
+
+    const packages = this.packagesToUpdate();
+
+    confirmAction({
+      title: app.translator.trans('flarum-extension-manager.admin.updater.core.update_to', { version: newest.to }),
+      message: app.translator.trans('flarum-extension-manager.admin.updater.core.confirm', {
+        from: this.current || newest.from,
+        to: newest.to,
+        count: packages.length - 1,
+      }),
+      details:
+        packages.length > 1 ? (
+          <ul className="ExtensionManager-confirm-list">
+            {packages.slice(1).map((name) => (
+              <li key={name}>
+                <code>{name}</code>
+              </li>
+            ))}
+          </ul>
+        ) : null,
+      confirmText: app.translator.trans('flarum-extension-manager.admin.updater.core.update_to', { version: newest.to }),
+      onconfirm: () => this.attrs.onbegin(packages),
+    });
+  }
+
   confirmNightly() {
     confirmAction({
       title: app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.button'),
@@ -143,7 +189,14 @@ export default class CorePanel extends Component<CoreAttrs> {
 
   summary() {
     const p = this.preflight;
-    if (!p) return null;
+
+    // Says why the button is not ready yet. A failed check has its own alert above.
+    if (!p)
+      return this.failed ? null : (
+        <div className="ExtensionManager-coreChecking">
+          {app.translator.trans('flarum-extension-manager.admin.updater.core.preflight', { version: this.newest?.to })}
+        </div>
+      );
 
     const blocked = this.blocked();
     const updating = p.updating || 0;

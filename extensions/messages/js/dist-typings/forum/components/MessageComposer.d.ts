@@ -17,6 +17,8 @@ export interface IMessageComposerAttrs extends IComposerBodyAttrs {
 export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs = IMessageComposerAttrs> extends ComposerBody<CustomAttrs> {
     protected recipients: Stream<User[]>;
     static focusOnSelector: () => string;
+    /** Recipients shown by avatar before the rest are counted, as a large group's would crowd the composer. */
+    static SHOWN_RECIPIENTS: number;
     static initAttrs(attrs: IMessageComposerAttrs): void;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     headerItems(): import("flarum/common/utils/ItemList").default<Mithril.Children>;

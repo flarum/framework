@@ -81,6 +81,87 @@ class ExtensionDependencyResolutionTest extends TestCase
     }
 
     #[Test]
+    public function rejects_every_extension_requiring_the_same_missing_dependency()
+    {
+        $a = new FakeExtension('acme-a', ['acme-missing']);
+        $b = new FakeExtension('acme-b', ['acme-missing']);
+
+        $this->assertEquals([
+            'valid' => [],
+            'missingDependencies' => [
+                'acme-a' => ['acme-missing'],
+                'acme-b' => ['acme-missing'],
+            ],
+            'circularDependencies' => [],
+        ], ExtensionManager::resolveExtensionOrder([$a, $b]));
+    }
+
+    #[Test]
+    public function rejects_required_dependents_of_extensions_with_missing_dependencies()
+    {
+        $a = new FakeExtension('acme-a', ['acme-b']);
+        $b = new FakeExtension('acme-b', ['acme-c']);
+        $c = new FakeExtension('acme-c', ['acme-missing']);
+        $healthy = new FakeExtension('acme-healthy', []);
+
+        $this->assertEquals([
+            'valid' => [$healthy],
+            'missingDependencies' => [
+                'acme-a' => ['acme-b'],
+                'acme-b' => ['acme-c'],
+                'acme-c' => ['acme-missing'],
+            ],
+            'circularDependencies' => [],
+        ], ExtensionManager::resolveExtensionOrder([$c, $healthy, $b, $a]));
+    }
+
+    #[Test]
+    public function keeps_optional_dependents_when_a_dependency_is_rejected()
+    {
+        $a = new FakeExtension('acme-a', ['acme-missing'], ['acme-b']);
+        $b = new FakeExtension('acme-b', [], ['acme-a']);
+        $c = new FakeExtension('acme-c', ['acme-b']);
+
+        $this->assertEquals([
+            'valid' => [$b, $c],
+            'missingDependencies' => ['acme-a' => ['acme-missing']],
+            'circularDependencies' => [],
+        ], ExtensionManager::resolveExtensionOrder([$a, $b, $c]));
+    }
+
+    #[Test]
+    public function reports_all_unavailable_required_dependencies_after_propagation()
+    {
+        $a = new FakeExtension('acme-a', ['missing-one', 'acme-b']);
+        $b = new FakeExtension('acme-b', ['missing-two']);
+
+        $this->assertEquals([
+            'valid' => [],
+            'missingDependencies' => [
+                'acme-a' => ['missing-one', 'acme-b'],
+                'acme-b' => ['missing-two'],
+            ],
+            'circularDependencies' => [],
+        ], ExtensionManager::resolveExtensionOrder([$a, $b]));
+    }
+
+    #[Test]
+    public function propagates_missing_dependencies_through_a_required_cycle()
+    {
+        $a = new FakeExtension('acme-a', ['acme-b', 'acme-missing']);
+        $b = new FakeExtension('acme-b', ['acme-a']);
+
+        $this->assertEquals([
+            'valid' => [],
+            'missingDependencies' => [
+                'acme-a' => ['acme-b', 'acme-missing'],
+                'acme-b' => ['acme-a'],
+            ],
+            'circularDependencies' => [],
+        ], ExtensionManager::resolveExtensionOrder([$a, $b]));
+    }
+
+    #[Test]
     public function works_with_circular_dependencies()
     {
         $exts = [$this->tags, $this->categories, $this->tagBackgrounds, $this->something, $this->help, $this->circular1, $this->circular2];
@@ -92,6 +173,21 @@ class ExtensionDependencyResolutionTest extends TestCase
         ];
 
         $this->assertEquals($expected, ExtensionManager::resolveExtensionOrder($exts));
+    }
+
+    #[Test]
+    public function preserves_cycles_among_survivors_when_other_extensions_are_rejected()
+    {
+        $this->assertEquals([
+            'valid' => [$this->tags],
+            'missingDependencies' => ['flarum-missing' => ['this-does-not-exist', 'also-not-exists']],
+            'circularDependencies' => ['circular2', 'circular1'],
+        ], ExtensionManager::resolveExtensionOrder([
+            $this->circular1,
+            $this->missing,
+            $this->tags,
+            $this->circular2,
+        ]));
     }
 
     #[Test]

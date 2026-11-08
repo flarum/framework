@@ -19,8 +19,12 @@ use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Plan\Nightly;
 use Flarum\ExtensionManager\Plan\Repin;
 use Flarum\ExtensionManager\Run\Drivers;
+use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
+use Flarum\ExtensionManager\Run\StartLock;
+use Flarum\ExtensionManager\Run\StartLockUnwritable;
 use Flarum\ExtensionManager\Run\StepRunner;
+use Flarum\ExtensionManager\Work\SavedManifests;
 use Flarum\ExtensionManager\Work\WorkDir;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Paths;
@@ -58,28 +62,17 @@ class StartController implements RequestHandlerInterface
 
     /**
      * A replaced package is never installed under its old name, whatever
-     * the screen showed. Installing v17development/flarum-seo gave forums
-     * FoF SEO under the wrong id, which then refused to enable
-     * (discuss.flarum.org d/40012). Asked here, on the server, so a stale tab
-     * or a hand-made request cannot get round it; the verdict is the cached one
+     * the screen showed. Asked here, on the server, so a stale tab or a
+     * hand-made request cannot get round it; the verdict is the cached one
      * the Find tab already fetched, so this costs nothing in the usual case.
+     * The rules are in Packagist::refuseReplaced().
      *
      * @param list<string> $packages
      */
-    protected function replaced(array $packages): ?string
+    protected function refuseReplaced(array $packages): void
     {
-        $packagist = new Packagist($this->translator, new Cache(StorageDir::of($this->paths->storage).'/packagist'), $this->http);
-        $verdicts = $packagist->verdicts(array_slice($packages, 0, 5), new Compatibility(ltrim($this->app->version(), 'v')));
-
-        foreach ($verdicts as $name => $verdict) {
-            if (! empty($verdict['replaced'])) {
-                return $verdict['replacedBy']
-                    ? $this->translator->trans('flarum-extension-manager.api.start.replaced_by', ['name' => $name, 'replacement' => $verdict['replacedBy']])
-                    : $this->translator->trans('flarum-extension-manager.api.start.replaced', ['name' => $name]);
-            }
-        }
-
-        return null;
+        (new Packagist($this->translator, new Cache(StorageDir::of($this->paths->storage).'/packagist'), $this->http))
+            ->refuseReplaced($packages, new Compatibility(ltrim($this->app->version(), 'v')));
     }
 
     /**
@@ -167,8 +160,8 @@ class StartController implements RequestHandlerInterface
             throw new ValidationException(['packages' => $this->translator->trans('flarum-extension-manager.api.start.nothing_selected')]);
         }
 
-        if ($mode === 'install' && ($refusal = $this->replaced($packages)) !== null) {
-            throw new RefusedException($refusal, 'package_replaced');
+        if ($mode === 'install') {
+            $this->refuseReplaced($packages);
         }
 
         if ($mode === 'remove' && ($refusal = $this->cannotRemove($packages)) !== null) {
@@ -179,36 +172,78 @@ class StartController implements RequestHandlerInterface
             throw new RefusedException($this->translator->trans('flarum-extension-manager.api.start.not_enough_memory'), 'not_enough_memory');
         }
 
-        $existing = $this->runs->latest();
-
-        if ($existing !== null && ! $existing->isFinished()) {
-            /*
-             * Refused, but loudly, and with the age of the thing in the way so
-             * the admin can tell a working update from a dead one. The screen
-             * reloads the state, which carries the run, and offers to abandon
-             * it; this endpoint never decides that for them.
-             */
-            $age = time() - $existing->movedAt;
-
-            throw new RefusedException($age > 120
-                ? $this->translator->trans('flarum-extension-manager.api.start.in_progress_stale', ['minutes' => round($age / 60)])
-                : $this->translator->trans('flarum-extension-manager.api.start.in_progress'), 'run_in_progress', 409);
-        }
-
-        $id = 'r'.date('Ymd-His').'-'.bin2hex(random_bytes(3));
-
-        (new WorkDir($this->translator, $this->paths->storage, $id))->create()->remember($packages, $nightly !== null ? 'update' : $mode, $nightly ?? $this->repinFor($packages, $body, $mode));
-
-        $run = $this->runner->begin($id);
+        $run = $this->begin($packages, $nightly !== null ? 'update' : $mode, $nightly ?? $this->repinFor($packages, $body, $mode));
 
         // A worker if there is one; the page keeps polling either way.
-        $queued = $this->drivers->nudge($id);
+        $queued = $this->drivers->nudge($run->id);
 
         return new JsonResponse([
             'run' => $this->runs->present($run),
             'queued' => $queued,
             'driver' => $this->drivers->describe(),
         ]);
+    }
+
+    /**
+     * Check that nothing is in the way, then create the run, as one step.
+     *
+     * Under the installation-wide start lock: two starts arriving together
+     * used to both pass the check before either had written its run, and both
+     * runs then went on to rewrite the manifests and vendor/. See StartLock.
+     *
+     * @param list<string> $packages
+     * @param array<string,string> $repin
+     */
+    protected function begin(array $packages, string $mode, array $repin): Run
+    {
+        $lock = new StartLock(StorageDir::of($this->paths->storage).'/locks');
+
+        try {
+            $held = ! $lock->acquire();
+        } catch (StartLockUnwritable $e) {
+            throw new RefusedException($this->translator->trans('flarum-extension-manager.api.start.lock_unwritable', ['path' => $e->path]), 'start_lock_unwritable', 500);
+        }
+
+        if ($held) {
+            throw new RefusedException($this->translator->trans('flarum-extension-manager.api.start.in_progress'), 'run_in_progress', 409);
+        }
+
+        try {
+            $existing = $this->runs->latest();
+
+            if ($existing !== null && ! $existing->isFinished()) {
+                /*
+                 * Refused, but loudly, and with the age of the thing in the way so
+                 * the admin can tell a working update from a dead one. The screen
+                 * reloads the state, which carries the run, and offers to abandon
+                 * it; this endpoint never decides that for them.
+                 */
+                $age = time() - $existing->movedAt;
+
+                throw new RefusedException($age > 120
+                    ? $this->translator->trans('flarum-extension-manager.api.start.in_progress_stale', ['minutes' => round($age / 60)])
+                    : $this->translator->trans('flarum-extension-manager.api.start.in_progress'), 'run_in_progress', 409);
+            }
+
+            /*
+             * A run that failed before its new lock was meant to stay, and
+             * could not put the old one back itself (a worker killed mid-item,
+             * a request the host cut off). Without this the new run saves the
+             * already-new lock as its starting point, plans nothing and reports
+             * the site up to date while vendor/ still has the old code.
+             */
+            if ($existing !== null) {
+                SavedManifests::afterFailedRun($existing, (new WorkDir($this->translator, $this->paths->storage, $existing->id))->root(), $this->paths->base);
+            }
+
+            $id = 'r'.date('Ymd-His').'-'.bin2hex(random_bytes(3));
+
+            (new WorkDir($this->translator, $this->paths->storage, $id))->create()->remember($packages, $mode, $repin);
+
+            return $this->runner->begin($id);
+        } finally {
+            $lock->release();
+        }
     }
 
     /**

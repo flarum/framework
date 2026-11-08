@@ -4,19 +4,25 @@ import type { IButtonAttrs } from './Button';
 import classList from '../utils/classList';
 import type Mithril from 'mithril';
 import Component from '../Component';
+import Icon from './Icon';
 
 export interface IUploadImageButtonAttrs extends IButtonAttrs {
   name: string;
   routePath: string;
   value?: string | null | (() => string | null);
   url?: string | null | (() => string | null);
+  /**
+   * Set when the image is set in code, such as by a theme, and can't be
+   * changed here: the title of the extension that set it, or null.
+   */
+  lockedBy?: string | null;
 }
 
 export default class UploadImageButton<CustomAttrs extends IUploadImageButtonAttrs = IUploadImageButtonAttrs> extends Component<CustomAttrs> {
   loading = false;
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
-    let { name, value, url, ...attrs } = vnode.attrs as IButtonAttrs;
+    let { name, value, url, lockedBy, ...attrs } = vnode.attrs as IButtonAttrs;
 
     attrs.loading = this.loading;
     attrs.className = classList(attrs.className, 'Button');
@@ -27,6 +33,24 @@ export default class UploadImageButton<CustomAttrs extends IUploadImageButtonAtt
 
     if (typeof url === 'function') {
       url = url();
+    }
+
+    if (lockedBy !== undefined) {
+      return (
+        <div className="UploadImageButton UploadImageButton--locked">
+          {url ? (
+            <div className="UploadImageButton-image">
+              <img src={url} alt={name} />
+            </div>
+          ) : null}
+          <p className="UploadImageButton-lock helpText">
+            <Icon name="fas fa-lock" />{' '}
+            {lockedBy
+              ? app.translator.trans('core.admin.upload_image.set_by_extension_text', { extension: lockedBy })
+              : app.translator.trans('core.admin.upload_image.set_in_code_text')}
+          </p>
+        </div>
+      );
     }
 
     return (

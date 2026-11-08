@@ -100,6 +100,11 @@ abstract class AbstractImageValidator extends AbstractValidator
             $this->raise('dimensions');
         }
 
+        $this->assertDecodable($file);
+    }
+
+    protected function assertDecodable(UploadedFileInterface $file): void
+    {
         try {
             $this->imageManager->read($file->getStream()->getMetadata('uri'));
         } catch (DecoderException|GifDecoderException) {

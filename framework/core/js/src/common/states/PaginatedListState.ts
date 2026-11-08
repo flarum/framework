@@ -63,6 +63,14 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
    */
   protected revalidating: Promise<void> | null = null;
 
+  /**
+   * Incremented whenever the list is replaced (`goto()`, and so `refresh()`).
+   * Requests remember the value they started under and discard their response
+   * if it has changed, so a slow response for a previous filter cannot
+   * overwrite the results of the current one.
+   */
+  protected generation: number = 0;
+
   protected constructor(params: P = {} as P, page: number = 1, pageSize: number | null = null) {
     this.params = params;
 
@@ -84,11 +92,16 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     this.loadingPrev = true;
 
     const page: number = this.getPrevPageNumber();
+    const generation = this.generation;
 
     return this.errorShownByRequest(
       this.loadPage(page)
-        .then(this.parseResults.bind(this, page))
-        .finally(() => (this.loadingPrev = false))
+        .then((results) => {
+          if (generation === this.generation) this.parseResults(page, results);
+        })
+        .finally(() => {
+          if (generation === this.generation) this.loadingPrev = false;
+        })
     );
   }
 
@@ -98,11 +111,16 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     this.loadingNext = true;
 
     const page: number = this.getNextPageNumber();
+    const generation = this.generation;
 
     return this.errorShownByRequest(
       this.loadPage(page)
-        .then(this.parseResults.bind(this, page))
-        .finally(() => (this.loadingNext = false))
+        .then((results) => {
+          if (generation === this.generation) this.parseResults(page, results);
+        })
+        .finally(() => {
+          if (generation === this.generation) this.loadingNext = false;
+        })
     );
   }
 
@@ -272,8 +290,12 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     // the loser would win by arriving last.
     if (this.revalidating) return this.revalidating;
 
+    const generation = this.generation;
+
     this.revalidating = this.loadPage(1)
       .then((results) => {
+        if (generation !== this.generation) return;
+
         this.pages = [];
         this.parseResults(1, results);
       })
@@ -292,6 +314,12 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
   public goto(page: number): Promise<void> {
     this.location = { page };
 
+    const generation = ++this.generation;
+
+    // Pending prev/next requests are now superseded and will not clear these themselves.
+    this.loadingPrev = false;
+    this.loadingNext = false;
+
     if (!this.initialLoading) {
       this.loadingPage = true;
     }
@@ -299,10 +327,14 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     return this.errorShownByRequest(
       this.loadPage(page)
         .then((results) => {
+          if (generation !== this.generation) return;
+
           this.pages = [];
           this.parseResults(this.location.page, results);
         })
         .finally(() => {
+          if (generation !== this.generation) return;
+
           this.initialLoading = false;
           this.loadingPage = false;
         })

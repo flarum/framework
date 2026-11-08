@@ -4,6 +4,7 @@ import {
   dismissalApplies,
   hidesPage,
   pollOutcome,
+  requestSequence,
   runIsLive,
   runIsOver,
   shouldPoll,
@@ -244,5 +245,30 @@ describe('a new run must be followed even when a finished one was on screen', ()
     expect(shouldPoll({ id: 'r1', state: 'failed' }, false)).toBe(false);
     expect(shouldPoll({ id: 'r1', state: 'rolled-back' }, false)).toBe(false);
     expect(shouldPoll(null, false)).toBe(false);
+  });
+});
+
+describe('a late /state reply must not undo a newer change', () => {
+  test('only the newest request is current', () => {
+    const seq = requestSequence();
+    const first = seq.next();
+    const second = seq.next();
+
+    expect(seq.isCurrent(first)).toBe(false);
+    expect(seq.isCurrent(second)).toBe(true);
+  });
+
+  /*
+   * The run panel unmounting: a load sent before Update was pressed answered
+   * after it, and set the run back to none.
+   */
+  test('starting a run makes a reply already on its way stale', () => {
+    const seq = requestSequence();
+    const inFlight = seq.next();
+
+    seq.invalidate();
+
+    expect(seq.isCurrent(inFlight)).toBe(false);
+    expect(seq.isCurrent(seq.next())).toBe(true);
   });
 });

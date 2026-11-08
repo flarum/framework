@@ -25,6 +25,7 @@ class DiscussionResourceFields
     {
         return [
             Schema\Boolean::make('isSticky')
+                ->description('Whether the discussion is pinned to the top of discussion lists.')
                 ->writable(function (Discussion $discussion, Context $context) {
                     return $context->updating()
                         && $context->getActor()->can('sticky', $discussion);
@@ -47,6 +48,7 @@ class DiscussionResourceFields
             Schema\Boolean::make('canSticky')
                 ->get(fn (Discussion $discussion, Context $context) => $context->getActor()->can('sticky', $discussion)),
             Schema\Str::make('firstPostExcerpt')
+                ->description('Plain-text start of the first post. Only on sticky discussions, when the forum shows excerpts.')
                 ->nullable()
                 ->visible(function (Discussion $discussion) {
                     return $discussion->is_sticky

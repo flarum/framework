@@ -7,7 +7,7 @@
   line-height: 1.5;
   color: var(--form-control-color, var(--control-color));
   background-color: var(--form-control-bg, var(--control-bg));
-  border: 2px solid transparent;
+  border: 2px solid var(--form-control-border-color, transparent);
   border-radius: var(--border-radius);
   transition: var(--transition);
   -webkit-appearance: none;
@@ -15,12 +15,12 @@
   &:focus {
     background-color: var(--body-bg);
     color: var(--text-color);
-    border-color: var(--primary-color);
-    outline: none;
+    border-color: var(--form-control-focus-border-color, var(--primary-color));
+    outline: var(--form-control-focus-outline, none);
   }
 
   // Placeholder
-  .placeholder(var(--control-color));
+  .placeholder(var(--form-control-placeholder-color, var(--control-color)));
 
   // Disabled and read-only inputs
   &[disabled],

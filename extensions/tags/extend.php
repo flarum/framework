@@ -63,6 +63,7 @@ return [
     (new Extend\ApiResource(Resource\ForumResource::class))
         ->fields(fn () => [
             Schema\Relationship\ToMany::make('tags')
+                ->description('The primary tags and the most used secondary tags you can see.')
                 ->includable()
                 ->get(function ($model, Context $context) {
                     $actor = $context->getActor();
@@ -86,6 +87,7 @@ return [
                         ->all();
                 }),
             Schema\Boolean::make('canBypassTagCounts')
+                ->description('Whether you can start discussions without the required number of tags.')
                 ->get(fn ($model, Context $context) => $context->getActor()->can('bypassTagCounts')),
         ])
         ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint) {

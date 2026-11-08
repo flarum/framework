@@ -21,6 +21,8 @@ import Icon from '../../common/components/Icon';
 import Input from '../../common/components/Input';
 import GambitsAutocompleteDropdown from '../../common/components/GambitsAutocompleteDropdown';
 import Pagination from '../../common/components/Pagination';
+import { GambitType } from '../../common/query/IGambit';
+import type IGambit from '../../common/query/IGambit';
 
 type ColumnData = {
   /**
@@ -83,11 +85,14 @@ export default class UserListPage extends AdminPage {
   oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
     super.oninit(vnode);
 
+    // Other pages link to a filtered list with `?q=`.
+    this.query = m.route.param('q') || '';
+
     // Get page query value from URL
     const page = parseInt(m.route.param('page'));
 
     if (isNaN(page) || page < 1) {
-      this.setPageNumberInUrl(1);
+      this.setUrlParams(1);
       this.pageNumber = 0;
     } else {
       this.pageNumber = page - 1;
@@ -197,7 +202,62 @@ export default class UserListPage extends AdminPage {
 
     items.add('actions', <div className="UserListPage-actions">{this.actionItems().toArray()}</div>, 80);
 
+    items.add('filters', this.filters(), 70);
+
     return items;
+  }
+
+  /**
+   * Every enabled user filter, as chips that add it to the search.
+   */
+  filters(): Mithril.Children {
+    const gambits = app.search.gambits.for('users').filter((gambit) => gambit.enabled());
+
+    if (!gambits.length) return null;
+
+    return (
+      <div className="UserListPage-filters">
+        <span className="UserListPage-filters-label">{app.translator.trans('core.admin.users.filters_label')}</span>
+        {gambits.flatMap((gambit) => {
+          if (gambit.type === GambitType.Grouped) {
+            const { group, key } = (gambit as IGambit<GambitType.Grouped>).suggestion();
+
+            return (key instanceof Array ? key : [key]).map((value) => this.filterChip(group + ':' + value));
+          }
+
+          const { key, hint } = (gambit as IGambit<GambitType.KeyValue>).suggestion();
+
+          return this.filterChip(key + ':', hint);
+        })}
+      </div>
+    );
+  }
+
+  filterChip(filter: string, hint?: string): Mithril.Children {
+    return (
+      <Button className="Button UserListPage-filter" onclick={() => this.addFilter(filter)}>
+        <code>{filter}</code>
+        {!!hint && <span className="UserListPage-filter-hint">{hint}</span>}
+      </Button>
+    );
+  }
+
+  /**
+   * Add a filter to the search. A complete one (`is:suspended`) searches at
+   * once; a key (`group:`) waits in the input for its value.
+   */
+  addFilter(filter: string) {
+    this.query = this.query.trim() ? this.query.trim() + ' ' + filter : filter;
+
+    if (filter.endsWith(':')) {
+      const input = this.element?.querySelector<HTMLInputElement>('.UserListPage-header input[type=search]');
+
+      input?.focus();
+      input?.setSelectionRange(this.query.length, this.query.length);
+    } else {
+      this.isLoadingPage = true;
+      this.throttledSearch();
+    }
   }
 
   actionItems(): ItemList<Mithril.Children> {
@@ -437,7 +497,7 @@ export default class UserListPage extends AdminPage {
     if (pageNumber < 0) pageNumber = 0;
 
     this.loadingPageNumber = pageNumber;
-    this.setPageNumberInUrl(pageNumber + 1);
+    this.setUrlParams(pageNumber + 1);
 
     app.store
       .find<User[]>('users', {
@@ -480,11 +540,18 @@ export default class UserListPage extends AdminPage {
     this.loadPage(page - 1);
   }
 
-  private setPageNumberInUrl(pageNumber: number) {
+  private setUrlParams(pageNumber: number) {
     const search = window.location.hash.split('?', 2);
     const params = new URLSearchParams(search?.[1] ?? '');
 
     params.set('page', `${pageNumber}`);
+
+    if (this.query) {
+      params.set('q', this.query);
+    } else {
+      params.delete('q');
+    }
+
     // window.location.hash = search?.[0] + '?' + params.toString();
     window.history.replaceState(null, '', search?.[0] + '?' + params.toString());
   }

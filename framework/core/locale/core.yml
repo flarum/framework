@@ -158,14 +158,31 @@ core:
       email_logo_heading: Email logo
       email_logo_text: "Upload an image to be displayed at the top of emails. It's saved in a format every email client can show. If you don't upload one, emails use a copy of your logo. If your emails show the forum title instead of your logo, upload your logo again."
       enter_hex_message: Please enter a hexadecimal color code.
+      app_icon_background_help: "Fills the transparent parts of the app icon on iPhones and iPads, the space around it on Android, and the splash screen."
+      app_icon_background_label: App Icon Background
+      app_icon_heading: App Icon
+      app_icon_preview_android_label: Android
+      app_icon_preview_apple_label: iPhone and iPad
+      app_icon_text: "Upload a square image, at least 512 pixels across, for phones to show when someone adds the forum to their home screen. If you don't upload a favicon, it's used as the favicon too."
       favicon_heading: Favicon
-      favicon_text: Upload an image to be displayed as the forum's shortcut icon.
+      favicon_text: "Upload an image to be displayed as the forum's icon in browser tabs and bookmarks. A square image at least 48 pixels across stays sharp; an .ico file works too."
       logo_heading: Logo
       logo_text: Upload an image to be displayed in place of the forum title.
       logo_dark_mode_heading: Dark mode logo
       logo_dark_mode_text: Upload an alternate logo to be displayed when dark mode is enabled.
+      open_as_app_help: "Phones open the forum from their home screen in a window of its own, without the browser's toolbar, and show a splash screen while it loads: the app icon on the splash screen background, the same on iPhones, iPads and Android. It needs an app icon."
+      open_as_app_label: Open as an app from the home screen
+      sections:
+        custom_code:
+          description: Add your own HTML and CSS to every page of the forum.
+          label: Custom Code
+        logos:
+          description: The images that identify your forum in the header, browser tabs, emails and home screens.
+          label: Logos & Icons
       show_theme_selector_help: Let users switch between the available color schemes from a control in the header.
       show_theme_selector_label: Show theme selector
+      splash_screen_background_help: "Fills the screen around the app icon, the same on iPhones, iPads and Android. Leave it empty to use the colour behind the app icon."
+      splash_screen_background_label: Splash Screen Background
       title: Appearance
       color_scheme_label: Color Scheme (default)
       color_schemes:
@@ -190,9 +207,30 @@ core:
       avatar_driver_text: Select a driver that should be used for users' avatars when no user-uploaded avatar is available. By default, no avatar will be displayed when a user has not uploaded one.
       forum_description_heading: Forum Description
       forum_description_text: Enter a short sentence or two that describes your forum. This will appear in the meta tag and show up in search engines.
+      forum_short_name_heading: Short Name
+      forum_short_name_text: "Up to 16 characters, used where the forum title doesn't fit: under the forum's icon on a phone's home screen, and when someone adds the forum as a search engine in their browser. Without one, the forum title is used, cut short at a whole word if it is too long."
       forum_title_heading: Forum Title
       home_page_heading: Home Page
       home_page_text: Choose the page which users will first see when they visit your forum.
+      sections:
+        extensions:
+          description: Keep track of extensions their authors no longer maintain.
+          label: Extensions
+        forum:
+          description: How your forum is named and described to visitors and search engines.
+          label: Forum
+        home:
+          description: What visitors see when they first arrive.
+          label: Home Page
+        language:
+          description: The language your forum is shown in.
+          label: Language
+        members:
+          description: How members are named and pictured across the forum.
+          label: Members
+        urls:
+          description: How links to discussions and profiles are written.
+          label: Links
       show_language_selector_label: Show language selector
       slug_driver_options:
         discussions:
@@ -353,6 +391,8 @@ core:
       delete_confirmation: "Are you sure you want to delete this group? The group members will NOT be deleted."
       hide_label: Hide on forum
       icon_label: => core.ref.icon
+      icon_image_label: => core.ref.icon_image
+      icon_image_text: => core.ref.icon_image_text
       icon_text: => core.ref.icon_text
       name_label: Name
       plural_placeholder: Plural (e.g. Mods)
@@ -398,6 +438,10 @@ core:
       postmark_heading: Postmark Settings
       postmark_description: "Send email via Postmark's HTTP API. Optionally specify a message stream to use a non-default stream."
       not_sending_message: Flarum currently does not send emails. This can be due to the selected driver, or errors in its configuration.
+      sections:
+        sending:
+          description: Who your forum's emails come from, and how they are sent.
+          label: Sending
       send_test_mail_button: Send
       send_test_mail_heading: Send Test Mail
       send_test_mail_success: "Test mail sent successfully!"
@@ -417,6 +461,7 @@ core:
       disabled: Disabled
       enable_to_see: Enable the extension to view and change settings.
       enabled: Enabled
+      general_tab: General
       info_links:
         discuss: Discuss
         documentation: Documentation
@@ -426,6 +471,7 @@ core:
         website: Website
       no_permissions: This extension has no permissions.
       no_settings: This extension has no settings.
+      no_settings_or_permissions: This extension has no settings or permissions.
       open_modal: Open Settings
       permissions_title: Permissions
       purge_button: Purge
@@ -442,6 +488,7 @@ core:
         title: Reset Settings
         title_extension: "Reset {extensionTitle} Settings"
       safe_mode_warning: Safe mode is currently enabled. Extensions are not booted and their settings are therefore inaccessible.
+      unsaved_changes: Unsaved changes
 
     # These translations are used in the secondary header.
     header:
@@ -554,12 +601,15 @@ core:
     # These translations are used in image upload buttons.
     upload_image:
       remove_button: => core.ref.remove
+      set_by_extension_text: "Set by {extension}, so it can't be changed here."
+      set_in_code_text: "Set in the forum's code, so it can't be changed here."
       upload_button: Choose an Image...
 
     # These translations are used for the users list on the admin dashboard.
     users:
       create_user_button: New User
       description: A paginated list of all users on your forum.
+      filters_label: "Filter by:"
 
       grid:
         columns:
@@ -992,6 +1042,12 @@ core:
     group_selector:
       placeholder: Choose a group
 
+    # These translations are used by the input that uploads an image in place of an icon.
+    icon_image_input:
+      remove_button: Remove
+      replace_button: Replace image
+      upload_button: Upload image
+
     # These translations are used by the icon picker and the icon input that opens it.
     icon_picker:
       count_text: "{count, plural, one {# icon} other {# icons}}"
@@ -1205,6 +1261,11 @@ core:
       title: => core.ref.log_in
       too_many_attempts_message: => core.ref.too_many_login_attempts_message
 
+    # Translations in this namespace are displayed on the page shown when the forum can't be reached.
+    offline:
+      text: "{forum} can't be reached. Check your connection: the page will load again as soon as it's back."
+      title: No connection
+
     # Translations in this namespace are displayed by the Reset Password interface.
     reset_password:
       confirm_password_label: Confirm New Password
@@ -1224,6 +1285,9 @@ core:
 
   # Translations in this namespace are used in messages output by the API.
   api:
+    app_icon_too_small_message: "The app icon must be at least {size} pixels wide or tall, so it stays sharp on home screens."
+    image_set_by_code_message: "This image is set in the forum's code, so it can't be changed here."
+    image_set_by_theme_message: "This image is set by the {extension} extension, so it can't be changed here."
     invalid_username_message: "The username may only contain letters, numbers, and dashes. With at least one letter."
     invalid_filter_type:
       must_be_numeric_message: "The {filter} filter must be numeric."
@@ -1332,6 +1396,8 @@ core:
     generic_confirmation_message: "Are you sure you want to proceed? This action cannot be undone."
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the prefix (e.g. <code>fas fa-flag</code> or <code>fa-solid fa-flag</code>)."
+    icon_image: Icon image
+    icon_image_text: "An image to show instead of the icon. The icon is still used where an image can't be shown. PNG, JPEG, GIF, WebP or BMP; animated images keep their first frame."
     invalid_login_message: Your login details were incorrect.
     light_hc_mode_label: Light High Contrast Mode
     light_mode_label: Light Mode

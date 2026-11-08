@@ -10,6 +10,8 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\JsonApi;
+use Flarum\Forum\Branding\StoredFiles;
+use Flarum\Forum\Branding\ThemeImages;
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
@@ -34,6 +36,11 @@ abstract class UploadImageController extends ShowForumController
     protected string $filenamePrefix = '';
     protected ?string $validator = null;
 
+    /**
+     * The image, as the Theme extender names it, that a theme may set instead.
+     */
+    protected ?string $themeImage = null;
+
     public function __construct(
         JsonApi $api,
         protected SettingsRepositoryInterface $settings,
@@ -52,6 +59,10 @@ abstract class UploadImageController extends ShowForumController
         RequestUtil::getActor($request)->assertAdmin();
 
         $filenamePrefix = $this->filenamePrefix($request);
+
+        if ($this->themeImage) {
+            $this->container->make(ThemeImages::class)->assertNotSet($this->themeImage, $filenamePrefix);
+        }
 
         $file = Arr::get($request->getUploadedFiles(), $filenamePrefix);
 
@@ -78,7 +89,7 @@ abstract class UploadImageController extends ShowForumController
 
         $uploadName = $filenamePrefix.'-'.Str::lower(Str::random(8)).'.'.$this->fileExtension($request, $file);
 
-        $this->uploadDir->put($uploadName, $encodedImage);
+        $this->uploadDir->put($uploadName, $encodedImage, StoredFiles::options($uploadName));
 
         $this->settings->set($filePathSettingKey, $uploadName);
 
@@ -91,7 +102,7 @@ abstract class UploadImageController extends ShowForumController
         );
     }
 
-    abstract protected function makeImage(UploadedFileInterface $file): EncodedImageInterface|StreamInterface;
+    abstract protected function makeImage(UploadedFileInterface $file): EncodedImageInterface|StreamInterface|string;
 
     /**
      * Runs after the image has been stored and its setting saved, before the

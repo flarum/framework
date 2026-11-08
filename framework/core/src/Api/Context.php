@@ -173,6 +173,10 @@ class Context extends BaseContext
         $idSegmentIndex = array_search('{id}', $segments);
         $currentPathSegments = explode('/', $currentPath);
 
-        return $currentPathSegments[$idSegmentIndex] ?? null;
+        $id = $currentPathSegments[$idSegmentIndex] ?? null;
+
+        // The path is still percent-encoded: an id that must be encoded (an
+        // extension's string id may be a URL) or merely was names what it decodes to.
+        return $id === null ? null : rawurldecode($id);
     }
 }

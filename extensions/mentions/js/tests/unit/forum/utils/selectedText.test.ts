@@ -89,6 +89,52 @@ describe('selectedText', () => {
     });
   });
 
+  describe('mention icons are decorative', () => {
+    const crest = '<img class="icon IconImage" src="https://example.com/crest.webp" alt="">';
+
+    test('a group mention keeps its name without quoting its icon as an image', () => {
+      expect(quote(`<p>Hello <span class="GroupMention"><span class="GroupMention-name">@Fans</span>${crest}</span></p>`)).toBe('Hello @Fans');
+    });
+
+    test('a selection entirely inside a mention also omits its icon', () => {
+      const $body = postBody(`<p><span class="GroupMention"><span class="GroupMention-name">@Fans</span>${crest}</span></p>`);
+      select((range) => range.selectNodeContents($body.find('.GroupMention')[0]));
+
+      expect(selectedText($body)).toBe('@Fans');
+    });
+
+    test('a tag mention keeps its link without quoting its icon as an image', () => {
+      expect(
+        quote(`<p>See <a href="https://example.com/t/lions" class="TagMention"><span class="TagMention-text">${crest}Lions</span></a></p>`)
+      ).toBe('See [Lions](https://example.com/t/lions)');
+    });
+  });
+
+  describe('text from the post is quoted as text, never parsed as HTML', () => {
+    // What the server renders for `[<img src=x onerror=…>](https://example.com)`:
+    // the link text is escaped.
+    const markup = '&lt;img src=x onerror=&quot;window.quoted = 1&quot;&gt;';
+    const tag = '<img src=x onerror="window.quoted = 1">';
+
+    test('a link whose text looks like a tag', () => {
+      expect(quote(`<p>Interesting link: <a href="https://example.com/" class="UrlLink">${markup}</a> worth a read.</p>`)).toBe(
+        `Interesting link: [${tag}](https://example.com/) worth a read.`
+      );
+    });
+
+    test('a link whose text looks like an entity', () => {
+      expect(quote('<p><a href="https://example.com/" class="UrlLink">AT&amp;amp;T</a></p>')).toBe('[AT&amp;T](https://example.com/)');
+    });
+
+    test('an image whose address looks like it holds an entity', () => {
+      expect(quote('<p><img src="https://example.com/a.png?x=1&amp;copy;y"></p>')).toBe('![](https://example.com/a.png?x=1&copy;y)');
+    });
+
+    test('an emoji whose shortcode looks like a tag', () => {
+      expect(quote(`<p>Nice <img class="emoji" alt="${markup}" src="https://example.com/tada.png"></p>`)).toBe(`Nice ${tag}`);
+    });
+  });
+
   describe('anything else is quoted as before', () => {
     test('an internal link with words of its own stays a Markdown link', () => {
       expect(quote(`<p><a href="${URL}" class="UrlLink UrlLink--internal">the move posts thread</a></p>`)).toBe(`[the move posts thread](${URL})`);
@@ -105,5 +151,33 @@ describe('selectedText', () => {
     test('an emoji becomes its shortcode', () => {
       expect(quote('<p>Nice <img class="emoji" alt=":tada:" src="https://example.com/tada.png"></p>')).toBe('Nice :tada:');
     });
+  });
+});
+
+describe('spoilers', () => {
+  test('an inline spoiler stays a spoiler', () => {
+    expect(quote('<p>before <span class="spoiler" data-spoiler="">secret</span> after</p>')).toBe('before >!secret!< after');
+  });
+
+  test('a revealed inline spoiler stays a spoiler', () => {
+    expect(quote('<p>before <span data-spoiler="">secret</span> after</p>')).toBe('before >!secret!< after');
+  });
+
+  test('a block spoiler stays a spoiler', () => {
+    expect(quote('<details class="spoiler">one\ntwo</details>')).toBe('>! one\n>! two\n');
+  });
+
+  test('a literal !< does not close the spoiler', () => {
+    expect(quote('<p><span class="spoiler" data-spoiler="">a !&lt; b</span></p>')).toBe('>!a !\\< b!<');
+    expect(quote('<details class="spoiler">a !&lt; b</details>')).toBe('>! a !\\< b\n');
+  });
+
+  test('keeps images, emoji and links', () => {
+    expect(
+      quote(
+        '<p><span class="spoiler" data-spoiler=""><img src="https://example.com/a.png"> <img class="emoji" alt="😀" src="e.png"> <a href="https://example.com/">site</a></span></p>'
+      )
+    ).toBe('>!![](https://example.com/a.png) 😀 [site](https://example.com/)!<');
+    expect(quote('<details class="spoiler"><img src="https://example.com/a.png"></details>')).toBe('>! ![](https://example.com/a.png)\n');
   });
 });

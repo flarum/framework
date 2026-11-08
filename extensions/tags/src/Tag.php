@@ -12,6 +12,7 @@ namespace Flarum\Tags;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
+use Flarum\Foundation\IconImage\HasIconImage;
 use Flarum\Group\Permission;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -40,6 +41,10 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property int $last_posted_discussion_id
  * @property int $last_posted_user_id
  * @property string $icon
+ * @property string|null $icon_image_path
+ * @property int $icon_image_scales
+ * @property-read string|null $icon_image_url
+ * @property-read string|null $icon_image_srcset
  *
  * @property TagState|null $state
  * @property Tag|null $parent
@@ -52,6 +57,7 @@ class Tag extends AbstractModel
 {
     use ScopeVisibilityTrait;
     use HasFactory;
+    use HasIconImage;
 
     protected $table = 'tags';
 

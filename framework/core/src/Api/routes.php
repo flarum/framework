@@ -197,6 +197,27 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\DeleteFaviconController::class)
     );
 
+    // Discussions a browser suggests when the forum is its search engine
+    $map->get(
+        '/opensearch/suggestions',
+        'opensearch.suggestions',
+        $route->toController(Controller\ShowOpenSearchSuggestionsController::class)
+    );
+
+    // Upload an app icon
+    $map->post(
+        '/app-icon',
+        'app-icon',
+        $route->toController(Controller\UploadAppIconController::class)
+    );
+
+    // Remove the app icon
+    $map->delete(
+        '/app-icon',
+        'app-icon.delete',
+        $route->toController(Controller\DeleteAppIconController::class)
+    );
+
     // Clear the cache
     $map->delete(
         '/cache',

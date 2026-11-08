@@ -84,7 +84,12 @@
       .Button, .Button-caret {
         display: none !important;
       }
-      .Dropdown-toggle, .Button-icon {
+      // The toggle is a button too, so it has to beat the rule above. It
+      // keeps the display buttons have, which centres its icon.
+      .Dropdown-toggle {
+        display: inline-flex !important;
+      }
+      .Button-icon {
         display: block !important;
       }
     }

@@ -1,13 +1,6 @@
 .AppearancePage {
   padding-bottom: 30px;
 
-  @media @desktop-up {
-    .container {
-      max-width: 600px;
-      margin: 0;
-    }
-  }
-
   fieldset {
     margin-bottom: 40px;
   }
@@ -24,4 +17,110 @@
     font-family: monospace;
     line-height: 1;
   }
+}
+
+.UploadImageButton-image img {
+  display: block;
+  max-width: 100%;
+  max-height: 90px;
+  margin-bottom: 10px;
+}
+
+.UploadImageButton-lock {
+  margin: 0;
+}
+
+.FaviconPreview {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.FaviconPreview-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 200px;
+  padding: 6px 12px;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  background: var(--control-bg);
+  font-size: 12px;
+}
+
+.FaviconPreview-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.AppIconPreview {
+  display: flex;
+  gap: 24px;
+  margin-top: 15px;
+}
+
+.AppIconPreview-item {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted-color);
+}
+
+.AppIconPreview-icon {
+  display: block;
+  margin: 0 auto 6px;
+  box-shadow: 0 2px 6px var(--shadow-color);
+
+  &--apple {
+    border-radius: 22.5%;
+  }
+
+  &--android {
+    border-radius: 50%;
+  }
+}
+
+.SplashScreenPreview {
+  display: flex;
+  gap: 24px;
+  margin-top: 15px;
+}
+
+.SplashScreenPreview-item {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted-color);
+}
+
+.SplashScreenPreview-screen {
+  display: block;
+  width: 90px;
+  height: 195px;
+  margin: 0 auto 6px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px var(--shadow-color);
+
+  &--android {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #212121;
+
+    &.SplashScreenPreview-screen--dark {
+      color: #fff;
+    }
+  }
+}
+
+.SplashScreenPreview-name {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
+  overflow: hidden;
+  font-size: 6px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

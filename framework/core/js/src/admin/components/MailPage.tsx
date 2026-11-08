@@ -1,5 +1,4 @@
 import app from '../../admin/app';
-import FieldSet from '../../common/components/FieldSet';
 import Button from '../../common/components/Button';
 import Alert from '../../common/components/Alert';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
@@ -10,6 +9,7 @@ import type Mithril from 'mithril';
 import type { SaveSubmitEvent } from './AdminPage';
 import Form from '../../common/components/Form';
 import ItemList from '../../common/utils/ItemList';
+import SettingsSection from './SettingsSection';
 
 export interface MailSettings {
   data: {
@@ -67,27 +67,53 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
       return <LoadingIndicator />;
     }
 
-    const mailSettings = this.mailSettingItems().toArray();
+    const driver = this.setting('mail_driver')();
 
     return (
       <>
-        <Form>
-          {mailSettings.map((settingComponent) => settingComponent)}
-          <div className="Form-group Form-controls">{this.submitButton()}</div>
-        </Form>
-        <Form>
-          <FieldSet
+        <Form className="AdminPage-settingsForm--sectioned MailPage-form">
+          {this.itemSections(this.mailSettingItems(), [
+            {
+              id: 'mail-sending',
+              icon: 'fas fa-paper-plane',
+              label: app.translator.trans('core.admin.email.sections.sending.label'),
+              description: app.translator.trans('core.admin.email.sections.sending.description'),
+              items: ['mail_from', 'mail_format', 'mail_driver'],
+            },
+            {
+              id: 'mail-driver',
+              icon: 'fas fa-server',
+              label: app.translator.trans(`core.admin.email.${driver}_heading`),
+              description: this.driverDescription(driver),
+              items: ['mail_driver_settings'],
+            },
+          ]).toArray()}
+          <SettingsSection
+            id="mail-test"
+            icon="fas fa-vial"
             label={app.translator.trans('core.admin.email.send_test_mail_heading')}
-            className="FieldSet--col MailPage-MailSettings"
             description={app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user!.email() })}
           >
-            <Button className="Button Button--primary" disabled={this.sendingTest || this.isChanged()} onclick={() => this.sendTestEmail()}>
-              {app.translator.trans('core.admin.email.send_test_mail_button')}
-            </Button>
-          </FieldSet>
+            <div className="Form-group">
+              <Button className="Button" disabled={this.sendingTest || this.isChanged()} onclick={() => this.sendTestEmail()}>
+                {app.translator.trans('core.admin.email.send_test_mail_button')}
+              </Button>
+            </div>
+          </SettingsSection>
+          <div className="Form-group Form-controls">{this.submitButton()}</div>
         </Form>
       </>
     );
+  }
+
+  /**
+   * The description of a driver's settings, if it has one.
+   */
+  driverDescription(driver: string): Mithril.Children {
+    const key = `core.admin.email.${driver}_description`;
+    const text = app.translator.trans(key);
+
+    return text === key ? null : text;
   }
 
   mailSettingItems(): ItemList<Mithril.Children> {
@@ -97,7 +123,7 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
     const fieldKeys = Object.keys(fields);
 
     if (!this.status!.sending) {
-      items.add('status', <Alert dismissible={false}>{app.translator.trans('core.admin.email.not_sending_message')}</Alert>);
+      items.add('status', <Alert dismissible={false}>{app.translator.trans('core.admin.email.not_sending_message')}</Alert>, 100);
     }
 
     items.add(
@@ -138,17 +164,9 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
     );
 
     if (!!fieldKeys.length) {
-      const driver = this.setting('mail_driver')();
-      const descriptionKey = `core.admin.email.${driver}_description`;
-      const descriptionText = app.translator.trans(descriptionKey);
-
       items.add(
         'mail_driver_settings',
-        <FieldSet
-          label={app.translator.trans(`core.admin.email.${driver}_heading`)}
-          className="MailPage-MailSettings FieldSet--form"
-          description={descriptionText}
-        >
+        <div className="MailPage-MailSettings">
           {fieldKeys.map((field) => {
             const fieldInfo = fields[field];
 
@@ -199,7 +217,7 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
               </>
             );
           })}
-        </FieldSet>,
+        </div>,
         50
       );
     }

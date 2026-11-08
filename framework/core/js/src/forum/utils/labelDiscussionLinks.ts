@@ -1,4 +1,5 @@
 import app from '../app';
+import Discussion from '../../common/models/Discussion';
 
 /**
  * Label links to discussions in the composer preview.
@@ -10,7 +11,7 @@ import app from '../app';
  * a label once the post is saved.
  *
  * This mirrors the decision made in `Formatter::configureDefaultsOnLinks()`.
- * The two have to agree, so that what the writer sees is what they get.
+ * Loaded titles are available immediately; unloaded discussions keep their numeric label.
  */
 export default function labelDiscussionLinks(element: HTMLElement) {
   const basePath = app.forum.attribute<string>('basePath') || '';
@@ -64,7 +65,9 @@ export default function labelDiscussionLinks(element: HTMLElement) {
 
     const discussion = document.createElement('span');
     discussion.className = 'UrlLink-discussion';
-    discussion.textContent = '#' + matches[1];
+    const title = app.store.getById<Discussion>('discussions', matches[1])?.title();
+    discussion.textContent = title || '#' + matches[1];
+    if (title) discussion.title = title;
     link.appendChild(discussion);
 
     if (near) {

@@ -14,6 +14,7 @@ use Flarum\Mail\EmailLogo;
 class DeleteEmailLogoController extends DeleteLogoController
 {
     protected string $filePathSettingKey = EmailLogo::PATH_KEY;
+    protected string $themeImage = 'email_logo';
 
     // Only the uploaded email logo goes; the copy of the forum logo stays, as
     // it's what emails fall back to.

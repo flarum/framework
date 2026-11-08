@@ -12,7 +12,7 @@ export default function selectedText(body) {
       const clone = $('<div>').append(range.cloneContents());
 
       // A link to a discussion on this forum is shown as a label (a favicon,
-      // "#38941" and the post number) standing in for the address the writer
+      // a title or "#38941", and the post number) standing in for the address the writer
       // pasted, which is the link's href. Quote that address rather than the
       // pieces of the label. Keep in step with Formatter::getDiscussionLinkTemplate().
       clone.find('a.UrlLink--discussion').replaceWith(function () {
@@ -20,19 +20,39 @@ export default function selectedText(body) {
         return document.createTextNode(this.getAttribute('href'));
       });
 
+      // The replacements below are text nodes: a string returned to
+      // replaceWith() is parsed as HTML, and the post's text must stay text.
+
       // Replace emoji images with their shortcode (found in alt attribute)
       clone.find('img.emoji').replaceWith(function () {
-        return this.alt;
+        return document.createTextNode(this.alt);
       });
+
+      // Mention icons decorate the name; they are not images in the post.
+      clone.find('img.IconImage').remove();
 
       // Replace all other images with a Markdown image
       clone.find('img').replaceWith(function () {
-        return `![](${this.src})`;
+        return document.createTextNode(`![](${this.src})`);
       });
 
       // Replace all links with a Markdown link
       clone.find('a').replaceWith(function () {
-        return `[${this.innerText}](${this.href})`;
+        return document.createTextNode(`[${this.innerText}](${this.href})`);
+      });
+
+      // A spoiler would otherwise come out of clone.text() as plain text. This
+      // runs after the conversions above so that images, emoji and links in
+      // it are kept. A revealed inline spoiler has lost its class, so it is
+      // found by data-spoiler (see the markdown extension's template). A
+      // literal "!<" in it is escaped, or it would close the spoiler early.
+      const escape = (text) => text.replace(/!</g, '!\\<');
+
+      clone.find('details.spoiler').replaceWith(function () {
+        return document.createTextNode(`>! ${escape(this.textContent.trim()).replace(/\n/g, '\n>! ')}\n`);
+      });
+      clone.find('span.spoiler, span[data-spoiler]').replaceWith(function () {
+        return document.createTextNode(`>!${escape(this.textContent)}!<`);
       });
 
       return clone.text();

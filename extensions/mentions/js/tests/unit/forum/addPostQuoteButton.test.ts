@@ -84,7 +84,7 @@ function renderPost(): HTMLElement {
 
   const post = app.store.getById<Post>('posts', '1')!;
 
-  document.body.innerHTML = '<article class="Post"><div class="Post-body"><p>Some text to quote</p></div></article>';
+  document.body.innerHTML = '<article class="Post"><div class="Post-body"><p>Some text to quote</p></div></article><p class="Elsewhere">Other text</p>';
   const element = document.querySelector<HTMLElement>('.Post')!;
 
   CommentPost.prototype.oncreate.call({ attrs: { post }, $: (selector?: string) => (selector ? $(element).find(selector) : $(element)) } as any);
@@ -150,6 +150,41 @@ describe('the quote button', () => {
     expect(quoteButton().style.left).toBe(`${VIEWPORT_WIDTH - BUTTON_WIDTH - 10}px`);
   });
 
+  // A triple click selects up to the start of the next paragraph, which
+  // browsers report as an empty rectangle at the left edge of that line.
+  it('ignores the empty rectangle of a selection ending at the start of a line', () => {
+    const element = renderPost();
+
+    selectAndRelease(
+      element,
+      [
+        { left: 15, right: 300, top: 60, bottom: 80, width: 285 },
+        { left: 15, right: 15, top: 100, bottom: 120, width: 0 },
+      ],
+      { clientX: 300, clientY: 70 }
+    );
+
+    expect(quoteButton().style.left).toBe(`${300 - BUTTON_WIDTH}px`);
+    expect(quoteButton().style.top).toBe(`${80 + 5}px`);
+  });
+
+  // Selecting text elsewhere by touch fires no click to hide the button.
+  it('hides when text elsewhere is selected by touch', () => {
+    const element = renderPost();
+
+    selectByTouch(element, [{ left: 40, right: 200, top: 60, bottom: 80 }]);
+    expect(quoteButton().style.display).not.toBe('none');
+
+    const range = document.createRange();
+    range.selectNodeContents(document.querySelector('.Elsewhere')!);
+    window.getSelection()!.removeAllRanges();
+    window.getSelection()!.addRange(range);
+    document.dispatchEvent(new Event('selectionchange'));
+    jest.advanceTimersByTime(1);
+
+    expect(quoteButton().style.display).toBe('none');
+  });
+
   // On touch screens the browser's own selection handles and text menu sit
   // right next to the selection, on top of the page, and cover what's beneath.
   it('shows well clear of a selection made by touch', () => {
@@ -175,15 +210,45 @@ describe('the quote button', () => {
     expect(quoteButton().style.top).toBe(`${580 - 70 - BUTTON_HEIGHT}px`);
   });
 
-  it('stays on screen for a touch selection taller than the screen', () => {
+  // A long selection runs past the screen's edges, where the browser draws
+  // its handles and text menu. The middle of the screen is clear of both.
+  it('shows in the middle of the screen for a touch selection taller than it', () => {
     const element = renderPost();
 
     selectByTouch(element, [
-      { left: 15, right: 360, top: 23, bottom: 43 },
-      { left: 15, right: 200, top: 619, bottom: 639 },
+      { left: 15, right: 360, top: -200, bottom: -180 },
+      { left: 15, right: 200, top: 900, bottom: 920 },
     ]);
 
-    expect(quoteButton().style.top).toBe('10px');
+    expect(quoteButton().style.top).toBe(`${(10 + (VIEWPORT_HEIGHT - BUTTON_HEIGHT - 10)) / 2}px`);
+  });
+
+  // On a phone the navigation bar stays fixed over the top of the page. A
+  // button under it can't be tapped: the tap lands on the bar instead.
+  it('keeps clear of a fixed navigation bar at the top of the screen', () => {
+    const element = renderPost();
+    const navigation = $('<div id="app-navigation" style="position: fixed"></div>').prependTo(document.body)[0];
+    navigation.getBoundingClientRect = () => ({ top: 0, bottom: 46 }) as DOMRect;
+
+    selectByTouch(element, [
+      { left: 15, right: 360, top: 130, bottom: 150 },
+      { left: 15, right: 200, top: 620, bottom: 640 },
+    ]);
+
+    expect(parseFloat(quoteButton().style.top)).toBeGreaterThanOrEqual(46 + 10);
+  });
+
+  it('shows above a touch selection, below a fixed navigation bar, when there is room', () => {
+    const element = renderPost();
+    const navigation = $('<div id="app-navigation" style="position: fixed"></div>').prependTo(document.body)[0];
+    navigation.getBoundingClientRect = () => ({ top: 0, bottom: 46 }) as DOMRect;
+
+    selectByTouch(element, [
+      { left: 15, right: 360, top: 200, bottom: 220 },
+      { left: 15, right: 200, top: 620, bottom: 640 },
+    ]);
+
+    expect(quoteButton().style.top).toBe(`${200 - 70 - BUTTON_HEIGHT}px`);
   });
 
   // Core's composer resize and post scrubber drag end on a document mouseup.

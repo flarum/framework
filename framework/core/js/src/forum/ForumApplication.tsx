@@ -17,6 +17,8 @@ import GlobalSearchState from './states/GlobalSearchState';
 import DiscussionListState from './states/DiscussionListState';
 import ComposerState from './states/ComposerState';
 import isSafariMobile from './utils/isSafariMobile';
+import registerServiceWorker from './utils/registerServiceWorker';
+import isOpenedAsApp from './utils/isOpenedAsApp';
 import routeInternalLinks from './utils/routeInternalLinks';
 
 import type Notification from './components/Notification';
@@ -29,6 +31,7 @@ import drainPrefetchQueue from '../common/utils/drainPrefetchQueue';
 import Notices from './components/Notices';
 import Footer from './components/Footer';
 import SearchManager from '../common/SearchManager';
+import homepageAddress from './utils/homepageAddress';
 
 export interface ForumApplicationData extends ApplicationData {}
 
@@ -100,7 +103,7 @@ export default class ForumApplication extends Application {
     // Push the homepage as the first route, so that the user will always be
     // able to click on the 'back' button to go home, regardless of which page
     // they started on.
-    const defaultRoute = this.forum.attribute('defaultRoute');
+    const defaultRoute = this.forum.attribute<string>('defaultRoute');
     let defaultAction = 'index';
 
     for (const i in this.routes) {
@@ -113,6 +116,10 @@ export default class ForumApplication extends Application {
     this.pane = new Pane(document.getElementById('app'));
 
     m.route.prefix = '';
+
+    const homepage = homepageAddress(window.location, this.forum.attribute('basePath'), defaultRoute);
+    if (homepage) window.history.replaceState(window.history.state, '', homepage);
+
     super.mount(this.forum.attribute('basePath'));
 
     // We mount navigation and header components after the page, so components
@@ -150,6 +157,14 @@ export default class ForumApplication extends Application {
       $(() => {
         $('.App').addClass('mobile-safari');
       });
+    }
+
+    registerServiceWorker(this.forum.attribute('basePath'), this.forum.attribute<boolean>('serviceWorker'));
+
+    if (isOpenedAsApp()) {
+      import('./utils/pullToRefresh')
+        .then(({ default: pullToRefresh }) => pullToRefresh())
+        .catch((error) => console.error('Could not load pull-to-refresh:', error));
     }
 
     // Once the app is mounted, warm any registered code-split chunks in the

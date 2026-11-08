@@ -11,7 +11,11 @@ import ItemList from 'flarum/common/utils/ItemList';
 import Button from 'flarum/common/components/Button';
 import Dropdown from 'flarum/common/components/Dropdown';
 import DetailsModal from './DetailsModal';
+import RenameDialogModal from './RenameDialogModal';
 import listItems from 'flarum/common/helpers/listItems';
+import classList from 'flarum/common/utils/classList';
+import extractText from 'flarum/common/utils/extractText';
+import leaveDialog from '../utils/leaveDialog';
 
 export interface IDialogStreamAttrs extends ComponentAttrs {
   dialog: Dialog;
@@ -53,24 +57,11 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
   }
 
   view() {
-    const recipient = this.attrs.dialog.recipient();
-    const recipientCannotReply = this.recipientCannotReply();
-
     return (
-      <div className="DialogSection">
+      <div className={classList('DialogSection', { 'DialogSection--group': this.attrs.dialog.isGroup() })}>
         <div className="DialogSection-header">
-          <Avatar user={recipient} />
-          <div className="DialogSection-header-info">
-            <h2 className="DialogSection-header-info-title">
-              {(recipient && <Link href={app.route.user(recipient!)}>{username(recipient)}</Link>) || username(recipient)}
-              {!recipientCannotReply ? null : (
-                <span className="DialogSection-header-info-helperText">
-                  {app.translator.trans('flarum-messages.forum.dialog_section.cannot_reply_text')}
-                </span>
-              )}
-            </h2>
-            <div className="badges">{listItems(recipient?.badges().toArray() || [])}</div>
-          </div>
+          {this.headerAvatar()}
+          <div className="DialogSection-header-info">{this.headerInfo()}</div>
           <div className="DialogSection-header-actions">{this.actionItems().toArray()}</div>
         </div>
         <MessageStream dialog={this.attrs.dialog} state={this.messages} near={this.near} />
@@ -78,12 +69,66 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
     );
   }
 
+  /** The other member's avatar; in a group, the first few of the others'. */
+  headerAvatar(): Mithril.Children {
+    const dialog = this.attrs.dialog;
+
+    if (dialog.isGroup()) {
+      return (
+        <div className="DialogSection-header-avatars">
+          {dialog
+            .recipients()
+            .slice(0, 3)
+            .map((user) => (
+              <Avatar user={user} />
+            ))}
+        </div>
+      );
+    }
+
+    return <Avatar user={dialog.recipient()} />;
+  }
+
+  /**
+   * Who the conversation is with: the other member, with their badges, or a
+   * group's title and how many are in it, which opens the list of them.
+   */
+  headerInfo(): Mithril.Children {
+    const dialog = this.attrs.dialog;
+
+    if (dialog.isGroup()) {
+      return [
+        <h2 className="DialogSection-header-info-title">{dialog.title()}</h2>,
+        <Button className="Button Button--link DialogSection-members" onclick={() => app.modal.show(DetailsModal, { dialog })}>
+          {app.translator.trans('flarum-messages.forum.dialog_section.members_button', { count: (dialog.users() || []).length })}
+        </Button>,
+      ];
+    }
+
+    const recipient = dialog.recipient();
+
+    return [
+      <h2 className="DialogSection-header-info-title">
+        {(recipient && <Link href={app.route.user(recipient!)}>{username(recipient)}</Link>) || username(recipient)}
+        {!this.recipientCannotReply() ? null : (
+          <span className="DialogSection-header-info-helperText">
+            {app.translator.trans('flarum-messages.forum.dialog_section.cannot_reply_text')}
+          </span>
+        )}
+      </h2>,
+      <div className="badges">{listItems(recipient?.badges().toArray() || [])}</div>,
+    ];
+  }
+
   /**
    * Whether to say the other member can't reply: they can't send messages, and
    * the viewer can't send here either. Not to viewers who can't send at all,
-   * who aren't told whether anyone else can.
+   * who aren't told whether anyone else can. Never in a group, where the
+   * others still can.
    */
   recipientCannotReply(): boolean {
+    if (this.attrs.dialog.isGroup()) return false;
+
     const recipient = this.attrs.dialog.recipient();
 
     return !recipient || (app.session.user!.canSendAnyMessage() && !recipient.canSendAnyMessage() && !this.attrs.dialog.canSendMessage());
@@ -125,6 +170,50 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
       </Button>
     );
 
+    // Where the forum lets members name groups, and this one may.
+    if (this.attrs.dialog.canRename()) {
+      items.add(
+        'rename',
+        <Button
+          icon="fas fa-pencil-alt"
+          onclick={() =>
+            app.modal.show(RenameDialogModal, {
+              dialog: this.attrs.dialog,
+              // The group is told who named it: bring that notice in.
+              onsave: () => this.messages.catchUp().then(() => m.redraw()),
+            })
+          }
+        >
+          {app.translator.trans('flarum-messages.forum.dialog_section.controls.rename_button')}
+        </Button>,
+        50
+      );
+    }
+
+    // Only a group: leaving a direct conversation would leave nobody in it.
+    if (this.attrs.dialog.isGroup()) {
+      items.add(
+        'leave',
+        <Button icon="fas fa-sign-out-alt" onclick={() => this.leave()}>
+          {app.translator.trans('flarum-messages.forum.dialog_section.controls.leave_button')}
+        </Button>,
+        -100
+      );
+    }
+
     return items;
+  }
+
+  /** Leaves the group, once the member has confirmed, and closes it. */
+  leave(): Promise<void> {
+    if (!confirm(extractText(app.translator.trans('flarum-messages.forum.dialog_section.leave_confirmation')))) {
+      return Promise.resolve();
+    }
+
+    // A refusal is shown by the request itself.
+    return leaveDialog(this.attrs.dialog).then(
+      () => (this.attrs.onback ? this.attrs.onback() : m.route.set(app.route('messages'))),
+      () => {}
+    );
   }
 }

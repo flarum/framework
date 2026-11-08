@@ -52,13 +52,43 @@
     }
 
     &-actions {
+      flex-shrink: 0;
       margin-inline-start: auto;
     }
 
+    // The room left beside the avatars and buttons, which the title may
+    // shrink into: without it, a phone set a long title a word to a line.
     &-info {
       display: flex;
       align-items: center;
       gap: 12px;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+  }
+
+  // A group's title: one line, ending in an ellipsis. On a phone the member
+  // count goes under it, to leave it the width.
+  &--group &-header-info-title {
+    display: block;
+    min-width: 0;
+    // Stacked on a phone, where it would otherwise size to its text.
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &--group .DialogSection-members {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  @media @phone {
+    &--group &-header-info {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
     }
   }
 }
@@ -78,7 +108,15 @@
     padding: 0;
     margin: 0;
     display: flex;
+    // A group's recipients run onto further lines rather than off the composer.
+    flex-wrap: wrap;
+    align-items: center;
     gap: 4px;
+  }
+
+  &-more {
+    font-size: 0.85rem;
+    font-weight: bold;
   }
 }
 
@@ -144,11 +182,19 @@
     justify-content: space-between;
     white-space: nowrap;
     align-items: center;
+    gap: 8px;
 
-    .username {
-      max-width: 56%;
+    // The name gives way, ending in an ellipsis; the time never does. A
+    // group's name can be as long as its members' list.
+    .username,
+    .DialogListItem-name {
+      min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    time {
+      flex-shrink: 0;
     }
   }
 
@@ -160,6 +206,28 @@
   &-avatar {
     flex-shrink: 0;
     position: relative;
+
+    // Two of a group's members, one over the other, in the space of one avatar.
+    &--group {
+      width: 42px;
+      height: 42px;
+
+      .Avatar {
+        --size: 30px;
+        position: absolute;
+        box-shadow: 0 0 0 2px var(--body-bg);
+
+        &:first-child {
+          top: 0;
+          inset-inline-start: 0;
+        }
+
+        &:nth-child(2) {
+          bottom: 0;
+          inset-inline-end: 0;
+        }
+      }
+    }
 
     .Bubble {
       top: -4px;
@@ -235,6 +303,54 @@
 
 .MessageStream .ReplyPlaceholder {
   margin-bottom: 24px;
+}
+
+// The first few of a group's members, overlapping.
+.DialogSection-header-avatars {
+  display: flex;
+  flex-shrink: 0;
+
+  .Avatar {
+    box-shadow: 0 0 0 2px var(--body-bg);
+
+    & + .Avatar {
+      margin-inline-start: -14px;
+    }
+  }
+}
+
+.DialogSection-members {
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--control-color);
+}
+
+// A notice in the stream, such as someone leaving: a muted line in the
+// message column, its icon where a message's avatar would be.
+.EventMessage {
+  display: flex;
+  align-items: center;
+  padding: 4px 0 12px;
+  color: var(--muted-color);
+  font-size: 0.9rem;
+
+  &-icon {
+    flex-shrink: 0;
+    width: 40px;
+    margin-inline-end: 16px;
+    text-align: center;
+    color: var(--muted-more-color);
+  }
+
+  &-info a {
+    color: inherit;
+    font-weight: bold;
+  }
+
+  &-time {
+    color: var(--muted-more-color);
+    font-size: 0.85em;
+  }
 }
 
 .DialogSection-header-actions {

@@ -1,4 +1,5 @@
 @inject('url', 'Flarum\Http\UrlGenerator')
+@inject('locales', 'Flarum\Locale\LocaleManager')
 
 @php
   $primaryColor = $settings->get('theme_primary_color');
@@ -6,7 +7,7 @@
 @endphp
 
 <!DOCTYPE html>
-<html lang="{{ $translator->getLocale() }}">
+<html lang="{{ $translator->getLocale() }}" dir="{{ $locales->getDirection($translator->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <title>{{ $title ?? 'Flarum Email' }}</title>

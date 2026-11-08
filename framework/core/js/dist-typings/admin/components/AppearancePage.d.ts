@@ -13,6 +13,14 @@ export default class AppearancePage extends AdminPage {
     })[];
     contentItems(): ItemList<Mithril.Children>;
     brandingItems(): ItemList<Mithril.Children>;
+    /**
+     * The images a theme sets with the Theme extender, with the title of the
+     * extension that set each one.
+     */
+    themeImages(): Record<string, string | null>;
+    themeImage(name: string): {
+        lockedBy?: string | null;
+    };
     colorItems(): ItemList<Mithril.Children>;
     onsaved(): void;
     static register(): void;

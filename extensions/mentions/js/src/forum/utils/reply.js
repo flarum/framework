@@ -1,6 +1,14 @@
 import app from 'flarum/forum/app';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 
+// A quote that starts with a spoiler goes on the line after the mention: ">!"
+// only starts a block spoiler at the start of a line.
+function quoteBody(quote) {
+  const body = quote.trim().replace(/\n/g, '\n> ');
+
+  return body.startsWith('>!') ? '\n> ' + body : body;
+}
+
 export async function insertMention(post, composer, quote) {
   await composer.editorReady();
 
@@ -19,7 +27,7 @@ export async function insertMention(post, composer, quote) {
 
   composer.editor.insertAtCursor(
     Array(precedingNewlines).join('\n') + // Insert up to two newlines, depending on preceding whitespace
-      (quote ? '> ' + mention + quote.trim().replace(/\n/g, '\n> ') + '\n\n' : mention),
+      (quote ? '> ' + mention + quoteBody(quote) + '\n\n' : mention),
     false
   );
 

@@ -97,3 +97,48 @@ describe('picking who to message', () => {
     expect(picker().unavailable?.(user('2'))).toBeFalsy();
   });
 });
+
+describe('how many can be messaged at once', () => {
+  afterEach(() => delete app.forum.data.attributes!.messagesMaxRecipients);
+
+  it('is as many as the forum allows', () => {
+    app.forum.pushAttributes({ messagesMaxRecipients: 10 });
+
+    expect(picker().maxItems).toBe(10);
+  });
+
+  // An older server, from before group conversations.
+  it('is one when the forum says nothing', () => {
+    expect(picker().maxItems).toBe(1);
+  });
+});
+
+describe('sending a new message', () => {
+  it('sends it to every recipient picked', () => {
+    const composer = new (MessageComposer as any)();
+    composer.attrs = { composer: app.composer };
+    composer.composer = { fields: { content: Stream('Hello all') } };
+    composer.recipients = Stream([user('2'), user('3')]);
+
+    expect(composer.data().users).toEqual([{ id: '2' }, { id: '3' }]);
+  });
+});
+
+describe('the recipients shown above a message', () => {
+  it('stop at ten, then say how many more', () => {
+    const many = Array.from({ length: 12 }, (_, i) => {
+      app.store.pushPayload({ data: { type: 'users', id: String(900 + i), attributes: { username: 'member' + i } } } as any);
+
+      return user(String(900 + i));
+    });
+
+    const composer = new (MessageComposer as any)();
+    composer.attrs = { composer: app.composer, replyingTo: {} };
+    composer.recipients = Stream(many);
+
+    const header = mq(m('ul', composer.headerItems().toArray()));
+
+    header.should.have(10, '.MessageComposer-recipients-list .Avatar');
+    header.should.contain('+2');
+  });
+});

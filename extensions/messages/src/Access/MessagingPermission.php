@@ -16,10 +16,11 @@ use Flarum\User\User;
  * Who may send a message where.
  *
  * Members with `dialog.sendMessage` message each other. They can't message
- * someone without it, who couldn't reply. Holders of
+ * someone without it, who couldn't reply, or start a group with them. Holders of
  * `dialog.messageUsersWithoutPermission` can, and once one of them has sent a
  * message in a dialog, everyone in it can reply. Nobody can message someone
- * another extension rules out (UserPolicy::message).
+ * another extension rules out (UserPolicy::message). Once a group exists,
+ * though, its members' own standing doesn't stop the others writing in it.
  */
 class MessagingPermission
 {
@@ -44,6 +45,16 @@ class MessagingPermission
      */
     public static function canSendIn(User $actor, Dialog $dialog): bool
     {
+        // In a group, a member who can't reply, or can't be written to at
+        // all, still leaves others to talk to: they don't hold the group up.
+        // The latter just aren't notified (SendMessageNotificationsJob). So
+        // only the actor's own right to send counts, which needs no members.
+        if ($dialog->isGroup()) {
+            return $dialog->anyone_can_reply
+                || self::canMessageUsersWithoutPermission($actor)
+                || $actor->hasPermission(self::SEND);
+        }
+
         // Never to a member nobody may write to, such as one anonymised by
         // flarum/gdpr, however open the dialog is.
         if ($dialog->users->contains(fn (User $member) => ! $member->is($actor) && $actor->cannot('message', $member))) {

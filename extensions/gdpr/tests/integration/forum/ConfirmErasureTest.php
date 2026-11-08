@@ -105,6 +105,26 @@ class ConfirmErasureTest extends TestCase
     }
 
     #[Test]
+    public function confirmation_page_is_marked_as_guest_for_a_guest()
+    {
+        $response = $this->send($this->request('GET', '/gdpr/erasure/confirm/abc123'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('<html class="guest-user">', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function confirmation_page_is_marked_as_logged_in_for_a_user()
+    {
+        $response = $this->send(
+            $this->request('GET', '/gdpr/erasure/confirm/abc123', ['authenticatedAs' => 2])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('<html class="logged-in">', (string) $response->getBody());
+    }
+
+    #[Test]
     public function link_with_incorrect_token_is_not_found()
     {
         $response = $this->send(

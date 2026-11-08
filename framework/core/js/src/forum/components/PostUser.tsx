@@ -14,6 +14,12 @@ import type Mithril from 'mithril';
 export interface IPostUserAttrs extends ComponentAttrs {
   /** Can be a post or similar model like private message */
   post: Post | (Model & { user: () => User | null | false });
+  /**
+   * The heading level of the author's name. Defaults to 2, which follows the
+   * discussion title. Pass 3 where the author sits below a heading of its own,
+   * such as a conversation title.
+   */
+  headingLevel?: 2 | 3;
 }
 
 /**
@@ -29,14 +35,19 @@ export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttr
     return <div className="PostUser">{items.toArray()}</div>;
   }
 
+  protected headingTag(): 'h2' | 'h3' {
+    return this.attrs.headingLevel === 3 ? 'h3' : 'h2';
+  }
+
   noUserViewItems(user: false | User | null, post: Post | (Model & { user: () => false | User | null })): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
+    const Heading = this.headingTag();
 
     items.add(
       'postUser-name',
-      <h3 className="PostUser-name">
+      <Heading className="PostUser-name">
         <Avatar user={user} className="Post-avatar" /> {username(user)}
-      </h3>,
+      </Heading>,
       100
     );
 
@@ -45,12 +56,13 @@ export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttr
 
   userViewItems(user: User, post: Post | (Model & { user: () => false | User | null })): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
+    const Heading = this.headingTag();
 
     items.add(
       'postUser-name',
-      <h3 className="PostUser-name">
+      <Heading className="PostUser-name">
         <Link href={app.route.user(user)}>{this.linkChildren(user).toArray()}</Link>
-      </h3>,
+      </Heading>,
       100
     );
 

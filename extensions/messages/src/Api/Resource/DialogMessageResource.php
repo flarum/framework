@@ -24,6 +24,7 @@ use Flarum\Messages\Access\MessagingPermission;
 use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
+use Flarum\Messages\RecipientLimit;
 use Flarum\User\User;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,18 +32,27 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Tobyz\JsonApiServer\Context as OriginalContext;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
+use WeakMap;
 
 /**
  * @extends Resource\AbstractDatabaseResource<DialogMessage>
  */
 class DialogMessageResource extends Resource\AbstractDatabaseResource
 {
+    /**
+     * Who each new message is to, from validating it to saving it.
+     *
+     * @var WeakMap<DialogMessage, int[]>|null
+     */
+    protected ?WeakMap $recipients = null;
+
     public function __construct(
         protected Translator $translator,
         protected LogReporter $log,
         protected Dispatcher $bus,
         protected ExtensionManager $extensions,
         protected ConnectionInterface $db,
+        protected RecipientLimit $recipientLimit,
     ) {
     }
 
@@ -66,6 +76,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         return [
             Endpoint\Create::make()
                 ->authenticated()
+                ->eagerLoadWhenIncluded(['dialog' => ['dialog.users', 'dialog.state'], 'dialog.users' => ['dialog.users.groups']])
                 ->visible(function (Context $context): bool {
                     $actor = $context->getActor();
 
@@ -91,12 +102,19 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
             // extend.php, only when the extensions that provide them are
             // enabled: naming `mentionsTags` on a forum without Tags makes every
             // bare request for a message fail with "Resource [tags] not found".
+            //
+            // With each message's conversation: its members, which its title
+            // is made from, and the member's own read state; with its members,
+            // their groups, which serialising each of them reads. Otherwise a
+            // query per conversation, or per member.
             Endpoint\Show::make()
                 ->authenticated()
-                ->defaultInclude(['user', 'dialog']),
+                ->defaultInclude(['user', 'dialog'])
+                ->eagerLoadWhenIncluded(['dialog' => ['dialog.users', 'dialog.state'], 'dialog.users' => ['dialog.users.groups']]),
             Endpoint\Index::make()
                 ->authenticated()
                 ->defaultInclude(['user', 'dialog'])
+                ->eagerLoadWhenIncluded(['dialog' => ['dialog.users', 'dialog.state'], 'dialog.users' => ['dialog.users.groups']])
                 ->defaultSort('-number')
                 ->eagerLoad(function () {
                     if (! $this->extensions->isEnabled('flarum-mentions')) {
@@ -148,8 +166,17 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
     {
         return [
 
-            Schema\Number::make('number'),
+            Schema\Number::make('number')
+                ->description('Position of the message in its dialog, from 1.'),
+            // A member's message, or a notice such as someone leaving.
+            Schema\Str::make('type')
+                ->description('"comment" for a member\'s message, or a notice: "userLeft" or "renamed".'),
+            Schema\Arr::make('eventData')
+                ->description('Details of a notice, such as who left or the new name. Absent on comments.')
+                ->visible(fn (DialogMessage $message) => ! $message->isComment())
+                ->get(fn (DialogMessage $message) => $message->eventData()),
             Schema\Str::make('content')
+                ->description('Write-only: the message, in the forum\'s input format (Markdown or BBCode, as enabled).')
                 ->requiredOnCreate()
                 ->writableOnCreate()
                 ->hidden()
@@ -159,6 +186,8 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                     $post->setContentAttribute($value, $context->getActor());
                 }),
             Schema\Str::make('contentHtml')
+                ->description('The message rendered as HTML.')
+                ->visible(fn (DialogMessage $message) => $message->isComment())
                 ->get(function (DialogMessage $post, Context $context) {
                     try {
                         $rendered = $post->formatContent($context->request);
@@ -174,14 +203,16 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
             Schema\Boolean::make('renderFailed'),
             Schema\DateTime::make('createdAt'),
             Schema\Str::make('ipAddress')
+                ->description('The IP address the message was sent from. Only visible to those allowed to view IP addresses.')
                 ->visible(fn (DialogMessage $message, Context $context) => $context->getActor()->can('dialog.viewIps')),
 
             // Write-only.
             Schema\Arr::make('users')
+                ->description('Write-only, to start a new dialog: the recipients, as a list of {id} objects. Give this or the dialog relationship.')
                 ->requiredOnCreateWithout(['relationships.dialog'])
                 ->writableOnCreate()
                 ->hidden()
-                ->items(1)
+                ->rule('min:1')
                 ->set(fn () => null),
 
             // Read-only.
@@ -194,6 +225,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ->type('users')
                 ->includable(),
             Schema\Relationship\ToOne::make('dialog')
+                ->description('The dialog the message is in. When sending, give this or the users attribute.')
                 ->type('dialogs')
                 ->includable()
                 ->writableOnCreate()
@@ -244,6 +276,14 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 array_filter(Arr::pluck($data['attributes']['users'] ?? [], 'id'), fn (mixed $id) => $id && (int) $id !== $actor->id)
             )));
 
+            // Before anything is looked up: a message can't reach more members
+            // than the forum allows.
+            if (count($users) > ($limit = $this->recipientLimit->get())) {
+                throw new ValidationException([
+                    'users' => $this->translator->trans('flarum-messages.lib.too_many_recipients_message', ['count' => $limit]),
+                ]);
+            }
+
             // Checked before anything is written: a recipient who doesn't exist
             // used to reach the database, fail on the foreign key, and leave a
             // dialog with no messages behind.
@@ -253,26 +293,12 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ]);
             }
 
-            $this->assertRecipientsCanBeMessaged($actor, $users);
+            $this->assertRecipientsCanBeMessaged($actor, $users, group: count($users) > 1);
 
-            // The dialog and its members go in together, or not at all. Core's
-            // create flow has no transaction of its own.
-            $dialog = $this->db->transaction(function () use ($model, $users, $actor) {
-                $dialog = Dialog::for($model, $users);
-
-                // Only members not yet in the dialog are added: syncing them all
-                // would reset `joined_at` for the ones already there.
-                $members = $dialog->users()->pluck('users.id')->all();
-                $joining = array_diff([...$users, $actor->id], $members);
-
-                if ($joining) {
-                    $dialog->users()->attach(array_fill_keys($joining, ['joined_at' => Carbon::now()]));
-                }
-
-                return $dialog;
-            });
-
-            $model->dialog()->associate($dialog);
+            // Written with the message, in create(): a message that fails to
+            // save must not leave a conversation with nothing in it behind.
+            $this->recipients ??= new WeakMap();
+            $this->recipients[$model] = $users;
         } elseif ($model->dialog && $model->dialog->users()->where('users.id', '!=', $actor->id)->doesntExist()) {
             // The other member has left; there is no one to send to.
             throw new ValidationException([
@@ -281,6 +307,47 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         }
 
         return parent::creating($model, $context);
+    }
+
+    /**
+     * The conversation a new message starts or continues, its members, and the
+     * message, together or not at all. Core's create flow has no transaction
+     * of its own.
+     *
+     * @inheritDoc
+     */
+    public function create(object $model, OriginalContext $context): object
+    {
+        return $this->db->transaction(function () use ($model, $context) {
+            if ($users = $this->recipients[$model] ?? null) {
+                $model->dialog()->associate($this->dialogFor($model, $users, $context->getActor()));
+            }
+
+            return parent::create($model, $context);
+        });
+    }
+
+    /**
+     * One recipient: the conversation the pair already have, if any. More: a
+     * group, new every time, as a group is about something and the same
+     * people may have several.
+     *
+     * @param int[] $users
+     */
+    protected function dialogFor(DialogMessage $model, array $users, User $actor): Dialog
+    {
+        $dialog = count($users) === 1 ? Dialog::for($model, $users) : Dialog::startGroup();
+
+        // Only members not yet in the dialog are added: syncing them all
+        // would reset `joined_at` for the ones already there.
+        $members = $dialog->users()->pluck('users.id')->all();
+        $joining = array_diff([...$users, $actor->id], $members);
+
+        if ($joining) {
+            $dialog->users()->attach(array_fill_keys($joining, ['joined_at' => Carbon::now()]));
+        }
+
+        return $dialog;
     }
 
     /**
@@ -328,15 +395,17 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
      * Nobody can message someone another extension rules out: flarum/gdpr does
      * for anonymised accounts. And a new dialog's recipients must be able to
      * reply, unless the actor may message users without messaging permission
-     * or the dialog they already share has been opened to replies.
+     * or, for a direct message, the dialog the pair already share has been
+     * opened to replies. A new group is opened by nobody yet.
      *
      * @param int[] $userIds
      */
-    protected function assertRecipientsCanBeMessaged(User $actor, array $userIds): void
+    protected function assertRecipientsCanBeMessaged(User $actor, array $userIds, bool $group = false): void
     {
         $canMessageUsersWithoutPermission = MessagingPermission::canMessageUsersWithoutPermission($actor);
 
-        foreach (User::query()->whereIn('id', $userIds)->get() as $recipient) {
+        // With their groups: whether each can reply is read off them.
+        foreach (User::query()->with('groups')->whereIn('id', $userIds)->get() as $recipient) {
             if ($actor->cannot('message', $recipient)) {
                 throw new ValidationException([
                     'users' => $this->translator->trans('flarum-messages.lib.recipient_unavailable_message', ['username' => $recipient->display_name]),
@@ -347,7 +416,8 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 continue;
             }
 
-            $opened = Dialog::query()
+            $opened = ! $group && Dialog::query()
+                ->where('type', Dialog::DIRECT)
                 ->where('anyone_can_reply', true)
                 ->whereRelation('users', 'user_id', $actor->id)
                 ->whereRelation('users', 'user_id', $recipient->id)

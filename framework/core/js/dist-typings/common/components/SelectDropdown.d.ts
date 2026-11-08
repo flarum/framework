@@ -10,6 +10,8 @@ export interface ISelectDropdownAttrs extends IDropdownAttrs {
  */
 export default class SelectDropdown<CustomAttrs extends ISelectDropdownAttrs = ISelectDropdownAttrs> extends Dropdown<CustomAttrs> {
     static initAttrs(attrs: ISelectDropdownAttrs): void;
+    protected getLabel(children: Mithril.ChildArray): Mithril.Children;
+    getVisibleLabel(children: Mithril.ChildArray): string;
     getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray;
     /**
      * Which option is in effect is otherwise conveyed only by a class on the item

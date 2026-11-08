@@ -26,7 +26,13 @@ export default function addPostQuoteButton() {
           button.content = content;
           m.render($container[0], button.render());
 
-          const rects = window.getSelection().getRangeAt(0).getClientRects();
+          // A selection that ends at the start of the next paragraph (as a
+          // triple click makes) has an empty rectangle there, at the left
+          // edge of a line that isn't selected. Place the button by the
+          // selected text instead.
+          const allRects = Array.from(window.getSelection().getRangeAt(0).getClientRects());
+          const textRects = allRects.filter((rect) => rect.width > 0);
+          const rects = textRects.length ? textRects : allRects;
 
           // Browsers can report no rectangles for a selection, leaving
           // nowhere to show the button.
@@ -44,6 +50,11 @@ export default function addPostQuoteButton() {
           } else {
             button.showEnd(lastRect.right, lastRect.bottom);
           }
+        } else if (e.type === 'selectionchange' && !window.getSelection().isCollapsed) {
+          // Text was selected somewhere else, such as in another post, with
+          // no click to hide this post's button, which would be left behind
+          // far from the selection.
+          button.hide();
         }
       }, 1);
     };

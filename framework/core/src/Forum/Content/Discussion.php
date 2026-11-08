@@ -91,6 +91,10 @@ class Discussion
 
         $document->payload['apiDocument'] = $apiDocument;
 
+        // The page shows its posts only once these have loaded.
+        $document->preloadChunk('core', 'forum/components/PostStream');
+        $document->preloadChunk('core', 'forum/components/PostStreamScrubber');
+
         $document->canonicalUrl = $url([]);
         $document->page = $page;
         $document->hasNextPage = $hasNextPage;

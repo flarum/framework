@@ -40,6 +40,16 @@ flarum-gdpr:
             process_erasure: Process erasure requests
             process_export_for_others: Request and receive data exports for other users
             see_anonymized_user_badges: See anonymized user badges
+        sections:
+            anonymization:
+                description: How anonymized members are named once their data has been erased.
+                label: Anonymization
+            erasure:
+                description: Which erasure methods members can request and which one is used by default.
+                label: Erasure requests
+            overview:
+                description: Which data is exported and erased, including data registered by other extensions.
+                label: Data overview
         settings:
             allow_anonymization: Allow anonymization for erasure requests
             allow_anonymization_help: The default option, and recommended for most communities. Under this mode, posts/comments will be preserved as much as possible as allowed by GDPR, but any user identifiable information is removed.
