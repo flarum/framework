@@ -32,9 +32,7 @@ export default class TagGambit extends KeyValueGambit {
         .load(['parent', 'children'])
         .then(() => {
           TagGambit.loadedTags = true;
-          if (typeof m !== 'undefined') {
-            m.redraw();
-          }
+          m.redraw();
         })
         .finally(() => {
           TagGambit.loadingTags = false;
