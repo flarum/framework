@@ -11,9 +11,9 @@ namespace Flarum\Messages\Command;
 
 use Carbon\Carbon;
 use Flarum\Messages\Dialog;
+use Flarum\Messages\Dialog\Event\UserLeft;
 use Flarum\Messages\DialogEventMessages;
 use Flarum\Messages\DialogMessage;
-use Flarum\Messages\Dialog\Event\UserLeft;
 use Flarum\Messages\UserDialogState;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;

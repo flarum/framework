@@ -86,6 +86,7 @@ class GroupAddressTest extends TestCase
         $this->assertSame('group', $dialog['attributes']['type']);
         $this->assertSame(200, $this->send($this->request('GET', "/api/dialogs/$id", ['authenticatedAs' => 3]))->getStatusCode());
     }
+
     #[Test]
     public function a_group_member_has_unread_messages_before_opening_and_can_mark_them_read(): void
     {
@@ -199,6 +200,7 @@ class GroupAddressTest extends TestCase
         set_error_handler(function (int $severity, string $message, string $file, int $line): never {
             throw new \ErrorException($message, 0, $severity, $file, $line);
         }, E_WARNING);
+
         try {
             $response = $this->start(actor: 3, groups: [['invalid']]);
         } finally {
@@ -243,6 +245,7 @@ class GroupAddressTest extends TestCase
         $channels = [];
         $pusher->method('trigger')->willReturnCallback(function ($channel) use (&$channels) {
             $channels[] = $channel;
+
             return new stdClass();
         });
         $this->app()->getContainer()->instance(Pusher::class, $pusher);
@@ -253,11 +256,15 @@ class GroupAddressTest extends TestCase
         $queue = $this->createMock(Queue::class);
         $queue->method('push')->willReturnCallback(function ($job) use (&$jobs) { $jobs[] = $job; });
         (new SendDialogMessageJob('created', $message))($queue);
-        foreach ($jobs as $job) { $job->handle($generator, $pusher); }
+        foreach ($jobs as $job) {
+            $job->handle($generator, $pusher);
+        }
         $this->assertEqualsCanonicalizing(['private-user=1', 'private-user=3'], $channels);
         $channels = [];
         $this->database()->table('group_user')->where('user_id', 3)->delete();
-        foreach ($jobs as $job) { $job->handle($generator, $pusher); }
+        foreach ($jobs as $job) {
+            $job->handle($generator, $pusher);
+        }
         $this->assertSame(['private-user=1'], $channels);
     }
 
@@ -319,6 +326,7 @@ class GroupAddressTest extends TestCase
         $this->app()->getContainer()->instance(Queue::class, $this->createStub(Queue::class));
         $this->dialogId($this->start(actor: 3));
         Carbon::setTestNow(Carbon::now()->addSeconds(11));
+
         try {
             $response = $this->start(actor: 3);
             $this->assertSame(429, $response->getStatusCode(), (string) $response->getBody());
@@ -526,6 +534,7 @@ class GroupAddressTest extends TestCase
         $queue = $this->createStub(Queue::class);
         $queue->method('push')->willThrowException(new \RuntimeException('Queue unavailable'));
         $container->instance(Queue::class, $queue);
+
         try {
             $job->handle($container->make(NotificationSyncer::class));
             $this->fail('The queue failure must interrupt notification delivery.');
@@ -546,8 +555,12 @@ class GroupAddressTest extends TestCase
             $users[] = $this->throughFactory(User::class, ['id' => $id, 'username' => "member$id", 'email' => "member$id@machine.local", 'preferences' => ['notify_messageReceived_email' => false]]);
             $members[] = ['user_id' => $id, 'group_id' => 4];
         }
-        foreach (array_chunk($users, 500) as $chunk) { $this->database()->table('users')->insert($chunk); }
-        foreach (array_chunk($members, 500) as $chunk) { $this->database()->table('group_user')->insert($chunk); }
+        foreach (array_chunk($users, 500) as $chunk) {
+            $this->database()->table('users')->insert($chunk);
+        }
+        foreach (array_chunk($members, 500) as $chunk) {
+            $this->database()->table('group_user')->insert($chunk);
+        }
         $jobs = [];
         $queue = $this->createStub(Queue::class);
         $queue->method('push')->willReturnCallback(function ($job) use (&$jobs) { $jobs[] = $job; });
@@ -593,13 +606,16 @@ class GroupAddressTest extends TestCase
         $container->instance(ChannelManager::class, $manager);
         $socket = fn ($id) => new class($id) implements ConnectionInterface {
             public array $sent = [];
+
             public function __construct(public string $socketId)
             {
             }
+
             public function send($data): void
             {
                 $this->sent[] = json_decode($data, true);
             }
+
             public function close(): void
             {
             }

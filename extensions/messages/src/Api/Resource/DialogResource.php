@@ -84,7 +84,8 @@ class DialogResource extends Resource\AbstractDatabaseResource
                         ->whereDoesntHave('states', fn (Builder $states) => $states->where('user_id', $actor->id))
                         ->select('dialogs.id')->selectRaw($select, [$actor->id, Carbon::now()->toDateTimeString(), false]);
                     UserDialogState::query()->getConnection()->table('dialog_user')->insertOrIgnoreUsing(
-                        ['dialog_id', 'user_id', 'joined_at', 'is_recipient'], $missing->toBase()
+                        ['dialog_id', 'user_id', 'joined_at', 'is_recipient'],
+                        $missing->toBase()
                     );
 
                     $connection = UserDialogState::query()->getConnection();
@@ -98,7 +99,8 @@ class DialogResource extends Resource\AbstractDatabaseResource
                         ->where('dialog_user.user_id', $context->getActor()->id)
                         // DISTINCT prevents MySQL merging a subquery that reads this update's target table.
                         ->whereIn('dialog_id', $connection->query()->fromSub(
-                            Dialog::whereVisibleTo($actor)->select('dialogs.id')->distinct()->toBase(), 'visible_dialogs'
+                            Dialog::whereVisibleTo($actor)->select('dialogs.id')->distinct()->toBase(),
+                            'visible_dialogs'
                         )->select('visible_dialogs.id'))
                         ->whereExists(function ($query) {
                             $query->selectRaw('1')

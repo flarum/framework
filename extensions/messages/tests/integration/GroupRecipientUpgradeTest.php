@@ -57,17 +57,23 @@ class GroupRecipientUpgradeTest extends TestCase
         $files = [__DIR__.'/../../migrations/2026_11_08_000000_add_group_recipients.php'];
         if ($released) {
             // These are the only schema migrations added between v2.0.0 and this feature's base.
-            array_unshift($files,
+            array_unshift(
+                $files,
                 __DIR__.'/../../migrations/2026_10_31_000000_add_type_to_dialog_messages.php',
-                __DIR__.'/../../migrations/2026_10_31_000001_add_name_to_dialogs.php');
+                __DIR__.'/../../migrations/2026_10_31_000001_add_name_to_dialogs.php'
+            );
         }
-        foreach (array_reverse($files) as $file) { (include $file)['down']($schema); }
+        foreach (array_reverse($files) as $file) {
+            (include $file)['down']($schema);
+        }
         $this->assertFalse($schema->hasColumn('dialog_user', 'is_recipient'));
         if ($released) {
             $this->assertFalse($schema->hasColumn('dialog_messages', 'type'));
             $this->assertFalse($schema->hasColumn('dialogs', 'name'));
         }
-        foreach ($files as $file) { (include $file)['up']($schema); }
+        foreach ($files as $file) {
+            (include $file)['up']($schema);
+        }
         foreach ([90 => 0, 91 => 91] as $id => $readPosition) {
             $response = $this->send($this->request('GET', "/api/dialogs/$id", ['authenticatedAs' => 3]));
             $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());

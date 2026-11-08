@@ -148,6 +148,7 @@ class AuditTest extends TestCase
             $this->assertEqualsCanonicalizing(['dialog_id', 'user_id'], array_keys($payload));
         }
     }
+
     #[Test]
     public function group_recipients_are_audited_as_groups_without_expanding_their_members(): void
     {
@@ -160,5 +161,4 @@ class AuditTest extends TestCase
         ], $this->payloads('dialog.started'));
         $this->assertSame([['dialog_id' => $id, 'group_id' => 4]], $this->payloads('dialog.group_started'));
     }
-
 }
