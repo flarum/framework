@@ -172,6 +172,10 @@
     transition: transform 0.2s;
     z-index: var(--zindex-modal);
 
+    &:dir(rtl) {
+      transform: translateX(calc(~"6px + var(--drawer-width)"));
+    }
+
     .drawerOpen & {
       -webkit-transform: none !important;
               transform: none !important;

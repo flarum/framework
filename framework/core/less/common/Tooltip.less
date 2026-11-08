@@ -1,6 +1,8 @@
 // ------------------------------------
 // Tooltips
 
+// Bootstrap positions tooltips and their arrows with physical offsets.
+
 // Base class
 .tooltip {
   --tooltip-arrow-width: @tooltip-arrow-width;
@@ -16,9 +18,9 @@
 
   &.in     { opacity: 1; }
   &.top    { margin-top:  -3px; padding: var(--tooltip-arrow-width) 0; }
-  &.right  { margin-inline-start:  3px; padding: 0 var(--tooltip-arrow-width); }
+  &.right  { margin-left:  3px; padding: 0 var(--tooltip-arrow-width); }
   &.bottom { margin-top:   3px; padding: var(--tooltip-arrow-width) 0; }
-  &.left   { margin-inline-start: -3px; padding: 0 var(--tooltip-arrow-width); }
+  &.left   { margin-left: -3px; padding: 0 var(--tooltip-arrow-width); }
 }
 
 // Wrapper for the tooltip content
@@ -46,29 +48,29 @@
 .tooltip {
   &.top .tooltip-arrow {
     bottom: 0;
-    inset-inline-start: 50%;
-    margin-inline-start: calc(~"0px - var(--tooltip-arrow-width)");
+    left: 50%;
+    margin-left: calc(~"0px - var(--tooltip-arrow-width)");
     border-width: var(--tooltip-arrow-width) var(--tooltip-arrow-width) 0;
     border-top-color: var(--tooltip-bg);
   }
   &.right .tooltip-arrow {
     top: 50%;
-    inset-inline-start: 0;
+    left: 0;
     margin-top: calc(~"0px - var(--tooltip-arrow-width)");
     border-width: var(--tooltip-arrow-width) var(--tooltip-arrow-width) var(--tooltip-arrow-width) 0;
     border-right-color: var(--tooltip-bg);
   }
   &.left .tooltip-arrow {
     top: 50%;
-    inset-inline-end: 0;
+    right: 0;
     margin-top: calc(~"0px - var(--tooltip-arrow-width)");
     border-width: var(--tooltip-arrow-width) 0 var(--tooltip-arrow-width) var(--tooltip-arrow-width);
-    border-inline-start-color: var(--tooltip-bg);
+    border-left-color: var(--tooltip-bg);
   }
   &.bottom .tooltip-arrow {
     top: 0;
-    inset-inline-start: 50%;
-    margin-inline-start: calc(~"0px - var(--tooltip-arrow-width)");
+    left: 50%;
+    margin-left: calc(~"0px - var(--tooltip-arrow-width)");
     border-width: 0 var(--tooltip-arrow-width) var(--tooltip-arrow-width);
     border-bottom-color: var(--tooltip-bg);
   }

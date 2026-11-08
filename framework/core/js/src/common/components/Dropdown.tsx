@@ -117,7 +117,10 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
       const windowScrollLeft = $(window).scrollLeft() ?? 0;
       const windowWidth = $(window).width() ?? 0;
 
-      $menu.toggleClass('Dropdown-menu--right', isRight || left + width > windowScrollLeft + windowWidth);
+      const isRtl = $menu.css('direction') === 'rtl';
+      const overflows = isRtl ? left < windowScrollLeft : left + width > windowScrollLeft + windowWidth;
+
+      $menu.toggleClass('Dropdown-menu--right', isRight || overflows);
 
       if ('CloseWatcher' in window) {
         this.closeWatcher?.destroy();

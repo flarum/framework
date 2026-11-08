@@ -12,7 +12,7 @@
     width: auto;
     -webkit-appearance: none;
     -moz-appearance: none;
-    padding-right: 30px;
+    padding-inline-end: 30px;
     cursor: pointer;
     line-height: 1;
 
@@ -22,6 +22,8 @@
   }
 }
 .Select-caret {
+  // Keep the caret above the native control when bidi reorders inline boxes.
+  position: relative;
   margin-inline-start: -30px;
   pointer-events: none;
   color: var(--control-color);
