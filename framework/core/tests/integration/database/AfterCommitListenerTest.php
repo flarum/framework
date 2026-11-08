@@ -14,6 +14,7 @@ use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
+use Illuminate\Database\ConnectionInterface;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -61,6 +62,36 @@ class AfterCommitListenerTest extends TestCase
         $this->assertTrue(
             $ran,
             'A ShouldDispatchAfterCommit event should be dispatched during an integration test.'
+        );
+    }
+
+    #[Test]
+    public function after_commit_event_is_dispatched_after_a_nested_transaction_commits(): void
+    {
+        $ran = false;
+
+        $this->extend(
+            (new Extend\Event())->listen(AfterCommitDispatchableEvent::class, function () use (&$ran) {
+                $ran = true;
+            })
+        );
+
+        $connection = $this->app()->getContainer()->make(ConnectionInterface::class);
+
+        $connection->beginTransaction();
+
+        $this->app()->getContainer()->make(Dispatcher::class)->dispatch(new AfterCommitDispatchableEvent());
+
+        $this->assertFalse(
+            $ran,
+            'A ShouldDispatchAfterCommit event should not be dispatched before a nested transaction commits.'
+        );
+
+        $connection->commit();
+
+        $this->assertTrue(
+            $ran,
+            'A ShouldDispatchAfterCommit event should be dispatched once a nested transaction commits.'
         );
     }
 }
