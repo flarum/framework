@@ -102,6 +102,57 @@ describe('GeneralSearchSource', () => {
     });
   });
 
+  describe('indexed permissions', () => {
+    beforeEach(() => {
+      app.generalIndex
+        .group('test-extension-permissions', { label: 'Test Extension 3', icon: { name: 'fas fa-key' }, link: '/admin/test3' })
+        .for('test-extension-permissions')
+        .add('permissions', [
+          {
+            id: 'moderate_thing',
+            label: 'Moderation thing',
+            link: '/admin/test3/moderation',
+          },
+          {
+            id: 'view_thing',
+            label: 'View thing',
+          },
+        ]);
+    });
+
+    it('finds an indexed permission', async () => {
+      const source = new GeneralSearchSource();
+      await source.search('moderation thing', 10);
+
+      const results = source['results'].get('moderation thing') ?? [];
+      const result = results.find((r) => r.id === 'test-extension-permissions-moderate_thing');
+
+      expect(result).toBeDefined();
+      expect(result!.tree[result!.tree.length - 1]).toBe('Moderation thing');
+    });
+
+    it('links to the item link when one is given', async () => {
+      const source = new GeneralSearchSource();
+      await source.search('moderation thing', 10);
+
+      const results = source['results'].get('moderation thing') ?? [];
+      const result = results.find((r) => r.id === 'test-extension-permissions-moderate_thing');
+
+      expect(result!.link).toBe('/admin/test3/moderation');
+    });
+
+    it('falls back to the group link when the item has none', async () => {
+      const source = new GeneralSearchSource();
+      await source.search('view thing', 10);
+
+      const results = source['results'].get('view thing') ?? [];
+      const result = results.find((r) => r.id === 'test-extension-permissions-view_thing');
+
+      expect(result).toBeDefined();
+      expect(result!.link).toBe('/admin/test3');
+    });
+  });
+
   describe('extension registered settings', () => {
     beforeAll(() => {
       app.registry

@@ -135,6 +135,35 @@ export default class GeneralSearchSource implements GlobalSearchSource {
       // permissions
       const permissions = data[extensionId]!.permissions || {};
 
+      if (Array.isArray(permissions)) {
+        for (const permission of permissions) {
+          if (permission.visible && !permission.visible()) {
+            continue;
+          }
+
+          const label = extractText(permission.label);
+
+          if (this.itemHasQuery(label, query)) {
+            const corePage = !extensions[extensionId] ? extensionId.replace('core-', '') : null;
+            const group = app.generalIndex.getGroup(extensionId);
+
+            results.push(
+              new GeneralSearchResult(
+                extensionId + '-' + permission.id,
+                group?.label ||
+                  extensions[extensionId]?.extra['flarum-extension'].title ||
+                  app.translator.trans('core.admin.' + corePage + '.title', {}, true),
+                group?.icon || extensions[extensionId]?.icon || { name: 'fas fa-key' },
+                [app.translator.trans('core.admin.permissions.title', {}, true), ...(permission.tree || []).map(extractText), label],
+                permission.link || group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId, tab: 'permissions' }))
+              )
+            );
+          }
+        }
+
+        continue;
+      }
+
       for (const permissionType in permissions) {
         // @ts-ignore
         const permissionList = (permissions[permissionType] || []).toArray();
