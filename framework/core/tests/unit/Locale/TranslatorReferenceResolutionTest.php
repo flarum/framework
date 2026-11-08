@@ -42,9 +42,9 @@ class TranslatorReferenceResolutionTest extends TestCase
 
     private function translator(): Translator
     {
-        // Wired like LocaleServiceProvider: non-debug, cache dir, 'en' fallback.
+        // Exercise the English-default configuration with the production cache.
         $translator = new Translator('de', null, $this->cacheDir, false);
-        $translator->setFallbackLocales(['en']);
+        $translator->setDefaultFallbackLocale('en');
         $translator->addLoader('prefixed_yaml', new PrefixedYamlFileLoader());
         $translator->addResource('prefixed_yaml', ['file' => $this->cacheDir.'/en.yml', 'prefix' => ''], 'en', self::DOMAIN);
         $translator->addResource('prefixed_yaml', ['file' => $this->cacheDir.'/de.yml', 'prefix' => ''], 'de', self::DOMAIN);
@@ -82,4 +82,21 @@ class TranslatorReferenceResolutionTest extends TestCase
         $this->assertSame('Resolved', $fallback->get('foo', 'messages'));
         $this->assertSame('Resolved', $translator->trans('foo', [], null, 'de'));
     }
+
+    #[Test]
+    public function a_cached_regional_reference_keeps_its_parent_context(): void
+    {
+        $file = $this->cacheDir.'/de-CH.yml';
+        file_put_contents($file, "alias: '=> baz'\n");
+
+        for ($request = 0; $request < 2; $request++) {
+            $translator = $this->translator();
+            $translator->setDefaultFallbackLocale('de-CH');
+            $translator->addResource('prefixed_yaml', ['file' => $file, 'prefix' => ''], 'de-CH', self::DOMAIN);
+
+            $this->assertSame('Beispiel', $translator->trans('alias', [], null, 'de'));
+            $this->assertSame('Beispiel', $translator->trans('alias', [], null, 'de-AT'));
+        }
+    }
+
 }
