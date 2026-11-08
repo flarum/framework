@@ -27,7 +27,8 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
     super.oninit(vnode);
 
     if (!app.session.user) {
-      m.route.set(app.route('index'));
+      // Staying on this address, so the reload after logging in opens it.
+      setTimeout(() => app.modal.show(() => import('flarum/forum/components/LogInModal')), 0);
       return;
     }
 
@@ -110,6 +111,10 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
   }
 
   view() {
+    if (!app.session.user) {
+      return <div className="MessagesPage" />;
+    }
+
     return (
       <PageStructure className="MessagesPage Page--vertical" loading={false} hero={this.hero.bind(this)} sidebar={() => <MessagesSidebar />}>
         {app.dialogs.isInitialLoading() ? (
