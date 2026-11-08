@@ -68,6 +68,7 @@ class InfoCommandWebPhpVersionTest extends TestCase
 
         $this->assertNotContains('/usr/bin/php', $binaries);
         $this->assertNotContains('/usr/local/bin/php', $binaries);
+        $this->assertContains('/usr/local/sbin/php-fpm', $binaries);
     }
 
     #[Test]
