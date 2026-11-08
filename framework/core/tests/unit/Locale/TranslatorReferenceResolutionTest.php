@@ -98,5 +98,4 @@ class TranslatorReferenceResolutionTest extends TestCase
             $this->assertSame('Beispiel', $translator->trans('alias', [], null, 'de-AT'));
         }
     }
-
 }

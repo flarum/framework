@@ -99,5 +99,4 @@ class TranslatorFallbackTest extends TestCase
             rmdir($cache);
         }
     }
-
 }
