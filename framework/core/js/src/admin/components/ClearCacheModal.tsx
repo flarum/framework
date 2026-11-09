@@ -3,6 +3,8 @@ import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Icon from '../../common/components/Icon';
+import type { StreamArrival } from '../../common/utils/readEventStream';
+import { streamingCheck } from '../utils/streamingCheck';
 import type Mithril from 'mithril';
 
 /**
@@ -173,50 +175,24 @@ export default class ClearCacheModal<ModalAttrs extends IClearCacheModalAttrs = 
   }
 
   /**
-   * Reads the response as it is written.
-   *
-   * `app.request` cannot be used here: it hands back the body once, complete,
-   * so nothing could be shown until the work had finished. Each line is a whole
-   * JSON object, so a step can be rendered the moment its line arrives.
+   * Reads the response as it is written, so each step can be shown the moment
+   * the server reports it.
    */
   protected async clear() {
+    const arrivals: StreamArrival[] = [];
+
     try {
-      const response = await fetch(app.forum.attribute('apiUrl') + '/cache', {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': app.session.csrfToken!,
-        },
-        credentials: 'same-origin',
-      });
+      const { default: readEventStream, streamBuffering } = await import('../../common/utils/readEventStream');
 
-      if (!response.ok || !response.body) {
-        throw new Error(String(response.status));
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffered = '';
-
-      for (;;) {
-        const { done, value } = await reader.read();
-
-        if (done) break;
-
-        buffered += decoder.decode(value, { stream: true });
-
-        // Anything up to the last newline is complete; whatever follows it is
-        // half a line and waits for the next chunk.
-        const lines = buffered.split('\n');
-        buffered = lines.pop() ?? '';
-
-        for (const line of lines) {
-          if (line.trim() === '') continue;
-
-          this.steps.push(JSON.parse(line));
-        }
+      await readEventStream(app.forum.attribute('apiUrl') + '/cache', { method: 'DELETE' }, (event, arrival) => {
+        this.steps.push(event as unknown as Step);
+        arrivals.push(arrival);
 
         m.redraw();
-      }
+      });
+
+      // A clear runs long enough to show whether the server streams.
+      streamingCheck.note(streamBuffering(arrivals));
     } catch (e) {
       app.alerts.show({ type: 'error' }, app.translator.trans('core.admin.dashboard.io_error_message'));
     }

@@ -372,6 +372,12 @@ core:
         It is highly recommended to disable <code>debug</code> in your <code>config.php</code> file in production. See <link>Flarum docs</link> for more information.
       label: Debug mode active
 
+    # These translations are used in the dashboard warning that streamed responses are held back.
+    streaming-warning:
+      check_again_button: Check Again
+      detail: "This server holds back responses that should reach the browser as they're written, and sends them only once they're complete. Progress, such as clearing the cache, and replies that are written as they arrive, show only at the end. Turn off buffering for this site wherever it's on: PHP's output_buffering or zlib.output_compression, Apache's mod_deflate (or flushpackets=on for PHP-FPM behind mod_proxy_fcgi), nginx's fastcgi_buffering or proxy_buffering, or a proxy or CDN in front of the site."
+      label: Responses held back
+
     # These translations are used in the Edit Custom CSS modal dialog.
     edit_css:
       customize_text: "Customize your forum's appearance by adding your own Less/CSS code to be applied on top of Flarum's <a>default styles</a>."
