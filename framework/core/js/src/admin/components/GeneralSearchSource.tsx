@@ -191,13 +191,13 @@ export default class GeneralSearchSource implements GlobalSearchSource {
               const highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
 
               const tree: any[] = result.tree.map((part) => {
-                return highlight(part, highlightRegExp, undefined, true);
+                return highlight(part, highlightRegExp);
               });
 
               let help: any = result.help;
 
               if (help) {
-                help = highlight(help, highlightRegExp, 100, true);
+                help = highlight(help, highlightRegExp, 100);
               }
 
               return (
