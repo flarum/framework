@@ -49,5 +49,12 @@ export declare function canReload(list: ModelList | undefined): boolean;
 export declare class ModelLists {
     protected lists: Record<string, ModelList>;
     get(connection: string): ModelList | undefined;
-    load(connection: string, refresh?: boolean): Promise<void>;
+    /**
+     * @param candidate A connection that isn't saved yet, to list the models of
+     *                  under `connection`, which is then any key for its list.
+     */
+    load(connection: string, refresh?: boolean, candidate?: {
+        name: string;
+        connection: object;
+    }): Promise<void>;
 }

@@ -57,7 +57,25 @@ export default class AiPage extends ExtensionPage {
     form(sections: Mithril.Children): Mithril.Children;
     connectionsSection(): Mithril.Children;
     connectionItem(name: string, connection: Connection, locked: boolean): Mithril.Children;
-    defaultSection(): Mithril.Children;
+    /**
+     * The tokens a connection has used this month, against its monthly limit
+     * if it has one.
+     */
+    connectionUsage(name: string, connection: Connection): Mithril.Children;
+    /**
+     * With no connection yet, the providers to start from.
+     */
+    providerPicker(): Mithril.Children;
+    /**
+     * The connection features use when they name none, if it still exists.
+     */
+    defaultConnection(): string | null;
+    noDefaultAlert(): Mithril.Children;
+    /**
+     * Whether a saved connection has changes on the page not saved yet.
+     */
+    connectionChanged(name: string): boolean;
+    serverSection(): Mithril.Children;
     featureSections(): Mithril.Children;
     /**
      * The models features use that are deprecated or gone, and a way to check
@@ -115,7 +133,7 @@ export default class AiPage extends ExtensionPage {
      */
     connectionModel(name: string): string | null;
     connectionNames(): string[];
-    edit(name?: string): void;
+    edit(name?: string, driver?: string): void;
     remove(name: string): void;
     isInvalid(key: string, field: NumberField): boolean;
     updateFeatureNumber(key: string, field: NumberField, value: string): void;
