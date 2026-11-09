@@ -209,7 +209,7 @@ export default class GambitsAutocomplete {
         let suffixValues = '';
         const commaIdx = tokenRemainder.indexOf(',');
         const activeTermRemainder = commaIdx !== -1 ? tokenRemainder.slice(0, commaIdx) : tokenRemainder;
-        const fullActiveTerm = (activeTerm + activeTermRemainder).toLowerCase();
+        const fullActiveTerm = activeTerm + activeTermRemainder;
 
         if (matchingKeyValueGambit.predicates && tokenRemainder) {
           if (commaIdx !== -1) {
@@ -234,7 +234,7 @@ export default class GambitsAutocomplete {
               (opt.label && opt.label.toLowerCase().includes(normalizedActiveTerm)))
         );
 
-        if (fullActiveTerm && matchingOptions.some((opt) => opt.value.toLowerCase() === fullActiveTerm)) {
+        if (fullActiveTerm && matchingOptions.some((opt) => opt.value === fullActiveTerm)) {
           return [];
         }
 

@@ -591,6 +591,21 @@ describe('GambitsAutocomplete', () => {
       suggestions[0].click();
       expect(changedValue).toBe('tag:help,general');
     });
+
+    it('keeps suggestions open when typed casing differs from canonical stored value', () => {
+      // In SQLite, tag slug lookup is case-sensitive. If 'help' is stored, typing 'tag:HELP'
+      // should offer the canonical lowercase 'help' suggestion rather than prematurely dismissing.
+      selectionStart = 8; // 'tag:HELP'
+      selectionEnd = 8;
+      const ac = createAutocomplete();
+      const suggestions = extractSuggestions(ac.suggestions('tag:HELP'));
+
+      expect(suggestions).toHaveLength(2);
+      expect(suggestions.map((s) => s.key)).toEqual(['help', 'helpdesk']);
+
+      suggestions[0].click();
+      expect(changedValue).toBe('tag:help');
+    });
   });
 
   describe('GroupGambit integration', () => {
@@ -600,7 +615,7 @@ describe('GambitsAutocomplete', () => {
           id: () => id,
           nameSingular: () => singular,
           namePlural: () => plural,
-        } as unknown as Group);
+        }) as unknown as Group;
 
       app.store.all = jest.fn().mockImplementation((type: string) => {
         if (type === 'groups') {
