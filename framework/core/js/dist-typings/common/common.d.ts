@@ -103,3 +103,4 @@ import './Translator';
 import './Model';
 import './Application';
 import './Fragment';
+export declare const lazyModules: (() => Promise<typeof import("./utils/readEventStream")>)[];
