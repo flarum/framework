@@ -12,6 +12,15 @@ export interface ModelInputAttrs extends ComponentAttrs {
     maxlength?: number;
     /** The model used when the field is empty, which is checked too. */
     defaultModel?: string | null;
+    /**
+     * A connection that isn't saved yet, whose models are listed under
+     * `connection`. Listed once the field is focused, not as its settings are
+     * typed in.
+     */
+    candidate?: {
+        name: string;
+        connection: object;
+    } | null;
 }
 /**
  * A model name, suggested from the connection's list, and still free to type,
@@ -21,6 +30,6 @@ export interface ModelInputAttrs extends ComponentAttrs {
 export default class ModelInput extends Component<ModelInputAttrs> {
     oncreate(vnode: Mithril.VnodeDOM<ModelInputAttrs, this>): void;
     onupdate(vnode: Mithril.VnodeDOM<ModelInputAttrs, this>): void;
-    load(): void;
+    load(focused?: boolean): void;
     view(): JSX.Element;
 }

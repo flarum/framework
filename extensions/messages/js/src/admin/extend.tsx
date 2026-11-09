@@ -2,6 +2,8 @@ import Extend from 'flarum/common/extenders';
 import commonExtend from '../common/extend';
 import app from 'flarum/admin/app';
 import SettingDropdown from 'flarum/admin/components/SettingDropdown';
+import type ExtensionPage from 'flarum/admin/components/ExtensionPage';
+import RecipientGroupSettings from './components/RecipientGroupSettings';
 
 export default [
   ...commonExtend,
@@ -15,6 +17,24 @@ export default [
         description: app.translator.trans('flarum-messages.admin.sections.groups.description'),
       }),
       10
+    )
+    .customSetting(
+      function (this: ExtensionPage) {
+        const selected = this.setting('flarum-messages.recipient_groups', '[]');
+        return <RecipientGroupSettings value={selected()} onchange={selected} />;
+      },
+      0,
+      'groups'
+    )
+    .permission(
+      () => ({
+        icon: 'fas fa-users',
+        label: app.translator.trans('flarum-messages.admin.permissions.message_groups_label'),
+        permission: 'dialog.messageGroups',
+        allowGuest: false,
+      }),
+      'start',
+      94
     )
     // Its default is registered in extend.php, where the server clamps it to 1–50 too.
     .setting(() => ({

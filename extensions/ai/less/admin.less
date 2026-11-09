@@ -8,12 +8,29 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 12px;
-  padding: 8px 0;
+  gap: 6px 12px;
+  padding: 10px 0;
   border-bottom: 1px solid var(--control-bg);
+
+  &-main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    flex: 1 1 320px;
+    min-width: 0;
+  }
 
   &-name {
     font-weight: bold;
+  }
+
+  &-badge {
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    background: var(--control-success-bg);
+    color: var(--control-success-color);
   }
 
   &-url,
@@ -26,19 +43,160 @@
     word-break: break-all;
   }
 
+  &-usage {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-basis: 100%;
+    order: 3;
+
+    .helpText {
+      margin: 0;
+    }
+  }
+
   &-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
-    margin-left: auto;
+    margin-inline-start: auto;
   }
+}
+
+.AiPage-meter {
+  position: relative;
+  flex: 0 1 220px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--control-bg);
+  overflow: hidden;
+
+  &-fill {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    background: var(--primary-color);
+  }
+
+  .AiPage-connection-usage--high & .AiPage-meter-fill {
+    background: var(--control-warning-color);
+  }
+
+  .AiPage-connection-usage--full & .AiPage-meter-fill {
+    background: var(--validation-error-color);
+  }
+}
+
+.AiPage-noDefault {
+  margin-bottom: 12px;
+}
+
+.AiPage-providers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.AiServerChecks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  &-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+
+    & + & {
+      border-top: 1px solid var(--control-bg);
+    }
+  }
+
+  &-icon {
+    flex: 0 0 18px;
+    text-align: center;
+  }
+
+  &-item--ok &-icon {
+    color: var(--control-success-color);
+  }
+
+  &-item--warning &-icon {
+    color: var(--control-warning-color);
+  }
+
+  &-again {
+    margin-inline-start: 4px;
+    padding: 0;
+  }
+}
+
+.AiConnectionTest {
+  margin-bottom: 12px;
+
+  &-reply {
+    max-height: 200px;
+    overflow: auto;
+    margin: 0 0 8px;
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    background: var(--code-bg);
+    color: var(--code-color);
+    white-space: pre-wrap;
+    min-height: 2.5em;
+  }
+
+  &-caret {
+    display: inline-block;
+    width: 0.5em;
+    height: 1em;
+    vertical-align: text-bottom;
+    background: currentColor;
+    animation: AiConnectionTest-blink 1s steps(1) infinite;
+  }
+
+  &-result {
+    color: var(--control-success-color);
+  }
+
+  &-providerMessage {
+    margin-top: 6px;
+    opacity: 0.85;
+    word-break: break-word;
+  }
+
+  .Alert {
+    margin-bottom: 8px;
+  }
+}
+
+@keyframes AiConnectionTest-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .AiConnectionTest-caret {
+    animation: none;
+  }
+}
+
+.EditConnectionModal-keyLink {
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.EditConnectionModal .Form-controls .Button + .Button {
+  margin-inline-start: 8px;
 }
 
 .AiPage-empty {
   color: var(--muted-color);
 }
 
-.AiPage-connection-model,
-.AiPage-connection-limit {
+.AiPage-connection-model {
   color: var(--muted-color);
 }
 

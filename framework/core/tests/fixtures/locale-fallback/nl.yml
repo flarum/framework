@@ -1,0 +1,5 @@
+fallback:
+  forum:
+    greeting: Goedendag
+  admin:
+    greeting: Goedendag

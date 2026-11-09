@@ -1,0 +1,5 @@
+fallback:
+  forum:
+    greeting: Hallo
+  admin:
+    greeting: Hallo

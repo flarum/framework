@@ -20,6 +20,12 @@ use Psr\Http\Message\ResponseInterface;
 
 class EmitterTest extends TestCase
 {
+    /**
+     * Counts the times PHP would have been prepared to stream, which would
+     * otherwise close PHPUnit's own output buffer.
+     */
+    private int $prepared = 0;
+
     private function emitter(&$sentTo): Emitter
     {
         $record = function (string $which) use (&$sentTo) {
@@ -33,7 +39,7 @@ class EmitterTest extends TestCase
             return $emitter;
         };
 
-        return new Emitter($record('buffered'), $record('streamed'));
+        return new Emitter($record('buffered'), $record('streamed'), fn () => $this->prepared++);
     }
 
     /**
@@ -83,6 +89,55 @@ class EmitterTest extends TestCase
         $this->assertSame('streamed', $sentTo);
     }
 
+    /**
+     * PHP's own output buffer, and its compression, would hold a streamed body
+     * back just as a proxy would.
+     */
+    #[Test]
+    public function php_is_prepared_before_a_streamed_response_only()
+    {
+        $sentTo = null;
+
+        $this->emitter($sentTo)->emit(new Response());
+        $this->assertSame(0, $this->prepared);
+
+        $this->emitter($sentTo)->emit((new Response())->withBody(new CallbackStream(fn () => '')));
+        $this->assertSame(1, $this->prepared);
+    }
+
+    /**
+     * Output already written is left in its buffer, for the streaming emitter
+     * to refuse, rather than sent ahead of the headers.
+     */
+    #[Test]
+    public function preparing_leaves_a_buffer_with_output_alone()
+    {
+        $level = ob_get_level();
+        ob_start();
+        echo 'Too soon';
+
+        Emitter::prepareToStream();
+
+        $this->assertSame($level + 1, ob_get_level());
+        $this->assertSame('Too soon', ob_get_clean());
+    }
+
+    #[Test]
+    public function preparing_closes_empty_buffers()
+    {
+        $level = ob_get_level();
+        // One with output, standing in for PHPUnit's, so preparing stops there.
+        ob_start();
+        echo 'x';
+        ob_start();
+        ob_start();
+
+        Emitter::prepareToStream();
+
+        $this->assertSame($level + 1, ob_get_level());
+        $this->assertSame('x', ob_get_clean());
+    }
+
     #[Test]
     public function it_passes_the_response_through_untouched()
     {
@@ -97,7 +152,7 @@ class EmitterTest extends TestCase
             return true;
         });
 
-        (new Emitter($buffered, m::mock(EmitterInterface::class)))->emit($response);
+        (new Emitter($buffered, m::mock(EmitterInterface::class), fn () => null))->emit($response);
 
         $this->assertSame($response, $seen);
     }
@@ -109,7 +164,7 @@ class EmitterTest extends TestCase
         $failing->shouldReceive('emit')->andReturn(false);
 
         $this->assertFalse(
-            (new Emitter($failing, m::mock(EmitterInterface::class)))->emit(new Response())
+            (new Emitter($failing, m::mock(EmitterInterface::class), fn () => null))->emit(new Response())
         );
     }
 }

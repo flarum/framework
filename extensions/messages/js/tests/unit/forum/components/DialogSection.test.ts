@@ -168,3 +168,17 @@ describe('a direct conversation', () => {
     expect(section(conversation({ canSendAnyMessage: true }, { canSendMessage: true, anyoneCanReply: false })).controlItems().has('leave')).toBe(false);
   });
 });
+
+describe('a conversation addressed to a Flarum Group', () => {
+  it('shows the Group and opens participant details without claiming the individual list is its whole audience', () => {
+    const dialog = group([]);
+    app.store.pushPayload({ data: { type: 'groups', id: '4', attributes: { namePlural: 'Moderators', nameSingular: 'Moderator', icon: 'fas fa-users' } } } as any);
+    dialog.pushData({ relationships: { groups: { data: [{ type: 'groups', id: '4' }] } } });
+    const header = mq(m('div', section(dialog).headerInfo()));
+    header.should.contain('Participants');
+    header.should.not.contain('1 member');
+    const details = new (DetailsModal as any)();
+    details.attrs = { dialog };
+    mq(m('div', details.content())).should.contain('Moderators');
+  });
+});

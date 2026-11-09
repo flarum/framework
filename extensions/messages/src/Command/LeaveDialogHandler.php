@@ -9,10 +9,12 @@
 
 namespace Flarum\Messages\Command;
 
+use Carbon\Carbon;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\Dialog\Event\UserLeft;
 use Flarum\Messages\DialogEventMessages;
 use Flarum\Messages\DialogMessage;
+use Flarum\Messages\UserDialogState;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
 
@@ -41,10 +43,20 @@ class LeaveDialogHandler
             // still see the other, and neither take the emptied group away.
             Dialog::query()->whereKey($dialog->id)->lockForUpdate()->first();
 
-            $dialog->users()->detach($actor->id);
+            if ($dialog->groups()->exists()) {
+                $state = UserDialogState::query()->firstOrCreate(
+                    ['dialog_id' => $dialog->id, 'user_id' => $actor->id],
+                    ['joined_at' => Carbon::now(), 'is_recipient' => false]
+                );
+                $state->is_recipient = false;
+                $state->left_at = Carbon::now();
+                $state->save();
+            } else {
+                $dialog->users()->detach($actor->id);
+            }
 
             // Those still in it are told who left, in its stream.
-            if ($dialog->users()->exists()) {
+            if ($dialog->users()->exists() || $dialog->groups()->exists()) {
                 return $this->eventMessages->post($dialog, $actor, DialogMessage::USER_LEFT);
             }
 

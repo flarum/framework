@@ -12,7 +12,9 @@ import type { TabItem } from 'flarum/common/components/Tabs';
 import extractText from 'flarum/common/utils/extractText';
 import type ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
+import ConnectionTestModal from './ConnectionTestModal';
 import EditConnectionModal from './EditConnectionModal';
+import ServerChecks from './ServerChecks';
 import ModelInput from './ModelInput';
 import { type ModelIssue, ModelLists } from '../utils/models';
 import {
@@ -140,7 +142,7 @@ export default class AiPage extends ExtensionPage {
   pageTabContent(tab: string, vnode: Mithril.VnodeDOM<ExtensionPageAttrs, this>): Mithril.Children {
     switch (tab) {
       case 'connections':
-        return this.form([this.connectionsSection(), this.defaultSection()]);
+        return this.form([this.connectionsSection(), this.serverSection()]);
       case 'features':
         return this.form(this.featureSections());
       case 'usage':
@@ -176,20 +178,20 @@ export default class AiPage extends ExtensionPage {
         description={app.translator.trans('flarum-ai.admin.connections.help')}
         icon="fas fa-plug"
       >
-        {names.length || lockedNames.length ? (
-          <ul className="AiPage-connections">
-            {lockedNames.map((name) => this.connectionItem(name, locked[name], true))}
-            {names.map((name) => this.connectionItem(name, this.connections[name], false))}
-          </ul>
-        ) : (
-          <p className="AiPage-empty">{app.translator.trans('flarum-ai.admin.connections.empty_text')}</p>
-        )}
-
-        <div>
-          <Button className="Button" icon="fas fa-plus" onclick={() => this.edit()}>
-            {app.translator.trans('flarum-ai.admin.connections.add_button')}
-          </Button>
-        </div>
+        {names.length || lockedNames.length
+          ? [
+              this.noDefaultAlert(),
+              <ul className="AiPage-connections">
+                {lockedNames.map((name) => this.connectionItem(name, locked[name], true))}
+                {names.map((name) => this.connectionItem(name, this.connections[name], false))}
+              </ul>,
+              <div>
+                <Button className="Button" icon="fas fa-plus" onclick={() => this.edit()}>
+                  {app.translator.trans('flarum-ai.admin.connections.add_button')}
+                </Button>
+              </div>,
+            ]
+          : this.providerPicker()}
       </SettingsSection>
     );
   }
@@ -202,29 +204,51 @@ export default class AiPage extends ExtensionPage {
         : connection.key === undefined && connection.hasKey
           ? 'flarum-ai.admin.connections.key_saved_text'
           : 'flarum-ai.admin.connections.no_key_text';
+    const isDefault = this.defaultConnection() === name;
+    // Only what's saved can be tested from here; the Edit modal tests what's typed in.
+    const testable = this.savedConnection(name) === name && !this.connectionChanged(name);
 
     return (
-      <li key={(locked ? 'locked:' : '') + name} className="AiPage-connection">
-        <span className="AiPage-connection-name">{name}</span>
-        <span className="AiPage-connection-driver">{driverLabel(connection.driver)}</span>
-        {!!connection.model && <code className="AiPage-connection-model">{connection.model}</code>}
-        {!!connection.url && <code className="AiPage-connection-url">{connection.url}</code>}
-        {!!connection.region && <code className="AiPage-connection-url">{connection.region}</code>}
-        {!!connection.guardrail_id && (
-          <span className="AiPage-connection-guardrail">
-            {app.translator.trans('flarum-ai.admin.connections.guardrail_text', {
-              guardrail: connection.guardrail_id,
-              version: connection.guardrail_version || 'DRAFT',
-            })}
-          </span>
-        )}
-        <span className="AiPage-connection-key">{app.translator.trans(keyText)}</span>
-        {!!connection.monthly_tokens && (
-          <span className="AiPage-connection-limit">
-            {app.translator.trans('flarum-ai.admin.connections.monthly_tokens_text', { tokens: formatTokens(connection.monthly_tokens) })}
-          </span>
-        )}
-        <span className="AiPage-connection-actions">
+      <li key={(locked ? 'locked:' : '') + name} className={'AiPage-connection' + (isDefault ? ' AiPage-connection--default' : '')}>
+        <div className="AiPage-connection-main">
+          <span className="AiPage-connection-name">{name}</span>
+          <span className="AiPage-connection-driver">{driverLabel(connection.driver)}</span>
+          {isDefault && (
+            <span className="AiPage-connection-badge">
+              {app.translator.trans(
+                aiPayload().lockedDefault ? 'flarum-ai.admin.connections.default_locked_badge' : 'flarum-ai.admin.connections.default_badge'
+              )}
+            </span>
+          )}
+          {!!connection.model && <code className="AiPage-connection-model">{connection.model}</code>}
+          {!!connection.url && <code className="AiPage-connection-url">{connection.url}</code>}
+          {!!connection.region && <code className="AiPage-connection-url">{connection.region}</code>}
+          {!!connection.guardrail_id && (
+            <span className="AiPage-connection-guardrail">
+              {app.translator.trans('flarum-ai.admin.connections.guardrail_text', {
+                guardrail: connection.guardrail_id,
+                version: connection.guardrail_version || 'DRAFT',
+              })}
+            </span>
+          )}
+          <span className="AiPage-connection-key">{app.translator.trans(keyText)}</span>
+        </div>
+        {this.connectionUsage(name, connection)}
+        <div className="AiPage-connection-actions">
+          <Button
+            className="Button Button--link"
+            icon="fas fa-vial"
+            disabled={!testable}
+            title={testable ? undefined : extractText(app.translator.trans('flarum-ai.admin.connections.test_unsaved_text'))}
+            onclick={() => app.modal.show(ConnectionTestModal, { name })}
+          >
+            {app.translator.trans('flarum-ai.admin.connections.test_button')}
+          </Button>
+          {!isDefault && !aiPayload().lockedDefault && (
+            <Button className="Button Button--link" icon="far fa-star" onclick={() => this.setting(DEFAULT_SETTING)(name)}>
+              {app.translator.trans('flarum-ai.admin.connections.make_default_button')}
+            </Button>
+          )}
           {locked ? (
             <span className="AiPage-connection-locked">{app.translator.trans('flarum-ai.admin.connections.locked_text')}</span>
           ) : (
@@ -237,36 +261,115 @@ export default class AiPage extends ExtensionPage {
               </Button>,
             ]
           )}
-        </span>
+        </div>
       </li>
     );
   }
 
-  defaultSection(): Mithril.Children {
-    const { lockedDefault } = aiPayload();
-    const value = this.setting(DEFAULT_SETTING)();
+  /**
+   * The tokens a connection has used this month, against its monthly limit
+   * if it has one.
+   */
+  connectionUsage(name: string, connection: Connection): Mithril.Children {
+    const used = aiPayload().monthlyUsage?.[name] || 0;
+    const limit = connection.monthly_tokens;
 
-    const options: Record<string, Mithril.Children> = { '': app.translator.trans('flarum-ai.admin.connections.default_none_option') };
-    this.connectionNames().forEach((name) => (options[name] = name));
+    if (!limit) {
+      return (
+        !!used && (
+          <div className="AiPage-connection-usage helpText">
+            {app.translator.trans('flarum-ai.admin.connections.usage_text', { tokens: formatTokens(used) })}
+          </div>
+        )
+      );
+    }
+
+    const share = Math.min(1, used / limit);
 
     return (
-      <SettingsSection
-        id="flarum-ai-default"
-        className="AiPage-default"
-        label={app.translator.trans('flarum-ai.admin.connections.default_label')}
-        description={app.translator.trans('flarum-ai.admin.connections.default_help')}
-        icon="fas fa-star"
+      <div
+        className={'AiPage-connection-usage' + (share >= 1 ? ' AiPage-connection-usage--full' : share >= 0.8 ? ' AiPage-connection-usage--high' : '')}
       >
-        {lockedDefault ? (
-          <p className="helpText">{app.translator.trans('flarum-ai.admin.connections.default_locked_text', { name: lockedDefault })}</p>
-        ) : (
-          <Select
-            options={options}
-            value={value in options ? value : ''}
-            onchange={this.setting(DEFAULT_SETTING)}
-            aria-label={extractText(app.translator.trans('flarum-ai.admin.connections.default_label'))}
-          />
-        )}
+        <span
+          className="AiPage-meter"
+          role="meter"
+          aria-valuemin={0}
+          aria-valuemax={limit}
+          aria-valuenow={Math.min(used, limit)}
+          aria-label={extractText(app.translator.trans('flarum-ai.admin.connections.usage_label', { name }))}
+        >
+          <span className="AiPage-meter-fill" style={{ width: Math.round(share * 100) + '%' }} />
+        </span>
+        <span className="helpText">
+          {app.translator.trans('flarum-ai.admin.connections.usage_limit_text', { tokens: formatTokens(used), limit: formatTokens(limit) })}
+        </span>
+      </div>
+    );
+  }
+
+  /**
+   * With no connection yet, the providers to start from.
+   */
+  providerPicker(): Mithril.Children {
+    return (
+      <div className="AiPage-start">
+        <p className="AiPage-empty">{app.translator.trans('flarum-ai.admin.connections.empty_text')}</p>
+        <div className="AiPage-providers">
+          {aiPayload().drivers.map((driver) => (
+            <Button className="Button AiPage-provider" onclick={() => this.edit(undefined, driver)}>
+              {driverLabel(driver)}
+            </Button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  /**
+   * The connection features use when they name none, if it still exists.
+   */
+  defaultConnection(): string | null {
+    const name = aiPayload().lockedDefault || this.setting(DEFAULT_SETTING)();
+
+    return name && this.connectionNames().includes(name) ? name : null;
+  }
+
+  noDefaultAlert(): Mithril.Children {
+    if (this.defaultConnection()) return null;
+
+    return (
+      <Alert type="warning" dismissible={false} className="AiPage-noDefault">
+        {app.translator.trans('flarum-ai.admin.connections.no_default_text')}
+      </Alert>
+    );
+  }
+
+  /**
+   * Whether a saved connection has changes on the page not saved yet.
+   */
+  connectionChanged(name: string): boolean {
+    if (name in aiPayload().lockedConnections) return false;
+
+    const saved = parseObject<Connection>(app.data.settings[CONNECTIONS_SETTING])[name];
+    const current = this.connections[name];
+
+    if (!saved || !current) return true;
+
+    const { hasKey, ...currentFields } = current;
+
+    return currentFields.key !== undefined || JSON.stringify(sortKeys(saved)) !== JSON.stringify(sortKeys(currentFields));
+  }
+
+  serverSection(): Mithril.Children {
+    return (
+      <SettingsSection
+        id="flarum-ai-server"
+        className="AiPage-server"
+        label={app.translator.trans('flarum-ai.admin.server.heading')}
+        description={app.translator.trans('flarum-ai.admin.server.help')}
+        icon="fas fa-server"
+      >
+        <ServerChecks />
       </SettingsSection>
     );
   }
@@ -791,15 +894,20 @@ export default class AiPage extends ExtensionPage {
     return [...Object.keys(aiPayload().lockedConnections), ...Object.keys(this.connections)];
   }
 
-  edit(name?: string) {
+  edit(name?: string, driver?: string) {
     app.modal.show(EditConnectionModal, {
       name,
+      driver,
       connection: name ? this.connections[name] : undefined,
       takenNames: this.connectionNames().filter((other) => other !== name),
       listedAs: this.savedConnection(name ?? null),
       lists: this.modelLists,
       onsave: (newName: string, connection: Connection) => {
         this.connections[newName] = connection;
+
+        // The first connection is the one features use, until another is chosen.
+        if (!aiPayload().lockedDefault && !this.defaultConnection()) this.setting(DEFAULT_SETTING)(newName);
+
         this.sync();
       },
     });
@@ -874,4 +982,8 @@ export default class AiPage extends ExtensionPage {
     this.modelLists = new ModelLists();
     this.reloadModelIssues();
   }
+}
+
+function sortKeys(object: object): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(object).sort(([a], [b]) => a.localeCompare(b)));
 }

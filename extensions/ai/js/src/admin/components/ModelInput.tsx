@@ -16,6 +16,12 @@ export interface ModelInputAttrs extends ComponentAttrs {
   maxlength?: number;
   /** The model used when the field is empty, which is checked too. */
   defaultModel?: string | null;
+  /**
+   * A connection that isn't saved yet, whose models are listed under
+   * `connection`. Listed once the field is focused, not as its settings are
+   * typed in.
+   */
+  candidate?: { name: string; connection: object } | null;
 }
 
 /**
@@ -36,14 +42,16 @@ export default class ModelInput extends Component<ModelInputAttrs> {
     this.load();
   }
 
-  load() {
-    const { connection, lists } = this.attrs;
+  load(focused = false) {
+    const { connection, lists, candidate } = this.attrs;
 
-    if (connection && !lists.get(connection)) lists.load(connection);
+    if (!connection || lists.get(connection) || (candidate && !focused)) return;
+
+    lists.load(connection, false, candidate || undefined);
   }
 
   view() {
-    const { id, value, oninput, connection, lists, placeholder, maxlength, defaultModel } = this.attrs;
+    const { id, value, oninput, connection, lists, placeholder, maxlength, defaultModel, candidate } = this.attrs;
     const list = connection ? lists.get(connection) : undefined;
     const models = list?.models || [];
     const listId = id + '-models';
@@ -64,6 +72,7 @@ export default class ModelInput extends Component<ModelInputAttrs> {
             list={models.length ? listId : undefined}
             aria-invalid={status === 'missing' ? 'true' : undefined}
             oninput={(e: InputEvent) => oninput((e.target as HTMLInputElement).value)}
+            onfocus={() => this.load(true)}
           />
           {!!connection &&
             (list?.status === 'loading' ? (
@@ -74,7 +83,7 @@ export default class ModelInput extends Component<ModelInputAttrs> {
                   className="Button Button--icon Button--link"
                   icon="fas fa-rotate"
                   aria-label={app.translator.trans('flarum-ai.admin.models.refresh_button')}
-                  onclick={() => lists.load(connection, true)}
+                  onclick={() => lists.load(connection, true, candidate || undefined)}
                 />
               )
             ))}

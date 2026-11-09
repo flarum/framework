@@ -70,11 +70,8 @@ export default class ClearCacheModal<ModalAttrs extends IClearCacheModalAttrs = 
      */
     protected describe(step: Step): Mithril.Children;
     /**
-     * Reads the response as it is written.
-     *
-     * `app.request` cannot be used here: it hands back the body once, complete,
-     * so nothing could be shown until the work had finished. Each line is a whole
-     * JSON object, so a step can be rendered the moment its line arrives.
+     * Reads the response as it is written, so each step can be shown the moment
+     * the server reports it.
      */
     protected clear(): Promise<void>;
 }

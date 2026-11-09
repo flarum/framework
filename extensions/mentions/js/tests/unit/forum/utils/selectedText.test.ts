@@ -155,29 +155,194 @@ describe('selectedText', () => {
 });
 
 describe('spoilers', () => {
+  // What the markdown extension renders: see its ispoiler template and
+  // Litedown's block spoiler. Keep in step with them.
+  const inline = (inner: string) =>
+    `<span class="spoiler" data-spoiler="" onclick="removeAttribute('class')">${inner}</span>`;
+  const revealed = (inner: string) => `<span data-spoiler="" onclick="removeAttribute('class')">${inner}</span>`;
+  const block = (inner: string) => `<details class="spoiler">${inner}</details>`;
+
   test('an inline spoiler stays a spoiler', () => {
-    expect(quote('<p>before <span class="spoiler" data-spoiler="">secret</span> after</p>')).toBe('before >!secret!< after');
+    expect(quote(`<p>before ${inline('secret')} after</p>`)).toBe('before >!secret!< after');
   });
 
   test('a revealed inline spoiler stays a spoiler', () => {
-    expect(quote('<p>before <span data-spoiler="">secret</span> after</p>')).toBe('before >!secret!< after');
+    expect(quote(`<p>before ${revealed('secret')} after</p>`)).toBe('before >!secret!< after');
   });
 
   test('a block spoiler stays a spoiler', () => {
-    expect(quote('<details class="spoiler">one\ntwo</details>')).toBe('>! one\n>! two\n');
+    expect(quote(block('<p>one</p>\n\n<p>two</p>'))).toBe('>! one\n>! \n>! two\n');
   });
 
   test('a literal !< does not close the spoiler', () => {
-    expect(quote('<p><span class="spoiler" data-spoiler="">a !&lt; b</span></p>')).toBe('>!a !\\< b!<');
-    expect(quote('<details class="spoiler">a !&lt; b</details>')).toBe('>! a !\\< b\n');
+    expect(quote(`<p>${inline('a !&lt; b')}</p>`)).toBe('>!a !\\< b!<');
+    expect(quote(`<p>${inline('<em>wow!</em>&lt;3 secret')}</p>`)).toBe('>!wow!\\<3 secret!<');
+    expect(quote(block('<p><strong>a!</strong>&lt;b</p>'))).toBe('>! a!\\<b\n');
+    expect(quote(block('<p>a !&lt; b</p>'))).toBe('>! a !\\< b\n');
+  });
+
+  test('a backslash at the end does not escape the closing marker', () => {
+    expect(quote(`<p>a ${inline('C:\\')} b</p>`)).toBe('a >!C:\\\\!< b');
+    expect(quote(block('<p>C:\\</p>'))).toBe('>! C:\\\\\n');
+  });
+
+  test('an inline spoiler is not turned into a block spoiler when it starts a line', () => {
+    // ">!" at the start of a line opens a block spoiler unless the inline
+    // spoiler closes on that line with no ">" before it.
+    expect(quote(`<p>${inline('2 &gt; 1')} public</p>`)).toBe('>!2 \\> 1!< public');
+    expect(quote(`<p>first</p>\n<p>${inline('2 &gt; 1')} public</p>`)).toBe('first\n>!2 \\> 1!< public');
+    expect(quote(`<p>${inline('one\ntwo')} public</p>`)).toBe('>!one two!< public');
   });
 
   test('keeps images, emoji and links', () => {
-    expect(
-      quote(
-        '<p><span class="spoiler" data-spoiler=""><img src="https://example.com/a.png"> <img class="emoji" alt="😀" src="e.png"> <a href="https://example.com/">site</a></span></p>'
-      )
-    ).toBe('>!![](https://example.com/a.png) 😀 [site](https://example.com/)!<');
-    expect(quote('<details class="spoiler"><img src="https://example.com/a.png"></details>')).toBe('>! ![](https://example.com/a.png)\n');
+    expect(quote(`<p>${inline('<img src="https://example.com/a.png"> <img class="emoji" alt="😀" src="e.png"> <a href="https://example.com/">site</a>')}</p>`)).toBe(
+      '>!![](https://example.com/a.png) 😀 [site](https://example.com/)!<'
+    );
+    expect(quote(block('<p><img src="https://example.com/a.png"></p>'))).toBe('>! ![](https://example.com/a.png)\n');
+  });
+
+  test('an inline spoiler that starts with a link is not read as an image', () => {
+    expect(quote(`<p>x ${inline('<a href="https://example.com/">site</a>')} y</p>`)).toBe('x >! [site](https://example.com/)!< y');
+  });
+
+  test('a spoiler inside a link stays a spoiler', () => {
+    expect(quote(`<p>see <a href="https://example.com/">${inline('x')}</a></p>`)).toBe('see [>!x!<](https://example.com/)');
+    expect(quote(`<p><a href="https://example.com/">a ${revealed('b')}</a></p>`)).toBe('[a >!b!<](https://example.com/)');
+  });
+
+  test('a selection that only reaches into a spoiler keeps the part it takes hidden', () => {
+    const $body = postBody(`<p>before ${inline('secret')} after</p>`);
+    const text = $body.find('p')[0].firstChild!;
+    const secret = $body.find('.spoiler')[0].firstChild!;
+
+    select((range) => {
+      range.setStart(text, 0);
+      range.setEnd(secret, 3);
+    });
+
+    expect(selectedText($body)).toBe('before >!sec!<');
+  });
+
+  describe('a selection entirely inside a spoiler stays hidden', () => {
+    test('a word in an inline spoiler', () => {
+      const $body = postBody(`<p>before ${inline('top secret')} after</p>`);
+      const secret = $body.find('.spoiler')[0].firstChild!;
+
+      select((range) => {
+        range.setStart(secret, 4);
+        range.setEnd(secret, 10);
+      });
+
+      expect(selectedText($body)).toBe('>!secret!<');
+    });
+
+    test('a word in a revealed inline spoiler', () => {
+      const $body = postBody(`<p>before ${revealed('top secret')} after</p>`);
+      const secret = $body.find('[data-spoiler]')[0].firstChild!;
+
+      select((range) => {
+        range.setStart(secret, 4);
+        range.setEnd(secret, 10);
+      });
+
+      expect(selectedText($body)).toBe('>!secret!<');
+    });
+
+    test('all of an inline spoiler holding a link', () => {
+      const $body = postBody(`<p>${inline('a <a href="https://example.com/">site</a>')}</p>`);
+
+      select((range) => range.selectNodeContents($body.find('.spoiler')[0]));
+
+      expect(selectedText($body)).toBe('>!a [site](https://example.com/)!<');
+    });
+
+    test('a word in a link in an inline spoiler', () => {
+      const $body = postBody(`<p>${inline('a <a href="https://example.com/">site</a>')}</p>`);
+      const site = $body.find('a')[0].firstChild!;
+
+      select((range) => {
+        range.setStart(site, 0);
+        range.setEnd(site, 2);
+      });
+
+      expect(selectedText($body)).toBe('>!si!<');
+    });
+
+    test('all the text of an opened block spoiler', () => {
+      const $body = postBody(block('<p>one</p>\n\n<p>two</p>'));
+
+      select((range) => range.selectNodeContents($body.find('details')[0]));
+
+      expect(selectedText($body)).toBe('>! one\n>! \n>! two\n');
+    });
+
+    test('a word in an opened block spoiler', () => {
+      const $body = postBody(block('<p>one two</p>'));
+      const text = $body.find('p')[0].firstChild!;
+
+      select((range) => {
+        range.setStart(text, 4);
+        range.setEnd(text, 7);
+      });
+
+      expect(selectedText($body)).toBe('>! two\n');
+    });
+
+    test('text escaped as in any other spoiler', () => {
+      const $body = postBody(`<p>${inline('a !&lt; 2 &gt; C:\\')}</p>`);
+
+      select((range) => range.selectNodeContents($body.find('.spoiler')[0]));
+
+      expect(selectedText($body)).toBe('>!a !\\< 2 \\> C:\\\\!<');
+    });
+  });
+
+  test('a backslash just before a spoiler does not escape its opening marker', () => {
+    expect(quote(`<p>C:\\${inline('secret')}</p>`)).toBe('C:\\\\>!secret!<');
+    expect(quote(`<p><em>C:\\</em>${inline('secret')}</p>`)).toBe('C:\\\\>!secret!<');
+    expect(quote(`<p>C:\\\\${inline('secret')}</p>`)).toBe('C:\\\\>!secret!<');
+    expect(quote(`<p><a href="https://example.com/">C:\\${inline('x')}</a></p>`)).toBe('[C:\\\\>!x!<](https://example.com/)');
+  });
+
+  test('a spoiler inside a spoiler is written back once, not escaped as text', () => {
+    expect(quote(block(`<p>a ${inline('b')} c</p>`))).toBe('>! a >!b!< c\n');
+    expect(quote(block(`<p>a <a href="https://example.com/">${inline('C:\\')}</a></p>`))).toBe('>! a [>!C:\\\\!<](https://example.com/)\n');
+
+    const $body = postBody(block(`<p>a ${inline('b')} c</p>`));
+    select((range) => range.selectNodeContents($body.find('p')[0]));
+
+    expect(selectedText($body)).toBe('>! a >!b!< c\n');
+  });
+
+  test('a backslash run split across formatting counts as one run', () => {
+    expect(quote(`<p><em>\\</em><strong>\\</strong>${inline('secret')}</p>`)).toBe('\\\\>!secret!<');
+    expect(quote(`<p><em>\\</em><strong>\\\\</strong>${inline('secret')}</p>`)).toBe('\\\\\\\\>!secret!<');
+  });
+
+  test('an inline spoiler inside an inline spoiler does not close it early', () => {
+    expect(quote(`<p>before ${inline(`outer <a href="https://example.com/">${inline('inner')}</a> tail`)} after</p>`)).toBe(
+      'before >!outer [inner](https://example.com/) tail!< after'
+    );
+
+    const $body = postBody(`<p>${inline(`a ${inline('b')} c`)}</p>`);
+    select((range) => range.selectNodeContents($body.find('.spoiler')[0]));
+
+    expect(selectedText($body)).toBe('>!a b c!<');
+  });
+
+  test('a selection inside a spoiler with no text in it is not quoted', () => {
+    const $body = postBody(`<p>${inline('<img class="icon IconImage" src="https://example.com/crest.webp" alt="">')}</p>`);
+    select((range) => range.selectNodeContents($body.find('.spoiler')[0]));
+
+    expect(selectedText($body)).toBe('');
+  });
+
+  test('a spoiler around the whole post body is not one the selection is in', () => {
+    document.body.innerHTML = `<details class="spoiler"><div class="Post-body"><p>public</p></div></details>`;
+    const $body = $(document.body).find('.Post-body');
+
+    select((range) => range.selectNodeContents($body.find('p')[0]));
+
+    expect(selectedText($body)).toBe('public');
   });
 });

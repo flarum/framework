@@ -48,7 +48,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
                 $container['flarum.debug']
             );
 
-            $translator->setFallbackLocales(['en']);
+            $translator->setDefaultFallbackLocale($this->getDefaultLocale($container));
             $translator->addLoader('prefixed_yaml', new PrefixedYamlFileLoader());
 
             // Symfony would otherwise treat a compiled catalogue as current for

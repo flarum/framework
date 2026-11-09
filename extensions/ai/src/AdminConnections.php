@@ -115,56 +115,14 @@ class AdminConnections
 
         foreach ($connections as $name => $connection) {
             $name = (string) $name;
+            $prepared[$name] = $this->validate($name, $connection, $previous, $locked);
+            $driver = $prepared[$name]['driver'];
 
-            if (! preg_match('/'.self::NAME_PATTERN.'/i', $name) || $name === AiConfig::UNCONFIGURED) {
-                $this->fail('name_invalid_message', ['name' => $name]);
-            }
-
-            if (isset($locked[$name])) {
-                $this->fail('name_locked_message', ['name' => $name]);
-            }
-
-            $driver = is_array($connection) ? ($connection['driver'] ?? null) : null;
-
-            if (! is_string($driver) || ! Drivers::allowed($driver, is_string($previous[$name]['driver'] ?? null) ? $previous[$name]['driver'] : null)) {
-                $this->fail('driver_invalid_message', ['name' => $name]);
-            }
-
-            $byRegion = in_array($driver, Drivers::REGION_REQUIRED, true);
-
-            // A provider reached by region has no address to keep.
-            $url = ! $byRegion && is_string($connection['url'] ?? null) ? trim($connection['url']) : '';
-            $region = $byRegion && is_string($connection['region'] ?? null) ? trim($connection['region']) : '';
-
-            if ($byRegion && ! preg_match('/'.self::REGION_PATTERN.'/', $region)) {
-                $this->fail($region === '' ? 'region_required_message' : 'region_invalid_message', ['name' => $name]);
-            }
-
-            [$guardrailId, $guardrailVersion] = $driver === 'bedrock' ? $this->guardrail($connection, $name) : [null, null];
-
-            if ($url !== '' && ! $this->isUrl($url)) {
-                $this->fail('url_invalid_message', ['name' => $name]);
-            }
-
-            if ($url === '' && in_array($driver, Drivers::URL_REQUIRED, true)) {
-                $this->fail('url_required_message', ['name' => $name]);
-            }
-
-            $model = is_string($connection['model'] ?? null) ? trim($connection['model']) : '';
-
-            if (mb_strlen($model) > self::MODEL_MAX_LENGTH) {
-                $this->fail('model_invalid_message', ['name' => $name]);
-            }
-
-            $monthly = $this->tokens($connection['monthly_tokens'] ?? null, $name);
-
-            if (array_key_exists('key', $connection)) {
-                $key = is_string($connection['key']) ? trim($connection['key']) : '';
-                // laravel/ai drops a key PHP thinks is empty, so it's no key.
-                $key = $key === '0' ? '' : $key;
-                $keyChanges[$name] = $key === '' ? null : $key;
-                $hasKey = $key !== '';
-            } elseif ($this->sameTarget($previous[$name] ?? null, $driver, $url, $region)) {
+            if (is_array($connection) && array_key_exists('key', $connection)) {
+                $key = $this->submittedKey($connection['key']);
+                $keyChanges[$name] = $key;
+                $hasKey = $key !== null;
+            } elseif ($this->sameTarget($previous[$name] ?? null, $driver, $prepared[$name]['url'] ?? '', $prepared[$name]['region'] ?? '')) {
                 $hasKey = in_array($name, $storedKeys, true);
             } else {
                 $keyChanges[$name] = null;
@@ -174,19 +132,6 @@ class AdminConnections
             if (! $hasKey && ! in_array($driver, Drivers::keyOptional($this->config->bedrockServerCredentials()), true)) {
                 $this->fail('key_required_message', ['name' => $name]);
             }
-
-            $prepared[$name] = array_filter(
-                [
-                    'driver' => $driver,
-                    'url' => $url,
-                    'region' => $region,
-                    'model' => $model,
-                    'monthly_tokens' => $monthly,
-                    'guardrail_id' => $guardrailId,
-                    'guardrail_version' => $guardrailVersion,
-                ],
-                fn ($value) => $value !== null && $value !== ''
-            );
         }
 
         // A removed connection takes its key with it.
@@ -197,6 +142,119 @@ class AdminConnections
         }
 
         return [json_encode((object) $prepared, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR), $keyChanges];
+    }
+
+    /**
+     * A connection typed into the admin page but not saved yet, checked as a
+     * save would check it, with the key it would be saved with: the one typed
+     * in, or else the saved one, but only while the provider, address and
+     * region it was saved for stay the same.
+     *
+     * @param array<string, mixed> $submitted As the admin page sends a connection, with `removeKey` to leave the saved key out.
+     * @return array<string, mixed> The connection, with its `key`, or none when it has none.
+     *
+     * @throws ValidationException
+     */
+    public function candidate(string $name, mixed $submitted): array
+    {
+        $previous = $this->config->adminConnections();
+        $connection = $this->validate($name, $submitted, $previous, $this->config->lockedConnections());
+        $key = is_array($submitted) && array_key_exists('key', $submitted) ? $this->submittedKey($submitted['key']) : null;
+
+        if ($key === null
+            && ! (is_array($submitted) && ($submitted['removeKey'] ?? false) === true)
+            && $this->sameTarget($previous[$name] ?? null, $connection['driver'], $connection['url'] ?? '', $connection['region'] ?? '')) {
+            $key = $this->keys->get($name);
+        }
+
+        if ($key === null && ! in_array($connection['driver'], Drivers::keyOptional($this->config->bedrockServerCredentials()), true)) {
+            $this->fail('key_required_message', ['name' => $name]);
+        }
+
+        if ($key !== null) {
+            $connection['key'] = $key;
+        }
+
+        return $connection;
+    }
+
+    /**
+     * Checks one connection submitted from the admin page, without its key.
+     *
+     * @param array<string, mixed> $previous The connections saved before.
+     * @param array<string, mixed> $locked The connections config.php sets.
+     * @return array<string, mixed>
+     *
+     * @throws ValidationException
+     */
+    protected function validate(string $name, mixed $connection, array $previous, array $locked): array
+    {
+        if (! preg_match('/'.self::NAME_PATTERN.'/i', $name) || $name === AiConfig::UNCONFIGURED) {
+            $this->fail('name_invalid_message', ['name' => $name]);
+        }
+
+        if (isset($locked[$name])) {
+            $this->fail('name_locked_message', ['name' => $name]);
+        }
+
+        $driver = is_array($connection) ? ($connection['driver'] ?? null) : null;
+
+        if (! is_string($driver) || ! Drivers::allowed($driver, is_string($previous[$name]['driver'] ?? null) ? $previous[$name]['driver'] : null)) {
+            $this->fail('driver_invalid_message', ['name' => $name]);
+        }
+
+        /** @var array<string, mixed> $connection */
+        $byRegion = in_array($driver, Drivers::REGION_REQUIRED, true);
+
+        // A provider reached by region has no address to keep.
+        $url = ! $byRegion && is_string($connection['url'] ?? null) ? trim($connection['url']) : '';
+        $region = $byRegion && is_string($connection['region'] ?? null) ? trim($connection['region']) : '';
+
+        if ($byRegion && ! preg_match('/'.self::REGION_PATTERN.'/', $region)) {
+            $this->fail($region === '' ? 'region_required_message' : 'region_invalid_message', ['name' => $name]);
+        }
+
+        [$guardrailId, $guardrailVersion] = $driver === 'bedrock' ? $this->guardrail($connection, $name) : [null, null];
+
+        if ($url !== '' && ! $this->isUrl($url)) {
+            $this->fail('url_invalid_message', ['name' => $name]);
+        }
+
+        if ($url === '' && in_array($driver, Drivers::URL_REQUIRED, true)) {
+            $this->fail('url_required_message', ['name' => $name]);
+        }
+
+        $model = is_string($connection['model'] ?? null) ? trim($connection['model']) : '';
+
+        if (mb_strlen($model) > self::MODEL_MAX_LENGTH) {
+            $this->fail('model_invalid_message', ['name' => $name]);
+        }
+
+        $monthly = $this->tokens($connection['monthly_tokens'] ?? null, $name);
+
+        return array_filter(
+            [
+                'driver' => $driver,
+                'url' => $url,
+                'region' => $region,
+                'model' => $model,
+                'monthly_tokens' => $monthly,
+                'guardrail_id' => $guardrailId,
+                'guardrail_version' => $guardrailVersion,
+            ],
+            fn ($value) => $value !== null && $value !== ''
+        );
+    }
+
+    /**
+     * A key typed in, or null for none. laravel/ai drops a key PHP thinks is
+     * empty, such as "0", so that's no key either.
+     */
+    protected function submittedKey(mixed $key): ?string
+    {
+        $key = is_string($key) ? trim($key) : '';
+
+        return $key === '' || $key === '0' ? null : $key;
     }
 
     /**

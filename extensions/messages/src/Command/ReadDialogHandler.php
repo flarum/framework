@@ -9,6 +9,7 @@
 
 namespace Flarum\Messages\Command;
 
+use Carbon\Carbon;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\Dialog\Event\UserDataSaving;
@@ -34,7 +35,10 @@ class ReadDialogHandler
         $dialog = Dialog::whereVisibleTo($actor)->findOrFail($command->dialogId);
 
         /** @var UserDialogState $state */
-        $state = $dialog->state($actor)->first();
+        $state = UserDialogState::query()->firstOrCreate(
+            ['dialog_id' => $dialog->id, 'user_id' => $actor->id],
+            ['joined_at' => Carbon::now(), 'is_recipient' => false]
+        );
         $state->read($command->lastReadMessageId);
 
         $this->events->dispatch(

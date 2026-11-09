@@ -4,10 +4,13 @@ import Stream from 'flarum/common/utils/Stream';
 import type Mithril from 'mithril';
 import { type Connection } from '../utils/settings';
 import type { ModelLists } from '../utils/models';
+import { type CandidateConnection, ConnectionTestState } from './ConnectionTest';
 export interface EditConnectionModalAttrs extends IFormModalAttrs {
     /** Set when editing; a new connection has none yet. */
     name?: string;
     connection?: Connection;
+    /** The provider a new connection starts with. */
+    driver?: string;
     takenNames: string[];
     /** The saved connection whose models can be listed, if this is one. */
     listedAs?: string | null;
@@ -31,6 +34,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
     key: Stream<string>;
     removeKey: boolean;
     invalid: Field | null;
+    test: ConnectionTestState;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
     title(): string | any[];
@@ -59,6 +63,28 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
      * URL it was saved for, as the server checks.
      */
     savedKeyApplies(): boolean;
+    /**
+     * Whether enough has been typed in to ask the provider anything: its
+     * address or region where it needs one, and a key where it needs one.
+     */
+    canAsk(): boolean;
+    /**
+     * The connection as typed in, to test or list the models of before it's
+     * saved. Left without a key, the server uses the saved one, if it applies.
+     *
+     * @param forModels Without the model and guardrail, which don't change the list.
+     */
+    candidateFor(forModels?: boolean): CandidateConnection;
+    /**
+     * Tests the connection as it's typed in, before it's saved.
+     */
+    runTest(): void;
+    /**
+     * Marks the first problem with the form, if any.
+     *
+     * @return Whether there's none.
+     */
+    check(): boolean;
     /**
      * The first problem with the form, checked as the server would, so the
      * admin can fix it here, next to the field.

@@ -62,6 +62,12 @@ export interface AiPayload {
     features: FeatureInfo[];
     /** The models features use that are deprecated or gone. */
     modelIssues: ModelIssue[];
+    /** The address each provider is reached at when a connection gives none. */
+    defaultUrls: Record<string, string>;
+    /** Tokens each connection has used this calendar month. */
+    monthlyUsage: Record<string, number>;
+    /** When the scheduler last ran, if it ever has. */
+    schedulerLastRun: string | null;
     /** The checks the server makes on save, so forms can make them first. */
     rules: {
         namePattern: string;
@@ -71,6 +77,10 @@ export interface AiPayload {
         guardrailVersionPattern: string;
     };
 }
+/**
+ * Where to get an API key for each provider that needs one.
+ */
+export declare const KEY_URLS: Record<string, string>;
 export declare function aiPayload(): AiPayload;
 export declare function parseObject<T>(json: string | undefined): Record<string, T>;
 /**

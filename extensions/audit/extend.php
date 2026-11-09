@@ -198,7 +198,8 @@ return [
         ->addFilter(AuditSearcher::class, Search\Filter\UserFilter::class),
 
     (new Extend\Console())
-        ->command(Console\ClearLogsCommand::class),
+        ->command(Console\ClearLogsCommand::class)
+        ->command(Console\BackfillIpCommand::class),
 
     new Extend\ApiResource(Api\Resource\AuditLogResource::class),
 

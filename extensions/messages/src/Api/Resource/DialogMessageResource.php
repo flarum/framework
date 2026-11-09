@@ -19,11 +19,14 @@ use Flarum\Bus\Dispatcher;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Foundation\ValidationException;
+use Flarum\Group\Group;
 use Flarum\Locale\Translator;
 use Flarum\Messages\Access\MessagingPermission;
 use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
+use Flarum\Messages\DialogAudience;
 use Flarum\Messages\DialogMessage;
+use Flarum\Messages\RecipientGroups;
 use Flarum\Messages\RecipientLimit;
 use Flarum\User\User;
 use Illuminate\Database\ConnectionInterface;
@@ -46,6 +49,9 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
      */
     protected ?WeakMap $recipients = null;
 
+    /** @var WeakMap<DialogMessage, int[]>|null */
+    protected ?WeakMap $recipientGroups = null;
+
     public function __construct(
         protected Translator $translator,
         protected LogReporter $log,
@@ -53,6 +59,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         protected ExtensionManager $extensions,
         protected ConnectionInterface $db,
         protected RecipientLimit $recipientLimit,
+        protected RecipientGroups $groups,
     ) {
     }
 
@@ -76,7 +83,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         return [
             Endpoint\Create::make()
                 ->authenticated()
-                ->eagerLoadWhenIncluded(['dialog' => ['dialog.users', 'dialog.state'], 'dialog.users' => ['dialog.users.groups']])
+                ->eagerLoadWhenIncluded(['dialog' => ['dialog.users', 'dialog.state', 'dialog.groups'], 'dialog.users' => ['dialog.users.groups']])
                 ->visible(function (Context $context): bool {
                     $actor = $context->getActor();
 
@@ -110,11 +117,11 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
             Endpoint\Show::make()
                 ->authenticated()
                 ->defaultInclude(['user', 'dialog'])
-                ->eagerLoadWhenIncluded(['dialog' => ['dialog.users', 'dialog.state'], 'dialog.users' => ['dialog.users.groups']]),
+                ->eagerLoadWhenIncluded(['dialog' => ['dialog.users', 'dialog.state', 'dialog.groups'], 'dialog.users' => ['dialog.users.groups']]),
             Endpoint\Index::make()
                 ->authenticated()
                 ->defaultInclude(['user', 'dialog'])
-                ->eagerLoadWhenIncluded(['dialog' => ['dialog.users', 'dialog.state'], 'dialog.users' => ['dialog.users.groups']])
+                ->eagerLoadWhenIncluded(['dialog' => ['dialog.users', 'dialog.state', 'dialog.groups'], 'dialog.users' => ['dialog.users.groups']])
                 ->defaultSort('-number')
                 ->eagerLoad(function () {
                     if (! $this->extensions->isEnabled('flarum-mentions')) {
@@ -208,11 +215,14 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
 
             // Write-only.
             Schema\Arr::make('users')
-                ->description('Write-only, to start a new dialog: the recipients, as a list of {id} objects. Give this or the dialog relationship.')
-                ->requiredOnCreateWithout(['relationships.dialog'])
+                ->description('Write-only, to start a new dialog: the recipients, as a list of {id} objects. Give users and/or groups, or the dialog relationship.')
                 ->writableOnCreate()
                 ->hidden()
-                ->rule('min:1')
+                ->set(fn () => null),
+
+            Schema\Arr::make('groups')
+                ->writableOnCreate()
+                ->hidden()
                 ->set(fn () => null),
 
             // Read-only.
@@ -225,11 +235,10 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ->type('users')
                 ->includable(),
             Schema\Relationship\ToOne::make('dialog')
-                ->description('The dialog the message is in. When sending, give this or the users attribute.')
+                ->description('The dialog the message is in. When sending, give this or the users/groups attributes.')
                 ->type('dialogs')
                 ->includable()
-                ->writableOnCreate()
-                ->requiredOnCreateWithout(['attributes.users']),
+                ->writableOnCreate(),
             Schema\Relationship\ToMany::make('mentionsUsers')
                 ->type('users')
                 ->includable(),
@@ -276,6 +285,25 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 array_filter(Arr::pluck($data['attributes']['users'] ?? [], 'id'), fn (mixed $id) => $id && (int) $id !== $actor->id)
             )));
 
+            $inputGroups = $data['attributes']['groups'] ?? [];
+            foreach ($inputGroups as $group) {
+                $id = is_array($group) ? ($group['id'] ?? null) : null;
+                if ((! is_int($id) && ! is_string($id)) || ! preg_match('/^[1-9][0-9]*$/D', (string) $id)) {
+                    throw new ValidationException(['groups' => $this->translator->trans('flarum-messages.lib.groups_unavailable_message')]);
+                }
+            }
+            $groups = array_values(array_unique(array_map('intval', Arr::pluck($inputGroups, 'id'))));
+            if (count($groups) > RecipientGroups::LIMIT) {
+                throw new ValidationException(['groups' => $this->translator->trans('flarum-messages.lib.too_many_groups_message', ['count' => RecipientGroups::LIMIT])]);
+            }
+            if ($groups) {
+                $actor->assertCan(RecipientGroups::PERMISSION);
+                $found = Group::whereVisibleTo($actor)->whereIn('id', $groups)->get();
+                if ($found->count() !== count($groups) || $found->contains(fn ($group) => ! $this->groups->canAddress($actor, $group))) {
+                    throw new ValidationException(['groups' => $this->translator->trans('flarum-messages.lib.groups_unavailable_message')]);
+                }
+            }
+
             // Before anything is looked up: a message can't reach more members
             // than the forum allows.
             if (count($users) > ($limit = $this->recipientLimit->get())) {
@@ -287,19 +315,21 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
             // Checked before anything is written: a recipient who doesn't exist
             // used to reach the database, fail on the foreign key, and leave a
             // dialog with no messages behind.
-            if (empty($users) || User::whereVisibleTo($actor)->whereIn('id', $users)->count() !== count($users)) {
+            if ((! $groups && empty($users)) || User::whereVisibleTo($actor)->whereIn('id', $users)->count() !== count($users)) {
                 throw new ValidationException([
                     'users' => str_replace(':attribute', 'users', $this->translator->trans('validation.exists')),
                 ]);
             }
 
-            $this->assertRecipientsCanBeMessaged($actor, $users, group: count($users) > 1);
+            $this->assertRecipientsCanBeMessaged($actor, $users, group: (bool) $groups || count($users) > 1);
 
             // Written with the message, in create(): a message that fails to
             // save must not leave a conversation with nothing in it behind.
             $this->recipients ??= new WeakMap();
             $this->recipients[$model] = $users;
-        } elseif ($model->dialog && $model->dialog->users()->where('users.id', '!=', $actor->id)->doesntExist()) {
+            $this->recipientGroups ??= new WeakMap();
+            $this->recipientGroups[$model] = $groups;
+        } elseif ($model->dialog && DialogAudience::users($model->dialog)->where('users.id', '!=', $actor->id)->doesntExist()) {
             // The other member has left; there is no one to send to.
             throw new ValidationException([
                 'dialog' => $this->translator->trans('flarum-messages.lib.no_other_members_message'),
@@ -319,8 +349,9 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
     public function create(object $model, OriginalContext $context): object
     {
         return $this->db->transaction(function () use ($model, $context) {
-            if ($users = $this->recipients[$model] ?? null) {
-                $model->dialog()->associate($this->dialogFor($model, $users, $context->getActor()));
+            if (isset($this->recipients[$model])) {
+                $users = $this->recipients[$model];
+                $model->dialog()->associate($this->dialogFor($model, $users, $context->getActor(), $this->recipientGroups[$model] ?? []));
             }
 
             return parent::create($model, $context);
@@ -334,9 +365,11 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
      *
      * @param int[] $users
      */
-    protected function dialogFor(DialogMessage $model, array $users, User $actor): Dialog
+    protected function dialogFor(DialogMessage $model, array $users, User $actor, array $groups = []): Dialog
     {
-        $dialog = count($users) === 1 ? Dialog::for($model, $users) : Dialog::startGroup();
+        $dialog = ! $groups && count($users) === 1 ? Dialog::for($model, $users) : Dialog::startGroup();
+
+        $dialog->groups()->attach($groups);
 
         // Only members not yet in the dialog are added: syncing them all
         // would reset `joined_at` for the ones already there.
@@ -345,6 +378,11 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
 
         if ($joining) {
             $dialog->users()->attach(array_fill_keys($joining, ['joined_at' => Carbon::now()]));
+        }
+
+        if (! $dialog->first_message_id) {
+            $dialog->recipient_count = max(0, DialogAudience::users($dialog)->count() - 1);
+            $dialog->save();
         }
 
         return $dialog;

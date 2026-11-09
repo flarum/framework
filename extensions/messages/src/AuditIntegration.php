@@ -10,6 +10,7 @@
 namespace Flarum\Messages;
 
 use Flarum\Audit\AuditLogger;
+use Flarum\Group\Group;
 use Flarum\Messages\DialogMessage\Event\Created;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
@@ -24,6 +25,8 @@ class AuditIntegration
     public static array $actions = [
         'dialog.started',
         'dialog.posted',
+        'dialog.group_started',
+        'dialog.group_posted',
     ];
 
     public function __invoke(Container $container): void
@@ -47,11 +50,17 @@ class AuditIntegration
 
         // One entry per recipient: audit shows and searches a single user per
         // entry, and conversations will not always be between two people.
-        $dialog->users
-            ->reject(fn (User $user) => $user->id === $message->user_id)
+        $dialog->users()
+            ->where('users.id', '!=', $message->user_id)
             ->each(fn (User $recipient) => AuditLogger::log($action, [
                 'dialog_id' => $dialog->id,
                 'user_id' => $recipient->id,
             ]));
+
+        $groupAction = (int) $message->number === 1 ? 'dialog.group_started' : 'dialog.group_posted';
+        $dialog->groups()->each(fn (Group $group) => AuditLogger::log($groupAction, [
+            'dialog_id' => $dialog->id,
+            'group_id' => $group->id,
+        ]));
     }
 }

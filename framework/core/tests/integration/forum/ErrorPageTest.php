@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\forum;
 
 use Flarum\Extend;
+use Flarum\Forum\OpenSearch\OpenSearchDescription;
 use Flarum\Foundation\ErrorHandling\HandledError;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
 use Flarum\Http\Middleware\AuthenticateWithSession;
@@ -65,6 +66,189 @@ class ErrorPageTest extends TestCase
     }
 
     #[Test]
+    public function not_found_page_survives_a_failure_building_recovery_links(): void
+    {
+        $this->app()->getContainer()->bind(OpenSearchDescription::class, function () {
+            throw new \RuntimeException('Recovery URL dependency unavailable');
+        });
+
+        $response = $this->renderResponse(RequestUtil::withActor(new ServerRequest(), new Guest()));
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertStringNotContainsString('name="q"', (string) $response->getBody());
+        $this->assertStringContainsString('href="http://localhost"', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function not_found_view_can_be_rendered_directly_without_an_actor(): void
+    {
+        $html = $this->app()->getContainer()->make(\Illuminate\Contracts\View\Factory::class)
+            ->make('flarum.forum::error.not_found')->render();
+
+        $this->assertStringContainsString('<main class="not-found">', $html);
+        $this->assertStringNotContainsString('name="q"', $html);
+    }
+
+    #[Test]
+    public function not_found_page_hides_search_when_permission_resolution_fails(): void
+    {
+        $request = RequestUtil::withActor(new ServerRequest(), new FailsPermissionLookup());
+
+        $response = $this->renderResponse($request);
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertStringNotContainsString('name="q"', (string) $response->getBody());
+        $this->assertSame('private, no-cache', $response->getHeaderLine('Cache-Control'));
+    }
+
+    #[Test]
+    public function generic_error_page_does_not_resolve_search_permissions(): void
+    {
+        $formatter = $this->app()->getContainer()->make(ViewFormatter::class);
+        $actor = new FailsPermissionLookup();
+        $request = RequestUtil::withActor(new ServerRequest(), $actor);
+        $error = new HandledError(new \RuntimeException('Original failure'), 'unknown', 500);
+
+        $response = $formatter->format($error, $request);
+
+        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertFalse($actor->checked);
+    }
+
+    #[Test]
+    public function not_found_page_offers_search_and_recovery_actions(): void
+    {
+        $response = $this->send($this->htmlRequest('GET', '/does-not-exist'));
+        $html = (string) $response->getBody();
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertStringContainsString('<meta name="robots" content="noindex">', $html);
+        $this->assertStringContainsString('Page not found', $html);
+        $this->assertStringContainsString('name="q"', $html);
+        $this->assertStringContainsString('action="http://localhost/opensearch/search"', $html);
+        $this->assertStringContainsString('Go to the homepage', $html);
+        $this->assertStringContainsString('Browse all discussions', $html);
+    }
+
+    #[Test]
+    public function not_found_search_is_hidden_from_guests_who_cannot_view_the_forum(): void
+    {
+        $this->database()->table('group_permission')->where('permission', 'viewForum')->delete();
+
+        $response = $this->send($this->htmlRequest('GET', '/does-not-exist'));
+        $html = (string) $response->getBody();
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertStringNotContainsString('name="q"', $html);
+        $this->assertStringNotContainsString('Browse all discussions', $html);
+        $this->assertStringContainsString('href="http://localhost"', $html);
+    }
+
+    #[Test]
+    public function not_found_search_is_available_to_a_member_of_a_private_forum(): void
+    {
+        $this->prepareDatabase([
+            'users' => [$this->normalUser()],
+            'group_permission' => [['group_id' => 3, 'permission' => 'viewForum']],
+        ]);
+        $this->database()->table('group_permission')->where('permission', 'viewForum')->where('group_id', 2)->delete();
+
+        $response = $this->send($this->htmlRequest('GET', '/does-not-exist', ['authenticatedAs' => 2]));
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertStringContainsString('name="q"', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function not_found_search_is_hidden_when_no_actor_is_available(): void
+    {
+        $this->assertStringNotContainsString('name="q"', $this->render());
+    }
+
+    #[Test]
+    public function not_found_partials_can_add_artwork_and_an_action_without_replacing_the_page(): void
+    {
+        $this->extend(
+            (new Extend\View)->extendNamespace('flarum.forum', __DIR__.'/../../fixtures/views/not-found')
+        );
+
+        $response = $this->send($this->htmlRequest('GET', '/does-not-exist'));
+        $html = (string) $response->getBody();
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertStringContainsString('src="/custom-artwork.png"', $html);
+        $this->assertStringContainsString('href="/custom-help"', $html);
+        $this->assertStringContainsString('name="q"', $html);
+        $this->assertStringContainsString('href="http://localhost"', $html);
+        $this->assertStringContainsString('href="http://localhost/"', $html);
+        $this->assertStringContainsString('<main class="not-found">', $html);
+    }
+
+    #[Test]
+    public function not_found_discussions_link_follows_a_custom_homepage(): void
+    {
+        $this->setting('default_route', '/custom');
+        $this->extend((new Extend\Frontend('forum'))->route('/custom', 'custom'));
+
+        $response = $this->send($this->htmlRequest('GET', '/does-not-exist'));
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertStringContainsString('href="http://localhost/all"', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function error_page_prefers_ico_and_includes_the_apple_touch_icon(): void
+    {
+        $this->setting('favicon_path', 'favicon.png');
+        $this->setting('favicon_ico_path', 'favicon.ico');
+        $this->setting('app_icon_paths', json_encode(['apple-touch-icon.png' => 'apple-touch-icon.png']));
+
+        $html = $this->render();
+
+        $this->assertStringContainsString('<link rel="icon" href="http://localhost/assets/favicon.ico" sizes="32x32">', $html);
+        $this->assertStringContainsString('<link rel="apple-touch-icon" href="http://localhost/assets/apple-touch-icon.png">', $html);
+    }
+
+    #[Test]
+    public function not_found_search_and_links_respect_a_subdirectory_installation(): void
+    {
+        $this->config('url', 'http://localhost/community');
+
+        $html = $this->render(RequestUtil::withActor(new ServerRequest(), new Guest()));
+
+        $this->assertStringContainsString('action="http://localhost/community/opensearch/search"', $html);
+        $this->assertStringContainsString('href="http://localhost/community"', $html);
+        $this->assertStringContainsString('href="http://localhost/community/"', $html);
+    }
+
+    #[Test]
+    public function missing_discussions_and_users_get_the_not_found_page(): void
+    {
+        foreach (['/d/999999999', '/u/nobody'] as $path) {
+            $response = $this->send($this->htmlRequest('GET', $path));
+
+            $this->assertEquals(404, $response->getStatusCode(), $path);
+            $this->assertStringContainsString('<main class="not-found">', (string) $response->getBody(), $path);
+        }
+    }
+
+    #[Test]
+    public function error_page_includes_a_theme_svg_favicon(): void
+    {
+        $this->extend(
+            (new Extend\Theme())->favicon(
+                __DIR__.'/../../fixtures/assets/avatar.png',
+                svg: __DIR__.'/../../fixtures/assets/favicon.svg'
+            )
+        );
+
+        $html = $this->render();
+
+        $this->assertMatchesRegularExpression('#<link rel="icon" href="[^"]+\.ico" sizes="32x32">#', $html);
+        $this->assertMatchesRegularExpression('#<link rel="icon" href="[^"]+\.svg" type="image/svg\+xml">#', $html);
+    }
+
+    #[Test]
     public function error_page_follows_the_system_color_scheme_when_the_forum_does(): void
     {
         $this->setting('color_scheme', 'auto');
@@ -105,7 +289,8 @@ class ErrorPageTest extends TestCase
 
         $html = $this->render();
 
-        $this->assertStringNotContainsString('@media', $html);
+        $this->assertStringNotContainsString('prefers-color-scheme: dark', $html);
+        $this->assertStringNotContainsString('@media all', $html);
         $this->assertStringNotContainsString('color-scheme: dark', $html);
     }
 
@@ -115,7 +300,7 @@ class ErrorPageTest extends TestCase
         $this->setting('favicon_path', 'favicon-abc123.png');
 
         $this->assertStringContainsString(
-            '<link rel="shortcut icon" href="http://localhost/assets/favicon-abc123.png">',
+            '<link rel="icon" href="http://localhost/assets/favicon-abc123.png">',
             $this->render()
         );
     }
@@ -123,7 +308,7 @@ class ErrorPageTest extends TestCase
     #[Test]
     public function error_page_has_no_favicon_when_the_forum_has_none(): void
     {
-        $this->assertStringNotContainsString('rel="shortcut icon"', $this->render());
+        $this->assertStringNotContainsString('rel="icon"', $this->render());
     }
 
     #[Test]
@@ -369,5 +554,17 @@ class FailsBeforeAuthentication implements MiddlewareInterface
         }
 
         return $handler->handle($request);
+    }
+}
+
+class FailsPermissionLookup extends Guest
+{
+    public bool $checked = false;
+
+    public function can(string $ability, mixed $arguments = null): bool
+    {
+        $this->checked = true;
+
+        throw new \RuntimeException('Permission storage unavailable');
     }
 }
