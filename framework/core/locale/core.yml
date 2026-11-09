@@ -1231,7 +1231,7 @@ core:
       not_authenticated: You do not have permission to access this page. Try again after logging in.
       not_found: The page you requested could not be found.
       not_found_actions_label: Where to go next
-      not_found_description: This page doesn't exist, or it has moved. Here are a couple of ways back in.
+      not_found_description: We couldn’t find this page. It may have moved, or you may need to log in to view it. Here are a couple of ways back in.
       not_found_discussions_link: Browse all discussions
       not_found_home_link: Go to the homepage
       not_found_search_button: Search
