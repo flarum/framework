@@ -673,5 +673,30 @@ describe('GambitsAutocomplete', () => {
       suggestions[0].click();
       expect(changedValue).toBe('group:1');
     });
+
+    it('preserves subsequent group values when completing an earlier value in a list', () => {
+      selectionStart = 11; // 'group:admin|,4'
+      selectionEnd = 11;
+      const ac = createAutocomplete('users');
+      const suggestions = extractSuggestions(ac.suggestions('group:admin,4'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('1');
+      expect(suggestions[0].value).toBe('Admin');
+
+      suggestions[0].click();
+      expect(changedValue).toBe('group:1,4');
+    });
+
+    it('excludes already selected groups from subsequent comma suggestions', () => {
+      selectionStart = 8; // 'group:1,'
+      selectionEnd = 8;
+      const ac = createAutocomplete('users');
+      const suggestions = extractSuggestions(ac.suggestions('group:1,'));
+
+      expect(suggestions).toHaveLength(1);
+      expect(suggestions[0].key).toBe('4');
+      expect(suggestions[0].value).toBe('Community Manager');
+    });
   });
 });

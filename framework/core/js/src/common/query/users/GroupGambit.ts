@@ -3,6 +3,8 @@ import { KeyValueGambit, type GambitValueOption } from '../IGambit';
 import Group from '../../models/Group';
 
 export default class GroupGambit extends KeyValueGambit {
+  predicates = true;
+
   key(): string {
     return app.translator.trans('core.lib.gambits.users.group.key', {}, true);
   }
