@@ -15,6 +15,7 @@ use Flarum\Formatter\Formatter;
 use Flarum\Forum\Branding\Branding;
 use Flarum\Forum\Branding\Listener\ForgetOutdatedSplashScreens;
 use Flarum\Forum\Branding\Listener\RedrawAppIcon;
+use Flarum\Forum\OpenSearch\OpenSearchDescription;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\ContentNegotiationFormatter;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
@@ -46,6 +47,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Laminas\Stratigility\MiddlewarePipe;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 
 class ForumServiceProvider extends AbstractServiceProvider
 {
@@ -221,7 +223,28 @@ class ForumServiceProvider extends AbstractServiceProvider
                 'colorScheme' => $settings->get('color_scheme') ?? 'auto',
                 'darkBodyBg' => FrontendServiceProvider::computeDarkBodyBg($settings->get('theme_secondary_color') ?? '#536F90'),
                 'faviconUrl' => $container->make(Branding::class)->faviconUrl(),
+                'faviconIcoUrl' => $container->make(Branding::class)->faviconIcoUrl(),
+                'faviconSvgUrl' => $container->make(Branding::class)->faviconSvgUrl(),
+                'appleTouchIconUrl' => $container->make(Branding::class)->appIconUrls()['apple-touch-icon.png'] ?? null,
             ]);
+        });
+
+        $view->composer('flarum.forum::error.not_found', function (View $page) use ($container) {
+            $canSearch = $page->getData()['canSearch'] ?? false;
+            $discussionsUrl = $searchUrl = null;
+
+            if ($canSearch) {
+                try {
+                    $discussionsUrl = $container->make(OpenSearchDescription::class)->searchPage();
+                    $searchUrl = $container->make(UrlGenerator::class)->to('forum')->route('opensearch.search');
+                } catch (Throwable) {
+                    // Recovery links must not prevent the error page from rendering.
+                    $canSearch = false;
+                    $discussionsUrl = $searchUrl = null;
+                }
+            }
+
+            $page->with(compact('canSearch', 'discussionsUrl', 'searchUrl'));
         });
 
         $events->listen(

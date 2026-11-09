@@ -147,6 +147,7 @@
         }
     },
     "scripts": {
+        "analyse:phpstan": "@composer --working-dir=../.. analyse:phpstan",
         "test": [
             "@test:unit",
             "@test:integration"

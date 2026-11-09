@@ -1230,6 +1230,14 @@ core:
       method_not_allowed: This page does not support that request method.
       not_authenticated: You do not have permission to access this page. Try again after logging in.
       not_found: The page you requested could not be found.
+      not_found_actions_label: Where to go next
+      not_found_description: This page doesn't exist, or it has moved. Here are a couple of ways back in.
+      not_found_discussions_link: Browse all discussions
+      not_found_home_link: Go to the homepage
+      not_found_search_button: Search
+      not_found_search_label: Search the forum
+      not_found_search_placeholder: Search discussions
+      not_found_title: Page not found
       not_found_return_link: "Return to {forum}"
       permission_denied: You do not have permission to access this page.
       unknown: An error occurred while trying to load this page.
