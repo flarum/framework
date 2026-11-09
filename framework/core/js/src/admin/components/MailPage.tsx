@@ -8,6 +8,7 @@ import type { AlertIdentifier } from '../../common/states/AlertManagerState';
 import type Mithril from 'mithril';
 import type { SaveSubmitEvent } from './AdminPage';
 import Form from '../../common/components/Form';
+import FieldSet from '../../common/components/FieldSet';
 import ItemList from '../../common/utils/ItemList';
 import SettingsSection from './SettingsSection';
 import FormGroup from '../../common/components/FormGroup';
