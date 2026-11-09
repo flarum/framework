@@ -225,6 +225,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ClearCacheController::class)
     );
 
+    // See whether streamed responses reach the browser as they're written
+    $map->get(
+        '/streaming-check',
+        'streaming.check',
+        $route->toController(Controller\CheckStreamingController::class)
+    );
+
     // Pause or resume queue processing
     $map->post(
         '/queue/pause',
