@@ -92,16 +92,26 @@ export class ModelLists {
     return this.lists[connection];
   }
 
-  load(connection: string, refresh = false): Promise<void> {
+  /**
+   * @param candidate A connection that isn't saved yet, to list the models of
+   *                  under `connection`, which is then any key for its list.
+   */
+  load(connection: string, refresh = false, candidate?: { name: string; connection: object }): Promise<void> {
     if (!refresh && this.lists[connection] && this.lists[connection].status !== 'failed') return Promise.resolve();
 
     this.lists[connection] = { status: 'loading', models: this.lists[connection]?.models ?? null };
 
+    const request = candidate
+      ? { method: 'POST', url: app.forum.attribute('apiUrl') + '/ai/connections/models', body: candidate }
+      : {
+          method: 'GET',
+          url: app.forum.attribute('apiUrl') + '/ai/connections/' + encodeURIComponent(connection) + '/models',
+          params: refresh ? { refresh: 1 } : undefined,
+        };
+
     return app
       .request<{ models: ProviderModel[] | null }>({
-        method: 'GET',
-        url: app.forum.attribute('apiUrl') + '/ai/connections/' + encodeURIComponent(connection) + '/models',
-        params: refresh ? { refresh: 1 } : undefined,
+        ...request,
         // The field says the list couldn't load; no alert on top of that.
         errorHandler: (error) => console.error(error),
       })

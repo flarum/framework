@@ -7,36 +7,43 @@ flarum-ai:
     # These translations are used by the list of connections on the extension's page.
     connections:
       add_button: Add Connection
+      default_badge: Default
       default_help: Features that use AI go through this connection unless they name another one.
       default_invalid_message: The default connection no longer exists. Choose another one.
       default_label: Default Connection
-      default_locked_text: "Chosen in config.php: {name}"
-      default_none_option: None
+      default_locked_badge: Default, set in config.php
       driver_invalid_message: "Choose a provider for \"{name}\"."
       edit_button: => core.ref.edit
-      empty_text: No connections yet. Add one to start using AI on the forum.
+      empty_text: "No connections yet. Choose the provider to connect the forum to:"
       feature_connection_invalid_message: "The connection chosen for \"{name}\" no longer exists. Choose another one."
       features_invalid_message: The feature settings could not be read. Reload the page and try again.
       guardrail_invalid_message: "The guardrail for \"{name}\" is a guardrail ID or ARN, and a version number or DRAFT."
       guardrail_text: "Guardrail {guardrail}, version {version}"
       heading: Connections
-      help: Each connection is an AI provider and the API key to reach it. API keys are never shown again once saved.
+      help: Each connection is an AI provider and the API key to reach it. API keys are never shown again once saved. Test a connection to check that it answers.
       invalid_message: The connections could not be read. Reload the page and try again.
       key_new_text: New key, not saved yet
       key_required_message: "\"{name}\" needs an API key."
       key_saved_text: Key saved
       locked_text: Set in config.php
+      make_default_button: Make Default
       max_tokens_invalid_message: "The longest reply for \"{name}\" is a whole number of tokens above zero, or empty for the extension's own."
       model_invalid_message: "The model for \"{name}\" is too long."
       monthly_tokens_text: "{tokens} tokens a month"
       name_invalid_message: "\"{name}\" can't be used as a name. Start with a letter, then use letters, numbers, dashes and underscores, up to 50 characters."
       name_locked_message: "\"{name}\" is already set in config.php. Choose another name."
+      no_default_text: No connection is the default, so features that don't choose their own connection can't run. Make one the default.
       no_key_text: No key
       region_invalid_message: "\"{name}\" needs an AWS region, such as eu-central-1."
       region_required_message: "\"{name}\" needs an AWS region."
       remove_button: => core.ref.remove
+      test_button: Test
+      test_unsaved_text: Save your changes to test this connection here, or test it from its Edit button before saving.
       temperature_invalid_message: "The temperature for \"{name}\" is a number from 0 to 2, or empty for the extension's own."
       tokens_invalid_message: "Token limits are whole numbers above zero, or empty for no limit."
+      usage_label: "Tokens {name} has used this month"
+      usage_limit_text: "{tokens} of {limit} tokens used this month"
+      usage_text: "{tokens} tokens used this month"
       url_invalid_message: "The API URL for \"{name}\" must start with http:// or https://."
       url_required_message: "\"{name}\" needs an API URL."
 
@@ -65,6 +72,7 @@ flarum-ai:
       guardrail_label: Guardrail
       guardrail_version_label: Guardrail version
       key_bedrock_help: A Bedrock API key. Access keys and roles to assume are set in config.php, which can also let connections use the server's own AWS credentials when the key is left empty.
+      key_link: "Get an API key from {provider}"
       key_dropped_text: A saved key is only used with the provider and API URL it was saved for. Enter it again to use it here.
       key_label: API Key
       key_optional_help: This provider can be used without a key.
@@ -81,6 +89,7 @@ flarum-ai:
       region_label: AWS Region
       remove_key_button: Remove the saved key
       submit_button: => core.ref.okay
+      test_button: Test
       url_label: API URL
       url_optional_help: Leave empty to use the provider's own address.
       url_required_help: The address of the server, for example https://example.com/v1.
@@ -91,7 +100,7 @@ flarum-ai:
       connection_default_option: Default connection
       connection_label: Connection
       daily_tokens_label: Tokens per Day
-      empty_text: No extension uses AI yet. Features appear here when an extension that uses AI is enabled.
+      empty_text: "No extension uses AI yet. AI features come from other extensions: once one is enabled, its features appear here to turn on, each with its own connection, model and limits."
       enabled_label: "Use AI for {feature}"
       extension_text: "From {extension}."
       heading: Features
@@ -135,6 +144,55 @@ flarum-ai:
       help: Limits for each connection are set on the connection, and for each feature on the Features tab. Days and months are in UTC. Calls already running when a limit is used up still finish, so a limit can be passed by a little.
       member_daily_help: Calls made for a member stop once they've used this many tokens today, across every feature. Admins have no limit. Leave empty for no limit.
       member_daily_label: Tokens per Member per Day
+
+    # These translations are used by the checks of what AI features need from the server.
+    server:
+      heading: Server
+      help: What AI features need from the server this forum runs on.
+      queue_label: Background work
+      queue_sync_text: "There's no queue worker, so features that work in the background run while the member waits for the page. Set up a queue for them to run on their own."
+      queue_text: "Features that work in the background run on the {driver} queue."
+      scheduler_label: Daily checks
+      scheduler_never_text: "The scheduler has never run, so the models in use aren't checked each day and old usage records aren't cleared. Add a cron job that runs php flarum schedule:run every minute."
+      scheduler_stopped_text: "The scheduler hasn't run since {date}, so the models in use aren't checked each day and old usage records aren't cleared. Check the cron job that runs php flarum schedule:run."
+      scheduler_text: The scheduler checks the models in use each day, and clears out old usage records.
+
+    # These translations are used by the check that replies reach the browser as they're written.
+    streaming:
+      again_button: Check Again
+      buffered_text: "This server holds streamed replies back and sends them only once they're finished, so features that write replies as they arrive show them only at the end. Turn off buffering for this site wherever it's on: PHP's output_buffering or zlib.output_compression, Apache's mod_deflate (or flushpackets=on for PHP-FPM behind mod_proxy_fcgi), nginx's fastcgi_buffering or proxy_buffering, or a proxy or CDN in front of the site."
+      checking_text: Checking whether replies reach the browser as they're written…
+      failed_text: The check couldn't run. Try again.
+      label: Streamed replies
+      streams_text: Replies reach the browser as they're written.
+      unknown_text: The check couldn't tell whether replies are held back.
+
+    # These translations are used by the test of a connection.
+    test:
+      again_button: Test Again
+      default_model_text: the default model
+      error:
+        auth_text: The provider refused the API key. Check that it's correct, still active, and for this provider.
+        credits_text: The provider says the account has run out of credit.
+        failed_text: The test call failed.
+        limit_text: "This connection has used its {tokens} tokens for this month. Calls start again on {date}."
+        lost_text: The connection to the forum was lost before the test finished.
+        model_text: "The provider doesn't offer the model {model}. Choose another one."
+        not_configured_text: This connection needs an API key before it can be used.
+        overloaded_text: The provider is busy or unavailable just now. Try again in a moment.
+        rate_limited_text: The provider is limiting calls with this key just now. Try again in a moment.
+        unreachable_text: The provider couldn't be reached. Check the API URL, and that this server can reach it.
+      ms_text: "{ms} ms"
+      passed_empty_text: "Connected, but {model} wrote nothing within the test's token limit, using {tokens} tokens. It may spend its tokens reasoning first: features that allow longer replies still work."
+      passed_text: "Connected: {model} started answering after {first} and finished after {total}, using {tokens} tokens."
+      provider_status_text: "The provider answered {status}: {message}"
+      provider_text: "The provider said: {message}"
+      reply_label: The reply so far
+      seconds_text: "{seconds} s"
+      streams_text: The reply reached this page as it was written.
+      title: "Testing {name}"
+      too_quick_text: The reply came too quickly to tell whether this server holds streamed replies back.
+      waiting_text: Waiting for the first words…
 
     # These translations are used on the Permissions tab.
     permissions:

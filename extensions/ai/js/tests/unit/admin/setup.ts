@@ -21,6 +21,9 @@ export const payload = {
   lockedDefault: null,
   features: [],
   modelIssues: [],
+  defaultUrls: { anthropic: 'https://api.anthropic.com/v1', ollama: 'http://localhost:11434' } as Record<string, string>,
+  monthlyUsage: {} as Record<string, number>,
+  schedulerLastRun: null as string | null,
   rules: {
     namePattern: '^[a-z][a-z0-9_-]{0,49}$',
     modelMaxLength: 100,

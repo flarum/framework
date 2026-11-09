@@ -37,11 +37,56 @@ use Throwable;
  */
 class AiManager extends BaseAiManager
 {
+    /**
+     * Connections being tried out before they're saved, by name.
+     *
+     * @var array<string, array<string, mixed>>
+     */
+    protected array $candidates = [];
+
+    /**
+     * Runs the callback with a connection the admin hasn't saved yet standing
+     * in for the one by its name, if there is one, so calls through that name
+     * reach it, and its usage and limits are the connection's own.
+     *
+     * @param array<string, mixed> $connection As {@see AdminConnections::candidate()} gives it, with its key.
+     *
+     * @template T
+     * @param callable(): T $callback
+     * @return T
+     */
+    public function withCandidate(string $name, array $connection, callable $callback): mixed
+    {
+        $this->candidates[$name] = $connection;
+        $this->forgetInstance($name);
+
+        try {
+            return $callback();
+        } finally {
+            unset($this->candidates[$name]);
+            $this->forgetInstance($name);
+        }
+    }
+
     public function getInstanceConfig($name): array
     {
-        $config = parent::getInstanceConfig($name);
-
         $aiConfig = $this->app->make(AiConfig::class);
+
+        if (isset($this->candidates[$name])) {
+            $config = $aiConfig->forLaravelAi($this->candidates[$name]) + ['name' => $name];
+
+            // Its key is the one the admin gave, or none: never the saved one
+            // the next lines would add.
+            $config['key'] ??= '';
+
+            if ($config['driver'] === 'bedrock' && ! $aiConfig->bedrockServerCredentials()) {
+                $config['use_default_credential_provider'] = false;
+            }
+
+            return $config;
+        }
+
+        $config = parent::getInstanceConfig($name);
 
         if (! isset($config['key']) && $aiConfig->isAdminConnection((string) $name)) {
             // Set even when there's none: providers that work without a key
@@ -113,7 +158,7 @@ class AiManager extends BaseAiManager
      */
     protected function guarded(TextProvider $provider): TextProvider
     {
-        $connection = $this->app->make(AiConfig::class)->connections()[$provider->name()] ?? null;
+        $connection = $this->candidates[$provider->name()] ?? $this->app->make(AiConfig::class)->connections()[$provider->name()] ?? null;
         $guardrail = $connection['guardrail_id'] ?? null;
 
         if (($connection['driver'] ?? null) !== 'bedrock' || ! is_string($guardrail) || $guardrail === '' || ! method_exists($provider, 'textGateway')) {

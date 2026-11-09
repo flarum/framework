@@ -66,9 +66,30 @@ export interface AiPayload {
   features: FeatureInfo[];
   /** The models features use that are deprecated or gone. */
   modelIssues: ModelIssue[];
+  /** The address each provider is reached at when a connection gives none. */
+  defaultUrls: Record<string, string>;
+  /** Tokens each connection has used this calendar month. */
+  monthlyUsage: Record<string, number>;
+  /** When the scheduler last ran, if it ever has. */
+  schedulerLastRun: string | null;
   /** The checks the server makes on save, so forms can make them first. */
   rules: { namePattern: string; modelMaxLength: number; regionPattern: string; guardrailPattern: string; guardrailVersionPattern: string };
 }
+
+/**
+ * Where to get an API key for each provider that needs one.
+ */
+export const KEY_URLS: Record<string, string> = {
+  anthropic: 'https://platform.claude.com/settings/keys',
+  bedrock: 'https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html',
+  deepseek: 'https://platform.deepseek.com/api_keys',
+  gemini: 'https://aistudio.google.com/app/apikey',
+  groq: 'https://console.groq.com/keys',
+  mistral: 'https://console.mistral.ai/api-keys',
+  openai: 'https://platform.openai.com/api-keys',
+  openrouter: 'https://openrouter.ai/settings/keys',
+  xai: 'https://console.x.ai/',
+};
 
 export function aiPayload(): AiPayload {
   return (app.data as unknown as Record<string, AiPayload>)['flarum-ai'];

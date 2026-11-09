@@ -9,9 +9,11 @@
 
 use Flarum\Ai\AiServiceProvider;
 use Flarum\Ai\Api\Controller\CheckModelsController;
+use Flarum\Ai\Api\Controller\ListCandidateModelsController;
 use Flarum\Ai\Api\Controller\ListModelsController;
 use Flarum\Ai\Api\Controller\ShowModelIssuesController;
 use Flarum\Ai\Api\Controller\ShowUsageController;
+use Flarum\Ai\Api\Controller\TestConnectionController;
 use Flarum\Ai\Api\ForumResourceFields;
 use Flarum\Ai\Console\CheckModelsCommand;
 use Flarum\Ai\Console\PruneUsageCommand;
@@ -49,6 +51,8 @@ return [
     (new Extend\Routes('api'))
         ->get('/ai/usage', 'ai.usage', ShowUsageController::class)
         ->get('/ai/connections/{connection}/models', 'ai.models', ListModelsController::class)
+        ->post('/ai/connections/models', 'ai.models.candidate', ListCandidateModelsController::class)
+        ->post('/ai/connections/test', 'ai.connections.test', TestConnectionController::class)
         ->get('/ai/models/issues', 'ai.models.issues', ShowModelIssuesController::class)
         ->post('/ai/models/check', 'ai.models.check', CheckModelsController::class),
 
