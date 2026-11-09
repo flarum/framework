@@ -143,7 +143,7 @@ class AiConfig
      * @param array<string, mixed> $connection
      * @return array<string, mixed>
      */
-    protected function forLaravelAi(array $connection): array
+    public function forLaravelAi(array $connection): array
     {
         $model = $connection['model'] ?? null;
 

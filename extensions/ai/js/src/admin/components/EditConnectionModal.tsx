@@ -6,14 +6,17 @@ import Select from 'flarum/common/components/Select';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 import type Mithril from 'mithril';
-import { aiPayload, type Connection, driverLabel, nameIsValid, parseTokens } from '../utils/settings';
+import { aiPayload, type Connection, driverLabel, KEY_URLS, nameIsValid, parseTokens } from '../utils/settings';
 import type { ModelLists } from '../utils/models';
+import ConnectionTest, { type CandidateConnection, ConnectionTestState } from './ConnectionTest';
 import ModelInput from './ModelInput';
 
 export interface EditConnectionModalAttrs extends IFormModalAttrs {
   /** Set when editing; a new connection has none yet. */
   name?: string;
   connection?: Connection;
+  /** The provider a new connection starts with. */
+  driver?: string;
   takenNames: string[];
   /** The saved connection whose models can be listed, if this is one. */
   listedAs?: string | null;
@@ -43,6 +46,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
   key!: Stream<string>;
   removeKey = false;
   invalid: Field | null = null;
+  test = new ConnectionTestState();
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -50,7 +54,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
     const connection = this.attrs.connection;
 
     this.name = Stream(this.attrs.name || '');
-    this.driver = Stream(connection?.driver || aiPayload().drivers[0]);
+    this.driver = Stream(connection?.driver || this.attrs.driver || aiPayload().drivers[0]);
     this.url = Stream(connection?.url || '');
     this.region = Stream(connection?.region || '');
     this.guardrailId = Stream(connection?.guardrail_id || '');
@@ -75,9 +79,13 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
       <div className="Modal-body">
         <Form>
           {this.fields().toArray()}
+          <ConnectionTest state={this.test} />
           <div className="Form-group Form-controls">
             <Button className="Button Button--primary" type="submit">
               {app.translator.trans('flarum-ai.admin.edit_connection.submit_button')}
+            </Button>
+            <Button className="Button" type="button" icon="fas fa-vial" loading={this.test.status === 'running'} onclick={() => this.runTest()}>
+              {app.translator.trans('flarum-ai.admin.edit_connection.test_button')}
             </Button>
           </div>
         </Form>
@@ -142,7 +150,14 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
           'url',
           'flarum-ai.admin.edit_connection.url_label',
           urlRequired.includes(driver) ? 'flarum-ai.admin.edit_connection.url_required_help' : 'flarum-ai.admin.edit_connection.url_optional_help',
-          <input className="FormControl" type="url" bidi={this.url} spellcheck={false} {...this.fieldAttrs('url')} />
+          <input
+            className="FormControl"
+            type="url"
+            bidi={this.url}
+            placeholder={aiPayload().defaultUrls?.[driver] || ''}
+            spellcheck={false}
+            {...this.fieldAttrs('url')}
+          />
         ),
         40
       );
@@ -162,6 +177,17 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
             value={this.model()}
             maxlength={rules.modelMaxLength}
             connection={this.attrs.listedAs ?? null}
+            lists={this.attrs.lists}
+            oninput={this.model}
+          />
+        ) : this.attrs.lists && this.canAsk() ? (
+          // Until it's saved, its models are listed from what's typed in.
+          <ModelInput
+            id={id('model')}
+            value={this.model()}
+            maxlength={rules.modelMaxLength}
+            connection={'candidate:' + JSON.stringify(this.candidateFor(true))}
+            candidate={{ name: this.name().trim(), connection: this.candidateFor(true) }}
             lists={this.attrs.lists}
             oninput={this.model}
           />
@@ -298,16 +324,23 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
           : optional
             ? 'flarum-ai.admin.edit_connection.key_optional_help'
             : null,
-      <input
-        className="FormControl"
-        type="password"
-        // Keeps the browser from filling in the admin's own password.
-        autocomplete="new-password"
-        bidi={this.key}
-        placeholder={savedKey && !this.removeKey ? app.translator.trans('flarum-ai.admin.edit_connection.key_saved_placeholder') : ''}
-        spellcheck={false}
-        {...this.fieldAttrs('key')}
-      />,
+      [
+        !!KEY_URLS[this.driver()] && (
+          <a className="EditConnectionModal-keyLink helpText" href={KEY_URLS[this.driver()]} target="_blank" rel="noopener noreferrer">
+            {app.translator.trans('flarum-ai.admin.edit_connection.key_link', { provider: driverLabel(this.driver()) })}
+          </a>
+        ),
+        <input
+          className="FormControl"
+          type="password"
+          // Keeps the browser from filling in the admin's own password.
+          autocomplete="new-password"
+          bidi={this.key}
+          placeholder={savedKey && !this.removeKey ? app.translator.trans('flarum-ai.admin.edit_connection.key_saved_placeholder') : ''}
+          spellcheck={false}
+          {...this.fieldAttrs('key')}
+        />,
+      ],
       savedKey &&
         (this.removeKey ? (
           <div className="helpText">{app.translator.trans('flarum-ai.admin.edit_connection.key_removed_text')}</div>
@@ -334,6 +367,79 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
       normaliseUrl(this.byRegion() ? '' : connection.url) === normaliseUrl(this.byRegion() ? '' : this.url()) &&
       (this.byRegion() ? this.region().trim() : '') === (connection.region || '')
     );
+  }
+
+  /**
+   * Whether enough has been typed in to ask the provider anything: its
+   * address or region where it needs one, and a key where it needs one.
+   */
+  canAsk(): boolean {
+    const { keyOptional, urlRequired, rules } = aiPayload();
+    const driver = this.driver();
+
+    if (!nameIsValid(this.name().trim())) return false;
+    if (urlRequired.includes(driver) && !this.url().trim()) return false;
+    if (this.byRegion() && !new RegExp(rules.regionPattern).test(this.region().trim())) return false;
+
+    return keyOptional.includes(driver) || !!this.key().trim() || (!this.removeKey && this.savedKeyApplies());
+  }
+
+  /**
+   * The connection as typed in, to test or list the models of before it's
+   * saved. Left without a key, the server uses the saved one, if it applies.
+   *
+   * @param forModels Without the model and guardrail, which don't change the list.
+   */
+  candidateFor(forModels = false): CandidateConnection {
+    const candidate: CandidateConnection = { driver: this.driver() };
+
+    if (this.byRegion()) candidate.region = this.region().trim();
+    else if (this.url().trim()) candidate.url = this.url().trim();
+    if (this.key().trim()) candidate.key = this.key().trim();
+    if (this.removeKey) candidate.removeKey = true;
+
+    if (!forModels) {
+      if (this.model().trim()) candidate.model = this.model().trim();
+      if (this.driver() === 'bedrock' && this.guardrailId().trim()) {
+        candidate.guardrail_id = this.guardrailId().trim();
+        if (this.guardrailVersion().trim()) candidate.guardrail_version = this.guardrailVersion().trim();
+      }
+    }
+
+    return candidate;
+  }
+
+  /**
+   * Tests the connection as it's typed in, before it's saved.
+   */
+  runTest() {
+    if (!this.check()) return;
+
+    this.test.start(this.name().trim(), this.candidateFor());
+  }
+
+  /**
+   * Marks the first problem with the form, if any.
+   *
+   * @return Whether there's none.
+   */
+  check(): boolean {
+    const problem = this.validate();
+
+    this.invalid = problem?.field ?? null;
+
+    if (problem) {
+      this.alertAttrs = { type: 'error', content: app.translator.trans(problem.message, { name: this.name().trim() }) };
+
+      // Once the alert and the field's state have been drawn.
+      setTimeout(() => document.getElementById(id(problem.field))?.focus());
+
+      return false;
+    }
+
+    this.alertAttrs = null;
+
+    return true;
   }
 
   /**
@@ -377,18 +483,8 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
     e.preventDefault();
 
     const name = this.name().trim();
-    const problem = this.validate();
 
-    this.invalid = problem?.field ?? null;
-
-    if (problem) {
-      this.alertAttrs = { type: 'error', content: app.translator.trans(problem.message, { name }) };
-
-      // Once the alert and the field's state have been drawn.
-      setTimeout(() => document.getElementById(id(problem.field))?.focus());
-
-      return;
-    }
+    if (!this.check()) return;
 
     const connection: Connection = { driver: this.driver() };
     const url = this.byRegion() ? '' : this.url().trim();

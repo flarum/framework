@@ -9,6 +9,7 @@
 
 namespace Flarum\Ai\Content;
 
+use Carbon\Carbon;
 use Flarum\Ai\AdminConnections;
 use Flarum\Ai\AiConfig;
 use Flarum\Ai\ConnectionKeys;
@@ -17,8 +18,11 @@ use Flarum\Ai\Features\Feature;
 use Flarum\Ai\Features\FeatureRegistry;
 use Flarum\Ai\Models\ModelCatalog;
 use Flarum\Ai\Models\ModelHealth;
+use Flarum\Ai\Models\ModelLister;
 use Flarum\Ai\Models\TemperatureSupport;
+use Flarum\Ai\Usage\Ledger;
 use Flarum\Frontend\Document;
+use Illuminate\Contracts\Cache\Repository as Cache;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
@@ -38,7 +42,9 @@ class AdminPayload
         protected FeatureRegistry $features,
         protected ModelHealth $health,
         protected TemperatureSupport $temperatures,
-        protected ModelCatalog $catalog
+        protected ModelCatalog $catalog,
+        protected Ledger $ledger,
+        protected Cache $cache
     ) {
     }
 
@@ -70,6 +76,12 @@ class AdminPayload
                 fn (string $name) => $this->catalog->defaultModel($name),
                 array_combine($names = array_keys($this->config->connections()), $names)
             )),
+            // The address each provider is reached at when a connection gives none.
+            'defaultUrls' => ModelLister::DEFAULT_URLS,
+            // Tokens each connection has used this month, against its monthly limit.
+            'monthlyUsage' => (object) $this->ledger->thisMonthByConnection(),
+            // When the scheduler last ran the daily model check and usage clean-up.
+            'schedulerLastRun' => $this->schedulerLastRun(),
             'rules' => [
                 'namePattern' => AdminConnections::NAME_PATTERN,
                 'modelMaxLength' => AdminConnections::MODEL_MAX_LENGTH,
@@ -78,5 +90,15 @@ class AdminPayload
                 'guardrailVersionPattern' => AdminConnections::GUARDRAIL_VERSION_PATTERN,
             ],
         ];
+    }
+
+    /**
+     * Core notes each run of `php flarum schedule:run`.
+     */
+    protected function schedulerLastRun(): ?string
+    {
+        $lastRun = $this->cache->get('flarum:schedule:last_run');
+
+        return $lastRun ? Carbon::parse($lastRun)->toIso8601String() : null;
     }
 }
