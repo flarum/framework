@@ -21,6 +21,7 @@ describe('TagGambit', () => {
   beforeEach(() => {
     TagGambit.loadingTags = false;
     TagGambit.loadedTags = false;
+    TagGambit.lastLoadFailedAt = 0;
     (global as any).m = { redraw: jest.fn() };
   });
 
@@ -78,6 +79,39 @@ describe('TagGambit', () => {
     // 5. Subsequent calls when already loaded do not trigger load again
     const finalGambit = new TagGambit();
     finalGambit.values();
+    expect(mockLoad).toHaveBeenCalledTimes(1);
+  });
+
+  it('consumes rejected load promise and prevents redraw-driven retries', async () => {
+    let tagsInStore = [mockTag('general', 'General')];
+    app.store.all = jest.fn().mockImplementation((type: string) => {
+      if (type === 'tags') return tagsInStore;
+      return [];
+    });
+
+    const mockLoad = jest.fn().mockRejectedValue(new Error('503 Service Unavailable'));
+
+    (app as any).tagList = {
+      load: mockLoad,
+    };
+
+    const gambit = new TagGambit();
+
+    // Initial call triggers load
+    const initialValues = gambit.values();
+    expect(initialValues).toEqual([{ value: 'general', label: 'General' }]);
+    expect(mockLoad).toHaveBeenCalledTimes(1);
+
+    // Wait for promise rejection to be consumed
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    // Subsequent renders (e.g. redraws from error handling) should NOT retry immediately
+    for (let i = 0; i < 5; i++) {
+      const redrawGambit = new TagGambit();
+      const redrawValues = redrawGambit.values();
+      expect(redrawValues).toEqual([{ value: 'general', label: 'General' }]);
+    }
+
     expect(mockLoad).toHaveBeenCalledTimes(1);
   });
 });
