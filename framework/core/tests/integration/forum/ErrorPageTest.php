@@ -10,8 +10,8 @@
 namespace Flarum\Tests\integration\forum;
 
 use Flarum\Extend;
-use Flarum\Foundation\ErrorHandling\HandledError;
 use Flarum\Forum\OpenSearch\OpenSearchDescription;
+use Flarum\Foundation\ErrorHandling\HandledError;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
 use Flarum\Http\Middleware\AuthenticateWithSession;
 use Flarum\Http\RequestUtil;
