@@ -24,7 +24,7 @@ class EditHiddenGroupsTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /** May edit users' groups, but can't see hidden groups. */
+    /** May edit users' groups, but can't see hidden groups by default. */
     private const EDITOR = 3;
 
     private const TARGET = 4;
@@ -114,6 +114,22 @@ class EditHiddenGroupsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
         $this->assertEquals([Group::ADMINISTRATOR_ID, self::VISIBLE_GROUP], $this->groupIdsOf(1));
+    }
+
+    #[Test]
+    public function a_non_admin_with_permission_to_see_hidden_groups_can_remove_them(): void
+    {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'viewHiddenGroups', 'group_id' => self::EDITOR_GROUP],
+            ],
+        ]);
+
+        $response = $this->saveGroups(self::EDITOR, self::TARGET, [self::VISIBLE_GROUP]);
+
+        $this->assertFalse(User::findOrFail(self::EDITOR)->isAdmin());
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertEquals([self::VISIBLE_GROUP], $this->groupIdsOf(self::TARGET));
     }
 
     #[Test]
