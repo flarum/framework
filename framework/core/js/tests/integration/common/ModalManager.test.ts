@@ -123,6 +123,45 @@ describe('ModalManager', () => {
       m.redraw.sync();
     };
 
+    test('a modal still closes when no transition event arrives', () => {
+      app.modal.show(MyModal);
+      m.redraw.sync();
+      jest.useFakeTimers();
+      try {
+        const closed = jest.fn();
+
+        manager.animateHide(closed);
+        jest.advanceTimersByTime(1000);
+        m.redraw.sync();
+
+        expect(app.modal.isModalOpen()).toBe(false);
+        expect(root.querySelector('.Modal')).toBeNull();
+        expect(closed).toHaveBeenCalledTimes(1);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    test('the fallback waits for repeated CSS durations and delays', () => {
+      app.modal.show(MyModal);
+      m.redraw.sync();
+      const dialog = root.querySelector('.Modal') as HTMLElement;
+      dialog.style.transitionProperty = 'transform, opacity, top';
+      dialog.style.transitionDuration = '200ms';
+      dialog.style.transitionDelay = '0s, 0s, 500ms';
+      jest.useFakeTimers();
+      try {
+        manager.animateHide();
+        jest.advanceTimersByTime(650);
+        expect(app.modal.isModalOpen()).toBe(true);
+        jest.advanceTimersByTime(200);
+        m.redraw.sync();
+        expect(app.modal.isModalOpen()).toBe(false);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
     test('a modal closes once its hide animation ends', () => {
       app.modal.show(MyModal);
       m.redraw.sync();
@@ -179,11 +218,17 @@ describe('ModalManager', () => {
       app.modal.show(MyModal);
       m.redraw.sync();
 
-      manager.animateHide(closed);
-      app.modal.close();
-      m.redraw.sync();
+      jest.useFakeTimers();
+      try {
+        manager.animateHide(closed);
+        app.modal.close();
+        m.redraw.sync();
+        jest.advanceTimersByTime(1000);
 
-      expect(closed).not.toHaveBeenCalled();
+        expect(closed).not.toHaveBeenCalled();
+      } finally {
+        jest.useRealTimers();
+      }
 
       app.modal.show(MySecondModal);
       m.redraw.sync();
