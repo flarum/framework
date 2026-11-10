@@ -27,6 +27,17 @@ class StructuredResultsTest extends McpTestCase
     }
 
     #[Test]
+    public function modern_results_preserve_explicit_json_null(): void
+    {
+        $result = $this->rpcResult($this->callTool('structured_result', ['value' => null], $this->bearer($this->developerToken(2))));
+
+        $this->assertFalse($result['isError']);
+        $this->assertArrayHasKey('structuredContent', $result);
+        $this->assertNull($result['structuredContent']);
+        $this->assertSame('null', $result['content'][0]['text']);
+    }
+
+    #[Test]
     public function empty_input_subschemas_are_published_as_json_objects(): void
     {
         $response = $this->modern('tools/list', [], $this->bearer($this->developerToken(2)));
@@ -54,7 +65,7 @@ class StructuredResultsTest extends McpTestCase
         $response->getBody()->rewind();
         $this->assertInstanceOf(\stdClass::class, json_decode((string) $response->getBody())->result->structuredContent);
 
-        foreach ([[], 'not an object', 42] as $value) {
+        foreach ([[], 'not an object', 42, null] as $value) {
             $result = $this->rpcResult($this->callTool('object_result', ['value' => $value], $auth));
             $this->assertTrue($result['isError']);
         }
@@ -66,7 +77,7 @@ class StructuredResultsTest extends McpTestCase
         $auth = $this->bearer($this->developerToken(2));
         $session = $this->initializeSession($auth);
 
-        foreach ([['answer' => 42], ['one', 'two'], [], 'hello', 42, false] as $value) {
+        foreach ([['answer' => 42], ['one', 'two'], [], 'hello', 42, false, null] as $value) {
             $result = $this->rpcResult($this->inSession($session, 'tools/call', [
                 'name' => 'structured_result', 'arguments' => ['value' => $value],
             ], $auth));
@@ -94,7 +105,7 @@ class StructuredResultsTest extends McpTestCase
             $this->assertArrayHasKey('structuredContent', $result);
             $this->assertSame($value, $result['structuredContent']);
             $text = $result['content'][0]['text'];
-            $this->assertSame($value, is_string($value) ? $text : json_decode($text, true));
+            $this->assertSame($value, json_decode($text, true, flags: JSON_THROW_ON_ERROR));
         }
     }
 }

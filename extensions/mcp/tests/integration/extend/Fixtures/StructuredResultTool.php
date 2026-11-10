@@ -43,7 +43,7 @@ class StructuredResultTool extends Tool
     {
         return ['anyOf' => [
             ['type' => 'object'], ['type' => 'array'], ['type' => 'string'],
-            ['type' => 'number'], ['type' => 'boolean'],
+            ['type' => 'number'], ['type' => 'boolean'], ['type' => 'null'],
         ]];
     }
 
