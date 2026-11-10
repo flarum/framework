@@ -77,7 +77,11 @@ class RequestCostTest extends McpTestCase
             ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'ping'],
             ['jsonrpc' => '2.0', 'id' => 2, 'method' => 'tools/list'],
         ], [...$auth, 'Mcp-Session-Id' => $session, 'MCP-Protocol-Version' => self::HANDSHAKE]));
-        $this->assertSame(200, $batch->getStatusCode());
+        $this->assertSame(400, $batch->getStatusCode());
+        $this->assertSame(-32600, $this->json($batch)['error']['code']);
+
+        $this->rpcResult($this->inSession($session, 'ping', [], $auth));
+        $this->rpcResult($this->inSession($session, 'tools/list', [], $auth));
         $this->assertSame(2, $this->callCount('instructions'));
     }
 

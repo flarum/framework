@@ -11,7 +11,7 @@ namespace Flarum\Mcp\Server;
 
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\ResourceTemplate;
-use Mcp\Exception\ResourceNotFoundException;
+use Mcp\Server\Exception\ResourceNotFoundException;
 use Mcp\Server\ClientGateway;
 use Mcp\Server\Handler\ResourceTemplateHandlerInterface;
 

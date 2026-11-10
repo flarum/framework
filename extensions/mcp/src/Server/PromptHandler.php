@@ -11,11 +11,11 @@ namespace Flarum\Mcp\Server;
 
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Prompt;
-use Mcp\Exception\PromptGetException;
 use Mcp\Schema\Content\PromptMessage;
 use Mcp\Schema\Content\TextContent;
 use Mcp\Schema\Enum\Role;
 use Mcp\Server\ClientGateway;
+use Mcp\Server\Exception\PromptGetException;
 use Mcp\Server\Handler\PromptHandlerInterface;
 
 /**

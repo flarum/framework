@@ -11,6 +11,7 @@ namespace Flarum\Mcp\Tests\integration\tools;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Mcp\Extend\Mcp;
 use Flarum\Mcp\Tests\integration\McpTestCase;
 use Flarum\Post\Post;
 use Flarum\User\User;
@@ -31,6 +32,41 @@ class WritesTest extends McpTestCase
                 ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>First</p></t>', 'created_at' => Carbon::now()->subDay()],
             ],
         ]);
+    }
+
+    #[Test]
+    public function generic_writes_accept_object_attributes(): void
+    {
+        $result = $this->toolOutput($this->callTool('update_resource', [
+            'type' => 'users', 'id' => '2',
+            'attributes' => ['preferences' => ['discloseOnline' => false]],
+        ], $this->bearer($this->developerToken(2))));
+
+        $this->assertFalse($result['data']['preferences']['discloseOnline']);
+    }
+
+    #[Test]
+    public function endpoint_tools_accept_object_attributes(): void
+    {
+        $this->extend((new Mcp())->endpointTool('users', 'update', 'update_preferences', 'Update preferences', 'Updates user preferences.'));
+
+        $result = $this->toolOutput($this->callTool('update_preferences', [
+            'id' => '2', 'attributes' => ['preferences' => ['discloseOnline' => false]],
+        ], $this->bearer($this->developerToken(2))));
+
+        $this->assertFalse($result['data']['preferences']['discloseOnline']);
+    }
+
+    #[Test]
+    public function generic_writes_accept_relationship_identifier_objects(): void
+    {
+        $reply = $this->toolOutput($this->callTool('create_resource', [
+            'type' => 'posts',
+            'attributes' => ['content' => 'An object relationship'],
+            'relationships' => ['discussion' => ['type' => 'discussions', 'id' => '1']],
+        ], $this->bearer($this->developerToken(2))));
+
+        $this->assertSame('An object relationship', strip_tags($reply['data']['contentHtml']));
     }
 
     #[Test]
