@@ -9,12 +9,12 @@
 
 namespace Flarum\Tests\unit\Mail;
 
-use Flarum\Mail\WebhookController;
 use Flarum\Mail\MailWebhooks;
-use Mockery as m;
+use Flarum\Mail\WebhookController;
 use Flarum\Testing\unit\TestCase;
 use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\Stream;
+use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Request;

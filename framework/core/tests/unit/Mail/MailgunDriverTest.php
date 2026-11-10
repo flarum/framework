@@ -207,6 +207,7 @@ class MailgunDriverTest extends TestCase
         $withKey = array_merge($this->validSettings(), ['mail_mailgun_webhook_signing_key' => 'sign-xyz', 'mail_webhook_username' => 'forum', 'mail_webhook_password' => 'secret']);
         $this->assertTrue($this->driver->webhookConfigured($this->settings($withKey)));
     }
+
     #[Test]
     public function account_and_unsubscribe_drops_do_not_flag_a_broken_address(): void
     {
@@ -230,5 +231,4 @@ class MailgunDriverTest extends TestCase
             $this->assertFalse($this->driver->webhookConfigured($settings));
         }
     }
-
 }
