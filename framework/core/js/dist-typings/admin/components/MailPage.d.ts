@@ -10,6 +10,9 @@ export interface MailSettings {
             fields: Record<string, any>;
             sending: boolean;
             errors: any[];
+            canReceiveWebhooks: boolean;
+            canProvisionWebhooks: boolean;
+            webhookUrl: string | null;
         };
     };
 }
@@ -18,9 +21,13 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
     status?: {
         sending: boolean;
         errors: any;
+        canReceiveWebhooks: boolean;
+        canProvisionWebhooks: boolean;
+        webhookUrl: string | null;
     };
     driverFields?: Record<string, any>;
     testEmailSuccessAlert?: AlertIdentifier;
+    provisioningWebhook: boolean;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     headerInfo(): {
         className: string;
@@ -34,8 +41,10 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
      * The description of a driver's settings, if it has one.
      */
     driverDescription(driver: string): Mithril.Children;
+    bounceHandlingForm(): Mithril.Children;
     mailSettingItems(): ItemList<Mithril.Children>;
     sendTestEmail(): void;
+    provisionWebhook(unregister: boolean): void;
     saveSettings(e: SaveSubmitEvent): Promise<void>;
     static register(): void;
 }
