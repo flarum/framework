@@ -260,7 +260,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
    * discussions" would be a lie for the filtered one.
    */
   markAllAsRead() {
-    const filtered = !!Object.keys(app.discussions.activeFilters()).length;
+    const filtered = !app.discussions.marksEverythingAsRead();
 
     const confirmation = confirm(
       extractText(

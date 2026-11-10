@@ -196,7 +196,36 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
       filter = app.search.gambits.apply(this.type, filter);
     }
 
-    return Object.fromEntries(Object.entries(filter).filter(([, value]) => value !== undefined && value !== null && value !== ''));
+    // An empty value narrows nothing and is dropped — an empty `q` searches
+    // for nothing, an empty `author` names no one — matching the server's
+    // `narrowingFilters()`. The exception is filters switched on by their
+    // presence alone (a bare `hidden`), whose empty value still narrows.
+    const presenceFilters = ['hidden', '-hidden'];
+
+    return Object.fromEntries(
+      Object.entries(filter).filter(([key, value]) => {
+        if (value === undefined || value === null) return false;
+        if (presenceFilters.includes(key)) return true;
+
+        return value !== '';
+      })
+    );
+  }
+
+  /**
+   * Whether marking this list read covers every discussion the user can see.
+   *
+   * True for an unfiltered list, and also for one filtered to nothing but
+   * `unread` — that is every unread discussion, which is the same set the
+   * unfiltered list marks read. The server records both as the single
+   * `markedAllAsReadAt` timestamp rather than a row per discussion, so the
+   * client treats them the same: it refetches the user for the server's
+   * timestamp, and `IndexPage` offers the "all discussions" confirmation.
+   */
+  public marksEverythingAsRead(): boolean {
+    const keys = Object.keys(this.activeFilters());
+
+    return keys.length === 0 || (keys.length === 1 && keys[0] === 'unread');
   }
 
   /**
@@ -209,14 +238,22 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
    */
   public markAllAsRead(): Promise<void> {
     const filter = this.activeFilters();
-    const everything = !Object.keys(filter).length;
+    const everything = this.marksEverythingAsRead();
+    const user = app.session.user;
 
-    // Captured before the request is sent, not re-read from `this` once it
-    // resolves: this state object is shared across navigation (switching
-    // tags, say), so by the time the response comes back `this.getAllItems()`
-    // may already belong to a different list than the one the request's
-    // filter actually matched on the server.
-    const items = this.getAllItems();
+    // Captured before the request is sent — both the discussions and the post
+    // numbers to mark them read up to — not re-read from `this` once it
+    // resolves. This state object is shared across navigation (switching tags,
+    // say), so by the time the response comes back `getAllItems()` may already
+    // belong to a different list; and reading `lastPostNumber()` only on
+    // resolution would let a realtime reply arriving mid-request be shown as
+    // read locally even though the server was never asked to mark it.
+    const reads = this.getAllItems()
+      .map((discussion) => ({ discussion, lastPostNumber: discussion.lastPostNumber() }))
+      // Nothing to have read up to in a discussion whose posts are all gone.
+      // Writing null would read as never having read it. The type guard also
+      // narrows `lastPostNumber` to a number for the write below.
+      .filter((read): read is { discussion: Discussion; lastPostNumber: number } => read.lastPostNumber != null);
 
     return app
       .request({
@@ -225,21 +262,19 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
         params: { filter },
       })
       .then(() => {
-        if (everything) {
-          app.session.user?.pushAttributes({ markedAllAsReadAt: new Date().toISOString() });
-        }
-
-        items.forEach((discussion) => {
-          const lastPostNumber = discussion.lastPostNumber();
-
-          // Nothing to have read up to, in a discussion whose posts are all
-          // gone. Writing null here would read as never having read it.
-          if (lastPostNumber != null) {
-            discussion.pushAttributes({ lastReadPostNumber: lastPostNumber });
-          }
+        reads.forEach(({ discussion, lastPostNumber }) => {
+          discussion.pushAttributes({ lastReadPostNumber: lastPostNumber });
         });
 
-        m.redraw();
+        // The server stamped `marked_all_as_read_at` from its own clock; the
+        // old `user.save()` read that value back from the response. In the
+        // "everything" case refetch the user so unread badges follow the
+        // server's time rather than the browser's, which may be wrong.
+        const settled = everything && user ? app.store.find('users', user.id()!) : Promise.resolve();
+
+        return settled.then(() => {
+          m.redraw();
+        });
       });
   }
 }

@@ -86,4 +86,18 @@ describe('DiscussionListState.activeFilters', () => {
 
     expect(state.activeFilters()).toEqual({});
   });
+
+  test('a presence-only filter is kept even when its value is empty', () => {
+    // `hidden` is switched on by its presence alone, so a bare value still
+    // narrows the list and must survive, matching the server.
+    const state = new DiscussionListState({ filter: { hidden: '' } } as any);
+
+    expect(state.activeFilters()).toEqual({ hidden: '' });
+  });
+
+  test('an empty value on an ordinary filter is dropped as narrowing nothing', () => {
+    const state = new DiscussionListState({ filter: { author: '' } } as any);
+
+    expect(state.activeFilters()).toEqual({});
+  });
 });

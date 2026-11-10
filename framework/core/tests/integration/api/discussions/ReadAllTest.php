@@ -14,7 +14,6 @@ use Flarum\Discussion\Discussion;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
-use Illuminate\Database\Schema\Blueprint;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -165,24 +164,23 @@ class ReadAllTest extends TestCase
     }
 
     #[Test]
-    public function an_existing_row_keeps_its_other_columns_after_the_upsert()
+    public function a_discussion_already_read_in_full_is_not_written_again()
     {
         // Boots the app (and inserts the fixtures from `setUp()`) before the
-        // schema is touched directly: `populateDatabase()` runs on the first
-        // call that needs the database connection, so the extra column has
-        // to go on after that, not before.
+        // row is seeded, since the database connection is only populated on
+        // the first call that needs it.
         $this->app();
 
-        $this->database()->getSchemaBuilder()->table('discussion_user', function (Blueprint $table) {
-            $table->string('extension_column')->nullable();
-        });
+        $readAt = Carbon::now()->subYear();
 
+        // Discussion 1 is already read up to its last post, so it no longer
+        // matches `unread` and the handler must never touch its row — least of
+        // all rewrite `last_read_at` to now.
         $this->database()->table('discussion_user')->insert([
             'user_id' => 2,
             'discussion_id' => 1,
-            'last_read_post_number' => 1,
-            'last_read_at' => Carbon::now()->subDay(),
-            'extension_column' => 'keep-me',
+            'last_read_post_number' => 5,
+            'last_read_at' => $readAt,
         ]);
 
         $response = $this->send(
@@ -194,12 +192,12 @@ class ReadAllTest extends TestCase
 
         $row = $this->database()->table('discussion_user')->where(['user_id' => 2, 'discussion_id' => 1])->first();
 
-        // Updated: the read columns the upsert is responsible for.
         $this->assertEquals(5, $row->last_read_post_number);
-
-        // Untouched: a column the upsert was never told about, standing in
-        // for one an extension (e.g. flarum/subscriptions) keeps here.
-        $this->assertEquals('keep-me', $row->extension_column);
+        $this->assertEquals(
+            $readAt->toDateTimeString(),
+            Carbon::parse($row->last_read_at)->toDateTimeString(),
+            'A fully-read discussion must not have its read row rewritten.'
+        );
     }
 
     #[Test]
@@ -253,5 +251,54 @@ class ReadAllTest extends TestCase
                 "Discussion $i should be read up to its own last post number."
             );
         }
+    }
+
+    #[Test]
+    public function a_lone_unread_filter_marks_everything_via_the_timestamp()
+    {
+        // `is:unread` singles out every unread discussion, which is exactly
+        // the set the unfiltered list marks read — the whole forum. So it
+        // takes the cheap path: the one timestamp on the user, no row each.
+        $response = $this->send(
+            $this->request('POST', '/api/discussions/read', ['authenticatedAs' => 2])
+                ->withQueryParams(['filter' => ['unread' => '1']])
+        );
+
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+
+        $this->assertNotNull($this->database()->table('users')->find(2)->marked_all_as_read_at);
+
+        $this->assertEquals(
+            0,
+            $this->database()->table('discussion_user')->where('user_id', 2)->count(),
+            'A lone `unread` filter must not write a row per discussion.'
+        );
+    }
+
+    #[Test]
+    public function a_presence_only_filter_still_narrows_the_list()
+    {
+        // `filter[hidden]=` carries an empty value but is switched on by its
+        // presence, so it narrows to hidden discussions and must not be read
+        // as "no filter" — which would mark the whole forum read. Run as the
+        // admin, who can see hidden discussions.
+        $response = $this->send(
+            $this->request('POST', '/api/discussions/read', ['authenticatedAs' => 1])
+                ->withQueryParams(['filter' => ['hidden' => '']])
+        );
+
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+
+        // The hidden discussion matched, so it is read up to its last post.
+        $this->assertEquals(
+            3,
+            $this->database()->table('discussion_user')->where(['user_id' => 1, 'discussion_id' => 3])->value('last_read_post_number')
+        );
+
+        // A visible, non-hidden discussion did not match, so it is untouched —
+        // proving the empty `hidden` value was kept as a narrowing filter
+        // rather than dropped into the mark-everything path.
+        $this->assertNull($this->database()->table('discussion_user')->where(['user_id' => 1, 'discussion_id' => 1])->first());
+        $this->assertNull($this->database()->table('users')->find(1)->marked_all_as_read_at);
     }
 }
