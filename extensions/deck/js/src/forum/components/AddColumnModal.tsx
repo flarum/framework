@@ -268,7 +268,9 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
       const value = field.parse ? field.parse(raw) : raw || null;
 
       if (value === null || value === '') {
-        this.error = field.invalidText ?? app.translator.trans('flarum-deck.forum.add_column.invalid_value_message', { field: field.label });
+        const invalid = typeof field.invalidText === 'function' ? field.invalidText(raw) : field.invalidText;
+
+        this.error = invalid ?? app.translator.trans('flarum-deck.forum.add_column.invalid_value_message', { field: field.label });
         return;
       }
 

@@ -32,6 +32,7 @@ flarum-deck:
       in_deck_badge: In your deck
       in_deck_count_badge: "In your deck ×{count}"
       filter_placeholder: e.g. tag:support is:unread
+      filter_unknown_message: "{count, plural, one {{parts} isn't a filter for discussions.} other {{parts} aren't filters for discussions.}} Use filters such as tag:support or is:unread."
       invalid_value_message: "Please enter a valid value for {field}."
       pick_a_result_message: "Choose a result for {field} from the suggestions."
       submit_button: Add column
