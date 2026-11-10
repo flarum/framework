@@ -32,6 +32,11 @@ class NotificationMailer
 
     public function send(MailableInterface&BlueprintInterface $blueprint, User $user): void
     {
+        // Queued recipients are restored when the worker picks up the job.
+        if ($this->settings->get('mail_suppress_bounced') && $user->hasBouncedEmail()) {
+            return;
+        }
+
         // Ensure that notifications are delivered to the user in their default language, if they've selected one.
         $this->translator->setLocale($user->getPreference('locale') ?? $this->settings->get('default_locale'));
 
