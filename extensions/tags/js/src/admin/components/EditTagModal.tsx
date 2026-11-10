@@ -234,7 +234,9 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
       color: this.color(),
       icon: this.icon(),
       isHidden: this.isHidden(),
-      isPrimary: this.isPrimary(),
+      // Only a new tag is made primary or secondary here: an existing one
+      // changes kind by being dragged between the lists on the Tags page.
+      ...(this.tag.exists ? {} : { isPrimary: this.isPrimary() }),
       // An empty selection means "no preference", which the API stores as null.
       defaultSort: this.defaultSort() || null,
     };
