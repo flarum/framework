@@ -16,7 +16,7 @@ import DiscussionGambit from './query/discussions/DiscussionGambit';
  */
 export default class GambitManager {
   gambits: Record<string, Array<new () => IGambit>> = {
-    discussions: [AuthorGambit, CreatedGambit, HiddenGambit, UnreadGambit],
+    discussions: [AuthorGambit, CreatedGambit, GroupGambit, HiddenGambit, UnreadGambit],
     posts: [AuthorGambit, DiscussionGambit],
     users: [EmailGambit, GroupGambit, BouncedGambit],
   };

@@ -49,6 +49,12 @@ describe('GlobalSearchState reads the search from the address', () => {
     expect(new GlobalSearchState().params().q).toBe(word);
   });
 
+  test('a filter that discussions and users share is shown once', () => {
+    visit('?q=hello&filter[group]=mods&filter[-author]=behz');
+
+    expect((new GlobalSearchState() as any).searchToQuery()).toBe('hello group:mods -author:behz');
+  });
+
   test('no search is none', () => {
     visit('?sort=newest');
 

@@ -43,7 +43,11 @@ export default class GlobalSearchState extends SearchState {
     const q = this.params().q || '';
     const filter = this.params().filter || {};
 
-    return app.search.gambits.from('users', app.search.gambits.from('discussions', q, filter), filter).trim();
+    // Some gambits serve both, so the users pass skips the filters already written.
+    const discussionKeys = app.search.gambits.for('discussions').map((gambit) => gambit.filterKey());
+    const userFilter = Object.fromEntries(Object.entries(filter).filter(([key]) => !discussionKeys.includes(key.replace(/^-/, ''))));
+
+    return app.search.gambits.from('users', app.search.gambits.from('discussions', q, filter), userFilter).trim();
   }
 
   /**
