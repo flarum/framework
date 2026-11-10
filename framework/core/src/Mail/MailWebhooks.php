@@ -44,6 +44,11 @@ class MailWebhooks
         return (bool) $this->driver()?->webhookConfigured($this->settings);
     }
 
+    public function baseUrl(): string
+    {
+        return $this->url->to('forum')->base();
+    }
+
     /**
      * The URL the provider sends webhooks to, with the basic auth credentials
      * of an install behind HTTP authentication when they are set.
@@ -61,6 +66,6 @@ class MailWebhooks
         $password = (string) $this->settings->get('mail_webhook_password');
         $credentials = rawurlencode($username).($password !== '' ? ':'.rawurlencode($password) : '');
 
-        return preg_replace('#^([a-z][a-z0-9+.-]*://)#i', '$1'.$credentials.'@', $url, 1);
+        return preg_replace_callback('#^([a-z][a-z0-9+.-]*://)#i', fn ($match) => $match[1].$credentials.'@', $url, 1);
     }
 }

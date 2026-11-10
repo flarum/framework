@@ -16,6 +16,7 @@ import HiddenGambit from '../../../../src/common/query/discussions/HiddenGambit'
 import UnreadGambit from '../../../../src/common/query/discussions/UnreadGambit';
 import EmailGambit from '../../../../src/common/query/users/EmailGambit';
 import GroupGambit from '../../../../src/common/query/users/GroupGambit';
+import BouncedGambit from '../../../../src/common/query/users/BouncedGambit';
 
 beforeAll(() => {
   bootstrapForum();
@@ -509,5 +510,15 @@ describe('built-in gambits with translated keywords', () => {
 
   test('filters are written back with the translated keywords', () => {
     expect(gambits.from('discussions', 'lorem', { author: 'behz', hidden: true })).toStrictEqual('lorem autor:behz ist:versteckt');
+  });
+});
+
+
+describe('BouncedGambit', () => {
+  test('keeps the English dashboard query when the keyword is translated', () => {
+    const gambit = new (class extends BouncedGambit {
+      key() { return 'rejete'; }
+    })();
+    expect('is:bounced').toMatch(new RegExp(`^${gambit.canonicalPattern()}$`));
   });
 });

@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\unit\Mail;
 
+use Flarum\Mail\BasicAuthRequestParser;
 use Flarum\Mail\HandlesWebhooks;
 use Flarum\Mail\MailgunDriver;
 use Flarum\Mail\ProvisionsWebhooks;
@@ -20,7 +21,7 @@ use Illuminate\Validation\Factory as ValidatorFactory;
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Mailer\Bridge\Mailgun\Transport\MailgunApiTransport;
-use Symfony\Component\Mailer\Bridge\Mailgun\Webhook\MailgunRequestParser;
+use Symfony\Component\RemoteEvent\Event\Mailer\MailerDeliveryEvent;
 
 class MailgunDriverTest extends TestCase
 {
@@ -177,11 +178,11 @@ class MailgunDriverTest extends TestCase
     }
 
     #[Test]
-    public function webhook_request_parser_is_the_mailgun_parser(): void
+    public function webhook_request_parser_requires_basic_authentication(): void
     {
         $parser = $this->driver->getWebhookRequestParser($this->settings($this->validSettings()));
 
-        $this->assertInstanceOf(MailgunRequestParser::class, $parser);
+        $this->assertInstanceOf(BasicAuthRequestParser::class, $parser);
     }
 
     #[Test]
@@ -203,7 +204,31 @@ class MailgunDriverTest extends TestCase
     {
         $this->assertFalse($this->driver->webhookConfigured($this->settings($this->validSettings())));
 
-        $withKey = array_merge($this->validSettings(), ['mail_mailgun_webhook_signing_key' => 'sign-xyz']);
+        $withKey = array_merge($this->validSettings(), ['mail_mailgun_webhook_signing_key' => 'sign-xyz', 'mail_webhook_username' => 'forum', 'mail_webhook_password' => 'secret']);
         $this->assertTrue($this->driver->webhookConfigured($this->settings($withKey)));
     }
+    #[Test]
+    public function account_and_unsubscribe_drops_do_not_flag_a_broken_address(): void
+    {
+        foreach ([606, 625] as $code) {
+            $event = new MailerDeliveryEvent(MailerDeliveryEvent::DROPPED, 'drop-'.$code, ['delivery-status' => ['code' => $code]]);
+            $this->assertFalse($this->driver->isPermanentFailure($event));
+        }
+        foreach ([605, 607] as $code) {
+            $event = new MailerDeliveryEvent(MailerDeliveryEvent::DROPPED, 'drop-'.$code, ['delivery-status' => ['code' => $code]]);
+            $this->assertTrue($this->driver->isPermanentFailure($event));
+        }
+        $this->assertTrue($this->driver->isPermanentFailure(new MailerDeliveryEvent(MailerDeliveryEvent::BOUNCE, 'bounce', [])));
+    }
+
+    #[Test]
+    public function webhook_configuration_requires_valid_forum_credentials(): void
+    {
+        foreach ([[], ['mail_webhook_username' => 'forum'], ['mail_webhook_password' => 'secret'],
+            ['mail_webhook_username' => 'bad:name', 'mail_webhook_password' => 'secret']] as $credentials) {
+            $settings = $this->settings(array_merge($this->validSettings(), ['mail_mailgun_webhook_signing_key' => 'sign-xyz'], $credentials));
+            $this->assertFalse($this->driver->webhookConfigured($settings));
+        }
+    }
+
 }

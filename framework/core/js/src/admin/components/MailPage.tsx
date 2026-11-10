@@ -64,6 +64,7 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
         this.status!.sending = response.data.attributes.sending;
         this.status!.errors = response.data.attributes.errors;
         this.status!.canReceiveWebhooks = response.data.attributes.canReceiveWebhooks;
+        app.forum.pushAttributes({ mailDriverSupportsBounceReporting: this.status!.canReceiveWebhooks });
         this.status!.canProvisionWebhooks = response.data.attributes.canProvisionWebhooks;
         this.status!.webhookUrl = response.data.attributes.webhookUrl;
 

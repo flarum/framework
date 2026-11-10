@@ -133,7 +133,7 @@ export default class EmailBounceWidget extends DashboardWidget {
         </div>
 
         {this.stats.affected > 0 && (
-          <Link className="EmailBounceWidget-viewAll" href={app.route('users', { filter: 'is:bounced' })}>
+          <Link className="EmailBounceWidget-viewAll" href={app.route('users', { q: 'is:bounced' })}>
             {app.translator.trans('core.admin.email_bounces.view_affected')}
           </Link>
         )}

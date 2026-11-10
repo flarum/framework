@@ -78,7 +78,10 @@ class MailgunDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebho
 
     public function getWebhookRequestParser(SettingsRepositoryInterface $settings): RequestParserInterface
     {
-        return new MailgunRequestParser(new MailgunPayloadConverter());
+        return new BasicAuthRequestParser(
+            new MailgunRequestParser(new MailgunPayloadConverter()),
+            $this->webhookCredentials($settings)
+        );
     }
 
     public function getWebhookSigningSecret(SettingsRepositoryInterface $settings): ?string
@@ -88,9 +91,18 @@ class MailgunDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebho
 
     public function webhookConfigured(SettingsRepositoryInterface $settings): bool
     {
-        // Mailgun verifies inbound webhooks with the signing key, so without it
-        // every webhook is rejected — treat as not configured.
-        return $this->getWebhookSigningSecret($settings) !== null;
+        return $this->getWebhookSigningSecret($settings) !== null
+            && $this->webhookCredentials($settings) !== null;
+    }
+
+    protected function webhookCredentials(SettingsRepositoryInterface $settings): ?string
+    {
+        $username = (string) $settings->get('mail_webhook_username');
+        $password = (string) $settings->get('mail_webhook_password');
+
+        return $username !== '' && $password !== '' && ! str_contains($username, ':')
+            ? $username.':'.$password
+            : null;
     }
 
     public function webhooksAvailable(SettingsRepositoryInterface $settings): bool
@@ -100,11 +112,18 @@ class MailgunDriver implements DriverInterface, HandlesWebhooks, ProvisionsWebho
 
     public function isPermanentFailure(MailerDeliveryEvent $event): bool
     {
-        return true;
+        // Account-quality and unsubscribe-list drops do not establish a
+        // broken address. 605 and 607 refer to prior bounces or complaints.
+        return $event->getName() === MailerDeliveryEvent::BOUNCE
+            || in_array((int) ($event->getPayload()['delivery-status']['code'] ?? 0), [605, 607], true);
     }
 
     public function registerWebhook(SettingsRepositoryInterface $settings, string $url): void
     {
+        if (! $this->webhookConfigured($settings)) {
+            throw new RuntimeException('Configure webhook authentication before registering the webhook.');
+        }
+
         $client = $this->apiClient($settings);
 
         foreach (self::WEBHOOK_EVENTS as $event) {

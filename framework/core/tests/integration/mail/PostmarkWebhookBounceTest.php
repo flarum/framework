@@ -19,10 +19,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Mailer\Bridge\Postmark\Webhook\PostmarkRequestParser;
 
 /**
- * Drives a real Postmark webhook through the actual /mail/webhook route.
- * Postmark has NO signing secret — it is authenticated by verifying the
- * request originates from Postmark's published IP range. This exercises the
- * secret-less, IP-verified path end to end.
+ * Exercises forum-specific Basic authentication, including proxied requests.
  */
 class PostmarkWebhookBounceTest extends TestCase
 {
@@ -34,6 +31,8 @@ class PostmarkWebhookBounceTest extends TestCase
 
         $this->setting('mail_driver', 'postmark');
         $this->setting('mail_postmark_token', 'token-abc');
+        $this->setting('mail_webhook_username', 'forum-webhooks');
+        $this->setting('mail_webhook_password', 'forum-specific-password');
 
         $this->prepareDatabase([
             'users' => [
@@ -74,7 +73,7 @@ class PostmarkWebhookBounceTest extends TestCase
      * the request() helper hardcodes empty server params, and Postmark's parser
      * verifies the source IP.
      */
-    private function postWebhook(array $payload, ?string $ip = null)
+    private function postWebhook(array $payload, ?string $ip = null, ?string $credentials = 'forum-webhooks:forum-specific-password')
     {
         $ip ??= PostmarkRequestParser::PROVIDER_IPS[0];
 
@@ -87,7 +86,51 @@ class PostmarkWebhookBounceTest extends TestCase
             ->withBody($body)
             ->withParsedBody($payload);
 
+        if ($credentials !== null) {
+            $request = $request->withHeader('Authorization', 'Basic '.base64_encode($credentials));
+        }
+
         return $this->send($request);
+    }
+
+    #[Test]
+    public function a_proxy_ip_without_credentials_is_rejected(): void
+    {
+        $response = $this->postWebhook($this->postmarkPayload('Bounce', 'bouncer@example.com'), '10.0.0.1', credentials: null);
+        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertFalse(User::find(3)->hasBouncedEmail());
+    }
+
+    #[Test]
+    public function a_postmark_ip_without_credentials_is_rejected(): void
+    {
+        $response = $this->postWebhook($this->postmarkPayload('Bounce', 'bouncer@example.com'), credentials: null);
+
+        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertFalse(User::find(3)->hasBouncedEmail());
+        $this->assertEquals(0, EmailBounceEvent::count());
+    }
+
+    #[Test]
+    public function another_accounts_credentials_are_rejected(): void
+    {
+        $response = $this->postWebhook($this->postmarkPayload('Bounce', 'bouncer@example.com'), credentials: 'other:password');
+
+        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertFalse(User::find(3)->hasBouncedEmail());
+        $this->assertEquals(0, EmailBounceEvent::count());
+    }
+
+    #[Test]
+    public function webhooks_are_refused_until_credentials_are_configured(): void
+    {
+        $this->setting('mail_webhook_password', '');
+
+        $response = $this->postWebhook($this->postmarkPayload('Bounce', 'bouncer@example.com'));
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertFalse(User::find(3)->hasBouncedEmail());
+        $this->assertEquals(0, EmailBounceEvent::count());
     }
 
     #[Test]
@@ -111,13 +154,12 @@ class PostmarkWebhookBounceTest extends TestCase
     }
 
     #[Test]
-    public function request_from_a_non_postmark_ip_is_rejected(): void
+    public function authenticated_requests_work_behind_a_reverse_proxy(): void
     {
         $response = $this->postWebhook($this->postmarkPayload('Bounce', 'bouncer@example.com'), '10.0.0.1');
 
-        // IpsRequestMatcher fails -> RejectWebhookException(406).
-        $this->assertEquals(406, $response->getStatusCode());
-        $this->assertFalse(User::find(3)->hasBouncedEmail());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertTrue(User::find(3)->hasBouncedEmail());
     }
 
     #[Test]

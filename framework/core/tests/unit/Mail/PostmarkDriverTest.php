@@ -182,10 +182,25 @@ class PostmarkDriverTest extends TestCase
     }
 
     #[Test]
-    public function has_no_signing_secret_and_is_configured_by_default(): void
+    public function webhooks_require_both_credentials(): void
     {
-        // Postmark verifies by IP, not a secret — so no secret, yet ready.
-        $this->assertNull($this->driver->getWebhookSigningSecret($this->settings($this->validSettings())));
-        $this->assertTrue($this->driver->webhookConfigured($this->settings($this->validSettings())));
+        foreach ([[], ['mail_webhook_username' => 'forum'], ['mail_webhook_password' => 'secret'],
+            ['mail_webhook_username' => 'invalid:name', 'mail_webhook_password' => 'secret']] as $credentials) {
+            $settings = $this->settings(array_merge($this->validSettings(), $credentials));
+            $this->assertFalse($this->driver->webhookConfigured($settings));
+            $this->assertNull($this->driver->getWebhookSigningSecret($settings));
+        }
+    }
+
+    #[Test]
+    public function configured_credentials_are_passed_to_the_parser(): void
+    {
+        $settings = $this->settings(array_merge($this->validSettings(), [
+            'mail_webhook_username' => 'forum',
+            'mail_webhook_password' => 'secret:with:colons',
+        ]));
+
+        $this->assertTrue($this->driver->webhookConfigured($settings));
+        $this->assertSame('forum:secret:with:colons', $this->driver->getWebhookSigningSecret($settings));
     }
 }

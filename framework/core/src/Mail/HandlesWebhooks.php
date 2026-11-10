@@ -32,7 +32,7 @@ interface HandlesWebhooks
      * payload into a {@see \Symfony\Component\RemoteEvent\RemoteEvent}.
      *
      * Verification is provider-specific and lives entirely in the parser — it
-     * may check an HMAC signature (Mailgun), an IP allowlist (Postmark, Brevo),
+     * may check an HMAC signature (Mailgun), an account-specific IP allowlist,
      * or an SNS certificate (SES). Callers MUST NOT attempt to verify the
      * request themselves; they should call {@see RequestParserInterface::parse()}
      * and treat a thrown {@see \Symfony\Component\Webhook\Exception\RejectWebhookException}
@@ -44,7 +44,7 @@ interface HandlesWebhooks
     /**
      * The secret passed to the parser's `parse()` call, if this provider uses
      * one. Return null when the provider authenticates by other means (e.g.
-     * Postmark's IP allowlist) — this is a valid, fully-supported state, NOT a
+     * an IP allowlist) — this is a valid, fully-supported state, NOT a
      * misconfiguration. Providers that require a secret (e.g. Mailgun) must
      * return false from webhookConfigured() while it is missing, so the request
      * is refused before it reaches the parser.
@@ -56,7 +56,8 @@ interface HandlesWebhooks
      * current settings. Drivers that require configuration the admin must
      * supply (e.g. Mailgun's signing key) should return false until it is set,
      * so the UI can warn that no bounces will arrive. Drivers that need no such
-     * config (e.g. Postmark, verified by IP) should simply return true.
+     * config should simply return true. Shared provider IPs alone do not
+     * identify the account; Mailgun and Postmark require forum-specific credentials.
      */
     public function webhookConfigured(SettingsRepositoryInterface $settings): bool;
 

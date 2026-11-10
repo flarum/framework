@@ -41,18 +41,21 @@ class ForumResource extends AbstractResource implements Findable
 
     protected SplashScreen $splashScreen;
 
+    protected MailWebhooks $webhooks;
+
     public function __construct(
         protected UrlGenerator $url,
         protected SettingsRepositoryInterface $settings,
         protected Config $config,
-        protected MailWebhooks $webhooks,
         Factory $filesystemFactory,
         ?Branding $branding = null,
-        ?SplashScreen $splashScreen = null
+        ?SplashScreen $splashScreen = null,
+        ?MailWebhooks $webhooks = null
     ) {
         $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
         $this->branding = $branding ?? resolve(Branding::class);
         $this->splashScreen = $splashScreen ?? resolve(SplashScreen::class);
+        $this->webhooks = $webhooks ?? resolve(MailWebhooks::class);
     }
 
     public function type(): string

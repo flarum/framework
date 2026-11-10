@@ -126,12 +126,67 @@ class CustomWebhookDriverTest extends TestCase
         $this->assertEquals(['http://hook:p%40ss%3Aword@localhost/mail/webhook/webhook-test'], WebhookTestDriver::$registered);
     }
 
+    #[Test]
+    public function a_driver_can_obtain_its_verification_secret_during_registration(): void
+    {
+        $this->setting('webhook_test_configured', '0');
+        $response = $this->send($this->request('POST', '/api/mail/webhook/provision', [
+            'authenticatedAs' => 1, 'json' => [],
+        ]));
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertCount(1, WebhookTestDriver::$registered);
+        $this->assertTrue($this->app()->getContainer()->make(\Flarum\Mail\MailWebhooks::class)->configured());
+    }
+
+    #[Test]
+    public function numeric_usernames_do_not_corrupt_the_webhook_url(): void
+    {
+        $this->setting('mail_webhook_username', '2hooks');
+        $this->setting('mail_webhook_password', 'secret');
+        $this->assertSame('http://2hooks:secret@localhost/mail/webhook/webhook-test', $this->mailSettings()['webhookUrl']);
+    }
+
+    #[Test]
+    public function parsers_receive_the_external_url_through_the_real_request_pipeline(): void
+    {
+        $this->config('url', 'https://forum.example/community');
+        $response = $this->send($this->request('POST', 'http://internal/community/mail/webhook/webhook-test?token=a%2Bb', [
+            'json' => ['name' => MailerDeliveryEvent::BOUNCE, 'email' => 'normal@machine.local', 'permanent' => true,
+                'expected_uri' => 'https://forum.example/community/mail/webhook/webhook-test?token=a%2Bb'],
+        ]));
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertTrue(User::find(2)->hasBouncedEmail());
+    }
+
+    #[Test]
+    public function an_array_driver_is_refused_without_a_php_warning(): void
+    {
+        $log = $this->captureLog();
+        $request = $this->request('POST', '/mail/webhook')->withQueryParams(['driver' => ['x']]);
+        $response = $this->send($request);
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertFalse($log->hasErrorRecords());
+    }
+
     private function captureLog(): TestHandler
     {
         $handler = new TestHandler();
         $this->app()->getContainer()->instance('log', new Logger('test', [$handler]));
 
         return $handler;
+    }
+
+    #[Test]
+    public function refused_requests_cannot_inject_log_lines_or_flood_warnings(): void
+    {
+        $log = $this->captureLog();
+        for ($i = 0; $i < 3; $i++) {
+            $response = $this->postWebhook(['reject' => "Invalid\nforged log line $i"]);
+            $this->assertEquals(406, $response->getStatusCode());
+        }
+
+        $this->assertCount(1, $log->getRecords());
+        $this->assertStringNotContainsString("\n", $log->getRecords()[0]->message);
     }
 
     #[Test]
@@ -231,6 +286,7 @@ class WebhookTestDriver implements DriverInterface, HandlesWebhooks, ProvisionsW
         }
 
         static::$registered[] = $url;
+        $settings->set('webhook_test_configured', '1');
     }
 
     public function unregisterWebhook(SettingsRepositoryInterface $settings, string $url): void
@@ -244,6 +300,10 @@ class WebhookTestParser implements RequestParserInterface
     public function parse(Request $request, #[\SensitiveParameter] string $secret): RemoteEvent|array|null
     {
         $payload = $request->toArray();
+
+        if (isset($payload['expected_uri']) && $payload['expected_uri'] !== $request->getUri()) {
+            throw new RejectWebhookException(406, 'Webhook URL does not match.');
+        }
 
         if (isset($payload['reject'])) {
             throw new RejectWebhookException(406, $payload['reject']);

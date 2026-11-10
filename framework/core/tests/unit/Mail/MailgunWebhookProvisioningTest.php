@@ -53,9 +53,20 @@ class MailgunWebhookProvisioningTest extends TestCase
     private function settings(): SettingsRepositoryInterface
     {
         $settings = m::mock(SettingsRepositoryInterface::class);
-        $settings->shouldReceive('get')->andReturn(null);
+        $values = ['mail_mailgun_webhook_signing_key' => 'sign-xyz', 'mail_webhook_username' => 'forum', 'mail_webhook_password' => 'secret'];
+        $settings->shouldReceive('get')->andReturnUsing(fn ($key) => $values[$key] ?? null);
 
         return $settings;
+    }
+
+    #[Test]
+    public function registering_requires_webhook_authentication_before_any_api_call(): void
+    {
+        $settings = m::mock(SettingsRepositoryInterface::class);
+        $settings->shouldReceive('get')->andReturn(null);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Configure webhook authentication before registering the webhook.');
+        $this->driver()->registerWebhook($settings, self::OURS);
     }
 
     private static function urls(string ...$urls): Response

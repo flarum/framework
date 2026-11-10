@@ -6,6 +6,10 @@ export default class BouncedGambit extends BooleanGambit {
     return app.translator.trans('core.lib.gambits.users.bounced.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'bounced';
+  }
+
   filterKey(): string {
     return 'bounced';
   }

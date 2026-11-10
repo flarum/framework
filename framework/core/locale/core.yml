@@ -471,7 +471,7 @@ core:
       webhook_url_help: "Add this URL as a webhook in your mail provider's dashboard, with bounce and spam complaint events turned on."
       webhook_url_provision_help: "Register webhook with provider adds this URL to your mail provider for you."
       webhook_username_label: Webhook username
-      webhook_username_help: "Only needed if your forum is behind HTTP basic authentication, such as a protected staging site. The username and password are added to the webhook URL so your mail provider can get through."
+      webhook_username_help: "Choose a username without colons and a strong password. These are required by drivers that authenticate webhooks with a username and password, and for forums behind HTTP basic authentication. The credentials are included in the webhook URL. After changing them, register the webhook again or update its URL in your provider's dashboard."
 
     # These translations are used in the email bounces dashboard widget.
     email_bounces:
@@ -984,7 +984,7 @@ core:
 
     # These translations are used in the alert that is shown when a new user has not confirmed their email address.
     user_email_bounced:
-      alert_message: We couldn't deliver email to {email}. Please update your email address so you don't miss important notifications.
+      alert_message: Email to {email} has bounced or been reported as spam. Please check your email address or contact an administrator.
       update_button: Update Email
 
     user_email_confirmation:
@@ -1023,6 +1023,7 @@ core:
 
     # These translations are used in the Edit User modal dialog (admin function).
     edit_user:
+      clear_email_bounce_label: Clear email bounce or spam complaint flag
       activate_button: Activate User
       email_heading: => core.ref.email
       email_label: => core.ref.email

@@ -90,6 +90,27 @@ class SuppressBouncedTest extends TestCase
     }
 
     #[Test]
+    public function a_bounce_after_enqueueing_prevents_delivery(): void
+    {
+        $this->setting('mail_suppress_bounced', true);
+        $container = $this->app()->getContainer();
+        $mailer = m::mock(\Illuminate\Contracts\Mail\Mailer::class);
+        $mailer->shouldNotReceive('send');
+        $container->instance(\Illuminate\Contracts\Mail\Mailer::class, $mailer);
+
+        $payload = serialize(new \Flarum\Notification\Job\SendEmailNotificationJob(new SuppressTestBlueprint(), User::find(2)));
+        User::where('id', 2)->update(['email_bounced_at' => Carbon::now()]);
+
+        $job = unserialize($payload);
+        $job->handle(
+            $container->make(\Flarum\Notification\NotificationMailer::class),
+            $container->make(\Illuminate\Contracts\Cache\Repository::class)
+        );
+
+        $this->assertEquals(0, \Flarum\Notification\UnsubscribeToken::count());
+    }
+
+    #[Test]
     public function bounced_user_is_skipped_when_suppression_is_enabled(): void
     {
         // Only the healthy user's email job should be queued.

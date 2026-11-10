@@ -25,6 +25,8 @@ class MailBounceTest extends TestCase
         $this->setting('mail_mailgun_domain', 'mg.example.com');
         $this->setting('mail_mailgun_region', 'api.mailgun.net');
         $this->setting('mail_mailgun_webhook_signing_key', self::SIGNING_KEY);
+        $this->setting('mail_webhook_username', 'forum-webhooks');
+        $this->setting('mail_webhook_password', 'forum-specific-password');
 
         $this->prepareDatabase([
             User::class => [
@@ -44,7 +46,7 @@ class MailBounceTest extends TestCase
         $timestamp = (string) time();
         $token = 'abc123token';
 
-        $this->sendSuccessfulRequest('POST', '/mail/webhook/mailgun', [
+        $request = $this->request('POST', '/mail/webhook/mailgun', [
             'json' => [
                 'signature' => [
                     'timestamp' => $timestamp,
@@ -63,7 +65,9 @@ class MailBounceTest extends TestCase
                     ],
                 ],
             ],
-        ], 200, null);
+        ]);
+        $response = $this->send($request->withHeader('Authorization', 'Basic '.base64_encode('forum-webhooks:forum-specific-password')));
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
     }
 
     #[Test]

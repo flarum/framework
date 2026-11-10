@@ -14,8 +14,11 @@ use Flarum\Mail\Event\EmailComplained;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -38,6 +41,8 @@ class WebhookController implements RequestHandlerInterface
         protected UserRepository $users,
         protected Dispatcher $events,
         protected LoggerInterface $logger,
+        protected ConnectionInterface $database,
+        protected CacheRepository $cache,
     ) {
     }
 
@@ -48,8 +53,8 @@ class WebhookController implements RequestHandlerInterface
         $active = $this->settings->get('mail_driver');
 
         // Only the active driver, and only if it can receive webhooks, is
-        // allowed to process them. Anything else is refused, and logged so an
-        // admin can see why no bounces arrive.
+        // allowed to process them. Refusal logs are sampled so an admin can
+        // diagnose configuration errors without unbounded log volume.
         if (! $driver) {
             return $this->refuse($request, 404, sprintf('the active mail driver "%s" cannot receive webhooks', $active));
         }
@@ -59,14 +64,14 @@ class WebhookController implements RequestHandlerInterface
         }
 
         if ($requested !== null && $requested !== $active) {
-            return $this->refuse($request, 404, sprintf('it was sent for the "%s" mail driver, but the active driver is "%s"', $requested, $active));
+            return $this->refuse($request, 404, 'the requested mail driver does not match the active driver');
         }
 
         $parser = $driver->getWebhookRequestParser($this->settings);
         $symfonyRequest = $this->toSymfonyRequest($request);
 
-        // The parser owns ALL verification — HMAC signature (Mailgun), IP
-        // allowlist (Postmark/Brevo), or SNS certificate (SES). We never verify
+        // The parser owns verification: credentials, signatures, provider IP
+        // allowlists or certificates. We never verify
         // here, and we must NOT assume a secret is what authenticates: some
         // providers legitimately have no secret. Pass whatever the driver
         // supplies (or an empty string); a driver that needs one reports itself
@@ -94,11 +99,15 @@ class WebhookController implements RequestHandlerInterface
 
     protected function refuse(ServerRequestInterface $request, int $status, string $reason): ResponseInterface
     {
-        $this->logger->warning(sprintf(
-            'Refused a mail webhook from %s: %s.',
-            $request->getAttribute('ipAddress') ?? Arr::get($request->getServerParams(), 'REMOTE_ADDR', 'an unknown address'),
-            rtrim($reason, '.')
-        ));
+        // A public endpoint must not provide an unlimited warning-log sink.
+        if ($this->cache->add('mail.webhook.refusal.'.$status, true, 60)) {
+            $message = sprintf(
+                'Refused a mail webhook from %s: %s.',
+                $request->getAttribute('ipAddress') ?? Arr::get($request->getServerParams(), 'REMOTE_ADDR', 'an unknown address'),
+                rtrim($reason, '.')
+            );
+            $this->logger->warning(preg_replace('/[\x00-\x1f\x7f]/', ' ', $message));
+        }
 
         return new EmptyResponse($status);
     }
@@ -121,7 +130,7 @@ class WebhookController implements RequestHandlerInterface
             $reason = $event->getReason();
             $recipient = $email ? $this->users->findByEmail($email) : null;
 
-            $this->events->dispatch(new EmailBounced($email, $reason, $recipient, $event->getPayload()));
+            $this->dispatchOnce($driver, $event, new EmailBounced($email, $reason, $recipient, $event->getPayload()));
 
             return;
         }
@@ -130,8 +139,25 @@ class WebhookController implements RequestHandlerInterface
             $email = $event->getRecipientEmail();
             $recipient = $email ? $this->users->findByEmail($email) : null;
 
-            $this->events->dispatch(new EmailComplained($email, 'complaint', $recipient, $event->getPayload()));
+            $this->dispatchOnce($driver, $event, new EmailComplained($email, 'complaint', $recipient, $event->getPayload()));
         }
+    }
+
+    protected function dispatchOnce(HandlesWebhooks $driver, MailerDeliveryEvent|MailerEngagementEvent $remote, EmailBounced|EmailComplained $event): void
+    {
+        // Some providers identify the message rather than the event. Include
+        // recipient and type to preserve distinct events for it. A provider
+        // timestamp also distinguishes IDs that are reused on later days.
+        $key = hash('sha256', serialize([
+            get_class($driver), $remote->getId(), $remote->getName(),
+            $remote->getRecipientEmail(), $remote->getPayload()['timestamp'] ?? null,
+        ]));
+
+        $this->database->transaction(function () use ($key, $event) {
+            if ($this->database->table('mail_webhook_receipts')->insertOrIgnore(['id' => $key])) {
+                $this->events->dispatch($event);
+            }
+        });
     }
 
     /**
@@ -149,9 +175,23 @@ class WebhookController implements RequestHandlerInterface
 
         $server['REQUEST_METHOD'] = $request->getMethod();
         $server['CONTENT_TYPE'] = $request->getHeaderLine('Content-Type');
+        // InstalledApp has removed the installation prefix. Use the configured
+        // public origin too, rather than the internal host of a reverse proxy.
+        $base = new Uri($this->webhooks->baseUrl());
+        $uri = $request->getUri()
+            ->withScheme($base->getScheme())
+            ->withHost($base->getHost())
+            ->withPort($base->getPort())
+            ->withPath(rtrim($base->getPath(), '/').'/'.ltrim($request->getUri()->getPath(), '/'));
+        $server['HTTPS'] = $uri->getScheme() === 'https' ? 'on' : 'off';
+        $server['SERVER_NAME'] = $uri->getHost();
+        $server['SERVER_PORT'] = $uri->getPort() ?? ($uri->getScheme() === 'https' ? 443 : 80);
+        $server['HTTP_HOST'] = $uri->getHost().($uri->getPort() !== null ? ':'.$uri->getPort() : '');
+        $server['REQUEST_URI'] = $uri->getPath().($uri->getQuery() !== '' ? '?'.$uri->getQuery() : '');
+        $server['QUERY_STRING'] = $uri->getQuery();
 
         // Preserve the client IP so parsers that verify by IP allowlist
-        // (e.g. Postmark, Brevo) can resolve it via Request::getClientIp().
+        // can resolve it via Request::getClientIp().
         // Flarum's ProcessIp middleware stashes the resolved IP on the
         // 'ipAddress' attribute; fall back to the raw REMOTE_ADDR.
         $ip = $request->getAttribute('ipAddress')
@@ -163,7 +203,7 @@ class WebhookController implements RequestHandlerInterface
 
         return new SymfonyRequest(
             query: $request->getQueryParams(),
-            request: [],
+            request: is_array($request->getParsedBody()) ? $request->getParsedBody() : [],
             attributes: [],
             cookies: [],
             files: [],

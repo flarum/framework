@@ -292,6 +292,7 @@ class UserResource extends AbstractDatabaseResource
                 }),
 
             Schema\DateTime::make('emailBouncedAt')
+                ->nullable()
                 // Visible to the user themselves (so the forum can prompt them
                 // to fix their address) and to admins who can edit credentials.
                 ->visible(function (User $user, Context $context) {

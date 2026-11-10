@@ -67,23 +67,26 @@ class PostmarkDriver implements DriverInterface, HandlesWebhooks
 
     public function getWebhookRequestParser(SettingsRepositoryInterface $settings): RequestParserInterface
     {
-        // Postmark authenticates inbound webhooks by verifying the request
-        // originates from its published IP range (handled inside the parser's
-        // request matcher), not by a shared secret.
-        return new PostmarkRequestParser(new PostmarkPayloadConverter());
+        // Credentials identify this forum's account and also work behind a
+        // reverse proxy, whose address is not in Postmark's provider IP list.
+        return new PostmarkRequestParser(new PostmarkPayloadConverter(), allowedIPs: []);
     }
 
     public function getWebhookSigningSecret(SettingsRepositoryInterface $settings): ?string
     {
-        // Postmark does not use a signing secret; verification is IP-based.
-        return null;
+        if (! $this->webhookConfigured($settings)) {
+            return null;
+        }
+
+        return $settings->get('mail_webhook_username').':'.$settings->get('mail_webhook_password');
     }
 
     public function webhookConfigured(SettingsRepositoryInterface $settings): bool
     {
-        // Postmark needs no extra webhook config — verification is by IP, and
-        // the admin registers the URL in Postmark's dashboard.
-        return true;
+        $username = (string) $settings->get('mail_webhook_username');
+        $password = (string) $settings->get('mail_webhook_password');
+
+        return $username !== '' && $password !== '' && ! str_contains($username, ':');
     }
 
     public function webhooksAvailable(SettingsRepositoryInterface $settings): bool

@@ -19,6 +19,7 @@ use Flarum\Group\Group;
 use Flarum\Group\Permission;
 use Flarum\Group\PermissionCache;
 use Flarum\Http\AccessToken;
+use Flarum\Mail\EmailBounceEvent;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
 use Flarum\User\Avatar\DriverInterface as AvatarDriver;
@@ -175,6 +176,12 @@ class User extends AbstractModel
             if ($user->id == 1) {
                 throw new DomainException('Cannot delete the root admin');
             }
+
+            EmailBounceEvent::where('user_id', $user->id)->update([
+                'email' => '',
+                'reason' => null,
+                'user_id' => null,
+            ]);
 
             $avatarPath = $user->getRawOriginal('avatar_url');
 
