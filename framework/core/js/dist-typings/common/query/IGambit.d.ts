@@ -61,9 +61,14 @@ export declare enum GambitType {
     KeyValue = "key:value",
     Grouped = "grouped"
 }
+export type GambitValueOption = {
+    value: string;
+    label?: string;
+};
 export type KeyValueGambitSuggestion = {
     key: string;
     hint: string;
+    values?: (string | GambitValueOption)[] | (() => (string | GambitValueOption)[]);
 };
 export type GroupedGambitSuggestion = {
     group: 'is' | 'has' | 'allows' | string;
@@ -113,9 +118,10 @@ export declare abstract class KeyValueGambit implements IGambit<GambitType.KeyVa
     canonicalPattern(): string;
     toFilter(matches: string[], negate: boolean): Record<string, any>;
     fromFilter(value: any, negate: boolean): string;
-    suggestion(): {
-        key: string;
-        hint: string;
-    };
+    /**
+     * Optional list of suggested values or value options for this gambit.
+     */
+    values(): (string | GambitValueOption)[];
+    suggestion(): KeyValueGambitSuggestion;
     enabled(): boolean;
 }
