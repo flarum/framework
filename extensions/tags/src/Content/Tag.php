@@ -63,7 +63,7 @@ class Tag
             'filter' => [
                 'tag' => "$slug"
             ],
-            'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
+            'page' => ['number' => $page]
         ];
 
         $params['filter'] = array_merge($filters, $params['filter']);
