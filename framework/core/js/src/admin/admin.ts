@@ -25,6 +25,8 @@ import './components/LoadingModal';
 import './components/DashboardPage';
 import './components/BasicsPage';
 import './components/UserListPage';
+import './components/AccessTokenListPage';
+import './components/AccessTokenRevokeModal';
 import './components/EditCustomHeaderModal';
 import './components/PermissionsPage';
 import './components/PermissionDropdown';
@@ -37,5 +39,9 @@ import './components/AnnouncementsWidget';
 import './components/AnnouncementList';
 import './components/AnnouncementItem';
 
+import './resource/definitions/UsersDefinition';
+import './resource/definitions/GroupsDefinition';
+import './resource/definitions/AccessTokensDefinition';
+import './resources';
 import './routes';
 import './AdminApplication';

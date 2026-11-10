@@ -7,6 +7,34 @@ core:
   # Translations in this namespace are used by the admin interface.
   admin:
 
+    # These translations are used in the Access Tokens page.
+    access_tokens:
+      columns:
+        created_at: Created
+        device: Device
+        last_activity_at: Last active
+        last_ip_address: IP address
+        title: Title
+        type: Type
+        user: User
+      current_session: Current session
+      description: "See and revoke the sessions and developer tokens of your forum's users."
+      label: "{count, plural, one {Access token} other {Access tokens}}"
+      never: Never
+      revoke:
+        bulk_confirmation: "{count, plural, one {Revoke # access token? Whatever is signed in with it is logged out at once.} other {Revoke # access tokens? Whatever is signed in with them is logged out at once.}}"
+        confirmation: "Revoke {name} of {username}? Whatever is signed in with it is logged out at once."
+        submit_button: Revoke
+        title: Revoke Access Token
+      revoke_button: Revoke
+      revoked: Access token revoked.
+      title: Access Tokens
+      types:
+        developer: Developer token
+        session: Session
+        session_remember: Remembered session
+      untitled: Untitled
+
     # These translations are used in the Advanced page.
     advanced:
       description: "Configure advanced settings for your forum."
@@ -496,6 +524,21 @@ core:
       safe_mode_warning: Safe mode is currently enabled. Extensions are not booted and their settings are therefore inaccessible.
       unsaved_changes: Unsaved changes
 
+    # These translations are used in the Groups page of the admin interface.
+    groups:
+      description: Create groups, and edit their names, badges and visibility.
+      fields:
+        color: => core.ref.color
+        icon: => core.ref.icon
+        icon_image: => core.ref.icon_image
+        is_hidden: => core.admin.edit_group.hide_label
+        name_plural: Name (plural)
+        name_singular: Name (singular)
+      icon_image_text: => core.ref.icon_image_text
+      icon_text: => core.ref.icon_text
+      label: "{count, plural, one {Group} other {Groups}}"
+      title: Groups
+
     # These translations are used in the secondary header.
     header:
       get_help: Get Help
@@ -515,6 +558,8 @@ core:
 
     # These translations are used in the navigation bar.
     nav:
+      access_tokens_button: => core.admin.access_tokens.title
+      access_tokens_title: => core.admin.access_tokens.description
       advanced_button: => core.admin.advanced.title
       advanced_title: => core.admin.advanced.description
       appearance_button: => core.admin.appearance.title
@@ -538,6 +583,8 @@ core:
       dashboard_title: => core.admin.dashboard.description
       email_button: => core.ref.email
       email_title: => core.admin.email.description
+      groups_button: => core.admin.groups.title
+      groups_title: => core.admin.groups.description
       permissions_button: => core.admin.permissions.title
       permissions_title: => core.admin.permissions.description
       userlist_button: => core.admin.users.title
@@ -593,6 +640,89 @@ core:
       signup_closed_button: Closed
       signup_open_button: Open
 
+    # These translations are used by the generic resource table and its modals.
+    resource:
+      access-tokens:
+        filters:
+          type: Type
+          type_enum:
+            developer: Developer token
+            session: Session
+            session_remember: Remembered session
+          user: User
+        label_one: Access token
+        label_other: Access tokens
+      bulk:
+        close_button: => core.ref.okay
+        result_deleted: "{count, plural, one {# entry deleted.} other {# entries deleted.}}"
+        result_failed: "{count, plural, one {# entry could not be deleted:} other {# entries could not be deleted:}}"
+        result_skipped: "{count, plural, one {# entry was skipped because you may not delete it:} other {# entries were skipped because you may not delete them:}}"
+        result_title: Bulk delete
+        result_unknown_error: Something went wrong.
+      delete:
+        cancel_button: Cancel
+        confirmation: "Delete {name}? This cannot be undone."
+        submit_button: => core.ref.delete
+        title: => core.ref.delete
+      form:
+        create_title: "Create {label}"
+        edit_title: "Edit {name}"
+      groups:
+        filters:
+          hidden: Hidden
+        label_one: Group
+        label_other: Groups
+      table:
+        actions_label: Actions
+        bulk_label: Selected entries
+        cancel_selection_button: Cancel
+        clear_filters_button: Clear filters
+        columns_heading: Columns
+        conflicts_with_search: Conflicts with the search
+        create_button: Create
+        empty_description: "There are no {label} to show yet."
+        empty_title: Nothing here yet
+        export_button: Export CSV
+        export_error: The export failed.
+        export_progress: "Exporting… {count} (cancel)"
+        export_progress_total: "Exporting… {count} of {total} (cancel)"
+        export_truncated: "{count, plural, one {Only the first # row was exported.} other {Only the first # rows were exported.}}"
+        filter_button: Filter
+        filter_label: "{label}: {value}"
+        filter_toggle_label: "{count, plural, =0 {Filter} one {Filter, # active} other {Filter, # active}}"
+        filters_label: Active filters
+        load_error: This list could not be loaded. You may not have permission to manage it.
+        next_button: Next
+        no_results_description: Nothing matches your search or filters. Try changing or clearing them.
+        no_results_title: No results
+        not_selectable: "{name} can't be changed here."
+        overridden_by_search: Overridden by the search
+        page: "Page {page}"
+        pagination_label: Pagination
+        previous_button: Previous
+        refresh_button: => core.ref.refresh
+        remove_filter_label: "Remove filter {label}"
+        row_actions_label: "Actions for {name}"
+        search_filters_heading: Search filters
+        search_label: Search
+        search_placeholder: "Search {label}…"
+        select_all_label: Select all entries on this page
+        select_label: "Select {name}"
+        selected: "{count, plural, one {# item selected} other {# items selected}}"
+        settings_label: Table settings
+        sort_ascending: "{label} (ascending)"
+        sort_default: Default order
+        sort_descending: "{label} (descending)"
+        sort_label: Sort by
+      users:
+        filters:
+          email: Email
+          group: Group
+          joined_at: Joined
+        label_one: User
+        label_other: Users
+        last_seen_at: Last seen
+
     # These translations are used by the admin-specific search sources.
     search_source:
       general:
@@ -615,7 +745,6 @@ core:
     users:
       create_user_button: New User
       description: A paginated list of all users on your forum.
-      filters_label: "Filter by:"
 
       grid:
         columns:
@@ -636,9 +765,6 @@ core:
 
           user_actions:
             title: Actions
-            edit_user:
-              button: => core.ref.edit
-              tooltip: Edit {username}
 
           user_id:
             title: ID
@@ -649,9 +775,8 @@ core:
 
         invalid_column_content: Invalid
 
-      search_placeholder: => core.ref.search_users
+      label: "{count, plural, one {User} other {Users}}"
       title: => core.ref.users
-      total_users: "Total users: {count}"
 
   # Translations in this namespace are used by the forum user interface.
   forum:
@@ -1142,6 +1267,61 @@ core:
       next_button: Next page
       page_counter: Page {current} of {total}
 
+    # These translations are used by the generic resource forms and filters.
+    resource:
+      bulk:
+        cancel_button: Cancel
+        confirmation: "{count, plural, one {{label}: apply to # entry?} other {{label}: apply to # entries?}}"
+        confirmation_skipped: "{count, plural, one {# selected entry is left out because the action does not apply to it.} other {# selected entries are left out because the action does not apply to them.}}"
+        delete_confirmation: "{count, plural, one {Delete # entry? This cannot be undone.} other {Delete # entries? This cannot be undone.}}"
+        delete_label: => core.ref.delete
+        edit_label: => core.ref.edit
+        progress: "Processing… {done} of {total}"
+        result_failed_group: "{count, plural, one {# entry not processed: {reason}} other {# entries not processed: {reason}}}"
+        result_processed: "{count, plural, one {# entry processed.} other {# entries processed.}}"
+        result_skipped: "{count, plural, one {# entry was skipped because the action does not apply to it.} other {# entries were skipped because the action does not apply to them.}}"
+      filter:
+        any: Any
+        "no": "No"
+        range_from_label: "{label} from"
+        range_open: …
+        range_to_label: "{label} to"
+        range_value: "{from} – {to}"
+        "yes": "Yes"
+      form:
+        load_error: This form could not be loaded.
+        submit_button: => core.ref.save_changes
+      relation:
+        load_error: Could not load the options.
+        load_more: Load more
+        retry_button: Retry
+      validation:
+        accepted: This must be accepted.
+        declined: This must be declined.
+        email: Enter a valid email address.
+        enum: Choose one of the listed values.
+        exclusive_maximum: "Enter a value less than {max}."
+        exclusive_minimum: "Enter a value greater than {min}."
+        hex_color: Enter a valid hexadecimal color.
+        integer: Enter a whole number.
+        ip: Enter a valid IP address.
+        ipv4: Enter a valid IPv4 address.
+        ipv6: Enter a valid IPv6 address.
+        items_enum: Choose only listed values.
+        max_items: "Choose at most {count, plural, one {# item} other {# items}}."
+        max_length: "Enter at most {count, plural, one {# character} other {# characters}}."
+        maximum: "Enter a value of at most {max}."
+        min_items: "Choose at least {count, plural, one {# item} other {# items}}."
+        min_length: "Enter at least {count, plural, one {# character} other {# characters}}."
+        minimum: "Enter a value of at least {min}."
+        multiple_of: "Enter a multiple of {value}."
+        pattern: This value has an invalid format.
+        required: This field is required.
+        ulid: Enter a valid ULID.
+        unique_items: Each value may only be chosen once.
+        url: Enter a valid URL.
+        uuid: Enter a valid UUID.
+
     # These translations are used by the abstract search component and search modal.
     search:
       gambit_plus_button_a11y_label: Add a positive filter
@@ -1304,6 +1484,7 @@ core:
     invalid_username_message: "The username may only contain letters, numbers, and dashes. With at least one letter."
     invalid_filter_type:
       must_be_numeric_message: "The {filter} filter must be numeric."
+      must_be_range_message: "The {filter} filter must be a range like 2024-01-01..2024-12-31; either side may be left empty."
       must_not_be_array_message: "The {filter} filter must not be an array."
       must_not_be_multidimensional_array_message: "The {filter} filter must not be a multidimensional array."
 

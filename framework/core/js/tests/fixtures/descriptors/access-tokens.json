@@ -1,0 +1,150 @@
+{
+    "schemaVersion": 1,
+    "endpoint": "/access-tokens",
+    "label": {
+        "one": "Access token",
+        "other": "Access tokens"
+    },
+    "capabilities": {
+        "list": true,
+        "create": true,
+        "delete": true
+    },
+    "rowAbilities": {
+        "delete": "canDelete"
+    },
+    "pagination": {
+        "defaultLimit": 20,
+        "maxLimit": 50
+    },
+    "sorts": [
+        "createdAt",
+        "lastActivityAt"
+    ],
+    "filters": [
+        {
+            "key": "user",
+            "kind": "relationship",
+            "related": "users",
+            "negatable": true,
+            "label": "User"
+        },
+        {
+            "key": "type",
+            "kind": "enum",
+            "enum": [
+                "developer",
+                "session_remember",
+                "session"
+            ],
+            "negatable": true,
+            "label": "Type",
+            "enumLabels": {
+                "developer": "Developer token",
+                "session_remember": "Remembered session",
+                "session": "Session"
+            }
+        }
+    ],
+    "fields": [
+        {
+            "name": "userId",
+            "kind": "integer",
+            "label": "User id"
+        },
+        {
+            "name": "user",
+            "kind": "toOne",
+            "label": "User",
+            "relationship": {
+                "types": [
+                    "users"
+                ]
+            },
+            "ui": {
+                "column": 90,
+                "display": "username"
+            }
+        },
+        {
+            "name": "type",
+            "kind": "string",
+            "label": "Type",
+            "ui": {
+                "column": 80
+            }
+        },
+        {
+            "name": "createdAt",
+            "kind": "datetime",
+            "label": "Created",
+            "constraints": {
+                "format": "date-time"
+            },
+            "sortable": true,
+            "ui": {
+                "column": 50
+            }
+        },
+        {
+            "name": "lastActivityAt",
+            "kind": "datetime",
+            "label": "Last active",
+            "constraints": {
+                "format": "date-time"
+            },
+            "sortable": true,
+            "ui": {
+                "column": 40
+            }
+        },
+        {
+            "name": "isCurrent",
+            "kind": "boolean",
+            "label": "Is current"
+        },
+        {
+            "name": "isSessionToken",
+            "kind": "boolean",
+            "label": "Is session token"
+        },
+        {
+            "name": "canDelete",
+            "kind": "boolean",
+            "label": "Can delete"
+        },
+        {
+            "name": "title",
+            "kind": "string",
+            "label": "Title",
+            "required": {
+                "create": true
+            },
+            "writable": {
+                "create": true
+            },
+            "constraints": {
+                "maxLength": 255
+            },
+            "ui": {
+                "column": 75
+            }
+        },
+        {
+            "name": "lastIpAddress",
+            "kind": "string",
+            "label": "IP address",
+            "ui": {
+                "column": 60
+            }
+        },
+        {
+            "name": "device",
+            "kind": "string",
+            "label": "Device",
+            "ui": {
+                "column": 70
+            }
+        }
+    ]
+}

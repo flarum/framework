@@ -234,6 +234,7 @@ class UserResource extends AbstractDatabaseResource
                 ])
                 ->minLength(3)
                 ->maxLength(30)
+                ->ui(['column' => 90, 'label' => 'core.admin.users.grid.columns.username.title'])
                 ->writable(function (User $user, Context $context) {
                     return $context->creating()
                         || $context->getActor()->can('editCredentials', $user);
@@ -313,6 +314,9 @@ class UserResource extends AbstractDatabaseResource
             Schema\Str::make('token')
                 ->description('Write-only: a registration token from an external sign-in, used instead of a password when signing up.')
                 ->visible(false)
+                // Set by the sign-up flow, never typed into a form. Absent from the
+                // admin form, so `required_without:token` makes the credentials required.
+                ->ui(['widget' => 'hidden'])
                 ->writable(function (User $user, Context $context) {
                     return $context->creating();
                 })
@@ -333,12 +337,15 @@ class UserResource extends AbstractDatabaseResource
             Schema\Str::make('colorScheme')
                 ->description('Write-only, when signing up: the color scheme preference to start with.')
                 ->visible(false)
+                // Set by the sign-up flow, never typed into the admin form.
+                ->ui(['widget' => 'hidden'])
                 ->writable(fn (User $user, Context $context) => $context->creating())
                 ->regex('/^[a-z0-9-]+$/i')
                 ->maxLength(50)
                 ->set(fn (User $user, string $value) => $user->setPreference('colorScheme', $value)),
             Schema\Str::make('displayName')
-                ->description('The name shown on the forum. It may differ from the username.'),
+                ->description('The name shown on the forum. It may differ from the username.')
+                ->ui(['column' => 85, 'label' => 'core.admin.users.grid.columns.display_name.title']),
             Schema\Str::make('avatarUrl'),
             Schema\Str::make('avatarSrcset')
                 ->description('Avatar image sources for different pixel densities, in HTML srcset format.'),
@@ -350,7 +357,8 @@ class UserResource extends AbstractDatabaseResource
                 }),
             Schema\DateTime::make('joinTime')
                 ->description('When the user signed up.')
-                ->property('joined_at'),
+                ->property('joined_at')
+                ->ui(['column' => 80, 'label' => 'core.admin.users.grid.columns.join_time.title']),
             Schema\Integer::make('discussionCount')
                 ->description('Number of discussions the user has started.'),
             Schema\Integer::make('commentCount')
@@ -426,6 +434,7 @@ class UserResource extends AbstractDatabaseResource
                 // must hold every group they are in, including the hidden
                 // ones the actor may not see. Those are left out below.
                 ->withoutRelatedScope()
+                ->ui(['column' => 70, 'display' => 'nameSingular', 'label' => 'core.admin.users.grid.columns.group_badges.title'])
                 ->get(function (User $user, Context $context) {
                     // Read the (eager-)loaded relation instead of issuing a fresh
                     // query per serialized user. Hidden groups are filtered in PHP

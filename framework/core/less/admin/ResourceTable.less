@@ -1,0 +1,430 @@
+// Generic resource admin: ResourceTable, ResourceFormModal, ResourceDeleteModal, BulkResultModal.
+
+// Laid out after Carbon's data table: one toolbar row that the batch bar replaces while rows are
+// selected, the filter tags, the table and core's Pagination.
+.ResourceTable {
+  padding-bottom: 24px;
+
+  &-error .Alert {
+    display: block;
+  }
+
+  // The toolbar and the batch bar share one box, so selecting rows does not move the table.
+  &-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    min-height: 48px;
+    padding: 6px 0;
+    margin-bottom: 4px;
+  }
+
+  &-toolbarView,
+  &-toolbarActions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  &-toolbarView {
+    flex: 1 1 auto;
+  }
+
+  &-toolbarActions {
+    flex: none;
+    margin-inline-start: auto;
+  }
+
+  &-batchBar {
+    padding: 6px 6px 6px 16px;
+    border-radius: var(--border-radius);
+    color: var(--button-primary-color);
+    background: var(--button-primary-bg);
+  }
+
+  &-batchCount {
+    font-weight: bold;
+  }
+
+  &-batchActions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-inline-start: auto;
+  }
+
+  // Ghost buttons on the primary background.
+  &-batchButton.Button {
+    --button-color: var(--button-primary-color);
+    --button-bg: transparent;
+    --button-bg-hover: rgba(0, 0, 0, 0.12);
+    --button-bg-active: rgba(0, 0, 0, 0.2);
+    --button-bg-disabled: transparent;
+  }
+
+  &-batchDivider {
+    align-self: stretch;
+    width: 1px;
+    margin: 4px 4px;
+    background: currentColor;
+    opacity: 0.4;
+  }
+
+  &-filterTags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  &-searchGroup {
+    flex: 0 1 320px;
+    min-width: 0;
+
+    .Input,
+    .AutocompleteDropdown {
+      width: 100%;
+    }
+  }
+
+  &-settings .Dropdown-menu {
+    min-width: 220px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  &-settingsHeading {
+    display: block;
+    font-weight: bold;
+  }
+
+  &-columnToggle.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 6px 15px;
+    white-space: nowrap;
+    cursor: pointer;
+
+    input {
+      position: static;
+      margin: 0;
+    }
+  }
+
+  // The sort select of the settings menu is for phones, where the headers may be scrolled away.
+  &-sortItem,
+  li.Dropdown-separator:has(+ &-sortItem) {
+    display: none;
+  }
+
+  &-sortSelect {
+    padding: 6px 15px;
+
+    .Select {
+      display: block;
+      margin-top: 6px;
+    }
+
+    .FormControl {
+      width: 100%;
+    }
+  }
+
+  &-exportProgress {
+    white-space: nowrap;
+  }
+
+  @media @phone {
+    // Search on a line of its own, then "Filter" and the actions on the next.
+    &-toolbarView {
+      display: contents;
+    }
+
+    &-searchGroup {
+      flex: 1 1 100%;
+    }
+
+    &-sortItem,
+    li.Dropdown-separator:has(+ &-sortItem) {
+      display: list-item;
+    }
+
+    &-sortSelect,
+    &-columnToggle {
+      padding-inline: 20px;
+    }
+  }
+
+  // Forced colours drop box-shadow focus rings and cell backgrounds.
+  @media (forced-colors: active) {
+    .Button:focus-visible,
+    .Dropdown-toggle:focus-visible,
+    .FormControl:focus-visible,
+    .Pill .Button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+
+    &-table tbody tr td {
+      border-block-end: 1px solid CanvasText;
+    }
+
+    &-batchBar {
+      border: 1px solid CanvasText;
+    }
+  }
+
+  &-container {
+    position: relative;
+    // Scrolling sideways also clips vertically; open row menus are positioned `fixed` (see
+    // floatMenus.ts), so they show below a short table.
+    overflow-x: auto;
+    border-radius: var(--border-radius);
+
+    > .LoadingIndicator-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &--loading .ResourceTable-table {
+      opacity: 0.5;
+    }
+  }
+
+  &-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      height: 48px;
+      padding: 6px 16px;
+      text-align: start;
+      vertical-align: middle;
+    }
+
+    thead th {
+      font-weight: bold;
+      white-space: nowrap;
+      color: var(--heading-color);
+      background: var(--control-bg);
+    }
+
+    tbody td {
+      border-bottom: 1px solid var(--control-bg);
+    }
+
+    tbody tr.ResourceTable-row:hover td {
+      background: var(--body-bg-shaded);
+
+      [data-theme^="dark"] & {
+        background: var(--body-bg-light);
+      }
+    }
+  }
+
+  &-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+  }
+
+  &-sortIcon {
+    font-size: 0.85em;
+    color: var(--muted-color);
+    opacity: 0;
+    transition: opacity 0.1s;
+
+    .ResourceTable-sort:hover &,
+    .ResourceTable-sort:focus-visible &,
+    .is-sorted & {
+      opacity: 1;
+    }
+
+    .is-sorted & {
+      color: var(--primary-color);
+    }
+  }
+
+  &-selectHeader,
+  &-selectCell {
+    width: 1%;
+    padding-inline-end: 0 !important;
+
+    input {
+      margin: 0;
+      cursor: pointer;
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.4;
+      }
+    }
+  }
+
+  &-row.is-selected td {
+    background: var(--control-bg) !important;
+  }
+
+  &-actions {
+    width: 1%;
+    white-space: nowrap;
+    text-align: end !important;
+    padding-block: 0 !important;
+  }
+
+  &-rowMenuToggle {
+    width: 36px;
+    height: 36px;
+  }
+
+  &-empty {
+    padding: 48px 16px !important;
+    height: auto !important;
+  }
+
+  &-emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+
+  &-emptyIcon {
+    font-size: 28px;
+    color: var(--muted-more-color);
+  }
+
+  &-emptyTitle {
+    margin: 4px 0 0;
+    font-size: 16px;
+    color: var(--heading-color);
+  }
+
+  &-emptyDescription {
+    margin: 0 0 8px;
+    color: var(--muted-color);
+  }
+
+  // Core's `.Pagination` (2.x's admin user list) brings its own layout; this is the previous/next
+  // row of a list without a total.
+  &-prevNext {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px 20px;
+    margin-top: 16px;
+  }
+
+  &-page {
+    color: var(--muted-color);
+  }
+
+  &-nextIcon {
+    margin-inline: 7px 0;
+  }
+}
+
+// A destructive action in a row's overflow menu: below a separator, in the danger colour.
+.Dropdown-menu .ResourceTable-menuAction--danger {
+  &,
+  .Button-icon {
+    color: var(--control-danger-color);
+  }
+
+  &:hover,
+  &:focus {
+    background: var(--control-danger-bg);
+  }
+}
+
+.ResourceFormModal {
+  .ResourceForm-error {
+    color: var(--control-danger-color);
+  }
+
+  .ResourceForm-field.has-error .FormControl {
+    border-color: var(--control-danger-color);
+  }
+}
+
+.ResourceDeleteModal-confirmation {
+  margin-bottom: 0;
+}
+
+.BulkResultModal {
+  ul {
+    margin: 4px 0 12px;
+    padding-inline-start: 20px;
+  }
+
+  &-failed li {
+    color: var(--control-danger-color);
+  }
+
+  // One group: "N not processed: reason", expanding to the records' labels.
+  &-group {
+    margin-bottom: 8px;
+
+    > summary {
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    > ul {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  }
+
+  &-failed > .BulkResultModal-group > summary {
+    color: var(--control-danger-color);
+  }
+
+  &-skipped > .BulkResultModal-group > summary {
+    color: var(--muted-color);
+  }
+}
+
+.ResourceActionModal {
+  &-confirmation {
+    margin-bottom: 0;
+  }
+
+  &-skipped {
+    margin-top: 8px;
+  }
+
+  &-progress {
+    margin: 8px 0 0;
+    color: var(--muted-color);
+  }
+
+  &-field {
+    margin-top: 16px;
+  }
+}

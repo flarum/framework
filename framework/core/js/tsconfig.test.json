@@ -5,6 +5,7 @@
     "compilerOptions": {
         "strict": false,
         "noImplicitReturns": false,
-        "noImplicitAny": false
+        "noImplicitAny": false,
+        "resolveJsonModule": true
     }
 }
