@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import { app } from '../../../../src/forum';
 import punctuateSeries from '../../../../src/common/helpers/punctuateSeries';
 import extractText from '../../../../src/common/utils/extractText';
