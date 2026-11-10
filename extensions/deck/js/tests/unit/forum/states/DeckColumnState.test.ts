@@ -195,3 +195,195 @@ it('prunes before every check', async () => {
 
   expect(prune).toHaveBeenCalled();
 });
+
+// Locking, stickying or re-tagging a discussion moves it in or out of a
+// filter without any new activity, so the column re-asks about that one.
+describe('re-asking about particular items', () => {
+  function rechecking(state: DeckColumnState & { source: RecordingSource }, inserted = false) {
+    const recheck = jest.fn(() => Promise.resolve(inserted));
+    (state.source as any).recheck = recheck;
+
+    return recheck;
+  }
+
+  it('asks only about them when that is all a burst of events needs', async () => {
+    const state = visibleColumn();
+    const recheck = rechecking(state);
+    state.source.applyNew = jest.fn(() => Promise.resolve(0));
+
+    state.source.result = 'recheck';
+    state.handleRealtime(event('lockedEvent'), true);
+    state.handleRealtime(event('stickiedEvent'), true);
+    jest.advanceTimersByTime(CHECK_DEBOUNCE);
+    await settle();
+
+    expect(recheck).toHaveBeenCalledTimes(1);
+    expect(state.source.applyNew).not.toHaveBeenCalled();
+    expect(state.source.checkForNew).not.toHaveBeenCalled();
+  });
+
+  it('runs the full check, re-asking too, when another event in the burst needs it', async () => {
+    const state = visibleColumn();
+    const recheck = rechecking(state);
+    state.source.applyNew = jest.fn(() => Promise.resolve(0));
+
+    state.source.result = 'recheck';
+    state.handleRealtime(event('lockedEvent'), true);
+    state.source.result = 'check';
+    state.handleRealtime(event(POSTED), true);
+    jest.advanceTimersByTime(CHECK_DEBOUNCE);
+    await settle();
+
+    expect(recheck).toHaveBeenCalledTimes(1);
+    expect(state.source.applyNew).toHaveBeenCalledTimes(1);
+  });
+
+  it('re-asks before every check', async () => {
+    const state = visibleColumn();
+    const recheck = rechecking(state);
+
+    await state.check(false);
+
+    expect(recheck).toHaveBeenCalledTimes(1);
+    expect(state.source.checkForNew).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the reader’s place when an item arrives at the top', async () => {
+    const state = visibleColumn();
+    rechecking(state, true);
+
+    state.source.result = 'recheck';
+    state.handleRealtime(event('lockedEvent'), true);
+    jest.advanceTimersByTime(CHECK_DEBOUNCE);
+    await settle();
+
+    expect(state.consumeTopInsert()).toBe(true);
+  });
+
+  it('counts towards the interval between requests', async () => {
+    const state = visibleColumn();
+    const recheck = rechecking(state);
+
+    state.source.result = 'recheck';
+    state.handleRealtime(event('lockedEvent'), true);
+    jest.advanceTimersByTime(CHECK_DEBOUNCE);
+    await settle();
+
+    state.handleRealtime(event('lockedEvent'), true);
+    jest.advanceTimersByTime(MIN_CHECK_INTERVAL - 1);
+    await settle();
+    expect(recheck).toHaveBeenCalledTimes(1);
+
+    jest.advanceTimersByTime(1);
+    await settle();
+    expect(recheck).toHaveBeenCalledTimes(2);
+  });
+
+  it('marks an off-screen column stale instead', () => {
+    const state = visibleColumn();
+    const recheck = rechecking(state);
+    state.visible = false;
+
+    state.source.result = 'recheck';
+    state.handleRealtime(event('lockedEvent'), true);
+    jest.advanceTimersByTime(MIN_CHECK_INTERVAL * 2);
+
+    expect(state.stale).toBe(true);
+    expect(recheck).not.toHaveBeenCalled();
+  });
+
+  // An answer arriving late must not undo a newer one: locked, then unlocked.
+  it('waits for one to finish before asking again', async () => {
+    const state = visibleColumn();
+    const calls: Array<() => void> = [];
+    const recheck = jest.fn(() => new Promise<boolean>((resolve) => calls.push(() => resolve(false))));
+    (state.source as any).recheck = recheck;
+
+    state.source.result = 'recheck';
+    state.handleRealtime(event('lockedEvent'), true);
+    jest.advanceTimersByTime(CHECK_DEBOUNCE);
+    await settle();
+    expect(recheck).toHaveBeenCalledTimes(1);
+
+    state.handleRealtime(event('lockedEvent'), true);
+    jest.advanceTimersByTime(MIN_CHECK_INTERVAL);
+    await settle();
+    expect(recheck).toHaveBeenCalledTimes(1);
+
+    calls[0]();
+    await settle();
+    await settle();
+    expect(recheck).toHaveBeenCalledTimes(2);
+  });
+
+  // Joining at the top moves the column's activity key on; asking for
+  // activity afterwards would skip replies older than the newcomer.
+  it('asks for activity before re-asking', async () => {
+    const state = visibleColumn();
+    const order: string[] = [];
+    (state.source as any).recheck = jest.fn(() => {
+      order.push('recheck');
+
+      return Promise.resolve(false);
+    });
+    state.source.applyNew = jest.fn(() => {
+      order.push('applyNew');
+
+      return Promise.resolve(0);
+    });
+
+    await state.check(true);
+
+    expect(order).toEqual(['applyNew', 'recheck']);
+  });
+
+  // An activity answer arriving after a newer recheck could put back what
+  // the recheck took out.
+  it('re-asks only once a running check has its answer', async () => {
+    const state = visibleColumn();
+    const recheck = rechecking(state);
+    let answer!: () => void;
+    state.source.applyNew = jest.fn(() => new Promise<number | null>((resolve) => (answer = () => resolve(0))));
+
+    const checking = state.check(true);
+    state.source.result = 'recheck';
+    state.handleRealtime(event('lockedEvent'), true);
+    jest.advanceTimersByTime(MIN_CHECK_INTERVAL);
+    await settle();
+    expect(recheck).not.toHaveBeenCalled();
+
+    answer();
+    await checking;
+    await settle();
+    await settle();
+    expect(recheck).toHaveBeenCalledTimes(2);
+  });
+
+  it('checks again afterwards when asked to while a check runs', async () => {
+    const state = visibleColumn();
+    rechecking(state);
+    const answers: Array<() => void> = [];
+    state.source.applyNew = jest.fn(() => new Promise<number | null>((resolve) => answers.push(() => resolve(0))));
+
+    const first = state.check(true);
+    state.check(true);
+    await settle();
+    answers[0]();
+    await first;
+
+    jest.advanceTimersByTime(MIN_CHECK_INTERVAL);
+    await settle();
+    expect(state.source.applyNew).toHaveBeenCalledTimes(2);
+  });
+
+  it('runs the full check for a source that can’t re-ask', async () => {
+    const state = visibleColumn();
+
+    state.source.result = 'recheck';
+    state.handleRealtime(event('lockedEvent'), false);
+    jest.advanceTimersByTime(CHECK_DEBOUNCE);
+    await settle();
+
+    expect(state.source.checkForNew).toHaveBeenCalledTimes(1);
+  });
+});

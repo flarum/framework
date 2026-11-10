@@ -82,6 +82,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                     DiscussionFilter\AuthorFilter::class,
                     DiscussionFilter\CreatedFilter::class,
                     DiscussionFilter\HiddenFilter::class,
+                    DiscussionFilter\IdFilter::class,
                     DiscussionFilter\UnreadFilter::class,
                 ],
                 UserSearcher::class => [
