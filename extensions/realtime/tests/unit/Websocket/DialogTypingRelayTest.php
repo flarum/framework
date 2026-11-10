@@ -171,6 +171,18 @@ class DialogTypingRelayTest extends TestCase
     }
 
     #[Test]
+    public function identified_channels_do_not_relay_client_supplied_identities(): void
+    {
+        $sender = $this->connection('1.1');
+        $identified = $this->channel(self::IDENTIFIED, $sender);
+        $identified->expects($this->never())->method('broadcastToEveryoneExcept');
+        $payload = $this->typingPayload(['userId' => 999]);
+        $payload->channel = self::IDENTIFIED;
+
+        (new Message($payload, $sender, $this->manager([self::IDENTIFIED => $identified], 7)))->respond();
+    }
+
+    #[Test]
     public function says_nothing_for_a_sender_it_cannot_identify_rather_than_relaying_their_payload(): void
     {
         $sender = $this->connection('1.1');

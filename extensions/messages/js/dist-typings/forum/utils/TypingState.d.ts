@@ -5,25 +5,15 @@ export declare const TYPING_TIMEOUT_MS = 3500;
 export interface TypingSignal {
     userId: string;
 }
-/**
- * Who is typing in a conversation, from the signals its other members send.
- *
- * The realtime server relays a client event to a channel's other subscribers
- * as it is, and only the conversation's members can subscribe to its channel.
- * So the channel says who may be sending, and the signal names only the
- * sender's id, checked against the members here; nothing in it is taken on
- * trust. Names come from the store. Every member knows the others already,
- * so a member's online-status preference has no bearing: a one-to-one
- * conversation can't be anonymous.
- *
- * Expiry is judged on this clock, not the sender's.
- */
+/** Tracks server-authorized typing signals, expiring them on this clock. */
 export default class TypingState {
     protected participants: () => User[];
     protected self: () => string | null | undefined;
+    protected resolveParticipant?: ((id: string) => User | undefined) | undefined;
     /** Member id => when they were last heard from, on this clock. */
     protected lastHeard: Map<string, number>;
-    constructor(participants: () => User[], self: () => string | null | undefined);
+    protected resolved: Map<string, User>;
+    constructor(participants: () => User[], self: () => string | null | undefined, resolveParticipant?: ((id: string) => User | undefined) | undefined);
     static signal(userId: string): TypingSignal;
     /** Takes in a relayed signal. Returns whether it counted. */
     received(payload: unknown, now?: number): boolean;

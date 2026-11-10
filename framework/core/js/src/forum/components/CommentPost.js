@@ -76,7 +76,7 @@ export default class CommentPost extends Post {
           isHidden={this.attrs.post.isHidden()}
           contentHtml={this.attrs.post.contentHtml()}
           user={this.attrs.post.user()}
-          search={this.params?.q}
+          search={this.attrs.params?.q}
         />,
       ]);
   }

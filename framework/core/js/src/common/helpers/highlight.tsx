@@ -1,5 +1,6 @@
 import type Mithril from 'mithril';
 import { truncate } from '../utils/string';
+import highlightHtml, { matchRanges } from '../utils/highlightHtml';
 
 /**
  * The `highlight` helper searches for a word phrase in a string, and wraps
@@ -9,8 +10,9 @@ import { truncate } from '../utils/string';
  * @param phrase The word or words to highlight.
  * @param [length] The number of characters to truncate the string to.
  *     The string will be truncated surrounding the first match.
- * @param safe Whether the content is safe to render as HTML or
- *    should be escaped (HTML entities encoded).
+ * @param safe Whether the string is HTML to be rendered as-is, or plain text
+ *    to be escaped (HTML entities encoded). In HTML, only text is highlighted:
+ *    tags and attributes are left untouched.
  */
 export default function highlight(string: string, phrase?: string | RegExp, length?: number, safe = false): Mithril.Vnode<any, any> | string {
   if (!phrase && !length) return string;
@@ -29,13 +31,25 @@ export default function highlight(string: string, phrase?: string | RegExp, leng
     highlighted = truncate(highlighted, length, start);
   }
 
-  // Convert the string into HTML entities, then highlight all matches with
-  // <mark> tags. Then we will return the result as a trusted HTML string.
-  if (!safe) {
-    highlighted = $('<div/>').text(highlighted).html();
+  if (safe) {
+    return m.trust(phrase ? highlightHtml(highlighted, regexp) : highlighted);
   }
 
-  if (phrase) highlighted = highlighted.replace(regexp, '<mark>$&</mark>');
+  // Escape the text around and inside each match separately, so the
+  // expression never matches inside the HTML entities that escaping adds.
+  let html = '';
+  let lastIndex = 0;
+
+  for (const [start, end] of phrase ? matchRanges(highlighted, regexp) : []) {
+    html += escapeHtml(highlighted.slice(lastIndex, start)) + '<mark>' + escapeHtml(highlighted.slice(start, end)) + '</mark>';
+    lastIndex = end;
+  }
+
+  highlighted = html + escapeHtml(highlighted.slice(lastIndex));
 
   return m.trust(highlighted);
+}
+
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

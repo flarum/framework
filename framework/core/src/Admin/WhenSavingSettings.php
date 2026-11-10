@@ -24,7 +24,7 @@ class WhenSavingSettings
      *
      * @var string[]
      */
-    protected array $resetJsCacheFor = ['maintenance_mode', 'safe_mode_extensions'];
+    protected array $resetJsCacheFor = ['maintenance_mode', 'safe_mode_extensions', 'default_locale'];
 
     public function __construct(
         protected AssetManager $assets,

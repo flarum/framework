@@ -1,3 +1,4 @@
+import app from '../app';
 import type Component from '../Component';
 import Modal, { IDismissibleOptions } from '../components/Modal';
 
@@ -85,9 +86,15 @@ export default class ModalManagerState {
       m.redraw.sync();
 
       componentClass = componentClass as AsyncModalClass;
-      componentClass = (await componentClass()).default;
-
-      this.loadingModal = false;
+      try {
+        componentClass = (await componentClass()).default;
+      } catch (error) {
+        app.alerts.show({ type: 'error' }, app.translator.trans('core.lib.error.generic_message'));
+        m.redraw();
+        throw error;
+      } finally {
+        this.loadingModal = false;
+      }
     }
 
     this.backdropShown = true;
@@ -136,6 +143,23 @@ export default class ModalManagerState {
       this.modal = null;
       this.modalList = [];
     }
+
+    m.redraw();
+  }
+
+  /**
+   * Removes the modal with the given key, wherever it is in the stack. If it
+   * is the topmost one, this is the same as `close()`.
+   *
+   * @internal
+   */
+  remove(key: number): void {
+    if (this.modal?.key === key) return this.close();
+
+    const index = this.modalList.findIndex((modal) => modal.key === key);
+    if (index === -1) return;
+
+    this.modalList.splice(index, 1);
 
     m.redraw();
   }

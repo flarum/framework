@@ -147,6 +147,22 @@ class TransportTest extends McpTestCase
     }
 
     #[Test]
+    public function replacement_tools_advertise_destructive_updates(): void
+    {
+        $this->extension('flarum-likes', 'flarum-messages', 'flarum-flags');
+
+        $tools = array_column($this->rpcResult($this->modern('tools/list', [], $this->bearer($this->developerToken(2))))['tools'], null, 'name');
+
+        foreach (['edit_post', 'update_resource', 'unlike_post', 'rename_conversation', 'create_resource', 'flag_post'] as $name) {
+            $this->assertTrue($tools[$name]['annotations']['destructiveHint'], $name);
+        }
+
+        foreach (['start_discussion', 'reply_to_discussion', 'search_discussions', 'like_post', 'send_message'] as $name) {
+            $this->assertFalse($tools[$name]['annotations']['destructiveHint'], $name);
+        }
+    }
+
+    #[Test]
     public function resource_metadata_describes_the_mcp_resource(): void
     {
         foreach (['/.well-known/oauth-protected-resource/mcp', '/.well-known/oauth-protected-resource'] as $path) {

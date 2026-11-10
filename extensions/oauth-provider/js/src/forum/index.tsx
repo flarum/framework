@@ -54,7 +54,11 @@ const isLoggedIn = (): boolean => {
 
 app.initializers.add('flarum-oauth-provider', () => {
   extend(Session.prototype, 'login', function (promise: Promise<unknown>) {
-    promise.then(() => storage.set(SIGNED_IN, '1'));
+    // The caller handles a failed login; this branch must not leave it unhandled.
+    promise.then(
+      () => storage.set(SIGNED_IN, '1'),
+      () => {}
+    );
   });
 
   extend('flarum/forum/components/UserSecurityPage', 'settingsItems', addToSecurityPage);

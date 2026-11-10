@@ -56,6 +56,7 @@
         }
     },
     "conflict": {
+        "flarum/messages": "<2.1",
         "flarum/pusher": "*",
         "kyrne/websocket": "*",
         "flarum-com/realtime": "*"

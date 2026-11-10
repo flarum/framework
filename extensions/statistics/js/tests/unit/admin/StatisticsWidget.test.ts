@@ -155,3 +155,19 @@ describe('the statistics the widgets show', () => {
     expect(new StatisticsWidget().selectedEntity).toBe('polls');
   });
 });
+
+describe('the period row label', () => {
+  it('explains that the selected period counts new items without changing the menu options', () => {
+    const container = document.createElement('div');
+    m.render(container, makeWidget('last_7_days').content());
+
+    const labels = container.querySelector('.StatisticsWidget-labels');
+    expect(labels?.textContent).toContain('New during');
+    const toggle = container.querySelector('.StatisticsWidget-labels .Dropdown-toggle');
+    expect(toggle?.querySelector('.Button-labelText')?.textContent).toBe('Last 7 days');
+    expect(toggle?.getAttribute('aria-label')).toContain('Select period for new items');
+    const options = container.querySelectorAll('.Dropdown-menu button');
+    expect(Array.from(options).map((option) => option.textContent?.trim())).toContain('Last 7 days');
+    expect(Array.from(options).some((option) => option.textContent?.includes('New during'))).toBe(false);
+  });
+});

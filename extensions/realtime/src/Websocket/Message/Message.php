@@ -9,6 +9,9 @@
 
 namespace Flarum\Realtime\Websocket\Message;
 
+use Flarum\Messages\Dialog;
+use Flarum\Messages\DialogAudience;
+use Flarum\Realtime\Websocket\Channel\Channel;
 use Flarum\Realtime\Websocket\Channel\Manager;
 use Flarum\Realtime\Websocket\IndexTypingPresence;
 use Flarum\Realtime\Websocket\TypingActivity;
@@ -82,6 +85,11 @@ class Message
         }
 
         if (! Str::startsWith($channelName, ['private-', 'presence-'])) {
+            return false;
+        }
+
+        // This channel carries server-authenticated identities, never client payloads.
+        if (preg_match('/^private-privateMessageTypingIdentified=\d+$/', $channelName)) {
             return false;
         }
 
@@ -209,23 +217,44 @@ class Message
             return true;
         }
 
-        if ($identity['discloseOnline']) {
-            $this->manager->find($this->payload->channel)?->broadcastToEveryoneExcept(
-                $this->dialogTypingPayload($this->payload->channel, $userId),
+        $identified = ! $identity['discloseOnline'];
+        $channel = $this->manager->find($identified
+            ? self::identifiedDialogTypingChannel($dialogId)
+            : $this->payload->channel);
+
+        if ($channel && $this->authorizeDialogTyping($channel, $dialogId, $userId, $identified)) {
+            $channel->broadcastToEveryoneExcept(
+                $this->dialogTypingPayload($channel->getName(), $userId),
                 $sender
             );
+        }
 
+        return true;
+    }
+
+    /** Recheck live membership: a socket can outlive its authorization. */
+    protected function authorizeDialogTyping(Channel $channel, int $dialogId, int $senderId, bool $identified): bool
+    {
+        $connections = $channel->connections();
+        if (! $connections) {
             return true;
         }
 
-        $identified = $this->manager->find(self::identifiedDialogTypingChannel($dialogId));
+        $dialog = Dialog::find($dialogId);
+        $ids = array_map($this->manager->userIdForConnection(...), $connections);
+        $ids[] = $senderId;
+        $users = $dialog
+            ? DialogAudience::users($dialog)->whereIn('users.id', array_filter($ids))->with('groups')->get()->keyBy('id')
+            : collect();
 
-        $identified?->broadcastToEveryoneExcept(
-            $this->dialogTypingPayload($identified->getName(), $userId),
-            $sender
-        );
+        foreach ($connections as $connection) {
+            $user = $users->get($this->manager->userIdForConnection($connection));
+            if (! $user || ($identified && ! $user->hasPermission('user.viewLastSeenAt'))) {
+                $this->manager->unsubscribeFromChannel($connection, $channel->getName(), new stdClass());
+            }
+        }
 
-        return true;
+        return $users->has($senderId);
     }
 
     /**

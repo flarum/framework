@@ -79,13 +79,23 @@ class WebManifestTest extends TestCase
     }
 
     #[Test]
-    public function the_manifest_opens_the_forum_in_the_browser(): void
+    public function the_manifest_opens_the_forum_as_an_app(): void
     {
         $manifest = $this->manifest();
 
-        $this->assertSame('browser', $manifest['display']);
+        $this->assertSame('standalone', $manifest['display']);
         $this->assertSame('http://localhost/', $manifest['start_url']);
         $this->assertSame('http://localhost/', $manifest['scope']);
+    }
+
+    #[Test]
+    public function the_manifest_opens_the_forum_in_the_browser_when_it_isn_t_to_open_as_an_app(): void
+    {
+        $this->setting('open_as_app', '0');
+
+        $this->uploadAppIcon();
+
+        $this->assertSame('browser', $this->manifest()['display']);
     }
 
     #[Test]

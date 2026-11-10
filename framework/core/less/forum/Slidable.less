@@ -25,7 +25,8 @@
       border-radius: 0;
       box-shadow: none;
       padding: 20px 0;
-      text-align: inline-end;
+      // Swipe sides follow the physical touch coordinates in slidable.js.
+      text-align: right;
 
       .icon {
         width: 50px;
@@ -34,10 +35,10 @@
       }
     }
     .Slidable-underneath--left {
-      text-align: inline-start;
+      text-align: left;
     }
     .Slidable-underneath--right {
-      inset-inline-start: unset;
+      left: unset;
     }
     .Slidable-content {
       transition: box-shadow 0.2s, border-radius 0.2s;

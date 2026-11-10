@@ -68,9 +68,13 @@ class AdminServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->bind('flarum.admin.error_handler', function (Container $container) {
+            // DisableBrowserCache runs inside the error handler, so error responses
+            // never reach it; send the same no-store header from the formatter.
+            $viewFormatter = $container->make(ViewFormatter::class, ['cacheControl' => 'max-age=0, no-store']);
+
             return new HttpMiddleware\HandleErrors(
                 $container->make(Registry::class),
-                $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
+                $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class, ['viewFormatter' => $viewFormatter]) : $viewFormatter,
                 $container->tagged(Reporter::class)
             );
         });

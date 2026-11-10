@@ -201,6 +201,7 @@
         "wikimedia/less.php": "^5.3"
     },
     "require-dev": {
+        "aws/aws-sdk-php": "^3.369.1",
         "flarum/testing-tests": "*@dev",
         "larastan/larastan": "^3.8 <3.12",
         "mockery/mockery": "^1.5",

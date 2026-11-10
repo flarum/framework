@@ -36,15 +36,12 @@ class ToolHandler implements ToolHandlerInterface
             fn (string $message) => new ToolCallException($message),
         );
 
-        if (is_string($result)) {
-            return new CallToolResult([new TextContent($result)]);
+        // The SDK extracts and validates structured content for the negotiated
+        // revision, including composed schemas and modern array/scalar results.
+        if ($this->tool->outputSchema() !== null) {
+            return $result;
         }
 
-        $structured = null;
-        if (($this->tool->outputSchema()['type'] ?? null) === 'object' && is_array($result) && ! array_is_list($result)) {
-            $structured = $result;
-        }
-
-        return new CallToolResult([new TextContent(Json::encode($result))], structuredContent: $structured);
+        return new CallToolResult([new TextContent(is_string($result) ? $result : Json::encode($result))]);
     }
 }

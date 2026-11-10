@@ -33,6 +33,16 @@ class UpgradeFromKilowhatTest extends BaseTestCase
         return include __DIR__.'/../../migrations/2026_06_09_000001_create_audit_log_table.php';
     }
 
+    private function runAllMigrations(): void
+    {
+        $files = glob(__DIR__.'/../../migrations/*.php');
+        sort($files);
+
+        foreach ($files as $file) {
+            (include $file)['up']($this->schema());
+        }
+    }
+
     private function dropTables(): void
     {
         $schema = $this->schema();
@@ -53,10 +63,10 @@ class UpgradeFromKilowhatTest extends BaseTestCase
     {
         $this->dropTables();
 
-        // Leave a clean audit_log behind by re-running the migration, so other tests
+        // Leave a clean audit_log behind by re-running every migration, so other tests
         // (which share this database) find the table in its normal post-migration state
         // even if their ordering interleaves with this one.
-        $this->migration()['up']($this->schema());
+        $this->runAllMigrations();
 
         // The migration runs DDL (create/rename/drop table) which implicitly commits the
         // transaction the harness opened and desyncs Laravel's nested-transaction counter.
@@ -121,5 +131,26 @@ class UpgradeFromKilowhatTest extends BaseTestCase
 
         $this->assertTrue($schema->hasTable('audit_log'), 'New table should be created from scratch');
         $this->assertTrue($schema->hasColumn('audit_log', 'payload'));
+    }
+
+    #[Test]
+    public function renamed_legacy_table_gets_the_ip_hex_column()
+    {
+        $schema = $this->schema();
+
+        $schema->create('kilowhat_audit_log', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('actor_id')->nullable()->index();
+            $table->string('client')->index();
+            $table->string('ip_address')->nullable()->index();
+            $table->string('action')->index();
+            $table->json('payload')->nullable();
+            $table->dateTime('created_at');
+        });
+
+        $this->runAllMigrations();
+
+        $this->assertTrue($schema->hasColumn('audit_log', 'ip_hex'));
+        $this->assertTrue($schema->hasIndex('audit_log', ['ip_hex']));
     }
 }

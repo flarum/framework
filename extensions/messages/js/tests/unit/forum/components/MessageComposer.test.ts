@@ -142,3 +142,24 @@ describe('the recipients shown above a message', () => {
     header.should.contain('+2');
   });
 });
+
+describe('addressing a Group', () => {
+  it('includes selected Groups alongside individual recipients', () => {
+    const group = app.store.pushPayload({ data: { type: 'groups', id: '4', attributes: { namePlural: 'Moderators', canMessage: true } } } as any);
+    const composer = new (MessageComposer as any)();
+    composer.attrs = { composer: app.composer };
+    composer.composer = { fields: { content: Stream('Hello team') } };
+    composer.recipients = Stream([user('3')]);
+    composer.recipientGroups = Stream([group]);
+    expect(composer.data().groups).toEqual([{ id: '4' }]);
+    expect(composer.data().users).toEqual([{ id: '3' }]);
+  });
+});
+
+it('can reply before addressed Group models have loaded', () => {
+  const composer = new (MessageComposer as any)();
+  app.composer.fields = { content: Stream('') };
+  const attrs = { composer: app.composer, replyingTo: { users: () => [], groups: () => [false] } };
+  composer.oninit({ attrs });
+  expect(() => mq(m('ul', composer.headerItems().toArray()))).not.toThrow();
+});

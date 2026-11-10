@@ -25,6 +25,9 @@
         "laravel/ai": "~1.1.0",
         "symfony/uid": "^7.4 || ^8.0"
     },
+    "suggest": {
+        "aws/aws-sdk-php": "Required to use Amazon Bedrock connections (^3.369.1)."
+    },
     "autoload": {
         "psr-4": {
             "Flarum\\Ai\\": "src/"
@@ -85,7 +88,8 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
-        "flarum/testing": "^2.1"
+        "flarum/testing": "^2.1",
+        "aws/aws-sdk-php": "^3.369.1"
     },
     "repositories": [
         {

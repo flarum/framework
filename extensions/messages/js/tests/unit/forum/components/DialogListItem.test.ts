@@ -108,3 +108,12 @@ describe('a direct conversation in the list', () => {
     item.should.not.contain('user34: See you there');
   });
 });
+
+it('uses the addressed Group badge in the conversation list', () => {
+  const dialog = conversation('group', [], '1', 'Moderators');
+  app.store.pushPayload({ data: { type: 'groups', id: '4', attributes: { namePlural: 'Moderators', nameSingular: 'Moderator', icon: 'fas fa-users' } } } as any);
+  dialog.pushData({ relationships: { groups: { data: [{ type: 'groups', id: '4' }] } } });
+  const item = mq(DialogListItem, { dialog });
+  item.should.have('.DialogListItem-avatar .Badge');
+  item.should.not.have('.DialogListItem-avatar .Avatar');
+});

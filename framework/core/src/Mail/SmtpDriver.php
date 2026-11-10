@@ -91,14 +91,14 @@ class SmtpDriver implements DriverInterface
         ));
 
         // Symfony's default ping threshold of 100s is longer than the idle
-        // timeout used by some SMTP relays (notably AWS SES, which has been
-        // observed closing connections in the 30–90s range). Without a NOOP
+        // timeout used by some SMTP relays. AWS SES closes an idle connection
+        // after ~10s (measured: a NOOP after 9s idle gets 250, after 11s gets
+        // "451 4.4.2 Timeout waiting for data from client"). Without a NOOP
         // probe, the transport writes the next message into a dead socket and
-        // the relay returns "451 4.4.2 Timeout waiting for data from client".
-        // 20s is well under any reasonable relay idle timeout while keeping
-        // NOOP overhead negligible.
+        // the send fails with that 451. 5s keeps a safe margin under SES; the
+        // probe costs one round trip per message sent after a pause.
         if ($transport instanceof SmtpTransport) {
-            $transport->setPingThreshold(20);
+            $transport->setPingThreshold(5);
         }
 
         return $transport;

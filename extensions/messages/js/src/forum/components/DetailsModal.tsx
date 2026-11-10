@@ -5,6 +5,7 @@ import type User from 'flarum/common/models/User';
 import ItemList from 'flarum/common/utils/ItemList';
 import Mithril from 'mithril';
 import Avatar from 'flarum/common/components/Avatar';
+import GroupBadge from 'flarum/common/components/GroupBadge';
 import fullTime from 'flarum/common/helpers/fullTime';
 import username from 'flarum/common/helpers/username';
 import Link from 'flarum/common/components/Link';
@@ -31,6 +32,14 @@ export default class DetailsModal<CustomAttrs extends IDetailsModalAttrs = IDeta
         <div className="DetailsModal-recipients DetailsModal-info">
           <div className="DetailsModal-info-title">{app.translator.trans('flarum-messages.forum.dialog_section.details_modal.recipients')}</div>
           <div className="DetailsModal-recipients-list">
+            {(this.attrs.dialog.groups() || []).filter(Boolean).map(
+              (group) =>
+                group && (
+                  <div className="DetailsModal-recipient" key={'group-' + group.id()}>
+                    <GroupBadge group={group} /> {group.namePlural()}
+                  </div>
+                )
+            )}
             {recipients?.map((recipient: User) => {
               return (
                 <div className="DetailsModal-recipient">

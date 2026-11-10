@@ -71,8 +71,10 @@ class McpController implements RequestHandlerInterface
         // CORS wraps authentication as well, so a browser client can read the
         // 401/403 challenge it needs to sign in or step up.
         return $this->servers->cors()->process($request, new CallbackHandler(
-            fn (ServerRequestInterface $request) => $this->authenticate->process($request, new CallbackHandler(
-                fn (ServerRequestInterface $request) => $this->serve($request)
+            fn (ServerRequestInterface $request) => $this->servers->originAndHostChecks()->process($request, new CallbackHandler(
+                fn (ServerRequestInterface $request) => $this->authenticate->process($request, new CallbackHandler(
+                    fn (ServerRequestInterface $request) => $this->serve($request)
+                ))
             ))
         ));
     }
