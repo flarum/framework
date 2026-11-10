@@ -478,6 +478,17 @@ class UserResource extends AbstractDatabaseResource
                     // identifiers the request sent.
                     $newGroupIds = array_map(fn (Group $group) => (int) $group->id, $value);
 
+                    // An actor who can't see hidden groups is never sent them,
+                    // so the groups they save leave those out. Keep them rather
+                    // than remove groups the actor doesn't know about.
+                    if (! $actor->can('viewHiddenGroups')) {
+                        foreach ($oldGroups as $group) {
+                            if ($group->is_hidden && ! in_array((int) $group->id, $newGroupIds, true)) {
+                                $newGroupIds[] = (int) $group->id;
+                            }
+                        }
+                    }
+
                     // Ensure non-admins aren't adding/removing admins
                     $adminChanged = in_array(Group::ADMINISTRATOR_ID, array_diff($oldGroupIds, $newGroupIds), true)
                         || in_array(Group::ADMINISTRATOR_ID, array_diff($newGroupIds, $oldGroupIds), true);
@@ -491,7 +502,10 @@ class UserResource extends AbstractDatabaseResource
                         $user->groups()->sync($newGroupIds);
                         $user->unsetRelation('groups');
                     });
-                }),
+                })
+                // The setter syncs the groups itself, so skip the default save,
+                // which would sync only the groups the request sent.
+                ->save(fn () => null),
         ];
     }
 
