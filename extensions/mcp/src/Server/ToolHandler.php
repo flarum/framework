@@ -56,5 +56,4 @@ class ToolHandler implements ToolHandlerInterface
 
         return is_array($value) ? array_map($this->normalizeArgument(...), $value) : $value;
     }
-
 }
