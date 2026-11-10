@@ -16,7 +16,9 @@ use Flarum\Http\UrlGenerator;
 use Flarum\OAuthProvider\Access\MemberAccess;
 use Flarum\OAuthProvider\ClientRegistration\ClientMetadataException;
 use Flarum\OAuthProvider\ClientRegistration\MetadataDocumentClients;
+use Flarum\OAuthProvider\Event\AuthorizationWithdrawn;
 use Flarum\OAuthProvider\Event\Authorized;
+use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Scope\ScopeRegistry;
@@ -28,6 +30,7 @@ use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\Response\RedirectResponse;
@@ -170,13 +173,11 @@ class AuthorizeController implements RequestHandlerInterface
         if ($method === 'POST' && isset($params['oauth_consent_approved'])) {
             $approved = $params['oauth_consent_approved'] === '1';
 
-            if ($approved) {
-                $this->rememberConsent((int) $actor->id, $clientId, $requestedScopes, $redirectUris);
-            }
+            $createdConsentId = $approved ? $this->rememberConsent((int) $actor->id, $clientId, $requestedScopes, $redirectUris) : null;
 
             $this->forgetReAuthTicket($session, $ticket);
 
-            return $this->completeAuthorization($authRequest, $server, $actor, $approved, $nonce, $authTime, consented: $approved);
+            return $this->completeAuthorization($authRequest, $server, $actor, $session, $approved, $nonce, $authTime, consented: $approved, createdConsentId: $createdConsentId);
         }
 
         // Previously-granted consent still covers this request — skip the prompt
@@ -184,7 +185,7 @@ class AuthorizeController implements RequestHandlerInterface
         if (! in_array('consent', $prompts, true) && $this->hasExistingConsent((int) $actor->id, $clientId, $requestedScopes, $redirectUris)) {
             $this->forgetReAuthTicket($session, $ticket);
 
-            return $this->completeAuthorization($authRequest, $server, $actor, true, $nonce, $authTime, consented: false);
+            return $this->completeAuthorization($authRequest, $server, $actor, $session, true, $nonce, $authTime, consented: false);
         }
 
         if ($promptNone) {
@@ -237,15 +238,19 @@ class AuthorizeController implements RequestHandlerInterface
     /**
      * @param bool $consented Whether the member approved the client just now,
      *                        rather than an earlier approval covering it.
+     * @param int|null $createdConsentId The consent row recording that approval
+     *                        created, if it did not merge into an existing one.
      */
     protected function completeAuthorization(
         AuthorizationRequest $authRequest,
         AuthorizationServer $server,
         User $actor,
+        ?Session $session,
         bool $approved,
         ?string $nonce = null,
         ?Carbon $authTime = null,
         bool $consented = false,
+        ?int $createdConsentId = null,
     ): ResponseInterface {
         $userEntity = new UserEntity();
         $userEntity->setIdentifier((string) $actor->id);
@@ -262,6 +267,39 @@ class AuthorizeController implements RequestHandlerInterface
             $response = $this->withIssuer($server->completeAuthorizationRequest($authRequest, new \Laminas\Diactoros\Response()));
         } catch (OAuthServerException $exception) {
             return $this->withIssuer($exception->generateHttpResponse(new \Laminas\Diactoros\Response()));
+        }
+
+        // Checked only now that the code (and any consent) is stored, since a
+        // disconnect may be running alongside:
+        // - Every disconnect revokes codes again after deleting the consent, so
+        //   a consent still here means this code will be revoked with the rest
+        //   (Consent::revoke()).
+        // - A password change or logout everywhere also ends the session first,
+        //   which catches a consent this request wrote after it was deleted.
+        // Both rely on the disconnect not running inside a database transaction.
+        if ($approved) {
+            [$error, $description] = match (true) {
+                $this->sessionEnded($session, $actor) => ['login_required', 'The session ended before the application was authorized.'],
+                ! $this->stillConsented($actor, $authRequest) => ['access_denied', 'The application was disconnected while it was being authorized.'],
+                default => [null, null],
+            };
+
+            if ($error !== null) {
+                $this->withdrawAuthorization($authRequest, $createdConsentId);
+
+                // An approval merged into a consent that is still there stays
+                // on record, though no code was handed out for it. (A consent
+                // this request created was withdrawn just now.)
+                $approvalKept = $consented && $this->stillConsented($actor, $authRequest);
+                /** @var Client|null $client */
+                $client = Client::query()->find($authRequest->getClient()->getIdentifier());
+
+                if ($client !== null) {
+                    $this->events->dispatch(new AuthorizationWithdrawn($actor, $client, $approvalKept));
+                }
+
+                return $this->authorizationError($authRequest, $error, $description);
+            }
         }
 
         /** @var Client|null $client */
@@ -312,6 +350,59 @@ class AuthorizeController implements RequestHandlerInterface
         $separator = str_contains($location, '?') ? '&' : '?';
 
         return $response->withHeader('Location', $location.$separator.http_build_query(['iss' => $this->metadata->issuer()]));
+    }
+
+    /**
+     * Whether the session this request signed in with has ended since:
+     * logging out, here or everywhere, and changing the password delete its
+     * access token. A member signed in some other way, by an extension's own
+     * authentication, has no core session to end.
+     */
+    protected function sessionEnded(?Session $session, User $actor): bool
+    {
+        $tokenValue = $session?->get('access_token');
+
+        if (! is_string($tokenValue) || $tokenValue === '') {
+            return false;
+        }
+
+        return ! AccessToken::query()->where('token', $tokenValue)->where('user_id', $actor->id)->exists();
+    }
+
+    /**
+     * Whether a consent of the member still covers what the request asked for.
+     */
+    protected function stillConsented(User $actor, AuthorizationRequest $authRequest): bool
+    {
+        /** @var Consent|null $consent */
+        $consent = Consent::query()
+            ->where('user_id', $actor->id)
+            ->where('client_id', $authRequest->getClient()->getIdentifier())
+            ->where('revoked', false)
+            ->first();
+
+        return $consent !== null && $consent->covers(array_map(fn ($scope) => $scope->getIdentifier(), $authRequest->getScopes()));
+    }
+
+    /**
+     * Undoes an authorization cut off while it ran. The client never receives
+     * the code, which is revoked as well.
+     *
+     * A consent this request created may meanwhile back a code another of the
+     * member's sessions was given, so it goes the way a disconnect would take
+     * it, with every code and token that relied on it: none may outlive the
+     * consent the member sees in their settings. A consent this request merged
+     * into predates it and is left as it is.
+     */
+    protected function withdrawAuthorization(AuthorizationRequest $authRequest, ?int $createdConsentId): void
+    {
+        if ($authRequest instanceof ResourceAuthorizationRequest && ($codeId = $authRequest->getIssuedCodeId()) !== null) {
+            AuthCode::query()->whereKey($codeId)->update(['revoked' => true, 'family_revoked' => true]);
+        }
+
+        if ($createdConsentId !== null) {
+            Consent::query()->find($createdConsentId)?->revokeAccess();
+        }
     }
 
     /**
@@ -428,29 +519,47 @@ class AuthorizeController implements RequestHandlerInterface
 
     /**
      * @param list<string> $redirectUris The client's current redirect URIs.
+     * @return int|null The id of the consent row it created, or null if it
+     *                  merged into an existing one.
      */
-    protected function rememberConsent(int $userId, string $clientId, array $requestedScopes, array $redirectUris): void
+    protected function rememberConsent(int $userId, string $clientId, array $requestedScopes, array $redirectUris): ?int
     {
         $redirectUrisHash = Consent::hashRedirectUris($redirectUris);
 
-        /** @var Consent|null $existing */
-        $existing = Consent::query()
+        $find = fn (): ?Consent => Consent::query()
             ->where('user_id', $userId)
             ->where('client_id', $clientId)
             ->first();
 
-        if ($existing === null) {
-            Consent::query()->create([
-                'user_id' => $userId,
-                'client_id' => $clientId,
-                'scopes' => $requestedScopes,
-                'redirect_uris_hash' => $redirectUrisHash,
-                'revoked' => false,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ]);
+        $existing = $find();
 
-            return;
+        if ($existing === null) {
+            try {
+                // In a savepoint, when in a transaction: a conflict aborts the
+                // whole transaction on PostgreSQL.
+                /** @var Consent $created */
+                $created = Consent::query()->withSavepointIfNeeded(fn () => Consent::query()->create([
+                    'user_id' => $userId,
+                    'client_id' => $clientId,
+                    'scopes' => $requestedScopes,
+                    'redirect_uris_hash' => $redirectUrisHash,
+                    'revoked' => false,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]));
+
+                return (int) $created->id;
+            } catch (UniqueConstraintViolationException) {
+                // The member approved the client in another tab meanwhile:
+                // this approval merges into that one. Should that consent be
+                // gone again already, there is nothing to merge into, and the
+                // check once the code is stored withdraws the authorization.
+                $existing = $find();
+
+                if ($existing === null) {
+                    return null;
+                }
+            }
         }
 
         // Merge newly-approved scopes into the existing grant and re-activate it
@@ -463,5 +572,7 @@ class AuthorizeController implements RequestHandlerInterface
         $existing->revoked = false;
         $existing->updated_at = Carbon::now();
         $existing->save();
+
+        return null;
     }
 }

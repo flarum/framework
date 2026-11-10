@@ -50,6 +50,17 @@ class AuditIntegration
             ]);
         });
 
+        // The member's approval stands on their connection, so it is logged
+        // like any other, though the authorization it came with was withdrawn.
+        $events->listen(Event\AuthorizationWithdrawn::class, function (Event\AuthorizationWithdrawn $event) {
+            if ($event->approvalKept) {
+                AuditLogger::log('user.oauth_connected', [
+                    'user_id' => $event->user->id,
+                    ...$this->client($event->client),
+                ]);
+            }
+        });
+
         $events->listen(Event\Disconnected::class, function (Event\Disconnected $event) {
             AuditLogger::log('user.oauth_disconnected', [
                 'user_id' => $event->user->id,
@@ -57,7 +68,7 @@ class AuditIntegration
             ]);
         });
 
-        $events->listen(Event\DisconnectedAll::class, fn (Event\DisconnectedAll $event) => AuditLogger::log('user.oauth_disconnected_all', ['user_id' => $event->user->id]));
+        $events->listen(Event\DisconnectedAll::class, fn (Event\DisconnectedAll $event) => AuditLogger::log('user.oauth_disconnected_all', ['user_id' => $event->user->id, 'cause' => $event->cause]));
 
         $events->listen(Event\ClientCreated::class, fn (Event\ClientCreated $event) => AuditLogger::log('oauth_client.created', $this->client($event->client)));
         $events->listen(Event\ClientUpdated::class, fn (Event\ClientUpdated $event) => AuditLogger::log('oauth_client.updated', $this->client($event->client)));

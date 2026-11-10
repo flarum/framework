@@ -62,23 +62,38 @@ class Consent extends AbstractModel
     }
 
     /**
-     * Disconnects every application a member connected.
+     * Disconnects every application a member connected. Returns whether they
+     * had connected any.
      */
-    public static function revokeAllFor(int $userId): void
+    public static function revokeAllFor(int $userId): bool
     {
-        static::revoke($userId);
+        return static::revoke($userId);
     }
 
-    protected static function revoke(int $userId, ?string $clientId = null): void
+    /**
+     * Returns whether a consent was deleted.
+     */
+    protected static function revoke(int $userId, ?string $clientId = null): bool
     {
         $forClient = fn ($query) => $clientId === null ? $query : $query->where('client_id', $clientId);
 
-        $tokenIds = $forClient(AccessToken::query()->select('id')->where('user_id', $userId));
+        // Codes and tokens are revoked on both sides of deleting the consent,
+        // which closes the races with requests still running:
+        // - An authorization re-checks the consent once its code is stored
+        //   (AuthorizeController::completeAuthorization()): it either sees the
+        //   consent gone and withdraws, or stored its code before the delete,
+        //   and the second pass revokes it, and any token issued from it.
+        // - Each pass catches a grant still issuing tokens
+        //   (AuthCode::revokeWithTokens()).
+        // Revoking before the delete too means a disconnect that fails halfway
+        // leaves the connection listed, so the member can disconnect it again.
+        $grants = fn ($query) => $forClient($query->where('user_id', $userId));
 
-        RefreshToken::query()->whereIn('access_token_id', $tokenIds)->update(['revoked' => true]);
-        $forClient(AccessToken::query()->where('user_id', $userId))->update(['revoked' => true]);
-        $forClient(AuthCode::query()->where('user_id', $userId))->update(['revoked' => true]);
-        $forClient(static::query()->where('user_id', $userId))->delete();
+        AuthCode::revokeWithTokens($grants);
+        $deleted = $forClient(static::query()->where('user_id', $userId))->delete();
+        AuthCode::revokeWithTokens($grants);
+
+        return $deleted > 0;
     }
 
     /**
