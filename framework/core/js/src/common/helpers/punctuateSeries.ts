@@ -1,3 +1,4 @@
+import type Mithril from 'mithril';
 import app from '../../common/app';
 
 /**
@@ -7,24 +8,26 @@ import app from '../../common/app';
  * ```js
  * punctuateSeries(['Toby', 'Franz', 'Dominion']) // Toby, Franz, and Dominion
  * ```
- *
- * @param {import('mithril').Children[]} items
- * @return {import('mithril').Children}')}
  */
-export default function punctuateSeries(items) {
+export default function punctuateSeries(items: Mithril.Children[]): Mithril.Children {
   if (items.length === 2) {
     return app.translator.trans('core.lib.series.two_text', {
       first: items[0],
       second: items[1],
     });
-  } else if (items.length >= 3) {
+  }
+
+  if (items.length >= 3) {
     // If there are three or more items, we will join all but the first and
     // last items with the equivalent of a comma, and then we will feed that
     // into the translator along with the first and last item.
-    const second = items
-      .slice(1, items.length - 1)
-      .reduce((list, item) => list.concat([item, app.translator.trans('core.lib.series.glue_text')]), [])
-      .slice(0, -1);
+    const second: Mithril.Children[] = [];
+
+    for (let i = 1; i < items.length - 1; i++) {
+      // Translate the glue each time: a vnode must not appear twice in a tree.
+      if (i > 1) second.push(app.translator.trans('core.lib.series.glue_text'));
+      second.push(items[i]);
+    }
 
     return app.translator.trans('core.lib.series.three_text', {
       first: items[0],
