@@ -2,12 +2,17 @@
   display: inline-block;
   vertical-align: middle;
 
+  .FormSection & {
+    display: block;
+    width: 100%;
+  }
+
   select {
     display: inline-block;
     width: auto;
     -webkit-appearance: none;
     -moz-appearance: none;
-    padding-right: 30px;
+    padding-inline-end: 30px;
     cursor: pointer;
     line-height: 1;
 
@@ -17,7 +22,9 @@
   }
 }
 .Select-caret {
-  margin-left: -30px;
+  // Keep the caret above the native control when bidi reorders inline boxes.
+  position: relative;
+  margin-inline-start: -30px;
   pointer-events: none;
   color: var(--control-color);
   text-align: center;

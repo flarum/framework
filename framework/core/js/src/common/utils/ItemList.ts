@@ -193,6 +193,10 @@ export default class ItemList<T> {
     const items: Item<T>[] = Object.keys(this._items).map((key, i) => {
       const item = this._items[key];
 
+      if (item.content === null || item.content === undefined) {
+        return { ...item };
+      }
+
       if (!keepPrimitives || isObject(item.content)) {
         // Convert content to object, then proxy it
         return {
@@ -230,17 +234,20 @@ export default class ItemList<T> {
    * // }
    */
   toObject(): DeepReadonly<Record<string, IItemObject<T>>> {
-    return Object.keys(this._items).reduce((map, key) => {
-      const obj = {
-        content: this.get(key),
-        itemName: key,
-        priority: this.getPriority(key),
-      };
+    return Object.keys(this._items).reduce(
+      (map, key) => {
+        const obj = {
+          content: this.get(key),
+          itemName: key,
+          priority: this.getPriority(key),
+        };
 
-      map[key] = obj;
+        map[key] = obj;
 
-      return map;
-    }, {} as Record<string, IItemObject<T>>);
+        return map;
+      },
+      {} as Record<string, IItemObject<T>>
+    );
   }
 
   /**

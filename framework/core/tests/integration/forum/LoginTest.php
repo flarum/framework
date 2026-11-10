@@ -88,4 +88,49 @@ class LoginTest extends TestCase
         $token = $data['token'];
         $this->assertEquals(2, AccessToken::whereToken($token)->firstOrFail()->user_id);
     }
+
+    #[Test]
+    public function login_with_remember_sets_remember_cookie()
+    {
+        $response = $this->send(
+            $this->request('POST', '/login', [
+                'json' => [
+                    'identification' => 'normal',
+                    'password' => 'too-obscure',
+                    'remember' => true
+                ]
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('flarum_remember=', $response->getHeaderLine('Set-Cookie'));
+    }
+
+    #[Test]
+    public function login_form_with_remember_sets_remember_cookie_on_redirect()
+    {
+        $response = $this->send($this->formRequest(['remember' => '1']));
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertStringContainsString('flarum_remember=', $response->getHeaderLine('Set-Cookie'));
+    }
+
+    #[Test]
+    public function login_form_without_remember_sets_no_remember_cookie()
+    {
+        $response = $this->send($this->formRequest());
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertStringNotContainsString('flarum_remember=', $response->getHeaderLine('Set-Cookie'));
+    }
+
+    /**
+     * A log in submitted by the maintenance mode log in page's HTML form.
+     */
+    protected function formRequest(array $body = [])
+    {
+        return $this->request('POST', '/login')
+            ->withHeader('Accept', 'text/html')
+            ->withParsedBody(array_merge(['identification' => 'normal', 'password' => 'too-obscure'], $body));
+    }
 }

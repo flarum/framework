@@ -26,7 +26,8 @@ class DeleteFlagsController extends AbstractDeleteController
     protected function delete(ServerRequestInterface $request): void
     {
         $this->bus->dispatch(
-            new DeleteFlags(Arr::get($request->getQueryParams(), 'id'), RequestUtil::getActor($request), $request->getParsedBody())
+            // Dismissing after hiding or deleting the post sends no body.
+            new DeleteFlags(Arr::get($request->getQueryParams(), 'id'), RequestUtil::getActor($request), (array) ($request->getParsedBody() ?? []))
         );
     }
 }

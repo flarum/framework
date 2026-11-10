@@ -3,11 +3,43 @@
   padding-bottom: 24px;
   overflow-x: auto;
 
-  &-header {
+  &-header:not(.AdminHeader) {
     margin-bottom: 16px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    column-gap: 8px;
+    gap: 12px 8px;
+  }
+
+  &-filters {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9em;
+
+    &-label {
+      color: var(--muted-color);
+    }
+  }
+
+  &-filter {
+    height: auto;
+    padding: 3px 10px;
+    border-radius: 20px;
+    line-height: 1.4;
+
+    code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    &-hint {
+      margin-inline-start: 4px;
+      color: var(--muted-color);
+    }
   }
 
   &-totalUsers {
@@ -20,7 +52,7 @@
     justify-content: space-between;
 
     * + * {
-      margin-left: 8px;
+      margin-inline-start: 8px;
     }
   }
 
@@ -111,12 +143,12 @@
 
     &Address {
       flex-grow: 1;
-      margin-right: 4px;
+      margin-inline-end: 4px;
       transition: filter 0.2s ease-out;
     }
 
     &IconBtn {
-      margin-left: 12px;
+      margin-inline-start: 12px;
 
       &:hover {
         text-decoration: none;

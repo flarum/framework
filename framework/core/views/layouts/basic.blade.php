@@ -1,16 +1,53 @@
 @php
   $primaryColor = $settings->get('theme_primary_color', '#000');
+
+  // Follow the forum's color scheme: always dark for a dark one (dark, dark-hc),
+  // the visitor's system setting for auto, and light otherwise.
+  $darkMedia = match (true) {
+    str_starts_with($colorScheme, 'dark') => 'all',
+    $colorScheme === 'auto' => '(prefers-color-scheme: dark)',
+    default => null,
+  };
 @endphp
 
 <!DOCTYPE html>
-<html>
+<html{!! isset($actorClass) ? ' class="'.e($actorClass).'"' : '' !!}>
   <head>
     <meta charset="utf-8">
-    {{-- TODO: Change below to @hasSection when Laravel is upgraded --}}
-    <title>@if ($__env->hasSection('title')) @yield('title') - @endif{{ $settings->get('forum_title') }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+    <title>@hasSection('title') @yield('title') - @endif{{ $settings->get('forum_title') }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    @if ($faviconIcoUrl)
+      <link rel="icon" href="{{ $faviconIcoUrl }}" sizes="32x32">
+    @elseif ($faviconUrl)
+      <link rel="icon" href="{{ $faviconUrl }}">
+    @endif
+    @if ($faviconSvgUrl)
+      <link rel="icon" href="{{ $faviconSvgUrl }}" type="image/svg+xml">
+    @endif
+    @if ($appleTouchIconUrl)
+      <link rel="apple-touch-icon" href="{{ $appleTouchIconUrl }}">
+    @endif
+    @yield('head')
 
     <style>
+      :root {
+        color-scheme: light;
+        --body-bg: #fff;
+        --text-color: #333;
+        --control-bg: #fff;
+        --control-border-color: #eee;
+      }
+      @if ($darkMedia)
+      @media {{ $darkMedia }} {
+        :root {
+          color-scheme: dark;
+          --body-bg: {{ $darkBodyBg }};
+          --text-color: #ddd;
+          --control-bg: rgba(255, 255, 255, .05);
+          --control-border-color: rgba(255, 255, 255, .15);
+        }
+      }
+      @endif
       * {
        box-sizing: border-box;
       }
@@ -19,7 +56,8 @@
         font-size: 18px;
         text-align: center;
         line-height: 1.5;
-        color: #333;
+        color: var(--text-color);
+        background: var(--body-bg);
       }
       input,
       button,
@@ -77,8 +115,9 @@
         width: 100%;
         text-align: center;
         padding: 15px 20px;
-        background-color: #fff;
-        border: 2px solid #eee;
+        color: inherit;
+        background-color: var(--control-bg);
+        border: 2px solid var(--control-border-color);
         border-radius: 4px;
         transition: border-color .15s;
       }
@@ -94,6 +133,7 @@
         margin: 0;
         padding: 0;
       }
+      @yield('styles')
     </style>
   </head>
 

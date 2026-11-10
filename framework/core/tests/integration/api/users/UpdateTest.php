@@ -14,6 +14,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Throttler\EmailChangeThrottler;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 class UpdateTest extends TestCase
@@ -588,6 +589,44 @@ class UpdateTest extends TestCase
             ])
         );
         $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    public static function nonIntegerAdminGroupIds(): array
+    {
+        return [
+            'float' => [1.5],
+            'decimal string' => ['1.4'],
+            'string with a numeric prefix' => ['1abc'],
+            'zero-padded string' => ['01'],
+            'string with whitespace' => [' 1 '],
+            'exponent string' => ['1e0'],
+            'boolean' => [true],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('nonIntegerAdminGroupIds')]
+    public function regular_users_cant_promote_self_to_admin_with_a_non_integer_id(mixed $id)
+    {
+        $this->giveNormalUsersEditPerms();
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/3', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'relationships' => [
+                            'groups' => [
+                                'data' => [
+                                    ['id' => $id, 'type' => 'groups']
+                                ]
+                            ]
+                        ],
+                    ]
+                ],
+            ])
+        );
+        $this->assertContains($response->getStatusCode(), [403, 404], (string) $response->getBody());
+        $this->assertFalse(User::find(3)->isAdmin());
     }
 
     #[Test]

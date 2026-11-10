@@ -11,7 +11,9 @@ namespace Flarum\User;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Config;
+use Flarum\Http\SessionConfig;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Container\Container;
 use SessionHandlerInterface;
 
@@ -58,5 +60,13 @@ class SessionServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->alias('session.handler', SessionHandlerInterface::class);
+
+        // A handler decides, server-side, whether a session is still alive, and
+        // reads how long that is from Laravel's `session.lifetime` config: the
+        // file driver does, and so do handlers an extension binds itself. Put the
+        // configured lifetime there before any of them is built.
+        $this->container->beforeResolving('session.handler', function () {
+            $this->container->make(ConfigRepository::class)->set('session.lifetime', $this->container->make(SessionConfig::class)->lifetime());
+        });
     }
 }

@@ -53,7 +53,29 @@ class MailTest extends TestCase
             ],
             'mail_username' => '',
             'mail_password' => '',
+            'mail_smtp_verify_peer' => true,
         ], $fields['smtp']);
+    }
+
+    #[Test]
+    public function postmark_driver_is_registered_with_correct_fields()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/mail/settings', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $fields = json_decode($body, true)['data']['attributes']['fields'];
+
+        $this->assertArrayHasKey('postmark', $fields);
+        $this->assertEquals([
+            'mail_postmark_token' => '',
+            'mail_postmark_message_stream' => '',
+        ], $fields['postmark']);
     }
 
     #[Test]

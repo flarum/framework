@@ -15,7 +15,10 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Foundation\FontAwesome;
 use Flarum\Foundation\Paths;
+use Flarum\Frontend\Compiler\DatabaseVersioner;
+use Flarum\Frontend\Compiler\FileVersioner;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\Driver\BasicTitleDriver;
 use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Http\RequestUtil;
@@ -26,12 +29,26 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Database\ConnectionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
+        // Revisions live in their own table, a row per asset, rather than in a
+        // single JSON value beside the compiled files. Every instance rebuilds
+        // a dirty asset set on its next request, and pruning stale chunks
+        // writes during ordinary renders, so revisions are recorded
+        // concurrently — and saving the whole map back on each write silently
+        // drops whatever was recorded in the meantime. {@see FileVersioner}
+        // remains for anyone who needs the manifest file itself.
+        $this->container->singleton(VersionerInterface::class, function (Container $container) {
+            return new DatabaseVersioner(
+                $container->make(ConnectionInterface::class)
+            );
+        });
+
         $this->container->singleton('flarum.assets', function (Container $container) {
             return new AssetManager($container, $container->make(LocaleManager::class));
         });
@@ -52,7 +69,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 // Even when using CDN/Kit, we need the base CSS classes compiled into the bundle
                 // The CDN/Kit will override font-face declarations but class definitions remain the same
                 $assets->setLessImportDirs([
-                    $paths->vendor.'/components/font-awesome/css' => ''
+                    $paths->vendor.'/flarum/font-awesome/css' => ''
                 ]);
 
                 $assets->css($this->addBaseCss(...));
@@ -78,25 +95,22 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 $frontend->content(function (Document $document) use ($container) {
                     $default_preloads = $container->make('flarum.frontend.default_preloads');
 
-                    // Add preloads for base CSS and JS assets. Extensions should add their own via the extender.
+                    // The forum/admin stylesheet blocks paint (parser-discovered <link
+                    // rel="stylesheet">), so the next thing on the critical path is forum.js
+                    // booting the SPA. Preload JS at high priority so it lands while CSS is
+                    // still being fetched, rather than waiting for the body parser to discover
+                    // the <script> tag.
                     $js_preloads = [];
-                    $css_preloads = [];
 
-                    foreach ($document->css as $url) {
-                        $css_preloads[] = [
-                            'href' => $url,
-                            'as' => 'style'
-                        ];
-                    }
                     foreach ($document->js as $url) {
-                        $css_preloads[] = [
+                        $js_preloads[] = [
                             'href' => $url,
-                            'as' => 'script'
+                            'as' => 'script',
+                            'fetchpriority' => 'high',
                         ];
                     }
 
                     $document->preloads = array_merge(
-                        $css_preloads,
                         $js_preloads,
                         $default_preloads,
                         $document->preloads,
@@ -106,29 +120,61 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     /** @var FontAwesome $fontAwesome */
                     $fontAwesome = $container->make(FontAwesome::class);
 
+                    if (! $fontAwesome->needsBundledFonts()) {
+                        // When the icons come from a Kit or CDN, the compiled CSS binds
+                        // their font name to a blank placeholder until the remote
+                        // stylesheet arrives (see less/common/Iconography.less). If it
+                        // never arrives — an adblocker eating the kit, a dead CDN — the
+                        // icons would stay blank, so this rescue rebinds the name to the
+                        // bundled Free fonts: visible glyphs, even if not the ones the
+                        // forum paid for. Wired to `onerror` on the tags below, and to a
+                        // watchdog in the frontend for failures that produce no error
+                        // event, like a kit script that loads but whose stylesheet
+                        // request is blocked. Declared before them so it exists whenever
+                        // they fire.
+                        $faces = '';
+                        foreach (['fa-regular-400' => 400, 'fa-solid-900' => 900] as $file => $weight) {
+                            $faces .= '@font-face{font-family:"Font Awesome 7 Free";font-style:normal;font-weight:'.$weight.';font-display:block;'
+                                .'src:url("'.self::bundledFontUrl($container, $file.'.woff2').'") format("woff2")}';
+                        }
+
+                        $document->head[] = '<script>window.flarumRescueIconFonts=function(){var f=window.flarumRescueIconFonts;if(f.done)return;f.done=true;'
+                            .'var s=document.createElement("style");s.textContent='.json_encode($faces).';document.head.appendChild(s)};</script>';
+                    }
+
+                    $rescue = ' onerror="window.flarumRescueIconFonts&&window.flarumRescueIconFonts()"';
+
                     if ($fontAwesome->useCdn()) {
                         $cdnUrl = $fontAwesome->cdnUrl();
                         if (! empty($cdnUrl)) {
-                            // Preload CDN CSS for better performance
-                            $document->preloads[] = [
-                                'href' => $cdnUrl,
-                                'as' => 'style',
-                                'crossorigin' => 'anonymous'
-                            ];
-                            // Add CDN CSS with crossorigin for better caching
-                            $document->head[] = '<link rel="stylesheet" href="'.e($cdnUrl).'" crossorigin="anonymous">';
+                            $cdnParts = parse_url($cdnUrl);
+                            if (! empty($cdnParts['host'])) {
+                                $cdnOrigin = e($cdnParts['scheme'].'://'.$cdnParts['host']);
+                                $document->head[] = '<link rel="preconnect" href="'.$cdnOrigin.'" crossorigin>';
+                                $document->head[] = '<link rel="dns-prefetch" href="'.$cdnOrigin.'">';
+                            }
+                            // Load asynchronously — FA icons are only rendered after JS boots the
+                            // SPA, so there is no FOUC risk from deferring this stylesheet.
+                            //
+                            // Deliberately without a <noscript> counterpart: the icons are
+                            // rendered by the SPA, so a browser with scripting off has no icon
+                            // elements on the page for this stylesheet to style. The fallback
+                            // only ever bought such a browser an extra request.
+                            $document->head[] = '<link rel="preload" href="'.e($cdnUrl).'" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel=\'stylesheet\'"'.$rescue.'>';
                         }
                     } elseif ($fontAwesome->useKit()) {
                         $kitUrl = $fontAwesome->kitUrl();
                         if (! empty($kitUrl)) {
-                            // Preload Kit JS for better performance
-                            $document->preloads[] = [
-                                'href' => $kitUrl,
-                                'as' => 'script',
-                                'crossorigin' => 'anonymous'
-                            ];
-                            // Add Kit JS with crossorigin for better caching
-                            $document->head[] = '<script src="'.e($kitUrl).'" crossorigin="anonymous"></script>';
+                            $kitParts = parse_url($kitUrl);
+                            if (! empty($kitParts['host'])) {
+                                $kitOrigin = e($kitParts['scheme'].'://'.$kitParts['host']);
+                                $document->head[] = '<link rel="preconnect" href="'.$kitOrigin.'" crossorigin>';
+                                $document->head[] = '<link rel="dns-prefetch" href="'.$kitOrigin.'">';
+                            }
+                            // Defer Kit JS — it has no dependencies and nothing depends on it
+                            // executing synchronously; defer keeps it out of the critical path
+                            // while preserving execution order relative to other deferred scripts.
+                            $document->head[] = '<script src="'.e($kitUrl).'" crossorigin="anonymous" defer'.$rescue.'></script>';
                         }
                     }
 
@@ -141,9 +187,27 @@ class FrontendServiceProvider extends AbstractServiceProvider
                             ? RequestUtil::getActor($request)->getPreference('colorScheme')
                             : $settings->get('color_scheme');
                     };
+
+                    // Inline script that settles data-theme on <html> before first paint so that
+                    // the critical CSS block can apply the correct background colour without a
+                    // flash. Goes into $preHead so it executes before the main stylesheet link
+                    // is processed. It starts from the data-theme above, so a user's own scheme
+                    // holds from the first paint rather than once the app has booted.
+                    $forumColorScheme = $settings->get('color_scheme') ?? 'auto';
+                    $document->preHead[] = '<script>(function(){'
+                        .file_get_contents(__DIR__.'/../../js/preboot/colorScheme.js')
+                        .'applyColorScheme('.json_encode($forumColorScheme).')})()</script>';
+
+                    // Build critical CSS with the theme-accurate dark body background.
+                    // Formula mirrors the LESS: hsl(@secondary-hue, min(20%, @secondary-sat), 10%).
+                    $secondaryHex = $settings->get('theme_secondary_color') ?? '#536F90';
+                    $darkBg = self::computeDarkBodyBg($secondaryHex);
+                    $document->criticalCss = 'body{margin:0;background:#fff}'
+                        .'[data-theme^=dark] body{background:'.$darkBg.'}'
+                        .'#flarum-loading{text-align:center;padding:50px 0;font-size:18px;color:#aaa}';
                     $document->extraAttributes['data-colored-header'] = $settings->get('theme_colored_header') ? 'true' : 'false';
                     $document->extraAttributes['class'][] = function (ServerRequestInterface $request) {
-                        return RequestUtil::getActor($request)->isGuest() ? 'guest-user' : 'logged-in';
+                        return RequestUtil::getActorHtmlClass($request);
                     };
                 }, 160);
 
@@ -159,18 +223,22 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
                 $preloads = [];
 
-                // Only preload local fonts if using local source
-                if ($fontAwesome->useLocalFonts()) {
-                    $filesystem = $container->make('filesystem')->disk('flarum-assets');
-
+                // Only preload the bundled fonts when the icons are drawn from them.
+                // That includes a CDN or Kit source with no URL, which falls back
+                // to the bundled fonts.
+                if ($fontAwesome->needsBundledFonts()) {
+                    // Versioned like the stylesheet's own font URLs. A preload
+                    // only helps when its URL is exactly the one the CSS asks
+                    // for; with a bare URL here and `?v=` in the CSS, every page
+                    // downloaded both fonts twice.
                     $preloads = [
                         [
-                            'href' => $filesystem->url('fonts/fa-solid-900.woff2'),
+                            'href' => self::bundledFontUrl($container, 'fa-solid-900.woff2'),
                             'as' => 'font',
                             'type' => 'font/woff2',
                             'crossorigin' => ''
                         ], [
-                            'href' => $filesystem->url('fonts/fa-regular-400.woff2'),
+                            'href' => self::bundledFontUrl($container, 'fa-regular-400.woff2'),
                             'as' => 'font',
                             'type' => 'font/woff2',
                             'crossorigin' => ''
@@ -218,7 +286,15 @@ class FrontendServiceProvider extends AbstractServiceProvider
         $this->container->singleton(
             'flarum.less.custom_variables',
             function (Container $container) {
-                return [];
+                return [
+                    // Whether the compiled CSS binds the icon font name to the
+                    // bundled Free files, or to a blank placeholder that a Kit or
+                    // CDN replaces when its stylesheet lands. See
+                    // less/common/Iconography.less for the whole story.
+                    'fa-bundled-fonts' => function () use ($container) {
+                        return $container->make(FontAwesome::class)->needsBundledFonts() ? 'true' : 'false';
+                    },
+                ];
             }
         );
 
@@ -253,9 +329,11 @@ class FrontendServiceProvider extends AbstractServiceProvider
             function () use ($container) {
                 $recompile = new RecompileFrontendAssets(
                     $container->make('flarum.assets.common'),
-                    $container->make(LocaleManager::class)
+                    $container->make(LocaleManager::class),
+                    $container->make('events'),
+                    $container->make(SettingsRepositoryInterface::class)
                 );
-                $recompile->flush();
+                $recompile->markDirty();
             }
         );
     }
@@ -266,6 +344,59 @@ class FrontendServiceProvider extends AbstractServiceProvider
         $sources->addFile(__DIR__.'/../../less/common/mixins.less');
 
         $this->addLessVariables($sources);
+    }
+
+    /**
+     * Compute the dark-mode body background colour from the forum's secondary colour hex.
+     * Mirrors the LESS formula: hsl(@secondary-hue, min(20%, @secondary-sat), 10%).
+     *
+     * Also used by the layout of the standalone pages (errors, password reset...),
+     * which have no compiled stylesheet to take it from.
+     */
+    public static function computeDarkBodyBg(string $hex): string
+    {
+        $hex = ltrim($hex, '#');
+
+        if (strlen($hex) === 3) {
+            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+        }
+
+        if (strlen($hex) !== 6 || ! ctype_xdigit($hex)) {
+            return '#1a2333'; // safe fallback
+        }
+
+        $r = hexdec(substr($hex, 0, 2)) / 255;
+        $g = hexdec(substr($hex, 2, 2)) / 255;
+        $b = hexdec(substr($hex, 4, 2)) / 255;
+
+        $max = max($r, $g, $b);
+        $min = min($r, $g, $b);
+        $delta = $max - $min;
+
+        // Hue
+        if ($delta == 0) {
+            $h = 0;
+        } elseif ($max === $r) {
+            $h = 60 * fmod(($g - $b) / $delta, 6);
+        } elseif ($max === $g) {
+            $h = 60 * (($b - $r) / $delta + 2);
+        } else {
+            $h = 60 * (($r - $g) / $delta + 4);
+        }
+
+        if ($h < 0) {
+            $h += 360;
+        }
+
+        // Saturation (HSL)
+        $l = ($max + $min) / 2;
+        $s = $delta == 0 ? 0 : $delta / (1 - abs(2 * $l - 1));
+
+        // Apply formula: hsl(hue, min(20%, sat), 10%)
+        $sFinal = min(0.20, $s) * 100;
+        $lFinal = 10;
+
+        return 'hsl('.round($h).','.round($sFinal).'%,'.$lFinal.'%)';
     }
 
     private function addLessVariables(SourceCollector $sources): void
@@ -293,5 +424,30 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
             return $customLess;
         });
+    }
+
+    /**
+     * The URL of a bundled Font Awesome webfont, stamped with the same revision
+     * the compiled stylesheet gives it.
+     *
+     * LessCompiler::finalize() appends `?v=<hash of the font file>` to every
+     * font URL in the CSS, so a changed font is a new URL. Anything else that
+     * points at the same font has to carry that revision too, or the browser
+     * treats it as a different file. The revision comes from the assets, which
+     * read the same file the stylesheet's revision comes from.
+     */
+    protected static function bundledFontUrl(Container $container, string $file): string
+    {
+        $url = $container->make('filesystem')->disk('flarum-assets')->url('fonts/'.$file);
+
+        $revision = $container->make('flarum.assets.forum')->fontRevision($file);
+
+        if ($revision === null) {
+            return $url;
+        }
+
+        // As LessCompiler::finalize() does: don't add a second `?` to a URL that
+        // already has a query string.
+        return $url.(str_contains($url, '?') ? '&' : '?').'v='.$revision;
     }
 }

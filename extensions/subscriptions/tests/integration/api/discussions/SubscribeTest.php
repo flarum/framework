@@ -86,6 +86,27 @@ class SubscribeTest extends TestCase
         $this->assertEquals($newState, $this->database()->table('discussion_user')->where('discussion_id', $discussionId)->where('user_id', $actorId)->value('subscription'));
     }
 
+    #[Test]
+    public function updating_a_discussion_without_attributes_leaves_the_subscription_alone()
+    {
+        // A PATCH may carry only relationships (moving a discussion to another
+        // tag, for example), so the request has no attributes at all.
+        $response = $this->send(
+            $this->request('PATCH', '/api/discussions/1', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'discussions',
+                        'id' => '1',
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
+        $this->assertEquals('follow', $this->database()->table('discussion_user')->where('discussion_id', 1)->where('user_id', 1)->value('subscription'));
+    }
+
     public static function provideStates()
     {
         return [

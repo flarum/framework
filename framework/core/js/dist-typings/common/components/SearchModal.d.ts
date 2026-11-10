@@ -62,6 +62,12 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
      */
     selectResult(): void;
     /**
+     * Closes the modal once one of its links is followed. Following one to the
+     * page that's already open doesn't start a new page, which is otherwise
+     * what closes it. Clicks meant for a new tab or window leave it open.
+     */
+    protected onLinkClick(e: MouseEvent): void;
+    /**
      * Clear the search
      */
     clear(): void;

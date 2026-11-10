@@ -27,6 +27,22 @@ declare class ComposerState {
      */
     editor: EditorDriverInterface | null;
     /**
+     * Promise that resolves once the text editor has been built and assigned.
+     * Reset each time a new composer body is loaded via `load()`.
+     */
+    protected _editorReadyPromise: Promise<void>;
+    protected _resolveEditorReady: () => void;
+    /**
+     * Returns a promise that resolves when the text editor is ready.
+     * Resolves immediately if the editor is already available.
+     */
+    editorReady(): Promise<void>;
+    /**
+     * Resolve the editorReady promise. Called by the Composer component once
+     * the TextEditor has been built and `composer.editor` is set.
+     */
+    resolveEditorReady(): void;
+    /**
      * If the composer was loaded and mounted.
      */
     mounted: boolean;

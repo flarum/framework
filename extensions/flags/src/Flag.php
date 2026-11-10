@@ -21,8 +21,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $post_id
  * @property int $user_id
  * @property string $type
- * @property string $reason
- * @property string $reason_detail
+ * @property string|null $reason
+ * @property string|null $reason_detail
  * @property Carbon $created_at
  *
  * @property-read Post $post

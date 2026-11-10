@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import Input from '../../../../src/common/components/Input';
 import m from 'mithril';
 import mq from 'mithril-query';

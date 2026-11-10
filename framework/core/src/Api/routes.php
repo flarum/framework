@@ -33,6 +33,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\TerminateAllOtherSessionsController::class)
     );
 
+    // Resolve a registration token (returns username/email/provided for pre-populating sign-up modal)
+    $map->post(
+        '/registration-token',
+        'registration-token',
+        $route->toController(Controller\ResolveRegistrationTokenController::class)
+    );
+
     // Send forgot password email
     $map->post(
         '/forgot',
@@ -51,6 +58,19 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         '/users/{id}/send-confirmation',
         'users.confirmation.send',
         $route->toController(Controller\SendConfirmationEmailController::class)
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Groups
+    |--------------------------------------------------------------------------
+    */
+
+    // Change order of groups
+    $map->post(
+        '/groups/order',
+        'groups.order',
+        $route->toController(Controller\OrderGroupsController::class)
     );
 
     /*
@@ -107,6 +127,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\SetSettingsController::class)
     );
 
+    // Delete settings (reset to defaults)
+    $map->delete(
+        '/settings',
+        'settings.delete',
+        $route->toController(Controller\DeleteSettingsController::class)
+    );
+
     // Update a permission
     $map->post(
         '/permission',
@@ -128,6 +155,34 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\DeleteLogoController::class)
     );
 
+    // Upload a dark mode logo
+    $map->post(
+        '/logo-dark-mode',
+        'logo-dark-mode',
+        $route->toController(Controller\UploadLogoDarkModeController::class)
+    );
+
+    // Remove the dark mode logo
+    $map->delete(
+        '/logo-dark-mode',
+        'logo-dark-mode.delete',
+        $route->toController(Controller\DeleteLogoDarkModeController::class)
+    );
+
+    // Upload an email logo
+    $map->post(
+        '/email-logo',
+        'email-logo',
+        $route->toController(Controller\UploadEmailLogoController::class)
+    );
+
+    // Remove the email logo
+    $map->delete(
+        '/email-logo',
+        'email-logo.delete',
+        $route->toController(Controller\DeleteEmailLogoController::class)
+    );
+
     // Upload a favicon
     $map->post(
         '/favicon',
@@ -142,11 +197,75 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\DeleteFaviconController::class)
     );
 
+    // Discussions a browser suggests when the forum is its search engine
+    $map->get(
+        '/opensearch/suggestions',
+        'opensearch.suggestions',
+        $route->toController(Controller\ShowOpenSearchSuggestionsController::class)
+    );
+
+    // Upload an app icon
+    $map->post(
+        '/app-icon',
+        'app-icon',
+        $route->toController(Controller\UploadAppIconController::class)
+    );
+
+    // Remove the app icon
+    $map->delete(
+        '/app-icon',
+        'app-icon.delete',
+        $route->toController(Controller\DeleteAppIconController::class)
+    );
+
     // Clear the cache
     $map->delete(
         '/cache',
         'cache.clear',
         $route->toController(Controller\ClearCacheController::class)
+    );
+
+    // See whether streamed responses reach the browser as they're written
+    $map->get(
+        '/streaming-check',
+        'streaming.check',
+        $route->toController(Controller\CheckStreamingController::class)
+    );
+
+    // Pause or resume queue processing
+    $map->post(
+        '/queue/pause',
+        'queue.pause',
+        $route->toController(Controller\PauseQueueController::class)
+    );
+
+    // Queue stats for the admin dashboard widget
+    $map->get(
+        '/queue/stats',
+        'queue.stats',
+        $route->toController(Controller\ShowQueueStatsController::class)
+    );
+
+    // Failed jobs — list, retry (one or all), forget
+    $map->get(
+        '/queue/failed',
+        'queue.failed.index',
+        $route->toController(Controller\ListFailedJobsController::class)
+    );
+    $map->post(
+        '/queue/failed/retry',
+        'queue.failed.retryAll',
+        $route->toController(Controller\RetryFailedJobController::class)
+    );
+    $map->post(
+        '/queue/failed/{id}/retry',
+        'queue.failed.retry',
+        $route->toController(Controller\RetryFailedJobController::class)
+    );
+    $map->delete(
+        '/queue/failed/{id}',
+        'queue.failed.forget',
+        $route->toController(Controller\ForgetFailedJobController::class)
     );
 
     // List available mail drivers, available fields and validation status
@@ -161,5 +280,33 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         '/mail/test',
         'mailTest',
         $route->toController(Controller\SendTestMailController::class)
+    );
+
+    // Register/unregister the delivery-event webhook with the mail provider
+    $map->post(
+        '/mail/webhook/provision',
+        'mailWebhook.provision',
+        $route->toController(Controller\ProvisionMailWebhookController::class)
+    );
+
+    // Email bounce counts for the admin dashboard widget
+    $map->get(
+        '/mail/bounce-stats',
+        'mailBounceStats',
+        $route->toController(Controller\ShowEmailBounceStatsController::class)
+    );
+
+    // Trigger a sync of the abandoned extensions list
+    $map->post(
+        '/extensions/abandoned/sync',
+        'extensions.abandoned.sync',
+        $route->toController(Controller\SyncAbandonedExtensionsController::class)
+    );
+
+    // List Flarum community announcements from discuss.flarum.org
+    $map->get(
+        '/flarum/announcements',
+        'announcements.list',
+        $route->toController(Controller\ListAnnouncementsController::class)
     );
 };

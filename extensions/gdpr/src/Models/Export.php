@@ -15,13 +15,16 @@ use Flarum\User\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property int    $id
- * @property int    $user_id
- * @property int    $actor_id
- * @property string $file
- * @property Carbon $created_at
- * @property Carbon $destroys_at
- * @property User   $user
+ * @property int         $id
+ * @property int         $user_id
+ * @property int         $actor_id
+ * @property string|null $file
+ * @property Carbon      $created_at
+ * @property Carbon      $destroys_at
+ * @property Carbon|null $downloaded_at
+ * @property string|null $downloaded_ip
+ * @property string|null $downloaded_user_agent
+ * @property User        $user
  */
 class Export extends AbstractModel
 {
@@ -30,12 +33,20 @@ class Export extends AbstractModel
     protected $casts = [
         'created_at' => 'datetime',
         'destroys_at' => 'datetime',
+        'downloaded_at' => 'datetime',
     ];
 
-    public static function byFile(string $file): ?self
+    public static function byFile(?string $file): ?self
     {
+        if ($file === null || $file === '') {
+            return null;
+        }
+
         return self::query()
+            ->whereNotNull('file')
             ->where('file', $file)
+            ->where('destroys_at', '>', Carbon::now())
+            ->whereNull('downloaded_at')
             ->first();
     }
 
@@ -65,11 +76,19 @@ class Export extends AbstractModel
     }
 
     /**
+     * Exports whose stored ZIP should be cleaned up. Includes already-downloaded
+     * exports (artifact no longer needed) and those past their expiry window.
+     *
      * @return \Illuminate\Database\Eloquent\Builder<self>
      */
     public static function destroyable(): \Illuminate\Database\Eloquent\Builder
     {
         return self::query()
-            ->where('destroys_at', '<=', Carbon::now());
+            ->whereNotNull('file')
+            ->where(function ($query) {
+                $query
+                    ->where('destroys_at', '<=', Carbon::now())
+                    ->orWhereNotNull('downloaded_at');
+            });
     }
 }

@@ -70,4 +70,15 @@ return [
 
     (new Extend\View())
         ->namespace('flarum-suspend', __DIR__.'/views'),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-suspend')
+                ->listen(Suspended::class, 'user.suspended', fn ($e) => array_merge(
+                    ['user_id' => $e->user->id],
+                    $e->user->suspended_until ? ['until' => $e->user->suspended_until->toIso8601String()] : []
+                ))
+                ->listen(Unsuspended::class, 'user.unsuspended', fn ($e) => ['user_id' => $e->user->id]),
+        ]),
 ];

@@ -14,6 +14,7 @@ use Flarum\Frontend\Compiler\JsCompiler;
 use Flarum\Frontend\Compiler\JsDirectoryCompiler;
 use Flarum\Frontend\Compiler\LessCompiler;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Filesystem\Cloud;
 
 /**
@@ -158,6 +159,7 @@ class Assets
 
         if ($this->lessImportDirs) {
             $compiler->setImportDirs($this->lessImportDirs);
+            $compiler->setFontsDir($this->fontsDir());
         }
 
         if ($this->lessImportOverrides) {
@@ -171,6 +173,55 @@ class Assets
         $compiler->setCustomFunctions($this->customFunctions);
 
         return $compiler;
+    }
+
+    /**
+     * Where the webfonts referenced by the compiled CSS live on disk, so their
+     * URLs can be revisioned. Font URLs are written relative to the stylesheet
+     * that imports them (`../webfonts/…`), so the fonts sit beside each LESS
+     * import directory — that is the same directory the assets publisher copies
+     * into `assets/fonts`.
+     */
+    protected function fontsDir(): ?string
+    {
+        foreach (array_keys($this->lessImportDirs ?? []) as $dir) {
+            $candidate = dirname($dir).'/webfonts';
+
+            if (is_dir($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The revision the compiled stylesheet puts on a webfont's URL (`?v=…`), or
+     * null when the font can't be read. Anything else that links to a bundled
+     * font, like the font preloads, must use it: a preload is only used when its
+     * URL is exactly the one the stylesheet requests.
+     *
+     * Cached, since the preloads are built on every page view and the hash only
+     * changes with the file. The key includes the file's size and modification
+     * time, so a replaced font gets its new revision straight away.
+     */
+    public function fontRevision(string $file): ?string
+    {
+        $fontsDir = $this->fontsDir();
+        $path = $fontsDir.'/'.$file;
+
+        if ($fontsDir === null || basename($file) !== $file || ! is_file($path)) {
+            return null;
+        }
+
+        $key = 'flarum.frontend.font_revision.'.hash('xxh128', $path.'|'.filesize($path).'|'.filemtime($path));
+
+        $revision = resolve(CacheRepository::class)->rememberForever(
+            $key,
+            fn () => LessCompiler::fontRevisionIn($fontsDir, $file) ?? ''
+        );
+
+        return $revision === '' ? null : $revision;
     }
 
     protected function makeJsDirectoryCompiler(string $string): JsDirectoryCompiler

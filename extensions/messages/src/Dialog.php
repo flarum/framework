@@ -12,7 +12,9 @@ namespace Flarum\Messages;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Foundation\EventGeneratorTrait;
+use Flarum\Group\Group;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -26,10 +28,15 @@ use InvalidArgumentException;
  * @property \Carbon\Carbon|null $last_message_at
  * @property int|null $last_message_user_id
  * @property string $type
+ * @property string|null $name
+ * @property int|null $recipient_count
+ * @property bool $anyone_can_reply
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, DialogMessage> $messages
  * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Group> $groups
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, UserDialogState> $states
  * @property-read DialogMessage|null $firstMessage
  * @property-read DialogMessage|null $lastMessage
  * @property-read User|null $lastMessageUser
@@ -43,12 +50,20 @@ class Dialog extends AbstractModel
     protected $table = 'dialogs';
 
     protected $casts = [
-        'last_message_at' => 'datetime'
+        'first_message_id' => 'integer',
+        'last_message_id' => 'integer',
+        'last_message_at' => 'datetime',
+        'anyone_can_reply' => 'boolean',
+        'recipient_count' => 'integer',
     ];
 
     public $timestamps = true;
 
-    public static array $types = ['direct'];
+    public const DIRECT = 'direct';
+
+    public const GROUP = 'group';
+
+    public static array $types = [self::DIRECT, self::GROUP];
 
     protected $guarded = [];
 
@@ -64,7 +79,31 @@ class Dialog extends AbstractModel
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'dialog_user');
+        return $this->belongsToMany(User::class, 'dialog_user')->wherePivot('is_recipient', true)->wherePivotNull('left_at');
+    }
+
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'dialog_group');
+    }
+
+    public function states(): HasMany
+    {
+        return $this->hasMany(UserDialogState::class);
+    }
+
+    public function scopeUnread(Builder $query, User $actor): void
+    {
+        $connection = $query->getConnection();
+        $latest = $connection->table('dialog_messages')->select('id')
+            ->whereColumn('dialog_id', 'dialogs.id')->where('type', DialogMessage::COMMENT)
+            ->orderByDesc('id')->limit(1);
+        $read = $connection->table('dialog_user')->select('last_read_message_id')
+            ->whereColumn('dialog_id', 'dialogs.id')->where('user_id', $actor->id);
+
+        $query->whereRaw('('.$latest->toSql().') > COALESCE(('.$read->toSql().'), 0)', [
+            ...$latest->getBindings(), ...$read->getBindings(),
+        ]);
     }
 
     public function firstMessage(): BelongsTo
@@ -118,8 +157,21 @@ class Dialog extends AbstractModel
             ->whereRelation('users', 'user_id', $model->user_id)
             ->whereRelation('users', 'user_id', $otherUserId)
             ->firstOrCreate([
-                'type' => 'direct',
+                'type' => self::DIRECT,
             ]);
+    }
+
+    /**
+     * A new group conversation, with no members yet.
+     */
+    public static function startGroup(): self
+    {
+        return self::query()->create(['type' => self::GROUP]);
+    }
+
+    public function isGroup(): bool
+    {
+        return $this->type === self::GROUP;
     }
 
     public function recipient(?User $actor): ?User
@@ -127,8 +179,13 @@ class Dialog extends AbstractModel
         return $this->users->first(fn (User $user) => $user->id !== $actor?->id);
     }
 
-    public static function setStateUser(User $user): void
+    public static function setStateUser(?User $user): void
     {
         static::$stateUser = $user;
+    }
+
+    public static function stateUser(): ?User
+    {
+        return static::$stateUser;
     }
 }

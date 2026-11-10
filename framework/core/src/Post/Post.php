@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Query\Expression;
+use Illuminate\Support\Arr;
 
 /**
  * @property int $id
@@ -118,6 +119,39 @@ class Post extends AbstractModel
     public function isVisibleTo(User $user): bool
     {
         return (bool) $this->newQuery()->whereVisibleTo($user)->find($this->id);
+    }
+
+    /**
+     * Scope a query over one discussion's posts to those visible to the user,
+     * where the caller has already established that the DISCUSSION is visible.
+     *
+     * Applies the same registered `view` scopers as whereVisibleTo(), but lets
+     * scopers implementing {@see Access\ScopesPostVisibilityWithinDiscussion}
+     * take their fast path: discussion-level access checks are evaluated once
+     * in PHP instead of as per-row subqueries, whose cost grows with the size
+     * of the discussion. Only meaningful when the query is restricted to the
+     * given discussion's posts.
+     */
+    public function scopeWhereVisibleToInDiscussion(Builder $query, User $actor, Discussion $discussion): Builder
+    {
+        foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
+            foreach (Arr::get(static::$visibilityScopers, "$class.*", []) as $scoper) {
+                if ($scoper instanceof Access\ScopesPostVisibilityWithinDiscussion) {
+                    $scoper->withinDiscussion($actor, $query, $discussion);
+                } else {
+                    $scoper($actor, $query, 'view');
+                }
+            }
+            foreach (Arr::get(static::$visibilityScopers, "$class.view", []) as $scoper) {
+                if ($scoper instanceof Access\ScopesPostVisibilityWithinDiscussion) {
+                    $scoper->withinDiscussion($actor, $query, $discussion);
+                } else {
+                    $scoper($actor, $query);
+                }
+            }
+        }
+
+        return $query;
     }
 
     public function discussion(): BelongsTo

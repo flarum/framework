@@ -32,20 +32,32 @@ class UserResourceFields
             $regex = "/$regex/";
         }
 
+        // Settings are always returned as strings from the DB. Coerce and only
+        // apply the length constraint when the admin has configured a non-zero
+        // value; an empty field saved from the admin panel would otherwise be
+        // stored as '' and cast to 0, making maxLength(0) reject every value.
+        $min = (int) $this->settings->get('flarum-nicknames.min');
+        $max = (int) $this->settings->get('flarum-nicknames.max');
+
         return [
             Schema\Str::make('nickname')
+                ->description('Write-only: the name to show instead of the username; null resets it.')
                 ->visible(false)
                 ->writable(function (User $user, Context $context) {
                     return $context->getActor()->can('editNickname', $user);
                 })
                 ->nullable()
+                // Reject characters used in markdown/HTML link syntax that email clients
+                // may render as hyperlinks in notification emails.
+                ->rule('not_regex:/[\[\]()<>]/')
                 ->regex($regex ?? '', ! empty($regex))
-                ->minLength($this->settings->get('flarum-nicknames.min'))
-                ->maxLength($this->settings->get('flarum-nicknames.max'))
+                ->minLength($min, $min > 0)
+                ->maxLength($max, $max > 0)
                 ->unique('users', 'nickname', true, (bool) $this->settings->get('flarum-nicknames.unique'))
                 ->unique('users', 'username', true, (bool) $this->settings->get('flarum-nicknames.unique'))
                 ->validationMessages([
                     'nickname.regex' => $this->translator->trans('flarum-nicknames.api.invalid_nickname_message'),
+                    'nickname.not_regex' => $this->translator->trans('flarum-nicknames.api.invalid_nickname_message'),
                 ])
                 ->set(function (User $user, ?string $nickname) {
                     $user->nickname = $user->username === $nickname ? null : $nickname;

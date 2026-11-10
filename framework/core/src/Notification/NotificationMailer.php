@@ -32,11 +32,16 @@ class NotificationMailer
 
     public function send(MailableInterface&BlueprintInterface $blueprint, User $user): void
     {
+        // Queued recipients are restored when the worker picks up the job.
+        if ($this->settings->get('mail_suppress_bounced') && $user->hasBouncedEmail()) {
+            return;
+        }
+
         // Ensure that notifications are delivered to the user in their default language, if they've selected one.
         $this->translator->setLocale($user->getPreference('locale') ?? $this->settings->get('default_locale'));
 
         // Generate and save the unsubscribe token:
-        $unsubscribeRecord = UnsubscribeToken::generate($user->id, $blueprint::getType());
+        $unsubscribeRecord = $this->generateUnsubscribeToken($user->id, $blueprint::getType());
         $unsubscribeRecord->save();
 
         $unsubscribeLink = $this->url->to('forum')->route('notifications.unsubscribe', ['userId' => $user->id, 'token' => $unsubscribeRecord->token]);
@@ -45,8 +50,12 @@ class NotificationMailer
         $forumTitle = $this->settings->get('forum_title');
         $username = $user->display_name;
         $userEmail = $user->email;
+        // Pass an explicit title so the body heading can't inherit a stale `title`
+        // left on the shared (singleton) view factory by an earlier email — e.g. a
+        // password reset's "Reset Your Password". See flarum/framework#4767.
+        $title = $this->translator->trans('core.email.notification.default_title');
 
-        $data = compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink', 'type', 'forumTitle', 'username', 'userEmail');
+        $data = compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink', 'type', 'forumTitle', 'username', 'userEmail', 'title');
 
         $this->view->share($data);
 
@@ -58,6 +67,11 @@ class NotificationMailer
                         ->subject($blueprint->getEmailSubject($this->translator));
             }
         );
+    }
+
+    protected function generateUnsubscribeToken(int $userId, string $emailType): UnsubscribeToken
+    {
+        return UnsubscribeToken::generate($userId, $emailType);
     }
 
     /**

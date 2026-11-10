@@ -15,12 +15,13 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Console\Isolatable;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Builder;
 use Symfony\Component\Console\Command\Command;
 
-class MigrateCommand extends AbstractCommand
+class MigrateCommand extends AbstractCommand implements Isolatable
 {
     public function __construct(
         protected Container $container,
@@ -60,6 +61,10 @@ class MigrateCommand extends AbstractCommand
 
         $extensions = $this->container->make(ExtensionManager::class);
         $extensions->getMigrator()->setOutput($this->output);
+
+        // Re-sort and persist the enabled extension order so that any optional-dependencies
+        // added or changed since the last enable/disable cycle take effect immediately.
+        $extensions->syncExtensionOrder();
 
         foreach ($extensions->getEnabledExtensions() as $name => $extension) {
             if ($extension->hasMigrations()) {

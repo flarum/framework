@@ -1,3 +1,5 @@
 import emojiMap from 'simple-emoji-map';
 
-export default emojiMap;
+const typedEmojiMap: Record<string, string[]> = emojiMap;
+
+export default typedEmojiMap;

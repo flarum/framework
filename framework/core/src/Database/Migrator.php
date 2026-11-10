@@ -11,6 +11,7 @@ namespace Flarum\Database;
 
 use Flarum\Database\Exception\MigrationKeyMissing;
 use Flarum\Extension\Extension;
+use Flarum\Install\DatabaseConfig;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Filesystem\Filesystem;
@@ -224,8 +225,11 @@ class Migrator
      *
      * @param string $path to the directory containing the dump.
      */
-    public function installFromSchema(string $path, string $driver): bool
+    public function installFromSchema(string $path, DatabaseConfig $dbConfig): bool
     {
+        $driver = $dbConfig->toArray()['driver'];
+        $pgSearchPath = $dbConfig->toArray()['search_path'] ?? 'public';
+
         $schemaPath = "$path/$driver-install.dump";
 
         if (! file_exists($schemaPath)) {
@@ -252,11 +256,16 @@ class Migrator
                 $this->connection->getTablePrefix() ?? '',
                 $statement
             );
+
+            if ($driver === 'pgsql' && $pgSearchPath != 'public') {
+                $statement = preg_replace('/(public)([\s.;])/', "$pgSearchPath\$2", $statement);
+            }
+
             $this->connection->statement($statement);
         }
 
         if ($driver === 'pgsql') {
-            $this->connection->statement('SELECT pg_catalog.set_config(\'search_path\', \'public\', false)');
+            $this->connection->statement("SELECT pg_catalog.set_config('search_path', '$pgSearchPath', false)");
         }
 
         $this->connection->getSchemaBuilder()->enableForeignKeyConstraints();

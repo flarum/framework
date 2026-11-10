@@ -4,6 +4,7 @@ import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import extractText from '../../common/utils/extractText';
 import Icon from '../../common/components/Icon';
+import haptic from '../../common/utils/haptic';
 
 function minimizeComposerIfFullScreen(e) {
   if (app.composer.isFullScreen()) {
@@ -22,6 +23,8 @@ function minimizeComposerIfFullScreen(e) {
  * - `discussion`
  */
 export default class ReplyComposer extends ComposerBody {
+  static focusOnSelector = () => '.TextEditor-editor';
+
   static initAttrs(attrs) {
     super.initAttrs(attrs);
 
@@ -71,6 +74,7 @@ export default class ReplyComposer extends ComposerBody {
   onsubmit() {
     const discussion = this.attrs.discussion;
 
+    haptic('success');
     this.loading = true;
     m.redraw();
 

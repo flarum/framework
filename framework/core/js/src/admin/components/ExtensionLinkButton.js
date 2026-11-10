@@ -23,6 +23,14 @@ export default class ExtensionLinkButton extends LinkButton {
   statusItems(name) {
     const items = new ItemList();
 
+    const extension = app.data.extensions[name];
+    const isAbandoned = extension?.abandoned;
+
+    if (isAbandoned) {
+      const hasReplacement = typeof isAbandoned === 'string';
+      items.add('abandoned', <span className={`Badge Badge--${hasReplacement ? 'danger' : 'warning'}`}>!</span>, 10);
+    }
+
     items.add('enabled', <span className={'ExtensionListItem-Dot ' + (isExtensionEnabled(name) ? 'enabled' : 'disabled')} />);
 
     return items;

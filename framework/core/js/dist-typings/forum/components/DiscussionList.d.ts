@@ -9,4 +9,4 @@ export default class DiscussionList extends Component<import("../../common/Compo
     constructor();
     view(): JSX.Element;
 }
-import Component from "../../common/Component";
+import Component from '../../common/Component';

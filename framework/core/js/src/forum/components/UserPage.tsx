@@ -14,6 +14,12 @@ import PageStructure from './PageStructure';
 export interface IUserPageAttrs extends IPageAttrs {}
 
 /**
+ * Users whose profile has been fetched from the user endpoint, as opposed to
+ * arriving in some other payload. See `UserPage.loadUser`.
+ */
+const profileLoaded = new WeakSet<User>();
+
+/**
  * The `UserPage` component shows a user's profile. It can be extended to show
  * content inside of the content area. See `ActivityPage` and `SettingsPage` for
  * examples.
@@ -48,7 +54,7 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
       <UserCard
         user={this.user}
         className="Hero UserHero"
-        editable={this.user!.canEdit() || this.user === app.session.user}
+        editable={this.user!.canEdit() || this.user!.canEditAvatar()}
         controlsButtonClassName="Button"
       />
     );
@@ -90,17 +96,38 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
   /**
    * Given a username, load the user's profile from the store, or make a request
    * if we don't have it yet. Then initialize the profile page with that user.
+   *
+   * A user in the store is shown straight away, but the record may have arrived in
+   * another endpoint's payload, carrying only the relationships that endpoint
+   * included. Every user has `joinTime` whichever endpoint it came from, so that
+   * says nothing about what else is loaded: whatever the user endpoint includes by
+   * default, which is anything an extension adds to a profile, can be missing. So
+   * such a user is fetched in the background, once, and the response updates the
+   * same record the page is showing.
+   *
+   * Resolves once `this.user` is set so that subclasses can safely chain
+   * dependent work (e.g. fetching related resources keyed off the user id). It
+   * does not wait for that background fetch.
    */
-  loadUser(username: string) {
+  loadUser(username: string): Promise<void> {
     const lowercaseUsername = username.toLowerCase();
 
-    // Load the preloaded user object, if any, into the global app store
-    // We don't use the output of the method because it returns raw JSON
-    // instead of the parsed models
-    app.preloadedApiDocument();
+    // On initial render the server preloads the target user as the primary
+    // resource of the API document, so prefer that. It stays correct under
+    // any slug driver (including IdWithDisplayName, where the route slug
+    // does not equal the username).
+    const preloaded = app.preloadedApiDocument<User>();
+
+    if (preloaded && !Array.isArray(preloaded) && preloaded.joinTime()) {
+      // It is the profile itself, with the profile's includes.
+      profileLoaded.add(preloaded);
+
+      this.show(preloaded);
+      return Promise.resolve();
+    }
 
     app.store.all<User>('users').some((user) => {
-      if ((user.username().toLowerCase() === lowercaseUsername || user.id() === username) && user.joinTime()) {
+      if ((user.username().toLowerCase() === lowercaseUsername || user.id() === username || user.slug() === username) && user.joinTime()) {
         this.show(user);
         return true;
       }
@@ -108,9 +135,32 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
       return false;
     });
 
-    if (!this.user) {
-      app.store.find<User>('users', username, { bySlug: true }).then(this.show.bind(this));
+    if (this.user) {
+      this.completeUser(this.user);
+
+      return Promise.resolve();
     }
+
+    return app.store.find<User>('users', username, { bySlug: true }).then((user) => {
+      profileLoaded.add(user);
+
+      this.show(user);
+    });
+  }
+
+  /**
+   * Fetch a user from the user endpoint, unless that has already been done, to
+   * fill in what the payload they first arrived in did not carry.
+   *
+   * It is silent: the page already has a user to show, so a failure is not worth an
+   * alert, and the next visit tries again.
+   */
+  protected completeUser(user: User): void {
+    if (profileLoaded.has(user)) return;
+
+    profileLoaded.add(user);
+
+    app.store.find<User>('users', user.slug(), { bySlug: true }, { errorHandler: () => {} }).catch(() => profileLoaded.delete(user));
   }
 
   /**

@@ -77,11 +77,25 @@ export default class GlobalSearchState extends SearchState {
   stickyParams(): SearchParams {
     return {
       sort: m.route.param('sort'),
-      q: m.route.param('q'),
+      q: this.routeSearch(),
       // Objects must be copied, otherwise they are passed by reference.
       // Which could end up undesirably modifying the mithril route params.
       filter: Object.assign({}, m.route.param('filter')),
     };
+  }
+
+  /**
+   * The search in the address. Mithril keeps a "+" that a browser's address
+   * bar sends for a space, and turns "true" and "false" into booleans, so
+   * the address itself is read the way browsers write it.
+   */
+  protected routeSearch(): string {
+    const q = m.route.param('q');
+
+    // No search: left as the router has it, like the other parameters.
+    if (q === undefined) return q;
+
+    return new URLSearchParams(window.location.search).get('q') ?? String(q);
   }
 
   /**
@@ -94,12 +108,20 @@ export default class GlobalSearchState extends SearchState {
   }
 
   /**
+   * The sort the current page lists discussions in when none is asked for.
+   * It is left out of the URL when chosen.
+   */
+  defaultSort(): string {
+    return Object.keys(app.discussions.sortMap())[0];
+  }
+
+  /**
    * Redirect to the index page using the given sort parameter.
    */
   changeSort(sort: string) {
     const params = this.params();
 
-    if (sort === Object.keys(app.discussions.sortMap())[0]) {
+    if (sort === this.defaultSort()) {
       delete params.sort;
     } else {
       params.sort = sort;

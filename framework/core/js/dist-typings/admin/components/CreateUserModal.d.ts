@@ -2,12 +2,14 @@ import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
+import type User from '../../common/models/User';
 export interface ICreateUserModalAttrs extends IFormModalAttrs {
     username?: string;
     email?: string;
     password?: string;
     token?: string;
     provided?: string[];
+    onCreated?: (user: User) => void;
 }
 export type SignupBody = {
     username: string;

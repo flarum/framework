@@ -2,6 +2,7 @@ import ComposerBody, { IComposerBodyAttrs } from 'flarum/forum/components/Compos
 import Stream from 'flarum/common/utils/Stream';
 import type User from 'flarum/common/models/User';
 import type Mithril from 'mithril';
+import type Group from 'flarum/common/models/Group';
 import DialogMessage from '../../common/models/DialogMessage';
 import type Dialog from '../../common/models/Dialog';
 export interface IMessageComposerAttrs extends IComposerBodyAttrs {
@@ -16,10 +17,18 @@ export interface IMessageComposerAttrs extends IComposerBodyAttrs {
  */
 export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs = IMessageComposerAttrs> extends ComposerBody<CustomAttrs> {
     protected recipients: Stream<User[]>;
+    protected recipientGroups: Stream<Group[]>;
     static focusOnSelector: () => string;
+    /** Recipients shown by avatar before the rest are counted, as a large group's would crowd the composer. */
+    static SHOWN_RECIPIENTS: number;
     static initAttrs(attrs: IMessageComposerAttrs): void;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     headerItems(): import("flarum/common/utils/ItemList").default<Mithril.Children>;
+    /**
+     * Why someone can't be picked as a recipient, if they can't: they couldn't
+     * reply. The server still has the final say when the message is sent.
+     */
+    recipientUnavailable(user: User): Mithril.Children;
     /**
      * Get the data to submit to the server when the discussion is saved.
      */

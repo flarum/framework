@@ -3,8 +3,24 @@ flarum-messages:
   # Translations in this namespace are used by the admin interface.
   admin:
     permissions:
+      message_groups_label: Start conversations with groups
       send_messages_label: Send private messages
+      message_users_without_permission_label: Message users without messaging permission
       delete_own_messages_label: Delete own messages
+      send_without_throttle_label: Send messages without throttling
+      view_ips_label: View IP addresses of messages
+    sections:
+      groups:
+        description: Conversations started with several members at once.
+        label: Group conversations
+
+    settings:
+      recipient_groups_label: Groups that can receive messages
+      recipient_groups_help: Senders with permission to start conversations with groups can select these groups. Only admins have that permission by default. Disabling a group here does not remove it from existing conversations. Anyone who can manage group membership can grant access to the full conversation history.
+      allow_group_names_help: Members who can write in a group conversation can give it a name, which everyone in it sees instead of the list of members. Turning this off hides names already given.
+      allow_group_names_label: Let members name group conversations
+      max_recipients_help: How many members one message can be sent to. More than one starts a group conversation, so 1 turns group conversations off. At most 50.
+      max_recipients_label: Recipients per message
 
   # Translations in this namespace are used by the forum user interface.
   forum:
@@ -18,7 +34,10 @@ flarum-messages:
     dialog_list:
       load_more_button: => core.ref.load_more
       mark_as_read_tooltip: Mark as read
+      group_last_message_preview: "{username}: {content}"
+      own_last_message_preview: "You: {content}"
       title: Messages
+      unread_count_text: "{count} unread"
       view_all: View all messages
 
     dialog_section:
@@ -26,11 +45,15 @@ flarum-messages:
       cannot_reply_text: This user cannot reply
       controls:
         details_button: Details
+        leave_button: Leave conversation
+        rename_button: Rename conversation
       controls_toggle_label: Dialog control actions
       details_modal:
         created_at: Creation date
         recipients: Participants
         title: Conversation details
+      leave_confirmation: Leave this conversation? You won't see it, or be told about new messages in it, again. What you wrote stays for the others.
+      members_button: "{count, plural, one {# member} other {# members}}"
 
     header:
       dropdown_tooltip: Messages
@@ -59,12 +82,28 @@ flarum-messages:
       stream:
         load_previous_button: Load previous messages
         load_next_button: Load next messages
+        name_removed_text: "{username} removed the conversation's name"
+        renamed_text: "{username} named the conversation “{name}”"
         start_of_the_conversation: Start of the conversation
+        user_left_text: "{username} left the conversation"
         time_lapsed_text: => core.forum.post_stream.time_lapsed_text
       title: Messages
 
+    rename_dialog_modal:
+      help_text: Everyone in the conversation sees this name. Leave it empty to show who is in it instead.
+      name_label: Name
+      submit_button: Save
+      title: Rename conversation
+
     recipient_selection_modal:
+      groups_heading: Groups
+      groups_help: Current and future members of these groups can read the whole conversation. Up to 10 groups.
+      cannot_reply_text: Can't reply to messages
       title: Select the recipients of this message
+
+    search_source:
+      conversation_with: "Conversation with {username}"
+      heading: Messages
 
     settings:
       notify_message_received_label: Someone sends me a message
@@ -79,9 +118,10 @@ flarum-messages:
   # Translations in this namespace are used in emails sent by the forum.
   email:
 
-    # These translations are used in emails sent when a user is mentioned
+    # These translations are used in emails sent when a member is sent a message
     message_received:
       subject: "{user_display_name} sent you a message"
+      group_subject: "{user_display_name} sent a message to you and {count, plural, one {# other} other {# others}}"
       plain:
         body: |
           {user_display_name} sent you a new message.
@@ -91,11 +131,54 @@ flarum-messages:
           ---
 
           {content}
+
+          ---
+
+          You won't receive any more emails about this conversation until you've read it.
       html:
-        body: "{user_display_name} sent you a [new message]({url})."
+        body: |
+          {user_display_name} sent you a [new message]({url}).
+
+          You won't receive any more emails about this conversation until you've read it.
 
   # Translations in this namespace are used by the forum and admin interfaces.
   lib:
+    too_many_groups_message: "A message can go to at most {count} groups."
+    groups_unavailable_message: These groups cannot receive messages.
 
     dialog:
+      private_group_title: Private conversation
       title: Messaging {username}
+      group_title: "{names}{others, plural, =0 {} other { +#}}"
+    no_other_members_message: There is no one else in this conversation.
+    recipient_cannot_reply_message: "{username} can't reply to messages."
+    recipient_unavailable_message: "{username} can't receive messages."
+    too_many_recipients_message: "{count, plural, one {A message can only go to one member.} other {A message can go to at most # members.}}"
+
+# Shown by flarum/gdpr when describing what it does with a member's messages.
+flarum-gdpr:
+  lib:
+    data:
+      messages:
+        export_description: Your private messages, with when they were sent and from which address.
+        anonymize_description: The addresses your private messages were sent from are removed. The messages stay.
+        delete_description: Your private messages are deleted.
+
+# Labels for the audit log entries this extension produces, shown by the
+# (optional) flarum/audit browser. Under its namespace, so it resolves them.
+flarum-audit:
+  lib:
+    browser:
+      dialog:
+        started: Started a private conversation with {username}
+        posted: Sent a private message to {username}
+        group_started: Started a private conversation with group {group_id}
+        group_posted: Sent a private message to group {group_id}
+
+# Labels for the statistics this extension adds, shown by the (optional)
+# flarum/statistics widgets. Under its namespace, so it resolves them.
+flarum-statistics:
+  admin:
+    statistics:
+      dialogs_heading: PM started
+      dialog_replies_heading: PM replies

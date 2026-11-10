@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import IndexPage from '../../../../src/forum/components/IndexPage';
 import { app } from '../../../../src/forum';
 import mq from 'mithril-query';
@@ -95,6 +95,18 @@ describe('IndexPage', () => {
       expect(page).toHaveElement('.DiscussionListItem');
       expect(page).toContainRaw('Discussion 1');
       expect(page).toContainRaw('Discussion 2');
+    });
+  });
+
+  test('the toolbar carries a search control', () => {
+    const page = mq(IndexPage, {});
+
+    return new Promise((resolve) => setTimeout(resolve, 0)).then(() => {
+      page.redraw();
+
+      // Mobile searches from the toolbar rather than the nav strip; the control
+      // is present here (its visibility is scoped to phones in CSS).
+      expect(page).toHaveElement('.IndexPage-toolbar-search');
     });
   });
 });

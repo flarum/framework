@@ -23,3 +23,11 @@ module.exports = require('@flarum/jest-config')();
   "files": ["../../../node_modules/@flarum/jest-config/shims.d.ts"]
 }
 ```
+
+## Troubleshooting
+
+### `symbol.charCodeAt is not a function` when a test imports Flarum's source
+
+If Babel fails on a regular expression such as `/[^\p{L}\p{N}]/u` with `TypeError: symbol.charCodeAt is not a function`, your `yarn.lock` holds two copies of `regenerate`. This can happen after upgrading a single package, which keeps the old `regenerate@^1.4.2` entry next to the `regenerate@^1.5.0` that newer Babel releases need.
+
+Delete the `regenerate@^1.4.2` block from `yarn.lock` and run `yarn install`. Both ranges then resolve to one copy.

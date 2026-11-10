@@ -9,16 +9,28 @@
 
 namespace Flarum\Install;
 
+use Flarum\Database\DatabaseRequirements;
 use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Support\Arrayable;
 
 class DatabaseConfig implements Arrayable
 {
+    /**
+     * The PHP extension each supported database driver needs.
+     */
+    public const DRIVER_EXTENSIONS = [
+        'mysql' => 'pdo_mysql',
+        'mariadb' => 'pdo_mysql',
+        'sqlite' => 'pdo_sqlite',
+        'pgsql' => 'pdo_pgsql',
+    ];
+
     public function __construct(
         private readonly string $driver,
         private readonly ?string $host,
         private readonly int $port,
         private string $database,
+        private readonly ?string $schema,
         private readonly ?string $username,
         #[\SensitiveParameter] private readonly ?string $password,
         private readonly ?string $prefix
@@ -42,8 +54,14 @@ class DatabaseConfig implements Arrayable
             throw new ValidationFailed('Please specify a database driver.');
         }
 
-        if (! in_array($this->driver, ['mysql', 'mariadb', 'sqlite', 'pgsql'])) {
+        if (! isset(self::DRIVER_EXTENSIONS[$this->driver])) {
             throw new ValidationFailed('Currently, only MySQL, MariaDB, SQLite and PostgreSQL are supported.');
+        }
+
+        $extension = self::DRIVER_EXTENSIONS[$this->driver];
+
+        if (! extension_loaded($extension)) {
+            throw new ValidationFailed("The PHP extension '$extension' is required to use this database.");
         }
 
         if (empty($this->host) && in_array($this->driver, ['mysql', 'mariadb', 'pgsql'])) {
@@ -58,6 +76,10 @@ class DatabaseConfig implements Arrayable
             throw new ValidationFailed('Please specify the database name.');
         }
 
+        if (empty($this->schema) && $this->driver == 'pgsql') {
+            throw new ValidationFailed('Please specify the schema name.');
+        }
+
         if (empty($this->username) && in_array($this->driver, ['mysql', 'mariadb', 'pgsql'])) {
             throw new ValidationFailed('Please specify the username for accessing the database.');
         }
@@ -67,8 +89,10 @@ class DatabaseConfig implements Arrayable
                 throw new ValidationFailed('The prefix may only contain characters and underscores.');
             }
 
-            if (strlen($this->prefix) > 10) {
-                throw new ValidationFailed('The prefix should be no longer than 10 characters.');
+            $maxPrefix = DatabaseRequirements::maxTablePrefixLength($this->driver);
+
+            if ($maxPrefix !== null && strlen($this->prefix) > $maxPrefix) {
+                throw new ValidationFailed("The prefix should be no longer than $maxPrefix characters on $this->driver.");
             }
         }
     }
@@ -100,7 +124,7 @@ class DatabaseConfig implements Arrayable
                 'username' => $this->username,
                 'password' => $this->password,
                 'charset' => 'utf8',
-                'search_path' => 'public',
+                'search_path' => $this->schema,
                 'sslmode' => 'prefer',
             ],
             'sqlite' => [

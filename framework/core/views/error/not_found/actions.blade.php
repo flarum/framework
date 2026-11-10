@@ -1,0 +1,1 @@
+@include('flarum.forum::error.not_found.default_actions')

@@ -11,7 +11,10 @@ namespace Flarum\PHPStan\Extender;
 
 use Flarum\PHPStan\Extender\MethodCall as ExtenderMethodCall;
 use PhpParser\Node\Arg;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\ArrowFunction;
+use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Stmt\Namespace_;
@@ -21,6 +24,13 @@ use PHPStan\Parser\ParserErrorsException;
 
 class Resolver
 {
+    private const CONDITIONAL_EXTENDER_ARGUMENTS = [
+        'when' => 1,
+        'whenExtensionDisabled' => 1,
+        'whenExtensionEnabled' => 1,
+        'whenSetting' => 2,
+    ];
+
     /** @var Extender[] */
     private $cachedExtenders = [];
     /** @var FilesProvider */
@@ -90,31 +100,83 @@ class Resolver
                 $expression = $statement->expr;
 
                 if ($expression instanceof Array_) {
-                    foreach ($expression->items as $item) {
-                        if ($item->value instanceof MethodCall) {
-                            // Conditional extenders
-                            if ($item->value->name->toString() === 'whenExtensionEnabled') {
-                                $conditionalExtenders = $item->value->args[1] ?? null;
-
-                                if ($conditionalExtenders->value instanceof Array_) {
-                                    foreach ($conditionalExtenders->value->items as $conditionalExtender) {
-                                        if ($conditionalExtender->value instanceof MethodCall) {
-                                            $extenders[] = $this->resolveExtender($conditionalExtender->value);
-                                        }
-                                    }
-                                }
-                            }
-                            // Normal extenders
-                            else {
-                                $extenders[] = $this->resolveExtender($item->value);
-                            }
-                        }
-                    }
+                    $extenders = array_merge($extenders, $this->resolveExtendersFromArray($expression));
                 }
             }
         }
 
         return $extenders;
+    }
+
+    /**
+     * @return Extender[]
+     */
+    private function resolveExtendersFromArray(Array_ $array): array
+    {
+        $extenders = [];
+
+        foreach ($array->items as $item) {
+            if (! $item?->value instanceof MethodCall) {
+                continue;
+            }
+
+            $extender = $this->resolveExtender($item->value);
+
+            if ($extender->isExtender('Conditional')) {
+                $extenders = array_merge($extenders, $this->resolveConditionalExtenders($item->value));
+            } else {
+                $extenders[] = $extender;
+            }
+        }
+
+        return $extenders;
+    }
+
+    /**
+     * @return Extender[]
+     */
+    private function resolveConditionalExtenders(MethodCall $methodCall): array
+    {
+        $extenders = [];
+
+        do {
+            $methodName = $methodCall->name->toString();
+            $argumentIndex = self::CONDITIONAL_EXTENDER_ARGUMENTS[$methodName] ?? null;
+
+            if ($argumentIndex !== null) {
+                $expression = $methodCall->args[$argumentIndex]->value ?? null;
+                $array = $this->resolveConditionalExtenderArray($expression);
+
+                if ($array !== null) {
+                    $extenders = array_merge($extenders, $this->resolveExtendersFromArray($array));
+                }
+            }
+
+            $methodCall = $methodCall->var instanceof MethodCall ? $methodCall->var : null;
+        } while ($methodCall !== null);
+
+        return $extenders;
+    }
+
+    private function resolveConditionalExtenderArray(?Expr $expression): ?Array_
+    {
+        if ($expression instanceof Array_) {
+            return $expression;
+        }
+
+        if ($expression instanceof ArrowFunction) {
+            return $expression->expr instanceof Array_ ? $expression->expr : null;
+        }
+
+        if ($expression instanceof Closure) {
+            foreach ($expression->stmts as $statement) {
+                if ($statement instanceof Return_ && $statement->expr instanceof Array_) {
+                    return $statement->expr;
+                }
+            }
+        }
+
+        return null;
     }
 
     private function resolveExtenderNew(New_ $var, array $methodCalls = []): Extender

@@ -1,4 +1,4 @@
-import bootstrapAdmin from '@flarum/jest-config/src/boostrap/admin';
+import bootstrapAdmin from '@flarum/jest-config/src/bootstrap/admin';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
 import ModalManager from '../../../../src/common/components/ModalManager';

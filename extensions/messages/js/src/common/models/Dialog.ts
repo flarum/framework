@@ -1,5 +1,6 @@
-import Model from 'flarum/common/Model';
+import Model, { type ModelIdentifier } from 'flarum/common/Model';
 import User from 'flarum/common/models/User';
+import type Group from 'flarum/common/models/Group';
 import DialogMessage from './DialogMessage';
 import app from 'flarum/common/app';
 
@@ -9,6 +10,13 @@ export default class Dialog extends Model {
   }
   type() {
     return Model.attribute<string>('type').call(this);
+  }
+  /** What members have named a group, where the forum allows it; the title already uses it. */
+  name() {
+    return Model.attribute<string | null | undefined>('name').call(this);
+  }
+  canRename() {
+    return Model.attribute<boolean | undefined>('canRename').call(this);
   }
   lastMessageAt() {
     return Model.attribute<Date, string>('lastMessageAt', Model.transformDate).call(this);
@@ -20,11 +28,25 @@ export default class Dialog extends Model {
   users() {
     return Model.hasMany<User>('users').call(this);
   }
+  groups() {
+    return Model.hasMany<Group>('groups').call(this);
+  }
   firstMessage() {
     return Model.hasOne<DialogMessage>('firstMessage').call(this);
   }
   lastMessage() {
     return Model.hasOne<DialogMessage>('lastMessage').call(this);
+  }
+
+  /**
+   * The id of this dialog's first or last message, when it has one.
+   *
+   * A dialog can be left without either, for instance when the message one of
+   * them pointed at was deleted, so every caller has to cope with the
+   * relationship being absent rather than reading straight through it.
+   */
+  messageRelationshipId(name: 'firstMessage' | 'lastMessage'): string | undefined {
+    return (this.data.relationships?.[name]?.data as ModelIdentifier | undefined)?.id;
   }
 
   unreadCount() {
@@ -40,9 +62,28 @@ export default class Dialog extends Model {
     return Model.attribute<Date, string>('lastReadAt', Model.transformDate).call(this);
   }
 
+  /** Everyone in it can reply: someone allowed to message users without messaging permission has. */
+  anyoneCanReply() {
+    return Model.attribute<boolean>('anyoneCanReply').call(this);
+  }
+  canSendMessage() {
+    return Model.attribute<boolean>('canSendMessage').call(this);
+  }
+
+  /** Started with several recipients at once. Still a group once members have left, however few remain. */
+  isGroup(): boolean {
+    return this.type() === 'group';
+  }
+
+  /** In a direct conversation, the other member. In a group, the first of them; see recipients(). */
   recipient() {
     let users = this.users();
 
     return !users ? null : users.find((user) => user && user.id() !== app.session.user!.id());
+  }
+
+  /** Every member but the viewer, once the members are known. */
+  recipients(): User[] {
+    return (this.users() || []).filter((user) => user && user.id() !== app.session.user?.id()) as User[];
   }
 }

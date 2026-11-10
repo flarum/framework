@@ -1,6 +1,8 @@
 import Extend from 'flarum/common/extenders';
 import Post from 'flarum/common/models/Post';
 import User from 'flarum/common/models/User';
+import DefaultResolver from 'flarum/common/resolvers/DefaultResolver';
+import UserPageResolver from 'flarum/forum/resolvers/UserPageResolver';
 import MentionsUserPage from './components/MentionsUserPage';
 import PostMentionedNotification from './components/PostMentionedNotification';
 import UserMentionedNotification from './components/UserMentionedNotification';
@@ -12,7 +14,7 @@ export default [
   ...commonExtend,
 
   new Extend.Routes() //
-    .add('user.mentions', '/u/:username/mentions', MentionsUserPage),
+    .add('user.mentions', '/u/:username/mentions', MentionsUserPage, UserPageResolver as typeof DefaultResolver),
 
   new Extend.Model(Post) //
     .hasMany<Post>('mentionedBy')

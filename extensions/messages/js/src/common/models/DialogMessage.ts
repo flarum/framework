@@ -8,6 +8,17 @@ export default class DialogMessage extends Model {
   number() {
     return Model.attribute<number>('number').call(this);
   }
+  /** 'comment' for what a member wrote; otherwise a notice, such as 'userLeft' or 'renamed'. */
+  type() {
+    return Model.attribute<string | undefined>('type').call(this);
+  }
+  /** What a notice says happened. */
+  eventData() {
+    return Model.attribute<Record<string, any> | undefined>('eventData').call(this) || {};
+  }
+  isComment(): boolean {
+    return (this.type() ?? 'comment') === 'comment';
+  }
   content() {
     return Model.attribute<string | null | undefined>('content').call(this);
   }
@@ -28,6 +39,10 @@ export default class DialogMessage extends Model {
   }
   createdAt() {
     return Model.attribute<Date, string>('createdAt', Model.transformDate).call(this);
+  }
+  /** Only present for those allowed to see it. */
+  ipAddress() {
+    return Model.attribute<string | null | undefined>('ipAddress').call(this);
   }
 
   dialog() {

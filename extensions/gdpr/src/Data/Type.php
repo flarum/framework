@@ -57,6 +57,11 @@ abstract class Type implements DataType
         return Str::afterLast(static::class, '\\');
     }
 
+    public static function piiFields(): array
+    {
+        return [];
+    }
+
     public function getDisk(?string $name): Filesystem
     {
         return $this->factory->disk($name);

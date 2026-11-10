@@ -14,7 +14,7 @@ export interface AutocompleteDropdownAttrs extends ComponentAttrs {
  * Must be extended and the `suggestions` method implemented.
  */
 export default abstract class AutocompleteDropdown<
-  CustomAttrs extends AutocompleteDropdownAttrs = AutocompleteDropdownAttrs
+  CustomAttrs extends AutocompleteDropdownAttrs = AutocompleteDropdownAttrs,
 > extends Component<CustomAttrs> {
   /**
    * The index of the currently-selected <li> in the results list. This can be

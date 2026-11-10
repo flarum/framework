@@ -16,11 +16,13 @@ class SaveSubscriptionToDatabase
     public function handle(Saving $event): void
     {
         $discussion = $event->discussion;
-        $data = $event->data;
+        // A request may update only relationships (moving a discussion to
+        // another tag, for example), in which case there are no attributes.
+        $attributes = $event->data['attributes'] ?? [];
 
-        if (array_key_exists('subscription', $data['attributes'])) {
+        if (array_key_exists('subscription', $attributes)) {
             $actor = $event->actor;
-            $subscription = $data['attributes']['subscription'];
+            $subscription = $attributes['subscription'];
 
             $actor->assertRegistered();
 

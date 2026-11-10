@@ -2,13 +2,13 @@ import app from 'flarum/forum/app';
 import Page, { IPageAttrs } from 'flarum/common/components/Page';
 import PageStructure from 'flarum/forum/components/PageStructure';
 import Mithril from 'mithril';
-import Icon from 'flarum/common/components/Icon';
 import DialogList from './DialogList';
 import Dialog from '../../common/models/Dialog';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Stream from 'flarum/common/utils/Stream';
 import InfoTile from 'flarum/common/components/InfoTile';
 import MessagesSidebar from './MessagesSidebar';
+import MessagesPageHero from './MessagesPageHero';
 import DialogSection from './DialogSection';
 import listItems from 'flarum/common/helpers/listItems';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -21,31 +21,33 @@ export interface IMessagesPageAttrs extends IPageAttrs {}
 export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMessagesPageAttrs> extends Page<CustomAttrs> {
   protected selectedDialog = Stream<Dialog | null>(null);
   protected currentDialogId: string | null = null;
+  protected loadingDialog = false;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     if (!app.session.user) {
-      m.route.set(app.route('index'));
+      // Staying on this address, so the reload after logging in opens it.
+      setTimeout(() => app.modal.show(() => import('flarum/forum/components/LogInModal')), 0);
       return;
     }
 
     app.current.set('noTagsList', true);
 
-    if (!app.dialogs.hasItems()) {
-      app.dialogs.refresh().then(async () => {
-        if (app.dialogs.hasItems()) {
-          await this.initDialog();
-        }
-      });
-    } else {
+    if (app.dialogs.hasItems()) {
       this.initDialog();
+    } else {
+      // The list failing is no reason not to open a conversation the address names.
+      app.dialogs
+        .refresh()
+        .catch(() => {})
+        .then(() => this.initDialog());
     }
   }
 
   dialogRequestParams() {
     return {
-      include: 'users.groups',
+      include: 'users.groups,groups',
     };
   }
 
@@ -55,13 +57,32 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
 
     const title = app.translator.trans('flarum-messages.forum.messages_page.title', {}, true);
 
-    let dialog: Dialog | null;
+    let dialog: Dialog | null = null;
 
     if (dialogId) {
-      dialog =
-        app.store.getById<Dialog>('dialogs', dialogId) || ((await app.store.find<Dialog>('dialogs', dialogId, this.dialogRequestParams())) as Dialog);
-    } else {
-      dialog = app.dialogs.getAllItems()[0];
+      dialog = app.store.getById<Dialog>('dialogs', dialogId) || null;
+
+      // Not seen yet, or seen only through a message, without its participants.
+      if (!dialog?.users()) {
+        this.loadingDialog = true;
+        m.redraw();
+
+        try {
+          dialog = await app.store.find<Dialog>('dialogs', dialogId, this.dialogRequestParams());
+        } catch {
+          // Gone, or not theirs; the request's own alert says which. Back to the list.
+          this.loadingDialog = false;
+          m.route.set(app.route('messages'));
+
+          return;
+        }
+
+        this.loadingDialog = false;
+      }
+    } else if (app.screen() !== 'phone') {
+      // A phone shows the list on its own. Opening the first conversation
+      // behind it would mark it read without it ever being seen.
+      dialog = app.dialogs.getAllItems()[0] || null;
     }
 
     this.selectedDialog(dialog);
@@ -82,19 +103,23 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
 
     // Scroll the dialog list to the active dialog item if present and not visible.
     const dialogElement = this.element.querySelector('.DialogListItem.active');
-    const container = this.element.querySelector('.DialogList')!;
+    const container = this.element.querySelector('.DialogList');
 
-    if (dialogElement && $(container).offset()!.top + container.clientHeight <= $(dialogElement).offset()!.top) {
+    if (dialogElement && container && $(container).offset()!.top + container.clientHeight <= $(dialogElement).offset()!.top) {
       dialogElement.scrollIntoView();
     }
   }
 
   view() {
+    if (!app.session.user) {
+      return <div className="MessagesPage" />;
+    }
+
     return (
       <PageStructure className="MessagesPage Page--vertical" loading={false} hero={this.hero.bind(this)} sidebar={() => <MessagesSidebar />}>
-        {app.dialogs.isLoading() ? (
+        {app.dialogs.isInitialLoading() ? (
           <LoadingIndicator />
-        ) : !app.dialogs.hasItems() ? (
+        ) : !app.dialogs.hasItems() && !this.selectedDialog() && !this.loadingDialog ? (
           <InfoTile icon="far fa-envelope-open">{app.translator.trans('flarum-messages.forum.messages_page.empty_text')}</InfoTile>
         ) : (
           <div
@@ -110,18 +135,7 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
   }
 
   hero(): Mithril.Children {
-    return (
-      <header className="Hero MessagesPageHero">
-        <div className="container">
-          <div className="containerNarrow">
-            <h1 className="Hero-title">
-              <Icon name="fas fa-envelope" /> {app.translator.trans('flarum-messages.forum.messages_page.hero.title')}
-            </h1>
-            <div className="Hero-subtitle">{app.translator.trans('flarum-messages.forum.messages_page.hero.subtitle')}</div>
-          </div>
-        </div>
-      </header>
-    );
+    return <MessagesPageHero />;
   }
 
   contentItems() {
@@ -139,21 +153,26 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
       100
     );
 
-    items.add(
-      'dialog',
-      this.selectedDialog() ? (
+    const dialog = this.selectedDialog();
+
+    // Added only when there is something to show: a hole beside the keyed list
+    // makes Mithril throw, and every redraw of the page with it.
+    if (dialog) {
+      items.add(
+        'dialog',
         <DialogSection
           key="dialog"
-          dialog={this.selectedDialog()}
+          dialog={dialog}
           onback={() => {
-            this.currentDialogId = null;
+            // A route change, so the browser's own back button agrees with ours.
+            m.route.set(app.route('messages'));
           }}
-        />
-      ) : (
-        <LoadingIndicator key="loading" display="block" />
-      ),
-      80
-    );
+        />,
+        80
+      );
+    } else if (this.loadingDialog) {
+      items.add('dialog', <LoadingIndicator key="loading" display="block" />, 80);
+    }
 
     return items;
   }

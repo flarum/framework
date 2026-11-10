@@ -38,6 +38,13 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
   mainItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
+    items.add(
+      'skipToMainContent',
+      <a href="#main-content" className="sr-only sr-only-focusable-custom" oncreate={() => prepareSkipLinks()}>
+        {app.translator.trans('core.forum.index.skip_to_main_content')}
+      </a>,
+      200
+    );
     items.add('hero', this.providedHero(), 100);
     items.add('container', this.container(), 10);
 
@@ -75,14 +82,6 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
 
   sidebarItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
-
-    items.add(
-      'skipToMainContent',
-      <a href="#main-content" className="sr-only sr-only-focusable-custom" oncreate={() => prepareSkipLinks()}>
-        {app.translator.trans('core.forum.index.skip_to_main_content')}
-      </a>,
-      200
-    );
 
     items.add('sidebar', (this.attrs.sidebar && this.attrs.sidebar()) || null, 100);
 

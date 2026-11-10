@@ -16,4 +16,4 @@ export default class ConfirmDocumentUnload extends Component<import("../Componen
     onremove(vnode: any): void;
     view(vnode: any): JSX.Element;
 }
-import Component from "../Component";
+import Component from '../Component';

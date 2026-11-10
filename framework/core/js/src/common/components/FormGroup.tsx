@@ -5,6 +5,7 @@ import Select from './Select';
 import UploadImageButton from './UploadImageButton';
 import classList from '../utils/classList';
 import ColorPreviewInput from './ColorPreviewInput';
+import IconInput from './IconInput';
 import Stream from '../utils/Stream';
 import ItemList from '../utils/ItemList';
 import type { IUploadImageButtonAttrs } from './UploadImageButton';
@@ -67,6 +68,7 @@ const SelectSettingTypes = ['select', 'dropdown', 'selectdropdown'] as const;
 const RadioSettingTypes = ['radio'] as const;
 const TextareaSettingTypes = ['textarea'] as const;
 const ColorPreviewSettingType = 'color-preview' as const;
+const IconSettingType = 'icon' as const;
 const ImageUploadSettingType = 'image-upload' as const;
 const StackedFormControlType = 'stacked-text' as const;
 
@@ -111,6 +113,14 @@ export interface ColorPreviewFieldComponentOptions extends CommonFieldOptions {
   type: typeof ColorPreviewSettingType;
 }
 
+/**
+ * Valid options for the setting component builder to generate an IconInput:
+ * a Font Awesome class field with an icon picker.
+ */
+export interface IconFieldComponentOptions extends CommonFieldOptions {
+  type: typeof IconSettingType;
+}
+
 export interface ImageUploadFieldComponentOptions extends CommonFieldOptions, IUploadImageButtonAttrs {
   type: typeof ImageUploadSettingType;
 }
@@ -137,6 +147,7 @@ export type FieldComponentOptions =
   | SelectFieldComponentOptions
   | TextareaFieldComponentOptions
   | ColorPreviewFieldComponentOptions
+  | IconFieldComponentOptions
   | ImageUploadFieldComponentOptions
   | StackedFormControlFieldComponentOptions
   | CustomFieldComponentOptions;
@@ -176,31 +187,43 @@ export type IFormGroupAttrs = ComponentAttrs &
  *            default="option1" />
  */
 export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupAttrs> extends Component<CustomAttrs> {
+  protected readonly inputId = generateElementId();
+  protected readonly helpTextId = generateElementId();
+
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     const customFieldComponents = this.customFieldComponents();
 
-    const { help, type, label, stream, getSetting, containerClassName, ...componentAttrs } = this.attrs;
+    const { key, help, type, label, stream, getSetting, containerClassName, ...componentAttrs } = this.attrs;
 
     // TypeScript being TypeScript
-    const attrs = componentAttrs as unknown as Omit<IFormGroupAttrs, 'stream' | 'label' | 'help' | 'type'>;
+    const attrs = componentAttrs as unknown as Omit<IFormGroupAttrs, 'key' | 'stream' | 'label' | 'help' | 'type'>;
 
     const value = stream ? stream() : null;
 
-    const [inputId, helpTextId] = [generateElementId(), generateElementId()];
+    const { inputId, helpTextId } = this;
 
     let settingElement: Mithril.Children;
 
     // Typescript being Typescript
     // https://github.com/microsoft/TypeScript/issues/14520
     if ((BooleanSettingTypes as readonly string[]).includes(type)) {
+      const switchHelpTextId = help ? helpTextId : undefined;
+
       return (
-        // TODO: Add aria-describedby for switch help text.
-        //? Requires changes to Checkbox component to allow providing attrs directly for the element(s).
         <div className={classList('Form-group', containerClassName)}>
-          <Switch state={!!value && value !== '0'} onchange={stream} {...attrs}>
+          <Switch
+            state={!!value && value !== '0'}
+            onchange={stream}
+            inputAttrs={switchHelpTextId ? { 'aria-describedby': switchHelpTextId } : undefined}
+            {...attrs}
+          >
             {label}
           </Switch>
-          {help ? <div className="helpText">{help}</div> : null}
+          {help ? (
+            <div id={switchHelpTextId} className="helpText">
+              {help}
+            </div>
+          ) : null}
         </div>
       );
     } else if ((SelectSettingTypes as readonly string[]).includes(type)) {
@@ -212,13 +235,13 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
         <Tag id={inputId} aria-describedby={helpTextId} value={value ?? defaultValue} options={options} onchange={stream} {...otherAttrs} />
       );
     } else if ((RadioSettingTypes as readonly string[]).includes(type)) {
-      const { default: defaultValue, options, multiple, ...otherAttrs } = attrs;
+      const { default: defaultValue, options, multiple, name, ...otherAttrs } = attrs;
 
       settingElement = (
         <FieldSet {...otherAttrs}>
           {options.map(({ value, label }: { value: string; label: string }) => (
             <label className="checkbox">
-              <input type="radio" name="homePage" value={value} bidi={stream} />
+              <input type="radio" name={name || inputId} value={value} bidi={stream} />
               {label}
             </label>
           ))}
@@ -245,6 +268,8 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
 
       if ((TextareaSettingTypes as readonly string[]).includes(type)) {
         settingElement = <textarea id={inputId} aria-describedby={helpTextId} bidi={stream} {...attrs} />;
+      } else if (type === IconSettingType) {
+        settingElement = <IconInput id={inputId} aria-describedby={helpTextId} bidi={stream} {...attrs} />;
       } else {
         let Tag: VnodeElementTag | typeof ColorPreviewInput = 'input';
 

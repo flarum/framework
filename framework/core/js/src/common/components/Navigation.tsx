@@ -4,12 +4,14 @@ import Button from './Button';
 import LinkButton from './LinkButton';
 import type Mithril from 'mithril';
 import classList from '../utils/classList';
+import ItemList from '../utils/ItemList';
 
 /**
- * The `Navigation` component displays a set of navigation buttons. Typically
- * this is just a back button which pops the app's History. If the user is on
- * the root page and there is no history to pop, then in some instances it may
- * show a button that toggles the app's drawer.
+ * The `Navigation` component displays a set of navigation buttons. In `drawer`
+ * mode — the fixed control strip at the top of the mobile layout — the drawer
+ * toggle is always present, so the menu and the notification badge it carries
+ * stay reachable on every page; the back button joins it only when there is
+ * history to pop. Elsewhere (the desktop header) it is the back button alone.
  *
  * If the app has a pane, it will also include a 'pin' button which toggles the
  * pinned state of the pane.
@@ -17,12 +19,11 @@ import classList from '../utils/classList';
  * Accepts the following attrs:
  *
  * - `className` The name of a class to set on the root element.
- * - `drawer` Whether or not to show a button to toggle the app's drawer if
- *   there is no more history to pop.
+ * - `drawer` Whether or not to show a button to toggle the app's drawer.
  */
 export default class Navigation extends Component {
   view() {
-    const { history, pane } = app;
+    const { pane } = app;
 
     return (
       <div
@@ -30,9 +31,33 @@ export default class Navigation extends Component {
         onmouseenter={pane && pane.show.bind(pane)}
         onmouseleave={pane && pane.onmouseleave.bind(pane)}
       >
-        {history?.canGoBack() ? [this.getBackButton(), this.getPaneButton()] : this.getDrawerButton()}
+        {this.items().toArray()}
       </div>
     );
+  }
+
+  /**
+   * The controls shown in the navigation, as an ItemList so that other parts of
+   * the app — and extensions — can contribute their own.
+   */
+  items(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    if (this.attrs.drawer) {
+      items.add('drawer', this.getDrawerButton(), 100);
+    }
+
+    if (app.history?.canGoBack()) {
+      items.add('back', this.getBackButton(), 90);
+
+      const paneButton = this.getPaneButton();
+
+      if (paneButton) {
+        items.add('pane', paneButton, 80);
+      }
+    }
+
+    return items;
   }
 
   /**
@@ -70,6 +95,17 @@ export default class Navigation extends Component {
         className={classList('Button Button--icon Navigation-pin', { active: pane.pinned })}
         onclick={pane.togglePinned.bind(pane)}
         icon="fas fa-thumbtack"
+        // The label names the control and stays put; `aria-pressed` carries
+        // whether it is currently on. Swapping the label for the action instead
+        // ("Pin"/"Unpin") would leave a screen reader reading a button whose
+        // name changes under it, with the state only ever implied.
+        //
+        // Stringified deliberately: Mithril treats a boolean as an HTML boolean
+        // attribute, so `false` omits it altogether and `true` renders it empty.
+        // ARIA needs the words, and an absent `aria-pressed` makes this read as
+        // a plain button rather than a toggle that happens to be off.
+        aria-label={app.translator.trans('core.lib.nav.pin_pane_button')}
+        aria-pressed={pane.pinned ? 'true' : 'false'}
       />
     );
   }

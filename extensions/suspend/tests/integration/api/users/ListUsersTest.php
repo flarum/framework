@@ -38,15 +38,12 @@ class ListUsersTest extends TestCase
         ]);
     }
 
+    #[Test]
     public function can_view_default_users_list()
     {
         $response = $this->send(
             $this->request('GET', '/api/users', [
                 'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'filter' => [
-                    'suspended' => true,
-                ],
             ])
         );
 

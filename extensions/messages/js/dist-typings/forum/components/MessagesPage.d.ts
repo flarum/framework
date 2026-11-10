@@ -8,6 +8,7 @@ export interface IMessagesPageAttrs extends IPageAttrs {
 export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMessagesPageAttrs> extends Page<CustomAttrs> {
     protected selectedDialog: Stream<Dialog | null>;
     protected currentDialogId: string | null;
+    protected loadingDialog: boolean;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     dialogRequestParams(): {
         include: string;

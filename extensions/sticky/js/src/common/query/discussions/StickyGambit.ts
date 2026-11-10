@@ -6,6 +6,10 @@ export default class StickyGambit extends BooleanGambit {
     return app.translator.trans('flarum-sticky.lib.gambits.discussions.sticky.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'sticky';
+  }
+
   filterKey(): string {
     return 'sticky';
   }

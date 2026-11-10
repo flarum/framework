@@ -16,6 +16,7 @@ use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Event\Enabling;
 use Flarum\Extension\Event\Uninstalled;
 use Flarum\Extension\Exception\CircularDependenciesException;
+use Flarum\Extension\Exception\UnreadableManifestException;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -30,6 +31,9 @@ use Illuminate\Support\Collection;
 
 class ExtensionManager
 {
+    /**
+     * @var Collection<string, Extension>|null
+     */
     protected ?Collection $extensions = null;
 
     public function __construct(
@@ -43,16 +47,34 @@ class ExtensionManager
     ) {
     }
 
+    /**
+     * @return Collection<string, Extension>
+     */
     public function getExtensions(): Collection
     {
-        if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
+        if (is_null($this->extensions)) {
+            $manifest = $this->paths->vendor.'/composer/installed.json';
+
+            if (! $this->filesystem->exists($manifest)) {
+                throw UnreadableManifestException::missing($manifest);
+            }
+
+            /** @var Collection<string, Extension> $extensions */
             $extensions = new Collection();
 
             // Load all packages installed by composer.
-            $installed = json_decode($this->filesystem->get($this->paths->vendor.'/composer/installed.json'), true);
+            $installed = json_decode($this->filesystem->get($manifest), true);
+
+            if (! is_array($installed)) {
+                throw UnreadableManifestException::unparsable($manifest);
+            }
 
             // Composer 2.0 changes the structure of the installed.json manifest
             $installed = $installed['packages'] ?? $installed;
+
+            if (! is_array($installed)) {
+                throw UnreadableManifestException::unparsable($manifest);
+            }
 
             // We calculate and store a set of composer package names for all installed Flarum extensions,
             // so we know what is and isn't a flarum extension in `calculateDependencies`.
@@ -71,7 +93,7 @@ class ExtensionManager
                     ? $this->paths->vendor.'/composer/'.$package['install-path']
                     : $this->paths->vendor.'/'.$name;
 
-                if (Arr::get($package, 'type') === 'flarum-extension') {
+                if (Arr::get($package, 'type') === 'flarum-extension' && str_contains($name, '/')) {
                     $composerJsonConfs[$packagePath] = $package;
                 }
 
@@ -111,6 +133,24 @@ class ExtensionManager
         }
 
         return $this->extensions;
+    }
+
+    /**
+     * Returns a flat list of all installed composer package names (including non-extension packages).
+     * Useful for checking whether a suggested package is already installed.
+     *
+     * @return string[]
+     */
+    public function getInstalledPackageNames(): array
+    {
+        if (! $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
+            return [];
+        }
+
+        $installed = json_decode($this->filesystem->get($this->paths->vendor.'/composer/installed.json'), true);
+        $installed = $installed['packages'] ?? $installed;
+
+        return array_values(array_filter(array_column($installed, 'name')));
     }
 
     public function getExtensionsById(array $ids): Collection
@@ -331,6 +371,18 @@ class ExtensionManager
     }
 
     /**
+     * Re-sort and persist the enabled extension order based on current composer.json dependency
+     * declarations. Call this after a composer update so that any new or changed
+     * optional-dependencies are reflected without requiring a manual enable/disable cycle.
+     *
+     * @throws CircularDependenciesException
+     */
+    public function syncExtensionOrder(): void
+    {
+        $this->setEnabledExtensions($this->getEnabledExtensions());
+    }
+
+    /**
      * Persist the currently enabled extensions.
      *
      * @param Extension[] $enabledExtensions
@@ -392,7 +444,7 @@ class ExtensionManager
      * @return array{valid: Extension[], missingDependencies: array<string, string[]>, circularDependencies: string[]}
      *      'valid' points to an ordered array of \Flarum\Extension\Extension
      *      'missingDependencies' points to an associative array of extensions that could not be resolved due
-     *          to missing dependencies, in the format extension id => array of missing dependency IDs.
+     *          to missing dependencies, in the format extension id => array of missing or rejected required dependency IDs.
      *      'circularDependencies' points to an array of extensions ids of extensions
      *          that cannot be processed due to circular dependencies
      *
@@ -400,7 +452,7 @@ class ExtensionManager
      */
     public static function resolveExtensionOrder(array $extensionList): array
     {
-        $extensionIdMapping = []; // Used for caching so we don't rerun ->getExtensions every time.
+        $extensionIdMapping = [];
 
         // This is an implementation of Kahn's Algorithm (https://dl.acm.org/doi/10.1145/368996.369025)
         $extensionGraph = [];
@@ -420,8 +472,32 @@ class ExtensionManager
             $extensionIdMapping[$extension->getId()] = $extension;
         }
 
+        // Remove invalid extensions before sorting, including their required dependents.
+        do {
+            $previousCount = count($extensionIdMapping);
+
+            foreach ($extensionIdMapping as $id => $extension) {
+                foreach ($extension->getExtensionDependencyIds() as $dependency) {
+                    if (! array_key_exists($dependency, $extensionIdMapping)) {
+                        unset($extensionIdMapping[$id]);
+                        break;
+                    }
+                }
+            }
+        } while (count($extensionIdMapping) !== $previousCount);
+
         /** @var Extension $extension */
         foreach ($extensionList as $extension) {
+            foreach ($extension->getExtensionDependencyIds() as $dependency) {
+                if (! array_key_exists($dependency, $extensionIdMapping)) {
+                    $missingDependencies[$extension->getId()][] = $dependency;
+                }
+            }
+
+            if (array_key_exists($extension->getId(), $missingDependencies)) {
+                continue;
+            }
+
             $optionalDependencies = array_filter($extension->getOptionalDependencyIds(), function ($id) use ($extensionIdMapping) {
                 return array_key_exists($id, $extensionIdMapping);
             });
@@ -432,7 +508,7 @@ class ExtensionManager
             }
         }
 
-        foreach ($extensionList as $extension) {
+        foreach ($extensionIdMapping as $extension) {
             if (! array_key_exists($extension->getId(), $inDegreeCount)) {
                 $inDegreeCount[$extension->getId()] = 0;
                 $pendingQueue[] = $extension->getId();
@@ -447,26 +523,14 @@ class ExtensionManager
                 $inDegreeCount[$dependency] -= 1;
 
                 if ($inDegreeCount[$dependency] === 0) {
-                    if (! array_key_exists($dependency, $extensionGraph)) {
-                        // Missing Dependency
-                        $missingDependencies[$activeNode] = array_merge(
-                            Arr::get($missingDependencies, $activeNode, []),
-                            [$dependency]
-                        );
-                    } else {
-                        $pendingQueue[] = $dependency;
-                    }
+                    $pendingQueue[] = $dependency;
                 }
             }
         }
 
-        $validOutput = array_filter($output, function ($extension) use ($missingDependencies) {
-            return ! array_key_exists($extension, $missingDependencies);
-        });
-
         $validExtensions = array_reverse(array_map(function ($extensionId) use ($extensionIdMapping) {
             return $extensionIdMapping[$extensionId];
-        }, $validOutput)); // Reversed as required by Kahn's algorithm.
+        }, $output)); // Reversed as required by Kahn's algorithm.
 
         foreach ($inDegreeCount as $id => $count) {
             if ($count !== 0) {
@@ -490,21 +554,31 @@ class ExtensionManager
         $extension->setInstalled(true);
         $extension->setVersion(Arr::get($package, 'version', '0.0'));
 
-        // Set abandoned status if the package is marked as abandoned in composer
-        // The abandoned field can be either true (no replacement) or a string (replacement package name)
-        $abandoned = Arr::get($package, 'abandoned');
-        if (is_string($abandoned) && ! empty($abandoned)) {
-            // Always set abandoned status if a replacement package is specified
-            $extension->setAbandoned($abandoned);
-        } elseif ($abandoned === true) {
-            // If abandoned is just true (no replacement), check the package source
-            // Packages from flarum.org/composer may have unreliable abandoned flags
-            $distUrl = Arr::get($package, 'dist.url', '');
-            $isFromFlarumComposer = str_contains($distUrl, 'flarum.org/composer');
+        $packageName = Arr::get($package, 'name');
 
-            // Only set abandoned if NOT from flarum.org/composer
-            if (! $isFromFlarumComposer) {
+        // The flarum/abandoned-extensions list takes precedence over composer's abandoned field,
+        // allowing us to flag extensions that haven't been marked on Packagist.
+        $abandonedMap = AbandonedExtensionsFetcher::getCachedMap($this->config);
+        if (isset($abandonedMap[$packageName])) {
+            $replacement = Arr::get($abandonedMap[$packageName], 'replacement', true);
+            $extension->setAbandoned($replacement);
+        } else {
+            // Set abandoned status if the package is marked as abandoned in composer.
+            // The abandoned field can be either true (no replacement) or a string (replacement package name).
+            $abandoned = Arr::get($package, 'abandoned');
+            if (is_string($abandoned) && ! empty($abandoned)) {
+                // Always set abandoned status if a replacement package is specified.
                 $extension->setAbandoned($abandoned);
+            } elseif ($abandoned === true) {
+                // If abandoned is just true (no replacement), check the package source.
+                // Packages from flarum.org/composer may have unreliable abandoned flags.
+                $distUrl = Arr::get($package, 'dist.url', '');
+                $isFromFlarumComposer = str_contains($distUrl, 'flarum.org/composer');
+
+                // Only set abandoned if NOT from flarum.org/composer.
+                if (! $isFromFlarumComposer) {
+                    $extension->setAbandoned($abandoned);
+                }
             }
         }
 
@@ -523,7 +597,7 @@ class ExtensionManager
             $subPackagePath = "$packagePath/$subExtPath";
             $conf = json_decode($this->filesystem->get("$subPackagePath/composer.json"), true);
 
-            if (Arr::get($conf, 'type') === 'flarum-extension') {
+            if (Arr::get($conf, 'type') === 'flarum-extension' && str_contains((string) Arr::get($conf, 'name', ''), '/')) {
                 $subExtConfs[$subPackagePath] = $conf;
             }
         }

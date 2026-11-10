@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import Link from '../../../../src/common/components/Link';
 import LinkButton from '../../../../src/common/components/LinkButton';
 import m from 'mithril';

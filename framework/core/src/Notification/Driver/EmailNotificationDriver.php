@@ -12,14 +12,17 @@ namespace Flarum\Notification\Driver;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Job\SendEmailNotificationJob;
 use Flarum\Notification\MailableInterface;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Queue\Queue;
 use ReflectionClass;
 
 readonly class EmailNotificationDriver implements NotificationDriverInterface
 {
     public function __construct(
-        private Queue $queue
+        private Container $container,
+        private SettingsRepositoryInterface $settings,
     ) {
     }
 
@@ -37,9 +40,24 @@ readonly class EmailNotificationDriver implements NotificationDriverInterface
      */
     protected function mailNotifications(MailableInterface&BlueprintInterface $blueprint, array $recipients): void
     {
+        // Resolve the queue connection at push time, not construction time. This
+        // driver is built at boot by NotificationServiceProvider; the RoutingQueue
+        // wrapper that places jobs onto their registered queue is applied later
+        // (QueueServiceProvider::boot). Capturing the connection in the constructor
+        // would grab the unwrapped driver and bypass routing, so mail jobs would
+        // fall through to the `default` queue instead of `mail`.
+        /** @var Queue $queue */
+        $queue = $this->container->make(Queue::class);
+
+        $suppressBounced = (bool) $this->settings->get('mail_suppress_bounced');
+
         foreach ($recipients as $user) {
+            if ($suppressBounced && $user->hasBouncedEmail()) {
+                continue;
+            }
+
             if ($user->shouldEmail($blueprint::getType())) {
-                $this->queue->push(new SendEmailNotificationJob($blueprint, $user));
+                $queue->push(new SendEmailNotificationJob($blueprint, $user));
             }
         }
     }

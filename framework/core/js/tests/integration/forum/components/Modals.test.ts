@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import mq from 'mithril-query';
 import { app } from '../../../../src/forum';
 import ModalManager from '../../../../src/common/components/ModalManager';

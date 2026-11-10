@@ -19,10 +19,13 @@ export default function addStickyControl() {
   DiscussionControls.stickyAction = function () {
     this.save({ isSticky: !this.isSticky() }).then(() => {
       if (app.current.matches(DiscussionPage)) {
-        app.current.get('stream').update();
+        app.current
+          .get('stream')
+          .update()
+          .then(() => m.redraw());
+      } else {
+        m.redraw();
       }
-
-      m.redraw();
     });
   };
 }

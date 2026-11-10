@@ -33,3 +33,70 @@
 .IndexPage-toolbar-action {
   margin-inline-start: auto;
 }
+// On phones the toolbar can carry more than fits one row (sort, an author or
+// other filter, search, mark-as-read). Let it wrap instead of clipping, and let
+// the view group's own controls wrap too so a wide filter doesn't force it.
+@media @phone {
+  .IndexPage-toolbar {
+    flex-wrap: wrap;
+  }
+  .IndexPage-toolbar-view {
+    flex-wrap: wrap;
+  }
+}
+// Search sits in the header prompt on wider screens, so the toolbar copy is
+// only for phones, where that prompt isn't shown. There it is an icon button,
+// matching the other toolbar actions and leaving room for the sort/filter
+// controls beside it.
+.IndexPage-toolbar-search {
+  display: none;
+
+  @media @phone {
+    display: block;
+
+    // GlobalSearch renders a flat, full-width, pill-shaped prompt. Idle, the
+    // toolbar copy should read as an icon button matching the sort/action
+    // controls beside it — same fill and the standard corner radius, not a pill.
+    .Search-input {
+      .Button--icon();
+      background: var(--button-bg);
+      border-radius: var(--border-radius);
+    }
+
+    // Active, it mirrors the desktop header state: the running query is shown
+    // (truncated) with a clear button, and the control takes the primary accent
+    // to signal that results are filtered — the body-side equivalent of the
+    // accent the header search picks up from its own colour when active.
+    .Search--active {
+      display: flex;
+
+      .Search-input {
+        width: auto;
+        max-width: 160px;
+        padding: 8px 13px;
+        color: var(--link-color);
+
+        .Button-icon {
+          color: var(--link-color);
+        }
+
+        .Button-label {
+          display: flex;
+          overflow: hidden;
+        }
+
+        .Button-labelText {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .Search-clear {
+        display: flex;
+        color: var(--link-color);
+        background: var(--button-bg);
+        border-radius: var(--border-radius);
+      }
+    }
+  }
+}

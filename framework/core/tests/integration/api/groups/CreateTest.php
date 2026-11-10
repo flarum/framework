@@ -9,10 +9,13 @@
 
 namespace Flarum\Tests\integration\api\groups;
 
+use Flarum\Group\Event\Created;
+use Flarum\Group\Event\Renamed;
 use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -107,5 +110,33 @@ class CreateTest extends TestCase
         );
 
         $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function creating_group_dispatches_created_but_not_renamed()
+    {
+        $events = [];
+
+        $this->app()->getContainer()->make(Dispatcher::class)->listen([Created::class, Renamed::class], function (object $event) use (&$events) {
+            $events[] = $event::class;
+        });
+
+        $response = $this->send(
+            $this->request('POST', '/api/groups', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'groups',
+                        'attributes' => [
+                            'nameSingular' => 'flarumite',
+                            'namePlural' => 'flarumites',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertEquals([Created::class], $events);
     }
 }

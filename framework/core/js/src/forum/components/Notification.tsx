@@ -17,7 +17,7 @@ export interface INotificationAttrs extends ComponentAttrs {
  * Subclasses should implement the `icon`, `href`, and `content` methods.
  */
 export default abstract class Notification<CustomAttrs extends INotificationAttrs = INotificationAttrs> extends Component<CustomAttrs> {
-  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
+  view(_vnode: Mithril.Vnode<CustomAttrs, this>) {
     const notification = this.attrs.notification;
     const href = this.href() ?? '';
     const fromUser = notification.fromUser();
@@ -87,7 +87,7 @@ export default abstract class Notification<CustomAttrs extends INotificationAttr
   markAsRead() {
     if (this.attrs.notification.isRead()) return;
 
-    app.session.user?.pushAttributes({ unreadNotificationCount: (app.session.user.unreadNotificationCount() ?? 1) - 1 });
+    app.session.user?.pushAttributes({ unreadNotificationCount: Math.max(0, (app.session.user.unreadNotificationCount() ?? 0) - 1) });
 
     this.attrs.notification.save({ isRead: true });
   }

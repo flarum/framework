@@ -26,12 +26,27 @@ export default class User extends Model {
     return Model.attribute<boolean | undefined>('isEmailConfirmed').call(this);
   }
 
+  emailBouncedAt() {
+    return Model.attribute('emailBouncedAt', Model.transformDate).call(this) as Date | null | undefined;
+  }
+  emailBounceReason() {
+    return Model.attribute<string | null | undefined>('emailBounceReason').call(this);
+  }
+
   password() {
     return Model.attribute<string | undefined>('password').call(this);
   }
 
+  hasUploadedAvatar() {
+    return Model.attribute<boolean>('hasUploadedAvatar').call(this);
+  }
+
   avatarUrl() {
     return Model.attribute<string | null>('avatarUrl').call(this);
+  }
+
+  avatarSrcset() {
+    return Model.attribute<string | null>('avatarSrcset').call(this);
   }
 
   preferences() {
@@ -74,6 +89,9 @@ export default class User extends Model {
 
   canEdit() {
     return Model.attribute<boolean | undefined>('canEdit').call(this);
+  }
+  canEditAvatar() {
+    return Model.attribute<boolean | undefined>('canEditAvatar').call(this);
   }
   canEditCredentials() {
     return Model.attribute<boolean | undefined>('canEditCredentials').call(this);

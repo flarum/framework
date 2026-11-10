@@ -15,7 +15,6 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\AbstractResource;
 use Flarum\Foundation\ValidationException;
 use Flarum\Gdpr\Jobs\ErasureJob;
-use Flarum\Gdpr\Jobs\GdprJob;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
@@ -79,9 +78,6 @@ class UserResourceDeleteEndpoint
 
         ErasureRequest::reguard();
 
-        $this->queue->push(
-            job: new ErasureJob($erasureRequest),
-            queue: GdprJob::$onQueue
-        );
+        $this->queue->push(new ErasureJob($erasureRequest));
     }
 }

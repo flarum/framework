@@ -88,6 +88,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             return [
                 HttpMiddleware\InjectActorReference::class,
                 'flarum.api.error_handler',
+                Middleware\AddAssetsRevisionHeader::class,
                 HttpMiddleware\ParseJsonBody::class,
                 Middleware\FakeHttpMethods::class,
                 HttpMiddleware\StartSession::class,
@@ -99,6 +100,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 'flarum.api.check_for_maintenance',
                 HttpMiddleware\CheckCsrfToken::class,
                 Middleware\ThrottleApi::class,
+                Middleware\RecordFailedLogins::class,
                 HttpMiddleware\PopulateWithActor::class,
             ];
         });
@@ -149,6 +151,10 @@ class ApiServiceProvider extends AbstractServiceProvider
                 'flarum.api.check_for_maintenance',
                 HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\RememberFromCookie::class,
+                // The header is for browser tabs. Rebuilding dirty assets here
+                // would do it inside a long-running queue worker, from the
+                // sources it booted with (see RecompileFrontendAssets::markDirty()).
+                Middleware\AddAssetsRevisionHeader::class,
             ];
         });
 

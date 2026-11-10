@@ -16,9 +16,7 @@ use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\Event\LoggedOut;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
-use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Diactoros\Response\RedirectResponse;
 use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface;
@@ -31,7 +29,6 @@ class LogOutController implements RequestHandlerInterface
         protected Dispatcher $events,
         protected SessionAuthenticator $authenticator,
         protected Rememberer $rememberer,
-        protected Factory $view,
         protected UrlGenerator $url,
         protected Config $config
     ) {
@@ -46,20 +43,8 @@ class LogOutController implements RequestHandlerInterface
         $returnUrl = Arr::get($request->getQueryParams(), 'return');
         $return = $this->sanitizeReturnUrl((string) $returnUrl, $base);
 
-        // If there is no user logged in, return to the index or the return url if it's set.
         if ($actor->isGuest()) {
             return new RedirectResponse($return);
-        }
-
-        // If a valid CSRF token hasn't been provided, show a view which will
-        // allow the user to press a button to complete the log out process.
-        $csrfToken = $session->token();
-
-        if (Arr::get($request->getQueryParams(), 'token') !== $csrfToken) {
-            $view = $this->view->make('flarum.forum::log-out')
-                ->with('url', $this->url->to('forum')->route('logout').'?token='.$csrfToken.($returnUrl ? '&return='.urlencode($return) : ''));
-
-            return new HtmlResponse($view->render());
         }
 
         $accessToken = $session->get('access_token');

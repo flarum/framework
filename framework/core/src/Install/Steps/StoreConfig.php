@@ -19,7 +19,8 @@ readonly class StoreConfig implements ReversibleStep
         private bool $debugMode,
         private DatabaseConfig $dbConfig,
         private BaseUrl $baseUrl,
-        private string $configFile
+        private string $configFile,
+        private array $queueConfig = ['driver' => 'sync']
     ) {
     }
 
@@ -52,9 +53,7 @@ readonly class StoreConfig implements ReversibleStep
                 'poweredByHeader' => true,
                 'referrerPolicy' => 'same-origin',
             ],
-            'queue' => [
-                'driver' => 'sync'
-            ]
+            'queue' => $this->queueConfig
         ];
     }
 

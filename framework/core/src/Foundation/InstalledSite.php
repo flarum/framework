@@ -10,6 +10,7 @@
 namespace Flarum\Foundation;
 
 use Flarum\Admin\AdminServiceProvider;
+use Flarum\Announcements\AnnouncementsServiceProvider;
 use Flarum\Api\ApiServiceProvider;
 use Flarum\Bus\BusServiceProvider;
 use Flarum\Console\ConsoleServiceProvider;
@@ -101,6 +102,7 @@ class InstalledSite implements SiteInterface
         $this->registerCache($app);
 
         $app->register(AdminServiceProvider::class);
+        $app->register(AnnouncementsServiceProvider::class);
         $app->register(ApiServiceProvider::class);
         $app->register(BusServiceProvider::class);
         $app->register(ConsoleServiceProvider::class);
@@ -157,7 +159,16 @@ class InstalledSite implements SiteInterface
                 'lifetime' => 120,
                 'files' => $this->paths->storage.'/sessions',
                 'cookie' => 'session'
-            ]
+            ],
+            // Flarum uses a single queue connection bound as 'flarum.queue.connection'
+            // rather than Laravel's named connections. The queue worker command falls
+            // back to config('queue.default') when no connection argument is given, so
+            // we provide a name here. Without it the name is null, which since
+            // illuminate/queue 13.15.0 throws a TypeError from WorkerIdle's typed
+            // string $connectionName in the worker loop.
+            'queue' => [
+                'default' => 'flarum',
+            ],
         ]);
     }
 
@@ -185,6 +196,7 @@ class InstalledSite implements SiteInterface
             return new CacheRepository($container->make('cache.filestore'));
         });
         $container->alias('cache.store', Repository::class);
+        $container->alias('cache.store', \Illuminate\Cache\Repository::class);
 
         $container->singleton('cache.filestore', function () {
             return new FileStore(new Filesystem, $this->paths->storage.'/cache');

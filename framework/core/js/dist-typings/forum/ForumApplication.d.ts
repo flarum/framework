@@ -69,12 +69,19 @@ export default class ForumApplication extends Application {
      */
     viewingDiscussion(discussion: Discussion): boolean;
     /**
-     * Callback for when an external authenticator (social login) action has
-     * completed.
-     *
-     * If the payload indicates that the user has been logged in, then the page
-     * will be reloaded. Otherwise, a SignUpModal will be opened, prefilled
-     * with the provided details.
+     * Whether we have already alerted the user that the forum's assets have been
+     * updated since they loaded the page. Ensures the prompt is shown only once.
      */
-    authenticationComplete(payload: Record<string, unknown>): void;
+    private assetsRevisionAlertShown;
+    /**
+     * When the server reports an asset revision (on an API response) that differs
+     * from the one this page booted with, the forum's JS/CSS has been rebuilt since
+     * load. Prompt the user to reload to pick up the new assets, at most once.
+     *
+     * Both values are produced server-side (see `AssetsRevision`), so they are
+     * directly comparable regardless of which versioner the forum uses.
+     *
+     * Public so the realtime extension can call it with a pushed revision token.
+     */
+    checkAssetsRevision(serverRevision: string | null): void;
 }

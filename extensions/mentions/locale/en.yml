@@ -10,6 +10,11 @@ flarum-mentions:
     # These translations are used in the mentions permissions
     permissions:
       mention_groups_label: Mention groups
+    # These translations are used for the section headings on the Settings page.
+    sections:
+      format:
+        description: Which syntax members can type to mention another member.
+        label: Mention format
     # These translations are used in the mentions Settings page.
     settings:
       allow_username_format_label: Allow username mention format (@Username)
@@ -40,7 +45,8 @@ flarum-mentions:
     # These translations are displayed beneath individual posts.
     post:
       mentioned_by_more_text: "{count} more replies."
-      mentioned_by_self_text: "{users} replied to this."  # Can be pluralized to agree with the number of users!
+      mentioned_by_self_only_text: "{users} replied to this."  # Only the current user replied.
+      mentioned_by_self_text: "{users} replied to this."       # The current user and others replied. Can be pluralized to agree with the number of users!
       mentioned_by_text: "{users} replied to this."       # Can be pluralized to agree with the number of users!
       others_text: => core.ref.some_others
       quote_button: Quote

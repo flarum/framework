@@ -2,6 +2,7 @@ import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import Button from 'flarum/common/components/Button';
 import CommentPost from 'flarum/forum/components/CommentPost';
+import haptic from 'flarum/common/utils/haptic';
 
 export default function () {
   extend(CommentPost.prototype, 'actionItems', function (items) {
@@ -20,12 +21,16 @@ export default function () {
         onclick={() => {
           isLiked = !isLiked;
 
+          if (isLiked) haptic('success');
+
           post.save({ isLiked });
 
           // We've saved the fact that we do or don't like the post, but in order
           // to provide instantaneous feedback to the user, we'll need to add or
-          // remove the like from the relationship data manually.
-          const data = post.data.relationships.likes.data;
+          // remove the like from the relationship data manually. A post loaded
+          // without its likes starts from none; the save's response fills them in.
+          const relationships = (post.data.relationships ??= {});
+          const data = (relationships.likes ??= { data: [] }).data;
           data.some((like, i) => {
             if (like.id === app.session.user.id()) {
               data.splice(i, 1);

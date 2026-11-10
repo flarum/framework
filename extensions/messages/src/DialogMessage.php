@@ -27,7 +27,9 @@ use Illuminate\Database\Query\Expression;
  * @property int $id
  * @property int $dialog_id
  * @property int|null $user_id
+ * @property string $type
  * @property string $content
+ * @property string|null $ip_address
  * @property int|Expression $number
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -45,6 +47,15 @@ class DialogMessage extends AbstractModel implements Formattable
     use HasFormattedContent;
 
     protected $table = 'dialog_messages';
+
+    /** Something a member wrote. */
+    public const COMMENT = 'comment';
+
+    /** A notice: a member has left the group. */
+    public const USER_LEFT = 'userLeft';
+
+    /** A notice: a member has named the group, or taken its name away. */
+    public const RENAMED = 'renamed';
 
     public $timestamps = true;
 
@@ -72,22 +83,55 @@ class DialogMessage extends AbstractModel implements Formattable
         });
 
         static::deleted(function (self $message) {
-            if ($message->dialog) {
-                if ($message->dialog->messages()->count() === 0) {
-                    $message->dialog->delete();
-                } elseif ($message->dialog->first_message_id === $message->id) {
-                    $message->dialog->setFirstMessage(
-                        $message->dialog->messages()->oldest('id')->first()
-                    );
-                    $message->dialog->save();
-                } elseif ($message->dialog->last_message_id === $message->id) {
-                    $message->dialog->setLastMessage(
-                        $message->dialog->messages()->latest('id')->first()
-                    );
-                    $message->dialog->save();
+            $dialog = $message->dialog;
+
+            if (! $dialog) {
+                return;
+            }
+
+            if ($dialog->messages()->count() === 0) {
+                $dialog->delete();
+
+                return;
+            }
+
+            // Both columns are declared with nullOnDelete(), so by the time this
+            // runs the database may already have set whichever one pointed at
+            // this message to null. Unless the dialog happened to be loaded
+            // before the delete, reading it back gives null rather than the id
+            // being looked for, so a pointer that is missing is treated as one
+            // that needs recomputing. That also repairs dialogs left pointing at
+            // nothing by earlier deletions.
+            if ($dialog->first_message_id === null || $dialog->first_message_id === $message->id) {
+                if ($first = $dialog->messages()->oldest('id')->first()) {
+                    $dialog->setFirstMessage($first);
                 }
             }
+
+            if ($dialog->last_message_id === null || $dialog->last_message_id === $message->id) {
+                if ($last = $dialog->messages()->latest('id')->first()) {
+                    $dialog->setLastMessage($last);
+                }
+            }
+
+            if ($dialog->isDirty()) {
+                $dialog->save();
+            }
         });
+    }
+
+    /** Written by a member, rather than a notice of something that happened. */
+    public function isComment(): bool
+    {
+        return ($this->type ?? self::COMMENT) === self::COMMENT;
+    }
+
+    /**
+     * What a notice says happened, as it was posted. Empty for a comment.
+     */
+    public function eventData(): array
+    {
+        return $this->isComment() ? [] : (array) json_decode($this->parsed_content ?? '{}', true);
     }
 
     public function dialog(): BelongsTo

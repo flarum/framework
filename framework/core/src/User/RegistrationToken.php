@@ -43,6 +43,13 @@ class RegistrationToken extends AbstractModel
     protected $primaryKey = 'token';
 
     /**
+     * The token is a random string, not a number. Without this Eloquent binds
+     * a lookup as an integer, and on MySQL/MariaDB a lookup for `0` matches any
+     * token beginning with a letter (GHSA-55f2-h36g-96c3).
+     */
+    protected $keyType = 'string';
+
+    /**
      * Generate an auth token for the specified user.
      */
     public static function generate(string $provider, string $identifier, array $attributes, array $payload): static

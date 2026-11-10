@@ -9,11 +9,15 @@
 
 namespace Flarum\Realtime\Websocket\Console;
 
+use Flarum\Frontend\Compiler\AssetsRevision;
+use Flarum\Realtime\Websocket\Channel\Manager;
+use Flarum\Realtime\Websocket\IndexTypingPresence;
 use Flarum\Realtime\Websocket\Logger\ConnectionLogger;
 use Flarum\Realtime\Websocket\Logger\HttpLogger;
 use Flarum\Realtime\Websocket\Logger\WebsocketLogger;
 use Flarum\Realtime\Websocket\Server\HttpServer;
 use Flarum\Realtime\Websocket\Settings;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Database\ConnectionInterface;
@@ -42,6 +46,8 @@ class ServeCommand extends Command
 
         $this->restartOnCachedSignal($loop, $cache);
         $this->restartOnExtensionChanges($loop);
+        $this->sweepIndexTyping($loop);
+        $this->broadcastAssetsRevisionOnStartup($loop);
 
         $this->getLaravel()->instance(LoopInterface::class, $loop);
 
@@ -124,6 +130,49 @@ class ServeCommand extends Command
         throw new \Exception("$errno, $errstr, $errfile:$errline");
     }
 
+    /**
+     * Expire stale index-typing presence and emit falling-edge "stopped typing"
+     * signals, so list dots clear without each client running its own per-discussion
+     * timer. Swept faster than the TTL (6s) to keep the clear-lag small.
+     */
+    protected function sweepIndexTyping(LoopInterface $loop): void
+    {
+        $presence = $this->getLaravel()->make(IndexTypingPresence::class);
+
+        $loop->addPeriodicTimer(2, function () use ($presence) {
+            $presence->sweep();
+        });
+    }
+
+    /**
+     * The daemon restarts on every deployment, so a fresh start signals that the
+     * served assets may have changed. After a short delay (to let clients dropped
+     * by the restart reconnect), broadcast the current asset revision to every
+     * connected channel so browsing users are prompted to reload. Clients that
+     * reconnect later still pick the change up via the API response header.
+     */
+    protected function broadcastAssetsRevisionOnStartup(LoopInterface $loop): void
+    {
+        $loop->addTimer(20, function () {
+            $manager = $this->getLaravel()->make(Manager::class);
+            $token = $this->getLaravel()->make(AssetsRevision::class)->token();
+
+            $payload = (object) [
+                'event' => 'assetsRevision',
+                'data' => ['revision' => $token],
+            ];
+
+            $manager->getChannels()->then(function (array $channels) use ($payload) {
+                foreach ($channels as $name => $channel) {
+                    if ($name === 'public' || str_starts_with($name, 'private-user=')) {
+                        $payload->channel = $name;
+                        $channel->broadcast($payload);
+                    }
+                }
+            });
+        });
+    }
+
     protected function restartOnCachedSignal(LoopInterface $loop, Repository $cache): void
     {
         $loop->addPeriodicTimer(10, function (TimerInterface $timer) use ($loop, $cache) {
@@ -142,12 +191,21 @@ class ServeCommand extends Command
         $enabled = null;
 
         $loop->addPeriodicTimer(10, function (TimerInterface $timer) use ($loop, &$enabled) {
-            /** @var ConnectionInterface $connection */
-            $connection = $this->getLaravel()->make(ConnectionInterface::class);
+            $app = $this->getLaravel();
 
-            $newState = $connection->table('settings')
-                ->where('key', 'extensions_enabled')
-                ->value('value');
+            // If a Redis-backed settings cache is bound (e.g. fof/redis), use the settings
+            // repository which will read from Redis. Otherwise fall back to a direct DB query,
+            // because the default MemoryCacheSettingsRepository is a per-process in-memory cache
+            // that never reflects external changes in a long-running process.
+            if ($app->bound('cache.settings')) {
+                $newState = $app->make(SettingsRepositoryInterface::class)->get('extensions_enabled');
+            } else {
+                /** @var ConnectionInterface $connection */
+                $connection = $app->make(ConnectionInterface::class);
+                $newState = $connection->table('settings')
+                    ->where('key', 'extensions_enabled')
+                    ->value('value');
+            }
 
             if ($enabled === null || $newState === $enabled) {
                 $enabled = $newState;

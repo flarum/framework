@@ -14,4 +14,11 @@ class DeveloperAccessToken extends AccessToken
     public static string $type = 'developer';
 
     protected static int $lifetime = 0;
+
+    /**
+     * These are issued deliberately, to be used by a script or an integration
+     * for as long as it needs them. An expiry set from the admin panel would
+     * break those quietly, weeks later, so this type keeps its own answer.
+     */
+    protected static bool $configurableLifetime = false;
 }

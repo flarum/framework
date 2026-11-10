@@ -9,6 +9,7 @@ import { ComponentAttrs } from '../../common/Component';
 export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPageAttrs> extends UserPage<CustomAttrs> {
     discloseOnlineLoading?: boolean;
     colorSchemeLoading?: boolean;
+    hapticFeedbackLoading?: boolean;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     content(): JSX.Element;
     sectionProps(): Record<string, ComponentAttrs>;
@@ -24,10 +25,20 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
      * Build an item list for the user's notification settings.
      */
     notificationsItems(): ItemList<Mithril.Children>;
+    resettingNotifications: boolean;
+    /**
+     * Put every notification preference back to the forum's default. The server
+     * forgets the user's choices in one save, so the registered defaults apply.
+     */
+    resetNotificationPreferences(): void;
     /**
      * Build an item list for the user's privacy settings.
      */
     privacyItems(): ItemList<Mithril.Children>;
+    /**
+     * Build an item list for the user's device settings.
+     */
+    deviceItems(): ItemList<Mithril.Children>;
     /**
      * Color schemes.
      */

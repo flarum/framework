@@ -58,4 +58,13 @@ interface DataType
      * @return void
      */
     public function delete(): void;
+
+    /**
+     * Keys within this data type that contain PII.
+     * Used to redact sensitive fields when serializing for non-PII contexts
+     * (e.g. anonymized event payloads to a message broker).
+     *
+     * @return string[]
+     */
+    public static function piiFields(): array;
 }

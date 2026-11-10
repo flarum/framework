@@ -10,6 +10,7 @@
 namespace Flarum\Foundation\Console;
 
 use Flarum\Console\AbstractCommand;
+use Flarum\Database\DatabaseRequirements;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\ApplicationInfoProvider;
@@ -66,7 +67,21 @@ class InfoCommand extends AbstractCommand
             $this->output->writeln("<info>PHP memory limit:</info> CLI: {$cliMemoryLimit}, Web: unable to detect");
         }
 
-        $this->output->writeln('<info>'.$this->appInfo->identifyDatabaseDriver().' version:</info> '.$this->appInfo->identifyDatabaseVersion());
+        $dbMismatch = $this->appInfo->identifyDatabaseDriverMismatch();
+        $dbVersionStatus = $this->appInfo->identifyDatabaseVersionStatus();
+        $dbLine = '<info>'.$this->appInfo->identifyDatabaseDriver().' version:</info> '.$this->appInfo->identifyDatabaseVersion();
+
+        if ($dbMismatch) {
+            $dbLine .= " <error>(driver mismatch — config.php is set to '{$this->config['database.driver']}', but the server is {$dbMismatch})</error>";
+        }
+
+        // A booted Flarum is always at or above the hard minimum, so only the
+        // recommended-version nudge is meaningful here.
+        if ($dbVersionStatus && $dbVersionStatus['status'] === DatabaseRequirements::BELOW_RECOMMENDED) {
+            $dbLine .= " <comment>(below the recommended {$dbVersionStatus['server']} {$dbVersionStatus['recommended']})</comment>";
+        }
+
+        $this->output->writeln($dbLine);
 
         $phpExtensions = implode(', ', get_loaded_extensions());
         $this->output->writeln("<info>Loaded extensions:</info> $phpExtensions");
@@ -89,6 +104,14 @@ class InfoCommand extends AbstractCommand
             $this->output->writeln('');
             $this->error(
                 "Don't forget to turn off debug mode! It should never be turned on in a production system."
+            );
+        }
+
+        if ($dbMismatch) {
+            $this->output->writeln('');
+            $this->error(
+                "Your database driver is misconfigured! config.php is set to '{$this->config['database.driver']}', but the server is actually {$dbMismatch}. ".
+                "Set 'driver' => '{$dbMismatch}' in the 'database' section of config.php to avoid subtle query bugs."
             );
         }
 
@@ -151,7 +174,9 @@ class InfoCommand extends AbstractCommand
      */
     private function findPackageVersion(string $path, ?string $fallback = null): ?string
     {
-        if (file_exists("$path/.git")) {
+        // Guard `exec` in case it is disabled on the host (see
+        // detectWebServerPhpVersion()); fall back to the known version.
+        if (function_exists('exec') && file_exists("$path/.git")) {
             $cwd = getcwd();
             chdir($path);
 
@@ -175,6 +200,14 @@ class InfoCommand extends AbstractCommand
      */
     private function detectWebServerPhpVersion(): ?string
     {
+        // `exec` may be listed in the host's `disable_functions` (common on
+        // shared hosting). Calling it would fatal, so degrade to "unable to
+        // detect" instead. function_exists() returns false for a disabled
+        // function, so this guard is sufficient.
+        if (! function_exists('exec')) {
+            return null;
+        }
+
         // Try common PHP binary paths for web servers
         $possiblePhpBinaries = [
             '/usr/bin/php-fpm'.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
@@ -202,15 +235,15 @@ class InfoCommand extends AbstractCommand
     }
 
     /**
-     * Try to detect the web server's PHP memory limit.
-     * This is a best-effort attempt and may not work in all environments.
+     * Files that may declare the web SAPI's `memory_limit`, in priority order.
+     *
+     * @return string[]
      */
-    private function detectWebServerMemoryLimit(): ?string
+    protected function webServerMemoryLimitFiles(): array
     {
-        // Try to detect PHP-FPM pool configuration
         $phpVersion = PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;
 
-        $possiblePaths = [
+        return [
             // Docker PHP paths (most common for containerized setups)
             '/usr/local/etc/php/php.ini',
             '/usr/local/etc/php/conf.d/memory.ini',
@@ -224,8 +257,32 @@ class InfoCommand extends AbstractCommand
             "/etc/php{$phpVersion}/fpm/php.ini",
             '/etc/php.ini',
         ];
+    }
 
-        foreach ($possiblePaths as $path) {
+    /**
+     * conf.d directories whose INI files may override the web SAPI's
+     * `memory_limit`.
+     *
+     * @return string[]
+     */
+    protected function webServerMemoryLimitConfDirs(): array
+    {
+        $phpVersion = PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;
+
+        return [
+            '/usr/local/etc/php/conf.d',
+            "/etc/php/{$phpVersion}/fpm/conf.d",
+            "/etc/php{$phpVersion}/fpm/conf.d",
+        ];
+    }
+
+    /**
+     * Try to detect the web server's PHP memory limit.
+     * This is a best-effort attempt and may not work in all environments.
+     */
+    protected function detectWebServerMemoryLimit(): ?string
+    {
+        foreach ($this->webServerMemoryLimitFiles() as $path) {
             if (file_exists($path) && is_readable($path)) {
                 $content = file_get_contents($path);
 
@@ -241,19 +298,37 @@ class InfoCommand extends AbstractCommand
             }
         }
 
-        // Also scan /usr/local/etc/php/conf.d/ directory for any INI files with memory_limit
-        $confDir = '/usr/local/etc/php/conf.d';
-        if (is_dir($confDir) && is_readable($confDir)) {
+        // Also scan the conf.d directories for any INI file that sets
+        // memory_limit. Debian and Ubuntu put per-SAPI overrides under
+        // /etc/php/{version}/fpm/conf.d/, which none of the paths above cover —
+        // so without this the base php.ini value is reported and every override
+        // there is missed.
+        foreach ($this->webServerMemoryLimitConfDirs() as $confDir) {
+            if (! is_dir($confDir) || ! is_readable($confDir)) {
+                continue;
+            }
+
             $iniFiles = glob($confDir.'/*.ini');
-            if ($iniFiles) {
-                foreach ($iniFiles as $iniFile) {
-                    if (is_readable($iniFile)) {
-                        $content = file_get_contents($iniFile);
-                        if (preg_match('/^\s*memory_limit\s*=\s*(.+?)\s*$/m', $content, $matches)) {
-                            return trim($matches[1]);
-                        }
+
+            if (! $iniFiles) {
+                continue;
+            }
+
+            // Later files win, mirroring how PHP loads conf.d in name order, so
+            // keep the last match rather than returning the first.
+            $found = null;
+
+            foreach ($iniFiles as $iniFile) {
+                if (is_readable($iniFile)) {
+                    $content = file_get_contents($iniFile);
+                    if (preg_match('/^\s*memory_limit\s*=\s*(.+?)\s*$/m', $content, $matches)) {
+                        $found = trim($matches[1]);
                     }
                 }
+            }
+
+            if ($found !== null) {
+                return $found;
             }
         }
 

@@ -1,11 +1,17 @@
+import type Mithril from 'mithril';
+
 import Component from '../Component';
 import type { ComponentAttrs } from '../Component';
 
 import Icon from './Icon';
 
 export interface IDetailedDropdownItemAttrs extends ComponentAttrs {
-  /** The name of an icon to show in the dropdown item. */
-  icon: string;
+  /**
+   * The name of an icon to show in the dropdown item, or a rendered icon —
+   * which lets the caller pass attributes of its own, e.g. `noStyleOverride`
+   * for an icon whose style carries meaning.
+   */
+  icon: string | Mithril.Children;
   /** The label of the dropdown item. */
   label: string;
   /** The description of the item. */
@@ -17,14 +23,14 @@ export interface IDetailedDropdownItemAttrs extends ComponentAttrs {
 }
 
 export default class DetailedDropdownItem<
-  CustomAttrs extends IDetailedDropdownItemAttrs = IDetailedDropdownItemAttrs
+  CustomAttrs extends IDetailedDropdownItemAttrs = IDetailedDropdownItemAttrs,
 > extends Component<CustomAttrs> {
   view() {
     return (
       <button type="button" className="DetailedDropdownItem hasIcon" onclick={this.attrs.onclick}>
-        <Icon name={this.attrs.active ? 'fas fa-check' : 'fas'} className="Button-icon" />
+        <span className="DetailedDropdownItem-checkIcon">{this.attrs.active && <Icon name="fas fa-check" className="Button-icon" />}</span>
         <span className="DetailedDropdownItem-content">
-          <Icon name={this.attrs.icon} className="Button-icon" />
+          {typeof this.attrs.icon === 'string' ? <Icon name={this.attrs.icon} className="Button-icon" /> : this.attrs.icon}
           <span className="DetailedDropdownItem-label">
             <strong>{this.attrs.label}</strong>
             <span className="DetailedDropdownItem-description">{this.attrs.description}</span>

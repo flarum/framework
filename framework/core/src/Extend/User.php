@@ -17,6 +17,7 @@ use Illuminate\Contracts\Container\Container;
 class User implements ExtenderInterface
 {
     private array $displayNameDrivers = [];
+    private array $avatarDrivers = [];
     private array $groupProcessors = [];
     private array $preferences = [];
 
@@ -29,6 +30,20 @@ class User implements ExtenderInterface
     public function displayNameDriver(string $identifier, string $driver): self
     {
         $this->displayNameDrivers[$identifier] = $driver;
+
+        return $this;
+    }
+
+    /**
+     * Add an avatar driver.
+     *
+     * @param string $identifier: Identifier for avatar driver. E.g. 'gravatar' for GravatarDriver
+     * @param class-string<\Flarum\User\Avatar\DriverInterface> $driver: ::class attribute of driver class, which must implement Flarum\User\Avatar\DriverInterface
+     * @return self
+     */
+    public function avatarDriver(string $identifier, string $driver): self
+    {
+        $this->avatarDrivers[$identifier] = $driver;
 
         return $this;
     }
@@ -70,6 +85,10 @@ class User implements ExtenderInterface
     {
         $container->extend('flarum.user.display_name.supported_drivers', function ($existingDrivers) {
             return array_merge($existingDrivers, $this->displayNameDrivers);
+        });
+
+        $container->extend('flarum.user.avatar.supported_drivers', function ($existingDrivers) {
+            return array_merge($existingDrivers, $this->avatarDrivers);
         });
 
         $container->extend('flarum.user.group_processors', function ($existingRelations) {

@@ -1,4 +1,4 @@
-import bootstrapAdmin from '@flarum/jest-config/src/boostrap/admin';
+import bootstrapAdmin from '@flarum/jest-config/src/bootstrap/admin';
 import PermissionsPage from '../../../../src/admin/components/PermissionsPage';
 import { app } from '../../../../src/admin';
 import mq from 'mithril-query';

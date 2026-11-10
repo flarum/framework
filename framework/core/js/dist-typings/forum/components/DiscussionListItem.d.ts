@@ -37,6 +37,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     contentItems(): ItemList<Mithril.Children>;
     authorView(): Mithril.Children;
     authorItems(): ItemList<Mithril.Children>;
+    authorTooltipText(user: User | null | false): Mithril.Children;
     badgesView(): Mithril.Children;
     mainView(): Mithril.Children;
     getJumpTo(): number;

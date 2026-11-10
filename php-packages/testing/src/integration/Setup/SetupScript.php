@@ -25,6 +25,7 @@ class SetupScript
     protected string $host;
     protected int $port;
     protected string $name;
+    protected string $schema;
     protected string $user;
     protected string $pass;
     protected string $pref;
@@ -46,6 +47,7 @@ class SetupScript
             default => 0,
         });
         $this->name = getenv('DB_DATABASE') ?: 'flarum_test';
+        $this->schema = getenv('DB_SCHEMA') ?: 'public';
         $this->user = getenv('DB_USERNAME') ?: 'root';
         $this->pass = getenv('DB_PASSWORD') ?? 'root';
         $this->pref = getenv('DB_PREFIX') ?: '';
@@ -57,6 +59,8 @@ class SetupScript
 
         if ($this->driver === 'sqlite') {
             echo "Connecting to SQLite database at $this->name.\n";
+        } elseif ($this->driver === 'pgsql') {
+            echo "Connecting to database $this->name, schema $this->schema at $this->host:$this->port.\n";
         } else {
             echo "Connecting to database $this->name at $this->host:$this->port.\n";
         }
@@ -80,6 +84,7 @@ class SetupScript
             $this->host,
             $this->port,
             $this->name,
+            $this->schema,
             $this->user,
             $this->pass,
             $this->pref

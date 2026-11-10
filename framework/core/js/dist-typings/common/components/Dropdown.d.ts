@@ -9,6 +9,11 @@ export interface IDropdownAttrs extends ComponentAttrs {
     menuClassName?: string;
     /** The name of an icon to show in the dropdown toggle button. */
     icon?: string;
+    /**
+     * Keep the toggle icon's declared style even when the forum forces a Font
+     * Awesome style, for an icon whose meaning depends on its style.
+     */
+    noStyleOverride?: boolean;
     /** The name of an icon to show on the right of the button. */
     caretIcon?: string;
     /** The label of the dropdown toggle button. Defaults to 'Controls'. */
@@ -33,6 +38,7 @@ export interface IDropdownAttrs extends ComponentAttrs {
  */
 export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttrs> extends Component<CustomAttrs> {
     protected showing: boolean;
+    protected closeWatcher?: CloseWatcher;
     static initAttrs(attrs: IDropdownAttrs): void;
     view(vnode: Mithril.Vnode<CustomAttrs, this>): JSX.Element;
     oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
@@ -40,6 +46,19 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
      * Get the template for the button.
      */
     getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any>;
+    /**
+     * The text shown in the toggle button, as plain text.
+     */
+    getVisibleLabel(children: Mithril.ChildArray): string;
+    /**
+     * The accessible name of the toggle button.
+     *
+     * It starts with the visible label, so that the name contains the text the
+     * button displays (WCAG 2.5.3, Label in Name), followed by the description of
+     * what the button does. Speech-input users can then activate the button by
+     * saying what they see on it.
+     */
+    getAccessibleLabel(children: Mithril.ChildArray): string | undefined;
     /**
      * Get the template for the button's content.
      */

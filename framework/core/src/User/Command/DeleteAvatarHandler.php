@@ -33,10 +33,6 @@ class DeleteAvatarHandler
 
         $user = $this->users->findOrFail($command->userId);
 
-        if ($actor->id !== $user->id) {
-            $actor->assertCan('edit', $user);
-        }
-
         $this->uploader->remove($user);
 
         $this->events->dispatch(

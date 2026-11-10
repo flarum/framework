@@ -9,6 +9,7 @@
 
 namespace Flarum\Gdpr\Data;
 
+use Flarum\User\AvatarUploader;
 use Illuminate\Support\Str;
 
 class Assets extends Type
@@ -52,10 +53,9 @@ class Assets extends Type
     public function delete(): void
     {
         if ($this->user->avatar_url) {
-            $filesystem = $this->getDisk('flarum-avatars');
-            $fileName = $this->getAvatarFileName();
-
-            $filesystem->exists($fileName) && $filesystem->delete($fileName);
+            // Delegate to AvatarUploader so all HiDPI variants (@2x, @3x) are
+            // removed too — not just the base file.
+            resolve(AvatarUploader::class)->deleteAllVariants($this->getAvatarFileName());
         }
     }
 

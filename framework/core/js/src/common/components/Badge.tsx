@@ -39,6 +39,11 @@ export default class Badge<CustomAttrs extends IBadgeAttrs = IBadgeAttrs> extend
     }
 
     const badgeAttrs = {
+      // A labelled badge is an icon that means something ("Admin", "Sticky"),
+      // and its tooltip puts that meaning in `aria-label`. ARIA prohibits
+      // `aria-label` on a plain <div>, so screen readers may ignore it; the
+      // `img` role makes the label the badge's accessible name.
+      role: label ? 'img' : undefined,
       ...attrs,
       className,
       style: newStyle,

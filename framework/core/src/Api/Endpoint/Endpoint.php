@@ -124,7 +124,9 @@ class Endpoint implements \Tobyz\JsonApiServer\Endpoint\Endpoint
             $collection->id($context)
         );
 
-        if ($context->modelId) {
+        // Not a truthiness check: "0" is falsy in PHP, and skipping the lookup
+        // for it handed endpoints a null model instead of a 404.
+        if ($context->modelId !== null && $context->modelId !== '') {
             $context = $context->withModel(
                 $this->findResource($context, $context->modelId)
             );

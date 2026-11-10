@@ -2,26 +2,36 @@
     "private": true,
     "name": "@flarum/emoji",
     "version": "0.0.0",
+    "type": "module",
     "prettier": "@flarum/prettier-config",
     "dependencies": {
-        "simple-emoji-map": "^0.5.1",
-        "twemoji": "^14.0.2"
+        "@twemoji/api": "17.0.2",
+        "emojibase-data": "17",
+        "simple-emoji-map": "^1.0.0"
     },
     "devDependencies": {
+        "@flarum/jest-config": "^2.1.1",
         "@flarum/prettier-config": "^1.0.0",
         "flarum-tsconfig": "^2.0.0",
-        "flarum-webpack-config": "^3.0.0",
-        "prettier": "^2.5.1",
-        "typescript": "^4.5.4",
-        "typescript-coverage-report": "^0.6.1",
-        "webpack": "^5.76.0",
-        "webpack-cli": "^4.9.1"
+        "flarum-webpack-config": "^3.1.0",
+        "prettier": "^3.9.10",
+        "typescript": "^5.9.3",
+        "typescript-coverage-report": "^0.6.4",
+        "webpack": "^5.104.1",
+        "webpack-cli": "^7.2.3"
     },
     "scripts": {
         "dev": "webpack --mode development --watch",
         "build": "webpack --mode production",
+        "analyze": "cross-env ANALYZER=true yarn run build",
         "format": "prettier --write src",
         "format-check": "prettier --check src",
-        "analyze": "cross-env ANALYZER=true yarn run build"
+        "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
+        "build-typings": "yarn run clean-typings && ([ -e src/@types ] && cp -r src/@types dist-typings/@types || true) && tsc && yarn run post-build-typings",
+        "post-build-typings": "find dist-typings -type f -name '*.d.ts' -print0 | xargs -0 sed -i 's,../src/@types,@types,g'",
+        "check-typings": "tsc --noEmit --emitDeclarationOnly false",
+        "check-typings-coverage": "typescript-coverage-report",
+        "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
+        "postinstall": "yarn run simple-emoji-map"
     }
 }

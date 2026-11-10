@@ -75,6 +75,57 @@ class ListPostsTest extends TestCase
     }
 
     #[Test]
+    public function likers_groups_are_not_loaded_individually()
+    {
+        // Regression test for flarum/framework#4724. Each post serializes its
+        // `likes` (the likers, who are User resources). UserResource's email
+        // field runs `editCredentials` → `User::isAdmin()` → `$user->groups`
+        // per serialized liker. Before the fix that lazy-loaded a liker's groups
+        // one query at a time; with many likers it is an N+1.
+        $this->app();
+
+        $db = $this->database();
+        $db->flushQueryLog();
+        $db->enableQueryLog();
+
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 2])
+                ->withQueryParams([
+                    'filter' => ['discussion' => 100],
+                    'include' => 'likes',
+                ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        // Count single-row `group_user where user_id = ?` loads targeting the
+        // likers (ids >= 102). They must be batch-loaded, never one per liker.
+        $individualLikerLoads = 0;
+
+        foreach ($db->getQueryLog() as $query) {
+            if (stripos($query['query'], 'group_user') === false) {
+                continue;
+            }
+            if (stripos($query['query'], ' in (') !== false) {
+                continue;
+            }
+            foreach ($query['bindings'] as $binding) {
+                if ((int) $binding >= 102) {
+                    $individualLikerLoads++;
+                }
+            }
+        }
+
+        $db->disableQueryLog();
+
+        $this->assertSame(
+            0,
+            $individualLikerLoads,
+            "Likers' groups were loaded individually ($individualLikerLoads times) instead of being batch-loaded — the N+1 from issue #4724."
+        );
+    }
+
+    #[Test]
     public function liked_filter_works()
     {
         $response = $this->send(

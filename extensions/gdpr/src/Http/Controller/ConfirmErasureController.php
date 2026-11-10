@@ -11,10 +11,12 @@ namespace Flarum\Gdpr\Http\Controller;
 
 use Carbon\Carbon;
 use Flarum\Foundation\ValidationException;
+use Flarum\Gdpr\Events\ErasureConfirmed;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\RedirectResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -23,7 +25,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class ConfirmErasureController implements RequestHandlerInterface
 {
-    public function __construct(protected UrlGenerator $url, protected SessionAuthenticator $authenticator)
+    public function __construct(protected UrlGenerator $url, protected SessionAuthenticator $authenticator, protected Dispatcher $events)
     {
     }
 
@@ -45,10 +47,22 @@ class ConfirmErasureController implements RequestHandlerInterface
             throw new ValidationException(['user' => 'Erase requests cannot be confirmed by different users.']);
         }
 
+        if (in_array($erasureRequest->status, [ErasureRequest::STATUS_PROCESSED, ErasureRequest::STATUS_MANUAL])) {
+            throw new ValidationException(['request' => 'This erasure request has already been processed.']);
+        }
+
+        $ip = $request->getAttribute('ipAddress');
+
         $erasureRequest->user_confirmed_at = Carbon::now();
         $erasureRequest->status = ErasureRequest::STATUS_USER_CONFIRMED;
         $erasureRequest->cancelled_at = null;
+        $erasureRequest->verification_token = null;
+        $erasureRequest->confirmation_ip = $ip;
         $erasureRequest->save();
+
+        // Attribute to the request's owner: confirmation may arrive via the
+        // emailed token while logged out, so $actor can be a guest.
+        $this->events->dispatch(new ErasureConfirmed($erasureRequest->user, $erasureRequest));
 
         return new RedirectResponse($this->url->to('forum')->base().'?erasureRequestConfirmed=1');
     }

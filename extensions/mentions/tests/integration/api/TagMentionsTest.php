@@ -40,7 +40,7 @@ class TagMentionsTest extends TestCase
             ],
             Post::class => [
                 ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><TAGMENTION id="1" slug="test_old_slug" tagname="TestOldName">#test_old_slug</TAGMENTION></r>'],
-                ['id' => 7, 'number' => 5, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2021, 'type' => 'comment', 'content' => '<r><TAGMENTION id="3" slug="support" tagname="Support">#deleted_relation</TAGMENTION></r>'],
+                ['id' => 7, 'number' => 5, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2021, 'type' => 'comment', 'content' => '<r><TAGMENTION id="999" slug="support" tagname="Support">#deleted_relation</TAGMENTION></r>'],
                 ['id' => 8, 'number' => 6, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><TAGMENTION id="2020" slug="i_am_a_deleted_tag" tagname="i_am_a_deleted_tag">#i_am_a_deleted_tag</TAGMENTION></r>'],
                 ['id' => 10, 'number' => 11, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><TAGMENTION id="5" slug="laravel">#laravel</TAGMENTION></r>'],
             ],
@@ -51,6 +51,8 @@ class TagMentionsTest extends TestCase
                 ['id' => 4, 'name' => 'Dev', 'slug' => 'dev', 'is_restricted' => 1],
                 ['id' => 5, 'name' => 'Laravel "#t6 Tag', 'slug' => 'laravel', 'is_restricted' => 0],
                 ['id' => 6, 'name' => 'Tatakai', 'slug' => '戦い', 'is_restricted' => 0],
+                ['id' => 7, 'name' => 'WithIcon', 'slug' => 'withicon', 'is_restricted' => 0, 'icon' => 'fas fa-star', 'color' => '#ff0000'],
+                ['id' => 8, 'name' => 'NoIcon', 'slug' => 'noicon', 'is_restricted' => 0, 'icon' => null, 'color' => null],
             ],
             'post_mentions_tag' => [
                 ['post_id' => 4, 'mentions_tag_id' => 1],
@@ -63,6 +65,26 @@ class TagMentionsTest extends TestCase
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'postWithoutThrottle'],
             ],
         ]);
+    }
+
+    #[Test]
+    public function a_tag_mention_shows_the_tags_icon_image()
+    {
+        $this->database()->table('tags')->where('id', 1)->update(['icon' => 'fas fa-star', 'icon_image_path' => 'crest.webp', 'icon_image_scales' => 1]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/posts/4')
+        );
+
+        $contents = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $contents);
+
+        $html = json_decode($contents, true)['data']['attributes']['contentHtml'];
+
+        // A single scale has no srcset.
+        $this->assertMatchesRegularExpression('#<img class="icon IconImage" src="[^"]*/assets/icons/crest\.webp" alt="" style="height:auto;width:auto;max-height:1em;max-width:1.25em;vertical-align:-0.125em">#', $html);
+        $this->assertStringNotContainsString('fa-star', $html);
     }
 
     #[Test]
@@ -367,6 +389,71 @@ class TagMentionsTest extends TestCase
         $this->assertStringContainsString('TagMention', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('TagMention--deleted', $response['data']['attributes']['contentHtml']);
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsTags);
+    }
+
+    #[Test]
+    public function mentioning_a_tag_without_icon_renders_correctly()
+    {
+        // Regression test for https://github.com/flarum/framework/issues/4436
+        // Tags without icons have icon=null; the renderer must not emit an icon
+        // element and must not crash when color is also null.
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'posts',
+                        'attributes' => [
+                            'content' => '#noicon',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $body = json_decode($response->getBody(), true);
+        $html = $body['data']['attributes']['contentHtml'];
+
+        $this->assertStringContainsString('TagMention', $html);
+        $this->assertStringNotContainsString('TagMention--deleted', $html);
+        $this->assertStringContainsString('NoIcon', $html);
+        // No icon element should be rendered
+        $this->assertStringNotContainsString('<i class="icon', $html);
+    }
+
+    #[Test]
+    public function mentioning_a_tag_with_icon_renders_the_icon()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'posts',
+                        'attributes' => [
+                            'content' => '#withicon',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $body = json_decode($response->getBody(), true);
+        $html = $body['data']['attributes']['contentHtml'];
+
+        $this->assertStringContainsString('TagMention', $html);
+        $this->assertStringContainsString('WithIcon', $html);
+        $this->assertStringContainsString('fas fa-star', $html);
     }
 
     #[Test]

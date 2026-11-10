@@ -10,4 +10,4 @@ export default class Placeholder extends Component<import("../Component").Compon
     constructor();
     view(): JSX.Element;
 }
-import Component from "../Component";
+import Component from '../Component';

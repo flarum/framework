@@ -13,9 +13,22 @@
  */
 export default function anchorScroll(element, callback) {
   const $window = $(window);
-  const relativeScroll = $(element).offset().top - $window.scrollTop();
+  const before = $(element).offset();
+
+  // Nothing on the page to hold in place: a post stream the reader has
+  // already left, for instance. The callback still has to run.
+  if (!before) {
+    callback();
+    return;
+  }
+
+  const relativeScroll = before.top - $window.scrollTop();
 
   callback();
 
-  $window.scrollTop($(element).offset().top - relativeScroll);
+  const after = $(element).offset();
+
+  if (after) {
+    $window.scrollTop(after.top - relativeScroll);
+  }
 }

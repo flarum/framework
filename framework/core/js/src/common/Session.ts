@@ -47,6 +47,17 @@ export default class Session {
    * Log the user out.
    */
   logout() {
-    window.location.href = `${app.forum.attribute('baseUrl')}/logout?token=${this.csrfToken}`;
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `${app.forum.attribute('baseUrl')}/logout`;
+
+    const tokenField = document.createElement('input');
+    tokenField.type = 'hidden';
+    tokenField.name = 'csrfToken';
+    tokenField.value = this.csrfToken;
+
+    form.appendChild(tokenField);
+    document.body.appendChild(form);
+    form.submit();
   }
 }

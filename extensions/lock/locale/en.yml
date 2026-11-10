@@ -44,3 +44,13 @@ flarum-lock:
       discussions:
         locked:
           key: locked
+
+# Labels for the audit log entries this extension produces, rendered by the (optional)
+# flarum/audit browser. Defined under the flarum-audit namespace so the audit frontend
+# resolves them, but shipped here so they travel with the extension that owns the actions.
+flarum-audit:
+  lib:
+    browser:
+      discussion:
+        locked: Locked discussion {discussion}
+        unlocked: Unlocked discussion {discussion}

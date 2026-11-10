@@ -15,9 +15,9 @@ return [
         $schema->getConnection()->table('migrations')->where('extension', 'flarum-package-manager')->delete();
     },
     'down' => function (Builder $schema) {
+        // The migration rows are left alone: the Migrator deletes each one under
+        // this extension's ID after its down() runs. Relabelling them here, part
+        // way through a rollback, left the remaining rows behind as orphans.
         $schema->rename('extension_manager_tasks', 'package_manager_tasks');
-        $schema->getConnection()->table('migrations')->where('extension', 'flarum-extension-manager')->update([
-            'extension' => 'flarum-package-manager',
-        ]);
     }
 ];

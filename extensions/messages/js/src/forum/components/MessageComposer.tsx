@@ -5,7 +5,8 @@ import Stream from 'flarum/common/utils/Stream';
 import type User from 'flarum/common/models/User';
 import type Mithril from 'mithril';
 import Button from 'flarum/common/components/Button';
-import UserSelectionModal from 'flarum/common/components/UserSelectionModal';
+import type Group from 'flarum/common/models/Group';
+import GroupBadge from 'flarum/common/components/GroupBadge';
 import DialogMessage from '../../common/models/DialogMessage';
 import Avatar from 'flarum/common/components/Avatar';
 import Tooltip from 'flarum/common/components/Tooltip';
@@ -24,8 +25,12 @@ export interface IMessageComposerAttrs extends IComposerBodyAttrs {
  */
 export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs = IMessageComposerAttrs> extends ComposerBody<CustomAttrs> {
   protected recipients!: Stream<User[]>;
+  protected recipientGroups = Stream<Group[]>([]);
 
   static focusOnSelector = () => '.TextEditor-editor';
+
+  /** Recipients shown by avatar before the rest are counted, as a large group's would crowd the composer. */
+  static SHOWN_RECIPIENTS = 10;
 
   static initAttrs(attrs: IMessageComposerAttrs) {
     super.initAttrs(attrs);
@@ -48,6 +53,9 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
     this.composer.fields.recipients = this.composer.fields.recipients || Stream(users);
 
     this.recipients = this.composer.fields.recipients;
+    this.composer.fields.recipientGroups =
+      this.composer.fields.recipientGroups || Stream((this.attrs.replyingTo?.groups() || []).filter((group): group is Group => !!group));
+    this.recipientGroups = this.composer.fields.recipientGroups;
   }
 
   headerItems() {
@@ -61,11 +69,17 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
             type="button"
             className="Button Button--outline Button--compact"
             onclick={() =>
-              app.modal.show(UserSelectionModal, {
+              app.modal.show(() => import('./RecipientSelectionModal'), {
                 title: app.translator.trans('flarum-messages.forum.recipient_selection_modal.title', {}, true),
                 selected: this.recipients(),
-                maxItems: 1,
-                excluded: [app.session.user!.id()!],
+                selectedGroups: this.recipientGroups(),
+                onsubmitGroups: (groups: Group[]) => this.recipientGroups(groups),
+                // More than one starts a group. An older server says nothing: one.
+                maxItems: app.forum.attribute<number>('messagesMaxRecipients') || 1,
+                // Accounts nobody can write to, such as those anonymised by
+                // flarum/gdpr, aren't listed at all.
+                excluded: (user: User) => user === app.session.user || user.canMessage() === false,
+                unavailable: (user: User) => this.recipientUnavailable(user),
                 onsubmit: (users: User[]) => {
                   this.recipients(users);
                 },
@@ -75,23 +89,45 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
             {app.translator.trans('flarum-messages.forum.composer.recipients')}
           </Button>
         )}
-        {!!this.recipients().length && (
+        {(this.recipients().length > 0 || this.recipientGroups().length > 0) && (
           <div className="MessageComposer-recipients-label">{app.translator.trans('flarum-messages.forum.composer.to')}</div>
         )}
         <ul className="MessageComposer-recipients-list">
-          {this.recipients().map((user) => (
-            <li>
-              <Tooltip text={user.username()}>
-                <Avatar user={user} />
-              </Tooltip>
+          {this.recipientGroups().map((group) => (
+            <li className="MessageComposer-group" key={group.id()}>
+              <GroupBadge group={group} /> {group.namePlural()}
             </li>
           ))}
+          {this.recipients()
+            .slice(0, MessageComposer.SHOWN_RECIPIENTS)
+            .map((user) => (
+              <li>
+                <Tooltip text={user.username()}>
+                  <Avatar user={user} />
+                </Tooltip>
+              </li>
+            ))}
+          {this.recipients().length > MessageComposer.SHOWN_RECIPIENTS && (
+            <li className="MessageComposer-recipients-more">+{this.recipients().length - MessageComposer.SHOWN_RECIPIENTS}</li>
+          )}
         </ul>
       </div>,
       100
     );
 
     return items;
+  }
+
+  /**
+   * Why someone can't be picked as a recipient, if they can't: they couldn't
+   * reply. The server still has the final say when the message is sent.
+   */
+  recipientUnavailable(user: User): Mithril.Children {
+    if (app.session.user!.canMessageUsersWithoutPermission() || user.canSendAnyMessage() !== false) {
+      return null;
+    }
+
+    return app.translator.trans('flarum-messages.forum.recipient_selection_modal.cannot_reply_text');
   }
 
   /**
@@ -112,6 +148,7 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
         },
       };
     } else {
+      if (this.recipientGroups().length) data.groups = this.recipientGroups().map((group) => ({ id: group.id() }));
       data.users = this.recipients().map((user) => ({
         id: user.id(),
       }));
@@ -134,8 +171,13 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
       })
       .then((message) => {
         this.composer.hide();
+
         // @ts-ignore
-        m.route.set(app.route('dialog', { id: message.data.relationships!.dialog.data.id }));
+        const dialogId: string = message.data.relationships!.dialog.data.id;
+
+        // Already in this conversation, the route change would rebuild the page under the reader.
+        if (m.route.param('id') !== dialogId) m.route.set(app.route('dialog', { id: dialogId }));
+
         this.attrs.onsubmit?.(message);
       }, this.loaded.bind(this));
   }

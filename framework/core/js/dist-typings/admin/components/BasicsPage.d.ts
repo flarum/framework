@@ -8,6 +8,7 @@ export type HomePageItem = {
 };
 export type DriverLocale = {
     display_name: Record<string, string>;
+    avatar: Record<string, string>;
     slug: Record<string, Record<string, string>>;
 };
 export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
@@ -18,7 +19,8 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
         title: string | any[];
         description: string | any[];
     };
-    content(): JSX.Element[];
+    content(): Mithril.Children[];
+    settingsRegistryKey(): string;
     /**
      * Build a list of options for the default homepage. Each option must be an
      * object with `path` and `label` properties.

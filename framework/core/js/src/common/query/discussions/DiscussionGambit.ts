@@ -6,6 +6,10 @@ export default class DiscussionGambit extends KeyValueGambit {
     return app.translator.trans('core.lib.gambits.posts.discussion.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'discussion';
+  }
+
   hint(): string {
     return app.translator.trans('core.lib.gambits.posts.discussion.hint', {}, true);
   }

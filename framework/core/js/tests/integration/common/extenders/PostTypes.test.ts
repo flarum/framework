@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import PostTypes from '../../../../src/common/extenders/PostTypes';
 import PostType from '../../../../src/forum/components/PostType';
 import EventPost from '../../../../src/forum/components/EventPost';

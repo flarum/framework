@@ -15,6 +15,11 @@ export interface IDropdownAttrs extends ComponentAttrs {
   menuClassName?: string;
   /** The name of an icon to show in the dropdown toggle button. */
   icon?: string;
+  /**
+   * Keep the toggle icon's declared style even when the forum forces a Font
+   * Awesome style, for an icon whose meaning depends on its style.
+   */
+  noStyleOverride?: boolean;
   /** The name of an icon to show on the right of the button. */
   caretIcon?: string;
   /** The label of the dropdown toggle button. Defaults to 'Controls'. */
@@ -41,6 +46,7 @@ export interface IDropdownAttrs extends ComponentAttrs {
  */
 export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttrs> extends Component<CustomAttrs> {
   protected showing = false;
+  protected closeWatcher?: CloseWatcher;
 
   static initAttrs(attrs: IDropdownAttrs) {
     attrs.className ||= '';
@@ -111,11 +117,25 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
       const windowScrollLeft = $(window).scrollLeft() ?? 0;
       const windowWidth = $(window).width() ?? 0;
 
-      $menu.toggleClass('Dropdown-menu--right', isRight || left + width > windowScrollLeft + windowWidth);
+      const isRtl = $menu.css('direction') === 'rtl';
+      const overflows = isRtl ? left < windowScrollLeft : left + width > windowScrollLeft + windowWidth;
+
+      $menu.toggleClass('Dropdown-menu--right', isRight || overflows);
+
+      if ('CloseWatcher' in window) {
+        this.closeWatcher?.destroy();
+        this.closeWatcher = new CloseWatcher();
+        this.closeWatcher.onclose = () => {
+          // @ts-ignore - missing dropdown types
+          this.$('.Dropdown-toggle').dropdown('toggle');
+        };
+      }
     });
 
     this.$().on('hidden.bs.dropdown', () => {
       this.showing = false;
+      this.closeWatcher?.destroy();
+      this.closeWatcher = undefined;
 
       if (this.attrs.onhide) {
         this.attrs.onhide();
@@ -150,7 +170,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
         type="button"
         className={'Dropdown-toggle ' + this.attrs.buttonClassName}
         aria-haspopup="menu"
-        aria-label={this.attrs.accessibleToggleLabel}
+        aria-label={this.getAccessibleLabel(children)}
         data-toggle="dropdown"
         onclick={this.attrs.onclick}
         {...this.attrs.buttonAttrs}
@@ -171,11 +191,37 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
   }
 
   /**
+   * The text shown in the toggle button, as plain text.
+   */
+  getVisibleLabel(children: Mithril.ChildArray): string {
+    return extractText(this.attrs.label).trim();
+  }
+
+  /**
+   * The accessible name of the toggle button.
+   *
+   * It starts with the visible label, so that the name contains the text the
+   * button displays (WCAG 2.5.3, Label in Name), followed by the description of
+   * what the button does. Speech-input users can then activate the button by
+   * saying what they see on it.
+   */
+  getAccessibleLabel(children: Mithril.ChildArray): string | undefined {
+    // Callers pass `app.translator.trans()` results, which are arrays, not strings.
+    const description = this.attrs.accessibleToggleLabel ? extractText(this.attrs.accessibleToggleLabel).trim() : undefined;
+    const visible = this.getVisibleLabel(children);
+
+    if (!visible) return description;
+    if (!description || description.toLowerCase().includes(visible.toLowerCase())) return description || visible;
+
+    return `${visible}, ${description}`;
+  }
+
+  /**
    * Get the template for the button's content.
    */
   getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray {
     return [
-      this.attrs.icon ? <Icon name={this.attrs.icon} className="Button-icon" /> : '',
+      this.attrs.icon ? <Icon name={this.attrs.icon} noStyleOverride={this.attrs.noStyleOverride} className="Button-icon" /> : '',
       <span className="Button-label">
         <span className="Button-labelText">{this.attrs.label}</span>
         {this.getButtonSubContent()}

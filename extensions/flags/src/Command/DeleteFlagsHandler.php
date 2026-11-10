@@ -9,6 +9,7 @@
 
 namespace Flarum\Flags\Command;
 
+use Flarum\Flags\Event\Cleared;
 use Flarum\Flags\Event\Deleting;
 use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
@@ -34,7 +35,9 @@ class DeleteFlagsHandler
             $this->events->dispatch(new Deleting($flag, $actor, $command->data));
         }
 
-        $post->flags()->delete();
+        if ($post->flags()->delete()) {
+            $this->events->dispatch(new Cleared($post, $actor));
+        }
 
         return $post;
     }

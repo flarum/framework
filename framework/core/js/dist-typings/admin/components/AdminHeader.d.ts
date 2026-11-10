@@ -2,4 +2,4 @@ export default class AdminHeader extends Component<import("../../common/Componen
     constructor();
     view(vnode: any): JSX.Element[];
 }
-import Component from "../../common/Component";
+import Component from '../../common/Component';

@@ -12,12 +12,14 @@ namespace Flarum\Notification\Command;
 use Carbon\Carbon;
 use Flarum\Notification\Event\Read;
 use Flarum\Notification\Notification;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ReadNotificationHandler
 {
     public function __construct(
-        protected Dispatcher $events
+        protected Dispatcher $events,
+        protected CacheRepository $cache
     ) {
     }
 
@@ -43,6 +45,10 @@ class ReadNotificationHandler
             ->update(['read_at' => Carbon::now()]);
 
         $notification->read_at = Carbon::now();
+
+        // Invalidate notification count caches
+        $this->cache->forget("user.{$actor->id}.unread_notification_count");
+        $this->cache->forget("user.{$actor->id}.new_notification_count");
 
         $this->events->dispatch(new Read($actor, $notification, Carbon::now()));
 

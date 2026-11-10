@@ -3,13 +3,15 @@ import app from 'flarum/admin/app';
 import DashboardWidget, { IDashboardWidgetAttrs } from 'flarum/admin/components/DashboardWidget';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Link from 'flarum/common/components/Link';
+import Icon from 'flarum/common/components/Icon';
 
 import abbreviateNumber from 'flarum/common/utils/abbreviateNumber';
+import statisticsEntities from '../utils/statisticsEntities';
 
 import type Mithril from 'mithril';
 
 export default class MiniStatisticsWidget extends DashboardWidget {
-  entities = ['users', 'discussions', 'posts'];
+  entities = statisticsEntities();
 
   lifetimeData: any;
 
@@ -46,25 +48,32 @@ export default class MiniStatisticsWidget extends DashboardWidget {
   content() {
     return (
       <div className="StatisticsWidget-table">
-        <h4 className="StatisticsWidget-title">{app.translator.trans('flarum-statistics.admin.statistics.mini_heading')}</h4>
+        <h4 className="StatisticsWidget-title">
+          <Icon name="fas fa-chart-bar" />
+          {app.translator.trans('flarum-statistics.admin.statistics.mini_heading')}
+        </h4>
 
         <div className="StatisticsWidget-entities">
           <div className="StatisticsWidget-labels">
             <div className="StatisticsWidget-label">{app.translator.trans('flarum-statistics.admin.statistics.total_label')}</div>
           </div>
 
-          {this.entities.map((entity) => {
-            const totalCount = this.loadingLifetime ? app.translator.trans('flarum-statistics.admin.statistics.loading') : this.getTotalCount(entity);
+          <div className="StatisticsWidget-entityList">
+            {this.entities.map((entity) => {
+              const totalCount = this.loadingLifetime
+                ? app.translator.trans('flarum-statistics.admin.statistics.loading')
+                : this.getTotalCount(entity);
 
-            return (
-              <div className="StatisticsWidget-entity">
-                <h3 className="StatisticsWidget-heading">{app.translator.trans('flarum-statistics.admin.statistics.' + entity + '_heading')}</h3>
-                <div className="StatisticsWidget-total" title={totalCount}>
-                  {this.loadingLifetime ? <LoadingIndicator display="inline" /> : abbreviateNumber(totalCount as number)}
+              return (
+                <div className="StatisticsWidget-entity">
+                  <h3 className="StatisticsWidget-heading">{app.translator.trans('flarum-statistics.admin.statistics.' + entity + '_heading')}</h3>
+                  <div className="StatisticsWidget-total" title={totalCount}>
+                    {this.loadingLifetime ? <LoadingIndicator display="inline" /> : abbreviateNumber(totalCount as number)}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
         <div className="StatisticsWidget-viewFull">

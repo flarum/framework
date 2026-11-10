@@ -13,9 +13,8 @@ import Component from '../Component';
 export default class DefaultResolver<
   Attrs extends ComponentAttrs,
   Comp extends Component<Attrs & { routeName: string }>,
-  RouteArgs extends Record<string, unknown> = {}
-> implements RouteResolver<Attrs, Comp, RouteArgs>
-{
+  RouteArgs extends Record<string, unknown> = {},
+> implements RouteResolver<Attrs, Comp, RouteArgs> {
   component: NewComponent<Comp> | AsyncNewComponent<Comp>;
   routeName: string;
 

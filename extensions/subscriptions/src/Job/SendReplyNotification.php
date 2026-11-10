@@ -11,23 +11,19 @@ namespace Flarum\Subscriptions\Job;
 
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\Post;
+use Flarum\Queue\AbstractJob;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
 use Flarum\User\User;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 
-class SendReplyNotification implements ShouldQueue
+class SendReplyNotification extends AbstractJob
 {
-    use Queueable;
-    use SerializesModels;
-
     public function __construct(
         protected Post $post,
         protected ?int $lastPostNumber
     ) {
+        parent::__construct();
     }
 
     public function handle(NotificationSyncer $notifications): void

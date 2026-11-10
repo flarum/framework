@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import type RequestError from '../utils/RequestError';
 import Modal, { IInternalModalAttrs } from './Modal';
 export interface IRequestErrorModalAttrs extends IInternalModalAttrs {

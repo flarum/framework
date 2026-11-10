@@ -243,6 +243,100 @@ class ConditionalTest extends TestCase
     }
 
     #[Test]
+    public function conditional_enabled_extensions_all_enabled_applies_invokable_class()
+    {
+        $this->extension('flarum-tags', 'flarum-likes');
+
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenExtensionsEnabled(['flarum-tags', 'flarum-likes'], TestExtender::class)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($body = $response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('data', $payload, $body);
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function conditional_enabled_extensions_some_disabled_does_not_apply_invokable_class()
+    {
+        $this->extension('flarum-tags');
+
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenExtensionsEnabled(['flarum-tags', 'flarum-dummy-extension'], TestExtender::class)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($body = $response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('data', $payload, $body);
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function conditional_disabled_extensions_all_disabled_applies_invokable_class()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenExtensionsDisabled(['flarum-dummy-extension', 'flarum-other-dummy-extension'], TestExtender::class)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($body = $response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('data', $payload, $body);
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function conditional_disabled_extensions_some_enabled_does_not_apply_invokable_class()
+    {
+        $this->extension('flarum-tags');
+
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenExtensionsDisabled(['flarum-tags', 'flarum-dummy-extension'], TestExtender::class)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($body = $response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('data', $payload, $body);
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
     public function conditional_does_not_instantiate_extender_if_condition_is_false_using_callable()
     {
         $this->extend(

@@ -1,9 +1,11 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import Dropdown from '../../../../src/common/components/Dropdown';
+import SelectDropdown from '../../../../src/common/components/SelectDropdown';
 import Button from '../../../../src/common/components/Button';
 import m from 'mithril';
 import mq from 'mithril-query';
 import { jest } from '@jest/globals';
+import app from '../../../../src/forum/app';
 
 beforeAll(() => bootstrapForum());
 
@@ -27,5 +29,132 @@ describe('Dropdown displays as expected', () => {
       )
     );
     expect(dropdown).toContainRaw('click me!');
+  });
+
+  it('puts the visible label first in the accessible name', () => {
+    const dropdown = mq(m(Dropdown, { label: 'Latest', accessibleToggleLabel: 'Change sorting' }, [m(Button, 'one')]));
+
+    expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Latest, Change sorting');
+  });
+
+  it('uses the accessible label alone when there is no visible label', () => {
+    const dropdown = mq(m(Dropdown, { icon: 'fas fa-cog', accessibleToggleLabel: 'Change sorting' }, [m(Button, 'one')]));
+
+    expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Change sorting');
+  });
+
+  it('does not repeat a visible label the accessible label already contains', () => {
+    const dropdown = mq(m(Dropdown, { label: 'Sorting', accessibleToggleLabel: 'Change sorting' }, [m(Button, 'one')]));
+
+    expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Change sorting');
+  });
+
+  it('names a select dropdown after its active option', () => {
+    const dropdown = mq(
+      m(SelectDropdown, { defaultLabel: 'All Discussions', accessibleToggleLabel: 'Toggle navigation dropdown menu' }, [
+        m(Button, { active: false }, 'Following'),
+        m(Button, { active: true }, 'Tags'),
+      ])
+    );
+
+    expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Tags, Toggle navigation dropdown menu');
+  });
+
+  it('names a select dropdown after its default label when no option is active', () => {
+    const dropdown = mq(
+      m(SelectDropdown, { defaultLabel: 'All Discussions', accessibleToggleLabel: 'Toggle navigation dropdown menu' }, [
+        m(Button, { active: false }, 'Following'),
+      ])
+    );
+
+    expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'All Discussions, Toggle navigation dropdown menu');
+  });
+
+  it('accepts a translated accessible label, which the translator returns as an array', () => {
+    app.translator.addTranslations({ 'core.forum.index.toggle_sidenav_dropdown_accessible_label': 'Toggle navigation dropdown menu' });
+
+    const label = app.translator.trans('core.forum.index.toggle_sidenav_dropdown_accessible_label');
+    expect(Array.isArray(label)).toBe(true);
+
+    const dropdown = mq(
+      m(SelectDropdown, { defaultLabel: 'All Discussions', accessibleToggleLabel: label as any }, [m(Button, { active: true }, 'Tags')])
+    );
+
+    expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Tags, Toggle navigation dropdown menu');
+  });
+
+  it('ignores absent children in a conditional label', () => {
+    for (const absent of [false, null, undefined, true]) {
+      const dropdown = mq(m(Dropdown, { label: m('span', ['Tags', absent]), accessibleToggleLabel: 'Choose a category' }, [m(Button, 'one')]));
+
+      expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Tags, Choose a category');
+    }
+  });
+
+  it('ignores absent children in a select dropdown option with conditional children', () => {
+    for (const absent of [false, null, undefined]) {
+      const dropdown = mq(
+        m(SelectDropdown, { defaultLabel: 'All Discussions', accessibleToggleLabel: 'Choose a category' }, [
+          m(Button, { active: true }, ['Tags', absent]),
+        ])
+      );
+
+      expect(dropdown).toHaveElementAttr('button.Dropdown-toggle', 'aria-label', 'Tags, Choose a category');
+    }
+  });
+});
+
+describe('Dropdown viewport alignment', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it.each([
+    ['rtl', -120, true],
+    ['rtl', 150, false],
+    ['rtl', 450, false],
+    ['ltr', 450, true],
+    ['ltr', 20, false],
+  ])('handles %s menus at left=%s', (direction, left, alignedToEnd) => {
+    const root = document.createElement('div');
+    document.body.append(root);
+
+    jest.spyOn($.fn, 'offset').mockReturnValue({ top: 100, left: left as number });
+    jest.spyOn($.fn, 'width').mockImplementation(function (this: JQuery) {
+      return this[0] === window ? 500 : 200;
+    });
+
+    try {
+      m.mount(root, { view: () => m(Dropdown, { label: 'Sorting' }, [m(Button, 'Latest')]) });
+      const menu = root.querySelector<HTMLElement>('.Dropdown-menu')!;
+      menu.style.direction = direction as string;
+
+      $(root.firstElementChild!).trigger('shown.bs.dropdown');
+
+      expect(menu.classList.contains('Dropdown-menu--right')).toBe(alignedToEnd);
+    } finally {
+      m.mount(root, null);
+      root.remove();
+    }
+  });
+
+  it('allows a subclass to render a menu without the default class', () => {
+    class CustomDropdown extends Dropdown {
+      getMenu(items: Parameters<Dropdown['getMenu']>[0]) {
+        return m('ul.Custom-menu', items);
+      }
+    }
+
+    const root = document.createElement('div');
+    document.body.append(root);
+
+    try {
+      m.mount(root, { view: () => m(CustomDropdown, { label: 'Sorting' }, [m(Button, 'Latest')]) });
+
+      expect(() => $(root.firstElementChild!).trigger('shown.bs.dropdown')).not.toThrow();
+    } finally {
+      m.mount(root, null);
+      root.remove();
+    }
   });
 });

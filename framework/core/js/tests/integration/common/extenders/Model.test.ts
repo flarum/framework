@@ -1,4 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import Model from '../../../../src/common/extenders/Model';
 import Discussion from '../../../../src/common/models/Discussion';
 import User from '../../../../src/common/models/User';

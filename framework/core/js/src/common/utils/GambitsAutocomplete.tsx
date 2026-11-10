@@ -1,5 +1,5 @@
 import app from '../app';
-import { GambitType, type GroupedGambitSuggestion, type KeyValueGambitSuggestion } from '../query/IGambit';
+import { GambitType, type GroupedGambitSuggestion, type KeyValueGambitSuggestion, type GambitValueOption } from '../query/IGambit';
 import type IGambit from '../query/IGambit';
 import AutocompleteReader, { type AutocompleteCheck } from '../utils/AutocompleteReader';
 import Button from '../components/Button';
@@ -55,7 +55,7 @@ export default class GambitsAutocomplete {
 
     const autocompleteReader = new AutocompleteReader(null);
 
-    const cursorPosition = this.jqueryInput().prop('selectionStart') || query.length;
+    const cursorPosition = this.jqueryInput().prop('selectionEnd') ?? query.length;
     const lastChunk = query.slice(0, cursorPosition);
     const autocomplete = autocompleteReader.check(lastChunk, cursorPosition, /\S+$/);
 
@@ -67,38 +67,62 @@ export default class GambitsAutocomplete {
       typed = typed.slice(1);
     }
 
-    // if the query ends with 'is:' we will only list keys from that group.
-    if (typed.endsWith(':')) {
-      const gambitKey = typed.replace(/:$/, '') || null;
-      const gambitQuery = typed.split(':').pop() || '';
+    const rawToken = autocomplete ? lastChunk.slice(autocomplete.relativeStart) : '';
+    const rawTyped = negative ? rawToken.slice(1) : rawToken;
+    const colonIndex = rawTyped.indexOf(':');
 
-      if (gambitKey) {
-        const specificGambitSuggestions = this.specificGambitSuggestions(gambitKey, gambitQuery, uniqueGroups, groupedGambits, autocomplete!);
+    // If the query contains a colon, we are typing or exploring specific values from that group.
+    if (colonIndex !== -1) {
+      const gambitKey = rawTyped.slice(0, colonIndex).toLowerCase();
+      const gambitQuery = rawTyped.slice(colonIndex + 1);
 
-        if (specificGambitSuggestions) {
-          return specificGambitSuggestions;
-        }
+      const specificGambitSuggestions = this.specificGambitSuggestions(
+        gambitKey,
+        gambitQuery,
+        uniqueGroups,
+        groupedGambits,
+        autocomplete!,
+        negative,
+        keyValueGambits
+      );
+
+      if (specificGambitSuggestions) {
+        return specificGambitSuggestions;
       }
+
+      // If the user typed a colon for an unknown group or a non-grouped gambit,
+      // do not show unrelated top-level gambits.
+      return [];
     }
+
+    const normalizedTyped = typed.toLowerCase();
 
     // This is all the gambit suggestions.
     return [...instancePerGroup, ...keyValueGambits]
-      .filter(
-        (gambit) =>
-          !autocomplete ||
-          new RegExp(typed).test(
-            gambit.type === GambitType.Grouped ? (gambit.suggestion() as GroupedGambitSuggestion).group : (gambit.suggestion().key as string)
-          )
-      )
+      .filter((gambit) => {
+        if (!normalizedTyped) return true;
+
+        const key = (
+          gambit.type === GambitType.Grouped ? (gambit.suggestion() as GroupedGambitSuggestion).group : (gambit.suggestion().key as string)
+        ).toLowerCase();
+        const canonicalKey =
+          'canonicalKey' in gambit && typeof (gambit as any).canonicalKey === 'function' ? (gambit as any).canonicalKey().toLowerCase() : '';
+
+        return key.includes(normalizedTyped) || (canonicalKey && canonicalKey.includes(normalizedTyped));
+      })
       .map((gambit) => {
         const suggestion = gambit.suggestion();
         const key = gambit.type === GambitType.Grouped ? (suggestion as GroupedGambitSuggestion).group : (suggestion.key as string);
         const hint =
           gambit.type === GambitType.Grouped ? (suggestion as KeyValueGambitSuggestion).key : (suggestion as KeyValueGambitSuggestion).hint;
 
-        return this.gambitSuggestion(key, hint, (negated: boolean | undefined) =>
-          this.suggest(((!!negated && '-') || '') + key + ':', typed || '', (autocomplete?.relativeStart ?? cursorPosition) + Number(negative))
-        );
+        return this.gambitSuggestion(key, hint, (negated: boolean | undefined) => {
+          const isNeg = typeof negated === 'boolean' ? negated : negative;
+          const start = autocomplete?.relativeStart ?? cursorPosition;
+          const keyPart = autocomplete ? this.query.slice(start).match(/^[^\s:]*:?/)![0] : '';
+
+          this.suggest((isNeg ? '-' : '') + key + ':', keyPart, start);
+        });
       });
   }
 
@@ -107,39 +131,148 @@ export default class GambitsAutocomplete {
     gambitQuery: string,
     uniqueGroups: string[],
     groupedGambits: IGambit<GambitType.Grouped>[],
-    autocomplete: AutocompleteCheck
+    autocomplete: AutocompleteCheck,
+    negative: boolean = false,
+    keyValueGambits?: IGambit<GambitType.KeyValue>[]
   ): JSX.Element[] | null {
-    if (uniqueGroups.includes(gambitKey)) {
-      return groupedGambits
-        .filter((gambit) => gambit.suggestion().group === gambitKey)
+    keyValueGambits ??= app.search.gambits
+      .for(this.resource)
+      .filter((gambit) => gambit.type !== GambitType.Grouped && gambit.enabled()) as IGambit<GambitType.KeyValue>[];
+    const matchingGroup = uniqueGroups.find((g) => g.toLowerCase() === gambitKey.toLowerCase());
+
+    if (matchingGroup) {
+      const prefix = (negative ? '-' : '') + matchingGroup + ':';
+      const normalizedQuery = gambitQuery.toLowerCase();
+
+      const matchingKeys = groupedGambits
+        .filter((gambit) => gambit.suggestion().group.toLowerCase() === matchingGroup.toLowerCase())
         .flatMap((gambit): string[] =>
           gambit.suggestion().key instanceof Array ? (gambit.suggestion().key as string[]) : [gambit.suggestion().key as string]
         )
-        .filter((key) => !gambitQuery || key.toLowerCase().startsWith(gambitQuery))
-        .map((gambit) =>
-          this.gambitSuggestion(gambit, null, () => this.suggest(gambit, gambitQuery, autocomplete.relativeStart + autocomplete.typed.length))
+        .filter((key) => !normalizedQuery || key.toLowerCase().startsWith(normalizedQuery));
+
+      if (matchingKeys.length === 1 && matchingKeys[0].toLowerCase() === normalizedQuery) {
+        return [];
+      }
+
+      return matchingKeys.map((gambit) =>
+        this.gambitSuggestion(gambit, null, () =>
+          this.suggest(prefix + gambit, this.query.slice(autocomplete.relativeStart).match(/^\S*/)![0], autocomplete.relativeStart)
+        )
+      );
+    }
+
+    let matchingKeyValueGambit: IGambit<GambitType.KeyValue> | undefined;
+    let matchingSuggestion: KeyValueGambitSuggestion | undefined;
+
+    for (const gambit of keyValueGambits) {
+      const suggestion = gambit.suggestion();
+      const key = typeof suggestion.key === 'string' ? suggestion.key : '';
+      const canonicalKey = 'canonicalKey' in gambit && typeof (gambit as any).canonicalKey === 'function' ? (gambit as any).canonicalKey() : '';
+
+      if (key.toLowerCase() === gambitKey || (canonicalKey && canonicalKey.toLowerCase() === gambitKey)) {
+        matchingKeyValueGambit = gambit;
+        matchingSuggestion = suggestion;
+        break;
+      }
+    }
+
+    if (matchingKeyValueGambit && matchingSuggestion) {
+      const rawValues =
+        typeof matchingSuggestion.values === 'function'
+          ? (matchingSuggestion.values as () => (string | GambitValueOption)[])()
+          : matchingSuggestion.values;
+
+      if (Array.isArray(rawValues) && rawValues.length > 0) {
+        const options: GambitValueOption[] = rawValues.map((opt) => (typeof opt === 'string' ? { value: opt } : opt));
+
+        let prefixValues = '';
+        let activeTerm = gambitQuery;
+        const chosenValues: string[] = [];
+
+        if (matchingKeyValueGambit.predicates && gambitQuery.includes(',')) {
+          const lastCommaIndex = gambitQuery.lastIndexOf(',');
+          prefixValues = gambitQuery.slice(0, lastCommaIndex + 1);
+          activeTerm = gambitQuery.slice(lastCommaIndex + 1);
+          chosenValues.push(
+            ...prefixValues
+              .slice(0, -1)
+              .split(',')
+              .map((v) => v.trim().toLowerCase())
+              .filter(Boolean)
+          );
+        }
+
+        const cursorPosition = this.jqueryInput().prop('selectionEnd') ?? this.query.length;
+        const tokenRemainderMatch = this.query.slice(cursorPosition).match(/^[^\s]*/);
+        const tokenRemainder = tokenRemainderMatch ? tokenRemainderMatch[0] : '';
+        let suffixValues = '';
+        const commaIdx = tokenRemainder.indexOf(',');
+        const activeTermRemainder = commaIdx !== -1 ? tokenRemainder.slice(0, commaIdx) : tokenRemainder;
+        const fullActiveTerm = activeTerm + activeTermRemainder;
+
+        if (matchingKeyValueGambit.predicates && tokenRemainder) {
+          if (commaIdx !== -1) {
+            suffixValues = tokenRemainder.slice(commaIdx);
+            chosenValues.push(
+              ...suffixValues
+                .slice(1)
+                .split(',')
+                .map((v) => v.trim().toLowerCase())
+                .filter(Boolean)
+            );
+          }
+        }
+
+        const normalizedActiveTerm = activeTerm.toLowerCase();
+
+        const matchingOptions = options.filter(
+          (opt) =>
+            !chosenValues.includes(opt.value.toLowerCase()) &&
+            (!normalizedActiveTerm ||
+              opt.value.toLowerCase().startsWith(normalizedActiveTerm) ||
+              (opt.label && opt.label.toLowerCase().includes(normalizedActiveTerm)))
         );
+
+        if (fullActiveTerm && matchingOptions.some((opt) => opt.value === fullActiveTerm)) {
+          return [];
+        }
+
+        const keyToUse = (matchingSuggestion.key as string).toLowerCase() === gambitKey ? (matchingSuggestion.key as string) : gambitKey;
+        const prefix = (negative ? '-' : '') + keyToUse + ':' + prefixValues;
+        const replaceLength = cursorPosition - autocomplete.relativeStart + tokenRemainder.length;
+        const fromTyped = this.query.slice(autocomplete.relativeStart, autocomplete.relativeStart + replaceLength);
+
+        return matchingOptions.map((opt) =>
+          this.gambitSuggestion(
+            opt.value,
+            opt.label ?? null,
+            () => this.suggest(prefix + opt.value + suffixValues, fromTyped, autocomplete.relativeStart, (prefix + opt.value).length),
+            false
+          )
+        );
+      }
     }
 
     return null;
   }
 
-  gambitSuggestion(key: string, value: string | null, suggest: (negated?: boolean) => void): JSX.Element {
+  gambitSuggestion(key: string, value: string | null, suggest: (negated?: boolean) => void, showColon: boolean = true): JSX.Element {
     return (
       <li>
         <span className="Dropdown-item GambitsAutocomplete-gambit">
           <button type="button" className="Button--ua-reset" onclick={() => suggest()}>
             <span className="GambitsAutocomplete-gambit-key">
               {key}
-              {!!value && ':'}
+              {!!value && showColon && ':'}
             </span>
             {!!value && <span className="GambitsAutocomplete-gambit-value">{value}</span>}
           </button>
-          {!!value && (
+          {!!value && showColon && (
             <span className="GambitsAutocomplete-gambit-actions">
               <Button
                 class="Button Button--icon"
-                onclick={() => suggest()}
+                onclick={() => suggest(false)}
                 icon="fas fa-plus"
                 aria-label={app.translator.trans('core.lib.search.gambit_plus_button_a11y_label')}
               />
@@ -156,7 +289,7 @@ export default class GambitsAutocomplete {
     );
   }
 
-  suggest(text: string, fromTyped: string, start: number) {
+  suggest(text: string, fromTyped: string, start: number, cursorOffset?: number) {
     const $input = this.jqueryInput();
 
     const query = this.query;
@@ -165,7 +298,8 @@ export default class GambitsAutocomplete {
     this.onchange(replaced);
     $input[0].focus();
     setTimeout(() => {
-      $input[0].setSelectionRange(start + text.length, start + text.length);
+      const selectionPos = start + (cursorOffset !== undefined ? cursorOffset : text.length);
+      $input[0].setSelectionRange(selectionPos, selectionPos);
       m.redraw();
     }, 50);
 

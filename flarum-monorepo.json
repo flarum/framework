@@ -2,6 +2,11 @@
   "packages": {
     "extensions": [
       {
+        "name": "ai",
+        "gitRemote": "git@github.com:flarum/ai.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "akismet",
         "gitRemote": "git@github.com:flarum/akismet.git",
         "mainBranch": "2.x"
@@ -12,8 +17,18 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "audit",
+        "gitRemote": "git@github.com:flarum/audit.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "bbcode",
         "gitRemote": "git@github.com:flarum/bbcode.git",
+        "mainBranch": "2.x"
+      },
+      {
+        "name": "deck",
+        "gitRemote": "git@github.com:flarum/deck.git",
         "mainBranch": "2.x"
       },
       {
@@ -57,8 +72,18 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "mcp",
+        "gitRemote": "git@github.com:flarum/mcp.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "mentions",
         "gitRemote": "git@github.com:flarum/mentions.git",
+        "mainBranch": "2.x"
+      },
+      {
+        "name": "messages",
+        "gitRemote": "git@github.com:flarum/messages.git",
         "mainBranch": "2.x"
       },
       {
@@ -67,8 +92,13 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "oauth-provider",
+        "gitRemote": "git@github.com:flarum/oauth-provider.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "package-manager",
-        "gitRemote": "git@github.com:flarum/package-manager.git",
+        "gitRemote": "git@github.com:flarum/extension-manager.git",
         "mainBranch": "2.x"
       },
       {
@@ -104,11 +134,6 @@
       {
         "name": "tags",
         "gitRemote": "git@github.com:flarum/tags.git",
-        "mainBranch": "2.x"
-      },
-      {
-        "name": "messages",
-        "gitRemote": "git@github.com:flarum/messages.git",
         "mainBranch": "2.x"
       }
     ],

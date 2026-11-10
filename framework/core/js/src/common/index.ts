@@ -25,8 +25,6 @@ import app from './app';
 
 export { app };
 
-import './utils/arrayFlatPolyfill';
-
 const tooltipGen = $.fn.tooltip;
 
 // Remove in a future version of Flarum.

@@ -45,26 +45,41 @@ export interface Extension {
     };
   };
   require?: Record<string, string>;
+  suggest?: Record<string, string>;
   abandoned?: boolean | string;
 }
 
 export enum DatabaseDriver {
   MySQL = 'MySQL',
+  MariaDB = 'MariaDB',
   PostgreSQL = 'PostgreSQL',
   SQLite = 'SQLite',
 }
 
+export interface DatabaseVersionStatus {
+  // A running install is always at or above the hard minimum, so the backend
+  // only ever reports these two states to the admin frontend.
+  status: 'ok' | 'below_recommended';
+  server: string;
+  version: string;
+  recommended: string;
+}
+
 export interface AdminApplicationData extends ApplicationData {
   extensions: Record<string, Extension>;
+  installedPackages: string[];
   settings: Record<string, string>;
   modelStatistics: Record<string, { total: number }>;
   displayNameDrivers: string[];
+  avatarDrivers: string[];
   slugDrivers: Record<string, string[]>;
   searchDrivers: Record<string, string[]>;
   permissions: Record<string, string[]>;
   maintenanceByConfig: boolean;
   safeModeExtensions?: string[] | null;
   safeModeExtensionsConfig?: string[] | null;
+  announcementsDisabled: boolean;
+
   fontawesomeByConfig: boolean;
   fontawesomeConfig?: {
     source: string;
@@ -74,11 +89,34 @@ export interface AdminApplicationData extends ApplicationData {
 
   dbDriver: DatabaseDriver;
   dbVersion: string;
+  dbDriverMismatch: string | null;
+  dbVersionStatus: DatabaseVersionStatus | null;
   dbOptions: Record<string, string>;
   phpVersion: string;
   queueDriver: string;
+  pausedQueues: string[];
+  knownQueues: string[];
   schedulerStatus: string;
   sessionDriver: string;
+
+  sessionByConfig: boolean;
+  sessionLifetime: number;
+  sessionCookieExpiresOnClose: boolean;
+  accessTokenLifetimes: AccessTokenLifetime[];
+
+  /**
+   * The sort options each resource offers, keyed by resource type, and within
+   * that by the alias that appears in a URL. Mirrors what the forum receives,
+   * so admin UI can offer sorting without keeping its own copy of the list.
+   */
+  sortMaps: Record<string, Record<string, string>>;
+}
+
+export interface AccessTokenLifetime {
+  /** The type the token class declares, e.g. `session` or `session_remember`. */
+  type: string;
+  /** How long tokens of this type last, in seconds. Zero means they never expire. */
+  lifetime: number;
 }
 
 export default class AdminApplication extends Application {
@@ -93,6 +131,7 @@ export default class AdminApplication extends Application {
   extensionCategories: Record<string, number> = {
     feature: 30,
     theme: 20,
+    'forum-widget': 15,
     language: 10,
   };
 

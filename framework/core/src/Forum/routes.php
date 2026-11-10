@@ -63,6 +63,12 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
 
     $map->get(
         '/logout',
+        'logoutPage',
+        $route->toController(Controller\LogOutViewController::class)
+    );
+
+    $map->post(
+        '/logout',
         'logout',
         $route->toController(Controller\LogOutController::class)
     );
@@ -113,5 +119,59 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         '/reset',
         'savePassword',
         $route->toController(Controller\SavePasswordController::class)
+    );
+
+    $map->get(
+        '/manifest',
+        'manifest',
+        $route->toController(Controller\WebManifestController::class)
+    );
+
+    $map->get(
+        '/favicon.ico',
+        'favicon.ico',
+        $route->toController(Controller\FaviconController::class)
+    );
+
+    $map->get(
+        '/opensearch',
+        'opensearch',
+        $route->toController(Controller\OpenSearchController::class)
+    );
+
+    $map->get(
+        '/opensearch/search',
+        'opensearch.search',
+        $route->toController(Controller\OpenSearchSearchController::class)
+    );
+
+    $map->get(
+        '/splash/{size}',
+        'splash',
+        $route->toController(Controller\SplashScreenController::class)
+    );
+
+    $map->get(
+        '/sw',
+        'serviceWorker',
+        $route->toController(Controller\ServiceWorkerController::class)
+    );
+
+    $map->get(
+        '/sw/{part}',
+        'serviceWorker.part',
+        $route->toController(Controller\ServiceWorkerPartController::class)
+    );
+
+    $map->get(
+        '/offline',
+        'offline',
+        $route->toController(Controller\OfflineController::class)
+    );
+
+    $map->post(
+        '/mail/webhook[/{driver}]',
+        'mailWebhook',
+        $route->toController(\Flarum\Mail\WebhookController::class)
     );
 };

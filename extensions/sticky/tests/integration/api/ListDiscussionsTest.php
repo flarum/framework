@@ -39,20 +39,24 @@ class ListDiscussionsTest extends TestCase
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now()->addMinutes(2), 'last_posted_at' => Carbon::now()->addMinutes(5), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'is_sticky' => false, 'last_post_number' => 1],
                 ['id' => 3, 'title' => __CLASS__, 'created_at' => Carbon::now()->addMinutes(3), 'last_posted_at' => Carbon::now()->addMinute(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'is_sticky' => true, 'last_post_number' => 1],
                 ['id' => 4, 'title' => __CLASS__, 'created_at' => Carbon::now()->addMinutes(4), 'last_posted_at' => Carbon::now()->addMinutes(2), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'is_sticky' => false, 'last_post_number' => 1],
+                // Sticky discussion in a hidden tag — must not appear on the all-discussions page.
+                ['id' => 5, 'title' => __CLASS__, 'created_at' => Carbon::now()->addMinutes(10), 'last_posted_at' => Carbon::now()->addMinutes(10), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'is_sticky' => true, 'last_post_number' => 1],
             ],
             'discussion_user' => [
                 ['discussion_id' => 1, 'user_id' => 3, 'last_read_post_number' => 1],
                 ['discussion_id' => 3, 'user_id' => 3, 'last_read_post_number' => 1],
             ],
             Tag::class => [
-                ['id' => 1, 'slug' => 'general', 'position' => 0, 'parent_id' => null]
+                ['id' => 1, 'slug' => 'general', 'position' => 0, 'parent_id' => null],
+                ['id' => 2, 'slug' => 'hidden', 'position' => 1, 'parent_id' => null, 'is_hidden' => true],
             ],
             'discussion_tag' => [
                 ['discussion_id' => 1, 'tag_id' => 1],
                 ['discussion_id' => 2, 'tag_id' => 1],
                 ['discussion_id' => 3, 'tag_id' => 1],
                 ['discussion_id' => 4, 'tag_id' => 1],
-            ]
+                ['discussion_id' => 5, 'tag_id' => 2],
+            ],
         ]);
     }
 
@@ -139,6 +143,36 @@ class ListDiscussionsTest extends TestCase
     }
 
     #[Test]
+    public function sticky_discussion_in_hidden_tag_excluded_from_all_discussions_as_guest()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
+
+        $this->assertNotContains('5', $ids);
+    }
+
+    #[Test]
+    public function sticky_discussion_in_hidden_tag_excluded_from_all_discussions_with_only_unread_on()
+    {
+        $this->setting('flarum-sticky.only_sticky_unread_discussions', true);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $ids = Arr::pluck(json_decode($body, true)['data'], 'id');
+
+        $this->assertNotContains('5', $ids);
+    }
+
+    #[Test]
     public function list_discussions_shows_stick_first_on_a_tag()
     {
         $response = $this->send(
@@ -158,5 +192,98 @@ class ListDiscussionsTest extends TestCase
         $data = json_decode($body, true);
 
         $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
+    public function list_discussions_does_not_pin_sticky_on_all_when_pin_setting_disabled_as_guest()
+    {
+        $this->setting('flarum-sticky.pin_sticky_on_all_discussions', false);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $data = json_decode($body, true);
+
+        $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
+    public function list_discussions_pin_setting_disabled_overrides_only_unread_setting_on_all()
+    {
+        // pin_sticky_on_all_discussions is the master gate for /all and must
+        // override only_sticky_unread_discussions when both are flipped.
+        $this->setting('flarum-sticky.pin_sticky_on_all_discussions', false);
+        $this->setting('flarum-sticky.only_sticky_unread_discussions', false);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', [
+                'authenticatedAs' => 2
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $data = json_decode($body, true);
+
+        $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
+    public function list_discussions_pin_setting_disabled_does_not_affect_tag_pages()
+    {
+        $this->setting('flarum-sticky.pin_sticky_on_all_discussions', false);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', [
+                'authenticatedAs' => 3
+            ])->withQueryParams([
+                'filter' => [
+                    'tag' => 'general'
+                ]
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $data = json_decode($body, true);
+
+        $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
+    public function list_discussions_only_unread_off_does_not_pin_sticky_on_a_non_tag_filter()
+    {
+        // With only_sticky_unread_discussions off, pinning applies to the
+        // All Discussions page and to a single-tag page — but NOT to other
+        // filtered listings (e.g. a by-author search). Previously the
+        // "pin all when only_unread is off" branch ran ahead of the filter
+        // check, so it pinned sticky on any filtered listing; pinning is now
+        // scoped to /all and single-tag pages, which is the intended behaviour.
+        $this->setting('flarum-sticky.only_sticky_unread_discussions', false);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', [
+                'authenticatedAs' => 1,
+            ])->withQueryParams([
+                'filter' => [
+                    'author' => 'Muralf',
+                ],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+
+        $data = json_decode($body, true);
+
+        // Natural last_posted_at order — no sticky pinning on a non-tag filter.
+        // The sticky discussions (1 and 3) sit last, in their natural position,
+        // rather than floating to the top. (5 is also sticky and appears here
+        // because the author filter isn't tag-scoped and the actor is an admin;
+        // it leads only because it is the most recently posted, not because it
+        // is stickied.)
+        $this->assertEquals([5, 2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
     }
 }

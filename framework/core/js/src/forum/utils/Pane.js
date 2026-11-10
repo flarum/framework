@@ -28,7 +28,13 @@ export default class Pane {
      * @type {Boolean}
      * @protected
      */
-    this.pinned = localStorage.getItem(this.pinnedKey) === 'true';
+    this.pinned = false;
+
+    try {
+      this.pinned = localStorage.getItem(this.pinnedKey) === 'true';
+    } catch (e) {
+      // The browser blocks storage.
+    }
 
     /**
      * Whether or not the pane is currently exists.
@@ -98,7 +104,11 @@ export default class Pane {
   togglePinned() {
     this.pinned = !this.pinned;
 
-    localStorage.setItem(this.pinnedKey, this.pinned ? 'true' : 'false');
+    try {
+      localStorage.setItem(this.pinnedKey, this.pinned ? 'true' : 'false');
+    } catch (e) {
+      // The browser blocks storage: the pane stays pinned until the page is left.
+    }
 
     this.render();
   }

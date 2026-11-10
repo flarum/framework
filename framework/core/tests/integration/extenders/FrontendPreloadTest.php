@@ -34,7 +34,8 @@ class FrontendPreloadTest extends TestCase
         $body = $response->getBody()->getContents();
 
         foreach ($urls as $url) {
-            $this->assertStringContainsString("<link rel=\"preload\" href=\"$url\" as=\"font\" type=\"font/woff2\" crossorigin=\"\">", $body);
+            // Versioned like the stylesheet's own font URLs (see FontAwesomeLoadingTest).
+            $this->assertMatchesRegularExpression('~<link rel="preload" href="'.preg_quote($url, '~').'(\?v=[0-9a-f]+)?" as="font" type="font/woff2" crossorigin="">~', $body);
         }
     }
 

@@ -114,9 +114,11 @@ class Client
      */
     public function send(string $method, string $path): ResponseInterface
     {
-        $request = ServerRequestFactory::fromGlobals(null, $this->queryParams, $this->body)
-            ->withMethod($method)
-            ->withUri(new Uri($path));
+        $request = RequestUtil::withInternal(
+            ServerRequestFactory::fromGlobals(null, $this->queryParams, $this->body)
+                ->withMethod($method)
+                ->withUri(new Uri($path))
+        );
 
         if ($this->parent) {
             $request = $request

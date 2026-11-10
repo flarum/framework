@@ -36,6 +36,13 @@
       <input class="FormControl" name="dbName" value="flarum">
     </div>
 
+    <div data-group="pgsql">
+      <div class="FormField">
+        <label>Schema</label>
+        <input class="FormControl" name="dbSchema" value="public">
+      </div>
+    </div>
+
     <div data-group="mysql,mariadb,pgsql">
       <div class="FormField">
         <label>Host</label>
@@ -90,7 +97,9 @@
   document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('form input').select();
 
-    document.querySelector('select[name="dbDriver"]').addEventListener('change', function() {
+    const dbDriver = document.querySelector('select[name="dbDriver"]');
+
+    dbDriver.addEventListener('change', function() {
       document.querySelectorAll('[data-group]').forEach(function(group) {
         group.style.display = 'none';
       });
@@ -101,6 +110,8 @@
         group.style.display = 'block';
       });
     });
+
+    dbDriver.dispatchEvent(new Event('change', { bubbles: true }));
 
     document.querySelector('form').addEventListener('submit', function(e) {
       e.preventDefault();

@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
@@ -106,6 +107,53 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         // Order-independent comparison
+        $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match');
+    }
+
+    public static function slugDriverProvider(): array
+    {
+        return [
+            'username driver (default)' => ['username', 'normal', ['2', '3']],
+            'id driver' => ['id', '2', ['2', '3']],
+            'id_with_display_name driver' => ['id_with_display_name', '2-normal', ['2', '3']],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('slugDriverProvider')]
+    public function author_filter_works_with_slug_driver(string $driver, string $slug, array $expectedIds): void
+    {
+        $this->setting('slug_driver_Flarum\\User\\User', $driver);
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+            ->withQueryParams([
+                'filter' => ['author' => $slug],
+                'include' => 'mostRelevantPost',
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $data = json_decode($body, true)['data'];
+        $this->assertEqualsCanonicalizing($expectedIds, Arr::pluck($data, 'id'), 'IDs do not match');
+    }
+
+    #[Test]
+    public function author_filter_negation_works_with_id_slug_driver(): void
+    {
+        $this->setting('slug_driver_Flarum\\User\\User', 'id');
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+            ->withQueryParams([
+                'filter' => ['-author' => '2'],
+                'include' => 'mostRelevantPost',
+            ])
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true)['data'];
         $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 

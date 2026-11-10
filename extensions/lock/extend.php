@@ -20,6 +20,7 @@ use Flarum\Lock\Filter\LockedFilter;
 use Flarum\Lock\Listener;
 use Flarum\Lock\Notification\DiscussionLockedBlueprint;
 use Flarum\Lock\Post\DiscussionLockedPost;
+use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 
 return [
@@ -41,6 +42,7 @@ return [
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         ->fields(fn () => [
             Schema\Boolean::make('isLocked')
+                ->description('Whether the discussion is locked, so only those allowed to reply to locked discussions can reply.')
                 ->writable(fn (Discussion $discussion, Context $context) => $context->getActor()->can('lock', $discussion))
                 ->set(function (Discussion $discussion, bool $isLocked, Context $context) {
                     $actor = $context->getActor();
@@ -73,4 +75,21 @@ return [
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, LockedFilter::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-realtime', fn () => [
+            (new RealtimeExtend())
+                ->broadcastModelEvent(
+                    [DiscussionWasLocked::class, DiscussionWasUnlocked::class],
+                    fn ($event) => $event->discussion,
+                    fn ($event) => $event->user,
+                    'lockedEvent'
+                ),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('flarum-lock')
+                ->listen(DiscussionWasLocked::class, 'discussion.locked', fn ($e) => ['discussion_id' => $e->discussion->id])
+                ->listen(DiscussionWasUnlocked::class, 'discussion.unlocked', fn ($e) => ['discussion_id' => $e->discussion->id]),
+        ]),
 ];

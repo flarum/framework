@@ -12,7 +12,12 @@ namespace Flarum\Frontend\Content;
 use Flarum\Foundation\Config;
 use Flarum\Frontend\Assets as FrontendAssets;
 use Flarum\Frontend\Compiler\CompilerInterface;
+use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\Document;
+use Flarum\Frontend\RecompileFrontendAssets;
+use Flarum\Locale\LocaleManager;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -45,13 +50,49 @@ class Assets
     {
         $locale = $request->getAttribute('locale');
 
+        // Rebuild any asset set that was flagged dirty (e.g. by an extension
+        // toggle). This runs here — in a freshly-booted request that reflects
+        // the current extension state — rather than in the toggling request,
+        // whose container predates the toggle and would bake stale sources
+        // (e.g. locale bundles without a newly-enabled extension's keys) into
+        // the manifest. The rebuild is in place: nothing is deleted, so
+        // already-served URLs keep resolving and the asset revision token only
+        // moves if the output genuinely changed.
+        $this->recompileIfDirty($this->assets);
+        $this->recompileIfDirty($this->commonAssets);
+
         $compilers = $this->assembleCompilers($locale);
 
-        if ($this->config->inDebugMode()) {
-            $this->forceCommit(Arr::flatten($compilers));
-        }
+        // Assembling the URLs compiles anything with no revision yet — a first
+        // render after a cache clear does so for every asset — and each of
+        // those records a revision. Collect them so they are stored together
+        // rather than one statement per asset. getUrl() reads back the
+        // revision it just recorded, which the versioner answers from the
+        // pending batch.
+        $versioner = $this->container->make(VersionerInterface::class);
+        $versioner->deferWrites();
 
-        $this->addAssetsToDocument($document, $compilers);
+        try {
+            if ($this->config->inDebugMode()) {
+                $this->recompile(Arr::flatten($compilers));
+            }
+
+            $this->addAssetsToDocument($document, $compilers);
+        } finally {
+            $versioner->flushWrites();
+        }
+    }
+
+    protected function recompileIfDirty(FrontendAssets $assets): void
+    {
+        (new RecompileFrontendAssets(
+            $assets,
+            $this->container->make(LocaleManager::class),
+            $this->container->make('events'),
+            $this->container->make(SettingsRepositoryInterface::class),
+            $this->container->make(CacheRepository::class),
+            $this->container->make(VersionerInterface::class)
+        ))->recompileIfDirty();
     }
 
     /**
@@ -83,14 +124,17 @@ class Assets
     }
 
     /**
-     * Force compilation of assets when in debug mode.
+     * Recompile assets on every request when in debug mode, so changes show up
+     * immediately. A plain commit() recompiles from source but only writes when
+     * the output actually changed — forcing here would rewrite every bundle,
+     * sourcemap and the revision manifest on every page view.
      *
      * @param CompilerInterface[] $compilers
      */
-    protected function forceCommit(array $compilers): void
+    protected function recompile(array $compilers): void
     {
         foreach ($compilers as $compiler) {
-            $compiler->commit(true);
+            $compiler->commit();
         }
     }
 

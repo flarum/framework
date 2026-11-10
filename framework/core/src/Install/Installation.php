@@ -22,6 +22,7 @@ class Installation
     private DatabaseConfig $dbConfig;
     private AdminUser $adminUser;
     private ?string $accessToken = null;
+    private array $queueConfig = ['driver' => 'sync'];
 
     // A few instance variables to persist objects between steps.
     // Could also be local variables in build(), but this way
@@ -68,6 +69,13 @@ class Installation
         return $this;
     }
 
+    public function queueConfig(array $queue): self
+    {
+        $this->queueConfig = $queue;
+
+        return $this;
+    }
+
     public function extensions(?array $enabledExtensions): self
     {
         $this->enabledExtensions = $enabledExtensions;
@@ -92,18 +100,21 @@ class Installation
     public function prerequisites(): Prerequisite\PrerequisiteInterface
     {
         return new Prerequisite\Composite(
-            new Prerequisite\PhpVersion('8.1.0'),
+            new Prerequisite\PhpVersion('8.3.0'),
             new Prerequisite\PhpExtensions([
+                'curl',
                 'dom',
                 'fileinfo',
                 'gd',
                 'json',
                 'mbstring',
                 'openssl',
-                'pdo_mysql',
                 'tokenizer',
                 'zip',
             ]),
+            // Only the chosen database's driver is needed, and that is checked
+            // once it has been chosen.
+            new Prerequisite\AnyPhpExtension(array_values(array_unique(DatabaseConfig::DRIVER_EXTENSIONS))),
             new Prerequisite\WritablePaths([
                 $this->paths->base,
                 $this->getAssetPath().'/*',
@@ -133,12 +144,13 @@ class Installation
                 $this->debug,
                 $this->dbConfig,
                 $this->baseUrl,
-                $this->getConfigPath()
+                $this->getConfigPath(),
+                $this->queueConfig
             );
         });
 
         $pipeline->pipe(function () {
-            return new Steps\RunMigrations($this->db, $this->dbConfig->toArray()['driver'], $this->getMigrationPath());
+            return new Steps\RunMigrations($this->db, $this->dbConfig, $this->getMigrationPath());
         });
 
         $pipeline->pipe(function () {

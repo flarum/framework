@@ -9,9 +9,10 @@
 
 namespace Flarum\Gdpr\Http\Controller;
 
+use Carbon\Carbon;
 use Flarum\Gdpr\Models\Export;
 use Flarum\Gdpr\StorageManager;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response;
 use Psr\Http\Message\ResponseInterface;
@@ -30,18 +31,24 @@ class ExportController implements RequestHandlerInterface
 
         $export = Export::byFile($file);
 
-        if ($export) {
-            return new Response(
-                $this->storageManager->getStoredExport($export),
-                200,
-                [
-                    'Content-Type' => 'application/zip',
-                    'Content-Length' => (string) $this->storageManager->getStoredExportSize($export),
-                    'Content-Disposition' => 'attachment; filename="data-export-'.$export->user->username.'-'.$export->created_at->toIso8601String().'.zip"',
-                ]
-            );
+        if (! $export) {
+            throw (new ModelNotFoundException())->setModel(Export::class);
         }
 
-        throw new FileNotFoundException();
+        $export->downloaded_at = Carbon::now();
+        $export->downloaded_ip = $request->getAttribute('ipAddress');
+        $userAgent = $request->getHeaderLine('User-Agent');
+        $export->downloaded_user_agent = $userAgent !== '' ? mb_substr($userAgent, 0, 255) : null;
+        $export->save();
+
+        return new Response(
+            $this->storageManager->getStoredExport($export),
+            200,
+            [
+                'Content-Type' => 'application/zip',
+                'Content-Length' => (string) $this->storageManager->getStoredExportSize($export),
+                'Content-Disposition' => 'attachment; filename="data-export-'.$export->user->username.'-'.$export->created_at->toIso8601String().'.zip"',
+            ]
+        );
     }
 }

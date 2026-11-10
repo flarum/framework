@@ -47,6 +47,7 @@ readonly class WriteSettings implements Step
     {
         return [
             'allow_hide_own_posts' => 'reply',
+            'avatar_driver' => 'default',
             'allow_post_editing' => 'reply',
             'allow_renaming' => '10',
             'allow_sign_up' => '1',
@@ -63,6 +64,7 @@ readonly class WriteSettings implements Step
             'mail_driver' => 'mail',
             'mail_format' => 'multipart',
             'mail_from' => 'noreply@localhost',
+            'open_as_app' => '1',
             'slug_driver_Flarum\User\User' => 'default',
             'theme_colored_header' => '0',
             'color_scheme' => 'auto',

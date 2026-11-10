@@ -30,11 +30,6 @@ class FileSource implements SourceInterface
         return file_get_contents($this->path);
     }
 
-    public function getCacheDifferentiator(): array
-    {
-        return [$this->path, filemtime($this->path)];
-    }
-
     public function getPath(): string
     {
         return $this->path;

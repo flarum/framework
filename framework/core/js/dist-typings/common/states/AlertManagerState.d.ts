@@ -16,6 +16,21 @@ export default class AlertManagerState {
     protected activeAlerts: AlertArray;
     protected alertId: AlertIdentifier;
     protected loadingPool: number;
+    /**
+     * How long (ms) a load must run before the loading indicator is shown. Loads
+     * that complete faster than this never show an indicator, avoiding a flicker
+     * for fast (e.g. cached) chunk loads.
+     */
+    protected static readonly LOADING_DELAY = 250;
+    /**
+     * Pending timer for the delayed display of the loading indicator, or null when
+     * no display is pending.
+     */
+    protected loadingTimeout: ReturnType<typeof setTimeout> | null;
+    /**
+     * Identifier of the currently-shown loading alert, or null when none is shown.
+     */
+    protected loadingAlertId: AlertIdentifier | null;
     getActiveAlerts(): AlertArray;
     /**
      * Show an Alert in the alerts area.
@@ -34,11 +49,18 @@ export default class AlertManagerState {
      */
     clear(): void;
     /**
-     * Shows a loading alert.
+     * Register an outstanding load and, if this is the first one, schedule the
+     * loading indicator to appear after {@link AlertManagerState.LOADING_DELAY}.
+     *
+     * Concurrent loads share a single indicator (tracked via `loadingPool`), so the
+     * UI never shows more than one "loading" alert regardless of how many chunks or
+     * requests are in flight. Loads that finish before the delay never show one.
      */
-    showLoading(): AlertIdentifier | null;
+    showLoading(): void;
     /**
-     * Hides a loading alert.
+     * Mark one outstanding load as finished. When the last one completes, cancel a
+     * still-pending indicator (so a fast load never flickers) and dismiss the
+     * indicator if it was already shown.
      */
     clearLoading(): void;
 }

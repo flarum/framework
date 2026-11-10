@@ -20,6 +20,24 @@ export default class AlertManagerState {
   protected alertId: AlertIdentifier = 0;
   protected loadingPool: number = 0;
 
+  /**
+   * How long (ms) a load must run before the loading indicator is shown. Loads
+   * that complete faster than this never show an indicator, avoiding a flicker
+   * for fast (e.g. cached) chunk loads.
+   */
+  protected static readonly LOADING_DELAY = 250;
+
+  /**
+   * Pending timer for the delayed display of the loading indicator, or null when
+   * no display is pending.
+   */
+  protected loadingTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Identifier of the currently-shown loading alert, or null when none is shown.
+   */
+  protected loadingAlertId: AlertIdentifier | null = null;
+
   getActiveAlerts() {
     return this.activeAlerts;
   }
@@ -75,28 +93,55 @@ export default class AlertManagerState {
   }
 
   /**
-   * Shows a loading alert.
+   * Register an outstanding load and, if this is the first one, schedule the
+   * loading indicator to appear after {@link AlertManagerState.LOADING_DELAY}.
+   *
+   * Concurrent loads share a single indicator (tracked via `loadingPool`), so the
+   * UI never shows more than one "loading" alert regardless of how many chunks or
+   * requests are in flight. Loads that finish before the delay never show one.
    */
-  showLoading(): AlertIdentifier | null {
+  showLoading(): void {
     this.loadingPool++;
 
-    if (this.loadingPool > 1) return null;
+    // Only the first concurrent load arms the timer; the rest just join the pool.
+    if (this.loadingPool > 1 || this.loadingTimeout !== null || this.loadingAlertId !== null) {
+      return;
+    }
 
-    return this.show(
-      {
-        type: 'warning',
-        dismissible: false,
-      },
-      app.translator.trans('core.lib.loading_indicator.accessible_label')
-    );
+    this.loadingTimeout = setTimeout(() => {
+      this.loadingTimeout = null;
+
+      this.loadingAlertId = this.show(
+        {
+          type: 'warning',
+          dismissible: false,
+        },
+        app.translator.trans('core.lib.loading_indicator.accessible_label')
+      );
+    }, AlertManagerState.LOADING_DELAY);
   }
 
   /**
-   * Hides a loading alert.
+   * Mark one outstanding load as finished. When the last one completes, cancel a
+   * still-pending indicator (so a fast load never flickers) and dismiss the
+   * indicator if it was already shown.
    */
   clearLoading(): void {
-    this.loadingPool--;
+    // Guard against an unbalanced clearLoading() driving the pool negative.
+    if (this.loadingPool > 0) {
+      this.loadingPool--;
+    }
 
-    if (this.loadingPool === 0) this.clear();
+    if (this.loadingPool > 0) return;
+
+    if (this.loadingTimeout !== null) {
+      clearTimeout(this.loadingTimeout);
+      this.loadingTimeout = null;
+    }
+
+    if (this.loadingAlertId !== null) {
+      this.dismiss(this.loadingAlertId);
+      this.loadingAlertId = null;
+    }
   }
 }

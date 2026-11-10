@@ -4,6 +4,11 @@
         <meta charset="utf-8">
         <title>{{ $title }}</title>
 
+        {{-- Minimal critical CSS: gives the browser a theme-accurate body background to paint --}}
+        {{-- as soon as the document starts, before the stylesheet has loaded. Content is     --}}
+        {{-- computed server-side so the dark background matches the forum's actual secondary --}}
+        {{-- colour. See FrontendServiceProvider.                                              --}}
+        @if($criticalCss)<style>{!! $criticalCss !!}</style>@endif
         {!! $head !!}
     </head>
 

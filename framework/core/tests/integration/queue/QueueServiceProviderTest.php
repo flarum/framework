@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\queue;
 
 use Flarum\Extend;
+use Flarum\Queue\RoutingQueue;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\DatabaseQueue;
@@ -37,7 +38,10 @@ class QueueServiceProviderTest extends TestCase
 
         $queue = $this->app()->getContainer()->make(Queue::class);
 
-        $this->assertInstanceOf(DatabaseQueue::class, $queue);
+        // The connection is wrapped in a RoutingQueue for job routing; the
+        // underlying driver is the database queue.
+        $this->assertInstanceOf(RoutingQueue::class, $queue);
+        $this->assertInstanceOf(DatabaseQueue::class, $queue->getDriver());
     }
 
     #[Test]
@@ -91,6 +95,66 @@ class QueueServiceProviderTest extends TestCase
         $this->assertContains(\Illuminate\Queue\Console\RetryCommand::class, $commandNames);
     }
 
+    /**
+     * Regression test: the queue connection must have a non-null string name.
+     *
+     * illuminate/queue 13.15.0 type-hinted WorkerIdle::$connectionName as
+     * `string`, so the worker loop throws a TypeError when the connection name
+     * is null. The name flows from the queue connection / config('queue.default').
+     */
+    #[Test]
+    public function queue_connection_has_a_non_null_string_name()
+    {
+        $this->config('queue', ['driver' => 'database']);
+
+        $this->app();
+
+        $queue = $this->app()->getContainer()->make(Queue::class);
+
+        $this->assertIsString($queue->getConnectionName());
+        $this->assertNotEmpty($queue->getConnectionName());
+    }
+
+    #[Test]
+    public function default_queue_connection_name_is_configured()
+    {
+        $this->app();
+
+        $default = $this->app()->getContainer()->make('config')->get('queue.default');
+
+        // The worker command falls back to this when no connection argument is
+        // given; it must be a non-null string to satisfy WorkerIdle.
+        $this->assertIsString($default);
+        $this->assertNotEmpty($default);
+    }
+
+    /**
+     * Regression test for the fof/redis queue:pause fatal.
+     *
+     * An extension that replaces `flarum.queue.connection` may bind a driver
+     * with no connection name (core only names its own). When core wraps that
+     * driver for routing it must give it a name, or `getConnectionName()`
+     * returns null and flows into `pause()`, crashing `queue:pause` and leaving
+     * the dashboard blind to the pause.
+     */
+    #[Test]
+    public function an_extension_queue_with_no_connection_name_is_named_when_wrapped()
+    {
+        $this->extend(
+            (new Extend\ServiceProvider())
+                ->register(UnnamedQueueServiceProvider::class)
+        );
+
+        $this->app();
+
+        $queue = $this->app()->getContainer()->make(Queue::class);
+
+        // Wrapped for routing, and the wrap supplied the missing name.
+        $this->assertInstanceOf(RoutingQueue::class, $queue);
+        $this->assertIsString($queue->getConnectionName());
+        $this->assertNotEmpty($queue->getConnectionName());
+    }
+
     #[Test]
     public function it_uses_null_failed_job_provider_for_sync_queue()
     {
@@ -125,6 +189,92 @@ class CustomQueueServiceProvider extends \Flarum\Foundation\AbstractServiceProvi
             $customQueue->setContainer($container);
 
             return $customQueue;
+        });
+    }
+}
+
+class UnnamedQueueServiceProvider extends \Flarum\Foundation\AbstractServiceProvider
+{
+    public function register(): void
+    {
+        // Replace the binding with a real (async) driver that carries no
+        // connection name, the way fof/redis binds its RedisQueue.
+        $this->container->extend('flarum.queue.connection', function ($queue, $container) {
+            return new class implements Queue {
+                private $name = null;
+
+                public function getConnectionName()
+                {
+                    return $this->name;
+                }
+
+                public function setConnectionName($name)
+                {
+                    $this->name = $name;
+
+                    return $this;
+                }
+
+                public function size($queue = null)
+                {
+                    return 0;
+                }
+
+                public function pendingSize($queue = null)
+                {
+                    return 0;
+                }
+
+                public function delayedSize($queue = null)
+                {
+                    return 0;
+                }
+
+                public function reservedSize($queue = null)
+                {
+                    return 0;
+                }
+
+                public function creationTimeOfOldestPendingJob($queue = null)
+                {
+                    return null;
+                }
+
+                public function push($job, $data = '', $queue = null)
+                {
+                    return null;
+                }
+
+                public function pushOn($queue, $job, $data = '')
+                {
+                    return null;
+                }
+
+                public function pushRaw($payload, $queue = null, array $options = [])
+                {
+                    return null;
+                }
+
+                public function later($delay, $job, $data = '', $queue = null)
+                {
+                    return null;
+                }
+
+                public function laterOn($queue, $delay, $job, $data = '')
+                {
+                    return null;
+                }
+
+                public function bulk($jobs, $data = '', $queue = null)
+                {
+                    return null;
+                }
+
+                public function pop($queue = null)
+                {
+                    return null;
+                }
+            };
         });
     }
 }

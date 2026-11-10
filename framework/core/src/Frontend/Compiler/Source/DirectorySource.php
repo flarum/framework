@@ -21,8 +21,9 @@ class DirectorySource implements SourceInterface
         protected string $path,
         protected ?string $extensionId = null
     ) {
+        // Only ever read: an extension without lazy-loaded chunks may not ship the directory.
         $this->filesystem = new FilesystemAdapter(
-            new Filesystem($adapter = new LocalFilesystemAdapter($path)),
+            new Filesystem($adapter = new LocalFilesystemAdapter($path, lazyRootCreation: true)),
             $adapter,
             ['root' => $path]
         );
@@ -31,11 +32,6 @@ class DirectorySource implements SourceInterface
     public function getContent(): string
     {
         return '';
-    }
-
-    public function getCacheDifferentiator(): array
-    {
-        return [$this->path, filemtime($this->path)];
     }
 
     public function getFilesystem(): FilesystemAdapter

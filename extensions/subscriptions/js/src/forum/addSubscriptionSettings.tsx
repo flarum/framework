@@ -4,15 +4,15 @@ import type SettingsPage from 'flarum/forum/components/SettingsPage';
 import Switch from 'flarum/common/components/Switch';
 
 export default function () {
-  extend('flarum/forum/components/SettingsPage', 'notificationsItems', function (this: SettingsPage, items) {
+  extend('flarum/forum/components/SettingsPage', 'notificationsItems', function (this: SettingsPage & Record<string, any>, items: any) {
     items.add(
       'followAfterReply',
       <Switch
-        state={this.user.preferences().followAfterReply}
-        onchange={(value) => {
+        state={!!this.user?.preferences()?.followAfterReply}
+        onchange={(value: boolean) => {
           this.followAfterReplyLoading = true;
 
-          this.user.savePreferences({ followAfterReply: value }).then(() => {
+          this.user!.savePreferences({ followAfterReply: value }).then(() => {
             this.followAfterReplyLoading = false;
             m.redraw();
           });
@@ -20,6 +20,24 @@ export default function () {
         loading={this.followAfterReplyLoading}
       >
         {app.translator.trans('flarum-subscriptions.forum.settings.follow_after_reply_label')}
+      </Switch>
+    );
+
+    items.add(
+      'followAfterCreate',
+      <Switch
+        state={!!this.user?.preferences()?.followAfterCreate}
+        onchange={(value: boolean) => {
+          this.followAfterCreateLoading = true;
+
+          this.user!.savePreferences({ followAfterCreate: value }).then(() => {
+            this.followAfterCreateLoading = false;
+            m.redraw();
+          });
+        }}
+        loading={this.followAfterCreateLoading}
+      >
+        {app.translator.trans('flarum-subscriptions.forum.settings.follow_after_create_label')}
       </Switch>
     );
 

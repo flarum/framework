@@ -12,6 +12,7 @@ namespace Flarum\Tags;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
+use Flarum\Foundation\IconImage\HasIconImage;
 use Flarum\Group\Permission;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,8 +30,6 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property string $slug
  * @property string $description
  * @property string $color
- * @property string $background_path
- * @property string $background_mode
  * @property bool $is_primary
  * @property int $position
  * @property int $parent_id
@@ -42,6 +41,10 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property int $last_posted_discussion_id
  * @property int $last_posted_user_id
  * @property string $icon
+ * @property string|null $icon_image_path
+ * @property int $icon_image_scales
+ * @property-read string|null $icon_image_url
+ * @property-read string|null $icon_image_srcset
  *
  * @property TagState|null $state
  * @property Tag|null $parent
@@ -54,6 +57,7 @@ class Tag extends AbstractModel
 {
     use ScopeVisibilityTrait;
     use HasFactory;
+    use HasIconImage;
 
     protected $table = 'tags';
 
@@ -214,14 +218,19 @@ class Tag extends AbstractModel
         Permission::where('permission', 'like', "tag{$this->id}.%")->delete();
     }
 
+    /**
+     * Build a subquery that selects the IDs of tags the user has the given
+     * permission on. Used inline by scopeWhereHasPermission so the DB does
+     * the filtering — avoids fetching every tag into PHP per call.
+     */
     protected static function buildPermissionSubquery(QueryBuilder $base, bool $isAdmin, bool $hasGlobalPermission, iterable $tagIdsWithPermission): void
     {
         $base
             ->from('tags as perm_tags')
             ->select('perm_tags.id');
 
-        // This needs to be a special case, as `tagIdsWithPermissions`
-        // won't include admin perms (which are all perms by default).
+        // Admins have all permissions in all tags by default; no need to
+        // narrow the subquery.
         if ($isAdmin) {
             return;
         }
@@ -241,17 +250,15 @@ class Tag extends AbstractModel
     {
         $hasGlobalPermission = $user->hasPermission($currPermission);
         $isAdmin = $user->isAdmin();
-        $allPermissions = $user->getPermissions();
 
-        $tagIdsWithPermission = collect($allPermissions)
-            ->filter(function ($permission) use ($currPermission) {
-                return str_starts_with($permission, 'tag') && str_contains($permission, $currPermission);
-            })
-            ->map(function ($permission) {
-                $scopeFragment = explode('.', $permission, 2)[0];
-
-                return substr($scopeFragment, 3);
-            })
+        // A tag permission is stored as `tag{id}.{permission}`. Discussion
+        // abilities are asked for by name (`hide`) and stored with their
+        // prefix (`discussion.hide`), so accept either, but only exactly:
+        // `discussion.hidePosts` is not `discussion.hide`.
+        $tagIdsWithPermission = collect($user->getPermissions())
+            ->map(fn (string $p) => preg_match('/^tag(\d+)\.(.+)$/', $p, $matches) ? $matches : null)
+            ->filter(fn (?array $matches) => $matches && in_array($matches[2], [$currPermission, "discussion.$currPermission"], true))
+            ->map(fn (array $matches) => (int) $matches[1])
             ->values();
 
         return $query
@@ -262,10 +269,10 @@ class Tag extends AbstractModel
                     })
                     ->where(
                         fn ($query) => $query
-                        ->whereIn('tags.parent_id', function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
-                            static::buildPermissionSubquery($query, $isAdmin, $hasGlobalPermission, $tagIdsWithPermission);
-                        })
-                        ->orWhere('tags.parent_id', null)
+                            ->whereIn('tags.parent_id', function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
+                                static::buildPermissionSubquery($query, $isAdmin, $hasGlobalPermission, $tagIdsWithPermission);
+                            })
+                            ->orWhereNull('tags.parent_id')
                     );
             });
     }

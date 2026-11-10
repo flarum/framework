@@ -28,7 +28,7 @@ export default class AvatarEditor extends Component<import("../../common/Compone
      *
      * @return {ItemList<import('mithril').Children>}
      */
-    controlItems(): ItemList<import('mithril').Children>;
+    controlItems(): ItemList<import("mithril").Children>;
     /**
      * Enable dragover style
      *
@@ -86,5 +86,5 @@ export default class AvatarEditor extends Component<import("../../common/Compone
      */
     protected failure(response: object): void;
 }
-import Component from "../../common/Component";
-import ItemList from "../../common/utils/ItemList";
+import Component from '../../common/Component';
+import ItemList from '../../common/utils/ItemList';

@@ -8,11 +8,15 @@ export default class ExportAvailableNotification extends Notification {
     return 'fas fa-file-export';
   }
 
-  href() {
+  exportUrl() {
     const exportModel = this.attrs.notification.subject() as Export;
-
-    // Building the full url scheme so that Mithril treats this as an external link, so the download will work correctly.
     return app.forum.attribute<string>('baseUrl') + `/gdpr/export/${exportModel.file()}`;
+  }
+
+  href() {
+    // Return a non-navigating href; the download is opened via window.open() in
+    // markAsRead() so the mark-as-read XHR is not aborted by a page navigation.
+    return '#';
   }
 
   content() {
@@ -24,5 +28,17 @@ export default class ExportAvailableNotification extends Notification {
 
   excerpt() {
     return null;
+  }
+
+  markAsRead() {
+    // Open the download in a new tab so the current page is not navigated away
+    // from, keeping the mark-as-read XHR alive.
+    window.open(this.exportUrl(), '_blank');
+
+    if (this.attrs.notification.isRead()) return;
+
+    app.session.user?.pushAttributes({ unreadNotificationCount: (app.session.user.unreadNotificationCount() ?? 1) - 1 });
+
+    this.attrs.notification.save({ isRead: true });
   }
 }

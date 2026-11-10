@@ -15,19 +15,23 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Group\Access\GroupPolicy;
 use Flarum\Group\Group;
+use Flarum\Group\PermissionCache;
 use Flarum\Http\Access\AccessTokenPolicy;
 use Flarum\Http\AccessToken;
 use Flarum\Post\Access\PostPolicy;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Access\ScopeUserVisibility;
-use Flarum\User\DisplayName\DriverInterface;
+use Flarum\User\Avatar\DefaultDriver as AvatarDefaultDriver;
+use Flarum\User\Avatar\DriverInterface as AvatarDriverInterface;
+use Flarum\User\DisplayName\DriverInterface as DisplayNameDriverInterface;
 use Flarum\User\DisplayName\UsernameDriver;
 use Flarum\User\Event\EmailChangeRequested;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Saving;
 use Flarum\User\Throttler\EmailActivationThrottler;
 use Flarum\User\Throttler\EmailChangeThrottler;
+use Flarum\User\Throttler\LoginThrottler;
 use Flarum\User\Throttler\PasswordResetThrottler;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -38,6 +42,7 @@ class UserServiceProvider extends AbstractServiceProvider
     public function register(): void
     {
         $this->registerDisplayNameDrivers();
+        $this->registerAvatarDrivers();
         $this->registerPasswordCheckers();
 
         $this->container->singleton('flarum.user.group_processors', function () {
@@ -59,6 +64,7 @@ class UserServiceProvider extends AbstractServiceProvider
             $throttlers['emailChangeTimeout'] = $container->make(EmailChangeThrottler::class);
             $throttlers['emailActivationTimeout'] = $container->make(EmailActivationThrottler::class);
             $throttlers['passwordResetTimeout'] = $container->make(PasswordResetThrottler::class);
+            $throttlers['loginAttempts'] = $container->make(LoginThrottler::class);
 
             return $throttlers;
         });
@@ -84,7 +90,28 @@ class UserServiceProvider extends AbstractServiceProvider
                 : $container->make(UsernameDriver::class);
         });
 
-        $this->container->alias('flarum.user.display_name.driver', DriverInterface::class);
+        $this->container->alias('flarum.user.display_name.driver', DisplayNameDriverInterface::class);
+    }
+
+    protected function registerAvatarDrivers(): void
+    {
+        $this->container->singleton('flarum.user.avatar.supported_drivers', function () {
+            return [
+                'default' => AvatarDefaultDriver::class,
+            ];
+        });
+
+        $this->container->singleton('flarum.user.avatar.driver', function (Container $container) {
+            $drivers = $container->make('flarum.user.avatar.supported_drivers');
+            $settings = $container->make(SettingsRepositoryInterface::class);
+            $driverName = $settings->get('avatar_driver', 'default');
+
+            $driverClass = Arr::get($drivers, $driverName, AvatarDefaultDriver::class);
+
+            return $container->make($driverClass);
+        });
+
+        $this->container->alias('flarum.user.avatar.driver', AvatarDriverInterface::class);
     }
 
     protected function registerPasswordCheckers(): void
@@ -112,7 +139,9 @@ class UserServiceProvider extends AbstractServiceProvider
         User::setHasher($container->make('hash'));
         User::setPasswordCheckers($container->make('flarum.user.password_checkers'));
         User::setGate($container->makeWith(Access\Gate::class, ['policyClasses' => $container->make('flarum.policies')]));
+        User::setPermissionCache($container->make(PermissionCache::class));
         User::setDisplayNameDriver($container->make('flarum.user.display_name.driver'));
+        User::setAvatarDriver($container->make('flarum.user.avatar.driver'));
 
         $events->listen(Saving::class, SelfDemotionGuard::class);
         $events->listen(Registered::class, AccountActivationMailer::class);
@@ -125,6 +154,7 @@ class UserServiceProvider extends AbstractServiceProvider
         User::registerPreference('indexProfile', 'boolval', true);
         User::registerPreference('locale');
         User::registerPreference('colorScheme', 'strval', 'auto');
+        User::registerPreference('hapticFeedback', 'boolval', true);
 
         User::registerVisibilityScoper(new ScopeUserVisibility(), 'view');
     }

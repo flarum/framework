@@ -2,6 +2,10 @@ import app from 'flarum/admin/app';
 import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import ColorPreviewInput from 'flarum/common/components/ColorPreviewInput';
+import IconInput from 'flarum/common/components/IconInput';
+import IconImageInput from 'flarum/common/components/IconImageInput';
+import IconImageState from 'flarum/common/states/IconImageState';
+import Select from 'flarum/common/components/Select';
 import ItemList from 'flarum/common/utils/ItemList';
 import { slug } from 'flarum/common/utils/string';
 import Stream from 'flarum/common/utils/Stream';
@@ -29,8 +33,10 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
   description!: Stream<string>;
   color!: Stream<string>;
   icon!: Stream<string>;
+  iconImage!: IconImageState;
   isHidden!: Stream<boolean>;
   isPrimary!: Stream<boolean>;
+  defaultSort!: Stream<string>;
 
   oninit(vnode: Mithril.Vnode<EditTagModalAttrs, this>) {
     super.oninit(vnode);
@@ -38,12 +44,20 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     this.tag = this.attrs.model || app.store.createRecord('tags');
 
     this.name = Stream(this.tag.name() || '');
-    this.slug = Stream(this.tag.slug() || '');
+    this.slug = Stream(this.tag.storedSlug() || '');
     this.description = Stream(this.tag.description() || '');
     this.color = Stream(this.tag.color() || '');
-    this.icon = Stream(this.tag.icon() || '');
+    this.icon = Stream(this.tag.attribute<string | null>('icon') || '');
+    this.iconImage = new IconImageState(this.tag);
     this.isHidden = Stream(this.tag.isHidden() || false);
     this.isPrimary = Stream(this.attrs.primary || false);
+    this.defaultSort = Stream(this.tag.defaultSort() || '');
+  }
+
+  onremove(vnode: Mithril.VnodeDOM<EditTagModalAttrs, this>) {
+    super.onremove(vnode);
+
+    this.iconImage.dispose();
   }
 
   className() {
@@ -52,7 +66,11 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
 
   title() {
     return this.name()
-      ? tagLabel(app.store.createRecord('tags', { attributes: this.submitData() }))
+      ? tagLabel(
+          app.store.createRecord('tags', {
+            attributes: { ...this.submitData(), iconImageUrl: this.iconImage.url(), iconImageSrcset: this.iconImage.srcset() },
+          })
+        )
       : app.translator.trans('flarum-tags.admin.edit_tag.title');
   }
 
@@ -119,7 +137,17 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
         <div className="helpText">
           {app.translator.trans('flarum-tags.admin.edit_tag.icon_text', { a: <a href={app.refs.fontawesome} tabindex="-1" /> })}
         </div>
-        <input className="FormControl" placeholder="fas fa-bolt" bidi={this.icon} />
+        <IconInput placeholder="fas fa-bolt" bidi={this.icon} />
+      </div>,
+      10
+    );
+
+    items.add(
+      'iconImage',
+      <div className="Form-group">
+        <label>{app.translator.trans('flarum-tags.admin.edit_tag.icon_image_label')}</label>
+        <div className="helpText">{app.translator.trans('flarum-tags.admin.edit_tag.icon_image_text')}</div>
+        <IconImageInput state={this.iconImage} />
       </div>,
       10
     );
@@ -136,6 +164,8 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
       </div>,
       10
     );
+
+    items.add('defaultSort', this.defaultSortField(), 5);
 
     items.add(
       'submit',
@@ -156,6 +186,46 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     return items;
   }
 
+  /**
+   * The sorts a discussion list can be ordered by, as the forum offers them.
+   *
+   * Read from the payload rather than listed here, so that a sort added by an
+   * extension can be chosen as a tag's default without that extension knowing
+   * anything about tags.
+   */
+  sortOptions(): Record<string, string> {
+    const sorts = app.data.sortMaps?.discussions ?? {};
+
+    const options: Record<string, string> = {
+      '': extractText(app.translator.trans('flarum-tags.admin.edit_tag.default_sort_none')),
+    };
+
+    Object.keys(sorts).forEach((key) => {
+      options[key] = extractText(app.translator.trans(`core.lib.index_sort.${key}_button`));
+    });
+
+    // A sort saved earlier whose extension has since gone is kept in the list,
+    // so that it is not silently replaced by whatever happens to sit at the top
+    // of the dropdown when the tag is next edited.
+    const saved = this.defaultSort();
+
+    if (saved && !(saved in options)) {
+      options[saved] = extractText(app.translator.trans('flarum-tags.admin.edit_tag.default_sort_unavailable', { sort: saved }));
+    }
+
+    return options;
+  }
+
+  defaultSortField() {
+    return (
+      <div className="Form-group">
+        <label>{app.translator.trans('flarum-tags.admin.edit_tag.default_sort_label')}</label>
+        <div className="helpText">{app.translator.trans('flarum-tags.admin.edit_tag.default_sort_text')}</div>
+        <Select value={this.defaultSort() ?? ''} options={this.sortOptions()} onchange={this.defaultSort} />
+      </div>
+    );
+  }
+
   submitData() {
     return {
       name: this.name(),
@@ -165,6 +235,8 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
       icon: this.icon(),
       isHidden: this.isHidden(),
       isPrimary: this.isPrimary(),
+      // An empty selection means "no preference", which the API stores as null.
+      defaultSort: this.defaultSort() || null,
     };
   }
 
@@ -175,10 +247,22 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
 
     // Errors aren't passed to the modal onerror handler here.
     // This is done for better error visibility on smaller screen heights.
-    this.tag.save(this.submitData()).then(
-      () => this.hide(),
-      () => (this.loading = false)
-    );
+    this.tag
+      .save(this.submitData())
+      .then((tag) => {
+        // A new tag's save resolves to another instance. Keep it, so that
+        // saving again after a failed upload doesn't create a second tag.
+        this.tag = tag;
+
+        return this.iconImage.save(tag);
+      })
+      .then(
+        () => this.hide(),
+        () => {
+          this.loading = false;
+          m.redraw();
+        }
+      );
   }
 
   delete() {

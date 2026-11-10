@@ -29,6 +29,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Flarum\Settings\Event\Saving;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Laminas\Stratigility\MiddlewarePipe;
@@ -67,9 +68,13 @@ class AdminServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->bind('flarum.admin.error_handler', function (Container $container) {
+            // DisableBrowserCache runs inside the error handler, so error responses
+            // never reach it; send the same no-store header from the formatter.
+            $viewFormatter = $container->make(ViewFormatter::class, ['cacheControl' => 'max-age=0, no-store']);
+
             return new HttpMiddleware\HandleErrors(
                 $container->make(Registry::class),
-                $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
+                $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class, ['viewFormatter' => $viewFormatter]) : $viewFormatter,
                 $container->tagged(Reporter::class)
             );
         });
@@ -96,6 +101,10 @@ class AdminServiceProvider extends AbstractServiceProvider
 
             $assets->js(function (SourceCollector $sources) {
                 $sources->addFile(__DIR__.'/../../js/dist/admin.js');
+            });
+
+            $assets->jsDirectory(function (SourceCollector $sources) {
+                $sources->addDirectory(__DIR__.'/../../js/dist/admin', 'core');
             });
 
             $assets->css(function (SourceCollector $sources) {
@@ -131,9 +140,11 @@ class AdminServiceProvider extends AbstractServiceProvider
             function () use ($container) {
                 $recompile = new RecompileFrontendAssets(
                     $container->make('flarum.assets.admin'),
-                    $container->make(LocaleManager::class)
+                    $container->make(LocaleManager::class),
+                    $container->make('events'),
+                    $container->make(SettingsRepositoryInterface::class)
                 );
-                $recompile->flush();
+                $recompile->markDirty();
             }
         );
 

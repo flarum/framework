@@ -4,12 +4,14 @@ import classList from 'flarum/common/utils/classList';
 import Link from 'flarum/common/components/Link';
 import app from 'flarum/forum/app';
 import Avatar from 'flarum/common/components/Avatar';
+import GroupBadge from 'flarum/common/components/GroupBadge';
 import username from 'flarum/common/helpers/username';
 import humanTime from 'flarum/common/helpers/humanTime';
 import ItemList from 'flarum/common/utils/ItemList';
 import Button from 'flarum/common/components/Button';
 import type Dialog from '../../common/models/Dialog';
-import { ModelIdentifier } from 'flarum/common/Model';
+import { markRead } from '../utils/readState';
+import describeEvent from '../utils/describeEvent';
 
 export interface IDialogListItemAttrs extends ComponentAttrs {
   dialog: Dialog;
@@ -21,13 +23,14 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const dialog = this.attrs.dialog;
 
-    const recipient = dialog.recipient();
-    const lastMessage = dialog.lastMessage();
+    const unread = dialog.unreadCount();
+    const actions = this.attrs.actions ? this.actionItems().toArray() : [];
 
     return (
       <li
         className={classList('DialogListItem', {
-          'DialogListItem--unread': dialog.unreadCount(),
+          'DialogListItem--unread': unread,
+          'DialogListItem--actions': actions.length,
           active: this.attrs.active,
         })}
       >
@@ -37,51 +40,109 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
             active: this.attrs.active,
           })}
         >
-          <div className="DialogListItem-avatar">
-            <Avatar user={recipient} />
-            {!!dialog.unreadCount() && <div className="Bubble Bubble--primary">{dialog.unreadCount()}</div>}
+          <div className={classList('DialogListItem-avatar', { 'DialogListItem-avatar--group': this.stacksAvatars() })}>
+            {this.avatar()}
+            {!!unread && (
+              <div className="Bubble Bubble--primary">
+                <span aria-hidden="true">{unread}</span>
+                <span className="sr-only">{app.translator.trans('flarum-messages.forum.dialog_list.unread_count_text', { count: unread })}</span>
+              </div>
+            )}
           </div>
           <div className="DialogListItem-content">
             <div className="DialogListItem-title">
-              {username(recipient)}
+              {this.name()}
               {humanTime(dialog.lastMessageAt()!)}
-              {this.attrs.actions && <div className="DialogListItem-actions">{this.actionItems().toArray()}</div>}
             </div>
-            <div className="DialogListItem-lastMessage">{lastMessage ? lastMessage.contentPlain()?.slice(0, 80) : ''}</div>
+            <div className="DialogListItem-lastMessage">{this.preview()}</div>
           </div>
         </Link>
+        {/* Beside the link, not inside it: a button nested in a link is neither to a browser nor a screen reader. */}
+        {!!actions.length && <div className="DialogListItem-actions">{actions}</div>}
       </li>
     );
   }
 
+  /** A group with others enough to show two of them; one left on their own is shown as a direct conversation's. */
+  stacksAvatars(): boolean {
+    return !(this.attrs.dialog.groups() || []).length && this.attrs.dialog.isGroup() && this.attrs.dialog.recipients().length > 1;
+  }
+
+  /** The other member's avatar; in a group, two of the others', one over the other. */
+  avatar(): Mithril.Children {
+    const dialog = this.attrs.dialog;
+
+    const group = (dialog.groups() || []).find(Boolean);
+    if (group) return <GroupBadge group={group} />;
+
+    if (this.stacksAvatars()) {
+      return dialog
+        .recipients()
+        .slice(0, 2)
+        .map((user) => <Avatar user={user} />);
+    }
+
+    return <Avatar user={dialog.recipients()[0] || null} />;
+  }
+
+  /** The other member; a group goes by its title, which names its members. */
+  name(): Mithril.Children {
+    const dialog = this.attrs.dialog;
+
+    return dialog.isGroup() ? <span className="DialogListItem-name">{dialog.title()}</span> : username(dialog.recipient());
+  }
+
+  /**
+   * The last message, said to be the member's own when it is. In a group,
+   * where it could be from any of the others, who wrote it. A notice says
+   * what happened.
+   */
+  preview(): Mithril.Children {
+    const lastMessage = this.attrs.dialog.lastMessage();
+
+    if (!lastMessage) return '';
+
+    // A notice, such as someone leaving: what happened.
+    if (!lastMessage.isComment()) return describeEvent(lastMessage, true);
+
+    const content = lastMessage.contentPlain()?.slice(0, 80) ?? '';
+
+    if (lastMessage.user() === app.session.user) {
+      return app.translator.trans('flarum-messages.forum.dialog_list.own_last_message_preview', { content });
+    }
+
+    if (this.attrs.dialog.isGroup()) {
+      return app.translator.trans('flarum-messages.forum.dialog_list.group_last_message_preview', {
+        username: username(lastMessage.user() || null),
+        content,
+      });
+    }
+
+    return content;
+  }
+
   actionItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
+    const dialog = this.attrs.dialog;
+    const lastMessageId = dialog.messageRelationshipId('lastMessage');
 
-    items.add(
-      'markAsRead',
-      <Button
-        className="Notification-action Button Button--link"
-        icon="fas fa-check"
-        aria-label={app.translator.trans('flarum-messages.forum.dialog_list.mark_as_read_tooltip')}
-        onclick={(e: Event) => {
-          e.preventDefault();
-          e.stopPropagation();
-
-          this.attrs.dialog
-            .save({ lastReadMessageId: (this.attrs.dialog.data.relationships?.lastMessage.data as ModelIdentifier).id })
-            .finally(() => {
-              if (this.attrs.dialog.unreadCount() === 0) {
-                app.session.user!.pushAttributes({
-                  messageCount: (app.session.user!.attribute<number>('messageCount') ?? 1) - 1,
-                });
-              }
-
-              m.redraw();
-            });
-        }}
-      />,
-      100
-    );
+    // Nothing to mark on a dialog that is read, or one with no messages.
+    if (dialog.unreadCount() && lastMessageId) {
+      items.add(
+        'markAsRead',
+        <Button
+          className="Notification-action Button Button--link"
+          icon="fas fa-check"
+          aria-label={app.translator.trans('flarum-messages.forum.dialog_list.mark_as_read_tooltip')}
+          onclick={() => {
+            markRead(dialog, Number(lastMessageId))
+              .catch(() => {})
+              .finally(() => m.redraw());
+          }}
+        />,
+        100
+      );
+    }
 
     return items;
   }

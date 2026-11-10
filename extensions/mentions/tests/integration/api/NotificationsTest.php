@@ -35,10 +35,12 @@ class NotificationsTest extends TestCase
             ],
             Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'last_post_number' => 2, 'last_post_id' => 2],
+                ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 2, 'first_post_id' => 3, 'comment_count' => 1, 'last_post_number' => 1, 'last_post_id' => 3],
             ],
             Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 1],
                 ['id' => 2, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 3, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 2],
+                ['id' => 3, 'discussion_id' => 2, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 1],
             ],
             'group_user' => [
                 ['group_id' => Group::MEMBER_ID, 'user_id' => 2],
@@ -98,5 +100,39 @@ class NotificationsTest extends TestCase
         );
 
         $this->assertEquals(1, $mainUser->getUnreadNotificationCount());
+    }
+
+    #[Test]
+    public function post_mention_notification_content_includes_the_reply_discussion_id()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => '@"mainUser"#p2',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 2]],
+                        ],
+                    ]
+                ]
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        /** @var User $mainUser */
+        $mainUser = User::query()->find(3);
+        $notification = $mainUser->notifications()
+            ->where('type', 'postMentioned')
+            ->first();
+
+        $this->assertNotNull($notification);
+        $this->assertEquals([
+            'replyNumber' => 2,
+            'discussionId' => 2,
+        ], $notification->data);
     }
 }

@@ -1,4 +1,5 @@
 @inject('url', 'Flarum\Http\UrlGenerator')
+@inject('locales', 'Flarum\Locale\LocaleManager')
 
 @php
   $primaryColor = $settings->get('theme_primary_color');
@@ -6,7 +7,7 @@
 @endphp
 
 <!DOCTYPE html>
-<html lang="{{ $translator->getLocale() }}">
+<html lang="{{ $translator->getLocale() }}" dir="{{ $locales->getDirection($translator->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <title>{{ $title ?? 'Flarum Email' }}</title>
@@ -50,8 +51,8 @@
 <div class="header">
     <div class="Header-title">
         <a href="{{ $url->to('forum')->base() }}" id="home-link">
-            @if ($settings->get('logo_path'))
-                <img src="{{ $url->to('forum')->base() . '/assets/' . $settings->get('logo_path') }}" alt="{{ $settings->get('forum_title') }}" class="Header-logo">
+            @if ($logoUrl)
+                <img src="{{ $logoUrl }}" alt="{{ $settings->get('forum_title') }}" class="Header-logo"@if ($logoWidth ?? null) width="{{ $logoWidth }}" height="{{ $logoHeight }}"@endif style="display: block; border: 0; height: auto; max-width: 100%;">
             @else
                 {{ $settings->get('forum_title') }}
             @endif

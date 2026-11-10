@@ -3,4 +3,4 @@ export default class ErasureRequestsPage extends Page<import("flarum/common/comp
     oninit(vnode: any): void;
     view(): JSX.Element;
 }
-import Page from "flarum/common/components/Page";
+import Page from 'flarum/common/components/Page';

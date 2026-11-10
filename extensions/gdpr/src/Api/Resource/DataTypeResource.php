@@ -46,12 +46,16 @@ class DataTypeResource extends Resource\AbstractResource implements Resource\Con
                 ->route('GET', '/user-columns')
                 ->admin()
                 ->action(function () {
-                    $removableColumns = $this->processor->removableUserColumns();
                     $allColumns = $this->processor->allUserColumns();
 
-                    return compact('removableColumns', 'allColumns');
+                    return [
+                        'removableColumns' => $this->processor->removableUserColumnsWithExtensions(),
+                        'allColumns' => $allColumns,
+                        'piiKeys' => $this->processor->getPiiKeysForSerialization(),
+                        'piiKeyExtensions' => $this->processor->getPiiKeysWithExtensions(),
+                    ];
                 })
-                ->response(function (array $data) {
+                ->response(function (OriginalContext $context, array $data) {
                     return new JsonResponse(compact('data'));
                 }),
         ];

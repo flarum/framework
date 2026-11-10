@@ -59,4 +59,4 @@ declare namespace UserControls {
      */
     function editAction(user: import("../../common/models/User").default): void;
 }
-import ItemList from "../../common/utils/ItemList";
+import ItemList from '../../common/utils/ItemList';

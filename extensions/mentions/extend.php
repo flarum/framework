@@ -26,6 +26,7 @@ use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 return [
     (new Extend\Frontend('forum'))
@@ -86,6 +87,7 @@ return [
     (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(fn () => [
             Schema\Boolean::make('canMentionGroups')
+                ->description('Whether you can mention groups. Only on your own user.')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
                 ->get(fn (User $user) => $user->can('mentionGroups')),
         ]),
@@ -116,7 +118,20 @@ return [
                 ->fields(fn () => [
                     Schema\Relationship\ToMany::make('mentionsTags')
                         ->type('tags'),
-                ]),
+                ])
+                // Serializing a mentioning post checks what the actor can do
+                // with it, and tags answers from the post's discussion's tags.
+                ->field('mentionedBy', function (Schema\Relationship\ToMany $field): Schema\Relationship\ToMany {
+                    $scope = $field->scope;
+
+                    return $field->scope(function (BelongsToMany $query, Context $context) use ($scope): void {
+                        if ($scope) {
+                            $scope($query, $context);
+                        }
+
+                        $query->with('discussion.tags');
+                    });
+                }),
 
             (new Extend\ApiResource(Resource\DiscussionResource::class))
                 ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Index {

@@ -93,6 +93,7 @@ class InstallController implements RequestHandlerInterface
             $host,
             intval($port),
             Arr::get($input, 'dbName'),
+            Arr::get($input, 'dbSchema'),
             Arr::get($input, 'dbUsername'),
             Arr::get($input, 'dbPassword'),
             Arr::get($input, 'tablePrefix')

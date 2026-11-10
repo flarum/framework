@@ -5,6 +5,8 @@ export interface ICheckboxAttrs extends ComponentAttrs {
     loading?: boolean;
     disabled?: boolean;
     onchange: (checked: boolean, component: Checkbox<this>) => void;
+    /** Extra attributes to spread onto the inner `<input>` element. */
+    inputAttrs?: Mithril.Attributes;
 }
 /**
  * The `Checkbox` component defines a checkbox input.

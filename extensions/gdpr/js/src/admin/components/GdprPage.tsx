@@ -8,14 +8,25 @@ import Tooltip from 'flarum/common/components/Tooltip';
 import ExtensionLink from './ExtensionLink';
 import LinkButton from 'flarum/common/components/LinkButton';
 import Form from 'flarum/common/components/Form';
+import Icon from 'flarum/common/components/Icon';
+
+type ColumnMeta = { type: string; length: number | null; default: string | null; nullable: boolean };
+type UserColumnsData = {
+  allColumns: Record<string, ColumnMeta>;
+  removableColumns: Record<string, string | null>;
+  piiKeys: string[];
+  piiKeyExtensions: Record<string, string | null>;
+};
 
 export default class GdprPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
   gdprDataTypes: DataType[] = [];
+  userColumnsData: UserColumnsData | null = null;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.loadGdprDataTypes();
+    this.loadUserColumnsData();
   }
 
   headerInfo(): AdminHeaderAttrs {
@@ -34,6 +45,18 @@ export default class GdprPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
       this.loading = false;
       m.redraw();
     });
+  }
+
+  loadUserColumnsData() {
+    app
+      .request<{ data: UserColumnsData }>({
+        method: 'GET',
+        url: app.forum.attribute('apiUrl') + '/gdpr-datatypes/user-columns',
+      })
+      .then((response) => {
+        this.userColumnsData = response.data;
+        m.redraw();
+      });
   }
 
   content(): Mithril.Children {
@@ -61,7 +84,7 @@ export default class GdprPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
           <div className="Form-group">
             <label>{app.translator.trans('flarum-gdpr.admin.gdpr_page.user_table_data.title')}</label>
             <p className="helpText">{app.translator.trans('flarum-gdpr.admin.gdpr_page.user_table_data.help_text')}</p>
-            <div className="GdprUserColumnData">{app.translator.trans('flarum-gdpr.admin.gdpr_page.user_table_data.not_yet_implemented')}</div>
+            {this.userColumnsData ? this.userColumnTable(this.userColumnsData) : <LoadingIndicator />}
           </div>
         </Form>
       </div>
@@ -96,6 +119,63 @@ export default class GdprPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
             </div>
           </>
         ))}
+      </div>
+    );
+  }
+
+  userColumnTable({ allColumns, removableColumns, piiKeys, piiKeyExtensions }: UserColumnsData): Mithril.Children {
+    const t = (key: string) => app.translator.trans(`flarum-gdpr.admin.gdpr_page.user_table_data.${key}`);
+
+    return (
+      <div className="GdprGrid GdprGrid--userColumns">
+        <div className="GdprGrid-row">
+          <div className="GdprGrid-header">{t('column')}</div>
+          <div className="GdprGrid-header">{t('type')}</div>
+          <div className="GdprGrid-header">{t('nullable')}</div>
+          <div className="GdprGrid-header">{t('pii')}</div>
+          <div className="GdprGrid-header">{t('redacted_on_export')}</div>
+          <div className="GdprGrid-header">{t('extension')}</div>
+        </div>
+
+        {Object.entries(allColumns).map(([column, meta]) => {
+          const isPii = piiKeys.includes(column);
+          const redactedByExtension = column in removableColumns ? removableColumns[column] : undefined;
+          const isRedacted = redactedByExtension !== undefined;
+          const extensionId = redactedByExtension ?? (column in piiKeyExtensions ? piiKeyExtensions[column] : null);
+
+          return (
+            <div className="GdprGrid-row">
+              <div>
+                <code>{column}</code>
+              </div>
+              <div className="helpText">{meta.type}</div>
+              <div className="helpText">{meta.nullable ? t('yes') : t('no')}</div>
+              <div>
+                {isPii ? (
+                  <Tooltip text={t('pii_tooltip')}>
+                    <span className="GdprPiiBadge">
+                      <Icon name="fas fa-user-secret" /> {t('yes')}
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <span className="helpText">{t('no')}</span>
+                )}
+              </div>
+              <div>
+                {isRedacted ? (
+                  <Tooltip text={t('redacted_on_export_tooltip')}>
+                    <span>{t('yes')}</span>
+                  </Tooltip>
+                ) : (
+                  <span className="helpText">{t('no')}</span>
+                )}
+              </div>
+              <div>
+                <ExtensionLink extension={extensionId ? (app.data.extensions[extensionId] ?? null) : null} />
+              </div>
+            </div>
+          );
+        })}
       </div>
     );
   }

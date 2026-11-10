@@ -10,12 +10,16 @@ import CommentPost from './components/CommentPost';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
 import routes, { ForumRoutes, makeRouteHelpers } from './routes';
 import Application, { ApplicationData } from '../common/Application';
+import Button from '../common/components/Button';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
 import GlobalSearchState from './states/GlobalSearchState';
 import DiscussionListState from './states/DiscussionListState';
 import ComposerState from './states/ComposerState';
 import isSafariMobile from './utils/isSafariMobile';
+import registerServiceWorker from './utils/registerServiceWorker';
+import isOpenedAsApp from './utils/isOpenedAsApp';
+import routeInternalLinks from './utils/routeInternalLinks';
 
 import type Notification from './components/Notification';
 import type Post from './components/Post';
@@ -23,9 +27,11 @@ import type Discussion from '../common/models/Discussion';
 import type NotificationModel from '../common/models/Notification';
 import type PostModel from '../common/models/Post';
 import extractText from '../common/utils/extractText';
+import drainPrefetchQueue from '../common/utils/drainPrefetchQueue';
 import Notices from './components/Notices';
 import Footer from './components/Footer';
 import SearchManager from '../common/SearchManager';
+import homepageAddress from './utils/homepageAddress';
 
 export interface ForumApplicationData extends ApplicationData {}
 
@@ -97,7 +103,7 @@ export default class ForumApplication extends Application {
     // Push the homepage as the first route, so that the user will always be
     // able to click on the 'back' button to go home, regardless of which page
     // they started on.
-    const defaultRoute = this.forum.attribute('defaultRoute');
+    const defaultRoute = this.forum.attribute<string>('defaultRoute');
     let defaultAction = 'index';
 
     for (const i in this.routes) {
@@ -110,28 +116,39 @@ export default class ForumApplication extends Application {
     this.pane = new Pane(document.getElementById('app'));
 
     m.route.prefix = '';
+
+    const homepage = homepageAddress(window.location, this.forum.attribute('basePath'), defaultRoute);
+    if (homepage) window.history.replaceState(window.history.state, '', homepage);
+
     super.mount(this.forum.attribute('basePath'));
 
     // We mount navigation and header components after the page, so components
     // like the back button can access the updated state when rendering.
-    m.mount(document.getElementById('app-navigation')!, { view: () => <Navigation className="App-backControl" drawer /> });
+    m.mount(document.getElementById('app-navigation')!, {
+      view: () => <Navigation className="App-backControl" drawer />,
+    });
     m.mount(document.getElementById('header-navigation')!, Navigation);
     m.mount(document.getElementById('header-primary')!, HeaderPrimary);
     m.mount(document.getElementById('header-secondary')!, HeaderSecondary);
     m.mount(document.getElementById('notices')!, Notices);
     m.mount(document.getElementById('footer')!, Footer);
 
+    // Registered before the listeners below, which are bound to elements that
+    // are not on every page — so a missing one cannot stop this from running.
+    routeInternalLinks();
+
     // Route the home link back home when clicked. We do not want it to register
     // if the user is opening it in a new tab, however.
-    document.getElementById('home-link')!.addEventListener('click', (e) => {
+    document.getElementById('home-link')?.addEventListener('click', (e) => {
       if (e.ctrlKey || e.metaKey || e.button === 1) return;
       e.preventDefault();
       app.history.home();
 
       // Reload the current user so that their unread notification count is refreshed.
+      // If that fails, the request has shown its own error.
       const userId = app.session.user?.id();
       if (userId) {
-        app.store.find('users', userId);
+        app.store.find('users', userId).catch(() => {});
         m.redraw();
       }
     });
@@ -141,6 +158,18 @@ export default class ForumApplication extends Application {
         $('.App').addClass('mobile-safari');
       });
     }
+
+    registerServiceWorker(this.forum.attribute('basePath'), this.forum.attribute<boolean>('serviceWorker'));
+
+    if (isOpenedAsApp()) {
+      import('./utils/pullToRefresh')
+        .then(({ default: pullToRefresh }) => pullToRefresh())
+        .catch((error) => console.error('Could not load pull-to-refresh:', error));
+    }
+
+    // Once the app is mounted, warm any registered code-split chunks in the
+    // background so later navigations don't pay for them on the critical path.
+    drainPrefetchQueue(this.prefetch);
   }
 
   /**
@@ -151,18 +180,41 @@ export default class ForumApplication extends Application {
   }
 
   /**
-   * Callback for when an external authenticator (social login) action has
-   * completed.
-   *
-   * If the payload indicates that the user has been logged in, then the page
-   * will be reloaded. Otherwise, a SignUpModal will be opened, prefilled
-   * with the provided details.
+   * Whether we have already alerted the user that the forum's assets have been
+   * updated since they loaded the page. Ensures the prompt is shown only once.
    */
-  public authenticationComplete(payload: Record<string, unknown>): void {
-    if (payload.loggedIn) {
-      window.location.reload();
-    } else {
-      this.modal.show(() => import('./components/SignUpModal'), payload);
+  private assetsRevisionAlertShown = false;
+
+  /**
+   * When the server reports an asset revision (on an API response) that differs
+   * from the one this page booted with, the forum's JS/CSS has been rebuilt since
+   * load. Prompt the user to reload to pick up the new assets, at most once.
+   *
+   * Both values are produced server-side (see `AssetsRevision`), so they are
+   * directly comparable regardless of which versioner the forum uses.
+   *
+   * Public so the realtime extension can call it with a pushed revision token.
+   */
+  public checkAssetsRevision(serverRevision: string | null): void {
+    const bootedRevision = this.data?.assetsRevision;
+
+    if (!serverRevision || !bootedRevision || serverRevision === bootedRevision || this.assetsRevisionAlertShown) {
+      return;
     }
+
+    this.assetsRevisionAlertShown = true;
+
+    this.alerts.show(
+      {
+        type: 'warning',
+        dismissible: true,
+        controls: [
+          <Button className="Button Button--link" onclick={() => window.location.reload()}>
+            {app.translator.trans('core.lib.assets_updated.reload_button')}
+          </Button>,
+        ],
+      },
+      app.translator.trans('core.lib.assets_updated.message')
+    );
   }
 }

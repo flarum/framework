@@ -17,7 +17,7 @@ export default class NotificationGrid extends Component<import("../../common/Com
     methods: {
         name: string;
         icon: string;
-        label: import('mithril').Children;
+        label: import("mithril").Children;
     }[] | undefined;
     /**
      * A map of which notification checkboxes are loading.
@@ -33,7 +33,7 @@ export default class NotificationGrid extends Component<import("../../common/Com
     types: {
         name: string;
         icon: string;
-        label: import('mithril').Children;
+        label: import("mithril").Children;
     }[] | undefined;
     view(): JSX.Element;
     oncreate(vnode: any): void;
@@ -79,7 +79,7 @@ export default class NotificationGrid extends Component<import("../../common/Com
     notificationMethods(): ItemList<{
         name: string;
         icon: string;
-        label: import('mithril').Children;
+        label: import("mithril").Children;
     }>;
     /**
      * Build an item list for the notification types to display in the grid.
@@ -95,8 +95,8 @@ export default class NotificationGrid extends Component<import("../../common/Com
     notificationTypes(): ItemList<{
         name: string;
         icon: string;
-        label: import('mithril').Children;
+        label: import("mithril").Children;
     }>;
 }
-import Component from "../../common/Component";
-import ItemList from "../../common/utils/ItemList";
+import Component from '../../common/Component';
+import ItemList from '../../common/utils/ItemList';

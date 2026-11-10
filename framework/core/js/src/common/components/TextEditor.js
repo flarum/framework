@@ -73,7 +73,9 @@ export default class TextEditor extends Component {
     super.oncreate(vnode);
 
     this._load().then(() => {
-      setTimeout(this.onbuild.bind(this), 50);
+      // The composer can be closed, or the page left, while the editor loads,
+      // and then there's nothing on the page to build it into.
+      if (this.element?.isConnected) this.onbuild();
     });
   }
 
@@ -96,7 +98,12 @@ export default class TextEditor extends Component {
   _load() {
     return Promise.all(this._loaders.map((loader) => loader())).then(() => {
       this.loading = false;
-      m.redraw();
+      // Synchronous redraw so the editor container is in the DOM before
+      // `onbuild` runs. Mithril's regular `m.redraw()` queues for the next
+      // frame, which previously raced against a 50ms setTimeout and could
+      // leave `this.$('.TextEditor-editorContainer')[0]` undefined on slow
+      // first loads. See flarum/framework#4612.
+      m.redraw.sync();
     });
   }
 

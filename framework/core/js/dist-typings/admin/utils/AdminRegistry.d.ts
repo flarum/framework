@@ -3,13 +3,42 @@ import ItemList from '../../common/utils/ItemList';
 import { SettingsComponentOptions } from '../components/AdminPage';
 import ExtensionPage, { ExtensionPageAttrs } from '../components/ExtensionPage';
 import type { PermissionConfig, PermissionType } from '../components/PermissionGrid';
-export type SettingConfigInput = SettingsComponentOptions | (() => Mithril.Children);
+import { type SectionGroup } from './groupBySection';
+export type SettingConfigInput = SettingsComponentOptions | ((() => Mithril.Children) & {
+    section?: string;
+});
 export type SettingConfigInternal = SettingsComponentOptions | ((() => Mithril.Children) & {
     setting: string;
+    section?: string;
 });
+/**
+ * A titled group of settings on an extension's settings page.
+ */
+export type SettingsSectionConfig = {
+    id: string;
+    label: Mithril.Children;
+    description?: Mithril.Children;
+    icon?: string;
+    /** The tab this section belongs to. Defaults to the first tab when the page has tabs. */
+    tab?: string;
+};
+/**
+ * A tab on an extension's settings page.
+ */
+export type SettingsTabConfig = {
+    id: string;
+    label: Mithril.Children;
+    icon?: string;
+};
+export type SettingLocation = {
+    tab?: SettingsTabConfig;
+    section?: SettingsSectionConfig;
+};
 export type CustomExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionPageAttrs> = new () => ExtensionPage<Attrs>;
 export type ExtensionConfig = {
     settings?: ItemList<SettingConfigInternal>;
+    sections?: ItemList<SettingsSectionConfig>;
+    tabs?: ItemList<SettingsTabConfig>;
     permissions?: {
         view?: ItemList<PermissionConfig>;
         start?: ItemList<PermissionConfig>;
@@ -68,6 +97,25 @@ export default class AdminRegistry {
      */
     removeSetting(key: string): this;
     /**
+     * Registers a titled group of settings. Settings join it through their `section` key.
+     *
+     * @example
+     *
+     * .registerSection({
+     *   id: 'notifications',
+     *   label: app.translator.trans('acme-foo.admin.settings.notifications_heading'),
+     *   description: app.translator.trans('acme-foo.admin.settings.notifications_text'),
+     *   icon: 'fas fa-bell',
+     * }, 50)
+     */
+    registerSection(content: SettingsSectionConfig, priority?: number): this;
+    /**
+     * Registers a tab on the extension's settings page. Sections join it through their `tab` key.
+     *
+     * Once a page has a tab, the extension's permissions move into a tab of their own.
+     */
+    registerTab(content: SettingsTabConfig, priority?: number): this;
+    /**
      * This function registers your permission with Flarum
      *
      * @example
@@ -100,6 +148,29 @@ export default class AdminRegistry {
      * Get an extension's registered settings
      */
     getSettings(extensionId: string): SettingConfigInternal[] | undefined;
+    /**
+     * Get an extension's registered settings sections, in priority order.
+     */
+    getSections(extensionId: string): SettingsSectionConfig[];
+    /**
+     * Get an extension's registered settings tabs, in priority order.
+     */
+    getTabs(extensionId: string): SettingsTabConfig[];
+    /**
+     * An extension's settings split into their sections, in display order.
+     *
+     * A setting without a known section joins the section of the setting before
+     * it, so one added between two settings of a section stays where it was
+     * shown before sections existed. Settings before the first sectioned one
+     * form a leading group with a `null` section.
+     */
+    getSettingGroups(extensionId: string): SectionGroup<SettingConfigInternal>[];
+    /**
+     * Where a setting is shown on its extension's page: its section and the tab that section is on.
+     *
+     * Settings in the leading group, before any section, are shown on the first tab.
+     */
+    getSettingLocation(extensionId: string, setting: SettingConfigInput | SettingConfigInternal): SettingLocation;
     /**
      * Get an ItemList of all extensions' registered permissions
      */

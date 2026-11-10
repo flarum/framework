@@ -51,6 +51,15 @@ export interface TooltipAttrs extends Mithril.CommonAttributes<TooltipAttrs, Too
      */
     delay?: number;
     /**
+     * Appends the tooltip to a specific element. Useful when the tooltip trigger
+     * is inside a container with `overflow: hidden` or `overflow: scroll` that
+     * would otherwise clip the tooltip. Accepts a CSS selector string or DOM
+     * element — `'body'` is the most common value.
+     *
+     * Default: `false` (appended adjacent to the trigger element).
+     */
+    container?: string | HTMLElement | false;
+    /**
      * Used to disable the warning for passing text to the `title` attribute.
      *
      * Tooltip text should be passed to the `text` attribute.
@@ -98,11 +107,14 @@ export default class Tooltip extends Component<TooltipAttrs> {
     private oldText;
     private oldVisibility;
     private shouldRecreateTooltip;
+    private shouldUpdateText;
     private shouldChangeTooltipVisibility;
     view(vnode: Mithril.Vnode<TooltipAttrs, this>): Mithril.ChildArray;
     oncreate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>): void;
     onupdate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>): void;
+    onremove(vnode: Mithril.VnodeDOM<TooltipAttrs, this>): void;
     private recreateTooltip;
+    private updateText;
     private updateVisibility;
     private createTooltip;
     private getRealText;

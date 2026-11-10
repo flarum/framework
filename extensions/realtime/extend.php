@@ -15,7 +15,6 @@ use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
-use Flarum\Messages\Api\Resource\DialogMessageResource;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 
@@ -65,26 +64,61 @@ return [
 
                     return $settings->get('flarum-realtime.typing-indicator')
                         && $context->getActor()->hasPermissionLike('flarum-realtime.view-who-types');
-                })
+                }),
+
+            // Whether to also subscribe to the channel that names users who are typing
+            // while hiding their online status. The channel is authorized server-side
+            // regardless (see AuthController::typingIdentified); this only saves the
+            // client a subscription it would be refused.
+            Schema\Boolean::make('canViewHiddenTypers')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->get(function (User $model, Context $context) {
+                    $settings = resolve(SettingsRepositoryInterface::class);
+
+                    return $settings->get('flarum-realtime.typing-indicator')
+                        && $context->getActor()->hasPermission('user.viewLastSeenAt');
+                }),
+
+            // Whether the forum-wide typing feed will accept this user. Authorized
+            // server-side regardless (AuthController::typingActivity).
+            Schema\Boolean::make('canViewAllTyping')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->get(function (User $model, Context $context) {
+                    $settings = resolve(SettingsRepositoryInterface::class);
+
+                    return $settings->get('flarum-realtime.typing-indicator')
+                        && $context->getActor()->hasPermission('flarum-realtime.view-all-typing');
+                }),
         ]),
 
     (new Extend\Event)
-        ->subscribe(Push\Dialog\NewActivity::class)
-        ->subscribe(Push\Discussion\NewActivity::class)
-        ->subscribe(Push\Post\NewActivity::class),
+        ->subscribe(Push\EventSubscriber::class)
+        ->subscribe(Push\VisibilitySubscriber::class)
+        ->listen(\Flarum\Notification\Event\Sent::class, Push\Listener\BroadcastNotifications::class)
+        ->listen(\Flarum\Settings\Event\Saved::class, Listener\RestartServerOnSettingChange::class)
+        ->listen(\Flarum\Frontend\Event\AssetsRecompiled::class, Listener\BroadcastAssetsRevision::class),
 
     (new Extend\Notification)
         ->driver('realtime', Push\NotificationDriver::class),
 
-    (new Extend\ApiResource(Resource\PostResource::class))
-        ->endpoint('show', fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['discussion.tags'])),
+    // Only while Tags is enabled: an include the API doesn't know fails the
+    // whole request, and every post would fail to load.
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-tags', fn () => [
+            (new Extend\ApiResource(Resource\PostResource::class))
+                ->endpoint('show', fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['discussion.tags'])),
+        ]),
 
     (new Extend\Settings())
-        // In seconds. Defaults to 2 minutes.
-        ->default('flarum-realtime.release-discussion-updates-interval', 120)
+        // In seconds. Defaults to 10 seconds.
+        ->default('flarum-realtime.release-discussion-updates-interval', 10)
         ->default('flarum-realtime.typing-indicator', true)
+        ->default('flarum-realtime.index-typing-indicator', true)
+        ->default('flarum-realtime.index-typing-indicator-restricted', false)
         ->default('flarum-realtime.release-discussion-updates', true)
-        ->serializeToForum('flarum-realtime.release-discussion-updates-interval', 'flarum-realtime.release-discussion-updates-interval', 'intval'),
+        ->default('flarum-realtime.notification-toast-dismiss-after', 10)
+        ->serializeToForum('flarum-realtime.release-discussion-updates-interval', 'flarum-realtime.release-discussion-updates-interval', 'intval')
+        ->serializeToForum('flarum-realtime.notification-toast-dismiss-after', 'flarum-realtime.notification-toast-dismiss-after', 'intval'),
 
     // Disables csrf checks on auth, would time out after being inactive for 60 minutes.
     (new Extend\Csrf())
@@ -93,14 +127,4 @@ return [
     (new Extend\User())
         ->registerPreference('flarum-realtime.typing-indicator-full', 'boolVal', true),
 
-    (new Extend\Conditional())
-        ->whenExtensionEnabled('flarum-messages', fn () => [
-            // DialogMessage currently doesn't have a read
-            (new Extend\ApiResource(DialogMessageResource::class))
-                ->endpoints(fn () => [
-                    Endpoint\Show::make()
-                        ->authenticated()
-                        ->addDefaultInclude(['dialog']),
-                ]),
-        ]),
 ];

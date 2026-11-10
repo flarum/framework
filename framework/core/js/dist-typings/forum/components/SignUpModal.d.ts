@@ -12,6 +12,7 @@ export interface ISignupModalAttrs extends IFormModalAttrs {
 export type SignupBody = {
     username: string;
     email: string;
+    colorScheme?: string;
 } & ({
     token: string;
 } | {

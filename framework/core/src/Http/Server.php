@@ -15,7 +15,6 @@ use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\ServerRequestFactory;
-use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Laminas\HttpHandlerRunner\RequestHandlerRunner;
 use Laminas\Stratigility\Middleware\ErrorResponseGenerator;
 use Psr\Log\LoggerInterface;
@@ -32,7 +31,7 @@ readonly class Server
     {
         $runner = new RequestHandlerRunner(
             $this->safelyBootAndGetHandler(),
-            new SapiEmitter,
+            new Emitter,
             [ServerRequestFactory::class, 'fromGlobals'],
             function (Throwable $e) {
                 $generator = new ErrorResponseGenerator;

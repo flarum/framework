@@ -9,6 +9,7 @@
 
 namespace Flarum\Gdpr\Events;
 
+use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\User\User;
 
 class Erased
@@ -17,7 +18,11 @@ class Erased
         public string $username,
         public string $email,
         public string $mode,
-        public User $user
+        public User $user,
+        // The originating erasure request, carrying who processed it (processed_by) — null for
+        // the scheduled/system path. Optional so existing listeners that construct this event
+        // without it keep working.
+        public ?ErasureRequest $request = null
     ) {
     }
 }

@@ -10,6 +10,7 @@
 namespace Flarum\Gdpr\Api;
 
 use Flarum\Api\Context;
+use Flarum\Api\Resource\UserResource;
 use Flarum\Api\Schema;
 use Flarum\User\User;
 
@@ -25,7 +26,11 @@ class UserResourceFields
 
             Schema\Relationship\ToOne::make('erasureRequest')
                 ->includable()
-                ->type('user-erasure-requests'),
+                ->type('user-erasure-requests')
+                ->visible(
+                    fn (User $user, Context $context) => $context->collection instanceof UserResource
+                    && ($context->getActor()->id === $user->id || $context->getActor()->hasPermission('processErasure'))
+                ),
         ];
     }
 }

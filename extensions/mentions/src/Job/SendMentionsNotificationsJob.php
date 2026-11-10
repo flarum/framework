@@ -28,6 +28,7 @@ class SendMentionsNotificationsJob extends AbstractJob
         protected array $postMentions,
         protected array $groupMentions
     ) {
+        parent::__construct();
     }
 
     public function handle(NotificationSyncer $notifications): void

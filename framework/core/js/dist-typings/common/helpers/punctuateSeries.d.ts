@@ -9,4 +9,4 @@
  * @param {import('mithril').Children[]} items
  * @return {import('mithril').Children}')}
  */
-export default function punctuateSeries(items: import('mithril').Children[]): import('mithril').Children;
+export default function punctuateSeries(items: import("mithril").Children[]): import("mithril").Children;

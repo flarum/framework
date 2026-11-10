@@ -16,6 +16,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Http\Access\ScopeAccessTokenVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\IdSlugDriver;
+use Flarum\User\IdWithDisplayNameSlugDriver;
 use Flarum\User\User;
 use Flarum\User\UsernameSlugDriver;
 use Illuminate\Contracts\Container\Container;
@@ -26,7 +27,9 @@ class HttpServiceProvider extends AbstractServiceProvider
     public function register(): void
     {
         $this->container->singleton('flarum.http.csrfExemptPaths', function () {
-            return ['token'];
+            // 'mailWebhook' is authenticated by the provider's request signature,
+            // not a session, so it cannot supply a CSRF token.
+            return ['token', 'registration-token', 'mailWebhook'];
         });
 
         $this->container->bind(Middleware\CheckCsrfToken::class, function (Container $container) {
@@ -41,7 +44,8 @@ class HttpServiceProvider extends AbstractServiceProvider
                 ],
                 User::class => [
                     'default' => UsernameSlugDriver::class,
-                    'id' => IdSlugDriver::class
+                    'id' => IdSlugDriver::class,
+                    'id_with_display_name' => IdWithDisplayNameSlugDriver::class,
                 ],
             ];
         });
@@ -65,6 +69,14 @@ class HttpServiceProvider extends AbstractServiceProvider
         $this->container->bind(SlugManager::class, function (Container $container) {
             return new SlugManager($container->make('flarum.http.selectedSlugDrivers'));
         });
+
+        $this->container->singleton('flarum.http.access_token_types', function () {
+            return [
+                DeveloperAccessToken::class,
+                RememberAccessToken::class,
+                SessionAccessToken::class,
+            ];
+        });
     }
 
     public function boot(): void
@@ -76,13 +88,7 @@ class HttpServiceProvider extends AbstractServiceProvider
 
     protected function setAccessTokenTypes(): void
     {
-        $models = [
-            DeveloperAccessToken::class,
-            RememberAccessToken::class,
-            SessionAccessToken::class
-        ];
-
-        foreach ($models as $model) {
+        foreach ($this->container->make('flarum.http.access_token_types') as $model) {
             AccessToken::setModel($model::$type, $model);
         }
     }

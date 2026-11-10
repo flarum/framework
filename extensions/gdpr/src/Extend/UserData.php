@@ -19,6 +19,7 @@ class UserData implements ExtenderInterface
     protected array $types = [];
     protected array $removeTypes = [];
     protected array $removeUserColumns = [];
+    protected array $piiKeysForSerialization = [];
 
     public function extend(Container $container, ?Extension $extension = null): void
     {
@@ -30,7 +31,8 @@ class UserData implements ExtenderInterface
             DataProcessor::removeType($type);
         }
 
-        DataProcessor::removeUserColumns($this->removeUserColumns);
+        DataProcessor::removeUserColumns($this->removeUserColumns, $extension?->getId());
+        DataProcessor::addPiiKeysForSerialization($this->piiKeysForSerialization, $extension?->getId());
     }
 
     /**
@@ -74,6 +76,24 @@ class UserData implements ExtenderInterface
     {
         $columns = (array) $columns;
         $this->removeUserColumns = array_merge($this->removeUserColumns, $columns);
+
+        return $this;
+    }
+
+    /**
+     * Register additional PII keys for serialization anonymization that are not covered by
+     * any registered data type. Prefer implementing {@see \Flarum\Gdpr\Contracts\DataType::piiFields()}
+     * on your data type class instead — that keeps the PII declaration co-located with the
+     * anonymization logic. Use this method only for PII fields that don't belong to any type.
+     *
+     * @param string|string[] $keys
+     *
+     * @return self
+     */
+    public function addPiiKeysForSerialization($keys): self
+    {
+        $keys = (array) $keys;
+        $this->piiKeysForSerialization = array_merge($this->piiKeysForSerialization, $keys);
 
         return $this;
     }

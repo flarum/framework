@@ -7,6 +7,7 @@ import WelcomeHero from './WelcomeHero';
 import DiscussionPage from './DiscussionPage';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
+import GlobalSearch from './GlobalSearch';
 import extractText from '../../common/utils/extractText';
 import type Mithril from 'mithril';
 import type Discussion from '../../common/models/Discussion';
@@ -180,12 +181,12 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       'sort',
       <Dropdown
         buttonClassName="Button"
-        label={sortOptions[app.search.state.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0]}
+        label={sortOptions[app.search.state.params().sort] || sortOptions[app.search.state.defaultSort()]}
         accessibleToggleLabel={app.translator.trans('core.forum.index_sort.toggle_dropdown_accessible_label')}
       >
         {Object.keys(sortOptions).map((value) => {
           const label = sortOptions[value];
-          const active = (app.search.state.params().sort || Object.keys(sortMap)[0]) === value;
+          const active = (app.search.state.params().sort || app.search.state.defaultSort()) === value;
 
           return (
             <Button icon={active ? 'fas fa-check' : true} onclick={() => app.search.state.changeSort(value)} active={active}>
@@ -205,6 +206,17 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
    */
   actionItems() {
     const items = new ItemList<Mithril.Children>();
+
+    // Search is reachable from the drawer everywhere, but on the index — where
+    // people most often search — surface it directly in the toolbar on phones,
+    // where the header has no room for the search prompt shown on wider screens.
+    items.add(
+      'search',
+      <div className="IndexPage-toolbar-search">
+        <GlobalSearch state={app.search.state} />
+      </div>,
+      110
+    );
 
     items.add(
       'refresh',

@@ -6,6 +6,7 @@ import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
 import withAttr from 'flarum/common/utils/withAttr';
 import ItemList from 'flarum/common/utils/ItemList';
+import haptic from 'flarum/common/utils/haptic';
 
 export default class FlagPostModal extends FormModal {
   oninit(vnode) {
@@ -91,9 +92,11 @@ export default class FlagPostModal extends FormModal {
           onclick={withAttr('value', this.reason)}
         />
         <strong>{app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_label')}</strong>
-        {app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_text', {
-          a: guidelinesUrl ? <a href={guidelinesUrl} target="_blank" /> : undefined,
-        })}
+        {guidelinesUrl
+          ? app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_text', {
+              a: <a href={guidelinesUrl} target="_blank" />,
+            })
+          : app.translator.trans('flarum-flags.forum.flag_post.reason_inappropriate_text_no_guidelines')}
         {this.reason() === 'inappropriate' && (
           <textarea
             className="FormControl"
@@ -142,6 +145,7 @@ export default class FlagPostModal extends FormModal {
   onsubmit(e) {
     e.preventDefault();
 
+    haptic('warning');
     this.loading = true;
 
     app.store
@@ -156,7 +160,9 @@ export default class FlagPostModal extends FormModal {
         },
         { errorHandler: this.onerror.bind(this) }
       )
-      .then(() => (this.success = true))
+      .then(() => {
+        this.success = true;
+      })
       .catch(() => {})
       .then(this.loaded.bind(this));
   }

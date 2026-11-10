@@ -1,6 +1,6 @@
 import Component from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
-import listItems from '../../common/helpers/listItems';
+import OverflowingList from '../../common/components/OverflowingList';
 import type Mithril from 'mithril';
 
 /**
@@ -9,7 +9,12 @@ import type Mithril from 'mithril';
  */
 export default class HeaderPrimary extends Component {
   view(): JSX.Element {
-    return <ul className="Header-controls">{listItems(this.items().toArray())}</ul>;
+    // Navigation is the part of the header that grows without bound —
+    // extensions add links here, and a forum with a handful of them will not
+    // fit beside the logo and the session controls on a narrow screen.
+    // Whatever does not fit collapses into a menu instead of overlapping the
+    // controls opposite.
+    return <OverflowingList className="Header-controls" items={this.items().toArray()} />;
   }
 
   /**

@@ -39,7 +39,12 @@ class AuthenticateWithSession implements Middleware
 
             if ($token) {
                 $actor = $token->user;
-                $actor->updateLastSeen()->save();
+                $actor->updateLastSeen();
+
+                // Only save if last_seen_at was actually updated (throttled to 180 seconds)
+                if ($actor->isDirty()) {
+                    $actor->save();
+                }
 
                 $token->touch(request: $request);
 

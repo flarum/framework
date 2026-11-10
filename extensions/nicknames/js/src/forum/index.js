@@ -72,14 +72,18 @@ app.initializers.add('flarum-nicknames', () => {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
     if (app.forum.attribute('setNicknameOnRegistration')) {
+      const nicknameLabel = extractText(app.translator.trans('flarum-nicknames.forum.sign_up.nickname_placeholder'));
+
       items.add(
         'nickname',
         <div className="Form-group">
+          <label className="label">{nicknameLabel}</label>
           <input
             className="FormControl"
             name="nickname"
             type="text"
-            placeholder={extractText(app.translator.trans('flarum-nicknames.forum.sign_up.nickname_placeholder'))}
+            placeholder={nicknameLabel}
+            aria-label={nicknameLabel}
             bidi={this.nickname}
             disabled={this.loading || this.isProvided('nickname')}
             required={app.forum.attribute('randomizeUsernameOnRegistration')}

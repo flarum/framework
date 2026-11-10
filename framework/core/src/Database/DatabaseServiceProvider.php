@@ -11,6 +11,7 @@ namespace Flarum\Database;
 
 use Faker\Factory as FakerFactory;
 use Faker\Generator as FakerGenerator;
+use Flarum\Database\Exception\TablePrefixTooLong;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
 use Illuminate\Container\Container as ContainerImplementation;
@@ -18,6 +19,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
+use Illuminate\Database\DatabaseTransactionsManager;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -37,6 +39,14 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 
             $config = $container['flarum']->config('database');
 
+            // Only the installer validates the prefix, so an installation that was upgraded
+            // from 1.x or had its config.php edited by hand has never had this checked.
+            $maxPrefix = DatabaseRequirements::maxTablePrefixLength($config['driver']);
+
+            if ($maxPrefix !== null && strlen($config['prefix'] ?? '') > $maxPrefix) {
+                throw new TablePrefixTooLong($config['prefix'], $config['driver']);
+            }
+
             if (in_array($config['driver'], ['mysql', 'mariadb'])) {
                 $config['engine'] = 'InnoDB';
             } elseif ($config['driver'] === 'sqlite' && ! file_exists($config['database'])) {
@@ -48,6 +58,14 @@ class DatabaseServiceProvider extends AbstractServiceProvider
             $manager->addConnection($config, 'flarum');
 
             return $manager;
+        });
+
+        // Bind the transactions manager so connections receive it during
+        // configuration (Illuminate's DatabaseManager::configure() attaches it
+        // whenever `db.transactions` is bound). Without it, Connection::afterCommit()
+        // throws. See flarum/framework#4787.
+        $this->container->singleton('db.transactions', function () {
+            return new DatabaseTransactionsManager;
         });
 
         $this->container->singleton(ConnectionResolverInterface::class, function (Container $container) {
@@ -97,7 +115,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
                     // For Eloquent builders, we need to access the connection through the query property
                     $connection = method_exists($this, 'getConnection')
                         ? $this->getConnection()
-                        : (property_exists($this, 'query') ? $this->query->getConnection() : null);
+                        : (method_exists($this, 'getQuery') ? $this->getQuery()->getConnection() : null);
 
                     if ($connection && $connection->getDriverName() === $driver) {
                         $callback($this);
@@ -113,7 +131,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
                     // For Eloquent builders, we need to access the connection through the query property
                     $connection = method_exists($this, 'getConnection')
                         ? $this->getConnection()
-                        : (property_exists($this, 'query') ? $this->query->getConnection() : null);
+                        : (method_exists($this, 'getQuery') ? $this->getQuery()->getConnection() : null);
 
                     if ($connection && $connection->getDriverName() !== $driver) {
                         $callback($this);

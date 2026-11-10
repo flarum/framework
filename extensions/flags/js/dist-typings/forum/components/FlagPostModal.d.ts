@@ -9,6 +9,6 @@ export default class FlagPostModal extends FormModal<import("flarum/common/compo
     flagReasons(): ItemList<any>;
     onsubmit(e: any): void;
 }
-import FormModal from "flarum/common/components/FormModal";
-import Stream from "flarum/common/utils/Stream";
-import ItemList from "flarum/common/utils/ItemList";
+import FormModal from 'flarum/common/components/FormModal';
+import Stream from 'flarum/common/utils/Stream';
+import ItemList from 'flarum/common/utils/ItemList';

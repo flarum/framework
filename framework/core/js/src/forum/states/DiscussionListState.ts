@@ -25,9 +25,12 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
   }
 
   requestParams(): PaginatedListRequestParams {
+    // `filter` is cloned so extenders mutating it don't write back into
+    // `this.params.filter` — that leak trips `paramsChanged()` on the next
+    // mount and wipes the paginated cache (see #4583).
     const params = {
       include: ['user', 'lastPostedUser'],
-      filter: this.params.filter || {},
+      filter: { ...this.params.filter },
       sort: this.currentSort(),
     };
 
@@ -72,6 +75,8 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     map.top = '-commentCount';
     map.newest = '-createdAt';
     map.oldest = 'createdAt';
+    map.az = 'title';
+    map.za = '-title';
 
     return map;
   }
@@ -81,8 +86,16 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
   }
 
   deleteDiscussion(discussion: Discussion): void {
+    // Match by id, not by object reference: realtime hands us a discussion
+    // resolved through the store, which is a fresh instance whenever the store
+    // no longer holds the one already on screen. A reference check would miss
+    // that copy and leave the discussion showing twice.
+    const id = discussion.id();
+
+    if (id == null) return;
+
     for (const page of this.pages) {
-      const index = page.items.indexOf(discussion);
+      const index = page.items.findIndex((d) => d.id() === id);
 
       if (index !== -1) {
         page.items.splice(index, 1);
@@ -90,10 +103,10 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
       }
     }
 
-    const index = this.extraDiscussions.indexOf(discussion);
+    const index = this.extraDiscussions.findIndex((d) => d.id() === id);
 
     if (index !== -1) {
-      this.extraDiscussions.splice(index);
+      this.extraDiscussions.splice(index, 1);
     }
 
     m.redraw();
@@ -109,8 +122,36 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     m.redraw();
   }
 
+  /**
+   * Reconcile the realtime additions after a background revalidation.
+   *
+   * `refresh()` empties `extraDiscussions`, because it routes through
+   * `clear()`. `revalidate()` deliberately does not clear anything before it
+   * asks the API, so it rebuilds `pages` and leaves `extraDiscussions` alone —
+   * and the first page it gets back contains exactly the discussions realtime
+   * put there, since a new post is what moved them to the top. Left unhandled
+   * they render from both places at once, which is what a reader coming back
+   * to an idle tab sees as a duplicate.
+   *
+   * Only the ids the new pages actually contain are dropped. A revalidation
+   * that failed resolves rather than rejecting and leaves `pages` untouched,
+   * so clearing unconditionally would take realtime's additions off a list
+   * that was never reloaded.
+   */
+  public revalidate(): Promise<void> {
+    return super.revalidate().then(() => {
+      // `super.getPages()`, not `this.getPages()`: the override below prepends
+      // `extraDiscussions`, which would match every one of them against itself.
+      const listed = new Set(super.getPages().flatMap((page) => page.items.map((discussion) => discussion.id())));
+
+      this.extraDiscussions = this.extraDiscussions.filter((discussion) => !listed.has(discussion.id()));
+    });
+  }
+
   protected getAllItems(): Discussion[] {
-    return this.extraDiscussions.concat(super.getAllItems());
+    // `getPages()` already prepends `extraDiscussions`, and `super` flattens
+    // that — concatenating them again here would count them twice.
+    return super.getAllItems();
   }
 
   public getPages(): Page<Discussion>[] {

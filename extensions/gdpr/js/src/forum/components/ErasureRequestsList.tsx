@@ -59,7 +59,7 @@ export default class ErasureRequestsList<CustomAttrs extends IErasureRequestsLis
                 content={app.translator.trans(`flarum-gdpr.forum.erasure_requests.item_text`, {
                   name: username(request.user()),
                 })}
-                datetime={request.createdAt()}
+                datetime={request.userConfirmedAt() ?? request.createdAt()}
                 excerpt=""
               />
             </li>

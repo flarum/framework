@@ -44,7 +44,7 @@ export default class AvatarEditor extends Component {
         <Avatar user={user} loading="eager" />
         <button
           type="button"
-          className={user.avatarUrl() ? 'Dropdown-toggle' : 'Dropdown-toggle AvatarEditor--noAvatar'}
+          className={user.hasUploadedAvatar() ? 'Dropdown-toggle' : 'Dropdown-toggle AvatarEditor--noAvatar'}
           title={app.translator.trans('core.forum.user.avatar_upload_tooltip')}
           ariaLabel={app.translator.trans('core.forum.user.avatar_upload_tooltip')}
           data-toggle="dropdown"
@@ -57,7 +57,7 @@ export default class AvatarEditor extends Component {
         >
           {this.loading ? (
             <LoadingIndicator display="unset" size="large" />
-          ) : user.avatarUrl() ? (
+          ) : user.hasUploadedAvatar() ? (
             <Icon name={'fas fa-pencil-alt'} />
           ) : (
             <Icon name={'fas fa-plus-circle'} />
@@ -136,7 +136,7 @@ export default class AvatarEditor extends Component {
    * @param {MouseEvent} e
    */
   quickUpload(e) {
-    if (!this.attrs.user.avatarUrl()) {
+    if (!this.attrs.user.hasUploadedAvatar()) {
       e.preventDefault();
       e.stopPropagation();
       this.openPicker();
@@ -151,13 +151,13 @@ export default class AvatarEditor extends Component {
 
     // Create a hidden HTML input element and click on it so the user can select
     // an avatar file. Once they have, we will upload it via the API.
-    const $input = $('<input type="file" accept=".jpg, .jpeg, .png, .bmp, .gif">');
+    const $input = $('<input type="file" accept="image/jpeg,image/png,image/gif,image/webp,image/bmp">');
 
     $input
       .appendTo('body')
       .hide()
       .click()
-      .on('input', (e) => {
+      .on('input change', (e) => {
         this.upload($(e.target)[0].files[0]);
       });
   }
@@ -168,7 +168,7 @@ export default class AvatarEditor extends Component {
    * @param {File} file
    */
   upload(file) {
-    if (this.loading) return;
+    if (this.loading || !(file instanceof Blob)) return;
 
     const user = this.attrs.user;
     const data = new FormData();

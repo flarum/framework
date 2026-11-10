@@ -240,6 +240,48 @@ class ListPostsTest extends TestCase
     }
 
     #[Test]
+    public function mentioned_by_limit_applies_per_post_not_per_page()
+    {
+        $this->prepareMentionedByData();
+
+        // Make a second post heavily mentioned too: each post on the page must
+        // get its own window of maxMentionedBy, not share one global limit.
+        $this->database()->table('post_mentions_post')->insert([
+            ['post_id' => 105, 'mentions_post_id' => 102, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(20)],
+            ['post_id' => 106, 'mentions_post_id' => 102, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(21)],
+            ['post_id' => 107, 'mentions_post_id' => 102, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(22)],
+            ['post_id' => 108, 'mentions_post_id' => 102, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(23)],
+            ['post_id' => 109, 'mentions_post_id' => 102, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(24)],
+            ['post_id' => 110, 'mentions_post_id' => 102, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(25)],
+        ]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/posts', [
+                'authenticatedAs' => 2,
+            ])->withQueryParams([
+                'filter' => ['discussion' => 100],
+                'include' => 'mentionedBy',
+                'sort' => 'createdAt',
+            ])
+        );
+
+        $data = json_decode($body = $response->getBody()->getContents(), true)['data'];
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $byId = collect($data)->keyBy('id');
+
+        $this->assertEquals(
+            [102, 104, 105, 106],
+            Arr::pluck($byId['101']['relationships']['mentionedBy']['data'], 'id')
+        );
+        $this->assertEquals(
+            [105, 106, 107, 108],
+            Arr::pluck($byId['102']['relationships']['mentionedBy']['data'], 'id')
+        );
+    }
+
+    #[Test]
     public function mentioned_by_count_only_includes_visible_posts_to_actor()
     {
         $this->prepareMentionedByData();

@@ -2,6 +2,7 @@ import app from '../../forum/app';
 import ComposerBody from './ComposerBody';
 import extractText from '../../common/utils/extractText';
 import Stream from '../../common/utils/Stream';
+import haptic from '../../common/utils/haptic';
 
 /**
  * The `DiscussionComposer` component displays the composer content for starting
@@ -94,6 +95,7 @@ export default class DiscussionComposer extends ComposerBody {
   }
 
   onsubmit() {
+    haptic('success');
     this.loading = true;
 
     const data = this.data();

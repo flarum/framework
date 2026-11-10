@@ -29,11 +29,12 @@ class DialogMessagePolicy extends AbstractPolicy
 
     public function delete(User $actor, DialogMessage $message): bool|null|string
     {
-        if ($message->user_id === $actor->id) {
+        // A notice records what happened; it isn't its member's to take back.
+        if ($message->user_id === $actor->id && $message->isComment()) {
             $allowHiding = $this->settings->get('flarum-messages.allow_delete_own_messages');
 
             if ($allowHiding === '-1'
-                || ($allowHiding === 'reply' && $message->number >= $message->dialog->lastMessage->number)
+                || ($allowHiding === 'reply' && $message->id === $message->dialog?->last_message_id)
                 || (is_numeric($allowHiding) && $message->created_at->diffInMinutes(new Carbon, true) < $allowHiding)) {
                 return $this->allow();
             }

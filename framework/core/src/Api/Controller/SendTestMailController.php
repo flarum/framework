@@ -35,16 +35,25 @@ class SendTestMailController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $actor->assertAdmin();
 
-        $this->queue->connection('sync')->push(
-            new SendInformationalEmailJob(
-                email: $actor->email,
-                displayName: $actor->display_name,
-                subject: $this->translator->trans('core.email.send_test.subject'),
-                body: $this->translator->trans('core.email.send_test.body'),
-                forumTitle: $this->settings->get('forum_title'),
-                bodyTitle: $this->translator->trans('core.email.send_test.subject')
-            )
-        );
+        $locale = $actor->getPreference('locale') ?? $this->settings->get('default_locale');
+        $previousLocale = $this->translator->getLocale();
+        $this->translator->setLocale($locale);
+
+        try {
+            $this->queue->connection('sync')->push(
+                new SendInformationalEmailJob(
+                    email: $actor->email,
+                    displayName: $actor->display_name,
+                    subject: $this->translator->trans('core.email.send_test.subject'),
+                    body: $this->translator->trans('core.email.send_test.body'),
+                    forumTitle: $this->settings->get('forum_title'),
+                    bodyTitle: $this->translator->trans('core.email.send_test.subject'),
+                    locale: $locale,
+                )
+            );
+        } finally {
+            $this->translator->setLocale($previousLocale);
+        }
 
         return new EmptyResponse();
     }

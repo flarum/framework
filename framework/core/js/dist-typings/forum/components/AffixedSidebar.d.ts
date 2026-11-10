@@ -18,4 +18,4 @@ export default class AffixedSidebar extends Component<import("../../common/Compo
     onresize(): void;
     bottom: number | undefined;
 }
-import Component from "../../common/Component";
+import Component from '../../common/Component';

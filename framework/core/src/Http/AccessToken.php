@@ -63,9 +63,23 @@ class AccessToken extends AbstractModel
     /**
      * How long this access token should be valid from the time of last activity.
      * This value will be used in the validity and expiration checks.
+     *
+     * This is the default for the type, not the last word on it: a site can
+     * shorten or lengthen it from `config.php` or the admin panel. Read the
+     * resolved value with `lifetime()` rather than this property.
+     *
      * @var int Lifetime in seconds. Zero means it will never expire.
      */
     protected static int $lifetime = 0;
+
+    /**
+     * Whether a site may change this type's lifetime.
+     *
+     * Types whose whole purpose is to outlive a session — API tokens issued to
+     * a script, say — have nothing to gain from an expiry box in the admin
+     * panel, and would be broken by one set carelessly.
+     */
+    protected static bool $configurableLifetime = true;
 
     /**
      * Difference from the current `last_activity_at` attribute value before `updateLastSeen()`
@@ -115,12 +129,20 @@ class AccessToken extends AbstractModel
         }
 
         if ($request) {
-            $this->last_ip_address = $request->getAttribute('ipAddress');
+            $newIp = $request->getAttribute('ipAddress');
             // We truncate user agent so it fits in the database column
             // The length is hard-coded as the column length
             // It seems like MySQL or Laravel already truncates values, but we'll play safe and do it ourselves
             $agent = Arr::get($request->getServerParams(), 'HTTP_USER_AGENT');
-            $this->last_user_agent = substr($agent ?? '', 0, 255);
+            $newUserAgent = substr($agent ?? '', 0, 255);
+
+            // Only update if values have changed to avoid unnecessary dirty-marking
+            if ($this->last_ip_address !== $newIp) {
+                $this->last_ip_address = $newIp;
+            }
+            if ($this->last_user_agent !== $newUserAgent) {
+                $this->last_user_agent = $newUserAgent;
+            }
         } else {
             // If no request is provided, we set the values back to null
             // That way the values always match with the date logged in last_activity
@@ -128,7 +150,12 @@ class AccessToken extends AbstractModel
             $this->last_user_agent = null;
         }
 
-        return $this->save();
+        // Only save if model has changes (throttles unnecessary DB writes)
+        if ($this->isDirty()) {
+            return $this->save();
+        }
+
+        return true;
     }
 
     public function user(): BelongsTo
@@ -137,24 +164,51 @@ class AccessToken extends AbstractModel
     }
 
     /**
+     * How long this type of token stays valid, in seconds, taking into account
+     * anything the site has configured. Zero means it never expires.
+     *
+     * Resolved rather than fixed: `config.php` wins, then the setting an admin
+     * can change, then the default the class declares. A site that configures
+     * nothing keeps the lifetime it has always had.
+     */
+    public static function lifetime(): int
+    {
+        if (! static::$configurableLifetime) {
+            return static::$lifetime;
+        }
+
+        $lifetime = resolve(SessionConfig::class)->tokenLifetime(static::$type);
+
+        return $lifetime ?? static::$lifetime;
+    }
+
+    /**
+     * Whether a site may change how long this type of token lasts.
+     */
+    public static function hasConfigurableLifetime(): bool
+    {
+        return static::$configurableLifetime;
+    }
+
+    /**
      * Filters which tokens are valid at the given date for this particular token type.
-     * Uses the static::$lifetime value by default, can be overridden by children classes.
+     * Uses the resolved lifetime by default, can be overridden by children classes.
      */
     protected static function scopeValid(Builder $query, Carbon $date): void
     {
-        if (static::$lifetime > 0) {
-            $query->where('last_activity_at', '>', $date->clone()->subSeconds(static::$lifetime));
+        if (($lifetime = static::lifetime()) > 0) {
+            $query->where('last_activity_at', '>', $date->clone()->subSeconds($lifetime));
         }
     }
 
     /**
      * Filters which tokens are expired at the given date and ready for garbage collection.
-     * Uses the static::$lifetime value by default, can be overridden by children classes.
+     * Uses the resolved lifetime by default, can be overridden by children classes.
      */
     protected static function scopeExpired(Builder $query, Carbon $date): void
     {
-        if (static::$lifetime > 0) {
-            $query->where('last_activity_at', '<', $date->clone()->subSeconds(static::$lifetime));
+        if (($lifetime = static::lifetime()) > 0) {
+            $query->where('last_activity_at', '<', $date->clone()->subSeconds($lifetime));
         } else {
             $query->whereRaw('FALSE');
         }

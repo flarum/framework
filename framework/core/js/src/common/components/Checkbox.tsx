@@ -10,6 +10,8 @@ export interface ICheckboxAttrs extends ComponentAttrs {
   loading?: boolean;
   disabled?: boolean;
   onchange: (checked: boolean, component: Checkbox<this>) => void;
+  /** Extra attributes to spread onto the inner `<input>` element. */
+  inputAttrs?: Mithril.Attributes;
 }
 
 /**
@@ -36,7 +38,13 @@ export default class Checkbox<CustomAttrs extends ICheckboxAttrs = ICheckboxAttr
 
     return (
       <label className={className}>
-        <input type="checkbox" checked={this.attrs.state} disabled={this.attrs.disabled} onchange={withAttr('checked', this.onchange.bind(this))} />
+        <input
+          type="checkbox"
+          checked={this.attrs.state}
+          disabled={this.attrs.disabled}
+          onchange={withAttr('checked', this.onchange.bind(this))}
+          {...(this.attrs.inputAttrs ?? {})}
+        />
         <div className="Checkbox-display" aria-hidden="true">
           {this.getDisplay()}
         </div>

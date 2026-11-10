@@ -1,0 +1,104 @@
+import { extend } from 'flarum/common/extend';
+import app from 'flarum/forum/app';
+import DiscussionPage from 'flarum/forum/components/DiscussionPage';
+import RealtimeState from '../../RealtimeState';
+import catchUpDiscussion from '../../utils/catchUpDiscussion';
+
+const CORE_POSTED_EVENT = 'Flarum\\Post\\Event\\Posted';
+const CORE_RENAMED_EVENT = 'discussionRenamed';
+const CORE_REVISED_EVENT = 'revisedEvent';
+const POST_RESTORED_EVENT = 'postRestored';
+
+export default function (): void {
+  extend(DiscussionPage.prototype, 'oninit', function (this: any) {
+    this.websocketEventPosted = (data: unknown): void => {
+      // Capture BEFORE the payload (and the refetch below) updates postIds:
+      // once new posts are in the store, viewingEnd()'s 1-post drift
+      // tolerance can no longer tell "was at the end, several posts arrived
+      // at once" apart from "viewing an interior window" — so a single
+      // missed event would permanently disable live-append (#4717).
+      const wasViewingEnd: boolean = !!this.stream?.viewingEnd();
+
+      const discussion = app.store.pushPayload(data as Parameters<typeof app.store.pushPayload>[0]) as any;
+
+      if (discussion.id() === this.discussion?.id() && this.stream) {
+        const oldCount: number = this.discussion.commentCount();
+
+        catchUpDiscussion(this.discussion, this.stream, wasViewingEnd).then((caughtUp) => {
+          if (caughtUp && !document.hasFocus()) {
+            app.setTitleCount(Math.max(0, this.discussion.commentCount() - oldCount));
+
+            $(window).one('focus', (): void => {
+              app.setTitleCount(0);
+            });
+          }
+        });
+      }
+    };
+
+    this.websocketEventStreamUpdate = (data: unknown): void => {
+      // Same pre-payload capture as websocketEventPosted (#4717) — event
+      // posts (sticky/lock/rename) move postIds too.
+      const wasViewingEnd: boolean = !!this.stream?.viewingEnd();
+
+      const discussion = app.store.pushPayload(data as Parameters<typeof app.store.pushPayload>[0]) as any;
+
+      if (discussion.id() === this.discussion?.id() && this.stream) {
+        catchUpDiscussion(this.discussion, this.stream, wasViewingEnd);
+      }
+    };
+  });
+
+  extend(DiscussionPage.prototype, 'oncreate', function (this: any) {
+    // Bind handlers against the current channel objects. Extracted so it can
+    // re-fire on reconnect — see flarum/framework#4597. On reconnect the
+    // previous channel objects are discarded with the previous Pusher
+    // instance, so re-binding against the new channels is non-duplicating.
+    const bindHandlers = (): void => {
+      app.websocket_channels.public?.bind(CORE_POSTED_EVENT, this.websocketEventPosted);
+      app.websocket_channels.user?.bind(CORE_POSTED_EVENT, this.websocketEventPosted);
+
+      app.websocket_channels.public?.bind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate);
+      app.websocket_channels.user?.bind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate);
+
+      app.websocket_channels.public?.bind(CORE_REVISED_EVENT, this.websocketEventPosted);
+      app.websocket_channels.user?.bind(CORE_REVISED_EVENT, this.websocketEventPosted);
+
+      // A restored post rejoins the stream the way a new one arrives.
+      app.websocket_channels.public?.bind(POST_RESTORED_EVENT, this.websocketEventPosted);
+      app.websocket_channels.user?.bind(POST_RESTORED_EVENT, this.websocketEventPosted);
+
+      for (const eventName of RealtimeState.getDiscussionStreamEventNames()) {
+        app.websocket_channels.public?.bind(eventName, this.websocketEventStreamUpdate);
+        app.websocket_channels.user?.bind(eventName, this.websocketEventStreamUpdate);
+      }
+    };
+
+    bindHandlers();
+    this._realtimeReconnectDisposer = RealtimeState.onChannelsReconnected(bindHandlers);
+  });
+
+  // Unbind only this page's handlers: an unbind by event name alone would
+  // also remove every other component's handler for the same event.
+  extend(DiscussionPage.prototype, 'onremove', function (this: any) {
+    this._realtimeReconnectDisposer?.();
+    this._realtimeReconnectDisposer = null;
+
+    app.websocket_channels.public?.unbind(CORE_POSTED_EVENT, this.websocketEventPosted);
+    app.websocket_channels.user?.unbind(CORE_POSTED_EVENT, this.websocketEventPosted);
+
+    app.websocket_channels.public?.unbind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate);
+    app.websocket_channels.user?.unbind(CORE_RENAMED_EVENT, this.websocketEventStreamUpdate);
+
+    app.websocket_channels.public?.unbind(CORE_REVISED_EVENT, this.websocketEventPosted);
+    app.websocket_channels.user?.unbind(CORE_REVISED_EVENT, this.websocketEventPosted);
+
+    app.websocket_channels.public?.unbind(POST_RESTORED_EVENT, this.websocketEventPosted);
+    app.websocket_channels.user?.unbind(POST_RESTORED_EVENT, this.websocketEventPosted);
+
+    for (const eventName of RealtimeState.getDiscussionStreamEventNames()) {
+      app.websocket_channels.public?.unbind(eventName, this.websocketEventStreamUpdate);
+      app.websocket_channels.user?.unbind(eventName, this.websocketEventStreamUpdate);
+    }
+  });
+}

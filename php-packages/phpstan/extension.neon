@@ -19,6 +19,11 @@ parameters:
     # Flarum provides a stub implementation in Flarum\Log\Context\Repository.
     - stubs/Illuminate/Log/Context/Repository.stub
 
+    # The command mutex only duck-types the command (getName() + method_exists
+    # checks), but its docblock demands an Illuminate command. Flarum's commands
+    # are Symfony commands, so we widen the parameter to the actual requirement.
+    - stubs/Illuminate/Console/CommandMutex.stub
+
     # We know for a fact the JsonApi object used internally is always the Flarum one.
     - stubs/Tobyz/JsonApiServer/JsonApi.stub
     - stubs/Tobyz/JsonApiServer/Context.stub

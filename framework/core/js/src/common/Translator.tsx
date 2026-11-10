@@ -33,10 +33,13 @@ export default class Translator {
    * Sets the formatter's locale to the provided value.
    */
   setLocale(locale: string) {
+    const previousLocale = this.getLocale();
+    const allTranslations = this.formatter.setup().translations;
+
     this.formatter.setup({
       locale,
       translations: {
-        [locale]: this.formatter.setup().translations[locale] ?? {},
+        [locale]: Object.assign({}, allTranslations[previousLocale] ?? {}, allTranslations[locale] ?? {}),
       },
     });
   }
@@ -87,8 +90,16 @@ export default class Translator {
     const autoProvidedTags = this.autoProvidedTags();
 
     for (const tag of tags) {
-      if (!parameters[tag] && autoProvidedTags.includes(tag)) {
+      if (parameters[tag]) continue;
+
+      if (autoProvidedTags.includes(tag)) {
         parameters[tag] = ({ children }: any) => m(tag, children);
+      } else {
+        const provided = autoProvidedTags.join(', ');
+
+        fireDebugWarning(
+          `The <${tag}> tag in this translation has no "${tag}" parameter and isn't auto-provided (${provided}), so it renders as {undefined}.\nCaught in translation: \n\n"""\n${translation}\n"""`
+        );
       }
     }
 
@@ -183,6 +194,6 @@ export default class Translator {
   }
 
   autoProvidedTags(): string[] {
-    return ['strong', 'code', 'i', 's', 'em', 'sup', 'sub'];
+    return ['strong', 'b', 'code', 'i', 's', 'u', 'em', 'sup', 'sub'];
   }
 }

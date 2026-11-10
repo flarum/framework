@@ -18,11 +18,20 @@ flarum-gdpr:
                 help_text: Looking for GDPR settings? They're found on the extension page.
                 extension_settings_button: GDPR Settings
             user_table_data:
-                not_yet_implemented: Not yet implemented
                 title: User Table Data
                 help_text: |
                     On the most part, any columns added to the <code>user</code> table will be handled automatically, both for exporting data and for erasure.
                     However, there are some special cases, which are listed below.
+                column: Column
+                type: Type
+                nullable: Nullable
+                pii: PII
+                redacted_on_export: Redacted on export
+                extension: Extension
+                yes: Yes
+                no: No
+                pii_tooltip: This column is considered personally identifiable information and will be redacted in anonymized contexts (e.g. anonymized event payloads).
+                redacted_on_export_tooltip: "This column's value is blanked (set to null) when generating a user data export. The column still appears in the export with a null value."
         nav:
             gdpr_button: GDPR Integrations
             gdpr_title: => flarum-gdpr.admin.gdpr_page.description
@@ -31,6 +40,16 @@ flarum-gdpr:
             process_erasure: Process erasure requests
             process_export_for_others: Request and receive data exports for other users
             see_anonymized_user_badges: See anonymized user badges
+        sections:
+            anonymization:
+                description: How anonymized members are named once their data has been erased.
+                label: Anonymization
+            erasure:
+                description: Which erasure methods members can request and which one is used by default.
+                label: Erasure requests
+            overview:
+                description: Which data is exported and erased, including data registered by other extensions.
+                label: Data overview
         settings:
             allow_anonymization: Allow anonymization for erasure requests
             allow_anonymization_help: The default option, and recommended for most communities. Under this mode, posts/comments will be preserved as much as possible as allowed by GDPR, but any user identifiable information is removed.
@@ -60,8 +79,13 @@ flarum-gdpr:
                 export_description: Retrieves the user's avatar from the filesystem and includes it in the export.
             discussions:
                 export_description: Exports all discussions the user has started. Data restricted to title and creation date.
+            emailbounceevents:
+                anonymize_description: Removes the email address from the user's email bounce history, keeping anonymous records for statistics.
+                delete_description: Deletes the user's email bounce history.
+                export_description: Exports the user's email bounce and spam-complaint history.
             forum:
                 export_description: Exports the forum title, url, username, email and the current date.
+            default_user_action: "No action, handled by default user table data handling."
             no_action: No action taken.
             posts:
                 anonymize_description: Removes the IP address from all posts the user has made.
@@ -150,6 +174,9 @@ flarum-gdpr:
             comments_label: Comments (optional)
             anonymization_button: Anonymize user
             deletion_button: Delete user
+            requested_at: "Requested: {date}"
+            confirmed_at: "Confirmed: {date}"
+            eligible_at: "Eligible for auto-processing: {date}"
 
         request_erasure:
             title: Request account erasure
@@ -167,3 +194,24 @@ flarum-gdpr:
         notification:
             export-ready: "Your data export for {username} is now ready to download."
         export_file: Export of user data for {username} ({email}) prepared at {date} from {forumTitle} ({url})
+
+    # Translations in this namespace are used in views other than Flarum's normal JS client.
+    views:
+        confirm_erasure:
+            title: Confirm account erasure
+            text: Confirm that you want your account and its data erased. Until your request has been processed, you can still cancel it from your settings.
+            submit_button: Confirm erasure
+
+# Labels for the audit log entries this extension produces, rendered by the (optional)
+# flarum/audit browser. Defined under the flarum-audit namespace so the audit frontend
+# resolves them, but shipped here so they travel with the extension that owns the actions.
+flarum-audit:
+    lib:
+        browser:
+            user:
+                gdpr_erasure_requested: Requested erasure of {username}'s data
+                gdpr_erasure_confirmed: Confirmed the erasure request for {username}'s data
+                gdpr_erasure_cancelled: Cancelled the erasure request for {username}'s data
+                gdpr_anonymized: Anonymized {username}'s data
+                gdpr_deleted: Deleted {username}'s data
+                gdpr_exported: Exported {username}'s data

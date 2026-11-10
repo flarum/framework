@@ -1,19 +1,12 @@
-/**
- * The `DiscussionHero` component displays the hero on a discussion page.
- *
- * ### attrs
- *
- * - `discussion`
- */
-export default class DiscussionHero extends Component<import("../../common/Component").ComponentAttrs, undefined> {
-    constructor();
-    view(): JSX.Element;
-    /**
-     * Build an item list for the contents of the discussion hero.
-     *
-     * @return {ItemList<import('mithril').Children>}
-     */
-    items(): ItemList<import('mithril').Children>;
+import Hero, { IHeroAttrs } from './Hero';
+import ItemList from '../../common/utils/ItemList';
+import type Discussion from '../../common/models/Discussion';
+import type Mithril from 'mithril';
+export interface IDiscussionHeroAttrs extends IHeroAttrs {
+    discussion: Discussion;
 }
-import Component from "../../common/Component";
-import ItemList from "../../common/utils/ItemList";
+export default class DiscussionHero<CustomAttrs extends IDiscussionHeroAttrs = IDiscussionHeroAttrs> extends Hero<CustomAttrs> {
+    className(): string;
+    bodyItems(): ItemList<Mithril.Children>;
+    items(): ItemList<Mithril.Children>;
+}

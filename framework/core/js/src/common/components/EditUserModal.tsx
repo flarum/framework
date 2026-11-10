@@ -3,6 +3,7 @@ import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from './Button';
 import GroupBadge from './GroupBadge';
 import Group from '../models/Group';
+import sortGroups from '../utils/sortGroups';
 import extractText from '../utils/extractText';
 import ItemList from '../utils/ItemList';
 import Stream from '../utils/Stream';
@@ -20,8 +21,10 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
   protected email!: Stream<string>;
   protected isEmailConfirmed!: Stream<boolean>;
   protected setPassword!: Stream<boolean>;
+  protected clearEmailBounce!: Stream<boolean>;
   protected password!: Stream<string>;
   protected groups: Record<string, Stream<boolean>> = {};
+  protected availableGroups: Group[] = [];
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -32,14 +35,16 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
     this.email = Stream(user.email() || '');
     this.isEmailConfirmed = Stream(user.isEmailConfirmed() || false);
     this.setPassword = Stream(false as boolean);
+    this.clearEmailBounce = Stream(false as boolean);
     this.password = Stream(user.password() || '');
 
     const userGroups = user.groups() || [];
 
-    app.store
-      .all<Group>('groups')
-      .filter((group) => ![Group.GUEST_ID, Group.MEMBER_ID].includes(group.id()!))
-      .forEach((group) => (this.groups[group.id()!] = Stream(userGroups.includes(group))));
+    this.availableGroups = sortGroups(app.store.all<Group>('groups').filter((group) => ![Group.GUEST_ID, Group.MEMBER_ID].includes(group.id()!)));
+
+    this.availableGroups.forEach((group) => {
+      this.groups[group.id()!] = Stream(userGroups.includes(group));
+    });
   }
 
   className() {
@@ -133,31 +138,35 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
       }
     }
 
+    if (this.userIsAdmin(app.session.user) && this.attrs.user.emailBouncedAt()) {
+      items.add(
+        'clearEmailBounce',
+        <div className="Form-group">
+          <label className="checkbox">
+            <input type="checkbox" name="clearEmailBounce" bidi={this.clearEmailBounce} />
+            {app.translator.trans('core.lib.edit_user.clear_email_bounce_label')}
+          </label>
+        </div>,
+        15
+      );
+    }
+
     if (this.attrs.user.canEditGroups()) {
       items.add(
         'groups',
         <div className="Form-group EditUserModal-groups">
           <label>{app.translator.trans('core.lib.edit_user.groups_heading')}</label>
           <div>
-            {Object.keys(this.groups)
-              .map((id) => app.store.getById<Group>('groups', id))
-              .filter(Boolean)
-              .map(
-                (group) =>
-                  // Necessary because filter(Boolean) doesn't narrow out falsy values.
-                  group && (
-                    <label className="checkbox">
-                      <input
-                        type="checkbox"
-                        bidi={this.groups[group.id()!]}
-                        disabled={
-                          group.id() === Group.ADMINISTRATOR_ID && (this.attrs.user === app.session.user || !this.userIsAdmin(app.session.user))
-                        }
-                      />
-                      <GroupBadge group={group} label={null} /> {group.nameSingular()}
-                    </label>
-                  )
-              )}
+            {this.availableGroups.map((group) => (
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  bidi={this.groups[group.id()!]}
+                  disabled={group.id() === Group.ADMINISTRATOR_ID && (this.attrs.user === app.session.user || !this.userIsAdmin(app.session.user))}
+                />
+                <GroupBadge group={group} label={null} /> {group.nameSingular()}
+              </label>
+            ))}
           </div>
         </div>,
         10
@@ -179,10 +188,14 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
 
   activate() {
     this.loading = true;
-    const data = {
-      username: this.username(),
+    const data: SaveAttributes = {
       isEmailConfirmed: true,
     };
+
+    if (this.username() !== this.attrs.user.username()) {
+      data.username = this.username();
+    }
+
     this.attrs.user
       .save(data, { errorHandler: this.onerror.bind(this) })
       .then(() => {
@@ -201,7 +214,11 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
     const relationships: SaveRelationships = {};
 
     if (this.attrs.user.canEditCredentials() && !this.nonAdminEditingAdmin()) {
-      data.username = this.username();
+      // Only when changed: a username kept from Flarum 1.x can fail today's
+      // rules, which would stop the rest of the user being saved.
+      if (this.username() !== this.attrs.user.username()) {
+        data.username = this.username();
+      }
 
       if (app.session.user !== this.attrs.user) {
         data.email = this.email();
@@ -217,6 +234,10 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
         .filter((id) => this.groups[id]())
         .map((id) => app.store.getById<Group>('groups', id))
         .filter((g): g is Group => g instanceof Group);
+    }
+
+    if (this.userIsAdmin(app.session.user) && this.attrs.user.emailBouncedAt() && this.clearEmailBounce()) {
+      data.emailBouncedAt = null;
     }
 
     data.relationships = relationships;

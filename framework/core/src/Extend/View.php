@@ -32,7 +32,7 @@ class View implements ExtenderInterface, LifecycleInterface
      *
      * Views can then be used in your extension by injecting an instance of `Illuminate\Contracts\View\Factory`,
      * and calling its `make` method. The `make` method takes the view parameter in the format NAMESPACE::VIEW_NAME.
-     * You can also pass variables into a view. For more information, see: https://laravel.com/api/8.x/Illuminate/View/Factory.html#method_make
+     * You can also pass variables into a view. For more information, see: https://laravel.com/api/13.x/Illuminate/View/Factory.html#method_make
      *
      * @param  string  $namespace: The name of the namespace.
      * @param  string|string[]  $hints: This is a path (or an array of paths) to the folder(s)
@@ -80,7 +80,7 @@ class View implements ExtenderInterface, LifecycleInterface
     public function onEnable(Container $container, Extension $extension): void
     {
         $storagePath = $container->make(Paths::class)->storage;
-        array_map('unlink', glob($storagePath.'/views/*'));
+        array_map(fn (string $file) => @unlink($file), glob($storagePath.'/views/*') ?: []);
     }
 
     /**
@@ -89,6 +89,6 @@ class View implements ExtenderInterface, LifecycleInterface
     public function onDisable(Container $container, Extension $extension): void
     {
         $storagePath = $container->make(Paths::class)->storage;
-        array_map('unlink', glob($storagePath.'/views/*'));
+        array_map(fn (string $file) => @unlink($file), glob($storagePath.'/views/*') ?: []);
     }
 }

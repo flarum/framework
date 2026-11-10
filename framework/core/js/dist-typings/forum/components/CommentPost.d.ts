@@ -39,7 +39,7 @@ export default class CommentPost extends Post<import("./Post").IPostAttrs> {
      *
      * @return {ItemList<import('mithril').Children>}
      */
-    headerItems(): ItemList<import('mithril').Children>;
+    headerItems(): ItemList<import("mithril").Children>;
     listenForCard(): void;
     /**
      * Show the user card.
@@ -50,5 +50,5 @@ export default class CommentPost extends Post<import("./Post").IPostAttrs> {
      */
     hideCard(): void;
 }
-import Post from "./Post";
-import ItemList from "../../common/utils/ItemList";
+import Post from './Post';
+import ItemList from '../../common/utils/ItemList';

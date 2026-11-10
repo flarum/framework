@@ -11,7 +11,6 @@ namespace Flarum\Api\Endpoint\Concerns;
 
 use Flarum\Api\Serializer;
 use Tobyz\JsonApiServer\Context;
-use Tobyz\JsonApiServer\Endpoint\Concerns\IncludesData;
 use Tobyz\JsonApiServer\Schema\Concerns\HasMeta;
 
 trait ShowsResources

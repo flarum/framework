@@ -9,7 +9,6 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Database\AbstractModel;
 use Flarum\Group\Group;
 use Flarum\Locale\TranslatorInterface;
 use s9e\TextFormatter\Renderer;
@@ -17,6 +16,8 @@ use s9e\TextFormatter\Utils;
 
 class FormatGroupMentions
 {
+    use LooksUpMentionedModels;
+
     public function __construct(
         private readonly TranslatorInterface $translator
     ) {
@@ -24,23 +25,24 @@ class FormatGroupMentions
 
     public function __invoke(Renderer $renderer, mixed $context, string $xml): string
     {
-        return Utils::replaceAttributes($xml, 'GROUPMENTION', function ($attributes) use ($context) {
+        $groups = $this->mentionedModels($context, 'mentionsGroups', $xml, 'GROUPMENTION', Group::query());
+
+        return Utils::replaceAttributes($xml, 'GROUPMENTION', function ($attributes) use ($groups) {
             /** @var Group|null $group */
-            $group = match (true) {
-                $context instanceof AbstractModel && $context->isRelation('mentionsGroups') => $context->relationLoaded('mentionsGroups')
-                    ? $context->mentionsGroups->find($attributes['id']) // @phpstan-ignore-line
-                    : $context->mentionsGroups()->find($attributes['id']), // @phpstan-ignore-line
-                default => Group::query()->find($attributes['id']),
-            };
+            $group = $groups->find($attributes['id']);
 
             if ($group) {
                 $attributes['groupname'] = $group->name_plural;
                 $attributes['icon'] = $group->icon ?? 'fas fa-at';
+                $attributes['iconimage'] = $group->icon_image_url ?? '';
+                $attributes['iconsrcset'] = $group->icon_image_srcset ?? '';
                 $attributes['color'] = $group->color;
                 $attributes['deleted'] = false;
             } else {
                 $attributes['groupname'] = $this->translator->trans('flarum-mentions.forum.group_mention.deleted_text');
                 $attributes['icon'] = '';
+                $attributes['iconimage'] = '';
+                $attributes['iconsrcset'] = '';
                 $attributes['deleted'] = true;
             }
 

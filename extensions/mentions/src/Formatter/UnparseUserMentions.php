@@ -9,20 +9,25 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Database\AbstractModel;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\User\User;
 use s9e\TextFormatter\Utils;
 
 class UnparseUserMentions
 {
+    use LooksUpMentionedModels;
+
     public function __construct(
         private readonly TranslatorInterface $translator
     ) {
     }
 
-    public function __invoke(mixed $context, string $xml): string
+    public function __invoke(mixed $context, ?string $xml): ?string
     {
+        if ($xml === null) {
+            return null;
+        }
+
         return $this->unparseUserMentionTags(
             $this->updateUserMentionTags($context, $xml)
         );
@@ -33,14 +38,11 @@ class UnparseUserMentions
      */
     protected function updateUserMentionTags(mixed $context, string $xml): string
     {
-        return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($context) {
+        $users = $this->mentionedModels($context, 'mentionsUsers', $xml, 'USERMENTION', User::query());
+
+        return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($users) {
             /** @var User|null $user */
-            $user = match (true) {
-                $context instanceof AbstractModel && $context->isRelation('mentionsUsers') => $context->relationLoaded('mentionsUsers')
-                    ? $context->mentionsUsers->find($attributes['id']) // @phpstan-ignore-line
-                    : $context->mentionsUsers()->find($attributes['id']), // @phpstan-ignore-line
-                default => User::query()->find($attributes['id']),
-            };
+            $user = $users->find($attributes['id']);
 
             $attributes['displayname'] = $user->display_name ?? $this->translator->trans('core.lib.username.deleted_text');
 

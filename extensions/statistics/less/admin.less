@@ -6,18 +6,40 @@
   padding: 0;
 
   &--mini {
-    padding-top: 20px;
+    padding-top: 0;
   }
 
   &-title {
-    margin: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 16px 20px 12px;
+    font-size: 13px;
+    font-weight: 600;
     color: var(--muted-color);
+
+    .icon {
+      font-size: 12px;
+      opacity: 0.7;
+    }
   }
 
   &-entities {
     display: flex;
     align-items: flex-end;
     margin: 0 20px;
+
+    & > :not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+
+  &-entityList {
+    display: flex;
+    align-items: flex-end;
+    flex: 1;
+    min-width: 0;
     overflow: auto;
 
     & > :not(:last-child) {
@@ -35,6 +57,13 @@
 
   &-label {
     padding-top: 8px;
+  }
+
+  &-label--period {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
   }
 
   &-entity {

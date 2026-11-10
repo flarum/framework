@@ -17,7 +17,16 @@ export interface IUserSelectionModalAttrs extends IFormModalAttrs {
   selected: User[];
   onsubmit: (users: User[]) => void;
   maxItems?: number;
-  excluded?: (number | string)[];
+  /**
+   * Users left out of the list: their IDs, or a check that returns true for
+   * each one.
+   */
+  excluded?: (number | string)[] | ((user: User) => boolean);
+  /**
+   * Why a user can't be selected, shown in their place in the list; nothing
+   * when they can be.
+   */
+  unavailable?: (user: User) => Mithril.Children;
 }
 
 /**
@@ -51,8 +60,12 @@ export default class UserSelectionModal<CustomAttrs extends IUserSelectionModalA
   content(): Mithril.Children {
     let list = this.attrs.maxItems && this.selected().length === this.attrs.maxItems ? this.selected() : this.results()[this.search()] || [];
 
-    if (this.attrs.excluded) {
-      list = list.filter((user) => !this.attrs.excluded?.map(String).includes(user.id()!));
+    const excluded = this.attrs.excluded;
+
+    if (typeof excluded === 'function') {
+      list = list.filter((user) => !excluded(user));
+    } else if (excluded) {
+      list = list.filter((user) => !excluded.map(String).includes(user.id()!));
     }
 
     return [
@@ -120,6 +133,7 @@ export default class UserSelectionModal<CustomAttrs extends IUserSelectionModalA
 
   userListItem(user: User) {
     const selected = this.selected().includes(user);
+    const unavailable = this.attrs.unavailable?.(user);
 
     return (
       <UserSearchResult
@@ -128,7 +142,9 @@ export default class UserSelectionModal<CustomAttrs extends IUserSelectionModalA
         className={classList({
           'UserSelectionModal-listItem': true,
           'UserSelectionModal-listItem--selected': selected,
+          'UserSelectionModal-listItem--unavailable': !!unavailable,
         })}
+        disabled={!!unavailable}
         onclick={() => {
           if (selected) {
             this.selected(this.selected().filter((u) => u !== user));
@@ -137,13 +153,21 @@ export default class UserSelectionModal<CustomAttrs extends IUserSelectionModalA
           }
         }}
       >
-        <input type="checkbox" checked={selected} readOnly />
+        {unavailable ? (
+          <span className="UserSelectionModal-listItem-reason">{unavailable}</span>
+        ) : (
+          <input type="checkbox" checked={selected} readOnly />
+        )}
       </UserSearchResult>
     );
   }
 
   meetsRequirements(): boolean {
-    return this.selected().length > 0 && this.selected().length <= (this.attrs.maxItems || Infinity);
+    return (
+      this.selected().length > 0 &&
+      this.selected().length <= (this.attrs.maxItems || Infinity) &&
+      !this.selected().some((user) => this.attrs.unavailable?.(user))
+    );
   }
 
   onsubmit(e: SubmitEvent) {

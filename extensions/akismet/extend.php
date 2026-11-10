@@ -14,6 +14,7 @@ use Flarum\Extend;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Saving;
 use Flarum\Post\Post;
+use Flarum\Settings\Event\Saving as SettingsSaving;
 
 return [
     (new Extend\Frontend('forum'))
@@ -27,7 +28,8 @@ return [
     (new Extend\Event())
         ->listen(Hidden::class, Listener\SubmitSpam::class)
         ->listen(PostWasApproved::class, Listener\SubmitHam::class)
-        ->listen(Saving::class, Listener\ValidatePost::class),
+        ->listen(Saving::class, Listener\ValidatePost::class)
+        ->listen(SettingsSaving::class, Listener\ValidateApiKey::class),
 
     (new Extend\ServiceProvider())
         ->register(AkismetProvider::class),

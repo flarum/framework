@@ -1,11 +1,18 @@
 import app from '../../admin/app';
 import StatusWidget from './StatusWidget';
 import ExtensionsWidget from './ExtensionsWidget';
+import AnnouncementsWidget from './AnnouncementsWidget';
+import EmailBounceWidget from './EmailBounceWidget';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { Children } from 'mithril';
 import AlertWidget from './AlertWidget';
+import QueueWidget from './QueueWidget';
 import Link from '../../common/components/Link';
+import Icon from '../../common/components/Icon';
+import Button from '../../common/components/Button';
+import { streamingCheck } from '../utils/streamingCheck';
+import type Mithril from 'mithril';
 
 export default class DashboardPage extends AdminPage {
   headerInfo() {
@@ -15,6 +22,14 @@ export default class DashboardPage extends AdminPage {
       title: app.translator.trans('core.admin.dashboard.title'),
       description: app.translator.trans('core.admin.dashboard.description'),
     };
+  }
+
+  oncreate(vnode: Mithril.VnodeDOM<any, this>) {
+    super.oncreate(vnode);
+
+    // After the dashboard has drawn, and once per browser session: a request
+    // the server spreads over a second, to see whether it arrives spread too.
+    streamingCheck.runOnce();
   }
 
   content() {
@@ -41,6 +56,28 @@ export default class DashboardPage extends AdminPage {
           {app.translator.trans('core.lib.notices.bisecting')}
         </AlertWidget>,
         120
+      );
+    }
+
+    if (app.data.pausedQueues?.length) {
+      items.add(
+        'queuePaused',
+        <AlertWidget
+          alert={{
+            type: 'warning',
+            dismissible: false,
+            controls: [
+              <Link className="Button Button--link" href={app.route('advanced')}>
+                {app.translator.trans('core.admin.dashboard.queue_paused_manage')}
+              </Link>,
+            ],
+          }}
+        >
+          {app.data.pausedQueues.includes('*')
+            ? app.translator.trans('core.admin.dashboard.queue_paused_all_warning')
+            : app.translator.trans('core.admin.dashboard.queue_paused_warning', { queues: app.data.pausedQueues.join(', ') })}
+        </AlertWidget>,
+        105
       );
     }
 
@@ -79,9 +116,104 @@ export default class DashboardPage extends AdminPage {
       );
     }
 
-    items.add('status', <StatusWidget />, 30);
+    if (streamingCheck.verdict === 'buffered') {
+      items.add(
+        'streaming-warning',
+        <AlertWidget
+          className="StreamingWarningWidget"
+          alert={{
+            type: 'warning',
+            dismissible: false,
+            title: app.translator.trans('core.admin.streaming-warning.label'),
+            icon: 'fas fa-hourglass-half',
+            controls: [
+              <Button className="Button Button--link" loading={streamingCheck.status === 'checking'} onclick={() => streamingCheck.run()}>
+                {app.translator.trans('core.admin.streaming-warning.check_again_button')}
+              </Button>,
+            ],
+          }}
+        >
+          {app.translator.trans('core.admin.streaming-warning.detail')}
+        </AlertWidget>,
+        95
+      );
+    }
+
+    if (app.data.dbDriverMismatch) {
+      items.add(
+        'db-driver-mismatch-warning',
+        <AlertWidget
+          className="DbDriverMismatchWarningWidget"
+          alert={{
+            type: 'error',
+            dismissible: false,
+            title: app.translator.trans('core.admin.database-driver-mismatch-warning.label'),
+            icon: 'fas fa-database',
+          }}
+        >
+          {app.translator.trans('core.admin.database-driver-mismatch-warning.detail', {
+            configured: app.data.dbDriver as string,
+            actual: app.data.dbDriverMismatch as string,
+            link: ({ children }: { children: Children }) => (
+              <Link href="https://docs.flarum.org/install/#database" external={true} target="_blank">
+                <Icon name="fas fa-external-link-alt" />
+                {children}
+              </Link>
+            ),
+          })}
+        </AlertWidget>,
+        90
+      );
+    }
+
+    // A running install can never be below the hard minimum — Flarum won't
+    // boot below it, and the installer refuses to proceed — so we only nudge
+    // when the version is below the recommended release.
+    const dbVersionStatus = app.data.dbVersionStatus;
+    if (dbVersionStatus && dbVersionStatus.status === 'below_recommended') {
+      items.add(
+        'db-version-warning',
+        <AlertWidget
+          className="DbVersionWarningWidget"
+          alert={{
+            type: 'warning',
+            dismissible: false,
+            title: app.translator.trans('core.admin.database-version-warning.below-recommended-label'),
+            icon: 'fas fa-database',
+          }}
+        >
+          {app.translator.trans('core.admin.database-version-warning.below-recommended-detail', {
+            server: dbVersionStatus.server,
+            version: dbVersionStatus.version,
+            recommended: dbVersionStatus.recommended,
+            link: ({ children }: { children: Children }) => (
+              <Link href="https://docs.flarum.org/2.x/install/#server-requirements" external={true} target="_blank">
+                <Icon name="fas fa-external-link-alt" />
+                {children}
+              </Link>
+            ),
+          })}
+        </AlertWidget>,
+        85
+      );
+    }
+
+    items.add('status', <StatusWidget />, 80);
+
+    if (!app.data.announcementsDisabled) {
+      items.add('announcements', <AnnouncementsWidget />, 70);
+    }
+
+    // Only when the active mail driver can actually report bounces.
+    if (app.forum.attribute('mailDriverSupportsBounceReporting')) {
+      items.add('emailBounces', <EmailBounceWidget />, 60);
+    }
 
     items.add('extensions', <ExtensionsWidget />, 10);
+
+    if ((app.data.queueDriver || 'sync') !== 'sync') {
+      items.add('queue', <QueueWidget />, 15);
+    }
 
     return items;
   }

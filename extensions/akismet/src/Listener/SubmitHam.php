@@ -11,11 +11,14 @@ namespace Flarum\Akismet\Listener;
 
 use Flarum\Akismet\Akismet;
 use Flarum\Approval\Event\PostWasApproved;
+use GuzzleHttp\Exception\GuzzleException;
+use Psr\Log\LoggerInterface;
 
 class SubmitHam
 {
     public function __construct(
-        protected Akismet $akismet
+        protected Akismet $akismet,
+        protected LoggerInterface $log
     ) {
     }
 
@@ -28,13 +31,19 @@ class SubmitHam
         $post = $event->post;
 
         if ($post->is_spam) {
-            $this->akismet
-                ->withContent($post->content)
-                ->withIp($post->ip_address)
-                ->withAuthorName($post->user->username)
-                ->withAuthorEmail($post->user->email)
-                ->withType($post->number === 1 ? 'forum-post' : 'reply')
-                ->submitHam();
+            try {
+                $this->akismet
+                    ->withContent($post->content)
+                    ->withIp($post->ip_address ?? '')
+                    ->withAuthorName($post->user->username)
+                    ->withAuthorEmail($post->user->email)
+                    ->withType($post->number === 1 ? 'forum-post' : 'reply')
+                    ->submitHam();
+            } catch (GuzzleException $e) {
+                // The feedback loop is best-effort — never let an Akismet
+                // outage break the moderation action itself.
+                $this->log->warning("[flarum/akismet] Failed to submit ham feedback: {$e->getMessage()}");
+            }
         }
     }
 }

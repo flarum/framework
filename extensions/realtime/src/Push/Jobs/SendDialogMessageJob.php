@@ -11,6 +11,7 @@ namespace Flarum\Realtime\Push\Jobs;
 
 use Flarum\Database\AbstractModel;
 use Flarum\Messages\Dialog;
+use Flarum\Messages\DialogAudience;
 use Flarum\Messages\DialogMessage;
 use Flarum\User\User;
 use Illuminate\Contracts\Queue\Queue;
@@ -63,13 +64,9 @@ class SendDialogMessageJob extends Job
         }
 
         /** @var \Illuminate\Database\Eloquent\Collection<int, User> $users */
-        $users = User::query()->find($users->unique()->values());
+        $users = DialogAudience::users($dialog)->find($users->unique()->values());
 
-        // Check user in private message list
-        /** @var Collection&iterable<User> */
-        return $users->filter(function (User $user) use ($dialog) {
-            return $dialog->users->contains($user);
-        })->values();
+        return $users->values();
     }
 
     public function middleware(): array

@@ -2,6 +2,8 @@ import Form from 'flarum/common/components/Form';
 import app from 'flarum/forum/app';
 import type { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
+import fullTime from 'flarum/common/helpers/fullTime';
+import humanTime from 'flarum/common/helpers/humanTime';
 import username from 'flarum/common/helpers/username';
 import extractText from 'flarum/common/utils/extractText';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -58,6 +60,28 @@ export default class ProcessErasureRequestModal<
         <UserCard className="UserCard--popover UserCard--gdpr" controlsButtonClassName="Button" user={this.request.user()} />
         <p className="helpText">{app.translator.trans('flarum-gdpr.forum.process_erasure.text', { name: username(this.request.user()) })}</p>
       </div>
+    );
+
+    const createdAt = erasureRequest.createdAt();
+    const userConfirmedAt = erasureRequest.userConfirmedAt();
+
+    items.add(
+      'timestamps',
+      <div className="helpText">
+        {createdAt && <p>{app.translator.trans('flarum-gdpr.forum.process_erasure.requested_at', { date: humanTime(createdAt) })}</p>}
+        {userConfirmedAt && (
+          <>
+            <p>{app.translator.trans('flarum-gdpr.forum.process_erasure.confirmed_at', { date: humanTime(userConfirmedAt) })}</p>
+            <p>
+              {/* A date to come, which humanTime would show as "a few seconds ago". 30 days is gdpr:process-erase-requests' wait. */}
+              {app.translator.trans('flarum-gdpr.forum.process_erasure.eligible_at', {
+                date: fullTime(new Date(userConfirmedAt.getTime() + 30 * 24 * 60 * 60 * 1000)),
+              })}
+            </p>
+          </>
+        )}
+      </div>,
+      90
     );
 
     erasureRequest?.reason() &&

@@ -9,11 +9,18 @@
 
 namespace Flarum\Extension;
 
+use Flarum\Extension\Console\SyncAbandonedExtensionsCommand;
+use Flarum\Extension\Console\WeeklySchedule;
 use Flarum\Extension\Event\Disabling;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
+use GuzzleHttp\Client;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Queue\Queue;
+use Psr\Log\LoggerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ExtensionServiceProvider extends AbstractServiceProvider
 {
@@ -21,6 +28,17 @@ class ExtensionServiceProvider extends AbstractServiceProvider
     {
         $this->container->singleton(ExtensionManager::class);
         $this->container->alias(ExtensionManager::class, 'flarum.extensions');
+
+        $this->container->singleton(AbandonedExtensionsFetcher::class, function ($container) {
+            return new AbandonedExtensionsFetcher(
+                $container->make(ExtensionManager::class),
+                $container->make('flarum.settings'),
+                new Client(),
+                $container->make(Queue::class),
+                $container->make(TranslatorInterface::class),
+                $container->make(LoggerInterface::class),
+            );
+        });
 
         // Boot extensions when the app is booting. This must be done as a boot
         // listener on the app rather than in the service provider's boot method
@@ -31,6 +49,28 @@ class ExtensionServiceProvider extends AbstractServiceProvider
             $manager = $container->make('flarum.extensions');
 
             $manager->extend($container);
+        });
+
+        // Register the abandoned-extensions sync command and its weekly schedule here in
+        // register() rather than boot(). The ConsoleServiceProvider consumes the
+        // `flarum.console.scheduled` array in its own boot() method, and it is registered
+        // before this provider, so appending in boot() would happen too late and the task
+        // would never be scheduled.
+        $this->container->extend('flarum.console.commands', function (array $commands) {
+            $commands[] = SyncAbandonedExtensionsCommand::class;
+
+            return $commands;
+        });
+
+        $this->container->extend('flarum.console.scheduled', function (array $scheduled, Container $container) {
+            $scheduled[] = [
+                'command' => SyncAbandonedExtensionsCommand::class,
+                'args' => ['--notify'],
+                // Each forum fetches the list at a time of its own, not all at once.
+                'callback' => new WeeklySchedule((string) $container->make(Config::class)->url()),
+            ];
+
+            return $scheduled;
         });
     }
 

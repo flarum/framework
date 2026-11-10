@@ -1,0 +1,51 @@
+.FailedJobsModal {
+  &-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+
+  &-job {
+    border: 1px solid var(--control-bg);
+    border-radius: var(--border-radius);
+    margin-bottom: 8px;
+  }
+
+  &-jobHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  &-jobName {
+    font-weight: 600;
+    word-break: break-all;
+  }
+
+  &-jobMeta {
+    font-size: 12px;
+    color: var(--muted-color);
+    margin-top: 2px;
+  }
+
+  &-jobControls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  &-exception {
+    margin: 0;
+    padding: 12px;
+    border-top: 1px solid var(--control-bg);
+    background: var(--body-bg);
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 320px;
+    overflow: auto;
+  }
+}
