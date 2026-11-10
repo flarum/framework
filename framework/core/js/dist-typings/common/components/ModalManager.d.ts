@@ -34,7 +34,8 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     /**
      * Animates the current modal out, then closes it.
      *
-     * `closedCallback` runs when the hide animation ends. If the modal is closed
+     * `closedCallback` runs when the hide animation ends, or after its CSS duration
+     * if no transition event arrives. If the modal is closed
      * some other way before then, such as by a page change (Page closes any open
      * modal) or by a non-stacked modal replacing it, its dialog is removed, the
      * animation never ends and `closedCallback` does not run. It is not run in
