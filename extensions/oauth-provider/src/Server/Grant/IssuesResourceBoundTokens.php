@@ -155,8 +155,10 @@ trait IssuesResourceBoundTokens
 
     /**
      * Runs once the new tokens are stored: when the family was revoked in the
-     * meantime, by a request that presented the same code or refresh token,
-     * revokes them too and fails.
+     * meantime, revokes them too and fails. That is a request that presented
+     * the same code or refresh token, the member disconnecting the client, or
+     * an admin rotating its secret (AuthCode::revokeWithTokens()), so the
+     * error names none of them.
      *
      * @throws OAuthServerException
      */
@@ -168,7 +170,7 @@ trait IssuesResourceBoundTokens
 
         $this->revokeTokenFamily($grantId);
 
-        throw OAuthServerException::invalidGrant('This grant has been revoked because its code or refresh token was used more than once.');
+        throw OAuthServerException::invalidGrant('This grant has been revoked.');
     }
 
     public static function invalidTarget(?string $redirectUri = null): OAuthServerException

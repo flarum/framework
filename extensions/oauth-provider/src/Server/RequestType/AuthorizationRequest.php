@@ -19,6 +19,7 @@ class AuthorizationRequest extends LeagueAuthorizationRequest
     protected ?string $resource = null;
     protected ?string $nonce = null;
     protected ?\DateTimeImmutable $authTime = null;
+    protected ?string $issuedCodeId = null;
 
     public static function fromLeague(LeagueAuthorizationRequest $request, ?string $resource): self
     {
@@ -65,5 +66,18 @@ class AuthorizationRequest extends LeagueAuthorizationRequest
     public function getAuthTime(): ?\DateTimeImmutable
     {
         return $this->authTime;
+    }
+
+    /**
+     * The authorization code stored for this request, once it has been.
+     */
+    public function setIssuedCodeId(string $codeId): void
+    {
+        $this->issuedCodeId = $codeId;
+    }
+
+    public function getIssuedCodeId(): ?string
+    {
+        return $this->issuedCodeId;
     }
 }
