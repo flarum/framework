@@ -30,10 +30,10 @@ class SendTriggerJob extends Job
         // Resolve a discussion for use with `visibleTo` permission checks.
         if ($this->model instanceof Discussion) {
             $discussion = $this->model;
-        } elseif (property_exists($this->model, 'discussion')) {
-            $discussion = $this->model->discussion ?? null;
         } else {
-            $discussion = null;
+            // Relations are not PHP properties, so `property_exists()` never sees them: read through Eloquent.
+            $discussion = $this->model->discussion ?? null;
+            $discussion = $discussion instanceof Discussion ? $discussion : null;
         }
 
         // First dispatch these messages to connected users, our code will literally do an internal
