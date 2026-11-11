@@ -79,7 +79,9 @@ export default function addPostQuoteButton() {
       }, 1);
     };
 
-    this.$().after($container);
+    // A flashing post has a transform, which would become the quote button's
+    // positioning context and make it jump when the animation ends.
+    $(document.body).append($container);
     $(document).on('mouseup', handler);
 
     if ('ontouchstart' in window) {

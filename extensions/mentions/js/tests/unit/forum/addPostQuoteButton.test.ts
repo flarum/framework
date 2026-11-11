@@ -80,7 +80,7 @@ afterEach(() => {
 });
 
 /** A rendered post that the quote button has been added to. */
-function renderPost(): HTMLElement {
+function renderPost(transformed = false): HTMLElement {
   app.store.pushPayload({
     data: {
       type: 'posts',
@@ -95,6 +95,14 @@ function renderPost(): HTMLElement {
 
   document.body.innerHTML =
     '<article class="Post"><div class="Post-body"><p>Some text to quote</p></div></article><p class="Elsewhere">Other text</p>';
+  if (transformed) {
+    const item = document.createElement('div');
+    item.className = 'PostStream-item';
+    item.style.transform = 'scale(1.02)';
+    document.querySelector('.Post')!.before(item);
+    item.appendChild(document.querySelector('.Post')!);
+  }
+
   const element = document.querySelector<HTMLElement>('.Post')!;
 
   renderedPost = { attrs: { post }, $: (selector?: string) => (selector ? $(element).find(selector) : $(element)) };
@@ -193,6 +201,21 @@ describe('the quote button', () => {
     jest.advanceTimersByTime(1);
 
     expect(quoteButton()?.style.top).toBe('325px');
+  });
+
+  it('keeps the quote overlay outside transformed posts and removes it with the post', () => {
+    const element = renderPost(true);
+    selectByTouch(element, [{ left: 40, right: 200, top: 300, bottom: 320 }]);
+
+    expect(quoteButton().closest('.PostStream-item')).toBeNull();
+
+    CommentPost.prototype.onremove.call(renderedPost);
+    expect(document.querySelector('.PostQuoteButton')).toBeNull();
+
+    selectByTouch(element, [{ left: 40, right: 200, top: 300, bottom: 320 }]);
+    document.dispatchEvent(new MouseEvent('mouseup', { clientX: 200, clientY: 330 }));
+    jest.advanceTimersByTime(1);
+    expect(document.querySelector('.PostQuoteButton')).toBeNull();
   });
 
   it('shows above a selection', () => {
