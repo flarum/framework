@@ -11,7 +11,7 @@ const VIEWPORT_MARGIN = 10;
 
 /**
  * Fallback clearance for a native menu when the button cannot fit on the
- * selected line, beside or between its handles.
+ * selected line without covering its text.
  */
 const TOUCH_GAP = 70;
 const TOUCH_HANDLE_GAP = 16;
@@ -120,9 +120,6 @@ export default class PostQuoteButton extends Fragment {
     const lineLeft = sameLine ? Math.min(firstRect.left, lastRect.left) : lastRect.left;
     const lineRight = sameLine ? Math.max(firstRect.right, lastRect.right) : lastRect.right;
     const candidates = [lineRight + TOUCH_HANDLE_GAP, lineLeft - width - TOUCH_HANDLE_GAP];
-    if (lineRight - lineLeft >= width + 2 * TOUCH_HANDLE_GAP) {
-      candidates.push((lineLeft + lineRight - width) / 2);
-    }
     const inlineLeft = candidates.find((left) => left >= minLeft && left <= maxLeft);
 
     if (fits(inlineTop) && inlineLeft !== undefined) {

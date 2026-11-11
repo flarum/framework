@@ -357,16 +357,15 @@ describe('the quote button', () => {
     expect(top + BUTTON_HEIGHT).toBeGreaterThan(300);
   });
 
-  it('keeps a full-width touch quote near the line and clear of both handles', () => {
+  it('keeps a full-width touch quote outside the selected text', () => {
     const element = renderPost();
     selectByTouch(element, [{ left: 15, right: 360, top: 300, bottom: 320 }]);
 
     const left = parseFloat(quoteButton().style.left);
     const top = parseFloat(quoteButton().style.top);
-    expect(left).toBeGreaterThanOrEqual(31);
-    expect(left + BUTTON_WIDTH).toBeLessThanOrEqual(344);
-    expect(top).toBeLessThan(320);
-    expect(top + BUTTON_HEIGHT).toBeGreaterThan(300);
+    expect(left).toBeGreaterThanOrEqual(10);
+    expect(left + BUTTON_WIDTH).toBeLessThanOrEqual(365);
+    expect(top).toBeGreaterThanOrEqual(380);
   });
 
   it('clears both endpoints when inline formatting splits the selected line', () => {
