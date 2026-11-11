@@ -2,13 +2,17 @@ import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import app from 'flarum/forum/app';
 import Post from 'flarum/common/models/Post';
 import CommentPost from 'flarum/forum/components/CommentPost';
+import PostComponent from 'flarum/forum/components/Post';
+import Component from 'flarum/common/Component';
+import { extend } from 'flarum/common/extend';
 import { jest } from '@jest/globals';
 import $ from 'jquery';
 import addPostQuoteButton from '../../../src/forum/addPostQuoteButton';
 import PostQuoteButton from '../../../src/forum/fragments/PostQuoteButton';
 
 const originalOncreate = CommentPost.prototype.oncreate;
-const originalOnremove = CommentPost.prototype.onremove;
+const originalOnremove = Object.getOwnPropertyDescriptor(CommentPost.prototype, 'onremove');
+const originalComponentOnremove = Object.getOwnPropertyDescriptor(Component.prototype, 'onremove')!;
 let renderedPost: any;
 const originalVisualViewport = Object.getOwnPropertyDescriptor(window, 'visualViewport');
 
@@ -26,7 +30,6 @@ beforeAll(() => {
   // Only the quote button's own hook runs: the stand-in post below is not a
   // real CommentPost.
   CommentPost.prototype.oncreate = function () {};
-  CommentPost.prototype.onremove = function () {};
   addPostQuoteButton();
 
   // jsdom has no innerText. The quote helper reads it from a detached clone,
@@ -65,7 +68,9 @@ beforeAll(() => {
 
 afterAll(() => {
   CommentPost.prototype.oncreate = originalOncreate;
-  CommentPost.prototype.onremove = originalOnremove;
+  if (originalOnremove) Object.defineProperty(CommentPost.prototype, 'onremove', originalOnremove);
+  else delete (CommentPost.prototype as any).onremove;
+  Object.defineProperty(Component.prototype, 'onremove', originalComponentOnremove);
 });
 
 beforeEach(() => {
@@ -268,6 +273,22 @@ describe('the quote button', () => {
 
     expect(button.style.top).toBe(top);
     expect(button.style.display).toBe('none');
+  });
+
+  it('preserves parent lifecycle extensions registered after mentions', () => {
+    const element = renderPost();
+    const parentOnremove = Object.getOwnPropertyDescriptor(PostComponent.prototype, 'onremove');
+    extend(PostComponent.prototype, 'onremove', function () {
+      this.$().attr('data-parent-cleanup', 'done');
+    });
+
+    try {
+      CommentPost.prototype.onremove.call(renderedPost);
+      expect(element.getAttribute('data-parent-cleanup')).toBe('done');
+    } finally {
+      if (parentOnremove) Object.defineProperty(PostComponent.prototype, 'onremove', parentOnremove);
+      else delete (PostComponent.prototype as any).onremove;
+    }
   });
 
   it('shows above a selection', () => {

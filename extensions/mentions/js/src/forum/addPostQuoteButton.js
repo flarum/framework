@@ -1,5 +1,6 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
+import Component from 'flarum/common/Component';
 import CommentPost from 'flarum/forum/components/CommentPost';
 
 import PostQuoteButton from './fragments/PostQuoteButton';
@@ -116,8 +117,11 @@ export default function addPostQuoteButton() {
     });
   });
 
-  extend(CommentPost.prototype, 'onremove', function () {
-    cleanups.get(this)?.();
+  // Use the hook's owner so later Post lifecycle extensions stay in the chain.
+  extend(Component.prototype, 'onremove', function () {
+    const cleanup = cleanups.get(this);
+    if (!cleanup) return;
     cleanups.delete(this);
+    cleanup();
   });
 }
