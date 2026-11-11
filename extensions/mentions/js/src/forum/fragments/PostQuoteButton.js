@@ -113,10 +113,12 @@ export default class PostQuoteButton extends Fragment {
 
     const width = $this.outerWidth();
     const inlineTop = lastRect.top + (lastRect.bottom - lastRect.top - height) / 2;
-    const inlineLeft = lastRect.right + TOUCH_HANDLE_GAP;
     const maxLeft = document.documentElement.clientWidth - width - VIEWPORT_MARGIN;
+    const inlineLeft = [lastRect.right + TOUCH_HANDLE_GAP, lastRect.left - width - TOUCH_HANDLE_GAP].find(
+      (left) => left >= VIEWPORT_MARGIN && left <= maxLeft
+    );
 
-    if (fits(inlineTop) && inlineLeft >= VIEWPORT_MARGIN && inlineLeft <= maxLeft) {
+    if (fits(inlineTop) && inlineLeft !== undefined) {
       this.show(inlineLeft, $(window).scrollTop() + inlineTop);
       return;
     }

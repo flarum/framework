@@ -342,6 +342,18 @@ describe('the quote button', () => {
     expect(parseFloat(quoteButton().style.left)).toBeLessThanOrEqual(54);
   });
 
+  it('uses the other side of a short selection near the right screen edge', () => {
+    const element = renderPost();
+    selectByTouch(element, [{ left: 300, right: 360, top: 300, bottom: 320 }]);
+
+    const left = parseFloat(quoteButton().style.left);
+    const top = parseFloat(quoteButton().style.top);
+    expect(left).toBeGreaterThanOrEqual(10);
+    expect(left + BUTTON_WIDTH).toBeLessThanOrEqual(284);
+    expect(top).toBeLessThan(320);
+    expect(top + BUTTON_HEIGHT).toBeGreaterThan(300);
+  });
+
   it('shows above a selection made by touch when there is no room below it', () => {
     const element = renderPost();
 
