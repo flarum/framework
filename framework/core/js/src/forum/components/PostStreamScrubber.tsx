@@ -12,7 +12,6 @@ import type PostStreamState from '../states/PostStreamState';
 export interface IPostStreamScrubberAttrs extends ComponentAttrs {
   stream: PostStreamState;
   className?: string;
-  onhide?: () => void;
 }
 
 export interface PostStreamScrubberUpdateOptions {
@@ -213,19 +212,19 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
           this.$('.Dropdown-toggle').dropdown('toggle');
         };
       });
+
+      this.$().on('hidden.bs.dropdown', () => {
+        this.showing = false;
+        this.closeWatcher?.destroy();
+        this.closeWatcher = undefined;
+
+        if (this.attrs.onhide) {
+          this.attrs.onhide();
+        }
+
+        m.redraw();
+      });
     }
-
-    this.$().on('hidden.bs.dropdown', () => {
-      this.showing = false;
-      this.closeWatcher?.destroy();
-      this.closeWatcher = undefined;
-
-      if (this.attrs.onhide) {
-        this.attrs.onhide();
-      }
-
-      m.redraw();
-    });
 
     $(window)
       .on('resize', (this.handlers.onresize = this.onresize.bind(this)))
@@ -392,7 +391,9 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
     // Keep the handle at least `minHandleHeight` tall; the posts outside it
     // then share whatever height is left.
     const minHandleHeight = (this.constructor as typeof PostStreamScrubber).minHandleHeight;
-    const minPercentVisible = (minHandleHeight / this.$('.Scrubber-scrollbar').outerHeight()!) * 100;
+    let minPercentVisible = (minHandleHeight / this.$('.Scrubber-scrollbar').outerHeight()!) * 100;
+
+    if (Number.isFinite(minPercentVisible)) minPercentVisible = Math.min(100, minPercentVisible);
     const percentPerVisiblePost = Math.max(100 / count, minPercentVisible / visible);
     const percentPerPost = count === visible ? 0 : (100 - percentPerVisiblePost * visible) / (count - visible);
 

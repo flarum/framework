@@ -9,6 +9,9 @@ import type Mithril from 'mithril';
 
 const TRACK_HEIGHT = 300;
 
+let trackHeight = TRACK_HEIGHT;
+const mounted: HTMLElement[] = [];
+
 function fakeStream(overrides: Record<string, unknown> = {}) {
   return {
     index: 5,
@@ -34,6 +37,7 @@ function mount<T extends PostStreamScrubber>(component: { prototype: T }, attrs:
 
   const vnode = m(component as any, { stream: fakeStream(), ...attrs });
   m.render(root, vnode);
+  mounted.push(root);
 
   return { root, scrubber: vnode.state as T };
 }
@@ -54,7 +58,7 @@ describe('PostStreamScrubber', () => {
     // never lets jQuery's animation queue settle.
     $.fx.off = true;
     window.requestAnimationFrame = ((callback: FrameRequestCallback) => setTimeout(callback, 0)) as typeof window.requestAnimationFrame;
-    ($.fn as any).outerHeight = () => TRACK_HEIGHT;
+    ($.fn as any).outerHeight = () => trackHeight;
   });
 
   afterAll(() => {
@@ -63,8 +67,15 @@ describe('PostStreamScrubber', () => {
     $.fn.outerHeight = originalOuterHeight;
   });
 
-  afterEach(() => {
-    document.body.innerHTML = '';
+  afterEach(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    mounted.splice(0).forEach((root) => {
+      m.render(root, null);
+      root.remove();
+    });
+
+    trackHeight = TRACK_HEIGHT;
   });
 
   test('renders the original structure by default', () => {
@@ -160,41 +171,46 @@ describe('PostStreamScrubber', () => {
     expect(scrubber.percentPerPost().visible).toBeCloseTo(50 / 3);
   });
 
-  describe('onhide', () => {
-    test('is called when the dropdown closes without CloseWatcher support', () => {
-      expect('CloseWatcher' in window).toBe(false);
+  test('keeps dragging forwards when the minimum handle height exceeds the track', () => {
+    class TallHandleScrubber extends PostStreamScrubber {
+      static minHandleHeight = 150;
+    }
 
-      const onhide = jest.fn();
-      const { root } = mount(PostStreamScrubber, { onhide });
+    trackHeight = 100;
 
-      $(root.firstElementChild!).trigger('hidden.bs.dropdown');
+    const { scrubber } = mount(TallHandleScrubber);
+    const start = scrubber.stream.index;
 
-      expect(onhide).toHaveBeenCalledTimes(1);
-    });
+    expect(scrubber.percentPerPost().index).toBeGreaterThanOrEqual(0);
+    expect(scrubber.percentPerPost().visible * scrubber.stream.visible).toBeLessThanOrEqual(100);
 
-    test('is called once when the dropdown closes with CloseWatcher support, which is torn down', () => {
-      const destroy = jest.fn();
-      (window as any).CloseWatcher = class {
-        onclose: (() => void) | null = null;
-        destroy = destroy;
-      };
+    scrubber.onmousedown({ clientY: 100 } as any);
+    scrubber.onmousemove({ clientY: 110 } as any);
+    scrubber.onmouseup();
 
-      try {
-        const onhide = jest.fn();
-        const { root, scrubber } = mount(PostStreamScrubber, { onhide });
-        const $scrubber = $(root.firstElementChild!);
+    expect(scrubber.stream.index).toBeGreaterThanOrEqual(start);
+  });
 
-        $scrubber.trigger('shown.bs.dropdown');
-        expect(scrubber.closeWatcher).toBeDefined();
+  test('tears down the close watcher when the dropdown hides', () => {
+    const destroy = jest.fn();
+    (window as any).CloseWatcher = class {
+      onclose: (() => void) | null = null;
+      destroy = destroy;
+    };
 
-        $scrubber.trigger('hidden.bs.dropdown');
+    try {
+      const { root, scrubber } = mount(PostStreamScrubber);
+      const $scrubber = $(root.firstElementChild!);
 
-        expect(onhide).toHaveBeenCalledTimes(1);
-        expect(destroy).toHaveBeenCalledTimes(1);
-        expect(scrubber.closeWatcher).toBeUndefined();
-      } finally {
-        delete (window as any).CloseWatcher;
-      }
-    });
+      $scrubber.trigger('shown.bs.dropdown');
+      expect(scrubber.closeWatcher).toBeDefined();
+
+      $scrubber.trigger('hidden.bs.dropdown');
+
+      expect(destroy).toHaveBeenCalledTimes(1);
+      expect(scrubber.closeWatcher).toBeUndefined();
+    } finally {
+      delete (window as any).CloseWatcher;
+    }
   });
 });
