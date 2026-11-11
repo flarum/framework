@@ -72,14 +72,18 @@ export default class Conditional implements IExtender {
   /**
    * Apply extenders based on a condition.
    *
+   * Conditions are checked before the application boots, so `app.forum` and
+   * `app.session` aren't available yet. Use `whenForumAttribute()` to check
+   * a forum attribute.
+   *
    * @param condition A boolean, or a callback returning a boolean.
    * @param extenders A callback returning an array of extenders.
    *
    * @example
    * new Extend.Conditional()
    *   .when(
-   *     (app) => !!app.forum.attribute('acmeAdvancedMode'),
-   *     () => [new Extend.Routes().add('acme.advanced', '/acme/advanced', AdvancedPage)]
+   *     () => 'flarum-tags' in flarum.extensions || 'flarum-mentions' in flarum.extensions,
+   *     () => [new Extend.Model(Discussion).attribute<boolean>('acmeIsLinked')]
    *   )
    */
   public when(condition: boolean | ((app: Application) => boolean), extenders: () => IExtender<any>[]): this {
