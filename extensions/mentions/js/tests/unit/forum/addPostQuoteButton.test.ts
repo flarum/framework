@@ -79,7 +79,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  if (renderedPost) CommentPost.prototype.onremove.call(renderedPost);
+  if (renderedPost) renderedPost.onremove();
   renderedPost = undefined;
   jest.useRealTimers();
   // @ts-ignore jsdom has no getClientRects on a range; each test sets its own.
@@ -113,7 +113,10 @@ function renderPost(transformed = false): HTMLElement {
 
   const element = document.querySelector<HTMLElement>('.Post')!;
 
-  renderedPost = { attrs: { post }, $: (selector?: string) => (selector ? $(element).find(selector) : $(element)) };
+  renderedPost = Object.assign(Object.create(CommentPost.prototype), {
+    attrs: { post },
+    $: (selector?: string) => (selector ? $(element).find(selector) : $(element)),
+  });
   CommentPost.prototype.oncreate.call(renderedPost);
 
   return element;
@@ -219,7 +222,7 @@ describe('the quote button', () => {
     expect(quoteButton().closest('.PostStream-item')).toBeNull();
     const container = quoteButton().parentElement!;
 
-    CommentPost.prototype.onremove.call(renderedPost);
+    renderedPost.onremove();
     expect(($ as any)._data(document, 'events')?.mouseup).toBeUndefined();
     expect(document.querySelector('.PostQuoteButton')).toBeNull();
 
@@ -275,6 +278,24 @@ describe('the quote button', () => {
     expect(button.style.display).toBe('none');
   });
 
+  it('cleans up when a parent hook was bound before mentions initialized', () => {
+    const parentOnremove = Object.getOwnPropertyDescriptor(PostComponent.prototype, 'onremove');
+    PostComponent.prototype.onremove = function () {
+      originalComponentOnremove.value.call(this);
+    };
+
+    try {
+      const element = renderPost();
+      selectByTouch(element, [{ left: 40, right: 200, top: 300, bottom: 320 }]);
+      renderedPost.onremove();
+      expect(document.querySelector('.PostQuoteButton')).toBeNull();
+      expect(($ as any)._data(document, 'events')?.mouseup).toBeUndefined();
+    } finally {
+      if (parentOnremove) Object.defineProperty(PostComponent.prototype, 'onremove', parentOnremove);
+      else delete (PostComponent.prototype as any).onremove;
+    }
+  });
+
   it('preserves parent lifecycle extensions registered after mentions', () => {
     const element = renderPost();
     const parentOnremove = Object.getOwnPropertyDescriptor(PostComponent.prototype, 'onremove');
@@ -283,7 +304,7 @@ describe('the quote button', () => {
     });
 
     try {
-      CommentPost.prototype.onremove.call(renderedPost);
+      renderedPost.onremove();
       expect(element.getAttribute('data-parent-cleanup')).toBe('done');
     } finally {
       if (parentOnremove) Object.defineProperty(PostComponent.prototype, 'onremove', parentOnremove);

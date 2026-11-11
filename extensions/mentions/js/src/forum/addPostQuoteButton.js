@@ -1,6 +1,5 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import Component from 'flarum/common/Component';
 import CommentPost from 'flarum/forum/components/CommentPost';
 
 import PostQuoteButton from './fragments/PostQuoteButton';
@@ -14,7 +13,6 @@ export default function addPostQuoteButton() {
     const selection = window.getSelection();
     return [selection?.anchorNode, selection?.anchorOffset, selection?.focusNode, selection?.focusOffset];
   };
-  const cleanups = new WeakMap();
 
   document.addEventListener(
     'pointerdown',
@@ -108,20 +106,19 @@ export default function addPostQuoteButton() {
       document.addEventListener('selectionchange', handler, false);
     }
 
-    cleanups.set(this, () => {
-      document.removeEventListener('selectionchange', handler, false);
-      $(document).off('mouseup', handler);
-      button.hide();
-      m.render($container[0], null);
-      $container.remove();
-    });
-  });
-
-  // Use the hook's owner so later Post lifecycle extensions stay in the chain.
-  extend(Component.prototype, 'onremove', function () {
-    const cleanup = cleanups.get(this);
-    if (!cleanup) return;
-    cleanups.delete(this);
-    cleanup();
+    const prototype = Object.getPrototypeOf(this);
+    // Resolve the parent hook at removal time so earlier and later extensions
+    // both stay in the chain, even when they wrap an inherited method.
+    this.onremove = function (...args) {
+      try {
+        return prototype.onremove.apply(this, args);
+      } finally {
+        document.removeEventListener('selectionchange', handler, false);
+        $(document).off('mouseup', handler);
+        button.hide();
+        m.render($container[0], null);
+        $container.remove();
+      }
+    };
   });
 }
