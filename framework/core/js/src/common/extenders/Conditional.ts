@@ -39,6 +39,37 @@ export default class Conditional implements IExtender {
   }
 
   /**
+   * Apply extenders only if all of the given extensions are enabled.
+   *
+   * @param extensionIds The IDs of the extensions.
+   * @param extenders A callback returning an array of extenders.
+   *
+   * @example
+   * new Extend.Conditional()
+   *   .whenExtensionsEnabled(['flarum-tags', 'flarum-mentions'], () => [
+   *     new Extend.Model(Discussion).attribute<boolean>('acmeMentionsTag'),
+   *   ])
+   */
+  public whenExtensionsEnabled(extensionIds: string[], extenders: () => IExtender<any>[]): this {
+    return this.when(() => extensionIds.every((extensionId) => extensionId in flarum.extensions), extenders);
+  }
+
+  /**
+   * Apply extenders only if all of the given extensions are disabled.
+   *
+   * @param extensionIds The IDs of the extensions.
+   * @param extenders A callback returning an array of extenders.
+   *
+   * @example
+   * new Extend.Conditional()
+   *   .whenExtensionsDisabled(['flarum-tags', 'flarum-mentions'], () => [
+   *     new Extend.Model(Discussion).attribute<string>('acmeCategoryLabel'),
+   *   ])
+   */
+  public whenExtensionsDisabled(extensionIds: string[], extenders: () => IExtender<any>[]): this {
+    return this.when(() => extensionIds.every((extensionId) => !(extensionId in flarum.extensions)), extenders);
+  }
+  /**
    * Apply extenders based on a condition.
    *
    * @param condition A boolean, or a callback returning a boolean.
