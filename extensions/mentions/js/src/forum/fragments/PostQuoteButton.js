@@ -98,8 +98,9 @@ export default class PostQuoteButton extends Fragment {
    *
    * @param {DOMRect} firstRect The client rect of the selection's first line.
    * @param {DOMRect} lastRect The client rect of the selection's last line.
+   * @param {ReadonlyArray<DOMRect>} rects The selection's client rectangles.
    */
-  showTouch(firstRect, lastRect) {
+  showTouch(firstRect, lastRect, rects = [firstRect, lastRect]) {
     const $this = this.$();
     const height = $this.outerHeight();
     const viewport = window.visualViewport;
@@ -116,9 +117,14 @@ export default class PostQuoteButton extends Fragment {
     const minLeft = viewportLeft + VIEWPORT_MARGIN;
     const maxLeft = viewportRight - width - VIEWPORT_MARGIN;
     // Formatting can split one line across several client rectangles.
-    const sameLine = firstRect.top < lastRect.bottom && firstRect.bottom > lastRect.top;
-    const lineLeft = sameLine ? Math.min(firstRect.left, lastRect.left) : lastRect.left;
-    const lineRight = sameLine ? Math.max(firstRect.right, lastRect.right) : lastRect.right;
+    let lineLeft = lastRect.left;
+    let lineRight = lastRect.right;
+    for (const rect of rects) {
+      if (rect.top < lastRect.bottom && rect.bottom > lastRect.top) {
+        lineLeft = Math.min(lineLeft, rect.left);
+        lineRight = Math.max(lineRight, rect.right);
+      }
+    }
     const candidates = [lineRight + TOUCH_HANDLE_GAP, lineLeft - width - TOUCH_HANDLE_GAP];
     const inlineLeft = candidates.find((left) => left >= minLeft && left <= maxLeft);
 

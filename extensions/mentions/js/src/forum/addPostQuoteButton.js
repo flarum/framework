@@ -83,7 +83,7 @@ export default function addPostQuoteButton() {
           // A selection made by touch is reported by selectionchange, which
           // has no pointer position to place the button by.
           if (e.type === 'selectionchange') {
-            button.showTouch(firstRect, lastRect);
+            button.showTouch(firstRect, lastRect, rects);
           } else if (e.clientY < firstRect.bottom && e.clientX - firstRect.right < firstRect.left - e.clientX) {
             button.showStart(firstRect.left, firstRect.top);
           } else {
