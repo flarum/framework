@@ -116,11 +116,11 @@ export default class PostQuoteButton extends Fragment {
     const viewportRight = viewportLeft + (viewport ? viewport.width : document.documentElement.clientWidth);
     const minLeft = viewportLeft + VIEWPORT_MARGIN;
     const maxLeft = viewportRight - width - VIEWPORT_MARGIN;
-    // Formatting can split one line across several client rectangles.
+    // Keep the whole button clear of every selected fragment it passes beside.
     let lineLeft = lastRect.left;
     let lineRight = lastRect.right;
     for (const rect of rects) {
-      if (rect.top < lastRect.bottom && rect.bottom > lastRect.top) {
+      if (rect.top < inlineTop + height && rect.bottom > inlineTop) {
         lineLeft = Math.min(lineLeft, rect.left);
         lineRight = Math.max(lineRight, rect.right);
       }

@@ -356,7 +356,7 @@ describe('the quote button', () => {
     const element = renderPost();
 
     selectByTouch(element, [
-      { left: 15, right: 360, top: 300, bottom: 320 },
+      { left: 15, right: 360, top: 280, bottom: 300 },
       { left: 0, right: 30, top: 320, bottom: 340 },
     ]);
 
@@ -365,6 +365,16 @@ describe('the quote button', () => {
     expect(top + BUTTON_HEIGHT).toBeGreaterThan(320);
     expect(parseFloat(quoteButton().style.left)).toBeGreaterThanOrEqual(46);
     expect(parseFloat(quoteButton().style.left)).toBeLessThanOrEqual(54);
+  });
+
+  it('keeps the entire touch button outside adjacent selected lines', () => {
+    const element = renderPost();
+    selectByTouch(element, [
+      { left: 15, right: 360, top: 300, bottom: 320 },
+      { left: 0, right: 30, top: 320, bottom: 340 },
+    ]);
+
+    expect(parseFloat(quoteButton().style.top)).toBeGreaterThanOrEqual(410);
   });
 
   it('uses the other side of a short selection near the right screen edge', () => {
