@@ -429,6 +429,16 @@ describe('the quote button', () => {
     expect(quoteButton().style.top).toBe('130px');
   });
 
+  it('retains clearance when either edge of a directional run could be an endpoint', () => {
+    const element = renderPost();
+    selectByTouch(element, [
+      { left: 15, right: 200, top: 300, bottom: 320 },
+      { left: 200, right: 360, top: 300, bottom: 320 },
+    ]);
+
+    expect(quoteButton().style.top).toBe('390px');
+  });
+
   it('clears both endpoints when inline formatting splits the selected line', () => {
     const element = renderPost();
     selectByTouch(element, [

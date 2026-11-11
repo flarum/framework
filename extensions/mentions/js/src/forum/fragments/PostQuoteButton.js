@@ -136,7 +136,8 @@ export default class PostQuoteButton extends Fragment {
     }
 
     // A single selected line leaves space below its middle, away from both
-    // endpoints. Keep the larger menu clearance when that space is unavailable.
+    // endpoints. Either edge of an endpoint rectangle can hold a bidi handle;
+    // keep the larger clearance when either possible edge is too close.
     const singleLine = rects.length && rects.every((rect) => rect.top < lastRect.bottom && rect.bottom > lastRect.top);
     const closeBelow = Math.max(...rects.map((rect) => rect.bottom)) + 12;
     const centeredLeft = Math.max(minLeft, Math.min((lineLeft + lineRight - width) / 2, maxLeft));
@@ -144,8 +145,9 @@ export default class PostQuoteButton extends Fragment {
       singleLine &&
       firstRect.top - viewportTop >= TOUCH_GAP &&
       fits(closeBelow) &&
-      centeredLeft >= firstRect.left + 2 * TOUCH_HANDLE_GAP &&
-      centeredLeft + width <= lastRect.right - 2 * TOUCH_HANDLE_GAP
+      [firstRect.left, firstRect.right, lastRect.left, lastRect.right].every(
+        (edge) => edge <= centeredLeft - 2 * TOUCH_HANDLE_GAP || edge >= centeredLeft + width + 2 * TOUCH_HANDLE_GAP
+      )
     ) {
       this.show(centeredLeft, $(window).scrollTop() + closeBelow);
       return;
