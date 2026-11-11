@@ -69,6 +69,31 @@ export default class Conditional implements IExtender {
   public whenExtensionsDisabled(extensionIds: string[], extenders: () => IExtender<any>[]): this {
     return this.when(() => extensionIds.every((extensionId) => !(extensionId in flarum.extensions)), extenders);
   }
+
+  /**
+   * Apply extenders only if a forum attribute matches an expected value.
+   *
+   * Uses strict comparison (===). The value is read from the forum payload,
+   * as `app.forum` doesn't exist yet when extenders are applied.
+   *
+   * @param key The name of the forum attribute.
+   * @param expected The expected value.
+   * @param extenders A callback returning an array of extenders.
+   *
+   * @example
+   * new Extend.Conditional()
+   *   .whenForumAttribute('acmeAdvancedMode', true, () => [
+   *     new Extend.Routes().add('acme.advanced', '/acme/advanced', AdvancedPage),
+   *   ])
+   */
+  public whenForumAttribute(key: string, expected: unknown, extenders: () => IExtender<any>[]): this {
+    return this.when((app) => {
+      const forum = app.data.resources.find((resource) => resource.type === 'forums');
+
+      return forum?.attributes?.[key] === expected;
+    }, extenders);
+  }
+
   /**
    * Apply extenders based on a condition.
    *
