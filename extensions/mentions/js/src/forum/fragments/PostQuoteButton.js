@@ -41,7 +41,13 @@ export default class PostQuoteButton extends Fragment {
       <button
         className="Button PostQuoteButton"
         type="button"
+        onpointerdown={(event) => {
+          // Preserve the selection and prevent mouseup from hiding the button
+          // before the touch-generated click can activate it.
+          if (event.button === 0) event.preventDefault();
+        }}
         onclick={() => {
+          this.hide();
           // If the user is not logged in, the promise rejects, and a login modal shows up.
           // Since that's already handled, we dont need to show an error message in the console.
           reply(this.post, this.content).catch(() => {});

@@ -155,6 +155,26 @@ describe('the quote button', () => {
     expect(quoteButton().style.top).toBe('590px');
   });
 
+  it('protects a primary quote press and hides the button after activation', () => {
+    const element = renderPost();
+    selectByTouch(element, [{ left: 40, right: 200, top: 300, bottom: 320 }]);
+    const button = quoteButton();
+
+    for (const buttonNumber of [1, 2]) {
+      const secondaryPress = new MouseEvent('pointerdown', { bubbles: true, cancelable: true, button: buttonNumber });
+      button.dispatchEvent(secondaryPress);
+      expect(secondaryPress.defaultPrevented).toBe(false);
+    }
+
+    const press = new MouseEvent('pointerdown', { bubbles: true, cancelable: true, button: 0 });
+    button.dispatchEvent(press);
+    expect(press.defaultPrevented).toBe(true);
+
+    button.click();
+    expect(button.style.display).toBe('none');
+    expect(($ as any)._data(document, 'events')?.mouseup).toBeUndefined();
+  });
+
   it('shows above a selection', () => {
     const element = renderPost();
 
