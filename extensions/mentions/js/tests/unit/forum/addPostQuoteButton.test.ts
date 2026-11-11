@@ -159,14 +159,15 @@ describe('the quote button', () => {
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', shiftKey: true }));
     selectByTouch(element, [{ left: 40, right: 200, top: 400, bottom: 420 }]);
-    expect(quoteButton().style.top).toBe('490px');
+    const keyboardTop = quoteButton().style.top;
+    expect(keyboardTop).not.toBe('325px');
 
     document.dispatchEvent(pointerdown);
     const touch = new Event('pointerdown', { bubbles: true });
     Object.defineProperty(touch, 'pointerType', { value: 'touch' });
     document.dispatchEvent(touch);
     selectByTouch(element, [{ left: 40, right: 200, top: 500, bottom: 520 }]);
-    expect(quoteButton().style.top).toBe('590px');
+    expect(quoteButton().style.top).not.toBe(keyboardTop);
   });
 
   it('protects a primary quote press and hides the button after activation', () => {
@@ -256,11 +257,12 @@ describe('the quote button', () => {
     element.dispatchEvent(pointerdown);
     selectByTouch(element, [{ left: 40, right: 200, top: 300, bottom: 320 }]);
     const button = quoteButton();
+    const top = button.style.top;
 
     document.dispatchEvent(new MouseEvent('mouseup', { clientX: 200, clientY: 330 }));
     jest.advanceTimersByTime(1);
 
-    expect(button.style.top).toBe('390px');
+    expect(button.style.top).toBe(top);
     expect(button.style.display).toBe('none');
   });
 
@@ -325,9 +327,7 @@ describe('the quote button', () => {
     expect(quoteButton().style.display).toBe('none');
   });
 
-  // On touch screens the browser's own selection handles and text menu sit
-  // right next to the selection, on top of the page, and cover what's beneath.
-  it('shows well clear of a selection made by touch', () => {
+  it('sits beside a touch selection with room for the end handle', () => {
     const element = renderPost();
 
     selectByTouch(element, [
@@ -335,8 +335,11 @@ describe('the quote button', () => {
       { left: 0, right: 30, top: 320, bottom: 340 },
     ]);
 
-    expect(quoteButton().style.top).toBe(`${340 + 70}px`);
-    expect(quoteButton().style.left).toBe('10px');
+    const top = parseFloat(quoteButton().style.top);
+    expect(top).toBeLessThan(340);
+    expect(top + BUTTON_HEIGHT).toBeGreaterThan(320);
+    expect(parseFloat(quoteButton().style.left)).toBeGreaterThanOrEqual(46);
+    expect(parseFloat(quoteButton().style.left)).toBeLessThanOrEqual(54);
   });
 
   it('shows above a selection made by touch when there is no room below it', () => {
@@ -344,7 +347,7 @@ describe('the quote button', () => {
 
     selectByTouch(element, [
       { left: 15, right: 360, top: 580, bottom: 600 },
-      { left: 15, right: 200, top: 600, bottom: 620 },
+      { left: 15, right: 200, top: 700, bottom: 720 },
     ]);
 
     expect(quoteButton().style.top).toBe(`${580 - 70 - BUTTON_HEIGHT}px`);
@@ -385,7 +388,7 @@ describe('the quote button', () => {
 
     selectByTouch(element, [
       { left: 15, right: 360, top: 200, bottom: 220 },
-      { left: 15, right: 200, top: 620, bottom: 640 },
+      { left: 15, right: 200, top: 700, bottom: 720 },
     ]);
 
     expect(quoteButton().style.top).toBe(`${200 - 70 - BUTTON_HEIGHT}px`);

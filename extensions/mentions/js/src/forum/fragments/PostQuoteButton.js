@@ -16,6 +16,7 @@ const VIEWPORT_MARGIN = 10;
  * can't be tapped. This clears the handles and a menu shown on the same side.
  */
 const TOUCH_GAP = 70;
+const TOUCH_HANDLE_GAP = 16;
 
 /**
  * The bottom edge of the header that stays fixed over the top of the page
@@ -88,8 +89,8 @@ export default class PostQuoteButton extends Fragment {
   }
 
   /**
-   * Show the button for a selection made by touch: well below its end, or
-   * well above its start when there is no room below.
+   * Show the button beside the selected line, clear of its end handle.
+   * When it cannot fit there, keep clear of the native menu above or below.
    *
    * A long selection, which can run past the edges of the screen, leaves
    * room for neither. The button then goes in the middle of the screen,
@@ -109,6 +110,16 @@ export default class PostQuoteButton extends Fragment {
     const minTop = Math.max(viewportTop, fixedHeaderBottom()) + VIEWPORT_MARGIN;
     const maxTop = viewportBottom - height - VIEWPORT_MARGIN;
     const fits = (top) => top >= minTop && top <= maxTop;
+
+    const width = $this.outerWidth();
+    const inlineTop = lastRect.top + (lastRect.bottom - lastRect.top - height) / 2;
+    const inlineLeft = lastRect.right + TOUCH_HANDLE_GAP;
+    const maxLeft = document.documentElement.clientWidth - width - VIEWPORT_MARGIN;
+
+    if (fits(inlineTop) && inlineLeft >= VIEWPORT_MARGIN && inlineLeft <= maxLeft) {
+      this.show(inlineLeft, $(window).scrollTop() + inlineTop);
+      return;
+    }
 
     const below = lastRect.bottom + TOUCH_GAP;
     const above = firstRect.top - TOUCH_GAP - height;
