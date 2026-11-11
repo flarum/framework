@@ -62,7 +62,10 @@ afterAll(() => {
   CommentPost.prototype.oncreate = originalOncreate;
 });
 
-beforeEach(() => jest.useFakeTimers());
+beforeEach(() => {
+  jest.useFakeTimers();
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Shift' }));
+});
 
 afterEach(() => {
   jest.useRealTimers();
@@ -84,7 +87,8 @@ function renderPost(): HTMLElement {
 
   const post = app.store.getById<Post>('posts', '1')!;
 
-  document.body.innerHTML = '<article class="Post"><div class="Post-body"><p>Some text to quote</p></div></article><p class="Elsewhere">Other text</p>';
+  document.body.innerHTML =
+    '<article class="Post"><div class="Post-body"><p>Some text to quote</p></div></article><p class="Elsewhere">Other text</p>';
   const element = document.querySelector<HTMLElement>('.Post')!;
 
   CommentPost.prototype.oncreate.call({ attrs: { post }, $: (selector?: string) => (selector ? $(element).find(selector) : $(element)) } as any);
@@ -124,6 +128,33 @@ function quoteButton(): HTMLElement {
 }
 
 describe('the quote button', () => {
+  it('waits for mouse release on a touch-capable device', () => {
+    const element = renderPost();
+    const pointerdown = new Event('pointerdown', { bubbles: true });
+    Object.defineProperty(pointerdown, 'pointerType', { value: 'mouse' });
+    document.dispatchEvent(pointerdown);
+
+    selectByTouch(element, [{ left: 40, right: 200, top: 300, bottom: 320 }]);
+
+    expect(document.querySelector('.PostQuoteButton')).toBeNull();
+
+    $(element).trigger($.Event('mouseup', { clientX: 200, clientY: 330 }));
+    jest.advanceTimersByTime(1);
+
+    expect(quoteButton().style.top).toBe('325px');
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', shiftKey: true }));
+    selectByTouch(element, [{ left: 40, right: 200, top: 400, bottom: 420 }]);
+    expect(quoteButton().style.top).toBe('490px');
+
+    document.dispatchEvent(pointerdown);
+    const touch = new Event('pointerdown', { bubbles: true });
+    Object.defineProperty(touch, 'pointerType', { value: 'touch' });
+    document.dispatchEvent(touch);
+    selectByTouch(element, [{ left: 40, right: 200, top: 500, bottom: 520 }]);
+    expect(quoteButton().style.top).toBe('590px');
+  });
+
   it('shows above a selection', () => {
     const element = renderPost();
 
@@ -228,7 +259,7 @@ describe('the quote button', () => {
   it('keeps clear of a fixed navigation bar at the top of the screen', () => {
     const element = renderPost();
     const navigation = $('<div id="app-navigation" style="position: fixed"></div>').prependTo(document.body)[0];
-    navigation.getBoundingClientRect = () => ({ top: 0, bottom: 46 }) as DOMRect;
+    navigation.getBoundingClientRect = () => ({ top: 0, bottom: 46 } as DOMRect);
 
     selectByTouch(element, [
       { left: 15, right: 360, top: 130, bottom: 150 },
@@ -241,7 +272,7 @@ describe('the quote button', () => {
   it('shows above a touch selection, below a fixed navigation bar, when there is room', () => {
     const element = renderPost();
     const navigation = $('<div id="app-navigation" style="position: fixed"></div>').prependTo(document.body)[0];
-    navigation.getBoundingClientRect = () => ({ top: 0, bottom: 46 }) as DOMRect;
+    navigation.getBoundingClientRect = () => ({ top: 0, bottom: 46 } as DOMRect);
 
     selectByTouch(element, [
       { left: 15, right: 360, top: 200, bottom: 220 },

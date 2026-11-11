@@ -6,6 +6,23 @@ import PostQuoteButton from './fragments/PostQuoteButton';
 import selectedText from './utils/selectedText';
 
 export default function addPostQuoteButton() {
+  let pointerType;
+
+  document.addEventListener(
+    'pointerdown',
+    (event) => {
+      pointerType = event.pointerType;
+    },
+    true
+  );
+  document.addEventListener(
+    'keydown',
+    () => {
+      pointerType = undefined;
+    },
+    true
+  );
+
   extend(CommentPost.prototype, 'oncreate', function () {
     const post = this.attrs.post;
 
@@ -23,6 +40,8 @@ export default function addPostQuoteButton() {
       setTimeout(() => {
         const content = selectedText($postBody);
         if (content) {
+          if (e.type === 'selectionchange' && pointerType === 'mouse') return;
+
           button.content = content;
           m.render($container[0], button.render());
 
