@@ -142,6 +142,7 @@ export default class PostQuoteButton extends Fragment {
     const centeredLeft = Math.max(minLeft, Math.min((lineLeft + lineRight - width) / 2, maxLeft));
     if (
       singleLine &&
+      firstRect.top - viewportTop >= TOUCH_GAP &&
       fits(closeBelow) &&
       centeredLeft >= firstRect.left + 2 * TOUCH_HANDLE_GAP &&
       centeredLeft + width <= lastRect.right - 2 * TOUCH_HANDLE_GAP

@@ -422,6 +422,13 @@ describe('the quote button', () => {
     expect(top).toBeLessThanOrEqual(336);
   });
 
+  it('retains menu clearance for a full line near the visual viewport top', () => {
+    const element = renderPost();
+    selectByTouch(element, [{ left: 15, right: 360, top: 40, bottom: 60 }]);
+
+    expect(quoteButton().style.top).toBe('130px');
+  });
+
   it('clears both endpoints when inline formatting splits the selected line', () => {
     const element = renderPost();
     selectByTouch(element, [
