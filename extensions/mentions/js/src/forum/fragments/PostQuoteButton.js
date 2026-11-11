@@ -111,7 +111,10 @@ export default class PostQuoteButton extends Fragment {
 
     const width = $this.outerWidth();
     const inlineTop = lastRect.top + (lastRect.bottom - lastRect.top - height) / 2;
-    const maxLeft = document.documentElement.clientWidth - width - VIEWPORT_MARGIN;
+    const viewportLeft = viewport ? viewport.offsetLeft : 0;
+    const viewportRight = viewportLeft + (viewport ? viewport.width : document.documentElement.clientWidth);
+    const minLeft = viewportLeft + VIEWPORT_MARGIN;
+    const maxLeft = viewportRight - width - VIEWPORT_MARGIN;
     // Formatting can split one line across several client rectangles.
     const sameLine = firstRect.top < lastRect.bottom && firstRect.bottom > lastRect.top;
     const lineLeft = sameLine ? Math.min(firstRect.left, lastRect.left) : lastRect.left;
@@ -120,7 +123,7 @@ export default class PostQuoteButton extends Fragment {
     if (lineRight - lineLeft >= width + 2 * TOUCH_HANDLE_GAP) {
       candidates.push((lineLeft + lineRight - width) / 2);
     }
-    const inlineLeft = candidates.find((left) => left >= VIEWPORT_MARGIN && left <= maxLeft);
+    const inlineLeft = candidates.find((left) => left >= minLeft && left <= maxLeft);
 
     if (fits(inlineTop) && inlineLeft !== undefined) {
       this.show(inlineLeft, $(window).scrollTop() + inlineTop);
@@ -139,7 +142,8 @@ export default class PostQuoteButton extends Fragment {
       top = Math.max(minTop, (minTop + maxTop) / 2);
     }
 
-    this.show(lastRect.right - $this.outerWidth(), $(window).scrollTop() + top);
+    const left = Math.max(minLeft, Math.min(lastRect.right - width, maxLeft));
+    this.show(left, $(window).scrollTop() + top);
   }
 
   hide() {

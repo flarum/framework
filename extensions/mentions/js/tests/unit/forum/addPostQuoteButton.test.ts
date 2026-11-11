@@ -9,6 +9,7 @@ import addPostQuoteButton from '../../../src/forum/addPostQuoteButton';
 const originalOncreate = CommentPost.prototype.oncreate;
 const originalOnremove = CommentPost.prototype.onremove;
 let renderedPost: any;
+const originalVisualViewport = Object.getOwnPropertyDescriptor(window, 'visualViewport');
 
 // A phone-sized viewport, and the size of the rendered button. jsdom does no
 // layout, so both are set here.
@@ -77,6 +78,8 @@ afterEach(() => {
   jest.useRealTimers();
   // @ts-ignore jsdom has no getClientRects on a range; each test sets its own.
   delete Range.prototype.getClientRects;
+  if (originalVisualViewport) Object.defineProperty(window, 'visualViewport', originalVisualViewport);
+  else delete (window as any).visualViewport;
 });
 
 /** A rendered post that the quote button has been added to. */
@@ -378,6 +381,19 @@ describe('the quote button', () => {
     expect(left + BUTTON_WIDTH).toBeLessThanOrEqual(154);
     expect(top).toBeLessThan(320);
     expect(top + BUTTON_HEIGHT).toBeGreaterThan(300);
+  });
+
+  it('keeps touch quotes inside the panned visual viewport after zooming', () => {
+    const element = renderPost();
+    Object.defineProperty(window, 'visualViewport', {
+      configurable: true,
+      value: { offsetLeft: 80, width: 180, offsetTop: 0, height: 700 },
+    });
+    selectByTouch(element, [{ left: 180, right: 240, top: 300, bottom: 320 }]);
+
+    const left = parseFloat(quoteButton().style.left);
+    expect(left).toBeGreaterThanOrEqual(90);
+    expect(left + BUTTON_WIDTH).toBeLessThanOrEqual(250);
   });
 
   it('shows above a selection made by touch when there is no room below it', () => {
