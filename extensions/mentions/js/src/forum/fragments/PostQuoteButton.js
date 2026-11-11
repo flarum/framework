@@ -98,7 +98,7 @@ export default class PostQuoteButton extends Fragment {
    *
    * @param {DOMRect} firstRect The client rect of the selection's first line.
    * @param {DOMRect} lastRect The client rect of the selection's last line.
-   * @param {ReadonlyArray<DOMRect>} rects The selection's client rectangles.
+   * @param {ReadonlyArray<DOMRect>} [rects] Complete selection rectangles for side placement.
    */
   showTouch(firstRect, lastRect, rects = []) {
     const $this = this.$();

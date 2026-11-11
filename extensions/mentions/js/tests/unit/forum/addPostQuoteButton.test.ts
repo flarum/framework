@@ -481,10 +481,23 @@ describe('the quote button', () => {
 
     selectByTouch(element, [
       { left: 15, right: 360, top: 130, bottom: 150 },
-      { left: 15, right: 200, top: 620, bottom: 640 },
+      { left: 15, right: 200, top: 700, bottom: 720 },
     ]);
 
     expect(parseFloat(quoteButton().style.top)).toBeGreaterThanOrEqual(46 + 10);
+  });
+
+  it('rejects an inline touch position underneath the fixed navigation bar', () => {
+    const element = renderPost();
+    const navigation = $('<div id="app-navigation" style="position: fixed"></div>').prependTo(document.body)[0];
+    navigation.getBoundingClientRect = () => ({ top: 0, bottom: 46 }) as DOMRect;
+
+    selectByTouch(element, [
+      { left: 15, right: 200, top: 20, bottom: 40 },
+      { left: 15, right: 200, top: 40, bottom: 60 },
+    ]);
+
+    expect(parseFloat(quoteButton().style.top)).toBeGreaterThanOrEqual(56);
   });
 
   it('shows above a touch selection, below a fixed navigation bar, when there is room', () => {
