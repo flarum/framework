@@ -93,8 +93,7 @@ function renderPost(transformed = false): HTMLElement {
 
   const post = app.store.getById<Post>('posts', '1')!;
 
-  document.body.innerHTML =
-    '<article class="Post"><div class="Post-body"><p>Some text to quote</p></div></article><p class="Elsewhere">Other text</p>';
+  document.body.innerHTML = '<article class="Post"><div class="Post-body"><p>Some text to quote</p></div></article><p class="Elsewhere">Other text</p>';
   if (transformed) {
     const item = document.createElement('div');
     item.className = 'PostStream-item';
@@ -208,14 +207,17 @@ describe('the quote button', () => {
     selectByTouch(element, [{ left: 40, right: 200, top: 300, bottom: 320 }]);
 
     expect(quoteButton().closest('.PostStream-item')).toBeNull();
+    const container = quoteButton().parentElement!;
 
     CommentPost.prototype.onremove.call(renderedPost);
+    expect(($ as any)._data(document, 'events')?.mouseup).toBeUndefined();
     expect(document.querySelector('.PostQuoteButton')).toBeNull();
 
     selectByTouch(element, [{ left: 40, right: 200, top: 300, bottom: 320 }]);
     document.dispatchEvent(new MouseEvent('mouseup', { clientX: 200, clientY: 330 }));
     jest.advanceTimersByTime(1);
     expect(document.querySelector('.PostQuoteButton')).toBeNull();
+    expect(container.querySelector('.PostQuoteButton')).toBeNull();
   });
 
   it('keeps using mouse positioning when a modifier is pressed during a drag', () => {
@@ -244,6 +246,21 @@ describe('the quote button', () => {
     document.dispatchEvent(new MouseEvent('mouseup', { clientX: 200, clientY: 330 }));
     jest.advanceTimersByTime(1);
 
+    expect(button.style.display).toBe('none');
+  });
+
+  it('does not re-place a touch selection on compatibility mouseup', () => {
+    const element = renderPost();
+    const pointerdown = new Event('pointerdown', { bubbles: true });
+    Object.defineProperty(pointerdown, 'pointerType', { value: 'touch' });
+    element.dispatchEvent(pointerdown);
+    selectByTouch(element, [{ left: 40, right: 200, top: 300, bottom: 320 }]);
+    const button = quoteButton();
+
+    document.dispatchEvent(new MouseEvent('mouseup', { clientX: 200, clientY: 330 }));
+    jest.advanceTimersByTime(1);
+
+    expect(button.style.top).toBe('390px');
     expect(button.style.display).toBe('none');
   });
 
@@ -351,7 +368,7 @@ describe('the quote button', () => {
   it('keeps clear of a fixed navigation bar at the top of the screen', () => {
     const element = renderPost();
     const navigation = $('<div id="app-navigation" style="position: fixed"></div>').prependTo(document.body)[0];
-    navigation.getBoundingClientRect = () => ({ top: 0, bottom: 46 } as DOMRect);
+    navigation.getBoundingClientRect = () => ({ top: 0, bottom: 46 }) as DOMRect;
 
     selectByTouch(element, [
       { left: 15, right: 360, top: 130, bottom: 150 },
@@ -364,7 +381,7 @@ describe('the quote button', () => {
   it('shows above a touch selection, below a fixed navigation bar, when there is room', () => {
     const element = renderPost();
     const navigation = $('<div id="app-navigation" style="position: fixed"></div>').prependTo(document.body)[0];
-    navigation.getBoundingClientRect = () => ({ top: 0, bottom: 46 } as DOMRect);
+    navigation.getBoundingClientRect = () => ({ top: 0, bottom: 46 }) as DOMRect;
 
     selectByTouch(element, [
       { left: 15, right: 360, top: 200, bottom: 220 },

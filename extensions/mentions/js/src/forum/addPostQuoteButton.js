@@ -47,6 +47,8 @@ export default function addPostQuoteButton() {
     const button = new PostQuoteButton(post);
 
     const handler = function (e) {
+      if (e.type === 'mouseup' && pointerType === 'touch') return;
+
       if (
         e.type === 'mouseup' &&
         pointerType === 'mouse' &&
