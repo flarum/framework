@@ -7,6 +7,7 @@ import selectedText from './utils/selectedText';
 
 export default function addPostQuoteButton() {
   let pointerType;
+  const cleanups = new WeakMap();
 
   document.addEventListener(
     'pointerdown',
@@ -78,10 +79,24 @@ export default function addPostQuoteButton() {
       }, 1);
     };
 
-    this.$().after($container).on('mouseup', handler);
+    this.$().after($container);
+    $(document).on('mouseup', handler);
 
     if ('ontouchstart' in window) {
       document.addEventListener('selectionchange', handler, false);
     }
+
+    cleanups.set(this, () => {
+      document.removeEventListener('selectionchange', handler, false);
+      $(document).off('mouseup', handler);
+      button.hide();
+      m.render($container[0], null);
+      $container.remove();
+    });
+  });
+
+  extend(CommentPost.prototype, 'onremove', function () {
+    cleanups.get(this)?.();
+    cleanups.delete(this);
   });
 }

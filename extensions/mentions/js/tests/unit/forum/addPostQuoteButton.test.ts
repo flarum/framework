@@ -7,6 +7,8 @@ import $ from 'jquery';
 import addPostQuoteButton from '../../../src/forum/addPostQuoteButton';
 
 const originalOncreate = CommentPost.prototype.oncreate;
+const originalOnremove = CommentPost.prototype.onremove;
+let renderedPost: any;
 
 // A phone-sized viewport, and the size of the rendered button. jsdom does no
 // layout, so both are set here.
@@ -22,6 +24,7 @@ beforeAll(() => {
   // Only the quote button's own hook runs: the stand-in post below is not a
   // real CommentPost.
   CommentPost.prototype.oncreate = function () {};
+  CommentPost.prototype.onremove = function () {};
   addPostQuoteButton();
 
   // jsdom has no innerText. The quote helper reads it from a detached clone,
@@ -60,6 +63,7 @@ beforeAll(() => {
 
 afterAll(() => {
   CommentPost.prototype.oncreate = originalOncreate;
+  CommentPost.prototype.onremove = originalOnremove;
 });
 
 beforeEach(() => {
@@ -68,6 +72,8 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  if (renderedPost) CommentPost.prototype.onremove.call(renderedPost);
+  renderedPost = undefined;
   jest.useRealTimers();
   // @ts-ignore jsdom has no getClientRects on a range; each test sets its own.
   delete Range.prototype.getClientRects;
@@ -91,7 +97,8 @@ function renderPost(): HTMLElement {
     '<article class="Post"><div class="Post-body"><p>Some text to quote</p></div></article><p class="Elsewhere">Other text</p>';
   const element = document.querySelector<HTMLElement>('.Post')!;
 
-  CommentPost.prototype.oncreate.call({ attrs: { post }, $: (selector?: string) => (selector ? $(element).find(selector) : $(element)) } as any);
+  renderedPost = { attrs: { post }, $: (selector?: string) => (selector ? $(element).find(selector) : $(element)) };
+  CommentPost.prototype.oncreate.call(renderedPost);
 
   return element;
 }
@@ -172,7 +179,20 @@ describe('the quote button', () => {
 
     button.click();
     expect(button.style.display).toBe('none');
-    expect(($ as any)._data(document, 'events')?.mouseup).toBeUndefined();
+    expect(($ as any)._data(document, 'events')?.mouseup).toHaveLength(1);
+  });
+
+  it('shows a mouse selection when it is released outside the post', () => {
+    const element = renderPost();
+    const pointerdown = new Event('pointerdown', { bubbles: true });
+    Object.defineProperty(pointerdown, 'pointerType', { value: 'mouse' });
+    element.dispatchEvent(pointerdown);
+    selectByTouch(element, [{ left: 40, right: 200, top: 300, bottom: 320 }]);
+
+    document.dispatchEvent(new MouseEvent('mouseup', { clientX: 250, clientY: 330 }));
+    jest.advanceTimersByTime(1);
+
+    expect(quoteButton()?.style.top).toBe('325px');
   });
 
   it('shows above a selection', () => {
@@ -326,7 +346,7 @@ describe('the quote button', () => {
     $(document).trigger('mouseup');
 
     expect(quoteButton().style.display).toBe('none');
-    expect(($ as any)._data(document, 'events')?.mouseup).toBeUndefined();
+    expect(($ as any)._data(document, 'events')?.mouseup).toHaveLength(1);
   });
 
   // Browsers can report no rectangles for a selection, e.g. one that ends
