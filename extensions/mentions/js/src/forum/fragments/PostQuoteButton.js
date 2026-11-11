@@ -100,7 +100,7 @@ export default class PostQuoteButton extends Fragment {
    * @param {DOMRect} lastRect The client rect of the selection's last line.
    * @param {ReadonlyArray<DOMRect>} rects The selection's client rectangles.
    */
-  showTouch(firstRect, lastRect, rects = [firstRect, lastRect]) {
+  showTouch(firstRect, lastRect, rects = []) {
     const $this = this.$();
     const height = $this.outerHeight();
     const viewport = window.visualViewport;
@@ -128,7 +128,8 @@ export default class PostQuoteButton extends Fragment {
     const candidates = [lineRight + TOUCH_HANDLE_GAP, lineLeft - width - TOUCH_HANDLE_GAP];
     const inlineLeft = candidates.find((left) => left >= minLeft && left <= maxLeft);
 
-    if (fits(inlineTop) && inlineLeft !== undefined) {
+    // Preserve off-text placement for callers without complete line geometry.
+    if (rects.length && fits(inlineTop) && inlineLeft !== undefined) {
       this.show(inlineLeft, $(window).scrollTop() + inlineTop);
       return;
     }

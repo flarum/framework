@@ -5,6 +5,7 @@ import CommentPost from 'flarum/forum/components/CommentPost';
 import { jest } from '@jest/globals';
 import $ from 'jquery';
 import addPostQuoteButton from '../../../src/forum/addPostQuoteButton';
+import PostQuoteButton from '../../../src/forum/fragments/PostQuoteButton';
 
 const originalOncreate = CommentPost.prototype.oncreate;
 const originalOnremove = CommentPost.prototype.onremove;
@@ -404,6 +405,26 @@ describe('the quote button', () => {
     ]);
 
     expect(parseFloat(quoteButton().style.top)).toBeGreaterThanOrEqual(480);
+  });
+
+  it('retains the off-text fallback for callers without complete line rectangles', () => {
+    renderPost();
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const button = new PostQuoteButton(app.store.getById<Post>('posts', '1')!);
+    m.render(container, button.render());
+
+    try {
+      button.showTouch(
+        { left: 15, right: 360, top: 300, bottom: 320 } as DOMRect,
+        { left: 0, right: 30, top: 320, bottom: 340 } as DOMRect
+      );
+      expect((container.firstElementChild as HTMLElement).style.top).toBe('410px');
+    } finally {
+      button.hide();
+      m.render(container, null);
+      container.remove();
+    }
   });
 
   it('shows above a selection made by touch when there is no room below it', () => {
