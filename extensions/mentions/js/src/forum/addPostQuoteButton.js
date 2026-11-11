@@ -7,12 +7,20 @@ import selectedText from './utils/selectedText';
 
 export default function addPostQuoteButton() {
   let pointerType;
+  let pointerDownTarget;
+  let selectionOnPointerDown;
+  const selectionSnapshot = () => {
+    const selection = window.getSelection();
+    return [selection?.anchorNode, selection?.anchorOffset, selection?.focusNode, selection?.focusOffset];
+  };
   const cleanups = new WeakMap();
 
   document.addEventListener(
     'pointerdown',
     (event) => {
       pointerType = event.pointerType;
+      pointerDownTarget = event.target;
+      selectionOnPointerDown = selectionSnapshot();
     },
     true
   );
@@ -29,6 +37,7 @@ export default function addPostQuoteButton() {
 
     if (post.isHidden() || (app.session.user && !post.discussion().canReply())) return;
 
+    const postElement = this.$()[0];
     const $postBody = this.$('.Post-body');
 
     // Wrap the quote button in a wrapper element so that we can render
@@ -38,6 +47,14 @@ export default function addPostQuoteButton() {
     const button = new PostQuoteButton(post);
 
     const handler = function (e) {
+      if (
+        e.type === 'mouseup' &&
+        pointerType === 'mouse' &&
+        !postElement.contains(pointerDownTarget) &&
+        selectionSnapshot().every((value, index) => value === selectionOnPointerDown[index])
+      )
+        return;
+
       setTimeout(() => {
         const content = selectedText($postBody);
         if (content) {

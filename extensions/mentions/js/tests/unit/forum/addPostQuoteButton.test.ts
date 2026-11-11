@@ -233,6 +233,20 @@ describe('the quote button', () => {
     expect(quoteButton().style.top).toBe('325px');
   });
 
+  it('dismisses Quote after an unrelated control release', () => {
+    const element = renderPost();
+    selectByTouch(element, [{ left: 40, right: 200, top: 300, bottom: 320 }]);
+    const button = quoteButton();
+    const pointerdown = new Event('pointerdown', { bubbles: true });
+    Object.defineProperty(pointerdown, 'pointerType', { value: 'mouse' });
+    document.querySelector('.Elsewhere')!.dispatchEvent(pointerdown);
+
+    document.dispatchEvent(new MouseEvent('mouseup', { clientX: 200, clientY: 330 }));
+    jest.advanceTimersByTime(1);
+
+    expect(button.style.display).toBe('none');
+  });
+
   it('shows above a selection', () => {
     const element = renderPost();
 
