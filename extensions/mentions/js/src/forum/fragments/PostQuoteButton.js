@@ -88,7 +88,8 @@ export default class PostQuoteButton extends Fragment {
 
   /**
    * Show the button beside the selected line, clear of its end handle.
-   * When it cannot fit there, keep clear of the native menu above or below.
+   * A single line can also use the space just below its middle. Otherwise,
+   * keep the larger clearance above or below for the native menu.
    *
    * A long selection, which can run past the edges of the screen, leaves
    * room for neither. The button then goes in the middle of the screen,
@@ -131,6 +132,21 @@ export default class PostQuoteButton extends Fragment {
     // Preserve off-text placement for callers without complete line geometry.
     if (rects.length && fits(inlineTop) && inlineLeft !== undefined) {
       this.show(inlineLeft, $(window).scrollTop() + inlineTop);
+      return;
+    }
+
+    // A single selected line leaves space below its middle, away from both
+    // endpoints. Keep the larger menu clearance when that space is unavailable.
+    const singleLine = rects.length && rects.every((rect) => rect.top < lastRect.bottom && rect.bottom > lastRect.top);
+    const closeBelow = Math.max(...rects.map((rect) => rect.bottom)) + 12;
+    const centeredLeft = Math.max(minLeft, Math.min((lineLeft + lineRight - width) / 2, maxLeft));
+    if (
+      singleLine &&
+      fits(closeBelow) &&
+      centeredLeft >= firstRect.left + 2 * TOUCH_HANDLE_GAP &&
+      centeredLeft + width <= lastRect.right - 2 * TOUCH_HANDLE_GAP
+    ) {
+      this.show(centeredLeft, $(window).scrollTop() + closeBelow);
       return;
     }
 
