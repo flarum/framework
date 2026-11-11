@@ -18,8 +18,8 @@ export default function addPostQuoteButton() {
   );
   document.addEventListener(
     'keydown',
-    () => {
-      pointerType = undefined;
+    (event) => {
+      if (!['Shift', 'Control', 'Alt', 'Meta'].includes(event.key)) pointerType = undefined;
     },
     true
   );

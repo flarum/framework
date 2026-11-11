@@ -68,7 +68,7 @@ afterAll(() => {
 
 beforeEach(() => {
   jest.useFakeTimers();
-  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Shift' }));
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
 });
 
 afterEach(() => {
@@ -216,6 +216,21 @@ describe('the quote button', () => {
     document.dispatchEvent(new MouseEvent('mouseup', { clientX: 200, clientY: 330 }));
     jest.advanceTimersByTime(1);
     expect(document.querySelector('.PostQuoteButton')).toBeNull();
+  });
+
+  it('keeps using mouse positioning when a modifier is pressed during a drag', () => {
+    const element = renderPost();
+    const pointerdown = new Event('pointerdown', { bubbles: true });
+    Object.defineProperty(pointerdown, 'pointerType', { value: 'mouse' });
+    element.dispatchEvent(pointerdown);
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Shift', shiftKey: true }));
+    selectByTouch(element, [{ left: 40, right: 200, top: 300, bottom: 320 }]);
+    expect(document.querySelector('.PostQuoteButton')).toBeNull();
+
+    document.dispatchEvent(new MouseEvent('mouseup', { clientX: 200, clientY: 330 }));
+    jest.advanceTimersByTime(1);
+    expect(quoteButton().style.top).toBe('325px');
   });
 
   it('shows above a selection', () => {
