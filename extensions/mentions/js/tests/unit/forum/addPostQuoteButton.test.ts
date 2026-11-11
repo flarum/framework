@@ -439,6 +439,20 @@ describe('the quote button', () => {
     expect(quoteButton().style.top).toBe('390px');
   });
 
+  it('retains the fallback when a centered quote would crowd the endpoints', () => {
+    const element = renderPost();
+    selectByTouch(element, [{ left: 110, right: 260, top: 300, bottom: 320 }]);
+
+    expect(quoteButton().style.top).toBe('390px');
+  });
+
+  it('places a full-line quote above when the close-below position is off-screen', () => {
+    const element = renderPost();
+    selectByTouch(element, [{ left: 15, right: 360, top: 650, bottom: 670 }]);
+
+    expect(quoteButton().style.top).toBe('544px');
+  });
+
   it('clears both endpoints when inline formatting splits the selected line', () => {
     const element = renderPost();
     selectByTouch(element, [
