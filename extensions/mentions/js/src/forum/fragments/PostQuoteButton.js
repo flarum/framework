@@ -112,9 +112,13 @@ export default class PostQuoteButton extends Fragment {
     const width = $this.outerWidth();
     const inlineTop = lastRect.top + (lastRect.bottom - lastRect.top - height) / 2;
     const maxLeft = document.documentElement.clientWidth - width - VIEWPORT_MARGIN;
-    const candidates = [lastRect.right + TOUCH_HANDLE_GAP, lastRect.left - width - TOUCH_HANDLE_GAP];
-    if (lastRect.right - lastRect.left >= width + 2 * TOUCH_HANDLE_GAP) {
-      candidates.push((lastRect.left + lastRect.right - width) / 2);
+    // Formatting can split one line across several client rectangles.
+    const sameLine = firstRect.top < lastRect.bottom && firstRect.bottom > lastRect.top;
+    const lineLeft = sameLine ? Math.min(firstRect.left, lastRect.left) : lastRect.left;
+    const lineRight = sameLine ? Math.max(firstRect.right, lastRect.right) : lastRect.right;
+    const candidates = [lineRight + TOUCH_HANDLE_GAP, lineLeft - width - TOUCH_HANDLE_GAP];
+    if (lineRight - lineLeft >= width + 2 * TOUCH_HANDLE_GAP) {
+      candidates.push((lineLeft + lineRight - width) / 2);
     }
     const inlineLeft = candidates.find((left) => left >= VIEWPORT_MARGIN && left <= maxLeft);
 

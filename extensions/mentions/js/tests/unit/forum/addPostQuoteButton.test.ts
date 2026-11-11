@@ -366,6 +366,20 @@ describe('the quote button', () => {
     expect(top + BUTTON_HEIGHT).toBeGreaterThan(300);
   });
 
+  it('clears both endpoints when inline formatting splits the selected line', () => {
+    const element = renderPost();
+    selectByTouch(element, [
+      { left: 170, right: 200, top: 300, bottom: 320 },
+      { left: 200, right: 260, top: 300, bottom: 320 },
+    ]);
+
+    const left = parseFloat(quoteButton().style.left);
+    const top = parseFloat(quoteButton().style.top);
+    expect(left + BUTTON_WIDTH).toBeLessThanOrEqual(154);
+    expect(top).toBeLessThan(320);
+    expect(top + BUTTON_HEIGHT).toBeGreaterThan(300);
+  });
+
   it('shows above a selection made by touch when there is no room below it', () => {
     const element = renderPost();
 
