@@ -53,6 +53,12 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
   showing = false;
   closeWatcher?: CloseWatcher;
 
+  /**
+   * The elements last sized and filled in by `onresize()` and
+   * `updateScrubberValues()`, outside of rendering.
+   */
+  protected syncedElements: Element[] = [];
+
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
@@ -198,6 +204,12 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
       this.stream.forceUpdateScrubber = false;
       this.stream.loadPromise?.then(() => this.updateScrubberValues({ animate: true, forceHeightChange: true }));
     }
+
+    // Extension items coming and going can make Mithril rebuild those elements.
+    if (this.syncedElementsReplaced()) {
+      this.onresize();
+      this.updateScrubberValues({ forceHeightChange: true });
+    }
   }
 
   oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
@@ -230,25 +242,27 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
       .on('resize', (this.handlers.onresize = this.onresize.bind(this)))
       .trigger('resize');
 
-    this.$('.Scrubber-scrollbar')
-      .on('click', this.onclick.bind(this))
+    // Delegated from the root, so they still apply when Mithril rebuilds the
+    // track or the handle.
+    this.$()
+      .on('click', '.Scrubber-scrollbar', this.onclick.bind(this))
       // Keep the browser's own drag and text selection out of the way.
-      .on('dragstart mousedown touchstart', (e) => e.preventDefault());
+      .on('dragstart mousedown touchstart', '.Scrubber-scrollbar', (e) => e.preventDefault())
+      .on('mousedown touchstart', '.Scrubber-handle', this.onmousedown.bind(this))
+      // Clicking the handle should not jump like clicking the track does.
+      .on('click', '.Scrubber-handle', (e) => e.stopPropagation());
 
     this.dragging = false;
     this.mouseStart = 0;
     this.indexStart = 0;
-
-    this.$('.Scrubber-handle')
-      .on('mousedown touchstart', this.onmousedown.bind(this))
-      // Clicking the handle should not jump like clicking the track does.
-      .on('click', (e) => e.stopPropagation());
 
     $(document)
       .on('mousemove touchmove', (this.handlers.onmousemove = this.onmousemove.bind(this)))
       .on('mouseup touchend', (this.handlers.onmouseup = this.onmouseup.bind(this)));
 
     setTimeout(() => this.scrollListener.start());
+
+    this.syncedElementsReplaced();
 
     this.stream.loadPromise?.then(() => this.updateScrubberValues({ animate: false, forceHeightChange: true }));
   }
@@ -342,7 +356,9 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
     // Pixels dragged → percent of the track → posts, relative to the drag start.
     const deltaPixels = (e.clientY || (e.originalEvent as TouchEvent).touches[0].clientY) - this.mouseStart;
     const deltaPercent = (deltaPixels / this.$('.Scrubber-scrollbar').outerHeight()!) * 100;
-    const deltaIndex = deltaPercent / this.percentPerPost().index || 0;
+    const percentPerPost = this.percentPerPost().index;
+    // A handle that fills the track leaves nothing to scrub through.
+    const deltaIndex = percentPerPost ? deltaPercent / percentPerPost || 0 : 0;
     const newIndex = Math.min(this.indexStart + deltaIndex, this.stream.count() - 1);
 
     this.stream.index = Math.max(0, newIndex);
@@ -353,12 +369,17 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
     this.$().toggleClass('dragging', this.dragging);
     if (!this.dragging) return;
 
+    const moved = this.stream.index !== this.indexStart;
+
     this.mouseStart = 0;
     this.indexStart = 0;
     this.dragging = false;
     $('body').css('cursor', '');
 
     this.$().removeClass('open');
+
+    // Pressing and releasing the handle in place is not a drag.
+    if (!moved) return;
 
     // Also loads the posts if the drag ended in a gap.
     const intIndex = Math.floor(this.stream.index);
@@ -379,6 +400,19 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
     this.updateScrubberValues({ animate: true, forceHeightChange: true });
 
     this.$().removeClass('open');
+  }
+
+  /**
+   * Whether any element sized or filled in outside of rendering has been
+   * replaced since the last check.
+   */
+  protected syncedElementsReplaced(): boolean {
+    const elements = this.$('.Scrubber-scrollbar, .Scrubber-before, .Scrubber-handle, .Scrubber-after, .Scrubber-index, .Scrubber-description').get();
+    const replaced = elements.length !== this.syncedElements.length || elements.some((element, i) => element !== this.syncedElements[i]);
+
+    this.syncedElements = elements;
+
+    return replaced;
   }
 
   /**

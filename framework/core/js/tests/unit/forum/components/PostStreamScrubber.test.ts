@@ -35,11 +35,14 @@ function mount<T extends PostStreamScrubber>(component: { prototype: T }, attrs:
   const root = document.createElement('div');
   document.body.appendChild(root);
 
-  const vnode = m(component as any, { stream: fakeStream(), ...attrs });
+  const fullAttrs = { stream: fakeStream(), ...attrs };
+  const vnode = m(component as any, fullAttrs);
   m.render(root, vnode);
   mounted.push(root);
 
-  return { root, scrubber: vnode.state as T };
+  const redraw = () => m.render(root, m(component as any, fullAttrs));
+
+  return { root, scrubber: vnode.state as T, redraw };
 }
 
 function childClasses(element: Element | null): string[] {
@@ -171,24 +174,97 @@ describe('PostStreamScrubber', () => {
     expect(scrubber.percentPerPost().visible).toBeCloseTo(50 / 3);
   });
 
-  test('keeps dragging forwards when the minimum handle height exceeds the track', () => {
-    class TallHandleScrubber extends PostStreamScrubber {
-      static minHandleHeight = 150;
+  describe('dragging the handle', () => {
+    function drag(scrubber: PostStreamScrubber, pixels: number) {
+      scrubber.onmousedown({ clientY: 100 } as any);
+      scrubber.onmousemove({ clientY: 100 + pixels } as any);
     }
 
-    trackHeight = 100;
+    test('moves by the posts the dragged distance covers', () => {
+      const { scrubber } = mount(PostStreamScrubber);
+      const { index: percentPerPost } = scrubber.percentPerPost();
 
-    const { scrubber } = mount(TallHandleScrubber);
-    const start = scrubber.stream.index;
+      // 30px of the 300px track is 10% of it.
+      drag(scrubber, 30);
 
-    expect(scrubber.percentPerPost().index).toBeGreaterThanOrEqual(0);
-    expect(scrubber.percentPerPost().visible * scrubber.stream.visible).toBeLessThanOrEqual(100);
+      expect(scrubber.stream.index).toBeCloseTo(5 + 10 / percentPerPost);
 
-    scrubber.onmousedown({ clientY: 100 } as any);
-    scrubber.onmousemove({ clientY: 110 } as any);
-    scrubber.onmouseup();
+      scrubber.onmouseup();
 
-    expect(scrubber.stream.index).toBeGreaterThanOrEqual(start);
+      expect(scrubber.stream.goToIndex).toHaveBeenCalledWith(Math.floor(5 + 10 / percentPerPost));
+    });
+
+    test.each([1, 10, -10])('stays put by %ipx when the handle fills the track', (pixels) => {
+      class TallHandleScrubber extends PostStreamScrubber {
+        static minHandleHeight = 150;
+      }
+
+      trackHeight = 100;
+
+      const { scrubber } = mount(TallHandleScrubber);
+
+      expect(scrubber.percentPerPost().visible * scrubber.stream.visible).toBe(100);
+
+      drag(scrubber, pixels);
+
+      expect(scrubber.stream.index).toBe(5);
+
+      scrubber.onmouseup();
+
+      expect(scrubber.stream.index).toBe(5);
+      expect(scrubber.stream.goToIndex).not.toHaveBeenCalled();
+    });
+
+    test('does not navigate when the handle is pressed and released in place', () => {
+      const { scrubber } = mount(PostStreamScrubber);
+
+      drag(scrubber, 0);
+      scrubber.onmouseup();
+
+      expect(scrubber.stream.index).toBe(5);
+      expect(scrubber.stream.goToIndex).not.toHaveBeenCalled();
+    });
+  });
+
+  describe.each([
+    ['scrubberItems', 50],
+    ['scrollbarItems', 90],
+  ] as const)('when an extension item in %s comes and goes', (list, priority) => {
+    test('the scrubber can still be dragged and clicked', async () => {
+      let showExtra = true;
+
+      class ToggledScrubber extends PostStreamScrubber {}
+
+      extend(ToggledScrubber.prototype, list, function (items: ItemList<Mithril.Children>) {
+        if (showExtra) items.add('extra', m('button.Scrubber-extra', 'Extra'), priority);
+      });
+
+      const { root, scrubber, redraw } = mount(ToggledScrubber);
+      await scrubber.stream.loadPromise;
+
+      const originalHandle = root.querySelector('.Scrubber-handle');
+
+      showExtra = false;
+      redraw();
+
+      const handle = root.querySelector<HTMLElement>('.Scrubber-handle')!;
+
+      // Mithril rebuilt the handle, which is what puts its handlers and sizing at risk.
+      expect(handle).not.toBe(originalHandle);
+      expect(parseFloat(handle.style.height)).toBeCloseTo(16.6667);
+      expect(Array.from(root.querySelectorAll('.Scrubber-index')).map((el) => el.textContent)).toEqual(['5', '5']);
+
+      $(handle).trigger($.Event('mousedown', { clientY: 100 }));
+      $(document).trigger($.Event('mousemove', { clientY: 130 }));
+
+      expect(scrubber.stream.index).toBeGreaterThan(5);
+
+      $(document).trigger($.Event('mouseup'));
+      $(root.querySelector('.Scrubber-scrollbar')!).trigger($.Event('click', { pageY: 150 }));
+
+      expect(scrubber.stream.goToIndex).toHaveBeenCalledTimes(2);
+      expect((scrubber.stream.goToIndex as jest.Mock).mock.calls.every(([index]) => Number.isInteger(index))).toBe(true);
+    });
   });
 
   test('tears down the close watcher when the dropdown hides', () => {
