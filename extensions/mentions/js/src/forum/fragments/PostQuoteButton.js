@@ -10,10 +10,8 @@ import reply from '../utils/reply';
 const VIEWPORT_MARGIN = 10;
 
 /**
- * The space kept between the button and a selection made by touch. Mobile
- * browsers draw their own selection handles and text menu (Copy, Look Up, ...)
- * right next to the selection, on top of the page, and anything beneath them
- * can't be tapped. This clears the handles and a menu shown on the same side.
+ * Fallback clearance for a native menu when the button cannot fit on the
+ * selected line, beside or between its handles.
  */
 const TOUCH_GAP = 70;
 const TOUCH_HANDLE_GAP = 16;
@@ -114,9 +112,11 @@ export default class PostQuoteButton extends Fragment {
     const width = $this.outerWidth();
     const inlineTop = lastRect.top + (lastRect.bottom - lastRect.top - height) / 2;
     const maxLeft = document.documentElement.clientWidth - width - VIEWPORT_MARGIN;
-    const inlineLeft = [lastRect.right + TOUCH_HANDLE_GAP, lastRect.left - width - TOUCH_HANDLE_GAP].find(
-      (left) => left >= VIEWPORT_MARGIN && left <= maxLeft
-    );
+    const candidates = [lastRect.right + TOUCH_HANDLE_GAP, lastRect.left - width - TOUCH_HANDLE_GAP];
+    if (lastRect.right - lastRect.left >= width + 2 * TOUCH_HANDLE_GAP) {
+      candidates.push((lastRect.left + lastRect.right - width) / 2);
+    }
+    const inlineLeft = candidates.find((left) => left >= VIEWPORT_MARGIN && left <= maxLeft);
 
     if (fits(inlineTop) && inlineLeft !== undefined) {
       this.show(inlineLeft, $(window).scrollTop() + inlineTop);
