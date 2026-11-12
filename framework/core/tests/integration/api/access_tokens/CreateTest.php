@@ -9,7 +9,9 @@
 
 namespace Flarum\Tests\integration\api\access_tokens;
 
+use Carbon\Carbon;
 use Flarum\Group\Group;
+use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -41,6 +43,9 @@ class CreateTest extends TestCase
             'group_permission' => [
                 ['permission' => 'createAccessToken', 'group_id' => 10]
             ],
+            AccessToken::class => [
+                ['id' => 1, 'token' => 'a', 'user_id' => 1, 'last_activity_at' => Carbon::now(), 'type' => 'developer'],
+            ],
         ]);
     }
 
@@ -63,6 +68,30 @@ class CreateTest extends TestCase
         );
 
         $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+    }
+
+    #[Test]
+    public function user_can_create_developer_tokens_with_a_token_header()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/access-tokens', [
+                'json' => [
+                    'data' => [
+                        'type' => 'access-tokens',
+                        'attributes' => [
+                            'title' => 'Script'
+                        ]
+                    ]
+                ]
+            ])->withAddedHeader('Authorization', 'Token a')
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $attributes = json_decode((string) $response->getBody(), true)['data']['attributes'];
+
+        $this->assertNotEmpty($attributes['token']);
+        $this->assertFalse($attributes['isCurrent']);
     }
 
     #[Test]
