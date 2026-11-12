@@ -320,6 +320,7 @@ PHP, '2026_01_01_000002_rating');
     {
         $this->assertInstallerCondition("\\Flarum\\Condition::setting('show_language_selector', true, strict: true)");
     }
+
     public static function installerDefaultDeclarations(): iterable
     {
         yield 'direct' => ["[(new \\Flarum\\Extend\\Settings())->default('acme.feature', true)]"];
@@ -394,5 +395,4 @@ PHP);
         $this->migrator->reset($this->path);
         $this->assertFalse($this->db->getSchemaBuilder()->hasTable('integration'));
     }
-
 }

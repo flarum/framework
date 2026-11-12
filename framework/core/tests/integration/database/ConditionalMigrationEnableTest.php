@@ -177,8 +177,10 @@ PHP);
         $this->package('provider', "return \\Flarum\\Database\\Migration::addSettings(['provider_ready' => '1']);");
         $manager = $this->manager();
         $manager->enable('acme-integration');
-        file_put_contents($this->path.'/vendor/acme/integration/migrations/2026_01_01_000002_update.php',
-            "<?php return \\Flarum\\Database\\Migration::addSettings(['unrelated_update' => '1']);");
+        file_put_contents(
+            $this->path.'/vendor/acme/integration/migrations/2026_01_01_000002_update.php',
+            "<?php return \\Flarum\\Database\\Migration::addSettings(['unrelated_update' => '1']);"
+        );
 
         $manager->enable('acme-provider');
 
@@ -231,6 +233,7 @@ PHP, ['acme/provider']);
         $this->assertFalse($manager->isEnabled('acme-provider'));
         $this->assertSame('1', $this->database()->table('settings')->where('key', 'fallback_ready')->value('value'));
     }
+
     #[Test]
     public function failed_disable_reconciliation_preserves_enabled_state(): void
     {
@@ -366,5 +369,4 @@ PHP), ['acme/provider']);
 
         $this->assertSame('1', $this->database()->table('settings')->where('key', 'harness_integration_ready')->value('value'));
     }
-
 }
