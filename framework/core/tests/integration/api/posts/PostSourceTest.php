@@ -11,8 +11,8 @@ namespace Flarum\Tests\integration\api\posts;
 
 use Carbon\Carbon;
 use Flarum\Api\ApiKey;
-use Flarum\Discussion\Discussion;
 use Flarum\Api\Client;
+use Flarum\Discussion\Discussion;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
@@ -20,8 +20,8 @@ use Flarum\Post\PostSource;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
-use PHPUnit\Framework\Attributes\Test;
 use Laminas\Diactoros\ServerRequest;
+use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 
 class PostSourceTest extends TestCase
