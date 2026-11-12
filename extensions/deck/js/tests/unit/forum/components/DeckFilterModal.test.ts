@@ -105,17 +105,17 @@ describe('DeckFilterModal', () => {
   });
 
   it('can say what was wrong with the query written', () => {
-    open('group:mods is:unread', (query: string) => `Can't use ${query}`);
+    open('email:admin is:unread', (query: string) => `Can't use ${query}`);
 
     useButton().click();
     m.redraw.sync();
 
-    expect(root.querySelector('.DeckFilterModal-error')?.textContent).toBe("Can't use group:mods is:unread");
+    expect(root.querySelector('.DeckFilterModal-error')?.textContent).toBe("Can't use email:admin is:unread");
   });
 
   // It names what was wrong with that query, which no longer holds once edited.
   it('stops showing the error once the query changes', () => {
-    open('group:mods is:unread', (query: string) => `Can't use ${query}`);
+    open('email:admin is:unread', (query: string) => `Can't use ${query}`);
 
     useButton().click();
     m.redraw.sync();
