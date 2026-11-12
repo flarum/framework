@@ -6,6 +6,7 @@ import username from 'flarum/common/helpers/username';
 import MessageStreamState from '../states/MessageStreamState';
 import Avatar from 'flarum/common/components/Avatar';
 import GroupBadge from 'flarum/common/components/GroupBadge';
+import type Group from 'flarum/common/models/Group';
 import Link from 'flarum/common/components/Link';
 import app from 'flarum/forum/app';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -70,23 +71,32 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
     );
   }
 
-  /** The other member's avatar; in a group, the first few of the others'. */
+  /** How many of a group's groups and members the header shows before counting the rest. */
+  static HEADER_AVATARS = 3;
+
+  /**
+   * The other member's avatar; in a group, the groups it is addressed to and
+   * then the other members, as overlapping tiles of one size, the first few
+   * shown and the rest counted.
+   */
   headerAvatar(): Mithril.Children {
     const dialog = this.attrs.dialog;
 
     if (dialog.isGroup()) {
+      const groups = (dialog.groups() || []).filter((group): group is Group => !!group);
+      const users = dialog.recipients();
+      const shown = DialogSection.HEADER_AVATARS;
+      const hidden = groups.length + users.length - shown;
+
       return (
         <div className="DialogSection-header-avatars">
-          {(dialog.groups() || [])
-            .filter(Boolean)
-            .slice(0, 3)
-            .map((group) => group && <GroupBadge group={group} />)}
-          {dialog
-            .recipients()
-            .slice(0, 3)
-            .map((user) => (
-              <Avatar user={user} />
-            ))}
+          {groups.slice(0, shown).map((group) => (
+            <GroupBadge group={group} label={group.namePlural()} className="DialogSection-header-group" />
+          ))}
+          {users.slice(0, Math.max(shown - groups.length, 0)).map((user) => (
+            <Avatar user={user} />
+          ))}
+          {hidden > 0 && <span className="DialogSection-header-more">+{hidden}</span>}
         </div>
       );
     }
