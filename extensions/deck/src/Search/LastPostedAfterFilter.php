@@ -11,7 +11,7 @@ namespace Flarum\Deck\Search;
 
 use Carbon\Carbon;
 use Flarum\Search\Database\DatabaseSearchState;
-use Flarum\Search\Filter\FilterInterface;
+use Flarum\Search\Filter\WindowFilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 use Throwable;
@@ -20,11 +20,12 @@ use Throwable;
  * Discussions with a post newer than the given time. Deck columns send the
  * newest `lastPostedAt` they're showing (a server timestamp, so client clocks
  * don't matter) to ask "anything since?" as a range on an indexed column,
- * instead of re-running their whole query.
+ * instead of re-running their whole query. A window of the column's list, not
+ * another list: All Discussions still hides what it hides.
  *
- * @implements FilterInterface<DatabaseSearchState>
+ * @implements WindowFilterInterface<DatabaseSearchState>
  */
-class LastPostedAfterFilter implements FilterInterface
+class LastPostedAfterFilter implements WindowFilterInterface
 {
     use ValidateFilterTrait;
 
