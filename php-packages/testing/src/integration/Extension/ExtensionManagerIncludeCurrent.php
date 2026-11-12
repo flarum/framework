@@ -91,10 +91,28 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     public function getEnabledExtensions(): array
     {
+        $selected = parent::getEnabledExtensions();
+
+        // The current and monorepo extensions have their required dependencies cleared, so `enable()`
+        // does not insist on them. Sort copies with dependencies limited to the selected extensions,
+        // so required ones still count for the order and missing ones do not drop anything.
+        $selectedNames = [];
+
+        foreach ($selected as $extension) {
+            $selectedNames[$extension->name] = true;
+        }
+
+        $copies = array_map(function (Extension $extension) use ($selectedNames) {
+            $copy = clone $extension;
+            $copy->calculateDependencies($selectedNames);
+
+            return $copy;
+        }, $selected);
+
         $enabled = [];
 
-        foreach ($this->sortDependencies(parent::getEnabledExtensions()) as $extension) {
-            $enabled[$extension->getId()] = $extension;
+        foreach ($this->sortDependencies($copies) as $copy) {
+            $enabled[$copy->getId()] = $selected[$copy->getId()];
         }
 
         return $enabled;
