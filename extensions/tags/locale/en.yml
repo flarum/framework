@@ -81,6 +81,10 @@ flarum-tags:
       secondary_heading: Secondary Tags
       settings_heading: Settings
 
+  # Translations in this namespace are returned by the API.
+  api:
+    cannot_change_is_primary_message: A tag is made primary or secondary by changing the tag order.
+
   # Translations in this namespace are used by the forum user interface.
   forum:
 
