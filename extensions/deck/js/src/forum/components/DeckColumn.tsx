@@ -161,6 +161,14 @@ export default class DeckColumn<CustomAttrs extends IDeckColumnAttrs = IDeckColu
       items.add('sourceControls', sourceControls.toArray(), 90);
     }
 
+    items.add(
+      'edit',
+      <Button icon="fas fa-pen" onclick={() => app.modal.show(() => import('./AddColumnModal'), { deck, column: column.config })}>
+        {app.translator.trans('flarum-deck.forum.column.edit_button')}
+      </Button>,
+      60
+    );
+
     items.add('separator', <Separator />, 50);
 
     // Widths only apply side by side; the phone layout hides this.

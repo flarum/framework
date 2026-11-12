@@ -44,6 +44,8 @@ export interface DeckColumnConfig {
   /** 0 or 1: Deck has up to two rows of columns. */
   row?: number;
   params: Record<string, string | number>;
+  /** A name the member gave the column, shown instead of its title. */
+  name?: string;
 }
 
 /**

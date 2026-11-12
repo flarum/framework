@@ -161,3 +161,207 @@ describe('what is already in the deck', () => {
     expect(attrs.isAdded(app.store.getById('users', '22'))).toBe(false);
   });
 });
+
+describe('editing a column', () => {
+  function mount(deck: DeckState, id: string) {
+    const column = deck.columns().find((column) => column.config.id === id)!.config;
+
+    m.mount(root, {
+      view: () => m(AddColumnModal, { state: new ModalManagerState(), animateShow: () => {}, animateHide: () => {}, deck, column }),
+    });
+  }
+
+  const submit = () => {
+    root.querySelector<HTMLFormElement>('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    m.redraw.sync();
+  };
+
+  const rename = (name: string) => {
+    const input = root.querySelector<HTMLInputElement>('#AddColumnModal-name')!;
+    input.value = name;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  it('starts from the column’s settings and name, without opening the filter window', async () => {
+    setLayout([{ id: 'f', type: 'filter', width: 280, row: 0, params: { query: 'tag:support is:unread' }, name: 'Support' }]);
+    const show = jest.spyOn(app.modal, 'show').mockImplementation(async () => {});
+    mount(new DeckState(), 'f');
+    await settle();
+    m.redraw.sync();
+
+    expect(show).not.toHaveBeenCalled();
+    expect(root.querySelector('.AddColumnModal-type')).toBeNull();
+    expect(root.querySelector('.AddColumnModal-pickValue')?.textContent).toBe('tag:support is:unread');
+    expect(root.querySelector<HTMLInputElement>('#AddColumnModal-name')!.value).toBe('Support');
+    // It can't become another kind of column.
+    expect(root.textContent).not.toContain('Back');
+  });
+
+  it('saves new filters and a name to the same column', async () => {
+    setLayout([{ id: 'f', type: 'filter', width: 280, row: 0, params: { query: 'is:unread' } }]);
+    const deck = new DeckState();
+    const edit = jest.spyOn(deck, 'editColumn').mockImplementation(() => {});
+    const add = jest.spyOn(deck, 'addColumn');
+    const show = jest.spyOn(app.modal, 'show').mockImplementation(async () => {});
+    mount(deck, 'f');
+
+    // Shows the type's own title until it's given a name.
+    expect(root.querySelector<HTMLInputElement>('#AddColumnModal-name')!.placeholder).toBe('is:unread');
+
+    root.querySelector<HTMLButtonElement>('.AddColumnModal-pick')!.click();
+    await settle();
+
+    const [, attrs] = show.mock.calls[0] as any[];
+    expect(attrs.value).toBe('is:unread');
+    attrs.onapply('is:unread -author:normal');
+
+    rename('Mine to read');
+    submit();
+
+    expect(add).not.toHaveBeenCalled();
+    expect(edit).toHaveBeenCalledWith('f', { params: { query: 'is:unread -author:normal' }, name: 'Mine to read' });
+  });
+
+  it('only renames a column with no settings', () => {
+    setLayout([{ id: 'u', type: 'unread', width: 280, row: 0, params: {} }]);
+    const deck = new DeckState();
+    const edit = jest.spyOn(deck, 'editColumn').mockImplementation(() => {});
+    mount(deck, 'u');
+
+    expect(root.querySelectorAll('input').length).toBe(1);
+
+    rename('Catch up');
+    submit();
+
+    expect(edit).toHaveBeenCalledWith('u', { params: {}, name: 'Catch up' });
+  });
+
+  it('keeps a member the column was already for, unless another is picked', () => {
+    app.store.pushPayload({ data: [{ type: 'users', id: '31', attributes: { username: 'user31', displayName: 'User 31' } }] } as any);
+
+    const memberType = Object.keys(deckColumnTypes.toObject()).find(
+      (key) => deckColumnTypes.get(key).fields?.()[0]?.search?.source().resource === 'users'
+    )!;
+    const params = deckColumnTypes.get(memberType).fields!()[0].search!.params(app.store.getById('users', '31')!);
+
+    setLayout([{ id: 'm', type: memberType, width: 280, row: 0, params }]);
+    const deck = new DeckState();
+    const edit = jest.spyOn(deck, 'editColumn').mockImplementation(() => {});
+    mount(deck, 'm');
+
+    expect(root.querySelector('.AddColumnModal-pickValue')?.textContent).toContain('User 31');
+
+    submit();
+
+    expect(root.querySelector('.AddColumnModal-error')).toBeNull();
+    expect(edit).toHaveBeenCalledWith('m', { params, name: '' });
+  });
+
+  it('takes a new pick in one of two search fields', async () => {
+    app.store.pushPayload({
+      data: ['41', '42', '43'].map((id) => ({ type: 'users', id, attributes: { username: `user${id}`, displayName: `User ${id}` } })),
+    } as any);
+
+    if (!deckColumnTypes.has('test-pair')) {
+      const field = (key: string) => ({
+        key,
+        label: key,
+        search: { source: () => ({ resource: 'users' }) as any, label: (user: any) => user.displayName(), params: (user: any) => ({ [key]: user.id() }) },
+      });
+
+      deckColumnTypes.add('test-pair', {
+        icon: 'fas fa-vial',
+        label: () => 'Pair',
+        title: () => 'Pair',
+        isAvailable: () => true,
+        fields: () => [field('first'), field('second')],
+        createSource: () => ({}) as any,
+      } as any);
+    }
+
+    setLayout([{ id: 'p', type: 'test-pair', width: 280, row: 0, params: { first: '41', second: '42' } }]);
+    const deck = new DeckState();
+    const edit = jest.spyOn(deck, 'editColumn').mockImplementation(() => {});
+    const show = jest.spyOn(app.modal, 'show').mockImplementation(async () => {});
+    mount(deck, 'p');
+
+    root.querySelector<HTMLButtonElement>('#AddColumnModal-first')!.click();
+    await settle();
+    (show.mock.calls[0] as any[])[1].onpick(app.store.getById('users', '43'));
+    submit();
+
+    expect(edit).toHaveBeenCalledWith('p', { params: { first: '43', second: '42' }, name: '' });
+  });
+
+  it('replaces everything an earlier pick saved when its only search field is picked again', async () => {
+    app.store.pushPayload({ data: [{ type: 'users', id: '51', attributes: { username: 'user51', displayName: 'User 51' } }] } as any);
+
+    if (!deckColumnTypes.has('test-shape')) {
+      deckColumnTypes.add('test-shape', {
+        icon: 'fas fa-vial',
+        label: () => 'Shape',
+        title: () => 'Shape',
+        isAvailable: () => true,
+        // Some results save more than others.
+        fields: () => [{ key: 'who', label: 'Who', search: { source: () => ({ resource: 'users' }) as any, label: () => '', params: (user: any) => ({ who: user.id() }) } }],
+        createSource: () => ({}) as any,
+      } as any);
+    }
+
+    setLayout([{ id: 's', type: 'test-shape', width: 280, row: 0, params: { who: '50', parent: '7' } }]);
+    const deck = new DeckState();
+    const edit = jest.spyOn(deck, 'editColumn').mockImplementation(() => {});
+    const show = jest.spyOn(app.modal, 'show').mockImplementation(async () => {});
+    mount(deck, 's');
+
+    root.querySelector<HTMLButtonElement>('.AddColumnModal-pick')!.click();
+    await settle();
+    (show.mock.calls[0] as any[])[1].onpick(app.store.getById('users', '51'));
+    submit();
+
+    expect(edit).toHaveBeenCalledWith('s', { params: { who: '51' }, name: '' });
+  });
+
+  it('starts a select it has no saved value for on its first option, as when adding', () => {
+    if (!deckColumnTypes.has('test-select')) {
+      deckColumnTypes.add('test-select', {
+        icon: 'fas fa-vial',
+        label: () => 'Select',
+        title: () => 'Select',
+        isAvailable: () => true,
+        // A field added after columns of this type were saved.
+        fields: () => [{ key: 'order', label: 'Order', options: () => ({ newest: 'Newest', oldest: 'Oldest' }) }],
+        createSource: () => ({}) as any,
+      } as any);
+    }
+
+    setLayout([{ id: 'o', type: 'test-select', width: 280, row: 0, params: [] as any }]);
+    const deck = new DeckState();
+    const edit = jest.spyOn(deck, 'editColumn').mockImplementation(() => {});
+    mount(deck, 'o');
+
+    submit();
+
+    expect(root.querySelector('.AddColumnModal-error')).toBeNull();
+    expect(edit).toHaveBeenCalledWith('o', { params: { order: 'newest' }, name: '' });
+  });
+
+  it('doesn’t count the column being edited as already in the deck', async () => {
+    app.store.pushPayload({ data: [{ type: 'users', id: '32', attributes: { username: 'user32', displayName: 'User 32' } }] } as any);
+
+    const memberType = Object.keys(deckColumnTypes.toObject()).find(
+      (key) => deckColumnTypes.get(key).fields?.()[0]?.search?.source().resource === 'users'
+    )!;
+    const params = deckColumnTypes.get(memberType).fields!()[0].search!.params(app.store.getById('users', '32')!);
+
+    setLayout([{ id: 'm', type: memberType, width: 280, row: 0, params }]);
+    const show = jest.spyOn(app.modal, 'show').mockImplementation(async () => {});
+    mount(new DeckState(), 'm');
+
+    root.querySelector<HTMLButtonElement>('.AddColumnModal-pick')!.click();
+    await settle();
+
+    const [, attrs] = show.mock.calls[0] as any[];
+    expect(attrs.isAdded(app.store.getById('users', '32'))).toBe(false);
+  });
+});

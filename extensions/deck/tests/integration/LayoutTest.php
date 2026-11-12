@@ -66,6 +66,40 @@ class LayoutTest extends TestCase
         );
     }
 
+    public function test_a_column_can_have_a_name_of_its_own(): void
+    {
+        $columns = [
+            ['id' => 'a1', 'type' => 'filter', 'width' => 280, 'row' => 0, 'params' => ['q' => 'tag:support is:unread'], 'name' => 'Support to do'],
+        ];
+
+        $this->saveLayout(2, $columns);
+
+        $this->assertEquals($columns, $this->storedLayout(2));
+    }
+
+    public function test_column_names_are_trimmed_and_kept_short(): void
+    {
+        $this->saveLayout(2, [
+            ['id' => 'a', 'type' => 'all', 'name' => '  Équipe  '],
+            ['id' => 'b', 'type' => 'all', 'name' => str_repeat('é', 70)],
+        ]);
+
+        $this->assertEquals(['Équipe', str_repeat('é', 60)], array_column($this->storedLayout(2), 'name'));
+    }
+
+    public function test_an_empty_or_invalid_name_leaves_the_column_unnamed(): void
+    {
+        $this->saveLayout(2, [
+            ['id' => 'a', 'type' => 'all', 'name' => '   '],
+            ['id' => 'b', 'type' => 'all', 'name' => ['nested']],
+            ['id' => 'c', 'type' => 'all', 'name' => 42],
+        ]);
+
+        foreach ($this->storedLayout(2) as $column) {
+            $this->assertArrayNotHasKey('name', $column);
+        }
+    }
+
     public function test_widths_are_kept_within_bounds(): void
     {
         $this->saveLayout(2, [
