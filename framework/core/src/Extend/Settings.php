@@ -108,6 +108,12 @@ class Settings implements ExtenderInterface
         return $this;
     }
 
+    /** @internal */
+    public function getDefaults(): array
+    {
+        return $this->defaults;
+    }
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
         if (! empty($this->defaults)) {

@@ -21,9 +21,10 @@ use Illuminate\Database\Schema\Builder;
  */
 abstract class Migration
 {
-    public static function createTable(string $name, callable $definition): array
+    public static function createTable(string $name, callable $definition, callable|bool|null $shouldRun = null): array
     {
         return [
+            ...($shouldRun === null ? [] : ['shouldRun' => $shouldRun]),
             'up' => function (Builder $schema) use ($name, $definition) {
                 $schema->create($name, function (Blueprint $table) use ($definition, $schema) {
                     $definition($table, $schema);
@@ -35,9 +36,10 @@ abstract class Migration
         ];
     }
 
-    public static function createTableIfNotExists(string $name, callable $definition): array
+    public static function createTableIfNotExists(string $name, callable $definition, callable|bool|null $shouldRun = null): array
     {
         return [
+            ...($shouldRun === null ? [] : ['shouldRun' => $shouldRun]),
             'up' => function (Builder $schema) use ($name, $definition) {
                 if (! $schema->hasTable($name)) {
                     $schema->create($name, function (Blueprint $table) use ($definition, $schema) {
@@ -51,9 +53,10 @@ abstract class Migration
         ];
     }
 
-    public static function renameTable(string $from, string $to): array
+    public static function renameTable(string $from, string $to, callable|bool|null $shouldRun = null): array
     {
         return [
+            ...($shouldRun === null ? [] : ['shouldRun' => $shouldRun]),
             'up' => function (Builder $schema) use ($from, $to) {
                 $schema->rename($from, $to);
             },
@@ -63,9 +66,10 @@ abstract class Migration
         ];
     }
 
-    public static function addColumns(string $tableName, array $columnDefinitions): array
+    public static function addColumns(string $tableName, array $columnDefinitions, callable|bool|null $shouldRun = null): array
     {
         return [
+            ...($shouldRun === null ? [] : ['shouldRun' => $shouldRun]),
             'up' => function (Builder $schema) use ($tableName, $columnDefinitions) {
                 $schema->table($tableName, function (Blueprint $table) use ($columnDefinitions) {
                     foreach ($columnDefinitions as $columnName => $options) {
@@ -82,24 +86,26 @@ abstract class Migration
         ];
     }
 
-    public static function dropColumns(string $tableName, array $columnDefinitions): array
+    public static function dropColumns(string $tableName, array $columnDefinitions, callable|bool|null $shouldRun = null): array
     {
         $inverse = static::addColumns($tableName, $columnDefinitions);
 
         return [
+            ...($shouldRun === null ? [] : ['shouldRun' => $shouldRun]),
             'up' => $inverse['down'],
             'down' => $inverse['up']
         ];
     }
 
-    public static function renameColumn(string $tableName, string $from, string $to): array
+    public static function renameColumn(string $tableName, string $from, string $to, callable|bool|null $shouldRun = null): array
     {
-        return static::renameColumns($tableName, [$from => $to]);
+        return static::renameColumns($tableName, [$from => $to], $shouldRun);
     }
 
-    public static function renameColumns(string $tableName, array $columnNames): array
+    public static function renameColumns(string $tableName, array $columnNames, callable|bool|null $shouldRun = null): array
     {
         return [
+            ...($shouldRun === null ? [] : ['shouldRun' => $shouldRun]),
             'up' => function (Builder $schema) use ($tableName, $columnNames) {
                 foreach ($columnNames as $from => $to) {
                     $schema->table($tableName, function (Blueprint $table) use ($from, $to) {
@@ -123,9 +129,10 @@ abstract class Migration
      * You generally should use the Settings extender's `default` method instead to register settings.
      * @see Settings::default()
      */
-    public static function addSettings(array $defaults): array
+    public static function addSettings(array $defaults, callable|bool|null $shouldRun = null): array
     {
         return [
+            ...($shouldRun === null ? [] : ['shouldRun' => $shouldRun]),
             'up' => function (Builder $schema) use ($defaults) {
                 $settings = new DatabaseSettingsRepository(
                     $schema->getConnection()
@@ -147,7 +154,7 @@ abstract class Migration
         ];
     }
 
-    public static function addPermissions(array $permissions): array
+    public static function addPermissions(array $permissions, callable|bool|null $shouldRun = null): array
     {
         $rows = [];
 
@@ -161,6 +168,7 @@ abstract class Migration
         }
 
         return [
+            ...($shouldRun === null ? [] : ['shouldRun' => $shouldRun]),
             'up' => function (Builder $schema) use ($rows) {
                 $db = $schema->getConnection();
 

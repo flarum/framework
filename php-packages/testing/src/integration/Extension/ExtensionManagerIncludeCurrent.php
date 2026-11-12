@@ -37,6 +37,9 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     public $booted = false;
 
+    protected bool $migrating = false;
+    protected array $migratedIds = [];
+
     public function __construct(
         SettingsRepositoryInterface $config,
         Paths $paths,
@@ -71,7 +74,7 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     public function isEnabled($extension): bool
     {
-        if (! $this->booted) {
+        if (! $this->booted && ! $this->migrating) {
             return false;
         }
 
@@ -83,7 +86,27 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     public function getEnabled(): array
     {
-        return $this->enabledIds;
+        return $this->migrating ? ($this->pendingEnabledExtensions ?? $this->migratedIds) : $this->enabledIds;
+    }
+
+    public function beginMigrationSetup(): void
+    {
+        $this->booted = false;
+        $this->migrating = true;
+        $this->migratedIds = [];
+    }
+
+    public function finishMigrationSetup(): void
+    {
+        $this->migrating = false;
+        $this->booted = true;
+    }
+
+    public function migrateConditional(): void
+    {
+        if (! $this->migrating && method_exists(ExtensionManager::class, 'migrateConditional')) {
+            parent::migrateConditional();
+        }
     }
 
     /**
@@ -119,10 +142,13 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
     }
 
     /**
-     * Enabled extensions must be specified by the test case, so this should do nothing.
+     * Persist migration-setup progress in memory; ordinary test toggles keep the selected set.
      */
     protected function setEnabledExtensions(array $enabledExtensions): void
     {
+        if ($this->migrating) {
+            $this->migratedIds = array_map(fn (Extension $extension) => $extension->getId(), $enabledExtensions);
+        }
     }
 
     /**

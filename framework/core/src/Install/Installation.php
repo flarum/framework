@@ -9,6 +9,7 @@
 
 namespace Flarum\Install;
 
+use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Illuminate\Database\ConnectionInterface;
 
@@ -166,7 +167,14 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\EnableBundledExtensions($this->db, $this->paths->vendor, $this->getAssetPath(), $this->enabledExtensions);
+            return new Steps\EnableBundledExtensions(
+                $this->db,
+                $this->paths->vendor,
+                $this->getAssetPath(),
+                $this->enabledExtensions,
+                $this->paths,
+                new Config(require $this->getConfigPath())
+            );
         });
 
         return $pipeline;

@@ -11,12 +11,21 @@ namespace Flarum\Database;
 
 use Flarum\Database\Exception\MigrationKeyMissing;
 use Flarum\Extension\Extension;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Install\DatabaseConfig;
+use Flarum\Settings\DatabaseSettingsRepository;
+use Flarum\Settings\DefaultSettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Container\Container as ContainerImplementation;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Schema\Builder;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 /**
  * @internal
@@ -28,14 +37,15 @@ class Migrator
     public function __construct(
         protected MigrationRepositoryInterface $repository,
         protected ConnectionInterface $connection,
-        protected Filesystem $files
+        protected Filesystem $files,
+        protected ?Container $container = null
     ) {
     }
 
     /**
      * Run the outstanding migrations at a given path.
      */
-    public function run(string $path, ?Extension $extension = null): void
+    public function run(string $path, ?Extension $extension = null, bool $conditionalOnly = false): void
     {
         $files = $this->getMigrationFiles($path);
 
@@ -43,10 +53,10 @@ class Migrator
 
         $migrations = array_diff($files, $ran);
 
-        $this->runMigrationList($path, $migrations, $extension);
+        $this->runMigrationList($path, $migrations, $extension, $conditionalOnly);
     }
 
-    public function runMigrationList(string $path, array $migrations, ?Extension $extension = null): void
+    public function runMigrationList(string $path, array $migrations, ?Extension $extension = null, bool $conditionalOnly = false): void
     {
         // First we will just make sure that there are any migrations to run. If there
         // aren't, we will just make a note of it to the developer so they're aware
@@ -60,14 +70,16 @@ class Migrator
         // Once we have the array of migrations, we will spin through them and run the
         // migrations "up" so the changes are made to the databases. We'll then log
         // that the migration was run so we don't repeat it next time we execute.
-        $this->runUpMigrations($migrations, $path, $extension);
+        $this->runUpMigrations($migrations, $path, $extension, $conditionalOnly);
     }
 
-    protected function runUpMigrations(array $migrations, string $path, ?Extension $extension = null): void
+    protected function runUpMigrations(array $migrations, string $path, ?Extension $extension = null, bool $conditionalOnly = false): void
     {
-        $process = function () use ($migrations, $path, $extension) {
+        $process = function () use ($migrations, $path, $extension, $conditionalOnly) {
             foreach ($migrations as $migration) {
-                $this->runUp($path, $migration, $extension);
+                if (! $this->runUp($path, $migration, $extension, $conditionalOnly)) {
+                    break;
+                }
             }
         };
 
@@ -98,16 +110,70 @@ class Migrator
     /**
      * Run "up" a migration instance.
      */
-    protected function runUp(string $path, string $file, ?Extension $extension = null): void
+    protected function runUp(string $path, string $file, ?Extension $extension = null, bool $conditionalOnly = false): bool
     {
-        $this->resolveAndRunClosureMigration($path, $file);
+        try {
+            $migration = $this->resolve($path, $file);
 
-        // Once we have run a migrations class, we will log that it was run in this
-        // repository so that we don't try to run it next time we do a migration
-        // in the application. A migration repository keeps the migrate order.
-        $this->repository->log($file, $extension?->getId());
+            if ($conditionalOnly && ! isset($migration['shouldRun'])) {
+                return false;
+            }
 
-        $this->note("<info>Migrated:</info> $file");
+            if (isset($migration['shouldRun']) && ! $this->shouldRun($migration['shouldRun'])) {
+                $this->note("<comment>Skipped:</comment> $file");
+
+                return true;
+            }
+
+            $this->runResolvedMigration($migration, $path, $file);
+
+            // Once we have run a migrations class, we will log that it was run in this
+            // repository so that we don't try to run it next time we do a migration
+            // in the application. A migration repository keeps the migrate order.
+            $this->repository->log($file, $extension?->getId());
+
+            $this->note("<info>Migrated:</info> $file");
+
+            return true;
+        } catch (Throwable $exception) {
+            if (! $conditionalOnly) {
+                throw $exception;
+            }
+
+            $owner = $extension?->getId() ?? 'core';
+
+            throw new RuntimeException("Conditional migration $owner:$file failed: ".$exception->getMessage(), 0, $exception);
+        }
+    }
+
+    protected function shouldRun(callable|bool $condition): bool
+    {
+        if (is_bool($condition)) {
+            return $condition;
+        }
+
+        $container = $this->container ?? ContainerImplementation::getInstance();
+        $schema = $this->connection->getSchemaBuilder();
+        $context = $container->bound(MigrationContext::class)
+            ? $container->make(MigrationContext::class)
+            : new MigrationContext(
+                $schema,
+                $container->bound(ExtensionManager::class) ? $container->make(ExtensionManager::class)->getEnabled() : [],
+                new DefaultSettingsRepository(
+                    new DatabaseSettingsRepository($this->connection),
+                    $container->bound(ExtensionManager::class)
+                        ? $container->make(ExtensionManager::class)->getSettingsDefaults()
+                        : ($container->bound('flarum.settings.default') ? $container->make('flarum.settings.default') : new Collection()),
+                ),
+            );
+
+        return (bool) $container->call($condition, [
+            'schema' => $schema,
+            Builder::class => $schema,
+            Container::class => $container,
+            MigrationContext::class => $context,
+            SettingsRepositoryInterface::class => $context->settings,
+        ]);
     }
 
     /**
@@ -168,6 +234,11 @@ class Migrator
     {
         $migration = $this->resolve($path, $file);
 
+        $this->runResolvedMigration($migration, $path, $file, $direction);
+    }
+
+    protected function runResolvedMigration(array $migration, string $path, string $file, string $direction = 'up'): void
+    {
         try {
             $this->runClosureMigration($migration, $direction);
         } catch (MigrationKeyMissing $exception) {
