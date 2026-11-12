@@ -310,7 +310,13 @@ class ProcessErasureTest extends TestCase
             $table->string('test_bio')->nullable();
         });
 
-        $this->database()->table('users')->where('id', 5)->update(['test_votes' => 7, 'test_bio' => 'About me']);
+        // Start the avatar flags as true, so the test also catches a missing reset.
+        $this->database()->table('users')->where('id', 5)->update([
+            'test_votes' => 7,
+            'test_bio' => 'About me',
+            'has_avatar_2x' => true,
+            'has_avatar_3x' => true,
+        ]);
 
         $response = $this->send(
             $this->request('PATCH', '/api/user-erasure-requests/2', [
