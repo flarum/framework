@@ -17,7 +17,7 @@ class HideHiddenTagsFromAllDiscussionsPage
 {
     public function __invoke(DatabaseSearchState $state, SearchCriteria $queryCriteria): void
     {
-        if (count($state->getActiveFilters()) > 0 || $state->isFulltextSearch()) {
+        if (count($state->getListFilters()) > 0 || $state->isFulltextSearch()) {
             return;
         }
 

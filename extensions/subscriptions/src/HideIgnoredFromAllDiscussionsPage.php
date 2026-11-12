@@ -17,7 +17,7 @@ class HideIgnoredFromAllDiscussionsPage
     public function __invoke(DatabaseSearchState $state, SearchCriteria $criteria): void
     {
         // We only want to hide on the "all discussions" page.
-        if (count($state->getActiveFilters()) === 0 && ! $state->isFulltextSearch()) {
+        if (count($state->getListFilters()) === 0 && ! $state->isFulltextSearch()) {
             // TODO: might be better as `id IN (subquery)`?
             $actor = $state->getActor();
             $state->getQuery()->whereNotExists(function ($query) use ($actor) {
