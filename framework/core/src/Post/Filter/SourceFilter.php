@@ -49,14 +49,14 @@ class SourceFilter implements FilterInterface
         ));
 
         if (! $negate) {
-            $state->getQuery()->whereIn('posts.source', $sources);
+            $state->getQuery()->whereIn('posts.created_via', $sources);
 
             return;
         }
 
         // NOT IN never matches NULL, which is every post made in the forum itself.
         $state->getQuery()->where(function (Builder $query) use ($sources) {
-            $query->whereNull('posts.source')->orWhereNotIn('posts.source', $sources);
+            $query->whereNull('posts.created_via')->orWhereNotIn('posts.created_via', $sources);
         });
     }
 }
