@@ -40,8 +40,8 @@ class PostSourceTest extends McpTestCase
     {
         $post = $this->reply($this->bearer($this->developerToken(2)));
 
-        $this->assertSame('mcp', $post->source);
-        $this->assertSame('MCP', $post->source_name);
+        $this->assertSame('mcp', $post->created_via);
+        $this->assertSame('MCP', $post->created_via_name);
     }
 
     #[Test]
@@ -49,7 +49,7 @@ class PostSourceTest extends McpTestCase
     {
         $created = $this->toolOutput($this->callTool('start_discussion', ['title' => 'Started over MCP', 'content' => 'Hello'], $this->bearer($this->developerToken(2))));
 
-        $this->assertSame('mcp', Discussion::query()->findOrFail($created['id'])->firstPost->source);
+        $this->assertSame('mcp', Discussion::query()->findOrFail($created['id'])->firstPost->created_via);
     }
 
     #[Test]
@@ -61,8 +61,8 @@ class PostSourceTest extends McpTestCase
 
         $post = $this->reply($this->bearer($jwt));
 
-        $this->assertSame('mcp', $post->source);
-        $this->assertSame('MCP', $post->source_name);
+        $this->assertSame('mcp', $post->created_via);
+        $this->assertSame('MCP', $post->created_via_name);
     }
 
     #[Test]
@@ -88,8 +88,8 @@ class PostSourceTest extends McpTestCase
 
         $post = $this->reply($this->bearer($jwt));
 
-        $this->assertSame('mcp', $post->source);
-        $this->assertSame($expected, $post->source_name);
+        $this->assertSame('mcp', $post->created_via);
+        $this->assertSame($expected, $post->created_via_name);
     }
 
     public static function clients(): array
