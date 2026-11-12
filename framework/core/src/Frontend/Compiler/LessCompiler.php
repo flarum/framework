@@ -88,6 +88,19 @@ class LessCompiler extends RevisionCompiler
      * a local path declining lets less.php fall back to reading the raw path,
      * so an import we will not resolve has to throw instead.
      *
+     * `import_dirs` is only less.php's last resort, though. It first tries
+     * the importing file's own directory for a relative path, and the entry
+     * path and `$_SERVER['DOCUMENT_ROOT']` for an absolute one. The first that
+     * holds a file wins, and the path is joined on unresolved, so `/../..`
+     * climbs out of either. Custom LESS has no directory of its own, as it is
+     * a string source, and compile() empties the other two, so this is the
+     * only resolver a path written in custom LESS can reach.
+     *
+     * That does not extend to a path written in a trusted file. A
+     * `data-uri()`, an image function or an `@import "@{var}"` there resolves
+     * against that file's own directory first, and custom LESS can redefine a
+     * variable it uses. No LESS that ships with Flarum does this.
+     *
      * @return array{0: string, 1: null}|null
      *
      * @throws \Less_Exception_Parser
@@ -161,6 +174,8 @@ class LessCompiler extends RevisionCompiler
 
         ini_set('xdebug.max_nesting_level', '200');
 
+        $documentRoot = $this->clearDocumentRoot();
+
         try {
             $parser = new Less_Parser([
                 'compress' => true,
@@ -175,6 +190,13 @@ class LessCompiler extends RevisionCompiler
                 // slower than parsing the file again. Compiled output is cached
                 // as an asset already, so a parse only happens on a rebuild.
             ]);
+
+            // less.php takes the entry path from the first source it parses and
+            // every later one inherits it, custom LESS included. Fix it as empty
+            // before anything is parsed, which less.php skips as a lookup
+            // directory, rather than the directory of whichever core file
+            // happens to come first. See containImports().
+            $parser->SetFileInfo('');
 
             if ($this->fileSourceOverrides) {
                 $sources = $this->overrideSources($sources);
@@ -234,7 +256,32 @@ class LessCompiler extends RevisionCompiler
             if ($maxNestingLevel !== false) {
                 ini_set('xdebug.max_nesting_level', $maxNestingLevel);
             }
+
+            if ($documentRoot === null) {
+                unset($_SERVER['DOCUMENT_ROOT']);
+            } else {
+                $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
+            }
         }
+    }
+
+    /**
+     * Empty `$_SERVER['DOCUMENT_ROOT']` for the length of a compile, and return
+     * the value to restore afterwards.
+     *
+     * less.php tries an absolute import against the document root before it
+     * consults `import_dirs`, and has no option to turn that off, so a path
+     * that climbs out of it would never reach containImports(). less.php
+     * skips an empty value. It is emptied rather than unset, because
+     * less.php reads the key without checking that it exists.
+     */
+    protected function clearDocumentRoot(): ?string
+    {
+        $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? null;
+
+        $_SERVER['DOCUMENT_ROOT'] = '';
+
+        return $documentRoot;
     }
 
     /**
