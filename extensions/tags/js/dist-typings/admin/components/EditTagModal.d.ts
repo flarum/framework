@@ -39,14 +39,14 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     sortOptions(): Record<string, string>;
     defaultSortField(): JSX.Element;
     submitData(): {
+        defaultSort: string | null;
+        isPrimary?: boolean | undefined;
         name: string;
         slug: string;
         description: string;
         color: string;
         icon: string;
         isHidden: boolean;
-        isPrimary: boolean;
-        defaultSort: string | null;
     };
     onsubmit(e: SubmitEvent): void;
     delete(): void;
