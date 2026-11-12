@@ -3,6 +3,13 @@ export declare const PREFERENCE_KEY = "deckColumns";
 export declare const SPLIT_PREFERENCE_KEY = "deckRowSplit";
 export declare function canUseDeck(): boolean;
 export declare function maxColumns(): number;
+/** As the server keeps it: a column's name is cut to this length. */
+export declare const MAX_NAME_LENGTH = 60;
+/**
+ * Whether two columns' settings are the same. The server sends no settings as
+ * an empty list rather than an empty object, so they're compared by content.
+ */
+export declare function sameParams(a: DeckColumnConfig['params'], b: DeckColumnConfig['params']): boolean;
 export declare function newColumnId(): string;
 export declare function makeColumn(type: string, params?: DeckColumnConfig['params'], width?: number): DeckColumnConfig;
 /**

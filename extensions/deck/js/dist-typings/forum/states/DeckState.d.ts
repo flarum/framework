@@ -49,7 +49,17 @@ export default class DeckState {
     protected columnStates(): DeckColumnState[];
     canAddColumn(): boolean;
     addColumn(config: DeckColumnConfig): void;
+    /**
+     * Changes a column's settings and name, keeping its place and width. New
+     * settings load it again; a new name alone leaves what it shows as it is.
+     */
+    editColumn(id: string, { params, name }: {
+        params: DeckColumnConfig['params'];
+        name?: string;
+    }): void;
     removeColumn(id: string): void;
+    /** Forgets a column's live state, so nothing it had queued asks the server. */
+    protected dropState(id: string): void;
     /**
      * Puts a column at `index` among the visible columns of `row`, as a drag and
      * drop leaves it. Hidden columns (an extension disabled, a permission
