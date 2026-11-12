@@ -463,8 +463,9 @@ HTML;
                     $urlQueryArgs[$key] = $value;
                 }
 
-                $urlParts['query'] = http_build_query($urlQueryArgs);
-                $newUrl = $urlParts['scheme'].'://'.$urlParts['host'].$urlParts['path'].'?'.$urlParts['query'];
+                $query = http_build_query($urlQueryArgs);
+                $fragment = isset($urlParts['fragment']) ? '#'.$urlParts['fragment'] : '';
+                $newUrl = strstr($url, '?', true).($query !== '' ? '?'.$query : '').$fragment;
             } elseif ($value !== null) {
                 $newUrl = $url.'?'.http_build_query([$key => $value]);
             } else {
