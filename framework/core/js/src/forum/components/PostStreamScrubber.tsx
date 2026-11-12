@@ -32,6 +32,40 @@ export interface PostStreamScrubberPercentPerPost {
   visible: number;
 }
 
+/**
+ * The parts core sizes or fills in outside of rendering, by class.
+ */
+const SYNCED_PARTS = [
+  'Scrubber-scrollbar',
+  'Scrubber-before',
+  'Scrubber-handle',
+  'Scrubber-after',
+  'Scrubber-unread',
+  'Scrubber-index',
+  'Scrubber-description',
+];
+
+/**
+ * What core has set on one element outside of rendering, and for which part.
+ */
+interface SyncedValues {
+  part: string;
+  styles: Record<string, string>;
+  text?: Node | null;
+}
+
+/**
+ * Whether an inline style still holds the value core set. Browsers round
+ * long numbers when reading a style back.
+ */
+function isSameStyleValue(current: string, set: string): boolean {
+  if (current === set) return true;
+
+  const unit = (value: string) => value.replace(/^[-+\d.e]+/i, '');
+
+  return unit(current) === unit(set) && Math.abs(parseFloat(current) - parseFloat(set)) < 1e-3;
+}
+
 export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberAttrs = IPostStreamScrubberAttrs> extends Component<CustomAttrs> {
   /**
    * The smallest height, in pixels, the handle shrinks to in long discussions.
@@ -54,10 +88,14 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
   closeWatcher?: CloseWatcher;
 
   /**
-   * The elements last sized and filled in by `onresize()` and
-   * `updateScrubberValues()`, outside of rendering.
+   * The synced parts as of the last check, by element.
    */
-  protected syncedElements: Element[] = [];
+  protected syncedParts = new Map<Element, string>();
+
+  /**
+   * What core has set on each element outside of rendering.
+   */
+  protected syncedValues = new Map<Element, SyncedValues>();
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -125,13 +163,15 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
     const unreadCount = this.stream.discussion.unreadCount();
     const unreadPercent = count ? Math.min(count - this.stream.index, unreadCount) / count : 0;
 
-    function styleUnread(vnode: Mithril.VnodeDOM<unknown, { oldStyle?: JQuery.PlainObject }>) {
+    const styleUnread = (vnode: Mithril.VnodeDOM<unknown, { oldStyle?: JQuery.PlainObject }>) => {
       const $element = $(vnode.dom);
       const newStyle = {
         top: 100 - unreadPercent * 100 + '%',
         height: unreadPercent * 100 + '%',
         opacity: unreadPercent > 0 ? 1 : 0,
       };
+
+      this.syncValues(vnode.dom, 'Scrubber-unread', { styles: { ...newStyle, opacity: String(newStyle.opacity) } });
 
       if (vnode.state.oldStyle) {
         $element.stop(true).css(vnode.state.oldStyle).animate(newStyle);
@@ -140,7 +180,7 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
       }
 
       vnode.state.oldStyle = newStyle;
-    }
+    };
 
     items.add('before', <div className="Scrubber-before" />, 100);
 
@@ -205,8 +245,9 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
       this.stream.loadPromise?.then(() => this.updateScrubberValues({ animate: true, forceHeightChange: true }));
     }
 
-    // Extension items coming and going can make Mithril rebuild those elements.
-    if (this.syncedElementsReplaced()) {
+    // Extension items coming and going can make Mithril rebuild those parts,
+    // or reuse their elements for other items.
+    if (this.reconcileSyncedParts()) {
       this.onresize();
       this.updateScrubberValues({ forceHeightChange: true });
     }
@@ -262,7 +303,7 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
 
     setTimeout(() => this.scrollListener.start());
 
-    this.syncedElementsReplaced();
+    this.reconcileSyncedParts();
 
     this.stream.loadPromise?.then(() => this.updateScrubberValues({ animate: false, forceHeightChange: true }));
   }
@@ -286,8 +327,8 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
     const percentPerPost = this.percentPerPost();
 
     const $scrubber = this.$();
-    $scrubber.find('.Scrubber-index').text(formatNumber(this.stream.sanitizeIndex(Math.max(1, index))));
-    $scrubber.find('.Scrubber-description').text(this.stream.description);
+    this.syncText('Scrubber-index', formatNumber(this.stream.sanitizeIndex(Math.max(1, index))));
+    this.syncText('Scrubber-description', this.stream.description);
     $scrubber.toggleClass('disabled', this.stream.disabled());
 
     const heights: Record<'before' | 'handle' | 'after', number> = { before: 0, handle: 0, after: 0 };
@@ -310,6 +351,10 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
       // jQuery sets overflow: hidden while animating, which would clip the
       // handle's bar, as it sits in a negative margin.
       if (func === 'animate') $part.css('overflow', 'visible');
+
+      $part.each((_, element) => {
+        this.syncValues(element, `Scrubber-${part}`, { styles: func === 'animate' ? { ...style, overflow: 'visible' } : style });
+      });
     }
     Promise.all(animationPromises).then(() => (this.adjustingHeight = false));
   }
@@ -331,14 +376,18 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
     const scrubber = this.$();
     const scrollbar = this.$('.Scrubber-scrollbar');
 
-    scrollbar.css(
-      'max-height',
+    const maxHeight =
       $(window).height()! -
-        scrubber.offset()!.top +
-        $(window).scrollTop()! -
-        parseInt($('#app').css('padding-bottom'), 10) -
-        (scrubber.outerHeight()! - scrollbar.outerHeight()!)
-    );
+      scrubber.offset()!.top +
+      $(window).scrollTop()! -
+      parseInt($('#app').css('padding-bottom'), 10) -
+      (scrubber.outerHeight()! - scrollbar.outerHeight()!);
+
+    scrollbar.css('max-height', maxHeight);
+
+    if (Number.isFinite(maxHeight)) {
+      scrollbar.each((_, element) => this.syncValues(element, 'Scrubber-scrollbar', { styles: { 'max-height': maxHeight + 'px' } }));
+    }
   }
 
   onmousedown(e: JQuery.TriggeredEvent & { redraw?: boolean }) {
@@ -403,16 +452,67 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
   }
 
   /**
-   * Whether any element sized or filled in outside of rendering has been
-   * replaced since the last check.
+   * Take back what core set on elements that no longer play the part it was
+   * set for, and report whether any part is now played by a different element.
    */
-  protected syncedElementsReplaced(): boolean {
-    const elements = this.$('.Scrubber-scrollbar, .Scrubber-before, .Scrubber-handle, .Scrubber-after, .Scrubber-index, .Scrubber-description').get();
-    const replaced = elements.length !== this.syncedElements.length || elements.some((element, i) => element !== this.syncedElements[i]);
+  protected reconcileSyncedParts(): boolean {
+    const parts = new Map<Element, string>();
 
-    this.syncedElements = elements;
+    SYNCED_PARTS.forEach((part) => this.$(`.${part}`).each((_, element) => void parts.set(element, part)));
+
+    let replaced = parts.size !== this.syncedParts.size;
+    parts.forEach((part, element) => {
+      if (this.syncedParts.get(element) !== part) replaced = true;
+    });
+
+    this.syncedValues.forEach((values, element) => {
+      if (parts.get(element) !== values.part) this.releaseValues(element, values);
+    });
+
+    this.syncedParts = parts;
 
     return replaced;
+  }
+
+  /**
+   * Remember what core sets on a part outside of rendering.
+   *
+   * Mithril runs this component's onupdate before its children's, so an element
+   * that changed parts has been released before anything is set on it again.
+   */
+  protected syncValues(element: Element, part: string, values: Omit<SyncedValues, 'part'>) {
+    const synced = this.syncedValues.get(element) ?? { part, styles: {} };
+
+    Object.assign(synced.styles, values.styles);
+    if ('text' in values) synced.text = values.text;
+
+    this.syncedValues.set(element, synced);
+  }
+
+  protected syncText(part: string, text: string) {
+    this.$(`.${part}`).each((_, element) => {
+      element.textContent = text;
+      this.syncValues(element, part, { styles: {}, text: element.firstChild });
+    });
+  }
+
+  /**
+   * Take back the styles and text core set on an element, leaving anything
+   * that has since replaced them.
+   */
+  protected releaseValues(element: Element, values: SyncedValues) {
+    const style = (element as HTMLElement).style;
+
+    // Finish core's animations first, so they don't write to it afterwards.
+    $(element).stop(true, true);
+
+    Object.entries(values.styles).forEach(([property, value]) => {
+      if (isSameStyleValue(style.getPropertyValue(property), value)) style.removeProperty(property);
+    });
+
+    if (values.text?.parentNode === element) element.removeChild(values.text);
+
+    this.syncedValues.delete(element);
   }
 
   /**
@@ -429,7 +529,12 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
 
     if (Number.isFinite(minPercentVisible)) minPercentVisible = Math.min(100, minPercentVisible);
     const percentPerVisiblePost = Math.max(100 / count, minPercentVisible / visible);
-    const percentPerPost = count === visible ? 0 : (100 - percentPerVisiblePost * visible) / (count - visible);
+    const handlePercent = percentPerVisiblePost * visible;
+
+    // With a fractional visible count, rounding can leave the posts outside a
+    // full-height handle a sliver of the track either side of zero.
+    const fillsTrack = count === visible || (Number.isFinite(handlePercent) && handlePercent > 100 - 1e-9);
+    const percentPerPost = fillsTrack ? 0 : (100 - handlePercent) / (count - visible);
 
     return {
       index: percentPerPost,

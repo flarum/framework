@@ -16,7 +16,7 @@ function fakeStream(overrides: Record<string, unknown> = {}) {
   return {
     index: 5,
     visible: 3,
-    description: '',
+    description: 'March 2024',
     paused: false,
     forceUpdateScrubber: false,
     loadPromise: Promise.resolve(),
@@ -45,6 +45,33 @@ function mount<T extends PostStreamScrubber>(component: { prototype: T }, attrs:
   return { root, scrubber: vnode.state as T, redraw };
 }
 
+/**
+ * Each element's tag, classes, own text and inline styles, in document order.
+ * Style declarations are sorted, as their order depends on the order they
+ * were set in.
+ */
+function describeDom(element: Element): unknown {
+  const style = (element as HTMLElement).style;
+
+  return {
+    tag: element.tagName,
+    className: element.className,
+    text: Array.from(element.childNodes)
+      .filter((node) => node.nodeType === Node.TEXT_NODE)
+      .map((node) => node.textContent)
+      .join(''),
+    style: Array.from({ length: style.length }, (_, i) => `${style[i]}: ${style.getPropertyValue(style[i])}`).sort(),
+    children: Array.from(element.children).map(describeDom),
+  };
+}
+
+/**
+ * Wait for loads, timers and jQuery animations to finish.
+ */
+function settle() {
+  return new Promise((resolve) => setTimeout(resolve, 20));
+}
+
 function childClasses(element: Element | null): string[] {
   return Array.from(element?.children ?? []).map((child) => child.className);
 }
@@ -62,6 +89,10 @@ describe('PostStreamScrubber', () => {
     $.fx.off = true;
     window.requestAnimationFrame = ((callback: FrameRequestCallback) => setTimeout(callback, 0)) as typeof window.requestAnimationFrame;
     ($.fn as any).outerHeight = () => trackHeight;
+
+    // onresize() fits the track's max-height above #app's bottom padding.
+    const appElement = document.getElementById('app') ?? document.body.appendChild(Object.assign(document.createElement('div'), { id: 'app' }));
+    appElement.style.paddingBottom = '0px';
   });
 
   afterAll(() => {
@@ -194,16 +225,24 @@ describe('PostStreamScrubber', () => {
       expect(scrubber.stream.goToIndex).toHaveBeenCalledWith(Math.floor(5 + 10 / percentPerPost));
     });
 
-    test.each([1, 10, -10])('stays put by %ipx when the handle fills the track', (pixels) => {
+    // A fractional visible count comes from posts partly in view, and leaves
+    // rounding error in the share of the posts outside a full-height handle.
+    test.each([
+      [1, 3],
+      [10, 3],
+      [-10, 3],
+      [1, 1.0324324324324323],
+      [10, 1.0324324324324323],
+    ])('stays put by %ipx when the handle fills the track, with %d posts visible', (pixels, visible) => {
       class TallHandleScrubber extends PostStreamScrubber {
         static minHandleHeight = 150;
       }
 
       trackHeight = 100;
 
-      const { scrubber } = mount(TallHandleScrubber);
+      const { scrubber } = mount(TallHandleScrubber, { stream: fakeStream({ visible }) });
 
-      expect(scrubber.percentPerPost().visible * scrubber.stream.visible).toBe(100);
+      expect(scrubber.percentPerPost().index).toBe(0);
 
       drag(scrubber, pixels);
 
@@ -227,34 +266,37 @@ describe('PostStreamScrubber', () => {
   });
 
   describe.each([
-    ['scrubberItems', 50],
-    ['scrollbarItems', 90],
-  ] as const)('when an extension item in %s comes and goes', (list, priority) => {
-    test('the scrubber can still be dragged and clicked', async () => {
-      let showExtra = true;
+    ['scrubberItems', 50, () => m('div.Scrubber-extra', 'Extra')],
+    ['scrollbarItems', 90, () => m('div.Scrubber-extra')],
+    ['scrollbarItems', 90, () => m('div.Scrubber-extra', { style: { position: 'absolute', top: '0', height: '100%' } })],
+    ['infoItems', 50, () => m('span.Scrubber-extra', 'Extra')],
+    ['infoItems', 50, () => m('span.Scrubber-extra', [m('i.icon'), ' Extra'])],
+  ] as const)('when an extension item in %s at %i appears and disappears', (list, priority, item) => {
+    test.each([0, 7])('the scrubber matches a fresh one, with %i unread posts', async (unread) => {
+      let showExtra = false;
 
       class ToggledScrubber extends PostStreamScrubber {}
 
       extend(ToggledScrubber.prototype, list, function (items: ItemList<Mithril.Children>) {
-        if (showExtra) items.add('extra', m('button.Scrubber-extra', 'Extra'), priority);
+        if (showExtra) items.add('extra', item(), priority);
       });
 
-      const { root, scrubber, redraw } = mount(ToggledScrubber);
-      await scrubber.stream.loadPromise;
+      const attrs = () => ({ stream: fakeStream({ discussion: { unreadCount: () => unread } }) });
+      const { root, scrubber, redraw } = mount(ToggledScrubber, attrs());
+      await settle();
 
-      const originalHandle = root.querySelector('.Scrubber-handle');
+      for (const show of [true, false, true]) {
+        showExtra = show;
+        redraw();
+        await settle();
 
-      showExtra = false;
-      redraw();
+        const { root: fresh } = mount(ToggledScrubber, attrs());
+        await settle();
 
-      const handle = root.querySelector<HTMLElement>('.Scrubber-handle')!;
+        expect(describeDom(root)).toEqual(describeDom(fresh));
+      }
 
-      // Mithril rebuilt the handle, which is what puts its handlers and sizing at risk.
-      expect(handle).not.toBe(originalHandle);
-      expect(parseFloat(handle.style.height)).toBeCloseTo(16.6667);
-      expect(Array.from(root.querySelectorAll('.Scrubber-index')).map((el) => el.textContent)).toEqual(['5', '5']);
-
-      $(handle).trigger($.Event('mousedown', { clientY: 100 }));
+      $(root.querySelector('.Scrubber-handle')!).trigger($.Event('mousedown', { clientY: 100 }));
       $(document).trigger($.Event('mousemove', { clientY: 130 }));
 
       expect(scrubber.stream.index).toBeGreaterThan(5);
