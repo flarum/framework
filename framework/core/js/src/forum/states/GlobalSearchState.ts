@@ -43,7 +43,16 @@ export default class GlobalSearchState extends SearchState {
     const q = this.params().q || '';
     const filter = this.params().filter || {};
 
-    return app.search.gambits.from('users', app.search.gambits.from('discussions', q, filter), filter).trim();
+    let query = app.search.gambits.from('users', app.search.gambits.from('discussions', q, filter), filter);
+
+    // Post gambits too (`source:`, `discussion:`), skipping keys the ones above
+    // already wrote back, such as `author`, which both discussions and posts have.
+    const written = new Set([...app.search.gambits.for('discussions'), ...app.search.gambits.for('users')].map((gambit) => gambit.filterKey()));
+    const postFilter = Object.fromEntries(Object.entries(filter).filter(([key]) => !written.has(key.replace(/^-/, ''))));
+
+    query = app.search.gambits.from('posts', query, postFilter);
+
+    return query.trim();
   }
 
   /**

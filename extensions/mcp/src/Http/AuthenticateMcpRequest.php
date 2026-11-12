@@ -17,6 +17,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Mcp\Capability\CapabilityResolver;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\ResolvedCapabilities;
+use Flarum\OAuthProvider\Models\Client;
 use Flarum\User\Guest;
 use Flarum\User\User;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -90,7 +91,9 @@ class AuthenticateMcpRequest implements MiddlewareInterface
 
         // The early, user-facing answer: ApiClient enforces the scope again on
         // every write, whatever a tool declares.
-        if ($this->callsWriteTool($messages, $capabilities) && ! in_array(McpContext::SCOPE_WRITE, $authentication->scopes, true)) {
+        $writes = $this->callsWriteTool($messages, $capabilities);
+
+        if ($writes && ! in_array(McpContext::SCOPE_WRITE, $authentication->scopes, true)) {
             $scope = McpContext::SCOPE_READ.' '.McpContext::SCOPE_WRITE;
 
             return $actor->isGuest()
@@ -98,8 +101,13 @@ class AuthenticateMcpRequest implements MiddlewareInterface
                 : $this->insufficientScope($scope);
         }
 
+        $request = $this->withAuthentication($request, $authentication)->withAttribute(static::CAPABILITIES, $capabilities);
+
+        // Only a write can create a post, so only a write looks up the client.
+        $client = $writes && $authentication->clientId !== null ? Client::query()->find($authentication->clientId) : null;
+
         return $handler->handle(
-            $this->withAuthentication($request, $authentication)->withAttribute(static::CAPABILITIES, $capabilities)
+            RequestUtil::withPostSource($request, McpPostSource::forClient($client))
         );
     }
 
@@ -138,7 +146,7 @@ class AuthenticateMcpRequest implements MiddlewareInterface
 
             $scopes = array_values(array_intersect([McpContext::SCOPE_READ, McpContext::SCOPE_WRITE], $scopes));
 
-            return new McpAuthentication($token['user'], $scopes, McpAuthentication::OAUTH);
+            return new McpAuthentication($token['user'], $scopes, McpAuthentication::OAUTH, $token['clientId']);
         }
 
         $token = AccessToken::findValid($credential);

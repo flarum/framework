@@ -232,6 +232,8 @@ core:
           description: How links to discussions and profiles are written.
           label: Links
       show_language_selector_label: Show language selector
+      show_post_source_label: Show how posts were made
+      show_post_source_text: Adds a small "via …" byline next to the author of posts made through the API or a connected app, and enables the source filter in post search.
       slug_driver_options:
         discussions:
           default: ID with slug
@@ -839,6 +841,10 @@ core:
       edited_text: Edited
       edited_tooltip: "{username} edited {ago}"
       number_tooltip: "Post #{number}"
+      source_api_label: API
+      source_api_tooltip: Posted through the API
+      source_app_tooltip: Posted through a connected app
+      source_text: "via {source}"
 
     # These translations are used by the post control buttons.
     post_controls:
@@ -1076,6 +1082,9 @@ core:
         discussion:
           key: discussion
           hint: the ID of the discussion
+        source:
+          key: source
+          hint: api, or a comma-separated list of sources
       users:
         bounced:
           key: bounced
