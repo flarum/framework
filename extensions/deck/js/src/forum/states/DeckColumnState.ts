@@ -9,9 +9,16 @@ const CHECK_DEBOUNCE = 3000;
 /** Spreads out the decks that all hear about the same post at the same moment. */
 const JITTER = 5000;
 
+let instances = 0;
+
 export default class DeckColumnState {
   public readonly type: DeckColumnType;
   public readonly source: DeckColumnSource;
+  /**
+   * Tells this column's state from the one it is replaced by when its settings
+   * change, which has to be shown afresh: loaded, started and watched.
+   */
+  public readonly key = `${++instances}`;
 
   /** Items waiting behind the "new" pill. */
   public newCount = 0;
@@ -43,7 +50,7 @@ export default class DeckColumnState {
   }
 
   title(): string {
-    return this.type.title(this.config);
+    return this.config.name || this.type.title(this.config);
   }
 
   load(): Promise<unknown> {
@@ -101,6 +108,13 @@ export default class DeckColumnState {
   cancelCheck(): void {
     if (this.checkTimer) clearTimeout(this.checkTimer);
     this.checkTimer = null;
+  }
+
+  /** The column was replaced or removed: nothing it had queued, or was asked to run again, asks the server. */
+  discard(): void {
+    this.cancelCheck();
+    this.checkAgain = false;
+    this.visible = false;
   }
 
   /** See DeckColumnSource.prune(). */
