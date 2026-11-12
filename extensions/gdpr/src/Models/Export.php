@@ -59,6 +59,11 @@ class Export extends AbstractModel
             $export->created_at = Carbon::now();
             $export->destroys_at = Carbon::now()->addDay();
             $export->save();
+
+            // The export-available notification reads the user right away. The actor
+            // is attached as well, so ExportAvailableBlueprint::getActor() needs no query.
+            $export->setRelation('user', $user);
+            $export->setRelation('actor', $actor);
         });
     }
 
