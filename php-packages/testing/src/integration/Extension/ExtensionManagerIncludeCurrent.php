@@ -87,6 +87,20 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
     }
 
     /**
+     * Boot the test case's extensions in dependency order, the same way a real forum does.
+     */
+    public function getEnabledExtensions(): array
+    {
+        $enabled = [];
+
+        foreach ($this->sortDependencies(parent::getEnabledExtensions()) as $extension) {
+            $enabled[$extension->getId()] = $extension;
+        }
+
+        return $enabled;
+    }
+
+    /**
      * Enabled extensions must be specified by the test case, so this should do nothing.
      */
     protected function setEnabledExtensions(array $enabledExtensions): void
