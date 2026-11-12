@@ -12,6 +12,15 @@ export default class Post extends Model {
     renderFailed(): boolean | undefined;
     contentPlain(): string | null | undefined;
     ipAddress(): string | null | undefined;
+    /**
+     * How the post was made when not in the forum's own interface (`api`, `mcp`,
+     * …), or null. Undefined when the forum does not show post sources.
+     */
+    source(): string | null | undefined;
+    /**
+     * The name shown after "via", when the source's own label is not enough.
+     */
+    sourceName(): string | null | undefined;
     editedAt(): Date | null | undefined;
     editedUser(): false | User | null;
     isEdited(): boolean;
