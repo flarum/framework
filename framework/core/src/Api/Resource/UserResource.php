@@ -583,7 +583,15 @@ class UserResource extends AbstractDatabaseResource
      */
     private function uploadAvatarFromUrl(User $user, string $url, ?string $url2x = null, ?string $url3x = null): void
     {
-        $this->assertValidAvatarUrl($url);
+        $this->assertValidAvatarUrl($url, 'avatar_url');
+
+        if ($url2x !== null) {
+            $this->assertValidAvatarUrl($url2x, 'avatar_url_2x');
+        }
+
+        if ($url3x !== null) {
+            $this->assertValidAvatarUrl($url3x, 'avatar_url_3x');
+        }
 
         $urlContents = $this->retrieveAvatarFromUrl($url);
 
@@ -608,12 +616,12 @@ class UserResource extends AbstractDatabaseResource
     /**
      * @throws ValidationException
      */
-    private function assertValidAvatarUrl(string $url): void
+    private function assertValidAvatarUrl(string $url, string $attribute): void
     {
         // No DNS here; hostnames are checked against their resolved address at
         // fetch time, where failure skips the avatar instead of blocking sign-up.
-        $validator = $this->validation->make(['avatar_url' => $url], [
-            'avatar_url' => [
+        $validator = $this->validation->make([$attribute => $url], [
+            $attribute => [
                 'bail',
                 'required',
                 'url:http,https',
@@ -626,12 +634,12 @@ class UserResource extends AbstractDatabaseResource
                 },
             ],
         ], [
-            'avatar_url.required' => 'Provided avatar URL must be a valid URI.',
-            'avatar_url.url' => 'Provided avatar URL must be a valid URI.',
+            "$attribute.required" => 'Provided avatar URL must be a valid URI.',
+            "$attribute.url" => 'Provided avatar URL must be a valid URI.',
         ]);
 
         if ($validator->fails()) {
-            throw new ValidationException(['avatar_url' => $validator->errors()->first('avatar_url')]);
+            throw new ValidationException([$attribute => $validator->errors()->first($attribute)]);
         }
     }
 

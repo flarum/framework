@@ -247,20 +247,26 @@ class CreateTest extends TestCase
             'file scheme' => ['file://localhost/etc/passwd', $invalid],
             'ftp scheme' => ['ftp://localhost/image.png', $invalid],
             'gopher scheme' => ['gopher://localhost/_stats', $invalid],
+            '2x with ftp scheme' => ['ftp://localhost/image@2x.png', $invalid, 'avatar_url_2x'],
+            '2x with loopback literal' => ['https://127.0.0.1/image@2x.png', $blockedAddress, 'avatar_url_2x'],
+            '3x with gopher scheme' => ['gopher://localhost/_stats', $invalid, 'avatar_url_3x'],
+            '3x with metadata literal' => ['https://169.254.169.254/image@3x.png', $blockedAddress, 'avatar_url_3x'],
         ];
     }
 
     #[Test]
     #[DataProvider('invalidAvatarUrlProvider')]
-    public function cannot_create_user_with_invalid_avatar_uri(string $avatarUrl, string $expectedError)
+    public function cannot_create_user_with_invalid_avatar_uri(string $avatarUrl, string $expectedError, string $attribute = 'avatar_url')
     {
         $this->app();
 
+        // The HiDPI URLs are only read alongside a base avatar_url.
         $regToken = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' => $avatarUrl,
+            'avatar_url' => 'https://localhost/image.png',
+            $attribute => $avatarUrl,
         ], []);
         $regToken->saveOrFail();
 
@@ -287,7 +293,7 @@ class CreateTest extends TestCase
 
         $firstError = json_decode($body, true)['errors'][0];
 
-        $this->assertEquals('/data/attributes/avatar_url', $firstError['source']['pointer'] ?? null, $body);
+        $this->assertEquals("/data/attributes/$attribute", $firstError['source']['pointer'] ?? null, $body);
         $this->assertStringContainsString($expectedError, $firstError['detail']);
     }
 
