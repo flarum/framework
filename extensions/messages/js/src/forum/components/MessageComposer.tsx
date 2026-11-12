@@ -99,7 +99,7 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
             </li>
           ))}
           {this.recipients()
-            .slice(0, MessageComposer.SHOWN_RECIPIENTS)
+            .slice(0, this.shownRecipients())
             .map((user) => (
               <li>
                 <Tooltip text={user.username()}>
@@ -107,8 +107,8 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
                 </Tooltip>
               </li>
             ))}
-          {this.recipients().length > MessageComposer.SHOWN_RECIPIENTS && (
-            <li className="MessageComposer-recipients-more">+{this.recipients().length - MessageComposer.SHOWN_RECIPIENTS}</li>
+          {this.recipients().length > this.shownRecipients() && (
+            <li className="MessageComposer-recipients-more">+{this.recipients().length - this.shownRecipients()}</li>
           )}
         </ul>
       </div>,
@@ -116,6 +116,11 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
     );
 
     return items;
+  }
+
+  /** How many recipients to show by avatar: the groups, all shown, take their places first. */
+  shownRecipients(): number {
+    return Math.max(MessageComposer.SHOWN_RECIPIENTS - this.recipientGroups().length, 0);
   }
 
   /**

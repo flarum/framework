@@ -97,6 +97,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
   color: var(--control-color);
 
   .Avatar {
@@ -117,6 +118,37 @@
   &-more {
     font-size: 0.85rem;
     font-weight: bold;
+  }
+
+  // A phone's composer header has room for one line: the rest scroll into
+  // view, rather than wrap under the header's edge.
+  @media @phone {
+    &-label {
+      flex-shrink: 0;
+    }
+
+    &-list {
+      flex-wrap: nowrap;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      > li {
+        flex-shrink: 0;
+      }
+    }
+
+    // Held at the end of the line, so how many more stays in view.
+    &-more {
+      position: sticky;
+      inset-inline-end: 0;
+      padding-inline-start: 6px;
+      background: var(--body-bg);
+    }
   }
 }
 
@@ -274,9 +306,29 @@
 
 .Message {
   padding-inline-end: 0;
+}
 
-  .PostUser-badges {
-    margin-inline-start: -72px;
+// After the author's name, in a row of their own size: over a message's
+// smaller avatar, a few badges covered it. The preview of a reply being
+// written is laid out as a message.
+.Message,
+.MessageStream .CommentPost.editing {
+  .PostUser .PostUser-badges {
+    position: static;
+    float: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    width: auto;
+    margin: 0;
+    margin-inline-start: 6px;
+    padding: 0;
+    vertical-align: middle;
+
+    .Badge {
+      .Badge--size(18px);
+      margin: 0;
+    }
   }
 }
 
@@ -305,18 +357,39 @@
   margin-bottom: 24px;
 }
 
-// The first few of a group's members, overlapping.
+// The groups a group conversation is addressed to, then the first few of its
+// members: tiles of one size, overlapping, and how many more.
 .DialogSection-header-avatars {
   display: flex;
+  align-items: center;
   flex-shrink: 0;
 
-  .Avatar {
+  > .Avatar,
+  > .DialogSection-header-group {
     box-shadow: 0 0 0 2px var(--body-bg);
 
-    & + .Avatar {
-      margin-inline-start: -14px;
+    & + .Avatar,
+    & + .DialogSection-header-group {
+      margin-inline-start: -10px;
     }
   }
+
+  // An avatar's size, its icon kept near a badge's: at the tile's scale it
+  // would crowd the circle.
+  > .DialogSection-header-group {
+    .Badge--size(40px);
+
+    &, .Badge-icon {
+      font-size: 16px;
+    }
+  }
+}
+
+.DialogSection-header-more {
+  margin-inline-start: 6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--control-color);
 }
 
 .DialogSection-members {

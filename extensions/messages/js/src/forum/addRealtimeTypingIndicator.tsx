@@ -6,6 +6,7 @@ import RealtimeState from 'ext:flarum/realtime/forum/RealtimeState';
 import type Mithril from 'mithril';
 import type User from 'flarum/common/models/User';
 import TypingState, { announces, TYPING_TIMEOUT_MS } from './utils/TypingState';
+import composingMessageTo from './utils/composingMessageTo';
 import type Dialog from '../common/models/Dialog';
 import type MessageStream from './components/MessageStream';
 
@@ -117,7 +118,7 @@ export default function addRealtimeTypingIndicator() {
     this.checkTyping = () => {
       const composer = app.composer;
 
-      if (!composer.isVisible() || !composer.bodyMatches('flarum/messages/forum/components/MessageComposer', { replyingTo: this.attrs.dialog })) {
+      if (!composingMessageTo(this.attrs.dialog)) {
         this.typingPrevious = '';
         this.typingDirty = false;
 
