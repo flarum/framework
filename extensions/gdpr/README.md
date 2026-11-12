@@ -104,6 +104,36 @@ return [
 ];
 ```
 
+#### Anonymizing user table columns your extension adds:
+
+When a user is anonymized, the `User` data type sets every **nullable** column on the `users` table to `null`, so a nullable column your extension adds is cleared without any extra work.
+
+**Non-nullable columns keep their value.** Setting them to `null` would violate their constraint, and their defaults can't be restored reliably across database drivers. If your extension stores personal data in a non-nullable column, register a data type and reset the column in its `anonymize()` method. Make the column nullable instead if you can.
+
+```php
+use Flarum\Gdpr\Data\Type;
+
+class Bio extends Type
+{
+    public function export(): ?array
+    {
+        return ['acme-bio/bio.json' => $this->encodeForExport(['bio' => $this->user->acme_bio])];
+    }
+
+    public function anonymize(): void
+    {
+        // `acme_bio` is a NOT NULL string column, so core's User type leaves it alone.
+        $this->user->acme_bio = '';
+        $this->user->save();
+    }
+
+    public function delete(): void
+    {
+        // The user row is deleted by the User data type.
+    }
+}
+```
+
 #### PII fields and anonymized contexts
 
 ##### What is an "anonymized context"?
