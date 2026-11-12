@@ -34,6 +34,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
                 'maintenance_mode' => 'none',
                 'show_language_selector' => true,
                 'show_theme_selector' => true,
+                'show_post_source' => false,
                 'slug_driver_Flarum\Discussion\Discussion' => 'default',
                 'slug_driver_Flarum\User\User' => 'default',
                 'search_driver_Flarum\User\User' => 'default',

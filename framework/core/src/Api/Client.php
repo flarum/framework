@@ -125,6 +125,7 @@ class Client
                 ->withAttribute('ipAddress', $this->parent->getAttribute('ipAddress'))
                 ->withAttribute('session', $this->parent->getAttribute('session'));
             $request = RequestUtil::withActor($request, RequestUtil::getActor($this->parent));
+            $request = RequestUtil::withPostSource($request, RequestUtil::getPostSource($this->parent));
         }
 
         // This should override the actor from the parent request, if one exists.

@@ -98,6 +98,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                     PostFilter\DiscussionFilter::class,
                     PostFilter\IdFilter::class,
                     PostFilter\NumberFilter::class,
+                    PostFilter\SourceFilter::class,
                     PostFilter\TypeFilter::class
                 ],
             ];
