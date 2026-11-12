@@ -10,6 +10,7 @@
 namespace Flarum\Http;
 
 use Bitworking\Mimeparse;
+use Flarum\Post\PostSource;
 use Flarum\User\User;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
@@ -128,6 +129,29 @@ class RequestUtil
         $actorReference->setActor($actor);
 
         return $request;
+    }
+
+    /**
+     * Attribute key holding the {@see PostSource} of the request's posts.
+     */
+    public const POST_SOURCE_ATTRIBUTE = 'flarum.postSource';
+
+    /**
+     * Record how this request reached the forum, so posts it creates show it.
+     * Pass null for a request from the forum's own interface.
+     */
+    public static function withPostSource(Request $request, ?PostSource $source): Request
+    {
+        return $source
+            ? $request->withAttribute(self::POST_SOURCE_ATTRIBUTE, $source)
+            : $request->withoutAttribute(self::POST_SOURCE_ATTRIBUTE);
+    }
+
+    public static function getPostSource(Request $request): ?PostSource
+    {
+        $source = $request->getAttribute(self::POST_SOURCE_ATTRIBUTE);
+
+        return $source instanceof PostSource ? $source : null;
     }
 
     public static function extractSort(Request $request, ?string $default, array $available = []): ?array

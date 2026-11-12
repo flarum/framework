@@ -3,7 +3,8 @@ import DeckPickerModal, { type IDeckPickerModalAttrs } from './DeckPickerModal';
 export interface IDeckFilterModalAttrs extends IDeckPickerModalAttrs {
     /** Whether a query can be used, e.g. that it's filters only. */
     accept: (query: string) => boolean;
-    invalidText?: Mithril.Children;
+    /** Shown when `accept` turns the query away; a function is given the query. */
+    invalidText?: Mithril.Children | ((query: string) => Mithril.Children);
     onapply: (query: string) => void;
 }
 /**
@@ -13,6 +14,8 @@ export interface IDeckFilterModalAttrs extends IDeckPickerModalAttrs {
  */
 export default class DeckFilterModal<CustomAttrs extends IDeckFilterModalAttrs = IDeckFilterModalAttrs> extends DeckPickerModal<CustomAttrs> {
     protected error: Mithril.Children;
+    /** The query the error is about; it no longer applies once that changes. */
+    protected rejected: string | null;
     /**
      * @param resource Whose filters to offer, e.g. 'discussions'.
      */
@@ -20,7 +23,7 @@ export default class DeckFilterModal<CustomAttrs extends IDeckFilterModalAttrs =
         title: Mithril.Children;
         value: string;
         accept: (query: string) => boolean;
-        invalidText?: Mithril.Children;
+        invalidText?: IDeckFilterModalAttrs['invalidText'];
         onapply: (query: string) => void;
     }): void;
     className(): string;

@@ -7,6 +7,7 @@ import EmailGambit from './query/users/EmailGambit';
 import GroupGambit from './query/users/GroupGambit';
 import BouncedGambit from './query/users/BouncedGambit';
 import DiscussionGambit from './query/discussions/DiscussionGambit';
+import SourceGambit from './query/posts/SourceGambit';
 
 /**
  * The gambit registry. A map of resource types to gambit classes that
@@ -17,7 +18,7 @@ import DiscussionGambit from './query/discussions/DiscussionGambit';
 export default class GambitManager {
   gambits: Record<string, Array<new () => IGambit>> = {
     discussions: [AuthorGambit, CreatedGambit, GroupGambit, HiddenGambit, UnreadGambit],
-    posts: [AuthorGambit, DiscussionGambit],
+    posts: [AuthorGambit, DiscussionGambit, SourceGambit],
     users: [EmailGambit, GroupGambit, BouncedGambit],
   };
 

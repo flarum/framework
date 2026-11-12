@@ -217,6 +217,16 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
         help: app.translator.trans('core.admin.basics.forum_description_text'),
       });
 
+    // Registered before the home page settings: settings added without a
+    // section join the one registered before them, which stays the home page.
+    app.registry.registerSetting({
+      type: 'switch',
+      setting: 'show_post_source',
+      section: 'members',
+      label: app.translator.trans('core.admin.basics.show_post_source_label'),
+      help: app.translator.trans('core.admin.basics.show_post_source_text'),
+    });
+
     if (Object.keys(localeOptions).length > 1) {
       app.registry
         .registerSetting({

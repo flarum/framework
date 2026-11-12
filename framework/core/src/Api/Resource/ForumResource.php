@@ -101,6 +101,8 @@ class ForumResource extends AbstractResource implements Findable
                 ->get(fn () => $this->settings->get('show_language_selector', true)),
             Schema\Boolean::make('showThemeSelector')
                 ->get(fn () => $this->settings->get('show_theme_selector', true)),
+            Schema\Boolean::make('showPostSource')
+                ->get(fn () => (bool) $this->settings->get('show_post_source')),
             Schema\Str::make('baseUrl')
                 ->get(fn () => $forumUrl),
             Schema\Str::make('basePath')

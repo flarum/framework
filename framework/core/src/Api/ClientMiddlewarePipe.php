@@ -20,8 +20,18 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class ClientMiddlewarePipe implements MiddlewarePipeInterface
 {
+    protected const ERROR_HANDLER = 'flarum.api.error_handler';
+
     protected Collection $middlewares;
-    protected MiddlewarePipeInterface $pipe;
+    /** Null until errorHandling() is called: the configured list is used as it is. */
+    protected ?bool $handleErrors = null;
+
+    /**
+     * Built pipes, keyed by the error handling mode they were built for.
+     *
+     * @var array<string, MiddlewarePipeInterface>
+     */
+    protected array $pipes = [];
 
     public function __construct(
         protected Container $container,
@@ -43,32 +53,38 @@ class ClientMiddlewarePipe implements MiddlewarePipeInterface
     public function pipe(MiddlewareInterface $middleware): void
     {
         $this->middlewares->push($middleware);
+
+        $this->pipes = [];
     }
 
     protected function getPipe(): MiddlewarePipeInterface
     {
-        if (isset($this->pipe)) {
-            return $this->pipe;
+        return $this->pipes[var_export($this->handleErrors, true)] ??= $this->buildPipe($this->handleErrors);
+    }
+
+    protected function buildPipe(?bool $handleErrors): MiddlewarePipeInterface
+    {
+        // The configured list is never reordered, so the error handler keeps its place.
+        $middlewares = $handleErrors === null ? $this->middlewares : $this->middlewares->reject(self::ERROR_HANDLER);
+
+        if ($handleErrors) {
+            $middlewares = $this->middlewares->contains(self::ERROR_HANDLER)
+                ? $this->middlewares
+                : $middlewares->prepend(self::ERROR_HANDLER);
         }
 
-        $this->pipe = new MiddlewarePipe();
+        $pipe = new MiddlewarePipe();
 
-        foreach ($this->middlewares as $middleware) {
-            $this->pipe->pipe($this->container->make($middleware));
+        foreach ($middlewares as $middleware) {
+            $pipe->pipe(is_string($middleware) ? $this->container->make($middleware) : $middleware);
         }
 
-        return $this->pipe;
+        return $pipe;
     }
 
     public function errorHandling(bool $handleErrors): static
     {
-        $errorHandler = 'flarum.api.error_handler';
-
-        if ($handleErrors && ! $this->middlewares->contains($errorHandler)) {
-            $this->middlewares = $this->middlewares->prepend($errorHandler);
-        } elseif (! $handleErrors && $this->middlewares->contains($errorHandler)) {
-            $this->middlewares = $this->middlewares->reject($errorHandler);
-        }
+        $this->handleErrors = $handleErrors;
 
         return $this;
     }
