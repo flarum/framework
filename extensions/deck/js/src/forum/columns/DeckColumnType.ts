@@ -85,8 +85,8 @@ export interface DeckColumnField {
   input?: (attrs: { id: string; value: string; onchange: (value: string) => void }) => Mithril.Children;
   /** Converts what the member typed into the stored value; return null to reject it. */
   parse?: (value: string) => string | number | null;
-  /** Shown when `parse` rejects the value. */
-  invalidText?: Mithril.Children;
+  /** Shown when `parse` rejects the value; a function is given what was typed. */
+  invalidText?: Mithril.Children | ((value: string) => Mithril.Children);
 }
 
 /**

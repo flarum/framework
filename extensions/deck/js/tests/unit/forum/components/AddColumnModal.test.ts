@@ -68,6 +68,40 @@ describe('adding a custom filter column', () => {
   });
 });
 
+describe('a value the column type turns away', () => {
+  beforeAll(() => {
+    if (deckColumnTypes.has('test-code')) return;
+
+    deckColumnTypes.add('test-code', {
+      icon: 'fas fa-vial',
+      label: () => 'Code',
+      title: () => 'Code',
+      isAvailable: () => true,
+      fields: () => [{ key: 'code', label: 'Code', parse: (value: string) => (value === 'ok' ? value : null), invalidText: (value: string) => `${value} won't do` }],
+      createSource: () => ({}) as any,
+    });
+  });
+
+  it('shows what the type says about what was typed', () => {
+    setLayout([]);
+
+    m.mount(root, {
+      view: () => m(AddColumnModal, { state: new ModalManagerState(), animateShow: () => {}, animateHide: () => {}, deck: new DeckState() }),
+    });
+
+    [...root.querySelectorAll<HTMLButtonElement>('.AddColumnModal-type')].find((button) => button.textContent?.includes('Code'))!.click();
+    m.redraw.sync();
+
+    const input = root.querySelector<HTMLInputElement>('#AddColumnModal-code')!;
+    input.value = 'nope';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    root.querySelector<HTMLFormElement>('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    m.redraw.sync();
+
+    expect(root.querySelector('.AddColumnModal-error')?.textContent).toBe("nope won't do");
+  });
+});
+
 describe('what is already in the deck', () => {
   function mount(deck: DeckState) {
     m.mount(root, {
