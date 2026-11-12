@@ -23,9 +23,11 @@ export interface DeckRealtimeEvent {
  * - `updated`: changed what's shown in place;
  * - `check`: it may concern the column but only the server can tell, so Deck
  *   runs the column's `applyNew()` (throttled) for that column alone;
+ * - `recheck`: the source noted particular items to ask the server about
+ *   again, so Deck runs only its `recheck()` (throttled, like `check`);
  * - nothing: not relevant.
  */
-export type DeckRealtimeResult = 'inserted' | 'updated' | 'check' | void;
+export type DeckRealtimeResult = 'inserted' | 'updated' | 'check' | 'recheck' | void;
 /**
  * One column as stored in the member's `deckColumns` preference. The server
  * caps params at four scalar values; anything richer belongs in the column
@@ -82,8 +84,8 @@ export interface DeckColumnField {
     }) => Mithril.Children;
     /** Converts what the member typed into the stored value; return null to reject it. */
     parse?: (value: string) => string | number | null;
-    /** Shown when `parse` rejects the value. */
-    invalidText?: Mithril.Children;
+    /** Shown when `parse` rejects the value; a function is given what was typed. */
+    invalidText?: Mithril.Children | ((value: string) => Mithril.Children);
 }
 /**
  * The live half of a column. A source owns its data and must never change what
@@ -109,6 +111,14 @@ export interface DeckColumnSource {
      * whenever a discussion is started or a reply posted.
      */
     onRealtime?(event: DeckRealtimeEvent): DeckRealtimeResult;
+    /**
+     * Ask the server again about the items `onRealtime()` noted when it returned
+     * `recheck`, adding or removing them. Runs before every check as well.
+     * Resolves to whether an item was added at the very top, so the reader keeps
+     * their place. Sources that return `recheck` should have this; without it,
+     * Deck runs a full check instead.
+     */
+    recheck?(): Promise<boolean>;
     /**
      * Take out items the store already shows no longer belong, such as a
      * discussion just read, in Unread. Some changes send no realtime event,

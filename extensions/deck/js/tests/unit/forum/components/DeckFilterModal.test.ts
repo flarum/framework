@@ -55,7 +55,7 @@ class FakeSource {
 /** Filters only, as the custom filter column wants. */
 const filtersOnly = (query: string) => !!query && !app.search.gambits.match('discussions', query, () => {});
 
-function open(query: string) {
+function open(query: string, invalidText: any = 'Filters only, please.') {
   const onapply = jest.fn();
   const animateHide = jest.fn();
   const searchState = new SearchState();
@@ -73,7 +73,7 @@ function open(query: string) {
         onchange: () => {},
         onpick: () => {},
         accept: filtersOnly,
-        invalidText: 'Filters only, please.',
+        invalidText,
         onapply,
       }),
   });
@@ -102,6 +102,30 @@ describe('DeckFilterModal', () => {
     expect(onapply).not.toHaveBeenCalled();
     expect(animateHide).not.toHaveBeenCalled();
     expect(root.querySelector('.DeckFilterModal-error')?.textContent).toBe('Filters only, please.');
+  });
+
+  it('can say what was wrong with the query written', () => {
+    open('email:admin is:unread', (query: string) => `Can't use ${query}`);
+
+    useButton().click();
+    m.redraw.sync();
+
+    expect(root.querySelector('.DeckFilterModal-error')?.textContent).toBe("Can't use email:admin is:unread");
+  });
+
+  // It names what was wrong with that query, which no longer holds once edited.
+  it('stops showing the error once the query changes', () => {
+    open('email:admin is:unread', (query: string) => `Can't use ${query}`);
+
+    useButton().click();
+    m.redraw.sync();
+
+    const input = root.querySelector<HTMLInputElement>('.SearchModal-input')!;
+    input.value = 'is:unread';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    m.redraw.sync();
+
+    expect(root.querySelector('.DeckFilterModal-error')).toBeNull();
   });
 
   it('uses the filters on Enter', () => {

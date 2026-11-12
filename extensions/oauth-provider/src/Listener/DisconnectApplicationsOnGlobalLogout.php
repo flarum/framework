@@ -9,8 +9,10 @@
 
 namespace Flarum\OAuthProvider\Listener;
 
+use Flarum\OAuthProvider\Event\DisconnectedAll;
 use Flarum\OAuthProvider\Models\Consent;
 use Flarum\User\Event\LoggedOut;
+use Illuminate\Contracts\Events\Dispatcher;
 
 /**
  * Logging out everywhere is what a member does when they fear for their
@@ -19,10 +21,15 @@ use Flarum\User\Event\LoggedOut;
  */
 class DisconnectApplicationsOnGlobalLogout
 {
+    public function __construct(
+        protected Dispatcher $events,
+    ) {
+    }
+
     public function handle(LoggedOut $event): void
     {
-        if ($event->isGlobal) {
-            Consent::revokeAllFor((int) $event->user->id);
+        if ($event->isGlobal && Consent::revokeAllFor((int) $event->user->id)) {
+            $this->events->dispatch(new DisconnectedAll($event->user, DisconnectedAll::LOGOUT_EVERYWHERE));
         }
     }
 }

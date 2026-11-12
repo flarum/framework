@@ -84,8 +84,9 @@ export default class Translator {
     // push the tags as mithril children to the parameters keyed by the tag name.
     // Will be removed in v2.0
     translation = typeof translation === 'string' ? translation : translation.message;
-    const elements = translation.match(/<(\w+)[^>]*>.*?<\/\1>/g);
-    const tags = elements?.map((element) => element.match(/^<(\w+)/)![1]) || [];
+    // Match every opening tag that is closed later, so tags nested inside
+    // another tag (such as <a><strong>…</strong></a>) are found too.
+    const tags = Array.from(translation.matchAll(/<(\w+)[^>]*>(?=.*?<\/\1>)/g), (match) => match[1]);
 
     const autoProvidedTags = this.autoProvidedTags();
 

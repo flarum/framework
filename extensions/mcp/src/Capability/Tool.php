@@ -52,7 +52,8 @@ abstract class Tool
     /**
      * An optional schema for the result. The SDK extracts and validates
      * structured content for the negotiated protocol revision; handshake-era
-     * clients accept only JSON objects as structured content.
+     * clients accept only JSON objects as structured content. Modern null results
+     * are structured content too, and must be allowed by the schema.
      *
      * @return array<string, mixed>|null
      */

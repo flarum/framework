@@ -18,12 +18,14 @@ use Flarum\Bus\Dispatcher;
 use Flarum\Discussion\Command\ReadDiscussion;
 use Flarum\Discussion\Discussion;
 use Flarum\Foundation\ErrorHandling\LogReporter;
+use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Deleting;
 use Flarum\Post\Event\Saving;
 use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
@@ -66,6 +68,11 @@ class PostResource extends AbstractDatabaseResource
 
             $post->user_id = $context->getActor()->id;
             $post->ip_address = $context->request->getAttribute('ipAddress');
+
+            if ($source = RequestUtil::getPostSource($context->request)) {
+                $post->source = $source->key;
+                $post->source_name = $source->storedName();
+            }
 
             return $post;
         }
@@ -235,6 +242,15 @@ class PostResource extends AbstractDatabaseResource
                     return $post instanceof CommentPost
                         && $context->getActor()->can('viewIps', $post);
                 }),
+            Schema\Str::make('source')
+                ->description('How the post was made when not in the forum\'s own interface, such as `api`; null otherwise. Set by the server.')
+                ->nullable()
+                ->visible(fn (Post $post) => $post instanceof CommentPost && $this->showsPostSource()),
+            Schema\Str::make('sourceName')
+                ->description('The name shown after "via" for the post\'s source, such as an application\'s name, or null to use the source\'s own label.')
+                ->nullable()
+                ->property('source_name')
+                ->visible(fn (Post $post) => $post instanceof CommentPost && $this->showsPostSource()),
             Schema\DateTime::make('editedAt')
                 ->description('When the post was last edited, or null if it never was.'),
             Schema\Boolean::make('isHidden')
@@ -278,6 +294,15 @@ class PostResource extends AbstractDatabaseResource
                 ->type('users')
                 ->includable(),
         ];
+    }
+
+    /**
+     * Whether the forum shows how posts were made. Read lazily, so subclasses'
+     * constructors are unaffected.
+     */
+    protected function showsPostSource(): bool
+    {
+        return (bool) resolve(SettingsRepositoryInterface::class)->get('show_post_source');
     }
 
     public function sorts(): array

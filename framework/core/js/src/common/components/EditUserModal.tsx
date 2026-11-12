@@ -21,6 +21,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
   protected email!: Stream<string>;
   protected isEmailConfirmed!: Stream<boolean>;
   protected setPassword!: Stream<boolean>;
+  protected clearEmailBounce!: Stream<boolean>;
   protected password!: Stream<string>;
   protected groups: Record<string, Stream<boolean>> = {};
   protected availableGroups: Group[] = [];
@@ -34,6 +35,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
     this.email = Stream(user.email() || '');
     this.isEmailConfirmed = Stream(user.isEmailConfirmed() || false);
     this.setPassword = Stream(false as boolean);
+    this.clearEmailBounce = Stream(false as boolean);
     this.password = Stream(user.password() || '');
 
     const userGroups = user.groups() || [];
@@ -136,6 +138,19 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
       }
     }
 
+    if (this.userIsAdmin(app.session.user) && this.attrs.user.emailBouncedAt()) {
+      items.add(
+        'clearEmailBounce',
+        <div className="Form-group">
+          <label className="checkbox">
+            <input type="checkbox" name="clearEmailBounce" bidi={this.clearEmailBounce} />
+            {app.translator.trans('core.lib.edit_user.clear_email_bounce_label')}
+          </label>
+        </div>,
+        15
+      );
+    }
+
     if (this.attrs.user.canEditGroups()) {
       items.add(
         'groups',
@@ -219,6 +234,10 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
         .filter((id) => this.groups[id]())
         .map((id) => app.store.getById<Group>('groups', id))
         .filter((g): g is Group => g instanceof Group);
+    }
+
+    if (this.userIsAdmin(app.session.user) && this.attrs.user.emailBouncedAt() && this.clearEmailBounce()) {
+      data.emailBouncedAt = null;
     }
 
     data.relationships = relationships;

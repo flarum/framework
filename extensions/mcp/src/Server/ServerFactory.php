@@ -36,7 +36,7 @@ use Mcp\Schema\ResourceTemplate as ResourceTemplateDefinition;
 use Mcp\Schema\ServerCapabilities;
 use Mcp\Schema\Tool as ToolDefinition;
 use Mcp\Schema\ToolAnnotations;
-use Mcp\Server;
+use Mcp\Server\Server;
 use Mcp\Server\Session\Psr16SessionStore;
 use Mcp\Server\Session\SessionManager;
 use Mcp\Server\Transport\Http\Middleware\CorsMiddleware;

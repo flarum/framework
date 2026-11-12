@@ -168,4 +168,10 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'offline',
         $route->toController(Controller\OfflineController::class)
     );
+
+    $map->post(
+        '/mail/webhook[/{driver}]',
+        'mailWebhook',
+        $route->toController(\Flarum\Mail\WebhookController::class)
+    );
 };

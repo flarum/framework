@@ -23,6 +23,15 @@ import type { DeckColumnType } from '../columns/DeckColumnType';
  */
 export default class DeckColumns implements IExtender<ForumApplication> {
     private readonly types;
+    private readonly events;
     add(key: string, type: DeckColumnType, priority?: number): this;
+    /**
+     * Realtime events, as your extension broadcasts them, that can move a
+     * discussion in or out of a filter without anything being posted: such as
+     * choosing a best answer, for an `is:solved` column. Filtered discussion
+     * columns ask the server about that discussion again, rather than only
+     * redrawing it.
+     */
+    membershipEvents(...names: string[]): this;
     extend(app: ForumApplication, extension: IExtensionModule): void;
 }

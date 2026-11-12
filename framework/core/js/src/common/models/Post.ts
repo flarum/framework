@@ -45,6 +45,20 @@ export default class Post extends Model {
     return Model.attribute<string | null | undefined>('ipAddress').call(this);
   }
 
+  /**
+   * How the post was made when not in the forum's own interface (`api`, `mcp`,
+   * …), or null. Undefined when the forum does not show post sources.
+   */
+  source() {
+    return Model.attribute<string | null | undefined>('source').call(this);
+  }
+  /**
+   * The name shown after "via", when the source's own label is not enough.
+   */
+  sourceName() {
+    return Model.attribute<string | null | undefined>('sourceName').call(this);
+  }
+
   editedAt() {
     return Model.attribute('editedAt', Model.transformDate).call(this);
   }

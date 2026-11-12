@@ -108,6 +108,19 @@ describe('GambitManager', () => {
     });
   });
 
+  test('group keyword filters discussions by the groups of their authors', function () {
+    expect(gambits.apply('discussions', { q: 'group:mods is:unread -author:behz' })).toStrictEqual({
+      q: '',
+      group: 'mods',
+      unread: true,
+      '-author': 'behz',
+    });
+    expect(gambits.apply('discussions', { q: '-group:admins' })).toStrictEqual({
+      q: '',
+      '-group': 'admins',
+    });
+  });
+
   // -------------------------------------------------------------------------
   // Unrecognised keywords are left in the query string untouched
   // -------------------------------------------------------------------------

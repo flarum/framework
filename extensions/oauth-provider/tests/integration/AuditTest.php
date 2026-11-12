@@ -9,12 +9,15 @@
 
 namespace Flarum\OAuthProvider\Tests\integration;
 
+use Flarum\Audit\AuditLog;
 use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
 use Flarum\Extend;
+use Flarum\Http\AccessToken as SessionToken;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\Models\Consent;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\PasswordToken;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -107,6 +110,54 @@ class AuditTest extends TestCase
     }
 
     #[Test]
+    public function an_approval_that_stays_on_record_is_logged_when_its_authorization_is_withdrawn(): void
+    {
+        $login = $this->loginNormalUser();
+        $this->redirectParams($this->authorize($this->authorizeQuery(), $login));
+
+        // The member approves more for the connected application, and their
+        // session ends as the approval is recorded: the authorization is
+        // refused, but the wider approval stays on the connection.
+        $this->onNextConsentSave(fn () => SessionToken::query()->where('user_id', 2)->delete());
+
+        $params = $this->redirectParams($this->authorize($this->authorizeQuery(['scope' => 'openid profile']), $login));
+
+        $this->assertSame('login_required', $params['error'] ?? null);
+        $this->assertSame([['openid', 'profile']], Consent::query()->where('user_id', 2)->get()->pluck('scopes')->all());
+        $this->assertLogExists('user.oauth_connected', $this->applicationPayload(), 2, skip: 1);
+    }
+
+    #[Test]
+    public function an_approval_withdrawn_with_its_authorization_is_not_logged(): void
+    {
+        // A first approval, whose session ends as it is recorded: the consent
+        // it created is withdrawn with it, so nothing was connected.
+        $this->onNextConsentSave(fn () => SessionToken::query()->where('user_id', 2)->delete());
+
+        $params = $this->redirectParams($this->authorize($this->authorizeQuery()));
+
+        $this->assertSame('login_required', $params['error'] ?? null);
+        $this->assertSame(0, Consent::query()->where('user_id', 2)->count());
+        $this->assertLogDoesntExist('user.oauth_connected');
+    }
+
+    #[Test]
+    public function an_approval_racing_a_disconnect_is_not_logged(): void
+    {
+        $login = $this->loginNormalUser();
+        $this->redirectParams($this->authorize($this->authorizeQuery(), $login));
+
+        // The member disconnects the application in another tab as the new
+        // approval is recorded: it merges into a consent that is gone.
+        $this->onNextConsentSave(fn () => Consent::revokeAllFor(2));
+
+        $params = $this->redirectParams($this->authorize($this->authorizeQuery(['scope' => 'openid profile']), $login));
+
+        $this->assertSame('access_denied', $params['error'] ?? null);
+        $this->assertSame(1, AuditLog::query()->where('action', 'user.oauth_connected')->count());
+    }
+
+    #[Test]
     public function disconnecting_an_application_is_logged(): void
     {
         $this->publicClientCode('public-client');
@@ -124,7 +175,82 @@ class AuditTest extends TestCase
 
         $this->sendSuccessfulRequest('DELETE', '/api/oauth-consents', [], 204, 2);
 
-        $this->assertLogExists('user.oauth_disconnected_all', ['user_id' => 2], 2);
+        $this->assertLogExists('user.oauth_disconnected_all', ['user_id' => 2, 'cause' => 'settings'], 2);
+    }
+
+    #[Test]
+    public function changing_a_password_is_logged_as_disconnecting_every_application(): void
+    {
+        $this->publicClientCode('public-client');
+
+        $this->sendSuccessfulRequest('PATCH', '/api/users/2', [
+            'json' => ['data' => ['type' => 'users', 'id' => '2', 'attributes' => ['password' => 'a-brand-new-password']]],
+        ]);
+
+        $this->assertSame(0, Consent::query()->where('user_id', 2)->count());
+        $this->assertLogExists('user.oauth_disconnected_all', ['user_id' => 2, 'cause' => 'password_change'], 1);
+    }
+
+    #[Test]
+    public function logging_out_everywhere_is_logged_as_disconnecting_every_application(): void
+    {
+        $this->publicClientCode('public-client');
+
+        $response = $this->send($this->request('POST', '/global-logout', ['authenticatedAs' => 2])->withAttribute('bypassCsrfToken', true));
+
+        $this->assertSame(204, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(0, Consent::query()->where('user_id', 2)->count());
+        $this->assertLogExists('user.oauth_disconnected_all', ['user_id' => 2, 'cause' => 'logout_everywhere'], 2);
+    }
+
+    #[Test]
+    public function resetting_a_password_by_email_is_logged_as_disconnecting_every_application(): void
+    {
+        $this->publicClientCode('public-client');
+
+        $token = PasswordToken::generate(2);
+        $token->save();
+
+        $response = $this->send(
+            $this->request('POST', '/reset', ['json' => ['passwordToken' => $token->token, 'password' => 'a-brand-new-password', 'password_confirmation' => 'a-brand-new-password']])
+                ->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertSame(302, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(0, Consent::query()->where('user_id', 2)->count());
+
+        // The request is a guest's: the member is signed in only afterwards.
+        $this->assertLogExists('user.oauth_disconnected_all', ['user_id' => 2, 'cause' => 'password_change'], null);
+    }
+
+    #[Test]
+    public function disconnecting_every_application_with_none_connected_is_not_logged(): void
+    {
+        $this->sendSuccessfulRequest('DELETE', '/api/oauth-consents', [], 204, 2);
+
+        $this->assertLogDoesntExist('user.oauth_disconnected_all');
+    }
+
+    #[Test]
+    public function changing_a_password_without_connected_applications_logs_no_disconnect(): void
+    {
+        $this->sendSuccessfulRequest('PATCH', '/api/users/2', [
+            'json' => ['data' => ['type' => 'users', 'id' => '2', 'attributes' => ['password' => 'a-brand-new-password']]],
+        ]);
+
+        $this->assertLogDoesntExist('user.oauth_disconnected_all');
+    }
+
+    #[Test]
+    public function logging_out_of_one_browser_logs_no_disconnect(): void
+    {
+        $this->publicClientCode('public-client');
+
+        $response = $this->send($this->request('POST', '/logout', ['authenticatedAs' => 2])->withAttribute('bypassCsrfToken', true));
+
+        $this->assertLessThan(400, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(1, Consent::query()->where('user_id', 2)->count());
+        $this->assertLogDoesntExist('user.oauth_disconnected_all');
     }
 
     #[Test]
@@ -158,5 +284,19 @@ class AuditTest extends TestCase
         $this->sendSuccessfulRequest('POST', '/api/oauth-provider-clients/site-client/rotate-secret');
 
         $this->assertLogExists('oauth_client.secret_rotated', ['client_id' => 'site-client', 'client' => 'Sister forum']);
+    }
+
+    /**
+     * Runs $hook once, just before the consent form's approval is saved.
+     */
+    protected function onNextConsentSave(\Closure $hook): void
+    {
+        $this->app();
+
+        Consent::saving(function () use (&$hook) {
+            $run = $hook;
+            $hook = null;
+            $run && $run();
+        });
     }
 }

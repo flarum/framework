@@ -11,10 +11,10 @@ namespace Flarum\Mcp\Server;
 
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Tool;
-use Mcp\Exception\ToolCallException;
 use Mcp\Schema\Content\TextContent;
 use Mcp\Schema\Result\CallToolResult;
 use Mcp\Server\ClientGateway;
+use Mcp\Server\Exception\ToolCallException;
 use Mcp\Server\Handler\ToolHandlerInterface;
 
 /**
@@ -31,6 +31,9 @@ class ToolHandler implements ToolHandlerInterface
 
     public function execute(array $arguments, ClientGateway $gateway): mixed
     {
+        // SDK validation preserves JSON objects; Flarum handlers receive nested arrays.
+        $arguments = array_map($this->normalizeArgument(...), $arguments);
+
         $result = $this->invoker->run(
             fn () => $this->tool->handle($arguments, $this->context),
             fn (string $message) => new ToolCallException($message),
@@ -43,5 +46,14 @@ class ToolHandler implements ToolHandlerInterface
         }
 
         return new CallToolResult([new TextContent(is_string($result) ? $result : Json::encode($result))]);
+    }
+
+    protected function normalizeArgument(mixed $value): mixed
+    {
+        if ($value instanceof \stdClass) {
+            $value = (array) $value;
+        }
+
+        return is_array($value) ? array_map($this->normalizeArgument(...), $value) : $value;
     }
 }

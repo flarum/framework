@@ -95,9 +95,9 @@ class ConsentResource extends Resource\AbstractDatabaseResource
                 ->action(function (FlarumContext $context): void {
                     $actor = $context->getActor();
 
-                    Consent::revokeAllFor((int) $actor->id);
-
-                    $this->events->dispatch(new DisconnectedAll($actor));
+                    if (Consent::revokeAllFor((int) $actor->id)) {
+                        $this->events->dispatch(new DisconnectedAll($actor, DisconnectedAll::SETTINGS));
+                    }
                 })
                 ->response(fn () => new EmptyResponse(204)),
         ];

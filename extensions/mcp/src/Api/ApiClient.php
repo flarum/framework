@@ -198,6 +198,10 @@ class ApiClient
 
         $request = RequestUtil::withActor($request, $this->actor);
 
+        if ($this->parent) {
+            $request = RequestUtil::withPostSource($request, RequestUtil::getPostSource($this->parent));
+        }
+
         if ($this->container->make(ThrottleApi::class)->throttle($request)) {
             throw new FloodingException();
         }

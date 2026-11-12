@@ -12,6 +12,7 @@ namespace Flarum\OAuthProvider\Models;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -56,5 +57,35 @@ class AuthCode extends AbstractModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Revokes the codes, and the access and refresh tokens, that $scope
+     * selects. It is applied to code and access token queries alike, so it may
+     * only constrain columns both share (user_id, client_id).
+     *
+     * The codes' token families are marked first: a grant still issuing tokens
+     * into one checks the mark once they are stored
+     * (IssuesResourceBoundTokens::assertFamilyNotRevoked()), so tokens stored
+     * after these updates are revoked as well.
+     *
+     * Rows already revoked are left alone, so this doesn't rewrite a whole
+     * token history. Refresh tokens are still looked up through every access
+     * token, revoked or not: one may outlive its access token.
+     *
+     * @param \Closure(Builder): Builder $scope
+     */
+    public static function revokeWithTokens(\Closure $scope): void
+    {
+        $scope(static::query())
+            ->where(fn (Builder $query) => $query->where('revoked', false)->orWhere('family_revoked', false))
+            ->update(['revoked' => true, 'family_revoked' => true]);
+
+        RefreshToken::query()
+            ->whereIn('access_token_id', $scope(AccessToken::query()->select('id')))
+            ->where('revoked', false)
+            ->update(['revoked' => true]);
+
+        $scope(AccessToken::query())->where('revoked', false)->update(['revoked' => true]);
     }
 }

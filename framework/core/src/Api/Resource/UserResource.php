@@ -290,6 +290,28 @@ class UserResource extends AbstractDatabaseResource
                         $user->activate();
                     }
                 }),
+
+            Schema\DateTime::make('emailBouncedAt')
+                ->nullable()
+                // Visible to the user themselves (so the forum can prompt them
+                // to fix their address) and to admins who can edit credentials.
+                ->visible(function (User $user, Context $context) {
+                    return $context->getActor()->id === $user->id
+                        || $context->getActor()->can('editCredentials', $user);
+                })
+                // Admins can clear a bounce flag (e.g. a provider glitch) by
+                // writing null; they cannot set an arbitrary bounce timestamp.
+                ->writable(fn (User $user, Context $context) => $context->getActor()->isAdmin())
+                ->set(function (User $user, $value, Context $context) {
+                    if (empty($value)) {
+                        $user->clearEmailBounce();
+                    }
+                }),
+
+            Schema\Str::make('emailBounceReason')
+                // Reason is only exposed to admins; the user just needs to know
+                // that delivery failed, not the raw provider message.
+                ->visible(fn (User $user, Context $context) => $context->getActor()->can('editCredentials', $user)),
             Schema\Str::make('password')
                 ->description('Write-only. At least 8 characters.')
                 ->requiredOnCreateWithout(['token'])
@@ -456,6 +478,17 @@ class UserResource extends AbstractDatabaseResource
                     // identifiers the request sent.
                     $newGroupIds = array_map(fn (Group $group) => (int) $group->id, $value);
 
+                    // An actor who can't see hidden groups is never sent them,
+                    // so the groups they save leave those out. Keep them rather
+                    // than remove groups the actor doesn't know about.
+                    if (! $actor->can('viewHiddenGroups')) {
+                        foreach ($oldGroups as $group) {
+                            if ($group->is_hidden && ! in_array((int) $group->id, $newGroupIds, true)) {
+                                $newGroupIds[] = (int) $group->id;
+                            }
+                        }
+                    }
+
                     // Ensure non-admins aren't adding/removing admins
                     $adminChanged = in_array(Group::ADMINISTRATOR_ID, array_diff($oldGroupIds, $newGroupIds), true)
                         || in_array(Group::ADMINISTRATOR_ID, array_diff($newGroupIds, $oldGroupIds), true);
@@ -469,7 +502,10 @@ class UserResource extends AbstractDatabaseResource
                         $user->groups()->sync($newGroupIds);
                         $user->unsetRelation('groups');
                     });
-                }),
+                })
+                // The setter syncs the groups itself, so skip the default save,
+                // which would sync only the groups the request sent.
+                ->save(fn () => null),
         ];
     }
 

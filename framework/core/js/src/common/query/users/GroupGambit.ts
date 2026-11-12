@@ -1,7 +1,10 @@
 import app from '../../app';
-import { KeyValueGambit } from '../IGambit';
+import { KeyValueGambit, type GambitValueOption } from '../IGambit';
+import Group from '../../models/Group';
 
 export default class GroupGambit extends KeyValueGambit {
+  predicates = true;
+
   key(): string {
     return app.translator.trans('core.lib.gambits.users.group.key', {}, true);
   }
@@ -16,5 +19,15 @@ export default class GroupGambit extends KeyValueGambit {
 
   filterKey(): string {
     return 'group';
+  }
+
+  values(): (string | GambitValueOption)[] {
+    return (app.store.all<Group>('groups') || [])
+      .filter((group) => ![Group.GUEST_ID, Group.MEMBER_ID].includes(group.id()!))
+      .map((group): GambitValueOption => ({
+        value: group.id()!,
+        label: group.nameSingular() || group.namePlural() || '',
+      }))
+      .filter((opt) => !!opt.value);
   }
 }
