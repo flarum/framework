@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Resource;
 
+use Closure;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Schema;
@@ -43,7 +44,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
-use InvalidArgumentException;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Log\LoggerInterface;
 
@@ -543,7 +543,7 @@ class UserResource extends AbstractDatabaseResource
     }
 
     /**
-     * @throws InvalidArgumentException
+     * @throws ValidationException
      */
     private function uploadAvatarFromUrl(User $user, string $url, ?string $url2x = null, ?string $url3x = null): void
     {
@@ -574,22 +574,28 @@ class UserResource extends AbstractDatabaseResource
      */
     private function assertValidAvatarUrl(string $url): void
     {
-        $urlValidator = $this->validation->make(compact('url'), [
-            'url' => 'required|active_url',
+        // No DNS here; hostnames are checked against their resolved address at
+        // fetch time, where failure skips the avatar instead of blocking sign-up.
+        $validator = $this->validation->make(['avatar_url' => $url], [
+            'avatar_url' => [
+                'bail',
+                'required',
+                'url:http,https',
+                function (string $attribute, mixed $value, Closure $fail) {
+                    $literal = trim((string) parse_url($value, PHP_URL_HOST), '[]');
+
+                    if (filter_var($literal, FILTER_VALIDATE_IP) && ! self::isAllowedIp($literal)) {
+                        $fail('Provided avatar URL must not point at a loopback, link-local or reserved address.');
+                    }
+                },
+            ],
+        ], [
+            'avatar_url.required' => 'Provided avatar URL must be a valid URI.',
+            'avatar_url.url' => 'Provided avatar URL must be a valid URI.',
         ]);
 
-        if ($urlValidator->fails()) {
-            throw new ValidationException([
-                'avatar_url' => 'Provided avatar URL must be a valid URI.',
-            ]);
-        }
-
-        $scheme = parse_url($url, PHP_URL_SCHEME);
-
-        if (! in_array($scheme, ['http', 'https'])) {
-            throw new ValidationException([
-                'avatar_url' => "Provided avatar URL must have scheme http or https. Scheme provided was $scheme.",
-            ]);
+        if ($validator->fails()) {
+            throw new ValidationException(['avatar_url' => $validator->errors()->first('avatar_url')]);
         }
     }
 
@@ -632,6 +638,10 @@ class UserResource extends AbstractDatabaseResource
         $ip = $this->resolveToAllowedIp($host);
 
         if ($ip === null) {
+            $this->api->getContainer()->make(LoggerInterface::class)->warning(
+                "Skipped downloading an avatar from $host: it did not resolve to an allowed address."
+            );
+
             return null;
         }
 

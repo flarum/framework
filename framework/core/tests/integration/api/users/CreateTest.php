@@ -231,86 +231,22 @@ class CreateTest extends TestCase
         $settings->set('allow_sign_up', true);
     }
 
-    #[Test]
-    public function cannot_create_user_with_invalid_avatar_uri_scheme()
-    {
-        // Boot app
-        $this->app();
-
-        $regTokens = [];
-
-        // Add registration tokens that should cause a failure
-        $regTokens[] = [
-            'token' => RegistrationToken::generate('flarum', '1', [
-                'username' => 'test',
-                'email' => 'test@machine.local',
-                'is_email_confirmed' => 1,
-                'avatar_url' => 'file://localhost/etc/passwd'
-            ], []),
-            'scheme' => 'file'
-        ];
-
-        $regTokens[] = [
-            'token' => RegistrationToken::generate('flarum', '1', [
-                'username' => 'test',
-                'email' => 'test@machine.local',
-                'is_email_confirmed' => 1,
-                'avatar_url' => 'ftp://localhost/image.png'
-            ], []),
-            'scheme' => 'ftp'
-        ];
-
-        // Test each reg token
-        foreach ($regTokens as $regToken) {
-            $regToken['token']->saveOrFail();
-
-            // Call the registration endpoint
-            $response = $this->send(
-                $this->request(
-                    'POST',
-                    '/api/users',
-                    [
-                        'json' => [
-                            'data' => [
-                                'attributes' => [
-                                    'token' => $regToken['token']->token,
-                                ],
-                            ]
-                        ],
-                    ]
-                )->withAttribute('bypassCsrfToken', true)
-            );
-
-            // The response body should contain details about the invalid URI
-            $body = (string) $response->getBody();
-            $this->assertJson($body);
-            $decodedBody = json_decode($body, true);
-
-            $this->assertEquals(422, $response->getStatusCode(), $body);
-
-            $firstError = $decodedBody['errors'][0];
-
-            // Check that the error is an invalid URI
-            $this->assertStringContainsString('Provided avatar URL must have scheme http or https. Scheme provided was '.$regToken['scheme'].'.', $firstError['detail']);
-        }
-    }
-
     public static function invalidAvatarUrlProvider(): array
     {
         $invalid = 'Provided avatar URL must be a valid URI.';
-        $notPublic = 'Provided avatar URL must point at a public address.';
+        $blockedAddress = 'Provided avatar URL must not point at a loopback, link-local or reserved address.';
 
         return [
             'relative path' => ['../image.png', $invalid],
             'bare filename' => ['image.png', $invalid],
-            'ipv4 loopback literal' => ['https://127.0.0.1/image.png', $notPublic],
-            'ipv6 loopback literal' => ['https://[::1]/image.png', $notPublic],
-            'cloud metadata literal' => ['https://169.254.169.254/image.png', $notPublic],
-            'hostname resolving to loopback' => ['https://localhost/image.png', $notPublic],
-            // RFC 6761: the .invalid TLD never resolves.
-            'unresolvable hostname' => ['https://i-do-not-exist.invalid/image.png', $notPublic],
-            // Passes the url rule and fails only on resolution.
-            'unresolvable internationalised hostname' => ['https://bücher.invalid/image.png', $notPublic],
+            'ipv4 loopback literal' => ['https://127.0.0.1/image.png', $blockedAddress],
+            'ipv6 loopback literal' => ['https://[::1]/image.png', $blockedAddress],
+            'cloud metadata literal' => ['https://169.254.169.254/image.png', $blockedAddress],
+            'ipv4-mapped loopback literal' => ['http://[::ffff:127.0.0.1]/image.png', $blockedAddress],
+            'loopback literal behind userinfo' => ['https://user:pw@127.0.0.1/image.png', $blockedAddress],
+            'file scheme' => ['file://localhost/etc/passwd', $invalid],
+            'ftp scheme' => ['ftp://localhost/image.png', $invalid],
+            'gopher scheme' => ['gopher://localhost/_stats', $invalid],
         ];
     }
 
@@ -353,6 +289,41 @@ class CreateTest extends TestCase
 
         $this->assertEquals('/data/attributes/avatar_url', $firstError['source']['pointer'] ?? null, $body);
         $this->assertStringContainsString($expectedError, $firstError['detail']);
+    }
+
+    #[Test]
+    public function creates_user_without_avatar_when_avatar_host_is_not_allowed()
+    {
+        $this->app();
+
+        $regToken = RegistrationToken::generate('flarum', '1', [
+            'username' => 'test',
+            'email' => 'test@machine.local',
+            'is_email_confirmed' => 1,
+            'avatar_url' => 'https://localhost/image.png',
+        ], []);
+        $regToken->saveOrFail();
+
+        $response = $this->send(
+            $this->request(
+                'POST',
+                '/api/users',
+                [
+                    'json' => [
+                        'data' => [
+                            'attributes' => [
+                                'token' => $regToken->token,
+                            ],
+                        ]
+                    ],
+                ]
+            )->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $user = User::where('username', 'test')->firstOrFail();
+        $this->assertNull($user->getRawOriginal('avatar_url'));
     }
 
     #[Test]
