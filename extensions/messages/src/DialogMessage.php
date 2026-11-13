@@ -39,6 +39,7 @@ use Illuminate\Database\Query\Expression;
  * @property-read Collection<int, Post> $mentionsPosts
  * @property-read Collection<int, Group> $mentionsGroups
  * @property-read Collection<int, Tag> $mentionsTags
+ * @property-read Collection<int, User> $likes
  */
 class DialogMessage extends AbstractModel implements Formattable
 {
@@ -162,5 +163,11 @@ class DialogMessage extends AbstractModel implements Formattable
     public function mentionsTags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'dialog_message_mentions_tag', 'dialog_message_id', 'mentions_tag_id');
+    }
+
+    /** Who liked the message, with flarum/likes enabled. */
+    public function likes(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'dialog_message_likes', 'dialog_message_id', 'user_id');
     }
 }
