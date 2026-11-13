@@ -310,6 +310,23 @@ class CreateTest extends TestCase
             'avatar_url' => 'https://127.0.0.1/image.png'
         ], []);
 
+        // IP-literal hosts in loopback, link-local and other reserved ranges
+        // are rejected without a DNS lookup, so these don't depend on the
+        // server's resolver.
+        foreach ([
+            'http://127.0.0.2:8080/image.png',
+            'http://169.254.169.254/latest/meta-data',
+            'http://0.0.0.0/image.png',
+            'https://[::1]/image.png',
+        ] as $avatarUrl) {
+            $regTokens[] = RegistrationToken::generate('flarum', '1', [
+                'username' => 'test',
+                'email' => 'test@machine.local',
+                'is_email_confirmed' => 1,
+                'avatar_url' => $avatarUrl
+            ], []);
+        }
+
         $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
