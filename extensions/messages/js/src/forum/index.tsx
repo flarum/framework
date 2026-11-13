@@ -96,6 +96,14 @@ app.initializers.add('flarum-messages', () => {
       icon: 'fas fa-envelope',
       label: app.translator.trans('flarum-messages.forum.settings.notify_message_received_label'),
     });
+
+    if ('flarum-likes' in flarum.extensions) {
+      items.add('messageLiked', {
+        name: 'messageLiked',
+        icon: 'far fa-thumbs-up',
+        label: app.translator.trans('flarum-messages.forum.settings.notify_message_liked_label'),
+      });
+    }
   });
 
   // Register realtime events with flarum/realtime when enabled.
