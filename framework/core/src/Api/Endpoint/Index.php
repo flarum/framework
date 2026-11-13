@@ -121,6 +121,8 @@ class Index extends Endpoint
 
                 $query = $collection->query($context);
 
+                $this->rejectPagesOfUnpaginatableLists($context);
+
                 // Reading the page parameters first rejects the ones that can't be read
                 // before a pagination is built from them.
                 $extracts = $this->defaultExtracts($context);
@@ -349,6 +351,28 @@ class Index extends Endpoint
             $limit,
             $this->maxLimit,
         );
+    }
+
+    /**
+     * The page family is reserved for pagination, and only a Paginatable resource
+     * can be paginated. A request for a page of any other list can't be answered
+     * as asked, so it's refused rather than given the whole list.
+     */
+    private function rejectPagesOfUnpaginatableLists(\Tobyz\JsonApiServer\Context $context): void
+    {
+        $page = $context->queryParam('page');
+
+        if ($context->collection instanceof Paginatable || ! is_array($page)) {
+            return;
+        }
+
+        foreach (['limit', 'offset', 'number'] as $name) {
+            if (isset($page[$name])) {
+                throw (new BadRequestException("page[$name] is not supported: this list is not paginated"))->setSource([
+                    'parameter' => "page[$name]",
+                ]);
+            }
+        }
     }
 
     /**
