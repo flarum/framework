@@ -121,9 +121,11 @@ class Index extends Endpoint
 
                 $query = $collection->query($context);
 
-                $pagination = ($this->paginationResolver)($context);
-
+                // Reading the page parameters first rejects the ones that can't be read
+                // before a pagination is built from them.
                 $extracts = $this->defaultExtracts($context);
+
+                $pagination = ($this->paginationResolver)($context);
 
                 $filters = $this->extractFilterValue($context, $extracts);
                 $sort = $this->extractSortValue($context, $extracts);

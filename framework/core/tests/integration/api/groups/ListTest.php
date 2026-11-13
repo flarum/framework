@@ -16,6 +16,7 @@ use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
@@ -412,6 +413,31 @@ class ListTest extends TestCase
             'color' => null,
             'icon' => 'fas fa-wrench',
             'is_hidden' => 1
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('pageParametersGivenAsLists')]
+    public function rejects_a_page_parameter_given_as_a_list(string $name)
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')->withQueryParams([
+                'page' => [$name => ['1']],
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(400, $response->getStatusCode(), $body);
+        $this->assertEquals("page[$name]", json_decode($body, true)['errors'][0]['source']['parameter'] ?? null);
+    }
+
+    public static function pageParametersGivenAsLists(): array
+    {
+        return [
+            'limit' => ['limit'],
+            'offset' => ['offset'],
+            'number' => ['number'],
         ];
     }
 }

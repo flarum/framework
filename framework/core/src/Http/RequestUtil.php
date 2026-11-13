@@ -196,7 +196,7 @@ class RequestUtil
 
     public static function extractLimit(Request $request, ?int $defaultLimit = null, ?int $max = null): ?int
     {
-        $limit = $request->getQueryParams()['page']['limit'] ?? '';
+        $limit = self::pageParam($request, 'limit') ?? '';
 
         if (! filled($limit)) {
             $limit = $defaultLimit;
@@ -221,38 +221,46 @@ class RequestUtil
         return $limit;
     }
 
-    public static function extractOffsetFromNumber(Request $request, ?int $limit): int
+    public static function extractOffsetFromNumber(Request $request, int $limit): int
     {
-        $page = $request->getQueryParams()['page']['number'] ?? 1;
+        $page = (int) (self::pageParam($request, 'number') ?? 1);
 
-        if (is_string($page) && ctype_digit($page)) {
-            $digits = ltrim($page, '0') ?: '0';
-            // Casting saturates at PHP_INT_MAX instead of failing.
-            $page = (string) (int) $digits === $digits ? (int) $digits : null;
+        if ($page < 1) {
+            throw new BadRequestException('page[number] must be at least 1');
         }
 
-        // An offset past PHP_INT_MAX would become a float and fail the return type.
-        if (! is_int($page) || $page < 1 || ($limit > 0 && $page - 1 > intdiv(PHP_INT_MAX, $limit))) {
-            throw (new BadRequestException('page[number] must be a positive integer'))
-                ->setSource(['parameter' => 'page[number]']);
-        }
-
-        return ($page - 1) * ($limit ?? 0);
+        return ($page - 1) * $limit;
     }
 
     public static function extractOffset(Request $request, ?int $limit = 0): int
     {
-        if (! in_array($request->getQueryParams()['page']['number'] ?? null, [null, ''], true)) {
+        if (self::pageParam($request, 'number')) {
             return self::extractOffsetFromNumber($request, $limit);
         }
 
-        $offset = (int) ($request->getQueryParams()['page']['offset'] ?? 0);
+        $offset = (int) (self::pageParam($request, 'offset') ?? 0);
 
         if ($offset < 0) {
             throw new BadRequestException('page[offset] must be at least 0');
         }
 
         return $offset;
+    }
+
+    /**
+     * A page parameter is a single value: page[limit][]=2 can't be read as a number.
+     */
+    private static function pageParam(Request $request, string $name): string|int|null
+    {
+        $value = $request->getQueryParams()['page'][$name] ?? null;
+
+        if ($value !== null && ! is_string($value) && ! is_int($value)) {
+            throw (new BadRequestException("page[$name] must be a single value"))->setSource([
+                'parameter' => "page[$name]",
+            ]);
+        }
+
+        return $value;
     }
 
     public static function extractInclude(Request $request, ?array $available): array
