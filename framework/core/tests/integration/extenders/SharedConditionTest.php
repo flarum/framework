@@ -9,8 +9,8 @@
 
 namespace Flarum\Tests\integration\extenders;
 
-use Flarum\Extension\Condition;
 use Flarum\Extend;
+use Flarum\Extension\Condition;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Container\Container;
