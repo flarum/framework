@@ -259,4 +259,31 @@ class ListTest extends TestCase
             'number' => ['number'],
         ];
     }
+
+    #[Test]
+    #[DataProvider('malformedPageParameters')]
+    public function rejects_a_page_parameter_that_is_not_a_number(array $page, string $parameter)
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/users', [
+                'authenticatedAs' => 1,
+            ])->withQueryParams(['page' => $page])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(400, $response->getStatusCode(), $body);
+        $this->assertEquals($parameter, json_decode($body, true)['errors'][0]['source']['parameter'] ?? null);
+    }
+
+    public static function malformedPageParameters(): array
+    {
+        return [
+            'limit with letters' => [['limit' => '2x'], 'page[limit]'],
+            'offset with letters' => [['offset' => '2x'], 'page[offset]'],
+            'number with letters' => [['number' => '2x'], 'page[number]'],
+            'number zero' => [['number' => '0'], 'page[number]'],
+            'offset as a list beside a number' => [['number' => '1', 'offset' => ['2']], 'page[offset]'],
+        ];
+    }
 }

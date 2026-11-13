@@ -196,16 +196,8 @@ class RequestUtil
 
     public static function extractLimit(Request $request, ?int $defaultLimit = null, ?int $max = null): ?int
     {
-        $limit = self::pageParam($request, 'limit') ?? '';
+        $limit = self::pageParam($request, 'limit') ?? $defaultLimit;
 
-        if (! filled($limit)) {
-            $limit = $defaultLimit;
-        }
-
-        // Only short-circuit when there is genuinely no limit (no page[limit] and no
-        // default). A loose `! $limit` check here also caught the string "0", returning
-        // null which then broke OffsetPagination's non-nullable int $limit. An explicit
-        // page[limit]=0 must instead fall through to the `< 1` guard below and 400.
         if ($limit === null) {
             return null;
         }
@@ -214,53 +206,66 @@ class RequestUtil
             $limit = min($limit, $max);
         }
 
+        // An explicit page[limit]=0 is refused rather than read as "no limit".
         if ($limit < 1) {
-            throw new BadRequestException('page[limit] must be at least 1');
+            throw (new BadRequestException('page[limit] must be at least 1'))->setSource([
+                'parameter' => 'page[limit]',
+            ]);
         }
 
         return $limit;
     }
 
-    public static function extractOffsetFromNumber(Request $request, int $limit): int
+    public static function extractOffsetFromNumber(Request $request, ?int $limit): int
     {
-        $page = (int) (self::pageParam($request, 'number') ?? 1);
+        $page = self::pageParam($request, 'number') ?? 1;
 
         if ($page < 1) {
-            throw new BadRequestException('page[number] must be at least 1');
+            throw (new BadRequestException('page[number] must be at least 1'))->setSource([
+                'parameter' => 'page[number]',
+            ]);
         }
 
-        return ($page - 1) * $limit;
+        // Without a limit there is only one page.
+        return ($page - 1) * ($limit ?? 0);
     }
 
     public static function extractOffset(Request $request, ?int $limit = 0): int
     {
-        if (self::pageParam($request, 'number')) {
+        // Read both, so a malformed offset is refused even when page[number] wins.
+        $offset = self::pageParam($request, 'offset') ?? 0;
+
+        if (self::pageParam($request, 'number') !== null) {
             return self::extractOffsetFromNumber($request, $limit);
-        }
-
-        $offset = (int) (self::pageParam($request, 'offset') ?? 0);
-
-        if ($offset < 0) {
-            throw new BadRequestException('page[offset] must be at least 0');
         }
 
         return $offset;
     }
 
     /**
-     * A page parameter is a single value: page[limit][]=2 can't be read as a number.
+     * A page parameter is a whole number given once: page[limit][]=2 or
+     * page[limit]=2x can't be read as one. An empty value counts as absent.
      */
-    private static function pageParam(Request $request, string $name): string|int|null
+    private static function pageParam(Request $request, string $name): ?int
     {
-        $value = $request->getQueryParams()['page'][$name] ?? null;
+        $page = $request->getQueryParams()['page'] ?? null;
+        $value = is_array($page) ? ($page[$name] ?? null) : null;
 
-        if ($value !== null && ! is_string($value) && ! is_int($value)) {
-            throw (new BadRequestException("page[$name] must be a single value"))->setSource([
-                'parameter' => "page[$name]",
-            ]);
+        if ($value === null || $value === '') {
+            return null;
         }
 
-        return $value;
+        if (is_int($value) && $value >= 0) {
+            return $value;
+        }
+
+        if (is_string($value) && ctype_digit($value)) {
+            return (int) $value;
+        }
+
+        throw (new BadRequestException("page[$name] must be a non-negative integer"))->setSource([
+            'parameter' => "page[$name]",
+        ]);
     }
 
     public static function extractInclude(Request $request, ?array $available): array
