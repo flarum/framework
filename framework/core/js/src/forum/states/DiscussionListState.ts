@@ -174,4 +174,104 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
 
     return pages;
   }
+
+  /**
+   * The filters the list is currently showing results for, as the API takes
+   * them: `q` run through the gambits and folded into `filter` — the same
+   * parsing `Store.find()` does before a `GET` — and whatever extensions add
+   * — the tag of a tag page, say — already in place, since this is the same
+   * thing `requestParams()` asks the API for.
+   *
+   * Gambits like `tag:x` or `is:unread` only take effect for a `GET` today,
+   * applied client-side on the way out in `Store.find()`; the server never
+   * parses `q`. Anything sent `q` as-is — `markAllAsRead()`'s `POST`, and the
+   * confirmation text this feeds `IndexPage` — would otherwise run a fulltext
+   * search for the literal gambit text instead of the filter it stands for.
+   *
+   * Filters that single nothing out are left off, so a list showing every
+   * discussion is recognisable as one however it was arrived at.
+   */
+  public activeFilters(): Record<string, any> {
+    let filter = { ...((this.requestParams().filter ?? {}) as Record<string, any>) };
+
+    // The whole filter goes through, as in `Store.find()`, not `q` alone: a
+    // gambit with `predicates` (flarum/tags' `tag:`) appends to a filter key
+    // already set, such as the tag of a tag page, rather than replacing it.
+    if (filter.q) {
+      filter = app.search.gambits.apply(this.type, filter);
+    }
+
+    // Only an empty fulltext query is ignored by the list's filters.
+    return Object.fromEntries(
+      Object.entries(filter)
+        .filter(([key, value]) => key !== 'q' || (value != null && value !== ''))
+        .map(([key, value]) => [key, value ?? ''])
+    );
+  }
+
+  /**
+   * Whether marking this list read covers every discussion the user can see.
+   *
+   * True for an unfiltered list, and also for one filtered to nothing but
+   * `unread` — that is every unread discussion, which is the same set the
+   * unfiltered list marks read. The server records both as the single
+   * `markedAllAsReadAt` timestamp rather than a row per discussion, so the
+   * client treats them the same: it refetches the user for the server's
+   * timestamp, and `IndexPage` offers the "all discussions" confirmation.
+   */
+  public marksEverythingAsRead(): boolean {
+    const keys = Object.keys(this.activeFilters());
+
+    return keys.length === 0 || (keys.length === 1 && keys[0] === 'unread');
+  }
+
+  /**
+   * Mark the discussions in this list as read.
+   *
+   * The API is given the filters the list was fetched with, so a filtered list
+   * only marks its own discussions read rather than the whole forum. With no
+   * filters it is every discussion, which the server still records as one
+   * timestamp on the user instead of a row per discussion.
+   */
+  public markAllAsRead(): Promise<void> {
+    const filter = this.activeFilters();
+    const everything = this.marksEverythingAsRead();
+    const user = app.session.user;
+
+    // Captured before the request is sent — both the discussions and the post
+    // numbers to mark them read up to — not re-read from `this` once it
+    // resolves. This state object is shared across navigation (switching tags,
+    // say), so by the time the response comes back `getAllItems()` may already
+    // belong to a different list; and reading `lastPostNumber()` only on
+    // resolution would let a realtime reply arriving mid-request be shown as
+    // read locally even though the server was never asked to mark it.
+    const reads = this.getAllItems()
+      .map((discussion) => ({ discussion, lastPostNumber: discussion.lastPostNumber() }))
+      // Nothing to have read up to in a discussion whose posts are all gone.
+      // Writing null would read as never having read it. The type guard also
+      // narrows `lastPostNumber` to a number for the write below.
+      .filter((read): read is { discussion: Discussion; lastPostNumber: number } => read.lastPostNumber != null);
+
+    return app
+      .request({
+        method: 'POST',
+        url: app.forum.attribute('apiUrl') + '/discussions/read',
+        params: { filter },
+      })
+      .then(() => {
+        reads.forEach(({ discussion, lastPostNumber }) => {
+          discussion.pushAttributes({ lastReadPostNumber: Math.max(discussion.lastReadPostNumber() ?? 0, lastPostNumber) });
+        });
+
+        // The server stamped `marked_all_as_read_at` from its own clock; the
+        // old `user.save()` read that value back from the response. In the
+        // "everything" case refetch the user so unread badges follow the
+        // server's time rather than the browser's, which may be wrong.
+        const settled = everything && user ? app.store.find('users', user.id()!) : Promise.resolve();
+
+        return settled.then(() => {
+          m.redraw();
+        });
+      });
+  }
 }
