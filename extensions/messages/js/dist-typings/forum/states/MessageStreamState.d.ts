@@ -34,4 +34,15 @@ export default class MessageStreamState<P extends MessageStreamParams = MessageS
      * held, so there is nothing to fetch.
      */
     catchUp(): Promise<void>;
+    /** As many messages as the forum gives in one answer. */
+    static REFRESH_BATCH: number;
+    /**
+     * Fetches the messages held again, after a reconnect, for what changed on
+     * them while events were not being received, such as likes. They are asked
+     * for by id, so each one held is fetched however the pages around it moved:
+     * messages that arrived live, or meanwhile, or were deleted. The store takes
+     * in what comes back, and the pages stay as they are. Messages that arrived
+     * meanwhile are catchUp()'s to bring in.
+     */
+    refreshHeld(): Promise<void>;
 }
