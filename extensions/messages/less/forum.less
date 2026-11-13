@@ -239,10 +239,20 @@
     flex-shrink: 0;
     position: relative;
 
+    > .Badge {
+      .Badge--size(42px);
+      box-shadow: none;
+
+      &, .Badge-icon {
+        font-size: 16px;
+      }
+    }
+
     // Two of a group's members, one over the other, in the space of one avatar.
     &--group {
       width: 42px;
       height: 42px;
+      isolation: isolate;
 
       .Avatar {
         --size: 30px;
@@ -258,6 +268,14 @@
           bottom: 0;
           inset-inline-end: 0;
         }
+
+        &:hover {
+          z-index: 1;
+        }
+      }
+
+      .Bubble {
+        z-index: 2;
       }
     }
 
@@ -366,10 +384,16 @@
 
   > .Avatar,
   > .DialogSection-header-group {
+    position: relative;
     box-shadow: 0 0 0 2px var(--body-bg);
 
-    & + .Avatar,
-    & + .DialogSection-header-group {
+    &:hover {
+      z-index: 1;
+    }
+
+    // A hovered group's tooltip is inserted between the tiles.
+    & ~ .Avatar,
+    & ~ .DialogSection-header-group {
       margin-inline-start: -10px;
     }
   }
