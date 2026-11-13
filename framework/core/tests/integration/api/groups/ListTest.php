@@ -327,6 +327,31 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function the_next_link_of_a_numbered_page_leads_to_the_following_page()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams([
+                'page' => ['number' => '1', 'limit' => '2'],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals(['1', '2'], Arr::pluck($data['data'], 'id'));
+
+        parse_str(parse_url($data['links']['next'] ?? '', PHP_URL_QUERY) ?? '', $query);
+
+        $response = $this->send(
+            $this->request('GET', '/api/groups')->withQueryParams($query)
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals(['3', '4'], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
     public function returns_every_group_without_pagination_links_when_no_page_is_requested()
     {
         $response = $this->send(

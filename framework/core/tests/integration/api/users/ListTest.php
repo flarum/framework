@@ -203,4 +203,32 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
         $this->assertEquals(['1', '2'], Arr::pluck($data, 'id'));
     }
+
+    #[Test]
+    public function the_next_link_of_a_numbered_page_leads_to_the_following_page()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/users', [
+                'authenticatedAs' => 1,
+            ])->withQueryParams([
+                'page' => ['number' => '1', 'limit' => '1'],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals(['1'], Arr::pluck($body['data'], 'id'));
+
+        parse_str(parse_url($body['links']['next'] ?? '', PHP_URL_QUERY) ?? '', $query);
+
+        $response = $this->send(
+            $this->request('GET', '/api/users', [
+                'authenticatedAs' => 1,
+            ])->withQueryParams($query)
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals(['2'], Arr::pluck($body['data'], 'id'));
+    }
 }
