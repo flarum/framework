@@ -239,4 +239,31 @@ class ListTest extends TestCase
 
         $this->assertEqualsCanonicalizing(['1', '3', '5'], Arr::pluck($data['data'], 'id'));
     }
+
+    #[Test]
+    public function the_previous_link_of_a_page_near_a_post_leads_to_the_posts_before_it()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
+                ->withQueryParams([
+                    'filter' => ['discussion' => '2'],
+                    'page' => ['near' => '3', 'limit' => '2'],
+                ])
+        );
+
+        $body = $response->getBody()->getContents();
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
+        $this->assertEquals(['5'], Arr::pluck($data['data'], 'id'));
+
+        parse_str(parse_url($data['links']['prev'] ?? '', PHP_URL_QUERY) ?? '', $query);
+
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])->withQueryParams($query)
+        );
+
+        $body = $response->getBody()->getContents();
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertEquals(['2', '4'], Arr::pluck(json_decode($body, true)['data'], 'id'));
+    }
 }

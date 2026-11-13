@@ -146,7 +146,7 @@ class Index extends Endpoint
                 if ($pagination instanceof OffsetPagination) {
                     $pagination->offset = $offset;
                     $pagination->limit = $limit;
-                    $pagination->context = $this->withoutPageNumber($pagination->context);
+                    $pagination->context = $this->withoutPagePosition($pagination->context);
                 }
 
                 if ($this->query) {
@@ -372,19 +372,20 @@ class Index extends Endpoint
     }
 
     /**
-     * The pagination links page by offset, but page[number] takes precedence over
-     * page[offset], so a link that kept it would lead back to the same page.
+     * The pagination links page by offset, but page[number] and page[near] take
+     * precedence over page[offset], so a link that kept either would lead back
+     * to the same page.
      */
-    private function withoutPageNumber(\Tobyz\JsonApiServer\Context $context): \Tobyz\JsonApiServer\Context
+    private function withoutPagePosition(\Tobyz\JsonApiServer\Context $context): \Tobyz\JsonApiServer\Context
     {
         $request = $context->request;
         $query = $request->getQueryParams();
 
-        if (! is_array($query['page'] ?? null) || ! array_key_exists('number', $query['page'])) {
+        if (! is_array($query['page'] ?? null) || ! array_intersect_key($query['page'], ['number' => true, 'near' => true])) {
             return $context;
         }
 
-        unset($query['page']['number']);
+        unset($query['page']['number'], $query['page']['near']);
 
         return $context->withRequest($request->withQueryParams($query));
     }
