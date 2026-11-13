@@ -1,5 +1,7 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
+import type Mithril from 'mithril';
+import type ItemList from 'flarum/common/utils/ItemList';
 import RealtimeExtend from 'ext:flarum/realtime/forum/extenders/Realtime';
 import RealtimeState from 'ext:flarum/realtime/forum/RealtimeState';
 import addRealtimeTypingIndicator from './addRealtimeTypingIndicator';
@@ -36,6 +38,13 @@ export default function extendRealtime() {
     if (app.dialogs.hasItems()) app.dialogs.revalidate();
     if (app.dropdownDialogs.hasItems()) app.dropdownDialogs.revalidate();
     if (app.session.user) app.store.find('users', app.session.user.id()!).catch(() => {});
+  });
+
+  // The list is kept current as messages arrive, and refetched after a
+  // reconnect, so there is nothing for a refresh button to do; as on the
+  // discussion list.
+  extend('ext:flarum/messages/forum/components/MessagesPage', 'actionItems', function (items: ItemList<Mithril.Children>) {
+    items.remove('refresh');
   });
 
   // The open conversation takes new messages straight into its stream, from

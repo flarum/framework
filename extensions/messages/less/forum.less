@@ -254,7 +254,8 @@
       height: 42px;
       isolation: isolate;
 
-      .Avatar {
+      .Avatar,
+      .Badge {
         --size: 30px;
         position: absolute;
         box-shadow: 0 0 0 2px var(--body-bg);
@@ -271,6 +272,15 @@
 
         &:hover {
           z-index: 1;
+        }
+      }
+
+      // A group's badge at an avatar's size, its icon kept near a badge's.
+      .Badge {
+        .Badge--size(30px);
+
+        &, .Badge-icon {
+          font-size: 12px;
         }
       }
 
