@@ -109,7 +109,7 @@ class SendTriggerJobTest extends TestCase
 
         $this->prepareDatabase([
             Tag::class => [
-                ['id' => 1, 'name' => 'Staff', 'slug' => 'staff', 'position' => 0, 'is_restricted' => 1],
+                ['id' => 1, 'name' => 'Staff', 'slug' => 'staff', 'is_primary' => true, 'position' => 0, 'is_restricted' => 1],
             ],
             Discussion::class => [
                 ['id' => 3, 'title' => 'Staff only', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 6, 'comment_count' => 2],

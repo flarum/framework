@@ -69,8 +69,8 @@ export default function addTagComposer() {
 
   override('flarum/forum/components/DiscussionComposer', 'onsubmit', function (original) {
     const chosenTags = this.composer.fields.tags || [];
-    const chosenPrimaryTags = chosenTags.filter((tag) => tag.position() !== null && !tag.isChild());
-    const chosenSecondaryTags = chosenTags.filter((tag) => tag.position() === null);
+    const chosenPrimaryTags = chosenTags.filter((tag) => tag.isPrimaryParent());
+    const chosenSecondaryTags = chosenTags.filter((tag) => tag.isSecondary());
     const selectableTags = getSelectableTags();
 
     const minPrimaryTags = parseInt(app.forum.attribute('minPrimaryTags'));

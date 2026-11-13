@@ -82,13 +82,17 @@ class GlobalPolicy extends AbstractPolicy
         }
 
         // Unqualified column names: raw fragments bypass the builder's
-        // identifier prefixing, so `tags.position` would break on installs
+        // identifier prefixing, so `tags.is_primary` would break on installs
         // with a table prefix. The permission subquery lives in the WHERE
         // clause under an alias, so nothing here is ambiguous.
+        //
+        // Primary tags here include their children, as they always have. A
+        // bare boolean column is a valid condition on MySQL, PostgreSQL and
+        // SQLite alike.
         $withPermission = Tag::whereHasPermission($actor, $ability)
             ->toBase()
-            ->selectRaw('coalesce(sum(case when position is not null then 1 else 0 end), 0) as primary_count')
-            ->selectRaw('coalesce(sum(case when position is null then 1 else 0 end), 0) as secondary_count')
+            ->selectRaw('coalesce(sum(case when is_primary then 1 else 0 end), 0) as primary_count')
+            ->selectRaw('coalesce(sum(case when is_primary then 0 else 1 end), 0) as secondary_count')
             ->first();
 
         $enoughPrimary = $minPrimary === 0 || $withPermission->primary_count >= $minPrimary;
@@ -97,8 +101,8 @@ class GlobalPolicy extends AbstractPolicy
         if ($ability === 'viewForum' && (! $enoughPrimary || ! $enoughSecondary)) {
             $totals = Tag::query()
                 ->toBase()
-                ->selectRaw('coalesce(sum(case when position is not null then 1 else 0 end), 0) as primary_count')
-                ->selectRaw('coalesce(sum(case when position is null and parent_id is null then 1 else 0 end), 0) as secondary_count')
+                ->selectRaw('coalesce(sum(case when is_primary then 1 else 0 end), 0) as primary_count')
+                ->selectRaw('coalesce(sum(case when is_primary or parent_id is not null then 0 else 1 end), 0) as secondary_count')
                 ->first();
 
             $enoughPrimary = $enoughPrimary || $withPermission->primary_count >= min($totals->primary_count, $minPrimary);

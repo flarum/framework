@@ -42,8 +42,8 @@ class DefaultSortTest extends TestCase
                 $this->normalUser(),
             ],
             Tag::class => [
-                ['id' => 1, 'name' => 'Support', 'slug' => 'support', 'position' => 0],
-                ['id' => 2, 'name' => 'Archive', 'slug' => 'archive', 'position' => 1, 'default_sort' => 'oldest'],
+                ['id' => 1, 'name' => 'Support', 'slug' => 'support', 'is_primary' => true, 'position' => 0],
+                ['id' => 2, 'name' => 'Archive', 'slug' => 'archive', 'is_primary' => true, 'position' => 1, 'default_sort' => 'oldest'],
             ],
         ]);
     }

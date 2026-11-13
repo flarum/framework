@@ -208,7 +208,7 @@ export default class TagSelectionModal<
             <li
               data-index={tag.id()}
               className={classList('SelectTagListItem', {
-                pinned: tag.position() !== null,
+                pinned: tag.isPrimary(),
                 child: !!tag.parent(),
                 colored: !!tag.color(),
                 selected: this.selected.includes(tag),

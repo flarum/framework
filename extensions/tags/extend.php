@@ -72,12 +72,12 @@ return [
                         ->where(function ($query) {
                             $query
                                 ->whereNull('parent_id')
-                                ->whereNotNull('position');
+                                ->primary();
                         })
                         ->union(
                             Tag::whereVisibleTo($actor)
                                 ->whereNull('parent_id')
-                                ->whereNull('position')
+                                ->secondary()
                                 ->orderBy('discussion_count', 'desc')
                                 ->limit(4) // We get one more than we need so the "more" link can be shown.
                         )

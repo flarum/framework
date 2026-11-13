@@ -39,7 +39,7 @@ class ProfilePostListWithTagsQueryCountTest extends ProfilePostListQueryCountTes
 
         $this->prepareDatabase([
             Tag::class => [
-                ['id' => 1, 'name' => 'General', 'slug' => 'general', 'position' => 0, 'parent_id' => null, 'discussion_count' => self::DISCUSSIONS],
+                ['id' => 1, 'name' => 'General', 'slug' => 'general', 'is_primary' => true, 'position' => 0, 'parent_id' => null, 'discussion_count' => self::DISCUSSIONS],
             ],
             'discussion_tag' => $discussionTags,
         ]);

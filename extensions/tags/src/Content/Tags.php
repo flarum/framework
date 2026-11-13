@@ -37,8 +37,8 @@ class Tags
         $tags = collect((array) Arr::get($apiDocument, 'data', []));
 
         $childTags = $tags->where('attributes.isChild', true);
-        $primaryTags = $tags->where('attributes.isChild', false)->where('attributes.position', '!==', null)->sortBy('attributes.position');
-        $secondaryTags = $tags->where('attributes.isChild', false)->where('attributes.position', '===', null)->sortBy('attributes.name');
+        $primaryTags = $tags->where('attributes.isChild', false)->where('attributes.isPrimary', true)->sortBy('attributes.position');
+        $secondaryTags = $tags->where('attributes.isChild', false)->where('attributes.isPrimary', false)->sortBy('attributes.name');
 
         $children = $primaryTags->mapWithKeys(function ($tag) use ($childTags) {
             $childIds = collect((array) Arr::get($tag, 'relationships.children.data'))->pluck('id');
