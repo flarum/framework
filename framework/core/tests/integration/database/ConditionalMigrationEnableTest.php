@@ -354,15 +354,16 @@ PHP);
     }
 
     #[Test]
-    public function migration_conditions_remove_boot_defaults_when_their_schema_predicate_changes(): void
+    public function migration_conditions_remove_boot_defaults_when_their_prerequisite_changes(): void
     {
         $this->package('integration', <<<'PHP'
-return \Flarum\Database\Migration::createTable('default_marker', fn ($table) => $table->integer('id'));
+return \Flarum\Database\Migration::addSettings(['provider_ready' => '1']);
 PHP);
+        // DDL would commit the enclosing test transaction on MySQL and MariaDB.
         file_put_contents($this->path.'/vendor/acme/integration/extend.php', <<<'PHP'
 <?php
 return [(new \Flarum\Extend\Conditional())->when(
-    fn (\Illuminate\Database\ConnectionInterface $db): bool => $db->getSchemaBuilder()->hasTable('default_marker'),
+    fn (\Illuminate\Database\ConnectionInterface $db): bool => $db->table('settings')->where('key', 'provider_ready')->exists(),
     fn () => [(new \Flarum\Extend\Settings())->default('acme.feature', true)],
 )];
 PHP);
@@ -371,11 +372,11 @@ PHP);
         $manager->getExtension('acme-integration')->extend($this->app()->getContainer());
         $this->assertTrue($this->settings()->get('acme.feature'));
 
-        file_put_contents($this->path.'/vendor/acme/integration/migrations/2026_01_01_000002_drop_marker.php', <<<'PHP'
+        file_put_contents($this->path.'/vendor/acme/integration/migrations/2026_01_01_000002_remove_prerequisite.php', <<<'PHP'
 <?php
 return [
-    'up' => fn ($schema) => $schema->drop('default_marker'),
-    'down' => fn ($schema) => $schema->create('default_marker', fn ($table) => $table->integer('id')),
+    'up' => fn ($schema) => $schema->getConnection()->table('settings')->where('key', 'provider_ready')->delete(),
+    'down' => fn ($schema) => $schema->getConnection()->table('settings')->insert(['key' => 'provider_ready', 'value' => '1']),
 ];
 PHP);
         file_put_contents($this->path.'/vendor/acme/integration/migrations/2026_01_01_000003_fallback.php', <<<'PHP'
