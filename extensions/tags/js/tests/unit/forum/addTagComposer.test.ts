@@ -96,7 +96,11 @@ describe("the discussion composer's header", () => {
     header([], true).should.not.have('.DiscussionComposer-changeTags');
   });
 
-  test('still shows the chosen tags while minimized', () => {
-    header([general()], true).should.contain('General');
+  // The minimized composer is itself a button that restores it.
+  test('still shows the chosen tags while minimized, but not as a button', () => {
+    const out = header([general()], true);
+
+    out.should.contain('General');
+    out.should.not.have('button');
   });
 });

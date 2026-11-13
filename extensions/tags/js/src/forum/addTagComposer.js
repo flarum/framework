@@ -14,9 +14,14 @@ import getSelectableTags from './utils/getSelectableTags';
 export function addTagsHeaderItem(items) {
   const tags = this.composer.fields.tags || [];
 
-  // The composer disables its body while minimized, when its header can't be
-  // clicked: it shows the chosen tags then, but not the prompt to choose them.
-  if (this.attrs.disabled && !tags.length) return;
+  // The composer disables its body while minimized, when the whole of it is one
+  // button that restores it: it shows the chosen tags then, but not the prompt
+  // or the button to choose them.
+  if (this.attrs.disabled) {
+    if (tags.length) items.add('tags', <span className="DiscussionComposer-changeTags">{tagsLabel(tags)}</span>, 10);
+
+    return;
+  }
 
   const selectableTags = getSelectableTags();
 
