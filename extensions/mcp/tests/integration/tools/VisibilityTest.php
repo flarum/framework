@@ -170,4 +170,16 @@ class VisibilityTest extends McpTestCase
         $this->assertArrayHasKey('pageLimit', $discussions);
         $this->assertArrayNotHasKey('pageLimit', $dataTypes);
     }
+
+    #[Test]
+    public function lists_a_type_without_a_page_size_whole_as_describe_api_says(): void
+    {
+        $auth = $this->bearer($this->developerToken(1));
+
+        $groups = $this->toolOutput($this->callTool('describe_api', ['type' => 'groups'], $auth));
+        $list = $this->toolOutput($this->callTool('list_resources', ['type' => 'groups'], $auth));
+
+        $this->assertNull($groups['pageLimit']['default'] ?? null);
+        $this->assertArrayNotHasKey('limit', $list['meta']['page'] ?? []);
+    }
 }

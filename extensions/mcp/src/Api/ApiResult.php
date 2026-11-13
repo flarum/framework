@@ -66,11 +66,12 @@ class ApiResult
     /**
      * The compact shape used in tool output: flat attributes, relationships as
      * identifiers, `*Html` attributes as plain text, long strings truncated and
-     * the whole payload capped (lists are cut, with a `next` offset hint).
+     * the whole payload capped (lists are cut, with a `next` offset hint
+     * unless the list can't be paged).
      *
      * @return array<string, mixed>
      */
-    public function simplify(): array
+    public function simplify(bool $paginated = true): array
     {
         $data = $this->document['data'] ?? null;
 
@@ -98,7 +99,7 @@ class ApiResult
             $payload['meta'] = $meta;
         }
 
-        return static::fit($payload, (int) ($this->query['page']['offset'] ?? 0));
+        return static::fit($payload, $paginated ? (int) ($this->query['page']['offset'] ?? 0) : null);
     }
 
     /**
@@ -178,11 +179,12 @@ class ApiResult
     /**
      * Cap a tool payload. A list under `$listKey` is cut from the end, and
      * `meta.truncated` plus `meta.next.offset` tell the model where to resume.
+     * A null offset is a list that can't be resumed: it's cut without a hint.
      *
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
-    public static function fit(array $payload, int $offset = 0, int $limit = self::MAX_PAYLOAD_LENGTH, string $listKey = 'data'): array
+    public static function fit(array $payload, ?int $offset = 0, int $limit = self::MAX_PAYLOAD_LENGTH, string $listKey = 'data'): array
     {
         if (static::length($payload) <= $limit) {
             return $payload;
@@ -200,7 +202,7 @@ class ApiResult
             $payload['meta'] = [
                 ...(array) ($payload['meta'] ?? []),
                 'truncated' => true,
-                'next' => ['offset' => $offset + count($data)],
+                ...($offset === null ? [] : ['next' => ['offset' => $offset + count($data)]]),
             ];
         } else {
             $payload['meta'] = [...(array) ($payload['meta'] ?? []), 'truncated' => true];

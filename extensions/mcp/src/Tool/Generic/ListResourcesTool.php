@@ -9,6 +9,7 @@
 
 namespace Flarum\Mcp\Tool\Generic;
 
+use Flarum\Api\Endpoint\Index;
 use Flarum\Mcp\Api\ApiDescriber;
 use Flarum\Mcp\Api\ResourceExposure;
 use Flarum\Mcp\Capability\McpContext;
@@ -102,9 +103,11 @@ class ListResourcesTool extends GenericTool
             $query['sort'] = (string) $arguments['sort'];
         }
 
-        // A type that isn't paginated lists everything and refuses a page, so
-        // it gets no default page size: only what the caller asked for.
-        $defaultLimit = $resource instanceof Paginatable ? 20 : null;
+        // The page size is the list's own, as describe_api reports it. A list
+        // without one (and any type that can't be paginated) comes back whole
+        // unless the caller asks for a page.
+        $index = $this->exposure->endpoint($type, $this->operation(), $context->actor);
+        $defaultLimit = $resource instanceof Paginatable && $index instanceof Index ? $index->limit : null;
         $limit = $arguments['limit'] ?? $defaultLimit;
 
         $query['page'] = array_filter([
@@ -112,6 +115,6 @@ class ListResourcesTool extends GenericTool
             'offset' => max(0, (int) ($arguments['offset'] ?? 0)),
         ], fn (int $value) => $value > 0);
 
-        return $context->api->index($type, $query)->simplify();
+        return $context->api->index($type, $query)->simplify(paginated: $resource instanceof Paginatable);
     }
 }

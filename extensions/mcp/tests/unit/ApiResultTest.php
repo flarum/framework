@@ -62,6 +62,17 @@ class ApiResultTest extends TestCase
     }
 
     #[Test]
+    public function a_list_that_cannot_be_paged_is_cut_without_a_next_hint(): void
+    {
+        $items = array_map(fn (int $i) => ['type' => 'x', 'id' => (string) $i, 'attributes' => ['text' => str_repeat('a', 200)]], range(1, 1000));
+
+        $simple = (new ApiResult(['data' => $items]))->simplify(paginated: false);
+
+        $this->assertTrue($simple['meta']['truncated']);
+        $this->assertArrayNotHasKey('next', $simple['meta']);
+    }
+
+    #[Test]
     public function html_becomes_readable_text(): void
     {
         $html = '<p>One&amp;two<br>three</p><ul><li>a</li><li>b</li></ul><pre><code>  x = 1
