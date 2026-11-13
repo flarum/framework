@@ -26,9 +26,9 @@ export default function onMessageCreated(data: any): void {
   const show = (dialog: Dialog) => {
     dialog.pushData({ relationships: { lastMessage: { data: { type: 'dialog-messages', id: message.id()! } } } } as any);
 
-    app.dialogs.moveToTop(dialog);
+    app.dialogs.receive(dialog);
     // A notice, such as someone leaving, is nothing to read.
-    if (!fromSelf && message.isComment()) app.dropdownDialogs.moveToTop(dialog, DROPDOWN_LIMIT);
+    if (!fromSelf && message.isComment()) app.dropdownDialogs.receive(dialog, DROPDOWN_LIMIT);
 
     m.redraw();
   };
