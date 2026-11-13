@@ -3,7 +3,7 @@ import { extend } from 'flarum/common/extend';
 import CommentPost from 'flarum/forum/components/CommentPost';
 
 import PostQuoteButton from './fragments/PostQuoteButton';
-import selectedText from './utils/selectedText';
+import selectedText, { selectedRange } from './utils/selectedText';
 
 export default function addPostQuoteButton() {
   let pointerType;
@@ -68,7 +68,7 @@ export default function addPostQuoteButton() {
           // triple click makes) has an empty rectangle there, at the left
           // edge of a line that isn't selected. Place the button by the
           // selected text instead.
-          const allRects = Array.from(window.getSelection().getRangeAt(0).getClientRects());
+          const allRects = Array.from(selectedRange($postBody).getClientRects());
           const textRects = allRects.filter((rect) => rect.width > 0);
           const rects = textRects.length ? textRects : allRects;
 

@@ -603,6 +603,35 @@ describe('the quote button', () => {
     expect(($ as any)._data(document, 'events')?.mouseup).toHaveLength(1);
   });
 
+  // Chrome ends a triple click on a post's last paragraph at the next place a
+  // selection can start, past the post's controls, whose boxes are no place
+  // for the button.
+  it('shows the button by the post text of a triple click that runs past the body', () => {
+    const element = renderPost();
+    element.insertAdjacentHTML('beforeend', '<aside class="Post-actions"><button style="user-select: none">Reply</button></aside>');
+    element.insertAdjacentHTML('afterend', '<div class="ReplyPlaceholder"><div class="Post-side"></div></div>');
+    const body = element.querySelector('.Post-body')!;
+
+    // @ts-ignore jsdom has no getClientRects on a range.
+    Range.prototype.getClientRects = function (this: Range) {
+      const text = { left: 40, right: 200, top: 300, bottom: 320 };
+
+      return body.contains(this.endContainer) ? [text] : [text, { left: 40, right: 120, top: 400, bottom: 420 }];
+    };
+
+    const range = document.createRange();
+    range.setStart(element.querySelector('p')!.firstChild!, 0);
+    range.setEnd(document.querySelector('.ReplyPlaceholder .Post-side')!, 0);
+    window.getSelection()!.removeAllRanges();
+    window.getSelection()!.addRange(range);
+
+    $(element).trigger($.Event('mouseup', { clientX: 200, clientY: 330 }));
+    jest.advanceTimersByTime(1);
+
+    expect(quoteButton().style.display).not.toBe('none');
+    expect(quoteButton().style.top).toBe('325px');
+  });
+
   // Browsers can report no rectangles for a selection, e.g. one that ends
   // between elements rather than inside text.
   it('does not throw for a selection with no client rects', () => {
