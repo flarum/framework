@@ -43,7 +43,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
-use InvalidArgumentException;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Log\LoggerInterface;
 
@@ -579,11 +578,14 @@ class UserResource extends AbstractDatabaseResource
     }
 
     /**
-     * @throws InvalidArgumentException
+     * @throws ValidationException
      */
     private function uploadAvatarFromUrl(User $user, string $url, ?string $url2x = null, ?string $url3x = null): void
     {
-        $this->assertValidAvatarUrl($url);
+        $this->assertValidAvatarUrl($url, 'avatar_url');
+
+        $url2x = $this->validHiDpiAvatarUrl($url2x, 'avatar_url_2x');
+        $url3x = $this->validHiDpiAvatarUrl($url3x, 'avatar_url_3x');
 
         $urlContents = $this->retrieveAvatarFromUrl($url);
 
@@ -606,25 +608,57 @@ class UserResource extends AbstractDatabaseResource
     }
 
     /**
+     * The registrant can't change a URL the provider put in the token, so an
+     * invalid HiDPI variant is dropped rather than blocking sign-up.
+     */
+    private function validHiDpiAvatarUrl(?string $url, string $attribute): ?string
+    {
+        if ($url === null) {
+            return null;
+        }
+
+        try {
+            $this->assertValidAvatarUrl($url, $attribute);
+        } catch (ValidationException $e) {
+            $this->api->getContainer()->make(LoggerInterface::class)->warning(
+                "Skipped the $attribute avatar: ".$e->getAttributes()[$attribute]
+            );
+
+            return null;
+        }
+
+        return $url;
+    }
+
+    /**
      * @throws ValidationException
      */
-    private function assertValidAvatarUrl(string $url): void
+    private function assertValidAvatarUrl(string $url, string $attribute): void
     {
-        $urlValidator = $this->validation->make(compact('url'), [
-            'url' => 'required|active_url',
-        ]);
+        // No DNS here, so the result doesn't depend on the resolver. Hostnames
+        // are checked against their resolved address when the avatar is
+        // fetched, where a failure skips the avatar instead of blocking sign-up.
+        $host = parse_url($url, PHP_URL_HOST);
 
-        if ($urlValidator->fails()) {
+        if (! is_string($host) || $host === '') {
             throw new ValidationException([
-                'avatar_url' => 'Provided avatar URL must be a valid URI.',
+                $attribute => 'Provided avatar URL must be a valid URI.',
             ]);
         }
 
         $scheme = parse_url($url, PHP_URL_SCHEME);
 
-        if (! in_array($scheme, ['http', 'https'])) {
+        if (! in_array(strtolower((string) $scheme), ['http', 'https'], true)) {
             throw new ValidationException([
-                'avatar_url' => "Provided avatar URL must have scheme http or https. Scheme provided was $scheme.",
+                $attribute => "Provided avatar URL must have scheme http or https. Scheme provided was $scheme.",
+            ]);
+        }
+
+        $literal = trim($host, '[]');
+
+        if (filter_var($literal, FILTER_VALIDATE_IP) && ! self::isAllowedIp($literal)) {
+            throw new ValidationException([
+                $attribute => 'Provided avatar URL must not point at a loopback, link-local or reserved address.',
             ]);
         }
     }
@@ -668,6 +702,10 @@ class UserResource extends AbstractDatabaseResource
         $ip = $this->resolveToAllowedIp($host);
 
         if ($ip === null) {
+            $this->api->getContainer()->make(LoggerInterface::class)->warning(
+                "Skipped downloading an avatar from $host: it did not resolve to an allowed address."
+            );
+
             return null;
         }
 
