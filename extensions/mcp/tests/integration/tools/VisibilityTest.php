@@ -150,4 +150,24 @@ class VisibilityTest extends McpTestCase
 
         $this->assertNotEmpty($list['data'] ?? null);
     }
+
+    #[Test]
+    public function an_admin_lists_a_type_that_is_not_paginated_from_its_start(): void
+    {
+        $list = $this->toolOutput($this->callTool('list_resources', ['type' => 'gdpr-datatypes', 'offset' => 0], $this->bearer($this->developerToken(1))));
+
+        $this->assertNotEmpty($list['data'] ?? null);
+    }
+
+    #[Test]
+    public function only_a_type_that_can_be_paginated_offers_a_page_limit(): void
+    {
+        $auth = $this->bearer($this->developerToken(1));
+
+        $discussions = $this->toolOutput($this->callTool('describe_api', ['type' => 'discussions'], $auth));
+        $dataTypes = $this->toolOutput($this->callTool('describe_api', ['type' => 'gdpr-datatypes'], $auth));
+
+        $this->assertArrayHasKey('pageLimit', $discussions);
+        $this->assertArrayNotHasKey('pageLimit', $dataTypes);
+    }
 }

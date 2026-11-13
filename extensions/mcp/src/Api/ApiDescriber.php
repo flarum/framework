@@ -27,6 +27,7 @@ use Laminas\Diactoros\ServerRequest;
 use stdClass;
 use Throwable;
 use Tobyz\JsonApiServer\Resource\Listable;
+use Tobyz\JsonApiServer\Resource\Paginatable;
 use Tobyz\JsonApiServer\Schema\Field\Attribute;
 use Tobyz\JsonApiServer\Schema\Field\Field;
 use Tobyz\JsonApiServer\Schema\Field\Relationship;
@@ -122,7 +123,11 @@ class ApiDescriber
 
         if ($index instanceof Endpoint\Index) {
             $description['defaultSort'] = $index->defaultSort;
-            $description['pageLimit'] = ['default' => $index->limit, 'max' => $index->maxLimit];
+
+            // A type that can't be paginated always lists everything, and refuses a page.
+            if ($resource instanceof Paginatable) {
+                $description['pageLimit'] = ['default' => $index->limit, 'max' => $index->maxLimit];
+            }
         }
 
         return $description;
