@@ -25,25 +25,53 @@ export function slug(string: string, mode: SluggingMode = SluggingMode.ALPHANUME
           .replace(/-$|^-/g, '')
       );
 
-    case SluggingMode.ALPHANUMERIC:
-    default:
+    case SluggingMode.UTF8_LATIN_ASCII:
       return (
         string
           .toLowerCase()
-          // Decompose accented letters and drop the marks, so "tecnología" becomes "tecnologia" rather than "tecnolog-a".
+          // Latin letters with no decomposition into a base letter and a mark.
+          .replace(/[ßæøłđðþıœ]/gu, (letter) => LATIN_LETTERS[letter])
+          // Drop accents from Latin letters only: marks are part of the letter in
+          // scripts like Devanagari, and Hangul is recomposed below.
           .normalize('NFD')
-          .replace(/\p{M}/gu, '')
-          .replace(/[^a-z0-9]/gi, '-')
+          .replace(/(\p{Script=Latin})\p{M}+/gu, '$1')
+          .normalize('NFC')
+          .replace(/[^\p{L}\p{N}\p{M}]/gu, '-')
           .replace(/-+/g, '-')
           .replace(/-$|^-/g, '')
       );
+
+    case SluggingMode.ALPHANUMERIC:
+    default:
+      return string
+        .toLowerCase()
+        .replace(/[^a-z0-9]/gi, '-')
+        .replace(/-+/g, '-')
+        .replace(/-$|^-/g, '');
   }
 }
 
 export enum SluggingMode {
   ALPHANUMERIC = 'alphanum',
   UTF8 = 'utf8',
+  /**
+   * Like `UTF8`, but Latin letters lose their accents and ß, æ, ø and the like
+   * are spelled out, so "Tecnología" gives "tecnologia" while "Новости" stays.
+   */
+  UTF8_LATIN_ASCII = 'utf8_latin_ascii',
 }
+
+const LATIN_LETTERS: Record<string, string> = {
+  ß: 'ss',
+  æ: 'ae',
+  ø: 'o',
+  ł: 'l',
+  đ: 'd',
+  ð: 'd',
+  þ: 'th',
+  ı: 'i',
+  œ: 'oe',
+};
 
 /**
  * Strip HTML tags and quotes out of the given string, replacing them with
