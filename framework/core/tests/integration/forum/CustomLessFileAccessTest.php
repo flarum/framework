@@ -11,8 +11,8 @@ namespace Flarum\Tests\integration\forum;
 
 use Flarum\Frontend\Compiler\Source\FileSource;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Frontend\Compiler\Source\StringSource;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
