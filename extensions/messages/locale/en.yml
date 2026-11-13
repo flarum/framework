@@ -29,6 +29,7 @@ flarum-messages:
       placeholder: Write a message...
       recipients: Recipients
       submit_button: Send message
+      title: New message
       to: "To:"
 
     dialog_list:
