@@ -55,6 +55,8 @@ on:
         description: >-
           The Composer script that runs the tests, optionally followed by arguments, e.g.
           'test:integration:external -- --fail-on-skipped'. `composer test:setup` always runs first.
+          Arguments are split on whitespace and quotes are not interpreted; for arguments that
+          need quoting, define a Composer script and name it here.
         type: string
         required: false
         default: 'test'
@@ -446,6 +448,16 @@ jobs:
       # database, and each directory's output is printed once every lane has finished.
       - name: Run tests
         run: |
+          # A caller passing an unset variable sends an empty string, which skips the default
+          # and would run bare `composer`: it prints its help and passes without testing.
+          if [ -z "${TEST_SCRIPT//[[:space:]]/}" ]; then
+            echo "::error::test_script must name a Composer script"
+            exit 1
+          fi
+          # Split on whitespace; unlike an unquoted expansion, `read -a` expands no globs.
+          read -ra test_script <<< "$TEST_SCRIPT"
+          unset TEST_SCRIPT
+
           while IFS= read -r line; do
             line="${line%$'\r'}"
             [ -z "$line" ] && continue
@@ -462,12 +474,12 @@ jobs:
 
           if [ -z "${{ inputs.monorepo_tests }}" ]; then
             composer test:setup
-            composer $TEST_SCRIPT
+            composer "${test_script[@]}"
           elif [ "$MONOREPO_LANES" -le 1 ]; then
             for test in ${{ inputs.monorepo_tests }}; do
               echo "::group::Running tests for $test"
               composer test:setup --working-dir=$test
-              composer --working-dir=$test $TEST_SCRIPT
+              composer --working-dir=$test "${test_script[@]}"
               echo "::endgroup::"
             done
           else
@@ -514,7 +526,7 @@ jobs:
               for i in "${!tests[@]}"; do
                 [ "${lane[$i]}" -eq "$n" ] || continue
                 start=$SECONDS
-                if ! { composer test:setup --working-dir="${tests[$i]}" && composer --working-dir="${tests[$i]}" $TEST_SCRIPT; } > "$logs/$i.log" 2>&1; then
+                if ! { composer test:setup --working-dir="${tests[$i]}" && composer --working-dir="${tests[$i]}" "${test_script[@]}"; } > "$logs/$i.log" 2>&1; then
                   echo "$(( SECONDS - start ))s, failed" > "$logs/$i.result"
                   return 1
                 fi
