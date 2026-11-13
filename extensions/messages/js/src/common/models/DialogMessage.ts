@@ -55,4 +55,17 @@ export default class DialogMessage extends Model {
   canDelete() {
     return Model.attribute<boolean>('canDelete').call(this);
   }
+
+  /** With flarum/likes: some of who liked it, this member first when they did. */
+  likes() {
+    return Model.hasMany<User>('likes').call(this);
+  }
+  /** With flarum/likes. */
+  likesCount() {
+    return Model.attribute<number | undefined>('likesCount').call(this);
+  }
+  /** With flarum/likes. */
+  canLike() {
+    return Model.attribute<boolean | undefined>('canLike').call(this);
+  }
 }

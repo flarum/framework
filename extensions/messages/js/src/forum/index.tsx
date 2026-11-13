@@ -11,6 +11,7 @@ import type User from 'flarum/common/models/User';
 import extendRealtime from './extendRealtime';
 import addMessageSearch from './addMessageSearch';
 import composingMessageTo from './utils/composingMessageTo';
+import addMessageLikes from './addMessageLikes';
 
 export { default as extend } from './extend';
 
@@ -84,6 +85,10 @@ app.initializers.add('flarum-messages', () => {
   });
 
   addMessageSearch();
+
+  if ('flarum-likes' in flarum.extensions) {
+    addMessageLikes();
+  }
 
   extend('flarum/forum/components/NotificationGrid', 'notificationTypes', function (items) {
     items.add('messageReceived', {
