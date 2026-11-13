@@ -610,14 +610,29 @@ class UserResource extends AbstractDatabaseResource
      */
     private function assertValidAvatarUrl(string $url): void
     {
+        $invalid = new ValidationException([
+            'avatar_url' => 'Provided avatar URL must be a valid URI.',
+        ]);
+
+        $host = parse_url($url, PHP_URL_HOST);
+
+        if (! is_string($host) || $host === '') {
+            throw $invalid;
+        }
+
+        $literalIp = trim($host, '[]');
+        $isIpLiteral = filter_var($literalIp, FILTER_VALIDATE_IP) !== false;
+
+        // An IP-literal host is checked directly. The `active_url` rule would
+        // send it to the DNS resolver as if it were a name, and whether the
+        // resolver answers for it varies from server to server, so a loopback
+        // or reserved address could pass on one server and fail on another.
         $urlValidator = $this->validation->make(compact('url'), [
-            'url' => 'required|active_url',
+            'url' => $isIpLiteral ? 'required|url' : 'required|active_url',
         ]);
 
         if ($urlValidator->fails()) {
-            throw new ValidationException([
-                'avatar_url' => 'Provided avatar URL must be a valid URI.',
-            ]);
+            throw $invalid;
         }
 
         $scheme = parse_url($url, PHP_URL_SCHEME);
@@ -626,6 +641,10 @@ class UserResource extends AbstractDatabaseResource
             throw new ValidationException([
                 'avatar_url' => "Provided avatar URL must have scheme http or https. Scheme provided was $scheme.",
             ]);
+        }
+
+        if ($isIpLiteral && ! self::isAllowedIp($literalIp)) {
+            throw $invalid;
         }
     }
 
