@@ -72,7 +72,17 @@ class RegisterAsyncChunksPlugin {
     return urlPath;
   }
 
+  moduleUrlPath(module, sourceRoot) {
+    const resource = module.rootModule?.resource ?? module.resource;
+
+    if (!resource?.startsWith(sourceRoot)) return null;
+
+    return this.processUrlPath(resource.slice(sourceRoot.length).replace(path.extname(resource), ''));
+  }
+
   apply(compiler) {
+    const sourceRoot = path.resolve(compiler.context, 'src') + path.sep;
+
     compiler.hooks.thisCompilation.tap('RegisterAsyncChunksPlugin', (compilation) => {
       let alreadyOptimized = false;
 
@@ -104,14 +114,14 @@ class RegisterAsyncChunksPlugin {
               modulesToCheck[chunk.id] = modulesToCheck[chunk.id] || [];
 
               // A normal module.
-              if (module?.resource && module.resource.split(path.sep).includes('src') && module._source?._value.includes('webpackChunkName: ')) {
+              if (this.moduleUrlPath(module, sourceRoot) && module._source?._value.includes('webpackChunkName: ')) {
                 modulesToCheck[chunk.id].push(module);
               }
 
               // A ConcatenatedModule.
               if (module?.modules) {
                 module.modules.forEach((module) => {
-                  if (module.resource && module.resource.split(path.sep).includes('src') && module._source?._value.includes('webpackChunkName: ')) {
+                  if (this.moduleUrlPath(module, sourceRoot) && module._source?._value.includes('webpackChunkName: ')) {
                     modulesToCheck[chunk.id].push(module);
                   }
                 });
@@ -134,8 +144,11 @@ class RegisterAsyncChunksPlugin {
                 [...match.matchAll(/(.*?) webpackChunkName: '([^']*)'.*? \*\/ '([^']+)'.*?/gm)].forEach(([match, _, urlPath, importPath]) => {
                   urlPath = this.processUrlPath(urlPath);
 
-                  // Import path is relative to module.resource, so we need to resolve it
-                  const importPathResolved = path.resolve(path.dirname(module.resource), importPath);
+                  const dependency = module.blocks.flatMap((block) => block.dependencies).find((dependency) => dependency.request === importPath);
+                  const importedModule = dependency && compilation.moduleGraph.getModule(dependency);
+
+                  if (!importedModule) return match;
+
                   const thisComposerJson = require(this.composerPath);
                   const namespace = extensionId(thisComposerJson.name);
 
@@ -148,30 +161,15 @@ class RegisterAsyncChunksPlugin {
                   // carries it too (a lazily imported component that statically
                   // imports this one), so that is only the fallback.
                   const relevantChunk =
-                    chunks.find((chunk) => chunk.name === urlPath) ??
-                    chunks.find((chunk) =>
-                      chunkModules(chunk)?.find((module) => {
-                        const resourceWithoutExt = module.resource ? module.resource.replace(path.extname(module.resource), '') : '';
-                        const rootResourceWithoutExt = module.rootModule?.resource
-                          ? module.rootModule.resource.replace(path.extname(module.rootModule.resource), '')
-                          : '';
-                        return resourceWithoutExt === importPathResolved || rootResourceWithoutExt === importPathResolved;
-                      })
-                    );
+                    chunks.find((chunk) => chunk.name === urlPath) ?? chunks.find((chunk) => chunkModules(chunk).includes(importedModule));
 
                   if (!relevantChunk) {
-                    console.error(`Could not find chunk for ${importPathResolved}`);
+                    console.error(`Could not find chunk for ${importPath}`);
                     return match;
                   }
 
                   const relevantChunkModules = chunkModules(relevantChunk);
-                  const mainModule = relevantChunkModules.filter((m) => {
-                    const resourceWithoutExt = m.resource ? m.resource.replace(path.extname(m.resource), '') : '';
-                    const rootResourceWithoutExt = m.rootModule?.resource
-                      ? m.rootModule.resource.replace(path.extname(m.rootModule.resource), '')
-                      : '';
-                    return resourceWithoutExt === importPathResolved || rootResourceWithoutExt === importPathResolved;
-                  })[0];
+                  const mainModule = relevantChunkModules.find((m) => m === importedModule || m.rootModule === importedModule);
                   const otherRelevantChunkModules = relevantChunkModules.filter((m) => m !== mainModule);
 
                   if (mainModule instanceof ConcatenatedModule && mainModule.modules) {
@@ -184,7 +182,13 @@ class RegisterAsyncChunksPlugin {
 
                   const moduleId = compilation.chunkGraph.getModuleId(mainModule);
                   const registrableModulesUrlPaths = new Map();
-                  registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath, true]);
+                  // Webpack may merge identical chunks and discard this import's original filename.
+                  const chunkUrlPath = this.processUrlPath(relevantChunk.name ?? urlPath);
+                  registrableModulesUrlPaths.set(chunkUrlPath, [relevantChunk.id, moduleId, namespace, chunkUrlPath, true]);
+
+                  if (this.moduleUrlPath(mainModule, sourceRoot) && urlPath !== chunkUrlPath) {
+                    registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath, true]);
+                  }
 
                   const modules = [];
 
@@ -198,13 +202,9 @@ class RegisterAsyncChunksPlugin {
 
                   // This is a chunk with many modules, we need to register all of them.
                   modules?.forEach((module) => {
-                    if (!module.resource?.includes(`${path.sep}src${path.sep}`)) {
-                      return;
-                    }
+                    const urlPath = this.moduleUrlPath(module, sourceRoot);
 
-                    // The path right after the src/ directory, without the extension.
-                    const regPathSep = `\\${path.sep}`;
-                    const urlPath = this.processUrlPath(module.resource.replace(new RegExp(`.*${regPathSep}src${regPathSep}([^.]+)\..+`), '$1'));
+                    if (!urlPath) return;
 
                     if (!registrableModulesUrlPaths.has(urlPath)) {
                       registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath, false]);
