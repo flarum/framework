@@ -344,7 +344,10 @@ class Index extends Endpoint
             $query['page'] = [];
         }
 
-        $query['page']['limit'] ??= (string) $limit;
+        // An empty page[limit] counts as absent too.
+        if (($query['page']['limit'] ?? '') === '') {
+            $query['page']['limit'] = (string) $limit;
+        }
 
         return new OffsetPagination(
             $context->withRequest($request->withQueryParams($query)),
@@ -416,12 +419,21 @@ class Index extends Endpoint
             return null;
         }
 
-        $start = ['limit' => [], 'offset' => ['0'], 'number' => ['1']];
+        // The value each one has at the start of the list; a limit never does.
+        $start = ['limit' => null, 'offset' => 0, 'number' => 1];
 
-        foreach ($start as $name => $values) {
+        foreach ($start as $name => $startValue) {
             $value = $page[$name] ?? null;
 
-            if ($value !== null && $value !== '' && ! in_array($value, $values, true)) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            // 0, '0' and '00' are the same offset. A value that isn't a whole
+            // number asks for something, and is refused when it's read.
+            $isNumber = is_int($value) || (is_string($value) && ctype_digit($value));
+
+            if (! $isNumber || (int) $value !== $startValue) {
                 return $name;
             }
         }

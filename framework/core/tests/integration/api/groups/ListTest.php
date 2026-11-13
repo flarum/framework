@@ -350,9 +350,29 @@ class ListTest extends TestCase
     {
         return [
             'offset zero' => [['offset' => '0']],
+            'offset zero as an integer' => [['offset' => 0]],
+            'offset zero padded' => [['offset' => '00']],
             'first page by number' => [['number' => '1']],
+            'first page by number as an integer' => [['number' => 1]],
+            'first page by number padded' => [['number' => '01']],
             'empty limit' => [['limit' => '']],
         ];
+    }
+
+    #[Test]
+    public function links_back_to_pages_of_the_same_size_when_the_limit_is_empty()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams([
+                'page' => ['limit' => '', 'offset' => '2'],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertStringContainsString('page%5Blimit%5D=50', $data['links']['first'] ?? '');
     }
 
     #[Test]
