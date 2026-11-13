@@ -346,3 +346,173 @@ describe('spoilers', () => {
     expect(selectedText($body)).toBe('public');
   });
 });
+
+describe('a selection that runs past the post body', () => {
+  // As CommentPost renders a post: the side comes first, and the controls are
+  // buttons, whose text cannot be selected (Button.less), and a closed menu.
+  const post = (id: string, html: string) =>
+    `<div class="PostStream-item" id="${id}"><article class="CommentPost Post"><div class="Post-container">` +
+    `<div class="Post-side"></div><div class="Post-main">` +
+    `<header class="Post-header"><a class="username">${id}</a></header>` +
+    `<div class="Post-body">${html}</div>` +
+    `<aside class="Post-actions"><ul><li><button class="Button">Reply</button></li><li><button class="Button">Like</button></li>` +
+    `<li><ul class="Dropdown-menu" style="display: none"><li><a>Edit</a></li></ul></li></ul></aside>` +
+    `</div></div></article></div>`;
+
+  function posts() {
+    document.body.innerHTML =
+      '<style>.Button { user-select: none; }</style>' +
+      `<div class="PostStream">${post('first', '<p>One.</p><p>Last one.</p>')}${post('second', '<p>Two.</p>')}` +
+      '<div class="PostStream-item"><div class="ReplyPlaceholder"><div class="Post-container"><div class="Post-side"></div>' +
+      '<div class="Post-main">Write a reply...</div></div></div></div></div>';
+
+    return {
+      $first: $(document.body).find('#first .Post-body'),
+      $second: $(document.body).find('#second .Post-body'),
+    };
+  }
+
+  // Chrome ends a triple click on the last paragraph at the next place a
+  // selection can start, past the controls.
+  test("quotes a triple click on a post's last paragraph, which Chrome ends in the next post", () => {
+    const { $first } = posts();
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd(document.querySelector('#second .Post-container')!, 0);
+    });
+
+    expect(selectedText($first)).toBe('Last one.');
+  });
+
+  test("quotes a triple click on the last post's last paragraph, which Chrome ends in the reply placeholder", () => {
+    const { $second } = posts();
+
+    select((range) => {
+      range.setStart($second.find('p')[0].firstChild!, 0);
+      range.setEnd(document.querySelector('.ReplyPlaceholder .Post-side')!, 0);
+    });
+
+    expect(selectedText($second)).toBe('Two.');
+  });
+
+  // With a footer, such as one saying who liked the post, Chrome ends it at
+  // the start of the footer's text instead.
+  test("quotes a triple click on the last paragraph of a post with a footer, which Chrome ends at the footer's start", () => {
+    const { $first } = posts();
+    document.querySelector('#first .Post-actions')!.insertAdjacentHTML('afterend', '<footer class="Post-footer"><ul><li>You like this.</li></ul></footer>');
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd(document.querySelector('#first .Post-footer li')!.firstChild!, 0);
+    });
+
+    expect(selectedText($first)).toBe('Last one.');
+  });
+
+  test('quotes the post text when the rest of the selection only takes in hidden text and white space', () => {
+    const { $first } = posts();
+    document.querySelector('#first .Post-actions')!.insertAdjacentHTML('beforebegin', '\n  <span style="visibility: hidden">Hidden</span>\n');
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd(document.querySelector('#second .Post-container')!, 0);
+    });
+
+    expect(selectedText($first)).toBe('Last one.');
+  });
+
+  test('quotes nothing when the rest of the selection takes in text the reader could select', () => {
+    const { $first } = posts();
+    document.querySelector('#first .Post-actions')!.insertAdjacentHTML('beforebegin', '<span>Shown</span>');
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd(document.querySelector('#second .Post-container')!, 0);
+    });
+
+    expect(selectedText($first)).toBe('');
+  });
+
+  test('quotes the post text of a selection that starts just before it, with no text in between', () => {
+    const { $first } = posts();
+    document.querySelector('#first .Post-header')!.innerHTML = '<button class="Button">Menu</button>';
+
+    select((range) => {
+      range.setStart(document.querySelector('#first .Post-header')!, 0);
+      range.setEnd($first.find('p')[0].firstChild!, 3);
+    });
+
+    expect(selectedText($first)).toBe('One');
+  });
+
+  test('quotes nothing from either post when a selection runs from one into the text of the other', () => {
+    const { $first, $second } = posts();
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd($second.find('p')[0].firstChild!, 3);
+    });
+
+    expect(selectedText($first)).toBe('');
+    expect(selectedText($second)).toBe('');
+  });
+
+  test("quotes nothing when a selection runs from the post text into the next post's author", () => {
+    const { $first } = posts();
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd(document.querySelector('#second .username')!.firstChild!, 2);
+    });
+
+    expect(selectedText($first)).toBe('');
+  });
+
+  test("quotes nothing when a selection starts in the post's author", () => {
+    const { $first } = posts();
+
+    select((range) => {
+      range.setStart(document.querySelector('#first .username')!.firstChild!, 0);
+      range.setEnd($first.find('p')[0].firstChild!, 3);
+    });
+
+    expect(selectedText($first)).toBe('');
+  });
+
+  test('quotes nothing when neither end of the selection is in the post text', () => {
+    const { $first } = posts();
+
+    select((range) => {
+      range.setStart(document.querySelector('#first .Post-header')!, 0);
+      range.setEnd(document.querySelector('#second .Post-container')!, 0);
+    });
+
+    expect(selectedText($first)).toBe('');
+  });
+
+  test('quotes nothing when the selection only touches the end of the post text', () => {
+    const { $first } = posts();
+    const body = $first[0];
+
+    select((range) => {
+      range.setStart(body, body.childNodes.length);
+      range.setEnd(document.querySelector('#second .Post-container')!, 0);
+    });
+
+    expect(selectedText($first)).toBe('');
+  });
+
+  test('leaves the selection itself as it is', () => {
+    const { $first } = posts();
+    const next = document.querySelector('#second .Post-container')!;
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd(next, 0);
+    });
+    selectedText($first);
+
+    expect(window.getSelection()!.getRangeAt(0).endContainer).toBe(next);
+  });
+});
