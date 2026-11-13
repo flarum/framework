@@ -517,6 +517,17 @@
     --size: 38px;
   }
 
+  // A group's badge at the avatars' size, its icon kept near a badge's.
+  &-group {
+    .Badge--size(38px);
+    flex-shrink: 0;
+    box-shadow: none;
+
+    &, .Badge-icon {
+      font-size: 16px;
+    }
+  }
+
   a {
     color: var(--text-color);
     font-size: 14px;

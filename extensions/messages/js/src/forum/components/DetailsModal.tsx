@@ -36,7 +36,7 @@ export default class DetailsModal<CustomAttrs extends IDetailsModalAttrs = IDeta
               (group) =>
                 group && (
                   <div className="DetailsModal-recipient" key={'group-' + group.id()}>
-                    <GroupBadge group={group} /> {group.namePlural()}
+                    <GroupBadge group={group} className="DetailsModal-recipient-group" /> {group.namePlural()}
                   </div>
                 )
             )}
