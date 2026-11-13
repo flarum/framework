@@ -33,7 +33,7 @@ export default class DialogsDeckSource implements DeckColumnSource {
     return count;
   }
 
-  /** extendRealtime() already moves the dialog to the top of `app.dialogs`, which this shares. */
+  /** extendRealtime() already places the dialog in `app.dialogs`, which this shares, where its sort puts it. */
   onRealtime(event: DeckRealtimeEvent): DeckRealtimeResult {
     return event.name === 'Flarum\\Messages\\DialogMessage\\Event\\Created' ? 'updated' : undefined;
   }

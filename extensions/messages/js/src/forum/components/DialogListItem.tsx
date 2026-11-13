@@ -10,6 +10,7 @@ import humanTime from 'flarum/common/helpers/humanTime';
 import ItemList from 'flarum/common/utils/ItemList';
 import Button from 'flarum/common/components/Button';
 import type Dialog from '../../common/models/Dialog';
+import type Group from 'flarum/common/models/Group';
 import { markRead } from '../utils/readState';
 import describeEvent from '../utils/describeEvent';
 
@@ -63,26 +64,34 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
     );
   }
 
-  /** A group with others enough to show two of them; one left on their own is shown as a direct conversation's. */
-  stacksAvatars(): boolean {
-    return !(this.attrs.dialog.groups() || []).length && this.attrs.dialog.isGroup() && this.attrs.dialog.recipients().length > 1;
-  }
-
-  /** The other member's avatar; in a group, two of the others', one over the other. */
-  avatar(): Mithril.Children {
+  /**
+   * What stands for the others: the groups a group conversation is addressed
+   * to, then its other members, as the header shows them. The tiles are
+   * pictures only, as a member's avatar is here, so a group's badge carries
+   * no tooltip; the conversation is named beside them.
+   */
+  tiles(): Mithril.Children[] {
     const dialog = this.attrs.dialog;
 
-    const group = (dialog.groups() || []).find(Boolean);
-    if (group) return <GroupBadge group={group} />;
+    if (!dialog.isGroup()) return [<Avatar user={dialog.recipients()[0] || null} />];
 
-    if (this.stacksAvatars()) {
-      return dialog
-        .recipients()
-        .slice(0, 2)
-        .map((user) => <Avatar user={user} />);
-    }
+    const groups = (dialog.groups() || []).filter((group): group is Group => !!group);
 
-    return <Avatar user={dialog.recipients()[0] || null} />;
+    return [...groups.map((group) => <GroupBadge group={group} label="" />), ...dialog.recipients().map((user) => <Avatar user={user} />)];
+  }
+
+  /** A group with two or more to show; one left on their own is shown as a direct conversation's. */
+  stacksAvatars(): boolean {
+    const dialog = this.attrs.dialog;
+
+    return dialog.isGroup() && (dialog.groups() || []).filter(Boolean).length + dialog.recipients().length > 1;
+  }
+
+  /** The other member's avatar; in a group, the first two of its tiles, one over the other. */
+  avatar(): Mithril.Children {
+    const tiles = this.tiles();
+
+    return this.stacksAvatars() ? tiles.slice(0, 2) : tiles[0] || <Avatar user={null} />;
   }
 
   /** The other member; a group goes by its title, which names its members. */

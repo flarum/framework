@@ -69,6 +69,11 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     protected errorShownByRequest<T>(promise: Promise<T>): Promise<T>;
     protected parseResults(pg: number, results: ApiResponsePlural<T>): void;
     /**
+     * Whether the list's search query (`params.q`) holds any gambits, which
+     * only the frontend can turn into API filters.
+     */
+    protected queryHasGambits(): boolean;
+    /**
      * Load a new page of results.
      */
     protected loadPage(page?: number): Promise<ApiResponsePlural<T>>;

@@ -41,8 +41,8 @@ class PostSourceTest extends TestCase
             ],
             Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'created_at' => Carbon::now()->subDay(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t>web</t>'],
-                ['id' => 2, 'discussion_id' => 1, 'number' => 2, 'created_at' => Carbon::now()->subHours(2), 'user_id' => 2, 'type' => 'comment', 'content' => '<t>api</t>', 'source' => 'api'],
-                ['id' => 3, 'discussion_id' => 1, 'number' => 3, 'created_at' => Carbon::now()->subHour(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t>mcp</t>', 'source' => 'mcp', 'source_name' => 'claude.ai'],
+                ['id' => 2, 'discussion_id' => 1, 'number' => 2, 'created_at' => Carbon::now()->subHours(2), 'user_id' => 2, 'type' => 'comment', 'content' => '<t>api</t>', 'created_via' => 'api'],
+                ['id' => 3, 'discussion_id' => 1, 'number' => 3, 'created_at' => Carbon::now()->subHour(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t>mcp</t>', 'created_via' => 'mcp', 'created_via_name' => 'claude.ai'],
                 ['id' => 4, 'discussion_id' => 1, 'number' => 4, 'created_at' => Carbon::now()->subMinutes(30), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '["a","b"]'],
             ],
             ApiKey::class => [
@@ -61,8 +61,8 @@ class PostSourceTest extends TestCase
     {
         $post = $this->reply($this->request('POST', '/api/posts', ['authenticatedAs' => 2, 'json' => $this->replyBody()]));
 
-        $this->assertNull($post->source);
-        $this->assertNull($post->source_name);
+        $this->assertNull($post->created_via);
+        $this->assertNull($post->created_via_name);
     }
 
     #[Test]
@@ -73,8 +73,8 @@ class PostSourceTest extends TestCase
                 ->withAddedHeader('Authorization', 'Token mastertoken; userId=2')
         );
 
-        $this->assertEquals('api', $post->source);
-        $this->assertNull($post->source_name);
+        $this->assertEquals('api', $post->created_via);
+        $this->assertNull($post->created_via_name);
     }
 
     #[Test]
@@ -85,7 +85,7 @@ class PostSourceTest extends TestCase
                 ->withAddedHeader('Authorization', 'Token developertoken')
         );
 
-        $this->assertEquals('api', $post->source);
+        $this->assertEquals('api', $post->created_via);
     }
 
     #[Test]
@@ -101,7 +101,7 @@ class PostSourceTest extends TestCase
 
         $id = json_decode((string) $response->getBody(), true)['data']['id'];
 
-        $this->assertEquals('api', Discussion::query()->findOrFail($id)->firstPost->source);
+        $this->assertEquals('api', Discussion::query()->findOrFail($id)->firstPost->created_via);
     }
 
     #[Test]
@@ -164,7 +164,7 @@ class PostSourceTest extends TestCase
         $this->assertEquals(['2', '3'], $this->listIds(['source' => 'api,mcp']));
         $this->assertEquals(['3'], $this->listIds(['source' => 'MCP']), 'Matching ignores case on every database.');
 
-        Post::query()->whereKey(2)->update(['source' => '0']);
+        Post::query()->whereKey(2)->update(['created_via' => '0']);
         $this->assertEquals(['2'], $this->listIds(['source' => '0']), 'A key of "0" is a key, not an empty value.');
     }
 
@@ -183,7 +183,7 @@ class PostSourceTest extends TestCase
         ]));
 
         $this->assertEquals(403, $response->getStatusCode(), (string) $response->getBody());
-        $this->assertNull(Post::query()->findOrFail(1)->source);
+        $this->assertNull(Post::query()->findOrFail(1)->created_via);
     }
 
     #[Test]
@@ -210,8 +210,8 @@ class PostSourceTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
 
         $post = Post::query()->findOrFail(json_decode((string) $response->getBody(), true)['data']['id']);
-        $this->assertEquals('email', $post->source);
-        $this->assertEquals('Email', $post->source_name);
+        $this->assertEquals('email', $post->created_via);
+        $this->assertEquals('Email', $post->created_via_name);
     }
 
     #[Test]

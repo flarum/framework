@@ -14,7 +14,9 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Schema;
 use Flarum\Foundation\IconImage\IconImageApi;
+use Flarum\Foundation\ValidationException;
 use Flarum\Http\SlugManager;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Tags\Event\Creating;
 use Flarum\Tags\Event\Deleting;
 use Flarum\Tags\Event\Saving;
@@ -30,7 +32,8 @@ use Tobyz\JsonApiServer\Context;
 class TagResource extends AbstractDatabaseResource
 {
     public function __construct(
-        protected SlugManager $slugManager
+        protected SlugManager $slugManager,
+        protected TranslatorInterface $translator
     ) {
     }
 
@@ -145,7 +148,10 @@ class TagResource extends AbstractDatabaseResource
                 ->description('Whether discussions with this tag are left out of the All Discussions list.')
                 ->writable(),
             Schema\Boolean::make('isPrimary')
-                ->description('Whether this is a primary tag. Discussions need a number of primary tags and may have secondary ones.')
+                ->description('Whether this is a primary tag. Discussions need a number of primary tags and may have secondary ones. Set when the tag is created; afterwards it changes only with the tag order.')
+                // Also writable on update so that clients saving every
+                // attribute can send it back unchanged: a change is refused in
+                // updating().
                 ->writable(),
             Schema\Boolean::make('isRestricted')
                 ->description('Whether the tag has its own permissions instead of the global ones. Only visible to admins.')
@@ -202,6 +208,20 @@ class TagResource extends AbstractDatabaseResource
         $this->events->dispatch(
             new Creating($model, $context->getActor(), $context->body())
         );
+
+        return $model;
+    }
+
+    public function updating(object $model, Context $context): ?object
+    {
+        // A tag becomes primary or secondary with the tag order, which also
+        // sets its position to match. Changing the flag alone would leave the
+        // position behind.
+        if ($model->isDirty('is_primary')) {
+            throw new ValidationException([
+                'isPrimary' => $this->translator->trans('flarum-tags.api.cannot_change_is_primary_message'),
+            ]);
+        }
 
         return $model;
     }

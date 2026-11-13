@@ -21,11 +21,23 @@ use Illuminate\Support\Str;
 
 class SendDialogMessageJob extends Job
 {
+    /**
+     * This broadcast, among others of the same event for the same message.
+     * Events such as a like happen to one message again and again, each with
+     * news of its own: the lock only keeps this broadcast from running twice
+     * at once, rather than dropping the next while this one is being sent.
+     * Null in a job queued before there was one, which unserialising leaves
+     * as it is: the constructor doesn't run.
+     */
+    private ?string $dispatch = null;
+
     public function __construct(
         private string $event,
         private AbstractModel $model
     ) {
         parent::__construct();
+
+        $this->dispatch = (string) Str::uuid();
     }
 
     public function __invoke(Queue $queue): void
@@ -36,7 +48,7 @@ class SendDialogMessageJob extends Job
         $this->getConnectedDialogUsers($message->dialog)
             ->each(function (User $recipient) use ($queue) {
                 $queue->push(
-                    new SendGeneratedPayloadJob($this->event, $this->model, $recipient)
+                    new SendGeneratedPayloadJob($this->event, $this->model, $recipient, dispatch: $this->dispatch)
                 );
             });
     }
@@ -76,7 +88,7 @@ class SendDialogMessageJob extends Job
             $this->event,
             $this->model->getTable(),
             $this->model->getKey()
-        );
+        ).($this->dispatch ? ':'.$this->dispatch : '');
 
         return [
             (new WithoutOverlapping($key))->dontRelease()

@@ -14,6 +14,19 @@ export function maxColumns(): number {
   return app.forum.attribute<number>('deckMaxColumns') || 8;
 }
 
+/** As the server keeps it: a column's name is cut to this length. */
+export const MAX_NAME_LENGTH = 60;
+
+/**
+ * Whether two columns' settings are the same. The server sends no settings as
+ * an empty list rather than an empty object, so they're compared by content.
+ */
+export function sameParams(a: DeckColumnConfig['params'], b: DeckColumnConfig['params']): boolean {
+  const entries = Object.entries(a ?? {});
+
+  return entries.length === Object.keys(b ?? {}).length && entries.every(([key, value]) => (b ?? {})[key] === value);
+}
+
 export function newColumnId(): string {
   return Math.random().toString(36).slice(2, 10);
 }

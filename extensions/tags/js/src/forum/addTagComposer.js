@@ -7,6 +7,40 @@ import Button from 'flarum/common/components/Button';
 import tagsLabel from '../common/helpers/tagsLabel';
 import getSelectableTags from './utils/getSelectableTags';
 
+/**
+ * Add the discussion's tags, or a prompt to choose them, to a discussion
+ * composer's header.
+ */
+export function addTagsHeaderItem(items) {
+  const tags = this.composer.fields.tags || [];
+
+  // The composer disables its body while minimized, when the whole of it is one
+  // button that restores it: it shows the chosen tags then, but not the prompt
+  // or the button to choose them.
+  if (this.attrs.disabled) {
+    if (tags.length) items.add('tags', <span className="DiscussionComposer-changeTags">{tagsLabel(tags)}</span>, 10);
+
+    return;
+  }
+
+  const selectableTags = getSelectableTags();
+
+  items.add(
+    'tags',
+    <Button
+      className={classList(['DiscussionComposer-changeTags', 'Button Button--ua-reset', !selectableTags.length && 'disabled'])}
+      onclick={this.chooseTags.bind(this)}
+    >
+      {tags.length ? (
+        tagsLabel(tags)
+      ) : (
+        <span className="TagLabel untagged">{app.translator.trans('flarum-tags.forum.composer_discussion.choose_tags_link')}</span>
+      )}
+    </Button>,
+    10
+  );
+}
+
 export default function addTagComposer() {
   extend(IndexSidebar.prototype, 'newDiscussionAction', function (promise) {
     // From `addTagFilter
@@ -47,25 +81,7 @@ export default function addTagComposer() {
 
   // Add a tag-selection menu to the discussion composer's header, after the
   // title.
-  extend('flarum/forum/components/DiscussionComposer', 'headerItems', function (items) {
-    const tags = this.composer.fields.tags || [];
-    const selectableTags = getSelectableTags();
-
-    items.add(
-      'tags',
-      <Button
-        className={classList(['DiscussionComposer-changeTags', 'Button Button--ua-reset', !selectableTags.length && 'disabled'])}
-        onclick={this.chooseTags.bind(this)}
-      >
-        {tags.length ? (
-          tagsLabel(tags)
-        ) : (
-          <span className="TagLabel untagged">{app.translator.trans('flarum-tags.forum.composer_discussion.choose_tags_link')}</span>
-        )}
-      </Button>,
-      10
-    );
-  });
+  extend('flarum/forum/components/DiscussionComposer', 'headerItems', addTagsHeaderItem);
 
   override('flarum/forum/components/DiscussionComposer', 'onsubmit', function (original) {
     const chosenTags = this.composer.fields.tags || [];

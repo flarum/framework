@@ -68,6 +68,10 @@ class Tag
 
         $params['filter'] = array_merge($filters, $params['filter']);
 
+        if ($q) {
+            $params['filter']['q'] = $q;
+        }
+
         $apiDocument = $this->getApiDocument($request, $params);
 
         $tagsDocument = $this->getTagsDocument($request, $slug);

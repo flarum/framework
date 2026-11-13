@@ -294,8 +294,12 @@ abstract class EloquentBuffer
             ? '*'
             : $grammar->wrap($relation->getRelated()->qualifyColumn($aggregate['column']));
 
+        // The relation's ordering means nothing to an aggregate, and grouped
+        // queries reject ordering by a column that is neither grouped nor
+        // aggregated on strict databases such as PostgreSQL.
         $results = $query
             ->toBase()
+            ->reorder()
             ->select($groupColumn)
             ->selectRaw("{$aggregate['function']}({$column}) as {$grammar->wrap($alias)}")
             ->groupBy($groupColumn)

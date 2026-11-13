@@ -66,8 +66,8 @@ export default abstract class AbstractPost<CustomAttrs extends IAbstractPostAttr
                       buttonClassName="Button Button--icon Button--flat"
                       menuClassName="Dropdown-menu--right"
                       icon="fas fa-ellipsis-h"
-                      onshow={() => this.$('.Post-controls').addClass('open')}
-                      onhide={() => this.$('.Post-controls').removeClass('open')}
+                      onshow={() => this.toggleControlsOpen(true)}
+                      onhide={() => this.toggleControlsOpen(false)}
                       accessibleToggleLabel={app.translator.trans('core.forum.post_controls.toggle_dropdown_accessible_label')}
                     >
                       {controls}
@@ -96,6 +96,17 @@ export default abstract class AbstractPost<CustomAttrs extends IAbstractPostAttr
     const $controls = this.$('.Post-controls');
 
     $actions.toggleClass('openWithin', $controls.hasClass('open'));
+  }
+
+  /**
+   * Keep the controls dropdown and the action bar in sync with whether the
+   * dropdown is open. This is done directly on the DOM, because the post
+   * usually retains its subtree and is not redrawn when the dropdown opens or
+   * closes.
+   */
+  toggleControlsOpen(open: boolean) {
+    this.$('.Post-controls').toggleClass('open', open);
+    this.$('.Post-actions').toggleClass('openWithin', open);
   }
 
   elementAttrs(): Record<string, unknown> {

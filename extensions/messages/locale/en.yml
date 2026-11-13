@@ -29,6 +29,7 @@ flarum-messages:
       placeholder: Write a message...
       recipients: Recipients
       submit_button: Send message
+      title: New message
       to: "To:"
 
     dialog_list:
@@ -106,6 +107,7 @@ flarum-messages:
       heading: Messages
 
     settings:
+      notify_message_liked_label: Someone likes one of my messages
       notify_message_received_label: Someone sends me a message
 
     user_controls:
@@ -113,6 +115,7 @@ flarum-messages:
       cannot_reply_text: This user cannot reply
 
     notifications:
+      message_liked_text: "{username} liked your message"
       message_received_text: Message Received notification from {user}
 
   # Translations in this namespace are used in emails sent by the forum.

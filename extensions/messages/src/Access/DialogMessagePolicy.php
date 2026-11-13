@@ -27,6 +27,25 @@ class DialogMessagePolicy extends AbstractPolicy
         return null;
     }
 
+    /**
+     * With flarum/likes. Only members see a message at all, so this decides
+     * which of them may like it: what they wrote, not a notice, under the same
+     * rules as liking posts. A like answers a message, so only a member who
+     * may reply in the conversation may like in it.
+     */
+    public function like(User $actor, DialogMessage $message): bool
+    {
+        if (! $message->isComment() || ! $actor->hasPermission('discussion.likePosts')) {
+            return false;
+        }
+
+        if ($actor->id === $message->user_id && ! (bool) $this->settings->get('flarum-likes.like_own_post')) {
+            return false;
+        }
+
+        return $message->dialog !== null && MessagingPermission::canSendIn($actor, $message->dialog);
+    }
+
     public function delete(User $actor, DialogMessage $message): bool|null|string
     {
         // A notice records what happened; it isn't its member's to take back.

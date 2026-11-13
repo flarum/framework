@@ -141,6 +141,30 @@ describe('the recipients shown above a message', () => {
     header.should.have(10, '.MessageComposer-recipients-list .Avatar');
     header.should.contain('+2');
   });
+
+  it('count the groups among the ten', () => {
+    const many = Array.from({ length: 12 }, (_, i) => {
+      app.store.pushPayload({ data: { type: 'users', id: String(900 + i), attributes: { username: 'member' + i } } } as any);
+
+      return user(String(900 + i));
+    });
+    const groups = ['5', '6'].map((id) => {
+      app.store.pushPayload({ data: { type: 'groups', id, attributes: { namePlural: 'Group ' + id } } } as any);
+
+      return app.store.getById('groups', id);
+    });
+
+    const composer = new (MessageComposer as any)();
+    composer.attrs = { composer: app.composer, replyingTo: {} };
+    composer.recipients = Stream(many);
+    composer.recipientGroups = Stream(groups);
+
+    const header = mq(m('ul', composer.headerItems().toArray()));
+
+    header.should.have(2, '.MessageComposer-group');
+    header.should.have(8, '.MessageComposer-recipients-list .Avatar');
+    header.should.contain('+4');
+  });
 });
 
 describe('addressing a Group', () => {
@@ -162,4 +186,49 @@ it('can reply before addressed Group models have loaded', () => {
   const attrs = { composer: app.composer, replyingTo: { users: () => [], groups: () => [false] } };
   composer.oninit({ attrs });
   expect(() => mq(m('ul', composer.headerItems().toArray()))).not.toThrow();
+});
+
+describe('a minimized new message', () => {
+  /** The header of a new message's composer; core passes its body `disabled` while minimized. */
+  function header(recipients: User[], minimized: boolean, groups: unknown[] = []) {
+    const composer = new (MessageComposer as any)();
+    composer.attrs = { composer: app.composer, disabled: minimized };
+    composer.recipients = Stream(recipients);
+    composer.recipientGroups = Stream(groups);
+
+    return mq(m('ul', composer.headerItems().toArray()));
+  }
+
+  // Its header can't be clicked: a click anywhere restores the composer.
+  it("doesn't offer to pick recipients", () => {
+    header([], true).should.not.have('.MessageComposer-recipients .Button');
+    header([user('3')], true).should.not.have('.MessageComposer-recipients .Button');
+  });
+
+  it('says what it is when no one is picked yet', () => {
+    header([], true).should.contain('flarum-messages.forum.composer.title');
+  });
+
+  it('shows who it is to', () => {
+    const out = header([user('3')], true);
+
+    out.should.have(1, '.MessageComposer-recipients-list .Avatar');
+    out.should.not.contain('flarum-messages.forum.composer.title');
+  });
+
+  it('shows which groups it is to', () => {
+    app.store.pushPayload({ data: { type: 'groups', id: '7', attributes: { namePlural: 'Helpers' } } } as any);
+    const out = header([], true, [app.store.getById('groups', '7')]);
+
+    out.should.have(1, '.MessageComposer-group');
+    out.should.not.contain('flarum-messages.forum.composer.title');
+  });
+
+  it('offers to pick recipients again once restored', () => {
+    header([user('3')], false).should.have('.MessageComposer-recipients .Button');
+
+    const empty = header([], false);
+    empty.should.have('.MessageComposer-recipients .Button');
+    empty.should.not.contain('flarum-messages.forum.composer.title');
+  });
 });

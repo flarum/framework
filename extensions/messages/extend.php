@@ -9,6 +9,7 @@
 
 namespace Flarum\Messages;
 
+use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Audit\Extend\Audit as AuditExtend;
@@ -81,6 +82,7 @@ return [
         ->addSearcher(DialogMessage::class, Search\DialogMessageSearcher::class)
         ->setFulltext(Search\DialogMessageSearcher::class, Search\FulltextFilter::class)
         ->addFilter(Search\DialogMessageSearcher::class, DialogMessage\Filter\DialogFilter::class)
+        ->addFilter(Search\DialogMessageSearcher::class, DialogMessage\Filter\IdFilter::class)
         ->addFilter(Search\DialogSearcher::class, Dialog\Filter\UnreadFilter::class),
 
     (new Extend\ServiceProvider())
@@ -108,6 +110,31 @@ return [
                 ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
                     ->addDefaultInclude(['mentionsTags'])),
         ])
+        // Members can like what's said in their conversations, under the
+        // rules for liking posts.
+        ->whenExtensionEnabled('flarum-likes', fn () => [
+            (new Extend\ApiResource(Api\Resource\DialogMessageResource::class))
+                ->fields(Api\DialogMessageLikeFields::class)
+                ->endpoints(Api\DialogMessageLikeEndpoints::class)
+                // Whether a member may like a message turns on whether they may
+                // reply in its conversation, which reads its members' groups.
+                ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
+                    ->addDefaultInclude(['likes'])
+                    ->eagerLoad(['dialog.users.groups'])),
+
+            (new Extend\ThrottleApi())
+                ->set('messageLikeTimeout', Api\DialogMessageLikeThrottler::class),
+
+            (new Extend\Notification())
+                ->type(Notification\MessageLikedBlueprint::class, ['alert']),
+
+            (new Extend\ApiResource(Resource\NotificationResource::class))
+                ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
+                    ->beforeSerialization(fn (Context $context, mixed $data) => resolve(Api\LoadLikedMessageSubjects::class)($context, $data))),
+
+            (new Extend\Event())
+                ->subscribe(Listener\SendNotificationWhenMessageLiked::class),
+        ])
         // Messages are personal data: exported with the member, addresses removed
         // when they are anonymised, gone when they are erased.
         ->whenExtensionEnabled('flarum-gdpr', fn () => [
@@ -118,6 +145,11 @@ return [
             (new RealtimeExtend())
                 ->broadcastDialogEvent(
                     DialogMessage\Event\Created::class,
+                    fn ($event) => $event->message,
+                )
+                // Raised only with flarum/likes enabled.
+                ->broadcastDialogEvent(
+                    [DialogMessage\Event\Liked::class, DialogMessage\Event\Unliked::class],
                     fn ($event) => $event->message,
                 )
                 ->registerModelEndpoint(DialogMessage::class, 'dialog-messages')

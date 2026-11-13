@@ -35,6 +35,8 @@ class PinStickiedDiscussionsToTop
             $query = $state->getQuery()->getQuery();
 
             // Tag pages always pin stickied discussions to the top.
+            // Window filters count here, unlike in getListFilters(): Deck's
+            // activity check (lastPostedAfter) needs the latest activity first.
             $filters = $state->getActiveFilters();
 
             if ($count = count($filters)) {

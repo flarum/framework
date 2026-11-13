@@ -9,12 +9,15 @@
 
 namespace Flarum\Tests\integration\forum;
 
+use Flarum\Frontend\Compiler\Source\FileSource;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Compiler\Source\StringSource;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use ReflectionMethod;
 
 /**
  * Raw LESS can read arbitrary files through `@import (inline)` and `data-uri()`,
@@ -45,10 +48,26 @@ class CustomLessFileAccessTest extends TestCase
         ]);
     }
 
+    private ?string $documentRoot = null;
+
+    protected function tearDown(): void
+    {
+        if ($this->documentRoot !== null) {
+            $_SERVER['DOCUMENT_ROOT'] = $this->documentRoot;
+            $this->documentRoot = null;
+        }
+
+        parent::tearDown();
+    }
+
+    /**
+     * The marker is also a valid LESS ruleset, so a `(less)` import that
+     * reaches it compiles it into the stylesheet rather than failing to parse.
+     */
     private function secretFile(): string
     {
         $path = sys_get_temp_dir().'/flarum-less-secret.txt';
-        file_put_contents($path, 'SECRET-LESS-FILE-READ db_password=hunter2');
+        file_put_contents($path, '.SECRET-LESS-FILE-READ { content: "marker"; }');
 
         return $path;
     }
@@ -122,6 +141,131 @@ class CustomLessFileAccessTest extends TestCase
         ));
 
         $this->assertStringNotContainsString('SECRET-LESS-FILE-READ', $this->compiledForumCss());
+    }
+
+    /**
+     * How many `..` segments lead from less.php's entry path to `/`.
+     *
+     * less.php records the directory of the first file it parses as the entry
+     * path, and every later source -- custom LESS included -- inherits it.
+     */
+    private function entryPathDepth(): int
+    {
+        $compiler = $this->app()->getContainer()->make('flarum.assets.forum')->makeCss();
+
+        foreach ((new ReflectionMethod($compiler, 'getSources'))->invoke($compiler) as $source) {
+            if ($source instanceof FileSource) {
+                return substr_count(dirname(realpath($source->getPath())), '/');
+            }
+        }
+
+        $this->fail('The forum stylesheet has no file source to take an entry path from.');
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function fileImportingDirectives(): iterable
+    {
+        yield '@import (inline)' => ['@import (inline) "%s";'];
+        yield '@impor (inline)' => ['@impor (inline) "%s";'];
+        yield '@import (less)' => ['@import (less) "%s";'];
+    }
+
+    /**
+     * less.php resolves an absolute import against the entry path *before* it
+     * consults `import_dirs`, so containImports() never sees a path that climbs
+     * out of it with `/..` segments. With exactly as many as reach `/`, the
+     * import names any file on the server (more than that and less.php's own
+     * path normalisation garbles it, fewer and it is refused).
+     */
+    #[Test]
+    #[DataProvider('fileImportingDirectives')]
+    public function custom_less_cannot_climb_out_of_the_entry_path(string $template)
+    {
+        $secret = $this->secretFile();
+
+        $status = $this->saveCustomLess(sprintf(
+            $template,
+            '/'.str_repeat('../', $this->entryPathDepth()).ltrim($secret, '/')
+        ));
+
+        $this->assertStringNotContainsString(
+            'SECRET-LESS-FILE-READ',
+            $this->compiledForumCss(),
+            "an absolute import climbed out of less.php's entry path (save returned $status)"
+        );
+    }
+
+    /**
+     * The other place less.php looks before `import_dirs`: in a web request, an
+     * absolute import is tried against the document root, so `/../` reaches
+     * the directory above it.
+     */
+    #[Test]
+    #[DataProvider('fileImportingDirectives')]
+    public function custom_less_cannot_climb_out_of_the_document_root(string $template)
+    {
+        $secret = $this->secretFile();
+
+        $documentRoot = dirname($secret).'/flarum-less-document-root';
+        is_dir($documentRoot) || mkdir($documentRoot);
+
+        $this->documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
+        $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
+
+        $status = $this->saveCustomLess(sprintf($template, '/../'.basename($secret)));
+
+        $this->assertStringNotContainsString(
+            'SECRET-LESS-FILE-READ',
+            $this->compiledForumCss(),
+            "an absolute import climbed out of the document root (save returned $status)"
+        );
+    }
+
+    /**
+     * The functions that read a file resolve their path the same way imports
+     * do, so the climbs above work through them too. `data-uri()` is refused
+     * when the setting is saved, and the image functions are not, but the
+     * compile is what has to hold: a value can also be stored without going
+     * through that validation. So the setting is written directly here.
+     *
+     * @return iterable<string, array{string, string}>
+     */
+    public static function fileReadingFunctions(): iterable
+    {
+        foreach (['entry path', 'document root'] as $route) {
+            // Inlines the file. An SVG is URL-encoded rather than base64, so
+            // the marker survives into the stylesheet as it is.
+            yield "data-uri(), $route" => [$route, '.x { background: data-uri("%s"); }'];
+            // Reads the SVG's width, so it discloses at least that much.
+            yield "image-width(), $route" => [$route, '.x { width: image-width("%s"); }'];
+        }
+    }
+
+    #[Test]
+    #[DataProvider('fileReadingFunctions')]
+    public function a_file_reading_function_cannot_climb_out_of_less_phps_lookups(string $route, string $template)
+    {
+        $target = sys_get_temp_dir().'/flarum-less-secret.svg';
+        file_put_contents($target, '<svg xmlns="http://www.w3.org/2000/svg" width="98765" height="1"></svg>');
+
+        if ($route === 'entry path') {
+            $path = '/'.str_repeat('../', $this->entryPathDepth()).ltrim($target, '/');
+        } else {
+            $documentRoot = dirname($target).'/flarum-less-document-root';
+            is_dir($documentRoot) || mkdir($documentRoot);
+
+            $this->documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
+            $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
+
+            $path = '/../'.basename($target);
+        }
+
+        $this->app()->getContainer()->make(SettingsRepositoryInterface::class)
+            ->set('custom_less', sprintf($template, $path));
+
+        $this->assertStringNotContainsString('98765', $this->compiledForumCss());
     }
 
     /**

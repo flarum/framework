@@ -11,6 +11,7 @@ namespace Flarum\Search;
 
 use Closure;
 use Flarum\Search\Filter\FilterInterface;
+use Flarum\Search\Filter\WindowFilterInterface;
 use Flarum\User\User;
 
 class SearchState
@@ -65,11 +66,29 @@ class SearchState
     /**
      * Get a list of the filters that are active.
      *
+     * To decide whether a request is the unfiltered list, such as the All
+     * Discussions page, use `getListFilters()` instead.
+     *
      * @return FilterInterface[]
      */
     public function getActiveFilters(): array
     {
         return $this->activeFilters;
+    }
+
+    /**
+     * The active filters that decide which list this is, leaving out those that
+     * only pick a window of it (`WindowFilterInterface`). With none, the request
+     * is the unfiltered list, such as the All Discussions page.
+     *
+     * @return FilterInterface[]
+     */
+    public function getListFilters(): array
+    {
+        return array_values(array_filter(
+            $this->activeFilters,
+            fn (FilterInterface $filter) => ! $filter instanceof WindowFilterInterface
+        ));
     }
 
     public function addActiveFilter(FilterInterface $filter): void

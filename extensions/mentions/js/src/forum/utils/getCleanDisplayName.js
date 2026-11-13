@@ -13,15 +13,11 @@ const getDeletedUserText = () => extractText(app.translator.trans('core.lib.user
 /**
  * Fetches a user's username or display name.
  *
- * Chooses based on the format option set in the admin settings page.
- *
  * @param user An instance of the User model to fetch the username for
  * @param useDisplayName If `true`, uses `user.displayName()`, otherwise, uses `user.username()`
  */
 export default function getCleanDisplayName(user, useDisplayName = true) {
-  if (!user) return getDeletedUserText().replace(/"#[a-z]{0,3}[0-9]+/, '_');
+  const text = (useDisplayName ? user?.displayName() : user?.username()) || getDeletedUserText();
 
-  const text = (useDisplayName ? user.displayName() : user.username()) || getDeletedUserText();
-
-  return text.replace(/"#[a-z]{0,3}[0-9]+/, '_');
+  return text.replace(/[\r\n\u2028\u2029]+/g, ' ').replace(/"#[a-z]{0,3}[0-9]+/g, '_');
 }

@@ -5,12 +5,13 @@ import LinkButton from 'flarum/common/components/LinkButton';
 import HeaderSecondary from 'flarum/forum/components/HeaderSecondary';
 import UserControls from 'flarum/forum/utils/UserControls';
 import Button from 'flarum/common/components/Button';
-import type Dialog from '../common/models/Dialog';
 import DialogsDropdown from './components/DialogsDropdown';
 import DialogListState from './states/DialogListState';
 import type User from 'flarum/common/models/User';
 import extendRealtime from './extendRealtime';
 import addMessageSearch from './addMessageSearch';
+import composingMessageTo from './utils/composingMessageTo';
+import addMessageLikes from './addMessageLikes';
 
 export { default as extend } from './extend';
 
@@ -26,10 +27,7 @@ app.initializers.add('flarum-messages', () => {
     5
   );
 
-  app.composer.composingMessageTo = function (dialog: Dialog) {
-    // The composer is loaded with `replyingTo`, so that is what must match.
-    return this.isVisible() && this.bodyMatches('flarum/messages/forum/components/MessageComposer', { replyingTo: dialog });
-  };
+  app.composer.composingMessageTo = composingMessageTo;
 
   extend(IndexSidebar.prototype, 'navItems', function (items) {
     if (app.session.user) {
@@ -88,12 +86,24 @@ app.initializers.add('flarum-messages', () => {
 
   addMessageSearch();
 
+  if ('flarum-likes' in flarum.extensions) {
+    addMessageLikes();
+  }
+
   extend('flarum/forum/components/NotificationGrid', 'notificationTypes', function (items) {
     items.add('messageReceived', {
       name: 'messageReceived',
       icon: 'fas fa-envelope',
       label: app.translator.trans('flarum-messages.forum.settings.notify_message_received_label'),
     });
+
+    if ('flarum-likes' in flarum.extensions) {
+      items.add('messageLiked', {
+        name: 'messageLiked',
+        icon: 'far fa-thumbs-up',
+        label: app.translator.trans('flarum-messages.forum.settings.notify_message_liked_label'),
+      });
+    }
   });
 
   // Register realtime events with flarum/realtime when enabled.

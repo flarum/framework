@@ -18,4 +18,10 @@ export default class DialogMessage extends Model {
     dialog(): false | Dialog;
     user(): false | User;
     canDelete(): boolean;
+    /** With flarum/likes: some of who liked it, this member first when they did. */
+    likes(): false | (User | undefined)[];
+    /** With flarum/likes. */
+    likesCount(): number | undefined;
+    /** With flarum/likes. */
+    canLike(): boolean | undefined;
 }

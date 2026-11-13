@@ -1,69 +1,115 @@
-/**
- * The `PostStreamScrubber` component displays a scrubber which can be used to
- * navigate/scrub through a post stream.
- *
- * ### Attrs
- *
- * - `stream`
- * - `className`
- */
-export default class PostStreamScrubber extends Component<import("../../common/Component").ComponentAttrs, undefined> {
-    constructor();
-    oninit(vnode: any): void;
-    stream: any;
-    handlers: {} | undefined;
-    scrollListener: ScrollListener | undefined;
-    view(): JSX.Element;
-    firstPostLabel(): string | any[];
-    unreadLabel(unreadCount: any): any[];
-    lastPostLabel(): string | any[];
-    onupdate(vnode: any): void;
-    oncreate(vnode: any): void;
-    closeWatcher: CloseWatcher | undefined;
-    showing: boolean | undefined;
-    dragging: boolean | undefined;
-    mouseStart: any;
-    indexStart: any;
-    onremove(vnode: any): void;
-    /**
-     * Update the scrollbar's position to reflect the current values of the
-     * index/visible properties.
-     *
-     * @param {Partial<{fromScroll: boolean, forceHeightChange: boolean, animate: boolean}>} options
-     */
-    updateScrubberValues(options?: Partial<{
-        fromScroll: boolean;
-        forceHeightChange: boolean;
-        animate: boolean;
-    }>): void;
-    adjustingHeight: boolean | undefined;
-    /**
-     * Go to the first post in the discussion.
-     */
-    goToFirst(): void;
-    /**
-     * Go to the last post in the discussion.
-     */
-    goToLast(): void;
-    onresize(): void;
-    onmousedown(e: any): void;
-    onmousemove(e: any): void;
-    onmouseup(): void;
-    onclick(e: any): void;
-    /**
-     * Get the percentage of the height of the scrubber that should be allocated
-     * to each post.
-     *
-     * @return {{ index: number, visible: number }}
-     * @property {Number} index The percent per post for posts on either side of
-     *     the visible part of the scrubber.
-     * @property {Number} visible The percent per post for the visible part of the
-     *     scrubber.
-     */
-    percentPerPost(): {
-        index: number;
-        visible: number;
-    };
-}
-import Component from '../../common/Component';
+import Component, { type ComponentAttrs } from '../../common/Component';
 import ScrollListener from '../../common/utils/ScrollListener';
+import ItemList from '../../common/utils/ItemList';
+import type Mithril from 'mithril';
+import type PostStreamState from '../states/PostStreamState';
+export interface IPostStreamScrubberAttrs extends ComponentAttrs {
+    stream: PostStreamState;
+    className?: string;
+}
+export interface PostStreamScrubberUpdateOptions {
+    fromScroll?: boolean;
+    forceHeightChange?: boolean;
+    animate?: boolean;
+}
+export interface PostStreamScrubberPercentPerPost {
+    /**
+     * Per post outside the handle.
+     */
+    index: number;
+    /**
+     * Per post inside the handle, which is larger while the handle is held at
+     * its minimum height.
+     */
+    visible: number;
+}
+/**
+ * What core has set on one element outside of rendering, and for which part.
+ */
+interface SyncedValues {
+    part: string;
+    styles: Record<string, string>;
+    text?: Node | null;
+}
+export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberAttrs = IPostStreamScrubberAttrs> extends Component<CustomAttrs> {
+    /**
+     * The smallest height, in pixels, the handle shrinks to in long discussions.
+     */
+    static minHandleHeight: number;
+    stream: PostStreamState;
+    handlers: {
+        onresize?: () => void;
+        onmousemove?: (e: JQuery.TriggeredEvent) => void;
+        onmouseup?: () => void;
+    };
+    scrollListener: ScrollListener;
+    dragging: boolean;
+    mouseStart: number;
+    indexStart: number;
+    adjustingHeight: boolean;
+    showing: boolean;
+    closeWatcher?: CloseWatcher;
+    /**
+     * The synced parts as of the last check, by element.
+     */
+    protected syncedParts: Map<Element, string>;
+    /**
+     * What core has set on each element outside of rendering.
+     */
+    protected syncedValues: Map<Element, SyncedValues>;
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
+    view(): JSX.Element;
+    viewItems(): ItemList<Mithril.Children>;
+    scrubberItems(): ItemList<Mithril.Children>;
+    scrollbarItems(): ItemList<Mithril.Children>;
+    infoItems(): ItemList<Mithril.Children>;
+    viewingText(): Mithril.Children;
+    firstPostLabel(): Mithril.Children;
+    unreadLabel(unreadCount: number): Mithril.Children;
+    lastPostLabel(): Mithril.Children;
+    onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
+    oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
+    onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
+    /**
+     * Sync the handle and the info text with the stream's `index` and `visible`.
+     */
+    updateScrubberValues(options?: PostStreamScrubberUpdateOptions): void;
+    goToFirst(): void;
+    goToLast(): void;
+    /**
+     * Fill the height of the sidebar without overlapping the footer.
+     */
+    onresize(): void;
+    onmousedown(e: JQuery.TriggeredEvent & {
+        redraw?: boolean;
+    }): void;
+    onmousemove(e: JQuery.TriggeredEvent): void;
+    onmouseup(): void;
+    /**
+     * Jump so that the handle ends up centred on the click.
+     */
+    onclick(e: JQuery.TriggeredEvent): void;
+    /**
+     * Take back what core set on elements that no longer play the part it was
+     * set for, and report whether any part is now played by a different element.
+     */
+    protected reconcileSyncedParts(vnode: Mithril.Vnode<CustomAttrs, this>): boolean;
+    /**
+     * Remember what core sets on a part outside of rendering.
+     *
+     * Mithril runs this component's onupdate before its children's, so an element
+     * that changed parts has been released before anything is set on it again.
+     */
+    protected syncValues(element: Element, part: string, values: Omit<SyncedValues, 'part'>): void;
+    protected syncText(part: string, text: string): void;
+    /**
+     * Take back the styles and text core set on an element, except for the
+     * styles the vnode now rendering it declares, which Mithril has just set.
+     */
+    protected releaseValues(element: Element, values: SyncedValues, vnode?: Mithril.Vnode): void;
+    /**
+     * The share of the track's height, in percent, that each post takes up.
+     */
+    percentPerPost(): PostStreamScrubberPercentPerPost;
+}
+export {};
