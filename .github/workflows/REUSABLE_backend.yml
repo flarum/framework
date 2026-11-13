@@ -51,6 +51,14 @@ on:
         required: false
         default: '.'
 
+      test_script:
+        description: >-
+          The Composer script that runs the tests, optionally followed by arguments, e.g.
+          'test:integration:external -- --fail-on-skipped'. `composer test:setup` always runs first.
+        type: string
+        required: false
+        default: 'test'
+
       # Only relevant in mono-repos.
       monorepo_tests:
         description: "The list of directories to test in a monorepo. This should be a space-separated list of directories relative to the backend directory."
@@ -122,6 +130,15 @@ on:
         required: false
         default: 'flarum_p'
 
+      enable_prefixed_runs:
+        description: >-
+          Run the newest version of each database driver with a table prefix. Turn this off to
+          get exactly one job from a single PHP version and database, e.g. for tests that call
+          a live external API.
+        type: boolean
+        required: false
+        default: true
+
       php_ini_values:
         description: PHP ini values
         type: string
@@ -155,6 +172,12 @@ on:
     secrets:
       composer_auth:
         description: The Composer auth tokens to use for private packages. Defaults to authenticating GitHub downloads with the workflow's token.
+        required: false
+
+      test_env:
+        description: >-
+          Extra environment variables for the tests, one NAME=value per line, such as API keys
+          for tests against live services. Each value is masked in the logs.
         required: false
 
 env:
@@ -200,6 +223,7 @@ jobs:
           DB_PREFIX: ${{ inputs.db_prefix }}
           DB_PREFIX_PGSQL: ${{ inputs.db_prefix_pgsql }}
           REDUCE_DRAFTS: ${{ inputs.reduce_drafts }}
+          PREFIXED_RUNS: ${{ inputs.enable_prefixed_runs }}
           PR_DRAFT: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft }}
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -222,6 +246,7 @@ jobs:
             --argjson redis "$REDIS_CLIENTS" \
             --arg prefix "$DB_PREFIX" \
             --arg prefixPgsql "$DB_PREFIX_PGSQL" \
+            --argjson prefixed "$PREFIXED_RUNS" \
             --argjson draft "$draft" '
             def vkey: [splits("[.:-]") | tonumber? // 0];
             def driver: (split(":")[0]) as $i
@@ -258,6 +283,9 @@ jobs:
                 | $jobs + [ $phps[] | select(. as $v | $covered | index($v) | not)
                             | job(.; ($sqlite // $dbs[0]); false) ]
               end)
+            # Without prefixed runs, a driver with a single version and a single PHP version
+            # would get the same job twice.
+            | (if $prefixed then . else map(.prefix = "" | .prefixStr = "") | unique end)
             | [ .[] as $j | $redis[] as $r | $j + {redis_client: $r} ]
             | {include: .}')
 
@@ -418,14 +446,28 @@ jobs:
       # database, and each directory's output is printed once every lane has finished.
       - name: Run tests
         run: |
+          while IFS= read -r line; do
+            line="${line%$'\r'}"
+            [ -z "$line" ] && continue
+            name="${line%%=*}"
+            value="${line#*=}"
+            if [[ ! "$name" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || [ "$name" = "$line" ]; then
+              echo "::error::test_env lines must be NAME=value"
+              exit 1
+            fi
+            [ -n "$value" ] && echo "::add-mask::$value"
+            export "$name=$value"
+          done <<< "$TEST_ENV"
+          unset TEST_ENV
+
           if [ -z "${{ inputs.monorepo_tests }}" ]; then
             composer test:setup
-            composer test
+            composer $TEST_SCRIPT
           elif [ "$MONOREPO_LANES" -le 1 ]; then
             for test in ${{ inputs.monorepo_tests }}; do
               echo "::group::Running tests for $test"
               composer test:setup --working-dir=$test
-              composer test --working-dir=$test
+              composer --working-dir=$test $TEST_SCRIPT
               echo "::endgroup::"
             done
           else
@@ -472,7 +514,7 @@ jobs:
               for i in "${!tests[@]}"; do
                 [ "${lane[$i]}" -eq "$n" ] || continue
                 start=$SECONDS
-                if ! { composer test:setup --working-dir="${tests[$i]}" && composer test --working-dir="${tests[$i]}"; } > "$logs/$i.log" 2>&1; then
+                if ! { composer test:setup --working-dir="${tests[$i]}" && composer --working-dir="${tests[$i]}" $TEST_SCRIPT; } > "$logs/$i.log" 2>&1; then
                   echo "$(( SECONDS - start ))s, failed" > "$logs/$i.result"
                   return 1
                 fi
@@ -522,6 +564,8 @@ jobs:
           DB_DRIVER: ${{ matrix.driver }}
           COMPOSER_PROCESS_TIMEOUT: 600
           MONOREPO_LANES: ${{ inputs.monorepo_lanes }}
+          TEST_SCRIPT: ${{ inputs.test_script }}
+          TEST_ENV: ${{ secrets.test_env }}
 
       # Surface the query findings on the pull request itself. A developer who
       # only ever looks at the checks page would otherwise never see the
