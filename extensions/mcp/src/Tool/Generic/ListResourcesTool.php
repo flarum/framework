@@ -14,6 +14,7 @@ use Flarum\Mcp\Api\ResourceExposure;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Exception\ToolError;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Tobyz\JsonApiServer\Resource\Paginatable;
 
 class ListResourcesTool extends GenericTool
 {
@@ -101,10 +102,14 @@ class ListResourcesTool extends GenericTool
             $query['sort'] = (string) $arguments['sort'];
         }
 
-        $query['page'] = array_filter([
-            'limit' => min(static::MAX_LIMIT, (int) ($arguments['limit'] ?? 20)),
-            'offset' => max(0, (int) ($arguments['offset'] ?? 0)),
-        ], fn (int $value) => $value > 0);
+        // A type that isn't paginated lists everything and refuses a page, so
+        // it's asked for one only when the caller asks.
+        if ($resource instanceof Paginatable || isset($arguments['limit']) || isset($arguments['offset'])) {
+            $query['page'] = array_filter([
+                'limit' => min(static::MAX_LIMIT, (int) ($arguments['limit'] ?? 20)),
+                'offset' => max(0, (int) ($arguments['offset'] ?? 0)),
+            ], fn (int $value) => $value > 0);
+        }
 
         return $context->api->index($type, $query)->simplify();
     }

@@ -142,4 +142,12 @@ class VisibilityTest extends McpTestCase
         $adminOnly = array_values(array_diff($adminTypes, $memberTypes));
         $this->assertContains('gdpr-datatypes', $adminOnly);
     }
+
+    #[Test]
+    public function an_admin_lists_a_type_that_is_not_paginated(): void
+    {
+        $list = $this->toolOutput($this->callTool('list_resources', ['type' => 'gdpr-datatypes'], $this->bearer($this->developerToken(1))));
+
+        $this->assertNotEmpty($list['data'] ?? null);
+    }
 }
