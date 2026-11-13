@@ -16,9 +16,12 @@ use Flarum\Formatter\Formattable;
 use Flarum\Formatter\HasFormattedContent;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
+use Flarum\Messages\Notification\MessageLikedBlueprint;
+use Flarum\Notification\Notification;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
+use Illuminate\Contracts\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Expression;
@@ -84,6 +87,10 @@ class DialogMessage extends AbstractModel implements Formattable
         });
 
         static::deleted(function (self $message) {
+            if (self::$deletesNotifications) {
+                self::deleteNotificationsAbout([$message->id]);
+            }
+
             $dialog = $message->dialog;
 
             if (! $dialog) {
@@ -119,6 +126,43 @@ class DialogMessage extends AbstractModel implements Formattable
                 $dialog->save();
             }
         });
+    }
+
+    /** Off while a caller deleting many messages deletes their notifications itself. */
+    protected static bool $deletesNotifications = true;
+
+    /**
+     * Run a callback that deletes messages whose notifications are already gone,
+     * without each deletion looking for them again.
+     */
+    public static function withoutDeletingNotifications(callable $callback): void
+    {
+        $previous = self::$deletesNotifications;
+        self::$deletesNotifications = false;
+
+        try {
+            $callback();
+        } finally {
+            self::$deletesNotifications = $previous;
+        }
+    }
+
+    /**
+     * Delete the notifications about these messages. By type name as well as
+     * by the registered types: flarum/likes may be disabled now, leaving its
+     * alerts unregistered but still there.
+     *
+     * @param int[]|\Illuminate\Contracts\Database\Query\Builder $ids
+     */
+    public static function deleteNotificationsAbout(array|QueryBuilder $ids): void
+    {
+        $types = array_keys(array_filter(Notification::getSubjectModels(), fn (string $model) => is_a(self::class, $model, true)));
+        $types[] = MessageLikedBlueprint::getType();
+
+        Notification::query()
+            ->whereIn('type', array_unique($types))
+            ->whereIn('subject_id', $ids)
+            ->delete();
     }
 
     /** Written by a member, rather than a notice of something that happened. */
