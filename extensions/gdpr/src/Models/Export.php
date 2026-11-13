@@ -59,6 +59,9 @@ class Export extends AbstractModel
             $export->created_at = Carbon::now();
             $export->destroys_at = Carbon::now()->addDay();
             $export->save();
+
+            $export->setRelation('user', $user);
+            $export->setRelation('actor', $actor);
         });
     }
 
