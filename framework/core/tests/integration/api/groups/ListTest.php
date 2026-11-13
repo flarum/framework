@@ -314,7 +314,7 @@ class ListTest extends TestCase
         $response = $this->send(
             $this->request('GET', '/api/groups')
             ->withQueryParams([
-                'page' => ['number' => '1'],
+                'page' => ['number' => '2'],
             ])
         );
 
@@ -323,8 +323,36 @@ class ListTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), $body);
         $data = json_decode($body, true);
 
-        $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));
+        $this->assertEquals([], $data['data']);
         $this->assertEquals(50, $data['meta']['page']['limit'] ?? null);
+        $this->assertEquals(50, $data['meta']['page']['offset'] ?? null);
+    }
+
+    #[Test]
+    #[DataProvider('pagesFromTheStart')]
+    public function returns_every_group_when_asked_to_start_from_the_beginning(array $page)
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams(['page' => $page])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
+
+        $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));
+        $this->assertArrayNotHasKey('limit', $data['meta']['page'] ?? [], 'The whole list, not a page of it');
+    }
+
+    public static function pagesFromTheStart(): array
+    {
+        return [
+            'offset zero' => [['offset' => '0']],
+            'first page by number' => [['number' => '1']],
+            'empty limit' => [['limit' => '']],
+        ];
     }
 
     #[Test]

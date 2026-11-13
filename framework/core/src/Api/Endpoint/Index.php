@@ -117,11 +117,11 @@ class Index extends Endpoint
                     );
                 }
 
+                $this->rejectPagesOfUnpaginatableLists($context);
+
                 $this->callBeforeHook($context);
 
                 $query = $collection->query($context);
-
-                $this->rejectPagesOfUnpaginatableLists($context);
 
                 // Reading the page parameters first rejects the ones that can't be read
                 // before a pagination is built from them.
@@ -360,18 +360,14 @@ class Index extends Endpoint
      */
     private function rejectPagesOfUnpaginatableLists(\Tobyz\JsonApiServer\Context $context): void
     {
-        $page = $context->queryParam('page');
-
-        if ($context->collection instanceof Paginatable || ! is_array($page)) {
+        if ($context->collection instanceof Paginatable) {
             return;
         }
 
-        foreach (['limit', 'offset', 'number'] as $name) {
-            if (isset($page[$name])) {
-                throw (new BadRequestException("page[$name] is not supported: this list is not paginated"))->setSource([
-                    'parameter' => "page[$name]",
-                ]);
-            }
+        if ($name = $this->pageAskedFor($context)) {
+            throw (new BadRequestException("page[$name] is not supported: this list is not paginated"))->setSource([
+                'parameter' => "page[$name]",
+            ]);
         }
     }
 
@@ -404,11 +400,32 @@ class Index extends Endpoint
 
     private function pageRequested(\Tobyz\JsonApiServer\Context $context): bool
     {
+        return $context->collection instanceof Paginatable && $this->pageAskedFor($context) !== null;
+    }
+
+    /**
+     * The page parameter that asks for something other than the whole list from
+     * its start. An empty value, page[offset]=0 and page[number]=1 don't.
+     */
+    private function pageAskedFor(\Tobyz\JsonApiServer\Context $context): ?string
+    {
         $page = $context->queryParam('page');
 
-        return is_array($page)
-            && (isset($page['limit']) || isset($page['offset']) || isset($page['number']))
-            && $context->collection instanceof Paginatable;
+        if (! is_array($page)) {
+            return null;
+        }
+
+        $start = ['limit' => [], 'offset' => ['0'], 'number' => ['1']];
+
+        foreach ($start as $name => $values) {
+            $value = $page[$name] ?? null;
+
+            if ($value !== null && $value !== '' && ! in_array($value, $values, true)) {
+                return $name;
+            }
+        }
+
+        return null;
     }
 
     public function paginate(int $defaultLimit = 20, int $maxLimit = 50): static

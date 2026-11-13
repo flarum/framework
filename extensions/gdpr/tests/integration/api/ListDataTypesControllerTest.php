@@ -9,6 +9,9 @@
 
 namespace Flarum\Gdpr\Tests\integration\Api;
 
+use Flarum\Api\Endpoint\Index;
+use Flarum\Extend;
+use Flarum\Gdpr\Api\Resource\DataTypeResource;
 use Flarum\Gdpr\Data\Forum;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -65,11 +68,11 @@ class ListDataTypesControllerTest extends TestCase
 
     #[Test]
     #[DataProvider('pageParameters')]
-    public function rejects_a_page_of_types_because_the_list_is_not_paginated(string $name)
+    public function rejects_a_page_of_types_because_the_list_is_not_paginated(string $name, string $value)
     {
         $response = $this->send(
             $this->request('GET', '/api/gdpr-datatypes', ['authenticatedAs' => 1])
-                ->withQueryParams(['page' => [$name => '1']])
+                ->withQueryParams(['page' => [$name => $value]])
         );
 
         $body = $response->getBody()->getContents();
@@ -81,9 +84,56 @@ class ListDataTypesControllerTest extends TestCase
     public static function pageParameters(): array
     {
         return [
-            'limit' => ['limit'],
-            'offset' => ['offset'],
-            'number' => ['number'],
+            'limit' => ['limit', '1'],
+            'offset' => ['offset', '1'],
+            'number' => ['number', '2'],
         ];
+    }
+
+    #[Test]
+    #[DataProvider('pagesFromTheStart')]
+    public function lists_every_type_when_asked_to_start_from_the_beginning(array $page)
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/gdpr-datatypes', ['authenticatedAs' => 1])
+                ->withQueryParams(['page' => $page])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertCount(7, json_decode($body, true)['data']);
+    }
+
+    public static function pagesFromTheStart(): array
+    {
+        return [
+            'offset zero' => [['offset' => '0']],
+            'first page by number' => [['number' => '1']],
+            'empty limit' => [['limit' => '']],
+        ];
+    }
+
+    #[Test]
+    public function refuses_a_page_before_the_endpoint_runs_its_hooks()
+    {
+        $ran = false;
+
+        $this->extend(
+            (new Extend\ApiResource(DataTypeResource::class))
+                ->endpoint(Index::class, function (Index $endpoint) use (&$ran): Index {
+                    return $endpoint->before(function () use (&$ran) {
+                        $ran = true;
+                    });
+                })
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/gdpr-datatypes', ['authenticatedAs' => 1])
+                ->withQueryParams(['page' => ['limit' => '2']])
+        );
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertFalse($ran);
     }
 }
