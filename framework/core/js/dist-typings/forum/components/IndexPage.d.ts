@@ -36,7 +36,12 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
      */
     actionItems(): ItemList<Mithril.Children>;
     /**
-     * Mark all discussions as read.
+     * Mark the discussions the list is showing as read.
+     *
+     * A filtered list — a search, a tag page — marks only the discussions it
+     * matches, so the button does what the reader sees it pointing at. The
+     * confirmation says which of the two is about to happen, since "all
+     * discussions" would be a lie for the filtered one.
      */
     markAllAsRead(): void;
 }

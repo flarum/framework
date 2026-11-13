@@ -43,4 +43,41 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     revalidate(): Promise<void>;
     protected getAllItems(): Discussion[];
     getPages(): Page<Discussion>[];
+    /**
+     * The filters the list is currently showing results for, as the API takes
+     * them: `q` run through the gambits and folded into `filter` — the same
+     * parsing `Store.find()` does before a `GET` — and whatever extensions add
+     * — the tag of a tag page, say — already in place, since this is the same
+     * thing `requestParams()` asks the API for.
+     *
+     * Gambits like `tag:x` or `is:unread` only take effect for a `GET` today,
+     * applied client-side on the way out in `Store.find()`; the server never
+     * parses `q`. Anything sent `q` as-is — `markAllAsRead()`'s `POST`, and the
+     * confirmation text this feeds `IndexPage` — would otherwise run a fulltext
+     * search for the literal gambit text instead of the filter it stands for.
+     *
+     * Filters that single nothing out are left off, so a list showing every
+     * discussion is recognisable as one however it was arrived at.
+     */
+    activeFilters(): Record<string, any>;
+    /**
+     * Whether marking this list read covers every discussion the user can see.
+     *
+     * True for an unfiltered list, and also for one filtered to nothing but
+     * `unread` — that is every unread discussion, which is the same set the
+     * unfiltered list marks read. The server records both as the single
+     * `markedAllAsReadAt` timestamp rather than a row per discussion, so the
+     * client treats them the same: it refetches the user for the server's
+     * timestamp, and `IndexPage` offers the "all discussions" confirmation.
+     */
+    marksEverythingAsRead(): boolean;
+    /**
+     * Mark the discussions in this list as read.
+     *
+     * The API is given the filters the list was fetched with, so a filtered list
+     * only marks its own discussions read rather than the whole forum. With no
+     * filters it is every discussion, which the server still records as one
+     * timestamp on the user instead of a row per discussion.
+     */
+    markAllAsRead(): Promise<void>;
 }
