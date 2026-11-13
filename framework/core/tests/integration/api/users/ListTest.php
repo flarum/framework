@@ -284,6 +284,9 @@ class ListTest extends TestCase
             'number with letters' => [['number' => '2x'], 'page[number]'],
             'number zero' => [['number' => '0'], 'page[number]'],
             'offset as a list beside a number' => [['number' => '1', 'offset' => ['2']], 'page[offset]'],
+            'offset too large to read' => [['offset' => '99999999999999999999'], 'page[offset]'],
+            'number too large to read' => [['number' => '99999999999999999999'], 'page[number]'],
+            'number too large to reach' => [['number' => (string) PHP_INT_MAX], 'page[number]'],
         ];
     }
 }

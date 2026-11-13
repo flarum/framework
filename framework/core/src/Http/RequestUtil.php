@@ -227,7 +227,17 @@ class RequestUtil
         }
 
         // Without a limit there is only one page.
-        return ($page - 1) * ($limit ?? 0);
+        if (! $limit) {
+            return 0;
+        }
+
+        if ($page - 1 > intdiv(PHP_INT_MAX, $limit)) {
+            throw (new BadRequestException('page[number] is too large'))->setSource([
+                'parameter' => 'page[number]',
+            ]);
+        }
+
+        return ($page - 1) * $limit;
     }
 
     public static function extractOffset(Request $request, ?int $limit = 0): int
@@ -259,7 +269,8 @@ class RequestUtil
             return $value;
         }
 
-        if (is_string($value) && ctype_digit($value)) {
+        // A number too large for an integer would be read as the largest one.
+        if (is_string($value) && ctype_digit($value) && (string) (int) $value === (ltrim($value, '0') ?: '0')) {
             return (int) $value;
         }
 
