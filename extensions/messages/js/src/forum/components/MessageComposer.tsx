@@ -60,11 +60,16 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
 
   headerItems() {
     const items = super.headerItems();
+    // A minimized composer's header can't be clicked: it shows who the message
+    // is to, or what it is, but not the button to change who it's to.
+    const minimized = !!this.attrs.disabled;
+    const chosen = this.recipients().length > 0 || this.recipientGroups().length > 0;
 
     items.add(
       'recipients',
       <div className="MessageComposer-recipients">
-        {!this.attrs.replyingTo && (
+        {!this.attrs.replyingTo && minimized && !chosen && <h3>{app.translator.trans('flarum-messages.forum.composer.title')}</h3>}
+        {!this.attrs.replyingTo && !minimized && (
           <Button
             type="button"
             className="Button Button--outline Button--compact"
@@ -89,9 +94,7 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
             {app.translator.trans('flarum-messages.forum.composer.recipients')}
           </Button>
         )}
-        {(this.recipients().length > 0 || this.recipientGroups().length > 0) && (
-          <div className="MessageComposer-recipients-label">{app.translator.trans('flarum-messages.forum.composer.to')}</div>
-        )}
+        {chosen && <div className="MessageComposer-recipients-label">{app.translator.trans('flarum-messages.forum.composer.to')}</div>}
         <ul className="MessageComposer-recipients-list">
           {this.recipientGroups().map((group) => (
             <li className="MessageComposer-group" key={group.id()}>
