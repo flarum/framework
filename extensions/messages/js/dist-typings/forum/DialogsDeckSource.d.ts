@@ -12,7 +12,7 @@ export default class DialogsDeckSource implements DeckColumnSource {
     view(): JSX.Element;
     checkForNew(): Promise<number>;
     applyNew(): Promise<number | null>;
-    /** extendRealtime() already moves the dialog to the top of `app.dialogs`, which this shares. */
+    /** extendRealtime() already places the dialog in `app.dialogs`, which this shares, where its sort puts it. */
     onRealtime(event: DeckRealtimeEvent): DeckRealtimeResult;
     showNew(): Promise<unknown>;
     /** Conversations with a message since the key, other than the member's own. */
