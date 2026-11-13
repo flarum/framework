@@ -18,6 +18,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 class UserMentionsTest extends TestCase
@@ -186,6 +187,97 @@ class UserMentionsTest extends TestCase
         $this->assertStringContainsString('@"POTATO$"#3', $response['data']['attributes']['content']);
         $this->assertStringContainsString('UserMention', $response['data']['attributes']['contentHtml']);
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsUsers->find(3));
+    }
+
+    public static function quotedMentionLabels(): array
+    {
+        return [
+            'smart quote delimiter' => ['Bob”#g4'],
+            'normalized multiline label' => ['Bob Jones'],
+            'normalized embedded group mention' => ['Bob @“Mods”#g4 X'],
+            'cleaned repeated delimiters' => ['A _ B _ C'],
+        ];
+    }
+
+    public static function multilineMentionTargets(): array
+    {
+        return [
+            'user mention' => ['', 3],
+            'post mention' => ['p', 4],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('multilineMentionTargets')]
+    public function multiline_display_names_preserve_mentions_when_editing(string $type, int $id): void
+    {
+        $this->setting('display_name_driver', 'multiline');
+        $this->extend((new Extend\User)->displayNameDriver('multiline', MultilineDisplayNameDriver::class));
+
+        $content = '@"Bob @“Mods”#g4 X"#'.$type.$id;
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'posts',
+                        'attributes' => ['content' => $content],
+                        'relationships' => [
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+        $data = json_decode($response->getBody(), true)['data'];
+        $this->assertSame($content, $data['attributes']['content']);
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/posts/'.$data['id'], [
+                'authenticatedAs' => 1,
+                'json' => ['data' => ['type' => 'posts', 'id' => $data['id'], 'attributes' => ['content' => $data['attributes']['content']]]],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $post = CommentPost::find($data['id']);
+        $this->assertSame($type === '' ? [3] : [], $post->mentionsUsers->modelKeys());
+        $this->assertSame($type === 'p' ? [4] : [], $post->mentionsPosts->modelKeys());
+        $this->assertCount(0, $post->mentionsGroups);
+    }
+
+    #[Test]
+    #[DataProvider('quotedMentionLabels')]
+    public function quoted_mentions_preserve_the_selected_user(string $label): void
+    {
+        $this->setting('flarum-mentions.allow_username_format', '1');
+
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'posts',
+                        'attributes' => ['content' => '@"'.$label.'"#3'],
+                        'relationships' => [
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $data = json_decode($response->getBody(), true)['data'];
+        $post = CommentPost::find($data['id']);
+
+        $this->assertSame([3], $post->mentionsUsers->modelKeys());
+        $this->assertCount(0, $post->mentionsGroups);
+        $this->assertCount(0, $post->mentionsPosts);
+        $this->assertStringContainsString('class="UserMention"', $data['attributes']['contentHtml']);
     }
 
     #[Test]
@@ -494,5 +586,13 @@ class CustomDisplayNameDriver implements DriverInterface
         }
 
         return strtoupper($user->username).'$';
+    }
+}
+
+class MultilineDisplayNameDriver implements DriverInterface
+{
+    public function displayName(User $user): string
+    {
+        return "Bob\n@“Mods”#g4\nX";
     }
 }
