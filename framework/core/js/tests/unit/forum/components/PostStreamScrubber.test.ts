@@ -309,6 +309,58 @@ describe('PostStreamScrubber', () => {
     });
   });
 
+  describe('when an extension item in scrollbarItems changes during an animation', () => {
+    beforeEach(() => {
+      $.fx.off = false;
+    });
+
+    afterEach(() => {
+      $.fx.off = true;
+    });
+
+    test.each([
+      ['appears', 'with its own height', false, () => m('div.Scrubber-extra', { style: { position: 'absolute', height: '100%' } })],
+      ['appears', 'without styles of its own', false, () => m('div.Scrubber-extra')],
+      ['disappears', 'with its own height', true, () => m('div.Scrubber-extra', { style: { position: 'absolute', height: '100%' } })],
+    ] as const)('the scrubber matches a fresh one once the item %s %s', async (_change, _styles, startShown, item) => {
+      let showExtra: boolean = startShown;
+
+      class ToggledScrubber extends PostStreamScrubber {}
+
+      extend(ToggledScrubber.prototype, 'scrollbarItems', function (items: ItemList<Mithril.Children>) {
+        if (showExtra) items.add('extra', item(), 90);
+      });
+
+      const attrs = () => {
+        const stream = fakeStream({ index: 30 });
+        stream.goToFirst = jest.fn(() => {
+          stream.index = 1;
+          return Promise.resolve();
+        });
+        return { stream };
+      };
+
+      const { root, scrubber, redraw } = mount(ToggledScrubber, attrs());
+      await settle();
+
+      // "Original Post" animates the handle to the top of the track.
+      scrubber.goToFirst();
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      expect($(root).find(':animated').length).toBeGreaterThan(0);
+
+      showExtra = !startShown;
+      redraw();
+
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
+      const fresh = mount(ToggledScrubber, attrs());
+      fresh.scrubber.goToFirst();
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
+      expect(describeDom(root)).toEqual(describeDom(fresh.root));
+    });
+  });
+
   test('tears down the close watcher when the dropdown hides', () => {
     const destroy = jest.fn();
     (window as any).CloseWatcher = class {

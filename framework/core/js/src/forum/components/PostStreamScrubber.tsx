@@ -55,15 +55,38 @@ interface SyncedValues {
 }
 
 /**
- * Whether an inline style still holds the value core set. Browsers round
- * long numbers when reading a style back.
+ * The vnode that rendered an element, searched for from a rendered tree.
  */
-function isSameStyleValue(current: string, set: string): boolean {
-  if (current === set) return true;
+function findElementVnode(vnode: unknown, element: Element): Mithril.Vnode | undefined {
+  if (!vnode || typeof vnode !== 'object') return undefined;
 
-  const unit = (value: string) => value.replace(/^[-+\d.e]+/i, '');
+  const { tag, dom, children, instance } = vnode as Mithril.VnodeDOM & { instance?: unknown };
 
-  return unit(current) === unit(set) && Math.abs(parseFloat(current) - parseFloat(set)) < 1e-3;
+  if (typeof tag === 'string' && dom === element) return vnode as Mithril.Vnode;
+
+  for (const child of typeof tag === 'string' ? (Array.isArray(children) ? children : []) : [instance]) {
+    const found = findElementVnode(child, element);
+    if (found) return found;
+  }
+
+  return undefined;
+}
+
+/**
+ * The style properties a vnode declares, as CSS property names.
+ */
+function declaredStyleProperties(vnode: Mithril.Vnode | undefined): string[] {
+  const style = (vnode?.attrs as { style?: unknown } | undefined)?.style;
+
+  if (typeof style === 'string') {
+    return style.split(';').map((declaration) => declaration.split(':')[0].trim().toLowerCase());
+  }
+
+  if (style && typeof style === 'object') {
+    return Object.keys(style).map((key) => (key.startsWith('--') ? key : key.replace(/[A-Z]/g, (letter) => '-' + letter.toLowerCase())));
+  }
+
+  return [];
 }
 
 export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberAttrs = IPostStreamScrubberAttrs> extends Component<CustomAttrs> {
@@ -247,7 +270,7 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
 
     // Extension items coming and going can make Mithril rebuild those parts,
     // or reuse their elements for other items.
-    if (this.reconcileSyncedParts()) {
+    if (this.reconcileSyncedParts(vnode)) {
       this.onresize();
       this.updateScrubberValues({ forceHeightChange: true });
     }
@@ -303,7 +326,7 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
 
     setTimeout(() => this.scrollListener.start());
 
-    this.reconcileSyncedParts();
+    this.reconcileSyncedParts(vnode);
 
     this.stream.loadPromise?.then(() => this.updateScrubberValues({ animate: false, forceHeightChange: true }));
   }
@@ -455,7 +478,7 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
    * Take back what core set on elements that no longer play the part it was
    * set for, and report whether any part is now played by a different element.
    */
-  protected reconcileSyncedParts(): boolean {
+  protected reconcileSyncedParts(vnode: Mithril.Vnode<CustomAttrs, this>): boolean {
     const parts = new Map<Element, string>();
 
     SYNCED_PARTS.forEach((part) => this.$(`.${part}`).each((_, element) => void parts.set(element, part)));
@@ -466,7 +489,7 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
     });
 
     this.syncedValues.forEach((values, element) => {
-      if (parts.get(element) !== values.part) this.releaseValues(element, values);
+      if (parts.get(element) !== values.part) this.releaseValues(element, values, findElementVnode(vnode, element));
     });
 
     this.syncedParts = parts;
@@ -497,17 +520,19 @@ export default class PostStreamScrubber<CustomAttrs extends IPostStreamScrubberA
   }
 
   /**
-   * Take back the styles and text core set on an element, leaving anything
-   * that has since replaced them.
+   * Take back the styles and text core set on an element, except for the
+   * styles the vnode now rendering it declares, which Mithril has just set.
    */
-  protected releaseValues(element: Element, values: SyncedValues) {
+  protected releaseValues(element: Element, values: SyncedValues, vnode?: Mithril.Vnode) {
     const style = (element as HTMLElement).style;
+    const declared = declaredStyleProperties(vnode);
 
-    // Finish core's animations first, so they don't write to it afterwards.
-    $(element).stop(true, true);
+    // Stop core's animations where they are: finishing them would write their
+    // targets over the declared styles.
+    $(element).stop(true, false);
 
-    Object.entries(values.styles).forEach(([property, value]) => {
-      if (isSameStyleValue(style.getPropertyValue(property), value)) style.removeProperty(property);
+    Object.keys(values.styles).forEach((property) => {
+      if (!declared.includes(property)) style.removeProperty(property);
     });
 
     if (values.text?.parentNode === element) element.removeChild(values.text);
