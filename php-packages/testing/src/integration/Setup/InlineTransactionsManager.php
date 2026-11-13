@@ -10,7 +10,6 @@
 namespace Flarum\Testing\integration\Setup;
 
 use Illuminate\Database\DatabaseTransactionsManager;
-use Illuminate\Support\Collection;
 
 /**
  * A transactions manager for the integration test harness.
@@ -22,15 +21,22 @@ use Illuminate\Support\Collection;
  * discarded when it rolls back, so after-commit behaviour can never be
  * observed in tests (flarum/framework#4814).
  *
- * By reporting no applicable pending transactions, `addCallback()` runs each
- * callback immediately instead of deferring it. All other transaction
- * bookkeeping is left intact, so `db.transactions` stays bound and
- * `Connection::afterCommit()` still works (flarum/framework#4787).
+ * By ignoring the harness's own transaction, `addCallback()` runs each
+ * callback immediately unless the code under test opened a transaction of its
+ * own, in which case the callback runs once that transaction commits
+ * (flarum/framework#5022). All other transaction bookkeeping is left intact,
+ * so `db.transactions` stays bound and `Connection::afterCommit()` still works
+ * (flarum/framework#4787).
  */
 class InlineTransactionsManager extends DatabaseTransactionsManager
 {
     public function callbackApplicableTransactions()
     {
-        return new Collection();
+        return $this->pendingTransactions->skip(1)->values();
+    }
+
+    public function afterCommitCallbacksShouldBeExecuted($level)
+    {
+        return $level === 1;
     }
 }
