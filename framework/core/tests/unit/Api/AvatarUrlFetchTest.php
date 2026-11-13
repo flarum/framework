@@ -174,6 +174,33 @@ class AvatarUrlFetchTest extends TestCase
 
         $this->assertNull($result);
     }
+
+    #[Test]
+    public function it_logs_and_skips_the_download_when_the_host_resolves_to_no_allowed_address(): void
+    {
+        if (! extension_loaded('curl')) {
+            $this->markTestSkipped('Requires cURL; the no-curl guard runs first.');
+        }
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with($this->stringContains('did not resolve'));
+
+        $container = new Container();
+        $container->instance(LoggerInterface::class, $logger);
+        $api = $this->createStub(JsonApi::class);
+        $api->method('getContainer')->willReturn($container);
+
+        $resource = (new ReflectionClass(PinnedAvatarResource::class))->newInstanceWithoutConstructor();
+        $resource->resolvedIp = null;
+        (new ReflectionProperty(UserResource::class, 'api'))->setValue($resource, $api);
+
+        $result = (new ReflectionMethod(UserResource::class, 'retrieveAvatarFromUrl'))
+            ->invoke($resource, 'https://avatar-fetch.invalid/avatar');
+
+        $this->assertNull($result);
+    }
 }
 
 class CurlUnavailableAvatarResource extends UserResource
@@ -186,7 +213,7 @@ class CurlUnavailableAvatarResource extends UserResource
 
 class PinnedAvatarResource extends UserResource
 {
-    public string $resolvedIp = '127.0.0.1';
+    public ?string $resolvedIp = '127.0.0.1';
 
     protected function resolveToAllowedIp(string $host): ?string
     {
