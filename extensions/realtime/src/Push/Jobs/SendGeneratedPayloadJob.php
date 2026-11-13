@@ -17,9 +17,20 @@ use Pusher\Pusher;
 
 class SendGeneratedPayloadJob extends Job
 {
-    public function __construct(private string $event, private AbstractModel $model, private ?User $recipient = null, private ?array $includes = null)
+    /**
+     * The broadcast this delivery belongs to, when others of the same event
+     * for the same model may be sent at the same time: see
+     * SendDialogMessageJob. Declared with its default rather than promoted, so
+     * a job queued before it existed, which unserialising leaves as it was,
+     * reads null.
+     */
+    private ?string $dispatch = null;
+
+    public function __construct(private string $event, private AbstractModel $model, private ?User $recipient = null, private ?array $includes = null, ?string $dispatch = null)
     {
         parent::__construct();
+
+        $this->dispatch = $dispatch;
     }
 
     public function handle(Generator $generator, Pusher $pusher): void
@@ -51,7 +62,7 @@ class SendGeneratedPayloadJob extends Job
             $this->model->getTable(),
             $this->model->getKey(),
             $this->recipient ? $this->recipient->getKey() : 'guest'
-        );
+        ).($this->dispatch ? ':'.$this->dispatch : '');
 
         return [
             (new WithoutOverlapping($key))->dontRelease()
