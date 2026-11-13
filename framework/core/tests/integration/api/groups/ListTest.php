@@ -156,6 +156,85 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function a_requested_page_links_to_the_next_one()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams([
+                'page' => ['limit' => '2'],
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
+
+        // The endpoint isn't paginated, but a client that asks for a page must be
+        // told there are more groups, rather than get a list cut short silently.
+        $this->assertEquals(['1', '2'], Arr::pluck($data['data'], 'id'));
+        $this->assertEquals(2, $data['meta']['page']['limit'] ?? null);
+        $this->assertArrayHasKey('next', $data['links'] ?? []);
+        $this->assertStringContainsString('page%5Boffset%5D=2', $data['links']['next']);
+    }
+
+    #[Test]
+    public function the_last_requested_page_has_no_next_link()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams([
+                'page' => ['limit' => '2', 'offset' => '2'],
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
+
+        $this->assertEquals(['3', '4'], Arr::pluck($data['data'], 'id'));
+        $this->assertArrayNotHasKey('next', $data['links'] ?? []);
+    }
+
+    #[Test]
+    public function a_page_number_without_a_limit_uses_the_max_limit()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams([
+                'page' => ['number' => '1'],
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
+
+        $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));
+        $this->assertEquals(50, $data['meta']['page']['limit'] ?? null);
+        $this->assertArrayNotHasKey('next', $data['links'] ?? []);
+    }
+
+    #[Test]
+    public function without_page_parameters_the_whole_list_is_returned_unpaginated()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
+
+        $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));
+        $this->assertArrayNotHasKey('limit', $data['meta']['page'] ?? []);
+        $this->assertArrayNotHasKey('next', $data['links'] ?? []);
+    }
+
+    #[Test]
     public function paginates_groups_with_filter()
     {
         $response = $this->send(
