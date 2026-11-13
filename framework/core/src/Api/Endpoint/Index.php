@@ -323,7 +323,7 @@ class Index extends Endpoint
     /**
      * Whether the request asks for a page of the list: a page size, or a page number.
      */
-    protected function requestsPage(Context $context): bool
+    protected function requestsPage(\Tobyz\JsonApiServer\Context $context): bool
     {
         $page = $context->queryParam('page');
 
