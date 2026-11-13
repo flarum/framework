@@ -327,6 +327,9 @@ class ExtensionManager
     public function getSettingsDefaults(): Collection
     {
         $defaults = clone $this->container->make('flarum.settings.default');
+        $enabledIds = $this->getEnabled();
+        $registered = $this->container->make('flarum.settings.default.extensions');
+        $defaults->forget($registered->filter(fn (array $source) => $source['declarative'] || ! in_array($source['extension'], $enabledIds))->keys()->all());
         $scope = clone $this->container;
         $schema = $this->container->make(ConnectionInterface::class)->getSchemaBuilder();
         $settings = new DefaultSettingsRepository(new DatabaseSettingsRepository($schema->getConnection()), $defaults);
@@ -334,26 +337,6 @@ class ExtensionManager
         $scope->instance('flarum.settings.default', $defaults);
         $scope->instance(SettingsRepositoryInterface::class, $settings);
         $scope->instance(Builder::class, $schema);
-        $enabledIds = $this->getEnabled();
-        $persistedIds = json_decode($this->config->get('extensions_enabled'), true) ?? [];
-        $originalSettings = $this->container->make(SettingsRepositoryInterface::class);
-        $scope->instance(SettingsRepositoryInterface::class, $originalSettings);
-        $scope->instance(MigrationContext::class, new MigrationContext($schema, $persistedIds, $originalSettings));
-        $pending = $this->pendingEnabledExtensions;
-        $previousKeys = [];
-
-        try {
-            $this->pendingEnabledExtensions = $persistedIds;
-
-            foreach ($this->getExtensionsById($persistedIds) as $extension) {
-                $previousKeys = array_merge($previousKeys, array_keys($extension->getSettingsDefaults($scope, $defaults)));
-            }
-        } finally {
-            $this->pendingEnabledExtensions = $pending;
-        }
-
-        $defaults->forget($previousKeys);
-        $scope->instance(SettingsRepositoryInterface::class, $settings);
         $scope->instance(MigrationContext::class, new MigrationContext($schema, $enabledIds, $settings));
 
         foreach ($this->getEnabledExtensions() as $extension) {

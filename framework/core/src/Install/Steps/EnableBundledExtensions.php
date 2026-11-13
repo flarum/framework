@@ -145,12 +145,30 @@ class EnableBundledExtensions implements Step
         $container->instance(ContainerContract::class, $container);
         $container->instance(Builder::class, $schema);
         $container->instance(ConnectionInterface::class, $this->database);
-        $container->instance('flarum.settings.default', SettingsServiceProvider::defaults());
+        if ($this->paths !== null) {
+            $container->instance(Paths::class, $this->paths);
+        }
+        if ($this->config !== null) {
+            $container->instance(Config::class, $this->config);
+        }
+        $defaults = SettingsServiceProvider::defaults();
+        $container->instance('flarum.settings.default', $defaults);
         $container->instance(SettingsRepositoryInterface::class, new DefaultSettingsRepository(
             new DatabaseSettingsRepository($this->database),
             $container->make('flarum.settings.default')
         ));
-        $container->instance(MigrationContext::class, new MigrationContext($schema, $enabledExtensions, $container->make(SettingsRepositoryInterface::class)));
+        $refreshDefaults = function () use ($extensions, $container, $defaults): void {
+            $defaults->forget($defaults->keys()->all());
+
+            foreach (SettingsServiceProvider::defaults() as $key => $value) {
+                $defaults->put($key, $value);
+            }
+
+            foreach ($extensions as $extension) {
+                $extension->getSettingsDefaults($container, $defaults);
+            }
+        };
+        $container->instance(MigrationContext::class, new MigrationContext($schema, $enabledExtensions, $container->make(SettingsRepositoryInterface::class), $refreshDefaults));
 
         $migrator = $this->migrator ??= new Migrator(
             new DatabaseMigrationRepository($this->database, 'migrations'),
@@ -173,10 +191,6 @@ class EnableBundledExtensions implements Step
                 new MaintenanceMode($this->config, $container->make(SettingsRepositoryInterface::class)),
             );
         });
-
-        foreach ($extensions as $extension) {
-            $extension->getSettingsDefaults($container, $container->make('flarum.settings.default'));
-        }
 
         return $migrator;
     }

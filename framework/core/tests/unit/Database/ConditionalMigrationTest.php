@@ -33,6 +33,7 @@ class ConditionalMigrationTest extends TestCase
         $manager->addConnection(['driver' => 'sqlite', 'database' => ':memory:']);
         $this->db = $manager->getConnection();
         $this->db->getSchemaBuilder()->create('migrations', function ($table) {
+            $table->increments('id');
             $table->string('migration');
             $table->string('extension')->nullable();
         });
@@ -171,9 +172,9 @@ PHP);
     {
         $this->migration(<<<'PHP'
 return [
-    'shouldRun' => \Flarum\Condition::all(
+    'shouldRun' => \Flarum\Extension\Condition::all(
         true,
-        \Flarum\Condition::any(false, fn (\Illuminate\Database\Schema\Builder $schema): bool => $schema->hasTable('migrations')),
+        \Flarum\Extension\Condition::any(false, fn (\Illuminate\Database\Schema\Builder $schema): bool => $schema->hasTable('migrations')),
     ),
     'up' => fn ($schema) => $schema->create('integration', fn ($table) => $table->integer('id')),
     'down' => fn ($schema) => $schema->drop('integration'),
@@ -217,6 +218,39 @@ PHP, '2026_01_01_000002_later');
     }
 
     #[Test]
+    public function rollback_reverses_deferred_migrations_in_actual_execution_order(): void
+    {
+        $schema = $this->db->getSchemaBuilder();
+        $schema->create('records', fn ($table) => $table->float('value'));
+        $this->db->table('records')->insert(['value' => 2]);
+        $this->migration(<<<'PHP'
+return [
+    'shouldRun' => fn ($schema): bool => $schema->hasTable('ready'),
+    'up' => fn ($schema) => $schema->getConnection()->table('records')->update(['value' => $schema->getConnection()->raw('value * 2')]),
+    'down' => fn ($schema) => $schema->getConnection()->table('records')->update(['value' => $schema->getConnection()->raw('value / 2')]),
+];
+PHP);
+        $this->migration(<<<'PHP'
+return [
+    'up' => fn ($schema) => $schema->getConnection()->table('records')->increment('value'),
+    'down' => fn ($schema) => $schema->getConnection()->table('records')->decrement('value'),
+];
+PHP, '2026_01_01_000002_later');
+
+        $this->migrator->run($this->path);
+        $this->assertSame(3.0, (float) $this->db->table('records')->value('value'));
+
+        $schema->create('ready', fn ($table) => $table->integer('id'));
+        $this->migrator->run($this->path);
+        $this->assertSame(6.0, (float) $this->db->table('records')->value('value'));
+
+        $this->migrator->reset($this->path);
+
+        $this->assertSame(2.0, (float) $this->db->table('records')->value('value'));
+        $this->assertSame([], $this->migrator->getRepository()->getRan());
+    }
+
+    #[Test]
     public function an_exception_in_a_condition_fails_without_recording_or_running_later_migrations(): void
     {
         $this->migration(<<<'PHP'
@@ -246,14 +280,48 @@ PHP, '2026_01_01_000002_later');
     public function installation_conditions_see_the_selected_extensions_before_application_boot(): void
     {
         $this->assertInstallerCondition(<<<'PHP'
-\Flarum\Condition::all(
-    \Flarum\Condition::extensionEnabled('acme-probe'),
-    \Flarum\Condition::extensionDisabled('acme-absent'),
+\Flarum\Extension\Condition::all(
+    \Flarum\Extension\Condition::extensionEnabled('acme-probe'),
+    \Flarum\Extension\Condition::extensionDisabled('acme-absent'),
 )
 PHP);
     }
 
-    protected function assertInstallerCondition(string $condition, ?string $extenders = null): void
+    #[Test]
+    public function installation_callbacks_receive_the_supplied_paths_and_configuration(): void
+    {
+        $this->assertInstallerCondition(<<<'PHP'
+fn (\Flarum\Foundation\Paths $paths, \Flarum\Foundation\Config $config): bool =>
+    is_dir($paths->vendor.'/acme/probe') && $config->url()->getHost() === 'localhost'
+PHP);
+    }
+
+    #[Test]
+    public function installation_without_conditions_does_not_evaluate_boot_callbacks(): void
+    {
+        $this->assertInstallerCondition(null, <<<'PHP'
+[(new \Flarum\Extend\Conditional())->when(fn () => throw new \RuntimeException('boot callback evaluated during installation'), fn () => [])]
+PHP);
+    }
+
+    public static function changedInstallerDefaults(): iterable
+    {
+        yield 'activated default' => ["\\Flarum\\Extension\\Condition::setting('acme.feature', true)", '1'];
+        yield 'removed default' => ["\\Flarum\\Extension\\Condition::not(\\Flarum\\Extension\\Condition::setting('acme.feature', true))", null];
+    }
+
+    #[Test]
+    #[DataProvider('changedInstallerDefaults')]
+    public function installation_conditions_refresh_defaults_after_earlier_migrations(string $condition, ?string $expected): void
+    {
+        $this->assertInstallerCondition(
+            $condition,
+            "[(new \\Flarum\\Extend\\Conditional())->whenSetting('acme.ready', ".var_export($expected, true).", fn () => [(new \\Flarum\\Extend\\Settings())->default('acme.feature', true)])]",
+            "return \\Flarum\\Database\\Migration::addSettings(['acme.ready' => '1']);"
+        );
+    }
+
+    protected function assertInstallerCondition(?string $condition, ?string $extenders = null, ?string $earlierMigration = null): void
     {
         $schema = $this->db->getSchemaBuilder();
         $schema->create('settings', function ($table) {
@@ -269,15 +337,19 @@ PHP);
             'install-path' => '../acme/probe',
             'extra' => ['flarum-extension' => ['title' => 'Probe']],
         ]]]));
-        file_put_contents($this->path.'/vendor/acme/probe/migrations/2026_01_01_000001_probe.php', str_replace('INSTALL_CONDITION', $condition, <<<'PHP'
+        file_put_contents($this->path.'/vendor/acme/probe/migrations/2026_01_01_000001_probe.php', str_replace(['INSTALL_CONDITION', 'SHOULD_RUN'], [$condition ?? 'true', $condition === null ? '// ' : ''], <<<'PHP'
 <?php
 return \Flarum\Database\Migration::addSettings(
     ['installation_ready' => '1'],
-    shouldRun: INSTALL_CONDITION,
+    SHOULD_RUNshouldRun: INSTALL_CONDITION,
 );
 PHP));
         if ($extenders !== null) {
             file_put_contents($this->path.'/vendor/acme/probe/extend.php', '<?php return '.$extenders.';');
+        }
+
+        if ($earlierMigration !== null) {
+            file_put_contents($this->path.'/vendor/acme/probe/migrations/2026_01_01_000000_prepare.php', '<?php '.$earlierMigration);
         }
 
         $step = new \Flarum\Install\Steps\EnableBundledExtensions(
@@ -318,13 +390,14 @@ PHP, '2026_01_01_000002_rating');
     #[Test]
     public function installation_conditions_respect_core_setting_defaults(): void
     {
-        $this->assertInstallerCondition("\\Flarum\\Condition::setting('show_language_selector', true, strict: true)");
+        $this->assertInstallerCondition("\\Flarum\\Extension\\Condition::setting('show_language_selector', true, strict: true)");
     }
 
     public static function installerDefaultDeclarations(): iterable
     {
         yield 'direct' => ["[(new \\Flarum\\Extend\\Settings())->default('acme.feature', true)]"];
         yield 'conditional' => ["[(new \\Flarum\\Extend\\Conditional())->whenExtensionEnabled('acme-probe', fn () => [(new \\Flarum\\Extend\\Settings())->default('acme.feature', true)])]"];
+        yield 'paths and config callback' => ["[(new \\Flarum\\Extend\\Conditional())->when(fn (\\Flarum\\Foundation\\Paths \$paths, \\Flarum\\Foundation\\Config \$config): bool => is_dir(\$paths->vendor.'/acme/probe') && \$config->url()->getHost() === 'localhost', fn () => [(new \\Flarum\\Extend\\Settings())->default('acme.feature', true)])]"];
         yield 'raw conditional callback' => ["[(new \\Flarum\\Extend\\Conditional())->when(fn (\\Flarum\\Extension\\ExtensionManager \$extensions) => \$extensions->isEnabled('acme-probe'), fn () => [(new \\Flarum\\Extend\\Settings())->default('acme.feature', true)])]"];
     }
 
@@ -332,7 +405,7 @@ PHP, '2026_01_01_000002_rating');
     #[DataProvider('installerDefaultDeclarations')]
     public function installation_conditions_use_defaults_declared_by_selected_extensions(string $extenders): void
     {
-        $this->assertInstallerCondition("\\Flarum\\Condition::setting('acme.feature', true)", $extenders);
+        $this->assertInstallerCondition("\\Flarum\\Extension\\Condition::setting('acme.feature', true)", $extenders);
     }
 
     public static function booleanConditions(): iterable

@@ -83,8 +83,8 @@ class ConditionalMigrationEnableTest extends TestCase
         $this->package('integration', <<<'PHP'
 return \Flarum\Database\Migration::addSettings(
     ['integration_ready' => '1'],
-    shouldRun: \Flarum\Condition::all(
-        \Flarum\Condition::extensionEnabled('acme-provider'),
+    shouldRun: \Flarum\Extension\Condition::all(
+        \Flarum\Extension\Condition::extensionEnabled('acme-provider'),
         fn (\Illuminate\Database\Schema\Builder $schema): bool =>
             $schema->getConnection()->table('settings')->where('key', 'provider_ready')->value('value') === '1',
     ),
@@ -117,7 +117,7 @@ PHP, ['acme/provider']);
         $this->package('integration', <<<'PHP'
 return \Flarum\Database\Migration::addSettings(
     ['integration_ready' => '1'],
-    shouldRun: \Flarum\Condition::extensionsEnabled(['acme-first', 'acme-second']),
+    shouldRun: \Flarum\Extension\Condition::extensionsEnabled(['acme-first', 'acme-second']),
 );
 PHP, ['acme/first', 'acme/second']);
         $this->package('first', "return \\Flarum\\Database\\Migration::addSettings(['first_ready' => '1']);");
@@ -137,7 +137,7 @@ PHP, ['acme/first', 'acme/second']);
     {
         $this->package('integration', <<<'PHP'
 return [
-    'shouldRun' => \Flarum\Condition::extensionEnabled('acme-provider'),
+    'shouldRun' => \Flarum\Extension\Condition::extensionEnabled('acme-provider'),
     'up' => fn () => throw new \RuntimeException('integration failed'),
     'down' => fn () => null,
 ];
@@ -161,7 +161,7 @@ PHP, ['acme/provider']);
 <?php
 return \Flarum\Database\Migration::addSettings(
     ['integration_ready' => '1'],
-    shouldRun: \Flarum\Condition::extensionEnabled('acme-provider'),
+    shouldRun: \Flarum\Extension\Condition::extensionEnabled('acme-provider'),
 );
 PHP);
         $manager->enable('acme-provider');
@@ -197,10 +197,10 @@ PHP);
         $this->package('integration', <<<'PHP'
 return \Flarum\Database\Migration::addSettings(
     ['integration_ready' => '1'],
-    shouldRun: \Flarum\Condition::all(
-        \Flarum\Condition::extensionEnabled('acme-provider'),
-        \Flarum\Condition::setting('provider_ready', '1'),
-        \Flarum\Condition::setting('show_language_selector', true),
+    shouldRun: \Flarum\Extension\Condition::all(
+        \Flarum\Extension\Condition::extensionEnabled('acme-provider'),
+        \Flarum\Extension\Condition::setting('provider_ready', '1'),
+        \Flarum\Extension\Condition::setting('show_language_selector', true),
     ),
 );
 PHP, ['acme/provider']);
@@ -214,12 +214,32 @@ PHP, ['acme/provider']);
     }
 
     #[Test]
+    public function container_resolved_settings_match_the_fresh_migration_context(): void
+    {
+        $this->package('integration', <<<'PHP'
+return \Flarum\Database\Migration::addSettings(
+    ['integration_ready' => '1'],
+    shouldRun: fn (\Illuminate\Contracts\Container\Container $container): bool =>
+        $container->make(\Flarum\Settings\SettingsRepositoryInterface::class)->get('provider_ready') === '1',
+);
+PHP, ['acme/provider']);
+        $this->package('provider', "return \\Flarum\\Database\\Migration::addSettings(['provider_ready' => '1']);");
+        $manager = $this->manager();
+        $this->assertNull($this->settings()->get('provider_ready'));
+        $manager->enable('acme-integration');
+
+        $manager->enable('acme-provider');
+
+        $this->assertSame('1', $this->database()->table('settings')->where('key', 'integration_ready')->value('value'));
+    }
+
+    #[Test]
     public function disabling_a_provider_applies_migrations_waiting_for_its_absence(): void
     {
         $this->package('integration', <<<'PHP'
 return \Flarum\Database\Migration::addSettings(
     ['fallback_ready' => '1'],
-    shouldRun: \Flarum\Condition::extensionDisabled('acme-provider'),
+    shouldRun: \Flarum\Extension\Condition::extensionDisabled('acme-provider'),
 );
 PHP, ['acme/provider']);
         $this->package('provider', "return \\Flarum\\Database\\Migration::addSettings(['provider_ready' => '1']);");
@@ -239,7 +259,7 @@ PHP, ['acme/provider']);
     {
         $this->package('integration', <<<'PHP'
 return [
-    'shouldRun' => \Flarum\Condition::extensionDisabled('acme-provider'),
+    'shouldRun' => \Flarum\Extension\Condition::extensionDisabled('acme-provider'),
     'up' => fn () => throw new \RuntimeException('fallback failed'),
     'down' => fn () => null,
 ];
@@ -267,7 +287,7 @@ PHP, ['acme/provider']);
         $this->package('integration', <<<'PHP'
 return \Flarum\Database\Migration::addSettings(
     ['integration_ready' => '1'],
-    shouldRun: \Flarum\Condition::setting('acme.feature', true),
+    shouldRun: \Flarum\Extension\Condition::setting('acme.feature', true),
 );
 PHP);
         file_put_contents($this->path.'/vendor/acme/integration/extend.php', <<<'PHP'
@@ -287,7 +307,7 @@ PHP);
         $this->package('integration', <<<'PHP'
 return \Flarum\Database\Migration::addSettings(
     ['integration_ready' => '1'],
-    shouldRun: \Flarum\Condition::setting('acme.feature', true),
+    shouldRun: \Flarum\Extension\Condition::setting('acme.feature', true),
 );
 PHP);
         file_put_contents($this->path.'/vendor/acme/integration/extend.php', <<<'PHP'
@@ -312,9 +332,9 @@ PHP);
         $this->package('integration', <<<'PHP'
 return \Flarum\Database\Migration::addSettings(
     ['fallback_ready' => '1'],
-    shouldRun: \Flarum\Condition::all(
-        \Flarum\Condition::extensionDisabled('acme-provider'),
-        \Flarum\Condition::setting('acme.feature', true),
+    shouldRun: \Flarum\Extension\Condition::all(
+        \Flarum\Extension\Condition::extensionDisabled('acme-provider'),
+        \Flarum\Extension\Condition::setting('acme.feature', true),
     ),
 );
 PHP, ['acme/provider']);
@@ -333,9 +353,86 @@ PHP);
         $this->assertNull($this->database()->table('settings')->where('key', 'fallback_ready')->value('value'));
     }
 
+    #[Test]
+    public function migration_conditions_remove_boot_defaults_when_their_schema_predicate_changes(): void
+    {
+        $this->package('integration', <<<'PHP'
+return \Flarum\Database\Migration::createTable('default_marker', fn ($table) => $table->integer('id'));
+PHP);
+        file_put_contents($this->path.'/vendor/acme/integration/extend.php', <<<'PHP'
+<?php
+return [(new \Flarum\Extend\Conditional())->when(
+    fn (\Illuminate\Database\ConnectionInterface $db): bool => $db->getSchemaBuilder()->hasTable('default_marker'),
+    fn () => [(new \Flarum\Extend\Settings())->default('acme.feature', true)],
+)];
+PHP);
+        $manager = $this->manager();
+        $manager->enable('acme-integration');
+        $manager->getExtension('acme-integration')->extend($this->app()->getContainer());
+        $this->assertTrue($this->settings()->get('acme.feature'));
+
+        file_put_contents($this->path.'/vendor/acme/integration/migrations/2026_01_01_000002_drop_marker.php', <<<'PHP'
+<?php
+return [
+    'up' => fn ($schema) => $schema->drop('default_marker'),
+    'down' => fn ($schema) => $schema->create('default_marker', fn ($table) => $table->integer('id')),
+];
+PHP);
+        file_put_contents($this->path.'/vendor/acme/integration/migrations/2026_01_01_000003_fallback.php', <<<'PHP'
+<?php
+return \Flarum\Database\Migration::addSettings(
+    ['fallback_ready' => '1'],
+    shouldRun: \Flarum\Extension\Condition::not(\Flarum\Extension\Condition::setting('acme.feature', true)),
+);
+PHP);
+
+        $manager->migrate($manager->getExtension('acme-integration'));
+
+        $this->assertSame('1', $this->database()->table('settings')->where('key', 'fallback_ready')->value('value'));
+    }
+
+    #[Test]
+    public function composite_extenders_keep_their_boot_defaults_only_while_their_owner_is_enabled(): void
+    {
+        $this->package('provider', "return \\Flarum\\Database\\Migration::addSettings(['provider_ready' => '1']);");
+        file_put_contents($this->path.'/vendor/acme/provider/extend.php', <<<'PHP'
+<?php
+return [new class implements \Flarum\Extend\ExtenderInterface {
+    public function extend(\Illuminate\Contracts\Container\Container $container, ?\Flarum\Extension\Extension $extension = null): void
+    {
+        (new \Flarum\Extend\Settings())->default('acme.feature', true)->extend($container, $extension);
+    }
+}];
+PHP);
+        $this->package('integration', <<<'PHP'
+return \Flarum\Database\Migration::addSettings(
+    ['integration_ready' => '1'],
+    shouldRun: \Flarum\Extension\Condition::setting('acme.feature', true),
+);
+PHP, ['acme/provider']);
+        $this->package('fallback', <<<'PHP'
+return \Flarum\Database\Migration::addSettings(
+    ['fallback_ready' => '1'],
+    shouldRun: \Flarum\Extension\Condition::not(\Flarum\Extension\Condition::setting('acme.feature', true)),
+);
+PHP, ['acme/provider']);
+        $manager = $this->manager();
+        $manager->enable('acme-provider');
+        $manager->getExtension('acme-provider')->extend($this->app()->getContainer());
+        $manager->enable('acme-integration');
+        $manager->enable('acme-fallback');
+
+        $this->assertSame('1', $this->database()->table('settings')->where('key', 'integration_ready')->value('value'));
+        $this->assertNull($this->database()->table('settings')->where('key', 'fallback_ready')->value('value'));
+
+        $manager->disable('acme-provider');
+
+        $this->assertSame('1', $this->database()->table('settings')->where('key', 'fallback_ready')->value('value'));
+    }
+
     public static function harnessConditions(): iterable
     {
-        yield 'shared predicate' => ["\\Flarum\\Condition::extensionEnabled('acme-provider')"];
+        yield 'shared predicate' => ["\\Flarum\\Extension\\Condition::extensionEnabled('acme-provider')"];
         yield 'raw callback' => ["fn (\\Flarum\\Extension\\ExtensionManager \$extensions): bool => \$extensions->isEnabled('acme-provider')"];
     }
 

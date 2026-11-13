@@ -119,7 +119,11 @@ class Extension implements Arrayable
     {
         foreach ($this->getExtenders() as $extender) {
             try {
-                $extender->extend($container, $this);
+                if ($extender instanceof Settings) {
+                    $extender->extendDeclaration($container, $this);
+                } else {
+                    $extender->extend($container, $this);
+                }
             } catch (Throwable $e) {
                 throw new ExtensionBootError($this, $extender, $e);
             }

@@ -9,6 +9,7 @@
 
 namespace Flarum\Database;
 
+use Closure;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\Schema\Builder;
 
@@ -19,7 +20,15 @@ readonly class MigrationContext
     public function __construct(
         public Builder $schema,
         public array $enabledExtensionIds,
-        public SettingsRepositoryInterface $settings
+        public SettingsRepositoryInterface $settings,
+        private ?Closure $refreshDefaults = null
     ) {
+    }
+
+    public function refreshSettingsDefaults(): void
+    {
+        if ($this->refreshDefaults !== null) {
+            ($this->refreshDefaults)();
+        }
     }
 }

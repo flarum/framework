@@ -167,6 +167,13 @@ class Migrator
                 ),
             );
 
+        $context->refreshSettingsDefaults();
+        $container = clone $container;
+        $container->instance(Container::class, $container);
+        $container->instance(SettingsRepositoryInterface::class, $context->settings);
+        $container->instance(MigrationContext::class, $context);
+        $container->instance(Builder::class, $context->schema);
+
         return (bool) $container->call($condition, [
             'schema' => $schema,
             Builder::class => $schema,

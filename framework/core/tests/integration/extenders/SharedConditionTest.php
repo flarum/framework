@@ -9,7 +9,7 @@
 
 namespace Flarum\Tests\integration\extenders;
 
-use Flarum\Condition;
+use Flarum\Extension\Condition;
 use Flarum\Extend;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\TestCase;

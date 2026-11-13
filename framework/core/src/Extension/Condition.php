@@ -7,11 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum;
+namespace Flarum\Extension;
 
 use Closure;
 use Flarum\Database\MigrationContext;
-use Flarum\Extension\ExtensionManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Schema\Builder;

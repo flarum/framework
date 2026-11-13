@@ -9,7 +9,7 @@
 
 namespace Flarum\Extend;
 
-use Flarum\Condition;
+use Flarum\Extension\Condition;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
 
@@ -112,7 +112,13 @@ class Conditional implements ExtenderInterface
      */
     public function extend(Container $container, ?Extension $extension = null): void
     {
-        $this->forEachExtender($container, fn ($extender) => $extender->extend($container, $extension));
+        $this->forEachExtender($container, function ($extender) use ($container, $extension) {
+            if ($extender instanceof Settings) {
+                $extender->extendDeclaration($container, $extension);
+            } else {
+                $extender->extend($container, $extension);
+            }
+        });
     }
 
     /** @internal */

@@ -21,6 +21,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
     public function register(): void
     {
         $this->container->singleton('flarum.settings.default', fn () => self::defaults());
+        $this->container->singleton('flarum.settings.default.extensions', fn () => new Collection());
 
         $this->container->singleton(SettingsRepositoryInterface::class, function (Container $container) {
             return new DefaultSettingsRepository(
