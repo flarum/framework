@@ -196,19 +196,11 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
       filter = app.search.gambits.apply(this.type, filter);
     }
 
-    // An empty value narrows nothing and is dropped — an empty `q` searches
-    // for nothing, an empty `author` names no one — matching the server's
-    // `narrowingFilters()`. The exception is filters switched on by their
-    // presence alone (a bare `hidden`), whose empty value still narrows.
-    const presenceFilters = ['hidden', '-hidden'];
-
+    // Only an empty fulltext query is ignored by the list's filters.
     return Object.fromEntries(
-      Object.entries(filter).filter(([key, value]) => {
-        if (value === undefined || value === null) return false;
-        if (presenceFilters.includes(key)) return true;
-
-        return value !== '';
-      })
+      Object.entries(filter)
+        .filter(([key, value]) => key !== 'q' || (value != null && value !== ''))
+        .map(([key, value]) => [key, value ?? ''])
     );
   }
 
@@ -263,7 +255,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
       })
       .then(() => {
         reads.forEach(({ discussion, lastPostNumber }) => {
-          discussion.pushAttributes({ lastReadPostNumber: lastPostNumber });
+          discussion.pushAttributes({ lastReadPostNumber: Math.max(discussion.lastReadPostNumber() ?? 0, lastPostNumber) });
         });
 
         // The server stamped `marked_all_as_read_at` from its own clock; the

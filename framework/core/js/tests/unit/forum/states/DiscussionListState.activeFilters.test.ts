@@ -95,9 +95,24 @@ describe('DiscussionListState.activeFilters', () => {
     expect(state.activeFilters()).toEqual({ hidden: '' });
   });
 
-  test('an empty value on an ordinary filter is dropped as narrowing nothing', () => {
-    const state = new DiscussionListState({ filter: { author: '' } } as any);
+  test.each(['author', 'sticky', 'locked', 'custom'])('preserves an empty %s filter', (key) => {
+    const state = new DiscussionListState({ filter: { [key]: '' } } as any);
+
+    expect(state.activeFilters()).toEqual({ [key]: '' });
+    expect(state.marksEverythingAsRead()).toBe(false);
+  });
+
+  test.each([null, undefined])('preserves a bare presence filter serialized from %s', (value) => {
+    const state = new DiscussionListState({ filter: { hidden: value } } as any);
+
+    expect(state.activeFilters()).toEqual({ hidden: '' });
+    expect(state.marksEverythingAsRead()).toBe(false);
+  });
+
+  test('drops an empty fulltext query', () => {
+    const state = new DiscussionListState({ filter: { q: '' } } as any);
 
     expect(state.activeFilters()).toEqual({});
+    expect(state.marksEverythingAsRead()).toBe(true);
   });
 });

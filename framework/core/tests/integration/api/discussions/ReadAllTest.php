@@ -11,6 +11,8 @@ namespace Flarum\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Search\SearchManager;
+use Flarum\Search\SearchResults;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -111,11 +113,84 @@ class ReadAllTest extends TestCase
         );
     }
 
+    #[Test]
+    public function an_empty_author_filter_matches_nothing_and_does_not_mark_the_forum_read()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/discussions/read', ['authenticatedAs' => 2])
+                ->withQueryParams(['filter' => ['author' => '']])
+        );
+
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertNull($this->database()->table('users')->find(2)->marked_all_as_read_at);
+        $this->assertEquals(0, $this->database()->table('discussion_user')->count());
+    }
+
+    public static function concurrentReadProvider(): array
+    {
+        return ['new read row' => [false], 'existing read row' => [true]];
+    }
+
+    #[Test]
+    #[\PHPUnit\Framework\Attributes\DataProvider('concurrentReadProvider')]
+    public function a_newer_read_between_search_and_upsert_is_preserved(bool $existing)
+    {
+        $this->app();
+        $connection = $this->database();
+        $key = ['user_id' => 2, 'discussion_id' => 1];
+
+        if ($existing) {
+            $connection->table('discussion_user')->insert($key + ['last_read_post_number' => 2]);
+        }
+
+        $readAt = Carbon::now()->addSecond()->toDateTimeString();
+        $interleaved = false;
+        // Inject the concurrent write after the bulk search, immediately before its INSERT.
+        $connection->beforeExecuting(function (string $sql) use ($connection, $key, $readAt, &$interleaved) {
+            if (! $interleaved && str_starts_with(strtolower($sql), 'insert into') && str_contains($sql, 'discussion_user')) {
+                $interleaved = true;
+                $connection->table('discussion_user')->updateOrInsert($key, [
+                    'last_read_post_number' => 9,
+                    'last_read_at' => $readAt,
+                ]);
+            }
+        });
+
+        $response = $this->send(
+            $this->request('POST', '/api/discussions/read', ['authenticatedAs' => 2])
+                ->withQueryParams(['filter' => ['author' => 'admin']])
+        );
+
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertTrue($interleaved);
+        $row = $connection->table('discussion_user')->where($key)->first();
+        $this->assertEquals(9, $row->last_read_post_number);
+        $this->assertEquals($readAt, Carbon::parse($row->last_read_at)->toDateTimeString());
+    }
+
+    #[Test]
+    public function a_search_driver_that_repeats_a_written_page_does_not_loop()
+    {
+        $this->app();
+        $results = new SearchResults(Discussion::whereIn('id', [1, 2])->get(), true, fn () => 1000);
+        $search = $this->createMock(SearchManager::class);
+        $search->expects($this->exactly(2))->method('query')->willReturn($results);
+        $this->app()->getContainer()->instance(SearchManager::class, $search);
+
+        $response = $this->send(
+            $this->request('POST', '/api/discussions/read', ['authenticatedAs' => 2])
+                ->withQueryParams(['filter' => ['q' => 'search']])
+        );
+
+        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals(2, $this->database()->table('discussion_user')->where('user_id', 2)->count());
+    }
+
     public static function emptyFilterProvider(): array
     {
         return [
             'no filter at all' => [[]],
-            'filter present but every value empty' => [['q' => '', 'author' => '']],
+            'empty fulltext query' => [['q' => '']],
         ];
     }
 
@@ -251,6 +326,47 @@ class ReadAllTest extends TestCase
                 "Discussion $i should be read up to its own last post number."
             );
         }
+    }
+
+    #[Test]
+    public function null_last_posts_interleaved_across_pages_do_not_skip_valid_discussions()
+    {
+        $discussions = [];
+        $expected = [];
+
+        for ($i = 0; $i < 1106; $i++) {
+            $number = $i % 3 === 0 ? $i + 1 : null;
+            $discussions[] = [
+                'id' => 1000 + $i,
+                'title' => "Mixed discussion $i",
+                'created_at' => Carbon::now(),
+                'last_posted_at' => Carbon::now(),
+                'user_id' => 3,
+                'comment_count' => $number === null ? 0 : 1,
+                'last_post_number' => $number,
+            ];
+
+            if ($number !== null) {
+                $expected[1000 + $i] = $number;
+            }
+        }
+
+        $this->prepareDatabase([
+            User::class => [
+                ['id' => 3, 'username' => 'bulk', 'email' => 'bulk@machine.local', 'is_email_confirmed' => 1],
+            ],
+            Discussion::class => $discussions,
+        ]);
+
+        $response = $this->send(
+            $this->request('POST', '/api/discussions/read', ['authenticatedAs' => 3])
+                ->withQueryParams(['filter' => ['author' => 'bulk']])
+        );
+
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+        $actual = $this->database()->table('discussion_user')->where('user_id', 3)
+            ->pluck('last_read_post_number', 'discussion_id')->all();
+        $this->assertEquals($expected, $actual);
     }
 
     #[Test]

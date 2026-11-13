@@ -14,6 +14,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\UserState;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchManager;
+use RuntimeException;
 
 class ReadDiscussionsHandler
 {
@@ -73,13 +74,14 @@ class ReadDiscussionsHandler
         // runs out of time resumes from where it stopped instead of starting
         // the whole match set over.
         $skipped = 0;
+        $previousPage = null;
 
         while (true) {
             // No sort, and not the default one either: a searcher is free to
             // rewrite the query in order to order it — flarum/sticky unions a
             // second query to float unread stickies — and none of that
             // ordering means anything to the rows being written. Paging is
-            // safe regardless, because `AbstractSearcher` always ends the
+            // stable with the database searcher: `AbstractSearcher` ends the
             // query with a tie breaker on the primary key, so the result set
             // is ordered by id and the skipped rows stay at its front across
             // the repeated queries below.
@@ -88,10 +90,22 @@ class ReadDiscussionsHandler
                 new SearchCriteria($actor, $filters, limit: static::CHUNK_SIZE, offset: $skipped, sort: null, sortIsDefault: false)
             );
 
+            /** @var \Illuminate\Database\Eloquent\Collection<int, Discussion> $discussions */
+            $discussions = $results->getResults();
+            $page = $discussions->mapWithKeys(fn (Discussion $discussion) => [$discussion->id => $discussion->last_post_number])->all();
+            ksort($page);
+
+            // A custom search driver may not honour the unread filter. Do not
+            // keep writing an unchanged page when the result set cannot shrink.
+            if ($page === $previousPage) {
+                throw new RuntimeException('The discussion search did not advance after marking results read.');
+            }
+
+            $previousPage = $page;
             $records = [];
 
             /** @var Discussion $discussion */
-            foreach ($results->getResults() as $discussion) {
+            foreach ($discussions as $discussion) {
                 // A discussion with no posts has no post number to be read up
                 // to, and a null `last_read_post_number` would leave it as
                 // unread as writing nothing does. Stepping the offset past it
@@ -123,11 +137,28 @@ class ReadDiscussionsHandler
                 // discussion marked read through this endpoint. That trade-off
                 // is deliberate — raising events for what may be thousands of
                 // discussions at once would undo the point of writing in bulk.
-                UserState::query()->upsert(
-                    $records,
-                    ['user_id', 'discussion_id'],
-                    ['last_read_post_number', 'last_read_at']
-                );
+                $query = UserState::query();
+                $connection = $query->getModel()->getConnection();
+                $grammar = $connection->getQueryGrammar();
+                $column = $grammar->wrap('last_read_post_number');
+                $current = $grammar->wrap('discussion_user.last_read_post_number');
+                $readAt = $grammar->wrap('discussion_user.last_read_at');
+                $mysql = in_array($connection->getDriverName(), ['mysql', 'mariadb'], true);
+                $incoming = $mysql
+                    ? ($connection->getConfig('use_upsert_alias') ? 'laravel_upsert_alias.'.$column : 'values('.$column.')')
+                    : 'excluded.'.$column;
+                $incomingReadAt = $mysql
+                    ? ($connection->getConfig('use_upsert_alias') ? 'laravel_upsert_alias.last_read_at' : 'values(last_read_at)')
+                    : 'excluded.last_read_at';
+                $advances = "coalesce($current, 0) < $incoming";
+
+                // Compare at write time: another request may have read further
+                // since the search. MySQL evaluates assignments left to right,
+                // so update the timestamp before changing the compared number.
+                $query->upsert($records, ['user_id', 'discussion_id'], [
+                    'last_read_at' => $connection->raw("case when $advances then $incomingReadAt else $readAt end"),
+                    'last_read_post_number' => $connection->raw("case when $advances then $incoming else $current end"),
+                ]);
             }
 
             if (! $results->areMoreResults()) {
@@ -137,40 +168,17 @@ class ReadDiscussionsHandler
     }
 
     /**
-     * Filter keys that narrow the list by their presence alone: their value is
-     * ignored by the filter, so even an empty one still constrains the search.
-     *
-     * @var list<string>
-     */
-    protected const PRESENCE_FILTERS = ['hidden', '-hidden'];
-
-    /**
-     * The filters that single out a subset of the discussions, so that a list
-     * showing all of them is recognised as such however it was asked for.
-     *
-     * An empty value is taken to narrow nothing and dropped — an empty `q`
-     * searches for nothing, an empty `author` names no one — so a request
-     * carrying only empties is the whole forum. The exception is the handful
-     * of filters switched on by their presence alone (`filter[hidden]=` and
-     * `filter[-hidden]=` carry an empty value yet still narrow): dropping those
-     * would let a direct API client marking a `hidden` list read silence the
-     * whole forum instead.
-     *
      * @param array<string, string|array> $filters
      * @return array<string, string|array>
      */
     protected function narrowingFilters(array $filters): array
     {
-        return array_filter(
-            $filters,
-            function ($value, $key) {
-                if (in_array($key, static::PRESENCE_FILTERS, true)) {
-                    return true;
-                }
+        // Only the fulltext filter ignores an empty value; extension filters
+        // may narrow the list by their presence alone.
+        if (isset($filters['q']) && $filters['q'] === '') {
+            unset($filters['q']);
+        }
 
-                return $value !== null && $value !== '' && $value !== [];
-            },
-            ARRAY_FILTER_USE_BOTH
-        );
+        return $filters;
     }
 }

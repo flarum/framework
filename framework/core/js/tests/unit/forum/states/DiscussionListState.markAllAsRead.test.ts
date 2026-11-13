@@ -87,6 +87,27 @@ describe('DiscussionListState.markAllAsRead', () => {
     findSpy.mockRestore();
   });
 
+  test('preserves a newer read position when the bulk response arrives', async () => {
+    const discussion = app.store.pushObject<Discussion>(
+      makeDiscussion({ id: '1', attributes: { lastPostNumber: 5, lastReadPostNumber: 2 } })
+    )!;
+    const state = new DiscussionListState({ filter: { author: 'sarah' } });
+    (state as any).pages = [{ number: 0, items: [discussion] }];
+    const { promise, resolve } = deferred<any>();
+    const requestSpy = jest.spyOn(app, 'request').mockReturnValue(promise);
+
+    try {
+      const result = state.markAllAsRead();
+      discussion.pushAttributes({ lastPostNumber: 9, lastReadPostNumber: 9 });
+      resolve({});
+      await result;
+
+      expect(discussion.lastReadPostNumber()).toBe(9);
+    } finally {
+      requestSpy.mockRestore();
+    }
+  });
+
   test('a lone unread filter is treated as "everything" and refetches the user', async () => {
     const state = new DiscussionListState({ q: 'is:unread' } as any);
     (state as any).pages = [{ number: 0, items: [] }];
