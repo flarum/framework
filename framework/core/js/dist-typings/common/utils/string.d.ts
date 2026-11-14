@@ -13,7 +13,12 @@ export declare function truncate(string: string, length: number, start?: number)
 export declare function slug(string: string, mode?: SluggingMode): string;
 export declare enum SluggingMode {
     ALPHANUMERIC = "alphanum",
-    UTF8 = "utf8"
+    UTF8 = "utf8",
+    /**
+     * Like `UTF8`, but Latin letters lose their accents and ß, æ, ø and the like
+     * are spelled out, so "Tecnología" gives "tecnologia" while "Новости" stays.
+     */
+    UTF8_LATIN_ASCII = "utf8_latin_ascii"
 }
 /**
  * Strip HTML tags and quotes out of the given string, replacing them with

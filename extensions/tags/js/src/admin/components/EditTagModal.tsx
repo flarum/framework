@@ -7,7 +7,7 @@ import IconImageInput from 'flarum/common/components/IconImageInput';
 import IconImageState from 'flarum/common/states/IconImageState';
 import Select from 'flarum/common/components/Select';
 import ItemList from 'flarum/common/utils/ItemList';
-import { slug } from 'flarum/common/utils/string';
+import { slug, SluggingMode } from 'flarum/common/utils/string';
 import Stream from 'flarum/common/utils/Stream';
 import extractText from 'flarum/common/utils/extractText';
 import Form from 'flarum/common/components/Form';
@@ -38,6 +38,13 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
   isPrimary!: Stream<boolean>;
   defaultSort!: Stream<string>;
 
+  /**
+   * Whether typing a name should still suggest the slug: only for a new tag
+   * whose slug field hasn't been edited. An existing tag's slug is in links
+   * and search results, so it changes only when the admin edits it.
+   */
+  suggestSlug!: boolean;
+
   oninit(vnode: Mithril.Vnode<EditTagModalAttrs, this>) {
     super.oninit(vnode);
 
@@ -52,6 +59,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     this.isHidden = Stream(this.tag.isHidden() || false);
     this.isPrimary = Stream(this.attrs.primary || false);
     this.defaultSort = Stream(this.tag.defaultSort() || '');
+    this.suggestSlug = !this.tag.exists;
   }
 
   onremove(vnode: Mithril.VnodeDOM<EditTagModalAttrs, this>) {
@@ -96,7 +104,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
           oninput={(e: InputEvent) => {
             const target = e.target as HTMLInputElement;
             this.name(target.value);
-            this.slug(slug(target.value));
+            if (this.suggestSlug) this.slug(slug(target.value, SluggingMode.UTF8_LATIN_ASCII));
           }}
         />
       </div>,
@@ -107,7 +115,16 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
       'slug',
       <div className="Form-group">
         <label>{app.translator.trans('flarum-tags.admin.edit_tag.slug_label')}</label>
-        <input className="FormControl" bidi={this.slug} />
+        <input
+          className="FormControl"
+          value={this.slug()}
+          oninput={(e: InputEvent) => {
+            const target = e.target as HTMLInputElement;
+            this.slug(target.value);
+            // Clearing the field hands it back to the suggestion.
+            this.suggestSlug = !this.tag.exists && target.value === '';
+          }}
+        />
       </div>,
       40
     );
