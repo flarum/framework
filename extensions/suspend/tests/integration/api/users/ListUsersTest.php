@@ -51,7 +51,7 @@ class ListUsersTest extends TestCase
         $body = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEqualsCanonicalizing([1, 2, 3, 4, 5, 6], Arr::pluck($body['data'], 'id'));
+        $this->assertEqualsCanonicalizing([1, 2, 3, 4, 5, 6, 7], Arr::pluck($body['data'], 'id'));
     }
 
     #[Test]
