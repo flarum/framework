@@ -9,6 +9,7 @@
 
 namespace Flarum\Forum\Controller;
 
+use Flarum\Foundation\Config;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\ReturnUrlValidator;
 use Flarum\Http\UrlGenerator;
@@ -23,11 +24,15 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class LogOutViewController implements RequestHandlerInterface
 {
+    protected ReturnUrlValidator $returnUrl;
+
     public function __construct(
         protected Factory $view,
         protected UrlGenerator $url,
-        protected ReturnUrlValidator $returnUrl
+        protected Config $config,
+        ?ReturnUrlValidator $returnUrl = null
     ) {
+        $this->returnUrl = $returnUrl ?? resolve(ReturnUrlValidator::class);
     }
 
     public function handle(Request $request): ResponseInterface

@@ -9,6 +9,7 @@
 
 namespace Flarum\Forum\Controller;
 
+use Flarum\Foundation\Config;
 use Flarum\Http\Rememberer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\ReturnUrlValidator;
@@ -25,13 +26,17 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class LogOutController implements RequestHandlerInterface
 {
+    protected ReturnUrlValidator $returnUrl;
+
     public function __construct(
         protected Dispatcher $events,
         protected SessionAuthenticator $authenticator,
         protected Rememberer $rememberer,
         protected UrlGenerator $url,
-        protected ReturnUrlValidator $returnUrl
+        protected Config $config,
+        ?ReturnUrlValidator $returnUrl = null
     ) {
+        $this->returnUrl = $returnUrl ?? resolve(ReturnUrlValidator::class);
     }
 
     public function handle(Request $request): ResponseInterface
