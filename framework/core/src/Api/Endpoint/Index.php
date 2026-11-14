@@ -19,6 +19,7 @@ use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Resource\AbstractResource;
 use Flarum\Api\Resource\Contracts\Countable;
 use Flarum\Api\Resource\Contracts\Listable;
+use Flarum\Api\Resource\Contracts\Paginatable;
 use Flarum\Api\Serializer;
 use Flarum\Database\Eloquent\Collection;
 use Flarum\Search\SearchCriteria;
@@ -122,7 +123,18 @@ class Index extends Endpoint
 
                 $pagination = ($this->paginationResolver)($context);
 
-                $extracts = $this->defaultExtracts($context);
+                // An endpoint without `paginate()` returns the whole list. If the
+                // client asks for a page of it anyway, the response must say that
+                // it is one, with `meta.page` and the `next` link, instead of
+                // cutting the list short without telling the client.
+                $defaultLimit = null;
+
+                if (! $pagination && $collection instanceof Paginatable && $this->requestsPage($context)) {
+                    $defaultLimit = $this->limit ?? $this->maxLimit;
+                    $pagination = new OffsetPagination($context, $defaultLimit, $this->maxLimit);
+                }
+
+                $extracts = $this->defaultExtracts($context, $defaultLimit);
 
                 $filters = $this->extractFilterValue($context, $extracts);
                 $sort = $this->extractSortValue($context, $extracts);
@@ -306,6 +318,16 @@ class Index extends Endpoint
         } catch (Sourceable $e) {
             throw $e->prependSource(['parameter' => 'filter']);
         }
+    }
+
+    /**
+     * Whether the request asks for a page of the list: a page size, or a page number.
+     */
+    protected function requestsPage(\Tobyz\JsonApiServer\Context $context): bool
+    {
+        $page = $context->queryParam('page');
+
+        return is_array($page) && (filled($page['limit'] ?? null) || filled($page['number'] ?? null));
     }
 
     /**
