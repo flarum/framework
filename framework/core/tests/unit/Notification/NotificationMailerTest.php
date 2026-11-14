@@ -45,6 +45,7 @@ class NotificationMailerTest extends TestCase
         $this->view = m::mock(Factory::class);
 
         // Common stub setup
+        $this->settings->shouldReceive('get')->with('mail_suppress_bounced')->andReturn(false);
         $this->translator->shouldReceive('setLocale')->once();
         $this->translator->shouldReceive('trans')->with('core.email.notification.default_title')->andReturn('Notification')->byDefault();
         $this->settings->shouldReceive('get')->with('default_locale')->andReturn('en');

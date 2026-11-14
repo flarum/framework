@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import HeaderDropdown from 'flarum/forum/components/HeaderDropdown';
 import type { IHeaderDropdownAttrs } from 'flarum/forum/components/HeaderDropdown';
 export interface IFlagsDropdownAttrs extends IHeaderDropdownAttrs {

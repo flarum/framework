@@ -15,6 +15,16 @@ use Illuminate\Contracts\Support\Arrayable;
 
 class DatabaseConfig implements Arrayable
 {
+    /**
+     * The PHP extension each supported database driver needs.
+     */
+    public const DRIVER_EXTENSIONS = [
+        'mysql' => 'pdo_mysql',
+        'mariadb' => 'pdo_mysql',
+        'sqlite' => 'pdo_sqlite',
+        'pgsql' => 'pdo_pgsql',
+    ];
+
     public function __construct(
         private readonly string $driver,
         private readonly ?string $host,
@@ -44,8 +54,14 @@ class DatabaseConfig implements Arrayable
             throw new ValidationFailed('Please specify a database driver.');
         }
 
-        if (! in_array($this->driver, ['mysql', 'mariadb', 'sqlite', 'pgsql'])) {
+        if (! isset(self::DRIVER_EXTENSIONS[$this->driver])) {
             throw new ValidationFailed('Currently, only MySQL, MariaDB, SQLite and PostgreSQL are supported.');
+        }
+
+        $extension = self::DRIVER_EXTENSIONS[$this->driver];
+
+        if (! extension_loaded($extension)) {
+            throw new ValidationFailed("The PHP extension '$extension' is required to use this database.");
         }
 
         if (empty($this->host) && in_array($this->driver, ['mysql', 'mariadb', 'pgsql'])) {

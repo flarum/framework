@@ -1,7 +1,7 @@
 import UserPage, { IUserPageAttrs } from './UserPage';
 import type Mithril from 'mithril';
 import type User from '../../common/models/User';
-import PostListState from '../states/PostListState';
+import PostListState, { type PostListParams } from '../states/PostListState';
 import PostList from './PostList';
 
 /**
@@ -45,7 +45,7 @@ export default class PostsUserPage extends UserPage {
     this.posts.refreshParams(this.params(user), 1);
   }
 
-  params(user: User) {
+  params(user: User): PostListParams {
     return {
       filter: { author: user.slug() },
     };

@@ -19,7 +19,7 @@ export interface SelectTagsSettingComponentAttrs extends SelectTagsSettingCompon
 }
 
 export default class SelectTagsSettingComponent<
-  CustomAttrs extends SelectTagsSettingComponentAttrs = SelectTagsSettingComponentAttrs
+  CustomAttrs extends SelectTagsSettingComponentAttrs = SelectTagsSettingComponentAttrs,
 > extends Component<CustomAttrs> {
   protected tags: Tag[] = [];
   protected loaded = false;

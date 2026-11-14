@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component, { type ComponentAttrs } from '../../common/Component';
 import type Notification from '../../common/models/Notification';
 export interface INotificationTypeAttrs extends ComponentAttrs {

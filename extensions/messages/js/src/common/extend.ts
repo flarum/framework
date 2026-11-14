@@ -10,5 +10,7 @@ export default [
 
   new Extend.Model(User) //
     .attribute<boolean>('canSendAnyMessage')
+    .attribute<boolean>('canMessage')
+    .attribute<boolean>('canMessageUsersWithoutPermission')
     .attribute<boolean>('canDeleteOwnMessage'),
 ];

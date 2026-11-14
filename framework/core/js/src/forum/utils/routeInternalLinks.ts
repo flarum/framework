@@ -1,5 +1,48 @@
 import app from '../app';
 
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Patterns compiled so far, keyed by route template (base path included), so
+ * each one is built on the first click that needs it rather than on every click.
+ */
+const patterns = new Map<string, RegExp>();
+
+/**
+ * Turn a route template into a pattern for a path. In Mithril's route syntax,
+ * `:param` is one path segment and `:param...` is the rest of the path.
+ */
+function compile(template: string): RegExp {
+  let pattern = patterns.get(template);
+
+  if (!pattern) {
+    const segments = template
+      .replace(/\/+$/, '')
+      .split('/')
+      .map((segment) => (segment.startsWith(':') ? (segment.endsWith('...') ? '.*' : '[^/]+') : escapeRegExp(segment)));
+
+    pattern = new RegExp(`^${segments.join('/')}/?$`);
+    patterns.set(template, pattern);
+  }
+
+  return pattern;
+}
+
+/**
+ * Whether the forum registered a route for this path. `app.routes` is the
+ * table Mithril's routes are built from (see `mapRoutes()`), extensions'
+ * routes included.
+ */
+function hasRoute(path: string, basePath: string): boolean {
+  // mount() moves the default route to `/`, but its own address (`/all`, or
+  // whatever the admin chose) still means the home page.
+  const defaultRoute = app.forum.attribute<string>('defaultRoute');
+
+  if (defaultRoute && compile(basePath + defaultRoute).test(path)) return true;
+
+  return Object.values(app.routes).some((route) => compile(basePath + route.path).test(path));
+}
+
 /**
  * Follow links that point back at this forum without reloading the page.
  *
@@ -52,6 +95,12 @@ export default function routeInternalLinks() {
     const path = url.pathname;
 
     if (basePath && !(path === basePath || path.startsWith(basePath + '/'))) return;
+
+    // The server marks every link to the forum's own host as internal,
+    // whatever the path: an uploaded file, the admin panel, the API, a feed,
+    // another app on the same host. Mithril has no route for those and falls
+    // back to the index, so only a path the forum routes is handled here.
+    if (!hasRoute(path, basePath)) return;
 
     // What Mithril routes on *includes* the base path. The forum registers its
     // routes with the base path already baked into each pattern

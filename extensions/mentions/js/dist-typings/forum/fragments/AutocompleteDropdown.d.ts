@@ -11,4 +11,4 @@ export default class AutocompleteDropdown extends Fragment {
     complete(): void;
     setIndex(index: any, scrollToItem: any): void;
 }
-import Fragment from "flarum/common/Fragment";
+import Fragment from 'flarum/common/Fragment';

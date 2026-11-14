@@ -19,6 +19,7 @@ use Flarum\Group\Group;
 use Flarum\Group\Permission;
 use Flarum\Group\PermissionCache;
 use Flarum\Http\AccessToken;
+use Flarum\Mail\EmailBounceEvent;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
 use Flarum\User\Avatar\DriverInterface as AvatarDriver;
@@ -48,6 +49,8 @@ use Illuminate\Support\Arr;
  * @property string $display_name
  * @property string $email
  * @property bool $is_email_confirmed
+ * @property \Carbon\Carbon|null $email_bounced_at
+ * @property string|null $email_bounce_reason
  * @property string $password
  * @property string|null $avatar_url
  * @property bool $has_avatar_2x
@@ -86,6 +89,7 @@ class User extends AbstractModel
         'last_seen_at' => 'datetime',
         'marked_all_as_read_at' => 'datetime',
         'read_notifications_at' => 'datetime',
+        'email_bounced_at' => 'datetime',
     ];
 
     /**
@@ -94,6 +98,17 @@ class User extends AbstractModel
      * @var string[]|null
      */
     protected ?array $permissions = null;
+
+    /**
+     * Whether the user is an administrator, and the groups that says so of.
+     *
+     * Every permission check asks, so serializing a list asks hundreds of times
+     * about the same users. Replacing the groups relation replaces the
+     * collection, which has the answer worked out again.
+     *
+     * @var array{Collection, bool}|null
+     */
+    protected ?array $administrator = null;
 
     /**
      * An array of callables, through each of which the user's list of groups is passed
@@ -162,6 +177,12 @@ class User extends AbstractModel
                 throw new DomainException('Cannot delete the root admin');
             }
 
+            EmailBounceEvent::where('user_id', $user->id)->update([
+                'email' => '',
+                'reason' => null,
+                'user_id' => null,
+            ]);
+
             $avatarPath = $user->getRawOriginal('avatar_url');
 
             if ($avatarPath) {
@@ -227,8 +248,32 @@ class User extends AbstractModel
         if ($email !== $this->email) {
             $this->email = $email;
 
+            // A new address supersedes any bounce recorded against the old one.
+            $this->clearEmailBounce();
+
             $this->raise(new EmailChanged($this));
         }
+
+        return $this;
+    }
+
+    /**
+     * Has mail to this user's address been reported as permanently
+     * undeliverable (a hard bounce) or been marked as spam by the recipient?
+     */
+    public function hasBouncedEmail(): bool
+    {
+        return $this->email_bounced_at !== null;
+    }
+
+    /**
+     * Clear any recorded bounce/complaint state, e.g. once the user has
+     * updated and re-confirmed their address, or an admin has cleared it.
+     */
+    public function clearEmailBounce(): static
+    {
+        $this->email_bounced_at = null;
+        $this->email_bounce_reason = null;
 
         return $this;
     }
@@ -495,6 +540,24 @@ class User extends AbstractModel
         return $this;
     }
 
+    /**
+     * Remove the given keys from the stored preferences, so their defaults
+     * apply again. Works on the stored value rather than the accessor, which
+     * merges in every default and would store the others' defaults too.
+     *
+     * @param string[] $keys
+     */
+    public function forgetPreferences(array $keys): static
+    {
+        $preferences = (array) json_decode($this->attributes['preferences'] ?? 'null', true);
+
+        // Exact keys only: Arr::except() reads dots as nesting, so forgetting
+        // `acme.layout` would reach into a preference named `acme`.
+        $this->preferences = array_diff_key($preferences, array_flip($keys));
+
+        return $this;
+    }
+
     public function updateLastSeen(): static
     {
         $now = Carbon::now();
@@ -508,7 +571,13 @@ class User extends AbstractModel
 
     public function isAdmin(): bool
     {
-        return $this->groups->contains(Group::ADMINISTRATOR_ID);
+        $groups = $this->groups;
+
+        if ($this->administrator === null || $this->administrator[0] !== $groups) {
+            $this->administrator = [$groups, $groups->contains(Group::ADMINISTRATOR_ID)];
+        }
+
+        return $this->administrator[1];
     }
 
     /**

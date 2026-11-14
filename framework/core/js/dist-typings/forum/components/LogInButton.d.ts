@@ -10,4 +10,4 @@ export default class LogInButton extends Button<import("../../common/components/
     static initAttrs(attrs: any): void;
     constructor();
 }
-import Button from "../../common/components/Button";
+import Button from '../../common/components/Button';

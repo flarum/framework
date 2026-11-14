@@ -17,10 +17,13 @@ use Flarum\User\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
+ * @property bool $is_recipient
+ * @property \Carbon\Carbon|null $left_at
  * @property int $id
  * @property int $dialog_id
  * @property int $user_id
  * @property \Carbon\Carbon $joined_at
+ * @property int|null $last_notified_message_id
  * @property int|null $last_read_message_id
  * @property \Carbon\Carbon $last_read_at
  * @property-read Dialog $dialog
@@ -32,12 +35,17 @@ class UserDialogState extends AbstractModel
 
     protected $table = 'dialog_user';
 
+    protected $fillable = ['dialog_id', 'user_id', 'joined_at', 'is_recipient'];
+
     protected $casts = [
         'user_id' => 'integer',
         'dialog_id' => 'integer',
         'joined_at' => 'datetime',
         'last_read_at' => 'datetime',
-        'last_read_message_id' => 'integer'
+        'last_read_message_id' => 'integer',
+        'is_recipient' => 'boolean',
+        'left_at' => 'datetime',
+        'last_notified_message_id' => 'integer',
     ];
 
     public function dialog(): BelongsTo

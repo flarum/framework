@@ -22,6 +22,8 @@ export interface ApiQueryParamsSingle {
 export interface ApiQueryParamsPlural {
   fields?: string[];
   include?: string;
+  /** Get the endpoint's default includes as well as those named in `include`. */
+  withDefaultIncludes?: boolean;
   filter?:
     | {
         q: string;
@@ -33,6 +35,8 @@ export interface ApiQueryParamsPlural {
     number?: number;
     limit?: number;
     size?: number;
+    /** `0` skips counting every match for `meta.page.total`. */
+    total?: number;
   };
   sort?: string;
   meta?: MetaInformation;

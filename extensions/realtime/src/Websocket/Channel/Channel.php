@@ -85,6 +85,17 @@ class Channel
         return array_keys($this->connections);
     }
 
+    /**
+     * For senders that tailor what each subscriber receives — see
+     * {@link \Flarum\Realtime\Websocket\TypingActivity}.
+     *
+     * @return array<string, ConnectionInterface>
+     */
+    public function connections(): array
+    {
+        return $this->connections;
+    }
+
     public function broadcast(stdClass $payload): bool
     {
         collect($this->connections)

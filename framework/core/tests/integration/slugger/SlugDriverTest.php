@@ -16,6 +16,7 @@ use Flarum\Http\SlugManager;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -82,6 +83,56 @@ class SlugDriverTest extends TestCase
         $slugger = $this->app()->getContainer()->make(SlugManager::class)->forResource(User::class);
 
         $this->assertEquals(User::query()->find($expectedId), $slugger->fromSlug($slug, User::query()->find(1)));
+    }
+
+    #[Test]
+    #[DataProvider('notAnIdDataProvider')]
+    public function id_based_drivers_find_nothing_for_a_slug_that_is_not_an_id(string $driver, string $modelClassName, string $slug)
+    {
+        $this->setting("slug_driver_$modelClassName", $driver);
+
+        /** @var SlugDriverInterface $slugger */
+        $slugger = $this->app()->getContainer()->make(SlugManager::class)->forResource($modelClassName);
+
+        // Not a database error either: PostgreSQL refuses text compared with an integer key.
+        $this->expectException(ModelNotFoundException::class);
+
+        $slugger->fromSlug($slug, User::query()->find(1));
+    }
+
+    public static function notAnIdDataProvider(): array
+    {
+        $cases = [];
+
+        // Each built from an id that exists: MySQL reads "20abc" as 20.
+        foreach ([['default', Discussion::class, 20], ['utf8', Discussion::class, 20], ['id', User::class, 2], ['id_with_display_name', User::class, 2]] as [$driver, $model, $id]) {
+            foreach (['nobody', "{$id}abc", "$id.0", "-$id", ''] as $slug) {
+                $cases["$driver ".class_basename($model)." '$slug'"] = [$driver, $model, $slug];
+            }
+        }
+
+        return $cases;
+    }
+
+    #[Test]
+    public function a_profile_url_that_is_not_an_id_is_not_found()
+    {
+        $this->setting('slug_driver_'.User::class, 'id');
+
+        $this->assertEquals(200, $this->send($this->request('GET', '/u/2'))->getStatusCode());
+        $this->assertEquals(404, $this->send($this->request('GET', '/u/2abc'))->getStatusCode());
+        $this->assertEquals(404, $this->send($this->request('GET', '/u/nobody'))->getStatusCode());
+    }
+
+    #[Test]
+    public function an_author_filter_that_is_not_an_id_matches_nobody()
+    {
+        $this->setting('slug_driver_'.User::class, 'id');
+
+        $response = $this->send($this->request('GET', '/api/discussions', ['authenticatedAs' => 1])->withQueryParams(['filter' => ['author' => '2abc']]));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame([], json_decode((string) $response->getBody(), true)['data']);
     }
 
     public static function fromUserSlugVariantsDataProvider(): array

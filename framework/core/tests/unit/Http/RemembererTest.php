@@ -14,15 +14,38 @@ use Flarum\Foundation\Config;
 use Flarum\Http\CookieFactory;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
+use Flarum\Http\SessionConfig;
+use Flarum\Settings\UninstalledSettingsRepository;
 use Flarum\Testing\unit\TestCase;
+use Illuminate\Container\Container;
 use Laminas\Diactoros\Response\EmptyResponse;
 use PHPUnit\Framework\Attributes\Test;
 
 class RemembererTest extends TestCase
 {
-    protected function rememberer(): Rememberer
+    protected ?Container $previousContainer = null;
+
+    protected function tearDown(): void
     {
-        return new Rememberer(new CookieFactory(new Config(['url' => 'http://flarum.test'])));
+        if ($this->previousContainer) {
+            Container::setInstance($this->previousContainer);
+        }
+
+        parent::tearDown();
+    }
+
+    protected function rememberer(array $session = []): Rememberer
+    {
+        $config = new Config(['url' => 'http://flarum.test', 'session' => $session]);
+        $sessionConfig = new SessionConfig($config, new UninstalledSettingsRepository());
+
+        // Token lifetimes are resolved through the container.
+        $this->previousContainer = Container::getInstance();
+        $container = new Container();
+        $container->instance(SessionConfig::class, $sessionConfig);
+        Container::setInstance($container);
+
+        return new Rememberer(new CookieFactory($config), $sessionConfig);
     }
 
     protected function token(string $class): RememberAccessToken
@@ -59,6 +82,28 @@ class RemembererTest extends TestCase
             7 * 24 * 60 * 60,
             FigResponseCookies::get($response, 'flarum_remember')->getMaxAge()
         );
+    }
+
+    #[Test]
+    public function remember_cookie_uses_the_configured_lifetime_of_a_subclass()
+    {
+        $response = $this->rememberer(['tokens' => ['session_remember_short' => 3600]])->remember(
+            new EmptyResponse(),
+            $this->token(ShortLivedRememberAccessToken::class)
+        );
+
+        $this->assertEquals(3600, FigResponseCookies::get($response, 'flarum_remember')->getMaxAge());
+    }
+
+    #[Test]
+    public function remember_cookie_expires_on_close_when_configured()
+    {
+        $response = $this->rememberer(['cookie_expires_on_close' => true])->remember(
+            new EmptyResponse(),
+            $this->token(ShortLivedRememberAccessToken::class)
+        );
+
+        $this->assertEquals(0, FigResponseCookies::get($response, 'flarum_remember')->getMaxAge());
     }
 }
 

@@ -3,4 +3,4 @@ export default class UserUnsuspendedNotification extends Notification<import("fl
     content(): string | any[];
     excerpt(): null;
 }
-import Notification from "flarum/forum/components/Notification";
+import Notification from 'flarum/forum/components/Notification';

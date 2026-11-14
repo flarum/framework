@@ -1,6 +1,5 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import Application from 'flarum/common/Application';
 
 /**
  * Remove the first post from a rendered PostStream vdom. Used when the
@@ -25,14 +24,14 @@ export function scrollParentToReply(offsetTop: number): void {
 }
 
 export default function extendPostStream(): void {
-  // `hideFirstPost` must be read at mount time, so register the PostStream view
-  // extension from within the app mount. PostStream is code-split, so extend it
-  // by string path — the callback runs once the component's chunk has loaded.
-  extend(Application.prototype, 'mount' as any, function () {
-    if (m.route.param('hideFirstPost')) {
-      extend('flarum/forum/components/PostStream', 'view', (vdom: any) => hideFirstPost(vdom));
-    }
-  });
+  // Read `hideFirstPost` from the address the embed was opened with. The
+  // route can't be asked: it resolves a tick after the app mounts. And it
+  // must be read now: scrolling rewrites the address without it. PostStream
+  // is code-split, so extend it by string path; the callback runs once the
+  // component's chunk has loaded.
+  if (new URLSearchParams(window.location.search).get('hideFirstPost')) {
+    extend('flarum/forum/components/PostStream', 'view', (vdom: any) => hideFirstPost(vdom));
+  }
 
   // 2.x routes reply navigation through PostStream.scrollToItem (the component
   // method that still has DOM access and receives the `reply` flag), rather

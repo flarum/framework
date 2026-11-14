@@ -28,12 +28,14 @@ return [
 
     (new Extend\Routes('forum'))
         ->get('/gdpr/export/{file}', 'gdpr.export', Http\Controller\ExportController::class)
-        ->get('/gdpr/erasure/confirm/{token}', 'gdpr.erasure.confirm', Http\Controller\ConfirmErasureController::class),
+        ->get('/gdpr/erasure/confirm/{token}', 'gdpr.erasure.confirm', Http\Controller\ConfirmErasureViewController::class)
+        ->post('/gdpr/erasure/confirm/{token}', 'gdpr.erasure.confirm.submit', Http\Controller\ConfirmErasureController::class),
 
     (new Extend\Notification())
         ->type(Notifications\ExportAvailableBlueprint::class, ['alert', 'email'])
         ->type(Notifications\ConfirmErasureBlueprint::class, ['email'])
-        ->type(Notifications\ErasureRequestCancelledBlueprint::class, ['alert', 'email']),
+        ->type(Notifications\ErasureRequestCancelledBlueprint::class, ['alert', 'email'])
+        ->beforeSending(FilterAnonymizedRecipients::class),
 
     (new Extend\Model(User::class))
         ->cast('anonymized', 'boolean')

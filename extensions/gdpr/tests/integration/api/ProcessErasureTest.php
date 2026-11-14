@@ -16,6 +16,7 @@ use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Database\Schema\Blueprint;
 use PHPUnit\Framework\Attributes\Test;
 
 class ProcessErasureTest extends TestCase
@@ -297,6 +298,51 @@ class ProcessErasureTest extends TestCase
     }
 
     #[Test]
+    public function anonymization_keeps_not_null_columns_added_by_extensions_valid()
+    {
+        if (! in_array($this->database()->getDriverName(), ['sqlite', 'pgsql'], true)) {
+            $this->markTestSkipped('Adding a column inside the test transaction needs transactional DDL, which MySQL does not support.');
+        }
+
+        // Mimic an extension (e.g. fof/gamification) adding columns to `users`.
+        $this->database()->getSchemaBuilder()->table('users', function (Blueprint $table) {
+            $table->integer('test_votes')->default(0);
+            $table->string('test_bio')->nullable();
+        });
+
+        // Start the avatar flags as true, so the test also catches a missing reset.
+        $this->database()->table('users')->where('id', 5)->update([
+            'test_votes' => 7,
+            'test_bio' => 'About me',
+            'has_avatar_2x' => true,
+            'has_avatar_3x' => true,
+        ]);
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/user-erasure-requests/2', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'processorComment' => 'I have processed this request',
+                            'processedMode' => ErasureRequest::MODE_ANONYMIZATION,
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        $user = $this->database()->table('users')->where('id', 5)->first();
+        $this->assertEquals('Anonymous2', $user->username);
+        $this->assertEquals(7, $user->test_votes);
+        $this->assertNull($user->test_bio);
+        $this->assertFalse((bool) $user->has_avatar_2x);
+        $this->assertFalse((bool) $user->has_avatar_3x);
+    }
+
+    #[Test]
     public function cancelled_erasure_requests_are_not_processed()
     {
         $this->setting('flarum-gdpr.allow-deletion', true);
@@ -352,5 +398,22 @@ class ProcessErasureTest extends TestCase
         $this->assertNotNull($processableRequest->processed_at);
         $this->assertEquals(ErasureRequest::STATUS_USER_CONFIRMED, $cancelledConfirmedRequest->status);
         $this->assertNull($cancelledConfirmedRequest->processed_at);
+    }
+
+    #[Test]
+    public function scheduled_processing_says_how_long_the_request_waited()
+    {
+        $app = $this->app();
+
+        $request = ErasureRequest::query()->find(2);
+        $request->user_confirmed_at = Carbon::now()->subDays(31);
+        $request->save();
+
+        $app->getContainer()->call([new ProcessEraseRequests(), 'handle']);
+
+        $this->assertEquals(
+            'Automatically processed after 30 days through scheduled task.',
+            ErasureRequest::query()->find(2)->processor_comment
+        );
     }
 }

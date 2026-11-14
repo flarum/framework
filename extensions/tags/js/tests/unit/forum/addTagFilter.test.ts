@@ -174,4 +174,57 @@ describe("a tag's default sort", () => {
 
     expect(params().sort).toBeUndefined();
   });
+
+  /**
+   * The sort dropdown leaves the page's own order out of the URL, and names
+   * any other. On a tag page, the page's own order is the tag's.
+   */
+  describe('and the sort dropdown', () => {
+    /** The sort in the URL the dropdown sends the reader to. */
+    const urlSortAfterChoosing = (sort: string) => {
+      let routed: Record<string, string> = {};
+
+      const route = jest.spyOn(app, 'route').mockImplementation(((_name: string, params: Record<string, string>) => {
+        routed = params;
+
+        return '/';
+      }) as any);
+
+      new GlobalSearchState().changeSort(sort);
+      route.mockRestore();
+
+      return routed.sort;
+    };
+
+    let current: unknown;
+
+    beforeEach(() => {
+      current = app.current;
+      (app as any).current = { get: () => 'tag' };
+      (m as any).route = { param: (key: string) => routeParams[key], set: () => {} };
+    });
+
+    afterEach(() => {
+      (app as any).current = current;
+    });
+
+    it("lets the reader choose the forum's default order instead of the tag's", () => {
+      routeParams = { tags: 'sorted' };
+
+      expect(urlSortAfterChoosing('latest')).toBe('latest');
+    });
+
+    it("leaves the tag's own order out of the URL", () => {
+      routeParams = { tags: 'sorted', sort: 'latest' };
+
+      expect(urlSortAfterChoosing('az')).toBeUndefined();
+    });
+
+    it("leaves the forum's default order out of the URL on a tag without one", () => {
+      routeParams = { tags: 'general', sort: 'az' };
+
+      expect(urlSortAfterChoosing('latest')).toBeUndefined();
+      expect(urlSortAfterChoosing('newest')).toBe('newest');
+    });
+  });
 });

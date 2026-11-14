@@ -17,7 +17,8 @@ class Rememberer
     public const COOKIE_NAME = 'remember';
 
     public function __construct(
-        protected CookieFactory $cookie
+        protected CookieFactory $cookie,
+        protected SessionConfig $sessionConfig
     ) {
     }
 
@@ -32,8 +33,21 @@ class Rememberer
     {
         return FigResponseCookies::set(
             $response,
-            $this->cookie->make(self::COOKIE_NAME, $token->token, $token::rememberCookieLifeTime())
+            $this->cookie->make(self::COOKIE_NAME, $token->token, $this->cookieLifetime($token))
         );
+    }
+
+    /**
+     * How long the browser should keep the remember cookie, or `null` to keep
+     * it only until the browser closes.
+     */
+    protected function cookieLifetime(RememberAccessToken $token): ?int
+    {
+        if ($this->sessionConfig->cookieExpiresOnClose()) {
+            return null;
+        }
+
+        return $token::lifetime();
     }
 
     public function forget(ResponseInterface $response): ResponseInterface

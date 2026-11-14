@@ -15,6 +15,7 @@ use Flarum\Mentions\ConfigureMentions;
 use Flarum\Post\PostRepository;
 use Flarum\Tags\TagRepository;
 use Flarum\User\User;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Collection;
 use s9e\TextFormatter\Parser;
 
@@ -24,7 +25,7 @@ class EagerLoadMentionedModels
         protected ExtensionManager $extensions,
         protected PostRepository $posts,
         protected GroupRepository $groups,
-        protected TagRepository $tags
+        protected Container $container
     ) {
     }
 
@@ -89,7 +90,8 @@ class EagerLoadMentionedModels
     {
         preg_match_all(ConfigureMentions::TAG_MENTION_WITH_SLUG_REGEX, $text, $matches);
 
-        return $this->tags
+        // flarum/tags is optional, so its repository is only resolved when tags are enabled.
+        return $this->container->make(TagRepository::class)
             ->queryVisibleTo($actor)
             ->whereIn('slug', $matches['slug'])
             ->get();

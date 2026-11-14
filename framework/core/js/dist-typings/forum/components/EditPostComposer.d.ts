@@ -9,6 +9,7 @@
  * - `post`
  */
 export default class EditPostComposer extends ComposerBody<import("./ComposerBody").IComposerBodyAttrs> {
+    static focusOnSelector: () => string;
     static initAttrs(attrs: any): void;
     constructor();
     /**
@@ -22,4 +23,4 @@ export default class EditPostComposer extends ComposerBody<import("./ComposerBod
      */
     data(): Record<string, unknown>;
 }
-import ComposerBody from "./ComposerBody";
+import ComposerBody from './ComposerBody';

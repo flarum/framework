@@ -35,4 +35,4 @@ export default class DiscussionComposer extends ComposerBody<import("./ComposerB
      */
     data(): Record<string, unknown>;
 }
-import ComposerBody from "./ComposerBody";
+import ComposerBody from './ComposerBody';

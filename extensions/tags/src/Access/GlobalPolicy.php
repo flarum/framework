@@ -46,8 +46,17 @@ class GlobalPolicy extends AbstractPolicy
         $minPrimary = (int) $this->settings->get('flarum-tags.min_primary_tags');
         $minSecondary = (int) $this->settings->get('flarum-tags.min_secondary_tags');
 
-        if ($ability === 'startDiscussion' && $minPrimary === 0 && $minSecondary === 0) {
-            return null;
+        // With no minimum, there is nothing for the tags the actor can see to
+        // add up to, so the global permission decides. "View forum" given in
+        // a restricted tag still opens the forum, as it does with a minimum.
+        if ($minPrimary === 0 && $minSecondary === 0) {
+            if ($ability === 'startDiscussion') {
+                return null;
+            }
+
+            $this->enoughTags["$actor->id:$ability"] ??= Tag::whereHasPermission($actor, $ability)->exists();
+
+            return $this->enoughTags["$actor->id:$ability"] ? $this->allow() : null;
         }
 
         $this->enoughTags["$actor->id:$ability"] ??= $this->enoughTagsWithPermission($actor, $ability, $minPrimary, $minSecondary);

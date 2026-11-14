@@ -49,6 +49,173 @@ class InternalLinksTest extends TestCase
     }
 
     #[Test]
+    public function several_links_share_one_title_lookup_and_keep_author_text()
+    {
+        $this->extension('flarum-markdown');
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => 'First discussion', 'slug' => 'first', 'created_at' => '2026-01-01 00:00:00'],
+            ['id' => 124, 'title' => 'Second discussion', 'slug' => 'second', 'created_at' => '2026-01-01 00:00:00'],
+        ]]);
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $xml = $formatter->parse('http://flarum.localhost/d/123 http://flarum.localhost/d/124 [my words](http://flarum.localhost/d/123)');
+        $db = $this->app()->getContainer()->make('db')->connection();
+        $db->enableQueryLog();
+        $db->flushQueryLog();
+        $html = $formatter->render($xml);
+        $table = $db->getQueryGrammar()->wrapTable('discussions');
+        $lookups = array_filter($db->getQueryLog(), fn (array $query) => str_contains($query['query'], 'from '.$table));
+
+        $this->assertCount(1, $lookups);
+        $this->assertStringContainsString('>First discussion</span>', $html);
+        $this->assertStringContainsString('>Second discussion</span>', $html);
+        $this->assertStringContainsString('>my words</a>', $html);
+    }
+
+    #[Test]
+    public function an_extension_can_set_a_title_after_stored_titles_are_removed()
+    {
+        $this->extend((new \Flarum\Extend\Formatter())->render(function ($renderer, $context, string $xml) {
+            return \s9e\TextFormatter\Utils::replaceAttributes($xml, 'URL', function (array $attributes) {
+                $attributes['discussiontitle'] = 'Extension title';
+
+                return $attributes;
+            });
+        }));
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $xml = '<r><URL url="http://flarum.localhost/d/123" discussiontitle="Stored title">http://flarum.localhost/d/123</URL></r>';
+        $html = $formatter->render($xml);
+
+        $this->assertStringContainsString('>Extension title</span>', $html);
+        $this->assertStringNotContainsString('Stored title', $html);
+    }
+
+    #[Test]
+    public function oversized_discussion_ids_are_not_sent_to_the_database()
+    {
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $xml = $formatter->parse('http://flarum.localhost/d/999999999999999999999999999999');
+        $db = $this->app()->getContainer()->make('db')->connection();
+        $db->enableQueryLog();
+        $db->flushQueryLog();
+        $html = $formatter->render($xml);
+
+        $this->assertStringContainsString('#999999999999999999999999999999', $html);
+        $this->assertSame([], $db->getQueryLog());
+    }
+
+    #[Test]
+    public function an_empty_discussion_title_keeps_the_numeric_label()
+    {
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => '', 'slug' => 'empty', 'created_at' => '2026-01-01 00:00:00'],
+        ]]);
+
+        $this->assertStringContainsString('#123', $this->render('http://flarum.localhost/d/123'));
+    }
+
+    #[Test]
+    public function a_request_without_an_actor_uses_guest_visibility()
+    {
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => 'Hidden title', 'slug' => 'hidden', 'created_at' => '2026-01-01 00:00:00', 'hidden_at' => '2026-01-01 00:00:00'],
+            ['id' => 124, 'title' => 'Public title', 'slug' => 'public', 'created_at' => '2026-01-01 00:00:00', 'hidden_at' => null],
+        ]]);
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $html = $formatter->render($formatter->parse('http://flarum.localhost/d/123 http://flarum.localhost/d/124'), null, new \Laminas\Diactoros\ServerRequest());
+
+        $this->assertStringContainsString('#123', $html);
+        $this->assertStringNotContainsString('Hidden title', $html);
+        $this->assertStringContainsString('>Public title</span>', $html);
+    }
+
+    #[Test]
+    public function an_author_cannot_supply_a_discussion_title_attribute()
+    {
+        $this->extension('flarum-bbcode');
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $xml = $formatter->parse('[url=http://flarum.localhost/d/123 discussiontitle="Forged title"]http://flarum.localhost/d/123[/url]');
+        $this->assertCount(0, simplexml_load_string($xml)->xpath('//URL/@discussiontitle'));
+        $html = $formatter->render($xml);
+
+        $this->assertStringNotContainsString('Forged title', $html);
+        $this->assertStringContainsString('#123', $html);
+    }
+
+    #[Test]
+    public function titles_follow_the_viewer_and_are_not_retained_for_requestless_renders()
+    {
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => 'Restricted title', 'slug' => 'restricted', 'created_at' => '2026-01-01 00:00:00', 'hidden_at' => '2026-01-01 00:00:00'],
+        ]]);
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $xml = $formatter->parse('http://flarum.localhost/d/123');
+        $request = \Flarum\Http\RequestUtil::withActor(new \Laminas\Diactoros\ServerRequest(), \Flarum\User\User::findOrFail(1));
+
+        $this->assertStringContainsString('>Restricted title</span>', $formatter->render($xml, null, $request));
+        $html = $formatter->render($xml);
+        $this->assertStringNotContainsString('Restricted title', $html);
+        $this->assertStringContainsString('#123', $html);
+    }
+
+    #[Test]
+    public function a_quoted_discussion_link_keeps_its_title_and_address()
+    {
+        $this->extension('flarum-markdown');
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => 'Quoted discussion', 'slug' => 'quoted', 'created_at' => '2026-01-01 00:00:00'],
+        ]]);
+
+        $html = $this->render('> http://flarum.localhost/d/123');
+
+        $this->assertStringContainsString('<blockquote>', $html);
+        $this->assertStringContainsString('>Quoted discussion</span>', $html);
+        $this->assertStringContainsString('href="http://flarum.localhost/d/123"', $html);
+    }
+
+    #[Test]
+    public function an_html_email_template_can_render_a_public_discussion_title()
+    {
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => 'Email discussion', 'slug' => 'email', 'created_at' => '2026-01-01 00:00:00'],
+        ]]);
+        $this->setting('favicon_path', 'favicon.png');
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+        $converted = $this->app()->getContainer()->make(\Flarum\Mail\MailFormatter::class)->convert('http://flarum.localhost/d/123/4');
+        $post = new \Flarum\Post\CommentPost;
+        $post->parsed_content = $formatter->parse('http://flarum.localhost/d/123/4');
+        $preview = $post->formatContent();
+        $this->assertSame($converted, $preview);
+        $view = $this->app()->getContainer()->make(\Illuminate\Contracts\View\Factory::class);
+        $view->share(['username' => 'Recipient']);
+        $html = $view->make('mail::html.notification', [
+            'preview' => $preview,
+            'user' => (object) ['email' => 'recipient@example.com'],
+            'unsubscribeLink' => 'http://flarum.localhost/unsubscribe',
+            'settingsLink' => 'http://flarum.localhost/settings',
+            'type' => 'test', 'forumTitle' => 'Forum', 'username' => 'Recipient',
+            'userEmail' => 'recipient@example.com', 'title' => 'Notification',
+        ])->render();
+
+        $this->assertStringContainsString('>Email discussion</span>', $html);
+        $this->assertStringContainsString('Email discussion / 4', strip_tags($preview));
+        $this->assertStringContainsString('width="16" height="16"', $preview);
+        $this->assertStringContainsString('href="http://flarum.localhost/d/123/4"', $html);
+    }
+
+    #[Test]
+    public function a_visible_discussion_link_shows_its_title_without_a_request()
+    {
+        $this->prepareDatabase(['discussions' => [
+            ['id' => 123, 'title' => 'A title & more', 'slug' => 'a-title', 'created_at' => '2026-01-01 00:00:00'],
+        ]]);
+
+        $html = $this->render('http://flarum.localhost/d/123-a-title/4');
+
+        $this->assertStringContainsString('>A title &amp; more</span>', $html);
+        $this->assertStringContainsString('>4<', $html);
+    }
+
+    #[Test]
     public function a_link_to_another_site_is_not_followed()
     {
         $html = $this->render('https://example.com/some-page');

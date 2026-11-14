@@ -29,11 +29,12 @@ class AnnouncementsServiceProvider extends AbstractServiceProvider
             return $commands;
         });
 
-        $container->extend('flarum.console.scheduled', function (array $scheduled) {
+        $container->extend('flarum.console.scheduled', function (array $scheduled) use ($config) {
             $scheduled[] = [
                 'command' => RefreshAnnouncementsCommand::class,
                 'args' => [],
-                'callback' => new WeeklySchedule(),
+                // Each forum refreshes at a time of its own, not all at once.
+                'callback' => new WeeklySchedule((string) $config->url()),
             ];
 
             return $scheduled;

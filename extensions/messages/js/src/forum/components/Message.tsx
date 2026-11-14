@@ -107,7 +107,7 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
     const items = new ItemList<Mithril.Children>();
     const message = this.attrs.message;
 
-    items.add('user', <PostUser post={message} />, 100);
+    items.add('user', <PostUser post={message} headingLevel={3} />, 100);
     items.add(
       'meta',
       <PostMeta

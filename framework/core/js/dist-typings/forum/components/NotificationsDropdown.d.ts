@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import HeaderDropdown, { IHeaderDropdownAttrs } from './HeaderDropdown';
 export interface INotificationsDropdown extends IHeaderDropdownAttrs {
 }

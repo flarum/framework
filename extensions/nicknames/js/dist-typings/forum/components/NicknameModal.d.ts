@@ -6,5 +6,5 @@ export default class NicknameModal extends FormModal<import("flarum/common/compo
     content(): JSX.Element;
     onsubmit(e: any): void;
 }
-import FormModal from "flarum/common/components/FormModal";
-import Stream from "flarum/common/utils/Stream";
+import FormModal from 'flarum/common/components/FormModal';
+import Stream from 'flarum/common/utils/Stream';

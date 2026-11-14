@@ -6,6 +6,10 @@ export default class SuspendedGambit extends BooleanGambit {
     return app.translator.trans('flarum-suspend.lib.gambits.users.suspended.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'suspended';
+  }
+
   filterKey(): string {
     return 'suspended';
   }

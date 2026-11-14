@@ -2,6 +2,9 @@ import app from 'flarum/admin/app';
 import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import ColorPreviewInput from 'flarum/common/components/ColorPreviewInput';
+import IconInput from 'flarum/common/components/IconInput';
+import IconImageInput from 'flarum/common/components/IconImageInput';
+import IconImageState from 'flarum/common/states/IconImageState';
 import Select from 'flarum/common/components/Select';
 import ItemList from 'flarum/common/utils/ItemList';
 import { slug } from 'flarum/common/utils/string';
@@ -30,6 +33,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
   description!: Stream<string>;
   color!: Stream<string>;
   icon!: Stream<string>;
+  iconImage!: IconImageState;
   isHidden!: Stream<boolean>;
   isPrimary!: Stream<boolean>;
   defaultSort!: Stream<string>;
@@ -43,10 +47,17 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     this.slug = Stream(this.tag.storedSlug() || '');
     this.description = Stream(this.tag.description() || '');
     this.color = Stream(this.tag.color() || '');
-    this.icon = Stream(this.tag.icon() || '');
+    this.icon = Stream(this.tag.attribute<string | null>('icon') || '');
+    this.iconImage = new IconImageState(this.tag);
     this.isHidden = Stream(this.tag.isHidden() || false);
     this.isPrimary = Stream(this.attrs.primary || false);
     this.defaultSort = Stream(this.tag.defaultSort() || '');
+  }
+
+  onremove(vnode: Mithril.VnodeDOM<EditTagModalAttrs, this>) {
+    super.onremove(vnode);
+
+    this.iconImage.dispose();
   }
 
   className() {
@@ -55,7 +66,11 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
 
   title() {
     return this.name()
-      ? tagLabel(app.store.createRecord('tags', { attributes: this.submitData() }))
+      ? tagLabel(
+          app.store.createRecord('tags', {
+            attributes: { ...this.submitData(), iconImageUrl: this.iconImage.url(), iconImageSrcset: this.iconImage.srcset() },
+          })
+        )
       : app.translator.trans('flarum-tags.admin.edit_tag.title');
   }
 
@@ -122,7 +137,17 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
         <div className="helpText">
           {app.translator.trans('flarum-tags.admin.edit_tag.icon_text', { a: <a href={app.refs.fontawesome} tabindex="-1" /> })}
         </div>
-        <input className="FormControl" placeholder="fas fa-bolt" bidi={this.icon} />
+        <IconInput placeholder="fas fa-bolt" bidi={this.icon} />
+      </div>,
+      10
+    );
+
+    items.add(
+      'iconImage',
+      <div className="Form-group">
+        <label>{app.translator.trans('flarum-tags.admin.edit_tag.icon_image_label')}</label>
+        <div className="helpText">{app.translator.trans('flarum-tags.admin.edit_tag.icon_image_text')}</div>
+        <IconImageInput state={this.iconImage} />
       </div>,
       10
     );
@@ -209,7 +234,9 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
       color: this.color(),
       icon: this.icon(),
       isHidden: this.isHidden(),
-      isPrimary: this.isPrimary(),
+      // Only a new tag is made primary or secondary here: an existing one
+      // changes kind by being dragged between the lists on the Tags page.
+      ...(this.tag.exists ? {} : { isPrimary: this.isPrimary() }),
       // An empty selection means "no preference", which the API stores as null.
       defaultSort: this.defaultSort() || null,
     };
@@ -222,10 +249,22 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
 
     // Errors aren't passed to the modal onerror handler here.
     // This is done for better error visibility on smaller screen heights.
-    this.tag.save(this.submitData()).then(
-      () => this.hide(),
-      () => (this.loading = false)
-    );
+    this.tag
+      .save(this.submitData())
+      .then((tag) => {
+        // A new tag's save resolves to another instance. Keep it, so that
+        // saving again after a failed upload doesn't create a second tag.
+        this.tag = tag;
+
+        return this.iconImage.save(tag);
+      })
+      .then(
+        () => this.hide(),
+        () => {
+          this.loading = false;
+          m.redraw();
+        }
+      );
   }
 
   delete() {

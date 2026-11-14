@@ -26,6 +26,8 @@ flarum-tags:
       description_label: Description
       hide_label: Hide from All Discussions
       icon_label: => core.ref.icon
+      icon_image_label: => core.ref.icon_image
+      icon_image_text: => core.ref.icon_image_text
       icon_text: => core.ref.icon_text
       name_label: => flarum-tags.ref.name
       name_placeholder: => flarum-tags.ref.name
@@ -45,9 +47,20 @@ flarum-tags:
       restrict_by_tag_heading: Restrict by Tag
       tag_discussions_label: Tag discussions
 
+    # These translations are used for the sections on the Tags page's Settings tab.
+    sections:
+      requirements:
+        label: Tag requirements
+        description: How many tags each new discussion needs. Members with the Bypass tag requirements permission can post with any number.
+
     # These translations are used in the Tags custom settings component.
     settings:
       button_text: => flarum-tags.ref.choose_tags
+
+    # These translations are used for the tabs on the Tags page.
+    tabs:
+      settings: => flarum-tags.admin.tags.settings_heading
+      tags: => flarum-tags.ref.tags
 
     # These translations are used in the Tag Settings modal dialog.
     tag_settings:
@@ -68,6 +81,10 @@ flarum-tags:
       secondary_heading: Secondary Tags
       settings_heading: Settings
 
+  # Translations in this namespace are returned by the API.
+  api:
+    cannot_change_is_primary_message: A tag is made primary or secondary by changing the tag order.
+
   # Translations in this namespace are used by the forum user interface.
   forum:
 
@@ -84,6 +101,12 @@ flarum-tags:
     # These translations are used by the composer when starting a discussion.
     composer_discussion:
       choose_tags_link: => flarum-tags.ref.choose_tags
+
+    # These translations are used by the Tag column in flarum/deck.
+    deck:
+      column_label: Tag
+      tag_label: Tag
+      tag_placeholder: Search for a tag
 
     # These translations are used by the discussion control buttons.
     discussion_controls:

@@ -8,7 +8,10 @@ export function getPermanentSuspensionDate(): Date {
 }
 
 export function isPermanentSuspensionDate(date: Date): boolean {
-  return dayjs.utc(date).isSame(dayjs.utc('2038-01-01'));
+  const until = dayjs.utc(date);
+
+  // Indefinite suspensions created before 2016 used year 9999.
+  return until.year() === 9999 || until.isSame(dayjs.utc('2038-01-01'));
 }
 
 export function localStorageKey(): string {

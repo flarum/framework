@@ -13,6 +13,7 @@ use Flarum\Api\Context;
 use Flarum\Api\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class PostResourceFields
 {
@@ -22,17 +23,37 @@ class PostResourceFields
     {
         return [
             Schema\Integer::make('mentionedByCount')
+                ->description('Number of posts you can see that reply to (mention) this post.')
                 ->countRelation('mentionedBy', function (Builder $query, Context $context) {
                     $query->whereVisibleTo($context->getActor());
                 }),
 
             Schema\Relationship\ToMany::make('mentionedBy')
+                ->description('Some of the posts that reply to (mention) this post; mentionedByCount has the total.')
                 ->type('posts')
                 ->includable()
                 // Serializing these posts checks whether the actor can see each
-                // one, and that check reads the post's discussion. Without the
-                // eager load every mentioning post fetches it separately.
-                ->scope(fn (BelongsToMany $query) => $query->with('discussion')->oldest('id')->limit(static::$maxMentionedBy)),
+                // one, and that check reads the post's discussion; rendering
+                // their content reads what they mention. Their author is
+                // included with them, but only after their fields are, so the
+                // checks among those that read it would each load it, and
+                // serializing the author reads their groups. Without the eager
+                // loads every mentioning post fetches these separately.
+                ->scope(fn (BelongsToMany $query, Context $context) => $query
+                    ->with([
+                        'discussion',
+                        'user' => fn (Relation $user) => $user->whereVisibleTo($context->getActor()),
+                        'user.groups',
+                        // Their content links to the posts they mention, so only
+                        // those the actor can see may be loaded.
+                        'mentionsPosts' => fn (Relation $mentioned) => $mentioned->whereVisibleTo($context->getActor()),
+                        'mentionsPosts.user',
+                        'mentionsPosts.discussion',
+                        'mentionsUsers',
+                        'mentionsGroups',
+                    ])
+                    ->oldest('id')
+                    ->limit(static::$maxMentionedBy)),
             Schema\Relationship\ToMany::make('mentionsPosts')
                 ->type('posts'),
             Schema\Relationship\ToMany::make('mentionsUsers')

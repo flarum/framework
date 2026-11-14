@@ -13,7 +13,7 @@ export interface GambitsAutocompleteDropdownAttrs extends AutocompleteDropdownAt
  * similar to the SearchModal component.
  */
 export default class GambitsAutocompleteDropdown<
-  CustomAttrs extends GambitsAutocompleteDropdownAttrs = GambitsAutocompleteDropdownAttrs
+  CustomAttrs extends GambitsAutocompleteDropdownAttrs = GambitsAutocompleteDropdownAttrs,
 > extends AutocompleteDropdown<CustomAttrs> {
   protected gambitsAutocomplete!: GambitsAutocomplete;
 

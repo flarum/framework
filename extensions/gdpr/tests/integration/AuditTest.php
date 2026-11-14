@@ -178,7 +178,7 @@ class AuditTest extends TestCase
         ]);
 
         $response = $this->send(
-            $this->request('GET', '/gdpr/erasure/confirm/confirm-tok', ['authenticatedAs' => 4])
+            $this->requestWithCsrfToken($this->request('POST', '/gdpr/erasure/confirm/confirm-tok', ['authenticatedAs' => 4]))
         );
 
         $this->assertEquals(302, $response->getStatusCode());

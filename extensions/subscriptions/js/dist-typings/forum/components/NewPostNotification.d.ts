@@ -3,4 +3,4 @@ export default class NewPostNotification extends Notification<import("flarum/for
     content(): any[];
     excerpt(): null;
 }
-import Notification from "flarum/forum/components/Notification";
+import Notification from 'flarum/forum/components/Notification';

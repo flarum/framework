@@ -13,7 +13,13 @@ use Illuminate\Mail\Events\MessageSending;
 
 class MutateEmail
 {
-    public function handle(MessageSending $event): bool
+    /**
+     * Returns nothing on purpose: the mailer dispatches this event with
+     * `until()`, which stops at the first non-null return, so returning a
+     * value here would keep every later listener (every extension's) from
+     * running, and stop one from cancelling the mail by returning false.
+     */
+    public function handle(MessageSending $event): void
     {
         $unsubscribeLink = $event->data['unsubscribeLink'] ?? null;
 
@@ -24,8 +30,6 @@ class MutateEmail
         }
 
         $this->restoreSafeValues($event);
-
-        return true;
     }
 
     /**

@@ -10,7 +10,11 @@
 namespace Flarum\Sticky\tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource\DiscussionResource;
+use Flarum\Api\Resource\EloquentBuffer;
 use Flarum\Discussion\Discussion;
+use Flarum\Extend;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -111,6 +115,25 @@ class StickyExcerptTest extends TestCase
             $postsQueries,
             "Expected exactly one batched posts query for sticky excerpts. Ran:\n".implode("\n", $postsQueries)
         );
+    }
+
+    #[Test]
+    public function first_posts_loaded_before_serialization_are_not_left_in_the_buffer(): void
+    {
+        // An extension that eager loads firstPost leaves the excerpt nothing
+        // to load. Only load() empties the buffer, so a sticky discussion
+        // queued anyway would stay for the rest of the process.
+        $this->extend(
+            (new Extend\ApiResource(DiscussionResource::class))
+                ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->eagerLoad(['firstPost']))
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertCount(0, EloquentBuffer::getBuffer(new Discussion(), 'firstPost') ?? []);
     }
 
     #[Test]

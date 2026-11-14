@@ -101,6 +101,39 @@ core:
         no_other_drivers: No search drivers are available yet. Install a search driver extension to be able to configure it.
         cjk_mode_label: Optimise search for CJK languages
         cjk_mode_help: Enable if your forum is primarily in Chinese, Japanese, or Korean. The database's word-based search cannot match parts of CJK text, so this switches to a substring match that can. It is slower on very large forums, where configuring a CJK-aware fulltext parser at the database level (such as MySQL/MariaDB's ngram parser) is a faster alternative.
+      sessions:
+        section_label: Sessions
+        lifetime_label: Session Length (minutes)
+        lifetime_help: How long a session may sit idle before it is discarded. Default is 120 minutes.
+        cookie_expires_on_close_label: End sessions when the browser closes
+        cookie_expires_on_close_help: >-
+          Sign people out when they close their browser, rather than keeping them
+          signed in until their session expires. Useful on shared computers.
+        duration_value_label: Length
+        duration_unit_label: Unit
+        never_expires: Never expires
+        enabled: Enabled
+        disabled: Disabled
+        units:
+          seconds: seconds
+          minutes: minutes
+          hours: hours
+          days: days
+          weeks: weeks
+          years: years
+        token_types:
+          session:
+            label: Sign-in Length
+            help: How long someone stays signed in after signing in without choosing to be remembered.
+          session_remember:
+            label: "\"Remember me\" Length"
+            help: >-
+              How long someone stays signed in when they choose to be remembered.
+              This also covers signing in through another service, which is always
+              remembered.
+        config_override:
+          label: Configured in config.php
+          help: Session lengths are set in config.php and cannot be changed here.
       title: Advanced
 
     # These translations are used in the Appearance page.
@@ -122,15 +155,34 @@ core:
       edit_css_button: Edit Custom CSS
       edit_footer_button: => core.ref.custom_footer_title
       edit_header_button: => core.ref.custom_header_title
+      email_logo_heading: Email logo
+      email_logo_text: "Upload an image to be displayed at the top of emails. It's saved in a format every email client can show. If you don't upload one, emails use a copy of your logo. If your emails show the forum title instead of your logo, upload your logo again."
       enter_hex_message: Please enter a hexadecimal color code.
+      app_icon_background_help: "Fills the transparent parts of the app icon on iPhones and iPads, the space around it on Android, and the splash screen."
+      app_icon_background_label: App Icon Background
+      app_icon_heading: App Icon
+      app_icon_preview_android_label: Android
+      app_icon_preview_apple_label: iPhone and iPad
+      app_icon_text: "Upload a square image, at least 512 pixels across, for phones to show when someone adds the forum to their home screen. If you don't upload a favicon, it's used as the favicon too."
       favicon_heading: Favicon
-      favicon_text: Upload an image to be displayed as the forum's shortcut icon.
+      favicon_text: "Upload an image to be displayed as the forum's icon in browser tabs and bookmarks. A square image at least 48 pixels across stays sharp; an .ico file works too."
       logo_heading: Logo
       logo_text: Upload an image to be displayed in place of the forum title.
       logo_dark_mode_heading: Dark mode logo
       logo_dark_mode_text: Upload an alternate logo to be displayed when dark mode is enabled.
+      open_as_app_help: "Phones open the forum from their home screen in a window of its own, without the browser's toolbar, and show a splash screen while it loads: the app icon on the splash screen background, the same on iPhones, iPads and Android. It needs an app icon."
+      open_as_app_label: Open as an app from the home screen
+      sections:
+        custom_code:
+          description: Add your own HTML and CSS to every page of the forum.
+          label: Custom Code
+        logos:
+          description: The images that identify your forum in the header, browser tabs, emails and home screens.
+          label: Logos & Icons
       show_theme_selector_help: Let users switch between the available color schemes from a control in the header.
       show_theme_selector_label: Show theme selector
+      splash_screen_background_help: "Fills the screen around the app icon, the same on iPhones, iPads and Android. Leave it empty to use the colour behind the app icon."
+      splash_screen_background_label: Splash Screen Background
       title: Appearance
       color_scheme_label: Color Scheme (default)
       color_schemes:
@@ -155,10 +207,33 @@ core:
       avatar_driver_text: Select a driver that should be used for users' avatars when no user-uploaded avatar is available. By default, no avatar will be displayed when a user has not uploaded one.
       forum_description_heading: Forum Description
       forum_description_text: Enter a short sentence or two that describes your forum. This will appear in the meta tag and show up in search engines.
+      forum_short_name_heading: Short Name
+      forum_short_name_text: "Up to 16 characters, used where the forum title doesn't fit: under the forum's icon on a phone's home screen, and when someone adds the forum as a search engine in their browser. Without one, the forum title is used, cut short at a whole word if it is too long."
       forum_title_heading: Forum Title
       home_page_heading: Home Page
       home_page_text: Choose the page which users will first see when they visit your forum.
+      sections:
+        extensions:
+          description: Keep track of extensions their authors no longer maintain.
+          label: Extensions
+        forum:
+          description: How your forum is named and described to visitors and search engines.
+          label: Forum
+        home:
+          description: What visitors see when they first arrive.
+          label: Home Page
+        language:
+          description: The language your forum is shown in.
+          label: Language
+        members:
+          description: How members are named and pictured across the forum.
+          label: Members
+        urls:
+          description: How links to discussions and profiles are written.
+          label: Links
       show_language_selector_label: Show language selector
+      show_post_source_label: Show how posts were made
+      show_post_source_text: Adds a small "via …" byline next to the author of posts made through the API or a connected app, and enables the source filter in post search.
       slug_driver_options:
         discussions:
           default: ID with slug
@@ -226,6 +301,19 @@ core:
       queue_paused_all_warning: All queue processing is paused. Jobs will accumulate until it is resumed.
       queue_paused_manage: Manage
       clear_cache_button: Clear Cache
+      clear_cache_modal:
+        title: Clearing the Cache
+        working: Rebuilding the compiled assets. This can take a while on larger forums.
+        cleared: "Cleared {name}"
+        cleared_files: "Cleared {name} ({count} files)"
+        rebuilt: "Rebuilt {bundle}"
+        unchanged: "{bundle} was already up to date"
+        rewritten: "Rewrote {bundle}"
+        empty: "{bundle} has nothing to compile"
+        chunks: "Rebuilt the split chunks for {frontend} ({count} changed)"
+        failed: "Could not rebuild {step}: {message}"
+        took: "{time}ms"
+        reload_button: Reload
       description: Your forum at a glance.
       info_button: System Info
       info_modal:
@@ -286,6 +374,12 @@ core:
         It is highly recommended to disable <code>debug</code> in your <code>config.php</code> file in production. See <link>Flarum docs</link> for more information.
       label: Debug mode active
 
+    # These translations are used in the dashboard warning that streamed responses are held back.
+    streaming-warning:
+      check_again_button: Check Again
+      detail: "This server holds back responses that should reach the browser as they're written, and sends them only once they're complete. Progress, such as clearing the cache, and replies that are written as they arrive, show only at the end. Turn off buffering for this site wherever it's on: PHP's output_buffering or zlib.output_compression, Apache's mod_deflate (or flushpackets=on for PHP-FPM behind mod_proxy_fcgi), nginx's fastcgi_buffering or proxy_buffering, or a proxy or CDN in front of the site."
+      label: Responses held back
+
     # These translations are used in the Edit Custom CSS modal dialog.
     edit_css:
       customize_text: "Customize your forum's appearance by adding your own Less/CSS code to be applied on top of Flarum's <a>default styles</a>."
@@ -305,6 +399,8 @@ core:
       delete_confirmation: "Are you sure you want to delete this group? The group members will NOT be deleted."
       hide_label: Hide on forum
       icon_label: => core.ref.icon
+      icon_image_label: => core.ref.icon_image
+      icon_image_text: => core.ref.icon_image_text
       icon_text: => core.ref.icon_text
       name_label: Name
       plural_placeholder: Plural (e.g. Mods)
@@ -321,6 +417,8 @@ core:
     # These translations are used in the email page of the admin interface.
     email:
       addresses_heading: Addresses
+      bounce_handling_heading: Bounce Handling
+      bounce_handling_text: "When your mail provider reports that an address permanently bounced or was marked as spam, Flarum can flag the affected user and optionally stop emailing them, protecting your sender reputation."
       description: "Configure the driver, settings and addresses your forum will use to send email."
       driver_heading: Choose a Driver
       driver_label: Driver
@@ -339,6 +437,8 @@ core:
       mail_mailgun_domain_label: Domain
       mail_mailgun_region_label: Region
       mail_mailgun_secret_label: Secret key
+      mail_mailgun_webhook_signing_key_label: Webhook signing key
+      mail_mailgun_webhook_signing_key_help: "Mailgun's HTTP webhook signing key, used to verify incoming bounce/complaint webhooks. Found in your Mailgun dashboard under Settings → Webhooks. Required for bounce handling."
       mail_password_label: => core.ref.password
       mail_port_label: Port
       mail_postmark_message_stream_label: Message stream
@@ -347,16 +447,48 @@ core:
       mail_smtp_verify_peer_help: "Verify the server's SSL certificate when using TLS or SSL encryption. Disable only if your mail server uses a self-signed certificate."
       mail_username_label: => core.ref.username
       mailgun_heading: Mailgun Settings
+      mailgun_description: "Send email via Mailgun's HTTP API. Enter the domain and secret key from your Mailgun account, and choose the region matching your domain."
       postmark_heading: Postmark Settings
       postmark_description: "Send email via Postmark's HTTP API. Optionally specify a message stream to use a non-default stream."
       not_sending_message: Flarum currently does not send emails. This can be due to the selected driver, or errors in its configuration.
+      sections:
+        sending:
+          description: Who your forum's emails come from, and how they are sent.
+          label: Sending
+      register_webhook_button: Register webhook with provider
+      register_webhook_success: "Webhook registered with your mail provider."
+      unregister_webhook_button: Remove webhook from provider
+      unregister_webhook_success: "Webhook removed from your mail provider."
       send_test_mail_button: Send
       send_test_mail_heading: Send Test Mail
       send_test_mail_success: "Test mail sent successfully!"
       send_test_mail_text: "This will send an email using the above configuration to your email, {email}."
       smtp_heading: SMTP Settings
       smtp_description: "Configure SMTP connection settings. Common configurations: Port 587 with TLS, or Port 465 with SSL."
+      suppress_bounced_label: Stop emailing bounced addresses
+      suppress_bounced_help: "When enabled, users whose address has bounced or filed a spam complaint will be skipped when sending notification emails, until they update and confirm their address."
       title: => core.ref.email
+      webhook_password_label: Webhook password
+      webhook_url_label: Webhook URL
+      webhook_url_help: "Add this URL as a webhook in your mail provider's dashboard, with bounce and spam complaint events turned on."
+      webhook_url_provision_help: "Register webhook with provider adds this URL to your mail provider for you."
+      webhook_username_label: Webhook username
+      webhook_username_help: "Choose a username without colons and a strong password. These are required by drivers that authenticate webhooks with a username and password, and for forums behind HTTP basic authentication. The credentials are included in the webhook URL. After changing them, register the webhook again or update its URL in your provider's dashboard."
+
+    # These translations are used in the email bounces dashboard widget.
+    email_bounces:
+      title: Email Bounces
+      about: "Bounce and spam-complaint events reported by your mail provider, counted over each period. Includes events for users who have since fixed their address."
+      refresh: Refresh
+      load_error: Could not load bounce statistics. Please try again later.
+      period_hour: Past hour
+      period_week: Past week
+      period_month: Past month
+      period_total: All time
+      affected: "{count, plural, =0 {No addresses currently affected} one {# address currently affected} other {# addresses currently affected}}"
+      recovered: "{count, plural, =0 {none recovered} one {# recovered} other {# recovered}}"
+      not_configured: "Bounce handling isn't fully set up, so no bounces will be received. <a>Check your email settings.</a>"
+      view_affected: View affected users
 
     # These translations are used on default extension pages.
     extension:
@@ -369,6 +501,7 @@ core:
       disabled: Disabled
       enable_to_see: Enable the extension to view and change settings.
       enabled: Enabled
+      general_tab: General
       info_links:
         discuss: Discuss
         documentation: Documentation
@@ -378,6 +511,7 @@ core:
         website: Website
       no_permissions: This extension has no permissions.
       no_settings: This extension has no settings.
+      no_settings_or_permissions: This extension has no settings or permissions.
       open_modal: Open Settings
       permissions_title: Permissions
       purge_button: Purge
@@ -394,6 +528,7 @@ core:
         title: Reset Settings
         title_extension: "Reset {extensionTitle} Settings"
       safe_mode_warning: Safe mode is currently enabled. Extensions are not booted and their settings are therefore inaccessible.
+      unsaved_changes: Unsaved changes
 
     # These translations are used in the secondary header.
     header:
@@ -506,12 +641,15 @@ core:
     # These translations are used in image upload buttons.
     upload_image:
       remove_button: => core.ref.remove
+      set_by_extension_text: "Set by {extension}, so it can't be changed here."
+      set_in_code_text: "Set in the forum's code, so it can't be changed here."
       upload_button: Choose an Image...
 
     # These translations are used for the users list on the admin dashboard.
     users:
       create_user_button: New User
       description: A paginated list of all users on your forum.
+      filters_label: "Filter by:"
 
       grid:
         columns:
@@ -522,6 +660,10 @@ core:
             title: => core.ref.email
             visibility_hide: Hide email address
             visibility_show: Show email address
+
+          email_bounced:
+            title: Email delivery
+            bounced: Delivery failed
 
           group_badges:
             no_badges: None
@@ -574,6 +716,7 @@ core:
       full_screen_tooltip: Full Screen
       minimize_tooltip: Minimize
       preview_tooltip: Preview
+      restore_tooltip: Restore
 
     # These translations are used by the composer when starting a discussion.
     composer_discussion:
@@ -653,6 +796,7 @@ core:
       cannot_start_discussion_button: Can't Start Discussion
       mark_all_as_read_confirmation: "Are you sure you want to mark all discussions as read?"
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read
+      mark_filtered_as_read_confirmation: "Are you sure you want to mark the discussions matching the current filters as read?"
       meta_title_text: => core.ref.all_discussions
       refresh_tooltip: => core.ref.refresh
       start_discussion_button: => core.ref.start_a_discussion
@@ -679,6 +823,7 @@ core:
       sign_up_text: "Don't have an account? <a>Sign Up</a>"
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
+      too_many_attempts_message: => core.ref.too_many_login_attempts_message
       username_or_email_placeholder: => core.ref.username_or_email_placeholder
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
@@ -698,6 +843,10 @@ core:
       edited_text: Edited
       edited_tooltip: "{username} edited {ago}"
       number_tooltip: "Post #{number}"
+      source_api_label: API
+      source_api_tooltip: Posted through the API
+      source_app_tooltip: Posted through a connected app
+      source_text: "via {source}"
 
     # These translations are used by the post control buttons.
     post_controls:
@@ -797,6 +946,7 @@ core:
       notify_by_email_heading: => core.ref.email
       notify_by_web_heading: Web
       notify_discussion_renamed_label: Someone renames a discussion I started
+      reset_notifications_button: Reset to defaults
       device_heading: Device
       haptic_feedback_help: Only available on supported mobile devices
       haptic_feedback_label: Enable haptic feedback
@@ -841,6 +991,10 @@ core:
       toggle_dropdown_accessible_label: Toggle user controls dropdown menu
 
     # These translations are used in the alert that is shown when a new user has not confirmed their email address.
+    user_email_bounced:
+      alert_message: Email to {email} has bounced or been reported as spam. Please check your email address or contact an administrator.
+      update_button: Update Email
+
     user_email_confirmation:
       alert_message: => core.ref.confirmation_email_sent
       resend_button: Resend Confirmation Email
@@ -877,6 +1031,7 @@ core:
 
     # These translations are used in the Edit User modal dialog (admin function).
     edit_user:
+      clear_email_bounce_label: Clear email bounce or spam complaint flag
       activate_button: Activate User
       email_heading: => core.ref.email
       email_label: => core.ref.email
@@ -929,13 +1084,53 @@ core:
         discussion:
           key: discussion
           hint: the ID of the discussion
+        source:
+          key: source
+          hint: api, or a comma-separated list of sources
       users:
+        bounced:
+          key: bounced
         email:
           key: email
           hint: example@machine.local
         group:
           key: group
           hint: singular or plural group names
+
+    # These translations are used in the group selector component.
+    group_selector:
+      placeholder: Choose a group
+
+    # These translations are used by the input that uploads an image in place of an icon.
+    icon_image_input:
+      remove_button: Remove
+      replace_button: Replace image
+      upload_button: Upload image
+
+    # These translations are used by the icon picker and the icon input that opens it.
+    icon_picker:
+      count_text: "{count, plural, one {# icon} other {# icons}}"
+      families:
+        brands: Brands
+        classic: Classic
+        duotone: Duotone
+        sharp: Sharp
+        sharp_duotone: Sharp Duotone
+      family_label: Icon family
+      forced_style_text: "Every icon on this forum is shown in the style set on the Advanced page, so the style you choose here won't show while that setting is on."
+      label: Choose an icon
+      more_text: "Showing {shown} of {count}. Search to narrow it down."
+      no_results_text: No icons match.
+      open_button: Choose an icon
+      remove_button: Remove icon
+      search_placeholder: Search icons, or type a class
+      unreadable_text: "Icons can't be listed here, because this forum's styles are served from another site that doesn't allow it. Type an icon's class instead, such as {example}."
+      use_button: "Use {value}"
+      weights:
+        light: Light
+        regular: Regular
+        solid: Solid
+        thin: Thin
 
     # These translations are used in the input component.
     input:
@@ -1095,6 +1290,14 @@ core:
       method_not_allowed: This page does not support that request method.
       not_authenticated: You do not have permission to access this page. Try again after logging in.
       not_found: The page you requested could not be found.
+      not_found_actions_label: Where to go next
+      not_found_description: We couldn’t find this page. It may have moved, or you may need to log in to view it. Here are a couple of ways back in.
+      not_found_discussions_link: Browse all discussions
+      not_found_home_link: Go to the homepage
+      not_found_search_button: Search
+      not_found_search_label: Search the forum
+      not_found_search_placeholder: Search discussions
+      not_found_title: Page not found
       not_found_return_link: "Return to {forum}"
       permission_denied: You do not have permission to access this page.
       unknown: An error occurred while trying to load this page.
@@ -1123,6 +1326,12 @@ core:
       remember_me_label: => core.ref.remember_me_label
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
+      too_many_attempts_message: => core.ref.too_many_login_attempts_message
+
+    # Translations in this namespace are displayed on the page shown when the forum can't be reached.
+    offline:
+      text: "{forum} can't be reached. Check your connection: the page will load again as soon as it's back."
+      title: No connection
 
     # Translations in this namespace are displayed by the Reset Password interface.
     reset_password:
@@ -1143,6 +1352,9 @@ core:
 
   # Translations in this namespace are used in messages output by the API.
   api:
+    app_icon_too_small_message: "The app icon must be at least {size} pixels wide or tall, so it stays sharp on home screens."
+    image_set_by_code_message: "This image is set in the forum's code, so it can't be changed here."
+    image_set_by_theme_message: "This image is set by the {extension} extension, so it can't be changed here."
     invalid_username_message: "The username may only contain letters, numbers, and dashes. With at least one letter."
     invalid_filter_type:
       must_be_numeric_message: "The {filter} filter must be numeric."
@@ -1251,6 +1463,8 @@ core:
     generic_confirmation_message: "Are you sure you want to proceed? This action cannot be undone."
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the prefix (e.g. <code>fas fa-flag</code> or <code>fa-solid fa-flag</code>)."
+    icon_image: Icon image
+    icon_image_text: "An image to show instead of the icon. The icon is still used where an image can't be shown. PNG, JPEG, GIF, WebP or BMP; animated images keep their first frame."
     invalid_login_message: Your login details were incorrect.
     light_hc_mode_label: Light High Contrast Mode
     light_mode_label: Light Mode
@@ -1287,6 +1501,7 @@ core:
     start_a_discussion: Start a Discussion
     title_az: Title (A–Z)
     title_za: Title (Z–A)
+    too_many_login_attempts_message: Too many failed attempts to log in. Please wait a few minutes, then try again.
     top: Top
     username: Username
     username_or_email_placeholder: Username or Email

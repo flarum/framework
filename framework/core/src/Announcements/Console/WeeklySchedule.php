@@ -9,12 +9,8 @@
 
 namespace Flarum\Announcements\Console;
 
-use Illuminate\Console\Scheduling\Event;
+use Flarum\Extension\Console\WeeklySchedule as BaseWeeklySchedule;
 
-class WeeklySchedule
+class WeeklySchedule extends BaseWeeklySchedule
 {
-    public function __invoke(Event $event): void
-    {
-        $event->weekly()->withoutOverlapping();
-    }
 }

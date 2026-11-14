@@ -75,7 +75,7 @@ export type AsyncNewComponent<Comp> = () => Promise<any & { default: NewComponen
 export type RouteItem<
   Attrs extends ComponentAttrs,
   Comp extends Component<Attrs & { routeName: string }>,
-  RouteArgs extends Record<string, unknown> = {}
+  RouteArgs extends Record<string, unknown> = {},
 > = {
   /**
    * The path for your route.
@@ -111,7 +111,7 @@ export type RouteItem<
 export interface RouteResolver<
   Attrs extends ComponentAttrs,
   Comp extends Component<Attrs & { routeName: string }>,
-  RouteArgs extends Record<string, unknown> = {}
+  RouteArgs extends Record<string, unknown> = {},
 > {
   /**
    * A method which selects which component to render based on
@@ -512,7 +512,15 @@ export default class Application {
     let scheme;
 
     if (this.allowUserColorScheme) {
-      scheme = userConfiguredPreference ?? (this.session.user ? undefined : sessionStorage.getItem('colorScheme') ?? undefined);
+      scheme = userConfiguredPreference;
+
+      if (!this.session.user) {
+        try {
+          scheme ??= sessionStorage.getItem('colorScheme') ?? undefined;
+        } catch (e) {
+          // The browser blocks storage.
+        }
+      }
     }
 
     scheme ||= forumDefault;
@@ -654,7 +662,11 @@ export default class Application {
       ...tmpOptions,
     };
 
-    extend(options, 'config', (_: undefined, xhr: XMLHttpRequest) => {
+    // Mithril types `config` as optional, which `extend()` doesn't accept as a
+    // method name since TypeScript 5. Narrow it for the type check only.
+    const configurable = options as typeof options & Required<Pick<typeof options, 'config'>>;
+
+    extend(configurable, 'config', (_: unknown, xhr: XMLHttpRequest) => {
       xhr.setRequestHeader('X-CSRF-Token', this.session.csrfToken!);
     });
 
@@ -664,7 +676,7 @@ export default class Application {
     if (options.method && !['GET', 'POST'].includes(options.method)) {
       const method = options.method;
 
-      extend(options, 'config', (_: undefined, xhr: XMLHttpRequest) => {
+      extend(configurable, 'config', (_: unknown, xhr: XMLHttpRequest) => {
         xhr.setRequestHeader('X-HTTP-Method-Override', method);
       });
 

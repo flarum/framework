@@ -7,4 +7,4 @@ export default class FlagsPage extends Page<import("flarum/common/components/Pag
     oninit(vnode: any): void;
     view(): JSX.Element;
 }
-import Page from "flarum/common/components/Page";
+import Page from 'flarum/common/components/Page';

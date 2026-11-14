@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component, { ComponentAttrs } from 'flarum/common/Component';
 import { ApiResponsePlural } from 'flarum/common/Store';
 import AuditLog from '../models/AuditLog';

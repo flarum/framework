@@ -20,10 +20,18 @@ class PopulateDialogWithActor implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $actor = RequestUtil::getActor($request);
+        // Put back afterwards: a request made from inside this one (realtime's
+        // per-recipient payloads, through the API client) must not leave its
+        // actor behind, or the outer response resolves read state for the
+        // wrong member.
+        $previous = Dialog::stateUser();
 
-        Dialog::setStateUser($actor);
+        Dialog::setStateUser(RequestUtil::getActor($request));
 
-        return $handler->handle($request);
+        try {
+            return $handler->handle($request);
+        } finally {
+            Dialog::setStateUser($previous);
+        }
     }
 }

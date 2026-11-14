@@ -5,4 +5,4 @@ export default class ToggleButton extends Component<import("flarum/common/Compon
     constructor();
     view(vnode: any): JSX.Element;
 }
-import Component from "flarum/common/Component";
+import Component from 'flarum/common/Component';

@@ -1,21 +1,20 @@
-import Component from '../../common/Component';
-import type { ComponentAttrs } from '../../common/Component';
-import Mithril from 'mithril';
-import classList from '../../common/utils/classList';
+import SettingsSection from './SettingsSection';
+import type { ISettingsSectionAttrs } from './SettingsSection';
 
-export interface IFormSectionAttrs extends ComponentAttrs {
-  label: any;
-}
+export interface IFormSectionAttrs extends ISettingsSectionAttrs {}
 
-export default class FormSection<CustomAttrs extends IFormSectionAttrs = IFormSectionAttrs> extends Component<CustomAttrs> {
-  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
-    const { className, ...attrs } = this.attrs;
+/**
+ * A titled group of settings.
+ *
+ * Renders as a `SettingsSection`, keeping the `FormSection` class for existing styles.
+ * New code can use `SettingsSection` directly.
+ */
+export default class FormSection<CustomAttrs extends IFormSectionAttrs = IFormSectionAttrs> extends SettingsSection<CustomAttrs> {
+  classNames(): string {
+    return 'SettingsSection FormSection';
+  }
 
-    return (
-      <div className={classList('FormSection', className)} {...attrs}>
-        <label>{this.attrs.label}</label>
-        <div className="FormSection-body">{vnode.children}</div>
-      </div>
-    );
+  bodyClassNames(): string {
+    return 'SettingsSection-body FormSection-body';
   }
 }

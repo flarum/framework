@@ -23,6 +23,8 @@ function minimizeComposerIfFullScreen(e) {
  * - `discussion`
  */
 export default class ReplyComposer extends ComposerBody {
+  static focusOnSelector = () => '.TextEditor-editor';
+
   static initAttrs(attrs) {
     super.initAttrs(attrs);
 

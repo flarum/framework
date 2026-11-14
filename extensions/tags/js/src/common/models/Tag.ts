@@ -1,5 +1,6 @@
 import computed from 'flarum/common/utils/computed';
 import Model from 'flarum/common/Model';
+import withIconImage from 'flarum/common/utils/withIconImage';
 import type Discussion from 'flarum/common/models/Discussion';
 
 export default class Tag extends Model {
@@ -19,8 +20,19 @@ export default class Tag extends Model {
   color() {
     return Model.attribute<string | null>('color').call(this);
   }
+  /**
+   * The Font Awesome icon classes, with the classes that show the uploaded
+   * image in their place when the tag has one. The stored classes alone are
+   * `attribute('icon')`.
+   */
   icon() {
-    return Model.attribute<string | null>('icon').call(this);
+    return withIconImage(Model.attribute<string | null>('icon').call(this), this.iconImageUrl(), this.iconImageSrcset());
+  }
+  iconImageUrl() {
+    return Model.attribute<string | null>('iconImageUrl').call(this);
+  }
+  iconImageSrcset() {
+    return Model.attribute<string | null>('iconImageSrcset').call(this);
   }
 
   position() {

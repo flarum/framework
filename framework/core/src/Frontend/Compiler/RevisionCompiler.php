@@ -74,13 +74,23 @@ class RevisionCompiler implements CompilerInterface
 
         $oldRevision = $this->versioner->getRevision($this->filename);
 
-        // The exists() arm repairs a deleted file whose revision is still
-        // recorded; it is guarded on $output so an empty bundle — which
-        // legitimately has no file — doesn't re-record EMPTY_REVISION (and
-        // rewrite the whole manifest) on every commit.
-        if ($force || $oldRevision !== $newRevision || ($output !== null && ! $this->assetsDir->exists($this->filename))) {
+        // The committed file is checked, not assumed from its revision. A
+        // missing file is the obvious case, but a file whose contents have
+        // drifted is the dangerous one: the revision and the file live in
+        // different stores — the manifest in the database, the asset on the
+        // assets disk — and nothing makes the two writes atomic, so a partial
+        // rebuild can leave a revision recorded for bytes that were never
+        // written. Trusting the revision alone then serves that file for good,
+        // because every later commit renders the correct output, hashes it to
+        // the revision already on record, and skips the write. Only an
+        // unrelated change large enough to move the hash would break the loop.
+        //
+        // Guarded on $output so an empty bundle — which legitimately has no
+        // file — doesn't re-record EMPTY_REVISION (and rewrite the whole
+        // manifest) on every commit.
+        if ($force || $oldRevision !== $newRevision || ($output !== null && ! $this->committedFileMatches($output))) {
             if ($output !== null) {
-                $this->assetsDir->put($this->filename, $output);
+                $this->assetsDir->put($this->outputFilename($newRevision), $output);
 
                 $this->writePendingSidecars();
             }
@@ -105,9 +115,33 @@ class RevisionCompiler implements CompilerInterface
         }
     }
 
+    protected function outputFilename(string $revision): string
+    {
+        return $this->filename;
+    }
+
     protected function hashOutput(string $content): string
     {
         return hash('crc32b', $content);
+    }
+
+    /**
+     * Whether the committed file is really the output its revision claims.
+     *
+     * Read back and compared rather than assumed: a recorded revision is only
+     * evidence about the file if the write that recorded it also landed.
+     */
+    protected function committedFileMatches(string $output): bool
+    {
+        $filename = $this->outputFilename($this->hashOutput($output));
+
+        if (! $this->assetsDir->exists($filename)) {
+            return false;
+        }
+
+        $committed = $this->assetsDir->get($filename);
+
+        return $committed !== null && $this->hashOutput($committed) === $this->hashOutput($output);
     }
 
     /**
@@ -146,11 +180,11 @@ class RevisionCompiler implements CompilerInterface
             return null;
         }
 
-        $url = $this->assetsDir->url($this->filename);
+        $url = $this->assetsDir->url($this->outputFilename($revision));
 
         // Append revision as GET param to signify that there's been
         // a change to the file and it should be refreshed.
-        return "$url?v=$revision";
+        return $this->outputFilename($revision) === $this->filename ? "$url?v=$revision" : $url;
     }
 
     /**
@@ -174,8 +208,8 @@ class RevisionCompiler implements CompilerInterface
 
     public function flush(): void
     {
-        if ($this->versioner->getRevision($this->filename) !== null) {
-            $this->delete($this->filename);
+        if (($revision = $this->versioner->getRevision($this->filename)) !== null) {
+            $this->delete($this->outputFilename($revision));
 
             $this->versioner->putRevision($this->filename, null);
         }

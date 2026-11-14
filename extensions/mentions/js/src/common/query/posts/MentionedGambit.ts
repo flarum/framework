@@ -6,6 +6,10 @@ export default class MentionedGambit extends KeyValueGambit {
     return app.translator.trans('flarum-mentions.lib.gambits.posts.mentioned.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'mentioned';
+  }
+
   hint(): string {
     return app.translator.trans('flarum-mentions.lib.gambits.posts.mentioned.hint', {}, true);
   }

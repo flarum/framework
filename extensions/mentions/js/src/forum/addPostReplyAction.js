@@ -13,7 +13,14 @@ export default function addPostReplyAction() {
 
     items.add(
       'reply',
-      <Button className="Button Button--link" onclick={() => reply(post)}>
+      <Button
+        className="Button Button--link"
+        onclick={() => {
+          // If the user is not logged in, the promise rejects, and a login modal shows up.
+          // Since that's already handled, we dont need to show an error message in the console.
+          reply(post).catch(() => {});
+        }}
+      >
         {app.translator.trans('flarum-mentions.forum.post.reply_link')}
       </Button>
     );

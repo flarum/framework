@@ -21,6 +21,8 @@ use Flarum\Group\Group;
 use Flarum\Http\AccessToken;
 use Flarum\Http\Filter\AccessTokenSearcher;
 use Flarum\Http\Filter as HttpFilter;
+use Flarum\Notification\Filter\NotificationSearcher;
+use Flarum\Notification\Notification;
 use Flarum\Post\Filter as PostFilter;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
@@ -57,6 +59,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                     Post::class => PostSearcher::class,
                     Group::class => GroupSearcher::class,
                     AccessToken::class => AccessTokenSearcher::class,
+                    Notification::class => NotificationSearcher::class,
                 ],
             ];
         });
@@ -78,12 +81,15 @@ class SearchServiceProvider extends AbstractServiceProvider
                 DiscussionSearcher::class => [
                     DiscussionFilter\AuthorFilter::class,
                     DiscussionFilter\CreatedFilter::class,
+                    DiscussionFilter\GroupFilter::class,
                     DiscussionFilter\HiddenFilter::class,
+                    DiscussionFilter\IdFilter::class,
                     DiscussionFilter\UnreadFilter::class,
                 ],
                 UserSearcher::class => [
                     UserFilter\EmailFilter::class,
                     UserFilter\GroupFilter::class,
+                    UserFilter\BouncedFilter::class,
                 ],
                 GroupSearcher::class => [
                     GroupFilter\HiddenFilter::class,
@@ -93,6 +99,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                     PostFilter\DiscussionFilter::class,
                     PostFilter\IdFilter::class,
                     PostFilter\NumberFilter::class,
+                    PostFilter\SourceFilter::class,
                     PostFilter\TypeFilter::class
                 ],
             ];

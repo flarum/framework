@@ -85,7 +85,6 @@ class ServeCommand extends Command
 
         $this->info("Starting websocket server, which listens on $listensOn.");
         $this->info("App key expected is $settings->appKey");
-        $this->info("App secret expected is $settings->appSecret");
         $this->info("Max connections $settings->maxConnections");
 
         $io->run();

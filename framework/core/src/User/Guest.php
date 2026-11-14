@@ -37,4 +37,12 @@ class Guest extends User
     {
         return true;
     }
+
+    /**
+     * A guest's only group is the guest group.
+     */
+    public function isAdmin(): bool
+    {
+        return false;
+    }
 }

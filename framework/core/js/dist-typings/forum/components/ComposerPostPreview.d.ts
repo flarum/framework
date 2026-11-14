@@ -18,4 +18,4 @@ export default class ComposerPostPreview extends Component<import("../../common/
     updateInterval: NodeJS.Timeout | undefined;
     onremove(vnode: any): void;
 }
-import Component from "../../common/Component";
+import Component from '../../common/Component';

@@ -24,7 +24,7 @@ export default class EventPost extends Post<import("./Post").IPostAttrs> {
      * @param {Record<string, unknown>} data
      * @return {import('mithril').Children} The description to render in the DOM
      */
-    description(data: Record<string, unknown>): import('mithril').Children;
+    description(data: Record<string, unknown>): import("mithril").Children;
     /**
      * Get the translation key for the description of the event.
      *
@@ -38,4 +38,4 @@ export default class EventPost extends Post<import("./Post").IPostAttrs> {
      */
     descriptionData(): Record<string, unknown>;
 }
-import Post from "./Post";
+import Post from './Post';

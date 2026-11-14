@@ -63,6 +63,14 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
    */
   protected revalidating: Promise<void> | null = null;
 
+  /**
+   * Incremented whenever the list is replaced (`goto()`, and so `refresh()`).
+   * Requests remember the value they started under and discard their response
+   * if it has changed, so a slow response for a previous filter cannot
+   * overwrite the results of the current one.
+   */
+  protected generation: number = 0;
+
   protected constructor(params: P = {} as P, page: number = 1, pageSize: number | null = null) {
     this.params = params;
 
@@ -84,10 +92,17 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     this.loadingPrev = true;
 
     const page: number = this.getPrevPageNumber();
+    const generation = this.generation;
 
-    return this.loadPage(page)
-      .then(this.parseResults.bind(this, page))
-      .finally(() => (this.loadingPrev = false));
+    return this.errorShownByRequest(
+      this.loadPage(page)
+        .then((results) => {
+          if (generation === this.generation) this.parseResults(page, results);
+        })
+        .finally(() => {
+          if (generation === this.generation) this.loadingPrev = false;
+        })
+    );
   }
 
   public loadNext(): Promise<void> {
@@ -96,10 +111,30 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     this.loadingNext = true;
 
     const page: number = this.getNextPageNumber();
+    const generation = this.generation;
 
-    return this.loadPage(page)
-      .then(this.parseResults.bind(this, page))
-      .finally(() => (this.loadingNext = false));
+    return this.errorShownByRequest(
+      this.loadPage(page)
+        .then((results) => {
+          if (generation === this.generation) this.parseResults(page, results);
+        })
+        .finally(() => {
+          if (generation === this.generation) this.loadingNext = false;
+        })
+    );
+  }
+
+  /**
+   * A load that fails has already shown its error: the request did, while
+   * rejecting (see `Application.request()`). Callers that wait for the result
+   * still see the rejection; this only stops one that doesn't, such as a "Load
+   * more" button or a page's first load, from reporting it a second time as an
+   * unhandled rejection.
+   */
+  protected errorShownByRequest<T>(promise: Promise<T>): Promise<T> {
+    promise.catch(() => {});
+
+    return promise;
   }
 
   protected parseResults(pg: number, results: ApiResponsePlural<T>): void {
@@ -122,6 +157,18 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     this.location = { page: pageNum };
 
     m.redraw();
+  }
+
+  /**
+   * Whether the list's search query (`params.q`) holds any gambits, which
+   * only the frontend can turn into API filters.
+   */
+  protected queryHasGambits(): boolean {
+    let found = false;
+
+    if (this.params.q) app.search.gambits.match(this.type, this.params.q, () => (found = true));
+
+    return found;
   }
 
   /**
@@ -255,8 +302,12 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     // the loser would win by arriving last.
     if (this.revalidating) return this.revalidating;
 
+    const generation = this.generation;
+
     this.revalidating = this.loadPage(1)
       .then((results) => {
+        if (generation !== this.generation) return;
+
         this.pages = [];
         this.parseResults(1, results);
       })
@@ -275,19 +326,31 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
   public goto(page: number): Promise<void> {
     this.location = { page };
 
+    const generation = ++this.generation;
+
+    // Pending prev/next requests are now superseded and will not clear these themselves.
+    this.loadingPrev = false;
+    this.loadingNext = false;
+
     if (!this.initialLoading) {
       this.loadingPage = true;
     }
 
-    return this.loadPage(page)
-      .then((results) => {
-        this.pages = [];
-        this.parseResults(this.location.page, results);
-      })
-      .finally(() => {
-        this.initialLoading = false;
-        this.loadingPage = false;
-      });
+    return this.errorShownByRequest(
+      this.loadPage(page)
+        .then((results) => {
+          if (generation !== this.generation) return;
+
+          this.pages = [];
+          this.parseResults(this.location.page, results);
+        })
+        .finally(() => {
+          if (generation !== this.generation) return;
+
+          this.initialLoading = false;
+          this.loadingPage = false;
+        })
+    );
   }
 
   public getPages(): Page<T>[] {

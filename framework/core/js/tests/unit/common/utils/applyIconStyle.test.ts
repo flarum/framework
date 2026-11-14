@@ -28,6 +28,16 @@ describe('applyIconStyle', () => {
     ['fass fa-user', 'fa-duotone fa-light fa-user'],
     ['fa-sharp fa-solid fa-user', 'fa-duotone fa-light fa-user'],
     ['fa-sharp-duotone fa-solid fa-user', 'fa-duotone fa-light fa-user'],
+    // Duotone and sharp duotone at every weight, as the icon picker writes them
+    ['fadr fa-user', 'fa-duotone fa-light fa-user'],
+    ['fadl fa-user', 'fa-duotone fa-light fa-user'],
+    ['fadt fa-user', 'fa-duotone fa-light fa-user'],
+    ['fasds fa-user', 'fa-duotone fa-light fa-user'],
+    ['fasdr fa-user', 'fa-duotone fa-light fa-user'],
+    ['fasdl fa-user', 'fa-duotone fa-light fa-user'],
+    ['fasdt fa-user', 'fa-duotone fa-light fa-user'],
+    // The classic family, written out
+    ['fa-classic fa-solid fa-user', 'fa-duotone fa-light fa-user'],
     // Style position does not matter
     ['fa-user fa-solid', 'fa-duotone fa-light fa-user'],
   ])('rewrites the style: %s', (input, expected) => {

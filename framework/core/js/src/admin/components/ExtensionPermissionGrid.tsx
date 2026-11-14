@@ -9,7 +9,7 @@ export interface IExtensionPermissionGridAttrs {
 }
 
 export default class ExtensionPermissionGrid<
-  CustomAttrs extends IExtensionPermissionGridAttrs = IExtensionPermissionGridAttrs
+  CustomAttrs extends IExtensionPermissionGridAttrs = IExtensionPermissionGridAttrs,
 > extends PermissionGrid<CustomAttrs> {
   protected extensionId!: string;
 

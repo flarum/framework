@@ -3,4 +3,4 @@ export default class PostMentionedNotification extends Notification<import("flar
     content(): any[];
     excerpt(): string;
 }
-import Notification from "flarum/forum/components/Notification";
+import Notification from 'flarum/forum/components/Notification';

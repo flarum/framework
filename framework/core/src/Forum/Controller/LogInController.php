@@ -62,6 +62,7 @@ class LogInController implements RequestHandlerInterface
         }
 
         $response = $this->apiClient->withParentRequest($request)->withBody($params)->post('/token');
+        $rememberToken = null;
 
         if ($response->getStatusCode() === 200) {
             $data = json_decode($response->getBody(), false);
@@ -74,7 +75,7 @@ class LogInController implements RequestHandlerInterface
             $this->events->dispatch(new LoggedIn($this->users->findOrFail($data->userId), $token));
 
             if ($token instanceof RememberAccessToken) {
-                $response = $this->rememberer->remember($response, $token);
+                $rememberToken = $token;
             }
         }
 
@@ -82,9 +83,18 @@ class LogInController implements RequestHandlerInterface
             if ($response->getStatusCode() === 401) {
                 $errors = new MessageBag(['identification' => $this->translator->trans('core.views.log_in.invalid_login_message')]);
                 $request->getAttribute('session')->put('errors', $errors);
+            } elseif ($response->getStatusCode() === 429) {
+                $errors = new MessageBag(['identification' => $this->translator->trans('core.views.log_in.too_many_attempts_message')]);
+                $request->getAttribute('session')->put('errors', $errors);
             }
 
-            return new RedirectResponse($this->url->to('forum')->route('maintenance.login'));
+            $response = new RedirectResponse($this->url->to('forum')->route('maintenance.login'));
+        }
+
+        // Set the cookie on the response actually returned, which for the
+        // log in page's form is the redirect rather than the API response.
+        if ($rememberToken) {
+            $response = $this->rememberer->remember($response, $rememberToken);
         }
 
         return $response;

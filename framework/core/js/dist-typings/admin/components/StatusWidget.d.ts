@@ -6,5 +6,5 @@ export default class StatusWidget extends DashboardWidget<import("./DashboardWid
     handleClearCache(e: any): void;
     handleShowInfo(): void;
 }
-import DashboardWidget from "./DashboardWidget";
-import ItemList from "../../common/utils/ItemList";
+import DashboardWidget from './DashboardWidget';
+import ItemList from '../../common/utils/ItemList';

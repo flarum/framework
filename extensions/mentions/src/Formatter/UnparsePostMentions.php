@@ -9,13 +9,14 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Database\AbstractModel;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Post\Post;
 use s9e\TextFormatter\Utils;
 
 class UnparsePostMentions
 {
+    use LooksUpMentionedModels;
+
     public function __construct(
         private readonly TranslatorInterface $translator
     ) {
@@ -37,12 +38,11 @@ class UnparsePostMentions
      */
     protected function updatePostMentionTags(mixed $context, string $xml): string
     {
-        return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($context) {
+        $posts = $this->mentionedModels($context, 'mentionsPosts', $xml, 'POSTMENTION', Post::query()->with('user'));
+
+        return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($posts) {
             /** @var Post|null $post */
-            $post = match (true) {
-                $context instanceof AbstractModel && $context->relationLoaded('mentionsPosts') => $context->mentionsPosts->find($attributes['id']), // @phpstan-ignore-line
-                default => Post::query()->find($attributes['id']),
-            };
+            $post = $posts->find($attributes['id']);
 
             if ($post && $post->user) {
                 $attributes['displayname'] = $post->user->display_name;
@@ -55,6 +55,8 @@ class UnparsePostMentions
             if ($post && ! $post->user) {
                 $attributes['displayname'] = $this->translator->trans('core.lib.username.deleted_text');
             }
+
+            $attributes['displayname'] = preg_replace('/[\r\n\x{2028}\x{2029}]+/u', ' ', $attributes['displayname']);
 
             if (str_contains($attributes['displayname'], '"#')) {
                 $attributes['displayname'] = preg_replace('/"#[a-z]{0,3}[0-9]+/', '_', $attributes['displayname']);

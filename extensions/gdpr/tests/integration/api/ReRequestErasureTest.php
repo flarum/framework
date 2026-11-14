@@ -10,6 +10,7 @@
 namespace Flarum\Gdpr\tests\integration\api;
 
 use Flarum\Gdpr\Models\ErasureRequest;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\Notification;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -121,15 +122,15 @@ class ReRequestErasureTest extends TestCase
 
     /**
      * Count the confirmation emails among the captured messages, matched by
-     * their subject so cancellation emails are not counted. The test locale
-     * leaves translation keys untranslated, so the subject is the raw key.
+     * their translated subject so cancellation emails are not counted.
      */
     private function confirmationEmailCount(\ArrayObject $captured): int
     {
+        $subject = $this->app()->getContainer()->make(TranslatorInterface::class)->trans('flarum-gdpr.email.confirm_erasure.subject');
         $count = 0;
 
         foreach ($captured as $message) {
-            if ($message instanceof Email && $message->getSubject() === 'flarum-gdpr.email.confirm_erasure.subject') {
+            if ($message instanceof Email && $message->getSubject() === $subject) {
                 $count++;
             }
         }

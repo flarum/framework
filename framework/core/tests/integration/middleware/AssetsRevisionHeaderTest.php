@@ -9,9 +9,12 @@
 
 namespace Flarum\Tests\integration\middleware;
 
+use Flarum\Api\Client;
 use Flarum\Api\Middleware\AddAssetsRevisionHeader;
 use Flarum\Frontend\Compiler\VersionerInterface;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\Guest;
 use PHPUnit\Framework\Attributes\Test;
 
 class AssetsRevisionHeaderTest extends TestCase
@@ -43,5 +46,22 @@ class AssetsRevisionHeaderTest extends TestCase
             ->getHeader(AddAssetsRevisionHeader::HEADER_NAME)[0];
 
         $this->assertNotEquals($first, $second);
+    }
+
+    #[Test]
+    public function in_process_api_requests_leave_dirty_assets_for_a_real_request_to_rebuild()
+    {
+        // Queue jobs render through the in-process client (realtime payloads,
+        // notifications). Rebuilding the forum's JS there runs a worker out of
+        // memory, from sources the worker booted with, and no browser reads the
+        // header from those responses anyway.
+        $settings = $this->app()->getContainer()->make(SettingsRepositoryInterface::class);
+        $settings->set('assets_dirty.forum', 1);
+
+        $response = $this->app()->getContainer()->make(Client::class)->withActor(new Guest())->get('/');
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(1, $settings->get('assets_dirty.forum'));
+        $this->assertFalse($response->hasHeader(AddAssetsRevisionHeader::HEADER_NAME));
     }
 }

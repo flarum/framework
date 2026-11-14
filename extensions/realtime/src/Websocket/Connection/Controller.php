@@ -24,13 +24,28 @@ use Psr\Http\Message\ServerRequestInterface;
 use Pusher\Pusher;
 use Ratchet\ConnectionInterface;
 use Ratchet\Http\HttpServerInterface;
+use WeakMap;
 
 abstract class Controller implements HttpServerInterface
 {
     use Settings;
+
+    /**
+     * The request being handled, loaded from {@see $pending} just before it is.
+     */
     protected RequestInterface $request;
     protected int $contentLength = 0;
     protected string $buffer = '';
+
+    /**
+     * What each connection has sent so far, until its body is complete. One
+     * controller serves every connection to its route, and a body can arrive
+     * after its headers, so a request that started in the meantime must not
+     * take the place of one that's still arriving.
+     *
+     * @var WeakMap<ConnectionInterface, array{request: RequestInterface, buffer: string, contentLength: int}>|null
+     */
+    private ?WeakMap $pending = null;
 
     public function __construct(protected Manager $manager, protected Pusher $pusher)
     {
@@ -38,40 +53,77 @@ abstract class Controller implements HttpServerInterface
 
     public function onOpen(ConnectionInterface $conn, ?RequestInterface $request = null): void
     {
-        $this->request = $request;
-        $this->buffer = $request->getBody()->getContents();
-        $this->contentLength = $this->contentLength($request->getHeaders());
-
-        if (! $this->verifyContentLength()) {
+        // The HTTP server always passes the request; without one there's nothing to handle.
+        if ($request === null) {
             return;
         }
 
-        $this->handleRequest($conn);
+        $this->pending()[$conn] = [
+            'request' => $request,
+            'buffer' => $request->getBody()->getContents(),
+            'contentLength' => $this->contentLength($request->getHeaders()),
+        ];
+
+        $this->handleIfComplete($conn);
     }
 
     public function onMessage(ConnectionInterface $from, $msg): void
     {
-        $this->buffer .= $msg;
-
-        if (! $this->verifyContentLength()) {
+        if (! isset($this->pending()[$from])) {
             return;
         }
 
-        $this->handleRequest($from);
+        $state = $this->pending()[$from];
+        $state['buffer'] .= $msg;
+        $this->pending()[$from] = $state;
+
+        $this->handleIfComplete($from);
     }
 
     public function onClose(ConnectionInterface $connection): void
     {
-        //
+        unset($this->pending()[$connection]);
     }
 
     public function onError(ConnectionInterface $connection, Exception $exception): void
     {
+        unset($this->pending()[$connection]);
+
         $response = new JsonResponse([
             'error' => $exception->getMessage()
         ], 400);
 
         tap($connection)->send(Message::toString($response))->close();
+    }
+
+    /**
+     * Handle the connection's request once all of its body has arrived. It's
+     * loaded onto the controller only now, and handled straight away, so
+     * nothing else runs while it's there.
+     */
+    private function handleIfComplete(ConnectionInterface $conn): void
+    {
+        [
+            'request' => $this->request,
+            'buffer' => $this->buffer,
+            'contentLength' => $this->contentLength,
+        ] = $this->pending()[$conn];
+
+        if (! $this->verifyContentLength()) {
+            return;
+        }
+
+        unset($this->pending()[$conn]);
+
+        $this->handleRequest($conn);
+    }
+
+    /**
+     * @return WeakMap<ConnectionInterface, array{request: RequestInterface, buffer: string, contentLength: int}>
+     */
+    private function pending(): WeakMap
+    {
+        return $this->pending ??= new WeakMap();
     }
 
     protected function handleRequest(ConnectionInterface $conn): void

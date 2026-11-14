@@ -69,4 +69,4 @@ declare namespace PostControls {
      */
     function deleteAction(context: any): Promise<void>;
 }
-import ItemList from "../../common/utils/ItemList";
+import ItemList from '../../common/utils/ItemList';

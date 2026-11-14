@@ -26,11 +26,11 @@ class PublishAssetsTest extends TestCase
 
         $this->filesystem = new Filesystem;
 
-        // Build a minimal fake vendor tree mirroring fortawesome/font-awesome
+        // Build a minimal fake vendor tree mirroring flarum/font-awesome
         $this->vendorPath = sys_get_temp_dir().'/flarum_publish_assets_test_vendor_'.uniqid();
         $this->assetPath = sys_get_temp_dir().'/flarum_publish_assets_test_assets_'.uniqid();
 
-        $webfontsDir = $this->vendorPath.'/fortawesome/font-awesome/webfonts';
+        $webfontsDir = $this->vendorPath.'/flarum/font-awesome/webfonts';
         $this->filesystem->makeDirectory($webfontsDir, 0755, true);
 
         // FA7 only ships .woff2
@@ -48,7 +48,7 @@ class PublishAssetsTest extends TestCase
     }
 
     #[Test]
-    public function it_reads_webfonts_from_fortawesome_font_awesome()
+    public function it_reads_webfonts_from_flarum_font_awesome()
     {
         $step = new PublishAssets($this->vendorPath, $this->assetPath);
         $step->run();

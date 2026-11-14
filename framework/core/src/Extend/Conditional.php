@@ -61,6 +61,44 @@ class Conditional implements ExtenderInterface
     }
 
     /**
+     * Apply extenders only if all of the given extensions are enabled.
+     *
+     * @param string[] $extensionIds The IDs of the extensions.
+     * @param callable|string $extenders A callable returning an array of extenders, or an invokable class string.
+     */
+    public function whenExtensionsEnabled(array $extensionIds, callable|string $extenders): self
+    {
+        return $this->when(function (ExtensionManager $extensions) use ($extensionIds) {
+            foreach ($extensionIds as $extensionId) {
+                if (! $extensions->isEnabled($extensionId)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }, $extenders);
+    }
+
+    /**
+     * Apply extenders only if all of the given extensions are disabled.
+     *
+     * @param string[] $extensionIds The IDs of the extensions.
+     * @param callable|string $extenders A callable returning an array of extenders, or an invokable class string.
+     */
+    public function whenExtensionsDisabled(array $extensionIds, callable|string $extenders): self
+    {
+        return $this->when(function (ExtensionManager $extensions) use ($extensionIds) {
+            foreach ($extensionIds as $extensionId) {
+                if ($extensions->isEnabled($extensionId)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }, $extenders);
+    }
+
+    /**
      * Apply extenders only if a setting matches an expected value.
      *
      * @param string $key The settings key.

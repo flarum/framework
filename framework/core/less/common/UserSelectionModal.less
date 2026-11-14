@@ -29,3 +29,25 @@
     max-height: 50vh;
   }
 }
+
+// Someone who can't be picked: a dimmed row that doesn't react to the pointer,
+// with the reason at full contrast so it stays readable. Has to out-specify
+// the dropdown's own `> li > button` rules.
+.UserSelectionModal-list > .UserSelectionModal-listItem--unavailable > button {
+  cursor: default;
+
+  &:hover {
+    background: none;
+  }
+
+  .Avatar,
+  .UserSearchResult-name {
+    opacity: 0.5;
+  }
+}
+
+.UserSelectionModal-listItem-reason {
+  color: var(--muted-color);
+  font-size: 12px;
+  white-space: nowrap;
+}

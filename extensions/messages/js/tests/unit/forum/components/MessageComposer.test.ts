@@ -1,0 +1,234 @@
+import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
+import app from 'flarum/forum/app';
+import m from 'mithril';
+import mq from 'mithril-query';
+import { jest } from '@jest/globals';
+import Stream from 'flarum/common/utils/Stream';
+import type User from 'flarum/common/models/User';
+import type { IUserSelectionModalAttrs } from 'flarum/common/components/UserSelectionModal';
+import commonExtenders from '../../../../src/common/extend';
+import MessageComposer from '../../../../src/forum/components/MessageComposer';
+
+beforeAll(() => {
+  bootstrapForum();
+  app.boot();
+
+  commonExtenders.forEach((extender) => extender.extend(app, { name: 'flarum-messages', exports: {} } as any));
+
+  app.store.pushPayload({
+    data: [
+      { type: 'users', id: '2', attributes: { username: 'carol', canSendAnyMessage: false } },
+      { type: 'users', id: '3', attributes: { username: 'dave', canSendAnyMessage: true } },
+      // Someone the server said nothing about either way.
+      { type: 'users', id: '4', attributes: { username: 'erin' } },
+      // An account nobody can write to, such as one anonymised by flarum/gdpr.
+      { type: 'users', id: '5', attributes: { username: 'Anonymous1', canMessage: false, canSendAnyMessage: false } },
+    ],
+  } as any);
+});
+
+beforeEach(() => app.session.user!.pushAttributes({ canSendAnyMessage: true, canMessageUsersWithoutPermission: false }));
+afterEach(() => jest.restoreAllMocks());
+
+const user = (id: string) => app.store.getById<User>('users', id)!;
+
+/**
+ * Open the recipient picker from a new message's composer, and return what the
+ * composer handed it. Only the header is rendered: the editor below it builds
+ * itself on a timer jsdom can't host.
+ */
+function picker(): IUserSelectionModalAttrs {
+  const show = jest.spyOn(app.modal, 'show').mockImplementation(() => {});
+
+  const composer = new (MessageComposer as any)();
+  composer.attrs = { composer: app.composer };
+  composer.recipients = Stream([]);
+
+  mq(m('ul', composer.headerItems().toArray())).click('.MessageComposer-recipients .Button');
+
+  return show.mock.calls[0][1] as IUserSelectionModalAttrs;
+}
+
+function excludes(attrs: IUserSelectionModalAttrs, user: User): boolean {
+  const excluded = attrs.excluded;
+
+  return typeof excluded === 'function' ? excluded(user) : !!excluded?.map(String).includes(user.id()!);
+}
+
+describe('who is listed to message', () => {
+  it('leaves out the sender', () => {
+    expect(excludes(picker(), app.session.user!)).toBe(true);
+  });
+
+  it("leaves out anyone who can't be messaged at all", () => {
+    expect(excludes(picker(), user('5'))).toBe(true);
+  });
+
+  it('leaves them out for those allowed to message users without messaging permission too', () => {
+    app.session.user!.pushAttributes({ canMessageUsersWithoutPermission: true });
+
+    expect(excludes(picker(), user('5'))).toBe(true);
+  });
+
+  it('lists everyone else', () => {
+    expect(excludes(picker(), user('2'))).toBe(false);
+    expect(excludes(picker(), user('3'))).toBe(false);
+    expect(excludes(picker(), user('4'))).toBe(false);
+  });
+});
+
+describe('picking who to message', () => {
+  it("marks members who can't reply as unavailable, with the reason", () => {
+    expect(picker().unavailable?.(user('2'))).toBeTruthy();
+  });
+
+  it('leaves members who can reply available', () => {
+    expect(picker().unavailable?.(user('3'))).toBeFalsy();
+  });
+
+  // The server has the final say when the message is sent.
+  it("leaves members it wasn't told about available", () => {
+    expect(picker().unavailable?.(user('4'))).toBeFalsy();
+  });
+
+  it('leaves everyone available to those allowed to message users without messaging permission', () => {
+    app.session.user!.pushAttributes({ canMessageUsersWithoutPermission: true });
+
+    expect(picker().unavailable?.(user('2'))).toBeFalsy();
+  });
+});
+
+describe('how many can be messaged at once', () => {
+  afterEach(() => delete app.forum.data.attributes!.messagesMaxRecipients);
+
+  it('is as many as the forum allows', () => {
+    app.forum.pushAttributes({ messagesMaxRecipients: 10 });
+
+    expect(picker().maxItems).toBe(10);
+  });
+
+  // An older server, from before group conversations.
+  it('is one when the forum says nothing', () => {
+    expect(picker().maxItems).toBe(1);
+  });
+});
+
+describe('sending a new message', () => {
+  it('sends it to every recipient picked', () => {
+    const composer = new (MessageComposer as any)();
+    composer.attrs = { composer: app.composer };
+    composer.composer = { fields: { content: Stream('Hello all') } };
+    composer.recipients = Stream([user('2'), user('3')]);
+
+    expect(composer.data().users).toEqual([{ id: '2' }, { id: '3' }]);
+  });
+});
+
+describe('the recipients shown above a message', () => {
+  it('stop at ten, then say how many more', () => {
+    const many = Array.from({ length: 12 }, (_, i) => {
+      app.store.pushPayload({ data: { type: 'users', id: String(900 + i), attributes: { username: 'member' + i } } } as any);
+
+      return user(String(900 + i));
+    });
+
+    const composer = new (MessageComposer as any)();
+    composer.attrs = { composer: app.composer, replyingTo: {} };
+    composer.recipients = Stream(many);
+
+    const header = mq(m('ul', composer.headerItems().toArray()));
+
+    header.should.have(10, '.MessageComposer-recipients-list .Avatar');
+    header.should.contain('+2');
+  });
+
+  it('count the groups among the ten', () => {
+    const many = Array.from({ length: 12 }, (_, i) => {
+      app.store.pushPayload({ data: { type: 'users', id: String(900 + i), attributes: { username: 'member' + i } } } as any);
+
+      return user(String(900 + i));
+    });
+    const groups = ['5', '6'].map((id) => {
+      app.store.pushPayload({ data: { type: 'groups', id, attributes: { namePlural: 'Group ' + id } } } as any);
+
+      return app.store.getById('groups', id);
+    });
+
+    const composer = new (MessageComposer as any)();
+    composer.attrs = { composer: app.composer, replyingTo: {} };
+    composer.recipients = Stream(many);
+    composer.recipientGroups = Stream(groups);
+
+    const header = mq(m('ul', composer.headerItems().toArray()));
+
+    header.should.have(2, '.MessageComposer-group');
+    header.should.have(8, '.MessageComposer-recipients-list .Avatar');
+    header.should.contain('+4');
+  });
+});
+
+describe('addressing a Group', () => {
+  it('includes selected Groups alongside individual recipients', () => {
+    const group = app.store.pushPayload({ data: { type: 'groups', id: '4', attributes: { namePlural: 'Moderators', canMessage: true } } } as any);
+    const composer = new (MessageComposer as any)();
+    composer.attrs = { composer: app.composer };
+    composer.composer = { fields: { content: Stream('Hello team') } };
+    composer.recipients = Stream([user('3')]);
+    composer.recipientGroups = Stream([group]);
+    expect(composer.data().groups).toEqual([{ id: '4' }]);
+    expect(composer.data().users).toEqual([{ id: '3' }]);
+  });
+});
+
+it('can reply before addressed Group models have loaded', () => {
+  const composer = new (MessageComposer as any)();
+  app.composer.fields = { content: Stream('') };
+  const attrs = { composer: app.composer, replyingTo: { users: () => [], groups: () => [false] } };
+  composer.oninit({ attrs });
+  expect(() => mq(m('ul', composer.headerItems().toArray()))).not.toThrow();
+});
+
+describe('a minimized new message', () => {
+  /** The header of a new message's composer; core passes its body `disabled` while minimized. */
+  function header(recipients: User[], minimized: boolean, groups: unknown[] = []) {
+    const composer = new (MessageComposer as any)();
+    composer.attrs = { composer: app.composer, disabled: minimized };
+    composer.recipients = Stream(recipients);
+    composer.recipientGroups = Stream(groups);
+
+    return mq(m('ul', composer.headerItems().toArray()));
+  }
+
+  // Its header can't be clicked: a click anywhere restores the composer.
+  it("doesn't offer to pick recipients", () => {
+    header([], true).should.not.have('.MessageComposer-recipients .Button');
+    header([user('3')], true).should.not.have('.MessageComposer-recipients .Button');
+  });
+
+  it('says what it is when no one is picked yet', () => {
+    header([], true).should.contain('flarum-messages.forum.composer.title');
+  });
+
+  it('shows who it is to', () => {
+    const out = header([user('3')], true);
+
+    out.should.have(1, '.MessageComposer-recipients-list .Avatar');
+    out.should.not.contain('flarum-messages.forum.composer.title');
+  });
+
+  it('shows which groups it is to', () => {
+    app.store.pushPayload({ data: { type: 'groups', id: '7', attributes: { namePlural: 'Helpers' } } } as any);
+    const out = header([], true, [app.store.getById('groups', '7')]);
+
+    out.should.have(1, '.MessageComposer-group');
+    out.should.not.contain('flarum-messages.forum.composer.title');
+  });
+
+  it('offers to pick recipients again once restored', () => {
+    header([user('3')], false).should.have('.MessageComposer-recipients .Button');
+
+    const empty = header([], false);
+    empty.should.have('.MessageComposer-recipients .Button');
+    empty.should.not.contain('flarum-messages.forum.composer.title');
+  });
+});

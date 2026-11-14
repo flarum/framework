@@ -1,7 +1,8 @@
 import { jest } from '@jest/globals';
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import app from 'flarum/forum/app';
-import { hideFirstPost, scrollParentToReply } from '../../../src/forum/extendPostStream';
+import Application from 'flarum/common/Application';
+import extendPostStream, { hideFirstPost, scrollParentToReply } from '../../../src/forum/extendPostStream';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -35,6 +36,56 @@ describe('hideFirstPost', () => {
   it('does not throw on an empty stream', () => {
     const vdom: any = { children: [] };
     expect(() => hideFirstPost(vdom)).not.toThrow();
+  });
+});
+
+describe('the hideFirstPost option', () => {
+  /**
+   * The post numbers PostStream renders when the embed is opened at `url`,
+   * going through the embed's start-up as the forum does.
+   */
+  function renderedNumbers(url: string, afterLoad: () => void = () => {}): number[] {
+    // Stands in for PostStream: a stream that starts at post 1.
+    class PostStream {
+      view() {
+        return { children: [{ attrs: { 'data-number': 1 } }, { attrs: { 'data-number': 2 } }] };
+      }
+    }
+
+    window.history.replaceState(null, '', url);
+
+    // Flarum's routes resolve a tick after the app mounts, so the route has
+    // no params yet at that point.
+    const route = m.route;
+    (m as any).route = { param: () => undefined };
+    const mount = jest.spyOn(Application.prototype as any, 'mount').mockImplementation(() => {});
+
+    try {
+      extendPostStream();
+      (Application.prototype as any).mount.call(app);
+    } finally {
+      mount.mockRestore();
+      (m as any).route = route;
+    }
+
+    afterLoad();
+
+    // PostStream is code-split: its chunk registers it later.
+    flarum.reg.add('core', 'forum/components/PostStream', PostStream);
+
+    return new PostStream().view().children.map((child) => child.attrs['data-number']);
+  }
+
+  it('hides post 1 when the embed is opened with it', () => {
+    expect(renderedNumbers('/embed/1?hideFirstPost=1')).toEqual([2]);
+  });
+
+  it('keeps hiding it once scrolling has rewritten the address without it', () => {
+    expect(renderedNumbers('/embed/1?hideFirstPost=1', () => window.history.replaceState(null, '', '/embed/1/2'))).toEqual([2]);
+  });
+
+  it('shows post 1 otherwise', () => {
+    expect(renderedNumbers('/embed/1')).toEqual([1, 2]);
   });
 });
 

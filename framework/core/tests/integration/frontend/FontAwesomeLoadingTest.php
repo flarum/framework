@@ -46,12 +46,57 @@ class FontAwesomeLoadingTest extends TestCase
         $body = $response->getBody()->getContents();
 
         foreach ($urls as $url) {
-            $this->assertStringContainsString("<link rel=\"preload\" href=\"$url\" as=\"font\" type=\"font/woff2\" crossorigin=\"\">", $body);
+            $this->assertMatchesRegularExpression('~<link rel="preload" href="'.preg_quote($url, '~').'(\?v=[0-9a-f]+)?" as="font" type="font/woff2" crossorigin="">~', $body);
         }
 
         // Should not contain CDN or Kit URLs
         $this->assertStringNotContainsString('cdnjs.cloudflare.com', $body);
         $this->assertStringNotContainsString('kit.fontawesome.com', $body);
+    }
+
+    #[Test]
+    public function font_preloads_use_the_stylesheets_font_urls()
+    {
+        // A preload is only used when its URL is exactly the one the stylesheet
+        // requests. The compiled CSS stamps each font URL with a revision
+        // (`?v=…`), so a bare preload URL made every page fetch the fonts twice.
+        $body = $this->send($this->request('GET', '/'))->getBody()->getContents();
+
+        $assets = $this->app()->getContainer()->make('flarum.assets.forum');
+        $compiler = $assets->makeCss();
+        $compiler->commit(true);
+        $css = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->get($compiler->getFilename());
+
+        foreach (['fa-solid-900.woff2', 'fa-regular-400.woff2'] as $file) {
+            $this->assertMatchesRegularExpression('~url\("\./fonts/'.preg_quote($file, '~').'([^"]*)"\)~', $css);
+            preg_match('~url\("\./fonts/'.preg_quote($file, '~').'([^"]*)"\)~', $css, $m);
+
+            preg_match('~<link rel="preload" href="([^"]*/fonts/'.preg_quote($file, '~').'[^"]*)" as="font"~', $body, $preload);
+            $this->assertNotEmpty($preload, "no preload for $file");
+
+            $this->assertStringEndsWith('fonts/'.$file.$m[1], $preload[1], "the preload for $file is not the URL the stylesheet uses");
+        }
+    }
+
+    #[Test]
+    public function the_font_revision_is_cached()
+    {
+        $assets = $this->app()->getContainer()->make('flarum.assets.forum');
+        $revision = $assets->fontRevision('fa-solid-900.woff2');
+
+        $this->assertNotNull($revision);
+
+        // The preloads are built on every page view; the second lookup must come
+        // from the cache, not from hashing the font again.
+        $events = new \Illuminate\Events\Dispatcher();
+        $hits = [];
+        $events->listen(\Illuminate\Cache\Events\CacheHit::class, function ($event) use (&$hits) {
+            $hits[] = $event->key;
+        });
+        $this->app()->getContainer()->make('cache.store')->setEventDispatcher($events);
+
+        $this->assertSame($revision, $assets->fontRevision('fa-solid-900.woff2'));
+        $this->assertNotEmpty(array_filter($hits, fn ($key) => str_starts_with($key, 'flarum.frontend.font_revision.')));
     }
 
     #[Test]
@@ -104,7 +149,7 @@ class FontAwesomeLoadingTest extends TestCase
     // which is complex in the test environment
 
     #[Test]
-    public function empty_cdn_url_does_not_load_anything()
+    public function empty_cdn_url_preloads_the_bundled_fonts_it_falls_back_to()
     {
         $this->setting('fontawesome_source', 'cdn');
         $this->setting('fontawesome_cdn_url', '');
@@ -118,14 +163,14 @@ class FontAwesomeLoadingTest extends TestCase
         // Should not contain any CDN CSS (empty URL)
         $this->assertStringNotContainsString('cdnjs.cloudflare.com', $body);
 
-        // Should not load local fonts either since source is CDN (just no URL provided)
-        // This is expected behavior - misconfiguration results in no FontAwesome
-        $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
-        $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
+        // With no URL the source can't deliver anything, so the stylesheet uses
+        // the bundled fonts (FontAwesome::needsBundledFonts()), and they're preloaded.
+        $this->assertMatchesRegularExpression('~<link rel="preload" href="[^"]*/fonts/fa-solid-900\.woff2\?v=[0-9a-f]+" as="font"~', $body);
+        $this->assertMatchesRegularExpression('~<link rel="preload" href="[^"]*/fonts/fa-regular-400\.woff2\?v=[0-9a-f]+" as="font"~', $body);
     }
 
     #[Test]
-    public function empty_kit_url_does_not_load_anything()
+    public function empty_kit_url_preloads_the_bundled_fonts_it_falls_back_to()
     {
         $this->setting('fontawesome_source', 'kit');
         $this->setting('fontawesome_kit_url', '');
@@ -139,10 +184,10 @@ class FontAwesomeLoadingTest extends TestCase
         // Should not contain any Kit JS (empty URL)
         $this->assertStringNotContainsString('kit.fontawesome.com', $body);
 
-        // Should not load local fonts either since source is kit (just no URL provided)
-        // This is expected behavior - misconfiguration results in no FontAwesome
-        $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
-        $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
+        // With no URL the source can't deliver anything, so the stylesheet uses
+        // the bundled fonts (FontAwesome::needsBundledFonts()), and they're preloaded.
+        $this->assertMatchesRegularExpression('~<link rel="preload" href="[^"]*/fonts/fa-solid-900\.woff2\?v=[0-9a-f]+" as="font"~', $body);
+        $this->assertMatchesRegularExpression('~<link rel="preload" href="[^"]*/fonts/fa-regular-400\.woff2\?v=[0-9a-f]+" as="font"~', $body);
     }
 
     #[Test]
@@ -231,7 +276,7 @@ class FontAwesomeLoadingTest extends TestCase
 
         // Should use local fonts from config
         foreach ($urls as $url) {
-            $this->assertStringContainsString("<link rel=\"preload\" href=\"$url\" as=\"font\" type=\"font/woff2\" crossorigin=\"\">", $body);
+            $this->assertMatchesRegularExpression('~<link rel="preload" href="'.preg_quote($url, '~').'(\?v=[0-9a-f]+)?" as="font" type="font/woff2" crossorigin="">~', $body);
         }
 
         // Should not contain database CDN URL

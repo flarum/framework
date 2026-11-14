@@ -3,4 +3,4 @@ export default class PostLikedNotification extends Notification<import("flarum/f
     content(): any[];
     excerpt(): string;
 }
-import Notification from "flarum/forum/components/Notification";
+import Notification from 'flarum/forum/components/Notification';

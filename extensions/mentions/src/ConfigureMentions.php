@@ -31,10 +31,54 @@ class ConfigureMentions
     public const GROUP_MENTION_WITH_NAME_REGEX = '/\B@["“](?<groupname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/';
     public const TAG_MENTION_WITH_SLUG_REGEX = '/(?:[^“"]|^)\B#(?<slug>[-_\p{L}\p{N}\p{M}]+)\b/ui';
 
+    /**
+     * A group's or tag's icon: its uploaded image if it has one, otherwise its
+     * Font Awesome icon. The attributes are filled in when the post renders.
+     * Inline sizing also applies in notification emails, without forum CSS.
+     */
+    private const ICON_TEMPLATE = '
+        <xsl:choose>
+            <xsl:when test="string(@iconimage) != \'\'">
+                <img class="icon IconImage" src="{@iconimage}" alt="" style="height:auto;width:auto;max-height:1em;max-width:1.25em;vertical-align:-0.125em">
+                    <xsl:if test="string(@iconsrcset) != \'\'">
+                        <xsl:attribute name="srcset"><xsl:value-of select="@iconsrcset"/></xsl:attribute>
+                    </xsl:if>
+                </img>
+            </xsl:when>
+            <xsl:when test="string(@icon) != \'\'">
+                <i class="icon {@icon}"></i>
+            </xsl:when>
+        </xsl:choose>';
+
     public function __construct(
         protected UrlGenerator $url,
         protected ExtensionManager $extensions
     ) {
+    }
+
+    /**
+     * Per-collection lookup indexes, so a mention is resolved by a keyed map
+     * rather than by scanning the whole mentioned-models collection once per
+     * mention (which is O(N^2) in the number of distinct models mentioned).
+     *
+     * Keyed on the collection object itself: the entry is dropped when the
+     * collection is freed after a parse. A plain array keyed by object id
+     * would be unsafe — PHP reuses an id once the object is gone, so a later
+     * collection could read a previous one's stale index.
+     *
+     * @var \WeakMap<Collection, array<string, \Illuminate\Support\Collection>>
+     */
+    protected static \WeakMap $indexes;
+
+    /**
+     * A map from $key's value to the model, built once per collection.
+     */
+    protected static function indexBy(Collection $models, string $key): \Illuminate\Support\Collection
+    {
+        self::$indexes ??= new \WeakMap();
+        self::$indexes[$models] ??= [];
+
+        return self::$indexes[$models][$key] ??= $models->keyBy($key);
     }
 
     public function __invoke(Configurator $config): void
@@ -97,9 +141,9 @@ class ConfigureMentions
             }
         } else {
             if ($tag->hasAttribute('username') && $allow_username_format) {
-                $user = $mentions['users']->where('username', $tag->getAttribute('username'))->first();
+                $user = self::indexBy($mentions['users'], 'username')->get($tag->getAttribute('username'));
             } elseif ($tag->hasAttribute('id')) {
-                $user = $mentions['users']->where('id', $tag->getAttribute('id'))->first();
+                $user = self::indexBy($mentions['users'], 'id')->get($tag->getAttribute('id'));
             }
         }
 
@@ -160,7 +204,7 @@ class ConfigureMentions
         if ($mentions === null) {
             $post = Post::query()->with('user')->find($tag->getAttribute('id'));
         } else {
-            $post = $mentions['posts']->where('id', $tag->getAttribute('id'))->first();
+            $post = self::indexBy($mentions['posts'], 'id')->get($tag->getAttribute('id'));
         }
 
         if ($post) {
@@ -192,17 +236,13 @@ class ConfigureMentions
                         <xsl:when test="string(@color) != \'\'">
                             <span class="GroupMention GroupMention--colored" style="--color:{@color};">
                                 <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
-                                <xsl:if test="string(@icon) != \'\'">
-                                    <i class="icon {@icon}"></i>
-                                </xsl:if>
+                                '.self::ICON_TEMPLATE.'
                             </span>
                         </xsl:when>
                         <xsl:otherwise>
                             <span class="GroupMention">
                                 <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
-                                <xsl:if test="string(@icon) != \'\'">
-                                    <i class="icon {@icon}"></i>
-                                </xsl:if>
+                                '.self::ICON_TEMPLATE.'
                             </span>
                         </xsl:otherwise>
                     </xsl:choose>
@@ -210,9 +250,7 @@ class ConfigureMentions
                 <xsl:otherwise>
                     <span class="GroupMention GroupMention--deleted">
                         <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
-                        <xsl:if test="string(@icon) != \'\'">
-                            <i class="icon {@icon}"></i>
-                        </xsl:if>
+                        '.self::ICON_TEMPLATE.'
                     </span>
                 </xsl:otherwise>
             </xsl:choose>';
@@ -249,7 +287,7 @@ class ConfigureMentions
         if ($mentions === null) {
             $group = Group::query()->find($id);
         } else {
-            $group = $mentions['groups']->where('id', $id)->first();
+            $group = self::indexBy($mentions['groups'], 'id')->get($id);
         }
 
         if ($group) {
@@ -298,9 +336,7 @@ class ConfigureMentions
                             </xsl:choose>
                         </xsl:attribute>
                         <span class="TagMention-text">
-                            <xsl:if test="@icon != \'\'">
-                                <i class="icon {@icon}"></i>
-                            </xsl:if>
+                            '.self::ICON_TEMPLATE.'
                             <xsl:value-of select="@tagname"/>
                         </span>
                     </a>
@@ -339,7 +375,7 @@ class ConfigureMentions
             $model = Tag::query()->where('slug', $slug)->first();
         } else {
             /** @var Tag|null $model */
-            $model = $mentions['tags']->where('slug', $tag->getAttribute('slug'))->first();
+            $model = self::indexBy($mentions['tags'], 'slug')->get($tag->getAttribute('slug'));
         }
 
         if ($model) {

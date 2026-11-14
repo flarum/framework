@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import type Discussion from '../../common/models/Discussion';
 import type Post from '../../common/models/Post';
 export default class PostStreamState {
@@ -89,6 +88,12 @@ export default class PostStreamState {
      * Load and scroll to a certain index within the discussion.
      */
     goToIndex(index: number, noAnimation?: boolean): Promise<void>;
+    /**
+     * A jump whose posts failed to load. The request has shown its own error;
+     * the stream stops waiting for the jump, so the reader can scroll and the
+     * page that asked for it (such as a discussion still loading) can carry on.
+     */
+    protected loadFailed(): void;
     /**
      * Clear the stream and load posts near a certain number. Returns a promise.
      * If the post with the given number is already loaded, the promise will be

@@ -63,6 +63,7 @@ return [
     (new Extend\ApiResource(Resource\ForumResource::class))
         ->fields(fn () => [
             Schema\Relationship\ToMany::make('tags')
+                ->description('The primary tags and the most used secondary tags you can see.')
                 ->includable()
                 ->get(function ($model, Context $context) {
                     $actor = $context->getActor();
@@ -86,6 +87,7 @@ return [
                         ->all();
                 }),
             Schema\Boolean::make('canBypassTagCounts')
+                ->description('Whether you can start discussions without the required number of tags.')
                 ->get(fn ($model, Context $context) => $context->getActor()->can('bypassTagCounts')),
         ])
         ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint) {
@@ -112,6 +114,10 @@ return [
             function (Endpoint\Index|Endpoint\Show|Endpoint\Create $endpoint) {
                 return $endpoint
                     ->addDefaultInclude(['tags', 'tags.parent'])
+                    // A request that names its own includes may leave out
+                    // `tags.parent`, but each tag's permissions still ask TagPolicy
+                    // about its parent: load them together rather than per tag.
+                    ->eagerLoadWhenIncluded(['tags' => ['tags.parent']])
                     ->eagerLoadWhere('tags', function (Builder|Relation $query, Context $context) {
                         /** @var Builder<Tag>|Relation $query */
                         $query->withStateFor($context->getActor());
@@ -216,5 +222,9 @@ return [
                         ->get(fn ($log) => $log->tag),
                 ])
                 ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->addDefaultInclude(['tag'])),
+        ])
+        ->whenExtensionEnabled('flarum-gdpr', fn () => [
+            (new Extend\Event())
+                ->listen(\Flarum\Gdpr\Events\Erased::class, Listener\RefreshLastPostedDiscussionsAfterErasure::class),
         ]),
 ];

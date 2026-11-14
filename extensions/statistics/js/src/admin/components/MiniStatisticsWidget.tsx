@@ -6,11 +6,12 @@ import Link from 'flarum/common/components/Link';
 import Icon from 'flarum/common/components/Icon';
 
 import abbreviateNumber from 'flarum/common/utils/abbreviateNumber';
+import statisticsEntities from '../utils/statisticsEntities';
 
 import type Mithril from 'mithril';
 
 export default class MiniStatisticsWidget extends DashboardWidget {
-  entities = ['users', 'discussions', 'posts'];
+  entities = statisticsEntities();
 
   lifetimeData: any;
 

@@ -27,6 +27,7 @@ use Illuminate\Validation\ValidationException;
  * @property bool $phpClientSecure
  * @property int $phpClientTimeout
  * @property int $maxConnections
+ * @property int $maxChannelsPerConnection
  * @property string $appKey
  * @property string $appSecret
  */
@@ -58,6 +59,14 @@ class Settings implements Arrayable
             'php-client-secure' => $secure,
             'php-client-timeout' => 3,
             'max-connections' => 1000,
+            // A hard ceiling on how many channels one socket may hold, so an
+            // unauthenticated client cannot grow the server's channel registry
+            // without bound. A real client holds a small fixed set — its user
+            // channel, the public and presence channels, the open discussion's
+            // typing channels, and one per restricted tag it can see — so even
+            // on a forum with dozens of restricted tags this leaves wide
+            // headroom, while still containing abuse.
+            'max-channels-per-connection' => 100,
             'app-key' => md5($host),
             'app-secret' => md5($dbPassword),
         ];
@@ -88,6 +97,7 @@ class Settings implements Arrayable
             'php-client-secure' => 'bool|nullable',
             'php-client-timeout' => 'required|int|min:1',
             'max-connections' => 'required|int|min:1',
+            'max-channels-per-connection' => 'required|int|min:1',
             'app-key' => 'required|string',
             'app-secret' => 'required|string'
         ];

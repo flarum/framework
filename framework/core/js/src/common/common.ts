@@ -12,6 +12,7 @@ import './utils/GambitsAutocomplete';
 import './utils/isObject';
 import './utils/mixin';
 import './utils/insertText';
+import './utils/withIconImage';
 import './utils/styleSelectedText';
 import './utils/Drawer';
 import './utils/anchorScroll';
@@ -71,12 +72,16 @@ import './components/LinkButton';
 import './components/Checkbox';
 import './components/Input';
 import './components/ColorPreviewInput';
+import './components/IconImageInput';
+import './states/IconImageState';
+import './components/IconInput';
 import './components/SelectDropdown';
 import './components/ModalManager';
 import './components/Button';
 import './components/Modal';
 import './components/FormModal';
 import './components/GroupBadge';
+import './components/GroupSelector';
 import './components/UserSelectionModal';
 import './components/TextEditor';
 import './components/TextEditorButton';
@@ -106,3 +111,9 @@ import './Translator';
 import './Model';
 import './Application';
 import './Fragment';
+
+// Split into chunks of their own, in both the forum and the admin, and loaded
+// when first imported, by core or an extension:
+//
+//     const { default: readEventStream } = await import('flarum/common/utils/readEventStream');
+export const lazyModules = [() => import('./utils/readEventStream')];

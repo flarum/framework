@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
 import ItemList from 'flarum/common/utils/ItemList';
 import type ErasureRequestsListState from '../states/ErasureRequestsListState';

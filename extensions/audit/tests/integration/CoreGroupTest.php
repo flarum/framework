@@ -9,6 +9,7 @@
 
 namespace Flarum\Audit\Tests\integration;
 
+use Flarum\Audit\AuditLog;
 use Flarum\Group\Group;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
@@ -47,6 +48,9 @@ class CoreGroupTest extends TestCase
             'group_id' => (int) $id,
             'name' => 'Wizard',
         ]);
+
+        // Setting a new group's names is not a rename.
+        $this->assertLogDoesntExist('group.renamed');
     }
 
     #[Test]
@@ -69,6 +73,9 @@ class CoreGroupTest extends TestCase
             'old_name' => 'Tester',
             'new_name' => 'Examiner',
         ]);
+
+        // Both names change in one request, which is a single rename.
+        $this->assertEquals(1, AuditLog::query()->where('action', 'group.renamed')->count());
     }
 
     #[Test]

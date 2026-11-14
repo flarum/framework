@@ -11,7 +11,7 @@ import DiscussionPage, { IDiscussionPageAttrs } from '../components/DiscussionPa
  */
 export default class DiscussionPageResolver<
   Attrs extends IDiscussionPageAttrs = IDiscussionPageAttrs,
-  RouteArgs extends Record<string, unknown> = {}
+  RouteArgs extends Record<string, unknown> = {},
 > extends DefaultResolver<Attrs, DiscussionPage<Attrs>, RouteArgs> {
   static scrollToPostNumber: number | null = null;
 
@@ -51,8 +51,10 @@ export default class DiscussionPageResolver<
   render(vnode: Mithril.Vnode<Attrs, DiscussionPage<Attrs>>) {
     if (DiscussionPageResolver.scrollToPostNumber !== null) {
       const number = DiscussionPageResolver.scrollToPostNumber;
-      // Scroll after a timeout to avoid clashes with the render.
-      setTimeout(() => app.current.get('stream').goToNumber(number));
+      // Scroll after a timeout to avoid clashes with the render. A discussion
+      // still loading has no stream yet; once loaded, it goes to the post in
+      // the address itself.
+      setTimeout(() => app.current.get('stream')?.goToNumber(number));
       DiscussionPageResolver.scrollToPostNumber = null;
     }
 

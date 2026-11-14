@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import NotificationsDropdown from 'flarum/forum/components/NotificationsDropdown';
 import { IDropdownAttrs } from 'flarum/common/components/Dropdown';
 import ErasureRequestsListState from '../states/ErasureRequestsListState';

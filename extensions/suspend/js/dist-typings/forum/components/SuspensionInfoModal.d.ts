@@ -6,4 +6,4 @@ export default class SuspensionInfoModal extends Modal<import("flarum/common/com
     title(): string | any[];
     content(): JSX.Element;
 }
-import Modal from "flarum/common/components/Modal";
+import Modal from 'flarum/common/components/Modal';

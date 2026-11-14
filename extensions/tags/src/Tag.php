@@ -12,6 +12,7 @@ namespace Flarum\Tags;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
+use Flarum\Foundation\IconImage\HasIconImage;
 use Flarum\Group\Permission;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -40,6 +41,10 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property int $last_posted_discussion_id
  * @property int $last_posted_user_id
  * @property string $icon
+ * @property string|null $icon_image_path
+ * @property int $icon_image_scales
+ * @property-read string|null $icon_image_url
+ * @property-read string|null $icon_image_srcset
  *
  * @property TagState|null $state
  * @property Tag|null $parent
@@ -52,6 +57,7 @@ class Tag extends AbstractModel
 {
     use ScopeVisibilityTrait;
     use HasFactory;
+    use HasIconImage;
 
     protected $table = 'tags';
 
@@ -245,9 +251,14 @@ class Tag extends AbstractModel
         $hasGlobalPermission = $user->hasPermission($currPermission);
         $isAdmin = $user->isAdmin();
 
+        // A tag permission is stored as `tag{id}.{permission}`. Discussion
+        // abilities are asked for by name (`hide`) and stored with their
+        // prefix (`discussion.hide`), so accept either, but only exactly:
+        // `discussion.hidePosts` is not `discussion.hide`.
         $tagIdsWithPermission = collect($user->getPermissions())
-            ->filter(fn (string $p) => str_starts_with($p, 'tag') && str_contains($p, $currPermission))
-            ->map(fn (string $p) => (int) substr(explode('.', $p, 2)[0], 3))
+            ->map(fn (string $p) => preg_match('/^tag(\d+)\.(.+)$/', $p, $matches) ? $matches : null)
+            ->filter(fn (?array $matches) => $matches && in_array($matches[2], [$currPermission, "discussion.$currPermission"], true))
+            ->map(fn (array $matches) => (int) $matches[1])
             ->values();
 
         return $query

@@ -14,6 +14,7 @@ use Flarum\Frontend\Assets as FrontendAssets;
 use Flarum\Frontend\Compiler\JsCompiler;
 use Flarum\Frontend\Compiler\JsDirectoryCompiler;
 use Flarum\Frontend\Compiler\LessCompiler;
+use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\Content\Assets;
 use Flarum\Frontend\Document;
 use Flarum\Testing\unit\TestCase;
@@ -57,9 +58,16 @@ class AssetsTest extends TestCase
         $commonAssets = m::mock(FrontendAssets::class);
         $commonAssets->shouldReceive('makeJsDirectory')->andReturn($makeCompiler(JsDirectoryCompiler::class));
 
+        // Assembling the URLs records a revision for anything compiled, and
+        // those are collected into one write rather than stored per asset.
+        $versioner = m::mock(VersionerInterface::class);
+        $versioner->shouldReceive('deferWrites')->once();
+        $versioner->shouldReceive('flushWrites')->once();
+
         $container = m::mock(Container::class);
         $container->shouldReceive('make')->with('flarum.assets.forum')->andReturn($frontendAssets);
         $container->shouldReceive('make')->with('flarum.assets.common')->andReturn($commonAssets);
+        $container->shouldReceive('make')->with(VersionerInterface::class)->andReturn($versioner);
 
         // Config is a readonly class and can't be mocked — use the real thing.
         $config = new Config(['url' => 'http://localhost', 'debug' => true]);

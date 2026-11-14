@@ -189,6 +189,8 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     if (error.status === 401 && error.alert) {
       error.alert.content = app.translator.trans('core.forum.log_in.invalid_login_message');
       this.password('');
+    } else if (error.status === 429 && error.alert) {
+      error.alert.content = app.translator.trans('core.forum.log_in.too_many_attempts_message');
     }
 
     super.onerror(error);

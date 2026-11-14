@@ -15,7 +15,7 @@ export interface IRenameDiscussionModalAttrs extends IFormModalAttrs {
  * The 'RenameDiscussionModal' displays a modal dialog with an input to rename a discussion
  */
 export default class RenameDiscussionModal<
-  CustomAttrs extends IRenameDiscussionModalAttrs = IRenameDiscussionModalAttrs
+  CustomAttrs extends IRenameDiscussionModalAttrs = IRenameDiscussionModalAttrs,
 > extends FormModal<CustomAttrs> {
   discussion!: Discussion;
   currentTitle!: string;

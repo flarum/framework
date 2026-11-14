@@ -10,10 +10,12 @@
 namespace Flarum\Gdpr\tests\integration\console;
 
 use Carbon\Carbon;
+use Flarum\Foundation\Paths;
 use Flarum\Gdpr\Models\Export;
 use Flarum\Notification\Notification;
 use Flarum\Testing\integration\ConsoleTestCase;
 use Flarum\User\User;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use PHPUnit\Framework\Attributes\Test;
@@ -29,6 +31,7 @@ class DestroyExportsTest extends ConsoleTestCase
         $this->prepareDatabase([
             User::class => [
                 ['id' => 2, 'username' => 'normal', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'normal@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 3, 'username' => 'moderator', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'moderator@machine.local', 'is_email_confirmed' => 1],
             ],
             'gdpr_exports' => [
                 // Expired (past destroys_at), ZIP still on disk in test setup below.
@@ -41,17 +44,20 @@ class DestroyExportsTest extends ConsoleTestCase
                 // Already cleaned up by a prior run — file is null. Ensures the
                 // cron is idempotent and doesn't re-process these.
                 ['id' => 4, 'user_id' => 2, 'actor_id' => 2, 'file' => null, 'created_at' => Carbon::now()->subWeek(), 'destroys_at' => Carbon::now()->subWeek(), 'downloaded_at' => Carbon::now()->subWeek()],
+                // Expired, requested by a moderator for user 2: the moderator got the notification.
+                ['id' => 5, 'user_id' => 2, 'actor_id' => 3, 'file' => 'data-export-normal-by-moderator', 'created_at' => Carbon::now()->subDays(2), 'destroys_at' => Carbon::now()->subDay()],
             ],
             'notifications' => [
                 ['id' => 1, 'user_id' => 2, 'from_user_id' => 2, 'type' => 'gdprExportAvailable', 'subject_id' => 1, 'created_at' => Carbon::now()->subDays(2)],
                 ['id' => 2, 'user_id' => 2, 'from_user_id' => 2, 'type' => 'gdprExportAvailable', 'subject_id' => 2, 'created_at' => Carbon::now()->subHour()],
                 ['id' => 3, 'user_id' => 2, 'from_user_id' => 2, 'type' => 'gdprExportAvailable', 'subject_id' => 3, 'created_at' => Carbon::now()],
+                ['id' => 4, 'user_id' => 3, 'from_user_id' => 3, 'type' => 'gdprExportAvailable', 'subject_id' => 5, 'created_at' => Carbon::now()->subDays(2)],
             ],
         ]);
 
         // Seed storage so the deletion has something to remove for ids 1, 2, 3.
         $fs = $this->getStorageFilesystem();
-        foreach ([1, 2, 3] as $id) {
+        foreach ([1, 2, 3, 5] as $id) {
             $fs->put("export-{$id}.zip", 'fake-zip-contents');
         }
     }
@@ -130,5 +136,69 @@ class DestroyExportsTest extends ConsoleTestCase
         // Fresh export's notification is untouched.
         $fresh = Notification::find(3);
         $this->assertEquals(0, $fresh->is_deleted);
+    }
+
+    #[Test]
+    public function cleaning_up_forgets_the_notification_recipients_cached_counts()
+    {
+        $cache = $this->app()->getContainer()->make(CacheRepository::class);
+
+        foreach ([2, 3] as $userId) {
+            $cache->put("user.$userId.unread_notification_count", 3, 300);
+            $cache->put("user.$userId.new_notification_count", 3, 300);
+        }
+
+        $this->runCommand(['command' => 'gdpr:destroy-exports']);
+
+        // User 2 requested exports 1 and 2; the moderator (user 3) requested
+        // export 5 on user 2's behalf and got its notification.
+        foreach ([2, 3] as $userId) {
+            $this->assertNull($cache->get("user.$userId.unread_notification_count"));
+            $this->assertNull($cache->get("user.$userId.new_notification_count"));
+        }
+
+        $this->assertEquals(1, Notification::find(4)->is_deleted);
+    }
+
+    /**
+     * An export killed part-way, by the queue's timeout or an out-of-memory
+     * worker, never gets to remove what it put in storage/tmp, so the daily
+     * run sweeps up anything an export left there long enough ago.
+     */
+    #[Test]
+    public function temporary_files_left_by_an_unfinished_export_are_removed()
+    {
+        $tmp = $this->app()->getContainer()->make(Paths::class)->storage.'/tmp';
+        @mkdir($tmp, 0777, true);
+
+        $files = [
+            'stale' => "$tmp/data-export-normalAbC123",
+            'staleZip' => "$tmp/data-export-normalAbC123-PartialZipxxxxxxxxxx",
+            'recent' => "$tmp/data-export-normalXyZ789",
+            'unrelated' => "$tmp/something-else",
+        ];
+
+        foreach ($files as $file) {
+            touch($file);
+        }
+
+        touch($files['stale'], Carbon::now()->subDays(2)->getTimestamp());
+        touch($files['staleZip'], Carbon::now()->subDays(2)->getTimestamp());
+        touch($files['unrelated'], Carbon::now()->subDays(2)->getTimestamp());
+
+        try {
+            $this->runCommand(['command' => 'gdpr:destroy-exports']);
+
+            $this->assertFileDoesNotExist($files['stale']);
+            $this->assertFileDoesNotExist($files['staleZip']);
+            // One may still be in progress.
+            $this->assertFileExists($files['recent']);
+            // Not ours.
+            $this->assertFileExists($files['unrelated']);
+        } finally {
+            foreach ($files as $file) {
+                @unlink($file);
+            }
+        }
     }
 }

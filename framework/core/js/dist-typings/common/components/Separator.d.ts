@@ -7,6 +7,6 @@ declare class Separator extends Component<import("../Component").ComponentAttrs,
     view(): JSX.Element;
 }
 declare namespace Separator {
-    const isListItem: boolean;
+    let isListItem: boolean;
 }
-import Component from "../Component";
+import Component from '../Component';

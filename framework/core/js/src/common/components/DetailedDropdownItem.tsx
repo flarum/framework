@@ -23,7 +23,7 @@ export interface IDetailedDropdownItemAttrs extends ComponentAttrs {
 }
 
 export default class DetailedDropdownItem<
-  CustomAttrs extends IDetailedDropdownItemAttrs = IDetailedDropdownItemAttrs
+  CustomAttrs extends IDetailedDropdownItemAttrs = IDetailedDropdownItemAttrs,
 > extends Component<CustomAttrs> {
   view() {
     return (

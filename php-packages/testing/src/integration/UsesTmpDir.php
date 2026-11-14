@@ -24,6 +24,7 @@ trait UsesTmpDir
             '/public/assets',
             '/storage',
             '/storage/formatter',
+            '/storage/locale',
             '/storage/sessions',
             '/storage/views',
             '/vendor',

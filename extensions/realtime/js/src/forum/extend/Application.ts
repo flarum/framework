@@ -6,6 +6,7 @@ import RealtimeState from '../RealtimeState';
 import NotificationToast from '../components/NotificationToast';
 import NotificationToastState from '../states/NotificationToastState';
 import isIOS from '../utils/isIOS';
+import catchUpDiscussion from '../utils/catchUpDiscussion';
 
 export default function () {
   extend(Application.prototype, 'mount' as any, function () {
@@ -199,15 +200,7 @@ export default function () {
         // last synced state. Afterwards its 1-post drift tolerance could no
         // longer tell "was at the end, several posts arrived while
         // disconnected" apart from "viewing an interior window" (#4717).
-        const wasViewingEnd: boolean = !!stream.viewingEnd();
-
-        app.store.find('discussions', discussion.id() as string).then(() => {
-          if (wasViewingEnd) {
-            stream.syncEnd().then((): void => m.redraw());
-          } else {
-            m.redraw();
-          }
-        });
+        catchUpDiscussion(discussion, stream, !!stream.viewingEnd());
       }
     };
 

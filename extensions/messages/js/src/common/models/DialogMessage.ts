@@ -8,6 +8,17 @@ export default class DialogMessage extends Model {
   number() {
     return Model.attribute<number>('number').call(this);
   }
+  /** 'comment' for what a member wrote; otherwise a notice, such as 'userLeft' or 'renamed'. */
+  type() {
+    return Model.attribute<string | undefined>('type').call(this);
+  }
+  /** What a notice says happened. */
+  eventData() {
+    return Model.attribute<Record<string, any> | undefined>('eventData').call(this) || {};
+  }
+  isComment(): boolean {
+    return (this.type() ?? 'comment') === 'comment';
+  }
   content() {
     return Model.attribute<string | null | undefined>('content').call(this);
   }
@@ -29,6 +40,10 @@ export default class DialogMessage extends Model {
   createdAt() {
     return Model.attribute<Date, string>('createdAt', Model.transformDate).call(this);
   }
+  /** Only present for those allowed to see it. */
+  ipAddress() {
+    return Model.attribute<string | null | undefined>('ipAddress').call(this);
+  }
 
   dialog() {
     return Model.hasOne<Dialog>('dialog').call(this);
@@ -39,5 +54,18 @@ export default class DialogMessage extends Model {
 
   canDelete() {
     return Model.attribute<boolean>('canDelete').call(this);
+  }
+
+  /** With flarum/likes: some of who liked it, this member first when they did. */
+  likes() {
+    return Model.hasMany<User>('likes').call(this);
+  }
+  /** With flarum/likes. */
+  likesCount() {
+    return Model.attribute<number | undefined>('likesCount').call(this);
+  }
+  /** With flarum/likes. */
+  canLike() {
+    return Model.attribute<boolean | undefined>('canLike').call(this);
   }
 }

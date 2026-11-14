@@ -10,6 +10,8 @@
 namespace Flarum\Audit\Integration;
 
 use Flarum\Audit\AuditLogger;
+use Flarum\Mail\Event\EmailBounced;
+use Flarum\Mail\Event\EmailComplained;
 use Flarum\User\Event;
 use Flarum\User\LoginProvider;
 use Flarum\User\PasswordToken;
@@ -38,12 +40,15 @@ class CoreUserIntegration
         'user.avatar_removed',
         'user.created',
         'user.deleted',
+        'user.email_bounced',
+        'user.email_complained',
         'user.email_changed',
         'user.email_change_requested',
         'user.groups_changed',
         'user.logged_in',
         'user.logged_in_with_provider',
         'user.logged_out',
+        'user.logged_out_everywhere',
         'user.password_changed',
         'user.password_change_requested',
         'user.provider_connected',
@@ -59,6 +64,8 @@ class CoreUserIntegration
         $events->listen(Event\Activated::class, [$this, 'activated']);
         $events->listen(Event\AvatarChanged::class, [$this, 'avatarChanged']);
         $events->listen(Event\Deleted::class, [$this, 'deleted']);
+        $events->listen(EmailBounced::class, [$this, 'emailBounced']);
+        $events->listen(EmailComplained::class, [$this, 'emailComplained']);
         $events->listen(Event\EmailChangeRequested::class, [$this, 'emailChangeRequested']);
         $events->listen(Event\EmailChanged::class, [$this, 'emailChanged']);
         $events->listen(Event\GroupsChanged::class, [$this, 'groupsChanged']);
@@ -144,6 +151,25 @@ class CoreUserIntegration
         $this->log($event->user, 'deleted');
     }
 
+    public function emailBounced(EmailBounced $event): void
+    {
+        $this->logDeliveryFailure('email_bounced', $event->recipient, $event->email, ['reason' => $event->reason]);
+    }
+
+    public function emailComplained(EmailComplained $event): void
+    {
+        $this->logDeliveryFailure('email_complained', $event->recipient, $event->email);
+    }
+
+    protected function logDeliveryFailure(string $action, ?User $recipient, string $email, array $payload = []): void
+    {
+        if ($recipient) {
+            $this->log($recipient, $action, ['matched' => true] + $payload);
+        } else {
+            AuditLogger::log("user.$action", ['matched' => false, 'email' => $email] + $payload);
+        }
+    }
+
     public function emailChangeRequested(Event\EmailChangeRequested $event): void
     {
         $this->log($event->user, 'email_change_requested', [
@@ -182,7 +208,9 @@ class CoreUserIntegration
 
     public function loggedOut(Event\LoggedOut $event): void
     {
-        $this->log($event->user, 'logged_out');
+        // Logging out everywhere also ends every session and revokes tokens:
+        // worth telling apart from logging out of one browser.
+        $this->log($event->user, $event->isGlobal ? 'logged_out_everywhere' : 'logged_out');
     }
 
     public function passwordChanged(Event\PasswordChanged $event): void

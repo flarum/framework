@@ -7,7 +7,7 @@ export default class Drawer {
     /**
      * @type {import('./focusTrap').FocusTrap}
      */
-    focusTrap: import('./focusTrap').FocusTrap;
+    focusTrap: import("./focusTrap").FocusTrap;
     /**
      * @type {?CloseWatcher}
      */

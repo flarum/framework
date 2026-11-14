@@ -95,7 +95,11 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
             /** @var Relationship|null $relationship */
             $relationship = collect($context->fields($this))->first(fn ($f) => $f->name === $relationName);
 
-            EloquentBuffer::add($model, $relationName, $aggregate);
+            // A model that already has the value has nothing to load, so it
+            // must not be queued: only load() empties the queue.
+            if (! $model->hasAttribute($this->property($field))) {
+                EloquentBuffer::add($model, $relationName, $aggregate);
+            }
 
             return function () use ($model, $relationName, $relationship, $field, $context, $aggregate) {
                 if (! $model->hasAttribute($this->property($field))) {
@@ -139,7 +143,11 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
                 return null;
             }
 
-            EloquentBuffer::add($model, $method);
+            // A model whose relation is already loaded has nothing to load, so
+            // it must not be queued: only load() empties the queue.
+            if (! $model->relationLoaded($method)) {
+                EloquentBuffer::add($model, $method);
+            }
 
             return function () use ($model, $method, $field, $context) {
                 if (! $model->relationLoaded($method)) {
@@ -216,7 +224,23 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
      */
     public function find(string $id, Context $context): ?object
     {
-        return $this->query($context)->find($id);
+        $query = $this->query($context);
+
+        if (! $this->idCanBeKey($query->getModel(), $id)) {
+            return null;
+        }
+
+        return $query->find($id);
+    }
+
+    /**
+     * Whether the id can be a key of the model. An integer key only matches
+     * digits: databases treat anything else differently (MySQL reads "2abc"
+     * as 2, PostgreSQL rejects the query), so it is answered as not found.
+     */
+    protected function idCanBeKey(Model $model, string $id): bool
+    {
+        return $model->getKeyType() !== 'int' || ctype_digit($id);
     }
 
     /**

@@ -1,4 +1,3 @@
-/// <reference types="mithril" />
 import Component, { type ComponentAttrs } from '../../common/Component';
 export interface ILoadingPostAttrs extends ComponentAttrs {
 }

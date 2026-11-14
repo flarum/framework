@@ -14,29 +14,24 @@ export interface IDialogListAttrs extends ComponentAttrs {
 }
 
 export default class DialogList<CustomAttrs extends IDialogListAttrs = IDialogListAttrs> extends Component<CustomAttrs> {
-  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
-    super.oninit(vnode);
-  }
-
-  oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
-    super.oncreate(vnode);
-  }
-
-  onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
-    super.onupdate(vnode);
-  }
-
   view() {
+    const state = this.attrs.state;
+
     return (
       <div className="DialogList">
         <ul className="DialogList-list">
-          {this.attrs.state.getAllItems().map((dialog) => (
-            <DialogListItem dialog={dialog} active={this.attrs.activeDialog?.id() === dialog.id()} actions={this.attrs.itemActions} />
+          {state.getAllItems().map((dialog) => (
+            <DialogListItem
+              key={dialog.id()}
+              dialog={dialog}
+              active={this.attrs.activeDialog?.id() === dialog.id()}
+              actions={this.attrs.itemActions}
+            />
           ))}
         </ul>
-        {this.attrs.state.hasNext() && !this.attrs.hideMore && (
+        {state.hasNext() && !this.attrs.hideMore && (
           <div className="DialogList-loadMore">
-            <Button className="Button" onclick={this.attrs.state.loadNext.bind(this.attrs.state)}>
+            <Button className="Button" loading={state.isLoadingNext()} disabled={state.isLoadingNext()} onclick={() => state.loadNext()}>
               {app.translator.trans('flarum-messages.forum.dialog_list.load_more_button')}
             </Button>
           </div>

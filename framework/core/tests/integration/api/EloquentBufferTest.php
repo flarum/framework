@@ -9,8 +9,12 @@
 
 namespace Flarum\Tests\integration\api;
 
+use Carbon\Carbon;
 use Flarum\Api\Context;
 use Flarum\Api\Resource\EloquentBuffer;
+use Flarum\Discussion\Discussion;
+use Flarum\Extend;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -30,7 +34,36 @@ class EloquentBufferTest extends TestCase
             User::class => [
                 $this->normalUser(),
             ],
+            Discussion::class => [
+                ['id' => 1, 'title' => 'a', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'comment_count' => 1],
+                ['id' => 2, 'title' => 'b', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'comment_count' => 1],
+                ['id' => 3, 'title' => 'c', 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 2, 'comment_count' => 1],
+            ],
+            Post::class => [
+                ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>a</p></t>'],
+                ['id' => 2, 'discussion_id' => 1, 'number' => 2, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>b</p></t>'],
+                ['id' => 3, 'discussion_id' => 2, 'number' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>c</p></t>'],
+            ],
         ]);
+    }
+
+    #[Test]
+    public function relations_loaded_before_serialization_are_not_left_in_the_buffer()
+    {
+        $this->app();
+
+        // The discussion list includes `user` by default and eager loads it
+        // before serializing, so there is nothing for the buffer to load.
+        // Only load() empties the buffer, so a model queued anyway would stay
+        // for the rest of the process and be loaded again by later requests.
+        foreach ([1, 2] as $request) {
+            $response = $this->send(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 1])
+            );
+
+            $this->assertEquals(200, $response->getStatusCode());
+            $this->assertCount(0, EloquentBuffer::getBuffer(new Discussion(), 'user') ?? [], "After request $request");
+        }
     }
 
     #[Test]
@@ -64,5 +97,60 @@ class EloquentBufferTest extends TestCase
         );
 
         $this->assertFalse($orphan->exists);
+    }
+
+    #[Test]
+    public function aggregate_over_an_ordered_relation_drops_the_ordering_from_the_grouped_query()
+    {
+        $this->extend(
+            (new Extend\Model(Discussion::class))
+                ->relationship('orderedPosts', function (Discussion $discussion) {
+                    return $discussion->hasMany(Post::class)->orderBy('number');
+                })
+        );
+
+        $this->app();
+
+        $discussions = Discussion::query()->whereIn('id', [1, 2, 3])->get();
+
+        $aggregate = [
+            'name' => 'orderedPostCount',
+            'relation' => 'orderedPosts',
+            'column' => '*',
+            'function' => 'count',
+            'constrain' => null,
+        ];
+
+        foreach ($discussions as $discussion) {
+            EloquentBuffer::add($discussion, 'orderedPosts', $aggregate);
+        }
+
+        $db = $this->database();
+        $db->flushQueryLog();
+        $db->enableQueryLog();
+
+        EloquentBuffer::load(
+            $discussions->first(),
+            'orderedPosts',
+            null,
+            new Context(new JsonApi(), new ServerRequest()),
+            $aggregate,
+        );
+
+        $queries = array_column($db->getQueryLog(), 'query');
+
+        $db->disableQueryLog();
+
+        // PostgreSQL rejects ordering a grouped query by a column that is
+        // neither grouped nor aggregated, so the relation's ORDER BY must not
+        // reach the aggregate query.
+        $this->assertCount(1, $queries);
+        $this->assertStringNotContainsStringIgnoringCase('order by', $queries[0]);
+
+        $counts = $discussions->mapWithKeys(fn (Discussion $discussion) => [
+            $discussion->id => (int) $discussion->getAttribute('ordered_post_count'),
+        ])->all();
+
+        $this->assertEquals([1 => 2, 2 => 1, 3 => 0], $counts);
     }
 }

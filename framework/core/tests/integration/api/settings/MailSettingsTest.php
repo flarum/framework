@@ -142,4 +142,37 @@ class MailSettingsTest extends TestCase
         $this->assertEmpty($data['data']['attributes']['errors']);
         $this->assertTrue($data['data']['attributes']['sending']);
     }
+
+    #[Test]
+    public function postmarkDriverReportsTheWebhookUrlToRegister()
+    {
+        $this->setting('mail_driver', 'postmark');
+        $this->setting('mail_postmark_token', 'token-abc');
+
+        $response = $this->send(
+            $this->request('GET', '/api/mail/settings', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $data = json_decode((string) $response->getBody(), true);
+
+        $this->assertEquals('http://localhost/mail/webhook/postmark', $data['data']['attributes']['webhookUrl']);
+    }
+
+    #[Test]
+    public function driverWithoutWebhooksReportsNoWebhookUrl()
+    {
+        $this->setting('mail_driver', 'smtp');
+
+        $response = $this->send(
+            $this->request('GET', '/api/mail/settings', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $data = json_decode((string) $response->getBody(), true);
+
+        $this->assertNull($data['data']['attributes']['webhookUrl']);
+    }
 }

@@ -10,7 +10,8 @@
         "audit-fix": "npx yarn-audit-fix"
     },
     "resolutions": {
-        "axios": "^0.33.0",
-        "serialize-javascript": "^7.0.5"
+        "axios": "^0.34.0",
+        "serialize-javascript": "^7.0.5",
+        "webpack": "5.107.2"
     }
 }

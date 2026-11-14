@@ -12,6 +12,7 @@ namespace Flarum\Group;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Foundation\EventGeneratorTrait;
+use Flarum\Foundation\IconImage\HasIconImage;
 use Flarum\Group\Event\Created;
 use Flarum\Group\Event\Deleted;
 use Flarum\Group\Event\Renamed;
@@ -26,6 +27,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name_plural
  * @property string|null $color
  * @property string|null $icon
+ * @property string|null $icon_image_path
+ * @property int $icon_image_scales
+ * @property-read string|null $icon_image_url
+ * @property-read string|null $icon_image_srcset
  * @property bool $is_hidden
  * @property int|null $position
  * @property-read \Illuminate\Database\Eloquent\Collection $users
@@ -36,6 +41,7 @@ class Group extends AbstractModel
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
     use HasFactory;
+    use HasIconImage;
 
     public const ADMINISTRATOR_ID = 1;
     public const GUEST_ID = 2;
@@ -72,7 +78,15 @@ class Group extends AbstractModel
             $this->name_plural = $namePlural;
         }
 
-        if ($this->isDirty(['name_singular', 'name_plural'])) {
+        // The API sets each name with its own call, so replace any rename
+        // already pending to raise one event per save. A new group isn't
+        // being renamed, so it raises none.
+        $this->pendingEvents = array_values(array_filter(
+            $this->pendingEvents,
+            fn (object $event) => ! $event instanceof Renamed
+        ));
+
+        if ($this->exists && $this->isDirty(['name_singular', 'name_plural'])) {
             $this->raise(new Renamed(
                 $this,
                 $this->getOriginal('name_singular'),

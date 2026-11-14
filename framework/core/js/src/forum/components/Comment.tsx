@@ -39,7 +39,7 @@ export default class Comment<CustomAttrs extends ICommentAttrs = ICommentAttrs> 
       <header className="Post-header">
         <ul>{listItems(this.attrs.headerItems.toArray())}</ul>
 
-        {!this.attrs.isHidden && this.attrs.cardVisible && (
+        {!this.attrs.isHidden && this.attrs.cardVisible && this.attrs.user && (
           <UserCard user={this.attrs.user} className="UserCard--popover" controlsButtonClassName="Button Button--icon Button--flat" />
         )}
       </header>,

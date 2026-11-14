@@ -6,6 +6,64 @@ const ConcatenatedModule = require('webpack/lib/optimize/ConcatenatedModule');
 class RegisterAsyncChunksPlugin {
   static registry = {};
 
+  /**
+   * @param {object} [options]
+   * @param {string} [options.composerPath] where to read the extension's
+   *   composer.json from, for the namespace. Defaults to the one beside the
+   *   `js` directory the build runs in, which is where every extension keeps
+   *   it; tests compile fixtures from elsewhere and say so explicitly.
+   */
+  constructor({ composerPath } = {}) {
+    this.composerPath = composerPath ?? path.resolve(process.cwd(), '../composer.json');
+  }
+
+  /**
+   * The `addChunkModule` calls for one module's async imports, in the order
+   * flarum.reg needs them.
+   *
+   * Each import contributes its own registration — the chunk it loads, under
+   * the module it is named after — and one for every other module that chunk
+   * carries. A module can be carried by more than one chunk: when a lazily
+   * imported component statically imports another that is lazily imported in
+   * its own right, the second is in both chunks. flarum.reg resolves a chunk
+   * id to the url path it was *first* registered with, and a module to the
+   * chunk it was *last* registered under, so:
+   *
+   * - every own registration goes first, so a chunk is never named after a
+   *   module it merely carries;
+   * - a carried module that has its own registration in the same chunk is not
+   *   registered as a passenger at all. Otherwise it is either loaded through
+   *   the other chunk, or — registered as a passenger first — it blocks its own
+   *   chunk's registration, leaving that chunk with no url.
+   *
+   * @param {Array<[string|number, string|number, string, string, boolean]>} candidates
+   *   [chunkId, moduleId, namespace, urlPath, isOwn] for every import in the module
+   * @param {Set<string>} ownUrlPaths url paths with their own registration
+   *   anywhere in the chunk this module is in
+   */
+  registrations(candidates, ownUrlPaths, sourceChunkId, memory) {
+    const own = candidates.filter((candidate) => candidate[4]);
+    const passengers = candidates.filter((candidate) => !candidate[4] && !ownUrlPaths.has(candidate[3]));
+
+    memory[sourceChunkId] ||= [];
+
+    const reg = [];
+
+    for (const [chunkId, moduleId, namespace, urlPath] of [...own, ...passengers]) {
+      const registryKey = `${sourceChunkId}:${chunkId}:${moduleId}:${namespace}`;
+
+      if (memory[sourceChunkId].includes(urlPath) || RegisterAsyncChunksPlugin.registry[registryKey]?.includes(urlPath)) {
+        continue;
+      }
+
+      reg.push(`flarum.reg.addChunkModule('${chunkId}', '${moduleId}', '${namespace}', '${urlPath}');`);
+      memory[sourceChunkId].push(urlPath);
+      (RegisterAsyncChunksPlugin.registry[registryKey] ||= []).push(urlPath);
+    }
+
+    return reg;
+  }
+
   processUrlPath(urlPath) {
     if (path.sep == '\\') {
       // separator on windows is "\", this will cause escape issues when used in url path.
@@ -14,7 +72,17 @@ class RegisterAsyncChunksPlugin {
     return urlPath;
   }
 
+  moduleUrlPath(module, sourceRoot) {
+    const resource = module.rootModule?.resource ?? module.resource;
+
+    if (!resource?.startsWith(sourceRoot)) return null;
+
+    return this.processUrlPath(resource.slice(sourceRoot.length).replace(path.extname(resource), ''));
+  }
+
   apply(compiler) {
+    const sourceRoot = path.resolve(compiler.context, 'src') + path.sep;
+
     compiler.hooks.thisCompilation.tap('RegisterAsyncChunksPlugin', (compilation) => {
       let alreadyOptimized = false;
 
@@ -46,14 +114,14 @@ class RegisterAsyncChunksPlugin {
               modulesToCheck[chunk.id] = modulesToCheck[chunk.id] || [];
 
               // A normal module.
-              if (module?.resource && module.resource.split(path.sep).includes('src') && module._source?._value.includes('webpackChunkName: ')) {
+              if (this.moduleUrlPath(module, sourceRoot) && module._source?._value.includes('webpackChunkName: ')) {
                 modulesToCheck[chunk.id].push(module);
               }
 
               // A ConcatenatedModule.
               if (module?.modules) {
                 module.modules.forEach((module) => {
-                  if (module.resource && module.resource.split(path.sep).includes('src') && module._source?._value.includes('webpackChunkName: ')) {
+                  if (this.moduleUrlPath(module, sourceRoot) && module._source?._value.includes('webpackChunkName: ')) {
                     modulesToCheck[chunk.id].push(module);
                   }
                 });
@@ -62,47 +130,46 @@ class RegisterAsyncChunksPlugin {
           }
 
           for (const sourceChunkId in modulesToCheck) {
+            const pending = [];
+
             for (const module of modulesToCheck[sourceChunkId]) {
               // If the module source has an async webpack chunk, add the chunk id to flarum.reg
               // at the end of the module source.
 
-              const reg = [];
+              const candidates = [];
+              pending.push([module, candidates]);
 
               // Each line that has a webpackChunkName comment.
               [...module._source._value.matchAll(/.*\/\* webpackChunkName: .* \*\/.*/gm)].forEach(([match]) => {
                 [...match.matchAll(/(.*?) webpackChunkName: '([^']*)'.*? \*\/ '([^']+)'.*?/gm)].forEach(([match, _, urlPath, importPath]) => {
                   urlPath = this.processUrlPath(urlPath);
 
-                  // Import path is relative to module.resource, so we need to resolve it
-                  const importPathResolved = path.resolve(path.dirname(module.resource), importPath);
-                  const thisComposerJson = require(path.resolve(process.cwd(), '../composer.json'));
+                  const dependency = module.blocks.flatMap((block) => block.dependencies).find((dependency) => dependency.request === importPath);
+                  const importedModule = dependency && compilation.moduleGraph.getModule(dependency);
+
+                  if (!importedModule) return match;
+
+                  const thisComposerJson = require(this.composerPath);
                   const namespace = extensionId(thisComposerJson.name);
 
                   const chunkModules = (c) => Array.from(compilation.chunkGraph.getChunkModulesIterable(c));
 
-                  const relevantChunk = chunks.find((chunk) =>
-                    chunkModules(chunk)?.find((module) => {
-                      const resourceWithoutExt = module.resource ? module.resource.replace(path.extname(module.resource), '') : '';
-                      const rootResourceWithoutExt = module.rootModule?.resource
-                        ? module.rootModule.resource.replace(path.extname(module.rootModule.resource), '')
-                        : '';
-                      return resourceWithoutExt === importPathResolved || rootResourceWithoutExt === importPathResolved;
-                    })
-                  );
+                  // The chunk this import loads is the one webpack named after it:
+                  // autoChunkNameLoader gave the import a `webpackChunkName` of
+                  // exactly this url path. Looking instead for any chunk that
+                  // contains the module finds the wrong one when another chunk
+                  // carries it too (a lazily imported component that statically
+                  // imports this one), so that is only the fallback.
+                  const relevantChunk =
+                    chunks.find((chunk) => chunk.name === urlPath) ?? chunks.find((chunk) => chunkModules(chunk).includes(importedModule));
 
                   if (!relevantChunk) {
-                    console.error(`Could not find chunk for ${importPathResolved}`);
+                    console.error(`Could not find chunk for ${importPath}`);
                     return match;
                   }
 
                   const relevantChunkModules = chunkModules(relevantChunk);
-                  const mainModule = relevantChunkModules.filter((m) => {
-                    const resourceWithoutExt = m.resource ? m.resource.replace(path.extname(m.resource), '') : '';
-                    const rootResourceWithoutExt = m.rootModule?.resource
-                      ? m.rootModule.resource.replace(path.extname(m.rootModule.resource), '')
-                      : '';
-                    return resourceWithoutExt === importPathResolved || rootResourceWithoutExt === importPathResolved;
-                  })[0];
+                  const mainModule = relevantChunkModules.find((m) => m === importedModule || m.rootModule === importedModule);
                   const otherRelevantChunkModules = relevantChunkModules.filter((m) => m !== mainModule);
 
                   if (mainModule instanceof ConcatenatedModule && mainModule.modules) {
@@ -115,7 +182,13 @@ class RegisterAsyncChunksPlugin {
 
                   const moduleId = compilation.chunkGraph.getModuleId(mainModule);
                   const registrableModulesUrlPaths = new Map();
-                  registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath]);
+                  // Webpack may merge identical chunks and discard this import's original filename.
+                  const chunkUrlPath = this.processUrlPath(relevantChunk.name ?? urlPath);
+                  registrableModulesUrlPaths.set(chunkUrlPath, [relevantChunk.id, moduleId, namespace, chunkUrlPath, true]);
+
+                  if (this.moduleUrlPath(mainModule, sourceRoot) && urlPath !== chunkUrlPath) {
+                    registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath, true]);
+                  }
 
                   const modules = [];
 
@@ -129,38 +202,29 @@ class RegisterAsyncChunksPlugin {
 
                   // This is a chunk with many modules, we need to register all of them.
                   modules?.forEach((module) => {
-                    if (!module.resource?.includes(`${path.sep}src${path.sep}`)) {
-                      return;
-                    }
+                    const urlPath = this.moduleUrlPath(module, sourceRoot);
 
-                    // The path right after the src/ directory, without the extension.
-                    const regPathSep = `\\${path.sep}`;
-                    const urlPath = this.processUrlPath(module.resource.replace(new RegExp(`.*${regPathSep}src${regPathSep}([^.]+)\..+`), '$1'));
+                    if (!urlPath) return;
 
                     if (!registrableModulesUrlPaths.has(urlPath)) {
-                      registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath]);
+                      registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath, false]);
                     }
                   });
 
-                  registrableModulesUrlPaths.forEach(([chunkId, moduleId, namespace, urlPath]) => {
-                    chunkModuleMemory[sourceChunkId] = chunkModuleMemory[sourceChunkId] || [];
-
-                    if (
-                      !chunkModuleMemory[sourceChunkId].includes(urlPath) &&
-                      !RegisterAsyncChunksPlugin.registry[`${sourceChunkId}:${chunkId}:${moduleId}:${namespace}`]?.includes(urlPath)
-                    ) {
-                      reg.push(`flarum.reg.addChunkModule('${chunkId}', '${moduleId}', '${namespace}', '${urlPath}');`);
-                      chunkModuleMemory[sourceChunkId].push(urlPath);
-                      RegisterAsyncChunksPlugin.registry[`${sourceChunkId}:${chunkId}:${moduleId}:${namespace}`] ||= [];
-                      RegisterAsyncChunksPlugin.registry[`${sourceChunkId}:${chunkId}:${moduleId}:${namespace}`].push(urlPath);
-                    }
-                  });
+                  candidates.push(...registrableModulesUrlPaths.values());
 
                   return match;
                 });
               });
+            }
 
-              module._source._value += reg.join('\n');
+            // The modules of one chunk run together when it loads, so a module
+            // with its own registration anywhere in the chunk needs no passenger
+            // copy in any of them.
+            const ownUrlPaths = new Set(pending.flatMap(([, candidates]) => candidates.filter((c) => c[4]).map((c) => c[3])));
+
+            for (const [module, candidates] of pending) {
+              module._source._value += this.registrations(candidates, ownUrlPaths, sourceChunkId, chunkModuleMemory).join('\n');
             }
           }
         }

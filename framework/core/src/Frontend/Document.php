@@ -9,6 +9,7 @@
 
 namespace Flarum\Frontend;
 
+use Closure;
 use Flarum\Formatter\XsltPolyfill;
 use Flarum\Foundation\Config;
 use Flarum\Frontend\Compiler\VersionerInterface;
@@ -157,9 +158,10 @@ class Document implements Renderable
     public array $preloads = [];
 
     /**
-     * Document extra attributes.
+     * Document extra attributes. A Closure value is called with the request;
+     * any other value is used as given.
      *
-     * @var array<string, string|callable|array>
+     * @var array<string, string|Closure|array>
      */
     public array $extraAttributes = [
         'class' => [],
@@ -184,6 +186,26 @@ class Document implements Renderable
         $this->view->share('forum', Arr::get($this->forumApiDocument, 'data.attributes'));
 
         return $this->makeView()->render();
+    }
+
+    /**
+     * Preload a JavaScript chunk the page imports as soon as it boots, so it
+     * downloads alongside the main bundle rather than after it.
+     *
+     * @param string $namespace `core`, or the ID of the extension the chunk belongs to.
+     * @param string $path The chunk's path in its JS, such as `forum/components/PostStream`.
+     */
+    public function preloadChunk(string $namespace, string $path): void
+    {
+        // The address the frontend loads it from: see ExportRegistry's versionedChunkUrl.
+        $file = "js/$namespace/$path.js";
+        $url = rtrim($this->filesystem->disk('flarum-assets')->url('js'), '/')."/$namespace/$path.js";
+
+        if ($revision = $this->versioner->getRevision($file)) {
+            $url = substr($url, 0, -3).".$revision.js";
+        }
+
+        $this->preloads[] = ['href' => $url, 'as' => 'script'];
     }
 
     protected function makeView(): View
@@ -244,7 +266,9 @@ class Document implements Renderable
         $extraClasses = $this->extraAttributes['class'] ?? [];
 
         foreach ($extraClasses as $class) {
-            if (is_callable($class)) {
+            // Only a closure. A class name is a string, and `is_callable` on a
+            // string is true whenever a global function happens to share it.
+            if ($class instanceof Closure) {
                 $class = $class($this->request);
             }
 
@@ -263,7 +287,7 @@ class Document implements Renderable
                 continue;
             }
 
-            if (is_callable($value)) {
+            if ($value instanceof Closure) {
                 $value = $value($this->request);
             }
 
@@ -430,6 +454,8 @@ HTML;
     {
         if (filter_var($url, FILTER_VALIDATE_URL)) {
             $urlParts = parse_url($url);
+            $fragment = isset($urlParts['fragment']) ? '#'.$urlParts['fragment'] : '';
+
             if (isset($urlParts['query'])) {
                 parse_str($urlParts['query'], $urlQueryArgs);
 
@@ -439,10 +465,11 @@ HTML;
                     $urlQueryArgs[$key] = $value;
                 }
 
-                $urlParts['query'] = http_build_query($urlQueryArgs);
-                $newUrl = $urlParts['scheme'].'://'.$urlParts['host'].$urlParts['path'].'?'.$urlParts['query'];
+                $query = http_build_query($urlQueryArgs);
+                $newUrl = strstr($url, '?', true).($query !== '' ? '?'.$query : '').$fragment;
             } elseif ($value !== null) {
-                $newUrl = $url.'?'.http_build_query([$key => $value]);
+                $base = $fragment !== '' ? strstr($url, '#', true) : $url;
+                $newUrl = $base.'?'.http_build_query([$key => $value]).$fragment;
             } else {
                 return $url;
             }

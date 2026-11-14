@@ -11,13 +11,18 @@ namespace Flarum\Tests\unit\Frontend\Compiler;
 
 use Flarum\Frontend\Compiler\FileVersioner;
 use Flarum\Frontend\Compiler\JsCompiler;
+use Flarum\Frontend\Compiler\JsDirectoryCompiler;
 use Flarum\Frontend\Compiler\RevisionCompiler;
+use Flarum\Frontend\Compiler\Source\DirectorySource;
+use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\unit\TestCase;
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestWith;
 
 /**
  * The revision is a hash of the compiled OUTPUT, so it changes if and only if
@@ -36,6 +41,9 @@ class RevisionCompilerTest extends TestCase
 
     /** @var string[] every put() call, in order — for asserting write-churn */
     private array $putLog = [];
+
+    /** @var string[] every get() call, in order — for asserting read-churn */
+    private array $getLog = [];
 
     /** @var array<string, string|null> shared manifest, persists across compilers like production */
     private array $manifest = [];
@@ -82,6 +90,11 @@ class RevisionCompilerTest extends TestCase
             return true;
         });
         $assetsDir->shouldReceive('exists')->andReturnUsing(fn ($file) => isset($this->written[$file]));
+        $assetsDir->shouldReceive('get')->andReturnUsing(function ($file) {
+            $this->getLog[] = $file;
+
+            return $this->written[$file] ?? null;
+        });
         $assetsDir->shouldReceive('url')->andReturnUsing(fn ($file) => '/assets/'.$file);
 
         return $assetsDir;
@@ -115,6 +128,68 @@ class RevisionCompilerTest extends TestCase
     private function makeJsCompiler(): JsCompiler
     {
         return new JsCompiler($this->assetsDir(), 'chunk.js', m::mock(SettingsRepositoryInterface::class), $this->versioner());
+    }
+
+    #[Test]
+    #[TestWith(['js/{ext}/forum'])]
+    #[TestWith(['js\\{ext}\\forum'])]
+    public function rebuilding_a_lazy_chunk_preserves_the_bytes_at_its_previous_url(string $destination)
+    {
+        $path = $this->sourceFile('chunk.js', 'console.log("old build");');
+        $mapPath = $this->sourceFile('chunk.js.map', json_encode([
+            'version' => 3, 'sources' => ['old.ts'], 'sourcesContent' => ['old build'],
+            'names' => [], 'mappings' => 'AAAA',
+        ]));
+        $previousContainer = Container::getInstance();
+        $container = new Container();
+        $container->instance(SettingsRepositoryInterface::class, m::mock(SettingsRepositoryInterface::class));
+        $container->instance(VersionerInterface::class, $this->versioner());
+        Container::setInstance($container);
+
+        try {
+            $compiler = new class($this->assetsDir(), $destination, $this->versioner()) extends JsDirectoryCompiler {
+                public function chunkUrl(DirectorySource $source): string
+                {
+                    return $this->compilerFor($source, $source->getFilesystem(), 'chunk.js')->getUrl();
+                }
+            };
+            $compiler->addSources(fn ($sources) => $sources->addDirectory($this->tmpDir));
+            $source = new DirectorySource($this->tmpDir);
+            $this->manifest['js/core/forum/chunk.js'] = '12345678';
+            $this->manifest['js\\core\\forum/chunk.js'] = '87654321';
+            $this->written['js/core/forum/chunk.js'] = 'console.log("legacy build");';
+            $compiler->getUrl();
+            $this->assertArrayNotHasKey('js\\core\\forum/chunk.js', $this->manifest);
+            $this->assertMatchesRegularExpression('/^[a-f0-9]{32}$/', $this->manifest['js/core/forum/chunk.js']);
+            $oldUrl = $compiler->chunkUrl($source);
+            $oldFile = substr(parse_url($oldUrl, PHP_URL_PATH), strlen('/assets/'));
+            $this->assertStringStartsWith('/assets/js/core/forum/chunk.', $oldUrl);
+            $this->assertArrayHasKey($oldFile, $this->written, 'A legacy manifest must be republished before emitting revisioned URLs.');
+            $oldContent = $this->written[$oldFile];
+            $this->assertArrayHasKey('js/core/forum/chunk.js', $this->manifest);
+            preg_match('~sourceMappingURL=/assets/(.+)$~', $oldContent, $mapUrl);
+            $oldMap = $this->written[$mapUrl[1]];
+
+            file_put_contents($path, 'console.log("new build");');
+            file_put_contents($mapPath, json_encode([
+                'version' => 3, 'sources' => ['new.ts'], 'sourcesContent' => ['new build'],
+                'names' => [], 'mappings' => 'AAAA',
+            ]));
+            clearstatcache(true, $path);
+            $compiler->commit();
+            $newUrl = $compiler->chunkUrl($source);
+            $newFile = substr(parse_url($newUrl, PHP_URL_PATH), strlen('/assets/'));
+            preg_match('~sourceMappingURL=/assets/(.+)$~', $this->written[$newFile], $newMapUrl);
+            $this->assertNotSame($mapUrl[1], $newMapUrl[1]);
+            $this->assertArrayHasKey($newMapUrl[1], $this->written);
+            $this->assertNotSame($oldMap, $this->written[$newMapUrl[1]]);
+            $this->assertSame($oldMap, $this->written[$mapUrl[1]]);
+        } finally {
+            Container::setInstance($previousContainer);
+        }
+
+        $this->assertNotSame($oldUrl, $newUrl);
+        $this->assertSame($oldContent, $this->written[$oldFile], 'An open tab must still receive its original chunk from its original URL.');
     }
 
     #[Test]
@@ -253,7 +328,7 @@ class RevisionCompilerTest extends TestCase
 
     /**
      * Extension JS is compiled per-file by JsCompiler (JsDirectoryCompiler
-     * expands a DirectorySource into one JsCompiler per file), which inherits
+     * expands a DirectorySource into one JsChunkCompiler per file), which inherits
      * the same content-based revision — and its hash covers the written bundle
      * including the sourcemap comment, since that is what clients download.
      */
@@ -290,5 +365,70 @@ class RevisionCompilerTest extends TestCase
         $compiler3->commit();
 
         $this->assertNotSame($first, $compiler3->getUrl(), 'Changed extension JS must produce a new revision.');
+    }
+
+    /**
+     * The revision manifest and the asset live in different stores, and nothing
+     * makes the two writes atomic, so a partial rebuild can record a revision
+     * for bytes that were never written. The revision then describes the file
+     * incorrectly, and — because commit() renders the same correct output,
+     * hashes it to the revision already on record, and skips — the stale file
+     * is served for good. In production that showed up as custom LESS changes
+     * appearing to save (the revision moved, the "assets changed" prompt fired)
+     * while the stylesheet kept its old contents until an unrelated extension
+     * toggle happened to move the hash.
+     */
+    #[Test]
+    public function commit_repairs_a_file_that_no_longer_matches_its_revision()
+    {
+        $path = $this->sourceFile('a.js', 'console.log(1);');
+
+        $compiler = $this->makeCompiler();
+        $compiler->addSources(fn ($sources) => $sources->addFile($path));
+        $compiler->commit();
+
+        $expected = $this->written['target.js'];
+        $this->assertSame(1, $this->putsFor('target.js'));
+
+        // The file drifts from the revision still recorded for it.
+        $this->written['target.js'] = '/* not what the revision says */';
+
+        // Sources unchanged, so the freshly rendered output still hashes to the
+        // recorded revision: the equality check alone would skip and leave the
+        // wrong bytes in place. Verification is what catches it.
+        $second = $this->makeCompiler();
+        $second->addSources(fn ($sources) => $sources->addFile($path));
+        $second->commit();
+
+        $this->assertSame(
+            $expected,
+            $this->written['target.js'],
+            'a committed file that no longer matches its recorded revision must be rewritten'
+        );
+    }
+
+    /**
+     * The repair above must not cost a write on the ordinary path, where the
+     * file does still match: that would rewrite every bundle on every request
+     * in debug mode, which is exactly what the revision check exists to avoid.
+     */
+    #[Test]
+    public function commit_still_writes_nothing_when_the_file_matches_its_revision()
+    {
+        $path = $this->sourceFile('a.js', 'console.log(1);');
+
+        $compiler = $this->makeCompiler();
+        $compiler->addSources(fn ($sources) => $sources->addFile($path));
+        $compiler->commit();
+
+        $puts = count($this->putLog);
+        $manifestWrites = $this->manifestWrites;
+
+        $second = $this->makeCompiler();
+        $second->addSources(fn ($sources) => $sources->addFile($path));
+        $second->commit();
+
+        $this->assertSame($puts, count($this->putLog), 'an unchanged, intact asset must not be rewritten');
+        $this->assertSame($manifestWrites, $this->manifestWrites, 'nor its revision re-recorded');
     }
 }

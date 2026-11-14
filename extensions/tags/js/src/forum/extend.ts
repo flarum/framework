@@ -7,6 +7,7 @@ import TagsPage from './components/TagsPage';
 import Tag from '../common/models/Tag';
 
 import commonExtend from '../common/extend';
+import extendDeck from './extendDeck';
 
 export default [
   ...commonExtend,
@@ -22,4 +23,7 @@ export default [
   new Extend.Model(Discussion) //
     .hasMany<Tag>('tags') //
     .attribute<boolean>('canTag'),
+
+  // flarum/deck is an optional dependency, so it has loaded before this runs.
+  ...('flarum-deck' in flarum.extensions ? extendDeck() : []),
 ];

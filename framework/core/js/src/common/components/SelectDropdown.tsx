@@ -3,6 +3,7 @@ import classList from '../utils/classList';
 import type Component from '../Component';
 import type Mithril from 'mithril';
 import Icon from './Icon';
+import extractText from '../utils/extractText';
 
 /**
  * Determines via a vnode is currently "active".
@@ -45,9 +46,18 @@ export default class SelectDropdown<CustomAttrs extends ISelectDropdownAttrs = I
     attrs.className = classList(attrs.className, 'Dropdown--select');
   }
 
-  getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray {
+  protected getLabel(children: Mithril.ChildArray): Mithril.Children {
     const activeChild = children.find(isActive);
-    let label = (activeChild && typeof activeChild === 'object' && 'children' in activeChild && activeChild.children) || this.attrs.defaultLabel;
+
+    return (activeChild && typeof activeChild === 'object' && 'children' in activeChild && activeChild.children) || this.attrs.defaultLabel;
+  }
+
+  getVisibleLabel(children: Mithril.ChildArray): string {
+    return extractText(this.getLabel(children)).trim();
+  }
+
+  getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray {
+    const label = this.getLabel(children);
 
     return [
       // An icon is what identifies the control once there is no room for its

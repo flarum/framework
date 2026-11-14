@@ -11,7 +11,7 @@ export interface IColorPreviewInputAttrs extends ComponentAttrs {
 }
 
 export default class ColorPreviewInput<
-  CustomAttributes extends IColorPreviewInputAttrs = IColorPreviewInputAttrs
+  CustomAttributes extends IColorPreviewInputAttrs = IColorPreviewInputAttrs,
 > extends Component<CustomAttributes> {
   view(vnode: Mithril.Vnode<CustomAttributes, this>) {
     const { className, id, ...otherAttrs } = this.attrs;

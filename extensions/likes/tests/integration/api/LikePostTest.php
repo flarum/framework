@@ -117,6 +117,43 @@ class LikePostTest extends TestCase
         $this->assertNull($post->likes->where('id', $authenticatedAs)->first(), $message);
     }
 
+    #[Test]
+    #[DataProvider('allowedUsersToLike')]
+    public function liking_an_already_liked_post_keeps_it_liked(int $postId, ?int $authenticatedAs, string $message, ?bool $canLikeOwnPost = null)
+    {
+        if (! is_null($canLikeOwnPost)) {
+            $this->setting('flarum-likes.like_own_post', $canLikeOwnPost);
+        }
+
+        $this->rewriteDefaultPermissionsAfterBoot();
+
+        $this->sendLikeRequest($postId, $authenticatedAs);
+        $response = $this->sendLikeRequest($postId, $authenticatedAs);
+
+        $post = CommentPost::query()->find($postId);
+
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
+        $this->assertNotNull($post->likes->where('id', $authenticatedAs)->first(), $message);
+    }
+
+    #[Test]
+    #[DataProvider('allowedUsersToLike')]
+    public function unliking_a_post_that_is_not_liked_leaves_it_unliked(int $postId, ?int $authenticatedAs, string $message, ?bool $canLikeOwnPost = null)
+    {
+        if (! is_null($canLikeOwnPost)) {
+            $this->setting('flarum-likes.like_own_post', $canLikeOwnPost);
+        }
+
+        $this->rewriteDefaultPermissionsAfterBoot();
+
+        $response = $this->sendLikeRequest($postId, $authenticatedAs, false);
+
+        $post = CommentPost::query()->find($postId);
+
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
+        $this->assertNull($post->likes->where('id', $authenticatedAs)->first(), $message);
+    }
+
     public static function allowedUsersToLike(): array
     {
         return [

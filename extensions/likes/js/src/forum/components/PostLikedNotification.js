@@ -19,6 +19,6 @@ export default class PostLikedNotification extends Notification {
   }
 
   excerpt() {
-    return truncate(this.attrs.notification.subject().contentPlain(), 200);
+    return truncate(this.attrs.notification.subject().contentPlain() || '', 200);
   }
 }

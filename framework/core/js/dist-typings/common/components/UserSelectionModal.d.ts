@@ -8,7 +8,16 @@ export interface IUserSelectionModalAttrs extends IFormModalAttrs {
     selected: User[];
     onsubmit: (users: User[]) => void;
     maxItems?: number;
-    excluded?: (number | string)[];
+    /**
+     * Users left out of the list: their IDs, or a check that returns true for
+     * each one.
+     */
+    excluded?: (number | string)[] | ((user: User) => boolean);
+    /**
+     * Why a user can't be selected, shown in their place in the list; nothing
+     * when they can be.
+     */
+    unavailable?: (user: User) => Mithril.Children;
 }
 /**
  * The `UserSelectionModal` component displays a modal dialog with searchable

@@ -98,6 +98,30 @@ class SetTest extends TestCase
         );
     }
 
+    /**
+     * The companion to the two rejection tests: refusing a directive in a
+     * colour field must not cost us ordinary colours, which is the only thing
+     * these settings are actually for.
+     */
+    #[Test]
+    public function theme_primary_color_accepts_an_ordinary_colour()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/settings', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'theme_primary_color' => '#4D698E',
+                ],
+            ])
+        );
+
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals(
+            '#4D698E',
+            $this->app->getContainer()->make('flarum.settings')->get('theme_primary_color')
+        );
+    }
+
     #[Test]
     public function theme_secondary_color_rejects_less_import()
     {

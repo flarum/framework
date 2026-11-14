@@ -332,6 +332,12 @@ export default class Composer extends Component {
 
     this.$().css('top', 'auto');
     this.hideBackdrop();
+
+    // The minimize control is gone now: keep focus on the composer's controls.
+    if (this.focusRestoreControl) {
+      this.focusRestoreControl = false;
+      this.$('.Composer-controls .item-restore button').focus();
+    }
   }
 
   /**
@@ -363,7 +369,10 @@ export default class Composer extends Component {
             })}
             title={app.translator.trans('core.forum.composer.minimize_tooltip')}
             aria-label={app.translator.trans('core.forum.composer.minimize_tooltip')}
-            onclick={this.state.minimize.bind(this.state)}
+            onclick={() => {
+              this.focusRestoreControl = true;
+              this.state.minimize();
+            }}
             itemClassName="App-backControl"
           />
         );
@@ -375,6 +384,18 @@ export default class Composer extends Component {
             title={app.translator.trans('core.forum.composer.full_screen_tooltip')}
             aria-label={app.translator.trans('core.forum.composer.full_screen_tooltip')}
             onclick={this.state.fullScreen.bind(this.state)}
+          />
+        );
+      }
+
+      if (this.state.position === ComposerState.Position.MINIMIZED) {
+        items.add(
+          'restore',
+          <ComposerButton
+            icon="fas fa-chevron-up"
+            title={app.translator.trans('core.forum.composer.restore_tooltip')}
+            aria-label={app.translator.trans('core.forum.composer.restore_tooltip')}
+            onclick={this.state.show.bind(this.state)}
           />
         );
       }
@@ -397,7 +418,11 @@ export default class Composer extends Component {
    * Initialize default Composer height.
    */
   initializeHeight() {
-    this.state.height = localStorage.getItem('composerHeight');
+    try {
+      this.state.height = localStorage.getItem('composerHeight');
+    } catch (e) {
+      // The browser blocks storage.
+    }
 
     if (!this.state.height) {
       this.state.height = this.defaultHeight();
@@ -420,6 +445,10 @@ export default class Composer extends Component {
     this.state.height = height;
     this.updateHeight();
 
-    localStorage.setItem('composerHeight', this.state.height);
+    try {
+      localStorage.setItem('composerHeight', this.state.height);
+    } catch (e) {
+      // The browser blocks storage: the height is kept until the page is left.
+    }
   }
 }

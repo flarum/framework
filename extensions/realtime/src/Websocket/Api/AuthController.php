@@ -12,6 +12,7 @@ namespace Flarum\Realtime\Websocket\Api;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Flarum\Realtime\Push\Payload\Generator;
+use Flarum\Realtime\Websocket\TypingActivity;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
@@ -40,6 +41,16 @@ class AuthController implements RequestHandlerInterface
 
         $this->actor = RequestUtil::getActor($request);
         $channel = Arr::get($attributes, 'channel_name');
+
+        if ($channel === TypingActivity::CHANNEL) {
+            if ($this->typingActivity()) {
+                $body = $this->pusher->authorizeChannel($channel, Arr::get($attributes, 'socket_id'));
+
+                return new JsonResponse(json_decode($body, true));
+            }
+
+            return new EmptyResponse(403);
+        }
 
         if (preg_match('~^private-index-typing-tag=(?<id>[0-9]+)$~', $channel, $m)) {
             if ($this->indexTypingTag((int) $m['id'])) {
@@ -103,6 +114,18 @@ class AuthController implements RequestHandlerInterface
     }
 
     /**
+     * Authorize the channel naming members who type in a private conversation while
+     * hiding their online status: the conversation's members who hold core's
+     * `user.viewLastSeenAt`, the override for that preference. See
+     * {@link \Flarum\Realtime\Websocket\Message\Message::relayDialogTyping()}.
+     */
+    protected function privateMessageTypingIdentified(int $id): bool
+    {
+        return $this->actor->hasPermission('user.viewLastSeenAt')
+            && $this->privateMessageTyping($id);
+    }
+
+    /**
      * Authorize the channel that discloses who is typing while hiding their online
      * status. `user.viewLastSeenAt` is core's override for the `discloseOnline`
      * preference, so it gates this too — plus the ordinary requirements for seeing
@@ -123,6 +146,17 @@ class AuthController implements RequestHandlerInterface
 
         return $discussion !== null
             && $this->actor->can('flarum-realtime.view-who-types', $discussion);
+    }
+
+    /**
+     * Authorize the forum-wide typing feed. What each subscriber then receives
+     * is narrowed further, per event, by {@link TypingActivity}.
+     */
+    protected function typingActivity(): bool
+    {
+        return ! $this->actor->isGuest()
+            && $this->settings->get('flarum-realtime.typing-indicator')
+            && $this->actor->hasPermission('flarum-realtime.view-all-typing');
     }
 
     /**
