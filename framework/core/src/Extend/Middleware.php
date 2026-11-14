@@ -103,6 +103,10 @@ class Middleware implements ExtenderInterface
     public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->extend("flarum.$this->frontend.middleware", function ($existingMiddleware) use ($container) {
+            // An earlier extender's removal leaves gaps in the keys, and the
+            // insertions below need a key to be a position.
+            $existingMiddleware = array_values($existingMiddleware);
+
             foreach ($this->addMiddlewares as $addMiddleware) {
                 $existingMiddleware[] = $addMiddleware;
             }

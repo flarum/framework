@@ -118,6 +118,18 @@ class MiddlewareTest extends TestCase
     }
 
     #[Test]
+    public function inserting_after_another_extender_removed_a_middleware_uses_the_anchor_position()
+    {
+        // Removal leaves a gap in the keys, which must not be mistaken for an offset.
+        $container = $this->container(['a', 'b', 'c']);
+
+        (new Extend\Middleware('forum'))->remove('a')->extend($container);
+        (new Extend\Middleware('forum'))->insertBefore('b', 'new')->extend($container);
+
+        $this->assertEquals(['new', 'b', 'c'], array_values($container->make('flarum.forum.middleware')));
+    }
+
+    #[Test]
     public function removing_a_missing_middleware_is_still_a_no_op()
     {
         $this->assertEquals(['a', 'b'], $this->stack(
