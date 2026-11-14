@@ -43,9 +43,9 @@ class TagDefaultSortTest extends TestCase
                 $this->normalUser(),
             ],
             Tag::class => [
-                ['id' => 1, 'name' => 'Plain', 'slug' => 'plain', 'position' => 0],
-                ['id' => 2, 'name' => 'Oldest First', 'slug' => 'oldest-first', 'position' => 1, 'default_sort' => 'oldest'],
-                ['id' => 3, 'name' => 'Gone', 'slug' => 'gone', 'position' => 2, 'default_sort' => 'sort_from_a_removed_extension'],
+                ['id' => 1, 'name' => 'Plain', 'slug' => 'plain', 'is_primary' => true, 'position' => 0],
+                ['id' => 2, 'name' => 'Oldest First', 'slug' => 'oldest-first', 'is_primary' => true, 'position' => 1, 'default_sort' => 'oldest'],
+                ['id' => 3, 'name' => 'Gone', 'slug' => 'gone', 'is_primary' => true, 'position' => 2, 'default_sort' => 'sort_from_a_removed_extension'],
             ],
             Discussion::class => [
                 $this->discussion(1, 'First', '2020-01-01'),

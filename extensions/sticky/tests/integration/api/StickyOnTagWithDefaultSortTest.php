@@ -51,9 +51,9 @@ class StickyOnTagWithDefaultSortTest extends TestCase
 
         $this->prepareDatabase([
             Tag::class => [
-                ['id' => 1, 'name' => 'Newest', 'slug' => 'newest-first', 'position' => 0, 'default_sort' => 'newest'],
-                ['id' => 2, 'name' => 'Latest', 'slug' => 'latest-first', 'position' => 1, 'default_sort' => 'latest'],
-                ['id' => 3, 'name' => 'Plain', 'slug' => 'plain', 'position' => 2],
+                ['id' => 1, 'name' => 'Newest', 'slug' => 'newest-first', 'is_primary' => true, 'position' => 0, 'default_sort' => 'newest'],
+                ['id' => 2, 'name' => 'Latest', 'slug' => 'latest-first', 'is_primary' => true, 'position' => 1, 'default_sort' => 'latest'],
+                ['id' => 3, 'name' => 'Plain', 'slug' => 'plain', 'is_primary' => true, 'position' => 2],
             ],
             Discussion::class => $discussions,
             Post::class => $posts,

@@ -50,12 +50,10 @@ export default function addTagList() {
     };
 
     sortTags(tags)
-      .filter(
-        (tag) => tag.position() !== null && (!tag.isChild() || (currentTag && (tag.parent() === currentTag || tag.parent() === currentTag.parent())))
-      )
+      .filter((tag) => tag.isPrimary() && (!tag.isChild() || (currentTag && (tag.parent() === currentTag || tag.parent() === currentTag.parent()))))
       .forEach(addTag);
 
-    const more = tags.filter((tag) => tag.position() === null).sort((a, b) => b.discussionCount() - a.discussionCount());
+    const more = tags.filter((tag) => tag.isSecondary()).sort((a, b) => b.discussionCount() - a.discussionCount());
 
     more.splice(0, 3).forEach(addTag);
 

@@ -47,14 +47,29 @@ export default class Tag extends Model {
   defaultSort() {
     return Model.attribute<string | null>('defaultSort').call(this);
   }
+  /**
+   * Whether this is a child of a primary tag.
+   */
   isChild() {
     return Model.attribute<boolean>('isChild').call(this);
   }
   isHidden() {
     return Model.attribute<boolean>('isHidden').call(this);
   }
+  /**
+   * Whether this is a primary tag: a top-level primary tag, or a child of one.
+   *
+   * Use this rather than checking `position()`. Secondary tags have no
+   * position in 2.x, but that is an implementation detail which may change.
+   */
   isPrimary() {
     return Model.attribute<boolean>('isPrimary').call(this);
+  }
+  /**
+   * Whether this is a secondary tag.
+   */
+  isSecondary() {
+    return !this.isPrimary();
   }
 
   discussionCount() {
@@ -77,7 +92,10 @@ export default class Tag extends Model {
     return Model.attribute<boolean>('canAddToDiscussion').call(this);
   }
 
+  /**
+   * Whether this is a primary tag without a parent.
+   */
   isPrimaryParent() {
-    return computed<boolean, this>('position', 'parent', (position, parent) => position !== null && parent === false).call(this);
+    return computed<boolean, this>('isPrimary', 'isChild', (isPrimary, isChild) => !!isPrimary && !isChild).call(this);
   }
 }

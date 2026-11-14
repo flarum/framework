@@ -35,8 +35,8 @@ class AllDiscussionsCheckTest extends TestCase
                 $this->normalUser(),
             ],
             Tag::class => [
-                ['id' => 1, 'name' => 'General', 'slug' => 'general', 'position' => 0, 'is_hidden' => false],
-                ['id' => 2, 'name' => 'Secret', 'slug' => 'secret', 'position' => 1, 'is_hidden' => true],
+                ['id' => 1, 'name' => 'General', 'slug' => 'general', 'is_primary' => true, 'position' => 0, 'is_hidden' => false],
+                ['id' => 2, 'name' => 'Secret', 'slug' => 'secret', 'is_primary' => true, 'position' => 1, 'is_hidden' => true],
             ],
             Discussion::class => [
                 ['id' => 1, 'title' => 'Normal', 'created_at' => '2026-01-02 10:00:00', 'last_posted_at' => '2026-01-02 10:00:00', 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],

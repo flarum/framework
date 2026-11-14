@@ -47,10 +47,10 @@ class ListTagStateTest extends TestCase
 
         $this->prepareDatabase([
             Tag::class => array_merge($this->tags(), [
-                ['id' => 20, 'name' => 'Alpha', 'slug' => 'alpha', 'position' => 20, 'parent_id' => null],
-                ['id' => 21, 'name' => 'Beta', 'slug' => 'beta', 'position' => 21, 'parent_id' => null],
-                ['id' => 22, 'name' => 'Kid of Alpha', 'slug' => 'kid-of-alpha', 'position' => 0, 'parent_id' => 20],
-                ['id' => 23, 'name' => 'Kid of Beta', 'slug' => 'kid-of-beta', 'position' => 0, 'parent_id' => 21],
+                ['id' => 20, 'name' => 'Alpha', 'slug' => 'alpha', 'is_primary' => true, 'position' => 20, 'parent_id' => null],
+                ['id' => 21, 'name' => 'Beta', 'slug' => 'beta', 'is_primary' => true, 'position' => 21, 'parent_id' => null],
+                ['id' => 22, 'name' => 'Kid of Alpha', 'slug' => 'kid-of-alpha', 'is_primary' => true, 'position' => 0, 'parent_id' => 20],
+                ['id' => 23, 'name' => 'Kid of Beta', 'slug' => 'kid-of-beta', 'is_primary' => true, 'position' => 0, 'parent_id' => 21],
             ]),
             User::class => [
                 $this->normalUser(),

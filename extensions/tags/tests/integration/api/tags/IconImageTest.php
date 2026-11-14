@@ -34,7 +34,7 @@ class IconImageTest extends TestCase
 
         $this->prepareDatabase([
             Tag::class => [
-                ['id' => 1, 'name' => 'Lions', 'slug' => 'lions', 'icon' => 'fas fa-futbol', 'position' => 0, 'parent_id' => null],
+                ['id' => 1, 'name' => 'Lions', 'slug' => 'lions', 'icon' => 'fas fa-futbol', 'is_primary' => true, 'position' => 0, 'parent_id' => null],
             ],
             User::class => [
                 $this->normalUser(),

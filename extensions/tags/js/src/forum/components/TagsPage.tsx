@@ -73,8 +73,8 @@ export default class TagsPage<CustomAttrs extends ITagsPageAttrs = ITagsPageAttr
     if (this.loading) {
       items.add('loading', <LoadingIndicator />);
     } else {
-      const pinned = this.tags.filter((tag) => tag.position() !== null);
-      const cloud = this.tags.filter((tag) => tag.position() === null);
+      const pinned = this.tags.filter((tag) => tag.isPrimary());
+      const cloud = this.tags.filter((tag) => tag.isSecondary());
 
       items.add('tagTiles', this.tagTileListView(pinned), 100);
 

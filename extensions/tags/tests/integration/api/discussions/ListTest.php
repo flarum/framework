@@ -169,12 +169,12 @@ class ListTest extends TestCase
             $this->setting('flarum-tags.min_secondary_tags', 1);
             $this->database()->table('tags')
                 ->where(['position' => null, 'parent_id' => null])
-                ->update(['position' => 200]);
+                ->update(['position' => 200, 'is_primary' => true]);
         } elseif ($type === 'primary') {
             $this->setting('flarum-tags.min_primary_tags', 100);
             $this->database()->table('tags')
                 ->where('position', '!=', null)
-                ->update(['position' => null]);
+                ->update(['position' => null, 'is_primary' => false]);
         }
 
         if ($actorId) {

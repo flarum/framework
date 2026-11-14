@@ -37,10 +37,10 @@ class ListWithTagsTest extends TestCase
 
         $this->prepareDatabase([
             Tag::class => [
-                ['id' => 1, 'name' => 'Unrestricted', 'slug' => '1', 'position' => 0, 'parent_id' => null],
-                ['id' => 2, 'name' => 'Mods can view discussions', 'slug' => '2', 'position' => 0, 'parent_id' => null, 'is_restricted' => true],
-                ['id' => 3, 'name' => 'Mods can view flags', 'slug' => '3', 'position' => 0, 'parent_id' => null, 'is_restricted' => true],
-                ['id' => 4, 'name' => 'Mods can view discussions and flags', 'slug' => '4', 'position' => 0, 'parent_id' => null, 'is_restricted' => true],
+                ['id' => 1, 'name' => 'Unrestricted', 'slug' => '1', 'is_primary' => true, 'position' => 0, 'parent_id' => null],
+                ['id' => 2, 'name' => 'Mods can view discussions', 'slug' => '2', 'is_primary' => true, 'position' => 0, 'parent_id' => null, 'is_restricted' => true],
+                ['id' => 3, 'name' => 'Mods can view flags', 'slug' => '3', 'is_primary' => true, 'position' => 0, 'parent_id' => null, 'is_restricted' => true],
+                ['id' => 4, 'name' => 'Mods can view discussions and flags', 'slug' => '4', 'is_primary' => true, 'position' => 0, 'parent_id' => null, 'is_restricted' => true],
             ],
             User::class => [
                 $this->normalUser(),

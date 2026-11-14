@@ -75,9 +75,9 @@ class ColumnQueriesTest extends TestCase
             ],
             'group_user' => $groupUser,
             Tag::class => [
-                ['id' => 1, 'name' => 'One', 'slug' => 'one', 'position' => 0],
-                ['id' => 2, 'name' => 'Two', 'slug' => 'two', 'position' => 1],
-                ['id' => 3, 'name' => 'Three', 'slug' => 'three', 'position' => 2],
+                ['id' => 1, 'name' => 'One', 'slug' => 'one', 'is_primary' => true, 'position' => 0],
+                ['id' => 2, 'name' => 'Two', 'slug' => 'two', 'is_primary' => true, 'position' => 1],
+                ['id' => 3, 'name' => 'Three', 'slug' => 'three', 'is_primary' => true, 'position' => 2],
             ],
             Discussion::class => $discussions,
             'discussion_tag' => $discussionTags,
