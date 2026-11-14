@@ -38,6 +38,18 @@
     height: auto;
   }
 
+  // The browser draws a dropdown's open list itself, and options take no
+  // background from the select: give them the colours of the focused field,
+  // or the list can come up light under light text in dark mode. Listboxes
+  // draw their options in the page, so they keep the selection highlight.
+  select&:not([multiple]):not([size]) {
+    option,
+    optgroup {
+      color: var(--text-color);
+      background-color: var(--body-bg);
+    }
+  }
+
   @media @phone {
     font-size: 16px; // minimum font-size required to prevent page zoom on focus in iOS 10
   }
