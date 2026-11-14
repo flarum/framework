@@ -24,7 +24,6 @@ use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\Models\Consent;
-use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\Scope\ScopeRegistry;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
@@ -118,14 +117,9 @@ class ClientResource extends Resource\AbstractDatabaseResource
 
                     // Invalidate all tokens previously issued to this client —
                     // a rotation should lock out anyone holding the old secret.
-                    AuthCode::query()->where('client_id', $client->id)->update(['revoked' => true]);
-                    $accessTokenIds = AccessToken::query()
-                        ->where('client_id', $client->id)
-                        ->pluck('id');
-                    AccessToken::query()->where('client_id', $client->id)->update(['revoked' => true]);
-                    RefreshToken::query()
-                        ->whereIn('access_token_id', $accessTokenIds)
-                        ->update(['revoked' => true]);
+                    // The new secret is saved first, so a token request still
+                    // running on the old one is caught by its token family.
+                    AuthCode::revokeWithTokens(fn ($query) => $query->where('client_id', $client->id));
 
                     $client->plainSecret = $plainSecret;
 

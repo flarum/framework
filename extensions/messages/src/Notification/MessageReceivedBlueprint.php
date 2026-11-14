@@ -11,6 +11,7 @@ namespace Flarum\Messages\Notification;
 
 use Flarum\Database\AbstractModel;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Messages\DialogAudience;
 use Flarum\Messages\DialogMessage;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
@@ -76,7 +77,7 @@ class MessageReceivedBlueprint implements BlueprintInterface, MailableInterface
             return 0;
         }
 
-        $others = $message->dialog->users()->where('users.id', '!=', $message->user_id)->count();
+        $others = DialogAudience::users($message->dialog)->where('users.id', '!=', $message->user_id)->count();
 
         return max(0, $others - 1);
     }

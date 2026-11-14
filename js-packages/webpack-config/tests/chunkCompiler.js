@@ -14,7 +14,7 @@ import RegisterAsyncChunksPlugin from '../src/RegisterAsyncChunksPlugin.cjs';
  * registration points at. Output goes to memfs; every emitted asset is
  * returned.
  */
-export default (fixture, options = {}) => {
+export default (fixture, { aliases = {}, ...options } = {}) => {
   const compiler = webpack({
     context: __dirname,
     mode: 'production',
@@ -27,7 +27,7 @@ export default (fixture, options = {}) => {
       filename: '[name].js',
       chunkFilename: '[name].js',
     },
-    resolve: { extensions: ['.js'] },
+    resolve: { extensions: ['.js'], alias: aliases },
     plugins: [new RegisterAsyncChunksPlugin({ composerPath: path.resolve(__dirname, 'composer.json') })],
     module: {
       rules: [
@@ -43,7 +43,17 @@ export default (fixture, options = {}) => {
         },
       ],
     },
-    optimization: { minimize: false, minimizer: [], chunkIds: 'named', moduleIds: 'named' },
+    optimization: {
+      minimize: false,
+      minimizer: [],
+      chunkIds: 'named',
+      moduleIds: 'named',
+      splitChunks: {
+        chunks: 'async',
+        maxAsyncRequests: 1,
+        cacheGroups: { defaultVendors: false, default: false },
+      },
+    },
   });
 
   compiler.outputFileSystem = createFsFromVolume(new Volume());

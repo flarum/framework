@@ -1,3 +1,42 @@
+// Primary button text: whichever text colour has the higher WCAG contrast ratio
+// against the primary colour, as the JS isDark utility picks. luma() is the
+// relative luminance; values are pre-computed to avoid nested parentheses.
+.Button--primary-color-vars(@on-dark; @on-light) when (iscolor(@on-dark)) and (iscolor(@on-light)) {
+  @primary-luma: unit(luma(@primary-color)) / 100;
+
+  .Button--primary-color-pick(
+    (unit(luma(@on-dark)) / 100 + 0.05) / (@primary-luma + 0.05),
+    (@primary-luma + 0.05) / (unit(luma(@on-light)) / 100 + 0.05),
+    @on-dark,
+    @on-light
+  );
+}
+
+// A text colour Less can't measure, such as a var(): compare white and black.
+.Button--primary-color-vars(@on-dark; @on-light) when not (iscolor(@on-dark)), not (iscolor(@on-light)) {
+  @primary-luma: unit(luma(@primary-color)) / 100;
+
+  .Button--primary-color-pick(1.05 / (@primary-luma + 0.05), (@primary-luma + 0.05) / 0.05, @on-dark, @on-light);
+}
+
+.Button--primary-color-pick(@contrast-on-dark; @contrast-on-light; @on-dark; @on-light) when (@contrast-on-dark >= @contrast-on-light) {
+  .Button--color-vars(@on-dark, @primary-color, 'button-primary');
+}
+
+.Button--primary-color-pick(@contrast-on-dark; @contrast-on-light; @on-dark; @on-light) when (@contrast-on-dark < @contrast-on-light) {
+  .Button--color-vars(@on-light, @primary-color, 'button-primary');
+  .Button--primary-light-states();
+}
+
+// Darkening on hover and active takes contrast away from dark text, so a
+// light button lightens instead, unless it is too light to show the change.
+.Button--primary-light-states() when (lightness(@primary-color) < 80%) {
+  --button-primary-bg-hover: lighten(fadein(@primary-color, 5%), 5%);
+  --button-primary-bg-active: lighten(fadein(@primary-color, 10%), 10%);
+}
+
+.Button--primary-light-states() when (lightness(@primary-color) >= 80%) {}
+
 .scheme(@mode) {
   @body-bg:                       ~"body-bg-@{mode}";
   @text-color:                    ~"text-color-@{mode}";
@@ -70,12 +109,7 @@
   --discussion-title-color:        mix(@@heading-color, @@body-bg, 55%);
 
   .Button--color-vars(@@control-color, @@control-bg, 'button');
-  // Use the YIQ formula (matching the JS isDark utility) rather than luma() to determine
-  // button text colour. luma() uses W3C relative luminance which disagrees with YIQ for
-  // warm/mid-range colours (e.g. orange reads as dark by luma but bright by YIQ).
-  // Pre-compute into a variable to avoid nested parentheses in if(); threshold is 128*1000.
-  @primary-button-yiq: red(@primary-color) * 299 + green(@primary-color) * 587 + blue(@primary-color) * 114;
-  .Button--color-vars(if(@primary-button-yiq >= 128000, @text-on-light, @text-on-dark), @primary-color, 'button-primary');
+  .Button--primary-color-vars(@text-on-dark, @text-on-light);
   .Button--color-vars(@@control-danger-color, @@control-danger-bg, 'control-danger');
   .Button--color-vars(@@muted-more-color, fade(@@muted-more-color, 30%), 'muted-more');
   .Button--color-vars(@@control-color, @@body-bg, 'button-inverted');
@@ -93,11 +127,6 @@
   --control-muted-color:           lighten(@control-color-light, 40%);
 
   --search-gambit:                 var(--control-bg-shaded);
-
-  // ---------------------------------
-  // UTILITIES
-
-  --yiq-threshold: 150;
 }
 
 // High contrast
@@ -135,11 +164,6 @@
   --control-muted-color:           darken(@control-color-dark, 25%);
 
   --search-gambit:                 var(--control-bg-light);
-
-  // ---------------------------------
-  // UTILITIES
-
-  --yiq-threshold: 108;
 }
 
 // High contrast
@@ -183,8 +207,6 @@
   --form-control-border-color:     var(--control-color);
   --form-control-focus-border-color: currentColor;
   --form-control-focus-outline:    2px solid currentColor;
-
-  --yiq-threshold: 80;
 }
 
 // ---------------------------------
@@ -268,6 +290,18 @@
   .Button--color-vars(@control-success-color, @control-success-bg, 'control-success');
   .Button--color-vars(@control-warning-color, @control-warning-bg, 'control-warning');
 
+}
+
+// High contrast text on coloured backgrounds (tags, badges, the primary
+// button) is pure white or black: whichever contrasts better then reaches
+// 4.5:1 on every colour. Comes after :root, which it overrides; not tied to
+// the root element, so the theme picker's previews get it too.
+
+[data-theme$=-hc] {
+  --text-on-dark:                  #fff;
+  --text-on-light:                 #000;
+
+  .Button--primary-color-vars(#fff, #000);
 }
 
 :root {

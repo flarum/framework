@@ -14,10 +14,13 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
 use Flarum\Forum\Branding\Branding;
+use Flarum\Forum\Branding\SplashScreen;
+use Flarum\Forum\ServiceWorker;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
+use Flarum\Mail\MailWebhooks;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
@@ -36,15 +39,23 @@ class ForumResource extends AbstractResource implements Findable
 
     protected Branding $branding;
 
+    protected SplashScreen $splashScreen;
+
+    protected MailWebhooks $webhooks;
+
     public function __construct(
         protected UrlGenerator $url,
         protected SettingsRepositoryInterface $settings,
         protected Config $config,
         Factory $filesystemFactory,
-        ?Branding $branding = null
+        ?Branding $branding = null,
+        ?SplashScreen $splashScreen = null,
+        ?MailWebhooks $webhooks = null
     ) {
         $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
         $this->branding = $branding ?? resolve(Branding::class);
+        $this->splashScreen = $splashScreen ?? resolve(SplashScreen::class);
+        $this->webhooks = $webhooks ?? resolve(MailWebhooks::class);
     }
 
     public function type(): string
@@ -90,6 +101,8 @@ class ForumResource extends AbstractResource implements Findable
                 ->get(fn () => $this->settings->get('show_language_selector', true)),
             Schema\Boolean::make('showThemeSelector')
                 ->get(fn () => $this->settings->get('show_theme_selector', true)),
+            Schema\Boolean::make('showPostSource')
+                ->get(fn () => (bool) $this->settings->get('show_post_source')),
             Schema\Str::make('baseUrl')
                 ->get(fn () => $forumUrl),
             Schema\Str::make('basePath')
@@ -134,6 +147,14 @@ class ForumResource extends AbstractResource implements Findable
             Schema\Str::make('maskableIconUrl')
                 ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
                 ->get(fn () => $this->branding->appIconUrls()['icon-maskable-512.png'] ?? null),
+            Schema\Str::make('splashScreenUrl')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->splashScreen->url(1179, 2556)),
+            Schema\Str::make('splashScreenBackground')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->splashScreen->background()),
+            Schema\Boolean::make('serviceWorker')
+                ->get(fn () => resolve(ServiceWorker::class)->enabled()),
             Schema\Str::make('headerHtml')
                 ->description('Custom HTML added to every page header.')
                 ->get(fn () => $this->settings->get('custom_header')),
@@ -168,6 +189,9 @@ class ForumResource extends AbstractResource implements Findable
             Schema\Str::make('version')
                 ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
                 ->get(fn () => Application::VERSION),
+            Schema\Boolean::make('mailDriverSupportsBounceReporting')
+                ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
+                ->get(fn () => $this->webhooks->driver() !== null),
 
             Schema\Relationship\ToMany::make('groups')
                 ->description('Every group you can see.')

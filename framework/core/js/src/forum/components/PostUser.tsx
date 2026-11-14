@@ -5,8 +5,9 @@ import username from '../../common/helpers/username';
 import userOnline from '../../common/helpers/userOnline';
 import listItems from '../../common/helpers/listItems';
 import Avatar from '../../common/components/Avatar';
+import Tooltip from '../../common/components/Tooltip';
+import Post from '../../common/models/Post';
 import type Model from '../../common/Model';
-import type Post from '../../common/models/Post';
 import type User from '../../common/models/User';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';
@@ -51,6 +52,11 @@ export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttr
       100
     );
 
+    const source = this.sourceView(post);
+    if (source) {
+      items.add('postUser-source', source, 95);
+    }
+
     return items;
   }
 
@@ -66,9 +72,53 @@ export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttr
       100
     );
 
+    const source = this.sourceView(post);
+    if (source) {
+      items.add('postUser-source', source, 95);
+    }
+
     items.add('postUser-badges', <ul className="PostUser-badges badges badges--packed">{listItems(user.badges().toArray())}</ul>, 90);
 
     return items;
+  }
+
+  /**
+   * The "via …" byline for a post made outside the forum's own interface, or
+   * null for one made in it.
+   */
+  sourceView(post: IPostUserAttrs['post']): Mithril.Children {
+    if (!(post instanceof Post) || !post.source()) return null;
+
+    const label = this.sourceLabel(post);
+    if (!label) return null;
+
+    const byline = <span className="PostUser-source">{app.translator.trans('core.forum.post.source_text', { source: label })}</span>;
+    const tooltip = this.sourceTooltip(post);
+
+    return tooltip ? <Tooltip text={tooltip}>{byline}</Tooltip> : byline;
+  }
+
+  /**
+   * What follows "via": the name stored with the post, else the source's own
+   * label. Extensions can label their own sources here.
+   */
+  sourceLabel(post: Post): string | null {
+    const name = post.sourceName();
+    if (name) return name;
+
+    if (post.source() === 'api') return app.translator.trans('core.forum.post.source_api_label', {}, true);
+
+    return post.source() ?? null;
+  }
+
+  /**
+   * More about the source, shown on hover. Extensions can describe their own
+   * sources here.
+   */
+  sourceTooltip(post: Post): string | null {
+    if (post.source() === 'api') return app.translator.trans('core.forum.post.source_api_tooltip', {}, true);
+
+    return app.translator.trans('core.forum.post.source_app_tooltip', {}, true);
   }
 
   linkChildren(user: User): ItemList<Mithril.Children> {

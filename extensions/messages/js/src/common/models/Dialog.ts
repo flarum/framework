@@ -1,5 +1,6 @@
 import Model, { type ModelIdentifier } from 'flarum/common/Model';
 import User from 'flarum/common/models/User';
+import type Group from 'flarum/common/models/Group';
 import DialogMessage from './DialogMessage';
 import app from 'flarum/common/app';
 
@@ -26,6 +27,9 @@ export default class Dialog extends Model {
 
   users() {
     return Model.hasMany<User>('users').call(this);
+  }
+  groups() {
+    return Model.hasMany<Group>('groups').call(this);
   }
   firstMessage() {
     return Model.hasOne<DialogMessage>('firstMessage').call(this);

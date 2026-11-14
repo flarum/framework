@@ -172,6 +172,10 @@
     transition: transform 0.2s;
     z-index: var(--zindex-modal);
 
+    &:dir(rtl) {
+      transform: translateX(calc(~"6px + var(--drawer-width)"));
+    }
+
     .drawerOpen & {
       -webkit-transform: none !important;
               transform: none !important;
@@ -334,6 +338,42 @@
 @media @phone {
   [data-colored-header=true] .App-drawer {
     .light-contents(@name: 'header-colored');
+  }
+}
+
+// The coloured header shows hover and focus on its text buttons by their
+// colour, but the high-contrast schemes give them nearly the header's text
+// colour already, so the change can't be seen: underline their labels too,
+// and draw the line under a toggle that is only an icon, such as the
+// overflow menu's.
+[data-colored-header=true][data-theme$=-hc] .Header-controls > li {
+  > .Button--link,
+  > .Dropdown > .Dropdown-toggle.Button--link {
+    &:hover,
+    &:active,
+    &.active,
+    &:focus-visible,
+    &.focus {
+      .Button-label {
+        text-decoration: underline;
+      }
+    }
+  }
+  > .Dropdown.open > .Dropdown-toggle.Button--link .Button-label {
+    text-decoration: underline;
+  }
+
+  > .OverflowingList-dropdown > .Dropdown-toggle.Button--link {
+    &:hover,
+    &:active,
+    &.active,
+    &:focus-visible,
+    &.focus {
+      box-shadow: inset 0 -2px 0 currentColor;
+    }
+  }
+  > .OverflowingList-dropdown.open > .Dropdown-toggle.Button--link {
+    box-shadow: inset 0 -2px 0 currentColor;
   }
 }
 

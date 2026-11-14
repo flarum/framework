@@ -81,7 +81,9 @@ class SearchServiceProvider extends AbstractServiceProvider
                 DiscussionSearcher::class => [
                     DiscussionFilter\AuthorFilter::class,
                     DiscussionFilter\CreatedFilter::class,
+                    DiscussionFilter\GroupFilter::class,
                     DiscussionFilter\HiddenFilter::class,
+                    DiscussionFilter\IdFilter::class,
                     DiscussionFilter\UnreadFilter::class,
                 ],
                 UserSearcher::class => [
@@ -89,6 +91,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                     UserFilter\GroupFilter::class,
                     UserFilter\JoinedAtFilter::class,
                     UserFilter\LastSeenAtFilter::class,
+                    UserFilter\BouncedFilter::class,
                 ],
                 GroupSearcher::class => [
                     GroupFilter\HiddenFilter::class,
@@ -98,6 +101,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                     PostFilter\DiscussionFilter::class,
                     PostFilter\IdFilter::class,
                     PostFilter\NumberFilter::class,
+                    PostFilter\SourceFilter::class,
                     PostFilter\TypeFilter::class
                 ],
             ];

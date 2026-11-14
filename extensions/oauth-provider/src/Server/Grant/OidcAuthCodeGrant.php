@@ -154,6 +154,7 @@ class OidcAuthCodeGrant extends AuthCodeGrant
 
             try {
                 $this->authCodeRepository->persistNewAuthCode($authCode);
+                $this->pendingRequest?->setIssuedCodeId($authCode->getIdentifier());
 
                 return $authCode;
             } catch (UniqueTokenIdentifierConstraintViolationException $e) {
@@ -250,6 +251,14 @@ class OidcAuthCodeGrant extends AuthCodeGrant
 
         if ($clientId !== $authCode->client_id || ! AuthCodeModel::query()->whereKey($authCode->id)->value('revoked')) {
             return null;
+        }
+
+        // A family already revoked was disconnected by the member (or caught
+        // replaying earlier): the client is not told it used the code twice.
+        if (AuthCodeModel::query()->whereKey($authCode->id)->value('family_revoked')) {
+            $this->revokeTokenFamily($authCode->id);
+
+            return OAuthServerException::invalidGrant('This grant has been revoked.');
         }
 
         $this->revokeTokenFamily($authCode->id);

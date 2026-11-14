@@ -16,6 +16,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 
@@ -24,6 +25,7 @@ use Illuminate\Support\Arr;
  * @property int|null $actor_id
  * @property string $client
  * @property string|null $ip_address
+ * @property string|null $ip_hex
  * @property string $action
  * @property array|null $payload
  * @property Carbon $created_at
@@ -40,6 +42,18 @@ class AuditLog extends AbstractModel
         'payload' => 'array',
         'created_at' => 'datetime',
     ];
+
+    /**
+     * Keep `ip_hex`, which the `ip:` filter range-searches, in step with every
+     * write of `ip_address`.
+     */
+    protected function ipAddress(): Attribute
+    {
+        return Attribute::set(fn (?string $value) => [
+            'ip_address' => $value,
+            'ip_hex' => IpRange::normalise($value),
+        ]);
+    }
 
     public function actor(): BelongsTo
     {

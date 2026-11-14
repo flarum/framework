@@ -17,6 +17,8 @@ import GlobalSearchState from './states/GlobalSearchState';
 import DiscussionListState from './states/DiscussionListState';
 import ComposerState from './states/ComposerState';
 import isSafariMobile from './utils/isSafariMobile';
+import registerServiceWorker from './utils/registerServiceWorker';
+import isOpenedAsApp from './utils/isOpenedAsApp';
 import routeInternalLinks from './utils/routeInternalLinks';
 
 import type Notification from './components/Notification';
@@ -155,6 +157,14 @@ export default class ForumApplication extends Application {
       $(() => {
         $('.App').addClass('mobile-safari');
       });
+    }
+
+    registerServiceWorker(this.forum.attribute('basePath'), this.forum.attribute<boolean>('serviceWorker'));
+
+    if (isOpenedAsApp()) {
+      import('./utils/pullToRefresh')
+        .then(({ default: pullToRefresh }) => pullToRefresh())
+        .catch((error) => console.error('Could not load pull-to-refresh:', error));
     }
 
     // Once the app is mounted, warm any registered code-split chunks in the

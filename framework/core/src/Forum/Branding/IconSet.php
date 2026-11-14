@@ -15,7 +15,8 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\ImageInterface;
 
 /**
- * Draws the favicon and app icon files from the data of one source image.
+ * Draws the favicon, app icon and splash screen files from the data of one
+ * source image.
  *
  * Every size is drawn from the source itself, never from a smaller copy, and a
  * source is never enlarged: a size larger than the source is left out, or the
@@ -34,6 +35,16 @@ class IconSet
      * circle 80% of the icon's width, so the image is drawn inside it.
      */
     public const MASKABLE_SAFE_ZONE = 0.8;
+
+    /**
+     * Points across the app icon on a splash screen: the size the 80% safe
+     * zone of a 128-point maskable icon has on Android.
+     */
+    public const SPLASH_ICON_SIZE = 102;
+
+    public const LARGEST_SCREEN = 2868;
+
+    public const SCREEN_QUALITY = 90;
 
     public function __construct(
         protected ImageManager $images
@@ -77,6 +88,27 @@ class IconSet
             'favicon.png' => $favicon['png'],
             'favicon.ico' => $favicon['ico'],
         ];
+    }
+
+    public function splash(string $icon, int $width, int $height, int $ratio, string $background): string
+    {
+        $size = self::SPLASH_ICON_SIZE * $ratio;
+
+        $image = $this->images->read($icon)->removeAnimation()->scaleDown($size, $size);
+
+        return $this->png($this->images->create($width, $height)->fill($background)->place($image, 'center'));
+    }
+
+    public function screen(string $source): string
+    {
+        return (string) $this->images->read($source)->removeAnimation()
+            ->scaleDown(self::LARGEST_SCREEN, self::LARGEST_SCREEN)
+            ->toJpeg(quality: self::SCREEN_QUALITY);
+    }
+
+    public function cover(string $image, int $width, int $height): string
+    {
+        return (string) $this->images->read($image)->cover($width, $height)->toJpeg(quality: self::SCREEN_QUALITY);
     }
 
     public function longestSide(string $source): int

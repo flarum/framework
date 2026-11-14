@@ -26,12 +26,20 @@ class OAuthTokenVerifier
     /**
      * @param string|null $ipAddress Where the request came from, recorded as
      *                               where the token was last used.
-     * @return array{user: User, scopes: list<string>}|null
+     * @return array{user: User, scopes: list<string>, clientId: string}|null
      */
     public function verify(#[\SensitiveParameter] string $jwt, string $resource, ?string $ipAddress = null): ?array
     {
         $token = $this->validator->validate($jwt, $resource, $ipAddress);
 
-        return $token ? ['user' => $token->user, 'scopes' => array_values($token->scopes)] : null;
+        if (! $token) {
+            return null;
+        }
+
+        return [
+            'user' => $token->user,
+            'scopes' => array_values($token->scopes),
+            'clientId' => $token->clientId,
+        ];
     }
 }

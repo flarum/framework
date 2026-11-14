@@ -58,7 +58,7 @@ class DiscussionChunkPreloadTest extends TestCase
         $file = "core/$path.js";
         $revision = json_decode($manifest[1], true)["js/$file"] ?? null;
 
-        return json_decode($base[1]).'/'.$file.($revision ? "?v=$revision" : '');
+        return json_decode($base[1]).'/core/'.$path.($revision ? ".$revision" : '').'.js';
     }
 
     #[Test]

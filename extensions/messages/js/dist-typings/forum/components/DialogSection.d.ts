@@ -19,7 +19,13 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     requestParams(): any;
     view(): JSX.Element;
-    /** The other member's avatar; in a group, the first few of the others'. */
+    /** How many of a group's groups and members the header shows before counting the rest. */
+    static HEADER_AVATARS: number;
+    /**
+     * The other member's avatar; in a group, the groups it is addressed to and
+     * then the other members, as overlapping tiles of one size, the first few
+     * shown and the rest counted.
+     */
     headerAvatar(): Mithril.Children;
     /**
      * Who the conversation is with: the other member, with their badges, or a

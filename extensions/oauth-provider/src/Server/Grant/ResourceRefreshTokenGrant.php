@@ -12,6 +12,7 @@ namespace Flarum\OAuthProvider\Server\Grant;
 use Carbon\Carbon;
 use DateInterval;
 use Flarum\OAuthProvider\Models\AccessToken;
+use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\Server\Repository\RefreshTokenRepository;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
@@ -154,6 +155,11 @@ class ResourceRefreshTokenGrant extends RefreshTokenGrant
      */
     protected function revokeReusedGrant(RefreshToken $refreshToken): OAuthServerException
     {
+        // A family already revoked was disconnected by the member (or caught
+        // reusing a token earlier): the client is not told it reused this one.
+        $disconnected = $refreshToken->grant_id !== null
+            && AuthCode::query()->whereKey($refreshToken->grant_id)->value('family_revoked');
+
         if ($refreshToken->grant_id !== null) {
             $this->revokeTokenFamily($refreshToken->grant_id);
         } else {
@@ -161,7 +167,9 @@ class ResourceRefreshTokenGrant extends RefreshTokenGrant
             AccessToken::query()->whereKey($refreshToken->access_token_id)->update(['revoked' => true]);
         }
 
-        return OAuthServerException::invalidGrant('The refresh token has already been used; all tokens of this grant have been revoked.');
+        return $disconnected
+            ? OAuthServerException::invalidGrant('This grant has been revoked.')
+            : OAuthServerException::invalidGrant('The refresh token has already been used; all tokens of this grant have been revoked.');
     }
 
     /**

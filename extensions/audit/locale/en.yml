@@ -39,7 +39,7 @@ flarum-audit:
                 user: The user the action affected, by username.
                 action: The type of action, e.g. action:post.created.
                 client: How the request was made.
-                ip: The IP address the action came from.
+                ip: 'The IP address the action came from. Also accepts partial addresses and ranges, e.g. ip:192.168, ip:10.0.0.0/8 or ip:2a02:390:9e5c:beef::/64.'
                 discussion: Actions affecting a specific discussion, by ID.
             help:
                 toggle: Search help
@@ -116,8 +116,12 @@ flarum-audit:
                 avatar_removed: Removed {username}'s avatar
                 created: Created {username}'s account
                 deleted: Deleted {username}
+                email_bounced: "Mail to {username} bounced: {reason}"
+                email_bounced_unmatched: "Mail to {email} bounced (no matching account): {reason}"
                 email_changed: Changed {username}'s email from {old_email} to {new_email}
                 email_change_requested: Requested to change {username}'s email to {new_email}
+                email_complained: "{username} marked mail from the forum as spam"
+                email_complained_unmatched: Mail to {email} was marked as spam (no matching account)
                 groups_changed: Changed {username}'s groups from {old_groups} to {new_groups}
                 logged_in: Logged in {username} account
                 logged_in_with_provider: Logged in {username} account using {provider}

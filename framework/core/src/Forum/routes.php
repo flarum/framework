@@ -144,4 +144,34 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'opensearch.search',
         $route->toController(Controller\OpenSearchSearchController::class)
     );
+
+    $map->get(
+        '/splash/{size}',
+        'splash',
+        $route->toController(Controller\SplashScreenController::class)
+    );
+
+    $map->get(
+        '/sw',
+        'serviceWorker',
+        $route->toController(Controller\ServiceWorkerController::class)
+    );
+
+    $map->get(
+        '/sw/{part}',
+        'serviceWorker.part',
+        $route->toController(Controller\ServiceWorkerPartController::class)
+    );
+
+    $map->get(
+        '/offline',
+        'offline',
+        $route->toController(Controller\OfflineController::class)
+    );
+
+    $map->post(
+        '/mail/webhook[/{driver}]',
+        'mailWebhook',
+        $route->toController(\Flarum\Mail\WebhookController::class)
+    );
 };

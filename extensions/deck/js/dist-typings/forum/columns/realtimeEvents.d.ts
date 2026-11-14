@@ -16,6 +16,16 @@ export declare const DISCUSSION_HIDDEN = "discussionHidden";
 export declare const DISCUSSION_RESTORED = "discussionRestored";
 /** Something the member could see has been hidden or deleted: `{ data: { type, id } }` only. */
 export declare const REMOVED = "removed";
+export declare const LOCKED = "lockedEvent";
+export declare const STICKIED = "stickiedEvent";
+/**
+ * Events that can change which filters a discussion matches without new
+ * activity (`is:locked`, `tag:x`, and `is:hidden` for moderators, who still
+ * see what they hide), so filtered discussion columns ask the server about
+ * that discussion again. Extensions add theirs with
+ * `new DeckColumns().membershipEvents(...)`.
+ */
+export declare const membershipEvents: Set<string>;
 /**
  * Events about a post. Realtime sends these as the post's *discussion*, with
  * the post itself appended last to `included`.

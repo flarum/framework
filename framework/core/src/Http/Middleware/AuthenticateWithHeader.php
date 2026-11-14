@@ -12,6 +12,7 @@ namespace Flarum\Http\Middleware;
 use Flarum\Api\ApiKey;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RequestUtil;
+use Flarum\Post\PostSource;
 use Flarum\User\User;
 use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -55,6 +56,7 @@ class AuthenticateWithHeader implements Middleware
                 }
 
                 $request = RequestUtil::withActor($request, $actor);
+                $request = RequestUtil::withPostSource($request, new PostSource(PostSource::API));
                 $request = $request->withAttribute('bypassCsrfToken', true);
                 $request = $request->withoutAttribute('session');
             }

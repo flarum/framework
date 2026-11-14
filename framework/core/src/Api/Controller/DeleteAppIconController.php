@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Forum\Branding\AppIcon;
+use Flarum\Forum\Branding\SplashScreen;
 use Flarum\Forum\Branding\ThemeImages;
 use Flarum\Http\RequestUtil;
 use Psr\Http\Message\ServerRequestInterface;
@@ -18,7 +19,8 @@ class DeleteAppIconController extends AbstractDeleteController
 {
     public function __construct(
         protected AppIcon $appIcon,
-        protected ThemeImages $themeImages
+        protected ThemeImages $themeImages,
+        protected SplashScreen $splashScreen
     ) {
     }
 
@@ -29,5 +31,6 @@ class DeleteAppIconController extends AbstractDeleteController
         $this->themeImages->assertNotSet('app_icon', 'app-icon');
 
         $this->appIcon->delete();
+        $this->splashScreen->forgetOutdated();
     }
 }

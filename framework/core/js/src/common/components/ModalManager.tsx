@@ -33,6 +33,9 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   // Keep track if there's an modal closing
   protected modalClosing: boolean = false;
 
+  // The key of the modal being closed
+  protected closingModalKey: number | undefined;
+
   protected keyUpListener: null | ((e: KeyboardEvent) => void) = null;
 
   view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children {
@@ -97,6 +100,14 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
   onupdate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
     super.onupdate(vnode);
+
+    // The modal being animated out was closed some other way, such as by a
+    // page loaded at the same time (Page closes any open modal). Its dialog is
+    // gone, so its `transitionend` never fires; without this, every later
+    // modal would be ignored when asked to close.
+    if (this.modalClosing && this.attrs.state.modal?.key !== this.closingModalKey) {
+      this.modalClosing = false;
+    }
 
     requestAnimationFrame(() => {
       try {
@@ -198,23 +209,57 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     });
   }
 
+  /**
+   * Animates the current modal out, then closes it.
+   *
+   * `closedCallback` runs when the hide animation ends, or after its CSS duration
+   * if no transition event arrives. If the modal is closed
+   * some other way before then, such as by a page change (Page closes any open
+   * modal) or by a non-stacked modal replacing it, its dialog is removed, the
+   * animation never ends and `closedCallback` does not run. It is not run in
+   * that case because whatever closed the modal may already have moved on: a
+   * callback that changes the route, for example, would close the new modal too.
+   */
   animateHide(closedCallback: () => void = () => {}): void {
     if (this.modalClosing) return;
     this.modalClosing = true;
 
-    const afterModalClosedCallback = () => {
-      this.modalClosing = false;
+    const closingKey = (this.closingModalKey = this.attrs.state.modal?.key);
 
-      // Close the dialog
-      this.attrs.state.close();
+    const dialog = this.activeDialogElement;
+    let fallback: ReturnType<typeof setTimeout>;
+
+    const afterModalClosedCallback = () => {
+      clearTimeout(fallback);
+      dialog?.removeEventListener('transitionend', afterModalClosedCallback);
+
+      // An external close has already moved on; do not run its callback later.
+      if (!this.attrs.state.modalList.some((modal) => modal.key === closingKey)) return;
+
+      // A newer modal may be closing by now; leave its flag alone.
+      if (this.closingModalKey === closingKey) this.modalClosing = false;
+
+      // Remove the dialog that was hidden, and only that one. A modal stacked
+      // on top of it while it was animating out stays open.
+      if (closingKey !== undefined) this.attrs.state.remove(closingKey);
 
       closedCallback();
     };
 
-    this.activeDialogElement?.addEventListener('transitionend', afterModalClosedCallback, { once: true });
+    dialog?.addEventListener('transitionend', afterModalClosedCallback, { once: true });
 
-    this.activeDialogElement?.classList.remove('in');
-    this.activeDialogElement?.classList.add('out');
+    dialog?.classList.remove('in');
+    dialog?.classList.add('out');
+
+    // Closing before the first painted frame (or with transitions disabled)
+    // produces no transitionend. Allow the CSS transition time plus a small margin.
+    const style = dialog && getComputedStyle(dialog);
+    const milliseconds = (value: string) => parseFloat(value) * (value.trim().endsWith('ms') ? 1 : 1000) || 0;
+    const durations = (style?.transitionDuration || '0s').split(',').map(milliseconds);
+    const delays = (style?.transitionDelay || '0s').split(',').map(milliseconds);
+    const properties = (style?.transitionProperty || 'all').split(',');
+    const duration = Math.max(0, ...properties.map((_, i) => durations[i % durations.length] + delays[i % delays.length]));
+    fallback = setTimeout(afterModalClosedCallback, duration + 50);
   }
 
   protected handleEscPress(e: KeyboardEvent): void {

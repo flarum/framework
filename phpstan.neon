@@ -21,6 +21,8 @@ parameters:
 	  - extensions/likes/extend.php
 	  - extensions/lock/src
 	  - extensions/lock/extend.php
+	  - extensions/mcp/src
+	  - extensions/mcp/extend.php
 	  - extensions/mentions/src
 	  - extensions/mentions/extend.php
 	  - extensions/nicknames/src

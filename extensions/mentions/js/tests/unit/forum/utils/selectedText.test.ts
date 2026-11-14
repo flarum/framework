@@ -110,6 +110,31 @@ describe('selectedText', () => {
     });
   });
 
+  describe('text from the post is quoted as text, never parsed as HTML', () => {
+    // What the server renders for `[<img src=x onerror=…>](https://example.com)`:
+    // the link text is escaped.
+    const markup = '&lt;img src=x onerror=&quot;window.quoted = 1&quot;&gt;';
+    const tag = '<img src=x onerror="window.quoted = 1">';
+
+    test('a link whose text looks like a tag', () => {
+      expect(quote(`<p>Interesting link: <a href="https://example.com/" class="UrlLink">${markup}</a> worth a read.</p>`)).toBe(
+        `Interesting link: [${tag}](https://example.com/) worth a read.`
+      );
+    });
+
+    test('a link whose text looks like an entity', () => {
+      expect(quote('<p><a href="https://example.com/" class="UrlLink">AT&amp;amp;T</a></p>')).toBe('[AT&amp;T](https://example.com/)');
+    });
+
+    test('an image whose address looks like it holds an entity', () => {
+      expect(quote('<p><img src="https://example.com/a.png?x=1&amp;copy;y"></p>')).toBe('![](https://example.com/a.png?x=1&copy;y)');
+    });
+
+    test('an emoji whose shortcode looks like a tag', () => {
+      expect(quote(`<p>Nice <img class="emoji" alt="${markup}" src="https://example.com/tada.png"></p>`)).toBe(`Nice ${tag}`);
+    });
+  });
+
   describe('anything else is quoted as before', () => {
     test('an internal link with words of its own stays a Markdown link', () => {
       expect(quote(`<p><a href="${URL}" class="UrlLink UrlLink--internal">the move posts thread</a></p>`)).toBe(`[the move posts thread](${URL})`);
@@ -126,5 +151,368 @@ describe('selectedText', () => {
     test('an emoji becomes its shortcode', () => {
       expect(quote('<p>Nice <img class="emoji" alt=":tada:" src="https://example.com/tada.png"></p>')).toBe('Nice :tada:');
     });
+  });
+});
+
+describe('spoilers', () => {
+  // What the markdown extension renders: see its ispoiler template and
+  // Litedown's block spoiler. Keep in step with them.
+  const inline = (inner: string) =>
+    `<span class="spoiler" data-spoiler="" onclick="removeAttribute('class')">${inner}</span>`;
+  const revealed = (inner: string) => `<span data-spoiler="" onclick="removeAttribute('class')">${inner}</span>`;
+  const block = (inner: string) => `<details class="spoiler">${inner}</details>`;
+
+  test('an inline spoiler stays a spoiler', () => {
+    expect(quote(`<p>before ${inline('secret')} after</p>`)).toBe('before >!secret!< after');
+  });
+
+  test('a revealed inline spoiler stays a spoiler', () => {
+    expect(quote(`<p>before ${revealed('secret')} after</p>`)).toBe('before >!secret!< after');
+  });
+
+  test('a block spoiler stays a spoiler', () => {
+    expect(quote(block('<p>one</p>\n\n<p>two</p>'))).toBe('>! one\n>! \n>! two\n');
+  });
+
+  test('a literal !< does not close the spoiler', () => {
+    expect(quote(`<p>${inline('a !&lt; b')}</p>`)).toBe('>!a !\\< b!<');
+    expect(quote(`<p>${inline('<em>wow!</em>&lt;3 secret')}</p>`)).toBe('>!wow!\\<3 secret!<');
+    expect(quote(block('<p><strong>a!</strong>&lt;b</p>'))).toBe('>! a!\\<b\n');
+    expect(quote(block('<p>a !&lt; b</p>'))).toBe('>! a !\\< b\n');
+  });
+
+  test('a backslash at the end does not escape the closing marker', () => {
+    expect(quote(`<p>a ${inline('C:\\')} b</p>`)).toBe('a >!C:\\\\!< b');
+    expect(quote(block('<p>C:\\</p>'))).toBe('>! C:\\\\\n');
+  });
+
+  test('an inline spoiler is not turned into a block spoiler when it starts a line', () => {
+    // ">!" at the start of a line opens a block spoiler unless the inline
+    // spoiler closes on that line with no ">" before it.
+    expect(quote(`<p>${inline('2 &gt; 1')} public</p>`)).toBe('>!2 \\> 1!< public');
+    expect(quote(`<p>first</p>\n<p>${inline('2 &gt; 1')} public</p>`)).toBe('first\n>!2 \\> 1!< public');
+    expect(quote(`<p>${inline('one\ntwo')} public</p>`)).toBe('>!one two!< public');
+  });
+
+  test('keeps images, emoji and links', () => {
+    expect(quote(`<p>${inline('<img src="https://example.com/a.png"> <img class="emoji" alt="😀" src="e.png"> <a href="https://example.com/">site</a>')}</p>`)).toBe(
+      '>!![](https://example.com/a.png) 😀 [site](https://example.com/)!<'
+    );
+    expect(quote(block('<p><img src="https://example.com/a.png"></p>'))).toBe('>! ![](https://example.com/a.png)\n');
+  });
+
+  test('an inline spoiler that starts with a link is not read as an image', () => {
+    expect(quote(`<p>x ${inline('<a href="https://example.com/">site</a>')} y</p>`)).toBe('x >! [site](https://example.com/)!< y');
+  });
+
+  test('a spoiler inside a link stays a spoiler', () => {
+    expect(quote(`<p>see <a href="https://example.com/">${inline('x')}</a></p>`)).toBe('see [>!x!<](https://example.com/)');
+    expect(quote(`<p><a href="https://example.com/">a ${revealed('b')}</a></p>`)).toBe('[a >!b!<](https://example.com/)');
+  });
+
+  test('a selection that only reaches into a spoiler keeps the part it takes hidden', () => {
+    const $body = postBody(`<p>before ${inline('secret')} after</p>`);
+    const text = $body.find('p')[0].firstChild!;
+    const secret = $body.find('.spoiler')[0].firstChild!;
+
+    select((range) => {
+      range.setStart(text, 0);
+      range.setEnd(secret, 3);
+    });
+
+    expect(selectedText($body)).toBe('before >!sec!<');
+  });
+
+  describe('a selection entirely inside a spoiler stays hidden', () => {
+    test('a word in an inline spoiler', () => {
+      const $body = postBody(`<p>before ${inline('top secret')} after</p>`);
+      const secret = $body.find('.spoiler')[0].firstChild!;
+
+      select((range) => {
+        range.setStart(secret, 4);
+        range.setEnd(secret, 10);
+      });
+
+      expect(selectedText($body)).toBe('>!secret!<');
+    });
+
+    test('a word in a revealed inline spoiler', () => {
+      const $body = postBody(`<p>before ${revealed('top secret')} after</p>`);
+      const secret = $body.find('[data-spoiler]')[0].firstChild!;
+
+      select((range) => {
+        range.setStart(secret, 4);
+        range.setEnd(secret, 10);
+      });
+
+      expect(selectedText($body)).toBe('>!secret!<');
+    });
+
+    test('all of an inline spoiler holding a link', () => {
+      const $body = postBody(`<p>${inline('a <a href="https://example.com/">site</a>')}</p>`);
+
+      select((range) => range.selectNodeContents($body.find('.spoiler')[0]));
+
+      expect(selectedText($body)).toBe('>!a [site](https://example.com/)!<');
+    });
+
+    test('a word in a link in an inline spoiler', () => {
+      const $body = postBody(`<p>${inline('a <a href="https://example.com/">site</a>')}</p>`);
+      const site = $body.find('a')[0].firstChild!;
+
+      select((range) => {
+        range.setStart(site, 0);
+        range.setEnd(site, 2);
+      });
+
+      expect(selectedText($body)).toBe('>!si!<');
+    });
+
+    test('all the text of an opened block spoiler', () => {
+      const $body = postBody(block('<p>one</p>\n\n<p>two</p>'));
+
+      select((range) => range.selectNodeContents($body.find('details')[0]));
+
+      expect(selectedText($body)).toBe('>! one\n>! \n>! two\n');
+    });
+
+    test('a word in an opened block spoiler', () => {
+      const $body = postBody(block('<p>one two</p>'));
+      const text = $body.find('p')[0].firstChild!;
+
+      select((range) => {
+        range.setStart(text, 4);
+        range.setEnd(text, 7);
+      });
+
+      expect(selectedText($body)).toBe('>! two\n');
+    });
+
+    test('text escaped as in any other spoiler', () => {
+      const $body = postBody(`<p>${inline('a !&lt; 2 &gt; C:\\')}</p>`);
+
+      select((range) => range.selectNodeContents($body.find('.spoiler')[0]));
+
+      expect(selectedText($body)).toBe('>!a !\\< 2 \\> C:\\\\!<');
+    });
+  });
+
+  test('a backslash just before a spoiler does not escape its opening marker', () => {
+    expect(quote(`<p>C:\\${inline('secret')}</p>`)).toBe('C:\\\\>!secret!<');
+    expect(quote(`<p><em>C:\\</em>${inline('secret')}</p>`)).toBe('C:\\\\>!secret!<');
+    expect(quote(`<p>C:\\\\${inline('secret')}</p>`)).toBe('C:\\\\>!secret!<');
+    expect(quote(`<p><a href="https://example.com/">C:\\${inline('x')}</a></p>`)).toBe('[C:\\\\>!x!<](https://example.com/)');
+  });
+
+  test('a spoiler inside a spoiler is written back once, not escaped as text', () => {
+    expect(quote(block(`<p>a ${inline('b')} c</p>`))).toBe('>! a >!b!< c\n');
+    expect(quote(block(`<p>a <a href="https://example.com/">${inline('C:\\')}</a></p>`))).toBe('>! a [>!C:\\\\!<](https://example.com/)\n');
+
+    const $body = postBody(block(`<p>a ${inline('b')} c</p>`));
+    select((range) => range.selectNodeContents($body.find('p')[0]));
+
+    expect(selectedText($body)).toBe('>! a >!b!< c\n');
+  });
+
+  test('a backslash run split across formatting counts as one run', () => {
+    expect(quote(`<p><em>\\</em><strong>\\</strong>${inline('secret')}</p>`)).toBe('\\\\>!secret!<');
+    expect(quote(`<p><em>\\</em><strong>\\\\</strong>${inline('secret')}</p>`)).toBe('\\\\\\\\>!secret!<');
+  });
+
+  test('an inline spoiler inside an inline spoiler does not close it early', () => {
+    expect(quote(`<p>before ${inline(`outer <a href="https://example.com/">${inline('inner')}</a> tail`)} after</p>`)).toBe(
+      'before >!outer [inner](https://example.com/) tail!< after'
+    );
+
+    const $body = postBody(`<p>${inline(`a ${inline('b')} c`)}</p>`);
+    select((range) => range.selectNodeContents($body.find('.spoiler')[0]));
+
+    expect(selectedText($body)).toBe('>!a b c!<');
+  });
+
+  test('a selection inside a spoiler with no text in it is not quoted', () => {
+    const $body = postBody(`<p>${inline('<img class="icon IconImage" src="https://example.com/crest.webp" alt="">')}</p>`);
+    select((range) => range.selectNodeContents($body.find('.spoiler')[0]));
+
+    expect(selectedText($body)).toBe('');
+  });
+
+  test('a spoiler around the whole post body is not one the selection is in', () => {
+    document.body.innerHTML = `<details class="spoiler"><div class="Post-body"><p>public</p></div></details>`;
+    const $body = $(document.body).find('.Post-body');
+
+    select((range) => range.selectNodeContents($body.find('p')[0]));
+
+    expect(selectedText($body)).toBe('public');
+  });
+});
+
+describe('a selection that runs past the post body', () => {
+  // As CommentPost renders a post: the side comes first, and the controls are
+  // buttons, whose text cannot be selected (Button.less), and a closed menu.
+  const post = (id: string, html: string) =>
+    `<div class="PostStream-item" id="${id}"><article class="CommentPost Post"><div class="Post-container">` +
+    `<div class="Post-side"></div><div class="Post-main">` +
+    `<header class="Post-header"><a class="username">${id}</a></header>` +
+    `<div class="Post-body">${html}</div>` +
+    `<aside class="Post-actions"><ul><li><button class="Button">Reply</button></li><li><button class="Button">Like</button></li>` +
+    `<li><ul class="Dropdown-menu" style="display: none"><li><a>Edit</a></li></ul></li></ul></aside>` +
+    `</div></div></article></div>`;
+
+  function posts() {
+    document.body.innerHTML =
+      '<style>.Button { user-select: none; }</style>' +
+      `<div class="PostStream">${post('first', '<p>One.</p><p>Last one.</p>')}${post('second', '<p>Two.</p>')}` +
+      '<div class="PostStream-item"><div class="ReplyPlaceholder"><div class="Post-container"><div class="Post-side"></div>' +
+      '<div class="Post-main">Write a reply...</div></div></div></div></div>';
+
+    return {
+      $first: $(document.body).find('#first .Post-body'),
+      $second: $(document.body).find('#second .Post-body'),
+    };
+  }
+
+  // Chrome ends a triple click on the last paragraph at the next place a
+  // selection can start, past the controls.
+  test("quotes a triple click on a post's last paragraph, which Chrome ends in the next post", () => {
+    const { $first } = posts();
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd(document.querySelector('#second .Post-container')!, 0);
+    });
+
+    expect(selectedText($first)).toBe('Last one.');
+  });
+
+  test("quotes a triple click on the last post's last paragraph, which Chrome ends in the reply placeholder", () => {
+    const { $second } = posts();
+
+    select((range) => {
+      range.setStart($second.find('p')[0].firstChild!, 0);
+      range.setEnd(document.querySelector('.ReplyPlaceholder .Post-side')!, 0);
+    });
+
+    expect(selectedText($second)).toBe('Two.');
+  });
+
+  // With a footer, such as one saying who liked the post, Chrome ends it at
+  // the start of the footer's text instead.
+  test("quotes a triple click on the last paragraph of a post with a footer, which Chrome ends at the footer's start", () => {
+    const { $first } = posts();
+    document.querySelector('#first .Post-actions')!.insertAdjacentHTML('afterend', '<footer class="Post-footer"><ul><li>You like this.</li></ul></footer>');
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd(document.querySelector('#first .Post-footer li')!.firstChild!, 0);
+    });
+
+    expect(selectedText($first)).toBe('Last one.');
+  });
+
+  test('quotes the post text when the rest of the selection only takes in hidden text and white space', () => {
+    const { $first } = posts();
+    document.querySelector('#first .Post-actions')!.insertAdjacentHTML('beforebegin', '\n  <span style="visibility: hidden">Hidden</span>\n');
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd(document.querySelector('#second .Post-container')!, 0);
+    });
+
+    expect(selectedText($first)).toBe('Last one.');
+  });
+
+  test('quotes nothing when the rest of the selection takes in text the reader could select', () => {
+    const { $first } = posts();
+    document.querySelector('#first .Post-actions')!.insertAdjacentHTML('beforebegin', '<span>Shown</span>');
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd(document.querySelector('#second .Post-container')!, 0);
+    });
+
+    expect(selectedText($first)).toBe('');
+  });
+
+  test('quotes the post text of a selection that starts just before it, with no text in between', () => {
+    const { $first } = posts();
+    document.querySelector('#first .Post-header')!.innerHTML = '<button class="Button">Menu</button>';
+
+    select((range) => {
+      range.setStart(document.querySelector('#first .Post-header')!, 0);
+      range.setEnd($first.find('p')[0].firstChild!, 3);
+    });
+
+    expect(selectedText($first)).toBe('One');
+  });
+
+  test('quotes nothing from either post when a selection runs from one into the text of the other', () => {
+    const { $first, $second } = posts();
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd($second.find('p')[0].firstChild!, 3);
+    });
+
+    expect(selectedText($first)).toBe('');
+    expect(selectedText($second)).toBe('');
+  });
+
+  test("quotes nothing when a selection runs from the post text into the next post's author", () => {
+    const { $first } = posts();
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd(document.querySelector('#second .username')!.firstChild!, 2);
+    });
+
+    expect(selectedText($first)).toBe('');
+  });
+
+  test("quotes nothing when a selection starts in the post's author", () => {
+    const { $first } = posts();
+
+    select((range) => {
+      range.setStart(document.querySelector('#first .username')!.firstChild!, 0);
+      range.setEnd($first.find('p')[0].firstChild!, 3);
+    });
+
+    expect(selectedText($first)).toBe('');
+  });
+
+  test('quotes nothing when neither end of the selection is in the post text', () => {
+    const { $first } = posts();
+
+    select((range) => {
+      range.setStart(document.querySelector('#first .Post-header')!, 0);
+      range.setEnd(document.querySelector('#second .Post-container')!, 0);
+    });
+
+    expect(selectedText($first)).toBe('');
+  });
+
+  test('quotes nothing when the selection only touches the end of the post text', () => {
+    const { $first } = posts();
+    const body = $first[0];
+
+    select((range) => {
+      range.setStart(body, body.childNodes.length);
+      range.setEnd(document.querySelector('#second .Post-container')!, 0);
+    });
+
+    expect(selectedText($first)).toBe('');
+  });
+
+  test('leaves the selection itself as it is', () => {
+    const { $first } = posts();
+    const next = document.querySelector('#second .Post-container')!;
+
+    select((range) => {
+      range.setStart($first.find('p')[1].firstChild!, 0);
+      range.setEnd(next, 0);
+    });
+    selectedText($first);
+
+    expect(window.getSelection()!.getRangeAt(0).endContainer).toBe(next);
   });
 });

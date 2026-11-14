@@ -81,3 +81,10 @@ describe('announces', () => {
     expect(announces('', '')).toBe(false);
   });
 });
+
+it('recognizes a Group-only typer resolved from an authorized server signal', () => {
+  const typing = new TypingState(() => [user(ME)], () => ME, (id: string) => id === STRANGER ? user(STRANGER) : undefined);
+  expect(typing.received(TypingState.signal(STRANGER), 1000)).toBe(true);
+  expect(typing.users(1000).map((person) => person.displayName())).toEqual(['Stranger']);
+  expect(typing.users(1000 + TYPING_TIMEOUT_MS)).toEqual([]);
+});

@@ -30,6 +30,10 @@
 
 This repository contains Flarum's core code. If you want to set up a forum, visit the [Flarum skeleton repository](https://github.com/flarum/flarum). For support, refer to the [documentation](https://docs.flarum.org/), and ask questions on [Flarum Discuss](https://discuss.flarum.org/) (our community forum) or [Discord server](https://flarum.org/discord/).
 
+## Languages
+
+Choose your forum's default language in **Administration → Basics → Default language**. Missing translations use the selected language's parents first, then the forum's default language and its parents, and finally English. For example, a French user on a forum whose default is Swiss German (`de-CH`) gets French translations where available, then Swiss German, German, and English. Changing the default language updates translation bundles on the next page load; a manual cache clear is not needed.
+
 ## Contributing
 
 Thank you for considering contributing to Flarum! Please read the **[Contributing guide](https://docs.flarum.org/contributing)** to learn how you can help.

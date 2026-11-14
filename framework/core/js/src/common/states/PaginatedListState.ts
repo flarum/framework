@@ -160,6 +160,18 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
   }
 
   /**
+   * Whether the list's search query (`params.q`) holds any gambits, which
+   * only the frontend can turn into API filters.
+   */
+  protected queryHasGambits(): boolean {
+    let found = false;
+
+    if (this.params.q) app.search.gambits.match(this.type, this.params.q, () => (found = true));
+
+    return found;
+  }
+
+  /**
    * Load a new page of results.
    */
   protected loadPage(page = 1): Promise<ApiResponsePlural<T>> {

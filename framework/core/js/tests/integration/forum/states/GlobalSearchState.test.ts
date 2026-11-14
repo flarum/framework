@@ -49,9 +49,32 @@ describe('GlobalSearchState reads the search from the address', () => {
     expect(new GlobalSearchState().params().q).toBe(word);
   });
 
+  test('a filter that discussions and users share is shown once', () => {
+    visit('?q=hello&filter[group]=mods&filter[-author]=behz');
+
+    expect((new GlobalSearchState() as any).searchToQuery()).toBe('hello group:mods -author:behz');
+  });
+
   test('no search is none', () => {
     visit('?sort=newest');
 
     expect(new GlobalSearchState().params().q).toBeUndefined();
+  });
+});
+
+describe('GlobalSearchState writes filters back as gambits', () => {
+  const query = (filter: Record<string, string>) => (new GlobalSearchState() as any).searchToQuery.call({ params: () => ({ q: 'hello', filter }) });
+
+  test('post filters, such as a source, come back', () => {
+    expect(query({ source: 'mcp' })).toBe('hello source:mcp');
+    expect(query({ '-source': 'api' })).toBe('hello -source:api');
+  });
+
+  test('a key both discussions and posts filter on is written once', () => {
+    expect(query({ author: 'alice' })).toBe('hello author:alice');
+  });
+
+  test('discussion, user and post filters together are each written once', () => {
+    expect(query({ group: 'mods', author: 'alice', source: 'mcp' })).toBe('hello group:mods author:alice source:mcp');
   });
 });

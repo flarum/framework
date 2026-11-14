@@ -23,6 +23,13 @@ export default abstract class AbstractPost<CustomAttrs extends IAbstractPostAttr
     view(vnode: Mithril.Vnode<CustomAttrs, this>): JSX.Element;
     onbeforeupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): boolean;
     onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
+    /**
+     * Keep the controls dropdown and the action bar in sync with whether the
+     * dropdown is open. This is done directly on the DOM, because the post
+     * usually retains its subtree and is not redrawn when the dropdown opens or
+     * closes.
+     */
+    toggleControlsOpen(open: boolean): void;
     elementAttrs(): Record<string, unknown>;
     header(): Mithril.Children;
     content(): Mithril.Children[];

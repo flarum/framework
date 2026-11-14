@@ -1,0 +1,82 @@
+.PullToRefresh {
+  --pull-distance: 0;
+  --pull-progress: ~"clamp(0, calc(var(--pull-distance) / var(--pull-threshold)), 1)";
+  --pull-dash: ~"calc(var(--pull-progress) * 100)";
+  --pull-offset: ~"clamp(0px, calc(var(--pull-distance) * 0.6px), 90px)";
+
+  position: fixed;
+  top: ~"calc(env(safe-area-inset-top, 0px) + 8px)";
+  left: 50%;
+  z-index: ~"calc(var(--zindex-header) + 2)";
+  pointer-events: none;
+  color: var(--primary-color);
+  opacity: 0;
+  transform: ~"translate(-50%, calc(var(--pull-offset) - 52px))";
+  transition: transform 180ms ease, opacity 180ms ease;
+
+  &[data-state='pulling'],
+  &[data-state='refreshing'] {
+    opacity: 1;
+  }
+
+  &[data-state='pulling'] {
+    transition: none;
+  }
+
+  &-visual {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--body-bg);
+    box-shadow: 0 2px 8px var(--shadow-color);
+  }
+
+  &-ring {
+    display: block;
+    width: 24px;
+    height: 24px;
+    transform: rotate(-90deg);
+
+    circle {
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    &-bg {
+      stroke: color-mix(in oklab, currentColor, transparent 90%);
+    }
+
+    &-line {
+      stroke: currentColor;
+      stroke-dasharray: ~"var(--pull-dash) calc(100 - var(--pull-dash))";
+    }
+  }
+
+  &[data-state='refreshing'] &-ring {
+    animation: PullToRefresh-spin 750ms linear infinite;
+
+    .PullToRefresh-ring-line {
+      stroke-dasharray: 75 25;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &-ring {
+      animation: none !important;
+    }
+  }
+}
+
+@keyframes PullToRefresh-spin {
+  from {
+    transform: rotate(-90deg);
+  }
+  to {
+    transform: rotate(270deg);
+  }
+}

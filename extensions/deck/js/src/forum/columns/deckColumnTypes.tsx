@@ -57,11 +57,16 @@ const memberField = (): DeckColumnField => ({
 const memberName = (config: DeckColumnConfig): string =>
   app.store.getById<User>('users', String(config.params.userId))?.displayName() ?? String(config.params.name);
 
-const onlyGambits = (query: string): string | null => {
-  const leftover = app.search.gambits.match('discussions', query, () => {});
+/** The words of a query that no discussion filter takes: plain words, or another resource's filters such as `group:`. */
+const unknownParts = (query: string): string[] => {
+  const matched = new Set<string>();
 
-  return query && !leftover ? query : null;
+  app.search.gambits.match('discussions', query, (gambit, matches, negate, bit) => matched.add(bit));
+
+  return query.split(/\s+/).filter((bit) => bit && !matched.has(bit));
 };
+
+const onlyGambits = (query: string): string | null => (query && !unknownParts(query).length ? query : null);
 
 export function registerDefaultColumnTypes(): void {
   deckColumnTypes.add(
@@ -213,7 +218,13 @@ export function registerDefaultColumnTypes(): void {
           // Every extension's registered discussion gambits, as in the search modal.
           gambits: 'discussions',
           parse: onlyGambits,
-          invalidText: app.translator.trans('flarum-deck.forum.add_column.filter_invalid_message'),
+          invalidText: (query: string) => {
+            const unknown = unknownParts(query);
+
+            return unknown.length
+              ? app.translator.trans('flarum-deck.forum.add_column.filter_unknown_message', { count: unknown.length, parts: unknown.join(' ') })
+              : app.translator.trans('flarum-deck.forum.add_column.filter_invalid_message');
+          },
         },
       ],
       createSource: (config) => new DiscussionListSource({ filter: gambitFilters(String(config.params.query)) }),

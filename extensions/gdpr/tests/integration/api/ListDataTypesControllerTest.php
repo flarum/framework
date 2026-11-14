@@ -53,7 +53,7 @@ class ListDataTypesControllerTest extends TestCase
 
         $body = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertCount(6, $body['data']);
+        $this->assertCount(7, $body['data']);
 
         $this->assertEquals(Forum::class, $body['data'][0]['id']);
         $this->assertEquals(Forum::exportDescription(), $body['data'][0]['attributes']['exportDescription']);

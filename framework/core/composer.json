@@ -46,7 +46,7 @@
         "flarum/font-awesome": "^7.0",
         "flarum/json-api-server": "^0.1.0",
         "franzl/whoops-middleware": "2.0",
-        "guzzlehttp/guzzle": "^7.7",
+        "guzzlehttp/guzzle": "^7.15.2",
         "illuminate/bus": "^13.0",
         "illuminate/cache": "^13.0",
         "illuminate/config": "^13.0",
@@ -87,18 +87,24 @@
         "symfony/console": "^7.4",
         "symfony/event-dispatcher": "^7.4",
         "symfony/http-client": "^7.4",
-        "symfony/mailgun-mailer": "^7.4",
+        "symfony/http-foundation": "^7.4",
+        "symfony/mailgun-mailer": "^7.4.18",
         "symfony/mime": "^7.4",
         "symfony/polyfill-intl-messageformatter": "^1.27",
-        "symfony/postmark-mailer": "^7.4",
+        "symfony/postmark-mailer": "^7.4.18",
+        "symfony/remote-event": "^7.4",
         "symfony/translation": "^7.4",
         "symfony/translation-contracts": "^2.5",
+        "symfony/webhook": "^7.4",
         "symfony/yaml": "^7.4",
         "wikimedia/less.php": "^5.3"
     },
     "require-dev": {
         "flarum/testing": "^2.1",
         "symfony/var-dumper": "^7.4"
+    },
+    "conflict": {
+        "fof/pwa": "<2.1.0"
     },
     "autoload": {
         "psr-4": {
@@ -144,6 +150,7 @@
         }
     },
     "scripts": {
+        "analyse:phpstan": "@composer --working-dir=../.. analyse:phpstan",
         "test": [
             "@test:unit",
             "@test:integration"

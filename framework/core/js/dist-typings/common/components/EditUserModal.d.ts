@@ -13,6 +13,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
     protected email: Stream<string>;
     protected isEmailConfirmed: Stream<boolean>;
     protected setPassword: Stream<boolean>;
+    protected clearEmailBounce: Stream<boolean>;
     protected password: Stream<string>;
     protected groups: Record<string, Stream<boolean>>;
     protected availableGroups: Group[];

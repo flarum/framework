@@ -107,6 +107,8 @@ module.exports = function () {
         cacheGroups: {
           // Avoid node_modules being split into separate chunks
           defaultVendors: false,
+          // Keep code shared between lazy chunks inside each of them
+          default: false,
         },
       },
     },

@@ -7,7 +7,7 @@ import ItemList from 'flarum/common/utils/ItemList';
 import Form from 'flarum/common/components/Form';
 import FieldSet from 'flarum/common/components/FieldSet';
 
-import { getPermanentSuspensionDate } from '../helpers/suspensionHelper';
+import { getPermanentSuspensionDate, isPermanentSuspensionDate } from '../helpers/suspensionHelper';
 
 export default class SuspendUserModal extends FormModal {
   oninit(vnode) {
@@ -21,7 +21,7 @@ export default class SuspendUserModal extends FormModal {
     if (new Date() > until) until = null;
 
     if (until) {
-      if (until.getFullYear() === 9999) status = 'indefinitely';
+      if (isPermanentSuspensionDate(until)) status = 'indefinitely';
       else status = 'limited';
     }
 

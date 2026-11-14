@@ -120,3 +120,83 @@ describe('catchUp', () => {
     expect(numbers(state)).toEqual([3, 2, 1]);
   });
 });
+
+/**
+ * After a reconnect, what changed on messages already shown while events were
+ * not being received, such as likes, is fetched again for them: each message
+ * held, by id, wherever it is held and however the pages around it changed.
+ */
+describe('refreshHeld', () => {
+  const asked = (find: any) => find.mock.calls.map(([, params]: any) => params.filter.id.split(',').map(Number));
+
+  it('fetches every message held by id, including those that arrived live, and keeps what changed', async () => {
+    const state = holding(page([3, 2, 1], 0));
+    state.push(message(4));
+    const find = jest.spyOn(app.store, 'find').mockImplementation((async () => {
+      // The forum says message 4, the newest, now has likes.
+      app.store.pushPayload({ data: [{ type: 'dialog-messages', id: '4', attributes: { likesCount: 2 } }] } as any);
+
+      return [];
+    }) as any);
+
+    await state.refreshHeld();
+
+    expect(find).toHaveBeenCalledTimes(1);
+    expect(find.mock.calls[0][0]).toBe('dialog-messages');
+    expect((find.mock.calls[0][1] as any).filter.dialog).toBe('1');
+    expect(asked(find)).toEqual([[4, 3, 2, 1]]);
+    expect((find.mock.calls[0][1] as any).page).toEqual({ limit: 4 });
+    expect(app.store.getById<DialogMessage>('dialog-messages', '4')!.likesCount()).toBe(2);
+    expect(numbers(state)).toEqual([4, 3, 2, 1]);
+  });
+
+  it('asks in batches the forum will answer in full', async () => {
+    const many = Array.from({ length: 120 }, (_, i) => 1000 - i);
+    const state = holding(page(many, 0));
+    const find = jest.spyOn(app.store, 'find').mockResolvedValue([] as never);
+
+    await state.refreshHeld();
+
+    expect(asked(find).map((ids: number[]) => ids.length)).toEqual([50, 50, 20]);
+    expect(asked(find).flat()).toEqual(many);
+  });
+
+  it('does not ask for a page near a message', async () => {
+    const state = new MessageStreamState({ filter: { dialog: '1' }, sort: '-number', page: { near: 40 } } as any);
+    (state as any).pages = [{ number: 1, items: page([41, 40, 39], 20), hasPrev: true, hasNext: false }];
+    const find = jest.spyOn(app.store, 'find').mockResolvedValue([] as never);
+
+    await state.refreshHeld();
+
+    expect((find.mock.calls[0][1] as any).page).toEqual({ limit: 3 });
+  });
+
+  it('leaves the conversation as it was when a fetch fails', async () => {
+    const state = holding(page([3, 2, 1], 0));
+    jest.spyOn(app.store, 'find').mockRejectedValue(new Error('offline') as never);
+
+    await expect(state.refreshHeld()).resolves.toBeUndefined();
+    expect(numbers(state)).toEqual([3, 2, 1]);
+  });
+
+  it('fetches nothing with nothing held', async () => {
+    const find = jest.spyOn(app.store, 'find');
+
+    await holding().refreshHeld();
+
+    expect(find).not.toHaveBeenCalled();
+  });
+});
+
+// What opening a conversation calls: refreshHeld() is beside it, not over it.
+describe('refresh', () => {
+  it('still loads the conversation from its newest end', async () => {
+    const state = holding();
+    const find = jest.spyOn(app.store, 'find').mockResolvedValue(Object.assign([], { payload: { data: [], links: {}, meta: {} } }) as never);
+
+    await state.refresh();
+
+    expect(find).toHaveBeenCalledTimes(1);
+    expect((find.mock.calls[0][1] as any).page.offset).toBe(0);
+  });
+});

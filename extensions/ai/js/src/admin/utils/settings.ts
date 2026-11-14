@@ -1,5 +1,6 @@
 import app from 'flarum/admin/app';
 import extractText from 'flarum/common/utils/extractText';
+import type { ModelIssue } from './models';
 
 export const CONNECTIONS_SETTING = 'flarum-ai.connections';
 export const DEFAULT_SETTING = 'flarum-ai.default_connection';
@@ -15,6 +16,11 @@ export const GUEST_DAILY_SETTING = 'flarum-ai.guest_daily_tokens';
 export interface Connection {
   driver: string;
   url?: string;
+  /** For providers reached by region, such as Bedrock. */
+  region?: string;
+  /** A Bedrock connection's guardrail ID or ARN, and the version it uses. */
+  guardrail_id?: string;
+  guardrail_version?: string;
   model?: string;
   monthly_tokens?: number;
   hasKey?: boolean;
@@ -39,6 +45,8 @@ export interface FeatureSettings {
   connection?: string;
   model?: string;
   daily_tokens?: number;
+  temperature?: number;
+  max_tokens?: number;
 }
 
 export interface AiPayload {
@@ -46,12 +54,42 @@ export interface AiPayload {
   drivers: string[];
   keyOptional: string[];
   urlRequired: string[];
+  regionRequired: string[];
+  /** Whether the AWS SDK Bedrock needs is installed. */
+  awsSdk: boolean;
+  /** Models a feature's temperature is left out for, as they refuse one. */
+  temperatureIgnored: { feature: string; connection: string; model: string }[];
+  /** The model each connection uses when a feature names none. */
+  defaultModels: Record<string, string>;
   lockedConnections: Connections;
   lockedDefault: string | null;
   features: FeatureInfo[];
+  /** The models features use that are deprecated or gone. */
+  modelIssues: ModelIssue[];
+  /** The address each provider is reached at when a connection gives none. */
+  defaultUrls: Record<string, string>;
+  /** Tokens each connection has used this calendar month. */
+  monthlyUsage: Record<string, number>;
+  /** When the scheduler last ran, if it ever has. */
+  schedulerLastRun: string | null;
   /** The checks the server makes on save, so forms can make them first. */
-  rules: { namePattern: string; modelMaxLength: number };
+  rules: { namePattern: string; modelMaxLength: number; regionPattern: string; guardrailPattern: string; guardrailVersionPattern: string };
 }
+
+/**
+ * Where to get an API key for each provider that needs one.
+ */
+export const KEY_URLS: Record<string, string> = {
+  anthropic: 'https://platform.claude.com/settings/keys',
+  bedrock: 'https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html',
+  deepseek: 'https://platform.deepseek.com/api_keys',
+  gemini: 'https://aistudio.google.com/app/apikey',
+  groq: 'https://console.groq.com/keys',
+  mistral: 'https://console.mistral.ai/api-keys',
+  openai: 'https://platform.openai.com/api-keys',
+  openrouter: 'https://openrouter.ai/settings/keys',
+  xai: 'https://console.x.ai/',
+};
 
 export function aiPayload(): AiPayload {
   return (app.data as unknown as Record<string, AiPayload>)['flarum-ai'];
@@ -119,6 +157,20 @@ export function parseTokens(value: string | number | undefined | null): number |
   const tokens = Number(text);
 
   return /^\d+$/.test(text) && Number.isInteger(tokens) && tokens > 0 ? tokens : false;
+}
+
+/**
+ * A temperature typed into a field: a number from 0 to 2, nothing for the
+ * extension's own, or `false` when it's neither.
+ */
+export function parseTemperature(value: string | number | undefined | null): number | null | false {
+  const text = String(value ?? '').trim();
+
+  if (text === '') return null;
+
+  const temperature = Number(text);
+
+  return /^\d*\.?\d+$/.test(text) && temperature >= 0 && temperature <= 2 ? temperature : false;
 }
 
 export function nameIsValid(name: string): boolean {
