@@ -247,6 +247,7 @@ class UserResource extends AbstractDatabaseResource
             Schema\Str::make('email')
                 ->description('Only visible to the user themselves and to those allowed to edit credentials.')
                 ->requiredOnCreateWithout(['token'])
+                ->rule('filled', fn (Context $context) => $context->updating())
                 ->validationMessages([
                     'email.required_without' => $translator->trans('validation.required', ['attribute' => $translator->trans('validation.attributes.email')])
                 ])
