@@ -13,13 +13,36 @@ use Flarum\Extend;
 use Flarum\Testing\unit\TestCase;
 use Illuminate\Container\Container;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerInterface;
 
 class MiddlewareTest extends TestCase
 {
-    protected function stack(array $middleware, Extend\Middleware $extender): array
+    protected array $warnings = [];
+
+    protected function container(array $middleware): Container
     {
+        $this->warnings = [];
+
         $container = new Container();
         $container->instance('flarum.forum.middleware', $middleware);
+        $container->instance(LoggerInterface::class, new class($this->warnings) extends AbstractLogger {
+            public function __construct(private array &$warnings)
+            {
+            }
+
+            public function log($level, \Stringable|string $message, array $context = []): void
+            {
+                $this->warnings[] = (string) $message;
+            }
+        });
+
+        return $container;
+    }
+
+    protected function stack(array $middleware, Extend\Middleware $extender): array
+    {
+        $container = $this->container($middleware);
 
         $extender->extend($container);
 
@@ -45,37 +68,53 @@ class MiddlewareTest extends TestCase
     }
 
     #[Test]
-    public function insert_before_a_missing_anchor_throws()
+    public function insert_before_a_missing_anchor_is_skipped_with_a_warning()
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot insert middleware [new] relative to [gone]');
+        $this->assertEquals(['a', 'b'], $this->stack(
+            ['a', 'b'],
+            (new Extend\Middleware('forum'))->insertBefore('gone', 'new')
+        ));
 
-        $this->stack(['a', 'b'], (new Extend\Middleware('forum'))->insertBefore('gone', 'new'));
+        $this->assertCount(1, $this->warnings);
+        $this->assertStringContainsString('Skipped inserting middleware [new] relative to [gone]', $this->warnings[0]);
     }
 
     #[Test]
-    public function insert_after_a_missing_anchor_throws()
+    public function insert_after_a_missing_anchor_is_skipped_with_a_warning()
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('[forum] middleware stack');
+        $this->assertEquals(['a', 'b'], $this->stack(
+            ['a', 'b'],
+            (new Extend\Middleware('forum'))->insertAfter('gone', 'new')
+        ));
 
-        $this->stack(['a', 'b'], (new Extend\Middleware('forum'))->insertAfter('gone', 'new'));
+        $this->assertCount(1, $this->warnings);
+        $this->assertStringContainsString('[forum] middleware stack', $this->warnings[0]);
     }
 
     #[Test]
-    public function inserting_relative_to_an_anchor_another_extender_replaced_throws()
+    public function inserting_relative_to_an_anchor_another_extender_replaced_is_skipped()
     {
         // The realistic case: two extensions touching the same region of the stack,
         // applied in extension order.
-        $this->expectException(\InvalidArgumentException::class);
-
-        $container = new Container();
-        $container->instance('flarum.forum.middleware', ['a', 'b']);
+        $container = $this->container(['a', 'b']);
 
         (new Extend\Middleware('forum'))->replace('b', 'replacement')->extend($container);
         (new Extend\Middleware('forum'))->insertAfter('b', 'new')->extend($container);
 
-        $container->make('flarum.forum.middleware');
+        $this->assertEquals(['a', 'replacement'], array_values($container->make('flarum.forum.middleware')));
+        $this->assertCount(1, $this->warnings);
+    }
+
+    #[Test]
+    public function anchors_are_compared_strictly()
+    {
+        // Loosely, the numeric strings '1e1' and '10' are equal.
+        $this->assertEquals(['10', 'b'], $this->stack(
+            ['10', 'b'],
+            (new Extend\Middleware('forum'))->insertAfter('1e1', 'new')
+        ));
+
+        $this->assertCount(1, $this->warnings);
     }
 
     #[Test]

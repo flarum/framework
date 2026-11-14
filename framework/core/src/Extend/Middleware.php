@@ -11,6 +11,7 @@ namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
+use Psr\Log\LoggerInterface;
 use Psr\Http\Server\MiddlewareInterface;
 
 class Middleware implements ExtenderInterface
@@ -101,7 +102,7 @@ class Middleware implements ExtenderInterface
 
     public function extend(Container $container, ?Extension $extension = null): void
     {
-        $container->extend("flarum.$this->frontend.middleware", function ($existingMiddleware) {
+        $container->extend("flarum.$this->frontend.middleware", function ($existingMiddleware) use ($container) {
             foreach ($this->addMiddlewares as $addMiddleware) {
                 $existingMiddleware[] = $addMiddleware;
             }
@@ -117,21 +118,19 @@ class Middleware implements ExtenderInterface
             }
 
             foreach ($this->insertBeforeMiddlewares as $originalMiddleware => $newMiddleware) {
-                array_splice(
-                    $existingMiddleware,
-                    $this->offsetOf($originalMiddleware, $newMiddleware, $existingMiddleware),
-                    0,
-                    $newMiddleware
-                );
+                $offset = $this->offsetOf($originalMiddleware, $newMiddleware, $existingMiddleware, $container);
+
+                if ($offset !== null) {
+                    array_splice($existingMiddleware, $offset, 0, $newMiddleware);
+                }
             }
 
             foreach ($this->insertAfterMiddlewares as $originalMiddleware => $newMiddleware) {
-                array_splice(
-                    $existingMiddleware,
-                    $this->offsetOf($originalMiddleware, $newMiddleware, $existingMiddleware) + 1,
-                    0,
-                    $newMiddleware
-                );
+                $offset = $this->offsetOf($originalMiddleware, $newMiddleware, $existingMiddleware, $container);
+
+                if ($offset !== null) {
+                    array_splice($existingMiddleware, $offset + 1, 0, $newMiddleware);
+                }
             }
 
             return array_diff($existingMiddleware, $this->removeMiddlewares);
@@ -139,24 +138,28 @@ class Middleware implements ExtenderInterface
     }
 
     /**
-     * Locate the anchor an insertion is relative to.
+     * Locate the anchor an insertion is relative to, or null if it is gone.
      *
      * Extenders run in extension order, so another extension may already have
-     * replaced or removed the anchor. Throwing beats defaulting to an offset: the
-     * front of the stack sits ahead of the error handler.
+     * replaced or removed the anchor, or it may belong to an extension that is
+     * not enabled. The insertion is then skipped with a warning: defaulting to an
+     * offset would put the middleware ahead of the error handler, and throwing
+     * would take down the whole frontend over a load order the admin cannot fix.
      *
      * @param array<string> $existingMiddleware
      */
-    private function offsetOf(string $originalMiddleware, string $newMiddleware, array $existingMiddleware): int
+    private function offsetOf(string $originalMiddleware, string $newMiddleware, array $existingMiddleware, Container $container): ?int
     {
         $offset = array_search($originalMiddleware, $existingMiddleware, true);
 
         if ($offset === false) {
-            throw new \InvalidArgumentException(
-                "Cannot insert middleware [$newMiddleware] relative to [$originalMiddleware]:"
+            $container->make(LoggerInterface::class)->warning(
+                "Skipped inserting middleware [$newMiddleware] relative to [$originalMiddleware]:"
                 ." it is not present in the [$this->frontend] middleware stack."
                 .' Another extension may have replaced or removed it, or it was never registered.'
             );
+
+            return null;
         }
 
         return $offset;
