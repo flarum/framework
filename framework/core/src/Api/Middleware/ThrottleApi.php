@@ -20,7 +20,9 @@ class ThrottleApi implements Middleware
 {
     /**
      * @param array<string, callable> $throttlers
-     * @param (callable(Request): bool)|null $precognitionThrottler
+     * @param (callable(Request): bool)|null $precognitionThrottler defaults to the
+     *        `flarum.api.precognition_throttler` binding, so precognitive requests
+     *        stay limited when a subclass or custom binding omits it
      */
     public function __construct(
         protected array $throttlers,
@@ -43,9 +45,11 @@ class ThrottleApi implements Middleware
         // don't apply. It gets its own limit instead, guests included: `unique`
         // rules would otherwise let anyone enumerate taken usernames and emails.
         if (Precognition::active($request)) {
-            if ($request->getAttribute('bypassThrottling') || $this->precognitionThrottler === null) {
+            if ($request->getAttribute('bypassThrottling')) {
                 return false;
             }
+
+            $this->precognitionThrottler ??= resolve('flarum.api.precognition_throttler');
 
             return ($this->precognitionThrottler)($request) === true;
         }

@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\precognition;
 require_once __DIR__.'/PrecognitionTestHelpers.php';
 
 use Carbon\Carbon;
+use Flarum\Api\Middleware\ThrottleApi;
 use Flarum\Api\PrecognitionThrottler;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -97,6 +98,20 @@ class PrecognitionLimiterTest extends TestCase
 
         // A guest from the same address as the user's requests has a separate budget.
         $this->assertEquals(422, $this->send($this->guestRegistration('10.1.0.0'))->getStatusCode());
+    }
+
+    #[Test]
+    public function throttle_middleware_built_without_a_precognition_throttler_still_limits()
+    {
+        $this->app()->getContainer()->bind(ThrottleApi::class, function ($container) {
+            return new ThrottleApi($container->make('flarum.api.throttlers'));
+        });
+
+        for ($i = 0; $i < 3; $i++) {
+            $this->assertEquals(422, $this->send($this->guestRegistration('10.0.0.1'))->getStatusCode());
+        }
+
+        $this->assertEquals(429, $this->send($this->guestRegistration('10.0.0.1'))->getStatusCode());
     }
 
     #[Test]
