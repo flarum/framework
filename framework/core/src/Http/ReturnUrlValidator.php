@@ -78,7 +78,9 @@ class ReturnUrlValidator
      * Validate a same-origin relative path, falling back to `/`.
      *
      * Control characters are rejected alongside off-origin references, since the
-     * path reaches the browser inside a `Location` header.
+     * path reaches the browser inside a `Location` header. So are backslashes:
+     * browsers read `\` as `/` in http(s) URLs, which turns `/\host` into the
+     * protocol-relative `//host`.
      */
     public function validatePath(?string $path, string $fallback = '/'): string
     {
@@ -89,6 +91,7 @@ class ReturnUrlValidator
         if (! str_starts_with($path, '/')
             || str_starts_with($path, '//')
             || str_contains($path, '://')
+            || str_contains($path, '\\')
             || preg_match('/[\x00-\x1F\x7F]/', $path) === 1
         ) {
             return $fallback;

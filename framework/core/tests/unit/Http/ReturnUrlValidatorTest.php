@@ -120,6 +120,18 @@ class ReturnUrlValidatorTest extends TestCase
     }
 
     #[Test]
+    public function paths_containing_a_backslash_are_rejected_by_validate_path()
+    {
+        // Browsers treat `\` as `/`, so these resolve to `//evil.example`.
+        $validator = $this->validator();
+
+        $this->assertEquals('/', $validator->validatePath('/\\evil.example'));
+        $this->assertEquals('/', $validator->validatePath('/\\/evil.example'));
+        $this->assertEquals('/', $validator->validatePath('/\\\\evil.example'));
+        $this->assertEquals('/', $validator->validatePath('/d/1\\hello'));
+    }
+
+    #[Test]
     public function validate_path_honours_an_explicit_fallback()
     {
         $this->assertEquals('/all', $this->validator()->validatePath('https://evil.example', '/all'));
