@@ -84,6 +84,7 @@ class CoreBridgeTest extends TestCase
         });
         $db->table('settings')->insert(['key' => 'version', 'value' => $recorded]);
         $db->getSchemaBuilder()->create('migrations', function ($table) {
+            $table->increments('id');
             $table->string('migration');
             $table->string('extension')->nullable();
         });

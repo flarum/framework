@@ -9,9 +9,8 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Extension\Condition;
 use Flarum\Extension\Extension;
-use Flarum\Extension\ExtensionManager;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 
 /**
@@ -42,9 +41,7 @@ class Conditional implements ExtenderInterface
      */
     public function whenExtensionEnabled(string $extensionId, callable|string $extenders): self
     {
-        return $this->when(function (ExtensionManager $extensions) use ($extensionId) {
-            return $extensions->isEnabled($extensionId);
-        }, $extenders);
+        return $this->when(Condition::extensionEnabled($extensionId), $extenders);
     }
 
     /**
@@ -55,9 +52,7 @@ class Conditional implements ExtenderInterface
      */
     public function whenExtensionDisabled(string $extensionId, callable|string $extenders): self
     {
-        return $this->when(function (ExtensionManager $extensions) use ($extensionId) {
-            return ! $extensions->isEnabled($extensionId);
-        }, $extenders);
+        return $this->when(Condition::extensionDisabled($extensionId), $extenders);
     }
 
     /**
@@ -68,15 +63,7 @@ class Conditional implements ExtenderInterface
      */
     public function whenExtensionsEnabled(array $extensionIds, callable|string $extenders): self
     {
-        return $this->when(function (ExtensionManager $extensions) use ($extensionIds) {
-            foreach ($extensionIds as $extensionId) {
-                if (! $extensions->isEnabled($extensionId)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }, $extenders);
+        return $this->when(Condition::extensionsEnabled($extensionIds), $extenders);
     }
 
     /**
@@ -87,15 +74,7 @@ class Conditional implements ExtenderInterface
      */
     public function whenExtensionsDisabled(array $extensionIds, callable|string $extenders): self
     {
-        return $this->when(function (ExtensionManager $extensions) use ($extensionIds) {
-            foreach ($extensionIds as $extensionId) {
-                if ($extensions->isEnabled($extensionId)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }, $extenders);
+        return $this->when(Condition::extensionsDisabled($extensionIds), $extenders);
     }
 
     /**
@@ -108,11 +87,7 @@ class Conditional implements ExtenderInterface
      */
     public function whenSetting(string $key, mixed $expected, callable|string $extenders, bool $strict = false): self
     {
-        return $this->when(function (SettingsRepositoryInterface $settings) use ($key, $expected, $strict) {
-            $value = $settings->get($key);
-
-            return $strict ? $value === $expected : $value == $expected;
-        }, $extenders);
+        return $this->when(Condition::setting($key, $expected, $strict), $extenders);
     }
 
     /**
@@ -137,6 +112,18 @@ class Conditional implements ExtenderInterface
      */
     public function extend(Container $container, ?Extension $extension = null): void
     {
+        $this->forEachExtender($container, function ($extender) use ($container, $extension) {
+            if ($extender instanceof Settings) {
+                $extender->extendDeclaration($container, $extension);
+            } else {
+                $extender->extend($container, $extension);
+            }
+        });
+    }
+
+    /** @internal */
+    public function forEachExtender(Container $container, callable $callback): void
+    {
         foreach ($this->conditions as $condition) {
             if (is_callable($condition['condition'])) {
                 $condition['condition'] = $container->call($condition['condition']);
@@ -148,7 +135,7 @@ class Conditional implements ExtenderInterface
                 $extenders = $container->call($extenders);
 
                 foreach ($extenders as $extender) {
-                    $extender->extend($container, $extension);
+                    $callback($extender);
                 }
             }
         }

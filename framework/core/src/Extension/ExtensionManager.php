@@ -9,6 +9,7 @@
 
 namespace Flarum\Extension;
 
+use Flarum\Database\MigrationContext;
 use Flarum\Database\Migrator;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Disabling;
@@ -19,6 +20,8 @@ use Flarum\Extension\Exception\CircularDependenciesException;
 use Flarum\Extension\Exception\UnreadableManifestException;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Foundation\Paths;
+use Flarum\Settings\DatabaseSettingsRepository;
+use Flarum\Settings\DefaultSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -35,6 +38,9 @@ class ExtensionManager
      * @var Collection<string, Extension>|null
      */
     protected ?Collection $extensions = null;
+
+    /** @var string[]|null */
+    protected ?array $pendingEnabledExtensions = null;
 
     public function __construct(
         protected SettingsRepositoryInterface $config,
@@ -190,13 +196,19 @@ class ExtensionManager
 
         $this->dispatcher->dispatch(new Enabling($extension));
 
-        $this->migrate($extension);
-
-        $this->publishAssets($extension);
-
         $enabledExtensions = $this->getEnabledExtensions();
-        $enabledExtensions[] = $extension;
-        $this->setEnabledExtensions($enabledExtensions);
+        $enabledExtensions[$extension->getId()] = $extension;
+        $enabledExtensions = $this->sortDependencies($enabledExtensions);
+        $this->pendingEnabledExtensions = array_map(fn (Extension $enabled) => $enabled->getId(), $enabledExtensions);
+
+        try {
+            $this->migrate($extension);
+            $this->migrateConditional();
+            $this->publishAssets($extension);
+            $this->setEnabledExtensions($enabledExtensions);
+        } finally {
+            $this->pendingEnabledExtensions = null;
+        }
 
         $extension->enable($this->container);
 
@@ -230,7 +242,15 @@ class ExtensionManager
         $this->dispatcher->dispatch(new Disabling($extension));
 
         unset($enabledExtensions[$k]);
-        $this->setEnabledExtensions($enabledExtensions);
+        $enabledExtensions = $this->sortDependencies($enabledExtensions);
+        $this->pendingEnabledExtensions = array_map(fn (Extension $enabled) => $enabled->getId(), $enabledExtensions);
+
+        try {
+            $this->migrateConditional();
+            $this->setEnabledExtensions($enabledExtensions);
+        } finally {
+            $this->pendingEnabledExtensions = null;
+        }
 
         $extension->disable($this->container);
 
@@ -303,6 +323,39 @@ class ExtensionManager
         return $extension->migrate($this->migrator, $direction);
     }
 
+    /** @internal */
+    public function getSettingsDefaults(): Collection
+    {
+        $defaults = clone $this->container->make('flarum.settings.default');
+        $enabledIds = $this->getEnabled();
+        $registered = $this->container->make('flarum.settings.default.extensions');
+        $defaults->forget($registered->filter(fn (array $source) => $source['declarative'] || ! in_array($source['extension'], $enabledIds))->keys()->all());
+        $scope = clone $this->container;
+        $schema = $this->container->make(ConnectionInterface::class)->getSchemaBuilder();
+        $settings = new DefaultSettingsRepository(new DatabaseSettingsRepository($schema->getConnection()), $defaults);
+        $scope->instance(Container::class, $scope);
+        $scope->instance('flarum.settings.default', $defaults);
+        $scope->instance(SettingsRepositoryInterface::class, $settings);
+        $scope->instance(Builder::class, $schema);
+        $scope->instance(MigrationContext::class, new MigrationContext($schema, $enabledIds, $settings));
+
+        foreach ($this->getEnabledExtensions() as $extension) {
+            $extension->getSettingsDefaults($scope, $defaults);
+        }
+
+        return $defaults;
+    }
+
+    /** @internal */
+    public function migrateConditional(): void
+    {
+        foreach ($this->getEnabledExtensions() as $extension) {
+            if ($extension->hasMigrations()) {
+                $this->migrator->run($extension->getPath().'/migrations', $extension, conditionalOnly: true);
+            }
+        }
+    }
+
     /**
      * Runs the database migrations to reset the database to its old state.
      *
@@ -367,7 +420,10 @@ class ExtensionManager
      */
     public function getEnabled(): array
     {
-        return json_decode($this->config->get('extensions_enabled'), true) ?? [];
+        return $this->pendingEnabledExtensions
+            ?? ($this->container->bound(MigrationContext::class) ? $this->container->make(MigrationContext::class)->enabledExtensionIds : null)
+            ?? json_decode($this->config->get('extensions_enabled'), true)
+            ?? [];
     }
 
     /**

@@ -10,7 +10,9 @@
 namespace Flarum\Extension;
 
 use Flarum\Database\Migrator;
+use Flarum\Extend\Conditional;
 use Flarum\Extend\LifecycleInterface;
+use Flarum\Extend\Settings;
 use Flarum\Extension\Exception\ExtensionBootError;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Filesystem\Filesystem as FilesystemInterface;
@@ -117,7 +119,11 @@ class Extension implements Arrayable
     {
         foreach ($this->getExtenders() as $extender) {
             try {
-                $extender->extend($container, $this);
+                if ($extender instanceof Settings) {
+                    $extender->extendDeclaration($container, $this);
+                } else {
+                    $extender->extend($container, $this);
+                }
             } catch (Throwable $e) {
                 throw new ExtensionBootError($this, $extender, $e);
             }
@@ -334,6 +340,28 @@ class Extension implements Arrayable
     public function getOptionalDependencyIds(): array
     {
         return $this->optionalDependencyIds;
+    }
+
+    /** @internal */
+    public function getSettingsDefaults(Container $container, Collection $defaults): array
+    {
+        $values = [];
+        $collect = function ($extender) use ($container, $defaults, &$values, &$collect): void {
+            if ($extender instanceof Settings) {
+                foreach ($extender->getDefaults() as $key => $value) {
+                    $values[$key] = $value;
+                    $defaults->put($key, $value);
+                }
+            } elseif ($extender instanceof Conditional) {
+                $extender->forEachExtender($container, $collect);
+            }
+        };
+
+        foreach ($this->getExtenders() as $extender) {
+            $collect($extender);
+        }
+
+        return $values;
     }
 
     private function getExtenders(): array
