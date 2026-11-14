@@ -63,6 +63,17 @@ class ReturnUrlValidatorTest extends TestCase
     }
 
     #[Test]
+    public function urls_with_a_scheme_other_than_http_or_https_are_rejected()
+    {
+        $validator = $this->validator();
+
+        $this->assertNull($validator->validate('ftp://flarum.test/d/1'));
+        $this->assertNull($validator->validate('javascript://flarum.test/%0Aalert(1)'));
+        $this->assertNull($validator->validate('javascript:alert(1)'));
+        $this->assertNotNull($validator->validate('HTTPS://flarum.test/d/1'));
+    }
+
+    #[Test]
     public function relative_paths_are_rejected_by_validate()
     {
         // They carry no host to check against the allow list, so they belong to
