@@ -20,7 +20,7 @@ import Icon from '../../common/components/Icon';
 import { renderColumn } from '../../common/resource/field';
 import RelationInput from '../../common/resource/inputs/RelationInput';
 import ResourceDefinition from '../../common/resource/ResourceDefinition';
-import ResourceListState from '../../common/resource/ResourceListState';
+import type ResourceListState from '../../common/resource/ResourceListState';
 import type { Field } from '../../common/resource/types';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import type { ColumnData as ResourceColumnData } from './resource/ResourceTable';
@@ -101,10 +101,10 @@ export default class UserListPage extends AdminPage {
     super.oninit(vnode);
 
     this.definition = app.resources.get<User>('users');
-    // The table loads the list, reading the 1-based `?page=` (and sort, search, filters) from the URL.
-    this.list = new ResourceListState<User>(this.definition, { pageSize: 50 });
 
-    import('./resource/tables').then(({ UserListTable }) => {
+    import('./resource/tables').then(({ UserListTable, ResourceListState }) => {
+      // The table loads the list, reading the 1-based `?page=` (and sort, search, filters) from the URL.
+      this.list = new ResourceListState<User>(this.definition, { pageSize: 50 });
       this.Table = UserListTable;
       m.redraw();
     });

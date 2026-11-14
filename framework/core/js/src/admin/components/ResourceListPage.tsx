@@ -3,7 +3,7 @@ import type Mithril from 'mithril';
 import type { IPageAttrs } from '../../common/components/Page';
 import type Model from '../../common/Model';
 import type ResourceDefinition from '../../common/resource/ResourceDefinition';
-import ResourceListState from '../../common/resource/ResourceListState';
+import type ResourceListState from '../../common/resource/ResourceListState';
 import AdminPage, { type AdminHeaderAttrs } from './AdminPage';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import type ResourceTable from './resource/ResourceTable';
@@ -21,7 +21,7 @@ export interface ResourceListPageHeader {
 
 /**
  * An admin page that is one `ResourceTable`: the definition from `createDefinition()`, a list of 50
- * per page from `createList()`, the header from `page()`, and the table from `tableComponent()` (loaded
+ * per page from `createList()` (loaded async), the header from `page()`, and the table from `tableComponent()` (loaded
  * async) with `tableAttrs()`.
  */
 export default abstract class ResourceListPage<
@@ -42,16 +42,20 @@ export default abstract class ResourceListPage<
     super.oninit(vnode);
 
     this.definition = this.createDefinition();
-    this.list = this.createList();
 
-    this.tableComponent().then((Table) => {
+    Promise.all([this.tableComponent(), this.createList()]).then(([Table, list]) => {
+      this.list = list;
       this.Table = Table;
       m.redraw();
     });
   }
 
-  createList(): ResourceListState<ModelOf<D>> {
-    return new ResourceListState<ModelOf<D>>(this.definition, { pageSize: 50 });
+  /**
+   * The list, 50 per page. The list states are in the tables' async chunk, so this resolves to one;
+   * the page renders the table once both have arrived.
+   */
+  createList(): Promise<ResourceListState<ModelOf<D>>> {
+    return import('./resource/tables').then(({ ResourceListState }) => new ResourceListState<ModelOf<D>>(this.definition, { pageSize: 50 }));
   }
 
   headerInfo(): AdminHeaderAttrs {

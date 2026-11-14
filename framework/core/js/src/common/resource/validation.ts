@@ -1,6 +1,6 @@
 import app from '../app';
 import fireDebugWarning from '../helpers/fireDebugWarning';
-import { constraintsFor, isRequired } from './descriptor';
+import { constraintsFor, isAbsent, isRequired } from './descriptor';
 import { snapshot } from './field';
 import type { FieldConstraints, FieldDescriptor, FormMode } from './types';
 
@@ -41,14 +41,6 @@ function message(key: string, params: Record<string, unknown> = {}): string {
  */
 function ruleMessage(c: FieldConstraints, rule: string, key: string, params: Record<string, unknown> = {}): string {
   return c.messages?.[rule] ?? message(`core.lib.resource.validation.${key}`, params);
-}
-
-/**
- * Whether a value counts as absent, as Laravel's `required` sees it: `null`, `undefined`, a blank
- * string or an empty array. As on the server, only the required rules apply to an absent value.
- */
-export function isAbsent(value: unknown): boolean {
-  return value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (Array.isArray(value) && !value.length);
 }
 
 /**

@@ -1,12 +1,19 @@
 import app from '../app';
 import type ResourceSchema from '../models/ResourceSchema';
 import type { FieldConstraints, FieldDescriptor, FormMode, RequiredCondition, ResourceDescriptor } from './types';
-import { isAbsent } from './validation';
 
 /**
  * The highest descriptor `schemaVersion` this client understands.
  */
 export const SCHEMA_VERSION = 1;
+
+/**
+ * Whether a value counts as absent, as Laravel's `required` sees it: `null`, `undefined`, a blank
+ * string or an empty array. As on the server, only the required rules apply to an absent value.
+ */
+export function isAbsent(value: unknown): boolean {
+  return value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (Array.isArray(value) && !value.length);
+}
 
 const cache = new Map<string, Promise<ResourceDescriptor>>();
 
