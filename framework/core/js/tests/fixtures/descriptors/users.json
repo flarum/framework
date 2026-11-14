@@ -131,6 +131,7 @@
                 }
             },
             "constraintsOnUpdate": {
+                "filled": true,
                 "format": "email"
             }
         },
@@ -142,6 +143,27 @@
                 "create": true,
                 "update": true
             }
+        },
+        {
+            "name": "emailBouncedAt",
+            "kind": "datetime",
+            "label": "Email bounced at",
+            "writable": {
+                "create": true,
+                "update": true
+            },
+            "nullable": true,
+            "constraints": {
+                "format": "date-time"
+            },
+            "ui": {
+                "widget": "hidden"
+            }
+        },
+        {
+            "name": "emailBounceReason",
+            "kind": "string",
+            "label": "Email bounce reason"
         },
         {
             "name": "password",

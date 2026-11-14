@@ -303,6 +303,8 @@ class UserResource extends AbstractDatabaseResource
                 // Admins can clear a bounce flag (e.g. a provider glitch) by
                 // writing null; they cannot set an arbitrary bounce timestamp.
                 ->writable(fn (User $user, Context $context) => $context->getActor()->isAdmin())
+                // Only clearable, so no date input: EditUserModal offers a "clear bounce" checkbox.
+                ->ui(['widget' => 'hidden'])
                 ->set(function (User $user, $value, Context $context) {
                     if (empty($value)) {
                         $user->clearEmailBounce();
