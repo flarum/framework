@@ -16,6 +16,11 @@ class Rememberer
 {
     public const COOKIE_NAME = 'remember';
 
+    /**
+     * How long the cookie lasts for a token that never expires, in seconds.
+     */
+    public const NEVER_EXPIRING_COOKIE_LIFETIME = 5 * 365 * 24 * 60 * 60;
+
     public function __construct(
         protected CookieFactory $cookie,
         protected SessionConfig $sessionConfig
@@ -40,6 +45,9 @@ class Rememberer
     /**
      * How long the browser should keep the remember cookie, or `null` to keep
      * it only until the browser closes.
+     *
+     * A token lifetime of zero means the token never expires, but a cookie
+     * max-age of zero would make it a session cookie, so those get a long one.
      */
     protected function cookieLifetime(RememberAccessToken $token): ?int
     {
@@ -47,7 +55,7 @@ class Rememberer
             return null;
         }
 
-        return $token::lifetime();
+        return $token::lifetime() ?: self::NEVER_EXPIRING_COOKIE_LIFETIME;
     }
 
     public function forget(ResponseInterface $response): ResponseInterface

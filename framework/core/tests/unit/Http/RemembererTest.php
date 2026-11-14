@@ -105,6 +105,41 @@ class RemembererTest extends TestCase
 
         $this->assertEquals(0, FigResponseCookies::get($response, 'flarum_remember')->getMaxAge());
     }
+
+    #[Test]
+    public function remember_cookie_outlives_the_browser_for_a_token_that_never_expires()
+    {
+        $response = $this->rememberer()->remember(
+            new EmptyResponse(),
+            $this->token(NeverExpiringRememberAccessToken::class)
+        );
+
+        $this->assertEquals(
+            5 * 365 * 24 * 60 * 60,
+            FigResponseCookies::get($response, 'flarum_remember')->getMaxAge()
+        );
+    }
+
+    #[Test]
+    public function remember_cookie_outlives_the_browser_when_the_site_configures_no_expiry()
+    {
+        $response = $this->rememberer(['tokens' => ['session_remember' => 0]])->remember(
+            new EmptyResponse(),
+            $this->token(RememberAccessToken::class)
+        );
+
+        $this->assertEquals(
+            5 * 365 * 24 * 60 * 60,
+            FigResponseCookies::get($response, 'flarum_remember')->getMaxAge()
+        );
+    }
+}
+
+class NeverExpiringRememberAccessToken extends RememberAccessToken
+{
+    public static string $type = 'session_remember_forever';
+
+    protected static int $lifetime = 0;
 }
 
 class ShortLivedRememberAccessToken extends RememberAccessToken
