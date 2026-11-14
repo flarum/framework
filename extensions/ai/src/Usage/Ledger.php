@@ -10,6 +10,7 @@
 namespace Flarum\Ai\Usage;
 
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Query\Builder;
@@ -64,6 +65,23 @@ class Ledger
             ->where($column, $value)
             ->where('created_at', '>=', $since)
             ->sum($this->db->raw('input_tokens + output_tokens'));
+    }
+
+    /**
+     * Tokens each connection has used this calendar month, as its monthly
+     * limit counts them.
+     *
+     * @return array<string, int>
+     */
+    public function thisMonthByConnection(): array
+    {
+        return $this->table()
+            ->where('created_at', '>=', CarbonImmutable::now('UTC')->startOfMonth())
+            ->groupBy('connection')
+            ->selectRaw('connection, SUM(input_tokens + output_tokens) as tokens')
+            ->pluck('tokens', 'connection')
+            ->map(fn ($tokens) => (int) $tokens)
+            ->all();
     }
 
     /**

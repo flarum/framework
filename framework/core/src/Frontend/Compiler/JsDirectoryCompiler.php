@@ -111,7 +111,7 @@ class JsDirectoryCompiler implements CompilerInterface
         $destinationDir = $this->destinationFor($source);
 
         foreach ($this->versioner->allRevisions() as $filename => $revision) {
-            if (str_starts_with($filename, $destinationDir) && ! isset($live[$filename])) {
+            if (str_starts_with(str_replace('\\', '/', $filename), $destinationDir) && ! isset($live[$filename])) {
                 $this->versioner->putRevision($filename, null);
             }
         }
@@ -130,7 +130,7 @@ class JsDirectoryCompiler implements CompilerInterface
         $remainingRevisions = $this->versioner->allRevisions();
 
         foreach ($remainingRevisions as $filename => $revision) {
-            if (str_starts_with($filename, $destinationDir)) {
+            if (str_starts_with(str_replace('\\', '/', $filename), $destinationDir)) {
                 $this->versioner->putRevision($filename, null);
             }
         }
@@ -164,7 +164,7 @@ class JsDirectoryCompiler implements CompilerInterface
         // Filesystem's root is the actual directory we want to copy.
         // The destination path is relative to the assets' filesystem.
 
-        $jsCompiler = resolve(JsCompiler::class, [
+        $jsCompiler = resolve(JsChunkCompiler::class, [
             'assetsDir' => $this->assetsDir,
             // We put each file in `js/extensionId/frontend` (path provided) `/relativeFilePath` (such as `components/LogInModal.js`).
             'filename' => $this->destinationFor($source, $relativeFilePath),
@@ -181,6 +181,6 @@ class JsDirectoryCompiler implements CompilerInterface
     {
         $extensionId = $source->getExtensionId() ?? 'core';
 
-        return str_replace('{ext}', $extensionId, $this->destinationPath).DIRECTORY_SEPARATOR.$relativeFilePath;
+        return str_replace('\\', '/', str_replace('{ext}', $extensionId, $this->destinationPath).'/'.$relativeFilePath);
     }
 }

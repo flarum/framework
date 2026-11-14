@@ -111,3 +111,9 @@ import './Translator';
 import './Model';
 import './Application';
 import './Fragment';
+
+// Split into chunks of their own, in both the forum and the admin, and loaded
+// when first imported, by core or an extension:
+//
+//     const { default: readEventStream } = await import('flarum/common/utils/readEventStream');
+export const lazyModules = [() => import('./utils/readEventStream')];

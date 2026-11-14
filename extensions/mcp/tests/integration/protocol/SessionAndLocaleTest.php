@@ -69,7 +69,26 @@ class SessionAndLocaleTest extends McpTestCase
         $this->assertSame($sessions, $this->sessionFiles());
 
         // Other forum routes still get theirs.
-        $this->assertNotSame([], $this->send($this->request('GET', '/.well-known/oauth-protected-resource'))->getHeader('Set-Cookie'));
+        $this->assertNotSame([], $this->send($this->request('GET', '/'))->getHeader('Set-Cookie'));
+    }
+
+    #[Test]
+    public function publicly_cacheable_metadata_has_no_session_credentials_or_session_writes(): void
+    {
+        $browser = $this->request('GET', '/', ['authenticatedAs' => 2]);
+        $sessions = $this->sessionFiles();
+
+        foreach (['/.well-known/oauth-protected-resource/mcp', '/.well-known/oauth-protected-resource'] as $path) {
+            foreach ([[], $browser->getCookieParams()] as $cookies) {
+                $response = $this->send($this->request('GET', $path)->withCookieParams($cookies));
+
+                $this->assertSame(200, $response->getStatusCode());
+                $this->assertStringContainsString('public', $response->getHeaderLine('Cache-Control'));
+                $this->assertSame([], $response->getHeader('Set-Cookie'));
+                $this->assertFalse($response->hasHeader('X-CSRF-Token'));
+                $this->assertSame($sessions, $this->sessionFiles());
+            }
+        }
     }
 
     #[Test]

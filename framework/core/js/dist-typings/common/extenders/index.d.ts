@@ -6,6 +6,7 @@ import Search from './Search';
 import Notification from './Notification';
 import ThemeMode from './ThemeMode';
 import Admin from './Admin';
+import Conditional from './Conditional';
 declare const extenders: {
     Model: typeof Model;
     PostTypes: typeof PostTypes;
@@ -15,5 +16,6 @@ declare const extenders: {
     Notification: typeof Notification;
     ThemeMode: typeof ThemeMode;
     Admin: typeof Admin;
+    Conditional: typeof Conditional;
 };
 export default extenders;

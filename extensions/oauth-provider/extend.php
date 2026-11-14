@@ -14,6 +14,7 @@ use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData as GdprUserData;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\User\Event\LoggedOut;
+use Flarum\User\Event\PasswordChanged;
 use Flarum\User\Search\UserSearcher;
 use Illuminate\Console\Scheduling\Event;
 
@@ -70,7 +71,8 @@ return [
         ]),
 
     (new Extend\Event())
-        ->listen(LoggedOut::class, Listener\DisconnectApplicationsOnGlobalLogout::class),
+        ->listen(LoggedOut::class, Listener\DisconnectApplicationsOnGlobalLogout::class)
+        ->listen(PasswordChanged::class, Listener\DisconnectApplicationsOnPasswordChange::class),
 
     (new Extend\View())
         ->namespace('flarum-oauth-provider', __DIR__.'/resources/views'),

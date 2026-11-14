@@ -125,7 +125,9 @@ export default class GeneralSearchSource implements GlobalSearchSource {
                 app.translator.trans('core.admin.' + corePage + '.title', {}, true),
               group?.icon || extensions[extensionId]?.icon || { name: 'fas fa-cog' },
               'tree' in setting && setting.tree ? [...setting.tree.map(extractText), label] : [...locationTree, label],
-              group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId, tab: location.tab?.id })),
+              ('link' in setting && setting.link) ||
+                group?.link ||
+                (corePage ? app.route(corePage) : app.route('extension', { id: extensionId, tab: location.tab?.id })),
               help
             )
           );
@@ -159,7 +161,9 @@ export default class GeneralSearchSource implements GlobalSearchSource {
                   extractText(permissionItems.get(permissionType)?.label) || permissionType,
                   label,
                 ],
-                group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId, tab: 'permissions' }))
+                ('link' in permission && permission.link) ||
+                  group?.link ||
+                  (corePage ? app.route(corePage) : app.route('extension', { id: extensionId, tab: 'permissions' }))
               )
             );
           }
@@ -191,13 +195,13 @@ export default class GeneralSearchSource implements GlobalSearchSource {
               const highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
 
               const tree: any[] = result.tree.map((part) => {
-                return highlight(part, highlightRegExp, undefined, true);
+                return highlight(part, highlightRegExp);
               });
 
               let help: any = result.help;
 
               if (help) {
-                help = highlight(help, highlightRegExp, 100, true);
+                help = highlight(help, highlightRegExp, 100);
               }
 
               return (

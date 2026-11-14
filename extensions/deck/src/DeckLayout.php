@@ -45,8 +45,11 @@ class DeckLayout
     protected const MAX_PARAMS = 4;
     protected const MAX_PARAM_LENGTH = 200;
 
+    /** A name the member gives a column, shown instead of its title. */
+    public const MAX_NAME_LENGTH = 60;
+
     /**
-     * @return list<array{id: string, type: string, width: int, row: int, params: array<string, string|int>}>|null
+     * @return list<array{id: string, type: string, width: int, row: int, params: array<string, string|int>, name?: string}>|null
      */
     public static function sanitize(mixed $value): ?array
     {
@@ -77,7 +80,7 @@ class DeckLayout
     }
 
     /**
-     * @return array{id: string, type: string, width: int, row: int, params: array<string, string|int>}|null
+     * @return array{id: string, type: string, width: int, row: int, params: array<string, string|int>, name?: string}|null
      */
     protected static function sanitizeColumn(mixed $column): ?array
     {
@@ -130,7 +133,10 @@ class DeckLayout
             }
         }
 
-        return compact('id', 'type', 'width', 'row', 'params');
+        $name = $column['name'] ?? null;
+        $name = is_string($name) ? trim(mb_substr(trim($name), 0, static::MAX_NAME_LENGTH)) : '';
+
+        return compact('id', 'type', 'width', 'row', 'params') + ($name === '' ? [] : ['name' => $name]);
     }
 
     /**

@@ -43,3 +43,32 @@ describe('Comment user card', () => {
     expect(mq(Comment, attrs({ cardVisible: false }))).not.toHaveElement('.UserCard');
   });
 });
+
+describe('Comment search highlighting', () => {
+  const attrs = (overrides: Record<string, unknown> = {}) => ({
+    headerItems: new ItemList(),
+    user: undefined,
+    cardVisible: false,
+    isEditing: false,
+    isHidden: false,
+    contentHtml: '<p>An example <a href="https://example.com/photo.png">photo</a></p>',
+    ...overrides,
+  });
+
+  test('marks matching words in the post text', () => {
+    const rendered = mq(Comment, attrs({ search: 'example' }));
+
+    expect(rendered).toHaveElement('.Post-body mark');
+    expect(rendered.find('.Post-body mark')[0].textContent).toBe('example');
+  });
+
+  test('leaves attributes untouched', () => {
+    const rendered = mq(Comment, attrs({ search: 'example png' }));
+
+    expect(rendered.find('.Post-body a')[0].getAttribute('href')).toBe('https://example.com/photo.png');
+  });
+
+  test('renders the content as-is without a search', () => {
+    expect(mq(Comment, attrs())).not.toHaveElement('.Post-body mark');
+  });
+});

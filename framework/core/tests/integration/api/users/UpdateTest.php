@@ -156,6 +156,60 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
+    public static function blankEmails(): array
+    {
+        return [
+            'empty string' => [''],
+            'whitespace' => ['   '],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('blankEmails')]
+    public function users_cant_update_own_email_to_blank(string $email)
+    {
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'type' => 'users',
+                        'attributes' => [
+                            'email' => $email,
+                        ]
+                    ],
+                    'meta' => [
+                        'password' => 'too-obscure'
+                    ]
+                ],
+            ])
+        );
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertEquals(0, $this->database()->table('email_tokens')->where('user_id', 2)->count());
+    }
+
+    #[Test]
+    #[DataProvider('blankEmails')]
+    public function users_cant_update_others_emails_to_blank_with_permission(string $email)
+    {
+        $this->giveNormalUsersEditPerms();
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'type' => 'users',
+                        'attributes' => [
+                            'email' => $email,
+                        ]
+                    ]
+                ],
+            ])
+        );
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertEquals('normal@machine.local', User::find(2)->email);
+    }
+
     #[Test]
     public function users_can_request_email_change_in_moderate_intervals()
     {

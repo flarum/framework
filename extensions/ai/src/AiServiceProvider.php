@@ -51,6 +51,9 @@ class AiServiceProvider extends LaravelAiServiceProvider
             AiConfig::UNCONFIGURED,
             fn (Application $app, array $config) => new UnconfiguredProvider($config, $app->make(Dispatcher::class))
         ));
+
+        // The same manager under its own name, for what needs its additions.
+        $this->app->alias(BaseAiManager::class, AiManager::class);
     }
 
     public function boot(): void

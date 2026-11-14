@@ -9,6 +9,7 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Closure;
 use Flarum\Database\AbstractModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,8 +23,10 @@ trait LooksUpMentionedModels
      * The context's relation is used when it has been loaded. Otherwise every
      * mention in the XML is looked up in one query, rather than one each, since
      * extensions render posts without loading what their mentions need.
+     *
+     * @param Builder|Closure(): Builder $query a closure is only called when there is something to look up
      */
-    protected function mentionedModels(mixed $context, string $relation, string $xml, string $tagName, Builder $query): Collection
+    protected function mentionedModels(mixed $context, string $relation, string $xml, string $tagName, Builder|Closure $query): Collection
     {
         if ($context instanceof AbstractModel && $context->relationLoaded($relation)) {
             return $context->getRelation($relation);
@@ -31,6 +34,10 @@ trait LooksUpMentionedModels
 
         $ids = array_unique(Utils::getAttributeValues($xml, $tagName, 'id'));
 
-        return $ids ? $query->findMany($ids) : new Collection();
+        if (! $ids) {
+            return new Collection();
+        }
+
+        return ($query instanceof Closure ? $query() : $query)->findMany($ids);
     }
 }

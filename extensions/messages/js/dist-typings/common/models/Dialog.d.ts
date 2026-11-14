@@ -1,5 +1,6 @@
 import Model from 'flarum/common/Model';
 import User from 'flarum/common/models/User';
+import type Group from 'flarum/common/models/Group';
 import DialogMessage from './DialogMessage';
 export default class Dialog extends Model {
     title(): string;
@@ -10,6 +11,7 @@ export default class Dialog extends Model {
     lastMessageAt(): Date;
     createdAt(): Date;
     users(): false | (User | undefined)[];
+    groups(): false | (Group | undefined)[];
     firstMessage(): false | DialogMessage;
     lastMessage(): false | DialogMessage;
     /**

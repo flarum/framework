@@ -12,6 +12,7 @@ namespace Flarum\OAuthProvider\Tests\integration\forum;
 use Flarum\Extend;
 use Flarum\OAuthProvider\Access\MemberAccess;
 use Flarum\OAuthProvider\Models\AccessToken;
+use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\Server\Repository\AuthCodeRepository;
 use Flarum\OAuthProvider\Server\Repository\RefreshTokenRepository;
@@ -20,6 +21,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * The tokens issued from one authorization code, through every refresh, form
@@ -226,5 +228,53 @@ class TokenFamilyTest extends TestCase
 
         $this->assertFalse($this->accessTokenRow($otherSession['access_token'])->revoked, 'Another sign-in of the same user and client must survive');
         $this->assertSame(200, $this->refresh('public-client', $otherSession['refresh_token'])->getStatusCode());
+    }
+
+    #[Test]
+    public function a_code_exchanged_after_a_disconnect_is_told_its_grant_was_revoked(): void
+    {
+        $code = $this->publicClientCode('public-client');
+
+        Consent::revokeAllFor(2);
+
+        // The client never used the code: telling it so would send its
+        // developers looking for a replay that never happened.
+        $this->assertGrantRevoked($this->exchangeCode('public-client', $code));
+    }
+
+    #[Test]
+    public function a_refresh_after_a_disconnect_is_told_its_grant_was_revoked(): void
+    {
+        $tokens = $this->publicClientTokens('public-client');
+
+        Consent::revokeAllFor(2);
+
+        $this->assertGrantRevoked($this->refresh('public-client', $tokens['refresh_token']));
+    }
+
+    #[Test]
+    public function a_replayed_code_or_refresh_token_is_still_told_it_was_used(): void
+    {
+        $code = $this->publicClientCode('public-client');
+        $tokens = $this->json($this->exchangeCode('public-client', $code));
+
+        $replayedCode = $this->exchangeCode('public-client', $code);
+        $this->assertSame(400, $replayedCode->getStatusCode());
+        $this->assertStringContainsString('already been used', $this->json($replayedCode)['hint']);
+
+        $fresh = $this->publicClientTokens('public-client');
+        $this->assertSame(200, $this->refresh('public-client', $fresh['refresh_token'])->getStatusCode());
+
+        $reused = $this->refresh('public-client', $fresh['refresh_token']);
+        $this->assertSame(400, $reused->getStatusCode());
+        $this->assertStringContainsString('already been used', $this->json($reused)['hint']);
+        $this->assertArrayHasKey('access_token', $tokens);
+    }
+
+    protected function assertGrantRevoked(ResponseInterface $response): void
+    {
+        $this->assertSame(400, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame('invalid_grant', $this->json($response)['error']);
+        $this->assertSame('This grant has been revoked.', $this->json($response)['hint']);
     }
 }

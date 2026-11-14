@@ -16,6 +16,7 @@ import HiddenGambit from '../../../../src/common/query/discussions/HiddenGambit'
 import UnreadGambit from '../../../../src/common/query/discussions/UnreadGambit';
 import EmailGambit from '../../../../src/common/query/users/EmailGambit';
 import GroupGambit from '../../../../src/common/query/users/GroupGambit';
+import BouncedGambit from '../../../../src/common/query/users/BouncedGambit';
 
 beforeAll(() => {
   bootstrapForum();
@@ -291,6 +292,10 @@ describe('GroupGambit', () => {
     expect(gambit.toFilter(['group:admins', 'admins'], false)).toStrictEqual({ group: 'admins' });
   });
 
+  test('predicates is true', () => {
+    expect(gambit.predicates).toBe(true);
+  });
+
   test('fromFilter() reconstructs correctly', () => {
     expect(gambit.fromFilter('admins', false)).toBe('group:admins');
   });
@@ -339,10 +344,18 @@ describe('BooleanGambit with array key()', () => {
 
 describe('KeyValueGambit with custom valuePattern()', () => {
   class DateOnlyGambit extends KeyValueGambit {
-    key() { return 'on'; }
-    hint() { return 'YYYY-MM-DD'; }
-    filterKey() { return 'on'; }
-    valuePattern() { return '(\\d{4}-\\d{2}-\\d{2})'; }
+    key() {
+      return 'on';
+    }
+    hint() {
+      return 'YYYY-MM-DD';
+    }
+    filterKey() {
+      return 'on';
+    }
+    valuePattern() {
+      return '(\\d{4}-\\d{2}-\\d{2})';
+    }
   }
 
   let gambit: DateOnlyGambit;
@@ -378,15 +391,25 @@ describe('TDD: BooleanGambit canonicalKey()', () => {
     // Simulates a gambit whose key() returns a Chinese translation.
     // canonicalKey() is overridden to return the hardcoded English keyword —
     // this is the pattern every translated gambit subclass must follow.
-    key() { return '隐藏'; }
-    canonicalKey() { return 'hidden'; }
-    filterKey() { return 'hidden'; }
+    key() {
+      return '隐藏';
+    }
+    canonicalKey() {
+      return 'hidden';
+    }
+    filterKey() {
+      return 'hidden';
+    }
   }
 
   class UntranslatedBooleanGambit extends BooleanGambit {
     // No canonicalKey() override — defaults to key(), which is already English.
-    key() { return 'hidden'; }
-    filterKey() { return 'hidden'; }
+    key() {
+      return 'hidden';
+    }
+    filterKey() {
+      return 'hidden';
+    }
   }
 
   test('canonicalKey() exists on BooleanGambit', () => {
@@ -417,7 +440,7 @@ describe('TDD: BooleanGambit canonicalKey()', () => {
     expect((gambit as any).canonicalPattern()).toBe('is:(hidden)');
   });
 
-  test('canonicalPattern() keeps the gambit\'s own group key', () => {
+  test("canonicalPattern() keeps the gambit's own group key", () => {
     class HasGambit extends TranslatedBooleanGambit {
       booleanKey(): 'has' {
         return 'has';
@@ -433,17 +456,31 @@ describe('TDD: KeyValueGambit canonicalKey()', () => {
     // Simulates a gambit whose key() returns a Chinese translation.
     // canonicalKey() is overridden to return the hardcoded English keyword —
     // this is the pattern every translated gambit subclass must follow.
-    key() { return '作者'; }
-    canonicalKey() { return 'author'; }
-    hint() { return '用户名'; }
-    filterKey() { return 'author'; }
+    key() {
+      return '作者';
+    }
+    canonicalKey() {
+      return 'author';
+    }
+    hint() {
+      return '用户名';
+    }
+    filterKey() {
+      return 'author';
+    }
   }
 
   class UntranslatedKeyValueGambit extends KeyValueGambit {
     // No canonicalKey() override — defaults to key(), which is already English.
-    key() { return 'author'; }
-    hint() { return 'username'; }
-    filterKey() { return 'author'; }
+    key() {
+      return 'author';
+    }
+    hint() {
+      return 'username';
+    }
+    filterKey() {
+      return 'author';
+    }
   }
 
   test('canonicalKey() exists on KeyValueGambit', () => {
@@ -509,5 +546,15 @@ describe('built-in gambits with translated keywords', () => {
 
   test('filters are written back with the translated keywords', () => {
     expect(gambits.from('discussions', 'lorem', { author: 'behz', hidden: true })).toStrictEqual('lorem autor:behz ist:versteckt');
+  });
+});
+
+
+describe('BouncedGambit', () => {
+  test('keeps the English dashboard query when the keyword is translated', () => {
+    const gambit = new (class extends BouncedGambit {
+      key() { return 'rejete'; }
+    })();
+    expect('is:bounced').toMatch(new RegExp(`^${gambit.canonicalPattern()}$`));
   });
 });

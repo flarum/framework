@@ -13,7 +13,7 @@ use Flarum\Api\Context;
 use Flarum\Api\Resource\UserResource;
 use Flarum\Api\Schema;
 use Flarum\Messages\Access\MessagingPermission;
-use Flarum\Messages\UserDialogState;
+use Flarum\Messages\Dialog;
 use Flarum\User\User;
 
 class UserResourceFields
@@ -42,18 +42,13 @@ class UserResourceFields
                 ->get(fn (User $user) => MessagingPermission::canMessageUsersWithoutPermission($user)),
             // How many of the member's conversations have something unread: the
             // badge on the header's messages icon. Conversations, not messages.
-            // One query over the membership table: membership is what
-            // visibility means, so there is nothing to add by scoping dialogs
-            // separately.
+            // Uses current access, including Group members without read state.
             Schema\Integer::make('unreadDialogCount')
                 ->description('Number of your dialogs with unread messages. Only on your own user.')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->is($user))
                 ->get(function (object $model, Context $context) {
-                    return UserDialogState::query()
-                        ->join('dialogs', 'dialogs.id', '=', 'dialog_user.dialog_id')
-                        ->where('dialog_user.user_id', $context->getActor()->id)
-                        ->whereColumn('dialog_user.last_read_message_id', '<', 'dialogs.last_message_id')
-                        ->count();
+                    return Dialog::whereVisibleTo($context->getActor())
+                        ->unread($context->getActor())->count();
                 }),
         ];
     }

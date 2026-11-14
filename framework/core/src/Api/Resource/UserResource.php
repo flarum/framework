@@ -35,12 +35,16 @@ use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\CurlHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\FnStream;
+use GuzzleHttp\Psr7\Utils;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
-use InvalidArgumentException;
 use Psr\Http\Message\UploadedFileInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * @extends AbstractDatabaseResource<User>
@@ -243,6 +247,7 @@ class UserResource extends AbstractDatabaseResource
             Schema\Str::make('email')
                 ->description('Only visible to the user themselves and to those allowed to edit credentials.')
                 ->requiredOnCreateWithout(['token'])
+                ->rule('filled', fn (Context $context) => $context->updating())
                 ->validationMessages([
                     'email.required_without' => $translator->trans('validation.required', ['attribute' => $translator->trans('validation.attributes.email')])
                 ])
@@ -285,6 +290,28 @@ class UserResource extends AbstractDatabaseResource
                         $user->activate();
                     }
                 }),
+
+            Schema\DateTime::make('emailBouncedAt')
+                ->nullable()
+                // Visible to the user themselves (so the forum can prompt them
+                // to fix their address) and to admins who can edit credentials.
+                ->visible(function (User $user, Context $context) {
+                    return $context->getActor()->id === $user->id
+                        || $context->getActor()->can('editCredentials', $user);
+                })
+                // Admins can clear a bounce flag (e.g. a provider glitch) by
+                // writing null; they cannot set an arbitrary bounce timestamp.
+                ->writable(fn (User $user, Context $context) => $context->getActor()->isAdmin())
+                ->set(function (User $user, $value, Context $context) {
+                    if (empty($value)) {
+                        $user->clearEmailBounce();
+                    }
+                }),
+
+            Schema\Str::make('emailBounceReason')
+                // Reason is only exposed to admins; the user just needs to know
+                // that delivery failed, not the raw provider message.
+                ->visible(fn (User $user, Context $context) => $context->getActor()->can('editCredentials', $user)),
             Schema\Str::make('password')
                 ->description('Write-only. At least 8 characters.')
                 ->requiredOnCreateWithout(['token'])
@@ -451,6 +478,17 @@ class UserResource extends AbstractDatabaseResource
                     // identifiers the request sent.
                     $newGroupIds = array_map(fn (Group $group) => (int) $group->id, $value);
 
+                    // An actor who can't see hidden groups is never sent them,
+                    // so the groups they save leave those out. Keep them rather
+                    // than remove groups the actor doesn't know about.
+                    if (! $actor->can('viewHiddenGroups')) {
+                        foreach ($oldGroups as $group) {
+                            if ($group->is_hidden && ! in_array((int) $group->id, $newGroupIds, true)) {
+                                $newGroupIds[] = (int) $group->id;
+                            }
+                        }
+                    }
+
                     // Ensure non-admins aren't adding/removing admins
                     $adminChanged = in_array(Group::ADMINISTRATOR_ID, array_diff($oldGroupIds, $newGroupIds), true)
                         || in_array(Group::ADMINISTRATOR_ID, array_diff($newGroupIds, $oldGroupIds), true);
@@ -464,7 +502,10 @@ class UserResource extends AbstractDatabaseResource
                         $user->groups()->sync($newGroupIds);
                         $user->unsetRelation('groups');
                     });
-                }),
+                })
+                // The setter syncs the groups itself, so skip the default save,
+                // which would sync only the groups the request sent.
+                ->save(fn () => null),
         ];
     }
 
@@ -538,11 +579,14 @@ class UserResource extends AbstractDatabaseResource
     }
 
     /**
-     * @throws InvalidArgumentException
+     * @throws ValidationException
      */
     private function uploadAvatarFromUrl(User $user, string $url, ?string $url2x = null, ?string $url3x = null): void
     {
-        $this->assertValidAvatarUrl($url);
+        $this->assertValidAvatarUrl($url, 'avatar_url');
+
+        $url2x = $this->validHiDpiAvatarUrl($url2x, 'avatar_url_2x');
+        $url3x = $this->validHiDpiAvatarUrl($url3x, 'avatar_url_3x');
 
         $urlContents = $this->retrieveAvatarFromUrl($url);
 
@@ -565,25 +609,57 @@ class UserResource extends AbstractDatabaseResource
     }
 
     /**
+     * The registrant can't change a URL the provider put in the token, so an
+     * invalid HiDPI variant is dropped rather than blocking sign-up.
+     */
+    private function validHiDpiAvatarUrl(?string $url, string $attribute): ?string
+    {
+        if ($url === null) {
+            return null;
+        }
+
+        try {
+            $this->assertValidAvatarUrl($url, $attribute);
+        } catch (ValidationException $e) {
+            $this->api->getContainer()->make(LoggerInterface::class)->warning(
+                "Skipped the $attribute avatar: ".$e->getAttributes()[$attribute]
+            );
+
+            return null;
+        }
+
+        return $url;
+    }
+
+    /**
      * @throws ValidationException
      */
-    private function assertValidAvatarUrl(string $url): void
+    private function assertValidAvatarUrl(string $url, string $attribute): void
     {
-        $urlValidator = $this->validation->make(compact('url'), [
-            'url' => 'required|active_url',
-        ]);
+        // No DNS here, so the result doesn't depend on the resolver. Hostnames
+        // are checked against their resolved address when the avatar is
+        // fetched, where a failure skips the avatar instead of blocking sign-up.
+        $host = parse_url($url, PHP_URL_HOST);
 
-        if ($urlValidator->fails()) {
+        if (! is_string($host) || $host === '') {
             throw new ValidationException([
-                'avatar_url' => 'Provided avatar URL must be a valid URI.',
+                $attribute => 'Provided avatar URL must be a valid URI.',
             ]);
         }
 
         $scheme = parse_url($url, PHP_URL_SCHEME);
 
-        if (! in_array($scheme, ['http', 'https'])) {
+        if (! in_array(strtolower((string) $scheme), ['http', 'https'], true)) {
             throw new ValidationException([
-                'avatar_url' => "Provided avatar URL must have scheme http or https. Scheme provided was $scheme.",
+                $attribute => "Provided avatar URL must have scheme http or https. Scheme provided was $scheme.",
+            ]);
+        }
+
+        $literal = trim($host, '[]');
+
+        if (filter_var($literal, FILTER_VALIDATE_IP) && ! self::isAllowedIp($literal)) {
+            throw new ValidationException([
+                $attribute => 'Provided avatar URL must not point at a loopback, link-local or reserved address.',
             ]);
         }
     }
@@ -601,11 +677,23 @@ class UserResource extends AbstractDatabaseResource
 
     private function retrieveAvatarFromUrl(string $url): ?string
     {
+        // Without cURL we cannot pin the connection to the checked address.
+        if (! $this->canPinConnections()) {
+            $this->api->getContainer()->make(LoggerInterface::class)->warning(
+                'Skipped downloading an avatar from a URL: PHP\'s cURL extension (with curl_exec enabled) is needed to download it safely, and is not available.'
+            );
+
+            return null;
+        }
+
         $host = parse_url($url, PHP_URL_HOST);
 
         if (! is_string($host) || $host === '') {
             return null;
         }
+
+        // Match Guzzle's normalized hostname when constructing the DNS pin.
+        $host = strtolower($host);
 
         // Resolve the host and reject it if it points at a link-local, loopback
         // or otherwise reserved address (e.g. the cloud metadata endpoint
@@ -615,25 +703,43 @@ class UserResource extends AbstractDatabaseResource
         $ip = $this->resolveToAllowedIp($host);
 
         if ($ip === null) {
+            $this->api->getContainer()->make(LoggerInterface::class)->warning(
+                "Skipped downloading an avatar from $host: it did not resolve to an allowed address."
+            );
+
             return null;
         }
 
-        $scheme = parse_url($url, PHP_URL_SCHEME);
+        $scheme = strtolower(parse_url($url, PHP_URL_SCHEME) ?? '');
         $port = parse_url($url, PHP_URL_PORT) ?: ($scheme === 'https' ? 443 : 80);
 
         $maxSizeBytes = $this->imageValidator->getMaxSize() * 1024;
 
+        $sink = Utils::streamFor('');
+
         $options = [
+            'handler' => HandlerStack::create(new CurlHandler()),
             'allow_redirects' => false,
             'timeout' => 5,
-            'stream' => true,
+            // cURL buffers the response before returning it. Cap each write so
+            // oversized bodies are aborted during the transfer, not afterwards.
+            'sink' => FnStream::decorate($sink, [
+                'write' => function (string $data) use ($sink, $maxSizeBytes): int {
+                    if ($sink->tell() + strlen($data) > $maxSizeBytes) {
+                        return 0;
+                    }
+
+                    return $sink->write($data);
+                },
+            ]),
         ];
 
-        // Pin the connection to the address we just validated, so a rebinding
-        // DNS record cannot swap in a blocked address between the check above
-        // and the actual connection. Requires the cURL handler; harmless if
-        // it is unavailable.
-        if (defined('CURLOPT_RESOLVE')) {
+        // This pins direct connections. Configured proxies are still honored
+        // and are responsible for resolving and enforcing their destinations.
+        // Literal IPs need no DNS override; older cURL versions cannot parse
+        // IPv6 literals in the host component of a CURLOPT_RESOLVE entry.
+        if (! filter_var(trim($host, '[]'), FILTER_VALIDATE_IP)) {
+            // Unbracketed IPv6 addresses also work with libcurl before 7.57.
             $options['curl'] = [CURLOPT_RESOLVE => ["$host:$port:$ip"]];
         }
 
@@ -649,29 +755,25 @@ class UserResource extends AbstractDatabaseResource
             return null;
         }
 
-        // Read the body incrementally and abort once it exceeds the maximum
-        // size, rather than trusting the (optional, spoofable) Content-Length
-        // header after the entire response has already been buffered.
-        $body = $response->getBody();
-        $contents = '';
+        return (string) $response->getBody();
+    }
 
-        while (! $body->eof()) {
-            $contents .= $body->read(8192);
-
-            if (strlen($contents) > $maxSizeBytes) {
-                return null;
-            }
-        }
-
-        return $contents;
+    /**
+     * @internal
+     */
+    protected function canPinConnections(): bool
+    {
+        return defined('CURLOPT_RESOLVE') && function_exists('curl_init') && function_exists('curl_exec');
     }
 
     /**
      * Resolve a hostname (or accept a literal IP) and return the first address
      * that is safe to connect to, or null if the host is unresolvable or only
      * resolves to blocked (link-local / loopback / reserved) addresses.
+     *
+     * @internal
      */
-    private function resolveToAllowedIp(string $host): ?string
+    protected function resolveToAllowedIp(string $host): ?string
     {
         $literal = trim($host, '[]');
 

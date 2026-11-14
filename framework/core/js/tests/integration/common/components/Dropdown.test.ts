@@ -103,3 +103,58 @@ describe('Dropdown displays as expected', () => {
     }
   });
 });
+
+describe('Dropdown viewport alignment', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it.each([
+    ['rtl', -120, true],
+    ['rtl', 150, false],
+    ['rtl', 450, false],
+    ['ltr', 450, true],
+    ['ltr', 20, false],
+  ])('handles %s menus at left=%s', (direction, left, alignedToEnd) => {
+    const root = document.createElement('div');
+    document.body.append(root);
+
+    jest.spyOn($.fn, 'offset').mockReturnValue({ top: 100, left: left as number });
+    jest.spyOn($.fn, 'width').mockImplementation(function (this: JQuery) {
+      return this[0] === window ? 500 : 200;
+    });
+
+    try {
+      m.mount(root, { view: () => m(Dropdown, { label: 'Sorting' }, [m(Button, 'Latest')]) });
+      const menu = root.querySelector<HTMLElement>('.Dropdown-menu')!;
+      menu.style.direction = direction as string;
+
+      $(root.firstElementChild!).trigger('shown.bs.dropdown');
+
+      expect(menu.classList.contains('Dropdown-menu--right')).toBe(alignedToEnd);
+    } finally {
+      m.mount(root, null);
+      root.remove();
+    }
+  });
+
+  it('allows a subclass to render a menu without the default class', () => {
+    class CustomDropdown extends Dropdown {
+      getMenu(items: Parameters<Dropdown['getMenu']>[0]) {
+        return m('ul.Custom-menu', items);
+      }
+    }
+
+    const root = document.createElement('div');
+    document.body.append(root);
+
+    try {
+      m.mount(root, { view: () => m(CustomDropdown, { label: 'Sorting' }, [m(Button, 'Latest')]) });
+
+      expect(() => $(root.firstElementChild!).trigger('shown.bs.dropdown')).not.toThrow();
+    } finally {
+      m.mount(root, null);
+      root.remove();
+    }
+  });
+});

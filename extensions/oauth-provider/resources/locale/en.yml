@@ -95,7 +95,7 @@ flarum-oauth-provider:
 
     connected_apps:
       heading: "Connected applications"
-      help_text: "Applications you allowed to use your account, such as AI assistants. Revoking one signs it out. Logging out everywhere disconnects them all."
+      help_text: "Applications you allowed to use your account, such as AI assistants. Revoking one signs it out. Logging out everywhere, or changing your password, disconnects them all."
       empty: "You haven't connected any applications."
       from_host: "from {host}"
       connected: "Connected"
@@ -126,7 +126,7 @@ flarum-audit:
         oauth_connected: "Connected {client} to {username}'s account"
         oauth_signed_in: "Signed in to {client} with {username}'s account"
         oauth_disconnected: "Disconnected {client} from {username}'s account"
-        oauth_disconnected_all: "Disconnected every application from {username}'s account"
+        oauth_disconnected_all: "Disconnected every application from {username}'s account{cause, select, logout_everywhere { by logging out everywhere} password_change { by changing its password} other {}}"
       oauth_client:
         created: "Added OAuth client {client}"
         updated: "Edited OAuth client {client}"

@@ -43,7 +43,19 @@ export default class GlobalSearchState extends SearchState {
     const q = this.params().q || '';
     const filter = this.params().filter || {};
 
-    return app.search.gambits.from('users', app.search.gambits.from('discussions', q, filter), filter).trim();
+    // Some gambits serve more than one model (`author`, `group`), so each pass
+    // skips the filter keys an earlier pass already wrote back.
+    const written = new Set<string>();
+    const unwritten = () => Object.fromEntries(Object.entries(filter).filter(([key]) => !written.has(key.replace(/^-/, ''))));
+
+    let query = q;
+
+    for (const model of ['discussions', 'users', 'posts']) {
+      query = app.search.gambits.from(model, query, unwritten());
+      app.search.gambits.for(model).forEach((gambit) => written.add(gambit.filterKey()));
+    }
+
+    return query.trim();
   }
 
   /**

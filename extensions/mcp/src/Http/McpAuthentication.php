@@ -27,6 +27,7 @@ class McpAuthentication
         public readonly User $actor,
         public readonly array $scopes,
         public readonly string $method,
+        public readonly ?string $clientId = null,
     ) {
     }
 }

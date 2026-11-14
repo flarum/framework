@@ -11,10 +11,10 @@ namespace Flarum\Mcp\Server;
 
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Tool;
-use Mcp\Exception\ToolCallException;
 use Mcp\Schema\Content\TextContent;
 use Mcp\Schema\Result\CallToolResult;
 use Mcp\Server\ClientGateway;
+use Mcp\Server\Exception\ToolCallException;
 use Mcp\Server\Handler\ToolHandlerInterface;
 
 /**
@@ -31,20 +31,29 @@ class ToolHandler implements ToolHandlerInterface
 
     public function execute(array $arguments, ClientGateway $gateway): mixed
     {
+        // SDK validation preserves JSON objects; Flarum handlers receive nested arrays.
+        $arguments = array_map($this->normalizeArgument(...), $arguments);
+
         $result = $this->invoker->run(
             fn () => $this->tool->handle($arguments, $this->context),
             fn (string $message) => new ToolCallException($message),
         );
 
-        if (is_string($result)) {
-            return new CallToolResult([new TextContent($result)]);
+        // The SDK extracts and validates structured content for the negotiated
+        // revision, including composed schemas and modern array/scalar results.
+        if ($this->tool->outputSchema() !== null) {
+            return $result;
         }
 
-        $structured = null;
-        if (($this->tool->outputSchema()['type'] ?? null) === 'object' && is_array($result) && ! array_is_list($result)) {
-            $structured = $result;
+        return new CallToolResult([new TextContent(is_string($result) ? $result : Json::encode($result))]);
+    }
+
+    protected function normalizeArgument(mixed $value): mixed
+    {
+        if ($value instanceof \stdClass) {
+            $value = (array) $value;
         }
 
-        return new CallToolResult([new TextContent(Json::encode($result))], structuredContent: $structured);
+        return is_array($value) ? array_map($this->normalizeArgument(...), $value) : $value;
     }
 }

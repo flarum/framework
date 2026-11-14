@@ -6,6 +6,7 @@ import Search from './Search';
 import Notification from './Notification';
 import ThemeMode from './ThemeMode';
 import Admin from './Admin';
+import Conditional from './Conditional';
 
 const extenders = {
   Model,
@@ -16,6 +17,7 @@ const extenders = {
   Notification,
   ThemeMode,
   Admin,
+  Conditional,
 };
 
 export default extenders;

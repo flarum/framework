@@ -87,6 +87,38 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
     }
 
     /**
+     * Boot the test case's extensions in dependency order, the same way a real forum does.
+     */
+    public function getEnabledExtensions(): array
+    {
+        $selected = parent::getEnabledExtensions();
+
+        // The current and monorepo extensions have their required dependencies cleared, so `enable()`
+        // does not insist on them. Sort copies with dependencies limited to the selected extensions,
+        // so required ones still count for the order and missing ones do not drop anything.
+        $selectedNames = [];
+
+        foreach ($selected as $extension) {
+            $selectedNames[$extension->name] = true;
+        }
+
+        $copies = array_map(function (Extension $extension) use ($selectedNames) {
+            $copy = clone $extension;
+            $copy->calculateDependencies($selectedNames);
+
+            return $copy;
+        }, $selected);
+
+        $enabled = [];
+
+        foreach ($this->sortDependencies($copies) as $copy) {
+            $enabled[$copy->getId()] = $selected[$copy->getId()];
+        }
+
+        return $enabled;
+    }
+
+    /**
      * Enabled extensions must be specified by the test case, so this should do nothing.
      */
     protected function setEnabledExtensions(array $enabledExtensions): void

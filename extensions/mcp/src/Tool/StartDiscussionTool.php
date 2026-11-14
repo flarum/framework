@@ -35,6 +35,11 @@ class StartDiscussionTool extends Tool
             .'Content uses the forum\'s formatting (Markdown or BBCode, as enabled).';
     }
 
+    public function destructive(): bool
+    {
+        return false;
+    }
+
     public function readOnly(): bool
     {
         return false;

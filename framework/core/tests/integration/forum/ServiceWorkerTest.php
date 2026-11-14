@@ -1,0 +1,130 @@
+<?php
+
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
+namespace Flarum\Tests\integration\forum;
+
+use Flarum\Http\UrlGenerator;
+use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+
+class ServiceWorkerTest extends TestCase
+{
+    private function offlinePath(): string
+    {
+        return parse_url($this->app()->getContainer()->make(UrlGenerator::class)->to('forum')->route('offline'), PHP_URL_PATH);
+    }
+
+    /**
+     * Where frontends live, read from the URL generator so they follow config.php.
+     *
+     * @return list<string>
+     */
+    private function paths(string ...$frontends): array
+    {
+        $url = $this->app()->getContainer()->make(UrlGenerator::class);
+
+        return array_map(fn (string $frontend) => parse_url($url->to($frontend)->base(), PHP_URL_PATH), $frontends);
+    }
+
+    #[Test]
+    public function the_service_worker_shows_the_offline_page_when_a_page_cant_be_loaded(): void
+    {
+        $response = $this->send($this->request('GET', '/sw'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame('text/javascript; charset=utf-8', $response->getHeaderLine('Content-Type'));
+        $this->assertSame('no-cache', $response->getHeaderLine('Cache-Control'));
+
+        $script = (string) $response->getBody();
+
+        $this->assertStringStartsWith(file_get_contents(__DIR__.'/../../../js/serviceWorker/offlinePage.js'), $script);
+        // Without the domain, so it's stored from whichever one the visitor is on.
+        $this->assertMatchesRegularExpression('#offlinePage\({"url":"'.preg_quote($this->offlinePath(), '#').'","version":"[0-9a-f]{8}","skip":'.preg_quote(json_encode($this->paths('admin', 'api'), JSON_UNESCAPED_SLASHES), '#').'}\);#', $script);
+    }
+
+    #[Test]
+    public function the_service_worker_leaves_admin_and_api_pages_alone_at_the_paths_config_php_gives(): void
+    {
+        $this->config('paths', ['api' => 'backend/api', 'admin' => 'manage']);
+
+        $script = (string) $this->send($this->request('GET', '/sw'))->getBody();
+
+        $this->assertStringContainsString('"skip":["/manage","/backend/api"]', $script);
+    }
+
+    #[Test]
+    public function the_skipped_paths_include_the_forum_s_own_subdirectory(): void
+    {
+        $this->config('url', 'http://localhost/forum');
+
+        $script = (string) $this->send($this->request('GET', '/forum/sw'))->getBody();
+
+        $this->assertStringContainsString('"skip":["/forum/admin","/forum/api"]', $script);
+    }
+
+    #[Test]
+    public function the_offline_page_says_the_forum_cant_be_reached(): void
+    {
+        $this->setting('forum_title', 'Acme Community');
+
+        $response = $this->send($this->request('GET', '/offline'));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame('noindex', $response->getHeaderLine('X-Robots-Tag'));
+
+        $page = (string) $response->getBody();
+
+        $this->assertStringContainsString('No connection - Acme Community</title>', $page);
+        $this->assertStringContainsString('Acme Community can&#039;t be reached.', $page);
+        // It checks the forum can be reached again before loading the page,
+        // except at its own address, where that would load it forever.
+        $this->assertStringContainsString('var retryUrl = '.json_encode($this->offlinePath()).';', $page);
+        $this->assertStringContainsString('if (location.pathname === retryUrl) return;', $page);
+        $this->assertStringContainsString('fetch(retryUrl', $page);
+    }
+
+    #[Test]
+    public function the_service_worker_changes_with_the_offline_page(): void
+    {
+        $page = (string) $this->send($this->request('GET', '/offline'))->getBody();
+        $script = (string) $this->send($this->request('GET', '/sw'))->getBody();
+
+        // A changed script is what makes browsers install the worker again, and
+        // store the new page.
+        $this->assertStringContainsString('"version":"'.substr(md5($page), 0, 8).'"', $script);
+    }
+
+    #[Test]
+    public function without_opening_as_an_app_the_service_worker_removes_itself(): void
+    {
+        $this->setting('open_as_app', false);
+
+        $script = (string) $this->send($this->request('GET', '/sw'))->getBody();
+
+        $this->assertSame(file_get_contents(__DIR__.'/../../../js/serviceWorker/unregister.js'), $script);
+    }
+
+    #[Test]
+    public function the_forum_says_whether_to_register_the_service_worker(): void
+    {
+        $forum = json_decode((string) $this->send($this->request('GET', '/api'))->getBody(), true);
+
+        $this->assertTrue($forum['data']['attributes']['serviceWorker']);
+    }
+
+    #[Test]
+    public function without_opening_as_an_app_the_forum_says_not_to_register_the_service_worker(): void
+    {
+        $this->setting('open_as_app', false);
+
+        $forum = json_decode((string) $this->send($this->request('GET', '/api'))->getBody(), true);
+
+        $this->assertFalse($forum['data']['attributes']['serviceWorker']);
+    }
+}

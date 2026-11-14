@@ -8,7 +8,9 @@ import {
   defaultColumns,
   hasCustomLayout,
   isDisplayable,
+  MAX_NAME_LENGTH,
   maxColumns,
+  sameParams,
   resetLayout,
   saveColumns,
   saveSplit,
@@ -84,8 +86,13 @@ export default class DeckState {
     this.customised = true;
     this.configs = stored.map((config: DeckColumnConfig) => ({ ...config, params: { ...config.params } }));
 
-    const ids = new Set(this.configs.map((config) => config.id));
-    [...this.states.keys()].filter((id) => !ids.has(id)).forEach((id) => this.states.delete(id));
+    // A column whose settings changed shows something else, so it starts over.
+    const configs = new Map(this.configs.map((config) => [config.id, config]));
+    this.states.forEach((state, id) => {
+      const config = configs.get(id);
+
+      if (!config || !sameParams(config.params, state.config.params)) this.dropState(id);
+    });
   }
 
   /** Every column that can be shown, top row first: the order phones swipe through. */
@@ -128,10 +135,38 @@ export default class DeckState {
     this.save();
   }
 
+  /**
+   * Changes a column's settings and name, keeping its place and width. New
+   * settings load it again; a new name alone leaves what it shows as it is.
+   */
+  editColumn(id: string, { params, name }: { params: DeckColumnConfig['params']; name?: string }): void {
+    const index = this.configs.findIndex((config) => config.id === id);
+
+    if (index === -1) return;
+
+    const { name: _, ...config } = this.configs[index];
+    // By character, as the server cuts it.
+    const trimmed = Array.from((name ?? '').trim())
+      .slice(0, MAX_NAME_LENGTH)
+      .join('')
+      .trim();
+
+    if (!sameParams(params, config.params)) this.dropState(id);
+
+    this.configs[index] = { ...config, params: { ...params }, ...(trimmed ? { name: trimmed } : {}) };
+    this.save();
+  }
+
   removeColumn(id: string): void {
     this.configs = this.configs.filter((config) => config.id !== id);
-    this.states.delete(id);
+    this.dropState(id);
     this.save();
+  }
+
+  /** Forgets a column's live state, so nothing it had queued asks the server. */
+  protected dropState(id: string): void {
+    this.states.get(id)?.discard();
+    this.states.delete(id);
   }
 
   /**

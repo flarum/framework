@@ -9,9 +9,16 @@ export interface IDialogListItemAttrs extends ComponentAttrs {
 }
 export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = IDialogListItemAttrs> extends Component<CustomAttrs> {
     view(vnode: Mithril.Vnode<CustomAttrs, this>): JSX.Element;
-    /** A group with others enough to show two of them; one left on their own is shown as a direct conversation's. */
+    /**
+     * What stands for the others: the groups a group conversation is addressed
+     * to, then its other members, as the header shows them. The tiles are
+     * pictures only, as a member's avatar is here, so a group's badge carries
+     * no tooltip; the conversation is named beside them.
+     */
+    tiles(): Mithril.Children[];
+    /** A group with two or more to show; one left on their own is shown as a direct conversation's. */
     stacksAvatars(): boolean;
-    /** The other member's avatar; in a group, two of the others', one over the other. */
+    /** The other member's avatar; in a group, the first two of its tiles, one over the other. */
     avatar(): Mithril.Children;
     /** The other member; a group goes by its title, which names its members. */
     name(): Mithril.Children;

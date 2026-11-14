@@ -21,6 +21,11 @@ abstract class LikeTool extends Tool
 {
     abstract protected function liked(): bool;
 
+    public function destructive(): bool
+    {
+        return ! $this->liked();
+    }
+
     public function readOnly(): bool
     {
         return false;

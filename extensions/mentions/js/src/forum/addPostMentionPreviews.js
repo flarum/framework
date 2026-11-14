@@ -73,6 +73,7 @@ export default function addPostMentionPreviews() {
               .show()
               .css('top', $this.offset().top - $parentPost.offset().top + offset)
               .css('left', $this.offsetParent().offset().left - $parentPost.offset().left)
+              .css('right', 'auto')
               .css('max-width', $this.offsetParent().width());
           };
 

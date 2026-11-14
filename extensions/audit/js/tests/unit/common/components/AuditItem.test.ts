@@ -105,4 +105,33 @@ describe('AuditItem', () => {
       expect(sentence).not.toContain('[object Object]');
     });
   });
+
+  describe('an entry about an email address', () => {
+    const text = (action: string, payload: Record<string, unknown>) => rows(render(null, action, payload)).join(' ');
+
+    it('describes a bounce for an account', () => {
+      const sentence = text('user.email_bounced', { matched: true, user_id: 2, reason: 'No such mailbox' });
+
+      expect(sentence).toContain('bounced: No such mailbox');
+      expect(sentence).not.toContain('no matching account');
+    });
+
+    it('describes a bounce for an address with no account', () => {
+      expect(text('user.email_bounced', { matched: false, email: 'nobody@example.com', reason: 'No such mailbox' })).toContain(
+        'Mail to nobody@example.com bounced (no matching account): No such mailbox'
+      );
+    });
+
+    it('describes a spam complaint for an address with no account', () => {
+      expect(text('user.email_complained', { matched: false, email: 'nobody@example.com' })).toContain(
+        'Mail to nobody@example.com was marked as spam (no matching account)'
+      );
+    });
+
+    it('still describes a password reset for an address with no account', () => {
+      expect(text('user.password_reset_attempted', { matched: false, email: 'nobody@example.com' })).toContain(
+        'Requested a password reset for nobody@example.com (no matching account)'
+      );
+    });
+  });
 });

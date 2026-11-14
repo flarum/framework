@@ -44,6 +44,9 @@ class PostResourceFields
                         'discussion',
                         'user' => fn (Relation $user) => $user->whereVisibleTo($context->getActor()),
                         'user.groups',
+                        // Their content links to the posts they mention, so only
+                        // those the actor can see may be loaded.
+                        'mentionsPosts' => fn (Relation $mentioned) => $mentioned->whereVisibleTo($context->getActor()),
                         'mentionsPosts.user',
                         'mentionsPosts.discussion',
                         'mentionsUsers',

@@ -1,5 +1,8 @@
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import app from 'flarum/forum/app';
+import m from 'mithril';
+import mq from 'mithril-query';
+import { jest } from '@jest/globals';
 import Stream from 'flarum/common/utils/Stream';
 import Dialog from '../../../../src/common/models/Dialog';
 import DialogMessage from '../../../../src/common/models/DialogMessage';
@@ -47,5 +50,29 @@ describe('the messages page, once the list has loaded', () => {
 
   it('shows the conversation loading beside the list', () => {
     expect(shown(page({ loadingDialog: true }))).toEqual(['sidebar', 'loading']);
+  });
+});
+
+describe('the messages page, for a guest', () => {
+  beforeEach(() => {
+    app.session.user = null;
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  // As from the link in a new message email, while logged out.
+  it('asks them to log in where they are', () => {
+    const show = jest.spyOn(app.modal, 'show').mockImplementation(async () => {});
+    const set = jest.spyOn(m.route, 'set').mockImplementation(() => {});
+
+    mq(MessagesPage, { routeName: 'dialog' });
+    jest.runAllTimers();
+
+    expect(show).toHaveBeenCalled();
+    expect(set).not.toHaveBeenCalled();
   });
 });

@@ -1,6 +1,6 @@
 import Component, { type ComponentAttrs } from '../../common/Component';
+import Post from '../../common/models/Post';
 import type Model from '../../common/Model';
-import type Post from '../../common/models/Post';
 import type User from '../../common/models/User';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';
@@ -28,5 +28,20 @@ export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttr
     userViewItems(user: User, post: Post | (Model & {
         user: () => false | User | null;
     })): ItemList<Mithril.Children>;
+    /**
+     * The "via …" byline for a post made outside the forum's own interface, or
+     * null for one made in it.
+     */
+    sourceView(post: IPostUserAttrs['post']): Mithril.Children;
+    /**
+     * What follows "via": the name stored with the post, else the source's own
+     * label. Extensions can label their own sources here.
+     */
+    sourceLabel(post: Post): string | null;
+    /**
+     * More about the source, shown on hover. Extensions can describe their own
+     * sources here.
+     */
+    sourceTooltip(post: Post): string | null;
     linkChildren(user: User): ItemList<Mithril.Children>;
 }

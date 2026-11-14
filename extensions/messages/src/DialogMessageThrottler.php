@@ -11,6 +11,7 @@ namespace Flarum\Messages;
 
 use Carbon\Carbon;
 use Flarum\Http\RequestUtil;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -77,7 +78,7 @@ class DialogMessageThrottler
         // directly. A group always opens one.
         $reaching = Arr::get($body, 'data.relationships.dialog.data.id') ? 0 : $this->recipientsOfNewDialog($actor->id, $body);
 
-        if ($reaching) {
+        if ($reaching || (! Arr::get($body, 'data.relationships.dialog.data.id') && Arr::get($body, 'data.attributes.groups'))) {
             // Conversations they opened themselves, by their first messages:
             // being added to others' doesn't use up a member's allowance.
             $opened = DialogMessage::query()
@@ -90,16 +91,18 @@ class DialogMessageThrottler
                 return true;
             }
 
-            $reached = UserDialogState::query()
-                ->whereIn('dialog_id', $opened)
-                ->where('user_id', '!=', $actor->id)
-                ->count();
+            $recorded = Dialog::query()->whereIn('id', $opened);
+            $reached = (int) (clone $recorded)->sum('recipient_count');
+            // Older conversations predate the stored reach count.
+            $reached += UserDialogState::query()
+                ->whereIn('dialog_id', $recorded->whereNull('recipient_count')->select('id'))
+                ->where('user_id', '!=', $actor->id)->count();
 
             // A message to more than the limit is refused anyway, saying so,
             // rather than throttled.
             $limit = $this->recipientLimit->get();
 
-            if ($reached + min($reaching, $limit) > max(self::$newRecipientsPerHour, $limit)) {
+            if ($reached + (Arr::get($body, 'data.attributes.groups') ? $reaching : min($reaching, $limit)) > max(self::$newRecipientsPerHour, $limit)) {
                 return true;
             }
         }
@@ -117,6 +120,21 @@ class DialogMessageThrottler
             Arr::pluck(Arr::get($body, 'data.attributes.users', []), 'id'),
             fn (mixed $id) => $id && (int) $id !== $actorId
         )));
+
+        $groups = array_values(array_unique(array_filter(
+            Arr::pluck(Arr::get($body, 'data.attributes.groups', []), 'id'),
+            fn (mixed $id) => is_int($id) || is_string($id)
+        )));
+        if ($groups && count($groups) <= RecipientGroups::LIMIT) {
+            $actor = User::find($actorId);
+            $allowed = resolve(RecipientGroups::class)->ids();
+            if ($actor && $actor->hasPermission(RecipientGroups::PERMISSION) && ! array_diff($groups, $allowed)) {
+                return User::query()->where('users.id', '!=', $actorId)
+                    ->where(function ($query) use ($recipients, $groups) {
+                        $query->whereIn('users.id', $recipients)->orWhereHas('groups', fn ($query) => $query->whereIn('groups.id', $groups));
+                    })->count();
+            }
+        }
 
         // A group is always new.
         if (count($recipients) !== 1) {
