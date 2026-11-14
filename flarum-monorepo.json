@@ -52,6 +52,11 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "ideation",
+        "gitRemote": "git@github.com:flarum/ideation.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "lang-english",
         "gitRemote": "git@github.com:flarum/lang-english.git",
         "mainBranch": "2.x"
