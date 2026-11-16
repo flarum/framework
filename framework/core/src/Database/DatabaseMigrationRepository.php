@@ -24,7 +24,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     {
         return $this->table()
                 ->where('extension', $extension)
-                ->orderBy('migration', 'asc')
+                ->orderBy('id', 'asc')
                 ->pluck('migration')
                 ->toArray();
     }
