@@ -46,7 +46,8 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     const preloadedDiscussions = app.preloadedApiDocument<Discussion[]>();
 
     if (preloadedDiscussions) {
-      this.pageSize = preloadedDiscussions.payload.meta?.perPage || DiscussionListState.DEFAULT_PAGE_SIZE;
+      this.pageSize =
+        preloadedDiscussions.payload.meta?.page?.limit || preloadedDiscussions.payload.meta?.perPage || DiscussionListState.DEFAULT_PAGE_SIZE;
 
       // The server preloads `?q=` as a plain text search, because gambits are
       // parsed in the frontend only: a query holding one must be requested again.
