@@ -161,4 +161,39 @@ class AuditTest extends TestCase
         ], $this->payloads('dialog.started'));
         $this->assertEqualsCanonicalizing([['dialog_id' => $id, 'group_id' => 4]], $this->payloads('dialog.group_started'));
     }
+
+    private function patchMessage(int $id, array $attributes): void
+    {
+        $this->sendSuccessfulRequest('PATCH', '/api/dialog-messages/'.$id, [
+            'json' => ['data' => ['type' => 'dialog-messages', 'id' => (string) $id, 'attributes' => $attributes]],
+        ]);
+    }
+
+    /**
+     * What was done to a message and whose it was, never what it said: the
+     * admin here may do all of it, as admins may with posts.
+     */
+    #[Test]
+    public function editing_deleting_restoring_and_deleting_a_message_for_good_are_logged(): void
+    {
+        $this->patchMessage(102, ['content' => 'Hi there']);
+        $this->patchMessage(102, ['isHidden' => true]);
+        $this->patchMessage(102, ['isHidden' => false]);
+        $this->sendSuccessfulRequest('DELETE', '/api/dialog-messages/102', [], 204);
+
+        foreach (['dialog.message_edited', 'dialog.message_hidden', 'dialog.message_restored', 'dialog.message_deleted'] as $action) {
+            $this->assertSame([['dialog_id' => 102, 'message_id' => 102, 'user_id' => 3]], array_map(
+                fn (array $payload) => ['dialog_id' => $payload['dialog_id'], 'message_id' => $payload['message_id'], 'user_id' => $payload['user_id']],
+                $this->payloads($action)
+            ), $action);
+        }
+    }
+
+    #[Test]
+    public function an_edit_that_changes_nothing_is_not_logged(): void
+    {
+        $this->patchMessage(102, ['content' => 'Hi']);
+
+        $this->assertLogDoesntExist('dialog.message_edited');
+    }
 }

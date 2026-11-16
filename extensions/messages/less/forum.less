@@ -336,6 +336,24 @@
   padding-inline-end: 0;
 }
 
+// Deleted, in a way that can be undone: that it was, in place of what it said.
+// Whoever may restore it sees what it said under that, faded.
+.Message--hidden {
+  .Post-header, .Post-header a,
+  .PostUser .PostUser-name, .PostUser .PostUser-name a {
+    color: var(--muted-more-color);
+  }
+}
+.Message-deletedNotice {
+  color: var(--muted-color);
+  font-style: italic;
+  margin: 0;
+}
+.Message-deletedContent {
+  opacity: 0.5;
+  margin-top: 8px;
+}
+
 // The author's badges sit over the top of their avatar, as in a discussion,
 // sized to a message's smaller avatar. More than it holds run back over the
 // stream's margin, not over the author's name. The preview of a reply being

@@ -12,6 +12,7 @@ namespace Flarum\Messages\Tests\integration\api\dialog_messages;
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
+use Flarum\Group\Group;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Flarum\Post\Post;
@@ -61,7 +62,10 @@ class LikeNotificationTest extends TestCase
             ],
         ]);
 
-        $this->setting('flarum-messages.allow_delete_own_messages', '-1');
+        // Deleting for good is a permission of its own.
+        $this->prepareDatabase([
+            'group_permission' => [['permission' => 'dialog.deleteMessages', 'group_id' => Group::MEMBER_ID]],
+        ]);
     }
 
     protected function like(int $messageId, int $as, string $method = 'POST'): void

@@ -3,6 +3,7 @@ import Mithril from 'mithril';
 import classList from 'flarum/common/utils/classList';
 import Link from 'flarum/common/components/Link';
 import app from 'flarum/forum/app';
+import extractText from 'flarum/common/utils/extractText';
 import Avatar from 'flarum/common/components/Avatar';
 import GroupBadge from 'flarum/common/components/GroupBadge';
 import username from 'flarum/common/helpers/username';
@@ -114,7 +115,10 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
     // A notice, such as someone leaving: what happened.
     if (!lastMessage.isComment()) return describeEvent(lastMessage, true);
 
-    const content = lastMessage.contentPlain()?.slice(0, 80) ?? '';
+    // Deleted, in a way that can be undone: that it was, not what it said.
+    const content = lastMessage.isHidden()
+      ? extractText(app.translator.trans('flarum-messages.forum.message.deleted_text'))
+      : (lastMessage.contentPlain()?.slice(0, 80) ?? '');
 
     if (lastMessage.user() === app.session.user) {
       return app.translator.trans('flarum-messages.forum.dialog_list.own_last_message_preview', { content });

@@ -37,6 +37,12 @@ class FulltextFilter extends AbstractFulltextFilter
         // What members wrote: a notice's content is its data, a new name say.
         $state->getQuery()->where('dialog_messages.type', DialogMessage::COMMENT);
 
+        // A deleted message's words are its author's alone to find.
+        $actorId = $state->getActor()->id;
+        $state->getQuery()->where(function (Builder $query) use ($actorId) {
+            $query->whereNull('dialog_messages.hidden_at')->orWhere('dialog_messages.user_id', $actorId);
+        });
+
         if ($this->settings->get('search_cjk_mode')) {
             $this->like($state, $value);
 
