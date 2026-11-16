@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Mcp\Tests\integration\extend\Fixtures;
+namespace Flarum\Mcp\Testing\Fixtures\Extend;
 
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Tool;
@@ -19,6 +19,11 @@ use Flarum\Mcp\Capability\Tool;
 class ThrowingTool extends Tool
 {
     public static string $throwFrom = '';
+
+    public static function reset(): void
+    {
+        static::$throwFrom = '';
+    }
 
     protected function maybeThrow(string $method): void
     {

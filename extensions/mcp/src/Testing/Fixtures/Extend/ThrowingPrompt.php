@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Mcp\Tests\integration\extend\Fixtures;
+namespace Flarum\Mcp\Testing\Fixtures\Extend;
 
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Prompt;

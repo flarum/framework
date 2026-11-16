@@ -24,7 +24,7 @@ require is_file(__DIR__.'/../../vendor/autoload.php') ? __DIR__.'/../../vendor/a
 use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Plan\Change;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 
 [$script, $vendor, $staging, $trash, $journalPath, $changesJson, $killAt] = $argv;
 $killOnPackage = $argv[7] ?? '';

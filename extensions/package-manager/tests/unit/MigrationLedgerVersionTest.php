@@ -10,9 +10,9 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\Database\Migrator;
-use Flarum\Extension\ExtensionManager;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\MigrationLedger;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use PHPUnit\Framework\TestCase;
 

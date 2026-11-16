@@ -12,7 +12,7 @@ namespace Flarum\Messages\Tests\integration\api\dialogs;
 use Carbon\Carbon;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
-use Flarum\Messages\Tests\integration\CapturesSentMail;
+use Flarum\Messages\Testing\CapturesSentMail;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;

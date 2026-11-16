@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\OAuthProvider\Tests\integration;
+namespace Flarum\OAuthProvider\Testing;
 
 use Carbon\Carbon;
 use Psr\Http\Message\ResponseInterface;
@@ -16,6 +16,8 @@ use Psr\Http\Message\ResponseInterface;
  * Drives the authorize / token endpoints the way an OAuth client would.
  * Use from a Flarum\Testing\integration\TestCase that exempts `login`,
  * `oauthProvider.authorize` and `oauthProvider.authorize.post` from CSRF.
+ *
+ * @phpstan-require-extends \Flarum\Testing\integration\TestCase
  */
 trait InteractsWithOAuth
 {
@@ -100,7 +102,7 @@ trait InteractsWithOAuth
     /**
      * @return array<string, mixed>
      */
-    protected function json(ResponseInterface $response): array
+    protected function oauthJson(ResponseInterface $response): array
     {
         $body = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($body, (string) $response->getBody());
@@ -128,7 +130,7 @@ trait InteractsWithOAuth
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
 
-        return $this->json($response);
+        return $this->oauthJson($response);
     }
 
     /**
@@ -173,7 +175,7 @@ trait InteractsWithOAuth
     /**
      * @return array<string, mixed>
      */
-    protected function jwtClaims(string $jwt): array
+    protected function oauthJwtClaims(string $jwt): array
     {
         $payload = explode('.', $jwt)[1] ?? '';
         $claims = json_decode(base64_decode(strtr($payload, '-_', '+/')), true);

@@ -10,11 +10,13 @@
 namespace Flarum\OAuthProvider\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Gdpr\Testing\InteractsWithGdpr;
 use Flarum\OAuthProvider\Data\ConnectedApplications;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Models\RefreshToken;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -28,6 +30,7 @@ use PHPUnit\Framework\Attributes\Test;
 class GdprTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use InteractsWithGdpr;
     use InteractsWithOAuth;
 
     protected function setUp(): void
@@ -65,10 +68,7 @@ class GdprTest extends TestCase
         ]);
     }
 
-    private function type(int $userId): ConnectedApplications
-    {
-        return $this->app()->getContainer()->make(ConnectedApplications::class, ['user' => User::find($userId), 'erasureRequest' => null]);
-    }
+
 
     private function assertOnlyTheOtherMembersAccessIsLeft(): void
     {
@@ -90,7 +90,7 @@ class GdprTest extends TestCase
     #[Test]
     public function exports_the_applications_the_member_connected(): void
     {
-        $export = $this->type(2)->export();
+        $export = $this->gdprDataType(ConnectedApplications::class, 2)->export();
 
         $this->assertCount(1, $export);
         $applications = json_decode($export[0]['oauth/connected-applications.json'], true);
@@ -105,13 +105,13 @@ class GdprTest extends TestCase
     {
         $this->database()->table('oauth_provider_user_consents')->where('user_id', 2)->delete();
 
-        $this->assertNull($this->type(2)->export());
+        $this->assertNull($this->gdprDataType(ConnectedApplications::class, 2)->export());
     }
 
     #[Test]
     public function anonymising_disconnects_the_members_applications(): void
     {
-        $this->type(2)->anonymize();
+        $this->gdprDataType(ConnectedApplications::class, 2)->anonymize();
 
         $this->assertOnlyTheOtherMembersAccessIsLeft();
     }
@@ -119,7 +119,7 @@ class GdprTest extends TestCase
     #[Test]
     public function erasing_disconnects_the_members_applications(): void
     {
-        $this->type(2)->delete();
+        $this->gdprDataType(ConnectedApplications::class, 2)->delete();
 
         $this->assertOnlyTheOtherMembersAccessIsLeft();
     }

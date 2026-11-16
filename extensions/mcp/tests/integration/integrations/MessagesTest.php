@@ -10,7 +10,7 @@
 namespace Flarum\Mcp\Tests\integration\integrations;
 
 use Carbon\Carbon;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Flarum\User\User;

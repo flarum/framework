@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Messages\Tests\integration;
+namespace Flarum\Messages\Testing;
 
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\SentMessage;
@@ -17,6 +17,8 @@ use Symfony\Component\Mime\RawMessage;
 
 /**
  * Keeps the emails the forum sends, so a test can count them.
+ *
+ * @phpstan-require-extends \Flarum\Testing\integration\TestCase
  */
 trait CapturesSentMail
 {

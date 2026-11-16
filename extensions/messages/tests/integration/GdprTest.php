@@ -10,6 +10,7 @@
 namespace Flarum\Messages\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Gdpr\Testing\InteractsWithGdpr;
 use Flarum\Messages\Data\Messages;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
@@ -26,6 +27,7 @@ use PHPUnit\Framework\Attributes\Test;
 class GdprTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use InteractsWithGdpr;
 
     protected function setUp(): void
     {
@@ -53,10 +55,7 @@ class GdprTest extends TestCase
         ]);
     }
 
-    private function type(int $userId): Messages
-    {
-        return $this->app()->getContainer()->make(Messages::class, ['user' => User::find($userId), 'erasureRequest' => null]);
-    }
+
 
     #[Test]
     public function is_listed_among_the_data_types(): void
@@ -70,7 +69,7 @@ class GdprTest extends TestCase
     #[Test]
     public function exports_only_the_members_own_messages(): void
     {
-        $export = $this->type(4)->export();
+        $export = $this->gdprDataType(Messages::class, 4)->export();
 
         $this->assertCount(1, $export);
         $this->assertArrayHasKey('messages/message-102.json', $export[0]);
@@ -80,7 +79,7 @@ class GdprTest extends TestCase
     #[Test]
     public function anonymising_removes_the_members_addresses_and_keeps_the_rest(): void
     {
-        $this->type(4)->anonymize();
+        $this->gdprDataType(Messages::class, 4)->anonymize();
 
         $this->assertNull(DialogMessage::find(102)->ip_address);
         $this->assertEquals('203.0.113.9', '203.0.113.9');
@@ -91,7 +90,7 @@ class GdprTest extends TestCase
     #[Test]
     public function erasing_removes_the_members_messages_and_repairs_the_dialog(): void
     {
-        $this->type(4)->delete();
+        $this->gdprDataType(Messages::class, 4)->delete();
 
         $this->assertNull(DialogMessage::find(102));
         $this->assertNotNull(DialogMessage::find(103));

@@ -7,8 +7,9 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\unit\Frontend\Styles;
+namespace Flarum\Testing;
 
+use Composer\InstalledVersions;
 use Less_Parser;
 use RuntimeException;
 
@@ -38,7 +39,17 @@ class CompiledColors
      */
     public function __construct(string $primary, string $secondary, array $files)
     {
-        $common = realpath(__DIR__.'/../../../../less/common');
+        $core = InstalledVersions::isInstalled('flarum/core') ? InstalledVersions::getInstallPath('flarum/core') : null;
+
+        if ($core === null && InstalledVersions::isInstalled('flarum/framework')) {
+            $core = InstalledVersions::getInstallPath('flarum/framework').'/framework/core';
+        }
+
+        $common = $core !== null ? realpath($core.'/less/common') : false;
+
+        if ($common === false) {
+            throw new RuntimeException('CompiledColors requires an installed flarum/core with its LESS sources.');
+        }
 
         $source = '@import "variables.less"; @import "mixins.less";'
             ."@config-primary-color: $primary; @config-secondary-color: $secondary;"

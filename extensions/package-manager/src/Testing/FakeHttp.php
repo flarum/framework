@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\ExtensionManager\Tests\unit;
+namespace Flarum\ExtensionManager\Testing;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;

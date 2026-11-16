@@ -18,7 +18,7 @@ use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Server\Repository\AuthCodeRepository;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\OAuthProvider\Tests\integration\SignsInWithoutSession;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;

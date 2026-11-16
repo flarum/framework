@@ -14,7 +14,7 @@ use Flarum\Extension\Extension;
 use Flarum\Mcp\Api\ResourceExposure;
 use Flarum\Mcp\Extend\Mcp;
 use Flarum\Mcp\Overview\ExtensionOwnership;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\Mcp\Tests\integration\protocol\Fixtures\CountingExposure;
 use Flarum\Mcp\Tests\integration\protocol\Fixtures\CountingOwnership;
 use Flarum\User\User;
@@ -78,7 +78,7 @@ class RequestCostTest extends McpTestCase
             ['jsonrpc' => '2.0', 'id' => 2, 'method' => 'tools/list'],
         ], [...$auth, 'Mcp-Session-Id' => $session, 'MCP-Protocol-Version' => self::HANDSHAKE]));
         $this->assertSame(400, $batch->getStatusCode());
-        $this->assertSame(-32600, $this->json($batch)['error']['code']);
+        $this->assertSame(-32600, $this->mcpJson($batch)['error']['code']);
 
         $this->rpcResult($this->inSession($session, 'ping', [], $auth));
         $this->rpcResult($this->inSession($session, 'tools/list', [], $auth));

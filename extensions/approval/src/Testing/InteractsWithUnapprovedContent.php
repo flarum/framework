@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Approval\Tests\integration;
+namespace Flarum\Approval\Testing;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
@@ -15,6 +15,7 @@ use Flarum\Group\Group;
 use Flarum\Post\Post;
 use Flarum\User\User;
 
+/** @phpstan-require-extends \Flarum\Testing\integration\TestCase */
 trait InteractsWithUnapprovedContent
 {
     protected function prepareUnapprovedDatabaseContent()

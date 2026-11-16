@@ -10,7 +10,7 @@
 namespace Flarum\Mcp\Tests\integration\integrations;
 
 use Flarum\Gdpr\Models\Export;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use Illuminate\Contracts\Filesystem\Factory;
 use PHPUnit\Framework\Attributes\Test;

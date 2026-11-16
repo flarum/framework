@@ -13,7 +13,7 @@ use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Tree;
 use Flarum\ExtensionManager\Host\PhpBinary;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerRunner;
 use Flarum\ExtensionManager\Work\ComposerSteps;
 use Flarum\ExtensionManager\Work\Fetcher;

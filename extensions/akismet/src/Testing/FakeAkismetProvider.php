@@ -7,13 +7,13 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Akismet\Tests\fixtures;
+namespace Flarum\Akismet\Testing;
 
 use Flarum\Akismet\Akismet;
 use Flarum\Foundation\AbstractServiceProvider;
 use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Middleware;
 
 /**

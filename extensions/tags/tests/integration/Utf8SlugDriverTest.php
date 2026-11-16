@@ -11,6 +11,7 @@ namespace Flarum\Tags\Tests\integration;
 
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
+use Flarum\Tags\Testing\RetrievesRepresentativeTags;
 use Flarum\Tags\Utf8SlugDriver;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;

@@ -18,7 +18,7 @@ use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\Server\Repository\RefreshTokenRepository;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Event\PasswordChanged;
@@ -101,8 +101,8 @@ class PasswordChangeDisconnectionTest extends TestCase
         // was revoked, not that it used the token twice.
         $refreshed = $this->refresh('public-client', $tokens['refresh_token']);
         $this->assertSame(400, $refreshed->getStatusCode(), (string) $refreshed->getBody());
-        $this->assertSame('invalid_grant', $this->json($refreshed)['error']);
-        $this->assertSame('This grant has been revoked.', $this->json($refreshed)['hint']);
+        $this->assertSame('invalid_grant', $this->oauthJson($refreshed)['error']);
+        $this->assertSame('This grant has been revoked.', $this->oauthJson($refreshed)['hint']);
 
         // Another member's connection to the same client is untouched: their
         // consent and their tokens all survive.
@@ -171,7 +171,7 @@ class PasswordChangeDisconnectionTest extends TestCase
         $response = $this->refresh('public-client', $tokens['refresh_token']);
 
         $this->assertSame(400, $response->getStatusCode(), (string) $response->getBody());
-        $this->assertSame('invalid_grant', $this->json($response)['error']);
+        $this->assertSame('invalid_grant', $this->oauthJson($response)['error']);
 
         // The disconnected member has no valid token left; only the bystander's
         // seeded tokens (user 3) remain, which proves the sweep stayed scoped.

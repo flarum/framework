@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Mcp\Tests\integration;
+namespace Flarum\Mcp\Testing;
 
 use Carbon\Carbon;
 use Flarum\Extend;
@@ -94,7 +94,7 @@ trait IssuesOAuthTokens
     /**
      * @return array<string, mixed>
      */
-    protected function jwtClaims(string $jwt): array
+    protected function mcpJwtClaims(string $jwt): array
     {
         return (array) json_decode(base64_decode(strtr(explode('.', $jwt)[1] ?? '', '-_', '+/')), true);
     }

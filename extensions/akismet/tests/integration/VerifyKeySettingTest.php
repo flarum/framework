@@ -9,7 +9,7 @@
 
 namespace Flarum\Akismet\Tests\integration;
 
-use Flarum\Akismet\Tests\fixtures\FakeAkismetProvider;
+use Flarum\Akismet\Testing\FakeAkismetProvider;
 use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
