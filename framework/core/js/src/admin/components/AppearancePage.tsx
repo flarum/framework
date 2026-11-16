@@ -184,6 +184,13 @@ export default class AppearancePage extends AdminPage {
           help: app.translator.trans('core.admin.appearance.open_as_app_help'),
         })}
         {this.buildSettingComponent({
+          type: 'text',
+          setting: 'app_start_page',
+          label: app.translator.trans('core.admin.appearance.app_start_page_label'),
+          help: app.translator.trans('core.admin.appearance.app_start_page_help'),
+          placeholder: 'all',
+        })}
+        {this.buildSettingComponent({
           type: 'color-preview',
           setting: 'splash_screen_background',
           label: app.translator.trans('core.admin.appearance.splash_screen_background_label'),
@@ -382,6 +389,11 @@ export default class AppearancePage extends AdminPage {
         id: 'open_as_app',
         label: app.translator.trans('core.admin.appearance.open_as_app_label', {}, true),
         help: app.translator.trans('core.admin.appearance.open_as_app_help', {}, true),
+      },
+      {
+        id: 'app_start_page',
+        label: app.translator.trans('core.admin.appearance.app_start_page_label', {}, true),
+        help: app.translator.trans('core.admin.appearance.app_start_page_help', {}, true),
       },
       {
         id: 'custom_header_heading',

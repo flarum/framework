@@ -86,6 +86,30 @@ class WebManifestTest extends TestCase
         $this->assertSame('standalone', $manifest['display']);
         $this->assertSame('http://localhost/', $manifest['start_url']);
         $this->assertSame('http://localhost/', $manifest['scope']);
+        $this->assertArrayNotHasKey('id', $manifest);
+    }
+
+    #[Test]
+    public function the_manifest_opens_the_start_page_and_keeps_the_app_s_id(): void
+    {
+        $response = $this->send($this->request('POST', '/api/settings', ['authenticatedAs' => 1, 'json' => ['app_start_page' => '/all']]));
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+
+        $manifest = $this->manifest();
+
+        $this->assertSame('http://localhost/all', $manifest['start_url']);
+        $this->assertSame('http://localhost/', $manifest['id']);
+        $this->assertSame('http://localhost/', $manifest['scope']);
+    }
+
+    #[Test]
+    public function a_start_page_outside_the_forum_cannot_be_saved(): void
+    {
+        foreach (['../admin', 'a/%2e%2e/b', 'all discussions'] as $page) {
+            $response = $this->send($this->request('POST', '/api/settings', ['authenticatedAs' => 1, 'json' => ['app_start_page' => $page]]));
+
+            $this->assertEquals(422, $response->getStatusCode(), $page);
+        }
     }
 
     #[Test]

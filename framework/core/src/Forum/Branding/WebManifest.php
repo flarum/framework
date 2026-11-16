@@ -21,6 +21,12 @@ use Illuminate\Contracts\Container\Container;
  */
 class WebManifest
 {
+    /**
+     * A start page is a path on the forum: no white space or backslashes, and
+     * no "." or ".." segments, which would climb out of it.
+     */
+    public const START_PAGE_PATTERN = '/^(?!.*[\s\\\\])(?!(.*\/)?(\.|%2e){1,2}([\/?#]|$))/i';
+
     public function __construct(
         protected SettingsRepositoryInterface $settings,
         protected Branding $branding,
@@ -48,12 +54,17 @@ class WebManifest
     public function build(): array
     {
         $base = $this->url->to('forum')->base().'/';
+        $startPage = $this->startPage();
 
         $manifest = array_filter([
+            // Browsers tell installed apps apart by their id, which is the
+            // start URL when there is none: pin it to the forum's address, so
+            // a start page doesn't turn existing installs into another app.
+            'id' => $startPage === '' ? null : $base,
             'name' => $this->settings->get('forum_title'),
             'short_name' => $this->shortName->setting(),
             'description' => $this->settings->get('forum_description'),
-            'start_url' => $base,
+            'start_url' => $base.$startPage,
             'scope' => $base,
             'display' => $this->opensAsApp() ? 'standalone' : 'browser',
             'theme_color' => $this->settings->get('theme_primary_color'),
@@ -66,6 +77,16 @@ class WebManifest
         }
 
         return $manifest;
+    }
+
+    /**
+     * The page the app opens to, as a path after the forum's address.
+     */
+    protected function startPage(): string
+    {
+        $path = ltrim(trim((string) $this->settings->get('app_start_page')), '/');
+
+        return preg_match(self::START_PAGE_PATTERN, $path) ? $path : '';
     }
 
     /**

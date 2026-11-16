@@ -11,6 +11,7 @@ namespace Flarum\Settings;
 
 use Flarum\Forum\Branding\ShortName;
 use Flarum\Forum\Branding\SplashScreen;
+use Flarum\Forum\Branding\WebManifest;
 use Flarum\Foundation\AbstractValidator;
 use Illuminate\Validation\Validator;
 
@@ -30,6 +31,7 @@ class SettingsValidator extends AbstractValidator
         'forum_short_name' => ['max:'.ShortName::MAX_LENGTH],
         'splash_screen_background' => ['nullable', 'regex:'.SplashScreen::BACKGROUND_PATTERN],
         'search_min_length' => ['required', 'integer', 'min:1'],
+        'app_start_page' => ['nullable', 'regex:'.WebManifest::START_PAGE_PATTERN],
     ];
 
     protected function makeValidator(array $attributes): Validator

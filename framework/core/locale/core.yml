@@ -166,6 +166,8 @@ core:
       app_icon_preview_android_label: Android
       app_icon_preview_apple_label: iPhone and iPad
       app_icon_text: "Upload a square image, at least 512 pixels across, for phones to show when someone adds the forum to their home screen. If you don't upload a favicon, it's used as the favicon too."
+      app_start_page_help: "The page the app opens to from the home screen, as a path after your forum's address, such as \"all\" for All Discussions. Leave it empty to open the home page. Phones pick up a change the next time the browser updates the app."
+      app_start_page_label: App Start Page
       favicon_heading: Favicon
       favicon_text: "Upload an image to be displayed as the forum's icon in browser tabs and bookmarks. A square image at least 48 pixels across stays sharp; an .ico file works too."
       logo_heading: Logo
