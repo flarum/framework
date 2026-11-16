@@ -60,6 +60,21 @@ describe('DiscussionListState', () => {
       expect(state.pageSize).toBe(DiscussionListState.DEFAULT_PAGE_SIZE);
     });
 
+    test('makes "Load more" continue where the preloaded page ended', async () => {
+      jest
+        .spyOn(app, 'preloadedApiDocument')
+        .mockReturnValueOnce(Object.assign([], { payload: { data: [], links: { next: '/' }, meta: { page: { offset: 0, limit: 21 } } } }) as any)
+        .mockReturnValue(null as any);
+      const find = jest.spyOn(app.store, 'find').mockResolvedValue(Object.assign([], { payload: { data: [] } }) as any);
+
+      const state = new DiscussionListState({});
+      await state.refresh();
+      await state.loadNext();
+
+      expect(find).toHaveBeenCalledTimes(1);
+      expect((find.mock.calls[0][1] as any).page).toMatchObject({ offset: 21, limit: 21 });
+    });
+
     test('is learned from the limit a later request was served with', async () => {
       jest.spyOn(app, 'preloadedApiDocument').mockReturnValue(null as any);
       jest
