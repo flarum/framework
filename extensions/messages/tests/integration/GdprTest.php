@@ -55,8 +55,6 @@ class GdprTest extends TestCase
         ]);
     }
 
-
-
     #[Test]
     public function is_listed_among_the_data_types(): void
     {

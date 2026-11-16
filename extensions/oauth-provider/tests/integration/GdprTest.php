@@ -68,8 +68,6 @@ class GdprTest extends TestCase
         ]);
     }
 
-
-
     private function assertOnlyTheOtherMembersAccessIsLeft(): void
     {
         $this->assertSame([3], Consent::query()->pluck('user_id')->all());

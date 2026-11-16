@@ -66,5 +66,4 @@ trait BuildsAuditRequests
 
         return $response;
     }
-
 }

@@ -11,9 +11,9 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\Database\DatabaseMigrationRepository;
 use Flarum\Database\Migrator;
+use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\MigrationLedger;
-use Flarum\Extension\ExtensionManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\ConnectionInterface;
