@@ -2,7 +2,8 @@ import app from 'flarum/admin/app';
 import type RequestError from 'flarum/common/utils/RequestError';
 import apiUrl from '../apiUrl';
 import { alertError, errorPayload, serverMessage } from '../errors';
-import { cardOffers, dismissalApplies, hidesPage, runIsLive, showingRun, sortForGrid } from '../runState';
+import { confirmRollback, requestRollback } from '../rollback';
+import { cardOffers, dismissalApplies, hidesPage, requestSequence, runIsLive, showingRun, sortForGrid } from '../runState';
 import type {
   CheckPayload,
   Installed,
@@ -21,6 +22,8 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Link from 'flarum/common/components/Link';
 import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
+import ItemList from 'flarum/common/utils/ItemList';
+import type { TabItem } from 'flarum/common/components/Tabs';
 import type Mithril from 'mithril';
 import { confirmAction } from './ConfirmModal';
 import HostPanel from './HostPanel';
@@ -41,7 +44,6 @@ function extensionId(name: string): string {
   return (at < 0 ? name : name.slice(0, at)) + '-' + pkg.replace(/flarum-ext-|flarum-/g, '');
 }
 
-type Tab = 'installed' | 'history' | 'discover' | 'sources' | 'host';
 type CheckAge = 'fresh' | 'recent' | 'overdue';
 
 export interface ExtensionManagerPageAttrs extends ExtensionPageAttrs {
@@ -68,11 +70,6 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
   installed: Installed[] = [];
   updates: Updates = { available: {}, checkedAt: null, stale: true, uncheckable: [], tracking: [] };
   checking = false;
-  /*
-   * Finding extensions is what most people open this page for (ClaudiusH,
-   * 2026-10-09). The dashboard's update banner links here with ?tab=installed.
-   */
-  tab: Tab = 'discover';
   history: HistoryEntry[] = [];
   run: Run | null = null;
   driver: string | null = null;
@@ -81,6 +78,11 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
   starting = false;
   rollbackNote: string | null = null;
   dismissed = false;
+  /** An undo started from the History tab, while the run panel is dismissed. */
+  rollingBack = false;
+
+  /** Only the newest `/state` reply is used; see runState.requestSequence. */
+  protected loads = requestSequence();
 
   /**
    * Dismissal is remembered against WHICH run, and it has to be remembered
@@ -114,10 +116,16 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     }
   }
 
+  protected forgetDismissed() {
+    try {
+      localStorage.removeItem(ExtensionManagerPage.DISMISS_KEY);
+    } catch {
+      // Private browsing: nothing was stored.
+    }
+  }
+
   oninit(vnode: Mithril.Vnode<ExtensionManagerPageAttrs, this>) {
     super.oninit(vnode);
-
-    if (vnode.attrs.tab === 'installed') this.tab = 'installed';
 
     this.attemptLoad();
   }
@@ -182,10 +190,13 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
   load() {
     this.loadError = null;
     this.loadErrorDetail = null;
+    const ticket = this.loads.next();
 
     app
       .request<StatePayload>({ method: 'GET', url: apiUrl() + '/extension-manager/state' })
       .then((data) => {
+        if (!this.loads.isCurrent(ticket)) return;
+
         this.host = data.host;
         this.installed = data.installed || [];
         this.history = data.history || [];
@@ -212,6 +223,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
         m.redraw();
       })
       .catch((e) => {
+        if (!this.loads.isCurrent(ticket)) return;
+
         /*
          * The reason, on screen. Swallowing it and rendering an empty page
          * is how somebody ends up staring at a screen that looks broken with
@@ -223,7 +236,14 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
       });
   }
 
-  content() {
+  /**
+   * The page around the tabs: the first load, a load that failed, and the run
+   * panel. While a run is live the panel is the ONLY thing on screen and the
+   * tab bar goes away. A grid of Update buttons beside a running update
+   * invites somebody to start a second one, and the honest answer to the
+   * second press is a refusal — better not to offer it.
+   */
+  pageTabs(vnode: Mithril.VnodeDOM<ExtensionManagerPageAttrs, this>, tabs: TabItem[]): Mithril.Children {
     if (this.firstLoad) {
       return (
         <div className="ExtensionPage-settings">
@@ -251,70 +271,81 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
       );
     }
 
-    return (
-      <div className="ExtensionPage-settings">
-        <div className="container">
-          {/*
-           * While a run is live the panel is the ONLY thing on screen, and
-           * the tabs go away. A grid of Update buttons beside a running update
-           * invites somebody to start a second one, and the honest answer to
-           * the second press is a refusal — better not to offer it.
-           */}
-          {this.showingRun() ? this.runPanel() : null}
-
-          {this.hidesPage() ? null : (
-            <div className="Tabs ExtensionManager-tabs">
-              <div className="Tabs-nav" role="tablist">
-                {this.tabItems().map((tab) => (
-                  <Button
-                    key={tab.id}
-                    className="Button Button--link"
-                    role="tab"
-                    active={this.tab === tab.id}
-                    aria-selected={this.tab === tab.id ? 'true' : 'false'}
-                    onclick={() => (this.tab = tab.id)}
-                  >
-                    {tab.label}
-                    {tab.badge > 0 ? <span className="ExtensionManager-count">{tab.badge}</span> : null}
-                  </Button>
-                ))}
-              </div>
-              <hr className="Tabs-divider" />
-            </div>
-          )}
-
-          {this.hidesPage() ? null : this.tab === 'host' ? (
-            <div>
-              <HostPanel host={this.host} onchange={() => this.load()} />
-              <TrashPanel />
-            </div>
-          ) : this.tab === 'sources' ? (
-            <SourcesTab />
-          ) : this.tab === 'history' ? (
-            <HistoryTab history={this.history} installed={this.installed} />
-          ) : this.tab === 'discover' ? (
-            <DiscoverTab starting={this.starting} oninstall={(name: string) => this.start([name], 'install')} />
-          ) : (
-            this.installedTab()
-          )}
+    return [
+      this.showingRun() ? (
+        <div className="ExtensionPage-settings ExtensionManager-runContainer">
+          <div className="container">{this.runPanel()}</div>
         </div>
-      </div>
-    );
+      ) : null,
+      this.hidesPage() ? null : super.pageTabs(vnode, tabs),
+    ];
   }
 
-  /** The page's tabs, in order, with the number of updates waiting on Installed. */
-  tabItems(): { id: Tab; label: Mithril.Children; badge: number }[] {
-    return [
-      { id: 'discover', label: app.translator.trans('flarum-extension-manager.admin.sections.discover.title'), badge: 0 },
+  /**
+   * The page's tabs, with the number of updates waiting on Installed.
+   *
+   * Finding extensions is what most people open this page for (ClaudiusH,
+   * 2026-10-09), so Discover comes first and is shown by default. The
+   * dashboard's update banner links here with ?tab=installed.
+   */
+  pageTabItems(): ItemList<TabItem> {
+    const items = super.pageTabItems();
+    const updates = this.updateCount();
+
+    items.add('discover', { id: 'discover', label: app.translator.trans('flarum-extension-manager.admin.sections.discover.title') }, 50);
+    items.add(
+      'installed',
       {
         id: 'installed',
         label: app.translator.trans('flarum-extension-manager.admin.sections.installed.title', { count: this.installed.length }),
-        badge: this.updateCount(),
+        badge: updates || undefined,
       },
-      { id: 'history', label: app.translator.trans('flarum-extension-manager.admin.sections.queue.title'), badge: 0 },
-      { id: 'sources', label: app.translator.trans('flarum-extension-manager.admin.composer.title'), badge: 0 },
-      { id: 'host', label: app.translator.trans('flarum-extension-manager.admin.host.title'), badge: 0 },
-    ];
+      40
+    );
+    items.add('history', { id: 'history', label: app.translator.trans('flarum-extension-manager.admin.sections.queue.title') }, 30);
+    items.add('sources', { id: 'sources', label: app.translator.trans('flarum-extension-manager.admin.composer.title') }, 20);
+    items.add('host', { id: 'host', label: app.translator.trans('flarum-extension-manager.admin.host.title') }, 10);
+
+    return items;
+  }
+
+  pageTabContent(tab: string, vnode: Mithril.VnodeDOM<ExtensionManagerPageAttrs, this>): Mithril.Children {
+    let content: Mithril.Children;
+
+    switch (tab) {
+      case 'discover':
+        content = <DiscoverTab starting={this.starting} oninstall={(name: string) => this.start([name], 'install')} />;
+        break;
+      case 'installed':
+        content = this.installedTab();
+        break;
+      case 'history':
+        content = (
+          <HistoryTab
+            history={this.history}
+            installed={this.installed}
+            undoable={this.undoableFromHistory()}
+            rollingBack={this.rollingBack}
+            onundo={() => this.rollBackFromHistory()}
+          />
+        );
+        break;
+      case 'sources':
+        content = <SourcesTab />;
+        break;
+      case 'host':
+        content = (
+          <div>
+            <HostPanel host={this.host} onchange={() => this.load()} />
+            <TrashPanel />
+          </div>
+        );
+        break;
+      default:
+        return super.pageTabContent(tab, vnode);
+    }
+
+    return <div className={'ExtensionPage-settings ExtensionManager-tab ExtensionManager-tab--' + tab}>{content}</div>;
   }
 
   /**
@@ -409,14 +440,60 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
           this.load();
           this.reloadIfSelf(run);
         }}
-        onrollback={(data: RollbackPayload) => {
-          this.run = data.run;
-          this.rollbackNote = data.next || null;
-          this.load();
-          this.reloadIfSelf(data.run);
-        }}
+        onrollback={(data: RollbackPayload) => this.rolledBack(data)}
       />
     );
+  }
+
+  rolledBack(data: RollbackPayload) {
+    this.run = data.run;
+    this.rollbackNote = data.next || null;
+    this.load();
+    this.reloadIfSelf(data.run);
+  }
+
+  /**
+   * The run History may offer to undo: the latest one, when it finished or
+   * failed and its panel has been dismissed.
+   *
+   * Dismissing a failed run is remembered, and the panel held the only Roll
+   * back button, so a dismissed failure could no longer be undone from this
+   * page at all. Only the latest run, because that is the one the rollback
+   * endpoint undoes, and only while the panel is away, so there is never a
+   * second button for the same undo on screen.
+   */
+  undoableFromHistory(): string | null {
+    const run = this.run;
+
+    return run && !this.showingRun() && (run.state === 'failed' || run.state === 'done') ? run.id : null;
+  }
+
+  rollBackFromHistory() {
+    const run = this.run;
+    if (!run || this.rollingBack) return;
+
+    confirmRollback(run, () => {
+      this.rollingBack = true;
+      m.redraw();
+
+      requestRollback()
+        .then((data) => {
+          this.rollingBack = false;
+          /*
+           * The panel comes back with the outcome. The stored dismissal is for
+           * this same run, so it is forgotten as well, or the load below would
+           * read it and hide the panel again.
+           */
+          this.dismissed = false;
+          this.forgetDismissed();
+          this.rolledBack(data);
+          m.redraw();
+        })
+        .catch(() => {
+          this.rollingBack = false;
+          m.redraw();
+        });
+    });
   }
 
   /**
@@ -535,6 +612,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
          * was told "idle", and stopped — in the same second the new run began.
          */
         this.dismissed = false;
+        // A /state reply already on its way predates this run, and would put the old one back.
+        this.loads.invalidate();
         this.run = data.run;
         this.driver = data.driver || null;
         m.redraw();
@@ -655,8 +734,9 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
 
   /**
    * How hard to ask, by how old the last check is (ClaudiusH, 2026-10-09):
-   * checked today, a quiet link to check again; within the week, an ordinary
-   * button; older than that, or never, a prompt that says why it matters.
+   * within the week, an ordinary button; older than that, or never, a primary
+   * button and a prompt that says why it matters. Always a button, never a
+   * link: it is the main action on the Installed tab (ClaudiusH, 2026-10-27).
    */
   checkAge(): CheckAge {
     const at = this.updates.checkedAt;
@@ -668,7 +748,7 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
   }
 
   checkButton(age: CheckAge) {
-    const className = age === 'fresh' ? 'Button Button--link' : age === 'recent' ? 'Button' : 'Button Button--primary';
+    const className = age === 'overdue' ? 'Button Button--primary' : 'Button';
 
     return (
       <Button

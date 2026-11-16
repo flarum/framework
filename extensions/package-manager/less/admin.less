@@ -27,27 +27,11 @@
 
 // ── tabs ─────────────────────────────────────────────────────────────────────
 //
-// Core's Tabs pattern (.Tabs-nav of link Buttons). Only the spacing is ours:
-// the nav sits flush with the page instead of a modal's padding, and scrolls
-// sideways rather than wrapping on a narrow screen.
+// The tab bar is core's (ExtensionPage tabs). Only the update count on
+// Installed is ours: it is the thing somebody should act on, so it takes the
+// primary colour rather than core's muted badge.
 
-.ExtensionManager-tabs {
-  margin-bottom: 22px;
-
-  .Tabs-nav { padding: 0; overflow-x: auto; }
-  .Tabs-nav > .Button { white-space: nowrap; }
-  .Button-labelText { display: flex; align-items: center; gap: 7px; }
-}
-
-.ExtensionManager-count {
-  display: inline-block;
-  min-width: 18px;
-  padding: 0 6px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 18px;
-  text-align: center;
+.flarum-extension-manager-Page .Tabs-tab[data-tab="installed"] .Tabs-badge {
   background: var(--primary-color);
   color: var(--button-primary-color);
 }

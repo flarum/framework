@@ -9,6 +9,7 @@
 
 namespace Flarum\Mail;
 
+use Flarum\Forum\Branding\ThemeImages;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
@@ -46,13 +47,16 @@ class EmailLogo
     public const COPY_SIZE_KEY = 'logo_email_copy_size';
 
     protected Cloud $assetsDir;
+    protected ThemeImages $themeImages;
 
     public function __construct(
         protected SettingsRepositoryInterface $settings,
         protected ImageManager $imageManager,
-        Factory $filesystemFactory
+        Factory $filesystemFactory,
+        ?ThemeImages $themeImages = null
     ) {
         $this->assetsDir = $filesystemFactory->disk('flarum-assets');
+        $this->themeImages = $themeImages ?? resolve(ThemeImages::class);
     }
 
     /**
@@ -123,10 +127,20 @@ class EmailLogo
      */
     public function resolve(): ?array
     {
-        foreach ([[self::PATH_KEY, self::SIZE_KEY], [self::COPY_PATH_KEY, self::COPY_SIZE_KEY]] as [$pathKey, $sizeKey]) {
-            if ($path = $this->settings->get($pathKey)) {
-                return ['url' => $this->assetsDir->url($path)] + $this->displaySize($this->settings->get($sizeKey));
-            }
+        if ($logo = $this->themeImages->email('email_logo')) {
+            return $logo;
+        }
+
+        if ($path = $this->settings->get(self::PATH_KEY)) {
+            return ['url' => $this->assetsDir->url($path)] + self::displaySizeOf($this->settings->get(self::SIZE_KEY));
+        }
+
+        if ($this->themeImages->has('logo')) {
+            return $this->themeImages->email('logo');
+        }
+
+        if ($path = $this->settings->get(self::COPY_PATH_KEY)) {
+            return ['url' => $this->assetsDir->url($path)] + self::displaySizeOf($this->settings->get(self::COPY_SIZE_KEY));
         }
 
         $logoPath = $this->settings->get('logo_path');
@@ -144,6 +158,11 @@ class EmailLogo
      * @return array{width: int|null, height: int|null}
      */
     protected function displaySize(?string $storedSize): array
+    {
+        return self::displaySizeOf($storedSize);
+    }
+
+    public static function displaySizeOf(?string $storedSize): array
     {
         if (! $storedSize || ! preg_match('/^(\d+)x(\d+)$/', $storedSize, $matches) || ! (int) $matches[1] || ! (int) $matches[2]) {
             return ['width' => null, 'height' => null];

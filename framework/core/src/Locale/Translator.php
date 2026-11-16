@@ -27,6 +27,21 @@ class Translator extends BaseTranslator implements TranslatorInterface
      */
     private ?\WeakMap $parsedCatalogues = null;
 
+    /**
+     * Use the forum default and its parents before falling back to English.
+     */
+    public function setDefaultFallbackLocale(string $locale): void
+    {
+        $locale = $locale === '' ? 'en' : $locale;
+
+        $this->setFallbackLocales(['en']);
+        $this->setFallbackLocales(array_values(array_unique([
+            $locale,
+            ...$this->computeFallbackLocales($locale),
+            'en',
+        ])));
+    }
+
     public function get($key, array $replace = [], $locale = null): string
     {
         return $this->trans($key, $replace, null, $locale);
@@ -76,6 +91,12 @@ class Translator extends BaseTranslator implements TranslatorInterface
         $translation = $catalogue->get($id, $domain);
 
         if (preg_match(self::REFERENCE_REGEX, $translation, $matches)) {
+            // A fallback copy can lack parents already visited by the selected
+            // locale. Only load its original chain if the target is missing.
+            if (! $catalogue->has($matches[1], $domain)) {
+                $catalogue = parent::getCatalogue($catalogue->getLocale());
+            }
+
             return $this->getTranslation($catalogue, $matches[1], $domain);
         }
 

@@ -105,6 +105,17 @@ test('u tags render without a matching parameter', () => {
   expect(rendered.first('p').innerHTML).toBe('Read the <u>rules</u> first.');
 });
 
+test('tags nested in a provided tag render', () => {
+  const translator = new Translator();
+  translator.addTranslations({
+    test10: 'Go to the <a><strong>Basics Page</strong></a> first.',
+  });
+
+  const rendered = mq(m('p', translator.trans('test10', { a: m('a', { href: '/basics' }) })));
+
+  expect(rendered.first('p').innerHTML).toBe('Go to the <a href="/basics"><strong>Basics Page</strong></a> first.');
+});
+
 test('tags with no handler fire a debug warning', () => {
   bootstrapForum({ resources: [{ type: 'forums', id: '1', attributes: { debug: true } }] });
   const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});

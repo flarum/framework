@@ -16,34 +16,58 @@ export default [
         </div>
       );
     })
+    .section(
+      () => ({
+        id: 'registration',
+        icon: 'fas fa-user-plus',
+        label: app.translator.trans('flarum-nicknames.admin.sections.registration.label'),
+        description: app.translator.trans('flarum-nicknames.admin.sections.registration.description'),
+      }),
+      20
+    )
+    .section(
+      () => ({
+        id: 'validation',
+        icon: 'fas fa-check-double',
+        label: app.translator.trans('flarum-nicknames.admin.sections.validation.label'),
+        description: app.translator.trans('flarum-nicknames.admin.sections.validation.description'),
+      }),
+      10
+    )
     .setting(() => ({
       setting: 'flarum-nicknames.set_on_registration',
+      section: 'registration',
       type: 'boolean',
       label: app.translator.trans('flarum-nicknames.admin.settings.set_on_registration_label'),
     }))
     .setting(() => ({
       setting: 'flarum-nicknames.random_username',
+      section: 'registration',
       type: 'boolean',
       label: app.translator.trans('flarum-nicknames.admin.settings.random_username_label'),
       help: app.translator.trans('flarum-nicknames.admin.settings.random_username_help'),
     }))
     .setting(() => ({
       setting: 'flarum-nicknames.unique',
+      section: 'validation',
       type: 'boolean',
       label: app.translator.trans('flarum-nicknames.admin.settings.unique_label'),
     }))
     .setting(() => ({
       setting: 'flarum-nicknames.regex',
+      section: 'validation',
       type: 'text',
       label: app.translator.trans('flarum-nicknames.admin.settings.regex_label'),
     }))
     .setting(() => ({
       setting: 'flarum-nicknames.min',
+      section: 'validation',
       type: 'number',
       label: app.translator.trans('flarum-nicknames.admin.settings.min_label'),
     }))
     .setting(() => ({
       setting: 'flarum-nicknames.max',
+      section: 'validation',
       type: 'number',
       label: app.translator.trans('flarum-nicknames.admin.settings.max_label'),
     }))

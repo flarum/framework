@@ -5,7 +5,8 @@ import classList from 'flarum/common/utils/classList';
 import RealtimeState from 'ext:flarum/realtime/forum/RealtimeState';
 import type Mithril from 'mithril';
 import type User from 'flarum/common/models/User';
-import TypingState, { announces } from './utils/TypingState';
+import TypingState, { announces, TYPING_TIMEOUT_MS } from './utils/TypingState';
+import composingMessageTo from './utils/composingMessageTo';
 import type Dialog from '../common/models/Dialog';
 import type MessageStream from './components/MessageStream';
 
@@ -52,9 +53,30 @@ function identifiedTypingChannelName(dialog: Dialog): string {
  */
 export default function addRealtimeTypingIndicator() {
   extend('ext:flarum/messages/forum/components/MessageStream', 'oninit', function (this: TypingStream) {
+    const pendingUsers = new Set<string>();
     this.typingState = new TypingState(
       () => (this.attrs.dialog.users() || []).filter((user): user is User => !!user),
-      () => app.session.user?.id()
+      () => app.session.user?.id(),
+      (id) => {
+        const known = app.store.getById<User>('users', id);
+        if (!known && !pendingUsers.has(id)) {
+          const heardAt = Date.now();
+          pendingUsers.add(id);
+          app.store
+            .find<User>('users', id)
+            .then(() => {
+              if (
+                this.typingChannels.length &&
+                Date.now() - heardAt < TYPING_TIMEOUT_MS &&
+                this.typingState.received(TypingState.signal(id), heardAt)
+              )
+                m.redraw();
+            })
+            .catch(() => {})
+            .finally(() => pendingUsers.delete(id));
+        }
+        return known;
+      }
     );
     this.typingChannels = [];
     this.typingDisposeReconnect = null;
@@ -96,7 +118,7 @@ export default function addRealtimeTypingIndicator() {
     this.checkTyping = () => {
       const composer = app.composer;
 
-      if (!composer.isVisible() || !composer.bodyMatches('flarum/messages/forum/components/MessageComposer', { replyingTo: this.attrs.dialog })) {
+      if (!composingMessageTo(this.attrs.dialog)) {
         this.typingPrevious = '';
         this.typingDirty = false;
 

@@ -17,7 +17,7 @@ export type GeneralIndexItem = {
   help?: string;
   /**
    * Optional: The URL to navigate to when this item is selected.
-   * The default is to navigate to the extension page.
+   * The default is the group link, then the page or extension route.
    */
   link?: string;
   /**

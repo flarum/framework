@@ -9,6 +9,7 @@
 
 namespace Flarum\Messages\Search;
 
+use Flarum\Messages\DialogMessage;
 use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchState;
@@ -33,6 +34,9 @@ class FulltextFilter extends AbstractFulltextFilter
 
     public function search(SearchState $state, string $value): void
     {
+        // What members wrote: a notice's content is its data, a new name say.
+        $state->getQuery()->where('dialog_messages.type', DialogMessage::COMMENT);
+
         if ($this->settings->get('search_cjk_mode')) {
             $this->like($state, $value);
 

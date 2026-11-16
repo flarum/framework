@@ -300,4 +300,70 @@ class ListTest extends TestCase
         // Order-independent comparison
         $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
+
+    #[Test]
+    public function id_filter_works()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams([
+                    'filter' => ['id' => '1,3'],
+                ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $data = json_decode($body, true)['data'];
+
+        // Order-independent comparison
+        $this->assertEqualsCanonicalizing(['1', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
+    }
+
+    #[Test]
+    public function id_filter_works_negated()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams([
+                    'filter' => ['-id' => '1'],
+                ])
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true)['data'];
+
+        // Order-independent comparison
+        $this->assertEqualsCanonicalizing(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
+    }
+
+    #[Test]
+    public function id_filter_does_not_reveal_discussions_the_actor_cannot_see()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams([
+                    'filter' => ['id' => '2,4'],
+                ])
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true)['data'];
+
+        $this->assertEquals(['2'], Arr::pluck($data, 'id'), 'IDs do not match');
+    }
+
+    #[Test]
+    public function id_filter_combines_with_other_filters()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams([
+                    'filter' => ['id' => '1,2', 'author' => 'normal'],
+                ])
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true)['data'];
+
+        $this->assertEquals(['2'], Arr::pluck($data, 'id'), 'IDs do not match');
+    }
 }

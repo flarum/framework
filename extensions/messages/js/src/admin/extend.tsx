@@ -2,11 +2,58 @@ import Extend from 'flarum/common/extenders';
 import commonExtend from '../common/extend';
 import app from 'flarum/admin/app';
 import SettingDropdown from 'flarum/admin/components/SettingDropdown';
+import type ExtensionPage from 'flarum/admin/components/ExtensionPage';
+import RecipientGroupSettings from './components/RecipientGroupSettings';
 
 export default [
   ...commonExtend,
 
   new Extend.Admin()
+    .section(
+      () => ({
+        id: 'groups',
+        icon: 'fas fa-users',
+        label: app.translator.trans('flarum-messages.admin.sections.groups.label'),
+        description: app.translator.trans('flarum-messages.admin.sections.groups.description'),
+      }),
+      10
+    )
+    .customSetting(
+      function (this: ExtensionPage) {
+        const selected = this.setting('flarum-messages.recipient_groups', '[]');
+        return <RecipientGroupSettings value={selected()} onchange={selected} />;
+      },
+      0,
+      'groups'
+    )
+    .permission(
+      () => ({
+        icon: 'fas fa-users',
+        label: app.translator.trans('flarum-messages.admin.permissions.message_groups_label'),
+        permission: 'dialog.messageGroups',
+        allowGuest: false,
+      }),
+      'start',
+      94
+    )
+    // Its default is registered in extend.php, where the server clamps it to 1–50 too.
+    .setting(() => ({
+      setting: 'flarum-messages.max_recipients',
+      section: 'groups',
+      type: 'number',
+      min: 1,
+      max: 50,
+      label: app.translator.trans('flarum-messages.admin.settings.max_recipients_label'),
+      help: app.translator.trans('flarum-messages.admin.settings.max_recipients_help'),
+    }))
+    // Off by default; registered in extend.php.
+    .setting(() => ({
+      setting: 'flarum-messages.allow_group_names',
+      section: 'groups',
+      type: 'boolean',
+      label: app.translator.trans('flarum-messages.admin.settings.allow_group_names_label'),
+      help: app.translator.trans('flarum-messages.admin.settings.allow_group_names_help'),
+    }))
     .permission(
       () => ({
         icon: 'fas fa-envelope-open-text',

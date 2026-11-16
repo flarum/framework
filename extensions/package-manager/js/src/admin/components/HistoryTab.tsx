@@ -1,10 +1,15 @@
 import app from 'flarum/admin/app';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
+import Button from 'flarum/common/components/Button';
 import type { HistoryEntry, Installed, RunState } from '../types';
 
 export interface HistoryTabAttrs extends ComponentAttrs {
   history: HistoryEntry[];
   installed: Installed[];
+  /** The id of the entry that can still be undone, if any: see ExtensionManagerPage.undoableFromHistory. */
+  undoable?: string | null;
+  rollingBack?: boolean;
+  onundo?: () => void;
 }
 
 /**
@@ -59,6 +64,15 @@ export default class HistoryTab extends Component<HistoryTabAttrs> {
               {entry.migrations ? (
                 <div className="ExtensionManager-historyNote">
                   {app.translator.trans('flarum-extension-manager.admin.sections.queue.migrations', { count: entry.migrations })}
+                </div>
+              ) : null}
+              {entry.id === this.attrs.undoable && this.attrs.onundo ? (
+                <div className="ExtensionManager-runActions">
+                  <Button className="Button" disabled={this.attrs.rollingBack} onclick={() => this.attrs.onundo?.()}>
+                    {this.attrs.rollingBack
+                      ? app.translator.trans('flarum-extension-manager.admin.run.rolling_back')
+                      : app.translator.trans('flarum-extension-manager.admin.run.roll_back')}
+                  </Button>
                 </div>
               ) : null}
             </li>

@@ -33,6 +33,30 @@
     background: var(~"--@{name}-control-bg-fadedin", fadein(@control-bg, 5%));
     color: var(~"--@{name}-control-color", @control-color);
   }
+  // Text buttons have no background to change, so, as on a plain background,
+  // they show hover, focus and an open dropdown by their colour: the full
+  // text colour instead of the muted control colour.
+  .Button--link:hover,
+  .Button--link:active,
+  .Button--link.active,
+  .Button--link:focus-visible,
+  .Button--link.focus,
+  .open > .Dropdown-toggle.Button--link {
+    color: var(~"--@{name}-color", @color);
+  }
+  // That colour is meant for the coloured background, not for dropdown panels,
+  // which have the page background: use the link colour there, as anywhere
+  // else on the page.
+  .Dropdown-menu {
+    .Button--link:hover,
+    .Button--link:active,
+    .Button--link.active,
+    .Button--link:focus-visible,
+    .Button--link.focus,
+    .open > .Dropdown-toggle.Button--link {
+      color: var(--link-color);
+    }
+  }
 
   .Dropdown-menu>li>a, .Dropdown-menu>li>button, .Dropdown-menu>li>span {
     color: var(--text-color);

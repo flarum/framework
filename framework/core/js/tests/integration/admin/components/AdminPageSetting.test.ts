@@ -116,3 +116,32 @@ describe('SettingsModal.setting()', () => {
     expect(seeded('', '1')).toBe('');
   });
 });
+
+/**
+ * The search-only `link` must not reach the `FormGroup` attrs.
+ */
+describe('AdminPage.buildSettingComponent()', () => {
+  class TestPage extends AdminPage {
+    content() {
+      return null;
+    }
+  }
+
+  test('does not forward the search link to the form group', () => {
+    const page = new TestPage();
+    (page as any).settings = {};
+
+    const entry: any = {
+      setting: 'test.link',
+      type: 'text',
+      label: 'Test',
+      link: app.route('advanced'),
+    };
+    const vnode: any = page.buildSettingComponent(entry);
+
+    expect(vnode.attrs.link).toBeUndefined();
+    expect(vnode.attrs.label).toBe('Test');
+    expect(vnode.attrs.type).toBe('text');
+    expect(entry.link).toBe('/advanced');
+  });
+});

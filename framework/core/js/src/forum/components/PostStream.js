@@ -118,7 +118,7 @@ export default class PostStream extends Component {
 
     if (!viewingEnd && posts[this.stream.visibleEnd - this.stream.visibleStart - 1]) {
       items.push(
-        <div className="PostStream-loadMore" key="loadMore">
+        <div className="PostStream-loadMore" key="loadMore" role="article">
           <Button className="Button" onclick={this.stream.loadNext.bind(this.stream)}>
             {app.translator.trans('core.forum.post_stream.load_more_button')}
           </Button>
@@ -135,7 +135,7 @@ export default class PostStream extends Component {
     // is not already doing so, then show a 'write a reply' placeholder.
     if (viewingEnd && (!app.session.user || this.discussion.canReply())) {
       items.push(
-        <div className="PostStream-item" key="reply" data-index={this.stream.count()} oncreate={postFadeIn}>
+        <div className="PostStream-item" key="reply" role="article" data-index={this.stream.count()} oncreate={postFadeIn}>
           <ReplyPlaceholder discussion={this.discussion} />
         </div>
       );

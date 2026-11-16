@@ -9,6 +9,7 @@
 
 namespace Flarum\Extension;
 
+use Flarum\Database\MigrationContext;
 use Flarum\Database\Migrator;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Disabling;
@@ -19,6 +20,8 @@ use Flarum\Extension\Exception\CircularDependenciesException;
 use Flarum\Extension\Exception\UnreadableManifestException;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Foundation\Paths;
+use Flarum\Settings\DatabaseSettingsRepository;
+use Flarum\Settings\DefaultSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -35,6 +38,9 @@ class ExtensionManager
      * @var Collection<string, Extension>|null
      */
     protected ?Collection $extensions = null;
+
+    /** @var string[]|null */
+    protected ?array $pendingEnabledExtensions = null;
 
     public function __construct(
         protected SettingsRepositoryInterface $config,
@@ -190,13 +196,19 @@ class ExtensionManager
 
         $this->dispatcher->dispatch(new Enabling($extension));
 
-        $this->migrate($extension);
-
-        $this->publishAssets($extension);
-
         $enabledExtensions = $this->getEnabledExtensions();
-        $enabledExtensions[] = $extension;
-        $this->setEnabledExtensions($enabledExtensions);
+        $enabledExtensions[$extension->getId()] = $extension;
+        $enabledExtensions = $this->sortDependencies($enabledExtensions);
+        $this->pendingEnabledExtensions = array_map(fn (Extension $enabled) => $enabled->getId(), $enabledExtensions);
+
+        try {
+            $this->migrate($extension);
+            $this->migrateConditional();
+            $this->publishAssets($extension);
+            $this->setEnabledExtensions($enabledExtensions);
+        } finally {
+            $this->pendingEnabledExtensions = null;
+        }
 
         $extension->enable($this->container);
 
@@ -230,7 +242,15 @@ class ExtensionManager
         $this->dispatcher->dispatch(new Disabling($extension));
 
         unset($enabledExtensions[$k]);
-        $this->setEnabledExtensions($enabledExtensions);
+        $enabledExtensions = $this->sortDependencies($enabledExtensions);
+        $this->pendingEnabledExtensions = array_map(fn (Extension $enabled) => $enabled->getId(), $enabledExtensions);
+
+        try {
+            $this->migrateConditional();
+            $this->setEnabledExtensions($enabledExtensions);
+        } finally {
+            $this->pendingEnabledExtensions = null;
+        }
 
         $extension->disable($this->container);
 
@@ -303,6 +323,39 @@ class ExtensionManager
         return $extension->migrate($this->migrator, $direction);
     }
 
+    /** @internal */
+    public function getSettingsDefaults(): Collection
+    {
+        $defaults = clone $this->container->make('flarum.settings.default');
+        $enabledIds = $this->getEnabled();
+        $registered = $this->container->make('flarum.settings.default.extensions');
+        $defaults->forget($registered->filter(fn (array $source) => $source['declarative'] || ! in_array($source['extension'], $enabledIds))->keys()->all());
+        $scope = clone $this->container;
+        $schema = $this->container->make(ConnectionInterface::class)->getSchemaBuilder();
+        $settings = new DefaultSettingsRepository(new DatabaseSettingsRepository($schema->getConnection()), $defaults);
+        $scope->instance(Container::class, $scope);
+        $scope->instance('flarum.settings.default', $defaults);
+        $scope->instance(SettingsRepositoryInterface::class, $settings);
+        $scope->instance(Builder::class, $schema);
+        $scope->instance(MigrationContext::class, new MigrationContext($schema, $enabledIds, $settings));
+
+        foreach ($this->getEnabledExtensions() as $extension) {
+            $extension->getSettingsDefaults($scope, $defaults);
+        }
+
+        return $defaults;
+    }
+
+    /** @internal */
+    public function migrateConditional(): void
+    {
+        foreach ($this->getEnabledExtensions() as $extension) {
+            if ($extension->hasMigrations()) {
+                $this->migrator->run($extension->getPath().'/migrations', $extension, conditionalOnly: true);
+            }
+        }
+    }
+
     /**
      * Runs the database migrations to reset the database to its old state.
      *
@@ -367,7 +420,10 @@ class ExtensionManager
      */
     public function getEnabled(): array
     {
-        return json_decode($this->config->get('extensions_enabled'), true) ?? [];
+        return $this->pendingEnabledExtensions
+            ?? ($this->container->bound(MigrationContext::class) ? $this->container->make(MigrationContext::class)->enabledExtensionIds : null)
+            ?? json_decode($this->config->get('extensions_enabled'), true)
+            ?? [];
     }
 
     /**
@@ -444,7 +500,7 @@ class ExtensionManager
      * @return array{valid: Extension[], missingDependencies: array<string, string[]>, circularDependencies: string[]}
      *      'valid' points to an ordered array of \Flarum\Extension\Extension
      *      'missingDependencies' points to an associative array of extensions that could not be resolved due
-     *          to missing dependencies, in the format extension id => array of missing dependency IDs.
+     *          to missing dependencies, in the format extension id => array of missing or rejected required dependency IDs.
      *      'circularDependencies' points to an array of extensions ids of extensions
      *          that cannot be processed due to circular dependencies
      *
@@ -452,7 +508,7 @@ class ExtensionManager
      */
     public static function resolveExtensionOrder(array $extensionList): array
     {
-        $extensionIdMapping = []; // Used for caching so we don't rerun ->getExtensions every time.
+        $extensionIdMapping = [];
 
         // This is an implementation of Kahn's Algorithm (https://dl.acm.org/doi/10.1145/368996.369025)
         $extensionGraph = [];
@@ -472,8 +528,32 @@ class ExtensionManager
             $extensionIdMapping[$extension->getId()] = $extension;
         }
 
+        // Remove invalid extensions before sorting, including their required dependents.
+        do {
+            $previousCount = count($extensionIdMapping);
+
+            foreach ($extensionIdMapping as $id => $extension) {
+                foreach ($extension->getExtensionDependencyIds() as $dependency) {
+                    if (! array_key_exists($dependency, $extensionIdMapping)) {
+                        unset($extensionIdMapping[$id]);
+                        break;
+                    }
+                }
+            }
+        } while (count($extensionIdMapping) !== $previousCount);
+
         /** @var Extension $extension */
         foreach ($extensionList as $extension) {
+            foreach ($extension->getExtensionDependencyIds() as $dependency) {
+                if (! array_key_exists($dependency, $extensionIdMapping)) {
+                    $missingDependencies[$extension->getId()][] = $dependency;
+                }
+            }
+
+            if (array_key_exists($extension->getId(), $missingDependencies)) {
+                continue;
+            }
+
             $optionalDependencies = array_filter($extension->getOptionalDependencyIds(), function ($id) use ($extensionIdMapping) {
                 return array_key_exists($id, $extensionIdMapping);
             });
@@ -484,7 +564,7 @@ class ExtensionManager
             }
         }
 
-        foreach ($extensionList as $extension) {
+        foreach ($extensionIdMapping as $extension) {
             if (! array_key_exists($extension->getId(), $inDegreeCount)) {
                 $inDegreeCount[$extension->getId()] = 0;
                 $pendingQueue[] = $extension->getId();
@@ -499,26 +579,14 @@ class ExtensionManager
                 $inDegreeCount[$dependency] -= 1;
 
                 if ($inDegreeCount[$dependency] === 0) {
-                    if (! array_key_exists($dependency, $extensionGraph)) {
-                        // Missing Dependency
-                        $missingDependencies[$activeNode] = array_merge(
-                            Arr::get($missingDependencies, $activeNode, []),
-                            [$dependency]
-                        );
-                    } else {
-                        $pendingQueue[] = $dependency;
-                    }
+                    $pendingQueue[] = $dependency;
                 }
             }
         }
 
-        $validOutput = array_filter($output, function ($extension) use ($missingDependencies) {
-            return ! array_key_exists($extension, $missingDependencies);
-        });
-
         $validExtensions = array_reverse(array_map(function ($extensionId) use ($extensionIdMapping) {
             return $extensionIdMapping[$extensionId];
-        }, $validOutput)); // Reversed as required by Kahn's algorithm.
+        }, $output)); // Reversed as required by Kahn's algorithm.
 
         foreach ($inDegreeCount as $id => $count) {
             if ($count !== 0) {

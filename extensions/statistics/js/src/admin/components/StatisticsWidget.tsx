@@ -209,11 +209,17 @@ export default class StatisticsWidget extends DashboardWidget {
         <div className="StatisticsWidget-entities">
           <div className="StatisticsWidget-labels">
             <div className="StatisticsWidget-label">{app.translator.trans('flarum-statistics.admin.statistics.total_label')}</div>
-            <div className="StatisticsWidget-label">
+            <div className="StatisticsWidget-label StatisticsWidget-label--period">
+              <span>{app.translator.trans('flarum-statistics.admin.statistics.new_during_label')}</span>
               {loadingSelectedEntity ? (
                 <LoadingIndicator size="small" display="inline" />
               ) : (
-                <SelectDropdown disabled={loadingSelectedEntity} buttonClassName="Button Button--text" caretIcon="fas fa-caret-down">
+                <SelectDropdown
+                  disabled={loadingSelectedEntity}
+                  buttonClassName="Button Button--text"
+                  caretIcon="fas fa-caret-down"
+                  accessibleToggleLabel={app.translator.trans('flarum-statistics.admin.statistics.period_toggle_accessible_label')}
+                >
                   {Object.keys(this.periods!)
                     .map((period) => (
                       <Button

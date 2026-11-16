@@ -87,6 +87,7 @@ return [
     (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(fn () => [
             Schema\Boolean::make('canMentionGroups')
+                ->description('Whether you can mention groups. Only on your own user.')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
                 ->get(fn (User $user) => $user->can('mentionGroups')),
         ]),

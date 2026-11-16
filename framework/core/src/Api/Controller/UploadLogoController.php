@@ -21,6 +21,7 @@ class UploadLogoController extends UploadImageController
     protected string $filenamePrefix = 'logo';
     private string $resolvedExtension = 'webp';
     protected ?string $validator = LogoValidator::class;
+    protected ?string $themeImage = 'logo';
 
     /**
      * Whether to also store an email-safe copy of the logo, which emails fall

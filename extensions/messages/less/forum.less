@@ -52,13 +52,43 @@
     }
 
     &-actions {
+      flex-shrink: 0;
       margin-inline-start: auto;
     }
 
+    // The room left beside the avatars and buttons, which the title may
+    // shrink into: without it, a phone set a long title a word to a line.
     &-info {
       display: flex;
       align-items: center;
       gap: 12px;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+  }
+
+  // A group's title: one line, ending in an ellipsis. On a phone the member
+  // count goes under it, to leave it the width.
+  &--group &-header-info-title {
+    display: block;
+    min-width: 0;
+    // Stacked on a phone, where it would otherwise size to its text.
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &--group .DialogSection-members {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  @media @phone {
+    &--group &-header-info {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
     }
   }
 }
@@ -67,6 +97,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
   color: var(--control-color);
 
   .Avatar {
@@ -78,7 +109,46 @@
     padding: 0;
     margin: 0;
     display: flex;
+    // A group's recipients run onto further lines rather than off the composer.
+    flex-wrap: wrap;
+    align-items: center;
     gap: 4px;
+  }
+
+  &-more {
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+
+  // A phone's composer header has room for one line: the rest scroll into
+  // view, rather than wrap under the header's edge.
+  @media @phone {
+    &-label {
+      flex-shrink: 0;
+    }
+
+    &-list {
+      flex-wrap: nowrap;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      > li {
+        flex-shrink: 0;
+      }
+    }
+
+    // Held at the end of the line, so how many more stays in view.
+    &-more {
+      position: sticky;
+      inset-inline-end: 0;
+      padding-inline-start: 6px;
+      background: var(--body-bg);
+    }
   }
 }
 
@@ -144,11 +214,19 @@
     justify-content: space-between;
     white-space: nowrap;
     align-items: center;
+    gap: 8px;
 
-    .username {
-      max-width: 56%;
+    // The name gives way, ending in an ellipsis; the time never does. A
+    // group's name can be as long as its members' list.
+    .username,
+    .DialogListItem-name {
+      min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    time {
+      flex-shrink: 0;
     }
   }
 
@@ -160,6 +238,56 @@
   &-avatar {
     flex-shrink: 0;
     position: relative;
+
+    > .Badge {
+      .Badge--size(42px);
+      box-shadow: none;
+
+      &, .Badge-icon {
+        font-size: 16px;
+      }
+    }
+
+    // Two of a group's members, one over the other, in the space of one avatar.
+    &--group {
+      width: 42px;
+      height: 42px;
+      isolation: isolate;
+
+      .Avatar,
+      .Badge {
+        --size: 30px;
+        position: absolute;
+        box-shadow: 0 0 0 2px var(--body-bg);
+
+        &:first-child {
+          top: 0;
+          inset-inline-start: 0;
+        }
+
+        &:nth-child(2) {
+          bottom: 0;
+          inset-inline-end: 0;
+        }
+
+        &:hover {
+          z-index: 1;
+        }
+      }
+
+      // A group's badge at an avatar's size, its icon kept near a badge's.
+      .Badge {
+        .Badge--size(30px);
+
+        &, .Badge-icon {
+          font-size: 12px;
+        }
+      }
+
+      .Bubble {
+        z-index: 2;
+      }
+    }
 
     .Bubble {
       top: -4px;
@@ -206,9 +334,29 @@
 
 .Message {
   padding-inline-end: 0;
+}
 
-  .PostUser-badges {
-    margin-inline-start: -72px;
+// After the author's name, in a row of their own size: over a message's
+// smaller avatar, a few badges covered it. The preview of a reply being
+// written is laid out as a message.
+.Message,
+.MessageStream .CommentPost.editing {
+  .PostUser .PostUser-badges {
+    position: static;
+    float: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    width: auto;
+    margin: 0;
+    margin-inline-start: 6px;
+    padding: 0;
+    vertical-align: middle;
+
+    .Badge {
+      .Badge--size(18px);
+      margin: 0;
+    }
   }
 }
 
@@ -235,6 +383,81 @@
 
 .MessageStream .ReplyPlaceholder {
   margin-bottom: 24px;
+}
+
+// The groups a group conversation is addressed to, then the first few of its
+// members: tiles of one size, overlapping, and how many more.
+.DialogSection-header-avatars {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  > .Avatar,
+  > .DialogSection-header-group {
+    position: relative;
+    box-shadow: 0 0 0 2px var(--body-bg);
+
+    &:hover {
+      z-index: 1;
+    }
+
+    // A hovered group's tooltip is inserted between the tiles.
+    & ~ .Avatar,
+    & ~ .DialogSection-header-group {
+      margin-inline-start: -10px;
+    }
+  }
+
+  // An avatar's size, its icon kept near a badge's: at the tile's scale it
+  // would crowd the circle.
+  > .DialogSection-header-group {
+    .Badge--size(40px);
+
+    &, .Badge-icon {
+      font-size: 16px;
+    }
+  }
+}
+
+.DialogSection-header-more {
+  margin-inline-start: 6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--control-color);
+}
+
+.DialogSection-members {
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--control-color);
+}
+
+// A notice in the stream, such as someone leaving: a muted line in the
+// message column, its icon where a message's avatar would be.
+.EventMessage {
+  display: flex;
+  align-items: center;
+  padding: 4px 0 12px;
+  color: var(--muted-color);
+  font-size: 0.9rem;
+
+  &-icon {
+    flex-shrink: 0;
+    width: 40px;
+    margin-inline-end: 16px;
+    text-align: center;
+    color: var(--muted-more-color);
+  }
+
+  &-info a {
+    color: inherit;
+    font-weight: bold;
+  }
+
+  &-time {
+    color: var(--muted-more-color);
+    font-size: 0.85em;
+  }
 }
 
 .DialogSection-header-actions {
@@ -292,6 +515,17 @@
 
   .Avatar {
     --size: 38px;
+  }
+
+  // A group's badge at the avatars' size, its icon kept near a badge's.
+  &-group {
+    .Badge--size(38px);
+    flex-shrink: 0;
+    box-shadow: none;
+
+    &, .Badge-icon {
+      font-size: 16px;
+    }
   }
 
   a {
@@ -362,4 +596,14 @@
     line-height: 1.5em;
     color: var(--muted-color);
   }
+}
+
+.RecipientSelectionModal-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-block: 8px;
+}
+.MessageComposer-group {
+  white-space: nowrap;
 }

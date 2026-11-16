@@ -23,6 +23,19 @@
   }
 }
 
+// An icon image (see IconImage.less) fills the badge, cropped to its shape.
+// The icon stays in place, unseen, so the badge aligns like any other.
+.Badge:has(> .IconImage) {
+  background-image: var(--icon-image);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  > .IconImage {
+    background: none;
+  }
+}
+
 .Badge--size(@size) {
   --size: @size;
 }

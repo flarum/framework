@@ -117,7 +117,10 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
       const windowScrollLeft = $(window).scrollLeft() ?? 0;
       const windowWidth = $(window).width() ?? 0;
 
-      $menu.toggleClass('Dropdown-menu--right', isRight || left + width > windowScrollLeft + windowWidth);
+      const isRtl = $menu.css('direction') === 'rtl';
+      const overflows = isRtl ? left < windowScrollLeft : left + width > windowScrollLeft + windowWidth;
+
+      $menu.toggleClass('Dropdown-menu--right', isRight || overflows);
 
       if ('CloseWatcher' in window) {
         this.closeWatcher?.destroy();
@@ -167,7 +170,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
         type="button"
         className={'Dropdown-toggle ' + this.attrs.buttonClassName}
         aria-haspopup="menu"
-        aria-label={this.attrs.accessibleToggleLabel}
+        aria-label={this.getAccessibleLabel(children)}
         data-toggle="dropdown"
         onclick={this.attrs.onclick}
         {...this.attrs.buttonAttrs}
@@ -185,6 +188,32 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
     }
 
     return button;
+  }
+
+  /**
+   * The text shown in the toggle button, as plain text.
+   */
+  getVisibleLabel(children: Mithril.ChildArray): string {
+    return extractText(this.attrs.label).trim();
+  }
+
+  /**
+   * The accessible name of the toggle button.
+   *
+   * It starts with the visible label, so that the name contains the text the
+   * button displays (WCAG 2.5.3, Label in Name), followed by the description of
+   * what the button does. Speech-input users can then activate the button by
+   * saying what they see on it.
+   */
+  getAccessibleLabel(children: Mithril.ChildArray): string | undefined {
+    // Callers pass `app.translator.trans()` results, which are arrays, not strings.
+    const description = this.attrs.accessibleToggleLabel ? extractText(this.attrs.accessibleToggleLabel).trim() : undefined;
+    const visible = this.getVisibleLabel(children);
+
+    if (!visible) return description;
+    if (!description || description.toLowerCase().includes(visible.toLowerCase())) return description || visible;
+
+    return `${visible}, ${description}`;
   }
 
   /**

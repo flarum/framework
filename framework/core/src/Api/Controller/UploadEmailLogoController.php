@@ -22,6 +22,7 @@ use Psr\Http\Message\UploadedFileInterface;
 class UploadEmailLogoController extends UploadImageController
 {
     protected string $filePathSettingKey = EmailLogo::PATH_KEY;
+    protected ?string $themeImage = 'email_logo';
     protected string $filenamePrefix = 'email-logo';
     protected ?string $validator = LogoValidator::class;
 

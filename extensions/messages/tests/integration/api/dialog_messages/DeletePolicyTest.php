@@ -66,6 +66,24 @@ class DeletePolicyTest extends TestCase
         $this->assertEquals(204, $this->send($this->request('DELETE', '/api/dialog-messages/103', ['authenticatedAs' => 3]))->getStatusCode());
     }
 
+    /**
+     * A notice records something that happened, such as who renamed a group:
+     * it isn't its member's to take back, however their own messages may be.
+     */
+    #[Test]
+    public function a_notice_cannot_be_deleted_by_the_member_it_is_about(): void
+    {
+        $this->setting('flarum-messages.allow_delete_own_messages', '-1');
+
+        $this->prepareDatabase([
+            DialogMessage::class => [
+                ['id' => 105, 'dialog_id' => 102, 'user_id' => 3, 'type' => 'renamed', 'content' => '{"name":"Hi"}', 'number' => 3],
+            ],
+        ]);
+
+        $this->assertEquals(403, $this->send($this->request('DELETE', '/api/dialog-messages/105', ['authenticatedAs' => 3]))->getStatusCode());
+    }
+
     #[Test]
     public function a_dialog_whose_pointers_are_missing_does_not_break_listing_its_messages(): void
     {

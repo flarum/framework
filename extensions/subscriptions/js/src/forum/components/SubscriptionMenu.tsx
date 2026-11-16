@@ -16,19 +16,19 @@ export default class SubscriptionMenu<CustomAttrs extends ISubscriptionMenuAttrs
     {
       subscription: null,
       icon: <Icon name="fa-regular fa-star" className="Button-icon" noStyleOverride />,
-      label: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_button'),
+      label: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_option'),
       description: app.translator.trans('flarum-subscriptions.forum.sub_controls.not_following_text'),
     },
     {
       subscription: 'follow',
       icon: <Icon name="fa-solid fa-star" className="Button-icon" noStyleOverride />,
-      label: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_button'),
+      label: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_option'),
       description: app.translator.trans('flarum-subscriptions.forum.sub_controls.following_text'),
     },
     {
       subscription: 'ignore',
       icon: 'far fa-eye-slash',
-      label: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_button'),
+      label: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_option'),
       description: app.translator.trans('flarum-subscriptions.forum.sub_controls.ignoring_text'),
     },
   ];

@@ -1,3 +1,4 @@
+import app from 'flarum/common/app';
 import PaginatedListState, { PaginatedListParams } from 'flarum/common/states/PaginatedListState';
 import DialogMessage from '../../common/models/DialogMessage';
 
@@ -81,5 +82,43 @@ export default class MessageStreamState<P extends MessageStreamParams = MessageS
       .catch(() => {
         // A background catch-up that failed leaves the conversation as it was.
       });
+  }
+
+  /** As many messages as the forum gives in one answer. */
+  static REFRESH_BATCH = 50;
+
+  /**
+   * Fetches the messages held again, after a reconnect, for what changed on
+   * them while events were not being received, such as likes. They are asked
+   * for by id, so each one held is fetched however the pages around it moved:
+   * messages that arrived live, or meanwhile, or were deleted. The store takes
+   * in what comes back, and the pages stay as they are. Messages that arrived
+   * meanwhile are catchUp()'s to bring in.
+   */
+  refreshHeld(): Promise<void> {
+    const { page: _page, include, filter, ...params } = this.requestParams() as any;
+    const ids = this.getAllItems().map((message) => message.id()!);
+    const batches: string[][] = [];
+
+    for (let i = 0; i < ids.length; i += MessageStreamState.REFRESH_BATCH) {
+      batches.push(ids.slice(i, i + MessageStreamState.REFRESH_BATCH));
+    }
+
+    return Promise.all(
+      batches.map((batch) =>
+        app.store
+          .find<DialogMessage[]>(this.type, {
+            ...params,
+            ...(include ? { include: Array.isArray(include) ? include.join(',') : include } : {}),
+            filter: { ...filter, id: batch.join(',') },
+            page: { limit: batch.length },
+          })
+          .catch(() => {
+            // A background refresh that failed leaves the messages as they were.
+          })
+      )
+    ).then(() => {
+      m.redraw();
+    });
   }
 }

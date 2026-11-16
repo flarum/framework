@@ -12,7 +12,7 @@ namespace Flarum\Database;
 interface MigrationRepositoryInterface
 {
     /**
-     * Get the ran migrations for the given extension.
+     * Get the ran migrations for the given extension, in execution order.
      */
     public function getRan(?string $extension = null): array;
 

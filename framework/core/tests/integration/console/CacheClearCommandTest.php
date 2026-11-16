@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\console;
 
 use Flarum\Formatter\Formatter;
+use Flarum\Foundation\Paths;
 use Flarum\Frontend\AssetManager;
 use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Locale\LocaleManager;
@@ -44,6 +45,24 @@ class CacheClearCommandTest extends ConsoleTestCase
         $result = $this->runCacheClear();
 
         $this->assertEquals(Command::SUCCESS, $result['status'], $result['output']);
+    }
+
+    /**
+     * The compiler no longer writes a less.php parse cache, and the files an
+     * older version left are never read again: one generation per vendor
+     * update, often hundreds of megabytes.
+     */
+    #[Test]
+    public function it_empties_the_old_less_parse_cache()
+    {
+        $dir = $this->app()->getContainer()->make(Paths::class)->storage.'/less';
+        @mkdir($dir, 0777, true);
+        file_put_contents($file = $dir.'/lessphp_old.lesscache', serialize(['x']));
+
+        $result = $this->runCacheClear();
+
+        $this->assertEquals(Command::SUCCESS, $result['status'], $result['output']);
+        $this->assertFileDoesNotExist($file);
     }
 
     #[Test]
@@ -187,5 +206,39 @@ class CacheClearCommandTest extends ConsoleTestCase
 
         $this->assertEquals(Command::SUCCESS, $result['status'], $result['output']);
         $this->assertStringContainsString('compile exploded', $result['output']);
+    }
+
+    #[Test]
+    public function an_entry_that_cannot_be_deleted_does_not_stop_the_clear()
+    {
+        // Another process can delete a listed file before the sweep reaches it
+        // (a concurrent clear, or Blade renaming its temporary file). A
+        // directory fails unlink() the same way, deterministically.
+        $views = $this->tmpDir().'/storage/views';
+        mkdir($views.'/a-entry-that-cannot-be-deleted');
+        touch($views.'/compiled.php');
+
+        // Collect every warning that would be reported.
+        $warnings = [];
+        $reporting = error_reporting(E_ALL);
+        set_error_handler(function (int $level, string $message) use (&$warnings) {
+            if (error_reporting() & $level) {
+                $warnings[] = $message;
+            }
+
+            return true;
+        });
+
+        try {
+            $result = $this->runCacheClear();
+        } finally {
+            restore_error_handler();
+            error_reporting($reporting);
+            rmdir($views.'/a-entry-that-cannot-be-deleted');
+        }
+
+        $this->assertSame([], $warnings);
+        $this->assertEquals(Command::SUCCESS, $result['status'], $result['output']);
+        $this->assertFileDoesNotExist($views.'/compiled.php');
     }
 }

@@ -1,3 +1,36 @@
 .AdminPage {
   padding-bottom: var(--page-bottom-padding);
 }
+
+// Settings forms split into SettingsSections (see SettingsSection.less).
+.AdminPage-settingsForm--sectioned {
+  --gap: 0;
+
+  > .Form-body > .SettingsSection:first-child {
+    border-top: 0;
+  }
+
+  // A second sectioned form on the same page (Appearance) continues the list.
+  & + & > .Form-body > .SettingsSection:first-child {
+    border-top: 1px solid var(--control-bg);
+  }
+
+  .AdminPage-ungrouped {
+    max-width: var(--settings-section-body-max-width, 640px);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 16px 0 24px;
+  }
+
+  // The save bar stays in reach on long pages.
+  > .Form-body > .Form-controls {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin-top: 8px;
+    padding: 14px 0;
+    background: var(--body-bg);
+    border-top: 1px solid var(--control-bg);
+  }
+}

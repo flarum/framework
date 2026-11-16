@@ -5,7 +5,8 @@ import Stream from 'flarum/common/utils/Stream';
 import type User from 'flarum/common/models/User';
 import type Mithril from 'mithril';
 import Button from 'flarum/common/components/Button';
-import UserSelectionModal from 'flarum/common/components/UserSelectionModal';
+import type Group from 'flarum/common/models/Group';
+import GroupBadge from 'flarum/common/components/GroupBadge';
 import DialogMessage from '../../common/models/DialogMessage';
 import Avatar from 'flarum/common/components/Avatar';
 import Tooltip from 'flarum/common/components/Tooltip';
@@ -24,8 +25,12 @@ export interface IMessageComposerAttrs extends IComposerBodyAttrs {
  */
 export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs = IMessageComposerAttrs> extends ComposerBody<CustomAttrs> {
   protected recipients!: Stream<User[]>;
+  protected recipientGroups = Stream<Group[]>([]);
 
   static focusOnSelector = () => '.TextEditor-editor';
+
+  /** Recipients shown by avatar before the rest are counted, as a large group's would crowd the composer. */
+  static SHOWN_RECIPIENTS = 10;
 
   static initAttrs(attrs: IMessageComposerAttrs) {
     super.initAttrs(attrs);
@@ -48,23 +53,34 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
     this.composer.fields.recipients = this.composer.fields.recipients || Stream(users);
 
     this.recipients = this.composer.fields.recipients;
+    this.composer.fields.recipientGroups =
+      this.composer.fields.recipientGroups || Stream((this.attrs.replyingTo?.groups() || []).filter((group): group is Group => !!group));
+    this.recipientGroups = this.composer.fields.recipientGroups;
   }
 
   headerItems() {
     const items = super.headerItems();
+    // A minimized composer's header can't be clicked: it shows who the message
+    // is to, or what it is, but not the button to change who it's to.
+    const minimized = !!this.attrs.disabled;
+    const chosen = this.recipients().length > 0 || this.recipientGroups().length > 0;
 
     items.add(
       'recipients',
       <div className="MessageComposer-recipients">
-        {!this.attrs.replyingTo && (
+        {!this.attrs.replyingTo && minimized && !chosen && <h3>{app.translator.trans('flarum-messages.forum.composer.title')}</h3>}
+        {!this.attrs.replyingTo && !minimized && (
           <Button
             type="button"
             className="Button Button--outline Button--compact"
             onclick={() =>
-              app.modal.show(UserSelectionModal, {
+              app.modal.show(() => import('./RecipientSelectionModal'), {
                 title: app.translator.trans('flarum-messages.forum.recipient_selection_modal.title', {}, true),
                 selected: this.recipients(),
-                maxItems: 1,
+                selectedGroups: this.recipientGroups(),
+                onsubmitGroups: (groups: Group[]) => this.recipientGroups(groups),
+                // More than one starts a group. An older server says nothing: one.
+                maxItems: app.forum.attribute<number>('messagesMaxRecipients') || 1,
                 // Accounts nobody can write to, such as those anonymised by
                 // flarum/gdpr, aren't listed at all.
                 excluded: (user: User) => user === app.session.user || user.canMessage() === false,
@@ -78,23 +94,36 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
             {app.translator.trans('flarum-messages.forum.composer.recipients')}
           </Button>
         )}
-        {!!this.recipients().length && (
-          <div className="MessageComposer-recipients-label">{app.translator.trans('flarum-messages.forum.composer.to')}</div>
-        )}
+        {chosen && <div className="MessageComposer-recipients-label">{app.translator.trans('flarum-messages.forum.composer.to')}</div>}
         <ul className="MessageComposer-recipients-list">
-          {this.recipients().map((user) => (
-            <li>
-              <Tooltip text={user.username()}>
-                <Avatar user={user} />
-              </Tooltip>
+          {this.recipientGroups().map((group) => (
+            <li className="MessageComposer-group" key={group.id()}>
+              <GroupBadge group={group} /> {group.namePlural()}
             </li>
           ))}
+          {this.recipients()
+            .slice(0, this.shownRecipients())
+            .map((user) => (
+              <li>
+                <Tooltip text={user.username()}>
+                  <Avatar user={user} />
+                </Tooltip>
+              </li>
+            ))}
+          {this.recipients().length > this.shownRecipients() && (
+            <li className="MessageComposer-recipients-more">+{this.recipients().length - this.shownRecipients()}</li>
+          )}
         </ul>
       </div>,
       100
     );
 
     return items;
+  }
+
+  /** How many recipients to show by avatar: the groups, all shown, take their places first. */
+  shownRecipients(): number {
+    return Math.max(MessageComposer.SHOWN_RECIPIENTS - this.recipientGroups().length, 0);
   }
 
   /**
@@ -127,6 +156,7 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
         },
       };
     } else {
+      if (this.recipientGroups().length) data.groups = this.recipientGroups().map((group) => ({ id: group.id() }));
       data.users = this.recipients().map((user) => ({
         id: user.id(),
       }));

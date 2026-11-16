@@ -9,12 +9,12 @@
 
 namespace Flarum\Formatter;
 
+use Flarum\Discussion\Discussion;
+use Flarum\Forum\Branding\Branding;
 use Flarum\Foundation\Config;
-use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\Guest;
 use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository;
-use Illuminate\Contracts\Filesystem\Cloud;
-use Illuminate\Contracts\Filesystem\Factory;
 use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Configurator;
 use s9e\TextFormatter\Parser;
@@ -122,12 +122,14 @@ class Formatter
 
     public function render(string $xml, mixed $context = null, ?ServerRequestInterface $request = null): string
     {
+        $xml = $this->removeStoredDiscussionTitles($xml);
         $renderer = $this->getRenderer();
 
         foreach ($this->renderingCallbacks as $callback) {
             $xml = $callback($renderer, $context, $xml, $request);
         }
 
+        $xml = $this->configureDiscussionTitles($xml, $request);
         $xml = $this->configureDefaultsOnLinks($xml);
 
         return $renderer->render($xml);
@@ -235,7 +237,7 @@ class Formatter
      *
      * A pasted address says nothing useful in the middle of a sentence, so
      * where the writer pasted one bare — leaving the address as the link's own
-     * text — it is shown as `#123` instead, with the post number alongside it
+     * text — it is shown as the title (or `#123`), with the post number alongside it
      * when the link points at a particular reply.
      *
      * When the writer chose their own words for the link, those words are what
@@ -248,6 +250,8 @@ class Formatter
         // Only set when the URL turned out to be a discussion on this forum,
         // which is decided per render rather than when the post was written.
         $tag->attributes->add('discussionid')->required = false;
+        $tag->attributes->add('discussiontitle')->required = false;
+        $tag->attributes['discussiontitle']->filterChain->append('#false');
         $tag->attributes->add('postnumber')->required = false;
         $tag->attributes->add('faviconurl')->required = false;
 
@@ -279,11 +283,16 @@ class Formatter
                 // Decorative: the text beside it already says where the link
                 // goes, so a screen reader announcing the icon as well would
                 // only repeat it.
-                .'<img src="{@faviconurl}" class="UrlLink-favicon" alt="" aria-hidden="true"/>'
+                .'<img src="{@faviconurl}" class="UrlLink-favicon" width="16" height="16" alt="" aria-hidden="true"/>'
             .'</xsl:if>'
-            .'<span class="UrlLink-discussion">#<xsl:value-of select="@discussionid"/></span>'
+            .'<span class="UrlLink-discussion">'
+                .'<xsl:choose>'
+                    .'<xsl:when test="string-length(@discussiontitle) > 0"><xsl:attribute name="title"><xsl:value-of select="@discussiontitle"/></xsl:attribute><xsl:value-of select="@discussiontitle"/></xsl:when>'
+                    .'<xsl:otherwise>#<xsl:value-of select="@discussionid"/></xsl:otherwise>'
+                .'</xsl:choose>'
+            .'</span>'
             .'<xsl:if test="@postnumber">'
-                .'<span class="UrlLink-post">'
+                .'<span class="UrlLink-post"><span class="UrlLink-postSeparator"> / </span>'
                     .'<i class="icon fas fa-comment UrlLink-postIcon" aria-hidden="true"></i>'
                     .'<xsl:value-of select="@postnumber"/>'
                 .'</span>'
@@ -337,6 +346,56 @@ class Formatter
     public function getJs(): string
     {
         return $this->getComponent('js');
+    }
+
+    protected function removeStoredDiscussionTitles(string $xml): string
+    {
+        return Utils::replaceAttributes($xml, 'URL', function (array $attributes) {
+            unset($attributes['discussiontitle']);
+
+            return $attributes;
+        });
+    }
+
+    /**
+     * Resolve titles per render: the formatter can outlive the viewing actor.
+     * Requestless renders, including email views, may only expose public titles.
+     */
+    protected function configureDiscussionTitles(string $xml, ?ServerRequestInterface $request): string
+    {
+        $ids = [];
+
+        Utils::replaceAttributes($xml, 'URL', function (array $attributes) use (&$ids) {
+            $url = $attributes['url'] ?? '';
+
+            if ($this->isInternalUrl($url) && ($discussion = $this->parseDiscussionUrl($url))) {
+                // PostgreSQL's serial discussion IDs are signed 32-bit integers.
+                if (filter_var($discussion['id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 2147483647]]) !== false) {
+                    $ids[] = $discussion['id'];
+                }
+            }
+
+            return $attributes;
+        });
+
+        if (! $ids) {
+            return $xml;
+        }
+
+        $actor = $request?->getAttribute('actorReference')?->getActor() ?? new Guest;
+        $titles = Discussion::whereVisibleTo($actor)->whereIn('id', array_unique($ids))->pluck('title', 'id');
+
+        return Utils::replaceAttributes($xml, 'URL', function (array $attributes) use ($titles) {
+            $url = $attributes['url'] ?? '';
+
+            if ($this->isInternalUrl($url) && ($discussion = $this->parseDiscussionUrl($url))) {
+                if (isset($titles[$discussion['id']])) {
+                    $attributes['discussiontitle'] ??= $titles[$discussion['id']];
+                }
+            }
+
+            return $attributes;
+        });
     }
 
     /**
@@ -430,19 +489,7 @@ class Formatter
     protected function getFaviconUrl(): ?string
     {
         if ($this->faviconUrl === false) {
-            $path = resolve(SettingsRepositoryInterface::class)->get('favicon_path');
-
-            // Resolved through the assets filesystem rather than assembled by
-            // hand, so a forum serving its uploads from a CDN gets the CDN
-            // address here too.
-            if ($path) {
-                /** @var Cloud $assets */
-                $assets = resolve(Factory::class)->disk('flarum-assets');
-
-                $this->faviconUrl = $assets->url($path);
-            } else {
-                $this->faviconUrl = null;
-            }
+            $this->faviconUrl = resolve(Branding::class)->faviconUrl();
         }
 
         return $this->faviconUrl;
@@ -532,6 +579,8 @@ class Formatter
             return '';
         }
 
-        return $this->getRenderer()->render($this->getParser()->parse($content));
+        $xml = $this->configureDiscussionTitles($this->removeStoredDiscussionTitles($this->getParser()->parse($content)), null);
+
+        return $this->getRenderer()->render($this->configureDefaultsOnLinks($xml));
     }
 }

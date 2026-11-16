@@ -9,6 +9,7 @@
 
 namespace Flarum\Install;
 
+use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Illuminate\Database\ConnectionInterface;
 
@@ -102,6 +103,7 @@ class Installation
         return new Prerequisite\Composite(
             new Prerequisite\PhpVersion('8.3.0'),
             new Prerequisite\PhpExtensions([
+                'curl',
                 'dom',
                 'fileinfo',
                 'gd',
@@ -165,7 +167,14 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\EnableBundledExtensions($this->db, $this->paths->vendor, $this->getAssetPath(), $this->enabledExtensions);
+            return new Steps\EnableBundledExtensions(
+                $this->db,
+                $this->paths->vendor,
+                $this->getAssetPath(),
+                $this->enabledExtensions,
+                $this->paths,
+                new Config(require $this->getConfigPath())
+            );
         });
 
         return $pipeline;

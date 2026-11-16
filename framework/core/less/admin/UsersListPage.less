@@ -6,8 +6,40 @@
   &-header:not(.AdminHeader) {
     margin-bottom: 16px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    column-gap: 8px;
+    gap: 12px 8px;
+  }
+
+  &-filters {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9em;
+
+    &-label {
+      color: var(--muted-color);
+    }
+  }
+
+  &-filter {
+    height: auto;
+    padding: 3px 10px;
+    border-radius: 20px;
+    line-height: 1.4;
+
+    code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    &-hint {
+      margin-inline-start: 4px;
+      color: var(--muted-color);
+    }
   }
 
   &-totalUsers {

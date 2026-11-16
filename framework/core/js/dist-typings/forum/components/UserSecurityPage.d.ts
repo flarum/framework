@@ -11,7 +11,9 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     content(): JSX.Element;
     /**
-     * Build an item list for the user's settings controls.
+     * Build an item list for the user's settings controls. Developer tokens
+     * (30), sessions (20) and logging out everywhere (10) come in that order,
+     * so an extension can place a section between them.
      */
     settingsItems(): ItemList<Mithril.Children>;
     /**

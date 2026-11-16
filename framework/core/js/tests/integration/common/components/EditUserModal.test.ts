@@ -51,6 +51,19 @@ function open() {
 }
 
 describe('EditUserModal', () => {
+  it('lets an administrator clear a bounce with the normal save action', () => {
+    app.session.user = app.store.getById<User>('users', '1')!;
+    member().pushAttributes({ emailBouncedAt: '2026-11-08T12:00:00Z' });
+    const { manager, modal, save } = open();
+    expect(modal.userIsAdmin(app.session.user)).toBe(true);
+    expect(member().emailBouncedAt()).toBeTruthy();
+    manager.should.have(1, 'input[name=clearEmailBounce]');
+    modal.clearEmailBounce(true);
+    manager.trigger('form', 'submit', {});
+    expect(save.mock.calls[0][0]).toHaveProperty('emailBouncedAt', null);
+    member().pushAttributes({ emailBouncedAt: null });
+  });
+
   it('does not send the username when it was not changed', () => {
     const { manager, save } = open();
 

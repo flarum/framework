@@ -12,6 +12,10 @@ namespace Flarum\Forum;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
+use Flarum\Forum\Branding\Branding;
+use Flarum\Forum\Branding\Listener\ForgetOutdatedSplashScreens;
+use Flarum\Forum\Branding\Listener\RedrawAppIcon;
+use Flarum\Forum\OpenSearch\OpenSearchDescription;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\ContentNegotiationFormatter;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
@@ -39,11 +43,11 @@ use Flarum\Settings\Event\Saving;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Laminas\Stratigility\MiddlewarePipe;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 
 class ForumServiceProvider extends AbstractServiceProvider
 {
@@ -159,6 +163,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->container->bind('flarum.frontend.forum', function (Container $container, array $parameters = []) {
             /** @var Frontend $frontend */
             $frontend = $container->make('flarum.frontend.factory')('forum');
+            $frontend->content($container->make(Content\HomeScreenApp::class), 165);
 
             if (isset($parameters['content'])) {
                 $frontend->content(is_callable($parameters['content']) ? $parameters['content'] : $container->make($parameters['content']), 100);
@@ -178,6 +183,18 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         // How an uploaded logo is stored. The header shows it at most 30px
         // tall, so storing it at 90px keeps it sharp on 3x screens.
+        $this->container->singleton('flarum.forum.manifest', function () {
+            return [];
+        });
+
+        $this->container->singleton('flarum.theme.images', function () {
+            return [];
+        });
+
+        $this->container->singleton('flarum.forum.service_worker', function () {
+            return [];
+        });
+
         $this->container->singleton('flarum.forum.logo', function () {
             return [
                 'height' => 90,
@@ -202,13 +219,32 @@ class ForumServiceProvider extends AbstractServiceProvider
         $view->composer('flarum.forum::layouts.basic', function (View $layout) use ($container) {
             /** @var SettingsRepositoryInterface $settings */
             $settings = $container->make(SettingsRepositoryInterface::class);
-            $faviconPath = $settings->get('favicon_path');
-
             $layout->with([
                 'colorScheme' => $settings->get('color_scheme') ?? 'auto',
                 'darkBodyBg' => FrontendServiceProvider::computeDarkBodyBg($settings->get('theme_secondary_color') ?? '#536F90'),
-                'faviconUrl' => $faviconPath ? $container->make(FilesystemFactory::class)->disk('flarum-assets')->url($faviconPath) : null,
+                'faviconUrl' => $container->make(Branding::class)->faviconUrl(),
+                'faviconIcoUrl' => $container->make(Branding::class)->faviconIcoUrl(),
+                'faviconSvgUrl' => $container->make(Branding::class)->faviconSvgUrl(),
+                'appleTouchIconUrl' => $container->make(Branding::class)->appIconUrls()['apple-touch-icon.png'] ?? null,
             ]);
+        });
+
+        $view->composer('flarum.forum::error.not_found', function (View $page) use ($container) {
+            $canSearch = $page->getData()['canSearch'] ?? false;
+            $discussionsUrl = $searchUrl = null;
+
+            if ($canSearch) {
+                try {
+                    $discussionsUrl = $container->make(OpenSearchDescription::class)->searchPage();
+                    $searchUrl = $container->make(UrlGenerator::class)->to('forum')->route('opensearch.search');
+                } catch (Throwable) {
+                    // Recovery links must not prevent the error page from rendering.
+                    $canSearch = false;
+                    $discussionsUrl = $searchUrl = null;
+                }
+            }
+
+            $page->with(compact('canSearch', 'discussionsUrl', 'searchUrl'));
         });
 
         $events->listen(
@@ -237,6 +273,9 @@ class ForumServiceProvider extends AbstractServiceProvider
                 $validator->whenSettingsSaved($event);
             }
         );
+
+        $events->listen(Saved::class, RedrawAppIcon::class);
+        $events->listen(Saved::class, ForgetOutdatedSplashScreens::class);
 
         $events->listen(
             Saving::class,

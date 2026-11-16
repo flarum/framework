@@ -123,6 +123,15 @@ class TestCaseTest extends TestCase
     }
 
     #[Test]
+    public function extensions_booted_in_dependency_order()
+    {
+        $this->extension('flarum-mentions', 'flarum-tags');
+
+        $enabled = $this->app()->getContainer()->make('flarum.extensions')->getEnabledExtensions();
+        $this->assertEquals(['flarum-tags', 'flarum-mentions'], array_keys($enabled));
+    }
+
+    #[Test]
     public function current_extension_locales_applied_if_specified()
     {
         $this->extension('flarum-testing-tests');

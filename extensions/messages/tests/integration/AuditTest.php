@@ -44,7 +44,7 @@ class AuditTest extends TestCase
             // alice and carol together.
             Dialog::class => [
                 ['id' => 102, 'type' => 'direct'],
-                ['id' => 103, 'type' => 'direct'],
+                ['id' => 103, 'type' => 'group'],
             ],
             DialogMessage::class => [
                 ['id' => 102, 'dialog_id' => 102, 'user_id' => 3, 'content' => 'Hi', 'number' => 1, 'created_at' => Carbon::now()->subHour()],
@@ -127,6 +127,18 @@ class AuditTest extends TestCase
     }
 
     #[Test]
+    public function starting_a_group_is_logged_once_for_each_recipient(): void
+    {
+        $body = $this->message(['attributes' => ['content' => 'Hello both', 'users' => [['id' => 4], ['id' => 5]]]]);
+        $dialogId = (int) $body['data']['relationships']['dialog']['data']['id'];
+
+        $this->assertEqualsCanonicalizing([
+            ['dialog_id' => $dialogId, 'user_id' => 4],
+            ['dialog_id' => $dialogId, 'user_id' => 5],
+        ], $this->payloads('dialog.started'));
+    }
+
+    #[Test]
     public function nothing_of_what_was_written_is_logged(): void
     {
         $this->reply('102');
@@ -135,5 +147,18 @@ class AuditTest extends TestCase
             // Key order doesn't survive the JSON column, so only the set is compared.
             $this->assertEqualsCanonicalizing(['dialog_id', 'user_id'], array_keys($payload));
         }
+    }
+
+    #[Test]
+    public function group_recipients_are_audited_as_groups_without_expanding_their_members(): void
+    {
+        $this->setting('flarum-messages.recipient_groups', '[4]');
+        $this->prepareDatabase(['group_user' => [['user_id' => 3, 'group_id' => 4], ['user_id' => 4, 'group_id' => 4]]]);
+        $body = $this->message(['attributes' => ['content' => 'Private team content', 'groups' => [['id' => 4]], 'users' => [['id' => 3]]]]);
+        $id = (int) $body['data']['relationships']['dialog']['data']['id'];
+        $this->assertEqualsCanonicalizing([
+            ['dialog_id' => $id, 'user_id' => 3],
+        ], $this->payloads('dialog.started'));
+        $this->assertEqualsCanonicalizing([['dialog_id' => $id, 'group_id' => 4]], $this->payloads('dialog.group_started'));
     }
 }

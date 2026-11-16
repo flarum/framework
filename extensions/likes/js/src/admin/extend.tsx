@@ -14,8 +14,18 @@ export default [
       }),
       'reply'
     )
+    .section(
+      () => ({
+        id: 'liking',
+        icon: 'fas fa-thumbs-up',
+        label: app.translator.trans('flarum-likes.admin.sections.liking.label'),
+        description: app.translator.trans('flarum-likes.admin.sections.liking.description'),
+      }),
+      10
+    )
     .setting(() => ({
       setting: 'flarum-likes.like_own_post',
+      section: 'liking',
       type: 'bool',
       label: app.translator.trans('flarum-likes.admin.settings.like_own_posts_label'),
       help: app.translator.trans('flarum-likes.admin.settings.like_own_posts_help'),

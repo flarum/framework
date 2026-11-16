@@ -13,7 +13,7 @@ use Flarum\Api\Context;
 use Flarum\Api\Resource\UserResource;
 use Flarum\Api\Schema;
 use Flarum\Messages\Access\MessagingPermission;
-use Flarum\Messages\UserDialogState;
+use Flarum\Messages\Dialog;
 use Flarum\User\User;
 
 class UserResourceFields
@@ -26,6 +26,7 @@ class UserResourceFields
             // would tell them who is suspended, and cost a permissions lookup
             // for every user in every response.
             Schema\Boolean::make('canSendAnyMessage')
+                ->description('Whether the user can send private messages.')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->is($user) || $context->getActor()->can('sendAnyMessage'))
                 ->get(fn (User $user, Context $context) => $user->can('sendAnyMessage')),
             // Whether the actor may write to this member at all; another
@@ -33,6 +34,7 @@ class UserResourceFields
             // accounts). Only on user lists and profiles: the recipient picker
             // and the profile's button are what need it.
             Schema\Boolean::make('canMessage')
+                ->description('Whether you can send this user a private message.')
                 ->visible(fn (User $user, Context $context) => $context->collection instanceof UserResource && $context->getActor()->can('sendAnyMessage'))
                 ->get(fn (User $user, Context $context) => $context->getActor()->can('message', $user)),
             Schema\Boolean::make('canMessageUsersWithoutPermission')
@@ -40,17 +42,13 @@ class UserResourceFields
                 ->get(fn (User $user) => MessagingPermission::canMessageUsersWithoutPermission($user)),
             // How many of the member's conversations have something unread: the
             // badge on the header's messages icon. Conversations, not messages.
-            // One query over the membership table: membership is what
-            // visibility means, so there is nothing to add by scoping dialogs
-            // separately.
+            // Uses current access, including Group members without read state.
             Schema\Integer::make('unreadDialogCount')
+                ->description('Number of your dialogs with unread messages. Only on your own user.')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->is($user))
                 ->get(function (object $model, Context $context) {
-                    return UserDialogState::query()
-                        ->join('dialogs', 'dialogs.id', '=', 'dialog_user.dialog_id')
-                        ->where('dialog_user.user_id', $context->getActor()->id)
-                        ->whereColumn('dialog_user.last_read_message_id', '<', 'dialogs.last_message_id')
-                        ->count();
+                    return Dialog::whereVisibleTo($context->getActor())
+                        ->unread($context->getActor())->count();
                 }),
         ];
     }

@@ -11,14 +11,23 @@
 @endphp
 
 <!DOCTYPE html>
-<html>
+<html{!! isset($actorClass) ? ' class="'.e($actorClass).'"' : '' !!}>
   <head>
     <meta charset="utf-8">
     <title>@hasSection('title') @yield('title') - @endif{{ $settings->get('forum_title') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    @if ($faviconUrl)
-      <link rel="shortcut icon" href="{{ $faviconUrl }}">
+    @if ($faviconIcoUrl)
+      <link rel="icon" href="{{ $faviconIcoUrl }}" sizes="32x32">
+    @elseif ($faviconUrl)
+      <link rel="icon" href="{{ $faviconUrl }}">
     @endif
+    @if ($faviconSvgUrl)
+      <link rel="icon" href="{{ $faviconSvgUrl }}" type="image/svg+xml">
+    @endif
+    @if ($appleTouchIconUrl)
+      <link rel="apple-touch-icon" href="{{ $appleTouchIconUrl }}">
+    @endif
+    @yield('head')
 
     <style>
       :root {
@@ -124,6 +133,7 @@
         margin: 0;
         padding: 0;
       }
+      @yield('styles')
     </style>
   </head>
 

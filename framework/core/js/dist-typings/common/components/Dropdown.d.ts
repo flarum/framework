@@ -47,6 +47,19 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
      */
     getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any>;
     /**
+     * The text shown in the toggle button, as plain text.
+     */
+    getVisibleLabel(children: Mithril.ChildArray): string;
+    /**
+     * The accessible name of the toggle button.
+     *
+     * It starts with the visible label, so that the name contains the text the
+     * button displays (WCAG 2.5.3, Label in Name), followed by the description of
+     * what the button does. Speech-input users can then activate the button by
+     * saying what they see on it.
+     */
+    getAccessibleLabel(children: Mithril.ChildArray): string | undefined;
+    /**
      * Get the template for the button's content.
      */
     getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray;

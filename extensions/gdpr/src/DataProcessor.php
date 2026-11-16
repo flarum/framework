@@ -29,6 +29,7 @@ final class DataProcessor
         Data\Posts::class => null,
         Data\Tokens::class => null,
         Data\Discussions::class => null,
+        Data\EmailBounceEvents::class => null,
         Data\User::class => null, // Ought to be last at all times.
     ];
 

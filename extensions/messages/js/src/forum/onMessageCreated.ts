@@ -26,8 +26,9 @@ export default function onMessageCreated(data: any): void {
   const show = (dialog: Dialog) => {
     dialog.pushData({ relationships: { lastMessage: { data: { type: 'dialog-messages', id: message.id()! } } } } as any);
 
-    app.dialogs.moveToTop(dialog);
-    if (!fromSelf) app.dropdownDialogs.moveToTop(dialog, DROPDOWN_LIMIT);
+    app.dialogs.receive(dialog);
+    // A notice, such as someone leaving, is nothing to read.
+    if (!fromSelf && message.isComment()) app.dropdownDialogs.receive(dialog, DROPDOWN_LIMIT);
 
     m.redraw();
   };
@@ -41,7 +42,7 @@ export default function onMessageCreated(data: any): void {
     ?.unreadCount;
   const becameUnread = typeof unreadAfter === 'number' ? unreadAfter === 1 : !wasUnread;
 
-  if (!fromSelf && becameUnread) {
+  if (!fromSelf && message.isComment() && becameUnread) {
     app.session.user!.pushAttributes({ unreadDialogCount: (app.session.user!.attribute<number>('unreadDialogCount') ?? 0) + 1 });
   }
 

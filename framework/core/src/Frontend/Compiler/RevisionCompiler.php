@@ -90,7 +90,7 @@ class RevisionCompiler implements CompilerInterface
         // manifest) on every commit.
         if ($force || $oldRevision !== $newRevision || ($output !== null && ! $this->committedFileMatches($output))) {
             if ($output !== null) {
-                $this->assetsDir->put($this->filename, $output);
+                $this->assetsDir->put($this->outputFilename($newRevision), $output);
 
                 $this->writePendingSidecars();
             }
@@ -115,6 +115,11 @@ class RevisionCompiler implements CompilerInterface
         }
     }
 
+    protected function outputFilename(string $revision): string
+    {
+        return $this->filename;
+    }
+
     protected function hashOutput(string $content): string
     {
         return hash('crc32b', $content);
@@ -128,11 +133,13 @@ class RevisionCompiler implements CompilerInterface
      */
     protected function committedFileMatches(string $output): bool
     {
-        if (! $this->assetsDir->exists($this->filename)) {
+        $filename = $this->outputFilename($this->hashOutput($output));
+
+        if (! $this->assetsDir->exists($filename)) {
             return false;
         }
 
-        $committed = $this->assetsDir->get($this->filename);
+        $committed = $this->assetsDir->get($filename);
 
         return $committed !== null && $this->hashOutput($committed) === $this->hashOutput($output);
     }
@@ -173,11 +180,11 @@ class RevisionCompiler implements CompilerInterface
             return null;
         }
 
-        $url = $this->assetsDir->url($this->filename);
+        $url = $this->assetsDir->url($this->outputFilename($revision));
 
         // Append revision as GET param to signify that there's been
         // a change to the file and it should be refreshed.
-        return "$url?v=$revision";
+        return $this->outputFilename($revision) === $this->filename ? "$url?v=$revision" : $url;
     }
 
     /**
@@ -201,8 +208,8 @@ class RevisionCompiler implements CompilerInterface
 
     public function flush(): void
     {
-        if ($this->versioner->getRevision($this->filename) !== null) {
-            $this->delete($this->filename);
+        if (($revision = $this->versioner->getRevision($this->filename)) !== null) {
+            $this->delete($this->outputFilename($revision));
 
             $this->versioner->putRevision($this->filename, null);
         }

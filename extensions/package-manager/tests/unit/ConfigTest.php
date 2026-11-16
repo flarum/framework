@@ -308,7 +308,8 @@ class ConfigTest extends TestCase
     public function test_a_password_containing_an_at_sign_is_redacted_whole(): void
     {
         $this->assertSame('https://***@repo.example.test/x', Repositories::redact('https://user:p@ss@repo.example.test/x'));
-        $this->assertSame('https://repo.example.test/x?k=a@b', Repositories::redact('https://repo.example.test/x?k=a@b'));
+        // An @ in the query is not a user part; the value is masked as every query value is.
+        $this->assertSame('https://repo.example.test/x?k=***', Repositories::redact('https://repo.example.test/x?k=a@b'));
         $this->assertSame('https://repo.example.test#a@b', Repositories::redact('https://repo.example.test#a@b'));
         $this->assertSame('ssh://git@github.com/a/b.git', Repositories::redact('ssh://git@github.com/a/b.git'));
         $this->assertSame('git@github.com:a/b.git', Repositories::redact('git@github.com:a/b.git'));

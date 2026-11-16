@@ -20,7 +20,8 @@ flarum-gdpr:
             user_table_data:
                 title: User Table Data
                 help_text: |
-                    On the most part, any columns added to the <code>user</code> table will be handled automatically, both for exporting data and for erasure.
+                    Columns added to the <code>user</code> table are exported automatically, and nullable columns are cleared automatically when a user is anonymized.
+                    Non-nullable columns keep their value when a user is anonymized, so an extension that stores personal data in one must anonymize it with its own data type.
                     However, there are some special cases, which are listed below.
                 column: Column
                 type: Type
@@ -40,6 +41,16 @@ flarum-gdpr:
             process_erasure: Process erasure requests
             process_export_for_others: Request and receive data exports for other users
             see_anonymized_user_badges: See anonymized user badges
+        sections:
+            anonymization:
+                description: How anonymized members are named once their data has been erased.
+                label: Anonymization
+            erasure:
+                description: Which erasure methods members can request and which one is used by default.
+                label: Erasure requests
+            overview:
+                description: Which data is exported and erased, including data registered by other extensions.
+                label: Data overview
         settings:
             allow_anonymization: Allow anonymization for erasure requests
             allow_anonymization_help: The default option, and recommended for most communities. Under this mode, posts/comments will be preserved as much as possible as allowed by GDPR, but any user identifiable information is removed.
@@ -69,6 +80,10 @@ flarum-gdpr:
                 export_description: Retrieves the user's avatar from the filesystem and includes it in the export.
             discussions:
                 export_description: Exports all discussions the user has started. Data restricted to title and creation date.
+            emailbounceevents:
+                anonymize_description: Removes the email address from the user's email bounce history, keeping anonymous records for statistics.
+                delete_description: Deletes the user's email bounce history.
+                export_description: Exports the user's email bounce and spam-complaint history.
             forum:
                 export_description: Exports the forum title, url, username, email and the current date.
             default_user_action: "No action, handled by default user table data handling."
@@ -81,7 +96,7 @@ flarum-gdpr:
                 delete_description: Deletes all tokens the user has created.
                 export_description: Exports all tokens the user has created. Data restricted to creation date and token type.
             user:
-                anonymize_description: Sets all columns on the user table to null. Non-nullable columns are set to their default values or special values. Password is changed, preferences set to default and all groups are removed.
+                anonymize_description: Sets all nullable columns on the user table to null. Username and email are replaced, password is changed, preferences set to default, join date and avatar flags reset and all groups are removed. Other non-nullable columns, such as post counts and columns added by extensions, keep their value.
                 delete_description: Deletes the user from the database.
                 export_description: Exports data from the user table. All columns except id, password.
         request_data:

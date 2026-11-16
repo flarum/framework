@@ -113,7 +113,9 @@ export default class GeneralSearchSource implements GlobalSearchSource {
         const group = app.generalIndex.getGroup(extensionId);
 
         if (this.itemHasQuery(label, query) || this.itemHasQuery(help, query)) {
-          const id = extensionId + '-' + ('setting' in setting ? setting : 'id' in setting ? setting.id : '');
+          const id = extensionId + '-' + ('setting' in setting ? setting.setting : 'id' in setting ? setting.id : '');
+          const location = 'setting' in setting || 'section' in setting ? app.registry.getSettingLocation(extensionId, setting) : {};
+          const locationTree = [location.tab?.label, location.section?.label].filter(Boolean).map(extractText);
 
           results.push(
             new GeneralSearchResult(
@@ -122,8 +124,10 @@ export default class GeneralSearchSource implements GlobalSearchSource {
                 extensions[extensionId]?.extra['flarum-extension'].title ||
                 app.translator.trans('core.admin.' + corePage + '.title', {}, true),
               group?.icon || extensions[extensionId]?.icon || { name: 'fas fa-cog' },
-              'tree' in setting && setting.tree ? [...setting.tree.map(extractText), label] : [label],
-              group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId })),
+              'tree' in setting && setting.tree ? [...setting.tree.map(extractText), label] : [...locationTree, label],
+              ('link' in setting && setting.link) ||
+                group?.link ||
+                (corePage ? app.route(corePage) : app.route('extension', { id: extensionId, tab: location.tab?.id })),
               help
             )
           );
@@ -157,7 +161,9 @@ export default class GeneralSearchSource implements GlobalSearchSource {
                   extractText(permissionItems.get(permissionType)?.label) || permissionType,
                   label,
                 ],
-                group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId }))
+                ('link' in permission && permission.link) ||
+                  group?.link ||
+                  (corePage ? app.route(corePage) : app.route('extension', { id: extensionId, tab: 'permissions' }))
               )
             );
           }
@@ -189,13 +195,13 @@ export default class GeneralSearchSource implements GlobalSearchSource {
               const highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
 
               const tree: any[] = result.tree.map((part) => {
-                return highlight(part, highlightRegExp, undefined, true);
+                return highlight(part, highlightRegExp);
               });
 
               let help: any = result.help;
 
               if (help) {
-                help = highlight(help, highlightRegExp, 100, true);
+                help = highlight(help, highlightRegExp, 100);
               }
 
               return (

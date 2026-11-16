@@ -48,7 +48,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
                 $container['flarum.debug']
             );
 
-            $translator->setFallbackLocales(['en']);
+            $translator->setDefaultFallbackLocale($this->getDefaultLocale($container));
             $translator->addLoader('prefixed_yaml', new PrefixedYamlFileLoader());
 
             // Symfony would otherwise treat a compiled catalogue as current for
@@ -56,7 +56,8 @@ class LocaleServiceProvider extends AbstractServiceProvider
             // Resolved lazily: the manager is built from this translator, and
             // the files are registered on it afterwards.
             $translator->setConfigCacheFactory(new CatalogueCacheFactory(
-                fn () => $container->make(LocaleManager::class)->revision()
+                fn () => $container->make(LocaleManager::class)->revision(),
+                $container['flarum.debug']
             ));
 
             return $translator;

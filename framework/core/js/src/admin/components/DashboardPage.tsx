@@ -2,6 +2,7 @@ import app from '../../admin/app';
 import StatusWidget from './StatusWidget';
 import ExtensionsWidget from './ExtensionsWidget';
 import AnnouncementsWidget from './AnnouncementsWidget';
+import EmailBounceWidget from './EmailBounceWidget';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { Children } from 'mithril';
@@ -9,6 +10,9 @@ import AlertWidget from './AlertWidget';
 import QueueWidget from './QueueWidget';
 import Link from '../../common/components/Link';
 import Icon from '../../common/components/Icon';
+import Button from '../../common/components/Button';
+import { streamingCheck } from '../utils/streamingCheck';
+import type Mithril from 'mithril';
 
 export default class DashboardPage extends AdminPage {
   headerInfo() {
@@ -18,6 +22,14 @@ export default class DashboardPage extends AdminPage {
       title: app.translator.trans('core.admin.dashboard.title'),
       description: app.translator.trans('core.admin.dashboard.description'),
     };
+  }
+
+  oncreate(vnode: Mithril.VnodeDOM<any, this>) {
+    super.oncreate(vnode);
+
+    // After the dashboard has drawn, and once per browser session: a request
+    // the server spreads over a second, to see whether it arrives spread too.
+    streamingCheck.runOnce();
   }
 
   content() {
@@ -104,6 +116,29 @@ export default class DashboardPage extends AdminPage {
       );
     }
 
+    if (streamingCheck.verdict === 'buffered') {
+      items.add(
+        'streaming-warning',
+        <AlertWidget
+          className="StreamingWarningWidget"
+          alert={{
+            type: 'warning',
+            dismissible: false,
+            title: app.translator.trans('core.admin.streaming-warning.label'),
+            icon: 'fas fa-hourglass-half',
+            controls: [
+              <Button className="Button Button--link" loading={streamingCheck.status === 'checking'} onclick={() => streamingCheck.run()}>
+                {app.translator.trans('core.admin.streaming-warning.check_again_button')}
+              </Button>,
+            ],
+          }}
+        >
+          {app.translator.trans('core.admin.streaming-warning.detail')}
+        </AlertWidget>,
+        95
+      );
+    }
+
     if (app.data.dbDriverMismatch) {
       items.add(
         'db-driver-mismatch-warning',
@@ -167,6 +202,11 @@ export default class DashboardPage extends AdminPage {
 
     if (!app.data.announcementsDisabled) {
       items.add('announcements', <AnnouncementsWidget />, 70);
+    }
+
+    // Only when the active mail driver can actually report bounces.
+    if (app.forum.attribute('mailDriverSupportsBounceReporting')) {
+      items.add('emailBounces', <EmailBounceWidget />, 60);
     }
 
     items.add('extensions', <ExtensionsWidget />, 10);

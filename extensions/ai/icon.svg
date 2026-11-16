@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="75%">
+      <stop offset="0" stop-color="#2a1b5e"/>
+      <stop offset="1" stop-color="#0b0820"/>
+    </radialGradient>
+    <radialGradient id="halo">
+      <stop offset=".5" stop-color="#a78bfa" stop-opacity=".9"/>
+      <stop offset=".66" stop-color="#7c3aed" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#7c3aed" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="specular" cx="38%" cy="30%" r="42%">
+      <stop offset="0" stop-color="#fff" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="shade">
+      <stop offset=".72" stop-color="#0b0820" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0b0820" stop-opacity=".6"/>
+    </radialGradient>
+    <clipPath id="orb">
+      <circle cx="50" cy="50" r="31"/>
+    </clipPath>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </defs>
+  <style>
+    g, circle { transform-origin: 50px 50px; }
+    .halo { animation: breathe 4s ease-in-out infinite; }
+    .light-1 { animation: spin 7s linear infinite; }
+    .light-2 { animation: spin 11s linear infinite reverse; }
+    .light-3 { animation: spin 5s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes breathe {
+      0%, 100% { transform: scale(.9); opacity: .7; }
+      50% { transform: scale(1.07); opacity: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+    }
+  </style>
+  <rect width="100" height="100" fill="url(#bg)"/>
+  <circle class="halo" cx="50" cy="50" r="44" fill="url(#halo)"/>
+  <g clip-path="url(#orb)">
+    <rect width="100" height="100" fill="#1e1048"/>
+    <g filter="url(#blur)">
+      <g class="light-1"><circle cx="36" cy="40" r="17" fill="#8b5cf6"/></g>
+      <g class="light-2"><circle cx="65" cy="57" r="16" fill="#22d3ee"/></g>
+      <g class="light-3"><circle cx="50" cy="72" r="13" fill="#f472b6"/></g>
+    </g>
+    <circle cx="50" cy="50" r="31" fill="url(#shade)"/>
+    <circle cx="50" cy="50" r="31" fill="url(#specular)"/>
+  </g>
+  <circle cx="50" cy="50" r="31" fill="none" stroke="#ede9fe" stroke-opacity=".55"/>
+</svg>

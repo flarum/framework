@@ -88,6 +88,21 @@ class JournalTest extends TestCase
         $this->assertTrue($journal->isComplete());
     }
 
+    public function test_an_entry_written_after_a_torn_line_is_not_lost_with_it(): void
+    {
+        // flarum/framework#5357: the next begin() was appended straight after the
+        // fragment, shared its line, and was discarded with it. Its change still
+        // happened, so a rollback skipped it.
+        $journal = new Journal(EnglishTranslator::make(), $this->path);
+        $journal->complete($journal->begin(['change' => ['package' => 'a/first']]));
+        file_put_contents($this->path, '{"seq":2,"state":"begun","change":{"pack', FILE_APPEND);
+
+        $seq = $journal->begin(['change' => ['package' => 'a/second']]);
+
+        $this->assertSame(['a/first', 'a/second'], array_map(fn ($e) => $e['change']['package'], $journal->entries()));
+        $this->assertSame([$seq], array_map(fn ($e) => $e['seq'], $journal->interrupted()));
+    }
+
     public function test_a_blank_or_junk_line_does_not_derail_the_record(): void
     {
         $journal = new Journal(EnglishTranslator::make(), $this->path);

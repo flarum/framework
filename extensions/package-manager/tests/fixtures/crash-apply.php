@@ -28,6 +28,9 @@ use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
 
 [$script, $vendor, $staging, $trash, $journalPath, $changesJson, $killAt] = $argv;
 $killOnPackage = $argv[7] ?? '';
+// "steps": one applyOne() per change, as the step driver calls it, which is
+// also how a resumed run reaches the applier again.
+$mode = $argv[8] ?? 'apply';
 
 $changes = array_map(
     fn (array $row) => Change::fromArray($row),
@@ -45,6 +48,12 @@ $applier = new Applier(EnglishTranslator::make(), $vendor, $staging, $trash, $jo
     }
 });
 
-$applier->apply($changes);
+if ($mode === 'steps') {
+    foreach ($changes as $change) {
+        $applier->applyOne($change);
+    }
+} else {
+    $applier->apply($changes);
+}
 
 echo "completed\n";

@@ -16,9 +16,12 @@ use Flarum\Formatter\Formattable;
 use Flarum\Formatter\HasFormattedContent;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
+use Flarum\Messages\Notification\MessageLikedBlueprint;
+use Flarum\Notification\Notification;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
+use Illuminate\Contracts\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Expression;
@@ -27,6 +30,7 @@ use Illuminate\Database\Query\Expression;
  * @property int $id
  * @property int $dialog_id
  * @property int|null $user_id
+ * @property string $type
  * @property string $content
  * @property string|null $ip_address
  * @property int|Expression $number
@@ -38,6 +42,7 @@ use Illuminate\Database\Query\Expression;
  * @property-read Collection<int, Post> $mentionsPosts
  * @property-read Collection<int, Group> $mentionsGroups
  * @property-read Collection<int, Tag> $mentionsTags
+ * @property-read Collection<int, User> $likes
  */
 class DialogMessage extends AbstractModel implements Formattable
 {
@@ -46,6 +51,15 @@ class DialogMessage extends AbstractModel implements Formattable
     use HasFormattedContent;
 
     protected $table = 'dialog_messages';
+
+    /** Something a member wrote. */
+    public const COMMENT = 'comment';
+
+    /** A notice: a member has left the group. */
+    public const USER_LEFT = 'userLeft';
+
+    /** A notice: a member has named the group, or taken its name away. */
+    public const RENAMED = 'renamed';
 
     public $timestamps = true;
 
@@ -73,6 +87,10 @@ class DialogMessage extends AbstractModel implements Formattable
         });
 
         static::deleted(function (self $message) {
+            if (self::$deletesNotifications) {
+                self::deleteNotificationsAbout([$message->id]);
+            }
+
             $dialog = $message->dialog;
 
             if (! $dialog) {
@@ -110,6 +128,57 @@ class DialogMessage extends AbstractModel implements Formattable
         });
     }
 
+    /** Off while a caller deleting many messages deletes their notifications itself. */
+    protected static bool $deletesNotifications = true;
+
+    /**
+     * Run a callback that deletes messages whose notifications are already gone,
+     * without each deletion looking for them again.
+     */
+    public static function withoutDeletingNotifications(callable $callback): void
+    {
+        $previous = self::$deletesNotifications;
+        self::$deletesNotifications = false;
+
+        try {
+            $callback();
+        } finally {
+            self::$deletesNotifications = $previous;
+        }
+    }
+
+    /**
+     * Delete the notifications about these messages. By type name as well as
+     * by the registered types: flarum/likes may be disabled now, leaving its
+     * alerts unregistered but still there.
+     *
+     * @param int[]|\Illuminate\Contracts\Database\Query\Builder $ids
+     */
+    public static function deleteNotificationsAbout(array|QueryBuilder $ids): void
+    {
+        $types = array_keys(array_filter(Notification::getSubjectModels(), fn (string $model) => is_a(self::class, $model, true)));
+        $types[] = MessageLikedBlueprint::getType();
+
+        Notification::query()
+            ->whereIn('type', array_unique($types))
+            ->whereIn('subject_id', $ids)
+            ->delete();
+    }
+
+    /** Written by a member, rather than a notice of something that happened. */
+    public function isComment(): bool
+    {
+        return ($this->type ?? self::COMMENT) === self::COMMENT;
+    }
+
+    /**
+     * What a notice says happened, as it was posted. Empty for a comment.
+     */
+    public function eventData(): array
+    {
+        return $this->isComment() ? [] : (array) json_decode($this->parsed_content ?? '{}', true);
+    }
+
     public function dialog(): BelongsTo
     {
         return $this->belongsTo(Dialog::class);
@@ -138,5 +207,11 @@ class DialogMessage extends AbstractModel implements Formattable
     public function mentionsTags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'dialog_message_mentions_tag', 'dialog_message_id', 'mentions_tag_id');
+    }
+
+    /** Who liked the message, with flarum/likes enabled. */
+    public function likes(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'dialog_message_likes', 'dialog_message_id', 'user_id');
     }
 }
