@@ -16,6 +16,14 @@ return [
             $table->unsignedInteger('like_count')->default(0);
         });
 
+        $schema->table('post_likes', function (Blueprint $table) {
+            $table->boolean('is_counted')->default(false);
+        });
+        $connection = $schema->getConnection();
+        $connection->table('post_likes')->whereIn('post_id', $connection->table('posts')
+            ->where('type', 'comment')->where('is_private', false)->select('id'))
+            ->update(['is_counted' => true]);
+
         // The count is refreshed for one user at a time, by user_id. The primary
         // key leads with post_id, so it can't serve that lookup.
         //
@@ -27,15 +35,15 @@ return [
             });
         }
 
-        // Backfill: the same count Flarum\Likes\Listener\UpdateUserLikeCount
-        // keeps up to date from now on. One UPDATE per range of user ids, with
-        // the count as a subquery.
+        // Backfill comment likes that contribute to the profile tab. One
+        // UPDATE per range of user ids, with the count as a subquery.
         $connection = $schema->getConnection();
 
         $likeCount = $connection->table('post_likes')
             ->join('posts', 'posts.id', '=', 'post_likes.post_id')
             ->whereColumn('post_likes.user_id', 'users.id')
             ->where('posts.is_private', false)
+            ->where('posts.type', 'comment')
             ->selectRaw('COUNT(*)');
 
         $max = (int) $connection->table('users')->max('id');
@@ -48,6 +56,9 @@ return [
     },
 
     'down' => function (Builder $schema) {
+        $schema->table('post_likes', function (Blueprint $table) {
+            $table->dropColumn('is_counted');
+        });
         if (! in_array($schema->getConnection()->getDriverName(), ['mysql', 'mariadb'], true)) {
             $schema->table('post_likes', function (Blueprint $table) {
                 $table->dropIndex(['user_id']);

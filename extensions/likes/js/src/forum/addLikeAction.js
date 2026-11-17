@@ -23,7 +23,7 @@ export default function () {
 
           if (isLiked) haptic('success');
 
-          post.save({ isLiked });
+          post.save({ isLiked }).then(() => app.store.find('users', app.session.user.id()));
 
           // We've saved the fact that we do or don't like the post, but in order
           // to provide instantaneous feedback to the user, we'll need to add or

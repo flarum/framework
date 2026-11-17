@@ -97,15 +97,17 @@ class UserLikeCountTest extends TestCase
     }
 
     #[Test]
-    public function deleting_a_post_recounts_every_liker_and_leaves_other_likes_alone()
+    public function deleting_a_post_updates_every_liker_and_leaves_other_likes_alone()
     {
         $this->database()->table('post_likes')->insert([
-            ['post_id' => 1, 'user_id' => 2],
-            ['post_id' => 2, 'user_id' => 2],
-            ['post_id' => 2, 'user_id' => 4],
-            ['post_id' => 1, 'user_id' => 3],
+            ['post_id' => 1, 'user_id' => 2, 'is_counted' => true],
+            ['post_id' => 2, 'user_id' => 2, 'is_counted' => true],
+            ['post_id' => 2, 'user_id' => 4, 'is_counted' => true],
+            ['post_id' => 1, 'user_id' => 3, 'is_counted' => true],
         ]);
-        $this->database()->table('users')->whereIn('id', [2, 3, 4])->update(['like_count' => 99]);
+        foreach ([2 => 2, 3 => 1, 4 => 1] as $id => $count) {
+            $this->database()->table('users')->where('id', $id)->update(['like_count' => $count]);
+        }
 
         $response = $this->send(
             $this->request('DELETE', '/api/posts/2', ['authenticatedAs' => 1])
@@ -115,37 +117,100 @@ class UserLikeCountTest extends TestCase
         $this->assertSame(1, $this->likeCountOf(2));
         $this->assertSame(0, $this->likeCountOf(4));
         // Not a liker of the deleted post, so not recounted.
-        $this->assertSame(99, $this->likeCountOf(3));
+        $this->assertSame(1, $this->likeCountOf(3));
     }
 
     #[Test]
-    public function the_migration_backfills_the_counts_and_rolls_back()
+    public function repeated_likes_and_unlikes_are_idempotent()
     {
-        $this->database()->table('post_likes')->insert([
-            ['post_id' => 1, 'user_id' => 2],
-            ['post_id' => 2, 'user_id' => 2],
-            ['post_id' => 3, 'user_id' => 2],
-            ['post_id' => 2, 'user_id' => 3],
-        ]);
+        $this->like(1, 2);
+        $this->like(1, 2);
+        $this->assertSame(1, $this->likeCountOf(2));
+        $this->like(1, 2, false);
+        $this->like(1, 2, false);
+        $this->assertSame(0, $this->likeCountOf(2));
+    }
 
-        $migration = require __DIR__.'/../../../migrations/2026_10_13_000000_add_like_count_to_users_table.php';
-        $schema = $this->database()->getSchemaBuilder();
+    #[Test]
+    public function non_comment_likes_do_not_contribute()
+    {
+        $this->database()->table('posts')->where('id', 2)->update(['type' => 'discussionRenamed', 'content' => '["old","new"]']);
+        $this->like(2, 2);
+        $this->assertSame(0, $this->likeCountOf(2));
+    }
 
+    #[Test]
+    public function approving_a_liked_post_updates_the_count()
+    {
+        $this->extension('flarum-approval', 'flarum-flags');
+        $this->database()->table('posts')->where('id', 3)->update(['is_approved' => false]);
+        $this->like(3, 1);
+        $this->assertSame(0, $this->likeCountOf(1));
+        $response = $this->send($this->request('PATCH', '/api/posts/3', [
+            'authenticatedAs' => 1,
+            'json' => ['data' => ['attributes' => ['isApproved' => true]]],
+        ]));
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(1, $this->likeCountOf(1));
+    }
+
+    #[Test]
+    public function deleting_a_discussion_updates_counts()
+    {
+        $this->like(1, 2);
+        $this->like(2, 2);
+        $response = $this->send($this->request('DELETE', '/api/discussions/1', ['authenticatedAs' => 1]));
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(0, $this->likeCountOf(2));
+    }
+
+    #[Test]
+    public function direct_model_deletion_updates_counts_and_rollback_restores_them()
+    {
+        $this->like(2, 2);
+        $db = $this->database();
+        $db->beginTransaction();
+        Post::query()->findOrFail(2)->delete();
+        $this->assertSame(0, $this->likeCountOf(2));
+        $db->rollBack();
+        $this->assertSame(1, $this->likeCountOf(2));
+        Post::query()->findOrFail(2)->delete();
+        $this->assertSame(0, $this->likeCountOf(2));
+    }
+
+    #[Test]
+    public function a_failed_delete_rolls_back_the_counter_and_pivot()
+    {
+        $this->like(2, 2);
+        $events = $this->app()->getContainer()->make(\Illuminate\Contracts\Events\Dispatcher::class);
+        $events->listen('eloquent.deleted: *', function ($event, array $models) {
+            if ($models[0] instanceof Post) {
+                throw new \RuntimeException('delete failed');
+            }
+        });
         try {
-            $migration['down']($schema);
-            $this->assertFalse($schema->hasColumn('users', 'like_count'));
-
-            $migration['up']($schema);
-            $this->assertTrue($schema->hasColumn('users', 'like_count'));
-
-            // The like of the private post is not counted.
-            $this->assertSame(2, $this->likeCountOf(2));
-            $this->assertSame(1, $this->likeCountOf(3));
-            $this->assertSame(0, $this->likeCountOf(1));
-        } finally {
-            // DDL commits implicitly on MySQL/MariaDB, so the rows can't be rolled back.
-            $this->database()->table('post_likes')->delete();
+            Post::query()->findOrFail(2)->delete();
+            $this->fail('Expected deletion to fail');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('delete failed', $e->getMessage());
         }
+        $this->assertNotNull(Post::query()->find(2));
+        $this->assertSame(1, $this->likeCountOf(2));
+        $this->assertTrue($this->database()->table('post_likes')->where('post_id', 2)->where('user_id', 2)->exists());
+    }
+
+    #[Test]
+    public function gdpr_post_erasure_updates_other_users_counts()
+    {
+        $this->extension('flarum-gdpr');
+        $this->like(1, 2);
+        $this->like(2, 2);
+        $handler = $this->app()->getContainer()->make(\Flarum\Likes\Data\Posts::class, [
+            'user' => User::query()->findOrFail(3),
+            'erasureRequest' => null,
+        ]);
+        $handler->delete();
+        $this->assertSame(0, $this->likeCountOf(2));
     }
 
     protected function like(int $postId, int $userId, bool $liked = true): void

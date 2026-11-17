@@ -86,8 +86,10 @@ return [
 
     (new Extend\Event())
         ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)
-        ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)
-        ->subscribe(Listener\UpdateUserLikeCount::class),
+        ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class),
+
+    (new Extend\ServiceProvider())
+        ->register(LikeServiceProvider::class),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(PostSearcher::class, LikedByFilter::class)
@@ -98,6 +100,13 @@ return [
 
     (new Extend\Policy())
         ->modelPolicy(Post::class, Access\LikePostPolicy::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-gdpr', fn () => [
+            (new \Flarum\Gdpr\Extend\UserData())
+                ->removeType(\Flarum\Gdpr\Data\Posts::class)
+                ->addType(Data\Posts::class),
+        ]),
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('flarum-realtime', fn () => [

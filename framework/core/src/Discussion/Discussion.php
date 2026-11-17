@@ -92,6 +92,11 @@ class Discussion extends AbstractModel
      */
     protected static ?User $stateUser = null;
 
+    public function delete()
+    {
+        return $this->getConnection()->transaction(fn () => parent::delete());
+    }
+
     public static function boot()
     {
         parent::boot();
