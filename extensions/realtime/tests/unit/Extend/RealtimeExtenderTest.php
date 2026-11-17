@@ -108,6 +108,23 @@ class RealtimeExtenderTest extends TestCase
     }
 
     #[Test]
+    public function broadcast_dialog_removal_registers_with_registry(): void
+    {
+        $getRemoval = fn ($e) => ['id' => 1, 'dialogId' => 2, 'dialogDeleted' => false, 'userIds' => [3]];
+
+        $extender = (new RealtimeExtender())
+            ->broadcastDialogRemoval('DialogRemoval', $getRemoval);
+
+        $this->runExtender($extender);
+
+        $removals = $this->registry->getDialogRemovals();
+
+        $this->assertCount(1, $removals);
+        $this->assertSame(['DialogRemoval'], $removals[0]['events']);
+        $this->assertSame($getRemoval, $removals[0]['getRemoval']);
+    }
+
+    #[Test]
     public function broadcast_flag_event_registers_with_registry(): void
     {
         $getDiscussion = fn ($e) => $e->flag->post->discussion;

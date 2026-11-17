@@ -10,6 +10,7 @@
 namespace Flarum\Messages\Tests\integration\api\dialog_messages;
 
 use Carbon\Carbon;
+use Flarum\Group\Group;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -46,6 +47,11 @@ class LikesDisabledTest extends TestCase
                 ['dialog_id' => 201, 'user_id' => 4, 'joined_at' => Carbon::now()],
             ],
         ]);
+
+        // Deleting for good is a permission of its own.
+        $this->prepareDatabase([
+            'group_permission' => [['permission' => 'dialog.deleteMessages', 'group_id' => Group::MEMBER_ID]],
+        ]);
     }
 
     #[Test]
@@ -70,5 +76,24 @@ class LikesDisabledTest extends TestCase
         $this->assertArrayNotHasKey('likesCount', $body['data'][0]['attributes']);
         $this->assertArrayNotHasKey('canLike', $body['data'][0]['attributes']);
         $this->assertArrayNotHasKey('likes', $body['data'][0]['relationships'] ?? []);
+    }
+
+    #[Test]
+    public function deleting_a_message_deletes_its_like_alerts_from_while_likes_were_enabled(): void
+    {
+        $this->prepareDatabase([
+            DialogMessage::class => [
+                ['id' => 202, 'dialog_id' => 201, 'user_id' => 4, 'content' => '<t><p>Still here</p></t>', 'number' => 2],
+            ],
+            'notifications' => [
+                ['id' => 1, 'user_id' => 4, 'from_user_id' => 3, 'type' => 'messageLiked', 'subject_id' => 201, 'created_at' => Carbon::now()],
+                ['id' => 2, 'user_id' => 4, 'from_user_id' => 3, 'type' => 'messageLiked', 'subject_id' => 202, 'created_at' => Carbon::now()],
+            ],
+        ]);
+
+        $response = $this->send($this->request('DELETE', '/api/dialog-messages/201', ['authenticatedAs' => 4]));
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+
+        $this->assertEquals([2], $this->database()->table('notifications')->pluck('id')->all());
     }
 }

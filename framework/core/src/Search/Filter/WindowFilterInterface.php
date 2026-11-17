@@ -19,7 +19,9 @@ use Flarum\Search\SearchState;
  * the All Discussions page), so that list's mutators still apply.
  *
  * Filters people choose, such as `created:` in a search, and lookups such as
- * `id` are list filters: implement `FilterInterface` for those.
+ * `id` are list filters: implement `FilterInterface` for those. A filter a
+ * person picks to narrow the list they are on, such as a date range on the
+ * All Discussions page, implements `RefineFilterInterface`.
  *
  * Code that decides which list a request is looks at
  * `SearchState::getListFilters()`, which leaves these filters out.

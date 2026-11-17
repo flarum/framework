@@ -212,4 +212,49 @@ class MessageEmailTest extends TestCase
 
         $this->assertSame(0, $this->emailsTo('bob@machine.local'));
     }
+
+    /** On a queue that runs later, the author may delete the message first. */
+    #[Test]
+    public function a_message_deleted_before_the_queued_email_goes_out_is_not_emailed(): void
+    {
+        $this->prepareDatabase([
+            Dialog::class => [
+                ['id' => 102, 'type' => 'direct', 'last_message_id' => 102, 'created_at' => Carbon::now()],
+            ],
+            DialogMessage::class => [
+                ['id' => 102, 'dialog_id' => 102, 'user_id' => 3, 'content' => '<t><p>Hello Bob</p></t>', 'number' => 1, 'created_at' => Carbon::now(), 'hidden_at' => Carbon::now(), 'hidden_user_id' => 3],
+            ],
+            'dialog_user' => [
+                ['dialog_id' => 102, 'user_id' => 3, 'joined_at' => Carbon::now(), 'last_read_message_id' => 102],
+                ['dialog_id' => 102, 'user_id' => 4, 'joined_at' => Carbon::now()],
+            ],
+        ]);
+
+        $this->captureSentMail();
+
+        $this->app()->getContainer()->call([new SendMessageNotificationsJob(DialogMessage::query()->find(102)), 'handle']);
+
+        $this->assertSame(0, $this->emailsTo('bob@machine.local'));
+    }
+
+    /** Nor when the email itself is queued, and the message deleted before it is sent. */
+    #[Test]
+    public function an_email_about_a_message_deleted_since_it_was_queued_is_not_sent(): void
+    {
+        $this->captureSentMail();
+
+        [$dialogId, $messageId] = $this->sendMessage(3, 'Hello Bob', to: 4);
+        $this->assertSame(1, $this->emailsTo('bob@machine.local'));
+
+        $this->database()->table('dialog_messages')->where('id', $messageId)->update(['hidden_at' => Carbon::now(), 'hidden_user_id' => 3]);
+
+        $message = DialogMessage::query()->find($messageId);
+        $message->hidden_at = null; // As the queued email holds it, from before the delete.
+        $listener = $this->app()->getContainer()->make(\Flarum\Messages\Listener\CheckMessageEmailAccess::class);
+
+        $this->assertFalse($listener->handle(new \Illuminate\Mail\Events\MessageSending(new Email(), [
+            'blueprint' => new \Flarum\Messages\Notification\MessageReceivedBlueprint($message),
+            'user' => User::query()->find(4),
+        ])));
+    }
 }

@@ -97,4 +97,31 @@ class GdprTest extends TestCase
         $this->assertNotNull(DialogMessage::find(103));
         $this->assertEquals(103, Dialog::find(102)->first_message_id);
     }
+
+    #[Test]
+    public function erasing_removes_the_notifications_about_the_members_messages_at_once(): void
+    {
+        $this->prepareDatabase([
+            DialogMessage::class => [
+                ['id' => 104, 'dialog_id' => 102, 'user_id' => 4, 'content' => 'Still there?', 'number' => 3],
+            ],
+            'notifications' => [
+                ['id' => 1, 'user_id' => 4, 'from_user_id' => 3, 'type' => 'messageLiked', 'subject_id' => 102, 'created_at' => Carbon::now()],
+                ['id' => 2, 'user_id' => 4, 'from_user_id' => 3, 'type' => 'messageLiked', 'subject_id' => 104, 'created_at' => Carbon::now()],
+                ['id' => 3, 'user_id' => 3, 'from_user_id' => 4, 'type' => 'messageLiked', 'subject_id' => 103, 'created_at' => Carbon::now()],
+            ],
+        ]);
+
+        $deletes = 0;
+        $this->database()->listen(function ($query) use (&$deletes) {
+            if (str_starts_with(strtolower($query->sql), 'delete from') && str_contains($query->sql, 'notifications')) {
+                $deletes++;
+            }
+        });
+
+        $this->type(4)->delete();
+
+        $this->assertEquals([3], $this->database()->table('notifications')->pluck('id')->all());
+        $this->assertEquals(1, $deletes, 'One statement for all of their messages, not one per message.');
+    }
 }

@@ -34,6 +34,8 @@ class Realtime implements ExtenderInterface
      */
     protected array $dialogEvents = [];
 
+    protected array $dialogRemovals = [];
+
     /**
      * @var array<int, array{events: string[], getDiscussion: callable, eventName: string}>
      */
@@ -70,6 +72,10 @@ class Realtime implements ExtenderInterface
 
             foreach ($this->dialogEvents as $entry) {
                 $registry->addDialogEvent($entry['events'], $entry['getMessage']);
+            }
+
+            foreach ($this->dialogRemovals as $entry) {
+                $registry->addDialogRemoval($entry['events'], $entry['getRemoval']);
             }
 
             foreach ($this->flagEvents as $entry) {
@@ -224,6 +230,43 @@ class Realtime implements ExtenderInterface
         $this->dialogEvents[] = [
             'events' => (array) $events,
             'getMessage' => $getMessage,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Tell connected dialog participants that a message was deleted for good.
+     *
+     * Once a message is deleted there is nothing left to render, and deleting a
+     * dialog's last message deletes the dialog and its memberships with it. So
+     * the `$getRemoval` callback returns what the event recorded beforehand:
+     * the message and dialog IDs, whether the dialog was deleted too, and the
+     * IDs of the users who could see the message. Those of them who are
+     * connected receive `{data: {type: 'dialog-messages', id}, meta: {dialogId,
+     * dialogDeleted}}` on their own channel, under the event's class name.
+     *
+     * Example:
+     *
+     *   (new \Flarum\Realtime\Extend\Realtime())
+     *       ->broadcastDialogRemoval(
+     *           \Flarum\Messages\DialogMessage\Event\Deleted::class,
+     *           fn ($event) => [
+     *               'id' => $event->message->id,
+     *               'dialogId' => $event->dialogId,
+     *               'dialogDeleted' => $event->dialogDeleted,
+     *               'userIds' => $event->memberIds,
+     *           ],
+     *       ),
+     *
+     * @param string|string[] $events
+     * @param callable(object): array{id: int, dialogId: int, dialogDeleted: bool, userIds: int[]} $getRemoval
+     */
+    public function broadcastDialogRemoval(string|array $events, callable $getRemoval): self
+    {
+        $this->dialogRemovals[] = [
+            'events' => (array) $events,
+            'getRemoval' => $getRemoval,
         ];
 
         return $this;

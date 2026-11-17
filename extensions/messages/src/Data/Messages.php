@@ -53,8 +53,14 @@ class Messages extends Type
 
     public function delete(): void
     {
-        DialogMessage::query()
-            ->where('user_id', $this->user->id)
-            ->each(fn (DialogMessage $message) => $message->delete());
+        $messages = DialogMessage::query()->where('user_id', $this->user->id);
+
+        // In one statement up front, rather than one per message below.
+        DialogMessage::deleteNotificationsAbout((clone $messages)->select('id')->toBase());
+
+        // One at a time, so each repairs its conversation's pointers.
+        DialogMessage::withoutDeletingNotifications(
+            fn () => $messages->each(fn (DialogMessage $message) => $message->delete())
+        );
     }
 }

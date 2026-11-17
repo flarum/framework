@@ -11,6 +11,7 @@ namespace Flarum\Search;
 
 use Closure;
 use Flarum\Search\Filter\FilterInterface;
+use Flarum\Search\Filter\RefineFilterInterface;
 use Flarum\Search\Filter\WindowFilterInterface;
 use Flarum\User\User;
 
@@ -78,8 +79,9 @@ class SearchState
 
     /**
      * The active filters that decide which list this is, leaving out those that
-     * only pick a window of it (`WindowFilterInterface`). With none, the request
-     * is the unfiltered list, such as the All Discussions page.
+     * only pick a window of it (`WindowFilterInterface`) or narrow it
+     * (`RefineFilterInterface`). With none, the request is the unfiltered
+     * list, such as the All Discussions page.
      *
      * @return FilterInterface[]
      */
@@ -87,7 +89,7 @@ class SearchState
     {
         return array_values(array_filter(
             $this->activeFilters,
-            fn (FilterInterface $filter) => ! $filter instanceof WindowFilterInterface
+            fn (FilterInterface $filter) => ! $filter instanceof WindowFilterInterface && ! $filter instanceof RefineFilterInterface
         ));
     }
 

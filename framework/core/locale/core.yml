@@ -716,6 +716,7 @@ core:
       full_screen_tooltip: Full Screen
       minimize_tooltip: Minimize
       preview_tooltip: Preview
+      restore_tooltip: Restore
 
     # These translations are used by the composer when starting a discussion.
     composer_discussion:

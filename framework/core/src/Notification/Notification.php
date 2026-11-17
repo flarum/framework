@@ -41,6 +41,7 @@ use Illuminate\Support\Arr;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $read_at
  * @property \Carbon\Carbon $deleted_at
+ * @property bool|int $is_deleted
  * @property-read \Flarum\User\User|null $user
  * @property-read \Flarum\User\User|null $fromUser
  * @property-read \Flarum\Database\AbstractModel|\Flarum\Post\Post|\Flarum\Discussion\Discussion|null $subject
@@ -210,11 +211,25 @@ class Notification extends AbstractModel
             }, $recipients)
         );
 
-        // Invalidate notification count caches for all recipients
+        static::forgetCachedCounts(array_map(fn (User $user) => $user->id, $recipients));
+    }
+
+    /**
+     * Forget the cached unread and new notification counts of the given users.
+     *
+     * Call this after changing whether notifications count for a user without
+     * going through `notify()` or the syncer, e.g. updating `is_deleted` with
+     * a query of your own.
+     *
+     * @param int[] $userIds
+     */
+    public static function forgetCachedCounts(array $userIds): void
+    {
         $cache = resolve('cache.store');
-        foreach ($recipients as $user) {
-            $cache->forget("user.{$user->id}.unread_notification_count");
-            $cache->forget("user.{$user->id}.new_notification_count");
+
+        foreach (array_unique($userIds) as $userId) {
+            $cache->forget("user.$userId.unread_notification_count");
+            $cache->forget("user.$userId.new_notification_count");
         }
     }
 

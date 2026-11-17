@@ -13,6 +13,9 @@ use DateTime;
 use Flarum\Api\Resource\DiscussionResource;
 use Flarum\Http\SlugManager;
 use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
+use Flarum\Search\Filter\RefineFilterInterface;
+use Flarum\Search\Filter\WindowFilterInterface;
 use Flarum\Search\SearchCriteria;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Search\Filter\TagFilter;
@@ -35,9 +38,7 @@ class PinStickiedDiscussionsToTop
             $query = $state->getQuery()->getQuery();
 
             // Tag pages always pin stickied discussions to the top.
-            // Window filters count here, unlike in getListFilters(): Deck's
-            // activity check (lastPostedAfter) needs the latest activity first.
-            $filters = $state->getActiveFilters();
+            $filters = $this->filtersThatStopPinning($state);
 
             if ($count = count($filters)) {
                 if ($count === 1 && $filters[0] instanceof TagFilter) {
@@ -111,7 +112,7 @@ class PinStickiedDiscussionsToTop
      */
     protected function sortIsTagDefault(DatabaseSearchState $state, SearchCriteria $criteria): bool
     {
-        $filters = $state->getActiveFilters();
+        $filters = $this->filtersThatStopPinning($state);
         $slug = $criteria->filters['tag'] ?? null;
 
         if (count($filters) !== 1 || ! $filters[0] instanceof TagFilter || ! is_string($slug) || str_contains($slug, ',')) {
@@ -137,6 +138,22 @@ class PinStickiedDiscussionsToTop
         }
 
         return $fields === $criteria->sort;
+    }
+
+    /**
+     * The active filters that make this a list without pinning, or a tag page.
+     * Refine filters leave the list it was. Window filters count, unlike in
+     * getListFilters(): Deck's activity check (lastPostedAfter) needs the
+     * latest activity first.
+     *
+     * @return FilterInterface[]
+     */
+    protected function filtersThatStopPinning(DatabaseSearchState $state): array
+    {
+        return array_values(array_filter(
+            $state->getActiveFilters(),
+            fn (FilterInterface $filter) => ! $filter instanceof RefineFilterInterface || $filter instanceof WindowFilterInterface
+        ));
     }
 
     /**

@@ -37,14 +37,18 @@ class OverrideExtensionManagerForTests implements ExtenderInterface
             $extensionManager->booted = true;
             $extensionManager->extend($container);
 
-            // Let enable() run instead of treating the test-selected extensions as already enabled.
-            $extensionManager->booted = false;
+            $ordered = array_keys($extensionManager->getEnabledExtensions());
+            $extensionManager->beginMigrationSetup();
 
-            foreach ($this->extensions as $extension) {
-                $extensionManager->enable($extension);
+            try {
+                foreach ($ordered as $extension) {
+                    $extensionManager->enable($extension);
+                }
+            } finally {
+                $extensionManager->finishMigrationSetup();
             }
 
-            $extensionManager->booted = true;
+            $extensionManager->migrateConditional();
         }
     }
 }

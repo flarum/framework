@@ -59,6 +59,7 @@ class NotificationSyncer
         // deleted in order to match the provided list of users.
         $toDelete = Notification::matchingBlueprint($blueprint)->get();
         $toUndelete = [];
+        $toRestore = [];
         $newRecipients = [];
 
         // For each of the provided users, check to see if they already have
@@ -73,6 +74,11 @@ class NotificationSyncer
 
             if ($existing) {
                 $toUndelete[] = $existing->id;
+
+                if ($existing->is_deleted) {
+                    $toRestore[] = $existing->user_id;
+                }
+
                 $toDelete->forget($toDelete->search($existing));
             } elseif (! static::$onePerUser || ! in_array($user->id, static::$sentTo)) {
                 $newRecipients[] = $user;
@@ -90,6 +96,13 @@ class NotificationSyncer
         if (count($toUndelete)) {
             $this->setDeleted($toUndelete, false);
         }
+
+        // Withdrawing or restoring a notification changes its recipient's
+        // unread and new counts, which are cached.
+        Notification::forgetCachedCounts(array_merge(
+            $toDelete->where('is_deleted', false)->pluck('user_id')->all(),
+            $toRestore,
+        ));
 
         foreach (static::$beforeSendingCallbacks as $callback) {
             $newRecipients = $callback($blueprint, $newRecipients);
@@ -109,7 +122,7 @@ class NotificationSyncer
      */
     public function delete(BlueprintInterface $blueprint): void
     {
-        Notification::matchingBlueprint($blueprint)->update(['is_deleted' => true]);
+        $this->setDeletedMatching($blueprint, true);
     }
 
     /**
@@ -117,7 +130,28 @@ class NotificationSyncer
      */
     public function restore(BlueprintInterface $blueprint): void
     {
-        Notification::matchingBlueprint($blueprint)->update(['is_deleted' => false]);
+        $this->setDeletedMatching($blueprint, false);
+    }
+
+    /**
+     * Set the deleted status of every notification record matching the
+     * blueprint, and forget the cached counts of the users whose records
+     * changed.
+     */
+    protected function setDeletedMatching(BlueprintInterface $blueprint, bool $isDeleted): void
+    {
+        $rows = Notification::matchingBlueprint($blueprint)
+            ->where('is_deleted', ! $isDeleted)
+            ->toBase()
+            ->get(['id', 'user_id']);
+
+        if ($rows->isEmpty()) {
+            return;
+        }
+
+        $this->setDeleted($rows->pluck('id')->all(), $isDeleted);
+
+        Notification::forgetCachedCounts($rows->pluck('user_id')->all());
     }
 
     /**

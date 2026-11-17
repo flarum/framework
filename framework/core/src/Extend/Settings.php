@@ -108,16 +108,41 @@ class Settings implements ExtenderInterface
         return $this;
     }
 
+    /** @internal */
+    public function getDefaults(): array
+    {
+        return $this->defaults;
+    }
+
+    /** @internal */
+    public function extendDeclaration(Container $container, ?Extension $extension): void
+    {
+        $this->extend($container, $extension);
+
+        if ($extension !== null) {
+            foreach (array_keys($this->defaults) as $key) {
+                $container->make('flarum.settings.default.extensions')->put($key, ['extension' => $extension->getId(), 'declarative' => true]);
+            }
+        }
+    }
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
         if (! empty($this->defaults)) {
-            $container->extend('flarum.settings.default', function (Collection $defaults) {
+            $container->extend('flarum.settings.default', function (Collection $defaults) use ($container, $extension) {
                 foreach ($this->defaults as $key => $value) {
                     if ($defaults->has($key)) {
                         throw new \RuntimeException("Cannot modify immutable default setting $key.");
                     }
 
                     $defaults->put($key, $value);
+
+                    if ($extension !== null) {
+                        $registered = $container->make('flarum.settings.default.extensions');
+                        if (! $registered->has($key)) {
+                            $registered->put($key, ['extension' => $extension->getId(), 'declarative' => false]);
+                        }
+                    }
                 }
 
                 return $defaults;

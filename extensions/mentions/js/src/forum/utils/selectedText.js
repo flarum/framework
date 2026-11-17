@@ -57,100 +57,170 @@ function keepOpening(spoiler, root) {
   if (run % 2) last.data += '\\';
 }
 
+// Whether the reader could select the text: it is not hidden, nor in an
+// element such as a button that text cannot be selected in. Ancestors above
+// the selection's common one are shared by all of it, so they are not checked.
+function selectable(text, root) {
+  if (getComputedStyle(text.parentElement).visibility === 'hidden') return false;
+
+  for (let element = text.parentElement; element; element = element.parentElement) {
+    const style = getComputedStyle(element);
+
+    if (style.display === 'none' || (style.userSelect || style.webkitUserSelect) === 'none') return false;
+    if (element === root) break;
+  }
+
+  return true;
+}
+
+/**
+ * Finds the part of the selection in the provided post body, or null when
+ * there is none to quote.
+ */
+export function selectedRange(body) {
+  const selection = window.getSelection();
+
+  if (selection.isCollapsed) return null;
+
+  const range = selection.getRangeAt(0);
+  const element = body[0];
+
+  const root = range.commonAncestorContainer;
+
+  if (element.contains(root)) return range;
+
+  // Chrome takes a triple click on a post's last paragraph on to the next
+  // place a selection can start, in the next post or the reply placeholder,
+  // over the post's controls, whose text cannot be selected. Quote the part in
+  // the body when the selection starts or ends in it and takes in no other
+  // text the reader could select.
+  const inBody = (node) => element.contains(node);
+
+  if (!inBody(range.startContainer) && !inBody(range.endContainer)) return null;
+
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+
+  if (!inBody(range.endContainer)) {
+    let last = element;
+    while (last.lastChild) last = last.lastChild;
+    walker.currentNode = last;
+
+    while (walker.nextNode() && range.comparePoint(walker.currentNode, 0) <= 0) {
+      const text = walker.currentNode;
+      const data = text === range.endContainer ? text.data.slice(0, range.endOffset) : text.data;
+
+      if (data.trim() && selectable(text, root)) return null;
+    }
+  }
+
+  if (!inBody(range.startContainer)) {
+    walker.currentNode = element;
+
+    while (walker.previousNode() && range.comparePoint(walker.currentNode, walker.currentNode.length) >= 0) {
+      const text = walker.currentNode;
+      const data = text === range.startContainer ? text.data.slice(range.startOffset) : text.data;
+
+      if (data.trim() && selectable(text, root)) return null;
+    }
+  }
+
+  const inside = range.cloneRange();
+
+  if (!inBody(range.startContainer)) inside.setStart(element, 0);
+  if (!inBody(range.endContainer)) inside.setEnd(element, element.childNodes.length);
+
+  return inside.collapsed ? null : inside;
+}
+
 /**
  * Finds the selected text in the provided composer body.
  */
 export default function selectedText(body) {
-  const selection = window.getSelection();
+  const range = selectedRange(body);
 
-  if (!selection.isCollapsed) {
-    const range = selection.getRangeAt(0);
-    const parent = range.commonAncestorContainer;
+  if (!range) return '';
 
-    if (body[0] === parent || $.contains(body[0], parent)) {
-      const clone = $('<div>').append(range.cloneContents());
+  const parent = range.commonAncestorContainer;
+  const clone = $('<div>').append(range.cloneContents());
 
-      // A selection entirely inside a spoiler has none in its fragment: it is
-      // wrapped in the spoiler it was taken from below. Only a spoiler inside
-      // the post body counts.
-      const element = parent.nodeType === Node.ELEMENT_NODE ? parent : parent.parentElement;
-      const found = element.closest(`${BLOCK_SPOILER}, ${INLINE_SPOILER}`);
-      const around = found && $.contains(body[0], found) ? found : null;
-      const aroundInline = around && !around.matches(BLOCK_SPOILER);
+  // A selection entirely inside a spoiler has none in its fragment: it is
+  // wrapped in the spoiler it was taken from below. Only a spoiler inside
+  // the post body counts.
+  const element = parent.nodeType === Node.ELEMENT_NODE ? parent : parent.parentElement;
+  const found = element.closest(`${BLOCK_SPOILER}, ${INLINE_SPOILER}`);
+  const around = found && $.contains(body[0], found) ? found : null;
+  const aroundInline = around && !around.matches(BLOCK_SPOILER);
 
-      // An inline spoiler inside another is already hidden by it, and its "!<"
-      // would close the outer one early: keep only its contents.
-      clone
-        .find(INLINE_SPOILER)
-        .toArray()
-        .filter((spoiler) => aroundInline || spoiler.parentElement.closest(INLINE_SPOILER))
-        .forEach((spoiler) => spoiler.replaceWith(...spoiler.childNodes));
+  // An inline spoiler inside another is already hidden by it, and its "!<"
+  // would close the outer one early: keep only its contents.
+  clone
+    .find(INLINE_SPOILER)
+    .toArray()
+    .filter((spoiler) => aroundInline || spoiler.parentElement.closest(INLINE_SPOILER))
+    .forEach((spoiler) => spoiler.replaceWith(...spoiler.childNodes));
 
-      const walker = document.createTreeWalker(clone[0], NodeFilter.SHOW_TEXT);
-      while (walker.nextNode()) {
-        const text = walker.currentNode;
-        const container = text.parentElement;
+  const walker = document.createTreeWalker(clone[0], NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const text = walker.currentNode;
+    const container = text.parentElement;
 
-        if (aroundInline || container.closest(INLINE_SPOILER)) text.data = escapeInline(text.data);
-        else if (around || container.closest(BLOCK_SPOILER)) text.data = escapeBlock(text.data);
-      }
-
-      // A link to a discussion on this forum is shown as a label (a favicon,
-      // a title or "#38941", and the post number) standing in for the address the writer
-      // pasted, which is the link's href. Quote that address rather than the
-      // pieces of the label. Keep in step with Formatter::getDiscussionLinkTemplate().
-      clone.find('a.UrlLink--discussion').replaceWith(function () {
-        // A text node, so that the address is not parsed as HTML.
-        return document.createTextNode(this.getAttribute('href'));
-      });
-
-      // The replacements below are text nodes: a string returned to
-      // replaceWith() is parsed as HTML, and the post's text must stay text.
-
-      // Replace emoji images with their shortcode (found in alt attribute)
-      clone.find('img.emoji').replaceWith(function () {
-        return document.createTextNode(this.alt);
-      });
-
-      // Mention icons decorate the name; they are not images in the post.
-      clone.find('img.IconImage').remove();
-
-      // Replace all other images with a Markdown image
-      clone.find('img').replaceWith(function () {
-        return document.createTextNode(`![](${this.src})`);
-      });
-
-      // Spoilers are written back so that the quote keeps them hidden. This
-      // runs after the conversions above so that images and emoji in them are
-      // kept. A revealed inline spoiler has lost its class, so it is found by
-      // data-spoiler (see the markdown extension's template).
-      // Spoilers inside links go first, so the link text keeps them.
-      clone.find(INLINE_SPOILER_IN_LINK).replaceWith(function () {
-        keepOpening(this, clone[0]);
-
-        return document.createTextNode(inlineSpoiler(this.textContent));
-      });
-
-      // Replace all links with a Markdown link
-      clone.find('a').replaceWith(function () {
-        return document.createTextNode(`[${this.innerText}](${this.href})`);
-      });
-
-      clone.find(INLINE_SPOILER).replaceWith(function () {
-        keepOpening(this, clone[0]);
-
-        return document.createTextNode(inlineSpoiler(this.textContent));
-      });
-      clone.find(BLOCK_SPOILER).replaceWith(function () {
-        return document.createTextNode(blockSpoiler(this.textContent));
-      });
-
-      if (around) {
-        return aroundInline ? inlineSpoiler(clone.text()) : blockSpoiler(clone.text());
-      }
-
-      return clone.text();
-    }
+    if (aroundInline || container.closest(INLINE_SPOILER)) text.data = escapeInline(text.data);
+    else if (around || container.closest(BLOCK_SPOILER)) text.data = escapeBlock(text.data);
   }
-  return '';
+
+  // A link to a discussion on this forum is shown as a label (a favicon,
+  // a title or "#38941", and the post number) standing in for the address the writer
+  // pasted, which is the link's href. Quote that address rather than the
+  // pieces of the label. Keep in step with Formatter::getDiscussionLinkTemplate().
+  clone.find('a.UrlLink--discussion').replaceWith(function () {
+    // A text node, so that the address is not parsed as HTML.
+    return document.createTextNode(this.getAttribute('href'));
+  });
+
+  // The replacements below are text nodes: a string returned to
+  // replaceWith() is parsed as HTML, and the post's text must stay text.
+
+  // Replace emoji images with their shortcode (found in alt attribute)
+  clone.find('img.emoji').replaceWith(function () {
+    return document.createTextNode(this.alt);
+  });
+
+  // Mention icons decorate the name; they are not images in the post.
+  clone.find('img.IconImage').remove();
+
+  // Replace all other images with a Markdown image
+  clone.find('img').replaceWith(function () {
+    return document.createTextNode(`![](${this.src})`);
+  });
+
+  // Spoilers are written back so that the quote keeps them hidden. This
+  // runs after the conversions above so that images and emoji in them are
+  // kept. A revealed inline spoiler has lost its class, so it is found by
+  // data-spoiler (see the markdown extension's template).
+  // Spoilers inside links go first, so the link text keeps them.
+  clone.find(INLINE_SPOILER_IN_LINK).replaceWith(function () {
+    keepOpening(this, clone[0]);
+
+    return document.createTextNode(inlineSpoiler(this.textContent));
+  });
+
+  // Replace all links with a Markdown link
+  clone.find('a').replaceWith(function () {
+    return document.createTextNode(`[${this.innerText}](${this.href})`);
+  });
+
+  clone.find(INLINE_SPOILER).replaceWith(function () {
+    keepOpening(this, clone[0]);
+
+    return document.createTextNode(inlineSpoiler(this.textContent));
+  });
+  clone.find(BLOCK_SPOILER).replaceWith(function () {
+    return document.createTextNode(blockSpoiler(this.textContent));
+  });
+
+  if (around) {
+    return aroundInline ? inlineSpoiler(clone.text()) : blockSpoiler(clone.text());
+  }
+
+  return clone.text();
 }

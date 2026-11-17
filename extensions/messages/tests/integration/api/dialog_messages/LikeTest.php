@@ -455,10 +455,16 @@ class LikeTest extends TestCase
         [$status] = $this->like(201, 3);
         $this->assertEquals(200, $status);
 
+        // Bob, the author, is also alerted (LikeNotificationTest).
+        $this->assertEquals([['private-user=4', 'notification']], array_values(array_map(
+            fn ($push) => [$push[0], $push[1]],
+            array_filter($pushed, fn ($push) => $push[1] !== Liked::class)
+        )));
+
+        $pushed = array_values(array_filter($pushed, fn ($push) => $push[1] === Liked::class));
         $this->assertCount(1, $pushed);
         [$channel, $event, $data] = $pushed[0];
         $this->assertEquals('private-user=4', $channel);
-        $this->assertEquals(Liked::class, $event);
 
         $payload = is_string($data) ? json_decode($data, true) : json_decode(json_encode($data), true);
         $this->assertEquals('201', $payload['data']['id']);
@@ -498,6 +504,6 @@ class LikeTest extends TestCase
         [$status] = $this->like(201, 3);
         $this->assertEquals(200, $status);
 
-        $this->assertEquals([['private-user=4', Liked::class]], $pushed);
+        $this->assertEquals([['private-user=4', Liked::class]], array_values(array_filter($pushed, fn ($push) => $push[1] === Liked::class)));
     }
 }
