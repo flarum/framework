@@ -59,6 +59,7 @@ class UpdateMentionsMetadataWhenVisible
         // The author may already be loaded for the creation response.
         if ($event->post->relationLoaded('user') && $event->post->user && in_array($event->post->user->id, $affected)) {
             $event->post->user->mention_count = $event->post->user->newQuery()->whereKey($event->post->user->id)->value('mention_count');
+            $event->post->user->syncOriginalAttribute('mention_count');
         }
 
         $this->syncPostMentions(
