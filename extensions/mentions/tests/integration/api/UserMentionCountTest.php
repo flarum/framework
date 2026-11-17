@@ -82,6 +82,14 @@ class UserMentionCountTest extends TestCase
         $this->patchPost($postId, 1, ['isHidden' => true]);
         $this->assertSame(0, $this->mentionCountOf(3));
 
+        $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 3]));
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame(0, json_decode($response->getBody(), true)['data']['attributes']['mentionCount']);
+        $response = $this->send($this->request('GET', '/api/posts', ['authenticatedAs' => 3])
+            ->withQueryParams(['filter' => ['type' => 'comment', 'mentioned' => '3']]));
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame([], json_decode($response->getBody(), true)['data']);
+
         $this->patchPost($postId, 1, ['isHidden' => false]);
         $this->assertSame(1, $this->mentionCountOf(3));
     }
@@ -108,6 +116,14 @@ class UserMentionCountTest extends TestCase
         $this->patchPost($postId, 1, ['content' => '@"potato"#3 edited']);
         $this->assertSame(0, $this->mentionCountOf(3));
 
+        $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 3]));
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame(0, json_decode($response->getBody(), true)['data']['attributes']['mentionCount']);
+        $response = $this->send($this->request('GET', '/api/posts', ['authenticatedAs' => 3])
+            ->withQueryParams(['filter' => ['type' => 'comment', 'mentioned' => '3']]));
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame([], json_decode($response->getBody(), true)['data']);
+
         $this->patchPost($postId, 1, ['isHidden' => false]);
         $this->assertSame(1, $this->mentionCountOf(3));
     }
@@ -129,6 +145,41 @@ class UserMentionCountTest extends TestCase
         $this->assertNotEmpty($users);
         $this->assertSame(1, $users[0]['attributes']['mentionCount']);
         $this->assertSame(1, $this->mentionCountOf(1));
+    }
+
+    #[Test]
+    public function approving_an_already_synced_mention_updates_the_count()
+    {
+        $this->extension('flarum-approval', 'flarum-flags');
+        $postId = $this->reply('@"potato"#3 awaiting approval');
+        $this->database()->table('posts')->where('id', $postId)->update(['is_private' => true, 'is_approved' => false]);
+        $this->app()->getContainer()->make(\Flarum\Mentions\UserMentionCount::class)->refresh([3]);
+        $this->assertSame(0, $this->mentionCountOf(3));
+
+        $this->patchPost($postId, 1, ['isApproved' => true]);
+        $this->assertSame(1, $this->mentionCountOf(3));
+        $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 3]));
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame(1, json_decode($response->getBody(), true)['data']['attributes']['mentionCount']);
+    }
+
+    #[Test]
+    public function refreshing_a_loaded_author_does_not_leave_a_dirty_counter()
+    {
+        $this->app();
+        $author = User::query()->findOrFail(1);
+        $postId = $this->reply('@"admin"#1 hello');
+        $post = Post::query()->findOrFail($postId);
+        $post->setRelation('user', $author);
+        $this->app()->getContainer()->make(\Flarum\Mentions\Listener\UpdateMentionsMetadataWhenVisible::class)
+            ->handle(new \Flarum\Post\Event\Restored($post));
+
+        $this->assertSame(1, (int) $author->mention_count);
+        $this->assertFalse($author->isDirty('mention_count'));
+        $this->database()->table('users')->where('id', 1)->update(['mention_count' => 2]);
+        $author->last_seen_at = Carbon::now();
+        $author->save();
+        $this->assertSame(2, $this->mentionCountOf(1));
     }
 
     protected function reply(string $content): int
