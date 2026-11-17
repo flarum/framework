@@ -49,11 +49,17 @@ class UpdateMentionsMetadataWhenVisible
 
         // An approved post was already synced while it was private, so its
         // mentions start counting now even though none of them changed.
-        $this->mentionCount->refresh(array_merge(
+        $affected = array_merge(
             $changes['attached'],
             $changes['detached'],
-            $event instanceof PostWasApproved ? $userMentions : []
-        ));
+            ($event instanceof PostWasApproved || $event instanceof Restored) ? $userMentions : []
+        );
+        $this->mentionCount->refresh($affected);
+
+        // The author may already be loaded for the creation response.
+        if ($event->post->relationLoaded('user') && $event->post->user && in_array($event->post->user->id, $affected)) {
+            $event->post->user->mention_count = $event->post->user->newQuery()->whereKey($event->post->user->id)->value('mention_count');
+        }
 
         $this->syncPostMentions(
             $event->post,

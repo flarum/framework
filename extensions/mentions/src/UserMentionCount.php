@@ -34,6 +34,8 @@ class UserMentionCount
             ->join('posts', 'posts.id', '=', 'post_mentions_user.post_id')
             ->whereColumn('post_mentions_user.mentions_user_id', 'users.id')
             ->where('posts.is_private', false)
+            ->whereNull('posts.hidden_at')
+            ->where('posts.type', 'comment')
             ->selectRaw('COUNT(*)');
 
         User::query()->getConnection()->table('users')

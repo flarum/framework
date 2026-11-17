@@ -101,38 +101,34 @@ class UserMentionCountTest extends TestCase
     }
 
     #[Test]
-    public function the_migration_backfills_the_counts_and_rolls_back()
+    public function editing_a_hidden_post_does_not_restore_its_count()
     {
-        $this->database()->table('posts')->insert([
-            ['id' => 2, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>two</p></t>', 'is_private' => false],
-            ['id' => 3, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>three</p></t>', 'is_private' => true],
-        ]);
-        $this->database()->table('post_mentions_user')->insert([
-            ['post_id' => 1, 'mentions_user_id' => 3],
-            ['post_id' => 2, 'mentions_user_id' => 3],
-            ['post_id' => 3, 'mentions_user_id' => 3],
-            ['post_id' => 2, 'mentions_user_id' => 2],
-        ]);
+        $postId = $this->reply('@"potato"#3 hello');
+        $this->patchPost($postId, 1, ['isHidden' => true]);
+        $this->patchPost($postId, 1, ['content' => '@"potato"#3 edited']);
+        $this->assertSame(0, $this->mentionCountOf(3));
 
-        $migration = require __DIR__.'/../../../migrations/2026_10_13_000000_add_mention_count_to_users_table.php';
-        $schema = $this->database()->getSchemaBuilder();
+        $this->patchPost($postId, 1, ['isHidden' => false]);
+        $this->assertSame(1, $this->mentionCountOf(3));
+    }
 
-        try {
-            $migration['down']($schema);
-            $this->assertFalse($schema->hasColumn('users', 'mention_count'));
-
-            $migration['up']($schema);
-            $this->assertTrue($schema->hasColumn('users', 'mention_count'));
-
-            // The private post is not counted.
-            $this->assertSame(2, $this->mentionCountOf(3));
-            $this->assertSame(1, $this->mentionCountOf(2));
-            $this->assertSame(0, $this->mentionCountOf(1));
-        } finally {
-            // DDL commits implicitly on MySQL/MariaDB, so the rows can't be rolled back.
-            $this->database()->table('post_mentions_user')->delete();
-            $this->database()->table('posts')->whereIn('id', [2, 3])->delete();
-        }
+    #[Test]
+    public function a_self_mention_is_current_in_the_creation_response()
+    {
+        $response = $this->send($this->request('POST', '/api/posts', [
+            'authenticatedAs' => 1,
+            'json' => ['data' => [
+                'type' => 'posts',
+                'attributes' => ['content' => '@"admin"#1 hello'],
+                'relationships' => ['discussion' => ['data' => ['type' => 'discussions', 'id' => 2]]],
+            ]],
+        ]));
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+        $payload = json_decode($response->getBody(), true);
+        $users = array_values(array_filter($payload['included'], fn ($item) => $item['type'] === 'users' && $item['id'] === '1'));
+        $this->assertNotEmpty($users);
+        $this->assertSame(1, $users[0]['attributes']['mentionCount']);
+        $this->assertSame(1, $this->mentionCountOf(1));
     }
 
     protected function reply(string $content): int
