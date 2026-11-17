@@ -24,10 +24,12 @@ class LikeServiceProvider extends AbstractServiceProvider
         $counts = $this->container->make(LikeCount::class);
 
         CommentPost::deleting(function (CommentPost $post) use ($affected, $counts) {
-            $affected[$post] = $counts->affectedUserIds(Post::query()->whereKey($post->id));
+            $affected[$post] = $post->type === 'comment' && ! $post->is_private
+                ? $counts->affectedUserIds(Post::query()->whereKey($post->id))
+                : [];
         });
         CommentPost::deleted(function (CommentPost $post) use ($affected, $counts) {
-            $counts->refresh($affected[$post] ?? []);
+            $counts->decrement($affected[$post] ?? []);
             unset($affected[$post]);
         });
         Discussion::deleting(function (Discussion $discussion) use ($affected, $counts) {

@@ -121,6 +121,50 @@ class UserLikeCountTest extends TestCase
     }
 
     #[Test]
+    public function deleting_one_post_preserves_a_likers_large_history()
+    {
+        $posts = [];
+        $likes = [];
+        for ($id = 10; $id < 1010; $id++) {
+            $posts[] = ['id' => $id, 'number' => $id, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<t><p>history</p></t>'];
+            $likes[] = ['post_id' => $id, 'user_id' => 2];
+        }
+        foreach (array_chunk($posts, 100) as $chunk) {
+            $this->database()->table('posts')->insert($chunk);
+        }
+        foreach (array_chunk($likes, 100) as $chunk) {
+            $this->database()->table('post_likes')->insert($chunk);
+        }
+        $this->like(2, 2);
+        $this->assertSame(1001, $this->likeCountOf(2));
+
+        $response = $this->send($this->request('DELETE', '/api/posts/2', ['authenticatedAs' => 1]));
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(1000, $this->likeCountOf(2));
+        $this->assertSame(1000, $this->database()->table('post_likes')->where('user_id', 2)->count());
+    }
+
+    #[Test]
+    public function deleting_a_private_post_does_not_decrement_other_likes()
+    {
+        $this->like(1, 2);
+        $this->database()->table('post_likes')->insert(['post_id' => 3, 'user_id' => 2]);
+        Post::query()->findOrFail(3)->delete();
+        $this->assertFalse(Post::query()->whereKey(3)->exists());
+        $this->assertSame(1, $this->likeCountOf(2));
+    }
+
+    #[Test]
+    public function deleting_a_post_does_not_make_a_zero_counter_negative()
+    {
+        $this->like(2, 2);
+        $this->database()->table('users')->where('id', 2)->update(['like_count' => 0]);
+        $response = $this->send($this->request('DELETE', '/api/posts/2', ['authenticatedAs' => 1]));
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(0, $this->likeCountOf(2));
+    }
+
+    #[Test]
     public function repeated_likes_and_unlikes_are_idempotent()
     {
         $this->like(1, 2);

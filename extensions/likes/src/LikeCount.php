@@ -27,6 +27,21 @@ class LikeCount
     }
 
     /** @param int[] $userIds */
+    public function decrement(array $userIds): void
+    {
+        $userIds = array_values(array_unique($userIds));
+        sort($userIds);
+        $db = User::query()->getConnection();
+
+        foreach (array_chunk($userIds, 1000) as $ids) {
+            $db->transaction(function () use ($db, $ids) {
+                $db->table('users')->whereIn('id', $ids)->orderBy('id')->lockForUpdate()->get(['id']);
+                $db->table('users')->whereIn('id', $ids)->where('like_count', '>', 0)->decrement('like_count');
+            });
+        }
+    }
+
+    /** @param int[] $userIds */
     public function refresh(array $userIds): void
     {
         $userIds = array_values(array_unique($userIds));
