@@ -16,14 +16,6 @@ return [
             $table->unsignedInteger('like_count')->default(0);
         });
 
-        $schema->table('post_likes', function (Blueprint $table) {
-            $table->boolean('is_counted')->default(false);
-        });
-        $connection = $schema->getConnection();
-        $connection->table('post_likes')->whereIn('post_id', $connection->table('posts')
-            ->where('type', 'comment')->where('is_private', false)->select('id'))
-            ->update(['is_counted' => true]);
-
         // The count is refreshed for one user at a time, by user_id. The primary
         // key leads with post_id, so it can't serve that lookup.
         //
@@ -56,9 +48,6 @@ return [
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('post_likes', function (Blueprint $table) {
-            $table->dropColumn('is_counted');
-        });
         if (! in_array($schema->getConnection()->getDriverName(), ['mysql', 'mariadb'], true)) {
             $schema->table('post_likes', function (Blueprint $table) {
                 $table->dropIndex(['user_id']);

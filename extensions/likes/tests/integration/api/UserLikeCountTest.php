@@ -100,10 +100,10 @@ class UserLikeCountTest extends TestCase
     public function deleting_a_post_updates_every_liker_and_leaves_other_likes_alone()
     {
         $this->database()->table('post_likes')->insert([
-            ['post_id' => 1, 'user_id' => 2, 'is_counted' => true],
-            ['post_id' => 2, 'user_id' => 2, 'is_counted' => true],
-            ['post_id' => 2, 'user_id' => 4, 'is_counted' => true],
-            ['post_id' => 1, 'user_id' => 3, 'is_counted' => true],
+            ['post_id' => 1, 'user_id' => 2],
+            ['post_id' => 2, 'user_id' => 2],
+            ['post_id' => 2, 'user_id' => 4],
+            ['post_id' => 1, 'user_id' => 3],
         ]);
         foreach ([2 => 2, 3 => 1, 4 => 1] as $id => $count) {
             $this->database()->table('users')->where('id', $id)->update(['like_count' => $count]);
@@ -179,18 +179,16 @@ class UserLikeCountTest extends TestCase
     }
 
     #[Test]
-    public function a_failed_delete_rolls_back_the_counter_and_pivot()
+    public function a_failed_delete_rolls_back_when_the_caller_uses_a_transaction()
     {
         $this->like(2, 2);
         $events = $this->app()->getContainer()->make(\Illuminate\Contracts\Events\Dispatcher::class);
-        $events->listen('eloquent.deleted: *', function ($event, array $models) {
-            if ($models[0] instanceof Post) {
-                throw new \RuntimeException('delete failed');
-            }
+        $events->listen('eloquent.deleted: '.\Flarum\Post\CommentPost::class, function () {
+            throw new \RuntimeException('delete failed');
         });
 
         try {
-            Post::query()->findOrFail(2)->delete();
+            $this->database()->transaction(fn () => Post::query()->findOrFail(2)->delete());
             $this->fail('Expected deletion to fail');
         } catch (\RuntimeException $e) {
             $this->assertSame('delete failed', $e->getMessage());
@@ -212,6 +210,30 @@ class UserLikeCountTest extends TestCase
         ]);
         $handler->delete();
         $this->assertSame(0, $this->likeCountOf(2));
+    }
+
+    #[Test]
+    public function a_recount_includes_direct_pivot_inserts()
+    {
+        $this->database()->table('post_likes')->insert(['post_id' => 1, 'user_id' => 2]);
+        $this->like(2, 2);
+        $this->assertSame(2, $this->likeCountOf(2));
+    }
+
+    #[Test]
+    public function refreshing_the_actor_does_not_leave_a_dirty_counter()
+    {
+        $seen = false;
+        $this->extend((new \Flarum\Extend\Event())->listen(\Flarum\Likes\Event\PostWasLiked::class, function ($event) use (&$seen) {
+            $seen = true;
+            $this->assertFalse($event->user->isDirty('like_count'));
+            $this->database()->table('users')->where('id', $event->user->id)->update(['like_count' => 2]);
+            $event->user->last_seen_at = Carbon::now();
+            $event->user->save();
+            $this->assertSame(2, $this->likeCountOf($event->user->id));
+        }));
+        $this->like(1, 2);
+        $this->assertTrue($seen);
     }
 
     protected function like(int $postId, int $userId, bool $liked = true): void

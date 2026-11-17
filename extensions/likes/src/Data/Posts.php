@@ -17,8 +17,10 @@ class Posts extends \Flarum\Gdpr\Data\Posts
     public function delete(): void
     {
         Post::query()->getConnection()->transaction(function () {
-            resolve(LikeCount::class)->remove(Post::query()->where('user_id', $this->user->id));
+            $counts = resolve(LikeCount::class);
+            $affected = $counts->affectedUserIds(Post::query()->where('user_id', $this->user->id));
             parent::delete();
+            $counts->refresh($affected);
         });
     }
 }

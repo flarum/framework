@@ -19,6 +19,7 @@ use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Likes\Notification\PostLikedBlueprint;
 use Flarum\Likes\Query\LikedByFilter;
 use Flarum\Likes\Query\LikedFilter;
+use Flarum\Post\Event\Deleted;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
 use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
@@ -86,7 +87,10 @@ return [
 
     (new Extend\Event())
         ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)
-        ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class),
+        ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)
+        ->listen(Deleted::class, function (Deleted $event) {
+            $event->post->likes()->detach();
+        }),
 
     (new Extend\ServiceProvider())
         ->register(LikeServiceProvider::class),

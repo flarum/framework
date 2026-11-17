@@ -10,36 +10,38 @@
 namespace Flarum\Likes;
 
 use Flarum\Discussion\Discussion;
+use Flarum\Discussion\Event\Deleted as DiscussionDeleted;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class LikeServiceProvider extends AbstractServiceProvider
 {
     public function boot(): void
     {
-        $captured = new \WeakMap;
-        $events = $this->container->make(\Illuminate\Contracts\Events\Dispatcher::class);
-        // Post events use the concrete subclass (CommentPost, etc.), so a
-        // Post::deleting listener alone would miss ordinary comments.
-        $events->listen('eloquent.deleting: *', function ($event, array $models) use ($captured) {
-            $model = $models[0];
-            if ($model instanceof Post) {
-                $captured[$model] = $this->container->make(LikeCount::class)->capture(Post::query()->whereKey($model->id));
-            } elseif ($model instanceof Discussion) {
-                $captured[$model] = $this->container->make(LikeCount::class)->capture(Post::query()->where('discussion_id', $model->id));
-            }
+        $affected = new \WeakMap;
+        $counts = $this->container->make(LikeCount::class);
+
+        CommentPost::deleting(function (CommentPost $post) use ($affected, $counts) {
+            $affected[$post] = $counts->affectedUserIds(Post::query()->whereKey($post->id));
         });
-        $events->listen('eloquent.deleted: *', function ($event, array $models) use ($captured) {
-            $model = $models[0];
-            if (isset($captured[$model])) {
-                $this->container->make(LikeCount::class)->removed($model->getConnection(), $captured[$model]);
-                unset($captured[$model]);
-            }
+        CommentPost::deleted(function (CommentPost $post) use ($affected, $counts) {
+            $counts->refresh($affected[$post] ?? []);
+            unset($affected[$post]);
         });
-        $events->listen('eloquent.updated: *', function ($event, array $models) {
-            $post = $models[0];
-            if ($post instanceof Post && $post->wasChanged('is_private')) {
-                $this->container->make(LikeCount::class)->sync($post);
+        Discussion::deleting(function (Discussion $discussion) use ($affected, $counts) {
+            $affected[$discussion] = $counts->affectedUserIds(Post::query()->where('discussion_id', $discussion->id));
+        });
+        $this->container->make(Dispatcher::class)->listen(DiscussionDeleted::class, function (DiscussionDeleted $event) use ($affected, $counts) {
+            // The domain event is dispatched after the discussion's posts
+            // have been removed, including on SQLite without FK cascades.
+            $counts->refresh($affected[$event->discussion] ?? []);
+            unset($affected[$event->discussion]);
+        });
+        CommentPost::updated(function (CommentPost $post) use ($counts) {
+            if ($post->wasChanged('is_private')) {
+                $counts->refresh($counts->affectedUserIds(Post::query()->whereKey($post->id)));
             }
         });
     }

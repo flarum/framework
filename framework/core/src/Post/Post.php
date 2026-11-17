@@ -81,11 +81,6 @@ class Post extends AbstractModel
      */
     public static string $type = '';
 
-    public function delete()
-    {
-        return $this->getConnection()->transaction(fn () => parent::delete());
-    }
-
     public static function boot()
     {
         parent::boot();

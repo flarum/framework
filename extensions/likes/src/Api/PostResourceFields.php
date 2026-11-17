@@ -32,28 +32,21 @@ class PostResourceFields
                 ->set(function (Post $post, bool $liked, Context $context) {
                     $actor = $context->getActor();
 
-                    $db = $post->getConnection();
-                    $db->transaction(function () use ($post, $actor, $liked, $db) {
-                        $current = Post::query()->whereKey($post->id)->lockForUpdate()->firstOrFail();
-                        $pivot = $db->table('post_likes')->where('post_id', $post->id)->where('user_id', $actor->id);
-                        $existing = (clone $pivot)->first();
-                        $counted = $current->type === 'comment' && ! $current->is_private;
+                    $currentlyLiked = $post->likes()->where('user_id', $actor->id)->exists();
 
-                        if ($liked && ! $existing) {
-                            $post->likes()->attach($actor->id, ['is_counted' => $counted]);
-                            if ($counted) {
-                                resolve(LikeCount::class)->adjust($db, [$actor->id => 1]);
-                            }
-                            $post->raise(new PostWasLiked($post, $actor));
-                        } elseif (! $liked && $existing) {
-                            $pivot->delete();
-                            if ($existing->is_counted) {
-                                resolve(LikeCount::class)->adjust($db, [$actor->id => -1]);
-                            }
-                            $post->raise(new PostWasUnliked($post, $actor));
-                        }
-                        $actor->like_count = $db->table('users')->where('id', $actor->id)->value('like_count');
-                    });
+                    if ($liked && ! $currentlyLiked) {
+                        $post->likes()->attach($actor->id);
+
+                        $post->raise(new PostWasLiked($post, $actor));
+                    } elseif (! $liked && $currentlyLiked) {
+                        $post->likes()->detach($actor->id);
+
+                        $post->raise(new PostWasUnliked($post, $actor));
+                    }
+
+                    resolve(LikeCount::class)->refresh([$actor->id]);
+                    $actor->like_count = $actor->newQuery()->whereKey($actor->id)->value('like_count');
+                    $actor->syncOriginalAttribute('like_count');
                 }),
 
             Schema\Boolean::make('canLike')
