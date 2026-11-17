@@ -188,6 +188,7 @@ class UserLikeCountTest extends TestCase
                 throw new \RuntimeException('delete failed');
             }
         });
+
         try {
             Post::query()->findOrFail(2)->delete();
             $this->fail('Expected deletion to fail');
