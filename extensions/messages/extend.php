@@ -43,6 +43,8 @@ return [
         ->default(RecipientLimit::SETTING, RecipientLimit::DEFAULT)
         ->default(GroupNames::SETTING, false)
         ->default(RecipientGroups::SETTING, '[]')
+        ->default(Access\DialogMessagePolicy::EDIT_OWN, 'reply')
+        ->default(Access\DialogMessagePolicy::DELETE_OWN, 'reply')
         ->serializeToForum('messagesMaxRecipients', RecipientLimit::SETTING, RecipientLimit::clamp(...)),
 
     (new Extend\Model(User::class))
@@ -95,7 +97,8 @@ return [
         ->listen(MessageSending::class, Listener\CheckMessageEmailAccess::class)
         ->listen(DialogMessage\Event\Created::class, Listener\SendNotificationWhenMessageSent::class)
         ->listen(DialogMessage\Event\Created::class, Listener\UpdateMentionsMetadataWhenVisible::class)
-        ->listen(DialogMessage\Event\Updated::class, Listener\UpdateMentionsMetadataWhenVisible::class),
+        ->listen(DialogMessage\Event\Revised::class, Listener\UpdateMentionsMetadataWhenVisible::class)
+        ->subscribe(Listener\HideNotificationsWhenMessageHidden::class),
 
     (new Extend\Conditional())
         // The mention relationships, on by default only where their resources
@@ -151,6 +154,22 @@ return [
                 ->broadcastDialogEvent(
                     [DialogMessage\Event\Liked::class, DialogMessage\Event\Unliked::class],
                     fn ($event) => $event->message,
+                )
+                // Edited, deleted and restored: each member gets the message as
+                // they may now see it.
+                ->broadcastDialogEvent(
+                    [DialogMessage\Event\Revised::class, DialogMessage\Event\Hidden::class, DialogMessage\Event\Restored::class],
+                    fn ($event) => $event->message,
+                )
+                // Deleted for good: there is nothing left to send but which it was.
+                ->broadcastDialogRemoval(
+                    DialogMessage\Event\Deleted::class,
+                    fn (DialogMessage\Event\Deleted $event) => [
+                        'id' => $event->message->id,
+                        'dialogId' => $event->dialogId,
+                        'dialogDeleted' => $event->dialogDeleted,
+                        'userIds' => $event->memberIds,
+                    ],
                 )
                 ->registerModelEndpoint(DialogMessage::class, 'dialog-messages')
                 ->registerModelEndpoint(Dialog::class, 'dialogs'),

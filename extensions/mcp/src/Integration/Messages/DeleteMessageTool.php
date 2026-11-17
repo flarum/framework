@@ -30,8 +30,9 @@ class DeleteMessageTool extends Tool
 
     public function description(): string
     {
-        return 'Delete one of your own private messages, for every member of the conversation. Whether, and for how long, '
-            .'you may delete your messages is up to the forum. This cannot be undone: confirm with the user first.';
+        return 'Delete one of your own private messages. The other members of the conversation see that it was deleted, '
+            .'not what it said, and it can be restored from the forum. Whether, and for how long, you may delete your '
+            .'messages is up to the forum. Confirm with the user first.';
     }
 
     public function readOnly(): bool
@@ -59,7 +60,7 @@ class DeleteMessageTool extends Tool
     {
         $id = (string) $arguments['messageId'];
 
-        $context->api->delete('dialog-messages', $id);
+        $context->api->update('dialog-messages', $id, ['isHidden' => true]);
 
         return ['deleted' => true, 'messageId' => $id];
     }
