@@ -11,10 +11,15 @@ namespace Flarum\Likes\Tests\integration\api;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Gdpr\Data\Posts as GdprPosts;
+use Flarum\Gdpr\Extend\UserData;
+use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Database\Events\QueryExecuted;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 class UserLikeCountTest extends TestCase
@@ -93,6 +98,36 @@ class UserLikeCountTest extends TestCase
         );
 
         $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(0, $this->likeCountOf(2));
+    }
+
+    #[Test]
+    public function a_post_delete_locks_the_affected_counter_before_removing_the_post()
+    {
+        $this->like(2, 2);
+        $db = $this->database();
+        $outsideLevel = $db->transactionLevel();
+        $grammar = $db->getQueryGrammar();
+        $users = $grammar->wrapTable('users');
+        $posts = $grammar->wrapTable('posts');
+        $hadUserLock = false;
+        $protectedAtDelete = false;
+
+        $db->listen(function (QueryExecuted $query) use ($db, $outsideLevel, $users, $posts, &$hadUserLock, &$protectedAtDelete) {
+            if (str_contains($query->sql, "from $users") && str_ends_with($query->sql, 'for update')) {
+                $hadUserLock = true;
+            }
+
+            if (str_starts_with($query->sql, "delete from $posts")) {
+                // SQLite protects writes at the database level.
+                $protectedAtDelete = $db->transactionLevel() > $outsideLevel && ($hadUserLock || $db->getDriverName() === 'sqlite');
+            }
+        });
+
+        $response = $this->send($this->request('DELETE', '/api/posts/2', ['authenticatedAs' => 1]));
+
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertTrue($protectedAtDelete);
         $this->assertSame(0, $this->likeCountOf(2));
     }
 
@@ -223,7 +258,7 @@ class UserLikeCountTest extends TestCase
     }
 
     #[Test]
-    public function a_failed_delete_rolls_back_when_the_caller_uses_a_transaction()
+    public function a_failed_delete_rolls_back_the_post_and_its_likes()
     {
         $this->like(2, 2);
         $events = $this->app()->getContainer()->make(\Illuminate\Contracts\Events\Dispatcher::class);
@@ -232,7 +267,7 @@ class UserLikeCountTest extends TestCase
         });
 
         try {
-            $this->database()->transaction(fn () => Post::query()->findOrFail(2)->delete());
+            Post::query()->findOrFail(2)->delete();
             $this->fail('Expected deletion to fail');
         } catch (\RuntimeException $e) {
             $this->assertSame('delete failed', $e->getMessage());
@@ -243,17 +278,45 @@ class UserLikeCountTest extends TestCase
     }
 
     #[Test]
-    public function gdpr_post_erasure_updates_other_users_counts()
+    #[DataProvider('gdprPostPolicies')]
+    public function gdpr_erasure_respects_the_posts_policy_and_updates_counts(bool $retainPosts)
     {
         $this->extension('flarum-gdpr');
+        $this->setting('flarum-gdpr.allow-deletion', true);
+        $this->setting('mail_driver', 'log');
+        if ($retainPosts) {
+            $this->extend((new UserData())->removeType(GdprPosts::class));
+        }
+        $this->prepareDatabase([
+            'gdpr_erasure' => [
+                [
+                    'id' => 1,
+                    'user_id' => 3,
+                    'verification_token' => 'likes-erasure-test',
+                    'status' => ErasureRequest::STATUS_USER_CONFIRMED,
+                    'created_at' => Carbon::now(),
+                    'user_confirmed_at' => Carbon::now(),
+                ],
+            ],
+        ]);
+
         $this->like(1, 2);
         $this->like(2, 2);
-        $handler = $this->app()->getContainer()->make(\Flarum\Likes\Data\Posts::class, [
-            'user' => User::query()->findOrFail(3),
-            'erasureRequest' => null,
-        ]);
-        $handler->delete();
-        $this->assertSame(0, $this->likeCountOf(2));
+
+        $response = $this->send($this->request('PATCH', '/api/user-erasure-requests/1', [
+            'authenticatedAs' => 1,
+            'json' => ['data' => ['attributes' => ['processedMode' => ErasureRequest::MODE_DELETION]]],
+        ]));
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertNull(User::query()->find(3));
+        $this->assertSame($retainPosts, Post::query()->whereKey(1)->exists());
+        $this->assertSame($retainPosts ? 2 : 0, $this->likeCountOf(2));
+    }
+
+    public static function gdprPostPolicies(): array
+    {
+        return ['delete posts' => [false], 'retain posts' => [true]];
     }
 
     #[Test]

@@ -106,13 +106,6 @@ return [
         ->modelPolicy(Post::class, Access\LikePostPolicy::class),
 
     (new Extend\Conditional())
-        ->whenExtensionEnabled('flarum-gdpr', fn () => [
-            (new \Flarum\Gdpr\Extend\UserData())
-                ->removeType(\Flarum\Gdpr\Data\Posts::class)
-                ->addType(Data\Posts::class),
-        ]),
-
-    (new Extend\Conditional())
         ->whenExtensionEnabled('flarum-realtime', fn () => [
             (new RealtimeExtend())
                 ->broadcastModelEvent(

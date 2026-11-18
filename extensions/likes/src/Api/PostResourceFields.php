@@ -31,22 +31,33 @@ class PostResourceFields
                 ->writable(fn (Post $post, Context $context) => $context->getActor()->can('like', $post))
                 ->set(function (Post $post, bool $liked, Context $context) {
                     $actor = $context->getActor();
+                    $db = $post->getConnection();
 
-                    $currentlyLiked = $post->likes()->where('user_id', $actor->id)->exists();
+                    [$changed, $likeCount] = $db->transaction(function () use ($db, $post, $actor, $liked) {
+                        // Use the same post-then-user lock order as deletion.
+                        $post->newModelQuery()->whereKey($post->id)->lockForUpdate()->firstOrFail(['id']);
+                        $db->table('users')->where('id', $actor->id)->lockForUpdate()->get(['id']);
 
-                    if ($liked && ! $currentlyLiked) {
-                        $post->likes()->attach($actor->id);
+                        $currentlyLiked = $db->table('post_likes')->where('post_id', $post->id)
+                            ->where('user_id', $actor->id)->lockForUpdate()->first(['user_id']) !== null;
 
-                        $post->raise(new PostWasLiked($post, $actor));
-                    } elseif (! $liked && $currentlyLiked) {
-                        $post->likes()->detach($actor->id);
+                        if ($liked && ! $currentlyLiked) {
+                            $post->likes()->attach($actor->id);
+                        } elseif (! $liked && $currentlyLiked) {
+                            $post->likes()->detach($actor->id);
+                        }
 
-                        $post->raise(new PostWasUnliked($post, $actor));
-                    }
+                        resolve(LikeCount::class)->refresh([$actor->id]);
 
-                    resolve(LikeCount::class)->refresh([$actor->id]);
-                    $actor->like_count = $actor->newQuery()->whereKey($actor->id)->value('like_count');
+                        return [$liked !== $currentlyLiked, $db->table('users')->where('id', $actor->id)->value('like_count')];
+                    }, 3);
+
+                    $actor->like_count = (int) $likeCount;
                     $actor->syncOriginalAttribute('like_count');
+
+                    if ($changed) {
+                        $post->raise($liked ? new PostWasLiked($post, $actor) : new PostWasUnliked($post, $actor));
+                    }
                 }),
 
             Schema\Boolean::make('canLike')

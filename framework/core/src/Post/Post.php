@@ -15,7 +15,9 @@ use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\DeletingPosts;
 use Flarum\User\User;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -113,6 +115,47 @@ class Post extends AbstractModel
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
+    }
+
+    public function delete()
+    {
+        if (! $this->exists) {
+            return parent::delete();
+        }
+
+        return self::deleteWithEvents($this->newQuery()->whereKey($this->getKey()), parent::delete(...));
+    }
+
+    public function save(array $options = [])
+    {
+        // Visibility changes and their dependent model listeners commit together.
+        if ($this->exists && $this->isDirty('is_private')) {
+            return $this->getConnection()->transaction(fn () => parent::save($options));
+        }
+
+        return parent::save($options);
+    }
+
+    /**
+     * @template T
+     * @param Builder<Post> $posts The posts affected by the deletion.
+     * @param \Closure(): T $delete
+     * @return T
+     */
+    public static function deleteWithEvents(Builder $posts, \Closure $delete): mixed
+    {
+        return $posts->getConnection()->transaction(function () use ($posts, $delete) {
+            $event = new DeletingPosts(clone $posts);
+            resolve(Dispatcher::class)->dispatch($event);
+
+            $result = $delete();
+
+            if ($result !== false) {
+                $event->complete();
+            }
+
+            return $result;
+        });
     }
 
     /**

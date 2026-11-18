@@ -23,7 +23,10 @@ export default function () {
 
           if (isLiked) haptic('success');
 
-          post.save({ isLiked }).then(() => app.store.find('users', app.session.user.id()));
+          const save = post
+            .save({ isLiked })
+            .then(() => app.store.find('users', app.session.user.id()))
+            .then(() => m.redraw());
 
           // We've saved the fact that we do or don't like the post, but in order
           // to provide instantaneous feedback to the user, we'll need to add or
@@ -41,6 +44,8 @@ export default function () {
           if (isLiked) {
             data.unshift({ type: 'users', id: app.session.user.id() });
           }
+
+          return save;
         }}
       >
         {app.translator.trans(isLiked ? 'flarum-likes.forum.post.unlike_link' : 'flarum-likes.forum.post.like_link')}
