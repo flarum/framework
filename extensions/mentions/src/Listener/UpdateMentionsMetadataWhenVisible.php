@@ -56,10 +56,18 @@ class UpdateMentionsMetadataWhenVisible
         );
         $this->mentionCount->refresh($affected);
 
-        // The author may already be loaded for the creation response.
-        if ($event->post->relationLoaded('user') && $event->post->user && in_array($event->post->user->id, $affected)) {
-            $event->post->user->mention_count = $event->post->user->newQuery()->whereKey($event->post->user->id)->value('mention_count');
-            $event->post->user->syncOriginalAttribute('mention_count');
+        // A new discussion caches the request actor as its author. The post
+        // can have a separate author instance, so keep both models current.
+        $actor = $event instanceof Posted ? $event->actor : null;
+        $author = $event->post->relationLoaded('user') ? $event->post->user : null;
+        $counts = [];
+
+        foreach ([$actor, $author] as $user) {
+            if ($user && in_array($user->id, $affected)) {
+                $counts[$user->id] ??= $user->newQuery()->whereKey($user->id)->value('mention_count');
+                $user->mention_count = $counts[$user->id];
+                $user->syncOriginalAttribute('mention_count');
+            }
         }
 
         $this->syncPostMentions(

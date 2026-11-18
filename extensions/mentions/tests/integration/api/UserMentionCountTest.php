@@ -11,10 +11,12 @@ namespace Flarum\Mentions\Tests\integration\api;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Group\Group;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 class UserMentionCountTest extends TestCase
@@ -26,17 +28,22 @@ class UserMentionCountTest extends TestCase
         parent::setUp();
 
         $this->extension('flarum-mentions');
+        $createdAt = Carbon::now()->subHour();
 
         $this->prepareDatabase([
             User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'potato', 'email' => 'potato@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 4, 'username' => 'moderator', 'email' => 'moderator@machine.local', 'is_email_confirmed' => 1],
+            ],
+            'group_user' => [
+                ['user_id' => 4, 'group_id' => Group::MODERATOR_ID],
             ],
             Discussion::class => [
-                ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'last_post_number' => 1],
+                ['id' => 2, 'title' => __CLASS__, 'created_at' => $createdAt, 'last_posted_at' => $createdAt, 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'last_post_number' => 1],
             ],
             Post::class => [
-                ['id' => 1, 'number' => 1, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>first</p></t>'],
+                ['id' => 1, 'number' => 1, 'discussion_id' => 2, 'created_at' => $createdAt, 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>first</p></t>'],
             ],
         ]);
     }
@@ -129,22 +136,50 @@ class UserMentionCountTest extends TestCase
     }
 
     #[Test]
-    public function a_self_mention_is_current_in_the_creation_response()
+    #[DataProvider('selfMentionCreationRequests')]
+    public function a_self_mention_is_current_in_the_creation_response(int $userId, string $username, string $type, bool $includeUser)
     {
-        $response = $this->send($this->request('POST', '/api/posts', [
-            'authenticatedAs' => 1,
-            'json' => ['data' => [
-                'type' => 'posts',
-                'attributes' => ['content' => '@"admin"#1 hello'],
-                'relationships' => ['discussion' => ['data' => ['type' => 'discussions', 'id' => 2]]],
-            ]],
-        ]));
+        $this->app();
+        $this->assertSame(0, $this->mentionCountOf($userId));
+
+        $data = ['type' => $type, 'attributes' => ['content' => sprintf('@"%s"#%d hello', $username, $userId)]];
+        if ($type === 'discussions') {
+            $data['attributes']['title'] = 'Self-mention in a new discussion';
+        } else {
+            $data['relationships']['discussion']['data'] = ['type' => 'discussions', 'id' => '2'];
+        }
+
+        $path = '/api/'.$type.($includeUser ? '?include=user' : '');
+        $request = $this->request('POST', $path, ['authenticatedAs' => $userId, 'json' => ['data' => $data]]);
+        if ($includeUser) {
+            $request = $request->withQueryParams(['include' => 'user']);
+        }
+
+        $response = $this->send($request);
         $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
         $payload = json_decode($response->getBody(), true);
-        $users = array_values(array_filter($payload['included'], fn ($item) => $item['type'] === 'users' && $item['id'] === '1'));
-        $this->assertNotEmpty($users);
-        $this->assertSame(1, $users[0]['attributes']['mentionCount']);
-        $this->assertSame(1, $this->mentionCountOf(1));
+        $author = $payload['data']['relationships']['user']['data'];
+        $this->assertSame((string) $userId, $author['id']);
+        $users = array_values(array_filter($payload['included'], fn ($item) => $item['type'] === $author['type'] && $item['id'] === $author['id']));
+        $this->assertCount(1, $users);
+
+        $fresh = $this->send($this->request('GET', '/api/users/'.$userId, ['authenticatedAs' => $userId]));
+        $this->assertEquals(200, $fresh->getStatusCode(), (string) $fresh->getBody());
+        $freshCount = json_decode($fresh->getBody(), true)['data']['attributes']['mentionCount'];
+        $this->assertSame(1, $freshCount);
+        $this->assertSame($freshCount, $users[0]['attributes']['mentionCount']);
+    }
+
+    public static function selfMentionCreationRequests(): iterable
+    {
+        $authors = ['member' => [2, 'normal'], 'moderator' => [4, 'moderator'], 'admin' => [1, 'admin']];
+
+        foreach ($authors as $role => [$id, $username]) {
+            foreach (['discussions', 'posts'] as $type) {
+                yield "$role $type with explicit user include" => [$id, $username, $type, true];
+                yield "$role $type with default includes" => [$id, $username, $type, false];
+            }
+        }
     }
 
     #[Test]
