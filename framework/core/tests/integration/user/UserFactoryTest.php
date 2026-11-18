@@ -9,23 +9,55 @@
 
 namespace Flarum\Tests\integration\user;
 
+use Faker\Factory as FakerFactory;
+use Faker\Generator;
+use Faker\Provider\Base;
+use Flarum\Extend\ExtenderInterface;
+use Flarum\Extension\Extension;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Contracts\Container\Container;
 use PHPUnit\Framework\Attributes\Test;
 
 class UserFactoryTest extends TestCase
 {
     #[Test]
-    public function factory_generated_usernames_and_emails_do_not_collide_within_a_test()
+    public function factory_retries_a_repeated_username_and_email()
     {
+        $faker = FakerFactory::create();
+        $faker->addProvider(new class($faker) extends Base {
+            private array $usernames = ['taken', 'taken', 'free'];
+            private array $emails = ['taken@example.com', 'taken@example.com', 'free@example.com'];
+
+            public function userName(): string
+            {
+                return array_shift($this->usernames);
+            }
+
+            public function safeEmail(): string
+            {
+                return array_shift($this->emails);
+            }
+        });
+
+        $this->extend(new class($faker) implements ExtenderInterface {
+            public function __construct(private Generator $faker)
+            {
+            }
+
+            public function extend(Container $container, ?Extension $extension = null): void
+            {
+                $container->instance(Generator::class, $this->faker);
+            }
+        });
+
         $this->prepareDatabase([
-            User::class => array_map(fn (int $id) => ['id' => $id], range(100, 1099)),
+            User::class => [['id' => 100], ['id' => 101]],
         ]);
 
-        $users = $this->database()->table('users')->where('id', '>=', 100);
+        $users = $this->database()->table('users')->whereIn('id', [100, 101])->orderBy('id');
 
-        $this->assertEquals(1000, $users->count());
-        $this->assertEquals(1000, $users->distinct()->count('username'));
-        $this->assertEquals(1000, $users->distinct()->count('email'));
+        $this->assertEquals(['taken', 'free'], $users->pluck('username')->all());
+        $this->assertEquals(['taken@example.com', 'free@example.com'], $users->pluck('email')->all());
     }
 }
