@@ -16,7 +16,7 @@ use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\Server\Repository\AuthCodeRepository;
 use Flarum\OAuthProvider\Server\Repository\RefreshTokenRepository;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -54,7 +54,7 @@ class TokenFamilyTest extends TestCase
 
     protected function accessTokenRow(string $jwt): AccessToken
     {
-        return AccessToken::query()->findOrFail($this->jwtClaims($jwt)['jti']);
+        return AccessToken::query()->findOrFail($this->oauthJwtClaims($jwt)['jti']);
     }
 
     protected function assertFamilyRevoked(string $accessToken): void
@@ -108,27 +108,27 @@ class TokenFamilyTest extends TestCase
 
         $this->assertSame(200, $first->getStatusCode(), (string) $first->getBody());
         $this->assertSame(400, $second->getStatusCode(), 'The second exchange of one code must fail: '.$second->getBody());
-        $this->assertSame('invalid_grant', $this->json($second)['error']);
+        $this->assertSame('invalid_grant', $this->oauthJson($second)['error']);
         $this->assertSame(1, AccessToken::query()->count(), 'Only one exchange may issue tokens');
 
         // The code was presented twice: what it was exchanged for is revoked.
-        $this->assertFamilyRevoked($this->json($first)['access_token']);
+        $this->assertFamilyRevoked($this->oauthJson($first)['access_token']);
     }
 
     #[Test]
     public function a_replayed_code_revokes_the_tokens_issued_from_it(): void
     {
         $code = $this->publicClientCode('public-client');
-        $issued = $this->json($this->exchangeCode('public-client', $code));
+        $issued = $this->oauthJson($this->exchangeCode('public-client', $code));
         $refreshed = $this->refresh('public-client', $issued['refresh_token']);
         $this->assertSame(200, $refreshed->getStatusCode(), (string) $refreshed->getBody());
-        $current = $this->json($refreshed);
+        $current = $this->oauthJson($refreshed);
         $unrelated = $this->publicClientTokens('public-client');
 
         $replay = $this->exchangeCode('public-client', $code);
 
         $this->assertSame(400, $replay->getStatusCode());
-        $this->assertSame('invalid_grant', $this->json($replay)['error']);
+        $this->assertSame('invalid_grant', $this->oauthJson($replay)['error']);
         $this->assertFamilyRevoked($issued['access_token']);
         $this->assertFamilyRevoked($current['access_token']);
         $this->assertFalse($this->accessTokenRow($unrelated['access_token'])->revoked, 'Tokens from another authorization are left alone');
@@ -145,8 +145,8 @@ class TokenFamilyTest extends TestCase
 
         $this->assertSame(200, $first->getStatusCode(), (string) $first->getBody());
         $this->assertSame(400, $second->getStatusCode(), 'The second refresh with one token must fail: '.$second->getBody());
-        $this->assertSame('invalid_grant', $this->json($second)['error']);
-        $this->assertFamilyRevoked($this->json($first)['access_token']);
+        $this->assertSame('invalid_grant', $this->oauthJson($second)['error']);
+        $this->assertFamilyRevoked($this->oauthJson($first)['access_token']);
     }
 
     #[Test]
@@ -224,7 +224,7 @@ class TokenFamilyTest extends TestCase
 
         $this->assertSame(200, $this->refresh('public-client', $reused['refresh_token'])->getStatusCode());
         $reuse = $this->refresh('public-client', $reused['refresh_token']);
-        $this->assertSame('invalid_grant', $this->json($reuse)['error']);
+        $this->assertSame('invalid_grant', $this->oauthJson($reuse)['error']);
 
         $this->assertFalse($this->accessTokenRow($otherSession['access_token'])->revoked, 'Another sign-in of the same user and client must survive');
         $this->assertSame(200, $this->refresh('public-client', $otherSession['refresh_token'])->getStatusCode());
@@ -256,25 +256,25 @@ class TokenFamilyTest extends TestCase
     public function a_replayed_code_or_refresh_token_is_still_told_it_was_used(): void
     {
         $code = $this->publicClientCode('public-client');
-        $tokens = $this->json($this->exchangeCode('public-client', $code));
+        $tokens = $this->oauthJson($this->exchangeCode('public-client', $code));
 
         $replayedCode = $this->exchangeCode('public-client', $code);
         $this->assertSame(400, $replayedCode->getStatusCode());
-        $this->assertStringContainsString('already been used', $this->json($replayedCode)['hint']);
+        $this->assertStringContainsString('already been used', $this->oauthJson($replayedCode)['hint']);
 
         $fresh = $this->publicClientTokens('public-client');
         $this->assertSame(200, $this->refresh('public-client', $fresh['refresh_token'])->getStatusCode());
 
         $reused = $this->refresh('public-client', $fresh['refresh_token']);
         $this->assertSame(400, $reused->getStatusCode());
-        $this->assertStringContainsString('already been used', $this->json($reused)['hint']);
+        $this->assertStringContainsString('already been used', $this->oauthJson($reused)['hint']);
         $this->assertArrayHasKey('access_token', $tokens);
     }
 
     protected function assertGrantRevoked(ResponseInterface $response): void
     {
         $this->assertSame(400, $response->getStatusCode(), (string) $response->getBody());
-        $this->assertSame('invalid_grant', $this->json($response)['error']);
-        $this->assertSame('This grant has been revoked.', $this->json($response)['hint']);
+        $this->assertSame('invalid_grant', $this->oauthJson($response)['error']);
+        $this->assertSame('This grant has been revoked.', $this->oauthJson($response)['hint']);
     }
 }

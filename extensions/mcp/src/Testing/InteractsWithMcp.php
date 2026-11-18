@@ -7,11 +7,9 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Mcp\Tests\integration;
+namespace Flarum\Mcp\Testing;
 
 use Carbon\Carbon;
-use Flarum\Testing\integration\RetrievesAuthorizedUsers;
-use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Str;
 use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\StreamFactory;
@@ -20,11 +18,11 @@ use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Drives /mcp with real JSON-RPC bodies, in either protocol era.
+ *
+ * @phpstan-require-extends \Flarum\Testing\integration\TestCase
  */
-abstract class McpTestCase extends TestCase
+trait InteractsWithMcp
 {
-    use RetrievesAuthorizedUsers;
-
     public const string MODERN = '2026-07-28';
     public const string HANDSHAKE = '2025-11-25';
 
@@ -36,10 +34,8 @@ abstract class McpTestCase extends TestCase
      */
     protected ?string $remoteAddress = null;
 
-    protected function setUp(): void
+    protected function setUpMcp(): void
     {
-        parent::setUp();
-
         $this->extension('flarum-oauth-provider', 'flarum-mcp');
     }
 
@@ -170,7 +166,7 @@ abstract class McpTestCase extends TestCase
      */
     protected function rpcResult(ResponseInterface $response): array
     {
-        $body = $this->json($response);
+        $body = $this->mcpJson($response);
 
         $this->assertSame(200, $response->getStatusCode(), (string) json_encode($body));
         $this->assertArrayHasKey('result', $body, (string) json_encode($body));
@@ -211,7 +207,7 @@ abstract class McpTestCase extends TestCase
     /**
      * @return array<string, mixed>
      */
-    protected function json(ResponseInterface $response): array
+    protected function mcpJson(ResponseInterface $response): array
     {
         return (array) json_decode((string) $response->getBody(), true);
     }

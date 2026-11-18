@@ -11,10 +11,10 @@ namespace Flarum\Mcp\Tests\integration\auth;
 
 use Flarum\Group\Group;
 use Flarum\Mcp\Extend\Mcp;
-use Flarum\Mcp\Tests\integration\extend\Fixtures\MislabelledTool;
-use Flarum\Mcp\Tests\integration\extend\Fixtures\UndeclaredTool;
-use Flarum\Mcp\Tests\integration\IssuesOAuthTokens;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\Fixtures\Extend\MislabelledTool;
+use Flarum\Mcp\Testing\Fixtures\Extend\UndeclaredTool;
+use Flarum\Mcp\Testing\IssuesOAuthTokens;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 

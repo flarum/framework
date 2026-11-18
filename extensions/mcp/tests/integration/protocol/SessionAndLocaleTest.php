@@ -13,7 +13,7 @@ use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\Paths;
 use Flarum\Locale\LocaleManager;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use PHPUnit\Framework\Attributes\Test;

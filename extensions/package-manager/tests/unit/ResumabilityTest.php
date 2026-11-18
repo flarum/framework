@@ -11,7 +11,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**

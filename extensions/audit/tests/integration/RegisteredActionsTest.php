@@ -10,6 +10,7 @@
 namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Audit\AuditLogger;
+use Flarum\Audit\Testing\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 /**

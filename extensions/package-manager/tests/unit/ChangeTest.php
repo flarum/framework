@@ -10,7 +10,7 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Plan\Change;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

@@ -10,11 +10,13 @@
 namespace Flarum\OAuthProvider\Tests\integration;
 
 use Flarum\Audit\AuditLog;
-use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
+use Flarum\Audit\Testing\BuildsAuditRequests;
+use Flarum\Audit\Testing\InteractsWithAuditLog;
 use Flarum\Extend;
 use Flarum\Http\AccessToken as SessionToken;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\Models\Consent;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\PasswordToken;
@@ -30,13 +32,24 @@ class AuditTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
     use InteractsWithAuditLog;
+    use BuildsAuditRequests;
     use InteractsWithOAuth;
+
+    protected function tearDown(): void
+    {
+        try {
+            parent::tearDown();
+        } finally {
+            $this->tearDownAuditLog();
+        }
+    }
 
     public function setUp(): void
     {
         parent::setUp();
 
         $this->setUpAuditLog();
+        $this->exemptAuditAuthRoutesFromCsrf();
 
         $this->extend(
             (new Extend\Csrf())
@@ -262,7 +275,7 @@ class AuditTest extends TestCase
                 'redirectUris' => ['https://new.example.com/callback'],
             ]]],
         ], 201);
-        $id = $this->json($response)['data']['id'];
+        $id = $this->oauthJson($response)['data']['id'];
 
         $this->assertLogExists('oauth_client.created', ['client_id' => $id, 'client' => 'New site']);
 

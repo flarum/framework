@@ -10,6 +10,7 @@
 namespace Flarum\Mcp\Tests\integration;
 
 use Flarum\Foundation\Application;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 

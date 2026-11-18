@@ -10,7 +10,7 @@
 namespace Flarum\Approval\Tests\integration\api;
 
 use Carbon\Carbon;
-use Flarum\Approval\Tests\integration\InteractsWithUnapprovedContent;
+use Flarum\Approval\Testing\InteractsWithUnapprovedContent;
 use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Post\Post;

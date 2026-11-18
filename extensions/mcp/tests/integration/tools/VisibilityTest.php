@@ -10,7 +10,7 @@
 namespace Flarum\Mcp\Tests\integration\tools;
 
 use Flarum\Discussion\Discussion;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
@@ -95,7 +95,7 @@ class VisibilityTest extends McpTestCase
         $read = $this->toolOutput($this->callTool('read_discussion', ['id' => '2'], $auth), expectError: true);
         $this->assertSame('Not found.', $read['error']);
 
-        $resource = $this->json($this->modern('resources/read', ['uri' => 'flarum://discussions/2'], $auth, 'flarum://discussions/2'));
+        $resource = $this->mcpJson($this->modern('resources/read', ['uri' => 'flarum://discussions/2'], $auth, 'flarum://discussions/2'));
         $this->assertSame(-32602, $resource['error']['code']);
     }
 

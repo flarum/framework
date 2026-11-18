@@ -9,7 +9,7 @@
 
 namespace Flarum\Mcp\Tests\integration\api;
 
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -33,7 +33,7 @@ class CapabilitiesTest extends McpTestCase
 
         $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
 
-        $capabilities = array_column($this->json($response)['data'], 'attributes', 'id');
+        $capabilities = array_column($this->mcpJson($response)['data'], 'attributes', 'id');
 
         $this->assertSame('tool', $capabilities['tool:search_discussions']['kind']);
         $this->assertTrue($capabilities['tool:search_discussions']['readOnly']);

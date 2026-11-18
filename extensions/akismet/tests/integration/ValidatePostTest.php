@@ -10,7 +10,7 @@
 namespace Flarum\Akismet\Tests\integration;
 
 use Carbon\Carbon;
-use Flarum\Akismet\Tests\fixtures\FakeAkismetProvider;
+use Flarum\Akismet\Testing\FakeAkismetProvider;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Post\Post;
